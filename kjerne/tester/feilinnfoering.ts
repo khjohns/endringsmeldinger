@@ -6,7 +6,7 @@
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
- * F132–F134 LV-U5 (#414) og F135–F141 MM-U20 (#405) og VS-U15 (#411). Én mutasjon
+ * F132–F134 LV-U5 (#414) og F135–F145 MM-U20 (#405) og VS-U15 (#411). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -1506,7 +1506,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '      if (dato === undefined)\n        return `TE varsler etter',
-        '      if (dato === undefined && false)\n        return `TE varsler etter',
+        "      if (dato === undefined)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `TE varsler etter",
       ],
     ],
     mal: ['med teksten i VS-U15', 'F-VS-U15a'],
@@ -1547,6 +1547,40 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-VS-U15a'],
+  },
+  {
+    id: 'F142',
+    feilklasse: 'en registrert aksept i et trukket spor leses med virkning (MM-U19, MM-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "        grunn: 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',",
+        "        grunn: 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',\n        bareUregistrert: true,",
+      ],
+    ],
+    mal: ['F-MM-U20e'],
+  },
+  {
+    id: 'F143',
+    feilklasse:
+      'et registrert svar med sammenfall i et trukket spor leses med virkning (MM-U19, MM-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['...(s.beslutningsgrunnlag.sammenfall ? {}', '...(false ? {}']],
+    mal: ['F-MM-U20f', 'F-MM-U20h'],
+  },
+  {
+    id: 'F144',
+    feilklasse: 'et registrert svar uten sammenfall i et trukket spor blir uten virkning (MM-U19)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['...(s.beslutningsgrunnlag.sammenfall ? {}', '...(true ? {}']],
+    mal: ['F-MM-U20g', 'F-MM-U20i'],
+  },
+  {
+    id: 'F145',
+    feilklasse: 'et varsel fra appen godtas etter at fristkravet er sendt (#411, 12.10)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['      return u.spor.frist.krav.length\n', '      return false\n']],
+    mal: ['F-VS-U15c'],
   },
 ];
 
