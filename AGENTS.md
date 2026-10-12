@@ -327,6 +327,11 @@ under «Åpne spørsmål» i PR-beskrivelsen. `/simplify` kjøres når oppdragsg
 ber om det eller godkjenner orkestratorens forslag, og da før `/code-review`,
 slik at reviewet ser den endelige koden.
 
+**Grensene for kontekst i
+[orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#kontekst-i-arbeidsøktene)
+gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert
+(oppdragsgiver 12.10, #425).
+
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med
 spørsmålsverktøyet (i Claude Code: `AskUserQuestion`), med alternativer og en
