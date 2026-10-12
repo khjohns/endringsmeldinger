@@ -217,6 +217,27 @@ describe('vaktvalget fra settings.json', () => {
     }
   });
 
+  it('stopper skriving i et nøstet repo i kjerne/ og kommandoene som lager det', () => {
+    const nostet = path.join(rot, 'kjerne', 'x');
+    mkdirSync(nostet, { recursive: true });
+    execFileSync('git', ['init', '-q', nostet]);
+    try {
+      const svar = etterAgent({
+        tool_name: 'Write',
+        tool_input: { file_path: path.join(nostet, 'a.ts') },
+        cwd: rot,
+        agent_type: 'mekanisk-pr',
+      });
+      expect(svar.status).toBe(2);
+      for (const command of ['git init -q kjerne/y', 'git clone /tmp/r kjerne/v']) {
+        const bash = { tool_name: 'Bash', tool_input: { command }, cwd: rot };
+        expect(etterAgent({ ...bash, agent_type: 'mekanisk-pr' }).status, command).toBe(2);
+      }
+    } finally {
+      rmSync(nostet, { recursive: true, force: true });
+    }
+  });
+
   it('stopper kjerne/ i et arbeidstre inne i hovedkopien, også når cwd er hovedkopien', () => {
     const tre = path.join(rot, '.claude', 'worktrees', 'agent-2');
     mkdirSync(path.dirname(tre), { recursive: true });
