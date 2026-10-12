@@ -623,6 +623,29 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
+  it('stopper gh api med spørrestreng eller prosentkoding som skjuler endepunktet', () => {
+    for (const kommando of [
+      "gh api -X POST 'repos/o/r/merges?x=/pulls' -f base=main -f head=claude/x",
+      "gh api -X PUT 'repos/o/r/pulls/5/%6Derge?x=/pulls'",
+      'gh api -X POST repos/o/r/merges/pulls -f base=main',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper push når .husky har endringer som ikke er committet', () => {
+    mkdirSync(path.join(rot, '.husky'));
+    writeFileSync(path.join(rot, '.husky', 'pre-push'), 'x\n');
+    try {
+      const push = bash('git push -u origin claude/test-1');
+      expect(push.status).toBe(2);
+      expect(push.stderr).toContain('.husky/pre-push');
+    } finally {
+      rmSync(path.join(rot, '.husky'), { recursive: true, force: true });
+    }
+    expect(bash('git push -u origin claude/test-1').status).toBe(0);
+  });
+
   it('stopper push til main, av en annen gren og med force', () => {
     for (const kommando of [
       'git push origin HEAD:main',
