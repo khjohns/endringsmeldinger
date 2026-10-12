@@ -7,8 +7,8 @@
  * skrives.
  */
 
-import { DATO, ID, KRAVINNHOLD, liste, objekt, OPPLYSNINGSSLAG } from '../format/format.ts';
-import { erObjekt, feilI, type Skjema } from '../format/skjema.ts';
+import { DATO, ID, KRAVINNHOLD, liste, objekt, OPPLYSNINGSSLAG, TEKST } from '../format/format.ts';
+import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
 import type { Svarvurdering } from '../frosset/standpunkt.ts';
 import { KRAVSPOR, SPOR as SPORENE, type Kravspor, type Opplysning, type Spor } from '../typer.ts';
 
@@ -20,10 +20,33 @@ export interface Svarutkast {
   vurderinger: Svarvurdering;
   /** Klientens utregning, som serveren regner på nytt (B-13). */
   resultat: Record<string, unknown>;
+  /** Byggherrens utdypning under den låste teksten, også begrunnelsen (KA-U18, KA-U24). Appen tolker den ikke (KA-U19). */
+  utdypning?: string;
 }
 
-export type Kommando =
-  | { type: 'krav'; spor: Spor; innhold: Record<string, unknown>; varsel?: { sendt: string } }
+/**
+ * Den låste teksten klienten viste avsenderen, ett avsnitt per element i
+ * rekkefølgen i brevet (LV-U2, A1 i paragrafmatrisen). Serveren lager teksten
+ * selv og avviser en annen. Påkrevd i hver kommando som gir et brev fra appen;
+ * et registrert brev har ingen tekst fra appen (MM-U17).
+ */
+interface Brevtekst {
+  brevtekst?: string[];
+}
+
+export type Kommando = (
+  | {
+      type: 'krav';
+      spor: Spor;
+      innhold: Record<string, unknown>;
+      varsel?: { sendt: string };
+      /**
+       * TEs utdypning under den låste teksten: beskrivelsen av forholdet i
+       * grunnlaget (GR-U15), begrunnelsen i fristkravet (KA-U33). Appen tolker den
+       * ikke (KA-U19).
+       */
+      utdypning?: string;
+    }
   | { type: 'brev'; svar: Svarutkast[] }
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast }
   | {
@@ -46,7 +69,9 @@ export type Kommando =
   /** KA-U20: en senere merking av et registrert brev med noe appen ikke kan uttrykke. */
   | { type: 'merking'; gjelder: string; spor: Spor[] }
   /** KA-U20: den som sendte brevet, sier at standpunktene gjelder uten forbehold. */
-  | { type: 'avklaring'; gjelder: string };
+  | { type: 'avklaring'; gjelder: string }
+) &
+  Brevtekst;
 
 const SPOR = { enum: [...SPORENE] };
 const SVARUTKAST = objekt(
@@ -56,12 +81,15 @@ const SVARUTKAST = objekt(
     regelversjon: { type: 'integer' },
     vurderinger: { type: 'object' },
     resultat: { type: 'object' },
+    utdypning: TEKST,
   },
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
 
+const BREVTEKST = { brevtekst: liste(TEKST) };
+
 const henvisning = (type: string) =>
-  objekt({ type: { const: type }, gjelder: ID }, ['type', 'gjelder']);
+  objekt({ type: { const: type }, gjelder: ID, ...BREVTEKST }, ['type', 'gjelder']);
 
 const SKJEMA: Record<Kommando['type'], Skjema> = {
   krav: objekt(
@@ -70,14 +98,16 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: SPOR,
       innhold: { type: 'object' },
       varsel: objekt({ sendt: DATO }, ['sendt']),
+      utdypning: TEKST,
+      ...BREVTEKST,
     },
     ['type', 'spor', 'innhold']
   ),
-  brev: objekt({ type: { const: 'brev' }, svar: { type: 'array', items: SVARUTKAST } }, [
-    'type',
-    'svar',
-  ]),
-  revisjon: objekt({ type: { const: 'revisjon' }, erstatter: ID, svar: SVARUTKAST }, [
+  brev: objekt(
+    { type: { const: 'brev' }, svar: { type: 'array', items: SVARUTKAST }, ...BREVTEKST },
+    ['type', 'svar']
+  ),
+  revisjon: objekt({ type: { const: 'revisjon' }, erstatter: ID, svar: SVARUTKAST, ...BREVTEKST }, [
     'type',
     'erstatter',
     'svar',
@@ -88,10 +118,11 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: SPOR,
       svar: ID,
       regelversjon: { type: 'integer' },
+      ...BREVTEKST,
     },
     ['type', 'spor', 'svar', 'regelversjon']
   ),
-  trekk: objekt({ type: { const: 'trekk' }, spor: SPOR }, ['type', 'spor']),
+  trekk: objekt({ type: { const: 'trekk' }, spor: SPOR, ...BREVTEKST }, ['type', 'spor']),
   varsel: objekt(
     {
       type: { const: 'varsel' },
@@ -107,18 +138,19 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       type: { const: 'bestridelse' },
       gjelder: ID,
       hva: { enum: [...OPPLYSNINGSSLAG] },
+      ...BREVTEKST,
     },
     ['type', 'gjelder', 'hva']
   ),
-  ingen_krav: objekt({ type: { const: 'ingen_krav' }, spor: { enum: [...KRAVSPOR] } }, [
-    'type',
-    'spor',
-  ]),
+  ingen_krav: objekt(
+    { type: { const: 'ingen_krav' }, spor: { enum: [...KRAVSPOR] }, ...BREVTEKST },
+    ['type', 'spor']
+  ),
   innsigelse: henvisning('innsigelse'),
   protest: henvisning('protest'),
   passivitet: henvisning('passivitet'),
   merking: objekt(
-    { type: { const: 'merking' }, gjelder: ID, spor: liste({ enum: [...SPORENE] }) },
+    { type: { const: 'merking' }, gjelder: ID, spor: liste({ enum: [...SPORENE] }), ...BREVTEKST },
     ['type', 'gjelder', 'spor']
   ),
   avklaring: henvisning('avklaring'),
@@ -138,6 +170,12 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }
+  // Datoen står i brevteksten og må være en dato (LV-U4 punkt 3).
+  const sendt =
+    (kommando as { varsel?: { sendt?: unknown }; sendt?: unknown }).varsel?.sendt ??
+    (kommando as { sendt?: unknown }).sendt;
+  if (!feil.length && sendt !== undefined && !erKalenderdato(sendt))
+    feil.push(`$.sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
   if (type === 'brev' && !feil.length) {
     const spor = (kommando as { svar: Svarutkast[] }).svar.map((s) => s.spor);
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');

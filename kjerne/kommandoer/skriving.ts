@@ -10,7 +10,9 @@ import { avvisning } from './avvisning.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys, grunnlagsstandpunkter } from '../frosset/frysing.ts';
-import { lesJournal, Uforstaatt } from '../format/leser.ts';
+import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
+import { avvis } from './forutsetninger.ts';
+import { erRegistrert, lesJournal, Uforstaatt } from '../format/leser.ts';
 import { harUlagringsbarTekst } from '../format/skjema.ts';
 import {
   innsigelsenErOppgitt,
@@ -20,6 +22,7 @@ import {
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
 import type {
+  Avsnitt,
   Avvisning,
   Beslutningsgrunnlag,
   Journalrad,
@@ -93,16 +96,22 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
   return ut;
 }
 
+/** Partens utdypning per element i brevet, til brevteksten (B-13 om begrunnelsestekst). */
+type Utdypninger = Map<string, string>;
+
 function svar(
   s: Svarutkast,
   u: Utledning,
   kjerne: Kjerne,
   nyId: () => string,
+  utdypninger: Utdypninger,
   erstatter?: string
 ): Data {
   const krav = u.spor[s.spor].gjeldendeKrav!;
+  const id = nyId();
+  if (s.utdypning !== undefined) utdypninger.set(id, s.utdypning);
   const e: Data = {
-    id: nyId(),
+    id,
     spor: s.spor,
     gjelder: s.gjelder,
     ...(erstatter ? { erstatter } : {}),
@@ -125,14 +134,20 @@ function svar(
 }
 
 /** Innholdet i dokumentet kommandoen gir. */
-function dokument(k: Kommando, u: Utledning, kjerne: Kjerne, nyId: () => string): Data {
+function dokument(
+  k: Kommando,
+  u: Utledning,
+  kjerne: Kjerne,
+  nyId: () => string,
+  utdypninger: Utdypninger
+): Data {
   switch (k.type) {
     case 'krav': {
       const forrige = u.spor[k.spor].gjeldendeKrav;
+      const id = nyId();
+      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
       const data: Data = {
-        krav: [
-          { id: nyId(), spor: k.spor, ...(forrige ? { erstatter: forrige.id } : {}), ...k.innhold },
-        ],
+        krav: [{ id, spor: k.spor, ...(forrige ? { erstatter: forrige.id } : {}), ...k.innhold }],
       };
       // MM-U1: et varsel i kravet registreres første gang det kommer.
       // HF-U1: datoen gjelder varselet, ikke kravet, som er sendt i appen.
@@ -144,9 +159,9 @@ function dokument(k: Kommando, u: Utledning, kjerne: Kjerne, nyId: () => string)
       return data;
     }
     case 'brev':
-      return { svar: k.svar.map((s) => svar(s, u, kjerne, nyId)) };
+      return { svar: k.svar.map((s) => svar(s, u, kjerne, nyId, utdypninger)) };
     case 'revisjon':
-      return { svar: [svar(k.svar, u, kjerne, nyId, k.erstatter)] };
+      return { svar: [svar(k.svar, u, kjerne, nyId, utdypninger, k.erstatter)] };
     case 'aksept':
       // KA-U10: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
       return {
@@ -177,11 +192,44 @@ function dokument(k: Kommando, u: Utledning, kjerne: Kjerne, nyId: () => string)
   }
 }
 
+/**
+ * Kommandoen vurdert og skrevet som en rad, uten å lagre den. Den låste teksten
+ * kommandoen bærer, må være den serveren lager (LV-U2, A1 i paragrafmatrisen).
+ */
 export function vurder(
   kommando: unknown,
   kontekst: Kontekst,
   journal: Journalrad[],
   kjerne: Kjerne
+): Utfall {
+  return skriv(kommando, kontekst, journal, kjerne, true);
+}
+
+/**
+ * Det klienten viser avsenderen før brevet sendes: raden kommandoen ville gitt,
+ * med brevteksten, uten kontrollen av teksten kommandoen bærer og uten kravet til
+ * begrunnelse og beskrivelse, som ikke endrer den låste teksten. Klienten sender
+ * den låste teksten herfra med kommandoen (A1).
+ */
+export function forhaandsvis(
+  kommando: unknown,
+  kontekst: Kontekst,
+  journal: Journalrad[],
+  kjerne: Kjerne
+): Utfall {
+  return skriv(kommando, kontekst, journal, kjerne, false);
+}
+
+/** Den låste teksten i en rad, slik kommandoen bærer den (A1). `null` for et registrert brev. */
+export const laastTekst = (rad: Journalrad): string[] | null =>
+  ((rad.data.brevtekst ?? null) as Avsnitt[] | null)?.map((a) => a.laast) ?? null;
+
+function skriv(
+  kommando: unknown,
+  kontekst: Kontekst,
+  journal: Journalrad[],
+  kjerne: Kjerne,
+  sendes: boolean
 ): Utfall {
   // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
   if (harUlagringsbarTekst(kommando))
@@ -203,13 +251,14 @@ export function vurder(
   const k = kommando as Kommando;
   const lest = lesJournal(journal, kjerne.leserformat);
   const u = utled(lest, kjerne.regler);
-  const brudd = avvisning(k, kontekst.part, u, kjerne.regler);
+  const brudd = avvisning(k, kontekst.part, u, kjerne.regler, sendes);
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
 
   const eventId = kontekst.nyId();
+  const utdypninger: Utdypninger = new Map();
   let data: Data;
   try {
-    data = dokument(k, u, kjerne, kontekst.nyId);
+    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger);
   } catch (feil) {
     // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
     if (feil instanceof Uforstaatt)
@@ -229,6 +278,23 @@ export function vurder(
     format: kjerne.format,
     data,
   };
+  let brevtekst: Avsnitt[] | null;
+  try {
+    brevtekst = brevtekstFor(rad, lest, u, kjerne, utdypninger);
+  } catch (feil) {
+    if (feil instanceof BrevetAvvises)
+      return {
+        godtatt: false,
+        feil: 'REGELBRUDD',
+        avvisning: { regel: feil.regel, melding: feil.message },
+      };
+    throw feil;
+  }
+  if (brevtekst) data.brevtekst = brevtekst;
+  if (sendes) {
+    const avvik = tekstavvik(k.brevtekst, brevtekst);
+    if (avvik) return { godtatt: false, feil: 'REGELBRUDD', avvisning: avvik };
+  }
   // Kjernen må forstå det den selv skriver (MM-U2, 7.1.2 i designnotatet). Hver rad leses
   // for seg, så bare den nye leses; hele journalen utledes på nytt med den.
   const etter = utled([...lest, ...lesJournal([rad], kjerne.leserformat)], kjerne.regler);
@@ -237,6 +303,72 @@ export function vurder(
       `Kjernen forstår ikke dokumentet den selv skriver: ${etter.begrensninger.map((b) => b.grunn).join('; ')}`
     );
   return { godtatt: true, hendelser: [rad] };
+}
+
+/**
+ * A1 i paragrafmatrisen (LV-U2, B-13 om regelversjon): teksten avsenderen
+ * godkjente, er den som fryses. Kommandoen bærer de låste avsnittene klienten
+ * viste, og de må være like dem serveren lager, i samme rekkefølge. Mangler
+ * teksten, avvises kommandoen; kontrollen er ikke fail-open.
+ */
+function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisning | null {
+  if (laget === null)
+    return vist === undefined
+      ? null
+      : avvis('ANNEN_BREVTEKST', 'Et registrert brev har ingen tekst fra appen (MM-U17).');
+  if (vist === undefined)
+    return avvis(
+      'BREVTEKST_MANGLER',
+      'Kommandoen må ha den låste teksten avsenderen har sett og godkjent (LV-U2).'
+    );
+  const laast = laget.map((a) => a.laast);
+  return laast.length === vist.length && laast.every((t, i) => t === vist[i])
+    ? null
+    : avvis(
+        'ANNEN_BREVTEKST',
+        'Teksten avsenderen har sett, er ikke den serveren lager. Last inn saken på nytt, og last inn appen på nytt om den er oppdatert.'
+      );
+}
+
+/**
+ * LV-U2, LV-U3: teksten i brevet appen sender, laget av alle partens utsagn i det.
+ * Et registrert brev, som et varsel sendt utenfor appen, får ingen (MM-U17).
+ * Grunnlagssvaret og om sporene er subsidiære, leses av utledningen før brevet og
+ * kommer som argumenter, så `frosset/` ikke når utledningen (A6).
+ */
+function brevtekstFor(
+  rad: Journalrad,
+  lest: ReturnType<typeof lesJournal>,
+  u: Utledning,
+  kjerne: Kjerne,
+  utdypninger: Utdypninger
+): Avsnitt[] | null {
+  const [ny] = lesJournal([rad], kjerne.leserformat);
+  if (ny.art !== 'dokument')
+    throw new Skrivefeil(
+      `Kjernen forstår ikke dokumentet den selv skriver: ${ny.art === 'ukjent' ? ny.grunn : ny.art}`
+    );
+  if (erRegistrert(ny.dokument.opplysninger)) return null;
+  const sak = lest.find((h) => h.art === 'sak');
+  if (sak?.art !== 'sak') throw new Skrivefeil('Saken har ingen tittel å sette i brevteksten.');
+  try {
+    return lagBrevtekst(
+      ny.dokument,
+      lest,
+      {
+        saksnummer: rad.sak_id,
+        tittel: sak.tittel,
+        grunnlagssvar: u.spor.grunnlag.gjeldendeSvar?.id ?? null,
+        subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
+      },
+      kjerne.regler,
+      utdypninger
+    );
+  } catch (feil) {
+    if (feil instanceof KanIkkeUttrykkes)
+      throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);
+    throw feil;
+  }
 }
 
 /**

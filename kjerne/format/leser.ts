@@ -24,6 +24,7 @@ import {
 } from './format.ts';
 import { erObjekt, feilI, type Skjema } from './skjema.ts';
 import type {
+  Avsnitt,
   Beslutningsgrunnlag,
   Dokument,
   Domenehendelse,
@@ -267,6 +268,7 @@ function lesDokument(h: Journalrad): Dokument {
     utsagn?: unknown[];
     opplysninger?: Data[];
     dokumentasjon?: string[];
+    brevtekst?: Avsnitt[];
   };
   const avklaring = (data.opplysninger ?? []).some(
     (o) => erObjekt(o) && typeof o.hva === 'string' && omBrevet(o.hva) && 'gjelder' in o
@@ -349,6 +351,7 @@ function lesDokument(h: Journalrad): Dokument {
       };
     }),
     svar: (data.svar ?? []).map((v, i) => lesSvar(v, id, `$.svar[${i}]`)),
+    brevtekst: data.brevtekst ?? null,
     utsagn: (data.utsagn ?? []).map((v, i): Utsagn => {
       const e = element(v, UTSAGN, 'art', `$.utsagn[${i}]`);
       const art = e.art as Utsagnsart;
@@ -367,6 +370,25 @@ function lesDokument(h: Journalrad): Dokument {
       !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)
     )
       throw new Uforstaatt('opplysningen gjelder ikke et varsel i dokumentet');
+  if (data.brevtekst) {
+    // MM-U17: et registrert brev står som det ble sendt og har ingen tekst fra appen.
+    if (erRegistrert(dokument.opplysninger))
+      throw new Uforstaatt('et registrert brev har brevtekst fra appen');
+    // HF-U1: hvert avsnitt uttrykker ett element i samme brev, eller vedleggene i det (A4).
+    const elementer = new Set<string>([
+      ...(dokument.dokumentasjon.length ? [id] : []),
+      ...dokument.krav.map((k) => k.id),
+      ...dokument.svar.map((x) => x.id),
+      ...dokument.utsagn.map((u) => u.id),
+      ...dokument.opplysninger.map((o) => o.id),
+    ]);
+    const sett = new Set<string>();
+    for (const a of data.brevtekst) {
+      if (!elementer.has(a.gjelder) || sett.has(a.gjelder))
+        throw new Uforstaatt('et avsnitt i brevteksten gjelder ikke ett element i brevet');
+      sett.add(a.gjelder);
+    }
+  }
   return dokument;
 }
 
@@ -383,7 +405,7 @@ export function lesJournal(journal: Journalrad[], format: number): Domenehendels
     try {
       if (h.event_type === 'sak_opprettet') {
         kontroller(h.data, SAK_OPPRETTET, '$');
-        return { ...felles, art: 'sak' };
+        return { ...felles, art: 'sak', tittel: h.data.sakstittel as string };
       }
       if (h.event_type === 'dokument_registrert')
         return { ...felles, art: 'dokument', dokument: lesDokument(h) };

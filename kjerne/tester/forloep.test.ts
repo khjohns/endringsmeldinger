@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { minnebane } from './bane.ts';
-import { avvikFraFormatet } from './formatprove.ts';
+import { avvikFraFormatet, utenAvsnitt } from './formatprove.ts';
 import { kjoer, MAALMODELL } from './kjoerer.ts';
 
 describe('forløp A–E i minnet', () => {
@@ -17,5 +17,7 @@ describe('forløp A–E i minnet', () => {
     // 7.1.2: hver rad kjernen skrev, har formen i format 1.
     const skrevet = (await bane.journal()).filter((r) => k.skrevet.includes(r.event_id));
     expect(skrevet.flatMap(avvikFraFormatet)).toEqual([]);
+    // LV-U3: hvert utsagn i et brev appen sendte, står i brevteksten.
+    expect(skrevet.flatMap(utenAvsnitt)).toEqual([]);
   });
 });

@@ -60,7 +60,7 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
 };
 
 export const ID: Skjema = { type: 'string', minLength: 1 };
-const TEKST: Skjema = { type: 'string', minLength: 1 };
+export const TEKST: Skjema = { type: 'string', minLength: 1 };
 export const DATO: Skjema = { type: 'string', minLength: 10 };
 export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
 
@@ -72,15 +72,38 @@ export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[])
   ...(anyOf ? { anyOf } : {}),
 });
 
-/** Hovedkategorien og underkategorien er et par fra `KATEGORIER` (#335, HF-U1). */
-const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.filter((h) => KATEGORIER[h].length).map((h) => ({
-  properties: { hovedkategori: { const: h }, underkategori: { enum: [...KATEGORIER[h]] } },
-}));
+/**
+ * Hovedkategorien og underkategorien er et par fra `KATEGORIER` (#335, HF-U1).
+ * Underkategorien endringsordre har endringsordrens dato eller nummer, som TE
+ * oppgir (GR-U16); de andre har det ikke.
+ */
+const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.flatMap((h) => {
+  const under: readonly string[] = KATEGORIER[h];
+  const andre = under.filter((u) => u !== 'endringsordre');
+  const par: Skjema[] = [];
+  if (andre.length)
+    par.push({
+      properties: {
+        hovedkategori: { const: h },
+        underkategori: { enum: andre },
+        // Ingen verdi passer, så feltet finnes ikke i de andre underkategoriene.
+        endringsordre: { enum: [] },
+      },
+    });
+  if (under.includes('endringsordre'))
+    par.push({
+      properties: { hovedkategori: { const: h }, underkategori: { const: 'endringsordre' } },
+      required: ['endringsordre'],
+    });
+  return par;
+});
 
 /**
  * Innholdet i en kravversjon per spor, uten `id`, `spor` og `erstatter`.
  * Kommandoen bruker det samme. Et krav på 0 kr eller 0 dager er ikke et krav om
- * noe (KA-U8). Kategorien har kjernens koder, ikke katalogens (#335).
+ * noe (KA-U8). Kategorien har kjernens koder, ikke katalogens (#335). TEs
+ * beskrivelse av forholdet står bare i brevteksten, som kravets utdypning (A8 i
+ * paragrafmatrisen).
  */
 export const KRAVINNHOLD: Record<
   Spor,
@@ -91,7 +114,7 @@ export const KRAVINNHOLD: Record<
       hovedkategori: { enum: HOVEDKATEGORIER },
       underkategori: { enum: UNDERKATEGORIER },
       tittel: TEKST,
-      beskrivelse: TEKST,
+      endringsordre: TEKST,
     },
     required: ['hovedkategori', 'underkategori'],
     anyOf: KATEGORIPAR,
@@ -273,6 +296,14 @@ export const OPPLYSNING: Record<(typeof OPPLYSNINGSSLAG)[number], Skjema> = {
   ),
 };
 
+/**
+ * Brevteksten i et brev appen sender (LV-U2, LV-U3, #369): ett avsnitt per element,
+ * med den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst).
+ */
+export const BREVTEKST: Skjema = liste(
+  objekt({ gjelder: ID, laast: TEKST, utdypning: TEKST }, ['gjelder', 'laast'])
+);
+
 /** `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`. */
 export const DOKUMENT: Skjema = objekt(
   {
@@ -281,6 +312,7 @@ export const DOKUMENT: Skjema = objekt(
     utsagn: { type: 'array', minItems: 1 },
     opplysninger: { type: 'array', minItems: 1 },
     dokumentasjon: liste(ID),
+    brevtekst: BREVTEKST,
   },
   []
 );
