@@ -21,8 +21,9 @@ CI-jobben `database`. Versjonen er ikke likegyldig: `transaction_timeout`
 finnes fra 17, og 18 gir andre katalogsummer (under). På macOS gir
 `scripts/testbase/lokal_testbase.sh` en base med Homebrews 17. Uten 17
 installert gir `scripts/testbase/docker_testbase.sh` en base i det offisielle
-bildet `postgres:17`. Som CI henter den bildet fra speilet
-`public.ecr.aws/docker/library/postgres:17` (#327). `bygg_testbase.sh`
+bildet `postgres:17`. Som CI henter den bildet fra kildene i
+[`scripts/ci/postgres_kilder.sh`](../scripts/ci/postgres_kilder.sh), i den
+rekkefølgen som står der (#327, #401). `bygg_testbase.sh`
 sjekker ikke versjonen selv. Den stubber
 Supabase-plattformen (rollene `anon`, `authenticated`, `service_role`,
 skjemaet `auth` med `users`, `auth.role()` og `auth.email()`) og kjører
