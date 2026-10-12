@@ -557,7 +557,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       'forutsetning: appen regner to standpunkter som uten virkning'
     ).toHaveLength(2);
     expect(laast(rad)).toEqual([
-      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Byggherren godkjenner 20 dager.',
+      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Byggherren godkjenner 20 dager.',
     ]);
   });
 
@@ -584,7 +584,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     expect(laast(rad)[0]).toBe(
-      'Byggherrens svar på grunnlaget i TEs krav i brev 2 av 2. oktober 2026: Byggherren gjør ikke gjeldende at varselet kom for sent. Byggherren avslår kravet på endringsordre (NS 8407 § 32.3 første ledd b).'
+      'Byggherrens svar på grunnlaget i TEs krav i brev 2 av 2. oktober 2026: Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren avslår kravet på endringsordre (NS 8407 § 32.3 første ledd b).'
     );
   });
 
@@ -652,7 +652,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     expect(laast(rad)[0]).toBe(
-      `Byggherrens svar på grunnlaget i TEs krav i brev 2 av 2. oktober 2026: Byggherren gjør ikke gjeldende at varselet kom for sent. Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev 2 av 2. oktober 2026: «${BESKRIVELSE}».`
+      `Byggherrens svar på grunnlaget i TEs krav i brev 2 av 2. oktober 2026: Byggherren gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev 2 av 2. oktober 2026: «${BESKRIVELSE}».`
     );
   });
 
@@ -790,6 +790,18 @@ describe('svaret på vederlag og frist når grunnlaget er avslått eller preklud
     expect(laast(rad)[0]).toBe(`${innledning} ${forventet}`);
   });
 
+  it('standpunktet om at varselet etter § 33.4 kom i tide, nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [grunnlag(s, 'godkjent', false)] });
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+    });
+    expect(laast(rad)).toEqual([
+      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Subsidiært: byggherren godkjenner 20 dager.',
+    ]);
+  });
+
   it('kontrollsak: grunnlaget godkjent gir ingen prinsipal grunn fra grunnlaget', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [grunnlag(s, 'godkjent', true)] });
@@ -857,6 +869,37 @@ describe('aksepten (LV-U4 punkt 6)', () => {
       'TE godtar byggherrens svar på kravet om fristforlengelse i brev 5 av 5. oktober 2026. TE er enig i antallet dager, men ikke i byggherrens standpunkt til grunnlaget.',
     ]);
   });
+  it('godkjenner byggherren grunnlaget etter et subsidiært svar, leser aksepten saken når den sendes (GR-U1, arbeidsvalget om LV-U4 punkt 6)', () => {
+    const s = sakMedKrav();
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), {
+          resultat: 'avslaatt',
+          grunnlag_varslet_i_tide: true,
+        }),
+        svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1]),
+      ],
+    });
+    const vederlagssvar = s.u().spor.vederlag.gjeldendeSvar!.id;
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: s.u().spor.grunnlag.gjeldendeSvar!.id,
+      svar: svar('grunnlag', s.krav('grunnlag'), {
+        resultat: 'godkjent',
+        grunnlag_varslet_i_tide: true,
+      }),
+    });
+    const rad = s.send('TE', {
+      type: 'aksept',
+      spor: 'vederlag',
+      svar: vederlagssvar,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    expect(laast(rad)).toEqual([
+      'TE godtar byggherrens svar på kravet om justering av vederlaget i brev 5 av 5. oktober 2026.',
+    ]);
+  });
 });
 
 describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)', () => {
@@ -902,7 +945,19 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       ],
     });
     expect(laast(rad)[0]).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at varselet kom for sent.'
+      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent.'
+    );
+  });
+
+  it('gir byggherren opp innsigelsen mot fristvarselet, nevner brevet varselet etter § 33.4 (LV-U5)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+    });
+    expect(laast(rad)[0]).toContain(
+      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent.'
     );
   });
 
