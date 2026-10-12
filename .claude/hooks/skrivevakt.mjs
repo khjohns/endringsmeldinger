@@ -5,7 +5,7 @@
 // --bare-lesing slipper den bare lesende git-kommandoer gjennom i Bash. Hva den
 // ikke fanger, står i .claude/agents/mekanisk-pr.md.
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -55,11 +55,21 @@ function arbeidstreet(cwd) {
   }
 }
 
-// Stien med symbolske lenker løst opp, også når fila ikke finnes ennå.
+function finnes(sti) {
+  try {
+    lstatSync(sti);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Stien med symbolske lenker løst opp, også når fila ikke finnes ennå. En
+// lenke som peker til noe som ikke finnes, kaster, og kallet stoppes.
 function ekteSti(sti) {
   const rest = [];
   let del = sti;
-  while (!existsSync(del) && path.dirname(del) !== del) {
+  while (!finnes(del) && path.dirname(del) !== del) {
     rest.unshift(path.basename(del));
     del = path.dirname(del);
   }
@@ -78,23 +88,39 @@ function sperredeFiler(filer) {
     .filter((fil) => sperretSti(fil));
 }
 
-const FARLIGE_GIT_FLAGG =
-  /\s(--output\b|-o\s|-O|--open-files-in-pager|--upload-pack|--exec|--ext-diff|--textconv)/;
+// Kommandoledd: `;`, `&&`, `||`, `|` og linjeskift skiller dem.
+function ledd(kommando) {
+  return kommando
+    .split(/\s*(?:;|&&|\|\||\||\r?\n)\s*/)
+    .map((del) => del.trim())
+    .filter(Boolean);
+}
 
+// For diffkontroll: et lite sett lesende git-kommandoer med flagg fra en
+// tillatelsesliste. git godtar forkortede lange flagg, så en sperreliste holder ikke.
 const LESENDE_GIT =
-  /^git(\s+-C\s+\S+)?\s+(diff|log|show|status|fetch|rev-parse|merge-base|ls-files|ls-tree|cat-file|blame|grep)\b[^;&|<>`$]*$/;
+  /^git(?:\s+-C\s+\S+)?\s+(diff|log|show|status|rev-parse|merge-base|ls-files|fetch)((?:\s+\S+)*)$/;
+const LESENDE_FLAGG =
+  /^(--stat|--name-only|--name-status|--oneline|--no-color|--cached|--short|--abbrev-ref|--verify|--quiet|-q|-p|-n|-\d+|-U\d+|--)$/;
 
 /** For diffkontroll: bare enkle, lesende git-kommandoer i Bash. */
 function vurderLesing(input) {
   if (input.tool_name !== 'Bash') return null;
   const kommando = String(input.tool_input?.command ?? '').trim();
-  if (/[\r\n]/.test(kommando)) return 'Kommandoen har flere linjer.';
-  if (FARLIGE_GIT_FLAGG.test(kommando)) return 'Flagget kan skrive eller kjøre en kommando.';
-  if (/\bfetch\b.*:/.test(kommando)) return 'fetch med refspec kan skrive lokale grener.';
-  return LESENDE_GIT.test(kommando) ? null : 'Bare enkle, lesende git-kommandoer er tillatt.';
+  const treff = /[\r\n;&|<>`$()]/.test(kommando) ? null : kommando.match(LESENDE_GIT);
+  if (!treff) return 'Bare enkle, lesende git-kommandoer er tillatt.';
+  const [, underkommando, resten] = treff;
+  const ord = resten.trim().split(/\s+/).filter(Boolean);
+  const flagg = ord.filter((o) => o.startsWith('-'));
+  if (flagg.some((o) => !LESENDE_FLAGG.test(o)))
+    return 'Flagget står ikke på listen over lesende flagg.';
+  if (underkommando === 'fetch' && ord.some((o) => !/^[\w./-]+$/.test(o) || o === 'tag')) {
+    return 'fetch bare med navngitte grener, uten refspec eller tagger.';
+  }
+  return null;
 }
 
-// Bare den utsjekkede grenen til origin, uten force eller sletting, og bare
+// Bare `git push [-u] origin <utsjekket gren>`, uten force eller sletting, og bare
 // når grenen ikke endrer sperrede mapper.
 function vurderPush(argumenter, rot) {
   const ord = argumenter.trim().split(/\s+/).filter(Boolean);
@@ -103,12 +129,7 @@ function vurderPush(argumenter, rot) {
   }
   const gren = git(rot, 'rev-parse', '--abbrev-ref', 'HEAD');
   const [fjern, refspec, ...resten] = ord.filter((o) => !o.startsWith('-'));
-  if (
-    gren === 'main' ||
-    resten.length ||
-    (fjern && fjern !== 'origin') ||
-    (refspec && refspec !== gren && refspec !== 'HEAD')
-  ) {
+  if (gren === 'main' || resten.length || fjern !== 'origin' || refspec !== gren) {
     return `Push bare den utsjekkede grenen til origin, ikke main (utsjekket: ${gren}).`;
   }
   let filer;
@@ -151,17 +172,31 @@ function vurder(input) {
   const utenSti = SKRIVENDE_UTEN_STI.find((m) => m.test(kommando));
   if (utenSti) return `Kommandoen kan skrive filer den ikke nevner (${utenSti}).`;
 
-  if (/\bgh\b[^|;&]*(\bmerge\b|\/update-branch\b)/.test(kommando)) {
+  const deler = ledd(kommando);
+  if (
+    deler.some((del) => /^gh\b.*(\/pulls\/\S+\/merge\b|\bpr\s+merge\b|\/update-branch\b)/.test(del))
+  ) {
     return 'mekanisk-pr merger ikke og oppdaterer ikke PR-en mot main.';
+  }
+  if (deler.some((del) => /^git\s+(-c\b|config\b)/.test(del))) {
+    return 'mekanisk-pr endrer ikke git-oppsettet.';
   }
 
   // Siste vern: det som committes eller pushes, kontrolleres i git.
-  if (rot && /\bgit\b[^|;&]*\bcommit\b/.test(kommando)) {
-    const filer = sperredeFiler(git(rot, 'diff', '--name-only', 'HEAD'));
+  const pusher = deler.filter((del) => /^git(\s+-C\s+\S+)?\s+push\b/.test(del));
+  const commiter = deler.some((del) => /^git(\s+-C\s+\S+)?\s+(commit|add)\b/.test(del));
+  if (pusher.length && commiter) return 'Kjør commit og push i hver sin kommando.';
+  if (rot && commiter) {
+    const endret = git(rot, 'diff', '--name-only', 'HEAD');
+    const nye = git(rot, 'ls-files', '--others', '--exclude-standard');
+    const filer = sperredeFiler(`${endret}\n${nye}`);
     if (filer.length) return `Endringer i sperrede mapper: ${filer.join(', ')}.`;
   }
-  const push = kommando.match(/\bgit\b[^|;&]*\bpush\b([^|;&]*)/);
-  if (rot && push) return vurderPush(push[1], rot);
+  for (const del of pusher) {
+    if (!rot) return 'Ikke i et git-arbeidstre.';
+    const begrunnelse = vurderPush(del.replace(/^.*?\bpush\b/, ''), rot);
+    if (begrunnelse) return begrunnelse;
+  }
   return null;
 }
 

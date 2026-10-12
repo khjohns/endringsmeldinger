@@ -98,6 +98,8 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git diff --name-only origin/main...HEAD -- server/',
       'echo x > docs/b.md',
       'npm run lint',
+      'git commit -m "rett push og merge i docs"',
+      'gh api repos/khjohns/endringsmeldinger/pulls -f head=claude/merge-lenker-1 -f base=main',
     ]) {
       expect(bash(kommando).status, kommando).toBe(0);
     }
@@ -114,9 +116,30 @@ describe('skrivevakten for mekanisk-pr', () => {
     expect(svar.status).toBe(2);
   });
 
+  it('stopper Write gjennom en lenke til en fil som ikke finnes ennå', () => {
+    symlinkSync('../kjerne/ny.ts', path.join(rot, 'docs', 'lenke.ts'));
+    expect(skriv(path.join(rot, 'docs', 'lenke.ts')).status).toBe(2);
+  });
+
+  it('stopper add og commit når en ny, usporet fil ligger i en sperret mappe', () => {
+    mkdirSync(path.join(rot, 'server'));
+    writeFileSync(path.join(rot, 'server', 'ny.ts'), 'x\n');
+    try {
+      expect(bash('git add -A').status).toBe(2);
+      expect(bash('git commit -m x').status).toBe(2);
+    } finally {
+      rmSync(path.join(rot, 'server'), { recursive: true });
+    }
+  });
+
   it('stopper push til main, av en annen gren og med force', () => {
     for (const kommando of [
       'git push origin HEAD:main',
+      'git push origin',
+      'git push origin claude/test-1 && git push origin HEAD:main',
+      'git -c remote.origin.push=HEAD:main push origin claude/test-1',
+      'git config remote.origin.push HEAD:main',
+      'git add -A && git commit -m x && git push -u origin claude/test-1',
       'git push origin main',
       'git push origin annen-gren',
       'git push --force origin claude/test-1',
@@ -157,6 +180,7 @@ describe('lesevakten for diffkontroll', () => {
       'git diff --name-only origin/main...origin/claude/x-1',
       'git -C /tmp/tre log --oneline -5',
       'git show HEAD:docs/a.md',
+      'git diff --stat origin/main...HEAD -- docs/',
     ]) {
       expect(les(kommando).status, kommando).toBe(0);
     }
@@ -173,6 +197,10 @@ describe('lesevakten for diffkontroll', () => {
       'git grep -O"rm -rf docs" foo',
       'git fetch --upload-pack="touch /tmp/x #" /tmp/repo',
       'git fetch origin claude/x-1:main',
+      'git fetch origin tag v1',
+      'git grep --open-files="touch x #" foo',
+      'git diff --outp=/tmp/d.patch',
+      'git fetch --upload=x origin',
       'git diff $(rm -rf docs)',
       'cat docs/a.md',
       'echo x > docs/a.md',
