@@ -107,6 +107,45 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
+  it('slipper lesende kommandoer gjennom, også når et argument ligner en skrivende', () => {
+    for (const kommando of [
+      'grep "ruff format" docs/a.md',
+      'rg -n "ruff format" docs',
+      'grep -n "=>" kjerne/a.ts',
+      'git grep -n kjerne -- docs',
+      'git diff origin/main...HEAD > /tmp/d.patch',
+      'git log -1 2>&1 && grep x docs/a.md',
+      'gh api -X GET repos/khjohns/endringsmeldinger/issues/460',
+      'grep x kjerne/a.ts 2>/dev/null',
+      'echo "git push origin main"',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(0);
+    }
+  });
+
+  it('stopper den skrivende formen når den står sammen med lesende ledd', () => {
+    for (const kommando of [
+      'grep "ruff format" f; ruff format .',
+      'rg "ruff format" docs && ruff format docs',
+      'grep "rm" docs/a.md; cp docs/a.md kjerne/b.ts',
+      'grep x docs/a.md | tee kjerne/out',
+      'grep "kjerne" docs/a.md > kjerne/x',
+      'git grep x && git push',
+      'git log -1 && git push origin main',
+      'gh api -X GET repos/x && rm -rf kjerne',
+      'git show HEAD:kjerne/a.ts > /tmp/a.ts',
+      'git log --output=kjerne/x.txt',
+      'git diff --outp=kjerne/x',
+      'rg --pre "rm -rf kjerne" x',
+      'grep "$(rm -rf kjerne)" f',
+      'echo `rm -rf kjerne`',
+      'rm -rf kjerne;echo ok',
+      'grep x docs/a.md;rm -rf backend',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
   it('stopper Write i kjerne/ også når stien går gjennom en symbolsk lenke', () => {
     const lenke = path.join(path.dirname(rot), 'lenke');
     symlinkSync(rot, lenke);
@@ -292,6 +331,99 @@ describe('lesevakten for diffkontroll', () => {
       'git diff $(rm -rf docs)',
       'cat docs/a.md',
       'echo x > docs/a.md',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('slipper gh api uten skrivende flagg og git grep gjennom', () => {
+    for (const kommando of [
+      'gh api repos/khjohns/endringsmeldinger/issues/460',
+      'gh api -X GET repos/khjohns/endringsmeldinger/issues',
+      "gh api 'repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=2'",
+      'gh api --paginate -H "Accept: application/vnd.github+json" repos/x/pulls',
+      'gh api --method=GET --jq ".[].title" repos/x/pulls',
+      'git grep -n LESBART -- kjerne docs',
+      'git grep -e ruff -- .claude',
+      'grep -rn "ruff format" docs',
+      'rg "ruff format" docs',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(0);
+    }
+  });
+
+  it('stopper gh api med skrivende flagg eller en metode som ikke er GET', () => {
+    for (const kommando of [
+      'gh api -X POST repos/khjohns/endringsmeldinger/issues',
+      'gh api repos/khjohns/endringsmeldinger/issues/460/comments -f body=x',
+      'gh api -XPOST repos/x/issues',
+      'gh api --method=PATCH repos/x/issues/1',
+      'gh api --method PUT repos/x/pulls/1/merge',
+      'gh api repos/x --input body.json',
+      'gh api repos/x -F body=@kladd.md',
+      'gh api --raw-field body=x repos/x',
+      'gh api --field body=x repos/x',
+      'gh api -X GET repos/x -f body=x',
+      'gh api -H "X: y" repos/x -f body=x',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper git-kommandoer som skriver eller starter et program', () => {
+    for (const kommando of [
+      'git grep -O"rm -rf docs" foo',
+      'git grep --open-files-in-pager=rm foo',
+      'git grep --textconv foo',
+      'git diff --output=/tmp/d.patch',
+      'git log -p --output=x',
+      'git show --outp=/tmp/x HEAD',
+      'git diff --ext-diff',
+      'git fetch --upload-pack="touch /tmp/x #" /tmp/repo',
+      'git fetch origin claude/x-1:main',
+      'git fetch origin tag v1',
+      'git checkout main',
+      'rg --pre "rm -rf docs" x',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper skallsyntaks som ikke kan leses statisk, også i anførsel', () => {
+    for (const kommando of [
+      'git diff $(rm -rf docs)',
+      'grep "$(rm -rf docs)" f',
+      'grep "`rm -rf docs`" f',
+      'git log $HOME',
+      'git log > /tmp/x',
+      'git log >> /tmp/x',
+      'git log < /etc/hosts',
+      'git log {a,b}',
+      'git log *',
+      'git log \\\nrm -rf docs',
+      "git log'",
+      'git log # "a\nrm -rf docs',
+      'git log # kommentar; rm -rf docs',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('vurderer sammensatte kommandoer ledd for ledd', () => {
+    for (const kommando of [
+      'git log --oneline -3 && git show HEAD:docs/a.md',
+      'git log | grep x',
+      'git log -1 2>&1; git log --oneline -2',
+      'git log --grep="a;b" -- docs',
+    ]) {
+      expect(les(kommando).status, kommando).toBe(0);
+    }
+    for (const kommando of [
+      'git log | head',
+      'git log && rm -rf docs',
+      'git log; rm -rf docs',
+      'git log\nrm -rf docs',
+      'git log | sh',
     ]) {
       expect(les(kommando).status, kommando).toBe(2);
     }
