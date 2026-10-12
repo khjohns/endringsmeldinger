@@ -90,6 +90,7 @@
   let reviewing = $state(false);
   let sending = $state(false);
   let createdId = $state('');
+  let issuedChecked = $state(false);
   const storageKey = $derived(
     draftKey(demo ? 'endringsordre-demo' : 'endringsordre', `${projectId}:${userId}`)
   );
@@ -131,7 +132,7 @@
   );
   $effect(() => {
     // Issued after approval, possibly by someone else: the local draft is spent.
-    if (pkg?.status === 'utstedt' && pkg.sakId && !createdId) {
+    if (issuedChecked && pkg?.status === 'utstedt' && pkg.sakId && !createdId) {
       createdId = pkg.sakId;
       clearDraft(storageKey);
     }
@@ -141,15 +142,17 @@
       `/${demo ? 'mockup/endringsordre' : encodeURIComponent(projectId)}/${encodeURIComponent(sakId)}`
     );
 
-  onMount(async () => {
+  onMount(() => {
     const stored = loadDraft<{ version: number; draft: EODraft }>(storageKey);
-    if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds)) {
-      const restored = { ...newEODraft(), ...stored.draft };
-      // #445: ordren kan være utstedt fra godkjenningssiden etter at utkastet ble lagret.
-      if (restored.number.trim() && (await numberIssued(restored.number.trim())))
-        clearDraft(storageKey);
-      else draft = restored;
-    }
+    if (stored?.version === 1 && Array.isArray(stored.draft?.selectedIds))
+      draft = { ...newEODraft(), ...stored.draft };
+    const restoredNumber = draft.number.trim();
+    start();
+    if (restoredNumber) void discardIfIssued(restoredNumber);
+    else issuedChecked = true;
+  });
+
+  function start() {
     let selectionChanged = false;
     if (initialKoe) {
       if (draft.mode === 'direkte') draft.directEffects = snapshotEOEffects(draft);
@@ -161,18 +164,27 @@
     }
     ready = true;
     void load(selectionChanged);
-  });
+  }
+
+  /** #445: ordren kan være utstedt fra godkjenningssiden etter at utkastet ble lagret. */
+  async function discardIfIssued(number: string) {
+    await approvals.load();
+    if (
+      approvals.packages.some(
+        (p) => p.status === 'utstedt' && p.request.eo_nummer.trim() === number
+      )
+    ) {
+      clearDraft(storageKey);
+      draft = newEODraft();
+      reviewing = false;
+      start();
+    }
+    issuedChecked = true;
+  }
 
   $effect(() => {
     if (ready && !createdId) saveDraft(storageKey, { version: 1, draft: $state.snapshot(draft) });
   });
-
-  async function numberIssued(number: string) {
-    await approvals.load();
-    return approvals.packages.some(
-      (p) => p.status === 'utstedt' && p.request.eo_nummer.trim() === number
-    );
-  }
 
   async function load(prefill = false) {
     loading = true;
@@ -322,7 +334,7 @@
       </aside>
     </div>
   {:else}
-    <form onsubmit={review} inert={!ready}>
+    <form onsubmit={review}>
       <div class="edit-layout">
         <div>
           <FormSection title="Grunnlag for endringsordren">
