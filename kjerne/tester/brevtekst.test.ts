@@ -1179,6 +1179,31 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
     expect(utenAvsnitt(varsel)).toEqual([]);
   });
 
+  it('et varsel uten dato i et brev med krav er ikke brevet selv, og kan ikke uttrykkes', () => {
+    const dokument: Dokument = {
+      id: 'brevet',
+      avsender: 'TE',
+      registrert: '2026-10-05T10:00:00Z',
+      opplysninger: [],
+      dokumentasjon: [],
+      krav: [
+        { id: 'k', spor: 'frist', dokument: 'brevet', erstatter: null, innhold: { dager: 20 } },
+      ],
+      svar: [],
+      utsagn: [{ id: 'v', art: 'varsel', hjemmel: '33.4', dokument: 'brevet' }],
+      brevtekst: null,
+    };
+    const saken = {
+      saksnummer: SAK,
+      tittel: TITTEL,
+      grunnlagssvar: null,
+      subsidiaer: { vederlag: [], frist: [] },
+    };
+    expect(() => lagBrevtekst(dokument, [], saken, KJERNE.regler)).toThrow(
+      'et varsel i et brev fra appen har datoen det ble sendt'
+    );
+  });
+
   it('serveren avviser en annen tekst enn den den lager (A1)', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);

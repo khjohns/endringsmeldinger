@@ -6400,7 +6400,8 @@
             "varsel.frist": null,
             "handlinger.TE": {
               "inneholder": [
-                "varsle:frist"
+                "varsle:frist",
+                "sende_varsel:frist"
               ]
             }
           }
@@ -6462,7 +6463,8 @@
                 "ingen_krav:frist"
               ],
               "mangler": [
-                "varsle:frist"
+                "varsle:frist",
+                "sende_varsel:frist"
               ]
             }
           }
@@ -7019,6 +7021,24 @@
           }
         },
         {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U15",
+            "MM-U8"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "varsle:frist"
+              ],
+              "mangler": [
+                "sende_varsel:frist"
+              ]
+            }
+          }
+        },
+        {
           "etter": 1,
           "rolle": "mal",
           "kilde": [
@@ -7156,10 +7176,10 @@
             "MM-U20"
           ],
           "forventet": {
-            "forstaatt": true,
-            "beslutningsgrunnlag.S-v1.sammenfall": false,
             "uten_virkning": [],
+            "forstaatt": true,
             "gjeldende_svar.vederlag": "S-v1",
+            "beslutningsgrunnlag.S-v1.sammenfall": false,
             "enighet.vederlag": null,
             "trukket.vederlag": true
           }
@@ -7253,6 +7273,122 @@
             "gjeldende_svar.grunnlag": "S-g1",
             "frafalt": true,
             "trukket.grunnlag": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-U20j",
+      "rader": [
+        "KA-40"
+      ],
+      "start": "forlop_a_brev",
+      "forslag": "GR-U10, KA-U7 og MM-U19: byggherrens registrerte revisjon av et svar partene er enige om, etter at TE har trukket kravet, bevares uten virkning, og enigheten står",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "aksept",
+          "spor": "vederlag",
+          "svar": "S-v1",
+          "navn": "D5"
+        },
+        {
+          "handling": "trekk",
+          "spor": "vederlag",
+          "navn": "D6"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v2",
+          "dokument": "D7",
+          "gjelder": "K-v1",
+          "erstatter": "S-v1",
+          "vurdering": "avslaatt",
+          "sendt": "2026-10-02"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U10",
+            "KA-U7",
+            "MM-U19"
+          ],
+          "forventet": {
+            "uten_virkning": [
+              "S-v2"
+            ],
+            "forstaatt": true,
+            "gjeldende_svar.vederlag": "S-v1",
+            "enighet.vederlag": "finnes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-U20k",
+      "rader": [
+        "KA-40"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U18 og MM-U19: byggherrens registrerte svar på en kravversjon uten virkning i et trukket spor bevares uten virkning, og saken er forstått",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "trekk",
+          "spor": "vederlag",
+          "navn": "D4"
+        },
+        {
+          "handling": "rad",
+          "krav": true,
+          "part": "TE",
+          "spor": "vederlag",
+          "belop": 120000,
+          "navn": "K-v2",
+          "sendt": "2026-10-01"
+        },
+        {
+          "handling": "rad",
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "dokument": "D6",
+          "gjelder": "K-v2",
+          "vurdering": "avslaatt",
+          "sendt": "2026-10-02"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "forutsetning",
+          "kilde": [
+            "MM-U19"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "K-v2"
+            ]
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U18",
+            "MM-U19"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "K-v2",
+              "S-v1"
+            ],
+            "gjeldende_svar.vederlag": null
           }
         }
       ]

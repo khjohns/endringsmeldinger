@@ -552,10 +552,10 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
   switch (u.art) {
     case 'varsel': {
       const dato = nytt.opplysninger.find((o) => erDato(o) && o.gjelder === u.id);
-      // VS-U15: uten en dato er brevet selv varselet, sendt fra appen.
-      if (dato === undefined)
+      // VS-U15: et brev uten krav og uten en dato for varselet er selve varselet.
+      if (dato === undefined && !nytt.krav.length)
         return `TE varsler etter NS 8407 § 33.4 at TE vil kreve fristforlengelse som følge av forholdet i ${sak}.`;
-      if (dato.hva !== 'sendt')
+      if (dato?.hva !== 'sendt')
         throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');
       return `TE opplyser at varsel om fristforlengelse etter NS 8407 § 33.4 ble sendt ${norskDato(dato.dato)}.`;
     }
