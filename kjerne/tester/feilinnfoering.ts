@@ -8,7 +8,7 @@
  * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369),
  * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), F149–F152
  * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
- * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F176 hullene fra
+ * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
  * samspillsreviewet av den og KA-U36 (#468). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
@@ -1830,14 +1830,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F171',
     feilklasse: 'en registrert begrunnelse sendt før svaret godtas (KA-U36)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['svaret && k.sendt < svaret', 'svaret && false']],
+    endringer: [['if (k.sendt === undefined || !svaret || k.sendt >= svaret)', 'if (true)']],
     mal: ['før datoen appen registrerte svaret, avvises den', 'F-MM-BG1'],
   },
   {
     id: 'F172',
     feilklasse: 'en registrert begrunnelse med samme dato som svaret avvises (KA-U37)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['svaret && k.sendt < svaret', 'svaret && k.sendt <= svaret']],
+    endringer: [['!svaret || k.sendt >= svaret)', '!svaret || k.sendt > svaret)']],
     mal: ['før datoen appen registrerte svaret, avvises den, og samme dato godtas', 'F-MM-BG1'],
   },
   {
@@ -1853,8 +1853,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "return datoFor(s, 'sendt', opplysninger)?.dato ?? null;",
-        "return (datoFor(s, 'mottatt', opplysninger) ?? datoFor(s, 'sendt', opplysninger))?.dato ?? null;",
+        "? (datoFor(s, 'sendt', opplysninger)?.dato ?? null)",
+        "? ((datoFor(s, 'mottatt', opplysninger) ?? datoFor(s, 'sendt', opplysninger))?.dato ?? null)",
       ],
     ],
     mal: ['for et registrert svar gjelder datoen det ble sendt'],
@@ -1865,8 +1865,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "return datoFor(s, 'sendt', opplysninger)?.dato ?? null;",
-        "return (datoFor(s, 'sendt', opplysninger) ?? datoFor(s, 'mottatt', opplysninger))?.dato ?? null;",
+        "? (datoFor(s, 'sendt', opplysninger)?.dato ?? null)",
+        "? ((datoFor(s, 'sendt', opplysninger) ?? datoFor(s, 'mottatt', opplysninger))?.dato ?? null)",
       ],
     ],
     mal: ['et registrert svar med bare mottatt-dato gir ingen kontroll'],
@@ -1877,11 +1877,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        'const svaret = u.svar[k.gjelder]?.sendt;',
-        'const svaret = u.opplysninger.some((o) => o.bestridelser.length) ? null : u.svar[k.gjelder]?.sendt;',
+        'const svaret = u.svarSendt[k.gjelder];',
+        'const svaret = u.opplysninger.some((o) => o.bestridelser.length) ? null : u.svarSendt[k.gjelder];',
       ],
     ],
     mal: ['en bestridelse av datoen på svaret endrer ikke kontrollen'],
+  },
+  {
+    id: 'F177',
+    feilklasse:
+      'et svar uten virkning har ingen dato, så begrunnelsen kontrolleres ikke (KA-U36, MM-U18)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    svarMedUten.map((s) => {', '    [...alleSvar.values()].map((s) => {']],
+    mal: ['en registrert begrunnelse av et svar uten virkning, sendt før svaret, avvises'],
   },
 ];
 

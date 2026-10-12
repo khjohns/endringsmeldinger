@@ -1273,7 +1273,7 @@ describe('den senere begrunnelsen (KA-U34)', () => {
       expect(s.avvisning('BH', registrert(svarId(brev), '2026-10-04'))).toEqual({
         regel: 'BEGRUNNELSE_FOER_SVARET',
         melding:
-          'Begrunnelsen er oppgitt sendt 4. oktober 2026, før svaret den begrunner, som er datert 5. oktober 2026.',
+          'Begrunnelsen er oppgitt sendt 4. oktober 2026, men svaret den begrunner, ble sendt 5. oktober 2026.',
       });
     });
 

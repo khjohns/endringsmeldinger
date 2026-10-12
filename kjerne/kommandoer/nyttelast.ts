@@ -141,13 +141,12 @@ function begrunnelsensDato(
   k: Extract<Kommando, { type: 'begrunnelse' }>,
   u: Utledning
 ): Avvisning | null {
-  const svaret = u.svar[k.gjelder]?.sendt;
-  return k.sendt !== undefined && svaret && k.sendt < svaret
-    ? avvis(
-        'BEGRUNNELSE_FOER_SVARET',
-        `Begrunnelsen er oppgitt sendt ${norskDato(k.sendt)}, før svaret den begrunner, som er datert ${norskDato(svaret)}.`
-      )
-    : null;
+  const svaret = u.svarSendt[k.gjelder];
+  if (k.sendt === undefined || !svaret || k.sendt >= svaret) return null;
+  return avvis(
+    'BEGRUNNELSE_FOER_SVARET',
+    `Begrunnelsen er oppgitt sendt ${norskDato(k.sendt)}, men svaret den begrunner, ble sendt ${norskDato(svaret)}.`
+  );
 }
 
 /**
@@ -233,7 +232,10 @@ export function nyttelastkontroll(
     case 'merking':
     case 'avklaring':
       return null;
-    case 'begrunnelse':
-      return (utdypningKreves ? begrunnelsensTekst(k) : null) ?? begrunnelsensDato(k, u);
+    case 'begrunnelse': {
+      // Datoen kontrolleres også i forhåndsvisningen; teksten bare når den sendes.
+      const tekst = utdypningKreves ? begrunnelsensTekst(k) : null;
+      return tekst ?? begrunnelsensDato(k, u);
+    }
   }
 }

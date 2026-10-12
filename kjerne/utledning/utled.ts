@@ -60,12 +60,6 @@ export interface Svarberegning {
    * innsigelsen, slik de står i `virkninger`.
    */
   uavklart: string[];
-  /**
-   * Datoen svaret ble sendt. Fra appen er det datoen appen registrerte det, i norsk
-   * tid (KA-U37). For et registrert svar er det opplysningen om at det ble sendt, også
-   * når den er bestridt (KA-U38, KA-U39), og `null` når svaret bare har mottatt-dato.
-   */
-  sendt: string | null;
 }
 
 export interface Enighet {
@@ -164,6 +158,13 @@ export interface Utledning {
   }[];
   /** Hvert element i saken, også de uten virkning. */
   elementer: Record<string, Element>;
+  /**
+   * Datoen hvert svar ble sendt, også et svar uten virkning. Fra appen er det datoen
+   * appen registrerte det, i norsk tid (KA-U37). For et registrert svar er det
+   * opplysningen om at det ble sendt, også når den er bestridt (KA-U38, KA-U39), og
+   * `null` når svaret bare har mottatt-dato.
+   */
+  svarSendt: Record<string, string | null>;
   /** § 5 tredje ledd: innsigelsene (VS-U1, VS-U9, VS-U14). Uten virkning på utfallet. */
   innsigelser: Paaberopelse[];
   /** Protestene mot en innsigelse (VS-U1, MP-U6). Uten virkning på utfallet. */
@@ -231,6 +232,7 @@ function tom(
     begrensninger,
     journal,
     svar: {},
+    svarSendt: {},
     opplysninger: [],
     elementer: {},
     innsigelser: [],
@@ -713,11 +715,6 @@ function utledSporene(
     );
   };
   const svar: Record<string, Svarberegning> = {};
-  const sendtDato = (s: Svar): string | null => {
-    const d = dokumenter.get(s.dokument)!;
-    if (!erRegistrert(d.opplysninger)) return registrertDato(d);
-    return datoFor(s, 'sendt', opplysninger)?.dato ?? null;
-  };
   for (const s of alleSvar.values()) {
     const lestMed = innsigelsenSvaretErLestMed(s);
     const innsigelse = henvisninger.find((x) => x.id === lestMed);
@@ -741,7 +738,6 @@ function utledSporene(
           ? [innsigelse.id]
           : []),
       ],
-      sendt: sendtDato(s),
     };
   }
 
@@ -839,11 +835,23 @@ function utledSporene(
         gjelder: x.gjelder,
         hendelse: elementer[x.id].hendelse,
       }));
+  const svarSendt = Object.fromEntries(
+    svarMedUten.map((s) => {
+      const d = dokumenter.get(s.dokument)!;
+      return [
+        s.id,
+        erRegistrert(d.opplysninger)
+          ? (datoFor(s, 'sendt', opplysninger)?.dato ?? null)
+          : registrertDato(d),
+      ];
+    })
+  );
   return {
     ...tom(journal, regler, begrensninger),
     forstaatt: true,
     svar,
     elementer,
+    svarSendt,
     innsigelser: paaberopelser('innsigelse'),
     protester: paaberopelser('protest'),
     passivitet: paaberopelser('passivitet'),
