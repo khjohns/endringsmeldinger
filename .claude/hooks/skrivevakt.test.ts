@@ -395,7 +395,6 @@ describe('skrivevakten for mekanisk-pr', () => {
       'tar -xf /tmp/a.tar',
       'tar -xf /tmp/a.tar -C kjerne',
       'unzip /tmp/a.zip',
-      "sed -n 'w kjerne/ut' docs/a.md",
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
@@ -409,6 +408,70 @@ describe('skrivevakten for mekanisk-pr', () => {
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
+  });
+
+  it('stopper commit og push i et annet tre enn cwd og globale git-valg vakten ikke tolker', () => {
+    for (const kommando of [
+      'git -C /tmp/klon commit -qm y',
+      'git -C /tmp/klon push origin claude/test-1',
+      'cd /tmp/klon && git push origin claude/test-1',
+      'env -C /tmp/klon git push origin claude/test-1',
+      'GIT_DIR=/tmp/klon/.git git push origin claude/test-1',
+      'export GIT_WORK_TREE=/tmp/klon; git commit -m y',
+      'git --git-dir=/tmp/klon/.git --work-tree=/tmp/klon commit -m y',
+      'git --namespace x push --force origin main',
+      'git --attr-source HEAD push origin claude/test-1:main2',
+      'git --config-env alias.st=V st',
+      'GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=alias.st GIT_CONFIG_VALUE_0=x git st',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('git -C docs log --oneline -1').status).toBe(0);
+  });
+
+  it('stopper git-kommandoer og rg-valg som kjører et program', () => {
+    for (const kommando of [
+      "git difftool -x 'git push origin HEAD:main' HEAD~1",
+      "git rebase -x 'git push origin HEAD:main' HEAD~1",
+      'git grep --open-files-in-pager=sh x',
+      "git fetch --upload-pack='sh x' origin",
+      'git submodule foreach git push origin HEAD:main',
+      'rg --pre sh . docs',
+      'rg --pre=git x',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper gh-kall som merger uten PR, flytter en gren eller skriver filer på fjernsiden', () => {
+    for (const kommando of [
+      'gh api repos/o/r/merges -f base=main -f head=x',
+      'gh api -X PATCH repos/o/r/git/refs/heads/main -f sha=abc -F force=true',
+      'gh api -X PUT repos/o/r/contents/kjerne/x.ts -f content=eA==',
+      'gh pr edit 1 --base main',
+      'gh api graphql',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(
+      bash('gh api repos/o/r/pulls -f title=x -f head=claude/test-1 -f base=main').status
+    ).toBe(0);
+    expect(bash('gh pr create --base main --title x --body y').status).toBe(0);
+  });
+
+  it('stopper sed med w i skriptet mot en sperret mappe, men ikke lesing med sed', () => {
+    for (const kommando of [
+      "sed -n 'w kjerne/ut' docs/a.md",
+      "sed -n -e p -e 's/a/b/w kjerne/ut' docs/a.md",
+      'sed -f /tmp/skript docs/a.md kjerne/x.ts',
+      'cp /tmp/x .git/hooks/pre-push',
+      'chmod +x ../.git/hooks/pre-push',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('sed -n 1p kjerne/web.ts').status).toBe(0);
+    expect(bash('sed -n 1,5p backend/x.py; echo work').status).toBe(0);
+    expect(bash('cp /tmp/x .github/ny.yml').status).toBe(0);
   });
 
   it('stopper push til main, av en annen gren og med force', () => {
@@ -594,6 +657,7 @@ describe('lesevakten for diffkontroll', () => {
 
   it('stopper gh api med skrivende flagg eller en metode som ikke er GET', () => {
     for (const kommando of [
+      'gh api graphql',
       'gh api -X POST repos/khjohns/endringsmeldinger/issues',
       'gh api repos/khjohns/endringsmeldinger/issues/460/comments -f body=x',
       'gh api -XPOST repos/x/issues',

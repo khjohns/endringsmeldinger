@@ -20,9 +20,10 @@ const SPERRET_MAPPE = new RegExp(
   `(^|[\\s'"=:(/<>;&|{\`])\\.?/?(${SPERREDE_MAPPER.join('|')})(/|[\\s;&|)\`'"]|$)`
 );
 
-// Hookoppsettet nevnt med filnavn, eller hele `.claude`-mappa som mål.
+// Hookoppsettet nevnt med filnavn, hele `.claude`-mappa som mål, eller git-mappa med
+// hookene og oppsettet til git.
 const NEVNER_HOOKOPPSETT =
-  /settings(\.local)?\.json|(^|[\s'"=:(<>;&|{`])\.?\/?\.claude\/?\.?(?=$|[\s;&|)`'"])/;
+  /settings(\.local)?\.json|(^|[\s'"=:(<>;&|{`])\.?\/?\.claude\/?\.?(?=$|[\s;&|)`'"])|(^|[\s'"=:(<>;&|{`/])\.git(\/|(?=$|[\s;&|)`'"]))/;
 
 // Kommandoer og operatorer som kan skrive en fil som er nevnt i kommandoen.
 const SKRIVENDE = [
@@ -30,8 +31,6 @@ const SKRIVENDE = [
   /\btee\b/,
   /\bsed\b[^|;&]*(\s-[a-zA-Z]*i|--in-place)/,
   /\bperl\b[^|;&]*\s-[a-zA-Z]*i/,
-  // `w` og `W` i et sed-skript skriver til fila etter kommandoen.
-  /\bsed\b[^|&]*[^\w-][wW]/,
   /\b(mv|cp|rm|rmdir|touch|mkdir|ln|chmod|truncate|dd|install|rsync|unlink)\b/,
   /\bgit\s+(checkout|restore|rm|mv|reset|clean|stash|init|clone|submodule|worktree)\b/,
   /\b(python3?|node|ruby|perl)\b[^|;&]*\s-[a-zA-Z]*[cep]\b/,
@@ -56,6 +55,10 @@ const SKRIVENDE_UTEN_STI = [
 // gh-kall som merger PR-en eller oppdaterer den mot main.
 const GH_MERGE = /(\/pulls\/\S+\/merge\b|\bpr\s+merge\b|\/update-branch\b)/;
 
+// Endepunkter der et skrivende gh api-kall merger uten PR, flytter en gren eller skriver filer
+// på fjernsiden.
+const GH_FJERNSKRIVING = /\/(merges|git\/(refs|commits|trees|blobs|tags)|contents|branches)\b/;
+
 // Hookoppsettet, som mekanisk-pr ikke endrer.
 const HOOKOPPSETT = ['.claude/settings.json', '.claude/settings.local.json'];
 
@@ -69,6 +72,25 @@ function utenGitGlobale(tekst) {
 
 // Git-underkommandoer som endrer oppsettet, eller som snakker med en fjernkopi utenom push.
 const GIT_OPPSETT = new Set(['config', 'remote', 'symbolic-ref', 'update-ref']);
+
+// Git-underkommandoer og -flagg som kjører et program eller en kommando fra argumentene.
+const GIT_KJOERER = new Set([
+  'bisect',
+  'credential',
+  'daemon',
+  'difftool',
+  'filter-branch',
+  'instaweb',
+  'mergetool',
+  'send-email',
+  'submodule',
+]);
+const GIT_KJOERER_FLAGG =
+  /^(-x|-O|--exec|--extcmd|--open-files-in-pager|--upload-pack|--receive-pack)/;
+
+// Globale git-valg uten argument som vakten tolker. `-C` og `-c` tolkes for seg, og alle
+// andre, som --git-dir, --namespace og --config-env, stopper kallet.
+const GIT_GLOBALE_UTEN = ['--no-pager', '-p', '--paginate', '-P', '--no-optional-locks'];
 
 // Git-underkommandoer som endrer arbeidstreet eller indeksen.
 const TREENDRENDE = new Set([
@@ -337,6 +359,8 @@ function lesingGit(argumenter) {
 function lesingGhApi(argumenter) {
   if (argumenter[0] !== 'api') return 'gh er bare lesende som gh api.';
   const resten = argumenter.slice(1);
+  // En mutasjon i GraphQL kan merge, og GraphQL gir 403 i skyøkta uansett.
+  if (resten.includes('graphql')) return 'gh api graphql er ikke tillatt.';
   for (let i = 0; i < resten.length; i++) {
     const o = resten[i];
     if (o === '-X' || o === '--method') {
@@ -507,7 +531,7 @@ function effektiveKommandoer(leddene) {
     } else if (kommando === 'eval') {
       ut.push(...effektiveKommandoer(lekser(resten.join(' '))));
     } else {
-      ut.push({ ord: [kommando, ...resten], ukjentKommando: false });
+      ut.push({ ord: [kommando, ...resten], ukjentKommando: false, forran: ord.slice(0, k) });
     }
   }
   return ut;
@@ -516,12 +540,43 @@ function effektiveKommandoer(leddene) {
 /** Underkommando og argumenter for en git-kommando, etter globale valg som `-C` og `--no-pager`. */
 function gitKommando(ord) {
   const globale = [];
+  let ukjentGlobal = null;
   let i = 1;
   while (i < ord.length && ord[i].startsWith('-')) {
-    globale.push(ord[i]);
-    i += ['-C', '-c', '--git-dir', '--work-tree'].includes(ord[i]) ? 2 : 1;
+    const o = ord[i];
+    globale.push(o);
+    if (o === '-C' || o === '-c') {
+      i += 2;
+      continue;
+    }
+    if (!GIT_GLOBALE_UTEN.includes(o)) ukjentGlobal ??= o;
+    i++;
   }
-  return { underkommando: ord[i] ?? '', argumenter: ord.slice(i + 1), globale };
+  return { underkommando: ord[i] ?? '', argumenter: ord.slice(i + 1), globale, ukjentGlobal };
+}
+
+/**
+ * Om sed-kallet kan skrive med `w` eller `W` i skriptet. Skriptet er verdiene til `-e`, eller
+ * første argument som ikke er et flagg. Med `-f` ligger skriptet i en fil og kan ikke leses.
+ */
+function sedSkriver(argumenter) {
+  const skript = [];
+  let medE = false;
+  for (let i = 0; i < argumenter.length; i++) {
+    const o = argumenter[i];
+    if (o === '-e' || o === '--expression') {
+      skript.push(argumenter[++i] ?? '');
+      medE = true;
+    } else if (o.startsWith('--expression=') || /^-e./.test(o)) {
+      skript.push(o.slice(o.startsWith('--') ? 13 : 2));
+      medE = true;
+    } else if (o.startsWith('--file') || /^-[a-zA-Z]*f/.test(o)) {
+      return true;
+    } else if (!o.startsWith('-') && !medE && !skript.length) {
+      skript.push(o);
+    }
+  }
+  return skript.some((s) => /[wW]/.test(s));
 }
 
 // Bare `git push [-u] origin <utsjekket gren>`, uten force, sletting eller andre flagg, og bare
@@ -610,6 +665,17 @@ function vurder(input) {
   if (eff.some((del) => del.ukjentKommando)) {
     return 'Kommandoen starter med skallsyntaks som ikke kan leses statisk.';
   }
+  if (nevnerSperret && eff.some((del) => del.ord[0] === 'sed' && sedSkriver(del.ord.slice(1)))) {
+    return 'sed-skriptet kan skrive med w eller W, og kommandoen nevner en sperret mappe.';
+  }
+  if (eff.some((del) => [...del.ord, ...(del.forran ?? [])].some((o) => /^GIT_\w*=/.test(o)))) {
+    return 'mekanisk-pr setter ikke miljøvariabler for git.';
+  }
+  if (
+    eff.some((del) => del.ord[0] === 'rg' && del.ord.some((o) => /^--(pre|hostname-bin)/.test(o)))
+  ) {
+    return 'rg med --pre eller --hostname-bin kjører et program.';
+  }
   if (
     leddene.some((del) => del.ukjentSyntaks) &&
     [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) => m.test(kommando))
@@ -639,6 +705,27 @@ function vurder(input) {
     return 'mekanisk-pr bruker ikke gh api graphql.';
   }
   if (
+    eff.some(
+      (del) =>
+        del.ord[0] === 'gh' &&
+        ((lesingGhApi(del.ord.slice(1)) !== null && GH_FJERNSKRIVING.test(del.ord.join(' '))) ||
+          (del.ord[1] === 'pr' &&
+            del.ord[2] === 'edit' &&
+            del.ord.some((o) => /^(-B|--base)/.test(o))))
+    )
+  ) {
+    return 'mekanisk-pr flytter ikke grener og skriver ikke filer på fjernsiden.';
+  }
+  const ukjentGlobal = gitene.find((g) => g.ukjentGlobal)?.ukjentGlobal;
+  if (ukjentGlobal) return `Det globale git-valget ${ukjentGlobal} kan vakten ikke tolke sikkert.`;
+  if (
+    gitene.some(
+      (g) => GIT_KJOERER.has(g.underkommando) || g.argumenter.some((o) => GIT_KJOERER_FLAGG.test(o))
+    )
+  ) {
+    return 'git-kommandoen kan kjøre et program fra argumentene.';
+  }
+  if (
     deler.some((del) => /^git\s+(-c\b|config\b)/.test(del)) ||
     gitene.some((g) => GIT_OPPSETT.has(g.underkommando) || g.globale.includes('-c'))
   ) {
@@ -658,6 +745,16 @@ function vurder(input) {
     deler.some((del) => /^git(\s+-C\s+\S+)?\s+(commit|add)\b/.test(del)) ||
     gitene.some((g) => g.underkommando === 'commit' || g.underkommando === 'add');
   if (pushArgumenter.length && commiter) return 'Kjør commit og push i hver sin kommando.';
+  // Kontrollen under leser arbeidstreet i cwd, så commit og push må skje der.
+  const byttetMappe =
+    eff.some(
+      (del) =>
+        ['cd', 'pushd', 'popd'].includes(del.ord[0]) ||
+        (del.forran ?? []).some((o) => /^(-C|--chdir)/.test(o))
+    ) || gitene.some((g) => g.globale.includes('-C'));
+  if ((pushArgumenter.length || commiter) && byttetMappe) {
+    return 'Kjør commit og push i arbeidstreet, uten cd, git -C eller env -C.';
+  }
   if (gitene.some((g) => TREENDRENDE.has(g.underkommando)) && (pushArgumenter.length || commiter)) {
     return 'Kommandoen endrer treet og committer eller pusher i samme kall. Kjør dem i hver sin kommando.';
   }
