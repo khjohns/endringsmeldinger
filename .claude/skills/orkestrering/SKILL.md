@@ -189,18 +189,19 @@ oppdragsgiver.
   Skriv dem derfor i kontraktens begreper og uten kodenavn (avsnitt 8 i
   hovedplanen), og så fullstendige at de kan stå alene i 3.1.
 - **Kontroller belegget før du spør.** Sitater fra vedtak og NS 8407 skal være
-  ordrette, og de føres som `sitat` i registeret, der vakttesten prøver dem mot
-  kilden. NS 8407-teksten ligger ikke i arbeidstreet. Hent den med
+  ordrette og hele setninger, og de føres som `sitat` i registeret
+  ([vakttestene](../../../docs/vedtaksregister/README.md#vakttestene)). NS 8407-teksten ligger ikke i arbeidstreet. Hent den med
   `git show 507e2254^:docs/NS_8407.md`, etter `git fetch --unshallow origin main`
   i en grunn klone. Den legges ikke tilbake i repoet. Påstander om koden i
   spørsmålene kontrolleres av en subagent. En økt ser bare det den har lett
   etter.
 - **Prøv hvert alternativ mot vedtakene i 3.1, én gang, når spørsmålet
-  stilles.** Det er skjønn og ingen vakttest ser det: strider alternativet mot
-  et vedtak, og er forholdet en presisering, en utvidelse, en innsnevring, en
-  endring eller en oppheving? Et alternativ som strider mot et vedtak, er enten
-  feil eller et forslag om å oppheve vedtaket, og det skal stå i alternativet.
-  Forholdet skrives i spørsmålet, så det følger svaret inn i registeret.
+  stilles.** Det er skjønn og ingen vakttest ser det. En subagent gjør det, med
+  kildene: strider alternativet mot et vedtak, og stemmer forholdet
+  (presiserer, utvider, snevrer inn, endrer, opphever) med spørsmålet? Et
+  alternativ som strider mot et vedtak, er enten feil eller et forslag om å
+  oppheve vedtaket, og det skal stå i alternativet. Forholdet skrives i
+  spørsmålet, så det følger svaret inn i registeret.
 - **Passer svaret ikke på et alternativ, still et oppfølgingsspørsmål** med
   lesningene du ser. Velg ikke selv.
 - **Send svaret ordrett** til hver økt det berører, også til økter som ikke
@@ -222,12 +223,14 @@ skriver ikke der.
 - Rører bare én PR i runden planen, kan den økta føre et vedtak den trenger, i
   samme PR, på samme måte.
 - En vedtakstekst skrives ikke om, verken når den føres eller etter merge.
-  Vakttestene i CI erstatter kontrollrundene med en subagent: raden er lik det
-  verktøyet lager av det valgte alternativet, vedtakene, ankrene og datoene på
-  `main` står uendret, ID-en er ledig, forholdet står begge veier, vedtaksteksten
-  har ingen kodenavn, og sitatene står ordrett i kilden. Det som krever skjønn,
-  er kontrollert én gang, da spørsmålet ble stilt (over). Kommer et svar som
-  ikke passer på et alternativ, stilles et oppfølgingsspørsmål.
+  [Vakttestene](../../../docs/vedtaksregister/README.md#vakttestene) i CI
+  erstatter kontrollrundene av vedtaksteksten. Det som krever skjønn, er
+  kontrollert én gang, da spørsmålet ble stilt (over). Kommer et svar som ikke
+  passer på et alternativ, stilles et oppfølgingsspørsmål.
+- Før vedtaks-PR-en merges, kontrollerer en subagent én gang `folge` i de nye
+  postene og hver ny eller endret tekst i `etter` og `innledning` mot svarene
+  ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,
+  beskrivelser av dagens atferd uten belegg, og arbeidsstatus.
 - Merknaden om at et punkt i en arbeidspakke er levert, skriver orkestratoren i
   en egen liten PR etter mergen.
 
