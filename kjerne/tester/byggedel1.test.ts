@@ -363,6 +363,43 @@ describe('registrerte brev som viser til en kravversjon uten virkning', () => {
     expect(u.utenVirkning.map((x) => x.element)).toEqual([k.navn.id('K-g2'), k.navn.id('S-v1')]);
   });
 
+  it('en registrert begrunnelse av et svar uten virkning, sendt før svaret, avvises (KA-U36, KA-U38)', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      ...foer,
+      {
+        handling: 'rad',
+        spor: 'vederlag',
+        navn: 'S-v1',
+        dokument: 'D5',
+        gjelder: 'K-v1',
+        grunnlagskrav: 'K-g2',
+        vurdering: 'godkjent',
+        godkjent_belop: 100000,
+        sendt: '2026-10-02',
+      },
+    ]);
+    const journal = await bane.journal();
+    const begrunnelse = (sendt: string) => {
+      const u = vurder(
+        { type: 'begrunnelse', gjelder: k.navn.id('S-v1'), sendt, dokumentasjon: [randomUUID()] },
+        {
+          sakId: journal[0].sak_id,
+          aktoerId: 'bh',
+          part: 'BH',
+          teamId: null,
+          tidspunkt: () => new Date('2026-10-11T08:00:00Z'),
+          nyId: () => randomUUID(),
+        },
+        journal,
+        KJERNE
+      );
+      return u.godtatt ? null : u.avvisning.regel;
+    };
+    expect(begrunnelse('2026-10-02'), 'kontrollsak').toBeNull();
+    expect(begrunnelse('2026-10-01')).toBe('BEGRUNNELSE_FOER_SVARET');
+  });
+
   it('en påberopt passivitet mot den er forstått', async () => {
     const bane = minnebane();
     await bygg(bane, [
