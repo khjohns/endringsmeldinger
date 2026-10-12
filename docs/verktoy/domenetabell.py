@@ -46,10 +46,10 @@ RADFELT = (
 VALGFRIE_RADFELT = ("funksjoner", "regelkoder")
 KILDETYPER = {"vedtak", "standard", "arbeidsvalg"}
 # Regelkodene i kjernen er strenglitteraler i disse formene; `_regelkoder_i_kjernen`
-# feiler på et kall til `avvis` uten en.
+# feiler på et kall til `avvis` uten en. Linjer som er kommentarer, leses ikke.
 REGELKODE = re.compile(r"\b(?:avvis\(\s*|regel:\s*|new \w+\(\s*)'([A-Z][A-Z0-9_]+)'")
 AVVIS_KALL = re.compile(r"\bavvis\((?!\s*')")
-FUNKSJON = re.compile(r"^(?!.*\.\.)(?P<sti>[\w./-]+\.(?:ts|py))#(?P<navn>\w+)$")
+FUNKSJON = re.compile(r"^(?!/)(?!.*\.\.)(?P<sti>[\w./-]+\.(?:ts|py))#(?P<navn>\w+)$")
 TIDSAKSER = {"registrering": "registrering", "sendt_mottatt": "sendt/mottatt"}
 ROLLER = {"forutsetning", "mal", "kontroll"}
 HANDLINGER = {
@@ -151,10 +151,10 @@ def _valider_rader(regler: dict) -> list[str]:
         if not rad["kilder"]:
             feil.append(f"{navn}: mangler kilde")
         feil += [f"{navn}: ukjent kilde {k}" for k in rad["kilder"] if k not in kilder]
-        # Punkt 9 i #451: et arbeidsvalg er ikke et vedtak, så det alene gir ikke avklart tolkning.
+        # Avklart tolkning følger av et vedtak i 3.1; et arbeidsvalg er ikke et (punkt 9 i #451).
         typer = {kilder[k]["type"] for k in rad["kilder"] if k in kilder}
-        if typer == {"arbeidsvalg"} and rad["tolkningsstatus"] == "avklart_tolkning":
-            feil.append(f"{navn}: et arbeidsvalg alene gir ikke avklart tolkning")
+        if rad["tolkningsstatus"] == "avklart_tolkning" and "vedtak" not in typer:
+            feil.append(f"{navn}: avklart tolkning uten et vedtak blant kildene")
     return feil
 
 
@@ -162,7 +162,7 @@ def _deklarert(sti: pathlib.Path, navn: str) -> bool:
     if sti.suffix == ".py":
         moenster = rf"^\s*(?:async\s+)?(?:def|class)\s+{navn}\b"
     else:
-        moenster = rf"(?:\bfunction\*?\s+{navn}\b|\b(?:const|let|class)\s+{navn}\b)"
+        moenster = rf"^\s*(?:export\s+)?(?:async\s+)?(?:function\*?|const|let|class)\s+{navn}\b"
     return re.search(moenster, sti.read_text(encoding="utf-8"), re.MULTILINE) is not None
 
 
@@ -172,7 +172,7 @@ def _regelkoder_i_kjernen(rot: pathlib.Path) -> tuple[set[str], list[str]]:
     for sti in sorted((rot / "kjerne").rglob("*.ts")):
         if "tester" in sti.relative_to(rot / "kjerne").parts:
             continue
-        tekst = sti.read_text(encoding="utf-8")
+        tekst = re.sub(r"^\s*(?://|/?\*).*$", "", sti.read_text(encoding="utf-8"), flags=re.MULTILINE)
         koder |= set(REGELKODE.findall(tekst))
         for m in AVVIS_KALL.finditer(tekst):
             linje = tekst.count("\n", 0, m.start()) + 1
@@ -187,11 +187,17 @@ def _valider_sporbarhet(regler: dict, maalmodell: dict, rot: pathlib.Path) -> li
     koder, feil = _regelkoder_i_kjernen(rot)
     bevist: dict[str, set[str]] = {}
     for forlop in maalmodell["forlop"]:
-        regler_i_forlop = {k["forventet"]["regel"] for k in forlop["kontroller"] if "regel" in k["forventet"]}
-        for r in forlop["rader"]:
-            bevist.setdefault(r, set()).update(regler_i_forlop)
+        for k in forlop["kontroller"]:
+            if "regel" not in k["forventet"]:
+                continue
+            # Viser kontrollen til rader i `kilde`, gjelder koden dem; ellers forløpets rader.
+            rader = [q for q in k.get("kilde", []) if q in forlop["rader"]] or forlop["rader"]
+            for r in rader:
+                bevist.setdefault(r, set()).add(k["forventet"]["regel"])
     paa_rad = set()
     for rad in regler["rader"]:
+        if not set(RADFELT) <= set(rad):
+            continue  # Rapportert av _valider_rader.
         navn = rad["id"]
         for felt in VALGFRIE_RADFELT:
             if felt in rad and (not rad[felt] or len(set(rad[felt])) != len(rad[felt])):
