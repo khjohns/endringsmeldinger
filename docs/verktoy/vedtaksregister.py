@@ -6,6 +6,7 @@ vedtakene; fordelingen står i docs/vedtaksregister/README.md.
     python3 docs/verktoy/vedtaksregister.py            # kontroller registeret og skriv 3.1
     python3 docs/verktoy/vedtaksregister.py --sjekk    # bare kontroller, skriv ingenting
     python3 docs/verktoy/vedtaksregister.py --importer # les 3.1 inn i registeret (#413)
+    python3 docs/verktoy/vedtaksregister.py --forhold  # list forholdene i de importerte postene (#423)
 
 Importen ble brukt én gang, da radene i 3.1 ble ført inn ordrett. Den nekter å
 overskrive et register med en ny post, fordi spørsmålene og svarene i de nye
@@ -16,6 +17,11 @@ Det er to former for poster. En importert post har cellene fra 3.1 ordrett:
 `hvem`, `kilde`, `sporsmal`, alternativene, `valgt`, `svar` og eventuelt `forhold`,
 `folge` og `sitat`; raden lages av dem. Kontrollene av kodenavn og sitater gjelder
 de nye postene.
+
+En importert post kan også ha `forhold`: de forholdene Følge sier uttrykkelig (#423).
+De står allerede i teksten, så verktøyet skriver dem ikke; kontrollen holder dem lik
+teksten. `--forhold` lister forholdene som står bare én vei, og formuleringene som
+ikke leses.
 """
 
 import argparse
@@ -53,7 +59,7 @@ FORHOLD = {
     "endrer": "Endret",
     "opphever": "Opphevet",
 }
-IMPORTERT = {"anker", "vedtak", "vedtatt", "folge"}
+IMPORTERT = {"anker", "vedtak", "vedtatt", "folge", "forhold"}
 NY = {
     "id",
     "dato",
@@ -70,7 +76,7 @@ NY = {
 NY_PAAKREVD = {"id", "dato", "hvem", "kilde", "sporsmal", "alternativ", "valgt", "svar"}
 SITATKILDER = ("ns8407", "hovedplanen")
 ID = re.compile(r"[A-ZÆØÅ]+(-[A-Z0-9]+)+")
-ANKER = re.compile(r'^<a id="([^"]+)"></a>')
+ANKER = re.compile(r'<a id="([^"]+)"></a>')
 KODENAVN = (
     (re.compile(r"`"), "backtick"),
     (re.compile(r"\b[a-zæøå][a-zæøå0-9]*_[a-zæøå0-9_]+\b"), "snake_case"),
@@ -144,6 +150,15 @@ def poster(register: dict) -> list[dict]:
     return [p for g in register["gruppe"] for p in g["vedtak"]]
 
 
+def _nye(register: dict | None) -> list[dict]:
+    return [p for p in poster(register or {"gruppe": []}) if er_ny(p)]
+
+
+def _skrevne_forhold(post: dict) -> list[dict]:
+    """Forholdene verktøyet skriver. I en importert post står de allerede i Følge (#423)."""
+    return post.get("forhold", []) if er_ny(post) else []
+
+
 def er_ny(post: dict) -> bool:
     return "vedtatt" not in post
 
@@ -198,7 +213,7 @@ def indeks(register: dict) -> tuple[dict, dict]:
     alle = {anker(p): p for p in poster(register) if anker(p)}
     senere = {}
     for p in poster(register):
-        for f in p.get("forhold", []) if er_ny(p) else []:
+        for f in _skrevne_forhold(p):
             senere.setdefault(f["vedtak"], []).append((p["dato"], f["art"], p["id"], p))
     return alle, senere
 
@@ -207,7 +222,7 @@ def folgecelle(post: dict, register: dict, ix: tuple[dict, dict] | None = None) 
     alle, senere = ix or indeks(register)
     deler = [
         f"{f['art'].capitalize()} {_lenke(alle[f['vedtak']])}."
-        for f in post.get("forhold", [])
+        for f in _skrevne_forhold(post)
     ]
     deler += [
         f"{FORHOLD[art]} {_dato(dato)} av {_lenke(p)}."
@@ -238,6 +253,229 @@ def plan_med(register: dict, plan: str) -> str:
     return plan[:start] + markdown(register) + plan[slutt:]
 
 
+# --------------------------------------------------------------------------
+# Forholdene Følge i en importert post sier uttrykkelig (#423)
+# --------------------------------------------------------------------------
+
+PASSIV = {navn.lower(): art for art, navn in FORHOLD.items()}
+_LENKE = r"\[[^\]]+\]\(#[^)]+\)"
+LENKE = re.compile(_LENKE)
+_LISTE = rf"{_LENKE}(?:, {_LENKE})*(?: og {_LENKE})?"
+_DATO = r"(?: \d{2}\.\d{2}| \d{4}-\d{2}-\d{2})?"
+
+
+def _verb(former, stor: bool = False) -> str:
+    """Ett verb, eller flere med «og»: «Presiserer og utvider». Det første kan ha stor forbokstav."""
+    alle = "|".join(former)
+    foerste = "|".join(f.capitalize() for f in former) if stor else alle
+    return rf"(?:{foerste})(?: og (?:{alle}))*(?!\w)"
+
+
+AKTIV_FOERST = re.compile(rf"({_verb(FORHOLD, True)})(?: også)? ({_LISTE})?")
+AKTIV_SENERE = re.compile(rf",? og ({_verb(FORHOLD)})(?: også)? ({_LISTE})")
+PASSIV_FOERST = re.compile(rf"({_verb(PASSIV, True)}){_DATO}(?: av ({_LISTE}))?")
+PASSIV_SENERE = re.compile(rf",? og (?:({_verb(PASSIV)}){_DATO} )?av ({_LISTE})")
+VERBFORMER = re.compile(
+    r"(?i)\b(?:presiser(?:er|t|te|es)|utvid(?:er|et|es|a)|snevr(?:er|et|es) inn"
+    r"|endr(?:er|et|es|a)|opphev(?:er|et|es))\b"
+)
+HENVISNING = re.compile(r"\b[A-ZÆØÅ]+\d*(?:-[A-Z]*\d+)+\b")
+
+
+def _ledd(tekst: str) -> list[str]:
+    """Setningene og leddene, delt ved punktum, kolon og semikolon utenfor (), [] og «»."""
+    deler, start, dybde = [], 0, 0
+    for i, tegn in enumerate(tekst):
+        if tegn in "([«":
+            dybde += 1
+        elif tegn in ")]»":
+            dybde = max(0, dybde - 1)
+        elif dybde == 0 and tegn in ".:;" and tekst[i + 1 : i + 2] in (" ", "*", ""):
+            deler.append(tekst[start : i + 1])
+            start = i + 1
+    deler.append(tekst[start:])
+    return [d.strip(" *") for d in deler if d.strip(" *")]
+
+
+def _arter(verb: str, retning: str) -> list[str]:
+    return [v if retning == "aktiv" else PASSIV[v] for v in verb.lower().split(" og ")]
+
+
+def les_forhold(folge: str) -> tuple[list[tuple[str, str, str]], list[str]]:
+    """Forholdene Følge sier uttrykkelig, som (retning, art, anker), og leddene den ikke kan lese.
+
+    Et ledd leses bare når det begynner med verbet: «Presiserer [KA-U12](#ka-u12)» (aktiv) eller
+    «Presisert 10.10 av [KA-U17](#ka-u17)» (passiv). Da er subjektet vedtaket selv. Senere i
+    leddet leses «og presiserer [X](#x)», og i et passivt ledd «og utvidet av [X](#x)» og
+    «og av [X](#x)». Lenkene etter verbet er en liste: «[A](#a), [B](#b) og [C](#c)». Annen
+    tekst tolkes ikke. Et ledd med en form av verbene og en henvisning som ikke er lest, som
+    «er presisert 09.10 av [KA-U12](#ka-u12)» eller «Presiserer KA-U8», er ulest.
+    """
+    funn, uleste = [], []
+    for ledd in _ledd(linje(folge)):
+        lest = []
+        for retning, foerst, senere in (
+            ("aktiv", AKTIV_FOERST, AKTIV_SENERE),
+            ("passiv", PASSIV_FOERST, PASSIV_SENERE),
+        ):
+            start = foerst.match(ledd)
+            if not start:
+                continue
+            arter = _arter(start.group(1), retning)
+            for m in [start] + list(senere.finditer(ledd, start.end())):
+                if m.group(1):
+                    arter = _arter(m.group(1), retning)
+                if m.group(2):
+                    lest.append(m.span(2))
+                    funn += [
+                        (retning, art, a)
+                        for a in re.findall(r"\]\(#([^)]+)\)", m.group(2))
+                        for art in arter
+                    ]
+            break
+        if not VERBFORMER.search(ledd):
+            continue
+        rest = ledd
+        for fra, til in lest:
+            rest = rest[:fra] + " " * (til - fra) + rest[til:]
+        if LENKE.search(rest) or HENVISNING.search(
+            re.sub(r"\[[^\]]*\]\([^)]*\)", " ", rest)
+        ):
+            uleste.append(ledd)
+    return funn, uleste
+
+
+def uttrykkelige_forhold(register: dict) -> tuple[dict, list[str], list[str]]:
+    """Forholdene Følge i de importerte postene sier uttrykkelig, det som ikke kan føres, og
+    feilene.
+
+    Nøkkelen er (posten som presiserer, utvider, …, arten, ankeret til vedtaket den gjelder),
+    og verdien hvor forholdet står: {"aktiv"} hos posten selv, {"passiv"} hos vedtaket den
+    gjelder, eller begge. Et forhold føres hos posten i aktiv form, som i en ny post. Det som
+    ikke kan føres, er et ledd som ikke leses, og en passiv form i en rad uten anker; det
+    listes for oppdragsgiver. En lenke som ikke er til et vedtak, til vedtaket selv eller,
+    i passiv form, til en ny post, er en feil.
+    """
+    ps = poster(register)
+    alle = {anker(p): i for i, p in enumerate(ps) if anker(p)}
+    forhold, avvik, feil = {}, [], []
+    for i, p, navn in _importerte(ps):
+        funn, uleste = les_forhold(p["folge"])
+        avvik += [f"{navn}: ikke entydig: «{ledd}»" for ledd in uleste]
+        for retning, art, a in funn:
+            if a not in alle:
+                feil.append(f"{navn}: «{art}» viser til #{a}, som ikke er et vedtak")
+                continue
+            if a == anker(p):
+                feil.append(f"{navn}: forholdet viser til vedtaket selv")
+                continue
+            if retning == "aktiv":
+                noekkel = (i, art, a)
+            elif er_ny(ps[alle[a]]):
+                feil.append(
+                    f"{navn}: «{FORHOLD[art]} av #{a}» står i teksten, men #{a} er en ny post"
+                )
+                continue
+            elif not anker(p):
+                avvik.append(
+                    f"{navn}: «{FORHOLD[art]} av #{a}» står i en rad uten anker og kan ikke føres"
+                )
+                continue
+            else:
+                noekkel = (alle[a], art, anker(p))
+            forhold.setdefault(noekkel, set()).add(retning)
+    return forhold, avvik, feil
+
+
+def _importerte(ps: list[dict]):
+    """De importerte postene, med indeksen i `ps` og navnet i meldingene."""
+    return [(i, p, anker(p) or etikett(p)) for i, p in enumerate(ps) if not er_ny(p)]
+
+
+def _en_vei(ps: list[dict], funnet: dict) -> set[tuple[str, str, str, str]]:
+    """Forholdene som står bare én vei, i formen til EN_VEI."""
+    return {
+        (anker(ps[i]) or etikett(ps[i]), art, a, *staar)
+        for (i, art, a), staar in funnet.items()
+        if len(staar) == 1
+    }
+
+
+def _en_vei_tekst(post: str, art: str, vedtak: str, staar: str) -> str:
+    return (
+        f"{post} {art} #{vedtak}: står bare hos {post if staar == 'aktiv' else vedtak}"
+    )
+
+
+def forholdfeil(register: dict) -> list[str]:
+    """Forholdene i de importerte postene er de Følge sier uttrykkelig, og de står begge veier,
+    unntatt dem i EN_VEI. Forutsetter et gyldig register."""
+    ps = poster(register)
+    funnet, _, feil = uttrykkelige_forhold(register)
+    per_post = collections.defaultdict(collections.Counter)
+    for i, art, a in funnet:
+        per_post[i][art, a] += 1
+    for i, p, navn in _importerte(ps):
+        foert = collections.Counter(
+            (f["art"], f["vedtak"]) for f in p.get("forhold", [])
+        )
+        lest = per_post[i]
+        feil += [
+            f"{navn}: forholdet «{art} #{a}» står i registeret, men ikke uttrykkelig i Følge"
+            for art, a in foert - lest
+        ]
+        feil += [
+            f"{navn}: Følge sier «{art} #{a}», men forholdet står ikke i registeret"
+            for art, a in lest - foert
+        ]
+    en_vei = _en_vei(ps, funnet)
+    feil += [_en_vei_tekst(*v) for v in sorted(en_vei - EN_VEI)]
+    feil += [
+        f"{v[0]} {v[1]} #{v[2]}: står i EN_VEI, men ikke bare én vei i Følge"
+        for v in sorted(EN_VEI - en_vei)
+    ]
+    return feil
+
+
+# Forholdene som står bare én vei i Følge, som (posten, arten, vedtaket den gjelder, der
+# forholdet står). Lagt fram for oppdragsgiver i PR-en for #423; listen rettes ikke i
+# stillhet.
+EN_VEI = frozenset(
+    {
+        ("b-19", "endrer", "b-18", "passiv"),
+        ("eo-u1", "presiserer", "gr-u3", "passiv"),
+        ("eo-u5", "presiserer", "eo-u2", "passiv"),
+        ("gr-u10", "presiserer", "gr-u2", "passiv"),
+        ("gr-u10", "presiserer", "gr-u7", "passiv"),
+        ("gr-u13", "endrer", "gr-u10", "passiv"),
+        ("gr-u13", "endrer", "gr-u12", "passiv"),
+        ("gr-u7", "presiserer", "ka-u5", "passiv"),
+        ("ka-u10", "presiserer", "mm-u3", "passiv"),
+        ("ka-u11", "presiserer", "gr-u9", "passiv"),
+        ("ka-u12", "presiserer", "eo-u5", "passiv"),
+        ("ka-u12", "presiserer", "ka-u11", "passiv"),
+        ("ka-u13", "snevrer inn", "ka-u7", "passiv"),
+        ("ka-u14", "presiserer", "ka-u13", "passiv"),
+        ("ka-u15", "presiserer", "gr-u7", "passiv"),
+        ("ka-u15", "presiserer", "ka-u12", "passiv"),
+        ("ka-u25", "presiserer", "ka-u22", "passiv"),
+        ("ka-u26", "presiserer", "ka-u11", "passiv"),
+        ("ka-u29", "presiserer", "ka-u11", "passiv"),
+        ("ka-u29", "utvider", "mm-u7", "passiv"),
+        ("lv-u4", "presiserer", "ka-u22", "passiv"),
+        ("mm-u11", "presiserer", "mm-u9", "passiv"),
+        ("mm-u12", "presiserer", "mm-u9", "passiv"),
+        ("mm-u13", "presiserer", "mm-u11", "passiv"),
+        ("mm-u18", "presiserer", "hf-u1", "aktiv"),
+        ("mm-u7", "presiserer", "mm-u1", "passiv"),
+        ("mm-u8", "presiserer", "mm-u1", "passiv"),
+        ("mm-u9", "opphever", "mm-u4", "passiv"),
+        ("mm-u9", "opphever", "mm-u5", "passiv"),
+        ("mm-u9", "opphever", "mm-u6", "passiv"),
+    }
+)
+
+
 TEKST = (str, "tekst")
 TYPER_NY = {
     "id": TEKST,
@@ -259,6 +497,9 @@ DELER = {
     "forhold": ({"art": TEKST, "vedtak": TEKST}, {}),
     "sitat": ({"kilde": TEKST, "tekst": TEKST}, {"utdrag": (bool, "true eller false")}),
 }
+IMPORTERT_PAAKREVD = {"vedtak", "vedtatt", "folge"}
+TYPER_IMPORTERT = dict.fromkeys(IMPORTERT, TEKST) | {"forhold": TYPER_NY["forhold"]}
+DELER_IMPORTERT = {"forhold": DELER["forhold"]}
 
 
 def _typefeil(navn: str, o: dict, typer: dict) -> list[str]:
@@ -279,11 +520,9 @@ def _formfeil(p, navn: str) -> list[str]:
             f"{navn}: ukjent felt {f} i en importert post"
             for f in sorted(felt - IMPORTERT)
         ]
-        feil += [
-            f"{navn}: mangler {f}"
-            for f in sorted({"vedtak", "vedtatt", "folge"} - felt)
-        ]
-        return feil + _typefeil(navn, p, dict.fromkeys(IMPORTERT, TEKST))
+        feil += [f"{navn}: mangler {f}" for f in sorted(IMPORTERT_PAAKREVD - felt)]
+        feil += _typefeil(navn, p, TYPER_IMPORTERT)
+        return feil + _delfeil(p, navn, DELER_IMPORTERT)
     feil = [f"{navn}: mangler {f}" for f in sorted(NY_PAAKREVD - felt)]
     feil += [f"{navn}: ukjent felt {f}" for f in sorted(felt - NY)]
     feil += _typefeil(navn, p, TYPER_NY)
@@ -297,13 +536,22 @@ def _formfeil(p, navn: str) -> list[str]:
     if isinstance(p.get("kilde"), list) and (
         not p["kilde"] or not all(isinstance(k, str) for k in p["kilde"])
     ):
-        feil.append(
-            f'{navn}: kilde skal være en liste med issue eller PR, som ["#413"]'
-        )
-    for liste, (paakrevd, valgfrie) in DELER.items():
-        for i, o in enumerate(
-            p.get(liste, []) if isinstance(p.get(liste), list) else [], 1
-        ):
+        feil.append(f"{navn}: kilde skal være {TYPER_NY['kilde'][1]}")
+    return feil + _delfeil(p, navn, DELER)
+
+
+def _liste(o: dict, felt: str) -> list:
+    return o[felt] if isinstance(o.get(felt), list) else []
+
+
+def _nevner(navn: str, tekst: str) -> bool:
+    return bool(re.search(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst))
+
+
+def _delfeil(p: dict, navn: str, deler: dict) -> list[str]:
+    feil = []
+    for liste, (paakrevd, valgfrie) in deler.items():
+        for i, o in enumerate(_liste(p, liste), 1):
             if not isinstance(o, dict):
                 feil.append(f"{navn}: {liste} {i} er ikke en tabell")
                 continue
@@ -344,14 +592,12 @@ def valider(register: dict) -> list[str]:
         )
         if "tittel" not in g:
             feil.append("en gruppe mangler tittel")
-        for i, p in enumerate(
-            g.get("vedtak", []) if isinstance(g.get("vedtak"), list) else [], 1
-        ):
+        for i, p in enumerate(_liste(g, "vedtak"), 1):
             feil += _formfeil(p, f"gruppe {tittel}, vedtak {i}")
     if feil:
         return feil
 
-    ankre = {}
+    ankre = set()
     for p in poster(register):
         navn = p.get("id") or p.get("anker") or linje(p["vedtak"])[:40]
         if er_ny(p):
@@ -362,15 +608,14 @@ def valider(register: dict) -> list[str]:
                 feil.append(f"{navn}: to alternativer har samme navn")
             if p["valgt"] not in navnene:
                 feil.append(f"{navn}: valgt «{p['valgt']}» er ikke et alternativ")
-            if not re.search(rf"(?<!\w){re.escape(p['valgt'])}(?!\w)", p["svar"]):
+            if not _nevner(p["valgt"], p["svar"]):
                 feil.append(
                     f"{navn}: svaret nevner ikke det valgte alternativet «{p['valgt']}»"
                 )
             andre = [
                 a["navn"]
                 for a in p["alternativ"]
-                if a["navn"] != p["valgt"]
-                and re.search(rf"(?<!\w){re.escape(a['navn'])}(?!\w)", p["svar"])
+                if a["navn"] != p["valgt"] and _nevner(a["navn"], p["svar"])
             ]
             if andre:
                 feil.append(
@@ -381,27 +626,27 @@ def valider(register: dict) -> list[str]:
                 a["navn"] == p["valgt"] and a.get("forkastet") for a in p["alternativ"]
             ):
                 feil.append(f"{navn}: det valgte alternativet er forkastet")
-            for f in p.get("forhold", []):
-                if f["art"] not in FORHOLD:
-                    feil.append(
-                        f"{navn}: ukjent forhold «{f['art']}»; bruk {', '.join(FORHOLD)}"
-                    )
             for s in p.get("sitat", []):
                 k = s["kilde"]
                 if k not in SITATKILDER and not _fil_i_treet(k):
                     feil.append(
                         f"{navn}: sitatkilden «{k}» er verken {' eller '.join(SITATKILDER)} eller en fil i treet"
                     )
+        for f in p.get("forhold", []):
+            if f["art"] not in FORHOLD:
+                feil.append(
+                    f"{navn}: ukjent forhold «{f['art']}»; bruk {', '.join(FORHOLD)}"
+                )
         a = anker(p)
         if a:
             if a in ankre:
                 feil.append(f"{navn}: ankeret «{a}» står to ganger")
-            ankre[a] = p
+            ankre.add(a)
     if feil:
         return feil
     for p in poster(register):
         navn = anker(p) or linje(p["vedtak"])[:40]
-        for f in p.get("forhold", []) if er_ny(p) else []:
+        for f in p.get("forhold", []):
             if f["vedtak"] not in ankre:
                 feil.append(
                     f"{navn}: forholdet viser til «{f['vedtak']}», som ikke er ankeret til et vedtak"
@@ -451,16 +696,20 @@ def kodenavn(post: dict) -> list[str]:
 # --------------------------------------------------------------------------
 
 
-def git_fil(commit: str, sti: str) -> str | None:
-    """Fila slik den var i commiten, eller None når historikken mangler."""
+def _git(*argumenter: str) -> str | None:
     resultat = subprocess.run(
-        ["git", "-C", str(ROT), "show", f"{commit}:{sti}"],
+        ["git", "-C", str(ROT), *argumenter],
         capture_output=True,
         text=True,
         encoding="utf-8",
         check=False,
     )
     return resultat.stdout if resultat.returncode == 0 else None
+
+
+def git_fil(commit: str, sti: str) -> str | None:
+    """Fila slik den var i commiten, eller None når historikken mangler."""
+    return _git("show", f"{commit}:{sti}")
 
 
 def grunnlag() -> str | None:
@@ -475,10 +724,8 @@ def grunnlag() -> str | None:
         kommando = ["rev-parse", "--verify", "HEAD^1^{commit}"]
     else:
         kommando = ["merge-base", "HEAD", "origin/main"]
-    resultat = subprocess.run(
-        ["git", "-C", str(ROT), *kommando], capture_output=True, text=True, check=False
-    )
-    return resultat.stdout.strip() if resultat.returncode == 0 else None
+    resultat = _git(*kommando)
+    return resultat.strip() if resultat is not None else None
 
 
 def normaliser(tekst: str) -> str:
@@ -585,7 +832,7 @@ def kilder_paa(commit: str | None):
 
 
 def ankre_i(plan: str) -> list[str]:
-    return re.findall(r'<a id="([^"]+)"></a>', plan)
+    return ANKER.findall(plan)
 
 
 def doble_ankre(plan: str) -> list[str]:
@@ -597,8 +844,13 @@ def doble_ankre(plan: str) -> list[str]:
     )
 
 
+def _avsnitt_i(plan: str) -> dict:
+    """3.1 i planen som register med importerte poster."""
+    return les_avsnitt(plan[slice(*avsnitt(plan))])
+
+
 def _rader(plan: str) -> list[dict]:
-    return poster(les_avsnitt(plan[slice(*avsnitt(plan))]))
+    return poster(_avsnitt_i(plan))
 
 
 def _noekkel(p: dict) -> tuple:
@@ -617,9 +869,6 @@ def endrede_rader(gammel_plan: str, plan: str) -> list[str]:
     ]
 
 
-LENKE = re.compile(r"\[[^\]]+\]\(#[^)]+\)")
-
-
 def _avsnittene(tekst: str) -> list[str]:
     return re.split(r"\n(?:[ \t]*>)?[ \t]*\n", tekst)
 
@@ -632,8 +881,7 @@ def _bare_lagt_til(gammel: str, ny: str) -> bool:
 
 
 HENVISNINGER = re.compile(
-    r"^(?:(?:Presisert|Utvidet|Snevret inn|Endret|Opphevet) \d{2}\.\d{2} av "
-    r"\[[^\]]+\]\(#[^)]+\)\.(?: |$))*"
+    rf"^(?:(?:{'|'.join(FORHOLD.values())}) \d{{2}}\.\d{{2}} av {_LENKE}\.(?: |$))*"
 )
 
 
@@ -658,8 +906,8 @@ def endret_rundt_vedtakene(
     og gruppetitlene kan bare få hele avsnitt lagt til, en rad blir i gruppen sin, lenkene i
     Følge blir stående, og Følge i en importert rad får bare tekst lagt til. Radene med
     ankrene i `nye_ankre` er nye poster; der lages Følge av `folge`, som kan endres."""
-    gammel = les_avsnitt(gammel_plan[slice(*avsnitt(gammel_plan))])
-    ny = les_avsnitt(plan[slice(*avsnitt(plan))])
+    gammel = _avsnitt_i(gammel_plan)
+    ny = _avsnitt_i(plan)
     feil = []
     if not _bare_lagt_til(gammel["innledning"], ny["innledning"]):
         feil.append("innledningen til 3.1: tekst er endret eller fjernet")
@@ -712,23 +960,17 @@ def mot_grunnlag(
         feil += [
             f"{a or v[:60]}: en importert post som ikke står i 3.1 på main; et nytt vedtak føres som ny post"
         ] * n
-    gamle_nye = {
-        p["id"]: p for p in poster(gammel_register or {"gruppe": []}) if er_ny(p)
-    }
-    for p in poster(register):
-        if (
-            er_ny(p)
-            and p["id"] not in gamle_nye
-            and re.search(rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", gammel_plan)
+    gamle_nye = {p["id"]: p for p in _nye(gammel_register)}
+    for p in _nye(register):
+        if p["id"] not in gamle_nye and re.search(
+            rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", gammel_plan
         ):
             feil.append(f"{p['id']}: ID-en står i hovedplanen på main fra før")
-    naa = {p["id"]: p for p in poster(register) if er_ny(p)}
+    naa = {p["id"]: p for p in _nye(register)}
     for id_, gammel in gamle_nye.items():
         if id_ not in naa:
             feil.append(f"{id_}: posten er fjernet fra registeret")
-        elif {k: v for k, v in gammel.items() if k != "folge"} != {
-            k: v for k, v in naa[id_].items() if k != "folge"
-        }:
+        elif gammel | {"folge": None} != naa[id_] | {"folge": None}:
             feil.append(
                 f"{id_}: spørsmålet, alternativene, svaret eller et annet felt enn folge er endret etter merge"
             )
@@ -745,14 +987,12 @@ def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
         return doble_ankre(plan) + sitatfeil(register, kilder_paa(None))
     gammel_tekst = git_fil(commit, REGISTER.relative_to(ROT).as_posix())
     gammel_register = tomllib.loads(gammel_tekst) if gammel_tekst else None
-    merget = frozenset(
-        p["id"] for p in poster(gammel_register or {"gruppe": []}) if er_ny(p)
-    )
+    merget = frozenset(p["id"] for p in _nye(gammel_register))
     return (
         doble_ankre(plan)
         + endrede_rader(gammel_plan, plan)
         + endret_rundt_vedtakene(
-            gammel_plan, plan, frozenset(anker(p) for p in poster(register) if er_ny(p))
+            gammel_plan, plan, frozenset(anker(p) for p in _nye(register))
         )
         + mot_grunnlag(register, gammel_plan, gammel_register)
         + sitatfeil(register, kilder_paa(commit), merget)
@@ -799,13 +1039,14 @@ TOPP = """\
 # og når en ny post bryter reglene i README.md.
 #
 # Postene med «vedtatt» er importert ordrett fra 3.1 12.10. En tekst brutt over
-# flere linjer er én linje i tabellen.
+# flere linjer er én linje i tabellen. Deres «forhold» er lest ut av Følge (#423)
+# og står allerede i teksten, så verktøyet skriver dem ikke.
 """
 
 
 def toml(register: dict) -> str:
     """Registeret som TOML. Brukes av importen; nye poster skrives for hånd."""
-    if any(er_ny(p) for p in poster(register)):
+    if _nye(register):
         raise ValueError("toml() skriver bare importerte poster")
     ut = [
         TOPP,
@@ -840,16 +1081,28 @@ def main() -> int:
     tolk.add_argument(
         "--importer", action="store_true", help="les 3.1 inn i registeret"
     )
+    tolk.add_argument(
+        "--forhold",
+        action="store_true",
+        help="list forholdene i de importerte postene som står bare én vei og det som ikke "
+        "leses, og kontroller forholdene",
+    )
     valg = tolk.parse_args()
     plan = HOVEDPLAN.read_text(encoding="utf-8")
 
     if valg.importer:
-        if REGISTER.exists() and any(er_ny(p) for p in poster(les())):
+        gammelt = les() if REGISTER.exists() else {"gruppe": []}
+        if _nye(gammelt):
             print(
                 "Registeret har nye poster. Importen ville slettet spørsmålene og svarene deres."
             )
             return 1
-        register = les_avsnitt(plan[slice(*avsnitt(plan))])
+        if any("forhold" in p for p in poster(gammelt)):
+            print(
+                "Registeret har forhold i de importerte postene (#423). Importen ville slettet dem."
+            )
+            return 1
+        register = _avsnitt_i(plan)
         REGISTER.parent.mkdir(exist_ok=True)
         REGISTER.write_text(toml(register), encoding="utf-8")
         if plan_med(les(), plan) != plan:
@@ -862,11 +1115,24 @@ def main() -> int:
 
     register = les()
     feil = valider(register)
+    if not feil and valg.forhold:
+        forhold, avvik, _ = uttrykkelige_forhold(register)
+        en_vei = _en_vei(poster(register), forhold)
+        print(f"{len(forhold)} uttrykkelige forhold i de importerte postene")
+        print(
+            "Står bare én vei:",
+            *(_en_vei_tekst(*v) for v in sorted(en_vei)),
+            sep="\n  ",
+        )
+        print("Leses ikke:", *avvik, sep="\n  ")
+        if feil := forholdfeil(register):
+            print("Forholdene holder ikke:", *feil, sep="\n  ")
+            return 1
+        return 0
     if not feil:
-        feil += [
+        feil = forholdfeil(register) + [
             f"{p['id']}: kodenavn i vedtaksteksten, {k}"
-            for p in poster(register)
-            if er_ny(p)
+            for p in _nye(register)
             for k in kodenavn(p)
         ]
     if feil:
