@@ -658,7 +658,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // før. For et svar fra appen er det datoen appen registrerte det.
   ['Dokument', 'relasjon', 'registrert', ['format/leser.ts:registrertDato']],
   ['format/leser.ts', 'relasjon', 'registrertDato', ['utledning/utled.ts']],
-  ['Svarberegning', 'utsagn', 'sendt', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
+  ['Utledning', 'utsagn', 'svarSendt', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
+  ['Utledning.svarSendt', 'utsagn', '*', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
   // Datoene i meldingen, skrevet som i brevet.
   ['frosset/brevtekst.ts', 'brevtekst', 'norskDato', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
