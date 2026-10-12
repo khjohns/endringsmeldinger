@@ -224,6 +224,7 @@ try {
   await demo
     .getByLabel('Beskriv endringen som pålegges')
     .fill('Demopålegg om endret fundamentering.');
+  const firstNumber = await demo.getByLabel('Endringsordrenummer').inputValue();
   await demo.getByRole('button', { name: 'Kontroller endringsordre', exact: true }).click();
   await demo.getByRole('checkbox').check();
   await utstedDemoordreGjennomKjeden(demo);
@@ -238,12 +239,16 @@ try {
   assert.equal(new URL(demo.url()).pathname, orderPath);
   await demo.getByRole('link', { name: 'Ny endringsordre', exact: true }).click();
   await demo.getByRole('button', { name: /Formaliser avtalte KOE-krav/ }).click();
+  // #445: utkastet til ordren som ble utstedt fra godkjenningssiden, er forkastet.
+  assert.equal(await demo.getByLabel('Beskriv avtalen som formaliseres').inputValue(), '');
+  assert.notEqual(await demo.getByLabel('Endringsordrenummer').inputValue(), firstNumber);
   await demo.getByRole('checkbox', { name: /KOE-2024-019/ }).check();
   await demo
     .getByLabel('Beskriv avtalen som formaliseres')
     .fill('Den avtalte endringen formaliseres i demoen.');
   await demo.getByLabel('Oppgjørsform').selectOption('FASTPRIS_TILBUD');
   await demo.getByLabel('Samlet fristforlengelse (dager)').fill('15');
+  await demo.screenshot({ path: join(tmpdir(), 'endringsordre-demo-andre.png'), fullPage: true });
   await demo.getByRole('button', { name: 'Kontroller endringsordre', exact: true }).click();
   assert.match(
     await demo.getByRole('link', { name: /KOE-2024-019/ }).getAttribute('href'),
@@ -252,6 +257,10 @@ try {
   await demo.getByRole('checkbox').check();
   await utstedDemoordreGjennomKjeden(demo);
   await demo.getByRole('article', { name: 'Utstedt endringsordre' }).waitFor();
+  await demo.screenshot({
+    path: join(tmpdir(), 'endringsordre-demo-andre-utstedt.png'),
+    fullPage: true,
+  });
   assert.deepEqual(demoApiCalls, []);
   assert.deepEqual(errors, []);
   await demoContext.close();
