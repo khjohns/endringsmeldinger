@@ -28,10 +28,10 @@
  * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
  * Med `--ankre` kontrolleres bare at hver fra-streng finnes nøyaktig én gang i
- * fila (#430), og at hvert mål er en del av navnet på en test (#432), lest med
- * `vitest list` uten kopier, base eller testkjøring. Det tar sekunder og kjøres
- * før hver push som rører `kjerne/`. Begge kontrollene gjøres også før en
- * full kjøring.
+ * fila (#430), og at hvert mål er en del av navnet på en test (#432), et mål som
+ * er en bevis-sak-ID som hel ID (#436). Navnene leses med `vitest list` uten
+ * kopier, base eller testkjøring. Det tar sekunder og kjøres før hver push som
+ * rører `kjerne/`. Begge kontrollene gjøres også før en full kjøring.
  * Forventet: «oppdaget» for hver mutasjon. Hopper kontrollkjøringen over en
  * test, for eksempel lagringstestene uten testbasen, avsluttes skriptet med
  * kode 2 før noen mutasjon (#353).
@@ -57,7 +57,7 @@ interface Mutasjon {
   fil: string;
   /** Tekst som erstattes, hver nøyaktig én gang i fila. */
   endringer: [fra: string, til: string][];
-  /** Deler av testnavnet (`fullName`) som må feile. */
+  /** Deler av testnavnet (`fullName`) som må feile; se `treffer`. */
   mal: string[];
 }
 
@@ -1873,6 +1873,20 @@ function lagArbeidskopier(antall: number): Arbeidskopi[] {
   });
 }
 
+const BEVISSAK_ID = /^F-[A-Z]+-\S+$/u;
+
+/**
+ * Om testnavnet inneholder målet. Et mål som er en bevis-sak-ID, treffer bare hele ID-en,
+ * så `F-MM-D` ikke treffer `F-MM-D-godtatt` (#436); andre mål er en del av navnet.
+ */
+function treffer(navn: string, mal: string): boolean {
+  if (!BEVISSAK_ID.test(mal)) return navn.includes(mal);
+  const tegn = /[\p{L}\p{N}-]/u;
+  for (let i = navn.indexOf(mal); i !== -1; i = navn.indexOf(mal, i + 1))
+    if (!tegn.test(navn[i - 1] ?? ' ') && !tegn.test(navn[i + mal.length] ?? ' ')) return true;
+  return false;
+}
+
 /** Utfallet av én mutasjon: om den ble oppdaget, og linjene som forklarer det. */
 function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): [boolean, string[]] {
   const feilet = rapport.testResults
@@ -1884,7 +1898,7 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): [boolean, string
   const ikkeAssertion = feilet.filter(
     (t) => !t.failureMessages.join('\n').includes('AssertionError')
   );
-  const manglerMal = m.mal.filter((mal) => !feilet.some((t) => t.fullName.includes(mal)));
+  const manglerMal = m.mal.filter((mal) => !feilet.some((t) => treffer(t.fullName, mal)));
   const oppdaget = !suitefeil.length && !ikkeAssertion.length && !manglerMal.length;
   return [
     oppdaget,
@@ -1958,8 +1972,11 @@ const navn = testnavn();
 const malfeil = valgte.flatMap((m) =>
   m.mal
     // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
-    .filter((mal) => !navn.some((n) => n.includes(mal) || n.split(' > ').join(' ').includes(mal)))
-    .map((mal) => `${m.id}: målet «${mal}» er ikke en del av navnet på noen test`)
+    .filter((mal) => !navn.some((n) => treffer(n, mal) || treffer(n.split(' > ').join(' '), mal)))
+    .map(
+      (mal) =>
+        `${m.id}: målet «${mal}» er ikke en del av navnet på noen test${BEVISSAK_ID.test(mal) ? ' som hel bevis-sak-ID' : ''}`
+    )
 );
 if (malfeil.length) throw new Error(malfeil.join('\n'));
 const mutasjoner = valgte.filter((_, i) => i % deler === del - 1);
