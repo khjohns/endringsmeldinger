@@ -198,7 +198,7 @@ function dokument(
           dokumentasjon: k.dokumentasjon,
         };
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
-      return { utsagn, ...(k.dokumentasjon?.length ? { dokumentasjon: k.dokumentasjon } : {}) };
+      return { utsagn };
     }
     case 'merking':
       // KA-U20: en senere merking er en opplysning om det gamle brevet (MM-U12).

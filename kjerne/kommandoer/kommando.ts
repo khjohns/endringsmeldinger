@@ -216,12 +216,16 @@ export function formfeil(kommando: unknown): string[] {
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');
     if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
   }
-  if (type === 'begrunnelse' && !feil.length && 'sendt' in kommando) {
-    // KA-U35: den registrerte begrunnelsen har ingen tekst i appen, og brevet ligger ved.
+  if (type === 'begrunnelse' && !feil.length) {
     const k = kommando as { utdypning?: unknown; dokumentasjon?: unknown[] };
-    if ('utdypning' in k) feil.push('$.utdypning: en registrert begrunnelse har ingen tekst');
-    if (!k.dokumentasjon?.length)
-      feil.push('$.dokumentasjon: brevet med begrunnelsen må ligge ved');
+    if ('sendt' in kommando) {
+      // KA-U35: den registrerte begrunnelsen har ingen tekst i appen, og brevet ligger ved.
+      if ('utdypning' in k) feil.push('$.utdypning: en registrert begrunnelse har ingen tekst');
+      if (!k.dokumentasjon?.length)
+        feil.push('$.dokumentasjon: brevet med begrunnelsen må ligge ved');
+    } else if ('dokumentasjon' in k)
+      // KA-U34: brevet fra appen har bare setningen og teksten.
+      feil.push('$.dokumentasjon: bare en registrert begrunnelse har vedlegg');
   }
   if (type === 'merking' && !feil.length) {
     const spor = (kommando as { spor: Spor[] }).spor;

@@ -1778,6 +1778,27 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['if (!k.dokumentasjon?.length)', 'if (false)']],
     mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises'],
   },
+  {
+    id: 'F165',
+    feilklasse: 'leseren godtar en begrunnelse fra TE (KA-U34, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [["  begrunnelse: 'BH',", '  begrunnelse: null,']],
+    mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
+  },
+  {
+    id: 'F166',
+    feilklasse: 'en registrert begrunnelse kan ha tekst (KA-U35)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [["if ('utdypning' in k) feil.push", 'if (false) feil.push']],
+    mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises'],
+  },
+  {
+    id: 'F167',
+    feilklasse: 'en registrert begrunnelse skrives som et brev fra appen (KA-U35, MM-U17)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [["          opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],\n", '']],
+    mal: ['en begrunnelse sendt utenfor appen registreres uten tekst'],
+  },
 ];
 
 interface Testresultat {
