@@ -1222,7 +1222,7 @@ describe('den senere begrunnelsen (KA-U34)', () => {
     const rad = s.send('BH', {
       type: 'begrunnelse',
       gjelder: svarId(brev),
-      sendt: '2026-10-05',
+      sendt: '2026-10-06',
       dokumentasjon: [vedlegg],
     });
     expect(
@@ -1233,7 +1233,7 @@ describe('den senere begrunnelsen (KA-U34)', () => {
       { id: expect.any(String), art: 'begrunnelse', gjelder: svarId(brev) },
     ]);
     expect(rad.data.opplysninger).toEqual([
-      { id: expect.any(String), hva: 'sendt', dato: '2026-10-05' },
+      { id: expect.any(String), hva: 'sendt', dato: '2026-10-06' },
     ]);
     expect(rad.data.dokumentasjon).toEqual([vedlegg]);
     const etter = s.u();
@@ -1326,7 +1326,7 @@ describe('den senere begrunnelsen (KA-U34)', () => {
 
   it('en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises (KA-U35)', () => {
     const { s, brev } = medSvar();
-    const registrert = { type: 'begrunnelse', gjelder: svarId(brev), sendt: '2026-10-05' };
+    const registrert = { type: 'begrunnelse', gjelder: svarId(brev), sendt: '2026-10-06' };
     expect(
       s.avvist('BH', { ...registrert, dokumentasjon: [randomUUID()] }),
       'kontrollsak'
