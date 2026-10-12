@@ -169,6 +169,66 @@ describe('skrivevakten for mekanisk-pr', () => {
   });
 });
 
+describe('vaktvalget fra settings.json', () => {
+  function etterAgent(input: object) {
+    return kjor(input, '--etter-agent');
+  }
+
+  it('slipper hovedøktas kall gjennom, også i kjerne/', () => {
+    const skriving = { tool_name: 'Write', tool_input: { file_path: 'kjerne/a.ts' }, cwd: rot };
+    expect(etterAgent(skriving).status).toBe(0);
+    expect(etterAgent({ ...skriving, agent_type: 'Explore' }).status).toBe(0);
+    const bash = { tool_name: 'Bash', tool_input: { command: 'rm -rf kjerne' }, cwd: rot };
+    expect(etterAgent(bash).status).toBe(0);
+  });
+
+  it('bruker skrivevakten for mekanisk-pr og lesevakten for diffkontroll', () => {
+    const skriving = { tool_name: 'Write', tool_input: { file_path: 'kjerne/a.ts' }, cwd: rot };
+    expect(etterAgent({ ...skriving, agent_type: 'mekanisk-pr' }).status).toBe(2);
+    const docs = { tool_name: 'Write', tool_input: { file_path: 'docs/b.md' }, cwd: rot };
+    expect(etterAgent({ ...docs, agent_type: 'mekanisk-pr' }).status).toBe(0);
+    expect(etterAgent({ ...docs, agent_type: 'diffkontroll' }).status).toBe(2);
+    const les = { tool_name: 'Bash', tool_input: { command: 'git log --oneline -5' }, cwd: rot };
+    expect(etterAgent({ ...les, agent_type: 'diffkontroll' }).status).toBe(0);
+    const cat = { tool_name: 'Bash', tool_input: { command: 'cat docs/a.md' }, cwd: rot };
+    expect(etterAgent({ ...cat, agent_type: 'diffkontroll' }).status).toBe(2);
+  });
+
+  it('bruker skrivevakten i et agentarbeidstre når agent_type mangler', () => {
+    const tre = path.join(rot, '.claude', 'worktrees', 'agent-1');
+    mkdirSync(path.dirname(tre), { recursive: true });
+    git(rot, 'worktree', 'add', '-q', '--detach', tre);
+    try {
+      const svar = etterAgent({
+        tool_name: 'Edit',
+        tool_input: { file_path: path.join(tre, 'kjerne', 'versjon.ts') },
+        cwd: tre,
+      });
+      expect(svar.status).toBe(2);
+    } finally {
+      git(rot, 'worktree', 'remove', '--force', tre);
+    }
+  });
+
+  it('stopper kjerne/ i et arbeidstre inne i hovedkopien, også når cwd er hovedkopien', () => {
+    const tre = path.join(rot, '.claude', 'worktrees', 'agent-2');
+    mkdirSync(path.dirname(tre), { recursive: true });
+    git(rot, 'worktree', 'add', '-q', '--detach', tre);
+    try {
+      const svar = etterAgent({
+        tool_name: 'Edit',
+        tool_input: { file_path: path.join(tre, 'kjerne', 'versjon.ts') },
+        cwd: rot,
+        agent_type: 'mekanisk-pr',
+      });
+      expect(svar.status).toBe(2);
+      expect(svar.stderr).toContain('kjerne/versjon.ts ligger i en sperret mappe');
+    } finally {
+      git(rot, 'worktree', 'remove', '--force', tre);
+    }
+  });
+});
+
 describe('lesevakten for diffkontroll', () => {
   function les(command: string) {
     return kjor({ tool_name: 'Bash', tool_input: { command }, cwd: rot }, '--bare-lesing');
