@@ -39,9 +39,9 @@ const godkjentITide: Grunnlagsvurdering = { resultat: 'godkjent', varsletITide: 
 
 const alle = KRAV_STRUKTUR_NS8407.flatMap((h) => h.hjemler.map((u) => [h.kode, u.kode] as const));
 
-describe('endringsordre etter § 32.3 første ledd a (GR-U12)', () => {
+describe('endringsordre etter § 32.3 første ledd a (GR-U12, GR-U13)', () => {
   it('varselet har teksten oppdragsgiver godkjente', () => {
-    // Arbeidsvalget 10.10 i #313 (GR-U10, GR-U12), ordrett.
+    // Arbeidsvalget 10.10 i #313 (GR-U10, GR-U12), ordrett. Et brev fra appen oppfyller § 31.3 (GR-U13).
     expect(ENDRINGSORDREVARSEL).toBe(
       'Svaret blir en endringsordre etter § 32.3 første ledd a, fordi byggherren godkjenner grunnlaget uten å påberope at varselet kom for sent (§ 32.2). Totalentreprenøren blir forpliktet til å utføre endringsarbeidet (§ 31.3 annet ledd). Byggherren kan ikke endre godkjenningen av grunnlaget etterpå.'
     );
@@ -53,7 +53,7 @@ describe('endringsordre etter § 32.3 første ledd a (GR-U12)', () => {
   });
 
   it.each(alle)(
-    'godkjent uten påberopt preklusjon i %s/%s er en endringsordre bare der § 32.2 gjelder',
+    'godkjent uten påberopt preklusjon i %s/%s fra appen, der § 31.3 er oppfylt (GR-U13), er en endringsordre bare der § 32.2 gjelder',
     (hovedkategori, underkategori) => {
       const forventet = hovedkategori === 'ENDRING' && MED_VARSLINGSPLIKT.includes(underkategori);
       expect(erEndringsordre(skjemaetsKategori(hovedkategori, underkategori), godkjentITide)).toBe(
