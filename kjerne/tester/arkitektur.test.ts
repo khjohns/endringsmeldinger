@@ -719,13 +719,11 @@ const OPSJONER = ts.parseJsonConfigFileContent(
 ).options;
 
 /**
- * Kildefilene som er lest fra disk. Samme objekt for en uendret fil lar
- * `createProgram` gjenbruke den fra `forrige`, så et forsøk ikke parser og
- * binder kjernen og `lib` på nytt (#392). Filene endres ikke mens testen kjører.
+ * Et TypeScript-program over `filer`, med kildeteksten i `erstatt` der den er oppgitt.
+ * En fil som ikke erstattes, hentes fra `forrige`, så programmet gjenbruker den i
+ * stedet for å parse og binde kjernen og `lib` på nytt (#392). `forrige` må derfor
+ * være bygd uten `erstatt`.
  */
-const lesteKilder = new Map<string, ts.SourceFile | undefined>();
-
-/** Et TypeScript-program over `filer`, med kildeteksten i `erstatt` der den er oppgitt. */
 export function program(
   filer: string[],
   erstatt = new Map<string, string>(),
@@ -733,11 +731,10 @@ export function program(
 ): ts.Program {
   const vert = ts.createCompilerHost(OPSJONER, true);
   const hent = vert.getSourceFile;
-  vert.getSourceFile = (fil, spraak, feil, ny) => {
+  vert.getSourceFile = (fil, spraak, ...resten) => {
     const kilde = erstatt.get(fil);
     if (kilde !== undefined) return ts.createSourceFile(fil, kilde, spraak, true);
-    if (ny || !lesteKilder.has(fil)) lesteKilder.set(fil, hent(fil, spraak, feil, ny));
-    return lesteKilder.get(fil);
+    return forrige?.getSourceFile(fil) ?? hent(fil, spraak, ...resten);
   };
   return ts.createProgram(filer, OPSJONER, vert, forrige);
 }
