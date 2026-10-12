@@ -1,5 +1,7 @@
 /** Local browser smoke test; all API requests are intercepted, no external writes. */
 import assert from 'node:assert/strict';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const browser = await chromium.launch({
   headless: true,
@@ -56,6 +58,11 @@ async function setup(width) {
       assert.equal(request.headers()['x-project-id'], 'test', `project header on ${path}`);
       if (path === '/api/cases') return json({ cases: [] });
       if (path === '/api/endringsordre/neste-nummer') return json({ neste_nummer: 'EO-001' });
+      if (path === '/api/endringsordre/godkjenninger')
+        return route.fulfill({
+          status: 403,
+          json: { message: 'Intern godkjenning er ikke konfigurert for prosjektet.' },
+        });
       if (path === '/api/endringsordre/kandidater') return json({ kandidat_saker: candidates });
       if (path === '/api/endringsordre/opprett') {
         assert.equal(request.headers()['x-csrf-token'], 'local-test');
@@ -131,7 +138,10 @@ try {
   assert.equal(direct.orders[0].frist_dager, undefined);
   await direct.page.reload({ waitUntil: 'networkidle' });
   assert.equal(await direct.page.getByText('Uavklart', { exact: true }).count(), 2);
-  await direct.page.screenshot({ path: '/private/tmp/endringsordre-direkte.png', fullPage: true });
+  await direct.page.screenshot({
+    path: join(tmpdir(), 'endringsordre-direkte.png'),
+    fullPage: true,
+  });
   await direct.context.close();
   console.log('PASS: overview entry, direct unresolved order, review, one submission, reload.');
 
@@ -165,7 +175,7 @@ try {
   assert.equal(agreed.orders[0].frist_dager, 8);
   assert.equal(agreed.orders[0].kompensasjon_belop, 150000);
   assert.equal(await agreed.page.getByRole('link', { name: /KOE-1 Endret fundament/ }).count(), 1);
-  await agreed.page.screenshot({ path: '/private/tmp/endringsordre-mobil.png', fullPage: true });
+  await agreed.page.screenshot({ path: join(tmpdir(), 'endringsordre-mobil.png'), fullPage: true });
   assert.deepEqual(errors, []);
   await agreed.context.close();
   console.log(
