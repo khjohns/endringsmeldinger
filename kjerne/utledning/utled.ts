@@ -255,13 +255,19 @@ const kanStride = (d: Dokument): boolean =>
 interface Strid {
   element: string;
   grunn: string;
+  /**
+   * MM-U20: strid bare i en rad som ikke er registrert. Om et registrert brev i samme
+   * klasse er uten virkning, er ikke avgjort, og til da leses det som før (#405).
+   */
+  bareUregistrert?: true;
 }
 
 /**
  * MM-U18: elementene i dokumentet som ikke kan forstås i samsvar med journalen før
  * det og vedtakene om enighet og lukking: en ny kravversjon eller en revisjon i et
  * spor med enighet (KA-U7, GR-U10), en ny kravversjon i et trukket spor eller et spor
- * med «ingen krav» (GR-U5, KA-U12), en aksept av et frafall (GR-U9) eller av et svar
+ * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor
+ * (MM-U20), en aksept av et frafall (GR-U9) eller av et svar
  * partene alt er enige om (GR-U8, KA-U7), noe som endrer
  * utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt
  * (KA-U11, SK-01), og det som viser til et element uten virkning. Kontrollen
@@ -288,6 +294,12 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
       ut.push({ element: k.id, grunn: 'kravversjonen erstatter en kravversjon uten virkning' });
   for (const s of d.svar)
     if (lukket) ut.push({ element: s.id, grunn: `et svar etter at ${lukket}` });
+    else if (u.spor[s.spor].trukket)
+      ut.push({
+        element: s.id,
+        grunn: 'et svar på et krav etter at det er trukket (MM-U20, GR-U5)',
+        bareUregistrert: true,
+      });
     else if (s.erstatter !== null && u.spor[s.spor].enighet)
       ut.push({
         element: s.id,
@@ -301,6 +313,15 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
     if (lukket) ut.push({ element: x.id, grunn: `${x.art} etter at ${lukket}` });
     else if (utenVirkning(gjelder))
       ut.push({ element: x.id, grunn: `${x.art} viser til et element uten virkning` });
+    else if (
+      x.art === 'aksept' &&
+      SPOR.some((n) => u.spor[n].trukket && u.spor[n].svar.some((s) => s.id === x.gjelder))
+    )
+      ut.push({
+        element: x.id,
+        grunn: 'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',
+        bareUregistrert: true,
+      });
     else if (x.art === 'aksept' && x.gjelder === u.spor.grunnlag.gjeldendeSvar?.id && u.frafalt)
       ut.push({ element: x.id, grunn: 'en aksept av et frafall (GR-U9)' });
     else if (
@@ -331,8 +352,8 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!foer.forstaatt) break;
     const registrert = erRegistrert(h.dokument.opplysninger);
     for (const x of strid(h.dokument, foer, uten)) {
-      if (registrert) uten.set(x.element, { hendelse: h.id, grunn: x.grunn });
-      else konflikter.push({ hendelse: h.id, grunn: x.grunn });
+      if (!registrert) konflikter.push({ hendelse: h.id, grunn: x.grunn });
+      else if (!x.bareUregistrert) uten.set(x.element, { hendelse: h.id, grunn: x.grunn });
     }
     if (konflikter.length) break;
   }

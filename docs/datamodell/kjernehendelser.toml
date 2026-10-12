@@ -137,9 +137,9 @@ grunnlag = "B-13, designnotatet 4.3"
 [[utsagn]]
 art = "varsel"
 avsender = "TE"
-beskrivelse = "Varsel etter § 33.4. Datoen det ble sendt, er en opplysning i samme dokument."
+beskrivelse = "Varsel etter § 33.4. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren."
 felt = ["id", "art", "hjemmel"]
-grunnlag = "MM-U1, SK-12"
+grunnlag = "MM-U1, SK-12, VS-U15"
 
 [[utsagn]]
 art = "trekk"
