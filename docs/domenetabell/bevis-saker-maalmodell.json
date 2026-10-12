@@ -7867,7 +7867,7 @@
         "GR-05"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U1 og V-215: en ny kravversjon av grunnlaget med uendret underkategori etter et svar som påberoper § 32.2, åpner sporet, og § 32.2-vurderingen faller med svaret",
+      "forslag": "GR-U1 og V-215: en ny kravversjon av grunnlaget med uendret underkategori etter et svar som påberoper § 32.2, åpner sporet, og § 32.2-vurderingen faller med svaret. Vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (S-g1), som ikke lenger er gjeldende",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -7963,8 +7963,7 @@
             "subsidiaer_aarsaker.frist": [
               "prekludert",
               "avslaatt"
-            ],
-            "grunnlag_avvist": false
+            ]
           }
         },
         {
@@ -8236,7 +8235,7 @@
         "KA-14"
       ],
       "start": "krav_irreg",
-      "forslag": "V-TRUKKET: TE kan ikke oppdatere et krav TE har trukket; kontrollsaken er en kravversjon i et spor som ikke er trukket",
+      "forslag": "V-TRUKKET: TE kan ikke oppdatere et krav TE har trukket; kontrollsaken er den samme kravversjonen før trekket",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8246,6 +8245,21 @@
         }
       ],
       "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-KRAVVERSJON"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "belop": 120000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
         {
           "etter": 1,
           "rolle": "mal",
@@ -8274,21 +8288,6 @@
             "avvist": true,
             "regel": "KRAV_TRUKKET"
           }
-        },
-        {
-          "etter": 1,
-          "rolle": "kontroll",
-          "kilde": [
-            "V-KRAVVERSJON"
-          ],
-          "prov": {
-            "handling": "krav",
-            "spor": "frist",
-            "dager": 25
-          },
-          "forventet": {
-            "avvist": false
-          }
         }
       ]
     },
@@ -8298,7 +8297,7 @@
         "KA-33"
       ],
       "start": "krav_irreg",
-      "forslag": "Arbeidsvalg 2 på #426 og MM-U18: TEs krav i samme registrerte dokument som trekket av grunnlaget har virkning og opphever TEs merking i sporet (#434)",
+      "forslag": "Arbeidsvalg 2 på #426: TEs krav i samme registrerte brev som trekket av grunnlaget har virkning og opphever TEs merking i sporet, i tråd med MM-U18 (#434)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
