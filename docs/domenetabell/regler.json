@@ -1133,7 +1133,10 @@
         "V-B13-REGELVERSJON",
         "GR-U4"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "regelkoder": [
+        "ANNEN_REGELVERSJON"
+      ]
     },
     {
       "id": "KA-24",
@@ -1147,7 +1150,10 @@
         "MM-U2",
         "MM-U14"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "regelkoder": [
+        "SAK_IKKE_FORSTAATT"
+      ]
     },
     {
       "id": "KA-25",
@@ -1252,7 +1258,15 @@
       "kilder": [
         "V-215"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "IKKE_GJELDENDE_SVAR"
+      ]
     },
     {
       "id": "GR-02",
@@ -1271,7 +1285,15 @@
         "GR-U11",
         "EO-U5"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
+        "kjerne/utledning/utled.ts#kanInngaaIEo"
+      ],
+      "regelkoder": [
+        "IKKE_GJELDENDE_SVAR"
+      ]
     },
     {
       "id": "GR-03",
@@ -1285,7 +1307,13 @@
         "KA-U1",
         "V-215"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "IKKE_GJELDENDE_SVAR"
+      ]
     },
     {
       "id": "GR-04",
@@ -1298,7 +1326,15 @@
       "kilder": [
         "GR-U1"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "IKKE_GJELDENDE_SVAR"
+      ]
     },
     {
       "id": "GR-05",
@@ -1313,7 +1349,15 @@
         "V-215",
         "NS-32.2-1"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "IKKE_GJELDENDE_SVAR"
+      ]
     },
     {
       "id": "GR-06",
@@ -1327,7 +1371,13 @@
         "KA-U1",
         "GR-U1"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "IKKE_GJELDENDE_SVAR"
+      ]
     },
     {
       "id": "GR-07",
@@ -1341,7 +1391,14 @@
         "GR-U2",
         "GR-U10"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/frosset/standpunkt.ts#godkjennerHeleKravet"
+      ],
+      "regelkoder": [
+        "ENIGHET_I_SPORET"
+      ]
     },
     {
       "id": "GR-08",
@@ -1356,7 +1413,11 @@
         "V-215",
         "V-B13-GRUNNLAG-AVSLATT"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget"
+      ]
     },
     {
       "id": "GR-09",
@@ -1370,7 +1431,14 @@
         "V-SD02",
         "V-TRUKKET"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "KRAV_TRUKKET"
+      ]
     },
     {
       "id": "GR-10",
@@ -1385,7 +1453,14 @@
         "GR-U5",
         "V-TRUKKET"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "KRAV_TRUKKET"
+      ]
     },
     {
       "id": "GR-11",
@@ -1398,7 +1473,14 @@
       "kilder": [
         "GR-U5"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/utledning/utled.ts#enighetensVirkning"
+      ],
+      "regelkoder": [
+        "KRAV_TRUKKET"
+      ]
     },
     {
       "id": "GR-12",
@@ -1412,7 +1494,13 @@
         "V-TRUKKET",
         "V-SD02"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "KRAV_TRUKKET"
+      ]
     },
     {
       "id": "GR-13",
@@ -1426,7 +1514,10 @@
         "V-FRAFALT",
         "NS-32.3-1c"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene"
+      ]
     },
     {
       "id": "GR-14",
@@ -1443,7 +1534,12 @@
         "EO-U1",
         "EO-U5"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#kanInngaaIEo",
+        "kjerne/utledning/utled.ts#kraveneErAvgjort",
+        "kjerne/frosset/standpunkt.ts#grunnlagetErAvklart"
+      ]
     },
     {
       "id": "GR-15",
@@ -1458,7 +1554,11 @@
         "V-FRAFALT",
         "V-TFR01"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#kraveneErAvgjort",
+        "kjerne/utledning/utled.ts#kanInngaaIEo"
+      ]
     },
     {
       "id": "GR-16",
@@ -1475,7 +1575,11 @@
         "GR-U7",
         "KA-U11"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/frosset/standpunkt.ts#grunnlagetErAvklart",
+        "kjerne/utledning/utled.ts#kraveneErAvgjort"
+      ]
     },
     {
       "id": "GR-17",
@@ -1490,7 +1594,14 @@
         "NS-32.3-1c",
         "NS-32.2-1"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/kommandoer/nyttelast.ts#kontrollerSvar"
+      ],
+      "regelkoder": [
+        "UGYLDIG_VURDERING"
+      ]
     },
     {
       "id": "GR-18",
@@ -1505,7 +1616,14 @@
         "NS-32.1",
         "NS-32.3-1c"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/regler/grunnlag.ts#gyldigeResultater"
+      ],
+      "regelkoder": [
+        "UGYLDIG_VURDERING"
+      ]
     },
     {
       "id": "GR-19",
@@ -1519,7 +1637,12 @@
         "GR-U7",
         "KA-U1"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/utledning/utled.ts#enighetensVirkning",
+        "kjerne/utledning/utled.ts#kanInngaaIEo"
+      ]
     },
     {
       "id": "GR-20",
@@ -1533,7 +1656,14 @@
         "GR-U7",
         "KA-U1"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "GRUNNLAG_AVVIST"
+      ]
     },
     {
       "id": "GR-21",
@@ -1548,7 +1678,12 @@
         "V-215",
         "KA-U5"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#enighetensVirkning",
+        "kjerne/frosset/standpunkt.ts#grunnlagetErAvklart",
+        "kjerne/utledning/utled.ts#kraveneErAvgjort"
+      ]
     },
     {
       "id": "GR-22",
@@ -1564,7 +1699,11 @@
         "GR-U10",
         "KA-U11"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#enighetensVirkning",
+        "kjerne/utledning/utled.ts#kraveneErAvgjort"
+      ]
     },
     {
       "id": "GR-23",
@@ -1579,7 +1718,13 @@
         "V-SK02-SK03",
         "GR-U4"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "ENIGHET_I_SPORET"
+      ]
     },
     {
       "id": "GR-24",
@@ -1592,7 +1737,14 @@
       "kilder": [
         "GR-U7"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/frosset/standpunkt.ts#godkjennerHeleKravet",
+        "kjerne/utledning/utled.ts#enighetensVirkning"
+      ],
+      "regelkoder": [
+        "ENIGHET_I_SPORET"
+      ]
     },
     {
       "id": "GR-25",
@@ -1606,7 +1758,14 @@
         "GR-U7",
         "GR-U8"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/frosset/standpunkt.ts#godkjennerHeleKravet"
+      ],
+      "regelkoder": [
+        "ENIGHET_I_SPORET"
+      ]
     },
     {
       "id": "GR-26",
@@ -1620,7 +1779,14 @@
         "GR-U9",
         "GR-U3"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/frosset/standpunkt.ts#godkjennerHeleKravet"
+      ],
+      "regelkoder": [
+        "FRAFALL_KAN_IKKE_GODTAS"
+      ]
     },
     {
       "id": "GR-27",
@@ -1635,7 +1801,14 @@
         "GR-U2",
         "KA-U7"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/frosset/standpunkt.ts#godkjennerHeleKravet"
+      ],
+      "regelkoder": [
+        "ENIGHET_I_SPORET"
+      ]
     },
     {
       "id": "GR-28",
@@ -1655,7 +1828,15 @@
         "GR-U13",
         "KA-U14"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#trekkAvGrunnlagetErSperret",
+        "kjerne/frosset/standpunkt.ts#blirEndringsordre",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "GRUNNLAG_ER_ENDRINGSORDRE"
+      ]
     },
     {
       "id": "GR-29",
@@ -1676,7 +1857,15 @@
         "KA-U14",
         "MM-U12"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/utledning/utled.ts#trekkAvGrunnlagetErSperret",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "ENDRINGSORDRE_IKKE_AVKLART"
+      ]
     },
     {
       "id": "EO-01",
@@ -2044,7 +2233,12 @@
         "GR-U1",
         "GR-U4"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/utledning/utled.ts#ikkeErstattet",
+        "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget"
+      ]
     },
     {
       "id": "KA-31",
@@ -2060,7 +2254,15 @@
         "KA-U17",
         "KA-U22"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "INGEN_KRAV_I_SPORET",
+        "KRAV_I_SPORET",
+        "GRUNNLAG_IKKE_SENDT"
+      ]
     },
     {
       "id": "KA-32",
@@ -2080,7 +2282,16 @@
         "MM-U18",
         "MM-U19"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/utledning/utled.ts#godkjenningenErMerket",
+        "kjerne/utledning/utled.ts#kanInngaaIEo"
+      ],
+      "regelkoder": [
+        "BREV_MED_FORBEHOLD",
+        "ENDRINGSORDRE_IKKE_AVKLART"
+      ]
     },
     {
       "id": "KA-33",
@@ -2098,7 +2309,14 @@
         "MM-U20",
         "MM-U18"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#henvisning",
+        "kjerne/utledning/utled.ts#utledSporene"
+      ],
+      "regelkoder": [
+        "FEIL_PART"
+      ]
     },
     {
       "id": "KA-34",
@@ -2116,7 +2334,14 @@
         "KA-U20",
         "KA-U26"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#trekkKanIkkeBevareAvtalen",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "AVTALE_KAN_IKKE_BEVARES"
+      ]
     },
     {
       "id": "KA-35",
@@ -2136,7 +2361,10 @@
         "KA-U12",
         "V-SK01"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#strid"
+      ]
     },
     {
       "id": "KA-36",
@@ -2152,7 +2380,10 @@
         "KA-U7",
         "MM-U12"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#strid"
+      ]
     },
     {
       "id": "KA-37",
@@ -2171,7 +2402,10 @@
         "GR-U9",
         "GR-U8"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#strid"
+      ]
     },
     {
       "id": "KA-38",
@@ -2189,7 +2423,15 @@
         "MM-U8",
         "VS-U9"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "arbeidshypotese",
+      "funksjoner": [
+        "kjerne/frosset/standpunkt.ts#lesesMedInnsigelse",
+        "kjerne/utledning/utled.ts#utledSporene",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "STANDPUNKT_UAVKLART"
+      ]
     },
     {
       "id": "KA-39",
@@ -2206,7 +2448,14 @@
         "GR-U5",
         "KA-U12"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#strid",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "KRAV_TRUKKET"
+      ]
     },
     {
       "id": "KA-40",
@@ -2223,7 +2472,10 @@
         "GR-U9",
         "GR-U10"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#strid"
+      ]
     },
     {
       "id": "KA-41",
@@ -2239,7 +2491,10 @@
         "KA-U14",
         "GR-U9"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "arbeidshypotese",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#strid"
+      ]
     },
     {
       "id": "VS-01",
@@ -2255,7 +2510,16 @@
         "VS-U14",
         "MP-U6"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/utledning/utled.ts#kanFaaInnsigelse",
+        "kjerne/utledning/utled.ts#kanFaaProtest",
+        "kjerne/kommandoer/forutsetninger.ts#henvisning"
+      ],
+      "regelkoder": [
+        "UGYLDIG_INNSIGELSE",
+        "INGEN_INNSIGELSE"
+      ]
     },
     {
       "id": "VS-02",
@@ -2272,7 +2536,12 @@
         "GR-U12",
         "GR-U13"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/frosset/standpunkt.ts#lesesMedInnsigelse",
+        "kjerne/frosset/standpunkt.ts#innsigelsenErOppgitt",
+        "kjerne/utledning/utled.ts#utledSporene"
+      ]
     },
     {
       "id": "VS-03",
@@ -2289,7 +2558,16 @@
         "OV-U1",
         "MM-U2"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/regler/frist.ts#kontroller",
+        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/kommandoer/nyttelast.ts#kontrollerSvar"
+      ],
+      "regelkoder": [
+        "UGYLDIG_VURDERING",
+        "VURDERING_UTENFOR_KJERNEN"
+      ]
     },
     {
       "id": "VS-04",
@@ -2303,7 +2581,15 @@
         "VS-U12",
         "GR-U11"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll",
+        "kjerne/frosset/standpunkt.ts#gjelderVarslingsplikten",
+        "kjerne/kommandoer/forutsetninger.ts#henvisning"
+      ],
+      "regelkoder": [
+        "VARSLINGSPLIKT_GJELDER_IKKE"
+      ]
     },
     {
       "id": "VS-05",
@@ -2319,7 +2605,15 @@
         "VS-U1",
         "KA-U29"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/kommandoer/forutsetninger.ts#henvisning"
+      ],
+      "regelkoder": [
+        "KRAVENE_AVGJORT",
+        "GRUNNLAG_AVVIST"
+      ]
     },
     {
       "id": "VS-06",
@@ -2339,7 +2633,17 @@
         "MM-U8",
         "VS-U16"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll"
+      ],
+      "regelkoder": [
+        "VARSEL_REGISTRERT",
+        "GRUNNLAG_IKKE_SENDT",
+        "INGEN_KRAV_I_SPORET",
+        "FRISTKRAV_SENDT"
+      ]
     },
     {
       "id": "KA-42",
@@ -2352,7 +2656,17 @@
       "kilder": [
         "KA-U34"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#henvisning",
+        "kjerne/kommandoer/nyttelast.ts#begrunnelsensTekst",
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+      ],
+      "regelkoder": [
+        "FEIL_PART",
+        "INGEN_SVAR_AA_BEGRUNNE",
+        "BEGRUNNELSE_MANGLER"
+      ]
     },
     {
       "id": "KA-43",
@@ -2366,7 +2680,13 @@
         "KA-U35",
         "MM-U17"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/kommando.ts#formfeil"
+      ],
+      "regelkoder": [
+        "UGYLDIG_FORM"
+      ]
     },
     {
       "id": "KA-44",
@@ -2380,7 +2700,14 @@
         "KA-U34",
         "KA-U11"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/utledning/utled.ts#kraveneErAvgjort"
+      ],
+      "regelkoder": [
+        "KRAVENE_AVGJORT"
+      ]
     },
     {
       "id": "KA-45",
@@ -2396,7 +2723,33 @@
         "KA-U38",
         "KA-U39"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/nyttelast.ts#begrunnelsensDato",
+        "kjerne/utledning/utled.ts#utledSporene"
+      ],
+      "regelkoder": [
+        "BEGRUNNELSE_FOER_SVARET"
+      ]
     }
-  ]
+  ],
+  "koder_uten_rad": {
+    "ALLEREDE_SVART": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "ANNEN_BREVTEKST": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "ANNET_RESULTAT": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "BESKRIVELSE_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "BREVTEKST_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "FEIL_BESTRIDELSE": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475).",
+    "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475).",
+    "INGENTING_AA_BESTRIDE": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "INGEN_KRAV": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "INGEN_MERKING": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "INGEN_REGISTRERT_BREV": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "INGEN_SVAR": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "INGEN_VARSEL_ETTER_32_2": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "MERKING_AVKLART": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "PAALEGGET_IKKE_BESKREVET": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet."
+  }
 }
