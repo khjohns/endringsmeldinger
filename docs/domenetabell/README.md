@@ -453,17 +453,17 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
 - En rad kan ha `funksjoner`, funksjonene som gjennomfører regelen, som
   `sti#navn` fra repoets rot (`kjerne/utledning/utled.ts#kraveneErAvgjort`), og
   `regelkoder`, kodene kjernen avviser med etter regelen. Kontrollen krever at
-  fila finnes og at navnet er deklarert der, først på en linje (`function`,
-  `const`, `let` eller `class`; `def` eller `class` i Python), og at en
-  bevis-sak for målmodellen kontrollerer koden med `forventet.regel` for raden.
-  En kontroll gjelder radene i `kilde` som forløpet har, eller alle forløpets
-  rader når `kilde` ikke viser til noen. Det siste er grovere: kontrollen
+  fila finnes og at navnet er deklarert på toppnivå der (`function`, `const`,
+  `let` eller `class`, eventuelt etter `export`, `default`, `declare`,
+  `abstract` eller `async`; `def` eller `class` i Python), og at en bevis-sak
+  for målmodellen kontrollerer koden med `forventet.regel` for raden. En
+  kontroll gjelder radene i `kilde`, som må stå i forløpets rader, eller alle
+  forløpets rader når `kilde` ikke viser til noen. Det siste er grovere: kontrollen
   viser at koden er prøvd i et forløp for raden, ikke at avvisningen gjelder
   akkurat den. Hver regelkode i
   `kjerne/` utenom testene står på minst én rad eller i `koder_uten_rad` med
   grunnen, og ikke begge steder. Kontrollen finner kodene som strenglitteral i
-  `avvis('KODE'`, `regel: 'KODE'` og `new Klasse('KODE'`, utenom linjer som er
-  kommentarer, og feiler på et kall til `avvis` der koden ikke er en
+  `avvis('KODE'`, `regel: 'KODE'` og `new Klasse('KODE'`, utenom kommentarene, og feiler på et kall til `avvis` der koden ikke er en
   strenglitteral. En kode i `regel:` eller `new Klasse(` som en variabel eller
   med doble anførselstegn, ser den ikke. Kodenavnene endres ikke.
 - `bevis-saker.json`: et forløp starter fra et navngitt `prefiks` og har

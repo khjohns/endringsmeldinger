@@ -46,7 +46,7 @@ RADFELT = (
 VALGFRIE_RADFELT = ("funksjoner", "regelkoder")
 KILDETYPER = {"vedtak", "standard", "arbeidsvalg"}
 # Regelkodene i kjernen er strenglitteraler i disse formene; `_regelkoder_i_kjernen`
-# feiler på et kall til `avvis` uten en. Linjer som er kommentarer, leses ikke.
+# feiler på et kall til `avvis` uten en. Blokkommentarer og linjer som er kommentarer, leses ikke.
 REGELKODE = re.compile(r"\b(?:avvis\(\s*|regel:\s*|new \w+\(\s*)'([A-Z][A-Z0-9_]+)'")
 AVVIS_KALL = re.compile(r"\bavvis\((?!\s*')")
 FUNKSJON = re.compile(r"^(?!/)(?!.*\.\.)(?P<sti>[\w./-]+\.(?:ts|py))#(?P<navn>\w+)$")
@@ -162,7 +162,11 @@ def _deklarert(sti: pathlib.Path, navn: str) -> bool:
     if sti.suffix == ".py":
         moenster = rf"^\s*(?:async\s+)?(?:def|class)\s+{navn}\b"
     else:
-        moenster = rf"^\s*(?:export\s+)?(?:async\s+)?(?:function\*?|const|let|class)\s+{navn}\b"
+        # På toppnivå i modulen, så en lokal variabel med samme navn ikke teller.
+        moenster = (
+            r"^(?:export\s+(?:default\s+)?)?(?:(?:declare|abstract|async)\s+)*"
+            rf"(?:function\s*\*?\s*|const\s+|let\s+|class\s+){navn}\b"
+        )
     return re.search(moenster, sti.read_text(encoding="utf-8"), re.MULTILINE) is not None
 
 
@@ -172,7 +176,8 @@ def _regelkoder_i_kjernen(rot: pathlib.Path) -> tuple[set[str], list[str]]:
     for sti in sorted((rot / "kjerne").rglob("*.ts")):
         if "tester" in sti.relative_to(rot / "kjerne").parts:
             continue
-        tekst = re.sub(r"^\s*(?://|/?\*).*$", "", sti.read_text(encoding="utf-8"), flags=re.MULTILINE)
+        tekst = re.sub(r"/\*.*?\*/", lambda m: "\n" * m[0].count("\n"), sti.read_text(encoding="utf-8"), flags=re.DOTALL)
+        tekst = re.sub(r"^[ \t]*//.*$", "", tekst, flags=re.MULTILINE)
         koder |= set(REGELKODE.findall(tekst))
         for m in AVVIS_KALL.finditer(tekst):
             linje = tekst.count("\n", 0, m.start()) + 1
@@ -183,15 +188,24 @@ def _regelkoder_i_kjernen(rot: pathlib.Path) -> tuple[set[str], list[str]]:
 def _valider_sporbarhet(regler: dict, maalmodell: dict, rot: pathlib.Path) -> list[str]:
     """Funksjonene finnes, og hver regelkode i kjernen viser til en rad eller står i
     `koder_uten_rad`. En kode på en rad må være kontrollert (`forventet.regel`) i en
-    bevis-sak for målmodellen som har raden, så koblingen er prøvd og ikke bare påstått."""
+    bevis-sak for målmodellen, i en kontroll som viser til raden i `kilde`, eller som
+    ikke viser til noen rad i et forløp som har raden. Koblingen er da prøvd, men i
+    det siste tilfellet bare til forløpet."""
     koder, feil = _regelkoder_i_kjernen(rot)
+    radider = {r.get("id") for r in regler["rader"]}
     bevist: dict[str, set[str]] = {}
     for forlop in maalmodell["forlop"]:
         for k in forlop["kontroller"]:
             if "regel" not in k["forventet"]:
                 continue
             # Viser kontrollen til rader i `kilde`, gjelder koden dem; ellers forløpets rader.
-            rader = [q for q in k.get("kilde", []) if q in forlop["rader"]] or forlop["rader"]
+            navngitt = [q for q in k.get("kilde", []) if q in radider]
+            feil += [
+                f"{forlop['id']}: kontrollen viser til {q}, som ikke står i forløpets rader"
+                for q in navngitt
+                if q not in forlop["rader"]
+            ]
+            rader = navngitt or forlop["rader"]
             for r in rader:
                 bevist.setdefault(r, set()).add(k["forventet"]["regel"])
     paa_rad = set()
