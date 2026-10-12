@@ -1,6 +1,6 @@
 ---
 name: miljo
-description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, og omveiene i skyøkta i endringsmeldinger: gh api-søk i issues med sider og --paginate, og vitest-timeout. Brukes når en sjekk skal kjøres, eller når en kommando feiler i en skyøkt.
+description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, og omveiene i skyøkta i endringsmeldinger, med gh api-søk i issues (sider og --paginate) og vitest-timeout. Brukes når en sjekk skal kjøres, eller når en kommando feiler i en skyøkt.
 ---
 
 # Miljø og kommandoer
@@ -41,9 +41,9 @@ verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 
 ## Skyøkta
 
-I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi kallet `timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
-`npx vitest run <filer>` holder under arbeidet.
+Reglene for skyøkta står i «Miljø» og «Hvor hva står» i `AGENTS.md`. Her står kommandoene.
 
-`gh api search/issues` gir 403 i skyøkta. Bla i repo-listen i stedet, side for side:
+Side for side i repo-listen, uten `search/issues`:
 `gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.
-`--paginate` gir 403 her, så sidene må hentes med `page=N`.
+
+Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `AGENTS.md`.
