@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `68b1310930124474c9d2a847ea5e66c1886bd2f7029a92ae8e1d0494d0c4e453`
+Kontrollsum (SHA-256 over utdraget visningen leser): `d55c98f1bed73e1ad3623a5897f483c2e66c37fd122cac7f020829a74410da27`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -110,9 +110,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endrer [GR-U12](#gr-u12), [GR-U13](#gr-u13), [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10), [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9), [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11) og [MM-U12](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12) for registrerte brev: appens vurdering i beslutningsgrunnlaget følger reglene ved registreringen, ikke da brevet ble sendt. Del av [B-10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#b-10). Ikke bygget (#336)
 
-**Regelrader:** [KA-30](#rad-ka-30)
+**Regelrader:** [KA-30](#rad-ka-30), [KA-43](#rad-ka-43)
 
-**Bevis-saker som viser til vedtaket:** F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-BG1 (målmodellen)
 
 ## Regelradene
 
@@ -132,3 +132,4 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-ka-40"></a>KA-40 | En part registrerer et brev sendt utenfor appen med TEs aksept, etter trekket, av et svar i sporet, eller et svar fra byggherren med sammenfall på et krav etter at TE har trukket det. Trekket kan gjelde sporet eller grunnlaget. | [GR-U10](#gr-u10) | F-MM-U20e (målmodellen), F-MM-U20f (målmodellen), F-MM-U20h (målmodellen), F-MM-U20j (målmodellen), F-MM-U20k (målmodellen) |
 | <a id="rad-vs-02"></a>VS-02 | Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten. | [GR-U12](#gr-u12), [GR-U13](#gr-u13) | F-MM-V2 (målmodellen), F-MM-V2-kontroll (målmodellen), F-MM-V7 (målmodellen), F-MM-V7c (målmodellen) |
 | <a id="rad-vs-03"></a>VS-03 | Byggherren har gjort innsigelse mot TEs varsel og svarer senere fra appen. | [GR-U12](#gr-u12) | F-MM-V3 (målmodellen), F-MM-V3b (målmodellen), F-MM-V3c (målmodellen), F-MM-V3c-kontroll (målmodellen) |
+| <a id="rad-ka-43"></a>KA-43 | Byggherren registrerer et brev sendt utenfor appen der byggherren senere begrunner sitt svar. | [MM-U17](#mm-u17) | F-MM-BG1 (målmodellen) |

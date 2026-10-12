@@ -1710,6 +1710,102 @@ const MUTASJONER: Mutasjon[] = [
       'en revisjon av svaret, med serverens regelversjon én høyere enn kommandoens',
     ],
   },
+  {
+    id: 'F157',
+    feilklasse: 'en senere begrunnelse avvises når kravene er avgjort (KA-U34, KA-U11)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "    case 'begrunne':\n",
+        "    case 'begrunne':\n      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', '');\n",
+      ],
+    ],
+    mal: ['godtas når kravene er avgjort, mens en revisjon avvises', 'F-MM-BG2'],
+  },
+  {
+    id: 'F158',
+    feilklasse: 'TE kan sende en senere begrunnelse (KA-U34)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["  begrunne: 'BH',", '  begrunne: null,']],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
+  },
+  {
+    id: 'F159',
+    feilklasse: 'en senere begrunnelse kan gjelde noe annet enn et svar (KA-U34)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["return maal?.art === 'svar'\n", 'return maal !== undefined\n']],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
+  },
+  {
+    id: 'F160',
+    feilklasse: 'leseren godtar en begrunnelse som gjelder noe annet enn et svar (KA-U34, MM-U2)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["return maal.art === 'svar';", "return maal.art !== 'opplysning';"]],
+    mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
+  },
+  {
+    id: 'F161',
+    feilklasse: 'brevteksten for den senere begrunnelsen avviker fra KA-U34',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'Byggherren begrunner sitt svar på ${SVARET_GJELDER[svar.spor]}',
+        'Byggherren begrunner sitt svar på ${SPORNAVN[svar.spor]}',
+      ],
+    ],
+    mal: ['brevet begrunner svaret på'],
+  },
+  {
+    id: 'F162',
+    feilklasse: 'en senere begrunnelse uten tekst godtas (KA-U34)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['return k.sendt === undefined && !k.utdypning?.trim()', 'return false']],
+    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
+  },
+  {
+    id: 'F163',
+    feilklasse: 'meldingen for avgjorte krav kaller «ingen krav» et trekk (KA-U11, KA-U12)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      ['    u.spor[n].trukket\n      ?', '    u.spor[n].trukket || u.spor[n].ingenKrav\n      ?'],
+    ],
+    mal: ['når TE ikke krever fristforlengelse, er kravene avgjort, og meldingen sier hvorfor'],
+  },
+  {
+    id: 'F164',
+    feilklasse: 'en registrert begrunnelse godtas uten brevet som vedlegg (KA-U35)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [['if (!k.dokumentasjon?.length)', 'if (false)']],
+    mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises', 'F-MM-BG1'],
+  },
+  {
+    id: 'F165',
+    feilklasse: 'leseren godtar en begrunnelse fra TE (KA-U34, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [["  begrunnelse: 'BH',", '  begrunnelse: null,']],
+    mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
+  },
+  {
+    id: 'F166',
+    feilklasse: 'en registrert begrunnelse kan ha tekst (KA-U35)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [["if ('utdypning' in k) feil.push", 'if (false) feil.push']],
+    mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises'],
+  },
+  {
+    id: 'F167',
+    feilklasse: 'en registrert begrunnelse skrives som et brev fra appen (KA-U35, MM-U17)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [["          opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],\n", '']],
+    mal: ['en begrunnelse sendt utenfor appen registreres uten tekst', 'F-MM-BG1'],
+  },
+  {
+    id: 'F168',
+    feilklasse: 'byggherren får ikke tilbud om å begrunne et svar (KA-U34, INV-MM-1)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [["    ut.push({ type: 'begrunne', gjelder: id });\n", '']],
+    mal: ['F-MM-BG1', 'F-MM-BG2', 'F-MM-B1'],
+  },
 ];
 
 interface Testresultat {

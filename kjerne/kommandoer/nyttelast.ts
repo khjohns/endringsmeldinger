@@ -122,6 +122,16 @@ function kravetsUtdypning(
 }
 
 /**
+ * KA-U34: en begrunnelse fra appen må ha teksten. Appen kontrollerer at den finnes,
+ * ikke hva den sier (KA-U19). En registrert begrunnelse har ingen (KA-U35).
+ */
+function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvisning | null {
+  return k.sendt === undefined && !k.utdypning?.trim()
+    ? avvis('BEGRUNNELSE_MANGLER', 'Begrunnelsen har ingen tekst.')
+    : null;
+}
+
+/**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
  * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1).
  */
@@ -204,5 +214,7 @@ export function nyttelastkontroll(
     case 'merking':
     case 'avklaring':
       return null;
+    case 'begrunnelse':
+      return utdypningKreves ? begrunnelsensTekst(k) : null;
   }
 }

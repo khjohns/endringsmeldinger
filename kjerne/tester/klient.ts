@@ -241,6 +241,17 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       return { type: h.handling, gjelder: navn.id(h.gjelder as string) };
     case 'merking':
       return { type: 'merking', gjelder: navn.id(h.gjelder as string), spor: h.sporene as Spor[] };
+    case 'begrunnelse':
+      // KA-U35: med `sendt` er begrunnelsen registrert. Feltene går videre, så kjernen avviser formen.
+      return {
+        type: 'begrunnelse',
+        gjelder: navn.id(h.gjelder as string),
+        ...(typeof h.sendt === 'string' ? { sendt: h.sendt } : utdypning(h)),
+        ...(typeof h.sendt === 'string' && typeof h.utdypning === 'string'
+          ? { utdypning: h.utdypning }
+          : {}),
+        ...(Array.isArray(h.dokumentasjon) ? { dokumentasjon: h.dokumentasjon as string[] } : {}),
+      };
     default:
       throw new Error(`Handlingen ${h.handling} er ikke en kommando`);
   }

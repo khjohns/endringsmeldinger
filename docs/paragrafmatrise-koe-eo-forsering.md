@@ -24,7 +24,7 @@ hovedplanen, gjelder hovedplanen.
 
 **Grunnlag.** Kartlagt 10.10 på `7460838`. Kjernens tilstand er lest i koden
 (L), ikke kjørt, og `kjerne/` er uendret fram til `915ab32`. Utdragene er fra
-NS 8407:2011. Vedtakene er lest i 3.1 på `915ab32`, med vedtakene fra runde 3. Vedtakene 11.10 (VS-U13, VS-U14, KA-U23, KA-U24 og KA-U25) er ført inn i radene de gjelder samme dag, og vedtakene om brevteksten (LV-U4, GR-U14–GR-U16, KA-U31–KA-U33 og VS-U15) i «Brevteksten». Begrepene utsagn, standpunkt, relasjon og predikat står i
+NS 8407:2011. Vedtakene er lest i 3.1 på `915ab32`, med vedtakene fra runde 3. Vedtakene 11.10 (VS-U13, VS-U14, KA-U23, KA-U24 og KA-U25) er ført inn i radene de gjelder samme dag, og vedtakene om brevteksten (LV-U4, GR-U14–GR-U16, KA-U31–KA-U33 og VS-U15) i «Brevteksten». Vedtakene 12.10 om den senere begrunnelsen (KA-U34, KA-U35) er ført inn i § 32.3 tredje ledd. Begrepene utsagn, standpunkt, relasjon og predikat står i
 [modellforslaget, 2.2](forslag-maalmodell-2026-10-09.md#22-byggeklossene) og i
 [domenetabellen](domenetabell/README.md). Navnene i formatet står i
 [designnotatet, 4.5](design-hendelsesformat-2026-10-09.md#45-navn-fra-kontrakten).
@@ -239,13 +239,28 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
 - **Appen:** *registrere og vise* ([VS-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)). Kravet til et brev fra
   appen og den senere begrunnelsen står i [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18), og
   [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24) utvider kravet til alle spor og kategorier.
-- **Vedtak:** [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18). [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24). B-13 begrunnelsestekst (T-a, 24.09).
+- **Vedtak:** [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18). [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24). [KA-U34](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u34). [KA-U35](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u35). B-13 begrunnelsestekst (T-a, 24.09).
   [MM-U12](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12).
   [LV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u1).
-- **Kjernen i dag:** bygget for brev fra appen. Begrunnelsen er utdypningen under
+- **Kjernen i dag:** bygget. Begrunnelsen i svaret er utdypningen under
   svarets låste tekst i brevteksten, én per svar ([KA-U31](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u31)), og et svar med en
   avgrensning etter KA-U24, også et frafall ([KA-U32](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u32)), avvises uten den
-  (`BEGRUNNELSE_MANGLER`). Ikke bygget: en begrunnelse i et senere dokument.
+  (`BEGRUNNELSE_MANGLER`). Den senere begrunnelsen er utsagnet `begrunnelse`, som
+  `gjelder` svaret: fra appen med byggherrens tekst som utdypning (KA-U34), og
+  registrert uten tekst, med datoen og brevet som vedlegg (KA-U35).
+- **Arbeidsvalg 12.10 (B-13 T-a, [KA-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18)):** utsagnsarten og kommandoen heter
+  `begrunnelse`, og handlingen `begrunne:<svar>`. Teksten står i brevteksten, ikke
+  på utsagnet.
+- **Arbeidsvalg 12.10 (KA-U34, [VS-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1)):** begrunnelsen kan gjelde hvert svar fra
+  byggherren, også et svar som er erstattet eller gjelder en eldre kravversjon, og et
+  registrert svar. KA-U34 avgrenser ikke til svar sendt fra appen, og KA-U18 sier
+  om et registrert brev: «Et registrert brev kan stå uten.»
+- **Arbeidsvalg 12.10 (KA-U34, [KA-U29](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u29)):** begrunnelsen godtas også når kravene er
+  avgjort («Den godtas også når kravene er avgjort, fordi den ikke kan endre
+  utfallet.»), når kravet i sporet er trukket og når partene er enige om at
+  grunnlaget er avvist. Bare BH sender den (KA-U34). En innsigelse kan ikke gjelde
+  den, fordi den ikke er et varsel, krav eller svar (VS-U1). Flere begrunnelser av
+  samme svar godtas.
 
 ### § 32 — trekk av grunnlaget og ny kravversjon
 
@@ -911,7 +926,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 Teksten i et brev appen sender ([#369](https://github.com/khjohns/endringsmeldinger/issues/369)).
 Ordlyden er [LV-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4) og [LV-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u5), med [GR-U14](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u14) og [GR-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u16); kravet til
 begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u31)–[KA-U33](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u33), [KA-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24) og
-[GR-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u15). Arbeidsvalgene under følger av vedtakene de viser til.
+[GR-U15](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u15). Den senere begrunnelsen har ordlyden i [KA-U34](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u34). Arbeidsvalgene under følger av vedtakene de viser til.
 
 - **Kjernen i dag:** bygget. Generatoren er `lagBrevtekst` i
   [`frosset/brevtekst.ts`](../kjerne/frosset/brevtekst.ts), kontrollene av

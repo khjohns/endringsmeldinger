@@ -459,7 +459,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
   ['kommandoer/kommando.ts', 'kommando', 'formfeil'],
-  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar varsel sendt'],
+  [
+    'kommandoer/kommando.ts:formfeil',
+    'kommando',
+    'type spor innhold svar varsel sendt dokumentasjon',
+  ],
   ['kommandoer/kommando.ts:formfeil.varsel', 'kommando', 'sendt'],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
@@ -603,7 +607,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Domenehendelse', 'brevtekst', 'tittel', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Journalrad', 'kontekst', 'sak_id', ['kommandoer/skriving.ts:brevtekstFor']],
   // Utdypningen kopieres til teksten. Kontrollene leser bare om den finnes (A6 i
-  // paragrafmatrisen, KA-U31–KA-U33, GR-U15).
+  // paragrafmatrisen, KA-U31–KA-U34, GR-U15).
   [
     'Svarutkast',
     'kommando',
@@ -614,7 +618,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando',
     'kommando',
     'utdypning',
-    ['kommandoer/skriving.ts:dokument', 'kommandoer/nyttelast.ts:kravetsUtdypning'],
+    [
+      'kommandoer/skriving.ts:dokument',
+      'kommandoer/nyttelast.ts:kravetsUtdypning',
+      'kommandoer/nyttelast.ts:begrunnelsensTekst',
+    ],
   ],
   // KA-U24, KA-U32: avgrensningene som krever begrunnelse, av serverens utregning.
   [

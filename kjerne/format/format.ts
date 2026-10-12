@@ -258,6 +258,7 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
   protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
   passivitet: objekt({ ...artfelt('passivitet'), gjelder: ID }, ['id', 'art', 'gjelder']),
   avklaring: objekt({ ...artfelt('avklaring'), gjelder: ID }, ['id', 'art', 'gjelder']),
+  begrunnelse: objekt({ ...artfelt('begrunnelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
 };
 
 export const STANDPUNKTSARTER = Object.keys(STANDPUNKT) as Standpunktsart[];
