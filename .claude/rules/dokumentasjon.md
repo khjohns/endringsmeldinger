@@ -14,6 +14,9 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
 
 ## Ett hjem per opplysning
 
+Én kilde per opplysning. Genererte og kontrollerte visninger er lov, men en fri
+gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
+
 - `docs/datamodell/` beskriver tabeller, hendelser, relasjoner og dataflyt, og
   `docs/domenetabell/` forventet atferd og bevis-saker. Rediger kilderegistrene,
   modellene eller JSON-filene og generer Markdown/Excel med

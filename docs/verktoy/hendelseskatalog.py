@@ -2,7 +2,7 @@
 
 Brukes av datamodell.py, som skriver visningene. Feltene i `data` og
 forretningsreglene hentes fra backend-koden, så verktøyet krever
-backend-avhengighetene (venv-en i AGENTS.md).
+backend-avhengighetene (venv-en i `.claude/skills/miljo/SKILL.md`).
 """
 
 import enum
