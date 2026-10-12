@@ -146,6 +146,71 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
+  it('stopper skriving som skjuler en sperret mappe med anførsel eller escape', () => {
+    for (const kommando of [
+      'echo x > kj""erne/a.ts',
+      "rm -rf kj''erne/a.ts",
+      'echo x > kj\\erne/a.ts',
+      'rm -rf kj"e"rne/a.ts',
+      'rm -rf kjerne;echo ok',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper skrivende kommandoer der kommandoordet eller målet ikke kan leses', () => {
+    for (const kommando of [
+      'rm -rf {kjerne,server}/a.ts',
+      'rm -rf kjerne*',
+      'k=kjer; n=ne; rm -rf $k$n/a.ts',
+      'c=rm; $c -rf docs/a.md',
+      '$(echo rm) -rf docs/a.md',
+      'echo $(git push origin HEAD:main)',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper push som er skjult av prefiks, sammensatte ledd eller skallnøsting', () => {
+    for (const kommando of [
+      'echo x & git push origin HEAD:main',
+      'git --no-pager push origin HEAD:main',
+      'nohup git push origin HEAD:main',
+      'timeout 60 git push origin HEAD:main',
+      'env -i git push origin HEAD:main',
+      'X="a b" git push origin HEAD:main',
+      "sh -c 'git push origin HEAD:main'",
+      'eval "git push origin HEAD:main"',
+      'echo x | xargs git push origin HEAD:main',
+      'git push origin "HEAD:main"',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper endring av treet i samme kall som commit eller push', () => {
+    for (const kommando of [
+      'git merge feat-kjerne --no-edit && git push -u origin claude/test-1',
+      'git checkout -q main; git add docs/a.md',
+      'git switch -q claude/test-1 && git commit -m x',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper push med andre flagg enn -u', () => {
+    for (const kommando of [
+      'git push --no-verify origin claude/test-1',
+      'git push --repo=/tmp/elsewhere origin claude/test-1',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('slipper et filnavn som begynner med .. inne i arbeidstreet', () => {
+    expect(skriv(path.join(rot, '..notater.md')).status).toBe(0);
+  });
+
   it('stopper Write i kjerne/ også når stien går gjennom en symbolsk lenke', () => {
     const lenke = path.join(path.dirname(rot), 'lenke');
     symlinkSync(rot, lenke);
@@ -382,6 +447,7 @@ describe('lesevakten for diffkontroll', () => {
       'git fetch --upload-pack="touch /tmp/x #" /tmp/repo',
       'git fetch origin claude/x-1:main',
       'git fetch origin tag v1',
+      'git fetch -p origin main',
       'git checkout main',
       'rg --pre "rm -rf docs" x',
     ]) {
@@ -396,6 +462,8 @@ describe('lesevakten for diffkontroll', () => {
       'grep "`rm -rf docs`" f',
       'git log $HOME',
       'git log > /tmp/x',
+      'git log -1 >&1x',
+      'grep x docs/a.md >&1x',
       'git log >> /tmp/x',
       'git log < /etc/hosts',
       'git log {a,b}',

@@ -3,9 +3,9 @@
 // hook-input som JSON på stdin og avslutter med kode 2 og en melding på stderr
 // når kallet ville skrive i en sperret mappe eller utenfor arbeidstreet. Med
 // --bare-lesing slipper den bare lesende kommandoer gjennom i Bash (git, gh api,
-// grep og rg). Med --etter-agent, slik .claude/settings.json kaller den, velger den vakt etter
-// agent_type og slipper alle andre kall gjennom (#442). Hva den ikke fanger,
-// står i .claude/agents/mekanisk-pr.md.
+// grep og rg). Med --etter-agent, slik .claude/settings.json kaller den, velger
+// den vakt etter agent_type og slipper alle andre kall gjennom (#442). Hva den
+// ikke fanger, står i .claude/agents/mekanisk-pr.md.
 import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -42,6 +42,28 @@ const SKRIVENDE_UTEN_STI = [
   /\bgit\s+(apply|am|cherry-pick)\b/,
   /(^|[\s;&|])patch\b/,
 ];
+
+// gh-kall som merger PR-en eller oppdaterer den mot main.
+const GH_MERGE = /(\/pulls\/\S+\/merge\b|\bpr\s+merge\b|\/update-branch\b)/;
+
+// Git-underkommandoer som endrer arbeidstreet eller indeksen.
+const TREENDRENDE = new Set([
+  'am',
+  'apply',
+  'checkout',
+  'cherry-pick',
+  'clean',
+  'merge',
+  'mv',
+  'pull',
+  'rebase',
+  'reset',
+  'restore',
+  'revert',
+  'rm',
+  'stash',
+  'switch',
+]);
 
 function sperretSti(relativ) {
   const forste = relativ.split(/[\\/]/)[0];
@@ -92,7 +114,10 @@ function naermesteMappe(sti) {
 
 function innenfor(sti, mappe) {
   const relativ = path.relative(mappe, sti);
-  return relativ === '' || (!relativ.startsWith('..') && !path.isAbsolute(relativ));
+  return (
+    relativ === '' ||
+    (relativ !== '..' && !relativ.startsWith(`..${path.sep}`) && !path.isAbsolute(relativ))
+  );
 }
 
 function sperredeFiler(filer) {
@@ -112,13 +137,15 @@ function ledd(kommando) {
 }
 
 // Omdirigering som ikke skriver: `2>&1` og `>/dev/null`. Alle andre `>` og `<` gjør leddet ukjent.
-const UFARLIG_OMDIRIGERING = /^>(&\d+|\s*\/dev\/null(?=$|[\s;&|)]))/;
+const UFARLIG_OMDIRIGERING = /^>(&\d+(?=$|[\s;&|)])|\s*\/dev\/null(?=$|[\s;&|)]))/;
 const ESCAPE_I_ANFORSEL = '$`"\\\n';
 
 /**
  * Deler en kommando i ledd og ord med skallets regler for anførselstegn og escape.
- * `ukjent` settes når et ledd har substitusjon, variabler, globber, klammer, `#`,
- * subshell, heredoc eller omdirigering til fil: det kan ikke leses uten å kjøre skallet.
+ * `ukjent` settes når leddet ikke kan leses uten å kjøre skallet: substitusjon, variabler,
+ * globber, klammer, `#`, subshell, heredoc eller omdirigering til fil. `ukjentSyntaks` er
+ * den delen som ikke er omdirigering, og `ukjentKommando` er satt når kommandoordet selv
+ * ikke kan leses.
  */
 function lekser(tekst) {
   const liste = [];
@@ -126,7 +153,17 @@ function lekser(tekst) {
   let innhold = '';
   let harOrd = false;
   let ukjent = false;
+  let ukjentSyntaks = false;
+  let ukjentKommando = false;
 
+  const merkUkjent = () => {
+    ukjent = true;
+    ukjentSyntaks = true;
+    if (!ord.length) ukjentKommando = true;
+  };
+  const merkOmdirigering = () => {
+    ukjent = true;
+  };
   const avsluttOrd = () => {
     if (harOrd) ord.push(innhold);
     innhold = '';
@@ -134,9 +171,11 @@ function lekser(tekst) {
   };
   const avsluttLedd = () => {
     avsluttOrd();
-    if (ord.length || ukjent) liste.push({ ord, ukjent });
+    if (ord.length || ukjent) liste.push({ ord, ukjent, ukjentSyntaks, ukjentKommando });
     ord = [];
     ukjent = false;
+    ukjentSyntaks = false;
+    ukjentKommando = false;
   };
 
   for (let i = 0; i < tekst.length; i++) {
@@ -145,7 +184,7 @@ function lekser(tekst) {
       harOrd = true;
       const slutt = tekst.indexOf("'", i + 1);
       if (slutt === -1) {
-        ukjent = true;
+        merkUkjent();
         innhold += tekst.slice(i + 1);
         break;
       }
@@ -161,15 +200,15 @@ function lekser(tekst) {
           innhold += neste;
           j++;
         } else {
-          if (inni === '$' || inni === '`') ukjent = true;
+          if (inni === '$' || inni === '`') merkUkjent();
           innhold += inni;
         }
       }
-      if (j >= tekst.length) ukjent = true;
+      if (j >= tekst.length) merkUkjent();
       i = j;
     } else if (tegn === '\\') {
       harOrd = true;
-      if (i + 1 >= tekst.length || tekst[i + 1] === '\n') ukjent = true;
+      if (i + 1 >= tekst.length || tekst[i + 1] === '\n') merkUkjent();
       else innhold += tekst[i + 1];
       i++;
     } else if (tegn === '>') {
@@ -181,11 +220,11 @@ function lekser(tekst) {
         }
         i += ufarlig[0].length - 1;
       } else {
-        ukjent = true;
+        merkOmdirigering();
         avsluttOrd();
       }
     } else if (tegn === '<') {
-      ukjent = true;
+      merkOmdirigering();
       avsluttOrd();
     } else if (tegn === ';' || tegn === '&' || tegn === '|' || tegn === '\n') {
       avsluttLedd();
@@ -193,7 +232,7 @@ function lekser(tekst) {
       avsluttOrd();
     } else if ('$`(){*?[#'.includes(tegn)) {
       // `#` er kommentar i ett skall og et vanlig ord i et annet, så leddet er ukjent.
-      ukjent = true;
+      merkUkjent();
       harOrd = true;
       innhold += tegn;
     } else {
@@ -211,6 +250,8 @@ const LESENDE_FLAGG = [
   /^(--stat|--shortstat|--numstat|--name-only|--name-status|--oneline|--no-color|--cached|--short|--porcelain|--abbrev-ref|--verify|--quiet|--no-patch|--no-ext-diff|--graph|--all|--no-merges|--first-parent|--others|--exclude-standard|--modified|-p|-q|-s)$/,
   /^(-n|-\d+|-U\d+|--stat=\d+|--unified=\d+|--diff-filter=[A-Za-z]+|--format=.*|--pretty=.*|--grep=.*|--author=.*|--since=.*|--until=.*)$/,
 ];
+// fetch uten --prune, som sletter fjernsporingsgreiner.
+const FETCH_FLAGG = [/^(-q|--quiet|--no-tags)$/];
 // git grep: `-O` og `--open-files-in-pager` starter et program, og er ikke med.
 const GREP_FLAGG = [
   /^-[nilcEFGPwIHhsa]+$/,
@@ -225,7 +266,7 @@ const GIT_LESENDE = new Map([
   ['rev-parse', LESENDE_FLAGG],
   ['merge-base', LESENDE_FLAGG],
   ['ls-files', LESENDE_FLAGG],
-  ['fetch', LESENDE_FLAGG],
+  ['fetch', FETCH_FLAGG],
   ['grep', GREP_FLAGG],
 ]);
 // gh api uten -f, -F, --field, --raw-field og --input, og uten metode som ikke er GET.
@@ -299,12 +340,74 @@ function vurderLesing(input) {
   return null;
 }
 
-// Bare `git push [-u] origin <utsjekket gren>`, uten force eller sletting, og bare
+// Prefiks som skallet kjører kommandoen gjennom. Argumentene til dem hoppes over.
+const PREFIKS = new Set([
+  'builtin',
+  'command',
+  'env',
+  'exec',
+  'nice',
+  'nohup',
+  'sudo',
+  'time',
+  'timeout',
+  'xargs',
+]);
+const SKALL = new Set(['sh', 'bash', 'zsh', 'dash']);
+
+function erPrefiks(o) {
+  return (
+    /^[A-Za-z_]\w*=/.test(o) || PREFIKS.has(o) || /^-/.test(o) || /^\d+(\.\d+)?[smhd]?$/.test(o)
+  );
+}
+
+/**
+ * Kommandoene skallet faktisk kjører: prefiks er fjernet, og innholdet i `sh -c`
+ * og `eval` er lest på nytt. Ledd med ukjent kommandoord beholdes som de er.
+ */
+function effektiveKommandoer(leddene) {
+  const ut = [];
+  for (const del of leddene) {
+    if (del.ukjentKommando) {
+      ut.push(del);
+      continue;
+    }
+    const { ord } = del;
+    let k = 0;
+    while (k < ord.length && erPrefiks(ord[k])) k++;
+    if (k >= ord.length) continue;
+    const kommando = ord[k];
+    if (SKALL.has(kommando) && /^-\w*c/.test(ord[k + 1] ?? '')) {
+      ut.push(...effektiveKommandoer(lekser(ord[k + 2] ?? '')));
+    } else if (kommando === 'eval') {
+      ut.push(...effektiveKommandoer(lekser(ord.slice(k + 1).join(' '))));
+    } else {
+      ut.push({ ord: ord.slice(k), ukjentKommando: false });
+    }
+  }
+  return ut;
+}
+
+/** Underkommando og argumenter for en git-kommando, etter globale valg som `-C` og `--no-pager`. */
+function gitKommando(ord) {
+  const globale = [];
+  let i = 1;
+  while (i < ord.length && ord[i].startsWith('-')) {
+    globale.push(ord[i]);
+    i += ['-C', '-c', '--git-dir', '--work-tree'].includes(ord[i]) ? 2 : 1;
+  }
+  return { underkommando: ord[i] ?? '', argumenter: ord.slice(i + 1), globale };
+}
+
+// Bare `git push [-u] origin <utsjekket gren>`, uten force, sletting eller andre flagg, og bare
 // når grenen ikke endrer sperrede mapper.
 function vurderPush(argumenter, rot) {
   const ord = argumenter.trim().split(/\s+/).filter(Boolean);
   if (ord.some((o) => /^--(force|delete|mirror|all|tags)|^-[a-zA-Z]*[fd]/.test(o))) {
     return 'Push med force, sletting eller flere grener er ikke tillatt.';
+  }
+  if (ord.some((o) => o.startsWith('-') && !['-u', '--set-upstream'].includes(o))) {
+    return 'Push med andre flagg enn -u er ikke tillatt.';
   }
   const gren = git(rot, 'rev-parse', '--abbrev-ref', 'HEAD');
   const [fjern, refspec, ...resten] = ord.filter((o) => !o.startsWith('-'));
@@ -345,45 +448,73 @@ function vurder(input) {
 
   if (verktoy !== 'Bash') return null;
   const rakKommando = String(parametre.command ?? '');
+  const leddene = lekser(rakKommando);
+  // Når hvert ledd er lesende, kan kallet verken skrive eller pushe, selv om et argument
+  // ligner en skrivende kommando (`grep "ruff format"`).
+  if (leddene.length && leddene.every((del) => lesingsBegrunnelse(del) === null)) return null;
+
   const kommando = rakKommando
     .replace(/[\r\n]+/g, ' ; ')
     .replace(/\d*>&\d|\d*>\s*\/dev\/null/g, '');
-
-  // Når hvert ledd er lesende, skriver kallet ikke, selv om et argument ligner en skrivende
-  // kommando (`grep "ruff format"`). Ellers gjelder de tekstbaserte reglene som før.
-  const leddene = lekser(rakKommando);
-  const lesende = leddene.length > 0 && leddene.every((del) => lesingsBegrunnelse(del) === null);
-  if (!lesende) {
-    if (SPERRET_MAPPE.test(kommando) && SKRIVENDE.some((m) => m.test(kommando))) {
+  // Anførselstegn og escape kan skjule et mappenavn for tekstreglene (`kj""erne`).
+  // Reglene kjøres derfor også på teksten uten dem.
+  for (const tekst of new Set([kommando, kommando.replace(/['"\\]/g, '')])) {
+    if (SPERRET_MAPPE.test(tekst) && SKRIVENDE.some((m) => m.test(tekst))) {
       return 'Kommandoen nevner en sperret mappe og kan skrive.';
     }
-    const utenSti = SKRIVENDE_UTEN_STI.find((m) => m.test(kommando));
+    const utenSti = SKRIVENDE_UTEN_STI.find((m) => m.test(tekst));
     if (utenSti) return `Kommandoen kan skrive filer den ikke nevner (${utenSti}).`;
   }
 
-  const deler = ledd(kommando);
+  const eff = effektiveKommandoer(leddene);
+  if (eff.some((del) => del.ukjentKommando)) {
+    return 'Kommandoen starter med skallsyntaks som ikke kan leses statisk.';
+  }
   if (
-    deler.some((del) => /^gh\b.*(\/pulls\/\S+\/merge\b|\bpr\s+merge\b|\/update-branch\b)/.test(del))
+    leddene.some((del) => del.ukjentSyntaks) &&
+    [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) => m.test(kommando))
+  ) {
+    return 'Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.';
+  }
+
+  const deler = ledd(kommando);
+  const gitene = eff.filter((del) => del.ord[0] === 'git').map((del) => gitKommando(del.ord));
+  if (
+    deler.some((del) => /^gh\b/.test(del) && GH_MERGE.test(del)) ||
+    eff.some((del) => del.ord[0] === 'gh' && GH_MERGE.test(del.ord.join(' ')))
   ) {
     return 'mekanisk-pr merger ikke og oppdaterer ikke PR-en mot main.';
   }
-  if (deler.some((del) => /^git\s+(-c\b|config\b)/.test(del))) {
+  if (
+    deler.some((del) => /^git\s+(-c\b|config\b)/.test(del)) ||
+    gitene.some((g) => g.underkommando === 'config' || g.globale.includes('-c'))
+  ) {
     return 'mekanisk-pr endrer ikke git-oppsettet.';
   }
 
   // Siste vern: det som committes eller pushes, kontrolleres i git.
-  const pusher = deler.filter((del) => /^git(\s+-C\s+\S+)?\s+push\b/.test(del));
-  const commiter = deler.some((del) => /^git(\s+-C\s+\S+)?\s+(commit|add)\b/.test(del));
-  if (pusher.length && commiter) return 'Kjør commit og push i hver sin kommando.';
+  const pushArgumenter = [
+    ...deler
+      .filter((del) => /^git(\s+-C\s+\S+)?\s+push\b/.test(del))
+      .map((del) => del.replace(/^.*?\bpush\b/, '')),
+    ...gitene.filter((g) => g.underkommando === 'push').map((g) => g.argumenter.join(' ')),
+  ];
+  const commiter =
+    deler.some((del) => /^git(\s+-C\s+\S+)?\s+(commit|add)\b/.test(del)) ||
+    gitene.some((g) => g.underkommando === 'commit' || g.underkommando === 'add');
+  if (pushArgumenter.length && commiter) return 'Kjør commit og push i hver sin kommando.';
+  if (gitene.some((g) => TREENDRENDE.has(g.underkommando)) && (pushArgumenter.length || commiter)) {
+    return 'Kommandoen endrer treet og committer eller pusher i samme kall. Kjør dem i hver sin kommando.';
+  }
   if (rot && commiter) {
     const endret = git(rot, 'diff', '--name-only', 'HEAD');
     const nye = git(rot, 'ls-files', '--others', '--exclude-standard');
     const filer = sperredeFiler(`${endret}\n${nye}`);
     if (filer.length) return `Endringer i sperrede mapper: ${filer.join(', ')}.`;
   }
-  for (const del of pusher) {
+  for (const argumenter of pushArgumenter) {
     if (!rot) return 'Ikke i et git-arbeidstre.';
-    const begrunnelse = vurderPush(del.replace(/^.*?\bpush\b/, ''), rot);
+    const begrunnelse = vurderPush(argumenter, rot);
     if (begrunnelse) return begrunnelse;
   }
   return null;
