@@ -73,6 +73,8 @@ export type Kommando = (
   | { type: 'merking'; gjelder: string; spor: Spor[] }
   /** KA-U20: den som sendte brevet, sier at standpunktene gjelder uten forbehold. */
   | { type: 'avklaring'; gjelder: string }
+  /** KA-U34: byggherrens senere begrunnelse av et svar. Teksten er utdypningen. */
+  | { type: 'begrunnelse'; gjelder: string; utdypning: string }
 ) &
   Brevtekst;
 
@@ -166,6 +168,10 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     ['type', 'gjelder', 'spor']
   ),
   avklaring: henvisning('avklaring'),
+  begrunnelse: objekt(
+    { type: { const: 'begrunnelse' }, gjelder: ID, utdypning: TEKST, ...BREVTEKST },
+    ['type', 'gjelder', 'utdypning']
+  ),
 };
 
 /** Feilene i formen, tomme når kommandoen kan vurderes. */

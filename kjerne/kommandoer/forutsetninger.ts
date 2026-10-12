@@ -25,7 +25,7 @@ export type Handlingsnoekkel =
   | { type: 'varsle' | 'sende_varsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | {
-      type: 'bestride' | 'innsigelse' | 'protest' | 'passivitet' | 'merke' | 'avklare';
+      type: 'bestride' | 'innsigelse' | 'protest' | 'passivitet' | 'merke' | 'avklare' | 'begrunne';
       gjelder: string;
     };
 
@@ -47,12 +47,13 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   protest: null,
   merke: null,
   avklare: null,
+  begrunne: 'BH',
 };
 
 /**
- * Utsagnene uten virkning på utfallet som viser til et annet element: § 5, VS-U12
- * og KA-U20. Som bestridelsen (MM-U7) godtas de også når kravene er avgjort eller
- * avslaget av grunnlaget er godtatt (KA-U11, KA-U28, KA-U29).
+ * Utsagnene uten virkning på utfallet som viser til et annet element: § 5, VS-U12,
+ * KA-U20 og KA-U34. Som bestridelsen (MM-U7) godtas de også når kravene er avgjort
+ * eller avslaget av grunnlaget er godtatt (KA-U11, KA-U28, KA-U29, KA-U34).
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
   const maal = u.elementer[h.gjelder];
@@ -95,6 +96,11 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
         ? null
         : avvis('FEIL_PART', 'Bare den som sendte brevet, kan avklare merkingen.');
     }
+    case 'begrunne':
+      // KA-U34: et svar byggherren har sendt eller registrert.
+      return maal?.art === 'svar' && maal.part === 'BH'
+        ? null
+        : avvis('INGEN_SVAR_AA_BEGRUNNE', 'Begrunnelsen må gjelde et svar fra byggherren.');
     case 'bestride': {
       // MM-U7: en bestridelse endrer ikke noe utfall og kan registreres når som helst.
       const o = u.opplysninger.find((x) => x.opplysning.id === h.gjelder);

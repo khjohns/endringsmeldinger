@@ -546,7 +546,7 @@ function beskriv(id: string, j: Journalen): string {
   throw new KanIkkeUttrykkes(`${id} har ingen brevtekst som det et utsagn viser til`);
 }
 
-/** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22 og KA-U25 ordrett. */
+/** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22, KA-U25 og KA-U34 ordrett. */
 function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
   const part = PART[nytt.avsender];
   switch (u.art) {
@@ -600,6 +600,11 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       if (e.art !== 'opplysning' || e.opplysning.hva !== 'kan_ikke_uttrykkes')
         throw new KanIkkeUttrykkes(`${u.gjelder} er ikke en merking`);
       return `${part} bekrefter at standpunktene i ${j.brevet(e.opplysning.brev)} om ${liste(e.opplysning.spor.map((s) => SPORNAVN[s]))} gjelder uten forbehold fra og med dette brevet.`;
+    }
+    case 'begrunnelse': {
+      // KA-U34: byggherrens tekst følger som utdypningen.
+      const svar = j.svar(u.gjelder);
+      return `Byggherren begrunner sitt svar på ${SVARET_GJELDER[svar.spor]} i ${j.brevet(svar.dokument)}:`;
     }
   }
 }

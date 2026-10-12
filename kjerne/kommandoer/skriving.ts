@@ -187,6 +187,11 @@ function dokument(
     case 'passivitet':
     case 'avklaring':
       return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
+    case 'begrunnelse': {
+      const id = nyId();
+      utdypninger.set(id, k.utdypning);
+      return { utsagn: [{ id, art: 'begrunnelse', gjelder: k.gjelder }] };
+    }
     case 'merking':
       // KA-U20: en senere merking er en opplysning om det gamle brevet (MM-U12).
       return {
