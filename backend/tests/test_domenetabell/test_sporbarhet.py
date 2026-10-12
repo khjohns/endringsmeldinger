@@ -40,11 +40,18 @@ def test_hver_regelkode_i_kjernen_staar_paa_en_rad_eller_uten_rad_med_grunn(regl
 def test_en_funksjon_som_ikke_er_deklarert_gir_feil(regler):
     rad = _rad_med(regler, "funksjoner")
     sti = rad["funksjoner"][0].partition("#")[0]
-    rad["funksjoner"] = [f"{sti}#finnesIkke", "kjerne/finnes-ikke.ts#utled", "kjerne/../x.ts#y"]
+    rad["funksjoner"] = [f"{sti}#finnesIkke", "kjerne/finnes-ikke.ts#utled", "kjerne/../x.ts#y", f"{v.ROT}/{sti}#utled"]
     feil = _feil(regler)
     assert f"{rad['id']}: finnesIkke er ikke deklarert i {sti}" in feil
     assert f"{rad['id']}: funksjonen 'kjerne/finnes-ikke.ts#utled' er ikke `sti#navn` med en fil som finnes" in feil
     assert f"{rad['id']}: funksjonen 'kjerne/../x.ts#y' er ikke `sti#navn` med en fil som finnes" in feil
+    assert f"{rad['id']}: funksjonen '{v.ROT}/{sti}#utled' er ikke `sti#navn` med en fil som finnes" in feil
+
+
+def test_et_navn_i_en_kommentar_eller_midt_paa_en_linje_er_ikke_en_deklarasjon(tmp_path):
+    sti = tmp_path / "a.ts"
+    sti.write_text("// function borte\nx = 1; const ogsaa = 2;\n  export function her() {}\n", encoding="utf-8")
+    assert [v._deklarert(sti, n) for n in ("borte", "ogsaa", "her")] == [False, False, True]
 
 
 def test_en_regelkode_paa_en_rad_uten_bevis_sak_som_kontrollerer_den_gir_feil(regler):
@@ -78,13 +85,13 @@ def test_et_kall_til_avvis_uten_strenglitteral_gir_feil(tmp_path):
     """Kontrollen finner bare koder som strenglitteral, så et annet kall må synes."""
     (tmp_path / "kjerne" / "tester").mkdir(parents=True)
     (tmp_path / "kjerne" / "a.ts").write_text(
-        "const k = 'X';\nexport const f = () =>\n  avvis(\n    'KODE_A', 'm') ?? avvis(k, 'm');\n",
+        "/** `avvis(kode, melding)` */\n// avvis('I_KOMMENTAR', 'm')\nexport const f = () =>\n  avvis(\n    'KODE_A', 'm') ?? avvis(k, 'm');\n",
         encoding="utf-8",
     )
     (tmp_path / "kjerne" / "tester" / "b.ts").write_text("avvis('KODE_I_TEST', 'm');\n", encoding="utf-8")
     koder, feil = v._regelkoder_i_kjernen(tmp_path)
     assert koder == {"KODE_A"}
-    assert feil == ["kjerne/a.ts:4: `avvis` uten regelkoden som strenglitteral"]
+    assert feil == ["kjerne/a.ts:5: `avvis` uten regelkoden som strenglitteral"]
 
 
 def _arbeidsvalg(**endring):
@@ -108,12 +115,12 @@ def test_et_arbeidsvalg_er_en_gyldig_kilde_for_en_arbeidshypotese(regler):
     )
 
 
-def test_et_arbeidsvalg_alene_gir_ikke_avklart_tolkning(regler):
+def test_avklart_tolkning_uten_et_vedtak_blant_kildene_gir_feil(regler):
     """Punkt 9 i #451: autoriteten flyttes ikke; et arbeidsvalg er ikke et vedtak."""
     regler["kilder"].append(_arbeidsvalg())
     rad = next(r for r in regler["rader"] if r["tolkningsstatus"] == "avklart_tolkning")
-    rad["kilder"] = ["A-451"]
-    assert _feil(regler) == [f"{rad['id']}: et arbeidsvalg alene gir ikke avklart tolkning"]
+    rad["kilder"] = ["A-451", "NS-32.1"]
+    assert _feil(regler) == [f"{rad['id']}: avklart tolkning uten et vedtak blant kildene"]
 
 
 def test_et_arbeidsvalg_uten_issue_dato_eller_merknad_gir_feil(regler):

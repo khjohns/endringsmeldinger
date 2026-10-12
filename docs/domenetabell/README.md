@@ -330,7 +330,8 @@ Skrevet av `python3 docs/verktoy/domenetabell.py --skriv` fra `regelkoder`,
 tabellen har hver regelkode kjernen avviser med, og radene koden viser til. En
 kode uten rad står med grunnen. Den andre har funksjonene i kjernen som
 gjennomfører regelen i raden. Sporbarheten innføres gradvis og er ført for
-byggedel 1 av #309: GR-01–GR-30, VS-01–VS-06 og KA-31–KA-45. Hvilke former
+byggedel 1 av #309: GR-01–GR-30, VS-01–VS-06 og KA-31–KA-45, og regelkodene
+KA-23 og KA-24 sier. Hvilke former
 kontrollen leter etter, står under [Formatet](#formatet).
 
 <!-- sporbarhet:start -->
@@ -446,20 +447,25 @@ Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
   kontrollen leter etter), punkter i NS 8407 eller arbeidsvalg. Et
   arbeidsvalg (`"type": "arbeidsvalg"`) har `dato`, `issue` med nummeret på
   issuet der valget står, og `merknad` med hva som ble valgt. Det er ikke et
-  vedtak: en rad med bare arbeidsvalg som kilde har ikke tolkningsstatus
-  `avklart_tolkning`. `tolkningsstatuser` forklarer statusene. Hver rad har
+  vedtak: en rad med tolkningsstatus `avklart_tolkning` har et vedtak blant
+  kildene. `tolkningsstatuser` forklarer statusene. Hver rad har
   kilder og én tolkningsstatus.
 - En rad kan ha `funksjoner`, funksjonene som gjennomfører regelen, som
   `sti#navn` fra repoets rot (`kjerne/utledning/utled.ts#kraveneErAvgjort`), og
   `regelkoder`, kodene kjernen avviser med etter regelen. Kontrollen krever at
-  fila finnes og at navnet er deklarert der (`function`, `const`, `let` eller
-  `class`; `def` eller `class` i Python), og at en bevis-sak for målmodellen som
-  har raden, kontrollerer koden med `forventet.regel`. Hver regelkode i
+  fila finnes og at navnet er deklarert der, først på en linje (`function`,
+  `const`, `let` eller `class`; `def` eller `class` i Python), og at en
+  bevis-sak for målmodellen kontrollerer koden med `forventet.regel` for raden.
+  En kontroll gjelder radene i `kilde` som forløpet har, eller alle forløpets
+  rader når `kilde` ikke viser til noen. Det siste er grovere: kontrollen
+  viser at koden er prøvd i et forløp for raden, ikke at avvisningen gjelder
+  akkurat den. Hver regelkode i
   `kjerne/` utenom testene står på minst én rad eller i `koder_uten_rad` med
   grunnen, og ikke begge steder. Kontrollen finner kodene som strenglitteral i
-  `avvis('KODE'`, `regel: 'KODE'` og `new Klasse('KODE'`, og feiler på et kall
-  til `avvis` der koden ikke er en strenglitteral. Kodenavnene
-  endres ikke.
+  `avvis('KODE'`, `regel: 'KODE'` og `new Klasse('KODE'`, utenom linjer som er
+  kommentarer, og feiler på et kall til `avvis` der koden ikke er en
+  strenglitteral. En kode i `regel:` eller `new Klasse(` som en variabel eller
+  med doble anførselstegn, ser den ikke. Kodenavnene endres ikke.
 - `bevis-saker.json`: et forløp starter fra et navngitt `prefiks` og har
   `steg`, som er handlinger med parametre. Handlingene er domenets, ikke
   Python-modellens; kjøreren lager forespørslene slik `/api/events` tar imot
