@@ -26,7 +26,7 @@ const SKRIVENDE = [
   /\bsed\b[^|;&]*\s-[a-zA-Z]*i/,
   /\bperl\b[^|;&]*\s-[a-zA-Z]*i/,
   /\b(mv|cp|rm|rmdir|touch|mkdir|ln|chmod|truncate|dd|install|rsync|unlink)\b/,
-  /\bgit\s+(checkout|restore|rm|mv|reset|clean|stash)\b/,
+  /\bgit\s+(checkout|restore|rm|mv|reset|clean|stash|init|clone|submodule|worktree)\b/,
 ];
 
 // Skriver filer uten at stien står i kommandoen.
@@ -164,10 +164,10 @@ function vurder(input) {
     if (!fil) return 'Fant ingen filsti i kallet.';
     const absolutt = ekteSti(path.resolve(cwd, fil));
     // Arbeidstrærne ligger inne i hovedkopien, så stien måles også fra treet fila ligger i.
-    const filrot = arbeidstreet(naermesteMappe(absolutt)) ?? rot;
-    const relativ = filrot && path.relative(filrot, absolutt);
-    if (relativ && innenfor(absolutt, filrot) && sperretSti(relativ)) {
-      return `${relativ} ligger i en sperret mappe.`;
+    for (const tre of [arbeidstreet(naermesteMappe(absolutt)), rot]) {
+      if (!tre || !innenfor(absolutt, tre)) continue;
+      const relativ = path.relative(tre, absolutt);
+      if (sperretSti(relativ)) return `${relativ} ligger i en sperret mappe.`;
     }
     if (rot && innenfor(absolutt, rot)) return null;
     if (innenfor(absolutt, ekteSti(tmpdir())) || innenfor(absolutt, ekteSti('/tmp'))) return null;
@@ -221,7 +221,7 @@ function vurder(input) {
 function vaktEtterAgent(input) {
   if (input.agent_type === 'diffkontroll') return 'lesing';
   if (input.agent_type === 'mekanisk-pr') return 'skriving';
-  if (input.agent_type !== undefined) return null;
+  if (input.agent_type) return null;
   if (/[\\/]\.claude[\\/]worktrees[\\/]agent-/.test(String(input.cwd ?? ''))) return 'skriving';
   return null;
 }

@@ -58,7 +58,7 @@ leveres av subagenten `mekanisk-pr`, som arbeider på egen branch i eget
 arbeidstre og ikke kan skrive i `kjerne/`, `server/`, `backend/`, `supabase/`
 eller `sprakprove/` (#439). Vernet er hooken `skrivevakt` i
 `.claude/settings.json`, som velger vakt etter agenten kallet kommer fra (#442).
-Subagenten lar PR-en stå som utkast. Subagenten
+`mekanisk-pr` lar PR-en stå som utkast. Subagenten
 `diffkontroll` kontrollerer diffen mot bestillingen, og `/code-review` kjøres
 etter regelen i `AGENTS.md`, før PR-en markeres klar. Rettinger sendes til
 `mekanisk-pr` med `SendMessage`.
