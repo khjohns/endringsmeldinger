@@ -718,7 +718,12 @@ const OPSJONER = ts.parseJsonConfigFileContent(
   KJERNE
 ).options;
 
-/** Et TypeScript-program over `filer`, med kildeteksten i `erstatt` der den er oppgitt. */
+/**
+ * Et TypeScript-program over `filer`, med kildeteksten i `erstatt` der den er oppgitt.
+ * En fil som ikke erstattes, hentes fra `forrige`, så programmet gjenbruker den i
+ * stedet for å parse og binde kjernen og `lib` på nytt (#392). `forrige` må derfor
+ * være bygd uten `erstatt`.
+ */
 export function program(
   filer: string[],
   erstatt = new Map<string, string>(),
@@ -728,9 +733,8 @@ export function program(
   const hent = vert.getSourceFile;
   vert.getSourceFile = (fil, spraak, ...resten) => {
     const kilde = erstatt.get(fil);
-    return kilde === undefined
-      ? hent(fil, spraak, ...resten)
-      : ts.createSourceFile(fil, kilde, spraak, true);
+    if (kilde !== undefined) return ts.createSourceFile(fil, kilde, spraak, true);
+    return forrige?.getSourceFile(fil) ?? hent(fil, spraak, ...resten);
   };
   return ts.createProgram(filer, OPSJONER, vert, forrige);
 }
