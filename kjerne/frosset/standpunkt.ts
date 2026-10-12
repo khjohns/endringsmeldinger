@@ -15,7 +15,11 @@
 import { beloep, tilTall } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { beregnFrist, type Fristkrav } from '../regler/frist.ts';
-import { foersteUnderkategori, gyldigeResultater } from '../regler/grunnlag.ts';
+import {
+  foersteUnderkategori,
+  gyldigeResultater,
+  type Subsidiaergrunn,
+} from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { tekst } from '../format/skjema.ts';
 import { beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
@@ -33,7 +37,7 @@ import type {
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
 export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;
 
-function kategori(krav: Krav | null | undefined) {
+function kategori(krav: Pick<Krav, 'innhold'> | null | undefined) {
   const innhold = krav?.innhold ?? {};
   return {
     hovedkategori: tekst(innhold.hovedkategori),
@@ -42,7 +46,10 @@ function kategori(krav: Krav | null | undefined) {
 }
 
 /** Varslingsplikten i § 32.2 gjelder kategorien i grunnlagskravet (GR-U11). */
-export function gjelderVarslingsplikten(krav: Krav | null | undefined, regler: Regelsett): boolean {
+export function gjelderVarslingsplikten(
+  krav: Pick<Krav, 'innhold'> | null | undefined,
+  regler: Regelsett
+): boolean {
   const { hovedkategori, underkategori } = kategori(krav);
   return regler.gjelderVarslingsplikten(hovedkategori, underkategori);
 }
@@ -146,6 +153,21 @@ const avvisesPrinsipalt = (v: Standpunktsvirkning[]) => AVVISENDE.has(prinsipalt
 
 export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art: A) {
   return svar.standpunkter.find((s): s is Extract<Standpunkt, { art: A }> => s.art === art);
+}
+
+/**
+ * Hvorfor svarene på vederlag og frist er subsidiære til grunnlagssvaret, etter
+ * standpunktene i brevet om grunnlaget (vedtaket 05.10, MM-U9). Utledningen og
+ * brevteksten (A2) leser det samme.
+ */
+export function grunnerFraGrunnlaget(
+  svar: Svarinnhold,
+  virkninger: Standpunktsvirkning[]
+): Subsidiaergrunn[] {
+  const ut: Subsidiaergrunn[] = [];
+  if (prinsipalt(virkninger)?.art === 'rettidighet') ut.push('prekludert');
+  if (standpunktet(svar, 'grunnlag')?.resultat === 'avslaatt') ut.push('avslaatt');
+  return ut;
 }
 
 /**

@@ -5,7 +5,8 @@
  * i designnotatet, GR-U12 og registeret (#320). F48 er hvitelisten fra #329,
  * F49–F51 og F54–F58 versjoneringen (#316), F52–F53 registrert korrespondanse
  * (#336), F59–F60 kodene i formatet og predikatet for endringsordre
- * (#335, #351), og F61–F104 byggedel 1 av #309. Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * (#335, #351), F61–F104 byggedel 1 av #309, F105–F131 brevteksten (#369) og
+ * F132–F134 LV-U5 (#414). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
@@ -1179,6 +1180,289 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-T4'],
+  },
+  {
+    id: 'F105',
+    feilklasse: 'brevet for trekk av grunnlaget sier ikke hva trekket ikke opphever (KA-U22)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        ' Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`',
+        '`',
+      ],
+    ],
+    mal: ['trekk av grunnlaget'],
+  },
+  {
+    id: 'F106',
+    feilklasse: '«ingen krav» i vederlaget sier ikke at forseringsvederlaget er unntatt (KA-U25)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`', '`']],
+    mal: ['«ingen krav» i vederlaget'],
+  },
+  {
+    id: 'F107',
+    feilklasse:
+      'et standpunkt appen regner som uten virkning, står ikke i brevet (LV-U3, HF-U2, VS-U11)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '    ...s.standpunkter.map((p) => ({',
+        "    ...s.standpunkter.filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => ({",
+      ],
+    ],
+    mal: ['et standpunkt appen regner som uten virkning', 'gir byggherren innsigelsen opp'],
+  },
+  {
+    id: 'F108',
+    feilklasse:
+      'begrunnelsen i svaret faller ut av brevteksten (B-13 om begrunnelsestekst, KA-U31)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['  if (s.utdypning !== undefined) utdypninger.set(id, s.utdypning);\n', '']],
+    mal: ['begrunnelsen står under svaret den gjelder'],
+  },
+  {
+    id: 'F109',
+    feilklasse: 'varselet i et fristkrav får ikke et avsnitt i brevteksten (LV-U3)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '  for (const u of nytt.utsagn) legg(',
+        "  for (const u of nytt.utsagn.filter((x) => x.art !== 'varsel')) legg(",
+      ],
+    ],
+    mal: ['fristkravet har datoen for varselet'],
+  },
+  {
+    id: 'F110',
+    feilklasse: 'leseren godtar brevtekst fra appen i et registrert brev (MM-U17)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['    if (erRegistrert(dokument.opplysninger))\n      throw', '    if (false)\n      throw'],
+    ],
+    mal: ['brevtekst i et registrert brev'],
+  },
+  {
+    id: 'F111',
+    feilklasse: 'kontrollen av gjengivelsen ser ikke rekkefølgen (LV-U2)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    fra = plass + del.length;', '    fra = 0;']],
+    mal: ['rekkefølgen er byttet'],
+  },
+  {
+    id: 'F112',
+    feilklasse: 'svaret viser ikke til innsigelsen det gjentar eller gir opp (VS-U9, VS-U11)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  )?.dokument;', '  ) && undefined;']],
+    mal: ['svaret gjentar innsigelsen', 'gir byggherren innsigelsen opp'],
+  },
+  {
+    id: 'F113',
+    feilklasse: 'serveren godtar en annen tekst enn den den lager (A1, LV-U2)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['laast.length === vist.length && laast.every((t, i) => t === vist[i])', 'true']],
+    mal: ['en annen tekst enn den serveren lager'],
+  },
+  {
+    id: 'F114',
+    feilklasse: 'kontrollen av teksten er fail-open: en kommando uten tekst godtas (A1)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['  if (vist === undefined)\n', '  if (vist === undefined) return null;\n  if (false)\n'],
+    ],
+    mal: ['en kommando uten teksten avvises'],
+  },
+  {
+    id: 'F115',
+    feilklasse: 'et frafall krever ingen begrunnelse (KA-U32)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [["v.resultat === 'paalegg_frafalt'", 'false']],
+    mal: ['frafall etter § 32.3 c'],
+  },
+  {
+    id: 'F116',
+    feilklasse: 'dager som ikke er godkjent fullt, krever ingen begrunnelse (KA-U24)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [["(server.subsidiaert_resultat ?? server.resultat) !== 'godkjent'", 'false']],
+    mal: ['dager som ikke er godkjent fullt'],
+  },
+  {
+    id: 'F117',
+    feilklasse: 'et fristkrav uten begrunnelse godtas (§ 33.6.1, KA-U33)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ["  if (k.spor === 'frist')\n    return avvis(", '  if (false)\n    return avvis('],
+    ],
+    mal: ['et fristkrav uten begrunnelse avvises'],
+  },
+  {
+    id: 'F118',
+    feilklasse: 'TEs varsel etter § 32.2 uten beskrivelse av pålegget godtas (GR-U15)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ["k.spor === 'grunnlag' && gjelderVarslingsplikten(", 'false && gjelderVarslingsplikten('],
+    ],
+    mal: ['uten beskrivelse av pålegget avvises'],
+  },
+  {
+    id: 'F119',
+    feilklasse:
+      'svaret på vederlag og frist sier ikke at grunnlaget er avslått eller prekludert (A2, B-13 05.10)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["  if (s.spor === 'grunnlag') return [];", '  return [];']],
+    mal: [
+      'grunnlaget avslått i samme brev',
+      'grunnlaget prekludert og avslått subsidiært i et tidligere brev',
+      'innledningen nevner sporet',
+    ],
+  },
+  {
+    id: 'F120',
+    feilklasse: 'et grunnlagssvar i et tidligere brev omtales som i samme brev (A2, LV-U3)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  if (g.dokument === nytt.id) {', '  if (true) {']],
+    mal: ['grunnlaget avslått i et tidligere brev'],
+  },
+  {
+    id: 'F121',
+    feilklasse:
+      'aksepten av et subsidiært svar sier ikke at TE er uenig i grunnlaget (LV-U4 punkt 6, GR-U7)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["svar.spor === 'grunnlag' || !saken.subsidiaer[svar.spor].length", 'true']],
+    mal: ['sier aksepten at TE ikke er enig'],
+  },
+  {
+    id: 'F122',
+    feilklasse:
+      'godkjenningen som er en endringsordre, sier ikke hva endringen går ut på (GR-U14, § 31.3)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '  return `${innledning} ${kravet}: «${beskrivelse}».`;',
+        '  return `${innledning} ${kravet}.`;',
+      ],
+    ],
+    mal: ['siterer TEs beskrivelse', 'kravversjonen svaret gjelder'],
+  },
+  {
+    id: 'F123',
+    feilklasse:
+      'godkjenningen av et registrert krav siterer en beskrivelse appen ikke har (GR-U13, GR-U14)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '  if (j.erRegistrert(krav.dokument)) return `${innledning} ${kravet}.`;',
+        '  if (j.erRegistrert(krav.dokument)) return `${innledning} ${kravet}: «».`;',
+      ],
+    ],
+    mal: ['et registrert krav siteres ikke'],
+  },
+  {
+    id: 'F124',
+    feilklasse: 'godkjenningen av et krav fra appen uten beskrivelse sendes likevel (GR-U14)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  if (!beskrivelse?.trim())\n', '  if (false)\n']],
+    mal: ['et krav fra appen uten beskrivelse'],
+  },
+  {
+    id: 'F125',
+    feilklasse: 'vedleggene står ikke i brevteksten (A4, LV-U2)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['  if (nytt.dokumentasjon.length) legg(', '  if (false) legg(']],
+    mal: ['et brev med vedlegg får et avsnitt'],
+  },
+  {
+    id: 'F126',
+    feilklasse: 'leseren godtar et avsnitt for dokumentet i et brev uten vedlegg (A4, HF-U1)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['...(dokument.dokumentasjon.length ? [id] : [])', 'id']],
+    mal: ['et avsnitt for dokumentet uten vedlegg'],
+  },
+  {
+    id: 'F127',
+    feilklasse:
+      'et krav i underkategorien endringsordre godtas uten endringsordrens dato eller nummer (GR-U16)',
+    fil: `${K}/format/format.ts`,
+    endringer: [["      required: ['endringsordre'],\n", '']],
+    mal: ['uten endringsordrens dato eller nummer'],
+  },
+  {
+    id: 'F128',
+    feilklasse:
+      'avslaget der § 32.2 gjelder, sier ikke at kravet på endringsordre avslås (§ 32.3 b)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ['        return s.beslutningsgrunnlag.varslingsplikt\n', '        return false\n'],
+    ],
+    mal: ['avslaget der § 32.2 gjelder'],
+  },
+  {
+    id: 'F129',
+    feilklasse: 'revisjonen viser ikke til svaret den erstatter (HF-U1)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    ...(s.erstatter\n', '    ...(false\n']],
+    mal: ['en revisjon viser til svaret den erstatter'],
+  },
+  {
+    id: 'F130',
+    feilklasse: 'en begrunnelse med bare mellomrom oppfyller kravet (KA-U31, KA-U33, GR-U15)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['  if (k.utdypning?.trim()) return null;', '  if (k.utdypning !== undefined) return null;'],
+    ],
+    mal: ['bare mellomrom teller ikke'],
+  },
+  {
+    id: 'F131',
+    feilklasse: 'en dato som ikke finnes i kalenderen, godtas i kommandoen (LV-U4 punkt 3)',
+    fil: `${K}/format/skjema.ts`,
+    endringer: [
+      [
+        "  if (typeof v !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(v)) return false;",
+        '  return true;',
+      ],
+    ],
+    mal: ['en dato som ikke finnes i kalenderen'],
+  },
+  {
+    id: 'F132',
+    feilklasse: 'standpunktet om at varselet kom i tide, nevner ikke hjemmelen (LV-U5)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '        : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;',
+        "        : 'byggherren gjør ikke gjeldende at varselet kom for sent.';",
+      ],
+    ],
+    mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
+  },
+  {
+    id: 'F133',
+    feilklasse: 'innsigelsen som gis opp, nevner ikke varselet etter § 33.4 (LV-U5)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'og gjør ikke gjeldende at ${varselet} kom for sent.`',
+        'og gjør ikke gjeldende at varselet kom for sent.`',
+      ],
+    ],
+    mal: ['nevner brevet varselet etter § 33.4 (LV-U5)'],
+  },
+  {
+    id: 'F134',
+    feilklasse: 'standpunktet om rettidighet nevner feil varsel (LV-U4 punkt 5, LV-U5)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '      const varselet = VARSELET[p.hjemmel];',
+        "      const varselet = VARSELET[p.hjemmel === '32.2' ? '33.4' : '32.2'];",
+      ],
+    ],
+    mal: [
+      'nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)',
+      'nevner brevet varselet etter § 33.4 (LV-U5)',
+      'gir byggherren innsigelsen opp, sier brevet det uttrykkelig (VS-U11)',
+    ],
   },
 ];
 

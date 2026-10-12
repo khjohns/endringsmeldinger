@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   BESLUTNINGSGRUNNLAG,
+  BREVTEKST,
   DOKUMENT,
   FORMAT,
   HENDELSESTYPER,
@@ -118,6 +119,7 @@ describe('registeret over hendelsene kjernen skriver (#320)', () => {
     expect(feltI(oppfoering('del', 'navn', 'beslutningsgrunnlag'))).toEqual(
       felt(BESLUTNINGSGRUNNLAG)
     );
+    expect(feltI(oppfoering('del', 'navn', 'brevtekst'))).toEqual(felt(BREVTEKST.items as Skjema));
     for (const [hva, skjema] of Object.entries(OPPLYSNING))
       expect(feltI(oppfoering('opplysning', 'hva', hva)), hva).toEqual(felt(skjema));
     expect(noekler('opplysning', 'hva')).toEqual(Object.keys(OPPLYSNING).sort());

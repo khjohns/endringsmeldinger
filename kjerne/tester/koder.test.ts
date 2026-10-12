@@ -48,7 +48,27 @@ const grunnlagskrav = (innhold: Record<string, unknown>) => ({
 
 describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, HF-U1)', () => {
   it.each(PAR)('godtar %s/%s', (hovedkategori, underkategori) => {
-    expect(formfeil(grunnlagskrav({ hovedkategori, underkategori }))).toEqual([]);
+    // GR-U16: et krav som følger av en endringsordre, identifiserer den.
+    const eo = underkategori === 'endringsordre' ? { endringsordre: 'EO 12' } : {};
+    expect(formfeil(grunnlagskrav({ hovedkategori, underkategori, ...eo }))).toEqual([]);
+  });
+
+  it('avviser et krav i underkategorien endringsordre uten endringsordrens dato eller nummer (GR-U16)', () => {
+    expect(
+      formfeil(grunnlagskrav({ hovedkategori: 'endring', underkategori: 'endringsordre' }))
+    ).not.toEqual([]);
+  });
+
+  it('avviser endringsordrens dato eller nummer i en annen underkategori (GR-U16)', () => {
+    expect(
+      formfeil(
+        grunnlagskrav({
+          hovedkategori: 'endring',
+          underkategori: 'irregulaer_endring',
+          endringsordre: 'EO 12',
+        })
+      )
+    ).not.toEqual([]);
   });
 
   it.each([
