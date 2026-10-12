@@ -18,7 +18,7 @@ import {
   trekkKanIkkeBevareAvtalen,
   type Utledning,
 } from '../utledning/utled.ts';
-import type { Avvisning, Kravspor, Part, Spor } from '../typer.ts';
+import { KRAVSPOR, type Avvisning, type Kravspor, type Part, type Spor } from '../typer.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
@@ -112,6 +112,26 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
 
 export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
 
+const KRAVET: Record<Kravspor, string> = {
+  vederlag: 'justering av vederlaget',
+  frist: 'fristforlengelse',
+};
+
+/** Hvordan grunnlaget og hvert krav ble avgjort i denne saken (KA-U11). */
+function hvorforAvgjort(u: Utledning): string {
+  const grunnlag = u.frafalt
+    ? 'byggherren har frafalt pålegget'
+    : 'byggherren har godkjent grunnlaget';
+  const krav = KRAVSPOR.map((n) =>
+    u.spor[n].trukket
+      ? `kravet om ${KRAVET[n]} er trukket`
+      : u.spor[n].ingenKrav
+        ? `TE krever ikke ${KRAVET[n]}`
+        : `partene er enige om kravet om ${KRAVET[n]}`
+  );
+  return `Kravene i saken er avgjort: ${grunnlag}, ${krav.join(' og ')}.`;
+}
+
 export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): Avvisning | null {
   // MM-U2: en sak kjernen ikke forstår, tar ikke imot bindende kommandoer fra noen part.
   if (!u.forstaatt)
@@ -122,12 +142,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
   // SK-01, #213: når partene er enige om at grunnlaget er avvist, faller kravene.
   if (u.grunnlagAvvist)
     return avvis('GRUNNLAG_AVVIST', 'Partene er enige om at grunnlaget er avvist (SK-01).');
-  // KA-U6, MM-U7, GR-U3, EO-U2: når kravene er avgjort, kan ingen part endre utfallet.
-  if (kraveneErAvgjort(u))
-    return avvis(
-      'KRAVENE_AVGJORT',
-      'Grunnlaget er avklart, og hvert krav er avtalt eller trukket.'
-    );
+  // KA-U11: når kravene er avgjort, avvises det som kan endre utfallet.
+  if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', hvorforAvgjort(u));
 
   const s = u.spor[h.spor];
   const grunnlagSendt = u.spor.grunnlag.gjeldendeKrav !== null;
@@ -187,7 +203,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
-      // SK-12 og MM-U1: et registrert varsel er låst. Et utledet varsel er ikke registrert.
+      // SK-12 og MM-U1: et registrert varsel kan ikke flyttes. Et utledet varsel er ikke registrert.
       if (s.varsel)
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
       // VS-U16: etter et fristkrav kan varselet fra appen bare få en senere dato enn
@@ -208,7 +224,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
         return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på gjeldende krav å revidere.');
-      // SK-03, GR-U7, GR-U10: en enighet låser svaret, også ved sammenfall.
+      // SK-03, GR-U7, GR-U10: en enighet binder byggherren, også ved sammenfall.
       if (s.enighet)
         return avvis('ENIGHET_I_SPORET', 'Partene er enige om svaret. Det kan ikke revideres.');
       return null;
@@ -219,7 +235,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // GR-U8, GR-U10: partene er alt enige, også når byggherren har godkjent hele kravet.
       if (s.enighet)
         return avvis('ENIGHET_I_SPORET', `Partene er allerede enige om svaret på ${h.spor}.`);
-      // GR-U9: frafall er ikke enighet, og en aksept ville låst frafallet for revisjon.
+      // GR-U9: frafall er ikke enighet, og en aksept ville gjort frafallet til en enighet byggherren ikke kan revidere.
       if (h.spor === 'grunnlag' && u.frafalt)
         return avvis(
           'FRAFALL_KAN_IKKE_GODTAS',
