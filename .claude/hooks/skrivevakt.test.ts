@@ -363,7 +363,7 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
     // Commit og push står i et kall med bare git-ledd, så også et prefiks vakten tolker, stopper.
     expect(bash('timeout -s KILL 60 git push -u origin claude/test-1').status).toBe(2);
-    expect(bash('env -u HOME npm test').status).toBe(0);
+    expect(bash('env -u LANG npm test').status).toBe(0);
     expect(bash('timeout 300 npx vitest run docs').status).toBe(0);
   });
 
@@ -510,6 +510,51 @@ describe('skrivevakten for mekanisk-pr', () => {
     expect(bash('sed -n 1p kjerne/web.ts').status).toBe(0);
     expect(bash('sed -n 1,5p backend/x.py; echo work').status).toBe(0);
     expect(bash('cp /tmp/x .github/ny.yml').status).toBe(0);
+  });
+
+  it('stopper gh api med samlede kortflagg og PATCH av en PR utover tittel og beskrivelse', () => {
+    for (const kommando of [
+      'gh api -it repos/o/r/pulls/5 -X PATCH repos/o/r/git/refs/heads/main -f sha=abc -F force=true',
+      'gh api -ip repos/o/r/pulls/5 -X PUT repos/o/r/contents/kjerne/x.ts -f content=eA==',
+      'gh api -X PATCH repos/o/r/pulls/5 -f base=x',
+      'gh api -X PATCH repos/o/r/pulls/5 -f state=closed',
+      'gh api -X PATCH repos/o/r/pulls/5 --input /tmp/b.json',
+      'gh api -X PATCH repos/o/r/pulls/5 -fbase=x',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(bash('gh api -X PATCH repos/o/r/pulls/5 -f title=x -F body=@/tmp/b.md').status).toBe(0);
+  });
+
+  it('stopper skriving i .claude med sti foran og i .husky, og HOME og XDG for git og rg', () => {
+    for (const kommando of [
+      `cp -r /tmp/c/. ${rot}/.claude`,
+      'cp -r /tmp/c/. docs/../.claude/',
+      'cp /tmp/x .husky/pre-push',
+      'chmod +x .husky/pre-push',
+      'HOME=/tmp/h git diff',
+      'XDG_CONFIG_HOME=/tmp/h git log',
+      'RIPGREP_CONFIG_PATH=/tmp/rc rg x docs',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+    expect(skriv(path.join(rot, '.husky', 'pre-push')).status).toBe(2);
+    expect(
+      kjor({ tool_name: 'Edit', tool_input: { file_path: '.husky/pre-commit' }, cwd: rot }).status
+    ).toBe(2);
+    expect(skriv(path.join(rot, 'docs', 'husky.md')).status).toBe(0);
+  });
+
+  it('stopper commit når en fil i .husky er endret', () => {
+    mkdirSync(path.join(rot, '.husky'));
+    writeFileSync(path.join(rot, '.husky', 'pre-push'), 'x\n');
+    try {
+      const commit = bash('git commit -m x');
+      expect(commit.status).toBe(2);
+      expect(commit.stderr).toContain('.husky/pre-push');
+    } finally {
+      rmSync(path.join(rot, '.husky'), { recursive: true, force: true });
+    }
   });
 
   it('stopper push til main, av en annen gren og med force', () => {

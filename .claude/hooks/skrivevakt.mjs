@@ -20,10 +20,10 @@ const SPERRET_MAPPE = new RegExp(
   `(^|[\\s'"=:(/<>;&|{\`])\\.?/?(${SPERREDE_MAPPER.join('|')})(/|[\\s;&|)\`'"]|$)`
 );
 
-// Hookoppsettet nevnt med filnavn, hele `.claude`-mappa som mål, eller git-mappa med
-// hookene og oppsettet til git.
+// Hookoppsettet nevnt med filnavn, hele `.claude`-mappa som mål, git-mappa med hookene og
+// oppsettet til git, eller `.husky`, som er core.hooksPath i repoet.
 const NEVNER_HOOKOPPSETT =
-  /settings(\.local)?\.json|(^|[\s'"=:(<>;&|{`])\.?\/?\.claude\/?\.?(?=$|[\s;&|)`'"])|(^|[\s'"=:(<>;&|{`/])\.git(\/|(?=$|[\s;&|)`'"]))/;
+  /settings(\.local)?\.json|(^|[\s'"=:(<>;&|{`/])\.claude\/?\.?(?=$|[\s;&|)`'"])|(^|[\s'"=:(<>;&|{`/])\.(git|husky)(\/|(?=$|[\s;&|)`'"]))/;
 
 // Kommandoer og operatorer som kan skrive en fil som er nevnt i kommandoen.
 const SKRIVENDE = [
@@ -85,7 +85,7 @@ const GRAPHQL = /(^|\/)graphql\/?$/;
 
 // Miljøvariabler som får git eller skallet til å kjøre et program eller bruke et annet tre.
 const FARLIG_MILJOE =
-  /(^|[\s;&|(])(GIT_\w+|EDITOR|VISUAL|PAGER|LESSOPEN|LESSCLOSE|BASH_ENV|ENV|SHELL)(?==|$|\s)/;
+  /(^|[\s;&|(])(GIT_\w+|XDG_\w+|HOME|EDITOR|VISUAL|PAGER|LESSOPEN|LESSCLOSE|BASH_ENV|ENV|SHELL|RIPGREP_CONFIG_PATH)(?==|$|\s)/;
 const UFARLIG_MILJOE = /^(GIT_PAGER=(cat)?|PAGER=(cat)?|GIT_TERMINAL_PROMPT=0)$/;
 
 // Hookoppsettet, som mekanisk-pr ikke endrer.
@@ -154,7 +154,8 @@ function sperretSti(relativ) {
 }
 
 function vernetSti(relativ) {
-  return sperretSti(relativ) || HOOKOPPSETT.includes(relativ.split(path.sep).join('/'));
+  const deler = relativ.split(/[\\/]/);
+  return sperretSti(relativ) || deler[0] === '.husky' || HOOKOPPSETT.includes(deler.join('/'));
 }
 
 function git(cwd, ...argumenter) {
@@ -656,15 +657,39 @@ function ghEndepunkt(argumenter) {
   return '';
 }
 
+/** Feltnavnene i et gh api-kall, eller null når kroppen kommer fra en fil med --input. */
+function ghFelt(argumenter) {
+  const felt = [];
+  for (let i = 0; i < argumenter.length; i++) {
+    const o = argumenter[i];
+    if (o === '--input' || o.startsWith('--input=')) return null;
+    if (['-f', '-F', '--field', '--raw-field'].includes(o)) felt.push(argumenter[++i] ?? '');
+    else if (/^-[fF]./.test(o)) felt.push(o.slice(2));
+    else if (/^--(raw-)?field=/.test(o)) felt.push(o.slice(o.indexOf('=') + 1));
+  }
+  return felt.map((f) => f.split(/\[|=/)[0]);
+}
+
 /** Begrunnelsen når et gh-kall fra mekanisk-pr kan skrive noe annet enn PR-en, ellers null. */
 function ghSkriving([underkommando, ...resten]) {
   if (underkommando === 'api') {
     if (lesingGhApi([underkommando, ...resten]) === null) return null;
+    // Samlede kortflagg kan ta en verdi (`-it <mal>`), og da står endepunktet et annet sted.
+    const samlet = resten.find((o) => /^-[a-zA-Z]{2,}$/.test(o));
+    if (samlet) return `Flagget ${samlet} i gh api kan vakten ikke tolke sikkert.`;
     const endepunkt = ghEndepunkt(resten);
     if (GRAPHQL.test(endepunkt)) return 'mekanisk-pr bruker ikke gh api graphql.';
-    return GH_SKRIVING_TILLATT.test(endepunkt)
-      ? null
-      : `mekanisk-pr skriver med gh api bare til PR-er og kommentarer, ikke ${endepunkt}.`;
+    if (!GH_SKRIVING_TILLATT.test(endepunkt)) {
+      return `mekanisk-pr skriver med gh api bare til PR-er og kommentarer, ikke ${endepunkt}.`;
+    }
+    const felt = ghFelt(resten);
+    if (
+      /\/pulls\/\d+$/.test(endepunkt) &&
+      (!felt || felt.some((f) => !['title', 'body'].includes(f)))
+    ) {
+      return 'mekanisk-pr endrer bare tittel og beskrivelse på en PR, ikke base eller tilstand.';
+    }
+    return null;
   }
   if (
     underkommando === 'pr' &&
@@ -723,6 +748,8 @@ function vurder(input) {
       const relativ = path.relative(rot, absolutt);
       if (relativ.split(path.sep).includes('.git'))
         return `${relativ} er i git-mappa, og mekanisk-pr endrer den ikke.`;
+      if (relativ.split(path.sep)[0] === '.husky')
+        return `${relativ} er git-hookene i repoet, og mekanisk-pr endrer dem ikke.`;
       if (HOOKOPPSETT.includes(relativ))
         return `${relativ} er hookoppsettet, og mekanisk-pr endrer det ikke.`;
       return null;
