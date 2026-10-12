@@ -177,32 +177,39 @@ def vedtattcelle(post: dict) -> str:
     return f"{_dato(post['dato'])}, {post['hvem']} ({', '.join(post['kilde'])})"
 
 
-def folgecelle(post: dict, register: dict) -> str:
+def indeks(register: dict) -> tuple[dict, dict]:
+    """Vedtakene etter anker, og forholdene fra nye poster etter ankeret de viser til."""
     alle = {anker(p): p for p in poster(register) if anker(p)}
+    senere = {}
+    for p in poster(register):
+        for f in p.get("forhold", []) if er_ny(p) else []:
+            senere.setdefault(f["vedtak"], []).append((p["dato"], f["art"], p["id"], p))
+    return alle, senere
+
+
+def folgecelle(post: dict, register: dict, ix: tuple[dict, dict] | None = None) -> str:
+    alle, senere = ix or indeks(register)
     deler = [f"{f['art'].capitalize()} {_lenke(alle[f['vedtak']])}." for f in post.get("forhold", [])]
-    senere = sorted(
-        (p["dato"], f["art"], p)
-        for p in poster(register)
-        if er_ny(p)
-        for f in p.get("forhold", [])
-        if f["vedtak"] == anker(post)
-    )
-    deler += [f"{FORHOLD[art]} {_dato(dato)} av {_lenke(p)}." for dato, art, p in senere]
+    deler += [
+        f"{FORHOLD[art]} {_dato(dato)} av {_lenke(p)}."
+        for dato, art, _, p in sorted(senere.get(anker(post), []), key=lambda t: t[:3])
+    ]
     if post.get("folge"):
         deler.append(linje(post["folge"]))
     return " ".join(deler)
 
 
-def rad(post: dict, register: dict) -> str:
-    return f"| {vedtakscelle(post)} | {vedtattcelle(post)} | {folgecelle(post, register)} |"
+def rad(post: dict, register: dict, ix: tuple[dict, dict] | None = None) -> str:
+    return f"| {vedtakscelle(post)} | {vedtattcelle(post)} | {folgecelle(post, register, ix)} |"
 
 
 def markdown(register: dict) -> str:
     """Innholdet i 3.1, fra linjen etter overskriften til «### 3.2»."""
+    ix = indeks(register)
     tekst = register["innledning"]
     for g in register["gruppe"]:
         tekst += f"#### {g['tittel']}\n\n{TABELLHODE}"
-        tekst += "".join(rad(p, register) + "\n" for p in g["vedtak"])
+        tekst += "".join(rad(p, register, ix) + "\n" for p in g["vedtak"])
         tekst += "\n" + g.get("etter", "")
     return tekst
 
@@ -233,18 +240,32 @@ def valider(register: dict) -> list[str]:
                     feil.append(f"{navn}: dato skal være en TOML-dato, som 2026-10-12")
                 if not isinstance(p.get("kilde", []), list) or not p.get("kilde"):
                     feil.append(f"{navn}: kilde skal være en liste med issue eller PR, som [\"#413\"]")
-                navnene = [a.get("navn") for a in p.get("alternativ", [])]
+                navnene = [a.get("navn") for a in p.get("alternativ", []) if isinstance(a, dict)]
                 if len(set(navnene)) != len(navnene):
                     feil.append(f"{navn}: to alternativer har samme navn")
                 if "valgt" in p and p["valgt"] not in navnene:
                     feil.append(f"{navn}: valgt «{p['valgt']}» er ikke et alternativ")
+                for liste, paakrevd, valgfrie in (
+                    ("alternativ", {"navn", "tekst"}, {"forkastet"}),
+                    ("forhold", {"art", "vedtak"}, set()),
+                    ("sitat", {"kilde", "tekst"}, set()),
+                ):
+                    for i, o in enumerate(p.get(liste, []), 1):
+                        if not isinstance(o, dict):
+                            feil.append(f"{navn}: {liste} {i} er ikke en tabell")
+                            continue
+                        feil += [f"{navn}: {liste} {i} mangler {f}" for f in sorted(paakrevd - set(o))]
+                        feil += [f"{navn}: {liste} {i}: ukjent felt {f}" for f in sorted(set(o) - paakrevd - valgfrie)]
+                        feil += [f"{navn}: {liste} {i}: {f} skal være tekst" for f in sorted(paakrevd & set(o)) if not isinstance(o[f], str)]
                 for a in p.get("alternativ", []):
-                    feil += [f"{navn}: alternativ {a.get('navn')}: ukjent felt {f}" for f in sorted(set(a) - {"navn", "tekst", "forkastet"})]
                     if a.get("navn") == p.get("valgt") and a.get("forkastet"):
                         feil.append(f"{navn}: det valgte alternativet er forkastet")
                 for f in p.get("forhold", []):
                     if f.get("art") not in FORHOLD:
                         feil.append(f"{navn}: ukjent forhold «{f.get('art')}»; bruk {', '.join(FORHOLD)}")
+                for felt_ in ("sporsmal", "svar", "folge", "hvem"):
+                    if felt_ in p and not isinstance(p[felt_], str):
+                        feil.append(f"{navn}: {felt_} skal være tekst")
                 for s in p.get("sitat", []):
                     k = s.get("kilde", "")
                     if k not in SITATKILDER and not (ROT / k).is_file():
@@ -268,9 +289,10 @@ def valider(register: dict) -> list[str]:
                 feil.append(f"{navn}: forholdet viser til vedtaket selv")
     if feil:
         return feil
+    ix = indeks(register)
     for p in poster(register):
         navn = anker(p) or linje(p["vedtak"])[:40]
-        for celle in (vedtakscelle(p), vedtattcelle(p), folgecelle(p, register)):
+        for celle in (vedtakscelle(p), vedtattcelle(p), folgecelle(p, register, ix)):
             if re.search(r"(?<!\\)\|", celle):
                 feil.append(f"{navn}: en celle har | uten \\; tabellen brytes")
             if "  " in celle or celle != celle.strip():
@@ -317,44 +339,104 @@ def normaliser(tekst: str) -> str:
     return " ".join(tekst.split())
 
 
-def sitatfeil(register: dict, plan: str, ns_8407: str | None) -> list[str]:
-    """Sitater i de nye postene som ikke står ordrett i posten eller i kilden. NS 8407 hoppes over når teksten er None."""
+def uten_rad(plan: str, anker_: str) -> str:
+    """Planen uten raden med ankeret, så et vedtak ikke er kilde for sitatene i seg selv."""
+    return "\n".join(rad for rad in plan.split("\n") if not rad.startswith(f'| <a id="{anker_}"></a>'))
+
+
+def sitatfeil(register: dict, hent) -> list[str]:
+    """Sitater i de nye postene som ikke står ordrett i posten eller i kilden.
+
+    `hent(kilde)` gir teksten sitatet prøves mot: NS 8407 for «ns8407», ellers
+    fila slik den er på main. Gir den None, hoppes sitatet over.
+    """
     feil = []
     for p in poster(register):
         if not er_ny(p):
             continue
         i_posten = normaliser(" ".join([p["sporsmal"], p["svar"]] + [a["tekst"] for a in p["alternativ"]]))
-        uten_raden = plan.replace(rad(p, register), "")
         for s in p.get("sitat", []):
             sitat = normaliser(s["tekst"])
             if sitat not in i_posten:
                 feil.append(f"{p['id']}: sitatet «{sitat[:60]}» står ikke i spørsmålet, svaret eller et alternativ")
-            if s["kilde"] == "ns8407":
-                if ns_8407 is None:
-                    continue
-                kilde = ns_8407
-            elif s["kilde"] == "hovedplanen":
-                kilde = uten_raden
-            else:
-                kilde = (ROT / s["kilde"]).read_text(encoding="utf-8")
+            kilde = hent(s["kilde"])
+            if kilde is None:
+                continue
+            if s["kilde"] == "hovedplanen":
+                kilde = uten_rad(kilde, anker(p))
             if sitat not in normaliser(kilde):
                 feil.append(f"{p['id']}: sitatet «{sitat[:60]}» står ikke ordrett i {s['kilde']}")
     return feil
+
+
+def kilder_paa(commit: str | None):
+    """Sitatkildene: NS 8407 fra 507e2254^, hovedplanen og filene slik de er i commiten."""
+
+    def hent(kilde: str) -> str | None:
+        if kilde == "ns8407":
+            return git_fil(NS_8407_COMMIT, NS_8407_STI)
+        if commit is None:
+            return None
+        return git_fil(commit, HOVEDPLAN_I_GIT if kilde == "hovedplanen" else kilde)
+
+    return hent
 
 
 def ankre_i(plan: str) -> list[str]:
     return re.findall(r'<a id="([^"]+)"></a>', plan)
 
 
+def _rader(plan: str) -> list[dict]:
+    return poster(les_avsnitt(plan[slice(*avsnitt(plan))]))
+
+
+def _noekkel(p: dict) -> tuple:
+    return (p.get("anker"), p["vedtak"], p["vedtatt"])
+
+
 def endrede_rader(gammel_plan: str, plan: str) -> list[str]:
     """Rader i 3.1 i den gamle planen der ankeret, vedtaket eller datoen ikke står uendret i den nye."""
-    gamle = poster(les_avsnitt(gammel_plan[slice(*avsnitt(gammel_plan))]))
-    nye = {(p.get("anker"), p["vedtak"], p["vedtatt"]) for p in poster(les_avsnitt(plan[slice(*avsnitt(plan))]))}
+    nye = {_noekkel(p) for p in _rader(plan)}
     return [
         f"{p.get('anker') or p['vedtak'][:60]}: vedtaket, ankeret eller vedtaksdatoen er endret eller fjernet"
-        for p in gamle
-        if (p.get("anker"), p["vedtak"], p["vedtatt"]) not in nye
+        for p in _rader(gammel_plan)
+        if _noekkel(p) not in nye
     ]
+
+
+def mot_grunnlag(register: dict, gammel_plan: str, gammel_register: dict | None) -> list[str]:
+    """Det en ny post ikke kan gjøre mot main: føres i importert form, ta en ID som er i bruk,
+    eller endre spørsmålet, alternativene eller svaret til en post som er merget."""
+    feil = []
+    gamle_rader = {_noekkel(p) for p in _rader(gammel_plan)}
+    for p in poster(register):
+        if not er_ny(p) and (p.get("anker"), linje(p["vedtak"]), p["vedtatt"]) not in gamle_rader:
+            navn = p.get("anker") or linje(p["vedtak"])[:60]
+            feil.append(f"{navn}: en importert post som ikke står i 3.1 på main; et nytt vedtak føres som ny post")
+    gamle_ankre = set(ankre_i(gammel_plan))
+    for p in poster(register):
+        if er_ny(p) and anker(p) not in gamle_ankre and re.search(rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", gammel_plan):
+            feil.append(f"{p['id']}: ID-en står i hovedplanen på main fra før")
+    gamle_nye = {p["id"]: p for p in poster(gammel_register or {"gruppe": []}) if er_ny(p)}
+    naa = {p["id"]: p for p in poster(register) if er_ny(p)}
+    for id_, gammel in gamle_nye.items():
+        if id_ not in naa:
+            feil.append(f"{id_}: posten er fjernet fra registeret")
+        elif {k: v for k, v in gammel.items() if k != "folge"} != {k: v for k, v in naa[id_].items() if k != "folge"}:
+            feil.append(f"{id_}: spørsmålet, alternativene, svaret eller et annet felt enn folge er endret etter merge")
+    return feil
+
+
+def historiske_feil(register: dict, plan: str, commit: str) -> list[str]:
+    """Kontrollene mot main i commiten, og sitatene. Tom når alt holder."""
+    gammel_plan = git_fil(commit, HOVEDPLAN_I_GIT)
+    gammel_tekst = git_fil(commit, REGISTER.relative_to(ROT).as_posix())
+    gammel_register = tomllib.loads(gammel_tekst) if gammel_tekst else None
+    return (
+        endrede_rader(gammel_plan, plan)
+        + mot_grunnlag(register, gammel_plan, gammel_register)
+        + sitatfeil(register, kilder_paa(commit))
+    )
 
 
 # --------------------------------------------------------------------------
@@ -443,11 +525,22 @@ def main() -> int:
 
     register = les()
     feil = valider(register)
-    feil += [f"{p['id']}: kodenavn i vedtaksteksten, {k}" for p in poster(register) if er_ny(p) for k in kodenavn(p)]
+    if not feil:
+        feil += [f"{p['id']}: kodenavn i vedtaksteksten, {k}" for p in poster(register) if er_ny(p) for k in kodenavn(p)]
     if feil:
         print("Registeret er ikke gyldig:", *feil, sep="\n  ")
         return 1
     ny = plan_med(register, plan)
+    commit = grunnlag()
+    if commit is None or git_fil(commit, HOVEDPLAN_I_GIT) is None:
+        print("Kontrollene mot main og sitatene er hoppet over: historikken mangler. Kjør git fetch --unshallow origin main.")
+    else:
+        feil = historiske_feil(register, ny, commit)
+        if any(s["kilde"] == "ns8407" for p in poster(register) for s in p.get("sitat", [])) and git_fil(NS_8407_COMMIT, NS_8407_STI) is None:
+            print("Sitatene fra NS 8407 er hoppet over: 507e2254^ mangler. Kjør git fetch --unshallow origin main.")
+        if feil:
+            print("Registeret holder ikke mot main:", *feil, sep="\n  ")
+            return 1
     if ny == plan:
         print(f"3.1 er lik registeret: {len(poster(register))} vedtak")
         return 0
