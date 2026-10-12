@@ -1750,10 +1750,10 @@ function testnavn(): string[] {
       }
     );
     if (r.status !== 0 || !existsSync(ut))
-      throw new Error(`vitest list feilet (${r.status ?? r.signal}):\n${r.stderr || r.error}`);
-    const tester = JSON.parse(readFileSync(ut, 'utf8')) as { name: string }[];
-    // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
-    return tester.map((t) => t.name.split(' > ').join(' '));
+      throw new Error(
+        `vitest list feilet (status ${r.status}, signal ${r.signal}, ${r.error ?? 'ingen feil fra spawn'}):\n${r.stderr}\n${r.stdout}`
+      );
+    return (JSON.parse(readFileSync(ut, 'utf8')) as { name: string }[]).map((t) => t.name);
   } finally {
     rmSync(mappe, { recursive: true, force: true });
   }
@@ -1946,6 +1946,7 @@ const ankerfeil = valgte.flatMap((m) => {
     return [];
   });
 });
+if (ankerfeil.length) throw new Error(ankerfeil.join('\n'));
 const delform = /^(\d+)\/(\d+)$/.exec(process.env.FEILINNFOERING_DEL ?? '1/1');
 const [del, deler] = [Number(delform?.[1]), Number(delform?.[2])];
 if (!delform || del < 1 || del > deler)
@@ -1956,10 +1957,11 @@ if (!delform || del < 1 || del > deler)
 const navn = testnavn();
 const malfeil = valgte.flatMap((m) =>
   m.mal
-    .filter((mal) => !navn.some((n) => n.includes(mal)))
+    // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
+    .filter((mal) => !navn.some((n) => n.includes(mal) || n.split(' > ').join(' ').includes(mal)))
     .map((mal) => `${m.id}: målet «${mal}» er ikke en del av navnet på noen test`)
 );
-if (ankerfeil.length || malfeil.length) throw new Error([...ankerfeil, ...malfeil].join('\n'));
+if (malfeil.length) throw new Error(malfeil.join('\n'));
 const mutasjoner = valgte.filter((_, i) => i % deler === del - 1);
 
 const antallKopier = Math.max(

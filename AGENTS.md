@@ -124,7 +124,8 @@ samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
 `node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen, i
 parallelle kopier av treet med hver sin testbase. Én kjøring tar lang tid; start
 den i bakgrunnen. Med `--ankre` kontrollerer den bare at teksten hver
-feilinnføring bytter ut, finnes nøyaktig én gang. Det tar sekunder, og
+feilinnføring bytter ut, finnes nøyaktig én gang, og at hvert mål er en del av
+navnet på en test, lest med `vitest list`. Det tar sekunder, og
 leveranseskillen sier når det kjøres. I CI fordeler workflowen `feilinnfoering.yml` dem på tre
 jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
