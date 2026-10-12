@@ -8936,6 +8936,21 @@
           }
         },
         {
+          "etter": 4,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
           "etter": 5,
           "rolle": "mal",
           "kilde": [
@@ -8945,6 +8960,12 @@
           "forventet": {
             "gjeldende_svar.grunnlag": null,
             "svar.S-g1.dokument": "D4",
+            "grunnlag_avklart": false,
+            "handlinger.BH": {
+              "inneholder": [
+                "svare:grunnlag"
+              ]
+            },
             "subsidiaer_aarsaker.vederlag": [
               "prekludert"
             ],
@@ -8952,6 +8973,23 @@
               "prekludert"
             ],
             "kravene_avgjort": false
+          }
+        },
+        {
+          "etter": 5,
+          "rolle": "mal",
+          "kilde": [
+            "V-215",
+            "KA-U1"
+          ],
+          "prov": {
+            "handling": "aksept",
+            "spor": "grunnlag",
+            "svar": "S-g1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "IKKE_GJELDENDE_SVAR"
           }
         },
         {
@@ -9299,12 +9337,6 @@
             "frafalt": true,
             "grunnlag_avklart": true,
             "kravene_avgjort": false,
-            "handlinger.TE": {
-              "inneholder": [
-                "krav:vederlag",
-                "krav:frist"
-              ]
-            },
             "visning.status": "under_forhandling"
           }
         },
@@ -9403,7 +9435,6 @@
           "etter": 1,
           "rolle": "kontroll",
           "kilde": [
-            "V-215",
             "NS-32.1"
           ],
           "prov": {
