@@ -189,8 +189,16 @@ function dokument(
       return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
     case 'begrunnelse': {
       const id = nyId();
-      utdypninger.set(id, k.utdypning);
-      return { utsagn: [{ id, art: 'begrunnelse', gjelder: k.gjelder }] };
+      const utsagn = [{ id, art: 'begrunnelse', gjelder: k.gjelder }];
+      // KA-U35: et registrert brev, som varselet over.
+      if (k.sendt !== undefined)
+        return {
+          utsagn,
+          opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+          dokumentasjon: k.dokumentasjon,
+        };
+      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      return { utsagn, ...(k.dokumentasjon?.length ? { dokumentasjon: k.dokumentasjon } : {}) };
     }
     case 'merking':
       // KA-U20: en senere merking er en opplysning om det gamle brevet (MM-U12).

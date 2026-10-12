@@ -640,8 +640,8 @@ function utledSporene(
         return m !== undefined && avsenderAv(m.brev) === part;
       }
       case 'begrunnelse':
-        // KA-U34: byggherrens eget svar.
-        return maal.art === 'svar' && maal.part === part;
+        // KA-U34: et svar. Begrunnelsen og svaret er begge fra BH (format/leser.ts).
+        return maal.art === 'svar';
     }
   }
   for (const b of bestridelser) {

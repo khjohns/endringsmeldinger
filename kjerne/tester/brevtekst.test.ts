@@ -1215,6 +1215,45 @@ describe('den senere begrunnelsen (KA-U34)', () => {
     ).toEqual(['Byggherren begrunner sitt svar på grunnlaget i brev 3 av 30. september 2026:']);
   });
 
+  it('en begrunnelse sendt utenfor appen registreres uten tekst, med brevet som vedlegg (KA-U35)', () => {
+    const { s, brev } = medSvar();
+    const foer = s.u();
+    const vedlegg = randomUUID();
+    const rad = s.send('BH', {
+      type: 'begrunnelse',
+      gjelder: svarId(brev),
+      sendt: '2026-10-05',
+      dokumentasjon: [vedlegg],
+    });
+    expect(
+      rad.data.brevtekst,
+      'et registrert brev har ingen tekst fra appen (MM-U17)'
+    ).toBeUndefined();
+    expect(rad.data.utsagn).toEqual([
+      { id: expect.any(String), art: 'begrunnelse', gjelder: svarId(brev) },
+    ]);
+    expect(rad.data.opplysninger).toEqual([
+      { id: expect.any(String), hva: 'sendt', dato: '2026-10-05' },
+    ]);
+    expect(rad.data.dokumentasjon).toEqual([vedlegg]);
+    const etter = s.u();
+    expect(etter.forstaatt).toBe(true);
+    expect(etter.spor).toEqual(foer.spor);
+  });
+
+  it('en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises (KA-U35)', () => {
+    const { s, brev } = medSvar();
+    const registrert = { type: 'begrunnelse', gjelder: svarId(brev), sendt: '2026-10-05' };
+    expect(
+      s.avvist('BH', { ...registrert, dokumentasjon: [randomUUID()] }),
+      'kontrollsak'
+    ).toBeNull();
+    expect(s.avvist('BH', registrert)).toBe('UGYLDIG_FORM');
+    expect(
+      s.avvist('BH', { ...registrert, dokumentasjon: [randomUUID()], utdypning: BEGRUNNELSE })
+    ).toBe('UGYLDIG_FORM');
+  });
+
   it('avvises fra TE, når den ikke gjelder et svar, og uten tekst', () => {
     const { s, brev } = medSvar();
     expect(
@@ -1283,7 +1322,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
       regel: 'KRAVENE_AVGJORT',
       melding:
-        'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om kravet om justering av vederlaget og TE krever ikke fristforlengelse.',
+        'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og TE krever ikke fristforlengelse.',
     });
   });
 
@@ -1292,7 +1331,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     s.send('TE', FRISTKRAV);
     s.send('TE', { type: 'trekk', spor: 'frist' });
     expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })?.melding).toBe(
-      'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
+      'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
     );
   });
 });

@@ -459,7 +459,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
   ['kommandoer/kommando.ts', 'kommando', 'formfeil'],
-  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar varsel sendt'],
+  [
+    'kommandoer/kommando.ts:formfeil',
+    'kommando',
+    'type spor innhold svar varsel sendt dokumentasjon',
+  ],
   ['kommandoer/kommando.ts:formfeil.varsel', 'kommando', 'sendt'],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
@@ -617,8 +621,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'kommandoer/skriving.ts:dokument',
       'kommandoer/nyttelast.ts:kravetsUtdypning',
-      // KA-U34: den senere begrunnelsen.
-      'kommandoer/nyttelast.ts:nyttelastkontroll',
+      'kommandoer/nyttelast.ts:begrunnelsensTekst',
     ],
   ],
   // KA-U24, KA-U32: avgrensningene som krever begrunnelse, av serverens utregning.
