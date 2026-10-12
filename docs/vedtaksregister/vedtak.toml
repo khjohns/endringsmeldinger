@@ -7,7 +7,8 @@
 # og når en ny post bryter reglene i README.md.
 #
 # Postene med «vedtatt» er importert ordrett fra 3.1 12.10. En tekst brutt over
-# flere linjer er én linje i tabellen.
+# flere linjer er én linje i tabellen. Deres «forhold» er lest ut av Følge (#423)
+# og står allerede i teksten, så verktøyet skriver dem ikke.
 
 format = 1
 
@@ -153,6 +154,10 @@ EO-sak og TE trekker KOE-saken, fordi journalen da sier at TE trakk kravet om en
 og fordi en godkjenning av grunnlaget allerede er en endringsordre; og å la begge veier
 stå åpne'''
 vedtatt = "09.10, oppdragsgiver (#308)"
+forhold = [
+  { art = "presiserer", vedtak = "ka-u11" },
+  { art = "presiserer", vedtak = "eo-u5" },
+]
 folge = '''
 Presiserer KA-U8, KA-U11 og EO-U5. Presisert 10.10 av [KA-U15](#ka-u15): TE kan si
 «ingen krav» i fristsporet etter et varsel om fristforlengelse, men ikke før grunnlaget
@@ -178,6 +183,10 @@ opp igjen når det avgjøres hva «ingen krav» gir avkall på. Hva TE gir avkal
 Hvordan et forbehold i byggherrens svar virker på sammenfall (GR-U7), avgjøres før
 byggherren kan ta forbehold i et svar i TS-stien'''
 vedtatt = "10.10, oppdragsgiver (#273)"
+forhold = [
+  { art = "presiserer", vedtak = "ka-u12" },
+  { art = "presiserer", vedtak = "gr-u7" },
+]
 folge = '''
 Presiserer KA-U12 og GR-U7. Hva «ingen krav» gir avkall på, og hvordan brevet uttrykker
 det, er avgjort 10.10 av [KA-U17](#ka-u17). Forbeholdet er avgjort 10.10 av
@@ -194,6 +203,7 @@ men appen avgjør ikke om det er avskåret. Varslingsreglene gjelder uansett. Fo
 avkall bare for kjente følger, fordi «kjente følger» gir en ny tvist om hva TE visste;
 og «ingen krav» som bare et utsagn uten avkall, som ville endret KA-U12 og EO-U5'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [{ art = "presiserer", vedtak = "ka-u12" }]
 folge = '''
 Presiserer [KA-U12](#ka-u12). Avgjør det [KA-U15](#ka-u15) lot stå åpent: hva TE gir
 avkall på med «ingen krav», og hvordan brevet uttrykker det. Brevteksten står i
@@ -220,6 +230,11 @@ appen ikke kan bevare byggherrens avtalte rettigheter, for eksempel et avtalt fr
 (KA-U9), til detaljmodellen er avklart i byggedel 3. Forkastet for første versjon: en
 utdypning under trekk og «ingen krav»'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [
+  { art = "snevrer inn", vedtak = "ka-u6" },
+  { art = "snevrer inn", vedtak = "ka-u13" },
+  { art = "snevrer inn", vedtak = "gr-u5" },
+]
 folge = '''
 Gjennomfører [KA-U14](#ka-u14) og [KA-U17](#ka-u17) i brevteksten. Sperren følger
 regelen i KA-U14 om at et trekk som ikke kan gjennomføres uten videre virkninger,
@@ -262,6 +277,10 @@ hadde da det ble sendt (MM-U9). Appen avgjør ikke senere tvister om hvor langt 
 når (KA-U17). Forkastet: at avkallet omfatter forseringsvederlaget, og å vente med
 spørsmålet til byggedel 4'''
 vedtatt = "11.10, oppdragsgiver etter sparring (#309)"
+forhold = [
+  { art = "presiserer", vedtak = "ka-u17" },
+  { art = "presiserer", vedtak = "ka-u22" },
+]
 folge = '''
 Presiserer [KA-U17](#ka-u17) og brevteksten i [KA-U22](#ka-u22). I tråd med
 [KA-U14](#ka-u14): et avkall gjelder TEs eget, uttrykkelig identifiserte krav. Avgjør
@@ -276,6 +295,7 @@ avklart, fordi appen da ikke vet hva byggherren har avtalt. Delen om merket brev
 fra første versjon. Forkastet: at sperren bare gjelder fradrag, fordi beskyttelsen ikke
 kan vente til etter at trekk tas i bruk (svaret 10.10)'''
 vedtatt = "11.10, oppdragsgiver (#309, #394)"
+forhold = [{ art = "presiserer", vedtak = "ka-u22" }]
 folge = '''
 Presiserer [KA-U22](#ka-u22). Delen om merket brev gjelder til merkingen er avklart
 etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes
@@ -293,6 +313,7 @@ merker, velger hvilke spor merkingen gjelder; merker hen bare grunnlaget, har he
 at forbeholdet ikke gjelder vederlaget. Forkastet: at enhver enighet som bygger på et
 merket brev, sperrer trekk uansett hvilke spor merkingen gjelder'''
 vedtatt = "11.10, oppdragsgiver (#309, #394)"
+forhold = [{ art = "snevrer inn", vedtak = "ka-u27" }]
 folge = '''
 Snevrer inn [KA-U27](#ka-u27), delen om merket brev, etter [KA-U26](#ka-u26): sperren
 gjelder i de sporene merkingen gjelder. Det andre KA-U27 avviser trekket for, et
@@ -375,6 +396,7 @@ begrunnelsen er tilstrekkelig eller kom i tide. En senere begrunnelse har ingen
 automatisk virkning på utfallet i appen, uten at det betyr at den er uten rettslig
 betydning. Forkastet: at bare standpunktet «avslått» krever begrunnelse'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [{ art = "presiserer", vedtak = "ka-u18" }]
 folge = '''
 Presiserer [KA-U18](#ka-u18). Utvidet 11.10 av [KA-U24](#ka-u24) til alle spor og
 kategorier. Ikke bygget (#309)'''
@@ -397,6 +419,11 @@ innsigelser tapes når de ikke fremsettes i tide (§ 33.7 annet ledd), gir ikke 
 plikt. Forkastet: begrunnelse bare der kontrakten krever det, og begrunnelse for frist
 og vederlag, men ikke for grunnlaget utenfor § 32'''
 vedtatt = "11.10, oppdragsgiver etter sparring (#309)"
+forhold = [
+  { art = "utvider", vedtak = "ka-u18" },
+  { art = "utvider", vedtak = "ka-u21" },
+  { art = "presiserer", vedtak = "vs-u5" },
+]
 folge = '''
 Utvider [KA-U18](#ka-u18) og [KA-U21](#ka-u21) fra § 32.3 tredje ledd til alle spor og
 kategorier. Presiserer [VS-U5](#vs-u5): kravet om å begrunne avgrensningen etter §
@@ -414,6 +441,7 @@ utdypningen under svarets låste tekst. Et brev med svar i flere spor har én be
 per svar som krever det, og den låste delen og begrunnelsen står da sammen per svar.
 Forkastet: «én felles begrunnelse for brevet, som dekker alle svarene i det»'''
 vedtatt = "11.10, oppdragsgiver (#369, #410)"
+forhold = [{ art = "snevrer inn", vedtak = "ka-u24" }]
 folge = '''
 Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V1). Snevrer inn
 [KA-U24](#ka-u24), som tillot begge: «En felles begrunnelse kan dekke flere
@@ -431,6 +459,7 @@ endringsordre for allerede utført arbeid», og endringsordren avgrenses til arb
 alt er utført. Forkastet: «nei. Frafallet er ikke en innsigelse eller avgrensning etter
 KA-U24.»'''
 vedtatt = "11.10, oppdragsgiver (#369, #410)"
+forhold = [{ art = "presiserer", vedtak = "ka-u24" }]
 folge = '''
 Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V2). Presiserer
 [KA-U24](#ka-u24) for frafall. Kontrollen bygges sammen med kravet etter KA-U24.
@@ -530,6 +559,7 @@ brevet om hvor standpunktene står, fordi den ikke løser en motstrid mellom den
 teksten og utdypningen; og ingen veiledning. Utsatt: et varsel styrt av ord i
 utdypningen'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [{ art = "presiserer", vedtak = "ka-u16" }]
 folge = '''
 Presiserer [KA-U16](#ka-u16) for brev fra appen og besvarer spørsmålet fra PR #356.
 Gjelder også brev fra TE. Ikke bygget. Skjemaet hører til #313'''
@@ -559,6 +589,12 @@ kan skje ved registreringen; og at bare en revisjon opphever sperren. Utsatt: at
 mottakeren registrerer motpartens brev uten at mottakerens vurdering styrer bindende
 handlinger'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [
+  { art = "presiserer", vedtak = "ka-u16" },
+  { art = "presiserer", vedtak = "ka-u7" },
+  { art = "presiserer", vedtak = "mm-u3" },
+  { art = "presiserer", vedtak = "ka-u11" },
+]
 folge = '''
 Presiserer [KA-U16](#ka-u16): «det» i «bygger på det» leses som det appen ikke kan
 uttrykke, og «til det er avklart» som et nytt utsagn som kan representeres. Presiserer
@@ -584,6 +620,12 @@ som merker, oppgir hvilke spor merkingen gjelder. En merking åpner aldri en sak
 kravene er avgjort. Forkastet: at et merket svar ikke gir sammenfall og at grunnlaget da
 regnes som uavklart'''
 vedtatt = "11.10, oppdragsgiver (#309, #394)"
+forhold = [
+  { art = "presiserer", vedtak = "ka-u16" },
+  { art = "presiserer", vedtak = "ka-u20" },
+  { art = "presiserer", vedtak = "eo-u5" },
+  { art = "presiserer", vedtak = "ka-u11" },
+]
 folge = '''
 Presiserer [KA-U16](#ka-u16), [KA-U20](#ka-u20), [EO-U5](#eo-u5) (sperren mot at saken
 inngår i en endringsordre) og [KA-U11](#ka-u11) (en merking åpner ikke en avgjort sak).
@@ -647,6 +689,7 @@ grunnlaget; et subsidiært standpunkt er et avslag som viser hvor nær partene e
 Forkastet: GR-U6, og å avvise aksept av vederlag og frist til grunnlaget er godkjent
 (det ville hindret sakens fremdrift)'''
 vedtatt = "08.10, oppdragsgiver (#274)"
+forhold = [{ art = "presiserer", vedtak = "ka-u5" }]
 folge = '''
 Erstatter GR-U6. DT-11 er lukket. Presisert av [GR-U10](#gr-u10) (09.10): for grunnlaget
 er en godkjenning uten påberopt preklusjon enighet ved sammenfall. Presisert av
@@ -762,6 +805,7 @@ standpunkt) og § 34.2.2 første ledd (et akseptert tilbud binder slik det sto).
 Forkastet: at enigheten fryser virkningen etter reglene da aksepten ble registrert, som
 en egen kopi i aksepten'''
 vedtatt = "09.10, oppdragsgiver (#273, #308)"
+forhold = [{ art = "presiserer", vedtak = "mm-u3" }]
 folge = '''
 Presiserer MM-U3: «fastsettes når den inngås» betyr brevets virkning, slik brevet ble
 godtatt. Et avvik etter dagens regler vises som merknad (MM-U9). Hva
@@ -786,6 +830,7 @@ enighet), § 34.2.2 første ledd og § 31.3 annet ledd. Forkastet: ingen samlet 
 slik at hvert spor bare sperres av sine egne predikater; og en sperre per spor, der en
 virksom enighet sperrer trekk'''
 vedtatt = "09.10, oppdragsgiver (#308)"
+forhold = [{ art = "presiserer", vedtak = "gr-u9" }]
 folge = '''
 Presiserer KA-U6, MM-U7 og GR-U9. Presisert 09.10 av [KA-U12](#ka-u12): «ingen krav»
 teller som trukket. Et godtatt avslag av grunnlaget (SK-01) og et trukket grunnlag
@@ -801,6 +846,10 @@ brevet, når den ikke endrer noe standpunkt, for eksempel en ny ubetinget godkje
 samme innhold. Avklaringen opphever sperren etter KA-U26. En revisjon som endrer et
 standpunkt, avvises fortsatt (KA-U11)'''
 vedtatt = "11.10, oppdragsgiver (#309, #394)"
+forhold = [
+  { art = "presiserer", vedtak = "ka-u11" },
+  { art = "presiserer", vedtak = "ka-u20" },
+]
 folge = '''
 Presiserer [KA-U11](#ka-u11) og [KA-U20](#ka-u20). Avklaringen er ikke en revisjon etter
 [GR-U10](#gr-u10) eller [KA-U7](#ka-u7). En senere merking når kravene er avgjort,
@@ -815,6 +864,10 @@ tredje ledd, protest mot innsigelsen, påberopt passivitet etter § 32.3 annet l
 merking etter KA-U20. De registreres og vises uten virkning på utfallet i appen. Det som
 kan endre utfallet, for eksempel et nytt svar som endrer et standpunkt, avvises fortsatt'''
 vedtatt = "11.10, oppdragsgiver (#309, #394)"
+forhold = [
+  { art = "presiserer", vedtak = "ka-u11" },
+  { art = "utvider", vedtak = "mm-u7" },
+]
 folge = '''
 Utvider det som godtas etter [KA-U11](#ka-u11) og [MM-U7](#mm-u7) til et godtatt avslag
 av grunnlaget ([GR-U7](#gr-u7), SK-01). Innsigelsen følger [VS-U9](#vs-u9) og
@@ -840,6 +893,7 @@ avgjort (KA-U11). Forkastet: å godta trekket etter ordlyden i KA-U6, slik at al
 trekkes og endringsordren etter § 32.3 a mister virkning; og å la forbudet gjelde all
 enighet om grunnlaget, også der godkjenningen ikke er en endringsordre'''
 vedtatt = "09.10, oppdragsgiver (#308)"
+forhold = [{ art = "snevrer inn", vedtak = "ka-u7" }]
 folge = '''
 Snevrer inn KA-U6 og KA-U7 for grunnlaget når godkjenningen er en endringsordre. Om
 godkjenningen er en endringsordre, avgjøres etter [GR-U12](#gr-u12) og [GR-U13](#gr-u13)
@@ -875,6 +929,7 @@ endringsordren eller utførelsesplikten er bortfalt. Forkastet: at all bindende 
 om grunnlaget sperrer trekket, og at sperren gjelder enighet ved sammenfall uavhengig av
 § 31.3'''
 vedtatt = "10.10, oppdragsgiver (#273)"
+forhold = [{ art = "presiserer", vedtak = "ka-u13" }]
 folge = '''
 Presiserer KA-U6, KA-U13 og GR-U5. Avgrenser [EO-U1](#eo-u1): en slik endringsordre er
 svaret i grunnlagssporet i KOE-saken, ikke en EO-sak. Kan snevre inn KA-U6 der enigheten
@@ -925,6 +980,10 @@ ved sammenfall, og byggherren er bundet. Byggherren kan ikke revidere godkjennin
 Etter § 32.3 a er svaret en endringsordre. «Låst» er ikke lenger et eget begrep, men
 enighet. Frafall (GR-U9) er byggherrens standpunkt og kan fortsatt revideres'''
 vedtatt = "09.10, oppdragsgiver"
+forhold = [
+  { art = "presiserer", vedtak = "gr-u7" },
+  { art = "presiserer", vedtak = "gr-u2" },
+]
 folge = '''
 Presiserer GR-U2 og GR-U7. Retter avviket i målmodellen som #312 beskriver. At svaret er
 en endringsordre etter § 32.3 a, gjelder underkategoriene som § 32.2 gjelder for
@@ -1037,6 +1096,7 @@ underkategorien da brevet ble sendt, med regelversjonen, atskilt fra det byggher
 varslingsplikt alene er en endringsordre, og at manglende opplysning om § 31.3 betyr at
 brevet ikke er en endringsordre'''
 vedtatt = "10.10, oppdragsgiver (#273)"
+forhold = [{ art = "endrer", vedtak = "gr-u10" }, { art = "endrer", vedtak = "gr-u12" }]
 folge = '''
 Endrer GR-U10 og GR-U12: endringsordren krever også § 31.3. Endret 10.10 av
 [MM-U17](#mm-u17) for registrerte brev: om § 32.2 gjaldt, fryses som appens vurdering
@@ -1066,6 +1126,7 @@ er beskrevet i TEs krav i brev <n> av <dato>.» Forkastet for registrerte krav:
 slik beskrivelse avvises godkjenningen.» og «Avvis godkjenningen» – «En slik godkjenning
 avvises i appen, og byggherren må svare utenfor appen.»'''
 vedtatt = "11.10, oppdragsgiver (#369, #410)"
+forhold = [{ art = "endrer", vedtak = "gr-u13" }]
 folge = '''
 Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V4 a). Varianten for
 registrerte krav er oppdragsgivers svar 11.10 i oppfølgingen på #369 (spørsmål 1): det
@@ -1086,6 +1147,7 @@ varselet. Forkastet: «byggherren beskriver endringen i utdypningen, og en slik
 godkjenning avvises uten den», og «en godkjenning som ville vært en endringsordre,
 avvises når varselet ikke har en beskrivelse. Byggherren må da svare utenfor appen.»'''
 vedtatt = "11.10, oppdragsgiver (#369, #410)"
+forhold = [{ art = "utvider", vedtak = "gr-u13" }]
 folge = '''
 Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V4 b, «Hva endringen
 går ut på, når TEs varsel ikke beskriver pålegget»). Utvider [GR-U13](#gr-u13):
@@ -1275,6 +1337,7 @@ byggherren har påberopt preklusjon for det utledede varselet, er preklusjonen u
 og TE kan ikke godta svaret før byggherren har svart på nytt. En enighet inngått før
 opplysningen står (MM-U3). Forkastet: å la TE godta svaret slik brevet uttrykte det'''
 vedtatt = "09.10, oppdragsgiver etter review av PR #306"
+forhold = [{ art = "presiserer", vedtak = "mm-u1" }]
 folge = '''
 Presiserer MM-U1. MM-U4, som vedtaksteksten viser til, er opphevet 09.10 av
 [MM-U9](#mm-u9), som gjelder regelendringer. MM-U8 gjelder en ny opplysning og står.
@@ -1290,6 +1353,7 @@ utfallet. At saken er avsluttet, sperrer kommandoer som kan endre utfallet, ikke
 partenes standpunkt til en opplysning. Forkastet: å la en avsluttet sak sperre alle
 handlinger'''
 vedtatt = "09.10, oppdragsgiver etter review av PR #306"
+forhold = [{ art = "presiserer", vedtak = "mm-u1" }]
 folge = '''
 Presiserer MM-U1. «Avsluttet» betyr at kravene er avgjort ([KA-U11](#ka-u11), 09.10).
 Avvises når saken ikke er forstått ([MM-U14](#mm-u14), 10.10). Utvidet 11.10 av
@@ -1317,6 +1381,7 @@ Etterregistreringen gjør preklusjonen uavklart bare når varselet gjelder det
 preklusjonen gjaldt. En enighet står (MM-U8). Er kravene avgjort, gjelder sperren i
 KA-U11. Retting følger B-16'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [{ art = "utvider", vedtak = "mm-u1" }, { art = "utvider", vedtak = "mm-u8" }]
 folge = '''
 Utvider [MM-U1](#mm-u1) og [MM-U8](#mm-u8) til § 34.1. Ikke bygget (#309)'''
 
@@ -1424,6 +1489,10 @@ endrer ikke et tidligere svar eller en enighet (GR-U10, KA-U7). Den første inns
 og tidspunktet bevares, og en gjentakelse gir ingen ny frist. Forkastet: innsigelsen
 alltid som eget utsagn'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [
+  { art = "presiserer", vedtak = "vs-u1" },
+  { art = "utvider", vedtak = "vs-u1" },
+]
 folge = '''
 Presiserer og utvider [VS-U1](#vs-u1): etter svaret er en egen innsigelse et nytt valg,
 og VS-U1 sier bare at en innsigelse ikke avvises fordi den kommer etter at TE har
@@ -1466,6 +1535,10 @@ egen innsigelse fra TE mot et varsel, krav eller svar fra byggherren gjelder alt
 VS-U1. Formatet for innsigelsen forutsetter likevel ikke at bare byggherren kan påberope
 sen varsling. Forkastet: ulike regler for partene'''
 vedtatt = "11.10, oppdragsgiver etter sparring (#309)"
+forhold = [
+  { art = "utvider", vedtak = "vs-u9" },
+  { art = "utvider", vedtak = "vs-u11" },
+]
 folge = '''
 Utvider [VS-U9](#vs-u9) og [VS-U11](#vs-u11), som er formulert for byggherren. I tråd
 med [VS-U1](#vs-u1) («ethvert varsel, krav eller svar fra motparten») og
@@ -1501,6 +1574,7 @@ VS-U10: for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunn
 etter mottaket, viser appen mottaksdatoen, antall dager siden og bestemmelsen, uten en
 fast frist. Forkastet: en veiledende frist per prosjekt, og en fast frist på 10 dager'''
 vedtatt = "10.10, oppdragsgiver (#309)"
+forhold = [{ art = "presiserer", vedtak = "vs-u2" }]
 folge = '''
 Presiserer [VS-U2](#vs-u2): «frist» er bestemmelsen og fristens utgangspunkt, ikke en
 dato. Presiserer også vedtaket om passivitet under B-13: appen viser ingen fast frist.
@@ -1541,6 +1615,7 @@ avgjøres når § 30 er lest. Forkastet: å bare registrere og vise også § 33.
 § 34.1.3 og § 34.3.3 første ledd, som for § 34.1.2 og § 34.1.3 strider mot B-13 om
 preklusjon'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [{ art = "presiserer", vedtak = "vs-u2" }]
 folge = '''
 Presiserer [VS-U2](#vs-u2) for § 33.6.2 tredje ledd: påberoper byggherren uttrykkelig at
 TE svarte for sent, utledes virkningen. I tråd med B-13 om preklusjon. Hvordan 30
@@ -1686,6 +1761,7 @@ EO-U1: en endringsordre utstedes bare som EO-sak, gjennom kommandoen (B-02 punkt
 EO-sak, der TE godtar eller bestrider endringsordren (TFR-02). `kan_utstede_eo` betyr at
 KOE-saken kan inngå i en EO-sak'''
 vedtatt = "08.10, oppdragsgiver"
+forhold = [{ art = "presiserer", vedtak = "gr-u3" }]
 folge = '''
 Presiserer GR-U3. Avgrenset 10.10 av [GR-U13](#gr-u13) og [KA-U14](#ka-u14): er
 byggherrens godkjenning av grunnlaget i KOE-saken en endringsordre etter § 32.3 første
@@ -1752,6 +1828,7 @@ bort, en annen kommer til, og partene er enige om å gå i null. Et krav på 0 f
 (KA-U8), så null uttrykkes ved et godtatt avslag. Forkastet: at et godtatt avslag bare
 teller som oppgjort, og at et godkjent grunnlag er nok når begge spor er trukket'''
 vedtatt = "09.10, oppdragsgiver (#308)"
+forhold = [{ art = "presiserer", vedtak = "eo-u2" }]
 folge = '''
 Presiserer EO-U2: «godkjent eller låst» betyr enighet (merknaden 09.10 i 3.1). Presisert
 09.10 av [KA-U12](#ka-u12): «ingen krav» teller som oppgjort. Presisert 11.10 av
@@ -1806,6 +1883,7 @@ hvert selvstendige utsagn i den. Forkastet: at endringsordren bare fastsetter
 grunnlaget, og at TEs aksept av endringsordren også er aksept av svarene, som ville
 endret KA-U1, KT-U1 og MM-U10'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [{ art = "presiserer", vedtak = "eo-u4" }]
 folge = '''
 Presiserer [EO-U4](#eo-u4): TEs ene svar på hver utgave kan ta stilling til hvert utsagn
 for seg (MM-U10). Ikke bygget (#309)'''
@@ -1819,6 +1897,7 @@ endringsordre. Retting av skrivefeil følger B-16. Forkastet: revisjon av hva en
 går ut på, som ville endret EO-U4 og GR-U10, og revisjon av hele endringsordren, som
 ville endret GR-U10, GR-U7 og KA-U7'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [{ art = "endrer", vedtak = "eo-u4" }]
 folge = '''
 Endrer [EO-U4](#eo-u4) for dette tilfellet; GR-U7, GR-U10 og KA-U7 står. Ikke bygget
 (#309)'''
@@ -1913,6 +1992,10 @@ godtar dagene, men holder fast på forseringskravet, bygges senere; det kjernen 
 kan, avvises. Forkastet: å tillate aksepten etter stopp, og å tillate den mens
 forseringen står'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [
+  { art = "snevrer inn", vedtak = "ka-u1" },
+  { art = "presiserer", vedtak = "fo-u1" },
+]
 folge = '''
 Snevrer inn [KA-U1](#ka-u1) med en ny grunn til å avvise en aksept, og presiserer
 [FO-U1](#fo-u1). Presisert 10.10 av [OV-U2](#ov-u2) for første versjon: sperren virker
@@ -2005,6 +2088,11 @@ byggherren til å revidere svaret (GR-U4). Forkastet: at dagens regler vurderer 
 brev på nytt, og at et avvik sperrer aksepten (MM-U4–MM-U6); og å fryse virkningen, men
 gi byggherren «vurder revisjon» som ventende handling'''
 vedtatt = "09.10, oppdragsgiver"
+forhold = [
+  { art = "opphever", vedtak = "mm-u4" },
+  { art = "opphever", vedtak = "mm-u5" },
+  { art = "opphever", vedtak = "mm-u6" },
+]
 folge = '''
 Opphever MM-U4, MM-U5 og MM-U6. Snevrer inn merknaden 05.10 til vedtaket om regelversjon
 under B-13. MM-U3 og MM-U8 står. Presisert av [MM-U11](#mm-u11) (09.10), som gjør et
@@ -2047,6 +2135,7 @@ Sammensetningen følger § 32.3 a–c og vedtakene om prinsipale og subsidiære 
 som GR-U7. Forkastet: at hvert svar i tillegg fryser utfallet per spor og vilkåret for
 enigheten'''
 vedtatt = "09.10, oppdragsgiver (#273)"
+forhold = [{ art = "presiserer", vedtak = "mm-u9" }]
 folge = '''
 Presiserer MM-U9 og KA-U10. Gjør et unntak fra MM-U9 for regelen som setter sammen
 standpunktene til et utfall. Den følger gjeldende regler, også for sendte brev.
@@ -2073,6 +2162,7 @@ av ekstern korrespondanse. Appen avgjør ikke det kontrakten overlater til parte
 oppmann eller domstolene. En senere avklaring registreres som et nytt utsagn, uten at
 brevet eller historikken skrives om. Formen følger B-16'''
 vedtatt = "10.10, oppdragsgiver (#273)"
+forhold = [{ art = "presiserer", vedtak = "mm-u9" }]
 folge = '''
 Presiserer MM-U9 og MM-U11. Endret 10.10 av [MM-U17](#mm-u17) for registrerte brev:
 appens vurdering følger reglene ved registreringen, ikke da brevet ble sendt. Ikke
@@ -2173,6 +2263,10 @@ Kan appen ikke uttrykke innholdet, gjelder KA-U16. Forkastet: at en slik hendels
 som gyldig, som i dag, fordi den da kan oppheve en enighet (KA-U7, GR-U10, MM-U3); og at
 et registrert brev gjør saken ikke forstått'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
+forhold = [
+  { art = "utvider", vedtak = "mm-u2" },
+  { art = "presiserer", vedtak = "hf-u1" },
+]
 folge = '''
 Utvider [MM-U2](#mm-u2) og presiserer [HF-U1](#hf-u1): saken er heller ikke forstått når
 kjernen kan tolke hendelsen, men den strider mot vedtakene om enighet og lukking. Avgjør
@@ -2195,6 +2289,11 @@ ikke uttrykke innholdet, gjelder KA-U16. Forkastet: at brevet leses med virkning
 MM-U18 forkaster for byggherrens tilbaketrekking, og at appen nekter registreringen
 (KA-U16)'''
 vedtatt = "11.10, oppdragsgiver (#309, #394)"
+forhold = [
+  { art = "utvider", vedtak = "mm-u18" },
+  { art = "presiserer", vedtak = "ka-u7" },
+  { art = "presiserer", vedtak = "ka-u11" },
+]
 folge = '''
 Utvider [MM-U18](#mm-u18) til andre registrerte brev i samme klasse. Presiserer
 [KA-U7](#ka-u7) og [KA-U11](#ka-u11): et registrert brev avvises ikke, men får ingen
@@ -2210,6 +2309,7 @@ saken ikke forstått, som en aksept av et frafall i MM-U18. Et ekte registrert b
 behandles etter MM-U19 som i dag. Forkastet: «B: nei, bare vilkår for å sende» – «Raden
 leses uten virkning på utfallet, som i dag. #405 lukkes uten endring.»'''
 vedtatt = "12.10, oppdragsgiver (#405)"
+forhold = [{ art = "presiserer", vedtak = "mm-u18" }]
 folge = '''
 Presiserer [MM-U18](#mm-u18): svar og aksept etter trekk strider mot vedtakene om
 lukking, ikke bare mot vilkårene for å sende. «Som i dag» i vedtaket viser til
@@ -2319,6 +2419,14 @@ trengs da ingen historikk over regelsett med datoer, og ingen gjetting ved ukjen
 eller brev fra før appen. Forkastet: reglene da brevet ble sendt (GR-U13 slik det står),
 og at den som registrerer, velger regelsettet'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#336)"
+forhold = [
+  { art = "endrer", vedtak = "gr-u12" },
+  { art = "endrer", vedtak = "gr-u13" },
+  { art = "endrer", vedtak = "ka-u10" },
+  { art = "endrer", vedtak = "mm-u9" },
+  { art = "endrer", vedtak = "mm-u11" },
+  { art = "endrer", vedtak = "mm-u12" },
+]
 folge = '''
 Endrer [GR-U12](#gr-u12), [GR-U13](#gr-u13), [KA-U10](#ka-u10), [MM-U9](#mm-u9),
 [MM-U11](#mm-u11) og [MM-U12](#mm-u12) for registrerte brev: appens vurdering i
@@ -2351,6 +2459,7 @@ frosne teksten. Det kan lages etter at brevet er lagret, men det bevares fra fø
 det lages, og hvert leveringsforsøk sender det samme dokumentet. Forkastet: at
 avsenderen godkjenner det ferdige dokumentet, som da må lages før brevet lagres'''
 vedtatt = "11.10, oppdragsgiver etter sparring (#391)"
+forhold = [{ art = "presiserer", vedtak = "lv-u1" }]
 folge = '''
 Presiserer [LV-U1](#lv-u1) og invariant 6: det som fryses i transaksjonen, er
 brevteksten og vedleggene, og dokumentet lages bare av det som er frosset ved commit. I
@@ -2370,6 +2479,7 @@ et standpunkt eller «ingen krav». Det som ikke står i teksten, regnes ikke so
 Forkastet: at strukturerte opplysninger som ikke står i teksten, er en del av det som er
 meddelt'''
 vedtatt = "11.10, oppdragsgiver etter sparring (#391)"
+forhold = [{ art = "presiserer", vedtak = "lv-u2" }]
 folge = '''
 Presiserer [LV-U2](#lv-u2). I tråd med [MM-U9](#mm-u9) og [KA-U25](#ka-u25). Appens
 vurdering i beslutningsgrunnlaget er ikke partens meddelelse ([HF-U2](#hf-u2),
@@ -2452,6 +2562,11 @@ vises i appen, men står ikke i brevteksten.» Forkastet for punkt 6: «Nei, bar
 – «Brevet sier bare at TE godtar svaret. At enigheten bare gjelder beløpet eller dagene,
 følger av GR-U7 og vises i appen, men står ikke i brevet.»'''
 vedtatt = "11.10, oppdragsgiver (#369, #410)"
+forhold = [
+  { art = "presiserer", vedtak = "lv-u2" },
+  { art = "presiserer", vedtak = "lv-u3" },
+  { art = "presiserer", vedtak = "ka-u22" },
+]
 folge = '''
 Spørsmålene står i versjon 4 av spørsmålene på #410 (V5), svarene på #369 (5.1–5.13).
 Setningen om endringsordren i punkt 1 er oppdragsgivers svar 11.10 i oppfølgingen på
@@ -2487,6 +2602,7 @@ kom for sent.» Endret tekst gjelder bare nye brev (MM-U9). Forkastet: «B: som 
 at teksten blir «Byggherren gjør ikke gjeldende at varselet kom for sent.», med
 begrunnelsen «Sammenhengen i brevet holder.»'''
 vedtatt = "12.10, oppdragsgiver (#414)"
+forhold = [{ art = "endrer", vedtak = "lv-u4" }]
 folge = '''
 Endrer [LV-U4](#lv-u4) punkt 5, setningene for «i tide» og etter en innsigelse. Grunnen:
 i et svar der byggherren tidligere har påberopt at TEs varsel etter § 32.2 kom for sent,
@@ -2774,6 +2890,7 @@ appen ikke kan uttrykke i den, som pris og tid, følger KA-U16. Forkastet: at TE
 registrere i KOE-saken at forsering er varslet for avslåtte dager, uten en
 forseringssak, slik at registreringen sperrer aksepten etter FO-U5'''
 vedtatt = "10.10, oppdragsgiver (#358)"
+forhold = [{ art = "presiserer", vedtak = "fo-u5" }]
 folge = '''
 Presiserer [FO-U5](#fo-u5) for første versjon: sperren forutsetter en forseringssak i
 appen som viser til avslaget. Bygger på oppdragsgivers prinsipp 10.10 om at den som
@@ -2814,6 +2931,7 @@ som defineres rett av standpunktene og brukes bare der vedtakene sier det (GR-U7
 og EO-U5). Forkastet: at reglene leser en utledet samlebetegnelse der vedtakene ikke
 sier det'''
 vedtatt = "10.10, oppdragsgiver (#329)"
+forhold = [{ art = "presiserer", vedtak = "mm-u11" }]
 folge = '''
 Presiserer «Kontrakten først» i `AGENTS.md` og MM-U11. Bygget i kjernen 10.10 (#340):
 `grunnlagAvklart` og `grunnlagAvvist` leser standpunktene direkte, og `grunnlagAvvist`
@@ -2852,6 +2970,10 @@ Leveringen og Catenda kan bli i Python så lenge de ikke leser eller skriver i d
 selv, til de flyttes. Forkastet: å skrive om Python-lagrene for Azure SQL som en
 mellomfase'''
 vedtatt = "11.10, oppdragsgiver (#375)"
+forhold = [
+  { art = "presiserer", vedtak = "lv-u1" },
+  { art = "endrer", vedtak = "b-18" },
+]
 folge = '''
 Bygger på [B-12, databasen](#b-12-databasen). Endrer utviklernes valg under
 [B-18](#b-18) om Python for innloggingen, og presiserer [LV-U1](#lv-u1): Python henter

@@ -34,10 +34,9 @@ rekkefølgen i 3.1.
 
 **De importerte postene** er radene som sto i 3.1 12.10, ført inn ordrett med
 `--importer` etter oppdragsgivers svar 12.10 i #413. De har cellene fra tabellen:
-`vedtak`, `vedtatt` og `folge`, og `anker` når raden har et. Spørsmål og forhold
-finnes ikke for dem, så de feltene er tomme, det vil si at de ikke står i posten.
-Forholdene i Følge-teksten er ikke lest ut som data, fordi det ville vært en
-tolkning. Slik er resten av 3.1 tatt med uten endring:
+`vedtak`, `vedtatt` og `folge`, og `anker` når raden har et. Spørsmål finnes ikke
+for dem, så de feltene er tomme, det vil si at de ikke står i posten. Slik er resten
+av 3.1 tatt med uten endring:
 
 - radene uten anker, som «B-13 …» og radene i underavsnittene uten ID, er
   poster uten `anker`;
@@ -45,6 +44,26 @@ tolkning. Slik er resten av 3.1 tatt med uten endring:
   ordrett i `innledning` og i `etter` hos gruppen de står etter;
 - en lang celle er brutt over flere linjer ved mellomrom, og verktøyet setter den
   sammen med ett mellomrom, så raden blir lik byte for byte.
+
+**Forholdene i de importerte postene** er de Følge sier uttrykkelig, lest ut med
+verktøyet etter oppdragsgivers svar 12.10 i #423. De står i `forhold` hos posten
+som presiserer, utvider, snevrer inn, endrer eller opphever, som i en ny post.
+Verktøyet leser bare et ledd som begynner med verbet, med stor forbokstav, og en
+lenke til et anker: `Presiserer [KA-U12](#ka-u12)` hos posten selv, eller
+`Presisert 10.10 av [KA-U17](#ka-u17)` hos vedtaket den gjelder. I samme ledd leser
+det også `og presiserer [X](#x)`, og i et passivt ledd `og utvidet av [X](#x)` og
+`og av [X](#x)`. Etter verbet kan det stå flere lenker:
+`[A](#a), [B](#b) og [C](#c)`. Annen tekst tolkes ikke, heller ikke «er presisert
+av» midt i en setning, der subjektet kan være et annet vedtak, eller en ID uten
+lenke. Følge skrives ikke om: forholdet står allerede i teksten, så verktøyet
+skriver det ikke i raden. En rad uten anker kan ikke være vedtaket et forhold gjelder.
+
+```bash
+python3 docs/verktoy/vedtaksregister.py --forhold   # det som står én vei, og det som ikke leses
+```
+
+Forholdene som står bare én vei, står i `EN_VEI` i verktøyet. Listen ble lagt fram
+for oppdragsgiver i PR-en for #423 og rettes ikke i stillhet.
 
 **En ny post** føres for hånd av den som fører vedtaket:
 
@@ -108,20 +127,22 @@ tekst = "et ordrett utdrag"
 | Hvert anker i hovedplanen står én gang, og ID-en til en ny post står ikke i hovedplanen på `main` fra før, heller ikke uten anker eller utenfor 3.1 | hele planen |
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret; bare `folge` kan endres | nye poster på `main` |
 | Forholdet står begge veier | nye poster med `forhold` |
+| Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil | importerte poster |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem
 på formen: en post med `vedtatt` er importert, og en ny post har `dato`. En
-importert post kan ikke ha felt fra en ny, og en post i importert form som ikke
-står i 3.1 på `main`, avvises.
+importert post kan ikke ha felt fra en ny, bortsett fra `forhold`, og en post i
+importert form som ikke står i 3.1 på `main`, avvises.
 
 Verktøyet kjører de samme kontrollene som testene, også dem mot `main` når
 historikken finnes.
 
 Det testene ikke ser: om et alternativ strider mot et vedtak, om forholdet er en
-presisering eller en endring, og om et sitat er tatt ut av sammenhengen. Det
+presisering eller en endring, forhold som Følge i en importert post bare sier med
+andre ord, og om et sitat er tatt ut av sammenhengen. Det
 kontrolleres én gang, når spørsmålet stilles
 ([orkestreringsskillen](../../.claude/skills/orkestrering/SKILL.md#spørsmål-og-vedtak)).
 Testen ser heller ikke et sitat som ikke er ført som `sitat`. Testene ser bare

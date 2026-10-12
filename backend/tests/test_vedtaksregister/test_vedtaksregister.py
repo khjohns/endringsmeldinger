@@ -120,11 +120,12 @@ def test_importen_gjenskaper_3_1_byte_for_byte(plan):
     )
 
 
-def test_de_importerte_postene_har_tomme_felt_for_sporsmal_og_forhold(register):
-    """Oppdragsgiver 12.10 (#413): spørsmålene og forholdene finnes ikke for de eldre radene."""
+def test_de_importerte_postene_har_tomme_felt_for_sporsmal(register):
+    """Oppdragsgiver 12.10 (#413): spørsmålene finnes ikke for de eldre radene. Forholdene
+    Følge sier uttrykkelig, føres (oppdragsgiver 12.10 i #423)."""
     for p in vr.poster(register):
         if not vr.er_ny(p):
-            assert set(p) <= vr.IMPORTERT
+            assert set(p) <= {"anker", "vedtak", "vedtatt", "folge", "forhold"}
 
 
 @pytest.mark.parametrize(
@@ -191,9 +192,9 @@ def test_vakta_melder_feil_i_en_ny_post(grunnregister, endring, melding):
 
 def test_en_importert_post_kan_ikke_ha_felt_fra_en_ny(grunnregister):
     endret = copy.deepcopy(grunnregister)
-    endret["gruppe"][0]["vedtak"][0]["forhold"] = [{"art": "endrer", "vedtak": "ka-u1"}]
+    endret["gruppe"][0]["vedtak"][0]["sporsmal"] = "Skal TE kunne trekke kravet?"
     assert any(
-        "ukjent felt forhold i en importert post" in f for f in vr.valider(endret)
+        "ukjent felt sporsmal i en importert post" in f for f in vr.valider(endret)
     )
 
 
@@ -279,6 +280,172 @@ def test_vakta_finner_ikke_kodenavn_i_kontraktsbegreper():
         "TE varsler etter § 33.8, jf. KA-U1 og B-13. BH svarer «avslått» i EO-saken."
     )
     assert vr.kodenavn(post) == []
+
+
+# --------------------------------------------------------------------------
+# Forholdene i de importerte postene (#423)
+# --------------------------------------------------------------------------
+
+
+def _post(register: dict, anker: str) -> dict:
+    return next(p for p in vr.poster(register) if vr.anker(p) == anker)
+
+
+def test_forholdene_i_de_importerte_postene_er_de_folge_sier_uttrykkelig(register):
+    """Oppdragsgiver 12.10 i #423: de uttrykkelige forholdene føres, og de står begge veier
+    unntatt dem i EN_VEI, som er lagt fram for oppdragsgiver."""
+    assert vr.forholdfeil(register) == []
+
+
+def test_et_importert_forhold_star_begge_veier_i_folge(register):
+    """Uavhengig av leseren: lenken til vedtaket står hos posten, og lenken til posten hos
+    vedtaket, for hvert importert forhold som ikke står i EN_VEI."""
+    en_vei = {(a, art, b) for a, art, b, _ in vr.EN_VEI}
+    antall = 0
+    for p in vr.poster(register):
+        for f in [] if vr.er_ny(p) else p.get("forhold", []):
+            if (vr.anker(p), f["art"], f["vedtak"]) in en_vei:
+                continue
+            assert f"](#{f['vedtak']})" in vr.linje(p["folge"])
+            assert f"](#{vr.anker(p)})" in vr.linje(
+                _post(register, f["vedtak"])["folge"]
+            )
+            antall += 1
+    assert antall > 0
+
+
+@pytest.mark.parametrize(
+    ("folge", "forhold"),
+    [
+        # Formene i #423.
+        ("Presiserer [KA-U11](#ka-u11).", [("aktiv", "presiserer", "ka-u11")]),
+        ("Endret 11.10 av [GR-U14](#gr-u14).", [("passiv", "endrer", "gr-u14")]),
+        ("Utvidet 11.10 av [MM-U19](#mm-u19).", [("passiv", "utvider", "mm-u19")]),
+        (
+            "**Opphevet 2026-10-09 av [MM-U9](#mm-u9).** Var en sperre.",
+            [("passiv", "opphever", "mm-u9")],
+        ),
+        (
+            "Snevrer inn [KA-U6](#ka-u6), [KA-U13](#ka-u13) og [GR-U5](#gr-u5) til byggedel 3.",
+            [
+                ("aktiv", "snevrer inn", "ka-u6"),
+                ("aktiv", "snevrer inn", "ka-u13"),
+                ("aktiv", "snevrer inn", "gr-u5"),
+            ],
+        ),
+        (
+            "Presiserer og utvider [VS-U1](#vs-u1): etter svaret.",
+            [("aktiv", "presiserer", "vs-u1"), ("aktiv", "utvider", "vs-u1")],
+        ),
+        (
+            "Snevrer inn [KA-U1](#ka-u1) med en ny grunn, og presiserer [FO-U1](#fo-u1).",
+            [("aktiv", "snevrer inn", "ka-u1"), ("aktiv", "presiserer", "fo-u1")],
+        ),
+        (
+            "Presisert 11.10 av [KA-U26](#ka-u26) og [KA-U28](#ka-u28), og av [MM-U19](#mm-u19) for brev.",
+            [
+                ("passiv", "presiserer", "ka-u26"),
+                ("passiv", "presiserer", "ka-u28"),
+                ("passiv", "presiserer", "mm-u19"),
+            ],
+        ),
+        (
+            "Endret 11.10 av [GR-U14](#gr-u14) («a; b») og utvidet av [GR-U15](#gr-u15) (c).",
+            [("passiv", "endrer", "gr-u14"), ("passiv", "utvider", "gr-u15")],
+        ),
+        # Annen tekst tolkes ikke.
+        ("Presiserer KA-U8, KA-U11 og EO-U5.", []),
+        ("MM-U4, som teksten viser til, er opphevet 09.10 av [MM-U9](#mm-u9).", []),
+        ("En merking endrer ikke utfallet, etter [KA-U26](#ka-u26).", []),
+        ("Presisert 10.10 for formatet av [HF-U2](#hf-u2).", []),
+        ("Avgrenset 10.10 av [GR-U13](#gr-u13).", []),
+        ("I tråd med [KA-U14](#ka-u14). Ikke bygget.", []),
+        (
+            "Presisert 11.10 av [KA-U25](#ka-u25): presiserer [KA-U9](#ka-u9).",
+            [("passiv", "presiserer", "ka-u25")],
+        ),
+    ],
+)
+def test_leseren_leser_bare_de_uttrykkelige_formuleringene(folge, forhold):
+    assert vr.les_forhold(folge)[0] == forhold
+
+
+@pytest.mark.parametrize(
+    ("folge", "ulest"),
+    [
+        ("Presiserer KA-U8, KA-U11 og EO-U5.", True),
+        ("MM-U4, som teksten viser til, er opphevet 09.10 av [MM-U9](#mm-u9).", True),
+        ("Presiserer [KA-U17](#ka-u17) og brevteksten i [KA-U22](#ka-u22).", True),
+        ("Presiserer [KA-U17](#ka-u17) og [KA-U22](#ka-u22).", False),
+        ("Presiserer vedtaket om ny kravversjon 05.10.", False),
+        ("I tråd med [KA-U14](#ka-u14).", False),
+    ],
+)
+def test_leseren_melder_det_den_ikke_kan_lese(folge, ulest):
+    """#423: hver formulering skriptet ikke kan lese entydig, listes for oppdragsgiver."""
+    assert bool(vr.les_forhold(folge)[1]) is ulest
+
+
+def test_verktoyet_skriver_ikke_forholdene_i_en_importert_post(register):
+    """#423: forholdet står allerede i Følge, så raden blir lik byte for byte."""
+    ka_u20 = _post(register, "ka-u20")
+    assert ka_u20["forhold"]
+    assert vr.folgecelle(ka_u20, register) == vr.linje(ka_u20["folge"])
+
+
+@pytest.mark.parametrize(
+    ("endring", "melding"),
+    [
+        (
+            lambda r: _post(r, "ka-u20")["forhold"].append(
+                {"art": "endrer", "vedtak": "gr-u2"}
+            ),
+            "ka-u20: forholdet «endrer #gr-u2» står i registeret, men ikke uttrykkelig i Følge",
+        ),
+        (
+            lambda r: _post(r, "ka-u20")["forhold"].pop(0),
+            "ka-u20: Følge sier «presiserer #ka-u16», men forholdet står ikke i registeret",
+        ),
+        (
+            lambda r: _post(r, "ka-u12").update(
+                folge=vr.linje(_post(r, "ka-u12")["folge"]).replace(
+                    "Presisert 10.10 av [KA-U17](#ka-u17)", "Presisert 10.10 av KA-U17"
+                )
+            ),
+            "ka-u17 presiserer #ka-u12: står bare hos ka-u17",
+        ),
+        (
+            lambda r: _post(r, "ka-u15").update(
+                folge="Presiserer [KA-U12](#ka-u12). "
+                + vr.linje(_post(r, "ka-u15")["folge"])
+            ),
+            "ka-u15 presiserer #ka-u12: står i EN_VEI, men ikke bare én vei i Følge",
+        ),
+    ],
+)
+def test_vakta_melder_forhold_som_ikke_stemmer_med_folge(register, endring, melding):
+    endret = copy.deepcopy(register)
+    endring(endret)
+    assert melding in vr.forholdfeil(endret)
+
+
+@pytest.mark.parametrize(
+    ("forhold", "melding"),
+    [
+        ({"art": "erstatter", "vedtak": "ka-u1"}, "ukjent forhold"),
+        (
+            {"art": "endrer", "vedtak": "finnes-ikke"},
+            "som ikke er ankeret til et vedtak",
+        ),
+        ({"art": "endrer", "vedtak": "ka-u20"}, "viser til vedtaket selv"),
+        ({"art": "endrer"}, "forhold 5 mangler vedtak"),
+    ],
+)
+def test_vakta_melder_feil_i_forholdet_i_en_importert_post(register, forhold, melding):
+    endret = copy.deepcopy(register)
+    _post(endret, "ka-u20")["forhold"].append(forhold)
+    feil = vr.valider(endret)
+    assert any(melding in f for f in feil), feil
 
 
 # --------------------------------------------------------------------------
