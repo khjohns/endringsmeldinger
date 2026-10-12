@@ -987,6 +987,14 @@ begrunnelse og beskrivelse er [KA-U31](plans/2026-09-16-godkjenning-og-varig-lev
   varsel: byggherrens standpunkt om rettidighet gjelder det. Teksten i fristkravet
   endres ikke. Et fristkrav som oppgir en dato for varselet etter et varsel fra
   appen, avvises (`VARSEL_REGISTRERT`), fordi datoen er satt (SK-12).
+- **Arbeidsvalg 12.10 (avvisningen etter et fristkrav, oppdragsgiver 12.10 på
+  [#411](https://github.com/khjohns/endringsmeldinger/issues/411)):** er fristkravet
+  trukket, avvises varselet fra appen med `KRAV_TRUKKET`, som går foran, fordi sporet er
+  lukket (GR-U5, vedtaket om trukket krav 05.10). Registreringen av et varsel sendt
+  utenfor appen er uendret, også etter kravet: appen kontrollerer ikke datoen mot
+  kravet, fordi datoen er partens opplysning og kan bestrides
+  ([MM-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1), MM-U7), og et
+  varsel registrert etter et svar følger MM-U8.
 
 ---
 
