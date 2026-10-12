@@ -1,7 +1,14 @@
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import EndringsordreForm from '../EndringsordreForm.svelte';
-import { createEndringsordre, fetchEOCandidates, fetchNextEONumber } from '$lib/api/endringsordre';
+import {
+  createEndringsordre,
+  fetchEOApprovals,
+  fetchEOCandidates,
+  fetchNextEONumber,
+  type EOApprovalPackage,
+} from '$lib/api/endringsordre';
+import { newEODraft } from '$lib/domain/endringsordre';
 import { setDraftOwner } from '$lib/utils/draftOwner';
 
 vi.mock('$lib/api/endringsordre', async () => {
@@ -205,5 +212,97 @@ describe('utsted endringsordre', () => {
       'Avtalt fundament.'
     );
     expect(restored.getByLabelText('Samlet fristforlengelse (dager)')).toHaveValue(7);
+  });
+});
+
+// Arbeidsvalg på #445 (oppdragsgiver 12.10): et lagret utkast med nummeret til en
+// endringsordre som allerede er utstedt, forkastes ved åpning, og skjemaet starter
+// et tomt utkast med neste ledige nummer og forhåndsvalget fra lenken.
+describe('lagret utkast med nummer fra en utstedt endringsordre (#445)', () => {
+  function storeDraft() {
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        version: 1,
+        draft: { ...newEODraft(), number: 'EO-001', description: 'Ordren som ble utstedt.' },
+      })
+    );
+  }
+  function approvalsWith(status: EOApprovalPackage['status']) {
+    vi.mocked(fetchEOApprovals).mockResolvedValueOnce(approvalResponse(status));
+  }
+  function approvalResponse(status: EOApprovalPackage['status']) {
+    return {
+      state: {
+        version: 3,
+        packages: [
+          {
+            id: 'pakke-1',
+            status,
+            owner: 'user',
+            createdAt: '2026-10-01T08:00:00Z',
+            request: {
+              eo_nummer: 'EO-001',
+              beskrivelse: 'Ordren som ble utstedt.',
+              koe_sak_ids: [],
+              er_estimat: false,
+              konsekvenser: {
+                sha: false,
+                kvalitet: false,
+                fremdrift: false,
+                pris: false,
+                annet: false,
+              },
+            },
+            steps: [],
+            ...(status === 'utstedt' ? { sakId: 'EO-sak-1' } : {}),
+          },
+        ],
+      },
+      actor: 'user',
+      sender: null,
+      chain: [],
+      canPrepare: true,
+      dailyRate: null,
+    };
+  }
+
+  it('forkaster utkastet og starter et tomt utkast med neste nummer og KOE-en fra lenken', async () => {
+    storeDraft();
+    approvalsWith('utstedt');
+    vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-002' });
+    const screen = render(EndringsordreForm, { ...props, initialKoe: 'KOE-1' });
+    await waitFor(() => expect(screen.getByLabelText('Endringsordrenummer')).toHaveValue('EO-002'));
+    expect(await screen.findByRole('checkbox', { name: /KOE-1/ })).toBeChecked();
+    expect(screen.getByLabelText('Beskriv avtalen som formaliseres')).toHaveValue('');
+    await waitFor(() => expect(JSON.parse(localStorage.getItem(key)!).draft.number).toBe('EO-002'));
+    expect(screen.queryByText(/Endringsordren er utstedt/)).toBeNull();
+  });
+
+  it('beholder utkastet når ordren med nummeret fortsatt er til godkjenning', async () => {
+    storeDraft();
+    approvalsWith('til_godkjenning');
+    vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-002' });
+    const screen = render(EndringsordreForm, props);
+    await waitFor(() => expect(fetchNextEONumber).toHaveBeenCalled());
+    expect(screen.getByLabelText('Endringsordrenummer')).toHaveValue('EO-001');
+    expect(screen.getByLabelText('Beskriv endringen som pålegges')).toHaveValue(
+      'Ordren som ble utstedt.'
+    );
+  });
+
+  it('viser ikke skjemaet før kontrollen av det lagrede utkastet er ferdig', async () => {
+    storeDraft();
+    let svar!: (value: ReturnType<typeof approvalResponse>) => void;
+    vi.mocked(fetchEOApprovals).mockReturnValueOnce(new Promise((resolve) => (svar = resolve)));
+    vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-002' });
+    const screen = render(EndringsordreForm, props);
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Kontrollerer det lagrede utkastet'
+    );
+    expect(screen.queryByLabelText('Endringsordrenummer')).toBeNull();
+    svar(approvalResponse('utstedt'));
+    await waitFor(() => expect(screen.getByLabelText('Endringsordrenummer')).toHaveValue('EO-002'));
+    expect(screen.getByLabelText('Beskriv endringen som pålegges')).toHaveValue('');
   });
 });

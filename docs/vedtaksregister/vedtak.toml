@@ -755,6 +755,52 @@ tekst = "En senere avklaring registreres som et nytt utsagn, uten at brevet elle
 kilde = "hovedplanen"
 tekst = "Et registrert brev kan stå uten."
 
+[[gruppe.vedtak]]
+id = "KA-U36"
+dato = 2026-10-12
+hvem = "oppdragsgiver"
+kilde = ["#458"]
+sporsmal = '''
+Byggherren kan registrere en begrunnelse som er sendt utenfor appen (KA-U35), med datoen den ble sendt. Skal en slik registrering godtas når datoen ligger før datoen på svaret som begrunnes?
+
+Belegg:
+- KA-U35: «Den endrer ingen standpunkter, og appen vurderer ikke om den er tilstrekkelig eller kom i tide.»
+Det gjelder at begrunnelsen kan komme for sent, ikke at den kan komme før svaret. Registreringen endrer ikke noe utfall. Anbefaling: A.
+
+A: En registrert begrunnelse med sendt-dato før svaret den begrunner, avvises. Begrunnelsen kan ikke komme før svaret, og appen vurderer fortsatt ikke om den kom i tide. Kontrollen gjelder bare når svaret har en dato.
+Forhold: presiserer KA-U35.
+
+B: Registreringen godtas uansett dato, fordi appen ikke vurderer tid etter KA-U35.
+Forhold: følger KA-U35.
+
+C: Registreringen godtas, og visningen viser at datoen ligger før svaret. Appen avgjør ingenting.
+Forhold: presiserer KA-U35.'''
+valgt = "A"
+svar = '''
+A: Avvis (anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "ka-u35" }]
+folge = '''
+Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En registrert begrunnelse med sendt-dato før svaret den begrunner, avvises. Begrunnelsen kan ikke komme før svaret, og appen vurderer fortsatt ikke om den kom i tide. Kontrollen gjelder bare når svaret har en dato.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Registreringen godtas uansett dato, fordi appen ikke vurderer tid etter KA-U35.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Registreringen godtas, og visningen viser at datoen ligger før svaret. Appen avgjør ingenting.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Den endrer ingen standpunkter, og appen vurderer ikke om den er tilstrekkelig eller kom i tide."
+
 [[gruppe]]
 tittel = "Aksept og enighet"
 

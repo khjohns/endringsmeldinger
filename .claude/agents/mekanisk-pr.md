@@ -32,21 +32,34 @@ skyøkta ikke (#442). Hooken kjenner agenten bare på `agent_type` i kallet.
 
 Hooken er et vern, ikke en garanti. Den leser kommandoteksten og ser ikke:
 
-- skriving fra et skript når stien ikke står i kommandoen (en `npm run` som
-  skriver, et skript i en fil). `python -c`, `node -e` og lignende stoppes
-  bare når en sperret mappe står i kommandoen;
-- en sti som skallet setter sammen: en variabel (`K=kjerne; echo x > $K/a`),
-  et mønster (`./kjern?/`) eller en `cd` inn i en sperret mappe før
-  skrivingen.
+- skriving fra et skript som ligger i en sperret mappe og kjøres med `python`,
+  `node`, `sh` eller `bash` uten `-c`, og skriving fra et skript som ikke
+  nevner stien (en `npm run` som skriver);
+- skriving med Bash utenfor arbeidstreet, for eksempel
+  `cp docs/a.md /home/.../docs/b.md`. Bare Write og Edit stoppes der;
+- git startet fra et skript, og git-kommandoer utenom push, commit, add,
+  config, remote, update-ref, symbolic-ref og endring av treet;
+- endringer i `.claude/hooks/`. Hookoppsettet, `.claude/settings.json` og
+  `.claude/settings.local.json`, stoppes med Write, Edit og skrivende Bash som
+  nevner det, og ved commit og push. Diffkontroll leser det som endres.
 
 Ved `git add`, `git commit` og `git push` sammenligner den endringene i
-arbeidstreet med `HEAD` og grenen med `origin/main`, også med miljøvariabler,
-`command` eller `env` foran. Den slipper bare gjennom
-`git push [-u] origin <utsjekket gren>`, i en egen kommando uten commit. Den
-ser ikke `git -C <annet tre>` eller git startet fra et skript, og den stopper
-ikke den som vil omgå den med vilje. Mangler `node`, slipper alle kall
-gjennom: Claude Code regner bare kode 2 som stopp, og et skall uten `node`
-gir 127. Kontrollen før merge er `diffkontroll`.
+arbeidstreet med `HEAD` og grenen med `origin/main`. Den leser ordene i hvert
+ledd etter prefiks som `command`, `env`, `nice`, `nohup`, `sudo` og
+`timeout`, og innholdet i `sh -c` og `eval`. Et prefiks med et flagg den ikke
+kjenner, stopper kallet, og det gjør også `xargs` og andre programmer som har
+`git`, `gh` eller et skall blant argumentene. Commit og push må stå i et kall
+med bare git-ledd og eventuelt `cd` eller `git -C` til ditt eget arbeidstre,
+fordi kontrollen leser arbeidstreet kallet starter i. Miljøvariabler som
+`GIT_DIR`, `HOME`, `EDITOR` og `PAGER` stoppes. Med `gh api` kan du skrive til
+PR-en, kommentarer og etiketter, ikke til andre endepunkter eller GraphQL. En
+PR kan bare få endret tittel og beskrivelse. Git-hookene i `.husky/` stoppes
+som hookoppsettet. Den slipper bare gjennom
+`git push [-u] origin <utsjekket gren>`, uten andre flagg, i en egen kommando
+uten commit og uten endring av treet. Den stopper ikke den som vil omgå den
+med vilje. Mangler `node`, slipper alle kall gjennom: Claude Code regner bare
+kode 2 som stopp, og et skall uten `node` gir 127. Kontrollen før merge er
+`diffkontroll`.
 
 ## Branch
 
