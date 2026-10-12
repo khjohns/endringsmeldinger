@@ -754,7 +754,7 @@ function utledSporene(
   const etterTrekk = (id: string, n: Spor) =>
     trekk.some((t) => {
       const s = alleKrav.get(t.gjelder)?.spor;
-      return (s === n || s === 'grunnlag') && bakover(id, t.id);
+      return (s === n || s === 'grunnlag') && !bakover(t.id, id);
     });
   const nyttFraAvsenderen = (brev: string, n: Spor) =>
     [...spor[n].krav, ...spor[n].svar].some(
