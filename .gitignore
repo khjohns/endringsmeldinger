@@ -46,5 +46,6 @@ backend/koe_data/
 supabase/.temp/
 supabase/.branches/
 
-# Lokal kopi av standarden. Spores ikke (507e225)
+# NS 8407-teksten spores ikke. CI sjekker ut khjohns/ns8407-tekst hit (#424).
 docs/NS_8407.md
+/ns8407-tekst/
