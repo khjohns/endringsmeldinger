@@ -220,9 +220,11 @@ oppdragsgiver.
   hovedplanen), og så fullstendige at de kan stå alene i 3.1.
 - **Kontroller belegget før du spør.** Sitater fra vedtak og NS 8407 skal være
   ordrette og hele setninger, og de føres som `sitat` i registeret
-  ([vakttestene](../../../docs/vedtaksregister/README.md#vakttestene)). NS 8407-teksten ligger ikke i arbeidstreet. Hent den med
-  `git show 507e2254^:docs/NS_8407.md`, etter `git fetch --unshallow origin main`
-  i en grunn klone. Den legges ikke tilbake i repoet. Påstander om koden i
+  ([vakttestene](../../../docs/vedtaksregister/README.md#vakttestene)). NS 8407-teksten er opphavsrettsbeskyttet og ligger
+  i det private repoet `khjohns/kontrakt`. Legg det til med `add_repo`, som kloner
+  det til `../kontrakt`, der verktøyet leser det, eller sett `NS8407_TEKST` til fila. Ellers
+  hoppes sitattestene over lokalt. Teksten legges aldri i dette repoet, i et issue eller i en PR
+  (#424). Påstander om koden i
   spørsmålene kontrolleres av en subagent. En økt ser bare det den har lett
   etter.
 - **Prøv hvert alternativ mot vedtakene i 3.1, én gang, når spørsmålet

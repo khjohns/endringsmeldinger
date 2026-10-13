@@ -190,10 +190,16 @@ at ny tekst i `folge`, `etter` og `innledning` er lagt til, ikke hva den sier.
 Innholdet kontrolleres av en subagent før vedtaks-PR-en merges
 ([orkestreringsskillen](../../.claude/skills/orkestrering/SKILL.md#spørsmål-og-vedtak)).
 
-**Historikken.** NS 8407-teksten ligger ikke i treet og legges ikke tilbake
-(oppdragsgiver 12.10 i #413). Sitatkontrollen leser den med `git show` fra
-507e2254^ (`863f1470`). Sammenlikningen med `main` leser hovedplanen der grenen
-gikk ut fra `origin/main`, og i CI forelderen til flettecommiten. Backend-jobben
-i [`ci.yml`](../../.github/workflows/ci.yml) henter begge. Mangler historikken
-lokalt, hoppes testene over med en melding; hent den med
-`git fetch --unshallow origin main`. I CI feiler de i stedet.
+**Kildene.** NS 8407-teksten er opphavsrettsbeskyttet og ligger verken i treet
+eller historikken, men i det private repoet `khjohns/kontrakt` (#424).
+Sitatkontrollen leser fila som `NS8407_TEKST` peker på, ellers
+`../kontrakt/NS_8407.md`, en klone ved siden av repoet, der `add_repo` legger
+den i en skyøkt. CI har ikke teksten, så sitatene fra NS 8407 kontrolleres bare
+lokalt, før en PR som fører et vedtak
+([leveranseskillen](../../.claude/skills/leveranse/SKILL.md)). En sjekksum i verktøyet låser versjonen. Endres teksten, endres
+sjekksummen i samme PR. Sammenlikningen med `main` leser hovedplanen der
+grenen gikk ut fra `origin/main`, og i CI forelderen til flettecommiten.
+Backend-jobben i [`ci.yml`](../../.github/workflows/ci.yml) henter historikken.
+Mangler den lokalt, hoppes testene over med en melding; hent den med
+`git fetch --unshallow origin main`. I CI feiler de i stedet. Mangler
+NS 8407-teksten, hoppes de tre testene som leser den, over, også i CI.
