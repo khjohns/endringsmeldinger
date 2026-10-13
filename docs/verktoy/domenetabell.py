@@ -3,7 +3,11 @@
 Radene står i `regler.json`, bevis-sakene i `bevis-saker.json`. Bevis-sakene for
 målmodellen (#304, #308) står i `bevis-saker-maalmodell.json` og kjøres bare mot
 TS-kjernen i `kjerne/`, i minnet og gjennom testbasen (`sprakprove/kjernelagring/`).
-Tabellen i README.md lages herfra og rettes ikke for hånd. Kjøring fra repoets rot:
+Tabellen og sporbarheten i README.md lages herfra og rettes ikke for hånd.
+Sporbarheten (#455, punkt 6 i #451): en rad kan vise til funksjonene som
+gjennomfører regelen (`funksjoner`) og regelkodene kjernen avviser med
+(`regelkoder`). Hver regelkode i kjernen står på en rad eller i `koder_uten_rad`
+med grunnen. Kjøring fra repoets rot:
 
     python3 docs/verktoy/domenetabell.py          # kontroller; 1 ved feil eller utdatert tabell
     python3 docs/verktoy/domenetabell.py --skriv  # skriv tabellen på nytt
@@ -24,6 +28,8 @@ HOVEDPLAN = ROT / "docs" / "plans" / "2026-09-16-godkjenning-og-varig-levering.m
 README = KATALOG / "README.md"
 START = "<!-- domenetabell:start -->"
 SLUTT = "<!-- domenetabell:slutt -->"
+SPOR_START = "<!-- sporbarhet:start -->"
+SPOR_SLUTT = "<!-- sporbarhet:slutt -->"
 
 RADFELT = (
     "id",
@@ -36,6 +42,14 @@ RADFELT = (
     "kilder",
     "tolkningsstatus",
 )
+# Sporbarheten innføres gradvis (#455), så feltene er valgfrie.
+VALGFRIE_RADFELT = ("funksjoner", "regelkoder")
+KILDETYPER = {"vedtak", "standard", "arbeidsvalg"}
+# Regelkodene i kjernen er strenglitteraler i disse formene; `_regelkoder_i_kjernen`
+# feiler på et kall til `avvis` uten en. Blokkommentarer og linjer som er kommentarer, leses ikke.
+REGELKODE = re.compile(r"\b(?:avvis\(\s*|regel:\s*|new \w+\(\s*)'([A-Z][A-Z0-9_]+)'")
+AVVIS_KALL = re.compile(r"\bavvis\((?!\s*')")
+FUNKSJON = re.compile(r"^(?!/)(?!.*\.\.)(?P<sti>[\w./-]+\.(?:ts|py))#(?P<navn>\w+)$")
 TIDSAKSER = {"registrering": "registrering", "sendt_mottatt": "sendt/mottatt"}
 ROLLER = {"forutsetning", "mal", "kontroll"}
 HANDLINGER = {
@@ -97,6 +111,18 @@ def _valider_kilder(regler: dict, plan: str) -> list[str]:
     feil = []
     vedtak = _avsnitt(plan, "### 3.1 Vedtatte premisser", "### 3.2 ")
     for kilde in regler["kilder"]:
+        if kilde["type"] not in KILDETYPER:
+            feil.append(f"{kilde['id']}: ukjent kildetype {kilde['type']!r}")
+            continue
+        if kilde["type"] == "arbeidsvalg":
+            # Et arbeidsvalg har hjemmet sitt i et issue (#451), ikke i 3.1.
+            if not isinstance(kilde.get("issue"), int) or kilde["issue"] < 1:
+                feil.append(f"{kilde['id']}: et arbeidsvalg viser til issuet med `issue`")
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(kilde.get("dato", ""))):
+                feil.append(f"{kilde['id']}: et arbeidsvalg har `dato`")
+            if not kilde.get("merknad"):
+                feil.append(f"{kilde['id']}: et arbeidsvalg sier i `merknad` hva som ble valgt")
+            continue
         if kilde["type"] != "vedtak":
             continue
         if kilde["radetikett"] not in vedtak:
@@ -109,11 +135,11 @@ def _valider_kilder(regler: dict, plan: str) -> list[str]:
 
 def _valider_rader(regler: dict) -> list[str]:
     feil, sett = [], set()
-    kilder = {k["id"] for k in regler["kilder"]}
+    kilder = {k["id"]: k for k in regler["kilder"]}
     for rad in regler["rader"]:
         navn = rad.get("id", "<uten id>")
-        if set(rad) != set(RADFELT):
-            feil.append(f"{navn}: feltene er {sorted(rad)}, ventet {sorted(RADFELT)}")
+        if not set(RADFELT) <= set(rad) <= set(RADFELT + VALGFRIE_RADFELT):
+            feil.append(f"{navn}: feltene er {sorted(rad)}, ventet {sorted(RADFELT)} og eventuelt {list(VALGFRIE_RADFELT)}")
             continue
         if navn in sett:
             feil.append(f"{navn}: står to ganger")
@@ -125,6 +151,93 @@ def _valider_rader(regler: dict) -> list[str]:
         if not rad["kilder"]:
             feil.append(f"{navn}: mangler kilde")
         feil += [f"{navn}: ukjent kilde {k}" for k in rad["kilder"] if k not in kilder]
+        # Avklart tolkning følger av et vedtak i 3.1; et arbeidsvalg er ikke et (punkt 9 i #451).
+        typer = {kilder[k]["type"] for k in rad["kilder"] if k in kilder}
+        if rad["tolkningsstatus"] == "avklart_tolkning" and "vedtak" not in typer:
+            feil.append(f"{navn}: avklart tolkning uten et vedtak blant kildene")
+    return feil
+
+
+def _deklarert(sti: pathlib.Path, navn: str) -> bool:
+    if sti.suffix == ".py":
+        moenster = rf"^\s*(?:async\s+)?(?:def|class)\s+{navn}\b"
+    else:
+        # På toppnivå i modulen, så en lokal variabel med samme navn ikke teller.
+        moenster = (
+            r"^(?:export\s+(?:default\s+)?)?(?:(?:declare|abstract|async)\s+)*"
+            rf"(?:function\s*\*?\s*|const\s+|let\s+|class\s+){navn}\b"
+        )
+    return re.search(moenster, sti.read_text(encoding="utf-8"), re.MULTILINE) is not None
+
+
+def _regelkoder_i_kjernen(rot: pathlib.Path) -> tuple[set[str], list[str]]:
+    """Regelkodene i `kjerne/` utenom testene, og kallene til `avvis` uten en strenglitteral."""
+    koder, feil = set(), []
+    for sti in sorted((rot / "kjerne").rglob("*.ts")):
+        if "tester" in sti.relative_to(rot / "kjerne").parts:
+            continue
+        tekst = re.sub(r"/\*.*?\*/", lambda m: "\n" * m[0].count("\n"), sti.read_text(encoding="utf-8"), flags=re.DOTALL)
+        tekst = re.sub(r"^[ \t]*//.*$", "", tekst, flags=re.MULTILINE)
+        koder |= set(REGELKODE.findall(tekst))
+        for m in AVVIS_KALL.finditer(tekst):
+            linje = tekst.count("\n", 0, m.start()) + 1
+            feil.append(f"{sti.relative_to(rot)}:{linje}: `avvis` uten regelkoden som strenglitteral")
+    return koder, feil
+
+
+def _valider_sporbarhet(regler: dict, maalmodell: dict, rot: pathlib.Path) -> list[str]:
+    """Funksjonene finnes, og hver regelkode i kjernen viser til en rad eller står i
+    `koder_uten_rad`. En kode på en rad må være kontrollert (`forventet.regel`) i en
+    bevis-sak for målmodellen, i en kontroll som viser til raden i `kilde`, eller som
+    ikke viser til noen rad i et forløp som har raden. Koblingen er da prøvd, men i
+    det siste tilfellet bare til forløpet."""
+    koder, feil = _regelkoder_i_kjernen(rot)
+    radider = {r.get("id") for r in regler["rader"]}
+    bevist: dict[str, set[str]] = {}
+    for forlop in maalmodell["forlop"]:
+        for k in forlop["kontroller"]:
+            if "regel" not in k["forventet"]:
+                continue
+            # Viser kontrollen til rader i `kilde`, gjelder koden dem; ellers forløpets rader.
+            navngitt = [q for q in k.get("kilde", []) if q in radider]
+            feil += [
+                f"{forlop['id']}: kontrollen viser til {q}, som ikke står i forløpets rader"
+                for q in navngitt
+                if q not in forlop["rader"]
+            ]
+            rader = navngitt or forlop["rader"]
+            for r in rader:
+                bevist.setdefault(r, set()).add(k["forventet"]["regel"])
+    paa_rad = set()
+    for rad in regler["rader"]:
+        if not set(RADFELT) <= set(rad):
+            continue  # Rapportert av _valider_rader.
+        navn = rad["id"]
+        for felt in VALGFRIE_RADFELT:
+            if felt in rad and (not rad[felt] or len(set(rad[felt])) != len(rad[felt])):
+                feil.append(f"{navn}: `{felt}` er tom eller har en verdi to ganger")
+        for f in rad.get("funksjoner", []):
+            m = FUNKSJON.match(f)
+            sti = rot / m["sti"] if m else None
+            if not m or not sti.is_file():
+                feil.append(f"{navn}: funksjonen {f!r} er ikke `sti#navn` med en fil som finnes")
+            elif not _deklarert(sti, m["navn"]):
+                feil.append(f"{navn}: {m['navn']} er ikke deklarert i {m['sti']}")
+        for kode in rad.get("regelkoder", []):
+            paa_rad.add(kode)
+            if kode not in koder:
+                feil.append(f"{navn}: regelkoden {kode} finnes ikke i kjernen")
+            elif kode not in bevist.get(navn, set()):
+                feil.append(f"{navn}: ingen bevis-sak for raden kontrollerer regelkoden {kode}")
+    uten_rad = regler.get("koder_uten_rad", {})
+    for kode, grunn in uten_rad.items():
+        if kode not in koder:
+            feil.append(f"koder_uten_rad: {kode} finnes ikke i kjernen")
+        if kode in paa_rad:
+            feil.append(f"koder_uten_rad: {kode} står også på en rad")
+        if not grunn:
+            feil.append(f"koder_uten_rad: {kode} mangler grunn")
+    feil += [f"{k}: regelkoden står verken på en rad eller i koder_uten_rad" for k in sorted(koder - paa_rad - set(uten_rad))]
     return feil
 
 
@@ -227,7 +340,9 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
     return feil
 
 
-def valider(regler: dict, korpus: dict, plan: str | None = None, maalmodell: dict | None = None) -> list[str]:
+def valider(
+    regler: dict, korpus: dict, plan: str | None = None, maalmodell: dict | None = None, rot: pathlib.Path = ROT
+) -> list[str]:
     plan = plan if plan is not None else HOVEDPLAN.read_text(encoding="utf-8")
     maalmodell = maalmodell if maalmodell is not None else les_maalmodell()
     if any(d.get("formatversjon") != 1 for d in (regler, korpus, maalmodell)):
@@ -239,6 +354,7 @@ def valider(regler: dict, korpus: dict, plan: str | None = None, maalmodell: dic
         + _valider_rader(regler)
         + _valider_forlop(regler, korpus, funntekst, vedtak, _bevist(maalmodell))
         + _valider_maalmodell(regler, korpus, maalmodell)
+        + _valider_sporbarhet(regler, maalmodell, rot)
     )
 
 
@@ -294,6 +410,8 @@ def _celle(tekst: str) -> str:
 def _kilde(kilde: dict) -> str:
     if kilde["type"] == "vedtak":
         return f"[{kilde['id']}]({kilde['ref']})"
+    if kilde["type"] == "arbeidsvalg":
+        return f"[arbeidsvalg i #{kilde['issue']}](https://github.com/khjohns/endringsmeldinger/issues/{kilde['issue']})"
     return f"NS {kilde['punkt']}"
 
 
@@ -338,9 +456,32 @@ def tabell(regler: dict, korpus: dict, maalmodell: dict | None = None) -> str:
     return "\n".join(linjer)
 
 
+def sporbarhet(regler: dict) -> str:
+    """Regelkodene med radene de viser til, og funksjonene per rad."""
+    rader_for: dict[str, list[str]] = {}
+    for rad in regler["rader"]:
+        for kode in rad.get("regelkoder", []):
+            rader_for.setdefault(kode, []).append(rad["id"])
+    uten_rad = regler.get("koder_uten_rad", {})
+    linjer = ["| Regelkode | Rader | Uten rad fordi |", "| --- | --- | --- |"]
+    for kode in sorted(rader_for.keys() | uten_rad.keys()):
+        linjer.append(f"| `{kode}` | {', '.join(rader_for.get(kode, [])) or '—'} | {_celle(uten_rad.get(kode, '—'))} |")
+    linjer += ["", "| Rad | Gjennomføres av |", "| --- | --- |"]
+    for rad in regler["rader"]:
+        if "funksjoner" in rad:
+            lenker = [f"[`{f.partition('#')[2]}`](../../{f.partition('#')[0]})" for f in rad["funksjoner"]]
+            linjer.append(f"| {rad['id']} | {', '.join(lenker)} |")
+    return "\n".join(linjer)
+
+
+def _erstatt(tekst: str, start: str, slutt: str, innhold: str) -> str:
+    i = tekst.index(start) + len(start)
+    return tekst[:i] + "\n" + innhold + "\n" + tekst[tekst.index(slutt) :]
+
+
 def med_tabell(readme: str, regler: dict, korpus: dict) -> str:
-    start = readme.index(START) + len(START)
-    return readme[:start] + "\n" + tabell(regler, korpus) + "\n" + readme[readme.index(SLUTT) :]
+    readme = _erstatt(readme, START, SLUTT, tabell(regler, korpus))
+    return _erstatt(readme, SPOR_START, SPOR_SLUTT, sporbarhet(regler))
 
 
 def main() -> int:

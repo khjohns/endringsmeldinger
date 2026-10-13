@@ -28,11 +28,6 @@ jobs:
         with:
           fetch-depth: 2
 
-      # Sitatkontrollen i vedtaksregisteret leser NS 8407 fra 507e2254^ (#413).
-      # Teksten skrives ikke til treet.
-      - name: Hent NS 8407-teksten i historikken
-        run: git fetch --no-tags --depth=1 origin 863f1470a9fb5ce49059b46e4e408d6b409ed3be
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'

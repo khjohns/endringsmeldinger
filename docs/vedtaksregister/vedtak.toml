@@ -121,7 +121,7 @@ KA-U8: en kravversjon på 0 dager eller 0 kr avvises. 0 er ikke et krav om noe (
 vedtatt = "09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35"
 folge = '''
 Avgjør #179. «Sender det ikke» er presisert 09.10 av [KA-U12](#ka-u12): TE sier
-uttrykkelig «ingen krav»'''
+uttrykkelig «ingen krav». Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u33"
@@ -170,7 +170,7 @@ den er byggherrens svar på grunnlaget, er avgjort 10.10 av [EO-U6](#eo-u6). Mer
 11.10 (oppdragsgiver): «på samme måte som et trekk» gjelder at sporet lukkes
 ([KA-U11](#ka-u11), [EO-U5](#eo-u5)). Hvor langt avkallet rekker, står i
 [KA-U17](#ka-u17) og [KA-U25](#ka-u25) for «ingen krav» og i [KA-U14](#ka-u14) og
-[KA-U22](#ka-u22) for et trekk'''
+[KA-U22](#ka-u22) for et trekk. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u15"
@@ -191,7 +191,7 @@ folge = '''
 Presiserer KA-U12 og GR-U7. Hva «ingen krav» gir avkall på, og hvordan brevet uttrykker
 det, er avgjort 10.10 av [KA-U17](#ka-u17). Forbeholdet er avgjort 10.10 av
 [KA-U16](#ka-u16), og KA-U15 er dermed oppfylt for forbehold. Kommandoen og brevteksten
-hører til #309. Ikke bygget'''
+hører til #309. Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u17"
@@ -208,7 +208,7 @@ folge = '''
 Presiserer [KA-U12](#ka-u12). Avgjør det [KA-U15](#ka-u15) lot stå åpent: hva TE gir
 avkall på med «ingen krav», og hvordan brevet uttrykker det. Brevteksten står i
 [KA-U22](#ka-u22) (10.10). Presisert 11.10 av [KA-U25](#ka-u25): avkallet omfatter ikke
-vederlag for forsering. Ikke bygget. Kommandoen og brevteksten hører til #309'''
+vederlag for forsering. Ikke bygget. Kommandoen og brevteksten hører til #309. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u22"
@@ -244,7 +244,7 @@ byggedel 3. Sperren bygges før trekk tas i bruk (#310). Om enigheten gir bygghe
 rettighet som trekket ikke rører, avklares i byggedel 3. Presisert 11.10 av
 [KA-U25](#ka-u25) for «ingen krav» i vederlagssporet. Presisert 11.10 av
 [KA-U27](#ka-u27). Presisert 11.10 av [LV-U4](#lv-u4), punkt 13: kravversjonen i trekket
-og «<tittel>». Ikke bygget. Den faste teksten hører til #309'''
+og «<tittel>». Ikke bygget. Den faste teksten hører til #309. Teksten for «ingen krav» bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u23"
@@ -284,7 +284,7 @@ forhold = [
 folge = '''
 Presiserer [KA-U17](#ka-u17) og brevteksten i [KA-U22](#ka-u22). I tråd med
 [KA-U14](#ka-u14): et avkall gjelder TEs eget, uttrykkelig identifiserte krav. Avgjør
-#382. Ikke bygget. Brevteksten hører til #309'''
+#382. Ikke bygget. Brevteksten hører til #309. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u27"
@@ -300,7 +300,7 @@ folge = '''
 Presiserer [KA-U22](#ka-u22). Delen om merket brev gjelder til merkingen er avklart
 etter [KA-U20](#ka-u20). Delen om fradrag bygges når fradrag kan uttrykkes
 ([KA-U9](#ka-u9)). Snevret inn 11.10 av [KA-U30](#ka-u30): delen om merket brev gjelder
-bare sporene merkingen gjelder. Ikke bygget'''
+bare sporene merkingen gjelder. Ikke bygget. Delen om merket brev bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u30"
@@ -320,7 +320,7 @@ gjelder i de sporene merkingen gjelder. Det andre KA-U27 avviser trekket for, et
 fradrag, er uendret. Av «en enighet trekket rammer» i KA-U27 følger at et trekk av
 grunnlaget avvises, i samme eksempel, når brevet er merket bare for vederlaget og ikke
 avklart, fordi trekket rammer enigheten om vederlaget ([GR-U5](#gr-u5)). I skjemaet er
-alle spor utgangspunktet når den som merker, oppgir sporene (KA-U26). Ikke bygget'''
+alle spor utgangspunktet når den som merker, oppgir sporene (KA-U26). Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe]]
 tittel = "Svar og standpunkt"
@@ -603,7 +603,7 @@ et merket brev. Gjelder også en endringsordre med pris og tid etter [OV-U2](#ov
 Følgen av at hver side registrerer sine egne brev: mottakeren kan ikke svare på eller
 godta et brev i appen før avsenderen har registrert det, men kan svare utenfor appen og
 registrere sitt eget svar. Presisert 11.10 av [KA-U26](#ka-u26) og [KA-U28](#ka-u28).
-Ikke bygget. Kjernen hører til #309, registreringen til #310'''
+Ikke bygget. Kjernen hører til #309, registreringen til #310. Merkingen bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u26"
@@ -631,7 +631,7 @@ Presiserer [KA-U16](#ka-u16), [KA-U20](#ka-u20), [EO-U5](#eo-u5) (sperren mot at
 inngår i en endringsordre) og [KA-U11](#ka-u11) (en merking åpner ikke en avgjort sak).
 Merknaden i [GR-U7](#gr-u7) sier at et slikt brev «er ikke en ubetinget godkjenning», og
 «avklart» defineres av standpunktene ([MM-U13](#mm-u13)). I skjemaet er alle spor
-utgangspunktet når den som merker, oppgir sporene. Ikke bygget'''
+utgangspunktet når den som merker, oppgir sporene. Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 [[gruppe.vedtak]]
 id = "KA-U34"
 dato = 2026-10-12
@@ -662,7 +662,7 @@ svar = '''
 A'''
 forhold = [{ art = "utvider", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "ka-u18" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "ka-u11" }]
 folge = '''
-Følger [KA-U21](#ka-u21) og [MM-U12](#mm-u12). Ikke bygget'''
+Følger [KA-U21](#ka-u21) og [MM-U12](#mm-u12). Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -780,7 +780,7 @@ svar = '''
 A: Avvis (anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "ka-u35" }]
 folge = '''
-Ikke bygget'''
+Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -819,7 +819,7 @@ svar = '''
 A: appens dato (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "ka-u36" }]
 folge = '''
-Ikke bygget'''
+Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -854,7 +854,7 @@ svar = '''
 A: bare sendt-dato (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "ka-u36" }]
 folge = '''
-Ikke bygget'''
+Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -884,7 +884,7 @@ svar = '''
 A: datoen brukes (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "ka-u36" }]
 folge = '''
-Følger [MM-U7](#mm-u7). Ikke bygget'''
+Følger [MM-U7](#mm-u7). Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1120,7 +1120,7 @@ forhold = [
 folge = '''
 Presiserer [KA-U11](#ka-u11) og [KA-U20](#ka-u20). Avklaringen er ikke en revisjon etter
 [GR-U10](#gr-u10) eller [KA-U7](#ka-u7). En senere merking når kravene er avgjort,
-endrer ikke utfallet og godtas, etter KA-U11 og [KA-U26](#ka-u26). Ikke bygget'''
+endrer ikke utfallet og godtas, etter KA-U11 og [KA-U26](#ka-u26). Ikke bygget. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u29"
@@ -1140,7 +1140,7 @@ Utvider det som godtas etter [KA-U11](#ka-u11) og [MM-U7](#mm-u7) til et godtatt
 av grunnlaget ([GR-U7](#gr-u7), SK-01). Innsigelsen følger [VS-U9](#vs-u9) og
 [VS-U14](#vs-u14), passiviteten [VS-U12](#vs-u12). At innsigelse, protest og påberopt
 passivitet godtas når kravene er avgjort, er et arbeidsvalg etter KA-U11 og MM-U7
-(paragrafmatrisen). Ikke bygget'''
+(paragrafmatrisen). Ikke bygget. Delene om bestridelse, protest, påberopt passivitet og merking bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u13"
@@ -1169,7 +1169,7 @@ GR-U13 og gjelder til det er avklart om brevet oppfyller § 31.3. Forskjellen fr
 underkategorien EO er begrunnet i hvordan appen håndterer trekket, ikke i at
 endringsordrene har ulik rettslig bindende kraft. Snevret inn 10.10 av [KA-U22](#ka-u22)
 til byggedel 3: trekket avvises når appen ikke kan bevare byggherrens avtalte
-rettigheter. Ikke bygget'''
+rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u14"
@@ -1203,7 +1203,7 @@ svaret i grunnlagssporet i KOE-saken, ikke en EO-sak. Kan snevre inn KA-U6 der e
 gir byggherren en rettighet, for eksempel et fradrag (KA-U9). Krav til brevteksten
 (#309, #310) og visningen (#313). Gjennomført i brevteksten 10.10 av [KA-U22](#ka-u22),
 som også sperrer et trekk av grunnlaget når appen ikke kan bevare byggherrens avtalte
-rettigheter. Ikke bygget'''
+rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
 
 [[gruppe.vedtak]]
 vedtak = '''
@@ -1624,7 +1624,7 @@ forhold = [{ art = "presiserer", vedtak = "mm-u1" }]
 folge = '''
 Presiserer MM-U1. «Avsluttet» betyr at kravene er avgjort ([KA-U11](#ka-u11), 09.10).
 Avvises når saken ikke er forstått ([MM-U14](#mm-u14), 10.10). Utvidet 11.10 av
-[KA-U29](#ka-u29). Bygget i målmodellen i språkprøven (#304), rad KA-21'''
+[KA-U29](#ka-u29). Bygget i målmodellen i språkprøven (#304), rad KA-21. Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "vs-u6"
@@ -1742,7 +1742,7 @@ folge = '''
 Avgjør #175. I tråd med MP-U5, MP-U7 og vedtaket om passivitet under B-13. Presisert og
 utvidet 10.10 av [VS-U9](#vs-u9): påberopelsen i byggherrens svar er innsigelsen etter §
 5, og en egen innsigelse kan også sendes etter svaret. Det siste er et nytt valg ut over
-VS-U1'''
+VS-U1. Protesten bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "vs-u9"
@@ -1767,7 +1767,7 @@ spesifisert kravet. Tar [MP-U6](#mp-u6) inn i appen. Unntaket i § 5 tredje ledd
 fortsatt: «Dette gjelder ikke for krav, og for forespørsler etter 40.4, som fremsettes
 for første gang i eller i forbindelse med sluttoppgjøret.» Unntak 10.10 i
 [VS-U11](#vs-u11): byggherren kan gi opp innsigelsen uttrykkelig i et senere svar fra
-appen. Utvidet 11.10 av [VS-U14](#vs-u14) til TE som mottaker. Ikke bygget (#309)'''
+appen. Utvidet 11.10 av [VS-U14](#vs-u14) til TE som mottaker. Ikke bygget (#309). Protestregelen bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "vs-u11"
@@ -1859,7 +1859,7 @@ vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
 folge = '''
 Gjennomfører [VS-U3](#vs-u3) for § 32.3 annet ledd. Gjelder bare der § 32.2 gjelder
 ([GR-U11](#gr-u11)). Etter et svar kan TE også gjøre innsigelse etter [VS-U1](#vs-u1).
-Visningen følger [VS-U10](#vs-u10). Ikke bygget (#309)'''
+Visningen følger [VS-U10](#vs-u10). Ikke bygget (#309). Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "vs-u3"
@@ -1890,7 +1890,7 @@ TE svarte for sent, utledes virkningen. I tråd med B-13 om preklusjon. Hvordan 
 i paragrafmatrisen (#309). Gjennomført for § 32.3 annet ledd 10.10 av [VS-U12](#vs-u12),
 og for § 33.3 første, tredje og femte ledd 11.10 av [VS-U13](#vs-u13) og
 [KA-U23](#ka-u23). Annet og fjerde ledd står (#381). Ikke bygget. Kjernen hører til
-#309, visningen til #313'''
+#309, visningen til #313. Det vedtaket sier om § 32.3 annet ledd, bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "vs-u4"
@@ -2696,7 +2696,7 @@ Kontrollen av at bestridelsen gjelder en opplysning fra motparten, trenger tilst
 Parten kan bestride utenfor appen og registrere det senere, som for varsler etter MM-U2'''
 vedtatt = "10.10, oppdragsgiver (#273)"
 folge = '''
-Presiserer MM-U2 og MM-U7. Som i kjernen i dag (`SAK_IKKE_FORSTAATT`, L 10.10)'''
+Presiserer MM-U2 og MM-U7. Som i kjernen i dag (`SAK_IKKE_FORSTAATT`, L 10.10). Bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "mm-u18"
@@ -3041,7 +3041,7 @@ setningen «Aksepten er ikke enighet om grunnlaget.», og oppdragsgiver valgte i
 oppfølgingen den tydeligere teksten. Vedleggene og henvisningen «brev <n> av <dato>» er
 også arbeidsvalg og føres i paragrafmatrisen. Endret 12.10 av [LV-U5](#lv-u5):
 setningene for «i tide» og etter en innsigelse i punkt 5 nevner varselet. Ikke bygget.
-Brevteksten bygges i #369.'''
+Brevteksten bygges i #369. Punkt 8–12 bygges ikke i første versjon (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "lv-u5"
@@ -3350,6 +3350,237 @@ appen som viser til avslaget. Bygger på oppdragsgivers prinsipp 10.10 om at den
 sender et brev, er bundet av det og har ansvaret for innholdet (som i
 [MM-U17](#mm-u17)). [EO-U6](#eo-u6) gjelder når endringsordre som egen sak er bygget;
 til da viser grunnlagssvaret ikke til en EO-sak. Ikke bygget'''
+
+[[gruppe.vedtak]]
+id = "OV-U3"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#478", "#481"]
+sporsmal = '''
+Den rettede ordlyden til de fem vedtakene ligger nå i PR #481: `forslag-vedtak.md` (`01356ae`). Ingenting er ført i vedtaksregisteret ennå. Svar «ja» på hele forslaget, eller rett enkeltpunkter. Punkt 1–5 er vedtakene, og punkt 6–12 er der forslaget går ut over det du har svart uttrykkelig. Anbefalingen min står ved hvert punkt.
+
+1. **OV-U3, lukkingen (varig):** kravene er avgjort når grunnlaget er avklart og hvert krav TE har sendt, er trukket eller har en virksom enighet. Et spor uten krav hindrer ikke, og et varsel alene er ikke et krav. Visningen sier «Alle fremsatte krav er avgjort», og taushet er ikke et avkall. Når kravene er avgjort, avvises trekk, ny kravversjon og BHs revisjon. Innsigelse, registrering og TEs opplysning om varseldato godtas fortsatt. Et første krav i et tomt spor godtas. Saken er ikke avgjort før det nye kravet er det, og sperren for det som allerede var avgjort, står. Påminnelsen fra Astra vises ved innsending, uten avkrysning.
+6. **BHs forespørsel etter § 33.6.2** godtas i et spor der TE bare har sendt et varsel, også når kravene er avgjort. *Anbefalt: ja.*'''
+valgt = "Ja"
+svar = '''
+Ja'''
+forhold = [
+  { art = "endrer", vedtak = "ka-u11" },
+  { art = "endrer", vedtak = "ka-u3" },
+  { art = "endrer", vedtak = "ka-u23" },
+  { art = "presiserer", vedtak = "gr-u3" },
+  { art = "presiserer", vedtak = "mm-u13" },
+]
+folge = '''
+Presiseringen av GR-U3: «oppgjort» gjelder kravene som er sendt. Presiseringen av MM-U13:
+OV-U3 er der «avklart» brukes etter KA-U11. Ikke bygget. Når endringsordre som egen sak
+bygges, må EO-U2 og EO-U5 («et spor TE fortsatt kan sende, hindrer») tas stilling til
+etter OV-U3. Når «ingen krav» bygges, må KA-U12 endres, fordi det ikke lenger trengs for
+å lukke saken. TFR-05 er forenlig når «resten» leses som at verken vederlag eller frist er
+sendt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+kravene i saken er avgjort når grunnlaget er avklart etter GR-U7, TE har sendt minst ett vederlags- eller fristkrav, og hvert vederlags- og fristkrav TE har sendt, er trukket eller har en virksom enighet. Et spor der TE ikke har sendt et krav, hindrer ikke; et varsel alene er ikke et krav (KA-U2). Det gjelder også vederlagssporet i en sak med hovedkategorien force majeure, der KA-U23 lar sporet hindre til TE sier «ingen krav». Visningen sier «Alle fremsatte krav er avgjort», og de fremsatte kravene er kravene TE har sendt. Den sier ikke at saken er oppgjort eller at TE ikke har flere krav, og taushet er ikke et avkall. Når kravene er avgjort, avvises enhver kommando som kan endre utfallet for grunnlaget og kravene som er sendt: trekk, ny kravversjon og byggherrens revisjon, også av et frafall. En innsigelse etter § 5 tredje ledd fra en av partene, en registrering etter OV-U4 og TEs opplysning om varseldato etter OV-U5 godtas. I et spor der TE ikke har sendt et krav, godtas et varsel, byggherrens forespørsel etter § 33.6.2 og TEs første krav, også når kravene er avgjort. Det første kravet går i samme sak; KA-U3 gjelder kravene som er sendt. Når TE sender det første kravet i sporet, er ikke lenger alle fremsatte krav avgjort før det nye kravet er avgjort. Et varsel alene endrer ikke dette. Sperren for grunnlaget og kravene som allerede var avgjort, står. Kravet får datoen det sendes, ikke datoen for tidligere aktivitet i saken. Ved innsending av det første kravet i et spor viser skjemaet, uten avkrysning: «Du sender nå det første kravet i dette sporet. Appen vurderer ikke om varslings- og kravfrister er overholdt. Tidligere varsler kan være relevante.» Skjemaet viser også varslene i sporet, sendt fra appen eller med dato oppgitt etter OV-U5. Påminnelsen erstatter ikke spørsmålene om varsling og rettidighet. Appen avgjør ikke om et senere krav er avskåret.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Å beholde KA-U11, der et spor som ikke er sendt, hindrer til TE sier «ingen krav», og «ingen krav» er et avkall.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Å la lukkingen gjelde bare i første versjon, til «ingen krav» bygges.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "D"
+tekst = '''
+Å avvise et første krav i et spor som ikke er sendt, når kravene er avgjort.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U4"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#478", "#481"]
+sporsmal = '''
+Den rettede ordlyden til de fem vedtakene ligger nå i PR #481: `forslag-vedtak.md` (`01356ae`). Ingenting er ført i vedtaksregisteret ennå. Svar «ja» på hele forslaget, eller rett enkeltpunkter. Punkt 1–5 er vedtakene, og punkt 6–12 er der forslaget går ut over det du har svart uttrykkelig. Anbefalingen min står ved hvert punkt.
+
+2. **OV-U4, brev sendt utenfor appen er dokumentasjon:** appen utleder ingenting av dem. Hver side registrerer bare sine egne brev. Ved «venter på svar» viser visningen at motparten har registrert brev i sporet.
+7. **Registrering av brev godtas i flere tilfeller:** etter godtatt avslag, etter trukket grunnlag og i en sak kjernen ikke forstår. I den siste gjelder ikke unntakene i OV-U5 og OV-U6. *Anbefalt: ja.*'''
+valgt = "Ja"
+svar = '''
+Ja'''
+forhold = [
+  { art = "endrer", vedtak = "ka-u16" },
+  { art = "endrer", vedtak = "ka-u18" },
+  { art = "endrer", vedtak = "ka-u19" },
+  { art = "endrer", vedtak = "ka-u24" },
+  { art = "endrer", vedtak = "ka-u35" },
+  { art = "endrer", vedtak = "gr-u12" },
+  { art = "endrer", vedtak = "gr-u14" },
+  { art = "endrer", vedtak = "gr-u16" },
+  { art = "endrer", vedtak = "mm-u17" },
+  { art = "endrer", vedtak = "mm-u18" },
+  { art = "endrer", vedtak = "mm-u19" },
+  { art = "endrer", vedtak = "vs-u8" },
+  { art = "endrer", vedtak = "vs-u11" },
+]
+folge = '''
+Endringen av VS-U8 gjelder bestridelsen, og endringen av VS-U11 registrerte svar. Ikke
+bygget. Et krav eller svar sendt utenfor appen får ingen virkning i appen; skal det få
+virkning, sendes det fra appen og får appens dato. Sender TE kravet fra appen, kan TE
+oppgi datoen det ble sendt utenfor appen, som premiss for byggherren (OV-U5).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+i første versjon er et brev sendt utenfor appen og registrert i den dokumentasjon. Det vises ved sporene eller saken den som registrerer, velger, med datoen avsenderen oppgir, brevet som vedlegg og merknaden «Appen vurderer ikke innholdet». Appen utleder ingenting av det: ingen standpunkt, enighet, sperre eller uavklart utfall, og den fryser ingen vurdering av det. Unntakene står i OV-U5 og OV-U6. Partene tar brevet i betraktning når de svarer i appen. En senere begrunnelse sendt utenfor appen registreres også som dokumentasjon. Hver side registrerer bare sine egne brev, som etter KA-U20. Skjemaet sier, i stedet for det KA-U19 sier om sperren, at et brev sendt utenfor appen ikke endrer det parten sender fra appen, og at parten er bundet av det hen sender fra appen. Ved «venter på svar» og fristveiledningen viser visningen at motparten har registrert brev i sporet. Registreringen godtas også når kravene er avgjort (OV-U3), når TE har godtatt avslaget på grunnlaget, og når grunnlaget er trukket. Er saken ikke forstått (MM-U2), godtas registreringen, men ikke unntakene i OV-U5 og OV-U6.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Å strukturere standpunkter, forbehold og bestridelser i registrerte brev i første versjon.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U5"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#478", "#481"]
+sporsmal = '''
+Den rettede ordlyden til de fem vedtakene ligger nå i PR #481: `forslag-vedtak.md` (`01356ae`). Ingenting er ført i vedtaksregisteret ennå. Svar «ja» på hele forslaget, eller rett enkeltpunkter. Punkt 1–5 er vedtakene, og punkt 6–12 er der forslaget går ut over det du har svart uttrykkelig. Anbefalingen min står ved hvert punkt.
+
+3. **OV-U5, varsel etter § 34.1.2 og § 34.1.3 kan sendes fra appen,** som i dagens skjema (Astras punkt 1). TE kan også oppgi datoen for sitt eget varsel sendt utenfor appen. Visningen sier «TE oppgir at varselet ble sendt …», og BH tar stilling til rettidigheten med datoen som premiss. Et svar BH alt har gitt, står med virkningen det hadde. MM-U8 og VS-U7 endres.
+8. **Et krav TE har sendt utenfor appen, er bare dokumentasjon.** TE må sende det på nytt fra appen, og BH vurderer da rettidigheten etter § 33.6.1 mot den senere datoen. Dette er det eneste punktet der forslaget kan gi BH et feil premiss. *Anbefalt: rett.* Utvid OV-U5 slik at TE, når kravet sendes fra appen, kan oppgi at samme krav ble sendt utenfor appen på en tidligere dato, som premiss for BH på samme måte som for varselet.
+9. **Om et varsel etter § 34.1 godtas etter at vederlagskravet er sendt,** er ikke avgjort. *Anbefalt: avvises, som VS-U16 gjør for § 33.4.*
+10. **BH bestrider en oppgitt varseldato i begrunnelsen for svaret,** siden bestridelse er utsatt. *Anbefalt: ja.*'''
+valgt = "Ja"
+svar = '''
+Ja'''
+forhold = [
+  { art = "endrer", vedtak = "mm-u1" },
+  { art = "endrer", vedtak = "mm-u8" },
+  { art = "endrer", vedtak = "vs-u7" },
+  { art = "endrer", vedtak = "vs-u15" },
+  { art = "presiserer", vedtak = "vs-u6" },
+  { art = "presiserer", vedtak = "vs-u8" },
+  { art = "utvider", vedtak = "vs-u16" },
+  { art = "snevrer inn", vedtak = "ov-u4" },
+]
+folge = '''
+Endringen av VS-U15: varselet etter § 34.1.2 sendes ikke bare utenfor appen. Utvidelsen
+av VS-U16: avvisningen gjelder også et varsel etter § 34.1.2 og § 34.1.3 etter
+vederlagskravet. Ikke bygget. Retten VS-U16 viser til i MM-U8, å registrere et varsel
+sendt tidligere utenfor appen, følger av OV-U5. I tråd med GR-U15. Brevteksten for
+varselet etter § 34.1 følger LV-U3 og avgjøres med kommandoen. Brevteksten i LV-U4 punkt
+5 og LV-U5 sier ikke hvilket varsel byggherren gjør gjeldende at kom for sent (AV-07);
+det følges opp for seg.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen, som et eget utsagn med serverens dato og uten beløp, slik VS-U15 gjelder for varselet etter § 33.4. Det gjelder varselet om justering av vederlaget og de særskilte varslene om rigg og drift og om produktivitetstap, som i dagens skjema. Når TE har sendt vederlagskravet, avvises et nytt varsel etter § 34.1.2 eller § 34.1.3 fra appen, slik VS-U16 avviser et varsel etter § 33.4 når fristkravet er sendt; TE kan da oppgi datoen for et tidligere varsel sendt utenfor appen. Unntak fra OV-U4: TE kan oppgi datoen for sitt eget varsel etter § 32.2, § 33.4, § 34.1.2 eller § 34.1.3 som er sendt utenfor appen, også etter et krav og etter byggherrens svar. TE oppgir datoen i et brev fra appen, med varselet som vedlegg og teksten i LV-U4 punkt 3 tilpasset bestemmelsen. Datoen settes én gang, som etter SK-12, også for § 32.2. Visningen sier «TE oppgir at varselet ble sendt <dato>», og byggherren tar stilling til rettidigheten i svaret med opplysningen som premiss. Mener byggherren at varselet ikke ble sendt eller mottatt den dagen, sier hen det i begrunnelsen for svaret (KA-U24). Appen kontrollerer ikke at dokumentet er et varsel, eller at datoen er riktig. Er ikke noe varsel etter § 33.4 registrert, viser skjemaet byggherren at det første fristkravet i sporet, i brev <n> av <dato>, er det første varselet appen kjenner. Et svar byggherren alt har gitt, står med virkningen det hadde og blir ikke uavklart. Svaret viser til varselet det gjaldt (HF-U1). Visningen og skjemaet for TEs aksept viser hvilket varsel det var, og at TE senere har oppgitt et annet. Appen gir ikke svaret virkning for det senere varselet og avgjør ikke om svaret omfatter det. Byggherren kan revidere svaret så lenge det ikke er godtatt (SK-03, GR-U7). Opplysningen godtas også når kravene er avgjort (OV-U3). Sender TE et krav fra appen som TE også har sendt utenfor appen, kan TE i kravet oppgi datoen det ble sendt utenfor appen, med det kravet som vedlegg. Datoen oppgis når kravet sendes, og endres ikke senere. Kravet har datoen det sendes fra appen, og visningen sier «TE oppgir at kravet ble sendt <dato>». Byggherren tar stilling til rettidigheten etter § 33.6.1 med opplysningen som premiss. Det samme gjelder rettidigheten etter § 32.2 når grunnlagskravet er det første varselet appen kjenner, og rettidigheten etter § 34.1.2 og § 34.1.3 når vederlagskravet er det første varselet appen kjenner. Appen kontrollerer ikke at dokumentet er det samme kravet, eller at datoen er riktig.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+At et varsel registrert etter svaret gjør preklusjonen eller begrensningen uavklart og sperrer TEs aksept.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Å utsette MM-U8 og VS-U7 i stedet for å endre dem.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U6"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#478", "#481"]
+sporsmal = '''
+Den rettede ordlyden til de fem vedtakene ligger nå i PR #481: `forslag-vedtak.md` (`01356ae`). Ingenting er ført i vedtaksregisteret ennå. Svar «ja» på hele forslaget, eller rett enkeltpunkter. Punkt 1–5 er vedtakene, og punkt 6–12 er der forslaget går ut over det du har svart uttrykkelig. Anbefalingen min står ved hvert punkt.
+
+4. **OV-U6, BHs endringsordre:** BH registrerer den som sin godkjenning av grunnlaget. Registreringen går gjennom fullmakten (GFK-06), og partene er enige ved sammenfall. At brevet er en endringsordre, gir ingen egen virkning og ingen sperre mot TEs trekk. Skjemaet skiller BHs valgte standpunkt fra resten av dokumentet.
+11. **OV-U6 gjelder bare underkategorier der § 32.2 gjelder,** og appens vurdering ved registreringen fryses etter MM-U17. *Anbefalt: ja.*'''
+valgt = "Ja"
+svar = '''
+Ja'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u2" },
+  { art = "endrer", vedtak = "gr-u13" },
+  { art = "endrer", vedtak = "ka-u14" },
+  { art = "snevrer inn", vedtak = "ka-u13" },
+  { art = "snevrer inn", vedtak = "ov-u4" },
+]
+folge = '''
+Endringen av KA-U14 gjelder leddet om registrert korrespondanse. Ikke bygget. GR-U12
+avgjør ikke om en registrering etter OV-U6 er en endringsordre; det gjør byggherrens
+opplysning (GR-U13). Når endringsordre som egen sak bygges, gjelder EO-U6 og EO-U9 for en
+endringsordre utstedt i appen, og det må avgjøres om registreringen etter OV-U6 står ved
+siden av.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+unntak fra OV-U4: i en underkategori der § 32.2 gjelder (GR-U11), kan byggherren registrere sin egen endringsordre, sendt utenfor appen, som sitt svar på gjeldende kravversjon av grunnlaget. Byggherren velger «godkjent», påberoper ikke preklusjon og oppgir at brevet er en endringsordre etter § 31.3. Skjemaet gjør det tydelig at godkjenningen er byggherrens valgte standpunkt, atskilt fra dokumentets øvrige innhold. Registreringen er byggherrens godkjenning av grunnlaget og går gjennom fullmakten som en godkjenning av grunnlaget etter GFK-06. Partene er enige ved sammenfall (GR-U10), og byggherren kan ikke revidere svaret. Registreringen godtas der et svar fra appen ville vært godtatt, også som revisjon av et svar som ikke er godtatt (GR-U7). Appens vurdering ved registreringen fryses som etter MM-U17. Appen viser at byggherren opplyser at brevet er en endringsordre. Opplysningen gir ingen egen virkning i appen: endringsordren sperrer ikke trekket av grunnlaget etter KA-U13 eller KA-U22, fordi et trekk ikke opphever den. Brev og visning sier ikke at den er bortfalt (KA-U14). For andre registrerte brev oppgis det ikke om brevet er en endringsordre. Pris og tid i endringsordren vurderes ikke og gir ingen sperre; vederlag og frist kreves og besvares i KOE-saken, og siste del av OV-U2, om KA-U16, gjelder ikke.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+At registreringen får samme virkning som en godkjenning fra appen som er en endringsordre, med sperren i KA-U13.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+At endringsordren bare er dokumentasjon.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "D"
+tekst = '''
+At registreringen går utenom fullmakten fordi endringsordren alt er utstedt etter byggherrens egne rutiner.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U7"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#478", "#481"]
+sporsmal = '''
+Den rettede ordlyden til de fem vedtakene ligger nå i PR #481: `forslag-vedtak.md` (`01356ae`). Ingenting er ført i vedtaksregisteret ennå. Svar «ja» på hele forslaget, eller rett enkeltpunkter. Punkt 1–5 er vedtakene, og punkt 6–12 er der forslaget går ut over det du har svart uttrykkelig. Anbefalingen min står ved hvert punkt.
+
+5. **OV-U7, vedtakene som utsettes:** «ingen krav»; merking og avklaring av registrerte brev; senere begrunnelse og datokontrollene for den; bestridelse; TEs påberopelse av passivitet; protest mot en innsigelse. Innsigelse etter § 5 tredje ledd bygges for begge parter. Det gjelder også delen av KA-U29 om innsigelse etter at TE har godtatt avslaget på grunnlaget (Astras punkt 2). Delen av KA-U27 om fradrag står.
+12. **Det KA-U8, KA-U13 og KA-U14 sier om «ingen krav», gjelder ikke i første versjon.** *Anbefalt: ja.*'''
+valgt = "Ja"
+svar = '''
+Ja'''
+forhold = [{ art = "endrer", vedtak = "ov-u1" }]
+folge = '''
+Ikke bygget. Endringsordre som egen sak og forsering utsettes av OV-U1, ikke av OV-U7.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+i første versjon bygges ikke disse vedtakene og delene av dem: «ingen krav» (KA-U12, KA-U15, KA-U17, KA-U25 og teksten for «ingen krav» i KA-U22); merking og avklaring av registrerte brev og sperrene de gir (KA-U26, KA-U28, KA-U30, merkingen i KA-U20 og delen om merket brev i KA-U27); senere begrunnelse fra appen og datokontrollene for registrert begrunnelse (KA-U34, KA-U36–KA-U39); bestridelse (MM-U7, MM-U14); TEs påberopelse av passivitet (VS-U12, og VS-U3 for § 32.3 annet ledd); protest mot en innsigelse (protesten i VS-U1 og protestregelen i VS-U9); delene av KA-U29 om bestridelse, protest, påberopt passivitet og merking; og brevtekstene for dem i LV-U4, punkt 8–12. Innsigelse etter § 5 tredje ledd bygges for begge parter som utsagn uten utledning, også byggherrens egen innsigelse etter svaret og en innsigelse etter at TE har godtatt avslaget på grunnlaget (VS-U1, VS-U9, VS-U14, KA-U29). Delen av KA-U27 om fradrag står. Kommandoene som bare finnes for de utsatte vedtakene, avvises med en egen avvisning, og sperrene og kontrollene i dem bygges ikke. Et brev med slikt innhold kan sendes utenfor appen og registreres etter OV-U4. Vedtakene står og bygges senere; avgrensningen gjelder rekkefølgen, som i OV-U1. Det KA-U8, KA-U13 og KA-U14 sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3. OV-U1 endres slik at «ingen krav» tas ut av listen, og registreringen av brev sendt utenfor appen følger OV-U4–OV-U6. En utledning som bygges, sier ikke at et utsatt utsagn ikke finnes: visningen viser registrerte brev ved sporet (OV-U4), og parten er bundet av det hen sender fra appen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Å oppheve vedtakene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Å utsette TEs innsigelse og byggherrens egen innsigelse etter svaret.'''
+forkastet = true
 
 [[gruppe.vedtak]]
 anker = "hf-u2"
