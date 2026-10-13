@@ -64,8 +64,32 @@ export type Standpunkt =
   /** «Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav. */
   | { id: string; art: 'grunnlag'; resultat: Grunnlagsresultat }
   | { id: string; art: 'beloep'; resultat: Vederlagsresultat; godkjent: number }
+  /**
+   * § 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept oppgir byggherren metoden
+   * byggherren mener vederlaget skal justeres etter (`oensket`); appen avgjør ikke om
+   * § 34.3 eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12).
+   */
+  | {
+      id: string;
+      art: 'metode';
+      hjemmel: '34.2.2';
+      aksepterer: boolean;
+      oensket?: 'enhetspriser' | 'regningsarbeid';
+    }
   /** § 33.1: om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder. */
   | { id: string; art: 'hindring'; oppfylt: boolean }
+  /**
+   * § 33.6.1, VS-U4: om TE spesifiserte kravet i tide. Ved «nei» er `dager` det byggherren
+   * mener TE måtte forstå at TE hadde krav på, og står prinsipalt.
+   */
+  | {
+      id: string;
+      art: 'spesifisering';
+      gjelder: string;
+      hjemmel: '33.6.1';
+      iTide: boolean;
+      dager?: number;
+    }
   /** `vurdert` er dagene byggherren har vurdert, også når de står subsidiært. */
   | { id: string; art: 'dager'; resultat: Fristresultat; vurdert: number };
 

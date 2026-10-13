@@ -108,11 +108,13 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
       hovedkrav_vurdering: h.vurdering,
       hovedkrav_godkjent_belop: h.godkjent_belop,
       hovedkrav_varslet_i_tide: h.varslet_i_tide,
-      aksepterer_metode: true,
+      aksepterer_metode: h.metode_akseptert ?? true,
+      oensket_metode: h.oensket_metode,
     };
   return {
     frist_varsel_ok: h.varsel_i_tide,
     spesifisert_krav_ok: h.spesifisering_i_tide,
+    dager_maatte_forstaa: h.maatte_forstaa,
     vilkar_oppfylt: h.hindring,
     dager: h.dager ?? krav?.innhold.dager,
   };

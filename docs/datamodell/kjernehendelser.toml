@@ -102,6 +102,26 @@ felt = ["id", "art", "gjelder", "hjemmel", "i_tide"]
 grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3"
 
 [[standpunkt]]
+art = "metode"
+spor = ["vederlag"]
+beskrivelse = """
+§ 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept står metoden
+byggherren mener vederlaget skal justeres etter (`oensket_metode`). Appen
+avgjør ikke om § 34.3 eller § 34.4 gjelder."""
+felt = ["id", "art", "hjemmel", "aksepterer", "oensket_metode"]
+grunnlag = "VS-U3, KA-U4, arbeidsvalget i #479"
+
+[[standpunkt]]
+art = "spesifisering"
+spor = ["frist"]
+beskrivelse = """
+§ 33.6.1: om TE spesifiserte kravet i tide. `gjelder` er kravversjonen. Ved
+«nei» er `dager` det byggherren mener TE måtte forstå at TE hadde krav på, og
+det står prinsipalt."""
+felt = ["id", "art", "gjelder", "hjemmel", "i_tide", "dager"]
+grunnlag = "VS-U3, VS-U4, KA-U4, arbeidsvalget i #479"
+
+[[standpunkt]]
 art = "grunnlag"
 spor = ["grunnlag"]
 beskrivelse = """

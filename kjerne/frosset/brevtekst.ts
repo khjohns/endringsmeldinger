@@ -373,6 +373,12 @@ function aapenInnsigelse(svar: Svar, avsender: Part, j: Journalen): string | und
   )?.dokument;
 }
 
+/** Metoden byggherren mener vederlaget skal justeres etter, når tilbudet ikke er akseptert. */
+const METODEN = {
+  enhetspriser: 'etter enhetspriser (NS 8407 § 34.3)',
+  regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)',
+} as const;
+
 /** Varselet et standpunkt om rettidighet gjelder (LV-U4 punkt 5, LV-U5). */
 const VARSELET: Record<Hjemmel, string> = {
   '32.2': 'TEs varsel etter NS 8407 § 32.2',
@@ -490,6 +496,15 @@ function standpunkttekst(
         grunnlagskrav?.innhold.hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
+    case 'metode':
+      // Arbeidsvalget i #479: metoden er byggherrens standpunkt, ikke appens avgjørelse.
+      return p.aksepterer
+        ? 'byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).'
+        : `byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres ${METODEN[p.oensket!]}.`;
+    case 'spesifisering':
+      return p.iTide
+        ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).'
+        : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, ${dager(p.dager!)} (NS 8407 § 33.6.1).`;
     case 'beloep':
       return verdi(p.resultat, eksMva(p.godkjent), eksMva(krav.innhold.beloep as number));
     case 'dager':

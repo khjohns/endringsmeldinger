@@ -68,7 +68,7 @@ export function beregnReduksjon(v: Fristvurdering, krav: Fristkrav): boolean {
   return krav.varsel_type === 'spesifisert' && v.spesifisert_krav_ok === false;
 }
 
-function resultatAvDager(hindring: boolean, krevd: number, godkjent: number): Fristresultat {
+export function resultatAvDager(hindring: boolean, krevd: number, godkjent: number): Fristresultat {
   if (!hindring) return 'avslaatt';
   if (krevd === 0) return 'godkjent';
   // Oppdragsgiver 04.10: 0 dager er «avslått», som 0 kr for vederlag.

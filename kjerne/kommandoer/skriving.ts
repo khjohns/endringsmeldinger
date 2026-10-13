@@ -78,14 +78,23 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
   if (s.spor === 'grunnlag') {
     ut.push(...grunnlagsstandpunkter(v, krav, nyId));
   } else if (s.spor === 'vederlag') {
-    // HF-U1: varselet etter § 34.1.2 er ikke et eget element ennå (OV-U5), så vurderingen gjelder kravet.
+    // HF-U1: varselet etter § 34.1.2 er ikke et eget element ennå (OV-U5). Det første
+    // vederlagskravet er det første varselet appen kjenner (arbeidsvalget i #479).
     if (typeof v.hovedkrav_varslet_i_tide === 'boolean')
       ut.push({
         id: nyId(),
         art: 'rettidighet',
-        gjelder: krav.id,
+        gjelder: u.spor.vederlag.krav[0]!.id,
         hjemmel: HJEMMEL.vederlag,
         i_tide: v.hovedkrav_varslet_i_tide,
+      });
+    if (typeof v.aksepterer_metode === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'metode',
+        hjemmel: '34.2.2',
+        aksepterer: v.aksepterer_metode,
+        ...(v.aksepterer_metode ? {} : { oensket_metode: v.oensket_metode }),
       });
     ut.push({ id: nyId(), art: 'beloep' });
   } else {
@@ -100,6 +109,15 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
       });
     if (typeof v.vilkar_oppfylt === 'boolean')
       ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });
+    if (typeof v.spesifisert_krav_ok === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'spesifisering',
+        gjelder: krav.id,
+        hjemmel: '33.6.1',
+        i_tide: v.spesifisert_krav_ok,
+        ...(v.spesifisert_krav_ok ? {} : { dager: v.dager_maatte_forstaa }),
+      });
     ut.push({ id: nyId(), art: 'dager' });
   }
   return ut;

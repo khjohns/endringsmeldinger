@@ -255,7 +255,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   ['Standpunkt', 'relasjon', 'id art gjelder'],
-  ['Standpunkt', 'utsagn', 'hjemmel iTide resultat godkjent oppfylt vurdert'],
+  [
+    'Standpunkt',
+    'utsagn',
+    'hjemmel iTide resultat godkjent oppfylt vurdert aksepterer oensket dager',
+  ],
   ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
   // KA-U20: sporene en merking gjelder, som partens vurdering.
   ['Opplysning', 'utsagn', 'spor'],
@@ -388,13 +392,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarvurdering',
     'utsagn',
-    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide frist_varsel_ok spesifisert_krav_ok
-     vilkar_oppfylt dager`,
+    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide aksepterer_metode oensket_metode
+     frist_varsel_ok spesifisert_krav_ok dager_maatte_forstaa vilkar_oppfylt dager`,
   ],
   [
     'frosset/standpunkt.ts:utenforOmfanget(v)',
     'utsagn',
-    `spesifisert_krav_ok foresporsel_svar_ok aksepterer_metode hold_tilbake rigg_vurdering
+    `foresporsel_svar_ok hold_tilbake rigg_vurdering
      produktivitet_vurdering *`,
   ],
 
@@ -408,7 +412,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'erEndringMedVarslingsplikt erGrunnlagSubsidiaert foersteUnderkategori gyldigeResultater',
   ],
-  ['regler/frist.ts', 'regelsett', 'beregnFrist'],
+  ['regler/frist.ts', 'regelsett', 'beregnFrist resultatAvDager'],
   ['regler/vederlag.ts', 'regelsett', 'beregnVederlag gjelderVarslingspliktenForVederlag'],
   [
     'Fristkrav',
@@ -564,7 +568,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt',
+    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_metode dager',
     ['format/leser.ts'],
   ],
   // Beløpet og dagene i standpunktet leses av utregningen, som har ett hjem (4.3 i
@@ -653,6 +657,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
+  // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
+  ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av
   // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
   ['Sporutledning', 'predikat', 'subsidiaer', ['kommandoer/skriving.ts:brevtekstFor']],

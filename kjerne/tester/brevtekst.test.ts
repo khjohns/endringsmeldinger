@@ -171,6 +171,11 @@ function sakMedKrav() {
 
 const BEGRUNNELSE = 'Byggherrens begrunnelse.';
 
+/** «Ja» på § 34.2.2 og § 33.6.1 står i brevet uten å ordnes, som byggherren sa det (#341, LV-U3). */
+const METODE_JA = 'Byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).';
+const SPESIFISERING_JA =
+  'Byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).';
+
 const svar = (
   spor: string,
   gjelder: string,
@@ -451,6 +456,23 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24, KA-U31–KA-U33, GR-U15
       { resultat: 'avslaatt', godkjent_dager: 0 },
     ],
     [
+      'et tilbud som ikke er akseptert (§ 34.2.2)',
+      'vederlag',
+      {
+        hovedkrav_vurdering: 'godkjent',
+        hovedkrav_godkjent_belop: 125000,
+        aksepterer_metode: false,
+        oensket_metode: 'regningsarbeid',
+      },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 125000 },
+    ],
+    [
+      'påberopt spesifisering for sent etter § 33.6.1',
+      'frist',
+      { ...FRIST_FULLT[0], spesifisert_krav_ok: false, dager_maatte_forstaa: 20 },
+      { resultat: 'godkjent', godkjent_dager: 20 },
+    ],
+    [
       '«ingen hindring» (VS-U13)',
       'frist',
       { ...FRIST_FULLT[0], vilkar_oppfylt: false },
@@ -548,7 +570,47 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
 
   it('§ 34.1.2 «nei»: byggherren påberoper prinsipalt at varselet kom for sent, og beløpet står subsidiært (VS-U3, B-13)', () => {
     expect(vederlagssvar(false)).toBe(
-      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 kom for sent. Subsidiært: byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 kom for sent. ${METODE_JA} Subsidiært: byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
+    );
+  });
+
+  it('§ 34.2.2 «nei»: byggherren aksepterer ikke tilbudet og oppgir metoden, som standpunkt og ikke som appens avgjørelse (arbeidsvalget i #479)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { ...VEDERLAG_DELVIS[0], aksepterer_metode: false, oensket_metode: 'enhetspriser' },
+          VEDERLAG_DELVIS[1]
+        ),
+      ],
+    });
+    expect(laast(rad)).toEqual([
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`,
+    ]);
+  });
+
+  it('§ 33.6.1 «nei»: dagene TE måtte forstå står prinsipalt, og de vurderte dagene subsidiært (VS-U4)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          { ...FRIST_FULLT[0], spesifisert_krav_ok: false, dager_maatte_forstaa: 5, dager: 15 },
+          { resultat: 'delvis_godkjent', godkjent_dager: 5 }
+        ),
+      ],
+    });
+    expect(laast(rad)).toEqual([
+      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Prinsipalt: byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, 5 dager (NS 8407 § 33.6.1). Subsidiært: byggherren godkjenner 15 dager av de krevde 20 dager.',
+    ]);
+    const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    expect(b.linje).toBe(
+      'Prinsipalt godkjent med 5 dager (§ 33.6.1), subsidiært godkjent med 15 dager.'
     );
   });
 
@@ -578,7 +640,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
 
   it('§ 34.1.2 «ja»: byggherrens standpunkt står i brevet, uten å ordnes (KA-U4, LV-U3)', () => {
     expect(vederlagssvar(true)).toBe(
-      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 kom for sent. Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 kom for sent. ${METODE_JA} Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
     );
   });
 
@@ -605,7 +667,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
     // A2: fristen er subsidiær fordi grunnlaget er prekludert i samme brev.
     expect(f).toBe(
-      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget). Subsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Videre subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Videre subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.'
+      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget). Subsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Videre subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Videre subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.`
     );
   });
 
@@ -618,10 +680,10 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(
       b.uten_virkning,
-      'forutsetning: appen regner to standpunkter som uten virkning'
-    ).toHaveLength(2);
+      'forutsetning: appen regner tre standpunkter som uten virkning'
+    ).toHaveLength(3);
     expect(laast(rad)).toEqual([
-      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Byggherren godkjenner 20 dager.',
+      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Byggherren godkjenner 20 dager.`,
     ]);
   });
 
@@ -632,7 +694,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       svar: [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
     });
     expect(laast(rad)).toEqual([
-      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`,
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: ${METODE_JA} Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`,
     ]);
   });
 
@@ -808,19 +870,19 @@ describe('svaret på vederlag og frist når grunnlaget er avslått eller preklud
       'avslått i samme brev',
       'avslaatt',
       true,
-      `Prinsipalt: byggherren avslår grunnlaget (se svaret på grunnlaget). Subsidiært: ${delvis}`,
+      `Prinsipalt: byggherren avslår grunnlaget (se svaret på grunnlaget). ${METODE_JA} Subsidiært: ${delvis}`,
     ],
     [
       'prekludert og godkjent subsidiært i samme brev',
       'godkjent',
       false,
-      `Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget). Subsidiært: ${delvis}`,
+      `Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget). ${METODE_JA} Subsidiært: ${delvis}`,
     ],
     [
       'prekludert og avslått subsidiært i samme brev',
       'avslaatt',
       false,
-      `Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent. Subsidiært: byggherren avslår grunnlaget (se svaret på grunnlaget). Videre subsidiært: ${delvis}`,
+      `Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent. Subsidiært: byggherren avslår grunnlaget (se svaret på grunnlaget). ${METODE_JA} Videre subsidiært: ${delvis}`,
     ],
   ])('grunnlaget %s', (_n, resultat, iTide, forventet) => {
     const s = sakMedKrav();
@@ -833,19 +895,19 @@ describe('svaret på vederlag og frist når grunnlaget er avslått eller preklud
       'avslått i et tidligere brev',
       'avslaatt',
       true,
-      `Prinsipalt: byggherren har avslått grunnlaget i brev 5 av 5. oktober 2026. Subsidiært: ${delvis}`,
+      `Prinsipalt: byggherren har avslått grunnlaget i brev 5 av 5. oktober 2026. ${METODE_JA} Subsidiært: ${delvis}`,
     ],
     [
       'prekludert og godkjent subsidiært i et tidligere brev',
       'godkjent',
       false,
-      `Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. Subsidiært: ${delvis}`,
+      `Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. ${METODE_JA} Subsidiært: ${delvis}`,
     ],
     [
       'prekludert og avslått subsidiært i et tidligere brev',
       'avslaatt',
       false,
-      `Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. Subsidiært: byggherren har avslått grunnlaget i samme brev. Videre subsidiært: ${delvis}`,
+      `Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. Subsidiært: byggherren har avslått grunnlaget i samme brev. ${METODE_JA} Videre subsidiært: ${delvis}`,
     ],
   ])('grunnlaget %s', (_n, resultat, iTide, forventet) => {
     const s = sakMedKrav();
@@ -862,7 +924,7 @@ describe('svaret på vederlag og frist når grunnlaget er avslått eller preklud
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad)).toEqual([
-      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Subsidiært: byggherren godkjenner 20 dager.',
+      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Subsidiært: byggherren godkjenner 20 dager.`,
     ]);
   });
 
@@ -870,7 +932,9 @@ describe('svaret på vederlag og frist når grunnlaget er avslått eller preklud
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [grunnlag(s, 'godkjent', true)] });
     const rad = s.send('BH', { type: 'brev', svar: [vederlag(s)] });
-    expect(laast(rad)[0]).toBe(`${innledning} ${delvis[0].toUpperCase()}${delvis.slice(1)}`);
+    expect(laast(rad)[0]).toBe(
+      `${innledning} ${METODE_JA} ${delvis[0].toUpperCase()}${delvis.slice(1)}`
+    );
   });
 
   it('teksten fryses som den var, og en senere revisjon av grunnlagssvaret endrer den ikke (MM-U9)', () => {

@@ -57,11 +57,13 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
   ],
   vederlag: [
     { art: 'rettidighet', paakrevd: false },
+    { art: 'metode', paakrevd: false },
     { art: 'beloep', paakrevd: true },
   ],
   frist: [
     { art: 'rettidighet', paakrevd: false },
     { art: 'hindring', paakrevd: false },
+    { art: 'spesifisering', paakrevd: false },
     { art: 'dager', paakrevd: true },
   ],
 };
@@ -166,11 +168,30 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     'resultat',
   ]),
   beloep: objekt(artfelt('beloep'), ['id', 'art']),
+  metode: objekt(
+    {
+      ...artfelt('metode'),
+      hjemmel: { const: '34.2.2' },
+      aksepterer: { type: 'boolean' },
+      oensket_metode: { enum: ['enhetspriser', 'regningsarbeid'] },
+    },
+    ['id', 'art', 'hjemmel', 'aksepterer']
+  ),
   hindring: objekt({ ...artfelt('hindring'), oppfylt: { type: 'boolean' } }, [
     'id',
     'art',
     'oppfylt',
   ]),
+  spesifisering: objekt(
+    {
+      ...artfelt('spesifisering'),
+      gjelder: ID,
+      hjemmel: { const: '33.6.1' },
+      i_tide: { type: 'boolean' },
+      dager: { type: 'integer', minimum: 0 },
+    },
+    ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
+  ),
   dager: objekt(artfelt('dager'), ['id', 'art']),
 };
 

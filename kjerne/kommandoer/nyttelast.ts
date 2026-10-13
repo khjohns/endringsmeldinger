@@ -76,7 +76,7 @@ function kontrollerSvar(
 /**
  * KA-U24, KA-U32: de selvstendige innsigelsene og avgrensningene i svaret som gjør
  * det mindre gunstig for TE enn kravet, og som krever en begrunnelse. Dagens
- * tilfeller står som liste; § 33.6.1 og § 34.1.3 kommer med når de
+ * tilfeller står som liste; § 34.1.3 kommer med når den
  * bygges. At et svar bare er subsidiært fordi grunnlaget er avslått, krever ingen
  * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten.
  */
@@ -89,11 +89,13 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>): string[]
     if (v.resultat === 'paalegg_frafalt') ut.push('frafall etter § 32.3 c (KA-U32)');
   } else if (s.spor === 'vederlag') {
     if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');
+    if (v.aksepterer_metode === false) ut.push('et tilbud som ikke er akseptert (§ 34.2.2)');
     if (server.resultat !== 'godkjent' && server.subsidiaert_resultat !== 'godkjent')
       ut.push('et beløp som ikke er godkjent fullt');
   } else {
     if (v.frist_varsel_ok === false) ut.push('påberopt preklusjon etter § 33.4');
     if (v.vilkar_oppfylt === false) ut.push('«ingen hindring» etter § 33.1 (VS-U13)');
+    if (v.spesifisert_krav_ok === false) ut.push('påberopt spesifisering for sent etter § 33.6.1');
     if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')
       ut.push('dager som ikke er godkjent fullt');
   }

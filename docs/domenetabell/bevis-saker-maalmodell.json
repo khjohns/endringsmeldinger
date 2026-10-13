@@ -10386,6 +10386,542 @@
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-V-34-1-2-ny-kravversjon",
+      "forslag": "#479, arbeidsvalget 13.10: påberopelsen etter § 34.1.2 gjelder det første vederlagskravet, også etter en ny kravversjon",
+      "rader": [],
+      "start": null,
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "svikt",
+          "underkategori": "medvirkning",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent"
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "varslet_i_tide": false
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 120000,
+          "navn": "K-v2"
+        },
+        {
+          "handling": "brev",
+          "navn": "D5",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v2",
+              "vurdering": "delvis",
+              "godkjent_belop": 70000,
+              "varslet_i_tide": false
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 5,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U1",
+            "OV-U5",
+            "arbeidsvalget i #479"
+          ],
+          "forventet": {
+            "avvist": false,
+            "svar.S-v2.gjelder": "K-v2",
+            "standpunkt.S-v2.rettidighet.gjelder": "K-v1",
+            "virkning.S-v2.rettidighet": "prinsipalt"
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-V-34-2-2-nei",
+      "forslag": "#479, #341: byggherren aksepterer ikke tilbudet etter § 34.2.2 og oppgir metoden",
+      "rader": [],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent",
+              "metode_akseptert": false,
+              "oensket_metode": "regningsarbeid"
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "vederlag",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "arbeidsvalget i #479",
+            "NS 8407 § 34.2.2 første ledd"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": true
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "godkjent",
+                "metode_akseptert": false
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U4",
+            "HF-U1",
+            "#341",
+            "arbeidsvalget i #479"
+          ],
+          "forventet": {
+            "avvist": false,
+            "standpunkt.S-v1.metode.hjemmel": "34.2.2",
+            "standpunkt.S-v1.metode.aksepterer": false,
+            "standpunkt.S-v1.metode.oensket": "regningsarbeid"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "arbeidsvalget i #479",
+            "GR-U7"
+          ],
+          "forventet": {
+            "virkning.S-v1.metode": "prinsipalt",
+            "virkning.S-v1.beloep": "prinsipalt",
+            "beslutningsgrunnlag.S-v1.sammenfall": false,
+            "enighet.vederlag": null
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "arbeidsvalget i #479",
+            "KA-U10"
+          ],
+          "forventet": {
+            "avvist": false,
+            "enighet.vederlag.utfall.beloep": 100000
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-V-34-2-2-ja",
+      "forslag": "#479, #341: byggherren aksepterer tilbudet etter § 34.2.2",
+      "rader": [],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent"
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "arbeidsvalget i #479"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": true
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "godkjent",
+                "oensket_metode": "enhetspriser"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U4",
+            "HF-U1",
+            "#341",
+            "GR-U7"
+          ],
+          "forventet": {
+            "avvist": false,
+            "standpunkt.S-v1.metode.aksepterer": true,
+            "virkning.S-v1.metode": "uten_virkning",
+            "beslutningsgrunnlag.S-v1.sammenfall": true,
+            "enighet.vederlag.utfall.beloep": 100000
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-F-33-6-1-nei",
+      "forslag": "#479, #341: byggherren påberoper at kravet ble spesifisert for sent etter § 33.6.1",
+      "rader": [],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": false,
+              "maatte_forstaa": 5,
+              "dager": 15,
+              "hindring": true
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "frist",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "VS-U4"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "frist",
+                "varsel_i_tide": true,
+                "spesifisering_i_tide": false,
+                "dager": 15,
+                "hindring": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "arbeidsvalget i #479"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "frist",
+                "varsel_i_tide": true,
+                "spesifisering_i_tide": false,
+                "maatte_forstaa": 16,
+                "dager": 15,
+                "hindring": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U4",
+            "HF-U1",
+            "#341",
+            "VS-U4"
+          ],
+          "forventet": {
+            "avvist": false,
+            "standpunkt.S-f1.spesifisering.hjemmel": "33.6.1",
+            "standpunkt.S-f1.spesifisering.iTide": false,
+            "standpunkt.S-f1.spesifisering.dager": 5,
+            "standpunkt.S-f1.spesifisering.gjelder": "K-f1",
+            "standpunkt.S-f1.dager.vurdert": 15
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U4",
+            "VS-U3",
+            "arbeidsvalget i #479"
+          ],
+          "forventet": {
+            "virkning.S-f1.rettidighet": "uten_virkning",
+            "virkning.S-f1.hindring": "uten_virkning",
+            "virkning.S-f1.spesifisering": "prinsipalt",
+            "virkning.S-f1.dager": "subsidiaert",
+            "beslutningsgrunnlag.S-f1.sammenfall": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U4",
+            "arbeidsvalget i #479",
+            "NS 8407 § 33.6.1"
+          ],
+          "forventet": {
+            "avvist": false,
+            "enighet.frist.utfall.dager": 5,
+            "enighet.frist.virkning.spesifisering": "prinsipalt"
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-F-33-6-1-nei-etter-33-4",
+      "forslag": "#479: § 33.4 står prinsipalt, § 33.1 og § 33.6.1 subsidiært, og de vurderte dagene til slutt",
+      "rader": [],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": false,
+              "spesifisering_i_tide": false,
+              "maatte_forstaa": 5,
+              "dager": 15,
+              "hindring": false
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "frist",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "arbeidsvalget i #479",
+            "VS-U22",
+            "VS-U4"
+          ],
+          "forventet": {
+            "avvist": false,
+            "virkning.S-f1.rettidighet": "prinsipalt",
+            "virkning.S-f1.hindring": "subsidiaert",
+            "virkning.S-f1.spesifisering": "subsidiaert",
+            "virkning.S-f1.dager": "subsidiaert",
+            "standpunkt.S-f1.spesifisering.dager": 5,
+            "standpunkt.S-f1.dager.vurdert": 15
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U3",
+            "NS 8407 § 33.4"
+          ],
+          "forventet": {
+            "avvist": false,
+            "enighet.frist.utfall.dager": 0
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-F-33-6-1-ja",
+      "forslag": "#479, #341: byggherren gjør ikke gjeldende at kravet ble spesifisert for sent",
+      "rader": [],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "dager": 15,
+              "hindring": true
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "frist",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "VS-U4"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "frist",
+                "varsel_i_tide": true,
+                "spesifisering_i_tide": true,
+                "maatte_forstaa": 5,
+                "dager": 15,
+                "hindring": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U4",
+            "HF-U1",
+            "#341"
+          ],
+          "forventet": {
+            "avvist": false,
+            "standpunkt.S-f1.spesifisering.iTide": true,
+            "virkning.S-f1.spesifisering": "uten_virkning",
+            "virkning.S-f1.dager": "prinsipalt"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U10"
+          ],
+          "forventet": {
+            "avvist": false,
+            "enighet.frist.utfall.dager": 15
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "genererte": {

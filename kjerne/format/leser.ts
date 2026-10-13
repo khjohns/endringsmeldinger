@@ -149,8 +149,35 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         };
       case 'grunnlag':
         return { id, art, resultat: e.resultat as never };
+      case 'metode':
+        // Arbeidsvalget i #479: metoden byggherren ønsker, står bare når tilbudet ikke er akseptert.
+        if (e.aksepterer === 'oensket_metode' in e)
+          throw new Uforstaatt(
+            `${sti}: metoden i standpunktet etter § 34.2.2 stemmer ikke med aksepten`
+          );
+        return {
+          id,
+          art,
+          hjemmel: '34.2.2',
+          aksepterer: e.aksepterer as boolean,
+          ...(e.aksepterer ? {} : { oensket: e.oensket_metode as 'enhetspriser' }),
+        };
       case 'hindring':
         return { id, art, oppfylt: e.oppfylt as boolean };
+      case 'spesifisering':
+        // VS-U4: det prinsipale dagtallet står bare når spesifiseringen kom for sent.
+        if (e.i_tide === 'dager' in e)
+          throw new Uforstaatt(
+            `${sti}: dagene i standpunktet etter § 33.6.1 stemmer ikke med rettidigheten`
+          );
+        return {
+          id,
+          art,
+          gjelder: e.gjelder as string,
+          hjemmel: '33.6.1',
+          iTide: e.i_tide as boolean,
+          ...(e.i_tide ? {} : { dager: e.dager as number }),
+        };
       case 'beloep':
         return {
           id,

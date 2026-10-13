@@ -120,7 +120,7 @@ lagringsformatet står under.
 | Ny | `FEIL_BESTRIDELSE` | MM-U7: en bestridelse av opplysningen om § 31.3 må gjelde § 31.3, og en bestridelse av en dato må gjelde sendt eller mottatt (#273) |
 | Ny | `INGEN_KRAV_I_SPORET` | KA-U12: et krav eller varsel i et spor der TE har sagt «ingen krav» |
 | `Standpunkt` (virkningen) | `Standpunktsvirkning` | `Standpunkt` er byggherrens standpunkt i svaret (#273) |
-| `Svar.utsagn`, `Utsagn` med art `rettidighet`, `ansvar`, `beloep`, `hindring` og `dager` | `Svar.standpunkter`, `Standpunkt` med art `rettidighet`, `grunnlag`, `beloep`, `hindring` og `dager` | Et svar har standpunkter; `Utsagn` er de andre utsagnene i dokumentet (#273) |
+| `Svar.utsagn`, `Utsagn` med art `rettidighet`, `ansvar`, `beloep`, `hindring` og `dager` | `Svar.standpunkter`, `Standpunkt` med art `rettidighet`, `grunnlag`, `metode`, `beloep`, `hindring`, `spesifisering` og `dager` | Et svar har standpunkter; `Utsagn` er de andre utsagnene i dokumentet (#273) |
 | `standpunkter()`, `Beslutningsgrunnlag.standpunkter`, `Svarberegning.standpunkter` | `virkninger()`, `virkninger` | Virkningen hvert standpunkt har i brevet (#273) |
 | `hovedgrunn()`, `utsagnet()` | `prinsipalt()`, `standpunktet()` | Brevets ord (#273) |
 | `utenforProven` | `utenforOmfanget` | Kjernen er ikke en prøve |
@@ -167,6 +167,7 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | `<event_id>#<art>` (utsagns-ID laget av leseren) | En UUID per element, satt av serveren | En referanse avhenger ikke av art eller rekkefølge |
 | `belop_direkte`, `antall_dager`, `varsel_type` | `beloep`, `dager`; `varsel_type` utgår | Varselet etter § 33.4 er et eget utsagn |
 | `resultat`, `grunnlag_varslet_i_tide`, `frist_varsel_ok`, `vilkar_oppfylt` | Standpunktene `grunnlag` (`resultat`), `rettidighet` (`gjelder`, `hjemmel`, `i_tide`) og `hindring` (`oppfylt`) | Byggherrens standpunkt med art (KA-U4). `grunnlag` og ikke `ansvar`, fordi frafall av et pålegg ikke er en vurdering av ansvaret (HF-U2). «Hindring» er at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1) |
+| `hovedkrav_varslet_i_tide`, `aksepterer_metode`, `oensket_metode`, `spesifisert_krav_ok` | Standpunktene `rettidighet` med hjemmel `34.1.2`, `metode` (`hjemmel`, `aksepterer`, `oensket_metode`) og `spesifisering` (`gjelder`, `hjemmel`, `i_tide`, `dager`) | Byggherrens vurdering etter § 34.1.2, § 34.2.2 og § 33.6.1 med hjemmel (KA-U4, HF-U1, #341). Rettidigheten etter § 34.1.2 gjelder det første vederlagskravet, og `spesifisering` gjelder kravversjonen. «Spesifisering» er ordet i VS-U4. `dager` i `spesifisering` er det byggherren mener TE måtte forstå (arbeidsvalgene i #479) |
 | `beregnings_resultat`, `total_godkjent_belop`, `godkjent_dager`, `subsidiaer_resultat`, `subsidiaer_godkjent_dager` | `utregning` med `resultat`, `godkjent_beloep`, `godkjent_dager`, `subsidiaert_resultat`, `subsidiaert_godkjent_dager` | B-13. Beløp og dager har ett hjem |
 | `total_krevd_belop`, `hovedkrav_godkjent_belop` | Utgår | Regnes av andre verdier (4.4) |
 | `begrunnelse` i svaret | `utdypning` under svaret i `brevtekst` | Ingen regel leser teksten. Én begrunnelse per svar (KA-U31), den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst, #369) |
