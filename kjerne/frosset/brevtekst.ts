@@ -377,6 +377,7 @@ function aapenInnsigelse(svar: Svar, avsender: Part, j: Journalen): string | und
 const VARSELET: Record<Hjemmel, string> = {
   '32.2': 'TEs varsel etter NS 8407 § 32.2',
   '33.4': 'varselet om fristforlengelse etter NS 8407 § 33.4',
+  '34.1.2': 'varselet om vederlagsjustering etter NS 8407 § 34.1.2',
 };
 
 const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;

@@ -9,7 +9,8 @@
  * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), F149–F152
  * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
- * samspillsreviewet av den og KA-U36 (#468). Én mutasjon
+ * samspillsreviewet av den og KA-U36 (#468), F178–F184 byggherrens vurdering etter
+ * § 34.1.2 (#479, #341). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -1890,6 +1891,81 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['    svarMedUten.map((s) => {', '    [...alleSvar.values()].map((s) => {']],
     mal: ['en registrert begrunnelse av et svar uten virkning, sendt før svaret, avvises'],
+  },
+  {
+    id: 'F178',
+    feilklasse: 'byggherrens vurdering etter § 34.1.2 lagres ikke som standpunkt (#341, KA-U4)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
+        "if (typeof v.hovedkrav_varslet_i_tide === 'string')",
+      ],
+    ],
+    mal: ['F-MM-V-34-1-2-nei', 'F-MM-V-34-1-2-ja', '§ 34.1.2 «ja»'],
+  },
+  {
+    id: 'F179',
+    feilklasse: 'påberopelsen etter § 34.1.2 får ingen virkning for svikt (VS-U3)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["if (hjemmel === '34.1.2')", "if (hjemmel === ('' as Hjemmel))"]],
+    mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
+  },
+  {
+    id: 'F180',
+    feilklasse:
+      'aksept av et svar med preklusjon etter § 34.1.2 gir det subsidiære beløpet (VS-U3)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "beloep: prekludert ? 0 : standpunktet(svar, 'beloep')!.godkjent",
+        "beloep: standpunktet(svar, 'beloep')!.godkjent",
+      ],
+    ],
+    mal: ['F-MM-V-34-1-2-nei'],
+  },
+  {
+    id: 'F181',
+    feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['v.hovedkrav_varslet_i_tide !== undefined &&', 'false &&']],
+    mal: ['F-MM-V-34-1-2-endring'],
+  },
+  {
+    id: 'F182',
+    feilklasse: 'beløpsstandpunktet leses som det prinsipale beløpet, ikke det vurderte (B-13)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        '(utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep)',
+        '(utregning.godkjent_beloep)',
+      ],
+    ],
+    mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
+  },
+  {
+    id: 'F183',
+    feilklasse: 'det subsidiære beløpet ved preklusjon etter § 34.1.2 lagres ikke (VS-U3, B-13)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'if (r.subsidiaer_resultat !== null) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
+        'if (false) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
+      ],
+    ],
+    mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
+  },
+  {
+    id: 'F184',
+    feilklasse: 'påberopelsen etter § 34.1.2 krever ingen begrunnelse (KA-U24)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');",
+        'void 0;',
+      ],
+    ],
+    mal: ['§ 34.1.2 «nei» med hele beløpet godkjent subsidiært må ha en begrunnelse'],
   },
 ];
 

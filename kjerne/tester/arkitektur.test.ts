@@ -388,7 +388,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarvurdering',
     'utsagn',
-    'resultat grunnlag_varslet_i_tide frist_varsel_ok spesifisert_krav_ok vilkar_oppfylt dager',
+    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide frist_varsel_ok spesifisert_krav_ok
+     vilkar_oppfylt dager`,
   ],
   [
     'frosset/standpunkt.ts:utenforOmfanget(v)',
@@ -408,7 +409,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'erEndringMedVarslingsplikt erGrunnlagSubsidiaert foersteUnderkategori gyldigeResultater',
   ],
   ['regler/frist.ts', 'regelsett', 'beregnFrist'],
-  ['regler/vederlag.ts', 'regelsett', 'beregnVederlag'],
+  ['regler/vederlag.ts', 'regelsett', 'beregnVederlag gjelderVarslingspliktenForVederlag'],
   [
     'Fristkrav',
     'regelsett',
@@ -444,7 +445,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      produktivitet_vurdering produktivitet_godkjent_belop produktivitet_varslet_i_tide`,
   ],
   ['Preklusjon', 'regelsett', 'hovedkrav rigg produktivitet'],
-  ['Vederlagsberegning', 'regelsett', 'beregnings_resultat total_godkjent_belop'],
+  [
+    'Vederlagsberegning',
+    'regelsett',
+    'beregnings_resultat total_godkjent_belop subsidiaer_resultat subsidiaer_godkjent_belop',
+  ],
 
   // Kommandoene og kontrollen av dem.
   [
@@ -573,7 +578,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(svar).utregning',
     'rad',
-    'resultat godkjent_beloep godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
+    `resultat godkjent_beloep godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager
+     subsidiaert_godkjent_beloep`,
     ['format/leser.ts'],
   ],
   [

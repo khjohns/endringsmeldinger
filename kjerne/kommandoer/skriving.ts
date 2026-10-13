@@ -78,6 +78,15 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
   if (s.spor === 'grunnlag') {
     ut.push(...grunnlagsstandpunkter(v, krav, nyId));
   } else if (s.spor === 'vederlag') {
+    // HF-U1: varselet etter § 34.1.2 er ikke et eget element ennå (OV-U5), så vurderingen gjelder kravet.
+    if (typeof v.hovedkrav_varslet_i_tide === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'rettidighet',
+        gjelder: krav.id,
+        hjemmel: HJEMMEL.vederlag,
+        i_tide: v.hovedkrav_varslet_i_tide,
+      });
     ut.push({ id: nyId(), art: 'beloep' });
   } else {
     // MM-U1: vurderingen gjelder varselet som er registrert nå, ellers varselet utledet av kravet.

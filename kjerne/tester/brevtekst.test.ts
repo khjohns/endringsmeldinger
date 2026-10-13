@@ -519,6 +519,69 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24, KA-U31–KA-U33, GR-U15
 });
 
 describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
+  /** Grunnlaget er svikt (§ 34.1.2), vederlaget 125 000 kr (brev 3). */
+  const sviktMedVederlag = () => {
+    const s = sak();
+    s.send('TE', {
+      ...GRUNNLAGSKRAV,
+      innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', tittel: 'Sene tegninger' },
+    });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
+    return s;
+  };
+  const vederlagssvar = (iTide: boolean) => {
+    const s = sviktMedVederlag();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), { resultat: 'godkjent' }),
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { ...VEDERLAG_DELVIS[0], hovedkrav_varslet_i_tide: iTide },
+          iTide ? VEDERLAG_DELVIS[1] : { resultat: 'avslaatt', godkjent_beloep: 0 }
+        ),
+      ],
+    });
+    return laast(rad)[1];
+  };
+
+  it('§ 34.1.2 «nei»: byggherren påberoper prinsipalt at varselet kom for sent, og beløpet står subsidiært (VS-U3, B-13)', () => {
+    expect(vederlagssvar(false)).toBe(
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 kom for sent. Subsidiært: byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
+    );
+  });
+
+  it('§ 34.1.2 «nei» med hele beløpet godkjent subsidiært må ha en begrunnelse (KA-U24)', () => {
+    const s = sviktMedVederlag();
+    const brevet = (utdypning: string | null) => ({
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), { resultat: 'godkjent' }, {}, null),
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          {
+            hovedkrav_vurdering: 'godkjent',
+            hovedkrav_godkjent_belop: 125000,
+            aksepterer_metode: true,
+            hovedkrav_varslet_i_tide: false,
+          },
+          { resultat: 'avslaatt', godkjent_beloep: 0 },
+          utdypning
+        ),
+      ],
+    });
+    expect(s.avvist('BH', brevet(null))).toBe('BEGRUNNELSE_MANGLER');
+    expect(s.avvist('BH', brevet(BEGRUNNELSE))).toBeNull();
+  });
+
+  it('§ 34.1.2 «ja»: byggherrens standpunkt står i brevet, uten å ordnes (KA-U4, LV-U3)', () => {
+    expect(vederlagssvar(true)).toBe(
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 kom for sent. Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
+    );
+  });
+
   it('innledningen nevner sporet, og standpunktene ordnes slik brevet ordner dem', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {

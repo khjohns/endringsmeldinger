@@ -28,6 +28,7 @@ import type {
   Beslutningsgrunnlag,
   Dokument,
   Domenehendelse,
+  Hjemmel,
   Journalrad,
   Opplysning,
   Part,
@@ -143,7 +144,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           id,
           art,
           gjelder: e.gjelder as string,
-          hjemmel: e.hjemmel as '32.2' | '33.4',
+          hjemmel: e.hjemmel as Hjemmel,
           iTide: e.i_tide as boolean,
         };
       case 'grunnlag':
@@ -154,8 +155,8 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         return {
           id,
           art,
-          resultat: utregning.resultat as never,
-          godkjent: utregning.godkjent_beloep as number,
+          resultat: (utregning.subsidiaert_resultat ?? utregning.resultat) as never,
+          godkjent: (utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep) as number,
         };
       case 'dager':
         return {
@@ -169,7 +170,9 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
   for (const t of tillatt)
     if (t.paakrevd && !ut.some((s) => s.art === t.art))
       throw new Uforstaatt(`${sti}: svaret på ${spor} mangler standpunktet ${t.art}`);
-  if ('subsidiaert_resultat' in utregning !== 'subsidiaert_godkjent_dager' in utregning)
+  const subsidiaertVerdi =
+    spor === 'vederlag' ? 'subsidiaert_godkjent_beloep' : 'subsidiaert_godkjent_dager';
+  if ('subsidiaert_resultat' in utregning !== subsidiaertVerdi in utregning)
     throw new Uforstaatt(`${sti}: utregningen har bare halvparten av det subsidiære standpunktet`);
   return ut;
 }

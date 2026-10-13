@@ -13,7 +13,7 @@ export const SPOR: readonly Spor[] = ['grunnlag', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
 
-export type Hjemmel = '32.2' | '33.4';
+export type Hjemmel = '32.2' | '33.4' | '34.1.2';
 
 /**
  * En opplysning en part oppgir om et dokument (2.4): når det ble sendt eller

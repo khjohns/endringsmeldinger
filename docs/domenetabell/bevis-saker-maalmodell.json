@@ -10112,6 +10112,280 @@
           }
         }
       ]
+    },
+    {
+      "id": "F-MM-V-34-1-2-nei",
+      "forslag": "#479, #341: byggherren gjør gjeldende at varselet etter § 34.1.2 kom for sent",
+      "rader": [],
+      "start": null,
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "svikt",
+          "underkategori": "medvirkning",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent"
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "varslet_i_tide": false
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "vederlag",
+          "navn": "D4"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U4",
+            "HF-U1",
+            "VS-U3",
+            "NS 8407 § 34.1.2 annet ledd"
+          ],
+          "forventet": {
+            "avvist": false,
+            "standpunkt.S-v1.rettidighet.hjemmel": "34.1.2",
+            "standpunkt.S-v1.rettidighet.iTide": false,
+            "standpunkt.S-v1.rettidighet.gjelder": "K-v1"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U3",
+            "B-13",
+            "NS 8407 § 34.1.2 annet ledd"
+          ],
+          "forventet": {
+            "virkning.S-v1.rettidighet": "prinsipalt",
+            "virkning.S-v1.beloep": "subsidiaert",
+            "standpunkt.S-v1.beloep.godkjent": 60000,
+            "beslutningsgrunnlag.S-v1.sammenfall": false
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U3",
+            "KA-U10",
+            "NS 8407 § 34.1.2 annet ledd"
+          ],
+          "forventet": {
+            "avvist": false,
+            "enighet.vederlag.utfall.beloep": 0,
+            "enighet.vederlag.virkning.rettidighet": "prinsipalt"
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-V-34-1-2-ja",
+      "forslag": "#479, #341: byggherren gjør ikke gjeldende at varselet etter § 34.1.2 kom for sent",
+      "rader": [],
+      "start": null,
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "svikt",
+          "underkategori": "medvirkning",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent"
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "varslet_i_tide": true
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "vederlag",
+          "navn": "D4"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "NS 8407 § 34.1.2 annet ledd",
+            "KA-U4"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent"
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 60000
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U4",
+            "HF-U1",
+            "#341"
+          ],
+          "forventet": {
+            "avvist": false,
+            "standpunkt.S-v1.rettidighet.hjemmel": "34.1.2",
+            "standpunkt.S-v1.rettidighet.iTide": true,
+            "standpunkt.S-v1.rettidighet.gjelder": "K-v1",
+            "virkning.S-v1.rettidighet": "uten_virkning",
+            "virkning.S-v1.beloep": "prinsipalt"
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U10"
+          ],
+          "forventet": {
+            "avvist": false,
+            "enighet.vederlag.utfall.beloep": 60000
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-V-34-1-2-endring",
+      "forslag": "#479: § 34.1.2 gjelder ikke en endring, så vurderingen avvises",
+      "rader": [],
+      "start": null,
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "varslet_i_tide": false
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "NS 8407 § 34.1.1"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": true
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 60000
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "NS 8407 § 34.1.1",
+            "NS 8407 § 34.1.2",
+            "MM-U2"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING",
+            "gjeldende_svar.vederlag": null
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "genererte": {
