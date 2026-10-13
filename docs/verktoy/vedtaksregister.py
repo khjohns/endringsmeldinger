@@ -28,6 +28,7 @@ import argparse
 import collections
 import datetime
 import functools
+import hashlib
 import json
 import os
 import pathlib
@@ -47,10 +48,16 @@ NESTE = "### 3.2 "
 TABELLHODE = "| Beslutning | Vedtatt | Følge |\n| --- | --- | --- |\n"
 BREDDE = 88
 
-# NS 8407-teksten ble tatt ut av treet i 507e2254 og skal ikke tilbake (#413).
-# Sitatkontrollen leser den fra forelderen, 507e2254^.
-NS_8407_COMMIT = "863f1470a9fb5ce49059b46e4e408d6b409ed3be"
-NS_8407_STI = "docs/NS_8407.md"
+# NS 8407-teksten er opphavsrettsbeskyttet og ligger i det private repoet
+# khjohns/kontrakt, ikke i dette repoet eller historikken (#424). Sjekksummen
+# låser versjonen, så et resultat kan gjentas fra commiten her.
+NS_8407_MILJO = "NS8407_TEKST"
+NS_8407_KLONE = ROT.parent / "kontrakt" / "NS_8407.md"
+NS_8407_SHA256 = "bf9c5876707d03d2f799454561227ce88a09b6e2872e0a4ef736cfd0e51214c6"
+NS_8407_HJELP = (
+    "Klon khjohns/kontrakt ved siden av repoet, "
+    f"eller sett {NS_8407_MILJO} til fila."
+)
 
 FORHOLD = {
     "presiserer": "Presisert",
@@ -707,6 +714,26 @@ def _git(*argumenter: str) -> str | None:
     return resultat.stdout if resultat.returncode == 0 else None
 
 
+def ns_8407() -> str | None:
+    """NS 8407-teksten, eller None når ../kontrakt/ mangler og NS8407_TEKST ikke er satt.
+
+    Peker NS8407_TEKST på noe som ikke er en fil, eller er teksten en annen versjon
+    enn NS_8407_SHA256, er det en feil. En relativ sti leses fra repoets rot.
+    """
+    valgt = os.environ.get(NS_8407_MILJO)
+    sti = ROT / valgt if valgt else NS_8407_KLONE
+    if not sti.is_file():
+        if valgt:
+            raise SystemExit(f"{NS_8407_MILJO} peker ikke på en fil: {sti}")
+        return None
+    data = sti.read_bytes()
+    if (sjekksum := hashlib.sha256(data).hexdigest()) != NS_8407_SHA256:
+        raise SystemExit(
+            f"NS 8407-teksten i {sti} har sjekksum {sjekksum}, ikke {NS_8407_SHA256}."
+        )
+    return data.decode("utf-8")
+
+
 def git_fil(commit: str, sti: str) -> str | None:
     """Fila slik den var i commiten, eller None når historikken mangler."""
     return _git("show", f"{commit}:{sti}")
@@ -816,12 +843,12 @@ def hele_setninger(sitat: str, tekst: str) -> bool:
 
 
 def kilder_paa(commit: str | None):
-    """Sitatkildene: NS 8407 fra 507e2254^, og hovedplanen og filene slik de er i commiten."""
+    """Sitatkildene: NS 8407 fra ns_8407(), og hovedplanen og filene slik de er i commiten."""
 
     @functools.cache
     def hent(kilde: str) -> str | None:
         if kilde == "ns8407":
-            return git_fil(NS_8407_COMMIT, NS_8407_STI)
+            return ns_8407()
         if commit is None:
             return None
         return (
@@ -1145,10 +1172,8 @@ def main() -> int:
         print(
             "Kontrollene mot main er hoppet over: historikken mangler. Kjør git fetch --unshallow origin main."
         )
-    elif git_fil(NS_8407_COMMIT, NS_8407_STI) is None:
-        print(
-            "Sitatene fra NS 8407 er hoppet over: 507e2254^ mangler. Kjør git fetch --unshallow origin main."
-        )
+    if ns_8407() is None:
+        print(f"Sitatene fra NS 8407 er hoppet over: teksten mangler. {NS_8407_HJELP}")
     feil = historiske_feil(register, ny, commit)
     if feil:
         print("Registeret eller planen holder ikke:", *feil, sep="\n  ")

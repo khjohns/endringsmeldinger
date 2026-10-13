@@ -109,7 +109,12 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   krever ikke applikasjonsbygg eller full testsuite.
 - Fører PR-en et vedtak, er det en ny post i
   [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i 3.1
-  er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd.
+  er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd. CI har ikke
+  NS 8407-teksten. Kjør derfor `python docs/verktoy/vedtaksregister.py --sjekk`
+  og `pytest tests/test_vedtaksregister` fra `backend/` med klonen av
+  `khjohns/kontrakt` på plass ([kildene](../../../docs/vedtaksregister/README.md#vakttestene)),
+  og før resultatet i PR-en. Meldingen «Sitatene fra NS 8407 er hoppet over»
+  betyr at kontrollen ikke er kjørt.
   [Vakttestene](../../../docs/vedtaksregister/README.md#vakttestene) erstatter
   kontrollrundene av vedtaksteksten. Det som krever skjønn, og kontrollen av
   `folge` og merknadene mot svarene, står i
