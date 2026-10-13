@@ -9,7 +9,7 @@
  * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), F149–F152
  * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
- * samspillsreviewet av den og KA-U36 (#468), F178–F199 byggherrens vurderinger
+ * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
  * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
@@ -2114,6 +2114,41 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/leser.ts`,
     endringer: [["if (e.i_tide === 'dager' in e)", 'if (e.i_tide === undefined)']],
     mal: ['spesifiseringen er i tide, men har prinsipale dager'],
+  },
+  {
+    id: 'F200',
+    feilklasse:
+      'et tilbud byggherren ikke aksepterer, gir sammenfall når utregningen sier «godkjent» (arbeidsvalget i #479, MM-U18)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      ["if (standpunktet(svar, 'metode')?.aksepterer === false) return false;", 'void 0;'],
+    ],
+    mal: ['sammenfall med et tilbud byggherren ikke aksepterer'],
+  },
+  {
+    id: 'F201',
+    feilklasse: 'en påberopelse etter § 33.6.1 gir sammenfall (arbeidsvalget i #479, MM-U18)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "v.some((p) => p.standpunkt === spesifisering.id && p.virkning !== 'uten_virkning')",
+        'false',
+      ],
+    ],
+    mal: ['sammenfall med en påberopelse etter § 33.6.1', 'F-MM-F-33-6-1-alle-dagene'],
+  },
+  {
+    id: 'F202',
+    feilklasse:
+      'brevet sier at byggherren godkjenner hele beløpet «av de krevde» når tilbudet ikke er akseptert',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "p.resultat === 'delvis_godkjent' && p.godkjent >= krevd ? 'godkjent' : p.resultat",
+        'p.resultat',
+      ],
+    ],
+    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent'],
   },
 ];
 

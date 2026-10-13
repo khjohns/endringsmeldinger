@@ -91,7 +91,9 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>): string[]
   } else if (s.spor === 'vederlag') {
     if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');
     if (v.aksepterer_metode === false) ut.push('et tilbud som ikke er akseptert (§ 34.2.2)');
-    if (!fulltGodkjent) ut.push('et beløp som ikke er godkjent fullt');
+    // Uten aksept av tilbudet er resultatet aldri «godkjent»; da gjelder grunnen over.
+    const helt = v.aksepterer_metode === false && v.hovedkrav_vurdering === 'godkjent';
+    if (!fulltGodkjent && !helt) ut.push('et beløp som ikke er godkjent fullt');
   } else {
     if (v.frist_varsel_ok === false) ut.push('påberopt preklusjon etter § 33.4');
     if (v.vilkar_oppfylt === false) ut.push('«ingen hindring» etter § 33.1 (VS-U13)');

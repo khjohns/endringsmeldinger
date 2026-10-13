@@ -10546,7 +10546,6 @@
             "GR-U7"
           ],
           "forventet": {
-            "virkning.S-v1.metode": "prinsipalt",
             "virkning.S-v1.beloep": "prinsipalt",
             "beslutningsgrunnlag.S-v1.sammenfall": false,
             "enighet.vederlag": null
@@ -10966,6 +10965,146 @@
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-V-34-1-2-og-34-2-2-nei",
+      "forslag": "#479: preklusjon etter § 34.1.2 og et tilbud som ikke er akseptert etter § 34.2.2 i samme svar",
+      "rader": [],
+      "start": null,
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "svikt",
+          "underkategori": "medvirkning",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent"
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent",
+              "varslet_i_tide": false,
+              "metode_akseptert": false,
+              "oensket_metode": "enhetspriser"
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "vederlag",
+          "navn": "D4"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U3",
+            "B-13",
+            "arbeidsvalget i #479"
+          ],
+          "forventet": {
+            "avvist": false,
+            "virkning.S-v1.rettidighet": "prinsipalt",
+            "virkning.S-v1.beloep": "subsidiaert",
+            "standpunkt.S-v1.beloep.godkjent": 100000,
+            "standpunkt.S-v1.metode.aksepterer": false,
+            "beslutningsgrunnlag.S-v1.sammenfall": false
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U3",
+            "KA-U10"
+          ],
+          "forventet": {
+            "avvist": false,
+            "enighet.vederlag.utfall.beloep": 0
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-F-33-6-1-alle-dagene",
+      "forslag": "#479: påberopelsen etter § 33.6.1 gir ikke sammenfall, heller ikke når byggherren mener TE måtte forstå alle de krevde dagene",
+      "rader": [],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": false,
+              "maatte_forstaa": 20,
+              "dager": 20,
+              "hindring": true
+            }
+          ]
+        },
+        {
+          "handling": "aksept",
+          "spor": "frist",
+          "navn": "D5"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "arbeidsvalget i #479",
+            "MM-U18"
+          ],
+          "forventet": {
+            "avvist": false,
+            "virkning.S-f1.spesifisering": "prinsipalt",
+            "beslutningsgrunnlag.S-f1.sammenfall": false,
+            "enighet.frist": null
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U4",
+            "KA-U10"
+          ],
+          "forventet": {
+            "avvist": false,
+            "enighet.frist.utfall.dager": 20
+          }
+        }
+      ],
+      "forventningsgrunnlag": "arbeidshypotese"
     }
   ],
   "genererte": {

@@ -23,7 +23,7 @@ import {
 import type { Regelsett } from '../regler/regelsett.ts';
 import { tekst } from '../format/skjema.ts';
 import { beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
-import { METODER } from '../format/format.ts';
+import { HJEMMEL, METODER } from '../format/format.ts';
 import type {
   Beslutningsgrunnlag,
   Enighetsgrunnlag,
@@ -240,6 +240,15 @@ function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
 function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   if (avvisesPrinsipalt(v)) return false;
   if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';
+  // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
+  // påberopelse etter § 33.6.1 med virkning, gir aldri sammenfall. Leses av standpunktene.
+  if (standpunktet(svar, 'metode')?.aksepterer === false) return false;
+  const spesifisering = standpunktet(svar, 'spesifisering');
+  if (
+    spesifisering &&
+    v.some((p) => p.standpunkt === spesifisering.id && p.virkning !== 'uten_virkning')
+  )
+    return false;
   return svar.utregning.resultat === 'godkjent';
 }
 
@@ -279,8 +288,7 @@ const kroner = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
 
 /** Linjen i brevet for svaret, med den prinsipale grunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
 function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
-  const hjemmel =
-    standpunktet(svar, 'rettidighet')?.hjemmel ?? (svar.spor === 'grunnlag' ? '32.2' : '33.4');
+  const hjemmel = standpunktet(svar, 'rettidighet')?.hjemmel ?? HJEMMEL[svar.spor];
   const grunntekst: Record<string, string> = {
     rettidighet: `prekludert (§ ${hjemmel})`,
     hindring: 'avslått uten fremdriftshindring (§ 33.1)',
@@ -299,6 +307,8 @@ function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
   } else if (svar.spor === 'vederlag') {
     const b = standpunktet(svar, 'beloep')!;
     standpunkt = b.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
+    if (standpunktet(svar, 'metode')?.aksepterer === false)
+      standpunkt += ', tilbudet ikke akseptert (§ 34.2.2)';
   } else {
     const d = standpunktet(svar, 'dager')!;
     standpunkt = d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;

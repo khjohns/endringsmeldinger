@@ -598,6 +598,34 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
+  it('§ 34.2.2 «nei» med hele beløpet godkjent: brevet sier at beløpet er godkjent, og linjen at tilbudet ikke er akseptert (arbeidsvalget i #479)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          {
+            hovedkrav_vurdering: 'godkjent',
+            hovedkrav_godkjent_belop: 125000,
+            aksepterer_metode: false,
+            oensket_metode: 'enhetspriser',
+          },
+          { resultat: 'delvis_godkjent', godkjent_beloep: 125000 }
+        ),
+      ],
+    });
+    expect(laast(rad)).toEqual([
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('125 000')}`,
+    ]);
+    const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    expect(b.sammenfall).toBe(false);
+    expect(b.linje).toBe(
+      `Godkjent med ${(125000).toLocaleString('nb-NO')} kr, tilbudet ikke akseptert (§ 34.2.2).`
+    );
+  });
+
   it('§ 34.2.2 «nei»: byggherren aksepterer ikke tilbudet og oppgir metoden, som standpunkt og ikke som appens avgjørelse (arbeidsvalget i #479)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
@@ -618,17 +646,20 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
 
   it('§ 33.6.1 «nei»: dagene TE måtte forstå står prinsipalt, og de vurderte dagene subsidiært (VS-U4)', () => {
     const s = sakMedKrav();
-    const rad = s.send('BH', {
+    const kommando = {
       type: 'brev',
       svar: [
         svar(
           'frist',
           s.krav('frist'),
           { ...FRIST_FULLT[0], spesifisert_krav_ok: false, dager_maatte_forstaa: 5, dager: 15 },
+          // B-13: resultatet regnes av de prinsipale dagene (VS-U4).
           { resultat: 'delvis_godkjent', godkjent_dager: 5 }
         ),
       ],
-    });
+    };
+    expect(s.avvist('BH', kommando)).toBeNull();
+    const rad = s.send('BH', kommando);
     expect(laast(rad)).toEqual([
       'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Prinsipalt: byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, 5 dager (NS 8407 § 33.6.1). Subsidiært: byggherren godkjenner 15 dager av de krevde 20 dager.',
     ]);

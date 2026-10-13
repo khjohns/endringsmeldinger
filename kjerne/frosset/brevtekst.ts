@@ -506,8 +506,13 @@ function standpunkttekst(
       return p.iTide
         ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).'
         : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, ${dager(p.dager!)} (NS 8407 § 33.6.1).`;
-    case 'beloep':
-      return verdi(p.resultat, eksMva(p.godkjent), eksMva(krav.innhold.beloep as number));
+    case 'beloep': {
+      // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet kan være det.
+      const krevd = krav.innhold.beloep as number;
+      const resultat =
+        p.resultat === 'delvis_godkjent' && p.godkjent >= krevd ? 'godkjent' : p.resultat;
+      return verdi(resultat, eksMva(p.godkjent), eksMva(krevd));
+    }
     case 'dager':
       return verdi(p.resultat, dager(p.vurdert), dager(krav.innhold.dager as number));
   }

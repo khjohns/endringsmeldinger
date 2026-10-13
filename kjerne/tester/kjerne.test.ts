@@ -729,6 +729,32 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
     ]);
     return { k, rader: await bane.journal() };
   };
+  const metodesak = async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring' },
+      { handling: 'krav', spor: 'vederlag', belop: 100000 },
+      {
+        handling: 'brev',
+        svar: [
+          { spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true },
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            vurdering: 'godkjent',
+            metode_akseptert: false,
+            oensket_metode: 'enhetspriser',
+          },
+        ],
+      },
+    ]);
+    return { k, rader: await bane.journal() };
+  };
+  /** Et registrert brev kan ha en utregning som sier «godkjent» (MM-U17); sammenfallet leses av standpunktene. */
+  const godkjentMedSammenfall = (s: Data) => {
+    (s.utregning as Data).resultat = 'godkjent';
+    (s.beslutningsgrunnlag as Data).sammenfall = true;
+  };
   const standpunkt = (svar: Data, art: string) => {
     const p = (svar.standpunkter as Data[]).find((x) => x.art === art);
     expect(p, `forutsetning: svaret har standpunktet ${art}`).toBeDefined();
@@ -777,6 +803,16 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
           endring: (s: Data) => (standpunkt(s, 'spesifisering').gjelder = k.navn.id('D-g')),
         };
       },
+      'S-f1',
+    ],
+    [
+      'sammenfall med et tilbud byggherren ikke aksepterer (§ 34.2.2)',
+      async () => ({ ...(await metodesak()), endring: godkjentMedSammenfall }),
+      'S-v1',
+    ],
+    [
+      'sammenfall med en påberopelse etter § 33.6.1',
+      async () => ({ ...(await fristsak()), endring: godkjentMedSammenfall }),
       'S-f1',
     ],
     [

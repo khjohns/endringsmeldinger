@@ -392,7 +392,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarvurdering',
     'utsagn',
-    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide aksepterer_metode oensket_metode
+    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide hovedkrav_vurdering aksepterer_metode oensket_metode
      frist_varsel_ok spesifisert_krav_ok dager_maatte_forstaa vilkar_oppfylt dager`,
   ],
   [
@@ -505,7 +505,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/format.ts',
     'rad',
     'HJEMMEL',
-    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts'],
+    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts', 'frosset/standpunkt.ts'],
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
