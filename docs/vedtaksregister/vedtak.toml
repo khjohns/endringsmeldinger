@@ -2218,7 +2218,7 @@ svar = '''
 Ja til alle anbefalingene, merge #481 og #476'''
 forhold = [{ art = "snevrer inn", vedtak = "vs-u21" }]
 folge = '''
-Ikke bygget. Belegg: [KK-10](../vedlegg/kontraktskontroll-ov-vs-2026-10-13.md#kk-10-vs-u21-strukturerer-registrerte-brev-og-ordlyden-er-feil-om--3361).'''
+Ikke bygget. Belegg: [KK-10](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-10-vs-u21-strukturerer-registrerte-brev-og-ordlyden-er-feil-om--3361).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -2254,7 +2254,7 @@ svar = '''
 Ja til alle anbefalingene, merge #481 og #476'''
 forhold = [{ art = "snevrer inn", vedtak = "vs-u19" }]
 folge = '''
-Ikke bygget. Belegg: [KK-11](../vedlegg/kontraktskontroll-ov-vs-2026-10-13.md#kk-11-vs-u19-gir-en-registrert-forespørsel-virkning).'''
+Ikke bygget. Belegg: [KK-11](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-11-vs-u19-gir-en-registrert-forespørsel-virkning).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -3664,7 +3664,7 @@ svar = '''
 Ja til alle anbefalingene, merge #481 og #476'''
 forhold = [{ art = "snevrer inn", vedtak = "ov-u5" }]
 folge = '''
-Ikke bygget. Presiserer SK-12 for varslene etter § 34.1.3. Belegg: [KK-01](../vedlegg/kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).'''
+Ikke bygget. Presiserer SK-12 for varslene etter § 34.1.3. Belegg: [KK-01](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -3701,7 +3701,7 @@ svar = '''
 Ja til alle anbefalingene, merge #481 og #476'''
 forhold = [{ art = "presiserer", vedtak = "ov-u5" }]
 folge = '''
-Ikke bygget. Belegg: [KK-03](../vedlegg/kontraktskontroll-ov-vs-2026-10-13.md#kk-03-ov-u5-gir-ikke-datopremissen-for--334-når-fristkravet-er-det-første-varselet).'''
+Ikke bygget. Belegg: [KK-03](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-03-ov-u5-gir-ikke-datopremissen-for--334-når-fristkravet-er-det-første-varselet).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -3728,7 +3728,7 @@ svar = '''
 Ja til alle anbefalingene, merge #481 og #476'''
 forhold = [{ art = "endrer", vedtak = "ov-u3" }]
 folge = '''
-Ikke bygget. Belegg: [KK-05](../vedlegg/kontraktskontroll-ov-vs-2026-10-13.md#kk-05-alle-fremsatte-krav-er-avgjort-kan-være-feil-når-et-krav-er-sendt-utenfor-appen) og [KK-06](../vedlegg/kontraktskontroll-ov-vs-2026-10-13.md#kk-06-kjernen-viser-i-dag-oppgjort-og-sperrer-det-ov-u3-godtar).'''
+Ikke bygget. Belegg: [KK-05](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-05-alle-fremsatte-krav-er-avgjort-kan-være-feil-når-et-krav-er-sendt-utenfor-appen) og [KK-06](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-06-kjernen-viser-i-dag-oppgjort-og-sperrer-det-ov-u3-godtar).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"

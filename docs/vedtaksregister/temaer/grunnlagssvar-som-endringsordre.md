@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `9e99232db45c7a629054dac165f38610061f5999156215354cfd760ca8fe8e20`
+Kontrollsum (SHA-256 over utdraget visningen leser): `1d347130838e2475d7dfdfc8ce1fcd7f69dfc73ee517bca5e62a1faa397f367b`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -167,7 +167,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 13.10, oppdragsgiver (13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21)
 
-**Følge:** Snevrer inn [OV-U5](#ov-u5). Ikke bygget. Presiserer SK-12 for varslene etter § 34.1.3. Belegg: [KK-01](../vedlegg/kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).
+**Følge:** Snevrer inn [OV-U5](#ov-u5). Ikke bygget. Presiserer SK-12 for varslene etter § 34.1.3. Belegg: [KK-01](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).
 
 **Regelrader:** —
 
@@ -179,7 +179,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 13.10, oppdragsgiver (13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21)
 
-**Følge:** Presiserer [OV-U5](#ov-u5). Ikke bygget. Belegg: [KK-03](../vedlegg/kontraktskontroll-ov-vs-2026-10-13.md#kk-03-ov-u5-gir-ikke-datopremissen-for--334-når-fristkravet-er-det-første-varselet).
+**Følge:** Presiserer [OV-U5](#ov-u5). Ikke bygget. Belegg: [KK-03](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-03-ov-u5-gir-ikke-datopremissen-for--334-når-fristkravet-er-det-første-varselet).
 
 **Regelrader:** —
 
