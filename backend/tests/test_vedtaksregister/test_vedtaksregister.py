@@ -1,7 +1,7 @@
 """Vedtaksregisteret, docs/vedtaksregister/vedtak.toml, og avsnitt 3.1 i hovedplanen (#413).
 
 Testene som leser grunnlaget på main i historikken, eller NS 8407-teksten fra det
-private repoet khjohns/ns8407-tekst (#424), hoppes over med en melding når kilden
+private repoet khjohns/kontrakt (#424), hoppes over med en melding når kilden
 mangler lokalt. I CI feiler de i stedet, fordi jobben henter begge.
 """
 
