@@ -57,6 +57,8 @@ jobs:
       # Databasetestene hoppes over her og kjøres i jobben database.
       - name: Kjør testene
         working-directory: backend
+        env:
+          NS8407_TEKST: kontrakt/NS_8407.md
         run: python -m pytest -q -p no:cacheprovider
 
       - name: Lint

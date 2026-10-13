@@ -193,9 +193,10 @@ Innholdet kontrolleres av en subagent før vedtaks-PR-en merges
 **Kildene.** NS 8407-teksten er opphavsrettsbeskyttet og ligger verken i treet
 eller historikken, men i det private repoet `khjohns/kontrakt` (#424).
 Sitatkontrollen leser fila som `NS8407_TEKST` peker på, ellers
-`kontrakt/NS_8407.md` i repoet, der CI sjekker den ut og `.gitignore` holder
-den utenfor. En sjekksum i verktøyet låser versjonen. Endres teksten, endres
-sjekksummen i samme PR. I en skyøkt legges repoet til med `add_repo`. Sammenlikningen med `main` leser hovedplanen der
+`../kontrakt/NS_8407.md`, en klone ved siden av repoet, der `add_repo` legger
+den i en skyøkt. CI sjekker den ut til `kontrakt/` i repoet og setter
+`NS8407_TEKST`. En sjekksum i verktøyet låser versjonen. Endres teksten, endres
+sjekksummen i samme PR. Sammenlikningen med `main` leser hovedplanen der
 grenen gikk ut fra `origin/main`, og i CI forelderen til flettecommiten.
 Backend-jobben i [`ci.yml`](../../.github/workflows/ci.yml) henter begge, NS
 8407-teksten med deploy-nøkkelen i hemmeligheten `NS8407_DEPLOY_KEY`. Mangler en
