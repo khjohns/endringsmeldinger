@@ -110,7 +110,8 @@ def test_hvert_vedtak_i_temaet_star_ordrett_med_det_forkastede_merket_for_seg(te
         forkastet = [MERKET.sub(r"\1 ", linje) for linje in seksjon if MERKET.match(linje)]
         assert len(sitat) == 1
         assert not tv.MERKE.search(sitat[0])
-        assert re.sub(r"\]\([^)]*#", "](#", " ".join(sitat + forkastet)) == vr.linje(post["vedtak"])
+        celle = re.sub(r'^<a id="[^"]*"></a>', "", vr.vedtakscelle(post))
+        assert re.sub(r"\]\([^)]*#", "](#", " ".join(sitat + forkastet)) == celle
 
 
 @pytest.mark.parametrize("anker, merker", [

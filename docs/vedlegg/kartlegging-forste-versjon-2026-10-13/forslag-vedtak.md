@@ -1,5 +1,7 @@
 # Forslag til vedtak om første versjon (OV-U3–OV-U7, 13.10)
 
+> **Merknad 2026-10-13:** Vedtakene står nå i [hovedplanen, 3.1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), som OV-U3–OV-U7. [Vedtaksregisteret](../../vedtaksregister/vedtak.toml) er kilden; denne fila er historikk. OV-U5 ble ført med rettingene i punkt 8 og 9 i oppdragsgivers tilslutning, så ordlyden nedenfor avviker der.
+
 Dette er forslaget oppdragsgiver tar stilling til. Det er ikke vedtak, og det erstatter
 [utkast-vedtak.md](utkast-vedtak.md), som blir stående som historikk. Ordlyden tar inn
 rettingene i [prøvingen mot 3.1](utkast-vedtak-provet.md), oppdragsgivers svar 1–10 i

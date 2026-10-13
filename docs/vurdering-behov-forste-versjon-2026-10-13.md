@@ -233,6 +233,14 @@ Oppdragsgiver svarte på de fire spørsmålene fra prøvingen:
 10. TEs innsigelse og byggherrens egen innsigelse etter svaret er med i første versjon som
     utsagn uten utledning (VS-U1, VS-U9, VS-U14). Protest mot en innsigelse utsettes.
 
+Det rettede forslaget står i
+[forslag-vedtak.md](vedlegg/kartlegging-forste-versjon-2026-10-13/forslag-vedtak.md).
+
+11. Oppdragsgiver sluttet seg 13.10 til hele forslaget, med anbefalingene i punkt 6–12 i den
+    samlede tilslutningen. Vedtakene står i
+    [3.1 i hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger)
+    som [OV-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3)–[OV-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u7).
+
 ## Verifikasjon og grenser
 
 - **Kjørt og observert (K):** prøveskript mot kjernen på `44bbb49`, med en journal i minnet

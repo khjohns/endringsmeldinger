@@ -1,5 +1,7 @@
 # Forslag til samlet vedtak om første versjon (utkast 13.10)
 
+> **Merknad 2026-10-13:** Vedtakene står nå i [hovedplanen, 3.1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger), som OV-U3–OV-U7. [Vedtaksregisteret](../../vedtaksregister/vedtak.toml) er kilden; denne fila er historikk.
+
 > **Utkast, ikke vedtak.** Ordlyden er prøvd mot 3.1 i [utkast-vedtak-provet.md](utkast-vedtak-provet.md), og alle fem forslagene må rettes etter prøvingen før oppdragsgiver tar stilling. Vedtakene står i hovedplanen, 3.1.
 
 Grunnlag: docs/vurdering-behov-forste-versjon-2026-10-13.md,
