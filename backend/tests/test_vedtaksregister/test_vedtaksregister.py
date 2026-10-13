@@ -1,8 +1,8 @@
 """Vedtaksregisteret, docs/vedtaksregister/vedtak.toml, og avsnitt 3.1 i hovedplanen (#413).
 
-Testene som leser historikken (grunnlaget på main og NS 8407-teksten i
-507e2254^), hoppes over med en melding når den mangler lokalt. I CI feiler de i
-stedet, fordi jobben henter historikken.
+Testene som leser grunnlaget på main i historikken, eller NS 8407-teksten fra det
+private repoet khjohns/ns8407-tekst (#424), hoppes over med en melding når kilden
+mangler lokalt. I CI feiler de i stedet, fordi jobben henter begge.
 """
 
 import copy
@@ -28,12 +28,21 @@ def _verktoy():
 vr = _verktoy()
 
 
-def _uten_historikk(melding: str):
+def _mangler(melding: str, hjelp: str):
     if os.environ.get("CI"):
-        pytest.fail(
-            f"{melding} CI-jobben skal hente historikken (.github/workflows/ci.yml)."
-        )
-    pytest.skip(f"{melding} Hent historikken med git fetch --unshallow origin main.")
+        pytest.fail(f"{melding} CI-jobben skal hente den (.github/workflows/ci.yml).")
+    pytest.skip(f"{melding} {hjelp}")
+
+
+def _uten_historikk(melding: str):
+    _mangler(melding, "Hent historikken med git fetch --unshallow origin main.")
+
+
+def _ns_8407() -> str:
+    tekst = vr.ns_8407()
+    if tekst is None:
+        _mangler("NS 8407-teksten mangler.", vr.NS_8407_HJELP)
+    return tekst
 
 
 @pytest.fixture(scope="module")
@@ -583,10 +592,8 @@ def test_en_merget_ny_post_har_ledig_id_og_kan_bare_endre_folge(
     ]
 
 
-def test_ns_8407_kan_leses_fra_historikken():
-    ns_8407 = vr.git_fil(vr.NS_8407_COMMIT, vr.NS_8407_STI)
-    if ns_8407 is None:
-        _uten_historikk("NS 8407-teksten i 507e2254^ finnes ikke lokalt.")
+def test_ns_8407_kan_leses_fra_den_private_kilden():
+    ns_8407 = _ns_8407()
     assert "33.8 Forsering ved uberettiget avslag" in ns_8407
 
 
@@ -771,9 +778,7 @@ def test_et_halvt_sitat_slipper_bare_gjennom_som_utdrag(grunnregister, grunnplan
 
 
 def test_et_halvt_sitat_fra_ns_8407_er_feil():
-    ns_8407 = vr.git_fil(vr.NS_8407_COMMIT, vr.NS_8407_STI)
-    if ns_8407 is None:
-        _uten_historikk("NS 8407-teksten i 507e2254^ finnes ikke lokalt.")
+    ns_8407 = _ns_8407()
     tekst = vr.setningstekst(ns_8407)
     assert vr.hele_setninger("33.8 Forsering ved uberettiget avslag", tekst)
     assert not vr.hele_setninger("ved uberettiget avslag", tekst)
@@ -854,9 +859,7 @@ def test_hele_setninger_etter_fet_skrift_kolon_og_anker(plan, sitat, kilde):
 
 
 def test_forste_setning_etter_en_overskrift_i_ns_8407():
-    ns_8407 = vr.git_fil(vr.NS_8407_COMMIT, vr.NS_8407_STI)
-    if ns_8407 is None:
-        _uten_historikk("NS 8407-teksten i 507e2254^ finnes ikke lokalt.")
+    ns_8407 = _ns_8407()
     tekst = vr.setningstekst(ns_8407)
     assert vr.hele_setninger(
         "Når parten har grunnlag for å beregne omfanget, skal han uten ugrunnet opphold angi og "
