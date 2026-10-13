@@ -440,7 +440,8 @@ function svartekst(s: Svar, t: Tekst): string {
     ...grunnlagetsStandpunkter(s, t).map((tekst) => ({ tekst, ordnes: true })),
     ...s.standpunkter.map((p) => ({
       tekst: standpunkttekst(p, s, krav, j, henvisning),
-      ordnes: virkning.get(p.id) !== 'uten_virkning',
+      // Metoden er ikke en egen grunn, men står ved siden av beløpet (arbeidsvalget i #479).
+      ordnes: virkning.get(p.id) !== 'uten_virkning' && p.art !== 'metode',
     })),
   ];
   // «Prinsipalt» og «subsidiært» er slik brevet ordner standpunktene (HF-U2).

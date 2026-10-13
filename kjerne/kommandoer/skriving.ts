@@ -438,8 +438,10 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
         innsigelser.push({ id: u.id, gjelder: u.gjelder, fra: svarFraParten.length });
   }
   for (const s of (rad.data.svar ?? []) as Data[]) {
-    // Kategorien gjelder bare svaret på grunnlaget (§ 32.2, GR-U12).
-    const krav = s.spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === s.gjelder) : null;
+    // Kategorien i grunnlagskravet: § 32.2 i grunnlaget (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
+    const krav = grunnlagskrav.find(
+      (k) => k.id === (s.spor === 'grunnlag' ? s.gjelder : s.grunnlagskrav)
+    );
     // VS-U9, VS-U11: et registrert svar uten standpunkt om rettidighet leses med den første
     // innsigelsen fra samme part som parten ikke senere har gitt opp uttrykkelig.
     const innsigelse = innsigelser.find(

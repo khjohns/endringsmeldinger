@@ -17,6 +17,7 @@ export type Handling = Record<string, unknown> & { handling: string };
 
 /** § 32.2 gjelder ikke `samordning`. Står for innsnevringen #220 kan gi; omfanget avgjøres ikke her. */
 export const NESTE_REGLER: Regelsett = {
+  ...GJELDENDE_REGLER,
   versjon: GJELDENDE_REGLER.versjon + 1,
   gjelderVarslingsplikten: (h, u) =>
     GJELDENDE_REGLER.gjelderVarslingsplikten(h, u) && u !== 'samordning',

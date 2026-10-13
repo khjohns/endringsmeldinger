@@ -10696,30 +10696,6 @@
           }
         },
         {
-          "etter": 1,
-          "rolle": "kontroll",
-          "kilde": [
-            "arbeidsvalget i #479"
-          ],
-          "prov": {
-            "handling": "brev",
-            "svar": [
-              {
-                "spor": "frist",
-                "varsel_i_tide": true,
-                "spesifisering_i_tide": false,
-                "maatte_forstaa": 16,
-                "dager": 15,
-                "hindring": true
-              }
-            ]
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "UGYLDIG_VURDERING"
-          }
-        },
-        {
           "etter": 2,
           "rolle": "mal",
           "kilde": [
@@ -10918,6 +10894,74 @@
           "forventet": {
             "avvist": false,
             "enighet.frist.utfall.dager": 15
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-F-33-6-1-flere-enn-vurdert",
+      "forslag": "#479: dagene TE måtte forstå er høyst de vurderte dagene",
+      "rader": [],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": false,
+              "maatte_forstaa": 16,
+              "dager": 15,
+              "hindring": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "VS-U4"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "frist",
+                "varsel_i_tide": true,
+                "spesifisering_i_tide": false,
+                "maatte_forstaa": 15,
+                "dager": 15,
+                "hindring": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "arbeidsvalget i #479",
+            "VS-U4"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING",
+            "gjeldende_svar.frist": null
           }
         }
       ],

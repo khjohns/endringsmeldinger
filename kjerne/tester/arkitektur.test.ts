@@ -403,7 +403,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
 
   // Regelsettet (regler/).
-  ['Regelsett', 'regelsett', 'versjon gjelderVarslingsplikten'],
+  ['Regelsett', 'regelsett', 'versjon gjelderVarslingsplikten gjelderVarslingspliktenForVederlag'],
   ['regler/regelsett.ts', 'regelsett', 'GJELDENDE_REGLER'],
   ['regler/beloep.ts', 'regelsett', 'beloep erEndelig tilKrone tilTall NULL_OERE'],
   ['regler/feil.ts', 'regelsett', 'UgyldigVurdering'],
@@ -508,6 +508,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts'],
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
+  // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
+  ['format/format.ts', 'skjema', 'METODER', ['frosset/standpunkt.ts']],
   [
     'format/format.ts',
     'skjema',
@@ -598,7 +600,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
   ['frosset/frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['kommandoer/skriving.ts']],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
-  ['kommandoer/skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
+  [
+    'kommandoer/skriving.ts:frysBrev(s)',
+    'rad',
+    'spor gjelder grunnlagskrav',
+    ['kommandoer/skriving.ts'],
+  ],
   // VS-U9, VS-U11: innsigelsen et registrert svar leses med, og plassen blant partens svar da den kom.
   ['kommandoer/skriving.ts:frysBrev', 'relasjon', 'id gjelder fra', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],

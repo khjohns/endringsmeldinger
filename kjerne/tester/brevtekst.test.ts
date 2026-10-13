@@ -574,6 +574,30 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
+  it('§ 34.2.2 «nei» sammen med preklusjon etter § 34.1.2 er ikke en egen subsidiær grunn, og står ved siden av beløpet (arbeidsvalget i #479)', () => {
+    const s = sviktMedVederlag();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), { resultat: 'godkjent' }),
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          {
+            ...VEDERLAG_DELVIS[0],
+            hovedkrav_varslet_i_tide: false,
+            aksepterer_metode: false,
+            oensket_metode: 'regningsarbeid',
+          },
+          { resultat: 'avslaatt', godkjent_beloep: 0 }
+        ),
+      ],
+    });
+    expect(laast(rad)[1]).toBe(
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 kom for sent. Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres som regningsarbeid (NS 8407 § 34.4). Subsidiært: byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
+    );
+  });
+
   it('§ 34.2.2 «nei»: byggherren aksepterer ikke tilbudet og oppgir metoden, som standpunkt og ikke som appens avgjørelse (arbeidsvalget i #479)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
@@ -1908,3 +1932,37 @@ function utenFelt(k: Data, felt: string): Data {
 function esc(t: string): string {
   return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+/**
+ * #304, MM-U2: en vurdering kjernen ennå ikke har et standpunkt for, avvises og forenkles
+ * ikke. Kontrollsaken er samme svar uten vurderingen.
+ */
+describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
+  const brev = (...svar: Data[]) => ({ type: 'brev', svar });
+
+  it.each([
+    [
+      'frist',
+      'svar på forespørsel etter § 33.6.2',
+      { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+      FRIST_FULLT[1],
+    ],
+    [
+      'vederlag',
+      'tilbakeholdelse etter § 30.2',
+      { ...VEDERLAG_DELVIS[0], hold_tilbake: true },
+      VEDERLAG_DELVIS[1],
+    ],
+  ] as [string, string, Data, Data][])('%s: %s', (spor, _n, vurderinger, resultat) => {
+    const s = sakMedKrav();
+    expect(s.avvist('BH', brev(svar(spor, s.krav(spor as 'frist'), vurderinger, resultat)))).toBe(
+      'VURDERING_UTENFOR_KJERNEN'
+    );
+    const uten = Object.fromEntries(
+      Object.entries(vurderinger).filter(
+        ([k]) => k !== 'foresporsel_svar_ok' && k !== 'hold_tilbake'
+      )
+    );
+    expect(s.avvist('BH', brev(svar(spor, s.krav(spor as 'frist'), uten, resultat)))).toBeNull();
+  });
+});

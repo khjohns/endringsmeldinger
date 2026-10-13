@@ -1294,7 +1294,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F116',
     feilklasse: 'dager som ikke er godkjent fullt, krever ingen begrunnelse (KA-U24)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [["(server.subsidiaert_resultat ?? server.resultat) !== 'godkjent'", 'false']],
+    endringer: [["if (!fulltGodkjent) ut.push('dager", "if (false) ut.push('dager"]],
     mal: ['dager som ikke er godkjent fullt'],
   },
   {
@@ -1928,7 +1928,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F181',
     feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['v.hovedkrav_varslet_i_tide !== undefined &&', 'false &&']],
+    endringer: [['v.hovedkrav_varslet_i_tide != null &&', 'false &&']],
     mal: ['F-MM-V-34-1-2-endring'],
   },
   {
@@ -2060,14 +2060,14 @@ const MUTASJONER: Mutasjon[] = [
       'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['ut.godkjent_dager = maatteForstaa;', 'ut.godkjent_dager = r.godkjent_dager;']],
-    mal: ['§ 33.6.1 «nei»: dagene TE måtte forstå står prinsipalt'],
+    mal: ['serverens utregning gir dagene TE måtte forstå prinsipalt'],
   },
   {
     id: 'F194',
     feilklasse: 'de prinsipale dagene etter § 33.6.1 kan være flere enn de vurderte',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["if (typeof v.dager === 'number' && d > v.dager)", 'if (false)']],
-    mal: ['F-MM-F-33-6-1-nei'],
+    endringer: [['if (d > (v.dager as number))', 'if (false)']],
+    mal: ['F-MM-F-33-6-1-flere-enn-vurdert'],
   },
   {
     id: 'F195',

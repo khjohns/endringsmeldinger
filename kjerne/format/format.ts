@@ -22,6 +22,7 @@ import {
   SPOR,
   type Hjemmel,
   type Spor,
+  type Standpunkt,
   type Standpunktsart,
   type Utsagnsart,
 } from '../typer.ts';
@@ -67,6 +68,11 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
     { art: 'dager', paakrevd: true },
   ],
 };
+
+/** Metodene byggherren kan mene vederlaget skal justeres etter, når tilbudet ikke er akseptert (§ 34.2.2). */
+export const METODER = ['enhetspriser', 'regningsarbeid'] as const satisfies readonly NonNullable<
+  Extract<Standpunkt, { art: 'metode' }>['oensket']
+>[];
 
 export const ID: Skjema = { type: 'string', minLength: 1 };
 export const TEKST: Skjema = { type: 'string', minLength: 1 };
@@ -173,7 +179,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
       ...artfelt('metode'),
       hjemmel: { const: '34.2.2' },
       aksepterer: { type: 'boolean' },
-      oensket_metode: { enum: ['enhetspriser', 'regningsarbeid'] },
+      oensket_metode: { enum: [...METODER] },
     },
     ['id', 'art', 'hjemmel', 'aksepterer']
   ),

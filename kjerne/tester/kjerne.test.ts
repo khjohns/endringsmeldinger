@@ -729,8 +729,22 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
     ]);
     return { k, rader: await bane.journal() };
   };
-  const standpunkt = (svar: Data, art: string) =>
-    (svar.standpunkter as Data[]).find((p) => p.art === art)!;
+  const standpunkt = (svar: Data, art: string) => {
+    const p = (svar.standpunkter as Data[]).find((x) => x.art === art);
+    expect(p, `forutsetning: svaret har standpunktet ${art}`).toBeDefined();
+    return p!;
+  };
+
+  it('serverens utregning gir dagene TE måtte forstå prinsipalt og de vurderte subsidiært (VS-U4, B-13)', async () => {
+    const { k } = await fristsak();
+    const s = (await k.utledning()).svar[k.navn.id('S-f1')];
+    expect(s.svar.utregning).toEqual({
+      resultat: 'delvis_godkjent',
+      godkjent_dager: 5,
+      subsidiaert_resultat: 'delvis_godkjent',
+      subsidiaert_godkjent_dager: 15,
+    });
+  });
 
   it.each([
     [
@@ -786,7 +800,7 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
   });
 });
 
-// § 34.1.2, § 34.2.2 og § 33.6.1 har standpunkter (#479, #341); bevis-sakene F-MM-V-* og F-MM-F-33-6-1-* prøver dem.
+// Kommandoen avvises med VURDERING_UTENFOR_KJERNEN: se `brevtekst.test.ts`, som har kommandoene.
 describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
   it('en lagret rad med en slik vurdering leses som ikke forstått', async () => {
     const bane = minnebane();
@@ -808,7 +822,7 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
     ]);
     const rader = await bane.journal();
     const endret = structuredClone(rader);
-    svaret(radMed(endret, k, 'S-f1'), k, 'S-f1').spesifisert_krav_ok = false;
+    svaret(radMed(endret, k, 'S-f1'), k, 'S-f1').foresporsel_svar_ok = false;
     expect(forstaatt(rader)).toBe(true);
     expect(forstaatt(endret)).toBe(false);
   });

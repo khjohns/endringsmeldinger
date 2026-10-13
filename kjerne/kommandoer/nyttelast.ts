@@ -83,6 +83,7 @@ function kontrollerSvar(
 function avgrensninger(s: Svarutkast, server: Record<string, unknown>): string[] {
   const v = s.vurderinger;
   const ut: string[] = [];
+  const fulltGodkjent = (server.subsidiaert_resultat ?? server.resultat) === 'godkjent';
   if (s.spor === 'grunnlag') {
     if (v.grunnlag_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 32.2 (KA-U21)');
     if (v.resultat === 'avslaatt') ut.push('avslag av grunnlaget');
@@ -90,14 +91,12 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>): string[]
   } else if (s.spor === 'vederlag') {
     if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');
     if (v.aksepterer_metode === false) ut.push('et tilbud som ikke er akseptert (§ 34.2.2)');
-    if (server.resultat !== 'godkjent' && server.subsidiaert_resultat !== 'godkjent')
-      ut.push('et beløp som ikke er godkjent fullt');
+    if (!fulltGodkjent) ut.push('et beløp som ikke er godkjent fullt');
   } else {
     if (v.frist_varsel_ok === false) ut.push('påberopt preklusjon etter § 33.4');
     if (v.vilkar_oppfylt === false) ut.push('«ingen hindring» etter § 33.1 (VS-U13)');
     if (v.spesifisert_krav_ok === false) ut.push('påberopt spesifisering for sent etter § 33.6.1');
-    if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')
-      ut.push('dager som ikke er godkjent fullt');
+    if (!fulltGodkjent) ut.push('dager som ikke er godkjent fullt');
   }
   return ut;
 }
