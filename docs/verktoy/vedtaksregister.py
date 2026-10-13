@@ -49,13 +49,13 @@ TABELLHODE = "| Beslutning | Vedtatt | Følge |\n| --- | --- | --- |\n"
 BREDDE = 88
 
 # NS 8407-teksten er opphavsrettsbeskyttet og ligger i det private repoet
-# khjohns/ns8407-tekst, ikke i dette repoet eller historikken (#424). Sjekksummen
+# khjohns/kontrakt, ikke i dette repoet eller historikken (#424). Sjekksummen
 # låser versjonen, så et resultat kan gjentas fra commiten her.
 NS_8407_MILJO = "NS8407_TEKST"
-NS_8407_KLONE = ROT / "ns8407-tekst" / "NS_8407.md"
+NS_8407_KLONE = ROT / "kontrakt" / "NS_8407.md"
 NS_8407_SHA256 = "bf9c5876707d03d2f799454561227ce88a09b6e2872e0a4ef736cfd0e51214c6"
 NS_8407_HJELP = (
-    "Klon khjohns/ns8407-tekst til ns8407-tekst/ i repoet, "
+    "Klon khjohns/kontrakt til kontrakt/ i repoet, "
     f"eller sett {NS_8407_MILJO} til fila."
 )
 
@@ -715,7 +715,7 @@ def _git(*argumenter: str) -> str | None:
 
 
 def ns_8407() -> str | None:
-    """NS 8407-teksten, eller None når ns8407-tekst/ mangler og NS8407_TEKST ikke er satt.
+    """NS 8407-teksten, eller None når kontrakt/ mangler og NS8407_TEKST ikke er satt.
 
     Peker NS8407_TEKST på noe som ikke er en fil, eller er teksten en annen versjon
     enn NS_8407_SHA256, er det en feil. En relativ sti leses fra repoets rot.

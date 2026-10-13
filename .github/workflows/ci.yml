@@ -29,15 +29,15 @@ jobs:
           fetch-depth: 2
 
       # Sitatkontrollen i vedtaksregisteret leser NS 8407 fra det private repoet
-      # khjohns/ns8407-tekst, med en deploy-nøkkel som bare kan lese (#424).
+      # khjohns/kontrakt, med en deploy-nøkkel som bare kan lese (#424).
       # Uten nøkkelen feiler sitattestene med en melding, og resten kjører.
       - name: Hent NS 8407-teksten fra den private kilden
         continue-on-error: true
         uses: actions/checkout@v4
         with:
-          repository: khjohns/ns8407-tekst
+          repository: khjohns/kontrakt
           ssh-key: ${{ secrets.NS8407_DEPLOY_KEY }}
-          path: ns8407-tekst
+          path: kontrakt
           persist-credentials: false
 
       - uses: actions/setup-python@v5

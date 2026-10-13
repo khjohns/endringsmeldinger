@@ -191,9 +191,9 @@ Innholdet kontrolleres av en subagent før vedtaks-PR-en merges
 ([orkestreringsskillen](../../.claude/skills/orkestrering/SKILL.md#spørsmål-og-vedtak)).
 
 **Kildene.** NS 8407-teksten er opphavsrettsbeskyttet og ligger verken i treet
-eller historikken, men i det private repoet `khjohns/ns8407-tekst` (#424).
+eller historikken, men i det private repoet `khjohns/kontrakt` (#424).
 Sitatkontrollen leser fila som `NS8407_TEKST` peker på, ellers
-`ns8407-tekst/NS_8407.md` i repoet, der CI sjekker den ut og `.gitignore` holder
+`kontrakt/NS_8407.md` i repoet, der CI sjekker den ut og `.gitignore` holder
 den utenfor. En sjekksum i verktøyet låser versjonen. Endres teksten, endres
 sjekksummen i samme PR. I en skyøkt legges repoet til med `add_repo`. Sammenlikningen med `main` leser hovedplanen der
 grenen gikk ut fra `origin/main`, og i CI forelderen til flettecommiten.
