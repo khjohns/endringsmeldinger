@@ -204,6 +204,14 @@ sier «alle fremsatte krav er avgjort» og ikke at saken er oppgjort.
 4. **Neste steg.** Skal E1–E7 føres som ett samlet vedtak om første versjon? Og skal PR #476
    vente? VS-U19 og VS-U21 i den PR-en regulerer innholdet i registrerte brev, mot premiss 4.
 
+**Oppdragsgivers svar 13.10.** Svarene er ikke vedtak ennå. De føres i vedtaksregisteret etter
+sparringen med Astra.
+
+1. Fremsatte krav, som E1. Et spor som ikke er sendt, hindrer ikke, og «ingen krav» bygges ikke.
+2. Ja. TE kan oppgi datoen strukturert, og BH får den som premiss (unntak a og E4).
+3. Ja. BH registrerer endringsordren ved å velge «godkjent» (unntak b og E6).
+4. Sammendraget går til Astra før noe føres.
+
 ## Verifikasjon og grenser
 
 - **Kjørt og observert (K):** prøveskript mot kjernen på `44bbb49`, med en journal i minnet
