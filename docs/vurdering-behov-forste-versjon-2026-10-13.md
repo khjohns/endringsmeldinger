@@ -212,6 +212,27 @@ sparringen med Astra.
 3. Ja. BH registrerer endringsordren ved å velge «godkjent» (unntak b og E6).
 4. Sammendraget går til Astra før noe føres.
 
+**Etter sparringen med Astra 13.10.** Astra støttet retningen, med forbehold om at unntak b måtte
+si nøyaktig hva registreringen gjør. Oppdragsgiver valgte:
+
+5. Unntak b: registreringen er byggherrens godkjenning av grunnlaget, med enighet ved sammenfall
+   (GR-U10). Opplysningen om at brevet er en endringsordre, gir ingen egen virkning, og sperren
+   mot TEs trekk (KA-U13) gjelder ikke.
+6. Neste steg: et samlet vedtak i vedtaksregisteret, issues for rekkefølgen og en merknad på #476.
+
+Utkastet til vedtakene står i
+[utkast-vedtak.md](vedlegg/kartlegging-forste-versjon-2026-10-13/utkast-vedtak.md), og prøvingen
+mot 3.1 i
+[utkast-vedtak-provet.md](vedlegg/kartlegging-forste-versjon-2026-10-13/utkast-vedtak-provet.md).
+Oppdragsgiver svarte på de fire spørsmålene fra prøvingen:
+
+7. Lukkingen (OV-U3) gjelder varig, ikke bare første versjon.
+8. MM-U8 og VS-U7 endres: svaret står med virkningen det hadde, og appen avgjør ikke om det
+   omfatter et varsel registrert senere.
+9. En registrert endringsordre går gjennom fullmakten som en godkjenning av grunnlaget (GFK-06).
+10. TEs innsigelse og byggherrens egen innsigelse etter svaret er med i første versjon som
+    utsagn uten utledning (VS-U1, VS-U9, VS-U14). Protest mot en innsigelse utsettes.
+
 ## Verifikasjon og grenser
 
 - **Kjørt og observert (K):** prøveskript mot kjernen på `44bbb49`, med en journal i minnet
