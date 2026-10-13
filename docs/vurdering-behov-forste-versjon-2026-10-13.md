@@ -112,8 +112,8 @@ forutsetningen var oppfylt.
   men aksepten sier bare «TE godtar …». Brevet bør si virkningen.
 - **AV-12:** tillegget «TE er enig i antallet dager» er tvetydig når hovedstandpunktet gir 0
   dager (LV-U4 punkt 6).
-- **AV-13:** etiketten «varsel ikke registrert» vises også når det ikke er sendt noe fristkrav,
-  og følger med i leveringsoppdraget.
+- **AV-13:** etiketten «varsel ikke registrert» vises også når det ikke er sendt noe fristkrav.
+  Samlestatusen, ikke etiketten, følger med i leveringsoppdraget.
 - **AV-14:** en innsigelse følger på tvers av kravversjonene og leses inn i et registrert svar
   som er taust om den (VS-U9, VS-U11). Det er vedtatt; visningen bør vise det.
 
