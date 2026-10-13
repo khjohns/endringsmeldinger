@@ -1,8 +1,9 @@
 """Vedtaksregisteret, docs/vedtaksregister/vedtak.toml, og avsnitt 3.1 i hovedplanen (#413).
 
-Testene som leser grunnlaget på main i historikken, eller NS 8407-teksten fra det
-private repoet khjohns/kontrakt (#424), hoppes over med en melding når kilden
-mangler lokalt. I CI feiler de i stedet, fordi jobben henter begge.
+Testene som leser grunnlaget på main i historikken, hoppes over med en melding når
+den mangler lokalt, og feiler i CI, som henter den. Testene som leser NS
+8407-teksten, hoppes over når klonen av det private repoet khjohns/kontrakt
+mangler, også i CI. De kjøres lokalt før en PR som fører et vedtak (#424).
 """
 
 import copy
@@ -28,20 +29,18 @@ def _verktoy():
 vr = _verktoy()
 
 
-def _mangler(melding: str, hjelp: str):
-    if os.environ.get("CI"):
-        pytest.fail(f"{melding} CI-jobben skal hente den (.github/workflows/ci.yml).")
-    pytest.skip(f"{melding} {hjelp}")
-
-
 def _uten_historikk(melding: str):
-    _mangler(melding, "Hent historikken med git fetch --unshallow origin main.")
+    if os.environ.get("CI"):
+        pytest.fail(
+            f"{melding} CI-jobben skal hente historikken (.github/workflows/ci.yml)."
+        )
+    pytest.skip(f"{melding} Hent historikken med git fetch --unshallow origin main.")
 
 
 def _ns_8407() -> str:
     tekst = vr.ns_8407()
     if tekst is None:
-        _mangler("NS 8407-teksten mangler.", vr.NS_8407_HJELP)
+        pytest.skip(f"NS 8407-teksten mangler. {vr.NS_8407_HJELP}")
     return tekst
 
 
