@@ -2203,6 +2203,73 @@ kilde = "hovedplanen"
 tekst = "Hvert utsagn viser uttrykkelig til det det gjelder"
 utdrag = true
 
+
+[[gruppe.vedtak]]
+id = "VS-U22"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#309", "#485"]
+sporsmal = '''
+VS-U21 (12.10) sier at den som registrerer et brev fra byggherren, angir om brevet påberoper § 33.4, § 33.6.1 eller begge, og at brevet kan merkes. Dagen etter valgte du at registrerte brev er dokumentasjon uten strukturert innhold (OV-U4), og at merking utsettes (OV-U7). VS-U21 sier også «hvor mange dager byggherren mener TE måtte forstå»; etter § 33.6.1 er det byggherren som «måtte forstå» hva TE hadde krav på. Etter § 33.6.1 heter det: «Gjør han ikke dette, har han bare krav på slik fristforlengelse som den andre parten måtte forstå at han hadde krav på.» Hva skal gjelde?
+
+Alternativene: A (anbefalt), B og C. «Ja» er det anbefalte alternativet (A i spørsmålet).'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene, merge #481 og #476'''
+forhold = [{ art = "snevrer inn", vedtak = "vs-u21" }]
+folge = '''
+Ikke bygget. Belegg: [KK-10](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-10-vs-u21-strukturerer-registrerte-brev-og-ordlyden-er-feil-om--3361).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+I første versjon bygges ikke VS-U21: et brev fra byggherren sendt utenfor appen er dokumentasjon etter OV-U4. I et svar fra appen tar byggherren stilling til § 33.4 og § 33.6.1 hver for seg. Når VS-U21 bygges, lyder delen om tall: «Sier brevet ikke hvor mange dager byggherren mener at byggherren måtte forstå at TE hadde krav på, registreres påberopelsen etter § 33.6.1 uten tall.»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+VS-U21 tas ut av #476 og stilles på nytt når merking og strukturering bygges.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+VS-U21 føres som et unntak fra OV-U4, med rettet ordlyd.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "Gjør han ikke dette, har han bare krav på slik fristforlengelse som den andre parten måtte forstå at han hadde krav på."
+
+
+[[gruppe.vedtak]]
+id = "VS-U23"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#309", "#485"]
+sporsmal = '''
+VS-U19 sier at en forespørsel sendt utenfor appen alltid registreres og vises med datoen, og at virkningen utledes når byggherren påberoper at TE svarte for sent. Etter § 33.6.2 fjerde ledd kan byggherren ikke påberope § 33.6.1 når TE har svart med dager: «Byggherren kan da ikke påberope at fristen i 33.6.1 er oversittet.» Leser appen TEs neste krav som svar på en registrert forespørsel, sperrer den byggherrens påberopelse ut fra et brev appen etter OV-U4 ikke skal vurdere. Hva skal gjelde?
+
+Alternativene: A og B (anbefalt). «Ja» er det anbefalte alternativet (B i spørsmålet).'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene, merge #481 og #476'''
+forhold = [{ art = "snevrer inn", vedtak = "vs-u19" }]
+folge = '''
+Ikke bygget. Belegg: [KK-11](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-11-vs-u19-gir-en-registrert-forespørsel-virkning).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En forespørsel etter § 33.6.2 sendt utenfor appen er dokumentasjon etter OV-U4. Byggherren kan i et svar fra appen påberope at TE svarte for sent på den, med det registrerte brevet som henvisning; virkningen utledes på byggherrens premisser. Appen leser ikke TEs senere krav som svar på forespørselen og sperrer ikke byggherrens påberopelse etter § 33.6.1.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+I første versjon er en forespørsel etter § 33.6.2 sendt utenfor appen dokumentasjon etter OV-U4. Påberopelsen av at TE svarte for sent på den, sendes utenfor appen og registreres. Forespørselen fra appen følger VS-U19.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "Byggherren kan da ikke påberope at fristen i 33.6.1 er oversittet."
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -3581,6 +3648,102 @@ navn = "C"
 tekst = '''
 Å utsette TEs innsigelse og byggherrens egen innsigelse etter svaret.'''
 forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "OV-U8"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#309", "#485"]
+sporsmal = '''
+Etter § 34.1.3 skal TE varsle særskilt «uten ugrunnet opphold etter at han blir eller burde ha blitt klar over at utgifter ville påløpe». Det kan skje etter at kravet for selve endringsarbeidet er sendt. Du svarte ja til at et varsel etter § 34.1.2 og § 34.1.3 avvises fra appen når vederlagskravet er sendt, «som VS-U16 gjør for § 33.4». VS-U16 begrunnes med at et senere varsel bare kan få senere dato enn kravet. For § 34.1.3 kan det senere varselet være det første og rettidige. Hva skal gjelde?
+
+Alternativene: A (anbefalt), B og C. «Ja» er det anbefalte alternativet (A i spørsmålet).'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene, merge #481 og #476'''
+forhold = [{ art = "snevrer inn", vedtak = "ov-u5" }]
+folge = '''
+Presiserer SK-12. Ikke bygget. Belegg: [KK-01](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Når TE har sendt vederlagskravet, avvises et nytt varsel etter § 34.1.2 fra appen. Et særskilt varsel etter § 34.1.3 kan sendes fra appen også etter vederlagskravet, for rigg og drift og for produktivitetstap hver for seg, så lenge det ikke er sendt eller oppgitt et varsel om det samme fra før. Datoen for hvert av de to varslene settes én gang. Appen avgjør ikke når TE ble eller burde ha blitt klar over at utgiftene ville påløpe.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Når TE har sendt vederlagskravet, avvises et nytt varsel etter § 34.1.2 eller § 34.1.3 fra appen. Skjemaet sier at et særskilt varsel etter § 34.1.3 kan være påkrevd også etter kravet, at det da sendes utenfor appen, og at datoen kan oppgis i appen. Datoen settes én gang for rigg og drift og én gang for produktivitetstap.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+OV-U5 står uendret.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "uten ugrunnet opphold etter at han blir eller burde ha blitt klar over at utgifter ville påløpe"
+utdrag = true
+
+
+[[gruppe.vedtak]]
+id = "OV-U9"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#309", "#485"]
+sporsmal = '''
+TE kan oppgi at et krav sendt fra appen også ble sendt tidligere utenfor appen (OV-U5). Byggherren får da den datoen som premiss for § 33.6.1, og for § 32.2 og § 34.1 når kravet var det første varselet. § 33.4 er ikke nevnt. Er fristkravet det første varselet, viser skjemaet byggherren datoen for brevet i appen. Hva skal gjelde?
+
+Alternativene: A (anbefalt) og B. «Ja» er det anbefalte alternativet (A i spørsmålet).'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene, merge #481 og #476'''
+forhold = [{ art = "presiserer", vedtak = "ov-u5" }]
+folge = '''
+Ikke bygget. Belegg: [KK-03](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-03-ov-u5-gir-ikke-datopremissen-for--334-når-fristkravet-er-det-første-varselet).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Når fristkravet er det første varselet appen kjenner og TE har oppgitt at kravet ble sendt utenfor appen tidligere, tar byggherren også stilling til rettidigheten etter § 33.4 med den datoen som premiss. Skjemaet viser datoen TE oppgir, ved siden av datoen for brevet i appen. Opplysningen er ikke en registrering av et varsel etter § 33.4, og TE kan fortsatt oppgi datoen for et tidligere varsel.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Opplysningen om kravets dato gjelder § 33.6.1. Skal datoen også gjelde § 33.4, oppgir TE den som datoen for varselet etter § 33.4, med samme dokument som vedlegg. Skjemaet for kravet sier det.'''
+
+
+[[gruppe.vedtak]]
+id = "OV-U10"
+dato = 2026-10-13
+hvem = "oppdragsgiver"
+kilde = ["#309", "#485"]
+sporsmal = '''
+Etter OV-U3 sier visningen «Alle fremsatte krav er avgjort», og de fremsatte kravene er kravene TE har sendt. Et krav sendt på e-post er fremsatt etter kontrakten (§ 5), men er dokumentasjon i appen (OV-U4). Saken kan da vise at alle fremsatte krav er avgjort mens et fristkrav sendt på e-post er ubesvart. Hva skal visningen si?
+
+Alternativene: A (anbefalt), B og C. «Ja» er det anbefalte alternativet (A i spørsmålet).'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene, merge #481 og #476'''
+forhold = [{ art = "endrer", vedtak = "ov-u3" }]
+folge = '''
+Ikke bygget. Belegg: [KK-05](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-05-alle-fremsatte-krav-er-avgjort-kan-være-feil-når-et-krav-er-sendt-utenfor-appen) og [KK-06](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-06-kjernen-viser-i-dag-oppgjort-og-sperrer-det-ov-u3-godtar).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Visningen sier «Alle krav sendt i appen er avgjort». Er det registrert brev i saken, sier den også «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Visningen sier «Alle fremsatte krav er avgjort». Er det registrert brev i saken, sier den også «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+OV-U3 står uendret.'''
 
 [[gruppe.vedtak]]
 anker = "hf-u2"
