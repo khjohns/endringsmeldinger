@@ -121,7 +121,7 @@ KA-U8: en kravversjon på 0 dager eller 0 kr avvises. 0 er ikke et krav om noe (
 vedtatt = "09.10, oppdragsgiver etter lesning av NS 8407 § 5 og §§ 31–35"
 folge = '''
 Avgjør #179. «Sender det ikke» er presisert 09.10 av [KA-U12](#ka-u12): TE sier
-uttrykkelig «ingen krav». Det vedtaket sier om «ingen krav», bygges ikke i første versjon (OV-U7).'''
+uttrykkelig «ingen krav». Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u33"
@@ -1169,7 +1169,7 @@ GR-U13 og gjelder til det er avklart om brevet oppfyller § 31.3. Forskjellen fr
 underkategorien EO er begrunnet i hvordan appen håndterer trekket, ikke i at
 endringsordrene har ulik rettslig bindende kraft. Snevret inn 10.10 av [KA-U22](#ka-u22)
 til byggedel 3: trekket avvises når appen ikke kan bevare byggherrens avtalte
-rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», bygges ikke i første versjon (OV-U7).'''
+rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u14"
@@ -1203,7 +1203,7 @@ svaret i grunnlagssporet i KOE-saken, ikke en EO-sak. Kan snevre inn KA-U6 der e
 gir byggherren en rettighet, for eksempel et fradrag (KA-U9). Krav til brevteksten
 (#309, #310) og visningen (#313). Gjennomført i brevteksten 10.10 av [KA-U22](#ka-u22),
 som også sperrer et trekk av grunnlaget når appen ikke kan bevare byggherrens avtalte
-rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», bygges ikke i første versjon (OV-U7).'''
+rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
 
 [[gruppe.vedtak]]
 vedtak = '''
@@ -3298,7 +3298,7 @@ det følges opp for seg.'''
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
 tekst = '''
-TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen, som et eget utsagn med serverens dato og uten beløp, slik VS-U15 gjelder for varselet etter § 33.4. Det gjelder varselet om justering av vederlaget og de særskilte varslene om rigg og drift og om produktivitetstap, som i dagens skjema. Når TE har sendt vederlagskravet, avvises et nytt varsel etter § 34.1.2 eller § 34.1.3 fra appen, slik VS-U16 avviser et varsel etter § 33.4 når fristkravet er sendt; TE kan da oppgi datoen for et tidligere varsel sendt utenfor appen. Unntak fra OV-U4: TE kan oppgi datoen for sitt eget varsel etter § 32.2, § 33.4, § 34.1.2 eller § 34.1.3 som er sendt utenfor appen, også etter et krav og etter byggherrens svar. TE oppgir datoen i et brev fra appen, med varselet som vedlegg og teksten i LV-U4 punkt 3 tilpasset bestemmelsen. Datoen settes én gang, som etter SK-12, også for § 32.2. Visningen sier «TE oppgir at varselet ble sendt <dato>», og byggherren tar stilling til rettidigheten i svaret med opplysningen som premiss. Mener byggherren at varselet ikke ble sendt eller mottatt den dagen, sier hen det i begrunnelsen for svaret (KA-U24). Appen kontrollerer ikke at dokumentet er et varsel, eller at datoen er riktig. Er ikke noe varsel etter § 33.4 registrert, viser skjemaet byggherren at det første fristkravet i sporet, i brev <n> av <dato>, er det første varselet appen kjenner. Et svar byggherren alt har gitt, står med virkningen det hadde og blir ikke uavklart. Svaret viser til varselet det gjaldt (HF-U1). Visningen og skjemaet for TEs aksept viser hvilket varsel det var, og at TE senere har oppgitt et annet. Appen gir ikke svaret virkning for det senere varselet og avgjør ikke om svaret omfatter det. Byggherren kan revidere svaret så lenge det ikke er godtatt (SK-03, GR-U7). Opplysningen godtas også når kravene er avgjort (OV-U3). Sender TE et krav fra appen som TE også har sendt utenfor appen, kan TE i kravet oppgi datoen det ble sendt utenfor appen, med det kravet som vedlegg. Datoen oppgis når kravet sendes, og endres ikke senere. Kravet har datoen det sendes fra appen, og visningen sier «TE oppgir at kravet ble sendt <dato>». Byggherren tar stilling til rettidigheten etter § 33.6.1 med opplysningen som premiss. Det samme gjelder rettidigheten etter § 32.2, § 34.1.2 og § 34.1.3 når grunnlagskravet eller vederlagskravet er det første varselet appen kjenner. Appen kontrollerer ikke at dokumentet er det samme kravet, eller at datoen er riktig.'''
+TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen, som et eget utsagn med serverens dato og uten beløp, slik VS-U15 gjelder for varselet etter § 33.4. Det gjelder varselet om justering av vederlaget og de særskilte varslene om rigg og drift og om produktivitetstap, som i dagens skjema. Når TE har sendt vederlagskravet, avvises et nytt varsel etter § 34.1.2 eller § 34.1.3 fra appen, slik VS-U16 avviser et varsel etter § 33.4 når fristkravet er sendt; TE kan da oppgi datoen for et tidligere varsel sendt utenfor appen. Unntak fra OV-U4: TE kan oppgi datoen for sitt eget varsel etter § 32.2, § 33.4, § 34.1.2 eller § 34.1.3 som er sendt utenfor appen, også etter et krav og etter byggherrens svar. TE oppgir datoen i et brev fra appen, med varselet som vedlegg og teksten i LV-U4 punkt 3 tilpasset bestemmelsen. Datoen settes én gang, som etter SK-12, også for § 32.2. Visningen sier «TE oppgir at varselet ble sendt <dato>», og byggherren tar stilling til rettidigheten i svaret med opplysningen som premiss. Mener byggherren at varselet ikke ble sendt eller mottatt den dagen, sier hen det i begrunnelsen for svaret (KA-U24). Appen kontrollerer ikke at dokumentet er et varsel, eller at datoen er riktig. Er ikke noe varsel etter § 33.4 registrert, viser skjemaet byggherren at det første fristkravet i sporet, i brev <n> av <dato>, er det første varselet appen kjenner. Et svar byggherren alt har gitt, står med virkningen det hadde og blir ikke uavklart. Svaret viser til varselet det gjaldt (HF-U1). Visningen og skjemaet for TEs aksept viser hvilket varsel det var, og at TE senere har oppgitt et annet. Appen gir ikke svaret virkning for det senere varselet og avgjør ikke om svaret omfatter det. Byggherren kan revidere svaret så lenge det ikke er godtatt (SK-03, GR-U7). Opplysningen godtas også når kravene er avgjort (OV-U3). Sender TE et krav fra appen som TE også har sendt utenfor appen, kan TE i kravet oppgi datoen det ble sendt utenfor appen, med det kravet som vedlegg. Datoen oppgis når kravet sendes, og endres ikke senere. Kravet har datoen det sendes fra appen, og visningen sier «TE oppgir at kravet ble sendt <dato>». Byggherren tar stilling til rettidigheten etter § 33.6.1 med opplysningen som premiss. Det samme gjelder rettidigheten etter § 32.2 når grunnlagskravet er det første varselet appen kjenner, og rettidigheten etter § 34.1.2 og § 34.1.3 når vederlagskravet er det første varselet appen kjenner. Appen kontrollerer ikke at dokumentet er det samme kravet, eller at datoen er riktig.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"

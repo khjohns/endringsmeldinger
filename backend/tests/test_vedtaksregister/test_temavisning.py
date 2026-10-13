@@ -112,8 +112,7 @@ def test_hvert_vedtak_i_temaet_star_ordrett_med_det_forkastede_merket_for_seg(te
         if "vedtak" in post:
             assert not tv.MERKE.search(sitat[0])
         celle = re.sub(r'^<a id="[^"]*"></a>', "", vr.vedtakscelle(post))
-        lenker = r"\]\([^)]*#"
-        assert re.sub(lenker, "](#", " ".join(sitat + forkastet)) == re.sub(lenker, "](#", celle)
+        assert re.sub(r"\]\([^)]*#", "](#", " ".join(sitat + forkastet)) == celle
 
 
 @pytest.mark.parametrize("anker, merker", [
