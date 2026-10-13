@@ -795,6 +795,37 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 > Databasen er avgjort samme dag med [B-12, databasen](#b-12-databasen); hostingen er åpen.
 > Lagringsformen er ikke avgjort med databasen (#395).
 
+> **Merknad 2026-10-13 til B-12 ([B-12, databasen](#b-12-databasen)):** IKT har
+> svart på spørsmålene A1–A6 i
+> [#78](https://github.com/khjohns/endringsmeldinger/issues/78), gjengitt av
+> oppdragsgiver 13.10.
+>
+> - **Forbeholdet:** IKT bekrefter at appen får en egen Azure SQL Database, serverløs,
+>   på et nivå som støtter speiling til Fabric. Nivået velges etter behov, ytelse og
+>   kostnad. Forbeholdet står til speilingen er prøvd mot en database i Azure
+>   (oppdragsgiver 13.10). Ikke kjent: om speilingen virker med serverløs base
+>   med automatisk pause, og om den leser gjennom radsikkerheten eller forbi den.
+> - **Sorteringen** `Latin1_General_100_BIN2_UTF8` kan legges til grunn (SQ-08 i
+>   [prøven](../prove-azuresql-2026-10-11.md)). IKT ser ikke behov for å sette
+>   `READ_COMMITTED_SNAPSHOT`, akselerert gjenoppretting eller kompatibilitetsnivå.
+>   I Azure SQL Database er de to første på som standard
+>   ([prøven, avsnitt 7](../prove-azuresql-2026-10-11.md#7-sql-server-i-docker-mot-azure-sql-database)),
+>   så testbasen i Docker må ha samme innstillinger
+>   ([#488](https://github.com/khjohns/endringsmeldinger/issues/488)).
+> - **Identiteten:** appen kobler seg til basen med systemtildelt managed identity
+>   på Azure Web App. Identiteten gjelder appens tilkobling, ikke brukerne:
+>   innloggingen er fortsatt OAuth via Catenda, og prosjekt, side og team settes
+>   som kontekst for transaksjonen (B-02, alternativ C). Flere identiteter uten
+>   person er mulig, men tidkrevende for IKT. Antall og type avklares med IKT ut
+>   fra en oversikt over arkitekturen og behovet.
+> - **Hostingen:** IKT har satt opp App Service. Er ikke Container Apps et bedre
+>   alternativ, velges App Service (oppdragsgiver 13.10). Beslutningsstatus for
+>   hostingen er uendret: åpen.
+> - **Tilgangsmekanismen:** IKT oppgir at Azure SQL Database støtter radsikkerhet,
+>   `SESSION_CONTEXT`, lagrede prosedyrer med eierskapskjede, triggere, egne
+>   skjemaer og roller. Ingen retningslinje hos IKT utelukker alternativ C. IKT har
+>   ikke brukt radsikkerhet før.
+
 ## 4. Funnregister
 
 <a id="status-2026-09-18"></a>
