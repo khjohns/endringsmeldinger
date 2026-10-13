@@ -221,8 +221,8 @@ oppdragsgiver.
 - **Kontroller belegget før du spør.** Sitater fra vedtak og NS 8407 skal være
   ordrette og hele setninger, og de føres som `sitat` i registeret
   ([vakttestene](../../../docs/vedtaksregister/README.md#vakttestene)). NS 8407-teksten er opphavsrettsbeskyttet og ligger
-  i det private repoet `khjohns/kontrakt`. Legg det til med `add_repo`, og klon
-  det til `kontrakt/` i repoet eller sett `NS8407_TEKST` til fila. Ellers
+  i det private repoet `khjohns/kontrakt`. Legg det til med `add_repo`, som kloner
+  det til `../kontrakt`, der verktøyet leser det, eller sett `NS8407_TEKST` til fila. Ellers
   hoppes sitattestene over lokalt. Teksten legges aldri i dette repoet, i et issue eller i en PR
   (#424). Påstander om koden i
   spørsmålene kontrolleres av en subagent. En økt ser bare det den har lett
