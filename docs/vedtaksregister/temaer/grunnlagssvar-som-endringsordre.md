@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `1d347130838e2475d7dfdfc8ce1fcd7f69dfc73ee517bca5e62a1faa397f367b`
+Kontrollsum (SHA-256 over utdraget visningen leser): `d2791c9ee37563c6ad5cbc60cc5327b26b4720c7e1b13c2060585e768854f73a`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -165,9 +165,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 > OV-U8: Når TE har sendt vederlagskravet, avvises et nytt varsel etter § 34.1.2 fra appen. Et særskilt varsel etter § 34.1.3 kan sendes fra appen også etter vederlagskravet, for rigg og drift og for produktivitetstap hver for seg, så lenge det ikke er sendt eller oppgitt et varsel om det samme fra før. Datoen for hvert av de to varslene settes én gang. Appen avgjør ikke når TE ble eller burde ha blitt klar over at utgiftene ville påløpe.
 
-**Vedtatt:** 13.10, oppdragsgiver (13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21)
+**Vedtatt:** 13.10, oppdragsgiver (#309, #485)
 
-**Følge:** Snevrer inn [OV-U5](#ov-u5). Ikke bygget. Presiserer SK-12 for varslene etter § 34.1.3. Belegg: [KK-01](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).
+**Følge:** Snevrer inn [OV-U5](#ov-u5). Presiserer SK-12. Ikke bygget. Belegg: [KK-01](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).
 
 **Regelrader:** —
 
@@ -177,7 +177,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 > OV-U9: Når fristkravet er det første varselet appen kjenner og TE har oppgitt at kravet ble sendt utenfor appen tidligere, tar byggherren også stilling til rettidigheten etter § 33.4 med den datoen som premiss. Skjemaet viser datoen TE oppgir, ved siden av datoen for brevet i appen. Opplysningen er ikke en registrering av et varsel etter § 33.4, og TE kan fortsatt oppgi datoen for et tidligere varsel.
 
-**Vedtatt:** 13.10, oppdragsgiver (13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21)
+**Vedtatt:** 13.10, oppdragsgiver (#309, #485)
 
 **Følge:** Presiserer [OV-U5](#ov-u5). Ikke bygget. Belegg: [KK-03](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-03-ov-u5-gir-ikke-datopremissen-for--334-når-fristkravet-er-det-første-varselet).
 

@@ -2208,9 +2208,9 @@ utdrag = true
 id = "VS-U22"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
-kilde = ["13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21"]
+kilde = ["#309", "#485"]
 sporsmal = '''
-VS-U21 (12.10) sier at den som registrerer et brev fra byggherren, angir om brevet påberoper § 33.4, § 33.6.1 eller begge, og at brevet kan merkes. Dagen etter valgte du at registrerte brev er dokumentasjon uten strukturert innhold (OV-U4), og at merking utsettes (OV-U7). VS-U21 sier også «hvor mange dager byggherren mener TE måtte forstå». Etter § 33.6.1 heter det: «Gjør han ikke dette, har han bare krav på slik fristforlengelse som den andre parten måtte forstå at han hadde krav på.» Den andre parten er byggherren. Hva skal gjelde?
+VS-U21 (12.10) sier at den som registrerer et brev fra byggherren, angir om brevet påberoper § 33.4, § 33.6.1 eller begge, og at brevet kan merkes. Dagen etter valgte du at registrerte brev er dokumentasjon uten strukturert innhold (OV-U4), og at merking utsettes (OV-U7). VS-U21 sier også «hvor mange dager byggherren mener TE måtte forstå»; etter § 33.6.1 er det byggherren som «måtte forstå» hva TE hadde krav på. Etter § 33.6.1 heter det: «Gjør han ikke dette, har han bare krav på slik fristforlengelse som den andre parten måtte forstå at han hadde krav på.» Hva skal gjelde?
 
 Alternativene: A (anbefalt), B og C. «Ja» er det anbefalte alternativet (A i spørsmålet).'''
 valgt = "Ja"
@@ -2244,7 +2244,7 @@ tekst = "Gjør han ikke dette, har han bare krav på slik fristforlengelse som d
 id = "VS-U23"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
-kilde = ["13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21"]
+kilde = ["#309", "#485"]
 sporsmal = '''
 VS-U19 sier at en forespørsel sendt utenfor appen alltid registreres og vises med datoen, og at virkningen utledes når byggherren påberoper at TE svarte for sent. Etter § 33.6.2 fjerde ledd kan byggherren ikke påberope § 33.6.1 når TE har svart med dager: «Byggherren kan da ikke påberope at fristen i 33.6.1 er oversittet.» Leser appen TEs neste krav som svar på en registrert forespørsel, sperrer den byggherrens påberopelse ut fra et brev appen etter OV-U4 ikke skal vurdere. Hva skal gjelde?
 
@@ -3654,7 +3654,7 @@ forkastet = true
 id = "OV-U8"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
-kilde = ["13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21"]
+kilde = ["#309", "#485"]
 sporsmal = '''
 Etter § 34.1.3 skal TE varsle særskilt «uten ugrunnet opphold etter at han blir eller burde ha blitt klar over at utgifter ville påløpe». Det kan skje etter at kravet for selve endringsarbeidet er sendt. Du svarte ja til at et varsel etter § 34.1.2 og § 34.1.3 avvises fra appen når vederlagskravet er sendt, «som VS-U16 gjør for § 33.4». VS-U16 begrunnes med at et senere varsel bare kan få senere dato enn kravet. For § 34.1.3 kan det senere varselet være det første og rettidige. Hva skal gjelde?
 
@@ -3664,7 +3664,7 @@ svar = '''
 Ja til alle anbefalingene, merge #481 og #476'''
 forhold = [{ art = "snevrer inn", vedtak = "ov-u5" }]
 folge = '''
-Ikke bygget. Presiserer SK-12 for varslene etter § 34.1.3. Belegg: [KK-01](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).'''
+Presiserer SK-12. Ikke bygget. Belegg: [KK-01](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -3691,7 +3691,7 @@ utdrag = true
 id = "OV-U9"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
-kilde = ["13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21"]
+kilde = ["#309", "#485"]
 sporsmal = '''
 TE kan oppgi at et krav sendt fra appen også ble sendt tidligere utenfor appen (OV-U5). Byggherren får da den datoen som premiss for § 33.6.1, og for § 32.2 og § 34.1 når kravet var det første varselet. § 33.4 er ikke nevnt. Er fristkravet det første varselet, viser skjemaet byggherren datoen for brevet i appen. Hva skal gjelde?
 
@@ -3718,7 +3718,7 @@ Opplysningen om kravets dato gjelder § 33.6.1. Skal datoen også gjelde § 33.4
 id = "OV-U10"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
-kilde = ["13.10, oppdragsgiver, etter kontraktskontrollen av OV-U3–OV-U7 og VS-U17–VS-U21"]
+kilde = ["#309", "#485"]
 sporsmal = '''
 Etter OV-U3 sier visningen «Alle fremsatte krav er avgjort», og de fremsatte kravene er kravene TE har sendt. Et krav sendt på e-post er fremsatt etter kontrakten (§ 5), men er dokumentasjon i appen (OV-U4). Saken kan da vise at alle fremsatte krav er avgjort mens et fristkrav sendt på e-post er ubesvart. Hva skal visningen si?
 
