@@ -194,11 +194,12 @@ Innholdet kontrolleres av en subagent før vedtaks-PR-en merges
 eller historikken, men i det private repoet `khjohns/kontrakt` (#424).
 Sitatkontrollen leser fila som `NS8407_TEKST` peker på, ellers
 `../kontrakt/NS_8407.md`, en klone ved siden av repoet, der `add_repo` legger
-den i en skyøkt. CI sjekker den ut til `kontrakt/` i repoet og setter
-`NS8407_TEKST`. En sjekksum i verktøyet låser versjonen. Endres teksten, endres
+den i en skyøkt. CI har ikke teksten, så sitatene fra NS 8407 kontrolleres bare
+lokalt, før en PR som fører et vedtak
+([leveranseskillen](../../.claude/skills/leveranse/SKILL.md)). En sjekksum i verktøyet låser versjonen. Endres teksten, endres
 sjekksummen i samme PR. Sammenlikningen med `main` leser hovedplanen der
 grenen gikk ut fra `origin/main`, og i CI forelderen til flettecommiten.
-Backend-jobben i [`ci.yml`](../../.github/workflows/ci.yml) henter begge, NS
-8407-teksten med deploy-nøkkelen i hemmeligheten `NS8407_DEPLOY_KEY`. Mangler en
-kilde lokalt, hoppes testene over med en melding; historikken hentes med
-`git fetch --unshallow origin main`. I CI feiler de i stedet.
+Backend-jobben i [`ci.yml`](../../.github/workflows/ci.yml) henter historikken.
+Mangler den lokalt, hoppes testene over med en melding; hent den med
+`git fetch --unshallow origin main`. I CI feiler de i stedet. Mangler
+NS 8407-teksten, hoppes de tre testene som leser den, over, også i CI.

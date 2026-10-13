@@ -46,6 +46,5 @@ backend/koe_data/
 supabase/.temp/
 supabase/.branches/
 
-# NS 8407-teksten spores ikke. CI sjekker ut khjohns/kontrakt her (#424).
+# NS 8407-teksten spores ikke. Den ligger i khjohns/kontrakt (#424).
 docs/NS_8407.md
-/kontrakt/
