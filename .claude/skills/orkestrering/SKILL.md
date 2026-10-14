@@ -38,14 +38,18 @@ Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
 filene eller har samme rotårsak, og leverer én PR med `Closes` for hvert av
 dem. To issues i samme fil går aldri i to parallelle økter. Høyst tre små
 issues per økt. Et issue som krever kartlegging eller spørsmål til
-oppdragsgiver, får egen økt. Krever det mange spørsmål, kartlegger og spør én
-økt, og en ny økt bygger med svarene i oppdraget (se «Kontekst i
-arbeidsøktene»).
+oppdragsgiver, får egen økt. Spørsmålene før bygging står under «1. Kartlegg
+før du fordeler».
 
 **Én økt, én PR.** En arbeidsøkt leverer én PR og tar ikke nye oppgaver etter
 at den er åpnet. Har arbeidet to naturlige PR-er, blir det to økter, i hver
 sin runde når den ene bygger på den andre. Hver ny oppgave i en lang økt sender
 hele den voksende konteksten på nytt, og det koster fort mer enn rettingen.
+
+**Størrelse per økt.** Orkestratoren anslår diffen ut fra avgrensningen i issuet,
+før økta startes. Ventes mer enn om lag 800 endrede linjer utenom `docs/`, deles
+arbeidet: én økt per bestemmelse eller delområde, i hver sin runde når den ene
+bygger på den andre (oppdragsgiver 14.10, #484).
 
 **Subagent eller økt.** Det som blir ferdig i samme tur, gjøres av en
 subagent: kartlegging, kontroll av en påstand, gjennomlesing av en diff. Bare
@@ -98,6 +102,11 @@ innsatsen settes i appen.
   `git fetch origin <branch> && git diff --name-only origin/main...origin/<branch>`,
   ikke med `get_files` fra GitHub-MCP. Det svaret har patchene med og blir for
   stort på en stor PR.
+- **Spørsmål før bygging.** For oppgaver i `kjerne/` kartlegger en subagent i
+  orkestratoren først, og samler domenespørsmålene etter «Spørsmål og vedtak».
+  Byggeøkta starter med svarene i oppdraget. Krever en oppgave utenfor kjernen
+  mange spørsmål, kartlegger og spør én økt, og en ny økt bygger med svarene
+  (oppdragsgiver 14.10, #484).
 - Feil som stopper appen, går foran opprydding.
 
 ## 2. Oppdraget til hver økt
@@ -119,7 +128,9 @@ issue. Oppdraget skal inneholde:
   og fører i PR-en. Sier oppdragsgiver at ingen følger øktene, velger økta det
   konservative alternativet og fører valget under «Åpne spørsmål», unntatt et
   valg som blir en kontrakt: en regel i domenekjernen eller et lagret navn.
-  Det venter;
+  Det venter. For kjerne-oppgaver er spørsmålene samlet i kartleggingen (punkt 1),
+  og svarene står i oppdraget. Dekker ikke svarene det byggeøkta møter, stanser
+  den og spør på samme måte;
 - at økta ikke skriver i hovedplanen, med unntaket under «Spørsmål og vedtak»;
 - at funn utenfor oppdraget blir egne issues (regelen i `AGENTS.md`), og at
   økta løser et slikt funn i samme PR med `Closes #n` bare når rettingen er
@@ -127,6 +138,8 @@ issue. Oppdraget skal inneholde:
   runde, også funn i andre øktes filer og funn som krever en avgjørelse;
 - at oppdraget er avgrenset til om lag 45–60 minutter med aktivt arbeid, og
   hvordan økta venter (se «Kontekst i arbeidsøktene»);
+- at økta melder fra om egen størrelse etter hvert hovedsteg, og stopper ved om
+  lag 150 000 tokens (se «Kontekst i arbeidsøktene»);
 - at kartlegging, lesing av store filer og CI-logger gjøres av subagenter, så
   øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
@@ -134,18 +147,20 @@ issue. Oppdraget skal inneholde:
   statusregel, så den viser ikke at den ekte saksruta virker, og det finnes
   ingen oppskrift for den ekte ruta i skyøkta. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
-- at `/code-review` kjøres etter regelen i `AGENTS.md`, én runde før PR-en
-  åpnes og én kontroll av rettingene. `/simplify` kjøres bare når
-  oppdragsgiver har bestilt eller godkjent den (se «`/simplify`»), og da før
-  `/code-review`;
+- at byggeøkta ikke kjører `/code-review`, og at reviewet og rettingene gjøres i
+  en ny økt (se «Kontekst i arbeidsøktene»);
+- at reviewet følger `AGENTS.md`: stoppregelen for funn, der funn som ikke
+  rettes i PR-en blir issues med `review-oppfølging`, og kontrollen av rettingene
+  på nivå `medium`. `/simplify` kjøres bare når oppdragsgiver har bestilt eller
+  godkjent den (se «`/simplify`»), og da før `/code-review`;
 - at PR-beskrivelsen er rapporten til orkestratoren: hva som er endret,
   sjekkene som er kjørt med resultat, utfallet av `/code-review`, funn utenfor
   oppdraget med issuenummer, og «Åpne spørsmål»;
 - PR mot `main` med `Closes #n`, eller «Del av #n» når bare en del leveres,
   og at økta ikke merger;
-- at PR-en åpnes som utkast og markeres klar (`ready_for_review`) først når de
-  lokale sjekkene er grønne. CI og regelversjonsvakten kjører ikke på utkast og
-  ikke ved push til `main` (#390), så hver push til et utkast er gratis, og hver
+- at PR-en åpnes som utkast og markeres klar (`ready_for_review`) først når
+  reviewet er gjort og de lokale sjekkene er grønne. CI og
+  regelversjonsvakten kjører ikke på utkast og ikke ved push til `main` (#390), så hver push til et utkast er gratis, og hver
   push til en klar PR koster en full kjøring. Feilinnføringene kjører også på et
   utkast når etiketten `feilinnfoering` er satt. Etiketten settes derfor først
   når PR-en meldes klar, så hele settet (om lag 26 minutter i CI) kjører én
@@ -173,13 +188,15 @@ oppdragsgiver.
 
 - **Det prinsipielle først.** Still først spørsmålene som avgjør retningen. Et
   eksempel er om appen skal vurdere selv eller bare registrere, eller hva et
-  sendt brev binder. Detaljene venter til byggeøkta for bestemmelsen, når
-  retningen er avgjort. I FK runde 3 trengte spørsmålene fem kontrollrunder,
-  fordi alternativene ble detaljerte før retningen var valgt.
+  sendt brev binder. Detaljene venter til retningen er avgjort: for
+  kjerne-oppgaver stilles de i kartleggingen (punkt 1), ellers i byggeøkta for
+  bestemmelsen. I FK runde 3 trengte spørsmålene fem kontrollrunder, fordi
+  alternativene ble detaljerte før retningen var valgt.
 - **Den som stilte spørsmålet, retter det.** Finner kontrollen feil, sender
   orkestratoren funnene til økta som stilte spørsmålet. Orkestratoren skriver
   ikke spørsmålet om selv. Skriver orkestratoren likevel, går teksten gjennom
-  samme kontroll.
+  samme kontroll. Er spørsmålet stilt av kartleggingssubagenten (punkt 1), kjøres
+  den på nytt med funnene.
 - **Samle før du spør.** Still spørsmålene fra øktene samlet. Hvert spørsmål
   har alternativer, belegg i kontraktsteksten eller vedtaket, en anbefaling og
   hva valget styrer. Kommer spørsmål fra flere økter omtrent samtidig, vent på
@@ -305,9 +322,9 @@ sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 
 - **Arbeid i timer, ikke i døgn.** Hurtigbufferen varer en time. Et oppdrag
   avgrenses slik at økta kan bli ferdig på om lag 45–60 minutter med aktivt
-  arbeid. Den kan gå over for å gjøre seg ferdig: pushe, skrive tilstanden i
-  PR-beskrivelsen og melde fra. Venter økta på CI eller feilinnføringene og
-  regner med å fortsette innen en time, venter den med en bakgrunnskommando
+  arbeid. Den kan gå over for å gjøre seg ferdig, innen 150 000 tokens: pushe,
+  skrive tilstanden i PR-beskrivelsen og melde fra. Venter økta på CI eller
+  feilinnføringene og regner med å fortsette innen en time, venter den med en bakgrunnskommando
   som vekker den, så hurtigbufferen holder seg varm. Venter den lenger, for
   eksempel på oppdragsgiver, skriver den tilstanden i PR-en og stopper. En ny,
   liten økt tar over med en avgrenset bestilling (under), i stedet for at den
@@ -317,17 +334,27 @@ sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   heller enn å vekkes (oppdragsgiver 12.10, #425).
 - **Følg med i hver sjekk.** `get_session` viser brukt kontekst
   (`context_usage.used_tokens`) og kostnad (`usage.cost_usd`).
-- **Ved om lag 200 000 tokens** skal alt økta trenger for å fullføre, stå der
-  den kan lese det på nytt: vedtakene i hovedplanen, arbeidsvalgene i issuet og
-  kravene i PR-beskrivelsen. Gi den ingen nye oppgaver.
+- **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
+  review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
+  finnes. Har den passert om lag 150 000 tokens, stopper den der og tar ikke nye
+  oppgaver, uten å vente på orkestratorens sjekk. Tilstanden skal gjøre det mulig
+  å lese seg inn på nytt: vedtakene i hovedplanen, arbeidsvalgene i issuet,
+  kravene i PR-beskrivelsen og hva som gjenstår. En ny, liten økt tar over fra
+  PR-en (oppdragsgiver 14.10, #484).
+- **Review i ny økt.** Byggeøkta pusher, skriver tilstanden i PR-en og stopper,
+  uten å kjøre `/code-review`. En ny, liten økt tar reviewet og rettingene fra
+  PR-en etter `AGENTS.md`. Den får en avgrenset bestilling: PR-nummeret,
+  reviewbestillingen og tilstanden i PR-en, ikke hele historikken
+  (oppdragsgiver 14.10, #484 og #490).
 - **Ved om lag 300 000 tokens, eller etter en komprimering,** sender
   orkestratoren én samlet sjekkliste over det som gjenstår, med kildene som
   skal leses på nytt. Gjenstår mer enn rettinger og CI, overtar en ny økt fra
   PR-en og issuene. Den gamle pusher det den har, og avsluttes. Den nye økta
   får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene.
-  Den leser ikke hele historikken og arbeider under de samme grensene
+  Økta skal ha stoppet ved 150 000 tokens, så dette er en reserve. Den leser ikke
+  hele historikken og arbeider under de samme grensene
   (oppdragsgiver 12.10, #425).
-- **Venting.** Har en økt passert om lag 200 000 tokens og ventet mer enn en
+- **Venting.** Har en økt stoppet ved om lag 150 000 tokens og ventet mer enn en
   time på oppdragsgiver, vekkes den ikke. En ny økt overtar fra PR-en,
   vedtakene og issuet. Skriv derfor tilstanden i PR-beskrivelsen før økta
   begynner å vente, for eksempel som utkast-PR. Still spørsmålene tidlig, og

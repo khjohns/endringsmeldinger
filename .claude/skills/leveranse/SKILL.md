@@ -121,7 +121,8 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   [orkestreringsskillen](../orkestrering/SKILL.md#spørsmål-og-vedtak).
 - Gjennomfør uavhengig review etter `AGENTS.md`, med akseptkriteriene som
   grunnlag. Se særlig etter ny duplisering, om regelen ligger der den skal eies,
-  og om utfasingen er planlagt. Leveransen skal kunne forklares og etterprøves
+  og om utfasingen er planlagt. Funn om dette følger stoppregelen for funn i
+  `AGENTS.md`. Leveransen skal kunne forklares og etterprøves
   fra kode, tester og varige referanser uten den opprinnelige chatten. At
   agenter er enige, er ikke testbevis og erstatter ikke det menneskelige
   beslutningsansvaret.

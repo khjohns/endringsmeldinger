@@ -27,6 +27,11 @@ I skyøktene lager `.claude/hooks/session-start.sh` venv-en og testbasen, og mel
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
+Testutdata leses i kortform: `npx vitest run --reporter=dot | tail -30`, og
+pytest med `-q` som i blokken over, også `| tail -30`. Skal hele utdataene
+leses, gjør en subagent det og rapporterer bare feilene. Timeouten for en hel
+vitest-kjøring står i «Miljø» i `AGENTS.md`.
+
 ## Feilinnføringer
 
 `node kjerne/tester/feilinnfoering.ts` kjører feilinnføringene for kjernen, i
