@@ -312,10 +312,20 @@ nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journa
 eller migrasjonene, uansett språk, ellers `medium`; en diff som bare rører
 `docs/`, trenger ingen. Endrer diffen utledningen eller reglene i domenet, kommer i
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
-bevis-sakene samlet. Rett funnene; et funn du avviser, står med begrunnelse
-under «Åpne spørsmål» i PR-beskrivelsen. `/simplify` kjøres når oppdragsgiver
-ber om det eller godkjenner orkestratorens forslag, og da før `/code-review`,
-slik at reviewet ser den endelige koden.
+bevis-sakene samlet, én gang per PR. Reviewet og rettingene kjøres i en ny økt,
+ikke i byggeøkta, når vilkårene i orkestreringsskillen, «Review i ny økt», er
+oppfylt.
+`/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
+forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
+
+**Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
+som bryter et vedtak eller kontrakten. Funn om skjørhet, struktur eller en senere
+endring blir oppfølging etter regelen under «Hvor hva står», med etiketten
+`review-oppfølging`, uten retting i PR-en. Kontrollen av rettingene gjelder bare
+rettingsdiffen, på nivå `high` når rettingene rører serverinngangene, tilgang,
+CSRF, lagring, journalen eller migrasjonene, ellers `medium`. Et funn du
+avviser, står med begrunnelse under «Åpne spørsmål» i PR-beskrivelsen
+(oppdragsgiver 14.10, #484 og #490).
 
 **Grensene for kontekst i
 [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#kontekst-i-arbeidsøktene)
