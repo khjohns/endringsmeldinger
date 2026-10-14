@@ -1995,7 +1995,8 @@ const MUTASJONER: Mutasjon[] = [
         "} else if (s.art === 'metode' && !s.aksepterer) {",
       ],
     ],
-    mal: ['F-MM-V-34-2-2-nei', 'F-MM-V-34-2-2-ja'],
+    // Virkningen av «nei» leses ikke av noen regel, så den overlever der (#490).
+    mal: ['F-MM-V-34-2-2-ja'],
   },
   {
     id: 'F188',
