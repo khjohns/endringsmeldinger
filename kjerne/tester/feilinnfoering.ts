@@ -78,7 +78,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         '  if (kraveneErAvgjort(u))',
-        "  if (visning(u, { versjon: 0, gjelderVarslingsplikten: () => true }).status.kode === 'avsluttet_oppgjort' || kraveneErAvgjort(u))",
+        "  if (visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status.kode === 'avsluttet_oppgjort' || kraveneErAvgjort(u))",
       ],
     ],
     mal: [
