@@ -667,7 +667,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     ]);
   });
 
-  it('§ 33.6.1 «nei»: dagene TE måtte forstå står prinsipalt, og de vurderte dagene subsidiært (VS-U4)', () => {
+  it('§ 33.6.1 «nei»: dagene byggherren måtte forstå at TE hadde krav på, står prinsipalt, og de vurderte dagene subsidiært (VS-U4)', () => {
     const s = sakMedKrav();
     const kommando = {
       type: 'brev',

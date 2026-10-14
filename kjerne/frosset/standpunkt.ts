@@ -100,7 +100,7 @@ export function virkninger(
     } else if (s.art === 'metode' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {
-      // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener TE måtte forstå.
+      // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
       const virkning = s.iTide ? 'uten_virkning' : etterGrunn();
       if (!s.iTide) harGrunn = true;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
@@ -495,8 +495,8 @@ export function regnUtSvar(
     ut.subsidiaert_godkjent_dager = r.subsidiaer_godkjent_dager ?? 0;
   }
   const maatteForstaa = kontrollerSpesifiseringen(v);
-  // VS-U4, rekkefølgen i #479: uten preklusjon og med hindring er dagene TE måtte forstå
-  // det prinsipale, og de vurderte dagene står subsidiært.
+  // VS-U4, rekkefølgen i #479: uten preklusjon og med hindring er dagene byggherren måtte
+  // forstå at TE hadde krav på det prinsipale, og de vurderte dagene står subsidiært.
   if (maatteForstaa !== null && r.subsidiaer_resultat === null) {
     ut.resultat = resultatAvDager(true, fkrav.krevd_dager, maatteForstaa);
     ut.godkjent_dager = maatteForstaa;
@@ -507,8 +507,8 @@ export function regnUtSvar(
 }
 
 /**
- * VS-U4: når spesifiseringen kom for sent, oppgir byggherren dagene TE måtte forstå,
- * høyst de vurderte og de krevde (arbeidsvalget i #479). Gir dagene, eller `null`.
+ * VS-U4: når spesifiseringen kom for sent, oppgir byggherren dagene byggherren måtte forstå at
+ * TE hadde krav på, høyst de vurderte og de krevde (arbeidsvalget i #479). Gir dagene, eller `null`.
  */
 function kontrollerSpesifiseringen(v: Svarvurdering): number | null {
   const d = v.dager_maatte_forstaa;

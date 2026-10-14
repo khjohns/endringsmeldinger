@@ -10348,7 +10348,7 @@
           "etter": 2,
           "rolle": "kontroll",
           "kilde": [
-            "NS-34.1.1"
+            "NS-34.1.2-1"
           ],
           "prov": {
             "handling": "brev",
@@ -10373,7 +10373,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "NS-34.1.1",
+            "NS-34.1.2-1",
             "NS-34.1.2-2",
             "MM-U2"
           ],
@@ -10895,7 +10895,7 @@
     },
     {
       "id": "F-MM-F-33-6-1-flere-enn-vurdert",
-      "forslag": "#479: dagene TE måtte forstå er høyst de vurderte dagene",
+      "forslag": "#479: dagene byggherren måtte forstå at TE hadde krav på, er høyst de vurderte dagene",
       "rader": ["KA-18c"],
       "start": "godkjent_grunnlag",
       "steg": [
@@ -11040,7 +11040,7 @@
     },
     {
       "id": "F-MM-F-33-6-1-alle-dagene",
-      "forslag": "#479, GR-U7, GR-U10: påberopelsen etter § 33.6.1 gir ikke sammenfall, heller ikke når byggherren mener TE måtte forstå alle de krevde dagene",
+      "forslag": "#479, GR-U7, GR-U10: påberopelsen etter § 33.6.1 gir ikke sammenfall, heller ikke når byggherren mener at byggherren måtte forstå at TE hadde krav på alle de krevde dagene",
       "rader": ["KA-18c"],
       "start": "godkjent_grunnlag",
       "steg": [

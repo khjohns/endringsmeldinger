@@ -2061,7 +2061,7 @@ const MUTASJONER: Mutasjon[] = [
       'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['ut.godkjent_dager = maatteForstaa;', 'ut.godkjent_dager = r.godkjent_dager;']],
-    mal: ['serverens utregning gir dagene TE måtte forstå prinsipalt'],
+    mal: ['serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt'],
   },
   {
     id: 'F194',

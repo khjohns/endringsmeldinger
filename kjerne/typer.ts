@@ -80,7 +80,7 @@ export type Standpunkt =
   | { id: string; art: 'hindring'; oppfylt: boolean }
   /**
    * § 33.6.1, VS-U4: om TE spesifiserte kravet i tide. Ved «nei» er `dager` det byggherren
-   * mener TE måtte forstå at TE hadde krav på, og står prinsipalt.
+   * mener at byggherren måtte forstå at TE hadde krav på, og står prinsipalt.
    */
   | {
       id: string;

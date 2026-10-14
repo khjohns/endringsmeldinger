@@ -761,7 +761,7 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
     return p!;
   };
 
-  it('serverens utregning gir dagene TE måtte forstå prinsipalt og de vurderte subsidiært (VS-U4, B-13)', async () => {
+  it('serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt og de vurderte subsidiært (VS-U4, B-13)', async () => {
     const { k } = await fristsak();
     const s = (await k.utledning()).svar[k.navn.id('S-f1')];
     expect(s.svar.utregning).toEqual({

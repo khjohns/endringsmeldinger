@@ -116,8 +116,8 @@ art = "spesifisering"
 spor = ["frist"]
 beskrivelse = """
 § 33.6.1: om TE spesifiserte kravet i tide. `gjelder` er kravversjonen. Ved
-«nei» er `dager` det byggherren mener TE måtte forstå at TE hadde krav på, og
-det står prinsipalt."""
+«nei» er `dager` det byggherren mener at byggherren måtte forstå at TE hadde
+krav på, og det står prinsipalt."""
 felt = ["id", "art", "gjelder", "hjemmel", "i_tide", "dager"]
 grunnlag = "VS-U3, VS-U4, KA-U4, arbeidsvalget i #479"
 
