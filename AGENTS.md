@@ -313,7 +313,8 @@ eller migrasjonene, uansett språk, ellers `medium`; en diff som bare rører
 `docs/`, trenger ingen. Endrer diffen utledningen eller reglene i domenet, kommer i
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
 bevis-sakene samlet, én gang per PR. Reviewet og rettingene kjøres i en ny økt,
-ikke i byggeøkta, slik «Kontekst i arbeidsøktene» i orkestreringsskillen sier.
+ikke i byggeøkta, når vilkårene i orkestreringsskillen, «Review i ny økt», er
+oppfylt.
 `/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
 forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
 

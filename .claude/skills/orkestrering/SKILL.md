@@ -152,11 +152,12 @@ issue. Oppdraget skal inneholde:
   en ny økt (se «Kontekst i arbeidsøktene»);
 - at reviewet følger `AGENTS.md`: stoppregelen for funn, der funn som ikke
   rettes i PR-en blir issues med `review-oppfølging`, og kontrollen av
-  rettingsdiffen på samme nivå som `AGENTS.md` krever for PR-en. `/simplify` kjøres bare når oppdragsgiver har bestilt eller
-  godkjent den (se «`/simplify`»), og da før `/code-review`;
+  rettingsdiffen på samme nivå som `AGENTS.md` krever for PR-en. `/simplify`
+  kjøres bare når oppdragsgiver har bestilt eller godkjent den (se
+  «`/simplify`»), og da før `/code-review`;
 - at PR-beskrivelsen er rapporten til orkestratoren: hva som er endret,
-  sjekkene som er kjørt med resultat, utfallet av `/code-review`, funn utenfor
-  oppdraget med issuenummer, og «Åpne spørsmål»;
+  sjekkene som er kjørt med resultat, funn utenfor oppdraget med issuenummer, og
+  «Åpne spørsmål». Reviewøkta legger til utfallet av `/code-review`;
 - PR mot `main` med `Closes #n`, eller «Del av #n» når bare en del leveres,
   og at økta ikke merger;
 - at byggeøkta åpner PR-en som utkast og lar den stå. Reviewøkta markerer den
