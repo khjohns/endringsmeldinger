@@ -22,7 +22,8 @@ og etter en time uten aktivitet er hurtigbufferen borte. Da betaler neste
 vekking for hele konteksten. En økt som lever over natta, blir dyrere for hver
 sjekk.
 
-**Størrelse.** Høyst tre arbeidsøkter per runde (oppdragsgiver 12.10, #425).
+**Størrelse.** Høyst tre PR-er per runde (oppdragsgiver 12.10, #425). En reviewøkt
+som fortsetter samme PR, teller ikke i grensen (oppdragsgiver 14.10, #491).
 Grensen settes av hvor mye oppdragsgiver kan gå gjennom, av konflikter ved
 merge og av kostnaden, ikke av antall issues.
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
@@ -150,17 +151,18 @@ issue. Oppdraget skal inneholde:
 - at byggeøkta ikke kjører `/code-review`, og at reviewet og rettingene gjøres i
   en ny økt (se «Kontekst i arbeidsøktene»);
 - at reviewet følger `AGENTS.md`: stoppregelen for funn, der funn som ikke
-  rettes i PR-en blir issues med `review-oppfølging`, og kontrollen av rettingene
-  på nivå `medium`. `/simplify` kjøres bare når oppdragsgiver har bestilt eller
+  rettes i PR-en blir issues med `review-oppfølging`, og kontrollen av
+  rettingsdiffen på samme nivå som `AGENTS.md` krever for PR-en. `/simplify` kjøres bare når oppdragsgiver har bestilt eller
   godkjent den (se «`/simplify`»), og da før `/code-review`;
 - at PR-beskrivelsen er rapporten til orkestratoren: hva som er endret,
   sjekkene som er kjørt med resultat, utfallet av `/code-review`, funn utenfor
   oppdraget med issuenummer, og «Åpne spørsmål»;
 - PR mot `main` med `Closes #n`, eller «Del av #n» når bare en del leveres,
   og at økta ikke merger;
-- at PR-en åpnes som utkast og markeres klar (`ready_for_review`) først når
-  reviewet er gjort og de lokale sjekkene er grønne. CI og
-  regelversjonsvakten kjører ikke på utkast og ikke ved push til `main` (#390), så hver push til et utkast er gratis, og hver
+- at byggeøkta åpner PR-en som utkast og lar den stå. Reviewøkta markerer den
+  klar (`ready_for_review`) når reviewet er gjort og de lokale sjekkene er
+  grønne. CI og regelversjonsvakten kjører ikke på utkast og ikke ved push til
+  `main` (#390), så hver push til et utkast er gratis, og hver
   push til en klar PR koster en full kjøring. Feilinnføringene kjører også på et
   utkast når etiketten `feilinnfoering` er satt. Etiketten settes derfor først
   når PR-en meldes klar, så hele settet (om lag 26 minutter i CI) kjører én
@@ -333,19 +335,26 @@ sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   mens noe pågår, og etter mer enn en time uten aktivitet avsluttes runden
   heller enn å vekkes (oppdragsgiver 12.10, #425).
 - **Følg med i hver sjekk.** `get_session` viser brukt kontekst
-  (`context_usage.used_tokens`) og kostnad (`usage.cost_usd`).
+  (`external_metadata.context_usage.used_tokens`) og kostnad
+  (`external_metadata.usage.cost_usd`).
 - **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
   review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
-  finnes. Har den passert om lag 150 000 tokens, stopper den der og tar ikke nye
+  finnes. Etter hvert hovedsteg leser økta sin egen kontekst med `get_session`
+  uten `session_id`, i feltet `external_metadata.context_usage.used_tokens`.
+  Har den passert om lag 150 000 tokens, stopper den der og tar ikke nye
   oppgaver, uten å vente på orkestratorens sjekk. Tilstanden skal gjøre det mulig
   å lese seg inn på nytt: vedtakene i hovedplanen, arbeidsvalgene i issuet,
   kravene i PR-beskrivelsen og hva som gjenstår. En ny, liten økt tar over fra
   PR-en (oppdragsgiver 14.10, #484).
 - **Review i ny økt.** Byggeøkta pusher, skriver tilstanden i PR-en og stopper,
-  uten å kjøre `/code-review`. En ny, liten økt tar reviewet og rettingene fra
-  PR-en etter `AGENTS.md`. Den får en avgrenset bestilling: PR-nummeret,
-  reviewbestillingen og tilstanden i PR-en, ikke hele historikken
-  (oppdragsgiver 14.10, #484 og #490).
+  uten å kjøre `/code-review`, og lar PR-en stå som utkast. En ny, liten økt tar
+  reviewet og rettingene fra PR-en etter `AGENTS.md`, og markerer PR-en klar når
+  reviewet er gjort og de lokale sjekkene er grønne. Den får en avgrenset
+  bestilling: PR-nummeret, reviewbestillingen og tilstanden i PR-en, ikke hele
+  historikken. Den fortsetter samme PR, så den teller ikke i grensen på tre PR-er
+  per runde. For økter som ikke er orkestrert, gjelder dette bare når diffen
+  rører `kjerne/` eller er over om lag 800 endrede linjer utenom `docs/`
+  (oppdragsgiver 14.10, #484, #490 og #491).
 - **Ved om lag 300 000 tokens, eller etter en komprimering,** sender
   orkestratoren én samlet sjekkliste over det som gjenstår, med kildene som
   skal leses på nytt. Gjenstår mer enn rettinger og CI, overtar en ny økt fra
