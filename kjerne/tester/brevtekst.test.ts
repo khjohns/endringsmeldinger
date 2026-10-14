@@ -626,6 +626,29 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
+  it('§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone: brevet sier at hele beløpet er godkjent, som utregningen (B-13, arbeidsvalget i #479)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          {
+            hovedkrav_vurdering: 'delvis',
+            hovedkrav_godkjent_belop: 124999.6,
+            aksepterer_metode: false,
+            oensket_metode: 'enhetspriser',
+          },
+          { resultat: 'delvis_godkjent', godkjent_beloep: 124999.6 }
+        ),
+      ],
+    });
+    expect(laast(rad)).toEqual([
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('124 999,60')}`,
+    ]);
+  });
+
   it('§ 34.2.2 «nei»: byggherren aksepterer ikke tilbudet og oppgir metoden, som standpunkt og ikke som appens avgjørelse (arbeidsvalget i #479)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {

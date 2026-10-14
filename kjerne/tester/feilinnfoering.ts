@@ -2066,7 +2066,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F194',
     feilklasse: 'de prinsipale dagene etter § 33.6.1 kan være flere enn de vurderte',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['if (d > (v.dager as number))', 'if (false)']],
+    endringer: [["if (typeof v.dager === 'number' && d > v.dager)", 'if (false)']],
     mal: ['F-MM-F-33-6-1-flere-enn-vurdert'],
   },
   {
@@ -2143,12 +2143,19 @@ const MUTASJONER: Mutasjon[] = [
       'brevet sier at byggherren godkjenner hele beløpet «av de krevde» når tilbudet ikke er akseptert',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      [
-        "p.resultat === 'delvis_godkjent' && p.godkjent >= krevd ? 'godkjent' : p.resultat",
-        'p.resultat',
-      ],
+      ["p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat", 'p.resultat'],
     ],
-    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent'],
+    mal: [
+      '§ 34.2.2 «nei» med hele beløpet godkjent',
+      '§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone',
+    ],
+  },
+  {
+    id: 'F203',
+    feilklasse: 'brevet regner hele beløpet i øre, ikke til nærmeste krone som utregningen (B-13)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['Math.round(p.godkjent) >= Math.round(krevd)', 'p.godkjent >= krevd']],
+    mal: ['§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone'],
   },
 ];
 

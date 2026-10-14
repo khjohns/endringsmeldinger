@@ -26,6 +26,7 @@ import {
   innsigelsenErOppgitt,
   innsigelsenGjelderSvaret,
   prinsipalt,
+  standpunktet,
 } from './standpunkt.ts';
 import type {
   Avsnitt,
@@ -377,7 +378,7 @@ function aapenInnsigelse(svar: Svar, avsender: Part, j: Journalen): string | und
 const METODEN = {
   enhetspriser: 'etter enhetspriser (NS 8407 § 34.3)',
   regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)',
-} as const;
+} as const satisfies Record<NonNullable<Extract<Standpunkt, { art: 'metode' }>['oensket']>, string>;
 
 /** Varselet et standpunkt om rettidighet gjelder (LV-U4 punkt 5, LV-U5). */
 const VARSELET: Record<Hjemmel, string> = {
@@ -507,10 +508,13 @@ function standpunkttekst(
         ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).'
         : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, ${dager(p.dager!)} (NS 8407 § 33.6.1).`;
     case 'beloep': {
-      // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet kan være det.
+      // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
+      // kan være det, til nærmeste krone som i B-13.
       const krevd = krav.innhold.beloep as number;
-      const resultat =
-        p.resultat === 'delvis_godkjent' && p.godkjent >= krevd ? 'godkjent' : p.resultat;
+      const heleBeloepet =
+        standpunktet(s, 'metode')?.aksepterer === false &&
+        Math.round(p.godkjent) >= Math.round(krevd);
+      const resultat = p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat;
       return verdi(resultat, eksMva(p.godkjent), eksMva(krevd));
     }
     case 'dager':

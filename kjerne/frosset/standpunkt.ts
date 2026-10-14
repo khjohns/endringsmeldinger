@@ -289,11 +289,12 @@ const kroner = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
 /** Linjen i brevet for svaret, med den prinsipale grunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
 function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
   const hjemmel = standpunktet(svar, 'rettidighet')?.hjemmel ?? HJEMMEL[svar.spor];
+  const spesifisert = standpunktet(svar, 'spesifisering');
   const grunntekst: Record<string, string> = {
     rettidighet: `prekludert (§ ${hjemmel})`,
     hindring: 'avslått uten fremdriftshindring (§ 33.1)',
-    spesifisering: standpunktet(svar, 'spesifisering')?.dager
-      ? `godkjent med ${standpunktet(svar, 'spesifisering')!.dager} dager (§ 33.6.1)`
+    spesifisering: spesifisert?.dager
+      ? `godkjent med ${spesifisert.dager} dager (§ 33.6.1)`
       : 'avslått (§ 33.6.1)',
   };
   const grunner = v.filter((p) => p.art in grunntekst && p.virkning !== 'uten_virkning');
@@ -486,7 +487,7 @@ export function regnUtSvar(
     ut.subsidiaert_resultat = r.subsidiaer_resultat;
     ut.subsidiaert_godkjent_dager = r.subsidiaer_godkjent_dager ?? 0;
   }
-  const maatteForstaa = kontrollerSpesifiseringen(v);
+  const maatteForstaa = kontrollerSpesifiseringen(v, fkrav.krevd_dager);
   // VS-U4, rekkefølgen i #479: uten preklusjon og med hindring er dagene TE måtte forstå
   // det prinsipale, og de vurderte dagene står subsidiært.
   if (maatteForstaa !== null && r.subsidiaer_resultat === null) {
@@ -502,7 +503,7 @@ export function regnUtSvar(
  * VS-U4: når spesifiseringen kom for sent, oppgir byggherren dagene TE måtte forstå,
  * høyst de vurderte og de krevde (arbeidsvalget i #479). Gir dagene, eller `null`.
  */
-function kontrollerSpesifiseringen(v: Svarvurdering): number | null {
+function kontrollerSpesifiseringen(v: Svarvurdering, krevd: number): number | null {
   const d = v.dager_maatte_forstaa;
   if (v.spesifisert_krav_ok !== false) {
     if (d != null)
@@ -515,8 +516,8 @@ function kontrollerSpesifiseringen(v: Svarvurdering): number | null {
   if (d === undefined || d === null) throw feil('mangler (§ 33.6.1)');
   if (typeof d !== 'number' || !Number.isInteger(d) || d < 0)
     throw feil('er ikke et helt antall dager');
-  // `beregnFrist` har kontrollert at de vurderte dagene er høyst de krevde.
-  if (d > (v.dager as number))
+  if (d > krevd) throw feil('er flere enn de krevde dagene');
+  if (typeof v.dager === 'number' && d > v.dager)
     throw feil('er flere enn dagene byggherren godtar om kravet kom i tide');
   return d;
 }
