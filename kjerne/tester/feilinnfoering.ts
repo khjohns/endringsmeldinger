@@ -2066,7 +2066,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F194',
     feilklasse: 'de prinsipale dagene etter § 33.6.1 kan være flere enn de vurderte',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["if (typeof v.dager === 'number' && d > v.dager)", 'if (false)']],
+    endringer: [['if (d > (v.dager as number))', 'if (false)']],
     mal: ['F-MM-F-33-6-1-flere-enn-vurdert'],
   },
   {
@@ -2154,7 +2154,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F203',
     feilklasse: 'brevet regner hele beløpet i øre, ikke til nærmeste krone som utregningen (B-13)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['Math.round(p.godkjent) >= Math.round(krevd)', 'p.godkjent >= krevd']],
+    endringer: [
+      ['tilKrone(beloep(p.godkjent)!) >= tilKrone(beloep(krevd)!)', 'p.godkjent >= krevd'],
+    ],
     mal: ['§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone'],
   },
 ];

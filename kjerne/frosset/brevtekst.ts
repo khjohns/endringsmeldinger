@@ -16,7 +16,7 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
-import { beloep } from '../regler/beloep.ts';
+import { beloep, tilKrone } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
@@ -26,7 +26,6 @@ import {
   innsigelsenErOppgitt,
   innsigelsenGjelderSvaret,
   prinsipalt,
-  standpunktet,
 } from './standpunkt.ts';
 import type {
   Avsnitt,
@@ -511,9 +510,7 @@ function standpunkttekst(
       // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
       // kan være det, til nærmeste krone som i B-13.
       const krevd = krav.innhold.beloep as number;
-      const heleBeloepet =
-        standpunktet(s, 'metode')?.aksepterer === false &&
-        Math.round(p.godkjent) >= Math.round(krevd);
+      const heleBeloepet = tilKrone(beloep(p.godkjent)!) >= tilKrone(beloep(krevd)!);
       const resultat = p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat;
       return verdi(resultat, eksMva(p.godkjent), eksMva(krevd));
     }
