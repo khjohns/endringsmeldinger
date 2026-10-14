@@ -94,12 +94,32 @@ grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
 
 [[standpunkt]]
 art = "rettidighet"
-spor = ["grunnlag", "frist"]
+spor = ["grunnlag", "vederlag", "frist"]
 beskrivelse = """
-Om varselet kom i tide: § 32.2 i grunnlaget, § 33.4 i fristen. `gjelder` er
-kravversjonen, eller et registrert varsel etter § 33.4."""
+Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 i vederlaget, § 33.4 i
+fristen. `gjelder` er kravversjonen, eller et registrert varsel etter § 33.4."""
 felt = ["id", "art", "gjelder", "hjemmel", "i_tide"]
-grunnlag = "KA-U4, MM-U1, MM-U8"
+grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3"
+
+[[standpunkt]]
+art = "metode"
+spor = ["vederlag"]
+beskrivelse = """
+§ 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept står metoden
+byggherren mener vederlaget skal justeres etter (`oensket_metode`). Appen
+avgjør ikke om § 34.3 eller § 34.4 gjelder."""
+felt = ["id", "art", "hjemmel", "aksepterer", "oensket_metode"]
+grunnlag = "VS-U3, KA-U4, arbeidsvalget i #479"
+
+[[standpunkt]]
+art = "spesifisering"
+spor = ["frist"]
+beskrivelse = """
+§ 33.6.1: om TE spesifiserte kravet i tide. `gjelder` er kravversjonen. Ved
+«nei» er `dager` det byggherren mener at byggherren måtte forstå at TE hadde
+krav på, og det står prinsipalt."""
+felt = ["id", "art", "gjelder", "hjemmel", "i_tide", "dager"]
+grunnlag = "VS-U3, VS-U4, KA-U4, arbeidsvalget i #479"
 
 [[standpunkt]]
 art = "grunnlag"
@@ -260,9 +280,9 @@ grunnlag = "LV-U2, LV-U3, LV-U4, B-13 om begrunnelsestekst, KA-U22, KA-U25"
 [[del]]
 navn = "utregning"
 spor = "vederlag"
-beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet."
-felt = ["resultat", "godkjent_beloep"]
-grunnlag = "B-13"
+beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet, og det subsidiære standpunktet ved preklusjon etter § 34.1.2."
+felt = ["resultat", "godkjent_beloep", "subsidiaert_resultat", "subsidiaert_godkjent_beloep"]
+grunnlag = "B-13, VS-U3"
 
 [[del]]
 navn = "utregning"

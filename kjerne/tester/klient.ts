@@ -17,6 +17,7 @@ export type Handling = Record<string, unknown> & { handling: string };
 
 /** § 32.2 gjelder ikke `samordning`. Står for innsnevringen #220 kan gi; omfanget avgjøres ikke her. */
 export const NESTE_REGLER: Regelsett = {
+  ...GJELDENDE_REGLER,
   versjon: GJELDENDE_REGLER.versjon + 1,
   gjelderVarslingsplikten: (h, u) =>
     GJELDENDE_REGLER.gjelderVarslingsplikten(h, u) && u !== 'samordning',
@@ -107,11 +108,14 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
     return {
       hovedkrav_vurdering: h.vurdering,
       hovedkrav_godkjent_belop: h.godkjent_belop,
-      aksepterer_metode: true,
+      hovedkrav_varslet_i_tide: h.varslet_i_tide,
+      aksepterer_metode: h.metode_akseptert ?? true,
+      oensket_metode: h.oensket_metode,
     };
   return {
     frist_varsel_ok: h.varsel_i_tide,
     spesifisert_krav_ok: h.spesifisering_i_tide,
+    dager_maatte_forstaa: h.maatte_forstaa,
     vilkar_oppfylt: h.hindring,
     dager: h.dager ?? krav?.innhold.dager,
   };

@@ -255,7 +255,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   ['Standpunkt', 'relasjon', 'id art gjelder'],
-  ['Standpunkt', 'utsagn', 'hjemmel iTide resultat godkjent oppfylt vurdert'],
+  [
+    'Standpunkt',
+    'utsagn',
+    'hjemmel iTide resultat godkjent oppfylt vurdert aksepterer oensket dager',
+  ],
   ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
   // KA-U20: sporene en merking gjelder, som partens vurdering.
   ['Opplysning', 'utsagn', 'spor'],
@@ -388,17 +392,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarvurdering',
     'utsagn',
-    'resultat grunnlag_varslet_i_tide frist_varsel_ok spesifisert_krav_ok vilkar_oppfylt dager',
+    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide hovedkrav_vurdering aksepterer_metode oensket_metode
+     frist_varsel_ok spesifisert_krav_ok dager_maatte_forstaa vilkar_oppfylt dager`,
   ],
   [
     'frosset/standpunkt.ts:utenforOmfanget(v)',
     'utsagn',
-    `spesifisert_krav_ok foresporsel_svar_ok aksepterer_metode hold_tilbake rigg_vurdering
+    `foresporsel_svar_ok hold_tilbake rigg_vurdering
      produktivitet_vurdering *`,
   ],
 
   // Regelsettet (regler/).
-  ['Regelsett', 'regelsett', 'versjon gjelderVarslingsplikten'],
+  ['Regelsett', 'regelsett', 'versjon gjelderVarslingsplikten gjelderVarslingspliktenForVederlag'],
   ['regler/regelsett.ts', 'regelsett', 'GJELDENDE_REGLER'],
   ['regler/beloep.ts', 'regelsett', 'beloep erEndelig tilKrone tilTall NULL_OERE'],
   ['regler/feil.ts', 'regelsett', 'UgyldigVurdering'],
@@ -407,8 +412,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'erEndringMedVarslingsplikt erGrunnlagSubsidiaert foersteUnderkategori gyldigeResultater',
   ],
-  ['regler/frist.ts', 'regelsett', 'beregnFrist'],
-  ['regler/vederlag.ts', 'regelsett', 'beregnVederlag'],
+  ['regler/frist.ts', 'regelsett', 'beregnFrist resultatAvDager'],
+  ['regler/vederlag.ts', 'regelsett', 'beregnVederlag gjelderVarslingspliktenForVederlag'],
   [
     'Fristkrav',
     'regelsett',
@@ -444,7 +449,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      produktivitet_vurdering produktivitet_godkjent_belop produktivitet_varslet_i_tide`,
   ],
   ['Preklusjon', 'regelsett', 'hovedkrav rigg produktivitet'],
-  ['Vederlagsberegning', 'regelsett', 'beregnings_resultat total_godkjent_belop'],
+  [
+    'Vederlagsberegning',
+    'regelsett',
+    'beregnings_resultat total_godkjent_belop subsidiaer_resultat subsidiaer_godkjent_belop',
+  ],
 
   // Kommandoene og kontrollen av dem.
   [
@@ -496,9 +505,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/format.ts',
     'rad',
     'HJEMMEL',
-    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts'],
+    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts', 'frosset/standpunkt.ts'],
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
+  // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
+  ['format/format.ts', 'skjema', 'METODER', ['frosset/standpunkt.ts']],
   [
     'format/format.ts',
     'skjema',
@@ -559,7 +570,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt',
+    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_metode dager',
     ['format/leser.ts'],
   ],
   // Beløpet og dagene i standpunktet leses av utregningen, som har ett hjem (4.3 i
@@ -573,7 +584,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(svar).utregning',
     'rad',
-    'resultat godkjent_beloep godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
+    `resultat godkjent_beloep godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager
+     subsidiaert_godkjent_beloep`,
     ['format/leser.ts'],
   ],
   [
@@ -588,7 +600,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
   ['frosset/frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['kommandoer/skriving.ts']],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
-  ['kommandoer/skriving.ts:frysBrev(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
+  [
+    'kommandoer/skriving.ts:frysBrev(s)',
+    'rad',
+    'spor gjelder grunnlagskrav',
+    ['kommandoer/skriving.ts'],
+  ],
   // VS-U9, VS-U11: innsigelsen et registrert svar leses med, og plassen blant partens svar da den kom.
   ['kommandoer/skriving.ts:frysBrev', 'relasjon', 'id gjelder fra', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
@@ -647,6 +664,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
+  // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
+  ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av
   // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
   ['Sporutledning', 'predikat', 'subsidiaer', ['kommandoer/skriving.ts:brevtekstFor']],

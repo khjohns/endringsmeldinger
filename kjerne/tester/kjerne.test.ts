@@ -173,7 +173,10 @@ describe('formatet (7.1.2, 4.4)', () => {
     ['en tom streng', kravet('K-g1', (k) => (k.tittel = ''))],
     ['en tom liste', (r, k) => (radMed(r, k, 'D6').data.opplysninger = [])],
     ['et ukjent felt i et svar', svarIBrevet('S-v2', (s) => (s.begrunnelse = 'Vurdert'))],
-    ['en ukjent art', svarIBrevet('S-v2', (s) => ((s.standpunkter as Data[])[0].art = 'metode'))],
+    [
+      'en ukjent art',
+      svarIBrevet('S-v2', (s) => ((s.standpunkter as Data[])[0].art = 'tilbakeholdelse')),
+    ],
     [
       'et standpunkt i feil rekkefølge',
       svarIBrevet('S-f1', (s) => (s.standpunkter as Data[]).reverse()),
@@ -651,10 +654,11 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
     expect(s.virkninger.map((p) => [p.art, p.virkning])).toEqual([
       ['rettidighet', 'uten_virkning'],
       ['hindring', 'prinsipalt'],
+      ['spesifisering', 'uten_virkning'],
       ['dager', 'subsidiaert'],
     ]);
     expect(s.svar.beslutningsgrunnlag?.linje).toBe(
-      'Prinsipalt avslått uten fremdriftshindring (§ 33.1), subsidiært godkjent med 20 dager.'
+      'Prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
     expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.dager).toBe(0);
@@ -672,21 +676,168 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
   });
 });
 
-describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
-  it.each([
-    ['frist', { spor: 'frist', varsel_i_tide: true, spesifisering_i_tide: false, hindring: true }],
-  ])('%s: reduksjon etter § 33.6.1', async (_spor, s) => {
-    const k = await bygg(minnebane(), [
+/**
+ * HF-U1, MM-U2: et standpunkt etter § 34.1.2, § 34.2.2 eller § 33.6.1 som ikke viser til
+ * det det gjelder, eller som ikke henger sammen, gjør saken ikke forstått. Hvert
+ * tilfelle har en kontrollsak: den uendrede raden er forstått. Kilden er arbeidsvalgene
+ * i #479 og VS-U4.
+ */
+describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en lagret rad', () => {
+  const vederlagssak = async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', hovedkategori: 'svikt', underkategori: 'medvirkning' },
+      { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' },
+      { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' },
+      {
+        handling: 'brev',
+        svar: [
+          { spor: 'grunnlag', resultat: 'godkjent' },
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            vurdering: 'delvis',
+            godkjent_belop: 60000,
+            varslet_i_tide: false,
+            metode_akseptert: false,
+            oensket_metode: 'enhetspriser',
+          },
+        ],
+      },
+    ]);
+    return { k, rader: await bane.journal() };
+  };
+  const fristsak = async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
       'godkjent_grunnlag',
       { handling: 'krav', spor: 'frist', dager: 20 },
+      {
+        handling: 'brev',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f1',
+            varsel_i_tide: true,
+            spesifisering_i_tide: false,
+            maatte_forstaa: 5,
+            dager: 15,
+            hindring: true,
+          },
+        ],
+      },
     ]);
-    const u = await k.prov({ handling: 'brev', svar: [s] });
-    expect(u.godtatt ? 'godtatt' : u.avvisning.regel).toBe('VURDERING_UTENFOR_KJERNEN');
-    // Kontrollsak: samme svar med spesifiseringen i tide.
-    const ok = await k.prov({ handling: 'brev', svar: [{ ...s, spesifisering_i_tide: true }] });
-    expect(ok.godtatt).toBe(true);
+    return { k, rader: await bane.journal() };
+  };
+  const metodesak = async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring' },
+      { handling: 'krav', spor: 'vederlag', belop: 100000 },
+      {
+        handling: 'brev',
+        svar: [
+          { spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true },
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            vurdering: 'godkjent',
+            metode_akseptert: false,
+            oensket_metode: 'enhetspriser',
+          },
+        ],
+      },
+    ]);
+    return { k, rader: await bane.journal() };
+  };
+  /** Et registrert brev kan ha en utregning som sier «godkjent» (MM-U17); sammenfallet leses av standpunktene. */
+  const godkjentMedSammenfall = (s: Data) => {
+    (s.utregning as Data).resultat = 'godkjent';
+    (s.beslutningsgrunnlag as Data).sammenfall = true;
+  };
+  const standpunkt = (svar: Data, art: string) => {
+    const p = (svar.standpunkter as Data[]).find((x) => x.art === art);
+    expect(p, `forutsetning: svaret har standpunktet ${art}`).toBeDefined();
+    return p!;
+  };
+
+  it('serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt og de vurderte subsidiært (VS-U4, B-13)', async () => {
+    const { k } = await fristsak();
+    const s = (await k.utledning()).svar[k.navn.id('S-f1')];
+    expect(s.svar.utregning).toEqual({
+      resultat: 'delvis_godkjent',
+      godkjent_dager: 5,
+      subsidiaert_resultat: 'delvis_godkjent',
+      subsidiaert_godkjent_dager: 15,
+    });
   });
 
+  it.each([
+    [
+      'påberopelsen etter § 34.1.2 viser til kravversjonen svaret gjelder, ikke det første vederlagskravet',
+      async () => {
+        const { k, rader } = await vederlagssak();
+        return {
+          k,
+          rader,
+          endring: (s: Data) => (standpunkt(s, 'rettidighet').gjelder = k.navn.id('K-v2')),
+        };
+      },
+      'S-v1',
+    ],
+    [
+      'tilbudet er ikke akseptert, men metoden mangler',
+      async () => {
+        const { k, rader } = await vederlagssak();
+        return { k, rader, endring: (s: Data) => delete standpunkt(s, 'metode').oensket_metode };
+      },
+      'S-v1',
+    ],
+    [
+      'spesifiseringen viser til en annen kravversjon enn svaret',
+      async () => {
+        const { k, rader } = await fristsak();
+        return {
+          k,
+          rader,
+          endring: (s: Data) => (standpunkt(s, 'spesifisering').gjelder = k.navn.id('D-g')),
+        };
+      },
+      'S-f1',
+    ],
+    [
+      'sammenfall med et tilbud byggherren ikke aksepterer (§ 34.2.2)',
+      async () => ({ ...(await metodesak()), endring: godkjentMedSammenfall }),
+      'S-v1',
+    ],
+    [
+      'sammenfall med en påberopelse etter § 33.6.1',
+      async () => ({ ...(await fristsak()), endring: godkjentMedSammenfall }),
+      'S-f1',
+    ],
+    [
+      'spesifiseringen er i tide, men har prinsipale dager',
+      async () => {
+        const { k, rader } = await fristsak();
+        return { k, rader, endring: (s: Data) => (standpunkt(s, 'spesifisering').i_tide = true) };
+      },
+      'S-f1',
+    ],
+  ] as [
+    string,
+    () => Promise<{ k: Kjoering; rader: Journalrad[]; endring: (s: Data) => void }>,
+    string,
+  ][])('er ikke forstått: %s', async (_n, lag, navn) => {
+    const { k, rader, endring } = await lag();
+    expect(forstaatt(rader), 'kontrollsak: den uendrede raden er forstått').toBe(true);
+    const endret = structuredClone(rader);
+    endring(svaret(radMed(endret, k, navn), k, navn));
+    expect(forstaatt(endret)).toBe(false);
+  });
+});
+
+// Kommandoen avvises med VURDERING_UTENFOR_KJERNEN: se `brevtekst.test.ts`, som har kommandoene.
+describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
   it('en lagret rad med en slik vurdering leses som ikke forstått', async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
@@ -707,7 +858,7 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
     ]);
     const rader = await bane.journal();
     const endret = structuredClone(rader);
-    svaret(radMed(endret, k, 'S-f1'), k, 'S-f1').spesifisert_krav_ok = false;
+    svaret(radMed(endret, k, 'S-f1'), k, 'S-f1').foresporsel_svar_ok = false;
     expect(forstaatt(rader)).toBe(true);
     expect(forstaatt(endret)).toBe(false);
   });

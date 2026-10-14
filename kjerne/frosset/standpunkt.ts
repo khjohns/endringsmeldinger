@@ -14,7 +14,7 @@
 
 import { beloep, tilTall } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
-import { beregnFrist, type Fristkrav } from '../regler/frist.ts';
+import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
 import {
   foersteUnderkategori,
   gyldigeResultater,
@@ -23,9 +23,11 @@ import {
 import type { Regelsett } from '../regler/regelsett.ts';
 import { tekst } from '../format/skjema.ts';
 import { beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
+import { HJEMMEL, METODER } from '../format/format.ts';
 import type {
   Beslutningsgrunnlag,
   Enighetsgrunnlag,
+  Hjemmel,
   Krav,
   Spor,
   Standpunkt,
@@ -55,6 +57,22 @@ export function gjelderVarslingsplikten(
 }
 
 /**
+ * VS-U3: påberopelsen etter hjemmelen kan ha virkning for kravet. § 33.4 gjelder
+ * alltid i fristen, § 32.2 der varslingsplikten gjelder kategorien, og § 34.1.2
+ * for svikt og andre forhold byggherren har risikoen for.
+ */
+function hjemmelenGjelder(
+  hjemmel: Hjemmel,
+  grunnlagskrav: Krav | null | undefined,
+  regler: Regelsett
+): boolean {
+  if (hjemmel === '33.4') return true;
+  if (hjemmel === '34.1.2')
+    return regler.gjelderVarslingspliktenForVederlag(kategori(grunnlagskrav).hovedkategori);
+  return gjelderVarslingsplikten(grunnlagskrav, regler);
+}
+
+/**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
  * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. `innsigelse` er en
  * innsigelse etter § 5 byggherren sendte før et registrert svar uten standpunkt
@@ -76,10 +94,16 @@ export function virkninger(
   const etterGrunn = () => (harGrunn ? 'subsidiaert' : 'prinsipalt');
   for (const s of svar.standpunkter) {
     if (s.art === 'rettidighet') {
-      const virker =
-        !s.iTide && (s.hjemmel === '33.4' || gjelderVarslingsplikten(grunnlagskrav, regler));
+      const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, grunnlagskrav, regler);
       if (virker) harGrunn = true;
       ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 'prinsipalt' : 'uten_virkning' });
+    } else if (s.art === 'metode' && s.aksepterer) {
+      ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
+    } else if (s.art === 'spesifisering') {
+      // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
+      const virkning = s.iTide ? 'uten_virkning' : etterGrunn();
+      if (!s.iTide) harGrunn = true;
+      ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'hindring') {
       // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
       const virkning = s.oppfylt ? 'uten_virkning' : etterGrunn();
@@ -198,9 +222,14 @@ function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boole
 function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   const prekludert = avvisesPrinsipalt(v);
   if (svar.spor === 'grunnlag') return {};
-  if (svar.spor === 'vederlag') return { beloep: standpunktet(svar, 'beloep')!.godkjent };
+  if (svar.spor === 'vederlag')
+    return { beloep: prekludert ? 0 : standpunktet(svar, 'beloep')!.godkjent };
+  if (prekludert) return { dager: 0 };
+  const spesifisering = standpunktet(svar, 'spesifisering');
+  if (spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id)
+    return { dager: spesifisering.dager! };
   const dager = standpunktet(svar, 'dager')!;
-  return { dager: prekludert || dager.resultat === 'avslaatt' ? 0 : dager.vurdert };
+  return { dager: dager.resultat === 'avslaatt' ? 0 : dager.vurdert };
 }
 
 /**
@@ -211,6 +240,15 @@ function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
 function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   if (avvisesPrinsipalt(v)) return false;
   if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';
+  // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
+  // påberopelse etter § 33.6.1 med virkning, gir aldri sammenfall. Leses av standpunktene.
+  if (standpunktet(svar, 'metode')?.aksepterer === false) return false;
+  const spesifisering = standpunktet(svar, 'spesifisering');
+  if (
+    spesifisering &&
+    v.some((p) => p.standpunkt === spesifisering.id && p.virkning !== 'uten_virkning')
+  )
+    return false;
   return svar.utregning.resultat === 'godkjent';
 }
 
@@ -249,13 +287,24 @@ export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): 
 const kroner = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
 
 /** Linjen i brevet for svaret, med den prinsipale grunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
-function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
-  const hjemmel = svar.spor === 'grunnlag' ? '§ 32.2' : '§ 33.4';
+function beslutningslinje(
+  svar: Svarinnhold,
+  v: Standpunktsvirkning[],
+  grunnlagskrav: Krav | null | undefined
+): string {
+  const hjemmel = standpunktet(svar, 'rettidighet')?.hjemmel ?? HJEMMEL[svar.spor];
+  const spesifisert = standpunktet(svar, 'spesifisering');
   const grunntekst: Record<string, string> = {
-    rettidighet: `prekludert (${hjemmel})`,
-    hindring: 'avslått uten fremdriftshindring (§ 33.1)',
+    rettidighet: `prekludert (§ ${hjemmel})`,
+    // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
+    hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
+      kategori(grunnlagskrav).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
+    })`,
+    spesifisering: spesifisert?.dager
+      ? `godkjent med ${spesifisert.dager} dager (§ 33.6.1)`
+      : 'avslått (§ 33.6.1)',
   };
-  const grunner = v.filter((p) => AVVISENDE.has(p.art) && p.virkning !== 'uten_virkning');
+  const grunner = v.filter((p) => p.art in grunntekst && p.virkning !== 'uten_virkning');
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
     standpunkt = {
@@ -266,6 +315,8 @@ function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
   } else if (svar.spor === 'vederlag') {
     const b = standpunktet(svar, 'beloep')!;
     standpunkt = b.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
+    if (standpunktet(svar, 'metode')?.aksepterer === false)
+      standpunkt += ', tilbudet ikke akseptert (§ 34.2.2)';
   } else {
     const d = standpunktet(svar, 'dager')!;
     standpunkt = d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
@@ -291,7 +342,7 @@ export function beslutningsgrunnlag(
   return {
     regelversjon: regler.versjon,
     virkninger: v,
-    linje: beslutningslinje(svar, v),
+    linje: beslutningslinje(svar, v, grunnlagskrav),
     sammenfall: godkjennerHeleKravet(svar, v),
     ...(svar.spor === 'grunnlag'
       ? { varslingsplikt: gjelderVarslingsplikten(grunnlagskrav, regler) }
@@ -319,18 +370,11 @@ export function ulikeVirkninger(a: Standpunktsvirkning[], b: Standpunktsvirkning
  * PR #306).
  */
 export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
-  if (spor === 'frist' && v.spesifisert_krav_ok === false)
-    return 'reduksjon etter § 33.6.1 er ikke i kjernen ennå';
   if (spor === 'frist' && v.foresporsel_svar_ok === false)
     return 'svar på forespørsel etter § 33.6.2 er ikke i kjernen ennå';
   if (spor === 'vederlag') {
-    if (v.aksepterer_metode === false) return 'avslått metode (§ 34.2.2) er ikke i kjernen ennå';
     if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
-    for (const felt of [
-      'hovedkrav_varslet_i_tide',
-      'rigg_varslet_i_tide',
-      'produktivitet_varslet_i_tide',
-    ])
+    for (const felt of ['rigg_varslet_i_tide', 'produktivitet_varslet_i_tide'])
       if (v[felt] === false) return `preklusjon etter § 34.1 (${felt}) er ikke i kjernen ennå`;
     if ((v.rigg_vurdering ?? null) !== null || (v.produktivitet_vurdering ?? null) !== null)
       return 'særskilte krav (§ 34.1.3) er ikke i kjernen ennå';
@@ -345,9 +389,12 @@ export interface Svarvurdering {
   grunnlag_varslet_i_tide?: unknown;
   hovedkrav_vurdering?: unknown;
   hovedkrav_godkjent_belop?: unknown;
+  hovedkrav_varslet_i_tide?: unknown;
   aksepterer_metode?: unknown;
+  oensket_metode?: unknown;
   frist_varsel_ok?: unknown;
   spesifisert_krav_ok?: unknown;
+  dager_maatte_forstaa?: unknown;
   vilkar_oppfylt?: unknown;
   dager?: unknown;
 }
@@ -396,11 +443,33 @@ export function regnUtSvar(
       grunnlag_varslet_i_tide: null,
       grunnlag_resultat: null,
     };
+    if (
+      v.hovedkrav_varslet_i_tide != null &&
+      !regler.gjelderVarslingspliktenForVederlag(hovedkategori)
+    )
+      throw new UgyldigVurdering({
+        hovedkrav_varslet_i_tide: 'gjelder bare svikt og andre forhold (§ 34.1.2)',
+      });
+    // Arbeidsvalget i #479: uten aksept av tilbudet oppgir byggherren metoden, ellers ikke.
+    if (v.aksepterer_metode === false && !METODER.includes(v.oensket_metode as never))
+      throw new UgyldigVurdering({
+        oensket_metode: 'mangler når tilbudet ikke aksepteres (§ 34.2.2)',
+      });
+    if (v.aksepterer_metode !== false && v.oensket_metode != null)
+      throw new UgyldigVurdering({
+        oensket_metode: 'gjelder bare når tilbudet ikke aksepteres (§ 34.2.2)',
+      });
     const r = beregnVederlag(vkrav, v as never);
-    return {
+    const ut: Record<string, unknown> = {
       resultat: r.beregnings_resultat,
       godkjent_beloep: tilTall(r.total_godkjent_belop),
     };
+    // VS-U3, B-13: ved preklusjon etter § 34.1.2 står det vurderte beløpet subsidiært.
+    if (r.subsidiaer_resultat !== null) {
+      ut.subsidiaert_resultat = r.subsidiaer_resultat;
+      ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_belop!);
+    }
+    return ut;
   }
   const fkrav: Fristkrav = {
     krevd_dager: (krav.innhold.dager as number | undefined) ?? 0,
@@ -425,7 +494,39 @@ export function regnUtSvar(
     ut.subsidiaert_resultat = r.subsidiaer_resultat;
     ut.subsidiaert_godkjent_dager = r.subsidiaer_godkjent_dager ?? 0;
   }
+  const maatteForstaa = kontrollerSpesifiseringen(v);
+  // VS-U4, rekkefølgen i #479: uten preklusjon og med hindring er dagene byggherren måtte
+  // forstå at TE hadde krav på det prinsipale, og de vurderte dagene står subsidiært.
+  if (maatteForstaa !== null && r.subsidiaer_resultat === null) {
+    ut.resultat = resultatAvDager(true, fkrav.krevd_dager, maatteForstaa);
+    ut.godkjent_dager = maatteForstaa;
+    ut.subsidiaert_resultat = r.beregnings_resultat;
+    ut.subsidiaert_godkjent_dager = r.godkjent_dager;
+  }
   return ut;
+}
+
+/**
+ * VS-U4: når spesifiseringen kom for sent, oppgir byggherren dagene byggherren måtte forstå at
+ * TE hadde krav på, høyst de vurderte og de krevde (arbeidsvalget i #479). Gir dagene, eller `null`.
+ */
+function kontrollerSpesifiseringen(v: Svarvurdering): number | null {
+  const d = v.dager_maatte_forstaa;
+  if (v.spesifisert_krav_ok !== false) {
+    if (d != null)
+      throw new UgyldigVurdering({
+        dager_maatte_forstaa: 'gjelder bare når kravet er spesifisert for sent (§ 33.6.1)',
+      });
+    return null;
+  }
+  const feil = (grunn: string) => new UgyldigVurdering({ dager_maatte_forstaa: grunn });
+  if (d === undefined || d === null) throw feil('mangler (§ 33.6.1)');
+  if (typeof d !== 'number' || !Number.isInteger(d) || d < 0)
+    throw feil('er ikke et helt antall dager');
+  // `beregnFrist` har kontrollert at de vurderte dagene er høyst de krevde.
+  if (d > (v.dager as number))
+    throw feil('er flere enn dagene byggherren godtar om kravet kom i tide');
+  return d;
 }
 
 /** Feltene klienten skal ha regnet likt med serveren. Beløp sammenliknes til hele øre. */

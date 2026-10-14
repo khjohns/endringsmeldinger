@@ -537,7 +537,17 @@ function utledSporene(
     if (!sammenfallStemmer(s))
       ugyldig(s.id, 'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18)');
     for (const p of s.standpunkter) {
+      // HF-U1, VS-U4: spesifiseringen gjelder kravversjonen svaret gjelder.
+      if (p.art === 'spesifisering' && p.gjelder !== s.gjelder)
+        ugyldig(s.id, 'spesifiseringen viser ikke til kravet svaret gjelder');
       if (p.art !== 'rettidighet') continue;
+      // Arbeidsvalget i #479: påberopelsen etter § 34.1.2 gjelder det første vederlagskravet,
+      // det første varselet appen kjenner (OV-U5).
+      if (p.hjemmel === '34.1.2') {
+        if (p.gjelder !== spor.vederlag.krav[0]?.id)
+          ugyldig(s.id, 'påberopelsen etter § 34.1.2 viser ikke til det første vederlagskravet');
+        continue;
+      }
       // MM-U1: rettidigheten etter § 33.4 gjelder et registrert varsel eller varselet
       // utledet av kravet; etter § 32.2 gjelder den kravet.
       const varsel = p.hjemmel === '33.4' && varsler.some((v) => v.id === p.gjelder);

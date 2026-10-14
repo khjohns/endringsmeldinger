@@ -22,6 +22,7 @@ import {
   SPOR,
   type Hjemmel,
   type Spor,
+  type Standpunkt,
   type Standpunktsart,
   type Utsagnsart,
 } from '../typer.ts';
@@ -38,8 +39,12 @@ export const LESERFORMAT = 1;
 
 export const HENDELSESTYPER = ['sak_opprettet', 'dokument_registrert'] as const;
 
-/** Hjemmelen for rettidigheten i sporet: § 32.2 i grunnlaget, § 33.4 i fristen. */
-export const HJEMMEL: Partial<Record<Spor, Hjemmel>> = { grunnlag: '32.2', frist: '33.4' };
+/** Hjemmelen for rettidigheten i sporet: § 32.2 i grunnlaget, § 34.1.2 i vederlaget, § 33.4 i fristen. */
+export const HJEMMEL: Record<Spor, Hjemmel> = {
+  grunnlag: '32.2',
+  vederlag: '34.1.2',
+  frist: '33.4',
+};
 
 /**
  * Standpunktene et svar i sporet kan ha, i rekkefølgen brevet setter dem.
@@ -51,13 +56,23 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
     { art: 'rettidighet', paakrevd: false },
     { art: 'grunnlag', paakrevd: true },
   ],
-  vederlag: [{ art: 'beloep', paakrevd: true }],
+  vederlag: [
+    { art: 'rettidighet', paakrevd: false },
+    { art: 'metode', paakrevd: false },
+    { art: 'beloep', paakrevd: true },
+  ],
   frist: [
     { art: 'rettidighet', paakrevd: false },
     { art: 'hindring', paakrevd: false },
+    { art: 'spesifisering', paakrevd: false },
     { art: 'dager', paakrevd: true },
   ],
 };
+
+/** Metodene byggherren kan mene vederlaget skal justeres etter, når tilbudet ikke er akseptert (§ 34.2.2). */
+export const METODER = ['enhetspriser', 'regningsarbeid'] as const satisfies readonly NonNullable<
+  Extract<Standpunkt, { art: 'metode' }>['oensket']
+>[];
 
 export const ID: Skjema = { type: 'string', minLength: 1 };
 export const TEKST: Skjema = { type: 'string', minLength: 1 };
@@ -148,7 +163,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     {
       ...artfelt('rettidighet'),
       gjelder: ID,
-      hjemmel: { enum: ['32.2', '33.4'] },
+      hjemmel: { enum: ['32.2', '33.4', '34.1.2'] },
       i_tide: { type: 'boolean' },
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
@@ -159,11 +174,30 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     'resultat',
   ]),
   beloep: objekt(artfelt('beloep'), ['id', 'art']),
+  metode: objekt(
+    {
+      ...artfelt('metode'),
+      hjemmel: { const: '34.2.2' },
+      aksepterer: { type: 'boolean' },
+      oensket_metode: { enum: [...METODER] },
+    },
+    ['id', 'art', 'hjemmel', 'aksepterer']
+  ),
   hindring: objekt({ ...artfelt('hindring'), oppfylt: { type: 'boolean' } }, [
     'id',
     'art',
     'oppfylt',
   ]),
+  spesifisering: objekt(
+    {
+      ...artfelt('spesifisering'),
+      gjelder: ID,
+      hjemmel: { const: '33.6.1' },
+      i_tide: { type: 'boolean' },
+      dager: { type: 'integer', minimum: 0 },
+    },
+    ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
+  ),
   dager: objekt(artfelt('dager'), ['id', 'art']),
 };
 
@@ -174,6 +208,8 @@ export const UTREGNING: Record<Spor, Skjema | null> = {
     {
       resultat: { enum: [...VEDERLAGSRESULTATER] },
       godkjent_beloep: { type: 'number', minimum: 0 },
+      subsidiaert_resultat: { enum: [...VEDERLAGSRESULTATER] },
+      subsidiaert_godkjent_beloep: { type: 'number', minimum: 0 },
     },
     ['resultat', 'godkjent_beloep']
   ),

@@ -9,7 +9,8 @@
  * F132–F134 LV-U5 (#414), F135–F148 MM-U20 (#405) og VS-U15 (#411), F149–F152
  * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
- * samspillsreviewet av den og KA-U36 (#468). Én mutasjon
+ * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
+ * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -77,7 +78,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         '  if (kraveneErAvgjort(u))',
-        "  if (visning(u, { versjon: 0, gjelderVarslingsplikten: () => true }).status.kode === 'avsluttet_oppgjort' || kraveneErAvgjort(u))",
+        "  if (visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status.kode === 'avsluttet_oppgjort' || kraveneErAvgjort(u))",
       ],
     ],
     mal: [
@@ -1293,7 +1294,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F116',
     feilklasse: 'dager som ikke er godkjent fullt, krever ingen begrunnelse (KA-U24)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [["(server.subsidiaert_resultat ?? server.resultat) !== 'godkjent'", 'false']],
+    endringer: [["if (!fulltGodkjent) ut.push('dager", "if (false) ut.push('dager"]],
     mal: ['dager som ikke er godkjent fullt'],
   },
   {
@@ -1890,6 +1891,274 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['    svarMedUten.map((s) => {', '    [...alleSvar.values()].map((s) => {']],
     mal: ['en registrert begrunnelse av et svar uten virkning, sendt før svaret, avvises'],
+  },
+  {
+    id: 'F178',
+    feilklasse: 'byggherrens vurdering etter § 34.1.2 lagres ikke som standpunkt (#341, KA-U4)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
+        "if (typeof v.hovedkrav_varslet_i_tide === 'string')",
+      ],
+    ],
+    mal: ['F-MM-V-34-1-2-nei', 'F-MM-V-34-1-2-ja', '§ 34.1.2 «ja»'],
+  },
+  {
+    id: 'F179',
+    feilklasse: 'påberopelsen etter § 34.1.2 får ingen virkning for svikt (VS-U3)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["if (hjemmel === '34.1.2')", "if (hjemmel === ('' as Hjemmel))"]],
+    mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
+  },
+  {
+    id: 'F180',
+    feilklasse:
+      'aksept av et svar med preklusjon etter § 34.1.2 gir det subsidiære beløpet (VS-U3)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "beloep: prekludert ? 0 : standpunktet(svar, 'beloep')!.godkjent",
+        "beloep: standpunktet(svar, 'beloep')!.godkjent",
+      ],
+    ],
+    mal: ['F-MM-V-34-1-2-nei'],
+  },
+  {
+    id: 'F181',
+    feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['v.hovedkrav_varslet_i_tide != null &&', 'false &&']],
+    mal: ['F-MM-V-34-1-2-endring'],
+  },
+  {
+    id: 'F182',
+    feilklasse: 'beløpsstandpunktet leses som det prinsipale beløpet, ikke det vurderte (B-13)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        '(utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep)',
+        '(utregning.godkjent_beloep)',
+      ],
+    ],
+    mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
+  },
+  {
+    id: 'F183',
+    feilklasse: 'det subsidiære beløpet ved preklusjon etter § 34.1.2 lagres ikke (VS-U3, B-13)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'if (r.subsidiaer_resultat !== null) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
+        'if (false) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
+      ],
+    ],
+    mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
+  },
+  {
+    id: 'F184',
+    feilklasse: 'påberopelsen etter § 34.1.2 krever ingen begrunnelse (KA-U24)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');",
+        'void 0;',
+      ],
+    ],
+    mal: ['§ 34.1.2 «nei» med hele beløpet godkjent subsidiært må ha en begrunnelse'],
+  },
+  {
+    id: 'F185',
+    feilklasse:
+      'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['gjelder: u.spor.vederlag.krav[0]!.id,', 'gjelder: krav.id,']],
+    mal: ['F-MM-V-34-1-2-ny-kravversjon'],
+  },
+  {
+    id: 'F186',
+    feilklasse:
+      'en lagret påberopelse etter § 34.1.2 som viser til en senere kravversjon, forstås (HF-U1)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['if (p.gjelder !== spor.vederlag.krav[0]?.id)', "if (p.gjelder === ('' as string))"],
+    ],
+    mal: ['påberopelsen etter § 34.1.2 viser til kravversjonen svaret gjelder'],
+  },
+  {
+    id: 'F187',
+    feilklasse: '«ja» og «nei» på § 34.2.2 får motsatt virkning',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "} else if (s.art === 'metode' && s.aksepterer) {",
+        "} else if (s.art === 'metode' && !s.aksepterer) {",
+      ],
+    ],
+    // Virkningen av «nei» leses ikke av noen regel, så den overlever der (#490).
+    mal: ['F-MM-V-34-2-2-ja'],
+  },
+  {
+    id: 'F188',
+    feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'if (v.aksepterer_metode === false && !METODER.includes(',
+        'if (false && !METODER.includes(',
+      ],
+    ],
+    mal: ['F-MM-V-34-2-2-nei'],
+  },
+  {
+    id: 'F189',
+    feilklasse: 'byggherrens vurdering etter § 34.2.2 lagres ikke som standpunkt (#341)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "if (typeof v.aksepterer_metode === 'boolean')",
+        "if (typeof v.aksepterer_metode === 'string')",
+      ],
+    ],
+    mal: ['F-MM-V-34-2-2-nei', 'F-MM-V-34-2-2-ja'],
+  },
+  {
+    id: 'F190',
+    feilklasse: 'spesifisering i tide får virkning etter § 33.6.1',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "const virkning = s.iTide ? 'uten_virkning' : etterGrunn();",
+        'const virkning = etterGrunn();',
+      ],
+    ],
+    mal: ['F-MM-F-33-6-1-ja'],
+  },
+  {
+    id: 'F191',
+    feilklasse:
+      'de vurderte dagene står prinsipalt ved siden av påberopelsen etter § 33.6.1 (VS-U4)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['if (!s.iTide) harGrunn = true;', 'void 0;']],
+    mal: ['F-MM-F-33-6-1-nei'],
+  },
+  {
+    id: 'F192',
+    feilklasse:
+      'aksept av et svar med påberopelse etter § 33.6.1 gir de vurderte dagene, ikke de prinsipale (VS-U4)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'return { dager: spesifisering.dager! };',
+        "return { dager: standpunktet(svar, 'dager')!.vurdert };",
+      ],
+    ],
+    mal: ['F-MM-F-33-6-1-nei'],
+  },
+  {
+    id: 'F193',
+    feilklasse:
+      'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['ut.godkjent_dager = maatteForstaa;', 'ut.godkjent_dager = r.godkjent_dager;']],
+    mal: ['serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt'],
+  },
+  {
+    id: 'F194',
+    feilklasse: 'de prinsipale dagene etter § 33.6.1 kan være flere enn de vurderte',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['if (d > (v.dager as number))', 'if (false)']],
+    mal: ['F-MM-F-33-6-1-flere-enn-vurdert'],
+  },
+  {
+    id: 'F195',
+    feilklasse: 'byggherrens vurdering etter § 33.6.1 lagres ikke som standpunkt (#341)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        "if (typeof v.spesifisert_krav_ok === 'boolean')",
+        "if (typeof v.spesifisert_krav_ok === 'string')",
+      ],
+    ],
+    mal: ['F-MM-F-33-6-1-nei', 'F-MM-F-33-6-1-ja'],
+  },
+  {
+    id: 'F196',
+    feilklasse: 'påberopelsen etter § 33.6.1 krever ingen begrunnelse (KA-U24)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (v.spesifisert_krav_ok === false) ut.push(', 'if (false) ut.push(']],
+    mal: ['et svar med påberopt spesifisering for sent etter § 33.6.1 må ha en begrunnelse'],
+  },
+  {
+    id: 'F197',
+    feilklasse:
+      'en lagret spesifisering som viser til en annen kravversjon enn svaret, forstås (HF-U1)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "if (p.art === 'spesifisering' && p.gjelder !== s.gjelder)",
+        "if (p.art === 'spesifisering' && p.gjelder === ('' as string))",
+      ],
+    ],
+    mal: ['spesifiseringen viser til en annen kravversjon enn svaret'],
+  },
+  {
+    id: 'F198',
+    feilklasse: 'en lagret avslått metode uten byggherrens metode forstås',
+    fil: `${K}/format/leser.ts`,
+    endringer: [["if (e.aksepterer === 'oensket_metode' in e)", 'if (e.aksepterer === undefined)']],
+    mal: ['tilbudet er ikke akseptert, men metoden mangler'],
+  },
+  {
+    id: 'F199',
+    feilklasse: 'en lagret spesifisering i tide med prinsipale dager forstås (VS-U4)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [["if (e.i_tide === 'dager' in e)", 'if (e.i_tide === undefined)']],
+    mal: ['spesifiseringen er i tide, men har prinsipale dager'],
+  },
+  {
+    id: 'F200',
+    feilklasse:
+      'et tilbud byggherren ikke aksepterer, gir sammenfall når utregningen sier «godkjent» (arbeidsvalget i #479, MM-U18)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      ["if (standpunktet(svar, 'metode')?.aksepterer === false) return false;", 'void 0;'],
+    ],
+    mal: ['sammenfall med et tilbud byggherren ikke aksepterer'],
+  },
+  {
+    id: 'F201',
+    feilklasse: 'en påberopelse etter § 33.6.1 gir sammenfall (arbeidsvalget i #479, MM-U18)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "v.some((p) => p.standpunkt === spesifisering.id && p.virkning !== 'uten_virkning')",
+        'false',
+      ],
+    ],
+    mal: ['sammenfall med en påberopelse etter § 33.6.1', 'F-MM-F-33-6-1-alle-dagene'],
+  },
+  {
+    id: 'F202',
+    feilklasse:
+      'brevet sier at byggherren godkjenner hele beløpet «av de krevde» når tilbudet ikke er akseptert',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ["p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat", 'p.resultat'],
+    ],
+    mal: [
+      '§ 34.2.2 «nei» med hele beløpet godkjent',
+      '§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone',
+    ],
+  },
+  {
+    id: 'F203',
+    feilklasse: 'brevet regner hele beløpet i øre, ikke til nærmeste krone som utregningen (B-13)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ['tilKrone(beloep(p.godkjent)!) >= tilKrone(beloep(krevd)!)', 'p.godkjent >= krevd'],
+    ],
+    mal: ['§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone'],
   },
 ];
 

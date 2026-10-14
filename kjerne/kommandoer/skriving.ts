@@ -78,6 +78,24 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
   if (s.spor === 'grunnlag') {
     ut.push(...grunnlagsstandpunkter(v, krav, nyId));
   } else if (s.spor === 'vederlag') {
+    // HF-U1: varselet etter § 34.1.2 er ikke et eget element ennå (OV-U5). Det første
+    // vederlagskravet er det første varselet appen kjenner (arbeidsvalget i #479).
+    if (typeof v.hovedkrav_varslet_i_tide === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'rettidighet',
+        gjelder: u.spor.vederlag.krav[0]!.id,
+        hjemmel: HJEMMEL.vederlag,
+        i_tide: v.hovedkrav_varslet_i_tide,
+      });
+    if (typeof v.aksepterer_metode === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'metode',
+        hjemmel: '34.2.2',
+        aksepterer: v.aksepterer_metode,
+        ...(v.aksepterer_metode ? {} : { oensket_metode: v.oensket_metode }),
+      });
     ut.push({ id: nyId(), art: 'beloep' });
   } else {
     // MM-U1: vurderingen gjelder varselet som er registrert nå, ellers varselet utledet av kravet.
@@ -91,6 +109,15 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
       });
     if (typeof v.vilkar_oppfylt === 'boolean')
       ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });
+    if (typeof v.spesifisert_krav_ok === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'spesifisering',
+        gjelder: krav.id,
+        hjemmel: '33.6.1',
+        i_tide: v.spesifisert_krav_ok,
+        ...(v.spesifisert_krav_ok ? {} : { dager: v.dager_maatte_forstaa }),
+      });
     ut.push({ id: nyId(), art: 'dager' });
   }
   return ut;
@@ -411,8 +438,10 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
         innsigelser.push({ id: u.id, gjelder: u.gjelder, fra: svarFraParten.length });
   }
   for (const s of (rad.data.svar ?? []) as Data[]) {
-    // Kategorien gjelder bare svaret på grunnlaget (§ 32.2, GR-U12).
-    const krav = s.spor === 'grunnlag' ? grunnlagskrav.find((k) => k.id === s.gjelder) : null;
+    // Kategorien i grunnlagskravet: § 32.2 i grunnlaget (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
+    const krav = grunnlagskrav.find(
+      (k) => k.id === (s.spor === 'grunnlag' ? s.gjelder : s.grunnlagskrav)
+    );
     // VS-U9, VS-U11: et registrert svar uten standpunkt om rettidighet leses med den første
     // innsigelsen fra samme part som parten ikke senere har gitt opp uttrykkelig.
     const innsigelse = innsigelser.find(

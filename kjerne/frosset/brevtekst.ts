@@ -16,7 +16,7 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
-import { beloep } from '../regler/beloep.ts';
+import { beloep, tilKrone } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
@@ -373,10 +373,17 @@ function aapenInnsigelse(svar: Svar, avsender: Part, j: Journalen): string | und
   )?.dokument;
 }
 
+/** Metoden byggherren mener vederlaget skal justeres etter, når tilbudet ikke er akseptert. */
+const METODEN = {
+  enhetspriser: 'etter enhetspriser (NS 8407 § 34.3)',
+  regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)',
+} as const satisfies Record<NonNullable<Extract<Standpunkt, { art: 'metode' }>['oensket']>, string>;
+
 /** Varselet et standpunkt om rettidighet gjelder (LV-U4 punkt 5, LV-U5). */
 const VARSELET: Record<Hjemmel, string> = {
   '32.2': 'TEs varsel etter NS 8407 § 32.2',
   '33.4': 'varselet om fristforlengelse etter NS 8407 § 33.4',
+  '34.1.2': 'varselet om vederlagsjustering etter NS 8407 § 34.1.2',
 };
 
 const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;
@@ -433,7 +440,8 @@ function svartekst(s: Svar, t: Tekst): string {
     ...grunnlagetsStandpunkter(s, t).map((tekst) => ({ tekst, ordnes: true })),
     ...s.standpunkter.map((p) => ({
       tekst: standpunkttekst(p, s, krav, j, henvisning),
-      ordnes: virkning.get(p.id) !== 'uten_virkning',
+      // Metoden er ikke en egen grunn, men står ved siden av beløpet (arbeidsvalget i #479).
+      ordnes: virkning.get(p.id) !== 'uten_virkning' && p.art !== 'metode',
     })),
   ];
   // «Prinsipalt» og «subsidiært» er slik brevet ordner standpunktene (HF-U2).
@@ -489,8 +497,23 @@ function standpunkttekst(
         grunnlagskrav?.innhold.hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
-    case 'beloep':
-      return verdi(p.resultat, eksMva(p.godkjent), eksMva(krav.innhold.beloep as number));
+    case 'metode':
+      // Arbeidsvalget i #479: metoden er byggherrens standpunkt, ikke appens avgjørelse.
+      return p.aksepterer
+        ? 'byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).'
+        : `byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres ${METODEN[p.oensket!]}.`;
+    case 'spesifisering':
+      return p.iTide
+        ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).'
+        : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, ${dager(p.dager!)} (NS 8407 § 33.6.1).`;
+    case 'beloep': {
+      // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
+      // kan være det, til nærmeste krone som i B-13.
+      const krevd = krav.innhold.beloep as number;
+      const heleBeloepet = tilKrone(beloep(p.godkjent)!) >= tilKrone(beloep(krevd)!);
+      const resultat = p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat;
+      return verdi(resultat, eksMva(p.godkjent), eksMva(krevd));
+    }
     case 'dager':
       return verdi(p.resultat, dager(p.vurdert), dager(krav.innhold.dager as number));
   }
