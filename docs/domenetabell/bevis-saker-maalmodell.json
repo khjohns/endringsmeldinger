@@ -10116,7 +10116,7 @@
     {
       "id": "F-MM-V-34-1-2-nei",
       "forslag": "#479, #341: byggherren gjør gjeldende at varselet etter § 34.1.2 kom for sent",
-      "rader": [],
+      "rader": ["KA-46"],
       "start": null,
       "steg": [
         {
@@ -10164,7 +10164,7 @@
             "KA-U4",
             "HF-U1",
             "VS-U3",
-            "NS 8407 § 34.1.2 annet ledd"
+            "NS-34.1.2-2"
           ],
           "forventet": {
             "avvist": false,
@@ -10178,8 +10178,8 @@
           "rolle": "mal",
           "kilde": [
             "VS-U3",
-            "B-13",
-            "NS 8407 § 34.1.2 annet ledd"
+            "V-B13",
+            "NS-34.1.2-2"
           ],
           "forventet": {
             "virkning.S-v1.rettidighet": "prinsipalt",
@@ -10194,7 +10194,7 @@
           "kilde": [
             "VS-U3",
             "KA-U10",
-            "NS 8407 § 34.1.2 annet ledd"
+            "NS-34.1.2-2"
           ],
           "forventet": {
             "avvist": false,
@@ -10208,7 +10208,7 @@
     {
       "id": "F-MM-V-34-1-2-ja",
       "forslag": "#479, #341: byggherren gjør ikke gjeldende at varselet etter § 34.1.2 kom for sent",
-      "rader": [],
+      "rader": ["KA-46"],
       "start": null,
       "steg": [
         {
@@ -10253,7 +10253,7 @@
           "etter": 2,
           "rolle": "kontroll",
           "kilde": [
-            "NS 8407 § 34.1.2 annet ledd",
+            "NS-34.1.2-2",
             "KA-U4"
           ],
           "prov": {
@@ -10280,8 +10280,7 @@
           "rolle": "mal",
           "kilde": [
             "KA-U4",
-            "HF-U1",
-            "#341"
+            "HF-U1"
           ],
           "forventet": {
             "avvist": false,
@@ -10309,7 +10308,7 @@
     {
       "id": "F-MM-V-34-1-2-endring",
       "forslag": "#479: § 34.1.2 gjelder ikke en endring, så vurderingen avvises",
-      "rader": [],
+      "rader": ["KA-46"],
       "start": null,
       "steg": [
         {
@@ -10349,7 +10348,7 @@
           "etter": 2,
           "rolle": "kontroll",
           "kilde": [
-            "NS 8407 § 34.1.1"
+            "NS-34.1.1"
           ],
           "prov": {
             "handling": "brev",
@@ -10374,8 +10373,8 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "NS 8407 § 34.1.1",
-            "NS 8407 § 34.1.2",
+            "NS-34.1.1",
+            "NS-34.1.2-2",
             "MM-U2"
           ],
           "forventet": {
@@ -10390,7 +10389,7 @@
     {
       "id": "F-MM-V-34-1-2-ny-kravversjon",
       "forslag": "#479, arbeidsvalget 13.10: påberopelsen etter § 34.1.2 gjelder det første vederlagskravet, også etter en ny kravversjon",
-      "rader": [],
+      "rader": ["KA-46"],
       "start": null,
       "steg": [
         {
@@ -10451,7 +10450,7 @@
           "kilde": [
             "HF-U1",
             "OV-U5",
-            "arbeidsvalget i #479"
+            "AV-479"
           ],
           "forventet": {
             "avvist": false,
@@ -10466,7 +10465,7 @@
     {
       "id": "F-MM-V-34-2-2-nei",
       "forslag": "#479, #341: byggherren aksepterer ikke tilbudet etter § 34.2.2 og oppgir metoden",
-      "rader": [],
+      "rader": ["KA-47"],
       "start": "krav_irreg",
       "steg": [
         {
@@ -10499,8 +10498,8 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": [
-            "arbeidsvalget i #479",
-            "NS 8407 § 34.2.2 første ledd"
+            "AV-479",
+            "NS-34.2.2-1"
           ],
           "prov": {
             "handling": "brev",
@@ -10528,8 +10527,7 @@
           "kilde": [
             "KA-U4",
             "HF-U1",
-            "#341",
-            "arbeidsvalget i #479"
+            "AV-479"
           ],
           "forventet": {
             "avvist": false,
@@ -10542,7 +10540,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "arbeidsvalget i #479",
+            "AV-479",
             "GR-U7"
           ],
           "forventet": {
@@ -10555,7 +10553,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "arbeidsvalget i #479",
+            "AV-479",
             "KA-U10"
           ],
           "forventet": {
@@ -10569,7 +10567,7 @@
     {
       "id": "F-MM-V-34-2-2-ja",
       "forslag": "#479, #341: byggherren aksepterer tilbudet etter § 34.2.2",
-      "rader": [],
+      "rader": ["KA-47"],
       "start": "krav_irreg",
       "steg": [
         {
@@ -10595,7 +10593,7 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": [
-            "arbeidsvalget i #479"
+            "AV-479"
           ],
           "prov": {
             "handling": "brev",
@@ -10623,7 +10621,6 @@
           "kilde": [
             "KA-U4",
             "HF-U1",
-            "#341",
             "GR-U7"
           ],
           "forventet": {
@@ -10640,7 +10637,7 @@
     {
       "id": "F-MM-F-33-6-1-nei",
       "forslag": "#479, #341: byggherren påberoper at kravet ble spesifisert for sent etter § 33.6.1",
-      "rader": [],
+      "rader": ["KA-18c"],
       "start": "godkjent_grunnlag",
       "steg": [
         {
@@ -10700,7 +10697,6 @@
           "kilde": [
             "KA-U4",
             "HF-U1",
-            "#341",
             "VS-U4"
           ],
           "forventet": {
@@ -10718,7 +10714,7 @@
           "kilde": [
             "VS-U4",
             "VS-U3",
-            "arbeidsvalget i #479"
+            "AV-479"
           ],
           "forventet": {
             "virkning.S-f1.rettidighet": "uten_virkning",
@@ -10733,8 +10729,8 @@
           "rolle": "mal",
           "kilde": [
             "VS-U4",
-            "arbeidsvalget i #479",
-            "NS 8407 § 33.6.1"
+            "AV-479",
+            "NS-33.6.1"
           ],
           "forventet": {
             "avvist": false,
@@ -10748,7 +10744,7 @@
     {
       "id": "F-MM-F-33-6-1-nei-etter-33-4",
       "forslag": "#479: § 33.4 står prinsipalt, § 33.1 og § 33.6.1 subsidiært, og de vurderte dagene til slutt",
-      "rader": [],
+      "rader": ["KA-18c"],
       "start": "godkjent_grunnlag",
       "steg": [
         {
@@ -10783,7 +10779,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "arbeidsvalget i #479",
+            "AV-479",
             "VS-U22",
             "VS-U4"
           ],
@@ -10802,7 +10798,7 @@
           "rolle": "mal",
           "kilde": [
             "VS-U3",
-            "NS 8407 § 33.4"
+            "NS-33.4-2"
           ],
           "forventet": {
             "avvist": false,
@@ -10815,7 +10811,7 @@
     {
       "id": "F-MM-F-33-6-1-ja",
       "forslag": "#479, #341: byggherren gjør ikke gjeldende at kravet ble spesifisert for sent",
-      "rader": [],
+      "rader": ["KA-18b"],
       "start": "godkjent_grunnlag",
       "steg": [
         {
@@ -10874,8 +10870,7 @@
           "rolle": "mal",
           "kilde": [
             "KA-U4",
-            "HF-U1",
-            "#341"
+            "HF-U1"
           ],
           "forventet": {
             "avvist": false,
@@ -10901,7 +10896,7 @@
     {
       "id": "F-MM-F-33-6-1-flere-enn-vurdert",
       "forslag": "#479: dagene TE måtte forstå er høyst de vurderte dagene",
-      "rader": [],
+      "rader": ["KA-18c"],
       "start": "godkjent_grunnlag",
       "steg": [
         {
@@ -10954,7 +10949,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "arbeidsvalget i #479",
+            "AV-479",
             "VS-U4"
           ],
           "forventet": {
@@ -10969,7 +10964,7 @@
     {
       "id": "F-MM-V-34-1-2-og-34-2-2-nei",
       "forslag": "#479: preklusjon etter § 34.1.2 og et tilbud som ikke er akseptert etter § 34.2.2 i samme svar",
-      "rader": [],
+      "rader": ["KA-46", "KA-47"],
       "start": null,
       "steg": [
         {
@@ -11016,8 +11011,8 @@
           "rolle": "mal",
           "kilde": [
             "VS-U3",
-            "B-13",
-            "arbeidsvalget i #479"
+            "V-B13",
+            "AV-479"
           ],
           "forventet": {
             "avvist": false,
@@ -11045,8 +11040,8 @@
     },
     {
       "id": "F-MM-F-33-6-1-alle-dagene",
-      "forslag": "#479: påberopelsen etter § 33.6.1 gir ikke sammenfall, heller ikke når byggherren mener TE måtte forstå alle de krevde dagene",
-      "rader": [],
+      "forslag": "#479, GR-U7, GR-U10: påberopelsen etter § 33.6.1 gir ikke sammenfall, heller ikke når byggherren mener TE måtte forstå alle de krevde dagene",
+      "rader": ["KA-18c"],
       "start": "godkjent_grunnlag",
       "steg": [
         {
@@ -11081,7 +11076,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "arbeidsvalget i #479",
+            "GR-U7",
+            "GR-U10",
             "MM-U18"
           ],
           "forventet": {
@@ -11104,7 +11100,107 @@
           }
         }
       ],
-      "forventningsgrunnlag": "arbeidshypotese"
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-F-33-4-alle-dagene",
+      "forslag": "GR-U7, GR-U10: påberopt preklusjon etter § 33.4 gir ikke sammenfall, heller ikke når de vurderte dagene er alle de krevde",
+      "rader": ["KA-09"],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": false,
+              "spesifisering_i_tide": true,
+              "dager": 20,
+              "hindring": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7",
+            "GR-U10",
+            "MM-U18"
+          ],
+          "forventet": {
+            "avvist": false,
+            "virkning.S-f1.rettidighet": "prinsipalt",
+            "beslutningsgrunnlag.S-f1.sammenfall": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-V-34-1-2-hele-beloepet",
+      "forslag": "GR-U7, GR-U10: påberopt preklusjon etter § 34.1.2 gir ikke sammenfall, heller ikke når hele beløpet er godkjent subsidiært",
+      "rader": ["KA-46"],
+      "start": null,
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "svikt",
+          "underkategori": "medvirkning",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent"
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent",
+              "varslet_i_tide": false
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7",
+            "GR-U10",
+            "MM-U18"
+          ],
+          "forventet": {
+            "avvist": false,
+            "virkning.S-v1.rettidighet": "prinsipalt",
+            "beslutningsgrunnlag.S-v1.sammenfall": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "genererte": {

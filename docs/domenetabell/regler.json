@@ -753,6 +753,59 @@
       "dato": "2026-10-12",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16",
       "radetikett": "VS-U16: Når et fristkrav er sendt, avvises et nytt varsel etter § 33.4 fra appen"
+    },
+    {
+      "id": "VS-U3",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3",
+      "radetikett": "VS-U3: appen behandler bestemmelsene om varsler, svar og frister på tre måter"
+    },
+    {
+      "id": "VS-U4",
+      "type": "vedtak",
+      "dato": "2026-10-10",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u4",
+      "radetikett": "VS-U4: påberoper parten som mottar kravet eller varselet, at kravet ble spesifisert for sent etter § 33.6.1"
+    },
+    {
+      "id": "NS-34.1.2-2",
+      "type": "standard",
+      "punkt": "34.1.2 annet ledd",
+      "merknad": "Tekst: varsler TE ikke kravet om vederlagsjustering for svikt eller andre forhold innen fristen, tapes kravet. Slutning i KA-46: byggherrens påberopelse gir preklusjon prinsipalt, med beløpet subsidiært."
+    },
+    {
+      "id": "NS-34.2.2-1",
+      "type": "standard",
+      "punkt": "34.2.2 første ledd",
+      "merknad": "Tekst: aksepterer byggherren ikke TEs tilbud, justeres vederlaget etter § 34.3 og § 34.4. Slutning i KA-47: byggherrens metode er byggherrens standpunkt, og beløpet står ikke subsidiært."
+    },
+    {
+      "id": "OV-U5",
+      "type": "vedtak",
+      "dato": "2026-10-13",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u5",
+      "radetikett": "OV-U5: TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen"
+    },
+    {
+      "id": "VS-U22",
+      "type": "vedtak",
+      "dato": "2026-10-13",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u22",
+      "radetikett": "VS-U22: I første versjon bygges ikke VS-U21"
+    },
+    {
+      "id": "NS-34.1.1",
+      "type": "standard",
+      "punkt": "34.1.1",
+      "merknad": "Tekst: TEs krav på vederlagsjustering ved svikt og andre forhold byggherren har risikoen for. Slutning i KA-46: § 34.1.2 gjelder bare disse kategoriene, ikke en endring."
+    },
+    {
+      "id": "AV-479",
+      "type": "arbeidsvalg",
+      "issue": 479,
+      "dato": "2026-10-13",
+      "merknad": "Byggherrens «nei» på § 34.1.2, § 34.2.2 og § 33.6.1: § 34.1.2 gjelder det første vederlagskravet; § 34.2.2 «nei» gir aldri sammenfall og krever metoden; § 33.6.1 «nei» gir dagene TE måtte forstå prinsipalt, høyst de vurderte; rekkefølgen i brevet er § 33.4, § 33.1, § 33.6.1."
     }
   ],
   "rader": [
@@ -2731,6 +2784,42 @@
       "regelkoder": [
         "BEGRUNNELSE_FOER_SVARET"
       ]
+    },
+    {
+      "id": "KA-46",
+      "tilfelle": "Byggherren svarer på et vederlagskrav for svikt eller andre forhold og vurderer om varselet om hovedkravet kom i tide (§ 34.1.2).",
+      "forventet": "Vurderingen lagres som standpunktet `rettidighet` med hjemmel `34.1.2`. Det gjelder det første vederlagskravet i sporet, også etter en ny kravversjon. «Nei» gir preklusjon prinsipalt og beløpet subsidiært, og aldri sammenfall. Ved aksept er utfallet 0 kr. For en endring avvises vurderingen.",
+      "bh_standpunkt": "Preklusjon etter § 34.1.2, med beløpet subsidiært.",
+      "rettslig_virkning": "Kravet tapes ved for sent varsel (§ 34.1.2 annet ledd). Forutsetter at innsigelsen er fremsatt i tide; det avgjør ikke produktet.",
+      "rettidighet": "Byggherrens vurdering av varselet om hovedkravet.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U4",
+        "HF-U1",
+        "VS-U3",
+        "V-B13-PREKLUSJON",
+        "GR-U7",
+        "GR-U10",
+        "NS-34.1.2-2"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-47",
+      "tilfelle": "Byggherren svarer på et vederlagskrav med tilbud og tar stilling til om tilbudet aksepteres (§ 34.2.2).",
+      "forventet": "Vurderingen lagres som standpunktet `metode` med hjemmel `34.2.2`. «Nei» krever metoden byggherren mener vederlaget skal justeres etter, enhetspriser (§ 34.3) eller regningsarbeid (§ 34.4). Beløpet står som byggherrens standpunkt, ikke subsidiært, og svaret gir aldri sammenfall.",
+      "bh_standpunkt": "Tilbudet aksepteres ikke, og vederlaget justeres etter metoden byggherren oppgir.",
+      "rettslig_virkning": "Uten aksept justeres vederlaget etter § 34.3 og § 34.4 (§ 34.2.2 første ledd). Hvilken av dem som gjelder, avgjør ikke appen.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U4",
+        "MM-U12",
+        "GR-U7",
+        "GR-U10",
+        "NS-34.2.2-1"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
     }
   ],
   "koder_uten_rad": {

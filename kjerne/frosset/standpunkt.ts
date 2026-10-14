@@ -287,12 +287,19 @@ export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): 
 const kroner = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
 
 /** Linjen i brevet for svaret, med den prinsipale grunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
-function beslutningslinje(svar: Svarinnhold, v: Standpunktsvirkning[]): string {
+function beslutningslinje(
+  svar: Svarinnhold,
+  v: Standpunktsvirkning[],
+  grunnlagskrav: Krav | null | undefined
+): string {
   const hjemmel = standpunktet(svar, 'rettidighet')?.hjemmel ?? HJEMMEL[svar.spor];
   const spesifisert = standpunktet(svar, 'spesifisering');
   const grunntekst: Record<string, string> = {
     rettidighet: `prekludert (§ ${hjemmel})`,
-    hindring: 'avslått uten fremdriftshindring (§ 33.1)',
+    // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
+    hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
+      kategori(grunnlagskrav).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
+    })`,
     spesifisering: spesifisert?.dager
       ? `godkjent med ${spesifisert.dager} dager (§ 33.6.1)`
       : 'avslått (§ 33.6.1)',
@@ -335,7 +342,7 @@ export function beslutningsgrunnlag(
   return {
     regelversjon: regler.versjon,
     virkninger: v,
-    linje: beslutningslinje(svar, v),
+    linje: beslutningslinje(svar, v, grunnlagskrav),
     sammenfall: godkjennerHeleKravet(svar, v),
     ...(svar.spor === 'grunnlag'
       ? { varslingsplikt: gjelderVarslingsplikten(grunnlagskrav, regler) }
