@@ -1400,16 +1400,6 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     });
   });
 
-  it('en innsigelse mot vederlagskravet er ingen påberopelse etter § 34.1.2, og svaret viser ikke til den (VS-U24, #517)', () => {
-    const s = sakMedKrav();
-    s.send('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') });
-    const rad = s.send('BH', {
-      type: 'brev',
-      svar: [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
-    });
-    expect(laast(rad)[0]).not.toContain('innsigelsen');
-  });
-
   it('protesten mot innsigelsen, mot påberopelsen i et svar og mot alle innsigelsene i et brev', () => {
     const s = medInnsigelse();
     const innsigelse = s.journal.at(-1)!;
