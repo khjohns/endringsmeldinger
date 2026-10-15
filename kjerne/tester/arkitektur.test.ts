@@ -697,12 +697,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/brevtekst.ts.UNDERKATEGORI', 'brevtekst', '*', ['frosset/brevtekst.ts']],
   ['UNDERKATEGORI', 'brevtekst', 'navn hjemmel', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['frosset/brevtekst.ts']],
-  [
-    'frosset/brevtekst.ts:aapenInnsigelse',
-    'relasjon',
-    'dokument fra gjelder',
-    ['frosset/brevtekst.ts'],
-  ],
+  ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
+  ['Innsigelse', 'relasjon', 'dokument gjelder', ['frosset/brevtekst.ts']],
   // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
   // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).
   [

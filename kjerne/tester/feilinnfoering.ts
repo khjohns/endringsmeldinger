@@ -10,8 +10,8 @@
  * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
  * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
- * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), og F204–F206 påberopelsen etter
- * § 33.4 mot varselet (#309, KK-07). Én mutasjon
+ * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204–F206 påberopelsen etter
+ * § 33.4 mot varselet (#309, KK-07) og F207 innsigelsen brevet gir opp (#407). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -1273,7 +1273,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F112',
     feilklasse: 'svaret viser ikke til innsigelsen det gjentar eller gir opp (VS-U9, VS-U11)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  )?.dokument;', '  ) && undefined;']],
+    endringer: [
+      ['const innsigelser = aapneInnsigelser(s, nytt.avsender, j);', 'const innsigelser = [];'],
+    ],
     mal: ['svaret gjentar innsigelsen', 'gir byggherren innsigelsen opp'],
   },
   {
@@ -2198,6 +2200,23 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['...spor.frist.krav.slice(0, 1).map((k) => k.id),', '']],
     mal: [
       'en innsigelse mot det første fristkravet leser et registrert svar på en senere kravversjon',
+    ],
+  },
+  {
+    id: 'F207',
+    feilklasse:
+      'brevet viser til eller gir opp en innsigelse mot noe annet enn standpunktet gjelder (OV-U5, del 2 av #407)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'const innsigelse = innsigelser.find((i) => i.gjelder === p.gjelder);',
+        'const innsigelse = innsigelser[0];',
+      ],
+    ],
+    mal: [
+      'et «i tide» om et annet varsel enn innsigelsen gjelder',
+      'et «nei» om et annet varsel enn innsigelsen gjelder',
+      'med to åpne innsigelser gir brevet opp den som gjelder',
     ],
   },
 ];
