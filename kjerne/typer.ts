@@ -222,8 +222,9 @@ export type Domenehendelse =
 /**
  * Virkningen et standpunkt har i brevet: prinsipalt eller subsidiært, slik brevet
  * ordner standpunktene, eller uten virkning, som er appens vurdering og ikke noe
- * byggherren har sagt. Om et standpunkt er uavklart, er ikke en
- * virkning, men en relasjon som utledes ved lesing (MM-U8).
+ * byggherren har sagt. At svaret gjaldt et annet varsel enn
+ * det TE senere har registrert, er ikke en virkning, men en relasjon som visningen
+ * leser (OV-U5).
  */
 export type Virkning = 'prinsipalt' | 'subsidiaert' | 'uten_virkning';
 

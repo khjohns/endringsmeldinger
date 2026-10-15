@@ -101,8 +101,9 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     ut.push(s.enighet ? 'regel_endret_etter_enighet' : 'regel_endret_etter_brevet');
   if (s.gjeldendeSvar && vurdertVedRegistreringen(u, s.gjeldendeSvar.id))
     ut.push('appens_vurdering_ved_registreringen');
-  if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].uavklart.length)
-    ut.push('bh_har_ikke_vurdert_varselet');
+  // OV-U5: svaret står, og visningen sier at det gjaldt et annet varsel enn det registrerte.
+  if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].gjaldtEtAnnetVarsel.length)
+    ut.push('svaret_gjaldt_et_annet_varsel');
   // KA-U16, KA-U20: enigheten eller svaret bygger på et merket brev; uenigheten vises.
   if (s.forbehold) ut.push(s.enighet ? 'uenighet_om_merket_brev' : 'forbehold');
   // § 5 og VS-U12: påberopelsene registreres og vises uten virkning på utfallet.

@@ -140,33 +140,35 @@ export const innsigelsenSvaretErLestMed = (svar: Svar): string | undefined =>
   )?.standpunkt;
 
 /**
- * VS-U11: en innsigelse kan lese et svar når den gjelder kravet svaret gjelder, eller,
- * i fristen, et registrert varsel. Frysingen velger og utledningen kontrollerer med den.
+ * VS-U11: en innsigelse kan lese et svar når den gjelder kravet svaret gjelder. I fristen
+ * kan den også gjelde varselet, og står da mot hver senere kravversjon (VS-U20).
+ * `varslene` er de registrerte varslene og det første fristkravet, som er det første
+ * varselet appen kjenner (OV-U5). Frysingen velger og utledningen kontrollerer med den.
  */
 export const innsigelsenGjelderSvaret = (
   gjelder: string,
   svar: Pick<Svar, 'spor' | 'gjelder'>,
-  varsler: string[]
-): boolean => gjelder === svar.gjelder || (svar.spor === 'frist' && varsler.includes(gjelder));
+  varslene: string[]
+): boolean => gjelder === svar.gjelder || (svar.spor === 'frist' && varslene.includes(gjelder));
 
 /**
  * VS-U9, VS-U11, HF-U1: parten har gitt opp innsigelsen som kunne lese et svar i `spor`, når
- * partens siste standpunkt om rettidigheten etter innsigelsen er at det kom i tide.
- * `etter` er partens svar etter innsigelsen, i rekkefølgen de ble sendt. I grunnlaget
- * teller standpunktet om kravet innsigelsen gjelder. I fristen leses innsigelsen som en
- * påberopelse etter § 33.4 (arbeidsvalget i paragrafmatrisen), og saken har ett varsel
- * (SK-12), så hvert standpunkt om varselet teller. Taushet gir den ikke opp.
+ * partens siste standpunkt om rettidigheten av det innsigelsen gjelder, etter innsigelsen,
+ * er at det kom i tide. I fristen gir hvert «i tide» etter § 33.4 etter innsigelsen den opp,
+ * fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309). `etter` er partens svar
+ * etter innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp.
  */
 export function innsigelsenErOppgitt(
   gjelder: string,
   spor: Spor,
   etter: Pick<Svar, 'spor' | 'standpunkter'>[]
 ): boolean {
-  const siste = etter
+  const standpunkter = etter
     .filter((x) => x.spor === spor)
     .flatMap((x) => x.standpunkter)
-    .filter((p) => p.art === 'rettidighet' && (spor === 'frist' || p.gjelder === gjelder))
-    .at(-1);
+    .filter((p) => p.art === 'rettidighet');
+  if (spor === 'frist') return standpunkter.some((p) => p.art === 'rettidighet' && p.iTide);
+  const siste = standpunkter.filter((p) => p.gjelder === gjelder).at(-1);
   return siste?.art === 'rettidighet' && siste.iTide;
 }
 

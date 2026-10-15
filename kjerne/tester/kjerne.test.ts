@@ -889,12 +889,13 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
 });
 
 /**
- * MM-U8 og rad KA-20: byggherren har påberopt at varselet utledet av kravet kom
- * for sent, og TE registrerer deretter varselet. Preklusjonen er uavklart, og et
- * uavklart standpunkt kan ikke fryses i et enighetsgrunnlag (MM-U3). Bevis-saken
- * F-MM-D prøver det samme gjennom kommandoene; her prøves også handlingene.
+ * OV-U5 og rad KA-20: byggherren har påberopt at varselet kom for sent da det første
+ * fristkravet var det første varselet appen kjente, og TE registrerer deretter et
+ * varsel. Svaret står med virkningen det hadde, TE kan godta det, og visningen sier at
+ * det gjaldt et annet varsel (KK-08). Bevis-saken F-MM-D prøver det samme gjennom
+ * kommandoene; her prøves også handlingene.
  */
-describe('et uavklart standpunkt kan ikke godtas (MM-U8, KA-20)', () => {
+describe('et svar står når TE registrerer et varsel etter det (OV-U5, KA-20)', () => {
   async function medPreklusjon(registrerVarsel: boolean) {
     const k = await bygg(minnebane(), [
       'godkjent_grunnlag',
@@ -912,18 +913,229 @@ describe('et uavklart standpunkt kan ikke godtas (MM-U8, KA-20)', () => {
     return { k, u };
   }
 
-  it('avviser aksepten når et varsel er registrert etter brevet, og tilbyr den ikke', async () => {
+  it('godtar aksepten med preklusjonen slik brevet uttrykte den, og visningen sier at svaret gjaldt et annet varsel', async () => {
     const { k, u } = await medPreklusjon(true);
-    const aksept = await k.prov({ handling: 'aksept', spor: 'frist' });
-    expect(aksept.godtatt ? 'godtatt' : aksept.avvisning.regel).toBe('STANDPUNKT_UAVKLART');
-    expect(handlinger(u, 'TE')).not.toContain('godta:frist');
+    expect(handlinger(u, 'TE')).toContain('godta:frist');
     expect(handlinger(u, 'BH')).toContain('revidere:frist');
+    expect(visning(u, GJELDENDE_REGLER).spor.frist.etiketter).toContain(
+      'svaret_gjaldt_et_annet_varsel'
+    );
+    const aksept = await k.prov({ handling: 'aksept', spor: 'frist' });
+    expect(aksept.godtatt).toBe(true);
   });
 
-  it('kontrollsak: uten registrert varsel gjelder preklusjonen varselet, og aksepten godtas', async () => {
+  it('kontrollsak: uten registrert varsel gjaldt svaret varselet appen kjenner, og visningen sier ingenting om et annet', async () => {
     const { k, u } = await medPreklusjon(false);
     expect(handlinger(u, 'TE')).toContain('godta:frist');
+    expect(visning(u, GJELDENDE_REGLER).spor.frist.etiketter).not.toContain(
+      'svaret_gjaldt_et_annet_varsel'
+    );
     expect((await k.prov({ handling: 'aksept', spor: 'frist' })).godtatt).toBe(true);
+  });
+});
+
+/**
+ * KK-07, VS-U20, OV-U5 og HF-U1: påberopelsen etter § 33.4 gjelder varselet, ikke
+ * kravversjonen svaret gjelder. Uten registrert varsel er det det første fristkravet.
+ */
+describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', () => {
+  async function toKravversjoner(registrerVarsel: boolean) {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+      {
+        handling: 'brev',
+        svar: [{ spor: 'frist', varsel_i_tide: false, spesifisering_i_tide: true, hindring: true }],
+      },
+      ...(registrerVarsel
+        ? [{ handling: 'varsel', spor: 'frist', sendt: '2026-09-02', navn: 'D-varsel' }]
+        : []),
+      { handling: 'krav', spor: 'frist', dager: 25, navn: 'K-f2' },
+      {
+        handling: 'brev',
+        navn: 'D-svar',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f2',
+            varsel_i_tide: false,
+            spesifisering_i_tide: true,
+            hindring: true,
+          },
+        ],
+      },
+    ]);
+    const rader = await bane.journal();
+    const u = await k.utledning();
+    if (u.spor.frist.gjeldendeKrav?.id !== k.navn.id('K-f2'))
+      throw new Error('Forutsetning: svaret gjelder den andre kravversjonen');
+    const rettidighet = u.svar[k.navn.id('S-f2')].svar.standpunkter.find(
+      (p) => p.art === 'rettidighet'
+    );
+    return { k, rader, rettidighet };
+  }
+
+  it('uten registrert varsel gjelder den det første fristkravet, ikke kravversjonen svaret gjelder', async () => {
+    const { k, rettidighet } = await toKravversjoner(false);
+    expect(rettidighet).toMatchObject({ hjemmel: '33.4', gjelder: k.navn.id('K-f1') });
+  });
+
+  it('brevet sier at varselet er det første fristkravet, i brevet det står i (AV-07)', async () => {
+    const { k, rader } = await toKravversjoner(false);
+    const brevtekst = radMed(rader, k, 'D-svar').data.brevtekst as {
+      gjelder: string;
+      laast: string;
+    }[];
+    const avsnitt = brevtekst.find((a) => a.gjelder === k.navn.id('S-f2'))!;
+    const foerste = radMed(rader, k, 'K-f1').versjon;
+    if (foerste === radMed(rader, k, 'K-f2').versjon)
+      throw new Error('Forutsetning: kravversjonene står i hvert sitt brev');
+    expect(avsnitt.laast).toContain(`§ 33.4 i brev ${foerste} av`);
+  });
+
+  it('kontrollsak: med registrert varsel gjelder den varselet', async () => {
+    const { k, rettidighet } = await toKravversjoner(true);
+    expect(rettidighet?.gjelder).toBe(k.navn.id('D-varsel#varsel'));
+  });
+
+  it('en innsigelse mot det første fristkravet leser et registrert svar på en senere kravversjon (VS-U20)', async () => {
+    const k = await bygg(minnebane(), [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+      { handling: 'innsigelse', part: 'BH', gjelder: 'K-f1', navn: 'D-innsigelse' },
+      { handling: 'krav', spor: 'frist', dager: 25, navn: 'K-f2' },
+      {
+        handling: 'rad',
+        spor: 'frist',
+        navn: 'S-f2',
+        dokument: 'D-svar',
+        gjelder: 'K-f2',
+        hindring: true,
+        sendt: '2026-09-30',
+        varsel_i_tide: true,
+        spesifisering_i_tide: true,
+      },
+    ]);
+    const u = await k.utledning();
+    expect(u.forstaatt).toBe(true);
+    const s = u.svar[k.navn.id('S-f2')];
+    if (s.svar.standpunkter.some((p) => p.art === 'rettidighet'))
+      throw new Error('Forutsetning: det registrerte svaret har ikke standpunkt om rettidighet');
+    expect(s.virkninger.find((p) => p.art === 'rettidighet')?.virkning).toBe('prinsipalt');
+  });
+
+  async function innsigelseMotSenereKravversjon(iTide: boolean) {
+    const k = await bygg(minnebane(), [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+      { handling: 'krav', spor: 'frist', dager: 25, navn: 'K-f2' },
+      { handling: 'innsigelse', part: 'BH', gjelder: 'K-f2', navn: 'D-innsigelse' },
+      {
+        handling: 'brev',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f2',
+            varsel_i_tide: iTide,
+            spesifisering_i_tide: true,
+            hindring: true,
+            dager: 10,
+          },
+        ],
+      },
+      {
+        handling: 'rad',
+        spor: 'frist',
+        navn: 'S-f3',
+        dokument: 'D-revisjon',
+        gjelder: 'K-f2',
+        erstatter: 'S-f2',
+        hindring: true,
+        varsel_i_tide: true,
+        spesifisering_i_tide: true,
+        dager: 15,
+        sendt: '2026-10-01',
+      },
+    ]);
+    const u = await k.utledning();
+    expect(u.forstaatt).toBe(true);
+    const s = u.svar[k.navn.id('S-f3')];
+    if (s.svar.standpunkter.some((p) => p.art === 'rettidighet'))
+      throw new Error('Forutsetning: det registrerte svaret har ikke standpunkt om rettidighet');
+    return s.virkninger.find((p) => p.art === 'rettidighet')?.virkning;
+  }
+
+  it('et «i tide» gir opp innsigelsen mot en senere kravversjon, så et registrert svar leses ikke med den (VS-U11, VS-U20)', async () => {
+    expect(await innsigelseMotSenereKravversjon(true)).toBeUndefined();
+  });
+
+  it('kontrollsak: uten «i tide» leses det registrerte svaret med innsigelsen mot den senere kravversjonen', async () => {
+    expect(await innsigelseMotSenereKravversjon(false)).toBe('prinsipalt');
+  });
+
+  it('et «i tide» gir opp innsigelsen også når et senere svar sier «for sent» (VS-U20, arbeidsvalget 15.10 i #309)', async () => {
+    const k = await bygg(minnebane(), [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+      { handling: 'innsigelse', part: 'BH', gjelder: 'K-f1', navn: 'D-innsigelse' },
+      {
+        handling: 'brev',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f1',
+            varsel_i_tide: true,
+            spesifisering_i_tide: true,
+            hindring: true,
+            dager: 10,
+          },
+        ],
+      },
+      { handling: 'krav', spor: 'frist', dager: 25, navn: 'K-f2' },
+      {
+        handling: 'brev',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f2',
+            varsel_i_tide: false,
+            spesifisering_i_tide: true,
+            hindring: true,
+            dager: 10,
+          },
+        ],
+      },
+      {
+        handling: 'rad',
+        spor: 'frist',
+        navn: 'S-f3',
+        dokument: 'D-revisjon',
+        gjelder: 'K-f2',
+        erstatter: 'S-f2',
+        hindring: true,
+        varsel_i_tide: true,
+        spesifisering_i_tide: true,
+        dager: 15,
+        sendt: '2026-10-01',
+      },
+    ]);
+    const u = await k.utledning();
+    expect(u.forstaatt).toBe(true);
+    const s = u.svar[k.navn.id('S-f3')];
+    if (s.svar.standpunkter.some((p) => p.art === 'rettidighet'))
+      throw new Error('Forutsetning: det registrerte svaret har ikke standpunkt om rettidighet');
+    expect(s.virkninger.find((p) => p.art === 'rettidighet')).toBeUndefined();
+  });
+
+  it('en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått', async () => {
+    const { k, rader } = await toKravversjoner(false);
+    if (!forstaatt(rader)) throw new Error('Forutsetning: kontrollsaken er forstått');
+    const endret = structuredClone(rader);
+    const s = svaret(radMed(endret, k, 'S-f2'), k, 'S-f2');
+    const p = (s.standpunkter as Data[]).find((x) => x.art === 'rettidighet')!;
+    p.gjelder = k.navn.id('K-f2');
+    expect(forstaatt(endret)).toBe(false);
   });
 });
 
