@@ -293,7 +293,9 @@ føres. Forholdet til andre vedtak står under hvert forslag. Det er prøvd mot 
 
 **Merknad 15.10:** Vedtakene er ført etter svaret i #504 som HF-U6–HF-U13 (F1–F8), og
 som EO-U10, GR-U17, GR-U18, FO-U7, LV-U7, LV-U8 og KA-U40 (spørsmål 3, 4, 6, 7, 8, 10
-og 11). HF-U9 opphever KA-U3 og KA-U5. Forholdet i spørsmål 9 står i Følge hos HF-U4.
+og 11). Svarene på spørsmål 2 og 5 inngår i HF-U12 og HF-U7. HF-U9 opphever KA-U3 og KA-U5.
+Forholdet i spørsmål 9 står i Følge hos HF-U4, fordi forholdene i en merget post ikke
+kan endres.
 I vedtaksteksten er F1–F8 byttet ut med ID-ene.
 
 ### F1 Bindingen

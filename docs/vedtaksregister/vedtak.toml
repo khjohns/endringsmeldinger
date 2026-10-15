@@ -2491,7 +2491,7 @@ svar = '''
 Ja til alle anbefalingene'''
 forhold = [{ art = "utvider", vedtak = "hf-u4" }, { art = "utvider", vedtak = "hf-u5" }]
 folge = '''
-Følger av HF-U5 («tilbud og løfter»). Vedtaket 05.10 om at hver oppdatering er en ny kravversjon, står som unntaket. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Utvidelsen av HF-U4 og HF-U5 gjelder varsler og avkall og begge parter. Følger av HF-U5 («tilbud og løfter»). Vedtaket 05.10 om at hver oppdatering er en ny kravversjon, står som unntaket. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -2533,7 +2533,7 @@ svar = '''
 Ja til alle anbefalingene'''
 forhold = [{ art = "presiserer", vedtak = "ka-u9" }, { art = "presiserer", vedtak = "ka-u21" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "gr-u7" }]
 folge = '''
-Presiserer også raden i B-13 om «godkjent» bare når hele kravet er godkjent og raden i B-13 om preklusjon. Et forbehold appen ikke kan uttrykke, følger KA-U16 og KA-U26, der et svar med forbehold kan gi sammenfall. «Et avslag» i GR-U7 leses som avslag i forening med et betinget tilbud. Følger av HF-U5 (første setning etter «fristforlengelse»). Svaret på spørsmål 5 i vurderingen (A) inngår i vedtaket. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Presiserer også raden i B-13 om «godkjent» bare når hele kravet er godkjent og raden i B-13 om preklusjon. Et forbehold appen ikke kan uttrykke, følger KA-U16 og KA-U26, der et svar med forbehold kan gi sammenfall. «Et avslag» i GR-U7 leses som avslag i forening med et betinget tilbud. Følger av HF-U5 (første setning etter «fristforlengelse»). Spørsmål 5 i vurderingen ble besvart med A. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -2711,7 +2711,7 @@ svar = '''
 Ja til alle anbefalingene'''
 forhold = [{ art = "presiserer", vedtak = "eo-u1" }, { art = "presiserer", vedtak = "eo-u3" }, { art = "presiserer", vedtak = "eo-u4" }, { art = "presiserer", vedtak = "eo-u8" }, { art = "presiserer", vedtak = "eo-u9" }, { art = "presiserer", vedtak = "gr-u13" }, { art = "presiserer", vedtak = "ka-u13" }]
 folge = '''
-Presiserer også TFR-02. Svaret på spørsmål 2 i vurderingen (A) inngår i vedtaket. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Presiserer også TFR-02. Spørsmål 2 i vurderingen ble besvart med A, så teksten står som i forslaget F7. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -3045,7 +3045,7 @@ svar = '''
 Ja til alle anbefalingene'''
 forhold = [{ art = "snevrer inn", vedtak = "eo-u5" }]
 folge = '''
-Innsnevringen av EO-U5 og EO-U2 står også i [HF-U9](#hf-u9). Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Innsnevringen av EO-U5 står også i [HF-U9](#hf-u9), som i tillegg snevrer inn EO-U2. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -3072,9 +3072,8 @@ B: ja, valget er et avslag etter avtl. § 5.
 valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
-forhold = [{ art = "presiserer", vedtak = "fo-u1" }, { art = "presiserer", vedtak = "hf-u5" }]
 folge = '''
-Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Spørsmålet gjaldt FO-U1 og HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -3722,9 +3721,8 @@ en avtalt adresse etter § 5 første ledd.'''
 valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
-forhold = [{ art = "presiserer", vedtak = "lv-u1" }, { art = "presiserer", vedtak = "hf-u4" }, { art = "presiserer", vedtak = "hf-u5" }]
 folge = '''
-Gir samme utregning som alternativ A, uten at appen avgjør om appen er en avtalt adresse etter § 5 første ledd. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Spørsmålet gjaldt LV-U1, HF-U4 og HF-U5. Gir samme utregning som alternativ A, uten at appen avgjør om appen er en avtalt adresse etter § 5 første ledd. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -3735,6 +3733,7 @@ Når bindingen inntrer og når en akseptfrist løper ut, regner appen fra sendin
 navn = "A"
 tekst = '''
 Et brev fra appen er kommet fram når det er sendt og tilgjengelig for motparten i appen.'''
+forkastet = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
@@ -3755,9 +3754,8 @@ med samme virkning.'''
 valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
-forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "hf-u4" }]
 folge = '''
-Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Spørsmålet gjaldt LV-U4 punkt 5 og HF-U4. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
