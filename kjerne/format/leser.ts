@@ -218,21 +218,6 @@ function lesBeslutningsgrunnlag(
     );
   const art = new Map<string, Standpunktsart>(standpunkter.map((s) => [s.id, s.art]));
   const sett = new Set<string>();
-  // VS-U11: et svar uten standpunkt om rettidighet kan være lest med en innsigelse
-  // byggherren sendte før det. Den står som en virkning av art rettidighet, først i
-  // brevet; utledningen kontrollerer at den er en slik innsigelse.
-  const lestMed = [
-    ...(b.virkninger as Data[]).map((p) => p.standpunkt as string),
-    ...((b.uten_virkning ?? []) as string[]),
-  ].filter((id) => !art.has(id));
-  if (lestMed.length > 1 || (lestMed.length && spor === 'vederlag'))
-    throw new Uforstaatt(`${sti}: virkningen gjelder et standpunkt svaret ikke har`);
-  if (lestMed.length && standpunkter.some((s) => s.art === 'rettidighet'))
-    throw new Uforstaatt(
-      `${sti}: svaret har standpunktet om rettidighet og er lest med en innsigelse`
-    );
-  const foerst = lestMed[0];
-  if (foerst !== undefined) art.set(foerst, 'rettidighet');
   // Prinsipalt og subsidiært er slik brevet ordner standpunktene; uten virkning er
   // appens vurdering og står for seg (HF-U2).
   const innslag = [
@@ -249,7 +234,6 @@ function lesBeslutningsgrunnlag(
     return { standpunkt: id, art: art.get(id)!, virkning: virkning as Virkning };
   });
   const rekkefoelge = new Map(standpunkter.map((s, i) => [s.id, i]));
-  if (foerst !== undefined) rekkefoelge.set(foerst, -1);
   virkninger.sort((x, y) => rekkefoelge.get(x.standpunkt)! - rekkefoelge.get(y.standpunkt)!);
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);

@@ -1243,7 +1243,9 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     );
   });
 
-  it('uten registrert varsel gir byggherren opp innsigelsen mot det første fristkravet (OV-U5, VS-U20)', () => {
+  const girOpp = 'gir opp innsigelsen';
+
+  it('uten eget varsel er en innsigelse mot det første fristkravet ingen påberopelse etter § 33.4, og et «i tide» gir den ikke opp (VS-U24)', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);
     s.send('TE', {
@@ -1258,11 +1260,12 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad)[0]).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 4 av 4. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 3 av 3. oktober 2026 kom for sent.'
+      'Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 3 av 3. oktober 2026 kom for sent.'
     );
+    expect(laast(rad)[0]).not.toContain(girOpp);
   });
 
-  it('et «i tide» om varselet gir også opp innsigelsen mot det første fristkravet (VS-U20, arbeidsvalget 15.10 i #309)', () => {
+  it('et «i tide» om varselet gir ikke opp en innsigelse mot fristkravet (VS-U24)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
     const rad = s.send('BH', {
@@ -1270,11 +1273,12 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad)[0]).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
+      'Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
     );
+    expect(laast(rad)[0]).not.toContain(girOpp);
   });
 
-  it('et «i tide» om varselet gir opp og nevner innsigelsen mot en tidligere kravversjon (VS-U11, VS-U20)', () => {
+  it('et «i tide» om varselet nevner ikke en innsigelse mot en tidligere kravversjon (VS-U24)', () => {
     const s = sakMedKrav();
     const nyttKrav = (dager: number) => ({
       type: 'krav',
@@ -1294,12 +1298,10 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         }),
       ],
     });
-    expect(laast(rad)[0]).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 6 av 6. oktober 2026'
-    );
+    expect(laast(rad)[0]).not.toContain(girOpp);
   });
 
-  it('et «nei» om et annet varsel enn innsigelsen gjelder, viser ikke til innsigelsen (OV-U5, del 2 av #407)', () => {
+  it('et «nei» om varselet viser ikke til en innsigelse mot fristkravet (VS-U24, del 2 av #407)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
     const rad = s.send('BH', {
@@ -1319,7 +1321,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     expect(laast(rad)[0]).not.toContain('jf. innsigelsen');
   });
 
-  it('med to åpne innsigelser i fristen gir et «i tide» opp begge, og brevet nevner begge (VS-U11, VS-U20)', () => {
+  it('med innsigelser mot både fristkravet og varselet gir et «i tide» opp bare den mot varselet (VS-U11, VS-U24)', () => {
     const s = sakMedKrav();
     const varselet = (s.journal.at(-1)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
     s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
@@ -1329,8 +1331,83 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad)[0]).toContain(
-      'Byggherren gir opp innsigelsene etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og brev 6 av 6. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
+      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 6 av 6. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
     );
+  });
+
+  it('et «i tide» i grunnlaget gir ikke opp innsigelsen mot fristvarselet (VS-U9, VS-U11)', () => {
+    const s = sakMedKrav();
+    const varselet = (s.journal.at(-1)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+    s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: true,
+        }),
+      ],
+    });
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          { ...FRIST_FULLT[0], frist_varsel_ok: false },
+          { resultat: 'avslaatt', godkjent_dager: 0 }
+        ),
+      ],
+    });
+    expect(laast(rad)[0]).toContain('kom for sent, jf. innsigelsen i brev 5 av 5. oktober 2026.');
+  });
+
+  describe('varselet etter § 32.2 er det samme i hver grunnlagsversjon (VS-U24, arbeidsvalget 15.10 i #500)', () => {
+    const medNyVersjon = () => {
+      const s = medInnsigelse();
+      s.send('TE', GRUNNLAGSKRAV);
+      return s;
+    };
+
+    it('et «i tide» på den nye versjonen gir opp innsigelsen mot den første', () => {
+      const s = medNyVersjon();
+      const rad = s.send('BH', {
+        type: 'brev',
+        svar: [
+          svar('grunnlag', s.krav('grunnlag'), {
+            resultat: 'avslaatt',
+            grunnlag_varslet_i_tide: true,
+          }),
+        ],
+      });
+      expect(laast(rad)[0]).toContain(
+        'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026'
+      );
+    });
+
+    it('et «for sent» på den nye versjonen gjentar innsigelsen mot den første', () => {
+      const s = medNyVersjon();
+      const rad = s.send('BH', {
+        type: 'brev',
+        svar: [
+          svar('grunnlag', s.krav('grunnlag'), {
+            resultat: 'avslaatt',
+            grunnlag_varslet_i_tide: false,
+          }),
+        ],
+      });
+      expect(laast(rad)[0]).toContain('jf. innsigelsen i brev 5 av 5. oktober 2026');
+    });
+  });
+
+  it('en innsigelse mot vederlagskravet er ingen påberopelse etter § 34.1.2, og svaret viser ikke til den (VS-U24, #517)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') });
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
+    });
+    expect(laast(rad)[0]).not.toContain('innsigelsen');
   });
 
   it('protesten mot innsigelsen, mot påberopelsen i et svar og mot alle innsigelsene i et brev', () => {

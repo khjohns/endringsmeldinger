@@ -74,23 +74,15 @@ function hjemmelenGjelder(
 
 /**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
- * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. `innsigelse` er en
- * innsigelse etter § 5 byggherren sendte før et registrert svar uten standpunkt
- * om rettidighet: svaret leses med den (VS-U11), som en påberopelse først i
- * brevet, når rettidigheten kan ha virkning i sporet.
+ * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder.
  */
 export function virkninger(
   svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
-  regler: Regelsett,
-  innsigelse?: string
+  regler: Regelsett
 ): Standpunktsvirkning[] {
   const ut: Standpunktsvirkning[] = [];
   let harGrunn = false;
-  if (innsigelse !== undefined && lesesMedInnsigelse(svar, grunnlagskrav, regler)) {
-    ut.push({ standpunkt: innsigelse, art: 'rettidighet', virkning: 'prinsipalt' });
-    harGrunn = true;
-  }
   const etterGrunn = () => (harGrunn ? 'subsidiaert' : 'prinsipalt');
   for (const s of svar.standpunkter) {
     if (s.art === 'rettidighet') {
@@ -117,49 +109,29 @@ export function virkninger(
 }
 
 /**
- * VS-U11: et svar uten standpunkt om rettidighet leses med byggherrens innsigelse
- * når rettidigheten har virkning i sporet: § 33.4 i fristen, § 32.2 i grunnlaget
- * der varslingsplikten gjelder (GR-U11).
+ * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den
+ * gjelder, bare kan komme for sent etter den: varselet etter § 33.4 i fristen, og TEs
+ * varsel etter § 32.2 i grunnlaget. Varselet etter § 32.2 er det samme i hver
+ * grunnlagsversjon (arbeidsvalget 15.10 i #500). Svaret i sporet gjentar den eller gir
+ * den opp. Mot et annet krav eller et svar er den uten virkning.
  */
-function lesesMedInnsigelse(
-  svar: Svarinnhold,
-  grunnlagskrav: Krav | null | undefined,
-  regler: Regelsett
-): boolean {
-  if (standpunktet(svar, 'rettidighet')) return false;
-  return (
-    svar.spor === 'frist' ||
-    (svar.spor === 'grunnlag' && gjelderVarslingsplikten(grunnlagskrav, regler))
-  );
+export function innsigelsenPaaberoper(
+  maal: { art: string; spor?: Spor } | undefined
+): Extract<Hjemmel, '32.2' | '33.4'> | null {
+  if (maal?.art === 'varsel') return '33.4';
+  if (maal?.art === 'krav' && maal.spor === 'grunnlag') return '32.2';
+  return null;
 }
 
-/** VS-U11: innsigelsen et svar er lest med, som står i det frosne brevet og ikke blant standpunktene. */
-export const innsigelsenSvaretErLestMed = (svar: Svar): string | undefined =>
-  svar.beslutningsgrunnlag.virkninger.find(
-    (v) => !svar.standpunkter.some((p) => p.id === v.standpunkt)
-  )?.standpunkt;
-
 /**
- * VS-U11: en innsigelse kan lese et svar når den gjelder kravet svaret gjelder. I fristen
- * kan den også gjelde varselet, og står da mot hver senere kravversjon (VS-U20).
- * `varslene` er de registrerte varslene og det første fristkravet, som er det første
- * varselet appen kjenner (OV-U5). Frysingen velger og utledningen kontrollerer med den.
- */
-export const innsigelsenGjelderSvaret = (
-  gjelder: string,
-  svar: Pick<Svar, 'spor' | 'gjelder'>,
-  varslene: string[]
-): boolean => gjelder === svar.gjelder || (svar.spor === 'frist' && varslene.includes(gjelder));
-
-/**
- * VS-U9, VS-U11, HF-U1: parten har gitt opp innsigelsen som kunne lese et svar i `spor`, når
- * partens siste standpunkt om rettidigheten av det innsigelsen gjelder, etter innsigelsen,
- * er at det kom i tide. I fristen gir hvert «i tide» etter § 33.4 etter innsigelsen den opp,
- * fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309). `etter` er partens svar
- * etter innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp.
+ * VS-U9, VS-U11, HF-U4: parten har gitt opp sin påberopelse i en egen innsigelse når et
+ * senere svar fra parten i sporet sier at varselet kom i tide. I fristen gir hvert «i tide»
+ * etter § 33.4 den opp, fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309).
+ * I grunnlaget teller partens siste standpunkt etter § 32.2, også om en annen
+ * grunnlagsversjon (arbeidsvalget 15.10 i #500). `etter` er partens svar etter
+ * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp.
  */
 export function innsigelsenErOppgitt(
-  gjelder: string,
   spor: Spor,
   etter: Pick<Svar, 'spor' | 'standpunkter'>[]
 ): boolean {
@@ -167,9 +139,8 @@ export function innsigelsenErOppgitt(
     .filter((x) => x.spor === spor)
     .flatMap((x) => x.standpunkter)
     .filter((p) => p.art === 'rettidighet');
-  if (spor === 'frist') return standpunkter.some((p) => p.art === 'rettidighet' && p.iTide);
-  const siste = standpunkter.filter((p) => p.gjelder === gjelder).at(-1);
-  return siste?.art === 'rettidighet' && siste.iTide;
+  if (spor === 'frist') return standpunkter.some((p) => p.iTide);
+  return standpunkter.at(-1)?.iTide === true;
 }
 
 export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 'prinsipalt');
@@ -210,7 +181,7 @@ export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[])
 
 /**
  * MM-U13: byggherren påberoper prinsipalt preklusjon etter § 32.2 i svaret på
- * grunnlaget, i svaret selv eller med innsigelsen svaret er lest med (VS-U11).
+ * grunnlaget.
  * Rettidigheten i grunnlaget er alltid etter § 32.2 (`HJEMMEL`).
  */
 function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
@@ -348,10 +319,9 @@ function beslutningslinje(
 export function beslutningsgrunnlag(
   svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
-  regler: Regelsett,
-  innsigelse?: string
+  regler: Regelsett
 ): Beslutningsgrunnlag {
-  const v = virkninger(svar, grunnlagskrav, regler, innsigelse);
+  const v = virkninger(svar, grunnlagskrav, regler);
   return {
     regelversjon: regler.versjon,
     virkninger: v,

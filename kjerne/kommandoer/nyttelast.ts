@@ -15,6 +15,7 @@ import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
+  innsigelsenPaaberoper,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
@@ -44,13 +45,6 @@ function kontrollerSvar(
       'gjelder' in bundet
         ? 'Byggherren har i et svar sendt fra appen sagt at kravet ble spesifisert i tide etter § 33.6.1, og kan ikke nå påberope at det kom for sent (HF-U4).'
         : `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
-    );
-  // VS-U9 og OV-U1: svaret skulle gjentatt byggherrens innsigelse mot vederlagskravet,
-  // men preklusjon etter § 34.1 er ikke bygget.
-  if (s.spor === 'vederlag' && u.innsigelser.some((i) => i.part === 'BH' && i.gjelder === krav.id))
-    return avvis(
-      'VURDERING_UTENFOR_KJERNEN',
-      'Kjernen kan ikke lagre vurderingen: preklusjon etter § 34.1 etter en innsigelse er ikke i kjernen ennå.'
     );
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
@@ -261,11 +255,28 @@ export function nyttelastkontroll(
     case 'varsel':
     case 'send_varsel':
     case 'ingen_krav':
-    case 'innsigelse':
     case 'protest':
     case 'merking':
     case 'avklaring':
       return null;
+    case 'innsigelse': {
+      // VS-U24, HF-U4: en innsigelse mot varselet etter § 33.4 eller TEs varsel etter § 32.2
+      // er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at
+      // varselet kom i tide, avvises den (del 2 av #498).
+      const maal = u.elementer[k.gjelder];
+      const hjemmel = innsigelsenPaaberoper(
+        maal && {
+          art: maal.art,
+          spor: u.spor.grunnlag.krav.some((x) => x.id === k.gjelder) ? 'grunnlag' : undefined,
+        }
+      );
+      return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })
+        ? avvis(
+            'SAGT_I_TIDE',
+            `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, VS-U24).`
+          )
+        : null;
+    }
     case 'begrunnelse': {
       // Datoen kontrolleres også i forhåndsvisningen; teksten bare når den sendes.
       const tekst = utdypningKreves ? begrunnelsensTekst(k) : null;
