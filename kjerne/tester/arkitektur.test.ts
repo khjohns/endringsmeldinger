@@ -319,6 +319,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // KA-U20, KA-U26: brevene med en merking som gjelder i sporet.
   ['Sporutledning', 'relasjon', 'merket'],
   ['utledning/utled.ts', 'predikat', 'godkjenningenErMerket', ['kommandoer/forutsetninger.ts']],
+  // HF-U4, HF-U8: byggherren har sagt «i tide» i et svar sendt fra appen. Leses av nyttelastkontrollen.
+  ['utledning/utled.ts', 'predikat', 'harSagtITide', ['kommandoer/nyttelast.ts']],
+  ['Rettidighet', 'utsagn', 'hjemmel gjelder'],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],
