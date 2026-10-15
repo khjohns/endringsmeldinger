@@ -39,6 +39,7 @@ import {
   type Dokument,
   type Domenehendelse,
   type Enighetsgrunnlag,
+  type Hjemmel,
   type Krav,
   type Opplysning,
   type Part,
@@ -947,6 +948,30 @@ export function kanInngaaIEo(u: Utledning): boolean {
     // KA-U20: en endringsordre bygger på enighetene, så et merket brev sperrer den.
     !SPOR.some((n) => u.spor[n].forbehold) &&
     KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)
+  );
+}
+
+/** En påberopelse av at varselet kom for sent, eller at kravet ble spesifisert for sent. */
+export type Rettidighet = { hjemmel: Hjemmel } | { hjemmel: '33.6.1'; gjelder: string };
+
+/**
+ * HF-U4, HF-U8: byggherren har i et svar sendt fra appen uttrykkelig sagt at varselet
+ * kom i tide etter bestemmelsen, eller at kravversjonen ble spesifisert i tide etter
+ * § 33.6.1, og kan ikke senere påberope det motsatte. Svaret binder også når det er
+ * revidert eller gjaldt en tidligere kravversjon, fordi et «i tide» ikke faller bort med
+ * svaret (HF-U8). Etter § 33.4 finnes ett varsel i saken, også når TE senere registrerer
+ * et tidligere sendt varsel (oppdragsgiver 15.10, #498). Spesifiseringen gjelder
+ * kravversjonen (HF-U1). Et registrert brev binder ikke (OV-U4).
+ */
+export function harSagtITide(u: Utledning, spor: Spor, r: Rettidighet): boolean {
+  return u.spor[spor].svar.some(
+    (s) =>
+      !u.elementer[s.dokument]?.registrertBrev &&
+      s.standpunkter.some((p) =>
+        'gjelder' in r
+          ? p.art === 'spesifisering' && p.gjelder === r.gjelder && p.iTide
+          : p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide
+      )
   );
 }
 
