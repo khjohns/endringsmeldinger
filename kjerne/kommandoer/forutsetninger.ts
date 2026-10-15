@@ -253,12 +253,6 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           'BREV_MED_FORBEHOLD',
           'Svaret bygger på et brev med noe appen ikke kan uttrykke. Den som sendte det, må avklare det først.'
         );
-      // MM-U8: en preklusjon som gjaldt et annet varsel enn det registrerte, er uavklart.
-      if (u.svar[s.gjeldendeSvar.id].uavklart.length)
-        return avvis(
-          'STANDPUNKT_UAVKLART',
-          'Et standpunkt i svaret er uavklart. Byggherren må ta stilling først.'
-        );
       return null;
   }
 }

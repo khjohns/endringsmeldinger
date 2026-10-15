@@ -254,9 +254,11 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     }
     case 'virkning':
       return svar().virkninger.find((p) => p.art === hale[1])?.virkning ?? null;
-    case 'uavklart':
-      // Et standpunkt i svaret, eller innsigelsen svaret er lest med (VS-U11).
-      return svar().uavklart.map((id) => svar().virkninger.find((x) => x.standpunkt === id)?.art);
+    case 'annet_varsel':
+      // Et standpunkt i svaret, eller innsigelsen svaret er lest med (VS-U11, OV-U5).
+      return svar().gjaldtEtAnnetVarsel.map(
+        (id) => svar().virkninger.find((x) => x.standpunkt === id)?.art
+      );
     case 'beslutningsgrunnlag':
       return (
         (svar().svar.beslutningsgrunnlag as unknown as Record<string, unknown> | null)?.[hale[1]] ??

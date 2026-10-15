@@ -98,12 +98,13 @@ function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => strin
       });
     ut.push({ id: nyId(), art: 'beloep' });
   } else {
-    // MM-U1: vurderingen gjelder varselet som er registrert nå, ellers varselet utledet av kravet.
+    // VS-U20, OV-U5, HF-U1: påberopelsen gjelder varselet som er registrert nå, ellers det
+    // første fristkravet, som er det første varselet appen kjenner (arbeidsvalget i #309).
     if (typeof v.frist_varsel_ok === 'boolean')
       ut.push({
         id: nyId(),
         art: 'rettidighet',
-        gjelder: u.spor.frist.varsel?.id ?? krav.id,
+        gjelder: u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id,
         hjemmel: HJEMMEL.frist,
         i_tide: v.frist_varsel_ok,
       });
@@ -426,11 +427,14 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
   const svarFraParten: Svar[] = [];
   const innsigelser: { gjelder: string; id: string; fra: number }[] = [];
   const varsler: string[] = [];
+  let foersteFristkrav: string | undefined;
   for (const h of lesJournal(foer, kjerne.leserformat)) {
     if (h.art !== 'dokument') continue;
     const d = h.dokument;
     grunnlagskrav.push(...d.krav.filter((k) => k.spor === 'grunnlag'));
     varsler.push(...d.utsagn.filter((u) => u.art === 'varsel').map((u) => u.id));
+    // OV-U5: uten registrert varsel er det første fristkravet det første varselet appen kjenner.
+    if (!foersteFristkrav) foersteFristkrav = d.krav.find((k) => k.spor === 'frist')?.id;
     if (d.avsender !== rad.aktor_rolle) continue;
     svarFraParten.push(...d.svar);
     for (const u of d.utsagn)
@@ -446,8 +450,10 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
     // innsigelsen fra samme part som parten ikke senere har gitt opp uttrykkelig.
     const innsigelse = innsigelser.find(
       (i) =>
-        innsigelsenGjelderSvaret(i.gjelder, s as { spor: Spor; gjelder: string }, varsler) &&
-        !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))
+        innsigelsenGjelderSvaret(i.gjelder, s as { spor: Spor; gjelder: string }, [
+          ...varsler,
+          ...(foersteFristkrav ? [foersteFristkrav] : []),
+        ]) && !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))
     )?.id;
     s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));
   }

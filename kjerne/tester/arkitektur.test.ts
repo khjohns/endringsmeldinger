@@ -268,7 +268,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Standpunktsvirkning', 'frosset', 'standpunkt art virkning'],
 
   // Utledningen (utled.ts).
-  ['Utledning', 'predikat', 'forstaatt spor svar opplysninger grunnlagAvvist frafalt'],
+  ['Utledning', 'predikat', 'forstaatt spor opplysninger grunnlagAvvist frafalt'],
   // § 31.3 for godkjenningen av grunnlaget (GR-U13, KA-U14): ja, nei eller ikke avklart,
   // utledet av opplysningene. Leses bare av sperren mot trekk og avvisningen av den.
   [
@@ -296,7 +296,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'grunnlagAvklart',
     ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
-  ['Utledning.svar', 'relasjon', '*'],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
   ['Utledning.opplysninger', 'relasjon', 'bestridelser avklaring'],
   // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U18).
@@ -322,7 +321,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'predikat', 'godkjenningenErMerket', ['kommandoer/forutsetninger.ts']],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
-  ['Svarberegning', 'predikat', 'uavklart'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
   [
@@ -692,19 +690,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Journalen',
     'brevtekst',
-    'legg brev brevet dokument dokumenter element elementer erRegistrert krav svar utdypning versjon',
+    'legg brev brevet dokument dokumentetTil dokumenter element elementer erRegistrert krav svar utdypning versjon',
     ['frosset/brevtekst.ts'],
   ],
   ['Element', 'brevtekst', 'dokument krav opplysning svar utsagn', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts.UNDERKATEGORI', 'brevtekst', '*', ['frosset/brevtekst.ts']],
   ['UNDERKATEGORI', 'brevtekst', 'navn hjemmel', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['frosset/brevtekst.ts']],
-  [
-    'frosset/brevtekst.ts:aapenInnsigelse',
-    'relasjon',
-    'dokument fra gjelder',
-    ['frosset/brevtekst.ts'],
-  ],
+  ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
+  ['Innsigelse', 'relasjon', 'dokument gjelder', ['frosset/brevtekst.ts']],
   // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
   // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).
   [
