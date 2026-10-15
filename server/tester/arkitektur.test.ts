@@ -2,8 +2,8 @@
  * Grensene rundt TS-serveren (B-18, B-17):
  * - Serveren importerer kjernen fra `kjerne/`, ikke kjernens tester og ikke
  *   språkprøven (`sprakprove/` er prøvekode, AGENTS.md) eller frontenden.
- * - Ut over det bruker serveren bare Node og `pg`. Testene kan i tillegg bruke
- *   Vitest, og `mssql` for testbasen i SQL Server (#488) til datalaget får den (#419).
+ * - Ut over det bruker serveren bare Node, `pg` og `mssql` (datalaget mot
+ *   SQL Server, #419). Testene kan i tillegg bruke Vitest.
  *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
  * `export … from`, `import()` og `require()` teller likt, med og uten endelse.
@@ -19,8 +19,8 @@ const SERVER = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROT = resolve(SERVER, '..');
 const KJERNE = join(ROT, 'kjerne');
 const TESTER = join(SERVER, 'tester');
-const PAKKER = new Set(['pg']);
-const TESTPAKKER = new Set(['vitest', 'typescript', 'mssql']);
+const PAKKER = new Set(['pg', 'mssql']);
+const TESTPAKKER = new Set(['vitest', 'typescript']);
 
 /** Importene i `kilde` som ikke er tillatt for `fil`. */
 export function forbudteImporter(fil: string, kilde: string): string[] {
@@ -50,12 +50,12 @@ const filer = alleFiler(SERVER);
 describe('grensene rundt TS-serveren', () => {
   it('finner serverens moduler og testene', () => {
     expect(filer.map((f) => relative(SERVER, f))).toEqual(
-      expect.arrayContaining(['app.ts', 'lager.ts', 'tester/arkitektur.test.ts'])
+      expect.arrayContaining(['app.ts', 'datalag.ts', 'lager.ts', 'tester/arkitektur.test.ts'])
     );
   });
 
   it.each(filer.map((f) => [relative(SERVER, f), f] as const))(
-    '%s importerer bare kjernen, serveren, Node og pg',
+    '%s importerer bare kjernen, serveren, Node, pg og mssql',
     (_navn, fil) => {
       expect(forbudteImporter(fil, readFileSync(fil, 'utf8'))).toEqual([]);
     }
