@@ -2270,6 +2270,43 @@ I første versjon er en forespørsel etter § 33.6.2 sendt utenfor appen dokumen
 kilde = "ns8407"
 tekst = "Byggherren kan da ikke påberope at fristen i 33.6.1 er oversittet."
 
+[[gruppe.vedtak]]
+id = "HF-U4"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#309", "#495"]
+sporsmal = '''
+1. § 33.4, PR #495. Forløp: byggherren påberoper i sitt svar at TE varslet for sent, og varselet appen kjenner da, er TEs første fristkrav. Senere oppgir TE at et varsel ble sendt utenfor appen på en tidligere dato. I et nytt svar sier byggherren uttrykkelig at dette varselet kom i tide. Så kommer et svar som ikke sier noe om varselet. Skal påberopelsen da regnes som oppgitt? VS-U20 sier at appen leser påberopelsen som oppgitt «når byggherren uttrykkelig har frafalt påberopelsen eller sagt at varselet kom i tide». Etter OV-U5 utvides ikke et tidligere svar til et senere oppgitt varsel. Mitt arbeidsvalg 15.10 (A1) var for strengt mot TE og har ikke belegg i vedtakene.
+2. Avtaleretten gir et klart grunnlag. Etter løfteprinsippet er en part bundet av sitt eget utsagn når det er kommet til mottakerens kunnskap. Avtaleloven § 7 lar et utsagn kalles tilbake bare hvis tilbakekallet kommer fram før eller samtidig med utsagnet, og kommentaren sier at regelen er et generelt prinsipp også for andre løfter. Kapittel 1 gjelder når ikke annet følger av avtalen (§ 1), og NS 8407 regulerer ikke tilbakekall av et «i tide». Brukt på appen: byggherrens «i tide» kommer fram til TE når svaret sendes, og etter det kan det ikke tas tilbake i en revisjon. Unntaket for uendrede forhold (re integra) er en konkret vurdering som appen ikke gjør. Kan byggherren i en revisjon av et svar TE ikke har godtatt, ta tilbake at varselet kom i tide?
+3. Løfteprinsippet rekker lenger enn «i tide». Det kan også binde byggherren til det hen har godkjent i et sendt svar, for eksempel 50 dager eller et beløp, slik GR-U10 allerede gjør for godkjent grunnlag. GR-U7 lar i dag byggherren revidere hele svaret til TE har godtatt det, også til ugunst for TE. Skal prinsippvedtaket nå gjelde bare rettidigheten og innsigelsen etter § 5, eller hele svaret?
+4. Vedtaksteksten blir ført ordrett i vedtaksregisteret. Kan teksten (alternativ Ja) føres slik? Forholdet til andre vedtak: presiserer VS-U11, VS-U14 og VS-U20, og snevrer inn GR-U7 og VS-U9.'''
+valgt = "Ja"
+svar = '''
+1. Mulig jeg misforstår, men dette er enkelt i mitt hode: Hvis BH på et eller annet tidspunkt har sagt at varselet er gitt i tide, da er han bundet av det.
+2. Nei (anbefalt)
+3. Rettidighet nå (anbefalt)
+4. Ja, før den'''
+forhold = [{ art = "presiserer", vedtak = "vs-u11" }, { art = "presiserer", vedtak = "vs-u14" }, { art = "presiserer", vedtak = "vs-u20" }, { art = "snevrer inn", vedtak = "gr-u7" }, { art = "snevrer inn", vedtak = "vs-u9" }]
+folge = '''
+Ikke bygget (#498)'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Har en part i et utsagn sendt fra appen uttrykkelig sagt at motpartens varsel, krav eller svar kom i tide etter en bestemmelse, eller uttrykkelig gitt opp sin innsigelse etter § 5 tredje ledd mot det, avviser appen en senere påberopelse fra samme part av at det samme varselet, kravet eller svaret kom for sent etter samme bestemmelse. Det gjelder også i en revisjon av svaret før motparten har godtatt det. Resten av svaret kan revideres som før (GR-U7). Utsagnet gjelder det det viser til (HF-U1). Et standpunkt om varselet står mot hver senere kravversjon (VS-U20). Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt. Taushet, et registrert brev og en konkret tolkning av et senere brev gir ikke slik virkning (VS-U11, OV-U4). Om parten likevel kan komme løs fra utsagnet, for eksempel fordi forholdene er uendrede eller utsagnet er ugyldig, avgjør ikke appen (MM-U12).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Revisjonsretten i GR-U7 gjelder hele svaret, også rettidigheten, til motparten har godtatt det.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Har en part uttrykkelig sagt at et varsel eller krav kom i tide, eller frafalt en innsigelse, er parten bundet av det i saken. Appen leser ikke en senere påberopelse av det samme som gjeldende.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
