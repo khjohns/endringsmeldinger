@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `115298b2d967c2624b96d9576f307e2a1e83ceaedc5f972fd23c35bc3e244581`
+Kontrollsum (SHA-256 over utdraget visningen leser): `f1e15b0eec0d62809ee1cb2bfa679076232e1cb20144ce8f0f3ad87480341c9e`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -150,7 +150,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.10, oppdragsgiver (#309, #495)
 
-**Følge:** Presiserer [VS-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11). Presiserer [VS-U14](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u14). Presiserer [VS-U20](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u20). Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Snevrer inn [VS-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9). Snevrer inn [OV-U5](#ov-u5). Presisert 15.10 av [HF-U5](#hf-u5). Snevret inn 15.10 av [VS-U24](#vs-u24). Utvidet 15.10 av [HF-U6](#hf-u6). Snevrer også inn [VS-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1) (oppdragsgiver 15.10, svar 9 i #504). Ikke bygget (#498)
+**Følge:** Presiserer [VS-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11). Presiserer [VS-U14](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u14). Presiserer [VS-U20](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u20). Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Snevrer inn [VS-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9). Snevrer inn [OV-U5](#ov-u5). Presisert 15.10 av [HF-U5](#hf-u5). Snevret inn 15.10 av [VS-U24](#vs-u24). Utvidet 15.10 av [HF-U6](#hf-u6). Snevrer også inn [VS-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1) (oppdragsgiver 15.10, svar 9 i #504). Bygget 15.10 i PR #518 (#498, del 1): et uttrykkelig «i tide» sendt fra appen sperrer «for sent» etter samme bestemmelse i senere svar og revisjoner (§ 33.4, § 34.1.2 og § 33.6.1), med regelkoden SAGT_I_TIDE og PROJEKSJONSVERSJON 16; del 2 av #498 er ikke bygget.
 
 **Regelrader:** [KA-38](#rad-ka-38), [VS-02](#rad-vs-02), [KA-48](#rad-ka-48)
 

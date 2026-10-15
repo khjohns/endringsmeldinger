@@ -1655,7 +1655,7 @@ valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
 folge = '''
-Gjelder raden i B-13 om «frafalt» (§ 32.3 c) og GR-U11. Dette er en tolkning av § 32.3 c og ikke en følge av avtaleloven. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Gjelder raden i B-13 om «frafalt» (§ 32.3 c) og GR-U11. Dette er en tolkning av § 32.3 c og ikke en følge av avtaleloven. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 15.10 i PR #515 (#511): frafall godtas nå også i samordning og svar på varsel, der pålegget er byggherrens eget, og avvises fortsatt for lovendring, gebyrer og avgifter og endringsordre (REGELVERSJON 15).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -2435,7 +2435,7 @@ svar = '''
 5. Legg til (anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "vs-u11" }, { art = "presiserer", vedtak = "vs-u14" }, { art = "presiserer", vedtak = "vs-u20" }, { art = "snevrer inn", vedtak = "gr-u7" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "ov-u5" }]
 folge = '''
-Snevrer også inn [VS-U1](#vs-u1) (oppdragsgiver 15.10, svar 9 i #504). Ikke bygget (#498)'''
+Snevrer også inn [VS-U1](#vs-u1) (oppdragsgiver 15.10, svar 9 i #504). Bygget 15.10 i PR #518 (#498, del 1): et uttrykkelig «i tide» sendt fra appen sperrer «for sent» etter samme bestemmelse i senere svar og revisjoner (§ 33.4, § 34.1.2 og § 33.6.1), med regelkoden SAGT_I_TIDE og PROJEKSJONSVERSJON 16; del 2 av #498 er ikke bygget.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -2596,7 +2596,7 @@ svar = '''
 Ja til alle anbefalingene'''
 forhold = [{ art = "presiserer", vedtak = "ka-u1" }, { art = "snevrer inn", vedtak = "gr-u1" }]
 folge = '''
-Presiserer også SK-02 og SK-03 og vedtaket 05.10 om at hver oppdatering er en ny kravversjon. Snevrer også inn raden i B-13 om endret underkategori, fordi et «i tide» ikke faller bort med svaret. KA-U7 og OV-U3 står som grensene. Følger av HF-U5 (bindingens varighet). Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+Presiserer også SK-02 og SK-03 og vedtaket 05.10 om at hver oppdatering er en ny kravversjon. Snevrer også inn raden i B-13 om endret underkategori, fordi et «i tide» ikke faller bort med svaret. KA-U7 og OV-U3 står som grensene. Følger av HF-U5 (bindingens varighet). Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 15.10 i PR #518 (#498, del 1): et uttrykkelig «i tide» sendt fra appen sperrer «for sent» etter samme bestemmelse i hver senere grunnlagsversjon, også med endret underkategori (§ 32.2; regelkoden SAGT_I_TIDE og PROJEKSJONSVERSJON 16); del 2 av #498 er ikke bygget.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
