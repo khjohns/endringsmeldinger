@@ -119,3 +119,39 @@ if (start_testbase) >> "$logg" 2>&1 \
 else
   echo "ADVARSEL: testbasen i PostgreSQL 17 kom ikke opp; se $logg. KOE_TESTBASE_URL er ikke satt, så databasetestene i pytest og i sprakprove/ hoppes over, og grønn suite sier ingenting om datalaget. Maskinen har bare PostgreSQL 16. Kjør hooken på nytt med CLAUDE_CODE_REMOTE=true."
 fi
+
+# SQL Server for datalaget i F0b (#488) starter i bakgrunnen, så økter som ikke
+# trenger den, ikke venter på bildet (2,4 GB) og oppstarten. Tilkoblingen
+# skrives ut før serveren er oppe, og testhjelperen venter på den.
+sqllogg=/tmp/koe-sqlserver.log
+start_sqlserver() {
+  docker info > /dev/null 2>&1 || return 1
+  local skript="$rot/scripts/testbase/docker_sqlserver.sh" port="${KOE_SQLSERVER_PORT:-14331}"
+  local navn="koe-sqlserver-$port" stempel="/tmp/koe-sqlserver-$port.container" container
+  # Skriptet bærer bildet, så summen av det avgjør om containeren lages på nytt.
+  container="$(sha256sum < "$skript" | cut -d' ' -f1)" || return 1
+  if docker container inspect "$navn" > /dev/null 2>&1 \
+    && [ "$(cat "$stempel" 2> /dev/null)" = "$container" ]; then
+    setsid nohup bash -c 'docker start "$1" > /dev/null && "$2" vent' _ "$navn" "$skript" \
+      >> "$sqllogg" 2>&1 < /dev/null &
+    "$skript" tilkobling
+    return
+  fi
+  rm -f "$stempel"
+  KOE_SQLSERVER_SA_PASSORD="Koe-$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')-Aa1"
+  export KOE_SQLSERVER_SA_PASSORD
+  setsid nohup bash -c '"$1" stopp && "$1" start > /dev/null && echo "$2" > "$3"' \
+    _ "$skript" "$container" "$stempel" >> "$sqllogg" 2>&1 < /dev/null &
+  "$skript" tilkobling
+}
+
+if tilkobling="$(start_sqlserver 2>> "$sqllogg")"; then
+  if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
+    echo "export KOE_SQLSERVER_TILKOBLING='$tilkobling'" >> "$CLAUDE_ENV_FILE"
+  fi
+  echo "SQL Server: starter i bakgrunnen (koe-sqlserver-${KOE_SQLSERVER_PORT:-14331}), KOE_SQLSERVER_TILKOBLING er satt. Testene i server/tester/sqlserver.test.ts venter på den; logg i $sqllogg."
+elif ! docker info > /dev/null 2>&1; then
+  echo "ADVARSEL: SQL Server startet ikke fordi Docker ikke svarer; se $logg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/tester/sqlserver.test.ts hoppes over."
+else
+  echo "ADVARSEL: SQL Server startet ikke; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/tester/sqlserver.test.ts hoppes over."
+fi

@@ -3,7 +3,7 @@
  * - Serveren importerer kjernen fra `kjerne/`, ikke kjernens tester og ikke
  *   språkprøven (`sprakprove/` er prøvekode, AGENTS.md) eller frontenden.
  * - Ut over det bruker serveren bare Node og `pg`. Testene kan i tillegg bruke
- *   Vitest.
+ *   Vitest, og `mssql` for testbasen i SQL Server (#488) til datalaget får den (#419).
  *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
  * `export … from`, `import()` og `require()` teller likt, med og uten endelse.
@@ -20,7 +20,7 @@ const ROT = resolve(SERVER, '..');
 const KJERNE = join(ROT, 'kjerne');
 const TESTER = join(SERVER, 'tester');
 const PAKKER = new Set(['pg']);
-const TESTPAKKER = new Set(['vitest', 'typescript']);
+const TESTPAKKER = new Set(['vitest', 'typescript', 'mssql']);
 
 /** Importene i `kilde` som ikke er tillatt for `fil`. */
 export function forbudteImporter(fil: string, kilde: string): string[] {
