@@ -13,8 +13,8 @@
  * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204 påberopelsen etter
  * § 33.4 mot varselet (#309, KK-07), F208–F209 innsigelsen brevet viser til og gir opp
  * (#407, #309, #500), F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511),
- * F217–F220 et «i tide» som binder byggherren (HF-U4, HF-U8, #498) og F221–F222
- * innsigelsen etter VS-U24 (#498, #517). Én mutasjon
+ * F217–F220 et «i tide» som binder byggherren (HF-U4, HF-U8, #498), F221–F222 og F224
+ * innsigelsen etter VS-U24 (#498, #517), og F223 et registrert brev (HF-U4, OV-U4). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -1120,8 +1120,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (maal?.art === 'krav' && maal.spor === 'grunnlag') return '32.2';",
-        "if (maal?.art === 'krav' && maal.spor === 'grunnlag') return null;",
+        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return '32.2';",
+        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return null;",
       ],
     ],
     mal: [
@@ -1236,7 +1236,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'svaret viser ikke til innsigelsen det gjentar eller gir opp (VS-U9, VS-U11)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ['const innsigelser = aapneInnsigelser(s, nytt.avsender, j);', 'const innsigelser = [];'],
+      [
+        'const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);',
+        'const innsigelser = [];',
+      ],
     ],
     mal: ['svaret gjentar innsigelsen', 'gir byggherren innsigelsen opp'],
   },
@@ -2163,8 +2166,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'innsigelsenPaaberoper(maal.get(i.gjelder)) === HJEMMEL[svar.spor] &&',
-        "innsigelsenPaaberoper(maal.get(i.gjelder)) === HJEMMEL[svar.spor] && (svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) &&",
+        'innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] &&',
+        "innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] && (svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) &&",
       ],
     ],
     mal: [
@@ -2299,6 +2302,36 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-V3b'],
+  },
+  {
+    id: 'F223',
+    feilklasse: 'et «i tide» i et registrert brev gir opp innsigelsen i brevteksten (HF-U4, OV-U4)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar);',
+        '    svarFraParten.push(...d.svar);',
+      ],
+    ],
+    mal: [
+      'et «i tide» i et registrert brev gir ikke opp innsigelsen, så et «for sent» fra appen på en ny versjon gjentar den',
+    ],
+  },
+  {
+    id: 'F224',
+    feilklasse:
+      'en innsigelse mot en grunnlagsversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return '32.2';",
+        "if (maal?.krav?.spor === 'grunnlag') return '32.2';",
+      ],
+    ],
+    mal: [
+      'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
+      'etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder',
+    ],
   },
 ];
 

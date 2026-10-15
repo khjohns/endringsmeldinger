@@ -111,15 +111,17 @@ export function virkninger(
 /**
  * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den
  * gjelder, bare kan komme for sent etter den: varselet etter § 33.4 i fristen, og TEs
- * varsel etter § 32.2 i grunnlaget. Varselet etter § 32.2 er det samme i hver
- * grunnlagsversjon (arbeidsvalget 15.10 i #500). Svaret i sporet gjentar den eller gir
- * den opp. Mot et annet krav eller et svar er den uten virkning.
+ * varsel etter § 32.2 i grunnlaget, som er grunnlagskravet når § 32.2 gjelder kategorien
+ * i det (GR-U11). Varselet etter § 32.2 er det samme i hver grunnlagsversjon
+ * (arbeidsvalget 15.10 i #500). Svaret i sporet gjentar den eller gir den opp. Mot et
+ * annet krav eller et svar er den uten virkning.
  */
 export function innsigelsenPaaberoper(
-  maal: { art: string; spor?: Spor } | undefined
+  maal: { art: string; krav?: Pick<Krav, 'spor' | 'innhold'> } | undefined,
+  regler: Regelsett
 ): Extract<Hjemmel, '32.2' | '33.4'> | null {
   if (maal?.art === 'varsel') return '33.4';
-  if (maal?.art === 'krav' && maal.spor === 'grunnlag') return '32.2';
+  if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return '32.2';
   return null;
 }
 

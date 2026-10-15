@@ -280,7 +280,7 @@ export function lagBrevtekst(
   };
 
   for (const k of nytt.krav) legg(k.id, kravtekst(k, t, regler));
-  for (const s of nytt.svar) legg(s.id, svartekst(s, t));
+  for (const s of nytt.svar) legg(s.id, svartekst(s, t, regler));
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t));
   for (const o of nytt.opplysninger) {
     // Datoen for et varsel står i avsnittet for varselet.
@@ -361,24 +361,30 @@ interface Innsigelse {
  * uttrykkelig, i rekkefølgen de kom, med brevet de står i. Svaret gjentar dem eller
  * gir dem opp.
  */
-function aapneInnsigelser(svar: Svar, avsender: Part, j: Journalen): Innsigelse[] {
-  const maal = new Map<string, { art: string; spor?: Spor }>();
+function aapneInnsigelser(
+  svar: Svar,
+  avsender: Part,
+  j: Journalen,
+  regler: Regelsett
+): Innsigelse[] {
+  const maal = new Map<string, { art: string; krav?: Krav }>();
   for (const d of j.dokumenter) {
-    for (const k of d.krav) maal.set(k.id, { art: 'krav', spor: k.spor });
+    for (const k of d.krav) maal.set(k.id, { art: 'krav', krav: k });
     for (const u of d.utsagn) maal.set(u.id, { art: u.art });
   }
   const svarFraParten: Svar[] = [];
   const innsigelser: (Innsigelse & { fra: number })[] = [];
   for (const d of j.dokumenter) {
     if (d.avsender !== avsender || d.svar.includes(svar)) continue;
-    svarFraParten.push(...d.svar);
+    // HF-U4, OV-U4: et registrert brev gir ikke opp innsigelsen.
+    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar);
     for (const u of d.utsagn)
       if (u.art === 'innsigelse')
         innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length });
   }
   return innsigelser.filter(
     (i) =>
-      innsigelsenPaaberoper(maal.get(i.gjelder)) === HJEMMEL[svar.spor] &&
+      innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] &&
       !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra))
   );
 }
@@ -435,11 +441,11 @@ function grunnlagetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
 }
 
 /** LV-U4 punkt 4 og 5, med A2 når grunnlaget er avslått eller prekludert. */
-function svartekst(s: Svar, t: Tekst): string {
+function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const { j, nytt } = t;
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
-  const innsigelser = aapneInnsigelser(s, nytt.avsender, j);
+  const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);
   const ledd = [
     ...grunnlagetsStandpunkter(s, t).map((tekst) => ({ tekst, ordnes: true })),
     ...s.standpunkter.map((p) => ({

@@ -265,10 +265,8 @@ export function nyttelastkontroll(
       // varselet kom i tide, avvises den (del 2 av #498).
       const maal = u.elementer[k.gjelder];
       const hjemmel = innsigelsenPaaberoper(
-        maal && {
-          art: maal.art,
-          spor: u.spor.grunnlag.krav.some((x) => x.id === k.gjelder) ? 'grunnlag' : undefined,
-        }
+        maal && { art: maal.art, krav: u.spor.grunnlag.krav.find((x) => x.id === k.gjelder) },
+        regler
       );
       return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })
         ? avvis(

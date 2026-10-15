@@ -1398,6 +1398,85 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       });
       expect(laast(rad)[0]).toContain('jf. innsigelsen i brev 5 av 5. oktober 2026');
     });
+
+    it('et «i tide» i et registrert brev gir ikke opp innsigelsen, så et «for sent» fra appen på en ny versjon gjentar den (HF-U4, OV-U4)', () => {
+      const s = medInnsigelse();
+      s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            gjelder: s.krav('grunnlag'),
+            standpunkter: [
+              {
+                id: randomUUID(),
+                art: 'rettidighet',
+                gjelder: s.krav('grunnlag'),
+                hjemmel: '32.2',
+                i_tide: true,
+              },
+              { id: randomUUID(), art: 'grunnlag', resultat: 'avslaatt' },
+            ],
+          },
+        ],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
+      });
+      s.send('TE', GRUNNLAGSKRAV);
+      const rad = s.send('BH', {
+        type: 'brev',
+        svar: [
+          svar('grunnlag', s.krav('grunnlag'), {
+            resultat: 'avslaatt',
+            grunnlag_varslet_i_tide: false,
+          }),
+        ],
+      });
+      expect(laast(rad)[0]).toContain('jf. innsigelsen i brev 5 av 5. oktober 2026');
+    });
+
+    /** GR-U11: § 32.2 gjelder ikke kategorien. */
+    const svikt = {
+      type: 'krav',
+      spor: 'grunnlag',
+      innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold' },
+    };
+
+    it('en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon (VS-U24, GR-U11)', () => {
+      const tekstMed = (iTide: boolean) => {
+        const s = sak();
+        s.send('TE', svikt);
+        s.send('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') });
+        s.send('TE', GRUNNLAGSKRAV);
+        return laast(
+          s.send('BH', {
+            type: 'brev',
+            svar: [
+              svar('grunnlag', s.krav('grunnlag'), {
+                resultat: 'avslaatt',
+                grunnlag_varslet_i_tide: iTide,
+              }),
+            ],
+          })
+        )[0];
+      };
+      expect(tekstMed(true)).not.toContain(girOpp);
+      const forSent = tekstMed(false);
+      expect(forSent).toContain('TEs varsel etter NS 8407 § 32.2 kom for sent');
+      expect(forSent).not.toContain('jf. innsigelsen');
+    });
+
+    it('etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder (VS-U24, HF-U4, GR-U11)', () => {
+      const s = sak();
+      s.send('TE', GRUNNLAGSKRAV);
+      const foerste = s.krav('grunnlag');
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('grunnlag', foerste, { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
+      });
+      s.send('TE', svikt);
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBeNull();
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: foerste })).toBe('SAGT_I_TIDE');
+    });
   });
 
   it('protesten mot innsigelsen, mot påberopelsen i et svar og mot alle innsigelsene i et brev', () => {

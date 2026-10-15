@@ -305,7 +305,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse kanFaaProtest KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
-  // VS-U9 og OV-U1: et svar på vederlaget etter byggherrens innsigelse avvises.
   // MM-U18: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn bareUregistrert', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],
@@ -374,7 +373,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/standpunkt.ts:innsigelsenPaaberoper',
     'relasjon',
-    'art spor',
+    'art krav',
     ['frosset/standpunkt.ts'],
   ],
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.

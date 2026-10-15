@@ -2625,7 +2625,7 @@
     {
       "id": "VS-02",
       "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten.",
-      "forventet": "Svaret leses ikke med innsigelsen: et registrert brev får ingen virkning ut over det det sier (OV-U4, VS-U24), og saken er forstått. Innsigelsen er en påberopelse etter § 32.2, og et senere svar fra appen gjentar den eller gir den opp, også på en annen grunnlagsversjon, fordi varselet etter § 32.2 er det samme (arbeidsvalget 15.10 i #500). Har byggherren sagt «i tide» etter § 32.2 i et svar fra appen, avvises en ny innsigelse mot grunnlagskravet, også mot en tidligere versjon (HF-U4, HF-U8).",
+      "forventet": "Svaret leses ikke med innsigelsen: et registrert brev får ingen virkning ut over det det sier (OV-U4, VS-U24), og saken er forstått. Innsigelsen er en påberopelse etter § 32.2, og et senere svar fra appen gjentar den eller gir den opp, også på en annen grunnlagsversjon, fordi varselet etter § 32.2 er det samme (arbeidsvalget 15.10 i #500). Har byggherren sagt «i tide» etter § 32.2 i et svar fra appen, avvises en ny innsigelse mot grunnlagskravet, også mot en tidligere versjon (HF-U4, HF-U8). En innsigelse mot en versjon der § 32.2 ikke gjelder kategorien, er uten virkning: svaret gjentar den ikke og gir den ikke opp, og den avvises ikke (GR-U11). Et registrert brev gjentar den ikke og gir den ikke opp (OV-U4, HF-U4).",
       "bh_standpunkt": "Godkjenningen, slik den står.",
       "rettslig_virkning": "Appen utleder ikke av et registrert brev at innsigelsen er gjentatt eller oppgitt (OV-U4).",
       "rettidighet": "—",
@@ -2637,6 +2637,7 @@
         "HF-U4",
         "HF-U8",
         "GR-U12",
+        "GR-U11",
         "AV-500"
       ],
       "tolkningsstatus": "avklart_tolkning",
