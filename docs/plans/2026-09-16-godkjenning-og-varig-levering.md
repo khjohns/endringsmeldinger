@@ -1517,6 +1517,22 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > Følge i radene for KA-U34 og KA-U35 sier fortsatt «Ikke bygget». Ikke bygget:
 > [KA-U36](#ka-u36) (#468), leveringen (#371) og de neste byggedelene av #309.
 
+> **Merknad 2026-10-15 til FK:** KK-07 og KK-08 er levert i
+> [PR #495](https://github.com/khjohns/endringsmeldinger/pull/495), som er del av
+> [#309](https://github.com/khjohns/endringsmeldinger/issues/309) og del 2 av
+> [#407](https://github.com/khjohns/endringsmeldinger/issues/407). KK-07 knytter
+> påberopelsen etter § 33.4 til varselet. KK-08 gjelder [OV-U5](#ov-u5), som endrer
+> MM-U8 og VS-U7: et svar byggherren alt har gitt, står med virkningen det hadde, også
+> når TE registrerer et varsel etter svaret.
+> Del 2 av #407 er [VS-U20](#vs-u20) og rettingen av arbeidsvalget 15.10 på #309.
+> Del 1 av #407 er ikke levert: lesingen der § 33.4 ikke kunne gi preklusjon.
+> Belegg: [KK-07](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-07-kjernen-knytter-påberopelsen-til-siste-kravversjon-ikke-varselet)
+> og [KK-08](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-08-kjernen-gjør-i-dag-preklusjonen-uavklart-når-te-oppgir-et-varsel);
+> belegget er datert 13.10 og endres ikke. Følge i radene for [VS-U20](#vs-u20),
+> [OV-U5](#ov-u5) og [HF-U1](#hf-u1) sier fortsatt «Ikke bygget». Frontenden (`src/`)
+> er ikke endret i PR #495. Følgene for skjema og visning står på
+> [#313](https://github.com/khjohns/endringsmeldinger/issues/313).
+
 ### F3 — Øvrige adaptere og drift
 
 **Avhenger av:** F2 grønn. Utvid én adapter om gangen.
