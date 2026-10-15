@@ -118,8 +118,8 @@ function nullstill(forbindelse: Forbindelse): Promise<void> {
 }
 
 /** Etter nullstillingen: ingen åpen transaksjon og ingen kontekstnøkkel med verdi. */
-async function kontrollerRen(parent: sql.ConnectionPool): Promise<void> {
-  const svar = await new sql.Request(parent).query<{ trancount: number; satt: number }>(
+async function kontrollerRen(forelder: sql.ConnectionPool): Promise<void> {
+  const svar = await new sql.Request(forelder).query<{ trancount: number; satt: number }>(
     `SELECT @@TRANCOUNT AS trancount,
             (SELECT COUNT(*) FROM (VALUES ${KONTEKSTNOEKLER.map((n) => `(N'${n}')`).join(', ')}) AS n (navn)
               WHERE SESSION_CONTEXT(n.navn) IS NOT NULL) AS satt`
@@ -144,11 +144,11 @@ function forkast(pool: Pool, forbindelse: Forbindelse): void {
 /** Nullstiller forbindelsen og kontrollerer den. Usann betyr at den må forkastes. */
 async function nullstillOgKontroller(
   forbindelse: Forbindelse,
-  parent: sql.ConnectionPool
+  forelder: sql.ConnectionPool
 ): Promise<boolean> {
   try {
     await nullstill(forbindelse);
-    await kontrollerRen(parent);
+    await kontrollerRen(forelder);
     return true;
   } catch {
     return false;
@@ -170,11 +170,11 @@ export async function transaksjon<T>(
   kontroller(kontekst);
   const utlaan = pool as unknown as Utlaan;
   const forbindelse = await utlaan.acquire(pool);
-  const parent = reservasjon(pool, forbindelse);
+  const forelder = reservasjon(pool, forbindelse);
   let gjenbrukbar = false;
   try {
-    const utfall = await iTransaksjon(parent, kontekst, arbeid);
-    if (utfall.avsluttet) gjenbrukbar = await nullstillOgKontroller(forbindelse, parent);
+    const utfall = await iTransaksjon(forelder, kontekst, arbeid);
+    if (utfall.avsluttet) gjenbrukbar = await nullstillOgKontroller(forbindelse, forelder);
     if ('feil' in utfall) throw utfall.feil;
     return utfall.svar;
   } finally {
@@ -187,11 +187,11 @@ export async function transaksjon<T>(
 type Utfall<T> = { svar: T; avsluttet: true } | { feil: unknown; avsluttet: boolean };
 
 async function iTransaksjon<T>(
-  parent: sql.ConnectionPool,
+  forelder: sql.ConnectionPool,
   kontekst: Kontekst,
   arbeid: (foresp: () => sql.Request) => Promise<T>
 ): Promise<Utfall<T>> {
-  const tx = new sql.Transaction(parent);
+  const tx = new sql.Transaction(forelder);
   let avbruttAvServeren = false;
   tx.on('rollback', (avbrutt: boolean) => (avbruttAvServeren ||= avbrutt));
   try {
