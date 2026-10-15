@@ -2383,6 +2383,39 @@ I første versjon er en forespørsel etter § 33.6.2 sendt utenfor appen dokumen
 kilde = "ns8407"
 tekst = "Byggherren kan da ikke påberope at fristen i 33.6.1 er oversittet."
 
+
+[[gruppe.vedtak]]
+id = "VS-U24"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#500"]
+sporsmal = '''
+Modellen for innsigelser (#500). Kartleggingen bekrefter at dagens fristskjema løser
+tilfellet. Byggherren tar stilling i svaret med ett ja/nei-standpunkt per bestemmelse
+(§ 33.4, § 33.6.1, § 33.6.2). Den egne innsigelsen tilbys bare mot fristvarselet,
+etter § 33.4. Kjernen har allerede samme form i svaret. Det som må rettes, er at
+kjernen også leser en egen innsigelse mot et krav eller svar som en påberopelse etter
+§ 33.4. A følger skjemaet, gir ingen ny lagret verdi, presiserer HF-U11 og snevrer inn
+VS-U9 og VS-U11. B gir et nytt lagret felt, flere detaljvedtak og snevrer inn VS-U1 og
+OV-U7. Hvilken modell skal gjelde?'''
+valgt = "A"
+svar = '''
+A: og vi evt eget issue bør også sjekke denne problemstillingen for grunnlag og vederlag'''
+forhold = [{ art = "presiserer", vedtak = "hf-u11" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "vs-u11" }]
+folge = '''
+Spørsmålet kom etter svaret 15.10 på #500 om at modellen for innsigelser skulle revurderes og knyttes til hjemmelen. Det samme problemet i grunnlaget og vederlaget kontrolleres i #517, etter svaret. Ikke bygget (#500, #498).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En påberopelse av at TE har varslet eller krevd for sent etter en bestemmelse står i byggherrens svar, med ett standpunkt for hver bestemmelse, som § 32.2, § 33.4, § 33.6.1 og § 34.1.2 (VS-U3, VS-U22). En egen innsigelse etter § 5 tredje ledd er en påberopelse etter en bestemmelse bare når det den gjelder, bare kan komme for sent etter én bestemmelse: varselet etter § 33.4, TEs varsel etter § 32.2, og senere de egne varslene etter § 34.1.2 og § 34.1.3 (OV-U5). Da gjentar svaret den eller gir den opp (VS-U9, VS-U11), og HF-U4 gjelder for den. En egen innsigelse mot et krav eller et svar registreres og vises med sendetid, det den gjelder, § 5 tredje ledd og partens begrunnelse. Den leses ikke som en påberopelse etter noen bestemmelse, og et senere svar gjentar den ikke og gir den ikke opp. Påberopelsen etter bestemmelsen står da i svaret. Appen avgjør ikke om innsigelsen og svaret til sammen kom i tide (VS-U1, MM-U12).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+En påberopelse av at motparten har varslet, krevd eller svart for sent oppgir bestemmelsen, både i svaret og i en egen innsigelse etter § 5 tredje ledd. Den egne innsigelsen har samme form som standpunktet i svaret: det den gjelder, og bestemmelsen. Parten velger blant bestemmelsene som gjelder for det den gjelder, for eksempel § 33.4 eller § 33.6.1 mot det første fristkravet, og bare § 33.6.1 mot en senere kravversjon. Svaret gjentar eller gir opp bare en innsigelse etter samme bestemmelse mot det samme, og HF-U4 gjelder for begge. En innsigelse etter en bestemmelse appen ennå ikke kan utlede, avvises og sendes utenfor appen (OV-U1).'''
+forkastet = true
+
 [[gruppe.vedtak]]
 id = "HF-U4"
 dato = 2026-10-15
