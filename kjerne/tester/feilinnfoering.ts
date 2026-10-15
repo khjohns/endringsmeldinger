@@ -11,7 +11,7 @@
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
  * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
  * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204–F206 påberopelsen etter
- * § 33.4 mot varselet (#309, KK-07) og F207 innsigelsen brevet gir opp (#407). Én mutasjon
+ * § 33.4 mot varselet (#309, KK-07) og F207–F208 innsigelsen brevet viser til og gir opp (#407, #309). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -1048,7 +1048,7 @@ const MUTASJONER: Mutasjon[] = [
       'visningen sier ikke at innsigelsen et fristsvar er lest med, gjaldt et annet varsel enn det registrerte (OV-U5)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['innsigelse && annetVarsel(innsigelse.gjelder)', 'innsigelse && !innsigelse']],
-    mal: ['F-MM-V8', 'F-MM-V8b', 'F-MM-V8c', 'F-MM-V7b'],
+    mal: ['F-MM-V8', 'F-MM-V8b', 'F-MM-V8c'],
   },
   {
     id: 'F92',
@@ -1124,15 +1124,15 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F98',
     feilklasse:
-      'i fristen gir et standpunkt om et senere registrert varsel opp innsigelsen mot det første fristkravet (HF-U1, OV-U5, del 2 av #407)',
+      'i fristen gir et «i tide» bare opp innsigelsen mot det standpunktet gjelder (VS-U20, arbeidsvalget 15.10 i #309)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "p.art === 'rettidighet' && p.gjelder === gjelder)",
-        "p.art === 'rettidighet' && (spor === 'frist' || p.gjelder === gjelder))",
+        "if (spor === 'frist') return standpunkter.some((p) => p.art === 'rettidighet' && p.iTide);",
+        "if (spor === 'frist') return standpunkter.some((p) => p.art === 'rettidighet' && p.iTide && p.gjelder === gjelder);",
       ],
     ],
-    mal: ['F-MM-V7b'],
+    mal: ['F-MM-V7b', 'et «i tide» gir opp innsigelsen mot en senere kravversjon'],
   },
   {
     id: 'F99',
@@ -1152,7 +1152,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'i grunnlaget gir et standpunkt om en annen kravversjon opp innsigelsen (VS-U9, VS-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["p.art === 'rettidighet' && p.gjelder === gjelder)", "p.art === 'rettidighet')"]],
+    endringer: [
+      [
+        'const siste = standpunkter.filter((p) => p.gjelder === gjelder).at(-1);',
+        'const siste = standpunkter.at(-1);',
+      ],
+    ],
     mal: ['F-MM-V7c'],
   },
   {
@@ -2205,18 +2210,30 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F207',
     feilklasse:
-      'brevet viser til eller gir opp en innsigelse mot noe annet enn standpunktet gjelder (OV-U5, del 2 av #407)',
+      'brevet viser til en innsigelse mot noe annet enn det standpunktet om for sent varsel gjelder (VS-U11)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'const innsigelse = innsigelser.find((i) => i.gjelder === p.gjelder);',
-        'const innsigelse = innsigelser[0];',
+        'p.iTide ? innsigelsenErOppgitt(i.gjelder, s.spor, [s]) : i.gjelder === p.gjelder',
+        'p.iTide ? innsigelsenErOppgitt(i.gjelder, s.spor, [s]) : true',
+      ],
+    ],
+    mal: ['et «nei» om et annet varsel enn innsigelsen gjelder'],
+  },
+  {
+    id: 'F208',
+    feilklasse:
+      'brevet sier ikke at et «i tide» gir opp innsigelsen kjernen regner som gitt opp (VS-U11, VS-U20)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'p.iTide ? innsigelsenErOppgitt(i.gjelder, s.spor, [s]) : i.gjelder === p.gjelder',
+        'i.gjelder === p.gjelder',
       ],
     ],
     mal: [
-      'et «i tide» om et annet varsel enn innsigelsen gjelder',
-      'et «nei» om et annet varsel enn innsigelsen gjelder',
-      'med to åpne innsigelser gir brevet opp den som gjelder',
+      'et «i tide» om varselet gir også opp innsigelsen mot det første fristkravet',
+      'med to åpne innsigelser i fristen gir et «i tide» opp begge',
     ],
   },
 ];

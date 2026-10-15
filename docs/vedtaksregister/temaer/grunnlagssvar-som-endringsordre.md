@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `681f8c24670afdfc2c0abaa2061db31a8c2e98b1c44a7b48dd1d9840a938a62b`
+Kontrollsum (SHA-256 over utdraget visningen leser): `ca3c46e8d474653717c91b4923285957c3a5751a3830bade1e74dea28973cb91`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -145,7 +145,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-20](#rad-ka-20), [KA-38](#rad-ka-38)
 
-**Bevis-saker som viser til vedtaket:** F-MM-D (målmodellen), F-MM-D-itide (målmodellen), F-MM-V8 (målmodellen), F-MM-V7b (målmodellen), F-MM-V8b (målmodellen), F-MM-V8c (målmodellen), F-MM-V-34-1-2-ny-kravversjon (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-D (målmodellen), F-MM-D-itide (målmodellen), F-MM-V8 (målmodellen), F-MM-V8b (målmodellen), F-MM-V8c (målmodellen), F-MM-V-34-1-2-ny-kravversjon (målmodellen)
 
 ### <a id="ov-u6"></a>OV-U6
 

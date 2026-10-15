@@ -6015,7 +6015,7 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "HF-U1 og OV-U5 (del 2 av #407): i fristen gir byggherren ikke opp innsigelsen mot det første fristkravet ved å si at et varsel TE registrerer senere, kom i tide, så et senere registrert svar leses med den",
+      "forslag": "VS-U20 og arbeidsvalget 15.10 i #309: byggherren er bundet av et uttrykkelig «i tide» etter § 33.4, så det gir opp innsigelsen mot det første fristkravet også når standpunktet gjelder varselet TE registrerte senere, og et senere registrert svar leses ikke med innsigelsen",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -6074,17 +6074,13 @@
           "etter": 4,
           "rolle": "mal",
           "kilde": [
-            "VS-U9",
             "VS-U11",
-            "OV-U5",
-            "HF-U1"
+            "VS-U20"
           ],
           "forventet": {
             "forstaatt": true,
-            "virkning.S-f2.rettidighet": "prinsipalt",
-            "annet_varsel.S-f2": [
-              "rettidighet"
-            ]
+            "virkning.S-f2.rettidighet": null,
+            "virkning.S-f2.dager": "prinsipalt"
           }
         }
       ]

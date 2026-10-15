@@ -1187,16 +1187,15 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     );
   });
 
-  it('et «i tide» om et annet varsel enn innsigelsen gjelder, sier ikke at innsigelsen er gitt opp (OV-U5, del 2 av #407)', () => {
+  it('et «i tide» om varselet gir også opp innsigelsen mot det første fristkravet (VS-U20, arbeidsvalget 15.10 i #309)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
     const rad = s.send('BH', {
       type: 'brev',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
-    expect(laast(rad)[0]).not.toContain('gir opp innsigelsen');
     expect(laast(rad)[0]).toContain(
-      'Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
+      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
     );
   });
 
@@ -1220,7 +1219,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     expect(laast(rad)[0]).not.toContain('jf. innsigelsen');
   });
 
-  it('med to åpne innsigelser gir brevet opp den som gjelder det standpunktet gjelder (OV-U5, VS-U11)', () => {
+  it('med to åpne innsigelser i fristen gir et «i tide» opp begge, og brevet nevner begge (VS-U11, VS-U20)', () => {
     const s = sakMedKrav();
     const varselet = (s.journal.at(-1)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
     s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
@@ -1230,7 +1229,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad)[0]).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 6 av 6. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
+      'Byggherren gir opp innsigelsene etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og brev 6 av 6. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
     );
   });
 

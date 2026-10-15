@@ -497,14 +497,17 @@ function standpunkttekst(
         p.hjemmel === '33.4'
           ? `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`
           : VARSELET[p.hjemmel];
-      // OV-U5, del 2 av #407: standpunktet gjentar eller gir opp innsigelsen mot det samme
-      // det gjelder, som i innsigelsenErOppgitt.
-      const innsigelse = innsigelser.find((i) => i.gjelder === p.gjelder);
-      const henvisning = innsigelse && j.brevet(innsigelse.dokument);
+      // Standpunktet gjentar innsigelsene mot det samme det gjelder, og gir opp dem
+      // innsigelsenErOppgitt regner som gitt opp (VS-U11, VS-U20).
+      const gjentatt = innsigelser.filter((i) =>
+        p.iTide ? innsigelsenErOppgitt(i.gjelder, s.spor, [s]) : i.gjelder === p.gjelder
+      );
+      const brevene = liste([...new Set(gjentatt.map((i) => j.brevet(i.dokument)))]);
+      const henvisning = gjentatt.length > 1 ? 'innsigelsene' : 'innsigelsen';
       if (!p.iTide)
-        return `byggherren gjør gjeldende at ${varselet} kom for sent${henvisning ? `, jf. innsigelsen i ${henvisning}` : ''}.`;
-      return henvisning
-        ? `byggherren gir opp innsigelsen etter NS 8407 § 5 i ${henvisning} og gjør ikke gjeldende at ${varselet} kom for sent.`
+        return `byggherren gjør gjeldende at ${varselet} kom for sent${gjentatt.length ? `, jf. ${henvisning} i ${brevene}` : ''}.`;
+      return gjentatt.length
+        ? `byggherren gir opp ${henvisning} etter NS 8407 § 5 i ${brevene} og gjør ikke gjeldende at ${varselet} kom for sent.`
         : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;
     }
     case 'grunnlag':

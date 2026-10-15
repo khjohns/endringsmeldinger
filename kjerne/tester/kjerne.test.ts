@@ -1025,6 +1025,55 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
     expect(s.virkninger.find((p) => p.art === 'rettidighet')?.virkning).toBe('prinsipalt');
   });
 
+  async function innsigelseMotSenereKravversjon(iTide: boolean) {
+    const k = await bygg(minnebane(), [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+      { handling: 'krav', spor: 'frist', dager: 25, navn: 'K-f2' },
+      { handling: 'innsigelse', part: 'BH', gjelder: 'K-f2', navn: 'D-innsigelse' },
+      {
+        handling: 'brev',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f2',
+            varsel_i_tide: iTide,
+            spesifisering_i_tide: true,
+            hindring: true,
+            dager: 10,
+          },
+        ],
+      },
+      {
+        handling: 'rad',
+        spor: 'frist',
+        navn: 'S-f3',
+        dokument: 'D-revisjon',
+        gjelder: 'K-f2',
+        erstatter: 'S-f2',
+        hindring: true,
+        varsel_i_tide: true,
+        spesifisering_i_tide: true,
+        dager: 15,
+        sendt: '2026-10-01',
+      },
+    ]);
+    const u = await k.utledning();
+    if (!u.forstaatt) throw new Error('Forutsetning: saken er forstått');
+    const s = u.svar[k.navn.id('S-f3')];
+    if (s.svar.standpunkter.some((p) => p.art === 'rettidighet'))
+      throw new Error('Forutsetning: det registrerte svaret har ikke standpunkt om rettidighet');
+    return s.virkninger.find((p) => p.art === 'rettidighet')?.virkning;
+  }
+
+  it('et «i tide» gir opp innsigelsen mot en senere kravversjon, så et registrert svar leses ikke med den (VS-U11, VS-U20)', async () => {
+    expect(await innsigelseMotSenereKravversjon(true)).toBeUndefined();
+  });
+
+  it('kontrollsak: uten «i tide» leses det registrerte svaret med innsigelsen mot den senere kravversjonen', async () => {
+    expect(await innsigelseMotSenereKravversjon(false)).toBe('prinsipalt');
+  });
+
   it('en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått', async () => {
     const { k, rader } = await toKravversjoner(false);
     if (!forstaatt(rader)) throw new Error('Forutsetning: kontrollsaken er forstått');
