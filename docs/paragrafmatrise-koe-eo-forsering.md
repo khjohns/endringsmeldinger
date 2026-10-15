@@ -190,11 +190,12 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   [KA-U16](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16): forbehold i svaret. [EO-U6](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6): endringsordre som svar på
   grunnlaget (raden for endringsordre som svar på grunnlaget).
   [GR-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8).
-  B-13 «frafalt» bare ved irregulær endring og valgrett (24.09, merknaden
-  04.10). #235: frafall kan ikke kombineres med preklusjon (05.10). SK-01 og
+  B-13 «frafalt» (24.09, merknaden 04.10), med underkategoriene fra
+  [GR-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u18): der pålegget er
+  byggherrens eget. #235: frafall kan ikke kombineres med preklusjon (05.10). SK-01 og
   #213 (05.10). [MM-U13](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u13)
   (merknaden 10.10: bygget).
-- **Kjernen i dag:** bygget. `GRUNNLAGSRESULTATER` og `gyldigeResultater` i
+- **Kjernen i dag:** bygget. `GRUNNLAGSRESULTATER`, `gyldigeResultater` og `erByggherrensPaalegg` i
   [`regler/grunnlag.ts`](../kjerne/regler/grunnlag.ts); `sammenfall` i
   beslutningsgrunnlaget; `endringsordre` i `Utledning` i
   [`utled.ts`](../kjerne/utledning/utled.ts) med opplysningen `endringsordre`;

@@ -11,7 +11,8 @@
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
  * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
  * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204–F206 påberopelsen etter
- * § 33.4 mot varselet (#309, KK-07) og F207–F210 innsigelsen brevet viser til og gir opp (#407, #309). Én mutasjon
+ * § 33.4 mot varselet (#309, KK-07), F207–F210 innsigelsen brevet viser til og gir opp
+ * (#407, #309) og F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -2295,6 +2296,21 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [['  if (godkjent === NULL_OERE) return false;\n', '']],
     mal: ['avslag på et krav under 0,50 kr'],
+  },
+  {
+    id: 'F215',
+    feilklasse:
+      'frafall avvises i samordning og svar på varsel, som er byggherrens pålegg (GR-U18)',
+    fil: `${K}/regler/grunnlag.ts`,
+    endringer: [["  'samordning',\n  'svar_paa_varsel',\n", '']],
+    mal: ['frafall godtas i samordning', 'frafall godtas i svar_paa_varsel'],
+  },
+  {
+    id: 'F216',
+    feilklasse: 'frafall godtas ved gebyr, som ikke er byggherrens eget pålegg (GR-U18)',
+    fil: `${K}/regler/grunnlag.ts`,
+    endringer: [["  'svar_paa_varsel',\n];", "  'svar_paa_varsel',\n  'gebyrer_og_avgifter',\n];"]],
+    mal: ['frafall avvises i gebyrer_og_avgifter'],
   },
 ];
 
