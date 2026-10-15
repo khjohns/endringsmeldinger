@@ -900,6 +900,43 @@ Er datoen på svaret bestridt, kontrolleres ikke begrunnelsen.'''
 kilde = "hovedplanen"
 tekst = "Bestridelsen registreres uten virkning på utfallet."
 
+[[gruppe.vedtak]]
+id = "KA-U40"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+11. **TEs eget krav før byggherren har svart.** Etter avtl. § 7 kan en tidligere,
+lavere kravversjon fortsatt binde TE når TE hever kravet før svaret.
+A: byggherren svarer bare på gjeldende kravversjon, og appen avgjør ikke om den
+tidligere binder TE (MM-U12).
+B: byggherren kan godta en tidligere kravversjon innen rimelig tid.
+C: en hevet kravversjon avvises før byggherren har svart.
+*Anbefaling: A.* B gjør logikken vesentlig mer innviklet, og C stenger for vanlig
+spesifisering etter § 33.6.1 og § 34.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+folge = '''
+Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Hever TE kravet i en ny kravversjon før byggherren har svart, svarer byggherren bare på gjeldende kravversjon, og appen avgjør ikke om den tidligere kravversjonen binder TE (MM-U12).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren kan godta en tidligere kravversjon innen rimelig tid.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+En hevet kravversjon avvises før byggherren har svart.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Aksept og enighet"
 
@@ -1560,6 +1597,82 @@ status `UNDER_BEHANDLING`'''
 vedtatt = "23.09, oppdragsgiver"
 folge = '''
 Rettet i spor D'''
+
+[[gruppe.vedtak]]
+id = "GR-U17"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+4. **Frafall etter § 32.3 c (GR-U9, KA-U32, MM-U19, KA-U11, detalj 1 i HF-U5).**
+Binder løftet om endringsordre for utført arbeid byggherren?
+A: som i dag. Frafallet kan revideres fritt, og TE kan ikke godta det.
+B: frafallet er avslag med nytt tilbud. TE kan godta det, og det kan ikke
+revideres til ugunst for TE.
+C: TE kan fortsatt ikke godta frafallet, men byggherren er bundet av løftet. En
+revisjon til avslag eller til påberopelse etter § 32.2 avvises, mens en revisjon
+til endringsordre er tillatt. Når kravene er avgjort, går KA-U11 foran.
+*Anbefaling: C.* Den følger av F1 og endrer GR-U9 minst. C snevrer inn GR-U9 og
+detalj 1 i HF-U5.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "snevrer inn", vedtak = "gr-u9" }, { art = "snevrer inn", vedtak = "hf-u5" }]
+folge = '''
+Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Ved frafall etter § 32.3 c kan TE fortsatt ikke godta frafallet, men byggherren er bundet av løftet om endringsordre for utført arbeid. En revisjon til avslag eller til påberopelse etter § 32.2 avvises, mens en revisjon til endringsordre er tillatt. Når kravene er avgjort, går KA-U11 foran.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Frafall etter § 32.3 c kan revideres fritt, og TE kan ikke godta det.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Frafall etter § 32.3 c er avslag med nytt tilbud. TE kan godta det, og det kan ikke revideres til ugunst for TE.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GR-U18"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+6. **Hvor frafall er tillatt (B-13 24.09 mot GR-U11).**
+A: i alle underkategoriene GR-U11 nevner.
+B: der pålegget er byggherrens eget (irregulær endring, valgrett, samordning og
+svar på varsel), ikke der endringen kommer av offentlig myndighet eller gebyr.
+C: B-13 står, og GR-U11 presiseres.
+*Anbefaling: B.* Byggherren kan bare frafalle et pålegg byggherren selv råder over.
+Dette er en tolkning av § 32.3 c og ikke en følge av avtaleloven.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+folge = '''
+Gjelder raden i B-13 om «frafalt» (§ 32.3 c) og GR-U11. Dette er en tolkning av § 32.3 c og ikke en følge av avtaleloven. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget (irregulær endring, valgrett, samordning og svar på varsel), ikke der endringen kommer av offentlig myndighet eller gebyr.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Frafall etter § 32.3 c er tillatt i alle underkategoriene GR-U11 nevner.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Raden i B-13 om frafall bare ved irregulær endring og valgrett står, og GR-U11 presiseres.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
@@ -2290,7 +2403,7 @@ svar = '''
 5. Legg til (anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "vs-u11" }, { art = "presiserer", vedtak = "vs-u14" }, { art = "presiserer", vedtak = "vs-u20" }, { art = "snevrer inn", vedtak = "gr-u7" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "ov-u5" }]
 folge = '''
-Ikke bygget (#498)'''
+Snevrer også inn [VS-U1](#vs-u1) (oppdragsgiver 15.10, svar 9 i #504). Ikke bygget (#498)'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -2359,6 +2472,288 @@ navn = "Sen aksept avvises"
 tekst = '''
 Appen avviser en aksept etter fristen. TE kan i stedet sende en ny kravversjon, som er det nye tilbudet (avtaleloven § 4).'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U6"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
+under hvert forslag? *Anbefaling: ja.*
+
+Forslaget F1 Bindingen, med forholdet slik det står under forslaget:
+Forhold: utvider HF-U4 og HF-U5 til varsler og avkall og til begge parter. Følger av
+HF-U5 («tilbud og løfter»). Vedtaket 05.10 om at hver oppdatering er en ny
+kravversjon, står som unntaket.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "utvider", vedtak = "hf-u4" }, { art = "utvider", vedtak = "hf-u5" }]
+folge = '''
+Utvidelsen av HF-U4 og HF-U5 gjelder varsler og avkall og begge parter. Følger av HF-U5 («tilbud og løfter»). Vedtaket 05.10 om at hver oppdatering er en ny kravversjon, står som unntaket. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Appen behandler varsler, krav, svar og avkall en part sender, som løfter etter
+avtaleloven kapittel 1. Et utsagn binder parten fra det er kommet fram til
+motparten (avtaleloven § 1 første ledd og § 7). En senere hendelse fra samme part
+kan ikke ta tilbake eller svekke det parten har gitt motparten. Unntaket er TEs nye
+kravversjon, som er et nytt tilbud (HF-U8). En revisjon av et svar TE ikke har godtatt,
+avvises ikke når den bare endrer i TEs favør (HF-U5). Hvilke hendelser appen avviser
+for å verne bindingen, står i vedtakene om svaret (HF-U4, HF-U5), enigheten (HF-U9) og
+avkallet (HF-U10). Gjelder NS 8407 noe annet, går kontrakten foran (avtaleloven § 1 første
+ledd). Om parten likevel er løst fra utsagnet, avgjør ikke appen (MM-U12).'''
+
+[[gruppe.vedtak]]
+id = "HF-U7"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
+under hvert forslag? *Anbefaling: ja.*
+
+Forslaget F2 Svar som ikke stemmer med kravet, med forholdet slik det står under forslaget:
+Forhold: presiserer raden i B-13 om «godkjent» bare når hele kravet er godkjent,
+KA-U9, KA-U21, KA-U24 og raden i B-13 om preklusjon. Et forbehold appen ikke kan
+uttrykke, følger KA-U16 og KA-U26, der et svar med forbehold kan gi sammenfall. Presiserer GR-U7 («et
+avslag» leses som avslag i forening med et betinget tilbud). Følger av HF-U5 (første
+setning etter «fristforlengelse»).
+
+5. **Subsidiære standpunkter (GR-U7, raden i B-13 om frist uten
+fremdriftshindring).** Er et subsidiært standpunkt, også de videre subsidiære
+dagene, et betinget tilbud som binder byggherren etter HF-U5?
+A: ja, standpunkt for standpunkt (F2). B: bare de prinsipale og subsidiære dagene.
+*Anbefaling: A.* HF-U5 sammenlikner standpunkt for standpunkt, og dagene er etter
+§ 33.7 annet ledd byggherrens innsigelse mot omfanget.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "presiserer", vedtak = "ka-u9" }, { art = "presiserer", vedtak = "ka-u21" }, { art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "gr-u7" }]
+folge = '''
+Presiserer også raden i B-13 om «godkjent» bare når hele kravet er godkjent og raden i B-13 om preklusjon. Et forbehold appen ikke kan uttrykke, følger KA-U16 og KA-U26, der et svar med forbehold kan gi sammenfall. «Et avslag» i GR-U7 leses som avslag i forening med et betinget tilbud. Følger av HF-U5 (første setning etter «fristforlengelse»). Spørsmål 5 i vurderingen ble besvart med A. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Et svar er godkjenning av et standpunkt bare når det stemmer med kravet, i kravets
+egen enhet: krone eller dag (avtaleloven § 2). Et svar som avviker, også med et
+vilkår eller en påberopelse av preklusjon med subsidiært standpunkt, er avslag i forening med nytt tilbud (avtaleloven § 6 første ledd). Et subsidiært
+standpunkt er et betinget tilbud. Sammenligningen gjøres standpunkt for standpunkt,
+slik standpunktene står i brevet (MM-U11). Om et avvik er så lite at det likevel
+blir avtale (avtaleloven § 6 annet ledd), avgjør ikke appen (MM-U12).'''
+
+[[gruppe.vedtak]]
+id = "HF-U8"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
+under hvert forslag? *Anbefaling: ja.*
+
+Forslaget F3 Bortfall og akseptfrist, med forholdet slik det står under forslaget:
+Forhold: presiserer SK-02 og SK-03, KA-U1 og vedtaket 05.10 om at hver oppdatering
+er en ny kravversjon. Snevrer inn GR-U1 og raden i B-13 om endret underkategori,
+fordi et «i tide» ikke faller bort med svaret. KA-U7 og OV-U3 står som grensene. Følger
+av HF-U5 (bindingens varighet).'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "presiserer", vedtak = "ka-u1" }, { art = "snevrer inn", vedtak = "gr-u1" }]
+folge = '''
+Presiserer også SK-02 og SK-03 og vedtaket 05.10 om at hver oppdatering er en ny kravversjon. Snevrer også inn raden i B-13 om endret underkategori, fordi et «i tide» ikke faller bort med svaret. KA-U7 og OV-U3 står som grensene. Følger av HF-U5 (bindingens varighet). Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Byggherrens svar faller bort som tilbud når TE sender en ny kravversjon i sporet,
+også med uendrede verdier. Den nye kravversjonen er TEs avslag på svaret og et nytt
+tilbud (avtaleloven § 5 og § 6). I et spor uten enighet, og når kravene i saken
+ikke er avgjort, venter sporet da på nytt svar (KA-U7, OV-U3). Et svar på en
+tidligere kravversjon kan ikke godtas. Har byggherren satt en akseptfrist i svaret,
+faller svaret bort når fristen er ute (avtaleloven § 2). En aksept etter fristen er
+et nytt tilbud fra TE (avtaleloven § 4). Om rimelig tid etter avtaleloven § 3 er ute,
+avgjør ikke appen (MM-U12). Et uttrykkelig standpunkt om at et varsel kom i tide,
+eller et avkall, faller ikke bort med svaret (HF-U4, VS-U20, HF-U10).'''
+
+[[gruppe.vedtak]]
+id = "HF-U9"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
+under hvert forslag? *Anbefaling: ja.*
+
+Forslaget F4 Enighet, med forholdet slik det står under forslaget:
+Forhold: opphever KA-U3 og KA-U5. Presiserer KA-U6, KA-U7, KA-U10, KA-U11, KA-U14,
+GR-U2, GR-U8, GR-U10, SK-01, MM-U3, MM-U11, MM-U16, MM-U18, MM-U19 og OV-U3. Snevrer inn EO-U5 og EO-U2 hvis spørsmål 3 besvares med A.
+
+3. **EO-U5.** Skal «byggherren har godkjent kravet delvis» snevres inn til et delvis
+godkjent svar som TE har godtatt?
+A: ja (avtl. § 6, KA-U1, KA-U5). B: nei, byggherrens binding etter HF-U5 er nok.
+*Anbefaling: A.* B gjør et ensidig løfte til enighet i en endringsordre.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "opphever", vedtak = "ka-u3" }, { art = "opphever", vedtak = "ka-u5" }, { art = "presiserer", vedtak = "ka-u6" }, { art = "presiserer", vedtak = "ka-u7" }, { art = "presiserer", vedtak = "ka-u10" }, { art = "presiserer", vedtak = "ka-u11" }, { art = "presiserer", vedtak = "ka-u14" }, { art = "presiserer", vedtak = "gr-u2" }, { art = "presiserer", vedtak = "gr-u8" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "mm-u3" }, { art = "presiserer", vedtak = "mm-u11" }, { art = "presiserer", vedtak = "mm-u16" }, { art = "presiserer", vedtak = "mm-u18" }, { art = "presiserer", vedtak = "mm-u19" }, { art = "presiserer", vedtak = "ov-u3" }, { art = "snevrer inn", vedtak = "eo-u5" }, { art = "snevrer inn", vedtak = "eo-u2" }]
+folge = '''
+Presiserer også SK-01. Innsnevringen av EO-U5 og EO-U2 følger av svaret på spørsmål 3 i vurderingen ([EO-U10](#eo-u10)). Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Partene er enige om et standpunkt når TE har godtatt byggherrens svar slik det står
+i brevet, eller når byggherrens svar stemmer med kravet (avtaleloven § 1 første
+ledd og § 2). Godtar TE et svar som avviker fra kravet, er partene enige om svarets
+beløp eller dager. Godtar TE et avslag eller en påberopelse av preklusjon, er
+partene enige om at kravet ikke fører fram etter det svaret sier. Innholdet i
+enigheten er det svaret og kravet hadde da den ble inngått, og en senere endring av
+appens regler endrer det ikke. Utfallet av saken utledes fortsatt med gjeldende
+regler (MM-U11, MM-U16). Ingen part kan gå fra enigheten alene, men TE kan gi avkall
+på sitt eget krav (HF-U10). En ny kravversjon eller en revisjon i et spor med enighet
+avvises, og et nytt krav om samme forhold går i en ny sak. Et første krav i et spor
+der TE ikke har sendt et krav, går i samme sak (OV-U3). Et brev som viser til en ny
+avtale mellom partene, følger KA-U16, MM-U18 og MM-U19.'''
+
+[[gruppe.vedtak]]
+id = "HF-U10"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
+under hvert forslag? *Anbefaling: ja.*
+
+Forslaget F5 Avkall, med forholdet slik det står under forslaget:
+Forhold: presiserer KA-U6, KA-U12, KA-U13, KA-U14, KA-U17, KA-U22, KA-U25, KA-U27,
+GR-U5, VS-U11, VS-U20 og vedtaket 05.10 om at et trukket krav ikke kan tas opp
+igjen. Følger av HF-U4 («uttrykkelig gitt opp sin innsigelse»). OV-U3, KA-U11, SK-01
+og FO-U5 står som sperrene.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "presiserer", vedtak = "ka-u6" }, { art = "presiserer", vedtak = "ka-u12" }, { art = "presiserer", vedtak = "ka-u13" }, { art = "presiserer", vedtak = "ka-u14" }, { art = "presiserer", vedtak = "ka-u17" }, { art = "presiserer", vedtak = "ka-u22" }, { art = "presiserer", vedtak = "ka-u25" }, { art = "presiserer", vedtak = "ka-u27" }, { art = "presiserer", vedtak = "gr-u5" }, { art = "presiserer", vedtak = "vs-u11" }, { art = "presiserer", vedtak = "vs-u20" }]
+folge = '''
+Presiserer også vedtaket 05.10 om at et trukket krav ikke kan tas opp igjen. Følger av HF-U4 («uttrykkelig gitt opp sin innsigelse»). OV-U3, KA-U11, SK-01 og FO-U5 står som sperrene. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+En part kan alene gi avkall på sitt eget krav eller sin egen rett. TE gjør det ved å
+trekke et krav, ved å svare «ingen krav» eller ved å godta et avslag. Byggherren
+gjør det ved uttrykkelig å gi opp en innsigelse. Avkallet binder parten fra det er
+kommet fram (avtaleloven § 7) og rekker så langt brevet sier. Det rører ikke
+motpartens rettigheter etter en enighet eller en endringsordre (NS 8407 § 31.3
+annet ledd). Kan appen ikke gjennomføre avkallet uten å røre slike rettigheter,
+avvises det. Det avvises også der et vedtak sperrer det: når kravene er avgjort
+(OV-U3), etter et godtatt avslag av grunnlaget (SK-01, KA-U13) og mens en
+forseringssak viser til avslaget (FO-U5). Om et senere krav er avskåret, avgjør ikke appen (MM-U12).'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "uttrykkelig gitt opp sin innsigelse"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "HF-U11"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
+under hvert forslag? *Anbefaling: ja.*
+
+Forslaget F6 Innsigelse og taushet etter NS 8407, med forholdet slik det står under forslaget:
+Forhold: presiserer VS-U1, VS-U2, VS-U10, VS-U12, VS-U14, VS-U17 og raden i B-13 om
+passivitet. VS-U3 står som rammen for behandlingen.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "presiserer", vedtak = "vs-u1" }, { art = "presiserer", vedtak = "vs-u2" }, { art = "presiserer", vedtak = "vs-u10" }, { art = "presiserer", vedtak = "vs-u12" }, { art = "presiserer", vedtak = "vs-u14" }, { art = "presiserer", vedtak = "vs-u17" }]
+folge = '''
+Presiserer også raden i B-13 om passivitet. VS-U3 står som rammen for behandlingen. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+En påberopelse av at motparten har varslet, krevd eller svart for sent etter NS 8407
+§ 5 tredje ledd, eller av virkningen av taushet etter de særlige reglene i
+kontrakten (blant annet § 32.3 annet ledd, § 33.7 og § 34.3.3), er et utsagn fra
+parten. Appen registrerer det med sendetid og viser hvilken bestemmelse det
+gjelder, og utleder virkningen på partens premisser der VS-U3 sier det. Appen trekker ikke selv slutningen om at en frist er oversittet, at en
+innsigelse kom i tide, eller at taushet har gitt virkning (MM-U12). Taushet er ikke
+et uttrykkelig standpunkt og binder ikke som et slikt (HF-U4).'''
+
+[[gruppe.vedtak]]
+id = "HF-U12"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
+under hvert forslag? *Anbefaling: ja.*
+
+Forslaget F7 Endringsordren, med forholdet slik det står under forslaget:
+Forhold: presiserer EO-U1, EO-U3, EO-U4, EO-U8, EO-U9, GR-U13, TFR-02 og KA-U13. Siste setning avhenger
+av spørsmål 2.
+
+2. **Utsagnene i en endringsordre (F7, EO-U8).** Er byggherrens utsagn om vederlag og
+fristforlengelse i en endringsordre svar etter HF-U5 når de svarer på en
+kravversjon, og ellers tilbud som binder byggherren?
+A: ja, som i F7. B: nei, endringsordren følger bare EO-U4.
+*Anbefaling: A.* Det følger av at krav og svar er tilbud og løfter (HF-U5).'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "presiserer", vedtak = "eo-u1" }, { art = "presiserer", vedtak = "eo-u3" }, { art = "presiserer", vedtak = "eo-u4" }, { art = "presiserer", vedtak = "eo-u8" }, { art = "presiserer", vedtak = "eo-u9" }, { art = "presiserer", vedtak = "gr-u13" }, { art = "presiserer", vedtak = "ka-u13" }]
+folge = '''
+Presiserer også TFR-02. Spørsmål 2 i vurderingen ble besvart med A, så teksten står som i forslaget F7. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+En endringsordre etter NS 8407 § 31.3 er byggherrens pålegg. Når den oppfyller
+§ 31.3 første ledd (GR-U13), binder den TE fra den er mottatt (§ 31.3 annet ledd),
+uten aksept, og den er ikke et tilbud. Er TE uenig, føres uenigheten i en ny KOE-sak.
+Er et utsagn i endringsordren om vederlag eller fristforlengelse byggherrens
+standpunkt eller et tilbud (EO-U8), er det et løfte: svarer utsagnet på en
+kravversjon i en KOE-sak, gjelder HF-U5 for det, ellers binder det byggherren som et
+tilbud (HF-U6). En gjengivelse av noe partene har avtalt, følger HF-U9.'''
+
+[[gruppe.vedtak]]
+id = "HF-U13"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
+under hvert forslag? *Anbefaling: ja.*
+
+Forslaget F8 Det meddelte og appens vurdering, med forholdet slik det står under forslaget:
+Forhold: presiserer MM-U1, MM-U12, MM-U16, MM-U17, LV-U3, OV-U4, OV-U8, OV-U10,
+VS-U8 og SK-12. OV-U5 og OV-U6 står som unntakene.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "presiserer", vedtak = "mm-u1" }, { art = "presiserer", vedtak = "mm-u12" }, { art = "presiserer", vedtak = "mm-u16" }, { art = "presiserer", vedtak = "mm-u17" }, { art = "presiserer", vedtak = "lv-u3" }, { art = "presiserer", vedtak = "ov-u4" }, { art = "presiserer", vedtak = "ov-u8" }, { art = "presiserer", vedtak = "ov-u10" }, { art = "presiserer", vedtak = "vs-u8" }]
+folge = '''
+Presiserer også SK-12. OV-U5 og OV-U6 står som unntakene. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Det en part har meddelt skriftlig etter NS 8407 § 5, binder slik det sto da det
+ble sendt. Det som ikke står i teksten, er ikke meddelt (LV-U3). Appens vurdering
+av utsagnene binder ingen av partene. Vurderingen som er frosset i et sendt brev,
+står (MM-U9), mens appens utledning av utfallet på tvers av brev kan endres med nye
+regler (MM-U11, MM-U16). Et brev sendt utenfor appen kan ha full virkning etter
+kontrakten, men appen utleder ingen virkning av et registrert brev (OV-U4), unntatt
+etter OV-U5 og OV-U6, og visningen påstår ikke mer enn appen vet. Et varsel er et eget utsagn med datoen det
+ble sendt, og datoen settes én gang.'''
 
 [[gruppe]]
 tittel = "Endringsordre og forsering"
@@ -2634,6 +3029,62 @@ fullmakten som andre vederlagssvar. Etter FO-U6 sendes svaret på forseringsvars
 intern godkjenning, også i prosjekter med policy. Byggestatus: i dag kan prosjekter med
 policy ikke svare på forseringsvarsel (GFK-04). Produktvalget om godkjenningsomfang er
 tatt 10.10 for vederlagssvaret (FO-U6)'''
+
+[[gruppe.vedtak]]
+id = "EO-U10"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+3. **EO-U5.** Skal «byggherren har godkjent kravet delvis» snevres inn til et delvis
+godkjent svar som TE har godtatt?
+A: ja (avtl. § 6, KA-U1, KA-U5). B: nei, byggherrens binding etter HF-U5 er nok.
+*Anbefaling: A.* B gjør et ensidig løfte til enighet i en endringsordre.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+forhold = [{ art = "snevrer inn", vedtak = "eo-u5" }]
+folge = '''
+Innsnevringen av EO-U5 står også i [HF-U9](#hf-u9), som i tillegg snevrer inn EO-U2. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+«Byggherren har godkjent kravet delvis» i EO-U5 gjelder et delvis godkjent svar som TE har godtatt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+«Byggherren har godkjent kravet delvis» i EO-U5 snevres ikke inn. Byggherrens binding etter HF-U5 er nok.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "FO-U7"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+7. **Forsering og bindingen (FO-U1, HF-U5).** Gjør TEs valg om å forsere for de
+avslåtte dagene slutt på at byggherren er bundet av de dagene hen har godkjent?
+A: nei. § 33.8 forutsetter at svaret står, og NS 8407 går foran (avtl. § 1).
+B: ja, valget er et avslag etter avtl. § 5.
+*Anbefaling: A.*'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+folge = '''
+Spørsmålet gjaldt FO-U1 og HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+TEs valg om å forsere for de avslåtte dagene gjør ikke slutt på at byggherren er bundet av de dagene hen har godkjent. § 33.8 forutsetter at svaret står, og NS 8407 går foran (avtaleloven § 1).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+TEs valg om å forsere for de avslåtte dagene gjør slutt på at byggherren er bundet av de dagene hen har godkjent. Valget er et avslag etter avtaleloven § 5.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Sendte brev, regelendring og saker kjernen ikke forstår"
@@ -3250,6 +3701,71 @@ Brevteksten skriver «varselet om fristforlengelse etter NS 8407 § 33.4». Klam
 navn = "B"
 tekst = '''
 Brevteksten skriver «varselet om fristforlengelse etter § 33.4», som klammen lyder, uten «NS 8407».'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U7"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+8. **Når et brev fra appen er kommet fram (LV-U1, HF-U4, HF-U5).** Det avgjør når
+bindingen inntrer og når en akseptfrist løper ut.
+A: når brevet er sendt og tilgjengelig for motparten i appen, slik spørsmålet i
+HF-U4 la til grunn.
+B: når Catenda har kvittert for leveringen.
+C: appen regner fra sendingen og viser leveringskvitteringen ved siden av, uten å
+avgjøre spørsmålet (MM-U12).
+*Anbefaling: C.* Den gir samme utregning som A, uten at appen avgjør om appen er
+en avtalt adresse etter § 5 første ledd.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+folge = '''
+Spørsmålet gjaldt LV-U1, HF-U4 og HF-U5. Gir samme utregning som alternativ A, uten at appen avgjør om appen er en avtalt adresse etter § 5 første ledd. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Når bindingen inntrer og når en akseptfrist løper ut, regner appen fra sendingen av brevet og viser leveringskvitteringen ved siden av, uten å avgjøre når brevet er kommet fram (MM-U12).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et brev fra appen er kommet fram når det er sendt og tilgjengelig for motparten i appen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Et brev fra appen er kommet fram når Catenda har kvittert for leveringen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U8"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#504"]
+sporsmal = '''
+10. **Ordlyden som bærer HF-U4 (LV-U4 punkt 5).** Er «byggherren gjør ikke gjeldende
+at … kom for sent» et uttrykkelig «i tide» etter HF-U4?
+A: ja, teksten står. B: ny tekst for nye brev. *Anbefaling: A.* B gir to tekster
+med samme virkning.'''
+valgt = "Ja"
+svar = '''
+Ja til alle anbefalingene'''
+folge = '''
+Spørsmålet gjaldt LV-U4 punkt 5 og HF-U4. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+«Byggherren gjør ikke gjeldende at varselet kom for sent» i LV-U4 punkt 5 er et uttrykkelig «i tide» etter HF-U4. Teksten står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Nye brev får en ny tekst for et uttrykkelig «i tide» etter HF-U4.'''
 forkastet = true
 
 [[gruppe]]

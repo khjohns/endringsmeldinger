@@ -132,7 +132,7 @@ def test_de_forkastede_alternativene_skilles_ut_med_merket_og_teksten_blir_lik_3
 def test_kjeden_viser_forholdene_begge_veier(tema, kilder):
     tekst = tv.visning(tema, kilder)
     assert "| [GR-U13](#gr-u13) | Endrer [GR-U10](#gr-u10); Endrer [GR-U12](#gr-u12) |" in tekst
-    assert "| [GR-U10](#gr-u10) |" in tekst and "Endret av [GR-U13](#gr-u13) |" in tekst
+    assert "| [GR-U10](#gr-u10) |" in tekst and "Endret av [GR-U13](#gr-u13)" in tekst
     assert "Utvidet av [GR-U15](#gr-u15)" in tekst
 
 
