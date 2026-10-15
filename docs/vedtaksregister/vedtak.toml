@@ -2309,6 +2309,55 @@ tekst = '''
 Har en part uttrykkelig sagt at et varsel eller krav kom i tide, eller frafalt en innsigelse, er parten bundet av det i saken. Appen leser ikke en senere påberopelse av det samme som gjeldende.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "HF-U5"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#499"]
+sporsmal = '''
+1. Skal byggherren være bundet av det hen har innrømmet i et sendt svar, før TE har godtatt det? Avtaleretten tilsier ja. TEs vederlagskrav er et tilbud (§ 34.2.1). En full godkjenning er aksept. Et svar som godkjenner bare deler av kravet, er etter avtaleloven § 6 et avslag med et nytt tilbud, og det binder byggherren fra TE kjenner det (§ 7). Bindingen varer bare i akseptfristen (§§ 2–3). Den faller bort når TE sender en ny kravversjon, som er et avslag (§ 5). NS 8407 sier ingenting om å endre et svar. Den binder likevel byggherren ved taushet (§ 32.3, § 33.7, § 5), og det ville være inkonsekvent om en uttrykkelig godkjenning bandt mindre. I dag lar GR-U7 byggherren revidere hele svaret, også til ugunst for TE. Hvilken retning velger du?
+2. Gjelder bindingen også fristforlengelse? NS 8407 kaller vederlagskravet et tilbud (§ 34.2.1), men sier ikke det samme om fristkravet. Der er byggherrens godkjenning av dager en innrømmelse, og avtaleloven gjelder bare analogisk. § 33.7 annet ledd sier likevel at innsigelser mot kravet tapes ved taushet. Det taler for at en uttrykkelig godkjenning binder minst like sterkt.
+3. Fem detaljer gjenstår: (1) Et frafall etter GR-U9 kan fortsatt revideres fritt. (2) Sender TE en ny grunnlagsversjon, er byggherren fri for svar i vederlag og frist som var regnet mot den forrige versjonen (HF-U1). (3) Ingen akseptfrist i svaret i første versjon. (4) En blandet revisjon, som hever étt standpunkt og senker et annet, avvises. Sammenlikningen gjøres standpunkt for standpunkt. (5) Retting av åpenbare skrivefeil knyttes til B-16 før prinsippet bygges. Godtar du dem?
+4. Hvordan skal akseptfristen fungere? Valgfri fra første versjon, valgfri senere, eller påkrevd i hvert svar?
+5. Hva skjer når TE godtar byggherrens svar etter at akseptfristen er ute? Etter avtaleloven § 4 første ledd er en aksept som kommer for sent, et nytt tilbud fra TE.
+6. Etter kontrollen: aksepten omgjort til en ny kravversjon med innholdet i byggherrens svar strider mot KA-U10, KA-U1 og HF-U1. Skal en sen aksept lagres som TEs nye tilbud om å godta svaret slik det står, med en ny handling for byggherren, eller avvises, slik at TE sender en ny kravversjon?
+7. Kan vedtaksteksten føres slik den ble lagt fram etter vurderingen?'''
+valgt = "Bundet, med akseptfrist"
+svar = '''
+1. Bundet, med akseptfrist
+2. Avtaleloven gjelder ikke analogisk. Det er klart at dette er tilbud og løfter. Frist kan dessuten også verdsettes - antall dager ganget med dagmulktskrav.
+3. Ja, alle fem (anb.)
+4. Valgfri, nå (anbefalt)
+5. Nytt tilbud er vel minst handling for partene samlet sett. Men hvor mye kompliserer det logikk i appen?
+6. Ny handling for BH (anb.)
+7. Ja, prøv de to setningene og før teksten'''
+forhold = [{ art = "snevrer inn", vedtak = "gr-u4" }, { art = "snevrer inn", vedtak = "gr-u6" }, { art = "snevrer inn", vedtak = "gr-u7" }, { art = "snevrer inn", vedtak = "mm-u9" }, { art = "snevrer inn", vedtak = "ov-u5" }, { art = "presiserer", vedtak = "gr-u9" }, { art = "utvider", vedtak = "ka-u1" }, { art = "presiserer", vedtak = "hf-u4" }]
+folge = '''
+Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bundet, med akseptfrist"
+tekst = '''
+Appen behandler TEs krav og byggherrens svar som tilbud og løfter etter avtaleloven kapittel 1, i grunnlaget, i vederlag og i fristforlengelse. Et svar som ikke stemmer med kravet, er avslag i forening med nytt tilbud (avtaleloven § 6). I en revisjon av et svar TE ikke har godtatt, avviser appen en endring som senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, eller en innsigelse hen har gitt opp. Sammenlikningen gjøres standpunkt for standpunkt, slik standpunktene står i brevene (MM-U11), og en revisjon som senker ett standpunkt, avvises også når den hever et annet. En revisjon som bare endrer i TEs favør, er tillatt, og oppfordringen i MM-U9 gjelder bare en slik revisjon. Bindingen i appen varer til TE godtar svaret, til TE sender en ny kravversjon (avtaleloven § 5), eller til en akseptfrist byggherren har satt i svaret, er ute (avtaleloven § 2). En aksept etter fristen er et nytt tilbud fra TE om å godta svaret slik det står (avtaleloven § 4). Byggherren kan godta eller avslå tilbudet, og godtar byggherren, er partene enige om svaret slik brevet uttrykker det (KA-U10). Sperrene for aksept (FO-U5, OV-U3) gjelder også for en aksept etter fristen. HF-U4 gjelder også etter at akseptfristen er ute, og mot en ny kravversjon TE sender etter fristen. Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1). Oppgir TE et varsel etter svaret, kan byggherren ta stilling til rettidigheten etter den bestemmelsen på nytt, unntatt det HF-U4 gjelder (OV-U5). Et frafall etter GR-U9 kan fortsatt revideres. Et registrert brev binder ikke i appen (OV-U4). Om byggherren likevel er løst, for eksempel fordi rimelig tid etter avtaleloven § 3 er ute, forholdene er uendrede eller svaret er ugyldig, avgjør ikke appen (MM-U12). Retting av åpenbare skrivefeil avgjøres i B-16.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bundet uten akseptfrist"
+tekst = '''
+Byggherren er bundet av det hen har innrømmet i et sendt svar til TE godtar svaret eller sender en ny kravversjon, uten at byggherren kan sette en akseptfrist.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ikke bundet"
+tekst = '''
+Revisjonsretten i GR-U7 gjelder hele svaret til TE har godtatt det. Bindingen etter HF-U4 gjelder bare rettidigheten.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Sen aksept avvises"
+tekst = '''
+Appen avviser en aksept etter fristen. TE kan i stedet sende en ny kravversjon, som er det nye tilbudet (avtaleloven § 4).'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
