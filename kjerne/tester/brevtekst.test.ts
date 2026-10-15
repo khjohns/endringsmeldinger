@@ -1422,7 +1422,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
       });
       s.send('TE', GRUNNLAGSKRAV);
-      const rad = s.send('BH', {
+      const forSent = {
         type: 'brev',
         svar: [
           svar('grunnlag', s.krav('grunnlag'), {
@@ -1430,8 +1430,12 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
             grunnlag_varslet_i_tide: false,
           }),
         ],
-      });
-      expect(laast(rad)[0]).toContain('jf. innsigelsen i brev 5 av 5. oktober 2026');
+      };
+      // Det registrerte «i tide» binder ikke byggherren (HF-U4, OV-U4).
+      expect(s.avvist('BH', forSent)).toBeNull();
+      expect(laast(s.send('BH', forSent))[0]).toContain(
+        'jf. innsigelsen i brev 5 av 5. oktober 2026'
+      );
     });
 
     /** GR-U11: § 32.2 gjelder ikke kategorien. */
