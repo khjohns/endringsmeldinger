@@ -19,7 +19,8 @@
 import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { gjengi, gjengirTro, kroner, lagBrevtekst, norskDato } from '../frosset/brevtekst.ts';
+import { gjengi, gjengirTro, lagBrevtekst, norskDato } from '../frosset/brevtekst.ts';
+import { kroner } from '../frosset/standpunkt.ts';
 import { lesJournal, registrertDato } from '../format/leser.ts';
 import {
   forhaandsvis,
@@ -622,7 +623,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.sammenfall).toBe(false);
     expect(b.linje).toBe(
-      `Godkjent med ${(125000).toLocaleString('nb-NO')} kr, tilbudet ikke akseptert (§ 34.2.2).`
+      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr, tilbudet ikke akseptert (§ 34.2.2).'
     );
   });
 
@@ -688,7 +689,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Prinsipalt godkjent med 5 dager (§ 33.6.1), subsidiært godkjent med 15 dager.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager (§ 33.6.1), subsidiært godkjent med 15 dager.'
     );
   });
 
@@ -719,6 +720,59 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
   it('§ 34.1.2 «ja»: byggherrens standpunkt står i brevet, uten å ordnes (KA-U4, LV-U3)', () => {
     expect(vederlagssvar(true)).toBe(
       `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 kom for sent. ${METODE_JA} Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('125 000')}`
+    );
+  });
+
+  it('§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone krever en begrunnelse for tilbudet, ikke for beløpet (B-13, arbeidsvalget 15.10 i #490)', () => {
+    const s = sakMedKrav();
+    const brevet = (godkjent: number) => ({
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          {
+            hovedkrav_vurdering: 'delvis',
+            hovedkrav_godkjent_belop: godkjent,
+            aksepterer_metode: false,
+            oensket_metode: 'enhetspriser',
+          },
+          { resultat: 'delvis_godkjent', godkjent_beloep: godkjent },
+          null
+        ),
+      ],
+    });
+    expect(s.avvisning('BH', brevet(124999.6))?.melding).toBe(
+      'Svaret må ha en begrunnelse, fordi det har et tilbud som ikke er akseptert (§ 34.2.2) (KA-U24, KA-U31).'
+    );
+    // Kontrollsak: et beløp som ikke er godkjent fullt, til nærmeste krone, krever sin egen begrunnelse.
+    expect(s.avvisning('BH', brevet(124999.4))?.melding).toBe(
+      'Svaret må ha en begrunnelse, fordi det har et tilbud som ikke er akseptert (§ 34.2.2), et beløp som ikke er godkjent fullt (KA-U24, KA-U31).'
+    );
+  });
+
+  it('linjen ordner byggherrens standpunkter prinsipalt, subsidiært og videre subsidiært, som brevteksten (HF-U2, VS-U3, arbeidsvalget 15.10 i #492)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          {
+            frist_varsel_ok: false,
+            spesifisert_krav_ok: false,
+            dager_maatte_forstaa: 5,
+            vilkar_oppfylt: false,
+            dager: 10,
+          },
+          { resultat: 'avslaatt', godkjent_dager: 0 }
+        ),
+      ],
+    });
+    const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    expect(b.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4), subsidiært avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), videre subsidiært godkjent med 5 dager (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
     );
   });
 

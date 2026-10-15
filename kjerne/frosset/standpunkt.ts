@@ -286,9 +286,20 @@ export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): 
   };
 }
 
-const kroner = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
+/** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
+export function kroner(n: number): string {
+  // Avrundet til hele øre som reglene runder (`beloep`), ikke som flyttallet.
+  const i = beloep(n)!;
+  const abs = i < 0n ? -i : i;
+  const gruppert = String(abs / 100n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+  const oere = String(abs % 100n).padStart(2, '0');
+  return `${i < 0n ? '−' : ''}${gruppert}${oere === '00' ? '' : `,${oere}`}\u00a0kr`;
+}
 
-/** Linjen i brevet for svaret, med den prinsipale grunnen først (vedtaket 05.10 om avslag sammen med § 32.2). */
+/**
+ * Linjen i brevet for svaret: byggherrens standpunkt, med den prinsipale grunnen først
+ * (vedtaket 05.10 om avslag sammen med § 32.2). Leddene ordnes som i brevteksten (HF-U2, VS-U3).
+ */
 function beslutningslinje(
   svar: Svarinnhold,
   v: Standpunktsvirkning[],
@@ -323,11 +334,11 @@ function beslutningslinje(
     const d = standpunktet(svar, 'dager')!;
     standpunkt = d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
   }
-  if (!grunner.length) return `${standpunkt[0].toUpperCase()}${standpunkt.slice(1)}.`;
-  const ledd = grunner.map(
-    (p, i) => `${i === 0 ? 'Prinsipalt' : 'subsidiært'} ${grunntekst[p.art]}`
-  );
-  return `${ledd.join(', ')}, ${grunner.length > 1 ? 'videre ' : ''}subsidiært ${standpunkt}.`;
+  const ledd = [...grunner.map((p) => grunntekst[p.art]), standpunkt];
+  if (ledd.length === 1) return `Byggherrens standpunkt: ${standpunkt}.`;
+  const orden = (i: number) =>
+    i === 0 ? 'prinsipalt' : i === 1 ? 'subsidiært' : 'videre subsidiært';
+  return `Byggherrens standpunkt: ${ledd.map((t, i) => `${orden(i)} ${t}`).join(', ')}.`;
 }
 
 /**
@@ -461,7 +472,7 @@ export function regnUtSvar(
       throw new UgyldigVurdering({
         oensket_metode: 'gjelder bare når tilbudet ikke aksepteres (§ 34.2.2)',
       });
-    const r = beregnVederlag(vkrav, v as never);
+    const r = beregnVederlag(vkrav, v as never, regler);
     const ut: Record<string, unknown> = {
       resultat: r.beregnings_resultat,
       godkjent_beloep: tilTall(r.total_godkjent_belop),

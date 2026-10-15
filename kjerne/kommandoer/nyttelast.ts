@@ -5,7 +5,9 @@
  * regelversjonen; innholdet står i brevet (KA-U10).
  */
 
+import { beloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
+import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
 import { datoFor, sammeSlag } from '../format/leser.ts';
@@ -64,7 +66,7 @@ function kontrollerSvar(
       'ANNET_RESULTAT',
       `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
     );
-  const grunner = avgrensninger(s, server);
+  const grunner = avgrensninger(s, server, krav.innhold.beloep);
   if (utdypningKreves && grunner.length && !s.utdypning?.trim())
     return avvis(
       'BEGRUNNELSE_MANGLER',
@@ -80,7 +82,11 @@ function kontrollerSvar(
  * bygges. At et svar bare er subsidiært fordi grunnlaget er avslått, krever ingen
  * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten.
  */
-function avgrensninger(s: Svarutkast, server: Record<string, unknown>): string[] {
+function avgrensninger(
+  s: Svarutkast,
+  server: Record<string, unknown>,
+  krevdBeloep: unknown
+): string[] {
   const v = s.vurderinger;
   const ut: string[] = [];
   const fulltGodkjent = (server.subsidiaert_resultat ?? server.resultat) === 'godkjent';
@@ -91,9 +97,11 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>): string[]
   } else if (s.spor === 'vederlag') {
     if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');
     if (v.aksepterer_metode === false) ut.push('et tilbud som ikke er akseptert (§ 34.2.2)');
-    // Uten aksept av tilbudet er resultatet aldri «godkjent»; da gjelder grunnen over.
-    const helt = v.aksepterer_metode === false && v.hovedkrav_vurdering === 'godkjent';
-    if (!fulltGodkjent && !helt) ut.push('et beløp som ikke er godkjent fullt');
+    // B-13: beløpet alene, også uten aksept av tilbudet; da gjelder grunnen over i tillegg.
+    const godkjent = server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep;
+    const krevd = beloep((krevdBeloep as number | undefined) ?? 0)!;
+    if (!erBeloepetGodkjentFullt(krevd, beloep(godkjent as number)!))
+      ut.push('et beløp som ikke er godkjent fullt');
   } else {
     if (v.frist_varsel_ok === false) ut.push('påberopt preklusjon etter § 33.4');
     if (v.vilkar_oppfylt === false) ut.push('«ingen hindring» etter § 33.1 (VS-U13)');

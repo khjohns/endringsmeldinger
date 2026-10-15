@@ -390,7 +390,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarvurdering',
     'utsagn',
-    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide hovedkrav_vurdering aksepterer_metode oensket_metode
+    `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide aksepterer_metode oensket_metode
      frist_varsel_ok spesifisert_krav_ok dager_maatte_forstaa vilkar_oppfylt dager`,
   ],
   [
@@ -411,7 +411,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'erEndringMedVarslingsplikt erGrunnlagSubsidiaert foersteUnderkategori gyldigeResultater',
   ],
   ['regler/frist.ts', 'regelsett', 'beregnFrist resultatAvDager'],
-  ['regler/vederlag.ts', 'regelsett', 'beregnVederlag gjelderVarslingspliktenForVederlag'],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'beregnVederlag gjelderVarslingspliktenForVederlag erBeloepetGodkjentFullt',
+  ],
   [
     'Fristkrav',
     'regelsett',
@@ -643,7 +647,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'kommandoer/nyttelast.ts:avgrensninger(server)',
     'regelsett',
-    'resultat subsidiaert_resultat',
+    'resultat subsidiaert_resultat godkjent_beloep subsidiaert_godkjent_beloep',
     ['kommandoer/nyttelast.ts:avgrensninger'],
   ],
   // A1: den låste teksten klienten viste, sammenliknet med teksten serveren lager.
@@ -662,6 +666,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
+  ['frosset/standpunkt.ts', 'brevtekst', 'kroner', ['frosset/brevtekst.ts']],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av

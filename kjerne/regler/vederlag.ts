@@ -13,6 +13,7 @@ import type {
 } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 import { erGrunnlagSubsidiaert } from './grunnlag.ts';
+import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
 
@@ -77,10 +78,17 @@ export function kanHoldeTilbake(krav: Vederlagskrav): boolean {
   return krav.metode === 'regningsarbeid' && !krav.kostnads_overslag;
 }
 
-export function beregnPreklusjon(v: Vederlagsvurdering, krav: Vederlagskrav): Preklusjon {
+/** Predikatet for § 34.1.2 leses av regelsettet, som i standpunktene (#490). */
+type Varslingsplikt = Pick<Regelsett, 'gjelderVarslingspliktenForVederlag'>;
+
+export function beregnPreklusjon(
+  v: Vederlagsvurdering,
+  krav: Vederlagskrav,
+  regler: Varslingsplikt
+): Preklusjon {
   return {
     hovedkrav:
-      gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&
+      regler.gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&
       v.hovedkrav_varslet_i_tide === false,
     rigg: harRigg(krav) && v.rigg_varslet_i_tide === false,
     produktivitet: harProduktivitet(krav) && v.produktivitet_varslet_i_tide === false,
@@ -137,10 +145,18 @@ function poster(v: Vederlagsvurdering, krav: Vederlagskrav, p: Preklusjon): Post
 
 const sum = (verdier: Oere[]) => verdier.reduce((a, b) => a + b, NULL_OERE);
 
-/** B-13 (24.09): «godkjent» bare når hele kravet er godkjent, til nærmeste krone. */
+/**
+ * B-13 (24.09): beløpet er godkjent fullt når det godkjente, til nærmeste krone, er
+ * minst det krevde. Gjelder beløpet alene, også når tilbudet ikke er akseptert (§ 34.2.2).
+ */
+export function erBeloepetGodkjentFullt(krevd: Oere, godkjent: Oere): boolean {
+  return tilKrone(godkjent) >= tilKrone(krevd);
+}
+
+/** B-13, HF-U5: «godkjent» bare når hele beløpet er godkjent og tilbudet akseptert (§ 34.2.2). */
 function resultatAvBeloep(krevd: Oere, godkjent: Oere, metodeendring: boolean): Vederlagsresultat {
   if (godkjent === NULL_OERE) return 'avslaatt';
-  if (tilKrone(godkjent) >= tilKrone(krevd) && !metodeendring) return 'godkjent';
+  if (erBeloepetGodkjentFullt(krevd, godkjent) && !metodeendring) return 'godkjent';
   return 'delvis_godkjent';
 }
 
@@ -159,7 +175,7 @@ export function subsidiaerTriggers(
   return kandidater.filter(([gjelder]) => gjelder).map(([, t]) => t);
 }
 
-function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav): void {
+function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varslingsplikt): void {
   const feil: Record<string, string> = {};
   const post = (
     navn: string,
@@ -198,7 +214,7 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav): void {
   }
   const spoersmaal: [boolean, keyof Vederlagsvurdering, string][] = [
     [
-      gjelderVarslingspliktenForVederlag(krav.hovedkategori),
+      regler.gjelderVarslingspliktenForVederlag(krav.hovedkategori),
       'hovedkrav_varslet_i_tide',
       '§ 34.1.2',
     ],
@@ -216,9 +232,13 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav): void {
 }
 
 /** Regn ut svaret av vurderingene og kravet. Kaster `UgyldigVurdering` når svaret ikke er helt (B-13). */
-export function beregnVederlag(krav: Vederlagskrav, v: Vederlagsvurdering): Vederlagsberegning {
-  kontroller(v, krav);
-  const p = beregnPreklusjon(v, krav);
+export function beregnVederlag(
+  krav: Vederlagskrav,
+  v: Vederlagsvurdering,
+  regler: Varslingsplikt
+): Vederlagsberegning {
+  kontroller(v, krav, regler);
+  const p = beregnPreklusjon(v, krav, regler);
   const alle = poster(v, krav, p);
   const totalKrevdInklPrekludert = sum(alle.map(([k]) => k));
   const totalGodkjent = sum(alle.filter(([, , pr]) => !pr).map(([, g]) => g));
