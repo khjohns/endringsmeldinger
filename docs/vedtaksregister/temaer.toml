@@ -12,4 +12,4 @@ id = "grunnlagssvar-som-endringsordre"
 tittel = "Grunnlagssvar som endringsordre"
 kilde = ["#451", "#454"]
 kjerne = ["GR-U10", "GR-U12", "GR-U13"]
-vedtak = ["GR-U10", "GR-U12", "GR-U13", "GR-U14", "GR-U15", "MM-U17", "OV-U4", "OV-U5", "OV-U6", "OV-U8", "OV-U9", "HF-U4"]
+vedtak = ["GR-U10", "GR-U12", "GR-U13", "GR-U14", "GR-U15", "MM-U17", "OV-U4", "OV-U5", "OV-U6", "OV-U8", "OV-U9", "HF-U4", "HF-U5"]
