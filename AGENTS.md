@@ -107,16 +107,18 @@ liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres d
 endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke for en
 flytting som bare endrer importstiene. Lagringstestene mot
 testbasen står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
-en mal. Python-koden
-for de tre sakstypene er overgangskode og rettes bare for sikkerhet og det som
-hindrer test eller demo
-([merknaden i 4.2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#python-feil-koe)).
+en mal. Python-koden for de tre sakstypene er overgangskode. Den rettes bare når
+det er nødvendig for test eller demo og relevant for refaktoreringen til TS;
+sikkerhetsfeil meldes som issue og rettes ikke
+([DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2)).
 
 ## Miljø
 
 Kommandoene for testene, typesjekkene og verktøykjeden står i
 [miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen `miljo`.
 Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
+Skyøkta har også en testbase for SQL Server, som datalaget i TS bygges mot
+([DL-U1](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)); kommandoene står i miljø-skillen.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.
@@ -150,7 +152,9 @@ base eller et verktøy som stempler sin egen versjon.** Reglene står i
 ## Sikkerhetsinvarianter
 
 Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut.
-De gjelder hver serverinngang, i Python og i TS. Mekanismene, og det TS-stien
+De gjelder hver serverinngang, i Python og i TS. Brudd i Python-stien meldes som
+issue og rettes ikke ([DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2)).
+Invariantene gjelder fullt ut for TS-stien. Mekanismene, og det TS-stien
 ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
 
 - **Hver serverinngang krever innlogget sesjon og tilgang til prosjektet, og
