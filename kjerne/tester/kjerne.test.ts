@@ -1018,7 +1018,7 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
       },
     ]);
     const u = await k.utledning();
-    if (!u.forstaatt) throw new Error('Forutsetning: saken er forstått');
+    expect(u.forstaatt).toBe(true);
     const s = u.svar[k.navn.id('S-f2')];
     if (s.svar.standpunkter.some((p) => p.art === 'rettidighet'))
       throw new Error('Forutsetning: det registrerte svaret har ikke standpunkt om rettidighet');
