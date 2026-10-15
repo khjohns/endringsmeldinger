@@ -2279,14 +2279,16 @@ sporsmal = '''
 1. § 33.4, PR #495. Forløp: byggherren påberoper i sitt svar at TE varslet for sent, og varselet appen kjenner da, er TEs første fristkrav. Senere oppgir TE at et varsel ble sendt utenfor appen på en tidligere dato. I et nytt svar sier byggherren uttrykkelig at dette varselet kom i tide. Så kommer et svar som ikke sier noe om varselet. Skal påberopelsen da regnes som oppgitt? VS-U20 sier at appen leser påberopelsen som oppgitt «når byggherren uttrykkelig har frafalt påberopelsen eller sagt at varselet kom i tide». Etter OV-U5 utvides ikke et tidligere svar til et senere oppgitt varsel. Mitt arbeidsvalg 15.10 (A1) var for strengt mot TE og har ikke belegg i vedtakene.
 2. Avtaleretten gir et klart grunnlag. Etter løfteprinsippet er en part bundet av sitt eget utsagn når det er kommet til mottakerens kunnskap. Avtaleloven § 7 lar et utsagn kalles tilbake bare hvis tilbakekallet kommer fram før eller samtidig med utsagnet, og kommentaren sier at regelen er et generelt prinsipp også for andre løfter. Kapittel 1 gjelder når ikke annet følger av avtalen (§ 1), og NS 8407 regulerer ikke tilbakekall av et «i tide». Brukt på appen: byggherrens «i tide» kommer fram til TE når svaret sendes, og etter det kan det ikke tas tilbake i en revisjon. Unntaket for uendrede forhold (re integra) er en konkret vurdering som appen ikke gjør. Kan byggherren i en revisjon av et svar TE ikke har godtatt, ta tilbake at varselet kom i tide?
 3. Løfteprinsippet rekker lenger enn «i tide». Det kan også binde byggherren til det hen har godkjent i et sendt svar, for eksempel 50 dager eller et beløp, slik GR-U10 allerede gjør for godkjent grunnlag. GR-U7 lar i dag byggherren revidere hele svaret til TE har godtatt det, også til ugunst for TE. Skal prinsippvedtaket nå gjelde bare rettidigheten og innsigelsen etter § 5, eller hele svaret?
-4. Vedtaksteksten blir ført ordrett i vedtaksregisteret. Kan teksten (alternativ Ja) føres slik? Forholdet til andre vedtak: presiserer VS-U11, VS-U14 og VS-U20, og snevrer inn GR-U7 og VS-U9.'''
+4. Vedtaksteksten blir ført ordrett i vedtaksregisteret. Kan teksten (alternativ Ja) føres slik? Forholdet til andre vedtak: presiserer VS-U11, VS-U14 og VS-U20, og snevrer inn GR-U7 og VS-U9.
+5. Kontrollen av HF-U4 fant ett avvik. Listen over forhold til andre vedtak mangler OV-U5. OV-U5 sier: «Byggherren kan revidere svaret så lenge det ikke er godtatt (SK-03, GR-U7).» HF-U4 avviser en ny påberopelse i en slik revisjon når byggherren har sagt «i tide». Det snevrer inn OV-U5 på samme måte som GR-U7. Skal «snevrer inn OV-U5» legges til?'''
 valgt = "Ja"
 svar = '''
 1. Mulig jeg misforstår, men dette er enkelt i mitt hode: Hvis BH på et eller annet tidspunkt har sagt at varselet er gitt i tide, da er han bundet av det.
 2. Nei (anbefalt)
 3. Rettidighet nå (anbefalt)
-4. Ja, før den'''
-forhold = [{ art = "presiserer", vedtak = "vs-u11" }, { art = "presiserer", vedtak = "vs-u14" }, { art = "presiserer", vedtak = "vs-u20" }, { art = "snevrer inn", vedtak = "gr-u7" }, { art = "snevrer inn", vedtak = "vs-u9" }]
+4. Ja, før den
+5. Legg til (anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "vs-u11" }, { art = "presiserer", vedtak = "vs-u14" }, { art = "presiserer", vedtak = "vs-u20" }, { art = "snevrer inn", vedtak = "gr-u7" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "ov-u5" }]
 folge = '''
 Ikke bygget (#498)'''
 
