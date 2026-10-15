@@ -1122,26 +1122,49 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
     expect(await innsigelseMotSenereKravversjon(false)).toBe('prinsipalt');
   });
 
-  it('et «i tide» gir opp innsigelsen også når et senere svar sier «for sent» (VS-U20, arbeidsvalget 15.10 i #309)', async () => {
-    const k = await bygg(minnebane(), [
-      'godkjent_grunnlag',
-      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
-      { handling: 'innsigelse', part: 'BH', gjelder: 'K-f1', navn: 'D-innsigelse' },
+  /**
+   * MM-U18: journalen er fra før HF-U4, da «for sent» etter «i tide» kunne sendes fra appen.
+   * Kommandoen avviser det nå, så S-f2 skrives mens banen viser S-f1 som «for sent». Det
+   * S-f2 fryser, er regnet mot den visningen. Testen gjelder lesingen av S-f3.
+   */
+  async function senereForSent(iTide: boolean) {
+    const bane = minnebane();
+    let vrengt = false;
+    const k: Kjoering = await bygg(
       {
-        handling: 'brev',
-        svar: [
-          {
-            spor: 'frist',
-            navn: 'S-f1',
-            varsel_i_tide: true,
-            spesifisering_i_tide: true,
-            hindring: true,
-            dager: 10,
-          },
-        ],
+        ...bane,
+        journal: async () => {
+          const rader = await bane.journal();
+          if (vrengt) {
+            const s = svaret(radMed(rader, k, 'S-f1'), k, 'S-f1');
+            for (const p of s.standpunkter as Data[]) if (p.art === 'rettidighet') p.i_tide = false;
+          }
+          return rader;
+        },
       },
-      { handling: 'krav', spor: 'frist', dager: 25, navn: 'K-f2' },
-      {
+      [
+        'godkjent_grunnlag',
+        { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+        { handling: 'innsigelse', part: 'BH', gjelder: 'K-f1', navn: 'D-innsigelse' },
+        {
+          handling: 'brev',
+          svar: [
+            {
+              spor: 'frist',
+              navn: 'S-f1',
+              varsel_i_tide: iTide,
+              spesifisering_i_tide: true,
+              hindring: true,
+              dager: 10,
+            },
+          ],
+        },
+        { handling: 'krav', spor: 'frist', dager: 25, navn: 'K-f2' },
+      ]
+    );
+    vrengt = true;
+    try {
+      const sendt = await k.send({
         handling: 'brev',
         svar: [
           {
@@ -1153,27 +1176,38 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
             dager: 10,
           },
         ],
-      },
-      {
-        handling: 'rad',
-        spor: 'frist',
-        navn: 'S-f3',
-        dokument: 'D-revisjon',
-        gjelder: 'K-f2',
-        erstatter: 'S-f2',
-        hindring: true,
-        varsel_i_tide: true,
-        spesifisering_i_tide: true,
-        dager: 15,
-        sendt: '2026-10-01',
-      },
-    ]);
+      });
+      if (!sendt?.godtatt) throw new Error('Forutsetning: svaret med «for sent» er skrevet');
+    } finally {
+      vrengt = false;
+    }
+    await k.send({
+      handling: 'rad',
+      spor: 'frist',
+      navn: 'S-f3',
+      dokument: 'D-revisjon',
+      gjelder: 'K-f2',
+      erstatter: 'S-f2',
+      hindring: true,
+      varsel_i_tide: true,
+      spesifisering_i_tide: true,
+      dager: 15,
+      sendt: '2026-10-01',
+    });
     const u = await k.utledning();
     expect(u.forstaatt).toBe(true);
     const s = u.svar[k.navn.id('S-f3')];
     if (s.svar.standpunkter.some((p) => p.art === 'rettidighet'))
       throw new Error('Forutsetning: det registrerte svaret har ikke standpunkt om rettidighet');
-    expect(s.virkninger.find((p) => p.art === 'rettidighet')).toBeUndefined();
+    return s.virkninger.find((p) => p.art === 'rettidighet')?.virkning;
+  }
+
+  it('et «i tide» gir opp innsigelsen også når et senere svar sier «for sent» (VS-U20, arbeidsvalget 15.10 i #309)', async () => {
+    expect(await senereForSent(true)).toBeUndefined();
+  });
+
+  it('kontrollsak: uten «i tide» leses det registrerte svaret etter et «for sent» med innsigelsen', async () => {
+    expect(await senereForSent(false)).toBe('prinsipalt');
   });
 
   it('en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått', async () => {

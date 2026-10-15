@@ -20,7 +20,7 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/standpunkt.ts';
-import type { Utledning } from '../utledning/utled.ts';
+import { harSagtITide, type Rettidighet, type Utledning } from '../utledning/utled.ts';
 import type { Avvisning } from '../typer.ts';
 
 function kontrollerSvar(
@@ -36,6 +36,14 @@ function kontrollerSvar(
     return avvis(
       'ANNEN_REGELVERSJON',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
+    );
+  const bundet = paaberopt(s, krav.id).find((r) => harSagtITide(u, s.spor, r));
+  if (bundet)
+    return avvis(
+      'SAGT_I_TIDE',
+      'gjelder' in bundet
+        ? 'Byggherren har i et svar sendt fra appen sagt at kravet ble spesifisert i tide etter § 33.6.1, og kan ikke nå påberope at det kom for sent (HF-U4).'
+        : `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
     );
   // VS-U9 og OV-U1: svaret skulle gjentatt byggherrens innsigelse mot vederlagskravet,
   // men preklusjon etter § 34.1 er ikke bygget.
@@ -73,6 +81,19 @@ function kontrollerSvar(
       `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
     );
   return null;
+}
+
+/** Påberopelsene i svaret av at varselet kom for sent, eller at kravet ble spesifisert for sent. */
+function paaberopt(s: Svarutkast, krav: string): Rettidighet[] {
+  const v = s.vurderinger;
+  if (s.spor === 'grunnlag')
+    return v.grunnlag_varslet_i_tide === false ? [{ hjemmel: '32.2' }] : [];
+  if (s.spor === 'vederlag')
+    return v.hovedkrav_varslet_i_tide === false ? [{ hjemmel: '34.1.2' }] : [];
+  return [
+    ...(v.frist_varsel_ok === false ? [{ hjemmel: '33.4' as const }] : []),
+    ...(v.spesifisert_krav_ok === false ? [{ hjemmel: '33.6.1' as const, gjelder: krav }] : []),
+  ];
 }
 
 /**
