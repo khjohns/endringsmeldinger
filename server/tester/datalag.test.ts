@@ -19,6 +19,7 @@ import {
   opprettPool,
   sql,
   transaksjon,
+  TransaksjonAvbrutt,
   UgyldigKontekst,
   UsikkertUtfall,
   type Forbindelse,
@@ -199,6 +200,25 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
       await f().batch(`THROW 51409, N'Versjonskonflikt', 1`);
     }).catch((e: unknown) => e);
     expect(feilnummer(feil)).toBe(51409);
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ forbindelse: inne!.forbindelse, trancount: 0, ...ingenKontekst });
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  // Kilde: rollbacken er bekreftet, så utfallet er ikke usikkert, og #419 forkaster
+  // bare når COMMIT, ROLLBACK eller nullstillingen feiler (review av #530).
+  it('arbeidet fanger en feil der serveren avbrøt transaksjonen: TransaksjonAvbrutt, ikke usikkert utfall, og forbindelsen gjenbrukes', async () => {
+    const id = randomUUID();
+    let inne: Sesjon | undefined;
+    const feil = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+      await f()
+        .batch(`THROW 51409, N'Versjonskonflikt', 1`)
+        .catch(() => undefined);
+    }).catch((e: unknown) => e);
+    expect(feil).toBeInstanceOf(TransaksjonAvbrutt);
+    expect(feilnummer((feil as Error).cause)).toBe(51409);
     const etter = await sesjonen(() => pool.request());
     expect(etter).toMatchObject({ forbindelse: inne!.forbindelse, trancount: 0, ...ingenKontekst });
     expect(await lagret(pool, id)).toBe(false);

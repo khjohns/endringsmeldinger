@@ -45,6 +45,13 @@ export class UgyldigKontekst extends Error {}
  */
 export class UsikkertUtfall extends Error {}
 
+/**
+ * Serveren rullet tilbake transaksjonen, etter en feil med XACT_ABORT eller en
+ * ROLLBACK, uten at arbeidet kastet. Utfallet er kjent: transaksjonen er ikke
+ * committet. Serverfeilen står i `cause` når `mssql` har den.
+ */
+export class TransaksjonAvbrutt extends Error {}
+
 /** Forbindelsen fra `tedious`, med det `transaksjon` bruker. */
 export interface Forbindelse {
   reset(callback: (feil?: Error) => void): void;
@@ -158,7 +165,8 @@ async function nullstillOgKontroller(
 /**
  * Én transaksjon med konteksten satt først, skrivebeskyttet for sesjonen og
  * bundet til transaksjonen med `koe_tx`. Kaster `arbeid`, rulles transaksjonen
- * tilbake og feilen kastes videre. Feiler COMMIT, kastes `UsikkertUtfall`.
+ * tilbake og feilen kastes videre. Har serveren rullet tilbake uten at arbeidet
+ * kastet, kastes `TransaksjonAvbrutt`. Feiler COMMIT, kastes `UsikkertUtfall`.
  * Forbindelsen går tilbake i poolen bare når transaksjonen er avsluttet og
  * forbindelsen er nullstilt og kontrollert; ellers forkastes den.
  */
@@ -226,6 +234,13 @@ async function iTransaksjon<T>(
       return { feil, avsluttet: false };
     }
   }
+  if (avbruttAvServeren)
+    return {
+      feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen før COMMIT.', {
+        cause: (tx as unknown as { _abortReason?: unknown })._abortReason,
+      }),
+      avsluttet: true,
+    };
   try {
     await tx.commit();
   } catch (feil) {
