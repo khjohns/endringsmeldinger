@@ -4808,6 +4808,59 @@ tekst = '''
 Valget av lagringsform venter på en prøve mot Azure til IKT har levert en database.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "DL-U1"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#403"]
+sporsmal = '''
+Avgjørelsen 15.10 (ordrett): «Refaktorering for supabase dropper vi - kjører lokal SQL (som fungerer bra i sky for claude) og ellers mot azure sql når aktuelt. Appen er heller ikke i bruk nå så feil og lignende i python som ikke må fikses da det skal refaktoreres til typescript trenger vi ikke å fikse»
+
+Avgjørelsen 15.10 leses slik: (a) Det bygges ingen vei ut av Supabase for dagens Python- og PostgreSQL-stakk. Datalaget bygges i TS rett mot SQL Server, lokalt i Docker i skyøkta og mot Azure SQL Database når det blir aktuelt. (b) Feil i Python rettes ikke når koden skal erstattes av TS, med mindre det er en sikkerhetsfeil eller noe som hindrer test eller demo. Stemmer lesningen?
+
+Alternativene: «Ja, begge» (anbefalt), «Nei, (b) er for snever» og «Nei, (a) er feil». Dette vedtaket gjelder (a). «Riktig» er svaret på (a); (b) står i DL-U2.'''
+valgt = "Riktig"
+svar = '''
+Riktig, men vi retter kun feil i python som er nødvendig for test eller demo og relevant for refaktorering til typescript.'''
+forhold = [{ art = "presiserer", vedtak = "b-19" }, { art = "presiserer", vedtak = "b-12-databasen" }]
+folge = '''
+Issuene i F0b som bare gjaldt veien over PostgreSQL og Supabase, er lukket, og de andre er skrevet om (15.10). Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Riktig"
+tekst = '''
+Det bygges ingen vei ut av Supabase for dagens Python- og PostgreSQL-stakk. Datalaget bygges i TS rett mot SQL Server, lokalt i Docker i skyøkta og mot Azure SQL Database når det blir aktuelt.'''
+
+[[gruppe.vedtak]]
+id = "DL-U2"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#403"]
+sporsmal = '''
+Første spørsmål, (b) i lesningen av avgjørelsen 15.10 (se DL-U1): Feil i Python rettes ikke når koden skal erstattes av TS, med mindre det er en sikkerhetsfeil eller noe som hindrer test eller demo. Stemmer lesningen?
+
+Oppfølgingsspørsmål: Svaret ditt om Python-feil var: «vi retter kun feil i python som er nødvendig for test eller demo og relevant for refaktorering til typescript». I dag gjør AGENTS.md et unntak for sikkerhetsfeil: Python-koden «rettes bare for sikkerhet og det som hindrer test eller demo». Skal sikkerhetsfeil i Python heller ikke rettes nå? Sikkerhetsinvariantene gjelder uansett fullt ut for TS-stien.
+
+Alternativene til oppfølgingsspørsmålet: «Heller ikke sikkerhet» (anbefalt) og «Sikkerhetsfeil rettes fortsatt».'''
+valgt = "Heller ikke sikkerhet"
+svar = '''
+Svaret på det første spørsmålet: «Riktig, men vi retter kun feil i python som er nødvendig for test eller demo og relevant for refaktorering til typescript.»
+
+Svaret på oppfølgingsspørsmålet: «Heller ikke sikkerhet (Anbefalt)»'''
+folge = '''
+Unntaket for sikkerhet i [merknaden 09.10 i 4.2](#python-feil-koe) gjelder ikke lenger. Arbeidet med teksten i AGENTS.md følges i #403'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Heller ikke sikkerhet"
+tekst = '''
+Feil i Python rettes bare når det er nødvendig for test eller demo og relevant for refaktoreringen til TS. Det gjelder også sikkerhetsfeil. Sikkerhetsinvariantene gjelder fullt ut for TS-stien.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Sikkerhetsfeil rettes fortsatt"
+tekst = '''
+Sikkerhetsfeil i Python rettes fortsatt. Ellers rettes bare feil som er nødvendige for test eller demo og relevante for refaktoreringen til TS.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Premissene P1–P7"
 
