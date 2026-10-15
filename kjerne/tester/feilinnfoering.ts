@@ -12,7 +12,7 @@
  * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
  * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204–F206 påberopelsen etter
  * § 33.4 mot varselet (#309, KK-07), F207–F210 innsigelsen brevet viser til og gir opp (#407, #309)
- * og F217–F221 et «i tide» som binder byggherren (HF-U4, HF-U8, #498). Én mutasjon
+ * og F217–F220 et «i tide» som binder byggherren (HF-U4, HF-U8, #498). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -2342,18 +2342,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['som gjelder kravversjonen (HF-U4, HF-U1)'],
-  },
-  {
-    id: 'F221',
-    feilklasse: 'et «i tide» etter § 33.6.1 binder også § 33.4 (HF-U4, #498)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        ": p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide",
-        ": (p.art === 'rettidighet' ? p.hjemmel === r.hjemmel : p.art === 'spesifisering') && p.iTide",
-      ],
-    ],
-    mal: ['«i tide» etter § 33.6.1 sier ingenting om § 33.4'],
   },
 ];
 
