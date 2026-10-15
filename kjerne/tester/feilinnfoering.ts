@@ -11,7 +11,7 @@
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
  * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
  * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204–F206 påberopelsen etter
- * § 33.4 mot varselet (#309, KK-07) og F207–F208 innsigelsen brevet viser til og gir opp (#407, #309). Én mutasjon
+ * § 33.4 mot varselet (#309, KK-07) og F207–F210 innsigelsen brevet viser til og gir opp (#407, #309). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -2235,6 +2235,27 @@ const MUTASJONER: Mutasjon[] = [
       'et «i tide» om varselet gir også opp innsigelsen mot det første fristkravet',
       'med to åpne innsigelser i fristen gir et «i tide» opp begge',
     ],
+  },
+  {
+    id: 'F209',
+    feilklasse:
+      'brevet nevner ikke innsigelsen mot en tidligere kravversjon som et «i tide» gir opp (VS-U11, VS-U20)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["(svar.spor === 'frist' && fristkravene.includes(i.gjelder))", 'false']],
+    mal: ['et «i tide» om varselet gir opp og nevner innsigelsen mot en tidligere kravversjon'],
+  },
+  {
+    id: 'F210',
+    feilklasse:
+      'i fristen er bare det siste standpunktet om rettidighet avgjørende, ikke hvert «i tide» (VS-U20, arbeidsvalget 15.10 i #309)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "if (spor === 'frist') return standpunkter.some((p) => p.art === 'rettidighet' && p.iTide);",
+        "if (spor === 'frist') return standpunkter.at(-1)?.art === 'rettidighet' && standpunkter.at(-1)!.iTide;",
+      ],
+    ],
+    mal: ['et «i tide» gir opp innsigelsen også når et senere svar sier «for sent»'],
   },
 ];
 

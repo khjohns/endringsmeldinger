@@ -1074,6 +1074,60 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
     expect(await innsigelseMotSenereKravversjon(false)).toBe('prinsipalt');
   });
 
+  it('et «i tide» gir opp innsigelsen også når et senere svar sier «for sent» (VS-U20, arbeidsvalget 15.10 i #309)', async () => {
+    const k = await bygg(minnebane(), [
+      'godkjent_grunnlag',
+      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+      { handling: 'innsigelse', part: 'BH', gjelder: 'K-f1', navn: 'D-innsigelse' },
+      {
+        handling: 'brev',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f1',
+            varsel_i_tide: true,
+            spesifisering_i_tide: true,
+            hindring: true,
+            dager: 10,
+          },
+        ],
+      },
+      { handling: 'krav', spor: 'frist', dager: 25, navn: 'K-f2' },
+      {
+        handling: 'brev',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f2',
+            varsel_i_tide: false,
+            spesifisering_i_tide: true,
+            hindring: true,
+            dager: 10,
+          },
+        ],
+      },
+      {
+        handling: 'rad',
+        spor: 'frist',
+        navn: 'S-f3',
+        dokument: 'D-revisjon',
+        gjelder: 'K-f2',
+        erstatter: 'S-f2',
+        hindring: true,
+        varsel_i_tide: true,
+        spesifisering_i_tide: true,
+        dager: 15,
+        sendt: '2026-10-01',
+      },
+    ]);
+    const u = await k.utledning();
+    if (!u.forstaatt) throw new Error('Forutsetning: saken er forstått');
+    const s = u.svar[k.navn.id('S-f3')];
+    if (s.svar.standpunkter.some((p) => p.art === 'rettidighet'))
+      throw new Error('Forutsetning: det registrerte svaret har ikke standpunkt om rettidighet');
+    expect(s.virkninger.find((p) => p.art === 'rettidighet')).toBeUndefined();
+  });
+
   it('en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått', async () => {
     const { k, rader } = await toKravversjoner(false);
     if (!forstaatt(rader)) throw new Error('Forutsetning: kontrollsaken er forstått');

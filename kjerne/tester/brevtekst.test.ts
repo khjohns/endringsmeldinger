@@ -1199,6 +1199,31 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     );
   });
 
+  it('et «i tide» om varselet gir opp og nevner innsigelsen mot en tidligere kravversjon (VS-U11, VS-U20)', () => {
+    const s = sakMedKrav();
+    const nyttKrav = (dager: number) => ({
+      type: 'krav',
+      spor: 'frist',
+      innhold: { dager },
+      utdypning: FRISTKRAV.utdypning,
+    });
+    s.send('TE', nyttKrav(25));
+    s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
+    s.send('TE', nyttKrav(30));
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('frist', s.krav('frist'), FRIST_FULLT[0], {
+          resultat: 'delvis_godkjent',
+          godkjent_dager: 20,
+        }),
+      ],
+    });
+    expect(laast(rad)[0]).toContain(
+      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 6 av 6. oktober 2026'
+    );
+  });
+
   it('et «nei» om et annet varsel enn innsigelsen gjelder, viser ikke til innsigelsen (OV-U5, del 2 av #407)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });

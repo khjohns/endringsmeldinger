@@ -365,7 +365,8 @@ interface Innsigelse {
 
 /**
  * VS-U9, VS-U11: innsigelsene fra byggherren som svaret kan leses med, og som byggherren
- * ikke senere har gitt opp uttrykkelig, i rekkefølgen de kom, med brevet de står i.
+ * ikke senere har gitt opp uttrykkelig, i rekkefølgen de kom, med brevet de står i. I
+ * fristen også en innsigelse mot en annen kravversjon, som et «i tide» gir opp (VS-U20).
  */
 function aapneInnsigelser(svar: Svar, avsender: Part, j: Journalen): Innsigelse[] {
   // VS-U20, OV-U5: varslene og det første fristkravet, som er det første varselet appen kjenner.
@@ -376,6 +377,9 @@ function aapneInnsigelser(svar: Svar, avsender: Part, j: Journalen): Innsigelse[
       .slice(0, 1)
       .map((k) => k.id),
   ];
+  const fristkravene = j.dokumenter.flatMap((d) =>
+    d.krav.filter((k) => k.spor === 'frist').map((k) => k.id)
+  );
   const svarFraParten: Svar[] = [];
   const innsigelser: (Innsigelse & { fra: number })[] = [];
   for (const d of j.dokumenter) {
@@ -387,7 +391,8 @@ function aapneInnsigelser(svar: Svar, avsender: Part, j: Journalen): Innsigelse[
   }
   return innsigelser.filter(
     (i) =>
-      innsigelsenGjelderSvaret(i.gjelder, svar, varslene) &&
+      (innsigelsenGjelderSvaret(i.gjelder, svar, varslene) ||
+        (svar.spor === 'frist' && fristkravene.includes(i.gjelder))) &&
       !innsigelsenErOppgitt(i.gjelder, svar.spor, svarFraParten.slice(i.fra))
   );
 }
