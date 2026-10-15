@@ -148,8 +148,10 @@ const sum = (verdier: Oere[]) => verdier.reduce((a, b) => a + b, NULL_OERE);
 /**
  * B-13 (24.09): beløpet er godkjent fullt når det godkjente, til nærmeste krone, er
  * minst det krevde. Gjelder beløpet alene, også når tilbudet ikke er akseptert (§ 34.2.2).
+ * Et avslag (0 kr) er aldri godkjent fullt, heller ikke av et krav under 0,50 kr.
  */
 export function erBeloepetGodkjentFullt(krevd: Oere, godkjent: Oere): boolean {
+  if (godkjent === NULL_OERE) return false;
   return tilKrone(godkjent) >= tilKrone(krevd);
 }
 

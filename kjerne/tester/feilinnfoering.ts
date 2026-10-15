@@ -2289,6 +2289,13 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["i === 1 ? 'subsidiært' : 'videre subsidiært'", "'subsidiært'"]],
     mal: ['linjen ordner byggherrens standpunkter'],
   },
+  {
+    id: 'F214',
+    feilklasse: 'et avslag (0 kr) av et krav under 0,50 kr regnes som hele beløpet (B-13, KA-U24)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['  if (godkjent === NULL_OERE) return false;\n', '']],
+    mal: ['avslag på et krav under 0,50 kr'],
+  },
 ];
 
 interface Testresultat {

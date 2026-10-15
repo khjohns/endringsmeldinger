@@ -751,6 +751,27 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
+  it('avslag på et krav under 0,50 kr krever en begrunnelse for beløpet, selv om begge rundes til 0 kr (B-13, KA-U24)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 0.4 } });
+    const brevet = {
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { hovedkrav_vurdering: 'avslatt', aksepterer_metode: true },
+          { resultat: 'avslaatt', godkjent_beloep: 0 },
+          null
+        ),
+      ],
+    };
+    expect(s.avvisning('BH', brevet)?.melding).toBe(
+      'Svaret må ha en begrunnelse, fordi det har et beløp som ikke er godkjent fullt (KA-U24, KA-U31).'
+    );
+  });
+
   it('linjen ordner byggherrens standpunkter prinsipalt, subsidiært og videre subsidiært, som brevteksten (HF-U2, VS-U3, arbeidsvalget 15.10 i #492)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
