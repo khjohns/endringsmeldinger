@@ -20,7 +20,7 @@ import {
 } from '../format/koder.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
-import { erPaalegg, gyldigeResultater } from '../regler/grunnlag.ts';
+import { erByggherrensPaalegg, gyldigeResultater } from '../regler/grunnlag.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import {
   BELOEPSVURDERINGER,
@@ -126,9 +126,12 @@ describe('reglene med kjernens koder', () => {
     expect(GJELDENDE_REGLER.gjelderVarslingsplikten(h, u)).toBe(
       h === 'endring' && u !== 'endringsordre'
     );
-    // § 32.3 første ledd c: frafall gjelder et pålegg (GR-U3).
-    const paalegg = h === 'endring' && (u === 'irregulaer_endring' || u === 'valg_av_loesning');
-    expect(erPaalegg(h, u)).toBe(paalegg);
+    // GR-U18: frafall etter § 32.3 c der pålegget er byggherrens eget (irregulær endring,
+    // valgrett, samordning og svar på varsel), ikke ved offentlig myndighet eller gebyr.
+    const paalegg =
+      h === 'endring' &&
+      ['irregulaer_endring', 'valg_av_loesning', 'samordning', 'svar_paa_varsel'].includes(u);
+    expect(erByggherrensPaalegg(h, u)).toBe(paalegg);
     expect(gyldigeResultater(h, u).includes('paalegg_frafalt')).toBe(paalegg);
   });
 

@@ -17,11 +17,22 @@ export function erEndringMedVarslingsplikt(
   return hovedkategori === 'endring' && underkategori !== 'endringsordre';
 }
 
-export function erPaalegg(hovedkategori: string | null, underkategori: string | null): boolean {
-  return (
-    hovedkategori === 'endring' &&
-    (underkategori === 'irregulaer_endring' || underkategori === 'valg_av_loesning')
-  );
+const BYGGHERRENS_PAALEGG = [
+  'irregulaer_endring',
+  'valg_av_loesning',
+  'samordning',
+  'svar_paa_varsel',
+];
+
+/**
+ * GR-U18: frafall etter § 32.3 c gjelder et pålegg som er byggherrens eget,
+ * ikke offentlig myndighet eller gebyr.
+ */
+export function erByggherrensPaalegg(
+  hovedkategori: string | null,
+  underkategori: string | null
+): boolean {
+  return hovedkategori === 'endring' && BYGGHERRENS_PAALEGG.includes(underkategori ?? '');
 }
 
 export function erPrekludert(
@@ -50,7 +61,9 @@ export function gyldigeResultater(
   underkategori: string | null
 ): Grunnlagsresultat[] {
   const resultater: Grunnlagsresultat[] = ['godkjent', 'avslaatt'];
-  return erPaalegg(hovedkategori, underkategori) ? [...resultater, 'paalegg_frafalt'] : resultater;
+  return erByggherrensPaalegg(hovedkategori, underkategori)
+    ? [...resultater, 'paalegg_frafalt']
+    : resultater;
 }
 
 export function kontrollerGrunnlagssvar(

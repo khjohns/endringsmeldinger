@@ -891,6 +891,52 @@ describe('aksept av et grunnlag byggherren har avklart, avvises (GR-U8, GR-U9)',
 });
 
 /**
+ * GR-U18: frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget, ikke der
+ * endringen kommer av offentlig myndighet eller gebyr. Frafall kan ikke kombineres med at
+ * grunnlaget er varslet for sent (#235).
+ */
+describe('frafall etter § 32.3 c der pålegget er byggherrens eget (GR-U18)', () => {
+  async function frafall(underkategori: string, varsletITide: boolean) {
+    const k = await bygg(minnebane(), [
+      { handling: 'krav', spor: 'grunnlag', underkategori, navn: 'K-g1' },
+    ]);
+    return k.prov({
+      handling: 'brev',
+      svar: [{ spor: 'grunnlag', resultat: 'paalegg_frafalt', varslet_i_tide: varsletITide }],
+    });
+  }
+
+  it.each(['samordning', 'svar_paa_varsel', 'irregulaer_endring', 'valg_av_loesning'])(
+    'frafall godtas i %s',
+    async (underkategori) => {
+      expect((await frafall(underkategori, true)).godtatt).toBe(true);
+    }
+  );
+
+  it.each(['gebyrer_og_avgifter', 'lovendring_gjenstand', 'lovendring_prosess'])(
+    'frafall avvises i %s, som ikke er byggherrens eget pålegg',
+    async (underkategori) => {
+      const u = await frafall(underkategori, true);
+      expect(u.godtatt ? 'godtatt' : u.avvisning.melding).toContain(
+        'kan ikke velges i denne kategorien'
+      );
+    }
+  );
+
+  it.each(['samordning', 'svar_paa_varsel'])(
+    'frafall i %s avvises sammen med at grunnlaget er varslet for sent (#235)',
+    async (underkategori) => {
+      const u = await frafall(underkategori, false);
+      const melding = u.godtatt ? 'godtatt' : u.avvisning.melding;
+      expect(melding).toContain(
+        'frafall kan ikke kombineres med at grunnlaget er varslet for sent'
+      );
+      expect(melding).not.toContain('kan ikke velges i denne kategorien');
+    }
+  );
+});
+
+/**
  * OV-U5 og rad KA-20: byggherren har påberopt at varselet kom for sent da det første
  * fristkravet var det første varselet appen kjente, og TE registrerer deretter et
  * varsel. Svaret står med virkningen det hadde, TE kan godta det, og visningen sier at
