@@ -289,8 +289,12 @@ Radene følger rekkefølgen i 3.1. En rad uten ID er vist med første ord.
 ## Forslag til prinsippvedtak
 
 Forslagene er skrevet slik at de kan stå alene i 3.1. ID-ene settes når vedtakene
-føres. Forholdet til andre vedtak står under hvert forslag. Det er prøvd mot 3.1,
-men ikke ført.
+føres. Forholdet til andre vedtak står under hvert forslag. Det er prøvd mot 3.1.
+
+**Merknad 15.10:** Vedtakene er ført etter svaret i #504 som HF-U6–HF-U13 (F1–F8), og
+som EO-U10, GR-U17, GR-U18, FO-U7, LV-U7, LV-U8 og KA-U40 (spørsmål 3, 4, 6, 7, 8, 10
+og 11). HF-U9 opphever KA-U3 og KA-U5. Forholdet i spørsmål 9 står i Følge hos HF-U4.
+I vedtaksteksten er F1–F8 byttet ut med ID-ene.
 
 ### F1 Bindingen
 
@@ -448,6 +452,9 @@ KA-U7).
 ## Spørsmålene samlet
 
 Svar «ja» gir tilslutning til alle anbefalingene, med rettelser per punkt.
+
+**Merknad 15.10:** Oppdragsgiver svarte «Ja til alle anbefalingene» (#504). Vedtakene
+er ført (se «Forslag til prinsippvedtak»).
 
 1. **Prinsippvedtakene.** Kan F1–F8 føres som prinsippvedtak med forholdene som står
    under hvert forslag? *Anbefaling: ja.*
