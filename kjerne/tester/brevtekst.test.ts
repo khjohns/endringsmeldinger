@@ -684,7 +684,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(s.avvist('BH', kommando)).toBeNull();
     const rad = s.send('BH', kommando);
     expect(laast(rad)).toEqual([
-      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Prinsipalt: byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, 5 dager (NS 8407 § 33.6.1). Subsidiært: byggherren godkjenner 15 dager av de krevde 20 dager.',
+      'Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Prinsipalt: byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, 5 dager (NS 8407 § 33.6.1). Subsidiært: byggherren godkjenner 15 dager av de krevde 20 dager.',
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
@@ -745,7 +745,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
     // A2: fristen er subsidiær fordi grunnlaget er prekludert i samme brev.
     expect(f).toBe(
-      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget). Subsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Videre subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Videre subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.`
+      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget). Subsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent. Videre subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Videre subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.`
     );
   });
 
@@ -761,7 +761,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       'forutsetning: appen regner tre standpunkter som uten virkning'
     ).toHaveLength(3);
     expect(laast(rad)).toEqual([
-      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Byggherren godkjenner 20 dager.`,
+      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Byggherren godkjenner 20 dager.`,
     ]);
   });
 
@@ -1002,7 +1002,7 @@ describe('svaret på vederlag og frist når grunnlaget er avslått eller preklud
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad)).toEqual([
-      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Subsidiært: byggherren godkjenner 20 dager.`,
+      `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 4. oktober 2026: Prinsipalt: byggherren har gjort gjeldende i brev 5 av 5. oktober 2026 at TEs varsel etter NS 8407 § 32.2 kom for sent. Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). ${SPESIFISERING_JA} Subsidiært: byggherren godkjenner 20 dager.`,
     ]);
   });
 
@@ -1163,7 +1163,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad)[0]).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent.'
+      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent.'
     );
   });
 
@@ -1832,7 +1832,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
     );
     expect(standpunkt?.gjelder).toBe(id);
     expect(laast(rad)[0]).toContain(
-      'byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 kom for sent.'
+      'byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 3 av 3. oktober 2026 kom for sent.'
     );
   });
 

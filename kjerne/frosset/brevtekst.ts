@@ -242,6 +242,14 @@ class Journalen {
       ?.utdypning;
   }
 
+  /** VS-U20, OV-U5: brevet varselet står i, som et registrert varsel eller det første fristkravet. */
+  dokumentetTil(id: string): string {
+    const e = this.element(id);
+    if (e.art === 'utsagn') return e.dokument;
+    if (e.art === 'krav') return e.krav.dokument;
+    throw new KanIkkeUttrykkes(`${id} er ikke et varsel eller et krav`);
+  }
+
   krav(id: string): Krav {
     const e = this.element(id);
     if (e.art !== 'krav') throw new KanIkkeUttrykkes(`${id} er ikke et krav`);
@@ -354,9 +362,14 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
  * leses med, og som byggherren ikke senere har gitt opp uttrykkelig.
  */
 function aapenInnsigelse(svar: Svar, avsender: Part, j: Journalen): string | undefined {
-  const varsler = j.dokumenter.flatMap((d) =>
-    d.utsagn.filter((u) => u.art === 'varsel').map((u) => u.id)
-  );
+  // VS-U20, OV-U5: varslene og det første fristkravet, som er det første varselet appen kjenner.
+  const varslene = [
+    ...j.dokumenter.flatMap((d) => d.utsagn.filter((u) => u.art === 'varsel').map((u) => u.id)),
+    ...j.dokumenter
+      .flatMap((d) => d.krav.filter((k) => k.spor === 'frist'))
+      .slice(0, 1)
+      .map((k) => k.id),
+  ];
   const svarFraParten: Svar[] = [];
   const innsigelser: { gjelder: string; dokument: string; fra: number }[] = [];
   for (const d of j.dokumenter) {
@@ -368,7 +381,7 @@ function aapenInnsigelse(svar: Svar, avsender: Part, j: Journalen): string | und
   }
   return innsigelser.find(
     (i) =>
-      innsigelsenGjelderSvaret(i.gjelder, svar, varsler) &&
+      innsigelsenGjelderSvaret(i.gjelder, svar, varslene) &&
       !innsigelsenErOppgitt(i.gjelder, svar.spor, svarFraParten.slice(i.fra))
   )?.dokument;
 }
@@ -475,7 +488,10 @@ function standpunkttekst(
     s.spor === 'grunnlag' ? krav : s.grunnlagskrav ? j.krav(s.grunnlagskrav) : null;
   switch (p.art) {
     case 'rettidighet': {
-      const varselet = VARSELET[p.hjemmel];
+      const varselet =
+        p.hjemmel === '33.4'
+          ? `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`
+          : VARSELET[p.hjemmel];
       if (!p.iTide)
         return `byggherren gjør gjeldende at ${varselet} kom for sent${henvisning ? `, jf. innsigelsen i ${henvisning}` : ''}.`;
       return henvisning

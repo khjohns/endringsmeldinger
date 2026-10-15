@@ -868,7 +868,7 @@
             "virkning.S-f1.dager": "subsidiaert",
             "standpunkt.S-f1.rettidighet.gjelder": "K-f1",
             "handlinger.TE": { "inneholder": ["godta:frist"] },
-            "uavklart.S-f1": []
+            "annet_varsel.S-f1": []
           }
         },
         {
@@ -881,7 +881,7 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U1", "MM-U8", "MM-U9"],
+          "kilde": ["MM-U1", "OV-U5", "MM-U9"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,
@@ -894,23 +894,23 @@
             "virkning.S-f1.rettidighet": "prinsipalt",
             "standpunkt.S-f1.rettidighet.gjelder": "K-f1",
             "visning.opplysning.D4#sendt": { "inneholder": ["sendt_ifolge_TE", "mottaksdato_mangler"] },
-            "visning.etiketter.frist": { "inneholder": ["bh_har_ikke_vurdert_varselet"] },
+            "visning.etiketter.frist": { "inneholder": ["svaret_gjaldt_et_annet_varsel"] },
             "handlinger.BH": { "inneholder": ["revidere:frist", "bestride:D4#sendt"] },
-            "uavklart.S-f1": ["rettidighet"]
+            "annet_varsel.S-f1": ["rettidighet"]
           }
         },
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U8", "MM-U1"],
-          "forventet": { "handlinger.TE": { "mangler": ["godta:frist"] } }
+          "kilde": ["OV-U5", "MM-U1"],
+          "forventet": { "handlinger.TE": { "inneholder": ["godta:frist"] } }
         },
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U8"],
+          "kilde": ["OV-U5"],
           "prov": { "handling": "aksept", "spor": "frist" },
-          "forventet": { "avvist": true, "regel": "STANDPUNKT_UAVKLART" }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 4,
@@ -922,9 +922,9 @@
             "opplysning.D4#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "hendelse": "D5" }],
             "virkning.S-f1.rettidighet": "prinsipalt",
             "visning.opplysning.D4#sendt": { "inneholder": ["sendt_ifolge_TE", "mottak_bestridt"] },
-            "visning.etiketter.frist": { "inneholder": ["bh_har_ikke_vurdert_varselet"] },
+            "visning.etiketter.frist": { "inneholder": ["svaret_gjaldt_et_annet_varsel"] },
             "handlinger.BH": { "inneholder": ["revidere:frist"], "mangler": ["bestride:D4#sendt"] },
-            "uavklart.S-f1": ["rettidighet"]
+            "annet_varsel.S-f1": ["rettidighet"]
           }
         },
         {
@@ -992,7 +992,7 @@
             "enighet.frist.virkning.rettidighet": "prinsipalt",
             "virkning.S-f1.rettidighet": "prinsipalt",
             "handlinger.BH": { "mangler": ["revidere:frist"] },
-            "uavklart.S-f1": ["rettidighet"]
+            "annet_varsel.S-f1": ["rettidighet"]
           }
         }
       ],
@@ -1886,12 +1886,12 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U8", "MM-U1"],
+          "kilde": ["OV-U5", "MM-U1"],
           "forventet": {
             "avvist": false,
             "varsel.frist": "D4",
-            "uavklart.S-f1": [],
-            "visning.etiketter.frist": { "mangler": ["bh_har_ikke_vurdert_varselet"] },
+            "annet_varsel.S-f1": ["rettidighet"],
+            "visning.etiketter.frist": { "inneholder": ["svaret_gjaldt_et_annet_varsel"] },
             "handlinger.TE": { "inneholder": ["godta:frist"] }
           }
         },
@@ -4574,7 +4574,7 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U1 og MM-U8: en innsigelse mot det utledede varselet som et registrert fristsvar er lest med, er uavklart når TE registrerer varselet etterpå",
+      "forslag": "OV-U5 og VS-U20: et registrert fristsvar lest med en innsigelse mot det første fristkravet står med sin virkning når TE registrerer varselet etterpå, og TE kan godta det",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -4610,7 +4610,7 @@
           ],
           "forventet": {
             "virkning.S-f1.rettidighet": "prinsipalt",
-            "uavklart.S-f1": []
+            "annet_varsel.S-f1": []
           }
         },
         {
@@ -4632,21 +4632,21 @@
           "rolle": "mal",
           "kilde": [
             "MM-U1",
-            "MM-U8",
+            "OV-U5",
             "KA-38"
           ],
           "forventet": {
-            "uavklart.S-f1": [
+            "annet_varsel.S-f1": [
               "rettidighet"
             ],
             "handlinger.TE": {
-              "mangler": [
+              "inneholder": [
                 "godta:frist"
               ]
             },
             "visning.etiketter.frist": {
               "inneholder": [
-                "bh_har_ikke_vurdert_varselet"
+                "svaret_gjaldt_et_annet_varsel"
               ]
             }
           }
@@ -4655,11 +4655,10 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "MM-U8"
+            "OV-U5"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "STANDPUNKT_UAVKLART"
+            "avvist": false
           },
           "prov": {
             "handling": "aksept",
@@ -6016,7 +6015,7 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U9 og VS-U11: i fristen gir byggherren opp innsigelsen mot kravet ved å si uttrykkelig at det registrerte varselet kom i tide",
+      "forslag": "HF-U1 og OV-U5 (del 2 av #407): i fristen gir byggherren ikke opp innsigelsen mot det første fristkravet ved å si at et varsel TE registrerer senere, kom i tide, så et senere registrert svar leses med den",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -6077,12 +6076,15 @@
           "kilde": [
             "VS-U9",
             "VS-U11",
+            "OV-U5",
             "HF-U1"
           ],
           "forventet": {
             "forstaatt": true,
-            "virkning.S-f2.rettidighet": null,
-            "uavklart.S-f2": []
+            "virkning.S-f2.rettidighet": "prinsipalt",
+            "annet_varsel.S-f2": [
+              "rettidighet"
+            ]
           }
         }
       ]
@@ -6093,7 +6095,7 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U1 og MM-U8: innsigelsen et registrert fristsvar er lest med, er ikke uavklart når byggherren alt har tatt stilling til det registrerte varselet",
+      "forslag": "VS-U20 og OV-U5: et registrert fristsvar leses med innsigelsen mot det første fristkravet også når byggherren har tatt stilling til det registrerte varselet, og visningen sier at innsigelsen gjaldt et annet varsel",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -6143,19 +6145,21 @@
           "kilde": [
             "VS-U11",
             "MM-U1",
-            "MM-U8"
+            "OV-U5"
           ],
           "forventet": {
             "forstaatt": true,
             "virkning.S-f2.rettidighet": "prinsipalt",
-            "uavklart.S-f2": []
+            "annet_varsel.S-f2": [
+              "rettidighet"
+            ]
           }
         },
         {
           "etter": 4,
           "rolle": "mal",
           "kilde": [
-            "MM-U8"
+            "OV-U5"
           ],
           "forventet": {
             "avvist": false
@@ -6173,7 +6177,7 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U1 og MM-U8: en innsigelse mot det registrerte varselet før svaret er et standpunkt om det, så preklusjonen er ikke uavklart",
+      "forslag": "VS-U20 og OV-U5: et registrert fristsvar leses med den første innsigelsen, mot det første fristkravet, også når byggherren senere har gjort innsigelse mot det registrerte varselet, og visningen sier at den gjaldt et annet varsel",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -6213,12 +6217,14 @@
           "kilde": [
             "VS-U11",
             "MM-U1",
-            "MM-U8"
+            "OV-U5"
           ],
           "forventet": {
             "forstaatt": true,
             "virkning.S-f1.rettidighet": "prinsipalt",
-            "uavklart.S-f1": []
+            "annet_varsel.S-f1": [
+              "rettidighet"
+            ]
           }
         }
       ]
@@ -6883,7 +6889,7 @@
           "forventet": {
             "standpunkt.S-f1.rettidighet.gjelder": "D-v#varsel",
             "virkning.S-f1.rettidighet": "prinsipalt",
-            "uavklart.S-f1": []
+            "annet_varsel.S-f1": []
           }
         },
         {

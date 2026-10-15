@@ -53,13 +53,11 @@ export interface Svarberegning {
   /** Virkningen standpunktene hadde slik brevet uttrykte dem (MM-U9). */
   virkninger: Standpunktsvirkning[];
   /**
-   * Standpunktene om rettidighet som gjelder et annet varsel enn det som er
-   * registrert nå, og i fristen innsigelsen svaret er lest med når den gjelder et
-   * annet varsel (VS-U11). Preklusjonen i dem er uavklart til byggherren har tatt
-   * stilling til det registrerte varselet (MM-U1, MM-U8). ID-ene er standpunktene og
-   * innsigelsen, slik de står i `virkninger`.
+   * Standpunktene etter § 33.4, og i fristen innsigelsen svaret er lest med (VS-U11), som
+   * gjelder et annet varsel enn det som er registrert nå. Svaret står med sin virkning
+   * (OV-U5), og bare visningen leser dette. ID-ene står som i `virkninger`.
    */
-  uavklart: string[];
+  gjaldtEtAnnetVarsel: string[];
 }
 
 export interface Enighet {
@@ -501,11 +499,10 @@ function utledSporene(
         i?.art !== 'innsigelse' ||
         elementer[i.id].part !== part ||
         !bakover(s.id, i.id) ||
-        !innsigelsenGjelderSvaret(
-          i.gjelder,
-          s,
-          varsler.map((x) => x.id)
-        ) ||
+        !innsigelsenGjelderSvaret(i.gjelder, s, [
+          ...varsler.map((x) => x.id),
+          ...spor.frist.krav.slice(0, 1).map((k) => k.id),
+        ]) ||
         innsigelsenErOppgitt(
           i.gjelder,
           s.spor,
@@ -548,11 +545,19 @@ function utledSporene(
           ugyldig(s.id, 'påberopelsen etter § 34.1.2 viser ikke til det første vederlagskravet');
         continue;
       }
-      // MM-U1: rettidigheten etter § 33.4 gjelder et registrert varsel eller varselet
-      // utledet av kravet; etter § 32.2 gjelder den kravet.
-      const varsel = p.hjemmel === '33.4' && varsler.some((v) => v.id === p.gjelder);
-      if (p.gjelder !== s.gjelder && !(varsel && bakover(s.id, p.gjelder)))
-        ugyldig(s.id, 'rettidigheten viser ikke til kravet eller et varsel før svaret');
+      // VS-U20, OV-U5, HF-U1: påberopelsen etter § 33.4 gjelder varselet som var registrert
+      // da svaret ble sendt, ellers det første fristkravet (arbeidsvalget i #309).
+      if (p.hjemmel === '33.4') {
+        const varselet = varsler.find((v) => bakover(s.id, v.id))?.id ?? spor.frist.krav[0]?.id;
+        if (p.gjelder !== varselet)
+          ugyldig(
+            s.id,
+            'påberopelsen etter § 33.4 viser ikke til varselet før svaret eller, uten varsel, det første fristkravet'
+          );
+        continue;
+      }
+      // Etter § 32.2 gjelder rettidigheten kravet.
+      if (p.gjelder !== s.gjelder) ugyldig(s.id, 'rettidigheten viser ikke til kravet');
     }
   }
   // Svarene på én kravversjon er én kjede: ett første svar, og hver revisjon
@@ -704,47 +709,21 @@ function utledSporene(
   }
   for (const n of KRAVSPOR) spor[n].trukket ||= spor.grunnlag.trukket;
 
-  // MM-U1, MM-U8: en vurdering etter § 33.4 gjelder varselet som var registrert da
-  // brevet ble sendt. Er et annet varsel registrert nå, er en påberopt preklusjon
-  // uavklart. Sa byggherren at varselet kom i tide, er det ingenting å avklare.
-  // Et fristsvar lest med en innsigelse leser den som en påberopelse etter § 33.4 (VS-U11).
-  // Den er avklart når parten før svaret har tatt stilling til varselet som er registrert
-  // nå, i et standpunkt om rettidigheten eller en innsigelse mot det.
-  const varselNaa = (s: Svar) => spor.frist.varsel?.id ?? s.gjelder;
-  const harTattStillingTilVarselet = (s: Svar) => {
-    const part = elementer[s.id].part;
-    const foer = (id: string) => elementer[id].part === part && bakover(s.id, id);
-    return (
-      svarMedUten.some(
-        (x) =>
-          x.spor === 'frist' &&
-          foer(x.id) &&
-          x.standpunkter.some((p) => p.art === 'rettidighet' && p.gjelder === varselNaa(s))
-      ) ||
-      henvisninger.some((x) => x.art === 'innsigelse' && x.gjelder === varselNaa(s) && foer(x.id))
-    );
-  };
+  // OV-U5, HF-U1: et svar står med virkningen det hadde, også når TE senere har registrert
+  // et annet varsel enn det påberopelsen etter § 33.4 gjaldt. Visningen sier det.
+  const annetVarsel = (gjelder: string) =>
+    spor.frist.varsel !== null && gjelder !== spor.frist.varsel.id;
   const svar: Record<string, Svarberegning> = {};
   for (const s of alleSvar.values()) {
-    const lestMed = innsigelsenSvaretErLestMed(s);
-    const innsigelse = henvisninger.find((x) => x.id === lestMed);
+    const innsigelse = henvisninger.find((x) => x.id === innsigelsenSvaretErLestMed(s));
     svar[s.id] = {
       svar: s,
       virkninger: s.beslutningsgrunnlag.virkninger,
-      uavklart: [
+      gjaldtEtAnnetVarsel: [
         ...s.standpunkter
-          .filter(
-            (p) =>
-              p.art === 'rettidighet' &&
-              p.hjemmel === '33.4' &&
-              !p.iTide &&
-              p.gjelder !== varselNaa(s)
-          )
+          .filter((p) => p.art === 'rettidighet' && p.hjemmel === '33.4' && annetVarsel(p.gjelder))
           .map((p) => p.id),
-        ...(s.spor === 'frist' &&
-        innsigelse &&
-        innsigelse.gjelder !== varselNaa(s) &&
-        !harTattStillingTilVarselet(s)
+        ...(s.spor === 'frist' && innsigelse && annetVarsel(innsigelse.gjelder)
           ? [innsigelse.id]
           : []),
       ],

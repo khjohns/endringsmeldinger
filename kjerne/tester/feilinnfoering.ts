@@ -10,7 +10,8 @@
  * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
  * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
- * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341). Én mutasjon
+ * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), og F204–F206 påberopelsen etter
+ * § 33.4 mot varselet (#309, KK-07). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -142,10 +143,15 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F6',
     feilklasse:
-      'en preklusjon er avklart selv om et annet varsel er registrert etter brevet (MM-U8)',
+      'visningen sier ikke at standpunktet om varselet gjaldt et annet varsel enn det registrerte (OV-U5)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['p.gjelder !== varselNaa(s)', 'p.gjelder === undefined']],
-    mal: ['F-MM-D', 'F-MM-D-godtatt', 'avviser aksepten når et varsel er registrert etter brevet'],
+    endringer: [
+      [
+        "p.hjemmel === '33.4' && annetVarsel(p.gjelder)",
+        "p.hjemmel === '32.2' && annetVarsel(p.gjelder)",
+      ],
+    ],
+    mal: ['F-MM-D', 'F-MM-D-godtatt', 'visningen sier at svaret gjaldt et annet varsel'],
   },
   {
     id: 'F7',
@@ -292,10 +298,11 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F20',
-    feilklasse: 'et rettidig varsel blir uavklart når et varsel registreres senere (MM-U8)',
+    feilklasse:
+      'visningen sier ikke at svaret gjaldt et annet varsel enn det som er registrert nå (OV-U5)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['            !p.iTide &&\n', '']],
-    mal: ['F-MM-D-itide'],
+    endringer: [['gjelder !== spor.frist.varsel.id;', 'gjelder === spor.frist.varsel.id;']],
+    mal: ['F-MM-D-itide', 'F-MM-V8', 'visningen sier at svaret gjaldt et annet varsel'],
   },
   {
     id: 'F21',
@@ -404,7 +411,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['        gjelder: u.spor.frist.varsel?.id ?? krav.id,\n', '']],
+    endringer: [['        gjelder: u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id,\n', '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -973,10 +980,7 @@ const MUTASJONER: Mutasjon[] = [
       'et registrert svar som tier, leses med en innsigelse byggherren har gitt opp uttrykkelig (VS-U9, VS-U11)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
-      [
-        ' &&\n        !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))',
-        '',
-      ],
+      [' && !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))', ''],
     ],
     mal: ['F-MM-V7'],
   },
@@ -986,8 +990,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '        ) ||\n        innsigelsenErOppgitt(',
-        '        ) ||\n        !s && innsigelsenErOppgitt(',
+        '        ]) ||\n        innsigelsenErOppgitt(',
+        '        ]) ||\n        !s && innsigelsenErOppgitt(',
       ],
     ],
     mal: ['lest med en innsigelse byggherren har gitt opp uttrykkelig'],
@@ -1041,15 +1045,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F91',
     feilklasse:
-      'innsigelsen et fristsvar er lest med, er avklart selv om TE har registrert varselet etterpå (MM-U1, MM-U8)',
+      'visningen sier ikke at innsigelsen et fristsvar er lest med, gjaldt et annet varsel enn det registrerte (OV-U5)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '        innsigelse.gjelder !== varselNaa(s) &&\n        !harTattStillingTilVarselet(s)',
-        '        !innsigelse &&\n        !harTattStillingTilVarselet(s)',
-      ],
-    ],
-    mal: ['F-MM-V8'],
+    endringer: [['innsigelse && annetVarsel(innsigelse.gjelder)', 'innsigelse && !innsigelse']],
+    mal: ['F-MM-V8', 'F-MM-V8b', 'F-MM-V8c', 'F-MM-V7b'],
   },
   {
     id: 'F92',
@@ -1125,25 +1124,35 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F98',
     feilklasse:
-      'i fristen ser oppgivelsen bare etter standpunkter om det innsigelsen gjelder, ikke om varselet (VS-U9, VS-U11)',
+      'i fristen gir et standpunkt om et senere registrert varsel opp innsigelsen mot det første fristkravet (HF-U1, OV-U5, del 2 av #407)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["(spor === 'frist' || p.gjelder === gjelder)", '(p.gjelder === gjelder)']],
+    endringer: [
+      [
+        "p.art === 'rettidighet' && p.gjelder === gjelder)",
+        "p.art === 'rettidighet' && (spor === 'frist' || p.gjelder === gjelder))",
+      ],
+    ],
     mal: ['F-MM-V7b'],
   },
   {
     id: 'F99',
     feilklasse:
-      'innsigelsen et fristsvar er lest med, er uavklart selv om byggherren har tatt stilling til det registrerte varselet (MM-U1, MM-U8)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['        !harTattStillingTilVarselet(s)', '        !!s']],
-    mal: ['F-MM-V8b', 'F-MM-V8c'],
+      'påberopelsen etter § 33.4 viser til kravversjonen svaret gjelder, ikke det første fristkravet (VS-U20, OV-U5, KK-07)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id', 'u.spor.frist.varsel?.id ?? krav.id'],
+    ],
+    mal: [
+      'uten registrert varsel gjelder den det første fristkravet',
+      'brevet sier at varselet er det første fristkravet',
+    ],
   },
   {
     id: 'F100',
     feilklasse:
       'i grunnlaget gir et standpunkt om en annen kravversjon opp innsigelsen (VS-U9, VS-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["(spor === 'frist' || p.gjelder === gjelder)", '(true)']],
+    endringer: [["p.art === 'rettidighet' && p.gjelder === gjelder)", "p.art === 'rettidighet')"]],
     mal: ['F-MM-V7c'],
   },
   {
@@ -1464,9 +1473,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'standpunktet om rettidighet nevner feil varsel (LV-U4 punkt 5, LV-U5)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
+      ['          ? `${VARSELET[p.hjemmel]} i ', "          ? `${VARSELET['32.2']} i "],
       [
-        '      const varselet = VARSELET[p.hjemmel];',
-        "      const varselet = VARSELET[p.hjemmel === '32.2' ? '33.4' : '32.2'];",
+        '          : VARSELET[p.hjemmel];',
+        "          : VARSELET[p.hjemmel === '32.2' ? '33.4' : '32.2'];",
       ],
     ],
     mal: [
@@ -2159,6 +2169,36 @@ const MUTASJONER: Mutasjon[] = [
       ['tilKrone(beloep(p.godkjent)!) >= tilKrone(beloep(krevd)!)', 'p.godkjent >= krevd'],
     ],
     mal: ['§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone'],
+  },
+  {
+    id: 'F204',
+    feilklasse:
+      'leseren godtar en påberopelse etter § 33.4 mot kravversjonen svaret gjelder (VS-U20, HF-U1, KK-07)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['if (p.gjelder !== varselet)', 'if (p.gjelder !== varselet && p.gjelder !== s.gjelder)'],
+    ],
+    mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F205',
+    feilklasse:
+      'frysingen leser ikke et registrert svar på en senere kravversjon med innsigelsen mot det første fristkravet (VS-U20)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['...(foersteFristkrav ? [foersteFristkrav] : []),', '']],
+    mal: [
+      'en innsigelse mot det første fristkravet leser et registrert svar på en senere kravversjon',
+    ],
+  },
+  {
+    id: 'F206',
+    feilklasse:
+      'leseren godtar ikke en innsigelse mot det første fristkravet som leser et svar på en senere kravversjon (VS-U20)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['...spor.frist.krav.slice(0, 1).map((k) => k.id),', '']],
+    mal: [
+      'en innsigelse mot det første fristkravet leser et registrert svar på en senere kravversjon',
+    ],
   },
 ];
 

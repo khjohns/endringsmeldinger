@@ -615,6 +615,13 @@
       "radetikett": "VS-U11: byggherren kan i et senere svar fra appen gi opp sin egen innsigelse etter § 5 uttrykkelig"
     },
     {
+      "id": "VS-U20",
+      "type": "vedtak",
+      "dato": "2026-10-12",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u20",
+      "radetikett": "VS-U20: Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak"
+    },
+    {
       "id": "VS-U12",
       "type": "vedtak",
       "dato": "2026-10-10",
@@ -1129,16 +1136,17 @@
     {
       "id": "KA-20",
       "tilfelle": "TE har sendt et spesifisert fristkrav uten registrert varsel etter § 33.4, og byggherren har påberopt at varselet kom for sent. TE registrerer deretter varselet med en tidligere sendedato.",
-      "forventet": "Registreringen godtas som første registrering, uten ny kravversjon. Byggherrens svar står og er fortsatt gjeldende svar. Preklusjonen i svaret gjaldt varselet slik det var registrert da, og er uavklart til byggherren tar stilling. Har TE godtatt svaret før registreringen, står enigheten. TE kan ikke godta svaret før byggherren har svart på nytt (MM-U8).",
-      "bh_standpunkt": "Svaret står uendret. Byggherren har ikke tatt stilling til rettidigheten av det registrerte varselet.",
+      "forventet": "Registreringen godtas som første registrering, uten ny kravversjon. Byggherrens svar står og er fortsatt gjeldende svar, med virkningen det hadde (OV-U5). Preklusjonen i svaret gjaldt det første fristkravet, det første varselet appen kjente. Visningen sier at svaret gjaldt et annet varsel enn det som nå er registrert, og appen gir ikke svaret virkning for det registrerte varselet. TE kan godta svaret, og byggherren kan revidere det så lenge det ikke er godtatt. Har TE godtatt svaret før registreringen, står enigheten.",
+      "bh_standpunkt": "Svaret står uendret, med påberopelsen mot det første fristkravet. Byggherren har ikke tatt stilling til rettidigheten av det registrerte varselet.",
       "rettslig_virkning": "Varselet er registrert for første gang. Preklusjonen faller ikke av seg selv.",
-      "rettidighet": "Byggherrens vurdering av varselet utledet av kravet: for sent. Det registrerte varselet: ikke vurdert.",
+      "rettidighet": "Byggherrens vurdering av det første fristkravet som varsel: for sent. Det registrerte varselet: ikke vurdert.",
       "tidsakse": "sendt_mottatt",
       "kilder": [
         "MM-U1",
         "V-SK12",
         "KA-U1",
-        "MM-U8"
+        "OV-U5",
+        "VS-U20"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2463,7 +2471,7 @@
     {
       "id": "KA-38",
       "tilfelle": "Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet.",
-      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4. Gjelder innsigelsen varselet utledet av kravet, og registrerer TE et varsel etterpå, er preklusjonen uavklart, og TE kan ikke godta svaret før byggherren har svart på nytt. Har byggherren før svaret tatt stilling til det registrerte varselet, i et standpunkt om rettidigheten eller en innsigelse mot det, er den ikke uavklart. Har byggherren etter innsigelsen sagt uttrykkelig i et svar at varselet kom i tide, også det registrerte varselet, leses et senere registrert svar ikke med innsigelsen.",
+      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4. En innsigelse mot varselet, eller uten registrert varsel mot det første fristkravet, står mot hver senere kravversjon (VS-U20). Registrerer TE et varsel etterpå, står svaret med sin virkning, TE kan godta det, og visningen sier at innsigelsen gjaldt et annet varsel (OV-U5). Har byggherren etter innsigelsen sagt uttrykkelig i et svar at det innsigelsen gjelder, kom i tide, leses et senere registrert svar ikke med innsigelsen. Et standpunkt om et annet varsel, også det TE har registrert senere, gir den ikke opp (HF-U1, del 2 av #407).",
       "bh_standpunkt": "Svaret og innsigelsen.",
       "rettslig_virkning": "Tausheten er ikke et standpunkt; innsigelsen står.",
       "rettidighet": "—",
@@ -2473,17 +2481,15 @@
         "VS-U11",
         "HF-U1",
         "MM-U1",
-        "MM-U8",
-        "VS-U9"
+        "OV-U5",
+        "VS-U9",
+        "VS-U20"
       ],
       "tolkningsstatus": "arbeidshypotese",
       "funksjoner": [
         "kjerne/frosset/standpunkt.ts#lesesMedInnsigelse",
-        "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
-      ],
-      "regelkoder": [
-        "STANDPUNKT_UAVKLART"
+        "kjerne/frosset/standpunkt.ts#innsigelsenErOppgitt",
+        "kjerne/utledning/utled.ts#utledSporene"
       ]
     },
     {
