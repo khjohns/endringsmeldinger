@@ -2170,11 +2170,9 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F203',
-    feilklasse: 'brevet regner hele beløpet i øre, ikke til nærmeste krone som utregningen (B-13)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      ['tilKrone(beloep(p.godkjent)!) >= tilKrone(beloep(krevd)!)', 'p.godkjent >= krevd'],
-    ],
+    feilklasse: 'hele beløpet regnes i øre, ikke til nærmeste krone (B-13)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['return tilKrone(godkjent) >= tilKrone(krevd);', 'return godkjent >= krevd;']],
     mal: ['§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone'],
   },
   {
@@ -2256,6 +2254,47 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et «i tide» gir opp innsigelsen også når et senere svar sier «for sent»'],
+  },
+  {
+    id: 'F211',
+    feilklasse:
+      'utregningen leser § 34.1.2 av modulfunksjonen, ikke av regelsettet som standpunktet (#490)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        '      regler.gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&',
+        '      gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&',
+      ],
+    ],
+    mal: ['et regelsett der § 34.1.2 gjelder en endring'],
+  },
+  {
+    id: 'F212',
+    feilklasse:
+      'et beløp som er godkjent fullt til nærmeste krone, krever en begrunnelse når tilbudet ikke er akseptert (B-13, #490)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'if (!erBeloepetGodkjentFullt(krevd, beloep(godkjent as number)!))',
+        "if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')",
+      ],
+    ],
+    mal: ['§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone krever en begrunnelse'],
+  },
+  {
+    id: 'F213',
+    feilklasse:
+      'linjen sier «subsidiært» også fra tredje ledd, ikke «videre subsidiært» (HF-U2, #492)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["i === 1 ? 'subsidiært' : 'videre subsidiært'", "'subsidiært'"]],
+    mal: ['linjen ordner byggherrens standpunkter'],
+  },
+  {
+    id: 'F214',
+    feilklasse: 'et avslag (0 kr) av et krav under 0,50 kr regnes som hele beløpet (B-13, KA-U24)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['  if (godkjent === NULL_OERE) return false;\n', '']],
+    mal: ['avslag på et krav under 0,50 kr'],
   },
 ];
 

@@ -18,6 +18,7 @@ import { UgyldigVurdering } from '../../kjerne/regler/feil.ts';
 import * as grunnlag from '../../kjerne/regler/grunnlag.ts';
 import * as frist from '../../kjerne/regler/frist.ts';
 import * as vederlag from '../../kjerne/regler/vederlag.ts';
+import { GJELDENDE_REGLER } from '../../kjerne/regler/regelsett.ts';
 import type { Grunnlagsresultat, Vederlagsmetode } from './typer.ts';
 
 export { foersteUnderkategori, type Subsidiaergrunn } from '../../kjerne/regler/grunnlag.ts';
@@ -102,7 +103,8 @@ export function beregnVederlag(krav: Vederlagskrav, v: Record<string, unknown>) 
       ...kategoriFraKatalogen(krav),
       grunnlag_resultat: grunnlagsresultat(krav.grunnlag_resultat),
     },
-    vurdering as Inn<vederlag.Vederlagsvurdering>
+    vurdering as Inn<vederlag.Vederlagsvurdering>,
+    GJELDENDE_REGLER
   );
   return {
     ...r,

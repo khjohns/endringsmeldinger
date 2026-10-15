@@ -6,15 +6,15 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import type { Journalrad, Standpunktsvirkning } from '../typer.ts';
+import type { Journalrad, Krav, Standpunktsvirkning } from '../typer.ts';
 import { frysBrev } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
 import { kanInngaaIEo, kraveneErAvgjort, utled } from '../utledning/utled.ts';
-import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
-import { ulikeVirkninger } from '../frosset/standpunkt.ts';
+import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
+import { regnUtSvar, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
@@ -123,7 +123,9 @@ describe('formatet (7.1.2, 4.4)', () => {
     const { k, rader } = await forloepA();
     const s = svaret(radMed(rader, k, 'S-v2'), k, 'S-v2');
     expect(s.erstatter).toBe(k.navn.id('S-v1'));
-    expect((s.beslutningsgrunnlag as Data).linje).toMatch(/^Godkjent med 70.000 kr\.$/);
+    expect((s.beslutningsgrunnlag as Data).linje).toBe(
+      'Byggherrens standpunkt: godkjent med 70\u00a0000\u00a0kr.'
+    );
   });
 
   const svarIBrevet =
@@ -658,7 +660,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       ['dager', 'subsidiaert'],
     ]);
     expect(s.svar.beslutningsgrunnlag?.linje).toBe(
-      'Prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
     expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.dager).toBe(0);
@@ -1162,5 +1164,55 @@ describe('visningen sammenlikner bare standpunkter med virkning (MM-U9)', () => 
         [p('a', 'uten_virkning'), p('b', 'prinsipalt')]
       )
     ).toBe(true);
+  });
+});
+
+describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)', () => {
+  // Et regelsett der varslingsplikten i § 34.1.2 også gjelder en endring. Standpunktet og
+  // utregningen skal da si det samme: preklusjon prinsipalt og beløpet subsidiært (VS-U3, B-13).
+  const regler: Regelsett = { ...GJELDENDE_REGLER, gjelderVarslingspliktenForVederlag: () => true };
+  const grunnlagskrav = {
+    innhold: { hovedkategori: 'endring', underkategori: 'eo' },
+  } as unknown as Krav;
+  const krav = { innhold: { metode: 'tilbud', beloep: 100000 } } as unknown as Krav;
+  const vurderinger = {
+    hovedkrav_vurdering: 'godkjent',
+    hovedkrav_godkjent_belop: 100000,
+    aksepterer_metode: true,
+    hovedkrav_varslet_i_tide: false,
+  };
+
+  it('et regelsett der § 34.1.2 gjelder en endring, gir preklusjon både i virkningen og i utregningen', () => {
+    const utregning = regnUtSvar('vederlag', vurderinger, { krav, grunnlagskrav }, regler);
+    expect(utregning).toEqual({
+      resultat: 'avslaatt',
+      godkjent_beloep: 0,
+      subsidiaert_resultat: 'godkjent',
+      subsidiaert_godkjent_beloep: 100000,
+    });
+    const svar = {
+      spor: 'vederlag' as const,
+      standpunkter: [
+        {
+          id: 'r',
+          art: 'rettidighet' as const,
+          gjelder: 'k',
+          hjemmel: '34.1.2' as const,
+          iTide: false,
+        },
+        { id: 'b', art: 'beloep' as const, resultat: 'godkjent' as const, godkjent: 100000 },
+      ],
+      utregning,
+    };
+    expect(virkninger(svar, grunnlagskrav, regler).map((v) => v.virkning)).toEqual([
+      'prinsipalt',
+      'subsidiaert',
+    ]);
+  });
+
+  it('kontrollsak: med gjeldende regler gjelder § 34.1.2 ikke en endring, og vurderingen avvises', () => {
+    expect(() =>
+      regnUtSvar('vederlag', vurderinger, { krav, grunnlagskrav }, GJELDENDE_REGLER)
+    ).toThrow(/gjelder bare svikt og andre forhold/);
   });
 });

@@ -16,15 +16,17 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
-import { beloep, tilKrone } from '../regler/beloep.ts';
+import { beloep } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
+import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
   blirEndringsordre,
   gjelderVarslingsplikten,
   grunnerFraGrunnlaget,
   innsigelsenErOppgitt,
   innsigelsenGjelderSvaret,
+  kroner,
   prinsipalt,
 } from './standpunkt.ts';
 import type {
@@ -98,16 +100,6 @@ export function norskDato(tid: string): string {
   const dag = DAG.test(tid) ? tid : OSLO.format(tidspunkt);
   const [, aar, maaned, dato] = DAG.exec(dag)!;
   return `${Number(dato)}. ${MAANEDER[Number(maaned) - 1]} ${aar}`;
-}
-
-/** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
-export function kroner(n: number): string {
-  // Avrundet til hele øre som reglene runder (`beloep`), ikke som flyttallet.
-  const i = beloep(n)!;
-  const abs = i < 0n ? -i : i;
-  const gruppert = String(abs / 100n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
-  const oere = String(abs % 100n).padStart(2, '0');
-  return `${i < 0n ? '−' : ''}${gruppert}${oere === '00' ? '' : `,${oere}`}\u00a0kr`;
 }
 
 /** Et beløp i brevet er uten merverdiavgift, og teksten sier det (LV-U4 punkt 2). */
@@ -543,7 +535,7 @@ function standpunkttekst(
       // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
       // kan være det, til nærmeste krone som i B-13.
       const krevd = krav.innhold.beloep as number;
-      const heleBeloepet = tilKrone(beloep(p.godkjent)!) >= tilKrone(beloep(krevd)!);
+      const heleBeloepet = erBeloepetGodkjentFullt(beloep(krevd)!, beloep(p.godkjent)!);
       const resultat = p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat;
       return verdi(resultat, eksMva(p.godkjent), eksMva(krevd));
     }

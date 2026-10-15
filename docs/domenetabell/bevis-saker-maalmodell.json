@@ -567,7 +567,7 @@
           "forventet": {
             "virkning.S-g1.rettidighet": "prinsipalt",
             "virkning.S-g1.grunnlag": "subsidiaert",
-            "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
+            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "subsidiaer_aarsaker.vederlag": ["prekludert", "avslaatt"],
             "handlinger.TE": { "inneholder": ["godta:grunnlag"] }
@@ -611,7 +611,7 @@
             "nye_hendelser": 0,
             "virkning.S-g1.rettidighet": "prinsipalt",
             "virkning.S-g1.grunnlag": "subsidiaert",
-            "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
+            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "grunnlag_avklart": false,
             "grunnlag_avvist": false,
@@ -760,8 +760,8 @@
             "gjeldende_svar.grunnlag": "S-g2",
             "svar.S-g2.erstatter": "S-g1",
             "beslutningsgrunnlag.S-g2.regelversjon": "n+1",
-            "beslutningsgrunnlag.S-g2.linje": "Avslått.",
-            "beslutningsgrunnlag.S-g1.linje": "Prinsipalt prekludert (§ 32.2), subsidiært avslått.",
+            "beslutningsgrunnlag.S-g2.linje": "Byggherrens standpunkt: avslått.",
+            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt prekludert (§ 32.2), subsidiært avslått.",
             "subsidiaer_aarsaker.vederlag": ["avslaatt"],
             "visning.etiketter.grunnlag": { "mangler": ["regel_endret_etter_brevet"] },
             "handlinger.TE": { "inneholder": ["godta:grunnlag"] }
