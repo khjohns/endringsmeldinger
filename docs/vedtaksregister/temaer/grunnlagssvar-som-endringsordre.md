@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `9d81f9e7c5d4eb799161519ffe3c8992ae98ba2d95b9a9cd11adf8c01366be5a`
+Kontrollsum (SHA-256 over utdraget visningen leser): `8202e1aef6950b530d976e0f8a264a3ad1b93ea897bec651e18d1badbcae8271`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -211,7 +211,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.10, oppdragsgiver (#502)
 
-**Følge:** Utvider [HF-U5](#hf-u5). Følger av [HF-U6](#hf-u6). Spørsmålet står på #502, og svaret ordrett i kommentaren 15.10 der. Ikke bygget (#502).
+**Følge:** Utvider [HF-U5](#hf-u5). Følger av [HF-U6](#hf-u6). Svaret står på #502 (kommentaren 6190479326). Ikke bygget (#502).
 
 **Regelrader:** —
 
