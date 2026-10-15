@@ -510,6 +510,13 @@
       "radetikett": "GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt"
     },
     {
+      "id": "GR-U18",
+      "type": "vedtak",
+      "dato": "2026-10-15",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u18",
+      "radetikett": "GR-U18: Frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget"
+    },
+    {
       "id": "KA-U14",
       "type": "vedtak",
       "dato": "2026-10-10",
@@ -1687,6 +1694,7 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "GR-U18",
         "V-B13-FRAFALL",
         "NS-32.1",
         "NS-32.3-1c"
@@ -1694,7 +1702,8 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/frosset/standpunkt.ts#regnUtSvar",
-        "kjerne/regler/grunnlag.ts#gyldigeResultater"
+        "kjerne/regler/grunnlag.ts#gyldigeResultater",
+        "kjerne/regler/grunnlag.ts#erByggherrensPaalegg"
       ],
       "regelkoder": [
         "UGYLDIG_VURDERING"
