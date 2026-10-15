@@ -108,6 +108,37 @@ jobs:
       - name: Kjør kjernen, TS-serveren og språkprøven mot basen
         run: npx vitest run kjerne/ server/ sprakprove/
 
+  # Testbasen for datalaget i F0b (#488): SQL Server 2025 Developer Edition i
+  # Docker, med basene i innstillingene fra Azure SQL Database. Ikke påkrevd på
+  # main. Hele server/, så nye tester mot SQL Server kommer med; testene mot
+  # PostgreSQL hoppes over her uten KOE_TESTBASE_URL.
+  sqlserver:
+    name: SQL Server (testbasen for datalaget)
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Start SQL Server
+        run: |
+          scripts/testbase/docker_sqlserver.sh start > /dev/null
+          tilkobling="$(scripts/testbase/docker_sqlserver.sh tilkobling)"
+          passord="${tilkobling#*Password=}"
+          echo "::add-mask::${passord%%;*}"
+          echo "KOE_SQLSERVER_TILKOBLING=$tilkobling" >> "$GITHUB_ENV"
+
+      - name: Kjør TS-serverens tester mot SQL Server
+        run: npx vitest run server/
+
   frontend:
     name: Frontend (vitest)
     if: ${{ !github.event.pull_request.draft }}

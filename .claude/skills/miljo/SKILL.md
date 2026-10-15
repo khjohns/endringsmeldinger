@@ -24,6 +24,18 @@ ruff check backend/                  # porten, skal være 0
 
 I skyøktene lager `.claude/hooks/session-start.sh` venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
 
+SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med
+`scripts/testbase/docker_sqlserver.sh`, og den setter `KOE_SQLSERVER_TILKOBLING`
+med en gang. Testene i `server/tester/sqlserver.test.ts` venter på serveren i
+opptil tre minutter og hoppes over uten variabelen. Hver testfil får sin egen
+base fra `opprettTestbase` i `server/tester/sqlserver.ts`, med innstillingene fra
+Azure SQL Database. Loggen står i `/tmp/koe-sqlserver.log`. Utenfor skyøkta:
+
+```bash
+eval "$(scripts/testbase/docker_sqlserver.sh start)"   # setter KOE_SQLSERVER_TILKOBLING
+npx vitest run server/tester/sqlserver.test.ts
+```
+
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
