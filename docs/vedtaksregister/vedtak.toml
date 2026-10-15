@@ -4818,13 +4818,19 @@ Avgjørelsen 15.10 (ordrett): «Refaktorering for supabase dropper vi - kjører 
 
 Avgjørelsen 15.10 leses slik: (a) Det bygges ingen vei ut av Supabase for dagens Python- og PostgreSQL-stakk. Datalaget bygges i TS rett mot SQL Server, lokalt i Docker i skyøkta og mot Azure SQL Database når det blir aktuelt. (b) Feil i Python rettes ikke når koden skal erstattes av TS, med mindre det er en sikkerhetsfeil eller noe som hindrer test eller demo. Stemmer lesningen?
 
-Alternativene: «Ja, begge» (anbefalt), «Nei, (b) er for snever» og «Nei, (a) er feil». Dette vedtaket gjelder (a). «Riktig» er svaret på (a); (b) står i DL-U2.'''
+Alternativene: «Ja, begge» (anbefalt), «Nei, (b) er for snever» og «Nei, (a) er feil».
+
+Spørsmål 4: B-19 og F0b punkt 3 sier at «det Python gjør mot databasen, flyttes til TS før databasen byttes». Med avgjørelsen er det ingen database i drift å bytte fra, så TS bygges rett mot SQL Server. Skal dette føres som et nytt vedtak i vedtaksregisteret, i én liten PR? Det nye vedtaket presiserer B-19 og B-12 (Supabase-veien droppes) og strammer inn merknaden om Python-feil. TS2-02 får følge-henvisning. F0b punkt 5 (hosting) er uendret.
+
+Alternativene til spørsmål 4: «Ja, nytt vedtak» (anbefalt), «Bare datert merknad» og «Ingen endring».'''
 valgt = "Riktig"
 svar = '''
-Riktig, men vi retter kun feil i python som er nødvendig for test eller demo og relevant for refaktorering til typescript.'''
+Svaret på spørsmålet om lesningen: «Riktig, men vi retter kun feil i python som er nødvendig for test eller demo og relevant for refaktorering til typescript.»
+
+Svaret på spørsmål 4: «Ja, nytt vedtak (Anbefalt)»'''
 forhold = [{ art = "presiserer", vedtak = "b-19" }, { art = "presiserer", vedtak = "b-12-databasen" }]
 folge = '''
-Issuene i F0b som bare gjaldt veien over PostgreSQL og Supabase, er lukket, og de andre er skrevet om (15.10). Ikke bygget'''
+Svaret om lesningen gjelder også (b), som står i DL-U2. #57, #58, #70 og #73 er lukket, og #49, #52, #53, #375 og #403 er skrevet om (15.10). Ikke bygget'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Riktig"
@@ -4837,7 +4843,7 @@ dato = 2026-10-15
 hvem = "oppdragsgiver"
 kilde = ["#403"]
 sporsmal = '''
-Første spørsmål, (b) i lesningen av avgjørelsen 15.10 (se DL-U1): Feil i Python rettes ikke når koden skal erstattes av TS, med mindre det er en sikkerhetsfeil eller noe som hindrer test eller demo. Stemmer lesningen?
+Første spørsmål: spørsmålet om lesningen av avgjørelsen 15.10, ordrett i DL-U1. Dette vedtaket gjelder (b) i lesningen.
 
 Oppfølgingsspørsmål: Svaret ditt om Python-feil var: «vi retter kun feil i python som er nødvendig for test eller demo og relevant for refaktorering til typescript». I dag gjør AGENTS.md et unntak for sikkerhetsfeil: Python-koden «rettes bare for sikkerhet og det som hindrer test eller demo». Skal sikkerhetsfeil i Python heller ikke rettes nå? Sikkerhetsinvariantene gjelder uansett fullt ut for TS-stien.
 
@@ -4848,17 +4854,17 @@ Svaret på det første spørsmålet: «Riktig, men vi retter kun feil i python s
 
 Svaret på oppfølgingsspørsmålet: «Heller ikke sikkerhet (Anbefalt)»'''
 folge = '''
-Unntaket for sikkerhet i [merknaden 09.10 i 4.2](#python-feil-koe) gjelder ikke lenger. Arbeidet med teksten i AGENTS.md følges i #403'''
+Unntaket for sikkerhet i [merknaden 09.10 i 4.2](#python-feil-koe) gjelder ikke lenger.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Heller ikke sikkerhet"
 tekst = '''
-Feil i Python rettes bare når det er nødvendig for test eller demo og relevant for refaktoreringen til TS. Det gjelder også sikkerhetsfeil. Sikkerhetsinvariantene gjelder fullt ut for TS-stien.'''
+Feil i Python rettes bare når det er nødvendig for test eller demo og relevant for refaktoreringen til TS. Det gjelder også sikkerhetsfeil: de meldes som issue, men rettes ikke. Sikkerhetsinvariantene gjelder fullt ut for TS-stien.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Sikkerhetsfeil rettes fortsatt"
 tekst = '''
-Sikkerhetsfeil i Python rettes fortsatt. Ellers rettes bare feil som er nødvendige for test eller demo og relevante for refaktoreringen til TS.'''
+Sikkerhetsfeil i Python rettes fortsatt. Ellers rettes bare det som er nødvendig for test eller demo og relevant for refaktoreringen til TS.'''
 forkastet = true
 
 [[gruppe]]
