@@ -117,7 +117,7 @@ sikkerhetsfeil meldes som issue og rettes ikke
 Kommandoene for testene, typesjekkene og verktøykjeden står i
 [miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen `miljo`.
 Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
-Skyøkta har også en testbase for SQL Server, som datalaget i TS bygges mot
+Skyøkta har også en testbase for SQL Server
 ([DL-U1](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)); kommandoene står i miljø-skillen.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin

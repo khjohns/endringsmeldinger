@@ -14,12 +14,11 @@ paths:
 
 # Database og migrasjoner
 
-**Dagens Python-stakk kjører på lokal PostgreSQL 17.** Supabase-prosjektene brukes
-ikke; endre dem ikke, og les ikke saksdata der, til de er fjernet. Der en base
-trengs, er det testbasen, bygget fra migrasjonene med `scripts/testbase/`
-(merknaden 09.10 til B-12 i hovedplanen). Det som står om Supabase her og i
-`docs/migrasjoner-og-testbase.md`, beskriver oppsettet migrasjonene er skrevet
-for.
+Supabase-prosjektene brukes ikke; endre dem ikke, og les ikke saksdata der. Der en
+base trengs, er det lokal PostgreSQL 17: testbasen, bygget fra migrasjonene med
+`scripts/testbase/` (merknaden 09.10 til B-12 i hovedplanen). Det som står om
+Supabase her og i `docs/migrasjoner-og-testbase.md`, beskriver oppsettet
+migrasjonene er skrevet for.
 
 **Katalogen i testbasen er kilden for skjemaet.** Migrasjonene er innholdsmessig
 komplette — hver tabell, funksjon og trigger i `public` har sin DDL i
