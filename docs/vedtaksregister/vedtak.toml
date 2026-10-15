@@ -2383,7 +2383,6 @@ I første versjon er en forespørsel etter § 33.6.2 sendt utenfor appen dokumen
 kilde = "ns8407"
 tekst = "Byggherren kan da ikke påberope at fristen i 33.6.1 er oversittet."
 
-
 [[gruppe.vedtak]]
 id = "VS-U24"
 dato = 2026-10-15
@@ -2401,9 +2400,9 @@ OV-U7. Hvilken modell skal gjelde?'''
 valgt = "A"
 svar = '''
 A: og vi evt eget issue bør også sjekke denne problemstillingen for grunnlag og vederlag'''
-forhold = [{ art = "presiserer", vedtak = "hf-u11" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "vs-u11" }]
+forhold = [{ art = "presiserer", vedtak = "hf-u11" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "vs-u11" }, { art = "snevrer inn", vedtak = "vs-u14" }, { art = "snevrer inn", vedtak = "hf-u4" }, { art = "presiserer", vedtak = "ov-u7" }]
 folge = '''
-Spørsmålet kom etter svaret 15.10 på #500 om at modellen for innsigelser skulle revurderes og knyttes til hjemmelen. Det samme problemet i grunnlaget og vederlaget kontrolleres i #517, etter svaret. Ikke bygget (#500, #498).'''
+Spørsmålet kom etter svaret 15.10 på #500: «For slike tilfeller bør det knyttes til den aktuelle hjemmelen». Svaret ber om at problemstillingen også sjekkes for grunnlag og vederlag (#517). Forholdene til HF-U11, VS-U9 og VS-U11 sto i spørsmålet. Forholdene til VS-U14, HF-U4 og OV-U7 fant kontrollen av føringen 15.10: etter A blir TEs egen innsigelse ikke en påberopelse etter en bestemmelse (VS-U14), en innsigelse som gis opp etter HF-U4 kan bare gjelde et varsel, og innsigelsen mot varselet utledes etter VS-U3 (OV-U7). Ikke bygget (#500, #498).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
