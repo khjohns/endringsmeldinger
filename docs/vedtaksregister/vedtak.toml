@@ -2755,6 +2755,36 @@ kontrakten, men appen utleder ingen virkning av et registrert brev (OV-U4), unnt
 etter OV-U5 og OV-U6, og visningen påstår ikke mer enn appen vet. Et varsel er et eget utsagn med datoen det
 ble sendt, og datoen settes én gang.'''
 
+[[gruppe.vedtak]]
+id = "HF-U14"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Er byggherrens aksept av beregningsmåten i entreprenørens tilbud (§ 34.2.2) en
+innrømmelse som binder etter HF-U5? HF-U5 nevner godkjent grunnlag, beløp, dager og
+innsigelser som er gitt opp, men ikke en aksept etter § 34.2.2.'''
+valgt = "Nei, aksepten binder"
+svar = '''
+Valgt: «Nei, aksepten binder (Anbefalt)»:
+> Aksepten av beregningsmåten føyes til listen i HF-U5. En revisjon fra «aksepterer» til «aksepterer ikke» avvises, mens det motsatte er tillatt. Utvider HF-U5 og følger av HF-U6. Bygges i #502.'''
+forhold = [{ art = "utvider", vedtak = "hf-u5" }]
+folge = '''
+Følger av [HF-U6](#hf-u6). Spørsmålet står på #502, og svaret ordrett i kommentaren 15.10 der. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, aksepten binder"
+tekst = '''
+Aksepten av beregningsmåten føyes til listen i HF-U5. En revisjon fra «aksepterer» til
+«aksepterer ikke» avvises, mens det motsatte er tillatt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja"
+tekst = '''
+Aksepten av beregningsmåten kan revideres fritt til TE har godtatt svaret. HF-U5 står
+som den er.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -3766,6 +3796,42 @@ tekst = '''
 navn = "B"
 tekst = '''
 Nye brev får en ny tekst for et uttrykkelig «i tide» etter HF-U4.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "MM-U21"
+dato = 2026-10-15
+hvem = "oppdragsgiver"
+kilde = ["#276"]
+sporsmal = '''
+Hvordan behandles retting av en åpenbar skrivefeil i et sendt brev (B-16)?'''
+valgt = "A"
+svar = '''
+Valgt: «A: nytt utsagn (Anbefalt)».'''
+forhold = [{ art = "presiserer", vedtak = "mm-u12" }, { art = "utvider", vedtak = "eo-u9" }]
+folge = '''
+Avgjør B-16 i retningen. Aktørrettigheter, godkjenning og innsyn for motparten står åpne under B-16. Utvider EO-U9 for rettinger i TEs favør. Følger av [HF-U6](#hf-u6). Spørsmålet og svaret står på #276. Ikke bygget. Rettingen er en ny hendelsestype og dermed en kontrakt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En retting er et nytt utsagn fra avsenderen, med henvisning til brevet den retter, og
+brevet står uendret. En retting i motpartens favør gjelder som en revisjon i
+motpartens favør, også for en endringsordre (utvider EO-U9). En retting til
+avsenderens fordel er et tilbud om å endre det brevet sa, og den gjelder når
+motparten godtar den. Ellers står brevet i appen, og appen avgjør ikke om avsenderen
+er løst (MM-U12).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Rettingen gjelder når avsenderen merker den som åpenbar skrivefeil.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Retting skjer bare utenfor appen, i en dokumentert prosess.'''
 forkastet = true
 
 [[gruppe]]
