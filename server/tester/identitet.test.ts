@@ -134,12 +134,19 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     await expect(catendaIdentitet(subjekt())).resolves.toBeDefined();
   });
 
+  // Mellomrom til slutt avvises av prosedyren før oppslaget (#566); kontrollen i
+  // tabellen prøves med INSERT i `mellomrom.test.ts`.
   it.each([
-    ['et subjekt med store bokstaver', 'https://api.catenda.com', subjekt().toUpperCase()],
-    ['en annen issuer', 'https://api.catenda.com/', subjekt()],
-    ['issueren i store bokstaver', 'HTTPS://API.CATENDA.COM', subjekt()],
-    ['et mellomrom etter issueren', 'https://api.catenda.com ', subjekt()],
-  ])('tabellen avviser en Catenda-identitet med %s, også fra eieren', async (_, issuer, s) => {
+    [
+      'et subjekt med store bokstaver',
+      'https://api.catenda.com',
+      subjekt().toUpperCase(),
+      CHECK_BRUDD,
+    ],
+    ['en annen issuer', 'https://api.catenda.com/', subjekt(), CHECK_BRUDD],
+    ['issueren i store bokstaver', 'HTTPS://API.CATENDA.COM', subjekt(), CHECK_BRUDD],
+    ['et mellomrom etter issueren', 'https://api.catenda.com ', subjekt(), IKKE_NORMALISERT],
+  ])('basen avviser en Catenda-identitet med %s, også fra eieren', async (_, issuer, s, nummer) => {
     const feil = await base.pool
       .request()
       .input('provider', sql.NVarChar(16), 'catenda')
@@ -150,7 +157,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
       .output('user_id', sql.UniqueIdentifier)
       .execute('koe.resolve_identity')
       .catch((f: unknown) => f);
-    expect(feilnummer(feil)).toBe(CHECK_BRUDD);
+    expect(feilnummer(feil)).toBe(nummer);
   });
 
   it('kjøretiden kan kalle den smale inngangen', async () => {

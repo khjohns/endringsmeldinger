@@ -290,6 +290,18 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect((await lagret(p2.sak_id, k2)).hendelser).toHaveLength(1);
     });
 
+    it.each<[string, (sakId: string) => string]>([
+      ['med mellomrom til slutt', (id) => `${id} `],
+      ['med ett tegn for mye', (id) => `${id}0`],
+      ['med store bokstaver', (id) => id.toUpperCase()],
+    ])('en saks-ID %s gir SakFinnesIkke, og ingenting skrives (#566)', async (_, form) => {
+      const sak = await nySak();
+      await expect(
+        skrivHendelse(kjoeretid.pool, te, form(sak.sak_id), 1, medOppdrag())
+      ).rejects.toBeInstanceOf(SakFinnesIkke);
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
+    });
+
     it('en leser avvises av radsikkerheten', async () => {
       const sak = await nySak();
       const leser: Kontekst = { aktor: b.leser, prosjekt: P1, side: 'TE', team: TE1 };
