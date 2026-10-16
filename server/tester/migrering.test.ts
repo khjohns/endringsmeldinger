@@ -1,0 +1,274 @@
+/**
+ * Runneren for migrasjonene i T-SQL (`server/migrering.ts`, #53). Forventningene
+ * har kilde i arbeidsvalget fra oppdragsgiver 16.10 i #53: filene anvendes i
+ * filnavnrekkefølge, versjonen er prefikset, historikken lagrer sha256 av hele
+ * fila, og runneren nekter å kjøre når en anvendt fil er endret, også bare i en
+ * kommentar. Regelen om at en anvendt migrasjon er uforanderlig står i
+ * `.claude/rules/database.md`. Testene mot basen krever `KOE_SQLSERVER_TILKOBLING`.
+ */
+
+import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import {
+  avvik,
+  delPaaGo,
+  lesMigrasjoner,
+  MIGRASJONSMAPPE,
+  migrer,
+  MigreringAvvist,
+  type Migrasjon,
+} from '../migrering.ts';
+import { katalog, opprettMigrertTestbase } from './sqlserver_migrert.ts';
+import { opprettTestbase, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
+
+const mapper: string[] = [];
+
+function mappe(filer: Record<string, string>): string {
+  const m = mkdtempSync(join(tmpdir(), 'koe-migrering-'));
+  mapper.push(m);
+  for (const [navn, tekst] of Object.entries(filer)) writeFileSync(join(m, navn), tekst);
+  return m;
+}
+
+afterAll(() => {
+  for (const m of mapper) rmSync(m, { recursive: true, force: true });
+});
+
+const A = '20260101000000_a.sql';
+const B = '20260102000000_b.sql';
+const C = '20260103000000_c.sql';
+
+describe('lesingen av migrasjonsfilene', () => {
+  it('deler på linjer med bare GO, uansett store og små bokstaver og en kommentar etter', () => {
+    expect(delPaaGo('SELECT 1\nGO\nSELECT 2\r\n  go  -- slutt\nSELECT 3\nGO\n')).toEqual([
+      'SELECT 1',
+      'SELECT 2',
+      'SELECT 3',
+    ]);
+  });
+
+  it('deler ikke på GO inne i en linje eller i et navn', () => {
+    expect(delPaaGo("SELECT N'GO' AS GOTO\nGOTO slutt")).toHaveLength(1);
+  });
+
+  it('sorterer filene på filnavn, ikke på rekkefølgen i mappa', () => {
+    const m = mappe({ [C]: 'SELECT 3', [A]: 'SELECT 1', [B]: 'SELECT 2' });
+    expect(lesMigrasjoner(m).map((f) => f.filnavn)).toEqual([A, B, C]);
+  });
+
+  it.each([
+    ['20260101_a.sql', 'for kort versjon'],
+    ['20260101000000-a.sql', 'bindestrek'],
+    ['20260101000000_A.sql', 'store bokstaver'],
+  ])('avviser filnavnet %s (%s)', (navn) => {
+    expect(() => lesMigrasjoner(mappe({ [navn]: 'SELECT 1' }))).toThrow(MigreringAvvist);
+  });
+
+  it('avviser to filer med samme versjon', () => {
+    const m = mappe({ '20260101000000_a.sql': 'SELECT 1', '20260101000000_b.sql': 'SELECT 2' });
+    expect(() => lesMigrasjoner(m)).toThrow(/samme versjonen|versjonen 20260101000000/);
+  });
+
+  it('summen er av hele fila, også kommentarene', () => {
+    const [en] = lesMigrasjoner(mappe({ [A]: 'SELECT 1 -- a' }));
+    const [to] = lesMigrasjoner(mappe({ [A]: 'SELECT 1 -- b' }));
+    expect(en.satser).toEqual(['SELECT 1 -- a']);
+    expect(en.sha256).not.toBe(to.sha256);
+  });
+
+  it.each([
+    ['en kommentar etter GO', 'SELECT 1\nGO\n', 'SELECT 1\nGO -- slutt\n'],
+    ['en tom linje', 'SELECT 1\nGO\n', 'SELECT 1\n\nGO\n'],
+  ])('summen endres av %s, som ikke er med i satsene', (_, foer, etter) => {
+    const [en] = lesMigrasjoner(mappe({ [A]: foer }));
+    const [to] = lesMigrasjoner(mappe({ [A]: etter }));
+    expect(en.sha256).not.toBe(to.sha256);
+  });
+});
+
+describe('kontrollen mot historikken', () => {
+  const fil = (versjon: string, sha256 = 'x'): Migrasjon => ({
+    versjon,
+    filnavn: `${versjon}_a.sql`,
+    sha256,
+    satser: [],
+  });
+  const anvendt = (f: Migrasjon) => ({ versjon: f.versjon, filnavn: f.filnavn, sha256: f.sha256 });
+
+  it('godtar uendrede anvendte filer og nye filer etter dem', () => {
+    const [a, b] = [fil('20260101000000'), fil('20260102000000')];
+    expect(avvik([anvendt(a)], [a, b])).toEqual([]);
+  });
+
+  it('avviser en anvendt fil med en annen sum', () => {
+    const a = fil('20260101000000');
+    expect(avvik([anvendt(a)], [{ ...a, sha256: 'y' }])).toEqual([
+      `${a.filnavn} er endret etter at den ble anvendt.`,
+    ]);
+  });
+
+  it('avviser en anvendt fil som ikke finnes', () => {
+    expect(avvik([anvendt(fil('20260101000000'))], [])).toHaveLength(1);
+  });
+
+  it('avviser en ny fil foran en anvendt', () => {
+    const [a, b] = [fil('20260101000000'), fil('20260102000000')];
+    expect(avvik([anvendt(b)], [a, b])).toEqual([
+      `${a.filnavn} er ikke anvendt og kommer foran ${b.versjon}, som er anvendt.`,
+    ]);
+  });
+});
+
+describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
+  let base: Testbase;
+
+  beforeAll(async () => {
+    base = await opprettTestbase('migrering');
+  }, 240_000);
+  afterAll(async () => {
+    await base?.slett();
+  }, 60_000);
+  afterEach(async () => {
+    await base.pool.request().batch(`
+      IF OBJECT_ID(N'koe_migrering.historikk') IS NOT NULL DELETE koe_migrering.historikk;
+      DROP TABLE IF EXISTS dbo.prove_b, dbo.prove_a;`);
+  });
+
+  async function historikk(): Promise<string[]> {
+    const svar = await base.pool.request().query<{
+      versjon: string;
+    }>('SELECT versjon FROM koe_migrering.historikk ORDER BY anvendt, versjon');
+    return svar.recordset.map((r) => r.versjon);
+  }
+
+  async function tabeller(): Promise<string[]> {
+    const svar = await base.pool.request().query<{
+      name: string;
+    }>("SELECT name FROM sys.tables WHERE name LIKE 'prove[_]%' ORDER BY name");
+    return svar.recordset.map((r) => r.name);
+  }
+
+  it('anvender filene i filnavnrekkefølge, og hver fil én gang', async () => {
+    // B bygger på A, og C på B: i en annen rekkefølge feiler den første.
+    const m = mappe({
+      [C]: 'ALTER TABLE dbo.prove_b ADD c int NULL;',
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL PRIMARY KEY);',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL REFERENCES dbo.prove_a (id));\nGO\nALTER TABLE dbo.prove_a ADD b int NULL;',
+    });
+    expect(await migrer(base.pool, lesMigrasjoner(m))).toEqual([
+      '20260101000000',
+      '20260102000000',
+      '20260103000000',
+    ]);
+    expect(await historikk()).toEqual(['20260101000000', '20260102000000', '20260103000000']);
+    expect(await migrer(base.pool, lesMigrasjoner(m))).toEqual([]);
+  });
+
+  it('lagrer versjonen, filnavnet og sha256 av hele fila', async () => {
+    const m = mappe({ [A]: '-- en kommentar\nCREATE TABLE dbo.prove_a (id int NOT NULL);' });
+    const [fil] = lesMigrasjoner(m);
+    await migrer(base.pool, [fil]);
+    const svar = await base.pool
+      .request()
+      .query('SELECT versjon, filnavn, sha256 FROM koe_migrering.historikk');
+    expect(svar.recordset).toEqual([{ versjon: fil.versjon, filnavn: A, sha256: fil.sha256 }]);
+  });
+
+  it('nekter å kjøre når en anvendt fil er endret bare i en kommentar, og anvender ikke den neste', async () => {
+    const m = mappe({ [A]: '-- versjon 1\nCREATE TABLE dbo.prove_a (id int NOT NULL);' });
+    await migrer(base.pool, lesMigrasjoner(m));
+    writeFileSync(join(m, A), '-- versjon 2\nCREATE TABLE dbo.prove_a (id int NOT NULL);');
+    writeFileSync(join(m, B), 'CREATE TABLE dbo.prove_b (id int NOT NULL);');
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      `${A} er endret etter at den ble anvendt.`
+    );
+    expect(await historikk()).toEqual(['20260101000000']);
+    expect(await tabeller()).toEqual(['prove_a']);
+  });
+
+  it('nekter å kjøre når en ny fil kommer foran en anvendt', async () => {
+    const m = mappe({ [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);' });
+    await migrer(base.pool, lesMigrasjoner(m));
+    writeFileSync(join(m, A), 'CREATE TABLE dbo.prove_a (id int NOT NULL);');
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(MigreringAvvist);
+    expect(await tabeller()).toEqual(['prove_b']);
+  });
+
+  it('nekter å kjøre når en anvendt fil er fjernet', async () => {
+    const m = mappe({ [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);' });
+    await migrer(base.pool, lesMigrasjoner(m));
+    rmSync(join(m, A));
+    writeFileSync(join(m, B), 'CREATE TABLE dbo.prove_b (id int NOT NULL);');
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(`${A} er anvendt`);
+    expect(await tabeller()).toEqual(['prove_a']);
+  });
+
+  it('en feil i en sats ruller tilbake hele fila og stopper de neste', async () => {
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nGO\nSELECT 1/0;',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(`${A}, sats 2`);
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
+  });
+
+  it('to runnere samtidig anvender hver fil én gang', async () => {
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    const filer = lesMigrasjoner(m);
+    const [en, to] = await Promise.all([migrer(base.pool, filer), migrer(base.pool, filer)]);
+    expect([...en, ...to].sort()).toEqual(['20260101000000', '20260102000000']);
+    expect(await historikk()).toEqual(['20260101000000', '20260102000000']);
+  });
+});
+
+describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', () => {
+  it('har filer, og hver har formen runneren godtar', () => {
+    expect(readdirSync(MIGRASJONSMAPPE).filter((f) => f.endsWith('.sql')).length).toBe(
+      lesMigrasjoner().length
+    );
+    expect(lesMigrasjoner().length).toBeGreaterThan(0);
+  });
+
+  it('to nye baser bygget fra filene får samme katalog', async () => {
+    const [en, to] = await Promise.all([
+      opprettMigrertTestbase('katalog_en'),
+      opprettMigrertTestbase('katalog_to'),
+    ]);
+    try {
+      const [k1, k2] = await Promise.all([katalog(en), katalog(to)]);
+      const tabeller = k1.filter((l) => l.includes('"type_desc":"USER_TABLE"'));
+      expect(tabeller.map((l) => JSON.parse(l.slice('objekt '.length)).name).sort()).toEqual([
+        'app_identities',
+        'app_project_memberships',
+        'app_users',
+        'catenda_contract_teams',
+        'historikk',
+        'projects',
+      ]);
+      expect(k2).toEqual(k1);
+    } finally {
+      await Promise.all([en.slett(), to.slett()]);
+    }
+  }, 300_000);
+
+  it('nekter en base uten den binære sorteringen (SQ-08)', async () => {
+    const base = await opprettTestbase('sortering', { azure: false });
+    try {
+      await expect(migrer(base.pool, lesMigrasjoner())).rejects.toThrow(
+        /Latin1_General_100_BIN2_UTF8/
+      );
+      const svar = await base.pool
+        .request()
+        .query<{ n: number }>("SELECT COUNT(*) AS n FROM sys.schemas WHERE name = N'koe'");
+      expect(svar.recordset[0].n).toBe(0);
+    } finally {
+      await base.slett();
+    }
+  }, 240_000);
+});
