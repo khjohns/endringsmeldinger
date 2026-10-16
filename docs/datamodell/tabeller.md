@@ -625,7 +625,7 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53). |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.sak_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` peker på en bruker. |
 | Skrives av | database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
@@ -642,7 +642,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. Ingen HTTP-inngang kaller dem ennå (#53). |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: sak_id → koe.sak_metadata.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.leveringsoppdrag.event_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel). |
+| Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde personopplysninger. |
 | Skrives av | database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`); server/kommandoer.ts |
@@ -659,7 +659,7 @@ Interne notater, skjermet på teamet (AGENTS.md). Ikke et kontraktsvarsel, og ka
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (notat_id). Viser til: sak_id → koe.sak_metadata.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). |
+| Relasjoner | Nøkler: primærnøkkel (notat_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `tekst` og `kommentar`. |
 | Skrives av | Ingen funnet |
@@ -676,7 +676,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53). |
 | Data fra Catenda | Nei, men oppdraget gjelder en levering til Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: event_id → koe.hendelse.event_id (fremmednøkkel, ON DELETE NO ACTION); sak_id → koe.hendelse.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.hendelse.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
 | Skrives av | database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`) |
@@ -710,7 +710,7 @@ Visningen kjernen regner ut av journalen, med versjonene den er regnet med (B-10
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (sak_id). Viser til: sak_id → koe.sak_metadata.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (sak_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, fra journalen. |
 | Personopplysninger | Som journalen den er regnet fra. |
 | Skrives av | Ingen funnet |
