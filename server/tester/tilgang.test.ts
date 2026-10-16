@@ -561,12 +561,18 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
           WHERE p.grantee_principal_id = DATABASE_PRINCIPAL_ID(N'koe_runtime')`
       );
       expect(svar.recordset.map((r) => r.rett).sort()).toEqual([
+        'GRANT EXECUTE koe_api.bruk_innloggingsforsoek',
         'GRANT EXECUTE koe_api.catenda_identitet',
         'GRANT EXECUTE koe_api.deaktiver_ved_innlogging',
+        'GRANT EXECUTE koe_api.les_sesjon',
         'GRANT EXECUTE koe_api.medlemsliste_alder',
+        'GRANT EXECUTE koe_api.opprett_innloggingsforsoek',
         'GRANT EXECUTE koe_api.opprett_sak',
+        'GRANT EXECUTE koe_api.opprett_sesjon',
+        'GRANT EXECUTE koe_api.rydd_utloepte',
         'GRANT EXECUTE koe_api.skriv_hendelse',
         'GRANT EXECUTE koe_api.skrivetidspunkt',
+        'GRANT EXECUTE koe_api.slett_sesjon',
         'GRANT EXECUTE koe_api.synkroniser_medlemskap',
         'GRANT SELECT koe.hendelse',
         'GRANT SELECT koe.kjernebuffer',
