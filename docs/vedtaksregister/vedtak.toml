@@ -2946,6 +2946,132 @@ tekst = '''
 En aksept etter akseptfristen er alltid et nytt tilbud fra TE, også når svaret er et helt avslag.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "HF-U16"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Akseptfristen (HF-U5, HF-U15, #502), spørsmål 1: når er fristen ute? Eksempel: BH godkjenner 300 av 500 000 kr 10. mars med akseptfrist 24. mars. Avtaleloven § 2 første ledd: aksepten må «være kommet frem til ham, før fristen er ute». Kommentar 7 til § 2, som viser til forarbeidene: en frist «inden 15de juni» holder om aksepten kommer fram «i løpet av den 15de juni». NS 8407 § 6 forlenger en frist som ender på en lørdag, helligdag eller høytidsdag, men verken § 6 eller avtaleloven sier om det gjelder en akseptfrist byggherren setter selv.
+
+- **A: utløp ved dagens slutt (Anbefalt).** «Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen i norsk tid. En aksept som appen registrerer senest den dagen, regner appen som i tide. Om aksepten kom fram i tide etter avtaleloven § 2, avgjør ikke appen (MM-U12). Byggherren kan ikke sette en frist som ligger før datoen for svaret, eller som faller på en lørdag, helligdag eller høytidsdag (NS 8407 § 6).» Presiserer HF-U5 og HF-U15.
+- **B: appen forlenger etter § 6.** «Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen. Faller den på en lørdag, helligdag eller høytidsdag, forlenger appen den til nærmest følgende virkedag (§ 6).» Presiserer HF-U5, men strider mot MM-U12 og HF-U13: appen avgjør da om § 6 gjelder, og leser fristen annerledes enn den står i brevet.'''
+valgt = "A"
+svar = '''
+A: utløp ved dagens slutt (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u15" }]
+folge = '''
+Spørsmålene 1–4 om akseptfristen kom fra kartleggingen av del 2 av #502 16.10 og ble prøvd mot vedtakene før de ble stilt. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen i norsk tid. En aksept som appen registrerer senest den dagen, regner appen som i tide. Om aksepten kom fram i tide etter avtaleloven § 2, avgjør ikke appen (MM-U12). Byggherren kan ikke sette en frist som ligger før datoen for svaret, eller som faller på en lørdag, helligdag eller høytidsdag (NS 8407 § 6).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen. Faller den på en lørdag, helligdag eller høytidsdag, forlenger appen den til nærmest følgende virkedag (§ 6).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U17"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Akseptfristen, spørsmål 2: kan byggherren endre fristen? Etter HF-U5 varer bindingen «til en akseptfrist byggherren har satt i svaret, er ute». Fristen står ikke i listen over det en revisjon ikke kan senke. HF-U14 føyde aksepten av beregningsmåten til den listen på samme måte. Etter HF-U6 kan byggherren ikke ta tilbake eller svekke svaret.
+
+- **A: bare forlenge (Anbefalt).** «Før akseptfristen er ute, kan byggherren endre den bare ved å revidere svaret. En senere frist er tillatt, og det er også tillatt å fjerne fristen. En tidligere frist avvises, og et svar uten akseptfrist kan ikke få en ved revisjon. Etter fristen binder svaret ikke byggherren i appen, unntatt det HF-U4 gjelder. Et nytt eller revidert svar kan da ha en ny frist.» Utvider HF-U5, som HF-U14. Følger av HF-U6. Presiserer HF-U15.
+- **B: fritt ved revisjon.** «Akseptfristen kan endres fritt ved revisjon.» Strider mot HF-U6 og snevrer inn HF-U5, fordi byggherren da kan forkorte bindingen.'''
+valgt = "A"
+svar = '''
+A: bare forlenge (Anbefalt)'''
+forhold = [{ art = "utvider", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u15" }]
+folge = '''
+Følger av HF-U6. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Før akseptfristen er ute, kan byggherren endre den bare ved å revidere svaret. En senere frist er tillatt, og det er også tillatt å fjerne fristen. En tidligere frist avvises, og et svar uten akseptfrist kan ikke få en ved revisjon. Etter fristen binder svaret ikke byggherren i appen, unntatt det HF-U4 gjelder. Et nytt eller revidert svar kan da ha en ny frist.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Akseptfristen kan endres fritt ved revisjon.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U18"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Akseptfristen, spørsmål 3: hva viser saken når fristen er ute og TE ikke har godtatt svaret? Vedtakene avgjør allerede dette: en aksept etter fristen er et nytt tilbud som byggherren kan godta eller avslå (HF-U5), og taushet er ikke avtale (HF-U11, VS-U2). Spørsmålet gjelder hvem saken venter på, og hva brevet sier.
+
+- **A: saken venter på TE (Anbefalt).** «Etter akseptfristen er byggherrens svar fortsatt det gjeldende svaret i sporet. Saken venter på TE, ikke på et nytt svar fra byggherren. Godtar TE svaret, sier brevet at aksepten er sendt etter akseptfristen <dato> i byggherrens svar, og at TE tilbyr å godta svaret slik det står.» Presiserer HF-U5. Følger KT-U1: gjeldende svar er svaret på gjeldende kravversjon.
+- **B: saken venter på BH.** «Etter akseptfristen venter sporet på et nytt svar fra byggherren.» Presiserer HF-U5. Saken viser da at byggherren skylder et svar, uten at kontrakten sier det.'''
+valgt = "A"
+svar = '''
+A: saken venter på TE (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "hf-u5" }]
+folge = '''
+Følger KT-U1. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Etter akseptfristen er byggherrens svar fortsatt det gjeldende svaret i sporet. Saken venter på TE, ikke på et nytt svar fra byggherren. Godtar TE svaret, sier brevet at aksepten er sendt etter akseptfristen <dato> i byggherrens svar, og at TE tilbyr å godta svaret slik det står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Etter akseptfristen venter sporet på et nytt svar fra byggherren.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U19"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+**Første spørsmål:** Akseptfristen, spørsmål 4: hva skjer når byggherren har avslått TEs tilbud (en aksept etter fristen), eller når byggherren reviderer svaret mens tilbudet venter? At en ny kravversjon fra TE gjør at tilbudet faller bort, er avgjort av HF-U6 og HF-U8.
+
+- **A: revisjon er avslag (Anbefalt).** «Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men TE kan sende en ny kravversjon. Reviderer byggherren svaret mens TEs tilbud venter, er revisjonen et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist.» Presiserer HF-U5. Følger av HF-U7 og avtaleloven § 6.
+- **B: svar på tilbudet først.** «TE kan godta svaret på nytt etter et avslag, og hver aksept er et nytt tilbud. Byggherren må godta eller avslå tilbudet før hen kan revidere svaret.» Presiserer HF-U5, men sperrer en revisjon byggherren kan trenge, og krever to brev.
+
+Svar: «Jeg tenker A - men dette følger av skjema i frontend: TE sender nytt tilbud. Byggherre for oppgitt tilbudet, og svarer ut i sitt skjema i frontend. Der tar han på vanlig måte stilling til aktuelle deler av kravet (frister, beløp, dager)»
+
+**Oppfølging:** Svaret ditt kan leses på to måter. Begge beholder A: en revisjon er et avslag av tilbudet og et nytt svar, og etter et avslag sender TE en ny kravversjon. Valget styrer om appen får et eget utsagn for «å godta tilbudet», og om enigheten krever at BH sier det uttrykkelig.
+
+- **1: godta i skjemaet (Anbefalt).** «Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og velger om hen godtar det. Godtar byggherren, er partene enige om svaret slik brevet uttrykker det (KA-U10). Godtar hen ikke, tar hen stilling til delene av kravet på vanlig måte, og svaret er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist.» Presiserer HF-U5. Enigheten bygger på BHs uttrykkelige aksept, ikke på en sammenlikning appen gjør.
+- **2: bare vanlig svar.** «Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises. Tar byggherren stilling til hver del av kravet slik tilbudet lyder, er partene enige om svaret slik brevet uttrykker det (KA-U10). Ellers er svaret et avslag av tilbudet og et nytt svar. Det finnes ikke noe eget valg for å godta tilbudet.» Presiserer HF-U5. Appen utleder enigheten av at standpunktene er like, og BH må fylle ut det samme svaret på nytt.
+
+Svar: «Vi kan ha godta i skjema, som en sikkerhetsventil: Dvs. en kombinasjon av 1 og 2. Hvis f.eks. byggherre velger "Godta" men svarene i skjema ikke er fullt ut godkjennelse, kommer en melding om dette.»
+
+**Andre oppfølging:** Én ting er ikke avklart: skal svaret da avvises, eller skal byggherren bare advares og likevel kunne sende? Eksempel: BH godkjenner 300 av 500 000 kr med akseptfrist 24. mars. TE godtar 2. april. BH krysser av for «Godta», men skriver 250 000 kr.
+
+- **Avvis ved avvik (Anbefalt).** «Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men kan sende en ny kravversjon. Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og tar stilling til delene av kravet på vanlig måte. Skjemaet har også et valg for å godta tilbudet. Velger byggherren det, og svaret stemmer med tilbudet i hver del, er partene enige om svaret slik brevet uttrykker det (KA-U10). Stemmer svaret ikke med tilbudet, avviser appen det og viser hvilke deler som avviker. Et svar som ikke godtar tilbudet, er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist. Det samme gjelder en revisjon byggherren sender mens tilbudet venter.» Presiserer HF-U5. Følger av HF-U7. Brevet kan ikke si «godtar» og samtidig noe annet.
+- **Advar, og send som avslag.** Samme tekst, men med «Stemmer svaret ikke med tilbudet, viser appen hvilke deler som avviker. Sender byggherren likevel, er svaret et avslag av tilbudet og et nytt svar.» Brevet kan da inneholde både «godtar» og et annet beløp, og appen avgjør hva brevet betyr.'''
+valgt = "Avvis ved avvik"
+svar = '''
+Avvis ved avvik (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "hf-u5" }]
+folge = '''
+Følger av HF-U7. Det første svaret og det første oppfølgingssvaret passet ikke på et alternativ, og det ble stilt to oppfølgingsspørsmål. Alle står ordrett i spørsmålet over. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Avvis ved avvik"
+tekst = '''
+Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men kan sende en ny kravversjon. Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og tar stilling til delene av kravet på vanlig måte. Skjemaet har også et valg for å godta tilbudet. Velger byggherren det, og svaret stemmer med tilbudet i hver del, er partene enige om svaret slik brevet uttrykker det (KA-U10). Stemmer svaret ikke med tilbudet, avviser appen det og viser hvilke deler som avviker. Et svar som ikke godtar tilbudet, er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist. Det samme gjelder en revisjon byggherren sender mens tilbudet venter.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Advar, og send som avslag"
+tekst = '''
+Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men kan sende en ny kravversjon. Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og tar stilling til delene av kravet på vanlig måte. Skjemaet har også et valg for å godta tilbudet. Velger byggherren det, og svaret stemmer med tilbudet i hver del, er partene enige om svaret slik brevet uttrykker det (KA-U10). Stemmer svaret ikke med tilbudet, viser appen hvilke deler som avviker. Sender byggherren likevel, er svaret et avslag av tilbudet og et nytt svar.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
