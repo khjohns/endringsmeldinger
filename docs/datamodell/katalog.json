@@ -827,12 +827,12 @@
    },
    "koe.skrivetidspunkt": {
     "kolonner": [
-     ["transaksjon", "bigint", "NOT NULL"],
      ["oekt", "smallint", "NOT NULL"],
+     ["transaksjon", "bigint", "NOT NULL"],
      ["innlogget", "datetime2(3)", "NOT NULL"],
      ["tidspunkt", "datetime2(3)", "NOT NULL"]
     ],
-    "primærnøkkel": ["transaksjon"],
+    "primærnøkkel": ["oekt"],
     "unike": [],
     "unike_indekser": [],
     "fremmednøkler": []

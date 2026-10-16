@@ -292,7 +292,7 @@ erDiagram
         uniqueidentifier created_by FK
     }
     koe_skrivetidspunkt {
-        bigint transaksjon PK
+        smallint oekt PK
     }
     koe_app_users ||--o{ koe_app_identities : "user_id"
     koe_projects ||--o{ koe_app_project_memberships : "project_id"

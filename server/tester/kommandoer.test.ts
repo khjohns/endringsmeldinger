@@ -92,14 +92,6 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     return svar.recordset[0].naa.getTime();
   }
 
-  /** Tidspunktene som står i `koe.skrivetidspunkt` etter fullførte transaksjoner, lest av eieren. */
-  async function ferdigeTidspunkter(): Promise<number> {
-    const svar = await base.pool
-      .request()
-      .query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.skrivetidspunkt');
-    return svar.recordset[0].n;
-  }
-
   /** Om `koe.skrivetidspunkt` har en rad med tidspunktet, lest av eieren. */
   async function tidspunktStaar(t: Date): Promise<boolean> {
     const svar = await base.pool
@@ -346,6 +338,18 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       for (const t of gitt) expect(await tidspunktStaar(t), t.toISOString()).toBe(false);
     });
 
+    it('en skriving venter ikke på en annen åpen transaksjon som har ført sitt tidspunkt', async () => {
+      const sak = await nySak();
+      const utfall = await transaksjon(enForbindelse.pool, te, async (f) => {
+        await f().output('tidspunkt', sql.DateTime2(3)).execute('koe_api.skrivetidspunkt');
+        return Promise.race([
+          skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, medOppdrag(te)).then(() => 'skrevet'),
+          new Promise((ok) => setTimeout(() => ok('ventet'), 10_000)),
+        ]);
+      });
+      expect(utfall).toBe('skrevet');
+    }, 30_000);
+
     it('en kontekst uten kontraktsside gir SkrivingAvvist', async () => {
       const sak = await nySak();
       const utenSide: Kontekst = { aktor: b.te, prosjekt: P1, team: TE1 };
@@ -407,7 +411,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
             .input('inn', sql.DateTime2(3), new Date(inn.getTime() - 60_000))
             .input('t', sql.DateTime2(3), tidspunkt)
             .query(
-              'INSERT koe.skrivetidspunkt (transaksjon, oekt, innlogget, tidspunkt) VALUES (@tx, @spid, @inn, @t)'
+              'INSERT koe.skrivetidspunkt (oekt, transaksjon, innlogget, tidspunkt) VALUES (@spid, @tx, @inn, @t)'
             );
         } else if (tid === 'egen_noekkel') {
           tidspunkt = new Date(await klokka());
@@ -462,14 +466,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     });
 
     it('en rad som ble liggende, slettes når samme økt fører et nytt tidspunkt', async () => {
-      const foerOgCommit = () =>
-        transaksjon(enForbindelse.pool, te, (f) =>
+      const foerOgCommit = async () => {
+        const svar = await transaksjon(enForbindelse.pool, te, (f) =>
           f().output('tidspunkt', sql.DateTime2(3)).execute('koe_api.skrivetidspunkt')
         );
-      await foerOgCommit();
-      const etterFoerste = await ferdigeTidspunkter();
-      await foerOgCommit();
-      expect(await ferdigeTidspunkter()).toBe(etterFoerste);
+        return svar.output.tidspunkt as Date;
+      };
+      const foerste = await foerOgCommit();
+      expect(await tidspunktStaar(foerste)).toBe(true);
+      const andre = await foerOgCommit();
+      expect(await tidspunktStaar(foerste)).toBe(false);
+      expect(await tidspunktStaar(andre)).toBe(true);
     });
 
     it('kjøretiden kan ikke føre eller endre tidspunktet selv', async () => {

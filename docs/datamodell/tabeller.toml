@@ -771,17 +771,17 @@ lagring = "SQL Server"
 type = ["teknisk"]
 status = "i bruk"
 beskrivelse = """
-Tidspunktet basen ga for skrivingen i en transaksjon, med transaksjonens ID som
-nøkkel, og økta og når den logget inn, fordi transaksjons-ID-en begynner på nytt
-etter en omstart. `koe_api.skriv_hendelse` godtar bare dette tidspunktet på
+Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel,
+og transaksjonen og når økta logget inn, fordi transaksjons-ID-en begynner på
+nytt etter en omstart. `koe_api.skriv_hendelse` godtar bare dette tidspunktet på
 brevet, i samme transaksjon og økt (DL-U3, svaret 16.10 i #53). Kjøretiden har
 ingen rett på tabellen."""
 lagres_fra = """
 `koe_api.skrivetidspunkt` fører raden, og `koe_api.skriv_hendelse` sletter den i
 samme transaksjon. Kalt fra `skrivHendelse` i `server/kommandoer.ts`, som ruller
 tilbake når den ikke skriver. En kaller som committer uten å skrive, etterlater
-raden; `skrivetidspunkt` sletter den neste gang samme økt-ID eller
-transaksjons-ID fører et tidspunkt."""
+raden; `skrivetidspunkt` erstatter den neste gang samme økt-ID fører et
+tidspunkt. Tabellen har høyst én rad per økt-ID."""
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Raden brukes bare i transaksjonen som førte den."
 personopplysninger = "Ingen kjente."
