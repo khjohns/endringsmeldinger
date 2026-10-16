@@ -39,7 +39,10 @@ const bilde: Bilde = {
       tidsstempel: '2026-10-16T09:00:00.000Z',
       tittel: 'Brev fra TE',
       tolket: true,
-      tekst: ['Vi viser til pålegget.', 'Vi krever endring.'],
+      tekst: [
+        { gjelder: 'k-1', laast: 'TE krever endringsordre.', utdypning: 'BH påla ny peling.' },
+        { gjelder: 'k-2', laast: 'TE varsler etter § 32.2.' },
+      ],
       oppdrag: [
         {
           id: 'l-1',
@@ -68,8 +71,9 @@ describe('saksbildet', () => {
     ).toBeInTheDocument();
 
     const brev = within(screen.getByTestId('journal-2'));
-    expect(brev.getByText('Vi viser til pålegget.')).toBeInTheDocument();
-    expect(brev.getByText('Vi krever endring.')).toBeInTheDocument();
+    expect(brev.getByText('TE krever endringsordre.')).toBeInTheDocument();
+    expect(brev.getByText('BH påla ny peling.')).toBeInTheDocument();
+    expect(brev.getByText('TE varsler etter § 32.2.')).toBeInTheDocument();
     expect(
       brev.getByText(/Leveringsoppdrag krav\.pdf: frosset .*, ikke levert/)
     ).toBeInTheDocument();

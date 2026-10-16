@@ -8,7 +8,7 @@ import type { Leveringsoppdrag } from '$lib/api/kjerne';
 import { laastTekst } from '$kjerne/kommandoer/skriving';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Statuskode, Visning } from '$kjerne/utledning/visning';
-import { SPOR, type Journalrad, type Spor } from '$kjerne/typer';
+import { SPOR, type Avsnitt, type Journalrad, type Spor } from '$kjerne/typer';
 
 export interface Etikett {
   kode: string;
@@ -41,8 +41,11 @@ export interface Journalpost {
   tittel: string;
   /** `false` når kjernen ikke har tolket hendelsen (MM-U2). */
   tolket: boolean;
-  /** Den låste teksten brevet ble sendt med (B-15). `null` for et registrert brev. */
-  tekst: string[] | null;
+  /**
+   * Brevteksten slik den ble frosset, med det låste avsnittet og partens utdypning
+   * hver for seg (B-15, LV-U2). `null` for et registrert brev.
+   */
+  tekst: Avsnitt[] | null;
   oppdrag: Leveringsoppdrag[];
 }
 
@@ -89,10 +92,14 @@ const TEKST: Record<string, string> = {
 
 export const etikett = (kode: string): Etikett => ({ kode, tekst: TEKST[kode] ?? kode });
 
+/** Brevteksten i raden, med samme lesing som `laastTekst` i kjernen. */
+const brevtekst = (rad: Journalrad): Avsnitt[] | null =>
+  laastTekst(rad) ? (rad.data.brevtekst as Avsnitt[]) : null;
+
 function journaltittel(rad: Journalrad): string {
   if (rad.event_type === 'sak_opprettet') return `Saken er opprettet av ${rad.aktor_rolle}`;
   if (rad.event_type === 'dokument_registrert')
-    return laastTekst(rad)
+    return brevtekst(rad)
       ? `Brev fra ${rad.aktor_rolle}`
       : `Registrert brev fra ${rad.aktor_rolle}`;
   return `${rad.event_type} fra ${rad.aktor_rolle}`;
@@ -152,7 +159,7 @@ export function lagSaksbilde(
       tidsstempel: r.tidsstempel,
       tittel: journaltittel(r),
       tolket: tolket.get(r.event_id) ?? false,
-      tekst: laastTekst(r),
+      tekst: brevtekst(r),
       oppdrag: oppdrag.filter((o) => o.event_id === r.event_id),
     })),
   };

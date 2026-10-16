@@ -51,7 +51,10 @@
           </p>
           {#if j.tekst}
             <div class="brevtekst">
-              {#each j.tekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
+              {#each j.tekst as avsnitt, i (i)}
+                <p>{avsnitt.laast}</p>
+                {#if avsnitt.utdypning}<p class="utdypning">{avsnitt.utdypning}</p>{/if}
+              {/each}
             </div>
           {/if}
           {#each j.oppdrag as o (o.id)}
@@ -113,6 +116,10 @@
     display: grid;
     gap: 8px;
     font-size: 14px;
+  }
+  .utdypning {
+    color: var(--color-ink-secondary);
+    white-space: pre-line;
   }
   .brevtekst {
     border-left: 2px solid var(--color-wire-strong);

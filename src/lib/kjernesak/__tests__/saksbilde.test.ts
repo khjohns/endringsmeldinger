@@ -32,6 +32,7 @@ const grunnlagskrav = {
   type: 'krav',
   spor: 'grunnlag',
   innhold: { hovedkategori: 'endring', underkategori: 'irregulaer_endring', tittel: 'Ny peling' },
+  utdypning: 'BH påla ny peling i akse C.',
 };
 const vederlagskrav = {
   type: 'krav',
@@ -111,15 +112,18 @@ describe('saksbildet for en TS-sak', () => {
     });
   });
 
-  it('viser den låste teksten i hvert brev og leveringsoppdragene koblet på hendelsen', () => {
+  it('viser den frosne teksten i hvert brev, med utdypningen, og leveringsoppdragene koblet på hendelsen', () => {
     const { bilde } = bildeAv(journal, [oppdrag(v.event_id), oppdrag(g.event_id)]);
     const [rad1, rad2, rad3] = bilde.journal;
 
     expect(rad1).toMatchObject({ versjon: 1, tekst: null, oppdrag: [], tolket: true });
-    expect(rad2.tekst).toEqual(laastTekst(g));
+    expect(rad2.tekst?.map((a) => a.laast)).toEqual(laastTekst(g));
     expect(rad2.tekst?.length).toBeGreaterThan(0);
+    expect(rad2.tekst?.map((a) => a.utdypning).filter(Boolean)).toEqual([
+      'BH påla ny peling i akse C.',
+    ]);
     expect(rad2.oppdrag.map((o) => o.id)).toEqual([`l-${g.event_id}`]);
-    expect(rad3.tekst).toEqual(laastTekst(v));
+    expect(rad3.tekst?.map((a) => a.laast)).toEqual(laastTekst(v));
     expect(rad3.oppdrag.map((o) => o.id)).toEqual([`l-${v.event_id}`]);
     expect(rad2.tittel).toBe('Brev fra TE');
   });
