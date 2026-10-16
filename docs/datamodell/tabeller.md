@@ -48,6 +48,8 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.leveringsoppdrag`](#koeleveringsoppdrag) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.skrivetidspunkt`](#koeskrivetidspunkt) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.kjernebuffer`](#koekjernebuffer) | SQL Server | avledet | uavklart | Nei | Nei |
+| [`koe.app_sessions`](#koeapp_sessions) | SQL Server | teknisk | i bruk | Nei | Nei |
+| [`koe.app_oauth_attempts`](#koeapp_oauth_attempts) | SQL Server | teknisk | i bruk | Nei | Nei |
 
 ## PostgreSQL
 
@@ -216,7 +218,7 @@ Innloggingssesjoner. Lagrer en hash av sesjonstokenet, CSRF-tokenet og når sesj
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → app_users.id (fremmednøkkel, ON DELETE CASCADE). |
 | Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
-| Personopplysninger | Knyttet til en bruker gjennom `user_id`. |
+| Personopplysninger | Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`). |
 | Skrives av | backend/routes/auth_routes.py; backend/scripts/sync_catenda_memberships.py |
 | Funn | — |
 | Belegg | K 29.09: kolonnene i testbasen. L 29.09: rutene og skriptet. |
@@ -507,7 +509,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en identitet sees. Ingen inngang i `server/` kaller den ennå (#53, del 3). |
 | Data fra Catenda | Delvis. Navn og e-post kommer fra Catenda-identiteten. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
 | Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`, innført i `20261016140000_medlemskap.sql`) |
@@ -734,6 +736,40 @@ Visningen kjernen regner ut av journalen, med versjonene den er regnet med (B-10
 | Skrives av | Ingen funnet |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.app_sessions`
+
+Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når sesjonen utløper, 8 timer etter opprettelsen. Svarer til `app_sessions` i PostgreSQL (B-19, #656). Kjøretiden har ingen rett på tabellen.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | teknisk |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_sesjon` oppretter, `koe_api.slett_sesjon` sletter og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`; ingen HTTP-inngang kaller modulen ennå (F0b-5a, #659). |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
+| Personopplysninger | Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`). |
+| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.slett_sesjon`, `koe_api.rydd_utloepte`) |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`. |
+
+### `koe.app_oauth_attempts`
+
+Påbegynte innlogginger mot Catenda (OAuth). Lagrer SHA-256 av staten og av nettlesertokenet, returstien og når forsøket utløper, 600 sekunder etter opprettelsen. Svarer til `app_oauth_attempts` i PostgreSQL (B-19, #656). Kjøretiden har ingen rett på tabellen.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | teknisk |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_innloggingsforsoek` oppretter, `koe_api.bruk_innloggingsforsoek` sletter raden når den brukes, og `koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`; ingen HTTP-inngang kaller modulen ennå (F0b-5a, #659). |
+| Data fra Catenda | Nei, men raden hører til en innlogging hos Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (state_hash). Ingen relasjoner til andre tabeller. |
+| Kan bygges opp igjen | nei, men radene er kortlevde. |
+| Personopplysninger | Ingen kjente; bare hasher og en returadresse. |
+| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_innloggingsforsoek`, `koe_api.bruk_innloggingsforsoek`, `koe_api.rydd_utloepte`) |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`. |
 
 ## Utenfor databasene
 

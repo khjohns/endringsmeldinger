@@ -222,11 +222,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     // tidspunktet og innloggingen til økta som `koe_api.skrivetidspunkt` fører,
     // når medlemslisten ble hentet, som kalleren oppgir (DL-U7), når et
     // medlemskap ble gjort inaktivt, som er tomt for et aktivt medlemskap (DL-U8),
-    // og når innloggingens liste ble hentet, som kalleren oppgir (DL-U9).
+    // når innloggingens liste ble hentet, som kalleren oppgir (DL-U9), og når en
+    // sesjon eller et innloggingsforsøk utløper, som prosedyren regner ut (#656).
     const UTEN_STANDARD = [
       'koe.app_membership_absences.observed_at',
       'koe.app_membership_sync.synced_at',
+      'koe.app_oauth_attempts.expires_at',
       'koe.app_project_memberships.deactivated_at',
+      'koe.app_sessions.expires_at',
       'koe.hendelse.tidsstempel',
       'koe.notat.endret',
       'koe.skrivetidspunkt.innlogget',
