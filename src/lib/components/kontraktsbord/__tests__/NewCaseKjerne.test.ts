@@ -124,7 +124,7 @@ describe('skjemaet for ny sak på TS-stien', () => {
       type: 'opprett_sak',
       sakstittel: 'Endret fundament',
     });
-    expect(hentKjernesak).toHaveBeenCalledWith(SAK);
+    expect(hentKjernesak).toHaveBeenCalledWith(SAK, 'project');
     const vist = Array.from(
       brev.querySelectorAll('[data-testid="laast-tekst"] p'),
       (p) => p.textContent
