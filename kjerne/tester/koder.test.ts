@@ -99,7 +99,7 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
     ['en underkategori under feil hovedkategori', 'svikt', 'irregulaer_endring'],
     ['force majeure, som ikke har noen underkategori', 'force_majeure', 'annet_forhold'],
   ])('avviser %s', (_navn, hovedkategori, underkategori) => {
-    // Med datoen er paret det eneste som kan avvise kravet.
+    // Med datoen avvises kravet ikke fordi datoen mangler.
     const innhold = { hovedkategori, underkategori, ...datoen(hovedkategori, underkategori) };
     expect(formfeil(grunnlagskrav(innhold))).not.toEqual([]);
   });
