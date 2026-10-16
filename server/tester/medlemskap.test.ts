@@ -1,21 +1,28 @@
 /**
- * Medlemssynkroniseringen i SQL Server (#53, del 3b), i en base bygget fra
- * `database/migrasjoner/`. Kildene er DL-U7 (hentetidspunktet og Catenda-prosjektet
- * lagres, en eldre liste skriver ikke over en nyere), DL-U8 (en liste hentet før
- * deaktiveringen ved innlogging gjør ikke medlemmet aktivt igjen), B-04 punkt 4
- * (alderen på listen), sikkerhetsinvariantene i AGENTS.md (én brukerrad per person,
- * normalisert subjekt) og arbeidsvalget 16.10 i #53 (koblingen settes av driften).
- * Deaktiveringen ved innlogging er ikke bygget; DL-U8-testen setter den som eier.
+ * Medlemssynkroniseringen og deaktiveringen ved innlogging i SQL Server (#53, del
+ * 3b), i en base bygget fra `database/migrasjoner/`. Kildene er DL-U7
+ * (hentetidspunktet og Catenda-prosjektet lagres, en eldre liste skriver ikke over
+ * en nyere), DL-U8 (en liste hentet før deaktiveringen ved innlogging gjør ikke
+ * medlemmet aktivt igjen), B-04 punkt 1 (basens klokke) og 4 (alderen på listen),
+ * sikkerhetsinvariantene i AGENTS.md (én brukerrad per person, normalisert subjekt)
+ * og arbeidsvalget 16.10 i #53 (koblingen settes av driften). At innloggingen ikke
+ * endrer et prosjekt med en liste hentet senere, og at innloggingen gjelder ved
+ * samme tidspunkt, er arbeidsvalg i #53 som følger av DL-U7 og DL-U8.
  * Krever `KOE_SQLSERVER_TILKOBLING`.
  */
 
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
+  basensKlokke,
+  deaktiverVedInnlogging,
   FeilCatendaProsjekt,
+  MedlemskapetLaast,
   medlemslistensAlder,
   synkroniserMedlemskap,
+  UgyldigInnlogging,
   UgyldigMedlemsliste,
+  UgyldigProsjekt,
   type Medlem,
 } from '../medlemskap.ts';
 import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
@@ -29,6 +36,7 @@ import {
 } from './sqlserver.ts';
 
 const INGEN_RETT = 229;
+const CHECK_BRUDD = 547;
 
 const subjekt = () => randomBytes(16).toString('hex');
 const medlem = (s = subjekt(), rolle: Medlem['rolle'] = 'member'): Medlem => ({
@@ -60,18 +68,24 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     await base?.slett();
   }, 60_000);
 
-  /** Et nytt prosjekt koblet til et nytt Catenda-prosjekt, satt av driften (eieren). */
-  async function prosjekt(aktiv = true) {
-    const id = `medlemskap-${randomBytes(4).toString('hex')}`;
+  /**
+   * Et nytt prosjekt koblet til et nytt Catenda-prosjekt, satt av driften (eieren).
+   * `kobling: 'ingen'` lager prosjektet uten kobling.
+   */
+  async function prosjekt(
+    kobling: 'aktiv' | 'inaktiv' | 'ingen' = 'aktiv',
+    id = `medlemskap-${randomBytes(4).toString('hex')}`
+  ) {
     const catenda = randomUUID();
     await base.pool
       .request()
       .input('id', sql.NVarChar(100), id)
       .input('catenda', sql.UniqueIdentifier, catenda)
-      .input('aktiv', sql.Bit, aktiv).query(`
+      .input('kobling', sql.NVarChar(10), kobling).query(`
         INSERT koe.projects (id, name, organisasjon_id, is_active) VALUES (@id, @id, N'oslobygg', 1);
-        INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active)
-        VALUES (@id, @catenda, @aktiv);`);
+        IF @kobling <> N'ingen'
+          INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active)
+          VALUES (@id, @catenda, IIF(@kobling = N'aktiv', 1, 0));`);
     return { id, catenda };
   }
 
@@ -230,7 +244,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
   });
 
   it('en liste for et prosjekt med inaktiv kobling avvises', async () => {
-    const p = await prosjekt(false);
+    const p = await prosjekt('inaktiv');
     await expect(synk(p, [medlem()], sekunder(-1))).rejects.toBeInstanceOf(FeilCatendaProsjekt);
     expect(await synkrad(p.id)).toBeUndefined();
   });
@@ -242,7 +256,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       (s) =>
         `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20)}`,
     ],
-    ['mellomrom i enden', (s) => `${s} `],
+    ['mellomrom til slutt', (s) => `${s} `],
     ['for kort', (s) => s.slice(1)],
     ['tomt', () => ''],
   ])(
@@ -296,14 +310,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     expect(await medlemskap(p.id)).toEqual([]);
   });
 
-  it('et hentetidspunkt mer enn 30 s fram i tid avvises; 20 s fram godtas', async () => {
+  it('et hentetidspunkt etter basens klokke avvises, også ett sekund; basens klokke godtas (B-04 punkt 1, #616)', async () => {
     const p = await prosjekt();
-    await expect(synk(p, [medlem()], sekunder(60))).rejects.toBeInstanceOf(UgyldigMedlemsliste);
+    const naa = await basensKlokke(kjoeretid.pool);
+    await expect(synk(p, [medlem()], new Date(naa.getTime() + 1000))).rejects.toSatisfy(
+      (e: unknown) => e instanceof UgyldigMedlemsliste && feilnummer((e as Error).cause) === 52042
+    );
     expect(await synkrad(p.id)).toBeUndefined();
-    expect(await synk(p, [medlem()], sekunder(20))).toBe(true);
+    expect(await synk(p, [medlem()], naa)).toBe(true);
   });
 
-  it('en prosjekt-ID med mellomrom i enden avvises og treffer ikke prosjektet uten', async () => {
+  it('en prosjekt-ID med mellomrom til slutt avvises og treffer ikke prosjektet uten', async () => {
     const p = await prosjekt();
     await expect(
       synkroniserMedlemskap(kjoeretid.pool, {
@@ -312,11 +329,56 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         hentet: sekunder(-1),
         medlemmer: [medlem()],
       })
-    ).rejects.toBeInstanceOf(UgyldigMedlemsliste);
+    ).rejects.toBeInstanceOf(UgyldigProsjekt);
     expect(await medlemskap(p.id)).toEqual([]);
     await expect(medlemslistensAlder(kjoeretid.pool, `${p.id} `)).rejects.toBeInstanceOf(
-      UgyldigMedlemsliste
+      UgyldigProsjekt
     );
+  });
+
+  it('en prosjekt-ID over 100 tegn avvises og treffer ikke prosjektet med de første 100 (#619)', async () => {
+    const p = await prosjekt(
+      'aktiv',
+      `medlemskap-${randomBytes(4).toString('hex')}`.padEnd(100, 'x')
+    );
+    await expect(
+      synkroniserMedlemskap(kjoeretid.pool, {
+        prosjekt: `${p.id}y`,
+        catendaProsjekt: p.catenda,
+        hentet: sekunder(-1),
+        medlemmer: [medlem()],
+      })
+    ).rejects.toBeInstanceOf(UgyldigProsjekt);
+    expect(await medlemskap(p.id)).toEqual([]);
+    await synk(p, [medlem()], sekunder(-1));
+    await expect(medlemslistensAlder(kjoeretid.pool, `${p.id}y`)).rejects.toBeInstanceOf(
+      UgyldigProsjekt
+    );
+    expect(await medlemslistensAlder(kjoeretid.pool, p.id)).not.toBeNull();
+  });
+
+  it('uten e-post og navn på listen beholder medlemskapet dem, og et nytt medlem får tomme verdier (#615)', async () => {
+    const p = await prosjekt();
+    const a = medlem();
+    await synk(p, [a], sekunder(-20));
+    await synk(
+      p,
+      [
+        { ...a, epost: '', navn: '' },
+        { ...medlem(), epost: '', navn: '' },
+      ],
+      sekunder(-10)
+    );
+    const svar = await base.pool.request().input('p', sql.NVarChar(100), p.id).query<{
+      catenda_subject: string;
+      user_email: string;
+      display_name: string;
+    }>(`SELECT catenda_subject, user_email, display_name FROM koe.app_project_memberships WHERE project_id = @p`);
+    const rader = Object.fromEntries(svar.recordset.map((r) => [r.catenda_subject, r]));
+    expect(rader[a.subjekt]).toMatchObject({ user_email: a.epost, display_name: a.navn });
+    expect(Object.values(rader).filter((r) => r.catenda_subject !== a.subjekt)).toMatchObject([
+      { user_email: '', display_name: '' },
+    ]);
   });
 
   it.each<[string, string]>([
@@ -331,13 +393,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
        VALUES (@p, NEWID(), SYSUTCDATETIME())`,
     ],
   ])('%s avviser mellomrom til slutt, også fra eieren (547)', async (kolonne, setning) => {
-    const p = { id: `medlemskap-${randomBytes(4).toString('hex')}` };
-    await base.pool
-      .request()
-      .input('id', sql.NVarChar(100), p.id)
-      .query(
-        `INSERT koe.projects (id, name, organisasjon_id, is_active) VALUES (@id, @id, N'oslobygg', 1)`
-      );
+    const p = await prosjekt('ingen');
     const feil = await base.pool
       .request()
       .input('p', sql.NVarChar(100), `${p.id} `)
@@ -346,7 +402,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         () => null,
         (f: Error) => ({ nummer: feilnummer(f), melding: f.message })
       );
-    expect(feil?.nummer).toBe(547);
+    expect(feil?.nummer).toBe(CHECK_BRUDD);
     expect(feil?.melding).toContain(`${kolonne.replace('.', '_')}_uten_mellomrom`);
   });
 
@@ -366,22 +422,195 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     ]);
   });
 
-  it('en liste hentet før deaktiveringen ved innlogging gjør ikke medlemmet aktivt igjen; en liste hentet etter gjør det (DL-U8)', async () => {
-    const p = await prosjekt();
-    const a = medlem();
-    await synk(p, [a], sekunder(-60));
-    const innlogging = sekunder(-30);
-    await base.pool
-      .request()
-      .input('p', sql.NVarChar(100), p.id)
-      .input('t', sql.DateTime2(3), innlogging)
-      .query(
-        `UPDATE koe.app_project_memberships SET active = 0, deactivated_at = @t WHERE project_id = @p`
+  describe('deaktiveringen ved innlogging (DL-U8)', () => {
+    const logginn = (s: string, catendaProsjekter: string[], hentet: Date) =>
+      deaktiverVedInnlogging(kjoeretid.pool, { subjekt: s, catendaProsjekter, hentet });
+
+    /** Eieren holder applåsen for prosjektet til `slipp()` kalles. */
+    async function holdLaasen(prosjektId: string) {
+      const laas = new sql.Transaction(base.pool);
+      await laas.begin();
+      await laas
+        .request()
+        .input('r', sql.NVarChar(255), `koe.medlemskap:${prosjektId}`)
+        .query(
+          `DECLARE @svar int; EXEC @svar = sp_getapplock @Resource = @r, @LockMode = 'Exclusive', @LockOwner = 'Transaction';
+           IF @svar < 0 THROW 50000, N'Fikk ikke låsen i testen', 1;`
+        );
+      return { slipp: () => laas.commit() };
+    }
+
+    it('kontrollsak: medlemskapet i et koblet prosjekt som ikke står i brukerens liste, blir inaktivt med innloggingens tidspunkt', async () => {
+      const [p1, p2] = [await prosjekt(), await prosjekt()];
+      const [a, b] = [medlem(), medlem()];
+      await synk(p1, [a], sekunder(-60));
+      await synk(p2, [a, b], sekunder(-60));
+      const hentet = await basensKlokke(kjoeretid.pool);
+      expect(await logginn(a.subjekt, [p1.catenda], hentet)).toEqual([p2.id]);
+      expect(await aktive(p1.id)).toEqual([a.subjekt]);
+      expect(await aktive(p2.id)).toEqual([b.subjekt]);
+      const rad = (await medlemskap(p2.id)).find((m) => m.catenda_subject === a.subjekt);
+      expect(rad?.deactivated_at?.getTime()).toBe(hentet.getTime());
+    });
+
+    it('en liste hentet før innloggingen gjør ikke medlemmet aktivt igjen; en liste hentet etter gjør det', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      await synk(p, [a], sekunder(-60));
+      expect(await logginn(a.subjekt, [], sekunder(-30))).toContain(p.id);
+      expect(await synk(p, [a], sekunder(-40))).toBe(true);
+      expect(await medlemskap(p.id)).toMatchObject([{ active: false }]);
+      expect(await synk(p, [a], sekunder(-20))).toBe(true);
+      expect(await medlemskap(p.id)).toMatchObject([{ active: true, deactivated_at: null }]);
+    });
+
+    it('en liste med medlemmet, hentet etter innloggingens liste og alt skrevet, gjør at innloggingen ikke endrer prosjektet (DL-U7)', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      await synk(p, [a], sekunder(-10));
+      expect(await logginn(a.subjekt, [], sekunder(-20))).not.toContain(p.id);
+      expect(await aktive(p.id)).toEqual([a.subjekt]);
+    });
+
+    it('ved samme tidspunkt som listen gjelder innloggingen, i begge rekkefølger', async () => {
+      const a = medlem();
+      const [p1, p2] = [await prosjekt(), await prosjekt()];
+      const t = sekunder(-10);
+      await synk(p2, [a], sekunder(-20));
+      await synk(p1, [a], t);
+      await logginn(a.subjekt, [p2.catenda], t);
+      expect(await aktive(p1.id)).toEqual([]);
+      await logginn(a.subjekt, [p1.catenda], t);
+      await synk(p2, [a], t);
+      expect(await aktive(p2.id)).toEqual([]);
+    });
+
+    it('et medlemskap som alt er inaktivt, får innloggingens tidspunkt, så en liste hentet mellom de to ikke gjør det aktivt', async () => {
+      const p = await prosjekt();
+      const [a, b] = [medlem(), medlem()];
+      await synk(p, [a, b], sekunder(-60));
+      await synk(p, [b], sekunder(-50));
+      expect(await logginn(a.subjekt, [], sekunder(-30))).toContain(p.id);
+      expect(await synk(p, [a, b], sekunder(-40))).toBe(true);
+      expect(await aktive(p.id)).toEqual([b.subjekt]);
+    });
+
+    it('et prosjekt med inaktiv kobling, uten kobling eller som står i listen, endres ikke', async () => {
+      const a = medlem();
+      const [aktiv, inaktiv, uten] = [await prosjekt(), await prosjekt(), await prosjekt()];
+      for (const p of [aktiv, inaktiv, uten]) await synk(p, [a], sekunder(-30));
+      await base.pool
+        .request()
+        .input('i', sql.NVarChar(100), inaktiv.id)
+        .input('u', sql.NVarChar(100), uten.id).query(`
+          UPDATE koe.catenda_project_configs SET is_active = 0 WHERE internal_project_id = @i;
+          DELETE koe.catenda_project_configs WHERE internal_project_id = @u;`);
+      const endret = await logginn(a.subjekt, [aktiv.catenda], sekunder(-1));
+      expect(endret.filter((id) => [aktiv.id, inaktiv.id, uten.id].includes(id))).toEqual([]);
+      for (const p of [aktiv, inaktiv, uten]) expect(await aktive(p.id)).toEqual([a.subjekt]);
+    });
+
+    it('et subjekt uten bruker endrer ingenting', async () => {
+      expect(await logginn(subjekt(), [], sekunder(-1))).toEqual([]);
+    });
+
+    it.each<[string, () => [string, string[], Date] | Promise<[string, string[], Date]>, number]>([
+      [
+        'et subjekt som ikke er normalisert',
+        () => [subjekt().toUpperCase(), [], sekunder(-1)],
+        52022,
+      ],
+      ['en Catenda-ID som ikke er en UUID', () => [subjekt(), ['abc'], sekunder(-1)], 52045],
+      [
+        'en Catenda-ID uten bindestreker',
+        () => [subjekt(), [randomUUID().replaceAll('-', '')], sekunder(-1)],
+        52045,
+      ],
+      [
+        'et tidspunkt etter basens klokke',
+        async () => [
+          subjekt(),
+          [],
+          new Date((await basensKlokke(kjoeretid.pool)).getTime() + 1000),
+        ],
+        52042,
+      ],
+    ])('%s avvises (UgyldigInnlogging)', async (_, argumenter, nummer) => {
+      const [s, liste, hentet] = await argumenter();
+      await expect(logginn(s, liste, hentet)).rejects.toSatisfy(
+        (e: unknown) => e instanceof UgyldigInnlogging && feilnummer((e as Error).cause) === nummer
       );
-    expect(await synk(p, [a], sekunder(-40))).toBe(true);
-    expect(await medlemskap(p.id)).toMatchObject([{ active: false }]);
-    expect(await synk(p, [a], sekunder(-20))).toBe(true);
-    expect(await medlemskap(p.id)).toMatchObject([{ active: true, deactivated_at: null }]);
+    });
+
+    it('en prosjektliste som ikke er en JSON-liste, avvises', async () => {
+      const feil = await kjoeretid.pool
+        .request()
+        .input('subjekt', sql.NVarChar(400), subjekt())
+        .input('catenda_prosjekter', sql.NVarChar(sql.MAX), '{}')
+        .input('hentet', sql.DateTime2(3), sekunder(-1))
+        .execute('koe_api.deaktiver_ved_innlogging')
+        .then(() => null, feilnummer);
+      expect(feil).toBe(52045);
+    });
+
+    it('innloggingen venter på applåsen synkroniseringen tar for prosjektet', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      await synk(p, [a], sekunder(-60));
+      const laas = await holdLaasen(p.id);
+      const kall = logginn(a.subjekt, [], sekunder(-30));
+      await new Promise((ferdig) => setTimeout(ferdig, 1500));
+      expect(await aktive(p.id)).toEqual([a.subjekt]);
+      await laas.slipp();
+      expect(await kall).toContain(p.id);
+      expect(await aktive(p.id)).toEqual([]);
+    });
+
+    it('en applås som ikke blir ledig innen 10 s, gir MedlemskapetLaast for både innloggingen og synkroniseringen (#615, #617)', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      await synk(p, [a], sekunder(-60));
+      const laas = await holdLaasen(p.id);
+      try {
+        const [innlogging, synkronisering] = await Promise.allSettled([
+          logginn(a.subjekt, [], sekunder(-30)),
+          synk(p, [], sekunder(-30)),
+        ]);
+        expect(innlogging).toMatchObject({ status: 'rejected' });
+        expect(synkronisering).toMatchObject({ status: 'rejected' });
+        for (const svar of [innlogging, synkronisering])
+          expect((svar as PromiseRejectedResult).reason).toBeInstanceOf(MedlemskapetLaast);
+      } finally {
+        await laas.slipp();
+      }
+      expect(await aktive(p.id)).toEqual([a.subjekt]);
+    }, 30_000);
+
+    it.each<[string, number, boolean]>([
+      ['hentet før innloggingen', -40, false],
+      ['hentet etter innloggingen', -20, true],
+    ])(
+      'samtidig med synkroniseringen av en liste %s ender medlemmet likt i hver rekkefølge (DL-U8)',
+      async (_, listeHentet, aktivTilSlutt) => {
+        const a = medlem();
+        const prosjekter = await Promise.all(Array.from({ length: 6 }, () => prosjekt()));
+        for (const p of prosjekter) await synk(p, [a], sekunder(-60));
+        const innlogging = sekunder(-30);
+        const liste = sekunder(listeHentet);
+        const laaser = await Promise.all(prosjekter.map((p) => holdLaasen(p.id)));
+        const kall = prosjekter.flatMap((p, i) =>
+          i % 2 === 0
+            ? [synk(p, [a], liste), logginn(a.subjekt, [], innlogging)]
+            : [logginn(a.subjekt, [], innlogging), synk(p, [a], liste)]
+        );
+        await new Promise((ferdig) => setTimeout(ferdig, 1000));
+        for (const l of [...laaser].reverse()) await l.slipp();
+        await Promise.all(kall);
+        for (const p of prosjekter)
+          expect(await aktive(p.id)).toEqual(aktivTilSlutt ? [a.subjekt] : []);
+      },
+      30_000
+    );
   });
 
   describe('alderen på listen (B-04 punkt 4)', () => {
