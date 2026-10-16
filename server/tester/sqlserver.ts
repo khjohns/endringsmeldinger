@@ -147,6 +147,58 @@ export async function opprettTestbase(
   };
 }
 
+/**
+ * En innlogging som er medlem av `koe_runtime` i basen, og en pool som logger inn
+ * med den, så kjøretiden prøves med sine egne rettigheter gjennom `transaksjon()`
+ * (#53, del 3a). Innloggingen hører til serveren og slettes med `slett()`, før basen.
+ */
+export async function opprettKjoeretid(
+  base: Testbase,
+  { maks = 4 } = {}
+): Promise<{ pool: Pool; slett(): Promise<void> }> {
+  const navn = `koe_kjoeretid_${randomBytes(4).toString('hex')}`;
+  const passord = `${randomBytes(24).toString('base64url')}aA1!`;
+  const master = await kobleTilServer(SLETTEFRIST);
+  try {
+    await master
+      .request()
+      .batch(
+        `CREATE LOGIN [${navn}] WITH PASSWORD = N'${passord}', DEFAULT_DATABASE = [${base.navn}], CHECK_POLICY = OFF;`
+      );
+  } finally {
+    await master.close();
+  }
+  await base.pool
+    .request()
+    .batch(
+      `CREATE USER [${navn}] FOR LOGIN [${navn}]; ALTER ROLE koe_runtime ADD MEMBER [${navn}];`
+    );
+  const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
+  const pool = await opprettPool(
+    {
+      ...config,
+      user: navn,
+      password: passord,
+      database: base.navn,
+      connectionTimeout: 5_000,
+      requestTimeout: 60_000,
+    },
+    { maks }
+  );
+  return {
+    pool,
+    async slett() {
+      await pool.close();
+      const m = await kobleTilServer(SLETTEFRIST);
+      try {
+        await m.request().batch(`DROP LOGIN [${navn}];`);
+      } finally {
+        await m.close();
+      }
+    },
+  };
+}
+
 /** Feilnummeret fra SQL Server: 2627 for brudd på en unik nøkkel, et eget nummer fra THROW osv. */
 export function feilnummer(feil: unknown): number | undefined {
   const f = feil as { number?: number; originalError?: { info?: { number?: number } } };

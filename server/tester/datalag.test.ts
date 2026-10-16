@@ -32,7 +32,7 @@ const KONTEKST: Kontekst = {
   aktor: randomUUID(),
   prosjekt: 'prosjekt-a',
   side: 'TE',
-  team: 'a'.repeat(64),
+  team: 'a'.repeat(32),
 };
 
 interface Sesjon {
@@ -44,6 +44,8 @@ interface Sesjon {
   koe_side: string | null;
   koe_team: string | null;
   koe_tx: number | null;
+  koe_skriving: string | null;
+  koe_tidspunkt: string | null;
   tx: number | null;
 }
 
@@ -427,6 +429,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     ['prosjektet mangler', { prosjekt: undefined }],
     ['siden er ukjent', { side: 'EO' }],
     ['teamet er ikke heks', { team: 'team-1' }],
+    ['teamet er 64 tegn', { team: 'a'.repeat(64) }],
+    ['teamet har store bokstaver', { team: 'A'.repeat(32) }],
+    ['prosjektet har mellomrom på slutten', { prosjekt: 'prosjekt-a ' }],
+    ['prosjektet har mellomrom foran', { prosjekt: ' prosjekt-a' }],
   ])('ugyldig kontekst avvises før forbindelsen lånes: %s', async (_navn, endring) => {
     let laant = false;
     vedNesteLaan(pool, () => (laant = true));

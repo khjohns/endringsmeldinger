@@ -33,17 +33,27 @@ export interface Kontekst {
   aktor: string;
   prosjekt: string;
   side?: 'TE' | 'BH';
-  /** SHA-256 i heks av team-ID-en, som i prøven. */
+  /**
+   * Teamet i `catenda_id()`-formen, 32 små heksadesimale tegn som
+   * `catenda_contract_teams.team_id`. Kalleren setter det bare når det er
+   * entydig og et av prosjektets kontraktsteam på avsenderens side (DL-U4).
+   */
   team?: string;
 }
 
-/** Nøklene `transaksjon` setter i `SESSION_CONTEXT`, med samme navn som prøven (02_sikkerhet.sql). */
+/**
+ * Nøklene i `SESSION_CONTEXT`, med samme navn som prøven (02_sikkerhet.sql): de
+ * fem første setter `transaksjon`, og `koe_skriving` og `koe_tidspunkt` setter
+ * kommandoene i `koe_api`. Ingen av dem har verdi etter nullstillingen.
+ */
 export const KONTEKSTNOEKLER = [
   'koe_aktor',
   'koe_prosjekt',
   'koe_side',
   'koe_team',
   'koe_tx',
+  'koe_skriving',
+  'koe_tidspunkt',
 ] as const;
 
 /** Konteksten er ugyldig. Ingen forbindelse er lånt. */
@@ -97,17 +107,22 @@ export async function opprettPool(
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const TEAM = /^[0-9a-f]{64}$/;
+const TEAM = /^[0-9a-f]{32}$/;
 
 function kontroller(k: Kontekst): void {
   if (typeof k?.aktor !== 'string' || !UUID.test(k.aktor))
     throw new UgyldigKontekst('Aktøren er ikke en UUID.');
-  if (typeof k.prosjekt !== 'string' || k.prosjekt.trim() === '' || k.prosjekt.length > 100)
-    throw new UgyldigKontekst('Prosjektet mangler eller er lengre enn 100 tegn.');
+  if (
+    typeof k.prosjekt !== 'string' ||
+    k.prosjekt.trim() !== k.prosjekt ||
+    k.prosjekt === '' ||
+    k.prosjekt.length > 100
+  )
+    throw new UgyldigKontekst('Prosjektet mangler, har mellomrom i endene eller er over 100 tegn.');
   if (k.side !== undefined && k.side !== 'TE' && k.side !== 'BH')
     throw new UgyldigKontekst('Siden er verken TE eller BH.');
   if (k.team !== undefined && (typeof k.team !== 'string' || !TEAM.test(k.team)))
-    throw new UgyldigKontekst('Teamet er ikke 64 tegn heks.');
+    throw new UgyldigKontekst('Teamet er ikke 32 små heksadesimale tegn.');
 }
 
 /**
@@ -241,7 +256,7 @@ async function iTransaksjon<T>(
       .input('aktor', sql.UniqueIdentifier, kontekst.aktor)
       .input('prosjekt', sql.NVarChar(100), kontekst.prosjekt)
       .input('side', sql.NVarChar(2), kontekst.side ?? null)
-      .input('team', sql.NVarChar(64), kontekst.team ?? null)
+      .input('team', sql.NVarChar(32), kontekst.team ?? null)
       .batch(
         `DECLARE @tx bigint = CURRENT_TRANSACTION_ID();
          EXEC sp_set_session_context N'koe_aktor', @aktor, @read_only = 1;
