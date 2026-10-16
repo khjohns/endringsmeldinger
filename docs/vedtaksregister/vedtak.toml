@@ -5491,7 +5491,7 @@ svar = '''
 «A: tilfeldig ID (Anbefalt)»'''
 forhold = [{ art = "presiserer", vedtak = "lv-u4" }]
 folge = '''
-Arbeidsvalgene for del 3 av #53 står i kommentaren 16.10 på #53. Ikke bygget'''
+Ikke bygget'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -5529,7 +5529,7 @@ valgt = "A"
 svar = '''
 «A: lagres i 3b (Anbefalt)»'''
 folge = '''
-Gjelder merknaden 23.09 til B-04, punkt 1 og 4, som står uten anker. Endrer arbeidsvalget 16.10 i #53, som la tabellen for synkroniseringen til senere. Ikke bygget'''
+Presiserer merknaden 23.09 til B-04, punkt 1 og 4. Endrer [arbeidsvalget 16.10 i #53](https://github.com/khjohns/endringsmeldinger/issues/53#issuecomment-6209851162), som la tabellen for synkroniseringen til senere. Ikke bygget'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
