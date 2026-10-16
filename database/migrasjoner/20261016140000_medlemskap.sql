@@ -48,8 +48,7 @@ GO
 -- JSON-liste med `subject` i `catenda_id()`-formen, `email`, `name` og `role`.
 -- `@skrevet` er 0 når en liste hentet samtidig eller senere alt er skrevet (DL-U7);
 -- da endres ingenting. Applåsen per prosjekt holder sammenlikningen og
--- skrivingen samlet. Deaktiveringen ved innlogging er ikke bygget; den må ta
--- samme lås (DL-U8).
+-- skrivingen samlet.
 -- `viewer_override` og kontraktsteamene skrives ikke her.
 CREATE PROCEDURE koe_api.synkroniser_medlemskap
   @prosjekt nvarchar(100), @catenda_prosjekt uniqueidentifier, @medlemmer nvarchar(max),
