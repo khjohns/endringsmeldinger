@@ -168,7 +168,12 @@ const INNHOLD = {
     hovedkategori: h.hovedkategori ?? 'endring',
     underkategori: h.underkategori,
     // GR-U16: TE identifiserer endringsordren kravet følger av.
-    ...(h.underkategori === 'endringsordre' ? { endringsordre: 'EO 1' } : {}),
+    ...(h.underkategori === 'endringsordre'
+      ? { endringsordre: 'EO 1' }
+      : // VS-U26: datoen varslingsplikten løper fra, før kjørerens klokke.
+        (h.hovedkategori ?? 'endring') === 'endring'
+        ? { paalegg_mottatt: '2026-09-15' }
+        : { klar_over_forholdet: '2026-09-15' }),
   }),
   vederlag: (h: Handling) => ({ metode: 'tilbud', beloep: h.belop }),
   frist: (h: Handling) => ({ dager: h.dager }),

@@ -12,7 +12,8 @@ import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { avvis } from './forutsetninger.ts';
-import { erRegistrert, lesJournal, Uforstaatt } from '../format/leser.ts';
+import { erRegistrert, lesJournal, registrertDato, Uforstaatt } from '../format/leser.ts';
+import { oppgittDatoEtterBrevet } from './nyttelast.ts';
 import { harUlagringsbarTekst } from '../format/skjema.ts';
 import { regnUtSvar } from '../frosset/standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
@@ -227,7 +228,10 @@ function skriv(
   const k = kommando as Kommando;
   const lest = lesJournal(journal, kjerne.leserformat);
   const u = utled(lest, kjerne.regler);
-  const brudd = avvisning(k, kontekst.part, u, kjerne.regler, sendes);
+  const tidspunkt = kontekst.tidspunkt();
+  const brudd =
+    avvisning(k, kontekst.part, u, kjerne.regler, sendes) ??
+    oppgittDatoEtterBrevet(k, registrertDato({ registrert: tidspunkt.toISOString() }));
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
 
   const eventId = kontekst.nyId();
@@ -246,7 +250,7 @@ function skriv(
     sak_id: kontekst.sakId,
     event_type: 'dokument_registrert',
     versjon: (journal.at(-1)?.versjon ?? 0) + 1,
-    tidsstempel: kontekst.tidspunkt().toISOString(),
+    tidsstempel: tidspunkt.toISOString(),
     aktor_id: kontekst.aktoerId,
     aktor_rolle: kontekst.part,
     aktor_team_id: kontekst.teamId,

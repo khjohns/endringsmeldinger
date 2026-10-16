@@ -7,7 +7,17 @@
  * skrives.
  */
 
-import { DATO, ID, KRAVINNHOLD, liste, objekt, OPPLYSNINGSSLAG, TEKST } from '../format/format.ts';
+import {
+  DATO,
+  ID,
+  KRAVINNHOLD,
+  liste,
+  objekt,
+  oppgittDato,
+  OPPLYSNINGSSLAG,
+  TEKST,
+  type OppgittDato,
+} from '../format/format.ts';
 import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
 import type { Svarvurdering } from '../frosset/standpunkt.ts';
 import {
@@ -196,6 +206,27 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   ),
 };
 
+type Innhold = Record<string, unknown>;
+
+const DATOEN: Record<OppgittDato, string> = {
+  paalegg_mottatt: 'datoen pålegget ble mottatt',
+  klar_over_forholdet: 'datoen TE ble klar over forholdet',
+};
+
+/**
+ * VS-U26: et grunnlagskrav fra appen har datoen kategorien har, som en dato.
+ * Formatet binder feltet til kategorien; her kreves det.
+ */
+function datofeil(innhold: Innhold): string[] {
+  const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
+  if (felt === null) return [];
+  const dato = innhold[felt];
+  if (dato === undefined) return [`$.innhold.${felt}: TE må oppgi ${DATOEN[felt]} (VS-U26)`];
+  return erKalenderdato(dato)
+    ? []
+    : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
+}
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -207,6 +238,7 @@ export function formfeil(kommando: unknown): string[] {
     const k = kommando as { spor: Spor; innhold: unknown };
     const { properties, required, anyOf } = KRAVINNHOLD[k.spor];
     feil.push(...feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'));
+    if (k.spor === 'grunnlag' && !feil.length) feil.push(...datofeil(k.innhold as Innhold));
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }
