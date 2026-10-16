@@ -894,7 +894,7 @@ ingen HTTP-inngang kaller modulen ennå (F0b-5a, #659)."""
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
 personopplysninger = "Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`)."
-skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.slett_sesjon`, `koe_api.rydd_utloepte`)"]
+skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.rydd_utloepte`)", "database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`)"]
 funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`."
 
@@ -916,7 +916,7 @@ Kalt fra `server/sesjon.ts`; ingen HTTP-inngang kaller modulen ennå (F0b-5a,
 fra_catenda = "Nei, men raden hører til en innlogging hos Catenda."
 kan_gjenoppbygges = "nei, men radene er kortlevde."
 personopplysninger = "Ingen kjente; bare hasher og en returadresse."
-skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_innloggingsforsoek`, `koe_api.bruk_innloggingsforsoek`, `koe_api.rydd_utloepte`)"]
+skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_innloggingsforsoek`, `koe_api.rydd_utloepte`)", "database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.bruk_innloggingsforsoek`, innført i `20261016190000_sesjon.sql`)"]
 funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`."
 

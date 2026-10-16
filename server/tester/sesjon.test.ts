@@ -228,6 +228,47 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
     );
   });
 
+  // Planen for prosedyren, uten å kjøre den, på en egen forbindelse, så
+  // SHOWPLAN_XML aldri følger en forbindelse tilbake til poolen.
+  async function plan(kall: string): Promise<string> {
+    const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
+    const forbindelse = await new sql.ConnectionPool({
+      ...config,
+      database: base.navn,
+      pool: { max: 1 },
+    }).connect();
+    try {
+      await forbindelse.request().batch('SET SHOWPLAN_XML ON');
+      const svar = await forbindelse.request().batch(kall);
+      return (svar.recordsets as unknown as Record<string, string>[][])
+        .flatMap((sett) => sett.map((rad) => Object.values(rad).join('')))
+        .join('\n');
+    } finally {
+      await forbindelse.close();
+    }
+  }
+
+  const H = '0'.repeat(64);
+  // En `nvarchar`-parameter mot en `varchar`-kolonne konverterer kolonnen, og
+  // oppslaget leser hele tabellen eller søker i et område med kolonnen konvertert
+  // (#691). Søket kan stå i en egen operator eller inne i `Clustered Index
+  // Delete`, så testen krever bare at nøkkelen brukes uten skanning og
+  // konvertering.
+  it.each([
+    ['les_sesjon', `EXEC koe_api.les_sesjon @token_hash = N'${H}'`, 'app_sessions_pk'],
+    ['slett_sesjon', `EXEC koe_api.slett_sesjon @token_hash = N'${H}'`, 'app_sessions_pk'],
+    [
+      'bruk_innloggingsforsoek',
+      `EXEC koe_api.bruk_innloggingsforsoek @state_hash = N'${H}', @nettleser_hash = N'${H}'`,
+      'app_oauth_attempts_pk',
+    ],
+  ])('%s søker i primærnøkkelen uten å konvertere hashkolonnen', async (_, kall, noekkel) => {
+    const xml = await plan(kall);
+    expect(xml).toContain(`Index="[${noekkel}]"`);
+    expect(xml).not.toMatch(/PhysicalOp="Clustered Index Scan"/);
+    expect(xml).not.toMatch(/CONVERT_IMPLICIT\([^)]*\)?,[^,]*\[(token|state|browser)_hash\]/);
+  });
+
   it.each(['app_sessions', 'app_oauth_attempts'])(
     'kjøretiden kan ikke lese eller endre koe.%s direkte',
     async (tabell) => {
