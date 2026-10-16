@@ -3352,6 +3352,50 @@ navn = "C"
 tekst = '''
 Appen spør ikke etter datoen.'''
 forkastet = true
+[[gruppe.vedtak]]
+id = "VS-U26"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#664", "#655"]
+sporsmal = '''
+FK-2: Hvilken dato oppgir TE i grunnlagskravet, og i hvilke underkategorier? VS-U25 sier «TE oppgir datoen», men ikke hvilken dato det er. Spørsmålet viste til § 32.2, der varslingsplikten løper fra TE mottar pålegget («Mottar totalentreprenøren pålegg som angitt i 32.1, skal han uten ugrunnet opphold varsle byggherren»). Ved svikt og andre forhold løper fristen etter § 34.1.2 fra TE «blir eller burde ha blitt klar over forholdene». Ved endringsordre (§ 31.3) har TE ingen varslingsplikt for grunnlaget, og endringsordrens dato eller nummer er allerede påkrevd (GR-U16). I alle tre alternativene er datoen påkrevd i krav fra appen, grunnlagskravet blir ikke et varsel etter § 33.4 eller § 34.1.2, appen vurderer ikke rettidigheten, og den nye setningen gjelder bare nye brev (MM-U9). Prøvd mot 3.1: ingen alternativ strider mot et vedtak. Valget styrer feltet, hvilke underkategorier det gjelder, brevteksten og skjemaet.
+
+Forholdet, slik det sto i alternativene: A presiserer VS-U25, utvider LV-U4 punkt 1. B presiserer VS-U25 slik ordet «oppdaget» lyder, utvider LV-U4 punkt 1. C presiserer VS-U25 hvis det gjelder § 32.2; ellers snevrer det inn VS-U25 (og er for svikt og andre forhold lik det forkastede B i VS-U25).'''
+valgt = "A: datoen fristen løper fra"
+svar = '''
+«A: datoen fristen løper fra»'''
+forhold = [{ art = "presiserer", vedtak = "vs-u25" }, { art = "utvider", vedtak = "lv-u4" }]
+folge = '''
+Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A: datoen fristen løper fra"
+tekst = '''
+I grunnlagskravet oppgir TE datoen varslingsplikten løper fra. Der § 32.2 gjelder, er det datoen TE mottok pålegget, og brevet sier etter setningen om § 32.2: «TE opplyser at pålegget ble mottatt <dato>.» I svikt og andre forhold (§ 33.1 b–c) er det datoen TE ble klar over forholdet, og brevet sier etter kategorisetningen: «TE opplyser at TE ble klar over forholdet <dato>.» I underkategorien endringsordre (§ 31.3) oppgir TE ingen slik dato. Datoen er påkrevd i krav fra appen. Grunnlagskravet blir ikke et varsel etter § 33.4 eller § 34.1.2, og appen vurderer ikke rettidigheten. Den nye setningen gjelder bare nye brev (MM-U9).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B: når TE ble klar over det"
+tekst = '''
+I grunnlagskravet oppgir TE datoen TE ble klar over forholdet, i alle underkategorier unntatt endringsordre (§ 31.3). Brevet sier etter kategorisetningen, og der § 32.2 gjelder etter setningen om § 32.2: «TE opplyser at TE ble klar over forholdet <dato>.» Datoen er påkrevd i krav fra appen. Grunnlagskravet blir ikke et varsel etter § 33.4 eller § 34.1.2, og appen vurderer ikke rettidigheten. Den nye setningen gjelder bare nye brev (MM-U9).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C: bare der § 32.2 gjelder"
+tekst = '''
+Bare der § 32.2 gjelder, oppgir TE datoen TE mottok pålegget, og brevet sier etter setningen om § 32.2: «TE opplyser at pålegget ble mottatt <dato>.» I svikt og andre forhold og i endringsordre spør appen ikke etter datoen; TE kan beskrive den i utdypningen. Datoen er påkrevd i krav fra appen. Grunnlagskravet blir ikke et varsel etter § 33.4 eller § 34.1.2, og appen vurderer ikke rettidigheten. Den nye setningen gjelder bare nye brev (MM-U9).'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+utdrag = true
+tekst = "Mottar totalentreprenøren pålegg som angitt i 32.1, skal han uten ugrunnet opphold varsle byggherren"
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+utdrag = true
+tekst = "blir eller burde ha blitt klar over forholdene"
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -4745,7 +4789,7 @@ forhold = [
   { art = "endrer", vedtak = "vs-u11" },
 ]
 folge = '''
-Bygget 16.10 i PR #654 (#574, #595 punkt 1): et krav, svar, aksept og trekk i et registrert brev gir ingen virkning i utledningen, unntatt et svar som er byggherrens endringsordre etter OV-U6 (`dokumentasjonIBrevet` i `kjerne/utledning/utled.ts`). Et varsel med datoen TE oppgir, har fortsatt virkning (OV-U5). Gjeldende krav er bare kravversjoner med virkning, altså ikke i et registrert brev. Endringen av VS-U8 gjelder bestridelsen, som er utsatt etter OV-U7, og er ikke bygget. Ikke bygget i PR #654: visningen ved «venter på svar» (T2) og fristveiledningen, som viser at motparten har registrert brev i sporet. Kjernen har ingen kommando som registrerer et krav eller svar (`skriving.ts`). Reglene i OV-U4 for at en registrering godtas etter godtatt avslag, etter trukket grunnlag og i en sak som ikke er forstått, er ikke bygget (`forutsetninger.ts` avviser). `ingen_krav` i et registrert brev har fortsatt virkning (åpent spørsmål 8 i PR #654, #587 med #493). Begrunnelse, innsigelse, protest, passivitet og bestridelse i et registrert brev leses som før (de utsatte etter OV-U7, resten av #587). Spørsmålene om OV-U6 fra reviewet står i #669. Se #626.'''
+Bygget 16.10 i PR #654 (#574, #595 punkt 1): et krav, svar, aksept og trekk i et registrert brev gir ingen virkning i utledningen, unntatt et svar som er byggherrens endringsordre etter OV-U6 (`dokumentasjonIBrevet` i `kjerne/utledning/utled.ts`). Et varsel med datoen TE oppgir, har fortsatt virkning (OV-U5). Gjeldende krav er bare kravversjoner med virkning, altså ikke i et registrert brev. OV-U4 sier ikke hva endringene av VS-U11 og VS-U8 er. Leses endringen av VS-U11 som setningene om registrerte svar, er den bygget med dette: et registrert svar gir eller opphever ingen innsigelse (`harSagtITide`). Leses endringen av VS-U8 som bestridelsen av datoen, er den ikke bygget: bestridelsen er utsatt etter OV-U7, og kommandoen godtas fortsatt (`forutsetninger.ts`). Ikke bygget i PR #654: visningen ved «venter på svar» (T2) og fristveiledningen, som viser at motparten har registrert brev i sporet. Kjernen har ingen kommando som registrerer et krav eller svar (`skriving.ts`). Reglene i OV-U4 for at en registrering godtas når kravene er avgjort, etter godtatt avslag, etter trukket grunnlag og i en sak som ikke er forstått, holder for en begrunnelse, registrert eller fra appen, unntatt i en sak som ikke er forstått (KA-U34 i `forutsetninger.ts`). Et registrert varsel, som har virkning etter OV-U5, avvises i alle fire tilfellene (`forutsetninger.ts`). I en sak som ikke er forstått, er det etter OV-U4. `ingen_krav` i et registrert brev har fortsatt virkning (åpent spørsmål 8 i PR #654, #587 med #493). Begrunnelse, innsigelse, protest, passivitet og bestridelse i et registrert brev leses som før (bestridelse, protest og passivitet er utsatt etter OV-U7; resten av #587). Funnene fra reviewet av PR #654: #669. Revisjonskontrollen etter HF-U5 med et registrert svar imellom: #626.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -4874,7 +4918,7 @@ svar = '''
 Ja'''
 forhold = [{ art = "endrer", vedtak = "ov-u1" }]
 folge = '''
-Bygget 16.10 i PR #654 (#587, merkedelen): merking og avklaring av registrerte brev avvises før brevet skrives, med IKKE_I_FOERSTE_VERSJON (`kjerne/kommandoer/forutsetninger.ts`). Meldingen sier at brevet kan registreres som dokumentasjon. Formatet og leseren tar ikke imot merkingen og avklaringen, så en sak med en slik rad er ikke forstått (HF-U1, B-10). Feltene `merket` og `forbehold`, BREV_MED_FORBEHOLD, sperren i `kanInngaaIEo` og merkingen i `visning.ts` er fjernet fra utledningen, kommandoene og visningen. Teksten for merking i `kjerne/frosset/brevtekst.ts` står igjen (T6 i PR #654). Ikke bygget i PR #654: resten av #587, med utsagnene uten virkning (bestridelse, påberopt passivitet, protest, senere begrunnelse og datokontrollene for den), «ingen krav» med #493 og KA-U36. Disse er ikke endret i PR #654. Endringsordre som egen sak og forsering utsettes av OV-U1, ikke av OV-U7.'''
+Bygget 16.10 i PR #654 (#587, merkedelen): merking og avklaring av registrerte brev avvises før brevet skrives, med IKKE_I_FOERSTE_VERSJON (`kjerne/kommandoer/forutsetninger.ts`). Meldingen sier at brevet kan registreres som dokumentasjon. Formatet og leseren tar ikke imot merkingen og avklaringen, så en sak med en slik rad er ikke forstått (HF-U1, B-10). Feltene `merket` og `forbehold`, BREV_MED_FORBEHOLD, sperren i `kanInngaaIEo` og merkingen i `visning.ts` er fjernet fra utledningen, kommandoene og visningen. Teksten for merking i `kjerne/frosset/brevtekst.ts` står igjen (T6 i PR #654). Ikke bygget i PR #654: resten av #587. Avvisningen etter OV-U7 av kommandoene for bestridelse, påberopt passivitet, protest og «ingen krav» (#587, #493) er ikke bygget, og kommandoene godtas fortsatt (`forutsetninger.ts`). Senere begrunnelse fra appen og datokontrollene for registrert begrunnelse (KA-U34, KA-U36–KA-U39) er ikke endret, og datokontrollen etter KA-U36 håndheves fortsatt (`nyttelast.ts`). Endringsordre som egen sak og forsering utsettes av OV-U1, ikke av OV-U7.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
