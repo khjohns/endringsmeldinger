@@ -5662,7 +5662,7 @@ Presiserer B-04 og snevrer inn punkt 4 for disse to tilfellene. Ikke bygget.'''
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-Medlemskapene står i begge tilfellene til en ny medlemsliste er skrevet.'''
+Medlemskapene står i begge tilfellene til en ny medlemsliste er skrevet'''
 forkastet = true
 
 [[gruppe.vedtak.alternativ]]
@@ -5672,9 +5672,9 @@ I begge tilfellene blir medlemskapene inaktive straks koblingen oppheves eller e
 anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
-navn = "C: delt"
+navn = "C"
 tekst = '''
-Inaktive når koblingen oppheves; står til ny liste når den endres.'''
+delt (inaktive når koblingen oppheves; står til ny liste når den endres)'''
 forkastet = true
 
 [[gruppe]]
