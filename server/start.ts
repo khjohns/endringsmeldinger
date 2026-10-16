@@ -1,7 +1,7 @@
 /**
  * Start TS-serveren mot den kastbare testbasen (B-18, skiva i #347):
  *
- *   KOE_TESTBASE_URL=… APP_ENV=development \
+ *   KOE_TESTBASE_URL=… KOE_DATALAG_TILKOBLING=… APP_ENV=development \
  *     TESTMILJO_TEAMMEDLEMMER='{"<team-id>": ["<subjekt>"]}' npm run server -- 8090
  *
  * Serveren lytter på 127.0.0.1 og skriver «lytter på http://127.0.0.1:<port>»
@@ -9,6 +9,9 @@
  *
  * - Den nekter å starte mot en base som ikke er merket kastbar av
  *   `scripts/testbase/bygg_testbase.sh`. Skiva er for testmiljøet.
+ * - `KOE_DATALAG_TILKOBLING` er tilkoblingsstrengen til en migrert base i
+ *   SQL Server, med sesjonen, medlemskapet og kontraktsteamene (#658). Journalen
+ *   står i PostgreSQL fram til F0b-7 (#661).
  * - `APP_ENV` må være den Python har. Med `development` heter sesjonskapselen
  *   `koe_session`, ellers `__Host-koe_session`, som krever HTTPS (B18-01).
  *   Vite-proxyen sender `/api/kjerne` til port 8090.
@@ -19,6 +22,7 @@
 import { createServer } from 'node:http';
 import { lagServer } from './app.ts';
 import { catendaId, type Catenda } from './autorisasjon.ts';
+import { opprettPool, sql } from './datalag.ts';
 import { kobleTilKastbarTestbase } from './kastbar.ts';
 
 function teamFraMiljo(): Catenda {
@@ -36,18 +40,25 @@ function teamFraMiljo(): Catenda {
 
 const url = process.env.KOE_TESTBASE_URL;
 if (!url) throw new Error('KOE_TESTBASE_URL er ikke satt');
+const tilkobling = process.env.KOE_DATALAG_TILKOBLING;
+if (!tilkobling) throw new Error('KOE_DATALAG_TILKOBLING er ikke satt');
 
 const pool = await kobleTilKastbarTestbase(url);
 // En ledig forbindelse som brytes, sender `error` på poolen. Uten lytter faller prosessen.
 pool.on('error', (feil) => console.error('Forbindelsen til basen ble brutt:', feil.message));
 
-const server = createServer(lagServer({ pool, catenda: teamFraMiljo() }));
+const datalag = await opprettPool(sql.ConnectionPool.parseConnectionString(tilkobling));
+datalag.on('error', (feil) =>
+  console.error('Forbindelsen til SQL Server ble brutt:', feil.message)
+);
+
+const server = createServer(lagServer({ pool, datalag, catenda: teamFraMiljo() }));
 server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
   const adresse = server.address();
   const port = typeof adresse === 'object' && adresse ? adresse.port : 0;
   console.log(`lytter på http://127.0.0.1:${port}`);
 });
 
-const stopp = () => server.close(() => void pool.end());
+const stopp = () => server.close(() => void Promise.all([pool.end(), datalag.close()]));
 process.on('SIGTERM', stopp);
 process.on('SIGINT', stopp);
