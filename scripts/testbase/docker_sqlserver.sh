@@ -38,9 +38,10 @@ tilkobling() {
 # Docker viser «restarting» til omstarten, så en container som står stoppet i
 # to kontroller på rad, er stoppet for godt (som etter `docker stop`).
 vent() {
-  local tilstand status omstarter kode stoppet=0
-  for _ in $(seq 1 180); do
-    if docker exec "$navn" /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$(passord 2> /dev/null)" \
+  local tilstand status omstarter kode stoppet=0 sa_passord frist=$((SECONDS + 180))
+  sa_passord="$(passord 2> /dev/null)" || sa_passord=""
+  while ((SECONDS < frist)); do
+    if docker exec "$navn" /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$sa_passord" \
       -Q 'SELECT 1' > /dev/null 2>&1; then
       return 0
     fi

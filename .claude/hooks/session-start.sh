@@ -121,49 +121,57 @@ else
 fi
 
 # SQL Server for datalaget i F0b (#488) starter i bakgrunnen, så økter som ikke
-# trenger den, ikke venter på oppstarten. Finnes bildet (2,4 GB) lokalt, lages
-# containeren her, og tilkoblingen leses fra den. Ellers hentes bildet og lages
-# containeren i bakgrunnen, og tilkoblingen skrives ut før containeren finnes
-# (#527). Testhjelperen venter på serveren.
+# trenger den, ikke venter på oppstarten. Tilkoblingen skrives ut med en gang,
+# også før containeren finnes (#527). Testhjelperen venter på serveren.
 sqllogg=/tmp/koe-sqlserver.log
-: > "$sqllogg"
 start_sqlserver() {
   docker info > /dev/null 2>&1 || return 1
   local skript="$rot/scripts/testbase/docker_sqlserver.sh" port="${KOE_SQLSERVER_PORT:-14331}"
-  local navn="koe-sqlserver-$port" stempel="/tmp/koe-sqlserver-$port.container" container
+  local navn="koe-sqlserver-$port" stempel="/tmp/koe-sqlserver-$port.container"
+  local passordfil="/tmp/koe-sqlserver-$port.passord" container opprett=nei
   # Skriptet bærer bildet, så summen av det avgjør om containeren lages på nytt.
   container="$(sha256sum < "$skript" | cut -d' ' -f1)" || return 1
-  # Låsen holdes til containeren er laget og stempelet skrevet, også av
-  # bakgrunnsjobben, så en ny kjøring av hooken ikke lager den på nytt.
+  # Låsen holdes til serveren svarer eller har gitt opp, også av
+  # bakgrunnsjobben, så en ny kjøring av hooken ikke lager containeren på nytt
+  # mens den starter. Den nye kjøringen skriver ut tilkoblingen med passordet i
+  # passordfila, som gjelder for hver container hooken lager (#546).
   exec 9> "/tmp/koe-sqlserver-$port.lock"
   if ! flock --nonblock 9; then
     echo "En annen kjøring av hooken starter $navn." >&2
     exec 9>&-
-    "$skript" tilkobling
+    # Den første kjøringen skriver passordfila like etter at den tok låsen.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      [ -s "$passordfil" ] || docker container inspect "$navn" > /dev/null 2>&1 && break
+      sleep 0.5
+    done
+    KOE_SQLSERVER_SA_PASSORD="$(cat "$passordfil" 2> /dev/null)" "$skript" tilkobling
     return
   fi
-  if docker container inspect "$navn" > /dev/null 2>&1 \
-    && [ "$(cat "$stempel" 2> /dev/null)" = "$container" ]; then
-    exec 9>&-
-    setsid nohup bash -c 'docker start "$1" > /dev/null && "$2" vent' _ "$navn" "$skript" \
-      >> "$sqllogg" 2>&1 < /dev/null &
-    "$skript" tilkobling
-    return
+  : > "$sqllogg"
+  # Stempelet skrives først når serveren har svart, så en container som aldri
+  # kom opp, lages på nytt ved neste kjøring i stedet for å startes igjen (#525).
+  if ! docker container inspect "$navn" > /dev/null 2>&1 \
+    || [ "$(cat "$stempel" 2> /dev/null)" != "$container" ]; then
+    opprett=ja
+    "$skript" stopp
+    if [ ! -s "$passordfil" ]; then
+      (umask 077 && echo "Koe-$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')-Aa1" > "$passordfil") \
+        || return 1
+    fi
+    KOE_SQLSERVER_SA_PASSORD="$(cat "$passordfil")"
+    export KOE_SQLSERVER_SA_PASSORD
   fi
   rm -f "$stempel"
-  "$skript" stopp
-  KOE_SQLSERVER_SA_PASSORD="Koe-$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')-Aa1"
-  export KOE_SQLSERVER_SA_PASSORD
-  if docker image inspect "$("$skript" bilde)" > /dev/null 2>&1; then
+  # Bildet (2,4 GB) hentes i bakgrunnen. Finnes det, lages containeren her, så
+  # en feil i `docker run` vises i meldingen fra hooken.
+  if [ "$opprett" = ja ] && docker image inspect "$("$skript" bilde)" > /dev/null 2>&1; then
     "$skript" opprett > /dev/null || return 1
-    echo "$container" > "$stempel"
-    exec 9>&-
-    setsid nohup "$skript" vent >> "$sqllogg" 2>&1 < /dev/null &
-  else
-    setsid nohup bash -c '"$1" opprett > /dev/null && echo "$2" > "$3" && exec 9>&- && "$1" vent' \
-      _ "$skript" "$container" "$stempel" >> "$sqllogg" 2>&1 < /dev/null &
-    exec 9>&-
+    opprett=nei
   fi
+  setsid nohup bash -c 'if [ "$1" = ja ]; then "$2" opprett > /dev/null; else docker start "$3" > /dev/null; fi \
+    && "$2" vent && echo "$4" > "$5"' _ "$opprett" "$skript" "$navn" "$container" "$stempel" \
+    >> "$sqllogg" 2>&1 < /dev/null &
+  exec 9>&-
   "$skript" tilkobling
 }
 
