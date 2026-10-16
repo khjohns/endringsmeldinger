@@ -15,6 +15,7 @@ pytestmark = pytest.mark.database
 
 def test_katalog_json_er_lik_katalogen_i_basen(testbase):
     assert dm.kat.les_postgres(testbase) == dm.kat.les()["postgresql"], (
-        "katalog.json er utdatert. Kjør KOE_TESTBASE_URL=... /tmp/venv/bin/python "
+        "katalog.json er utdatert. Kjør KOE_TESTBASE_URL=... KOE_SQLSERVER_TILKOBLING=... "
+        "/tmp/venv/bin/python "
         "docs/verktoy/katalog.py fra repo-roten, og så datamodell.py."
     )

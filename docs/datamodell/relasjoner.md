@@ -230,6 +230,90 @@ erDiagram
     hendelse |o..o| catenda_delivery_status : "event_id"
 ```
 
+## ER-diagram: SQL Server
+
+Tabellene runneren bygger fra `database/migrasjoner/` for datalaget i TS ([DL-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)), med navnet kvalifisert med skjemaet. Ingen kobling går mellom dem og tabellene i PostgreSQL.
+
+```mermaid
+erDiagram
+    koe_app_identities {
+        uniqueidentifier id PK
+        uniqueidentifier user_id FK
+        nvarchar_16 provider UK
+        nvarchar_400 issuer UK
+        nvarchar_400 subject UK
+    }
+    koe_app_project_memberships {
+        nvarchar_100 project_id PK, FK, UK
+        uniqueidentifier user_id PK, FK
+        nvarchar_32 catenda_subject UK
+    }
+    koe_app_users {
+        uniqueidentifier id PK
+    }
+    koe_catenda_contract_teams {
+        nvarchar_100 internal_project_id PK, FK
+        nvarchar_32 team_id PK
+    }
+    koe_hendelse {
+        nvarchar_36 event_id PK, UK
+        nvarchar_36 sak_id FK, UK
+        nvarchar_100 prosjekt_id FK, UK
+        int versjon UK
+        uniqueidentifier aktor_id FK
+        nvarchar_32 aktor_team_id "uten fremmednøkkel"
+        nvarchar_36 refererer_til_event_id "uten fremmednøkkel"
+    }
+    koe_kjernebuffer {
+        nvarchar_36 sak_id PK, FK
+        nvarchar_100 prosjekt_id FK
+    }
+    koe_leveringsoppdrag {
+        uniqueidentifier id PK
+        nvarchar_100 prosjekt_id FK
+        nvarchar_36 sak_id FK
+        nvarchar_36 event_id FK, UK
+        nvarchar_100 dokumentnoekkel UK
+    }
+    koe_notat {
+        uniqueidentifier notat_id PK
+        nvarchar_36 sak_id FK
+        nvarchar_100 prosjekt_id FK
+        uniqueidentifier aktor_id FK
+        nvarchar_32 aktor_team_id "uten fremmednøkkel"
+        nvarchar_36 refererer_til_event_id "uten fremmednøkkel"
+    }
+    koe_projects {
+        nvarchar_100 id PK
+    }
+    koe_sak_metadata {
+        nvarchar_36 sak_id PK, UK
+        nvarchar_100 prosjekt_id FK, UK
+        uniqueidentifier created_by FK
+    }
+    koe_app_users ||--o{ koe_app_identities : "user_id"
+    koe_projects ||--o{ koe_app_project_memberships : "project_id"
+    koe_app_users ||--o{ koe_app_project_memberships : "user_id"
+    koe_projects ||--o{ koe_catenda_contract_teams : "internal_project_id"
+    koe_projects ||--o{ koe_sak_metadata : "prosjekt_id"
+    koe_app_users ||--o{ koe_sak_metadata : "created_by"
+    koe_sak_metadata ||--o{ koe_hendelse : "sak_id"
+    koe_sak_metadata ||--o{ koe_hendelse : "prosjekt_id"
+    koe_app_users ||--o{ koe_hendelse : "aktor_id"
+    koe_sak_metadata ||--o{ koe_notat : "sak_id"
+    koe_sak_metadata ||--o{ koe_notat : "prosjekt_id"
+    koe_app_users ||--o{ koe_notat : "aktor_id"
+    koe_hendelse ||--o| koe_leveringsoppdrag : "event_id"
+    koe_hendelse ||--o{ koe_leveringsoppdrag : "sak_id"
+    koe_hendelse ||--o{ koe_leveringsoppdrag : "prosjekt_id"
+    koe_sak_metadata ||--o| koe_kjernebuffer : "sak_id"
+    koe_sak_metadata ||--o{ koe_kjernebuffer : "prosjekt_id"
+    koe_catenda_contract_teams |o..o{ koe_hendelse : "aktor_team_id"
+    koe_hendelse |o..o{ koe_hendelse : "refererer_til_event_id"
+    koe_catenda_contract_teams |o..o{ koe_notat : "aktor_team_id"
+    koe_hendelse |o..o{ koe_notat : "refererer_til_event_id"
+```
+
 ## Relasjonene
 
 | Fra | Til | Art | Antall | Beskrivelse | Funn | Belegg |
@@ -291,6 +375,27 @@ erDiagram
 | `catenda_delivery_status.project` | `projects.id` | uten fremmednøkkel | mange til én | Prosjektet. | — | L 29.09: tabelldefinisjonen. |
 | `catenda_delivery_status.case_id` | `sak_metadata.sak_id` | uten fremmednøkkel | mange til én | Saken banneret vises på. | — | L 29.09: `get_case_context`. |
 | `catenda_delivery_status.event_id` | `hendelse.event_id` | uten fremmednøkkel | én til én | Hendelsen kvitteringen gjelder. Kvitteringen skrives før hendelsen lagres; ved lesing teller bare kvitteringer for hendelser som finnes i journalen. | — | L 29.09: `submit_event`. |
+| `koe.app_identities.user_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Brukeren identiteten hører til. | — | K 16.10: katalogen. |
+| `koe.app_project_memberships.project_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet medlemskapet gjelder. | — | K 16.10: katalogen. |
+| `koe.app_project_memberships.user_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Brukeren som er medlem. | — | K 16.10: katalogen. |
+| `koe.catenda_contract_teams.internal_project_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet teamet er knyttet til. | — | K 16.10: katalogen. |
+| `koe.sak_metadata.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet saken hører til, uten standardverdi (AGENTS.md). | — | K 16.10: katalogen. |
+| `koe.sak_metadata.created_by` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Brukeren som opprettet saken. | — | K 16.10: katalogen. |
+| `koe.hendelse.sak_id` | `koe.sak_metadata.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken brevet hører til. Sammensatt med `prosjekt_id`, så brevet står i sakens prosjekt. Kaskaderer ikke. | — | K 16.10: katalogen. |
+| `koe.hendelse.prosjekt_id` | `koe.sak_metadata.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet, i den sammensatte nøkkelen mot saken. | — | K 16.10: katalogen. |
+| `koe.hendelse.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Avsenderen, `app_users.id` (AGENTS.md). | — | K 16.10: katalogen. |
+| `koe.notat.sak_id` | `koe.sak_metadata.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken notatet er skrevet i. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
+| `koe.notat.prosjekt_id` | `koe.sak_metadata.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet, i den sammensatte nøkkelen mot saken. | — | K 16.10: katalogen. |
+| `koe.notat.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Forfatteren, `app_users.id`. | — | K 16.10: katalogen. |
+| `koe.leveringsoppdrag.event_id` | `koe.hendelse.event_id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Sammensatt med `sak_id` og `prosjekt_id`. | — | K 16.10: katalogen. |
+| `koe.leveringsoppdrag.sak_id` | `koe.hendelse.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken, i den sammensatte nøkkelen mot brevet. | — | K 16.10: katalogen. |
+| `koe.leveringsoppdrag.prosjekt_id` | `koe.hendelse.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet, i den sammensatte nøkkelen mot brevet. | — | K 16.10: katalogen. |
+| `koe.kjernebuffer.sak_id` | `koe.sak_metadata.sak_id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. Primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
+| `koe.kjernebuffer.prosjekt_id` | `koe.sak_metadata.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet, i den sammensatte nøkkelen mot saken. | — | K 16.10: katalogen. |
+| `koe.hendelse.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, i `catenda_id()`-formen. Tom når teamet ikke var entydig (DL-U4). | — | L 16.10: migrasjonen. |
+| `koe.hendelse.refererer_til_event_id` | `koe.hendelse.event_id` | uten fremmednøkkel | mange til én | Brevet dette brevet svarer på eller viser til. | — | L 16.10: migrasjonen. |
+| `koe.notat.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som kan lese notatet. Basen avviser et notat uten team (AGENTS.md). | — | L 16.10: migrasjonen. |
+| `koe.notat.refererer_til_event_id` | `koe.hendelse.event_id` | uten fremmednøkkel | mange til én | Brevet notatet gjelder, uten fremmednøkkel, så notatet kan slettes uten å røre journalen. | — | L 16.10: migrasjonen. |
 
 ## Nøkkelkolonner uten relasjon
 
@@ -317,6 +422,9 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `app_project_memberships.user_email` | Kopi av e-posten i medlemslisten fra Catenda. Personen er `user_id`. |
 | `magic_links.email` | Rest (MS-15). Mottakeren av lenken, som e-post. |
 | `project_memberships.user_email` | Rest (MS-15). Medlemmet, identifisert med e-post; unik per prosjekt. |
+| `koe.app_users.email` | Brukerens egen e-post. Personen er `id`. |
+| `koe.app_project_memberships.user_email` | Kopi av e-posten i medlemslisten fra Catenda. Personen er `user_id`. |
+| `koe.projects.organisasjon_id` | Virksomheten prosjektet tilhører. Det finnes ingen tabell for virksomheter (MS-10). |
 
 ## Dataflyt mot Catenda
 
@@ -356,7 +464,7 @@ flowchart LR
         t_utkast["utkast"]
         t_vedlegg["vedlegg"]
     end
-    subgraph g3["Utenfor databasene"]
+    subgraph g4["Utenfor databasene"]
         t_Webhook_reservasjon["Webhook-reservasjon"]
     end
     t_appen(["Appen, lagres ikke"])
@@ -491,6 +599,16 @@ flowchart LR
 | `eo_approvals` | — | — | — |
 | `vedlegg` | C05, C08 | C08 | C08 |
 | `catenda_delivery_status` | — | — | C06 |
+| `koe.app_users` | — | — | — |
+| `koe.app_identities` | — | — | — |
+| `koe.projects` | — | — | — |
+| `koe.app_project_memberships` | — | — | — |
+| `koe.catenda_contract_teams` | — | — | — |
+| `koe.sak_metadata` | — | — | — |
+| `koe.hendelse` | — | — | — |
+| `koe.notat` | — | — | — |
+| `koe.leveringsoppdrag` | — | — | — |
+| `koe.kjernebuffer` | — | — | — |
 
 ## Flytene
 

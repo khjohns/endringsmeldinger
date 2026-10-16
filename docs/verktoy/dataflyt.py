@@ -189,7 +189,7 @@ def udekkede_kallsteder(register: dict, steder: dict[str, set[str]]) -> list[str
 def noder(katalog: dict, tabellregister: dict, register: dict) -> dict[str, str]:
     """Hver node en pil kan gå fra eller til, med visningsnavn."""
     resultat = {f"catenda:{r['id']}": f"Catenda: {r['navn']}" for r in register["catenda"]}
-    for lag in ("postgresql", "sqlite"):
+    for lag in ("postgresql", "sqlite", "sqlserver"):
         resultat |= {t: t for t in katalog[lag]["tabeller"]}
     resultat |= {u["navn"]: u["navn"] for u in tabellregister.get("utenfor", [])}
     resultat["appen"] = "Appen, lagres ikke"
@@ -334,6 +334,7 @@ def flytdiagram(register: dict, katalog: dict, tabellregister: dict, retning: st
         "Catenda": [n for n in navn if n.startswith("catenda:")],
         "PostgreSQL": list(katalog["postgresql"]["tabeller"]),
         "SQLite": list(katalog["sqlite"]["tabeller"]),
+        "SQL Server": list(katalog["sqlserver"]["tabeller"]),
         "Utenfor databasene": [u["navn"] for u in tabellregister.get("utenfor", [])],
     }
     linjer = ["flowchart LR"]

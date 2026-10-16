@@ -2,17 +2,21 @@
 
 PostgreSQL-delen leses fra pg_catalog i en base bygget fra migrasjonene og krever
 KOE_TESTBASE_URL. SQLite-delen leses fra sqlite_master etter at klassene som eier
-tabellene, har opprettet dem i en tom fil. Begge skrives til
-docs/datamodell/katalog.json, som diagrammet og relasjonsregisteret lages fra.
+tabellene, har opprettet dem i en tom fil. SQL Server-delen leses i sys.tables og
+sys.foreign_keys i en base runneren bygger fra database/migrasjoner/, av
+server/tester/katalog.ts, og krever KOE_SQLSERVER_TILKOBLING (#558). Alle tre
+skrives til docs/datamodell/katalog.json, som diagrammet og relasjonsregisteret
+lages fra.
 
 Oppdater øyeblikksbildet fra repo-roten etter en ny migrasjon:
-  KOE_TESTBASE_URL=... /tmp/venv/bin/python docs/verktoy/katalog.py
+  KOE_TESTBASE_URL=... KOE_SQLSERVER_TILKOBLING=... /tmp/venv/bin/python docs/verktoy/katalog.py
 """
 
 import json
 import os
 import pathlib
 import re
+import subprocess
 import sys
 import tempfile
 
@@ -173,6 +177,16 @@ def les_sqlite() -> dict:
             tilkobling.close()
 
 
+def les_sqlserver() -> dict:
+    """Tabellene i SQL Server, med navnet kvalifisert med skjemaet (`koe.app_users`)."""
+    svar = subprocess.run(
+        ["node", "server/tester/katalog.ts"], cwd=ROT, capture_output=True, text=True, check=False
+    )
+    if svar.returncode != 0:
+        raise RuntimeError(f"server/tester/katalog.ts feilet:\n{svar.stderr}")
+    return json.loads(svar.stdout)
+
+
 def les(sti: pathlib.Path = KATALOG) -> dict:
     return json.loads(sti.read_text(encoding="utf-8"))
 
@@ -188,20 +202,22 @@ def serialiser(katalog: dict) -> str:
 
 def main() -> int:
     url = os.environ.get("KOE_TESTBASE_URL")
-    if not url:
-        print("KOE_TESTBASE_URL er ikke satt. Katalogen leses fra en base bygget fra migrasjonene.")
+    mangler = [v for v in ("KOE_TESTBASE_URL", "KOE_SQLSERVER_TILKOBLING") if not os.environ.get(v)]
+    if mangler:
+        print(f"{' og '.join(mangler)} er ikke satt. Katalogen leses fra baser bygget fra migrasjonene.")
         return 1
     import psycopg
 
     with psycopg.connect(url, autocommit=True) as tilkobling:
-        katalog = {"postgresql": les_postgres(tilkobling), "sqlite": les_sqlite()}
+        katalog = {"postgresql": les_postgres(tilkobling), "sqlite": les_sqlite(), "sqlserver": les_sqlserver()}
     ny = serialiser(katalog)
     if not KATALOG.exists() or KATALOG.read_text(encoding="utf-8") != ny:
         KATALOG.write_text(ny, encoding="utf-8")
         print(f"skrev {KATALOG.relative_to(ROT)}")
     print(
         f"{len(katalog['postgresql']['tabeller'])} tabeller i PostgreSQL, "
-        f"{len(katalog['sqlite']['tabeller'])} i SQLite"
+        f"{len(katalog['sqlite']['tabeller'])} i SQLite og "
+        f"{len(katalog['sqlserver']['tabeller'])} i SQL Server"
     )
     return 0
 
