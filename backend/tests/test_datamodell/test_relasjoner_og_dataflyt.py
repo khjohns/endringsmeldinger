@@ -13,7 +13,10 @@ import copy
 import pytest
 
 from tests.test_datamodell.test_tabellregister import dm, sqlite_tabeller_i_koden
-from tests.test_security.test_database_arkitektur_20260920 import TABELLER_I_BASEN
+from tests.test_security.test_database_arkitektur_20260920 import (
+    TABELLER_I_BASEN,
+    tabeller_i_sqlserver_migrasjonene,
+)
 
 rel, df, kat = dm.rel, dm.df, dm.kat
 
@@ -41,13 +44,17 @@ def test_katalogen_har_de_samme_tabellene_som_registeret(kilder, tabellregister)
     skjema = kilder["katalog"]
     assert sorted(skjema["postgresql"]["tabeller"]) == sorted(TABELLER_I_BASEN)
     assert sorted(skjema["sqlite"]["tabeller"]) == sorted(sqlite_tabeller_i_koden())
+    assert sorted(skjema["sqlserver"]["tabeller"]) == sorted(tabeller_i_sqlserver_migrasjonene()), (
+        "En migrasjon i database/migrasjoner/ oppretter en tabell katalog.json ikke har, eller "
+        "omvendt. Kjør docs/verktoy/katalog.py med KOE_TESTBASE_URL og KOE_SQLSERVER_TILKOBLING, og så datamodell.py."
+    )
     assert dm.katalogavvik(tabellregister, skjema) == []
 
 
 def test_sqlite_delen_er_skjemaet_koden_oppretter(kilder):
     assert kat.les_sqlite() == kilder["katalog"]["sqlite"], (
-        "katalog.json er utdatert. Kjør KOE_TESTBASE_URL=... /tmp/venv/bin/python "
-        "docs/verktoy/katalog.py fra repo-roten."
+        "katalog.json er utdatert. Kjør KOE_TESTBASE_URL=... KOE_SQLSERVER_TILKOBLING=... "
+        "/tmp/venv/bin/python docs/verktoy/katalog.py fra repo-roten."
     )
 
 

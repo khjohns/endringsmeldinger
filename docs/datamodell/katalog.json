@@ -575,5 +575,256 @@
     "fremmednøkler": []
    }
   }
+ },
+ "sqlserver": {
+  "tabeller": {
+   "koe.app_identities": {
+    "kolonner": [
+     ["id", "uniqueidentifier", "NOT NULL"],
+     ["user_id", "uniqueidentifier", "NOT NULL"],
+     ["provider", "nvarchar(16)", "NOT NULL"],
+     ["issuer", "nvarchar(400)", "NOT NULL"],
+     ["subject", "nvarchar(400)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["provider", "issuer", "subject"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["user_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.app_project_memberships": {
+    "kolonner": [
+     ["project_id", "nvarchar(100)", "NOT NULL"],
+     ["user_id", "uniqueidentifier", "NOT NULL"],
+     ["catenda_subject", "nvarchar(32)", "NOT NULL"],
+     ["user_email", "nvarchar(320)", "NOT NULL"],
+     ["display_name", "nvarchar(400)", "NOT NULL"],
+     ["role", "nvarchar(10)", "NOT NULL"],
+     ["viewer_override", "bit", "NOT NULL"],
+     ["active", "bit", "NOT NULL"],
+     ["created_at", "datetime2(3)", "NOT NULL"],
+     ["updated_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["project_id", "user_id"],
+    "unike": [
+     ["project_id", "catenda_subject"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["project_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["user_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.app_users": {
+    "kolonner": [
+     ["id", "uniqueidentifier", "NOT NULL"],
+     ["email", "nvarchar(320)", "NOT NULL"],
+     ["name", "nvarchar(400)", "NOT NULL"],
+     ["created_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": []
+   },
+   "koe.catenda_contract_teams": {
+    "kolonner": [
+     ["internal_project_id", "nvarchar(100)", "NOT NULL"],
+     ["team_id", "nvarchar(32)", "NOT NULL"],
+     ["contract_role", "nvarchar(2)", "NOT NULL"],
+     ["created_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["internal_project_id", "team_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["internal_project_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.hendelse": {
+    "kolonner": [
+     ["event_id", "nvarchar(36)", "NOT NULL"],
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["event_type", "nvarchar(100)", "NOT NULL"],
+     ["versjon", "int", "NOT NULL"],
+     ["tidsstempel", "datetime2(3)", "NOT NULL"],
+     ["aktor_id", "uniqueidentifier", "NOT NULL"],
+     ["aktor_rolle", "nvarchar(2)", "NOT NULL"],
+     ["aktor_team_id", "nvarchar(32)", "NULL"],
+     ["refererer_til_event_id", "nvarchar(36)", "NULL"],
+     ["format", "int", "NULL"],
+     ["data", "nvarchar(max)", "NOT NULL"],
+     ["transaksjon", "bigint", "NOT NULL"],
+     ["skriving", "uniqueidentifier", "NOT NULL"]
+    ],
+    "primærnøkkel": ["event_id"],
+    "unike": [
+     ["event_id", "sak_id", "prosjekt_id"],
+     ["sak_id", "versjon"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["aktor_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.kjernebuffer": {
+    "kolonner": [
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["visning", "nvarchar(max)", "NOT NULL"],
+     ["projeksjonsversjon", "int", "NOT NULL"],
+     ["regelversjon", "int", "NOT NULL"],
+     ["leserformat", "int", "NOT NULL"],
+     ["saksversjon", "int", "NOT NULL"]
+    ],
+    "primærnøkkel": ["sak_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.leveringsoppdrag": {
+    "kolonner": [
+     ["id", "uniqueidentifier", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["event_id", "nvarchar(36)", "NOT NULL"],
+     ["dokumentnoekkel", "nvarchar(100)", "NOT NULL"],
+     ["innhold", "nvarchar(max)", "NOT NULL"],
+     ["innhold_sha256", "nvarchar(64)", "NOT NULL"],
+     ["opprettet", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [
+     ["dokumentnoekkel"],
+     ["event_id"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["event_id", "sak_id", "prosjekt_id"],
+      "til": "koe.hendelse",
+      "til_kolonner": ["event_id", "sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.notat": {
+    "kolonner": [
+     ["notat_id", "uniqueidentifier", "NOT NULL"],
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["aktor_id", "uniqueidentifier", "NOT NULL"],
+     ["aktor_rolle", "nvarchar(2)", "NOT NULL"],
+     ["aktor_team_id", "nvarchar(32)", "NOT NULL"],
+     ["tekst", "nvarchar(max)", "NOT NULL"],
+     ["spor", "nvarchar(10)", "NULL"],
+     ["kommentar", "nvarchar(max)", "NULL"],
+     ["refererer_til_event_id", "nvarchar(36)", "NULL"],
+     ["opprettet", "datetime2(3)", "NOT NULL"],
+     ["endret", "datetime2(3)", "NULL"]
+    ],
+    "primærnøkkel": ["notat_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["aktor_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.projects": {
+    "kolonner": [
+     ["id", "nvarchar(100)", "NOT NULL"],
+     ["name", "nvarchar(400)", "NOT NULL"],
+     ["description", "nvarchar(max)", "NULL"],
+     ["organisasjon_id", "nvarchar(100)", "NOT NULL"],
+     ["is_active", "bit", "NOT NULL"],
+     ["created_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": []
+   },
+   "koe.sak_metadata": {
+    "kolonner": [
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["sakstype", "nvarchar(40)", "NOT NULL"],
+     ["created_by", "uniqueidentifier", "NOT NULL"],
+     ["created_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["sak_id"],
+    "unike": [
+     ["sak_id", "prosjekt_id"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["created_by"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["prosjekt_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   }
+  }
  }
 }

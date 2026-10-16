@@ -603,6 +603,181 @@ funn = ["AR-03"]
 belegg = "L 29.09: tabelldefinisjonen og kallerne i `event_routes`."
 
 # ---------------------------------------------------------------------------
+# SQL Server. Tabellene i skjemaet `koe`, bygget fra database/migrasjoner/ med
+# runneren i server/migrering.ts, for datalaget i TS (DL-U1, #53). Navnet er
+# kvalifisert med skjemaet, så det ikke kolliderer med PostgreSQL-tabellene
+# (#558). Status «uavklart» betyr at kommandoene som skal skrive tabellen,
+# ennå ikke er bygget (#53, del 3). Belegg for kolonnene og nøklene: K 16.10,
+# katalogen i en base bygget fra migrasjonene (katalog.json).
+# ---------------------------------------------------------------------------
+
+[[tabell]]
+navn = "koe.app_users"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "uavklart"
+beskrivelse = """
+Én rad per person. `id` er aktøren i journalen og notatet (AGENTS.md). Svarer
+til `app_users` i PostgreSQL."""
+lagres_fra = """
+`koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter
+brukeren første gang en identitet sees. Ingen inngang i `server/` kaller den
+ennå (#53, del 3)."""
+fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
+kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
+personopplysninger = "Navn og e-post."
+skrivere = ["database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`)"]
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.app_identities"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "uavklart"
+beskrivelse = """
+Identitetene til en bruker, unike på leverandør, issuer og subjekt. En
+Catenda-identitet har issueren og subjektformen basen kontrollerer, så samme
+person ikke får to brukerrader (AGENTS.md)."""
+lagres_fra = "`koe.resolve_identity`, sammen med brukeren. Ingen inngang i `server/` kaller den ennå (#53, del 3)."
+fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Subjektet identifiserer en person."
+skrivere = ["database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`)"]
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.projects"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "uavklart"
+beskrivelse = """
+Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten
+standardverdi (AGENTS.md)."""
+lagres_fra = "Ingen skriver ennå (#53, del 3)."
+fra_catenda = "ikke kontrollert"
+kan_gjenoppbygges = "nei"
+personopplysninger = "Ingen kjente."
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.app_project_memberships"
+lagring = "SQL Server"
+type = ["grunndata", "kopi"]
+status = "uavklart"
+beskrivelse = """
+Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i
+PostgreSQL."""
+lagres_fra = "Ingen skriver ennå (#53, del 3)."
+fra_catenda = "Ja, medlemslisten i Catenda."
+kan_gjenoppbygges = "ikke kontrollert"
+personopplysninger = "E-post og visningsnavn."
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.catenda_contract_teams"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "uavklart"
+beskrivelse = """
+Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har
+`catenda_id()`-formen, som `aktor_team_id` i journalen."""
+lagres_fra = "Ingen skriver ennå (#53, del 3)."
+fra_catenda = "Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes i appen."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Ingen kjente."
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.sak_metadata"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "uavklart"
+beskrivelse = """
+Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og
+sletting."""
+lagres_fra = "Ingen skriver ennå (#53, del 3)."
+fra_catenda = "Nei"
+kan_gjenoppbygges = "nei"
+personopplysninger = "`created_by` peker på en bruker."
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.hendelse"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "uavklart"
+beskrivelse = """
+Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger
+avviser endring og sletting. Teamet står bare når det er entydig (DL-U4)."""
+lagres_fra = "Ingen skriver ennå (#53, del 3)."
+fra_catenda = "Nei"
+kan_gjenoppbygges = "nei. Journalen er kilden alt annet regnes fra."
+personopplysninger = """
+`aktor_id` peker på en bruker. Fritekst i `data` kan inneholde
+personopplysninger."""
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.notat"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "uavklart"
+beskrivelse = """
+Interne notater, skjermet på teamet (AGENTS.md). Ikke et kontraktsvarsel, og
+kan endres og slettes (MS-05)."""
+lagres_fra = "Ingen skriver ennå (#53, del 3)."
+fra_catenda = "Nei"
+kan_gjenoppbygges = "nei"
+personopplysninger = "`aktor_id` peker på en bruker. Fritekst i `tekst` og `kommentar`."
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.leveringsoppdrag"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "uavklart"
+beskrivelse = """
+Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som
+brevet. Den sammensatte fremmednøkkelen holder det i brevets sak og prosjekt."""
+lagres_fra = "Ingen skriver ennå (#53, del 3)."
+fra_catenda = "Nei, men oppdraget gjelder en levering til Catenda."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Innholdet er brevet og kan inneholde personopplysninger."
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.kjernebuffer"
+lagring = "SQL Server"
+type = ["avledet"]
+status = "uavklart"
+beskrivelse = """
+Visningen kjernen regner ut av journalen, med versjonene den er regnet med
+(B-10). Ingen regel og ingen bindende kommando leser den."""
+lagres_fra = "Ingen skriver ennå (#53, del 3)."
+fra_catenda = "Nei"
+kan_gjenoppbygges = "ja, fra journalen."
+personopplysninger = "Som journalen den er regnet fra."
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+# ---------------------------------------------------------------------------
 # Data utenfor appens databaser. Ikke tabeller, men del av datamodellen.
 # ---------------------------------------------------------------------------
 
