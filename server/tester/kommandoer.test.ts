@@ -42,6 +42,8 @@ const SAK_OPPRETTET = { sakstittel: 'Kommandoene', sakstype: 'standard' };
 describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
   let base: Testbase;
   let kjoeretid: { pool: Pool; slett(): Promise<void> };
+  /** Kjøretiden med én forbindelse, så to transaksjoner etter hverandre har samme økt. */
+  let enForbindelse: { pool: Pool; slett(): Promise<void> };
   const b = { te: '', bh: '', leser: '', p2: '' };
   let te: Kontekst;
 
@@ -70,10 +72,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role)
       VALUES (N'${P1}', N'${TE1}', N'TE'), (N'${P1}', N'${BH1}', N'BH'), (N'${P2}', N'${TE_P2}', N'TE');`);
     kjoeretid = await opprettKjoeretid(base);
+    enForbindelse = await opprettKjoeretid(base, { maks: 1 });
     te = { aktor: b.te, prosjekt: P1, side: 'TE', team: TE1 };
   }, 240_000);
   afterAll(async () => {
     await kjoeretid?.slett();
+    await enForbindelse?.slett();
     await base?.slett();
   }, 60_000);
 
@@ -355,19 +359,25 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         forventet = 1,
       } = {}
     ): Promise<{ skriving: string | null }> {
+      const oekt = async (f: () => sql.Request) =>
+        (await f().query<{ spid: number }>('SELECT @@SPID AS spid')).recordset[0].spid;
+      const pool = tid === 'annen_transaksjon' ? enForbindelse.pool : kjoeretid.pool;
       const annen =
         tid === 'annen_transaksjon'
-          ? await transaksjon(kjoeretid.pool, te, async (f) => {
+          ? await transaksjon(pool, te, async (f) => {
               const svar = await f()
                 .output('tidspunkt', sql.DateTime2(3))
                 .execute('koe_api.skrivetidspunkt');
-              return svar.output.tidspunkt as Date;
+              return { tidspunkt: svar.output.tidspunkt as Date, spid: await oekt(f) };
             })
           : undefined;
-      return transaksjon(kjoeretid.pool, te, async (f) => {
+      return transaksjon(pool, te, async (f) => {
         let tidspunkt: Date;
-        if (annen) tidspunkt = annen;
-        else if (tid === 'uten') tidspunkt = new Date(await klokka());
+        if (annen) {
+          // Samme økt, så bare transaksjons-ID-en skiller dem.
+          expect(await oekt(f)).toBe(annen.spid);
+          tidspunkt = annen.tidspunkt;
+        } else if (tid === 'uten') tidspunkt = new Date(await klokka());
         else if (tid === 'etter_omstart') {
           // Som en rad en tidligere økt etterlot før en omstart: samme transaksjons-ID
           // og økt-ID, men innlogget før denne økta.
@@ -459,7 +469,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       ['uten tidspunktet fra skrivetidspunkt', { tid: 'uten' }],
       ['et tidspunkt ett millisekund etter basens', { tid: 'senere' }],
       ['et tidspunkt kjøretiden har satt selv i en kontekstnøkkel', { tid: 'egen_noekkel' }],
-      ['et tidspunkt skrivetidspunkt ga en annen transaksjon', { tid: 'annen_transaksjon' }],
+      [
+        'et tidspunkt skrivetidspunkt ga en annen transaksjon i samme økt',
+        { tid: 'annen_transaksjon' },
+      ],
       [
         'et tidspunkt en tidligere økt etterlot med samme transaksjons-ID, som etter en omstart',
         { tid: 'etter_omstart' },
