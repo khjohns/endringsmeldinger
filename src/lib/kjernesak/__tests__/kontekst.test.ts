@@ -180,6 +180,18 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.saksbilde).toBeNull();
   });
 
+  it('sier at saken ikke er en TS-sak når journalen begynner med en rad uten format (B-17)', async () => {
+    const python = { ...opprettet, format: null, data: { sakstittel: 'Fra Python' } };
+    // Raden som oppretter saken avgjør, også når en senere rad har format.
+    const senere = { ...opprettet, event_id: 'e-2', versjon: 2 };
+    const sak = lagKjernesak({ sakId: SAK, part: null, hent: async () => svar([python, senere]) });
+    await sak.last();
+    expect(sak.finnes).toBe(false);
+    expect(sak.sak).toBeNull();
+    expect(sak.saksbilde).toBeNull();
+    expect(sak.feil).toBe('Saken er ikke opprettet i TS-stien og vises ikke her.');
+  });
+
   it('lar det være uavgjort om saken finnes når serveren svarer med en annen feil', async () => {
     const sak = lagKjernesak({
       sakId: SAK,

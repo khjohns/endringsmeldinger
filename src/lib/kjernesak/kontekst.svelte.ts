@@ -63,11 +63,17 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   async function last() {
     try {
-      sak = await hent(sakId, valg.prosjektId);
-      finnes = true;
-      feil = null;
+      const svar = await hent(sakId, valg.prosjektId);
+      // TS-serveren leser hele `hendelse`, også en Python-sak. En rad uten format er
+      // ikke skrevet av TS-kjernen (B-17), så da er saken ikke en TS-sak.
+      finnes = svar.journal[0]?.format != null;
+      sak = finnes ? svar : null;
+      feil = finnes ? null : 'Saken er ikke opprettet i TS-stien og vises ikke her.';
     } catch (e) {
-      if (e instanceof ApiError && e.status === 404) finnes = false;
+      if (e instanceof ApiError && e.status === 404) {
+        finnes = false;
+        sak = null;
+      }
       feil = meldingFra(e, 'Saken kunne ikke hentes.');
     }
   }
@@ -115,7 +121,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get saksbilde() {
       return bilde;
     },
-    /** `false` når serveren svarte 404: saken er ikke en TS-sak i prosjektet. `null` før svaret. */
+    /**
+     * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404, eller
+     * journalen begynner med en rad uten format. `null` før svaret.
+     */
     get finnes() {
       return finnes;
     },
