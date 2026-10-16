@@ -22,12 +22,14 @@ export async function opprettMigrertTestbase(
 }
 
 /**
- * Katalogen i basen som sammenliknbare linjer: skjemaene, objektene, kolonnene,
- * begrensningene, indeksene, modulene, triggerne og rettighetene, uten ID-er og tidspunkter.
+ * Katalogen i basen som sammenliknbare linjer: skjemaene med eierne, objektene,
+ * kolonnene, begrensningene, indeksene, modulene, triggerne, rollene med
+ * medlemmene og rettighetene, uten ID-er og tidspunkter. Rollene og rettighetene
+ * tas med for alle mottakere, også `public` og de faste rollene (#564, #567).
  * Hver del er en egen spørring, så sorteringene i katalogvisningene ikke blandes.
  */
 const KATALOG: Record<string, string> = {
-  skjema: 'SELECT name FROM sys.schemas WHERE schema_id BETWEEN 5 AND 16383',
+  skjema: `SELECT name, USER_NAME(principal_id) AS eier FROM sys.schemas`,
   objekt: `SELECT SCHEMA_NAME(schema_id) AS skjema, name, type_desc,
                   OBJECT_SCHEMA_NAME(parent_object_id) AS forelder_skjema, OBJECT_NAME(parent_object_id) AS forelder
              FROM sys.objects WHERE is_ms_shipped = 0`,
@@ -63,12 +65,13 @@ const KATALOG: Record<string, string> = {
   predikat: `SELECT OBJECT_NAME(object_id) AS policy, OBJECT_SCHEMA_NAME(target_object_id) AS skjema,
                     OBJECT_NAME(target_object_id) AS tabell, predicate_type_desc, operation_desc, predicate_definition
                FROM sys.security_predicates`,
-  rolle:
-    'SELECT name, type_desc FROM sys.database_principals WHERE principal_id BETWEEN 5 AND 16383',
+  rolle: 'SELECT name, type_desc FROM sys.database_principals',
+  rollemedlem: `SELECT USER_NAME(role_principal_id) AS rolle, USER_NAME(member_principal_id) AS medlem
+                  FROM sys.database_role_members`,
   rett: `SELECT USER_NAME(grantee_principal_id) AS mottaker, state_desc, permission_name, class_desc,
                 CASE class WHEN 1 THEN OBJECT_SCHEMA_NAME(major_id) WHEN 3 THEN SCHEMA_NAME(major_id) END AS skjema,
                 CASE class WHEN 1 THEN OBJECT_NAME(major_id) END AS objekt
-           FROM sys.database_permissions WHERE grantee_principal_id BETWEEN 5 AND 16383`,
+           FROM sys.database_permissions`,
 };
 
 export async function katalog(base: Testbase): Promise<string[]> {
