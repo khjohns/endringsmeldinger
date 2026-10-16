@@ -255,6 +255,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       ['et inaktivt medlemskap', () => ({ aktor: b.inaktiv })],
       ['en ukjent aktør', () => ({ aktor: randomUUID() })],
       ['et prosjekt med en hale i konteksten', () => ({ aktor: b.te, prosjekt: `${P1}x` })],
+      [
+        'et prosjekt med mellomrom til slutt i konteksten (#581)',
+        () => ({ aktor: b.te, prosjekt: `${P1} ` }),
+      ],
     ])('%s ser ingenting fra saken i P1', async (_, k) => {
       const { s } = await lagretSak();
       expect(await synlig(k(), s.sak_id)).toEqual(INGEN);
@@ -306,6 +310,16 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       ['forfatteren uten team', () => ({ aktor: b.te, team: null }), UTEN_NOTAT],
       ['forfatteren på feil side', () => ({ aktor: b.te, side: 'BH' }), UTEN_NOTAT],
       ['forfatteren med en hale på teamet', () => ({ aktor: b.te, team: `${TE1}0` }), UTEN_NOTAT],
+      [
+        'forfatteren med mellomrom etter teamet (#581)',
+        () => ({ aktor: b.te, team: `${TE1} ` }),
+        UTEN_NOTAT,
+      ],
+      [
+        'forfatteren med mellomrom etter siden (#581)',
+        () => ({ aktor: b.te, side: 'TE ' }),
+        UTEN_NOTAT,
+      ],
     ])('%s ser notatet bare når teamet er forfatterens', async (_, k, forventet) => {
       const { s } = await lagretSak();
       expect(await synlig(k(), s.sak_id)).toEqual(forventet);
@@ -432,6 +446,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         () => ({ aktor_team_id: null }),
       ],
       ['med en hale på teamet i konteksten', () => ({ aktor: b.te, team: `${TE1}0` }), () => ({})],
+      [
+        'med mellomrom etter prosjektet i konteksten (#581)',
+        () => ({ aktor: b.te, prosjekt: `${P1} ` }),
+        () => ({}),
+      ],
+      [
+        'med mellomrom etter siden i konteksten (#581)',
+        () => ({ aktor: b.te, side: 'TE ', team: null }),
+        () => ({ aktor_team_id: null }),
+      ],
+      [
+        'med mellomrom etter teamet i konteksten (#581)',
+        () => ({ aktor: b.te, team: `${TE1} ` }),
+        () => ({}),
+      ],
     ])('et brev %s avvises (blokkpredikatet)', async (_, k, overstyr) => {
       expect(await avvisning(skrivBrev(k(), overstyr()))).toBe(BLOKKERT);
     });
@@ -470,6 +499,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       [
         'med et team fra en annen side enn konteksten',
         () => ({ aktor: b.te, team: BH1 }),
+        () => sak(),
+      ],
+      [
+        'med mellomrom etter prosjektet i konteksten (#581)',
+        () => ({ aktor: b.te, prosjekt: `${P1} ` }),
+        () => sak(),
+      ],
+      [
+        'med mellomrom etter siden i konteksten (#581)',
+        () => ({ aktor: b.te, side: 'TE ' }),
+        () => sak(),
+      ],
+      [
+        'med mellomrom etter teamet i konteksten (#581)',
+        () => ({ aktor: b.te, team: `${TE1} ` }),
         () => sak(),
       ],
     ])('en sak %s avvises (blokkpredikatet)', async (_, k, s) => {
