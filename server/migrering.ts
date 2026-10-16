@@ -10,7 +10,8 @@
  *
  * Runneren nekter å anvende noe når en anvendt fil er endret (også bare i en
  * kommentar), mangler, eller når en ny fil har lavere versjon enn en anvendt.
- * Én applås i basen gjør at to runnere ikke anvender samme fil.
+ * Én applås i basen, eid av runnerens sesjon, gjør at to runnere ikke anvender
+ * samme fil.
  *
  * Historikktabellen er runnerens bokføring og lages av runneren selv; alt annet
  * i skjemaet kommer fra filene (`.claude/rules/database.md`).
@@ -25,16 +26,17 @@ import sql from 'mssql';
 export const MIGRASJONSMAPPE = fileURLToPath(new URL('../database/migrasjoner/', import.meta.url));
 
 const FILNAVN = /^(\d{14})_[a-z0-9_]+\.sql$/;
-const GO = /^[ \t]*GO[ \t]*(?:--.*)?$/i;
+// `\r` er med for en `GO`-linje som slutter på en enslig CR (#577).
+const GO = /^[ \t\r]*GO[ \t\r]*(?:--[^\n]*)?$/i;
 /** `GO` fulgt av noe annet enn et navn, som `GO 5`, `GO;` og `GO` med en blokkommentar. */
 const ANNEN_GO = /^[ \t]*GO(?![\p{L}\p{N}_@#$])/iu;
 const BOM = Buffer.from([0xef, 0xbb, 0xbf]);
 const APPLAAS = 'koe_migrering';
 const LAASVENT = 60_000;
 /**
- * Tidsgrensen for runnerens forespørsler. Den er over låseventen, så en runner
- * som venter på applåsen, avvises med `MigreringAvvist` og ikke med `ETIMEOUT`
- * fra poolen, som har 15 s som standard (#564).
+ * Den laveste tidsgrensen for runnerens forespørsler. Den er over låseventen, så
+ * en runner som venter på applåsen, avvises med `MigreringAvvist` og ikke med
+ * `ETIMEOUT` fra poolen, som har 15 s som standard (#564).
  */
 const TIDSGRENSE = LAASVENT + 30_000;
 
@@ -138,13 +140,12 @@ function ordne(filer: Migrasjon[]): Migrasjon[] {
 }
 
 /**
- * Migrasjonene i `mappe`, sortert på filnavn. En fil med en annen endelse eller
+ * Migrasjonene i `mappe`, sortert på versjon. En fil med en annen endelse eller
  * et annet navn enn formen, eller med UTF-8-BOM, avvises.
  */
 export function lesMigrasjoner(mappe = MIGRASJONSMAPPE): Migrasjon[] {
-  const filer = readdirSync(mappe).sort();
   return ordne(
-    filer.map((filnavn) => {
+    readdirSync(mappe).map((filnavn) => {
       if (!filnavn.endsWith('.sql'))
         throw new MigreringAvvist(
           `${filnavn} har ikke endelsen .sql. Mappa skal bare ha migrasjonsfiler.`
@@ -159,7 +160,7 @@ export function lesMigrasjoner(mappe = MIGRASJONSMAPPE): Migrasjon[] {
         satser = delPaaGo(innhold.toString('utf8'));
       } catch (feil) {
         if (feil instanceof MigreringAvvist)
-          throw new MigreringAvvist(`${filnavn}: ${feil.message}`);
+          throw new MigreringAvvist(`${filnavn}: ${feil.message}`, { cause: feil });
         throw feil;
       }
       return {
@@ -203,98 +204,225 @@ IF OBJECT_ID(N'koe_migrering.historikk', N'U') IS NULL
     anvendt datetime2(3) NOT NULL CONSTRAINT historikk_anvendt DEFAULT SYSUTCDATETIME()
   );`;
 
-/** En forespørsel i `tx` med runnerens tidsgrense. */
-function foresporsel(tx: sql.Transaction): sql.Request {
-  // Typene i @types/mssql har ikke det andre argumentet, som mssql har (`overrides`).
-  const Request = sql.Request as unknown as new (
-    tx: sql.Transaction,
-    overstyring: { requestTimeout: number }
-  ) => sql.Request;
-  return new Request(tx, { requestTimeout: TIDSGRENSE });
+/**
+ * Konfigurasjonen for runnerens egen forbindelse: poolens, med én forbindelse og
+ * tidsgrensen `TIDSGRENSE` når poolens er lavere. `requestTimeout: 0` er uten
+ * grense og beholdes, så en lang sats får poolens grense (#564).
+ */
+export function egenKonfig(pool: sql.ConnectionPool): sql.config {
+  const { config } = pool as unknown as { config: sql.config };
+  const grense = config.requestTimeout ?? 15_000;
+  return {
+    ...config,
+    requestTimeout: grense === 0 ? 0 : Math.max(grense, TIDSGRENSE),
+    pool: { ...config.pool, min: 1, max: 1 },
+  };
 }
 
-async function laas(tx: sql.Transaction): Promise<void> {
-  const svar = await foresporsel(tx)
+/**
+ * Applåsen eies av sesjonen, så en `COMMIT` i en fil ikke slipper den, og av
+ * `db_owner`, så en bruker utenfor rollen, som kjøretiden, ikke kan ta den
+ * (#576, #564). Den slippes når forbindelsen lukkes.
+ */
+async function laas(egen: sql.ConnectionPool): Promise<void> {
+  const svar = await egen
+    .request()
     .input('ressurs', sql.NVarChar(255), APPLAAS)
     .query<{
       r: number;
     }>(
       `DECLARE @r int;
-     EXEC @r = sp_getapplock @Resource = @ressurs, @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = ${LAASVENT};
+     EXEC @r = sp_getapplock @Resource = @ressurs, @LockMode = 'Exclusive', @LockOwner = 'Session',
+       @LockTimeout = ${LAASVENT}, @DbPrincipal = N'db_owner';
      SELECT @r AS r;`
     );
   if (svar.recordset[0].r < 0)
     throw new MigreringAvvist(`Fikk ikke applåsen for migreringen på ${LAASVENT / 1000} s.`);
 }
 
-/** Transaksjonen forbindelsen er i, og hvor mange nivåer den har. */
-async function transaksjon(tx: sql.Transaction): Promise<{ id: string; niva: number }> {
-  const svar = await foresporsel(tx).query<{ id: string | null; niva: number }>(
-    'SELECT CONVERT(varchar(20), CURRENT_TRANSACTION_ID()) AS id, @@TRANCOUNT AS niva'
-  );
-  return { id: svar.recordset[0].id ?? '', niva: svar.recordset[0].niva };
+interface Forbindelsestilstand {
+  /** Transaksjonen forbindelsen er i, og hvor mange nivåer den har. */
+  id: string;
+  nivaa: number;
+  laas: string;
+  /** `#koe_migrering` finnes. Runneren lager den i sin transaksjon og sletter den før COMMIT. */
+  merket: boolean;
+}
+
+async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand> {
+  const svar = await egen
+    .request()
+    .input('ressurs', sql.NVarChar(255), APPLAAS)
+    .query<{
+      id: string | null;
+      nivaa: number;
+      laas: string;
+      merket: boolean;
+    }>(
+      `SELECT CONVERT(varchar(20), CURRENT_TRANSACTION_ID()) AS id, @@TRANCOUNT AS nivaa,
+            APPLOCK_MODE(N'db_owner', @ressurs, N'Session') AS laas,
+            CAST(CASE WHEN OBJECT_ID(N'tempdb..#koe_migrering') IS NULL THEN 0 ELSE 1 END AS bit) AS merket`
+    );
+  const t = svar.recordset[0];
+  return { ...t, id: t.id ?? '' };
+}
+
+/**
+ * Hva som er lagret når runnerens transaksjon ikke lenger er åpen. Finnes merket
+ * da, ble transaksjonen committet av fila, ikke rullet tilbake.
+ */
+async function lagret(egen: sql.ConnectionPool, runnerens: Forbindelsestilstand): Promise<string> {
+  let etter: Forbindelsestilstand;
+  try {
+    etter = await tilstand(egen);
+  } catch {
+    return ' Tilstanden etter feilen kunne ikke leses, så det fila gjorde før en COMMIT, kan være lagret.';
+  }
+  if (etter.id !== runnerens.id && etter.merket)
+    return ' Fila committet runnerens transaksjon, så det den gjorde før COMMIT, er lagret uten historikkrad.';
+  return ' Ingenting fra fila er lagret.';
+}
+
+/**
+ * Anvender den første fila som ikke er anvendt, i én transaksjon med
+ * historikkraden, og returnerer versjonen, eller `undefined` når alle er anvendt.
+ */
+async function anvendNeste(
+  egen: sql.ConnectionPool,
+  filer: Migrasjon[]
+): Promise<string | undefined> {
+  await egen.request().batch('BEGIN TRANSACTION; CREATE TABLE #koe_migrering (i int);');
+  const runnerens = await tilstand(egen);
+  if (runnerens.laas !== 'Exclusive')
+    throw new MigreringAvvist('Forbindelsen har ikke lenger applåsen for migreringen.');
+  await egen.request().batch(HISTORIKK);
+  const anvendt = (
+    await egen
+      .request()
+      .query<Anvendt>(
+        'SELECT versjon, filnavn, sha256 FROM koe_migrering.historikk ORDER BY versjon'
+      )
+  ).recordset;
+  const funn = avvik(anvendt, filer);
+  if (funn.length) throw new MigreringAvvist(funn.join(' '));
+  const kjent = new Set(anvendt.map((a) => a.versjon));
+  const neste = filer.find((f) => !kjent.has(f.versjon));
+  if (!neste) {
+    await egen.request().batch('DROP TABLE #koe_migrering; COMMIT;');
+    return undefined;
+  }
+  for (const [i, sats] of neste.satser.entries()) {
+    const sted = `${neste.filnavn}, sats ${i + 1}`;
+    try {
+      await egen.request().batch(sats);
+    } catch (feil) {
+      throw new MigreringAvvist(
+        `${sted}: ${(feil as Error).message}${await lagret(egen, runnerens)}`,
+        {
+          cause: feil,
+        }
+      );
+    }
+    const etter = await tilstand(egen);
+    if (etter.id !== runnerens.id || etter.nivaa !== runnerens.nivaa)
+      throw new MigreringAvvist(
+        `${sted}: satsen avsluttet eller åpnet en transaksjon (@@TRANCOUNT ${etter.nivaa}). ` +
+          'Runneren anvender hver fil i sin egen transaksjon.' +
+          (await lagret(egen, runnerens))
+      );
+  }
+  await egen
+    .request()
+    .input('versjon', sql.Char(14), neste.versjon)
+    .input('filnavn', sql.NVarChar(260), neste.filnavn)
+    .input('sha256', sql.Char(64), neste.sha256)
+    .batch(
+      `DROP TABLE #koe_migrering;
+       INSERT koe_migrering.historikk (versjon, filnavn, sha256) VALUES (@versjon, @filnavn, @sha256);
+       COMMIT;`
+    );
+  return neste.versjon;
+}
+
+/** Forbindelsen fra `tedious`. Runneren bruker den bare gjennom `mssql`. */
+type Forbindelse = object;
+
+interface Utlaan {
+  acquire(requester: unknown): Promise<Forbindelse>;
+  release(forbindelse: Forbindelse): void;
+}
+
+/**
+ * Forelderen til runnerens forespørsler: den gir alltid ut `forbindelse` og gir
+ * den aldri tilbake til poolen, som `reservasjon` i `datalag.ts`. Faller
+ * forbindelsen ut, feiler de neste forespørslene i stedet for å få en ny sesjon
+ * uten runnerens transaksjon og applås.
+ */
+function fast(pool: sql.ConnectionPool, forbindelse: Forbindelse): sql.ConnectionPool {
+  const { config } = pool as unknown as { config: unknown };
+  const forelder = {
+    config,
+    get connected() {
+      return pool.connected;
+    },
+    // `mssql` validerer tegnparametrene mot sorteringen poolen leste ved innloggingen.
+    get collation() {
+      return (pool as unknown as { collation: unknown }).collation;
+    },
+    acquire(_requester: unknown, callback: (...a: unknown[]) => void) {
+      setImmediate(callback, null, forbindelse, config);
+      return this;
+    },
+    release() {
+      return this;
+    },
+    request: () => new sql.Request(forelder as unknown as sql.ConnectionPool),
+  };
+  return forelder as unknown as sql.ConnectionPool;
 }
 
 /**
  * Anvender filene som ikke er anvendt, én transaksjon per fil, og returnerer
  * versjonene som ble anvendt. Avviker historikken fra filene, anvendes ingenting.
+ *
+ * Runneren holder én egen forbindelse med poolens konfigurasjon, ikke en
+ * `mssql`-transaksjon: en `ROLLBACK` i en fil får da ikke `mssql` til å gi
+ * forbindelsen tilbake til poolen med en åpen transaksjon (#576). Til slutt, også
+ * etter en feil, ruller runneren tilbake det som er åpent, slipper applåsen og
+ * lukker forbindelsen. Faller forbindelsen ut, gjør serveren det samme.
  */
 export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Promise<string[]> {
   filer = ordne(filer);
-  const kjoert: string[] = [];
-  for (;;) {
-    const tx = new sql.Transaction(pool);
-    await tx.begin();
+  const egenPool = await new sql.ConnectionPool(egenKonfig(pool)).connect();
+  let forbindelse: Forbindelse | undefined;
+  try {
+    forbindelse = await (egenPool as unknown as Utlaan).acquire(egenPool);
+    const egen = fast(egenPool, forbindelse);
     try {
-      await foresporsel(tx).batch('SET XACT_ABORT ON;');
-      await laas(tx);
-      await foresporsel(tx).batch(HISTORIKK);
-      const anvendt = (
-        await foresporsel(tx).query<Anvendt>(
-          'SELECT versjon, filnavn, sha256 FROM koe_migrering.historikk ORDER BY versjon'
+      await egen.request().batch('SET XACT_ABORT ON;');
+      await laas(egen);
+      const kjoert: string[] = [];
+      for (;;) {
+        const versjon = await anvendNeste(egen, filer);
+        if (versjon === undefined) return kjoert;
+        kjoert.push(versjon);
+      }
+    } finally {
+      await egen
+        .request()
+        .input('ressurs', sql.NVarChar(255), APPLAAS)
+        .batch(
+          `IF @@TRANCOUNT > 0 ROLLBACK;
+           IF APPLOCK_MODE(N'db_owner', @ressurs, N'Session') = 'Exclusive'
+             EXEC sp_releaseapplock @Resource = @ressurs, @LockOwner = 'Session', @DbPrincipal = N'db_owner';`
         )
-      ).recordset;
-      const funn = avvik(anvendt, filer);
-      if (funn.length) throw new MigreringAvvist(funn.join(' '));
-      const kjent = new Set(anvendt.map((a) => a.versjon));
-      const neste = filer.find((f) => !kjent.has(f.versjon));
-      if (!neste) {
-        await tx.commit();
-        return kjoert;
-      }
-      const runnerens = await transaksjon(tx);
-      for (const [i, sats] of neste.satser.entries()) {
-        try {
-          await foresporsel(tx).batch(sats);
-        } catch (feil) {
-          throw new MigreringAvvist(`${neste.filnavn}, sats ${i + 1}: ${(feil as Error).message}`, {
-            cause: feil,
-          });
-        }
-        const etter = await transaksjon(tx);
-        if (etter.id !== runnerens.id || etter.niva !== runnerens.niva)
-          throw new MigreringAvvist(
-            `${neste.filnavn}, sats ${i + 1}: satsen avsluttet eller åpnet en transaksjon ` +
-              `(@@TRANCOUNT ${etter.niva}). Runneren anvender hver fil i sin egen transaksjon, ` +
-              'og det satsen gjorde før en COMMIT, kan være lagret.'
-          );
-      }
-      await foresporsel(tx)
-        .input('versjon', sql.Char(14), neste.versjon)
-        .input('filnavn', sql.NVarChar(260), neste.filnavn)
-        .input('sha256', sql.Char(64), neste.sha256)
-        .query(
-          'INSERT koe_migrering.historikk (versjon, filnavn, sha256) VALUES (@versjon, @filnavn, @sha256)'
-        );
-      await tx.commit();
-      kjoert.push(neste.versjon);
-    } catch (feil) {
-      try {
-        await tx.rollback();
-      } catch {
-        // XACT_ABORT kan ha rullet tilbake allerede.
-      }
-      throw feil;
+        .catch(() => undefined);
     }
+  } finally {
+    // Poolen lukker forbindelsen når den selv lukkes.
+    if (forbindelse) (egenPool as unknown as Utlaan).release(forbindelse);
+    await egenPool.close().catch((feil: unknown) => {
+      console.error('Migreringen: poolen kunne ikke lukkes:', feil);
+    });
   }
 }

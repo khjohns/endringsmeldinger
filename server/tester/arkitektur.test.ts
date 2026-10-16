@@ -4,10 +4,12 @@
  *   språkprøven (`sprakprove/` er prøvekode, AGENTS.md) eller frontenden.
  * - Ut over det bruker serveren bare Node og `pg`. Testene kan i tillegg bruke
  *   Vitest.
- * - `mssql` brukes bare i datalaget (`datalag.ts`, #419), i migreringen
- *   (`migrering.ts`, #53) og i testene av dem og av testbasen (#532). Testen ser bare de statiske importene av `mssql`, ikke et
- *   lager som bruker `sql` fra `datalag.ts` eller en pool fra `opprettPool`
- *   utenom `transaksjon` (#542).
+ * - `mssql` importeres bare i datalaget (`datalag.ts`, #419), i migreringen
+ *   (`migrering.ts`, #53), i testen av datalaget (`tester/datalag.test.ts`) og
+ *   i testbasen (`tester/sqlserver*.ts`, #532). De andre testene, også
+ *   `tester/migrering.test.ts`, får `sql` fra testbasen (#567). Testen ser bare
+ *   de statiske importene av `mssql`, ikke et lager som bruker `sql` fra
+ *   `datalag.ts` eller en pool fra `opprettPool` utenom `transaksjon` (#542).
  *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
  * `export … from`, `import()` og `require()` teller likt, med og uten endelse.
