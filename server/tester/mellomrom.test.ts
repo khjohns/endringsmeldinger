@@ -54,6 +54,17 @@ SELECT OBJECT_SCHEMA_NAME(c.object_id) + N'.' + OBJECT_NAME(c.object_id) + N'.' 
                 1, 0) AS bit) AS i_sikkerhet
   FROM sys.columns c JOIN sys.tables t ON t.object_id = c.object_id
  WHERE t.is_ms_shipped = 0 AND TYPE_NAME(c.system_type_id) IN (N'nvarchar', N'nchar', N'varchar', N'char')`;
+/**
+ * `sys.sql_expression_dependencies` har kolonnen bare for en referanse med
+ * `SCHEMABINDING`; ellers er `referenced_minor_id` 0, og kravet ville ikke blitt
+ * utledet. Policyen binder predikatfunksjonene (`tilgang.test.ts`), så dette
+ * gjelder de andre funksjonene i `koe_sikkerhet`.
+ */
+const UBUNDNE_SIKKERHETSFUNKSJONER = `
+SELECT OBJECT_SCHEMA_NAME(m.object_id) + N'.' + OBJECT_NAME(m.object_id) AS funksjon
+  FROM sys.sql_modules m JOIN sys.objects o ON o.object_id = m.object_id
+ WHERE OBJECT_SCHEMA_NAME(m.object_id) = N'koe_sikkerhet' AND o.type IN ('FN', 'IF', 'TF')
+   AND m.is_schema_bound = 0`;
 const KONTROLLER = `
 SELECT OBJECT_SCHEMA_NAME(parent_object_id) + N'.' + OBJECT_NAME(parent_object_id) AS tabell,
        COL_NAME(parent_object_id, parent_column_id) AS kolonne, name AS navn, definition AS definisjon,
@@ -172,11 +183,14 @@ function form(k: string, definisjon: string): { lengde?: number } | undefined {
   return undefined;
 }
 
-/** Verdiene i en kontroll på formen `([k]=N'a' OR [k]=N'b' …)`, ellers `undefined`. */
+/** Verdiene i en kontroll på formen `([k]=N'a' OR [k]='b' …)`, ellers `undefined`. */
 function verdimengde(k: string, definisjon: string): string[] | undefined {
-  const ledd = `\\[${iRegExp(k)}\\]=N'[^']*'`;
+  const literal = "N?'((?:[^']|'')*)'";
+  const ledd = `\\[${iRegExp(k)}\\]=${literal}`;
   if (!new RegExp(`^\\(${ledd}(?: OR ${ledd})*\\)$`).test(definisjon)) return undefined;
-  return [...definisjon.matchAll(/N'([^']*)'/g)].map((t) => t[1]);
+  return [...definisjon.matchAll(new RegExp(`=${literal}`, 'g'))].map((t) =>
+    t[1].replaceAll("''", "'")
+  );
 }
 
 function del(kolonne: string): [string, string] {
@@ -346,10 +360,14 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
     expect(krav(k)).toEqual(['koe.notat.aktor_team_id']);
   });
 
-  it('en kolonne med en lukket verdimengde uten kontrollen gir avvik', () => {
+  it.each([
+    ['N foran verdiene', "([spor]=N'frist' OR [spor]=N'vederlag')"],
+    ['verdiene uten N foran', "([spor]='frist' OR [spor]='vederlag')"],
+    ['et escapet anførselstegn', "([spor]=N'frist' OR [spor]=N'a''b')"],
+  ])('en kolonne med en lukket verdimengde (%s) uten kontrollen gir avvik', (_, definisjon) => {
     const k = katalog();
     k.kolonner.push(kolonne('koe.notat.spor', 40));
-    k.kontroller.push(kontroll('koe.notat', 'spor', "([spor]=N'frist' OR [spor]=N'vederlag')"));
+    k.kontroller.push(kontroll('koe.notat', 'spor', definisjon));
     expect(krav(k)).toEqual(['koe.notat.spor']);
   });
 
@@ -746,5 +764,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
       'vakten utleder kravet selv; linjen i OGSAA_KONTROLL skal ut'
     ).toEqual([]);
     expect(uthulteKontroller(k)).toEqual([]);
+  });
+
+  it('katalogvakten: hver funksjon i koe_sikkerhet har SCHEMABINDING, så kolonnene den leser, utledes', async () => {
+    const ubundne = (await base.pool.request().query(UBUNDNE_SIKKERHETSFUNKSJONER)).recordset;
+    expect(
+      ubundne.map((r) => r.funksjon),
+      'funksjonen i koe_sikkerhet er uten SCHEMABINDING, så kolonnene den leser, står ikke i sys.sql_expression_dependencies'
+    ).toEqual([]);
   });
 });
