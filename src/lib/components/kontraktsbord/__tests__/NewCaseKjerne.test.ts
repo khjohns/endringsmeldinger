@@ -154,7 +154,7 @@ describe('skjemaet for ny sak på TS-stien', () => {
     expect(localStorage.getItem(UTKAST)).toBeNull();
   });
 
-  it('avbryter TE i brevkontrollen, står saken, og neste forsøk går til samme sak (foreslått i #666)', async () => {
+  it('avbryter TE i brevkontrollen, står saken, og neste forsøk går til samme sak (oppdragsgiver 16.10, #666)', async () => {
     const { screen, complete, actions } = vis();
     await waitFor(() => expect(actions()?.canSend).toBe(true));
     actions()!.send();

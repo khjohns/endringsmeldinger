@@ -231,7 +231,7 @@
   /**
    * Saken opprettes før brevkontrollen, fordi den låste teksten har saksnummeret
    * (LV-U4, DL-U6). Avbryter TE, står saken, og neste forsøk går til samme sak
-   * (foreslått i #666, spørsmål 1).
+   * (oppdragsgiver 16.10, avgjørelse 1 i #666).
    */
   async function sendTilKjernen(hovedkategori: string, underkategori: string) {
     const kommando = grunnlagskrav({

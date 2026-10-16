@@ -51,7 +51,7 @@ export const opprettelse = (sakstittel: string) => ({
 
 /**
  * Grunnlagskravet. Tittelen er sakstittelen i opprettelsen, og kravet har ingen
- * egen tittel på forholdet (foreslått i #666, spørsmål 2). En dato som er oppgitt
+ * egen tittel på forholdet (oppdragsgiver 16.10, avgjørelse 2 i #666). En dato som er oppgitt
  * for et annet felt enn kategorien har, følger ikke med.
  */
 export function grunnlagskrav(valg: Grunnlagsvalg): Record<string, unknown> {
