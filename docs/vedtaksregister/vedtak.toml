@@ -1851,6 +1851,46 @@ tekst = '''
 Mens versjon 2 venter på svar, har grunnlaget ikke noe gjeldende svar (GR-U1), og en enighet i vederlag eller frist er betinget til byggherren har svart.'''
 forkastet = true
 
+
+[[gruppe.vedtak]]
+id = "GR-U24"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#557", "#510", "#578"]
+sporsmal = '''
+Frafall og ny grunnlagsversjon (PR #557, GR-U23). Byggherren har frafalt pålegget etter § 32.3 c. TE sender så en ny grunnlagsversjon med samme hjemmel, og den venter på svar. Mens den venter, blir det siste kravet avgjort, for eksempel ved at fristforlengelsen godkjennes fullt. Da er alle krav avgjort, og etter OV-U3 avvises det som kan endre utfallet. Skal byggherren likevel kunne svare på den ventende versjonen? Et svar med endringsordre ville gjøre om frafallet, og det er det samme som en revisjon av frafallet, som OV-U3 uttrykkelig avviser («også av et frafall»). GR-U23 sier derimot at byggherren kan svare med frafall eller endringsordre.
+
+- **A: OV-U3 går foran (Anbefalt).** «Når kravene er avgjort, går OV-U3 foran GR-U20 og GR-U23: et svar på en grunnlagsversjon som venter, avvises, og frafallet står.» Snevrer inn GR-U20 og GR-U23, presiserer OV-U3. Visningen slutter å si at versjonen venter på svar når kravene er avgjort. Det rettes i #557.
+- **B: kan svare likevel.** «Byggherren kan svare på en grunnlagsversjon som venter, med frafall eller endringsordre, også når kravene er avgjort.» Snevrer inn OV-U3. Byggherren kan da gjøre om frafallet til endringsordre gjennom versjon 2, men ikke gjennom en revisjon.
+- **C: ikke avgjort mens den venter.** «Kravene er ikke avgjort så lenge en grunnlagsversjon venter på svar.» Snevrer inn OV-U3 og endrer GR-U23. TE kan da holde saken åpen med en ny versjon. Det går imot retningen i GR-U22.'''
+valgt = "A: OV-U3 går foran"
+svar = '''
+A: OV-U3 går foran (Anbefalt)'''
+forhold = [{ art = "snevrer inn", vedtak = "gr-u20" }, { art = "snevrer inn", vedtak = "gr-u23" }, { art = "presiserer", vedtak = "ov-u3" }, { art = "presiserer", vedtak = "gr-u17" }]
+folge = '''
+Forholdet til GR-U17 fant kontrollen av føringen 16.10: når kravene er avgjort, går OV-U3 foran også for svaret på en ny versjon, slik KA-U11 går foran etter GR-U17. Spørsmålet kom fra samspillsreviewet av PR #557 og står i #578. Ikke bygget (#510).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A: OV-U3 går foran"
+tekst = '''
+Når kravene er avgjort, går OV-U3 foran GR-U20 og GR-U23: et svar på en grunnlagsversjon som venter, avvises, og frafallet står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B: kan svare likevel"
+tekst = '''
+Byggherren kan svare på en grunnlagsversjon som venter, med frafall eller endringsordre, også når kravene er avgjort.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C: ikke avgjort mens den venter"
+tekst = '''
+Kravene er ikke avgjort så lenge en grunnlagsversjon venter på svar.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "også av et frafall"
+utdrag = true
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
 
@@ -3220,6 +3260,68 @@ tekst = '''
 Et svar uten akseptfrist kan ikke få en ved revisjon, heller ikke når det reviderte svaret godkjenner noe for første gang.'''
 forkastet = true
 
+
+[[gruppe.vedtak]]
+id = "HF-U21"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#578", "#502"]
+sporsmal = '''
+Byggherrens svar på vederlag og frist etter en ny grunnlagsversjon med samme hjemmel (HF-U5 detalj 2). I dag gjelder dette: svarene binder ikke byggherren etter den nye versjonen, så hen kan revidere dem fritt, men godtar TE før revisjonen, blir partene enige (KA-U1, GR-U7). Eksempel: byggherren avslår grunnlaget og godkjenner subsidiært 300 000 av 500 000 kr. TE sender en ny versjon med utfylt beskrivelse. Byggherren vil så revidere til 100 000 kr. Etter GR-U22 er hjemmelen den samme, så grunnlaget for detalj 2 er svekket. En ny versjon er heller ikke et avslag på svaret (avtaleloven § 5).
+
+- **A: bindingen står (Anbefalt).** «En ny grunnlagsversjon med samme hjemmel endrer ikke bindingen i byggherrens svar på vederlag eller fristforlengelse. Den er ikke et avslag på dem (avtaleloven § 5). Bindingen varer som etter HF-U5 og HF-U8. Et subsidiært standpunkt forblir subsidiært (GR-U1).» Opphever detalj 2 i HF-U5. Revisjonen i eksempelet avvises.
+- **C: som i dag.** «Etter en ny grunnlagsversjon kan byggherren revidere sitt svar på vederlag og fristforlengelse fritt. Godtar TE svaret før det er revidert, er partene enige (KA-U1, GR-U7).» Presiserer HF-U5. Revisjonen i eksempelet er tillatt så lenge TE ikke har godtatt.
+- **B: aksept er nytt tilbud.** «Etter en ny grunnlagsversjon binder svaret ikke. Godtar TE det, er aksepten et nytt tilbud som byggherren kan godta eller avslå (HF-U18, HF-U19).» Strider mot GR-U7 og snevrer inn KA-U1.'''
+valgt = "A: bindingen står"
+svar = '''
+A: bindingen står (Anbefalt)'''
+forhold = [{ art = "endrer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "presiserer", vedtak = "gr-u1" }]
+folge = '''
+Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A: bindingen står"
+tekst = '''
+En ny grunnlagsversjon med samme hjemmel endrer ikke bindingen i byggherrens svar på vederlag eller fristforlengelse. Den er ikke et avslag på dem (avtaleloven § 5). Bindingen varer som etter HF-U5 og HF-U8. Et subsidiært standpunkt forblir subsidiært (GR-U1).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C: som i dag"
+tekst = '''
+Etter en ny grunnlagsversjon kan byggherren revidere sitt svar på vederlag og fristforlengelse fritt. Godtar TE svaret før det er revidert, er partene enige (KA-U1, GR-U7).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B: aksept er nytt tilbud"
+tekst = '''
+Etter en ny grunnlagsversjon binder svaret ikke. Godtar TE det, er aksepten et nytt tilbud som byggherren kan godta eller avslå (HF-U18, HF-U19).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U22"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#578", "#502"]
+sporsmal = '''
+Etter akseptfristen binder svaret ikke byggherren i appen (HF-U17), så hen kan senke dager hen har godkjent. Etter vår tolkning kan innsigelsen likevel være tapt fordi den ikke kom innen svarfristen i § 33.7 annet ledd (for enhetspriser § 34.3.3 annet ledd). Under forsering kan TE ikke godta svaret (FO-U5), så akseptfristen løper alltid ut. Forsering og justering av enhetspriser er ikke bygget i første versjon (OV-U1), så nå gjelder dette bare dager etter § 33.7.
+
+- **B nå, forsering senere (Anbefalt).** «Senker byggherren etter akseptfristen dager eller beløp hen har godkjent, viser appen § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2).» Presiserer VS-U2. Om fristsvaret binder under forsering, avgjøres når forsering bygges.
+- **A: binder under forsering.** Som B, og i tillegg: «Så lenge en forseringssak viser til avslaget og TE derfor ikke kan godta svaret (FO-U5), faller svaret ikke bort ved akseptfristen, og en revisjon som senker godkjente dager, avvises (FO-U7).» Snevrer inn HF-U17 og utvider FO-U7. Vedtas nå, bygges med forsering.'''
+valgt = "B nå, forsering senere"
+svar = '''
+B nå, forsering senere (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "vs-u2" }, { art = "presiserer", vedtak = "hf-u17" }]
+folge = '''
+Alternativ A er ikke forkastet: om fristsvaret binder under forsering (FO-U5, FO-U7), avgjøres når forsering bygges (OV-U1). Forholdet til HF-U17 fant kontrollen av føringen 16.10: vedtaket sier hva appen viser når byggherren senker etter akseptfristen, som HF-U17 tillater. Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B nå, forsering senere"
+tekst = '''
+Senker byggherren etter akseptfristen dager eller beløp hen har godkjent, viser appen § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A: binder under forsering"
+tekst = '''
+Så lenge en forseringssak viser til avslaget og TE derfor ikke kan godta svaret (FO-U5), faller svaret ikke bort ved akseptfristen, og en revisjon som senker godkjente dager, avvises (FO-U7).'''
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
