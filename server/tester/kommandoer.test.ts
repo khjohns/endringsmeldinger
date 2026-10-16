@@ -208,8 +208,26 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
 
     it.each<[string, Record<string, unknown>, RegExp]>([
       ['uten sakstype i data', { sakstittel: 'x' }, /Sakstypen mangler/],
-      ['med en sakstype med mellomrom til slutt', { sakstype: 'standard ' }, /mellomrom til slutt/],
+      [
+        'med en sakstype med mellomrom til slutt',
+        { sakstype: 'standard ' },
+        /andre tegn enn a–z og _/,
+      ],
+      [
+        'med en sakstype med tabulator til slutt',
+        { sakstype: 'standard\t' },
+        /andre tegn enn a–z og _/,
+      ],
+      ['med en sakstype med NBSP', { sakstype: 'stan\u00a0dard' }, /andre tegn enn a–z og _/],
+      ['med en sakstype med store bokstaver', { sakstype: 'Standard' }, /andre tegn enn a–z og _/],
+      ['med en tom sakstype', { sakstype: '' }, /Sakstypen er tom/],
+      ['med en sakstype av bare mellomrom', { sakstype: '   ' }, /andre tegn enn a–z og _/],
       ['med en sakstype over 40 tegn', { sakstype: 'x'.repeat(41) }, /over 40 tegn/],
+      ['med en sakstype over 4000 tegn', { sakstype: 'x'.repeat(4001) }, /over 40 tegn/],
+      ['med en sakstype som er et tall (#631)', { sakstype: 123 }, /ikke en tekst/],
+      ['med en sakstype som er et objekt (#631)', { sakstype: { a: 'standard' } }, /ikke en tekst/],
+      ['med en sakstype som er en liste (#631)', { sakstype: ['standard'] }, /ikke en tekst/],
+      ['med en sakstype som er null (#631)', { sakstype: null }, /ikke en tekst/],
     ])(
       'avvises %s med UgyldigKommando og en melding som sier hva (#596, #607)',
       async (_, data, melding) => {
@@ -221,6 +239,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         expect(feilnummer((feil as Error).cause)).toBe(UGYLDIG);
       }
     );
+
+    it('avviser en sakstype som står to ganger i data (51422) (#631)', async () => {
+      const svar = await avvisningMedMelding(
+        transaksjon(kjoeretid.pool, te, (f) =>
+          f()
+            .input('format', sql.Int, 1)
+            .input('data', sql.NVarChar(sql.MAX), '{"sakstype":"standard","sakstype":"forsering"}')
+            .output('sak_id', sql.NVarChar(36))
+            .output('event_id', sql.NVarChar(36))
+            .output('tidsstempel', sql.DateTime2(3))
+            .execute('koe_api.opprett_sak')
+        )
+      );
+      expect(svar).toEqual({ nummer: UGYLDIG, melding: 'Sakstypen står flere ganger i data' });
+    });
   });
 
   describe('skriv hendelse', () => {
@@ -367,39 +400,66 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect(utfall).toBe('skrevet');
     }, 30_000);
 
-    it.each<[string, (rad: Journalrad, o: Oppdragsrad) => [Journalrad, Oppdragsrad]]>([
-      ['en event_id på 37 tegn', (rad, o) => [{ ...rad, event_id: `${rad.event_id}0` }, o]],
+    it.each<[string, (rad: Journalrad, o: Oppdragsrad) => [Journalrad, Oppdragsrad], RegExp]>([
+      [
+        'en event_id på 37 tegn',
+        (rad, o) => [{ ...rad, event_id: `${rad.event_id}0` }, o],
+        /event_id/,
+      ],
       [
         'en event_id med store bokstaver',
         (rad, o) => [{ ...rad, event_id: rad.event_id.toUpperCase() }, o],
+        /event_id/,
       ],
-      ['en hendelsestype over 100 tegn', (rad, o) => [{ ...rad, event_type: 'x'.repeat(101) }, o]],
+      [
+        'en hendelsestype over 100 tegn',
+        (rad, o) => [{ ...rad, event_type: 'x'.repeat(101) }, o],
+        /over 100 tegn/,
+      ],
       [
         'en hendelsestype med mellomrom til slutt',
         (rad, o) => [{ ...rad, event_type: 'dokument_registrert ' }, o],
+        /andre tegn enn a–z og _/,
+      ],
+      [
+        'en hendelsestype med tabulator til slutt (#629)',
+        (rad, o) => [{ ...rad, event_type: 'dokument_registrert\t' }, o],
+        /andre tegn enn a–z og _/,
       ],
       [
         'en dokumentnøkkel over 100 tegn',
         (rad, o) => [rad, { ...o, dokumentnoekkel: 'd'.repeat(101) }],
+        /over 100 tegn/,
       ],
       [
         'en sum med store bokstaver',
         (rad, o) => [rad, { ...o, innhold_sha256: o.innhold_sha256.toUpperCase() }],
+        /Summen/,
       ],
-    ])('%s gir UgyldigKommando før basen, og ingenting skrives (#607)', async (_, endre) => {
-      const sak = await nySak();
-      const lag = (g: { journal: Journalrad[]; tidspunkt: Date }): Skriveutfall<never> => {
-        const rad = brev(g);
-        const [r, o] = endre(rad, oppdragFor(rad));
-        return { skriv: true, rad: r, oppdrag: { ...o, event_id: r.event_id } };
-      };
-      const feil = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, lag).catch(
-        (e: unknown) => e
-      );
-      expect(feil).toBeInstanceOf(UgyldigKommando);
-      expect((feil as Error).message).toMatch(/feil form/);
-      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
-    });
+      [
+        'en oppdrags-ID som ikke er en UUID (#629)',
+        (rad, o) => [rad, { ...o, id: 'oppdrag-1' }],
+        /Oppdragets ID er ikke en UUID/,
+      ],
+      ['format 0 (#629)', (rad, o) => [{ ...rad, format: 0 }, o], /Formatet/],
+    ])(
+      '%s gir UgyldigKommando med basens 51422 i cause, og ingenting skrives (#629)',
+      async (_, endre, melding) => {
+        const sak = await nySak();
+        const lag = (g: { journal: Journalrad[]; tidspunkt: Date }): Skriveutfall<never> => {
+          const rad = brev(g);
+          const [r, o] = endre(rad, oppdragFor(rad));
+          return { skriv: true, rad: r, oppdrag: { ...o, event_id: r.event_id } };
+        };
+        const feil = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, lag).catch(
+          (e: unknown) => e
+        );
+        expect(feil).toBeInstanceOf(UgyldigKommando);
+        expect((feil as Error).message).toMatch(melding);
+        expect(feilnummer((feil as Error).cause)).toBe(UGYLDIG);
+        expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
+      }
+    );
 
     it('null som kontekst gir UgyldigKontekst, ikke TypeError (#596)', async () => {
       const sak = await nySak();
@@ -433,7 +493,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         oppdrag = true,
         forventet = 1,
         felt = {} as Partial<
-          Record<'event_id' | 'dokumentnoekkel' | 'oppdrag_sha256' | 'oppdrag' | 'data', string>
+          Record<
+            'event_id' | 'dokumentnoekkel' | 'oppdrag_sha256' | 'oppdrag' | 'data' | 'oppdrag_id',
+            string
+          >
         > & { format?: number },
       } = {}
     ): Promise<{ skriving: string | null }> {
@@ -496,7 +559,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
           .input('tidsstempel', sql.DateTime2(3), tidspunkt)
           .input('format', sql.Int, felt.format ?? 1)
           .input('data', sql.NVarChar(sql.MAX), felt.data ?? '{}')
-          .input('oppdrag_id', sql.UniqueIdentifier, oppdrag ? randomUUID() : null)
+          .input(
+            'oppdrag_id',
+            sql.NVarChar(4000),
+            oppdrag ? (felt.oppdrag_id ?? randomUUID()) : null
+          )
           .input(
             'dokumentnoekkel',
             sql.NVarChar(4000),
@@ -572,7 +639,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
 
     it('avviser en annen versjon enn journalens (51409) med journalens versjon i meldingen, og ingenting skrives', async () => {
       const sak = await nySak();
-      // Formen er kontrakten `oversett` i server/kommandoer.ts leser (20261016170000_kommandoform.sql).
+      // Formen er kontrakten `oversett` i server/kommandoer.ts leser (20261016230000_skranker.sql).
       expect(await avvisningMedMelding(direkte(sak.sak_id, { forventet: 2 }))).toEqual({
         nummer: 51409,
         melding: 'Versjonskonflikt: journalen har versjon 1',
@@ -609,9 +676,31 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       [
         'en hendelsestype med mellomrom til slutt',
         { eventType: 'annen ', oppdrag: false },
-        /mellomrom til slutt/,
+        /andre tegn enn a–z og _/,
+      ],
+      [
+        'en hendelsestype med tabulator til slutt (#609)',
+        { eventType: 'sak_opprettet\t', oppdrag: false },
+        /andre tegn enn a–z og _/,
+      ],
+      [
+        'en hendelsestype med U+3000 (#609)',
+        { eventType: 'annen\u3000', oppdrag: false },
+        /andre tegn enn a–z og _/,
+      ],
+      ['en tom hendelsestype', { eventType: '', oppdrag: false }, /Hendelsestypen mangler/],
+      [
+        'en hendelsestype av bare mellomrom',
+        { eventType: '  ', oppdrag: false },
+        /andre tegn enn a–z og _/,
       ],
       ['format 0', { felt: { format: 0 } }, /Formatet/],
+      ['en tom dokumentnøkkel', { felt: { dokumentnoekkel: '' } }, /Dokumentnøkkelen er tom/],
+      [
+        'en dokumentnøkkel av bare mellomrom',
+        { felt: { dokumentnoekkel: ' ' } },
+        /andre tegn enn a–z, 0–9, _ og -/,
+      ],
       ['data som ikke er et JSON-objekt', { felt: { data: '[]' } }, /data/],
       [
         'en dokumentnøkkel over 100 tegn',
@@ -621,7 +710,22 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       [
         'en dokumentnøkkel med mellomrom til slutt',
         { felt: { dokumentnoekkel: 'dok ' } },
-        /mellomrom til slutt/,
+        /andre tegn enn a–z, 0–9, _ og -/,
+      ],
+      [
+        'en dokumentnøkkel med NBSP (#609)',
+        { felt: { dokumentnoekkel: 'dok\u00a0' } },
+        /andre tegn enn a–z, 0–9, _ og -/,
+      ],
+      [
+        'en oppdrags-ID som ikke er en UUID (#629)',
+        { felt: { oppdrag_id: 'oppdrag-1' } },
+        /Oppdragets ID er ikke en UUID/,
+      ],
+      [
+        'en oppdrags-ID med tegn etter UUID-en (#629)',
+        { felt: { oppdrag_id: `${randomUUID()}0` } },
+        /Oppdragets ID er ikke en UUID/,
       ],
       ['et oppdrag som ikke er et JSON-objekt', { felt: { oppdrag: '"x"' } }, /Oppdraget/],
       ['en sum på 65 tegn', { felt: { oppdrag_sha256: 'a'.repeat(65) } }, /Summen/],
