@@ -266,10 +266,11 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
   [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md) sier.
 - **Skriv ikke arbeidsstatus i hovedplanen eller `docs/README.md`**: «neste
   oppgave», «pågår», «venter på», «merges etter #45». Det hører til i issuet.
-- **Oppfølging som ikke løses i samme PR, blir et issue.** Fra review og
-  code-review får det etiketten `review-oppfølging`. Venter det på en B-ID, får
-  det `venter-på-beslutning`. Det gjelder også feil du oppdager underveis
-  utenfor oppdraget. Å nevne dem i PR-beskrivelsen er ikke nok. Tilskriver du
+- **Oppfølging som ikke løses i samme PR, blir et issue.** Funn fra review og
+  code-review følger stoppregelen for funn: avviste funn står i PR-en, og resten
+  samles i et oppfølgingsissue. Venter det på en B-ID, får det
+  `venter-på-beslutning`. Det gjelder også feil du oppdager underveis utenfor
+  oppdraget. Å nevne dem i PR-beskrivelsen er ikke nok. Tilskriver du
   en feil testmiljøet, er det en påstand. Kontroller den, eller meld den.
 - **Hvert issue har en milepæl eller en sporetikett.** Milepælen er
   arbeidspakken i hovedplanen; de parallelle sporene har `spor-d`, `spor-h`,
@@ -320,13 +321,18 @@ oppfylt.
 forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
 
 **Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
-som bryter et vedtak eller kontrakten. Funn om skjørhet, struktur eller en senere
-endring blir oppfølging etter regelen under «Hvor hva står», med etiketten
-`review-oppfølging`, uten retting i PR-en. Kontrollen av rettingene gjelder bare
-rettingsdiffen, på nivå `high` når rettingene rører serverinngangene, tilgang,
-CSRF, lagring, journalen eller migrasjonene, ellers `medium`. Et funn du
-avviser, står med begrunnelse under «Åpne spørsmål» i PR-beskrivelsen
-(oppdragsgiver 14.10, #484 og #490).
+som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
+
+- Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
+  kan gi feil resultat senere eller er et krav til noe som skal bygges.
+- Er det et krav til en inngang eller del som ikke finnes ennå, føres kravet som
+  kommentar i issuet for den inngangen eller delen.
+- Ellers samles funnene i ett oppfølgingsissue per PR, med etiketten
+  `review-oppfølging` og en sjekkliste. Ett issue per funn lages ikke.
+
+Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
+rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
+`medium` (oppdragsgiver 14.10, #484 og #490; oppdragsgiver 16.10).
 
 **Grensene for kontekst i
 [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#kontekst-i-arbeidsøktene)
