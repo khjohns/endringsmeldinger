@@ -1449,11 +1449,11 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     };
 
     /**
-     * Skiftet mellom svikt og endring kan ikke lenger sendes fra appen (GR-U19), så det
-     * står som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18).
+     * Skiftet mellom svikt og endring kan ikke sendes fra appen (GR-U22), så det står
+     * som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18).
      */
     const skifte = (s: ReturnType<typeof sak>, kommando: { innhold: Data }) => {
-      expect(s.avvist('TE', kommando)).toBe('ANNEN_HOVEDKATEGORI');
+      expect(s.avvist('TE', kommando)).toBe('ANNEN_HJEMMEL');
       s.rad('TE', {
         krav: [
           {
@@ -2519,12 +2519,12 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
       expect(s.avvist('BH', revisjon(s, 'grunnlag', forSentGrunnlag))).toBe('SAGT_I_TIDE');
     });
 
-    it('«i tide» står mot en senere grunnlagsversjon, også med endret underkategori (HF-U8)', () => {
+    it('«i tide» står mot en senere grunnlagsversjon med samme hjemmel (HF-U8, GR-U22)', () => {
       const s = sakMedKrav();
       brev(s, 'grunnlag', avslaatt);
       s.send('TE', {
         ...GRUNNLAGSKRAV,
-        innhold: { ...GRUNNLAGSKRAV.innhold, underkategori: 'valg_av_loesning' },
+        innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling, utvidet' },
       });
       expect(s.avvist('BH', nyttSvar(s, 'grunnlag', avslaatt)), 'kontrollsak').toBeNull();
       expect(s.avvist('BH', nyttSvar(s, 'grunnlag', forSentGrunnlag))).toBe('SAGT_I_TIDE');
@@ -2594,10 +2594,11 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
 });
 
 /**
- * GR-U19: en ny grunnlagsversjon beholder hovedkategorien, og underkategorien kan bare
- * endres når § 32.2 gjelder likt før og etter. Kontrollsakene er arbeidsvalgene 16.10 i #538.
+ * GR-U22: når grunnlaget er sendt, står hovedkategorien og underkategorien, også når § 32.2
+ * gjelder likt. En ny versjon med samme hjemmel er tillatt (GR-U1), og endringsordrens dato
+ * eller nummer kan rettes (GR-U16, arbeidsvalg 2 i kartleggingen 16.10 på #569).
  */
-describe('en ny grunnlagsversjon beholder kategorien (GR-U19)', () => {
+describe('en ny grunnlagsversjon beholder hjemmelen (GR-U22)', () => {
   const versjon = (innhold: Data) => ({
     ...GRUNNLAGSKRAV,
     innhold: { tittel: 'Ny peling', ...innhold },
@@ -2607,27 +2608,33 @@ describe('en ny grunnlagsversjon beholder kategorien (GR-U19)', () => {
     underkategori: 'endringsordre',
     endringsordre: 'EO-1',
   };
+  const svikt = { hovedkategori: 'svikt', underkategori: 'grunnforhold' };
 
   it.each([
+    ['irregulær endring til svikt', null, svikt, 'ANNEN_HJEMMEL'],
+    // #551: § 32.2 gjelder ingen av versjonene, så bare hovedkategorien skiller dem.
     [
-      'irregulær endring til svikt',
-      null,
-      { hovedkategori: 'svikt', underkategori: 'grunnforhold' },
-      'ANNEN_HOVEDKATEGORI',
+      'svikt til andre forhold',
+      svikt,
+      { hovedkategori: 'andre_forhold', underkategori: 'skade_fra_byggherren' },
+      'ANNEN_HJEMMEL',
     ],
-    ['irregulær endring til endringsordre', null, endringsordre, 'ANNEN_VARSLINGSPLIKT'],
     [
-      'endringsordre til irregulær endring',
-      endringsordre,
-      GRUNNLAGSKRAV.innhold,
-      'ANNEN_VARSLINGSPLIKT',
+      'grunnforhold til medvirkning, i samme hovedkategori',
+      svikt,
+      { hovedkategori: 'svikt', underkategori: 'medvirkning' },
+      'ANNEN_HJEMMEL',
     ],
+    ['irregulær endring til endringsordre', null, endringsordre, 'ANNEN_HJEMMEL'],
+    ['endringsordre til irregulær endring', endringsordre, GRUNNLAGSKRAV.innhold, 'ANNEN_HJEMMEL'],
     [
       'irregulær endring til lovendring, der § 32.2 gjelder i begge',
       null,
       { hovedkategori: 'endring', underkategori: 'lovendring_gjenstand' },
-      null,
+      'ANNEN_HJEMMEL',
     ],
+    ['samme hjemmel i irregulær endring', null, GRUNNLAGSKRAV.innhold, null],
+    ['samme hjemmel i svikt', svikt, svikt, null],
     [
       'en ny endringsordre med uendret underkategori',
       endringsordre,
@@ -2741,25 +2748,16 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
     });
   });
 
-  describe('en ny grunnlagsversjon etter frafallet (GR-U20, GR-U19)', () => {
-    it.each([
-      ['uten bytte av underkategori', { tittel: 'Ny peling 2' }],
-      [
-        'med bytte av underkategori der § 32.2 gjelder likt (GR-U19)',
-        { underkategori: 'valg_av_loesning' },
-      ],
-    ] as [string, Data][])(
-      '%s: byggherren kan svare med frafall eller endringsordre, ikke med avslag',
-      (_n, innhold) => {
-        const s = medFrafall();
-        versjon(s, innhold);
-        expect(s.u().spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
-        expect(s.avvist('BH', nyttSvar(s, frafall))).toBeNull();
-        expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBeNull();
-        expect(s.avvist('BH', nyttSvar(s, avslag))).toBe('FRAFALT');
-        expect(s.avvist('BH', nyttSvar(s, paaberopelse))).toBe('SAGT_I_TIDE');
-      }
-    );
+  describe('en ny grunnlagsversjon etter frafallet (GR-U20, GR-U22)', () => {
+    it('med samme hjemmel: byggherren kan svare med frafall eller endringsordre, ikke med avslag', () => {
+      const s = medFrafall();
+      versjon(s, { tittel: 'Ny peling 2' });
+      expect(s.u().spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
+      expect(s.avvist('BH', nyttSvar(s, frafall))).toBeNull();
+      expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBeNull();
+      expect(s.avvist('BH', nyttSvar(s, avslag))).toBe('FRAFALT');
+      expect(s.avvist('BH', nyttSvar(s, paaberopelse))).toBe('SAGT_I_TIDE');
+    });
 
     it('kontrollsak: etter et avslag kan byggherren avslå en ny grunnlagsversjon', () => {
       const s = sakMedKrav();

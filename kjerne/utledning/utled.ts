@@ -860,16 +860,16 @@ function utledSporene(
 }
 
 /**
- * KA-U13 og KA-U14, med § 31.3 (GR-U13): TE kan ikke trekke grunnlaget før det er
- * avklart at godkjenningen ikke er en endringsordre. Et trekk ville gitt journalen
- * den videre virkningen at endringsordren leses som bortfalt (KA-U6).
+ * KA-U13 og KA-U14, med § 31.3 (GR-U13): TE kan ikke trekke grunnlaget når byggherren
+ * har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre. Et
+ * trekk ville gitt journalen den videre virkningen at endringsordren leses som bortfalt
+ * (KA-U6). En endringsordre byggherren har registrert, sperrer ikke (OV-U6), og et
+ * registrert brev gir ingen sperre (OV-U4).
  */
-export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => u.endringsordre !== 'nei';
-
-/** KA-U26: brevet med gjeldende svar på grunnlaget har en merking som gjelder i grunnlaget. */
-export const godkjenningenErMerket = (u: Utledning): boolean =>
-  u.spor.grunnlag.gjeldendeSvar !== null &&
-  u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar.dokument);
+export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => {
+  const svar = u.spor.grunnlag.gjeldendeSvar;
+  return u.endringsordre === 'ja' && !!svar && !u.elementer[svar.dokument]?.registrertBrev;
+};
 
 /**
  * KA-U22, KA-U27, KA-U30: et trekk avvises når appen ikke
