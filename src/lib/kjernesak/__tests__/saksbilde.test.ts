@@ -31,7 +31,12 @@ const opprettet: Journalrad = {
 const grunnlagskrav = {
   type: 'krav',
   spor: 'grunnlag',
-  innhold: { hovedkategori: 'endring', underkategori: 'irregulaer_endring', tittel: 'Ny peling' },
+  innhold: {
+    hovedkategori: 'endring',
+    underkategori: 'irregulaer_endring',
+    tittel: 'Ny peling',
+    paalegg_mottatt: '2026-10-01',
+  },
   utdypning: 'BH påla ny peling i akse C.',
 };
 const vederlagskrav = {

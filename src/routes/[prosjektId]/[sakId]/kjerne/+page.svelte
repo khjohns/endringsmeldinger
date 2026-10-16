@@ -6,21 +6,20 @@
    * hendelser (B-17).
    */
   import { page } from '$app/state';
-  import { ApiError } from '$lib/api/client';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
   import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
   import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
   import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
-  import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/api/kjerne';
-  import { forhaandsvis, laastTekst } from '$kjerne/kommandoer/skriving';
-  import { KJERNE } from '$kjerne/versjon';
-  import type { Journalrad } from '$kjerne/typer';
+  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+  import type { Part } from '$kjerne/typer';
 
   const sakId = $derived(page.params.sakId ?? '');
+  const prosjektId = $derived(page.params.prosjektId ?? '');
 
-  let sak = $state<Kjernesak | null>(null);
-  let feil = $state<string | null>(null);
-  let sender = $state(false);
+  // Siden brevteksten forhåndsvises for. Serveren avgjør med siden fra sesjonen (#665).
+  let part = $state<Part>('TE');
+  const kjernesak = $derived(lagKjernesak({ sakId, prosjektId, part }));
+  const sak = $derived(kjernesak.sak);
 
   // Kategoriene som kjernen har et par for (#335).
   const forhold = KRAV_STRUKTUR_NS8407.filter((h) => h.kode in HOVEDKATEGORI_FRA_KATALOGEN).map(
@@ -49,52 +48,6 @@
       : null
   );
 
-  const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
-
-  async function last() {
-    feil = null;
-    try {
-      sak = await hentKjernesak(sakId);
-    } catch (e) {
-      feil = meldingFra(e, 'Saken kunne ikke hentes.');
-    }
-  }
-
-  /**
-   * Den låste teksten kjernen lager for kommandoen mot saken slik den er lastet (B-15).
-   * Avsenderen ser den, og kommandoen bærer den; serveren avviser en annen (LV-U2).
-   */
-  function brevtekstFor(kommando: Record<string, unknown>): string[] | null {
-    if (!sak) return null;
-    const journal: Journalrad[] = sak.journal.map((r) => ({
-      ...r,
-      sak_id: sakId,
-      aktor_id: '',
-      aktor_team_id: null,
-      refererer_til_event_id: null,
-    }));
-    let vist;
-    try {
-      vist = forhaandsvis(
-        kommando,
-        {
-          sakId,
-          aktoerId: '',
-          part: 'TE',
-          teamId: null,
-          tidspunkt: () => new Date(),
-          nyId: () => crypto.randomUUID(),
-        },
-        journal,
-        KJERNE
-      );
-    } catch {
-      // Kjernen kan ikke lage teksten; serveren avviser da kommandoen med sin begrunnelse.
-      return null;
-    }
-    return vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
-  }
-
   const grunnlagskrav = $derived({
     type: 'krav',
     spor: 'grunnlag',
@@ -112,38 +65,21 @@
     spor: 'vederlag',
     innhold: { metode: 'tilbud', beloep },
   });
-  const grunnlagstekst = $derived(under ? brevtekstFor(grunnlagskrav) : null);
-  const vederlagstekst = $derived(beloep ? brevtekstFor(vederlagskrav) : null);
-
-  async function send(kommando: Record<string, unknown>, brevtekst: string[] | null) {
-    if (!sak || sender) return;
-    sender = true;
-    feil = null;
-    try {
-      await sendKommando(sakId, sak.versjon, brevtekst ? { ...kommando, brevtekst } : kommando);
-      await last();
-    } catch (e) {
-      const melding = meldingFra(e, 'Kravet ble ikke sendt.');
-      // Ved konflikt lastes saken på nytt, og meldingen skal stå etterpå.
-      if (e instanceof ApiError && e.status === 409) await last();
-      feil = feil ? `${melding} ${feil}` : melding;
-    } finally {
-      sender = false;
-    }
-  }
+  const grunnlagstekst = $derived(under ? kjernesak.brevtekst(grunnlagskrav) : null);
+  const vederlagstekst = $derived(beloep ? kjernesak.brevtekst(vederlagskrav) : null);
 
   function sendGrunnlag(e: SubmitEvent) {
     e.preventDefault();
-    void send(grunnlagskrav, grunnlagstekst);
+    void kjernesak.send(grunnlagskrav);
   }
 
   function sendVederlag(e: SubmitEvent) {
     e.preventDefault();
-    void send(vederlagskrav, vederlagstekst);
+    void kjernesak.send(vederlagskrav);
   }
 
   $effect(() => {
-    if (sakId) void last();
+    if (sakId) void kjernesak.last();
   });
 </script>
 
@@ -156,17 +92,25 @@
     leveringsoppdrag. Leveringen til Catenda er ikke bygget.
   </p>
 
-  {#if feil}
-    <p role="alert" class="rounded border border-red-300 bg-red-50 p-2 text-sm">{feil}</p>
+  <label class="block text-sm"
+    >Forhåndsvis brevteksten som
+    <select class="border" bind:value={part}>
+      <option value="TE">TE</option>
+      <option value="BH">BH</option>
+    </select>
+  </label>
+
+  {#if kjernesak.feil}
+    <p role="alert" class="rounded border border-red-300 bg-red-50 p-2 text-sm">{kjernesak.feil}</p>
   {/if}
 
   {#if sak}
     <section aria-labelledby="status">
       <h2 id="status" class="font-semibold">Status</h2>
-      <p data-testid="status">{sak.visning.status.tekst}</p>
-      <p class="text-sm text-gray-600">Versjon {sak.versjon}</p>
+      <p data-testid="status">{kjernesak.visning?.status.tekst}</p>
+      <p class="text-sm text-gray-600">Versjon {kjernesak.versjon}</p>
       <ul class="text-sm">
-        {#each Object.entries(sak.visning.spor) as [spor, { etiketter }] (spor)}
+        {#each Object.entries(kjernesak.visning?.spor ?? {}) as [spor, { etiketter }] (spor)}
           <li>{spor}: {etiketter.join(', ') || '–'}</li>
         {/each}
       </ul>
@@ -203,7 +147,9 @@
           {#each grunnlagstekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
         </div>
       {/if}
-      <button class="rounded border px-3 py-1" disabled={sender || !under}>Send grunnlag</button>
+      <button class="rounded border px-3 py-1" disabled={kjernesak.sender || !under}
+        >Send grunnlag</button
+      >
     </form>
 
     <form class="space-y-2" onsubmit={sendVederlag} aria-labelledby="vederlag">
@@ -224,7 +170,7 @@
           {#each vederlagstekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
         </div>
       {/if}
-      <button class="rounded border px-3 py-1" disabled={sender || !beloep}
+      <button class="rounded border px-3 py-1" disabled={kjernesak.sender || !beloep}
         >Send krav om vederlag</button
       >
     </form>
