@@ -47,7 +47,8 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
 
 `server/autorisasjon.ts` speiler `require_auth`, `require_project_access` og
 `require_contract_role`, i samme rekkefølge og med samme svar. Språkprøven i
-`sprakprove/server/` bruker samme fil.
+`sprakprove/server/` bruker en kopi i `sprakprove/server/autorisasjon.ts`, som
+leser PostgreSQL, fordi `server/autorisasjon.ts` flyttes til SQL Server (#658).
 
 - **Registeret.** Hver inngang i TS-serveren står i `RUTER` i `server/app.ts`
   med prosjektrollen og kontraktsrollen den krever, eller en skriftlig

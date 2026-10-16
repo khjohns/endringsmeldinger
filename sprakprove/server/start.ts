@@ -17,7 +17,7 @@
 
 import { createServer } from 'node:http';
 import { lagServer } from './app.ts';
-import type { Catenda } from '../../server/autorisasjon.ts';
+import type { Catenda } from './autorisasjon.ts';
 import { kobleTilKastbarTestbase } from '../../server/kastbar.ts';
 
 function teamFraMiljo(): Catenda {
