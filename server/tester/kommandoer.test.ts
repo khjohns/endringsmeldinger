@@ -318,10 +318,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
     });
 
-    it('en avvisning fra lag rulles tilbake, så tidspunktet ikke blir stående', async () => {
+    it('verken en skriving eller en avvisning fra lag etterlater tidspunktet', async () => {
       const sak = await nySak();
       const foer = await ferdigeTidspunkter();
-      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, () => ({
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, medOppdrag(te));
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, () => ({
         skriv: false,
         avvisning: 0,
       }));
