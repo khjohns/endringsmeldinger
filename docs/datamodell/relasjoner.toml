@@ -646,6 +646,26 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
+fra = "koe.app_membership_absences.project_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Prosjektet innloggingen viste at brukeren ikke er med i (DL-U9)."""
+funn = []
+belegg = "K 17.10: katalogen."
+
+[[relasjon]]
+fra = "koe.app_membership_absences.user_id"
+til = "koe.app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Brukeren som logget inn."""
+funn = []
+belegg = "K 17.10: katalogen."
+
+[[relasjon]]
 fra = "koe.app_membership_sync.project_id"
 til = "koe.projects.id"
 art = "fremmednøkkel"

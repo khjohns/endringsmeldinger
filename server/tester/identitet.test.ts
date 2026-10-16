@@ -198,6 +198,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
           WHERE c.name IN (N'project_id', N'prosjekt_id', N'internal_project_id')`
       );
       expect(svar.recordset.map((r) => r.kolonne).sort()).toEqual([
+        'koe.app_membership_absences.project_id',
         'koe.app_membership_sync.project_id',
         'koe.app_project_memberships.project_id',
         'koe.catenda_contract_teams.internal_project_id',
@@ -219,9 +220,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     // Uten standard: tidspunktet kjernen regnet brevet med, som serveren setter,
     // endringstidspunktet til et notat, som er tomt til notatet endres, og
     // tidspunktet og innloggingen til økta som `koe_api.skrivetidspunkt` fører,
-    // når medlemslisten ble hentet, som kalleren oppgir (DL-U7), og når et
-    // medlemskap ble gjort inaktivt, som er tomt for et aktivt medlemskap (DL-U8).
+    // når medlemslisten ble hentet, som kalleren oppgir (DL-U7), når et
+    // medlemskap ble gjort inaktivt, som er tomt for et aktivt medlemskap (DL-U8),
+    // og når innloggingens liste ble hentet, som kalleren oppgir (DL-U9).
     const UTEN_STANDARD = [
+      'koe.app_membership_absences.observed_at',
       'koe.app_membership_sync.synced_at',
       'koe.app_project_memberships.deactivated_at',
       'koe.hendelse.tidsstempel',

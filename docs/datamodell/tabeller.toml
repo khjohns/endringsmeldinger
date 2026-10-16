@@ -678,12 +678,14 @@ medlemslisten fra Catenda og gjør medlemmer som ikke står i den, inaktive.
 `koe_api.deaktiver_ved_innlogging`, også kalt derfra, gjør brukerens medlemskap
 inaktivt i koblede prosjekter som ikke står i brukerens liste fra Catenda.
 `deactivated_at` er når medlemskapet sist ble gjort inaktivt, etter basens klokke;
-en liste hentet før det gjør det ikke aktivt igjen (DL-U8). Ingen inngang kaller
-modulen ennå."""
+en liste hentet før det gjør det ikke aktivt igjen (DL-U8). For en bruker uten
+medlemskap fører innloggingen en rad i `koe.app_membership_absences`, og en liste
+hentet før den gir ikke et nytt medlemskap (DL-U9). Ingen inngang kaller modulen
+ennå."""
 fra_catenda = "Ja, medlemslisten i Catenda."
 kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
-skrivere = ["database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, og `koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`)"]
+skrivere = ["database/migrasjoner/20261017090000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, og `koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -722,6 +724,29 @@ funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
 [[tabell]]
+navn = "koe.app_membership_absences"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at
+brukeren ikke er med, for en bruker uten medlemskap der (DL-U9). `observed_at` er
+når innloggingens liste ble hentet, etter basens klokke. En medlemsliste hentet
+samtidig eller før gir ikke brukeren et nytt medlemskap. Har ingen tabell i
+PostgreSQL."""
+lagres_fra = """
+`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`, setter inn
+raden eller flytter `observed_at` fram. `koe_api.synkroniser_medlemskap` sletter
+radene i prosjektet med `observed_at` før listen den skriver. Ingen inngang kaller
+modulen ennå."""
+fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
+kan_gjenoppbygges = "ja, ved en ny innlogging"
+personopplysninger = "Ingen kjente."
+skrivere = ["database/migrasjoner/20261017090000_fravaer.sql (`koe_api.deaktiver_ved_innlogging` og `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
+funn = []
+belegg = "L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`."
+
+[[tabell]]
 navn = "koe.app_membership_sync"
 lagring = "SQL Server"
 type = ["grunndata"]
@@ -735,7 +760,7 @@ lagres_fra = "`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`.
 fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
 kan_gjenoppbygges = "ja, ved en ny synkronisering"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)"]
+skrivere = ["database/migrasjoner/20261017090000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`."
 

@@ -46,6 +46,8 @@ const UTEN_TRIGGER: Record<string, string> = {
   catenda_contract_teams: 'Kontraktsteamene synkroniseres fra Catenda.',
   catenda_project_configs:
     'Driften setter koblingen til Catenda-prosjektet og kan gjøre den inaktiv (arbeidsvalget 16.10 i #53).',
+  app_membership_absences:
+    'Innloggingen flytter tidspunktet fram, og en liste som skrives, sletter radene hentet før den (DL-U9).',
   app_membership_sync:
     'Hver synkronisering skriver over når listen ble hentet (DL-U7); bare den siste gjelder.',
   notat: 'Notatet er ikke et kontraktsvarsel og kan endres og slettes (MS-05).',
