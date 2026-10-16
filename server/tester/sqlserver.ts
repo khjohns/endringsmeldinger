@@ -11,6 +11,7 @@
 
 import { randomBytes } from 'node:crypto';
 import sql from 'mssql';
+import { opprettPool } from '../datalag.ts';
 
 export const SQLSERVER_TILKOBLING = process.env.KOE_SQLSERVER_TILKOBLING ?? '';
 
@@ -29,17 +30,18 @@ export interface Testbase {
   slett(): Promise<void>;
 }
 
+/** Fristen `slett()` venter på serveren i, ms. */
+const SLETTEFRIST = 30_000;
+
 const vent = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
-async function koble(database: string, maks: number): Promise<Pool> {
+/** En pool med konfigurasjonen datalaget bruker (`opprettPool`), mot `database`. */
+function koble(database: string, maks: number): Promise<Pool> {
   const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
-  return new sql.ConnectionPool({
-    ...config,
-    database,
-    pool: { max: maks, min: 0 },
-    connectionTimeout: 5_000,
-    requestTimeout: 60_000,
-  }).connect();
+  return opprettPool(
+    { ...config, database, connectionTimeout: 5_000, requestTimeout: 60_000 },
+    { maks }
+  );
 }
 
 /**
@@ -124,15 +126,22 @@ export async function opprettTestbase(
     pool,
     async slett() {
       await pool.close();
-      const m = await kobleTilServer(frist);
       try {
-        await m
-          .request()
-          .batch(
-            `ALTER DATABASE [${database}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [${database}];`
-          );
-      } finally {
-        await m.close();
+        // Kortere enn grensen i `afterAll`, så feilmeldingen her kommer fram.
+        const m = await kobleTilServer(SLETTEFRIST);
+        try {
+          await m
+            .request()
+            .batch(
+              `ALTER DATABASE [${database}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [${database}];`
+            );
+        } finally {
+          await m.close();
+        }
+      } catch (feil) {
+        throw new Error(`Basen ${database} ble ikke slettet og blir stående på serveren.`, {
+          cause: feil,
+        });
       }
     },
   };
