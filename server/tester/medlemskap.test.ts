@@ -267,6 +267,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
   it.each<[string, string]>([
     ['samme subjekt to ganger', 'duplikat'],
     ['en ukjent rolle', 'rolle'],
+    ['en rolle med mellomrom til slutt', 'rolle med mellomrom'],
     ['et element som ikke er et objekt', 'tall'],
     ['et objekt i stedet for en liste', 'objekt'],
   ])('en liste med %s avvises (52041)', async (_, art) => {
@@ -277,9 +278,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         ? JSON.stringify([a, a].map((m) => ({ subject: m.subjekt, role: m.rolle })))
         : art === 'rolle'
           ? JSON.stringify([{ subject: a.subjekt, role: 'viewer' }])
-          : art === 'tall'
-            ? '[1]'
-            : JSON.stringify({ subject: a.subjekt, role: 'member' });
+          : art === 'rolle med mellomrom'
+            ? JSON.stringify([{ subject: a.subjekt, role: 'member ' }])
+            : art === 'tall'
+              ? '[1]'
+              : JSON.stringify({ subject: a.subjekt, role: 'member' });
     const feil = await base.pool
       .request()
       .input('prosjekt', sql.NVarChar(100), p.id)
@@ -314,6 +317,31 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     await expect(medlemslistensAlder(kjoeretid.pool, `${p.id} `)).rejects.toBeInstanceOf(
       UgyldigMedlemsliste
     );
+  });
+
+  it.each<[string, string]>([
+    [
+      'catenda_project_configs.internal_project_id',
+      `INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active)
+       VALUES (@p, NEWID(), 1)`,
+    ],
+    [
+      'app_membership_sync.project_id',
+      `INSERT koe.app_membership_sync (project_id, catenda_project_id, synced_at)
+       VALUES (@p, NEWID(), SYSUTCDATETIME())`,
+    ],
+  ])('%s avviser mellomrom til slutt, også fra eieren (547)', async (kolonne, setning) => {
+    const p = await prosjekt();
+    const feil = await base.pool
+      .request()
+      .input('p', sql.NVarChar(100), `${p.id} `)
+      .query(setning)
+      .then(
+        () => null,
+        (f: Error) => ({ nummer: feilnummer(f), melding: f.message })
+      );
+    expect(feil?.nummer).toBe(547);
+    expect(feil?.melding).toContain(`${kolonne.replace('.', '_')}_uten_mellomrom`);
   });
 
   it('leserollen (viewer_override) står seg gjennom synkroniseringen', async () => {

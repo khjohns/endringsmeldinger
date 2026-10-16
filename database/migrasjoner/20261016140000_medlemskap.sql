@@ -9,16 +9,18 @@
 -- `koe.resolve_identity`. Ingen av tabellene her har saksdata, så de har ingen
 -- predikater, og kjøretiden leser dem bare gjennom prosedyrene.
 --
--- En prosjekt-ID med mellomrom i enden avvises: `=` ser bort fra dem, så
--- `p1 ` ville truffet koblingen til `p1` og skrevet medlemskap under en annen
--- form av samme prosjekt.
+-- En prosjekt-ID eller en rolle med mellomrom til slutt avvises: `=` ser bort
+-- fra dem, så `p1 ` ville truffet koblingen til `p1` og skrevet medlemskap under
+-- en annen form av samme prosjekt. Kontrollen har formen fra
+-- `20261016130000_mellomrom.sql` (#566).
 
 -- Koblingen settes av driften (arbeidsvalget 16.10 i #53). Et Catenda-prosjekt
 -- hører til ett prosjekt i appen.
 CREATE TABLE koe.catenda_project_configs (
   internal_project_id nvarchar(100) NOT NULL CONSTRAINT catenda_project_configs_pk PRIMARY KEY
     CONSTRAINT catenda_project_configs_project FOREIGN KEY REFERENCES koe.projects (id)
-    CONSTRAINT catenda_project_configs_project_form CHECK (LEN(internal_project_id) > 0 AND DATALENGTH(internal_project_id) = 2 * LEN(internal_project_id)),
+    CONSTRAINT catenda_project_configs_internal_project_id_uten_mellomrom
+      CHECK (DATALENGTH(internal_project_id) = DATALENGTH(RTRIM(internal_project_id))),
   catenda_project_id uniqueidentifier NOT NULL CONSTRAINT catenda_project_configs_catenda UNIQUE,
   is_active bit NOT NULL,
   created_at datetime2(3) NOT NULL CONSTRAINT catenda_project_configs_created_at DEFAULT SYSUTCDATETIME(),
@@ -30,7 +32,7 @@ CREATE TABLE koe.catenda_project_configs (
 CREATE TABLE koe.app_membership_sync (
   project_id nvarchar(100) NOT NULL CONSTRAINT app_membership_sync_pk PRIMARY KEY
     CONSTRAINT app_membership_sync_project FOREIGN KEY REFERENCES koe.projects (id)
-    CONSTRAINT app_membership_sync_project_form CHECK (LEN(project_id) > 0 AND DATALENGTH(project_id) = 2 * LEN(project_id)),
+    CONSTRAINT app_membership_sync_project_id_uten_mellomrom CHECK (DATALENGTH(project_id) = DATALENGTH(RTRIM(project_id))),
   catenda_project_id uniqueidentifier NOT NULL,
   synced_at datetime2(3) NOT NULL,
   updated_at datetime2(3) NOT NULL CONSTRAINT app_membership_sync_updated_at DEFAULT SYSUTCDATETIME()
@@ -46,7 +48,8 @@ GO
 -- JSON-liste med `subject` i `catenda_id()`-formen, `email`, `name` og `role`.
 -- `@skrevet` er 0 når en liste hentet samtidig eller senere alt er skrevet (DL-U7);
 -- da endres ingenting. Applåsen per prosjekt holder sammenlikningen og
--- skrivingen samlet, og deaktiveringen ved innlogging tar samme lås.
+-- skrivingen samlet. Deaktiveringen ved innlogging er ikke bygget; den må ta
+-- samme lås (DL-U8).
 -- `viewer_override` og kontraktsteamene skrives ikke her.
 CREATE PROCEDURE koe_api.synkroniser_medlemskap
   @prosjekt nvarchar(100), @catenda_prosjekt uniqueidentifier, @medlemmer nvarchar(max),
@@ -56,8 +59,8 @@ BEGIN
   SET NOCOUNT ON;
   SET XACT_ABORT ON;
   SET @skrevet = 0;
-  IF @prosjekt IS NULL OR LEN(@prosjekt) = 0 OR DATALENGTH(@prosjekt) <> 2 * LEN(@prosjekt)
-    THROW 52043, N'Prosjekt-ID-en er tom eller har mellomrom i enden', 1;
+  IF @prosjekt IS NULL OR LEN(@prosjekt) = 0 OR DATALENGTH(@prosjekt) <> DATALENGTH(RTRIM(@prosjekt))
+    THROW 52043, N'Prosjekt-ID-en er tom eller har mellomrom til slutt', 1;
   IF @hentet IS NULL OR @hentet > DATEADD(second, 30, SYSUTCDATETIME())
     THROW 52042, N'Hentetidspunktet mangler eller ligger fram i tid', 1;
   IF @medlemmer IS NULL OR ISJSON(@medlemmer, ARRAY) = 0
@@ -77,7 +80,8 @@ BEGIN
     THROW 52022, N'Subjektet er ikke normalisert', 1;
   IF (SELECT COUNT(*) FROM @liste) <> (SELECT COUNT(DISTINCT subject) FROM @liste)
     THROW 52041, N'Medlemslisten har samme subjekt flere ganger', 1;
-  IF EXISTS (SELECT 1 FROM @liste WHERE role IS NULL OR role NOT IN (N'admin', N'member'))
+  IF EXISTS (SELECT 1 FROM @liste WHERE role IS NULL OR role NOT IN (N'admin', N'member')
+                                      OR DATALENGTH(role) <> DATALENGTH(RTRIM(role)))
     THROW 52041, N'Medlemslisten har en ukjent rolle', 1;
 
   BEGIN TRANSACTION;
@@ -142,8 +146,8 @@ CREATE PROCEDURE koe_api.medlemsliste_alder
 AS
 BEGIN
   SET NOCOUNT ON;
-  IF @prosjekt IS NULL OR LEN(@prosjekt) = 0 OR DATALENGTH(@prosjekt) <> 2 * LEN(@prosjekt)
-    THROW 52043, N'Prosjekt-ID-en er tom eller har mellomrom i enden', 1;
+  IF @prosjekt IS NULL OR LEN(@prosjekt) = 0 OR DATALENGTH(@prosjekt) <> DATALENGTH(RTRIM(@prosjekt))
+    THROW 52043, N'Prosjekt-ID-en er tom eller har mellomrom til slutt', 1;
   SELECT s.synced_at AS hentet, DATEDIFF_BIG(millisecond, s.synced_at, SYSUTCDATETIME()) / 1000 AS alder_sekunder
     FROM koe.app_membership_sync s
     JOIN koe.catenda_project_configs c

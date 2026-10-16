@@ -5562,7 +5562,7 @@ svar = '''
 Valgt A: «Deaktiveringen ved innlogging er nyere enn en medlemsliste som ble hentet før innloggingen. En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet.»'''
 forhold = [{ art = "presiserer", vedtak = "dl-u7" }]
 folge = '''
-Presiserer B-04 punkt 1. Delvis bygget 16.10 (#53, del 3b): synkroniseringen lagrer når et medlemskap ble gjort inaktivt, og en liste hentet før det gjør det ikke aktivt igjen. Deaktiveringen ved innlogging er ikke bygget.'''
+Presiserer B-04 punkt 1. Delvis bygget 16.10 (#53, del 3b): synkroniseringen lagrer når et medlemskap ble gjort inaktivt, og en liste hentet før det gjør det ikke aktivt igjen. Deaktiveringen ved innlogging er ikke bygget i TS-stien.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

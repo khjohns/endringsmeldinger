@@ -627,7 +627,7 @@ ennå (#53, del 3)."""
 fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
 kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
-skrivere = ["database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`)", "database/migrasjoner/20261016130000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -644,7 +644,7 @@ lagres_fra = "`koe.resolve_identity`, sammen med brukeren. Ingen inngang i `serv
 fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Subjektet identifiserer en person."
-skrivere = ["database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`)", "database/migrasjoner/20261016130000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -680,7 +680,7 @@ før det gjør det ikke aktivt igjen (DL-U8). Ingen inngang kaller modulen ennå
 fra_catenda = "Ja, medlemslisten i Catenda."
 kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
-skrivere = ["database/migrasjoner/20261016130000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
+skrivere = ["database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -732,7 +732,7 @@ lagres_fra = "`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`.
 fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
 kan_gjenoppbygges = "ja, ved en ny synkronisering"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016130000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
+skrivere = ["database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`."
 
