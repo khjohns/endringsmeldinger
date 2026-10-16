@@ -159,6 +159,11 @@ def _side(r: dict, ende: str) -> str:
     return r[ende]
 
 
+def _kolonneside(r: dict, ende: str) -> str:
+    """Som `_side`, uten tabellen; tabellnavnet i SQL Server har selv et punktum."""
+    return _side(r, ende).removeprefix(r[ende].rpartition(".")[0] + ".")
+
+
 def _nøkler(innhold: dict) -> str:
     deler = []
     if innhold["primærnøkkel"]:
@@ -188,7 +193,7 @@ def tabelltekst(register: dict, katalog: dict, tabell: str) -> str:
     if ut:
         linjer.append(
             "Viser til: "
-            + "; ".join(f"{_side(r, 'fra').partition('.')[2]} → {_side(r, 'til')} ({art(r)})" for r in ut)
+            + "; ".join(f"{_kolonneside(r, 'fra')} → {_side(r, 'til')} ({art(r)})" for r in ut)
             + "."
         )
     if inn:
@@ -262,7 +267,7 @@ def _linje(r: dict, katalog: dict) -> str:
     if venstre == "||" and (r["art"] == "logisk" or (rad and rad[2] == "NULL")):
         venstre = "|o"
     strek = "--" if r["art"] == "fremmednøkkel" else ".."
-    etikett = _side(r, "fra").partition(".")[2]
+    etikett = _kolonneside(r, "fra")
     return (
         f"    {_entitet(r['til'].rpartition('.')[0])} {venstre}{strek}{høyre} "
         f"{_entitet(r['fra'].rpartition('.')[0])} : \"{etikett}\""

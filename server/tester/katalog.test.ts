@@ -30,7 +30,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('katalog.json mot SQL Server', () => {
     const lagret = JSON.parse(readFileSync(KATALOG, 'utf-8')).sqlserver;
     expect(
       await lesSqlServer(base.pool),
-      'katalog.json er utdatert. Kjør docs/verktoy/katalog.py med KOE_SQLSERVER_TILKOBLING, og så datamodell.py.'
+      'katalog.json er utdatert. Kjør docs/verktoy/katalog.py med KOE_TESTBASE_URL og KOE_SQLSERVER_TILKOBLING, og så datamodell.py.'
     ).toEqual(lagret);
   });
 });

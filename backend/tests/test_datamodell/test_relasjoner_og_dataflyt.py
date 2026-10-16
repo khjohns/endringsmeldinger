@@ -46,15 +46,15 @@ def test_katalogen_har_de_samme_tabellene_som_registeret(kilder, tabellregister)
     assert sorted(skjema["sqlite"]["tabeller"]) == sorted(sqlite_tabeller_i_koden())
     assert sorted(skjema["sqlserver"]["tabeller"]) == sorted(tabeller_i_sqlserver_migrasjonene()), (
         "En migrasjon i database/migrasjoner/ oppretter en tabell katalog.json ikke har, eller "
-        "omvendt. Kjør docs/verktoy/katalog.py med KOE_SQLSERVER_TILKOBLING, og så datamodell.py."
+        "omvendt. Kjør docs/verktoy/katalog.py med KOE_TESTBASE_URL og KOE_SQLSERVER_TILKOBLING, og så datamodell.py."
     )
     assert dm.katalogavvik(tabellregister, skjema) == []
 
 
 def test_sqlite_delen_er_skjemaet_koden_oppretter(kilder):
     assert kat.les_sqlite() == kilder["katalog"]["sqlite"], (
-        "katalog.json er utdatert. Kjør KOE_TESTBASE_URL=... /tmp/venv/bin/python "
-        "docs/verktoy/katalog.py fra repo-roten."
+        "katalog.json er utdatert. Kjør KOE_TESTBASE_URL=... KOE_SQLSERVER_TILKOBLING=... "
+        "/tmp/venv/bin/python docs/verktoy/katalog.py fra repo-roten."
     )
 
 
