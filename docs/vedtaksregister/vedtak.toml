@@ -1724,7 +1724,7 @@ svar = '''
 A: frafallet står (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "gr-u17" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "snevrer inn", vedtak = "gr-u1" }, { art = "snevrer inn", vedtak = "hf-u5" }]
 folge = '''
-Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke i tilstanden med en ny grunnlagsversjon (GR-U1), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
+Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A står frafallet som binding når TE sender en ny grunnlagsversjon, mens den nye versjonen venter på byggherrens svar som etter GR-U1 (arbeidsvalg 16.10 i #510), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

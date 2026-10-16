@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `3b748a266dce1f93369d529e13a84d5f6f65b4f1faee0697548a6a51b280934e`
+Kontrollsum (SHA-256 over utdraget visningen leser): `5cda50d1db466d2634813316b5fb3e74a0fe826f93a30ffd076fa7ed7d939bb0`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -138,7 +138,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#510)
 
-**Følge:** Presiserer [GR-U17](#gr-u17). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Snevrer inn [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Snevrer inn [HF-U5](#hf-u5). Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke i tilstanden med en ny grunnlagsversjon (GR-U1), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).
+**Følge:** Presiserer [GR-U17](#gr-u17). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Snevrer inn [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Snevrer inn [HF-U5](#hf-u5). Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A står frafallet som binding når TE sender en ny grunnlagsversjon, mens den nye versjonen venter på byggherrens svar som etter GR-U1 (arbeidsvalg 16.10 i #510), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).
 
 **Regelrader:** —
 
