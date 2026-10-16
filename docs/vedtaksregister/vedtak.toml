@@ -1712,6 +1712,31 @@ tekst = '''
 Hverken hovedkategori eller underkategori kan endres, som i skjemaet. Opphever B-13 for endret underkategori. TE trekker og sender ny sak ved enhver omklassifisering.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "GR-U20"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#510"]
+sporsmal = '''
+Frafall og ny grunnlagsversjon (GR-U17, #510). Eksempel: 1. mars varsler TE en irregulær endring. 10. mars frafaller BH pålegget (§ 32.3 c). 20. mars sender TE grunnlagsversjon 2, med samme kategori (GR-U19). 1. april vil BH avslå versjon 2. Etter GR-U17 kan et frafall bare revideres til endringsordre. Etter HF-U8 faller BHs svar bort som tilbud ved en ny kravversjon, men et avkall faller ikke bort. Hva skal gjelde?'''
+valgt = "A"
+svar = '''
+A: frafallet står (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "gr-u17" }, { art = "presiserer", vedtak = "hf-u8" }]
+folge = '''
+Ikke bygget (#510).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Frafallet faller ikke bort når TE sender en ny grunnlagsversjon. Byggherren kan svare på den med frafall eller endringsordre, ikke med avslag.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Frafallet gjelder grunnlagsversjonen det svarer på. På en ny versjon kan byggherren svare fritt.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
 
@@ -2857,6 +2882,68 @@ navn = "Ja"
 tekst = '''
 Aksepten av beregningsmåten kan revideres fritt til TE har godtatt svaret. HF-U5 står
 som den er.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U15"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+**Utgangspunktet.** Etter avtaleloven § 2 begrenser en akseptfrist hvor lenge den som har gitt et løfte, er bundet. Fristen har derfor bare verdi for byggherren der svaret binder byggherren til noe TE kan ta imot. Det kontrakten selv knytter til et svar eller til taushet, virker uten aksept og berøres ikke av en frist. Det gjelder § 5 tredje ledd, § 32.3 annet ledd og § 33.7 annet ledd.
+
+| Byggherrens svar | Etter avtaleloven og kontrakten | Er akseptfristen et forhandlingskort? |
+|---|---|---|
+| Vederlag eller frist: hele kravet godkjent | Enighet uten aksept (GR-U7) | Nei, det er ikke noe tilbud igjen å godta |
+| Beløp eller dager under kravet, prinsipalt | Avslag i forening med nytt tilbud (§ 6), som binder byggherren | **Ja**, byggherren blir fri når fristen er ute |
+| Beløp eller dager godkjent subsidiært | Betinget tilbud (HF-U7) | **Ja** |
+| Helt avslag | Byggherren lover ingenting, og TEs aksept er et avkall (HF-U10) | Nei, byggherren vil aldri avslå et avkall |
+| Grunnlag: endringsordre, godkjenning, frafall eller avslag | Pålegg, enighet, løfte uten aksept (GR-U17) eller avslag | Nei |
+| «I tide» etter en bestemmelse | Binder uavhengig av fristen (HF-U4) | Nei |
+
+**Eksempler.** TE krever 500 000 kr 1. mars. Byggherren svarer 10. mars med akseptfrist 24. mars.
+1. Byggherren godkjenner 300 000 kr, og TE godtar 2. april. Aksepten er et nytt tilbud, og byggherren kan avslå det. Fristen virker.
+2. Byggherren avslår helt, og TE godtar 2. april. Byggherren har ingen grunn til å avslå. Etter HF-U5 må byggherren likevel ta stilling, mens avkallet etter HF-U10 gjelder straks.
+3. Byggherren godkjenner 500 000 kr. Partene er enige 10. mars, og fristen har ingenting å virke på.
+
+**Hva skal gjelde?**
+- **A: akseptfrist bare der svaret innrømmer noe (anbefalt).** «Byggherren kan sette en akseptfrist bare i et svar på vederlag eller fristforlengelse som godkjenner et beløp eller dager, prinsipalt eller subsidiært, og som ikke stemmer med kravet. Et svar på grunnlaget, et helt avslag og et svar som godkjenner hele kravet, har ingen akseptfrist. TEs aksept av et helt avslag er et avkall etter HF-U10 og gjelder straks.»
+  - Snevrer inn HF-U5, og presiserer HF-U8 og HF-U10.
+  - Strider ikke mot et vedtak.
+- **B: frist i alle svar, og sen aksept av et rent avslag er avkall.** «Byggherren kan sette en akseptfrist i ethvert svar. Godtar TE etter fristen et svar der byggherren verken har godkjent grunnlaget, et beløp eller dager, prinsipalt eller subsidiært, er aksepten et avkall etter HF-U10 og gjelder straks.»
+  - Snevrer inn HF-U5 og HF-U8.
+  - Brevet kan da vise en frist som ikke virker.
+- **C: en sen aksept er alltid et nytt tilbud.** «En aksept etter akseptfristen er alltid et nytt tilbud fra TE, også når svaret er et helt avslag.»
+  - Strider mot HF-U10 («… ved å godta et avslag»).
+  - C er derfor et forslag om å endre HF-U10.
+
+**Anbefaling: A.** Fristen står bare der den kan virke. Det stemmer med § 2 og HF-U10, og brevet viser ingen frist uten virkning.
+
+**To punkter som er usikre.** Si fra om de skal tas med i vedtaket nå eller vente:
+- **Fradrag.** Etter KA-U9 kan byggherrens standpunkt om beløp være et fradrag, altså byggherrens eget krav. Da kan en frist være et forhandlingskort også i et «avslag». Alternativ A dekker ikke det tilfellet uttrykkelig.
+- **Lovgrunnlaget.** Kommentaren til avtaleloven drøfter ikke avkall. At TE alene kan gi avkall, bygger på HF-U10 og løfteprinsippet. At et rent avslag ikke «fremstår som aksept» etter § 6, er vår tolkning.'''
+valgt = "A"
+svar = '''
+A'''
+forhold = [{ art = "snevrer inn", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "presiserer", vedtak = "hf-u10" }]
+folge = '''
+Svaret på det første spørsmålet 16.10 ba om en vurdering etter avtaleloven av når akseptfristen er et forhandlingskort. Spørsmålene og svarene står ordrett i #502. Svaret tar ikke stilling til fradrag etter KA-U9. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherren kan sette en akseptfrist bare i et svar på vederlag eller fristforlengelse som godkjenner et beløp eller dager, prinsipalt eller subsidiært, og som ikke stemmer med kravet. Et svar på grunnlaget, et helt avslag og et svar som godkjenner hele kravet, har ingen akseptfrist. TEs aksept av et helt avslag er et avkall etter HF-U10 og gjelder straks.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren kan sette en akseptfrist i ethvert svar. Godtar TE etter fristen et svar der byggherren verken har godkjent grunnlaget, et beløp eller dager, prinsipalt eller subsidiært, er aksepten et avkall etter HF-U10 og gjelder straks.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+En aksept etter akseptfristen er alltid et nytt tilbud fra TE, også når svaret er et helt avslag.'''
 forkastet = true
 
 [[gruppe]]
