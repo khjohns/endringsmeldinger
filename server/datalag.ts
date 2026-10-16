@@ -43,8 +43,8 @@ export interface Kontekst {
 
 /**
  * Nøklene i `SESSION_CONTEXT`, med samme navn som prøven (02_sikkerhet.sql): de
- * fem første setter `transaksjon`, og `koe_skriving` og `koe_tidspunkt` setter
- * kommandoene i `koe_api`. Ingen av dem har verdi etter nullstillingen.
+ * fem første setter `transaksjon`, og `koe_skriving` setter
+ * `koe_api.skriv_hendelse`. Ingen av dem har verdi etter nullstillingen.
  */
 export const KONTEKSTNOEKLER = [
   'koe_aktor',
@@ -53,7 +53,6 @@ export const KONTEKSTNOEKLER = [
   'koe_team',
   'koe_tx',
   'koe_skriving',
-  'koe_tidspunkt',
 ] as const;
 
 /** Konteksten er ugyldig. Ingen forbindelse er lånt. */

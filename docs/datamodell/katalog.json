@@ -824,6 +824,16 @@
       "ved_sletting": "NO ACTION"
      }
     ]
+   },
+   "koe.skrivetidspunkt": {
+    "kolonner": [
+     ["transaksjon", "bigint", "NOT NULL"],
+     ["tidspunkt", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["transaksjon"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": []
    }
   }
  }

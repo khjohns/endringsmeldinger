@@ -45,7 +45,6 @@ interface Sesjon {
   koe_team: string | null;
   koe_tx: number | null;
   koe_skriving: string | null;
-  koe_tidspunkt: string | null;
   tx: number | null;
 }
 

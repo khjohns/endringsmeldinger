@@ -12,19 +12,27 @@
 -- Tidspunktet på et brev er basens klokke ved skrivingen (DL-U3, svaret 16.10 i
 -- #53), ikke appserverens. Kommentaren i `20261016100000_journal.sql`, linje 9–10,
 -- om at serveren setter `tidsstempel`, gjelder derfor ikke: kjernen regner brevet
--- med tidspunktet `koe_api.skrivetidspunkt` gir, og `koe_api.skriv_hendelse`
--- avviser et annet. Saksnummeret er en tilfeldig ID som `opprett_sak` lager
+-- med tidspunktet `koe_api.skrivetidspunkt` gir og fører for transaksjonen, og
+-- `koe_api.skriv_hendelse` avviser et annet. Saksnummeret er en tilfeldig ID som `opprett_sak` lager
 -- (DL-U6).
 --
 -- Feilkodene, som i prøven: 51000 utenfor transaksjonen eller uten kontekst
 -- bundet til den, 51403 ukjent sak (likt for ingen tilgang, ukjent sak og sak i
 -- et annet prosjekt), 51409 versjonskonflikt og 51422 ugyldig argument.
 
+-- Tidspunktet basen ga for skrivingen i en transaksjon (DL-U3, svaret 16.10 i
+-- #53: «Bare basens tidspunkt»). Kjøretiden har ingen rett på tabellen; bare
+-- prosedyrene i `koe_api` skriver og sletter gjennom eierskapskjeden. Raden lever
+-- bare i transaksjonen: `skriv_hendelse` sletter den, og `skrivetidspunkt`
+-- sletter en rad som en tidligere transaksjon med samme ID etterlot.
+CREATE TABLE koe.skrivetidspunkt (
+  transaksjon bigint NOT NULL CONSTRAINT skrivetidspunkt_pk PRIMARY KEY,
+  tidspunkt datetime2(3) NOT NULL
+);
+GO
+
 -- Basens klokke for skrivingen i transaksjonen, i millisekunder som kolonnen.
--- Nøkkelen er skrivebeskyttet, så den settes én gang per transaksjon; har noen
--- satt den skrivebeskyttet før, feiler kallet. Kjøretiden kan sette nøkkelen selv
--- uten prosedyren, så `skriv_hendelse` krever i tillegg at tidspunktet ikke er
--- eldre enn 60 sekunder og ikke er fram i tid.
+-- Et nytt kall i samme transaksjon erstatter tidspunktet.
 CREATE PROCEDURE koe_api.skrivetidspunkt @tidspunkt datetime2(3) OUTPUT
 AS
 BEGIN
@@ -33,7 +41,8 @@ BEGIN
   IF @@TRANCOUNT = 0 OR TRY_CAST(SESSION_CONTEXT(N'koe_tx') AS bigint) IS DISTINCT FROM CURRENT_TRANSACTION_ID()
     THROW 51000, N'Tidspunktet hentes bare i en transaksjon med konteksten satt', 1;
   SET @tidspunkt = DATETRUNC(millisecond, SYSUTCDATETIME());
-  EXEC sp_set_session_context N'koe_tidspunkt', @tidspunkt, @read_only = 1;
+  DELETE koe.skrivetidspunkt WHERE transaksjon = CURRENT_TRANSACTION_ID();
+  INSERT koe.skrivetidspunkt (transaksjon, tidspunkt) VALUES (CURRENT_TRANSACTION_ID(), @tidspunkt);
 END
 GO
 
@@ -111,10 +120,11 @@ BEGIN
     THROW 51409, @konflikt, 1;
   END
 
-  DECLARE @klokke datetime2(3) = TRY_CAST(SESSION_CONTEXT(N'koe_tidspunkt') AS datetime2(3)),
-          @naa datetime2(7) = SYSUTCDATETIME();
-  IF @klokke IS NULL OR @tidsstempel <> @klokke OR @klokke > @naa OR @klokke < DATEADD(second, -60, @naa)
+  DECLARE @klokke datetime2(3) =
+    (SELECT tidspunkt FROM koe.skrivetidspunkt WHERE transaksjon = CURRENT_TRANSACTION_ID());
+  IF @klokke IS NULL OR @tidsstempel <> @klokke
     THROW 51422, N'Tidspunktet er ikke basens klokke for skrivingen', 1;
+  DELETE koe.skrivetidspunkt WHERE transaksjon = CURRENT_TRANSACTION_ID();
 
   DECLARE @skriving uniqueidentifier = NEWID();
   EXEC sp_set_session_context N'koe_skriving', @skriving;

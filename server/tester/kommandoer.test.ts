@@ -316,17 +316,27 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     async function direkte(
       sakId: string,
       {
-        tid = 'basens' as 'basens' | 'senere' | 'uten' | 'forfalsket',
+        tid = 'basens' as 'basens' | 'senere' | 'uten' | 'egen_noekkel' | 'annen_transaksjon',
         eventType = 'dokument_registrert',
         oppdrag = true,
         forventet = 1,
       } = {}
     ): Promise<{ skriving: string | null }> {
+      const annen =
+        tid === 'annen_transaksjon'
+          ? await transaksjon(kjoeretid.pool, te, async (f) => {
+              const svar = await f()
+                .output('tidspunkt', sql.DateTime2(3))
+                .execute('koe_api.skrivetidspunkt');
+              return svar.output.tidspunkt as Date;
+            })
+          : undefined;
       return transaksjon(kjoeretid.pool, te, async (f) => {
         let tidspunkt: Date;
-        if (tid === 'uten') tidspunkt = new Date(await klokka());
-        else if (tid === 'forfalsket') {
-          tidspunkt = new Date((await klokka()) - 3_600_000);
+        if (annen) tidspunkt = annen;
+        else if (tid === 'uten') tidspunkt = new Date(await klokka());
+        else if (tid === 'egen_noekkel') {
+          tidspunkt = new Date(await klokka());
           await f()
             .input('t', sql.DateTime2(3), tidspunkt)
             .batch(`EXEC sp_set_session_context N'koe_tidspunkt', @t, @read_only = 1;`);
@@ -377,6 +387,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect(feil).toBe(51000);
     });
 
+    it('kjøretiden kan ikke føre eller endre tidspunktet selv', async () => {
+      for (const setning of [
+        'INSERT koe.skrivetidspunkt (transaksjon, tidspunkt) VALUES (CURRENT_TRANSACTION_ID(), SYSUTCDATETIME())',
+        'UPDATE koe.skrivetidspunkt SET tidspunkt = SYSUTCDATETIME()',
+        'DELETE koe.skrivetidspunkt',
+      ]) {
+        const feil = await avvisning(transaksjon(kjoeretid.pool, te, (f) => f().batch(setning)));
+        expect(feil, setning).toBe(229);
+      }
+    });
+
     it('avviser en annen versjon enn journalens (51409), og ingenting skrives', async () => {
       const sak = await nySak();
       expect(await avvisning(direkte(sak.sak_id, { forventet: 2 }))).toBe(51409);
@@ -386,7 +407,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     it.each<[string, Parameters<typeof direkte>[1]]>([
       ['uten tidspunktet fra skrivetidspunkt', { tid: 'uten' }],
       ['et tidspunkt ett millisekund etter basens', { tid: 'senere' }],
-      ['et tidspunkt kjøretiden har satt i nøkkelen selv, en time tilbake', { tid: 'forfalsket' }],
+      ['et tidspunkt kjøretiden har satt selv i en kontekstnøkkel', { tid: 'egen_noekkel' }],
+      ['et tidspunkt skrivetidspunkt ga en annen transaksjon', { tid: 'annen_transaksjon' }],
       ['dokument_registrert uten oppdrag', { oppdrag: false }],
       ['en annen hendelsestype med oppdrag', { eventType: 'annen' }],
       ['sak_opprettet', { eventType: 'sak_opprettet', oppdrag: false }],
