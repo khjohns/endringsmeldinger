@@ -1241,6 +1241,25 @@ historikk og mappa stemmer.
 > toppteksten). F0b kommer før eller sammen med #310 (FK), og F1 kommer etter
 > F0b som før.
 
+> **Merknad 2026-10-16 til F0b, leveranse 1:** Levert: poolen og transaksjonshjelperen
+> mot SQL Server i [`server/datalag.ts`](../../server/datalag.ts)
+> ([#419](https://github.com/khjohns/endringsmeldinger/issues/419), PR #530 og PR #539).
+> Hjelperen setter konteksten skrivebeskyttet og bundet til transaksjonen, og
+> nullstiller og kontrollerer forbindelsen etter COMMIT eller ROLLBACK, eller forkaster
+> den. Akseptkriteriet om kontekst på en gjenbrukt forbindelse etter commit eller
+> rollback er bevist med en pool på én forbindelse i
+> [`server/tester/datalag.test.ts`](../../server/tester/datalag.test.ts) mot testbasen.
+> Testbasen for SQL Server kjører lokalt i skyøkta og i CI-jobben «SQL Server (testbasen
+> for datalaget)», som er påkrevd på `main`
+> ([#488](https://github.com/khjohns/endringsmeldinger/issues/488), PR #545). Testbasen i
+> CI hører til leveranse 2.
+>
+> Ikke levert i leveranse 1: managed identity mot Azure, som følges i
+> [#78](https://github.com/khjohns/endringsmeldinger/issues/78); feilklassifiseringen med
+> retry, en klasse for avvisning som aldri prøves på nytt og en egen klasse for
+> versjonskonflikt, og en test med flere skrivinger for kravet om ingen delvise
+> skrivinger, følges i [#555](https://github.com/khjohns/endringsmeldinger/issues/555).
+
 **Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
 alternativ C prøves tidlig i T-SQL ([B-12, databasen](#b-12-databasen), #395). Lagringsformen avgjøres senest før
 KOE-byttet skriver den første reelle hendelsen
