@@ -244,7 +244,7 @@ byggedel 3. Sperren bygges før trekk tas i bruk (#310). Om enigheten gir bygghe
 rettighet som trekket ikke rører, avklares i byggedel 3. Presisert 11.10 av
 [KA-U25](#ka-u25) for «ingen krav» i vederlagssporet. Presisert 11.10 av
 [KA-U27](#ka-u27). Presisert 11.10 av [LV-U4](#lv-u4), punkt 13: kravversjonen i trekket
-og «<tittel>». Ikke bygget. Den faste teksten hører til #309. Teksten for «ingen krav» bygges ikke i første versjon (OV-U7).'''
+og «<tittel>». Ikke bygget. Den faste teksten hører til #309. Teksten for «ingen krav» bygges ikke i første versjon (OV-U7). Endret 16.10 i PR #588 (#587): sperren mot trekket etter en merking av et registrert brev er tatt ut (OV-U4, OV-U7). Sperren for et avtalt fradrag bygges med fradraget (KA-U9).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u23"
@@ -1693,7 +1693,7 @@ svar = '''
 Lås hovedkategori (Anbefalt)'''
 forhold = [{ art = "snevrer inn", vedtak = "gr-u1" }]
 folge = '''
-Snevrer også inn raden i B-13 om endret underkategori (05.10, #215). Spørsmålet kom fra kontrollen av PR #535 før merge. Før spørsmålet ble stilt, spurte oppdragsgiver: «Vet du hva - er det noen god grunn til å la TE endre kategori? Er det drøftet i kode eller tidligere PR? Det skaper mye rot» (#538). Kontrollen 16.10 av om trekket er sperret ved enighet om grunnlaget (KA-U13) og når kravene er avgjort (KA-U11), står i en kommentar på #538. Bygget 16.10 i PR #549 (#538 og #520): en ny grunnlagsversjon med en annen hovedkategori avvises med regelkoden ANNEN_HOVEDKATEGORI, og en annen underkategori avvises med ANNEN_VARSLINGSPLIKT når § 32.2 ikke gjelder likt for den og for forrige versjon. En journal som alt har et skifte, leses som før (MM-U18). PROJEKSJONSVERSJON 18.'''
+Snevrer også inn raden i B-13 om endret underkategori (05.10, #215). Spørsmålet kom fra kontrollen av PR #535 før merge. Før spørsmålet ble stilt, spurte oppdragsgiver: «Vet du hva - er det noen god grunn til å la TE endre kategori? Er det drøftet i kode eller tidligere PR? Det skaper mye rot» (#538). Kontrollen 16.10 av om trekket er sperret ved enighet om grunnlaget (KA-U13) og når kravene er avgjort (KA-U11), står i en kommentar på #538. Bygget 16.10 i PR #549 (#538 og #520): en ny grunnlagsversjon med en annen hovedkategori avvises med regelkoden ANNEN_HOVEDKATEGORI, og en annen underkategori avvises med ANNEN_VARSLINGSPLIKT når § 32.2 ikke gjelder likt for den og for forrige versjon. En journal som alt har et skifte, leses som før (MM-U18). PROJEKSJONSVERSJON 18. Endret 16.10 av GR-U22, bygget i PR #588: regelkodene ANNEN_HOVEDKATEGORI og ANNEN_VARSLINGSPLIKT er erstattet av ANNEN_HJEMMEL.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Lås hovedkategori"
@@ -1795,7 +1795,7 @@ Jeg bare tenkte at jeg ikke ser noe reellt behov for at TE skal kunne endre grun
 Oppfølging: A: hjemmelen står (Anbefalt)'''
 forhold = [{ art = "endrer", vedtak = "gr-u19" }, { art = "opphever", vedtak = "gr-u21" }, { art = "snevrer inn", vedtak = "ka-u22" }, { art = "endrer", vedtak = "gr-u2" }]
 folge = '''
-Spørsmålet kom etter at oppdragsgiver svarte på spørsmålet om frafall og ny grunnlagsversjon (GR-U23) med «fikk du svaret mitt om det å ikke kunne endre grunnlag?». Alternativ A sier «Utvider KA-U22 med et unntak». Ført som «snevrer inn», slik unntaket i OV-U5 fra OV-U4 er ført. Forholdet til GR-U2 fant kontrollen av føringen 16.10: underkategorien kan ikke lenger endres, så raden i B-13 om endret underkategori (05.10, #215) får ikke noe å gjelde for. Forholdet mellom overføringen og OV-U5 er ikke avklart, og heller ikke om byggherrens binding (HF-U5) og en enighet følger kravene til den nye saken (#569). Ikke bygget (#569).'''
+Spørsmålet kom etter at oppdragsgiver svarte på spørsmålet om frafall og ny grunnlagsversjon (GR-U23) med «fikk du svaret mitt om det å ikke kunne endre grunnlag?». Alternativ A sier «Utvider KA-U22 med et unntak». Ført som «snevrer inn», slik unntaket i OV-U5 fra OV-U4 er ført. Forholdet til GR-U2 fant kontrollen av føringen 16.10: underkategorien kan ikke lenger endres, så raden i B-13 om endret underkategori (05.10, #215) får ikke noe å gjelde for. Forholdet mellom overføringen og OV-U5 er ikke avklart, og heller ikke om byggherrens binding (HF-U5) og en enighet følger kravene til den nye saken (#569). Del 1 bygget 16.10 i PR #588 (#569): en ny grunnlagsversjon med en annen hovedkategori eller underkategori avvises med regelkoden ANNEN_HJEMMEL, også når § 32.2 gjelder likt. Endringsordrens dato eller nummer kan rettes i en ny versjon med samme underkategori. En journal som alt har et skifte, leses som før (MM-U18). PROJEKSJONSVERSJON 21. Overføringen til ny sak er ikke bygget (#569).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -4807,7 +4807,7 @@ Endringen av KA-U14 gjelder leddet om registrert korrespondanse. Ikke bygget. GR
 avgjør ikke om en registrering etter OV-U6 er en endringsordre; det gjør byggherrens
 opplysning (GR-U13). Når endringsordre som egen sak bygges, gjelder EO-U6 og EO-U9 for en
 endringsordre utstedt i appen, og det må avgjøres om registreringen etter OV-U6 står ved
-siden av.'''
+siden av. Bygget 16.10 i PR #588 (#540): et registrert brev sperrer ikke TEs trekk av grunnlaget, heller ikke med byggherrens opplysning om § 31.3, uten den eller med en merking (OV-U4, OV-U7). En godkjenning sendt fra appen som er en endringsordre, sperrer fortsatt. PROJEKSJONSVERSJON 21.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
