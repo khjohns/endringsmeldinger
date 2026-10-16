@@ -3570,6 +3570,11 @@ etter = '''
 > [HF-U1](#hf-u1) og [HF-U2](#hf-u2). Versjonering, utrulling og tilbakerulling
 > mellom TS-versjoner står åpne (#316), og B-10 står derfor fortsatt her.
 
+> **Merknad 2026-10-16 til B-10:** i SQL Server står det lagrede resultatet og versjonene
+> som regnet det ut, i en egen tabell som kan slettes og bygges på nytt fra journalen, ikke
+> i `sak_metadata` som følgen sier. Arbeidsvalg 16.10 i #53 (oppdragsgiver). Vedtaket er
+> uendret.
+
 '''
 
 [[gruppe.vedtak]]
@@ -5301,6 +5306,70 @@ forkastet = true
 navn = "Begge kolonnene"
 tekst = '''
 datetimeoffset for appen og en UTC-kolonne for speilingen. To kilder til samme tidspunkt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "DL-U4"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#53"]
+sporsmal = '''
+S1 (#53 del 2, blir et vedtak): Må et brev i journalen ha et entydig kontraktsteam? I dag skriver både TS-serveren og Python brevet uten team når avsenderen er med i to team på samme side; siden og rollen er da entydige, men teamet ikke. Design v2 til B-02 sier «For varsel er teamet valgfritt», men definerer ikke «varsel». Prøven i Azure SQL er strengere og krever team for all skriving (SQ-06 sier selv at det er strengere, og at et varsel uten team ikke er prøvd). Invarianten i AGENTS.md om at det uten entydig team ikke finnes noe å lese eller skrive, gjelder bare interne notater og utkast. Intet vedtak i 3.1 avgjør dette. Anbefaling: B, fordi den følger design v2 og dagens atferd, og fordi brevet binder kontraktssiden, ikke teamet. Valget styrer om teamkolonnen i journalen kan være tom, og hva radsikkerheten krever ved skriving.
+
+B: Teamet når entydig (Anbefalt) – «Kontraktssiden til avsenderen av et brev i journalen må være entydig. Teamet føres når det er entydig og er et av prosjektets kontraktsteam på den siden; ellers står brevet uten team.» Presiserer B-02. Uendret atferd.
+
+A: Brevet krever team – «Et brev i journalen skrives bare av en avsender med ett entydig kontraktsteam på sin side. Uten entydig team avvises brevet.» Snevrer inn B-02 (design v2 gjør teamet valgfritt for varsel) og endrer atferden: en avsender i to team på samme side kan ikke sende.
+
+C: Avsenderen velger team – «Har avsenderen flere kontraktsteam på samme side, velger avsenderen teamet når brevet sendes. Brevet står alltid med team.» Utvider B-02 og krever et nytt valg i grensesnittet.'''
+valgt = "B"
+svar = '''
+«B: Teamet når entydig (Anbefalt)»'''
+folge = '''
+Presiserer B-02 hovedvalg, slik [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) sier det for varsel. Gjelder brevet i journalen, ikke notatet og utkastet. Prøven i Azure SQL var strengere (SQ-06).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Kontraktssiden til avsenderen av et brev i journalen må være entydig. Teamet føres når det er entydig og er et av prosjektets kontraktsteam på den siden; ellers står brevet uten team.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et brev i journalen skrives bare av en avsender med ett entydig kontraktsteam på sin side. Uten entydig team avvises brevet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Har avsenderen flere kontraktsteam på samme side, velger avsenderen teamet når brevet sendes. Brevet står alltid med team.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "DL-U5"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#53"]
+sporsmal = '''
+S2 (#53 del 2, blir et vedtak eller et arbeidsvalg): Skal radsikkerheten og rollen for kjøretiden bygges i del 2 nå, før det samlede rolledesignet i F1? Arbeidsvalget 16.10 i #53 tok dem med i del 2. Men B-02-følgen sier «Uavhengig review før første F1-migrasjon gjelder fortsatt (22.09)», og F1 punkt 1 krever «Samlet design for roller (runtime, worker, drift, migrering, break-glass), identitetskontekst og databasefunksjoner, med uavhengig review». Del 1 har alt laget rollen for kjøretiden, men uten rettigheter. Anbefaling: A, fordi prøven alt har prøvd mekanismen etter B-02, og fordi tabellene uten radsikkerhet ellers står åpne for kjøretiden til F1. A bygger kjøretidens del før det samlede designet og avviker derfor fra rekkefølgen i F1 punkt 1; det får en datert merknad.
+
+A: Nå, med review (Anbefalt) – «Radsikkerheten og rettighetene for kjøretiden bygges i F0b etter B-02 og prøven. Et uavhengig review av tilgangen i ny økt før merge er reviewet før første F1-migrasjon. Rollene for arbeider, drift, migrering og nødtilgang kommer med det samlede rolledesignet i F1.» Presiserer B-02-følgen og avviker fra rekkefølgen i F1 punkt 1.
+
+B: Vent til F1 – «F0b bygger journalen, notatet, oppdragene, bufferen og vernet mot endring. Radsikkerheten og rettighetene for kjøretiden kommer i F1, etter det samlede rolledesignet med uavhengig review.» Endrer arbeidsvalget 16.10 i #53; del 2 blir én økt mindre.'''
+valgt = "A"
+svar = '''
+«A: Nå, med review (Anbefalt)»'''
+folge = '''
+Presiserer følgen til B-02 hovedvalg om uavhengig review før første F1-migrasjon. Avviker fra rekkefølgen i F1, punkt 1, som har en datert merknad 16.10. Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Radsikkerheten og rettighetene for kjøretiden bygges i F0b etter B-02 og prøven. Et uavhengig review av tilgangen i ny økt før merge er reviewet før første F1-migrasjon. Rollene for arbeider, drift, migrering og nødtilgang kommer med det samlede rolledesignet i F1.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+F0b bygger journalen, notatet, oppdragene, bufferen og vernet mot endring. Radsikkerheten og rettighetene for kjøretiden kommer i F1, etter det samlede rolledesignet med uavhengig review.'''
 forkastet = true
 
 [[gruppe]]
