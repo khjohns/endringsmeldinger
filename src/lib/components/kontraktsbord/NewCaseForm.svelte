@@ -226,7 +226,7 @@
       createdCase = { id: opprettet.sak_id, version: opprettet.versjon };
       saveDraft(dk, utkast());
     }
-    const sak = lagKjernesak({ sakId: createdCase.id, part: 'TE' });
+    const sak = lagKjernesak({ sakId: createdCase.id, prosjektId, part: 'TE' });
     await sak.last();
     if (sak.feil) throw new Error(sak.feil);
     const tekst = sak.brevtekst(kommando);

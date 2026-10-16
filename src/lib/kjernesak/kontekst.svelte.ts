@@ -7,6 +7,7 @@
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '$lib/api/client';
 import { laastBrevtekst } from './brevtekst';
+import { lagSaksbilde } from './saksbilde';
 import { hentKjernesak, sendKommando, type Journallinje, type Kjernesak } from '$lib/api/kjerne';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
@@ -16,6 +17,8 @@ import type { Journalrad, Part } from '$kjerne/typer';
 
 export interface Kjernesakvalg {
   sakId: string;
+  /** Prosjektet fra ruta. Uten det brukes det aktive prosjektet. */
+  prosjektId?: string;
   /** Leserens kontraktsside. Uten side tilbys ingen handling. */
   part: Part | null;
   hent?: typeof hentKjernesak;
@@ -48,17 +51,29 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let sak = $state<Kjernesak | null>(null);
   let feil = $state<string | null>(null);
   let sender = $state(false);
+  let finnes = $state<boolean | null>(null);
 
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
   const utledning = $derived(sak ? utledJournal(journal, kjerne) : null);
   const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
   const tilbudt = $derived(utledning && part ? handlinger(utledning, part) : []);
+  const bilde = $derived(
+    sak && utledning && vist ? lagSaksbilde(journal, sak.leveringsoppdrag, utledning, vist) : null
+  );
 
   async function last() {
     try {
-      sak = await hent(sakId);
-      feil = null;
+      const svar = await hent(sakId, valg.prosjektId);
+      // TS-serveren leser hele `hendelse`, også en Python-sak. En rad uten format er
+      // ikke skrevet av TS-kjernen (B-17), så da er saken ikke en TS-sak.
+      finnes = svar.journal[0]?.format != null;
+      sak = finnes ? svar : null;
+      feil = finnes ? null : 'Saken er ikke opprettet i TS-stien og vises ikke her.';
     } catch (e) {
+      if (e instanceof ApiError && e.status === 404) {
+        finnes = false;
+        sak = null;
+      }
       feil = meldingFra(e, 'Saken kunne ikke hentes.');
     }
   }
@@ -102,6 +117,16 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     get handlinger() {
       return tilbudt;
+    },
+    get saksbilde() {
+      return bilde;
+    },
+    /**
+     * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404, eller
+     * journalen begynner med en rad uten format. `null` før svaret.
+     */
+    get finnes() {
+      return finnes;
     },
     get feil() {
       return feil;

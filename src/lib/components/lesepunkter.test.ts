@@ -1,5 +1,5 @@
 /**
- * Ett lesepunkt per visning for statusene fra Python (#313). Komponentene leser
+ * Ett lesepunkt per visning for statusene fra Python og for TS-sakene (#313). Komponentene leser
  * ikke `SporStatus`, `overordnet_status` eller `cached_status` selv, og ikke
  * etikett- og stiltabellene for dem. Det gjør lesepunktene, så byttet til
  * kjernen skjer der.
@@ -8,6 +8,13 @@
  * et spor bare når sporet er nevnt ved navn (`sak.frist.status`), ikke gjennom
  * en variabel eller en destrukturering. Testfilene og modulene i `TILLATT`
  * kan lese statusene.
+ *
+ * For TS-sakene er lesepunktet `src/lib/kjernesak/` (#665). Bare der hentes
+ * saken (`hentKjernesak`) og kalles utledningen, visningen, handlingene og
+ * forhåndsvisningen i kjernen. Typeimporter er tillatt. Vakten kjenner igjen
+ * en import fra `$kjerne/utledning/` og `$kjerne/kommandoer/` og en import av
+ * `hentKjernesak`, ikke en relativ sti inn i kjernen; den fanger
+ * `src/lib/kjernegrense.test.ts`.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
@@ -86,5 +93,54 @@ describe('lesepunktene for statusene', () => {
       '4: statustype',
       '6: statusfelt',
     ]);
+  });
+});
+
+const KJERNELESING: [string, RegExp][] = [
+  ['kjernekall', /\bimport\s+(?!type\b)[^;'"]*?from\s+['"]\$kjerne\/(utledning|kommandoer)\//g],
+  ['kjernehenting', /\bhentKjernesak\b/g],
+];
+
+/** Lesingene av en TS-sak utenom lesepunktet, med linjenummer. En import over flere linjer telles på første. */
+export function kjernelesing(kilde: string): string[] {
+  const linje = (i: number) => kilde.slice(0, i).split('\n').length;
+  return KJERNELESING.flatMap(([navn, m]) =>
+    [...kilde.matchAll(m)].map((t) => [linje(t.index), navn] as const)
+  )
+    .sort((x, y) => x[0] - y[0])
+    .map(([l, navn]) => `${l}: ${navn}`);
+}
+
+/** Lesepunktet for TS-sakene og klienten det bruker. */
+const KJERNELESEPUNKT = ['src/lib/kjernesak/', 'src/lib/api/kjerne.ts'];
+
+describe('lesepunktet for TS-sakene', () => {
+  it('bare lesepunktet henter saken og kaller utledningen og visningen i kjernen', () => {
+    const funnet = readdirSync(SRC, { recursive: true, encoding: 'utf8' })
+      .map((f) => join(SRC, f))
+      .filter((f) => /\.(svelte|ts|js)$/.test(f) && !/\.test\.ts$|[\\/]__tests__[\\/]/.test(f))
+      .map((f) => [f, relative(ROT, f).split(sep).join('/')] as const)
+      .filter(([, rel]) => !KJERNELESEPUNKT.some((p) => rel.startsWith(p)))
+      .flatMap(([fil, rel]) => kjernelesing(readFileSync(fil, 'utf8')).map((f) => `${rel}:${f}`));
+    expect(funnet).toEqual([]);
+  });
+
+  it('vakten kjenner igjen lesingene', () => {
+    expect(
+      kjernelesing(
+        [
+          `<script lang="ts">`,
+          `  import { visning } from '$kjerne/utledning/visning';`,
+          `  import type { Visning } from '$kjerne/utledning/visning';`,
+          `  import {`,
+          `    forhaandsvis,`,
+          `    laastTekst,`,
+          `  } from '$kjerne/kommandoer/skriving';`,
+          `  import { hentKjernesak } from '$lib/api/kjerne';`,
+          `  import { HOVEDKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';`,
+          `</script>`,
+        ].join('\n')
+      )
+    ).toEqual(['2: kjernekall', '4: kjernekall', '8: kjernehenting']);
   });
 });

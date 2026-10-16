@@ -3,7 +3,7 @@
  * vert under `/api/kjerne/`, med samme sesjon og CSRF-token som resten av appen.
  */
 
-import { apiFetch } from '$lib/api/client';
+import { apiFetch, projectHeaders } from '$lib/api/client';
 import type { Journalrad } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
@@ -31,7 +31,9 @@ export interface Kjernesak {
 const SAKER = '/api/kjerne/saker';
 const sti = (sakId: string) => `${SAKER}/${encodeURIComponent(sakId)}`;
 
-export const hentKjernesak = (sakId: string) => apiFetch<Kjernesak>(sti(sakId));
+/** Prosjektet fra ruta går med, så saken ikke leses i et annet aktivt prosjekt. */
+export const hentKjernesak = (sakId: string, prosjektId?: string) =>
+  apiFetch<Kjernesak>(sti(sakId), { headers: projectHeaders(prosjektId) });
 
 /**
  * Oppretter saken. Serveren lager saks-ID-en og stempler aktøren og tidspunktet.

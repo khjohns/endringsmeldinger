@@ -155,4 +155,53 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(hent).toHaveBeenCalledTimes(1);
     expect(sak.feil).toBe('Grunnlaget er allerede krevd.');
   });
+
+  it('sier at saken finnes når serveren svarer, og bygger saksbildet av journalen', async () => {
+    const hent = vi.fn(async () => svar([opprettet]));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: null, hent });
+    expect(sak.finnes).toBeNull();
+    await sak.last();
+    expect(hent).toHaveBeenCalledWith(SAK, 'p-1');
+    expect(sak.finnes).toBe(true);
+    expect(sak.saksbilde?.status.tekst).not.toBe('Fra serveren');
+    expect(sak.saksbilde?.journal.map((j) => j.versjon)).toEqual([1]);
+  });
+
+  it('sier at saken ikke finnes i TS når serveren svarer 404', async () => {
+    const sak = lagKjernesak({
+      sakId: SAK,
+      part: null,
+      hent: async () => {
+        throw new ApiError(404, 'Saken finnes ikke.');
+      },
+    });
+    await sak.last();
+    expect(sak.finnes).toBe(false);
+    expect(sak.saksbilde).toBeNull();
+  });
+
+  it('sier at saken ikke er en TS-sak når journalen begynner med en rad uten format (B-17)', async () => {
+    const python = { ...opprettet, format: null, data: { sakstittel: 'Fra Python' } };
+    // Raden som oppretter saken avgjør, også når en senere rad har format.
+    const senere = { ...opprettet, event_id: 'e-2', versjon: 2 };
+    const sak = lagKjernesak({ sakId: SAK, part: null, hent: async () => svar([python, senere]) });
+    await sak.last();
+    expect(sak.finnes).toBe(false);
+    expect(sak.sak).toBeNull();
+    expect(sak.saksbilde).toBeNull();
+    expect(sak.feil).toBe('Saken er ikke opprettet i TS-stien og vises ikke her.');
+  });
+
+  it('lar det være uavgjort om saken finnes når serveren svarer med en annen feil', async () => {
+    const sak = lagKjernesak({
+      sakId: SAK,
+      part: null,
+      hent: async () => {
+        throw new ApiError(500, 'Serveren svarte ikke.');
+      },
+    });
+    await sak.last();
+    expect(sak.finnes).toBeNull();
+    expect(sak.feil).toBe('Serveren svarte ikke.');
+  });
 });
