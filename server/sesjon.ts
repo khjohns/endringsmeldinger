@@ -10,7 +10,7 @@
 import { randomBytes } from 'node:crypto';
 
 import { sha256, type Bruker } from './autorisasjon.ts';
-import { sql, type Pool } from './datalag.ts';
+import { feilnummer, sql, type Pool } from './datalag.ts';
 
 /** Basen avviste en hash, et CSRF-token eller en returadresse med feil form. */
 export class UgyldigSesjonsdata extends Error {}
@@ -22,11 +22,6 @@ const UGYLDIG_HASH = 52050;
 const UKJENT_BRUKER = 52051;
 const UGYLDIG_RETURSTI = 52052;
 const UGYLDIG_CSRF = 52053;
-
-function feilnummer(feil: unknown): number | undefined {
-  const f = feil as { number?: number; originalError?: { info?: { number?: number } } };
-  return f?.number ?? f?.originalError?.info?.number;
-}
 
 function oversett(feil: unknown): unknown {
   const melding = (feil as Error)?.message ?? '';
