@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `dc7dbd70e23e009c3fdc9091426a9b043c8550188cad8b36c3d43f414feb3bec`
+Kontrollsum (SHA-256 over utdraget visningen leser): `524d79077a68ab9f8b46cf1bb81245cce25ebfc4bd22fcf05d4b6c3a86c14edd`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -135,7 +135,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.10, oppdragsgiver (#504)
 
-**Følge:** Snevrer inn [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U20](#gr-u20). Presisert 16.10 av [GR-U24](#gr-u24). Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.
+**Følge:** Snevrer inn [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U20](#gr-u20). Presisert 16.10 av [GR-U24](#gr-u24). Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert. Bygget 16.10 i PR #557 (#510): en revisjon av et frafall sendt fra appen avvises med regelkoden FRAFALT når den er et avslag, og med SAGT_I_TIDE når den er en påberopelse etter § 32.2. Et avslag eller en påberopelse i et registrert brev etter frafallet får ingen virkning (MM-U19). PROJEKSJONSVERSJON 20.
 
 **Regelrader:** [GR-31](#rad-gr-31), [GR-32](#rad-gr-32), [GR-33](#rad-gr-33)
 
@@ -149,7 +149,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#510)
 
-**Følge:** Presiserer [GR-U17](#gr-u17). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Snevrer inn [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U21](#gr-u21). Presisert 16.10 av [GR-U23](#gr-u23). Snevret inn 16.10 av [GR-U24](#gr-u24). Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510, som GR-U23 erstatter for hva som gjelder mens den venter), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).
+**Følge:** Presiserer [GR-U17](#gr-u17). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Snevrer inn [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U21](#gr-u21). Presisert 16.10 av [GR-U23](#gr-u23). Snevret inn 16.10 av [GR-U24](#gr-u24). Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510, som GR-U23 erstatter for hva som gjelder mens den venter), og bindingen varer ut over den nye versjonen (HF-U5). Bygget 16.10 i PR #557 (#510): etter et frafall sendt fra appen avvises et avslag av en ny grunnlagsversjon med FRAFALT, også etter bytte til en underkategori der § 32.2 gjelder likt. Et registrert frafall binder ikke (OV-U4). PROJEKSJONSVERSJON 20.
 
 **Regelrader:** [GR-32](#rad-gr-32), [GR-33](#rad-gr-33)
 
@@ -191,7 +191,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#510)
 
-**Følge:** Presiserer [GR-U20](#gr-u20). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Presiserer [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3). Snevret inn 16.10 av [GR-U24](#gr-u24). Forholdene til GR-U7 og OV-U3 fant kontrollen av føringen 16.10: grunnlaget er avklart også mens den nye versjonen venter. Kontrollen fant også at OV-U3 avviser en ny kravversjon i grunnlaget når kravene er avgjort, så tilfellet oppstår bare når et annet sendt krav fortsatt står åpent, for eksempel et fristkrav. Eksemplet i spørsmålet hadde bare et vederlagskrav. Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Det første svaret var et spørsmål tilbake. Det ble besvart med GR-U22, og spørsmålet ble så stilt på nytt. Vedtaket erstatter orkestratorens arbeidsvalg 16.10 på #510 om at grunnlaget venter på svar uten noe gjeldende svar. Ikke bygget (#510).
+**Følge:** Presiserer [GR-U20](#gr-u20). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Presiserer [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3). Snevret inn 16.10 av [GR-U24](#gr-u24). Forholdene til GR-U7 og OV-U3 fant kontrollen av føringen 16.10: grunnlaget er avklart også mens den nye versjonen venter. Kontrollen fant også at OV-U3 avviser en ny kravversjon i grunnlaget når kravene er avgjort, så tilfellet oppstår bare når et annet sendt krav fortsatt står åpent, for eksempel et fristkrav. Eksemplet i spørsmålet hadde bare et vederlagskrav. Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Det første svaret var et spørsmål tilbake. Det ble besvart med GR-U22, og spørsmålet ble så stilt på nytt. Vedtaket erstatter orkestratorens arbeidsvalg 16.10 på #510 om at grunnlaget venter på svar uten noe gjeldende svar. Bygget 16.10 i PR #557 (#510): mens en ny grunnlagsversjon etter et frafall sendt fra appen venter på svar, er grunnlaget avklart ved frafallet. PROJEKSJONSVERSJON 20.
 
 **Regelrader:** [GR-33](#rad-gr-33)
 
@@ -205,7 +205,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#557, #510, #578)
 
-**Følge:** Snevrer inn [GR-U20](#gr-u20). Snevrer inn [GR-U23](#gr-u23). Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3). Presiserer [GR-U17](#gr-u17). Forholdet til GR-U17 fant kontrollen av føringen 16.10: når kravene er avgjort, går OV-U3 foran også for svaret på en ny versjon, slik KA-U11 går foran etter GR-U17. Spørsmålet kom fra samspillsreviewet av PR #557 og står i #578. Ikke bygget (#510).
+**Følge:** Snevrer inn [GR-U20](#gr-u20). Snevrer inn [GR-U23](#gr-u23). Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3). Presiserer [GR-U17](#gr-u17). Forholdet til GR-U17 fant kontrollen av føringen 16.10: når kravene er avgjort, går OV-U3 foran også for svaret på en ny versjon, slik KA-U11 går foran etter GR-U17. Spørsmålet kom fra samspillsreviewet av PR #557 og står i #578. Bygget 16.10 i PR #557 (#510): når kravene er avgjort, avvises svaret på en grunnlagsversjon som venter, med KRAVENE_AVGJORT, og visningen viser ikke at noe venter på svar. PROJEKSJONSVERSJON 20.
 
 **Regelrader:** [GR-33](#rad-gr-33)
 
