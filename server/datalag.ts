@@ -11,6 +11,15 @@
  *
  * Tilkoblingen tar en `mssql`-konfigurasjon, så pålogging med SQL-bruker
  * (testbasen) og Entra/managed identity (Azure, A4 i #78) går gjennom samme vei.
+ *
+ * Hjelperen bruker interne deler av `mssql` og `tedious` (#533): at
+ * `ConnectionPool.acquire`/`release` gir ut forbindelsen fra `tedious`, at en
+ * `Transaction` henter og gir tilbake forbindelsen gjennom forelderens
+ * `acquire(requester, callback)`, `release` og `config`, lytteren `_abort` og
+ * `_abortReason` på transaksjonen, hendelsen `rollbackTransaction`,
+ * `reset`, `close` og `hasError` på forbindelsen. Versjonen av `mssql` er låst
+ * i `package.json`, `tedious` i `package-lock.json`, og CI-jobben «SQL Server
+ * (testbasen for datalaget)» kjører testene som vokter delene.
  */
 
 import sql from 'mssql';
@@ -47,8 +56,8 @@ export class UsikkertUtfall extends Error {}
 
 /**
  * Serveren rullet tilbake transaksjonen, etter en feil med XACT_ABORT eller en
- * ROLLBACK, uten at arbeidet kastet. Utfallet er kjent: transaksjonen er ikke
- * committet. Serverfeilen står i `cause` når `mssql` har den.
+ * ROLLBACK uten at arbeidet kastet, eller under COMMIT. Utfallet er kjent:
+ * transaksjonen er ikke committet. Serverfeilen står i `cause` når `mssql` har den.
  */
 export class TransaksjonAvbrutt extends Error {}
 
@@ -56,7 +65,9 @@ export class TransaksjonAvbrutt extends Error {}
 export interface Forbindelse {
   reset(callback: (feil?: Error) => void): void;
   close(): void;
-  commitTransaction(callback: (feil?: Error) => void, ...rest: unknown[]): void;
+  on(hendelse: 'rollbackTransaction', lytter: () => void): void;
+  removeListener(hendelse: 'rollbackTransaction', lytter: () => void): void;
+  listeners(hendelse: 'rollbackTransaction'): unknown[];
   hasError?: boolean;
 }
 
@@ -67,16 +78,20 @@ interface Utlaan {
 
 /**
  * En pool der hver forbindelse har `xact_abort` på. `tedious` setter det ved
- * innloggingen og etter hver nullstilling.
+ * innloggingen og etter hver nullstilling. `maks` går foran `konfig.pool.max`,
+ * og standarden er 10.
  */
 export async function opprettPool(
   konfig: sql.config,
-  { maks = 10 }: { maks?: number } = {}
+  { maks }: { maks?: number } = {}
 ): Promise<Pool> {
+  const max = maks ?? konfig.pool?.max ?? 10;
+  const min = konfig.pool?.min ?? 0;
+  if (min > max) throw new RangeError(`Poolen har min ${min}, som er over maks ${max}.`);
   return new sql.ConnectionPool({
     ...konfig,
     options: { encrypt: true, ...konfig.options, abortTransactionOnError: true },
-    pool: { min: 0, ...konfig.pool, max: maks },
+    pool: { ...konfig.pool, min, max },
   }).connect();
 }
 
@@ -107,12 +122,9 @@ function reservasjon(pool: Pool, forbindelse: Forbindelse) {
     get connected() {
       return pool.connected;
     },
-    acquire(_requester: unknown, callback?: (...a: unknown[]) => void) {
-      if (callback) {
-        setImmediate(callback, null, forbindelse, config);
-        return this;
-      }
-      return Promise.resolve(forbindelse);
+    acquire(_requester: unknown, callback: (...a: unknown[]) => void) {
+      setImmediate(callback, null, forbindelse, config);
+      return this;
     },
     release() {
       return this;
@@ -138,17 +150,28 @@ async function kontrollerRen(forelder: sql.ConnectionPool): Promise<void> {
     );
 }
 
-/** Lukker forbindelsen og gir den til poolen, som forkaster den ved valideringen. */
+/**
+ * Lukker forbindelsen og gir den til poolen, som forkaster den ved valideringen.
+ * En feil her erstatter ikke svaret eller feilen fra transaksjonen; den logges.
+ */
 function forkast(pool: Pool, forbindelse: Forbindelse): void {
   forbindelse.hasError = true;
-  try {
-    forbindelse.close();
-  } finally {
-    (pool as unknown as Utlaan).release(forbindelse);
+  for (const steg of [
+    () => forbindelse.close(),
+    () => (pool as unknown as Utlaan).release(forbindelse),
+  ]) {
+    try {
+      steg();
+    } catch (feil) {
+      console.error('Datalaget: forkastingen av forbindelsen feilet:', feil);
+    }
   }
 }
 
-/** Nullstiller forbindelsen og kontrollerer den. Usann betyr at den må forkastes. */
+/**
+ * Nullstiller forbindelsen og kontrollerer den. Usann betyr at den må forkastes,
+ * og årsaken logges, så en feil som gjentar seg, er synlig.
+ */
 async function nullstillOgKontroller(
   forbindelse: Forbindelse,
   forelder: sql.ConnectionPool
@@ -157,7 +180,8 @@ async function nullstillOgKontroller(
     await nullstill(forbindelse);
     await kontrollerRen(forelder);
     return true;
-  } catch {
+  } catch (feil) {
+    console.error('Datalaget: forbindelsen forkastes etter nullstillingen:', feil);
     return false;
   }
 }
@@ -166,7 +190,8 @@ async function nullstillOgKontroller(
  * Én transaksjon med konteksten satt først, skrivebeskyttet for sesjonen og
  * bundet til transaksjonen med `koe_tx`. Kaster `arbeid`, rulles transaksjonen
  * tilbake og feilen kastes videre. Har serveren rullet tilbake uten at arbeidet
- * kastet, kastes `TransaksjonAvbrutt`. Feiler COMMIT, kastes `UsikkertUtfall`.
+ * kastet, eller under COMMIT, kastes `TransaksjonAvbrutt`. Feiler COMMIT uten
+ * det, kastes `UsikkertUtfall`.
  * Forbindelsen går tilbake i poolen bare når transaksjonen er avsluttet og
  * forbindelsen er nullstilt og kontrollert; ellers forkastes den.
  */
@@ -181,7 +206,7 @@ export async function transaksjon<T>(
   const forelder = reservasjon(pool, forbindelse);
   let gjenbrukbar = false;
   try {
-    const utfall = await iTransaksjon(forelder, kontekst, arbeid);
+    const utfall = await iTransaksjon(forelder, forbindelse, kontekst, arbeid);
     if (utfall.avsluttet) gjenbrukbar = await nullstillOgKontroller(forbindelse, forelder);
     if ('feil' in utfall) throw utfall.feil;
     return utfall.svar;
@@ -196,6 +221,7 @@ type Utfall<T> = { svar: T; avsluttet: true } | { feil: unknown; avsluttet: bool
 
 async function iTransaksjon<T>(
   forelder: sql.ConnectionPool,
+  forbindelse: Forbindelse,
   kontekst: Kontekst,
   arbeid: (foresp: () => sql.Request) => Promise<T>
 ): Promise<Utfall<T>> {
@@ -241,15 +267,48 @@ async function iTransaksjon<T>(
       }),
       avsluttet: true,
     };
+  return committ(tx, forbindelse, svar);
+}
+
+/**
+ * Ruller serveren tilbake under COMMIT, ville `_abort` i `mssql` nulle
+ * forbindelsen før callbacket til COMMIT bruker den, og `TypeError` når
+ * prosessen mens løftet aldri avgjøres (#534). Under COMMIT lytter derfor
+ * hjelperen selv på `rollbackTransaction` i stedet for `_abort`.
+ */
+async function committ<T>(
+  tx: sql.Transaction,
+  forbindelse: Forbindelse,
+  svar: T
+): Promise<Utfall<T>> {
+  const { _abort: avbryt } = tx as unknown as { _abort: () => void };
+  if (!forbindelse.listeners('rollbackTransaction').includes(avbryt))
+    return {
+      feil: new Error('Transaksjonen i mssql lytter ikke med `_abort`; COMMIT sendes ikke.'),
+      avsluttet: false,
+    };
+  let rulletTilbake = false;
+  const merk = () => (rulletTilbake = true);
+  forbindelse.removeListener('rollbackTransaction', avbryt);
+  forbindelse.on('rollbackTransaction', merk);
   try {
     await tx.commit();
+    return { svar, avsluttet: true };
   } catch (feil) {
+    if (rulletTilbake)
+      return {
+        feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen under COMMIT.', {
+          cause: feil,
+        }),
+        avsluttet: true,
+      };
     return {
       feil: new UsikkertUtfall('COMMIT feilet eller fikk ikke svar; utfallet er usikkert.', {
         cause: feil,
       }),
       avsluttet: false,
     };
+  } finally {
+    forbindelse.removeListener('rollbackTransaction', merk);
   }
-  return { svar, avsluttet: true };
 }
