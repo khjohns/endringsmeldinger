@@ -1,0 +1,128 @@
+/**
+ * Sakskonteksten for en TS-sak (#313, #663). Journalen hentes fra TS-serveren, og
+ * versjonen, visningen og handlingene regnes lokalt av kjernen fra den, ikke av
+ * visningen i svaret. Serveren vurderer kommandoen på nytt og avgjør.
+ */
+
+import { getContext, setContext } from 'svelte';
+import { ApiError } from '$lib/api/client';
+import { laastBrevtekst } from './brevtekst';
+import { hentKjernesak, sendKommando, type Journallinje, type Kjernesak } from '$lib/api/kjerne';
+import { utledJournal } from '$kjerne/kommandoer/skriving';
+import { handlinger } from '$kjerne/kommandoer/handlinger';
+import { visning } from '$kjerne/utledning/visning';
+import { KJERNE, type Kjerne } from '$kjerne/versjon';
+import type { Journalrad, Part } from '$kjerne/typer';
+
+export interface Kjernesakvalg {
+  sakId: string;
+  /** Leserens kontraktsside. Uten side tilbys ingen handling. */
+  part: Part | null;
+  hent?: typeof hentKjernesak;
+  send?: typeof sendKommando;
+  kjerne?: Kjerne;
+}
+
+/**
+ * Radene slik kjernen leser dem. Serveren sender ikke aktøren, teamet eller
+ * referansen; kjernen skriver ingen rad med referanse, og utledningen leser ikke
+ * aktøren eller teamet.
+ */
+const somJournal = (sakId: string, linjer: Journallinje[]): Journalrad[] =>
+  linjer.map((l) => ({
+    ...l,
+    sak_id: sakId,
+    aktor_id: '',
+    aktor_team_id: null,
+    refererer_til_event_id: null,
+  }));
+
+const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
+
+export function lagKjernesak(valg: Kjernesakvalg) {
+  const { sakId, part } = valg;
+  const hent = valg.hent ?? hentKjernesak;
+  const send = valg.send ?? sendKommando;
+  const kjerne = valg.kjerne ?? KJERNE;
+
+  let sak = $state<Kjernesak | null>(null);
+  let feil = $state<string | null>(null);
+  let sender = $state(false);
+
+  const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
+  const utledning = $derived(sak ? utledJournal(journal, kjerne) : null);
+  const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
+  const tilbudt = $derived(utledning && part ? handlinger(utledning, part) : []);
+
+  async function last() {
+    try {
+      sak = await hent(sakId);
+      feil = null;
+    } catch (e) {
+      feil = meldingFra(e, 'Saken kunne ikke hentes.');
+    }
+  }
+
+  /** Den låste teksten for kommandoen mot saken slik den er lastet. Uten side er det ingen. */
+  const brevtekst = (kommando: Record<string, unknown>): string[] | null =>
+    sak && part ? laastBrevtekst(kommando, sakId, part, journal, kjerne) : null;
+
+  /** Sender kommandoen med den låste teksten. `true` når serveren lagret den. */
+  async function sendMedBrev(kommando: Record<string, unknown>): Promise<boolean> {
+    if (!sak || sender) return false;
+    sender = true;
+    feil = null;
+    try {
+      const tekst = brevtekst(kommando);
+      await send(sakId, sak.versjon, tekst ? { ...kommando, brevtekst: tekst } : kommando);
+      await last();
+      return true;
+    } catch (e) {
+      const melding = meldingFra(e, 'Kommandoen ble ikke sendt.');
+      // Saken er endret siden den ble lastet. Den lastes på nytt, og meldingen skal stå etterpå.
+      if (e instanceof ApiError && e.status === 409) await last();
+      feil = feil ? `${melding} ${feil}` : melding;
+      return false;
+    } finally {
+      sender = false;
+    }
+  }
+
+  return {
+    sakId,
+    part,
+    get sak() {
+      return sak;
+    },
+    get versjon() {
+      return utledning?.versjon ?? null;
+    },
+    get visning() {
+      return vist;
+    },
+    get handlinger() {
+      return tilbudt;
+    },
+    get feil() {
+      return feil;
+    },
+    get sender() {
+      return sender;
+    },
+    last,
+    brevtekst,
+    send: sendMedBrev,
+  };
+}
+
+export type Kjernesakkontekst = ReturnType<typeof lagKjernesak>;
+
+const NOEKKEL = Symbol('kjernesak');
+
+export const settKjernesak = (kontekst: Kjernesakkontekst) => setContext(NOEKKEL, kontekst);
+
+export function hentKjernesakkontekst(): Kjernesakkontekst {
+  const kontekst = getContext<Kjernesakkontekst | undefined>(NOEKKEL);
+  if (!kontekst) throw new Error('Sakskonteksten for TS-saken er ikke satt.');
+  return kontekst;
+}

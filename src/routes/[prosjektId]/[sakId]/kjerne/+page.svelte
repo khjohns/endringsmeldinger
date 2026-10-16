@@ -10,7 +10,7 @@
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
   import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
   import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
-  import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/kjerneskive/api';
+  import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/api/kjerne';
   import { forhaandsvis, laastTekst } from '$kjerne/kommandoer/skriving';
   import { KJERNE } from '$kjerne/versjon';
   import type { Journalrad } from '$kjerne/typer';
