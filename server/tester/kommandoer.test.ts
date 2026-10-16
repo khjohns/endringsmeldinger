@@ -326,6 +326,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const sak = await nySak();
       const foer = await ferdigeTidspunkter();
       await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, medOppdrag(te));
+      expect(await ferdigeTidspunkter()).toBe(foer);
       await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, () => ({
         skriv: false,
         avvisning: 0,
