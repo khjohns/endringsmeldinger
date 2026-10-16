@@ -1693,7 +1693,7 @@ svar = '''
 Lås hovedkategori (Anbefalt)'''
 forhold = [{ art = "snevrer inn", vedtak = "gr-u1" }]
 folge = '''
-Snevrer også inn raden i B-13 om endret underkategori (05.10, #215). Spørsmålet kom fra kontrollen av PR #535 før merge. Før spørsmålet ble stilt, spurte oppdragsgiver: «Vet du hva - er det noen god grunn til å la TE endre kategori? Er det drøftet i kode eller tidligere PR? Det skaper mye rot» (#538). Kontrollen 16.10 av om trekket er sperret ved enighet om grunnlaget (KA-U13) og når kravene er avgjort (KA-U11), står i en kommentar på #538. Ikke bygget (#538).'''
+Snevrer også inn raden i B-13 om endret underkategori (05.10, #215). Spørsmålet kom fra kontrollen av PR #535 før merge. Før spørsmålet ble stilt, spurte oppdragsgiver: «Vet du hva - er det noen god grunn til å la TE endre kategori? Er det drøftet i kode eller tidligere PR? Det skaper mye rot» (#538). Kontrollen 16.10 av om trekket er sperret ved enighet om grunnlaget (KA-U13) og når kravene er avgjort (KA-U11), står i en kommentar på #538. Bygget 16.10 i PR #549 (#538 og #520): en ny grunnlagsversjon med en annen hovedkategori avvises med regelkoden ANNEN_HOVEDKATEGORI, og en annen underkategori avvises med ANNEN_VARSLINGSPLIKT når § 32.2 ikke gjelder likt for den og for forrige versjon. En journal som alt har et skifte, leses som før (MM-U18). PROJEKSJONSVERSJON 18.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Lås hovedkategori"
