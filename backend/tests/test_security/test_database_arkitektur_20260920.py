@@ -18,6 +18,8 @@ MIGRATIONS = [
     REPO_ROOT / "backend" / "migrations",
     REPO_ROOT / "supabase" / "migrations",
 ]
+# Migrasjonene i T-SQL for SQL Server (#53), anvendt av runneren i server/migrering.ts.
+SQLSERVER_MIGRASJONER = REPO_ROOT / "database" / "migrasjoner"
 
 # Alle 19 tabellene i public, kontrollert mot basen 2026-09-21 (notat kom til
 # med MS-05; de øvrige atten ble kontrollert 2026-09-20).
@@ -85,6 +87,19 @@ def _opprettede_tabeller() -> set[str]:
     return funnet
 
 
+def tabeller_i_sqlserver_migrasjonene() -> set[str]:
+    """Tabellene migrasjonene i SQL Server oppretter, kvalifisert med skjemaet (#558)."""
+    return {
+        f"{m.group('skjema')}.{m.group('navn')}".lower()
+        for fil in sorted(SQLSERVER_MIGRASJONER.glob("*.sql"))
+        for m in re.finditer(
+            r"CREATE\s+TABLE\s+\[?(?P<skjema>[a-z_][a-z0-9_]*)\]?\.\[?(?P<navn>[a-z_][a-z0-9_]*)\]?",
+            fil.read_text(encoding="utf-8"),
+            re.IGNORECASE,
+        )
+    }
+
+
 def test_hver_tabell_i_basen_opprettes_av_en_migrasjonsfil():
     opprettet = _opprettede_tabeller()
     mangler = [t for t in TABELLER_I_BASEN if t not in opprettet]
@@ -147,7 +162,8 @@ def test_kjerneskjemaet_kommer_for_projects_migrasjonen():
 
 
 def test_migrasjonsmappa_er_eneste_kilde():
-    """DA-03: all DDL skal ligge i supabase/migrations/.
+    """DA-03: all DDL skal ligge i supabase/migrations/ for PostgreSQL og i
+    database/migrasjoner/ for SQL Server (#53, #558).
 
     `backend/migrations/` var merket «legacy», men fire filer der var fortsatt
     nødvendige for å bygge basen — og to av dem måtte kjøres midt inne i
@@ -156,7 +172,7 @@ def test_migrasjonsmappa_er_eneste_kilde():
     """
     etterlatt = sorted((REPO_ROOT / "backend" / "migrations").glob("*.sql"))
     assert not etterlatt, (
-        "Disse SQL-filene ligger utenfor supabase/migrations/: "
+        "Disse SQL-filene ligger utenfor supabase/migrations/ og database/migrasjoner/: "
         f"{[f.name for f in etterlatt]}. Da er migrasjonsmappa ikke eneste "
         "kilde, og apply-rekkefølgen lar seg ikke lese av filnavnene."
     )

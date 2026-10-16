@@ -34,6 +34,16 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`eo_approvals`](#eo_approvals) | SQLite | transaksjon | i bruk | Ja | Nei |
 | [`vedlegg`](#vedlegg) | SQLite | transaksjon | i bruk | Ja | Nei |
 | [`catenda_delivery_status`](#catenda_delivery_status) | SQLite | teknisk | i bruk | Nei | Nei |
+| [`koe.app_users`](#koeapp_users) | SQL Server | grunndata | uavklart | Nei | Ja |
+| [`koe.app_identities`](#koeapp_identities) | SQL Server | grunndata | uavklart | Nei | Ja |
+| [`koe.projects`](#koeprojects) | SQL Server | grunndata | uavklart | Nei | Ja |
+| [`koe.app_project_memberships`](#koeapp_project_memberships) | SQL Server | grunndata, kopi | uavklart | Nei | Delvis |
+| [`koe.catenda_contract_teams`](#koecatenda_contract_teams) | SQL Server | grunndata | uavklart | Nei | Ja |
+| [`koe.sak_metadata`](#koesak_metadata) | SQL Server | transaksjon | uavklart | Ja | Nei |
+| [`koe.hendelse`](#koehendelse) | SQL Server | transaksjon | uavklart | Ja | Nei |
+| [`koe.notat`](#koenotat) | SQL Server | transaksjon | uavklart | Ja | Nei |
+| [`koe.leveringsoppdrag`](#koeleveringsoppdrag) | SQL Server | transaksjon | uavklart | Ja | Nei |
+| [`koe.kjernebuffer`](#koekjernebuffer) | SQL Server | avledet | uavklart | Nei | Nei |
 
 ## PostgreSQL
 
@@ -480,6 +490,178 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Skrives av | backend/services/catenda_delivery_status.py |
 | Funn | AR-03 |
 | Belegg | L 29.09: tabelldefinisjonen og kallerne i `event_routes`. |
+
+## SQL Server
+
+### `koe.app_users`
+
+Én rad per person. `id` er aktøren i journalen og notatet (AGENTS.md). Svarer til `app_users` i PostgreSQL.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en identitet sees. Ingen inngang i `server/` kaller den ennå (#53, del 3). |
+| Data fra Catenda | Delvis. Navn og e-post kommer fra Catenda-identiteten. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
+| Personopplysninger | Navn og e-post. |
+| Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`) |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.app_identities`
+
+Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda-identitet har issueren og subjektformen basen kontrollerer, så samme person ikke får to brukerrader (AGENTS.md).
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, sammen med brukeren. Ingen inngang i `server/` kaller den ennå (#53, del 3). |
+| Data fra Catenda | Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (provider, issuer, subject). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Subjektet identifiserer en person. |
+| Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`) |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.projects`
+
+Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standardverdi (AGENTS.md).
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Data fra Catenda | ikke kontrollert Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Ingen kjente. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.app_project_memberships`
+
+Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i PostgreSQL.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata, kopi |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Data fra Catenda | Ja, medlemslisten i Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (project_id, user_id); unik (project_id, catenda_subject). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | ikke kontrollert |
+| Personopplysninger | E-post og visningsnavn. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.catenda_contract_teams`
+
+Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `catenda_id()`-formen, som `aktor_team_id` i journalen.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Data fra Catenda | Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes i appen. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.aktor_team_id (uten fremmednøkkel); koe.notat.aktor_team_id (uten fremmednøkkel). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Ingen kjente. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.sak_metadata`
+
+Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sletting.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | transaksjon |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.sak_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | `created_by` peker på en bruker. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.hendelse`
+
+Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avviser endring og sletting. Teamet står bare når det er entydig (DL-U4).
+
+| Felt | Innhold |
+| --- | --- |
+| Type | transaksjon |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: sak_id → koe.sak_metadata.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.leveringsoppdrag.event_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel). |
+| Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
+| Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde personopplysninger. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.notat`
+
+Interne notater, skjermet på teamet (AGENTS.md). Ikke et kontraktsvarsel, og kan endres og slettes (MS-05).
+
+| Felt | Innhold |
+| --- | --- |
+| Type | transaksjon |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (notat_id). Viser til: sak_id → koe.sak_metadata.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `tekst` og `kommentar`. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.leveringsoppdrag`
+
+Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som brevet. Den sammensatte fremmednøkkelen holder det i brevets sak og prosjekt.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | transaksjon |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Data fra Catenda | Nei, men oppdraget gjelder en levering til Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: event_id → koe.hendelse.event_id (fremmednøkkel, ON DELETE NO ACTION); sak_id → koe.hendelse.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.hendelse.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.kjernebuffer`
+
+Visningen kjernen regner ut av journalen, med versjonene den er regnet med (B-10). Ingen regel og ingen bindende kommando leser den.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | avledet |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (sak_id). Viser til: sak_id → koe.sak_metadata.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | ja, fra journalen. |
+| Personopplysninger | Som journalen den er regnet fra. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
 ## Utenfor databasene
 
