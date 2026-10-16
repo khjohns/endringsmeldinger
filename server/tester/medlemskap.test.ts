@@ -87,7 +87,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         IF @kobling <> N'ingen'
           INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active)
           VALUES (@id, @catenda, IIF(@kobling = N'aktiv', 1, 0));`);
-    return { id, catenda };
+    return { id, catenda, catendaId: catenda.replaceAll('-', '') };
   }
 
   function synk(
@@ -447,7 +447,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       await synk(p1, [a], sekunder(-60));
       await synk(p2, [a, b], sekunder(-60));
       const hentet = await basensKlokke(kjoeretid.pool);
-      expect(await logginn(a.subjekt, [p1.catenda], hentet)).toEqual([p2.id]);
+      expect(await logginn(a.subjekt, [p1.catendaId], hentet)).toEqual([p2.id]);
       expect(await aktive(p1.id)).toEqual([a.subjekt]);
       expect(await aktive(p2.id)).toEqual([b.subjekt]);
       const rad = (await medlemskap(p2.id)).find((m) => m.catenda_subject === a.subjekt);
@@ -479,9 +479,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       const t = sekunder(-10);
       await synk(p2, [a], sekunder(-20));
       await synk(p1, [a], t);
-      await logginn(a.subjekt, [p2.catenda], t);
+      await logginn(a.subjekt, [p2.catendaId], t);
       expect(await aktive(p1.id)).toEqual([]);
-      await logginn(a.subjekt, [p1.catenda], t);
+      await logginn(a.subjekt, [p1.catendaId], t);
       await synk(p2, [a], t);
       expect(await aktive(p2.id)).toEqual([]);
     });
@@ -506,7 +506,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         .input('u', sql.NVarChar(100), uten.id).query(`
           UPDATE koe.catenda_project_configs SET is_active = 0 WHERE internal_project_id = @i;
           DELETE koe.catenda_project_configs WHERE internal_project_id = @u;`);
-      const endret = await logginn(a.subjekt, [aktiv.catenda], sekunder(-1));
+      const endret = await logginn(a.subjekt, [aktiv.catendaId], sekunder(-1));
       expect(endret.filter((id) => [aktiv.id, inaktiv.id, uten.id].includes(id))).toEqual([]);
       for (const p of [aktiv, inaktiv, uten]) expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
@@ -535,7 +535,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         const { a, annet } = await medBruker();
         const p = await prosjekt();
         const hentet = sekunder(-30);
-        expect(await logginn(a.subjekt, [annet.catenda], hentet)).not.toContain(p.id);
+        expect(await logginn(a.subjekt, [annet.catendaId], hentet)).not.toContain(p.id);
         expect(await fravaer(p.id)).toEqual([
           { catenda_subject: a.subjekt, observed_at: new Date(hentet.getTime()) },
         ]);
@@ -549,7 +549,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         const { a, annet } = await medBruker();
         const p = await prosjekt();
         const t = sekunder(-10);
-        await logginn(a.subjekt, [annet.catenda], t);
+        await logginn(a.subjekt, [annet.catendaId], t);
         expect(await synk(p, [a], t)).toBe(true);
         expect(await medlemskap(p.id)).toEqual([]);
       });
@@ -557,10 +557,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       it('en ny innlogging flytter tidspunktet fram, så en liste hentet mellom de to ikke gir medlemskap', async () => {
         const { a, annet } = await medBruker();
         const p = await prosjekt();
-        await logginn(a.subjekt, [annet.catenda], sekunder(-40));
+        await logginn(a.subjekt, [annet.catendaId], sekunder(-40));
         const hentet = sekunder(-20);
-        await logginn(a.subjekt, [annet.catenda], hentet);
-        await logginn(a.subjekt, [annet.catenda], sekunder(-50));
+        await logginn(a.subjekt, [annet.catendaId], hentet);
+        await logginn(a.subjekt, [annet.catendaId], sekunder(-50));
         expect((await fravaer(p.id))[0].observed_at.getTime()).toBe(hentet.getTime());
         expect(await synk(p, [a], sekunder(-30))).toBe(true);
         expect(await medlemskap(p.id)).toEqual([]);
@@ -574,7 +574,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
           await prosjekt(),
         ];
         await synk(nyere, [medlem()], sekunder(-10));
-        await logginn(a.subjekt, [annet.catenda, iListen.catenda], sekunder(-20));
+        await logginn(a.subjekt, [annet.catendaId, iListen.catendaId], sekunder(-20));
         for (const p of [iListen, inaktiv, nyere]) expect(await fravaer(p.id)).toEqual([]);
         expect(await synk(iListen, [a], sekunder(-30))).toBe(true);
         expect(await aktive(iListen.id)).toEqual([a.subjekt]);
@@ -583,8 +583,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       it('en liste som skrives, sletter radene hentet før den og beholder de nyere', async () => {
         const [{ a, annet: pa }, { a: b, annet: pb }] = [await medBruker(), await medBruker()];
         const p = await prosjekt();
-        await logginn(a.subjekt, [pa.catenda], sekunder(-40));
-        await logginn(b.subjekt, [pb.catenda], sekunder(-20));
+        await logginn(a.subjekt, [pa.catendaId], sekunder(-40));
+        await logginn(b.subjekt, [pb.catendaId], sekunder(-20));
         expect(await synk(p, [], sekunder(-30))).toBe(true);
         expect((await fravaer(p.id)).map((r) => r.catenda_subject)).toEqual([b.subjekt]);
       });
@@ -601,9 +601,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         52022,
       ],
       ['en Catenda-ID som ikke er en UUID', () => [subjekt(), ['abc'], sekunder(-1)], 52045],
+      ['en Catenda-ID med bindestreker', () => [subjekt(), [randomUUID()], sekunder(-1)], 52045],
       [
-        'en Catenda-ID uten bindestreker',
-        () => [subjekt(), [randomUUID().replaceAll('-', '')], sekunder(-1)],
+        'en Catenda-ID med store bokstaver',
+        () => [subjekt(), [randomUUID().replaceAll('-', '').toUpperCase()], sekunder(-1)],
         52045,
       ],
       [
