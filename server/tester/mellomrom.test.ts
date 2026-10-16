@@ -9,6 +9,7 @@
  */
 
 import { randomBytes, randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   avvisningMedMelding,
@@ -435,6 +436,42 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
   });
 });
 
+/** Fila fra repoets rot. */
+const lesFil = (sti: string) => readFileSync(new URL(`../../${sti}`, import.meta.url), 'utf8');
+
+/** `navn` i hver `[[hendelse]]` i et register i `docs/datamodell/`. */
+function hendelsesnavn(sti: string): string[] {
+  return lesFil(sti)
+    .split(/^\[\[/m)
+    .filter((blokk) => blokk.startsWith('hendelse]]'))
+    .map((blokk) => /^navn = "([^"]*)"$/m.exec(blokk)?.[1] ?? `${sti}: blokk uten navn`);
+}
+
+/** Verdiene i `class SaksType(str, Enum)` i Python. */
+function pythonsSakstyper(): string[] {
+  const klasse = /^class SaksType\(str, Enum\):\n([\s\S]*?)\n(?=\S)/m.exec(
+    lesFil('backend/models/sak_state.py')
+  );
+  return [...(klasse?.[1] ?? '').matchAll(/^ {4}[A-Z_]+ = "([^"]*)"$/gm)].map((t) => t[1]);
+}
+
+/**
+ * De kjente verdiene for kolonnene med den lukkede tegnklassen (#609): Pythons 34
+ * hendelsestyper (`hendelser.toml`, som pytest holder lik `EventType`), kjernens
+ * typer (`kjernehendelser.toml`, som `register.test.ts` holder lik kjernen) og
+ * sakstypene i Python og kjernen.
+ */
+const KJENTE_VERDIER: Record<string, string[]> = {
+  'koe.hendelse.event_type': [
+    ...hendelsesnavn('docs/datamodell/hendelser.toml'),
+    ...hendelsesnavn('docs/datamodell/kjernehendelser.toml'),
+  ],
+  'koe.sak_metadata.sakstype': [
+    ...pythonsSakstyper(),
+    /sakstype: \{ const: '([^']*)' \}/.exec(lesFil('kjerne/format/format.ts'))?.[1] ?? 'mangler',
+  ],
+};
+
 describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () => {
   let base: Testbase;
   let bruker: string;
@@ -788,6 +825,35 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
       'vakten utleder kravet selv; linjen i OGSAA_KONTROLL skal ut'
     ).toEqual([]);
     expect(uthulteKontroller(k)).toEqual([]);
+  });
+
+  it('kontrollsak: hver kjent hendelsestype og sakstype passer kontrollene på kolonnen i katalogen (#609)', async () => {
+    expect(KJENTE_VERDIER['koe.hendelse.event_type'].length).toBe(34 + 2);
+    expect(KJENTE_VERDIER['koe.sak_metadata.sakstype']).toEqual([
+      'standard',
+      'forsering',
+      'endringsordre',
+      'standard',
+    ]);
+    const kontroller = (await base.pool.request().query(KONTROLLER)).recordset;
+    for (const [kolonne, verdier] of Object.entries(KJENTE_VERDIER)) {
+      const [tabell, navn] = del(kolonne);
+      const egne = kontroller.filter((r) => r.tabell === tabell && r.kolonne === navn);
+      expect(egne.length, `${kolonne} har ingen kontroll`).toBeGreaterThan(0);
+      const vilkaar = egne
+        .map((r) => (r.definisjon as string).replaceAll(`[${navn}]`, '[v]'))
+        .join(' AND ');
+      const avvist = await base.pool
+        .request()
+        .input('verdier', sql.NVarChar(sql.MAX), JSON.stringify(verdier))
+        .query(
+          `SELECT v FROM OPENJSON(@verdier) WITH (v nvarchar(4000) '$') WHERE NOT (${vilkaar})`
+        );
+      expect(
+        avvist.recordset.map((r) => r.v),
+        `${kolonne}: verdien avvises av ${vilkaar}`
+      ).toEqual([]);
+    }
   });
 
   it('katalogvakten: hver funksjon i koe_sikkerhet har SCHEMABINDING, så kolonnene den leser, utledes', async () => {
