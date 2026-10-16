@@ -457,6 +457,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder hva',
   ],
   ['Kommando.varsel', 'kommando', 'sendt'],
+  // GR-U19: hovedkategorien i en ny grunnlagsversjon sammenliknes med gjeldende versjon.
+  ['Kommando.innhold', 'utsagn', 'hovedkategori', ['kommandoer/nyttelast.ts:kategorisperre']],
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
   ['Svarutkast', 'kommando', 'resultat', ['kommandoer/nyttelast.ts']],
   ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],

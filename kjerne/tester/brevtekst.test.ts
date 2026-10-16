@@ -1445,12 +1445,34 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold' },
     };
 
-    it('en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon (VS-U24, GR-U11)', () => {
+    /**
+     * Skiftet mellom svikt og endring kan ikke lenger sendes fra appen (GR-U19), så det
+     * står som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18).
+     */
+    const skifte = (s: ReturnType<typeof sak>, kommando: { innhold: Data }) => {
+      expect(s.avvist('TE', kommando)).toBe('ANNEN_HOVEDKATEGORI');
+      s.rad('TE', {
+        krav: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            erstatter: s.krav('grunnlag'),
+            hovedkategori: kommando.innhold.hovedkategori,
+            underkategori: kommando.innhold.underkategori,
+          },
+        ],
+        opplysninger: [
+          { id: randomUUID(), hva: 'sendt', dato: s.journal.at(-1)!.tidsstempel.slice(0, 10) },
+        ],
+      });
+    };
+
+    it('en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon (VS-U24, GR-U11, MM-U18)', () => {
       const tekstMed = (iTide: boolean) => {
         const s = sak();
         s.send('TE', svikt);
         s.send('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') });
-        s.send('TE', GRUNNLAGSKRAV);
+        skifte(s, GRUNNLAGSKRAV);
         return laast(
           s.send('BH', {
             type: 'brev',
@@ -1469,7 +1491,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(forSent).not.toContain('jf. innsigelsen');
     });
 
-    it('etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder (VS-U24, HF-U4, GR-U11)', () => {
+    it('etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder (VS-U24, HF-U4, GR-U11, MM-U18)', () => {
       const s = sak();
       s.send('TE', GRUNNLAGSKRAV);
       const foerste = s.krav('grunnlag');
@@ -1477,7 +1499,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         type: 'brev',
         svar: [svar('grunnlag', foerste, { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
       });
-      s.send('TE', svikt);
+      skifte(s, svikt);
       expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBeNull();
       expect(s.avvist('BH', { type: 'innsigelse', gjelder: foerste })).toBe('SAGT_I_TIDE');
     });
@@ -2504,6 +2526,27 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
       expect(s.avvist('BH', nyttSvar(s, 'grunnlag', avslaatt)), 'kontrollsak').toBeNull();
       expect(s.avvist('BH', nyttSvar(s, 'grunnlag', forSentGrunnlag))).toBe('SAGT_I_TIDE');
     });
+
+    it('«for sent» etter § 32.2 på en registrert versjon i svikt avvises av utregningen, ikke som «i tide» (#520, GR-U11, MM-U18)', () => {
+      const s = sakMedKrav();
+      brev(s, 'grunnlag', avslaatt);
+      s.rad('TE', {
+        krav: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            erstatter: s.krav('grunnlag'),
+            hovedkategori: 'svikt',
+            underkategori: 'grunnforhold',
+          },
+        ],
+      });
+      const uten = { resultat: 'avslaatt' };
+      expect(s.avvist('BH', nyttSvar(s, 'grunnlag', uten)), 'kontrollsak').toBeNull();
+      const { resultat } = utregnet(s, 'grunnlag', uten);
+      const medFelt = svar('grunnlag', s.krav('grunnlag'), forSentGrunnlag, resultat as Data);
+      expect(s.avvist('BH', { type: 'brev', svar: [medFelt] })).toBe('UGYLDIG_VURDERING');
+    });
   });
 
   describe('§ 34.1.2', () => {
@@ -2544,5 +2587,60 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
         s.avvist('BH', revisjon(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false }))
       ).toBe('SAGT_I_TIDE');
     });
+  });
+});
+
+/**
+ * GR-U19: en ny grunnlagsversjon beholder hovedkategorien, og underkategorien kan bare
+ * endres når § 32.2 gjelder likt før og etter. Kontrollsakene er arbeidsvalgene 16.10 i #538.
+ */
+describe('en ny grunnlagsversjon beholder kategorien (GR-U19)', () => {
+  const versjon = (innhold: Data) => ({
+    ...GRUNNLAGSKRAV,
+    innhold: { tittel: 'Ny peling', ...innhold },
+  });
+  const endringsordre = {
+    hovedkategori: 'endring',
+    underkategori: 'endringsordre',
+    endringsordre: 'EO-1',
+  };
+
+  it.each([
+    [
+      'irregulær endring til svikt',
+      null,
+      { hovedkategori: 'svikt', underkategori: 'grunnforhold' },
+      'ANNEN_HOVEDKATEGORI',
+    ],
+    ['irregulær endring til endringsordre', null, endringsordre, 'ANNEN_VARSLINGSPLIKT'],
+    [
+      'endringsordre til irregulær endring',
+      endringsordre,
+      GRUNNLAGSKRAV.innhold,
+      'ANNEN_VARSLINGSPLIKT',
+    ],
+    [
+      'irregulær endring til lovendring, der § 32.2 gjelder i begge',
+      null,
+      { hovedkategori: 'endring', underkategori: 'lovendring_gjenstand' },
+      null,
+    ],
+    [
+      'en ny endringsordre med uendret underkategori',
+      endringsordre,
+      { ...endringsordre, endringsordre: 'EO-2' },
+      null,
+    ],
+  ] as [string, Data | null, Data, string | null][])('%s', (_n, foerste, neste, regel) => {
+    const s = sak();
+    s.send('TE', foerste ? versjon(foerste) : GRUNNLAGSKRAV);
+    expect(s.avvist('TE', versjon(neste))).toBe(regel);
+  });
+
+  it('det første grunnlagskravet kan ha enhver kategori', () => {
+    const s = sak();
+    expect(
+      s.avvist('TE', versjon({ hovedkategori: 'svikt', underkategori: 'grunnforhold' }))
+    ).toBeNull();
   });
 });

@@ -11,6 +11,7 @@ import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
 import { datoFor, sammeSlag } from '../format/leser.ts';
+import { tekst } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
@@ -38,14 +39,6 @@ function kontrollerSvar(
       'ANNEN_REGELVERSJON',
       `Svaret er regnet ut med regelversjon ${s.regelversjon}, serveren bruker ${regler.versjon}.`
     );
-  const bundet = paaberopt(s, krav.id).find((r) => harSagtITide(u, s.spor, r));
-  if (bundet)
-    return avvis(
-      'SAGT_I_TIDE',
-      'gjelder' in bundet
-        ? 'Byggherren har i et svar sendt fra appen sagt at kravet ble spesifisert i tide etter § 33.6.1, og kan ikke nå påberope at det kom for sent (HF-U4).'
-        : `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
-    );
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
     return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);
@@ -62,6 +55,15 @@ function kontrollerSvar(
       return avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke regnes ut: ${feil.message}.`);
     throw feil;
   }
+  // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette.
+  const bundet = paaberopt(s, krav.id).find((r) => harSagtITide(u, s.spor, r));
+  if (bundet)
+    return avvis(
+      'SAGT_I_TIDE',
+      'gjelder' in bundet
+        ? 'Byggherren har i et svar sendt fra appen sagt at kravet ble spesifisert i tide etter § 33.6.1, og kan ikke nå påberope at det kom for sent (HF-U4).'
+        : `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
+    );
   const avvik = SAMMENLIKNES[s.spor].filter((f) => !likeResultatfelt(f, s.resultat[f], server[f]));
   if (avvik.length)
     return avvis(
@@ -151,6 +153,33 @@ function kravetsUtdypning(
 }
 
 /**
+ * GR-U19: en ny grunnlagsversjon beholder hovedkategorien i gjeldende versjon, og
+ * underkategorien kan bare endres når § 32.2 gjelder likt før og etter. Vil TE
+ * omklassifisere ut over det, trekkes kravet og sendes som en ny sak.
+ */
+function kategorisperre(
+  k: Extract<Kommando, { type: 'krav' }>,
+  u: Utledning,
+  regler: Regelsett
+): Avvisning | null {
+  const forrige = u.spor.grunnlag.gjeldendeKrav;
+  if (k.spor !== 'grunnlag' || !forrige) return null;
+  const foer = tekst(forrige.innhold.hovedkategori);
+  if (tekst(k.innhold.hovedkategori) !== foer)
+    return avvis(
+      'ANNEN_HOVEDKATEGORI',
+      `Kravet har hovedkategorien ${foer}, og en ny versjon kan ikke endre den. Vil TE omklassifisere, trekkes kravet og sendes som en ny sak (GR-U19).`
+    );
+  const gjaldt = gjelderVarslingsplikten(forrige, regler);
+  if (gjelderVarslingsplikten(k, regler) !== gjaldt)
+    return avvis(
+      'ANNEN_VARSLINGSPLIKT',
+      `§ 32.2 ${gjaldt ? 'gjelder' : 'gjelder ikke'} underkategorien i kravet, og en ny versjon kan ikke endre det. Vil TE omklassifisere, trekkes kravet og sendes som en ny sak (GR-U19).`
+    );
+  return null;
+}
+
+/**
  * KA-U34: en begrunnelse fra appen må ha teksten. Appen kontrollerer at den finnes,
  * ikke hva den sier (KA-U19). En registrert begrunnelse har ingen (KA-U35).
  */
@@ -189,6 +218,8 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
+      const sperre = kategorisperre(k, u, regler);
+      if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;
       const varsel = u.spor.frist.varsel;

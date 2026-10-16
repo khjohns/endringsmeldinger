@@ -2333,6 +2333,49 @@ const MUTASJONER: Mutasjon[] = [
       'etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder',
     ],
   },
+  {
+    id: 'F225',
+    feilklasse: 'en ny grunnlagsversjon med en annen hovedkategori godtas (GR-U19, #538)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (tekst(k.innhold.hovedkategori) !== foer)',
+        '  if (tekst(k.innhold.hovedkategori) !== foer && !u)',
+      ],
+    ],
+    mal: ['irregulær endring til svikt'],
+  },
+  {
+    id: 'F226',
+    feilklasse:
+      'en ny grunnlagsversjon der § 32.2 ikke gjelder likt før og etter, godtas (GR-U19, #538)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (gjelderVarslingsplikten(k, regler) !== gjaldt)',
+        '  if (gjelderVarslingsplikten(k, regler) !== gjaldt && !u)',
+      ],
+    ],
+    mal: [
+      'irregulær endring til endringsordre',
+      'endringsordre til irregulær endring',
+      'F-MM-G28',
+      'F-MM-G34',
+    ],
+  },
+  {
+    id: 'F227',
+    feilklasse:
+      'et felt som ikke gjelder kategorien, avvises som «i tide» før utregningen (#520, HF-U4)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);',
+        "  if (paaberopt(s, krav.id).some((r) => harSagtITide(u, s.spor, r)))\n    return avvis('SAGT_I_TIDE', '');\n  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);",
+      ],
+    ],
+    mal: ['på en registrert versjon i svikt avvises av utregningen'],
+  },
 ];
 
 interface Testresultat {
