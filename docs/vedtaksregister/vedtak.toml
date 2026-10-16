@@ -5575,6 +5575,38 @@ tekst = '''
 Deaktiveringen ved innlogging gjelder til neste synkronisering, uansett når listen ble hentet.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "DL-U9"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#625"]
+sporsmal = '''
+En bruker logger inn, og innloggingen viser at brukeren ikke er med i Catenda-prosjektet. Brukeren har aldri hatt medlemskap i prosjektet i appen. Så lagres en medlemsliste fra Catenda som ble hentet før innloggingen, og der står brukeren som medlem. Skal den listen gi brukeren et nytt medlemskap?'''
+valgt = "B"
+svar = '''
+«B: ikke nytt medlemskap (Anbefalt)»'''
+forhold = [{ art = "utvider", vedtak = "dl-u8" }, { art = "presiserer", vedtak = "dl-u7" }]
+folge = '''
+Presiserer B-04 punkt 1.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En medlemsliste som ble hentet før innloggingen, kan gi et nytt medlemskap til en bruker som ikke hadde noe medlemskap i prosjektet. Medlemskapet gjelder til neste medlemsliste.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Innloggingen er nyere enn en medlemsliste som ble hentet før innloggingen, også for en bruker som ikke hadde noe medlemskap i prosjektet. En slik liste gir ikke brukeren et nytt medlemskap.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Som B, men det bygges når innloggingen tas i bruk i den nye løsningen (#375). Til da gjelder A.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Premissene P1–P7"
 
