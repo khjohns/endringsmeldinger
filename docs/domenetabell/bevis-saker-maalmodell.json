@@ -324,18 +324,18 @@
     },
     {
       "id": "F-MM-A5b",
-      "forslag": "A, steg 5b",
+      "forslag": "A, steg 5b. Skiftet fra pålegg til endringsordre kan ikke sendes fra appen (GR-U19), så det står som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18)",
       "rader": ["GR-21", "GR-23", "GR-24"],
       "start": "forlop_a",
       "steg": [
-        { "handling": "krav", "spor": "grunnlag", "underkategori": "endringsordre", "navn": "K-g2" },
+        { "handling": "rad", "krav": true, "spor": "grunnlag", "underkategori": "endringsordre", "part": "TE", "navn": "K-g2" },
         { "handling": "brev", "navn": "D8", "svar": [{ "spor": "grunnlag", "navn": "S-g2", "resultat": "godkjent" }] }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U1", "GR-U7"],
+          "kilde": ["GR-U1", "GR-U7", "MM-U18"],
           "forventet": {
             "gjeldende_krav.grunnlag": "K-g2",
             "gjeldende_svar.grunnlag": null,
@@ -8455,7 +8455,7 @@
         "GR-02"
       ],
       "start": null,
-      "forslag": "V-215: endret underkategori fra IRREG til EO etter et svar som påberoper § 32.2. Svaret og § 32.2-vurderingen er ikke lenger gjeldende. Vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (GR-U1, som F-MM-G24), og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
+      "forslag": "V-215 og GR-U19: en ny versjon som endrer underkategorien fra IRREG til EO etter et svar som påberoper § 32.2, avvises, for § 32.2 gjelder ikke likt før og etter. Kontrollsaken er en annen underkategori som § 32.2 gjelder for. Skiftet står deretter som en registrert kravversjon fra TE (MM-U18): svaret og § 32.2-vurderingen er ikke lenger gjeldende, vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (GR-U1, som F-MM-G24), og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8504,7 +8504,14 @@
         {
           "handling": "krav",
           "spor": "grunnlag",
+          "underkategori": "endringsordre"
+        },
+        {
+          "handling": "rad",
+          "krav": true,
+          "spor": "grunnlag",
           "underkategori": "endringsordre",
+          "part": "TE",
           "navn": "K-g2"
         },
         {
@@ -8551,11 +8558,44 @@
           }
         },
         {
+          "etter": 4,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U19",
+            "GR-U1"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "valg_av_loesning"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
           "etter": 5,
           "rolle": "mal",
           "kilde": [
+            "GR-U19",
+            "NS-32.2-1",
+            "GR-U11"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ANNEN_VARSLINGSPLIKT",
+            "nye_hendelser": 0,
+            "gjeldende_krav.grunnlag": "K-g1",
+            "gjeldende_svar.grunnlag": "S-g1"
+          }
+        },
+        {
+          "etter": 6,
+          "rolle": "mal",
+          "kilde": [
             "V-215",
-            "GR-U1"
+            "GR-U1",
+            "MM-U18"
           ],
           "forventet": {
             "gjeldende_svar.grunnlag": null,
@@ -8576,7 +8616,7 @@
           }
         },
         {
-          "etter": 5,
+          "etter": 6,
           "rolle": "mal",
           "kilde": [
             "V-215",
@@ -8593,7 +8633,7 @@
           }
         },
         {
-          "etter": 6,
+          "etter": 7,
           "rolle": "mal",
           "kilde": [
             "V-B13-GRUNNLAG-AVSLATT",
@@ -9040,13 +9080,20 @@
         "GR-18"
       ],
       "start": "krav_irreg",
-      "forslag": "V-B13-FRAFALL: frafall er svar på et pålegg. Når TE har endret grunnlaget til endringsordre, avvises frafallet. Kontrollsakene er frafallet før endringen og et godkjent grunnlag etter den, uten vurdering etter § 32.2 som målprøven",
+      "forslag": "GR-U19 og V-B13-FRAFALL: en ny versjon som endrer grunnlaget fra pålegg til endringsordre, avvises, for § 32.2 gjelder ikke likt før og etter, og frafallet godtas fortsatt. Kontrollsaken er en annen underkategori som § 32.2 gjelder for. Står skiftet som en registrert kravversjon fra TE (MM-U18), avvises frafallet, for frafall er svar på et pålegg. Kontrollsakene er frafallet før endringen og et godkjent grunnlag etter den, uten vurdering etter § 32.2 som målprøven",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "krav",
           "spor": "grunnlag",
+          "underkategori": "endringsordre"
+        },
+        {
+          "handling": "rad",
+          "krav": true,
+          "spor": "grunnlag",
           "underkategori": "endringsordre",
+          "part": "TE",
           "navn": "K-g2"
         }
       ],
@@ -9072,12 +9119,63 @@
           }
         },
         {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U19"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "valg_av_loesning"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
           "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U19",
+            "NS-32.2-1",
+            "GR-U11"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ANNEN_VARSLINGSPLIKT",
+            "nye_hendelser": 0,
+            "gjeldende_krav.grunnlag": "K-g1"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "V-B13-FRAFALL"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "paalegg_frafalt",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
           "rolle": "mal",
           "kilde": [
             "V-B13-FRAFALL",
             "NS-32.1",
-            "NS-32.3-1c"
+            "NS-32.3-1c",
+            "MM-U18"
           ],
           "prov": {
             "handling": "brev",
@@ -9094,7 +9192,7 @@
           }
         },
         {
-          "etter": 1,
+          "etter": 2,
           "rolle": "kontroll",
           "kilde": [
             "NS-32.1"

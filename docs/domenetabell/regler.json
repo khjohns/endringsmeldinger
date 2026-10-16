@@ -517,6 +517,13 @@
       "radetikett": "GR-U18: Frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget"
     },
     {
+      "id": "GR-U19",
+      "type": "vedtak",
+      "dato": "2026-10-16",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u19",
+      "radetikett": "GR-U19: En ny grunnlagsversjon beholder hovedkategorien, og underkategorien kan bare endres når § 32.2 gjelder likt før og etter"
+    },
+    {
       "id": "KA-U14",
       "type": "vedtak",
       "dato": "2026-10-10",
@@ -1373,13 +1380,15 @@
     },
     {
       "id": "GR-02",
-      "tilfelle": "TE endrer underkategorien fra pålegg (IRREG) til endringsordre (EO) etter et svar som påberoper preklusjon etter § 32.2, og byggherren godkjenner deretter grunnlaget.",
-      "forventet": "Svaret og § 32.2-vurderingen er ikke lenger gjeldende. TE kan ikke godta det. Vederlag og frist forblir subsidiære til grunnlaget besvares, med årsakene fra grunnlagssvaret de ble regnet mot, også § 32.2-vurderingen. Når grunnlaget godkjennes, er grunnlaget avklart og vederlag og frist prinsipalt godkjent. Kravene er avgjort, og saken kan inngå i en endringsordre.",
-      "bh_standpunkt": "Først prinsipalt prekludert, subsidiært godkjent. Etter det nye svaret: godkjent grunnlag, og de subsidiære standpunktene får virkning.",
-      "rettslig_virkning": "Det subsidiære standpunktet får virkning når grunnlaget godkjennes.",
-      "rettidighet": "Byggherrens § 32.2-vurdering gjelder ikke lenger grunnlaget. Den står som årsak til de subsidiære svarene på vederlag og frist til grunnlaget besvares igjen (GR-U1). Med EO gjelder ikke § 32.2 (GR-U11).",
+      "tilfelle": "TE sender en ny grunnlagsversjon som endrer underkategorien fra pålegg (IRREG) til endringsordre (EO), etter et svar som påberoper preklusjon etter § 32.2.",
+      "forventet": "Kravversjonen avvises, og journalen er uendret: § 32.2 gjelder IRREG, men ikke EO, og underkategorien kan bare endres når § 32.2 gjelder likt før og etter. Vil TE omklassifisere, trekker TE kravet og sender en ny sak. En ny versjon med en annen underkategori som § 32.2 gjelder for, godtas. Står skiftet i journalen som en registrert kravversjon fra TE (MM-U18), er svaret og § 32.2-vurderingen ikke lenger gjeldende, og TE kan ikke godta det. Vederlag og frist forblir da subsidiære til grunnlaget besvares, med årsakene fra grunnlagssvaret de ble regnet mot, også § 32.2-vurderingen. Når grunnlaget godkjennes, er grunnlaget avklart og vederlag og frist prinsipalt godkjent. Kravene er avgjort, og saken kan inngå i en endringsordre.",
+      "bh_standpunkt": "Prinsipalt prekludert, subsidiært godkjent, og svaret står. Med skiftet registrert: etter det nye svaret godkjent grunnlag, og de subsidiære standpunktene får virkning.",
+      "rettslig_virkning": "Grunnlaget beholder underkategorien. Med skiftet registrert får det subsidiære standpunktet virkning når grunnlaget godkjennes.",
+      "rettidighet": "Byggherrens § 32.2-vurdering står. Med skiftet registrert gjelder den ikke lenger grunnlaget, men står som årsak til de subsidiære svarene på vederlag og frist til grunnlaget besvares igjen (GR-U1). Med EO gjelder ikke § 32.2 (GR-U11).",
       "tidsakse": "registrering",
       "kilder": [
+        "GR-U19",
+        "MM-U18",
         "V-215",
         "GR-U1",
         "V-B13-GRUNNLAG-AVSLATT",
@@ -1390,11 +1399,13 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
+        "kjerne/kommandoer/nyttelast.ts#kategorisperre",
         "kjerne/utledning/utled.ts#utledSporene",
         "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget",
         "kjerne/utledning/utled.ts#kanInngaaIEo"
       ],
       "regelkoder": [
+        "ANNEN_VARSLINGSPLIKT",
         "IKKE_GJELDENDE_SVAR"
       ]
     },
@@ -1708,13 +1719,15 @@
     },
     {
       "id": "GR-18",
-      "tilfelle": "TE har endret grunnlaget fra pålegg (IRREG) til endringsordre (EO), og byggherren svarer «frafalt».",
-      "forventet": "Svaret avvises, og journalen er uendret.",
+      "tilfelle": "TE sender en ny grunnlagsversjon som endrer underkategorien fra pålegg (IRREG) til endringsordre (EO), før byggherren har svart, og byggherren svarer deretter «frafalt».",
+      "forventet": "Kravversjonen avvises, og journalen er uendret: § 32.2 gjelder IRREG, men ikke EO, og underkategorien kan bare endres når § 32.2 gjelder likt før og etter. Vil TE omklassifisere, trekker TE kravet og sender en ny sak. Frafallet av pålegget godtas da. Står skiftet i journalen som en registrert kravversjon fra TE (MM-U18), avvises frafallet, og journalen er uendret.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Svarvalgene i 32.3, også frafall, gjelder et varsel etter 32.2 om et pålegg etter 32.1. Et grunnlag med endringsordre har ikke noe pålegg å frafalle.",
+      "rettslig_virkning": "Grunnlaget beholder underkategorien. Svarvalgene i 32.3, også frafall, gjelder et varsel etter 32.2 om et pålegg etter 32.1. Et grunnlag med endringsordre har ikke noe pålegg å frafalle.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "GR-U19",
+        "MM-U18",
         "GR-U18",
         "V-B13-FRAFALL",
         "NS-32.1",
@@ -1722,11 +1735,13 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
+        "kjerne/kommandoer/nyttelast.ts#kategorisperre",
         "kjerne/frosset/standpunkt.ts#regnUtSvar",
         "kjerne/regler/grunnlag.ts#gyldigeResultater",
         "kjerne/regler/grunnlag.ts#erByggherrensPaalegg"
       ],
       "regelkoder": [
+        "ANNEN_VARSLINGSPLIKT",
         "UGYLDIG_VURDERING"
       ]
     },
@@ -2898,6 +2913,7 @@
   "koder_uten_rad": {
     "ALLEREDE_SVART": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "ANNEN_BREVTEKST": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "ANNEN_HOVEDKATEGORI": "En ny grunnlagsversjon med en annen hovedkategori enn gjeldende versjon (GR-U19). Ingen rad sier avvisningen ennå; `kjerne/tester/brevtekst.test.ts` prøver den.",
     "ANNET_RESULTAT": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "BESKRIVELSE_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "BREVTEKST_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
