@@ -342,7 +342,7 @@ const MUTASJONER: Mutasjon[] = [
         "if (h.spor === 'grunnlag' && trekkAvGrunnlagetErSperret(u) && u.frafalt)",
       ],
     ],
-    mal: ['F-MM-G10', 'F-MM-G18', 'F-MM-G20'],
+    mal: ['F-MM-G10', 'F-MM-T3'],
   },
   {
     id: 'F24',
@@ -843,26 +843,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-M2'],
   },
   {
-    id: 'F73',
-    feilklasse: 'trekket godtas når appen ikke kan bevare byggherrens avtalte rettigheter (KA-U22)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        '      if (trekkKanIkkeBevareAvtalen(u, h.spor))',
-        '      if (!u && trekkKanIkkeBevareAvtalen(u, h.spor))',
-      ],
-    ],
-    mal: ['F-MM-T1'],
-  },
-  {
-    id: 'F74',
-    feilklasse:
-      'sperren i KA-U22 dekker ikke trekket av grunnlaget, som trekker vederlag og frist med seg',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [["  (spor === 'grunnlag' ? SPOR : [spor]).some(", '  [spor].some(']],
-    mal: ['F-MM-T1'],
-  },
-  {
     id: 'F75',
     feilklasse:
       'en merking endrer om godkjenningen er en endringsordre, i stedet for å gi sperren (KA-U26, KA-U28)',
@@ -1031,19 +1011,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-IK5', 'F-MM-IK5b'],
   },
   {
-    id: 'F94',
-    feilklasse:
-      'trekket av grunnlaget slår fast at en merket godkjenning er en endringsordre (KA-U26)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        "        return u.endringsordre === 'ikke_avklart' || godkjenningenErMerket(u)",
-        "        return u.endringsordre === 'ikke_avklart'",
-      ],
-    ],
-    mal: ['F-MM-M5', 'F-MM-T2'],
-  },
-  {
     id: 'F95',
     feilklasse:
       'art og part kontrolleres ikke når målet for en innsigelse er uten virkning (VS-U1, VS-U14)',
@@ -1068,19 +1035,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-M6', 'F-MM-M6b'],
-  },
-  {
-    id: 'F97',
-    feilklasse:
-      'en merking av et annet brev i grunnlaget gjør godkjenningen fra appen uavklart ved trekk (KA-U26, KA-U13)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '  u.spor.grunnlag.merket.includes(u.spor.grunnlag.gjeldendeSvar.dokument);',
-        '  u.spor.grunnlag.forbehold;',
-      ],
-    ],
-    mal: ['F-MM-T3'],
   },
   {
     id: 'F98',
@@ -1149,19 +1103,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-U326l', 'F-MM-U326m'],
-  },
-  {
-    id: 'F104',
-    feilklasse:
-      'en merking i ett spor sperrer trekk av en enighet i et annet spor (KA-U30, KA-U26)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '    (n) => u.spor[n].enighet !== null && u.spor[n].forbehold',
-        '    (n) => u.spor[n].enighet !== null && SPOR.some((m) => u.spor[m].forbehold)',
-      ],
-    ],
-    mal: ['F-MM-T4'],
   },
   {
     id: 'F105',
@@ -2335,28 +2276,27 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F225',
-    feilklasse: 'en ny grunnlagsversjon med en annen hovedkategori godtas (GR-U19, #538)',
+    feilklasse: 'en ny grunnlagsversjon med en annen hjemmel godtas (GR-U22, #569)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  if (tekst(k.innhold.hovedkategori) !== foer)',
-        '  if (tekst(k.innhold.hovedkategori) !== foer && !u)',
+        "  if (k.spor !== 'grunnlag' || !forrige) return null;",
+        "  if (k.spor !== 'grunnlag' || !forrige || u) return null;",
       ],
     ],
-    mal: ['irregulær endring til svikt'],
+    mal: ['irregulær endring til svikt', 'svikt til andre forhold', 'F-MM-G39'],
   },
   {
     id: 'F226',
     feilklasse:
-      'en ny grunnlagsversjon der § 32.2 ikke gjelder likt før og etter, godtas (GR-U19, #538)',
+      'en ny grunnlagsversjon med en annen underkategori i samme hovedkategori godtas (GR-U22, #569)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      [
-        '  if (gjelderVarslingsplikten(k, regler) !== gjaldt)',
-        '  if (gjelderVarslingsplikten(k, regler) !== gjaldt && !u)',
-      ],
+      ['    tekst(k.innhold.underkategori) === tekst(forrige.innhold.underkategori)', '    true'],
     ],
     mal: [
+      'grunnforhold til medvirkning, i samme hovedkategori',
+      'irregulær endring til lovendring, der § 32.2 gjelder i begge',
       'irregulær endring til endringsordre',
       'endringsordre til irregulær endring',
       'F-MM-G28',
@@ -2387,7 +2327,7 @@ const MUTASJONER: Mutasjon[] = [
         "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u) && !u)",
       ],
     ],
-    mal: ['en revisjon fra frafall til avslag avvises', 'F-MM-G37', 'F-MM-G38', 'F-MM-G39'],
+    mal: ['en revisjon fra frafall til avslag avvises', 'F-MM-G37', 'F-MM-G38'],
   },
   {
     id: 'F229',
@@ -2411,11 +2351,7 @@ const MUTASJONER: Mutasjon[] = [
         "    (s) =>\n      grunnlagssvaret(s, 'paalegg_frafalt') &&\n      s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id &&\n      !u.elementer[s.dokument]?.registrertBrev",
       ],
     ],
-    mal: [
-      'byggherren kan svare med frafall eller endringsordre, ikke med avslag',
-      'F-MM-G38',
-      'F-MM-G39',
-    ],
+    mal: ['byggherren kan svare med frafall eller endringsordre, ikke med avslag', 'F-MM-G38'],
   },
   {
     id: 'F231',
@@ -2467,6 +2403,58 @@ const MUTASJONER: Mutasjon[] = [
       'svaret på versjon 2 avvises (GR-U24',
       'merket brev, vises saken heller ikke som ventende',
     ],
+  },
+  {
+    id: 'F236',
+    feilklasse:
+      'en endringsordre byggherren har registrert, sperrer TEs trekk av grunnlaget (OV-U6, #540)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "  return u.endringsordre === 'ja' && !!svar && !u.elementer[svar.dokument]?.registrertBrev;",
+        "  return u.endringsordre === 'ja' && !!svar;",
+      ],
+    ],
+    mal: ['F-MM-G43', 'F-MM-G18'],
+  },
+  {
+    id: 'F237',
+    feilklasse:
+      'en registrert godkjenning sperrer TEs trekk av grunnlaget, også uten opplysningen om § 31.3, som før #540 (OV-U4, OV-U6)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "  return u.endringsordre === 'ja' && !!svar && !u.elementer[svar.dokument]?.registrertBrev;",
+        "  return u.endringsordre !== 'nei' && !!svar;",
+      ],
+    ],
+    mal: ['F-MM-G20', 'F-MM-G22', 'F-MM-G43'],
+  },
+  {
+    id: 'F238',
+    feilklasse:
+      'en merking av et registrert brev sperrer TEs trekk som rammer en enighet, som før #587 (OV-U4, OV-U7)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');",
+        "      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');\n      if ((h.spor === 'grunnlag' ? (['grunnlag', 'vederlag', 'frist'] as const) : [h.spor]).some((n) => u.spor[n].enighet !== null && u.spor[n].forbehold)) return avvis('AVTALE_KAN_IKKE_BEVARES', '');",
+      ],
+    ],
+    mal: ['F-MM-T1', 'F-MM-T2', 'F-MM-M5', 'F-MM-T4', 'F-MM-T5'],
+  },
+  {
+    id: 'F239',
+    feilklasse:
+      'en registrert godkjenning uten opplysningen om § 31.3 vises som et uavklart utfall, som før #587 (OV-U4)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "    if (u.grunnlagAvklart) ut.push('avklart');",
+        "    if (u.grunnlagAvklart) ut.push('avklart');\n    if (u.endringsordre === 'ikke_avklart') ut.push('endringsordre_ikke_avklart');",
+      ],
+    ],
+    mal: ['F-MM-G20'],
   },
 ];
 

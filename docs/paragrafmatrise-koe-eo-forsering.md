@@ -202,8 +202,8 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   `FRAFALL_KAN_IKKE_GODTAS` og `GRUNNLAG_AVVIST` i
   [`forutsetninger.ts`](../kjerne/kommandoer/forutsetninger.ts). KA-U16 og KA-U20 er
   bygget med merkingen `kan_ikke_uttrykkes` (se «Kravversjon, aksept og enighet»): en
-  merket godkjenning der § 32.2 gjelder, gir `endringsordre` lik `ikke_avklart`, så
-  trekket av grunnlaget er sperret. En hendelse som strider mot enigheten, leses etter
+  merking sperrer ikke trekket
+  ([OV-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u7), #587). En hendelse som strider mot enigheten, leses etter
   [MM-U18](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u18) (`strid` i
   [`utled.ts`](../kjerne/utledning/utled.ts), #326).
 
@@ -293,11 +293,10 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   grunnlagssvaret som sist gjaldt: gjeldende svar på den seneste besvarte versjonen i
   kravkjeden, fra og med versjonen svaret ble regnet mot, også ved flere svar på samme
   versjon. Sperren i
-  [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22) er bygget for en
-  enighet som bygger på et merket brev, når merkingen gjelder sporet enigheten gjelder
-  ([KA-U30](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u30);
-  `trekkKanIkkeBevareAvtalen`, `AVTALE_KAN_IKKE_BEVARES`). Et fradrag avvises fordi KA-U9 ikke er bygget, og sperren
-  må dekke et avtalt fradrag når det bygges. Brevteksten står i «Brevteksten» under.
+  [KA-U22](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22) er ikke bygget. En
+  merking av et registrert brev gir ingen sperre i første versjon
+  ([OV-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u7), #587). Et fradrag
+  avvises fordi KA-U9 ikke er bygget, og sperren bygges med fradraget. Brevteksten står i «Brevteksten» under.
 - **Arbeidsvalg 11.10 (#342, prinsipp 3, GR-U1, GR-U4):** relasjonen er
   grunnlagsversjonen svaret ble regnet mot, ikke grunnlagssvaret, så et nytt eller
   revidert svar på samme versjon gjelder uten at svaret på vederlag eller frist skrives

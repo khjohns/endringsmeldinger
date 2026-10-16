@@ -163,30 +163,20 @@ function kravetsUtdypning(
 }
 
 /**
- * GR-U19: en ny grunnlagsversjon beholder hovedkategorien i gjeldende versjon, og
- * underkategorien kan bare endres når § 32.2 gjelder likt før og etter. Vil TE
- * omklassifisere ut over det, trekkes kravet og sendes som en ny sak.
+ * GR-U22: når grunnlaget er sendt, står hjemmelen, hovedkategorien og underkategorien.
+ * En ny versjon med samme hjemmel kan for eksempel rette endringsordrens dato eller
+ * nummer (GR-U16). Om det er samme forhold, avgjør ikke appen (MM-U12).
  */
-function kategorisperre(
-  k: Extract<Kommando, { type: 'krav' }>,
-  u: Utledning,
-  regler: Regelsett
-): Avvisning | null {
+function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   const forrige = u.spor.grunnlag.gjeldendeKrav;
   if (k.spor !== 'grunnlag' || !forrige) return null;
-  const foer = tekst(forrige.innhold.hovedkategori);
-  if (tekst(k.innhold.hovedkategori) !== foer)
-    return avvis(
-      'ANNEN_HOVEDKATEGORI',
-      `Kravet har hovedkategorien ${foer}, og en ny versjon kan ikke endre den. Vil TE omklassifisere, trekkes kravet og sendes som en ny sak (GR-U19).`
-    );
-  const gjaldt = gjelderVarslingsplikten(forrige, regler);
-  if (gjelderVarslingsplikten(k, regler) !== gjaldt)
-    return avvis(
-      'ANNEN_VARSLINGSPLIKT',
-      `§ 32.2 ${gjaldt ? 'gjelder' : 'gjelder ikke'} underkategorien i kravet, og en ny versjon kan ikke endre det. Vil TE omklassifisere, trekkes kravet og sendes som en ny sak (GR-U19).`
-    );
-  return null;
+  return tekst(k.innhold.hovedkategori) === tekst(forrige.innhold.hovedkategori) &&
+    tekst(k.innhold.underkategori) === tekst(forrige.innhold.underkategori)
+    ? null
+    : avvis(
+        'ANNEN_HJEMMEL',
+        'Grunnlaget er sendt, og en ny versjon kan ikke endre hovedkategorien eller underkategorien (GR-U22).'
+      );
 }
 
 /**
@@ -228,7 +218,7 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const sperre = kategorisperre(k, u, regler);
+      const sperre = kategorisperre(k, u);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;

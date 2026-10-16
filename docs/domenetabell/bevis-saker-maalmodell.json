@@ -324,7 +324,7 @@
     },
     {
       "id": "F-MM-A5b",
-      "forslag": "A, steg 5b. Skiftet fra pålegg til endringsordre kan ikke sendes fra appen (GR-U19), så det står som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18)",
+      "forslag": "A, steg 5b. Skiftet fra pålegg til endringsordre kan ikke sendes fra appen (GR-U22), så det står som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18)",
       "rader": ["GR-21", "GR-23", "GR-24"],
       "start": "forlop_a",
       "steg": [
@@ -2093,7 +2093,7 @@
       "id": "F-MM-G18",
       "rader": ["GR-28"],
       "start": "krav_irreg",
-      "forslag": "GR-U12 og § 31.3: registrert korrespondanse der byggherren godkjenner grunnlaget uten å si noe om varslingen, og den som registrerer oppgir at § 31.3 er oppfylt, er en endringsordre",
+      "forslag": "GR-U12 og § 31.3: registrert korrespondanse der byggherren godkjenner grunnlaget uten å si noe om varslingen, og den som registrerer oppgir at § 31.3 er oppfylt, er en endringsordre. Den sperrer ikke trekket av grunnlaget (OV-U6)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2126,15 +2126,49 @@
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "opplysning.D4#endringsordre.oppfylt": true,
             "endringsordre": "ja",
-            "handlinger.TE": { "mangler": ["trekke:grunnlag"] }
+            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U13", "KA-U14"],
+          "kilde": ["OV-U6", "OV-U4"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "GRUNNLAG_ER_ENDRINGSORDRE" }
+          "forventet": { "avvist": false }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G43",
+      "rader": ["GR-29"],
+      "start": "krav_irreg",
+      "forslag": "OV-U6: TE trekker grunnlaget etter at byggherren har registrert sin endringsordre som godkjenning. Trekket godtas og rammer alle sporene (GR-U5). Sendt fra appen sperrer samme godkjenning trekket (F-MM-G10)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "godkjent",
+          "sendt": "2026-09-30",
+          "endringsordre": true
+        },
+        { "handling": "trekk", "spor": "grunnlag", "navn": "D5" }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["GR-U13", "OV-U6"],
+          "forventet": { "endringsordre": "ja", "enighet.grunnlag.kilde": "sammenfall" }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["OV-U6", "OV-U4", "GR-U5"],
+          "forventet": { "avvist": false, "trukket.grunnlag": true, "trukket.vederlag": true }
         }
       ]
     },
@@ -2239,7 +2273,7 @@
       "id": "F-MM-G20",
       "rader": ["GR-29"],
       "start": "krav_irreg",
-      "forslag": "GR-U13 og KA-U14: uten opplysningen om § 31.3 er det ikke avklart om registrert korrespondanse er en endringsordre, og trekket av grunnlaget er sperret til det er avklart",
+      "forslag": "GR-U13: uten opplysningen om § 31.3 er det ikke avklart om registrert korrespondanse er en endringsordre. Et registrert brev gir ingen sperre og intet uavklart utfall i visningen, så TE kan trekke grunnlaget (OV-U4, OV-U6)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2263,22 +2297,22 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U13", "GR-U12"],
+          "kilde": ["GR-U13", "GR-U12", "OV-U4"],
           "forventet": {
             "forstaatt": true,
             "enighet.grunnlag.kilde": "sammenfall",
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "opplysning.D4#endringsordre": null,
             "endringsordre": "ikke_avklart",
-            "visning.etiketter.grunnlag": { "inneholder": ["endringsordre_ikke_avklart"] }
+            "visning.etiketter.grunnlag": { "mangler": ["endringsordre_ikke_avklart"] }
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U14", "GR-U13"],
+          "kilde": ["OV-U4", "OV-U6"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
+          "forventet": { "avvist": false }
         }
       ]
     },
@@ -2325,7 +2359,7 @@
       "id": "F-MM-G22",
       "rader": ["GR-29"],
       "start": "krav_irreg",
-      "forslag": "MM-U12 og KA-U14: en senere avklaring av at registrert korrespondanse ikke var en endringsordre, opphever sperren, uten at brevet skrives om",
+      "forslag": "MM-U12 og OV-U4: en senere avklaring av at registrert korrespondanse ikke var en endringsordre, skriver ikke brevet om. Trekket av grunnlaget godtas før og etter avklaringen, fordi et registrert brev ikke gir noen sperre (OV-U6)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2344,9 +2378,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U14", "GR-U13"],
+          "kilde": ["OV-U4", "OV-U6"],
           "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": true, "regel": "ENDRINGSORDRE_IKKE_AVKLART" }
+          "forventet": { "avvist": false }
         },
         {
           "etter": 2,
@@ -3560,7 +3594,7 @@
         "KA-34"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "KA-U22: trekket avvises når en enighet trekket rammer, bygger på et merket brev, også trekket av grunnlaget",
+      "forslag": "OV-U7: en merking av et registrert brev sperrer ikke trekket, heller ikke av grunnlaget, og heller ikke før merkingen er avklart. Sperren i KA-U22 bygges ikke for merkingen i første versjon (OV-U4)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3608,13 +3642,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": [
-            "KA-U22",
-            "KA-U20"
-          ],
+          "kilde": ["OV-U7", "OV-U4"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -3624,13 +3654,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": [
-            "KA-U22",
-            "KA-U14"
-          ],
+          "kilde": ["OV-U7", "OV-U4"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -3660,7 +3686,7 @@
         "KA-32"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U16, KA-U20 og KA-U26: en merket godkjenning av grunnlaget som er en endringsordre, leses som før, og trekket av grunnlaget sperres",
+      "forslag": "KA-U16, KA-U20 og KA-U26: en merket godkjenning av grunnlaget som er en endringsordre, leses som før. Verken endringsordren (OV-U6) eller merkingen (OV-U4, OV-U7) sperrer trekket",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3695,13 +3721,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": [
-            "KA-U26",
-            "KA-U13"
-          ],
+          "kilde": ["OV-U6", "OV-U4", "OV-U7"],
           "forventet": {
-            "avvist": true,
-            "regel": "ENDRINGSORDRE_IKKE_AVKLART"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -4839,7 +4861,7 @@
         "KA-32"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U26 og KA-U28: en senere merking av en godkjenning som er en endringsordre, endrer ikke utfallet, men sperrer trekket av grunnlaget",
+      "forslag": "KA-U26 og KA-U28: en senere merking av en godkjenning som er en endringsordre, endrer ikke utfallet. Verken endringsordren (OV-U6) eller merkingen (OV-U4, OV-U7) sperrer trekket",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4900,13 +4922,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": [
-            "KA-U26",
-            "KA-U13"
-          ],
+          "kilde": ["OV-U6", "OV-U4", "OV-U7"],
           "forventet": {
-            "avvist": true,
-            "regel": "ENDRINGSORDRE_IKKE_AVKLART"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -6097,7 +6115,7 @@
         "KA-34"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U30: et brev med enighet om grunnlaget og vederlaget er merket bare for grunnlaget; trekket av vederlaget godtas, trekket av grunnlaget avvises",
+      "forslag": "KA-U30: et brev med enighet om grunnlaget og vederlaget er merket bare for grunnlaget. Merkingen sperrer ikke trekket av vederlaget eller av grunnlaget (OV-U4, OV-U7)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6170,13 +6188,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": [
-            "KA-U27",
-            "KA-U30"
-          ],
+          "kilde": ["OV-U7", "OV-U4"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -6191,7 +6205,7 @@
         "KA-34"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U27 og KA-U30: et brev merket for grunnlaget og vederlaget sperrer trekket av vederlaget",
+      "forslag": "KA-U27 og KA-U30: et brev merket for grunnlaget og vederlaget sperrer ikke trekket av vederlaget (OV-U4, OV-U7)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6238,13 +6252,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": [
-            "KA-U27",
-            "KA-U30"
-          ],
+          "kilde": ["OV-U7", "OV-U4"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -8363,13 +8373,13 @@
         "GR-03"
       ],
       "start": "forlop_a_brev",
-      "forslag": "V-215: endret underkategori etter et avslag på grunnlaget åpner sporet. Svaret står i journalen, vederlag og frist forblir subsidiære, og aksepten av det forrige svaret avvises (KA-U1)",
+      "forslag": "GR-U1: en ny grunnlagsversjon med samme hjemmel etter et avslag på grunnlaget åpner sporet (GR-U22). Svaret står i journalen, vederlag og frist forblir subsidiære, og aksepten av det forrige svaret avvises (KA-U1)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "krav",
           "spor": "grunnlag",
-          "underkategori": "valg_av_loesning",
+          "underkategori": "irregulaer_endring",
           "navn": "K-g2"
         }
       ],
@@ -8409,7 +8419,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "V-215"
+            "GR-U1"
           ],
           "forventet": {
             "avvist": false,
@@ -8435,7 +8445,7 @@
           "rolle": "mal",
           "kilde": [
             "KA-U1",
-            "V-215"
+            "GR-U1"
           ],
           "prov": {
             "handling": "aksept",
@@ -8455,7 +8465,7 @@
         "GR-02"
       ],
       "start": null,
-      "forslag": "V-215 og GR-U19: en ny versjon som endrer underkategorien fra IRREG til EO etter et svar som påberoper § 32.2, avvises, for § 32.2 gjelder ikke likt før og etter. Kontrollsaken er en annen underkategori som § 32.2 gjelder for. Skiftet står deretter som en registrert kravversjon fra TE (MM-U18): svaret og § 32.2-vurderingen er ikke lenger gjeldende, vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (GR-U1, som F-MM-G24), og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
+      "forslag": "GR-U22: en ny versjon som endrer underkategorien fra IRREG til EO etter et svar som påberoper § 32.2, avvises, og det gjør også en annen underkategori som § 32.2 gjelder for. Kontrollsaken er en ny versjon med samme underkategori (GR-U1). Skiftet står deretter som en registrert kravversjon fra TE (MM-U18): svaret og § 32.2-vurderingen er ikke lenger gjeldende, vederlag og frist forblir subsidiære med årsakene fra svaret de ble regnet mot (GR-U1, som F-MM-G24), og når grunnlaget godkjennes, får de subsidiære godkjenningene virkning",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8561,8 +8571,22 @@
           "etter": 4,
           "rolle": "kontroll",
           "kilde": [
-            "GR-U19",
             "GR-U1"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "irregulaer_endring"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U22"
           ],
           "prov": {
             "handling": "krav",
@@ -8570,20 +8594,22 @@
             "underkategori": "valg_av_loesning"
           },
           "forventet": {
-            "avvist": false
+            "avvist": true,
+            "regel": "ANNEN_HJEMMEL",
+            "nye_hendelser": 0
           }
         },
         {
           "etter": 5,
           "rolle": "mal",
           "kilde": [
-            "GR-U19",
+            "GR-U22",
             "NS-32.2-1",
             "GR-U11"
           ],
           "forventet": {
             "avvist": true,
-            "regel": "ANNEN_VARSLINGSPLIKT",
+            "regel": "ANNEN_HJEMMEL",
             "nye_hendelser": 0,
             "gjeldende_krav.grunnlag": "K-g1",
             "gjeldende_svar.grunnlag": "S-g1"
@@ -8717,7 +8743,7 @@
         "GR-07"
       ],
       "start": null,
-      "forslag": "GR-U2 og GR-U10: et grunnlag byggherren har godkjent uten å påberope preklusjon, kan ikke endres. Kontrollsaken er den samme endringen før svaret",
+      "forslag": "GR-U2 og GR-U10: et grunnlag byggherren har godkjent uten å påberope preklusjon, kan ikke endres, heller ikke med samme hjemmel (GR-U22). Kontrollsaken er den samme nye versjonen før svaret (GR-U1)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8749,7 +8775,7 @@
           "prov": {
             "handling": "krav",
             "spor": "grunnlag",
-            "underkategori": "valg_av_loesning"
+            "underkategori": "irregulaer_endring"
           },
           "forventet": {
             "avvist": false
@@ -8775,7 +8801,7 @@
           "prov": {
             "handling": "krav",
             "spor": "grunnlag",
-            "underkategori": "valg_av_loesning"
+            "underkategori": "irregulaer_endring"
           },
           "forventet": {
             "avvist": true,
@@ -8790,7 +8816,7 @@
         "GR-07"
       ],
       "start": null,
-      "forslag": "GR-U2 og GR-U10: et grunnlag byggherren har godkjent med påberopt preklusjon etter § 32.2, er ikke låst, og TE kan endre underkategorien. Det skiller GR-07 fra F-MM-G30",
+      "forslag": "GR-U2 og GR-U10: et grunnlag byggherren har godkjent med påberopt preklusjon etter § 32.2, er ikke låst, og TE kan sende en ny versjon med samme hjemmel (GR-U1, GR-U22). Det skiller GR-07 fra F-MM-G30",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8829,12 +8855,12 @@
           "rolle": "mal",
           "kilde": [
             "GR-U2",
-            "V-215"
+            "GR-U1"
           ],
           "prov": {
             "handling": "krav",
             "spor": "grunnlag",
-            "underkategori": "valg_av_loesning"
+            "underkategori": "irregulaer_endring"
           },
           "forventet": {
             "avvist": false
@@ -8854,7 +8880,7 @@
         {
           "handling": "krav",
           "spor": "grunnlag",
-          "underkategori": "valg_av_loesning",
+          "underkategori": "irregulaer_endring",
           "navn": "K-g2"
         },
         {
@@ -8883,7 +8909,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "V-215"
+            "GR-U1"
           ],
           "forventet": {
             "gjeldende_svar.grunnlag": null,
@@ -9080,7 +9106,7 @@
         "GR-18"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U19 og V-B13-FRAFALL: en ny versjon som endrer grunnlaget fra pålegg til endringsordre, avvises, for § 32.2 gjelder ikke likt før og etter, og frafallet godtas fortsatt. Kontrollsaken er en annen underkategori som § 32.2 gjelder for. Står skiftet som en registrert kravversjon fra TE (MM-U18), avvises frafallet, for frafall er svar på et pålegg. Kontrollsakene er frafallet før endringen og et godkjent grunnlag etter den, uten vurdering etter § 32.2 som målprøven",
+      "forslag": "GR-U22 og V-B13-FRAFALL: en ny versjon som endrer grunnlaget fra pålegg til endringsordre, avvises, og det gjør også en annen underkategori som § 32.2 gjelder for. Frafallet godtas fortsatt. Kontrollsaken er en ny versjon med samme underkategori (GR-U1). Står skiftet som en registrert kravversjon fra TE (MM-U18), avvises frafallet, for frafall er svar på et pålegg. Kontrollsakene er frafallet før endringen og et godkjent grunnlag etter den, uten vurdering etter § 32.2 som målprøven",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -9122,7 +9148,22 @@
           "etter": 0,
           "rolle": "kontroll",
           "kilde": [
-            "GR-U19"
+            "GR-U1"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "irregulaer_endring"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U22"
           ],
           "prov": {
             "handling": "krav",
@@ -9130,20 +9171,22 @@
             "underkategori": "valg_av_loesning"
           },
           "forventet": {
-            "avvist": false
+            "avvist": true,
+            "regel": "ANNEN_HJEMMEL",
+            "nye_hendelser": 0
           }
         },
         {
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "GR-U19",
+            "GR-U22",
             "NS-32.2-1",
             "GR-U11"
           ],
           "forventet": {
             "avvist": true,
-            "regel": "ANNEN_VARSLINGSPLIKT",
+            "regel": "ANNEN_HJEMMEL",
             "nye_hendelser": 0,
             "gjeldende_krav.grunnlag": "K-g1"
           }
@@ -11029,7 +11072,7 @@
         {
           "handling": "krav",
           "spor": "grunnlag",
-          "underkategori": "valg_av_loesning",
+          "underkategori": "irregulaer_endring",
           "navn": "K-g2"
         }
       ],
@@ -11281,7 +11324,7 @@
         "GR-32"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U20, GR-U19: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med frafall eller endringsordre, ikke med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen får ingen virkning (MM-U19 og arbeidsvalget 16.10 i #510)",
+      "forslag": "GR-U20, GR-U22: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med frafall eller endringsordre, ikke med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen får ingen virkning (MM-U19 og arbeidsvalget 16.10 i #510)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11424,7 +11467,7 @@
         "GR-32"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U20, GR-U19: som F-MM-G38, med en ny grunnlagsversjon i en annen underkategori som § 32.2 gjelder for og der frafall er tillatt (GR-U18)",
+      "forslag": "GR-U22, GR-U20: etter et frafall avvises en ny grunnlagsversjon i en annen underkategori, også når § 32.2 gjelder for begge og frafall er tillatt i begge (GR-U18). Frafallet står, og journalen er uendret. Med samme hjemmel er forløpet F-MM-G38",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11451,65 +11494,16 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "GR-U20",
-            "GR-U19"
+            "GR-U22",
+            "GR-U20"
           ],
-          "prov": {
-            "handling": "brev",
-            "svar": [
-              {
-                "spor": "grunnlag",
-                "resultat": "avslaatt",
-                "varslet_i_tide": true
-              }
-            ]
-          },
           "forventet": {
             "avvist": true,
-            "regel": "FRAFALT",
-            "nye_hendelser": 0
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "kontroll",
-          "kilde": [
-            "GR-U20",
-            "GR-U19"
-          ],
-          "prov": {
-            "handling": "brev",
-            "svar": [
-              {
-                "spor": "grunnlag",
-                "resultat": "godkjent",
-                "varslet_i_tide": true
-              }
-            ]
-          },
-          "forventet": {
-            "avvist": false
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "kontroll",
-          "kilde": [
-            "GR-U20",
-            "GR-U19"
-          ],
-          "prov": {
-            "handling": "brev",
-            "svar": [
-              {
-                "spor": "grunnlag",
-                "resultat": "paalegg_frafalt",
-                "varslet_i_tide": true
-              }
-            ]
-          },
-          "forventet": {
-            "avvist": false
+            "regel": "ANNEN_HJEMMEL",
+            "nye_hendelser": 0,
+            "gjeldende_krav.grunnlag": "K-g1",
+            "gjeldende_svar.grunnlag": "S-g1",
+            "frafalt": true
           }
         }
       ]

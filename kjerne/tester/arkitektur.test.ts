@@ -270,16 +270,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Utledningen (utled.ts).
   ['Utledning', 'predikat', 'forstaatt spor opplysninger grunnlagAvvist frafalt'],
   // § 31.3 for godkjenningen av grunnlaget (GR-U13, KA-U14): ja, nei eller ikke avklart,
-  // utledet av opplysningene. Leses bare av sperren mot trekk og avvisningen av den.
-  [
-    'Utledning',
-    'predikat',
-    'endringsordre',
-    [
-      'utledning/utled.ts:trekkAvGrunnlagetErSperret',
-      'kommandoer/forutsetninger.ts:forutsetninger',
-    ],
-  ],
+  // utledet av opplysningene. Leses bare av sperren mot trekk (OV-U6).
+  ['Utledning', 'predikat', 'endringsordre', ['utledning/utled.ts:trekkAvGrunnlagetErSperret']],
   // Hvorfor saken ikke er forstått, i meldingen når kjernen ikke forstår det den skriver.
   [
     'Utledning',
@@ -315,7 +307,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // KA-U20, KA-U26: brevene med en merking som gjelder i sporet.
   ['Sporutledning', 'relasjon', 'merket'],
-  ['utledning/utled.ts', 'predikat', 'godkjenningenErMerket', ['kommandoer/forutsetninger.ts']],
   // HF-U4, HF-U8: byggherren har sagt «i tide» i et svar sendt fra appen. Leses av nyttelastkontrollen.
   ['utledning/utled.ts', 'predikat', 'harSagtITide', ['kommandoer/nyttelast.ts']],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
@@ -325,11 +316,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
-  [
-    'utledning/utled.ts',
-    'predikat',
-    'utled kraveneErAvgjort trekkAvGrunnlagetErSperret trekkKanIkkeBevareAvtalen',
-  ],
+  ['utledning/utled.ts', 'predikat', 'utled kraveneErAvgjort trekkAvGrunnlagetErSperret'],
   ['utledning/utled.ts', 'relasjon', 'grunnlagskravFor'],
   ['utledning/utled.ts:grunnlagskravFor', 'relasjon', 'grunnlagskrav'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
@@ -459,8 +446,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder hva',
   ],
   ['Kommando.varsel', 'kommando', 'sendt'],
-  // GR-U19: hovedkategorien i en ny grunnlagsversjon sammenliknes med gjeldende versjon.
-  ['Kommando.innhold', 'utsagn', 'hovedkategori', ['kommandoer/nyttelast.ts:kategorisperre']],
+  // GR-U22: hjemmelen i en ny grunnlagsversjon sammenliknes med gjeldende versjon.
+  [
+    'Kommando.innhold',
+    'utsagn',
+    'hovedkategori underkategori',
+    ['kommandoer/nyttelast.ts:kategorisperre'],
+  ],
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
   ['Svarutkast', 'kommando', 'resultat', ['kommandoer/nyttelast.ts']],
   ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
