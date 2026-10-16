@@ -248,8 +248,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'app_project_memberships',
         'app_users',
         'catenda_contract_teams',
+        'hendelse',
         'historikk',
+        'kjernebuffer',
+        'leveringsoppdrag',
+        'notat',
         'projects',
+        'sak_metadata',
       ]);
       expect(k2).toEqual(k1);
     } finally {

@@ -22,7 +22,7 @@ export async function opprettMigrertTestbase(
 
 /**
  * Katalogen i basen som sammenliknbare linjer: skjemaene, objektene, kolonnene,
- * begrensningene, indeksene, modulene og rettighetene, uten ID-er og tidspunkter.
+ * begrensningene, indeksene, modulene, triggerne og rettighetene, uten ID-er og tidspunkter.
  * Hver del er en egen spørring, så sorteringene i katalogvisningene ikke blandes.
  */
 const KATALOG: Record<string, string> = {
@@ -53,6 +53,10 @@ const KATALOG: Record<string, string> = {
                     JOIN sys.objects o ON o.object_id = ic.object_id WHERE o.is_ms_shipped = 0`,
   modul: `SELECT OBJECT_SCHEMA_NAME(object_id) AS skjema, OBJECT_NAME(object_id) AS navn, definition
             FROM sys.sql_modules WHERE OBJECTPROPERTY(object_id, 'IsMSShipped') = 0`,
+  trigger: `SELECT OBJECT_SCHEMA_NAME(t.parent_id) AS skjema, OBJECT_NAME(t.parent_id) AS tabell, t.name,
+                   t.is_instead_of_trigger, t.is_disabled, e.type_desc AS hendelse
+              FROM sys.triggers t JOIN sys.trigger_events e ON e.object_id = t.object_id
+             WHERE t.parent_class = 1 AND t.is_ms_shipped = 0`,
   rolle:
     'SELECT name, type_desc FROM sys.database_principals WHERE principal_id BETWEEN 5 AND 16383',
   rett: `SELECT USER_NAME(grantee_principal_id) AS mottaker, state_desc, permission_name, class_desc,
