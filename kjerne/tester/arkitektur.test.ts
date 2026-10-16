@@ -298,7 +298,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse kanFaaProtest KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
   // MM-U18: stridene ett dokument har med journalen før det.
-  ['Strid', 'predikat', 'element grunn bareUregistrert', ['utledning/utled.ts:utled']],
+  ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],
   [
     'Sporutledning',

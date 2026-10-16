@@ -263,7 +263,7 @@ interface Strid {
 const erRegistrertEndringsordre = (s: Svar, d: Dokument): boolean =>
   s.spor === 'grunnlag' &&
   blirEndringsordre(s.beslutningsgrunnlag) &&
-  d.opplysninger.some((o) => o.hva === 'endringsordre' && o.brev === d.id && o.oppfylt);
+  d.opplysninger.some((o) => o.hva === 'endringsordre' && o.brev === s.dokument && o.oppfylt);
 
 /**
  * OV-U4: kravene, svarene, akseptene og trekkene i et registrert brev er dokumentasjon
