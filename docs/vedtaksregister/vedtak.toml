@@ -4998,17 +4998,21 @@ dato = 2026-10-16
 hvem = "oppdragsgiver"
 kilde = ["#53"]
 sporsmal = '''
-Hvordan skal tidspunkter lagres i SQL Server? Prøven bruker datetimeoffset(3). I orienteringen til IKT 12.10 (B5 i #78) skrev vi at speilingen til Fabric mister tidssoneforskyvningen i datetimeoffset, og at vi derfor lagrer tidspunktet i en egen UTC-kolonne. Det er ikke et vedtak. Valget blir et lagret format i alle tabellene, så det føres som vedtak i vedtaksregisteret i PR-en for #53.'''
+Hvordan skal tidspunkter lagres i SQL Server? Prøven bruker datetimeoffset(3). I orienteringen til IKT 12.10 (B5 i #78) skrev vi at speilingen til Fabric mister tidssoneforskyvningen i datetimeoffset, og at vi derfor lagrer tidspunktet i en egen UTC-kolonne. Det er ikke et vedtak. Valget blir et lagret format i alle tabellene, så det føres som vedtak i vedtaksregisteret i PR-en for #53.
+
+Oppfølgingsspørsmål, fordi alternativet slik det ble stilt hadde et funksjonsnavn, og vedtaksteksten ikke kan ha kodenavn: «Godtar du at vedtaksteksten blir: «Tidspunkter lagres som datetime2(3) i UTC, uten forskyvning. Fabric-speilingen mister ingenting. Serveren setter tidspunktet i UTC, og visningen gjør om til norsk tid.»? Innholdet er det samme. Funksjonsnavnet står i migrasjonen og i database.md.» Alternativteksten under er skrevet om uten kodenavnet etter svaret.'''
 valgt = "datetime2(3) i UTC"
 svar = '''
-«datetime2(3) i UTC (Anbefalt)»'''
+Svaret på spørsmålet: «datetime2(3) i UTC (Anbefalt)»
+
+Svaret på oppfølgingsspørsmålet: «Ja, uten funksjonsnavnet (Anbefalt)»'''
 folge = '''
 Bygges i #53, del 1 (F0b-runden)'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "datetime2(3) i UTC"
 tekst = '''
-Tidspunktet lagres alltid i UTC, uten forskyvning. Fabric-speilingen mister ingenting. Serveren setter tidspunktet med SYSUTCDATETIME, og visningen gjør om til norsk tid. Stemmer med B5.'''
+Tidspunkter lagres som datetime2(3) i UTC, uten forskyvning. Fabric-speilingen mister ingenting. Serveren setter tidspunktet i UTC, og visningen gjør om til norsk tid.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "datetimeoffset(3)"
