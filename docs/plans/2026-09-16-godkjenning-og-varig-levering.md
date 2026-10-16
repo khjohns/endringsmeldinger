@@ -712,8 +712,8 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > godkjente forslaget om rekkefølgen 16.10 med «Ja, som foreslått». Rekkefølgen
 > og unntaket er:
 >
-> - Skrivestien og frontenden prioriteres foran PR 2 (#587), K1 og K2–K6
->   ([konfliktene i kartleggingen 13.10](../vedlegg/kartlegging-forste-versjon-2026-10-13/vedtak.md#konflikter-behold-som-bygger-på-utsett)).
+> - Skrivestien og frontenden prioriteres foran resten av #587 og foran #514,
+>   #516 og #550.
 > - Oppfølgingsfunn fra review i FK og F0b (etiketten `review-oppfølging`) tas
 >   ikke i rundene før #310 er levert, unntatt funn som gir feil resultat i et
 >   forløp første versjon kan nå gjennom skjemaene. Samleissuene fra nye PR-er
