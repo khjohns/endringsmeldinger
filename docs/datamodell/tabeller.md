@@ -750,7 +750,7 @@ Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når sesj
 | Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
 | Personopplysninger | Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`). |
-| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.rydd_utloepte`); database/migrasjoner/20261017000000_hashparametre.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`) |
+| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.rydd_utloepte`); database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`. |
 
@@ -767,7 +767,7 @@ Påbegynte innlogginger mot Catenda (OAuth). Lagrer SHA-256 av staten og av nett
 | Relasjoner | Nøkler: primærnøkkel (state_hash). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | nei, men radene er kortlevde. |
 | Personopplysninger | Ingen kjente; bare hasher og en returadresse. |
-| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_innloggingsforsoek`, `koe_api.rydd_utloepte`); database/migrasjoner/20261017000000_hashparametre.sql (`koe_api.bruk_innloggingsforsoek`, innført i `20261016190000_sesjon.sql`) |
+| Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_innloggingsforsoek`, `koe_api.rydd_utloepte`); database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.bruk_innloggingsforsoek`, innført i `20261016190000_sesjon.sql`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`. |
 
