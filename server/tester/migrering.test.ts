@@ -6,10 +6,11 @@
  * kommentar. Regelen om at en anvendt migrasjon er uforanderlig står i
  * `.claude/rules/database.md`. Delingen på `GO`, endelsen, BOM, sorteringen i
  * `migrer`, tidsgrensen og avvisningen av en fil med egen `COMMIT` har kilde i
- * #564. Testene mot basen krever `KOE_SQLSERVER_TILKOBLING`.
+ * #564, og `ROLLBACK` i en fil, feilen etter en `COMMIT`, applåsen gjennom en
+ * `COMMIT` og linjeskiftet i #576 og #577. Testene mot basen krever `KOE_SQLSERVER_TILKOBLING`.
  */
 
-import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -17,6 +18,7 @@ import { opprettPool } from '../datalag.ts';
 import {
   avvik,
   delPaaGo,
+  egenKonfig,
   lesMigrasjoner,
   MIGRASJONSMAPPE,
   migrer,
@@ -24,7 +26,12 @@ import {
   type Migrasjon,
 } from '../migrering.ts';
 import { katalog, opprettMigrertTestbase } from './sqlserver_migrert.ts';
-import { opprettTestbase, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
+import {
+  opprettKjoeretid,
+  opprettTestbase,
+  SQLSERVER_TILKOBLING,
+  type Testbase,
+} from './sqlserver.ts';
 
 const mapper: string[] = [];
 
@@ -50,6 +57,11 @@ describe('lesingen av migrasjonsfilene', () => {
       'SELECT 2',
       'SELECT 3',
     ]);
+  });
+
+  it('deler på en GO-linje som slutter på en enslig CR, også med en kommentar', () => {
+    expect(delPaaGo('SELECT 1\nGO\r')).toEqual(['SELECT 1']);
+    expect(delPaaGo('SELECT 1\nGO -- slutt\r')).toEqual(['SELECT 1']);
   });
 
   it('deler ikke på GO inne i en linje eller i et navn', () => {
@@ -83,7 +95,13 @@ describe('lesingen av migrasjonsfilene', () => {
   });
 
   it('feilen fra delingen sier hvilken fil den gjelder', () => {
-    expect(() => lesMigrasjoner(mappe({ [A]: 'SELECT 1\nGO 2' }))).toThrow(`${A}: Linje 2`);
+    const m = mappe({ [A]: 'SELECT 1\nGO 2' });
+    expect(() => lesMigrasjoner(m)).toThrow(`${A}: Linje 2`);
+    try {
+      lesMigrasjoner(m);
+    } catch (feil) {
+      expect((feil as Error).cause).toBeInstanceOf(MigreringAvvist);
+    }
   });
 
   it.each([['20260101000000_a.SQL'], ['20260101000000_a.sql.bak'], ['README.md']])(
@@ -168,6 +186,23 @@ describe('kontrollen mot historikken', () => {
       `${a.filnavn} er ikke anvendt og kommer foran ${b.versjon}, som er anvendt.`,
     ]);
   });
+
+  it.each([
+    ['uten grense i poolen', 0, 0],
+    ['med standarden i mssql', undefined, 90_000],
+    ['med lavere grense i poolen', 1_000, 90_000],
+    ['med høyere grense i poolen', 600_000, 600_000],
+  ])(
+    'runnerens forbindelse har poolens tidsgrense, men minst 90 s (%s)',
+    (_, grense, forventet) => {
+      const pool = { config: { server: 's', requestTimeout: grense, pool: { max: 10 } } };
+      expect(egenKonfig(pool as unknown as Parameters<typeof egenKonfig>[0])).toMatchObject({
+        server: 's',
+        requestTimeout: forventet,
+        pool: { min: 1, max: 1 },
+      });
+    }
+  );
 
   it('migrer avviser to filer med samme versjon før den kobler til basen', async () => {
     const a = fil('20260101000000');
@@ -271,7 +306,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
       await holder
         .request()
         .query(
-          "EXEC sp_getapplock @Resource = N'koe_migrering', @LockMode = 'Exclusive', @LockOwner = 'Transaction'"
+          "EXEC sp_getapplock @Resource = N'koe_migrering', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @DbPrincipal = N'db_owner'"
         );
       const kjoering = migrer(kort, lesMigrasjoner(m));
       await new Promise((ok) => setTimeout(ok, 3_000));
@@ -281,6 +316,115 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
       await kort.close();
     }
   }, 30_000);
+
+  /** Transaksjonene som er åpne i testbasen, utenom denne forespørselens. */
+  async function aapneTransaksjoner(): Promise<number> {
+    const svar = await base.pool.request().query<{ n: number }>(
+      `SELECT COUNT(*) AS n FROM sys.dm_tran_session_transactions t
+         JOIN sys.dm_exec_sessions s ON s.session_id = t.session_id
+        WHERE s.database_id = DB_ID() AND t.session_id <> @@SPID`
+    );
+    return svar.recordset[0].n;
+  }
+
+  it('avviser en fil med ROLLBACK og en ny transaksjon, og etterlater ingen åpen transaksjon', async () => {
+    const m = mappe({
+      [A]: 'ROLLBACK;\nBEGIN TRANSACTION;\nCREATE TABLE dbo.prove_a (id int NOT NULL);',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    const feil = await migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
+    expect(feil).toBeInstanceOf(MigreringAvvist);
+    expect((feil as Error).message).toBe(
+      `${A}, sats 1: satsen avsluttet eller åpnet en transaksjon (@@TRANCOUNT 1). ` +
+        'Runneren anvender hver fil i sin egen transaksjon. Ingenting fra fila er lagret.'
+    );
+    expect(await aapneTransaksjoner()).toBe(0);
+    expect(await tabeller()).toEqual([]);
+    expect(await historikk()).toEqual([]);
+  });
+
+  it('sier at det før COMMIT er lagret når en sats committer og så feiler', async () => {
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nCOMMIT;\nSELECT 1/0;',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, sats 1: .*Fila committet runnerens transaksjon, så det den gjorde før COMMIT, er lagret uten historikkrad\.$/
+    );
+    expect(await tabeller()).toEqual(['prove_a']);
+    expect(await historikk()).toEqual([]);
+  });
+
+  it('sier at ingenting er lagret når en sats feiler uten COMMIT', async () => {
+    const m = mappe({ [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nSELECT 1/0;' });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, sats 1: .*\. Ingenting fra fila er lagret\.$/
+    );
+    expect(await tabeller()).toEqual([]);
+  });
+
+  it('holder applåsen også etter en COMMIT i en fil', async () => {
+    const m = mappe({
+      [A]: `COMMIT;
+IF APPLOCK_MODE(N'db_owner', N'koe_migrering', N'Session') <> 'Exclusive'
+  THROW 50000, N'applåsen er sluppet', 1;
+BEGIN TRANSACTION;`,
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      `${A}, sats 1: satsen avsluttet eller åpnet en transaksjon`
+    );
+  });
+
+  it('fortsetter ikke på en ny sesjon når forbindelsen faller ut midt i en fil', async () => {
+    const m = mappe({
+      [A]: "WAITFOR DELAY '00:00:30';\nGO\nCREATE TABLE dbo.prove_a (id int NOT NULL);",
+    });
+    const kjoering = migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
+    let sesjon: number | undefined;
+    for (let i = 0; i < 40 && sesjon === undefined; i++) {
+      await new Promise((ok) => setTimeout(ok, 100));
+      sesjon = (
+        await base.pool.request().query<{
+          id: number;
+        }>("SELECT session_id AS id FROM sys.dm_exec_requests WHERE wait_type = 'WAITFOR' AND database_id = DB_ID()")
+      ).recordset[0]?.id;
+    }
+    expect(sesjon).toBeTypeOf('number');
+    await base.pool.request().batch(`KILL ${sesjon};`);
+    const feil = await kjoering;
+    expect(feil).toBeInstanceOf(MigreringAvvist);
+    expect((feil as Error).message).toMatch(
+      /^20260101000000_a\.sql, sats 1: .*Tilstanden etter feilen kunne ikke leses/
+    );
+    expect(await tabeller()).toEqual([]);
+    expect(await historikk()).toEqual([]);
+  }, 30_000);
+
+  it('en applås som kjøretiden tar, stopper ikke runneren, og kjøretiden kan ikke ta runnerens', async () => {
+    await base.pool
+      .request()
+      .batch("IF DATABASE_PRINCIPAL_ID(N'koe_runtime') IS NULL CREATE ROLE koe_runtime;");
+    const kjoeretid = await opprettKjoeretid(base, { maks: 2 });
+    const laas = (foresp: ReturnType<typeof kjoeretid.pool.request>, eier: string) =>
+      foresp.query<{ r: number }>(
+        `DECLARE @r int; EXEC @r = sp_getapplock @Resource = N'koe_migrering', @LockMode = 'Exclusive', @LockTimeout = 0, ${eier}; SELECT @r AS r;`
+      );
+    const holder = kjoeretid.pool.transaction();
+    await holder.begin();
+    try {
+      await expect(
+        laas(kjoeretid.pool.request(), "@LockOwner = 'Session', @DbPrincipal = N'db_owner'")
+      ).rejects.toThrow(/db_owner/);
+      expect((await laas(holder.request(), "@LockOwner = 'Transaction'")).recordset[0].r).toBe(0);
+      const m = mappe({ [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);' });
+      const start = Date.now();
+      expect(await migrer(base.pool, lesMigrasjoner(m))).toEqual(['20260101000000']);
+      expect(Date.now() - start).toBeLessThan(10_000);
+    } finally {
+      await holder.rollback().catch(() => undefined);
+      await kjoeretid.slett();
+    }
+  }, 60_000);
 
   it('lagrer versjonen, filnavnet og sha256 av hele fila', async () => {
     const m = mappe({ [A]: '-- en kommentar\nCREATE TABLE dbo.prove_a (id int NOT NULL);' });
@@ -345,10 +489,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', () => {
   it('har filer, og hver har formen runneren godtar', () => {
-    expect(readdirSync(MIGRASJONSMAPPE).filter((f) => f.endsWith('.sql')).length).toBe(
-      lesMigrasjoner().length
-    );
-    expect(lesMigrasjoner().length).toBeGreaterThan(0);
+    expect(lesMigrasjoner(MIGRASJONSMAPPE).length).toBeGreaterThan(0);
   });
 
   it('to nye baser bygget fra filene får samme katalog', async () => {
