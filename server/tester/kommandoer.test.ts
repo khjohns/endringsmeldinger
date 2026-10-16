@@ -221,6 +221,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       ['med en sakstype med NBSP', { sakstype: 'stan\u00a0dard' }, /andre tegn enn a–z og _/],
       ['med en sakstype med store bokstaver', { sakstype: 'Standard' }, /andre tegn enn a–z og _/],
       ['med en tom sakstype', { sakstype: '' }, /Sakstypen er tom/],
+      ['med en sakstype av bare mellomrom', { sakstype: '   ' }, /andre tegn enn a–z og _/],
       ['med en sakstype over 40 tegn', { sakstype: 'x'.repeat(41) }, /over 40 tegn/],
       ['med en sakstype over 4000 tegn', { sakstype: 'x'.repeat(4001) }, /over 40 tegn/],
       ['med en sakstype som er et tall (#631)', { sakstype: 123 }, /ikke en tekst/],
@@ -421,7 +422,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         /andre tegn enn a–z og _/,
       ],
       [
-        'en hendelsestype med tabulator til slutt, som trimEnd() fjernet (#629)',
+        'en hendelsestype med tabulator til slutt (#629)',
         (rad, o) => [{ ...rad, event_type: 'dokument_registrert\t' }, o],
         /andre tegn enn a–z og _/,
       ],
@@ -436,11 +437,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         /Summen/,
       ],
       [
-        'en oppdrags-ID som ikke er en UUID, som ga TypeError fra driveren (#629)',
+        'en oppdrags-ID som ikke er en UUID (#629)',
         (rad, o) => [rad, { ...o, id: 'oppdrag-1' }],
         /Oppdragets ID er ikke en UUID/,
       ],
-      ['format 0, som TS ikke prøvde (#629)', (rad, o) => [{ ...rad, format: 0 }, o], /Formatet/],
+      ['format 0 (#629)', (rad, o) => [{ ...rad, format: 0 }, o], /Formatet/],
     ])(
       '%s gir UgyldigKommando med basens 51422 i cause, og ingenting skrives (#629)',
       async (_, endre, melding) => {
@@ -687,7 +688,19 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         { eventType: 'annen\u3000', oppdrag: false },
         /andre tegn enn a–z og _/,
       ],
+      ['en tom hendelsestype', { eventType: '', oppdrag: false }, /Hendelsestypen mangler/],
+      [
+        'en hendelsestype av bare mellomrom',
+        { eventType: '  ', oppdrag: false },
+        /andre tegn enn a–z og _/,
+      ],
       ['format 0', { felt: { format: 0 } }, /Formatet/],
+      ['en tom dokumentnøkkel', { felt: { dokumentnoekkel: '' } }, /Dokumentnøkkelen er tom/],
+      [
+        'en dokumentnøkkel av bare mellomrom',
+        { felt: { dokumentnoekkel: ' ' } },
+        /andre tegn enn a–z, 0–9, _ og -/,
+      ],
       ['data som ikke er et JSON-objekt', { felt: { data: '[]' } }, /data/],
       [
         'en dokumentnøkkel over 100 tegn',

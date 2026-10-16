@@ -1,7 +1,8 @@
 -- Skrankene ett sted (#647 del A, #629, #631, #609). Prosedyrene er eneste kilde
--- for formen på argumentene; `server/kommandoer.ts` prøver den ikke selv og
--- oversetter 51422 til `UgyldigKommando`. Prosedyrene er ellers som i
--- `20261016170000_kommandoform.sql`, med samme navn, feilkoder og rettigheter.
+-- for formen på argumentene; `server/kommandoer.ts` prøver den ikke selv, utenom
+-- saks-ID-en før oppslaget, og oversetter 51422 til `UgyldigKommando`.
+-- Prosedyrene er ellers som i `20261016170000_kommandoform.sql`, med samme navn,
+-- feilkoder og rettigheter.
 --
 -- Hendelsestypen, sakstypen og dokumentnøkkelen har en lukket tegnklasse i stedet
 -- for kontrollen mot mellomrom til slutt fra `20261016130000_mellomrom.sql`, som
@@ -51,7 +52,7 @@ BEGIN
     THROW 51422, N'Sakstypen står flere ganger i data', 1;
   IF @sakstype_type <> 1
     THROW 51422, N'Sakstypen er ikke en tekst i data', 1;
-  IF LEN(@sakstype) = 0
+  IF DATALENGTH(@sakstype) = 0
     THROW 51422, N'Sakstypen er tom', 1;
   IF DATALENGTH(@sakstype) > 80
     THROW 51422, N'Sakstypen er over 40 tegn', 1;
@@ -93,7 +94,7 @@ BEGIN
   IF @event_id IS NULL OR TRY_CAST(@event_id AS uniqueidentifier) IS NULL OR DATALENGTH(@event_id) <> 72
      OR @event_id COLLATE Latin1_General_100_BIN2_UTF8 <> LOWER(@event_id)
     THROW 51422, N'event_id mangler eller er ikke en UUID med små bokstaver', 1;
-  IF @event_type IS NULL OR LEN(@event_type) = 0
+  IF @event_type IS NULL OR DATALENGTH(@event_type) = 0
     THROW 51422, N'Hendelsestypen mangler', 1;
   IF DATALENGTH(@event_type) > 200
     THROW 51422, N'Hendelsestypen er over 100 tegn', 1;
@@ -114,7 +115,7 @@ BEGIN
     THROW 51422, N'Leveringsoppdraget kreves for dokument_registrert og bare for den', 1;
   IF @oppdrag IS NOT NULL
   BEGIN
-    IF LEN(@dokumentnoekkel) = 0
+    IF DATALENGTH(@dokumentnoekkel) = 0
       THROW 51422, N'Dokumentnøkkelen er tom', 1;
     IF DATALENGTH(@dokumentnoekkel) > 200
       THROW 51422, N'Dokumentnøkkelen er over 100 tegn', 1;

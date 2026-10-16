@@ -17,7 +17,7 @@ export { SakFinnesIkke, Versjonskonflikt };
 
 /**
  * Basen avviste et argument (51422): feil form, eller et tidspunkt som ikke er
- * basens. Formene prøves bare i prosedyrene (#629), og basens feil står i `cause`.
+ * basens. Formene prøves i prosedyrene (#629), og basens feil står i `cause`.
  */
 export class UgyldigKommando extends Error {}
 
