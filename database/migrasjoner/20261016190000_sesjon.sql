@@ -2,9 +2,9 @@
 -- `app_oauth_attempts` i PostgreSQL og atferden i `backend/routes/auth_routes.py`:
 -- basen lagrer bare SHA-256 av sesjonstokenet, staten og nettlesertokenet, som
 -- 64 små heksadesimale tegn. En sesjon varer 8 timer og et innloggingsforsøk
--- 600 sekunder fra opprettelsen, regnet med basens klokke avkortet til
--- millisekundet (DL-U3), som tidspunktene i `20261016120000_kommandoer.sql`. Et forsøk
--- brukes én gang.
+-- 600 sekunder fra opprettelsen, regnet med basens klokke i UTC (DL-U3).
+-- Klokka avkortes til millisekundet, som tidspunktene i
+-- `20261016120000_kommandoer.sql`. Et forsøk brukes én gang.
 --
 -- Tabellene har ingen saksdata og ingen `prosjekt_id`. Kjøretiden har ingen
 -- rettighet på dem og når dem bare gjennom prosedyrene i `koe_api`.
@@ -13,7 +13,7 @@ CREATE TABLE koe.app_sessions (
   token_hash varchar(64) NOT NULL CONSTRAINT app_sessions_pk PRIMARY KEY
     CONSTRAINT app_sessions_token_hash_form CHECK (DATALENGTH(token_hash) = 64 AND token_hash COLLATE Latin1_General_100_BIN2_UTF8 NOT LIKE N'%[^0-9a-f]%'),
   user_id uniqueidentifier NOT NULL CONSTRAINT app_sessions_user FOREIGN KEY REFERENCES koe.app_users (id),
-  csrf_token varchar(128) NOT NULL CONSTRAINT app_sessions_csrf_token CHECK (LEN(csrf_token) >= 32),
+  csrf_token varchar(128) NOT NULL CONSTRAINT app_sessions_csrf_token CHECK (DATALENGTH(csrf_token) >= 32),
   expires_at datetime2(3) NOT NULL,
   created_at datetime2(3) NOT NULL CONSTRAINT app_sessions_created_at DEFAULT SYSUTCDATETIME()
 );
@@ -59,9 +59,10 @@ BEGIN
     THROW 52053, N'CSRF-tokenet har ikke formen fra token_urlsafe', 1;
   IF @bruker IS NULL OR NOT EXISTS (SELECT 1 FROM koe.app_users WHERE id = @bruker)
     THROW 52051, N'Brukeren finnes ikke', 1;
-  SET @utloeper = DATEADD(hour, 8, DATETRUNC(millisecond, SYSUTCDATETIME()));
-  INSERT koe.app_sessions (token_hash, user_id, csrf_token, expires_at)
-  VALUES (@token_hash, @bruker, @csrf_token, @utloeper);
+  DECLARE @naa datetime2(3) = DATETRUNC(millisecond, SYSUTCDATETIME());
+  SET @utloeper = DATEADD(hour, 8, @naa);
+  INSERT koe.app_sessions (token_hash, user_id, csrf_token, expires_at, created_at)
+  VALUES (@token_hash, @bruker, @csrf_token, @utloeper, @naa);
 END
 GO
 
