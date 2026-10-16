@@ -4992,6 +4992,34 @@ tekst = '''
 Sikkerhetsfeil i Python rettes fortsatt. Ellers rettes bare det som er nødvendig for test eller demo og relevant for refaktoreringen til TS.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "DL-U3"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#53"]
+sporsmal = '''
+Hvordan skal tidspunkter lagres i SQL Server? Prøven bruker datetimeoffset(3). I orienteringen til IKT 12.10 (B5 i #78) skrev vi at speilingen til Fabric mister tidssoneforskyvningen i datetimeoffset, og at vi derfor lagrer tidspunktet i en egen UTC-kolonne. Det er ikke et vedtak. Valget blir et lagret format i alle tabellene, så det føres som vedtak i vedtaksregisteret i PR-en for #53.'''
+valgt = "datetime2(3) i UTC"
+svar = '''
+«datetime2(3) i UTC (Anbefalt)»'''
+folge = '''
+Bygges i #53, del 1 (F0b-runden)'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "datetime2(3) i UTC"
+tekst = '''
+Tidspunktet lagres alltid i UTC, uten forskyvning. Fabric-speilingen mister ingenting. Serveren setter tidspunktet med SYSUTCDATETIME, og visningen gjør om til norsk tid. Stemmer med B5.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "datetimeoffset(3)"
+tekst = '''
+Som i prøven: forskyvningen lagres. Fabric-speilingen mister forskyvningen, så rapporteringen må tolke tidspunktet selv.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Begge kolonnene"
+tekst = '''
+datetimeoffset for appen og en UTC-kolonne for speilingen. To kilder til samme tidspunkt.'''
+
 [[gruppe]]
 tittel = "Premissene P1–P7"
 

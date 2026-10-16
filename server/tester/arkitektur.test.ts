@@ -4,8 +4,8 @@
  *   språkprøven (`sprakprove/` er prøvekode, AGENTS.md) eller frontenden.
  * - Ut over det bruker serveren bare Node og `pg`. Testene kan i tillegg bruke
  *   Vitest.
- * - `mssql` brukes bare i datalaget (`datalag.ts`, #419) og testene av det og av
- *   testbasen (#532). Testen ser bare de statiske importene av `mssql`, ikke et
+ * - `mssql` brukes bare i datalaget (`datalag.ts`, #419), i migreringen
+ *   (`migrering.ts`, #53) og i testene av dem og av testbasen (#532). Testen ser bare de statiske importene av `mssql`, ikke et
  *   lager som bruker `sql` fra `datalag.ts` eller en pool fra `opprettPool`
  *   utenom `transaksjon` (#542).
  *
@@ -31,6 +31,10 @@ function datalaget(fil: string): boolean {
   const navn = relative(SERVER, fil).split(sep).join('/');
   return (
     navn === 'datalag.ts' ||
+    // Runneren anvender migrasjonsfilene som DDL i egne transaksjoner, med en
+    // egen pool og utenfor `transaksjon` i datalaget: den binder ingen kontekst
+    // og leser ingen saksdata, og den skal kjøres med migrasjonsidentiteten (#53).
+    navn === 'migrering.ts' ||
     navn === 'tester/datalag.test.ts' ||
     /^tester\/sqlserver[^/]*\.ts$/.test(navn)
   );
@@ -88,6 +92,7 @@ describe('grensene rundt TS-serveren', () => {
     ["const z = await import('zod');", 'app.ts'],
     ["const { x } = require('../../sprakprove/tester/testbase.ts');", 'tester/testbase.ts'],
     ["import sql from 'mssql';", 'lager.ts'],
+    ["import sql from 'mssql';", 'tester/migrering.test.ts'],
     ["import type { ConnectionPool } from 'mssql';", 'app.ts'],
     ["const sql = require('mssql');", 'tester/register.test.ts'],
   ])('oppdager %s i %s', (linje, navn) => {
