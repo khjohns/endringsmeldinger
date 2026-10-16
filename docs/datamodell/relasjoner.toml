@@ -635,6 +635,27 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
+fra = "koe.catenda_project_configs.internal_project_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Prosjektet i appen som er koblet til Catenda-prosjektet. Settes av driften
+(arbeidsvalget 16.10 i #53)."""
+funn = []
+belegg = "K 16.10: katalogen."
+
+[[relasjon]]
+fra = "koe.app_membership_sync.project_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Prosjektet medlemslisten ble skrevet for (DL-U7)."""
+funn = []
+belegg = "K 16.10: katalogen."
+
+[[relasjon]]
 fra = "koe.catenda_contract_teams.internal_project_id"
 til = "koe.projects.id"
 art = "fremmednøkkel"
@@ -912,3 +933,14 @@ begrunnelse = "Kopi av e-posten i medlemslisten fra Catenda. Personen er `user_i
 [[uten_relasjon]]
 kolonne = "koe.projects.organisasjon_id"
 begrunnelse = "Virksomheten prosjektet tilhører. Det finnes ingen tabell for virksomheter (MS-10)."
+
+[[uten_relasjon]]
+kolonne = "koe.catenda_project_configs.catenda_project_id"
+begrunnelse = "ID-en til prosjektet i Catenda, unik per kobling. Ingen tabell i SQL Server har Catenda-prosjektene."
+
+[[uten_relasjon]]
+kolonne = "koe.app_membership_sync.catenda_project_id"
+begrunnelse = """
+Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i
+`koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel:
+koblingen kan endres etter at listen er skrevet."""

@@ -243,6 +243,9 @@ erDiagram
         nvarchar_400 issuer UK
         nvarchar_400 subject UK
     }
+    koe_app_membership_sync {
+        nvarchar_100 project_id PK, FK
+    }
     koe_app_project_memberships {
         nvarchar_100 project_id PK, FK, UK
         uniqueidentifier user_id PK, FK
@@ -254,6 +257,10 @@ erDiagram
     koe_catenda_contract_teams {
         nvarchar_100 internal_project_id PK, FK
         nvarchar_32 team_id PK
+    }
+    koe_catenda_project_configs {
+        nvarchar_100 internal_project_id PK, FK
+        uniqueidentifier catenda_project_id UK
     }
     koe_hendelse {
         nvarchar_36 event_id PK, UK
@@ -297,6 +304,8 @@ erDiagram
     koe_app_users ||--o{ koe_app_identities : "user_id"
     koe_projects ||--o{ koe_app_project_memberships : "project_id"
     koe_app_users ||--o{ koe_app_project_memberships : "user_id"
+    koe_projects ||--o| koe_catenda_project_configs : "internal_project_id"
+    koe_projects ||--o| koe_app_membership_sync : "project_id"
     koe_projects ||--o{ koe_catenda_contract_teams : "internal_project_id"
     koe_projects ||--o{ koe_sak_metadata : "prosjekt_id"
     koe_app_users ||--o{ koe_sak_metadata : "created_by"
@@ -381,6 +390,8 @@ erDiagram
 | `koe.app_identities.user_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Brukeren identiteten hører til. | — | K 16.10: katalogen. |
 | `koe.app_project_memberships.project_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet medlemskapet gjelder. | — | K 16.10: katalogen. |
 | `koe.app_project_memberships.user_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Brukeren som er medlem. | — | K 16.10: katalogen. |
+| `koe.catenda_project_configs.internal_project_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Prosjektet i appen som er koblet til Catenda-prosjektet. Settes av driften (arbeidsvalget 16.10 i #53). | — | K 16.10: katalogen. |
+| `koe.app_membership_sync.project_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Prosjektet medlemslisten ble skrevet for (DL-U7). | — | K 16.10: katalogen. |
 | `koe.catenda_contract_teams.internal_project_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet teamet er knyttet til. | — | K 16.10: katalogen. |
 | `koe.sak_metadata.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet saken hører til, uten standardverdi (AGENTS.md). | — | K 16.10: katalogen. |
 | `koe.sak_metadata.created_by` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Brukeren som opprettet saken. | — | K 16.10: katalogen. |
@@ -428,6 +439,8 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.app_users.email` | Brukerens egen e-post. Personen er `id`. |
 | `koe.app_project_memberships.user_email` | Kopi av e-posten i medlemslisten fra Catenda. Personen er `user_id`. |
 | `koe.projects.organisasjon_id` | Virksomheten prosjektet tilhører. Det finnes ingen tabell for virksomheter (MS-10). |
+| `koe.catenda_project_configs.catenda_project_id` | ID-en til prosjektet i Catenda, unik per kobling. Ingen tabell i SQL Server har Catenda-prosjektene. |
+| `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
 
 ## Dataflyt mot Catenda
 
@@ -607,6 +620,8 @@ flowchart LR
 | `koe.projects` | — | — | — |
 | `koe.app_project_memberships` | — | — | — |
 | `koe.catenda_contract_teams` | — | — | — |
+| `koe.catenda_project_configs` | — | — | — |
+| `koe.app_membership_sync` | — | — | — |
 | `koe.sak_metadata` | — | — | — |
 | `koe.hendelse` | — | — | — |
 | `koe.notat` | — | — | — |

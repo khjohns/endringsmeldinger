@@ -401,6 +401,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
       'app_identities_issuer_uten_mellomrom',
       'app_identities_provider_uten_mellomrom',
       'app_identities_subject_uten_mellomrom',
+      'app_membership_sync_project_id_uten_mellomrom',
+      'catenda_project_configs_internal_project_id_uten_mellomrom',
       'contract_teams_internal_project_id_uten_mellomrom',
       'hendelse_event_type_uten_mellomrom',
       'hendelse_prosjekt_id_uten_mellomrom',
