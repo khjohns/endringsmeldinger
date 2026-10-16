@@ -1722,9 +1722,9 @@ Frafall og ny grunnlagsversjon (GR-U17, #510). Eksempel: 1. mars varsler TE en i
 valgt = "A"
 svar = '''
 A: frafallet står (Anbefalt)'''
-forhold = [{ art = "presiserer", vedtak = "gr-u17" }, { art = "presiserer", vedtak = "hf-u8" }]
+forhold = [{ art = "presiserer", vedtak = "gr-u17" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "snevrer inn", vedtak = "gr-u1" }, { art = "snevrer inn", vedtak = "hf-u5" }]
 folge = '''
-Ikke bygget (#510).'''
+Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke i tilstanden med en ny grunnlagsversjon (GR-U1), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -2927,7 +2927,7 @@ svar = '''
 A'''
 forhold = [{ art = "snevrer inn", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "presiserer", vedtak = "hf-u10" }]
 folge = '''
-Svaret på det første spørsmålet 16.10 ba om en vurdering etter avtaleloven av når akseptfristen er et forhandlingskort. Spørsmålene og svarene står ordrett i #502. Svaret tar ikke stilling til fradrag etter KA-U9. Ikke bygget (#502).'''
+Svaret på det første spørsmålet 16.10 passet ikke på et alternativ, og det ble stilt et oppfølgingsspørsmål. Spørsmålene og svarene står ordrett i #502. Svaret tar ikke stilling til de to usikre punktene i spørsmålet: fradrag etter KA-U9 og lovgrunnlaget. Ikke bygget (#502).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
