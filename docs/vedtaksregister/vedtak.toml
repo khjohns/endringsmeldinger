@@ -3277,7 +3277,7 @@ svar = '''
 A: bindingen står (Anbefalt)'''
 forhold = [{ art = "endrer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "presiserer", vedtak = "gr-u1" }]
 folge = '''
-Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Bygget 16.10 i PR #622 (#502, del 1): bindingen i svar på vederlag og frist står etter en ny grunnlagsversjon med samme hjemmel. En revisjon sammenliknes med svaret den erstatter, og et nytt svar avvises med regelkoden ALLEREDE_SVART.'''
+Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Bygget 16.10 i PR #622 (#502, del 1): bindingen i svar på vederlag og frist står etter en ny grunnlagsversjon med samme hjemmel. En revisjon sammenliknes med svaret den erstatter, uansett hvilken grunnlagsversjon svaret ble gitt mot, og en revisjon som senker et standpunkt, avvises med regelkoden SENKER_INNROEMMELSE. Et nytt svar på samme kravversjon avvises som før med ALLEREDE_SVART.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A: bindingen står"

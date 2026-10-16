@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `02a6053a70cae8cc7fc2f1b19fd4d615320af8dca6c0b8c689084493545b48f8`
+Kontrollsum (SHA-256 over utdraget visningen leser): `e756bfb4b6ef652308e7292441b735be6e22f006ac148301103b2df9d0c8ab8e`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -407,7 +407,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#578, #502)
 
-**Følge:** Endrer [HF-U5](#hf-u5). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Bygget 16.10 i PR #622 (#502, del 1): bindingen i svar på vederlag og frist står etter en ny grunnlagsversjon med samme hjemmel. En revisjon sammenliknes med svaret den erstatter, og et nytt svar avvises med regelkoden ALLEREDE_SVART.
+**Følge:** Endrer [HF-U5](#hf-u5). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Bygget 16.10 i PR #622 (#502, del 1): bindingen i svar på vederlag og frist står etter en ny grunnlagsversjon med samme hjemmel. En revisjon sammenliknes med svaret den erstatter, uansett hvilken grunnlagsversjon svaret ble gitt mot, og en revisjon som senker et standpunkt, avvises med regelkoden SENKER_INNROEMMELSE. Et nytt svar på samme kravversjon avvises som før med ALLEREDE_SVART.
 
 **Regelrader:** [KA-49](#rad-ka-49)
 
