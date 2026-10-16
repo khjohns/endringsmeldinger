@@ -55,8 +55,7 @@ function status(u: Utledning): Statuskode {
   if (!u.forstaatt) return 'kan_ikke_utledes';
   if (u.grunnlagAvvist) return 'avsluttet_avslaatt';
   if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
-  // KA-U20: saken vises ikke som oppgjort når en enighet bygger på et merket brev.
-  if (kraveneErAvgjort(u) && !SPOR.some((s) => u.spor[s].forbehold)) return 'avsluttet_oppgjort';
+  if (kraveneErAvgjort(u)) return 'avsluttet_oppgjort';
   if (SPOR.some((s) => venter(u, s))) return 'venter_paa_svar';
   return 'under_forhandling';
 }
@@ -84,8 +83,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const ut: string[] = [];
   if (s.trukket) ut.push('trukket');
   if (venter(u, spor)) ut.push('venter_paa_svar');
-  // KA-U20: bygger enigheten på et merket brev, slår visningen ikke fast at den finnes.
-  const virkning = s.forbehold ? null : enighetensVirkning(u, spor);
+  const virkning = enighetensVirkning(u, spor);
   if (spor === 'grunnlag') {
     if (u.frafalt) ut.push('paalegg_frafalt');
     if (u.grunnlagAvvist) ut.push('avslaatt');
@@ -104,8 +102,6 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   // OV-U5: svaret står, og visningen sier at det gjaldt et annet varsel enn det registrerte.
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].gjaldtEtAnnetVarsel.length)
     ut.push('svaret_gjaldt_et_annet_varsel');
-  // KA-U16, KA-U20: enigheten eller svaret bygger på et merket brev; uenigheten vises.
-  if (s.forbehold) ut.push(s.enighet ? 'uenighet_om_merket_brev' : 'forbehold');
   // § 5 og VS-U12: påberopelsene registreres og vises uten virkning på utfallet.
   const iSporet = [
     s.gjeldendeKrav?.id,
@@ -125,13 +121,12 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   const kode = status(u);
   const ikkeTolket = new Set(u.begrensninger.map((b) => b.hendelse));
   const opplysninger: Record<string, string[]> = {};
-  for (const { opplysning: o, bestridelser, avklaring } of u.opplysninger) {
+  for (const { opplysning: o, bestridelser } of u.opplysninger) {
     const e = [
       o.hva === 'endringsordre'
         ? `${o.oppfylt ? 'endringsordre' : 'ikke_endringsordre'}_ifolge_${o.oppgittAv}`
         : `${o.hva}_ifolge_${o.oppgittAv}`,
     ];
-    if (avklaring !== null) e.push('avklart_av_avsenderen');
     if (
       o.hva === 'sendt' &&
       !u.opplysninger.some(
@@ -148,7 +143,6 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
           sendt: 'sending_bestridt',
           mottatt: 'mottak_bestridt',
           endringsordre: 'endringsordre_bestridt',
-          kan_ikke_uttrykkes: 'merking_bestridt',
         }[b.hva]
       );
     opplysninger[o.id] = e;

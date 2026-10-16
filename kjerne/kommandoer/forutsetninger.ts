@@ -49,8 +49,8 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
 };
 
 /**
- * Utsagnene uten virkning på utfallet som viser til et annet element: § 5, VS-U12,
- * KA-U20 og KA-U34. Som bestridelsen (MM-U7) godtas de også når kravene er avgjort
+ * Utsagnene uten virkning på utfallet som viser til et annet element: § 5, VS-U12
+ * og KA-U34. Som bestridelsen (MM-U7) godtas de også når kravene er avgjort
  * eller avslaget av grunnlaget er godtatt (KA-U11, KA-U28, KA-U29, KA-U34).
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
@@ -77,23 +77,12 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
         ? null
         : avvis('INGEN_VARSEL_ETTER_32_2', 'Påberopelsen må vise til TEs varsel etter § 32.2.');
     case 'merke':
-      // KA-U20: et registrert brev med et krav eller svar.
-      return maal?.registrertBrev
-        ? null
-        : avvis(
-            'INGEN_REGISTRERT_BREV',
-            'Merkingen må gjelde et registrert brev med et krav eller svar.'
-          );
-    case 'avklare': {
-      // KA-U20: bare den som sendte brevet, kan avklare merkingen.
-      const o = u.opplysninger.find((x) => x.opplysning.id === h.gjelder);
-      if (o?.opplysning.hva !== 'kan_ikke_uttrykkes')
-        return avvis('INGEN_MERKING', 'Det finnes ingen merking å avklare.');
-      if (o.avklaring !== null) return avvis('MERKING_AVKLART', 'Merkingen er allerede avklart.');
-      return u.elementer[o.opplysning.brev]?.part === part
-        ? null
-        : avvis('FEIL_PART', 'Bare den som sendte brevet, kan avklare merkingen.');
-    }
+    case 'avklare':
+      // OV-U7: merkingen etter KA-U20 og avklaringen av den bygges ikke i første versjon.
+      return avvis(
+        'IKKE_I_FOERSTE_VERSJON',
+        'Merking og avklaring av registrerte brev er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
+      );
     case 'begrunne':
       // KA-U34: et svar, sendt eller registrert. Et svar er alltid fra BH (format/leser.ts).
       return maal?.art === 'svar'
@@ -233,12 +222,6 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis(
           'FRAFALL_KAN_IKKE_GODTAS',
           'Et frafall er byggherrens standpunkt og kan ikke godtas.'
-        );
-      // KA-U16, KA-U20: aksepten ville bygget på et brev med noe appen ikke kan uttrykke.
-      if (s.forbehold)
-        return avvis(
-          'BREV_MED_FORBEHOLD',
-          'Svaret bygger på et brev med noe appen ikke kan uttrykke. Den som sendte det, må avklare det først.'
         );
       return null;
   }

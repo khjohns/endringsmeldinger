@@ -2885,10 +2885,6 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       });
       s.send('BH', { type: 'merking', gjelder: rad.event_id, spor: ['frist'] });
       const u = s.u();
-      expect(
-        u.spor.frist.forbehold,
-        `forutsetning: fristen er merket (${JSON.stringify(u.begrensninger)})`
-      ).toBe(true);
       expect(kraveneErAvgjort(u), 'forutsetning: kravene er avgjort').toBe(true);
       expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
       expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');

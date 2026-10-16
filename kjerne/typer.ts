@@ -40,9 +40,8 @@ export type Opplysning =
       brev: string;
     }
   /**
-   * KA-U16, KA-U20: et registrert brev har noe appen ikke kan uttrykke. `spor` er
-   * sporene der handlinger bygger på det. Merkingen er partens vurdering, ikke en
-   * rettslig avgjørelse (MM-U12), og gjelder brevet selv eller et registrert brev før det.
+   * KA-U16, KA-U20: merkingen av et registrert brev. Er ikke med i første versjon
+   * (OV-U7): formatet tar ikke imot den, og typen står for brevteksten i `frosset/`.
    */
   | {
       id: string;
@@ -110,7 +109,7 @@ export type Utsagn =
    * MM-U1, MM-U7: bestrider en opplysning fra motparten: at dokumentet ble sendt
    * eller mottatt, eller at det var en endringsordre.
    */
-  | { id: string; art: 'bestridelse'; gjelder: string; hva: Opplysning['hva'] }
+  | { id: string; art: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** KA-U12: TE krever ikke noe i sporet. */
   | { id: string; art: 'ingen_krav'; spor: Kravspor }
   /**
@@ -126,10 +125,7 @@ export type Utsagn =
   | { id: string; art: 'protest'; gjelder: string }
   /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. `gjelder` er TEs varsel etter § 32.2. */
   | { id: string; art: 'passivitet'; gjelder: string }
-  /**
-   * KA-U20: den som sendte et merket brev, sier at standpunktene i det gjelder uten
-   * forbehold. `gjelder` er merkingen. Gjør ikke brevet ubetinget fra sendetidspunktet.
-   */
+  /** KA-U20: avklaringen av en merking. Som merkingen ikke i formatet (OV-U7). */
   | { id: string; art: 'avklaring'; gjelder: string }
   /**
    * KA-U34: byggherrens senere begrunnelse av et svar. `gjelder` er svaret, og
@@ -137,7 +133,11 @@ export type Utsagn =
    */
   | { id: string; art: 'begrunnelse'; gjelder: string };
 
-export type Utsagnsart = Utsagn['art'];
+/** OV-U7: det formatet tar imot, uten merkingen og avklaringen av den. */
+export type LestOpplysning = Exclude<Opplysning, { hva: 'kan_ikke_uttrykkes' }>;
+export type LestUtsagn = Exclude<Utsagn, { art: 'avklaring' }>;
+export type Opplysningsslag = LestOpplysning['hva'];
+export type Utsagnsart = LestUtsagn['art'];
 
 export interface Krav {
   id: string;
@@ -184,11 +184,11 @@ export interface Dokument {
   avsender: Part;
   /** Satt av serveren. Det eneste tidspunktet systemet selv vet (2.4). */
   registrert: string;
-  opplysninger: Opplysning[];
+  opplysninger: LestOpplysning[];
   dokumentasjon: string[];
   krav: Krav[];
   svar: Svar[];
-  utsagn: Utsagn[];
+  utsagn: LestUtsagn[];
   /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17). */
   brevtekst: Avsnitt[] | null;
 }

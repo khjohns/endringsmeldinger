@@ -147,7 +147,6 @@ function dokument(
     case 'innsigelse':
     case 'protest':
     case 'passivitet':
-    case 'avklaring':
       return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
     case 'begrunnelse': {
       const id = nyId();
@@ -163,10 +162,9 @@ function dokument(
       return { utsagn };
     }
     case 'merking':
-      // KA-U20: en senere merking er en opplysning om det gamle brevet (MM-U12).
-      return {
-        opplysninger: [{ id: nyId(), hva: 'kan_ikke_uttrykkes', spor: k.spor, gjelder: k.gjelder }],
-      };
+    case 'avklaring':
+      // OV-U7: forutsetningene avviser kommandoen før dokumentet lages.
+      throw new Error(`kommandoen ${k.type} skrives ikke i første versjon (OV-U7)`);
   }
 }
 

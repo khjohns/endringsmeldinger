@@ -21,6 +21,7 @@ import {
   KRAVSPOR,
   SPOR,
   type Hjemmel,
+  type Opplysningsslag,
   type Spor,
   type Standpunkt,
   type Standpunktsart,
@@ -266,7 +267,11 @@ export const SVAR: Record<Spor, Skjema> = Object.fromEntries(
 ) as Record<Spor, Skjema>;
 
 /** Slagene opplysning om et dokument, som også er det en bestridelse gjelder (MM-U7). */
-export const OPPLYSNINGSSLAG = ['sendt', 'mottatt', 'endringsordre', 'kan_ikke_uttrykkes'] as const;
+export const OPPLYSNINGSSLAG = [
+  'sendt',
+  'mottatt',
+  'endringsordre',
+] as const satisfies readonly Opplysningsslag[];
 
 export const UTSAGN: Record<Utsagnsart, Skjema> = {
   varsel: objekt({ ...artfelt('varsel'), hjemmel: { const: '33.4' } }, ['id', 'art', 'hjemmel']),
@@ -293,7 +298,6 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
   innsigelse: objekt({ ...artfelt('innsigelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
   protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
   passivitet: objekt({ ...artfelt('passivitet'), gjelder: ID }, ['id', 'art', 'gjelder']),
-  avklaring: objekt({ ...artfelt('avklaring'), gjelder: ID }, ['id', 'art', 'gjelder']),
   begrunnelse: objekt({ ...artfelt('begrunnelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
 };
 
@@ -308,9 +312,8 @@ export const UTSAGNSARTER = Object.keys(UTSAGN) as Utsagnsart[];
  * grunnlaget: den som registrerer, oppgir om brevet var en endringsordre etter
  * § 31.3 (GR-U13). Uten `gjelder` står den i brevet selv; med `gjelder` er den en
  * senere avklaring av et registrert brev, uten at brevet skrives om (MM-U12).
- * `kan_ikke_uttrykkes` er merkingen etter KA-U16 og KA-U20, i samme form: uten
- * `gjelder` står den i det registrerte brevet, med `gjelder` er den en senere
- * merking av et registrert brev.
+ * Merkingen etter KA-U20 og avklaringen av den er ikke med i første versjon, så en
+ * rad med dem er ikke forstått (OV-U7, HF-U1, B-10).
  */
 export const OPPLYSNING: Record<(typeof OPPLYSNINGSSLAG)[number], Skjema> = {
   sendt: objekt({ id: ID, hva: { const: 'sendt' }, dato: DATO, gjelder: ID }, [
@@ -326,10 +329,6 @@ export const OPPLYSNING: Record<(typeof OPPLYSNINGSSLAG)[number], Skjema> = {
   endringsordre: objekt(
     { id: ID, hva: { const: 'endringsordre' }, oppfylt: { type: 'boolean' }, gjelder: ID },
     ['id', 'hva', 'oppfylt']
-  ),
-  kan_ikke_uttrykkes: objekt(
-    { id: ID, hva: { const: 'kan_ikke_uttrykkes' }, spor: liste({ enum: [...SPOR] }), gjelder: ID },
-    ['id', 'hva', 'spor']
   ),
 };
 

@@ -180,8 +180,8 @@ art = "bestridelse"
 avsender = "TE eller BH"
 beskrivelse = """
 En part bestrider en opplysning fra motparten: at dokumentet ble sendt eller
-mottatt, at det var en endringsordre etter § 31.3, eller en merking etter KA-U20.
-Uten virkning på utfallet."""
+mottatt, eller at det var en endringsordre etter § 31.3. Uten virkning på
+utfallet."""
 felt = ["id", "art", "gjelder", "hva"]
 grunnlag = "MM-U1, MM-U7"
 
@@ -223,16 +223,6 @@ varsel etter § 32.2, kravet i grunnlagssporet. Før og etter byggherrens svar.
 Uten virkning på utfallet, og sperrer ikke svaret."""
 felt = ["id", "art", "gjelder"]
 grunnlag = "VS-U12, GR-U11"
-
-[[utsagn]]
-art = "avklaring"
-avsender = "TE eller BH"
-beskrivelse = """
-Den som sendte et merket brev, sier at standpunktene i det gjelder uten
-forbehold. `gjelder` er merkingen. Sperren etter KA-U20 oppheves, men brevet
-blir ikke ubetinget fra sendetidspunktet."""
-felt = ["id", "art", "gjelder"]
-grunnlag = "KA-U20, MM-U12"
 
 [[utsagn]]
 art = "begrunnelse"
@@ -321,16 +311,3 @@ opplysning per brev. Uten opplysningen er det ikke avklart om svaret er en
 endringsordre, og trekket av grunnlaget er sperret til det er avklart."""
 felt = ["id", "hva", "oppfylt", "gjelder"]
 grunnlag = "§ 31.3, § 32.3 a, GR-U13, KA-U14, MM-U12"
-
-[[opplysning]]
-hva = "kan_ikke_uttrykkes"
-beskrivelse = """
-Et registrert brev med et krav eller svar har noe appen ikke kan uttrykke, for
-eksempel et forbehold. `spor` er sporene der handlinger bygger på det. Uten
-`gjelder` står merkingen i brevet selv; med `gjelder` er den en senere merking av
-et registrert brev, fra en av partene. Partens vurdering, ikke en rettslig
-avgjørelse. Så lenge et krav eller svar i brevet gjelder og merkingen ikke er
-avklart, sperres aksepten av svaret, endringsordren og trekk som rammer en enighet
-i sporene. Utledningen ellers er uendret."""
-felt = ["id", "hva", "spor", "gjelder"]
-grunnlag = "KA-U16, KA-U20, KA-U22, MM-U12, MM-U7"

@@ -277,8 +277,6 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     }
     case 'subsidiaer_aarsaker':
       return u.spor[hale[0] as 'vederlag'].subsidiaer;
-    case 'forbehold':
-      return u.spor[hale[0] as 'grunnlag'].forbehold;
     case 'uten_virkning':
       return u.utenVirkning.map((x) => x.element);
     case 'innsigelser':
