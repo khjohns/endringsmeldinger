@@ -100,6 +100,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     return svar.recordset[0].n;
   }
 
+  /** Om `koe.skrivetidspunkt` har en rad med tidspunktet, lest av eieren. */
+  async function tidspunktStaar(t: Date): Promise<boolean> {
+    const svar = await base.pool
+      .request()
+      .input('t', sql.DateTime2(3), t)
+      .query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.skrivetidspunkt WHERE tidspunkt = @t');
+    return svar.recordset[0].n > 0;
+  }
+
   /** Radene i saken, lest av eieren i konteksten. */
   function lagret(sakId: string, k: Kontekst = te) {
     return transaksjon(base.pool, k, async (f) => {
@@ -324,14 +333,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
 
     it('verken en skriving eller en avvisning fra lag etterlater tidspunktet', async () => {
       const sak = await nySak();
-      const foer = await ferdigeTidspunkter();
-      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, medOppdrag(te));
-      expect(await ferdigeTidspunkter()).toBe(foer);
-      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, () => ({
-        skriv: false,
-        avvisning: 0,
-      }));
-      expect(await ferdigeTidspunkter()).toBe(foer);
+      const gitt: Date[] = [];
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, (g) => {
+        gitt.push(g.tidspunkt);
+        return medOppdrag(te)(g);
+      });
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, (g) => {
+        gitt.push(g.tidspunkt);
+        return { skriv: false, avvisning: 0 };
+      });
+      expect(gitt).toHaveLength(2);
+      for (const t of gitt) expect(await tidspunktStaar(t), t.toISOString()).toBe(false);
     });
 
     it('en kontekst uten kontraktsside gir SkrivingAvvist', async () => {
