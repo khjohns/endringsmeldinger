@@ -11,8 +11,22 @@
 
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
-import { feilnummer, sql, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
+import {
+  avvisning,
+  catendaBruker,
+  type Foresp,
+  iTransaksjon,
+  opprettMigrertTestbase,
+  type Rad,
+  settInn,
+} from './sqlserver_migrert.ts';
+import {
+  opprettKjoeretid,
+  type Pool,
+  sql,
+  SQLSERVER_TILKOBLING,
+  type Testbase,
+} from './sqlserver.ts';
 
 const IKKE_NULL = 515;
 const INGEN_RETT = 229;
@@ -30,12 +44,11 @@ const TE_P3 = team();
 const KJOERETID = 'koe_runtime_prove';
 const SAKSTABELLER = ['sak_metadata', 'hendelse', 'notat', 'leveringsoppdrag', 'kjernebuffer'];
 
-type Rad = Record<string, unknown>;
-type Foresp = () => sql.Request;
 type Kontekst = { aktor: string; prosjekt?: string; side?: string; team?: string | null };
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
   let base: Testbase;
+  let kjoeretid: { pool: Pool; slett(): Promise<void> };
   /** Brukerne: TE i to team, en kollega i samme team, BH, en leser, en med inaktivt medlemskap og en i P2. */
   const b: Record<'te' | 'kollega' | 'bh' | 'leser' | 'inaktiv' | 'p2', string> = {
     te: '',
@@ -46,20 +59,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
     p2: '',
   };
 
-  async function catendaBruker(): Promise<string> {
-    const svar = await base.pool
-      .request()
-      .input('subjekt', sql.NVarChar(400), team())
-      .input('epost', sql.NVarChar(320), '')
-      .input('navn', sql.NVarChar(400), '')
-      .output('bruker', sql.UniqueIdentifier)
-      .execute('koe_api.catenda_identitet');
-    return String(svar.output.bruker).toLowerCase();
-  }
-
   beforeAll(async () => {
     base = await opprettMigrertTestbase('tilgang', { maks: 12 });
-    for (const navn of Object.keys(b) as (keyof typeof b)[]) b[navn] = await catendaBruker();
+    for (const navn of Object.keys(b) as (keyof typeof b)[])
+      b[navn] = await catendaBruker(base.pool);
     const medlem = (p: string, u: string, leser = 0, aktiv = 1) =>
       `(N'${p}', '${u}', N'${team()}', N'', N'', N'member', ${leser}, ${aktiv})`;
     await base.pool.request().batch(`
@@ -81,65 +84,29 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role)
       VALUES (N'${P1}', N'${TE1}', N'TE'), (N'${P1}', N'${TE2}', N'TE'), (N'${P1}', N'${BH1}', N'BH'),
              (N'${P2}', N'${TE_P2}', N'TE'), (N'${INAKTIVT}', N'${TE_P3}', N'TE');`);
+    kjoeretid = await opprettKjoeretid(base);
   }, 240_000);
   afterAll(async () => {
+    await kjoeretid?.slett();
     await base?.slett();
   }, 60_000);
 
   /**
    * Én transaksjon med konteksten satt først, som eieren eller som kjøretiden
-   * (`EXECUTE AS USER`). Feiler arbeidet, rulles transaksjonen tilbake.
+   * (med kjøretidens egen innlogging). Feiler arbeidet, rulles transaksjonen tilbake.
    */
-  async function iKontekst<T>(
+  function iKontekst<T>(
     k: Kontekst | null,
     arbeid: (r: Foresp) => Promise<T>,
     som: 'eier' | 'kjoeretid' = 'eier'
   ): Promise<T> {
-    const tx = new sql.Transaction(base.pool);
-    await tx.begin();
-    const r = () => new sql.Request(tx);
-    try {
-      if (som === 'kjoeretid') await r().batch(`EXECUTE AS USER = '${KJOERETID}';`);
-      if (k)
-        await r()
-          .input('aktor', sql.NVarChar(4000), k.aktor)
-          .input('prosjekt', sql.NVarChar(4000), k.prosjekt ?? P1)
-          .input('side', sql.NVarChar(4000), k.side ?? 'TE')
-          .input('team', sql.NVarChar(4000), k.team === undefined ? TE1 : k.team).batch(`
-            DECLARE @tx bigint = CURRENT_TRANSACTION_ID(), @skriving uniqueidentifier = NEWID();
-            EXEC sp_set_session_context N'koe_aktor', @aktor;
-            EXEC sp_set_session_context N'koe_prosjekt', @prosjekt;
-            EXEC sp_set_session_context N'koe_side', @side;
-            EXEC sp_set_session_context N'koe_team', @team;
-            EXEC sp_set_session_context N'koe_tx', @tx;
-            EXEC sp_set_session_context N'koe_skriving', @skriving;`);
-      const svar = await arbeid(r);
-      if (som === 'kjoeretid') await r().batch('REVERT;');
-      await tx.commit();
-      return svar;
-    } catch (feil) {
-      if (som === 'kjoeretid')
-        await r()
-          .batch('REVERT;')
-          .catch(() => {});
-      await tx.rollback().catch(() => {});
-      throw feil;
-    }
-  }
-
-  const avvisning = (p: Promise<unknown>) => p.then(() => undefined, feilnummer);
-
-  function settInn(r: Foresp, tabell: string, rad: Rad) {
-    const foresp = r();
-    const verdier = Object.entries(rad).map(([kolonne, verdi]) => {
-      if (verdi && typeof verdi === 'object' && 'sql' in verdi)
-        return (verdi as { sql: string }).sql;
-      foresp.input(kolonne, verdi);
-      return `@${kolonne}`;
-    });
-    return foresp.query(
-      `INSERT koe.${tabell} (${Object.keys(rad).join(', ')}) VALUES (${verdier.join(', ')})`
-    );
+    const kontekst = k && {
+      aktor: k.aktor,
+      prosjekt: k.prosjekt ?? P1,
+      side: k.side ?? 'TE',
+      team: k.team === undefined ? TE1 : k.team,
+    };
+    return iTransaksjon(som === 'kjoeretid' ? kjoeretid.pool : base.pool, kontekst, arbeid);
   }
 
   const sak = (prosjekt = P1, aktor = b.te): Rad => ({
@@ -619,6 +586,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       expect(kjoeretid.recordset.map((r) => r.tabell).sort()).toEqual(
         SAKSTABELLER.map((t) => `koe.${t}`).sort()
       );
+    });
+  });
+
+  describe('kjøretiden i testene (#583)', () => {
+    it('en transaksjon som kjøretiden som avbrytes av XACT_ABORT, gir ikke neste transaksjon som eieren kjøretidens identitet', async () => {
+      const feil = await avvisning(
+        iKontekst({ aktor: b.te }, (r) => r().query('SELECT 1 / 0'), 'kjoeretid')
+      );
+      expect(feil).toBe(8134);
+      for (let i = 0; i < 12; i++) {
+        const svar = await iKontekst(null, (r) =>
+          r().query<{ bruker: string }>('SELECT USER_NAME() AS bruker')
+        );
+        expect(svar.recordset[0].bruker).toBe('dbo');
+      }
     });
   });
 });

@@ -15,8 +15,17 @@
 
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
-import { feilnummer, sql, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
+import {
+  avvisning,
+  catendaBruker,
+  type Foresp,
+  iTransaksjon,
+  opprettMigrertTestbase,
+  type Rad,
+  settInn,
+  type Uttrykk,
+} from './sqlserver_migrert.ts';
+import { sql, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const IKKE_NULL = 515;
 const CHECK_BRUDD = 547;
@@ -50,46 +59,18 @@ const PROSJEKT = 'journal-p1';
 const ANNET_PROSJEKT = 'journal-p2';
 const TEAM = randomBytes(16).toString('hex');
 
-/** Et SQL-uttrykk som settes inn som det står, ikke som parameter. */
-type Uttrykk = { sql: string };
-type Rad = Record<string, unknown>;
-type Foresp = () => sql.Request;
-
 const SAMME_TRANSAKSJON: Uttrykk = { sql: 'CURRENT_TRANSACTION_ID()' };
 const SKRIVINGEN: Uttrykk = {
   sql: "TRY_CAST(SESSION_CONTEXT(N'koe_skriving') AS uniqueidentifier)",
 };
 
-function settInn(r: Foresp, tabell: string, rad: Rad) {
-  const foresp = r();
-  const verdier = Object.entries(rad).map(([kolonne, verdi]) => {
-    if (verdi && typeof verdi === 'object' && 'sql' in verdi) return (verdi as Uttrykk).sql;
-    foresp.input(kolonne, verdi);
-    return `@${kolonne}`;
-  });
-  return foresp.query(
-    `INSERT koe.${tabell} (${Object.keys(rad).join(', ')}) VALUES (${verdier.join(', ')})`
-  );
-}
-
 describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
   let base: Testbase;
   let bruker: string;
 
-  async function catendaBruker(): Promise<string> {
-    const svar = await base.pool
-      .request()
-      .input('subjekt', sql.NVarChar(400), randomBytes(16).toString('hex'))
-      .input('epost', sql.NVarChar(320), '')
-      .input('navn', sql.NVarChar(400), '')
-      .output('bruker', sql.UniqueIdentifier)
-      .execute('koe_api.catenda_identitet');
-    return String(svar.output.bruker).toLowerCase();
-  }
-
   beforeAll(async () => {
     base = await opprettMigrertTestbase('journal', { maks: 12 });
-    bruker = await catendaBruker();
+    bruker = await catendaBruker(base.pool);
     await base.pool
       .request()
       .input('bruker', sql.UniqueIdentifier, bruker)
@@ -114,35 +95,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
    * transaksjonen tilbake. Radsikkerheten gjelder også eieren, så lesingen i
    * testene går også her.
    */
-  async function iKontekst<T>(
-    arbeid: (r: Foresp) => Promise<T>,
-    team: string | null = TEAM
-  ): Promise<T> {
-    const tx = new sql.Transaction(base.pool);
-    await tx.begin();
-    const r = () => new sql.Request(tx);
-    try {
-      await r()
-        .input('aktor', sql.NVarChar(36), bruker)
-        .input('prosjekt', sql.NVarChar(100), PROSJEKT)
-        .input('team', sql.NVarChar(32), team).batch(`
-          DECLARE @tx bigint = CURRENT_TRANSACTION_ID(), @skriving uniqueidentifier = NEWID();
-          EXEC sp_set_session_context N'koe_aktor', @aktor;
-          EXEC sp_set_session_context N'koe_prosjekt', @prosjekt;
-          EXEC sp_set_session_context N'koe_side', N'TE';
-          EXEC sp_set_session_context N'koe_team', @team;
-          EXEC sp_set_session_context N'koe_tx', @tx;
-          EXEC sp_set_session_context N'koe_skriving', @skriving;`);
-      const svar = await arbeid(r);
-      await tx.commit();
-      return svar;
-    } catch (feil) {
-      await tx.rollback().catch(() => {});
-      throw feil;
-    }
+  function iKontekst<T>(arbeid: (r: Foresp) => Promise<T>, team: string | null = TEAM) {
+    return iTransaksjon(base.pool, { aktor: bruker, prosjekt: PROSJEKT, side: 'TE', team }, arbeid);
   }
-
-  const avvisning = (p: Promise<unknown>) => p.then(() => undefined, feilnummer);
 
   const sak = (overstyr: Rad = {}): Rad => ({
     sak_id: randomUUID(),
