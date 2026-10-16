@@ -98,7 +98,12 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
     ['en underkategori under feil hovedkategori', 'svikt', 'irregulaer_endring'],
     ['force majeure, som ikke har noen underkategori', 'force_majeure', 'annet_forhold'],
   ])('avviser %s', (_navn, hovedkategori, underkategori) => {
-    expect(formfeil(grunnlagskrav({ hovedkategori, underkategori }))).not.toEqual([]);
+    // Med datoen etter VS-U26 skiller kravet seg fra en gyldig kontrollsak bare i paret.
+    expect(
+      formfeil(
+        grunnlagskrav({ hovedkategori, underkategori, ...datoen(hovedkategori, underkategori) })
+      )
+    ).not.toEqual([]);
   });
 
   // #367: om force majeure skal kunne skrives uten underkategori, er ikke avgjort.
