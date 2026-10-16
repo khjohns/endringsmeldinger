@@ -11,6 +11,7 @@ from typing import Any
 
 from models.events import AnyEvent, parse_event
 from models.sak_state import SakRelasjon, SakState
+from repositories.event_repository import krev_python_skrivesti
 from services.related_cases_service import RelatedCasesService
 from utils.logger import get_logger
 
@@ -194,8 +195,14 @@ class BaseSakService:
             True hvis vellykket
 
         Raises:
+            PythonSkrivingStengt: Når TS-skrivestien er på.
             RuntimeError: Hvis Catenda-operasjon feiler
         """
+        # Catenda-relasjonene skrives uten hendelse, så lagervakten fanger dem ikke.
+        krev_python_skrivesti(
+            f"Saken {container_sak_id} skrives bare av TS-kjernen, og Python "
+            "endrer ikke relasjonene til den (B-17)."
+        )
         if not self.client:
             logger.warning("Ingen Catenda client - kan ikke legge til relasjon")
             return False
@@ -229,8 +236,14 @@ class BaseSakService:
             True hvis vellykket
 
         Raises:
+            PythonSkrivingStengt: Når TS-skrivestien er på.
             RuntimeError: Hvis Catenda-operasjon feiler
         """
+        # Catenda-relasjonene skrives uten hendelse, så lagervakten fanger dem ikke.
+        krev_python_skrivesti(
+            f"Saken {container_sak_id} skrives bare av TS-kjernen, og Python "
+            "endrer ikke relasjonene til den (B-17)."
+        )
         if not self.client:
             logger.warning("Ingen Catenda client - kan ikke fjerne relasjon")
             return False

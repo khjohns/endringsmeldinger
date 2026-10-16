@@ -20,7 +20,7 @@ import {
   opprettKjernesak,
   rydd,
   startServer,
-  TESTBASE_URL,
+  BEGGE_BASENE,
   type KjorendeServer,
   type Oppsett,
 } from './testbase.ts';
@@ -41,7 +41,7 @@ describe('registeret over inngangene', () => {
   );
 });
 
-describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasen', () => {
+describe.skipIf(!BEGGE_BASENE)('hver inngang i registeret mot testbasene', () => {
   let o: Oppsett;
   let server: KjorendeServer;
   let sak: string;
