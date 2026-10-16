@@ -37,8 +37,10 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.app_users`](#koeapp_users) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.app_identities`](#koeapp_identities) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.projects`](#koeprojects) | SQL Server | grunndata | uavklart | Nei | Ja |
-| [`koe.app_project_memberships`](#koeapp_project_memberships) | SQL Server | grunndata, kopi | uavklart | Nei | Delvis |
+| [`koe.app_project_memberships`](#koeapp_project_memberships) | SQL Server | grunndata, kopi | i bruk | Nei | Delvis |
 | [`koe.catenda_contract_teams`](#koecatenda_contract_teams) | SQL Server | grunndata | uavklart | Nei | Ja |
+| [`koe.catenda_project_configs`](#koecatenda_project_configs) | SQL Server | grunndata | uavklart | Nei | Ja |
+| [`koe.app_membership_sync`](#koeapp_membership_sync) | SQL Server | grunndata | i bruk | Nei | Ja |
 | [`koe.sak_metadata`](#koesak_metadata) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.hendelse`](#koehendelse) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.notat`](#koenotat) | SQL Server | transaksjon | uavklart | Ja | Nei |
@@ -507,7 +509,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
-| Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`) |
+| Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`); database/migrasjoner/20261016130000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
@@ -524,7 +526,7 @@ Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda
 | Relasjoner | Nøkler: primærnøkkel (id); unik (provider, issuer, subject). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Subjektet identifiserer en person. |
-| Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`) |
+| Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`); database/migrasjoner/20261016130000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
@@ -538,7 +540,7 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
 | Data fra Catenda | ikke kontrollert Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | Ingen funnet |
@@ -552,13 +554,13 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i 
 | Felt | Innhold |
 | --- | --- |
 | Type | grunndata, kopi |
-| Status | uavklart |
-| Hvor fra appen lagres og redigeres | Ingen skriver ennå (#53, del 3). |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, skriver medlemslisten fra Catenda og gjør medlemmer som ikke står i den, inaktive. `deactivated_at` er når medlemskapet sist ble gjort inaktivt; en liste hentet før det gjør det ikke aktivt igjen (DL-U8). Ingen inngang kaller modulen ennå. |
 | Data fra Catenda | Ja, medlemslisten i Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id); unik (project_id, catenda_subject). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ikke kontrollert |
 | Personopplysninger | E-post og visningsnavn. |
-| Skrives av | Ingen funnet |
+| Skrives av | database/migrasjoner/20261016130000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
@@ -578,6 +580,40 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 | Skrives av | Ingen funnet |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.catenda_project_configs`
+
+Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Settes av driften. Ingen prosedyre skriver tabellen. |
+| Data fra Catenda | Delvis. ID-en til Catenda-prosjektet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (internal_project_id); unik (catenda_project_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Ingen kjente. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+
+### `koe.app_membership_sync`
+
+Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4). Svarer til `app_membership_sync` i PostgreSQL.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`. Ingen inngang kaller modulen ennå. |
+| Data fra Catenda | Delvis. Tidspunktet er når hentingen fra Catenda begynte. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (project_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | ja, ved en ny synkronisering |
+| Personopplysninger | Ingen kjente. |
+| Skrives av | database/migrasjoner/20261016130000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`) |
+| Funn | — |
+| Belegg | L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`. |
 
 ### `koe.sak_metadata`
 
