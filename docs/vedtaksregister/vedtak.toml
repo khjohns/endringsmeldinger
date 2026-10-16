@@ -1866,9 +1866,9 @@ Frafall og ny grunnlagsversjon (PR #557, GR-U23). Byggherren har frafalt pålegg
 valgt = "A: OV-U3 går foran"
 svar = '''
 A: OV-U3 går foran (Anbefalt)'''
-forhold = [{ art = "snevrer inn", vedtak = "gr-u20" }, { art = "snevrer inn", vedtak = "gr-u23" }, { art = "presiserer", vedtak = "ov-u3" }]
+forhold = [{ art = "snevrer inn", vedtak = "gr-u20" }, { art = "snevrer inn", vedtak = "gr-u23" }, { art = "presiserer", vedtak = "ov-u3" }, { art = "presiserer", vedtak = "gr-u17" }]
 folge = '''
-Spørsmålet kom fra samspillsreviewet av PR #557. Ikke bygget (#510).'''
+Forholdet til GR-U17 fant kontrollen av føringen 16.10: når kravene er avgjort, går OV-U3 foran også for svaret på en ny versjon, slik KA-U11 går foran etter GR-U17. Spørsmålet kom fra samspillsreviewet av PR #557 og står i #578. Ikke bygget (#510).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A: OV-U3 går foran"
@@ -3275,9 +3275,9 @@ Byggherrens svar på vederlag og frist etter en ny grunnlagsversjon med samme hj
 valgt = "A: bindingen står"
 svar = '''
 A: bindingen står (Anbefalt)'''
-forhold = [{ art = "endrer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }]
+forhold = [{ art = "endrer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "presiserer", vedtak = "gr-u1" }]
 folge = '''
-Tar bort setningen i HF-U5 om at svar i vederlag og frist gitt under en tidligere grunnlagsversjon ikke binder etter en ny. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).'''
+Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A: bindingen står"
@@ -3311,7 +3311,7 @@ svar = '''
 B nå, forsering senere (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "vs-u2" }, { art = "presiserer", vedtak = "hf-u17" }]
 folge = '''
-Om fristsvaret binder under forsering, avgjøres når forsering bygges (OV-U1). Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).'''
+Alternativ A er ikke forkastet: om fristsvaret binder under forsering (FO-U5, FO-U7), avgjøres når forsering bygges (OV-U1). Forholdet til HF-U17 fant kontrollen av føringen 16.10: vedtaket sier hva appen viser når byggherren senker etter akseptfristen, som HF-U17 tillater. Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B nå, forsering senere"
