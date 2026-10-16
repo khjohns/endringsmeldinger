@@ -267,11 +267,11 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
 - **Skriv ikke arbeidsstatus i hovedplanen eller `docs/README.md`**: «neste
   oppgave», «pågår», «venter på», «merges etter #45». Det hører til i issuet.
 - **Oppfølging som ikke løses i samme PR, blir et issue.** Funn fra review og
-  code-review følger stoppregelen for funn: avviste funn står i PR-en, og resten
-  samles i et oppfølgingsissue. Venter det på en B-ID, får det
-  `venter-på-beslutning`. Det gjelder også feil du oppdager underveis utenfor
-  oppdraget. Å nevne dem i PR-beskrivelsen er ikke nok. Tilskriver du
-  en feil testmiljøet, er det en påstand. Kontroller den, eller meld den.
+  code-review føres etter «Stoppregelen for funn» under «Arbeidsform». Feil du
+  oppdager underveis utenfor oppdraget, og som ikke er reviewfunn, blir fortsatt
+  egne issues. Venter det på en B-ID, får det `venter-på-beslutning`. Å nevne
+  dem i PR-beskrivelsen er ikke nok. Tilskriver du en feil testmiljøet, er det en
+  påstand. Kontroller den, eller meld den.
 - **Hvert issue har en milepæl eller en sporetikett.** Milepælen er
   arbeidspakken i hovedplanen; de parallelle sporene har `spor-d`, `spor-h`,
   `spor-m` eller `papercut` i stedet. Venter et issue på rekkefølgen i AF-06,
@@ -324,15 +324,22 @@ forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
 som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
 
 - Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
-  kan gi feil resultat senere eller er et krav til noe som skal bygges.
+  kan gi feil resultat senere eller er et krav til noe som skal bygges. Skjørhet
+  eller duplisering som kan gi feil resultat ved en senere endring, regnes som
+  «kan gi feil resultat senere» og går til oppfølgingsissuet.
 - Er det et krav til en inngang eller del som ikke finnes ennå, føres kravet som
   kommentar i issuet for den inngangen eller delen.
 - Ellers samles funnene i ett oppfølgingsissue per PR, med etiketten
-  `review-oppfølging` og en sjekkliste. Ett issue per funn lages ikke.
+  `review-oppfølging` og en sjekkliste. Ett issue per funn lages ikke. Et funn som
+  venter på en B-ID, får eget issue med `venter-på-beslutning`, så resten av
+  sjekklisten ikke holdes igjen. PR-en som løser noen punkter, krysser dem av og
+  skriver «Del av #n»; PR-en som løser det siste punktet, skriver `Closes #n`.
+
+(oppdragsgiver 16.10, #649)
 
 Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
 rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
-`medium` (oppdragsgiver 14.10, #484 og #490; oppdragsgiver 16.10).
+`medium` (oppdragsgiver 14.10, #484 og #490).
 
 **Grensene for kontekst i
 [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#kontekst-i-arbeidsøktene)

@@ -42,7 +42,9 @@ Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
    et avvik er greit, mer enn det hører til en egen runde.
 2. Feil som stopper appen eller gir gale data, går foran opprydding.
 3. Grupper etter filoverlapp (punkt 1). Det som ikke får plass, venter til
-   neste runde. Si hvilke issues det gjelder, og hvorfor.
+   neste runde. Si hvilke issues det gjelder, og hvorfor. Et samleissue
+   `review-oppfølging` deles på samme måte: punktene grupperes etter filene de
+   rører, og en PR krysser av de punktene den løser (stoppregelen i `AGENTS.md`).
 
 **Flere issues i én økt.** Én økt tar flere issues når de rører de samme
 filene eller har samme rotårsak, og leverer én PR med `Closes` for hvert av
@@ -142,9 +144,9 @@ issue. Oppdraget skal inneholde:
   og svarene står i oppdraget. Dekker ikke svarene det byggeøkta møter, stanser
   den og spør på samme måte;
 - at økta ikke skriver i hovedplanen, med unntaket under «Spørsmål og vedtak»;
-- at funn utenfor oppdraget blir egne issues (regelen i `AGENTS.md`), og at
-  økta løser et slikt funn i samme PR med `Closes #n` bare når rettingen er
-  noen få linjer i en fil den allerede endrer. Alt annet venter til neste
+- at feil utenfor oppdraget, som ikke er reviewfunn, blir egne issues (regelen i
+  `AGENTS.md`), og at økta løser en slik feil i samme PR med `Closes #n` bare når
+  rettingen er noen få linjer i en fil den allerede endrer. Alt annet venter til neste
   runde, også funn i andre øktes filer og funn som krever en avgjørelse;
 - at oppdraget er avgrenset til om lag 45–60 minutter med aktivt arbeid, og
   hvordan økta venter (se «Kontekst i arbeidsøktene»);
@@ -403,9 +405,11 @@ Gjør dette for hver PR:
    siste meldingene fra økta (`list_events` med `kinds: ["assistant"]` og lav
    `limit`). Les ikke diffen selv: skal den vurderes ut over reviewet økta har
    kjørt, la en subagent lese den og levere konklusjon og funn.
-2. Funn som ikke er meldt som issue, kontrolleres og meldes. Finnes det et
-   issue for samme rotårsak, legg funnet som kommentar der. Et funn som økta
-   har tilskrevet testmiljøet, sjekkes før det avskrives.
+2. Reviewfunn som ikke er meldt som issue, kontrolleres. Et avvist funn er i
+   orden når det står med én linje i PR-en og verken kan gi feil resultat senere
+   eller er et krav til noe som skal bygges (stoppregelen i `AGENTS.md`).
+   Finnes det et issue for samme rotårsak, legg funnet som kommentar der. Et funn
+   som økta har tilskrevet testmiljøet, sjekkes før det avskrives.
    Legger PR-en til en serverinngang, en tabell eller en migrasjon, lar
    orkestratoren en subagent på standardmodellen kontrollere hver
    sikkerhetsinvariant i `AGENTS.md` mot koden før merge, uavhengig av
@@ -415,8 +419,10 @@ Gjør dette for hver PR:
 3. Samle de åpne spørsmålene fra alle PR-ene og still dem til oppdragsgiver
    etter «Spørsmål og vedtak».
 4. Før svarene inn der de hører hjemme: vedtak i hovedplanen etter «Spørsmål og
-   vedtak», arbeidsvalg som kommentar i PR-en eller issuet. Ny oppfølging blir
-   et nytt issue.
+   vedtak», arbeidsvalg som kommentar i PR-en eller issuet. Ny oppfølging fra
+   review legges i PR-ens samleissue, eller i issuet for inngangen eller delen
+   når funnet er et krav til noe som ikke finnes ennå (stoppregelen i
+   `AGENTS.md`). Annen ny oppfølging blir et nytt issue.
 5. Kontroller CI på siste commit. Er den rød, la subagenten `ci-logg` finne
    første feilende steg, og send funnet til økta som eier PR-en.
 
