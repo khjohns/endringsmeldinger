@@ -15,10 +15,19 @@ import { SakFinnesIkke, Versjonskonflikt, type Oppdragsrad } from './lager.ts';
 
 export { SakFinnesIkke, Versjonskonflikt };
 
-/** Basen avviste argumentene (51422), for eksempel et tidspunkt som ikke er basens. */
+/**
+ * Et argument har feil form eller avvises av basen (51422), for eksempel et
+ * tidspunkt som ikke er basens. `skrivHendelse` prøver formen på raden og
+ * oppdraget før basen; da er `cause` tom.
+ */
 export class UgyldigKommando extends Error {}
 
-/** Konteksten gir ikke rett til å skrive: radsikkerheten blokkerte raden (33504), eller konteksten mangler (51403). */
+/**
+ * Konteksten gir ikke rett til å skrive: radsikkerheten blokkerte raden (33504),
+ * basen fant ingen aktør, side eller prosjekt i konteksten (51403 fra
+ * `opprett_sak`), eller konteksten har ingen kontraktsside, som `skrivHendelse`
+ * prøver før basen, uten `cause`.
+ */
 export class SkrivingAvvist extends Error {}
 
 const UKJENT_SAK = 51403;
@@ -26,8 +35,12 @@ const KONFLIKT = 51409;
 const UGYLDIG = 51422;
 const BLOKKERT = 33504;
 
-/** Saksnummeret `koe_api.opprett_sak` lager (DL-U6), i formen `sak_metadata_sak_id_form` krever. */
-const SAKSNUMMER = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+/** Formen `sak_metadata_sak_id_form` og `hendelse_event_id_form` krever; saksnummeret er en slik ID (DL-U6). */
+const ID_FORM = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const SHA256_FORM = /^[0-9a-f]{64}$/;
+
+/** Meldingen `koe_api.skriv_hendelse` gir med 51409; formen er en kontrakt (`20261016170000_kommandoform.sql`). */
+const KONFLIKTMELDING = /^Versjonskonflikt: journalen har versjon (\d+)$/;
 
 function feilnummer(feil: unknown): number | undefined {
   const f = feil as { number?: number; originalError?: { info?: { number?: number } } };
@@ -42,11 +55,12 @@ function oversett(feil: unknown, forventet: number | null): unknown {
       return forventet === null
         ? new SkrivingAvvist(melding, { cause: feil })
         : new SakFinnesIkke(melding, { cause: feil });
-    case KONFLIKT:
-      return new Versjonskonflikt(
-        forventet ?? 0,
-        Number(/versjon (\d+)/.exec(melding)?.[1] ?? NaN)
-      );
+    case KONFLIKT: {
+      const faktisk = KONFLIKTMELDING.exec(melding)?.[1];
+      return faktisk === undefined
+        ? feil
+        : new Versjonskonflikt(forventet ?? 0, Number(faktisk), { cause: feil });
+    }
     case UGYLDIG:
       return new UgyldigKommando(melding, { cause: feil });
     case BLOKKERT:
@@ -136,12 +150,13 @@ export async function skrivHendelse<A>(
   forventet: number,
   lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>
 ): Promise<Skriveutfall<A>> {
-  if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
-  // En annen form kan ikke være en sak, og nvarchar(36) ville kortet en for lang ID (#566).
-  if (typeof sakId !== 'string' || !SAKSNUMMER.test(sakId))
-    throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
+      // Etter at transaksjon() har prøvd konteksten, så en ugyldig kontekst gir UgyldigKontekst (#596).
+      if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
+      // En annen form kan ikke være en sak (#566).
+      if (typeof sakId !== 'string' || !ID_FORM.test(sakId))
+        throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
       const finnes = await foresp()
         .input('sak_id', sql.NVarChar(36), sakId)
         .query('SELECT 1 AS finnes FROM koe.sak_metadata WHERE sak_id = @sak_id');
@@ -162,15 +177,15 @@ export async function skrivHendelse<A>(
       await foresp()
         .input('sak_id', sql.NVarChar(36), sakId)
         .input('forventet_versjon', sql.Int, forventet)
-        .input('event_id', sql.NVarChar(36), rad.event_id)
-        .input('event_type', sql.NVarChar(100), rad.event_type)
+        .input('event_id', sql.NVarChar(4000), rad.event_id)
+        .input('event_type', sql.NVarChar(4000), rad.event_type)
         .input('tidsstempel', sql.DateTime2(3), tidspunkt)
         .input('format', sql.Int, rad.format)
         .input('data', sql.NVarChar(sql.MAX), JSON.stringify(rad.data))
         .input('oppdrag_id', sql.UniqueIdentifier, oppdrag?.id ?? null)
-        .input('dokumentnoekkel', sql.NVarChar(100), oppdrag?.dokumentnoekkel ?? null)
+        .input('dokumentnoekkel', sql.NVarChar(4000), oppdrag?.dokumentnoekkel ?? null)
         .input('oppdrag', sql.NVarChar(sql.MAX), oppdrag ? JSON.stringify(oppdrag.innhold) : null)
-        .input('oppdrag_sha256', sql.NVarChar(64), oppdrag?.innhold_sha256 ?? null)
+        .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
         .execute('koe_api.skriv_hendelse');
       return utfall;
     });
@@ -188,7 +203,16 @@ class IkkeSkrevet {
   }
 }
 
-/** Raden er den basen kommer til å lagre: samme sak, versjon, aktør, side, team og tidspunkt. */
+/** En tekst med formen kolonnen krever: ikke tom, høyst `maks` tegn og uten mellomrom til slutt. */
+function tekstform(v: unknown, maks: number): boolean {
+  return typeof v === 'string' && v.length > 0 && v.length <= maks && v.trimEnd() === v;
+}
+
+/**
+ * Raden og oppdraget har formen kolonnene krever, så ingenting kortes eller avvises
+ * av en skranke (#607), og raden er den basen kommer til å lagre: samme sak,
+ * versjon, aktør, side, team og tidspunkt.
+ */
 function kontrollerRad(
   rad: Journalrad,
   oppdrag: Oppdragsrad | null,
@@ -197,6 +221,15 @@ function kontrollerRad(
   forventet: number,
   tidspunkt: Date
 ): void {
+  const form = [
+    !(typeof rad.event_id === 'string' && ID_FORM.test(rad.event_id)) && 'event_id',
+    !tekstform(rad.event_type, 100) && 'hendelsestypen',
+    oppdrag !== null && !tekstform(oppdrag.dokumentnoekkel, 100) && 'dokumentnøkkelen',
+    oppdrag !== null &&
+      !(typeof oppdrag.innhold_sha256 === 'string' && SHA256_FORM.test(oppdrag.innhold_sha256)) &&
+      'summen for oppdraget',
+  ].filter(Boolean);
+  if (form.length) throw new UgyldigKommando(`Raden har feil form: ${form.join(', ')}.`);
   const avvik = [
     rad.sak_id !== sakId && 'saken',
     rad.versjon !== forventet + 1 && 'versjonen',

@@ -628,7 +628,7 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 | Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.sak_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` peker på en bruker. |
-| Skrives av | database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -645,7 +645,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: sak_id → koe.sak_metadata.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.leveringsoppdrag.event_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.sak_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`); server/kommandoer.ts |
+| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`); server/kommandoer.ts |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -679,7 +679,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: event_id → koe.hendelse.event_id (fremmednøkkel, ON DELETE NO ACTION); sak_id → koe.hendelse.sak_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_id → koe.hendelse.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -696,7 +696,7 @@ Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel
 | Relasjoner | Nøkler: primærnøkkel (oekt). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | ja. Raden brukes bare i transaksjonen som førte den. |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skrivetidspunkt`, `koe_api.skriv_hendelse`) |
+| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`, `koe_api.skriv_hendelse`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`. |
 

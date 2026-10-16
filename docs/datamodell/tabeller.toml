@@ -748,7 +748,7 @@ lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `oppre
 fra_catenda = "Nei"
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` peker på en bruker."
-skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -767,7 +767,7 @@ personopplysninger = """
 `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde
 personopplysninger."""
 skrivere = [
-    "database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`)",
+    "database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`)",
     "server/kommandoer.ts",
 ]
 funn = []
@@ -801,7 +801,7 @@ lagres_fra = "`koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme
 fra_catenda = "Nei, men oppdraget gjelder en levering til Catenda."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innholdet er brevet og kan inneholde personopplysninger."
-skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -825,7 +825,7 @@ tidspunkt. Tabellen har høyst én rad per økt-ID."""
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Raden brukes bare i transaksjonen som førte den."
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skrivetidspunkt`, `koe_api.skriv_hendelse`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`, `koe_api.skriv_hendelse`)"]
 funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`."
 
