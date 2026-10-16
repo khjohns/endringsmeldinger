@@ -1281,8 +1281,22 @@ historikk og mappa stemmer.
 > retry, en klasse for avvisning som aldri prøves på nytt og en egen klasse for
 > versjonskonflikt, og en test med flere skrivinger for kravet om ingen delvise
 > skrivinger, følges i [#555](https://github.com/khjohns/endringsmeldinger/issues/555).
->
-> **Merknad 2026-10-16 til F0b, leveranse 2:** Levert i TS-stien: migrasjonene i T-SQL og veien fra fil til base ([#53](https://github.com/khjohns/endringsmeldinger/issues/53)). Migrasjonene og runneren kom med [#559](https://github.com/khjohns/endringsmeldinger/pull/559), runneren ble strammet inn i [#572](https://github.com/khjohns/endringsmeldinger/pull/572), og runneren holder én fast forbindelse etter [#630](https://github.com/khjohns/endringsmeldinger/pull/630). Medlemskapet er bygget med [#612](https://github.com/khjohns/endringsmeldinger/pull/612) (synkroniseringen) og [#633](https://github.com/khjohns/endringsmeldinger/pull/633) (deaktiveringen ved innlogging, [DL-U8](#dl-u8)). Mellomrom til slutt i nøkler og ID-er avvises i SQL Server ([#606](https://github.com/khjohns/endringsmeldinger/pull/606)). Inngangene som kaller medlemskapet, kommer med [#375](https://github.com/khjohns/endringsmeldinger/issues/375) (krav i [#637](https://github.com/khjohns/endringsmeldinger/issues/637) og [#638](https://github.com/khjohns/endringsmeldinger/issues/638)).
+
+> **Merknad 2026-10-16 til F0b, leveranse 2:** Levert i TS-stien: migrasjonene i T-SQL og
+> veien fra fil til base ([#53](https://github.com/khjohns/endringsmeldinger/issues/53)).
+> Migrasjonene og runneren kom med
+> [#559](https://github.com/khjohns/endringsmeldinger/pull/559), runneren ble strammet inn i
+> [#572](https://github.com/khjohns/endringsmeldinger/pull/572), og runneren holder én fast
+> forbindelse etter [#630](https://github.com/khjohns/endringsmeldinger/pull/630). Testbasen
+> lokalt og i CI kom med [#545](https://github.com/khjohns/endringsmeldinger/pull/545).
+> Medlemskapet er bygget med
+> [#612](https://github.com/khjohns/endringsmeldinger/pull/612) (synkroniseringen) og
+> [#633](https://github.com/khjohns/endringsmeldinger/pull/633) (deaktiveringen ved innlogging,
+> [DL-U8](#dl-u8)). Mellomrom til slutt i nøkler og ID-er avvises i SQL Server
+> ([#606](https://github.com/khjohns/endringsmeldinger/pull/606)). Inngangene som kaller
+> medlemskapet, er ikke bygget ([#375](https://github.com/khjohns/endringsmeldinger/issues/375);
+> krav i [#637](https://github.com/khjohns/endringsmeldinger/issues/637) og
+> [#638](https://github.com/khjohns/endringsmeldinger/issues/638)).
 
 **Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
 alternativ C prøves tidlig i T-SQL ([B-12, databasen](#b-12-databasen), #395). Lagringsformen avgjøres senest før
