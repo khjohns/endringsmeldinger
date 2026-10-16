@@ -191,14 +191,12 @@ export interface Utledning {
   frafalt: boolean;
   /**
    * Om byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3
-   * første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13). `ja`: godkjent
-   * uten påberopt preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt i
-   * appen eller i registrert korrespondanse der den som registrerte, har oppgitt at
-   * § 31.3 er oppfylt. `nei`: ikke slik godkjent, eller oppgitt at § 31.3 ikke er
-   * oppfylt. `ikke_avklart`: registrert korrespondanse uten opplysningen. En
-   * manglende opplysning er ikke et nei.
+   * første ledd a med § 31.3 (GR-U10, GR-U12, GR-U13): godkjent uten påberopt
+   * preklusjon i en kategori § 32.2 gjaldt for, i et brev sendt fra appen. En
+   * registrert endringsordre etter OV-U6 er `nei`: opplysningen fra byggherren
+   * vises, men gir ingen egen virkning i appen.
    */
-  endringsordre: 'ja' | 'nei' | 'ikke_avklart';
+  endringsordre: 'ja' | 'nei';
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -264,12 +262,30 @@ const kanStride = (d: Dokument): boolean =>
 interface Strid {
   element: string;
   grunn: string;
-  /**
-   * MM-U20, MM-U19: strid bare i en rad som ikke er registrert. Et registrert brev leses
-   * med virkning, fordi det ikke er et forsøk på å skape en enighet: et svar uten
-   * sammenfall i et trukket spor (#405, arbeidsvalget 12.10).
-   */
-  bareUregistrert?: true;
+}
+
+/**
+ * OV-U6: byggherrens registrerte endringsordre er svaret på grunnlaget når den er en
+ * godkjenning uten påberopt preklusjon i en underkategori der § 32.2 gjelder, og
+ * byggherren oppgir i brevet at det er en endringsordre etter § 31.3.
+ */
+const erRegistrertEndringsordre = (s: Svar, d: Dokument): boolean =>
+  s.spor === 'grunnlag' &&
+  blirEndringsordre(s.beslutningsgrunnlag) &&
+  d.opplysninger.some((o) => o.hva === 'endringsordre' && o.brev === d.id && o.oppfylt);
+
+/**
+ * OV-U4: kravene, svarene, akseptene og trekkene i et registrert brev er dokumentasjon
+ * og får ingen virkning. Unntaket er OV-U6. Et varsel med datoen TE oppgir, har
+ * virkning (OV-U5).
+ */
+function dokumentasjonIBrevet(d: Dokument): Set<string> {
+  if (!erRegistrert(d.opplysninger)) return new Set();
+  return new Set([
+    ...d.krav.map((k) => k.id),
+    ...d.svar.filter((s) => !erRegistrertEndringsordre(s, d)).map((s) => s.id),
+    ...d.utsagn.filter((x) => x.art === 'aksept' || x.art === 'trekk').map((x) => x.id),
+  ]);
 }
 
 /**
@@ -319,8 +335,6 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
       ut.push({
         element: s.id,
         grunn: 'et svar på et krav etter at det er trukket (MM-U20, GR-U5)',
-        // MM-U19: et svar med sammenfall skaper en enighet i et lukket spor.
-        ...(s.beslutningsgrunnlag.sammenfall ? {} : { bareUregistrert: true as const }),
       });
     else if (bundet && s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt'))
       ut.push({
@@ -375,9 +389,11 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     const foer = utledSporene(journal.slice(0, i), regler, uten);
     if (!foer.forstaatt) break;
     const registrert = erRegistrert(h.dokument.opplysninger);
+    const dokumentasjon = dokumentasjonIBrevet(h.dokument);
     for (const x of strid(h.dokument, foer, uten)) {
       if (!registrert) konflikter.push({ hendelse: h.id, grunn: x.grunn });
-      else if (!x.bareUregistrert) uten.set(x.element, { hendelse: h.id, grunn: x.grunn });
+      else if (!dokumentasjon.has(x.element))
+        uten.set(x.element, { hendelse: h.id, grunn: x.grunn });
     }
     if (konflikter.length) break;
   }
@@ -385,7 +401,10 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   return konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
 }
 
-/** Utledningen med elementene i `uten` uten virkning: de plasseres, men leses ikke inn i sporene. */
+/**
+ * Utledningen med elementene i `uten` og dokumentasjonen i registrerte brev uten virkning:
+ * de plasseres, men leses ikke inn i sporene.
+ */
 function utledSporene(
   journal: Domenehendelse[],
   regler: Regelsett,
@@ -425,6 +444,8 @@ function utledSporene(
     plasser(h.id, h);
     if (h.art === 'sak') continue;
     const d = h.dokument;
+    const dokumentasjon = dokumentasjonIBrevet(d);
+    const harVirkning = (id: string) => !uten.has(id) && !dokumentasjon.has(id);
     registrer(h.id, h, d.avsender, 'dokument');
     if (erRegistrert(d.opplysninger) && (d.krav.length || d.svar.length))
       elementer[h.id].registrertBrev = true;
@@ -432,7 +453,7 @@ function utledSporene(
       plasser(k.id, h);
       registrer(k.id, h, d.avsender, 'krav');
       kravMedUten.set(k.id, k);
-      if (!uten.has(k.id)) spor[k.spor].krav.push(k);
+      if (harVirkning(k.id)) spor[k.spor].krav.push(k);
     }
     for (const s of d.svar) {
       plasser(s.id, h);
@@ -443,13 +464,13 @@ function utledSporene(
         registrer(p.id, h, d.avsender, 'standpunkt');
         if (p.art === 'rettidighet' && !p.iTide) elementer[p.id].innsigelse = true;
       }
-      if (!uten.has(s.id)) spor[s.spor].svar.push(s);
+      if (harVirkning(s.id)) spor[s.spor].svar.push(s);
     }
     for (const u of d.utsagn) {
       plasser(u.id, h);
       registrer(u.id, h, d.avsender, u.art);
       if (u.art === 'innsigelse') elementer[u.id].innsigelse = true;
-      if (uten.has(u.id)) continue;
+      if (!harVirkning(u.id)) continue;
       if (u.art === 'aksept') aksepter.push(u);
       else if (u.art === 'trekk') trekk.push(u);
       else if (u.art === 'bestridelse') bestridelser.push(u);
@@ -742,21 +763,14 @@ function utledSporene(
 
   const gSvar = spor.grunnlag.gjeldendeSvar;
   const eg = spor.grunnlag.enighet;
-  // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). Registrert
-  // korrespondanse har en opplysning om at den er sendt eller mottatt, og da avgjør
-  // opplysningen fra den som registrerte. Mangler den, er det ikke avklart; kjernen
-  // gjetter ikke. En bestridelse av opplysningen har ingen virkning på utfallet (MM-U7).
-  const endringsordre = ((): Utledning['endringsordre'] => {
-    if (!gSvar || !blirEndringsordre(gSvar.beslutningsgrunnlag)) return 'nei';
-    if (!erRegistrert(dokumenter.get(gSvar!.dokument)!.opplysninger)) return 'ja';
-    const om313 = opplysninger.find(
-      (o): o is Extract<Opplysning, { hva: 'endringsordre' }> =>
-        o.hva === 'endringsordre' && o.brev === gSvar!.dokument
-    );
-    if (om313?.oppfylt === false) return 'nei';
-    if (om313 === undefined) return 'ikke_avklart';
-    return 'ja';
-  })();
+  // § 31.3: et brev sendt i appen oppfyller den, fordi appen lager brevet (#310). En
+  // registrert endringsordre gir ingen egen virkning (OV-U6).
+  const endringsordre: Utledning['endringsordre'] =
+    gSvar &&
+    blirEndringsordre(gSvar.beslutningsgrunnlag) &&
+    !erRegistrert(dokumenter.get(gSvar.dokument)!.opplysninger)
+      ? 'ja'
+      : 'nei';
   const gBrev = gSvar ? svar[gSvar.id] : null;
   // GR-U1, GR-U4, #342: svaret i sporet er subsidiært til gjeldende svar på
   // grunnlaget. Venter grunnlaget på svar på en ny versjon, forblir det subsidiært
@@ -862,13 +876,9 @@ function utledSporene(
  * KA-U13 og KA-U14, med § 31.3 (GR-U13): TE kan ikke trekke grunnlaget når byggherren
  * har godkjent det i et svar sendt fra appen, og godkjenningen er en endringsordre. Et
  * trekk ville gitt journalen den videre virkningen at endringsordren leses som bortfalt
- * (KA-U6). En endringsordre byggherren har registrert, sperrer ikke (OV-U6), og et
- * registrert brev gir ingen sperre (OV-U4).
+ * (KA-U6). En endringsordre byggherren har registrert, sperrer ikke (OV-U6).
  */
-export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => {
-  const svar = u.spor.grunnlag.gjeldendeSvar;
-  return u.endringsordre === 'ja' && !!svar && !u.elementer[svar.dokument]?.registrertBrev;
-};
+export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => u.endringsordre === 'ja';
 
 /**
  * Om enigheten i sporet har virkning (GR-U7, MM-U3): `betinget` til vilkåret
