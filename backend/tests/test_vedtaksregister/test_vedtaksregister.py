@@ -713,6 +713,23 @@ def test_svaret_som_ikke_nevner_det_valgte_og_ikke_slutter_seg_til_det_anbefalte
     assert any("svaret nevner ikke det valgte alternativet «A»" in f for f in feil), feil
 
 
+@pytest.mark.parametrize("anbefalte, grunn", [
+    ([], ", og ingen alternativer er merket anbefalt"),
+    (["C"], ", og det valgte alternativet er ikke det anbefalte"),
+    (["A", "C"], ""),
+])
+def test_feilmeldingen_sier_hvorfor_svaret_ikke_slutter_seg_til_det_valgte(
+    grunnregister, anbefalte, grunn
+):
+    post = ny_post(svar="Ja til anbefalingen")
+    for a in post["alternativ"]:
+        if a["navn"] in anbefalte:
+            a["anbefalt"] = True
+    assert f"XX-U1: svaret nevner ikke det valgte alternativet «A»{grunn}" in vr.valider(
+        med(grunnregister, post)
+    )
+
+
 def test_mer_enn_ett_anbefalt_alternativ_gir_feil(grunnregister):
     post = _med_anbefalt("A", svar="Ja til anbefalingen")
     post["alternativ"][2]["anbefalt"] = True

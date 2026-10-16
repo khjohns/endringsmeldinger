@@ -625,16 +625,16 @@ def valider(register: dict) -> list[str]:
             anbefalte = [a["navn"] for a in p["alternativ"] if a.get("anbefalt")]
             if len(anbefalte) > 1:
                 feil.append(f"{navn}: mer enn ett alternativ er anbefalt")
-            if not _nevner(p["valgt"], p["svar"]) and not (
-                anbefalte == [p["valgt"]] and _slutter_seg_til_anbefalingen(p["svar"])
-            ):
+            slutter_seg = _slutter_seg_til_anbefalingen(p["svar"])
+            if not _nevner(p["valgt"], p["svar"]) and not (anbefalte == [p["valgt"]] and slutter_seg):
+                grunn = ""
+                if slutter_seg:
+                    if not anbefalte:
+                        grunn = ", og ingen alternativer er merket anbefalt"
+                    elif p["valgt"] not in anbefalte:
+                        grunn = ", og det valgte alternativet er ikke det anbefalte"
                 feil.append(
-                    f"{navn}: svaret nevner ikke det valgte alternativet «{p['valgt']}»"
-                    + (
-                        ", og det valgte alternativet er ikke det anbefalte"
-                        if _slutter_seg_til_anbefalingen(p["svar"])
-                        else ""
-                    )
+                    f"{navn}: svaret nevner ikke det valgte alternativet «{p['valgt']}»{grunn}"
                 )
             andre = [
                 a["navn"]
