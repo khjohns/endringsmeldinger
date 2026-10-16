@@ -331,7 +331,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
        VALUES (@p, NEWID(), SYSUTCDATETIME())`,
     ],
   ])('%s avviser mellomrom til slutt, også fra eieren (547)', async (kolonne, setning) => {
-    const p = await prosjekt();
+    const p = { id: `medlemskap-${randomBytes(4).toString('hex')}` };
+    await base.pool
+      .request()
+      .input('id', sql.NVarChar(100), p.id)
+      .query(
+        `INSERT koe.projects (id, name, organisasjon_id, is_active) VALUES (@id, @id, N'oslobygg', 1)`
+      );
     const feil = await base.pool
       .request()
       .input('p', sql.NVarChar(100), `${p.id} `)
