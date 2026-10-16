@@ -4715,10 +4715,7 @@ forhold = [
   { art = "endrer", vedtak = "vs-u11" },
 ]
 folge = '''
-Endringen av VS-U8 gjelder bestridelsen, og endringen av VS-U11 registrerte svar. Ikke
-bygget. Et krav eller svar sendt utenfor appen får ingen virkning i appen; skal det få
-virkning, sendes det fra appen og får appens dato. Sender TE kravet fra appen, kan TE
-oppgi datoen det ble sendt utenfor appen, som premiss for byggherren (OV-U5).'''
+Bygget 16.10 i PR #654 (#574, #595 punkt 1): et krav, svar, aksept og trekk i et registrert brev gir ingen virkning i utledningen, unntatt et svar som er byggherrens endringsordre etter OV-U6 (`dokumentasjonIBrevet` i `kjerne/utledning/utled.ts`). Et varsel med datoen TE oppgir, har fortsatt virkning (OV-U5). Gjeldende krav er bare kravversjoner med virkning, altså ikke i et registrert brev. Endringen av VS-U8 gjelder bestridelsen, som er utsatt etter OV-U7, og er ikke bygget. Ikke bygget i PR #654: visningen ved «venter på svar» (T2) og fristveiledningen, som viser at motparten har registrert brev i sporet. Kjernen har ingen kommando som registrerer et krav eller svar (`skriving.ts`). Reglene i OV-U4 for at en registrering godtas etter godtatt avslag, etter trukket grunnlag og i en sak som ikke er forstått, er ikke bygget (`forutsetninger.ts` avviser). `ingen_krav` i et registrert brev har fortsatt virkning (åpent spørsmål 8 i PR #654, #587 med #493). Begrunnelse, innsigelse, protest, passivitet og bestridelse i et registrert brev leses som før (de utsatte etter OV-U7, resten av #587). Spørsmålene om OV-U6 fra reviewet står i #669. Se #626.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -4847,7 +4844,7 @@ svar = '''
 Ja'''
 forhold = [{ art = "endrer", vedtak = "ov-u1" }]
 folge = '''
-Ikke bygget. Endringsordre som egen sak og forsering utsettes av OV-U1, ikke av OV-U7.'''
+Bygget 16.10 i PR #654 (#587, merkedelen): merking og avklaring av registrerte brev avvises før brevet skrives, med IKKE_I_FOERSTE_VERSJON (`kjerne/kommandoer/forutsetninger.ts`). Meldingen sier at brevet kan registreres som dokumentasjon. Formatet og leseren tar ikke imot merkingen og avklaringen, så en sak med en slik rad er ikke forstått (HF-U1, B-10). Feltene `merket` og `forbehold`, BREV_MED_FORBEHOLD, sperren i `kanInngaaIEo` og merkingen i `visning.ts` er fjernet fra utledningen, kommandoene og visningen. Teksten for merking i `kjerne/frosset/brevtekst.ts` står igjen (T6 i PR #654). Ikke bygget i PR #654: resten av #587, med utsagnene uten virkning (bestridelse, påberopt passivitet, protest, senere begrunnelse og datokontrollene for den), «ingen krav» med #493 og KA-U36. Disse er ikke endret i PR #654. Endringsordre som egen sak og forsering utsettes av OV-U1, ikke av OV-U7.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
