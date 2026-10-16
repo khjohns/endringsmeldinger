@@ -118,6 +118,9 @@ tekst = "et ordrett utdrag"
   med kilden: `ns8407`, `hovedplanen` eller stien. Et sitat er hele setninger;
   et utdrag får `utdrag = true`, og da er det et utdrag også i teksten.
 - **Svaret** er oppdragsgivers ordrett og nevner det valgte alternativet ved navn.
+  Ble ett alternativ anbefalt da spørsmålet ble stilt, får det `anbefalt = true`.
+  Er det valgt, kan svaret i stedet slutte seg til anbefalingen, som «Ja til
+  anbefalingen» eller «Ja til alle anbefalingene» (#486).
 
 ## Temavisningene
 

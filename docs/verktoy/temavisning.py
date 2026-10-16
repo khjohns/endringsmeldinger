@@ -24,6 +24,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 import pathlib
 import re
 import sys
@@ -40,6 +41,7 @@ vr = vh.vr
 ROT = vr.ROT
 TEMAER = ROT / "docs" / "vedtaksregister" / "temaer.toml"
 MAPPE = ROT / "docs" / "vedtaksregister" / "temaer"
+PLANMAPPE = vr.HOVEDPLAN.parent
 REGLER = ROT / "docs" / "domenetabell" / "regler.json"
 BEVIS = {
     "": ROT / "docs" / "domenetabell" / "bevis-saker.json",
@@ -49,6 +51,8 @@ BEVIS = {
 TIL_PLANEN = "../../plans/2026-09-16-godkjenning-og-varig-levering.md"
 TIL_TABELLEN = "../../domenetabell/README.md#tabellen"
 LENKE = re.compile(r"\]\(#([^)\s]+)\)")
+# En relativ lenke i vedtaksteksten er relativ til hovedplanen i docs/plans/ (#494).
+RELATIV = re.compile(r"\]\((?!#|[a-z]+:)([^)\s]+)\)")
 # Et merke som begynner en setning i vedtaksteksten til en importert post: «Forkastet:»,
 # formene med en avgrensning, som «Forkastet foreløpig:», og «Utsatt:».
 MERKE = re.compile(r"(?<=[.»] )(?:Forkastet|Utsatt)[^:«]{0,60}?: ")
@@ -166,8 +170,16 @@ def kontrollsum(ut: dict) -> str:
     return hashlib.sha256(tekst.encode("utf-8")).hexdigest()
 
 
+def _fra_planen(maal: str) -> str:
+    """Stien til en relativ lenke i 3.1, skrevet om fra docs/plans/ til mappen visningen ligger i."""
+    fil, skille, fragment = maal.partition("#")
+    sti = os.path.normpath(os.path.join(PLANMAPPE, fil))
+    return pathlib.Path(os.path.relpath(sti, MAPPE)).as_posix() + skille + fragment
+
+
 def _lenker(tekst: str, medlemmer: set[str]) -> str:
     """Lenkene i 3.1 går til ankre i planen. Et vedtak i temaet har sin egen overskrift i visningen."""
+    tekst = RELATIV.sub(lambda m: f"]({_fra_planen(m.group(1))})", tekst)
     return LENKE.sub(
         lambda m: f"](#{m.group(1)})" if m.group(1) in medlemmer else f"]({TIL_PLANEN}#{m.group(1)})",
         tekst,
@@ -284,7 +296,7 @@ def visning(tema: dict, kilder: dict) -> str:
         for merke, tekst in forkastet:
             linjer += [f"**{merke}** {_lenker(tekst, medlemmer)}", ""]
         linjer += [
-            f"**Vedtatt:** {vr.vedtattcelle(p)}",
+            f"**Vedtatt:** {_lenker(vr.vedtattcelle(p), medlemmer)}",
             "",
             f"**Følge:** {_lenker(vr.folgecelle(p, register, ix), medlemmer)}",
             "",
