@@ -11281,7 +11281,7 @@
         "GR-32"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U20, GR-U19, GR-U21: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med frafall eller endringsordre, ikke med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen får ingen virkning (MM-U19 og arbeidsvalget 16.10 i #510)",
+      "forslag": "GR-U20, GR-U19: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med frafall eller endringsordre, ikke med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen får ingen virkning (MM-U19 og arbeidsvalget 16.10 i #510)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11424,7 +11424,7 @@
         "GR-32"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U20, GR-U19, GR-U21: som F-MM-G38, med en ny grunnlagsversjon i en annen underkategori som § 32.2 gjelder for og der frafall er tillatt (GR-U18)",
+      "forslag": "GR-U20, GR-U19: som F-MM-G38, med en ny grunnlagsversjon i en annen underkategori som § 32.2 gjelder for og der frafall er tillatt (GR-U18)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11510,107 +11510,6 @@
           },
           "forventet": {
             "avvist": false
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-G40",
-      "rader": [
-        "GR-33"
-      ],
-      "start": "krav_irreg",
-      "forslag": "GR-U21, GR-U18: etter et frafall fra appen kan byggherren svare fritt på en ny grunnlagsversjon i en underkategori der frafall ikke er tillatt, også med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen leses med virkning",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "resultat": "paalegg_frafalt",
-              "varslet_i_tide": true,
-              "navn": "S-g1"
-            }
-          ]
-        },
-        {
-          "handling": "krav",
-          "spor": "grunnlag",
-          "underkategori": "lovendring_gjenstand",
-          "navn": "K-g2"
-        },
-        {
-          "handling": "rad",
-          "dokument": "D6",
-          "sendt": "2026-09-30",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g2",
-              "gjelder": "K-g2",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
-            }
-          ]
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "GR-U21",
-            "GR-U18"
-          ],
-          "prov": {
-            "handling": "brev",
-            "svar": [
-              {
-                "spor": "grunnlag",
-                "resultat": "avslaatt",
-                "varslet_i_tide": true
-              }
-            ]
-          },
-          "forventet": {
-            "avvist": false
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "kontroll",
-          "kilde": [
-            "GR-U21",
-            "HF-U8"
-          ],
-          "prov": {
-            "handling": "brev",
-            "svar": [
-              {
-                "spor": "grunnlag",
-                "resultat": "godkjent",
-                "varslet_i_tide": false
-              }
-            ]
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "SAGT_I_TIDE"
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "GR-U21",
-            "OV-U4"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "uten_virkning": [],
-            "gjeldende_svar.grunnlag": "S-g2"
           }
         }
       ]

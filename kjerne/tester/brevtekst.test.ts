@@ -2646,9 +2646,8 @@ describe('en ny grunnlagsversjon beholder kategorien (GR-U19)', () => {
 });
 
 /**
- * GR-U17, GR-U20, GR-U21: et frafall etter § 32.3 c fra appen binder byggherren til
- * endringsordre. Et avslag avvises i en revisjon og i et svar på en ny grunnlagsversjon
- * i en underkategori der frafall er tillatt.
+ * GR-U17, GR-U20: et frafall etter § 32.3 c fra appen binder byggherren til
+ * endringsordre. Et avslag avvises i en revisjon og i et svar på en ny grunnlagsversjon.
  * Revisjonen fra frafall til frafall er arbeidsvalget 16.10 i #510.
  */
 describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', () => {
@@ -2765,21 +2764,6 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       versjon(s, { tittel: 'Ny peling 2' });
       expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
     });
-
-    it.each(['lovendring_gjenstand', 'lovendring_prosess', 'gebyrer_og_avgifter'])(
-      'i underkategorien %s, der frafall ikke er tillatt, kan byggherren avslå den nye versjonen (GR-U21, GR-U18)',
-      (underkategori) => {
-        const s = medFrafall();
-        versjon(s, { underkategori });
-        expect(s.u().spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
-        expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
-        expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBeNull();
-        expect(s.avvist('BH', nyttSvar(s, paaberopelse))).toBe('SAGT_I_TIDE');
-        const id = registrertSvar(s, 'avslaatt', true);
-        expect(s.u().utenVirkning).toEqual([]);
-        expect(s.u().spor.grunnlag.gjeldendeSvar?.id).toBe(id);
-      }
-    );
 
     it('et registrert frafall binder ikke (OV-U4)', () => {
       const s = sakMedKrav();

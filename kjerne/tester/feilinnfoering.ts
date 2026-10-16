@@ -2431,19 +2431,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['får ingen virkning', 'gjør saken ikke forstått', 'F-MM-G37', 'F-MM-G38'],
   },
   {
-    id: 'F232',
-    feilklasse:
-      'frafallet binder også en ny versjon i en underkategori der frafall ikke er tillatt (GR-U21, GR-U18, #510)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '    erByggherrensPaalegg(tekst(innhold.hovedkategori), foersteUnderkategori(underkategori)) &&',
-        '    innhold !== null &&',
-      ],
-    ],
-    mal: ['der frafall ikke er tillatt, kan byggherren avslå den nye versjonen', 'F-MM-G40'],
-  },
-  {
     id: 'F233',
     feilklasse:
       'en påberopelse etter § 32.2 etter frafallet i et brev utenfor kommandoene leses med virkning (GR-U17, MM-U18, MM-U19, #510)',

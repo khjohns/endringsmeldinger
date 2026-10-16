@@ -318,7 +318,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'predikat', 'godkjenningenErMerket', ['kommandoer/forutsetninger.ts']],
   // HF-U4, HF-U8: byggherren har sagt «i tide» i et svar sendt fra appen. Leses av nyttelastkontrollen.
   ['utledning/utled.ts', 'predikat', 'harSagtITide', ['kommandoer/nyttelast.ts']],
-  // GR-U17, GR-U20, GR-U21: frafallet i et svar sendt fra appen binder byggherren.
+  // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
   ['utledning/utled.ts', 'predikat', 'frafalletBinder', ['kommandoer/nyttelast.ts']],
   ['Rettidighet', 'utsagn', 'hjemmel gjelder'],
   ['Svarberegning', 'relasjon', 'svar'],
@@ -403,7 +403,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/grunnlag.ts',
     'regelsett',
-    'erByggherrensPaalegg erEndringMedVarslingsplikt erGrunnlagSubsidiaert foersteUnderkategori gyldigeResultater',
+    'erEndringMedVarslingsplikt erGrunnlagSubsidiaert foersteUnderkategori gyldigeResultater',
   ],
   ['regler/frist.ts', 'regelsett', 'beregnFrist resultatAvDager'],
   [

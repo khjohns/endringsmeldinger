@@ -20,12 +20,7 @@
 
 import { datoFor, erRegistrert, registrertDato, sammeSlag } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import {
-  erByggherrensPaalegg,
-  foersteUnderkategori,
-  type Subsidiaergrunn,
-} from '../regler/grunnlag.ts';
-import { tekst } from '../format/skjema.ts';
+import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Grunnlagsresultat } from '../regler/typer.ts';
 import {
   blirEndringsordre,
@@ -278,7 +273,7 @@ interface Strid {
  * spor med enighet (KA-U7, GR-U10), en ny kravversjon i et trukket spor eller et spor
  * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor
  * (MM-U20), et avslag av grunnlaget eller en påberopelse etter § 32.2 når frafallet
- * binder (GR-U17, GR-U20, GR-U21), en aksept av et frafall (GR-U9) eller av et svar
+ * binder (GR-U17, GR-U20), en aksept av et frafall (GR-U9) eller av et svar
  * partene alt er enige om (GR-U8, KA-U7), noe som endrer
  * utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt
  * (KA-U11, SK-01), og det som viser til et element uten virkning. Kontrollen
@@ -953,24 +948,16 @@ const paaberoperVarselet = (s: Pick<Svar, 'standpunkter'>): boolean =>
   s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2' && !p.iTide);
 
 /**
- * GR-U17, GR-U20, GR-U21: byggherren har i et svar sendt fra appen frafalt pålegget
- * (§ 32.3 c) og er bundet av løftet om endringsordre, så svaret på gjeldende
- * grunnlagsversjon kan ikke være et avslag eller en påberopelse etter § 32.2.
- * Frafallet står også når svaret er revidert, og når TE har sendt en ny
- * grunnlagsversjon (GR-U20). Er den nye versjonen i en underkategori der frafall ikke
- * er tillatt (GR-U18), svarer byggherren som etter GR-U1 (GR-U21). Et registrert
- * brev binder ikke (OV-U4).
+ * GR-U17, GR-U20: byggherren har i et svar sendt fra appen frafalt pålegget (§ 32.3 c)
+ * og er bundet av løftet om endringsordre, så svaret på gjeldende grunnlagsversjon kan
+ * ikke være et avslag eller en påberopelse etter § 32.2. Frafallet står også når svaret
+ * er revidert, og når TE har sendt en ny grunnlagsversjon (GR-U20). Et registrert brev
+ * binder ikke (OV-U4).
  */
-export function frafalletBinder(u: Utledning): boolean {
-  const innhold = u.spor.grunnlag.gjeldendeKrav?.innhold ?? {};
-  const underkategori = innhold.underkategori as string | string[] | null;
-  return (
-    erByggherrensPaalegg(tekst(innhold.hovedkategori), foersteUnderkategori(underkategori)) &&
-    u.spor.grunnlag.svar.some(
-      (s) => grunnlagssvaret(s, 'paalegg_frafalt') && !u.elementer[s.dokument]?.registrertBrev
-    )
+export const frafalletBinder = (u: Pick<Utledning, 'spor' | 'elementer'>): boolean =>
+  u.spor.grunnlag.svar.some(
+    (s) => grunnlagssvaret(s, 'paalegg_frafalt') && !u.elementer[s.dokument]?.registrertBrev
   );
-}
 
 /**
  * Grunnlagskravet et svar vurderes mot: kravet et grunnlagssvar gjelder, ellers
