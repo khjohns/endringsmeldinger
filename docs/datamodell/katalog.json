@@ -644,6 +644,18 @@
      }
     ]
    },
+   "koe.app_oauth_attempts": {
+    "kolonner": [
+     ["state_hash", "varchar(64)", "NOT NULL"],
+     ["browser_hash", "varchar(64)", "NOT NULL"],
+     ["return_path", "nvarchar(2048)", "NOT NULL"],
+     ["expires_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["state_hash"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": []
+   },
    "koe.app_project_memberships": {
     "kolonner": [
      ["project_id", "nvarchar(100)", "NOT NULL"],
@@ -670,6 +682,26 @@
       "til_kolonner": ["id"],
       "ved_sletting": "NO ACTION"
      },
+     {
+      "kolonner": ["user_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.app_sessions": {
+    "kolonner": [
+     ["token_hash", "varchar(64)", "NOT NULL"],
+     ["user_id", "uniqueidentifier", "NOT NULL"],
+     ["csrf_token", "varchar(128)", "NOT NULL"],
+     ["expires_at", "datetime2(3)", "NOT NULL"],
+     ["created_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["token_hash"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
      {
       "kolonner": ["user_id"],
       "til": "koe.app_users",

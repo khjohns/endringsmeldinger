@@ -1,6 +1,6 @@
 /**
- * Klienten mot TS-serveren for skiva i #347 (B-18). Serveren står bak samme vert
- * under `/api/kjerne/`, med samme sesjon og CSRF-token som resten av appen.
+ * Klienten mot TS-serveren for KOE-sakene (B-17, B-18). Serveren står bak samme
+ * vert under `/api/kjerne/`, med samme sesjon og CSRF-token som resten av appen.
  */
 
 import { apiFetch } from '$lib/api/client';
@@ -28,9 +28,20 @@ export interface Kjernesak {
   leveringsoppdrag: Leveringsoppdrag[];
 }
 
-const sti = (sakId: string) => `/api/kjerne/saker/${encodeURIComponent(sakId)}`;
+const SAKER = '/api/kjerne/saker';
+const sti = (sakId: string) => `${SAKER}/${encodeURIComponent(sakId)}`;
 
 export const hentKjernesak = (sakId: string) => apiFetch<Kjernesak>(sti(sakId));
+
+/**
+ * Oppretter saken. Serveren lager saks-ID-en og stempler aktøren og tidspunktet.
+ * Inngangen bygges i #370 (FK-7); formen her er det klienten sender dit.
+ */
+export const opprettSak = (kommando: unknown) =>
+  apiFetch<{ sak_id: string; versjon: number }>(SAKER, {
+    method: 'POST',
+    body: JSON.stringify({ kommando }),
+  });
 
 /** Kommandoen sendes med versjonen skjemaet så. Aktøren og tidspunktet settes av serveren. */
 export const sendKommando = (sakId: string, expectedVersion: number, kommando: unknown) =>

@@ -119,7 +119,8 @@ export async function synkroniserMedlemskap(
 
 /**
  * Gjør brukerens medlemskap inaktivt i hvert prosjekt med aktiv kobling til et
- * Catenda-prosjekt som ikke står i `catendaProsjekter` (DL-U8). Listen må være
+ * Catenda-prosjekt som ikke står i `catendaProsjekter` (DL-U8). Hver ID har
+ * `catendaId()`-formen, som `subjekt`; en annen form avvises (#637). Listen må være
  * hele listen over brukerens Catenda-prosjekter, hentet etter `hentet` fra
  * `basensKlokke()`; er den ufullstendig, kalles funksjonen ikke, og innloggingen
  * feiler (B-04 punkt 4). Et prosjekt med en medlemsliste hentet etter `hentet`
