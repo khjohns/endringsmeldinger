@@ -33,6 +33,7 @@ import {
   type Utfall,
 } from '../kommandoer/skriving.ts';
 import type { Avsnitt, Dokument, Journalrad, Part } from '../typer.ts';
+import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort } from '../utledning/utled.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 
@@ -2771,6 +2772,83 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(s.u().frafalt, 'forutsetning: det registrerte frafallet leses').toBe(true);
       versjon(s, { tittel: 'Ny peling 2' });
       expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
+    });
+  });
+
+  /**
+   * GR-U23: mens en ny grunnlagsversjon etter et frafall venter på svar, er grunnlaget
+   * avklart ved frafallet, så en enighet i vederlag eller frist forblir virksom. Etter
+   * OV-U3 oppstår tilfellet bare når et annet sendt krav står åpent, her fristkravet.
+   */
+  describe('mens en ny grunnlagsversjon venter etter frafallet (GR-U23)', () => {
+    const vederlagFullt = [
+      {
+        hovedkrav_vurdering: 'godkjent',
+        hovedkrav_godkjent_belop: 125000,
+        aksepterer_metode: true,
+      },
+      { resultat: 'godkjent', godkjent_beloep: 125000 },
+    ] as const;
+    /** Frafall på grunnlaget og vederlaget godkjent fullt, så partene er enige (GR-U10). */
+    const medEnighetIVederlaget = (s: Sak) => {
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('vederlag', s.krav('vederlag'), vederlagFullt[0], vederlagFullt[1])],
+      });
+      expect(enighetensVirkning(s.u(), 'vederlag'), 'forutsetning: enighet i vederlaget').toBe(
+        'virksom'
+      );
+      return s;
+    };
+
+    it('grunnlaget er avklart ved frafallet, og enigheten i vederlaget forblir virksom', () => {
+      const s = medEnighetIVederlaget(medFrafall());
+      versjon(s, { tittel: 'Ny peling 2' });
+      const u = s.u();
+      expect(u.spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
+      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
+      expect(u.grunnlagAvklart).toBe(true);
+      expect(u.frafalt).toBe(true);
+      expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
+      expect(kraveneErAvgjort(u), 'fristkravet står åpent (OV-U3)').toBe(false);
+      expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
+    });
+
+    it('byggherrens svar på versjon 2 avløser frafallet som gjeldende svar', () => {
+      const s = medEnighetIVederlaget(medFrafall());
+      versjon(s, { tittel: 'Ny peling 2' });
+      s.send('BH', nyttSvar(s, endringsordre));
+      const u = s.u();
+      expect(u.frafalt).toBe(false);
+      expect(u.grunnlagAvklart).toBe(true);
+      expect(u.endringsordre).toBe('ja');
+      expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
+    });
+
+    it('kontrollsak: etter et registrert frafall venter versjon 2 på svar uten avklart grunnlag (OV-U4, GR-U1)', () => {
+      const s = sakMedKrav();
+      registrertSvar(s, 'paalegg_frafalt', true);
+      medEnighetIVederlaget(s);
+      versjon(s, { tittel: 'Ny peling 2' });
+      const u = s.u();
+      expect(u.grunnlagAvklart).toBe(false);
+      expect(u.frafalt).toBe(false);
+      expect(enighetensVirkning(u, 'vederlag')).toBe('betinget');
+    });
+
+    it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og KA-U11 går foran (OV-U3, GR-U17)', () => {
+      const s = medEnighetIVederlaget(medFrafall());
+      versjon(s, { tittel: 'Ny peling 2' });
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+      });
+      const u = s.u();
+      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
+      expect(kraveneErAvgjort(u)).toBe(true);
+      expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
+      expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');
+      expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
     });
   });
 

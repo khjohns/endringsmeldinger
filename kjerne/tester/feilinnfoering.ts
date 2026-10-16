@@ -2447,6 +2447,14 @@ const MUTASJONER: Mutasjon[] = [
       'F-MM-G41',
     ],
   },
+  {
+    id: 'F234',
+    feilklasse:
+      'en ny grunnlagsversjon etter frafallet gjør grunnlaget uavklart til byggherren svarer (GR-U23, OV-U3, #510)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['  const venterEtterFrafall =', '  const venterEtterFrafall = false &&']],
+    mal: ['grunnlaget er avklart ved frafallet', 'F-MM-G42'],
+  },
 ];
 
 interface Testresultat {

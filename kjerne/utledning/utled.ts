@@ -177,12 +177,17 @@ export interface Utledning {
   spor: Record<Spor, Sporutledning>;
   /**
    * GR-U7: byggherren har godkjent grunnlaget uten virksom preklusjon etter
-   * § 32.2, eller frafalt pålegget, etter brevet eller enigheten om det.
+   * § 32.2, eller frafalt pålegget, etter brevet eller enigheten om det. Venter en ny
+   * grunnlagsversjon på svar etter et frafall som binder, er grunnlaget avklart ved
+   * frafallet (GR-U23).
    */
   grunnlagAvklart: boolean;
   /** SK-01, #213, MM-U13: TE har godtatt et grunnlagssvar som ikke avklarer grunnlaget etter GR-U7. */
   grunnlagAvvist: boolean;
-  /** GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. */
+  /**
+   * GR-U3, GR-U9: byggherren har frafalt pålegget (§ 32.3 c). Er ikke en enighet. Gjelder
+   * også mens en ny grunnlagsversjon venter på svar etter et frafall som binder (GR-U23).
+   */
   frafalt: boolean;
   /**
    * Om byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3
@@ -800,6 +805,13 @@ function utledSporene(
       ];
     })
   );
+  // GR-U23: venter en ny grunnlagsversjon på svar etter et frafall som binder (GR-U20),
+  // er grunnlaget avklart ved frafallet til byggherren svarer.
+  const venterEtterFrafall =
+    !spor.grunnlag.trukket &&
+    gSvar === null &&
+    spor.grunnlag.gjeldendeKrav !== null &&
+    frafalletBinder({ spor, elementer });
   return {
     ...tom(journal, regler, begrensninger),
     forstaatt: true,
@@ -825,7 +837,10 @@ function utledSporene(
     // Utledet av standpunktene i brevet om grunnlaget, som også er innholdet i en
     // enighet om det (KA-U10, MM-U11).
     grunnlagAvklart:
-      !spor.grunnlag.trukket && gBrev !== null && grunnlagetErAvklart(gBrev.svar, gBrev.virkninger),
+      venterEtterFrafall ||
+      (!spor.grunnlag.trukket &&
+        gBrev !== null &&
+        grunnlagetErAvklart(gBrev.svar, gBrev.virkninger)),
     // SK-01, #213, MM-U13: TE har godtatt grunnlagssvaret, og det avklarer ikke grunnlaget
     // etter GR-U7. Et godtatt avslag og en godtatt preklusjon har samme virkning.
     grunnlagAvvist:
@@ -837,9 +852,10 @@ function utledSporene(
     endringsordre,
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
     frafalt:
-      gBrev !== null &&
-      prinsipalt(gBrev.virkninger)?.art === 'grunnlag' &&
-      standpunktet(gBrev.svar, 'grunnlag')?.resultat === 'paalegg_frafalt',
+      venterEtterFrafall ||
+      (gBrev !== null &&
+        prinsipalt(gBrev.virkninger)?.art === 'grunnlag' &&
+        standpunktet(gBrev.svar, 'grunnlag')?.resultat === 'paalegg_frafalt'),
   };
 }
 
