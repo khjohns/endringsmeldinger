@@ -685,7 +685,7 @@ ennå."""
 fra_catenda = "Ja, medlemslisten i Catenda."
 kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
-skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, og `koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)"]
+skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261016210000_catenda_id.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -742,7 +742,7 @@ modulen ennå."""
 fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
 kan_gjenoppbygges = "ja, ved en ny innlogging"
 personopplysninger = "Knyttet til en bruker gjennom `user_id`, med prosjektene brukeren ikke er med i og tidspunktene for innloggingene (`observed_at`, `updated_at`)."
-skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.deaktiver_ved_innlogging` og `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
+skrivere = ["database/migrasjoner/20261016210000_catenda_id.sql (`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`."
 
