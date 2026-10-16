@@ -14,12 +14,13 @@ paths:
 
 # Database og migrasjoner
 
-**Plattformen er ikke valgt (B-12).** Supabase-prosjektene brukes ikke inntil
-videre; endre dem ikke, og les ikke saksdata der. Der en base trengs, er det
-lokal PostgreSQL 17: testbasen, bygget fra migrasjonene med `scripts/testbase/`
-(merknaden 09.10 til B-12 i hovedplanen). Det som står om Supabase her og i
-`docs/migrasjoner-og-testbase.md`, beskriver oppsettet migrasjonene er skrevet
-for.
+Supabase-prosjektene brukes ikke; endre dem ikke, og les ikke saksdata der. For
+Python-stien og migrasjonene i `supabase/migrations/` er testbasen lokal
+PostgreSQL 17, bygget med `scripts/testbase/` (merknaden 09.10 til B-12 i
+hovedplanen). Datalaget i TS bygges mot SQL Server
+([DL-U1](../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)). Det
+som står om Supabase her og i `docs/migrasjoner-og-testbase.md`, beskriver
+oppsettet migrasjonene er skrevet for.
 
 **Katalogen i testbasen er kilden for skjemaet.** Migrasjonene er innholdsmessig
 komplette — hver tabell, funksjon og trigger i `public` har sin DDL i
@@ -32,10 +33,9 @@ docstringene er utdaterte.
 
 **Skjemaet endres bare gjennom en migrasjonsfil i `supabase/migrations/`, aldri
 med DDL rett mot en base eller med et verktøy som stempler sin egen versjon**
-(som `apply_migration` over Supabase-MCP). Versjonen i basen skal være versjonen i filnavnet (DA-03). På
-Supabase anvendes fila med `supabase db push`; veien fra fil til base på den
-plattformen som velges, avhenger av B-12. Filnavnrekkefølgen er
-apply-rekkefølgen, og CI-jobben `database` bygger hele settet mot PostgreSQL 17
+(som `apply_migration` over Supabase-MCP). Versjonen i basen skal være versjonen
+i filnavnet (DA-03). Filnavnrekkefølgen er apply-rekkefølgen, og CI-jobben
+`database` bygger hele settet mot PostgreSQL 17
 ved hver PR. Åtte av nitten tabeller har ingen eksplisitt `GRANT` i repoet og
 virker bare fordi Supabase deler ut rettigheter. Testbasen, stubben av
 plattformen, katalogsummene og fallgruvene i PostgreSQL 18 står i
