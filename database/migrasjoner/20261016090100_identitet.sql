@@ -17,7 +17,8 @@ CREATE TABLE koe.app_users (
 -- Én rad per person (AGENTS.md): en Catenda-identitet har issueren
 -- `https://api.catenda.com` (`CatendaOAuth.BASE`) og subjektet i
 -- `catenda_id()`-formen, 32 små heksadesimale tegn. En annen form ville gitt
--- samme person en andre brukerrad.
+-- samme person en andre brukerrad. `=` ser bort fra mellomrom til slutt, så
+-- lengden kontrolleres i tillegg.
 CREATE TABLE koe.app_identities (
   id uniqueidentifier NOT NULL CONSTRAINT app_identities_pk PRIMARY KEY,
   user_id uniqueidentifier NOT NULL CONSTRAINT app_identities_user FOREIGN KEY REFERENCES koe.app_users (id),
@@ -27,6 +28,7 @@ CREATE TABLE koe.app_identities (
   CONSTRAINT app_identities_catenda_form CHECK (
     provider <> N'catenda'
     OR (issuer = N'https://api.catenda.com' COLLATE Latin1_General_100_BIN2_UTF8
+        AND DATALENGTH(issuer) = DATALENGTH(N'https://api.catenda.com')
         AND DATALENGTH(subject) = 64
         AND subject COLLATE Latin1_General_100_BIN2_UTF8 NOT LIKE N'%[^0-9a-f]%')),
   CONSTRAINT app_identities_unik UNIQUE (provider, issuer, subject)

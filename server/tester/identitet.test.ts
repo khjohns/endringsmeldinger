@@ -138,6 +138,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     ['et subjekt med store bokstaver', 'https://api.catenda.com', subjekt().toUpperCase()],
     ['en annen issuer', 'https://api.catenda.com/', subjekt()],
     ['issueren i store bokstaver', 'HTTPS://API.CATENDA.COM', subjekt()],
+    ['et mellomrom etter issueren', 'https://api.catenda.com ', subjekt()],
   ])('tabellen avviser en Catenda-identitet med %s, også fra eieren', async (_, issuer, s) => {
     const feil = await base.pool
       .request()
