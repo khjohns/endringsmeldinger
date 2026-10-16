@@ -43,7 +43,9 @@
     klar_over_forholdet: 'Datoen TE ble klar over forholdet',
   };
   const datofelt = $derived(
-    oppgittDato(HOVEDKATEGORI_FRA_KATALOGEN[hoved], UNDERKATEGORI_FRA_KATALOGEN[under])
+    under
+      ? oppgittDato(HOVEDKATEGORI_FRA_KATALOGEN[hoved], UNDERKATEGORI_FRA_KATALOGEN[under])
+      : null
   );
 
   const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
@@ -173,7 +175,14 @@
       <h2 id="grunnlag" class="font-semibold">Send grunnlag</h2>
       <label class="block"
         >Hovedkategori
-        <select class="block w-full border" bind:value={hoved} onchange={() => (under = '')}>
+        <select
+          class="block w-full border"
+          bind:value={hoved}
+          onchange={() => {
+            under = '';
+            dato = '';
+          }}
+        >
           {#each forhold as h (h.kode)}<option value={h.kode}>{h.label}</option>{/each}
         </select>
       </label>
