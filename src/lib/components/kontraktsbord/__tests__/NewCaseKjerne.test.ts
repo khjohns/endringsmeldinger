@@ -6,6 +6,7 @@
  */
 
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/svelte';
+import { userEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import NewCaseForm from '../NewCaseForm.svelte';
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
@@ -173,6 +174,35 @@ describe('skjemaet for ny sak på TS-stien', () => {
     await waitFor(() => expect(complete).toHaveBeenCalledOnce());
     expect(opprettSak).toHaveBeenCalledOnce();
     expect(vi.mocked(sendKommando).mock.calls[0][0]).toBe(SAK);
+  });
+
+  it('uten prosjekt, som i demoen i /mockup, opprettes ingen sak, og TE får vite hvorfor', async () => {
+    let actions: { canSend: boolean; send: () => void } | undefined;
+    const complete = vi.fn();
+    const user = userEvent.setup();
+    const screen = render(NewCaseForm, {
+      onsend: complete,
+      onactions: (a) => {
+        actions = a;
+      },
+    });
+    await user.type(screen.getByLabelText('Kort tittel på forholdet'), 'Endret fundament');
+    await user.type(screen.getByPlaceholderText('Søk etter forhold eller paragraf'), 'irregulær');
+    await user.click(screen.getByRole('button', { name: /Irregulær endring/ }));
+    await fireEvent.input(await screen.findByLabelText('Når ble pålegget mottatt?'), {
+      target: { value: '2026-09-01' },
+    });
+    (screen.container.querySelector('.tiptap') as HTMLElement).focus();
+    await user.keyboard('Fundamentet ble større');
+    await waitFor(() => expect(actions?.canSend).toBe(true));
+
+    actions!.send();
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Saken kan ikke opprettes uten prosjekt.'
+    );
+    expect(complete).not.toHaveBeenCalled();
+    expect(opprettSak).not.toHaveBeenCalled();
+    expect(sendKommando).not.toHaveBeenCalled();
   });
 
   it('viser avvisningen DATO_ETTER_BREVET med meldingen fra serveren og beholder verdiene (VS-U26)', async () => {

@@ -211,6 +211,9 @@
    * (oppdragsgiver 16.10, avgjørelse 1 i #666).
    */
   async function sendTilKjernen(hovedkategori: string, underkategori: string) {
+    // Uten prosjekt, som i demoen i /mockup, opprettes ingen sak. Brevet har saksnummeret,
+    // så det kan heller ikke vises.
+    if (!prosjektId) throw new Error('Saken kan ikke opprettes uten prosjekt.');
     const kommando = grunnlagskrav({
       hovedkategori,
       underkategori,
