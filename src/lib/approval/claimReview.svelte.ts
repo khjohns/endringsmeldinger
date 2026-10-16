@@ -11,17 +11,17 @@ export class LetterCancelled extends Error {
     super('Brevkontroll avbrutt');
   }
 }
-export function createLetterConfirmation() {
-  let letter = $state<BrevInnhold | null>(null);
-  let resolve: ((letter: BrevInnhold) => void) | undefined;
+export function createLetterConfirmation<T = BrevInnhold>() {
+  let letter = $state<T | null>(null);
+  let resolve: ((letter: T) => void) | undefined;
   let reject: ((error: Error) => void) | undefined;
   return {
     get letter() {
       return letter;
     },
-    show(value: BrevInnhold) {
+    show(value: T) {
       letter = value;
-      return new Promise<BrevInnhold>((ok, cancel) => {
+      return new Promise<T>((ok, cancel) => {
         resolve = ok;
         reject = cancel;
       });
@@ -30,7 +30,7 @@ export function createLetterConfirmation() {
       if (letter) {
         const snapshot = $state.snapshot(letter);
         letter = null;
-        resolve?.(snapshot);
+        resolve?.(snapshot as T);
         resolve = undefined;
         reject = undefined;
       }
@@ -43,7 +43,7 @@ export function createLetterConfirmation() {
     },
   };
 }
-export type LetterConfirmation = ReturnType<typeof createLetterConfirmation>;
+export type LetterConfirmation<T = BrevInnhold> = ReturnType<typeof createLetterConfirmation<T>>;
 export function createClaimReview(store: CaseWorkspace) {
   const confirmation = createLetterConfirmation();
   return {
