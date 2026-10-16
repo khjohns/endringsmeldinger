@@ -96,7 +96,8 @@ function sak() {
   };
   const send = (part: Part, kommando: Data): Journalrad => {
     const utfall = prov(part, kommando);
-    if (!utfall.godtatt) throw new Error(`Forutsetning: ${JSON.stringify(utfall.avvisning)}`);
+    if (!utfall.godtatt)
+      expect.fail(`Forutsetning: kommandoen ble avvist: ${JSON.stringify(utfall.avvisning)}`);
     dag++;
     journal.push(...utfall.hendelser);
     return utfall.hendelser[0];
@@ -137,9 +138,19 @@ function sak() {
     return r;
   };
   const u = () => utledJournal(journal, KJERNE);
-  const krav = (spor: 'grunnlag' | 'vederlag' | 'frist') => u().spor[spor].gjeldendeKrav!.id;
+  const krav = (spor: 'grunnlag' | 'vederlag' | 'frist') => gjeldendeKrav(u(), spor).id;
   return { journal, send, vis, avvisning, avvist, rad, u, krav };
 }
+
+/** Det gjeldende kravet i sporet. Mangler det, feiler testen med en assertion. */
+const gjeldendeKrav = (
+  u: ReturnType<typeof utledJournal>,
+  spor: 'grunnlag' | 'vederlag' | 'frist'
+) => {
+  const krav = u.spor[spor].gjeldendeKrav;
+  expect(krav, `Forutsetning: TE har et gjeldende krav i ${spor}`).not.toBeNull();
+  return krav!;
+};
 
 const tekst = (rad: Journalrad): Avsnitt[] => {
   expect(rad.data.brevtekst, 'brevet fra appen har brevtekst (LV-U2)').toBeDefined();
@@ -2354,7 +2365,7 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
   /** Svaret med serverens utregning, så bare påberopelsen kan gi en avvisning. */
   const utregnet = (s: Sak, spor: Sporet, v: Data) => {
     const u = s.u();
-    const krav = u.spor[spor].gjeldendeKrav!;
+    const krav = gjeldendeKrav(u, spor);
     return svar(
       spor,
       krav.id,
@@ -2939,7 +2950,7 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
   /** Svaret med serverens utregning, så bare sammenlikningen kan gi en avvisning. */
   const utregnet = (s: Sak, spor: Sporet, v: Data) => {
     const u = s.u();
-    const krav = u.spor[spor].gjeldendeKrav!;
+    const krav = gjeldendeKrav(u, spor);
     return svar(
       spor,
       krav.id,
