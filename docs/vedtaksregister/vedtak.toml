@@ -3322,6 +3322,36 @@ Senker byggherren etter akseptfristen dager eller beløp hen har godkjent, viser
 navn = "A: binder under forsering"
 tekst = '''
 Så lenge en forseringssak viser til avslaget og TE derfor ikke kan godta svaret (FO-U5), faller svaret ikke bort ved akseptfristen, og en revisjon som senker godkjente dager, avvises (FO-U7).'''
+[[gruppe.vedtak]]
+id = "VS-U25"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#655"]
+sporsmal = '''
+Datoen for når forholdet ble oppdaget (§ 32.2).'''
+valgt = "A: TE oppgir datoen"
+svar = '''
+«A: TE oppgir datoen (anbefalt)»'''
+folge = '''
+Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A: TE oppgir datoen"
+tekst = '''
+TE oppgir datoen. Den står i brevteksten som TEs opplysning, og appen vurderer ikke rettidigheten av den.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+TE kan beskrive det i utdypningen. Appen spør ikke etter datoen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Appen spør ikke etter datoen.'''
+forkastet = true
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -5612,6 +5642,37 @@ tekst = "opphører straks systemet har registrert at tilgangen er borte."
 [[gruppe.vedtak.sitat]]
 kilde = "docs/vedtaksregister/vedtak.toml"
 tekst = "En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet."
+
+[[gruppe.vedtak]]
+id = "DL-U10"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#655", "#614"]
+sporsmal = '''
+#614, B-04 punkt 1: medlemskapene når koblingen til Catenda-prosjektet (i) oppheves eller (ii) endres til et annet Catenda-prosjekt.'''
+valgt = "B: inaktive straks"
+svar = '''
+«B: inaktive straks (anbefalt)»'''
+folge = '''
+Presiserer B-04 og snevrer inn punkt 4 for disse to tilfellene. Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Medlemskapene står i begge tilfellene til en ny medlemsliste er skrevet'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B: inaktive straks"
+tekst = '''
+I begge tilfellene blir medlemskapene inaktive straks koblingen oppheves eller endres. Ingen kan handle i prosjektet før en ny medlemsliste er hentet fra det koblede Catenda-prosjektet.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+delt (inaktive når koblingen oppheves; står til ny liste når den endres)'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Premissene P1–P7"
