@@ -615,36 +615,37 @@ belegg = "L 29.09: tabelldefinisjonen og kallerne i `event_routes`."
 navn = "koe.app_users"
 lagring = "SQL Server"
 type = ["grunndata"]
-status = "i bruk"
+status = "uavklart"
 beskrivelse = """
 Én rad per person. `id` er aktøren i journalen og notatet (AGENTS.md). Svarer
 til `app_users` i PostgreSQL."""
 lagres_fra = """
 `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter
-brukeren første gang en identitet sees."""
+brukeren første gang en identitet sees. Ingen inngang i `server/` kaller den
+ennå (#53, del 3)."""
 fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
 kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
 skrivere = ["database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`)"]
 funn = []
-belegg = "L 16.10: migrasjonen."
+belegg = "L 16.10: migrasjonen og søk i `server/`."
 
 [[tabell]]
 navn = "koe.app_identities"
 lagring = "SQL Server"
 type = ["grunndata"]
-status = "i bruk"
+status = "uavklart"
 beskrivelse = """
 Identitetene til en bruker, unike på leverandør, issuer og subjekt. En
 Catenda-identitet har issueren og subjektformen basen kontrollerer, så samme
 person ikke får to brukerrader (AGENTS.md)."""
-lagres_fra = "`koe.resolve_identity`, sammen med brukeren."
+lagres_fra = "`koe.resolve_identity`, sammen med brukeren. Ingen inngang i `server/` kaller den ennå (#53, del 3)."
 fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Subjektet identifiserer en person."
 skrivere = ["database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`)"]
 funn = []
-belegg = "L 16.10: migrasjonen."
+belegg = "L 16.10: migrasjonen og søk i `server/`."
 
 [[tabell]]
 navn = "koe.projects"

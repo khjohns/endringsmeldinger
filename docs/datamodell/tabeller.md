@@ -34,8 +34,8 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`eo_approvals`](#eo_approvals) | SQLite | transaksjon | i bruk | Ja | Nei |
 | [`vedlegg`](#vedlegg) | SQLite | transaksjon | i bruk | Ja | Nei |
 | [`catenda_delivery_status`](#catenda_delivery_status) | SQLite | teknisk | i bruk | Nei | Nei |
-| [`koe.app_users`](#koeapp_users) | SQL Server | grunndata | i bruk | Nei | Ja |
-| [`koe.app_identities`](#koeapp_identities) | SQL Server | grunndata | i bruk | Nei | Ja |
+| [`koe.app_users`](#koeapp_users) | SQL Server | grunndata | uavklart | Nei | Ja |
+| [`koe.app_identities`](#koeapp_identities) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.projects`](#koeprojects) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.app_project_memberships`](#koeapp_project_memberships) | SQL Server | grunndata, kopi | uavklart | Nei | Delvis |
 | [`koe.catenda_contract_teams`](#koecatenda_contract_teams) | SQL Server | grunndata | uavklart | Nei | Ja |
@@ -500,15 +500,15 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Felt | Innhold |
 | --- | --- |
 | Type | grunndata |
-| Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en identitet sees. |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en identitet sees. Ingen inngang i `server/` kaller den ennå (#53, del 3). |
 | Data fra Catenda | Delvis. Navn og e-post kommer fra Catenda-identiteten. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
 | Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen. |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
 ### `koe.app_identities`
 
@@ -517,15 +517,15 @@ Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda
 | Felt | Innhold |
 | --- | --- |
 | Type | grunndata |
-| Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, sammen med brukeren. |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, sammen med brukeren. Ingen inngang i `server/` kaller den ennå (#53, del 3). |
 | Data fra Catenda | Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id); unik (provider, issuer, subject). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Subjektet identifiserer en person. |
 | Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen. |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
 ### `koe.projects`
 
