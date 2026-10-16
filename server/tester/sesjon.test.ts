@@ -172,6 +172,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
       ['med DEL', '/a\u007fb'],
       ['tom', ''],
       ['lengre enn 2048 tegn', `/${'a'.repeat(2048)}`],
+      [
+        'lengre enn 2048 tegn bare med mellomrom til slutt',
+        `/${'a'.repeat(2047)}${' '.repeat(50)}`,
+      ],
+      ['lengre enn 2048 UTF-16-enheter med færre kodepunkter', `/${'😀'.repeat(1500)}`],
     ])('avviser en retursti som er %s', async (_navn, sti) => {
       await expect(opprettInnloggingsforsoek(kjoeretid.pool, sti)).rejects.toBeInstanceOf(
         UgyldigSesjonsdata

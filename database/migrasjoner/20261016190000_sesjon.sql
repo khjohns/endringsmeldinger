@@ -92,6 +92,8 @@ GO
 
 -- Returstien er alt kontrollert av innloggingsinngangen (`safe_return_path` i
 -- Python). Basen avviser i tillegg det som åpenbart ikke er en lokal sti.
+-- Lengden er i UTF-16-enheter som kolonnen, med `DATALENGTH`, fordi `LEN` ser
+-- bort fra mellomrom til slutt og teller kodepunkter.
 CREATE PROCEDURE koe_api.opprett_innloggingsforsoek
   @state_hash nvarchar(4000), @nettleser_hash nvarchar(4000), @retursti nvarchar(4000),
   @utloeper datetime2(3) OUTPUT
@@ -101,7 +103,7 @@ BEGIN
   SET XACT_ABORT ON;
   IF koe.er_hash(@state_hash) = 0 OR koe.er_hash(@nettleser_hash) = 0
     THROW 52050, N'Staten eller nettlesertokenet er ikke en SHA-256 i små heksadesimale tegn', 1;
-  IF @retursti IS NULL OR LEN(@retursti) > 2048
+  IF @retursti IS NULL OR DATALENGTH(@retursti) > 4096
     OR @retursti COLLATE Latin1_General_100_BIN2_UTF8 NOT LIKE N'/%'
     OR @retursti COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'//%'
     OR CHARINDEX(N'\', @retursti) > 0
@@ -137,7 +139,9 @@ AS
 BEGIN
   SET NOCOUNT ON;
   SET XACT_ABORT ON;
-  DECLARE @naa datetime2(3) = SYSUTCDATETIME();
+  -- `datetime2(7)`, så ryddingen ikke runder klokka fram og sletter en sesjon
+  -- som `les_sesjon` ennå godtar.
+  DECLARE @naa datetime2(7) = SYSUTCDATETIME();
   BEGIN TRANSACTION;
   DELETE koe.app_sessions WHERE expires_at <= @naa;
   SET @sesjoner = @@ROWCOUNT;

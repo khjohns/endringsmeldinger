@@ -295,7 +295,7 @@ Utløpte rader ryddes av `scripts/sync_catenda_memberships.py`. Om skriptet
 kjører noe sted, er ikke kontrollert."""
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
-personopplysninger = "Knyttet til en bruker gjennom `user_id`."
+personopplysninger = "Knyttet til en bruker gjennom `user_id`, med tidspunktet for innloggingen (`created_at`, `expires_at`)."
 skrivere = ["backend/routes/auth_routes.py", "backend/scripts/sync_catenda_memberships.py"]
 funn = []
 belegg = "K 29.09: kolonnene i testbasen. L 29.09: rutene og skriptet."
@@ -888,7 +888,7 @@ lagres_fra = """
 ingen HTTP-inngang kaller modulen ennå (F0b-5a, #659)."""
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
-personopplysninger = "Knyttet til en bruker gjennom `user_id`."
+personopplysninger = "Knyttet til en bruker gjennom `user_id`, med tidspunktet for innloggingen (`created_at`, `expires_at`)."
 skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.slett_sesjon`, `koe_api.rydd_utloepte`)"]
 funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`."
