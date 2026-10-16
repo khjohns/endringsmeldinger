@@ -10,7 +10,14 @@
 
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
+import {
+  catendaBruker,
+  type Foresp,
+  iTransaksjon,
+  opprettMigrertTestbase,
+  type Rad,
+  settInn,
+} from './sqlserver_migrert.ts';
 import { feilnummer, sql, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const CHECK_BRUDD = 547;
@@ -19,10 +26,6 @@ const IKKE_NORMALISERT = 52022;
 const P1 = 'mellomrom-p1';
 const team = () => randomBytes(16).toString('hex');
 const TE1 = team();
-
-type Rad = Record<string, unknown>;
-type Foresp = () => sql.Request;
-type Uttrykk = { sql: string };
 
 /** Feilen fra basen med nummeret og meldingen, eller `undefined` når setningen gikk gjennom. */
 async function avvisning(p: Promise<unknown>) {
@@ -34,36 +37,232 @@ async function avvisning(p: Promise<unknown>) {
   }
 }
 
-function settInn(r: Foresp, tabell: string, rad: Rad) {
-  const foresp = r();
-  const verdier = Object.entries(rad).map(([kolonne, verdi]) => {
-    if (verdi && typeof verdi === 'object' && 'sql' in verdi) return (verdi as Uttrykk).sql;
-    foresp.input(kolonne, verdi);
-    return `@${kolonne}`;
-  });
-  return foresp.query(
-    `INSERT koe.${tabell} (${Object.keys(rad).join(', ')}) VALUES (${verdier.join(', ')})`
-  );
+/**
+ * Katalogvakten (#608). En tekstkolonne i en indeksnøkkel, en fremmednøkkel
+ * (begge sider) eller et argument til et predikat i radsikkerheten sammenliknes
+ * med `=`, så den trenger kontrollen mot mellomrom til slutt. Vakten leser
+ * kolonnene og definisjonene i katalogen, ikke navnene på kontrollene. Kontrollen
+ * godtas i to former, på- og betrodd:
+ * - `DATALENGTH(kol) = DATALENGTH(RTRIM(kol))`, slik `20261016130000_mellomrom.sql`
+ *   skriver den;
+ * - en fast form: et ledd `DATALENGTH(kol) = n` i en ren `AND`-kjede, eventuelt
+ *   etter `kol IS NULL OR`. To verdier som bare skiller seg i mellomrom til slutt,
+ *   har ulik `DATALENGTH`, så bare én av dem passer.
+ */
+const TEKST_I_NOEKKEL = `
+SELECT OBJECT_SCHEMA_NAME(c.object_id) + N'.' + OBJECT_NAME(c.object_id) AS tabell, c.name AS kolonne,
+       CAST(IIF(EXISTS (SELECT 1 FROM sys.index_columns ic
+                         WHERE ic.object_id = c.object_id AND ic.column_id = c.column_id AND ic.key_ordinal > 0)
+             OR EXISTS (SELECT 1 FROM sys.foreign_key_columns f
+                         WHERE (f.parent_object_id = c.object_id AND f.parent_column_id = c.column_id)
+                            OR (f.referenced_object_id = c.object_id AND f.referenced_column_id = c.column_id)),
+                1, 0) AS bit) AS i_noekkel
+  FROM sys.columns c JOIN sys.tables t ON t.object_id = c.object_id
+ WHERE t.is_ms_shipped = 0 AND TYPE_NAME(c.system_type_id) IN (N'nvarchar', N'nchar', N'varchar', N'char')`;
+const PREDIKATER = `
+SELECT OBJECT_SCHEMA_NAME(target_object_id) + N'.' + OBJECT_NAME(target_object_id) AS tabell,
+       predicate_definition AS definisjon
+  FROM sys.security_predicates`;
+const KONTROLLER = `
+SELECT OBJECT_SCHEMA_NAME(parent_object_id) + N'.' + OBJECT_NAME(parent_object_id) AS tabell,
+       COL_NAME(parent_object_id, parent_column_id) AS kolonne, name AS navn, definition AS definisjon,
+       CAST(IIF(is_disabled = 0 AND is_not_trusted = 0, 1, 0) AS bit) AS ok
+  FROM sys.check_constraints`;
+
+interface Katalog {
+  kolonner: { tabell: string; kolonne: string; i_noekkel: boolean }[];
+  predikater: { tabell: string; definisjon: string }[];
+  kontroller: {
+    tabell: string;
+    kolonne: string | null;
+    navn: string;
+    definisjon: string;
+    ok: boolean;
+  }[];
 }
+
+async function lesKatalog(base: Testbase): Promise<Katalog> {
+  const les = async (s: string) => (await base.pool.request().query(s)).recordset;
+  return {
+    kolonner: await les(TEKST_I_NOEKKEL),
+    predikater: await les(PREDIKATER),
+    kontroller: await les(KONTROLLER),
+  };
+}
+
+/**
+ * Kolonnene utenfor nøklene som #566 og #581 krever kontrollen for: verdier en
+ * regel eller et predikat sammenlikner med `=` eller `IN`.
+ */
+const OGSAA_KONTROLL = [
+  'koe.app_project_memberships.role',
+  'koe.hendelse.event_type',
+  'koe.hendelse.refererer_til_event_id',
+  'koe.notat.refererer_til_event_id',
+  'koe.notat.spor',
+  'koe.projects.organisasjon_id',
+  'koe.sak_metadata.sakstype',
+];
+
+/**
+ * Tekstkolonnene i en nøkkel uten kontrollen, med begrunnelsen. Listen er
+ * lukket: en ny kolonne får kontrollen eller en linje her, og en linje for en
+ * kolonne som har fått kontrollen, gjør testen rød.
+ */
+const UTEN_KONTROLL: Record<string, string> = {
+  'koe.hendelse.aktor_rolle':
+    'nvarchar(2), og hendelse_rolle godtar bare BH og TE, så det er ikke plass til mellomrom etter (20261016130000_mellomrom.sql).',
+  'koe.notat.aktor_rolle':
+    'nvarchar(2), og notat_rolle godtar bare BH og TE, så det er ikke plass til mellomrom etter (20261016130000_mellomrom.sql).',
+  'koe.hendelse.sak_id':
+    'nvarchar(36) med fremmednøkkel til sak_metadata.sak_id, som har fast form på 36 tegn (20261016130000_mellomrom.sql).',
+  'koe.notat.sak_id':
+    'nvarchar(36) med fremmednøkkel til sak_metadata.sak_id, som har fast form på 36 tegn (20261016130000_mellomrom.sql).',
+  'koe.kjernebuffer.sak_id':
+    'nvarchar(36) med fremmednøkkel til sak_metadata.sak_id, som har fast form på 36 tegn (20261016130000_mellomrom.sql).',
+  'koe.leveringsoppdrag.sak_id':
+    'nvarchar(36) med fremmednøkkel til hendelse.sak_id, som igjen peker på sak_metadata.sak_id med fast form på 36 tegn.',
+  'koe.leveringsoppdrag.event_id':
+    'nvarchar(36) med fremmednøkkel til hendelse.event_id, som har fast form på 36 tegn (hendelse_event_id_form).',
+  'koe_migrering.historikk.versjon':
+    'Runnerens bokføring, ikke en migrasjon (server/migrering.ts). char(14) fylles ut med mellomrom, så verdien har bare én form.',
+};
+
+const mellomromskontroll = (k: string) => `(datalength([${k}])=datalength(rtrim([${k}])))`;
+
+function fastForm(k: string, definisjon: string): boolean {
+  if (!definisjon.startsWith('(') || !definisjon.endsWith(')')) return false;
+  let kjede = definisjon.slice(1, -1);
+  if (kjede.startsWith(`[${k}] IS NULL OR `)) kjede = kjede.slice(`[${k}] IS NULL OR `.length);
+  if (/ OR /i.test(kjede)) return false;
+  const lengde = new RegExp(`^datalength\\(\\[${k}\\]\\)=\\(\\d+\\)$`);
+  return kjede.split(' AND ').some((ledd) => lengde.test(ledd));
+}
+
+/** Kolonnene vakten krever kontrollen for, som `skjema.tabell.kolonne`, sortert. */
+function kolonnerMedKrav(k: Katalog): string[] {
+  const tekst = new Set(k.kolonner.map((c) => `${c.tabell}.${c.kolonne}`));
+  const krav = new Set(
+    k.kolonner.filter((c) => c.i_noekkel).map((c) => `${c.tabell}.${c.kolonne}`)
+  );
+  for (const p of k.predikater)
+    for (const [, navn] of p.definisjon.matchAll(/\[([^\]]+)\](?![.(])/g))
+      if (tekst.has(`${p.tabell}.${navn}`)) krav.add(`${p.tabell}.${navn}`);
+  for (const kolonne of OGSAA_KONTROLL) krav.add(kolonne);
+  return [...krav].sort();
+}
+
+/** Kolonnene med krav som mangler en godtatt kontroll som er på og betrodd. */
+function utenKontroll(k: Katalog): string[] {
+  return kolonnerMedKrav(k).filter((navn) => {
+    const punkt = navn.lastIndexOf('.');
+    const [tabell, kolonne] = [navn.slice(0, punkt), navn.slice(punkt + 1)];
+    return !k.kontroller.some(
+      (c) =>
+        c.tabell === tabell &&
+        c.ok &&
+        (c.definisjon === mellomromskontroll(kolonne) || fastForm(kolonne, c.definisjon))
+    );
+  });
+}
+
+/** Kontrollene som heter `…_uten_mellomrom`, men ikke er den kontrollen på sin kolonne, på og betrodd. */
+function uthulteKontroller(k: Katalog): string[] {
+  return k.kontroller
+    .filter((c) => c.navn.endsWith('_uten_mellomrom'))
+    .filter((c) => !c.ok || !c.kolonne || c.definisjon !== mellomromskontroll(c.kolonne))
+    .map((c) => c.navn)
+    .sort();
+}
+
+describe('katalogvakten for mellomrom (#608), på en katalog i minnet', () => {
+  const kontroll = (
+    tabell: string,
+    kolonne: string,
+    definisjon: string,
+    navn = `${kolonne}_k`
+  ) => ({
+    tabell,
+    kolonne,
+    navn,
+    definisjon,
+    ok: true,
+  });
+  const katalog = (): Katalog => ({
+    kolonner: [
+      { tabell: 'koe.projects', kolonne: 'id', i_noekkel: true },
+      { tabell: 'koe.projects', kolonne: 'name', i_noekkel: false },
+      { tabell: 'koe.notat', kolonne: 'aktor_team_id', i_noekkel: false },
+      { tabell: 'koe.notat', kolonne: 'refererer_til_event_id', i_noekkel: false },
+    ],
+    predikater: [
+      { tabell: 'koe.notat', definisjon: '([koe_sikkerhet].[notat_synlig]([aktor_team_id]))' },
+    ],
+    kontroller: [
+      kontroll('koe.projects', 'id', mellomromskontroll('id'), 'projects_id_uten_mellomrom'),
+      kontroll(
+        'koe.notat',
+        'aktor_team_id',
+        "(datalength([aktor_team_id])=(64) AND NOT ([aktor_team_id]) collate Latin1_General_100_BIN2_UTF8 like N'%[^0-9a-f]%')"
+      ),
+      kontroll(
+        'koe.notat',
+        'refererer_til_event_id',
+        '([refererer_til_event_id] IS NULL OR TRY_CAST([refererer_til_event_id] AS [uniqueidentifier]) IS NOT NULL AND datalength([refererer_til_event_id])=(72))'
+      ),
+    ],
+  });
+  /** Avvikene blant kolonnene i katalogen i minnet; `OGSAA_KONTROLL` finnes bare i basen. */
+  const krav = (k: Katalog) =>
+    utenKontroll(k).filter((n) => k.kolonner.some((c) => `${c.tabell}.${c.kolonne}` === n));
+
+  it('kontrollsak: kolonnene med kontrollen eller en fast form gir ingen avvik', () => {
+    expect(krav(katalog())).toEqual([]);
+    expect(uthulteKontroller(katalog())).toEqual([]);
+  });
+
+  it('en ny tabell med prosjekt_id i en nøkkel uten kontrollen gir avvik', () => {
+    const k = katalog();
+    k.kolonner.push({ tabell: 'koe.ny', kolonne: 'prosjekt_id', i_noekkel: true });
+    expect(krav(k)).toEqual(['koe.ny.prosjekt_id']);
+  });
+
+  it('et predikatargument uten kontrollen gir avvik, også når kolonnen ikke er i en nøkkel', () => {
+    const k = katalog();
+    k.kontroller = k.kontroller.filter((c) => c.kolonne !== 'aktor_team_id');
+    expect(krav(k)).toEqual(['koe.notat.aktor_team_id']);
+  });
+
+  it('en kontroll med riktig navn og innholdet byttet til 1=1 gir avvik', () => {
+    const k = katalog();
+    k.kontroller[0].definisjon = '((1)=(1))';
+    expect(krav(k)).toEqual(['koe.projects.id']);
+    expect(uthulteKontroller(k)).toEqual(['projects_id_uten_mellomrom']);
+  });
+
+  it('en kontroll som er slått av eller ikke betrodd, gir avvik', () => {
+    const k = katalog();
+    k.kontroller[0].ok = false;
+    expect(krav(k)).toEqual(['koe.projects.id']);
+    expect(uthulteKontroller(k)).toEqual(['projects_id_uten_mellomrom']);
+  });
+
+  it('en fast form med OR eller uten fast lengde godtas ikke', () => {
+    const k = katalog();
+    k.kontroller[1].definisjon = '(datalength([aktor_team_id])=(64) OR (1)=(1))';
+    k.kontroller[2].definisjon =
+      '([refererer_til_event_id] IS NULL OR len([refererer_til_event_id])>(0))';
+    expect(krav(k)).toEqual(['koe.notat.aktor_team_id', 'koe.notat.refererer_til_event_id']);
+  });
+});
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () => {
   let base: Testbase;
   let bruker: string;
 
-  async function catendaBruker(): Promise<string> {
-    const svar = await base.pool
-      .request()
-      .input('subjekt', sql.NVarChar(400), team())
-      .input('epost', sql.NVarChar(320), '')
-      .input('navn', sql.NVarChar(400), '')
-      .output('bruker', sql.UniqueIdentifier)
-      .execute('koe_api.catenda_identitet');
-    return String(svar.output.bruker).toLowerCase();
-  }
-
   beforeAll(async () => {
     base = await opprettMigrertTestbase('mellomrom', { maks: 8 });
-    bruker = await catendaBruker();
+    bruker = await catendaBruker(base.pool);
     await base.pool
       .request()
       .input('p', sql.NVarChar(100), P1)
@@ -81,29 +280,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
   }, 60_000);
 
   /** Én transaksjon som eieren, med konteksten til TE1 i P1 satt først. */
-  async function iKontekst<T>(arbeid: (r: Foresp) => Promise<T>): Promise<T> {
-    const tx = new sql.Transaction(base.pool);
-    await tx.begin();
-    const r = () => new sql.Request(tx);
-    try {
-      await r()
-        .input('aktor', sql.NVarChar(4000), bruker)
-        .input('prosjekt', sql.NVarChar(4000), P1)
-        .input('team', sql.NVarChar(4000), TE1).batch(`
-          DECLARE @tx bigint = CURRENT_TRANSACTION_ID(), @skriving uniqueidentifier = NEWID();
-          EXEC sp_set_session_context N'koe_aktor', @aktor;
-          EXEC sp_set_session_context N'koe_prosjekt', @prosjekt;
-          EXEC sp_set_session_context N'koe_side', N'TE';
-          EXEC sp_set_session_context N'koe_team', @team;
-          EXEC sp_set_session_context N'koe_tx', @tx;
-          EXEC sp_set_session_context N'koe_skriving', @skriving;`);
-      const svar = await arbeid(r);
-      await tx.commit();
-      return svar;
-    } catch (feil) {
-      await tx.rollback().catch(() => {});
-      throw feil;
-    }
+  function iKontekst<T>(arbeid: (r: Foresp) => Promise<T>) {
+    return iTransaksjon(base.pool, { aktor: bruker, prosjekt: P1, side: 'TE', team: TE1 }, arbeid);
   }
 
   type Overstyring = { tabell: string; rad: Rad };
@@ -279,7 +457,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
       await base.pool
         .request()
         .input('p', sql.NVarChar(100), p)
-        .input('u', sql.UniqueIdentifier, await catendaBruker())
+        .input('u', sql.UniqueIdentifier, await catendaBruker(base.pool))
         .input('s', sql.NVarChar(32), team())
         .input('t', sql.NVarChar(32), team()).query(`
           INSERT koe.app_project_memberships
@@ -310,7 +488,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
           base.pool
             .request()
             .input('p', sql.NVarChar(100), p)
-            .input('u', sql.UniqueIdentifier, await catendaBruker())
+            .input('u', sql.UniqueIdentifier, await catendaBruker(base.pool))
             .input('s', sql.NVarChar(32), team())
             .input('r', sql.NVarChar(10), rolle).query(`
             INSERT koe.app_project_memberships
@@ -394,43 +572,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
     );
   });
 
-  describe('kolonnene med kontrollen', () => {
-    // Kolonnene #566 og #581 nevner, og de andre med samme hull: nøkler, ID-er og
-    // verdier som en regel eller et predikat sammenlikner med `=` eller `IN`.
-    const MED_KONTROLL = [
-      'app_identities_issuer_uten_mellomrom',
-      'app_identities_provider_uten_mellomrom',
-      'app_identities_subject_uten_mellomrom',
-      'app_membership_sync_project_id_uten_mellomrom',
-      'catenda_project_configs_internal_project_id_uten_mellomrom',
-      'contract_teams_internal_project_id_uten_mellomrom',
-      'hendelse_event_type_uten_mellomrom',
-      'hendelse_prosjekt_id_uten_mellomrom',
-      'hendelse_refererer_til_event_id_form',
-      'kjernebuffer_prosjekt_id_uten_mellomrom',
-      'leveringsoppdrag_dokumentnoekkel_uten_mellomrom',
-      'leveringsoppdrag_prosjekt_id_uten_mellomrom',
-      'memberships_project_id_uten_mellomrom',
-      'memberships_role_uten_mellomrom',
-      'notat_prosjekt_id_uten_mellomrom',
-      'notat_refererer_til_event_id_form',
-      'notat_spor_uten_mellomrom',
-      'projects_id_uten_mellomrom',
-      'projects_organisasjon_id_uten_mellomrom',
-      'sak_metadata_prosjekt_id_uten_mellomrom',
-      'sak_metadata_sak_id_form',
-      'sak_metadata_sakstype_uten_mellomrom',
-    ];
-
-    it('katalogen har nøyaktig disse kontrollene, og de er påslått og betrodd', async () => {
-      const svar = await base.pool.request().query<{ name: string; ok: boolean }>(
-        `SELECT name, CAST(IIF(is_disabled = 0 AND is_not_trusted = 0, 1, 0) AS bit) AS ok
-           FROM sys.check_constraints
-          WHERE name LIKE N'%[_]uten[_]mellomrom' OR name IN (N'sak_metadata_sak_id_form',
-                N'hendelse_refererer_til_event_id_form', N'notat_refererer_til_event_id_form')`
-      );
-      expect(svar.recordset.map((r) => r.name).sort()).toEqual(MED_KONTROLL);
-      expect(svar.recordset.filter((r) => !r.ok)).toEqual([]);
-    });
+  it('katalogvakten: hver tekstkolonne i en nøkkel, en fremmednøkkel eller et predikat har kontrollen', async () => {
+    const k = await lesKatalog(base);
+    expect(k.kolonner.length).toBeGreaterThan(0);
+    expect(utenKontroll(k), 'kolonnen mangler kontrollen eller en linje i UTEN_KONTROLL').toEqual(
+      Object.keys(UTEN_KONTROLL).sort()
+    );
+    expect(uthulteKontroller(k)).toEqual([]);
   });
 });
