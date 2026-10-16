@@ -11,8 +11,10 @@ import tempfile
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+from core.config import settings
 from lib.db.feil import ConcurrencyError, PermanentError
 from models.events import EventType
+from models.sak_state import SaksType
 
 # Hendelsestyper som ikke hører hjemme i journalen. Interne notater er ikke
 # kontraktsvarsler og bor i `notat` (MS-05); journalen skal få
@@ -31,15 +33,40 @@ class JournalfoeringAvvist(PermanentError, ValueError):
     """
 
 
-def krev_journalhendelser(events: list) -> None:
-    """Avvis hendelser som har sitt eget lager.
+# Sakstypene TS-kjernen eier når skrivestien er på (B-17 med merknaden 09.10,
+# OV-U1). Vakten slår ikke opp sakstypen, fordi dette er alle sakstypene som
+# finnes; en ny sakstype må tas stilling til her.
+TS_SAKSTYPER = frozenset(
+    {SaksType.STANDARD.value, SaksType.ENDRINGSORDRE.value, SaksType.FORSERING.value}
+)
 
-    Vakten ligger i lageret og ikke i ruta med vilje: det finnes to
-    innsendingsruter, og en tredje ville arvet regelen bare ved å huske den.
+
+class PythonSkrivingStengt(PermanentError, ValueError):
+    """TS-skrivestien er på, og Python skriver ikke i journalen (B-17).
+
+    Arver som `JournalfoeringAvvist`: avvisningen kan aldri lykkes ved et nytt
+    forsøk, og rutene gjør `ValueError` om til 400.
+    """
+
+
+def krev_journalhendelser(events: list) -> None:
+    """Avvis hendelser Python ikke skal skrive til journalen.
+
+    Med `TS_SKRIVESTI` på avvises hver hendelse (B-17). Ellers avvises
+    hendelsestyper som har sitt eget lager (MS-05).
+
+    Vakten ligger i lageret og ikke i ruta med vilje: det finnes mange
+    skrivende innganger, og en ny ville arvet regelen bare ved å huske den.
 
     Raises:
+        PythonSkrivingStengt: Når TS-skrivestien er på.
         JournalfoeringAvvist: Ved en hendelsestype som ikke skal journalføres.
     """
+    if settings.ts_skrivesti and events:
+        raise PythonSkrivingStengt(
+            f"Saken {getattr(events[0], 'sak_id', '')} skrives bare av "
+            "TS-kjernen, og Python-lageret tar ikke imot hendelser (B-17)."
+        )
     for event in events:
         event_type = getattr(event, "event_type", None)
         navn = getattr(event_type, "value", event_type)
