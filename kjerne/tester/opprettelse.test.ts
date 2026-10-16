@@ -1,6 +1,6 @@
 /**
- * Opprettelsen av en KOE-sak (#664, kjernedelen av #370). Bare TE oppretter en
- * KOE-sak; byggherrens endring er EO-saken, som ikke er med i første versjon
+ * Opprettelsen av en KOE-sak (#664, kjernedelen av #370). Kjernen godtar bare TE
+ * som oppretter; byggherrens endring er EO-saken, som ikke er med i første versjon
  * (OV-U1, arbeidsvalget i #655). Saken opprettes før grunnlagskravet, fordi den
  * låste teksten har saksnummeret (LV-U2, DL-U6).
  */

@@ -23,8 +23,9 @@ format = 1
 navn = "sak_opprettet"
 beskrivelse = """
 Saken er opprettet. Første rad i saken, i versjon 1, før grunnlagskravet.
+`opprettSak` i `server/kommandoer.ts` skriver raden og kontrollerer ikke parten.
 Opprettelsen i kjernen (`opprettelse` i `kjerne/kommandoer/opprettelse.ts`) godtar
-bare TE. Serverinngangen som skal kalle den, er FK-7 (#370)."""
+bare TE og gir raden `opprettSak` skal skrive."""
 felt = ["sakstittel", "sakstype"]
 grunnlag = "B-17, LV-U2, DL-U6. Andre sakstyper enn `standard` hører til #309"
 
@@ -55,9 +56,9 @@ og bare der. TE oppgir datoen varslingsplikten løper fra: i hovedkategorien
 (`paalegg_mottatt`), og i `svikt` og `andre_forhold` datoen TE ble klar over
 forholdet (`klar_over_forholdet`). Feltet finnes bare i kategorien det hører til.
 Et krav fra appen har det; et registrert krav kan mangle det. Kommandoen avviser
-en dato etter brevets dato (`DATO_ETTER_BREVET`); ingen regel vurderer
-rettidigheten. TEs beskrivelse av forholdet står i brevteksten, som utdypningen under
-kravet."""
+en dato etter serverens dato i norsk tid (`DATO_ETTER_BREVET`); ingen regel
+vurderer rettidigheten. TEs beskrivelse av forholdet står i brevteksten, som
+utdypningen under kravet."""
 felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "endringsordre", "paalegg_mottatt", "klar_over_forholdet"]
 grunnlag = "KA-U2, GR-U16, VS-U26, designnotatet 4.2"
 
