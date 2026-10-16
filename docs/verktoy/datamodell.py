@@ -59,7 +59,7 @@ TYPER = {
     "kopi": "Kopi av data fra Catenda",
     "teknisk": "Sesjoner, synkroniseringsstatus, køer og kvitteringer",
 }
-LAGRING = ("PostgreSQL", "SQLite")
+LAGRING = tuple(navn for _, navn in rel.LAGRINGER)
 STATUS = ("i bruk", "rest", "uavklart")
 GJENOPPBYGGING = ("ja", "nei", "delvis", "ikke kontrollert", "ikke relevant")
 BELEGG = {
@@ -329,7 +329,7 @@ def markdown(register: dict, k: dict | None = None) -> str:
     ]
     for t in register["tabell"]:
         linjer.append(
-            f"| [`{t['navn']}`](#{t['navn']}) | {t['lagring']} | "
+            f"| [`{t['navn']}`](#{t['navn'].replace('.', '')}) | {t['lagring']} | "
             f"{', '.join(t['type'])} | {t['status']} | "
             f"{ja_delvis_nei(t['type'], 'transaksjon')} | {ja_delvis_nei(t['type'], 'grunndata')} |"
         )
@@ -427,7 +427,7 @@ def kontroller_hendelser(katalog: dict) -> list[str]:
 def katalogavvik(register: dict, skjema: dict) -> list[str]:
     """Tabellene i katalog.json mot tabellregisteret. Et avvik betyr at en av dem er utdatert."""
     feil = []
-    for lag, lagring in (("postgresql", "PostgreSQL"), ("sqlite", "SQLite")):
+    for lag, lagring in rel.LAGRINGER:
         uten_oppforing, uten_tabell = avvik(register, lagring, set(skjema[lag]["tabeller"]))
         feil += [f"{t}: står i katalog.json, men ikke i tabeller.toml" for t in uten_oppforing]
         feil += [f"{t}: står i tabeller.toml, men ikke i katalog.json" for t in uten_tabell]
@@ -488,6 +488,18 @@ def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
         "",
         "```mermaid",
         rel.er_diagram(relasjoner, skjema, "SQLite"),
+        "```",
+        "",
+        "## ER-diagram: SQL Server",
+        "",
+        (
+            "Tabellene runneren bygger fra `database/migrasjoner/` for datalaget i TS "
+            "([DL-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)), med "
+            "navnet kvalifisert med skjemaet. Ingen kobling går mellom dem og tabellene i PostgreSQL."
+        ),
+        "",
+        "```mermaid",
+        rel.er_diagram(relasjoner, skjema, "SQL Server"),
         "```",
         "",
         "## Relasjonene",

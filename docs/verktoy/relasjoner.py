@@ -34,10 +34,15 @@ def tekst(verdi) -> str:
     return " ".join(str(verdi).split())
 
 
+# Delene i katalog.json og lagringen de er. Tabellene i SQL Server har navn
+# kvalifisert med skjemaet, så de kolliderer ikke med PostgreSQL-tabellene (#558).
+LAGRINGER = (("postgresql", "PostgreSQL"), ("sqlite", "SQLite"), ("sqlserver", "SQL Server"))
+
+
 def tabeller(katalog: dict) -> dict[str, dict]:
     """Alle tabellene, med lagringen lagt til."""
     resultat = {}
-    for lag, navn in (("postgresql", "PostgreSQL"), ("sqlite", "SQLite")):
+    for lag, navn in LAGRINGER:
         for tabell, innhold in katalog[lag]["tabeller"].items():
             resultat[tabell] = {**innhold, "lagring": navn}
     return resultat
@@ -297,7 +302,7 @@ def _attributter(
 
 
 def er_diagram(register: dict, katalog: dict, lagring: str) -> str:
-    """Mermaid. «PostgreSQL»: tabellene der og koblingene mellom dem.
+    """Mermaid. «PostgreSQL» og «SQL Server»: tabellene der og koblingene mellom dem.
     «SQLite»: SQLite-tabellene og koblingene fra og til dem, med tabellene i
     PostgreSQL de viser til."""
     alle = tabeller(katalog)
@@ -305,9 +310,9 @@ def er_diagram(register: dict, katalog: dict, lagring: str) -> str:
     def lag(referanse: str) -> str:
         return alle.get(referanse.rpartition(".")[0], {}).get("lagring", "PostgreSQL")
 
-    if lagring == "PostgreSQL":
-        relasjoner = [r for r in register["relasjon"] if lag(r["fra"]) == lag(r["til"]) == "PostgreSQL"]
-        entiteter = {t: None for t, i in alle.items() if i["lagring"] == "PostgreSQL"}
+    if lagring != "SQLite":
+        relasjoner = [r for r in register["relasjon"] if lag(r["fra"]) == lag(r["til"]) == lagring]
+        entiteter = {t: None for t, i in alle.items() if i["lagring"] == lagring}
     else:
         relasjoner = [r for r in register["relasjon"] if "SQLite" in (lag(r["fra"]), lag(r["til"]))]
         entiteter = {t: None for t, i in alle.items() if i["lagring"] == "SQLite"}

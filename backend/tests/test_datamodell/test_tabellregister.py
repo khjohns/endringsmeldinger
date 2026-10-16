@@ -3,7 +3,8 @@
 PostgreSQL-tabellene sammenliknes med `TABELLER_I_BASEN`, som katalogtesten i
 CI-jobben `database` holder lik en base bygget fra migrasjonene. En ny migrasjon
 gjør dermed først katalogtesten rød, og deretter denne. SQLite-tabellene
-sammenliknes med `CREATE TABLE` i modulene som bruker `sqlite_connection`.
+sammenliknes med `CREATE TABLE` i modulene som bruker `sqlite_connection`, og
+SQL Server-tabellene med `CREATE TABLE` i database/migrasjoner/ (#558).
 """
 
 import importlib.util
@@ -12,7 +13,10 @@ import re
 
 import pytest
 
-from tests.test_security.test_database_arkitektur_20260920 import TABELLER_I_BASEN
+from tests.test_security.test_database_arkitektur_20260920 import (
+    TABELLER_I_BASEN,
+    tabeller_i_sqlserver_migrasjonene,
+)
 
 ROT = pathlib.Path(__file__).resolve().parents[3]
 BACKEND = ROT / "backend"
@@ -65,6 +69,15 @@ def test_hver_sqlite_tabell_har_en_oppforing(register):
     uten_oppforing, uten_tabell = dm.avvik(register, "SQLite", i_koden)
     assert uten_oppforing == [], "SQLite-tabeller uten oppføring i registeret"
     assert uten_tabell == [], "Oppføringer uten SQLite-tabell i koden"
+
+
+def test_hver_sqlserver_tabell_har_en_oppforing(register):
+    i_migrasjonene = tabeller_i_sqlserver_migrasjonene()
+    if not i_migrasjonene:
+        pytest.fail("Fant ingen tabeller i database/migrasjoner/; søket har sluttet å virke")
+    uten_oppforing, uten_tabell = dm.avvik(register, "SQL Server", i_migrasjonene)
+    assert uten_oppforing == [], "Tabeller i migrasjonene for SQL Server uten oppføring i registeret"
+    assert uten_tabell == [], "Oppføringer uten tabell i migrasjonene for SQL Server"
 
 
 def test_vakta_melder_tabell_som_mangler_og_oppforing_som_er_til_overs(register):
