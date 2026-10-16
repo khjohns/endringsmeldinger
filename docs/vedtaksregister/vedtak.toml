@@ -3352,6 +3352,46 @@ navn = "C"
 tekst = '''
 Appen spør ikke etter datoen.'''
 forkastet = true
+[[gruppe.vedtak]]
+id = "VS-U26"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#664", "#655"]
+sporsmal = '''
+Hvilken dato oppgir TE i grunnlagskravet, og i hvilke underkategorier? VS-U25 sier «TE oppgir datoen», men ikke hvilken dato det er. Spørsmålet viste til § 32.2, der varslingsplikten løper fra TE mottar pålegget: «Mottar totalentreprenøren pålegg som angitt i 32.1, skal han uten ugrunnet opphold varsle byggherren dersom han vil påberope seg dette som en endring.» Ved svikt og andre forhold løper fristen etter § 34.1.2 fra TE blir eller burde ha blitt klar over forholdene: «Dersom totalentreprenøren vil kreve vederlagsjustering, skal han uten ugrunnet opphold varsle byggherren når han blir eller burde ha blitt klar over forholdene nevnt i første ledd.» Ved endringsordre (§ 31.3) har TE ingen varslingsplikt for grunnlaget, og endringsordrens dato eller nummer er allerede påkrevd (GR-U16). I alle tre alternativene gjelder den nye setningen bare nye brev (MM-U9). Forholdet: A presiserer VS-U25 og utvider LV-U4 punkt 1; B presiserer VS-U25 slik ordet «oppdaget» lyder og utvider LV-U4 punkt 1; C presiserer VS-U25 hvis vedtaket gjelder § 32.2, ellers snevrer det inn VS-U25, og for svikt og andre forhold er det lik det forkastede B i VS-U25.'''
+valgt = "A: datoen fristen løper fra"
+svar = '''
+«A: datoen fristen løper fra»'''
+forhold = [{ art = "presiserer", vedtak = "vs-u25" }, { art = "utvider", vedtak = "lv-u4" }]
+folge = '''
+Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A: datoen fristen løper fra"
+tekst = '''
+I grunnlagskravet oppgir TE datoen varslingsplikten løper fra. Der § 32.2 gjelder, er det datoen TE mottok pålegget, og brevet sier etter setningen om § 32.2: «TE opplyser at pålegget ble mottatt <dato>.» I svikt og andre forhold (§ 33.1 b–c) er det datoen TE ble klar over forholdet, og brevet sier etter kategorisetningen: «TE opplyser at TE ble klar over forholdet <dato>.» I underkategorien endringsordre (§ 31.3) oppgir TE ingen slik dato. Datoen er påkrevd i krav fra appen. Grunnlagskravet blir ikke et varsel etter § 33.4 eller § 34.1.2, og appen vurderer ikke rettidigheten.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B: når TE ble klar over det"
+tekst = '''
+I grunnlagskravet oppgir TE datoen TE ble klar over forholdet, i alle underkategorier unntatt endringsordre (§ 31.3). Brevet sier etter kategorisetningen, og der § 32.2 gjelder etter setningen om § 32.2: «TE opplyser at TE ble klar over forholdet <dato>.» Datoen er påkrevd i krav fra appen. Grunnlagskravet blir ikke et varsel etter § 33.4 eller § 34.1.2, og appen vurderer ikke rettidigheten.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C: bare der § 32.2 gjelder"
+tekst = '''
+Bare der § 32.2 gjelder, oppgir TE i grunnlagskravet datoen TE mottok pålegget, og brevet sier etter setningen om § 32.2: «TE opplyser at pålegget ble mottatt <dato>.» I svikt og andre forhold og i underkategorien endringsordre spør appen ikke etter datoen. TE kan beskrive den i utdypningen. Datoen er påkrevd i krav fra appen, og appen vurderer ikke rettidigheten.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "Mottar totalentreprenøren pålegg som angitt i 32.1, skal han uten ugrunnet opphold varsle byggherren dersom han vil påberope seg dette som en endring."
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "Dersom totalentreprenøren vil kreve vederlagsjustering, skal han uten ugrunnet opphold varsle byggherren når han blir eller burde ha blitt klar over forholdene nevnt i første ledd."
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
