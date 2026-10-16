@@ -2494,7 +2494,8 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
     it('«i tide» etter § 33.6.1 sier ingenting om § 33.4 (HF-U4)', () => {
       const s = sakMedKrav();
       brev(s, 'frist', { ...iTide, frist_varsel_ok: false, dager: 12 });
-      expect(s.avvist('BH', revisjon(s, 'frist', forSent334))).toBeNull();
+      // HF-U5: revisjonen beholder de 12 dagene, så bare påberopelsen sammenliknes.
+      expect(s.avvist('BH', revisjon(s, 'frist', { ...forSent334, dager: 12 }))).toBeNull();
     });
 
     it('«i tide» etter § 33.4 sier ingenting om § 33.6.1, som gjelder kravversjonen (HF-U4, HF-U1)', () => {
@@ -2960,6 +2961,294 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       const u = s.u();
       expect(u.utenVirkning).toEqual([]);
       expect(u.spor.grunnlag.gjeldendeSvar?.id).toBe(id);
+    });
+  });
+});
+
+/**
+ * HF-U5, HF-U14, HF-U21: en revisjon av et svar TE ikke har godtatt, kan ikke senke noe
+ * byggherren har innrømmet i svaret. Sammenlikningen gjøres standpunkt for standpunkt, og
+ * en revisjon som senker ett standpunkt, avvises også når den hever et annet. Hvilke
+ * standpunkter som sammenliknes, står i arbeidsvalgene 16.10 på #502.
+ */
+describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', () => {
+  type Sak = ReturnType<typeof sak>;
+  type Sporet = 'grunnlag' | 'vederlag' | 'frist';
+
+  /** Svaret med serverens utregning, så bare sammenlikningen kan gi en avvisning. */
+  const utregnet = (s: Sak, spor: Sporet, v: Data) => {
+    const u = s.u();
+    const krav = u.spor[spor].gjeldendeKrav!;
+    return svar(
+      spor,
+      krav.id,
+      v,
+      regnUtSvar(spor, v, { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav }, KJERNE.regler)
+    );
+  };
+  const brev = (s: Sak, spor: Sporet, v: Data) =>
+    s.send('BH', { type: 'brev', svar: [utregnet(s, spor, v)] });
+  const revisjon = (s: Sak, spor: Sporet, v: Data) => ({
+    type: 'revisjon',
+    erstatter: s.u().spor[spor].gjeldendeSvar!.id,
+    svar: utregnet(s, spor, v),
+  });
+  const nyttSvar = (s: Sak, spor: Sporet, v: Data) => ({
+    type: 'brev',
+    svar: [utregnet(s, spor, v)],
+  });
+
+  /** 100 000 av 125 000 kr, så svaret ikke gir enighet ved sammenfall (GR-U10). */
+  const delvis = {
+    hovedkrav_vurdering: 'delvis',
+    hovedkrav_godkjent_belop: 100000,
+    aksepterer_metode: true,
+  };
+  const beloep = (n: number) => ({ ...delvis, hovedkrav_godkjent_belop: n });
+  /** 10 av 20 dager. */
+  const dager = {
+    frist_varsel_ok: true,
+    spesifisert_krav_ok: true,
+    vilkar_oppfylt: true,
+    dager: 10,
+  };
+
+  describe('vederlaget', () => {
+    it('et lavere godkjent beløp avvises, og meldingen sier hva som senkes', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(110000))), 'kontrollsak').toBeNull();
+      const a = s.avvisning('BH', revisjon(s, 'vederlag', beloep(80000)));
+      expect(a?.regel).toBe('SENKER_INNROEMMELSE');
+      expect(a?.melding).toContain(`godkjenner ${kroner(100000)}`);
+      expect(a?.melding).toContain(`til ${kroner(80000)}`);
+    });
+
+    it('et beløp som står likt, godtas, også når det er det eneste i revisjonen', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      expect(s.avvist('BH', revisjon(s, 'vederlag', delvis))).toBeNull();
+    });
+
+    it('beløpet sammenliknes til hele øre (B-13)', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', beloep(100000.5));
+      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(100000.49)))).toBe(
+        'SENKER_INNROEMMELSE'
+      );
+      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(100000.501))), 'kontrollsak').toBeNull();
+    });
+
+    it('aksepten av beregningsmåten kan ikke tas tilbake, men en aksept kan gis (HF-U14)', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      const uten = { ...delvis, aksepterer_metode: false, oensket_metode: 'enhetspriser' };
+      expect(s.avvist('BH', revisjon(s, 'vederlag', uten))).toBe('SENKER_INNROEMMELSE');
+
+      const kontroll = sakMedKrav();
+      brev(kontroll, 'vederlag', uten);
+      expect(
+        kontroll.avvist('BH', revisjon(kontroll, 'vederlag', delvis)),
+        'kontrollsak'
+      ).toBeNull();
+    });
+
+    it('sammenliknes med svaret revisjonen erstatter, ikke det første svaret på kravversjonen', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      s.send('BH', revisjon(s, 'vederlag', beloep(120000)));
+      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(110000)))).toBe('SENKER_INNROEMMELSE');
+    });
+
+    it('byggherrens ønskede metode kan endres når tilbudet ikke er akseptert (MM-U12)', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', { ...delvis, aksepterer_metode: false, oensket_metode: 'enhetspriser' });
+      expect(
+        s.avvist(
+          'BH',
+          revisjon(s, 'vederlag', {
+            ...delvis,
+            aksepterer_metode: false,
+            oensket_metode: 'regningsarbeid',
+          })
+        )
+      ).toBeNull();
+    });
+
+    it('en blandet revisjon som hever beløpet og tar tilbake aksepten, avvises', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      expect(
+        s.avvist(
+          'BH',
+          revisjon(s, 'vederlag', {
+            ...beloep(120000),
+            aksepterer_metode: false,
+            oensket_metode: 'enhetspriser',
+          })
+        )
+      ).toBe('SENKER_INNROEMMELSE');
+    });
+
+    describe('subsidiært etter § 34.1.2', () => {
+      const sakISvikt = () => {
+        const s = sak();
+        s.send('TE', {
+          ...GRUNNLAGSKRAV,
+          innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', tittel: 'Kvikkleire' },
+        });
+        s.send('TE', {
+          type: 'krav',
+          spor: 'vederlag',
+          innhold: { metode: 'tilbud', beloep: 125000 },
+        });
+        return s;
+      };
+
+      it('subsidiært 100 000 kr kan ikke bli prinsipalt 80 000 kr, selv om preklusjonen gis opp', () => {
+        const s = sakISvikt();
+        brev(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: false });
+        const a = s.avvisning(
+          'BH',
+          revisjon(s, 'vederlag', { ...beloep(80000), hovedkrav_varslet_i_tide: true })
+        );
+        expect(a?.regel).toBe('SENKER_INNROEMMELSE');
+        expect(a?.melding).toContain(`godkjenner subsidiært ${kroner(100000)}`);
+        expect(
+          s.avvist('BH', revisjon(s, 'vederlag', { ...delvis, hovedkrav_varslet_i_tide: true })),
+          'kontrollsak: prinsipalt 100 000 kr'
+        ).toBeNull();
+      });
+    });
+  });
+
+  describe('fristforlengelsen', () => {
+    it('færre godkjente dager avvises, flere godtas', () => {
+      const s = sakMedKrav();
+      brev(s, 'frist', dager);
+      expect(
+        s.avvist('BH', revisjon(s, 'frist', { ...dager, dager: 12 })),
+        'kontrollsak'
+      ).toBeNull();
+      const a = s.avvisning('BH', revisjon(s, 'frist', { ...dager, dager: 8 }));
+      expect(a?.regel).toBe('SENKER_INNROEMMELSE');
+      expect(a?.melding).toContain('godkjenner 10 dager');
+    });
+
+    it('at fremdriften er hindret (§ 33.1), kan ikke tas tilbake', () => {
+      const s = sakMedKrav();
+      brev(s, 'frist', dager);
+      expect(s.avvist('BH', revisjon(s, 'frist', { ...dager, vilkar_oppfylt: false }))).toBe(
+        'SENKER_INNROEMMELSE'
+      );
+
+      const kontroll = sakMedKrav();
+      brev(kontroll, 'frist', { ...dager, vilkar_oppfylt: false });
+      expect(kontroll.avvist('BH', revisjon(kontroll, 'frist', dager)), 'kontrollsak').toBeNull();
+    });
+
+    it('dagene byggherren måtte forstå etter § 33.6.1 sammenliknes når begge svar sier «for sent» (VS-U4)', () => {
+      const s = sakMedKrav();
+      const forSent = { ...dager, spesifisert_krav_ok: false, dager_maatte_forstaa: 5 };
+      brev(s, 'frist', forSent);
+      expect(s.avvist('BH', revisjon(s, 'frist', { ...forSent, dager_maatte_forstaa: 3 }))).toBe(
+        'SENKER_INNROEMMELSE'
+      );
+      expect(
+        s.avvist('BH', revisjon(s, 'frist', { ...forSent, dager_maatte_forstaa: 7 })),
+        'kontrollsak'
+      ).toBeNull();
+      expect(
+        s.avvist('BH', revisjon(s, 'frist', dager)),
+        'kravet godtas som spesifisert i tide'
+      ).toBeNull();
+    });
+  });
+
+  describe('grunnlaget', () => {
+    const forSent = { grunnlag_varslet_i_tide: false };
+
+    it('et grunnlag godkjent subsidiært kan ikke bli avslått eller frafalt (arbeidsvalget 16.10)', () => {
+      const s = sakMedKrav();
+      brev(s, 'grunnlag', { ...forSent, resultat: 'godkjent' });
+      const a = s.avvisning('BH', revisjon(s, 'grunnlag', { ...forSent, resultat: 'avslaatt' }));
+      expect(a?.regel).toBe('SENKER_INNROEMMELSE');
+      expect(a?.melding).toContain('grunnlaget subsidiært godkjent');
+      expect(
+        s.avvist(
+          'BH',
+          revisjon(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'paalegg_frafalt' })
+        )
+      ).toBe('SENKER_INNROEMMELSE');
+    });
+
+    it('et avslag kan revideres til godkjenning (HF-U5)', () => {
+      const s = sakMedKrav();
+      brev(s, 'grunnlag', { ...forSent, resultat: 'avslaatt' });
+      expect(
+        s.avvist('BH', revisjon(s, 'grunnlag', { ...forSent, resultat: 'godkjent' }))
+      ).toBeNull();
+    });
+
+    it('et registrert brev binder ikke (OV-U4)', () => {
+      const s = sakMedKrav();
+      const u = s.u();
+      s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            gjelder: u.spor.grunnlag.gjeldendeKrav!.id,
+            standpunkter: [
+              {
+                id: randomUUID(),
+                art: 'rettidighet',
+                gjelder: u.spor.grunnlag.gjeldendeKrav!.id,
+                hjemmel: '32.2',
+                i_tide: false,
+              },
+              { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
+            ],
+          },
+        ],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-05' }],
+      });
+      expect(
+        s.u().spor.grunnlag.gjeldendeSvar,
+        'forutsetning: det registrerte svaret står'
+      ).not.toBeNull();
+      expect(
+        s.avvist('BH', revisjon(s, 'grunnlag', { ...forSent, resultat: 'avslaatt' }))
+      ).toBeNull();
+    });
+  });
+
+  describe('etter en ny versjon', () => {
+    it('bindingen i vederlaget står etter en ny grunnlagsversjon med samme hjemmel (HF-U21)', () => {
+      const s = sakMedKrav();
+      brev(s, 'grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true });
+      brev(s, 'vederlag', delvis);
+      s.send('TE', {
+        ...GRUNNLAGSKRAV,
+        innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling, utvidet beskrivelse' },
+      });
+      expect(
+        s.avvist('BH', nyttSvar(s, 'vederlag', beloep(80000))),
+        'forutsetning: vederlaget er besvart, så byggherren må revidere'
+      ).toBe('ALLEREDE_SVART');
+      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(80000)))).toBe('SENKER_INNROEMMELSE');
+      expect(s.avvist('BH', revisjon(s, 'vederlag', delvis)), 'kontrollsak').toBeNull();
+    });
+
+    it('etter en ny kravversjon er svaret nytt, og byggherren er fri (HF-U5, HF-U8)', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      s.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: { metode: 'tilbud', beloep: 120000 },
+      });
+      expect(s.avvist('BH', nyttSvar(s, 'vederlag', beloep(50000)))).toBeNull();
     });
   });
 });

@@ -291,10 +291,13 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
 
     def funnet(avvik):
         """Et avvik uten funn-ID er et vedtatt issue (#235); da er `funn` issuenummeret,
-        og issuet har en vedtaksrad i hovedplanen 3.1."""
+        og issuet har en vedtaksrad i hovedplanen 3.1. `funn` kan også være en vedtaks-ID."""
         if avvik["funn"].startswith("#"):
             return avvik["funn"] == f"#{avvik.get('issue')}" and f"| {avvik['funn']}:" in vedtak
-        return re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE)
+        # Et vedtak i 3.1 er også et funn mot Python-stien, som rettes etter DL-U2 (#611).
+        return re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE) or (
+            f"</a>{avvik['funn']}:" in vedtak
+        )
 
     for forlop in korpus["forlop"]:
         navn = forlop["id"]

@@ -20,8 +20,8 @@ export class Versjonskonflikt extends Error {
   readonly forventet: number;
   readonly faktisk: number;
 
-  constructor(forventet: number, faktisk: number) {
-    super(`Forventet versjon ${forventet}, journalen har ${faktisk}`);
+  constructor(forventet: number, faktisk: number, valg?: ErrorOptions) {
+    super(`Forventet versjon ${forventet}, journalen har ${faktisk}`, valg);
     this.forventet = forventet;
     this.faktisk = faktisk;
   }
