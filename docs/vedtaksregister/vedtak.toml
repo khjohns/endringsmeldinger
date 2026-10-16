@@ -5529,7 +5529,7 @@ valgt = "A"
 svar = '''
 «A: lagres i 3b (Anbefalt)»'''
 folge = '''
-Presiserer merknaden 23.09 til B-04, punkt 1 og 4. Endrer [arbeidsvalget 16.10 i #53](https://github.com/khjohns/endringsmeldinger/issues/53#issuecomment-6209851162), som la tabellen for synkroniseringen til senere. Ikke bygget'''
+Presiserer merknaden 23.09 til B-04, punkt 1 og 4. Endrer [arbeidsvalget 16.10 i #53](https://github.com/khjohns/endringsmeldinger/issues/53#issuecomment-6209851162), som la tabellen for synkroniseringen til senere. Bygget 16.10 i TS-stien (#53, del 3b, #612).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
