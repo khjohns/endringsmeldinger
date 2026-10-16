@@ -1,5 +1,5 @@
 /**
- * Medlemskapet i SQL Server (#53, del 3b, DL-U7, DL-U8):
+ * Medlemskapet i SQL Server (#53, del 3b, DL-U7, DL-U8, DL-U9):
  * `koe_api.synkroniser_medlemskap`, `koe_api.deaktiver_ved_innlogging` og
  * `koe_api.medlemsliste_alder`. Synkroniseringen og innloggingen er systemkall uten
  * aktør og prosjektkontekst (RB2-04), så de går utenom `transaksjon()`; prosedyrene
@@ -85,7 +85,9 @@ export async function basensKlokke(pool: Pool): Promise<Date> {
 /**
  * Skriver en fullstendig medlemsliste for prosjektet. Medlemmer som ikke står i
  * listen, blir inaktive. Returnerer `false` uten å endre noe når en liste hentet
- * samtidig eller senere alt er skrevet (DL-U7). `catendaProsjekt` kommer fra
+ * samtidig eller senere alt er skrevet (DL-U7). En bruker uten medlemskap, som
+ * en innlogging med en liste hentet samtidig eller senere viste ikke er med i
+ * prosjektet, får ikke noe medlemskap (DL-U9). `catendaProsjekt` kommer fra
  * koblingen, og `hentet` fra `basensKlokke()`.
  *
  * @throws UgyldigMedlemsliste, UgyldigProsjekt, FeilCatendaProsjekt, MedlemskapetLaast
@@ -121,7 +123,10 @@ export async function synkroniserMedlemskap(
  * hele listen over brukerens Catenda-prosjekter, hentet etter `hentet` fra
  * `basensKlokke()`; er den ufullstendig, kalles funksjonen ikke, og innloggingen
  * feiler (B-04 punkt 4). Et prosjekt med en medlemsliste hentet etter `hentet`
- * endres ikke (DL-U7). Returnerer prosjektene som ble endret, sortert.
+ * endres ikke (DL-U7). Har brukeren ikke noe medlemskap i prosjektet, føres det
+ * at innloggingen viste at brukeren ikke er med, så en liste hentet før `hentet`
+ * ikke gir brukeren et nytt medlemskap (DL-U9). Returnerer prosjektene der
+ * medlemskapet ble endret, sortert.
  *
  * @throws UgyldigInnlogging, MedlemskapetLaast
  */

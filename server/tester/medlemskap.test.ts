@@ -3,7 +3,8 @@
  * 3b), i en base bygget fra `database/migrasjoner/`. Kildene er DL-U7
  * (hentetidspunktet og Catenda-prosjektet lagres, en eldre liste skriver ikke over
  * en nyere), DL-U8 (en liste hentet før deaktiveringen ved innlogging gjør ikke
- * medlemmet aktivt igjen), B-04 punkt 1 (basens klokke) og 4 (alderen på listen),
+ * medlemmet aktivt igjen), DL-U9 (en slik liste gir heller ikke en bruker uten
+ * medlemskap et nytt medlemskap), B-04 punkt 1 (basens klokke) og 4 (alderen på listen),
  * sikkerhetsinvariantene i AGENTS.md (én brukerrad per person, normalisert subjekt)
  * og arbeidsvalget 16.10 i #53 (koblingen settes av driften). At innloggingen ikke
  * endrer et prosjekt med en liste hentet senere, og at innloggingen gjelder ved
@@ -510,6 +511,85 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       for (const p of [aktiv, inaktiv, uten]) expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
 
+    describe('for en bruker uten medlemskap i prosjektet (DL-U9)', () => {
+      async function fravaer(prosjektId: string) {
+        const svar = await base.pool.request().input('p', sql.NVarChar(100), prosjektId).query<{
+          catenda_subject: string;
+          observed_at: Date;
+        }>(`SELECT i.subject AS catenda_subject, a.observed_at
+              FROM koe.app_membership_absences a
+              JOIN koe.app_identities i ON i.user_id = a.user_id AND i.provider = N'catenda'
+             WHERE a.project_id = @p ORDER BY i.subject`);
+        return svar.recordset;
+      }
+
+      /** Et medlem med bruker, fra en liste i et annet prosjekt. */
+      async function medBruker() {
+        const annet = await prosjekt();
+        const a = medlem();
+        await synk(annet, [a], sekunder(-120));
+        return { a, annet };
+      }
+
+      it('kontrollsak: en liste hentet før innloggingen gir ikke et nytt medlemskap; en liste hentet etter gir det', async () => {
+        const { a, annet } = await medBruker();
+        const p = await prosjekt();
+        const hentet = sekunder(-30);
+        expect(await logginn(a.subjekt, [annet.catenda], hentet)).not.toContain(p.id);
+        expect(await fravaer(p.id)).toEqual([
+          { catenda_subject: a.subjekt, observed_at: new Date(hentet.getTime()) },
+        ]);
+        expect(await synk(p, [a], sekunder(-40))).toBe(true);
+        expect(await medlemskap(p.id)).toEqual([]);
+        expect(await synk(p, [a], sekunder(-20))).toBe(true);
+        expect(await aktive(p.id)).toEqual([a.subjekt]);
+      });
+
+      it('ved samme tidspunkt som listen gjelder innloggingen', async () => {
+        const { a, annet } = await medBruker();
+        const p = await prosjekt();
+        const t = sekunder(-10);
+        await logginn(a.subjekt, [annet.catenda], t);
+        expect(await synk(p, [a], t)).toBe(true);
+        expect(await medlemskap(p.id)).toEqual([]);
+      });
+
+      it('en ny innlogging flytter tidspunktet fram, så en liste hentet mellom de to ikke gir medlemskap', async () => {
+        const { a, annet } = await medBruker();
+        const p = await prosjekt();
+        await logginn(a.subjekt, [annet.catenda], sekunder(-40));
+        const hentet = sekunder(-20);
+        await logginn(a.subjekt, [annet.catenda], hentet);
+        await logginn(a.subjekt, [annet.catenda], sekunder(-50));
+        expect((await fravaer(p.id))[0].observed_at.getTime()).toBe(hentet.getTime());
+        expect(await synk(p, [a], sekunder(-30))).toBe(true);
+        expect(await medlemskap(p.id)).toEqual([]);
+      });
+
+      it('et prosjekt som står i brukerens liste, har inaktiv kobling eller en nyere liste alt skrevet, får ingen rad', async () => {
+        const { a, annet } = await medBruker();
+        const [iListen, inaktiv, nyere] = [
+          await prosjekt(),
+          await prosjekt('inaktiv'),
+          await prosjekt(),
+        ];
+        await synk(nyere, [medlem()], sekunder(-10));
+        await logginn(a.subjekt, [annet.catenda, iListen.catenda], sekunder(-20));
+        for (const p of [iListen, inaktiv, nyere]) expect(await fravaer(p.id)).toEqual([]);
+        expect(await synk(iListen, [a], sekunder(-30))).toBe(true);
+        expect(await aktive(iListen.id)).toEqual([a.subjekt]);
+      });
+
+      it('en liste som skrives, sletter radene hentet før den og beholder de nyere', async () => {
+        const [{ a, annet: pa }, { a: b, annet: pb }] = [await medBruker(), await medBruker()];
+        const p = await prosjekt();
+        await logginn(a.subjekt, [pa.catenda], sekunder(-40));
+        await logginn(b.subjekt, [pb.catenda], sekunder(-20));
+        expect(await synk(p, [], sekunder(-30))).toBe(true);
+        expect((await fravaer(p.id)).map((r) => r.catenda_subject)).toEqual([b.subjekt]);
+      });
+    });
+
     it('et subjekt uten bruker endrer ingenting', async () => {
       expect(await logginn(subjekt(), [], sekunder(-1))).toEqual([]);
     });
@@ -653,6 +733,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
 
   it.each([
     'SELECT * FROM koe.app_membership_sync',
+    'SELECT * FROM koe.app_membership_absences',
     'SELECT * FROM koe.catenda_project_configs',
     'SELECT * FROM koe.app_project_memberships',
     'UPDATE koe.app_project_memberships SET active = 1 WHERE 1 = 0',
