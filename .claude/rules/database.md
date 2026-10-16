@@ -63,6 +63,24 @@ for PostgreSQL. Tidspunkter er `datetime2(3)` i UTC med `SYSUTCDATETIME()`
 Brukerne til rollene (`CREATE USER … FROM EXTERNAL PROVIDER`) hører til
 utrullingen, ikke migrasjonene (A8 og A9 i #78).
 
+**Hver tabell i `koe` har en trigger mot endring** (`INSTEAD OF UPDATE, DELETE`
+som kaster 51001), utenom den lukkede listen `UTEN_TRIGGER` i
+`server/tester/journal.test.ts`, der hver tabell står med begrunnelsen
+(arbeidsvalg 3 i #53). En ny tabell i `koe` får triggeren eller en linje i
+listen; ellers er testen rød. TRUNCATE avfyrer ingen trigger, så en tabell uten
+fremmednøkkel mot seg kan tømmes av den som har ALTER.
+
+**Radsikkerheten i SQL Server er én policy, `koe_sikkerhet.tilgang`, med
+`SCHEMABINDING`** (DL-U5, `database/migrasjoner/20261016110000_tilgang.sql`).
+Den gjelder også eieren: uten kontekst ser ingen noe, så en test som leser
+saksdata, leser i en transaksjon med konteksten satt. En ny tabell med
+saksdata får filterpredikatet `medlem(prosjekt_id)` og et blokkpredikat for
+skrivingen; kjøretiden får rettigheter per objekt, aldri per skjema
+(arbeidsvalg 5 i #53). Policyen binder predikatene, så en migrasjon som endrer
+et predikat, tar policyen ned og legger den på igjen i samme fil.
+`server/tester/tilgang.test.ts` krever filterpredikatet på hver tabell
+kjøretiden kan lese, og nøyaktig rettighetene den har.
+
 **En `GRANT` begrenser ikke det en rolle alt har.** Plattformstubben og
 Supabase gir `service_role` alle rettigheter på nye tabeller
 (`scripts/testbase/plattformstubb.sql`). En tabell som bare skal leses og

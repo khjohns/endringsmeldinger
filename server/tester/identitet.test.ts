@@ -193,6 +193,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
       expect(svar.recordset.map((r) => r.kolonne).sort()).toEqual([
         'koe.app_project_memberships.project_id',
         'koe.catenda_contract_teams.internal_project_id',
+        'koe.hendelse.prosjekt_id',
+        'koe.kjernebuffer.prosjekt_id',
+        'koe.leveringsoppdrag.prosjekt_id',
+        'koe.notat.prosjekt_id',
+        'koe.sak_metadata.prosjekt_id',
       ]);
       expect(svar.recordset.filter((r) => r.har_default)).toEqual([]);
       const pk = await base.pool.request().query<{ har_default: boolean }>(
@@ -202,7 +207,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
       expect(pk.recordset).toEqual([{ har_default: false }]);
     });
 
-    it('hvert tidspunkt er datetime2(3) med SYSUTCDATETIME() som standard (DL-U3)', async () => {
+    // Uten standard: tidspunktet kjernen regnet brevet med, som serveren setter,
+    // og endringstidspunktet til et notat, som er tomt til notatet endres.
+    const UTEN_STANDARD = ['koe.hendelse.tidsstempel', 'koe.notat.endret'];
+
+    it('hvert tidspunkt er datetime2(3), og en standard er SYSUTCDATETIME() (DL-U3)', async () => {
       const svar = await base.pool.request().query<{
         kolonne: string;
         type: string;
@@ -217,7 +226,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
       );
       expect(svar.recordset.length).toBeGreaterThan(0);
       expect(svar.recordset.filter((r) => r.type !== 'datetime2' || r.scale !== 3)).toEqual([]);
-      expect(svar.recordset.filter((r) => r.standard !== '(sysutcdatetime())')).toEqual([]);
+      expect(
+        svar.recordset
+          .filter((r) => r.standard === null)
+          .map((r) => r.kolonne)
+          .sort()
+      ).toEqual(UTEN_STANDARD);
+      expect(
+        svar.recordset.filter((r) => r.standard !== null && r.standard !== '(sysutcdatetime())')
+      ).toEqual([]);
     });
 
     it('identiteten er unik på provider, issuer og subjekt', async () => {
