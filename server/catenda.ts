@@ -75,7 +75,7 @@ async function forespoersel(
     throw new CatendaUtilgjengelig('Catenda svarte ikke');
   }
   if (svar.status !== 200) {
-    await svar.body?.cancel();
+    await svar.body?.cancel().catch(() => {});
     throw new CatendaUtilgjengelig('Catenda svarte med feil');
   }
   try {
@@ -87,30 +87,30 @@ async function forespoersel(
 
 /** OAuth med brukerens token. Tokenet sendes med hvert kall og lagres ikke. */
 export class CatendaOAuth {
-  readonly oppsett: CatendaOppsett;
+  readonly #oppsett: CatendaOppsett;
 
   constructor(oppsett: CatendaOppsett) {
-    this.oppsett = oppsett;
+    this.#oppsett = oppsett;
   }
 
   autorisasjonsadresse(tilstand: string): string {
     const parametre = new URLSearchParams({
-      client_id: this.oppsett.klientId,
-      redirect_uri: this.oppsett.tilbakekallsadresse,
+      client_id: this.#oppsett.klientId,
+      redirect_uri: this.#oppsett.tilbakekallsadresse,
       response_type: 'code',
       response_mode: 'query',
       state: tilstand,
     });
-    return `${this.oppsett.grunnadresse ?? CATENDA}/oauth2/authorize?${parametre}`;
+    return `${this.#oppsett.grunnadresse ?? CATENDA}/oauth2/authorize?${parametre}`;
   }
 
   /** Bytter koden fra tilbakekallet mot brukerens token. PKCE er ikke slått på hos Catenda. */
   async byttKode(kode: string): Promise<string> {
-    const data = await forespoersel(this.oppsett, 'POST', '/oauth2/token', {
+    const data = await forespoersel(this.#oppsett, 'POST', '/oauth2/token', {
       skjema: {
-        client_id: this.oppsett.klientId,
-        client_secret: this.oppsett.klienthemmelighet,
-        redirect_uri: this.oppsett.tilbakekallsadresse,
+        client_id: this.#oppsett.klientId,
+        client_secret: this.#oppsett.klienthemmelighet,
+        redirect_uri: this.#oppsett.tilbakekallsadresse,
         grant_type: 'authorization_code',
         code: kode,
       },
@@ -122,7 +122,7 @@ export class CatendaOAuth {
   }
 
   async bruker(token: string): Promise<CatendaBruker> {
-    const bruker = await forespoersel(this.oppsett, 'GET', '/v2/user', { token });
+    const bruker = await forespoersel(this.#oppsett, 'GET', '/v2/user', { token });
     const subjekt = erObjekt(bruker) && bruker.type === 'user' ? catendaId(bruker.id) : null;
     if (!erObjekt(bruker) || !subjekt) {
       throw new CatendaUtilgjengelig('Forventet en brukeridentitet');
@@ -142,14 +142,14 @@ export class CatendaOAuth {
     const resultat: Rad[] = [];
     const sett = new Set<string>();
     for (let side = 1; side <= MAKS_SIDER; side++) {
-      const rader = await forespoersel(this.oppsett, 'GET', sti, {
+      const rader = await forespoersel(this.#oppsett, 'GET', sti, {
         token,
         parametre: { ...parametre, page: String(side), pageSize: String(SIDESTOERRELSE) },
       });
       if (!Array.isArray(rader)) throw new CatendaUtilgjengelig('Ugyldig samling');
       for (const rad of rader) {
         const noekkel = erObjekt(rad)
-          ? (rad.id ?? (erObjekt(rad.user) ? rad.user.id : undefined))
+          ? rad.id || (erObjekt(rad.user) ? rad.user.id : undefined)
           : undefined;
         if (typeof noekkel !== 'string' || !noekkel || sett.has(noekkel)) {
           throw new CatendaUtilgjengelig('Ufullstendig samling');

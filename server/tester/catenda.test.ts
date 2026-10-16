@@ -8,6 +8,7 @@
 
 import { createServer, type IncomingMessage, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { inspect } from 'node:util';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   CatendaOAuth,
@@ -204,6 +205,15 @@ describe('OAuth med brukerens token', () => {
     expect(mottatt.map((m) => m.autorisasjon)).toEqual(['Bearer token-en', 'Bearer token-to']);
     expect(JSON.stringify(oauth)).not.toMatch(/token-/);
   });
+
+  it('klienten og nøkkelen viser ikke klienthemmeligheten eller tokenet når de serialiseres eller logges', () => {
+    const oauth = new CatendaOAuth(oppsett());
+    const nokkel = new Integrasjonsnokkel(oppsett(), 'statisk-token');
+    for (const objekt of [oauth, nokkel]) {
+      expect(JSON.stringify(objekt)).not.toMatch(/hemmelig|statisk-token/);
+      expect(inspect(objekt, { showHidden: true, depth: 5 })).not.toMatch(/hemmelig|statisk-token/);
+    }
+  });
 });
 
 describe('samlingene sidevis', () => {
@@ -232,6 +242,17 @@ describe('samlingene sidevis', () => {
     });
     expect((await new CatendaOAuth(oppsett()).prosjekter('t')).size).toBe(100);
     expect(mottatt).toHaveLength(2);
+  });
+
+  it('en rad med tom id nøkles på brukerens ID, som i collection i Python', async () => {
+    svar = () => ({
+      json: [
+        { ...medlem(1), id: '' },
+        { ...medlem(2), id: '' },
+      ],
+    });
+    const medlemmer = await new CatendaOAuth(oppsett()).medlemmer(PROSJEKT, 't');
+    expect(medlemmer.map((m) => m.subjekt)).toEqual([hex(uuid(1)), hex(uuid(2))]);
   });
 
   it('en ignorert sideparameter gir feil, ikke en avkortet liste', async () => {
