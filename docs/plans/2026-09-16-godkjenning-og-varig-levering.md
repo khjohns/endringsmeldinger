@@ -708,6 +708,22 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > testbasen for kjernens lagringstester gjelder til datalaget for Azure SQL
 > finnes.
 
+> **Merknad 2026-10-16 til AF-06 (rekkefølgen i FK og F0b):** oppdragsgiver
+> godkjente forslaget om rekkefølgen 16.10 med «Ja, som foreslått». Rekkefølgen
+> og unntaket er:
+>
+> - Skrivestien og frontenden prioriteres foran resten av #587 og foran #514,
+>   #516 og #550.
+> - Oppfølgingsfunn fra review i FK og F0b (etiketten `review-oppfølging`) tas
+>   ikke i rundene før #310 er levert, unntatt funn som gir feil resultat i et
+>   forløp første versjon kan nå gjennom skjemaene. Samleissuene fra nye PR-er
+>   følger samme prioritering.
+> - Byggedel 4 (EO og forsering) venter til #310 er levert, slik [OV-U1](#ov-u1)
+>   allerede sier.
+> - Oppdelingen av #375 og kartleggingen av skrivestien (#375, #310, #370, #371,
+>   #376, #418, #487 og #313) gjøres samlet for FK og F0b, og fordelingen av
+>   filer legges fram for oppdragsgiver.
+
 ### 3.3 Anbefalinger som ikke er vedtatt
 
 | Anbefaling | Kilde | Status |
