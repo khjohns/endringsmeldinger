@@ -218,7 +218,7 @@ Innloggingssesjoner. Lagrer en hash av sesjonstokenet, CSRF-tokenet og når sesj
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → app_users.id (fremmednøkkel, ON DELETE CASCADE). |
 | Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
-| Personopplysninger | Knyttet til en bruker gjennom `user_id`, med tidspunktet for innloggingen (`created_at`, `expires_at`). |
+| Personopplysninger | Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`). |
 | Skrives av | backend/routes/auth_routes.py; backend/scripts/sync_catenda_memberships.py |
 | Funn | — |
 | Belegg | K 29.09: kolonnene i testbasen. L 29.09: rutene og skriptet. |
@@ -749,7 +749,7 @@ Innloggingssesjoner. Lagrer SHA-256 av sesjonstokenet, CSRF-tokenet og når sesj
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (token_hash). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei, men tapet betyr bare at brukerne må logge inn igjen. |
-| Personopplysninger | Knyttet til en bruker gjennom `user_id`, med tidspunktet for innloggingen (`created_at`, `expires_at`). |
+| Personopplysninger | Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`). |
 | Skrives av | database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.slett_sesjon`, `koe_api.rydd_utloepte`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`. |

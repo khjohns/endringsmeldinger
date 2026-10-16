@@ -47,12 +47,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
     await base?.slett();
   }, 60_000);
 
-  // Avrundet til datetime2(3) som utløpet, så grensene holder på millisekundet.
+  // Avkortet til millisekundet som utløpet, så grensene holder på millisekundet.
   const klokke = async () =>
     (
       await base.pool
         .request()
-        .query<{ naa: Date }>('SELECT CAST(SYSUTCDATETIME() AS datetime2(3)) AS naa')
+        .query<{ naa: Date }>('SELECT DATETRUNC(millisecond, SYSUTCDATETIME()) AS naa')
     ).recordset[0].naa;
 
   async function utloep(tabell: 'app_sessions' | 'app_oauth_attempts', kolonne: string, h: string) {
@@ -177,10 +177,20 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
         `/${'a'.repeat(2047)}${' '.repeat(50)}`,
       ],
       ['lengre enn 2048 UTF-16-enheter med færre kodepunkter', `/${'😀'.repeat(1500)}`],
+      ['lengre enn 4000 tegn', `/${'a'.repeat(4000)}`],
     ])('avviser en retursti som er %s', async (_navn, sti) => {
       await expect(opprettInnloggingsforsoek(kjoeretid.pool, sti)).rejects.toBeInstanceOf(
         UgyldigSesjonsdata
       );
+    });
+
+    it.each([
+      ['2048 tegn', `/${'a'.repeat(2047)}`],
+      ['2048 UTF-16-enheter med parvise tegn', `/a${'😀'.repeat(1023)}`],
+      ['2048 tegn med mellomrom til slutt', `/${'a'.repeat(2046)} `],
+    ])('godtar en retursti på %s og gir den uendret tilbake', async (_navn, sti) => {
+      const ny = await opprettInnloggingsforsoek(kjoeretid.pool, sti);
+      expect(await brukInnloggingsforsoek(kjoeretid.pool, ny.state, ny.nettleser)).toBe(sti);
     });
 
     it('godtar en lokal sti med spørring og æøå', async () => {

@@ -2,7 +2,8 @@
 -- `app_oauth_attempts` i PostgreSQL og atferden i `backend/routes/auth_routes.py`:
 -- basen lagrer bare SHA-256 av sesjonstokenet, staten og nettlesertokenet, som
 -- 64 små heksadesimale tegn. En sesjon varer 8 timer og et innloggingsforsøk
--- 600 sekunder fra opprettelsen, regnet med basens klokke (DL-U3). Et forsøk
+-- 600 sekunder fra opprettelsen, regnet med basens klokke avkortet til
+-- millisekundet (DL-U3), som tidspunktene i `20261016120000_kommandoer.sql`. Et forsøk
 -- brukes én gang.
 --
 -- Tabellene har ingen saksdata og ingen `prosjekt_id`. Kjøretiden har ingen
@@ -58,7 +59,7 @@ BEGIN
     THROW 52053, N'CSRF-tokenet har ikke formen fra token_urlsafe', 1;
   IF @bruker IS NULL OR NOT EXISTS (SELECT 1 FROM koe.app_users WHERE id = @bruker)
     THROW 52051, N'Brukeren finnes ikke', 1;
-  SET @utloeper = DATEADD(hour, 8, SYSUTCDATETIME());
+  SET @utloeper = DATEADD(hour, 8, DATETRUNC(millisecond, SYSUTCDATETIME()));
   INSERT koe.app_sessions (token_hash, user_id, csrf_token, expires_at)
   VALUES (@token_hash, @bruker, @csrf_token, @utloeper);
 END
@@ -109,7 +110,7 @@ BEGIN
     OR CHARINDEX(N'\', @retursti) > 0
     OR @retursti COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[' + NCHAR(0) + N'-' + NCHAR(31) + NCHAR(127) + N']%'
     THROW 52052, N'Returstien er ikke en lokal sti', 1;
-  SET @utloeper = DATEADD(second, 600, SYSUTCDATETIME());
+  SET @utloeper = DATEADD(second, 600, DATETRUNC(millisecond, SYSUTCDATETIME()));
   INSERT koe.app_oauth_attempts (state_hash, browser_hash, return_path, expires_at)
   VALUES (@state_hash, @nettleser_hash, @retursti, @utloeper);
 END

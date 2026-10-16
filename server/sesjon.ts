@@ -127,7 +127,8 @@ export async function opprettInnloggingsforsoek(
       .request()
       .input('state_hash', sql.NVarChar(4000), sha256(ny.state))
       .input('nettleser_hash', sql.NVarChar(4000), sha256(ny.nettleser))
-      .input('retursti', sql.NVarChar(4000), retursti)
+      // `MAX`, så en for lang sti når basens kontroll i stedet for å feile i driveren.
+      .input('retursti', sql.NVarChar(sql.MAX), retursti)
       .output('utloeper', sql.DateTime2(3))
       .execute('koe_api.opprett_innloggingsforsoek')
   );
