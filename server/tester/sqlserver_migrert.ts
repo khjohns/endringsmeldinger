@@ -26,6 +26,9 @@ export async function opprettMigrertTestbase(
  * kolonnene, begrensningene, indeksene, modulene, triggerne, rollene med
  * medlemmene og rettighetene, uten ID-er og tidspunkter. Rollene og rettighetene
  * tas med for alle mottakere, også `public` og de faste rollene (#564, #567).
+ * En rettighet har målet for hver klasse og kolonnen for en kolonnerettighet, og
+ * en begrensning har om den er slått av eller ikke betrodd (#644). En rettighet i
+ * en klasse spørringen ikke kjenner, får ID-en i målet, så to baser skiller seg.
  * Hver del er en egen spørring, så sorteringene i katalogvisningene ikke blandes.
  */
 const KATALOG: Record<string, string> = {
@@ -38,10 +41,11 @@ const KATALOG: Record<string, string> = {
                    c.column_id, c.collation_name
               FROM sys.columns c JOIN sys.objects o ON o.object_id = c.object_id WHERE o.is_ms_shipped = 0`,
   default: `SELECT OBJECT_SCHEMA_NAME(parent_object_id) AS skjema, name, definition FROM sys.default_constraints`,
-  check: `SELECT OBJECT_SCHEMA_NAME(parent_object_id) AS skjema, name, definition FROM sys.check_constraints`,
+  check: `SELECT OBJECT_SCHEMA_NAME(parent_object_id) AS skjema, name, definition, is_disabled, is_not_trusted
+            FROM sys.check_constraints`,
   fk: `SELECT OBJECT_SCHEMA_NAME(parent_object_id) AS skjema, name,
               OBJECT_SCHEMA_NAME(referenced_object_id) AS til_skjema, OBJECT_NAME(referenced_object_id) AS til,
-              delete_referential_action_desc
+              delete_referential_action_desc, is_disabled, is_not_trusted
          FROM sys.foreign_keys`,
   fkkolonne: `SELECT OBJECT_NAME(constraint_object_id) AS fk, constraint_column_id,
                      COL_NAME(parent_object_id, parent_column_id) AS fra, COL_NAME(referenced_object_id, referenced_column_id) AS til
@@ -69,8 +73,21 @@ const KATALOG: Record<string, string> = {
   rollemedlem: `SELECT USER_NAME(role_principal_id) AS rolle, USER_NAME(member_principal_id) AS medlem
                   FROM sys.database_role_members`,
   rett: `SELECT USER_NAME(grantee_principal_id) AS mottaker, state_desc, permission_name, class_desc,
-                CASE class WHEN 1 THEN OBJECT_SCHEMA_NAME(major_id) WHEN 3 THEN SCHEMA_NAME(major_id) END AS skjema,
-                CASE class WHEN 1 THEN OBJECT_NAME(major_id) END AS objekt
+                CASE class WHEN 1 THEN OBJECT_SCHEMA_NAME(major_id) WHEN 3 THEN SCHEMA_NAME(major_id)
+                           WHEN 6 THEN (SELECT SCHEMA_NAME(schema_id) FROM sys.types WHERE user_type_id = major_id)
+                           WHEN 10 THEN (SELECT SCHEMA_NAME(schema_id) FROM sys.xml_schema_collections
+                                          WHERE xml_collection_id = major_id) END AS skjema,
+                CASE class WHEN 0 THEN N'' WHEN 1 THEN OBJECT_NAME(major_id) WHEN 3 THEN N''
+                           WHEN 4 THEN USER_NAME(major_id)
+                           WHEN 5 THEN (SELECT name FROM sys.assemblies WHERE assembly_id = major_id)
+                           WHEN 6 THEN TYPE_NAME(major_id)
+                           WHEN 10 THEN (SELECT name FROM sys.xml_schema_collections WHERE xml_collection_id = major_id)
+                           WHEN 23 THEN (SELECT name FROM sys.fulltext_catalogs WHERE fulltext_catalog_id = major_id)
+                           WHEN 24 THEN (SELECT name FROM sys.symmetric_keys WHERE symmetric_key_id = major_id)
+                           WHEN 25 THEN (SELECT name FROM sys.certificates WHERE certificate_id = major_id)
+                           WHEN 26 THEN (SELECT name FROM sys.asymmetric_keys WHERE asymmetric_key_id = major_id)
+                           ELSE CONCAT(N'ukjent klasse ', class, N': ', major_id) END AS maal,
+                IIF(class = 1 AND minor_id > 0, COL_NAME(major_id, minor_id), NULL) AS kolonne
            FROM sys.database_permissions`,
 };
 
@@ -123,6 +140,13 @@ export function settInn(r: Foresp, tabell: string, rad: Rad) {
 
 /** Feilnummeret fra basen, eller `undefined` når setningen gikk gjennom. */
 export const avvisning = (p: Promise<unknown>) => p.then(() => undefined, feilnummer);
+
+/** Feilnummeret og meldingen fra basen, eller `undefined` når setningen gikk gjennom. */
+export const avvisningMedMelding = (p: Promise<unknown>) =>
+  p.then(
+    () => undefined,
+    (feil: unknown) => ({ nummer: feilnummer(feil), melding: (feil as Error).message })
+  );
 
 /**
  * Én transaksjon i `pool` med konteksten satt først (uten kontekst når `k` er
