@@ -309,17 +309,12 @@ erDiagram
     koe_projects ||--o{ koe_catenda_contract_teams : "internal_project_id"
     koe_projects ||--o{ koe_sak_metadata : "prosjekt_id"
     koe_app_users ||--o{ koe_sak_metadata : "created_by"
-    koe_sak_metadata ||--o{ koe_hendelse : "sak_id"
-    koe_sak_metadata ||--o{ koe_hendelse : "prosjekt_id"
+    koe_sak_metadata ||--o{ koe_hendelse : "(sak_id, prosjekt_id)"
     koe_app_users ||--o{ koe_hendelse : "aktor_id"
-    koe_sak_metadata ||--o{ koe_notat : "sak_id"
-    koe_sak_metadata ||--o{ koe_notat : "prosjekt_id"
+    koe_sak_metadata ||--o{ koe_notat : "(sak_id, prosjekt_id)"
     koe_app_users ||--o{ koe_notat : "aktor_id"
-    koe_hendelse ||--o| koe_leveringsoppdrag : "event_id"
-    koe_hendelse ||--o{ koe_leveringsoppdrag : "sak_id"
-    koe_hendelse ||--o{ koe_leveringsoppdrag : "prosjekt_id"
-    koe_sak_metadata ||--o| koe_kjernebuffer : "sak_id"
-    koe_sak_metadata ||--o{ koe_kjernebuffer : "prosjekt_id"
+    koe_hendelse ||--o| koe_leveringsoppdrag : "(event_id, sak_id, prosjekt_id)"
+    koe_sak_metadata ||--o| koe_kjernebuffer : "(sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_hendelse : "aktor_team_id"
     koe_hendelse |o..o{ koe_hendelse : "refererer_til_event_id"
     koe_catenda_contract_teams |o..o{ koe_notat : "aktor_team_id"
@@ -395,17 +390,12 @@ erDiagram
 | `koe.catenda_contract_teams.internal_project_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet teamet er knyttet til. | — | K 16.10: katalogen. |
 | `koe.sak_metadata.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet saken hører til, uten standardverdi (AGENTS.md). | — | K 16.10: katalogen. |
 | `koe.sak_metadata.created_by` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Brukeren som opprettet saken. | — | K 16.10: katalogen. |
-| `koe.hendelse.sak_id` | `koe.sak_metadata.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken brevet hører til. Sammensatt med `prosjekt_id`, så brevet står i sakens prosjekt. Kaskaderer ikke. | — | K 16.10: katalogen. |
-| `koe.hendelse.prosjekt_id` | `koe.sak_metadata.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet, i den sammensatte nøkkelen mot saken. | — | K 16.10: katalogen. |
+| `koe.hendelse.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken brevet hører til. Sammensatt med `prosjekt_id`, så brevet står i sakens prosjekt. Kaskaderer ikke. | — | K 16.10: katalogen. |
 | `koe.hendelse.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Avsenderen, `app_users.id` (AGENTS.md). | — | K 16.10: katalogen. |
-| `koe.notat.sak_id` | `koe.sak_metadata.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken notatet er skrevet i. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
-| `koe.notat.prosjekt_id` | `koe.sak_metadata.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet, i den sammensatte nøkkelen mot saken. | — | K 16.10: katalogen. |
+| `koe.notat.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken notatet er skrevet i. Sammensatt med `prosjekt_id`, så notatet står i sakens prosjekt. | — | K 16.10: katalogen. |
 | `koe.notat.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Forfatteren, `app_users.id`. | — | K 16.10: katalogen. |
-| `koe.leveringsoppdrag.event_id` | `koe.hendelse.event_id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Sammensatt med `sak_id` og `prosjekt_id`. | — | K 16.10: katalogen. |
-| `koe.leveringsoppdrag.sak_id` | `koe.hendelse.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken, i den sammensatte nøkkelen mot brevet. | — | K 16.10: katalogen. |
-| `koe.leveringsoppdrag.prosjekt_id` | `koe.hendelse.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet, i den sammensatte nøkkelen mot brevet. | — | K 16.10: katalogen. |
-| `koe.kjernebuffer.sak_id` | `koe.sak_metadata.sak_id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. Primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
-| `koe.kjernebuffer.prosjekt_id` | `koe.sak_metadata.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet, i den sammensatte nøkkelen mot saken. | — | K 16.10: katalogen. |
+| `koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id)` | `koe.hendelse.(event_id, sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Brevet oppdraget leverer. `event_id` er unik, så hvert brev har ett oppdrag. Sammensatt med `sak_id` og `prosjekt_id`, så oppdraget står i brevets sak og prosjekt. | — | K 16.10: katalogen. |
+| `koe.kjernebuffer.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. `sak_id` er primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
 | `koe.hendelse.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, i `catenda_id()`-formen. Tom når teamet ikke var entydig (DL-U4). | — | L 16.10: migrasjonen. |
 | `koe.hendelse.refererer_til_event_id` | `koe.hendelse.event_id` | uten fremmednøkkel | mange til én | Brevet dette brevet svarer på eller viser til. | — | L 16.10: migrasjonen. |
 | `koe.notat.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som kan lese notatet. Basen avviser et notat uten team (AGENTS.md). | — | L 16.10: migrasjonen. |

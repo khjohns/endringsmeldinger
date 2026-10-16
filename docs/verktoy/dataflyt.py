@@ -9,6 +9,7 @@ skal stå som kode i en pil eller under [[uten_flyt]] med begrunnelse.
 import ast
 import copy
 import functools
+import importlib.util
 import pathlib
 import re
 
@@ -17,6 +18,10 @@ import tomllib
 ROT = pathlib.Path(__file__).resolve().parents[2]
 BACKEND = ROT / "backend"
 REGISTER = ROT / "docs" / "datamodell" / "dataflyt.toml"
+
+_spesifikasjon = importlib.util.spec_from_file_location("relasjoner", pathlib.Path(__file__).with_name("relasjoner.py"))
+rel = importlib.util.module_from_spec(_spesifikasjon)
+_spesifikasjon.loader.exec_module(rel)
 
 KLIENTLAG = (
     "backend/integrations/catenda/",
@@ -189,7 +194,7 @@ def udekkede_kallsteder(register: dict, steder: dict[str, set[str]]) -> list[str
 def noder(katalog: dict, tabellregister: dict, register: dict) -> dict[str, str]:
     """Hver node en pil kan gå fra eller til, med visningsnavn."""
     resultat = {f"catenda:{r['id']}": f"Catenda: {r['navn']}" for r in register["catenda"]}
-    for lag in ("postgresql", "sqlite", "sqlserver"):
+    for lag, _ in rel.LAGRINGER:
         resultat |= {t: t for t in katalog[lag]["tabeller"]}
     resultat |= {u["navn"]: u["navn"] for u in tabellregister.get("utenfor", [])}
     resultat["appen"] = "Appen, lagres ikke"
@@ -332,9 +337,7 @@ def flytdiagram(register: dict, katalog: dict, tabellregister: dict, retning: st
     brukt = {p["steg"]["fra"] for p in valgt} | {p["til"] for p in valgt}
     grupper = {
         "Catenda": [n for n in navn if n.startswith("catenda:")],
-        "PostgreSQL": list(katalog["postgresql"]["tabeller"]),
-        "SQLite": list(katalog["sqlite"]["tabeller"]),
-        "SQL Server": list(katalog["sqlserver"]["tabeller"]),
+        **{navn: list(katalog[lag]["tabeller"]) for lag, navn in rel.LAGRINGER},
         "Utenfor databasene": [u["navn"] for u in tabellregister.get("utenfor", [])],
     }
     linjer = ["flowchart LR"]

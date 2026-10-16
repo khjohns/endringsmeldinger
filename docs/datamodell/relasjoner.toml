@@ -686,22 +686,12 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
-fra = "koe.hendelse.sak_id"
-til = "koe.sak_metadata.sak_id"
+fra = ["koe.hendelse.sak_id", "koe.hendelse.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
 Saken brevet hører til. Sammensatt med `prosjekt_id`, så brevet står i sakens prosjekt. Kaskaderer ikke."""
-funn = []
-belegg = "K 16.10: katalogen."
-
-[[relasjon]]
-fra = "koe.hendelse.prosjekt_id"
-til = "koe.sak_metadata.prosjekt_id"
-art = "fremmednøkkel"
-antall = "mange til én"
-beskrivelse = """
-Prosjektet, i den sammensatte nøkkelen mot saken."""
 funn = []
 belegg = "K 16.10: katalogen."
 
@@ -716,22 +706,12 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
-fra = "koe.notat.sak_id"
-til = "koe.sak_metadata.sak_id"
+fra = ["koe.notat.sak_id", "koe.notat.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
-Saken notatet er skrevet i. Sammensatt med `prosjekt_id`."""
-funn = []
-belegg = "K 16.10: katalogen."
-
-[[relasjon]]
-fra = "koe.notat.prosjekt_id"
-til = "koe.sak_metadata.prosjekt_id"
-art = "fremmednøkkel"
-antall = "mange til én"
-beskrivelse = """
-Prosjektet, i den sammensatte nøkkelen mot saken."""
+Saken notatet er skrevet i. Sammensatt med `prosjekt_id`, så notatet står i sakens prosjekt."""
 funn = []
 belegg = "K 16.10: katalogen."
 
@@ -746,52 +726,23 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
-fra = "koe.leveringsoppdrag.event_id"
-til = "koe.hendelse.event_id"
+fra = ["koe.leveringsoppdrag.event_id", "koe.leveringsoppdrag.sak_id", "koe.leveringsoppdrag.prosjekt_id"]
+til = ["koe.hendelse.event_id", "koe.hendelse.sak_id", "koe.hendelse.prosjekt_id"]
 art = "fremmednøkkel"
 antall = "én til én"
 beskrivelse = """
-Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Sammensatt med `sak_id` og `prosjekt_id`."""
+Brevet oppdraget leverer. `event_id` er unik, så hvert brev har ett oppdrag. Sammensatt med `sak_id` og
+`prosjekt_id`, så oppdraget står i brevets sak og prosjekt."""
 funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
-fra = "koe.leveringsoppdrag.sak_id"
-til = "koe.hendelse.sak_id"
-art = "fremmednøkkel"
-antall = "mange til én"
-beskrivelse = """
-Saken, i den sammensatte nøkkelen mot brevet."""
-funn = []
-belegg = "K 16.10: katalogen."
-
-[[relasjon]]
-fra = "koe.leveringsoppdrag.prosjekt_id"
-til = "koe.hendelse.prosjekt_id"
-art = "fremmednøkkel"
-antall = "mange til én"
-beskrivelse = """
-Prosjektet, i den sammensatte nøkkelen mot brevet."""
-funn = []
-belegg = "K 16.10: katalogen."
-
-[[relasjon]]
-fra = "koe.kjernebuffer.sak_id"
-til = "koe.sak_metadata.sak_id"
+fra = ["koe.kjernebuffer.sak_id", "koe.kjernebuffer.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
 antall = "én til én"
 beskrivelse = """
-Saken bufferen er regnet for. Primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`."""
-funn = []
-belegg = "K 16.10: katalogen."
-
-[[relasjon]]
-fra = "koe.kjernebuffer.prosjekt_id"
-til = "koe.sak_metadata.prosjekt_id"
-art = "fremmednøkkel"
-antall = "mange til én"
-beskrivelse = """
-Prosjektet, i den sammensatte nøkkelen mot saken."""
+Saken bufferen er regnet for. `sak_id` er primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`."""
 funn = []
 belegg = "K 16.10: katalogen."
 
