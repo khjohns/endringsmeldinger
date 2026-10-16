@@ -45,8 +45,8 @@ async function avvisning(p: Promise<unknown>) {
  * godtas i to former, på- og betrodd:
  * - `DATALENGTH(kol) = DATALENGTH(RTRIM(kol))`, slik `20261016130000_mellomrom.sql`
  *   skriver den;
- * - en fast form: et ledd `DATALENGTH(kol) = n` i en ren `AND`-kjede, eventuelt
- *   etter `kol IS NULL OR`. To verdier som bare skiller seg i mellomrom til slutt,
+ * - en fast form: et ledd `DATALENGTH(kol) = n` på toppnivået i en ren
+ *   `AND`-kjede uten `CASE`, eventuelt etter `kol IS NULL OR`. To verdier som bare skiller seg i mellomrom til slutt,
  *   har ulik `DATALENGTH`, så bare én av dem passer.
  */
 const TEKST_I_NOEKKEL = `
@@ -134,9 +134,35 @@ function fastForm(k: string, definisjon: string): boolean {
   if (!definisjon.startsWith('(') || !definisjon.endsWith(')')) return false;
   let kjede = definisjon.slice(1, -1);
   if (kjede.startsWith(`[${k}] IS NULL OR `)) kjede = kjede.slice(`[${k}] IS NULL OR `.length);
-  if (/ OR /i.test(kjede)) return false;
+  if (/ OR |\bcase\b/i.test(kjede)) return false;
   const lengde = new RegExp(`^datalength\\(\\[${k}\\]\\)=\\(\\d+\\)$`);
-  return kjede.split(' AND ').some((ledd) => lengde.test(ledd));
+  return leddPaaToppnivaa(kjede).some((ledd) => lengde.test(ledd));
+}
+
+/**
+ * Leddene i `kjede` delt på ` AND ` utenfor parenteser, strenger og navn i
+ * `[ ]`, så et ledd inne i `NOT (…)` ikke teller. `CASE` avvises før dette.
+ */
+function leddPaaToppnivaa(kjede: string): string[] {
+  const ledd: string[] = [];
+  let dybde = 0;
+  let start = 0;
+  for (let i = 0; i < kjede.length; i++) {
+    const tegn = kjede[i];
+    if (tegn === "'" || tegn === '[') {
+      const slutt = tegn === "'" ? "'" : ']';
+      i = kjede.indexOf(slutt, i + 1);
+      if (i < 0) return [];
+    } else if (tegn === '(') dybde++;
+    else if (tegn === ')') dybde--;
+    else if (dybde === 0 && kjede.startsWith(' AND ', i)) {
+      ledd.push(kjede.slice(start, i));
+      start = i + ' AND '.length;
+      i += ' AND '.length - 1;
+    }
+  }
+  ledd.push(kjede.slice(start));
+  return ledd;
 }
 
 /** Kolonnene vakten krever kontrollen for, som `skjema.tabell.kolonne`, sortert. */
@@ -253,6 +279,26 @@ describe('katalogvakten for mellomrom (#608), på en katalog i minnet', () => {
     k.kontroller[2].definisjon =
       '([refererer_til_event_id] IS NULL OR len([refererer_til_event_id])>(0))';
     expect(krav(k)).toEqual(['koe.notat.aktor_team_id', 'koe.notat.refererer_til_event_id']);
+  });
+
+  it.each([
+    ['inne i NOT (…)', '(NOT (NOT (1)=(1) AND datalength([aktor_team_id])=(64) AND (1)=(1)))'],
+    [
+      'inne i NOT (…) med en parentes i en streng',
+      "(NOT ([aktor_team_id] like N')' AND datalength([aktor_team_id])=(64) AND [aktor_team_id] like N'('))",
+    ],
+    [
+      'inne i NOT (…) med en parentes i et navn',
+      '(NOT ([x)y]=(1) AND datalength([aktor_team_id])=(64) AND [p(q]=(1)))',
+    ],
+    [
+      'i et CASE WHEN',
+      '(case when (1)=(0) AND datalength([aktor_team_id])=(64) AND (1)=(0) then (0) else (1) end=(1))',
+    ],
+  ])('en fast lengde %s godtas ikke', (_, definisjon) => {
+    const k = katalog();
+    k.kontroller[1].definisjon = definisjon;
+    expect(krav(k)).toEqual(['koe.notat.aktor_team_id']);
   });
 });
 
