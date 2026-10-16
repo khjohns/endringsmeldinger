@@ -6,6 +6,9 @@
   import CaseWorkspace from '$lib/kontraktsbord/CaseWorkspace.svelte';
   import EndringsordrePage from '$lib/components/endringsordre/EndringsordrePage.svelte';
   import { projectStore } from '$lib/stores/project.svelte';
+  import Saksbilde from '$lib/components/kjernesak/Saksbilde.svelte';
+  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+  import { sakskilde, tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
   import {
     readWorkspaceView,
     workspaceViewUrl,
@@ -14,10 +17,19 @@
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
+  const bryterPaa = tsStienForNyeKoeSaker();
+  // Uten kontraktsside viser saksbildet ingen handling (#665).
+  const kjernesak = $derived(bryterPaa ? lagKjernesak({ sakId, prosjektId, part: null }) : null);
+  const kilde = $derived(sakskilde(bryterPaa, kjernesak?.finnes ?? null));
+  // Uten saks-ID er Python-spørringen av, så den venter til TS-serveren har svart.
   const query = createCaseContextQuery(
-    () => sakId,
+    () => (kilde === 'python' ? sakId : ''),
     () => prosjektId
   );
+
+  $effect(() => {
+    if (kjernesak && sakId) void kjernesak.last();
+  });
   const storedRole =
     typeof localStorage !== 'undefined' && localStorage.getItem('koe-user-role') === 'TE'
       ? 'TE'
@@ -44,9 +56,24 @@
   }
 </script>
 
-<svelte:head><title>{query.data?.state.sakstittel ?? 'Sak'} — Kontraktsbordet</title></svelte:head>
+<svelte:head
+  ><title
+    >{(kilde === 'ts' ? kjernesak?.saksbilde?.tittel : query.data?.state.sakstittel) ?? 'Sak'} — Kontraktsbordet</title
+  ></svelte:head
+>
 
-{#if query.data}
+{#if kilde === 'ts' && kjernesak?.saksbilde}
+  {#key prosjektId + ':' + sakId}
+    <Saksbilde bilde={kjernesak.saksbilde} />
+  {/key}
+{:else if kilde === 'venter' && kjernesak?.feil}
+  <div class="case-message" role="alert">
+    <h1>Kunne ikke laste saken</h1>
+    <p>{kjernesak.feil}</p>
+    <button onclick={() => kjernesak?.last()}>Prøv igjen</button>
+    <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
+  </div>
+{:else if kilde === 'python' && query.data}
   {#key prosjektId + ':' + sakId}
     {#if query.data.state.sakstype === 'endringsordre'}
       <EndringsordrePage
@@ -67,7 +94,7 @@
       />
     {/if}
   {/key}
-{:else if query.isError}
+{:else if kilde === 'python' && query.isError}
   <div class="case-message" role="alert">
     <h1>Kunne ikke laste saken</h1>
     <p>{query.error?.message}</p>

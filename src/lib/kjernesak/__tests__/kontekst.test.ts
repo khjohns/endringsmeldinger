@@ -150,4 +150,41 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(hent).toHaveBeenCalledTimes(1);
     expect(sak.feil).toBe('Grunnlaget er allerede krevd.');
   });
+
+  it('sier at saken finnes når serveren svarer, og bygger saksbildet av journalen', async () => {
+    const hent = vi.fn(async () => svar([opprettet]));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: null, hent });
+    expect(sak.finnes).toBeNull();
+    await sak.last();
+    expect(hent).toHaveBeenCalledWith(SAK, 'p-1');
+    expect(sak.finnes).toBe(true);
+    expect(sak.saksbilde?.status.tekst).not.toBe('Fra serveren');
+    expect(sak.saksbilde?.journal.map((j) => j.versjon)).toEqual([1]);
+  });
+
+  it('sier at saken ikke finnes i TS når serveren svarer 404', async () => {
+    const sak = lagKjernesak({
+      sakId: SAK,
+      part: null,
+      hent: async () => {
+        throw new ApiError(404, 'Saken finnes ikke.');
+      },
+    });
+    await sak.last();
+    expect(sak.finnes).toBe(false);
+    expect(sak.saksbilde).toBeNull();
+  });
+
+  it('lar det være uavgjort om saken finnes når serveren svarer med en annen feil', async () => {
+    const sak = lagKjernesak({
+      sakId: SAK,
+      part: null,
+      hent: async () => {
+        throw new ApiError(500, 'Serveren svarte ikke.');
+      },
+    });
+    await sak.last();
+    expect(sak.finnes).toBeNull();
+    expect(sak.feil).toBe('Serveren svarte ikke.');
+  });
 });

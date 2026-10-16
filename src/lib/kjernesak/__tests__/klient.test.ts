@@ -3,7 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { opprettSak, sendKommando } from '$lib/api/kjerne';
 import { setActiveProjectId } from '$lib/api/client';
-import { tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
+import { sakskilde, tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
 
 const json = (kropp: unknown, status = 200) =>
   new Response(JSON.stringify(kropp), { status, headers: { 'content-type': 'application/json' } });
@@ -58,5 +58,21 @@ describe('bryteren for TS-stien i nye KOE-saker', () => {
 
   it('er på med verdien "true"', () => {
     expect(tsStienForNyeKoeSaker('true')).toBe(true);
+  });
+});
+
+describe('kilden saksruta leser saken fra (#665)', () => {
+  it('er Python når bryteren er av, uansett hva TS-serveren har sagt', () => {
+    expect(sakskilde(false, null)).toBe('python');
+    expect(sakskilde(false, true)).toBe('python');
+  });
+
+  it('venter på TS-serveren når bryteren er på, så Python ikke kalles for en TS-sak', () => {
+    expect(sakskilde(true, null)).toBe('venter');
+    expect(sakskilde(true, true)).toBe('ts');
+  });
+
+  it('er Python når bryteren er på og TS-serveren sier at saken ikke finnes der', () => {
+    expect(sakskilde(true, false)).toBe('python');
   });
 });

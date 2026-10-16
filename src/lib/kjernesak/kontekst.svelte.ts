@@ -7,6 +7,7 @@
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '$lib/api/client';
 import { laastBrevtekst } from './brevtekst';
+import { lagSaksbilde } from './saksbilde';
 import { hentKjernesak, sendKommando, type Journallinje, type Kjernesak } from '$lib/api/kjerne';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
@@ -16,6 +17,8 @@ import type { Journalrad, Part } from '$kjerne/typer';
 
 export interface Kjernesakvalg {
   sakId: string;
+  /** Prosjektet fra ruta. Uten det brukes det aktive prosjektet. */
+  prosjektId?: string;
   /** Leserens kontraktsside. Uten side tilbys ingen handling. */
   part: Part | null;
   hent?: typeof hentKjernesak;
@@ -48,17 +51,23 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let sak = $state<Kjernesak | null>(null);
   let feil = $state<string | null>(null);
   let sender = $state(false);
+  let finnes = $state<boolean | null>(null);
 
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
   const utledning = $derived(sak ? utledJournal(journal, kjerne) : null);
   const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
   const tilbudt = $derived(utledning && part ? handlinger(utledning, part) : []);
+  const bilde = $derived(
+    sak && utledning && vist ? lagSaksbilde(journal, sak.leveringsoppdrag, utledning, vist) : null
+  );
 
   async function last() {
     try {
-      sak = await hent(sakId);
+      sak = await hent(sakId, valg.prosjektId);
+      finnes = true;
       feil = null;
     } catch (e) {
+      if (e instanceof ApiError && e.status === 404) finnes = false;
       feil = meldingFra(e, 'Saken kunne ikke hentes.');
     }
   }
@@ -102,6 +111,13 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     get handlinger() {
       return tilbudt;
+    },
+    get saksbilde() {
+      return bilde;
+    },
+    /** `false` når serveren svarte 404: saken er ikke en TS-sak i prosjektet. `null` før svaret. */
+    get finnes() {
+      return finnes;
     },
     get feil() {
       return feil;
