@@ -2383,8 +2383,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && harFrafalt(u))",
-        "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && harFrafalt(u) && !u)",
+        "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u))",
+        "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u) && !u)",
       ],
     ],
     mal: ['en revisjon fra frafall til avslag avvises', 'F-MM-G37', 'F-MM-G38', 'F-MM-G39'],
@@ -2424,11 +2424,41 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    else if (s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt') && harFrafalt(u))",
-        "    else if (s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt') && harFrafalt(u) && !u)",
+        "    else if (bundet && s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt'))",
+        "    else if (bundet && s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt') && !u)",
       ],
     ],
     mal: ['får ingen virkning', 'gjør saken ikke forstått', 'F-MM-G37', 'F-MM-G38'],
+  },
+  {
+    id: 'F232',
+    feilklasse:
+      'frafallet binder også en ny versjon i en underkategori der frafall ikke er tillatt (GR-U21, GR-U18, #510)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    erByggherrensPaalegg(tekst(innhold.hovedkategori), foersteUnderkategori(underkategori)) &&',
+        '    innhold !== null &&',
+      ],
+    ],
+    mal: ['der frafall ikke er tillatt, kan byggherren avslå den nye versjonen', 'F-MM-G40'],
+  },
+  {
+    id: 'F233',
+    feilklasse:
+      'en påberopelse etter § 32.2 etter frafallet i et brev utenfor kommandoene leses med virkning (GR-U17, MM-U18, MM-U19, #510)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    else if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s))",
+        "    else if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s) && !u)",
+      ],
+    ],
+    mal: [
+      'til påberopelse etter § 32.2 får ingen virkning',
+      'en påberopelse etter § 32.2 i et brev',
+      'F-MM-G41',
+    ],
   },
 ];
 

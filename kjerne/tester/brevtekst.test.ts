@@ -2646,8 +2646,9 @@ describe('en ny grunnlagsversjon beholder kategorien (GR-U19)', () => {
 });
 
 /**
- * GR-U17, GR-U20: et frafall etter § 32.3 c fra appen binder byggherren til
- * endringsordre. Et avslag avvises i en revisjon og i et svar på en ny grunnlagsversjon.
+ * GR-U17, GR-U20, GR-U21: et frafall etter § 32.3 c fra appen binder byggherren til
+ * endringsordre. Et avslag avvises i en revisjon og i et svar på en ny grunnlagsversjon
+ * i en underkategori der frafall er tillatt.
  * Revisjonen fra frafall til frafall er arbeidsvalget 16.10 i #510.
  */
 describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', () => {
@@ -2683,7 +2684,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
   const versjon = (s: Sak, innhold: Data) =>
     s.send('TE', { ...GRUNNLAGSKRAV, innhold: { ...GRUNNLAGSKRAV.innhold, ...innhold } });
   /** Et registrert brev fra byggherren med et svar på gjeldende grunnlagsversjon. */
-  const registrertSvar = (s: Sak, resultat: string, sendt: boolean) => {
+  const registrertSvar = (s: Sak, resultat: string, sendt: boolean, iTide = true) => {
     const u = s.u();
     const id = randomUUID();
     s.rad('BH', {
@@ -2699,7 +2700,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
               art: 'rettidighet',
               gjelder: u.spor.grunnlag.gjeldendeKrav!.id,
               hjemmel: '32.2',
-              i_tide: true,
+              i_tide: iTide,
             },
             { id: randomUUID(), art: 'grunnlag', resultat },
           ],
@@ -2765,6 +2766,21 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
     });
 
+    it.each(['lovendring_gjenstand', 'lovendring_prosess', 'gebyrer_og_avgifter'])(
+      'i underkategorien %s, der frafall ikke er tillatt, kan byggherren avslå den nye versjonen (GR-U21, GR-U18)',
+      (underkategori) => {
+        const s = medFrafall();
+        versjon(s, { underkategori });
+        expect(s.u().spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
+        expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
+        expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBeNull();
+        expect(s.avvist('BH', nyttSvar(s, paaberopelse))).toBe('SAGT_I_TIDE');
+        const id = registrertSvar(s, 'avslaatt', true);
+        expect(s.u().utenVirkning).toEqual([]);
+        expect(s.u().spor.grunnlag.gjeldendeSvar?.id).toBe(id);
+      }
+    );
+
     it('et registrert frafall binder ikke (OV-U4)', () => {
       const s = sakMedKrav();
       registrertSvar(s, 'paalegg_frafalt', true);
@@ -2800,6 +2816,33 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(u.forstaatt).toBe(false);
       expect(u.begrensninger.map((b) => b.grunn)).toEqual([
         'et avslag av grunnlaget etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
+      ]);
+    });
+
+    it.each([
+      ['en registrert revisjon fra frafall', false],
+      ['et registrert svar på en ny grunnlagsversjon', true],
+    ] as [string, boolean][])(
+      '%s til påberopelse etter § 32.2 får ingen virkning, og frafallet står (GR-U17, GR-U20)',
+      (_n, nyVersjon) => {
+        const s = medFrafall();
+        if (nyVersjon) versjon(s, { tittel: 'Ny peling 2' });
+        const id = registrertSvar(s, 'godkjent', true, false);
+        const u = s.u();
+        expect(u.forstaatt).toBe(true);
+        expect(u.utenVirkning.map((x) => x.element)).toContain(id);
+        expect(u.spor.grunnlag.gjeldendeSvar?.id).not.toBe(id);
+        if (!nyVersjon) expect(u.frafalt).toBe(true);
+      }
+    );
+
+    it('en påberopelse etter § 32.2 i et brev som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått', () => {
+      const s = medFrafall();
+      registrertSvar(s, 'godkjent', false, false);
+      const u = s.u();
+      expect(u.forstaatt).toBe(false);
+      expect(u.begrensninger.map((b) => b.grunn)).toEqual([
+        'en påberopelse etter § 32.2 etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
       ]);
     });
 

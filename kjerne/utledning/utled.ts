@@ -20,7 +20,12 @@
 
 import { datoFor, erRegistrert, registrertDato, sammeSlag } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
+import {
+  erByggherrensPaalegg,
+  foersteUnderkategori,
+  type Subsidiaergrunn,
+} from '../regler/grunnlag.ts';
+import { tekst } from '../format/skjema.ts';
 import type { Grunnlagsresultat } from '../regler/typer.ts';
 import {
   blirEndringsordre,
@@ -272,13 +277,15 @@ interface Strid {
  * det og vedtakene om enighet og lukking: en ny kravversjon eller en revisjon i et
  * spor med enighet (KA-U7, GR-U10), en ny kravversjon i et trukket spor eller et spor
  * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor
- * (MM-U20), et avslag av grunnlaget etter et frafall (GR-U17, GR-U20), en aksept av
- * et frafall (GR-U9) eller av et svar
+ * (MM-U20), et avslag av grunnlaget eller en påberopelse etter § 32.2 når frafallet
+ * binder (GR-U17, GR-U20, GR-U21), en aksept av et frafall (GR-U9) eller av et svar
  * partene alt er enige om (GR-U8, KA-U7), noe som endrer
  * utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt
  * (KA-U11, SK-01), og det som viser til et element uten virkning. Kontrollen
  * gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
- * forutsetning senere gjør ikke et eldre brev uforstått.
+ * forutsetning senere gjør ikke et eldre brev uforstått. Bindingen etter frafallet er
+ * et slikt vedtak og gjelder også et avslag fra appen før PROJEKSJONSVERSJON 19, som
+ * journalen ikke skiller fra en rad utenfor kommandoene (B-17, #510).
  */
 function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
   const ut: Strid[] = [];
@@ -288,6 +295,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
       ? 'kravene er avgjort (KA-U11)'
       : null;
   const utenVirkning = (...id: (string | null)[]) => id.some((x) => x !== null && uten.has(x));
+  const bundet = frafalletBinder(u);
   for (const k of d.krav)
     if (lukket) ut.push({ element: k.id, grunn: `en kravversjon etter at ${lukket}` });
     else if (u.spor[k.spor].trukket)
@@ -314,10 +322,16 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
         // MM-U19: et svar med sammenfall skaper en enighet i et lukket spor.
         ...(s.beslutningsgrunnlag.sammenfall ? {} : { bareUregistrert: true as const }),
       });
-    else if (s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt') && harFrafalt(u))
+    else if (bundet && s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt'))
       ut.push({
         element: s.id,
         grunn: 'et avslag av grunnlaget etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
+      });
+    else if (bundet && s.spor === 'grunnlag' && paaberoperVarselet(s))
+      ut.push({
+        element: s.id,
+        grunn:
+          'en påberopelse etter § 32.2 etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
       });
   for (const x of d.utsagn) {
     if (!ENDRER_UTFALLET.has(x.art)) continue;
@@ -934,16 +948,29 @@ export function harSagtITide(u: Utledning, spor: Spor, r: Rettidighet): boolean 
 const grunnlagssvaret = (s: Pick<Svar, 'standpunkter'>, resultat: Grunnlagsresultat): boolean =>
   s.standpunkter.some((p) => p.art === 'grunnlag' && p.resultat === resultat);
 
+/** Svaret påberoper at varselet etter § 32.2 kom for sent. */
+const paaberoperVarselet = (s: Pick<Svar, 'standpunkter'>): boolean =>
+  s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2' && !p.iTide);
+
 /**
- * GR-U17, GR-U20: byggherren har i et svar sendt fra appen frafalt pålegget (§ 32.3 c)
- * og er bundet av løftet om endringsordre. Frafallet står også når svaret er revidert,
- * og når TE har sendt en ny grunnlagsversjon (GR-U20). Et registrert brev binder ikke
- * (OV-U4).
+ * GR-U17, GR-U20, GR-U21: byggherren har i et svar sendt fra appen frafalt pålegget
+ * (§ 32.3 c) og er bundet av løftet om endringsordre, så svaret på gjeldende
+ * grunnlagsversjon kan ikke være et avslag eller en påberopelse etter § 32.2.
+ * Frafallet står også når svaret er revidert, og når TE har sendt en ny
+ * grunnlagsversjon (GR-U20). Er den nye versjonen i en underkategori der frafall ikke
+ * er tillatt (GR-U18), svarer byggherren som etter GR-U1 (GR-U21). Et registrert
+ * brev binder ikke (OV-U4).
  */
-export const harFrafalt = (u: Utledning): boolean =>
-  u.spor.grunnlag.svar.some(
-    (s) => grunnlagssvaret(s, 'paalegg_frafalt') && !u.elementer[s.dokument]?.registrertBrev
+export function frafalletBinder(u: Utledning): boolean {
+  const innhold = u.spor.grunnlag.gjeldendeKrav?.innhold ?? {};
+  const underkategori = innhold.underkategori as string | string[] | null;
+  return (
+    erByggherrensPaalegg(tekst(innhold.hovedkategori), foersteUnderkategori(underkategori)) &&
+    u.spor.grunnlag.svar.some(
+      (s) => grunnlagssvaret(s, 'paalegg_frafalt') && !u.elementer[s.dokument]?.registrertBrev
+    )
   );
+}
 
 /**
  * Grunnlagskravet et svar vurderes mot: kravet et grunnlagssvar gjelder, ellers
