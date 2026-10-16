@@ -558,7 +558,7 @@ def _nevner(navn: str, tekst: str) -> bool:
 def _slutter_seg_til_anbefalingen(svar: str) -> bool:
     """Et svar som «Ja til anbefalingen» eller «Ja til alle anbefalingene» (#486)."""
     return bool(
-        re.search(r"(?<!\w)ja(?!\w)(?:(?!\bikke\b)[^.])*?(?<!\w)anbefaling(en|ene)(?!\w)", svar, re.I)
+        re.search(r"(?<!\w)ja(?!\w)(?:(?!\bikke\b)[^.])*?(?<!\w)anbefaling(en|ene)(?!\w)", svar, re.IGNORECASE)
     )
 
 

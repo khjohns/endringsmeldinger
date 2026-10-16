@@ -106,8 +106,10 @@ def test_den_innsjekkede_visningen_er_lik_generatoren(temaer, kilder):
 
 def test_lenkene_i_de_innsjekkede_visningene_er_hele(temaer, capsys):
     """#494 og #509: en relativ lenke i 3.1 er relativ til docs/plans/, og visningen ligger et annet sted."""
-    stier = [str(tv.sti(t)) for t in temaer]
-    assert lk.main(stier) == 0, capsys.readouterr().out
+    stier = [tv.sti(t) for t in temaer]
+    mangler = [str(s.relative_to(ROT)) for s in stier if not s.exists()]
+    assert not mangler, f"{', '.join(mangler)} mangler. Kjør python3 docs/verktoy/temavisning.py."
+    assert lk.main([str(s) for s in stier]) == 0, capsys.readouterr().out
 
 
 @pytest.mark.parametrize("tekst, forventet", [
