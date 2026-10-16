@@ -21,7 +21,7 @@
 		"kjerne/**/*.ts": "prettier --write",
 		"sprakprove/**/*.ts": "prettier --write",
 		"scripts/**/*.{js,mjs,cjs}": "prettier --write",
-		"*.{js,ts}": "prettier --write",
+		"./*.{js,ts}": "prettier --write",
 		"server/**/*.ts": "prettier --write"
 	},
 	"devDependencies": {

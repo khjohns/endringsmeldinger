@@ -44,7 +44,8 @@ const TE_P3 = team();
 const KJOERETID = 'koe_runtime_prove';
 const SAKSTABELLER = ['sak_metadata', 'hendelse', 'notat', 'leveringsoppdrag', 'kjernebuffer'];
 
-type Kontekst = { aktor: string; prosjekt?: string; side?: string; team?: string | null };
+/** Konteksten med valgfrie felt; `iKontekst` fyller inn P1, TE og TE1 for det som mangler. */
+type Kontekstvalg = { aktor: string; prosjekt?: string; side?: string; team?: string | null };
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
   let base: Testbase;
@@ -96,7 +97,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
    * (med kjøretidens egen innlogging). Feiler arbeidet, rulles transaksjonen tilbake.
    */
   function iKontekst<T>(
-    k: Kontekst | null,
+    k: Kontekstvalg | null,
     arbeid: (r: Foresp) => Promise<T>,
     som: 'eier' | 'kjoeretid' = 'eier'
   ): Promise<T> {
@@ -179,7 +180,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
 
   /** Antall rader for saken i hver av sakstabellene, slik konteksten ser dem. */
   async function synlig(
-    k: Kontekst | null,
+    k: Kontekstvalg | null,
     sakId: unknown,
     som: 'eier' | 'kjoeretid' = 'kjoeretid'
   ) {
@@ -215,7 +216,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       expect(await synlig(null, s.sak_id, 'eier')).toEqual(INGEN);
     });
 
-    it.each<[string, () => Kontekst]>([
+    it.each<[string, () => Kontekstvalg]>([
       ['medlemmet i P2, med P2 i konteksten', () => ({ aktor: b.p2, prosjekt: P2, team: TE_P2 })],
       ['medlemmet i P2, med P1 i konteksten', () => ({ aktor: b.p2, prosjekt: P1 })],
       ['TE i P1, med P2 i konteksten', () => ({ aktor: b.te, prosjekt: P2, team: TE_P2 })],
@@ -269,7 +270,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
   });
 
   describe('interne notater: skjerming på team, fail-closed', () => {
-    it.each<[string, () => Kontekst, Rad]>([
+    it.each<[string, () => Kontekstvalg, Rad]>([
       ['teamet som skrev, også en kollega', () => ({ aktor: b.kollega }), ALLE],
       ['et annet team på samme side', () => ({ aktor: b.te, team: TE2 }), UTEN_NOTAT],
       ['motparten', () => ({ aktor: b.bh, side: 'BH', team: BH1 }), UTEN_NOTAT],
@@ -292,7 +293,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       expect(await synlig(k(), s.sak_id)).toEqual(forventet);
     });
 
-    it.each<[string, () => Kontekst, () => Rad]>([
+    it.each<[string, () => Kontekstvalg, () => Rad]>([
       ['et annet team enn konteksten', () => ({ aktor: b.te }), () => ({ aktor_team_id: TE2 })],
       ['et team fra motparten', () => ({ aktor: b.te }), () => ({ aktor_team_id: BH1 })],
       ['en annen aktør enn konteksten', () => ({ aktor: b.te }), () => ({ aktor_id: b.kollega })],
@@ -365,7 +366,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
 
     it('motparten sletter ikke notatet (det er filtrert bort); forfatteren sletter det', async () => {
       const { s, n } = await lagretSak();
-      const slett = (k: Kontekst) =>
+      const slett = (k: Kontekstvalg) =>
         iKontekst(k, (r) =>
           r()
             .input('id', sql.UniqueIdentifier, n.notat_id)
@@ -378,7 +379,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
   });
 
   describe('skriving i journalen (DL-U4)', () => {
-    async function skrivBrev(k: Kontekst, overstyr: Rad) {
+    async function skrivBrev(k: Kontekstvalg, overstyr: Rad) {
       const { s } = await lagretSak();
       return iKontekst(k, (r) => settInn(r, 'hendelse', brev(s, { versjon: 2, ...overstyr })));
     }
@@ -394,7 +395,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       );
     });
 
-    it.each<[string, () => Kontekst, () => Rad]>([
+    it.each<[string, () => Kontekstvalg, () => Rad]>([
       ['uten team når teamet er entydig', () => ({ aktor: b.te }), () => ({ aktor_team_id: null })],
       ['med team når konteksten er uten', () => ({ aktor: b.te, team: null }), () => ({})],
       ['med et annet team enn konteksten', () => ({ aktor: b.te }), () => ({ aktor_team_id: TE2 })],
@@ -454,7 +455,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
   });
 
   describe('opprettelse av en sak, bufferen og oppdraget', () => {
-    it.each<[string, () => Kontekst, () => Rad]>([
+    it.each<[string, () => Kontekstvalg, () => Rad]>([
       ['i en annen aktørs navn', () => ({ aktor: b.te }), () => sak(P1, b.kollega)],
       [
         'i et prosjekt aktøren ikke er medlem av',
