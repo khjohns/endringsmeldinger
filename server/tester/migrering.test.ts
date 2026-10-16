@@ -4,13 +4,16 @@
  * filnavnrekkefølge, versjonen er prefikset, historikken lagrer sha256 av hele
  * fila, og runneren nekter å kjøre når en anvendt fil er endret, også bare i en
  * kommentar. Regelen om at en anvendt migrasjon er uforanderlig står i
- * `.claude/rules/database.md`. Testene mot basen krever `KOE_SQLSERVER_TILKOBLING`.
+ * `.claude/rules/database.md`. Delingen på `GO`, endelsen, BOM, sorteringen i
+ * `migrer`, tidsgrensen og avvisningen av en fil med egen `COMMIT` har kilde i
+ * #564. Testene mot basen krever `KOE_SQLSERVER_TILKOBLING`.
  */
 
 import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { opprettPool } from '../datalag.ts';
 import {
   avvik,
   delPaaGo,
@@ -51,6 +54,52 @@ describe('lesingen av migrasjonsfilene', () => {
 
   it('deler ikke på GO inne i en linje eller i et navn', () => {
     expect(delPaaGo("SELECT N'GO' AS GOTO\nGOTO slutt")).toHaveLength(1);
+  });
+
+  it.each([
+    ['en tekst over flere linjer', "SELECT N'\nGO\n' AS a\nGO\nSELECT 2", 2],
+    ['en tekst med dobbel apostrof', "SELECT 'it''s\nGO\nok'\nGO\nSELECT 2", 2],
+    ['en blokkommentar', 'SELECT 1 /*\nGO\n*/\nGO\nSELECT 2', 2],
+    ['en nøstet blokkommentar', 'SELECT 1 /* /* */\nGO\n*/\nGO\nSELECT 2', 2],
+    ['et navn i hakeparentes', 'SELECT 1 AS [a]]\nGO\nb]\nGO\nSELECT 2', 2],
+    ['en linjekommentar med apostrof', "SELECT 1 -- it's\nGO\nSELECT 2", 2],
+  ])('deler ikke på GO inne i %s', (_, tekst, antall) => {
+    expect(delPaaGo(tekst)).toHaveLength(antall);
+  });
+
+  it.each([
+    ['GO 5', 'SELECT 1\nGO 5\nSELECT 2'],
+    ['GO;', 'SELECT 1\nGO;\nSELECT 2'],
+    ['GO med en blokkommentar', 'SELECT 1\nGO /* x */\nSELECT 2'],
+  ])('avviser %s med linjenummeret', (_, tekst) => {
+    expect(() => delPaaGo(tekst)).toThrow(/^Linje 2 begynner med GO/);
+  });
+
+  it.each([
+    ['en tekst', "SELECT 1\nSELECT 'a\nGO\nSELECT 2", /^Teksten som begynner på linje 2/],
+    ['en kommentar', 'SELECT 1\n/* a /* b */\nGO', /^Kommentaren som begynner på linje 2/],
+  ])('avviser %s som ikke er avsluttet, med linjen den begynner på', (_, tekst, melding) => {
+    expect(() => delPaaGo(tekst)).toThrow(melding);
+  });
+
+  it('feilen fra delingen sier hvilken fil den gjelder', () => {
+    expect(() => lesMigrasjoner(mappe({ [A]: 'SELECT 1\nGO 2' }))).toThrow(`${A}: Linje 2`);
+  });
+
+  it.each([['20260101000000_a.SQL'], ['20260101000000_a.sql.bak'], ['README.md']])(
+    'avviser %s i mappa i stedet for å hoppe over den',
+    (navn) => {
+      expect(() => lesMigrasjoner(mappe({ [A]: 'SELECT 1', [navn]: 'SELECT 2' }))).toThrow(
+        `${navn} har ikke endelsen .sql.`
+      );
+    }
+  );
+
+  it('avviser en fil med UTF-8-BOM, og godtar samme fil uten', () => {
+    expect(() => lesMigrasjoner(mappe({ [A]: '\uFEFFSELECT 1' }))).toThrow(
+      `${A} begynner med UTF-8-BOM.`
+    );
+    expect(lesMigrasjoner(mappe({ [A]: 'SELECT 1' }))[0].satser).toEqual(['SELECT 1']);
   });
 
   it('sorterer filene på filnavn, ikke på rekkefølgen i mappa', () => {
@@ -119,6 +168,14 @@ describe('kontrollen mot historikken', () => {
       `${a.filnavn} er ikke anvendt og kommer foran ${b.versjon}, som er anvendt.`,
     ]);
   });
+
+  it('migrer avviser to filer med samme versjon før den kobler til basen', async () => {
+    const a = fil('20260101000000');
+    const ingenBase = {} as Parameters<typeof migrer>[0];
+    await expect(migrer(ingenBase, [a, { ...a, filnavn: '20260101000000_b.sql' }])).rejects.toThrow(
+      'To filer har versjonen 20260101000000.'
+    );
+  });
 });
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
@@ -165,6 +222,65 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
     expect(await historikk()).toEqual(['20260101000000', '20260102000000', '20260103000000']);
     expect(await migrer(base.pool, lesMigrasjoner(m))).toEqual([]);
   });
+
+  it('sorterer filene selv når kalleren gir dem i en annen rekkefølge', async () => {
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL PRIMARY KEY);',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL REFERENCES dbo.prove_a (id));',
+    });
+    const [a, b] = lesMigrasjoner(m);
+    expect(await migrer(base.pool, [b, a])).toEqual(['20260101000000', '20260102000000']);
+    expect(await migrer(base.pool, lesMigrasjoner(m))).toEqual([]);
+  });
+
+  it.each([
+    ['avslutter den med COMMIT', 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nCOMMIT;'],
+    [
+      'avslutter og åpner en ny',
+      'CREATE TABLE dbo.prove_a (id int NOT NULL);\nCOMMIT;\nBEGIN TRANSACTION;',
+    ],
+    [
+      'åpner en til uten å avslutte den',
+      'BEGIN TRANSACTION;\nCREATE TABLE dbo.prove_a (id int NOT NULL);',
+    ],
+  ])('avviser en fil som %s, før historikkraden skrives og før neste fil', async (_, tekst) => {
+    const m = mappe({ [A]: tekst, [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);' });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      `${A}, sats 1: satsen avsluttet eller åpnet en transaksjon`
+    );
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).not.toContain('prove_b');
+  });
+
+  it('godtar en nøstet transaksjon som avsluttes i samme sats', async () => {
+    const m = mappe({
+      [A]: 'BEGIN TRANSACTION;\nCREATE TABLE dbo.prove_a (id int NOT NULL);\nCOMMIT;',
+    });
+    expect(await migrer(base.pool, lesMigrasjoner(m))).toEqual(['20260101000000']);
+    expect(await historikk()).toEqual(['20260101000000']);
+  });
+
+  it('en runner som venter på applåsen lenger enn poolens requestTimeout, får den og anvender', async () => {
+    const m = mappe({ [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);' });
+    // Poolen lagrer konfigurasjonen den ble opprettet med, men typene viser den ikke.
+    const { config } = base.pool as unknown as { config: Parameters<typeof opprettPool>[0] };
+    const kort = await opprettPool({ ...config, requestTimeout: 1_000 }, { maks: 2 });
+    const holder = base.pool.transaction();
+    await holder.begin();
+    try {
+      await holder
+        .request()
+        .query(
+          "EXEC sp_getapplock @Resource = N'koe_migrering', @LockMode = 'Exclusive', @LockOwner = 'Transaction'"
+        );
+      const kjoering = migrer(kort, lesMigrasjoner(m));
+      await new Promise((ok) => setTimeout(ok, 3_000));
+      await holder.rollback();
+      expect(await kjoering).toEqual(['20260101000000']);
+    } finally {
+      await kort.close();
+    }
+  }, 30_000);
 
   it('lagrer versjonen, filnavnet og sha256 av hele fila', async () => {
     const m = mappe({ [A]: '-- en kommentar\nCREATE TABLE dbo.prove_a (id int NOT NULL);' });
