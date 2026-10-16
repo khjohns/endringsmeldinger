@@ -31,8 +31,6 @@ const LAGRET_BREV = 51002;
  */
 const UTEN_TRIGGER: Record<string, string> = {
   app_users: 'E-post og navn oppdateres av koe.resolve_identity.',
-  app_identities:
-    'Identitetsstien (del 1) og medlemssynkroniseringen (del 3) eier tabellen; uforanderligheten er ikke vedtatt.',
   projects: 'Prosjektet kan bli inaktivt (is_active).',
   app_project_memberships:
     'Medlemssynkroniseringen endrer rollen, leserollen og om medlemskapet er aktivt.',
@@ -106,9 +104,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
 
   /**
    * Én transaksjon med konteksten for brukeren i prosjektet, på TE-siden i
-   * teamet, og en ny skriving. Feiler arbeidet, rulles transaksjonen tilbake.
+   * teamet (eller uten team), og en ny skriving. Feiler arbeidet, rulles
+   * transaksjonen tilbake. Radsikkerheten gjelder også eieren, så lesingen i
+   * testene går også her.
    */
-  async function iKontekst<T>(arbeid: (r: Foresp) => Promise<T>): Promise<T> {
+  async function iKontekst<T>(
+    arbeid: (r: Foresp) => Promise<T>,
+    team: string | null = TEAM
+  ): Promise<T> {
     const tx = new sql.Transaction(base.pool);
     await tx.begin();
     const r = () => new sql.Request(tx);
@@ -116,7 +119,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
       await r()
         .input('aktor', sql.NVarChar(36), bruker)
         .input('prosjekt', sql.NVarChar(100), PROSJEKT)
-        .input('team', sql.NVarChar(32), TEAM).batch(`
+        .input('team', sql.NVarChar(32), team).batch(`
           DECLARE @tx bigint = CURRENT_TRANSACTION_ID(), @skriving uniqueidentifier = NEWID();
           EXEC sp_set_session_context N'koe_aktor', @aktor;
           EXEC sp_set_session_context N'koe_prosjekt', @prosjekt;
@@ -207,24 +210,33 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
   }
 
   async function antall(tabell: string, sakId: unknown): Promise<number> {
-    const svar = await base.pool
-      .request()
-      .input('sak', sql.NVarChar(36), sakId)
-      .query<{ n: number }>(`SELECT COUNT(*) AS n FROM koe.${tabell} WHERE sak_id = @sak`);
+    const svar = await iKontekst((r) =>
+      r()
+        .input('sak', sql.NVarChar(36), sakId)
+        .query<{ n: number }>(`SELECT COUNT(*) AS n FROM koe.${tabell} WHERE sak_id = @sak`)
+    );
     return svar.recordset[0].n;
   }
+
+  const rader = (tabell: string, sakId: unknown) =>
+    iKontekst((r) =>
+      r()
+        .input('sak', sql.NVarChar(36), sakId)
+        .query(`SELECT * FROM koe.${tabell} WHERE sak_id = @sak`)
+    );
 
   describe('saken, brevet og oppdraget', () => {
     it('kontrollsaken: saken, det første brevet og oppdraget lagres i én transaksjon', async () => {
       const { s, b } = await lagretSak();
-      const svar = await base.pool
-        .request()
-        .input('event', sql.NVarChar(36), b.event_id)
-        .query<{ sak_id: string; aktor_team_id: string; data: string; har_oppdrag: number }>(
-          `SELECT h.sak_id, h.aktor_team_id, h.data,
-                  (SELECT COUNT(*) FROM koe.leveringsoppdrag o WHERE o.event_id = h.event_id) AS har_oppdrag
-             FROM koe.hendelse h WHERE h.event_id = @event`
-        );
+      const svar = await iKontekst((r) =>
+        r()
+          .input('event', sql.NVarChar(36), b.event_id)
+          .query<{ sak_id: string; aktor_team_id: string; data: string; har_oppdrag: number }>(
+            `SELECT h.sak_id, h.aktor_team_id, h.data,
+                    (SELECT COUNT(*) FROM koe.leveringsoppdrag o WHERE o.event_id = h.event_id) AS har_oppdrag
+               FROM koe.hendelse h WHERE h.event_id = @event`
+          )
+      );
       expect(svar.recordset).toEqual([
         { sak_id: s.sak_id, aktor_team_id: TEAM, data: b.data, har_oppdrag: 1 },
       ]);
@@ -232,7 +244,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
 
     it('et brev uten team lagres (DL-U4)', async () => {
       const { s } = await lagretSak();
-      await iKontekst((r) => settInn(r, 'hendelse', brev(s, { versjon: 2, aktor_team_id: null })));
+      await iKontekst(
+        (r) => settInn(r, 'hendelse', brev(s, { versjon: 2, aktor_team_id: null })),
+        null
+      );
       expect(await antall('hendelse', s.sak_id)).toBe(2);
     });
 
@@ -379,11 +394,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
           .query('DELETE koe.kjernebuffer WHERE sak_id = @sak');
         await settInn(r, 'kjernebuffer', buffer(s, { saksversjon: 2 }));
       });
-      const svar = await base.pool
-        .request()
-        .input('sak', sql.NVarChar(36), s.sak_id)
-        .query('SELECT saksversjon FROM koe.kjernebuffer WHERE sak_id = @sak');
-      expect(svar.recordset).toEqual([{ saksversjon: 2 }]);
+      const svar = await rader('kjernebuffer', s.sak_id);
+      expect(svar.recordset.map((r) => r.saksversjon)).toEqual([2]);
     });
 
     it.each<[string, Rad, number]>([
@@ -456,18 +468,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
       ['oppdraget', 'leveringsoppdrag', 'DELETE koe.leveringsoppdrag WHERE sak_id = @sak'],
     ])('%s står uendret etter %s i konteksten (51001)', async (_, tabell, setning) => {
       const { s } = await lagretSak();
-      const foer = await base.pool
-        .request()
-        .input('sak', sql.NVarChar(36), s.sak_id)
-        .query(`SELECT * FROM koe.${tabell} WHERE sak_id = @sak`);
+      const foer = await rader(tabell, s.sak_id);
       const feil = await avvisning(
         iKontekst((r) => r().input('sak', sql.NVarChar(36), s.sak_id).query(setning))
       );
       expect(feil).toBe(UFORANDERLIG);
-      const etter = await base.pool
-        .request()
-        .input('sak', sql.NVarChar(36), s.sak_id)
-        .query(`SELECT * FROM koe.${tabell} WHERE sak_id = @sak`);
+      const etter = await rader(tabell, s.sak_id);
       expect(etter.recordset).toEqual(foer.recordset);
       expect(etter.recordset.length).toBe(1);
     });
