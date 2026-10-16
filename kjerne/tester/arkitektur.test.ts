@@ -305,9 +305,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse kanFaaProtest KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
-  // VS-U9 og OV-U1: et svar på vederlaget etter byggherrens innsigelse avvises.
-  ['Utledning', 'utsagn', 'innsigelser', ['kommandoer/nyttelast.ts']],
-  ['Paaberopelse', 'relasjon', 'part gjelder', ['kommandoer/nyttelast.ts']],
   // MM-U18: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn bareUregistrert', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],
@@ -366,25 +363,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
   ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utledSporene']],
-  // VS-U11: innsigelsen et registrert svar er lest med, og hvilke innsigelser som kan lese det.
-  [
-    'frosset/standpunkt.ts',
-    'frosset',
-    'innsigelsenSvaretErLestMed',
-    ['utledning/utled.ts:utledSporene'],
-  ],
+  // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
   [
     'frosset/standpunkt.ts',
     'relasjon',
-    'innsigelsenGjelderSvaret',
-    ['utledning/utled.ts:utledSporene', 'kommandoer/skriving.ts:frysBrev'],
+    'innsigelsenPaaberoper',
+    ['frosset/brevtekst.ts', 'kommandoer/nyttelast.ts:nyttelastkontroll'],
   ],
-  // VS-U9, VS-U11: en innsigelse parten senere har gitt opp uttrykkelig, leser ikke et svar.
   [
-    'frosset/standpunkt.ts',
-    'utsagn',
-    'innsigelsenErOppgitt',
-    ['utledning/utled.ts:utledSporene', 'kommandoer/skriving.ts:frysBrev'],
+    'frosset/standpunkt.ts:innsigelsenPaaberoper',
+    'relasjon',
+    'art krav',
+    ['frosset/standpunkt.ts'],
   ],
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
   ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
@@ -510,7 +500,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/format.ts',
     'rad',
     'HJEMMEL',
-    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts', 'frosset/standpunkt.ts'],
+    [
+      'format/leser.ts',
+      'kommandoer/skriving.ts',
+      'frosset/frysing.ts',
+      'frosset/standpunkt.ts',
+      'frosset/brevtekst.ts',
+    ],
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
@@ -611,8 +607,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor gjelder grunnlagskrav',
     ['kommandoer/skriving.ts'],
   ],
-  // VS-U9, VS-U11: innsigelsen et registrert svar leses med, og plassen blant partens svar da den kom.
-  ['kommandoer/skriving.ts:frysBrev', 'relasjon', 'id gjelder fra', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'standpunkterISvaret', ['frosset/frysing.ts']],
@@ -712,7 +706,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/standpunkt.ts',
     'brevtekst',
-    'blirEndringsordre gjelderVarslingsplikten innsigelsenErOppgitt innsigelsenGjelderSvaret prinsipalt standpunktet',
+    'blirEndringsordre gjelderVarslingsplikten innsigelsenErOppgitt standpunktet',
     ['frosset/brevtekst.ts'],
   ],
 ];

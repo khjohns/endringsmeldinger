@@ -14,23 +14,10 @@ import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevte
 import { avvis } from './forutsetninger.ts';
 import { erRegistrert, lesJournal, Uforstaatt } from '../format/leser.ts';
 import { harUlagringsbarTekst } from '../format/skjema.ts';
-import {
-  innsigelsenErOppgitt,
-  innsigelsenGjelderSvaret,
-  regnUtSvar,
-} from '../frosset/standpunkt.ts';
+import { regnUtSvar } from '../frosset/standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
-import type {
-  Avsnitt,
-  Avvisning,
-  Beslutningsgrunnlag,
-  Journalrad,
-  Krav,
-  Part,
-  Spor,
-  Svar,
-} from '../typer.ts';
+import type { Avsnitt, Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part } from '../typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -423,38 +410,14 @@ function brevtekstFor(
  */
 export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): void {
   const grunnlagskrav: Krav[] = [];
-  /** Svarene fra samme part, og innsigelsene med plassen i den listen da de kom. */
-  const svarFraParten: Svar[] = [];
-  const innsigelser: { gjelder: string; id: string; fra: number }[] = [];
-  const varsler: string[] = [];
-  let foersteFristkrav: string | undefined;
-  for (const h of lesJournal(foer, kjerne.leserformat)) {
-    if (h.art !== 'dokument') continue;
-    const d = h.dokument;
-    grunnlagskrav.push(...d.krav.filter((k) => k.spor === 'grunnlag'));
-    varsler.push(...d.utsagn.filter((u) => u.art === 'varsel').map((u) => u.id));
-    // OV-U5: uten registrert varsel er det første fristkravet det første varselet appen kjenner.
-    if (!foersteFristkrav) foersteFristkrav = d.krav.find((k) => k.spor === 'frist')?.id;
-    if (d.avsender !== rad.aktor_rolle) continue;
-    svarFraParten.push(...d.svar);
-    for (const u of d.utsagn)
-      if (u.art === 'innsigelse')
-        innsigelser.push({ id: u.id, gjelder: u.gjelder, fra: svarFraParten.length });
-  }
+  for (const h of lesJournal(foer, kjerne.leserformat))
+    if (h.art === 'dokument')
+      grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
   for (const s of (rad.data.svar ?? []) as Data[]) {
     // Kategorien i grunnlagskravet: § 32.2 i grunnlaget (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
     const krav = grunnlagskrav.find(
       (k) => k.id === (s.spor === 'grunnlag' ? s.gjelder : s.grunnlagskrav)
     );
-    // VS-U9, VS-U11: et registrert svar uten standpunkt om rettidighet leses med den første
-    // innsigelsen fra samme part som parten ikke senere har gitt opp uttrykkelig.
-    const innsigelse = innsigelser.find(
-      (i) =>
-        innsigelsenGjelderSvaret(i.gjelder, s as { spor: Spor; gjelder: string }, [
-          ...varsler,
-          ...(foersteFristkrav ? [foersteFristkrav] : []),
-        ]) && !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))
-    )?.id;
-    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));
+    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));
   }
 }

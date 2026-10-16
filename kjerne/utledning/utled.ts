@@ -26,9 +26,6 @@ import {
   enighetsgrunnlag,
   grunnerFraGrunnlaget,
   grunnlagetErAvklart,
-  innsigelsenErOppgitt,
-  innsigelsenGjelderSvaret,
-  innsigelsenSvaretErLestMed,
   prinsipalt,
   sammenfallStemmer,
   standpunktet,
@@ -54,9 +51,8 @@ export interface Svarberegning {
   /** Virkningen standpunktene hadde slik brevet uttrykte dem (MM-U9). */
   virkninger: Standpunktsvirkning[];
   /**
-   * Standpunktene etter § 33.4, og i fristen innsigelsen svaret er lest med (VS-U11), som
-   * gjelder et annet varsel enn det som er registrert nå. Svaret står med sin virkning
-   * (OV-U5), og bare visningen leser dette. ID-ene står som i `virkninger`.
+   * Standpunktene etter § 33.4 som gjelder et annet varsel enn det som er registrert nå.
+   * Svaret står med sin virkning (OV-U5), og bare visningen leser dette.
    */
   gjaldtEtAnnetVarsel: string[];
 }
@@ -489,48 +485,6 @@ function utledSporene(
         (alleKrav.get(s.grunnlagskrav)?.spor !== 'grunnlag' || !bakover(s.id, s.grunnlagskrav)))
     )
       ugyldig(s.id, 'svaret viser ikke til en grunnlagsversjon før det');
-    // VS-U9, VS-U11: en virkning som ikke er et standpunkt i svaret, er en innsigelse fra
-    // samme part før svaret, mot kravet svaret gjelder eller et registrert varsel, som
-    // parten ikke har gitt opp uttrykkelig før svaret.
-    const lestMed = innsigelsenSvaretErLestMed(s);
-    if (lestMed !== undefined) {
-      const i = henvisninger.find((x) => x.id === lestMed);
-      const part = elementer[s.id].part;
-      if (
-        i?.art !== 'innsigelse' ||
-        elementer[i.id].part !== part ||
-        !bakover(s.id, i.id) ||
-        !innsigelsenGjelderSvaret(i.gjelder, s, [
-          ...varsler.map((x) => x.id),
-          ...spor.frist.krav.slice(0, 1).map((k) => k.id),
-        ]) ||
-        innsigelsenErOppgitt(
-          i.gjelder,
-          s.spor,
-          // I journalens rekkefølge, som er saksversjonen.
-          svarMedUten.filter(
-            (x) => elementer[x.id].part === part && bakover(x.id, i.id) && bakover(s.id, x.id)
-          )
-        )
-      )
-        ugyldig(s.id, 'svaret er lest med noe som ikke er en innsigelse mot kravet eller varselet');
-    }
-    // VS-U9, OV-U1: et svar på vederlaget etter partens innsigelse mot vederlagskravet
-    // krever preklusjon etter § 34.1, som ikke er bygget. Kjernen forenkler det ikke.
-    if (
-      s.spor === 'vederlag' &&
-      henvisninger.some(
-        (x) =>
-          x.art === 'innsigelse' &&
-          x.gjelder === s.gjelder &&
-          elementer[x.id].part === elementer[s.id].part &&
-          bakover(s.id, x.id)
-      )
-    )
-      ugyldig(
-        s.id,
-        'svaret på vederlaget kommer etter en innsigelse, og § 34.1 er ikke i kjernen ennå'
-      );
     // MM-U18: sammenfallet er appens vurdering av samme brev og må stemme med standpunktene.
     if (!sammenfallStemmer(s))
       ugyldig(s.id, 'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18)');
@@ -716,18 +670,12 @@ function utledSporene(
     spor.frist.varsel !== null && gjelder !== spor.frist.varsel.id;
   const svar: Record<string, Svarberegning> = {};
   for (const s of alleSvar.values()) {
-    const innsigelse = henvisninger.find((x) => x.id === innsigelsenSvaretErLestMed(s));
     svar[s.id] = {
       svar: s,
       virkninger: s.beslutningsgrunnlag.virkninger,
-      gjaldtEtAnnetVarsel: [
-        ...s.standpunkter
-          .filter((p) => p.art === 'rettidighet' && p.hjemmel === '33.4' && annetVarsel(p.gjelder))
-          .map((p) => p.id),
-        ...(s.spor === 'frist' && innsigelse && annetVarsel(innsigelse.gjelder)
-          ? [innsigelse.id]
-          : []),
-      ],
+      gjaldtEtAnnetVarsel: s.standpunkter
+        .filter((p) => p.art === 'rettidighet' && p.hjemmel === '33.4' && annetVarsel(p.gjelder))
+        .map((p) => p.id),
     };
   }
 
