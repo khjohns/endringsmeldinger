@@ -14,7 +14,8 @@
  * (#407, #309, #500), F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511),
  * F217–F220 et «i tide» som binder byggherren (HF-U4, HF-U8, #498), F221–F222 og F224
  * innsigelsen etter VS-U24 (#498, #517), F223 et registrert brev (HF-U4, OV-U4), og
- * F246–F247 registrerte brev som dokumentasjon (OV-U4, OV-U6, #574). Én mutasjon
+ * F246–F247 registrerte brev som dokumentasjon (OV-U4, OV-U6, #574), og F248–F255
+ * opprettelsen og datoen etter VS-U26 (#664). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -2197,6 +2198,75 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-G45', 'F-MM-G18', 'F-MM-G43'],
+  },
+  {
+    id: 'F248',
+    feilklasse: 'et grunnlagskrav fra appen uten datoen godtas (VS-U26, #664)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [['  if (dato === undefined) return [`', '  if (dato === undefined) return []; [`']],
+    mal: [
+      'et krav fra appen i endring/irregulaer_endring',
+      'et krav fra appen i svikt/grunnforhold',
+    ],
+  },
+  {
+    id: 'F249',
+    feilklasse: 'datoen godtas i en kategori den ikke hører til (VS-U26, #664)',
+    fil: `${K}/format/format.ts`,
+    endringer: [
+      [
+        "...ikkeI(['endringsordre', ...OPPGITTE_DATOER.filter((d) => d !== dato)]),",
+        "...ikkeI(['endringsordre']),",
+      ],
+    ],
+    mal: ['avviser datoen for pålegget mottatt i svikt', 'datoen i feil kategori er det ikke'],
+  },
+  {
+    id: 'F250',
+    feilklasse: 'en dato etter brevets dato godtas (arbeidsvalg 1 i #664)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['dato <= brevetsDato) return null;', 'dato <= brevetsDato || true) return null;']],
+    mal: ['en dato etter brevets dato avvises'],
+  },
+  {
+    id: 'F251',
+    feilklasse: 'en dato samme dag som brevet avvises (arbeidsvalg 1 i #664)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['dato <= brevetsDato) return null;', 'dato < brevetsDato) return null;']],
+    mal: ['samme dag godtas', 'brevets dato er datoen i norsk tid'],
+  },
+  {
+    id: 'F252',
+    feilklasse: 'brevets dato regnes i UTC, ikke i norsk tid (VS-U8, #664)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        'registrertDato({ registrert: tidspunkt.toISOString() })',
+        'tidspunkt.toISOString().slice(0, 10)',
+      ],
+    ],
+    mal: ['brevets dato er datoen i norsk tid'],
+  },
+  {
+    id: 'F253',
+    feilklasse: 'brevet sier ikke datoen pålegget ble mottatt (VS-U26, #664)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["if (typeof k.innhold.paalegg_mottatt === 'string')", 'if (false)']],
+    mal: ['en endring der § 32.2 gjelder, med varselet', 'en ny kravversjon kan rette datoen'],
+  },
+  {
+    id: 'F254',
+    feilklasse: 'brevet sier ikke datoen TE ble klar over forholdet (VS-U26, #664)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["if (typeof k.innhold.klar_over_forholdet === 'string')", 'if (false)']],
+    mal: ['svikt viser til § 33.1 b og § 34.1.2', 'annet forhold etter § 33.1 c'],
+  },
+  {
+    id: 'F255',
+    feilklasse: 'byggherren kan opprette en KOE-sak (OV-U1, #664)',
+    fil: `${K}/kommandoer/opprettelse.ts`,
+    endringer: [["  if (part !== 'TE')", '  if (false)']],
+    mal: ['byggherren kan ikke opprette en KOE-sak'],
   },
 ];
 
