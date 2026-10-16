@@ -33,7 +33,8 @@
   let under = $state('');
   let tittel = $state('');
   let beskrivelse = $state('');
-  let dato = $state('');
+  // Datoen står under feltet den er oppgitt for, så den følger ikke med til en annen betydning.
+  let datoer = $state<Partial<Record<OppgittDato, string>>>({});
   let beloep = $state<number | null>(null);
   const underkategorier = $derived(forhold.find((h) => h.kode === hoved)?.hjemler ?? []);
 
@@ -101,7 +102,7 @@
       hovedkategori: HOVEDKATEGORI_FRA_KATALOGEN[hoved],
       underkategori: UNDERKATEGORI_FRA_KATALOGEN[under],
       ...(tittel.trim() ? { tittel: tittel.trim() } : {}),
-      ...(datofelt && dato ? { [datofelt]: dato } : {}),
+      ...(datofelt && datoer[datofelt] ? { [datofelt]: datoer[datofelt] } : {}),
     },
     // TEs beskrivelse av pålegget er utdypningen under kravet (GR-U15).
     ...(beskrivelse.trim() ? { utdypning: beskrivelse.trim() } : {}),
@@ -175,14 +176,7 @@
       <h2 id="grunnlag" class="font-semibold">Send grunnlag</h2>
       <label class="block"
         >Hovedkategori
-        <select
-          class="block w-full border"
-          bind:value={hoved}
-          onchange={() => {
-            under = '';
-            dato = '';
-          }}
-        >
+        <select class="block w-full border" bind:value={hoved} onchange={() => (under = '')}>
           {#each forhold as h (h.kode)}<option value={h.kode}>{h.label}</option>{/each}
         </select>
       </label>
@@ -197,7 +191,7 @@
       {#if datofelt}
         <label class="block"
           >{DATOEN[datofelt]}
-          <input class="block w-full border" type="date" bind:value={dato} required />
+          <input class="block w-full border" type="date" bind:value={datoer[datofelt]} required />
         </label>
       {/if}
       <label class="block"
