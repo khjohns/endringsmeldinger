@@ -25,7 +25,12 @@ import {
 } from '../kommandoer.ts';
 import type { Oppdragsrad } from '../lager.ts';
 import { sjekksum } from '../levering.ts';
-import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
+import {
+  avvisning,
+  avvisningMedMelding,
+  catendaBruker,
+  opprettMigrertTestbase,
+} from './sqlserver_migrert.ts';
 import { feilnummer, opprettKjoeretid, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const UGYLDIG = 51422;
@@ -47,20 +52,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
   const b = { te: '', bh: '', leser: '', p2: '' };
   let te: Kontekst;
 
-  async function catendaBruker(): Promise<string> {
-    const svar = await base.pool
-      .request()
-      .input('subjekt', sql.NVarChar(400), heks())
-      .input('epost', sql.NVarChar(320), '')
-      .input('navn', sql.NVarChar(400), '')
-      .output('bruker', sql.UniqueIdentifier)
-      .execute('koe_api.catenda_identitet');
-    return String(svar.output.bruker).toLowerCase();
-  }
-
   beforeAll(async () => {
     base = await opprettMigrertTestbase('kommandoer');
-    for (const navn of Object.keys(b) as (keyof typeof b)[]) b[navn] = await catendaBruker();
+    for (const navn of Object.keys(b) as (keyof typeof b)[])
+      b[navn] = await catendaBruker(base.pool);
     const medlem = (p: string, u: string, leser = 0) =>
       `(N'${p}', '${u}', N'${heks()}', N'', N'', N'member', ${leser}, 1)`;
     await base.pool.request().batch(`
@@ -525,13 +520,6 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       });
     }
 
-    const avvisning = (p: Promise<unknown>) => p.then(() => undefined, feilnummer);
-    const melding = (p: Promise<unknown>) =>
-      p.then(
-        () => undefined,
-        (e: unknown) => ({ nummer: feilnummer(e), melding: (e as Error).message })
-      );
-
     it('kontrollsak: med basens tidspunkt og oppdraget lagres brevet, og koe_skriving er tom etterpå', async () => {
       const sak = await nySak();
       expect(await direkte(sak.sak_id)).toEqual({ skriving: null });
@@ -576,7 +564,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     it('avviser en annen versjon enn journalens (51409) med journalens versjon i meldingen, og ingenting skrives', async () => {
       const sak = await nySak();
       // Formen er kontrakten `oversett` i server/kommandoer.ts leser (20261016170000_kommandoform.sql).
-      expect(await melding(direkte(sak.sak_id, { forventet: 2 }))).toEqual({
+      expect(await avvisningMedMelding(direkte(sak.sak_id, { forventet: 2 }))).toEqual({
         nummer: 51409,
         melding: 'Versjonskonflikt: journalen har versjon 1',
       });
@@ -633,7 +621,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       'avviser %s (51422) med en melding som sier hva, ikke 547 (#605, #607, #596)',
       async (_, valg, tekst) => {
         const sak = await nySak();
-        const svar = await melding(direkte(sak.sak_id, valg));
+        const svar = await avvisningMedMelding(direkte(sak.sak_id, valg));
         expect(svar?.nummer).toBe(UGYLDIG);
         expect(svar?.melding).toMatch(tekst);
         expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);

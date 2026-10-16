@@ -10,18 +10,18 @@ Testen leser migrasjonsfilene, ikke databasen — den sier at repoet *erklærer*
 tabellen, ikke at basen har den.
 """
 
+import json
 import re
 from pathlib import Path
-
-import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MIGRATIONS = [
     REPO_ROOT / "backend" / "migrations",
     REPO_ROOT / "supabase" / "migrations",
 ]
-# Migrasjonene i T-SQL for SQL Server (#53), anvendt av runneren i server/migrering.ts.
-SQLSERVER_MIGRASJONER = REPO_ROOT / "database" / "migrasjoner"
+# Katalogen over basene, med SQL Server-delen lest fra en base bygget fra
+# database/migrasjoner/ (#558).
+KATALOG = REPO_ROOT / "docs" / "datamodell" / "katalog.json"
 
 # Alle 19 tabellene i public, kontrollert mot basen 2026-09-21 (notat kom til
 # med MS-05; de øvrige atten ble kontrollert 2026-09-20).
@@ -92,67 +92,22 @@ def _opprettede_tabeller() -> set[str]:
 # Kommentarer fjernes før navnene leses; en strengliteral beholdes, så `--` inne i
 # en streng ikke tas for en kommentar.
 _SQL_DEL = re.compile(r"'(?:[^']|'')*'|--[^\n]*|/\*.*?\*/", re.DOTALL)
-_IDENT = r"\[?[a-z_#][a-z0-9_]*\]?"
-_NAVN = rf"{_IDENT}(?:\.{_IDENT})?"
-_SQLSERVER_DDL = re.compile(
-    rf"\bCREATE\s+TABLE\s+(?P<opprett>{_NAVN})"
-    rf"|\bDROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?(?P<slipp>{_NAVN}(?:\s*,\s*{_NAVN})*)"
-    r"|\bsp_rename\s+(?:@objname\s*=\s*)?N?'(?P<gammelt>[^']*)'\s*,\s*"
-    r"(?:@newname\s*=\s*)?N?'(?P<nytt>[^']*)'"
-    r"(?:\s*,\s*(?:@objtype\s*=\s*)?N?'(?P<objekttype>[^']*)')?",
-    re.IGNORECASE,
-)
 
 
 def uten_kommentarer(sql: str) -> str:
     return _SQL_DEL.sub(lambda m: m.group(0) if m.group(0).startswith("'") else " ", sql)
 
 
-def _tabellnavn(navn: str, fil: str) -> str | None:
-    """«skjema.tabell» uten hakeparenteser, eller None for en midlertidig tabell."""
-    deler = [d.strip("[]").lower() for d in navn.split(".")]
-    if deler[-1].startswith("#"):
-        return None
-    if len(deler) != 2:
-        raise AssertionError(
-            f"{fil}: tabellen {navn!r} er ikke kvalifisert med skjemaet. Vakta kan ikke "
-            "avgjøre hvilket skjema den havner i; skriv skjemaet (#591)."
-        )
-    return ".".join(deler)
-
-
-def sqlserver_tabeller_etter(filer: list[tuple[str, str]]) -> set[str]:
-    """Tabellene som finnes etter at migrasjonene (filnavn, sql) er kjørt i rekkefølge:
-    CREATE TABLE legger til, DROP TABLE trekker fra, og sp_rename på en tabell bytter
-    navnet. Kommentarer telles ikke (#591)."""
-    tabeller: set[str] = set()
-    for fil, sql in filer:
-        for m in _SQLSERVER_DDL.finditer(uten_kommentarer(sql)):
-            if m.group("opprett"):
-                if navn := _tabellnavn(m.group("opprett"), fil):
-                    tabeller.add(navn)
-            elif m.group("slipp"):
-                for del_ in m.group("slipp").split(","):
-                    if navn := _tabellnavn(del_.strip(), fil):
-                        tabeller.discard(navn)
-            elif (m.group("objekttype") or "OBJECT").upper() == "OBJECT":
-                gammelt = _tabellnavn(m.group("gammelt"), fil)
-                if gammelt in tabeller:
-                    nytt = m.group("nytt").strip("[]").lower()
-                    tabeller.remove(gammelt)
-                    tabeller.add(f"{gammelt.partition('.')[0]}.{nytt}")
-    return tabeller
-
-
 def tabeller_i_sqlserver_migrasjonene() -> set[str]:
     """Tabellene migrasjonene i SQL Server etterlater, kvalifisert med skjemaet (#558).
 
-    Leser filene, ikke katalogen, så vakta kan kjøre uten base. Katalogen i
-    katalog.json, som `test_katalogen_har_de_samme_tabellene_som_registeret`
-    sammenlikner med, er lest fra en base bygget av runneren."""
-    return sqlserver_tabeller_etter(
-        [(fil.name, fil.read_text(encoding="utf-8")) for fil in sorted(SQLSERVER_MIGRASJONER.glob("*.sql"))]
-    )
+    Leser katalogen i katalog.json, som er lest fra en base bygget av runneren i
+    server/migrering.ts, ikke teksten i migrasjonene (#647, #634).
+    `server/tester/katalog.test.ts` holder katalogen lik en ny base bygget fra
+    database/migrasjoner/, så en migrasjon som oppretter, sletter eller gir en
+    tabell nytt navn, gjør den testen rød til katalogen er tatt på nytt."""
+    katalog = json.loads(KATALOG.read_text(encoding="utf-8"))
+    return set(katalog["sqlserver"]["tabeller"])
 
 
 def test_hver_tabell_i_basen_opprettes_av_en_migrasjonsfil():
@@ -242,30 +197,3 @@ def test_config_toml_peker_paa_riktig_prosjekt():
     assert "major_version = 17" in innhold, (
         "Basen kjører PostgreSQL 17; config.toml må si det samme."
     )
-
-
-def test_sqlserver_vakta_folger_drop_table_sp_rename_og_kommentarer():
-    """#591: tabellsettet er det migrasjonene etterlater, ikke hver CREATE TABLE i teksten."""
-    filer = [
-        (
-            "1.sql",
-            "-- CREATE TABLE koe.i_kommentar (id int)\n"
-            "/* CREATE TABLE koe.i_blokk (id int) */\n"
-            "CREATE TABLE [koe].[a] (id int); CREATE TABLE koe.b (id int);\n"
-            "CREATE TABLE koe.c (id int); CREATE TABLE #midlertidig (id int);\n"
-            "SELECT '-- ikke en kommentar'; CREATE TABLE koe.d (id int);",
-        ),
-        (
-            "2.sql",
-            "DROP TABLE IF EXISTS koe.a, [koe].[c];\n"
-            "EXEC sp_rename N'koe.b', N'b2';\n"
-            "EXEC sp_rename 'koe.d.id', 'nr', 'COLUMN';\n"
-            "EXEC sp_rename @objname = N'koe.PK_finnes_ikke', @newname = N'PK_ny';",
-        ),
-    ]
-    assert sqlserver_tabeller_etter(filer) == {"koe.b2", "koe.d"}
-
-
-def test_sqlserver_vakta_avviser_tabell_uten_skjema():
-    with pytest.raises(AssertionError, match="1.sql: tabellen 'uten_skjema' er ikke kvalifisert"):
-        sqlserver_tabeller_etter([("1.sql", "CREATE TABLE uten_skjema (id int);")])
