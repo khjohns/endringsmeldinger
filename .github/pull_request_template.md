@@ -43,5 +43,5 @@ bare for å fylle dette punktet. -->
 
 ## Åpne spørsmål
 
-<!-- Uløste beslutninger, begrunnede avvisninger av reviewfunn og koblede
-oppfølgingsissues. Slett seksjonen hvis det ikke er noen. -->
+<!-- Uløste beslutninger, avviste reviewfunn etter stoppregelen for funn i `AGENTS.md`
+og koblede oppfølgingsissues. Slett seksjonen hvis det ikke er noen. -->
