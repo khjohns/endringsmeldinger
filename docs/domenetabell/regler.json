@@ -2445,12 +2445,13 @@
     {
       "id": "GR-33",
       "tilfelle": "Byggherren har frafalt pålegget i et svar sendt fra appen, TE sender en ny grunnlagsversjon, og den venter på byggherrens svar. Et annet sendt krav står åpent, for eksempel fristkravet.",
-      "forventet": "Grunnlaget er avklart ved frafallet, og en enighet i vederlag eller frist forblir virksom. Saken kan ikke inngå i en endringsordre. Byggherren kan svare på den nye versjonen med frafall eller endringsordre. Får de åpne kravene en virksom enighet før byggherren svarer, er kravene avgjort, og svaret på den nye versjonen avvises. Ved et registrert frafall venter den nye versjonen på svar uten avklart grunnlag.",
+      "forventet": "Grunnlaget er avklart ved frafallet, og en enighet i vederlag eller frist forblir virksom. Saken kan ikke inngå i en endringsordre. Byggherren kan svare på den nye versjonen med frafall eller endringsordre. Får de åpne kravene en virksom enighet før byggherren svarer, er kravene avgjort, svaret på den nye versjonen avvises, og frafallet står. Grunnlagssporet vises da ikke som ventende på svar. Ved et registrert frafall venter den nye versjonen på svar uten avklart grunnlag.",
       "bh_standpunkt": "Frafalt på den forrige versjonen. Ikke vurdert for den nye versjonen.",
       "rettslig_virkning": "Grunnlaget er avklart ved frafallet til byggherren svarer på den nye versjonen.",
       "rettidighet": "Byggherrens «i tide» etter § 32.2 står mot den nye versjonen (HF-U8).",
       "tidsakse": "registrering",
       "kilder": [
+        "GR-U24",
         "GR-U23",
         "GR-U20",
         "GR-U7",

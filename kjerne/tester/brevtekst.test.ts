@@ -33,7 +33,9 @@ import {
   type Utfall,
 } from '../kommandoer/skriving.ts';
 import type { Avsnitt, Dokument, Journalrad, Part } from '../typer.ts';
+import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort } from '../utledning/utled.ts';
+import { visning } from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 
@@ -2836,7 +2838,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(enighetensVirkning(u, 'vederlag')).toBe('betinget');
     });
 
-    it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og KA-U11 går foran (OV-U3, GR-U17)', () => {
+    it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og svaret på versjon 2 avvises (GR-U24, OV-U3)', () => {
       const s = medEnighetIVederlaget(medFrafall());
       versjon(s, { tittel: 'Ny peling 2' });
       s.send('BH', {
@@ -2849,6 +2851,10 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
       expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');
       expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
+      expect(
+        visning(u, GJELDENDE_REGLER).spor.grunnlag.etiketter,
+        'versjon 2 vises ikke som ventende (GR-U24)'
+      ).not.toContain('venter_paa_svar');
     });
   });
 

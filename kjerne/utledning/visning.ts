@@ -79,7 +79,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const s = u.spor[spor];
   const ut: string[] = [];
   if (s.trukket) ut.push('trukket');
-  if (venterPaaSvar(s)) ut.push('venter_paa_svar');
+  // GR-U24: når kravene er avgjort, avvises et svar, så sporet venter ikke på det.
+  if (venterPaaSvar(s) && !kraveneErAvgjort(u)) ut.push('venter_paa_svar');
   // KA-U20: bygger enigheten på et merket brev, slår visningen ikke fast at den finnes.
   const virkning = s.forbehold ? null : enighetensVirkning(u, spor);
   if (spor === 'grunnlag') {

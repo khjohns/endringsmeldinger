@@ -11626,7 +11626,7 @@
         "GR-33"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U23, GR-U20, OV-U3: mens en ny grunnlagsversjon etter et frafall fra appen venter på svar, er grunnlaget avklart ved frafallet, og enigheten i vederlaget forblir virksom. Fristkravet står åpent, så kravene er ikke avgjort før det får en enighet. Da går KA-U11 foran (GR-U17)",
+      "forslag": "GR-U23, GR-U20, OV-U3: mens en ny grunnlagsversjon etter et frafall fra appen venter på svar, er grunnlaget avklart ved frafallet, og enigheten i vederlaget forblir virksom. Fristkravet står åpent, så kravene er ikke avgjort før det får en enighet. Da går OV-U3 foran GR-U20 og GR-U23 (GR-U24): svaret på versjon 2 avvises, og frafallet står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11712,6 +11712,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "GR-U24",
             "OV-U3",
             "GR-U17",
             "KA-U11"

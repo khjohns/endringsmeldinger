@@ -2455,6 +2455,19 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['  const venterEtterFrafall =', '  const venterEtterFrafall = false &&']],
     mal: ['grunnlaget er avklart ved frafallet', 'F-MM-G42'],
   },
+  {
+    id: 'F235',
+    feilklasse:
+      'visningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (GR-U24, #510)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  if (venterPaaSvar(s) && !kraveneErAvgjort(u)) ut.push('venter_paa_svar');",
+        "  if (venterPaaSvar(s)) ut.push('venter_paa_svar');",
+      ],
+    ],
+    mal: ['svaret på versjon 2 avvises (GR-U24'],
+  },
 ];
 
 interface Testresultat {
