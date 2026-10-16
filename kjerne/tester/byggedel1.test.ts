@@ -171,7 +171,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
     ...(gjelder ? { gjelder } : {}),
   });
 
-  it('en merking i et dokument som ikke er registrert, er ikke forstått (KA-U20)', async () => {
+  it('en merking gjør saken ikke forstått, også i et registrert dokument (OV-U7, arbeidsvalget 16.10 på #587)', async () => {
     const bane = minnebane();
     await bygg(bane, [
       'krav_irreg',
@@ -191,8 +191,13 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
     const uten = structuredClone(journal);
     const d4 = uten.at(-1)!.data as { opplysninger: Data[] };
     d4.opplysninger = d4.opplysninger.filter((o) => o.hva !== 'sendt');
-    expect(forstaatt(journal)).toBe(true);
+    expect(forstaatt(journal)).toBe(false);
     expect(forstaatt(uten)).toBe(false);
+    // Kontrollsak: samme registrerte brev uten merkingen er forstått.
+    const umerket = structuredClone(journal);
+    const d = umerket.at(-1)!.data as { opplysninger: Data[] };
+    d.opplysninger = d.opplysninger.filter((o) => o.hva !== 'kan_ikke_uttrykkes');
+    expect(forstaatt(umerket)).toBe(true);
   });
 
   it('en senere merking av et dokument som ikke er registrert, er ikke forstått; samme spor to ganger heller ikke', async () => {
@@ -294,8 +299,11 @@ describe('formatet har ingen negative beløp ennå (KA-U22, KA-U9)', () => {
   });
 });
 
-/** Code-review av PR #394: det som viser til et element uten virkning, stopper ikke saken (MM-U18). */
-describe('registrerte brev som viser til en kravversjon uten virkning', () => {
+/**
+ * Code-review av PR #394: det som viser til et registrert element, stopper ikke saken
+ * (MM-U18). Kravversjonen og svaret er dokumentasjon (OV-U4).
+ */
+describe('registrerte brev som viser til en registrert kravversjon', () => {
   const foer = [
     'godkjent_grunnlag',
     { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' },
@@ -310,7 +318,7 @@ describe('registrerte brev som viser til en kravversjon uten virkning', () => {
     },
   ];
 
-  it('et svar regnet mot den bevares uten virkning, og saken er forstått', async () => {
+  it('et registrert svar regnet mot den er dokumentasjon, og saken er forstått (OV-U4)', async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
       ...foer,
@@ -328,10 +336,12 @@ describe('registrerte brev som viser til en kravversjon uten virkning', () => {
     ]);
     const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(true);
-    expect(u.utenVirkning.map((x) => x.element)).toEqual([k.navn.id('K-g2'), k.navn.id('S-v1')]);
+    expect(u.spor.grunnlag.gjeldendeKrav?.id).toBe(k.navn.id('K-g1'));
+    expect(u.spor.vederlag.gjeldendeSvar).toBeNull();
+    expect(u.utenVirkning).toEqual([]);
   });
 
-  it('en registrert begrunnelse av et svar uten virkning, sendt før svaret, avvises (KA-U36, KA-U38)', async () => {
+  it('en registrert begrunnelse av et registrert svar, sendt før svaret, avvises (KA-U36, KA-U38)', async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
       ...foer,

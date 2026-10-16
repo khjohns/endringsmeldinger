@@ -496,7 +496,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(k.navn.id('D5')).toBe(journal.at(-1)!.event_id);
   });
 
-  it('korrespondanse som bare er mottatt, er også registrert, og uten opplysningen er det ikke avklart', async () => {
+  it('korrespondanse som bare er mottatt, er også registrert, og godkjenningen i den er dokumentasjon uten virkning (OV-U4)', async () => {
     const k = await bygg(minnebane(), ['krav_irreg', registrert({})]);
     expect((await k.utledning()).endringsordre).toBe('ja');
     const bane = minnebane();
@@ -511,7 +511,10 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     (siste.data.opplysninger as Data[])[0].hva = 'mottatt';
     const u = utled(lesJournal([...journal, siste], KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(true);
-    expect(u.endringsordre).toBe('ikke_avklart');
+    // OV-U4: det registrerte svaret er ikke gjeldende svar og gir intet uavklart utfall.
+    expect(u.spor.grunnlag.gjeldendeSvar).toBeNull();
+    expect(u.spor.grunnlag.enighet).toBeNull();
+    expect(u.endringsordre).toBe('nei');
   });
 });
 
