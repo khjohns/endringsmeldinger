@@ -5581,7 +5581,7 @@ dato = 2026-10-16
 hvem = "oppdragsgiver"
 kilde = ["#625"]
 sporsmal = '''
-En bruker logger inn, og innloggingen viser at brukeren ikke er med i Catenda-prosjektet. Brukeren har aldri hatt medlemskap i prosjektet i appen. Så lagres en medlemsliste fra Catenda som ble hentet før innloggingen, og der står brukeren som medlem. Skal den listen gi brukeren et nytt medlemskap?'''
+#625. En bruker logger inn, og innloggingen viser at brukeren ikke er med i Catenda-prosjektet. Brukeren har aldri hatt medlemskap i prosjektet i appen. Så lagres en medlemsliste fra Catenda som ble hentet før innloggingen, og der står brukeren som medlem. Skal den listen gi brukeren et nytt medlemskap? Belegg: B-04 punkt 1 sier «Nye handlinger opphører straks systemet har registrert at tilgangen er borte.» DL-U8 sier «En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet.» DL-U8 gjelder altså bare et medlemskap som fantes fra før. Ingen innlogging går mot den nye basen i dag (#375), så tilfellet kan ikke oppstå nå.'''
 valgt = "B"
 svar = '''
 «B: ikke nytt medlemskap (Anbefalt)»'''
@@ -5604,8 +5604,17 @@ anbefalt = true
 [[gruppe.vedtak.alternativ]]
 navn = "C"
 tekst = '''
-Som B, men det bygges når innloggingen tas i bruk i den nye løsningen (#375). Til da gjelder A.'''
+Vedtakstekst som B. Det bygges når innloggingen kobles til den nye basen (#375). Til da oppfører koden seg som i A.'''
 forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+utdrag = true
+tekst = "opphører straks systemet har registrert at tilgangen er borte."
+
+[[gruppe.vedtak.sitat]]
+kilde = "docs/vedtaksregister/vedtak.toml"
+tekst = "En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet."
 
 [[gruppe]]
 tittel = "Premissene P1–P7"
