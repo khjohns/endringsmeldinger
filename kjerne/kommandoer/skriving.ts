@@ -7,9 +7,9 @@
  */
 
 import { avvisning } from './avvisning.ts';
-import { HJEMMEL } from '../format/format.ts';
 import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
-import { frys, grunnlagsstandpunkter } from '../frosset/frysing.ts';
+import { frys } from '../frosset/frysing.ts';
+import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { avvis } from './forutsetninger.ts';
 import { erRegistrert, lesJournal, Uforstaatt } from '../format/leser.ts';
@@ -56,59 +56,6 @@ function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
       .map(({ standpunkt, virkning }) => ({ standpunkt, virkning })),
     ...(uten.length ? { uten_virkning: uten.map((v) => v.standpunkt) } : {}),
   };
-}
-
-/** Standpunktene byggherren har tatt, i rekkefølgen brevet setter dem. En vurdering som ikke er gjort, utelates (KA-U4). */
-function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () => string): Data[] {
-  const v = s.vurderinger;
-  const ut: Data[] = [];
-  if (s.spor === 'grunnlag') {
-    ut.push(...grunnlagsstandpunkter(v, krav, nyId));
-  } else if (s.spor === 'vederlag') {
-    // HF-U1: varselet etter § 34.1.2 er ikke et eget element ennå (OV-U5). Det første
-    // vederlagskravet er det første varselet appen kjenner (arbeidsvalget i #479).
-    if (typeof v.hovedkrav_varslet_i_tide === 'boolean')
-      ut.push({
-        id: nyId(),
-        art: 'rettidighet',
-        gjelder: u.spor.vederlag.krav[0]!.id,
-        hjemmel: HJEMMEL.vederlag,
-        i_tide: v.hovedkrav_varslet_i_tide,
-      });
-    if (typeof v.aksepterer_metode === 'boolean')
-      ut.push({
-        id: nyId(),
-        art: 'metode',
-        hjemmel: '34.2.2',
-        aksepterer: v.aksepterer_metode,
-        ...(v.aksepterer_metode ? {} : { oensket_metode: v.oensket_metode }),
-      });
-    ut.push({ id: nyId(), art: 'beloep' });
-  } else {
-    // VS-U20, OV-U5, HF-U1: påberopelsen gjelder varselet som er registrert nå, ellers det
-    // første fristkravet, som er det første varselet appen kjenner (arbeidsvalget i #309).
-    if (typeof v.frist_varsel_ok === 'boolean')
-      ut.push({
-        id: nyId(),
-        art: 'rettidighet',
-        gjelder: u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id,
-        hjemmel: HJEMMEL.frist,
-        i_tide: v.frist_varsel_ok,
-      });
-    if (typeof v.vilkar_oppfylt === 'boolean')
-      ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });
-    if (typeof v.spesifisert_krav_ok === 'boolean')
-      ut.push({
-        id: nyId(),
-        art: 'spesifisering',
-        gjelder: krav.id,
-        hjemmel: '33.6.1',
-        i_tide: v.spesifisert_krav_ok,
-        ...(v.spesifisert_krav_ok ? {} : { dager: v.dager_maatte_forstaa }),
-      });
-    ut.push({ id: nyId(), art: 'dager' });
-  }
-  return ut;
 }
 
 /** Partens utdypning per element i brevet, til brevteksten (B-13 om begrunnelsestekst). */

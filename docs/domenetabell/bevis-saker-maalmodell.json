@@ -253,7 +253,7 @@
           "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
         }
       ],
-      "forventningsgrunnlag": "arbeidshypotese"
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-MM-A1",
@@ -1188,7 +1188,7 @@
           "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
       ],
-      "forventningsgrunnlag": "arbeidshypotese"
+      "forventningsgrunnlag": "avklart_tolkning"
     },
     {
       "id": "F-MM-E5",
@@ -11033,6 +11033,537 @@
                 "spesifisering_i_tide": true,
                 "hindring": true,
                 "dager": 10
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U5-vederlag",
+      "forslag": "#502",
+      "rader": [
+        "KA-12",
+        "KA-49"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "navn": "S-v1"
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 30000
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 70000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 60000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U5",
+            "HF-U14"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 80000,
+            "metode_akseptert": false,
+            "oensket_metode": "enhetspriser"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U14",
+      "forslag": "#502",
+      "rader": [
+        "KA-12",
+        "KA-49"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "navn": "S-v1"
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U14"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 60000,
+            "metode_akseptert": false,
+            "oensket_metode": "enhetspriser"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U14"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 60000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U5-frist",
+      "forslag": "#502",
+      "rader": [
+        "KA-12",
+        "KA-49"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "frist",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 10,
+              "navn": "S-f1"
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": true,
+            "hindring": true,
+            "dager": 8
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": true,
+            "hindring": false,
+            "dager": 10
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": true,
+            "hindring": true,
+            "dager": 12
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U5-spesifisering",
+      "forslag": "#502",
+      "rader": [
+        "KA-12",
+        "KA-49"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "frist",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": false,
+              "hindring": true,
+              "dager": 10,
+              "navn": "S-f1",
+              "maatte_forstaa": 5
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": false,
+            "hindring": true,
+            "dager": 10,
+            "maatte_forstaa": 3
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": false,
+            "hindring": true,
+            "dager": 10,
+            "maatte_forstaa": 7
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": true,
+            "hindring": true,
+            "dager": 10
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U5-grunnlag",
+      "forslag": "#502",
+      "rader": [
+        "KA-12",
+        "KA-49"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": false
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "grunnlag",
+            "resultat": "avslaatt",
+            "varslet_i_tide": false
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "grunnlag",
+            "resultat": "paalegg_frafalt",
+            "varslet_i_tide": true
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "grunnlag",
+            "resultat": "godkjent",
+            "varslet_i_tide": true
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U21",
+      "forslag": "#502",
+      "rader": [
+        "KA-12",
+        "KA-49"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            }
+          ]
+        },
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "navn": "S-v1"
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U21"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 30000
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SENKER_INNROEMMELSE"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U21"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 60000
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U8-ny-kravversjon",
+      "forslag": "#502",
+      "rader": [
+        "KA-49"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "navn": "S-v1"
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 120000,
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U8",
+            "HF-U5"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 30000
               }
             ]
           },
