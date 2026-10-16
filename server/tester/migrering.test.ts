@@ -375,6 +375,31 @@ BEGIN TRANSACTION;`,
     );
   });
 
+  it('fortsetter ikke på en ny sesjon når forbindelsen faller ut midt i en fil', async () => {
+    const m = mappe({
+      [A]: "WAITFOR DELAY '00:00:30';\nGO\nCREATE TABLE dbo.prove_a (id int NOT NULL);",
+    });
+    const kjoering = migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
+    let sesjon: number | undefined;
+    for (let i = 0; i < 40 && sesjon === undefined; i++) {
+      await new Promise((ok) => setTimeout(ok, 100));
+      sesjon = (
+        await base.pool.request().query<{
+          id: number;
+        }>("SELECT session_id AS id FROM sys.dm_exec_requests WHERE wait_type = 'WAITFOR' AND database_id = DB_ID()")
+      ).recordset[0]?.id;
+    }
+    expect(sesjon).toBeTypeOf('number');
+    await base.pool.request().batch(`KILL ${sesjon};`);
+    const feil = await kjoering;
+    expect(feil).toBeInstanceOf(MigreringAvvist);
+    expect((feil as Error).message).toMatch(
+      /^20260101000000_a\.sql, sats 1: .*Tilstanden etter feilen kunne ikke leses/
+    );
+    expect(await tabeller()).toEqual([]);
+    expect(await historikk()).toEqual([]);
+  }, 30_000);
+
   it('en applås som kjøretiden tar, stopper ikke runneren, og kjøretiden kan ikke ta runnerens', async () => {
     await base.pool
       .request()

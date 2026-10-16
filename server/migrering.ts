@@ -344,31 +344,85 @@ async function anvendNeste(
   return neste.versjon;
 }
 
+/** Forbindelsen fra `tedious`. Runneren bruker den bare gjennom `mssql`. */
+type Forbindelse = object;
+
+interface Utlaan {
+  acquire(requester: unknown): Promise<Forbindelse>;
+  release(forbindelse: Forbindelse): void;
+}
+
+/**
+ * Forelderen til runnerens forespørsler: den gir alltid ut `forbindelse` og gir
+ * den aldri tilbake til poolen, som `reservasjon` i `datalag.ts`. Faller
+ * forbindelsen ut, feiler de neste forespørslene i stedet for å få en ny sesjon
+ * uten runnerens transaksjon og applås.
+ */
+function fast(pool: sql.ConnectionPool, forbindelse: Forbindelse): sql.ConnectionPool {
+  const { config } = pool as unknown as { config: unknown };
+  const forelder = {
+    config,
+    get connected() {
+      return pool.connected;
+    },
+    // `mssql` validerer tegnparametrene mot sorteringen poolen leste ved innloggingen.
+    get collation() {
+      return (pool as unknown as { collation: unknown }).collation;
+    },
+    acquire(_requester: unknown, callback: (...a: unknown[]) => void) {
+      setImmediate(callback, null, forbindelse, config);
+      return this;
+    },
+    release() {
+      return this;
+    },
+    request: () => new sql.Request(forelder as unknown as sql.ConnectionPool),
+  };
+  return forelder as unknown as sql.ConnectionPool;
+}
+
 /**
  * Anvender filene som ikke er anvendt, én transaksjon per fil, og returnerer
  * versjonene som ble anvendt. Avviker historikken fra filene, anvendes ingenting.
  *
- * Runneren bruker én egen forbindelse med poolens konfigurasjon, ikke en
+ * Runneren holder én egen forbindelse med poolens konfigurasjon, ikke en
  * `mssql`-transaksjon: en `ROLLBACK` i en fil får da ikke `mssql` til å gi
- * forbindelsen tilbake til poolen med en åpen transaksjon (#576). Forbindelsen
- * lukkes til slutt, også etter en feil, og serveren ruller da tilbake det som er
- * åpent og slipper applåsen.
+ * forbindelsen tilbake til poolen med en åpen transaksjon (#576). Til slutt, også
+ * etter en feil, ruller runneren tilbake det som er åpent, slipper applåsen og
+ * lukker forbindelsen. Faller forbindelsen ut, gjør serveren det samme.
  */
 export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Promise<string[]> {
   filer = ordne(filer);
-  const egen = await new sql.ConnectionPool(egenKonfig(pool)).connect();
+  const egenPool = await new sql.ConnectionPool(egenKonfig(pool)).connect();
+  let forbindelse: Forbindelse | undefined;
   try {
-    await egen.request().batch('SET XACT_ABORT ON;');
-    await laas(egen);
-    const kjoert: string[] = [];
-    for (;;) {
-      const versjon = await anvendNeste(egen, filer);
-      if (versjon === undefined) return kjoert;
-      kjoert.push(versjon);
+    forbindelse = await (egenPool as unknown as Utlaan).acquire(egenPool);
+    const egen = fast(egenPool, forbindelse);
+    try {
+      await egen.request().batch('SET XACT_ABORT ON;');
+      await laas(egen);
+      const kjoert: string[] = [];
+      for (;;) {
+        const versjon = await anvendNeste(egen, filer);
+        if (versjon === undefined) return kjoert;
+        kjoert.push(versjon);
+      }
+    } finally {
+      await egen
+        .request()
+        .input('ressurs', sql.NVarChar(255), APPLAAS)
+        .batch(
+          `IF @@TRANCOUNT > 0 ROLLBACK;
+           IF APPLOCK_MODE(N'db_owner', @ressurs, N'Session') = 'Exclusive'
+             EXEC sp_releaseapplock @Resource = @ressurs, @LockOwner = 'Session', @DbPrincipal = N'db_owner';`
+        )
+        .catch(() => undefined);
     }
   } finally {
-    await egen.close().catch((feil: unknown) => {
-      console.error('Migreringen: forbindelsen kunne ikke lukkes:', feil);
+    // Poolen lukker forbindelsen når den selv lukkes.
+    if (forbindelse) (egenPool as unknown as Utlaan).release(forbindelse);
+    await egenPool.close().catch((feil: unknown) => {
+      console.error('Migreringen: poolen kunne ikke lukkes:', feil);
     });
   }
 }
