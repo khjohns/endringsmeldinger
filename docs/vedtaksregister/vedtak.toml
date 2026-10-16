@@ -5529,7 +5529,7 @@ valgt = "A"
 svar = '''
 «A: lagres i 3b (Anbefalt)»'''
 folge = '''
-Presiserer merknaden 23.09 til B-04, punkt 1 og 4. Endrer [arbeidsvalget 16.10 i #53](https://github.com/khjohns/endringsmeldinger/issues/53#issuecomment-6209851162), som la tabellen for synkroniseringen til senere. Ikke bygget'''
+Presiserer merknaden 23.09 til B-04, punkt 1 og 4. Endrer [arbeidsvalget 16.10 i #53](https://github.com/khjohns/endringsmeldinger/issues/53#issuecomment-6209851162), som la tabellen for synkroniseringen til senere. Bygget 16.10 i TS-stien (#53, del 3b, #612).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -5545,6 +5545,35 @@ forkastet = true
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Varselet skal utløses av alderen på listen, ikke bare av feil, fordi en ufullstendig liste ikke gir noen feil."
+
+[[gruppe.vedtak]]
+id = "DL-U8"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#53"]
+sporsmal = '''
+Del 3b, medlemssynkroniseringen: regnes deaktiveringen ved innlogging som nyere enn en medlemsliste hentet før innloggingen?
+
+A: «Deaktiveringen ved innlogging er nyere enn en medlemsliste som ble hentet før innloggingen. En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet.»
+
+B: «Deaktiveringen ved innlogging gjelder til neste synkronisering, uansett når listen ble hentet.»'''
+valgt = "A"
+svar = '''
+Valgt A: «Deaktiveringen ved innlogging er nyere enn en medlemsliste som ble hentet før innloggingen. En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet.»'''
+forhold = [{ art = "presiserer", vedtak = "dl-u7" }]
+folge = '''
+Presiserer B-04 punkt 1. Delvis bygget 16.10 (#53, del 3b): synkroniseringen lagrer når et medlemskap ble gjort inaktivt, og en liste hentet før det gjør det ikke aktivt igjen. Deaktiveringen ved innlogging er ikke bygget i TS-stien.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Deaktiveringen ved innlogging er nyere enn en medlemsliste som ble hentet før innloggingen. En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Deaktiveringen ved innlogging gjelder til neste synkronisering, uansett når listen ble hentet.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Premissene P1–P7"

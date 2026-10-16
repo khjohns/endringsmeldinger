@@ -134,12 +134,19 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     await expect(catendaIdentitet(subjekt())).resolves.toBeDefined();
   });
 
+  // Mellomrom til slutt avvises av prosedyren før oppslaget (#566); kontrollen i
+  // tabellen prøves med INSERT i `mellomrom.test.ts`.
   it.each([
-    ['et subjekt med store bokstaver', 'https://api.catenda.com', subjekt().toUpperCase()],
-    ['en annen issuer', 'https://api.catenda.com/', subjekt()],
-    ['issueren i store bokstaver', 'HTTPS://API.CATENDA.COM', subjekt()],
-    ['et mellomrom etter issueren', 'https://api.catenda.com ', subjekt()],
-  ])('tabellen avviser en Catenda-identitet med %s, også fra eieren', async (_, issuer, s) => {
+    [
+      'et subjekt med store bokstaver',
+      'https://api.catenda.com',
+      subjekt().toUpperCase(),
+      CHECK_BRUDD,
+    ],
+    ['en annen issuer', 'https://api.catenda.com/', subjekt(), CHECK_BRUDD],
+    ['issueren i store bokstaver', 'HTTPS://API.CATENDA.COM', subjekt(), CHECK_BRUDD],
+    ['et mellomrom etter issueren', 'https://api.catenda.com ', subjekt(), IKKE_NORMALISERT],
+  ])('basen avviser en Catenda-identitet med %s, også fra eieren', async (_, issuer, s, nummer) => {
     const feil = await base.pool
       .request()
       .input('provider', sql.NVarChar(16), 'catenda')
@@ -150,7 +157,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
       .output('user_id', sql.UniqueIdentifier)
       .execute('koe.resolve_identity')
       .catch((f: unknown) => f);
-    expect(feilnummer(feil)).toBe(CHECK_BRUDD);
+    expect(feilnummer(feil)).toBe(nummer);
   });
 
   it('kjøretiden kan kalle den smale inngangen', async () => {
@@ -191,8 +198,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
           WHERE c.name IN (N'project_id', N'prosjekt_id', N'internal_project_id')`
       );
       expect(svar.recordset.map((r) => r.kolonne).sort()).toEqual([
+        'koe.app_membership_sync.project_id',
         'koe.app_project_memberships.project_id',
         'koe.catenda_contract_teams.internal_project_id',
+        'koe.catenda_project_configs.internal_project_id',
         'koe.hendelse.prosjekt_id',
         'koe.kjernebuffer.prosjekt_id',
         'koe.leveringsoppdrag.prosjekt_id',
@@ -209,8 +218,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
 
     // Uten standard: tidspunktet kjernen regnet brevet med, som serveren setter,
     // endringstidspunktet til et notat, som er tomt til notatet endres, og
-    // tidspunktet og innloggingen til økta som `koe_api.skrivetidspunkt` fører.
+    // tidspunktet og innloggingen til økta som `koe_api.skrivetidspunkt` fører,
+    // når medlemslisten ble hentet, som kalleren oppgir (DL-U7), og når et
+    // medlemskap ble gjort inaktivt, som er tomt for et aktivt medlemskap (DL-U8).
     const UTEN_STANDARD = [
+      'koe.app_membership_sync.synced_at',
+      'koe.app_project_memberships.deactivated_at',
       'koe.hendelse.tidsstempel',
       'koe.notat.endret',
       'koe.skrivetidspunkt.innlogget',

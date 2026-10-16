@@ -35,6 +35,10 @@ const UTEN_TRIGGER: Record<string, string> = {
   app_project_memberships:
     'Medlemssynkroniseringen endrer rollen, leserollen og om medlemskapet er aktivt.',
   catenda_contract_teams: 'Kontraktsteamene synkroniseres fra Catenda.',
+  catenda_project_configs:
+    'Driften setter koblingen til Catenda-prosjektet og kan gjøre den inaktiv (arbeidsvalget 16.10 i #53).',
+  app_membership_sync:
+    'Hver synkronisering skriver over når listen ble hentet (DL-U7); bare den siste gjelder.',
   notat: 'Notatet er ikke et kontraktsvarsel og kan endres og slettes (MS-05).',
   kjernebuffer:
     'Bufferen er avledet og kan slettes og bygges på nytt fra journalen (arbeidsvalg 1 i #53).',

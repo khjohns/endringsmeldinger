@@ -71,7 +71,8 @@ listen; ellers er testen rød. TRUNCATE avfyrer ingen trigger, så en tabell ute
 fremmednøkkel mot seg kan tømmes av den som har ALTER.
 
 **Radsikkerheten i SQL Server er én policy, `koe_sikkerhet.tilgang`, med
-`SCHEMABINDING`** (DL-U5, `database/migrasjoner/20261016110000_tilgang.sql`).
+`SCHEMABINDING`** (DL-U5, `database/migrasjoner/20261016110000_tilgang.sql`;
+predikatene er sist definert i `20261016130000_mellomrom.sql`).
 Den gjelder også eieren: uten kontekst ser ingen noe, så en test som leser
 saksdata, leser i en transaksjon med konteksten satt. En ny tabell med
 saksdata får filterpredikatet `medlem(prosjekt_id)` og et blokkpredikat for

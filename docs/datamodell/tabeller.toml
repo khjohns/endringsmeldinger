@@ -627,7 +627,7 @@ ennå (#53, del 3)."""
 fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
 kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
-skrivere = ["database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -644,7 +644,7 @@ lagres_fra = "`koe.resolve_identity`, sammen med brukeren. Ingen inngang i `serv
 fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Subjektet identifiserer en person."
-skrivere = ["database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -668,15 +668,19 @@ belegg = "L 16.10: migrasjonen og søk i `server/`."
 navn = "koe.app_project_memberships"
 lagring = "SQL Server"
 type = ["grunndata", "kopi"]
-status = "uavklart"
+status = "i bruk"
 beskrivelse = """
 Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i
 PostgreSQL."""
-lagres_fra = "Ingen skriver ennå (#53, del 3)."
+lagres_fra = """
+`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, skriver
+medlemslisten fra Catenda og gjør medlemmer som ikke står i den, inaktive.
+`deactivated_at` er når medlemskapet sist ble gjort inaktivt; en liste hentet
+før det gjør det ikke aktivt igjen (DL-U8). Ingen inngang kaller modulen ennå."""
 fra_catenda = "Ja, medlemslisten i Catenda."
 kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
-skrivere = []
+skrivere = ["database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -695,6 +699,42 @@ personopplysninger = "Ingen kjente."
 skrivere = []
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.catenda_project_configs"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "uavklart"
+beskrivelse = """
+Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv
+(arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL,
+uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet
+Catenda-prosjekt."""
+lagres_fra = "Settes av driften. Ingen prosedyre skriver tabellen."
+fra_catenda = "Delvis. ID-en til Catenda-prosjektet."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Ingen kjente."
+skrivere = []
+funn = []
+belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.app_membership_sync"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Når medlemslisten for prosjektet sist ble hentet, og fra hvilket
+Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen
+leses av `koe_api.medlemsliste_alder` (B-04 punkt 4). Svarer til
+`app_membership_sync` i PostgreSQL."""
+lagres_fra = "`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`. Ingen inngang kaller modulen ennå."
+fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
+kan_gjenoppbygges = "ja, ved en ny synkronisering"
+personopplysninger = "Ingen kjente."
+skrivere = ["database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
+funn = []
+belegg = "L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`."
 
 [[tabell]]
 navn = "koe.sak_metadata"

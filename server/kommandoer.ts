@@ -26,6 +26,9 @@ const KONFLIKT = 51409;
 const UGYLDIG = 51422;
 const BLOKKERT = 33504;
 
+/** Saksnummeret `koe_api.opprett_sak` lager (DL-U6), i formen `sak_metadata_sak_id_form` krever. */
+const SAKSNUMMER = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 function feilnummer(feil: unknown): number | undefined {
   const f = feil as { number?: number; originalError?: { info?: { number?: number } } };
   return f?.number ?? f?.originalError?.info?.number;
@@ -134,6 +137,9 @@ export async function skrivHendelse<A>(
   lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>
 ): Promise<Skriveutfall<A>> {
   if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
+  // En annen form kan ikke være en sak, og nvarchar(36) ville kortet en for lang ID (#566).
+  if (typeof sakId !== 'string' || !SAKSNUMMER.test(sakId))
+    throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
       const finnes = await foresp()

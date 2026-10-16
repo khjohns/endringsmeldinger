@@ -361,9 +361,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
       const tabeller = k1.filter((l) => l.includes('"type_desc":"USER_TABLE"'));
       expect(tabeller.map((l) => JSON.parse(l.slice('objekt '.length)).name).sort()).toEqual([
         'app_identities',
+        'app_membership_sync',
         'app_project_memberships',
         'app_users',
         'catenda_contract_teams',
+        'catenda_project_configs',
         'hendelse',
         'historikk',
         'kjernebuffer',
