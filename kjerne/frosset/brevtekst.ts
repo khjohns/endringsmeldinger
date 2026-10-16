@@ -14,6 +14,7 @@
  * utdypningen (KA-U16, KA-U19).
  */
 
+import { HJEMMEL } from '../format/format.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
 import { beloep } from '../regler/beloep.ts';
@@ -25,9 +26,8 @@ import {
   gjelderVarslingsplikten,
   grunnerFraGrunnlaget,
   innsigelsenErOppgitt,
-  innsigelsenGjelderSvaret,
+  innsigelsenPaaberoper,
   kroner,
-  prinsipalt,
 } from './standpunkt.ts';
 import type {
   Avsnitt,
@@ -280,7 +280,7 @@ export function lagBrevtekst(
   };
 
   for (const k of nytt.krav) legg(k.id, kravtekst(k, t, regler));
-  for (const s of nytt.svar) legg(s.id, svartekst(s, t));
+  for (const s of nytt.svar) legg(s.id, svartekst(s, t, regler));
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t));
   for (const o of nytt.opplysninger) {
     // Datoen for et varsel står i avsnittet for varselet.
@@ -356,36 +356,36 @@ interface Innsigelse {
 }
 
 /**
- * VS-U9, VS-U11: innsigelsene fra byggherren som svaret kan leses med, og som byggherren
- * ikke senere har gitt opp uttrykkelig, i rekkefølgen de kom, med brevet de står i. I
- * fristen også en innsigelse mot en annen kravversjon, som et «i tide» gir opp (VS-U20).
+ * VS-U9, VS-U11, VS-U24: byggherrens egne innsigelser som er en påberopelse etter
+ * bestemmelsen svaret tar stilling til, og som byggherren ikke senere har gitt opp
+ * uttrykkelig, i rekkefølgen de kom, med brevet de står i. Svaret gjentar dem eller
+ * gir dem opp.
  */
-function aapneInnsigelser(svar: Svar, avsender: Part, j: Journalen): Innsigelse[] {
-  // VS-U20, OV-U5: varslene og det første fristkravet, som er det første varselet appen kjenner.
-  const varslene = [
-    ...j.dokumenter.flatMap((d) => d.utsagn.filter((u) => u.art === 'varsel').map((u) => u.id)),
-    ...j.dokumenter
-      .flatMap((d) => d.krav.filter((k) => k.spor === 'frist'))
-      .slice(0, 1)
-      .map((k) => k.id),
-  ];
-  const fristkravene = j.dokumenter.flatMap((d) =>
-    d.krav.filter((k) => k.spor === 'frist').map((k) => k.id)
-  );
+function aapneInnsigelser(
+  svar: Svar,
+  avsender: Part,
+  j: Journalen,
+  regler: Regelsett
+): Innsigelse[] {
+  const maal = new Map<string, { art: string; krav?: Krav }>();
+  for (const d of j.dokumenter) {
+    for (const k of d.krav) maal.set(k.id, { art: 'krav', krav: k });
+    for (const u of d.utsagn) maal.set(u.id, { art: u.art });
+  }
   const svarFraParten: Svar[] = [];
   const innsigelser: (Innsigelse & { fra: number })[] = [];
   for (const d of j.dokumenter) {
     if (d.avsender !== avsender || d.svar.includes(svar)) continue;
-    svarFraParten.push(...d.svar);
+    // HF-U4, OV-U4: et registrert brev gir ikke opp innsigelsen.
+    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar);
     for (const u of d.utsagn)
       if (u.art === 'innsigelse')
         innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length });
   }
   return innsigelser.filter(
     (i) =>
-      (innsigelsenGjelderSvaret(i.gjelder, svar, varslene) ||
-        (svar.spor === 'frist' && fristkravene.includes(i.gjelder))) &&
-      !innsigelsenErOppgitt(i.gjelder, svar.spor, svarFraParten.slice(i.fra))
+      innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] &&
+      !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra))
   );
 }
 
@@ -416,7 +416,6 @@ function grunnlagetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
     nytt.svar.find((x) => x.spor === 'grunnlag') ??
     (saken.grunnlagssvar ? j.svar(saken.grunnlagssvar) : undefined);
   if (!g) return [];
-  const virkning = prinsipalt(g.beslutningsgrunnlag.virkninger);
   const grunner = grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger);
   const prekludert = grunner.includes('prekludert');
   const avslaatt = grunner.includes('avslaatt');
@@ -427,17 +426,13 @@ function grunnlagetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
       ...(avslaatt ? [`byggherren avslår grunnlaget${se}.`] : []),
     ];
   }
-  // VS-U11: et registrert svar kan være lest med en innsigelse i et annet brev.
-  const paaberopt =
-    virkning && !g.standpunkter.some((p) => p.id === virkning.standpunkt)
-      ? j.element(virkning.standpunkt)
-      : null;
-  const preklusjonsbrev = j.brevet(paaberopt?.art === 'utsagn' ? paaberopt.dokument : g.dokument);
   return [
-    ...(prekludert ? [`byggherren har gjort gjeldende i ${preklusjonsbrev} at ${SEN_32_2}.`] : []),
+    ...(prekludert
+      ? [`byggherren har gjort gjeldende i ${j.brevet(g.dokument)} at ${SEN_32_2}.`]
+      : []),
     ...(avslaatt
       ? [
-          prekludert && !paaberopt
+          prekludert
             ? 'byggherren har avslått grunnlaget i samme brev.'
             : `byggherren har avslått grunnlaget i ${j.brevet(g.dokument)}.`,
         ]
@@ -446,11 +441,11 @@ function grunnlagetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
 }
 
 /** LV-U4 punkt 4 og 5, med A2 når grunnlaget er avslått eller prekludert. */
-function svartekst(s: Svar, t: Tekst): string {
+function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const { j, nytt } = t;
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
-  const innsigelser = aapneInnsigelser(s, nytt.avsender, j);
+  const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);
   const ledd = [
     ...grunnlagetsStandpunkter(s, t).map((tekst) => ({ tekst, ordnes: true })),
     ...s.standpunkter.map((p) => ({
@@ -494,16 +489,13 @@ function standpunkttekst(
         p.hjemmel === '33.4'
           ? `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`
           : VARSELET[p.hjemmel];
-      // Standpunktet gjentar innsigelsene mot det samme det gjelder, og gir opp dem
-      // innsigelsenErOppgitt regner som gitt opp (VS-U11, VS-U20).
-      const gjentatt = innsigelser.filter((i) =>
-        p.iTide ? innsigelsenErOppgitt(i.gjelder, s.spor, [s]) : i.gjelder === p.gjelder
-      );
-      const brevene = liste([...new Set(gjentatt.map((i) => j.brevet(i.dokument)))]);
-      const henvisning = gjentatt.length > 1 ? 'innsigelsene' : 'innsigelsen';
+      // Et «for sent» gjentar de åpne innsigelsene, og et «i tide» gir dem opp (VS-U11, VS-U24).
+      // Saken har ett varsel etter § 33.4 (oppdragsgiver 15.10, #498).
+      const brevene = liste([...new Set(innsigelser.map((i) => j.brevet(i.dokument)))]);
+      const henvisning = innsigelser.length > 1 ? 'innsigelsene' : 'innsigelsen';
       if (!p.iTide)
-        return `byggherren gjør gjeldende at ${varselet} kom for sent${gjentatt.length ? `, jf. ${henvisning} i ${brevene}` : ''}.`;
-      return gjentatt.length
+        return `byggherren gjør gjeldende at ${varselet} kom for sent${innsigelser.length ? `, jf. ${henvisning} i ${brevene}` : ''}.`;
+      return innsigelser.length
         ? `byggherren gir opp ${henvisning} etter NS 8407 § 5 i ${brevene} og gjør ikke gjeldende at ${varselet} kom for sent.`
         : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;
     }

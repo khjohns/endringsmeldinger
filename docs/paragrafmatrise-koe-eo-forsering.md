@@ -310,12 +310,10 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   aldri på rekkefølgen i journalen, og at svaret er subsidiært, lagres ikke
   ([HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1)).
 - **Arbeidsvalg 11.10 (VS-U9, VS-U11):** et svar fra appen etter byggherrens innsigelse
-  gjentar eller oppgir den uttrykkelig; kjernen krever standpunktet om rettidighet i
-  grunnlaget der § 32.2 gjelder og i fristen. Vederlaget har ikke noe slikt standpunkt,
-  og preklusjon etter § 34.1 er ikke bygget, så et svar på vederlaget fra appen etter en
-  innsigelse mot vederlagskravet avvises (OV-U1), og et registrert svar etter den gjør
-  saken ikke forstått (MM-U2): kjernen leser det verken med innsigelsen eller som om
-  innsigelsen er oppgitt.
+  mot varselet gjentar eller oppgir den uttrykkelig; kjernen krever standpunktet om
+  rettidighet i grunnlaget der § 32.2 gjelder og i fristen. En innsigelse mot
+  vederlagskravet er ingen påberopelse etter § 34.1.2 (VS-U24, #517), så et svar på
+  vederlaget etter den godtas, og et registrert svar etter den er forstått.
 
 ---
 
@@ -736,28 +734,22 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
   og `protest` i [`typer.ts`](../kjerne/typer.ts), kommandoene, og lesereglene i
   [`utled.ts`](../kjerne/utledning/utled.ts): en innsigelse gjelder et varsel, krav eller
   svar fra motparten, og en protest gjelder motpartens innsigelse, en påberopelse i et
-  svar eller et dokument (MP-U6). Et registrert svar uten standpunkt om rettidighet
-  leses med byggherrens første innsigelse mot kravet eller varselet
-  ([VS-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11)); innsigelsen står
-  da i `virkninger` i beslutningsgrunnlaget. Har byggherren etter innsigelsen sagt
-  uttrykkelig i et svar at det samme kom i tide, er innsigelsen oppgitt, og svaret
-  leses ikke med den (`innsigelsenErOppgitt`, VS-U9 og VS-U11). Partens siste
-  uttrykkelige standpunkt avgjør; taushet gir den ikke opp. Et svar fra appen har alltid standpunktet
-  der det kan ha virkning. `har_innsigelse_mot_varsel` i
+  svar eller et dokument (MP-U6). En egen innsigelse er en påberopelse etter én
+  bestemmelse bare mot varselet etter § 33.4 og TEs varsel etter § 32.2, som er
+  grunnlagskravet i hver versjon ([VS-U24](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u24),
+  `innsigelsenPaaberoper` i [`standpunkt.ts`](../kjerne/frosset/standpunkt.ts)). Et
+  senere svar fra appen gjentar den eller gir den opp, og brevet sier det
+  ([VS-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11)). Mot et annet krav eller et svar registreres og vises den
+  uten virkning. Et registrert svar leses aldri med en innsigelse (OV-U4). Har
+  byggherren sagt «i tide» i et svar fra appen, avvises en ny innsigelse mot det samme
+  varselet (`SAGT_I_TIDE`, [HF-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u4)). `har_innsigelse_mot_varsel` i
   [`regler/frist.ts`](../kjerne/regler/frist.ts) er fortsatt alltid usann (byggedel 2).
-- **Arbeidsvalg 11.10 (prinsipp 3):** en innsigelse som `gjelder` en kravversjon,
-  leses ikke inn i et svar på en senere kravversjon; svaret fra appen tar stilling
-  selv. Visningen av datoene hører til #313.
-- **Arbeidsvalg 11.10 (VS-U11, MM-U1, MM-U8):** en innsigelse mot fristkravet som et
-  registrert fristsvar leses med, leses som en påberopelse etter § 33.4 mot varselet
-  utledet av kravet. Innsigelsen har ingen hjemmel i seg selv; § 33.4 er appens
-  lesing, ikke byggherrens ord. Registrerer TE et varsel etterpå, er preklusjonen
-  uavklart som for et standpunkt etter § 33.4 (MM-U8), til byggherren før svaret har
-  tatt stilling til det registrerte varselet, i et standpunkt om rettidigheten eller en
-  innsigelse mot det. Byggherren gir innsigelsen opp med
-  et standpunkt etter § 33.4 om varselet, også det registrerte, fordi saken har ett
-  varsel (SK-12). Raden KA-38 i domenetabellen er derfor en arbeidshypotese og ikke en
-  avklart tolkning.
+- **Arbeidsvalg 15.10 (VS-U24, HF-U4, #500):** varselet etter § 32.2 er det samme i
+  hver grunnlagsversjon. Et «i tide» etter § 32.2 på en ny grunnlagsversjon gir derfor
+  opp en innsigelse mot en tidligere versjon, og et «for sent» gjentar den. Arbeidsvalget
+  11.10 om at en innsigelse mot én kravversjon ikke rekker til et svar på en senere, og
+  arbeidsvalget 11.10 om innsigelsen mot fristkravet som et registrert fristsvar ble lest
+  med, er erstattet av VS-U24. Raden KA-38 i domenetabellen er nå en avklart tolkning.
 
 ---
 

@@ -3003,7 +3003,7 @@
         "VS-02"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U11: et registrert svar uten standpunkt om rettidighet leses med byggherrens innsigelse",
+      "forslag": "VS-U24 og OV-U4: et registrert svar uten standpunkt om rettidighet leses ikke med byggherrens innsigelse mot TEs varsel etter § 32.2",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3028,54 +3028,17 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "VS-U11",
-            "HF-U1",
-            "GR-U12",
-            "GR-U13"
+            "VS-U24",
+            "OV-U4",
+            "GR-U12"
           ],
           "forventet": {
             "forstaatt": true,
-            "virkning.S-g1.rettidighet": "prinsipalt",
-            "beslutningsgrunnlag.S-g1.sammenfall": false,
-            "grunnlag_avklart": false,
-            "endringsordre": "nei",
-            "enighet.grunnlag": null
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V2-kontroll",
-      "rader": [
-        "VS-02"
-      ],
-      "start": "krav_irreg",
-      "forslag": "Kontrollsak til VS-U11: uten innsigelsen er godkjenningen sammenfall og endringsordre",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "rad",
-          "spor": "grunnlag",
-          "navn": "S-g1",
-          "dokument": "D4",
-          "gjelder": "K-g1",
-          "resultat": "godkjent",
-          "sendt": "2026-09-30",
-          "endringsordre": true
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "GR-U12",
-            "GR-U13"
-          ],
-          "forventet": {
             "virkning.S-g1.rettidighet": null,
             "beslutningsgrunnlag.S-g1.sammenfall": true,
-            "endringsordre": "ja"
+            "innsigelser": [
+              "BH:K-g1"
+            ]
           }
         }
       ]
@@ -4109,8 +4072,8 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U18 og VS-U11: et registrert fristsvar uten standpunkt om rettidighet etter innsigelsen er forstått og leses med den",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forslag": "MM-U18, OV-U4 og VS-U24: et registrert fristsvar uten standpunkt om rettidighet etter innsigelsen mot fristkravet er forstått og leses ikke med den",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "innsigelse",
@@ -4136,13 +4099,13 @@
           "rolle": "mal",
           "kilde": [
             "MM-U18",
-            "VS-U11"
+            "OV-U4",
+            "VS-U24"
           ],
           "forventet": {
             "forstaatt": true,
-            "virkning.S-f1.rettidighet": "prinsipalt",
-            "virkning.S-f1.dager": "subsidiaert",
-            "enighet.frist": null
+            "virkning.S-f1.rettidighet": null,
+            "virkning.S-f1.dager": "prinsipalt"
           }
         }
       ]
@@ -4270,7 +4233,7 @@
         "VS-03"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U9 og OV-U1: et svar på vederlaget fra appen etter byggherrens innsigelse mot vederlagskravet avvises, fordi preklusjon etter § 34.1 ikke er bygget",
+      "forslag": "VS-U24 (#517): byggherrens innsigelse mot vederlagskravet er ingen påberopelse etter § 34.1.2, så et svar på vederlaget fra appen etter den godtas",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4282,35 +4245,13 @@
       ],
       "kontroller": [
         {
-          "etter": 0,
-          "rolle": "kontroll",
-          "kilde": [
-            "VS-U9"
-          ],
-          "forventet": {
-            "avvist": false
-          },
-          "prov": {
-            "handling": "brev",
-            "svar": [
-              {
-                "spor": "vederlag",
-                "vurdering": "godkjent",
-                "godkjent_belop": 100000
-              }
-            ]
-          }
-        },
-        {
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "VS-U9",
-            "OV-U1"
+            "VS-U24"
           ],
           "forventet": {
-            "avvist": true,
-            "regel": "VURDERING_UTENFOR_KJERNEN"
+            "avvist": false
           },
           "prov": {
             "handling": "brev",
@@ -4342,7 +4283,7 @@
               "spor": "grunnlag",
               "navn": "S-g1",
               "resultat": "avslaatt",
-              "varslet_i_tide": true
+              "varslet_i_tide": false
             }
           ]
         },
@@ -4401,77 +4342,6 @@
             ],
             "grunnlag_avvist": true,
             "visning.status": "avsluttet_avslaatt"
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V7",
-      "rader": [
-        "VS-02"
-      ],
-      "start": "krav_irreg",
-      "forslag": "VS-U9 og VS-U11: et registrert svar som tier om rettidigheten, leses ikke med en innsigelse byggherren senere har oppgitt uttrykkelig",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "innsigelse",
-          "part": "BH",
-          "gjelder": "K-g1",
-          "navn": "D3"
-        },
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
-            }
-          ]
-        },
-        {
-          "handling": "rad",
-          "spor": "grunnlag",
-          "navn": "S-g2",
-          "dokument": "D5",
-          "gjelder": "K-g1",
-          "erstatter": "S-g1",
-          "resultat": "godkjent",
-          "sendt": "2026-10-01",
-          "endringsordre": true
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U11"
-          ],
-          "forventet": {
-            "virkning.S-g1.rettidighet": "uten_virkning"
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U9",
-            "VS-U11",
-            "HF-U1",
-            "GR-U12",
-            "GR-U13"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "virkning.S-g2.rettidighet": null,
-            "beslutningsgrunnlag.S-g2.sammenfall": true,
-            "grunnlag_avklart": true,
-            "endringsordre": "ja",
-            "enighet.grunnlag.kilde": "sammenfall"
           }
         }
       ]
@@ -4564,105 +4434,6 @@
           "forventet": {
             "gjeldende_svar.grunnlag": null,
             "subsidiaer_aarsaker.vederlag": []
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V8",
-      "rader": [
-        "KA-38"
-      ],
-      "start": "krav_irreg",
-      "forslag": "OV-U5 og VS-U20: et registrert fristsvar lest med en innsigelse mot det første fristkravet står med sin virkning når TE registrerer varselet etterpå, og TE kan godta det",
-      "forventningsgrunnlag": "arbeidshypotese",
-      "steg": [
-        {
-          "handling": "innsigelse",
-          "part": "BH",
-          "gjelder": "K-f1",
-          "navn": "D3"
-        },
-        {
-          "handling": "rad",
-          "spor": "frist",
-          "navn": "S-f1",
-          "dokument": "D4",
-          "gjelder": "K-f1",
-          "hindring": true,
-          "sendt": "2026-09-30",
-          "varsel_i_tide": true,
-          "spesifisering_i_tide": true
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D5"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U11"
-          ],
-          "forventet": {
-            "virkning.S-f1.rettidighet": "prinsipalt",
-            "annet_varsel.S-f1": []
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "kontroll",
-          "kilde": [
-            "VS-U11"
-          ],
-          "forventet": {
-            "avvist": false
-          },
-          "prov": {
-            "handling": "aksept",
-            "spor": "frist"
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "MM-U1",
-            "OV-U5",
-            "KA-38"
-          ],
-          "forventet": {
-            "annet_varsel.S-f1": [
-              "rettidighet"
-            ],
-            "handlinger.TE": {
-              "inneholder": [
-                "godta:frist"
-              ]
-            },
-            "visning.etiketter.frist": {
-              "inneholder": [
-                "svaret_gjaldt_et_annet_varsel"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "OV-U5"
-          ],
-          "forventet": {
-            "avvist": false
-          },
-          "prov": {
-            "handling": "aksept",
-            "spor": "frist"
           }
         }
       ]
@@ -6010,228 +5781,12 @@
       ]
     },
     {
-      "id": "F-MM-V7b",
-      "rader": [
-        "KA-38"
-      ],
-      "start": "krav_irreg",
-      "forslag": "VS-U20 og arbeidsvalget 15.10 i #309: byggherren er bundet av et uttrykkelig «i tide» etter § 33.4, så det gir opp innsigelsen mot det første fristkravet også når standpunktet gjelder varselet TE registrerte senere, og et senere registrert svar leses ikke med innsigelsen",
-      "forventningsgrunnlag": "arbeidshypotese",
-      "steg": [
-        {
-          "handling": "innsigelse",
-          "part": "BH",
-          "gjelder": "K-f1",
-          "navn": "D3"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D4"
-        },
-        {
-          "handling": "brev",
-          "navn": "D5",
-          "svar": [
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": true,
-              "spesifisering_i_tide": true,
-              "hindring": true,
-              "dager": 10
-            }
-          ]
-        },
-        {
-          "handling": "rad",
-          "spor": "frist",
-          "navn": "S-f2",
-          "dokument": "D6",
-          "gjelder": "K-f1",
-          "erstatter": "S-f1",
-          "varsel_i_tide": true,
-          "spesifisering_i_tide": true,
-          "hindring": true,
-          "dager": 15,
-          "sendt": "2026-10-01"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U11"
-          ],
-          "forventet": {
-            "standpunkt.S-f1.rettidighet.gjelder": "D4#varsel",
-            "virkning.S-f1.rettidighet": "uten_virkning"
-          }
-        },
-        {
-          "etter": 4,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U11",
-            "VS-U20"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "virkning.S-f2.rettidighet": null,
-            "virkning.S-f2.dager": "prinsipalt"
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V8b",
-      "rader": [
-        "KA-38"
-      ],
-      "start": "krav_irreg",
-      "forslag": "VS-U20 og OV-U5: et registrert fristsvar leses med innsigelsen mot det første fristkravet også når byggherren har tatt stilling til det registrerte varselet, og visningen sier at innsigelsen gjaldt et annet varsel",
-      "forventningsgrunnlag": "arbeidshypotese",
-      "steg": [
-        {
-          "handling": "innsigelse",
-          "part": "BH",
-          "gjelder": "K-f1",
-          "navn": "D3"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D4"
-        },
-        {
-          "handling": "brev",
-          "navn": "D5",
-          "svar": [
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": false,
-              "spesifisering_i_tide": true,
-              "hindring": true,
-              "dager": 10
-            }
-          ]
-        },
-        {
-          "handling": "rad",
-          "dokument": "D6",
-          "gjelder": "K-f1",
-          "erstatter": "S-f1",
-          "sendt": "2026-10-01",
-          "spor": "frist",
-          "navn": "S-f2",
-          "varsel_i_tide": true,
-          "spesifisering_i_tide": true,
-          "hindring": true,
-          "dager": 15
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 4,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U11",
-            "MM-U1",
-            "OV-U5"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "virkning.S-f2.rettidighet": "prinsipalt",
-            "annet_varsel.S-f2": [
-              "rettidighet"
-            ]
-          }
-        },
-        {
-          "etter": 4,
-          "rolle": "mal",
-          "kilde": [
-            "OV-U5"
-          ],
-          "forventet": {
-            "avvist": false
-          },
-          "prov": {
-            "handling": "aksept",
-            "spor": "frist"
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V8c",
-      "rader": [
-        "KA-38"
-      ],
-      "start": "krav_irreg",
-      "forslag": "VS-U20 og OV-U5: et registrert fristsvar leses med den første innsigelsen, mot det første fristkravet, også når byggherren senere har gjort innsigelse mot det registrerte varselet, og visningen sier at den gjaldt et annet varsel",
-      "forventningsgrunnlag": "arbeidshypotese",
-      "steg": [
-        {
-          "handling": "innsigelse",
-          "part": "BH",
-          "gjelder": "K-f1",
-          "navn": "D3"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D4"
-        },
-        {
-          "handling": "innsigelse",
-          "part": "BH",
-          "gjelder": "D4#varsel",
-          "navn": "D5"
-        },
-        {
-          "handling": "rad",
-          "dokument": "D6",
-          "gjelder": "K-f1",
-          "sendt": "2026-10-01",
-          "spor": "frist",
-          "navn": "S-f1",
-          "varsel_i_tide": true,
-          "spesifisering_i_tide": true,
-          "hindring": true
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 4,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U11",
-            "MM-U1",
-            "OV-U5"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "virkning.S-f1.rettidighet": "prinsipalt",
-            "annet_varsel.S-f1": [
-              "rettidighet"
-            ]
-          }
-        }
-      ]
-    },
-    {
       "id": "F-MM-V7c",
       "rader": [
         "VS-02"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U9 og VS-U11: et standpunkt om en senere grunnlagsversjon gir ikke opp innsigelsen mot den første",
+      "forslag": "VS-U24, HF-U4 og arbeidsvalget 15.10 i #500: varselet etter § 32.2 er det samme i hver grunnlagsversjon, så et «i tide» på en senere versjon binder også mot den første, og en ny innsigelse mot den avvises",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6257,82 +5812,139 @@
               "varslet_i_tide": true
             }
           ]
-        },
-        {
-          "handling": "rad",
-          "spor": "grunnlag",
-          "navn": "S-g1",
-          "dokument": "D6",
-          "gjelder": "K-g1",
-          "resultat": "godkjent",
-          "sendt": "2026-10-01"
         }
       ],
       "kontroller": [
         {
-          "etter": 4,
-          "rolle": "mal",
+          "etter": 2,
+          "rolle": "kontroll",
           "kilde": [
-            "VS-U9",
-            "VS-U11"
+            "VS-U24"
           ],
           "forventet": {
-            "forstaatt": true,
-            "virkning.S-g1.rettidighet": "prinsipalt"
+            "avvist": false
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "K-g1"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U24",
+            "HF-U4",
+            "HF-U8",
+            "AV-500"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "SAGT_I_TIDE"
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "K-g1"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U24",
+            "HF-U4",
+            "AV-500"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "SAGT_I_TIDE"
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "K-g2"
           }
         }
       ]
     },
     {
-      "id": "F-MM-V7d",
+      "id": "F-MM-V10",
       "rader": [
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U9 og VS-U11: et standpunkt om rettidigheten i grunnlaget gir ikke opp innsigelsen mot fristkravet",
-      "forventningsgrunnlag": "arbeidshypotese",
+      "forslag": "VS-U24, HF-U4 og del 2 av #498: etter et «i tide» etter § 33.4 avvises en innsigelse mot varselet, mens en innsigelse mot fristkravet registreres uten virkning",
+      "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
-          "handling": "innsigelse",
-          "part": "BH",
-          "gjelder": "K-f1",
-          "navn": "D3"
+          "handling": "varsel",
+          "spor": "frist",
+          "sendt": "2026-09-02",
+          "navn": "D4"
         },
         {
           "handling": "brev",
-          "navn": "D4",
+          "navn": "D5",
           "svar": [
             {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 10
             }
           ]
-        },
-        {
-          "handling": "rad",
-          "dokument": "D5",
-          "gjelder": "K-f1",
-          "sendt": "2026-10-01",
-          "spor": "frist",
-          "navn": "S-f1",
-          "varsel_i_tide": true,
-          "spesifisering_i_tide": true,
-          "hindring": true
         }
       ],
       "kontroller": [
         {
-          "etter": 3,
-          "rolle": "mal",
+          "etter": 1,
+          "rolle": "kontroll",
           "kilde": [
-            "VS-U9",
-            "VS-U11"
+            "VS-U24"
           ],
           "forventet": {
-            "forstaatt": true,
-            "virkning.S-f1.rettidighet": "prinsipalt"
+            "avvist": false
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "D4#varsel"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U24",
+            "HF-U4"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "SAGT_I_TIDE"
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "D4#varsel"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U24"
+          ],
+          "forventet": {
+            "avvist": false
+          },
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "K-f1"
           }
         }
       ]
@@ -6343,7 +5955,7 @@
         "VS-03"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U9 og OV-U1: et registrert svar på vederlaget etter byggherrens innsigelse mot vederlagskravet gjør saken ikke forstått, fordi § 34.1 ikke er bygget",
+      "forslag": "VS-U24 og OV-U4 (#517): et registrert svar på vederlaget etter byggherrens innsigelse mot vederlagskravet er forstått og leses ikke med innsigelsen",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6368,43 +5980,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "VS-U9",
-            "OV-U1",
-            "MM-U2"
-          ],
-          "forventet": {
-            "forstaatt": false,
-            "visning.journal.S-v1": "ikke_tolket"
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V3c-kontroll",
-      "rader": [
-        "VS-03"
-      ],
-      "start": "krav_irreg",
-      "forslag": "Kontrollsak til F-MM-V3c: uten innsigelsen er svaret forstått",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "rad",
-          "spor": "vederlag",
-          "navn": "S-v1",
-          "dokument": "D4",
-          "gjelder": "K-v1",
-          "vurdering": "godkjent",
-          "godkjent_belop": 100000,
-          "sendt": "2026-10-01"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U9"
+            "VS-U24",
+            "OV-U4"
           ],
           "forventet": {
             "forstaatt": true,

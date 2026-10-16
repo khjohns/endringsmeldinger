@@ -2,8 +2,8 @@
  * Formen og lesereglene byggedel 1 av #309 la til: tekst basen ikke kan lagre
  * (#373), grunnlagsversjonen i svaret (#342, HF-U1), sammenfallet (MM-U18, #326),
  * merkingen (KA-U16, KA-U20), innsigelsen, protesten og påberopt passivitet (§ 5,
- * VS-U1, VS-U12) og innsigelsen et registrert svar leses med (VS-U11). Forløpene
- * gjennom kommandoene står som bevis-saker i domenetabellen.
+ * VS-U1, VS-U12), og at et registrert svar ikke leses med en innsigelse (VS-U24,
+ * OV-U4). Forløpene gjennom kommandoene står som bevis-saker i domenetabellen.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -239,7 +239,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
   });
 });
 
-describe('et svar er lest med en innsigelse bare når det er en innsigelse mot kravet (VS-U11)', () => {
+describe('et registrert svar leses ikke med en innsigelse (VS-U24, OV-U4)', () => {
   async function medInnsigelse() {
     const bane = minnebane();
     const k = await bygg(bane, [
@@ -258,52 +258,20 @@ describe('et svar er lest med en innsigelse bare når det er en innsigelse mot k
     return { k, journal: await bane.journal() };
   }
 
-  it('kontrollsak: lest med byggherrens innsigelse mot kravet', async () => {
+  it('kontrollsak: svaret har én virkning per standpunkt og er forstått', async () => {
     const { journal } = await medInnsigelse();
     expect(forstaatt(journal)).toBe(true);
   });
 
-  it.each<[string, (e: Data, k: Kjoering) => void]>([
-    ['et krav', (e, k) => void (e.standpunkt = k.navn.id('K-v1'))],
-    ['en ID som ikke finnes', (e) => void (e.standpunkt = randomUUID())],
-  ])('lest med %s er ikke forstått', async (_navn, endring) => {
+  it.each<[string, (k: Kjoering) => string]>([
+    ['innsigelsen', (k) => k.navn.id('D3#innsigelse')],
+    ['et krav', (k) => k.navn.id('K-v1')],
+    ['en ID som ikke finnes', () => randomUUID()],
+  ])('en virkning for %s er ikke forstått', async (_navn, id) => {
     const { k, journal } = await medInnsigelse();
     const med = endre(journal, k, 'S-g1', (e) => {
-      const v = (e.beslutningsgrunnlag as { virkninger: Data[] }).virkninger;
-      endring(v[0], k);
-    });
-    expect(forstaatt(med)).toBe(false);
-  });
-
-  it('lest med en innsigelse byggherren har gitt opp uttrykkelig, er ikke forstått (VS-U9)', async () => {
-    const bane = minnebane();
-    const k = await bygg(bane, [
-      'krav_irreg',
-      { handling: 'innsigelse', part: 'BH', gjelder: 'K-g1', navn: 'D3' },
-      {
-        handling: 'brev',
-        navn: 'D4',
-        svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: true }],
-      },
-      {
-        handling: 'rad',
-        spor: 'grunnlag',
-        navn: 'S-g2',
-        dokument: 'D5',
-        gjelder: 'K-g1',
-        erstatter: 'S-g1',
-        resultat: 'godkjent',
-        sendt: '2026-10-01',
-      },
-    ]);
-    const journal = await bane.journal();
-    expect(forstaatt(journal)).toBe(true);
-    const med = endre(journal, k, 'S-g2', (e) => {
-      // Som frysingen ville lest det med innsigelsen, så bare innsigelsen skiller.
-      const b = e.beslutningsgrunnlag as { virkninger: Data[]; sammenfall: boolean };
-      for (const v of b.virkninger) v.virkning = 'subsidiaert';
-      b.virkninger.unshift({ standpunkt: k.navn.id('D3#innsigelse'), virkning: 'prinsipalt' });
-      b.sammenfall = false;
+      const b = e.beslutningsgrunnlag as { virkninger: Data[] };
+      b.virkninger.unshift({ standpunkt: id(k), virkning: 'prinsipalt' });
     });
     expect(forstaatt(med)).toBe(false);
   });

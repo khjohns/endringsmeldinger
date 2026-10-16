@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `601f1876b8da640b1220936c10a7de3fbfb9062b26f1e88e9172200f5e3759df`
+Kontrollsum (SHA-256 over utdraget visningen leser): `c62a43a9b286d5f9675454112c8b1e02f47541bb9dd17108b01f27cdfcc0fc25`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -70,7 +70,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-30](#rad-ka-30), [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [VS-02](#rad-vs-02), [VS-03](#rad-vs-03)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G19 (målmodellen), F-MM-V2 (målmodellen), F-MM-V2-kontroll (målmodellen), F-MM-V3 (målmodellen), F-MM-V7 (målmodellen), F-MM-M5 (målmodellen), F-MM-T3 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G19 (målmodellen), F-MM-V2 (målmodellen), F-MM-V3 (målmodellen), F-MM-M5 (målmodellen), F-MM-T3 (målmodellen)
 
 ### <a id="gr-u13"></a>GR-U13
 
@@ -82,9 +82,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endret 13.10 av [OV-U6](#ov-u6). Presisert 15.10 av [HF-U12](#hf-u12). Endrer GR-U10 og GR-U12: endringsordren krever også § 31.3. Endret 10.10 av [MM-U17](#mm-u17) for registrerte brev: om § 32.2 gjaldt, fryses som appens vurdering etter reglene ved registreringen, ikke da brevet ble sendt. Krav til skrivestien (#310): hvert grunnlagssvar fra appen som godkjenner grunnlaget uten påberopt preklusjon der § 32.2 gjelder, får brevteksten etter § 31.3 og går gjennom fullmakten. Hvordan opplysningen registreres og avklares, avgjøres med kommandoen i #310. Endret 11.10 av [GR-U14](#gr-u14) («varselet» leses som kravversjonen svaret gjelder; ordlyden) og utvidet av [GR-U15](#gr-u15) (beskrivelsen av pålegget i TEs varsel). Ikke bygget
 
-**Regelrader:** [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [VS-02](#rad-vs-02)
+**Regelrader:** [GR-28](#rad-gr-28), [GR-29](#rad-gr-29)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen), F-MM-V2 (målmodellen), F-MM-V2-kontroll (målmodellen), F-MM-T2 (målmodellen), F-MM-V7 (målmodellen), F-MM-M5 (målmodellen), F-MM-T4 (målmodellen), F-MM-T5 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen), F-MM-T2 (målmodellen), F-MM-M5 (målmodellen), F-MM-T4 (målmodellen), F-MM-T5 (målmodellen)
 
 ### <a id="gr-u14"></a>GR-U14
 
@@ -138,9 +138,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [HF-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u11). Snevrer inn [VS-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9). Snevrer inn [VS-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11). Snevrer inn [VS-U14](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u14). Snevrer inn [HF-U4](#hf-u4). Presiserer [OV-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u7). Spørsmålet kom etter svaret 15.10 på #500: «For slike tilfeller bør det knyttes til den aktuelle hjemmelen». Svaret ber om at problemstillingen også sjekkes for grunnlag og vederlag (#517). Forholdene til HF-U11, VS-U9 og VS-U11 sto i spørsmålet. Forholdene til VS-U14, HF-U4 og OV-U7 fant kontrollen av føringen 15.10: etter A blir TEs egen innsigelse ikke en påberopelse etter en bestemmelse (VS-U14), en innsigelse som gis opp etter HF-U4 kan bare gjelde et varsel, og innsigelsen mot varselet utledes etter VS-U3 (OV-U7). Ikke bygget (#500, #498).
 
-**Regelrader:** —
+**Regelrader:** [KA-38](#rad-ka-38), [VS-02](#rad-vs-02), [VS-03](#rad-vs-03)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-V2 (målmodellen), F-MM-U326g (målmodellen), F-MM-V3b (målmodellen), F-MM-V7c (målmodellen), F-MM-V10 (målmodellen), F-MM-V3c (målmodellen)
 
 ### <a id="hf-u4"></a>HF-U4
 
@@ -152,9 +152,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [VS-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11). Presiserer [VS-U14](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u14). Presiserer [VS-U20](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u20). Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Snevrer inn [VS-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9). Snevrer inn [OV-U5](#ov-u5). Presisert 15.10 av [HF-U5](#hf-u5). Snevret inn 15.10 av [VS-U24](#vs-u24). Utvidet 15.10 av [HF-U6](#hf-u6). Snevrer også inn [VS-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1) (oppdragsgiver 15.10, svar 9 i #504). Bygget 15.10 i PR #518 (#498, del 1): et uttrykkelig «i tide» sendt fra appen sperrer «for sent» etter samme bestemmelse i senere svar og revisjoner (§ 33.4, § 34.1.2 og § 33.6.1), med regelkoden SAGT_I_TIDE og PROJEKSJONSVERSJON 16; del 2 av #498 er ikke bygget.
 
-**Regelrader:** [KA-48](#rad-ka-48)
+**Regelrader:** [KA-38](#rad-ka-38), [VS-02](#rad-vs-02), [KA-48](#rad-ka-48)
 
-**Bevis-saker som viser til vedtaket:** F-MM-HF-U4-33-4 (målmodellen), F-MM-HF-U8-32-2 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-V7c (målmodellen), F-MM-V10 (målmodellen), F-MM-HF-U4-33-4 (målmodellen), F-MM-HF-U8-32-2 (målmodellen)
 
 ### <a id="hf-u5"></a>HF-U5
 
@@ -256,9 +256,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endrer [KA-U16](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16). Endrer [KA-U18](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18). Endrer [KA-U19](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u19). Endrer [KA-U24](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24). Endrer [KA-U35](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u35). Endrer [GR-U12](#gr-u12). Endrer [GR-U14](#gr-u14). Endrer [GR-U16](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u16). Endrer [MM-U17](#mm-u17). Endrer [MM-U18](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u18). Endrer [MM-U19](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19). Endrer [VS-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8). Endrer [VS-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11). Snevret inn 13.10 av [OV-U5](#ov-u5). Snevret inn 13.10 av [OV-U6](#ov-u6). Presisert 15.10 av [HF-U13](#hf-u13). Endringen av VS-U8 gjelder bestridelsen, og endringen av VS-U11 registrerte svar. Ikke bygget. Et krav eller svar sendt utenfor appen får ingen virkning i appen; skal det få virkning, sendes det fra appen og får appens dato. Sender TE kravet fra appen, kan TE oppgi datoen det ble sendt utenfor appen, som premiss for byggherren (OV-U5).
 
-**Regelrader:** —
+**Regelrader:** [KA-38](#rad-ka-38), [VS-02](#rad-vs-02)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-V2 (målmodellen), F-MM-U326g (målmodellen), F-MM-V3c (målmodellen)
 
 ### <a id="ov-u5"></a>OV-U5
 
@@ -270,9 +270,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endrer [MM-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1). Endrer [MM-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8). Endrer [VS-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u7). Endrer [VS-U15](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15). Presiserer [VS-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u6). Presiserer [VS-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8). Utvider [VS-U16](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16). Snevrer inn [OV-U4](#ov-u4). Presisert 13.10 av [OV-U9](#ov-u9). Snevret inn 13.10 av [OV-U8](#ov-u8). Snevret inn 15.10 av [HF-U4](#hf-u4). Snevret inn 15.10 av [HF-U5](#hf-u5). Endringen av VS-U15: varselet etter § 34.1.2 sendes ikke bare utenfor appen. Utvidelsen av VS-U16: avvisningen gjelder også et varsel etter § 34.1.2 og § 34.1.3 etter vederlagskravet. Ikke bygget. Retten VS-U16 viser til i MM-U8, å registrere et varsel sendt tidligere utenfor appen, følger av OV-U5. I tråd med GR-U15. Brevteksten for varselet etter § 34.1 følger LV-U3 og avgjøres med kommandoen. Brevteksten i LV-U4 punkt 5 og LV-U5 sier ikke hvilket varsel byggherren gjør gjeldende at kom for sent (AV-07); det følges opp for seg.
 
-**Regelrader:** [KA-20](#rad-ka-20), [KA-38](#rad-ka-38)
+**Regelrader:** [KA-20](#rad-ka-20)
 
-**Bevis-saker som viser til vedtaket:** F-MM-D (målmodellen), F-MM-D-itide (målmodellen), F-MM-V8 (målmodellen), F-MM-V8b (målmodellen), F-MM-V8c (målmodellen), F-MM-V-34-1-2-ny-kravversjon (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-D (målmodellen), F-MM-D-itide (målmodellen), F-MM-V-34-1-2-ny-kravversjon (målmodellen)
 
 ### <a id="ov-u6"></a>OV-U6
 
@@ -328,10 +328,10 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-29"></a>GR-29 | Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting. | [GR-U12](#gr-u12), [GR-U10](#gr-u10), [GR-U13](#gr-u13) | F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen) |
 | <a id="rad-ka-35"></a>KA-35 | En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en revisjon eller ny kravversjon i et spor med enighet, en ny kravversjon i et trukket spor eller i et spor med «ingen krav», en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet. | [GR-U10](#gr-u10) | F-MM-U326a (målmodellen), F-MM-U326a-kontroll (målmodellen), F-MM-U326b (målmodellen), F-MM-U326c (målmodellen), F-MM-U326d (målmodellen), F-MM-U326h (målmodellen), F-MM-U326h-kontroll (målmodellen), F-MM-IK5b (målmodellen), F-MM-IK6b (målmodellen), F-MM-IK6-kontroll (målmodellen), F-MM-U326b-kontroll (målmodellen), F-MM-U326c-kontroll (målmodellen), F-MM-U326d-kontroll (målmodellen) |
 | <a id="rad-ka-36"></a>KA-36 | Byggherren registrerer et brev sendt utenfor appen der godkjenningen av grunnlaget, som partene er enige om ved sammenfall, trekkes tilbake. | [GR-U10](#gr-u10) | F-MM-U326e (målmodellen) |
-| <a id="rad-ka-38"></a>KA-38 | Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet. | [OV-U5](#ov-u5) | F-MM-U326g (målmodellen), F-MM-V8 (målmodellen), F-MM-V7b (målmodellen), F-MM-V8b (målmodellen), F-MM-V8c (målmodellen), F-MM-V7d (målmodellen) |
+| <a id="rad-ka-38"></a>KA-38 | Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet. | [OV-U4](#ov-u4), [VS-U24](#vs-u24), [HF-U4](#hf-u4) | F-MM-U326g (målmodellen), F-MM-V10 (målmodellen) |
 | <a id="rad-ka-40"></a>KA-40 | En part registrerer et brev sendt utenfor appen med TEs aksept, etter trekket, av et svar i sporet, eller et svar fra byggherren med sammenfall på et krav etter at TE har trukket det. Trekket kan gjelde sporet eller grunnlaget. | [GR-U10](#gr-u10) | F-MM-U20e (målmodellen), F-MM-U20f (målmodellen), F-MM-U20h (målmodellen), F-MM-U20j (målmodellen), F-MM-U20k (målmodellen) |
-| <a id="rad-vs-02"></a>VS-02 | Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten. | [GR-U12](#gr-u12), [GR-U13](#gr-u13) | F-MM-V2 (målmodellen), F-MM-V2-kontroll (målmodellen), F-MM-V7 (målmodellen), F-MM-V7c (målmodellen) |
-| <a id="rad-vs-03"></a>VS-03 | Byggherren har gjort innsigelse mot TEs varsel og svarer senere fra appen. | [GR-U12](#gr-u12) | F-MM-V3 (målmodellen), F-MM-V3b (målmodellen), F-MM-V3c (målmodellen), F-MM-V3c-kontroll (målmodellen) |
+| <a id="rad-vs-02"></a>VS-02 | Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten. | [VS-U24](#vs-u24), [OV-U4](#ov-u4), [HF-U4](#hf-u4), [GR-U12](#gr-u12) | F-MM-V2 (målmodellen), F-MM-V7c (målmodellen) |
+| <a id="rad-vs-03"></a>VS-03 | Byggherren har gjort innsigelse mot TEs varsel og svarer senere fra appen. | [VS-U24](#vs-u24), [GR-U12](#gr-u12) | F-MM-V3 (målmodellen), F-MM-V3b (målmodellen), F-MM-V3c (målmodellen) |
 | <a id="rad-ka-43"></a>KA-43 | Byggherren registrerer et brev sendt utenfor appen der byggherren senere begrunner sitt svar. | [MM-U17](#mm-u17) | F-MM-BG1 (målmodellen) |
 | <a id="rad-ka-46"></a>KA-46 | Byggherren svarer på et vederlagskrav for svikt eller andre forhold og vurderer om varselet om hovedkravet kom i tide (§ 34.1.2). | [GR-U10](#gr-u10) | F-MM-V-34-1-2-nei (målmodellen), F-MM-V-34-1-2-ja (målmodellen), F-MM-V-34-1-2-endring (målmodellen), F-MM-V-34-1-2-ny-kravversjon (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen), F-MM-V-34-1-2-hele-beloepet (målmodellen) |
 | <a id="rad-ka-47"></a>KA-47 | Byggherren svarer på et vederlagskrav med tilbud og tar stilling til om tilbudet aksepteres (§ 34.2.2). | [GR-U10](#gr-u10) | F-MM-V-34-2-2-nei (målmodellen), F-MM-V-34-2-2-ja (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen) |

@@ -10,10 +10,11 @@
  * merkingen i et lukket spor (#426), F153–F156 regelversjonen i kommandoen
  * (#386), F157–F168 den senere begrunnelsen (#448) og F169–F177 hullene fra
  * samspillsreviewet av den og KA-U36 (#468), F178–F202 byggherrens vurderinger
- * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204–F206 påberopelsen etter
- * § 33.4 mot varselet (#309, KK-07), F207–F210 innsigelsen brevet viser til og gir opp
- * (#407, #309), F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511) og
- * F217–F220 et «i tide» som binder byggherren (HF-U4, HF-U8, #498). Én mutasjon
+ * etter § 34.1.2, § 34.2.2 og § 33.6.1 (#479, #341), F204 påberopelsen etter
+ * § 33.4 mot varselet (#309, KK-07), F208–F209 innsigelsen brevet viser til og gir opp
+ * (#407, #309, #500), F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511),
+ * F217–F220 et «i tide» som binder byggherren (HF-U4, HF-U8, #498), F221–F222 og F224
+ * innsigelsen etter VS-U24 (#498, #517), og F223 et registrert brev (HF-U4, OV-U4). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
@@ -304,7 +305,7 @@ const MUTASJONER: Mutasjon[] = [
       'visningen sier ikke at svaret gjaldt et annet varsel enn det som er registrert nå (OV-U5)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['gjelder !== spor.frist.varsel.id;', 'gjelder === spor.frist.varsel.id;']],
-    mal: ['F-MM-D-itide', 'F-MM-V8', 'visningen sier at svaret gjaldt et annet varsel'],
+    mal: ['F-MM-D-itide', 'visningen sier at svaret gjaldt et annet varsel'],
   },
   {
     id: 'F21',
@@ -324,8 +325,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler, innsigelse);',
-        'return beslutningsgrunnlag(innhold, undefined, regler, innsigelse);',
+        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler);',
+        'return beslutningsgrunnlag(innhold, undefined, regler);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -640,8 +641,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));',
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER, innsigelse));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));',
+        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER));',
       ],
     ],
     mal: ['F-MM-R1'],
@@ -884,18 +885,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-M1'],
   },
   {
-    id: 'F77',
-    feilklasse: 'et registrert svar uten standpunkt om rettidighet leses uten innsigelsen (VS-U11)',
-    fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [
-      [
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse));',
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler, innsigelse && undefined));',
-      ],
-    ],
-    mal: ['F-MM-V2', 'F-MM-U326g'],
-  },
-  {
     id: 'F78',
     feilklasse: 'en part kan gjøre innsigelse mot sitt eget krav (VS-U1)',
     fil: `${K}/utledning/utled.ts`,
@@ -977,28 +966,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en påberopt passivitet mot den er forstått'],
   },
   {
-    id: 'F85',
-    feilklasse:
-      'et registrert svar som tier, leses med en innsigelse byggherren har gitt opp uttrykkelig (VS-U9, VS-U11)',
-    fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [
-      [' && !innsigelsenErOppgitt(i.gjelder, s.spor as Spor, svarFraParten.slice(i.fra))', ''],
-    ],
-    mal: ['F-MM-V7'],
-  },
-  {
-    id: 'F86',
-    feilklasse: 'leseren godtar et svar lest med en innsigelse parten har gitt opp (VS-U9, VS-U11)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '        ]) ||\n        innsigelsenErOppgitt(',
-        '        ]) ||\n        !s && innsigelsenErOppgitt(',
-      ],
-    ],
-    mal: ['lest med en innsigelse byggherren har gitt opp uttrykkelig'],
-  },
-  {
     id: 'F87',
     feilklasse: 'et nytt utsagn fra motparten opphever sperren for et merket brev (KA-U20)',
     fil: `${K}/utledning/utled.ts`,
@@ -1043,14 +1010,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['            .slice(fra)', '            .slice(fra, fra + 1)']],
     mal: ['F-MM-S342b'],
-  },
-  {
-    id: 'F91',
-    feilklasse:
-      'visningen sier ikke at innsigelsen et fristsvar er lest med, gjaldt et annet varsel enn det registrerte (OV-U5)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['innsigelse && annetVarsel(innsigelse.gjelder)', 'innsigelse && !innsigelse']],
-    mal: ['F-MM-V8', 'F-MM-V8b', 'F-MM-V8c'],
   },
   {
     id: 'F92',
@@ -1126,15 +1085,21 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F98',
     feilklasse:
-      'i fristen gir et «i tide» bare opp innsigelsen mot det standpunktet gjelder (VS-U20, arbeidsvalget 15.10 i #309)',
+      'en innsigelse mot fristkravet leses som en påberopelse etter § 33.4 (VS-U24, #500)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (spor === 'frist') return standpunkter.some((p) => p.art === 'rettidighet' && p.iTide);",
-        "if (spor === 'frist') return standpunkter.some((p) => p.art === 'rettidighet' && p.iTide && p.gjelder === gjelder);",
+        "if (maal?.art === 'varsel') return '33.4';",
+        "if (maal?.art === 'varsel' || (maal?.art === 'krav' && maal.spor !== 'grunnlag')) return '33.4';",
       ],
     ],
-    mal: ['F-MM-V7b', 'et «i tide» gir opp innsigelsen mot en senere kravversjon'],
+    mal: [
+      'uten eget varsel er en innsigelse mot det første fristkravet ingen påberopelse',
+      'et «i tide» om varselet gir ikke opp en innsigelse mot fristkravet',
+      'et «i tide» om varselet nevner ikke en innsigelse mot en tidligere kravversjon',
+      'gir et «i tide» opp bare den mot varselet',
+      'F-MM-V10',
+    ],
   },
   {
     id: 'F99',
@@ -1151,36 +1116,26 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F100',
-    feilklasse:
-      'i grunnlaget gir et standpunkt om en annen kravversjon opp innsigelsen (VS-U9, VS-U11)',
+    feilklasse: 'en innsigelse mot TEs varsel etter § 32.2 leses ikke som en påberopelse (VS-U24)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        'const siste = standpunkter.filter((p) => p.gjelder === gjelder).at(-1);',
-        'const siste = standpunkter.at(-1);',
+        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return '32.2';",
+        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return null;",
       ],
     ],
-    mal: ['F-MM-V7c'],
+    mal: [
+      'svaret gjentar innsigelsen og viser til den',
+      'gir byggherren innsigelsen opp, sier brevet det uttrykkelig',
+      'F-MM-V7c',
+    ],
   },
   {
     id: 'F101',
     feilklasse: 'et standpunkt i et annet spor gir opp innsigelsen (VS-U9, VS-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [['    .filter((x) => x.spor === spor)', '    .filter((x) => x.spor === x.spor)']],
-    mal: ['F-MM-V7d'],
-  },
-  {
-    id: 'F102',
-    feilklasse:
-      'et registrert svar på vederlaget etter en innsigelse leses som om innsigelsen er oppgitt (VS-U9, OV-U1)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "      s.spor === 'vederlag' &&\n      henvisninger.some(",
-        '      !s &&\n      henvisninger.some(',
-      ],
-    ],
-    mal: ['F-MM-V3c'],
+    mal: ['et «i tide» i grunnlaget gir ikke opp innsigelsen mot fristvarselet'],
   },
   {
     id: 'F103',
@@ -1281,7 +1236,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'svaret viser ikke til innsigelsen det gjentar eller gir opp (VS-U9, VS-U11)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ['const innsigelser = aapneInnsigelser(s, nytt.avsender, j);', 'const innsigelser = [];'],
+      [
+        'const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);',
+        'const innsigelser = [];',
+      ],
     ],
     mal: ['svaret gjentar innsigelsen', 'gir byggherren innsigelsen opp'],
   },
@@ -2188,74 +2146,34 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
   },
   {
-    id: 'F205',
-    feilklasse:
-      'frysingen leser ikke et registrert svar på en senere kravversjon med innsigelsen mot det første fristkravet (VS-U20)',
-    fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['...(foersteFristkrav ? [foersteFristkrav] : []),', '']],
-    mal: [
-      'en innsigelse mot det første fristkravet leser et registrert svar på en senere kravversjon',
-    ],
-  },
-  {
-    id: 'F206',
-    feilklasse:
-      'leseren godtar ikke en innsigelse mot det første fristkravet som leser et svar på en senere kravversjon (VS-U20)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['...spor.frist.krav.slice(0, 1).map((k) => k.id),', '']],
-    mal: [
-      'en innsigelse mot det første fristkravet leser et registrert svar på en senere kravversjon',
-    ],
-  },
-  {
-    id: 'F207',
-    feilklasse:
-      'brevet viser til en innsigelse mot noe annet enn det standpunktet om for sent varsel gjelder (VS-U11)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        'p.iTide ? innsigelsenErOppgitt(i.gjelder, s.spor, [s]) : i.gjelder === p.gjelder',
-        'p.iTide ? innsigelsenErOppgitt(i.gjelder, s.spor, [s]) : true',
-      ],
-    ],
-    mal: ['et «nei» om et annet varsel enn innsigelsen gjelder'],
-  },
-  {
     id: 'F208',
     feilklasse:
-      'brevet sier ikke at et «i tide» gir opp innsigelsen kjernen regner som gitt opp (VS-U11, VS-U20)',
-    fil: `${K}/frosset/brevtekst.ts`,
+      'en innsigelse mot varselet etter § 33.4 leses ikke som en påberopelse (VS-U24, VS-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
-      [
-        'p.iTide ? innsigelsenErOppgitt(i.gjelder, s.spor, [s]) : i.gjelder === p.gjelder',
-        'i.gjelder === p.gjelder',
-      ],
+      ["if (maal?.art === 'varsel') return '33.4';", "if (maal?.art === 'varsel') return null;"],
     ],
     mal: [
-      'et «i tide» om varselet gir også opp innsigelsen mot det første fristkravet',
-      'med to åpne innsigelser i fristen gir et «i tide» opp begge',
+      'gir byggherren opp innsigelsen mot fristvarselet',
+      'gir et «i tide» opp bare den mot varselet',
+      'F-MM-V10',
     ],
   },
   {
     id: 'F209',
     feilklasse:
-      'brevet nevner ikke innsigelsen mot en tidligere kravversjon som et «i tide» gir opp (VS-U11, VS-U20)',
+      'svaret på en ny grunnlagsversjon gjentar eller gir ikke opp innsigelsen mot en tidligere (arbeidsvalget 15.10 i #500)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["(svar.spor === 'frist' && fristkravene.includes(i.gjelder))", 'false']],
-    mal: ['et «i tide» om varselet gir opp og nevner innsigelsen mot en tidligere kravversjon'],
-  },
-  {
-    id: 'F210',
-    feilklasse:
-      'i fristen er bare det siste standpunktet om rettidighet avgjørende, ikke hvert «i tide» (VS-U20, arbeidsvalget 15.10 i #309)',
-    fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (spor === 'frist') return standpunkter.some((p) => p.art === 'rettidighet' && p.iTide);",
-        "if (spor === 'frist') return standpunkter.at(-1)?.art === 'rettidighet' && standpunkter.at(-1)!.iTide;",
+        'innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] &&',
+        "innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] && (svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) &&",
       ],
     ],
-    mal: ['et «i tide» gir opp innsigelsen også når et senere svar sier «for sent»'],
+    mal: [
+      'et «i tide» på den nye versjonen gir opp innsigelsen mot den første',
+      'et «for sent» på den nye versjonen gjentar innsigelsen mot den første',
+    ],
   },
   {
     id: 'F211',
@@ -2358,6 +2276,62 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['som gjelder kravversjonen (HF-U4, HF-U1)'],
+  },
+  {
+    id: 'F221',
+    feilklasse:
+      'en innsigelse mot varselet etter et «i tide» fra appen godtas (HF-U4, VS-U24, del 2 av #498)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })",
+        "return hjemmel && !u && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })",
+      ],
+    ],
+    mal: ['F-MM-V10', 'F-MM-V7c'],
+  },
+  {
+    id: 'F222',
+    feilklasse:
+      'et svar på vederlaget etter en innsigelse mot vederlagskravet avvises (VS-U24, #517)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);',
+        "  const utenfor =\n    s.spor === 'vederlag' && Object.values(u.elementer).some((e) => e.art === 'innsigelse')\n      ? 'innsigelse'\n      : utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);",
+      ],
+    ],
+    mal: ['F-MM-V3b'],
+  },
+  {
+    id: 'F223',
+    feilklasse: 'et «i tide» i et registrert brev gir opp innsigelsen i brevteksten (HF-U4, OV-U4)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar);',
+        '    svarFraParten.push(...d.svar);',
+      ],
+    ],
+    mal: [
+      'et «i tide» i et registrert brev gir ikke opp innsigelsen, så et «for sent» fra appen på en ny versjon gjentar den',
+    ],
+  },
+  {
+    id: 'F224',
+    feilklasse:
+      'en innsigelse mot en grunnlagsversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return '32.2';",
+        "if (maal?.krav?.spor === 'grunnlag') return '32.2';",
+      ],
+    ],
+    mal: [
+      'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
+      'etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder',
+    ],
   },
 ];
 
