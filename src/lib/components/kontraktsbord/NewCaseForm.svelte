@@ -22,7 +22,6 @@
   import { projectStore } from '$lib/stores/project.svelte';
   import { formatDateNorwegian } from '$lib/utils/dateFormatters';
   import ClaimLetterView from './ClaimLetterView.svelte';
-  import { LetterCancelled } from '$lib/approval/claimReview.svelte';
   import { opprettSak } from '$lib/api/kjerne';
   import { tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
@@ -36,6 +35,7 @@
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
   import type { OppgittDato } from '$kjerne/format/format';
   const letterConfirmation = createLetterConfirmation();
+  const brevkontroll = createLetterConfirmation<{ tekst: string[]; utdypning?: string }>();
 
   let {
     onsend,
@@ -80,12 +80,6 @@
   // Datoen står under feltet den er oppgitt for, så den følger ikke med til en annen betydning.
   let datoer = $state<Partial<Record<OppgittDato, string>>>({});
   let endringsordre = $state('');
-  let laast = $state<{
-    tekst: string[];
-    utdypning?: string;
-    bekreft: () => void;
-    avbryt: () => void;
-  } | null>(null);
   const DATOSPOERSMAAL: Record<OppgittDato, string> = {
     paalegg_mottatt: 'Når ble pålegget mottatt?',
     klar_over_forholdet: 'Når ble TE klar over forholdet?',
@@ -158,21 +152,21 @@
       ? 'Send varsel'
       : 'Send grunnlag'
   );
+  const kjernehjemmel = $derived(tsStien ? (valgtHjemmel?.hjemmel ?? null) : null);
   const kjernedato = $derived(
-    tsStien && valgtHjemmel?.hjemmel
-      ? datofelt(valgtHjemmel.kontraktsforhold.kode, valgtHjemmel.hjemmel.kode)
+    kjernehjemmel && valgtHjemmel
+      ? datofelt(valgtHjemmel.kontraktsforhold.kode, kjernehjemmel.kode)
       : null
   );
-  const kjerneEo = $derived(
-    tsStien && !!valgtHjemmel?.hjemmel && gjelderEndringsordre(valgtHjemmel.hjemmel.kode)
-  );
+  const kjerneEo = $derived(!!kjernehjemmel && gjelderEndringsordre(kjernehjemmel.kode));
   const datoOppgitt = $derived(
     tsStien
-      ? !!valgtHjemmel?.hjemmel &&
+      ? !!kjernehjemmel &&
           (!kjernedato || !!datoer[kjernedato]) &&
           (!kjerneEo || endringsordre.trim().length > 0)
       : datoOppdaget.length > 0
   );
+  const iKontroll = $derived(Boolean(letterConfirmation.letter) || Boolean(brevkontroll.letter));
   const canSend = $derived(
     tittel.trim().length >= 5 &&
       datoOppgitt &&
@@ -211,23 +205,6 @@
     sok = '';
   }
 
-  function visBrevkontroll(tekst: string[], utdypning?: string) {
-    return new Promise<void>((ok, avbrutt) => {
-      laast = {
-        tekst,
-        utdypning,
-        bekreft: () => {
-          laast = null;
-          ok();
-        },
-        avbryt: () => {
-          laast = null;
-          avbrutt(new LetterCancelled());
-        },
-      };
-    });
-  }
-
   /**
    * Saken opprettes før brevkontrollen, fordi den låste teksten har saksnummeret
    * (LV-U4, DL-U6). Avbryter TE, står saken, og neste forsøk går til samme sak
@@ -251,7 +228,7 @@
     if (sak.feil) throw new Error(sak.feil);
     const tekst = sak.brevtekst(kommando);
     // Uten tekst godtar ikke kjernen kravet, og serveren avviser det med sin begrunnelse.
-    if (tekst) await visBrevkontroll(tekst, kommando.utdypning as string | undefined);
+    if (tekst) await brevkontroll.show({ tekst, utdypning: kommando.utdypning });
     if (!(await sak.send(kommando))) throw new Error(sak.feil ?? 'Kravet ble ikke sendt.');
     draftReady = false;
     clearDraft(dk);
@@ -259,7 +236,7 @@
 
   $effect(() => {
     onactions?.({
-      reviewing: Boolean(letterConfirmation.letter) || Boolean(laast),
+      reviewing: iKontroll,
       canSend: canSend && !submission.pending,
       sendLabel: 'Se brev og send',
       send: () => {
@@ -370,20 +347,36 @@
   });
 </script>
 
+{#snippet datofeltet(etikett: string, verdi: string, sett: (verdi: string) => void, hjelp: string)}
+  <div class="field date-field">
+    <label for="new-case-date">{etikett}</label>
+    <div class="date-input-wrap">
+      <CalendarDays size={16} aria-hidden="true" />
+      <input
+        id="new-case-date"
+        type="date"
+        value={verdi}
+        oninput={(event) => sett(event.currentTarget.value)}
+      />
+    </div>
+    <span class="field-help">{hjelp}</span>
+  </div>
+{/snippet}
+
 <ClaimLetterView review={letterConfirmation} stepLabel="Grunnlag" />
-{#if laast}
+{#if brevkontroll.letter}
   <Brevkontroll
-    tekst={laast.tekst}
-    utdypning={laast.utdypning}
+    tekst={brevkontroll.letter.tekst}
+    utdypning={brevkontroll.letter.utdypning}
     sakstittel={tittel.trim()}
-    onbekreft={laast.bekreft}
-    onavbryt={laast.avbryt}
+    onbekreft={brevkontroll.confirm}
+    onavbryt={brevkontroll.cancel}
   />
 {/if}
 
 {#if !prosjektId || draftReady}
   <!-- Hidden, not unmounted: the pending submission resumes when the letter is confirmed. -->
-  <div class="new-case-form" hidden={Boolean(letterConfirmation.letter) || Boolean(laast)}>
+  <div class="new-case-form" hidden={iKontroll}>
     {#if submission.pending}<p role="status">Oppretter saken …</p>{/if}
     {#if submission.error}<p role="alert">{submission.error}</p>{/if}
     <header class="form-header">
@@ -443,19 +436,12 @@
       {#if tsStien}
         {#if kjernedato}
           {@const felt = kjernedato}
-          <div class="field date-field">
-            <label for="new-case-date">{DATOSPOERSMAAL[felt]}</label>
-            <div class="date-input-wrap">
-              <CalendarDays size={16} aria-hidden="true" />
-              <input
-                id="new-case-date"
-                type="date"
-                value={datoer[felt] ?? ''}
-                oninput={(event) => (datoer = { ...datoer, [felt]: event.currentTarget.value })}
-              />
-            </div>
-            <span class="field-help">Datoen står i brevet som din opplysning.</span>
-          </div>
+          {@render datofeltet(
+            DATOSPOERSMAAL[felt],
+            datoer[felt] ?? '',
+            (verdi) => (datoer = { ...datoer, [felt]: verdi }),
+            'Datoen står i brevet som din opplysning.'
+          )}
         {/if}
         {#if kjerneEo}
           <div class="field">
@@ -469,21 +455,12 @@
           </div>
         {/if}
       {:else}
-        <div class="field date-field">
-          <label for="new-case-date">Når ble forholdet oppdaget?</label>
-          <div class="date-input-wrap">
-            <CalendarDays size={16} aria-hidden="true" />
-            <input
-              id="new-case-date"
-              type="date"
-              value={datoOppdaget}
-              oninput={(event) => (datoOppdaget = event.currentTarget.value)}
-            />
-          </div>
-          <span class="field-help"
-            >Datoen brukes ved vurderingen av kontraktens varslingsfrister.</span
-          >
-        </div>
+        {@render datofeltet(
+          'Når ble forholdet oppdaget?',
+          datoOppdaget,
+          (verdi) => (datoOppdaget = verdi),
+          'Datoen brukes ved vurderingen av kontraktens varslingsfrister.'
+        )}
       {/if}
     </FormSection>
 

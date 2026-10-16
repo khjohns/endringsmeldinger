@@ -47,11 +47,11 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
   beforeAll(async () => {
     o = await lagOppsett();
     server = await startServer(o);
-  });
+  }, 240_000);
   afterAll(async () => {
     await server?.stopp();
     if (o) await rydd(o);
-  });
+  }, 60_000);
 
   const hent = async (sakId: string) => {
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}`, {

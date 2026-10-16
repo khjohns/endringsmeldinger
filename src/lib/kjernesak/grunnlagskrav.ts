@@ -7,11 +7,7 @@
  */
 
 import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
-import {
-  fraKatalogen,
-  HOVEDKATEGORI_FRA_KATALOGEN,
-  UNDERKATEGORI_FRA_KATALOGEN,
-} from '$kjerne/format/koder';
+import { kategoriFraKatalogen, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
 
 export interface Grunnlagsvalg {
   /** Katalogens kode, som `ENDRING`. */
@@ -26,16 +22,22 @@ export interface Grunnlagsvalg {
   utdypning: string;
 }
 
-const hoved = (kode: string) => fraKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, kode);
-const under = (kode: string) => fraKatalogen(UNDERKATEGORI_FRA_KATALOGEN, kode);
+export type Grunnlagskrav = {
+  type: 'krav';
+  spor: 'grunnlag';
+  innhold: Record<string, unknown>;
+  utdypning?: string;
+};
 
 /** Feltet for datoen TE oppgir i kategorien fra katalogen, eller `null` (VS-U26). */
-export const datofelt = (hovedkategori: string, underkategori: string): OppgittDato | null =>
-  oppgittDato(hoved(hovedkategori), under(underkategori));
+export function datofelt(hovedkategori: string, underkategori: string): OppgittDato | null {
+  const kjernen = kategoriFraKatalogen({ hovedkategori, underkategori });
+  return oppgittDato(kjernen.hovedkategori, kjernen.underkategori);
+}
 
 /** Kategorien har endringsordrens dato eller nummer (GR-U16). */
 export const gjelderEndringsordre = (underkategori: string) =>
-  under(underkategori) === 'endringsordre';
+  kategoriFraKatalogen({ underkategori }).underkategori === 'endringsordre';
 
 /**
  * Katalogens underkategori har en kode i kjernen. Force majeure har ingen, og
@@ -54,7 +56,8 @@ export const opprettelse = (sakstittel: string) => ({
  * egen tittel på forholdet (oppdragsgiver 16.10, avgjørelse 2 i #666). En dato som er oppgitt
  * for et annet felt enn kategorien har, følger ikke med.
  */
-export function grunnlagskrav(valg: Grunnlagsvalg): Record<string, unknown> {
+export function grunnlagskrav(valg: Grunnlagsvalg): Grunnlagskrav {
+  const kjernen = kategoriFraKatalogen(valg);
   const felt = datofelt(valg.hovedkategori, valg.underkategori);
   const dato = felt ? valg.datoer[felt] : undefined;
   const endringsordre = valg.endringsordre.trim();
@@ -63,8 +66,8 @@ export function grunnlagskrav(valg: Grunnlagsvalg): Record<string, unknown> {
     type: 'krav',
     spor: 'grunnlag',
     innhold: {
-      hovedkategori: hoved(valg.hovedkategori),
-      underkategori: under(valg.underkategori),
+      hovedkategori: kjernen.hovedkategori,
+      underkategori: kjernen.underkategori,
       ...(felt && dato ? { [felt]: dato } : {}),
       ...(gjelderEndringsordre(valg.underkategori) && endringsordre ? { endringsordre } : {}),
     },
