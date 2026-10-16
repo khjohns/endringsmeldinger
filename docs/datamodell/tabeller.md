@@ -649,16 +649,16 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 
 ### `koe.skrivetidspunkt`
 
-Tidspunktet basen ga for skrivingen i en transaksjon, med transaksjonens ID som nøkkel. `koe_api.skriv_hendelse` godtar bare dette tidspunktet på brevet (DL-U3, svaret 16.10 i #53). Kjøretiden har ingen rett på tabellen.
+Tidspunktet basen ga for skrivingen i en transaksjon, med transaksjonens ID som nøkkel, og økta og når den logget inn, fordi transaksjons-ID-en begynner på nytt etter en omstart. `koe_api.skriv_hendelse` godtar bare dette tidspunktet på brevet, i samme transaksjon og økt (DL-U3, svaret 16.10 i #53). Kjøretiden har ingen rett på tabellen.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.skrivetidspunkt` fører raden, og `koe_api.skriv_hendelse` sletter den i samme transaksjon. Kalt fra `skrivHendelse` i `server/kommandoer.ts`. |
+| Hvor fra appen lagres og redigeres | `koe_api.skrivetidspunkt` fører raden, og `koe_api.skriv_hendelse` sletter den i samme transaksjon. Kalt fra `skrivHendelse` i `server/kommandoer.ts`, som ruller tilbake når den ikke skriver. En kaller som committer uten å skrive, etterlater raden; `skrivetidspunkt` sletter den når transaksjons-ID-en brukes igjen. |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (transaksjon). Ingen relasjoner til andre tabeller. |
-| Kan bygges opp igjen | ja. Raden lever bare i transaksjonen. |
+| Kan bygges opp igjen | ja. Raden brukes bare i transaksjonen som førte den. |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skrivetidspunkt`, `koe_api.skriv_hendelse`) |
 | Funn | — |

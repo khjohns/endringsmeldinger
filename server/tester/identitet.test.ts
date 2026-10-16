@@ -212,6 +212,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     const UTEN_STANDARD = [
       'koe.hendelse.tidsstempel',
       'koe.notat.endret',
+      'koe.skrivetidspunkt.innlogget',
       'koe.skrivetidspunkt.tidspunkt',
     ];
 

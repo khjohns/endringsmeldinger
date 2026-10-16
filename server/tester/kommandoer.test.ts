@@ -84,7 +84,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
   async function klokka(): Promise<number> {
     const svar = await base.pool
       .request()
-      .query<{ naa: Date }>('SELECT CAST(SYSUTCDATETIME() AS datetime2(3)) AS naa');
+      .query<{ naa: Date }>('SELECT DATETRUNC(millisecond, SYSUTCDATETIME()) AS naa');
     return svar.recordset[0].naa.getTime();
   }
 
@@ -343,7 +343,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     async function direkte(
       sakId: string,
       {
-        tid = 'basens' as 'basens' | 'senere' | 'uten' | 'egen_noekkel' | 'annen_transaksjon',
+        tid = 'basens' as
+          | 'basens'
+          | 'senere'
+          | 'uten'
+          | 'egen_noekkel'
+          | 'annen_transaksjon'
+          | 'etter_omstart',
         eventType = 'dokument_registrert',
         oppdrag = true,
         forventet = 1,
@@ -362,7 +368,25 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         let tidspunkt: Date;
         if (annen) tidspunkt = annen;
         else if (tid === 'uten') tidspunkt = new Date(await klokka());
-        else if (tid === 'egen_noekkel') {
+        else if (tid === 'etter_omstart') {
+          // Som en rad en tidligere økt etterlot før en omstart: samme transaksjons-ID
+          // og økt-ID, men innlogget før denne økta.
+          const denne = await f().query<{ tx: string; spid: number; inn: Date }>(
+            `SELECT CAST(CURRENT_TRANSACTION_ID() AS nvarchar(20)) AS tx, @@SPID AS spid,
+                    (SELECT CAST(login_time AS datetime2(3)) FROM sys.dm_exec_sessions WHERE session_id = @@SPID) AS inn`
+          );
+          const { tx, spid, inn } = denne.recordset[0];
+          tidspunkt = new Date((await klokka()) - 3_600_000);
+          await base.pool
+            .request()
+            .input('tx', sql.BigInt, tx)
+            .input('spid', sql.SmallInt, spid)
+            .input('inn', sql.DateTime2(3), new Date(inn.getTime() - 60_000))
+            .input('t', sql.DateTime2(3), tidspunkt)
+            .query(
+              'INSERT koe.skrivetidspunkt (transaksjon, sesjon, innlogget, tidspunkt) VALUES (@tx, @spid, @inn, @t)'
+            );
+        } else if (tid === 'egen_noekkel') {
           tidspunkt = new Date(await klokka());
           await f()
             .input('t', sql.DateTime2(3), tidspunkt)
@@ -416,7 +440,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
 
     it('kjøretiden kan ikke føre eller endre tidspunktet selv', async () => {
       for (const setning of [
-        'INSERT koe.skrivetidspunkt (transaksjon, tidspunkt) VALUES (CURRENT_TRANSACTION_ID(), SYSUTCDATETIME())',
+        'INSERT koe.skrivetidspunkt (transaksjon, sesjon, innlogget, tidspunkt) VALUES (CURRENT_TRANSACTION_ID(), @@SPID, SYSUTCDATETIME(), SYSUTCDATETIME())',
         'UPDATE koe.skrivetidspunkt SET tidspunkt = SYSUTCDATETIME()',
         'DELETE koe.skrivetidspunkt',
       ]) {
@@ -436,6 +460,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       ['et tidspunkt ett millisekund etter basens', { tid: 'senere' }],
       ['et tidspunkt kjøretiden har satt selv i en kontekstnøkkel', { tid: 'egen_noekkel' }],
       ['et tidspunkt skrivetidspunkt ga en annen transaksjon', { tid: 'annen_transaksjon' }],
+      [
+        'et tidspunkt en tidligere økt etterlot med samme transaksjons-ID, som etter en omstart',
+        { tid: 'etter_omstart' },
+      ],
       ['dokument_registrert uten oppdrag', { oppdrag: false }],
       ['en annen hendelsestype med oppdrag', { eventType: 'annen' }],
       ['sak_opprettet', { eventType: 'sak_opprettet', oppdrag: false }],
