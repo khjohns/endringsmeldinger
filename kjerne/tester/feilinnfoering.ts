@@ -843,26 +843,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-M2'],
   },
   {
-    id: 'F73',
-    feilklasse: 'trekket godtas når appen ikke kan bevare byggherrens avtalte rettigheter (KA-U22)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        '      if (trekkKanIkkeBevareAvtalen(u, h.spor))',
-        '      if (!u && trekkKanIkkeBevareAvtalen(u, h.spor))',
-      ],
-    ],
-    mal: ['F-MM-T1'],
-  },
-  {
-    id: 'F74',
-    feilklasse:
-      'sperren i KA-U22 dekker ikke trekket av grunnlaget, som trekker vederlag og frist med seg',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [["  (spor === 'grunnlag' ? SPOR : [spor]).some(", '  [spor].some(']],
-    mal: ['F-MM-T1'],
-  },
-  {
     id: 'F75',
     feilklasse:
       'en merking endrer om godkjenningen er en endringsordre, i stedet for å gi sperren (KA-U26, KA-U28)',
@@ -1123,19 +1103,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-U326l', 'F-MM-U326m'],
-  },
-  {
-    id: 'F104',
-    feilklasse:
-      'en merking i ett spor sperrer trekk av en enighet i et annet spor (KA-U30, KA-U26)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '    (n) => u.spor[n].enighet !== null && u.spor[n].forbehold',
-        '    (n) => u.spor[n].enighet !== null && SPOR.some((m) => u.spor[m].forbehold)',
-      ],
-    ],
-    mal: ['F-MM-T4'],
   },
   {
     id: 'F105',
@@ -2462,6 +2429,32 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-G20', 'F-MM-G22', 'F-MM-G43'],
+  },
+  {
+    id: 'F238',
+    feilklasse:
+      'en merking av et registrert brev sperrer TEs trekk som rammer en enighet, som før #587 (OV-U4, OV-U7)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');",
+        "      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');\n      if ((h.spor === 'grunnlag' ? (['grunnlag', 'vederlag', 'frist'] as const) : [h.spor]).some((n) => u.spor[n].enighet !== null && u.spor[n].forbehold)) return avvis('AVTALE_KAN_IKKE_BEVARES', '');",
+      ],
+    ],
+    mal: ['F-MM-T1', 'F-MM-T2', 'F-MM-M5', 'F-MM-T4', 'F-MM-T5'],
+  },
+  {
+    id: 'F239',
+    feilklasse:
+      'en registrert godkjenning uten opplysningen om § 31.3 vises som et uavklart utfall, som før #587 (OV-U4)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "    if (u.grunnlagAvklart) ut.push('avklart');",
+        "    if (u.grunnlagAvklart) ut.push('avklart');\n    if (u.endringsordre === 'ikke_avklart') ut.push('endringsordre_ikke_avklart');",
+      ],
+    ],
+    mal: ['F-MM-G20'],
   },
 ];
 

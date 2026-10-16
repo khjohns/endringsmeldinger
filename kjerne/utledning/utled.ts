@@ -754,7 +754,6 @@ function utledSporene(
         o.hva === 'endringsordre' && o.brev === gSvar!.dokument
     );
     if (om313?.oppfylt === false) return 'nei';
-    // KA-U26: en merking gir sperren, ikke et annet utfall.
     if (om313 === undefined) return 'ikke_avklart';
     return 'ja';
   })();
@@ -870,18 +869,6 @@ export const trekkAvGrunnlagetErSperret = (u: Utledning): boolean => {
   const svar = u.spor.grunnlag.gjeldendeSvar;
   return u.endringsordre === 'ja' && !!svar && !u.elementer[svar.dokument]?.registrertBrev;
 };
-
-/**
- * KA-U22, KA-U27, KA-U30: et trekk avvises når appen ikke
- * kan bevare byggherrens rettigheter etter en avtale. Det gjelder en enighet i et
- * spor trekket rammer (grunnlaget rammer alle, GR-U5) når en merking etter KA-U20
- * gjelder det sporet: appen vet ikke hva byggherren har avtalt. Et avtalt fradrag (KA-U9)
- * avvises av formatet så lenge KA-U9 ikke er bygget, og sperren må dekke det når det bygges.
- */
-export const trekkKanIkkeBevareAvtalen = (u: Utledning, spor: Spor): boolean =>
-  (spor === 'grunnlag' ? SPOR : [spor]).some(
-    (n) => u.spor[n].enighet !== null && u.spor[n].forbehold
-  );
 
 /**
  * Om enigheten i sporet har virkning (GR-U7, MM-U3): `betinget` til vilkåret

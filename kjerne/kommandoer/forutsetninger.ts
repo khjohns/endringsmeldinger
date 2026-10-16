@@ -14,7 +14,6 @@ import {
   kanFaaProtest,
   kraveneErAvgjort,
   trekkAvGrunnlagetErSperret,
-  trekkKanIkkeBevareAvtalen,
   type Utledning,
 } from '../utledning/utled.ts';
 import { KRAVSPOR, type Avvisning, type Kravspor, type Part, type Spor } from '../typer.ts';
@@ -174,12 +173,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           'GRUNNLAG_ER_ENDRINGSORDRE',
           'Byggherren har godkjent grunnlaget, og godkjenningen er en endringsordre. Grunnlaget kan ikke trekkes.'
         );
-      // KA-U22: trekket kunne tatt fra byggherren en rettighet etter avtalen.
-      if (trekkKanIkkeBevareAvtalen(u, h.spor))
-        return avvis(
-          'AVTALE_KAN_IKKE_BEVARES',
-          'En enighet trekket rammer, bygger på et brev med noe appen ikke kan uttrykke. Appen kan ikke bevare byggherrens rettigheter etter avtalen, så trekket må sendes utenfor appen.'
-        );
+      // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det. En
+      // merking av et registrert brev gir ingen sperre (OV-U4, OV-U7).
       return null;
     case 'ingen_krav':
       // KA-U12, KA-U15: et spor som ikke er sendt, etter at grunnlaget er sendt.

@@ -90,7 +90,6 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     if (u.frafalt) ut.push('paalegg_frafalt');
     if (u.grunnlagAvvist) ut.push('avslaatt');
     if (u.grunnlagAvklart) ut.push('avklart');
-    if (u.endringsordre === 'ikke_avklart') ut.push('endringsordre_ikke_avklart');
     if (virkning && !s.trukket) ut.push('enige');
   } else {
     if (virkning === 'betinget') ut.push('enige_betinget');

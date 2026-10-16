@@ -324,7 +324,7 @@
     },
     {
       "id": "F-MM-A5b",
-      "forslag": "A, steg 5b. Skiftet fra pålegg til endringsordre kan ikke sendes fra appen (GR-U19), så det står som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18)",
+      "forslag": "A, steg 5b. Skiftet fra pålegg til endringsordre kan ikke sendes fra appen (GR-U22), så det står som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18)",
       "rader": ["GR-21", "GR-23", "GR-24"],
       "start": "forlop_a",
       "steg": [
@@ -2273,7 +2273,7 @@
       "id": "F-MM-G20",
       "rader": ["GR-29"],
       "start": "krav_irreg",
-      "forslag": "GR-U13: uten opplysningen om § 31.3 er det ikke avklart om registrert korrespondanse er en endringsordre. Et registrert brev gir ingen sperre, så TE kan trekke grunnlaget (OV-U4, OV-U6)",
+      "forslag": "GR-U13: uten opplysningen om § 31.3 er det ikke avklart om registrert korrespondanse er en endringsordre. Et registrert brev gir ingen sperre og intet uavklart utfall i visningen, så TE kan trekke grunnlaget (OV-U4, OV-U6)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2297,14 +2297,14 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U13", "GR-U12"],
+          "kilde": ["GR-U13", "GR-U12", "OV-U4"],
           "forventet": {
             "forstaatt": true,
             "enighet.grunnlag.kilde": "sammenfall",
             "beslutningsgrunnlag.S-g1.varslingsplikt": true,
             "opplysning.D4#endringsordre": null,
             "endringsordre": "ikke_avklart",
-            "visning.etiketter.grunnlag": { "inneholder": ["endringsordre_ikke_avklart"] }
+            "visning.etiketter.grunnlag": { "mangler": ["endringsordre_ikke_avklart"] }
           }
         },
         {
@@ -3594,7 +3594,7 @@
         "KA-34"
       ],
       "start": "godkjent_grunnlag",
-      "forslag": "KA-U22: trekket avvises når en enighet trekket rammer, bygger på et merket brev, også trekket av grunnlaget",
+      "forslag": "OV-U7: en merking av et registrert brev sperrer ikke trekket, heller ikke av grunnlaget, og heller ikke før merkingen er avklart. Sperren i KA-U22 bygges ikke for merkingen i første versjon (OV-U4)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3642,13 +3642,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": [
-            "KA-U22",
-            "KA-U20"
-          ],
+          "kilde": ["OV-U7", "OV-U4"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -3658,13 +3654,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": [
-            "KA-U22",
-            "KA-U14"
-          ],
+          "kilde": ["OV-U7", "OV-U4"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -3694,7 +3686,7 @@
         "KA-32"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U16, KA-U20 og KA-U26: en merket godkjenning av grunnlaget som er en endringsordre, leses som før. Endringsordren sperrer ikke trekket (OV-U6), men merkingen gjør at appen ikke kan bevare enigheten trekket rammer (KA-U22)",
+      "forslag": "KA-U16, KA-U20 og KA-U26: en merket godkjenning av grunnlaget som er en endringsordre, leses som før. Verken endringsordren (OV-U6) eller merkingen (OV-U4, OV-U7) sperrer trekket",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3729,14 +3721,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": [
-            "OV-U6",
-            "KA-U22",
-            "KA-U20"
-          ],
+          "kilde": ["OV-U6", "OV-U4", "OV-U7"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -4874,7 +4861,7 @@
         "KA-32"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U26 og KA-U28: en senere merking av en godkjenning som er en endringsordre, endrer ikke utfallet. Endringsordren sperrer ikke trekket (OV-U6), men merkingen gjør at appen ikke kan bevare enigheten trekket rammer (KA-U22)",
+      "forslag": "KA-U26 og KA-U28: en senere merking av en godkjenning som er en endringsordre, endrer ikke utfallet. Verken endringsordren (OV-U6) eller merkingen (OV-U4, OV-U7) sperrer trekket",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4935,14 +4922,9 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": [
-            "OV-U6",
-            "KA-U22",
-            "KA-U20"
-          ],
+          "kilde": ["OV-U6", "OV-U4", "OV-U7"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -6133,7 +6115,7 @@
         "KA-34"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U30: et brev med enighet om grunnlaget og vederlaget er merket bare for grunnlaget; trekket av vederlaget godtas, trekket av grunnlaget avvises",
+      "forslag": "KA-U30: et brev med enighet om grunnlaget og vederlaget er merket bare for grunnlaget. Merkingen sperrer ikke trekket av vederlaget eller av grunnlaget (OV-U4, OV-U7)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6206,13 +6188,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": [
-            "KA-U27",
-            "KA-U30"
-          ],
+          "kilde": ["OV-U7", "OV-U4"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -6227,7 +6205,7 @@
         "KA-34"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U27 og KA-U30: et brev merket for grunnlaget og vederlaget sperrer trekket av vederlaget",
+      "forslag": "KA-U27 og KA-U30: et brev merket for grunnlaget og vederlaget sperrer ikke trekket av vederlaget (OV-U4, OV-U7)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6274,13 +6252,9 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": [
-            "KA-U27",
-            "KA-U30"
-          ],
+          "kilde": ["OV-U7", "OV-U4"],
           "forventet": {
-            "avvist": true,
-            "regel": "AVTALE_KAN_IKKE_BEVARES"
+            "avvist": false
           },
           "prov": {
             "handling": "trekk",
@@ -11350,7 +11324,7 @@
         "GR-32"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U20, GR-U19: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med frafall eller endringsordre, ikke med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen får ingen virkning (MM-U19 og arbeidsvalget 16.10 i #510)",
+      "forslag": "GR-U20, GR-U22: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med frafall eller endringsordre, ikke med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen får ingen virkning (MM-U19 og arbeidsvalget 16.10 i #510)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {

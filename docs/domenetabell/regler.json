@@ -899,6 +899,13 @@
       "radetikett": "OV-U6: unntak fra OV-U4: i en underkategori der § 32.2 gjelder (GR-U11), kan byggherren registrere sin egen endringsordre"
     },
     {
+      "id": "OV-U7",
+      "type": "vedtak",
+      "dato": "2026-10-13",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u7",
+      "radetikett": "OV-U7: i første versjon bygges ikke disse vedtakene og delene av dem"
+    },
+    {
       "id": "VS-U24",
       "type": "vedtak",
       "dato": "2026-10-15",
@@ -1836,7 +1843,7 @@
     },
     {
       "id": "GR-21",
-      "tilfelle": "TE endrer underkategorien etter et avslag og godtar vederlagssvaret mens grunnlaget venter på nytt svar. Byggherren godkjenner deretter grunnlaget.",
+      "tilfelle": "TE endrer underkategorien etter et avslag i en registrert kravversjon og godtar vederlagssvaret mens grunnlaget venter på nytt svar. Byggherren godkjenner deretter grunnlaget.",
       "forventet": "Aksepten godtas. Når grunnlaget godkjennes, står byggherrens beløp som avtalt, og saken er `OMFORENT` med fristen godkjent.",
       "bh_standpunkt": "Først avslått grunnlag og subsidiært delvis godkjent vederlag. Etter det nye svaret: godkjent grunnlag.",
       "rettslig_virkning": "Enigheten om beløpet får virkning når grunnlaget godkjennes. Byggherren har gitt beløpet og trenger ikke svare på vederlaget igjen.",
@@ -1844,7 +1851,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "GR-U7",
-        "V-215",
+        "MM-U18",
+        "GR-U22",
         "KA-U5"
       ],
       "tolkningsstatus": "avklart_tolkning",
@@ -2448,7 +2456,7 @@
       "kilder": [
         "GR-U20",
         "GR-U17",
-        "GR-U19",
+        "GR-U22",
         "HF-U8",
         "MM-U19"
       ],
@@ -2519,7 +2527,7 @@
     {
       "id": "KA-32",
       "tilfelle": "Et registrert brev er merket med noe appen ikke kan uttrykke, i brevet selv eller senere av en av partene.",
-      "forventet": "Så lenge merkingen gjelder, avvises TEs aksept av svaret i et merket spor, saken kan ikke inngå i en endringsordre, og et trekk som rammer en enighet i et merket spor, avvises fordi appen ikke kan bevare avtalen. At godkjenningen i et registrert brev er en endringsordre, sperrer ikke trekket. Merkingen gjelder også når elementet i brevet er uten virkning fordi det strider mot en enighet. Sammenfallet, enigheten, om godkjenningen er en endringsordre og om kravene er avgjort, leses som før, og visningen viser at enigheten bygger på et merket brev. Motparten kan bestride merkingen uten virkning. En aksept av et merket svar i en rad gir en enighet som står, med sperren: at aksepten avvises, er et vilkår for å sende, ikke en regel om enighet eller lukking.",
+      "forventet": "Så lenge merkingen gjelder, avvises TEs aksept av svaret i et merket spor, og saken kan ikke inngå i en endringsordre. Verken merkingen (OV-U4, OV-U7) eller at godkjenningen i et registrert brev er en endringsordre (OV-U6), sperrer trekket. Merkingen gjelder også når elementet i brevet er uten virkning fordi det strider mot en enighet. Sammenfallet, enigheten, om godkjenningen er en endringsordre og om kravene er avgjort, leses som før, og visningen viser at enigheten bygger på et merket brev. Motparten kan bestride merkingen uten virkning. En aksept av et merket svar i en rad gir en enighet som står, med sperren: at aksepten avvises, er et vilkår for å sende, ikke en regel om enighet eller lukking.",
       "bh_standpunkt": "Brevet slik det ble sendt.",
       "rettslig_virkning": "Merkingen er partens vurdering, ikke en rettslig avgjørelse. En enighet som er inngått, står, men handlinger som bygger på den, sperres.",
       "rettidighet": "—",
@@ -2533,14 +2541,14 @@
         "MM-U7",
         "MM-U18",
         "MM-U19",
-        "KA-U22",
-        "OV-U6"
+        "OV-U6",
+        "OV-U7",
+        "OV-U4"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
-        "kjerne/utledning/utled.ts#kanInngaaIEo",
-        "kjerne/utledning/utled.ts#trekkKanIkkeBevareAvtalen"
+        "kjerne/utledning/utled.ts#kanInngaaIEo"
       ],
       "regelkoder": [
         "BREV_MED_FORBEHOLD"
@@ -2574,26 +2582,22 @@
     {
       "id": "KA-34",
       "tilfelle": "TE trekker vederlag, frist eller grunnlaget når en enighet trekket rammer, bygger på et merket brev, og merkingen gjelder sporet enigheten gjelder.",
-      "forventet": "Trekket avvises, også av grunnlaget, som rammer alle sporene. Gjelder merkingen bare et annet spor enn enigheten trekket rammer, avvises ikke trekket på grunn av merkingen. Når merkingen er avklart, godtas trekket som før.",
+      "forventet": "Trekket godtas, også av grunnlaget. En merking av et registrert brev gir ingen sperre i første versjon (OV-U4, OV-U7), heller ikke før den er avklart. Sperren i KA-U22 for et avtalt fradrag (KA-U9) bygges med fradraget; formatet avviser fradraget til da.",
       "bh_standpunkt": "Enigheten slik brevet ga den.",
-      "rettslig_virkning": "Appen kan ikke bevare byggherrens rettigheter etter en avtale den ikke kan uttrykke.",
+      "rettslig_virkning": "Merkingen er partens vurdering. I første versjon er det registrerte brevet dokumentasjon, og trekket sendes fra appen.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "OV-U7",
+        "OV-U4",
+        "KA-U22",
         "KA-U27",
         "KA-U30",
-        "KA-U22",
-        "KA-U14",
-        "KA-U20",
-        "KA-U26"
+        "KA-U20"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#trekkKanIkkeBevareAvtalen",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
-      ],
-      "regelkoder": [
-        "AVTALE_KAN_IKKE_BEVARES"
       ]
     },
     {

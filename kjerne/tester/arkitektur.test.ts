@@ -316,11 +316,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
-  [
-    'utledning/utled.ts',
-    'predikat',
-    'utled kraveneErAvgjort trekkAvGrunnlagetErSperret trekkKanIkkeBevareAvtalen',
-  ],
+  ['utledning/utled.ts', 'predikat', 'utled kraveneErAvgjort trekkAvGrunnlagetErSperret'],
   ['utledning/utled.ts', 'relasjon', 'grunnlagskravFor'],
   ['utledning/utled.ts:grunnlagskravFor', 'relasjon', 'grunnlagskrav'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
