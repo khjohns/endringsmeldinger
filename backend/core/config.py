@@ -73,6 +73,11 @@ class Settings(BaseSettings):
     database_retry_backoff_base: float = 0.05
     database_retry_backoff_max: float = 1.0
 
+    # TS_SKRIVESTI=true: TS-kjernen er eneste skriver i KOE-, EO- og
+    # forseringssakene, og Python-lagrene avviser hver hendelse (B-17).
+    # Settes sammen med bryteren i frontenden (#663). Fjernes med lagrene (#49).
+    ts_skrivesti: bool = False
+
     @property
     def is_catenda_enabled(self) -> bool:
         """
