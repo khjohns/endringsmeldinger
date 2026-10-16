@@ -8,7 +8,7 @@ arbeidstreet du committer fra:
     git worktree add /tmp/kopi HEAD && ln -s "$PWD/node_modules" /tmp/kopi/node_modules
     KOE_TESTBASE_URL=... python3 server/tester/feilinnfoering.py /tmp/kopi
 
-Krever KOE_TESTBASE_URL. Kjør ikke samtidig med pytest mot samme base. Først
+Krever KOE_TESTBASE_URL og KOE_SQLSERVER_TILKOBLING (#658). Kjør ikke samtidig med pytest mot samme base. Først
 kjøres testene uten feilinnføring og må være grønne. En feilinnføring er
 oppdaget når en test med det forventede navnet feiler. Skriptet feiler når en
 feilinnføring overlever og ikke står i FORVENTET_OVERLEVER, eller når stedet
@@ -31,7 +31,7 @@ FEILINNFOERINGER = [
      "!['GET', 'HEAD', 'OPTIONS'].includes(metode) &&", "false &&",
      "CSRF"),
     ("S3", "prosjektgrensen for saken i stien kontrolleres ikke", "server/autorisasjon.ts",
-     "if (sak.rows[0]?.prosjekt_id !== prosjektId) throw nekt();", "if (!sak.rows[0]) throw nekt();",
+     "for (const sakId of saker) if (!iProsjektet.has(sakId)) throw nekt();", "void iProsjektet;",
      "mot en sak utenfor gir 403"),
     ("S4", "lageret kontrollerer ikke versjonen klienten så", "server/lager.ts",
      "if (versjon !== forventet) throw new Versjonskonflikt(forventet, versjon);", "",
