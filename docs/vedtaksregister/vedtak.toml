@@ -1693,7 +1693,7 @@ svar = '''
 Lås hovedkategori (Anbefalt)'''
 forhold = [{ art = "snevrer inn", vedtak = "gr-u1" }]
 folge = '''
-Snevrer også inn raden i B-13 om endret underkategori (05.10, #215). Spørsmålet kom fra kontrollen av PR #535 før merge. Før spørsmålet ble stilt, spurte oppdragsgiver: «Vet du hva - er det noen god grunn til å la TE endre kategori? Er det drøftet i kode eller tidligere PR? Det skaper mye rot» (#538). Kontrollen 16.10 av om trekket er sperret ved enighet om grunnlaget (KA-U13) og når kravene er avgjort (KA-U11), står i en kommentar på #538. Ikke bygget (#538).'''
+Snevrer også inn raden i B-13 om endret underkategori (05.10, #215). Spørsmålet kom fra kontrollen av PR #535 før merge. Før spørsmålet ble stilt, spurte oppdragsgiver: «Vet du hva - er det noen god grunn til å la TE endre kategori? Er det drøftet i kode eller tidligere PR? Det skaper mye rot» (#538). Kontrollen 16.10 av om trekket er sperret ved enighet om grunnlaget (KA-U13) og når kravene er avgjort (KA-U11), står i en kommentar på #538. Bygget 16.10 i PR #549 (#538 og #520): en ny grunnlagsversjon med en annen hovedkategori avvises med regelkoden ANNEN_HOVEDKATEGORI, og en annen underkategori avvises med ANNEN_VARSLINGSPLIKT når § 32.2 ikke gjelder likt for den og for forrige versjon. En journal som alt har et skifte, leses som før (MM-U18). PROJEKSJONSVERSJON 18.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Lås hovedkategori"
@@ -1724,7 +1724,7 @@ svar = '''
 A: frafallet står (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "gr-u17" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "snevrer inn", vedtak = "gr-u1" }, { art = "snevrer inn", vedtak = "hf-u5" }]
 folge = '''
-Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke i tilstanden med en ny grunnlagsversjon (GR-U1), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
+Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510, som GR-U23 erstatter for hva som gjelder mens den venter), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1735,6 +1735,120 @@ Frafallet faller ikke bort når TE sender en ny grunnlagsversjon. Byggherren kan
 navn = "B"
 tekst = '''
 Frafallet gjelder grunnlagsversjonen det svarer på. På en ny versjon kan byggherren svare fritt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GR-U21"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#510", "#557"]
+sporsmal = '''
+Frafall og ny grunnlagsversjon (GR-U20, PR #557), funnet i reviewet. Eksempel: TE varsler en irregulær endring 1. mars, og byggherren frafaller pålegget 10. mars (§ 32.3 c). 20. mars sender TE grunnlagsversjon 2 som en lovendring. Det tillater GR-U19, fordi § 32.2 gjelder likt. Etter GR-U18 er frafall ikke tillatt ved lovendring eller gebyr, fordi endringen da ikke er byggherrens eget pålegg. Etter GR-U20 kan byggherren svare på en ny versjon bare med frafall eller endringsordre. Her er den eneste veien da en godkjenning, som blir en endringsordre. Spørsmålet 16.10 bygde på at versjonen gjelder samme pålegg, og det stemmer ikke her. Hva skal gjelde?
+
+- **A: svar fritt på v2 (Anbefalt).** «Er den nye grunnlagsversjonen i en underkategori der frafall ikke er tillatt (GR-U18), kan byggherren svare på den som etter GR-U1. Løftet om endringsordre for arbeid som alt er utført etter pålegget, står (GR-U17).» Presiserer GR-U20 og GR-U18. Byggherren blir ikke tvunget til en endringsordre for en lovendring.
+- **B: frafallet binder alltid.** «Frafallet binder også ved en ny grunnlagsversjon i en annen underkategori. Byggherren kan ikke avslå den, og en godkjenning er en endringsordre.» Presiserer GR-U20, men snevrer inn GR-U18: byggherren må i praksis gi en endringsordre for en lovendring.
+- **C: sperr bytte etter frafall.** «Etter et frafall kan TE ikke sende en ny grunnlagsversjon i en underkategori der frafall ikke er tillatt.» Snevrer inn GR-U19. Det sperrer en handling TE kan trenge, for eksempel når TE ser at endringen egentlig kommer av en lov.'''
+valgt = "A"
+svar = '''
+A: svar fritt på v2 (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "gr-u20" }, { art = "presiserer", vedtak = "gr-u18" }]
+folge = '''
+Spørsmålet kom fra reviewet av PR #557 16.10. Ikke bygget (#510).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Er den nye grunnlagsversjonen i en underkategori der frafall ikke er tillatt (GR-U18), kan byggherren svare på den som etter GR-U1. Løftet om endringsordre for arbeid som alt er utført etter pålegget, står (GR-U17).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Frafallet binder også ved en ny grunnlagsversjon i en annen underkategori. Byggherren kan ikke avslå den, og en godkjenning er en endringsordre.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Etter et frafall kan TE ikke sende en ny grunnlagsversjon i en underkategori der frafall ikke er tillatt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GR-U22"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#510", "#538"]
+sporsmal = '''
+**Spørsmålet:** Du spurte: «fikk du svaret mitt om det å ikke kunne endre grunnlag?» Det jeg har, er to ting. Det ene er svaret ditt 16.10 på #538, «Lås hovedkategori», som er ført som GR-U19: hovedkategorien låses, og underkategorien kan bare endres når § 32.2 gjelder likt. Det andre er spørsmålet ditt før det: «Vet du hva - er det noen god grunn til å la TE endre kategori? … Det skaper mye rot». To spørsmål ble avbrutt da økta startet på nytt. Har du svart noe mer, har jeg ikke fått det. Hvilken lesning mener du for frafall og ny grunnlagsversjon? Eksempel: byggherren frafaller pålegget 10. mars, og TE og BH blir enige om vederlaget 15. mars. 20. mars sender TE grunnlagsversjon 2.
+
+- **Ingen ny versjon etter frafall.** «Etter et frafall etter § 32.3 c kan TE ikke sende en ny grunnlagsversjon. TE gjør uenigheten gjeldende i vederlag eller frist.» Snevrer inn GR-U19 og GR-U1. GR-U20 og GR-U21 får da ikke noe å gjelde for. Oppgjøret 15. mars kan ikke falle bort ved TEs brev.
+- **Ingen ny versjon etter svar.** «Når byggherren har svart på grunnlaget, kan TE ikke sende en ny grunnlagsversjon. Vil TE endre grunnlaget, trekker TE kravet og sender en ny sak.» Endrer GR-U1 og GR-U19, og gjelder alle svar, ikke bare frafall. Trekket er etter KA-U22 et avkall på alle krav i saken.
+- **Versjon tillatt, grunnlag avklart (Anbefalt).** «TE kan sende en ny grunnlagsversjon etter GR-U19. Mens den venter på svar etter et frafall, er grunnlaget avklart ved frafallet (GR-U7, OV-U3), og et oppgjør står.» Presiserer GR-U20 og GR-U1, og erstatter arbeidsvalget 16.10 på #510.
+
+**Oppfølging:** Oppfølging til svaret ditt: «jeg ikke ser noe reellt behov for at TE skal kunne endre grunnlag. TE må selv ta asnavr for å velge riktig hjemmel, og hvis feil, opprette ny sak og overføre krav». Det kan leses på to måter. Valget avgjør hvilke av GR-U1, GR-U19, GR-U20 og GR-U21 som faller bort. Eksempel: TE varsler en irregulær endring 1. mars og vil 20. mars utfylle beskrivelsen, eller bytte til en lovendring. Overføringen til ny sak er felles for begge lesningene: trekket er da ikke et avkall etter KA-U22, og den nye saken viser til varselet i den gamle, så varseldatoen etter § 32.2 ikke blir appens dato.
+
+- **A: hjemmelen står (Anbefalt).** «Når TE har sendt grunnlaget, kan TE ikke endre hjemmelen: hovedkategorien og underkategorien står. TE kan sende en ny versjon med samme hjemmel, for eksempel med en utfylt beskrivelse. Vil TE påberope en annen hjemmel, oppretter TE en ny sak og overfører kravene dit. Overføringen er ikke et avkall, og den nye saken viser til varselet i den gamle.» Endrer GR-U19 (ingen bytte av underkategori). GR-U21 faller bort. GR-U1 og GR-U20 står. Utvider KA-U22 med et unntak.
+- **B: ingen ny grunnlagsversjon.** «Når TE har sendt grunnlaget, kan TE ikke sende en ny versjon av det. Vil TE endre grunnlaget, oppretter TE en ny sak og overfører kravene dit. Overføringen er ikke et avkall, og den nye saken viser til varselet i den gamle.» Opphever GR-U1 for grunnlaget, og GR-U19, GR-U20 og GR-U21. Utvider KA-U22 med et unntak. TE må opprette en ny sak også for å rette en beskrivelse.'''
+valgt = "A"
+svar = '''
+Jeg bare tenkte at jeg ikke ser noe reellt behov for at TE skal kunne endre grunnlag. TE må selv ta asnavr for å velge riktig hjemmel, og hvis feil, opprette ny sak og overføre krav. Da slipper vi alle disse reglene som må kunne beregne og hensynta at TE går frem og tilbake
+
+Oppfølging: A: hjemmelen står (Anbefalt)'''
+forhold = [{ art = "endrer", vedtak = "gr-u19" }, { art = "opphever", vedtak = "gr-u21" }, { art = "snevrer inn", vedtak = "ka-u22" }, { art = "endrer", vedtak = "gr-u2" }]
+folge = '''
+Spørsmålet kom etter at oppdragsgiver svarte på spørsmålet om frafall og ny grunnlagsversjon (GR-U23) med «fikk du svaret mitt om det å ikke kunne endre grunnlag?». Alternativ A sier «Utvider KA-U22 med et unntak». Ført som «snevrer inn», slik unntaket i OV-U5 fra OV-U4 er ført. Forholdet til GR-U2 fant kontrollen av føringen 16.10: underkategorien kan ikke lenger endres, så raden i B-13 om endret underkategori (05.10, #215) får ikke noe å gjelde for. Forholdet mellom overføringen og OV-U5 er ikke avklart, og heller ikke om byggherrens binding (HF-U5) og en enighet følger kravene til den nye saken (#569). Ikke bygget (#569).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Når TE har sendt grunnlaget, kan TE ikke endre hjemmelen: hovedkategorien og underkategorien står. TE kan sende en ny versjon med samme hjemmel, for eksempel med en utfylt beskrivelse. Vil TE påberope en annen hjemmel, oppretter TE en ny sak og overfører kravene dit. Overføringen er ikke et avkall, og den nye saken viser til varselet i den gamle.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Når TE har sendt grunnlaget, kan TE ikke sende en ny versjon av det. Vil TE endre grunnlaget, oppretter TE en ny sak og overfører kravene dit. Overføringen er ikke et avkall, og den nye saken viser til varselet i den gamle.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GR-U23"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#510"]
+sporsmal = '''
+**Første spørsmål:** Frafall og ny grunnlagsversjon (GR-U20), funn i den samlede vurderingen. Eksempel: byggherren frafaller pålegget 10. mars (§ 32.3 c). TE og BH er enige om vederlaget 15. mars, og saken er oppgjort etter GR-U7, som sier at kravet er oppgjort når grunnlaget er «godkjent uten preklusjon etter § 32.2, eller frafalt». 20. mars sender TE grunnlagsversjon 2 i samme underkategori. Arbeidsvalget i #510 sier at frafallet står som binding, men ikke som gjeldende svar på versjon 2. Da har grunnlaget ikke noe gjeldende svar mens versjon 2 venter: enigheten om vederlaget blir betinget igjen, og saken er ikke lenger oppgjort, utløst av TEs eget brev. Hva skal gjelde?
+
+- **A: grunnlaget er avklart (Anbefalt).** «Mens en ny grunnlagsversjon etter et frafall venter på byggherrens svar, er grunnlaget avklart ved frafallet (GR-U7, OV-U3). Byggherren kan svare på den nye versjonen med frafall eller endringsordre (GR-U20).» Presiserer GR-U20 og GR-U1. Erstatter arbeidsvalget 16.10 i #510. TEs nye versjon tar ikke bort et oppgjør som alt er inngått.
+- **B: arbeidsvalget står.** «Mens en ny grunnlagsversjon etter et frafall venter på svar, har grunnlaget ikke noe gjeldende svar, som etter GR-U1. En enighet i vederlag eller frist er da betinget til byggherren har svart.» Presiserer GR-U20. Et oppgjør kan da falle bort ved TEs eget brev.
+- **C: avvis ny versjon etter frafall.** «Etter et frafall avvises en ny grunnlagsversjon. TE gjør uenigheten gjeldende i vederlag eller frist.» Endrer GR-U9, GR-U20 og GR-U21, og snevrer inn GR-U19. Det sperrer en handling TE kan trenge.
+
+**Stilt på nytt etter GR-U22:** Etter svaret ditt (A: hjemmelen står) kan TE fortsatt sende en ny grunnlagsversjon med samme hjemmel, for eksempel med en utfylt beskrivelse. Da gjenstår ett tilfelle fra den samlede vurderingen. Eksempel: byggherren frafaller pålegget 10. mars (§ 32.3 c), og 15. mars blir partene enige om vederlaget. Saken er da oppgjort etter GR-U7 («godkjent uten preklusjon etter § 32.2, eller frafalt»). 20. mars sender TE versjon 2 med utfylt beskrivelse. Etter arbeidsvalget på #510 venter versjon 2 på byggherrens svar. Da har grunnlaget ikke noe gjeldende svar, enigheten om vederlaget blir betinget igjen, og oppgjøret faller bort. Det skjer fordi TE har sendt et nytt brev. Hva skal gjelde?
+
+- **A: grunnlaget er avklart (Anbefalt).** «Mens en ny grunnlagsversjon etter et frafall venter på byggherrens svar, er grunnlaget avklart ved frafallet (GR-U7, OV-U3). Byggherren kan svare på versjonen med frafall eller endringsordre (GR-U20).» Presiserer GR-U20 og GR-U1, og erstatter arbeidsvalget 16.10 på #510. TEs nye versjon tar ikke bort et oppgjør som alt er inngått.
+- **B: ingen ny versjon etter frafall.** «Etter et frafall etter § 32.3 c kan TE ikke sende en ny grunnlagsversjon.» Snevrer inn GR-U1, og GR-U20 får ikke noe å gjelde for. Det blir enklest å regne ut, men TE kan da ikke utfylle beskrivelsen etter frafallet.
+- **C: arbeidsvalget står.** «Mens versjon 2 venter på svar, har grunnlaget ikke noe gjeldende svar (GR-U1), og en enighet i vederlag eller frist er betinget til byggherren har svart.» Presiserer GR-U20. Et oppgjør kan da falle bort ved TEs eget brev.'''
+valgt = "A"
+svar = '''
+fikk du svaret mitt om det å ikke kunne endre grunnlag?
+
+Stilt på nytt: A: grunnlaget er avklart (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "gr-u20" }, { art = "presiserer", vedtak = "gr-u1" }, { art = "presiserer", vedtak = "gr-u7" }, { art = "presiserer", vedtak = "ov-u3" }]
+folge = '''
+Forholdene til GR-U7 og OV-U3 fant kontrollen av føringen 16.10: grunnlaget er avklart også mens den nye versjonen venter. Kontrollen fant også at OV-U3 avviser en ny kravversjon i grunnlaget når kravene er avgjort, så tilfellet oppstår bare når et annet sendt krav fortsatt står åpent, for eksempel et fristkrav. Eksemplet i spørsmålet hadde bare et vederlagskrav. Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Det første svaret var et spørsmål tilbake. Det ble besvart med GR-U22, og spørsmålet ble så stilt på nytt. Vedtaket erstatter orkestratorens arbeidsvalg 16.10 på #510 om at grunnlaget venter på svar uten noe gjeldende svar. Ikke bygget (#510).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Mens en ny grunnlagsversjon etter et frafall venter på byggherrens svar, er grunnlaget avklart ved frafallet (GR-U7, OV-U3). Byggherren kan svare på versjonen med frafall eller endringsordre (GR-U20).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Etter et frafall etter § 32.3 c kan TE ikke sende en ny grunnlagsversjon.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Mens versjon 2 venter på svar, har grunnlaget ikke noe gjeldende svar (GR-U1), og en enighet i vederlag eller frist er betinget til byggherren har svart.'''
 forkastet = true
 
 [[gruppe]]
@@ -2944,6 +3058,166 @@ forkastet = true
 navn = "C"
 tekst = '''
 En aksept etter akseptfristen er alltid et nytt tilbud fra TE, også når svaret er et helt avslag.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U16"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Akseptfristen (HF-U5, HF-U15, #502), spørsmål 1: når er fristen ute? Eksempel: BH godkjenner 300 av 500 000 kr 10. mars med akseptfrist 24. mars. Avtaleloven § 2 første ledd: aksepten må «være kommet frem til ham, før fristen er ute». Kommentar 7 til § 2, som viser til forarbeidene: en frist «inden 15de juni» holder om aksepten kommer fram «i løpet av den 15de juni». NS 8407 § 6 forlenger en frist som ender på en lørdag, helligdag eller høytidsdag, men verken § 6 eller avtaleloven sier om det gjelder en akseptfrist byggherren setter selv.
+
+- **A: utløp ved dagens slutt (Anbefalt).** «Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen i norsk tid. En aksept som appen registrerer senest den dagen, regner appen som i tide. Om aksepten kom fram i tide etter avtaleloven § 2, avgjør ikke appen (MM-U12). Byggherren kan ikke sette en frist som ligger før datoen for svaret, eller som faller på en lørdag, helligdag eller høytidsdag (NS 8407 § 6).» Presiserer HF-U5 og HF-U15.
+- **B: appen forlenger etter § 6.** «Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen. Faller den på en lørdag, helligdag eller høytidsdag, forlenger appen den til nærmest følgende virkedag (§ 6).» Presiserer HF-U5, men strider mot MM-U12 og HF-U13: appen avgjør da om § 6 gjelder, og leser fristen annerledes enn den står i brevet.'''
+valgt = "A"
+svar = '''
+A: utløp ved dagens slutt (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u15" }, { art = "presiserer", vedtak = "hf-u8" }]
+folge = '''
+Spørsmålene 1–4 om akseptfristen kom fra kartleggingen av #502 16.10. Forholdene til HF-U5 og HF-U15 sto i spørsmålet. Forholdet til HF-U8, som sier når svaret faller bort, fant kontrollen av føringen 16.10. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen i norsk tid. En aksept som appen registrerer senest den dagen, regner appen som i tide. Om aksepten kom fram i tide etter avtaleloven § 2, avgjør ikke appen (MM-U12). Byggherren kan ikke sette en frist som ligger før datoen for svaret, eller som faller på en lørdag, helligdag eller høytidsdag (NS 8407 § 6).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Akseptfristen er en dato i svaret, og den er ute ved utgangen av datoen. Faller den på en lørdag, helligdag eller høytidsdag, forlenger appen den til nærmest følgende virkedag (§ 6).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U17"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Akseptfristen, spørsmål 2: kan byggherren endre fristen? Etter HF-U5 varer bindingen «til en akseptfrist byggherren har satt i svaret, er ute». Fristen står ikke i listen over det en revisjon ikke kan senke. HF-U14 føyde aksepten av beregningsmåten til den listen på samme måte. Etter HF-U6 kan byggherren ikke ta tilbake eller svekke svaret.
+
+- **A: bare forlenge (Anbefalt).** «Før akseptfristen er ute, kan byggherren endre den bare ved å revidere svaret. En senere frist er tillatt, og det er også tillatt å fjerne fristen. En tidligere frist avvises, og et svar uten akseptfrist kan ikke få en ved revisjon. Etter fristen binder svaret ikke byggherren i appen, unntatt det HF-U4 gjelder. Et nytt eller revidert svar kan da ha en ny frist.» Utvider HF-U5, som HF-U14. Følger av HF-U6. Presiserer HF-U15.
+- **B: fritt ved revisjon.** «Akseptfristen kan endres fritt ved revisjon.» Strider mot HF-U6 og snevrer inn HF-U5, fordi byggherren da kan forkorte bindingen.'''
+valgt = "A"
+svar = '''
+A: bare forlenge (Anbefalt)'''
+forhold = [{ art = "utvider", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u15" }]
+folge = '''
+Følger av HF-U6. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Før akseptfristen er ute, kan byggherren endre den bare ved å revidere svaret. En senere frist er tillatt, og det er også tillatt å fjerne fristen. En tidligere frist avvises, og et svar uten akseptfrist kan ikke få en ved revisjon. Etter fristen binder svaret ikke byggherren i appen, unntatt det HF-U4 gjelder. Et nytt eller revidert svar kan da ha en ny frist.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Akseptfristen kan endres fritt ved revisjon.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U18"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Akseptfristen, spørsmål 3: hva viser saken når fristen er ute og TE ikke har godtatt svaret? Vedtakene avgjør allerede dette: en aksept etter fristen er et nytt tilbud som byggherren kan godta eller avslå (HF-U5), og taushet er ikke avtale (HF-U11, VS-U2). Spørsmålet gjelder hvem saken venter på, og hva brevet sier.
+
+- **A: saken venter på TE (Anbefalt).** «Etter akseptfristen er byggherrens svar fortsatt det gjeldende svaret i sporet. Saken venter på TE, ikke på et nytt svar fra byggherren. Godtar TE svaret, sier brevet at aksepten er sendt etter akseptfristen <dato> i byggherrens svar, og at TE tilbyr å godta svaret slik det står.» Presiserer HF-U5. Følger KT-U1: gjeldende svar er svaret på gjeldende kravversjon.
+- **B: saken venter på BH.** «Etter akseptfristen venter sporet på et nytt svar fra byggherren.» Presiserer HF-U5. Saken viser da at byggherren skylder et svar, uten at kontrakten sier det.'''
+valgt = "A"
+svar = '''
+A: saken venter på TE (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }]
+folge = '''
+Følger KT-U1. Forholdet til HF-U5 sto i spørsmålet. Forholdet til HF-U8 fant kontrollen av føringen 16.10: svaret binder ikke lenger etter fristen, men er fortsatt det gjeldende svaret. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Etter akseptfristen er byggherrens svar fortsatt det gjeldende svaret i sporet. Saken venter på TE, ikke på et nytt svar fra byggherren. Godtar TE svaret, sier brevet at aksepten er sendt etter akseptfristen <dato> i byggherrens svar, og at TE tilbyr å godta svaret slik det står.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Etter akseptfristen venter sporet på et nytt svar fra byggherren.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U19"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+**Første spørsmål:** Akseptfristen, spørsmål 4: hva skjer når byggherren har avslått TEs tilbud (en aksept etter fristen), eller når byggherren reviderer svaret mens tilbudet venter? At en ny kravversjon fra TE gjør at tilbudet faller bort, er avgjort av HF-U6 og HF-U8.
+
+- **A: revisjon er avslag (Anbefalt).** «Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men TE kan sende en ny kravversjon. Reviderer byggherren svaret mens TEs tilbud venter, er revisjonen et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist.» Presiserer HF-U5. Følger av HF-U7 og avtaleloven § 6.
+- **B: svar på tilbudet først.** «TE kan godta svaret på nytt etter et avslag, og hver aksept er et nytt tilbud. Byggherren må godta eller avslå tilbudet før hen kan revidere svaret.» Presiserer HF-U5, men sperrer en revisjon byggherren kan trenge, og krever to brev.
+
+**Oppfølging:** Svaret ditt kan leses på to måter. Begge beholder A: en revisjon er et avslag av tilbudet og et nytt svar, og etter et avslag sender TE en ny kravversjon. Valget styrer om appen får et eget utsagn for «å godta tilbudet», og om enigheten krever at BH sier det uttrykkelig.
+
+- **1: godta i skjemaet (Anbefalt).** «Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og velger om hen godtar det. Godtar byggherren, er partene enige om svaret slik brevet uttrykker det (KA-U10). Godtar hen ikke, tar hen stilling til delene av kravet på vanlig måte, og svaret er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist.» Presiserer HF-U5. Enigheten bygger på BHs uttrykkelige aksept, ikke på en sammenlikning appen gjør.
+- **2: bare vanlig svar.** «Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises. Tar byggherren stilling til hver del av kravet slik tilbudet lyder, er partene enige om svaret slik brevet uttrykker det (KA-U10). Ellers er svaret et avslag av tilbudet og et nytt svar. Det finnes ikke noe eget valg for å godta tilbudet.» Presiserer HF-U5. Appen utleder enigheten av at standpunktene er like, og BH må fylle ut det samme svaret på nytt.
+
+**Andre oppfølging:** Én ting er ikke avklart: skal svaret da avvises, eller skal byggherren bare advares og likevel kunne sende? Eksempel: BH godkjenner 300 av 500 000 kr med akseptfrist 24. mars. TE godtar 2. april. BH krysser av for «Godta», men skriver 250 000 kr.
+
+- **Avvis ved avvik (Anbefalt).** «Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men kan sende en ny kravversjon. Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og tar stilling til delene av kravet på vanlig måte. Skjemaet har også et valg for å godta tilbudet. Velger byggherren det, og svaret stemmer med tilbudet i hver del, er partene enige om svaret slik brevet uttrykker det (KA-U10). Stemmer svaret ikke med tilbudet, avviser appen det og viser hvilke deler som avviker. Et svar som ikke godtar tilbudet, er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist. Det samme gjelder en revisjon byggherren sender mens tilbudet venter.» Presiserer HF-U5. Følger av HF-U7. Brevet kan ikke si «godtar» og samtidig noe annet.
+- **Advar, og send som avslag.** Samme tekst, men med «Stemmer svaret ikke med tilbudet, viser appen hvilke deler som avviker. Sender byggherren likevel, er svaret et avslag av tilbudet og et nytt svar.» Brevet kan da inneholde både «godtar» og et annet beløp, og appen avgjør hva brevet betyr.'''
+valgt = "Avvis ved avvik"
+svar = '''
+Jeg tenker A - men dette følger av skjema i frontend: TE sender nytt tilbud. Byggherre for oppgitt tilbudet, og svarer ut i sitt skjema i frontend. Der tar han på vanlig måte stilling til aktuelle deler av kravet (frister, beløp, dager)
+
+Oppfølging: Vi kan ha godta i skjema, som en sikkerhetsventil: Dvs. en kombinasjon av 1 og 2. Hvis f.eks. byggherre velger "Godta" men svarene i skjema ikke er fullt ut godkjennelse, kommer en melding om dette.
+
+Andre oppfølging: Avvis ved avvik (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "hf-u5" }]
+folge = '''
+Følger av HF-U7. Det første svaret valgte A med et forbehold, og det første oppfølgingssvaret kombinerte 1 og 2. Derfor ble det stilt to oppfølgingsspørsmål. Teksten i det forkastede alternativet «Advar, og send som avslag» er satt sammen av «samme tekst, men med …» slik det ble stilt: setningen om avvik er byttet ut, og resten står. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Avvis ved avvik"
+tekst = '''
+Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men kan sende en ny kravversjon. Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og tar stilling til delene av kravet på vanlig måte. Skjemaet har også et valg for å godta tilbudet. Velger byggherren det, og svaret stemmer med tilbudet i hver del, er partene enige om svaret slik brevet uttrykker det (KA-U10). Stemmer svaret ikke med tilbudet, avviser appen det og viser hvilke deler som avviker. Et svar som ikke godtar tilbudet, er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist. Det samme gjelder en revisjon byggherren sender mens tilbudet venter.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Advar, og send som avslag"
+tekst = '''
+Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men kan sende en ny kravversjon. Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og tar stilling til delene av kravet på vanlig måte. Skjemaet har også et valg for å godta tilbudet. Velger byggherren det, og svaret stemmer med tilbudet i hver del, er partene enige om svaret slik brevet uttrykker det (KA-U10). Stemmer svaret ikke med tilbudet, viser appen hvilke deler som avviker. Sender byggherren likevel, er svaret et avslag av tilbudet og et nytt svar. Et svar som ikke godtar tilbudet, er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist. Det samme gjelder en revisjon byggherren sender mens tilbudet venter.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B: svar på tilbudet først"
+tekst = '''
+TE kan godta svaret på nytt etter et avslag, og hver aksept er et nytt tilbud. Byggherren må godta eller avslå tilbudet før hen kan revidere svaret.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "HF-U20"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Akseptfristen (HF-U15, HF-U17), funn i den samlede vurderingen. Et helt avslag har ingen akseptfrist (HF-U15), og et svar uten akseptfrist kan ikke få en ved revisjon (HF-U17). Eksempel: byggherren avslår et krav på 500 000 kr helt 10. mars. 20. mars reviderer byggherren svaret til 300 000 kr. Etter ordlyden kan det reviderte svaret aldri få en akseptfrist, selv om byggherren kommer TE i møte. Grunnen til regelen i HF-U17 er at en frist ikke skal forkorte en binding som allerede finnes. Et helt avslag binder ingenting. Hva skal gjelde?
+
+- **Ja, frist tillatt (Anbefalt).** «Reviderer byggherren et helt avslag til et svar som godkjenner et beløp eller dager, prinsipalt eller subsidiært, uten å stemme med kravet, kan det reviderte svaret ha en akseptfrist.» Presiserer HF-U17. Følger av HF-U6, fordi et helt avslag ikke har gitt TE noe å miste.
+- **Nei, HF-U17 står.** «Et svar uten akseptfrist kan ikke få en ved revisjon, heller ikke når det reviderte svaret godkjenner noe for første gang.» HF-U17 står som den er. Byggherren må da sende et nytt svar uten frist, eller la være å revidere.'''
+valgt = "Ja, frist tillatt"
+svar = '''
+Ja, frist tillatt (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "hf-u17" }]
+folge = '''
+Følger av HF-U6. Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Ikke bygget (#502).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, frist tillatt"
+tekst = '''
+Reviderer byggherren et helt avslag til et svar som godkjenner et beløp eller dager, prinsipalt eller subsidiært, uten å stemme med kravet, kan det reviderte svaret ha en akseptfrist.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, HF-U17 står"
+tekst = '''
+Et svar uten akseptfrist kan ikke få en ved revisjon, heller ikke når det reviderte svaret godkjenner noe for første gang.'''
 forkastet = true
 
 [[gruppe]]
