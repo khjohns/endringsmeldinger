@@ -195,7 +195,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
         ]);
       });
 
-      it('åtte samtidige skrivinger med samme forventede versjon: nøyaktig én lagres, de andre får versjonskonflikt', async () => {
+      it('åtte samtidige skrivinger med samme forventede versjon: nøyaktig én lagres, de andre får versjonskonflikt eller vranglås', async () => {
         const sakId = await nySak(base.pool);
         const hendelser = Array.from({ length: 8 }, () => randomUUID());
         const utfall = await Promise.allSettled(
@@ -204,8 +204,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
 
         const lyktes = hendelser.filter((_, i) => utfall[i].status === 'fulfilled');
         expect(lyktes).toHaveLength(1);
+        // Et vranglåsoffer er også en avvist skriving (#547).
         for (const u of utfall) {
-          if (u.status === 'rejected') expect(feilnummer(u.reason)).toBe(VERSJONSKONFLIKT);
+          if (u.status === 'rejected')
+            expect([VERSJONSKONFLIKT, VRANGLAAS]).toContain(feilnummer(u.reason));
         }
         const rader = await lagret(base.pool, sakId);
         expect(rader.map((r) => r.versjon)).toEqual([1, 2]);
