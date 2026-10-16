@@ -425,9 +425,6 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | GR-32 | [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts), [`frafalletBinder`](../../kjerne/utledning/utled.ts), [`strid`](../../kjerne/utledning/utled.ts) |
 | GR-33 | [`utled`](../../kjerne/utledning/utled.ts), [`frafalletBinder`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
 | KA-31 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| KA-32 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
-| KA-33 | [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts), [`utledSporene`](../../kjerne/utledning/utled.ts) |
-| KA-34 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | KA-35 | [`strid`](../../kjerne/utledning/utled.ts) |
 | KA-36 | [`strid`](../../kjerne/utledning/utled.ts) |
 | KA-37 | [`strid`](../../kjerne/utledning/utled.ts) |

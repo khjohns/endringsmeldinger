@@ -307,7 +307,8 @@ etter § 31.3, oppgitt av den som registrerer, med vedlegget i `dokumentasjon`.
 Registratorens vurdering, ikke en rettslig avgjørelse. Uten `gjelder` står den i
 brevet selv. En senere avklaring er et nytt dokument med bare opplysningen, der
 `gjelder` er det registrerte brevet, som ikke skrives om. Det står høyst én slik
-opplysning per brev. Uten opplysningen er det ikke avklart om svaret er en
-endringsordre, og trekket av grunnlaget er sperret til det er avklart."""
+opplysning per brev. Med opplysningen i brevet selv er byggherrens registrerte
+godkjenning svaret på grunnlaget (OV-U6); ellers er brevet dokumentasjon uten
+virkning (OV-U4). Opplysningen sperrer ikke trekket av grunnlaget."""
 felt = ["id", "hva", "oppfylt", "gjelder"]
-grunnlag = "§ 31.3, § 32.3 a, GR-U13, KA-U14, MM-U12"
+grunnlag = "§ 31.3, § 32.3 a, GR-U13, KA-U14, MM-U12, OV-U4, OV-U6"

@@ -2573,10 +2573,6 @@
         "OV-U4"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
-        "kjerne/utledning/utled.ts#kanInngaaIEo"
-      ],
       "utsatt": "OV-U7"
     },
     {
@@ -2597,10 +2593,6 @@
         "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#henvisning",
-        "kjerne/utledning/utled.ts#utledSporene"
-      ],
       "utsatt": "OV-U7"
     },
     {
@@ -2620,9 +2612,6 @@
         "KA-U20"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
-      ],
       "utsatt": "OV-U7"
     },
     {

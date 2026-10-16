@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `610e6d11e6e336e4c6ec127de2baff0c82bd886ca20e4f23c62d061758a8b98d`
+Kontrollsum (SHA-256 over utdraget visningen leser): `ae36be8a9b414a82091d3867103f011fed8ba6bd6c7dcbb353d319477a9e5c05`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
