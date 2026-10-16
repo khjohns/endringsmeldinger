@@ -69,11 +69,34 @@ def test_relasjonsregisteret_er_gyldig(kilder):
 
 def test_hver_fremmednokkel_i_katalogen_har_en_oppforing(kilder):
     fk = set(rel.fremmednøkler(kilder["katalog"]))
-    beskrevet = {
-        (r["fra"], r["til"]) for r in kilder["relasjoner"]["relasjon"] if r["art"] == "fremmednøkkel"
-    }
+    beskrevet = {rel.nøkkel(r) for r in kilder["relasjoner"]["relasjon"] if r["art"] == "fremmednøkkel"}
     assert fk, "Fant ingen fremmednøkler i katalogen; har lesingen sluttet å virke?"
+    assert any(len(fra) > 1 for fra, _ in fk), "Fant ingen sammensatt fremmednøkkel; har lesingen sluttet å virke?"
     assert beskrevet == fk
+
+
+def test_vakta_melder_sammensatt_fremmednokkel_fort_per_kolonne(kilder):
+    """#590: en sammensatt nøkkel er én oppføring, så hver kolonne er dekket av den."""
+    endret = copy.deepcopy(kilder["relasjoner"])
+    sammensatt = next(r for r in endret["relasjon"] if r["fra"] == ["koe.notat.sak_id", "koe.notat.prosjekt_id"])
+    endret["relasjon"].remove(sammensatt)
+    endret["relasjon"] += [
+        {**sammensatt, "fra": fra, "til": til} for fra, til in zip(sammensatt["fra"], sammensatt["til"])
+    ]
+    feil = rel.valider(endret, kilder["katalog"])
+    assert "koe.notat.sak_id → koe.sak_metadata.sak_id: står som fremmednøkkel, men katalogen har ingen slik" in feil
+    assert (
+        "fremmednøkkelen koe.notat.(sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) "
+        "i katalogen mangler oppføring"
+    ) in feil
+
+
+def test_vakta_melder_sammensatt_nokkel_med_ulike_ender(kilder):
+    endret = copy.deepcopy(kilder["relasjoner"])
+    sammensatt = next(r for r in endret["relasjon"] if rel.tabell(r, "fra") == "koe.leveringsoppdrag" and r["art"] == "fremmednøkkel")
+    sammensatt["til"] = sammensatt["til"][:2]
+    feil = rel.valider(endret, kilder["katalog"])
+    assert any("fra og til har ulikt antall kolonner" in f for f in feil), feil
 
 
 def test_vakta_melder_fremmednokkel_uten_oppforing(kilder):
@@ -208,6 +231,23 @@ def test_katalogen_har_unike_indekser_og_nullbarheten_sqlite_faktisk_har(kilder)
     assert "unik indeks" in rel.tabelltekst(kilder["relasjoner"], kilder["katalog"], "sak_bim_links")
     approvals = {k[0]: k[2] for k in kilder["katalog"]["sqlite"]["tabeller"]["approvals"]["kolonner"]}
     assert approvals["project"] == "NULL"
+
+
+def test_kolonneetiketten_har_ikke_tabellnavnet_i_sql_server(kilder):
+    """#592: tabellnavnet i SQL Server har selv et punktum (`koe.hendelse`), så etiketten er
+    kolonnen og ikke `hendelse.aktor_id`. En sammensatt nøkkel står med alle kolonnene (#590)."""
+    tekst = rel.tabelltekst(kilder["relasjoner"], kilder["katalog"], "koe.hendelse")
+    assert "Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel" in tekst
+    assert "; aktor_id → koe.app_users.id (fremmednøkkel" in tekst
+    rader = rel.relasjonsrader(kilder["relasjoner"], kilder["katalog"])
+    assert ["koe.hendelse", "aktor_id", "koe.app_users", "id"] in [rad[:4] for rad in rader]
+
+
+def test_sammensatt_fremmednokkel_er_en_kant_i_er_diagrammet(kilder):
+    """#590: kanten mellom brevet og saken er én, med begge kolonnene i etiketten."""
+    diagram = rel.er_diagram(kilder["relasjoner"], kilder["katalog"], "SQL Server")
+    kanter = [linje for linje in diagram.splitlines() if linje.startswith("    koe_sak_metadata ") and "koe_hendelse" in linje]
+    assert kanter == ['    koe_sak_metadata ||--o{ koe_hendelse : "(sak_id, prosjekt_id)"']
 
 
 def _kallsteder_i(kilde: str) -> set[tuple[str, str]]:

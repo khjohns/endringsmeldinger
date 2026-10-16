@@ -3,6 +3,10 @@
 Brukes av datamodell.py. Fremmednøklene, nøklene og kolonnene hentes fra
 katalog.json, så registeret beskriver bare det katalogen ikke kan svare på:
 hva koblingen betyr, og koblingene basen ikke kjenner.
+
+`fra` og `til` er «tabell.kolonne», eller en liste av dem for en sammensatt
+nøkkel: kolonnene i samme tabell og i samme rekkefølge som i fremmednøkkelen
+(#590).
 """
 
 import pathlib
@@ -57,14 +61,60 @@ def kolonne(katalog: dict, referanse: str) -> list[str] | None:
     return None
 
 
-def fremmednøkler(katalog: dict) -> dict[tuple[str, str], str]:
-    """{(fra, til): ved_sletting} for hver fremmednøkkel med én kolonne."""
-    resultat = {}
-    for tabell, innhold in tabeller(katalog).items():
-        for fk in innhold["fremmednøkler"]:
-            for fra, til in zip(fk["kolonner"], fk["til_kolonner"], strict=True):
-                resultat[(f"{tabell}.{fra}", f"{fk['til']}.{til}")] = fk["ved_sletting"]
-    return resultat
+Nøkkel = tuple[tuple[str, ...], tuple[str, ...]]
+
+
+def kolonner(r: dict, ende: str) -> list[str]:
+    """Kolonnene i enden, som «tabell.kolonne»; én for en vanlig nøkkel."""
+    verdi = r[ende]
+    return list(verdi) if isinstance(verdi, list) else [verdi]
+
+
+def tabell(r: dict, ende: str) -> str:
+    return kolonner(r, ende)[0].rpartition(".")[0]
+
+
+def nøkkel(r: dict) -> Nøkkel:
+    return tuple(kolonner(r, "fra")), tuple(kolonner(r, "til"))
+
+
+def fremmednøkler(katalog: dict) -> dict[Nøkkel, str]:
+    """{(fra-kolonnene, til-kolonnene): ved_sletting} for hver fremmednøkkel, også en sammensatt."""
+    return {
+        (
+            tuple(f"{tabell}.{k}" for k in fk["kolonner"]),
+            tuple(f"{fk['til']}.{k}" for k in fk["til_kolonner"]),
+        ): fk["ved_sletting"]
+        for tabell, innhold in tabeller(katalog).items()
+        for fk in innhold["fremmednøkler"]
+    }
+
+
+def _referanse(referanser: tuple[str, ...] | list[str]) -> str:
+    """«tabell.kolonne», eller «tabell.(a, b)» for en sammensatt nøkkel."""
+    if len(referanser) == 1:
+        return referanser[0]
+    tabellnavn = referanser[0].rpartition(".")[0]
+    return f"{tabellnavn}.({', '.join(r.rpartition('.')[2] for r in referanser)})"
+
+
+def _formfeil(r: dict) -> str | None:
+    lengder = []
+    for ende in ("fra", "til"):
+        verdi = r[ende]
+        if isinstance(verdi, list):
+            if len(verdi) < 2 or not all(isinstance(v, str) for v in verdi):
+                return f"{ende} er en liste, men ikke av minst to kolonner"
+            if len({v.rpartition(".")[0] for v in verdi}) != 1:
+                return f"kolonnene i {ende} står i ulike tabeller"
+        elif not isinstance(verdi, str):
+            return f"{ende} er verken en kolonne eller en liste av kolonner"
+        lengder.append(len(kolonner(r, ende)))
+    if lengder[0] != lengder[1]:
+        return "fra og til har ulikt antall kolonner"
+    if "json_sti" in r and lengder[0] != 1:
+        return "json_sti gjelder bare en nøkkel med én kolonne"
+    return None
 
 
 def _enkel_primærnøkkel(katalog: dict, referanse: str) -> bool:
@@ -86,15 +136,21 @@ def valider(register: dict, katalog: dict, funntekst: str | None = None) -> list
     feil = []
     fk = fremmednøkler(katalog)
     sett = set()
+    gyldige = []
     for r in register.get("relasjon", []):
         hvor = f"{r.get('fra')} → {r.get('til')}"
         if not set(RELASJONSFELT) <= set(r) <= set(RELASJONSFELT + VALGFRIE_FELT):
             feil.append(f"{hvor}: feltene skal være {RELASJONSFELT}, og eventuelt {VALGFRIE_FELT}")
             continue
-        nøkkel = (r["fra"], r["til"], r.get("json_sti"))
-        if nøkkel in sett:
+        if formfeil := _formfeil(r):
+            feil.append(f"{hvor}: {formfeil}")
+            continue
+        gyldige.append(r)
+        hvor = f"{_side(r, 'fra')} → {_side(r, 'til')}"
+        identitet = (nøkkel(r), r.get("json_sti"))
+        if identitet in sett:
             feil.append(f"{hvor}: står to ganger")
-        sett.add(nøkkel)
+        sett.add(identitet)
         if r["art"] not in ARTER:
             feil.append(f"{hvor}: art {r['art']!r} er ikke en av {ARTER}")
         if r["antall"] not in ANTALL:
@@ -102,7 +158,7 @@ def valider(register: dict, katalog: dict, funntekst: str | None = None) -> list
         for felt in ("beskrivelse", "belegg"):
             if not tekst(r[felt]):
                 feil.append(f"{hvor}: {felt} er tomt")
-        er_fk = (r["fra"], r["til"]) in fk
+        er_fk = nøkkel(r) in fk
         if r["art"] == "fremmednøkkel" and not er_fk:
             feil.append(f"{hvor}: står som fremmednøkkel, men katalogen har ingen slik")
         if r["art"] == "logisk" and er_fk:
@@ -110,9 +166,9 @@ def valider(register: dict, katalog: dict, funntekst: str | None = None) -> list
         for ende in ("fra", "til"):
             if er_fk and ende == "til":
                 continue
-            rad = kolonne(katalog, r[ende])
-            if rad is None:
-                feil.append(f"{hvor}: kolonnen {r[ende]} finnes ikke i katalogen")
+            for referanse in kolonner(r, ende):
+                if kolonne(katalog, referanse) is None:
+                    feil.append(f"{hvor}: kolonnen {referanse} finnes ikke i katalogen")
         if "json_sti" in r and _json_ende(r) is None:
             feil.append(f"{hvor}: json_sti uten at noen ende er en av {JSON_KOLONNER}")
         for funn in r["funn"]:
@@ -120,10 +176,10 @@ def valider(register: dict, katalog: dict, funntekst: str | None = None) -> list
                 feil.append(f"{hvor}: {funn!r} er ikke en funn-ID")
             elif funntekst is not None and not re.search(rf"\b{re.escape(funn)}\b", funntekst):
                 feil.append(f"{hvor}: {funn} står ikke i hovedplanens funnregister")
-    beskrevet = {(r["fra"], r["til"]) for r in register.get("relasjon", []) if r.get("art") == "fremmednøkkel"}
+    beskrevet = {nøkkel(r) for r in gyldige if r["art"] == "fremmednøkkel"}
     for fra, til in sorted(set(fk) - beskrevet):
-        feil.append(f"fremmednøkkelen {fra} → {til} i katalogen mangler oppføring")
-    i_relasjon = {r[e] for r in register.get("relasjon", []) for e in ("fra", "til") if e in r}
+        feil.append(f"fremmednøkkelen {_referanse(fra)} → {_referanse(til)} i katalogen mangler oppføring")
+    i_relasjon = {k for r in gyldige for e in ("fra", "til") for k in kolonner(r, e)}
     uten = {}
     for u in register.get("uten_relasjon", []):
         if set(u) != {"kolonne", "begrunnelse"} or not tekst(u.get("begrunnelse", "")):
@@ -147,21 +203,23 @@ def valider(register: dict, katalog: dict, funntekst: str | None = None) -> list
 
 def _json_ende(r: dict) -> str | None:
     for ende in ("fra", "til"):
-        if r[ende].rpartition(".")[2] in JSON_KOLONNER:
+        if any(k.rpartition(".")[2] in JSON_KOLONNER for k in kolonner(r, ende)):
             return ende
     return None
 
 
 def _side(r: dict, ende: str) -> str:
-    """«tabell.kolonne», med stien inne i JSON-kolonnen når den hører til denne enden."""
+    """«tabell.kolonne» eller «tabell.(a, b)», med stien inne i JSON-kolonnen når den
+    hører til denne enden."""
+    referanse = _referanse(kolonner(r, ende))
     if r.get("json_sti") and _json_ende(r) == ende:
-        return f"{r[ende]} → {r['json_sti']}"
-    return r[ende]
+        return f"{referanse} → {r['json_sti']}"
+    return referanse
 
 
 def _kolonneside(r: dict, ende: str) -> str:
     """Som `_side`, uten tabellen; tabellnavnet i SQL Server har selv et punktum."""
-    return _side(r, ende).removeprefix(r[ende].rpartition(".")[0] + ".")
+    return _side(r, ende).removeprefix(tabell(r, ende) + ".")
 
 
 def _nøkler(innhold: dict) -> str:
@@ -173,20 +231,16 @@ def _nøkler(innhold: dict) -> str:
     return "; ".join(deler) or "ingen"
 
 
-def tabelltekst(register: dict, katalog: dict, tabell: str) -> str:
+def tabelltekst(register: dict, katalog: dict, navn: str) -> str:
     """Kolonne 7 i tabellbeskrivelsen: nøkler og relasjoner, fra registeret og katalogen."""
     fk = fremmednøkler(katalog)
-    innhold = tabeller(katalog)[tabell]
-    ut = [r for r in register["relasjon"] if r["fra"].rpartition(".")[0] == tabell]
-    inn = [
-        r
-        for r in register["relasjon"]
-        if r["til"].rpartition(".")[0] == tabell and r["fra"].rpartition(".")[0] != tabell
-    ]
+    innhold = tabeller(katalog)[navn]
+    ut = [r for r in register["relasjon"] if tabell(r, "fra") == navn]
+    inn = [r for r in register["relasjon"] if tabell(r, "til") == navn and tabell(r, "fra") != navn]
 
     def art(r):
         if r["art"] == "fremmednøkkel":
-            return f"fremmednøkkel, ON DELETE {fk[(r['fra'], r['til'])]}"
+            return f"fremmednøkkel, ON DELETE {fk[nøkkel(r)]}"
         return "uten fremmednøkkel"
 
     linjer = [f"Nøkler: {_nøkler(innhold)}."]
@@ -199,7 +253,7 @@ def tabelltekst(register: dict, katalog: dict, tabell: str) -> str:
     if inn:
         linjer.append(
             "Vises til fra: "
-            + "; ".join(f"{_side(r, 'fra')} ({art(r)})" for r in sorted(inn, key=lambda r: r["fra"]))
+            + "; ".join(f"{_side(r, 'fra')} ({art(r)})" for r in sorted(inn, key=lambda r: kolonner(r, "fra")))
             + "."
         )
     if not ut and not inn:
@@ -223,17 +277,15 @@ def relasjonsrader(register: dict, katalog: dict) -> list[list[str]]:
     fk = fremmednøkler(katalog)
     rader = [RELASJONSKOLONNER]
     for r in register["relasjon"]:
-        fra_tabell, _, _ = r["fra"].rpartition(".")
-        til_tabell, _, _ = r["til"].rpartition(".")
         rader.append(
             [
-                fra_tabell,
-                _side(r, "fra").removeprefix(fra_tabell + "."),
-                til_tabell,
-                _side(r, "til").removeprefix(til_tabell + "."),
+                tabell(r, "fra"),
+                _kolonneside(r, "fra"),
+                tabell(r, "til"),
+                _kolonneside(r, "til"),
                 "Fremmednøkkel" if r["art"] == "fremmednøkkel" else "Uten fremmednøkkel",
                 r["antall"],
-                fk.get((r["fra"], r["til"]), ""),
+                fk.get(nøkkel(r), ""),
                 tekst(r["beskrivelse"]),
             ]
         )
@@ -263,29 +315,29 @@ _KARDINALITET = {
 
 def _linje(r: dict, katalog: dict) -> str:
     venstre, høyre = _KARDINALITET[r["antall"]]
-    rad = kolonne(katalog, r["fra"])
-    if venstre == "||" and (r["art"] == "logisk" or (rad and rad[2] == "NULL")):
+    rader = [kolonne(katalog, k) for k in kolonner(r, "fra")]
+    if venstre == "||" and (r["art"] == "logisk" or any(rad and rad[2] == "NULL" for rad in rader)):
         venstre = "|o"
     strek = "--" if r["art"] == "fremmednøkkel" else ".."
     etikett = _kolonneside(r, "fra")
     return (
-        f"    {_entitet(r['til'].rpartition('.')[0])} {venstre}{strek}{høyre} "
-        f"{_entitet(r['fra'].rpartition('.')[0])} : \"{etikett}\""
+        f"    {_entitet(tabell(r, 'til'))} {venstre}{strek}{høyre} "
+        f"{_entitet(tabell(r, 'fra'))} : \"{etikett}\""
     )
 
 
 def _attributter(
-    relasjoner: list[dict], katalog: dict, fk: dict, tabell: str, med: set[str] | None
+    relasjoner: list[dict], katalog: dict, fk: dict, entitet: str, med: set[str] | None
 ) -> list[str]:
     """Nøkkelkolonnene og kolonnene i en tegnet relasjon; `med` begrenser til disse."""
-    innhold = tabeller(katalog).get(tabell)
-    logiske = {r["fra"] for r in relasjoner if r["art"] == "logisk"}
-    i_relasjon = {r[e] for r in relasjoner for e in ("fra", "til")}
+    innhold = tabeller(katalog).get(entitet)
+    logiske = {k for r in relasjoner if r["art"] == "logisk" for k in kolonner(r, "fra")}
+    i_relasjon = {k for r in relasjoner for e in ("fra", "til") for k in kolonner(r, e)}
     unike = {k for u in innhold["unike"] for k in u}
-    fk_kolonner = {fra for fra, _ in fk}
+    fk_kolonner = {k for fra, _ in fk for k in fra}
     linjer = []
     for navn, type_, _ in innhold["kolonner"]:
-        fullt = f"{tabell}.{navn}"
+        fullt = f"{entitet}.{navn}"
         merker = []
         if navn in innhold["primærnøkkel"]:
             merker.append("PK")
@@ -312,35 +364,38 @@ def er_diagram(register: dict, katalog: dict, lagring: str) -> str:
     PostgreSQL de viser til."""
     alle = tabeller(katalog)
 
-    def lag(referanse: str) -> str:
-        return alle.get(referanse.rpartition(".")[0], {}).get("lagring", "PostgreSQL")
+    def lag(r: dict, ende: str) -> str:
+        return alle.get(tabell(r, ende), {}).get("lagring", "PostgreSQL")
 
     if lagring != "SQLite":
-        relasjoner = [r for r in register["relasjon"] if lag(r["fra"]) == lag(r["til"]) == lagring]
+        relasjoner = [r for r in register["relasjon"] if lag(r, "fra") == lag(r, "til") == lagring]
         entiteter = {t: None for t, i in alle.items() if i["lagring"] == lagring}
     else:
-        relasjoner = [r for r in register["relasjon"] if "SQLite" in (lag(r["fra"]), lag(r["til"]))]
+        relasjoner = [r for r in register["relasjon"] if "SQLite" in (lag(r, "fra"), lag(r, "til"))]
         entiteter = {t: None for t, i in alle.items() if i["lagring"] == "SQLite"}
         for r in relasjoner:
             for ende in ("fra", "til"):
-                tabell, _, navn = r[ende].rpartition(".")
-                if alle[tabell]["lagring"] == "PostgreSQL":
-                    entiteter.setdefault(tabell, set()).add(navn)
+                if lag(r, ende) == "PostgreSQL":
+                    entiteter.setdefault(tabell(r, ende), set()).update(
+                        k.rpartition(".")[2] for k in kolonner(r, ende)
+                    )
     fk = fremmednøkler(katalog)
     linjer = ["erDiagram"]
-    for tabell, med in entiteter.items():
-        linjer.append(f"    {_entitet(tabell)} {{")
-        linjer += _attributter(relasjoner, katalog, fk, tabell, med)
+    for navn, med in entiteter.items():
+        linjer.append(f"    {_entitet(navn)} {{")
+        linjer += _attributter(relasjoner, katalog, fk, navn, med)
         linjer.append("    }")
     ytre: dict[str, dict[str, str]] = {}
     for r in relasjoner:
-        tabell, _, navn = r["til"].rpartition(".")
-        if tabell not in alle:
+        if tabell(r, "til") not in alle:
             # Utenfor `public`; typen er den fremmednøkkelen har.
-            ytre.setdefault(tabell, {})[navn] = _mermaidtype(kolonne(katalog, r["fra"])[1])
-    for tabell, kolonner in ytre.items():
-        linjer.append(f"    {_entitet(tabell)} {{")
-        linjer += [f"        {type_} {navn} PK" for navn, type_ in kolonner.items()]
+            for til, fra in zip(kolonner(r, "til"), kolonner(r, "fra"), strict=True):
+                ytre.setdefault(tabell(r, "til"), {})[til.rpartition(".")[2]] = _mermaidtype(
+                    kolonne(katalog, fra)[1]
+                )
+    for navn, typer in ytre.items():
+        linjer.append(f"    {_entitet(navn)} {{")
+        linjer += [f"        {type_} {k} PK" for k, type_ in typer.items()]
         linjer.append("    }")
     linjer += [_linje(r, katalog) for r in relasjoner]
     return "\n".join(linjer)
