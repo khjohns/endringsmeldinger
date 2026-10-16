@@ -10,15 +10,14 @@
  */
 
 import type { Journalrad } from '../kjerne/typer.ts';
-import { sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
+import { feilnummer, sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
 import { SakFinnesIkke, Versjonskonflikt, type Oppdragsrad } from './lager.ts';
 
 export { SakFinnesIkke, Versjonskonflikt };
 
 /**
- * Et argument har feil form eller avvises av basen (51422), for eksempel et
- * tidspunkt som ikke er basens. `skrivHendelse` prøver formen på raden og
- * oppdraget før basen; da er `cause` tom.
+ * Basen avviste et argument (51422): feil form, eller et tidspunkt som ikke er
+ * basens. Formene prøves i prosedyrene (#629), og basens feil står i `cause`.
  */
 export class UgyldigKommando extends Error {}
 
@@ -35,17 +34,11 @@ const KONFLIKT = 51409;
 const UGYLDIG = 51422;
 const BLOKKERT = 33504;
 
-/** Formen `sak_metadata_sak_id_form` og `hendelse_event_id_form` krever; saksnummeret er en slik ID (DL-U6). */
+/** Formen `sak_metadata_sak_id_form` krever; saksnummeret er en slik ID (DL-U6). */
 const ID_FORM = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-const SHA256_FORM = /^[0-9a-f]{64}$/;
 
-/** Meldingen `koe_api.skriv_hendelse` gir med 51409; formen er en kontrakt (`20261016170000_kommandoform.sql`). */
+/** Meldingen `koe_api.skriv_hendelse` gir med 51409; formen er en kontrakt (`20261016230000_skranker.sql`). */
 const KONFLIKTMELDING = /^Versjonskonflikt: journalen har versjon (\d+)$/;
-
-function feilnummer(feil: unknown): number | undefined {
-  const f = feil as { number?: number; originalError?: { info?: { number?: number } } };
-  return f?.number ?? f?.originalError?.info?.number;
-}
 
 /** Feilen fra basen som en av feilene over, med basens feil i `cause`. */
 function oversett(feil: unknown, forventet: number | null): unknown {
@@ -182,7 +175,7 @@ export async function skrivHendelse<A>(
         .input('tidsstempel', sql.DateTime2(3), tidspunkt)
         .input('format', sql.Int, rad.format)
         .input('data', sql.NVarChar(sql.MAX), JSON.stringify(rad.data))
-        .input('oppdrag_id', sql.UniqueIdentifier, oppdrag?.id ?? null)
+        .input('oppdrag_id', sql.NVarChar(4000), oppdrag?.id ?? null)
         .input('dokumentnoekkel', sql.NVarChar(4000), oppdrag?.dokumentnoekkel ?? null)
         .input('oppdrag', sql.NVarChar(sql.MAX), oppdrag ? JSON.stringify(oppdrag.innhold) : null)
         .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
@@ -203,15 +196,9 @@ class IkkeSkrevet {
   }
 }
 
-/** En tekst med formen kolonnen krever: ikke tom, høyst `maks` tegn og uten mellomrom til slutt. */
-function tekstform(v: unknown, maks: number): boolean {
-  return typeof v === 'string' && v.length > 0 && v.length <= maks && v.trimEnd() === v;
-}
-
 /**
- * Raden og oppdraget har formen kolonnene krever, så ingenting kortes eller avvises
- * av en skranke (#607), og raden er den basen kommer til å lagre: samme sak,
- * versjon, aktør, side, team og tidspunkt.
+ * Raden er den basen kommer til å lagre: samme sak, versjon, aktør, side, team og
+ * tidspunkt. Formen på feltene prøver `koe_api.skriv_hendelse` (#629).
  */
 function kontrollerRad(
   rad: Journalrad,
@@ -221,15 +208,6 @@ function kontrollerRad(
   forventet: number,
   tidspunkt: Date
 ): void {
-  const form = [
-    !(typeof rad.event_id === 'string' && ID_FORM.test(rad.event_id)) && 'event_id',
-    !tekstform(rad.event_type, 100) && 'hendelsestypen',
-    oppdrag !== null && !tekstform(oppdrag.dokumentnoekkel, 100) && 'dokumentnøkkelen',
-    oppdrag !== null &&
-      !(typeof oppdrag.innhold_sha256 === 'string' && SHA256_FORM.test(oppdrag.innhold_sha256)) &&
-      'summen for oppdraget',
-  ].filter(Boolean);
-  if (form.length) throw new UgyldigKommando(`Raden har feil form: ${form.join(', ')}.`);
   const avvik = [
     rad.sak_id !== sakId && 'saken',
     rad.versjon !== forventet + 1 && 'versjonen',

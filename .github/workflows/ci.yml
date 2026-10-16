@@ -101,6 +101,16 @@ jobs:
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider -m database tests/test_database
 
+      # Autorisasjonen i server/ leser SQL Server og journalen PostgreSQL
+      # (#658), så testene over HTTP trenger begge basene.
+      - name: Start SQL Server
+        run: |
+          scripts/testbase/docker_sqlserver.sh start > /dev/null
+          tilkobling="$(scripts/testbase/docker_sqlserver.sh tilkobling)"
+          passord="${tilkobling#*Password=}"
+          echo "::add-mask::${passord%%;*}"
+          echo "KOE_SQLSERVER_TILKOBLING=$tilkobling" >> "$GITHUB_ENV"
+
       # Hele sprakprove/ og server/, så en ny databasetest kommer med, også
       # kjernens lagringstester i sprakprove/kjernelagring/ og skiva i #347.
       # Uten KOE_TESTBASE_URL hoppes de over i frontend-jobben. Steget kommer

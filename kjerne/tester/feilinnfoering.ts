@@ -681,6 +681,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    anyOf: KATEGORIPAR,\n', '']],
     mal: [
       'avviser en underkategori under feil hovedkategori',
+      'avviser endringsordrens dato eller nummer i en annen underkategori',
       'en lagret rad med katalogens koder er ikke forstått',
     ],
   },
