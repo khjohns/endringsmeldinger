@@ -537,17 +537,26 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     });
 
     it('en rad som ble liggende, slettes når samme økt fører et nytt tidspunkt', async () => {
-      const foerOgCommit = async () => {
-        const svar = await transaksjon(enForbindelse.pool, te, (f) =>
-          f().output('tidspunkt', sql.DateTime2(3)).execute('koe_api.skrivetidspunkt')
-        );
-        return svar.output.tidspunkt as Date;
-      };
+      const foerOgCommit = () =>
+        transaksjon(enForbindelse.pool, te, async (f) => {
+          await f().output('tidspunkt', sql.DateTime2(3)).execute('koe_api.skrivetidspunkt');
+          const tx = await f().query<{ tx: string }>(
+            'SELECT CAST(CURRENT_TRANSACTION_ID() AS nvarchar(20)) AS tx'
+          );
+          return tx.recordset[0].tx;
+        });
+      // Raden finnes på transaksjonen, ikke tidspunktet: to føringer kan få samme millisekund (#676).
+      const raden = async (tx: string) =>
+        (
+          await base.pool.request().input('tx', sql.NVarChar(20), tx).query<{
+            n: number;
+          }>('SELECT COUNT(*) AS n FROM koe.skrivetidspunkt WHERE transaksjon = CAST(@tx AS bigint)')
+        ).recordset[0].n > 0;
       const foerste = await foerOgCommit();
-      expect(await tidspunktStaar(foerste)).toBe(true);
+      expect(await raden(foerste)).toBe(true);
       const andre = await foerOgCommit();
-      expect(await tidspunktStaar(foerste)).toBe(false);
-      expect(await tidspunktStaar(andre)).toBe(true);
+      expect(await raden(foerste)).toBe(false);
+      expect(await raden(andre)).toBe(true);
     });
 
     it('kjøretiden kan ikke føre eller endre tidspunktet selv', async () => {
