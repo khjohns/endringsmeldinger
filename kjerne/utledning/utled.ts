@@ -284,7 +284,7 @@ interface Strid {
  * (KA-U11, SK-01), og det som viser til et element uten virkning. Kontrollen
  * gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
  * forutsetning senere gjør ikke et eldre brev uforstått. Bindingen etter frafallet er
- * et slikt vedtak og gjelder også et avslag fra appen før PROJEKSJONSVERSJON 19, som
+ * et slikt vedtak og gjelder også et avslag fra appen før PROJEKSJONSVERSJON 20, som
  * journalen ikke skiller fra en rad utenfor kommandoene (B-17, #510).
  */
 function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
