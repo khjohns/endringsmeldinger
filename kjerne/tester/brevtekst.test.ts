@@ -33,6 +33,9 @@ import {
   type Utfall,
 } from '../kommandoer/skriving.ts';
 import type { Avsnitt, Dokument, Journalrad, Part } from '../typer.ts';
+import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
+import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort } from '../utledning/utled.ts';
+import { visning } from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 
@@ -2642,5 +2645,323 @@ describe('en ny grunnlagsversjon beholder kategorien (GR-U19)', () => {
     expect(
       s.avvist('TE', versjon({ hovedkategori: 'svikt', underkategori: 'grunnforhold' }))
     ).toBeNull();
+  });
+});
+
+/**
+ * GR-U17, GR-U20: et frafall etter § 32.3 c fra appen binder byggherren til
+ * endringsordre. Et avslag avvises i en revisjon og i et svar på en ny grunnlagsversjon.
+ * Revisjonen fra frafall til frafall er arbeidsvalget 16.10 i #510.
+ */
+describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', () => {
+  type Sak = ReturnType<typeof sak>;
+  const frafall = { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true };
+  const avslag = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+  const endringsordre = { resultat: 'godkjent', grunnlag_varslet_i_tide: true };
+  /** Grunnlaget godkjent subsidiært, med påberopelse av at varselet kom for sent. */
+  const paaberopelse = { resultat: 'godkjent', grunnlag_varslet_i_tide: false };
+
+  const utregnet = (s: Sak, v: Data) => {
+    const u = s.u();
+    const krav = u.spor.grunnlag.gjeldendeKrav!;
+    return svar(
+      'grunnlag',
+      krav.id,
+      v,
+      regnUtSvar('grunnlag', v, { krav, grunnlagskrav: krav }, KJERNE.regler)
+    );
+  };
+  const nyttSvar = (s: Sak, v: Data) => ({ type: 'brev', svar: [utregnet(s, v)] });
+  const revisjon = (s: Sak, v: Data) => ({
+    type: 'revisjon',
+    erstatter: s.u().spor.grunnlag.gjeldendeSvar!.id,
+    svar: utregnet(s, v),
+  });
+  const medFrafall = () => {
+    const s = sakMedKrav();
+    s.send('BH', nyttSvar(s, frafall));
+    expect(s.u().frafalt, 'forutsetning: pålegget er frafalt').toBe(true);
+    return s;
+  };
+  const versjon = (s: Sak, innhold: Data) =>
+    s.send('TE', { ...GRUNNLAGSKRAV, innhold: { ...GRUNNLAGSKRAV.innhold, ...innhold } });
+  /** Et registrert brev fra byggherren med et svar på gjeldende grunnlagsversjon. */
+  const registrertSvar = (s: Sak, resultat: string, sendt: boolean, iTide = true) => {
+    const u = s.u();
+    const id = randomUUID();
+    s.rad('BH', {
+      svar: [
+        {
+          id,
+          spor: 'grunnlag',
+          gjelder: u.spor.grunnlag.gjeldendeKrav!.id,
+          ...(u.spor.grunnlag.gjeldendeSvar ? { erstatter: u.spor.grunnlag.gjeldendeSvar.id } : {}),
+          standpunkter: [
+            {
+              id: randomUUID(),
+              art: 'rettidighet',
+              gjelder: u.spor.grunnlag.gjeldendeKrav!.id,
+              hjemmel: '32.2',
+              i_tide: iTide,
+            },
+            { id: randomUUID(), art: 'grunnlag', resultat },
+          ],
+        },
+      ],
+      ...(sendt ? { opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-05' }] } : {}),
+    });
+    return id;
+  };
+
+  describe('revisjonen av frafallet (GR-U17)', () => {
+    it('en revisjon fra frafall til avslag avvises', () => {
+      const s = medFrafall();
+      expect(s.avvist('BH', revisjon(s, avslag))).toBe('FRAFALT');
+    });
+
+    it('en revisjon fra frafall til endringsordre godtas', () => {
+      const s = medFrafall();
+      expect(s.avvist('BH', revisjon(s, endringsordre))).toBeNull();
+    });
+
+    it('en revisjon fra frafall til frafall godtas (arbeidsvalget 16.10, #510)', () => {
+      const s = medFrafall();
+      expect(s.avvist('BH', revisjon(s, frafall))).toBeNull();
+    });
+
+    it('en revisjon fra frafall til påberopelse etter § 32.2 avvises som «i tide», fordi frafallet sa «i tide» (#235, HF-U4)', () => {
+      const s = medFrafall();
+      expect(s.avvist('BH', revisjon(s, paaberopelse))).toBe('SAGT_I_TIDE');
+    });
+
+    it('kontrollsak: uten frafall kan et avslag revideres til avslag', () => {
+      const s = sakMedKrav();
+      s.send('BH', nyttSvar(s, avslag));
+      expect(s.avvist('BH', revisjon(s, avslag))).toBeNull();
+    });
+  });
+
+  describe('en ny grunnlagsversjon etter frafallet (GR-U20, GR-U19)', () => {
+    it.each([
+      ['uten bytte av underkategori', { tittel: 'Ny peling 2' }],
+      [
+        'med bytte av underkategori der § 32.2 gjelder likt (GR-U19)',
+        { underkategori: 'valg_av_loesning' },
+      ],
+    ] as [string, Data][])(
+      '%s: byggherren kan svare med frafall eller endringsordre, ikke med avslag',
+      (_n, innhold) => {
+        const s = medFrafall();
+        versjon(s, innhold);
+        expect(s.u().spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
+        expect(s.avvist('BH', nyttSvar(s, frafall))).toBeNull();
+        expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBeNull();
+        expect(s.avvist('BH', nyttSvar(s, avslag))).toBe('FRAFALT');
+        expect(s.avvist('BH', nyttSvar(s, paaberopelse))).toBe('SAGT_I_TIDE');
+      }
+    );
+
+    it('kontrollsak: etter et avslag kan byggherren avslå en ny grunnlagsversjon', () => {
+      const s = sakMedKrav();
+      s.send('BH', nyttSvar(s, avslag));
+      versjon(s, { tittel: 'Ny peling 2' });
+      expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
+    });
+
+    it('et registrert frafall binder ikke (OV-U4)', () => {
+      const s = sakMedKrav();
+      registrertSvar(s, 'paalegg_frafalt', true);
+      expect(s.u().frafalt, 'forutsetning: det registrerte frafallet leses').toBe(true);
+      versjon(s, { tittel: 'Ny peling 2' });
+      expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
+    });
+  });
+
+  /**
+   * GR-U23: mens en ny grunnlagsversjon etter et frafall venter på svar, er grunnlaget
+   * avklart ved frafallet, så en enighet i vederlag eller frist forblir virksom. Etter
+   * OV-U3 oppstår tilfellet bare når et annet sendt krav står åpent, her fristkravet.
+   */
+  describe('mens en ny grunnlagsversjon venter etter frafallet (GR-U23)', () => {
+    const vederlagFullt = [
+      {
+        hovedkrav_vurdering: 'godkjent',
+        hovedkrav_godkjent_belop: 125000,
+        aksepterer_metode: true,
+      },
+      { resultat: 'godkjent', godkjent_beloep: 125000 },
+    ] as const;
+    /** Frafall på grunnlaget og vederlaget godkjent fullt, så partene er enige (GR-U10). */
+    const medEnighetIVederlaget = (s: Sak) => {
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('vederlag', s.krav('vederlag'), vederlagFullt[0], vederlagFullt[1])],
+      });
+      expect(enighetensVirkning(s.u(), 'vederlag'), 'forutsetning: enighet i vederlaget').toBe(
+        'virksom'
+      );
+      return s;
+    };
+
+    it('grunnlaget er avklart ved frafallet, og enigheten i vederlaget forblir virksom', () => {
+      const s = medEnighetIVederlaget(medFrafall());
+      versjon(s, { tittel: 'Ny peling 2' });
+      const u = s.u();
+      expect(u.spor.grunnlag.krav.length, 'forutsetning: ny grunnlagsversjon').toBe(2);
+      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
+      expect(u.grunnlagAvklart).toBe(true);
+      expect(u.frafalt).toBe(true);
+      expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
+      expect(kraveneErAvgjort(u), 'fristkravet står åpent (OV-U3)').toBe(false);
+      expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
+    });
+
+    it('byggherrens svar på versjon 2 avløser frafallet som gjeldende svar', () => {
+      const s = medEnighetIVederlaget(medFrafall());
+      versjon(s, { tittel: 'Ny peling 2' });
+      s.send('BH', nyttSvar(s, endringsordre));
+      const u = s.u();
+      expect(u.frafalt).toBe(false);
+      expect(u.grunnlagAvklart).toBe(true);
+      expect(u.endringsordre).toBe('ja');
+      expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
+    });
+
+    it('kontrollsak: etter et registrert frafall venter versjon 2 på svar uten avklart grunnlag (OV-U4, GR-U1)', () => {
+      const s = sakMedKrav();
+      registrertSvar(s, 'paalegg_frafalt', true);
+      medEnighetIVederlaget(s);
+      versjon(s, { tittel: 'Ny peling 2' });
+      const u = s.u();
+      expect(u.grunnlagAvklart).toBe(false);
+      expect(u.frafalt).toBe(false);
+      expect(enighetensVirkning(u, 'vederlag')).toBe('betinget');
+    });
+
+    it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og svaret på versjon 2 avvises (GR-U24, OV-U3)', () => {
+      const s = medEnighetIVederlaget(medFrafall());
+      versjon(s, { tittel: 'Ny peling 2' });
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+      });
+      const u = s.u();
+      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
+      expect(kraveneErAvgjort(u)).toBe(true);
+      expect(kanInngaaIEo(u), 'et frafall går ikke inn i en endringsordre (GR-U3)').toBe(false);
+      expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');
+      expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
+      expect(
+        visning(u, GJELDENDE_REGLER).spor.grunnlag.etiketter,
+        'versjon 2 vises ikke som ventende (GR-U24)'
+      ).not.toContain('venter_paa_svar');
+      expect(visning(u, GJELDENDE_REGLER).status.kode).toBe('avsluttet_oppgjort');
+    });
+
+    it('bygger enigheten i fristen på et merket brev, vises saken heller ikke som ventende på svar (GR-U24, KA-U20)', () => {
+      const s = medEnighetIVederlaget(medFrafall());
+      versjon(s, { tittel: 'Ny peling 2' });
+      const u0 = s.u();
+      const rad = s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'frist',
+            gjelder: s.krav('frist'),
+            grunnlagskrav: u0.spor.grunnlag.gjeldendeKrav!.id,
+            standpunkter: [
+              {
+                id: randomUUID(),
+                art: 'rettidighet',
+                gjelder: u0.spor.frist.varsel!.id,
+                hjemmel: '33.4',
+                i_tide: true,
+              },
+              { id: randomUUID(), art: 'dager' },
+            ],
+            utregning: { resultat: 'godkjent', godkjent_dager: 20 },
+          },
+        ],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-20' }],
+      });
+      s.send('BH', { type: 'merking', gjelder: rad.event_id, spor: ['frist'] });
+      const u = s.u();
+      expect(
+        u.spor.frist.forbehold,
+        `forutsetning: fristen er merket (${JSON.stringify(u.begrensninger)})`
+      ).toBe(true);
+      expect(kraveneErAvgjort(u), 'forutsetning: kravene er avgjort').toBe(true);
+      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
+      expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');
+      const vist = visning(u, GJELDENDE_REGLER);
+      expect(vist.status.kode).not.toBe('venter_paa_svar');
+      expect(vist.spor.grunnlag.etiketter).not.toContain('venter_paa_svar');
+    });
+  });
+
+  describe('et avslag etter frafallet som ikke kommer gjennom kommandoene (MM-U19, MM-U18)', () => {
+    it('et registrert avslag av en ny grunnlagsversjon får ingen virkning, og saken er forstått', () => {
+      const s = medFrafall();
+      versjon(s, { tittel: 'Ny peling 2' });
+      const id = registrertSvar(s, 'avslaatt', true);
+      const u = s.u();
+      expect(u.forstaatt).toBe(true);
+      expect(u.utenVirkning.map((x) => x.element)).toContain(id);
+      expect(u.spor.grunnlag.gjeldendeSvar).toBeNull();
+    });
+
+    it('en registrert revisjon fra frafall til avslag får ingen virkning, og frafallet står', () => {
+      const s = medFrafall();
+      const id = registrertSvar(s, 'avslaatt', true);
+      const u = s.u();
+      expect(u.utenVirkning.map((x) => x.element)).toContain(id);
+      expect(u.frafalt).toBe(true);
+    });
+
+    it('et avslag i et brev som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått', () => {
+      const s = medFrafall();
+      registrertSvar(s, 'avslaatt', false);
+      const u = s.u();
+      expect(u.forstaatt).toBe(false);
+      expect(u.begrensninger.map((b) => b.grunn)).toEqual([
+        'et avslag av grunnlaget etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
+      ]);
+    });
+
+    it.each([
+      ['en registrert revisjon fra frafall', false],
+      ['et registrert svar på en ny grunnlagsversjon', true],
+    ] as [string, boolean][])(
+      '%s til påberopelse etter § 32.2 får ingen virkning, og frafallet står (GR-U17, GR-U20)',
+      (_n, nyVersjon) => {
+        const s = medFrafall();
+        if (nyVersjon) versjon(s, { tittel: 'Ny peling 2' });
+        const id = registrertSvar(s, 'godkjent', true, false);
+        const u = s.u();
+        expect(u.forstaatt).toBe(true);
+        expect(u.utenVirkning.map((x) => x.element)).toContain(id);
+        expect(u.spor.grunnlag.gjeldendeSvar?.id).not.toBe(id);
+        if (!nyVersjon) expect(u.frafalt).toBe(true);
+      }
+    );
+
+    it('en påberopelse etter § 32.2 i et brev som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått', () => {
+      const s = medFrafall();
+      registrertSvar(s, 'godkjent', false, false);
+      const u = s.u();
+      expect(u.forstaatt).toBe(false);
+      expect(u.begrensninger.map((b) => b.grunn)).toEqual([
+        'en påberopelse etter § 32.2 etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
+      ]);
+    });
+
+    it('kontrollsak: et registrert avslag etter et registrert frafall leses med virkning (OV-U4)', () => {
+      const s = sakMedKrav();
+      registrertSvar(s, 'paalegg_frafalt', true);
+      const id = registrertSvar(s, 'avslaatt', true);
+      const u = s.u();
+      expect(u.utenVirkning).toEqual([]);
+      expect(u.spor.grunnlag.gjeldendeSvar?.id).toBe(id);
+    });
   });
 });

@@ -11079,6 +11079,744 @@
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-G37",
+      "rader": [
+        "GR-31"
+      ],
+      "start": "krav_irreg",
+      "forslag": "GR-U17: et frafall sendt fra appen kan revideres til endringsordre eller frafall, ikke til avslag eller til påberopelse etter § 32.2, som frafallet sa var i tide (HF-U4). Et registrert avslag etter frafallet får ingen virkning, og frafallet står (MM-U19 og arbeidsvalget 16.10 i #510)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true,
+              "navn": "S-g1"
+            }
+          ]
+        },
+        {
+          "handling": "rad",
+          "dokument": "D5",
+          "sendt": "2026-09-30",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g2",
+              "gjelder": "K-g1",
+              "erstatter": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U17"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "grunnlag",
+            "resultat": "avslaatt",
+            "varslet_i_tide": true
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "FRAFALT",
+            "nye_hendelser": 0
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U17",
+            "HF-U4",
+            "NS-32.3-1c"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "grunnlag",
+            "resultat": "godkjent",
+            "varslet_i_tide": false
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SAGT_I_TIDE"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U17"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "grunnlag",
+            "resultat": "godkjent",
+            "varslet_i_tide": true
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U17"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "grunnlag",
+            "resultat": "paalegg_frafalt",
+            "varslet_i_tide": true
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U19",
+            "GR-U17"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "S-g2"
+            ],
+            "frafalt": true,
+            "gjeldende_svar.grunnlag": "S-g1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G37x",
+      "rader": [
+        "GR-31"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U18, GR-U17: en revisjon fra frafall til avslag i en rad som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått. Kontrollsaken er et avslag uten frafall",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true,
+              "navn": "S-g1"
+            }
+          ]
+        },
+        {
+          "handling": "rad",
+          "dokument": "D5",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g2",
+              "gjelder": "K-g1",
+              "erstatter": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "MM-U18"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "avslaatt",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U18",
+            "GR-U17"
+          ],
+          "forventet": {
+            "forstaatt": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G38",
+      "rader": [
+        "GR-32"
+      ],
+      "start": "krav_irreg",
+      "forslag": "GR-U20, GR-U19: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med frafall eller endringsordre, ikke med avslag. «I tide» i frafallet står (HF-U8). Et registrert avslag av den nye versjonen får ingen virkning (MM-U19 og arbeidsvalget 16.10 i #510)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true,
+              "navn": "S-g1"
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g2"
+        },
+        {
+          "handling": "rad",
+          "dokument": "D6",
+          "sendt": "2026-09-30",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g2",
+              "gjelder": "K-g2",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U20"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "avslaatt",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "FRAFALT",
+            "nye_hendelser": 0
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U20",
+            "HF-U8"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": false
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SAGT_I_TIDE"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U20"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U20"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "paalegg_frafalt",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U19",
+            "GR-U20"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "S-g2"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G39",
+      "rader": [
+        "GR-32"
+      ],
+      "start": "krav_irreg",
+      "forslag": "GR-U20, GR-U19: som F-MM-G38, med en ny grunnlagsversjon i en annen underkategori som § 32.2 gjelder for og der frafall er tillatt (GR-U18)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true,
+              "navn": "S-g1"
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "valg_av_loesning",
+          "navn": "K-g2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U20",
+            "GR-U19"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "avslaatt",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "FRAFALT",
+            "nye_hendelser": 0
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U20",
+            "GR-U19"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U20",
+            "GR-U19"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "paalegg_frafalt",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G41",
+      "rader": [
+        "GR-31"
+      ],
+      "start": "krav_irreg",
+      "forslag": "GR-U17 og arbeidsvalget 16.10 i #510: en registrert revisjon fra frafall til påberopelse etter § 32.2 får ingen virkning, og frafallet står, som for avslaget i F-MM-G37 (MM-U19)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true,
+              "navn": "S-g1"
+            }
+          ]
+        },
+        {
+          "handling": "rad",
+          "dokument": "D5",
+          "sendt": "2026-09-30",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g2",
+              "gjelder": "K-g1",
+              "erstatter": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": false
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U17",
+            "MM-U19"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "uten_virkning": [
+              "S-g2"
+            ],
+            "frafalt": true,
+            "gjeldende_svar.grunnlag": "S-g1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G41x",
+      "rader": [
+        "GR-31"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U18, GR-U17 og arbeidsvalget 16.10 i #510: en revisjon fra frafall til påberopelse etter § 32.2 i en rad som ikke er registrert og ikke er sendt fra appen, gjør saken ikke forstått",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true,
+              "navn": "S-g1"
+            }
+          ]
+        },
+        {
+          "handling": "rad",
+          "dokument": "D5",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g2",
+              "gjelder": "K-g1",
+              "erstatter": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": false
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U18",
+            "GR-U17"
+          ],
+          "forventet": {
+            "forstaatt": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G42",
+      "rader": [
+        "GR-33"
+      ],
+      "start": "krav_irreg",
+      "forslag": "GR-U23, GR-U20, OV-U3: mens en ny grunnlagsversjon etter et frafall fra appen venter på svar, er grunnlaget avklart ved frafallet, og enigheten i vederlaget forblir virksom. Fristkravet står åpent, så kravene er ikke avgjort før det får en enighet. Da går OV-U3 foran GR-U20 og GR-U23 (GR-U24): svaret på versjon 2 avvises, og frafallet står",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true,
+              "navn": "S-g1"
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent",
+              "godkjent_belop": 100000
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g2"
+        },
+        {
+          "handling": "brev",
+          "navn": "D6",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7",
+            "GR-U10"
+          ],
+          "forventet": {
+            "grunnlag_avklart": true,
+            "frafalt": true,
+            "enighet.vederlag.virkning": "virksom"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U23",
+            "GR-U7"
+          ],
+          "forventet": {
+            "gjeldende_krav.grunnlag": "K-g2",
+            "gjeldende_svar.grunnlag": null,
+            "grunnlag_avklart": true,
+            "frafalt": true,
+            "enighet.vederlag.virkning": "virksom"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U3",
+            "GR-U3"
+          ],
+          "forventet": {
+            "kravene_avgjort": false,
+            "kan_inngaa_i_eo": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U24",
+            "OV-U3",
+            "GR-U17",
+            "KA-U11"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "KRAVENE_AVGJORT"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U3",
+            "GR-U3"
+          ],
+          "forventet": {
+            "kravene_avgjort": true,
+            "kan_inngaa_i_eo": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-G42x",
+      "rader": [
+        "GR-33"
+      ],
+      "start": "krav_irreg",
+      "forslag": "Kontrollsak til F-MM-G42: et registrert frafall binder ikke (OV-U4), så den nye grunnlagsversjonen venter på svar som etter GR-U1, og enigheten i vederlaget er betinget",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "rad",
+          "dokument": "D4",
+          "sendt": "2026-09-30",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "gjelder": "K-g1",
+              "resultat": "paalegg_frafalt",
+              "varslet_i_tide": true
+            }
+          ]
+        },
+        {
+          "handling": "brev",
+          "navn": "D5",
+          "svar": [
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "godkjent",
+              "godkjent_belop": 100000
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "navn": "K-g2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7",
+            "OV-U4"
+          ],
+          "forventet": {
+            "grunnlag_avklart": true,
+            "frafalt": true,
+            "enighet.vederlag.virkning": "virksom"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U1",
+            "OV-U4"
+          ],
+          "forventet": {
+            "gjeldende_svar.grunnlag": null,
+            "grunnlag_avklart": false,
+            "frafalt": false,
+            "enighet.vederlag.virkning": "betinget"
+          }
+        }
+      ]
     }
   ],
   "genererte": {

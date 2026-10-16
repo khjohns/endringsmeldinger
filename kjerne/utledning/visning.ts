@@ -47,13 +47,17 @@ export interface Visning {
   merknader: string[];
 }
 
+/** GR-U24: når kravene er avgjort, avvises et svar, så sporet venter ikke på det. */
+const venter = (u: Utledning, spor: Spor): boolean =>
+  venterPaaSvar(u.spor[spor]) && !kraveneErAvgjort(u);
+
 function status(u: Utledning): Statuskode {
   if (!u.forstaatt) return 'kan_ikke_utledes';
   if (u.grunnlagAvvist) return 'avsluttet_avslaatt';
   if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
   // KA-U20: saken vises ikke som oppgjort når en enighet bygger på et merket brev.
   if (kraveneErAvgjort(u) && !SPOR.some((s) => u.spor[s].forbehold)) return 'avsluttet_oppgjort';
-  if (SPOR.some((s) => venterPaaSvar(u.spor[s]))) return 'venter_paa_svar';
+  if (SPOR.some((s) => venter(u, s))) return 'venter_paa_svar';
   return 'under_forhandling';
 }
 
@@ -79,7 +83,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const s = u.spor[spor];
   const ut: string[] = [];
   if (s.trukket) ut.push('trukket');
-  if (venterPaaSvar(s)) ut.push('venter_paa_svar');
+  if (venter(u, spor)) ut.push('venter_paa_svar');
   // KA-U20: bygger enigheten på et merket brev, slår visningen ikke fast at den finnes.
   const virkning = s.forbehold ? null : enighetensVirkning(u, spor);
   if (spor === 'grunnlag') {

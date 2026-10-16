@@ -22,7 +22,12 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/standpunkt.ts';
-import { harSagtITide, type Rettidighet, type Utledning } from '../utledning/utled.ts';
+import {
+  frafalletBinder,
+  harSagtITide,
+  type Rettidighet,
+  type Utledning,
+} from '../utledning/utled.ts';
 import type { Avvisning } from '../typer.ts';
 
 function kontrollerSvar(
@@ -63,6 +68,11 @@ function kontrollerSvar(
       'gjelder' in bundet
         ? 'Byggherren har i et svar sendt fra appen sagt at kravet ble spesifisert i tide etter § 33.6.1, og kan ikke nå påberope at det kom for sent (HF-U4).'
         : `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
+    );
+  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u))
+    return avvis(
+      'FRAFALT',
+      'Byggherren har i et svar sendt fra appen frafalt pålegget etter § 32.3 c, og kan ikke nå avslå grunnlaget, heller ikke i en ny grunnlagsversjon (GR-U17, GR-U20).'
     );
   const avvik = SAMMENLIKNES[s.spor].filter((f) => !likeResultatfelt(f, s.resultat[f], server[f]));
   if (avvik.length)
