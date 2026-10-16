@@ -7,7 +7,8 @@ Tabellen og sporbarheten i README.md lages herfra og rettes ikke for hånd.
 Sporbarheten (#455, punkt 6 i #451): en rad kan vise til funksjonene som
 gjennomfører regelen (`funksjoner`) og regelkodene kjernen avviser med
 (`regelkoder`). Hver regelkode i kjernen står på en rad eller i `koder_uten_rad`
-med grunnen. Kjøring fra repoets rot:
+med grunnen. En rad for et vedtak som bygges senere, har vedtaket som utsetter det i
+`utsatt` (OV-U7) og ingen bevis-sak eller regelkode før det bygges. Kjøring fra repoets rot:
 
     python3 docs/verktoy/domenetabell.py          # kontroller; 1 ved feil eller utdatert tabell
     python3 docs/verktoy/domenetabell.py --skriv  # skriv tabellen på nytt
@@ -43,7 +44,8 @@ RADFELT = (
     "tolkningsstatus",
 )
 # Sporbarheten innføres gradvis (#455), så feltene er valgfrie.
-VALGFRIE_RADFELT = ("funksjoner", "regelkoder")
+SPORBARHET = ("funksjoner", "regelkoder")
+VALGFRIE_RADFELT = SPORBARHET + ("utsatt",)
 KILDETYPER = {"vedtak", "standard", "arbeidsvalg"}
 # Regelkodene i kjernen er strenglitteraler i disse formene; `_regelkoder_i_kjernen`
 # feiler på et kall til `avvis` uten en. Blokkommentarer og linjer som er kommentarer, leses ikke.
@@ -155,6 +157,12 @@ def _valider_rader(regler: dict) -> list[str]:
         typer = {kilder[k]["type"] for k in rad["kilder"] if k in kilder}
         if rad["tolkningsstatus"] == "avklart_tolkning" and "vedtak" not in typer:
             feil.append(f"{navn}: avklart tolkning uten et vedtak blant kildene")
+        # OV-U7: vedtaket som utsetter raden, står blant kildene, og raden har ingen regelkode.
+        if "utsatt" in rad:
+            if rad["utsatt"] not in rad["kilder"] or kilder.get(rad["utsatt"], {}).get("type") != "vedtak":
+                feil.append(f"{navn}: `utsatt` er ikke et vedtak blant kildene")
+            if rad.get("regelkoder"):
+                feil.append(f"{navn}: en utsatt rad har ingen regelkoder")
     return feil
 
 
@@ -213,7 +221,7 @@ def _valider_sporbarhet(regler: dict, maalmodell: dict, rot: pathlib.Path) -> li
         if not set(RADFELT) <= set(rad):
             continue  # Rapportert av _valider_rader.
         navn = rad["id"]
-        for felt in VALGFRIE_RADFELT:
+        for felt in SPORBARHET:
             if felt in rad and (not rad[felt] or len(set(rad[felt])) != len(rad[felt])):
                 feil.append(f"{navn}: `{felt}` er tom eller har en verdi to ganger")
         for f in rad.get("funksjoner", []):
@@ -339,7 +347,8 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
                 feil.append(f"{inv['id']}: ukjent forløp {avvik['forlop']}")
             if not funnet(avvik):
                 feil.append(f"{inv['id']}: funnet {avvik['funn']} står ikke i funnregisteret")
-    feil += [f"{r}: ingen bevis-sak" for r in rader if r not in bevist]
+    feil += [f"{r}: ingen bevis-sak" for r in rader if r not in bevist and "utsatt" not in rader[r]]
+    feil += [f"{r}: er utsatt, men har en bevis-sak" for r in rader if r in bevist and "utsatt" in rader[r]]
     return feil
 
 
@@ -452,7 +461,7 @@ def tabell(regler: dict, korpus: dict, maalmodell: dict | None = None) -> str:
             TIDSAKSER[rad["tidsakse"]],
             ", ".join(_kilde(kilder[k]) for k in rad["kilder"]),
             rad["tolkningsstatus"].replace("_", " "),
-            ", ".join(bevis.get(rad["id"], [])) or "—",
+            ", ".join(bevis.get(rad["id"], [])) or (f"utsatt ({rad['utsatt']})" if "utsatt" in rad else "—"),
             ", ".join(sorted(avvik.get(rad["id"], []))) or "—",
         ]
         linjer.append("| " + " | ".join(celler) + " |")
