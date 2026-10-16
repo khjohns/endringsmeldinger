@@ -60,6 +60,13 @@ leser PostgreSQL, fordi `server/autorisasjon.ts` flyttes til SQL Server (#658).
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.
+- **Oppslagene i SQL Server.** Kjøretiden har ingen rett på koblingen,
+  medlemskapet eller kontraktsteamene, og leser dem med `koe_api.prosjektkobling`,
+  `koe_api.prosjektmedlemskap` og `koe_api.kontraktsteam`. De to siste gir bare
+  rader for aktøren som spør. Om sakene det vises til er i prosjektet, leses i
+  `koe.sak_metadata` under radsikkerheten, med aktøren og prosjektet i
+  konteksten. Alderen på medlemslisten leses bare i `server/autorisasjon.ts`
+  (#638 punkt 2, `server/tester/arkitektur.test.ts`).
 - **Prosjektgrensen** holdes også i lageret (`server/lager.ts`), som bare låser
   og skriver en sak i det autoriserte prosjektet.
 - Språkprøvens server har ikke registeret. Der prøves hver inngang for seg
