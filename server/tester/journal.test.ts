@@ -55,6 +55,9 @@ const UTEN_TRIGGER: Record<string, string> = {
     'Bufferen er avledet og kan slettes og bygges på nytt fra journalen (arbeidsvalg 1 i #53).',
   skrivetidspunkt:
     'Raden slettes av koe_api.skriv_hendelse, eller av koe_api.skrivetidspunkt når økt-ID-en brukes igjen (DL-U3, svaret 16.10 i #53).',
+  app_sessions: 'Sesjonen slettes ved utlogging og når den er utløpt (B-19, #656).',
+  app_oauth_attempts:
+    'Innloggingsforsøket slettes når det brukes, og når det er utløpt (B-19, #656).',
 };
 
 const PROSJEKT = 'journal-p1';
