@@ -24,6 +24,7 @@ import {
 } from './sqlserver.ts';
 
 const VERSJONSKONFLIKT = 51409;
+const VRANGLAAS = 1205;
 
 const SKJEMA = [
   `CREATE TABLE hendelse (
@@ -137,92 +138,107 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
     }, 60_000);
   });
 
-  describe('samtidige skrivinger i samme sak med RCSI på (#488 punkt 3)', () => {
-    it('en lesing venter ikke på en åpen skriving og ser siste committede versjon', async () => {
-      const sakId = await nySak(base.pool);
-      const t1 = new sql.Transaction(base.pool);
-      await t1.begin();
-      try {
-        await skriv(t1, sakId, 1, randomUUID());
-        expect(await sisteVersjon(t1, sakId)).toBe(2);
-        expect(await sisteVersjon(base.pool, sakId)).toBe(1);
-      } finally {
-        await t1.rollback();
-      }
-    });
+  // Testene venter på låser, så de får mer enn standardgrensen i vitest.
+  describe(
+    'samtidige skrivinger i samme sak med RCSI på (#488 punkt 3)',
+    { timeout: 30_000 },
+    () => {
+      it('en lesing venter ikke på en åpen skriving og ser siste committede versjon', async () => {
+        const sakId = await nySak(base.pool);
+        const t1 = new sql.Transaction(base.pool);
+        await t1.begin();
+        try {
+          await skriv(t1, sakId, 1, randomUUID());
+          expect(await sisteVersjon(t1, sakId)).toBe(2);
+          expect(await sisteVersjon(base.pool, sakId)).toBe(1);
+        } finally {
+          await t1.rollback();
+        }
+      });
 
-    it('to transaksjoner som leste samme versjon: den første skriver, den andre får versjonskonflikt og etterlater ingenting', async () => {
-      const sakId = await nySak(base.pool);
-      const [forste, andre] = [randomUUID(), randomUUID()];
-      const t1 = new sql.Transaction(base.pool);
-      const t2 = new sql.Transaction(base.pool);
-      await t1.begin();
-      await t2.begin();
-      expect(await sisteVersjon(t1, sakId)).toBe(1);
-      expect(await sisteVersjon(t2, sakId)).toBe(1);
+      it('to transaksjoner som leste samme versjon: den første skriver, den andre får versjonskonflikt og etterlater ingenting', async () => {
+        const sakId = await nySak(base.pool);
+        const [forste, andre] = [randomUUID(), randomUUID()];
+        const t1 = new sql.Transaction(base.pool);
+        const t2 = new sql.Transaction(base.pool);
+        let andreSkriving: Promise<unknown> | undefined;
+        await t1.begin();
+        try {
+          await t2.begin();
+          expect(await sisteVersjon(t1, sakId)).toBe(1);
+          expect(await sisteVersjon(t2, sakId)).toBe(1);
 
-      await skriv(t1, sakId, 1, forste);
-      let ferdig = false;
-      const andreSkriving = skriv(t2, sakId, 1, andre).finally(() => (ferdig = true));
-      andreSkriving.catch(() => undefined);
-      await new Promise((ok) => setTimeout(ok, 500));
-      expect(ferdig, 'den andre venter på låsen den første holder').toBe(false);
-      await t1.commit();
+          await skriv(t1, sakId, 1, forste);
+          let ferdig = false;
+          andreSkriving = skriv(t2, sakId, 1, andre).finally(() => (ferdig = true));
+          andreSkriving.catch(() => undefined);
+          await new Promise((ok) => setTimeout(ok, 500));
+          expect(ferdig, 'den andre venter på låsen den første holder').toBe(false);
+          await t1.commit();
 
-      const feil = await andreSkriving.then(
-        () => undefined,
-        (f: unknown) => f
-      );
-      expect(feilnummer(feil)).toBe(VERSJONSKONFLIKT);
-      await t2.rollback().catch(() => undefined);
+          const feil = await andreSkriving.then(
+            () => undefined,
+            (f: unknown) => f
+          );
+          expect(feilnummer(feil)).toBe(VERSJONSKONFLIKT);
+        } finally {
+          // t1 først: den andre skrivingen venter på låsene til t1, og t2 kan ikke
+          // rulles tilbake mens den pågår.
+          await t1.rollback().catch(() => undefined);
+          await andreSkriving?.catch(() => undefined);
+          await t2.rollback().catch(() => undefined);
+        }
 
-      expect(await lagret(base.pool, sakId)).toEqual([
-        { event_id: expect.any(String), versjon: 1, svar: 0 },
-        { event_id: forste, versjon: 2, svar: 2 },
-      ]);
-    });
+        expect(await lagret(base.pool, sakId)).toEqual([
+          { event_id: expect.any(String), versjon: 1, svar: 0 },
+          { event_id: forste, versjon: 2, svar: 2 },
+        ]);
+      });
 
-    it('åtte samtidige skrivinger med samme forventede versjon: nøyaktig én lagres, de andre får versjonskonflikt', async () => {
-      const sakId = await nySak(base.pool);
-      const hendelser = Array.from({ length: 8 }, () => randomUUID());
-      const utfall = await Promise.allSettled(
-        hendelser.map((id) => skrivOgCommit(base.pool, sakId, 1, id))
-      );
+      it('åtte samtidige skrivinger med samme forventede versjon: nøyaktig én lagres, de andre får versjonskonflikt', async () => {
+        const sakId = await nySak(base.pool);
+        const hendelser = Array.from({ length: 8 }, () => randomUUID());
+        const utfall = await Promise.allSettled(
+          hendelser.map((id) => skrivOgCommit(base.pool, sakId, 1, id))
+        );
 
-      const lyktes = hendelser.filter((_, i) => utfall[i].status === 'fulfilled');
-      expect(lyktes).toHaveLength(1);
-      for (const u of utfall) {
-        if (u.status === 'rejected') expect(feilnummer(u.reason)).toBe(VERSJONSKONFLIKT);
-      }
-      const rader = await lagret(base.pool, sakId);
-      expect(rader.map((r) => r.versjon)).toEqual([1, 2]);
-      expect(rader[1]).toEqual({ event_id: lyktes[0], versjon: 2, svar: 2 });
-    });
+        const lyktes = hendelser.filter((_, i) => utfall[i].status === 'fulfilled');
+        expect(lyktes).toHaveLength(1);
+        for (const u of utfall) {
+          if (u.status === 'rejected') expect(feilnummer(u.reason)).toBe(VERSJONSKONFLIKT);
+        }
+        const rader = await lagret(base.pool, sakId);
+        expect(rader.map((r) => r.versjon)).toEqual([1, 2]);
+        expect(rader[1]).toEqual({ event_id: lyktes[0], versjon: 2, svar: 2 });
+      });
 
-    it('skrivere som leser på nytt etter versjonskonflikt, mister ingen hendelse', async () => {
-      const sakId = await nySak(base.pool);
-      const hendelser = Array.from({ length: 8 }, () => randomUUID());
-      await Promise.all(
-        hendelser.map(async (id) => {
-          for (let forsok = 0; ; forsok++) {
-            try {
-              return await skrivOgCommit(
-                base.pool,
-                sakId,
-                await sisteVersjon(base.pool, sakId),
-                id
-              );
-            } catch (feil) {
-              if (feilnummer(feil) !== VERSJONSKONFLIKT || forsok > 50) throw feil;
+      it('skrivere som leser på nytt etter versjonskonflikt eller vranglås, mister ingen hendelse', async () => {
+        const sakId = await nySak(base.pool);
+        const hendelser = Array.from({ length: 8 }, () => randomUUID());
+        await Promise.all(
+          hendelser.map(async (id) => {
+            for (let forsok = 0; ; forsok++) {
+              try {
+                return await skrivOgCommit(
+                  base.pool,
+                  sakId,
+                  await sisteVersjon(base.pool, sakId),
+                  id
+                );
+              } catch (feil) {
+                const nummer = feilnummer(feil);
+                if ((nummer !== VERSJONSKONFLIKT && nummer !== VRANGLAAS) || forsok > 50)
+                  throw feil;
+              }
             }
-          }
-        })
-      );
+          })
+        );
 
-      const rader = await lagret(base.pool, sakId);
-      expect(rader.map((r) => r.versjon)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-      expect(rader.slice(1).map((r) => r.event_id)).toEqual(expect.arrayContaining(hendelser));
-      expect(rader.slice(1).every((r) => r.svar === 2)).toBe(true);
-    });
-  });
+        const rader = await lagret(base.pool, sakId);
+        expect(rader.map((r) => r.versjon)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        expect(rader.slice(1).map((r) => r.event_id)).toEqual(expect.arrayContaining(hendelser));
+        expect(rader.slice(1).every((r) => r.svar === 2)).toBe(true);
+      });
+    }
+  );
 });
