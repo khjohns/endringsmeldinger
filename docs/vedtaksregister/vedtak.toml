@@ -5473,6 +5473,79 @@ tekst = '''
 F0b bygger journalen, notatet, oppdragene, bufferen og vernet mot endring. Radsikkerheten og rettighetene for kjøretiden kommer i F1, etter det samlede rolledesignet med uavhengig review.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "DL-U6"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#53"]
+sporsmal = '''
+Hvilken form har saksnummeret (del 3a)? Saksnummeret står i brevteksten. LV-U4 punkt 1 lyder: «TE krever endringsordre for forholdet «<tittel>» i sak <saksnummer> («<sakstittel>»).» I dag brukes sakens ID som saksnummer. Python lager ulike former (SAK-ÅÅÅÅMMDD-TTMMSS, EO-ÅÅÅÅMMDD-<heks>, Catenda-ID). Design v2 anbefaler at appen lager ID-en selv, men det er ikke vedtatt. Formen blir en kontrakt når den første reelle hendelsen skrives (B-17). Alle tre alternativene presiserer LV-U4 punkt 1, og ingen strider mot et vedtak.
+
+A: tilfeldig ID (Anbefalt) – «Saksnummeret er sakens identitet, en tilfeldig unik ID som appen lager når saken opprettes.» Enklest for 3a. C kan legges til senere, før den første reelle hendelsen, uten at ID-en endres.
+
+B: løpenummer – «Saksnummeret er et lesbart løpenummer per prosjekt, som appen lager når saken opprettes, og det er sakens identitet.»
+
+C: ID og løpenummer – «Saken har en tilfeldig unik ID som appen lager. Et lesbart løpenummer per prosjekt er saksnummeret i brevene.» Utvider LV-U4: saken får et nytt lagret felt, og kjernen må endres.'''
+valgt = "A"
+svar = '''
+«A: tilfeldig ID (Anbefalt)»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u4" }]
+folge = '''
+Arbeidsvalgene for del 3 av #53 står i kommentaren 16.10 på #53. Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Saksnummeret er sakens identitet, en tilfeldig unik ID som appen lager når saken opprettes.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Saksnummeret er et lesbart løpenummer per prosjekt, som appen lager når saken opprettes, og det er sakens identitet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Saken har en tilfeldig unik ID som appen lager. Et lesbart løpenummer per prosjekt er saksnummeret i brevene.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "TE krever endringsordre for forholdet «<tittel>» i sak <saksnummer> («<sakstittel>»)."
+
+[[gruppe.vedtak]]
+id = "DL-U7"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#53"]
+sporsmal = '''
+Del 3b, medlemssynkroniseringen: skal den lagre når medlemslisten ble hentet? Arbeidsvalget 16.10 la tabellen for dette til senere. Uten tidspunktet kan en eldre liste skrive over en nyere og gjøre et tilbakekalt medlem aktivt igjen, og alderen på listen kan ikke måles. B-04 punkt 1: «Nye handlinger opphører straks systemet har registrert at tilgangen er borte.» B-04 punkt 4: «Varselet skal utløses av alderen på listen, ikke bare av feil, fordi en ufullstendig liste ikke gir noen feil.»
+
+A: lagres i 3b (Anbefalt) – «Synkroniseringen lagrer når medlemslisten ble hentet og fra hvilket Catenda-prosjekt. En eldre liste skriver ikke over en nyere.» Presiserer B-04 punkt 1 og 4, og endrer arbeidsvalget 16.10.
+
+B: venter til innloggingen – «Synkroniseringen lagrer ikke når listen ble hentet før innloggingen er flyttet til TS.» Strider mot B-04 punkt 1 fram til da.'''
+valgt = "A"
+svar = '''
+«A: lagres i 3b (Anbefalt)»'''
+folge = '''
+Gjelder merknaden 23.09 til B-04, punkt 1 og 4, som står uten anker. Endrer arbeidsvalget 16.10 i #53, som la tabellen for synkroniseringen til senere. Ikke bygget'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Synkroniseringen lagrer når medlemslisten ble hentet og fra hvilket Catenda-prosjekt. En eldre liste skriver ikke over en nyere.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Synkroniseringen lagrer ikke når listen ble hentet før innloggingen er flyttet til TS.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Varselet skal utløses av alderen på listen, ikke bare av feil, fordi en ufullstendig liste ikke gir noen feil."
+
 [[gruppe]]
 tittel = "Premissene P1–P7"
 
