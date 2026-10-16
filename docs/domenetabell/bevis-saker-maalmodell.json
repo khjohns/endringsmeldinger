@@ -2512,6 +2512,55 @@
       ]
     },
     {
+      "id": "F-MM-G45-regel",
+      "rader": [
+        "KA-30"
+      ],
+      "start": "krav_irreg",
+      "forslag": "OV-U6 og MM-U17: byggherrens endringsordre, sendt utenfor appen før regelendringen og registrert etter den, fryses med appens vurdering etter reglene ved registreringen (n+1), og visningen merker den som appens vurdering ved registreringen",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "regelendring",
+          "regelsett": "n+1"
+        },
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "godkjent",
+          "varslet_i_tide": true,
+          "sendt": "2026-09-01",
+          "endringsordre": true
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U17",
+            "OV-U6"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "gjeldende_svar.grunnlag": "S-g1",
+            "beslutningsgrunnlag.S-g1.regelversjon": "n+1",
+            "visning.etiketter.grunnlag": {
+              "inneholder": [
+                "appens_vurdering_ved_registreringen"
+              ],
+              "mangler": [
+                "regel_endret_etter_brevet"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "F-MM-G46",
       "rader": [
         "KA-50"
@@ -3618,9 +3667,11 @@
           "kilde": [
             "VS-U24",
             "OV-U4",
-            "GR-U12"
+            "GR-U12",
+            "OV-U6"
           ],
           "forventet": {
+            "gjeldende_svar.grunnlag": "S-g1",
             "forstaatt": true,
             "virkning.S-g1.rettidighet": null,
             "beslutningsgrunnlag.S-g1.sammenfall": true,
@@ -5099,6 +5150,7 @@
             "OV-U4"
           ],
           "forventet": {
+            "forstaatt": true,
             "uten_virkning": []
           }
         },

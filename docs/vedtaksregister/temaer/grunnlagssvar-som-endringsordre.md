@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `2f488d4f7518bfd521dd533ce36ef4a5c997c9d213811bc82bdba7905318f376`
+Kontrollsum (SHA-256 over utdraget visningen leser): `00206d1e56b0b2991cb6feb5ecdb1ff14fd8d75d7348fb8dc2114ed52593fc84`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -437,7 +437,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-30](#rad-ka-30), [KA-43](#rad-ka-43)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G45 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-BG1 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G45 (målmodellen), F-MM-G45-regel (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-BG1 (målmodellen)
 
 ### <a id="ov-u4"></a>OV-U4
 
@@ -479,7 +479,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-30](#rad-ka-30), [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [KA-32](#rad-ka-32), [KA-50](#rad-ka-50)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G43 (målmodellen), F-MM-G45 (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G43 (målmodellen), F-MM-G45 (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G45-regel (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen), F-MM-V2 (målmodellen)
 
 ### <a id="ov-u8"></a>OV-U8
 
@@ -515,7 +515,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-ka-20"></a>KA-20 | TE har sendt et spesifisert fristkrav uten registrert varsel etter § 33.4, og byggherren har påberopt at varselet kom for sent. TE registrerer deretter varselet med en tidligere sendedato. | [OV-U5](#ov-u5) | F-MM-D (målmodellen), F-MM-D-godtatt (målmodellen) |
 | <a id="rad-ka-23"></a>KA-23 | En regelendring gir et standpunkt i byggherrens sendte svar en annen virkning før TE har godtatt det. | [HF-U5](#hf-u5) | F-MM-C3b (målmodellen), F-MM-C3d (målmodellen), F-MM-C3e (målmodellen), F-MM-C3d-kontroll (målmodellen), F-MM-R1-kontroll (målmodellen) |
 | <a id="rad-ka-25"></a>KA-25 | Byggherren har svart på grunnlaget med preklusjon etter § 32.2 og subsidiært godkjent, og partene er enige om beløp og dager på vilkår av at grunnlaget avklares. En regelendring gjør at § 32.2 ikke gjelder kategorien før TE har godtatt svaret på grunnlaget. | [GR-U10](#gr-u10) | F-MM-AC (målmodellen) |
-| <a id="rad-ka-30"></a>KA-30 | Byggherrens svar på grunnlaget er sendt utenfor appen før en regelendring og registrert i appen etter den. | [MM-U17](#mm-u17), [GR-U12](#gr-u12), [OV-U4](#ov-u4), [OV-U6](#ov-u6) | F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen) |
+| <a id="rad-ka-30"></a>KA-30 | Byggherrens svar på grunnlaget er sendt utenfor appen før en regelendring og registrert i appen etter den. | [MM-U17](#mm-u17), [GR-U12](#gr-u12), [OV-U4](#ov-u4), [OV-U6](#ov-u6) | F-MM-G45-regel (målmodellen), F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen) |
 | <a id="rad-gr-01"></a>GR-01 | TE sender en ny grunnlagsversjon med samme hjemmel etter at byggherren har avslått grunnlaget og svart subsidiært på vederlag og frist. | [GR-U22](#gr-u22) | F-GR-01, F-MM-G27 (målmodellen) |
 | <a id="rad-gr-02"></a>GR-02 | TE sender en ny grunnlagsversjon som endrer underkategorien fra pålegg (IRREG) til endringsordre (EO), etter et svar som påberoper preklusjon etter § 32.2. | [GR-U22](#gr-u22) | F-GR-02, F-MM-G28 (målmodellen) |
 | <a id="rad-gr-07"></a>GR-07 | TE sender en ny grunnlagsversjon etter at byggherren har godkjent grunnlaget uten å påberope preklusjon. | [GR-U10](#gr-u10) | F-GR-07, F-MM-G30 (målmodellen), F-MM-G30-kontroll (målmodellen) |
