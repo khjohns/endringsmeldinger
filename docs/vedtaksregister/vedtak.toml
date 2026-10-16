@@ -1724,7 +1724,7 @@ svar = '''
 A: frafallet står (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "gr-u17" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "snevrer inn", vedtak = "gr-u1" }, { art = "snevrer inn", vedtak = "hf-u5" }]
 folge = '''
-Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A står frafallet som binding når TE sender en ny grunnlagsversjon, mens den nye versjonen venter på byggherrens svar som etter GR-U1 (arbeidsvalg 16.10 i #510), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
+Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1735,6 +1735,41 @@ Frafallet faller ikke bort når TE sender en ny grunnlagsversjon. Byggherren kan
 navn = "B"
 tekst = '''
 Frafallet gjelder grunnlagsversjonen det svarer på. På en ny versjon kan byggherren svare fritt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GR-U21"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#510", "#557"]
+sporsmal = '''
+Frafall og ny grunnlagsversjon (GR-U20, PR #557), funnet i reviewet. Eksempel: TE varsler en irregulær endring 1. mars, og byggherren frafaller pålegget 10. mars (§ 32.3 c). 20. mars sender TE grunnlagsversjon 2 som en lovendring. Det tillater GR-U19, fordi § 32.2 gjelder likt. Etter GR-U18 er frafall ikke tillatt ved lovendring eller gebyr, fordi endringen da ikke er byggherrens eget pålegg. Etter GR-U20 kan byggherren svare på en ny versjon bare med frafall eller endringsordre. Her er den eneste veien da en godkjenning, som blir en endringsordre. Spørsmålet 16.10 bygde på at versjonen gjelder samme pålegg, og det stemmer ikke her. Hva skal gjelde?
+
+- **A: svar fritt på v2 (Anbefalt).** «Er den nye grunnlagsversjonen i en underkategori der frafall ikke er tillatt (GR-U18), kan byggherren svare på den som etter GR-U1. Løftet om endringsordre for arbeid som alt er utført etter pålegget, står (GR-U17).» Presiserer GR-U20 og GR-U18. Byggherren blir ikke tvunget til en endringsordre for en lovendring.
+- **B: frafallet binder alltid.** «Frafallet binder også ved en ny grunnlagsversjon i en annen underkategori. Byggherren kan ikke avslå den, og en godkjenning er en endringsordre.» Presiserer GR-U20, men snevrer inn GR-U18: byggherren må i praksis gi en endringsordre for en lovendring.
+- **C: sperr bytte etter frafall.** «Etter et frafall kan TE ikke sende en ny grunnlagsversjon i en underkategori der frafall ikke er tillatt.» Snevrer inn GR-U19. Det sperrer en handling TE kan trenge, for eksempel når TE ser at endringen egentlig kommer av en lov.'''
+valgt = "A"
+svar = '''
+A: svar fritt på v2 (Anbefalt)'''
+forhold = [{ art = "presiserer", vedtak = "gr-u20" }, { art = "presiserer", vedtak = "gr-u18" }]
+folge = '''
+Spørsmålet kom fra reviewet av PR #557 16.10. Ikke bygget (#510).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Er den nye grunnlagsversjonen i en underkategori der frafall ikke er tillatt (GR-U18), kan byggherren svare på den som etter GR-U1. Løftet om endringsordre for arbeid som alt er utført etter pålegget, står (GR-U17).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Frafallet binder også ved en ny grunnlagsversjon i en annen underkategori. Byggherren kan ikke avslå den, og en godkjenning er en endringsordre.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Etter et frafall kan TE ikke sende en ny grunnlagsversjon i en underkategori der frafall ikke er tillatt.'''
 forkastet = true
 
 [[gruppe]]
@@ -2959,9 +2994,9 @@ Akseptfristen (HF-U5, HF-U15, #502), spørsmål 1: når er fristen ute? Eksempel
 valgt = "A"
 svar = '''
 A: utløp ved dagens slutt (Anbefalt)'''
-forhold = [{ art = "presiserer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u15" }]
+forhold = [{ art = "presiserer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u15" }, { art = "presiserer", vedtak = "hf-u8" }]
 folge = '''
-Spørsmålene 1–4 om akseptfristen kom fra kartleggingen av del 2 av #502 16.10 og ble prøvd mot vedtakene før de ble stilt. Ikke bygget (#502).'''
+Spørsmålene 1–4 om akseptfristen kom fra kartleggingen av #502 16.10. Forholdene til HF-U5 og HF-U15 sto i spørsmålet. Forholdet til HF-U8, som sier når svaret faller bort, fant kontrollen av føringen 16.10. Ikke bygget (#502).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -3015,9 +3050,9 @@ Akseptfristen, spørsmål 3: hva viser saken når fristen er ute og TE ikke har 
 valgt = "A"
 svar = '''
 A: saken venter på TE (Anbefalt)'''
-forhold = [{ art = "presiserer", vedtak = "hf-u5" }]
+forhold = [{ art = "presiserer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }]
 folge = '''
-Følger KT-U1. Ikke bygget (#502).'''
+Følger KT-U1. Forholdet til HF-U5 sto i spørsmålet. Forholdet til HF-U8 fant kontrollen av føringen 16.10: svaret binder ikke lenger etter fristen, men er fortsatt det gjeldende svaret. Ikke bygget (#502).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -3041,14 +3076,10 @@ sporsmal = '''
 - **A: revisjon er avslag (Anbefalt).** «Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men TE kan sende en ny kravversjon. Reviderer byggherren svaret mens TEs tilbud venter, er revisjonen et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist.» Presiserer HF-U5. Følger av HF-U7 og avtaleloven § 6.
 - **B: svar på tilbudet først.** «TE kan godta svaret på nytt etter et avslag, og hver aksept er et nytt tilbud. Byggherren må godta eller avslå tilbudet før hen kan revidere svaret.» Presiserer HF-U5, men sperrer en revisjon byggherren kan trenge, og krever to brev.
 
-Svar: «Jeg tenker A - men dette følger av skjema i frontend: TE sender nytt tilbud. Byggherre for oppgitt tilbudet, og svarer ut i sitt skjema i frontend. Der tar han på vanlig måte stilling til aktuelle deler av kravet (frister, beløp, dager)»
-
 **Oppfølging:** Svaret ditt kan leses på to måter. Begge beholder A: en revisjon er et avslag av tilbudet og et nytt svar, og etter et avslag sender TE en ny kravversjon. Valget styrer om appen får et eget utsagn for «å godta tilbudet», og om enigheten krever at BH sier det uttrykkelig.
 
 - **1: godta i skjemaet (Anbefalt).** «Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og velger om hen godtar det. Godtar byggherren, er partene enige om svaret slik brevet uttrykker det (KA-U10). Godtar hen ikke, tar hen stilling til delene av kravet på vanlig måte, og svaret er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist.» Presiserer HF-U5. Enigheten bygger på BHs uttrykkelige aksept, ikke på en sammenlikning appen gjør.
 - **2: bare vanlig svar.** «Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises. Tar byggherren stilling til hver del av kravet slik tilbudet lyder, er partene enige om svaret slik brevet uttrykker det (KA-U10). Ellers er svaret et avslag av tilbudet og et nytt svar. Det finnes ikke noe eget valg for å godta tilbudet.» Presiserer HF-U5. Appen utleder enigheten av at standpunktene er like, og BH må fylle ut det samme svaret på nytt.
-
-Svar: «Vi kan ha godta i skjema, som en sikkerhetsventil: Dvs. en kombinasjon av 1 og 2. Hvis f.eks. byggherre velger "Godta" men svarene i skjema ikke er fullt ut godkjennelse, kommer en melding om dette.»
 
 **Andre oppfølging:** Én ting er ikke avklart: skal svaret da avvises, eller skal byggherren bare advares og likevel kunne sende? Eksempel: BH godkjenner 300 av 500 000 kr med akseptfrist 24. mars. TE godtar 2. april. BH krysser av for «Godta», men skriver 250 000 kr.
 
@@ -3056,10 +3087,14 @@ Svar: «Vi kan ha godta i skjema, som en sikkerhetsventil: Dvs. en kombinasjon a
 - **Advar, og send som avslag.** Samme tekst, men med «Stemmer svaret ikke med tilbudet, viser appen hvilke deler som avviker. Sender byggherren likevel, er svaret et avslag av tilbudet og et nytt svar.» Brevet kan da inneholde både «godtar» og et annet beløp, og appen avgjør hva brevet betyr.'''
 valgt = "Avvis ved avvik"
 svar = '''
-Avvis ved avvik (Anbefalt)'''
+Jeg tenker A - men dette følger av skjema i frontend: TE sender nytt tilbud. Byggherre for oppgitt tilbudet, og svarer ut i sitt skjema i frontend. Der tar han på vanlig måte stilling til aktuelle deler av kravet (frister, beløp, dager)
+
+Oppfølging: Vi kan ha godta i skjema, som en sikkerhetsventil: Dvs. en kombinasjon av 1 og 2. Hvis f.eks. byggherre velger "Godta" men svarene i skjema ikke er fullt ut godkjennelse, kommer en melding om dette.
+
+Andre oppfølging: Avvis ved avvik (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "hf-u5" }]
 folge = '''
-Følger av HF-U7. Det første svaret og det første oppfølgingssvaret passet ikke på et alternativ, og det ble stilt to oppfølgingsspørsmål. Alle står ordrett i spørsmålet over. Ikke bygget (#502).'''
+Følger av HF-U7. Det første svaret valgte A med et forbehold, og det første oppfølgingssvaret kombinerte 1 og 2. Derfor ble det stilt to oppfølgingsspørsmål. Teksten i det forkastede alternativet «Advar, og send som avslag» er satt sammen av «samme tekst, men med …» slik det ble stilt: setningen om avvik er byttet ut, og resten står. Ikke bygget (#502).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Avvis ved avvik"
@@ -3069,7 +3104,13 @@ Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt,
 [[gruppe.vedtak.alternativ]]
 navn = "Advar, og send som avslag"
 tekst = '''
-Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men kan sende en ny kravversjon. Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og tar stilling til delene av kravet på vanlig måte. Skjemaet har også et valg for å godta tilbudet. Velger byggherren det, og svaret stemmer med tilbudet i hver del, er partene enige om svaret slik brevet uttrykker det (KA-U10). Stemmer svaret ikke med tilbudet, viser appen hvilke deler som avviker. Sender byggherren likevel, er svaret et avslag av tilbudet og et nytt svar.'''
+Har byggherren avslått TEs tilbud, kan TE ikke godta det samme svaret på nytt, men kan sende en ny kravversjon. Byggherren svarer på TEs tilbud i det vanlige skjemaet for svar, der tilbudet vises, og tar stilling til delene av kravet på vanlig måte. Skjemaet har også et valg for å godta tilbudet. Velger byggherren det, og svaret stemmer med tilbudet i hver del, er partene enige om svaret slik brevet uttrykker det (KA-U10). Stemmer svaret ikke med tilbudet, viser appen hvilke deler som avviker. Sender byggherren likevel, er svaret et avslag av tilbudet og et nytt svar. Et svar som ikke godtar tilbudet, er et avslag av tilbudet og et nytt svar, som kan ha sin egen akseptfrist. Det samme gjelder en revisjon byggherren sender mens tilbudet venter.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B: svar på tilbudet først"
+tekst = '''
+TE kan godta svaret på nytt etter et avslag, og hver aksept er et nytt tilbud. Byggherren må godta eller avslå tilbudet før hen kan revidere svaret.'''
 forkastet = true
 
 [[gruppe]]
