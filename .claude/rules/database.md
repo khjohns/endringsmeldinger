@@ -1,6 +1,7 @@
 ---
 paths:
   - "supabase/**"
+  - "database/**"
   - "backend/repositories/**"
   - "backend/tests/fixtures/supabase_dobbel.py"
   - "backend/tests/test_database/**"
@@ -31,9 +32,10 @@ migrasjonene, og les ikke kjøretidstilstanden ut av filene. Å utlede den fra
 migrasjonsfiler er den dokumenterte årsaken til flere feilklassifiserte funn, og
 docstringene er utdaterte.
 
-**Skjemaet endres bare gjennom en migrasjonsfil i `supabase/migrations/`, aldri
-med DDL rett mot en base eller med et verktøy som stempler sin egen versjon**
-(som `apply_migration` over Supabase-MCP). Versjonen i basen skal være versjonen
+**Skjemaet endres bare gjennom en migrasjonsfil — `supabase/migrations/` for
+PostgreSQL, `database/migrasjoner/` for SQL Server — aldri med DDL rett mot en
+base eller med et verktøy som stempler sin egen versjon** (som `apply_migration`
+over Supabase-MCP). Versjonen i basen skal være versjonen
 i filnavnet (DA-03). Filnavnrekkefølgen er apply-rekkefølgen, og CI-jobben
 `database` bygger hele settet mot PostgreSQL 17
 ved hver PR. Åtte av nitten tabeller har ingen eksplisitt `GRANT` i repoet og
@@ -46,6 +48,20 @@ Endrer du en migrasjon, eller slår du inn en, bygg testbasen på nytt med
 summen av det den er bygget av (`scripts/testbase/migrasjonssum.sh`).
 Testoppsettet i pytest og TS nekter en base med en annen sum enn arbeidstreet,
 og oppstartshooken bygger den på nytt (#379).
+
+**SQL Server: migrasjonene i T-SQL ligger i `database/migrasjoner/`, aldri i
+`supabase/migrations/`, og anvendes bare av runneren i `server/migrering.ts`**
+(#53, arbeidsvalget 16.10). Filnavnet er `ÅÅÅÅMMDDTTMMSS_navn.sql`; prefikset er
+versjonen, og filnavnrekkefølgen er rekkefølgen. Fila deles på linjer med bare
+`GO`, og hver fil anvendes i én transaksjon. `koe_migrering.historikk` lagrer
+versjonen og sha256 av hele fila, og runneren nekter å kjøre når en anvendt fil
+er endret, fjernet eller får en ny fil foran seg. Historikktabellen er det eneste
+runneren lager selv. Testbasene bygges fra filene med `opprettMigrertTestbase` i
+`server/tester/sqlserver_migrert.ts`, og katalogen i en slik base er kilden, som
+for PostgreSQL. Tidspunkter er `datetime2(3)` i UTC med `SYSUTCDATETIME()`
+([DL-U3](../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u3)).
+Brukerne til rollene (`CREATE USER … FROM EXTERNAL PROVIDER`) hører til
+utrullingen, ikke migrasjonene (A8 og A9 i #78).
 
 **En `GRANT` begrenser ikke det en rolle alt har.** Plattformstubben og
 Supabase gir `service_role` alle rettigheter på nye tabeller
@@ -73,7 +89,7 @@ prøver igjen, og kalleren får `TransientError` framfor det ruta oversetter til
 
 **En anvendt migrasjon er uforanderlig — også kommentarene.**
 `supabase_migrations.schema_migrations.statements` lagrer rågteksten, kommentarer
-og alt. Retter du et ord i en fil som er kjørt, er fila ikke lenger det basen
+og alt, og summen i `koe_migrering.historikk` gjelder hele fila. Retter du et ord i en fil som er kjørt, er fila ikke lenger det basen
 gjorde. Har innholdet blitt feil, skriv en ny migrasjon eller en datert merknad i
 `docs/` — ikke rediger historikken.
 
