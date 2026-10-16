@@ -2461,12 +2461,12 @@ const MUTASJONER: Mutasjon[] = [
       'visningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (GR-U24, #510)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
-      [
-        "  if (venterPaaSvar(s) && !kraveneErAvgjort(u)) ut.push('venter_paa_svar');",
-        "  if (venterPaaSvar(s)) ut.push('venter_paa_svar');",
-      ],
+      ['  venterPaaSvar(u.spor[spor]) && !kraveneErAvgjort(u);', '  venterPaaSvar(u.spor[spor]);'],
     ],
-    mal: ['svaret på versjon 2 avvises (GR-U24'],
+    mal: [
+      'svaret på versjon 2 avvises (GR-U24',
+      'merket brev, vises saken heller ikke som ventende',
+    ],
   },
 ];
 

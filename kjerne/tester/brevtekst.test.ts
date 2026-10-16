@@ -2855,6 +2855,47 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
         visning(u, GJELDENDE_REGLER).spor.grunnlag.etiketter,
         'versjon 2 vises ikke som ventende (GR-U24)'
       ).not.toContain('venter_paa_svar');
+      expect(visning(u, GJELDENDE_REGLER).status.kode).toBe('avsluttet_oppgjort');
+    });
+
+    it('bygger enigheten i fristen på et merket brev, vises saken heller ikke som ventende på svar (GR-U24, KA-U20)', () => {
+      const s = medEnighetIVederlaget(medFrafall());
+      versjon(s, { tittel: 'Ny peling 2' });
+      const u0 = s.u();
+      const rad = s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'frist',
+            gjelder: s.krav('frist'),
+            grunnlagskrav: u0.spor.grunnlag.gjeldendeKrav!.id,
+            standpunkter: [
+              {
+                id: randomUUID(),
+                art: 'rettidighet',
+                gjelder: u0.spor.frist.varsel!.id,
+                hjemmel: '33.4',
+                i_tide: true,
+              },
+              { id: randomUUID(), art: 'dager' },
+            ],
+            utregning: { resultat: 'godkjent', godkjent_dager: 20 },
+          },
+        ],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-20' }],
+      });
+      s.send('BH', { type: 'merking', gjelder: rad.event_id, spor: ['frist'] });
+      const u = s.u();
+      expect(
+        u.spor.frist.forbehold,
+        `forutsetning: fristen er merket (${JSON.stringify(u.begrensninger)})`
+      ).toBe(true);
+      expect(kraveneErAvgjort(u), 'forutsetning: kravene er avgjort').toBe(true);
+      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
+      expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');
+      const vist = visning(u, GJELDENDE_REGLER);
+      expect(vist.status.kode).not.toBe('venter_paa_svar');
+      expect(vist.spor.grunnlag.etiketter).not.toContain('venter_paa_svar');
     });
   });
 
