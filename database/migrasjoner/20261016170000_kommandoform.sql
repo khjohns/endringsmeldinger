@@ -1,11 +1,11 @@
 -- Kommandoene prøver formen på argumentene før de skriver (#605, #607, #596).
--- Prosedyrene fra `20261016120000_kommandoer.sql` defineres på nytt med samme
--- navn, parametere og rettigheter.
---
--- Parameterne for ID-ene, hendelsestypen, dokumentnøkkelen og summen er
--- nvarchar(4000), så en for lang verdi ikke kortes stille til kolonnens lengde før
--- kontrollen (#605). En verdi over 4000 tegn kortes fortsatt, men er da for lang
--- for hver av kolonnene og avvises.
+-- Migrasjonen definerer prosedyrene fra `20261016120000_kommandoer.sql` med
+-- samme navn og rettigheter. I `skriv_hendelse` er `@sak_id`, `@event_id`,
+-- `@event_type`, `@dokumentnoekkel` og `@oppdrag_sha256` nvarchar(4000), og i
+-- `opprett_sak` leses sakstypen inn i en nvarchar(4000), så en for lang verdi
+-- ikke kortes stille til kolonnens lengde før kontrollen (#605). En verdi over
+-- 4000 tegn kortes til 4000 og er da for lang for hver av kolonnene, så den
+-- avvises.
 --
 -- Formene er skrankene på tabellene (`20261016100000_journal.sql` og
 -- `20261016130000_mellomrom.sql`). Prosedyrene prøver dem selv, så et argument i
@@ -14,7 +14,7 @@
 -- form gir 51403 som en ukjent sak: SQL Server ser bort fra mellomrom til slutt
 -- når to tekster sammenliknes, så oppslaget alene ville funnet saken.
 --
--- Feilkodene er de samme som før, og kommandoene bruker dem slik:
+-- Feilkodene:
 -- 51000 kommandoen kan ikke kjøres i denne økta: utenfor transaksjonen, uten
 -- kontekst bundet til den, eller når `sys.dm_exec_sessions` ikke viser økta, så
 -- tidspunktet ikke kan bindes til den (#596). Det siste er et avvik i miljøet,
