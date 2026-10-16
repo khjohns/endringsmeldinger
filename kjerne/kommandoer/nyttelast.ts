@@ -28,7 +28,8 @@ import {
   type Rettidighet,
   type Utledning,
 } from '../utledning/utled.ts';
-import type { Avvisning } from '../typer.ts';
+import { senketStandpunkt, standpunkter } from './standpunkter.ts';
+import type { Avvisning, Svar } from '../typer.ts';
 
 function kontrollerSvar(
   s: Svarutkast,
@@ -87,6 +88,35 @@ function kontrollerSvar(
       `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
     );
   return null;
+}
+
+/**
+ * HF-U5, HF-U14, HF-U21: en revisjon av et svar TE ikke har godtatt, kan ikke senke noe
+ * byggherren har innrømmet i svaret, også etter en ny grunnlagsversjon med samme hjemmel.
+ * En ny kravversjon gir et nytt svar, ikke en revisjon (HF-U8). Et registrert brev
+ * binder ikke (OV-U4). Kjøres etter `kontrollerSvar`, så vurderingene kan regnes ut.
+ */
+function binding(s: Svarutkast, forrige: Svar, u: Utledning, regler: Regelsett): Avvisning | null {
+  if (u.elementer[forrige.dokument]?.registrertBrev) return null;
+  const krav = u.spor[s.spor].gjeldendeKrav!;
+  const server = regnUtSvar(
+    s.spor,
+    s.vurderinger,
+    { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+    regler
+  );
+  let n = 0;
+  const senket = senketStandpunkt(
+    forrige,
+    standpunkter(s, krav, u, () => `revisjon-${++n}`),
+    server
+  );
+  return senket
+    ? avvis(
+        'SENKER_INNROEMMELSE',
+        `${senket}. Byggherren er bundet av det svaret innrømmer, til TE godtar det eller sender en ny kravversjon, og kan bare revidere svaret i TEs favør (HF-U5).`
+      )
+    : null;
 }
 
 /** Påberopelsene i svaret av at varselet kom for sent, eller at kravet ble spesifisert for sent. */
@@ -250,10 +280,14 @@ export function nyttelastkontroll(
         if (a) return a;
       }
       return null;
-    case 'revisjon':
-      if (k.erstatter !== u.spor[k.svar.spor].gjeldendeSvar?.id)
+    case 'revisjon': {
+      const forrige = u.spor[k.svar.spor].gjeldendeSvar;
+      if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
-      return kontrollerSvar(k.svar, u, regler, utdypningKreves);
+      return (
+        kontrollerSvar(k.svar, u, regler, utdypningKreves) ?? binding(k.svar, forrige, u, regler)
+      );
+    }
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar.
       if (k.svar !== u.spor[k.spor].gjeldendeSvar?.id)

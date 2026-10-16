@@ -191,7 +191,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F10',
     feilklasse: 'innsigelsen om fremdriftshindring (§ 33.1) forsvinner når brevet skrives',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
       ["ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });", 'void 0;'],
     ],
@@ -413,7 +413,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [['        gjelder: u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id,\n', '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
@@ -1059,7 +1059,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F99',
     feilklasse:
       'påberopelsen etter § 33.4 viser til kravversjonen svaret gjelder, ikke det første fristkravet (VS-U20, OV-U5, KK-07)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
       ['u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id', 'u.spor.frist.varsel?.id ?? krav.id'],
     ],
@@ -1813,7 +1813,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F178',
     feilklasse: 'byggherrens vurdering etter § 34.1.2 lagres ikke som standpunkt (#341, KA-U4)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -1889,7 +1889,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F185',
     feilklasse:
       'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [['gjelder: u.spor.vederlag.krav[0]!.id,', 'gjelder: krav.id,']],
     mal: ['F-MM-V-34-1-2-ny-kravversjon'],
   },
@@ -1931,7 +1931,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F189',
     feilklasse: 'byggherrens vurdering etter § 34.2.2 lagres ikke som standpunkt (#341)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
       [
         "if (typeof v.aksepterer_metode === 'boolean')",
@@ -1991,7 +1991,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F195',
     feilklasse: 'byggherrens vurdering etter § 33.6.1 lagres ikke som standpunkt (#341)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
       [
         "if (typeof v.spesifisert_krav_ok === 'boolean')",
@@ -2455,6 +2455,71 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-G20'],
+  },
+  {
+    id: 'F240',
+    feilklasse: 'en revisjon sammenliknes ikke med svaret den erstatter (HF-U5)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['?? binding(k.svar, forrige, u, regler)', '?? null']],
+    mal: [
+      'et lavere godkjent beløp avvises',
+      'færre godkjente dager avvises',
+      'F-MM-HF-U5-vederlag',
+      'F-MM-HF-U5-frist',
+      'F-MM-HF-U5-grunnlag',
+    ],
+  },
+  {
+    id: 'F241',
+    feilklasse: 'aksepten av beregningsmåten sammenliknes ikke (HF-U14)',
+    fil: `${K}/kommandoer/standpunkter.ts`,
+    endringer: [["if (ny('metode')?.aksepterer === false)", 'if (false)']],
+    mal: ['aksepten av beregningsmåten kan ikke tas tilbake', 'F-MM-HF-U14'],
+  },
+  {
+    id: 'F242',
+    feilklasse:
+      'byggherren er fri for svaret i vederlaget etter en ny grunnlagsversjon, som før HF-U21',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (u.elementer[forrige.dokument]?.registrertBrev) return null;',
+        '  if (u.elementer[forrige.dokument]?.registrertBrev) return null;\n  if (forrige.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;',
+      ],
+    ],
+    mal: ['bindingen i vederlaget står etter en ny grunnlagsversjon', 'F-MM-HF-U21'],
+  },
+  {
+    id: 'F243',
+    feilklasse:
+      'revisjonen sammenliknes med det første svaret på kravversjonen, ikke det den erstatter',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '    forrige,\n    standpunkter(s, krav, u',
+        '    u.spor[s.spor].svar.find((x) => x.gjelder === forrige.gjelder)!,\n    standpunkter(s, krav, u',
+      ],
+    ],
+    mal: ['sammenliknes med svaret revisjonen erstatter'],
+  },
+  {
+    id: 'F244',
+    feilklasse: 'beløpet sammenliknes i hele kroner, ikke til hele øre (B-13)',
+    fil: `${K}/kommandoer/standpunkter.ts`,
+    endringer: [
+      [
+        'if (beloep(n.godkjent)! < beloep(f.godkjent)!)',
+        'if (Math.floor(n.godkjent) < Math.floor(f.godkjent))',
+      ],
+    ],
+    mal: ['beløpet sammenliknes til hele øre'],
+  },
+  {
+    id: 'F245',
+    feilklasse: 'et registrert svar binder byggherren (OV-U4)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (u.elementer[forrige.dokument]?.registrertBrev) return null;\n', '']],
+    mal: ['et registrert brev binder ikke (OV-U4)'],
   },
 ];
 

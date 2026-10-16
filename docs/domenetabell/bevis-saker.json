@@ -212,7 +212,7 @@
         { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 20000 }
       ],
       "kontroller": [
-        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 20000 }, "forventet": { "avvist": false } },
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 60000 }, "forventet": { "avvist": false } },
         { "etter": 2, "rolle": "forutsetning", "forventet": { "vederlag.te_akseptert": true } },
         { "etter": 3, "rolle": "mal", "forventet": { "avvist": true, "vederlag.godkjent_belop": 50000 } }
       ],
@@ -224,12 +224,27 @@
       "start": "basis",
       "steg": [
         { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 50000 },
+        { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 60000 }
+      ],
+      "kontroller": [
+        { "etter": 2, "rolle": "mal", "forventet": { "avvist": false, "vederlag.godkjent_belop": 60000 } }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-KA-49",
+      "rader": ["KA-49"],
+      "start": "basis",
+      "steg": [
+        { "handling": "vederlagssvar", "vurdering": "delvis", "godkjent_belop": 50000 },
         { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 20000 }
       ],
       "kontroller": [
-        { "etter": 2, "rolle": "mal", "forventet": { "avvist": false, "vederlag.godkjent_belop": 20000 } }
+        { "etter": 1, "rolle": "kontroll", "prov": { "handling": "vederlagssvar_revidert", "vurdering": "delvis", "godkjent_belop": 60000 }, "forventet": { "avvist": false } },
+        { "etter": 2, "rolle": "mal", "forventet": { "avvist": true, "vederlag.godkjent_belop": 50000 } }
       ],
-      "forventningsgrunnlag": "arbeidshypotese"
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "HF-U5", "issue": 611 }
     },
     {
       "id": "F-KA-13",
