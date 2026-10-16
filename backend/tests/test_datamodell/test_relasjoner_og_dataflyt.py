@@ -91,6 +91,15 @@ def test_vakta_melder_sammensatt_fremmednokkel_fort_per_kolonne(kilder):
     ) in feil
 
 
+def test_vakta_melder_logisk_kobling_paa_en_kolonne_i_sammensatt_fremmednokkel(kilder):
+    """#590: en kolonne i en sammensatt fremmednøkkel håndheves av databasen, så den er ikke logisk."""
+    endret = copy.deepcopy(kilder["relasjoner"])
+    sammensatt = next(r for r in endret["relasjon"] if r["fra"] == ["koe.notat.sak_id", "koe.notat.prosjekt_id"])
+    endret["relasjon"].append({**sammensatt, "fra": "koe.notat.sak_id", "til": "koe.sak_metadata.sak_id", "art": "logisk"})
+    feil = rel.valider(endret, kilder["katalog"])
+    assert "koe.notat.sak_id → koe.sak_metadata.sak_id: står som logisk, men katalogen har en fremmednøkkel" in feil
+
+
 def test_vakta_melder_sammensatt_nokkel_med_ulike_ender(kilder):
     endret = copy.deepcopy(kilder["relasjoner"])
     sammensatt = next(r for r in endret["relasjon"] if rel.tabell(r, "fra") == "koe.leveringsoppdrag" and r["art"] == "fremmednøkkel")

@@ -161,7 +161,7 @@ def valider(register: dict, katalog: dict, funntekst: str | None = None) -> list
         er_fk = nøkkel(r) in fk
         if r["art"] == "fremmednøkkel" and not er_fk:
             feil.append(f"{hvor}: står som fremmednøkkel, men katalogen har ingen slik")
-        if r["art"] == "logisk" and er_fk:
+        if r["art"] == "logisk" and any(set(zip(*nøkkel(r))) <= set(zip(*k)) for k in fk):
             feil.append(f"{hvor}: står som logisk, men katalogen har en fremmednøkkel")
         for ende in ("fra", "til"):
             if er_fk and ende == "til":
