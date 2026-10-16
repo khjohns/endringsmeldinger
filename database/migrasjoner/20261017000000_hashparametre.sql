@@ -7,6 +7,7 @@
 -- Bare sammenlikningen er endret. Prosedyrene har samme navn, argumenter, feil og
 -- rettigheter som i `20261016190000_sesjon.sql`.
 
+-- Brukeren og CSRF-tokenet for en sesjon som ikke er utløpt, ellers ingen rad.
 CREATE OR ALTER PROCEDURE koe_api.les_sesjon
   @token_hash nvarchar(4000)
 AS
@@ -34,6 +35,10 @@ BEGIN
 END
 GO
 
+-- Bruker forsøket med staten, når nettleseren er den som startet det og
+-- forsøket ikke er utløpt: raden slettes og returstien returneres i samme
+-- setning, så to samtidige kall ikke begge får den. Ellers ingen rad, og et
+-- forsøk med feil nettleser står, som `consume_attempt` i Python.
 CREATE OR ALTER PROCEDURE koe_api.bruk_innloggingsforsoek
   @state_hash nvarchar(4000), @nettleser_hash nvarchar(4000)
 AS
