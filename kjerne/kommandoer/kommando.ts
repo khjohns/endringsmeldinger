@@ -10,7 +10,13 @@
 import { DATO, ID, KRAVINNHOLD, liste, objekt, OPPLYSNINGSSLAG, TEKST } from '../format/format.ts';
 import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
 import type { Svarvurdering } from '../frosset/standpunkt.ts';
-import { KRAVSPOR, SPOR as SPORENE, type Kravspor, type Opplysning, type Spor } from '../typer.ts';
+import {
+  KRAVSPOR,
+  SPOR as SPORENE,
+  type Kravspor,
+  type Opplysningsslag,
+  type Spor,
+} from '../typer.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -60,7 +66,7 @@ export type Kommando = (
   | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon?: string[] }
   /** VS-U15: TE sender et eget varsel etter § 33.4 fra appen, uten dager. */
   | { type: 'send_varsel'; spor: 'frist'; hjemmel: '33.4' }
-  | { type: 'bestridelse'; gjelder: string; hva: Opplysning['hva'] }
+  | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** KA-U12, KA-U15, KA-U17: TE krever ikke noe i et spor som ikke er sendt. Ingen fritekst (KA-U22). */
   | { type: 'ingen_krav'; spor: Kravspor }
   /** § 5 tredje ledd (VS-U1, VS-U9, VS-U14): mot motpartens varsel, krav eller svar. */
@@ -69,9 +75,8 @@ export type Kommando = (
   | { type: 'protest'; gjelder: string }
   /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. */
   | { type: 'passivitet'; gjelder: string }
-  /** KA-U20: en senere merking av et registrert brev med noe appen ikke kan uttrykke. */
+  /** KA-U20: merkingen av et registrert brev og avklaringen av den. Avvises etter OV-U7. */
   | { type: 'merking'; gjelder: string; spor: Spor[] }
-  /** KA-U20: den som sendte brevet, sier at standpunktene gjelder uten forbehold. */
   | { type: 'avklaring'; gjelder: string }
   /**
    * Byggherrens senere begrunnelse av et svar. Fra appen er teksten utdypningen
@@ -226,10 +231,6 @@ export function formfeil(kommando: unknown): string[] {
     } else if ('dokumentasjon' in k)
       // KA-U34: brevet fra appen har bare setningen og teksten.
       feil.push('$.dokumentasjon: bare en registrert begrunnelse har vedlegg');
-  }
-  if (type === 'merking' && !feil.length) {
-    const spor = (kommando as { spor: Spor[] }).spor;
-    if (new Set(spor).size !== spor.length) feil.push('$.spor: samme spor to ganger');
   }
   return feil;
 }

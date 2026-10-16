@@ -84,6 +84,27 @@ def test_kontrollen_finner_feil_i_bevis_sakene_for_maalmodellen():
     assert "KA-21: ingen bevis-sak" in feil
 
 
+def test_en_utsatt_rad_staar_uten_bevis_sak_men_ikke_med_en():
+    """OV-U7: en rad med `utsatt` trenger ingen bevis-sak. Vedtaket i `utsatt` står
+    blant kildene, raden har ingen regelkoder, og en bevis-sak for den gir feil."""
+    regler = copy.deepcopy(korpus.REGLER)
+    maal = copy.deepcopy(korpus.verktoy.les_maalmodell())
+    rader = {r["id"]: r for r in regler["rader"]}
+    assert rader["KA-32"]["utsatt"] == "OV-U7"
+    assert korpus.verktoy.valider(regler, korpus.KORPUS, maalmodell=maal) == []
+
+    del rader["KA-32"]["utsatt"]
+    assert "KA-32: ingen bevis-sak" in korpus.verktoy.valider(regler, korpus.KORPUS, maalmodell=maal)
+
+    rader["KA-32"]["utsatt"] = "OV-U99"
+    rader["KA-32"]["regelkoder"] = ["FEIL_PART"]
+    maal["forlop"][0]["rader"].append("KA-32")
+    feil = korpus.verktoy.valider(regler, korpus.KORPUS, maalmodell=maal)
+    assert "KA-32: `utsatt` er ikke et vedtak blant kildene" in feil
+    assert "KA-32: en utsatt rad har ingen regelkoder" in feil
+    assert "KA-32: er utsatt, men har en bevis-sak" in feil
+
+
 def test_tabellen_i_readme_er_skrevet_av_verktoyet():
     readme = korpus.verktoy.README.read_text(encoding="utf-8")
     assert korpus.verktoy.med_tabell(readme, korpus.REGLER, korpus.KORPUS) == readme, (

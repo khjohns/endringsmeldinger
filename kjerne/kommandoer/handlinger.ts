@@ -12,8 +12,8 @@ import { KRAVSPOR, SPOR, type Part } from '../typer.ts';
 /**
  * Handlingene som kan gjelde saken: hver handling i hvert spor, en bestridelse per
  * opplysning, en innsigelse per varsel, krav og svar, en protest per innsigelse og
- * dokument, påberopt passivitet per grunnlagskrav, en merking per dokument, en avklaring
- * per merking og en begrunnelse per element, som forutsetningen snevrer inn til svarene.
+ * dokument, påberopt passivitet per grunnlagskrav og en begrunnelse per element, som
+ * forutsetningen snevrer inn til svarene. Merking og avklaring tilbys ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const ut: Handlingsnoekkel[] = [];
@@ -22,15 +22,11 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
       ut.push({ type, spor });
   ut.push({ type: 'varsle', spor: 'frist' }, { type: 'sende_varsel', spor: 'frist' });
   for (const spor of KRAVSPOR) ut.push({ type: 'ingen_krav', spor });
-  for (const { opplysning } of u.opplysninger) {
+  for (const { opplysning } of u.opplysninger)
     ut.push({ type: 'bestride', gjelder: opplysning.id });
-    if (opplysning.hva === 'kan_ikke_uttrykkes')
-      ut.push({ type: 'avklare', gjelder: opplysning.id });
-  }
   for (const [id, e] of Object.entries(u.elementer)) {
     if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
     if (e.innsigelse || e.art === 'dokument') ut.push({ type: 'protest', gjelder: id });
-    if (e.art === 'dokument') ut.push({ type: 'merke', gjelder: id });
     ut.push({ type: 'begrunne', gjelder: id });
   }
   for (const k of u.spor.grunnlag.krav) ut.push({ type: 'passivitet', gjelder: k.id });

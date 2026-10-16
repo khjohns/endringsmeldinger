@@ -30,6 +30,8 @@ import type {
   Domenehendelse,
   Hjemmel,
   Journalrad,
+  LestOpplysning,
+  LestUtsagn,
   Opplysning,
   Part,
   Spor,
@@ -37,7 +39,6 @@ import type {
   Standpunktsart,
   Standpunktsvirkning,
   Svar,
-  Utsagn,
   Utsagnsart,
   Virkning,
 } from '../typer.ts';
@@ -76,18 +77,14 @@ export function datoFor(
   return dato.find((o) => o.gjelder === varsel.id) ?? dato.find((o) => o.gjelder === undefined);
 }
 
-/**
- * MM-U7: en dato bestrides som sendt eller mottatt, opplysningen om § 31.3 og
- * merkingen etter KA-U20 som det de er.
- */
+/** MM-U7: en dato bestrides som sendt eller mottatt, opplysningen om § 31.3 som det den er. */
 export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
   opplysning === 'sendt' || opplysning === 'mottatt'
     ? bestridelse === 'sendt' || bestridelse === 'mottatt'
     : opplysning === bestridelse;
 
-/** En opplysning om brevet som helhet: § 31.3 eller merkingen etter KA-U20 (MM-U12). */
-export const omBrevet = (hva: string): hva is 'endringsordre' | 'kan_ikke_uttrykkes' =>
-  hva === 'endringsordre' || hva === 'kan_ikke_uttrykkes';
+/** En opplysning om brevet som helhet: § 31.3 (MM-U12). */
+export const omBrevet = (hva: string): hva is 'endringsordre' => hva === 'endringsordre';
 
 /** Leseren forstår ikke raden (MM-U2). */
 export class Uforstaatt extends Error {}
@@ -271,8 +268,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
 /**
  * Hvem som kan si hva: TE krever, varsler, godtar, trekker, sier «ingen krav» og
  * påberoper passivitet; BH svarer og begrunner svaret senere (KA-U34). Innsigelse,
- * protest, bestridelse og avklaring
- * kan komme fra begge; utledningen kontrollerer hvem de gjelder.
+ * protest og bestridelse kan komme fra begge; utledningen kontrollerer hvem de gjelder.
  */
 const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   varsel: 'TE',
@@ -283,7 +279,6 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   bestridelse: null,
   innsigelse: null,
   protest: null,
-  avklaring: null,
   begrunnelse: 'BH',
 };
 
@@ -311,7 +306,7 @@ function lesDokument(h: Journalrad): Dokument {
   if (data.krav) kreverPart('TE', 'et krav');
   if (data.svar) kreverPart('BH', 'et svar');
   const hva = new Set<string>();
-  const opplysninger = (data.opplysninger ?? []).map((v, i): Opplysning => {
+  const opplysninger = (data.opplysninger ?? []).map((v, i): LestOpplysning => {
     const o = element(v, OPPLYSNING, 'hva', `$.opplysninger[${i}]`);
     // Én opplysning av hvert slag om dokumentet, og én om hvert varsel i det (HF-U1).
     const noekkel = `${String(o.hva)}:${omBrevet(o.hva as string) ? '' : String(o.gjelder ?? '')}`;
@@ -319,12 +314,6 @@ function lesDokument(h: Journalrad): Dokument {
       throw new Uforstaatt(`dokumentet har to opplysninger om ${String(o.hva)}`);
     hva.add(noekkel);
     const brev = (o.gjelder as string | undefined) ?? id;
-    if (o.hva === 'kan_ikke_uttrykkes') {
-      const spor = o.spor as Spor[];
-      if (new Set(spor).size !== spor.length)
-        throw new Uforstaatt('merkingen har samme spor to ganger');
-      return { id: o.id as string, dokument: id, hva: o.hva, spor, oppgittAv: avsender, brev };
-    }
     return o.hva === 'endringsordre'
       ? {
           id: o.id as string,
@@ -354,12 +343,6 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt(
       'opplysningen om endringsordre står uten et registrert svar på grunnlaget i dokumentet'
     );
-  // KA-U20: merkingen i brevet selv står i et registrert brev med et krav eller svar.
-  if (
-    opplysninger.some((o) => o.hva === 'kan_ikke_uttrykkes' && o.brev === id) &&
-    (!erRegistrert(opplysninger) || (!data.krav && !data.svar))
-  )
-    throw new Uforstaatt('merkingen står uten et registrert krav eller svar i dokumentet');
   const dokument: Dokument = {
     id,
     avsender,
@@ -379,20 +362,19 @@ function lesDokument(h: Journalrad): Dokument {
     }),
     svar: (data.svar ?? []).map((v, i) => lesSvar(v, id, `$.svar[${i}]`)),
     brevtekst: data.brevtekst ?? null,
-    utsagn: (data.utsagn ?? []).map((v, i): Utsagn => {
+    utsagn: (data.utsagn ?? []).map((v, i): LestUtsagn => {
       const e = element(v, UTSAGN, 'art', `$.utsagn[${i}]`);
       const art = e.art as Utsagnsart;
       kreverPart(PART_FOR_UTSAGN[art], `et utsagn med art ${art}`);
       return art === 'varsel'
         ? { id: e.id as string, art, hjemmel: '33.4', dokument: id }
-        : (e as unknown as Utsagn);
+        : (e as unknown as LestUtsagn);
     }),
   };
   // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.
   for (const o of dokument.opplysninger)
     if (
       o.hva !== 'endringsordre' &&
-      o.hva !== 'kan_ikke_uttrykkes' &&
       o.gjelder !== undefined &&
       !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)
     )

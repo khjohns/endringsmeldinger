@@ -96,7 +96,8 @@ function sak() {
   };
   const send = (part: Part, kommando: Data): Journalrad => {
     const utfall = prov(part, kommando);
-    if (!utfall.godtatt) throw new Error(`Forutsetning: ${JSON.stringify(utfall.avvisning)}`);
+    if (!utfall.godtatt)
+      expect.fail(`Forutsetning: kommandoen ble avvist: ${JSON.stringify(utfall.avvisning)}`);
     dag++;
     journal.push(...utfall.hendelser);
     return utfall.hendelser[0];
@@ -137,9 +138,19 @@ function sak() {
     return r;
   };
   const u = () => utledJournal(journal, KJERNE);
-  const krav = (spor: 'grunnlag' | 'vederlag' | 'frist') => u().spor[spor].gjeldendeKrav!.id;
+  const krav = (spor: 'grunnlag' | 'vederlag' | 'frist') => gjeldendeKrav(u(), spor).id;
   return { journal, send, vis, avvisning, avvist, rad, u, krav };
 }
+
+/** Det gjeldende kravet i sporet. Mangler det, feiler testen med en assertion. */
+const gjeldendeKrav = (
+  u: ReturnType<typeof utledJournal>,
+  spor: 'grunnlag' | 'vederlag' | 'frist'
+) => {
+  const krav = u.spor[spor].gjeldendeKrav;
+  expect(krav, `Forutsetning: TE har et gjeldende krav i ${spor}`).not.toBeNull();
+  return krav!;
+};
 
 const tekst = (rad: Journalrad): Avsnitt[] => {
   expect(rad.data.brevtekst, 'brevet fra appen har brevtekst (LV-U2)').toBeDefined();
@@ -955,33 +966,23 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('et registrert krav siteres ikke, men godkjenningen viser til pålegget i det (GR-U13, GR-U14, oppdragsgiver 11.10)', () => {
+  it('et registrert krav er dokumentasjon, så byggherren kan ikke godkjenne det fra appen (OV-U4)', () => {
     const s = sak();
+    const id = randomUUID();
     s.rad('TE', {
       krav: [
-        {
-          id: randomUUID(),
-          spor: 'grunnlag',
-          hovedkategori: 'endring',
-          underkategori: 'irregulaer_endring',
-        },
+        { id, spor: 'grunnlag', hovedkategori: 'endring', underkategori: 'irregulaer_endring' },
       ],
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
     });
+    const u = s.u();
+    expect(u.forstaatt).toBe(true);
+    expect(u.spor.grunnlag.gjeldendeKrav, 'kravet er ikke gjeldende krav (OV-U4)').toBeNull();
     const godkjent = {
       type: 'brev',
-      svar: [
-        svar('grunnlag', s.krav('grunnlag'), {
-          resultat: 'godkjent',
-          grunnlag_varslet_i_tide: true,
-        }),
-      ],
+      svar: [svar('grunnlag', id, { resultat: 'godkjent', grunnlag_varslet_i_tide: true })],
     };
-    expect(s.avvist('BH', godkjent)).toBeNull();
-    const rad = s.send('BH', godkjent);
-    expect(laast(rad)[0]).toMatch(
-      /byggherren krever at endringen utføres slik pålegget er beskrevet i TEs krav i brev 2 av 30\. september 2026\.$/
-    );
+    expect(s.avvist('BH', godkjent)).not.toBeNull();
   });
 
   it('et krav fra appen uten beskrivelse gir ingen godkjenning som endringsordre (GR-U14)', () => {
@@ -1450,7 +1451,8 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
 
     /**
      * Skiftet mellom svikt og endring kan ikke sendes fra appen (GR-U22), så det står
-     * som en registrert kravversjon fra TE, og lesingen av den prøves (MM-U18).
+     * som en kravversjon fra en annen skriver, og lesingen av den prøves (MM-U18). Et
+     * registrert krav ville vært dokumentasjon uten virkning (OV-U4).
      */
     const skifte = (s: ReturnType<typeof sak>, kommando: { innhold: Data }) => {
       expect(s.avvist('TE', kommando)).toBe('ANNEN_HJEMMEL');
@@ -1463,9 +1465,6 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
             hovedkategori: kommando.innhold.hovedkategori,
             underkategori: kommando.innhold.underkategori,
           },
-        ],
-        opplysninger: [
-          { id: randomUUID(), hva: 'sendt', dato: s.journal.at(-1)!.tidsstempel.slice(0, 10) },
         ],
       });
     };
@@ -1602,17 +1601,14 @@ describe('bestridelse, merking og avklaring (LV-U4 punkt 10–12)', () => {
     ]);
   });
 
-  it('merkingen av et registrert brev og avklaringen av den', () => {
+  it('merkingen av et registrert brev og avklaringen avvises i første versjon (OV-U7)', () => {
     const { s, rad } = medRegistrertSvar();
     expect(
-      laast(s.send('BH', { type: 'merking', gjelder: rad.event_id, spor: ['grunnlag', 'frist'] }))
-    ).toEqual([
-      'Byggherren opplyser at brev 3 av 3. oktober 2026 har et forbehold eller annet innhold som ikke er uttrykt i appen, og som gjelder grunnlaget og fristen.',
-    ]);
-    const merking = (s.journal.at(-1)!.data.opplysninger as Data[])[0].id as string;
-    expect(laast(s.send('BH', { type: 'avklaring', gjelder: merking }))).toEqual([
-      'Byggherren bekrefter at standpunktene i brev 3 av 3. oktober 2026 om grunnlaget og fristen gjelder uten forbehold fra og med dette brevet.',
-    ]);
+      s.avvist('BH', { type: 'merking', gjelder: rad.event_id, spor: ['grunnlag', 'frist'] })
+    ).toBe('IKKE_I_FOERSTE_VERSJON');
+    expect(s.avvist('BH', { type: 'avklaring', gjelder: rad.event_id })).toBe(
+      'IKKE_I_FOERSTE_VERSJON'
+    );
   });
 });
 
@@ -2369,7 +2365,7 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
   /** Svaret med serverens utregning, så bare påberopelsen kan gi en avvisning. */
   const utregnet = (s: Sak, spor: Sporet, v: Data) => {
     const u = s.u();
-    const krav = u.spor[spor].gjeldendeKrav!;
+    const krav = gjeldendeKrav(u, spor);
     return svar(
       spor,
       krav.id,
@@ -2450,7 +2446,7 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
       expect(s.avvist('BH', revisjon(s, 'frist', { ...forSent334, dager: 15 }))).toBeNull();
     });
 
-    it('et registrert svar med «i tide» binder ikke (HF-U4, OV-U4)', () => {
+    it('et registrert svar med «i tide» binder ikke, og byggherren kan svare «for sent» fra appen (HF-U4, OV-U4)', () => {
       const s = sakMedKrav();
       const u = s.u();
       s.rad('BH', {
@@ -2476,11 +2472,12 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
       });
       const etter = s.u();
+      expect(etter.forstaatt, JSON.stringify(etter.begrensninger)).toBe(true);
       expect(
-        etter.spor.frist.gjeldendeSvar?.standpunkter.find((p) => p.art === 'rettidighet'),
-        `forutsetning: det registrerte svaret sier «i tide» (${JSON.stringify(etter.begrensninger)})`
-      ).toMatchObject({ iTide: true });
-      expect(s.avvist('BH', revisjon(s, 'frist', forSent334))).toBeNull();
+        etter.spor.frist.gjeldendeSvar,
+        'det registrerte svaret er dokumentasjon (OV-U4)'
+      ).toBeNull();
+      expect(s.avvist('BH', nyttSvar(s, 'frist', forSent334))).toBeNull();
     });
   });
 
@@ -2770,7 +2767,8 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
     it('et registrert frafall binder ikke (OV-U4)', () => {
       const s = sakMedKrav();
       registrertSvar(s, 'paalegg_frafalt', true);
-      expect(s.u().frafalt, 'forutsetning: det registrerte frafallet leses').toBe(true);
+      expect(s.u().frafalt, 'det registrerte frafallet er dokumentasjon').toBe(false);
+      expect(s.u().spor.grunnlag.gjeldendeSvar).toBeNull();
       versjon(s, { tittel: 'Ny peling 2' });
       expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
     });
@@ -2826,10 +2824,14 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
     });
 
-    it('kontrollsak: etter et registrert frafall venter versjon 2 på svar uten avklart grunnlag (OV-U4, GR-U1)', () => {
+    it('kontrollsak: et registrert frafall avklarer ikke grunnlaget, så enigheten i vederlaget er betinget før og etter versjon 2 (OV-U4, GR-U1)', () => {
       const s = sakMedKrav();
       registrertSvar(s, 'paalegg_frafalt', true);
-      medEnighetIVederlaget(s);
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('vederlag', s.krav('vederlag'), vederlagFullt[0], vederlagFullt[1])],
+      });
+      expect(enighetensVirkning(s.u(), 'vederlag')).toBe('betinget');
       versjon(s, { tittel: 'Ny peling 2' });
       const u = s.u();
       expect(u.grunnlagAvklart).toBe(false);
@@ -2856,56 +2858,19 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       ).not.toContain('venter_paa_svar');
       expect(visning(u, GJELDENDE_REGLER).status.kode).toBe('avsluttet_oppgjort');
     });
-
-    it('bygger enigheten i fristen på et merket brev, vises saken heller ikke som ventende på svar (GR-U24, KA-U20)', () => {
-      const s = medEnighetIVederlaget(medFrafall());
-      versjon(s, { tittel: 'Ny peling 2' });
-      const u0 = s.u();
-      const rad = s.rad('BH', {
-        svar: [
-          {
-            id: randomUUID(),
-            spor: 'frist',
-            gjelder: s.krav('frist'),
-            grunnlagskrav: u0.spor.grunnlag.gjeldendeKrav!.id,
-            standpunkter: [
-              {
-                id: randomUUID(),
-                art: 'rettidighet',
-                gjelder: u0.spor.frist.varsel!.id,
-                hjemmel: '33.4',
-                i_tide: true,
-              },
-              { id: randomUUID(), art: 'dager' },
-            ],
-            utregning: { resultat: 'godkjent', godkjent_dager: 20 },
-          },
-        ],
-        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-20' }],
-      });
-      s.send('BH', { type: 'merking', gjelder: rad.event_id, spor: ['frist'] });
-      const u = s.u();
-      expect(
-        u.spor.frist.forbehold,
-        `forutsetning: fristen er merket (${JSON.stringify(u.begrensninger)})`
-      ).toBe(true);
-      expect(kraveneErAvgjort(u), 'forutsetning: kravene er avgjort').toBe(true);
-      expect(u.spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 venter på svar').toBeNull();
-      expect(s.avvist('BH', nyttSvar(s, endringsordre))).toBe('KRAVENE_AVGJORT');
-      const vist = visning(u, GJELDENDE_REGLER);
-      expect(vist.status.kode).not.toBe('venter_paa_svar');
-      expect(vist.spor.grunnlag.etiketter).not.toContain('venter_paa_svar');
-    });
   });
 
-  describe('et avslag etter frafallet som ikke kommer gjennom kommandoene (MM-U19, MM-U18)', () => {
+  describe('et avslag etter frafallet som ikke kommer gjennom kommandoene (MM-U19, MM-U18, OV-U4)', () => {
     it('et registrert avslag av en ny grunnlagsversjon får ingen virkning, og saken er forstått', () => {
       const s = medFrafall();
       versjon(s, { tittel: 'Ny peling 2' });
       const id = registrertSvar(s, 'avslaatt', true);
       const u = s.u();
       expect(u.forstaatt).toBe(true);
-      expect(u.utenVirkning.map((x) => x.element)).toContain(id);
+      expect(
+        u.spor.grunnlag.svar.map((x) => x.id),
+        'svaret er dokumentasjon (OV-U4)'
+      ).not.toContain(id);
       expect(u.spor.grunnlag.gjeldendeSvar).toBeNull();
     });
 
@@ -2913,7 +2878,10 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       const s = medFrafall();
       const id = registrertSvar(s, 'avslaatt', true);
       const u = s.u();
-      expect(u.utenVirkning.map((x) => x.element)).toContain(id);
+      expect(
+        u.spor.grunnlag.svar.map((x) => x.id),
+        'svaret er dokumentasjon (OV-U4)'
+      ).not.toContain(id);
       expect(u.frafalt).toBe(true);
     });
 
@@ -2938,7 +2906,10 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
         const id = registrertSvar(s, 'godkjent', true, false);
         const u = s.u();
         expect(u.forstaatt).toBe(true);
-        expect(u.utenVirkning.map((x) => x.element)).toContain(id);
+        expect(
+          u.spor.grunnlag.svar.map((x) => x.id),
+          'svaret er dokumentasjon (OV-U4)'
+        ).not.toContain(id);
         expect(u.spor.grunnlag.gjeldendeSvar?.id).not.toBe(id);
         if (!nyVersjon) expect(u.frafalt).toBe(true);
       }
@@ -2954,13 +2925,14 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       ]);
     });
 
-    it('kontrollsak: et registrert avslag etter et registrert frafall leses med virkning (OV-U4)', () => {
+    it('et registrert avslag etter et registrert frafall er også dokumentasjon, og grunnlaget venter på svar (OV-U4)', () => {
       const s = sakMedKrav();
       registrertSvar(s, 'paalegg_frafalt', true);
-      const id = registrertSvar(s, 'avslaatt', true);
+      registrertSvar(s, 'avslaatt', true);
       const u = s.u();
-      expect(u.utenVirkning).toEqual([]);
-      expect(u.spor.grunnlag.gjeldendeSvar?.id).toBe(id);
+      expect(u.forstaatt).toBe(true);
+      expect(u.frafalt).toBe(false);
+      expect(u.spor.grunnlag.gjeldendeSvar).toBeNull();
     });
   });
 });
@@ -2978,7 +2950,7 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
   /** Svaret med serverens utregning, så bare sammenlikningen kan gi en avvisning. */
   const utregnet = (s: Sak, spor: Sporet, v: Data) => {
     const u = s.u();
-    const krav = u.spor[spor].gjeldendeKrav!;
+    const krav = gjeldendeKrav(u, spor);
     return svar(
       spor,
       krav.id,
@@ -3190,7 +3162,7 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       ).toBeNull();
     });
 
-    it('et registrert brev binder ikke (OV-U4)', () => {
+    it('et registrert brev binder ikke, og byggherren kan avslå fra appen (OV-U4)', () => {
       const s = sakMedKrav();
       const u = s.u();
       s.rad('BH', {
@@ -3215,10 +3187,10 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       });
       expect(
         s.u().spor.grunnlag.gjeldendeSvar,
-        'forutsetning: det registrerte svaret står'
-      ).not.toBeNull();
+        'det registrerte svaret er dokumentasjon (OV-U4)'
+      ).toBeNull();
       expect(
-        s.avvist('BH', revisjon(s, 'grunnlag', { ...forSent, resultat: 'avslaatt' }))
+        s.avvist('BH', nyttSvar(s, 'grunnlag', { ...forSent, resultat: 'avslaatt' }))
       ).toBeNull();
     });
   });

@@ -289,7 +289,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
-  ['Utledning.opplysninger', 'relasjon', 'bestridelser avklaring'],
+  ['Utledning.opplysninger', 'relasjon', 'bestridelser'],
   // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U18).
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
@@ -298,15 +298,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse kanFaaProtest KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
   // MM-U18: stridene ett dokument har med journalen før det.
-  ['Strid', 'predikat', 'element grunn bareUregistrert', ['utledning/utled.ts:utled']],
+  ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
   ['Bestridelse', 'relasjon', 'part'],
   [
     'Sporutledning',
     'predikat',
-    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel forbehold',
+    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel',
   ],
-  // KA-U20, KA-U26: brevene med en merking som gjelder i sporet.
-  ['Sporutledning', 'relasjon', 'merket'],
   // HF-U4, HF-U8: byggherren har sagt «i tide» i et svar sendt fra appen. Leses av nyttelastkontrollen.
   ['utledning/utled.ts', 'predikat', 'harSagtITide', ['kommandoer/nyttelast.ts']],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
@@ -551,12 +549,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['format/leser.ts'],
   ],
   ['format/leser.ts:lesDokument(e)', 'rad', 'id art spor erstatter innhold', ['format/leser.ts']],
-  [
-    'format/leser.ts:lesDokument(o)',
-    'rad',
-    'id hva dato gjelder oppfylt spor',
-    ['format/leser.ts'],
-  ],
+  ['format/leser.ts:lesDokument(o)', 'rad', 'id hva dato gjelder oppfylt', ['format/leser.ts']],
   ['format/leser.ts:lesDokument(s)', 'rad', 'spor', ['format/leser.ts']],
   [
     'format/leser.ts:lesSvar(e)',
