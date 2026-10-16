@@ -1,0 +1,153 @@
+/**
+ * Sakskonteksten for en TS-sak (#663): journalen hentes, og visningen, handlingene
+ * og den låste brevteksten regnes lokalt av kjernen. Serveren er erstattet av
+ * falske `hent` og `send`; at serveren avgjør, prøves i `sprakprove/tester/server.test.ts`.
+ */
+
+import { describe, expect, it, vi } from 'vitest';
+import { ApiError } from '$lib/api/client';
+import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
+import { handlinger } from '$kjerne/kommandoer/handlinger';
+import { visning, type Visning } from '$kjerne/utledning/visning';
+import { KJERNE } from '$kjerne/versjon';
+import type { Journalrad } from '$kjerne/typer';
+
+const SAK = 'sak-1';
+
+const opprettet: Journalrad = {
+  event_id: 'e-1',
+  sak_id: SAK,
+  event_type: 'sak_opprettet',
+  versjon: 1,
+  tidsstempel: '2026-10-16T08:00:00.000Z',
+  aktor_id: 'te',
+  aktor_rolle: 'TE',
+  aktor_team_id: null,
+  refererer_til_event_id: null,
+  format: 1,
+  data: { sakstittel: 'Ny peling', sakstype: 'standard' },
+};
+
+const grunnlagskrav = {
+  type: 'krav',
+  spor: 'grunnlag',
+  innhold: { hovedkategori: 'endring', underkategori: 'irregulaer_endring', tittel: 'Ny peling' },
+};
+
+const kontekst = {
+  sakId: SAK,
+  aktoerId: 'te',
+  part: 'TE' as const,
+  teamId: null,
+  tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
+  nyId: () => crypto.randomUUID(),
+};
+
+/** Raden kjernen selv skriver for kommandoen, som versjonen etter `journal`. */
+function skrevet(kommando: unknown, journal: Journalrad[]): Journalrad {
+  const utfall = forhaandsvis(kommando, kontekst, journal, KJERNE);
+  if (!utfall.godtatt) throw new Error(`Kjernen avviste kommandoen: ${utfall.avvisning.melding}`);
+  return { ...utfall.hendelser[0], versjon: journal.length + 1 };
+}
+
+const linje = ({
+  event_id,
+  versjon,
+  event_type,
+  tidsstempel,
+  aktor_rolle,
+  format,
+  data,
+}: Journalrad): Journallinje => ({
+  event_id,
+  versjon,
+  event_type,
+  tidsstempel,
+  aktor_rolle,
+  format,
+  data,
+});
+
+/** Svaret fra serveren, med en visning kjernen aldri lager, så det synes om konteksten leser den. */
+const svar = (journal: Journalrad[]): Kjernesak => ({
+  versjon: journal.at(-1)!.versjon,
+  visning: { status: { kode: 'fra_serveren', tekst: 'Fra serveren' } } as unknown as Visning,
+  journal: journal.map(linje),
+  leveringsoppdrag: [],
+});
+
+describe('sakskonteksten for en TS-sak', () => {
+  it('regner visningen og versjonen av journalen, ikke av visningen i svaret', async () => {
+    const journal = [opprettet, skrevet(grunnlagskrav, [opprettet])];
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar(journal) });
+    await sak.last();
+    expect(sak.versjon).toBe(2);
+    expect(sak.visning).toEqual(visning(utledJournal(journal, KJERNE), KJERNE.regler));
+    expect(sak.visning?.status.tekst).not.toBe('Fra serveren');
+  });
+
+  it('tilbyr parten det kjernen tilbyr for journalen, og svaret tilbys BH etter kravet (INV-MM-1)', async () => {
+    const journal = [opprettet, skrevet(grunnlagskrav, [opprettet])];
+    const u = utledJournal(journal, KJERNE);
+    const te = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar(journal) });
+    const bh = lagKjernesak({ sakId: SAK, part: 'BH', hent: async () => svar(journal) });
+    await Promise.all([te.last(), bh.last()]);
+    expect(te.handlinger).toEqual(handlinger(u, 'TE'));
+    expect(bh.handlinger).toEqual(handlinger(u, 'BH'));
+    expect(bh.handlinger).toContain('svare:grunnlag');
+    expect(te.handlinger).not.toContain('svare:grunnlag');
+  });
+
+  it('tilbyr ingen handling og lager ingen brevtekst uten kontraktsside', async () => {
+    const sak = lagKjernesak({ sakId: SAK, part: null, hent: async () => svar([opprettet]) });
+    await sak.last();
+    expect(sak.visning).not.toBeNull();
+    expect(sak.handlinger).toEqual([]);
+    expect(sak.brevtekst(grunnlagskrav)).toBeNull();
+  });
+
+  it('sender den låste teksten kjernen lager, med versjonen som er lastet (LV-U2)', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-2', leveringsoppdrag: 'l-1', versjon: 2 });
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
+    await sak.last();
+    const forventet = laastTekst(skrevet(grunnlagskrav, [opprettet]));
+    expect(forventet?.length).toBeGreaterThan(0);
+
+    expect(await sak.send(grunnlagskrav)).toBe(true);
+    expect(send).toHaveBeenCalledWith(SAK, 1, { ...grunnlagskrav, brevtekst: forventet });
+  });
+
+  it('laster saken på nytt ved versjonskonflikt og lar meldingen stå', async () => {
+    let journal = [opprettet];
+    const hent = vi.fn(async () => svar(journal));
+    const send = vi.fn(async () => {
+      journal = [opprettet, skrevet(grunnlagskrav, [opprettet])];
+      throw new ApiError(409, 'Saken er endret. Last den inn på nytt.');
+    });
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(hent).toHaveBeenCalledTimes(2);
+    expect(sak.versjon).toBe(2);
+    expect(sak.feil).toBe('Saken er endret. Last den inn på nytt.');
+    expect(sak.sender).toBe(false);
+  });
+
+  it('laster ikke saken på nytt når serveren avviser kommandoen av en annen grunn', async () => {
+    const hent = vi.fn(async () => svar([opprettet]));
+    const send = vi.fn(async () => {
+      throw new ApiError(400, 'Grunnlaget er allerede krevd.');
+    });
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(hent).toHaveBeenCalledTimes(1);
+    expect(sak.feil).toBe('Grunnlaget er allerede krevd.');
+  });
+});
