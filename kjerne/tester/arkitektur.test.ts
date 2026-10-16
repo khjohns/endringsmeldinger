@@ -498,7 +498,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'HJEMMEL',
     [
       'format/leser.ts',
-      'kommandoer/skriving.ts',
+      'kommandoer/standpunkter.ts',
       'frosset/frysing.ts',
       'frosset/standpunkt.ts',
       'frosset/brevtekst.ts',
@@ -595,7 +595,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts:erRegistrert', 'rad', 'hva gjelder', ['format/leser.ts']],
   ['format/leser.ts:datoFor', 'relasjon', 'id dokument', ['format/leser.ts']],
   // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
-  ['frosset/frysing.ts', 'regelsett', 'frys grunnlagsstandpunkter', ['kommandoer/skriving.ts']],
+  ['frosset/frysing.ts', 'regelsett', 'frys', ['kommandoer/skriving.ts']],
+  ['frosset/frysing.ts', 'regelsett', 'grunnlagsstandpunkter', ['kommandoer/standpunkter.ts']],
+  // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
+  [
+    'kommandoer/standpunkter.ts',
+    'utsagn',
+    'standpunkter',
+    ['kommandoer/skriving.ts', 'kommandoer/nyttelast.ts'],
+  ],
+  // HF-U5, HF-U14: det en revisjon senker av det svaret innrømmer, standpunkt for standpunkt.
+  ['kommandoer/standpunkter.ts', 'predikat', 'senketStandpunkt', ['kommandoer/nyttelast.ts']],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
     'kommandoer/skriving.ts:frysBrev(s)',
@@ -605,7 +615,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
-  ['format/leser.ts', 'rad', 'standpunkterISvaret', ['frosset/frysing.ts']],
+  [
+    'format/leser.ts',
+    'rad',
+    'standpunkterISvaret',
+    ['frosset/frysing.ts', 'kommandoer/standpunkter.ts'],
+  ],
   ['format/leser.ts', 'rad', 'Uforstaatt', ['kommandoer/skriving.ts', 'frosset/frysing.ts']],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
@@ -659,7 +674,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  ['frosset/standpunkt.ts', 'brevtekst', 'kroner', ['frosset/brevtekst.ts']],
+  [
+    'frosset/standpunkt.ts',
+    'brevtekst',
+    'kroner',
+    ['frosset/brevtekst.ts', 'kommandoer/standpunkter.ts'],
+  ],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av

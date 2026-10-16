@@ -627,7 +627,7 @@ ennå (#53, del 3)."""
 fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
 kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
-skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`, innført i `20261016140000_medlemskap.sql`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -644,7 +644,7 @@ lagres_fra = "`koe.resolve_identity`, sammen med brukeren. Ingen inngang i `serv
 fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Subjektet identifiserer en person."
-skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`, innført i `20261016140000_medlemskap.sql`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -675,12 +675,15 @@ PostgreSQL."""
 lagres_fra = """
 `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, skriver
 medlemslisten fra Catenda og gjør medlemmer som ikke står i den, inaktive.
-`deactivated_at` er når medlemskapet sist ble gjort inaktivt; en liste hentet
-før det gjør det ikke aktivt igjen (DL-U8). Ingen inngang kaller modulen ennå."""
+`koe_api.deaktiver_ved_innlogging`, også kalt derfra, gjør brukerens medlemskap
+inaktivt i koblede prosjekter som ikke står i brukerens liste fra Catenda.
+`deactivated_at` er når medlemskapet sist ble gjort inaktivt, etter basens klokke;
+en liste hentet før det gjør det ikke aktivt igjen (DL-U8). Ingen inngang kaller
+modulen ennå."""
 fra_catenda = "Ja, medlemslisten i Catenda."
 kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
-skrivere = ["database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
+skrivere = ["database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, og `koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
@@ -732,7 +735,7 @@ lagres_fra = "`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`.
 fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
 kan_gjenoppbygges = "ja, ved en ny synkronisering"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016140000_medlemskap.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`)"]
+skrivere = ["database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`."
 
@@ -748,7 +751,7 @@ lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `oppre
 fra_catenda = "Nei"
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` peker på en bruker."
-skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -767,7 +770,7 @@ personopplysninger = """
 `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde
 personopplysninger."""
 skrivere = [
-    "database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`)",
+    "database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`)",
     "server/kommandoer.ts",
 ]
 funn = []
@@ -801,7 +804,7 @@ lagres_fra = "`koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme
 fra_catenda = "Nei, men oppdraget gjelder en levering til Catenda."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innholdet er brevet og kan inneholde personopplysninger."
-skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -825,7 +828,7 @@ tidspunkt. Tabellen har høyst én rad per økt-ID."""
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Raden brukes bare i transaksjonen som førte den."
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skrivetidspunkt`, `koe_api.skriv_hendelse`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`, `koe_api.skriv_hendelse`)"]
 funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`."
 

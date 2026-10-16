@@ -871,6 +871,27 @@
       "radetikett": "HF-U4: Har en part i et utsagn sendt fra appen uttrykkelig sagt at motpartens varsel, krav eller svar kom i tide etter en bestemmelse"
     },
     {
+      "id": "HF-U5",
+      "type": "vedtak",
+      "dato": "2026-10-15",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u5",
+      "radetikett": "HF-U5: Appen behandler TEs krav og byggherrens svar som tilbud og løfter etter avtaleloven kapittel 1"
+    },
+    {
+      "id": "HF-U14",
+      "type": "vedtak",
+      "dato": "2026-10-15",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u14",
+      "radetikett": "HF-U14: Aksepten av beregningsmåten føyes til listen i HF-U5"
+    },
+    {
+      "id": "HF-U21",
+      "type": "vedtak",
+      "dato": "2026-10-16",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u21",
+      "radetikett": "HF-U21: En ny grunnlagsversjon med samme hjemmel endrer ikke bindingen i byggherrens svar på vederlag eller fristforlengelse"
+    },
+    {
       "id": "HF-U8",
       "type": "vedtak",
       "dato": "2026-10-15",
@@ -1096,17 +1117,18 @@
     },
     {
       "id": "KA-12",
-      "tilfelle": "Byggherren reviderer et svar som ikke er godtatt, på gjeldende kravversjon.",
-      "forventet": "Revisjonen godtas.",
+      "tilfelle": "Byggherren reviderer et svar som ikke er godtatt, på gjeldende kravversjon, og revisjonen senker ikke noe byggherren har innrømmet i svaret.",
+      "forventet": "Revisjonen godtas. En revisjon som senker, står i KA-49.",
       "bh_standpunkt": "Det reviderte svaret.",
       "rettslig_virkning": "Byggherrens nye standpunkt til versjonen.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "HF-U5",
         "V-SK02-SK03",
         "V-B13"
       ],
-      "tolkningsstatus": "arbeidshypotese"
+      "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-13",
@@ -1287,7 +1309,7 @@
     {
       "id": "KA-23",
       "tilfelle": "En regelendring gir et standpunkt i byggherrens sendte svar en annen virkning før TE har godtatt det.",
-      "forventet": "Brevet beholder virkningen det hadde da det ble sendt: standpunktene, beslutningsgrunnlaget og de lagrede radene står uendret. Dagens regler vises som en merknad som oppfordrer byggherren til å revidere svaret. TE kan godta svaret slik brevet uttrykker det, og enigheten har brevets innhold (KA-U10). Reviderer byggherren, får det nye svaret beslutningsgrunnlag etter gjeldende regler. En aksept med en annen regelversjon enn serverens avvises.",
+      "forventet": "Brevet beholder virkningen det hadde da det ble sendt: standpunktene, beslutningsgrunnlaget og de lagrede radene står uendret. Dagens regler vises som en merknad som oppfordrer byggherren til å revidere svaret. Oppfordringen gjelder bare en revisjon i TEs favør (HF-U5). TE kan godta svaret slik brevet uttrykker det, og enigheten har brevets innhold (KA-U10). Reviderer byggherren, får det nye svaret beslutningsgrunnlag etter gjeldende regler. En aksept med en annen regelversjon enn serverens avvises.",
       "bh_standpunkt": "Svaret slik brevet uttrykte det.",
       "rettslig_virkning": "Brevet har virkningen det hadde da det ble sendt. Nye regler gjelder nye brev.",
       "rettidighet": "—",
@@ -1297,7 +1319,8 @@
         "KA-U10",
         "MM-U3",
         "V-B13-REGELVERSJON",
-        "GR-U4"
+        "GR-U4",
+        "HF-U5"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "regelkoder": [
@@ -3044,6 +3067,30 @@
       ],
       "regelkoder": [
         "SAGT_I_TIDE"
+      ]
+    },
+    {
+      "id": "KA-49",
+      "tilfelle": "Byggherren reviderer et svar sendt fra appen som TE ikke har godtatt, og revisjonen senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, at fremdriften er hindret etter § 33.1, dagene byggherren måtte forstå etter § 33.6.1 når begge svar sier «for sent», eller aksepten av beregningsmåten etter § 34.2.2.",
+      "forventet": "Revisjonen avvises, også når den hever et annet standpunkt, retter en skrivefeil eller kommer etter en ny grunnlagsversjon med samme hjemmel. Meldingen sier hvilket standpunkt som senkes. En revisjon med de samme standpunktene senker ikke. Byggherrens ønskede metode når tilbudet ikke er akseptert, sammenliknes ikke. Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar binder ikke. Kontrollen gjøres når revisjonen sendes med kommandoen, ikke når saken leses.",
+      "bh_standpunkt": "Det byggherren har innrømmet i et sendt svar, deretter en revisjon som senker det.",
+      "rettslig_virkning": "Byggherren er bundet av det svaret innrømmer, til TE godtar svaret eller sender en ny kravversjon. Om byggherren likevel er løst, avgjør ikke appen.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "HF-U5",
+        "HF-U14",
+        "HF-U21",
+        "HF-U8",
+        "OV-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/standpunkter.ts#senketStandpunkt",
+        "kjerne/kommandoer/nyttelast.ts#binding"
+      ],
+      "regelkoder": [
+        "SENKER_INNROEMMELSE"
       ]
     }
   ],

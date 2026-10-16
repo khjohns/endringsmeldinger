@@ -14,7 +14,9 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import type { Journalrad } from '../typer.ts';
+import type { Journalrad, Standpunktsvirkning } from '../typer.ts';
+import { virkninger } from '../frosset/standpunkt.ts';
+import { grunnlagskravFor } from '../utledning/utled.ts';
 import { KJERNE } from '../versjon.ts';
 import { utledJournal } from '../kommandoer/skriving.ts';
 import type { Utledning } from '../utledning/utled.ts';
@@ -54,6 +56,7 @@ export function regelendringen(lagBaner: () => Baner): void {
         svar: [{ spor: 'grunnlag', navn: 'S-g1', resultat: 'avslaatt', varslet_i_tide: false }],
       };
       await lag('ikke godtatt', ['krav_samord', prekludertAvslag]);
+      await lag('til revisjon', ['krav_samord', prekludertAvslag]);
       await lag('godtatt', [
         'krav_samord',
         {
@@ -104,6 +107,35 @@ export function regelendringen(lagBaner: () => Baner): void {
       );
     });
 
+    /**
+     * HF-U5: oppfordringen gjelder bare en revisjon i TEs favør. Etter dagens regler kan
+     * en regelendring bare ta virkningen fra et standpunkt, ikke gi et standpunkt uten
+     * virkning en virkning. Gjør en regelendring det motsatte mulig, feiler testen, og
+     * hva visningen da skal si, avgjøres i vedtaket om den endringen (MM-U16).
+     */
+    it('oppfordrer bare til en revisjon i TEs favør, og den revisjonen godtas (HF-U5, MM-U9)', async () => {
+      const s = saker['til revisjon'];
+      const n1 = utledJournal(s.journal, N1);
+      const g = n1.spor.grunnlag.gjeldendeSvar!;
+      expect(visning(n1, N1.regler).spor.grunnlag.etiketter).toContain('regel_endret_etter_brevet');
+      const medVirkning = (v: Standpunktsvirkning[]) =>
+        v.filter((p) => p.virkning !== 'uten_virkning').map((p) => p.standpunkt);
+      const naa = medVirkning(virkninger(g, grunnlagskravFor(g, n1), N1.regler));
+      expect(naa.every((id) => medVirkning(n1.svar[g.id].virkninger).includes(id))).toBe(true);
+      s.k.kjerne = N1;
+      const revidert = await s.k.send({
+        handling: 'revisjon',
+        spor: 'grunnlag',
+        resultat: 'avslaatt',
+        klientregler: 'n+1',
+      });
+      expect(revidert?.godtatt ? 'godtatt' : revidert?.avvisning.regel).toBe('godtatt');
+      const u = await s.k.utledning();
+      expect(visning(u, N1.regler).spor.grunnlag.etiketter).not.toContain(
+        'regel_endret_etter_brevet'
+      );
+    });
+
     it('godtar en aksept av svaret slik brevet uttrykte det, etter regelendringen', async () => {
       const s = saker['ikke godtatt'];
       s.k.kjerne = N1;
@@ -121,7 +153,7 @@ export function regelendringen(lagBaner: () => Baner): void {
         endredeSaker(journaler, KJERNE, N1)
           .map((id) => navn.get(id))
           .sort()
-      ).toEqual(['godtatt', 'ikke godtatt']);
+      ).toEqual(['godtatt', 'ikke godtatt', 'til revisjon']);
       const s = saker['enighet om beløpet'];
       expect((await lesSak(s.bane.sakId, s.journal, baner.buffer(), KJERNE)).kilde).toBe('buffer');
       expect((await lesSak(s.bane.sakId, s.journal, baner.buffer(), N1)).kilde).toBe('utledet');

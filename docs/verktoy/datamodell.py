@@ -29,6 +29,7 @@ kh = _last("kjernehendelser")
 kat = _last("katalog")
 rel = _last("relasjoner")
 df = _last("dataflyt")
+lk = _last("lenkekontroll")
 
 ROT = pathlib.Path(__file__).resolve().parents[2]
 MAPPE = ROT / "docs" / "datamodell"
@@ -329,7 +330,7 @@ def markdown(register: dict, k: dict | None = None) -> str:
     ]
     for t in register["tabell"]:
         linjer.append(
-            f"| [`{t['navn']}`](#{t['navn'].replace('.', '')}) | {t['lagring']} | "
+            f"| [`{t['navn']}`](#{lk.github_slug(t['navn'])}) | {t['lagring']} | "
             f"{', '.join(t['type'])} | {t['status']} | "
             f"{ja_delvis_nei(t['type'], 'transaksjon')} | {ja_delvis_nei(t['type'], 'grunndata')} |"
         )
@@ -509,7 +510,7 @@ def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
     ]
     for r in relasjoner["relasjon"]:
         art = (
-            f"fremmednøkkel, ON DELETE {fk[(r['fra'], r['til'])]}"
+            f"fremmednøkkel, ON DELETE {fk[rel.nøkkel(r)]}"
             if r["art"] == "fremmednøkkel"
             else "uten fremmednøkkel"
         )
