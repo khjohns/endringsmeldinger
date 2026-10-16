@@ -552,7 +552,7 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 
 ### `koe.app_project_memberships`
 
-Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i PostgreSQL.
+Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i PostgreSQL. `server/autorisasjon.ts` leser aktørens aktive medlemskap med `koe_api.prosjektmedlemskap` (#658).
 
 | Felt | Innhold |
 | --- | --- |
@@ -563,13 +563,13 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i 
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id); unik (project_id, catenda_subject). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ikke kontrollert |
 | Personopplysninger | E-post og visningsnavn. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, og `koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`) |
+| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261016210000_catenda_id.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
 ### `koe.catenda_contract_teams`
 
-Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `catenda_id()`-formen, som `aktor_team_id` i journalen.
+Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `catenda_id()`-formen, som `aktor_team_id` i journalen. `server/autorisasjon.ts` leser prosjektets kontraktsteam med `koe_api.kontraktsteam`, bare for en aktør med aktivt medlemskap uten leserollen (#658).
 
 | Felt | Innhold |
 | --- | --- |
@@ -586,7 +586,7 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 
 ### `koe.catenda_project_configs`
 
-Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt.
+Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt. `server/autorisasjon.ts` leser en aktiv kobling med `koe_api.prosjektkobling` (#658).
 
 | Felt | Innhold |
 | --- | --- |
@@ -614,13 +614,13 @@ Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at b
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny innlogging |
 | Personopplysninger | Knyttet til en bruker gjennom `user_id`, med prosjektene brukeren ikke er med i og tidspunktene for innloggingene (`observed_at`, `updated_at`). |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.deaktiver_ved_innlogging` og `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`) |
+| Skrives av | database/migrasjoner/20261016210000_catenda_id.sql (`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`. |
 
 ### `koe.app_membership_sync`
 
-Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4). Svarer til `app_membership_sync` i PostgreSQL.
+Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2). Svarer til `app_membership_sync` i PostgreSQL.
 
 | Felt | Innhold |
 | --- | --- |

@@ -15,6 +15,7 @@ from typing import Any
 from lib.helpers import get_all_sak_ids
 from models.events import parse_event
 from models.sak_state import SakRelasjon, SakState, SaksType
+from repositories.event_repository import krev_python_skrivesti
 from services.base_sak_service import BaseSakService
 from utils.logger import get_logger
 
@@ -122,9 +123,17 @@ class ForseringService(BaseSakService):
             Dict med den opprettede forseringssaken
 
         Raises:
+            PythonSkrivingStengt: Når TS-skrivestien er på.
             ValueError: Hvis estimert kostnad overstiger 30%-grensen
             RuntimeError: Hvis opprettelse i Catenda feiler
         """
+        # Opprettelsen skriver topic og relasjoner uten hendelse, så lagervakten
+        # fanger den ikke.
+        krev_python_skrivesti(
+            "Forseringssaker opprettes bare av TS-kjernen, og Python oppretter "
+            "ingen topic eller relasjoner (B-17)."
+        )
+
         if not avslatte_sak_ids:
             raise ValueError("Må ha minst én avslått fristforlengelsessak")
 
