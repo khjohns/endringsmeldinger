@@ -13,7 +13,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   KONTEKSTNOEKLER,
   opprettPool,
@@ -101,7 +101,7 @@ type Kall = (callback: (feil?: Error) => void, ...rest: unknown[]) => void;
 /** Erstatter metoden for ett kall; den opprinnelige brukes igjen etterpå. */
 function enGang(
   f: Forbindelse,
-  metode: 'commitTransaction' | 'reset',
+  metode: 'commitTransaction' | 'reset' | 'close',
   erstatning: (ekte: Kall) => Kall
 ) {
   const objekt = f as unknown as Record<string, Kall>;
@@ -138,6 +138,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     await pool?.close();
     await base?.slett();
   }, 60_000);
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  /** `console.error` uten utskrift, så loggen fra datalaget kan leses i testen. */
+  const loggen = () => vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
   it('i transaksjonen er xact_abort på og konteksten satt og bundet til transaksjonen', async () => {
     const inne = await transaksjon(pool, KONTEKST, (f) => sesjonen(f));
@@ -266,22 +273,101 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     expect(await lagret(pool, id)).toBe(true);
   });
 
-  it('nullstilling som feiler etter COMMIT: svaret gis, og forbindelsen forkastes i stedet for å gå tilbake med konteksten', async () => {
+  // Kilde: serveren har bekreftet tilbakerullingen, så utfallet er kjent (#534, som
+  // testen over der arbeidet fanger feilen). Injisert: COMMIT sendes som ROLLBACK,
+  // så forbindelsen får `rollbackTransaction` fra serveren og COMMIT en feil.
+  it('COMMIT som serveren ruller tilbake: TransaksjonAvbrutt, ingenting lagret, og forbindelsen gjenbrukes', async () => {
+    const id = randomUUID();
     vedNesteLaan(pool, (f) =>
-      enGang(f, 'reset', () => (cb) => setImmediate(cb, new Error('nullstillingen feilet')))
+      enGang(f, 'commitTransaction', () => (cb) => {
+        const rull = (f as unknown as { rollbackTransaction: Kall }).rollbackTransaction;
+        rull.call(f, () => cb(new Error('COMMIT ble rullet tilbake')));
+      })
     );
+    let inne: Sesjon | undefined;
+    const feil = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+    }).catch((e: unknown) => e);
+    expect(feil).toBeInstanceOf(TransaksjonAvbrutt);
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ forbindelse: inne!.forbindelse, trancount: 0, ...ingenKontekst });
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  // Vakten mot en annen versjon av mssql (#533): uten `_abort` som lytter sendes
+  // ikke COMMIT, og forbindelsen forkastes med den åpne transaksjonen.
+  it('lytter ikke transaksjonen med _abort før COMMIT: ingenting lagres, og forbindelsen forkastes', async () => {
+    const id = randomUUID();
+    let laant: Forbindelse | undefined;
+    vedNesteLaan(pool, (f) => (laant = f));
+    let inne: Sesjon | undefined;
+    const feil = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+      (laant as unknown as { removeAllListeners: (h: string) => void }).removeAllListeners(
+        'rollbackTransaction'
+      );
+    }).catch((e: unknown) => e);
+    expect(feil).toBeInstanceOf(Error);
+    expect(feil).not.toBeInstanceOf(UsikkertUtfall);
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
+    expect(etter.forbindelse).not.toBe(inne!.forbindelse);
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  it('nullstilling som feiler etter COMMIT: svaret gis, forbindelsen forkastes i stedet for å gå tilbake med konteksten, og årsaken logges', async () => {
+    const logg = loggen();
+    const aarsak = new Error('nullstillingen feilet');
+    vedNesteLaan(pool, (f) => enGang(f, 'reset', () => (cb) => setImmediate(cb, aarsak)));
     const inne = await transaksjon(pool, KONTEKST, (f) => sesjonen(f));
     const etter = await sesjonen(() => pool.request());
     expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
     expect(etter.forbindelse).not.toBe(inne.forbindelse);
+    expect(logg).toHaveBeenCalledWith(expect.any(String), aarsak);
   });
 
-  it('nullstilling som melder suksess uten å rydde: kontrollen etterpå ser konteksten, og forbindelsen forkastes', async () => {
+  it('forkastingen kaster etter COMMIT: svaret gis likevel, og feilen logges', async () => {
+    const logg = loggen();
+    const lukking = new Error('close feilet');
+    vedNesteLaan(pool, (f) => {
+      enGang(f, 'reset', () => (cb) => setImmediate(cb, new Error('nullstillingen feilet')));
+      enGang(f, 'close', () => () => {
+        throw lukking;
+      });
+    });
+    const inne = await transaksjon(pool, KONTEKST, async (f) => (await sesjonen(f)).forbindelse);
+    expect(inne).toMatch(/^[0-9a-f-]{36}$/);
+    expect(logg).toHaveBeenCalledWith(expect.any(String), lukking);
+    const etter = await sesjonen(() => pool.request());
+    expect(etter.forbindelse).not.toBe(inne);
+  });
+
+  it('forkastingen kaster etter feilet COMMIT: UsikkertUtfall kastes likevel', async () => {
+    loggen();
+    vedNesteLaan(pool, (f) => {
+      enGang(f, 'commitTransaction', () => (cb) => setImmediate(cb, tidsavbrudd()));
+      enGang(f, 'close', () => () => {
+        throw new Error('close feilet');
+      });
+    });
+    const feil = await transaksjon(pool, KONTEKST, async () => undefined).catch((e: unknown) => e);
+    expect(feil).toBeInstanceOf(UsikkertUtfall);
+    expect(await sesjonen(() => pool.request())).toMatchObject({ trancount: 0, ...ingenKontekst });
+  });
+
+  it('nullstilling som melder suksess uten å rydde: kontrollen etterpå ser konteksten, forbindelsen forkastes, og funnet logges', async () => {
+    const logg = loggen();
     vedNesteLaan(pool, (f) => enGang(f, 'reset', () => (cb) => setImmediate(cb)));
     const inne = await transaksjon(pool, KONTEKST, (f) => sesjonen(f));
     const etter = await sesjonen(() => pool.request());
     expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
     expect(etter.forbindelse).not.toBe(inne.forbindelse);
+    expect(logg).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ message: expect.stringMatching(/kontekstnøkler med verdi/) })
+    );
   });
 
   it('ROLLBACK som feiler: feilen fra arbeidet kastes, og forbindelsen forkastes med den åpne transaksjonen', async () => {
@@ -307,6 +393,31 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     expect(etter.forbindelse).not.toBe(inne!.forbindelse);
     expect(await borte(pool, inne!.forbindelse)).toBe(true);
     expect(await lagret(pool, id)).toBe(false);
+  });
+
+  it('opprettPool avviser min over maks før den kobler til', async () => {
+    const konfig = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING!);
+    await expect(opprettPool({ ...konfig, pool: { min: 3 } }, { maks: 2 })).rejects.toBeInstanceOf(
+      RangeError
+    );
+    await expect(opprettPool({ ...konfig, pool: { min: 3, max: 2 } })).rejects.toBeInstanceOf(
+      RangeError
+    );
+  });
+
+  it('opprettPool bruker konfig.pool.max når maks ikke er oppgitt, og maks foran den', async () => {
+    const konfig = {
+      ...sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING!),
+      database: base.navn,
+    };
+    const fra = async (p: Promise<Pool>) => {
+      const ny = await p;
+      await ny.close();
+      return (ny as unknown as { config: sql.config }).config.pool?.max;
+    };
+    expect(await fra(opprettPool({ ...konfig, pool: { max: 3 } }))).toBe(3);
+    expect(await fra(opprettPool({ ...konfig, pool: { max: 3 } }, { maks: 2 }))).toBe(2);
+    expect(await fra(opprettPool(konfig))).toBe(10);
   });
 
   it.each<[string, Partial<Record<keyof Kontekst, unknown>>]>([

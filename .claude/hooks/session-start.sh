@@ -121,27 +121,49 @@ else
 fi
 
 # SQL Server for datalaget i F0b (#488) starter i bakgrunnen, så økter som ikke
-# trenger den, ikke venter på bildet (2,4 GB) og oppstarten. Tilkoblingen
-# skrives ut før serveren er oppe, og testhjelperen venter på den.
+# trenger den, ikke venter på oppstarten. Finnes bildet (2,4 GB) lokalt, lages
+# containeren her, og tilkoblingen leses fra den. Ellers hentes bildet og lages
+# containeren i bakgrunnen, og tilkoblingen skrives ut før containeren finnes
+# (#527). Testhjelperen venter på serveren.
 sqllogg=/tmp/koe-sqlserver.log
+: > "$sqllogg"
 start_sqlserver() {
   docker info > /dev/null 2>&1 || return 1
   local skript="$rot/scripts/testbase/docker_sqlserver.sh" port="${KOE_SQLSERVER_PORT:-14331}"
   local navn="koe-sqlserver-$port" stempel="/tmp/koe-sqlserver-$port.container" container
   # Skriptet bærer bildet, så summen av det avgjør om containeren lages på nytt.
   container="$(sha256sum < "$skript" | cut -d' ' -f1)" || return 1
+  # Låsen holdes til containeren er laget og stempelet skrevet, også av
+  # bakgrunnsjobben, så en ny kjøring av hooken ikke lager den på nytt.
+  exec 9> "/tmp/koe-sqlserver-$port.lock"
+  if ! flock --nonblock 9; then
+    echo "En annen kjøring av hooken starter $navn." >&2
+    exec 9>&-
+    "$skript" tilkobling
+    return
+  fi
   if docker container inspect "$navn" > /dev/null 2>&1 \
     && [ "$(cat "$stempel" 2> /dev/null)" = "$container" ]; then
+    exec 9>&-
     setsid nohup bash -c 'docker start "$1" > /dev/null && "$2" vent' _ "$navn" "$skript" \
       >> "$sqllogg" 2>&1 < /dev/null &
     "$skript" tilkobling
     return
   fi
   rm -f "$stempel"
+  "$skript" stopp
   KOE_SQLSERVER_SA_PASSORD="Koe-$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')-Aa1"
   export KOE_SQLSERVER_SA_PASSORD
-  setsid nohup bash -c '"$1" stopp && "$1" start > /dev/null && echo "$2" > "$3"' \
-    _ "$skript" "$container" "$stempel" >> "$sqllogg" 2>&1 < /dev/null &
+  if docker image inspect "$("$skript" bilde)" > /dev/null 2>&1; then
+    "$skript" opprett > /dev/null || return 1
+    echo "$container" > "$stempel"
+    exec 9>&-
+    setsid nohup "$skript" vent >> "$sqllogg" 2>&1 < /dev/null &
+  else
+    setsid nohup bash -c '"$1" opprett > /dev/null && echo "$2" > "$3" && exec 9>&- && "$1" vent' \
+      _ "$skript" "$container" "$stempel" >> "$sqllogg" 2>&1 < /dev/null &
+    exec 9>&-
+  fi
   "$skript" tilkobling
 }
 
