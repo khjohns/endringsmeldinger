@@ -10,6 +10,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
+import { oppgittDato, type OppgittDato } from '../format/format.ts';
 import { datoFor, sammeSlag } from '../format/leser.ts';
 import { tekst } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
@@ -233,6 +234,28 @@ function begrunnelsensDato(
   return avvis(
     'BEGRUNNELSE_FOER_SVARET',
     `Begrunnelsen er oppgitt sendt ${norskDato(k.sendt)}, men svaret den begrunner, ble sendt ${norskDato(svaret)}.`
+  );
+}
+
+const OPPGITT: Record<OppgittDato, string> = {
+  paalegg_mottatt: 'pålegget ble mottatt',
+  klar_over_forholdet: 'TE ble klar over forholdet',
+};
+
+/**
+ * Datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato, som er
+ * serverens (VS-U8) i norsk tid. Det er en kontroll av en dato som ikke kan
+ * stemme; om varselet kom i tide, vurderes ikke (arbeidsvalg 1 i #664, samme form
+ * som KA-U36).
+ */
+export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisning | null {
+  if (k.type !== 'krav' || k.spor !== 'grunnlag') return null;
+  const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
+  const dato = felt === null ? undefined : k.innhold[felt];
+  if (felt === null || typeof dato !== 'string' || dato <= brevetsDato) return null;
+  return avvis(
+    'DATO_ETTER_BREVET',
+    `TE har oppgitt at ${OPPGITT[felt]} ${norskDato(dato)}, etter brevets dato ${norskDato(brevetsDato)}.`
   );
 }
 

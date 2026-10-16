@@ -160,10 +160,21 @@ const laast = (rad: Journalrad) => tekst(rad).map((a) => a.laast);
 
 const BESKRIVELSE = 'Byggherren har pålagt en annen fundamentering.';
 
+/** VS-U26: datoen varslingsplikten løper fra, som TE oppgir i grunnlagskravet. */
+const MOTTATT = { paalegg_mottatt: '2026-09-25' };
+const KLAR_OVER = { klar_over_forholdet: '2026-09-25' };
+const MOTTATT_TEKST = 'TE opplyser at pålegget ble mottatt 25. september 2026.';
+const KLAR_OVER_TEKST = 'TE opplyser at TE ble klar over forholdet 25. september 2026.';
+
 const GRUNNLAGSKRAV = {
   type: 'krav',
   spor: 'grunnlag',
-  innhold: { hovedkategori: 'endring', underkategori: 'irregulaer_endring', tittel: 'Ny peling' },
+  innhold: {
+    hovedkategori: 'endring',
+    underkategori: 'irregulaer_endring',
+    tittel: 'Ny peling',
+    ...MOTTATT,
+  },
   utdypning: BESKRIVELSE,
 };
 
@@ -281,7 +292,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     expect(tekst(rad)).toEqual([
       {
         gjelder: (rad.data.krav as Data[])[0].id,
-        laast: `TE krever endringsordre for forholdet «Ny peling» ${I_SAKEN}. Grunnlaget er irregulær endring i form av pålegg (NS 8407 § 32.1). TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring.`,
+        laast: `TE krever endringsordre for forholdet «Ny peling» ${I_SAKEN}. Grunnlaget er irregulær endring i form av pålegg (NS 8407 § 32.1). TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring. ${MOTTATT_TEKST}`,
         // A8: TEs beskrivelse er kravets utdypning og står bare der, ikke i kravet.
         utdypning: BESKRIVELSE,
       },
@@ -290,7 +301,10 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
   });
 
   it('uten tittel', () => {
-    const rad = grunnlag({ hovedkategori: 'endring', underkategori: 'samordning' }, BESKRIVELSE);
+    const rad = grunnlag(
+      { hovedkategori: 'endring', underkategori: 'samordning', ...MOTTATT },
+      BESKRIVELSE
+    );
     expect(laast(rad)[0]).toMatch(
       new RegExp(
         `^TE krever endringsordre for forholdet ${esc(I_SAKEN)}\\. Grunnlaget er samordning \\(NS 8407 § 21\\.4\\)\\.`
@@ -338,16 +352,21 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
       hovedkategori: 'svikt',
       underkategori: 'grunnforhold',
       tittel: 'Leire',
+      ...KLAR_OVER,
     });
     expect(laast(rad)).toEqual([
-      `TE gjør gjeldende krav som følge av uforutsette grunnforhold (NS 8407 § 23.1, jf. § 33.1 b og § 34.1.2) for forholdet «Leire» ${I_SAKEN}.`,
+      `TE gjør gjeldende krav som følge av uforutsette grunnforhold (NS 8407 § 23.1, jf. § 33.1 b og § 34.1.2) for forholdet «Leire» ${I_SAKEN}. ${KLAR_OVER_TEKST}`,
     ]);
   });
 
   it('annet forhold etter § 33.1 c nevner ikke bestemmelsen to ganger', () => {
-    const rad = grunnlag({ hovedkategori: 'andre_forhold', underkategori: 'annet_forhold' });
+    const rad = grunnlag({
+      hovedkategori: 'andre_forhold',
+      underkategori: 'annet_forhold',
+      ...KLAR_OVER,
+    });
     expect(laast(rad)).toEqual([
-      `TE gjør gjeldende krav som følge av annet forhold (NS 8407 § 33.1 c og § 34.1.2) for forholdet ${I_SAKEN}.`,
+      `TE gjør gjeldende krav som følge av annet forhold (NS 8407 § 33.1 c og § 34.1.2) for forholdet ${I_SAKEN}. ${KLAR_OVER_TEKST}`,
     ]);
   });
 
@@ -378,6 +397,84 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     expect(laast(rad)).toEqual([
       'TE krever fristforlengelse på 30 dager (NS 8407 § 33.6.1). Kravet erstatter TEs krav i brev 4 av 4. oktober 2026.',
     ]);
+  });
+});
+
+/**
+ * VS-U26: datoen varslingsplikten løper fra står i brevteksten som TEs opplysning.
+ * At en dato etter brevets dato avvises, og at en ny kravversjon kan rette den, er
+ * arbeidsvalg 1 og 2 i #664. Ingen av dem vurderer rettidigheten.
+ */
+describe('datoen varslingsplikten løper fra (VS-U26)', () => {
+  it('en dato etter brevets dato avvises; samme dag godtas (arbeidsvalg 1 i #664)', () => {
+    const s = sak();
+    // Det første brevet i `sak()` er datert 2. oktober 2026.
+    const med = (dato: string) => ({
+      ...GRUNNLAGSKRAV,
+      innhold: { ...GRUNNLAGSKRAV.innhold, paalegg_mottatt: dato },
+    });
+    expect(s.avvisning('TE', med('2026-10-03'))).toEqual({
+      regel: 'DATO_ETTER_BREVET',
+      melding:
+        'TE har oppgitt at pålegget ble mottatt 3. oktober 2026, etter brevets dato 2. oktober 2026.',
+    });
+    expect(s.avvist('TE', med('2026-10-02'))).toBeNull();
+    const svikt = {
+      type: 'krav',
+      spor: 'grunnlag',
+      innhold: {
+        hovedkategori: 'svikt',
+        underkategori: 'grunnforhold',
+        klar_over_forholdet: '2026-10-03',
+      },
+    };
+    expect(s.avvisning('TE', svikt)?.melding).toBe(
+      'TE har oppgitt at TE ble klar over forholdet 3. oktober 2026, etter brevets dato 2. oktober 2026.'
+    );
+  });
+
+  it('brevets dato er datoen i norsk tid, ikke i UTC (VS-U8)', () => {
+    const s = sak();
+    // 15. oktober kl. 22.30 UTC er 16. oktober kl. 00.30 i Oslo.
+    const kontekst = {
+      sakId: s.journal[0].sak_id,
+      aktoerId: 'te',
+      part: 'TE' as const,
+      teamId: null,
+      tidspunkt: () => new Date('2026-10-15T22:30:00Z'),
+      nyId: randomUUID,
+    };
+    const med = (dato: string) => ({
+      ...utenFelt(GRUNNLAGSKRAV, 'utdypning'),
+      innhold: { ...GRUNNLAGSKRAV.innhold, paalegg_mottatt: dato },
+    });
+    const regel = (dato: string) => {
+      const u = forhaandsvis(med(dato), kontekst, s.journal, KJERNE);
+      return u.godtatt ? null : u.avvisning.regel;
+    };
+    expect(regel('2026-10-16')).toBeNull();
+    expect(regel('2026-10-17')).toBe('DATO_ETTER_BREVET');
+  });
+
+  it('en ny kravversjon kan rette datoen, og brevet sier den nye (arbeidsvalg 2 i #664, GR-U22)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    const rad = s.send('TE', {
+      ...GRUNNLAGSKRAV,
+      innhold: { ...GRUNNLAGSKRAV.innhold, paalegg_mottatt: '2026-09-20' },
+    });
+    expect(laast(rad)[0]).toContain('TE opplyser at pålegget ble mottatt 20. september 2026.');
+    expect(laast(rad)[0]).not.toContain('25. september 2026');
+  });
+
+  it('underkategorien endringsordre har ingen dato i brevet (VS-U26)', () => {
+    const s = sak();
+    const rad = s.send('TE', {
+      type: 'krav',
+      spor: 'grunnlag',
+      innhold: { hovedkategori: 'endring', underkategori: 'endringsordre', endringsordre: 'EO 12' },
+    });
+    expect(laast(rad)[0]).not.toContain('TE opplyser');
   });
 });
 
@@ -420,7 +517,7 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24, KA-U31–KA-U33, GR-U15
       s.avvist('TE', {
         type: 'krav',
         spor: 'grunnlag',
-        innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold' },
+        innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
       })
     ).toBeNull();
   });
@@ -561,7 +658,12 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     const s = sak();
     s.send('TE', {
       ...GRUNNLAGSKRAV,
-      innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', tittel: 'Sene tegninger' },
+      innhold: {
+        hovedkategori: 'svikt',
+        underkategori: 'medvirkning',
+        tittel: 'Sene tegninger',
+        ...KLAR_OVER,
+      },
     });
     s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
     return s;
@@ -886,7 +988,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     s.send('TE', {
       type: 'krav',
       spor: 'grunnlag',
-      innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold' },
+      innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
     });
     const rad = s.send('BH', {
       type: 'brev',
@@ -1446,7 +1548,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     const svikt = {
       type: 'krav',
       spor: 'grunnlag',
-      innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold' },
+      innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
     };
 
     /**
@@ -2560,7 +2662,12 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
       const s = sak();
       s.send('TE', {
         ...GRUNNLAGSKRAV,
-        innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', tittel: 'Kvikkleire' },
+        innhold: {
+          hovedkategori: 'svikt',
+          underkategori: 'grunnforhold',
+          tittel: 'Kvikkleire',
+          ...KLAR_OVER,
+        },
       });
       s.send('TE', {
         type: 'krav',
@@ -2606,7 +2713,7 @@ describe('en ny grunnlagsversjon beholder hjemmelen (GR-U22)', () => {
     underkategori: 'endringsordre',
     endringsordre: 'EO-1',
   };
-  const svikt = { hovedkategori: 'svikt', underkategori: 'grunnforhold' };
+  const svikt = { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER };
 
   it.each([
     ['irregulær endring til svikt', null, svikt, 'ANNEN_HJEMMEL'],
@@ -2614,13 +2721,13 @@ describe('en ny grunnlagsversjon beholder hjemmelen (GR-U22)', () => {
     [
       'svikt til andre forhold',
       svikt,
-      { hovedkategori: 'andre_forhold', underkategori: 'skade_fra_byggherren' },
+      { hovedkategori: 'andre_forhold', underkategori: 'skade_fra_byggherren', ...KLAR_OVER },
       'ANNEN_HJEMMEL',
     ],
     [
       'grunnforhold til medvirkning, i samme hovedkategori',
       svikt,
-      { hovedkategori: 'svikt', underkategori: 'medvirkning' },
+      { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
       'ANNEN_HJEMMEL',
     ],
     ['irregulær endring til endringsordre', null, endringsordre, 'ANNEN_HJEMMEL'],
@@ -2628,7 +2735,7 @@ describe('en ny grunnlagsversjon beholder hjemmelen (GR-U22)', () => {
     [
       'irregulær endring til lovendring, der § 32.2 gjelder i begge',
       null,
-      { hovedkategori: 'endring', underkategori: 'lovendring_gjenstand' },
+      { hovedkategori: 'endring', underkategori: 'lovendring_gjenstand', ...MOTTATT },
       'ANNEN_HJEMMEL',
     ],
     ['samme hjemmel i irregulær endring', null, GRUNNLAGSKRAV.innhold, null],
@@ -2648,7 +2755,10 @@ describe('en ny grunnlagsversjon beholder hjemmelen (GR-U22)', () => {
   it('det første grunnlagskravet kan ha enhver kategori', () => {
     const s = sak();
     expect(
-      s.avvist('TE', versjon({ hovedkategori: 'svikt', underkategori: 'grunnforhold' }))
+      s.avvist(
+        'TE',
+        versjon({ hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER })
+      )
     ).toBeNull();
   });
 });
@@ -3067,7 +3177,12 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
         const s = sak();
         s.send('TE', {
           ...GRUNNLAGSKRAV,
-          innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', tittel: 'Kvikkleire' },
+          innhold: {
+            hovedkategori: 'svikt',
+            underkategori: 'grunnforhold',
+            tittel: 'Kvikkleire',
+            ...KLAR_OVER,
+          },
         });
         s.send('TE', {
           type: 'krav',

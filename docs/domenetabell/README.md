@@ -144,6 +144,8 @@ lagringsformatet står under.
 | Ny | `BEGRUNNELSE_MANGLER`, `BESKRIVELSE_MANGLER`, `PAALEGGET_IKKE_BESKREVET` | KA-U24, KA-U31–KA-U33 og GR-U15: begrunnelsen i svaret og fristkravet og beskrivelsen i TEs varsel etter § 32.2. GR-U14: en godkjenning som er en endringsordre, uten TEs beskrivelse (#369) |
 | Ny | Kommandofeltene `brevtekst` og `utdypning` i kravet, og `forhaandsvis` | A1 og A8 i paragrafmatrisen: teksten klienten viste, og TEs utdypning under kravet (#369) |
 | Ny | Kommandoen `send_varsel` | [VS-U15](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15): TE sender et eget varsel etter § 33.4 fra appen. Kommandoen `varsel` registrerer et varsel sendt utenfor appen. Begge gir utsagnet `varsel`; et brev fra appen har ingen opplysning om datoen (VS-U8) |
+| Ny | Kommandoen `opprett_sak` (`opprettelse`) | #664: saken opprettes før grunnlagskravet, og bare av TE (`FEIL_PART`). Gir `data` i `sak_opprettet` |
+| Ny | `DATO_ETTER_BREVET` | Arbeidsvalg 1 i #664: datoen TE oppgir etter [VS-U26](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u26), er etter brevets dato. Rettidigheten vurderes ikke |
 | Ny | `FRISTKRAV_SENDT` | [VS-U16](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16): et varsel fra appen avvises når et fristkrav er sendt |
 | Ny | Kommandoen `begrunnelse`, handlingen `begrunne:<svar>` og `INGEN_SVAR_AA_BEGRUNNE` | [KA-U34](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u34), [KA-U35](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u35): byggherrens senere begrunnelse av et svar, fra appen med tekst eller registrert med brevet som vedlegg |
 | `varsle:frist` (sende eller registrere varselet) | `varsle:frist` (registrere et varsel sendt utenfor appen) og `sende_varsel:frist` (sende varselet fra appen) | Handlingene i `pending_actions`. Et varsel fra appen avvises når et fristkrav er sendt, mens registreringen ikke gjør det ([#411](https://github.com/khjohns/endringsmeldinger/issues/411)), så de har hver sin nøkkel (INV-MM-1) |
@@ -172,6 +174,7 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | `begrunnelse` i svaret | `utdypning` under svaret i `brevtekst` | Ingen regel leser teksten. Én begrunnelse per svar (KA-U31), den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst, #369) |
 | `beskrivelse` i grunnlagskravet | `utdypning` under kravet i `brevtekst` | Beskrivelsen har ett hjem (A8 i paragrafmatrisen). Påkrevd i TEs varsel etter § 32.2 (GR-U15), og sitert i en godkjenning som er en endringsordre (GR-U14) |
 | Finnes ikke | `endringsordre` i grunnlagskravet | GR-U16: endringsordrens dato eller nummer, bare i underkategorien endringsordre |
+| `dato_oppdaget` i grunnlagshendelsen | `paalegg_mottatt` og `klar_over_forholdet` i grunnlagskravet | [VS-U26](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u26): datoen varslingsplikten løper fra, med ordene i § 32.2 og § 34.1.2. Hvert felt bare i kategorien det gjelder, ingen i underkategorien endringsordre |
 | Finnes ikke | `brevtekst` i dokumentet, med `gjelder`, `laast` og `utdypning` | Teksten i et brev appen sender (LV-U2, LV-U3, LV-U4); et registrert brev har ingen (MM-U17) |
 | `standpunkter` med `utsagn`, `art` og `virkning` i beslutningsgrunnlaget | `virkninger` med `standpunkt` og `virkning` (`prinsipalt` eller `subsidiaert`), og `uten_virkning` med standpunktene uten virkning | Arten leses av standpunktet. Prinsipalt og subsidiært er slik brevet ordner standpunktene; uten virkning er appens vurdering og står for seg (HF-U2) |
 | `hovedgrunn`, `subsidiaer` | `prinsipalt`, `subsidiaert` | Brevets ord |
@@ -354,6 +357,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `BEGRUNNELSE_MANGLER` | KA-42 | — |
 | `BESKRIVELSE_MANGLER` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
 | `BREVTEKST_MANGLER` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `DATO_ETTER_BREVET` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
 | `ENIGHET_I_SPORET` | GR-07, GR-23, GR-24, GR-25, GR-27 | — |
 | `FEIL_BESTRIDELSE` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
 | `FEIL_KRAVREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475). |

@@ -469,7 +469,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
-  ['format/skjema.ts', 'skjema', 'harUlagringsbarTekst', ['kommandoer/skriving.ts:skriv']],
+  [
+    'format/skjema.ts',
+    'skjema',
+    'harUlagringsbarTekst',
+    ['kommandoer/skriving.ts:skriv', 'kommandoer/opprettelse.ts:opprettelse'],
+  ],
+  // Opprettelsen av saken (#664): kommandoen og raden `sak_opprettet` den gir.
+  ['Opprettelse', 'kommando', 'sakstittel', ['kommandoer/opprettelse.ts:opprettelse']],
+  ['format/format.ts', 'skjema', 'objekt TEKST', ['kommandoer/opprettelse.ts']],
+  ['format/format.ts', 'rad', 'FORMAT SAK_OPPRETTET', ['kommandoer/opprettelse.ts:opprettelse']],
   ['format/skjema.ts.TYPER', 'skjema', '*'],
   [
     'format/skjema.ts:feilI(s)',
@@ -511,6 +520,35 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'DATO ID KRAVINNHOLD liste objekt OPPLYSNINGSSLAG TEKST',
     ['kommandoer/kommando.ts'],
   ],
+  // VS-U26: datoen TE oppgir i grunnlagskravet. Bare formkontrollen, kontrollen mot
+  // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
+  ['OPPGITT_DATO', 'skjema', 'endring svikt andre_forhold', ['format/format.ts']],
+  [
+    'format/format.ts',
+    'skjema',
+    'oppgittDato',
+    ['kommandoer/kommando.ts:datofeil', 'kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
+  ],
+  [
+    'kommandoer/kommando.ts:datofeil(innhold)',
+    'kommando',
+    'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
+    ['kommandoer/kommando.ts:datofeil'],
+  ],
+  [
+    'Kommando.innhold',
+    'kommando',
+    'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
+    ['kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
+  ],
+  [
+    'kommandoer/nyttelast.ts',
+    'kommando',
+    'oppgittDatoEtterBrevet',
+    ['kommandoer/skriving.ts:skriv'],
+  ],
+  // Brevets dato er serverens tidspunkt i norsk tid (VS-U8).
+  ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
   // Kodene i formatet for kategoriene (#335): formen på grunnlagskravet.
@@ -689,7 +727,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning', 'utsagn', 'svarSendt', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
   ['Utledning.svarSendt', 'utsagn', '*', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
   // Datoene i meldingen, skrevet som i brevet.
-  ['frosset/brevtekst.ts', 'brevtekst', 'norskDato', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
+  [
+    'frosset/brevtekst.ts',
+    'brevtekst',
+    'norskDato',
+    ['kommandoer/nyttelast.ts:begrunnelsensDato', 'kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
+  ],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
   ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],
   // GR-U14: TEs beskrivelse siteres fra teksten i brevet kravet står i.
@@ -698,6 +741,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'brevtekst', 'brevtekst', ['frosset/brevtekst.ts']],
   ['Krav', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
   ['Krav.innhold', 'utsagn', 'tittel endringsordre', ['frosset/brevtekst.ts']],
+  ['Krav.innhold', 'utsagn', 'paalegg_mottatt klar_over_forholdet', ['frosset/brevtekst.ts']],
   [
     'Journalen',
     'brevtekst',

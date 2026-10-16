@@ -10,6 +10,7 @@
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
   import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
   import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
+  import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
   import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/api/kjerne';
   import { forhaandsvis, laastTekst } from '$kjerne/kommandoer/skriving';
   import { KJERNE } from '$kjerne/versjon';
@@ -32,8 +33,21 @@
   let under = $state('');
   let tittel = $state('');
   let beskrivelse = $state('');
+  // Datoen står under feltet den er oppgitt for, så den følger ikke med til en annen betydning.
+  let datoer = $state<Partial<Record<OppgittDato, string>>>({});
   let beloep = $state<number | null>(null);
   const underkategorier = $derived(forhold.find((h) => h.kode === hoved)?.hjemler ?? []);
+
+  // VS-U26: datoen varslingsplikten løper fra, påkrevd i krav fra appen.
+  const DATOEN: Record<OppgittDato, string> = {
+    paalegg_mottatt: 'Datoen pålegget ble mottatt',
+    klar_over_forholdet: 'Datoen TE ble klar over forholdet',
+  };
+  const datofelt = $derived(
+    under
+      ? oppgittDato(HOVEDKATEGORI_FRA_KATALOGEN[hoved], UNDERKATEGORI_FRA_KATALOGEN[under])
+      : null
+  );
 
   const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
 
@@ -88,6 +102,7 @@
       hovedkategori: HOVEDKATEGORI_FRA_KATALOGEN[hoved],
       underkategori: UNDERKATEGORI_FRA_KATALOGEN[under],
       ...(tittel.trim() ? { tittel: tittel.trim() } : {}),
+      ...(datofelt && datoer[datofelt] ? { [datofelt]: datoer[datofelt] } : {}),
     },
     // TEs beskrivelse av pålegget er utdypningen under kravet (GR-U15).
     ...(beskrivelse.trim() ? { utdypning: beskrivelse.trim() } : {}),
@@ -173,6 +188,12 @@
         </select>
       </label>
       <label class="block">Tittel <input class="block w-full border" bind:value={tittel} /></label>
+      {#if datofelt}
+        <label class="block"
+          >{DATOEN[datofelt]}
+          <input class="block w-full border" type="date" bind:value={datoer[datofelt]} required />
+        </label>
+      {/if}
       <label class="block"
         >Beskrivelse av pålegget <textarea class="block w-full border" bind:value={beskrivelse}
         ></textarea></label

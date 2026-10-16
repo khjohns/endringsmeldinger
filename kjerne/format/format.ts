@@ -14,7 +14,7 @@
  * (#320), og en vakttest holder det likt med det som eksporteres her.
  */
 
-import { HOVEDKATEGORIER, KATEGORIER, UNDERKATEGORIER } from './koder.ts';
+import { HOVEDKATEGORIER, KATEGORIER, UNDERKATEGORIER, type Hovedkategori } from './koder.ts';
 import { FRISTRESULTATER, GRUNNLAGSRESULTATER, VEDERLAGSRESULTATER } from '../regler/typer.ts';
 import type { Skjema } from './skjema.ts';
 import {
@@ -89,26 +89,60 @@ export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[])
 });
 
 /**
+ * VS-U26: datoen varslingsplikten løper fra, som TE oppgir i grunnlagskravet,
+ * etter hovedkategorien. Der § 32.2 gjelder, er det datoen pålegget ble mottatt;
+ * i svikt og andre forhold (§ 33.1 b–c) datoen TE ble klar over forholdet.
+ * Underkategorien endringsordre har ingen.
+ */
+export const OPPGITT_DATO = {
+  endring: 'paalegg_mottatt',
+  svikt: 'klar_over_forholdet',
+  andre_forhold: 'klar_over_forholdet',
+} as const satisfies Partial<Record<Hovedkategori, string>>;
+
+export type OppgittDato = (typeof OPPGITT_DATO)[keyof typeof OPPGITT_DATO];
+
+const OPPGITTE_DATOER = [...new Set(Object.values(OPPGITT_DATO))] as OppgittDato[];
+
+/** Feltet for datoen TE oppgir i kategorien, eller `null` når kategorien ikke har en (VS-U26). */
+export function oppgittDato(hovedkategori: unknown, underkategori: unknown): OppgittDato | null {
+  if (underkategori === 'endringsordre' || typeof hovedkategori !== 'string') return null;
+  return Object.hasOwn(OPPGITT_DATO, hovedkategori)
+    ? OPPGITT_DATO[hovedkategori as keyof typeof OPPGITT_DATO]
+    : null;
+}
+
+// Ingen verdi passer, så feltet finnes ikke i kategorien.
+const ikkeI = (felt: readonly string[]): Skjema =>
+  Object.fromEntries(felt.map((f) => [f, { enum: [] }]));
+
+/**
  * Hovedkategorien og underkategorien er et par fra `KATEGORIER` (#335, HF-U1).
  * Underkategorien endringsordre har endringsordrens dato eller nummer, som TE
- * oppgir (GR-U16); de andre har det ikke.
+ * oppgir (GR-U16); de andre har det ikke. Datoen etter VS-U26 finnes bare i
+ * kategorien den hører til. Den er valgfri i formatet, fordi et registrert brev
+ * ikke oppgir den; kommandoen krever den.
  */
 const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.flatMap((h) => {
   const under: readonly string[] = KATEGORIER[h];
   const andre = under.filter((u) => u !== 'endringsordre');
+  const dato = oppgittDato(h, andre[0]);
   const par: Skjema[] = [];
   if (andre.length)
     par.push({
       properties: {
         hovedkategori: { const: h },
         underkategori: { enum: andre },
-        // Ingen verdi passer, så feltet finnes ikke i de andre underkategoriene.
-        endringsordre: { enum: [] },
+        ...ikkeI(['endringsordre', ...OPPGITTE_DATOER.filter((d) => d !== dato)]),
       },
     });
   if (under.includes('endringsordre'))
     par.push({
-      properties: { hovedkategori: { const: h }, underkategori: { const: 'endringsordre' } },
+      properties: {
+        hovedkategori: { const: h },
+        underkategori: { const: 'endringsordre' },
+        ...ikkeI(OPPGITTE_DATOER),
+      },
       required: ['endringsordre'],
     });
   return par;
@@ -131,6 +165,8 @@ export const KRAVINNHOLD: Record<
       underkategori: { enum: UNDERKATEGORIER },
       tittel: TEKST,
       endringsordre: TEKST,
+      paalegg_mottatt: DATO,
+      klar_over_forholdet: DATO,
     },
     required: ['hovedkategori', 'underkategori'],
     anyOf: KATEGORIPAR,

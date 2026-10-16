@@ -46,11 +46,32 @@ const grunnlagskrav = (innhold: Record<string, unknown>) => ({
   innhold,
 });
 
+/**
+ * VS-U26: datoen varslingsplikten løper fra. Der § 32.2 gjelder (endring unntatt
+ * endringsordre, GR-U11), datoen pålegget ble mottatt; i svikt og andre forhold
+ * (§ 33.1 b–c) datoen TE ble klar over forholdet; i endringsordre ingen.
+ */
+const datoen = (hovedkategori: string, underkategori: string) =>
+  underkategori === 'endringsordre'
+    ? {}
+    : hovedkategori === 'endring'
+      ? { paalegg_mottatt: '2026-10-01' }
+      : { klar_over_forholdet: '2026-10-01' };
+
 describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, HF-U1)', () => {
   it.each(PAR)('godtar %s/%s', (hovedkategori, underkategori) => {
     // GR-U16: et krav som følger av en endringsordre, identifiserer den.
     const eo = underkategori === 'endringsordre' ? { endringsordre: 'EO 12' } : {};
-    expect(formfeil(grunnlagskrav({ hovedkategori, underkategori, ...eo }))).toEqual([]);
+    expect(
+      formfeil(
+        grunnlagskrav({
+          hovedkategori,
+          underkategori,
+          ...eo,
+          ...datoen(hovedkategori, underkategori),
+        })
+      )
+    ).toEqual([]);
   });
 
   it('avviser et krav i underkategorien endringsordre uten endringsordrens dato eller nummer (GR-U16)', () => {
@@ -66,6 +87,7 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
           hovedkategori: 'endring',
           underkategori: 'irregulaer_endring',
           endringsordre: 'EO 12',
+          paalegg_mottatt: '2026-10-01',
         })
       )
     ).not.toEqual([]);
@@ -77,7 +99,9 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
     ['en underkategori under feil hovedkategori', 'svikt', 'irregulaer_endring'],
     ['force majeure, som ikke har noen underkategori', 'force_majeure', 'annet_forhold'],
   ])('avviser %s', (_navn, hovedkategori, underkategori) => {
-    expect(formfeil(grunnlagskrav({ hovedkategori, underkategori }))).not.toEqual([]);
+    // Med datoen avvises kravet ikke fordi datoen mangler.
+    const innhold = { hovedkategori, underkategori, ...datoen(hovedkategori, underkategori) };
+    expect(formfeil(grunnlagskrav(innhold))).not.toEqual([]);
   });
 
   // #367: om force majeure skal kunne skrives uten underkategori, er ikke avgjort.
@@ -268,4 +292,90 @@ describe('svarutkastet blir en endringsordre som brevet det gir (#351, GR-U12)',
       ).toBe(false);
     }
   );
+});
+
+describe('datoen varslingsplikten løper fra, i grunnlagskravet (VS-U26)', () => {
+  const krav = (innhold: Record<string, unknown>) => formfeil(grunnlagskrav(innhold));
+
+  it.each(PAR.filter(([, u]) => u !== 'endringsordre'))(
+    'et krav fra appen i %s/%s uten datoen avvises',
+    (hovedkategori, underkategori) => {
+      const felt = Object.keys(datoen(hovedkategori, underkategori))[0];
+      expect(krav({ hovedkategori, underkategori })).toEqual([
+        expect.stringMatching(new RegExp(`^\\$\\.innhold\\.${felt}: TE må oppgi datoen`)),
+      ]);
+    }
+  );
+
+  it.each([
+    ['pålegget mottatt i svikt', 'svikt', 'grunnforhold', { paalegg_mottatt: '2026-10-01' }],
+    [
+      'klar over forholdet der § 32.2 gjelder',
+      'endring',
+      'irregulaer_endring',
+      { klar_over_forholdet: '2026-10-01' },
+    ],
+    [
+      'pålegget mottatt i endringsordre',
+      'endring',
+      'endringsordre',
+      { paalegg_mottatt: '2026-10-01' },
+    ],
+    [
+      'klar over forholdet i endringsordre',
+      'endring',
+      'endringsordre',
+      { klar_over_forholdet: '2026-10-01' },
+    ],
+  ])('avviser datoen for %s', (_n, hovedkategori, underkategori, felt) => {
+    const riktig = {
+      hovedkategori,
+      underkategori,
+      ...(underkategori === 'endringsordre' ? { endringsordre: 'EO 12' } : {}),
+      ...datoen(hovedkategori, underkategori),
+    };
+    expect(krav(riktig), 'kontrollsak').toEqual([]);
+    expect(krav({ ...riktig, ...felt })).not.toEqual([]);
+  });
+
+  it.each(['2026-02-30', '2026-10-1', '1. oktober 2026'])(
+    'avviser %s, som ikke er en dato',
+    (d) => {
+      expect(
+        krav({ hovedkategori: 'svikt', underkategori: 'grunnforhold', klar_over_forholdet: d })
+      ).toEqual([expect.stringContaining('klar_over_forholdet')]);
+    }
+  );
+
+  it('et registrert krav uten datoen er forstått; datoen i feil kategori er det ikke', () => {
+    const rad = (innhold: Record<string, unknown>): Journalrad => ({
+      event_id: 'e2',
+      sak_id: 's',
+      event_type: 'dokument_registrert',
+      versjon: 2,
+      tidsstempel: '2026-10-02T08:00:00.000Z',
+      aktor_id: 'te',
+      aktor_rolle: 'TE',
+      aktor_team_id: null,
+      refererer_til_event_id: null,
+      format: 1,
+      data: {
+        krav: [{ id: 'k', spor: 'grunnlag', ...innhold }],
+        opplysninger: [{ id: 'o', hva: 'sendt', dato: '2026-10-01' }],
+      },
+    });
+    const art = (innhold: Record<string, unknown>) =>
+      lesJournal([rad(innhold)], KJERNE.leserformat)[0].art;
+    expect(art({ hovedkategori: 'svikt', underkategori: 'grunnforhold' })).toBe('dokument');
+    expect(
+      art({
+        hovedkategori: 'svikt',
+        underkategori: 'grunnforhold',
+        klar_over_forholdet: '2026-10-01',
+      })
+    ).toBe('dokument');
+    expect(
+      art({ hovedkategori: 'svikt', underkategori: 'grunnforhold', paalegg_mottatt: '2026-10-01' })
+    ).toBe('ukjent');
+  });
 });
