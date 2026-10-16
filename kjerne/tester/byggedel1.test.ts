@@ -76,7 +76,12 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
   const krav = (innhold: Data) => ({
     type: 'krav',
     spor: 'grunnlag',
-    innhold: { hovedkategori: 'endring', underkategori: 'irregulaer_endring', ...innhold },
+    innhold: {
+      hovedkategori: 'endring',
+      underkategori: 'irregulaer_endring',
+      paalegg_mottatt: '2026-10-01',
+      ...innhold,
+    },
     utdypning: 'Pålegget.',
   });
   /** Kommandoen med den låste teksten fra forhåndsvisningen, slik klienten sender den (A1). */

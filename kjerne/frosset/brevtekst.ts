@@ -301,7 +301,7 @@ interface Tekst {
   sak: string;
 }
 
-/** LV-U4 punkt 1–3 og GR-U16. */
+/** LV-U4 punkt 1–3, GR-U16 og VS-U26. */
 function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
   const deler: string[] = [];
   if (k.spor === 'grunnlag') {
@@ -322,6 +322,9 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
         deler.push(
           'TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring.'
         );
+      // VS-U26: TEs opplysning, etter setningen om § 32.2. Appen vurderer ikke rettidigheten.
+      if (typeof k.innhold.paalegg_mottatt === 'string')
+        deler.push(`TE opplyser at pålegget ble mottatt ${norskDato(k.innhold.paalegg_mottatt)}.`);
     } else if (LEDD_I_33_1[hoved] && u) {
       const ledd = LEDD_I_33_1[hoved];
       const hjemmel =
@@ -331,6 +334,11 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
       deler.push(
         `TE gjør gjeldende krav som følge av ${u.navn} (NS 8407 ${hjemmel}) for ${forholdet}.`
       );
+      // VS-U26: etter kategorisetningen.
+      if (typeof k.innhold.klar_over_forholdet === 'string')
+        deler.push(
+          `TE opplyser at TE ble klar over forholdet ${norskDato(k.innhold.klar_over_forholdet)}.`
+        );
     } else {
       // Force majeure kan ikke uttrykkes i formatet ennå (#367).
       throw new KanIkkeUttrykkes(`kategorien ${hoved}/${under} har ingen brevtekst`);

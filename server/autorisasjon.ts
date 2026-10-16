@@ -1,13 +1,15 @@
 /**
- * Tilgangskontrollen i samme rekkefølge og med samme svar som Flask:
- * - `require_auth` (`lib/auth/session.py`): sesjonen i `app_sessions`, og CSRF
- *   inne i autentiseringen;
- * - `require_project_access` (`lib/auth/project_access.py`): ferskt medlemskap
- *   i `app_project_memberships`, `prosjekt_id` i nyttelasten og hver sak det
- *   vises til i `sak_metadata`;
+ * Tilgangskontrollen i samme rekkefølge og med samme svar som Flask, mot
+ * SQL Server (#658):
+ * - `require_auth` (`lib/auth/session.py`): sesjonen med `koe_api.les_sesjon`,
+ *   og CSRF inne i autentiseringen;
+ * - `require_project_access` (`lib/auth/project_access.py`): koblingen med
+ *   `koe_api.prosjektkobling`, alderen på medlemslisten, ferskt medlemskap med
+ *   `koe_api.prosjektmedlemskap`, `prosjekt_id` i nyttelasten og hver sak det
+ *   vises til i `koe.sak_metadata`, lest under radsikkerheten;
  * - `require_contract_role` (`lib/auth/contract_role.py`) og
  *   `AuthService.contract_membership`: kontraktssiden fra
- *   `catenda_contract_teams` og teammedlemskapet i Catenda.
+ *   `koe_api.kontraktsteam` og teammedlemskapet i Catenda.
  *
  * Catenda er utenfor prøven og står bak grensesnittet `Catenda`. Et medlemskap
  * som ikke er ferskt, krever synkronisering mot Catenda; uten den nektes
@@ -16,10 +18,10 @@
 
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
-import type { ClientBase, Pool } from 'pg';
-
-type Klient = Pool | ClientBase;
 import type { Part as Rolle } from '../kjerne/typer.ts';
+import { sql, transaksjon, type Pool } from './datalag.ts';
+import { medlemslistensAlder } from './medlemskap.ts';
+import { lesSesjon, type Sesjon } from './sesjon.ts';
 
 export interface Bruker {
   id: string;
@@ -87,19 +89,11 @@ function like(a: string, b: string): boolean {
 }
 
 /** `require_auth`. */
-export async function krevInnlogging(db: Klient, foresporsel: IncomingMessage): Promise<Bruker> {
+export async function krevInnlogging(db: Pool, foresporsel: IncomingMessage): Promise<Bruker> {
   const token = informasjonskapsel(foresporsel, sesjonsnavn());
-  let sesjon: { csrf_token: string; id: string; email: string; name: string } | undefined;
+  let sesjon: Sesjon | null = null;
   try {
-    if (token) {
-      const svar = await db.query<{ csrf_token: string; id: string; email: string; name: string }>(
-        `SELECT s.csrf_token, u.id::text AS id, u.email, u.name
-           FROM app_sessions s JOIN app_users u ON u.id = s.user_id
-          WHERE s.token_hash = $1 AND s.expires_at > now() LIMIT 1`,
-        [sha256(token)]
-      );
-      sesjon = svar.rows[0];
-    }
+    if (token) sesjon = await lesSesjon(db, token);
   } catch {
     throw new Nektet(503, 'AUTH_UNAVAILABLE', 'Innlogging er midlertidig utilgjengelig.');
   }
@@ -109,26 +103,28 @@ export async function krevInnlogging(db: Klient, foresporsel: IncomingMessage): 
   const csrf = foresporsel.headers['x-csrf-token'];
   if (
     !['GET', 'HEAD', 'OPTIONS'].includes(metode) &&
-    !(typeof csrf === 'string' && csrf && like(csrf, sesjon.csrf_token))
+    !(typeof csrf === 'string' && csrf && like(csrf, sesjon.csrfToken))
   ) {
     throw new Nektet(403, 'CSRF validation failed', 'Prøv igjen.');
   }
-  return { id: sesjon.id, email: sesjon.email, name: sesjon.name };
+  return sesjon.bruker;
 }
 
 interface Medlemskap {
-  role: string;
-  viewer_override: boolean;
-  active: boolean;
-  catenda_subject: string;
+  rolle: string;
+  leserolle: boolean;
+  /** I `catendaId()`-formen. */
+  subjekt: string;
 }
 
 interface Prosjektoppsett {
-  catenda_project_id: string;
+  catendaProsjekt: string;
 }
 
 export interface Prosjekttilgang {
   prosjektId: string;
+  /** `app_users.id` for brukeren tilgangen er avgjort for. */
+  aktor: string;
   rolle: string;
   oppsett: Prosjektoppsett;
   medlemskap: Medlemskap;
@@ -176,35 +172,51 @@ function medlemskapsalder(): number {
   return sekunder;
 }
 
-async function prosjektoppsett(db: Klient, prosjektId: string): Promise<Prosjektoppsett | null> {
-  const svar = await db.query<Prosjektoppsett>(
-    `SELECT catenda_project_id::text AS catenda_project_id FROM catenda_project_configs
-      WHERE internal_project_id = $1 AND is_active LIMIT 1`,
-    [prosjektId]
-  );
-  return svar.rows[0] ?? null;
+async function prosjektoppsett(db: Pool, prosjektId: string): Promise<Prosjektoppsett | null> {
+  const svar = await db
+    .request()
+    .input('prosjekt', sql.NVarChar(4000), prosjektId)
+    .execute<{ catenda_prosjekt: string }>('koe_api.prosjektkobling');
+  const rad = svar.recordset[0];
+  return rad ? { catendaProsjekt: rad.catenda_prosjekt.toLowerCase() } : null;
 }
 
-/** `AuthService.ensure_fresh` for et registrert prosjekt: synkroniser når medlemskapet er for gammelt. */
-async function ferskeMedlemmer(
-  db: Klient,
-  catenda: Catenda,
+/**
+ * `AuthService.ensure_fresh` for et registrert prosjekt: synkroniser når listen
+ * fra det koblede Catenda-prosjektet mangler eller er for gammel. Alderen røper
+ * om prosjektet er koblet og når listen ble hentet, så den leses bare her, før
+ * medlemskapet er avgjort, og gis aldri videre (#638 punkt 2).
+ */
+async function ferskeMedlemmer(db: Pool, catenda: Catenda, prosjektId: string): Promise<void> {
+  const sist = await medlemslistensAlder(db, prosjektId);
+  if (sist === null || sist.alderSekunder >= medlemskapsalder())
+    await catenda.synkroniser(prosjektId);
+}
+
+/** Prosjekt-ID-en slik basen har den: SQL Server ser bort fra mellomrom til slutt. */
+const gyldigProsjektId = (id: string) => id.trim() === id && id.length <= 100;
+
+/** Sakene blant `saker` som er i prosjektet, lest under radsikkerheten med aktøren og prosjektet i konteksten. */
+async function sakerIProsjektet(
+  db: Pool,
+  bruker: Bruker,
   prosjektId: string,
-  oppsett: Prosjektoppsett
-): Promise<void> {
-  const svar = await db.query<{ catenda_project_id: string; alder: number }>(
-    `SELECT catenda_project_id::text AS catenda_project_id,
-            extract(epoch FROM now() - synced_at)::float8 AS alder
-       FROM app_membership_sync WHERE project_id = $1 LIMIT 1`,
-    [prosjektId]
+  saker: Set<string>
+): Promise<Set<string>> {
+  if (!saker.size) return new Set();
+  const rader = await transaksjon(db, { aktor: bruker.id, prosjekt: prosjektId }, (foresp) =>
+    foresp()
+      .input('saker', sql.NVarChar(sql.MAX), JSON.stringify([...saker]))
+      .query<{ sak_id: string; prosjekt_id: string }>(
+        `SELECT s.sak_id, s.prosjekt_id FROM koe.sak_metadata s
+          WHERE s.sak_id IN (SELECT [value] FROM OPENJSON(@saker))`
+      )
   );
-  const sist = svar.rows[0];
-  const fersk =
-    sist !== undefined &&
-    catendaId(sist.catenda_project_id) === catendaId(oppsett.catenda_project_id) &&
-    sist.alder >= 0 &&
-    sist.alder < medlemskapsalder();
-  if (!fersk) await catenda.synkroniser(prosjektId);
+  return new Set(
+    rader.recordset
+      .filter((r) => r.prosjekt_id === prosjektId && saker.has(r.sak_id))
+      .map((r) => r.sak_id)
+  );
 }
 
 /**
@@ -212,7 +224,7 @@ async function ferskeMedlemmer(
  * `nyttelast` er JSON-kroppen, eller `{}` uten kropp.
  */
 export async function krevProsjekttilgang(
-  db: Klient,
+  db: Pool,
   catenda: Catenda,
   foresporsel: IncomingMessage,
   bruker: Bruker,
@@ -223,18 +235,18 @@ export async function krevProsjekttilgang(
   const nekt = () => new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   const hode = foresporsel.headers['x-project-id'];
   const prosjektId = typeof hode === 'string' && hode ? hode : null;
-  if (!prosjektId) throw nekt();
+  if (!prosjektId || !gyldigProsjektId(prosjektId)) throw nekt();
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
     if (!oppsett) throw nekt();
-    await ferskeMedlemmer(db, catenda, prosjektId, oppsett);
-    const svar = await db.query<Medlemskap>(
-      `SELECT role, viewer_override, active, catenda_subject FROM app_project_memberships
-        WHERE project_id = $1 AND user_id = $2 AND active LIMIT 1`,
-      [prosjektId, bruker.id]
-    );
-    const medlemskap = svar.rows[0];
-    const rolle = medlemskap ? (medlemskap.viewer_override ? 'viewer' : medlemskap.role) : null;
+    await ferskeMedlemmer(db, catenda, prosjektId);
+    const svar = await db
+      .request()
+      .input('aktor', sql.UniqueIdentifier, bruker.id)
+      .input('prosjekt', sql.NVarChar(4000), prosjektId)
+      .execute<Medlemskap>('koe_api.prosjektmedlemskap');
+    const medlemskap = svar.recordset[0];
+    const rolle = medlemskap ? (medlemskap.leserolle ? 'viewer' : medlemskap.rolle) : null;
     if (rolle === null || !(rolle in PROSJEKTROLLER)) throw nekt();
     if (PROSJEKTROLLER[rolle] < PROSJEKTROLLER[minsteRolle]) throw nekt();
     if (typeof nyttelast !== 'object' || nyttelast === null || Array.isArray(nyttelast))
@@ -250,14 +262,9 @@ export async function krevProsjekttilgang(
     const hovedsak = sakIdFraSti ?? kropp.sak_id ?? kropp.sakId;
     if (typeof hovedsak === 'string' && hovedsak) saker.add(hovedsak);
     // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
-    for (const sakId of saker) {
-      const sak = await db.query<{ prosjekt_id: string }>(
-        'SELECT prosjekt_id FROM sak_metadata WHERE sak_id = $1',
-        [sakId]
-      );
-      if (sak.rows[0]?.prosjekt_id !== prosjektId) throw nekt();
-    }
-    return { prosjektId, rolle, oppsett, medlemskap: medlemskap! };
+    const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, saker);
+    for (const sakId of saker) if (!iProsjektet.has(sakId)) throw nekt();
+    return { prosjektId, aktor: bruker.id, rolle, oppsett, medlemskap: medlemskap! };
   } catch (feil) {
     if (feil instanceof Nektet) throw feil;
     throw new Nektet(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
@@ -271,7 +278,7 @@ export interface Kontraktstilgang {
 
 /** `require_contract_role()` med `contract_membership`. Uten entydig side: 403. */
 export async function krevKontraktsrolle(
-  db: Klient,
+  db: Pool,
   catenda: Catenda,
   tilgang: Prosjekttilgang
 ): Promise<Kontraktstilgang> {
@@ -288,30 +295,35 @@ export async function krevKontraktsrolle(
   return { rolle, teamId };
 }
 
+/**
+ * Siden og teamet. Teamet er ett av prosjektets kontraktsteam på den siden
+ * aktøren er på, og `null` når aktøren er med i flere av dem, så det kan
+ * settes som `koe_team` (#53, DL-U4).
+ */
 async function kontraktsside(
-  db: Klient,
+  db: Pool,
   catenda: Catenda,
-  { prosjektId, oppsett, medlemskap }: Prosjekttilgang
+  { prosjektId, aktor, oppsett, medlemskap }: Prosjekttilgang
 ): Promise<[Rolle | null, string | null]> {
-  if (!medlemskap.active || medlemskap.viewer_override) return [null, null];
-  const subjekt = catendaId(medlemskap.catenda_subject);
+  if (medlemskap.leserolle) return [null, null];
+  const subjekt = catendaId(medlemskap.subjekt);
   if (!subjekt) return [null, null];
-  const svar = await db.query<{ team_id: string; contract_role: Rolle }>(
-    `SELECT team_id::text AS team_id, contract_role FROM catenda_contract_teams
-      WHERE internal_project_id = $1`,
-    [prosjektId]
-  );
+  const svar = await db
+    .request()
+    .input('aktor', sql.UniqueIdentifier, aktor)
+    .input('prosjekt', sql.NVarChar(4000), prosjektId)
+    .execute<{ team: string; side: Rolle }>('koe_api.kontraktsteam');
   const team: Record<Rolle, Set<string>> = { TE: new Set(), BH: new Set() };
-  for (const rad of svar.rows) {
-    const id = catendaId(rad.team_id);
-    if (id && rad.contract_role in team) team[rad.contract_role].add(id);
+  for (const rad of svar.recordset) {
+    const id = catendaId(rad.team);
+    if (id && rad.side in team) team[rad.side].add(id);
   }
   if (!team.TE.size || !team.BH.size || [...team.TE].some((t) => team.BH.has(t)))
     return [null, null];
   const treff: [Rolle, string][] = [];
   for (const rolle of ['TE', 'BH'] as const) {
     for (const teamId of team[rolle]) {
-      const medlemmer = await catenda.teammedlemmer(oppsett.catenda_project_id, teamId);
+      const medlemmer = await catenda.teammedlemmer(oppsett.catendaProsjekt, teamId);
       if ([...medlemmer].map(catendaId).includes(subjekt)) treff.push([rolle, teamId]);
     }
   }

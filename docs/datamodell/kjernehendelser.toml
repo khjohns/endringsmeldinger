@@ -21,9 +21,13 @@ format = 1
 
 [[hendelse]]
 navn = "sak_opprettet"
-beskrivelse = "Saken er opprettet. Første rad i saken."
+beskrivelse = """
+Saken er opprettet. Første rad i saken, i versjon 1, før grunnlagskravet.
+`opprettSak` i `server/kommandoer.ts` skriver raden og kontrollerer ikke at parten
+er TE. Opprettelsen i kjernen (`opprettelse` i `kjerne/kommandoer/opprettelse.ts`)
+godtar bare TE og gir `format` og `data` som `opprettSak` skal få."""
 felt = ["sakstittel", "sakstype"]
-grunnlag = "B-17. Andre sakstyper enn `standard` hører til #309"
+grunnlag = "B-17, LV-U2, DL-U6. Andre sakstyper enn `standard` hører til #309"
 
 [[hendelse]]
 navn = "dokument_registrert"
@@ -47,10 +51,16 @@ En kravversjon av grunnlaget. `erstatter` er forrige kravversjon i sporet.
 (`KATEGORIER` i `kjerne/format/koder.ts`), for eksempel `endring` og
 `irregulaer_endring`. Et ukjent par gjør raden ikke forstått. I underkategorien
 `endringsordre` oppgir TE endringsordrens dato eller nummer (`endringsordre`),
-og bare der. TEs beskrivelse av forholdet står i brevteksten, som utdypningen
-under kravet."""
-felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "endringsordre"]
-grunnlag = "KA-U2, GR-U16, designnotatet 4.2"
+og bare der. TE oppgir datoen varslingsplikten løper fra: i hovedkategorien
+`endring`, unntatt `endringsordre`, datoen pålegget ble mottatt
+(`paalegg_mottatt`), og i `svikt` og `andre_forhold` datoen TE ble klar over
+forholdet (`klar_over_forholdet`). Feltet finnes bare i kategorien det hører til.
+Et krav fra appen har det; et registrert krav kan mangle det. Kommandoen avviser
+en dato etter skrivetidspunktet i norsk tid (`DATO_ETTER_BREVET`); ingen regel
+vurderer rettidigheten. TEs beskrivelse av forholdet står i brevteksten, som
+utdypningen under kravet."""
+felt = ["id", "spor", "erstatter", "hovedkategori", "underkategori", "tittel", "endringsordre", "paalegg_mottatt", "klar_over_forholdet"]
+grunnlag = "KA-U2, GR-U16, VS-U26, designnotatet 4.2"
 
 [[krav]]
 spor = "vederlag"

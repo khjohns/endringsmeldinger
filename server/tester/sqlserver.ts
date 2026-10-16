@@ -13,6 +13,8 @@ import { randomBytes } from 'node:crypto';
 import sql from 'mssql';
 import { opprettPool } from '../datalag.ts';
 
+export { feilnummer } from '../datalag.ts';
+
 export const SQLSERVER_TILKOBLING = process.env.KOE_SQLSERVER_TILKOBLING ?? '';
 
 /** Standardinnstillingene i Azure SQL Database (#78, svaret på A3). */
@@ -197,12 +199,6 @@ export async function opprettKjoeretid(
       }
     },
   };
-}
-
-/** Feilnummeret fra SQL Server: 2627 for brudd på en unik nøkkel, et eget nummer fra THROW osv. */
-export function feilnummer(feil: unknown): number | undefined {
-  const f = feil as { number?: number; originalError?: { info?: { number?: number } } };
-  return f?.number ?? f?.originalError?.info?.number;
 }
 
 export { sql };

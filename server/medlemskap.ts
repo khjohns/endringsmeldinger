@@ -11,7 +11,7 @@
  * modulen ennå (#375).
  */
 
-import { sql, type Pool } from './datalag.ts';
+import { feilnummer, sql, type Pool } from './datalag.ts';
 
 /** Ett medlem i Catenda-prosjektet. `subjekt` har `catendaId()`-formen. */
 export interface Medlem {
@@ -43,11 +43,6 @@ const UGYLDIG_TIDSPUNKT = 52042;
 const UGYLDIG_PROSJEKT = 52043;
 const LAAST = 52044;
 const UGYLDIG_PROSJEKTLISTE = 52045;
-
-function feilnummer(feil: unknown): number | undefined {
-  const f = feil as { number?: number; originalError?: { info?: { number?: number } } };
-  return f?.number ?? f?.originalError?.info?.number;
-}
 
 function oversett(
   feil: unknown,

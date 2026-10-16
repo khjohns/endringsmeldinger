@@ -30,11 +30,15 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
+import type { Pool as Datalag } from './datalag.ts';
 import { lesSaken, SakFinnesIkke, skrivMedOppdrag, Versjonskonflikt } from './lager.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
 
 export interface Avhengigheter {
+  /** PostgreSQL, med journalen og oppdraget fram til F0b-7 (#661). */
   pool: Pool;
+  /** SQL Server, med sesjonen, medlemskapet, kontraktsteamene og sakene i prosjektet (#658). */
+  datalag: Datalag;
   catenda: Catenda;
   kjerne?: Kjerne;
   /** Klokke og ID-er, så testene kan styre dem. */
@@ -280,10 +284,10 @@ export function lagServer(avh: Avhengigheter) {
       }
       // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
       // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
-      const bruker = await krevInnlogging(full.pool, foresporsel);
+      const bruker = await krevInnlogging(full.datalag, foresporsel);
       const innhold = metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
       const prosjekt = await krevProsjekttilgang(
-        full.pool,
+        full.datalag,
         full.catenda,
         foresporsel,
         bruker,
@@ -293,7 +297,7 @@ export function lagServer(avh: Avhengigheter) {
       );
       const side =
         r.tilgang.kontraktsrolle === 'kreves'
-          ? await krevKontraktsrolle(full.pool, full.catenda, prosjekt)
+          ? await krevKontraktsrolle(full.datalag, full.catenda, prosjekt)
           : null;
       if ('feil' in innhold) throw innhold.feil;
       // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).

@@ -11,6 +11,12 @@
  *   de statiske importene av `mssql`, ikke et lager som bruker `sql` fra
  *   `datalag.ts` eller en pool fra `opprettPool` utenom `transaksjon` (#542).
  *
+ * - Alderen på medlemslisten røper om et prosjekt er koblet og når listen ble
+ *   hentet, så utenom testene leser bare `autorisasjon.ts` den, etter at koblingen
+ *   er kontrollert (#638 punkt 2). Testen ser navnet `medlemslistensAlder` og
+ *   prosedyrenavnet `medlemsliste_alder` i kildeteksten, ikke et kall gjennom et
+ *   annet navn.
+ *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
  * `export … from`, `import()` og `require()` teller likt, med og uten endelse.
  */
@@ -60,6 +66,22 @@ export function forbudteImporter(fil: string, kilde: string): string[] {
   });
 }
 
+/** Filene som kan lese alderen på medlemslisten (#638 punkt 2). */
+const ALDEREN = new Set(['autorisasjon.ts', 'medlemskap.ts']);
+
+/** Om `kilde` viser til alderen på medlemslisten, som navn eller som prosedyre. */
+export function viserTilAlderen(kilde: string): boolean {
+  const fil = ts.createSourceFile('kilde.ts', kilde, ts.ScriptTarget.Latest);
+  let funnet = false;
+  const besok = (node: ts.Node) => {
+    if (ts.isIdentifier(node) && node.text === 'medlemslistensAlder') funnet = true;
+    if (ts.isStringLiteralLike(node) && node.text.includes('medlemsliste_alder')) funnet = true;
+    ts.forEachChild(node, besok);
+  };
+  besok(fil);
+  return funnet;
+}
+
 function alleFiler(mappe: string): string[] {
   return readdirSync(mappe, { withFileTypes: true }).flatMap((d) =>
     d.isDirectory()
@@ -85,6 +107,25 @@ describe('grensene rundt TS-serveren', () => {
       expect(forbudteImporter(fil, readFileSync(fil, 'utf8'))).toEqual([]);
     }
   );
+
+  it('utenom testene leser bare autorisasjonen alderen på medlemslisten', () => {
+    const lesere = filer
+      .filter((f) => !f.startsWith(TESTER + sep))
+      .filter((f) => viserTilAlderen(readFileSync(f, 'utf8')))
+      .map((f) => relative(SERVER, f));
+    expect(lesere.sort()).toEqual([...ALDEREN].sort());
+  });
+
+  it.each([
+    ["import { medlemslistensAlder } from './medlemskap.ts';"],
+    ["import * as m from './medlemskap.ts';\nawait m.medlemslistensAlder(pool, p);"],
+    ["await pool.request().execute('koe_api.medlemsliste_alder');"],
+    ['await pool.request().query(`EXEC koe_api.medlemsliste_alder @prosjekt = 1`);'],
+  ])('oppdager at app.ts leser alderen med %s', (linje) => {
+    const fil = join(SERVER, 'app.ts');
+    expect(viserTilAlderen(readFileSync(fil, 'utf8'))).toBe(false);
+    expect(viserTilAlderen(`${linje}\n${readFileSync(fil, 'utf8')}`)).toBe(true);
+  });
 
   it.each([
     ["import { leggTil } from '../sprakprove/server/lager.ts';", 'app.ts'],
