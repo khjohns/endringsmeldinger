@@ -594,6 +594,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       );
       expect(svar.recordset.map((r) => r.rett).sort()).toEqual([
         'GRANT EXECUTE koe_api.catenda_identitet',
+        'GRANT EXECUTE koe_api.deaktiver_ved_innlogging',
         'GRANT EXECUTE koe_api.medlemsliste_alder',
         'GRANT EXECUTE koe_api.opprett_sak',
         'GRANT EXECUTE koe_api.skriv_hendelse',
