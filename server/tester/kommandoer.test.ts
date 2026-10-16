@@ -13,7 +13,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Journalrad } from '../../kjerne/typer.ts';
-import { sql, transaksjon, type Kontekst, type Pool } from '../datalag.ts';
+import { sql, transaksjon, UgyldigKontekst, type Kontekst, type Pool } from '../datalag.ts';
 import {
   opprettSak,
   SakFinnesIkke,
@@ -211,11 +211,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       await expect(nySak(k())).rejects.toBeInstanceOf(SkrivingAvvist);
     });
 
-    it('avvises uten sakstype i data', async () => {
-      await expect(
-        opprettSak(kjoeretid.pool, te, { format: 1, data: { sakstittel: 'x' } })
-      ).rejects.toBeInstanceOf(UgyldigKommando);
-    });
+    it.each<[string, Record<string, unknown>, RegExp]>([
+      ['uten sakstype i data', { sakstittel: 'x' }, /Sakstypen mangler/],
+      ['med en sakstype med mellomrom til slutt', { sakstype: 'standard ' }, /mellomrom til slutt/],
+      ['med en sakstype over 40 tegn', { sakstype: 'x'.repeat(41) }, /over 40 tegn/],
+    ])(
+      'avvises %s med UgyldigKommando og en melding som sier hva (#596, #607)',
+      async (_, data, melding) => {
+        const feil = await opprettSak(kjoeretid.pool, te, { format: 1, data }).catch(
+          (e: unknown) => e
+        );
+        expect(feil).toBeInstanceOf(UgyldigKommando);
+        expect((feil as Error).message).toMatch(melding);
+        expect(feilnummer((feil as Error).cause)).toBe(UGYLDIG);
+      }
+    );
   });
 
   describe('skriv hendelse', () => {
@@ -362,6 +372,47 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect(utfall).toBe('skrevet');
     }, 30_000);
 
+    it.each<[string, (rad: Journalrad, o: Oppdragsrad) => [Journalrad, Oppdragsrad]]>([
+      ['en event_id på 37 tegn', (rad, o) => [{ ...rad, event_id: `${rad.event_id}0` }, o]],
+      [
+        'en event_id med store bokstaver',
+        (rad, o) => [{ ...rad, event_id: rad.event_id.toUpperCase() }, o],
+      ],
+      ['en hendelsestype over 100 tegn', (rad, o) => [{ ...rad, event_type: 'x'.repeat(101) }, o]],
+      [
+        'en hendelsestype med mellomrom til slutt',
+        (rad, o) => [{ ...rad, event_type: 'dokument_registrert ' }, o],
+      ],
+      [
+        'en dokumentnøkkel over 100 tegn',
+        (rad, o) => [rad, { ...o, dokumentnoekkel: 'd'.repeat(101) }],
+      ],
+      [
+        'en sum med store bokstaver',
+        (rad, o) => [rad, { ...o, innhold_sha256: o.innhold_sha256.toUpperCase() }],
+      ],
+    ])('%s gir UgyldigKommando før basen, og ingenting skrives (#607)', async (_, endre) => {
+      const sak = await nySak();
+      const lag = (g: { journal: Journalrad[]; tidspunkt: Date }): Skriveutfall<never> => {
+        const rad = brev(g);
+        const [r, o] = endre(rad, oppdragFor(rad));
+        return { skriv: true, rad: r, oppdrag: { ...o, event_id: r.event_id } };
+      };
+      const feil = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, lag).catch(
+        (e: unknown) => e
+      );
+      expect(feil).toBeInstanceOf(UgyldigKommando);
+      expect((feil as Error).message).toMatch(/feil form/);
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
+    });
+
+    it('null som kontekst gir UgyldigKontekst, ikke TypeError (#596)', async () => {
+      const sak = await nySak();
+      await expect(
+        skrivHendelse(kjoeretid.pool, null as unknown as Kontekst, sak.sak_id, 1, medOppdrag())
+      ).rejects.toBeInstanceOf(UgyldigKontekst);
+    });
+
     it('en kontekst uten kontraktsside gir SkrivingAvvist', async () => {
       const sak = await nySak();
       const utenSide: Kontekst = { aktor: b.te, prosjekt: P1, team: TE1 };
@@ -386,6 +437,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         eventType = 'dokument_registrert',
         oppdrag = true,
         forventet = 1,
+        felt = {} as Partial<
+          Record<'event_id' | 'dokumentnoekkel' | 'oppdrag_sha256' | 'oppdrag' | 'data', string>
+        > & { format?: number },
       } = {}
     ): Promise<{ skriving: string | null }> {
       const oekt = async (f: () => sql.Request) =>
@@ -437,20 +491,32 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
           tidspunkt = svar.output.tidspunkt as Date;
           if (tid === 'senere') tidspunkt = new Date(tidspunkt.getTime() + 1);
         }
-        const eventId = randomUUID();
+        const eventId = felt.event_id ?? randomUUID();
         const innhold = { event_id: eventId };
         await f()
-          .input('sak_id', sql.NVarChar(36), sakId)
+          .input('sak_id', sql.NVarChar(4000), sakId)
           .input('forventet_versjon', sql.Int, forventet)
-          .input('event_id', sql.NVarChar(36), eventId)
-          .input('event_type', sql.NVarChar(100), eventType)
+          .input('event_id', sql.NVarChar(4000), eventId)
+          .input('event_type', sql.NVarChar(4000), eventType)
           .input('tidsstempel', sql.DateTime2(3), tidspunkt)
-          .input('format', sql.Int, 1)
-          .input('data', sql.NVarChar(sql.MAX), '{}')
+          .input('format', sql.Int, felt.format ?? 1)
+          .input('data', sql.NVarChar(sql.MAX), felt.data ?? '{}')
           .input('oppdrag_id', sql.UniqueIdentifier, oppdrag ? randomUUID() : null)
-          .input('dokumentnoekkel', sql.NVarChar(100), oppdrag ? `dok-${eventId}` : null)
-          .input('oppdrag', sql.NVarChar(sql.MAX), oppdrag ? JSON.stringify(innhold) : null)
-          .input('oppdrag_sha256', sql.NVarChar(64), oppdrag ? sjekksum(innhold) : null)
+          .input(
+            'dokumentnoekkel',
+            sql.NVarChar(4000),
+            oppdrag ? (felt.dokumentnoekkel ?? `dok-${eventId}`) : null
+          )
+          .input(
+            'oppdrag',
+            sql.NVarChar(sql.MAX),
+            oppdrag ? (felt.oppdrag ?? JSON.stringify(innhold)) : null
+          )
+          .input(
+            'oppdrag_sha256',
+            sql.NVarChar(4000),
+            oppdrag ? (felt.oppdrag_sha256 ?? sjekksum(innhold)) : null
+          )
           .execute('koe_api.skriv_hendelse');
         const k = await f().query<{ skriving: string | null }>(
           "SELECT CAST(SESSION_CONTEXT(N'koe_skriving') AS nvarchar(36)) AS skriving"
@@ -460,6 +526,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     }
 
     const avvisning = (p: Promise<unknown>) => p.then(() => undefined, feilnummer);
+    const melding = (p: Promise<unknown>) =>
+      p.then(
+        () => undefined,
+        (e: unknown) => ({ nummer: feilnummer(e), melding: (e as Error).message })
+      );
 
     it('kontrollsak: med basens tidspunkt og oppdraget lagres brevet, og koe_skriving er tom etterpå', async () => {
       const sak = await nySak();
@@ -502,11 +573,72 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       }
     });
 
-    it('avviser en annen versjon enn journalens (51409), og ingenting skrives', async () => {
+    it('avviser en annen versjon enn journalens (51409) med journalens versjon i meldingen, og ingenting skrives', async () => {
       const sak = await nySak();
-      expect(await avvisning(direkte(sak.sak_id, { forventet: 2 }))).toBe(51409);
+      // Formen er kontrakten `oversett` i server/kommandoer.ts leser (20261016170000_kommandoform.sql).
+      expect(await melding(direkte(sak.sak_id, { forventet: 2 }))).toEqual({
+        nummer: 51409,
+        melding: 'Versjonskonflikt: journalen har versjon 1',
+      });
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
     });
+
+    it.each<[string, (id: string) => string]>([
+      ['med mellomrom til slutt', (id) => `${id} `],
+      ['med ett tegn for mye', (id) => `${id}0`],
+      ['med store bokstaver', (id) => id.toUpperCase()],
+    ])(
+      'avviser en saks-ID %s som en ukjent sak (51403), og ingenting skrives (#605)',
+      async (_, form) => {
+        const sak = await nySak();
+        expect(await avvisning(direkte(form(sak.sak_id)))).toBe(51403);
+        expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
+      }
+    );
+
+    it.each<[string, Parameters<typeof direkte>[1], RegExp]>([
+      ['en event_id på 37 tegn', { felt: { event_id: `${randomUUID()}0` } }, /event_id/],
+      [
+        'en event_id med store bokstaver',
+        { felt: { event_id: randomUUID().toUpperCase() } },
+        /event_id/,
+      ],
+      ['en event_id som ikke er en UUID', { felt: { event_id: 'x'.repeat(36) } }, /event_id/],
+      [
+        'en hendelsestype over 100 tegn',
+        { eventType: 'x'.repeat(101), oppdrag: false },
+        /over 100 tegn/,
+      ],
+      [
+        'en hendelsestype med mellomrom til slutt',
+        { eventType: 'annen ', oppdrag: false },
+        /mellomrom til slutt/,
+      ],
+      ['format 0', { felt: { format: 0 } }, /Formatet/],
+      ['data som ikke er et JSON-objekt', { felt: { data: '[]' } }, /data/],
+      [
+        'en dokumentnøkkel over 100 tegn',
+        { felt: { dokumentnoekkel: 'd'.repeat(101) } },
+        /Dokumentnøkkelen er over 100 tegn/,
+      ],
+      [
+        'en dokumentnøkkel med mellomrom til slutt',
+        { felt: { dokumentnoekkel: 'dok ' } },
+        /mellomrom til slutt/,
+      ],
+      ['et oppdrag som ikke er et JSON-objekt', { felt: { oppdrag: '"x"' } }, /Oppdraget/],
+      ['en sum på 65 tegn', { felt: { oppdrag_sha256: 'a'.repeat(65) } }, /Summen/],
+      ['en sum med store bokstaver', { felt: { oppdrag_sha256: 'A'.repeat(64) } }, /Summen/],
+    ])(
+      'avviser %s (51422) med en melding som sier hva, ikke 547 (#605, #607, #596)',
+      async (_, valg, tekst) => {
+        const sak = await nySak();
+        const svar = await melding(direkte(sak.sak_id, valg));
+        expect(svar?.nummer).toBe(UGYLDIG);
+        expect(svar?.melding).toMatch(tekst);
+        expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
+      }
+    );
 
     it.each<[string, Parameters<typeof direkte>[1]]>([
       ['uten tidspunktet fra skrivetidspunkt', { tid: 'uten' }],
