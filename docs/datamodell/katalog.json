@@ -828,7 +828,7 @@
    "koe.skrivetidspunkt": {
     "kolonner": [
      ["transaksjon", "bigint", "NOT NULL"],
-     ["sesjon", "smallint", "NOT NULL"],
+     ["oekt", "smallint", "NOT NULL"],
      ["innlogget", "datetime2(3)", "NOT NULL"],
      ["tidspunkt", "datetime2(3)", "NOT NULL"]
     ],

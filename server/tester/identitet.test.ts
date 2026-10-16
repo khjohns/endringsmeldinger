@@ -208,7 +208,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     });
 
     // Uten standard: tidspunktet kjernen regnet brevet med, som serveren setter,
-    // og endringstidspunktet til et notat, som er tomt til notatet endres.
+    // endringstidspunktet til et notat, som er tomt til notatet endres, og
+    // tidspunktet og innloggingen til økta som `koe_api.skrivetidspunkt` fører.
     const UTEN_STANDARD = [
       'koe.hendelse.tidsstempel',
       'koe.notat.endret',

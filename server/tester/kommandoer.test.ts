@@ -394,7 +394,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
             .input('inn', sql.DateTime2(3), new Date(inn.getTime() - 60_000))
             .input('t', sql.DateTime2(3), tidspunkt)
             .query(
-              'INSERT koe.skrivetidspunkt (transaksjon, sesjon, innlogget, tidspunkt) VALUES (@tx, @spid, @inn, @t)'
+              'INSERT koe.skrivetidspunkt (transaksjon, oekt, innlogget, tidspunkt) VALUES (@tx, @spid, @inn, @t)'
             );
         } else if (tid === 'egen_noekkel') {
           tidspunkt = new Date(await klokka());
@@ -448,9 +448,20 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect(feil).toBe(51000);
     });
 
+    it('en rad som ble liggende, slettes når samme økt fører et nytt tidspunkt', async () => {
+      const foerOgCommit = () =>
+        transaksjon(enForbindelse.pool, te, (f) =>
+          f().output('tidspunkt', sql.DateTime2(3)).execute('koe_api.skrivetidspunkt')
+        );
+      await foerOgCommit();
+      const etterFoerste = await ferdigeTidspunkter();
+      await foerOgCommit();
+      expect(await ferdigeTidspunkter()).toBe(etterFoerste);
+    });
+
     it('kjøretiden kan ikke føre eller endre tidspunktet selv', async () => {
       for (const setning of [
-        'INSERT koe.skrivetidspunkt (transaksjon, sesjon, innlogget, tidspunkt) VALUES (CURRENT_TRANSACTION_ID(), @@SPID, SYSUTCDATETIME(), SYSUTCDATETIME())',
+        'INSERT koe.skrivetidspunkt (transaksjon, oekt, innlogget, tidspunkt) VALUES (CURRENT_TRANSACTION_ID(), @@SPID, SYSUTCDATETIME(), SYSUTCDATETIME())',
         'UPDATE koe.skrivetidspunkt SET tidspunkt = SYSUTCDATETIME()',
         'DELETE koe.skrivetidspunkt',
       ]) {

@@ -27,11 +27,13 @@
 -- uten å skrive, blir raden liggende. Transaksjons-ID-en begynner på nytt etter
 -- en omstart, så raden gjelder også økta og når den logget inn
 -- (`sys.dm_exec_sessions`, der kjøretiden bare ser sin egen økt): en ny økt med
--- samme transaksjons-ID kan ikke bruke den. `skrivetidspunkt` sletter en rad
--- med samme transaksjons-ID før den fører sin.
+-- samme transaksjons-ID kan ikke bruke den. `skrivetidspunkt` sletter radene med
+-- samme transaksjons-ID eller samme økt-ID før den fører sin; ingen av dem kan
+-- brukes igjen, fordi `koe_tx` binder konteksten til én transaksjon, og en ny
+-- transaksjon i økta krever `sp_reset_connection`, som gir ny innlogging.
 CREATE TABLE koe.skrivetidspunkt (
   transaksjon bigint NOT NULL CONSTRAINT skrivetidspunkt_pk PRIMARY KEY,
-  sesjon smallint NOT NULL,
+  oekt smallint NOT NULL,
   innlogget datetime2(3) NOT NULL,
   tidspunkt datetime2(3) NOT NULL
 );
@@ -50,8 +52,8 @@ BEGIN
   IF @innlogget IS NULL
     THROW 51000, N'Økta er ikke synlig for tidspunktet', 1;
   SET @tidspunkt = DATETRUNC(millisecond, SYSUTCDATETIME());
-  DELETE koe.skrivetidspunkt WHERE transaksjon = CURRENT_TRANSACTION_ID();
-  INSERT koe.skrivetidspunkt (transaksjon, sesjon, innlogget, tidspunkt)
+  DELETE koe.skrivetidspunkt WHERE transaksjon = CURRENT_TRANSACTION_ID() OR oekt = @@SPID;
+  INSERT koe.skrivetidspunkt (transaksjon, oekt, innlogget, tidspunkt)
   VALUES (CURRENT_TRANSACTION_ID(), @@SPID, @innlogget, @tidspunkt);
 END
 GO
@@ -132,8 +134,8 @@ BEGIN
 
   DECLARE @klokke datetime2(3) =
     (SELECT t.tidspunkt FROM koe.skrivetidspunkt t
-       JOIN sys.dm_exec_sessions s ON s.session_id = t.sesjon AND CAST(s.login_time AS datetime2(3)) = t.innlogget
-      WHERE t.transaksjon = CURRENT_TRANSACTION_ID() AND t.sesjon = @@SPID);
+       JOIN sys.dm_exec_sessions s ON s.session_id = t.oekt AND CAST(s.login_time AS datetime2(3)) = t.innlogget
+      WHERE t.transaksjon = CURRENT_TRANSACTION_ID() AND t.oekt = @@SPID);
   IF @klokke IS NULL OR @tidsstempel <> @klokke
     THROW 51422, N'Tidspunktet er ikke basens klokke for skrivingen', 1;
   DELETE koe.skrivetidspunkt WHERE transaksjon = CURRENT_TRANSACTION_ID();

@@ -655,7 +655,7 @@ Tidspunktet basen ga for skrivingen i en transaksjon, med transaksjonens ID som 
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.skrivetidspunkt` fører raden, og `koe_api.skriv_hendelse` sletter den i samme transaksjon. Kalt fra `skrivHendelse` i `server/kommandoer.ts`, som ruller tilbake når den ikke skriver. En kaller som committer uten å skrive, etterlater raden; `skrivetidspunkt` sletter den når transaksjons-ID-en brukes igjen. |
+| Hvor fra appen lagres og redigeres | `koe_api.skrivetidspunkt` fører raden, og `koe_api.skriv_hendelse` sletter den i samme transaksjon. Kalt fra `skrivHendelse` i `server/kommandoer.ts`, som ruller tilbake når den ikke skriver. En kaller som committer uten å skrive, etterlater raden; `skrivetidspunkt` sletter den neste gang samme økt-ID eller transaksjons-ID fører et tidspunkt. |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (transaksjon). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | ja. Raden brukes bare i transaksjonen som førte den. |
