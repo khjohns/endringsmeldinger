@@ -4,10 +4,11 @@
  * Konteksten står i `SESSION_CONTEXT`, som gjelder sesjonen, og `mssql`
  * nullstiller ikke en forbindelse når poolen gir den ut igjen (SQ-02).
  * `transaksjon` reserverer derfor forbindelsen fra lånet til den er nullstilt
- * med `sp_reset_connection` og kontrollert. Feiler COMMIT, ROLLBACK,
- * nullstillingen eller kontrollen, forkastes forbindelsen og går ikke tilbake
- * i poolen, og serveren ruller tilbake det som var åpent. `koe_tx` binder i
- * tillegg konteksten til transaksjonen (SQ-03).
+ * med `sp_reset_connection` og kontrollert. Feiler BEGIN, ROLLBACK,
+ * nullstillingen eller kontrollen, sendes ikke COMMIT, eller feiler COMMIT uten
+ * at serveren har rullet tilbake, forkastes forbindelsen: den lukkes, poolen tar
+ * den ikke i bruk igjen, og serveren ruller tilbake det som var åpent. `koe_tx`
+ * binder i tillegg konteksten til transaksjonen (SQ-03).
  *
  * Tilkoblingen tar en `mssql`-konfigurasjon, så pålogging med SQL-bruker
  * (testbasen) og Entra/managed identity (Azure, A4 i #78) går gjennom samme vei.
@@ -49,8 +50,8 @@ export const KONTEKSTNOEKLER = [
 export class UgyldigKontekst extends Error {}
 
 /**
- * COMMIT feilet eller fikk ikke svar. Serveren kan ha committet, så utfallet er
- * usikkert. Forbindelsen er forkastet.
+ * COMMIT feilet eller fikk ikke svar, uten at serveren meldte tilbakerulling.
+ * Serveren kan ha committet, så utfallet er usikkert. Forbindelsen er forkastet.
  */
 export class UsikkertUtfall extends Error {}
 

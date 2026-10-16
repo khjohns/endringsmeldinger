@@ -5,8 +5,9 @@
  * - Ut over det bruker serveren bare Node og `pg`. Testene kan i tillegg bruke
  *   Vitest.
  * - `mssql` brukes bare i datalaget (`datalag.ts`, #419) og testene av det og av
- *   testbasen (#532), så poolen og transaksjonene mot SQL Server går gjennom
- *   `transaksjon`.
+ *   testbasen (#532). Testen ser bare de statiske importene av `mssql`, ikke et
+ *   lager som bruker `sql` fra `datalag.ts` eller en pool fra `opprettPool`
+ *   utenom `transaksjon` (#542).
  *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
  * `export … from`, `import()` og `require()` teller likt, med og uten endelse.
