@@ -517,11 +517,25 @@
       "radetikett": "GR-U18: Frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget"
     },
     {
+      "id": "GR-U17",
+      "type": "vedtak",
+      "dato": "2026-10-15",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u17",
+      "radetikett": "GR-U17: Ved frafall etter § 32.3 c kan TE fortsatt ikke godta frafallet, men byggherren er bundet av løftet om endringsordre for utført arbeid"
+    },
+    {
       "id": "GR-U19",
       "type": "vedtak",
       "dato": "2026-10-16",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u19",
       "radetikett": "GR-U19: En ny grunnlagsversjon beholder hovedkategorien, og underkategorien kan bare endres når § 32.2 gjelder likt før og etter"
+    },
+    {
+      "id": "GR-U20",
+      "type": "vedtak",
+      "dato": "2026-10-16",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u20",
+      "radetikett": "GR-U20: Frafallet faller ikke bort når TE sender en ny grunnlagsversjon"
     },
     {
       "id": "KA-U14",
@@ -2358,6 +2372,60 @@
         "kjerne/utledning/utled.ts#utledSporene",
         "kjerne/utledning/utled.ts#ikkeErstattet",
         "kjerne/frosset/standpunkt.ts#grunnerFraGrunnlaget"
+      ]
+    },
+    {
+      "id": "GR-31",
+      "tilfelle": "Byggherren har frafalt pålegget (§ 32.3 c) i et svar sendt fra appen, og reviderer svaret.",
+      "forventet": "En revisjon til avslag avvises, og journalen er uendret. En revisjon til påberopelse etter § 32.2 avvises fordi frafallet sa at varselet kom i tide. En revisjon til endringsordre eller til et nytt frafall godtas. Står en revisjon til avslag i et registrert brev, får den ingen virkning, og frafallet står. Står den i en rad som ikke er registrert, er saken ikke forstått.",
+      "bh_standpunkt": "Frafalt, med grunnlaget varslet i tide.",
+      "rettslig_virkning": "Byggherren er bundet av løftet om endringsordre for utført arbeid. Et registrert frafall binder ikke.",
+      "rettidighet": "Frafallet sa at varselet etter § 32.2 kom i tide, og byggherren kan ikke senere påberope det motsatte.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U17",
+        "GR-U9",
+        "HF-U4",
+        "NS-32.3-1c",
+        "MM-U18",
+        "MM-U19",
+        "OV-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/nyttelast.ts#kontrollerSvar",
+        "kjerne/utledning/utled.ts#harFrafalt",
+        "kjerne/utledning/utled.ts#strid"
+      ],
+      "regelkoder": [
+        "FRAFALT",
+        "SAGT_I_TIDE"
+      ]
+    },
+    {
+      "id": "GR-32",
+      "tilfelle": "Byggherren har frafalt pålegget i et svar sendt fra appen, og TE sender en ny grunnlagsversjon, med samme underkategori eller en annen som § 32.2 gjelder for.",
+      "forventet": "Byggherren kan svare på den nye versjonen med frafall eller endringsordre. Et avslag avvises, og journalen er uendret. En påberopelse etter § 32.2 avvises fordi frafallet sa at varselet kom i tide. Står et avslag av den nye versjonen i et registrert brev, får det ingen virkning.",
+      "bh_standpunkt": "Frafalt på den forrige versjonen. Ikke vurdert for den nye versjonen.",
+      "rettslig_virkning": "Frafallet faller ikke bort med den nye versjonen.",
+      "rettidighet": "Byggherrens «i tide» etter § 32.2 står mot den nye versjonen (HF-U8).",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U20",
+        "GR-U17",
+        "GR-U19",
+        "HF-U8",
+        "MM-U19"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/nyttelast.ts#kontrollerSvar",
+        "kjerne/utledning/utled.ts#harFrafalt",
+        "kjerne/utledning/utled.ts#strid"
+      ],
+      "regelkoder": [
+        "FRAFALT",
+        "SAGT_I_TIDE"
       ]
     },
     {

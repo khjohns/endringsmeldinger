@@ -318,6 +318,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'predikat', 'godkjenningenErMerket', ['kommandoer/forutsetninger.ts']],
   // HF-U4, HF-U8: byggherren har sagt «i tide» i et svar sendt fra appen. Leses av nyttelastkontrollen.
   ['utledning/utled.ts', 'predikat', 'harSagtITide', ['kommandoer/nyttelast.ts']],
+  // GR-U17, GR-U20: byggherren har frafalt pålegget i et svar sendt fra appen.
+  ['utledning/utled.ts', 'predikat', 'harFrafalt', ['kommandoer/nyttelast.ts']],
   ['Rettidighet', 'utsagn', 'hjemmel gjelder'],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],

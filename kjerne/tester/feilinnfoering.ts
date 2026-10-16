@@ -2376,6 +2376,60 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['på en registrert versjon i svikt avvises av utregningen'],
   },
+  {
+    id: 'F228',
+    feilklasse:
+      'en revisjon eller et nytt svar fra frafall til avslag godtas (GR-U17, GR-U20, #510)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && harFrafalt(u))",
+        "  if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && harFrafalt(u) && !u)",
+      ],
+    ],
+    mal: ['en revisjon fra frafall til avslag avvises', 'F-MM-G37', 'F-MM-G38', 'F-MM-G39'],
+  },
+  {
+    id: 'F229',
+    feilklasse: 'et registrert frafall binder byggherren (GR-U17, OV-U4, #510)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    (s) => grunnlagssvaret(s, 'paalegg_frafalt') && !u.elementer[s.dokument]?.registrertBrev",
+        "    (s) => grunnlagssvaret(s, 'paalegg_frafalt')",
+      ],
+    ],
+    mal: ['et registrert frafall binder ikke', 'et registrert avslag etter et registrert frafall'],
+  },
+  {
+    id: 'F230',
+    feilklasse: 'frafallet faller bort med en ny grunnlagsversjon (GR-U20, #510)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    (s) => grunnlagssvaret(s, 'paalegg_frafalt') && !u.elementer[s.dokument]?.registrertBrev",
+        "    (s) =>\n      grunnlagssvaret(s, 'paalegg_frafalt') &&\n      s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id &&\n      !u.elementer[s.dokument]?.registrertBrev",
+      ],
+    ],
+    mal: [
+      'byggherren kan svare med frafall eller endringsordre, ikke med avslag',
+      'F-MM-G38',
+      'F-MM-G39',
+    ],
+  },
+  {
+    id: 'F231',
+    feilklasse:
+      'et avslag etter frafallet i et brev utenfor kommandoene leses med virkning (GR-U17, MM-U18, MM-U19, #510)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    else if (s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt') && harFrafalt(u))",
+        "    else if (s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt') && harFrafalt(u) && !u)",
+      ],
+    ],
+    mal: ['får ingen virkning', 'gjør saken ikke forstått', 'F-MM-G37', 'F-MM-G38'],
+  },
 ];
 
 interface Testresultat {
