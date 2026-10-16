@@ -507,7 +507,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
-| Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`) |
+| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
@@ -524,7 +524,7 @@ Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda
 | Relasjoner | Nøkler: primærnøkkel (id); unik (provider, issuer, subject). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Subjektet identifiserer en person. |
-| Skrives av | database/migrasjoner/20261016090100_identitet.sql (`koe.resolve_identity`) |
+| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
