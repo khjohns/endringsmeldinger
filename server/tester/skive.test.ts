@@ -21,12 +21,12 @@ import type { Avsnitt } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { gjengiOppdrag, kanonisk, OPPDRAGSFORMAT, sjekksum } from '../levering.ts';
 import {
+  BEGGE_BASENE,
   kall,
   lagOppsett,
   opprettKjernesak,
   rydd,
   startServer,
-  TESTBASE_URL,
   type KjorendeServer,
   type Oppsett,
 } from './testbase.ts';
@@ -63,7 +63,7 @@ interface Oppdragsrad {
   innhold_sha256: string;
 }
 
-describe.skipIf(!TESTBASE_URL)(
+describe.skipIf(!BEGGE_BASENE)(
   'skiva: krav fra skjemaet til journalen og leveringsoppdraget',
   () => {
     let o: Oppsett;

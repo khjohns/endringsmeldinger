@@ -55,6 +55,16 @@ export const KONTEKSTNOEKLER = [
   'koe_skriving',
 ] as const;
 
+/**
+ * Feilnummeret fra SQL Server: 2627 for brudd på en unik nøkkel, et eget nummer
+ * fra THROW osv. `mssql` har det på feilen selv, og en feil gjennom `tedious`
+ * har det i `originalError.info`.
+ */
+export function feilnummer(feil: unknown): number | undefined {
+  const f = feil as { number?: number; originalError?: { info?: { number?: number } } };
+  return f?.number ?? f?.originalError?.info?.number;
+}
+
 /** Konteksten er ugyldig. Ingen forbindelse er lånt. */
 export class UgyldigKontekst extends Error {}
 
