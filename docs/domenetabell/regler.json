@@ -545,6 +545,13 @@
       "radetikett": "GR-U23: Mens en ny grunnlagsversjon etter et frafall venter på byggherrens svar, er grunnlaget avklart ved frafallet"
     },
     {
+      "id": "GR-U24",
+      "type": "vedtak",
+      "dato": "2026-10-16",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u24",
+      "radetikett": "GR-U24: Når kravene er avgjort, går OV-U3 foran GR-U20 og GR-U23"
+    },
+    {
       "id": "KA-U14",
       "type": "vedtak",
       "dato": "2026-10-10",

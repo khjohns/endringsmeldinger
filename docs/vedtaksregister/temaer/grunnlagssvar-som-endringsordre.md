@@ -4,7 +4,7 @@
 
 **Avsnitt [3.1 i hovedplanen](../../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) er autoritativ.** Denne visningen er generert fra [vedtaksregisteret](../README.md) og er ikke et eget vedtaksgrunnlag. Den samler vedtakene ordrett, med forholdene mellom dem, og lager ingen sammenslått gjeldende ordlyd: hva som gjelder, leses av vedtakene sammen, etter forholdene.
 
-Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [MM-U17](#mm-u17), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9). Vedtak som temaet viser til, står som lenke til 3.1.
+Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [MM-U17](#mm-u17), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9). Vedtak som temaet viser til, står som lenke til 3.1.
 
 ## Kildegrunnlaget
 
@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `bbe94270f750e3179a9b2b93561dcc173bccb987d2a1f4788849f284f18897f1`
+Kontrollsum (SHA-256 over utdraget visningen leser): `32dc3663d531cb335e8b7735819bd7a59326a283abae36a6886a0e8a8671a8df`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -28,14 +28,15 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [GR-U13](#gr-u13) | Endrer [GR-U10](#gr-u10); Endrer [GR-U12](#gr-u12) | Endret av [GR-U14](#gr-u14); Utvidet av [GR-U15](#gr-u15); Presisert av [HF-U12](#hf-u12); Endret av [MM-U17](#mm-u17); Endret av [OV-U6](#ov-u6) |
 | [GR-U14](#gr-u14) | Endrer [GR-U13](#gr-u13) | Endret av [OV-U4](#ov-u4) |
 | [GR-U15](#gr-u15) | Utvider [GR-U13](#gr-u13) | — |
-| [GR-U17](#gr-u17) | Snevrer inn [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9); Snevrer inn [HF-U5](#hf-u5) | Presisert av [GR-U20](#gr-u20) |
-| [GR-U20](#gr-u20) | Presiserer [GR-U17](#gr-u17); Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8); Snevrer inn [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1); Snevrer inn [HF-U5](#hf-u5) | Presisert av [GR-U21](#gr-u21); Presisert av [GR-U23](#gr-u23) |
+| [GR-U17](#gr-u17) | Snevrer inn [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9); Snevrer inn [HF-U5](#hf-u5) | Presisert av [GR-U20](#gr-u20); Presisert av [GR-U24](#gr-u24) |
+| [GR-U20](#gr-u20) | Presiserer [GR-U17](#gr-u17); Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8); Snevrer inn [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1); Snevrer inn [HF-U5](#hf-u5) | Presisert av [GR-U21](#gr-u21); Presisert av [GR-U23](#gr-u23); Snevret inn av [GR-U24](#gr-u24) |
 | [GR-U21](#gr-u21) | Presiserer [GR-U20](#gr-u20); Presiserer [GR-U18](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u18) | Opphevet av [GR-U22](#gr-u22) |
 | [GR-U22](#gr-u22) | Endrer [GR-U19](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u19); Opphever [GR-U21](#gr-u21); Snevrer inn [KA-U22](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22); Endrer [GR-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u2) | — |
-| [GR-U23](#gr-u23) | Presiserer [GR-U20](#gr-u20); Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1); Presiserer [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7); Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3) | — |
+| [GR-U23](#gr-u23) | Presiserer [GR-U20](#gr-u20); Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1); Presiserer [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7); Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3) | Snevret inn av [GR-U24](#gr-u24) |
+| [GR-U24](#gr-u24) | Snevrer inn [GR-U20](#gr-u20); Snevrer inn [GR-U23](#gr-u23); Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3); Presiserer [GR-U17](#gr-u17) | — |
 | [VS-U24](#vs-u24) | Presiserer [HF-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u11); Snevrer inn [VS-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9); Snevrer inn [VS-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11); Snevrer inn [VS-U14](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u14); Snevrer inn [HF-U4](#hf-u4); Presiserer [OV-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u7) | — |
 | [HF-U4](#hf-u4) | Presiserer [VS-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11); Presiserer [VS-U14](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u14); Presiserer [VS-U20](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u20); Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7); Snevrer inn [VS-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9); Snevrer inn [OV-U5](#ov-u5) | Snevret inn av [VS-U24](#vs-u24); Presisert av [HF-U5](#hf-u5); Utvidet av [HF-U6](#hf-u6) |
-| [HF-U5](#hf-u5) | Snevrer inn [GR-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4); Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7); Snevrer inn [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9); Snevrer inn [OV-U5](#ov-u5); Snevrer inn [KA-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1); Utvider [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10); Utvider [FO-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u5); Presiserer [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9); Presiserer [HF-U4](#hf-u4) | Snevret inn av [GR-U17](#gr-u17); Snevret inn av [GR-U20](#gr-u20); Utvidet av [HF-U6](#hf-u6); Utvidet av [HF-U14](#hf-u14); Snevret inn av [HF-U15](#hf-u15); Presisert av [HF-U16](#hf-u16); Utvidet av [HF-U17](#hf-u17); Presisert av [HF-U18](#hf-u18); Presisert av [HF-U19](#hf-u19) |
+| [HF-U5](#hf-u5) | Snevrer inn [GR-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4); Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7); Snevrer inn [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9); Snevrer inn [OV-U5](#ov-u5); Snevrer inn [KA-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1); Utvider [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10); Utvider [FO-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u5); Presiserer [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9); Presiserer [HF-U4](#hf-u4) | Snevret inn av [GR-U17](#gr-u17); Snevret inn av [GR-U20](#gr-u20); Utvidet av [HF-U6](#hf-u6); Utvidet av [HF-U14](#hf-u14); Snevret inn av [HF-U15](#hf-u15); Presisert av [HF-U16](#hf-u16); Utvidet av [HF-U17](#hf-u17); Presisert av [HF-U18](#hf-u18); Presisert av [HF-U19](#hf-u19); Endret av [HF-U21](#hf-u21) |
 | [HF-U6](#hf-u6) | Utvider [HF-U4](#hf-u4); Utvider [HF-U5](#hf-u5) | — |
 | [HF-U9](#hf-u9) | Opphever [KA-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u3); Opphever [KA-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u5); Presiserer [KA-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u6); Presiserer [KA-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7); Presiserer [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10); Presiserer [KA-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u11); Presiserer [KA-U14](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14); Presiserer [GR-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u2); Presiserer [GR-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8); Presiserer [GR-U10](#gr-u10); Presiserer [MM-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u3); Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11); Presiserer [MM-U16](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u16); Presiserer [MM-U18](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u18); Presiserer [MM-U19](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19); Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3); Snevrer inn [EO-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u5); Snevrer inn [EO-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2) | — |
 | [HF-U12](#hf-u12) | Presiserer [EO-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1); Presiserer [EO-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3); Presiserer [EO-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4); Presiserer [EO-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u8); Presiserer [EO-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u9); Presiserer [GR-U13](#gr-u13); Presiserer [KA-U13](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u13) | — |
@@ -43,10 +44,12 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [HF-U14](#hf-u14) | Utvider [HF-U5](#hf-u5) | — |
 | [HF-U15](#hf-u15) | Snevrer inn [HF-U5](#hf-u5); Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8); Presiserer [HF-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u10) | Presisert av [HF-U16](#hf-u16); Presisert av [HF-U17](#hf-u17) |
 | [HF-U16](#hf-u16) | Presiserer [HF-U5](#hf-u5); Presiserer [HF-U15](#hf-u15); Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8) | — |
-| [HF-U17](#hf-u17) | Utvider [HF-U5](#hf-u5); Presiserer [HF-U15](#hf-u15) | Presisert av [HF-U20](#hf-u20) |
+| [HF-U17](#hf-u17) | Utvider [HF-U5](#hf-u5); Presiserer [HF-U15](#hf-u15) | Presisert av [HF-U20](#hf-u20); Presisert av [HF-U22](#hf-u22) |
 | [HF-U18](#hf-u18) | Presiserer [HF-U5](#hf-u5); Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8) | — |
 | [HF-U19](#hf-u19) | Presiserer [HF-U5](#hf-u5) | — |
 | [HF-U20](#hf-u20) | Presiserer [HF-U17](#hf-u17) | — |
+| [HF-U21](#hf-u21) | Endrer [HF-U5](#hf-u5); Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8); Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1) | — |
+| [HF-U22](#hf-u22) | Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2); Presiserer [HF-U17](#hf-u17) | — |
 | [MM-U17](#mm-u17) | Endrer [GR-U12](#gr-u12); Endrer [GR-U13](#gr-u13); Endrer [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10); Endrer [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9); Endrer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11); Endrer [MM-U12](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12) | Presisert av [HF-U13](#hf-u13); Endret av [OV-U4](#ov-u4) |
 | [OV-U4](#ov-u4) | Endrer [KA-U16](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16); Endrer [KA-U18](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u18); Endrer [KA-U19](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u19); Endrer [KA-U24](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u24); Endrer [KA-U35](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u35); Endrer [GR-U12](#gr-u12); Endrer [GR-U14](#gr-u14); Endrer [GR-U16](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u16); Endrer [MM-U17](#mm-u17); Endrer [MM-U18](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u18); Endrer [MM-U19](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19); Endrer [VS-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8); Endrer [VS-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11) | Presisert av [HF-U13](#hf-u13); Snevret inn av [OV-U5](#ov-u5); Snevret inn av [OV-U6](#ov-u6) |
 | [OV-U5](#ov-u5) | Endrer [MM-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1); Endrer [MM-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8); Endrer [VS-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u7); Endrer [VS-U15](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15); Presiserer [VS-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u6); Presiserer [VS-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u8); Utvider [VS-U16](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16); Snevrer inn [OV-U4](#ov-u4) | Snevret inn av [HF-U4](#hf-u4); Snevret inn av [HF-U5](#hf-u5); Snevret inn av [OV-U8](#ov-u8); Presisert av [OV-U9](#ov-u9) |
@@ -132,7 +135,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.10, oppdragsgiver (#504)
 
-**Følge:** Snevrer inn [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U20](#gr-u20). Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.
+**Følge:** Snevrer inn [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U20](#gr-u20). Presisert 16.10 av [GR-U24](#gr-u24). Snevrer inn detalj 1 i HF-U5. Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.
 
 **Regelrader:** [GR-31](#rad-gr-31), [GR-32](#rad-gr-32), [GR-33](#rad-gr-33)
 
@@ -146,7 +149,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#510)
 
-**Følge:** Presiserer [GR-U17](#gr-u17). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Snevrer inn [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U21](#gr-u21). Presisert 16.10 av [GR-U23](#gr-u23). Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510, som GR-U23 erstatter for hva som gjelder mens den venter), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).
+**Følge:** Presiserer [GR-U17](#gr-u17). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Snevrer inn [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Snevrer inn [HF-U5](#hf-u5). Presisert 16.10 av [GR-U21](#gr-u21). Presisert 16.10 av [GR-U23](#gr-u23). Snevret inn 16.10 av [GR-U24](#gr-u24). Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510, som GR-U23 erstatter for hva som gjelder mens den venter), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).
 
 **Regelrader:** [GR-32](#rad-gr-32), [GR-33](#rad-gr-33)
 
@@ -188,7 +191,21 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#510)
 
-**Følge:** Presiserer [GR-U20](#gr-u20). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Presiserer [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3). Forholdene til GR-U7 og OV-U3 fant kontrollen av føringen 16.10: grunnlaget er avklart også mens den nye versjonen venter. Kontrollen fant også at OV-U3 avviser en ny kravversjon i grunnlaget når kravene er avgjort, så tilfellet oppstår bare når et annet sendt krav fortsatt står åpent, for eksempel et fristkrav. Eksemplet i spørsmålet hadde bare et vederlagskrav. Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Det første svaret var et spørsmål tilbake. Det ble besvart med GR-U22, og spørsmålet ble så stilt på nytt. Vedtaket erstatter orkestratorens arbeidsvalg 16.10 på #510 om at grunnlaget venter på svar uten noe gjeldende svar. Ikke bygget (#510).
+**Følge:** Presiserer [GR-U20](#gr-u20). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Presiserer [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3). Snevret inn 16.10 av [GR-U24](#gr-u24). Forholdene til GR-U7 og OV-U3 fant kontrollen av føringen 16.10: grunnlaget er avklart også mens den nye versjonen venter. Kontrollen fant også at OV-U3 avviser en ny kravversjon i grunnlaget når kravene er avgjort, så tilfellet oppstår bare når et annet sendt krav fortsatt står åpent, for eksempel et fristkrav. Eksemplet i spørsmålet hadde bare et vederlagskrav. Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Det første svaret var et spørsmål tilbake. Det ble besvart med GR-U22, og spørsmålet ble så stilt på nytt. Vedtaket erstatter orkestratorens arbeidsvalg 16.10 på #510 om at grunnlaget venter på svar uten noe gjeldende svar. Ikke bygget (#510).
+
+**Regelrader:** [GR-33](#rad-gr-33)
+
+**Bevis-saker som viser til vedtaket:** F-MM-G42 (målmodellen)
+
+### <a id="gr-u24"></a>GR-U24
+
+> GR-U24: Når kravene er avgjort, går OV-U3 foran GR-U20 og GR-U23: et svar på en grunnlagsversjon som venter, avvises, og frafallet står.
+
+**Forkastet:** «Byggherren kan svare på en grunnlagsversjon som venter, med frafall eller endringsordre, også når kravene er avgjort.»; «Kravene er ikke avgjort så lenge en grunnlagsversjon venter på svar.»
+
+**Vedtatt:** 16.10, oppdragsgiver (#557, #510, #578)
+
+**Følge:** Snevrer inn [GR-U20](#gr-u20). Snevrer inn [GR-U23](#gr-u23). Presiserer [OV-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3). Presiserer [GR-U17](#gr-u17). Forholdet til GR-U17 fant kontrollen av føringen 16.10: når kravene er avgjort, går OV-U3 foran også for svaret på en ny versjon, slik KA-U11 går foran etter GR-U17. Spørsmålet kom fra samspillsreviewet av PR #557 og står i #578. Ikke bygget (#510).
 
 **Regelrader:** [GR-33](#rad-gr-33)
 
@@ -230,7 +247,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.10, oppdragsgiver (#499)
 
-**Følge:** Snevrer inn [GR-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4). Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Snevrer inn [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9). Snevrer inn [OV-U5](#ov-u5). Snevrer inn [KA-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1). Utvider [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10). Utvider [FO-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u5). Presiserer [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9). Presiserer [HF-U4](#hf-u4). Snevret inn 15.10 av [GR-U17](#gr-u17). Utvidet 15.10 av [HF-U14](#hf-u14). Utvidet 15.10 av [HF-U6](#hf-u6). Presisert 16.10 av [HF-U16](#hf-u16). Presisert 16.10 av [HF-U18](#hf-u18). Presisert 16.10 av [HF-U19](#hf-u19). Snevret inn 16.10 av [GR-U20](#gr-u20). Snevret inn 16.10 av [HF-U15](#hf-u15). Utvidet 16.10 av [HF-U17](#hf-u17). Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Ikke bygget (#502).
+**Følge:** Snevrer inn [GR-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4). Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Snevrer inn [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9). Snevrer inn [OV-U5](#ov-u5). Snevrer inn [KA-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1). Utvider [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10). Utvider [FO-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u5). Presiserer [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9). Presiserer [HF-U4](#hf-u4). Snevret inn 15.10 av [GR-U17](#gr-u17). Utvidet 15.10 av [HF-U14](#hf-u14). Utvidet 15.10 av [HF-U6](#hf-u6). Endret 16.10 av [HF-U21](#hf-u21). Presisert 16.10 av [HF-U16](#hf-u16). Presisert 16.10 av [HF-U18](#hf-u18). Presisert 16.10 av [HF-U19](#hf-u19). Snevret inn 16.10 av [GR-U20](#gr-u20). Snevret inn 16.10 av [HF-U15](#hf-u15). Utvidet 16.10 av [HF-U17](#hf-u17). Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Ikke bygget (#502).
 
 **Regelrader:** —
 
@@ -334,7 +351,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#502)
 
-**Følge:** Utvider [HF-U5](#hf-u5). Presiserer [HF-U15](#hf-u15). Presisert 16.10 av [HF-U20](#hf-u20). Følger av HF-U6. Ikke bygget (#502).
+**Følge:** Utvider [HF-U5](#hf-u5). Presiserer [HF-U15](#hf-u15). Presisert 16.10 av [HF-U20](#hf-u20). Presisert 16.10 av [HF-U22](#hf-u22). Følger av HF-U6. Ikke bygget (#502).
 
 **Regelrader:** —
 
@@ -377,6 +394,32 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 **Vedtatt:** 16.10, oppdragsgiver (#502)
 
 **Følge:** Presiserer [HF-U17](#hf-u17). Følger av HF-U6. Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Ikke bygget (#502).
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="hf-u21"></a>HF-U21
+
+> HF-U21: En ny grunnlagsversjon med samme hjemmel endrer ikke bindingen i byggherrens svar på vederlag eller fristforlengelse. Den er ikke et avslag på dem (avtaleloven § 5). Bindingen varer som etter HF-U5 og HF-U8. Et subsidiært standpunkt forblir subsidiært (GR-U1).
+
+**Forkastet:** «Etter en ny grunnlagsversjon kan byggherren revidere sitt svar på vederlag og fristforlengelse fritt. Godtar TE svaret før det er revidert, er partene enige (KA-U1, GR-U7).»; «Etter en ny grunnlagsversjon binder svaret ikke. Godtar TE det, er aksepten et nytt tilbud som byggherren kan godta eller avslå (HF-U18, HF-U19).»
+
+**Vedtatt:** 16.10, oppdragsgiver (#578, #502)
+
+**Følge:** Endrer [HF-U5](#hf-u5). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="hf-u22"></a>HF-U22
+
+> HF-U22: Senker byggherren etter akseptfristen dager eller beløp hen har godkjent, viser appen § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2).
+
+**Vedtatt:** 16.10, oppdragsgiver (#578, #502)
+
+**Følge:** Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2). Presiserer [HF-U17](#hf-u17). Alternativ A er ikke forkastet: om fristsvaret binder under forsering (FO-U5, FO-U7), avgjøres når forsering bygges (OV-U1). Forholdet til HF-U17 fant kontrollen av føringen 16.10: vedtaket sier hva appen viser når byggherren senker etter akseptfristen, som HF-U17 tillater. Spørsmålet var S4 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).
 
 **Regelrader:** —
 
@@ -478,7 +521,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-29"></a>GR-29 | Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting. | [GR-U12](#gr-u12), [GR-U10](#gr-u10), [GR-U13](#gr-u13) | F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen) |
 | <a id="rad-gr-31"></a>GR-31 | Byggherren har frafalt pålegget (§ 32.3 c) i et svar sendt fra appen, og reviderer svaret. | [GR-U17](#gr-u17), [HF-U4](#hf-u4), [OV-U4](#ov-u4) | F-MM-G37 (målmodellen), F-MM-G37x (målmodellen), F-MM-G41 (målmodellen), F-MM-G41x (målmodellen) |
 | <a id="rad-gr-32"></a>GR-32 | Byggherren har frafalt pålegget i et svar sendt fra appen, og TE sender en ny grunnlagsversjon. | [GR-U20](#gr-u20), [GR-U17](#gr-u17) | F-MM-G38 (målmodellen), F-MM-G39 (målmodellen) |
-| <a id="rad-gr-33"></a>GR-33 | Byggherren har frafalt pålegget i et svar sendt fra appen, TE sender en ny grunnlagsversjon, og den venter på byggherrens svar. Et annet sendt krav står åpent, for eksempel fristkravet. | [GR-U23](#gr-u23), [GR-U20](#gr-u20), [GR-U17](#gr-u17), [OV-U4](#ov-u4) | F-MM-G42 (målmodellen), F-MM-G42x (målmodellen) |
+| <a id="rad-gr-33"></a>GR-33 | Byggherren har frafalt pålegget i et svar sendt fra appen, TE sender en ny grunnlagsversjon, og den venter på byggherrens svar. Et annet sendt krav står åpent, for eksempel fristkravet. | [GR-U24](#gr-u24), [GR-U23](#gr-u23), [GR-U20](#gr-u20), [GR-U17](#gr-u17), [OV-U4](#ov-u4) | F-MM-G42 (målmodellen), F-MM-G42x (målmodellen) |
 | <a id="rad-ka-35"></a>KA-35 | En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en revisjon eller ny kravversjon i et spor med enighet, en ny kravversjon i et trukket spor eller i et spor med «ingen krav», en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet. | [GR-U10](#gr-u10) | F-MM-U326a (målmodellen), F-MM-U326a-kontroll (målmodellen), F-MM-U326b (målmodellen), F-MM-U326c (målmodellen), F-MM-U326d (målmodellen), F-MM-U326h (målmodellen), F-MM-U326h-kontroll (målmodellen), F-MM-IK5b (målmodellen), F-MM-IK6b (målmodellen), F-MM-IK6-kontroll (målmodellen), F-MM-U326b-kontroll (målmodellen), F-MM-U326c-kontroll (målmodellen), F-MM-U326d-kontroll (målmodellen) |
 | <a id="rad-ka-36"></a>KA-36 | Byggherren registrerer et brev sendt utenfor appen der godkjenningen av grunnlaget, som partene er enige om ved sammenfall, trekkes tilbake. | [GR-U10](#gr-u10) | F-MM-U326e (målmodellen) |
 | <a id="rad-ka-38"></a>KA-38 | Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet. | [OV-U4](#ov-u4), [VS-U24](#vs-u24), [HF-U4](#hf-u4) | F-MM-U326g (målmodellen), F-MM-V10 (målmodellen) |
