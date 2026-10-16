@@ -38,6 +38,7 @@ const GRUNNLAGSKRAV = {
     hovedkategori: 'endring',
     underkategori: 'irregulaer_endring',
     tittel: 'Endret fundamentering',
+    paalegg_mottatt: '2026-10-01',
   },
   // GR-U15: TEs varsel etter § 32.2 beskriver pålegget.
   utdypning: 'Byggherren har pålagt en annen fundamentering.',
