@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `e3ad93f503b45f27eb495f4fd8a13dc1cbb494d7afa83ee04df0a70232052c66`
+Kontrollsum (SHA-256 over utdraget visningen leser): `02a6053a70cae8cc7fc2f1b19fd4d615320af8dca6c0b8c689084493545b48f8`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -247,7 +247,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.10, oppdragsgiver (#499)
 
-**Følge:** Snevrer inn [GR-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4). Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Snevrer inn [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9). Snevrer inn [OV-U5](#ov-u5). Snevrer inn [KA-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1). Utvider [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10). Utvider [FO-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u5). Presiserer [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9). Presiserer [HF-U4](#hf-u4). Snevret inn 15.10 av [GR-U17](#gr-u17). Utvidet 15.10 av [HF-U14](#hf-u14). Utvidet 15.10 av [HF-U6](#hf-u6). Endret 16.10 av [HF-U21](#hf-u21). Presisert 16.10 av [HF-U16](#hf-u16). Presisert 16.10 av [HF-U18](#hf-u18). Presisert 16.10 av [HF-U19](#hf-u19). Snevret inn 16.10 av [GR-U20](#gr-u20). Snevret inn 16.10 av [HF-U15](#hf-u15). Utvidet 16.10 av [HF-U17](#hf-u17). Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Ikke bygget (#502).
+**Følge:** Snevrer inn [GR-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4). Snevrer inn [GR-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7). Snevrer inn [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9). Snevrer inn [OV-U5](#ov-u5). Snevrer inn [KA-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1). Utvider [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10). Utvider [FO-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u5). Presiserer [GR-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9). Presiserer [HF-U4](#hf-u4). Snevret inn 15.10 av [GR-U17](#gr-u17). Utvidet 15.10 av [HF-U14](#hf-u14). Utvidet 15.10 av [HF-U6](#hf-u6). Endret 16.10 av [HF-U21](#hf-u21). Presisert 16.10 av [HF-U16](#hf-u16). Presisert 16.10 av [HF-U18](#hf-u18). Presisert 16.10 av [HF-U19](#hf-u19). Snevret inn 16.10 av [GR-U20](#gr-u20). Snevret inn 16.10 av [HF-U15](#hf-u15). Utvidet 16.10 av [HF-U17](#hf-u17). Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Del 1 bygget 16.10 i PR #622 (#502): en revisjon av et svar TE ikke har godtatt, sammenliknes standpunkt for standpunkt med svaret den erstatter (grunnlag, beløp, dager, hindring og aksept av beregningsmåten), og en revisjon som senker ett standpunkt, avvises med regelkoden SENKER_INNROEMMELSE, også når den hever et annet. Del 2 av #502 (akseptfristen) er ikke med.
 
 **Regelrader:** [KA-12](#rad-ka-12), [KA-23](#rad-ka-23), [KA-49](#rad-ka-49)
 
@@ -309,7 +309,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.10, oppdragsgiver (#502)
 
-**Følge:** Utvider [HF-U5](#hf-u5). Følger av [HF-U6](#hf-u6). Svaret står på #502 (kommentaren 6190479326). Ikke bygget (#502).
+**Følge:** Utvider [HF-U5](#hf-u5). Følger av [HF-U6](#hf-u6). Svaret står på #502 (kommentaren 6190479326). Bygget 16.10 i PR #622 (#502, del 1): aksepten av beregningsmåten er med i sammenlikningen av en revisjon.
 
 **Regelrader:** [KA-49](#rad-ka-49)
 
@@ -407,7 +407,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 16.10, oppdragsgiver (#578, #502)
 
-**Følge:** Endrer [HF-U5](#hf-u5). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).
+**Følge:** Endrer [HF-U5](#hf-u5). Presiserer [HF-U8](../../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8). Presiserer [GR-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1). Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Bygget 16.10 i PR #622 (#502, del 1): bindingen i svar på vederlag og frist står etter en ny grunnlagsversjon med samme hjemmel. En revisjon sammenliknes med svaret den erstatter, og et nytt svar avvises med regelkoden ALLEREDE_SVART.
 
 **Regelrader:** [KA-49](#rad-ka-49)
 

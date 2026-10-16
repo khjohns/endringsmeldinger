@@ -2697,7 +2697,7 @@ svar = '''
 8. Ja, rett og før (anb.)'''
 forhold = [{ art = "snevrer inn", vedtak = "gr-u4" }, { art = "snevrer inn", vedtak = "gr-u7" }, { art = "snevrer inn", vedtak = "mm-u9" }, { art = "snevrer inn", vedtak = "ov-u5" }, { art = "snevrer inn", vedtak = "ka-u1" }, { art = "utvider", vedtak = "ka-u10" }, { art = "utvider", vedtak = "fo-u5" }, { art = "presiserer", vedtak = "gr-u9" }, { art = "presiserer", vedtak = "hf-u4" }]
 folge = '''
-Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Ikke bygget (#502).'''
+Detalj 3 i spørsmål 3 («Ingen akseptfrist i svaret i første versjon») falt bort med svaret på spørsmål 4. Del 1 bygget 16.10 i PR #622 (#502): en revisjon av et svar TE ikke har godtatt, sammenliknes standpunkt for standpunkt med svaret den erstatter (grunnlag, beløp, dager, hindring og aksept av beregningsmåten), og en revisjon som senker ett standpunkt, avvises med regelkoden SENKER_INNROEMMELSE, også når den hever et annet. Del 2 av #502 (akseptfristen) er ikke med.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Bundet, med akseptfrist"
@@ -3023,7 +3023,7 @@ Valgt: «Nei, aksepten binder (Anbefalt)»:
 > Aksepten av beregningsmåten føyes til listen i HF-U5. En revisjon fra «aksepterer» til «aksepterer ikke» avvises, mens det motsatte er tillatt. Utvider HF-U5 og følger av HF-U6. Bygges i #502.'''
 forhold = [{ art = "utvider", vedtak = "hf-u5" }]
 folge = '''
-Følger av [HF-U6](#hf-u6). Svaret står på #502 (kommentaren 6190479326). Ikke bygget (#502).'''
+Følger av [HF-U6](#hf-u6). Svaret står på #502 (kommentaren 6190479326). Bygget 16.10 i PR #622 (#502, del 1): aksepten av beregningsmåten er med i sammenlikningen av en revisjon.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Nei, aksepten binder"
@@ -3277,7 +3277,7 @@ svar = '''
 A: bindingen står (Anbefalt)'''
 forhold = [{ art = "endrer", vedtak = "hf-u5" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "presiserer", vedtak = "gr-u1" }]
 folge = '''
-Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Ikke bygget (#502).'''
+Setningen i HF-U5 «Svar i vederlag og frist som ble gitt mens en tidligere grunnlagsversjon gjaldt, binder ikke etter en ny grunnlagsversjon (HF-U1).» gjelder ikke lenger. Resten av HF-U5 står. Forholdet til GR-U1 fant kontrollen av føringen 16.10: vedtaksteksten viser til at et subsidiært standpunkt forblir subsidiært. Spørsmålet var S2 i den samlede vurderingen 16.10 (#578). Bygget 16.10 i PR #622 (#502, del 1): bindingen i svar på vederlag og frist står etter en ny grunnlagsversjon med samme hjemmel. En revisjon sammenliknes med svaret den erstatter, og et nytt svar avvises med regelkoden ALLEREDE_SVART.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A: bindingen står"
