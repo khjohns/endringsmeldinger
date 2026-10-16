@@ -291,6 +291,9 @@ erDiagram
         nvarchar_100 prosjekt_id FK, UK
         uniqueidentifier created_by FK
     }
+    koe_skrivetidspunkt {
+        smallint oekt PK
+    }
     koe_app_users ||--o{ koe_app_identities : "user_id"
     koe_projects ||--o{ koe_app_project_memberships : "project_id"
     koe_app_users ||--o{ koe_app_project_memberships : "user_id"
@@ -608,6 +611,7 @@ flowchart LR
 | `koe.hendelse` | — | — | — |
 | `koe.notat` | — | — | — |
 | `koe.leveringsoppdrag` | — | — | — |
+| `koe.skrivetidspunkt` | — | — | — |
 | `koe.kjernebuffer` | — | — | — |
 
 ## Flytene

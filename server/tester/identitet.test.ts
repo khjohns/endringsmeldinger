@@ -208,8 +208,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     });
 
     // Uten standard: tidspunktet kjernen regnet brevet med, som serveren setter,
-    // og endringstidspunktet til et notat, som er tomt til notatet endres.
-    const UTEN_STANDARD = ['koe.hendelse.tidsstempel', 'koe.notat.endret'];
+    // endringstidspunktet til et notat, som er tomt til notatet endres, og
+    // tidspunktet og innloggingen til økta som `koe_api.skrivetidspunkt` fører.
+    const UTEN_STANDARD = [
+      'koe.hendelse.tidsstempel',
+      'koe.notat.endret',
+      'koe.skrivetidspunkt.innlogget',
+      'koe.skrivetidspunkt.tidspunkt',
+    ];
 
     it('hvert tidspunkt er datetime2(3), og en standard er SYSUTCDATETIME() (DL-U3)', async () => {
       const svar = await base.pool.request().query<{

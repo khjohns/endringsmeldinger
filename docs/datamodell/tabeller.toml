@@ -607,7 +607,8 @@ belegg = "L 29.09: tabelldefinisjonen og kallerne i `event_routes`."
 # runneren i server/migrering.ts, for datalaget i TS (DL-U1, #53). Navnet er
 # kvalifisert med skjemaet, så det ikke kolliderer med PostgreSQL-tabellene
 # (#558). Status «uavklart» betyr at kommandoene som skal skrive tabellen,
-# ennå ikke er bygget (#53, del 3). Belegg for kolonnene og nøklene: K 16.10,
+# ennå ikke er bygget (#53, del 3); «i bruk» at de er bygget, også før en
+# HTTP-inngang kaller dem. Belegg for kolonnene og nøklene: K 16.10,
 # katalogen i en base bygget fra migrasjonene (katalog.json).
 # ---------------------------------------------------------------------------
 
@@ -699,35 +700,38 @@ belegg = "L 16.10: migrasjonen og søk i `server/`."
 navn = "koe.sak_metadata"
 lagring = "SQL Server"
 type = ["transaksjon"]
-status = "uavklart"
+status = "i bruk"
 beskrivelse = """
 Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og
 sletting."""
-lagres_fra = "Ingen skriver ennå (#53, del 3)."
+lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53)."
 fra_catenda = "Nei"
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` peker på en bruker."
-skrivere = []
+skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
 [[tabell]]
 navn = "koe.hendelse"
 lagring = "SQL Server"
 type = ["transaksjon"]
-status = "uavklart"
+status = "i bruk"
 beskrivelse = """
 Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger
 avviser endring og sletting. Teamet står bare når det er entydig (DL-U4)."""
-lagres_fra = "Ingen skriver ennå (#53, del 3)."
+lagres_fra = "`koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. Ingen HTTP-inngang kaller dem ennå (#53)."
 fra_catenda = "Nei"
 kan_gjenoppbygges = "nei. Journalen er kilden alt annet regnes fra."
 personopplysninger = """
 `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde
 personopplysninger."""
-skrivere = []
+skrivere = [
+    "database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`)",
+    "server/kommandoer.ts",
+]
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
 [[tabell]]
 navn = "koe.notat"
@@ -749,17 +753,41 @@ belegg = "L 16.10: migrasjonen og søk i `server/`."
 navn = "koe.leveringsoppdrag"
 lagring = "SQL Server"
 type = ["transaksjon"]
-status = "uavklart"
+status = "i bruk"
 beskrivelse = """
 Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som
 brevet. Den sammensatte fremmednøkkelen holder det i brevets sak og prosjekt."""
-lagres_fra = "Ingen skriver ennå (#53, del 3)."
+lagres_fra = "`koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53)."
 fra_catenda = "Nei, men oppdraget gjelder en levering til Catenda."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innholdet er brevet og kan inneholde personopplysninger."
-skrivere = []
+skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)"]
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
+
+[[tabell]]
+navn = "koe.skrivetidspunkt"
+lagring = "SQL Server"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel,
+og transaksjonen og når økta logget inn, fordi transaksjons-ID-en begynner på
+nytt etter en omstart. `koe_api.skriv_hendelse` godtar bare dette tidspunktet på
+brevet, i samme transaksjon og økt (DL-U3, svaret 16.10 i #53). Kjøretiden har
+ingen rett på tabellen."""
+lagres_fra = """
+`koe_api.skrivetidspunkt` fører raden, og `koe_api.skriv_hendelse` sletter den i
+samme transaksjon. Kalt fra `skrivHendelse` i `server/kommandoer.ts`, som ruller
+tilbake når den ikke skriver. En kaller som committer uten å skrive, etterlater
+raden; `skrivetidspunkt` erstatter den neste gang samme økt-ID fører et
+tidspunkt. Tabellen har høyst én rad per økt-ID."""
+fra_catenda = "Nei"
+kan_gjenoppbygges = "ja. Raden brukes bare i transaksjonen som førte den."
+personopplysninger = "Ingen kjente."
+skrivere = ["database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skrivetidspunkt`, `koe_api.skriv_hendelse`)"]
+funn = []
+belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`."
 
 [[tabell]]
 navn = "koe.kjernebuffer"

@@ -38,6 +38,8 @@ const UTEN_TRIGGER: Record<string, string> = {
   notat: 'Notatet er ikke et kontraktsvarsel og kan endres og slettes (MS-05).',
   kjernebuffer:
     'Bufferen er avledet og kan slettes og bygges på nytt fra journalen (arbeidsvalg 1 i #53).',
+  skrivetidspunkt:
+    'Raden slettes av koe_api.skriv_hendelse, eller av koe_api.skrivetidspunkt når økt-ID-en brukes igjen (DL-U3, svaret 16.10 i #53).',
 };
 
 const PROSJEKT = 'journal-p1';
