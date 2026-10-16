@@ -487,10 +487,9 @@ eksplisitt oppheves.
 > [HF-U1](#hf-u1) og [HF-U2](#hf-u2). Versjonering, utrulling og tilbakerulling
 > mellom TS-versjoner står åpne (#316), og B-10 står derfor fortsatt her.
 
-> **Merknad 2026-10-16 til B-10:** i SQL Server står det lagrede resultatet og versjonene
-> som regnet det ut, i en egen tabell som kan slettes og bygges på nytt fra journalen, ikke
-> i `sak_metadata` som følgen sier. Arbeidsvalg 16.10 i #53 (oppdragsgiver). Vedtaket er
-> uendret.
+> **Merknad 2026-10-16 til B-10:** arbeidsvalg 16.10 i #53 (oppdragsgiver): kjernebufferen
+> får en egen tabell som kan slettes og bygges på nytt fra journalen, i stedet for kolonner i
+> `sak_metadata`, som følgen sier. Vedtaket er uendret.
 
 #### Fullmakt og intern godkjenning
 
@@ -585,7 +584,7 @@ eksplisitt oppheves.
 | <a id="dl-u1"></a>DL-U1: Det bygges ingen vei ut av Supabase for dagens Python- og PostgreSQL-stakk. Datalaget bygges i TS rett mot SQL Server, lokalt i Docker i skyøkta og mot Azure SQL Database når det blir aktuelt. | 15.10, oppdragsgiver (#403) | Presiserer [B-19](#b-19). Presiserer [B-12, databasen](#b-12-databasen). Presisert 16.10 av [DL-U3](#dl-u3). Svaret om lesningen gjelder også (b), som står i DL-U2. #57, #58, #70 og #73 er lukket, og #49, #52, #53, #375 og #403 er skrevet om (15.10). Ikke bygget |
 | <a id="dl-u2"></a>DL-U2: Feil i Python rettes bare når det er nødvendig for test eller demo og relevant for refaktoreringen til TS. Det gjelder også sikkerhetsfeil: de meldes som issue, men rettes ikke. Sikkerhetsinvariantene gjelder fullt ut for TS-stien. Forkastet: «Sikkerhetsfeil i Python rettes fortsatt. Ellers rettes bare det som er nødvendig for test eller demo og relevant for refaktoreringen til TS.» | 15.10, oppdragsgiver (#403) | Unntaket for sikkerhet i [merknaden 09.10 i 4.2](#python-feil-koe) gjelder ikke lenger. |
 | <a id="dl-u3"></a>DL-U3: Tidspunkter lagres som datetime2(3) i UTC, uten forskyvning. Fabric-speilingen mister ingenting. Serveren setter tidspunktet i UTC, og visningen gjør om til norsk tid. Forkastet: «Som i prøven: forskyvningen lagres. Fabric-speilingen mister forskyvningen, så rapporteringen må tolke tidspunktet selv.»; «datetimeoffset for appen og en UTC-kolonne for speilingen. To kilder til samme tidspunkt.» | 16.10, oppdragsgiver (#53) | Presiserer [DL-U1](#dl-u1). Presiserer [B-12, databasen](#b-12-databasen). Gjelder det lagrede formatet for tidspunkter, ikke innholdet i rapporttabellene ([HF-U3](#hf-u3), #554). Migrasjonene for identiteten i #53 bruker datetime2(3) med serverens UTC-tid. |
-| <a id="dl-u4"></a>DL-U4: Kontraktssiden til avsenderen av et brev i journalen må være entydig. Teamet føres når det er entydig og er et av prosjektets kontraktsteam på den siden; ellers står brevet uten team. Forkastet: «Et brev i journalen skrives bare av en avsender med ett entydig kontraktsteam på sin side. Uten entydig team avvises brevet.»; «Har avsenderen flere kontraktsteam på samme side, velger avsenderen teamet når brevet sendes. Brevet står alltid med team.» | 16.10, oppdragsgiver (#53) | Presiserer B-02 hovedvalg, slik [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) sier det for varsel. Gjelder brevet i journalen, ikke notatet og utkastet. Prøven i Azure SQL var strengere (SQ-06). |
+| <a id="dl-u4"></a>DL-U4: Kontraktssiden til avsenderen av et brev i journalen må være entydig. Teamet føres når det er entydig og er et av prosjektets kontraktsteam på den siden; ellers står brevet uten team. Forkastet: «Et brev i journalen skrives bare av en avsender med ett entydig kontraktsteam på sin side. Uten entydig team avvises brevet.»; «Har avsenderen flere kontraktsteam på samme side, velger avsenderen teamet når brevet sendes. Brevet står alltid med team.» | 16.10, oppdragsgiver (#53) | Presiserer B-02 hovedvalg. [Design v2, avsnitt 4](../design-b02-tilgangsmekanisme-v2-2026-09-23.md#4-rb2-04--kontekstkontrakten), gjør teamet valgfritt for varsel. Gjelder brevet i journalen, ikke notatet og utkastet. Prøven i Azure SQL krever team for all skriving ([SQ-06](../prove-azuresql-2026-10-11.md)). |
 | <a id="dl-u5"></a>DL-U5: Radsikkerheten og rettighetene for kjøretiden bygges i F0b etter B-02 og prøven. Et uavhengig review av tilgangen i ny økt før merge er reviewet før første F1-migrasjon. Rollene for arbeider, drift, migrering og nødtilgang kommer med det samlede rolledesignet i F1. Forkastet: «F0b bygger journalen, notatet, oppdragene, bufferen og vernet mot endring. Radsikkerheten og rettighetene for kjøretiden kommer i F1, etter det samlede rolledesignet med uavhengig review.» | 16.10, oppdragsgiver (#53) | Presiserer følgen til B-02 hovedvalg om uavhengig review før første F1-migrasjon. Avviker fra rekkefølgen i F1, punkt 1, som har en datert merknad 16.10. Ikke bygget |
 
 > **Merknad 2026-09-23 til 3.1: direkte tilkobling erstatter RPC over PostgREST.**
@@ -1350,8 +1349,9 @@ skriverettigheter være konkretisert. Runtime bygges ikke på ubegrenset
    de åtte tabellene som i dag lever på plattformens standardrettigheter.
 
    > **Merknad 2026-10-16 til punkt 1:** radsikkerheten og rettighetene for
-   > kjøretiden bygges i F0b før det samlede rolledesignet ([DL-U5](#dl-u5)).
-   > Designet gjelder fortsatt de andre rollene.
+   > kjøretiden bygges i F0b etter B-02 og prøven, med et uavhengig review i ny
+   > økt før merge ([DL-U5](#dl-u5)). Rollene for arbeider, drift, migrering og
+   > nødtilgang kommer med det samlede rolledesignet her.
 
 2. Godkjenningspakker, policyversjon og utkast flyttet fra SQLite til
    databasen med prosjekt, side og team. MG-05: pakken lagrer ID, ikke navn.

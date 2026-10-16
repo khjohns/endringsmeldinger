@@ -3570,10 +3570,9 @@ etter = '''
 > [HF-U1](#hf-u1) og [HF-U2](#hf-u2). Versjonering, utrulling og tilbakerulling
 > mellom TS-versjoner står åpne (#316), og B-10 står derfor fortsatt her.
 
-> **Merknad 2026-10-16 til B-10:** i SQL Server står det lagrede resultatet og versjonene
-> som regnet det ut, i en egen tabell som kan slettes og bygges på nytt fra journalen, ikke
-> i `sak_metadata` som følgen sier. Arbeidsvalg 16.10 i #53 (oppdragsgiver). Vedtaket er
-> uendret.
+> **Merknad 2026-10-16 til B-10:** arbeidsvalg 16.10 i #53 (oppdragsgiver): kjernebufferen
+> får en egen tabell som kan slettes og bygges på nytt fra journalen, i stedet for kolonner i
+> `sak_metadata`, som følgen sier. Vedtaket er uendret.
 
 '''
 
@@ -5325,7 +5324,7 @@ valgt = "B"
 svar = '''
 «B: Teamet når entydig (Anbefalt)»'''
 folge = '''
-Presiserer B-02 hovedvalg, slik [design v2](../design-b02-tilgangsmekanisme-v2-2026-09-23.md) sier det for varsel. Gjelder brevet i journalen, ikke notatet og utkastet. Prøven i Azure SQL var strengere (SQ-06).'''
+Presiserer B-02 hovedvalg. [Design v2, avsnitt 4](../design-b02-tilgangsmekanisme-v2-2026-09-23.md#4-rb2-04--kontekstkontrakten), gjør teamet valgfritt for varsel. Gjelder brevet i journalen, ikke notatet og utkastet. Prøven i Azure SQL krever team for all skriving ([SQ-06](../prove-azuresql-2026-10-11.md)).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
