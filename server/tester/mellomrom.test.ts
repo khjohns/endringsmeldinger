@@ -117,7 +117,7 @@ const OGSAA_KONTROLL: Record<string, string> = {
   'koe.notat.refererer_til_event_id': 'Viser til en event_id og sammenliknes med den (#566).',
   'koe.projects.organisasjon_id': 'Organisasjonen er en ID og sammenliknes med = (#581).',
   'koe.sak_metadata.sakstype':
-    'Sakstypen velger regelsettet og sammenliknes med = (20261016170000_kommandoform.sql).',
+    'Sakstypen velger regelsettet og sammenliknes med = (20261016230000_skranker.sql).',
 };
 
 /**
@@ -165,6 +165,9 @@ const MALER = [
   "(datalength([{k}])=({n}) AND NOT ([{k}]) collate Latin1_General_100_BIN2_UTF8 like N'%[^0-9a-f]%')",
   '(TRY_CAST([{k}] AS [uniqueidentifier]) IS NOT NULL AND datalength([{k}])=({n}) AND ([{k}]) collate Latin1_General_100_BIN2_UTF8=lower([{k}]))',
   '([{k}] IS NULL OR TRY_CAST([{k}] AS [uniqueidentifier]) IS NOT NULL AND datalength([{k}])=({n}) AND ([{k}]) collate Latin1_General_100_BIN2_UTF8=lower([{k}]))',
+  // Den lukkede tegnklassen for hendelsestypen og sakstypen, og for dokumentnøkkelen (#609).
+  "(NOT ([{k}]) collate Latin1_General_100_BIN2_UTF8 like N'%[^a-z_]%')",
+  "(NOT ([{k}]) collate Latin1_General_100_BIN2_UTF8 like N'%[^-a-z0-9_]%')",
 ];
 
 const iRegExp = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -558,15 +561,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         'sak_metadata',
         'sakstype',
         { sakstype: 'endringsforespoersel ' },
-        'sak_metadata_sakstype_uten_mellomrom',
+        'sak_metadata_sakstype_form',
       ],
       ['hendelse', 'prosjekt_id', { prosjekt_id: `${P1} ` }, 'hendelse_prosjekt_id_uten_mellomrom'],
-      [
-        'hendelse',
-        'event_type',
-        { event_type: 'sak_opprettet ' },
-        'hendelse_event_type_uten_mellomrom',
-      ],
+      ['hendelse', 'event_type', { event_type: 'sak_opprettet ' }, 'hendelse_event_type_form'],
       ['notat', 'prosjekt_id', { prosjekt_id: `${P1} ` }, 'notat_prosjekt_id_uten_mellomrom'],
       ['notat', 'spor', { spor: 'frist ' }, 'notat_spor_uten_mellomrom'],
       [
@@ -579,7 +577,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         'leveringsoppdrag',
         'dokumentnoekkel',
         { dokumentnoekkel: 'nokkel ' },
-        'leveringsoppdrag_dokumentnoekkel_uten_mellomrom',
+        'leveringsoppdrag_dokumentnoekkel_form',
       ],
       [
         'kjernebuffer',
@@ -592,6 +590,32 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
       expect(feil?.nummer).toBe(CHECK_BRUDD);
       expect(feil?.melding).toContain(begrensning);
     });
+
+    it.each(
+      ['\t', '\u00a0', '\u3000', '\u200b', 'A'].flatMap(
+        (tegn) =>
+          [
+            [
+              'sak_metadata',
+              { sakstype: `endringsforespoersel${tegn}` },
+              'sak_metadata_sakstype_form',
+            ],
+            ['hendelse', { event_type: `sak_opprettet${tegn}` }, 'hendelse_event_type_form'],
+            [
+              'leveringsoppdrag',
+              { dokumentnoekkel: `nokkel${tegn}` },
+              'leveringsoppdrag_dokumentnoekkel_form',
+            ],
+          ] as [string, Rad, string][]
+      )
+    )(
+      '%s avviser et tegn utenfor tegnklassen (547, #609): %o',
+      async (tabell, rad, begrensning) => {
+        const feil = await avvisningMedMelding(lagreSak({ tabell, rad }));
+        expect(feil?.nummer).toBe(CHECK_BRUDD);
+        expect(feil?.melding).toContain(begrensning);
+      }
+    );
 
     it.each<[string, () => string]>([
       ['med store bokstaver', () => randomUUID().toUpperCase()],

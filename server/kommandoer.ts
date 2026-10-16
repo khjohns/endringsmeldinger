@@ -37,7 +37,7 @@ const BLOKKERT = 33504;
 /** Formen `sak_metadata_sak_id_form` krever; saksnummeret er en slik ID (DL-U6). */
 const ID_FORM = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-/** Meldingen `koe_api.skriv_hendelse` gir med 51409; formen er en kontrakt (`20261016170000_kommandoform.sql`). */
+/** Meldingen `koe_api.skriv_hendelse` gir med 51409; formen er en kontrakt (`20261016230000_skranker.sql`). */
 const KONFLIKTMELDING = /^Versjonskonflikt: journalen har versjon (\d+)$/;
 
 /** Feilen fra basen som en av feilene over, med basens feil i `cause`. */
