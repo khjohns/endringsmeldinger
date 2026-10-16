@@ -1724,7 +1724,7 @@ svar = '''
 A: frafallet står (Anbefalt)'''
 forhold = [{ art = "presiserer", vedtak = "gr-u17" }, { art = "presiserer", vedtak = "hf-u8" }, { art = "snevrer inn", vedtak = "gr-u1" }, { art = "snevrer inn", vedtak = "hf-u5" }]
 folge = '''
-Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
+Forholdene til GR-U17 og HF-U8 sto i spørsmålet. Forholdene til GR-U1 og HF-U5 fant kontrollen av føringen 16.10: etter A faller frafallet ikke bort som binding, slik svaret på forrige versjon gjør etter GR-U1, og byggherren kan ikke svare med avslag. Den nye versjonen venter likevel på byggherrens svar (orkestratorens arbeidsvalg 16.10 i #510, som GR-U23 erstatter for hva som gjelder mens den venter), og bindingen varer ut over den nye versjonen (HF-U5). Ikke bygget (#510).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1793,9 +1793,9 @@ svar = '''
 Jeg bare tenkte at jeg ikke ser noe reellt behov for at TE skal kunne endre grunnlag. TE må selv ta asnavr for å velge riktig hjemmel, og hvis feil, opprette ny sak og overføre krav. Da slipper vi alle disse reglene som må kunne beregne og hensynta at TE går frem og tilbake
 
 Oppfølging: A: hjemmelen står (Anbefalt)'''
-forhold = [{ art = "endrer", vedtak = "gr-u19" }, { art = "opphever", vedtak = "gr-u21" }, { art = "snevrer inn", vedtak = "ka-u22" }]
+forhold = [{ art = "endrer", vedtak = "gr-u19" }, { art = "opphever", vedtak = "gr-u21" }, { art = "snevrer inn", vedtak = "ka-u22" }, { art = "endrer", vedtak = "gr-u2" }]
 folge = '''
-Spørsmålet kom etter at oppdragsgiver svarte på spørsmålet om frafall og ny grunnlagsversjon (GR-U23) med «fikk du svaret mitt om det å ikke kunne endre grunnlag?». Alternativ A sier «Utvider KA-U22 med et unntak». I registeret står forholdet som «snevrer inn», fordi et unntak fra avkallet gir trekket mindre rekkevidde. Overføringen til ny sak finnes ikke i appen i dag. Ikke bygget.'''
+Spørsmålet kom etter at oppdragsgiver svarte på spørsmålet om frafall og ny grunnlagsversjon (GR-U23) med «fikk du svaret mitt om det å ikke kunne endre grunnlag?». Alternativ A sier «Utvider KA-U22 med et unntak». Ført som «snevrer inn», slik unntaket i OV-U5 fra OV-U4 er ført. Forholdet til GR-U2 fant kontrollen av føringen 16.10: underkategorien kan ikke lenger endres, så raden i B-13 om endret underkategori (05.10, #215) får ikke noe å gjelde for. Forholdet mellom overføringen og OV-U5 er ikke avklart, og heller ikke om byggherrens binding (HF-U5) og en enighet følger kravene til den nye saken (#569). Ikke bygget (#569).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -1830,9 +1830,9 @@ svar = '''
 fikk du svaret mitt om det å ikke kunne endre grunnlag?
 
 Stilt på nytt: A: grunnlaget er avklart (Anbefalt)'''
-forhold = [{ art = "presiserer", vedtak = "gr-u20" }, { art = "presiserer", vedtak = "gr-u1" }]
+forhold = [{ art = "presiserer", vedtak = "gr-u20" }, { art = "presiserer", vedtak = "gr-u1" }, { art = "presiserer", vedtak = "gr-u7" }, { art = "presiserer", vedtak = "ov-u3" }]
 folge = '''
-Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Det første svaret var et spørsmål tilbake. Det ble besvart med GR-U22, og spørsmålet ble så stilt på nytt. Vedtaket erstatter orkestratorens arbeidsvalg 16.10 på #510 om at grunnlaget venter på svar uten noe gjeldende svar. Ikke bygget (#510).'''
+Forholdene til GR-U7 og OV-U3 fant kontrollen av føringen 16.10: grunnlaget er avklart også mens den nye versjonen venter. Kontrollen fant også at OV-U3 avviser en ny kravversjon i grunnlaget når kravene er avgjort, så tilfellet oppstår bare når et annet sendt krav fortsatt står åpent, for eksempel et fristkrav. Eksemplet i spørsmålet hadde bare et vederlagskrav. Funnet kom fra den samlede vurderingen av vedtakene som oppdragsgiver bestilte 16.10. Det første svaret var et spørsmål tilbake. Det ble besvart med GR-U22, og spørsmålet ble så stilt på nytt. Vedtaket erstatter orkestratorens arbeidsvalg 16.10 på #510 om at grunnlaget venter på svar uten noe gjeldende svar. Ikke bygget (#510).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
