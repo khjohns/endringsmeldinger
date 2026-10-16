@@ -266,11 +266,11 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
   [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md) sier.
 - **Skriv ikke arbeidsstatus i hovedplanen eller `docs/README.md`**: «neste
   oppgave», «pågår», «venter på», «merges etter #45». Det hører til i issuet.
-- **Oppfølging som ikke løses i samme PR, blir et issue.** Funn fra review og
-  code-review føres etter «Stoppregelen for funn» under «Arbeidsform». Feil du
-  oppdager underveis utenfor oppdraget, og som ikke er reviewfunn, blir fortsatt
-  egne issues. Venter det på en B-ID, får det `venter-på-beslutning`. Å nevne
-  dem i PR-beskrivelsen er ikke nok. Tilskriver du en feil testmiljøet, er det en
+- **Oppfølging som ikke løses i samme PR, føres i et issue.** Funn fra review og
+  code-review følger «Stoppregelen for funn» under «Arbeidsform». Feil du oppdager
+  underveis utenfor oppdraget, og som ikke er reviewfunn, blir egne issues. Venter
+  en slik feil på en B-ID, får den `venter-på-beslutning`. Å nevne den i
+  PR-beskrivelsen er ikke nok. Tilskriver du en feil testmiljøet, er det en
   påstand. Kontroller den, eller meld den.
 - **Hvert issue har en milepæl eller en sporetikett.** Milepælen er
   arbeidspakken i hovedplanen; de parallelle sporene har `spor-d`, `spor-h`,
@@ -324,18 +324,21 @@ forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
 som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
 
 - Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
-  kan gi feil resultat senere eller er et krav til noe som skal bygges. Skjørhet
-  eller duplisering som kan gi feil resultat ved en senere endring, regnes som
-  «kan gi feil resultat senere» og går til oppfølgingsissuet.
+  kan gi feil resultat senere eller er et krav til noe som skal bygges.
 - Er det et krav til en inngang eller del som ikke finnes ennå, føres kravet som
   kommentar i issuet for den inngangen eller delen.
-- Ellers samles funnene i ett oppfølgingsissue per PR, med etiketten
-  `review-oppfølging` og en sjekkliste. Ett issue per funn lages ikke. Et funn som
-  venter på en B-ID, får eget issue med `venter-på-beslutning`, så resten av
-  sjekklisten ikke holdes igjen. PR-en som løser noen punkter, krysser dem av og
-  skriver «Del av #n»; PR-en som løser det siste punktet, skriver `Closes #n`.
+- Resten samles i ett oppfølgingsissue per PR, med etiketten `review-oppfølging`
+  og en sjekkliste. Ett issue per funn lages ikke.
 
 (oppdragsgiver 16.10, #649)
+
+*Arbeidsvalg, ikke vedtatt av oppdragsgiver:* Skjørhet eller duplisering som kan
+gi feil resultat ved en senere endring, regnes som «kan gi feil resultat senere» og
+går til oppfølgingsissuet, ikke til avvisning. Oppfølgingsissuet får samme milepæl
+eller sporetikett som PR-en det kommer fra. En PR som løser punkter, skriver
+«Del av #n». Orkestratoren krysser av punktene når PR-en er merget, og lukker
+issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
+`Closes` for et oppfølgingsissue.
 
 Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
 rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
