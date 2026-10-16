@@ -520,8 +520,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'DATO ID KRAVINNHOLD liste objekt OPPLYSNINGSSLAG TEKST',
     ['kommandoer/kommando.ts'],
   ],
-  // VS-U26: datoen TE oppgir i grunnlagskravet. Bare formkontrollen og brevteksten leser
-  // den, så ingen regel vurderer rettidigheten av den.
+  // VS-U26: datoen TE oppgir i grunnlagskravet. Bare formkontrollen, kontrollen mot
+  // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
   ['OPPGITT_DATO', 'skjema', 'endring svikt andre_forhold', ['format/format.ts']],
   [
     'format/format.ts',
