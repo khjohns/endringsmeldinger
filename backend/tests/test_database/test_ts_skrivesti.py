@@ -4,7 +4,8 @@ Kilden for forventningen er B-17 («Ingen Python-funksjon skal endre
 KOE-journalen etter byttet, heller ikke indirekte gjennom endringsordre eller
 forsering») og OV-U1 (Python skriver ikke i noen av de tre sakstypene).
 Bryteren er `TS_SKRIVESTI` (`settings.ts_skrivesti`). Rutene, dekoratørene,
-lagrene og basen er ekte. Bare innloggingstjenesten er byttet ut. Hver
+lagrene og basen er ekte. Innloggingstjenesten er byttet ut, og i
+forseringstestene også Catenda-klienten. Hver
 avvisning har en kontrollsak med bryteren av, som ellers er lik.
 Tjenesteinngangene prøves i `tests/test_repositories/test_ts_skrivesti_vakt.py`.
 """
@@ -179,3 +180,123 @@ def test_postgres_lageret_avviser_hendelsen_bare_naar_ts_skrivestien_er_paa(
     else:
         assert journal.append(hendelse, expected_version=0) == 1
         assert journalen(testbase_url, sak_id) == ["sak_opprettet"]
+
+
+@pytest.fixture
+def catenda(container_mot_testbasen):
+    """Catenda-dobbelen forseringstjenesten får fra containeren."""
+    from unittest.mock import MagicMock
+
+    klient = MagicMock()
+    klient.create_topic.side_effect = lambda **_: {"guid": str(uuid4())}
+    container_mot_testbasen._catenda_client = klient
+    return klient
+
+
+@pytest.fixture
+def forseringsklient(hendelsesklient, catenda):
+    """Hendelsesklienten med forseringsrutene registrert, før første forespørsel."""
+    from routes.forsering_routes import forsering_bp
+
+    hendelsesklient.application.register_blueprint(forsering_bp)
+    return hendelsesklient
+
+
+def _forsering_relasjoner(url: str, koe_sak_id: str) -> list[str]:
+    with psycopg.connect(url, autocommit=True) as c:
+        rader = c.execute(
+            "SELECT source_sak_id FROM sak_relations WHERE target_sak_id = %s",
+            (koe_sak_id,),
+        ).fetchall()
+    return [rad[0] for rad in rader]
+
+
+def _opprett_forsering(klient, koe_sak_id: str):
+    return klient.post(
+        "/api/forsering/opprett",
+        json={
+            "avslatte_sak_ids": [koe_sak_id],
+            "estimert_kostnad": 100_000,
+            "dagmulktsats": 50_000,
+            "begrunnelse": "Avslått fristforlengelse",
+            "avslatte_dager": 10,
+        },
+        headers=HEADERS,
+    )
+
+
+def test_forseringsopprettelse_avvises_med_400_uten_relasjoner_naar_ts_skrivestien_er_paa(
+    forseringsklient, catenda, testbase_url, skrivesti
+):
+    koe_sak_id = _ny_sak(forseringsklient, "standard")
+    skrivesti(True)
+
+    svar = _opprett_forsering(forseringsklient, koe_sak_id)
+
+    assert svar.status_code == 400, svar.get_json()
+    assert "TS-kjernen" in svar.get_json()["message"]
+    assert _forsering_relasjoner(testbase_url, koe_sak_id) == []
+    catenda.create_topic.assert_not_called()
+    catenda.create_topic_relations.assert_not_called()
+
+
+def test_kontroll_forseringsopprettelse_lagrer_relasjonen_naar_ts_skrivestien_er_av(
+    forseringsklient, catenda, testbase_url, skrivesti
+):
+    koe_sak_id = _ny_sak(forseringsklient, "standard")
+
+    svar = _opprett_forsering(forseringsklient, koe_sak_id)
+
+    assert svar.status_code == 201, svar.get_json()
+    assert _forsering_relasjoner(testbase_url, koe_sak_id) == [svar.get_json()["sak_id"]]
+    catenda.create_topic.assert_called_once()
+    assert catenda.create_topic_relations.call_count == 2
+
+
+@pytest.mark.parametrize("metode", ["post", "delete"])
+def test_endring_av_forseringens_relasjoner_avvises_med_400_naar_ts_skrivestien_er_paa(
+    forseringsklient, catenda, skrivesti, metode
+):
+    forsering_id = _ny_sak(forseringsklient, "forsering")
+    koe_sak_id = _ny_sak(forseringsklient, "standard")
+    skrivesti(True)
+
+    if metode == "post":
+        svar = forseringsklient.post(
+            f"/api/forsering/{forsering_id}/relatert",
+            json={"koe_sak_id": koe_sak_id},
+            headers=HEADERS,
+        )
+    else:
+        svar = forseringsklient.delete(
+            f"/api/forsering/{forsering_id}/relatert/{koe_sak_id}", headers=HEADERS
+        )
+
+    assert svar.status_code == 400, svar.get_json()
+    assert "TS-kjernen" in svar.get_json()["message"]
+    catenda.create_topic_relations.assert_not_called()
+    catenda.delete_topic_relation.assert_not_called()
+
+
+@pytest.mark.parametrize("metode", ["post", "delete"])
+def test_kontroll_endring_av_forseringens_relasjoner_naar_ts_skrivestien_er_av(
+    forseringsklient, catenda, skrivesti, metode
+):
+    forsering_id = _ny_sak(forseringsklient, "forsering")
+    koe_sak_id = _ny_sak(forseringsklient, "standard")
+
+    if metode == "post":
+        svar = forseringsklient.post(
+            f"/api/forsering/{forsering_id}/relatert",
+            json={"koe_sak_id": koe_sak_id},
+            headers=HEADERS,
+        )
+        kall = catenda.create_topic_relations
+    else:
+        svar = forseringsklient.delete(
+            f"/api/forsering/{forsering_id}/relatert/{koe_sak_id}", headers=HEADERS
+        )
+        kall = catenda.delete_topic_relation
+
+    assert svar.status_code == 200, svar.get_json()
+    assert kall.call_count == 2

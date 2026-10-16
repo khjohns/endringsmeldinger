@@ -606,3 +606,71 @@ def test_forsering_med_ts_skrivesti_av_lagres(miljo, handling, argumenter):
 
     assert resultat["version"] == 3
     assert miljo.versjon("FORS-TS-1") == 3
+
+
+FORSERING_UTEN_HENDELSE = pytest.mark.parametrize(
+    "handling, argumenter, catendakall",
+    [
+        (
+            "opprett_forseringssak",
+            {
+                "avslatte_sak_ids": ["KOE-1"],
+                "estimert_kostnad": 100_000,
+                "dagmulktsats": 50_000,
+                "begrunnelse": "Avslått fristforlengelse",
+                "avslatte_dager": 10,
+            },
+            "create_topic",
+        ),
+        ("legg_til_relatert_sak", ("FORS-1", "KOE-1"), "create_topic_relations"),
+        ("fjern_relatert_sak", ("FORS-1", "KOE-1"), "delete_topic_relation"),
+    ],
+)
+
+
+def _kall(tjeneste, handling, argumenter):
+    metode = getattr(tjeneste, handling)
+    if isinstance(argumenter, dict):
+        return metode(**argumenter)
+    return metode(*argumenter)
+
+
+def _forsering_med_catenda():
+    catenda = MagicMock()
+    catenda.create_topic.return_value = {"guid": "FORS-NY"}
+    relasjoner = MagicMock()
+    tjeneste = ForseringService(
+        catenda_client=catenda,
+        event_repository=MagicMock(),
+        timeline_service=TimelineService(),
+        relation_repository=relasjoner,
+    )
+    return tjeneste, catenda, relasjoner
+
+
+@FORSERING_UTEN_HENDELSE
+def test_forseringens_topic_og_relasjoner_avvises_med_ts_skrivesti(
+    slaa_paa_ts_skrivesti, handling, argumenter, catendakall
+):
+    """Inngangene skriver uten hendelse, så lagervakten når dem ikke. Den
+    databaseløse dobbelen viser at tjenesten selv avviser; HTTP-svaret og
+    `sak_relations` prøves mot testbasen i `test_ts_skrivesti.py`."""
+    tjeneste, catenda, relasjoner = _forsering_med_catenda()
+    slaa_paa_ts_skrivesti()
+
+    with pytest.raises(PythonSkrivingStengt):
+        _kall(tjeneste, handling, argumenter)
+
+    getattr(catenda, catendakall).assert_not_called()
+    relasjoner.add_relations_batch.assert_not_called()
+
+
+@FORSERING_UTEN_HENDELSE
+def test_forseringens_topic_og_relasjoner_skrives_med_ts_skrivesti_av(
+    handling, argumenter, catendakall
+):
+    tjeneste, catenda, _ = _forsering_med_catenda()
+
+    _kall(tjeneste, handling, argumenter)
+
+    getattr(catenda, catendakall).assert_called()

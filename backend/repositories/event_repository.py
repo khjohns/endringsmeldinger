@@ -49,6 +49,16 @@ class PythonSkrivingStengt(PermanentError, ValueError):
     """
 
 
+def krev_python_skrivesti(melding: str) -> None:
+    """Avvis skrivingen med `melding` når TS-skrivestien er på (B-17).
+
+    Raises:
+        PythonSkrivingStengt: Når TS-skrivestien er på.
+    """
+    if settings.ts_skrivesti:
+        raise PythonSkrivingStengt(melding)
+
+
 def krev_journalhendelser(events: list) -> None:
     """Avvis hendelser Python ikke skal skrive til journalen.
 
@@ -62,8 +72,8 @@ def krev_journalhendelser(events: list) -> None:
         PythonSkrivingStengt: Når TS-skrivestien er på.
         JournalfoeringAvvist: Ved en hendelsestype som ikke skal journalføres.
     """
-    if settings.ts_skrivesti and events:
-        raise PythonSkrivingStengt(
+    if events:
+        krev_python_skrivesti(
             f"Saken {getattr(events[0], 'sak_id', '')} skrives bare av "
             "TS-kjernen, og Python-lageret tar ikke imot hendelser (B-17)."
         )
