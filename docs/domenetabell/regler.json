@@ -834,6 +834,27 @@
       "dato": "2026-10-15",
       "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8",
       "radetikett": "HF-U8: Byggherrens svar faller bort som tilbud når TE sender en ny kravversjon i sporet"
+    },
+    {
+      "id": "OV-U4",
+      "type": "vedtak",
+      "dato": "2026-10-13",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4",
+      "radetikett": "OV-U4: i første versjon er et brev sendt utenfor appen og registrert i den dokumentasjon"
+    },
+    {
+      "id": "VS-U24",
+      "type": "vedtak",
+      "dato": "2026-10-15",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u24",
+      "radetikett": "VS-U24: En påberopelse av at TE har varslet eller krevd for sent etter en bestemmelse står i byggherrens svar"
+    },
+    {
+      "id": "AV-500",
+      "type": "arbeidsvalg",
+      "issue": 500,
+      "dato": "2026-10-15",
+      "merknad": "Et «i tide» etter § 32.2 fra byggherren på en ny grunnlagsversjon gir opp en innsigelse mot en tidligere versjon. Varselet etter § 32.2 er det samme varselet i begge versjonene. Presiserer VS-U24 og HF-U4."
     }
   ],
   "rader": [
@@ -2494,25 +2515,23 @@
     {
       "id": "KA-38",
       "tilfelle": "Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet.",
-      "forventet": "Saken er forstått: et strengere vilkår for et svar fra appen gjør ikke et registrert brev uforstått. Svaret leses med innsigelsen, som en påberopt preklusjon etter § 33.4. En innsigelse mot varselet, eller uten registrert varsel mot det første fristkravet, står mot hver senere kravversjon (VS-U20). Registrerer TE et varsel etterpå, står svaret med sin virkning, TE kan godta det, og visningen sier at innsigelsen gjaldt et annet varsel (OV-U5). Har byggherren etter innsigelsen sagt uttrykkelig i et svar at varselet kom i tide, leses et senere registrert svar ikke med innsigelsen. Byggherren er bundet av det, også når standpunktet gjaldt et varsel TE registrerte etter innsigelsen (VS-U20, arbeidsvalget 15.10 i #309).",
-      "bh_standpunkt": "Svaret og innsigelsen.",
-      "rettslig_virkning": "Tausheten er ikke et standpunkt; innsigelsen står.",
+      "forventet": "Saken er forstått, og svaret leses ikke med innsigelsen: et registrert brev får ingen virkning ut over det det sier (OV-U4), og en innsigelse mot et krav er ingen påberopelse etter § 33.4 (VS-U24). Det gjelder også det første fristkravet når TE ikke har sendt et eget varsel. En innsigelse mot varselet er en påberopelse etter § 33.4, og et senere svar fra appen gjentar den eller gir den opp. Har byggherren sagt i et svar fra appen at varselet kom i tide, avvises en ny innsigelse mot varselet (HF-U4), mens en innsigelse mot fristkravet registreres uten virkning.",
+      "bh_standpunkt": "Svaret og innsigelsen, hver for seg.",
+      "rettslig_virkning": "Innsigelsen mot kravet er registrert uten virkning. Påberopelsen etter § 33.4 står i svaret.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "MM-U18",
+        "OV-U4",
+        "VS-U24",
         "VS-U11",
-        "HF-U1",
-        "MM-U1",
-        "OV-U5",
-        "VS-U9",
-        "VS-U20"
+        "HF-U4"
       ],
-      "tolkningsstatus": "arbeidshypotese",
+      "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#lesesMedInnsigelse",
+        "kjerne/frosset/standpunkt.ts#innsigelsenPaaberoper",
         "kjerne/frosset/standpunkt.ts#innsigelsenErOppgitt",
-        "kjerne/utledning/utled.ts#utledSporene"
+        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll"
       ]
     },
     {
@@ -2606,29 +2625,32 @@
     {
       "id": "VS-02",
       "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten.",
-      "forventet": "Svaret leses med innsigelsen: preklusjon er påberopt, grunnlaget er ikke avklart, og det er ikke sammenfall eller endringsordre. Kontrollsaken uten innsigelsen gir sammenfall og endringsordre. Har byggherren etter innsigelsen sagt uttrykkelig at varselet kom i tide, i et svar på samme krav, leses det registrerte svaret ikke med innsigelsen, og et lagret svar som likevel er lest med den, er ikke forstått.",
-      "bh_standpunkt": "Godkjenning, lest med innsigelsen.",
-      "rettslig_virkning": "Appen utleder ikke at innsigelsen er oppgitt av taushet alene, men leser partens siste uttrykkelige standpunkt om rettidigheten.",
+      "forventet": "Svaret leses ikke med innsigelsen: et registrert brev får ingen virkning ut over det det sier (OV-U4, VS-U24), og saken er forstått. Innsigelsen er en påberopelse etter § 32.2, og et senere svar fra appen gjentar den eller gir den opp, også på en annen grunnlagsversjon, fordi varselet etter § 32.2 er det samme (arbeidsvalget 15.10 i #500). Har byggherren sagt «i tide» etter § 32.2 i et svar fra appen, avvises en ny innsigelse mot grunnlagskravet, også mot en tidligere versjon (HF-U4, HF-U8). En innsigelse mot en versjon der § 32.2 ikke gjelder kategorien, er uten virkning: svaret gjentar den ikke og gir den ikke opp, og den avvises ikke (GR-U11). Et registrert brev gjentar den ikke og gir den ikke opp (OV-U4, HF-U4).",
+      "bh_standpunkt": "Godkjenningen, slik den står.",
+      "rettslig_virkning": "Appen utleder ikke av et registrert brev at innsigelsen er gjentatt eller oppgitt (OV-U4).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "VS-U24",
+        "OV-U4",
         "VS-U11",
-        "VS-U9",
-        "HF-U1",
+        "HF-U4",
+        "HF-U8",
         "GR-U12",
-        "GR-U13"
+        "GR-U11",
+        "AV-500"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#lesesMedInnsigelse",
+        "kjerne/frosset/standpunkt.ts#innsigelsenPaaberoper",
         "kjerne/frosset/standpunkt.ts#innsigelsenErOppgitt",
-        "kjerne/utledning/utled.ts#utledSporene"
+        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll"
       ]
     },
     {
       "id": "VS-03",
       "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel og svarer senere fra appen.",
-      "forventet": "Et svar fra appen har alltid standpunktet om rettidighet der det kan ha virkning (§ 32.2 der varslingsplikten gjelder, og § 33.4), så det gjentar eller oppgir innsigelsen; et svar uten det avvises. Oppgir byggherren innsigelsen mot varselet etter § 32.2 og godkjenner grunnlaget, er godkjenningen en endringsordre. Et svar på vederlaget etter en innsigelse mot vederlagskravet avvises, fordi preklusjon etter § 34.1 ikke er bygget. Et registrert svar på vederlaget etter en slik innsigelse gjør saken ikke forstått, av samme grunn: kjernen forenkler det ikke.",
+      "forventet": "Et svar fra appen har alltid standpunktet om rettidighet der det kan ha virkning (§ 32.2 der varslingsplikten gjelder, og § 33.4), så det gjentar eller oppgir en innsigelse mot varselet; et svar uten det avvises. Oppgir byggherren innsigelsen mot varselet etter § 32.2 og godkjenner grunnlaget, er godkjenningen en endringsordre. En innsigelse mot vederlagskravet er ingen påberopelse etter § 34.1.2 (VS-U24), så et svar på vederlaget etter den godtas, og et registrert svar etter den er forstått.",
       "bh_standpunkt": "Standpunktet om rettidighet i svaret.",
       "rettslig_virkning": "Det er partens nye utsagn som endrer standpunktet.",
       "rettidighet": "—",
@@ -2636,9 +2658,8 @@
       "kilder": [
         "VS-U11",
         "VS-U9",
-        "GR-U12",
-        "OV-U1",
-        "MM-U2"
+        "VS-U24",
+        "GR-U12"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2647,8 +2668,7 @@
         "kjerne/kommandoer/nyttelast.ts#kontrollerSvar"
       ],
       "regelkoder": [
-        "UGYLDIG_VURDERING",
-        "VURDERING_UTENFOR_KJERNEN"
+        "UGYLDIG_VURDERING"
       ]
     },
     {
@@ -2892,6 +2912,7 @@
     "INGEN_VARSEL_ETTER_32_2": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "MERKING_AVKLART": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "PAALEGGET_IKKE_BESKREVET": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet."
+    "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet.",
+    "VURDERING_UTENFOR_KJERNEN": "Avvisningen av en vurdering kjernen ennå ikke kan lagre (`utenforOmfanget`). Raden VS-03 viste til den til sperren etter en innsigelse mot vederlagskravet ble fjernet (VS-U24, #517); ingen rad sier avvisningen nå."
   }
 }

@@ -11,7 +11,7 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { innsigelsenSvaretErLestMed, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import {
   enighetensVirkning,
   grunnlagskravFor,
@@ -61,10 +61,7 @@ function status(u: Utledning): Statuskode {
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
-  return ulikeVirkninger(
-    u.svar[g.id].virkninger,
-    virkninger(g, grunnlagskravFor(g, u), regler, innsigelsenSvaretErLestMed(g))
-  );
+  return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, grunnlagskravFor(g, u), regler));
 }
 
 /**
