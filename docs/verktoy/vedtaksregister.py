@@ -499,7 +499,7 @@ TYPER_NY = {
 DELER = {
     "alternativ": (
         {"navn": TEKST, "tekst": TEKST},
-        {"forkastet": (bool, "true eller false")},
+        {"forkastet": (bool, "true eller false"), "anbefalt": (bool, "true eller false")},
     ),
     "forhold": ({"art": TEKST, "vedtak": TEKST}, {}),
     "sitat": ({"kilde": TEKST, "tekst": TEKST}, {"utdrag": (bool, "true eller false")}),
@@ -553,6 +553,13 @@ def _liste(o: dict, felt: str) -> list:
 
 def _nevner(navn: str, tekst: str) -> bool:
     return bool(re.search(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst))
+
+
+def _slutter_seg_til_anbefalingen(svar: str) -> bool:
+    """Et svar som «Ja til anbefalingen» eller «Ja til alle anbefalingene» (#486)."""
+    return bool(
+        re.search(r"(?<!\w)ja(?!\w)(?:(?!\bikke\b)[^.])*?(?<!\w)anbefaling(en|ene)(?!\w)", svar, re.I)
+    )
 
 
 def _delfeil(p: dict, navn: str, deler: dict) -> list[str]:
@@ -615,9 +622,19 @@ def valider(register: dict) -> list[str]:
                 feil.append(f"{navn}: to alternativer har samme navn")
             if p["valgt"] not in navnene:
                 feil.append(f"{navn}: valgt «{p['valgt']}» er ikke et alternativ")
-            if not _nevner(p["valgt"], p["svar"]):
+            anbefalte = [a["navn"] for a in p["alternativ"] if a.get("anbefalt")]
+            if len(anbefalte) > 1:
+                feil.append(f"{navn}: mer enn ett alternativ er anbefalt")
+            if not _nevner(p["valgt"], p["svar"]) and not (
+                anbefalte == [p["valgt"]] and _slutter_seg_til_anbefalingen(p["svar"])
+            ):
                 feil.append(
                     f"{navn}: svaret nevner ikke det valgte alternativet «{p['valgt']}»"
+                    + (
+                        ", og det valgte alternativet er ikke det anbefalte"
+                        if _slutter_seg_til_anbefalingen(p["svar"])
+                        else ""
+                    )
                 )
             andre = [
                 a["navn"]

@@ -487,7 +487,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 13.10, oppdragsgiver (#309, #485)
 
-**Følge:** Snevrer inn [OV-U5](#ov-u5). Presisert 15.10 av [HF-U13](#hf-u13). Presiserer SK-12. Ikke bygget. Belegg: [KK-01](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).
+**Følge:** Snevrer inn [OV-U5](#ov-u5). Presisert 15.10 av [HF-U13](#hf-u13). Presiserer SK-12. Ikke bygget. Belegg: [KK-01](../../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-01-sperren-hviler-på-en-analogi-som-ikke-holder-for--3413).
 
 **Regelrader:** —
 
@@ -499,7 +499,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 13.10, oppdragsgiver (#309, #485)
 
-**Følge:** Presiserer [OV-U5](#ov-u5). Ikke bygget. Belegg: [KK-03](../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-03-ov-u5-gir-ikke-datopremissen-for--334-når-fristkravet-er-det-første-varselet).
+**Følge:** Presiserer [OV-U5](#ov-u5). Ikke bygget. Belegg: [KK-03](../../vedlegg/review-kontraktskontroll-ov-vs-2026-10-13.md#kk-03-ov-u5-gir-ikke-datopremissen-for--334-når-fristkravet-er-det-første-varselet).
 
 **Regelrader:** —
 

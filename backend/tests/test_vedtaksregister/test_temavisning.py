@@ -31,6 +31,18 @@ def _verktoy():
 tv = _verktoy()
 vr = tv.vr
 
+
+def _lenkekontroll():
+    spesifikasjon = importlib.util.spec_from_file_location(
+        "lenkekontroll", ROT / "docs" / "verktoy" / "lenkekontroll.py"
+    )
+    modul = importlib.util.module_from_spec(spesifikasjon)
+    spesifikasjon.loader.exec_module(modul)
+    return modul
+
+
+lk = _lenkekontroll()
+
 GRUNNLAGSSVAR = "grunnlagssvar-som-endringsordre"
 MERKET = re.compile(r"^\*\*((?:Forkastet|Utsatt)[^*]*:)\*\* ")
 
@@ -83,10 +95,35 @@ def test_temaene_er_gyldige(temaer, kilder):
 
 def test_den_innsjekkede_visningen_er_lik_generatoren(temaer, kilder):
     for tema in temaer:
-        assert tv.sti(tema).read_text(encoding="utf-8") == tv.visning(tema, kilder), (
-            f"{tv.sti(tema).relative_to(ROT)} er ikke lik det generatoren lager. "
+        sti = tv.sti(tema)
+        melding = (
+            f"{sti.relative_to(ROT)} er ikke lik det generatoren lager. "
             "Kjør python3 docs/verktoy/temavisning.py."
         )
+        assert sti.exists(), melding
+        assert sti.read_text(encoding="utf-8") == tv.visning(tema, kilder), melding
+
+
+def test_lenkene_i_de_innsjekkede_visningene_er_hele(temaer, capsys):
+    """#494 og #509: en relativ lenke i 3.1 er relativ til docs/plans/, og visningen ligger et annet sted."""
+    stier = [str(tv.sti(t)) for t in temaer]
+    assert lk.main(stier) == 0, capsys.readouterr().out
+
+
+@pytest.mark.parametrize("tekst, forventet", [
+    (
+        "[KK-01](../vedlegg/review.md#kk-01-om--3413)",
+        "[KK-01](../../vedlegg/review.md#kk-01-om--3413)",
+    ),
+    ("[tabellen](../domenetabell/README.md)", "[tabellen](../../domenetabell/README.md)"),
+    ("[planen](annen-plan.md#a)", "[planen](../../plans/annen-plan.md#a)"),
+    ("[GR-U10](#gr-u10)", "[GR-U10](#gr-u10)"),
+    ("[GR-U2](#gr-u2)", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2)"),
+    ("[#264](https://github.com/khjohns/endringsmeldinger/issues/264)",
+     "[#264](https://github.com/khjohns/endringsmeldinger/issues/264)"),
+])
+def test_lenkene_fra_3_1_skrives_om_til_mappen_visningen_ligger_i(tekst, forventet):
+    assert tv._lenker(tekst, {"gr-u10"}) == forventet
 
 
 def test_visningen_sier_at_3_1_er_autoritativ_og_lager_ingen_sammenslatt_ordlyd(tema, kilder):
@@ -97,8 +134,18 @@ def test_visningen_sier_at_3_1_er_autoritativ_og_lager_ingen_sammenslatt_ordlyd(
 
 
 def _seksjon(tekst: str, etikett: str) -> list[str]:
-    linjer = tekst.split("\n### ")
-    return next(d for d in linjer if d.split("\n", 1)[0].endswith(f"</a>{etikett}")).splitlines()[1:]
+    """Linjene under overskriften til vedtaket, fram til neste overskrift på nivå 2 eller 3."""
+    vedtakene = tekst.split("\n## Vedtakene\n", 1)[1].split("\n## ", 1)[0]
+    deler = vedtakene.split("\n### ")
+    return next(d for d in deler if d.split("\n", 1)[0].endswith(f"</a>{etikett}")).splitlines()[1:]
+
+
+def test_seksjonen_for_det_siste_vedtaket_slutter_foer_regelradene(tema, kilder):
+    tekst = tv.visning(tema, kilder)
+    siste = vr.etikett(tv.utdrag(tema, kilder)["poster"][-1])
+    seksjon = [linje for linje in _seksjon(tekst, siste) if linje]
+    assert seksjon[-1].startswith("**Bevis-saker som viser til vedtaket:**")
+    assert not any(linje.startswith("#") for linje in seksjon)
 
 
 def test_hvert_vedtak_i_temaet_star_ordrett_med_det_forkastede_merket_for_seg(tema, kilder):
@@ -129,11 +176,24 @@ def test_de_forkastede_alternativene_skilles_ut_med_merket_og_teksten_blir_lik_3
     assert " ".join([vedtak, *(f"{m} {t}" for m, t in forkastet)]) == vr.linje(post["vedtak"])
 
 
-def test_kjeden_viser_forholdene_begge_veier(tema, kilder):
+def _kjederad(tekst: str, etikett: str) -> tuple[list[str], list[str]]:
+    """Forholdene i raden til vedtaket i kjeden: de vedtaket viser til, og de som viser til det."""
+    kjeden = tekst.split("\n## Kjeden\n", 1)[1].split("\n## ", 1)[0]
+    rad = next(r for r in kjeden.splitlines() if r.startswith(f"| [{etikett}]("))
+    _, aktive, passive = (c.strip() for c in rad.strip("| ").split(" | "))
+    return aktive.split("; "), passive.split("; ")
+
+
+def test_kjeden_viser_forholdene_begge_veier_i_raden_til_vedtaket(tema, kilder):
     tekst = tv.visning(tema, kilder)
-    assert "| [GR-U13](#gr-u13) | Endrer [GR-U10](#gr-u10); Endrer [GR-U12](#gr-u12) |" in tekst
-    assert "| [GR-U10](#gr-u10) |" in tekst and "Endret av [GR-U13](#gr-u13)" in tekst
-    assert "Utvidet av [GR-U15](#gr-u15)" in tekst
+    aktive, _ = _kjederad(tekst, "GR-U13")
+    assert {"Endrer [GR-U10](#gr-u10)", "Endrer [GR-U12](#gr-u12)"} <= set(aktive)
+    _, passive = _kjederad(tekst, "GR-U10")
+    assert "Endret av [GR-U13](#gr-u13)" in passive
+    _, passive = _kjederad(tekst, "GR-U13")
+    assert "Utvidet av [GR-U15](#gr-u15)" in passive
+    aktive, passive = _kjederad(tekst, "GR-U15")
+    assert aktive == ["Utvider [GR-U13](#gr-u13)"] and passive == ["—"]
 
 
 def test_vedtak_utenfor_temaet_lenkes_til_3_1(tema, kilder):
@@ -170,9 +230,19 @@ def test_et_nytt_vedtak_som_endrer_kjeden_gir_feil_til_det_er_tatt_inn(tema, kil
     assert "**Forkastet:** «Et forkastet alternativ.»" in tekst
     assert "Endret 12.10 av [XX-U1](#xx-u1)." in tekst
 
+
+
+def test_datoen_til_et_senere_vedtak_utenfor_temaet_endrer_kontrollsummen(tema, kilder):
+    """Følge hos GR-U13 viser datoen til XX-U1. Den leses gjennom `senere`, ikke gjennom postene i temaet."""
+    endret = _med_ny_post(kilder)
+    assert "XX-U1" not in tema["vedtak"]
+    ut = tv.utdrag(tema, endret)
+    assert "xx-u1" not in {vr.anker(p) for p in ut["poster"]}
+    assert ("xx-u1", datetime.date(2026, 10, 12), {"art": "endrer", "vedtak": "gr-u13"}) in ut["senere"]
+
     senere_dato = copy.deepcopy(endret)
     _post(senere_dato["register"], "xx-u1")["dato"] = datetime.date(2026, 10, 13)
-    assert tv.kontrollsum(tv.utdrag(tema, senere_dato)) != tv.kontrollsum(tv.utdrag(tema, endret))
+    assert tv.kontrollsum(tv.utdrag(tema, senere_dato)) != tv.kontrollsum(ut)
 
 
 def test_et_ukjent_vedtak_og_en_kjerne_utenfor_vedtakene_gir_feil(tema, kilder):
@@ -195,14 +265,33 @@ def test_kontrollsummen_endres_med_kildegrunnlaget_og_ikke_med_resten(tema, kild
     _post(post["register"], "gr-u13")["folge"] += " Endret."
     assert tv.kontrollsum(tv.utdrag(tema, post)) != for_
 
-    lenket = set(tv.utdrag(tema, kilders := copy.deepcopy(kilder))["etiketter"])
-    medlemmer = {v.lower() for v in tema["vedtak"]}
-    utenfor = next(
-        p for p in vr.poster(kilders["register"])
-        if vr.anker(p) and vr.anker(p) not in lenket | medlemmer and "folge" in p
-    )
-    utenfor["folge"] += " Endret."
-    assert tv.kontrollsum(tv.utdrag(tema, kilders)) == for_
+    resten = copy.deepcopy(kilder)
+    ut = tv.utdrag(tema, resten)
+    lest = set(ut["etiketter"]) | {vr.anker(p) for p in ut["poster"]} | {a for a, _, _ in ut["senere"]}
+    poster = [p for p in vr.poster(resten["register"]) if vr.anker(p) not in lest]
+    rader = [r for r in resten["regler"]["rader"] if r not in ut["rader"]]
+    lest_forlop = {(f["merke"], f["id"]) for f in ut["forlop"]}
+    forlop = [
+        f for merke, korpus in resten["bevis"].items() for f in korpus["forlop"]
+        if (merke, f["id"]) not in lest_forlop
+    ]
+    assert poster and rader and forlop
+    for p in poster:
+        for felt in set(p) - {"id", "anker", "valgt", "forhold"}:
+            if isinstance(p[felt], str):
+                p[felt] += " Endret."
+        for a in p.get("alternativ", []):
+            a["tekst"] += " Endret."
+        if "dato" in p:
+            p["dato"] += datetime.timedelta(days=1)
+    for r in rader:
+        for felt in set(r) - {"id", "kilder"}:
+            if isinstance(r[felt], str):
+                r[felt] += " Endret."
+    for f in forlop:
+        f["forventningsgrunnlag"] = f"{f['forventningsgrunnlag']} Endret."
+        f["kontroller"].append({"rolle": "TE", "forventet": "Endret."})
+    assert tv.kontrollsum(tv.utdrag(tema, resten)) == for_
 
 
 def test_et_vedtak_som_star_to_ganger_med_ulik_skrivemate_gir_feil(tema, kilder):
