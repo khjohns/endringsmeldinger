@@ -5575,6 +5575,47 @@ tekst = '''
 Deaktiveringen ved innlogging gjelder til neste synkronisering, uansett når listen ble hentet.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "DL-U9"
+dato = 2026-10-16
+hvem = "oppdragsgiver"
+kilde = ["#625"]
+sporsmal = '''
+#625. En bruker logger inn, og innloggingen viser at brukeren ikke er med i Catenda-prosjektet. Brukeren har aldri hatt medlemskap i prosjektet i appen. Så lagres en medlemsliste fra Catenda som ble hentet før innloggingen, og der står brukeren som medlem. Skal den listen gi brukeren et nytt medlemskap? Belegg: B-04 punkt 1 sier «Nye handlinger opphører straks systemet har registrert at tilgangen er borte.» DL-U8 sier «En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet.» DL-U8 gjelder altså bare et medlemskap som fantes fra før. Ingen innlogging går mot den nye basen i dag (#375), så tilfellet kan ikke oppstå nå.'''
+valgt = "B"
+svar = '''
+«B: ikke nytt medlemskap (Anbefalt)»'''
+forhold = [{ art = "utvider", vedtak = "dl-u8" }, { art = "presiserer", vedtak = "dl-u7" }]
+folge = '''
+Presiserer B-04 punkt 1.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+En medlemsliste som ble hentet før innloggingen, kan gi et nytt medlemskap til en bruker som ikke hadde noe medlemskap i prosjektet. Medlemskapet gjelder til neste medlemsliste.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Innloggingen er nyere enn en medlemsliste som ble hentet før innloggingen, også for en bruker som ikke hadde noe medlemskap i prosjektet. En slik liste gir ikke brukeren et nytt medlemskap.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Vedtakstekst som B. Det bygges når innloggingen kobles til den nye basen (#375). Til da oppfører koden seg som i A.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+utdrag = true
+tekst = "opphører straks systemet har registrert at tilgangen er borte."
+
+[[gruppe.vedtak.sitat]]
+kilde = "docs/vedtaksregister/vedtak.toml"
+tekst = "En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet."
+
 [[gruppe]]
 tittel = "Premissene P1–P7"
 
