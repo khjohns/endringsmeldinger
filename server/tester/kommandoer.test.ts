@@ -88,6 +88,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     return svar.recordset[0].naa.getTime();
   }
 
+  /** Tidspunktene som står i `koe.skrivetidspunkt` etter fullførte transaksjoner, lest av eieren. */
+  async function ferdigeTidspunkter(): Promise<number> {
+    const svar = await base.pool
+      .request()
+      .query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.skrivetidspunkt');
+    return svar.recordset[0].n;
+  }
+
   /** Radene i saken, lest av eieren i konteksten. */
   function lagret(sakId: string, k: Kontekst = te) {
     return transaksjon(base.pool, k, async (f) => {
@@ -308,6 +316,24 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       }));
       expect(utfall).toEqual({ skriv: false, avvisning: 'nei' });
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
+    });
+
+    it('en avvisning fra lag rulles tilbake, så tidspunktet ikke blir stående', async () => {
+      const sak = await nySak();
+      const foer = await ferdigeTidspunkter();
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, () => ({
+        skriv: false,
+        avvisning: 0,
+      }));
+      expect(await ferdigeTidspunkter()).toBe(foer);
+    });
+
+    it('en kontekst uten kontraktsside gir SkrivingAvvist', async () => {
+      const sak = await nySak();
+      const utenSide: Kontekst = { aktor: b.te, prosjekt: P1, team: TE1 };
+      await expect(
+        skrivHendelse(kjoeretid.pool, utenSide, sak.sak_id, 1, medOppdrag(te))
+      ).rejects.toBeInstanceOf(SkrivingAvvist);
     });
   });
 

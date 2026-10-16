@@ -133,6 +133,7 @@ export async function skrivHendelse<A>(
   forventet: number,
   lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>
 ): Promise<Skriveutfall<A>> {
+  if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
       const finnes = await foresp()
@@ -148,7 +149,8 @@ export async function skrivHendelse<A>(
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
       const utfall = lag({ journal, tidspunkt });
-      if (!utfall.skriv) return utfall;
+      // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
+      if (!utfall.skriv) throw new IkkeSkrevet(utfall);
       const { rad, oppdrag } = utfall;
       kontrollerRad(rad, oppdrag, kontekst, sakId, forventet, tidspunkt);
       await foresp()
@@ -167,7 +169,16 @@ export async function skrivHendelse<A>(
       return utfall;
     });
   } catch (feil) {
+    if (feil instanceof IkkeSkrevet) return feil.utfall as Skriveutfall<A>;
     throw oversett(feil, forventet);
+  }
+}
+
+/** `lag` avviste; kastes for at transaksjonen skal rulles tilbake. */
+class IkkeSkrevet {
+  readonly utfall: Skriveutfall<unknown>;
+  constructor(utfall: Skriveutfall<unknown>) {
+    this.utfall = utfall;
   }
 }
 

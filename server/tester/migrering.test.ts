@@ -371,6 +371,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'notat',
         'projects',
         'sak_metadata',
+        'skrivetidspunkt',
       ]);
       expect(k2).toEqual(k1);
     } finally {
