@@ -5587,7 +5587,7 @@ svar = '''
 «B: ikke nytt medlemskap (Anbefalt)»'''
 forhold = [{ art = "utvider", vedtak = "dl-u8" }, { art = "presiserer", vedtak = "dl-u7" }]
 folge = '''
-Presiserer B-04 punkt 1.'''
+Presiserer B-04 punkt 1. Bygget 16.10 i TS-stien (#625, #652).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
