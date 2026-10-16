@@ -600,6 +600,31 @@
      }
     ]
    },
+   "koe.app_membership_absences": {
+    "kolonner": [
+     ["project_id", "nvarchar(100)", "NOT NULL"],
+     ["user_id", "uniqueidentifier", "NOT NULL"],
+     ["observed_at", "datetime2(3)", "NOT NULL"],
+     ["updated_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["project_id", "user_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["project_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["user_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.app_membership_sync": {
     "kolonner": [
      ["project_id", "nvarchar(100)", "NOT NULL"],
