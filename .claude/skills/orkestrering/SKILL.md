@@ -24,6 +24,13 @@ sjekk.
 
 **Størrelse.** Høyst tre PR-er per runde (oppdragsgiver 12.10, #425). En reviewøkt
 som fortsetter samme PR, teller ikke i grensen (oppdragsgiver 14.10, #491).
+Tekniske issues som ikke krever svar fra oppdragsgiver, teller heller ikke i
+grensen. Runden kan ta mange av dem så lenge de lar seg orkestrere etter
+filoverlapp, og de tekniske valgene tas mellom orkestratoren og øktene, ikke av
+oppdragsgiver. Merge krever fortsatt godkjenning fra oppdragsgiver (oppdragsgiver
+16.10: «tekniske issues som ikke behøver avklaringer for meg kan vi ta mange av,
+så lenge det lar seg orkestrere, og beslutningene går mellom deg og sesjonene
+(og ikke meg)»).
 Grensen settes av hvor mye oppdragsgiver kan gå gjennom, av konflikter ved
 merge og av kostnaden, ikke av antall issues.
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
