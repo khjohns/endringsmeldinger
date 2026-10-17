@@ -684,10 +684,10 @@ def test_svaret_nevner_det_valgte_alternativet(grunnregister):
     )
 
 
-def _med_anbefalt(navn: str, **endringer) -> dict:
+def _med_anbefalt(*navn: str, **endringer) -> dict:
     post = ny_post(**endringer)
     for a in post["alternativ"]:
-        if a["navn"] == navn:
+        if a["navn"] in navn:
             a["anbefalt"] = True
     return post
 
@@ -698,42 +698,47 @@ def test_svaret_kan_slutte_seg_til_anbefalingen_naar_det_valgte_er_anbefalt(grun
     assert vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar))) == []
 
 
-@pytest.mark.parametrize("anbefalt, svar", [
-    (None, "Ja til anbefalingen"),
-    ("C", "Ja til anbefalingen"),
-    ("A", "Nei, ikke anbefalingen"),
-    ("A", "Ja, men ikke anbefalingen"),
-    ("A", "Ja"),
+@pytest.mark.parametrize("svar", [
+    "Nei, ikke anbefalingen",
+    "Ja, men ikke anbefalingen",
+    "Ja, men ikkje anbefalingen",
+    "Ja til anbefalingen, ikkje for punkt 2",
+    "Ja, anbefalingen er feil",
+    "Ja til anbefalingen unntatt punkt 2",
+    "Ja til alle anbefalingene. Men ikke for punkt 3",
+    "Nei. Ja til anbefalingen bare om B faller bort",
+    "Ja",
 ])
-def test_svaret_som_ikke_nevner_det_valgte_og_ikke_slutter_seg_til_det_anbefalte_gir_feil(
-    grunnregister, anbefalt, svar
-):
-    post = _med_anbefalt(anbefalt, svar=svar) if anbefalt else ny_post(svar=svar)
-    feil = vr.valider(med(grunnregister, post))
-    assert any("svaret nevner ikke det valgte alternativet «A»" in f for f in feil), feil
+def test_et_svar_som_avviser_eller_tar_forbehold_slutter_seg_ikke_til_anbefalingen(grunnregister, svar):
+    """#604: svaret må da nevne det valgte alternativet, selv om det er det anbefalte."""
+    feil = vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar)))
+    assert "XX-U1: svaret nevner ikke det valgte alternativet «A»" in feil, feil
 
 
 @pytest.mark.parametrize("anbefalte, grunn", [
     ([], ", og ingen alternativer er merket anbefalt"),
     (["C"], ", og det valgte alternativet er ikke det anbefalte"),
-    (["A", "C"], ""),
+    (["A", "C"], ", og mer enn ett alternativ er anbefalt"),
 ])
 def test_feilmeldingen_sier_hvorfor_svaret_ikke_slutter_seg_til_det_valgte(
     grunnregister, anbefalte, grunn
 ):
-    post = ny_post(svar="Ja til anbefalingen")
-    for a in post["alternativ"]:
-        if a["navn"] in anbefalte:
-            a["anbefalt"] = True
+    post = _med_anbefalt(*anbefalte, svar="Ja til anbefalingen")
     assert f"XX-U1: svaret nevner ikke det valgte alternativet «A»{grunn}" in vr.valider(
         med(grunnregister, post)
     )
 
 
 def test_mer_enn_ett_anbefalt_alternativ_gir_feil(grunnregister):
-    post = _med_anbefalt("A", svar="Ja til anbefalingen")
-    post["alternativ"][2]["anbefalt"] = True
+    post = _med_anbefalt("A", "C", svar="Ja til anbefalingen")
     assert "XX-U1: mer enn ett alternativ er anbefalt" in vr.valider(med(grunnregister, post))
+
+
+def test_et_alternativ_kan_ikke_vaere_baade_anbefalt_og_forkastet(grunnregister):
+    """#604: gjelder hvert alternativ, ikke bare det valgte."""
+    post = _med_anbefalt("C", svar="A")
+    post["alternativ"][2]["forkastet"] = True
+    assert vr.valider(med(grunnregister, post)) == ["XX-U1: alternativ C er både anbefalt og forkastet"]
 
 
 def _endre_i_avsnitt(plan: str, gammel: str, ny: str) -> str:
