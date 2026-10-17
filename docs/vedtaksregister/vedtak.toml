@@ -4831,7 +4831,7 @@ valgt = "Topic på prosjektets board"
 svar = '''
 Topic på prosjektets board (Recommended)'''
 folge = '''
-Utvider vedtaket 29.09 («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). 29.09 har ingen anker, så forholdet står her med ord. Det første svaret står ordrett på #370 (kommentaren 6235082223). Ikke bygget (#370)'''
+Utvider vedtaket 29.09 («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). 29.09 har ingen anker, så forholdet står her med ord. Det første svaret står ordrett på #370 (kommentaren 6235082223). Ikke bygget (#741)'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Topic på prosjektets board"
