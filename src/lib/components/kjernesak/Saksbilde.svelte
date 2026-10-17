@@ -35,6 +35,7 @@
     <h1>{bilde.tittel ?? 'Sak'}</h1>
     <p class="status" data-testid="status">{bilde.status.tekst}</p>
     <p class="dempet">Versjon {bilde.versjon}</p>
+    {#if kjernesak?.feil}<p role="alert" class="feil">{kjernesak.feil}</p>{/if}
     {#each bilde.merknader as m (m.kode)}
       <p class="merknad" role="note">{m.tekst}</p>
     {/each}
@@ -138,6 +139,13 @@
   }
   .dempet {
     color: var(--color-ink-muted);
+    font-size: 14px;
+  }
+  .feil {
+    margin: 8px 0;
+    padding: 10px 12px;
+    border: 1px solid var(--color-danger, #c0392b);
+    border-radius: 8px;
     font-size: 14px;
   }
   .merknad {

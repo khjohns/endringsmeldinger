@@ -11,6 +11,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/sve
 import { userEvent } from '@testing-library/user-event';
 import Saksbilde from '../Saksbilde.svelte';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import { ApiError } from '$lib/api/client';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { forhaandsvis } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
@@ -141,6 +142,29 @@ describe('vederlagskravet fra saksbildet', () => {
     await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
     expect(send.mock.calls[0][2]).toMatchObject({ utdypning: 'Tilbudet gjelder ny peling' });
+  });
+
+  it('når saken ikke kan lastes på nytt etter sendingen, viser saksbildet hvorfor', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-3', leveringsoppdrag: 'l-1', versjon: 3 });
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar('TE'))
+      .mockRejectedValueOnce(new ApiError(503, 'Catenda svarte ikke.'));
+    const kjernesak = lagKjernesak({ sakId: SAK, hent, send });
+    await kjernesak.last();
+    render(Saksbilde, { bilde: kjernesak.saksbilde!, kjernesak });
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
+    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
+    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
+
+    await waitFor(() => expect(screen.getByTestId('status').closest('article')).toBeVisible());
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('alert')).toHaveTextContent('Catenda svarte ikke.');
   });
 
   it('når sporet har et vederlagskrav, tilbys ikke skjemaet, selv om kjernen tilbyr ny versjon (#667)', async () => {
