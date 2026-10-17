@@ -48,7 +48,6 @@ skrivere = [
     "backend/services/endringsordre_service.py",
     "backend/services/approval_service.py",
     "backend/services/catenda_webhook_service.py (via sak_creation_service)",
-    "server/lager.ts (TS-serveren i testmiljøet, #347)",
 ]
 funn = ["MS-01", "MS-02", "MS-03", "AR-02", "DM-06"]
 belegg = """
@@ -59,29 +58,31 @@ testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`."""
 navn = "leveringsoppdrag"
 lagring = "PostgreSQL"
 type = ["transaksjon"]
-status = "i bruk"
+status = "rest"
 beskrivelse = """
 Leveringsoppdraget for et brev TS-serveren skriver (LV-U1, B-03, dokumentet).
 Én rad per brev, og ett brev er ett dokument i Catenda. `innhold` fryser det
 som skal leveres: brevet slik det ble lagret, målet i Catenda, statusetiketten
 og versjonene. Raden er uforanderlig; et nytt leveringsforsøk sender samme
 innhold. Et lagret oppdrag beviser ikke at brevet er sendt eller mottatt.
-Forsøk, feil og kvitteringer er ikke bygget (#371). Bare
-testmiljøet skriver tabellen (#347)."""
+Forsøk, feil og kvitteringer er ikke bygget (#371). Ingen skriver
+tabellen lenger: TS-serveren skriver oppdraget i `koe.leveringsoppdrag` i SQL
+Server (F0b-7, #661)."""
 lagres_fra = """
-Når TS-serveren lagrer et brev: i samme transaksjon som hendelsen i `hendelse`.
-Slettes bare med saken eller hendelsen (kaskade)."""
+Ingen steder etter F0b-7 (#661). Fram til da skrev TS-serveren oppdraget i samme
+transaksjon som hendelsen i `hendelse`. Slettes bare med saken eller hendelsen
+(kaskade)."""
 fra_catenda = """
 Nei. Målet (prosjekt, bibliotek, mappe og topic) leses fra prosjektets
 Catenda-konfigurasjon og saksregisteret når brevet lagres."""
 kan_gjenoppbygges = "nei. Oppdraget er det frosne brevet som skal leveres."
 personopplysninger = """
 `innhold` har avsenderens `aktor_id` og brevets fritekst."""
-skrivere = ["server/lager.ts"]
+skrivere = []
 funn = []
 belegg = """
-K 11.10: kolonnene, skrankene og triggeren i testbasen, og skrivingen i
-`server/tester/skive.test.ts`."""
+K 11.10: kolonnene, skrankene og triggeren i testbasen. L 17.10: ingen
+skriver i `server/` etter at `pg` er tatt ut (#661)."""
 
 [[tabell]]
 navn = "notat"
