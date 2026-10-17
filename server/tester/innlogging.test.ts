@@ -26,7 +26,7 @@ import { CatendaUtilgjengelig, type CatendaBruker } from '../catenda.ts';
 import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
 import { basensKlokke, synkroniserMedlemskap, type Medlem } from '../medlemskap.ts';
 import { opprettInnloggingsforsoek, opprettSesjon } from '../sesjon.ts';
-import { settInn } from './sqlserver_migrert.ts';
+import { basensKlokkeEtter, settInn } from './sqlserver_migrert.ts';
 import {
   lagOppsett,
   rydd,
@@ -390,6 +390,7 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
       const hentetFoer = new Date(Date.now() - 5_000);
       catendaProsjekter = new Set();
       expect((await loggInn()).kapsler.has(SESJON)).toBe(true);
+      const innlogget = await basensKlokke(eier());
       await synkroniserMedlemskap(eier(), {
         prosjekt: p.id,
         catendaProsjekt: p.catenda,
@@ -401,7 +402,7 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
       await synkroniserMedlemskap(eier(), {
         prosjekt: p.id,
         catendaProsjekt: p.catenda,
-        hentet: await basensKlokke(eier()),
+        hentet: await basensKlokkeEtter(eier(), innlogget),
         medlemmer: [som(bruker)],
       });
       expect(await aktive(p.id)).toEqual([bruker.subjekt]);

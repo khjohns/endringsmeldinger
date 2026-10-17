@@ -4,6 +4,7 @@
  */
 
 import { randomBytes } from 'node:crypto';
+import { basensKlokke } from '../medlemskap.ts';
 import { lesMigrasjoner, migrer } from '../migrering.ts';
 import { feilnummer, opprettTestbase, sql, type Pool, type Testbase } from './sqlserver.ts';
 
@@ -188,4 +189,18 @@ export async function iTransaksjon<T>(
     await tx.rollback().catch(() => {});
     throw feil;
   }
+}
+
+/**
+ * Basens klokke når den har passert `tid`. En medlemsliste hentet i samme
+ * millisekund som en rad basen førte, er ikke nyere (`synced_at >= @hentet`,
+ * `observed_at >= @hentet`).
+ */
+export async function basensKlokkeEtter(pool: Pool, tid: Date): Promise<Date> {
+  for (let forsoek = 0; forsoek < 100; forsoek++) {
+    const naa = await basensKlokke(pool);
+    if (naa.getTime() > tid.getTime()) return naa;
+    await new Promise((r) => setTimeout(r, 1));
+  }
+  throw new Error(`Basens klokke har ikke passert ${tid.toISOString()}.`);
 }

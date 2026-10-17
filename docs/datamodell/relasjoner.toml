@@ -49,7 +49,7 @@ Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Triggeren
 `leveringsoppdrag_vakt` avviser et oppdrag med en annen sak eller et annet
 prosjekt enn hendelsen."""
 funn = []
-belegg = "K 11.10: katalogen og `server/tester/skive.test.ts`."
+belegg = "K 11.10: katalogen. Prøvd i `server/tester/skive.test.ts` fram til F0b-7 (#661)."
 
 [[relasjon]]
 fra = "notat.sak_id"
@@ -250,7 +250,7 @@ art = "logisk"
 antall = "mange til én"
 beskrivelse = "Prosjektet brevet er sendt i. Triggeren krever at det er hendelsens prosjekt."
 funn = []
-belegg = "K 11.10: `server/tester/skive.test.ts`."
+belegg = "K 11.10: prøvd i `server/tester/skive.test.ts` fram til F0b-7 (#661)."
 
 [[relasjon]]
 fra = "notat.prosjekt_id"

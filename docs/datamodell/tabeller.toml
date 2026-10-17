@@ -48,6 +48,7 @@ skrivere = [
     "backend/services/endringsordre_service.py",
     "backend/services/approval_service.py",
     "backend/services/catenda_webhook_service.py (via sak_creation_service)",
+    "sprakprove/server/lager.ts (språkprøvens server mot testbasen)",
 ]
 funn = ["MS-01", "MS-02", "MS-03", "AR-02", "DM-06"]
 belegg = """
@@ -60,7 +61,7 @@ lagring = "PostgreSQL"
 type = ["transaksjon"]
 status = "rest"
 beskrivelse = """
-Leveringsoppdraget for et brev TS-serveren skriver (LV-U1, B-03, dokumentet).
+Leveringsoppdraget for et brev TS-serveren skrev fram til F0b-7 (LV-U1, B-03, dokumentet).
 Én rad per brev, og ett brev er ett dokument i Catenda. `innhold` fryser det
 som skal leveres: brevet slik det ble lagret, målet i Catenda, statusetiketten
 og versjonene. Raden er uforanderlig; et nytt leveringsforsøk sender samme

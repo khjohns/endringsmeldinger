@@ -31,7 +31,7 @@ import {
   type Medlem,
 } from '../medlemskap.ts';
 import { medlemslistensAlder } from '../autorisasjon.ts';
-import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
+import { basensKlokkeEtter, opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   feilnummer,
   opprettKjoeretid,
@@ -750,17 +750,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       return { id: prosjektId, catenda };
     }
 
-    /**
-     * Basens klokke etter at triggeren førte endringen. En liste hentet i samme
-     * millisekund som endringen er ikke nyere (`synced_at >= @hentet`).
-     */
-    async function etterEndringen(prosjektId: string) {
-      const endret = (await synkrad(prosjektId)).synced_at.getTime();
-      for (;;) {
-        const naa = await basensKlokke(base.pool);
-        if (naa.getTime() > endret) return naa;
-      }
-    }
+    /** Basens klokke etter at triggeren førte endringen av koblingen. */
+    const etterEndringen = async (prosjektId: string) =>
+      basensKlokkeEtter(base.pool, (await synkrad(prosjektId)).synced_at);
 
     it.each([
       [
