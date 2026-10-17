@@ -10,12 +10,13 @@
  * og det gjør også en inngang til prosjektet selv, uten sak. Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
  * `tester/register.test.ts` prøver hver inngang i registeret over HTTP.
  *
- * Saker opprettes ikke her (#370). Leveringen stopper ved det frosne oppdraget
- * og kaller ikke Catenda (#371).
+ * Leveringen stopper ved det frosne oppdraget og kaller ikke Catenda (#371),
+ * og en ny sak får ingen topic i Catenda ennå (#741).
  */
 
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import { utledJournal, vurder } from '../kjerne/kommandoer/skriving.ts';
 import type { Journalrad } from '../kjerne/typer.ts';
 import { KJERNE, type Kjerne } from '../kjerne/versjon.ts';
@@ -38,6 +39,7 @@ import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
 import { lesSaken } from './lager.ts';
 import {
+  opprettSak,
   SakFinnesIkke,
   SkrivingAvvist,
   skrivHendelse,
@@ -75,6 +77,14 @@ interface Forespoersel {
   /** Satt når inngangen krever kontraktsrolle. */
   side: Kontraktstilgang | null;
   sakId: string;
+  kropp: Record<string, unknown>;
+}
+
+/** Forespørselen til inngangen som oppretter en sak. */
+interface Opprettelsesforespoersel {
+  bruker: Bruker;
+  prosjekt: Prosjekttilgang;
+  side: Kontraktstilgang;
   kropp: Record<string, unknown>;
 }
 
@@ -120,6 +130,17 @@ export interface Prosjektrute extends Felles {
   behandle: Behandler<Prosjektforespoersel>;
 }
 
+/**
+ * Inngangen som oppretter en sak: sesjon, prosjekttilgang og kontraktsrolle som en
+ * saksinngang, men uten sak i stien, fordi saken ikke finnes ennå (#370).
+ * Prosjektet er det i `X-Project-ID`. Begrunnelsen står i registeret.
+ */
+export interface Opprettelsesrute extends Felles {
+  metode: 'POST';
+  tilgang: { prosjektrolle: 'member'; kontraktsrolle: 'kreves'; nySak: string };
+  behandle: Behandler<Opprettelsesforespoersel>;
+}
+
 /** En inngang med sesjon, men uten prosjekt. Begrunnelsen står i registeret. */
 export interface Sesjonsrute extends Felles {
   tilgang: { utenProsjekt: string };
@@ -132,13 +153,14 @@ export interface AapenRute extends Felles {
   behandle: Behandler<IncomingMessage>;
 }
 
-export type Rute = Saksrute | Prosjektrute | Sesjonsrute | AapenRute;
+export type Rute = Saksrute | Opprettelsesrute | Prosjektrute | Sesjonsrute | AapenRute;
 
 export const erAapen = (r: Rute): r is AapenRute => 'utenSesjon' in r.tilgang;
 export const erUtenProsjekt = (r: Rute): r is Sesjonsrute => 'utenProsjekt' in r.tilgang;
 export const erUtenSak = (r: Rute): r is Prosjektrute => 'utenSak' in r.tilgang;
+export const erOpprettelse = (r: Rute): r is Opprettelsesrute => 'nySak' in r.tilgang;
 export const erSaksrute = (r: Rute): r is Saksrute =>
-  !erAapen(r) && !erUtenProsjekt(r) && !erUtenSak(r);
+  !erAapen(r) && !erUtenProsjekt(r) && !erUtenSak(r) && !erOpprettelse(r);
 
 const STORSTE_KROPP = 1_000_000;
 
@@ -242,6 +264,17 @@ async function visSaken(
   ];
 }
 
+/**
+ * Aktøren, siden og teamet er konteksten basen stempler; tidspunktet er basens klokke.
+ * Teamet står bare når det er entydig (DL-U4, `krevKontraktsrolle`).
+ */
+const skrivekontekst = (bruker: Bruker, prosjekt: Prosjekttilgang, side: Kontraktstilgang) => ({
+  aktor: bruker.id,
+  prosjekt: prosjekt.prosjektId,
+  side: side.rolle,
+  ...(side.teamId ? { team: side.teamId } : {}),
+});
+
 const KOMMANDOKROPP = new Set(['expected_version', 'kommando']);
 
 async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
@@ -251,14 +284,8 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   const forventet = kropp.expected_version;
   if (!erHeltall(forventet)) return ugyldig('expected_version må være et heltall ≥ 0.');
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
-  // Aktøren, siden og teamet er konteksten basen stempler; tidspunktet er basens klokke.
-  // Teamet står bare når det er entydig (DL-U4, `krevKontraktsrolle`).
-  const kontekst = {
-    aktor: bruker.id,
-    prosjekt: prosjekt.prosjektId,
-    side: side!.rolle,
-    ...(side!.teamId ? { team: side!.teamId } : {}),
-  };
+  // Kjernen får aktøren, siden og teamet fra samme kontekst som basen (#739 punkt 4).
+  const kontekst = skrivekontekst(bruker, prosjekt, side!);
   let utfall;
   try {
     utfall = await skrivHendelse(
@@ -271,9 +298,9 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
           kropp.kommando,
           {
             sakId,
-            aktoerId: bruker.id,
-            part: side!.rolle,
-            teamId: side!.teamId,
+            aktoerId: kontekst.aktor,
+            part: kontekst.side,
+            teamId: kontekst.team ?? null,
             tidspunkt: () => tidspunkt,
             nyId: avh.nyId,
           },
@@ -331,6 +358,39 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   ];
 }
 
+/**
+ * Oppretter saken med `sak_opprettet` som versjon 1. Kjernen avgjør om kommandoen
+ * godtas, med parten fra kontraktsteamet; basen lager saks-ID-en.
+ */
+async function opprettNySak(
+  { bruker, prosjekt, side, kropp }: Opprettelsesforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const ukjente = Object.keys(kropp).filter((k) => k !== 'kommando');
+  if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
+  if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
+  const vurdert = opprettelse(kropp.kommando, side.rolle);
+  if (!vurdert.godtatt) {
+    const { feil, avvisning } = vurdert;
+    return [
+      400,
+      { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
+    ];
+  }
+  let rad;
+  try {
+    rad = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), {
+      format: vurdert.format,
+      data: vurdert.data,
+    });
+  } catch (feil) {
+    if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+    if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
+    throw feil;
+  }
+  return [201, { success: true, sak_id: rad.sak_id, versjon: rad.versjon }];
+}
+
 const SAK = '([^/]+)';
 
 const KJERNERUTER: readonly Saksrute[] = [
@@ -355,8 +415,26 @@ const KJERNERUTER: readonly Saksrute[] = [
   },
 ];
 
+const OPPRETTELSE: Opprettelsesrute = {
+  metode: 'POST',
+  sti: /^\/api\/kjerne\/saker$/,
+  eksempel: () => '/api/kjerne/saker',
+  tilgang: {
+    prosjektrolle: 'member',
+    kontraktsrolle: 'kreves',
+    nySak:
+      'Opprettelsen: saken finnes ikke før basen har laget saks-ID-en, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE oppretter (OV-U1, #696).',
+  },
+  behandle: opprettNySak,
+};
+
 /** Registeret over inngangene. En ny inngang står her, ellers finnes den ikke. */
-export const RUTER: readonly Rute[] = [...KJERNERUTER, ...INNLOGGINGSRUTER, ...PROSJEKTRUTER];
+export const RUTER: readonly Rute[] = [
+  ...KJERNERUTER,
+  OPPRETTELSE,
+  ...INNLOGGINGSRUTER,
+  ...PROSJEKTRUTER,
+];
 
 export function lagServer(avh: Avhengigheter) {
   const full: Required<Avhengigheter> = {
@@ -366,6 +444,39 @@ export function lagServer(avh: Avhengigheter) {
     ...avh,
     innlogging: avh.innlogging ?? null,
   };
+
+  /**
+   * Innloggingen, prosjekttilgangen og kontraktsrollen fra registeret, og kroppen.
+   * Uten sak i stien prøves bare sakene kroppen viser til.
+   */
+  async function tilgangOgKropp(
+    tilgang: Tilgang,
+    metode: Felles['metode'],
+    foresporsel: IncomingMessage,
+    sakId: string | null
+  ) {
+    // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
+    // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
+    const bruker = await krevInnlogging(full.datalag, foresporsel);
+    const innhold = metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
+    const prosjekt = await krevProsjekttilgang(
+      full.datalag,
+      full.catenda,
+      foresporsel,
+      bruker,
+      tilgang.prosjektrolle,
+      'feil' in innhold ? {} : innhold.verdi,
+      sakId
+    );
+    const side =
+      tilgang.kontraktsrolle === 'kreves'
+        ? await krevKontraktsrolle(full.datalag, full.catenda, prosjekt)
+        : null;
+    if ('feil' in innhold) throw innhold.feil;
+    // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
+    const kropp = innhold.verdi as Record<string, unknown>;
+    return { bruker, prosjekt, side, kropp };
+  }
 
   async function saksrute(
     r: Saksrute,
@@ -378,27 +489,13 @@ export function lagServer(avh: Avhengigheter) {
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
     }
-    // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
-    // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
-    const bruker = await krevInnlogging(full.datalag, foresporsel);
-    const innhold = r.metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
-    const prosjekt = await krevProsjekttilgang(
-      full.datalag,
-      full.catenda,
-      foresporsel,
-      bruker,
-      r.tilgang.prosjektrolle,
-      'feil' in innhold ? {} : innhold.verdi,
-      sakId
-    );
-    const side =
-      r.tilgang.kontraktsrolle === 'kreves'
-        ? await krevKontraktsrolle(full.datalag, full.catenda, prosjekt)
-        : null;
-    if ('feil' in innhold) throw innhold.feil;
-    // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
-    const kropp = innhold.verdi as Record<string, unknown>;
-    return r.behandle({ bruker, prosjekt, side, sakId, kropp }, full);
+    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, sakId);
+    return r.behandle({ ...f, sakId }, full);
+  }
+
+  async function opprettelsesrute(r: Opprettelsesrute, foresporsel: IncomingMessage) {
+    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, null);
+    return r.behandle({ ...f, side: f.side! }, full);
   }
 
   async function prosjektrute(
@@ -435,6 +532,7 @@ export function lagServer(avh: Avhengigheter) {
     if (erAapen(r)) return r.behandle(foresporsel, full);
     if (erUtenProsjekt(r)) return r.behandle(await krevSesjon(full.datalag, foresporsel), full);
     if (erUtenSak(r)) return prosjektrute(r, treff, foresporsel);
+    if (erOpprettelse(r)) return opprettelsesrute(r, foresporsel);
     return saksrute(r, treff, foresporsel);
   }
 

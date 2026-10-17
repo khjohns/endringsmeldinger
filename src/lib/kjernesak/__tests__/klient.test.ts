@@ -36,6 +36,16 @@ describe('klienten mot TS-serveren', () => {
     expect(headers.get('X-CSRF-Token')).toBe('token');
   });
 
+  it('oppretter saken i prosjektet fra ruta, ikke i det aktive', async () => {
+    await opprettSak({ type: 'opprett' }, 'prosjekt-2');
+    expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('prosjekt-2');
+  });
+
+  it('sender kommandoen til prosjektet fra ruta, ikke til det aktive', async () => {
+    await sendKommando('a', 1, { type: 'krav' }, 'prosjekt-2');
+    expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('prosjekt-2');
+  });
+
   it('sender kommandoen med versjonen skjemaet så, til saken', async () => {
     await sendKommando('a/b', 3, { type: 'krav' });
     const [[url, init]] = kall;

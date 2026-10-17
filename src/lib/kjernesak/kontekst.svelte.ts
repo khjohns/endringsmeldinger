@@ -18,7 +18,7 @@ import type { Part } from '$kjerne/typer';
 
 export interface Kjernesakvalg {
   sakId: string;
-  /** Prosjektet fra ruta. Uten det brukes det aktive prosjektet. */
+  /** Prosjektet fra ruta, for lesingen og kommandoene. Uten det brukes det aktive prosjektet. */
   prosjektId?: string;
   /**
    * Siden brevteksten forhåndsvises for, før saken er lastet eller i prøvene. Uten
@@ -82,7 +82,12 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     feil = null;
     try {
       const tekst = sett ?? brevtekst(kommando);
-      await send(sakId, sak.versjon, tekst ? { ...kommando, brevtekst: tekst } : kommando);
+      await send(
+        sakId,
+        sak.versjon,
+        tekst ? { ...kommando, brevtekst: tekst } : kommando,
+        valg.prosjektId
+      );
       await last();
       if (feil) feil = `Kommandoen er lagret, men saken kunne ikke lastes på nytt. ${feil}`;
       return true;

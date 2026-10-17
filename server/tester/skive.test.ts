@@ -122,7 +122,7 @@ describe.skipIf(!TESTBASE_URL)(
       );
       return svar.recordset.map((x) => ({ ...x, innhold: JSON.parse(x.innhold) }));
     };
-    /** Sakens topic i Catenda, lagt inn av eieren; ingen prosedyre skriver den ennå (#370). */
+    /** Sakens topic i Catenda, lagt inn av eieren; ingen prosedyre skriver den ennå (#741). */
     const settTopic = (sakId: string, board: string, topic: string) =>
       iTransaksjon(o.datalag.base.pool, { ...leser(), side: 'TE', team: null }, (r) =>
         settInn(r, 'sak_catenda_topic', {

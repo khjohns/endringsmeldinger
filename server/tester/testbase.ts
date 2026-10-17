@@ -11,6 +11,7 @@ import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { lagServer, type Avhengigheter } from '../app.ts';
 import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
+import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import { opprettSak } from '../kommandoer.ts';
 import { opprettKjoeretid, SQLSERVER_TILKOBLING, type Pool, type Testbase } from './sqlserver.ts';
 import { iTransaksjon, opprettMigrertTestbase, settInn } from './sqlserver_migrert.ts';
@@ -157,7 +158,7 @@ export async function rydd(o: Oppsett): Promise<void> {
 
 /**
  * En KOE-sak med `sak_opprettet` i kjernens format, opprettet av TE med
- * `koe_api.opprett_sak`. Kjernen har ingen kommando for opprettelsen ennå (#370).
+ * `opprettelse` i kjernen og `opprettSak`, som inngangen gjør (#370).
  * Med `format: null` er den en sak TS-kjernen ikke har skrevet, lagt inn av eieren.
  */
 export async function opprettKjernesak(
@@ -173,8 +174,12 @@ export async function opprettKjernesak(
     team: catendaId(prosjekt.teTeam)!,
   };
   const data = { sakstittel: 'Skiva', sakstype: 'standard' };
-  if (format !== null)
-    return (await opprettSak(o.datalag.kjoeretid.pool, kontekst, { format, data })).sak_id;
+  if (format !== null) {
+    const vurdert = opprettelse({ type: 'opprett_sak', sakstittel: data.sakstittel }, 'TE');
+    if (!vurdert.godtatt) throw new Error(vurdert.avvisning.melding);
+    const { format: f, data: d } = vurdert;
+    return (await opprettSak(o.datalag.kjoeretid.pool, kontekst, { format: f, data: d })).sak_id;
+  }
   const sakId = randomUUID();
   await iTransaksjon(o.datalag.base.pool, kontekst, async (r) => {
     await settInn(r, 'sak_metadata', {

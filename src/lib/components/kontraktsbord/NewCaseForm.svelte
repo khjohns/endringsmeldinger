@@ -222,7 +222,7 @@
       utdypning: letterText(begrunnelseHtml),
     });
     if (!createdCase) {
-      const opprettet = await opprettSak(opprettelse(tittel));
+      const opprettet = await opprettSak(opprettelse(tittel), prosjektId);
       createdCase = { id: opprettet.sak_id, version: opprettet.versjon };
       saveDraft(dk, utkast());
     }

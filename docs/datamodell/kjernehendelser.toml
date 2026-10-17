@@ -23,9 +23,10 @@ format = 1
 navn = "sak_opprettet"
 beskrivelse = """
 Saken er opprettet. Første rad i saken, i versjon 1, før grunnlagskravet.
-`opprettSak` i `server/kommandoer.ts` skriver raden og kontrollerer ikke at parten
-er TE. Opprettelsen i kjernen (`opprettelse` i `kjerne/kommandoer/opprettelse.ts`)
-godtar bare TE og gir `format` og `data` som `opprettSak` skal få."""
+`POST /api/kjerne/saker` i `server/app.ts` kaller opprettelsen i kjernen
+(`opprettelse` i `kjerne/kommandoer/opprettelse.ts`), som godtar bare TE og gir
+`format` og `data`, og så `opprettSak` i `server/kommandoer.ts`, som skriver
+raden og også avviser en annen side enn TE (#370, #696)."""
 felt = ["sakstittel", "sakstype"]
 grunnlag = "B-17, LV-U2, DL-U6. Andre sakstyper enn `standard` hører til #309"
 

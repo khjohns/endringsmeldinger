@@ -10,7 +10,7 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Type | Innhold | Felt i `data` | Grunnlag |
 | --- | --- | --- | --- |
-| `sak_opprettet` | Saken er opprettet. Første rad i saken, i versjon 1, før grunnlagskravet. `opprettSak` i `server/kommandoer.ts` skriver raden og kontrollerer ikke at parten er TE. Opprettelsen i kjernen (`opprettelse` i `kjerne/kommandoer/opprettelse.ts`) godtar bare TE og gir `format` og `data` som `opprettSak` skal få. | `sakstittel`, `sakstype` | B-17, LV-U2, DL-U6. Andre sakstyper enn `standard` hører til #309 |
+| `sak_opprettet` | Saken er opprettet. Første rad i saken, i versjon 1, før grunnlagskravet. `POST /api/kjerne/saker` i `server/app.ts` kaller opprettelsen i kjernen (`opprettelse` i `kjerne/kommandoer/opprettelse.ts`), som godtar bare TE og gir `format` og `data`, og så `opprettSak` i `server/kommandoer.ts`, som skriver raden og også avviser en annen side enn TE (#370, #696). | `sakstittel`, `sakstype` | B-17, LV-U2, DL-U6. Andre sakstyper enn `standard` hører til #309 |
 | `dokument_registrert` | Ett dokument fra én part: kravene, svarene, utsagnene og opplysningene i det. Et brev med flere svar er én rad, og saksversjonen øker med én. Dokumentet har minst ett krav, ett svar eller ett utsagn. Avsenderen er `actorrole`. Et brev appen sender, har brevteksten (`brevtekst`); et registrert brev har ingen. | `krav`, `svar`, `utsagn`, `opplysninger`, `dokumentasjon`, `brevtekst` | MM-U10, LV-U2, designnotatet 4.1 |
 
 ## Krav
