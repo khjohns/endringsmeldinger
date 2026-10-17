@@ -207,6 +207,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.kjernebuffer.prosjekt_id',
         'koe.leveringsoppdrag.prosjekt_id',
         'koe.notat.prosjekt_id',
+        'koe.sak_catenda_topic.prosjekt_id',
         'koe.sak_metadata.prosjekt_id',
       ]);
       expect(svar.recordset.filter((r) => r.har_default)).toEqual([]);

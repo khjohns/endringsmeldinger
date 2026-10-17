@@ -748,7 +748,7 @@
      ["is_active", "bit", "NOT NULL"],
      ["created_at", "datetime2(3)", "NOT NULL"],
      ["updated_at", "datetime2(3)", "NOT NULL"],
-     ["library_id", "uniqueidentifier", "NULL"],
+     ["library_id", "uniqueidentifier", "NOT NULL"],
      ["folder_id", "uniqueidentifier", "NULL"]
     ],
     "primærnøkkel": ["internal_project_id"],
@@ -898,14 +898,32 @@
     "unike_indekser": [],
     "fremmednøkler": []
    },
+   "koe.sak_catenda_topic": {
+    "kolonner": [
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["catenda_board_id", "nvarchar(100)", "NOT NULL"],
+     ["catenda_topic_id", "nvarchar(100)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["sak_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.sak_metadata": {
     "kolonner": [
      ["sak_id", "nvarchar(36)", "NOT NULL"],
      ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
      ["sakstype", "nvarchar(40)", "NOT NULL"],
      ["created_by", "uniqueidentifier", "NOT NULL"],
-     ["created_at", "datetime2(3)", "NOT NULL"],
-     ["catenda_topic_id", "nvarchar(100)", "NULL"]
+     ["created_at", "datetime2(3)", "NOT NULL"]
     ],
     "primærnøkkel": ["sak_id"],
     "unike": [

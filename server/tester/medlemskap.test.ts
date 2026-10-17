@@ -90,8 +90,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       .input('kobling', sql.NVarChar(10), kobling).query(`
         INSERT koe.projects (id, name, organisasjon_id, is_active) VALUES (@id, @id, N'oslobygg', 1);
         IF @kobling <> N'ingen'
-          INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active)
-          VALUES (@id, @catenda, IIF(@kobling = N'aktiv', 1, 0));`);
+          INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, is_active)
+          VALUES (@id, @catenda, NEWID(), IIF(@kobling = N'aktiv', 1, 0));`);
     return { id, catenda, catendaId: catenda.replaceAll('-', '') };
   }
 
@@ -390,8 +390,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
   it.each<[string, string]>([
     [
       'catenda_project_configs.internal_project_id',
-      `INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active)
-       VALUES (@p, NEWID(), 1)`,
+      `INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, is_active)
+       VALUES (@p, NEWID(), NEWID(), 1)`,
     ],
     [
       'app_membership_sync.project_id',
@@ -889,7 +889,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     'SELECT * FROM koe.catenda_project_configs',
     'SELECT * FROM koe.app_project_memberships',
     'UPDATE koe.app_project_memberships SET active = 1 WHERE 1 = 0',
-    "INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active) VALUES (N'x', NEWID(), 1)",
+    "INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, is_active) VALUES (N'x', NEWID(), NEWID(), 1)",
   ])('kjøretiden kan ikke lese eller skrive tabellene direkte: %s (229)', async (setning) => {
     const feil = await kjoeretid.pool
       .request()

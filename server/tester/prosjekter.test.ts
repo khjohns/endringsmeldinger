@@ -60,6 +60,7 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
     await settInn(eier, 'catenda_project_configs', {
       internal_project_id: id,
       catenda_project_id: catenda,
+      library_id: randomUUID(),
       is_active: koblet,
     });
     await settInn(eier, 'app_membership_sync', {

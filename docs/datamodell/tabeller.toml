@@ -857,6 +857,24 @@ funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
 [[tabell]]
+navn = "koe.sak_catenda_topic"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "uavklart"
+beskrivelse = """
+Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til:
+topicen lages etter at saken er lagret, og saksraden er uforanderlig.
+`koe_api.leveringsmaal` leser den, og leveringsoppdraget fryser topicen, eller
+null uten rad (F0b-7, #661)."""
+lagres_fra = "Ingen prosedyre skriver den ennå (#370, #371)."
+fra_catenda = "Ja, ID-ene er Catendas."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Nei."
+skrivere = []
+funn = []
+belegg = "L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 17.10: `server/tester/skive.test.ts`."
+
+[[tabell]]
 navn = "koe.skrivetidspunkt"
 lagring = "SQL Server"
 type = ["teknisk"]

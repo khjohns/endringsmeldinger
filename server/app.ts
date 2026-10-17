@@ -244,9 +244,6 @@ async function visSaken(
 
 const KOMMANDOKROPP = new Set(['expected_version', 'kommando']);
 
-/** Hvorfor et brev ikke skrives: kjernen avviste, eller prosjektet har ikke noe leveringsmål. */
-type Avslag = Exclude<ReturnType<typeof vurder>, { godtatt: true }> | { maalMangler: true };
-
 async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
   const { bruker, prosjekt, side, sakId, kropp } = f;
   const ukjente = Object.keys(kropp).filter((k) => !KOMMANDOKROPP.has(k));
@@ -264,13 +261,12 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   };
   let utfall;
   try {
-    utfall = await skrivHendelse<Avslag>(
+    utfall = await skrivHendelse(
       avh.datalag,
       kontekst,
       sakId,
       forventet,
       ({ journal, tidspunkt, maal }) => {
-        if (!maal) return { skriv: false, avvisning: { maalMangler: true } };
         const vurdert = vurder(
           kropp.kommando,
           {
@@ -312,12 +308,6 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
     throw feil;
   }
   if (!utfall.skriv) {
-    if ('maalMangler' in utfall.avvisning)
-      return feilsvar(
-        409,
-        'LEVERINGSMAAL_MANGLER',
-        'Prosjektet har ikke noe bibliotek i Catenda for brevene.'
-      );
     const { feil, avvisning } = utfall.avvisning;
     return [
       400,

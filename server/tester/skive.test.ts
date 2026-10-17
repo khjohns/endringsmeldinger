@@ -23,7 +23,7 @@ import type { Avsnitt } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { gjengiOppdrag, kanonisk, OPPDRAGSFORMAT, sjekksum } from '../levering.ts';
 import { sql } from './sqlserver.ts';
-import { iTransaksjon } from './sqlserver_migrert.ts';
+import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
 import {
   kall,
   lagOppsett,
@@ -122,15 +122,16 @@ describe.skipIf(!TESTBASE_URL)(
       );
       return svar.recordset.map((x) => ({ ...x, innhold: JSON.parse(x.innhold) }));
     };
-    /** Biblioteket i koblingen for prosjektet, satt av eieren som driften gjør. */
-    const settBibliotek = (bibliotek: string | null) =>
-      o.datalag.base.pool
-        .request()
-        .input('prosjekt', sql.NVarChar(100), o.prosjekt.id)
-        .input('bibliotek', sql.UniqueIdentifier, bibliotek)
-        .query(
-          'UPDATE koe.catenda_project_configs SET library_id = @bibliotek WHERE internal_project_id = @prosjekt'
-        );
+    /** Sakens topic i Catenda, lagt inn av eieren; ingen prosedyre skriver den ennå (#370). */
+    const settTopic = (sakId: string, board: string, topic: string) =>
+      iTransaksjon(o.datalag.base.pool, { ...leser(), side: 'TE', team: null }, (r) =>
+        settInn(r, 'sak_catenda_topic', {
+          sak_id: sakId,
+          prosjekt_id: o.prosjekt.id,
+          catenda_board_id: board,
+          catenda_topic_id: topic,
+        })
+      );
 
     beforeAll(async () => {
       o = await lagOppsett();
@@ -209,6 +210,7 @@ describe.skipIf(!TESTBASE_URL)(
           catenda_project_id: o.prosjekt.catendaProsjekt,
           library_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
           folder_id: null,
+          board_id: null,
           topic_id: null,
         });
         // Summen kan regnes på nytt av det basen gir tilbake.
@@ -369,22 +371,24 @@ describe.skipIf(!TESTBASE_URL)(
       );
     });
 
-    it('uten bibliotek i koblingen skrives verken brevet eller oppdraget', async () => {
+    it('sakens topic i Catenda fryses i oppdraget når saken har en (LV-U1)', async () => {
       const sakId = await opprettKjernesak(o);
-      await settBibliotek(null);
-      try {
-        const svar = await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV });
-        expect(svar.status).toBe(409);
-        expect(svar.kropp.error).toBe('LEVERINGSMAAL_MANGLER');
-        expect(await journalen(sakId)).toHaveLength(1);
-        expect(await oppdragene(sakId)).toEqual([]);
-      } finally {
-        await settBibliotek(randomUUID());
-      }
-      // Kontrollsak: med bibliotek skrives brevet.
+      const [board, topic] = [randomUUID(), randomUUID()];
+      await settTopic(sakId, board, topic);
       expect((await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
         201
       );
+      const [x] = await oppdragene(sakId);
+      expect(x.innhold.maal).toMatchObject({ board_id: board, topic_id: topic });
+      // Kontrollsak: en sak uten topic fryser topic lik null, som i PG-stien.
+      const utenTopic = await opprettKjernesak(o);
+      expect((await send(utenTopic, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
+        201
+      );
+      expect((await oppdragene(utenTopic))[0].innhold.maal).toMatchObject({
+        board_id: null,
+        topic_id: null,
+      });
     });
 
     it('sjekksummen er uavhengig av rekkefølgen på nøklene', () => {

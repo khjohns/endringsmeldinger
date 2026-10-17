@@ -25,11 +25,12 @@ export class Versjonskonflikt extends Error {
 /** Saken finnes ikke i det autoriserte prosjektet, eller er ikke skrevet av TS-kjernen. */
 export class SakFinnesIkke extends Error {}
 
-/** Målet i Catenda for brevene i saken: koblingen for prosjektet og topicen for saken. */
+/** Målet i Catenda for brevene i saken: koblingen for prosjektet og topicen for saken, når den finnes. */
 export interface Leveringsmaal {
   catenda_project_id: string;
   library_id: string;
   folder_id: string | null;
+  board_id: string | null;
   topic_id: string | null;
 }
 
@@ -142,15 +143,13 @@ export async function lesSaken(
 
 /**
  * Leveringsmålet for saken i prosjektet i konteksten, fra `koe_api.leveringsmaal`.
- * `null` når prosjektet ikke har aktiv kobling eller koblingen ikke har bibliotek.
+ * Kalles etter at saken er funnet; en sak uten aktiv kobling har ikke noe mål, og
+ * da skrives ikke brevet.
  */
-export async function lesLeveringsmaal(
-  foresp: Foresp,
-  sakId: string
-): Promise<Leveringsmaal | null> {
+export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal> {
   const svar = await foresp()
     .input('sak_id', sql.NVarChar(36), sakId)
     .execute<Leveringsmaal>('koe_api.leveringsmaal');
-  const maal = svar.recordset[0];
-  return maal?.library_id ? maal : null;
+  if (!svar.recordset[0]) throw new Error(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
+  return svar.recordset[0];
 }

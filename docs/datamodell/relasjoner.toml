@@ -767,6 +767,17 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
+fra = ["koe.sak_catenda_topic.sak_id", "koe.sak_catenda_topic.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst én topic. Sammensatt med
+`prosjekt_id`, så raden står i sakens prosjekt."""
+funn = []
+belegg = "K 17.10: katalogen."
+
+[[relasjon]]
 fra = ["koe.kjernebuffer.sak_id", "koe.kjernebuffer.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
@@ -928,8 +939,12 @@ kolonne = "koe.catenda_project_configs.folder_id"
 begrunnelse = "Mappen i biblioteket. Samme som `library_id`."
 
 [[uten_relasjon]]
-kolonne = "koe.sak_metadata.catenda_topic_id"
-begrunnelse = "ID-en til topicen i Catenda for saken. Fryses i leveringsoppdraget (F0b-7, #661)."
+kolonne = "koe.sak_catenda_topic.catenda_board_id"
+begrunnelse = "Boardet topicen står i, i Catenda. Fryses i leveringsoppdraget (F0b-7, #661)."
+
+[[uten_relasjon]]
+kolonne = "koe.sak_catenda_topic.catenda_topic_id"
+begrunnelse = "ID-en til sakens topic i Catenda. Fryses i leveringsoppdraget (F0b-7, #661)."
 
 [[uten_relasjon]]
 kolonne = "koe.app_membership_sync.catenda_project_id"

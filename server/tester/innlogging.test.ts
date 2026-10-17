@@ -344,6 +344,7 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
       await settInn(r, 'catenda_project_configs', {
         internal_project_id: p.id,
         catenda_project_id: p.catenda,
+        library_id: randomUUID(),
         is_active: true,
       });
       return { ...p, catendaId: catendaId(p.catenda)! };

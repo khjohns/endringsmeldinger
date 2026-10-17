@@ -46,6 +46,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.hendelse`](#koehendelse) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.notat`](#koenotat) | SQL Server | transaksjon | uavklart | Ja | Nei |
 | [`koe.leveringsoppdrag`](#koeleveringsoppdrag) | SQL Server | transaksjon | i bruk | Ja | Nei |
+| [`koe.sak_catenda_topic`](#koesak_catenda_topic) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.skrivetidspunkt`](#koeskrivetidspunkt) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.kjernebuffer`](#koekjernebuffer) | SQL Server | avledet | uavklart | Nei | Nei |
 | [`koe.app_sessions`](#koeapp_sessions) | SQL Server | teknisk | i bruk | Nei | Nei |
@@ -645,7 +646,7 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53). |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.sak_catenda_topic.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` peker på en bruker. |
 | Skrives av | database/migrasjoner/20261016230000_skranker.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
@@ -702,6 +703,23 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Skrives av | database/migrasjoner/20261016230000_skranker.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
+
+### `koe.sak_catenda_topic`
+
+Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til: topicen lages etter at saken er lagret, og saksraden er uforanderlig. `koe_api.leveringsmaal` leser den, og leveringsoppdraget fryser topicen, eller null uten rad (F0b-7, #661).
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen prosedyre skriver den ennå (#370, #371). |
+| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (sak_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Nei. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 17.10: `server/tester/skive.test.ts`. |
 
 ### `koe.skrivetidspunkt`
 

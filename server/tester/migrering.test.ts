@@ -516,6 +516,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'leveringsoppdrag',
         'notat',
         'projects',
+        'sak_catenda_topic',
         'sak_metadata',
         'skrivetidspunkt',
       ]);

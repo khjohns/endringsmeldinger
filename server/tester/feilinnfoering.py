@@ -54,9 +54,6 @@ FEILINNFOERINGER = [
     ("S11", "dybdegrensen for kroppen mangler", "server/app.ts",
      "if (dybde > STORSTE_DYBDE) return", "if (false) return",
      "dypt nestet"),
-    ("S12", "et brev skrives uten bibliotek i koblingen", "server/app.ts",
-     "if (!maal) return", "if (false) return",
-     "uten bibliotek"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

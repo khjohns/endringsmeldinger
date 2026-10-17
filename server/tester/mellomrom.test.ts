@@ -151,6 +151,7 @@ const UTEN_KONTROLL: Record<string, Grunn> = {
   'koe.hendelse.sak_id': { grunn: 'fremmednoekkel', til: 'koe.sak_metadata.sak_id' },
   'koe.notat.sak_id': { grunn: 'fremmednoekkel', til: 'koe.sak_metadata.sak_id' },
   'koe.kjernebuffer.sak_id': { grunn: 'fremmednoekkel', til: 'koe.sak_metadata.sak_id' },
+  'koe.sak_catenda_topic.sak_id': { grunn: 'fremmednoekkel', til: 'koe.sak_metadata.sak_id' },
   'koe.leveringsoppdrag.sak_id': { grunn: 'fremmednoekkel', til: 'koe.hendelse.sak_id' },
   'koe.leveringsoppdrag.event_id': { grunn: 'fremmednoekkel', til: 'koe.hendelse.event_id' },
   'koe_migrering.historikk.versjon': { grunn: 'fast_bredde' },

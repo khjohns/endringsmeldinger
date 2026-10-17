@@ -107,8 +107,8 @@ export interface Skrivegrunnlag {
   journal: Journalrad[];
   /** Basens klokke for skrivingen; raden må ha nøyaktig dette tidspunktet. */
   tidspunkt: Date;
-  /** Målet i Catenda for brevet, eller `null` når prosjektet ikke har noe bibliotek. */
-  maal: Leveringsmaal | null;
+  /** Målet i Catenda for brevet. */
+  maal: Leveringsmaal;
 }
 
 /** Raden og oppdraget som skal lagres, eller en avvisning som avbryter uten å skrive. */
