@@ -571,7 +571,11 @@ export function lagServer(avh: Avhengigheter) {
     } catch (feil) {
       console.error(feil);
       tekst = JSON.stringify(UVENTET[1]);
-      respons.writeHead(500, { 'content-type': 'application/json; charset=utf-8' });
+      // Node beholder årsaksfrasen fra det første forsøket, og rutens hoder gjelder også dette svaret.
+      respons.writeHead(500, 'Internal Server Error', {
+        'content-type': 'application/json; charset=utf-8',
+        ...funnet?.r.hoder,
+      });
     }
     respons.end(tekst);
   };

@@ -125,6 +125,7 @@ describe('innloggingen fra miljøet, som validate_config', () => {
 
 interface Svar {
   status: number;
+  statustekst: string;
   hoder: Headers;
   kapsler: Map<string, string>;
   kropp: Record<string, unknown> | null;
@@ -148,6 +149,7 @@ async function hent(
   const tekst = await svar.text();
   return {
     status: svar.status,
+    statustekst: svar.statusText,
     hoder: svar.headers,
     kapsler: new Map(svar.headers.getSetCookie().map((k) => [k.split('=', 1)[0], k])),
     kropp: tekst ? (JSON.parse(tekst) as Record<string, unknown>) : null,
@@ -261,7 +263,10 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
       const svar = await hent(`${galt.url}/api/auth/catenda/login`);
       expect(svar.status).toBe(500);
       expect(svar.kropp?.error).toBe('INTERNAL_ERROR');
+      expect(svar.statustekst).toBe('Internal Server Error');
       expect(svar.hoder.get('location')).toBeNull();
+      expect(svar.hoder.get('cache-control')).toBe('no-store');
+      expect(svar.hoder.get('referrer-policy')).toBe('no-referrer');
       // Kontrollsak: med en gyldig adresse svarer samme inngang 302.
       expect((await startInnlogging()).svar.status).toBe(302);
       expect((await hent(`${galt.url}/api/auth/catenda/login`)).status).toBe(500);
