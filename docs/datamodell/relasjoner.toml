@@ -49,7 +49,7 @@ Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Triggeren
 `leveringsoppdrag_vakt` avviser et oppdrag med en annen sak eller et annet
 prosjekt enn hendelsen."""
 funn = []
-belegg = "K 11.10: katalogen og `server/tester/skive.test.ts`."
+belegg = "K 11.10: katalogen. Prøvd i `server/tester/skive.test.ts` fram til F0b-7 (#661)."
 
 [[relasjon]]
 fra = "notat.sak_id"
@@ -250,7 +250,7 @@ art = "logisk"
 antall = "mange til én"
 beskrivelse = "Prosjektet brevet er sendt i. Triggeren krever at det er hendelsens prosjekt."
 funn = []
-belegg = "K 11.10: `server/tester/skive.test.ts`."
+belegg = "K 11.10: prøvd i `server/tester/skive.test.ts` fram til F0b-7 (#661)."
 
 [[relasjon]]
 fra = "notat.prosjekt_id"
@@ -767,6 +767,17 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
+fra = ["koe.sak_catenda_topic.sak_id", "koe.sak_catenda_topic.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst én topic. Sammensatt med
+`prosjekt_id`, så raden står i sakens prosjekt."""
+funn = []
+belegg = "K 17.10: katalogen."
+
+[[relasjon]]
 fra = ["koe.kjernebuffer.sak_id", "koe.kjernebuffer.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
@@ -918,6 +929,22 @@ begrunnelse = "Virksomheten prosjektet tilhører. Det finnes ingen tabell for vi
 [[uten_relasjon]]
 kolonne = "koe.catenda_project_configs.catenda_project_id"
 begrunnelse = "ID-en til prosjektet i Catenda, unik per kobling. Ingen tabell i SQL Server har Catenda-prosjektene."
+
+[[uten_relasjon]]
+kolonne = "koe.catenda_project_configs.library_id"
+begrunnelse = "Dokumentbiblioteket i Catenda for brevene. Fryses i leveringsoppdraget (F0b-7, #661)."
+
+[[uten_relasjon]]
+kolonne = "koe.catenda_project_configs.folder_id"
+begrunnelse = "Mappen i biblioteket. Samme som `library_id`."
+
+[[uten_relasjon]]
+kolonne = "koe.sak_catenda_topic.catenda_board_id"
+begrunnelse = "Boardet topicen står i, i Catenda. Fryses i leveringsoppdraget (F0b-7, #661)."
+
+[[uten_relasjon]]
+kolonne = "koe.sak_catenda_topic.catenda_topic_id"
+begrunnelse = "ID-en til sakens topic i Catenda. Fryses i leveringsoppdraget (F0b-7, #661)."
 
 [[uten_relasjon]]
 kolonne = "koe.app_membership_sync.catenda_project_id"

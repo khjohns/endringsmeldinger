@@ -2,8 +2,8 @@
  * Grensene rundt TS-serveren (B-18, B-17):
  * - Serveren importerer kjernen fra `kjerne/`, ikke kjernens tester og ikke
  *   språkprøven (`sprakprove/` er prøvekode, AGENTS.md) eller frontenden.
- * - Ut over det bruker serveren bare Node og `pg`. Testene kan i tillegg bruke
- *   Vitest.
+ * - Ut over det bruker serveren bare Node. `pg` er ute av serveren (#661); den
+ *   brukes bare av språkprøven. Testene kan i tillegg bruke Vitest.
  * - `mssql` importeres bare i datalaget (`datalag.ts`, #419), i migreringen
  *   (`migrering.ts`, #53), i testen av datalaget (`tester/datalag.test.ts`) og
  *   i testbasen (`tester/sqlserver*.ts`, #532). De andre testene, også
@@ -31,7 +31,7 @@ const SERVER = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROT = resolve(SERVER, '..');
 const KJERNE = join(ROT, 'kjerne');
 const TESTER = join(SERVER, 'tester');
-const PAKKER = new Set(['pg']);
+const PAKKER = new Set<string>();
 const TESTPAKKER = new Set(['vitest', 'typescript']);
 
 /** Filene som kan importere `mssql`. */
@@ -102,7 +102,7 @@ describe('grensene rundt TS-serveren', () => {
   });
 
   it.each(filer.map((f) => [relative(SERVER, f), f] as const))(
-    '%s importerer bare kjernen, serveren, Node, pg og, i datalaget, mssql',
+    '%s importerer bare kjernen, serveren, Node og, i datalaget, mssql',
     (_navn, fil) => {
       expect(forbudteImporter(fil, readFileSync(fil, 'utf8'))).toEqual([]);
     }
@@ -138,6 +138,9 @@ describe('grensene rundt TS-serveren', () => {
     ["import sql from 'mssql';", 'tester/migrering.test.ts'],
     ["import type { ConnectionPool } from 'mssql';", 'app.ts'],
     ["const sql = require('mssql');", 'tester/register.test.ts'],
+    ["import pg from 'pg';", 'lager.ts'],
+    ["import type { Pool } from 'pg';", 'app.ts'],
+    ["const pg = require('pg');", 'tester/testbase.ts'],
   ])('oppdager %s i %s', (linje, navn) => {
     const fil = join(SERVER, navn);
     expect(forbudteImporter(fil, `${linje}\n${readFileSync(fil, 'utf8')}`)).not.toEqual([]);

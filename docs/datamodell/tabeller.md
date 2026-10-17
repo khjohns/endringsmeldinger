@@ -9,7 +9,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | Tabell | Lagring | Type | Status | Transaksjon | Grunndata |
 | --- | --- | --- | --- | --- | --- |
 | [`hendelse`](#hendelse) | PostgreSQL | transaksjon | i bruk | Ja | Nei |
-| [`leveringsoppdrag`](#leveringsoppdrag) | PostgreSQL | transaksjon | i bruk | Ja | Nei |
+| [`leveringsoppdrag`](#leveringsoppdrag) | PostgreSQL | transaksjon | rest | Ja | Nei |
 | [`notat`](#notat) | PostgreSQL | transaksjon | i bruk | Ja | Nei |
 | [`sak_metadata`](#sak_metadata) | PostgreSQL | grunndata, avledet | i bruk | Nei | Delvis |
 | [`sak_relations`](#sak_relations) | PostgreSQL | avledet | i bruk | Nei | Nei |
@@ -46,6 +46,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.hendelse`](#koehendelse) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.notat`](#koenotat) | SQL Server | transaksjon | uavklart | Ja | Nei |
 | [`koe.leveringsoppdrag`](#koeleveringsoppdrag) | SQL Server | transaksjon | i bruk | Ja | Nei |
+| [`koe.sak_catenda_topic`](#koesak_catenda_topic) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.skrivetidspunkt`](#koeskrivetidspunkt) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.kjernebuffer`](#koekjernebuffer) | SQL Server | avledet | uavklart | Nei | Nei |
 | [`koe.app_sessions`](#koeapp_sessions) | SQL Server | teknisk | i bruk | Nei | Nei |
@@ -66,26 +67,26 @@ Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar, endringsor
 | Relasjoner | Nøkler: primærnøkkel (id); unik (event_id); unik (sak_id, versjon). Viser til: sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE); prosjekt_id → projects.id (uten fremmednøkkel); actorid → app_users.id (uten fremmednøkkel); actorteam → catenda_contract_teams.team_id (uten fremmednøkkel); referstoid → hendelse.event_id (uten fremmednøkkel); data → vedlegg_ids[] → vedlegg.vedlegg_id (uten fremmednøkkel). Vises til fra: approvals.body → items[].claimId (uten fremmednøkkel); approvals.body → packages[].eventIds[] (uten fremmednøkkel); catenda_delivery_status.event_id (uten fremmednøkkel); leveringsoppdrag.event_id (fremmednøkkel, ON DELETE CASCADE); notat.refererer_til_event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `actorid` peker på en bruker. Fritekst i `data` og `comment` kan inneholde personopplysninger. Vurderingen hører til DPIA-en. |
-| Skrives av | backend/routes/event_routes.py; backend/services/sak_creation_service.py; backend/services/forsering_service.py; backend/services/endringsordre_service.py; backend/services/approval_service.py; backend/services/catenda_webhook_service.py (via sak_creation_service); server/lager.ts (TS-serveren i testmiljøet, #347) |
+| Skrives av | backend/routes/event_routes.py; backend/services/sak_creation_service.py; backend/services/forsering_service.py; backend/services/endringsordre_service.py; backend/services/approval_service.py; backend/services/catenda_webhook_service.py (via sak_creation_service); sprakprove/server/lager.ts (språkprøvens server og `sprakprove/kjernelagring/bane.ts`, mot testbasen) |
 | Funn | MS-01, MS-02, MS-03, AR-02, DM-06 |
-| Belegg | K 29.09: kolonnene i testbasen og prosjektet, og skrankene (også CASCADE) i testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`. |
+| Belegg | K 29.09: kolonnene i testbasen og prosjektet, og skrankene (også CASCADE) i testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`. L 17.10: `SETT_INN` i `sprakprove/server/lager.ts`. |
 
 ### `leveringsoppdrag`
 
-Leveringsoppdraget for et brev TS-serveren skriver (LV-U1, B-03, dokumentet). Én rad per brev, og ett brev er ett dokument i Catenda. `innhold` fryser det som skal leveres: brevet slik det ble lagret, målet i Catenda, statusetiketten og versjonene. Raden er uforanderlig; et nytt leveringsforsøk sender samme innhold. Et lagret oppdrag beviser ikke at brevet er sendt eller mottatt. Forsøk, feil og kvitteringer er ikke bygget (#371). Bare testmiljøet skriver tabellen (#347).
+Leveringsoppdraget for et brev TS-serveren skrev fram til F0b-7 (LV-U1, B-03, dokumentet). Én rad per brev, og ett brev er ett dokument i Catenda. `innhold` fryser det som skal leveres: brevet slik det ble lagret, målet i Catenda, statusetiketten og versjonene. Raden er uforanderlig; et nytt leveringsforsøk sender samme innhold. Et lagret oppdrag beviser ikke at brevet er sendt eller mottatt. Forsøk, feil og kvitteringer er ikke bygget (#371). Ingen skriver tabellen lenger: TS-serveren skriver oppdraget i `koe.leveringsoppdrag` i SQL Server (F0b-7, #661).
 
 | Felt | Innhold |
 | --- | --- |
 | Type | transaksjon |
-| Status | i bruk |
-| Hvor fra appen lagres og redigeres | Når TS-serveren lagrer et brev: i samme transaksjon som hendelsen i `hendelse`. Slettes bare med saken eller hendelsen (kaskade). |
+| Status | rest |
+| Hvor fra appen lagres og redigeres | Ingen steder etter F0b-7 (#661). Fram til da skrev TS-serveren oppdraget i samme transaksjon som hendelsen i `hendelse`. Slettes bare med saken eller hendelsen (kaskade). |
 | Data fra Catenda | Nei. Målet (prosjekt, bibliotek, mappe og topic) leses fra prosjektets Catenda-konfigurasjon og saksregisteret når brevet lagres. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE); event_id → hendelse.event_id (fremmednøkkel, ON DELETE CASCADE); prosjekt_id → projects.id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Oppdraget er det frosne brevet som skal leveres. |
 | Personopplysninger | `innhold` har avsenderens `aktor_id` og brevets fritekst. |
-| Skrives av | server/lager.ts |
+| Skrives av | Ingen funnet |
 | Funn | — |
-| Belegg | K 11.10: kolonnene, skrankene og triggeren i testbasen, og skrivingen i `server/tester/skive.test.ts`. |
+| Belegg | K 11.10: kolonnene, skrankene og triggeren i testbasen. L 17.10: ingen skriver i `server/` etter at `pg` er tatt ut (#661). |
 
 ### `notat`
 
@@ -645,7 +646,7 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53). |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.hendelse.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.sak_catenda_topic.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` peker på en bruker. |
 | Skrives av | database/migrasjoner/20261016230000_skranker.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
@@ -660,7 +661,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. Ingen HTTP-inngang kaller dem ennå (#53). |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. `koe_api.skriv_hendelse` kalles fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661); ingen HTTP-inngang oppretter saker ennå (#370). |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
@@ -694,7 +695,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53). |
+| Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661). |
 | Data fra Catenda | Nei, men oppdraget gjelder en levering til Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
@@ -702,6 +703,23 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Skrives av | database/migrasjoner/20261016230000_skranker.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
+
+### `koe.sak_catenda_topic`
+
+Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til: topicen lages etter at saken er lagret, og saksraden er uforanderlig. `koe_api.leveringsmaal` leser den, og leveringsoppdraget fryser topicen, eller null uten rad (F0b-7, #661).
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | uavklart |
+| Hvor fra appen lagres og redigeres | Ingen prosedyre skriver den ennå (#370, #371). |
+| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (sak_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Nei. |
+| Skrives av | Ingen funnet |
+| Funn | — |
+| Belegg | L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 17.10: `server/tester/skive.test.ts`. |
 
 ### `koe.skrivetidspunkt`
 

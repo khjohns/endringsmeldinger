@@ -135,6 +135,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       await settInn(r, 'catenda_project_configs', {
         internal_project_id: p.id,
         catenda_project_id: p.catenda,
+        library_id: randomUUID(),
         is_active: kobling === 'aktiv',
       });
     if (liste !== 'ingen')

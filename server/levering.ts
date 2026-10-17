@@ -23,7 +23,7 @@ import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
-export const OPPDRAGSFORMAT = 2;
+export const OPPDRAGSFORMAT = 3;
 
 /** JSON med nøklene sortert, så summen kan regnes på nytt av det basen gir tilbake. */
 export function kanonisk(verdi: unknown): string {

@@ -304,6 +304,10 @@ erDiagram
     koe_projects {
         nvarchar_100 id PK
     }
+    koe_sak_catenda_topic {
+        nvarchar_36 sak_id PK, FK
+        nvarchar_100 prosjekt_id FK
+    }
     koe_sak_metadata {
         nvarchar_36 sak_id PK, UK
         nvarchar_100 prosjekt_id FK, UK
@@ -328,6 +332,7 @@ erDiagram
     koe_sak_metadata ||--o{ koe_notat : "(sak_id, prosjekt_id)"
     koe_app_users ||--o{ koe_notat : "aktor_id"
     koe_hendelse ||--o| koe_leveringsoppdrag : "(event_id, sak_id, prosjekt_id)"
+    koe_sak_metadata ||--o| koe_sak_catenda_topic : "(sak_id, prosjekt_id)"
     koe_sak_metadata ||--o| koe_kjernebuffer : "(sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_hendelse : "aktor_team_id"
     koe_hendelse |o..o{ koe_hendelse : "refererer_til_event_id"
@@ -341,7 +346,7 @@ erDiagram
 | --- | --- | --- | --- | --- | --- | --- |
 | `hendelse.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken hendelsen hører til. Slettes saken i saksregisteret, sletter basen journalen med (ON DELETE CASCADE); basen verner ikke journalen (MS-02). | MS-02 | K 29.09: katalogen. |
 | `leveringsoppdrag.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken brevet er sendt i. Slettes saken, slettes oppdraget med (ON DELETE CASCADE). | — | K 11.10: katalogen i testbasen. |
-| `leveringsoppdrag.event_id` | `hendelse.event_id` | fremmednøkkel, ON DELETE CASCADE | én til én | Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Triggeren `leveringsoppdrag_vakt` avviser et oppdrag med en annen sak eller et annet prosjekt enn hendelsen. | — | K 11.10: katalogen og `server/tester/skive.test.ts`. |
+| `leveringsoppdrag.event_id` | `hendelse.event_id` | fremmednøkkel, ON DELETE CASCADE | én til én | Brevet oppdraget leverer. Unik, så hvert brev har ett oppdrag. Triggeren `leveringsoppdrag_vakt` avviser et oppdrag med en annen sak eller et annet prosjekt enn hendelsen. | — | K 11.10: katalogen. Prøvd i `server/tester/skive.test.ts` fram til F0b-7 (#661). |
 | `notat.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken notatet er skrevet i. | — | K 29.09: katalogen. |
 | `sak_bim_links.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken BIM-objektet er koblet til. | — | K 29.09: katalogen. |
 | `magic_links.sak_id` | `sak_metadata.sak_id` | fremmednøkkel, ON DELETE CASCADE | mange til én | Saken lenken gjaldt. Tabellen er en rest (MS-15). | MS-15 | K 29.09: katalogen. |
@@ -361,7 +366,7 @@ erDiagram
 | `hendelse.actorteam` | `catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, utledet fra teammedlemskapet i Catenda da hendelsen ble skrevet. Tom når teamet ikke var entydig. Lagres som 32 heksadesimaler uten bindestreker (`catenda_id`), mens `team_id` er `uuid`; en sammenstilling må normalisere. | — | L 29.09: `contract_membership_for_subject` og lageret. |
 | `hendelse.referstoid` | `hendelse.event_id` | uten fremmednøkkel | mange til én | Kravet et svar gjelder (`refererer_til_event_id`), i samme sak. Forretningsreglene for svar sammenlikner den med sporets gjeldende krav. | — | L 29.09: `business_rules.py` og `approval_service.py`. |
 | `hendelse.data → vedlegg_ids[]` | `vedlegg.vedlegg_id` | uten fremmednøkkel | mange til mange | Vedleggene hendelsen sender. Leveringen til Catenda starter fra disse referansene etter at hendelsen er lagret. Sammenlikningen normaliserer med `catenda_id`. Går på tvers av lagene: journalen i PostgreSQL, registeret i SQLite. | AR-03 | L 29.09: `lever_vedlegg_for_hendelser`. |
-| `leveringsoppdrag.prosjekt_id` | `projects.id` | uten fremmednøkkel | mange til én | Prosjektet brevet er sendt i. Triggeren krever at det er hendelsens prosjekt. | — | K 11.10: `server/tester/skive.test.ts`. |
+| `leveringsoppdrag.prosjekt_id` | `projects.id` | uten fremmednøkkel | mange til én | Prosjektet brevet er sendt i. Triggeren krever at det er hendelsens prosjekt. | — | K 11.10: prøvd i `server/tester/skive.test.ts` fram til F0b-7 (#661). |
 | `notat.prosjekt_id` | `projects.id` | uten fremmednøkkel | mange til én | Prosjektet notatet er skrevet i. | — | L 29.09: lageret. |
 | `notat.aktor_id` | `app_users.id` | uten fremmednøkkel | mange til én | Forfatteren. | — | L 29.09: hendelsesruta. |
 | `notat.aktor_team_id` | `catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som kan lese notatet. Skjermingen går på denne verdien; uten den vises notatet til ingen (AGENTS.md). Samme verdiform som `hendelse.actorteam`. | — | L 29.09: hendelsesruta og `event_visibility.py`. |
@@ -412,6 +417,7 @@ erDiagram
 | `koe.notat.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken notatet er skrevet i. Sammensatt med `prosjekt_id`, så notatet står i sakens prosjekt. | — | K 16.10: katalogen. |
 | `koe.notat.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Forfatteren, `app_users.id`. | — | K 16.10: katalogen. |
 | `koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id)` | `koe.hendelse.(event_id, sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Brevet oppdraget leverer. `event_id` er unik, så hvert brev har ett oppdrag. Sammensatt med `sak_id` og `prosjekt_id`, så oppdraget står i brevets sak og prosjekt. | — | K 16.10: katalogen. |
+| `koe.sak_catenda_topic.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst én topic. Sammensatt med `prosjekt_id`, så raden står i sakens prosjekt. | — | K 17.10: katalogen. |
 | `koe.kjernebuffer.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. `sak_id` er primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
 | `koe.hendelse.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, i `catenda_id()`-formen. Tom når teamet ikke var entydig (DL-U4). | — | L 16.10: migrasjonen. |
 | `koe.hendelse.refererer_til_event_id` | `koe.hendelse.event_id` | uten fremmednøkkel | mange til én | Brevet dette brevet svarer på eller viser til. | — | L 16.10: migrasjonen. |
@@ -447,6 +453,10 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.app_project_memberships.user_email` | Kopi av e-posten i medlemslisten fra Catenda. Personen er `user_id`. |
 | `koe.projects.organisasjon_id` | Virksomheten prosjektet tilhører. Det finnes ingen tabell for virksomheter (MS-10). |
 | `koe.catenda_project_configs.catenda_project_id` | ID-en til prosjektet i Catenda, unik per kobling. Ingen tabell i SQL Server har Catenda-prosjektene. |
+| `koe.catenda_project_configs.library_id` | Dokumentbiblioteket i Catenda for brevene. Fryses i leveringsoppdraget (F0b-7, #661). |
+| `koe.catenda_project_configs.folder_id` | Mappen i biblioteket. Samme som `library_id`. |
+| `koe.sak_catenda_topic.catenda_board_id` | Boardet topicen står i, i Catenda. Fryses i leveringsoppdraget (F0b-7, #661). |
+| `koe.sak_catenda_topic.catenda_topic_id` | ID-en til sakens topic i Catenda. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
 
 ## Dataflyt mot Catenda
@@ -634,6 +644,7 @@ flowchart LR
 | `koe.hendelse` | — | — | — |
 | `koe.notat` | — | — | — |
 | `koe.leveringsoppdrag` | — | — | — |
+| `koe.sak_catenda_topic` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |
 | `koe.kjernebuffer` | — | — | — |
 | `koe.app_sessions` | — | — | — |

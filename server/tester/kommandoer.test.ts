@@ -65,7 +65,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         (project_id, user_id, catenda_subject, user_email, display_name, role, viewer_override, active)
       VALUES ${[medlem(P1, b.te), medlem(P1, b.bh), medlem(P1, b.leser, 1), medlem(P2, b.p2)].join(', ')};
       INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role)
-      VALUES (N'${P1}', N'${TE1}', N'TE'), (N'${P1}', N'${BH1}', N'BH'), (N'${P2}', N'${TE_P2}', N'TE');`);
+      VALUES (N'${P1}', N'${TE1}', N'TE'), (N'${P1}', N'${BH1}', N'BH'), (N'${P2}', N'${TE_P2}', N'TE');
+      INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, is_active)
+      VALUES (N'${P1}', NEWID(), NEWID(), 1), (N'${P2}', NEWID(), NEWID(), 1);`);
     kjoeretid = await opprettKjoeretid(base);
     enForbindelse = await opprettKjoeretid(base, { maks: 1 });
     te = { aktor: b.te, prosjekt: P1, side: 'TE', team: TE1 };

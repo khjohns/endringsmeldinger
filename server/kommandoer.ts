@@ -6,12 +6,21 @@
  * av `opprett_sak`, og et brev regnes med tidspunktet `koe_api.skrivetidspunkt`
  * gir, som `skriv_hendelse` krever.
  *
- * Leveringsmålet kommer fra kalleren, i `lag`. Kjernebufferen skrives ikke her (B-10).
+ * Leveringsmålet leses i skrivetransaksjonen og gis til `lag`. Kjernebufferen
+ * skrives ikke her (B-10).
  */
 
 import type { Journalrad } from '../kjerne/typer.ts';
 import { feilnummer, sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
-import { SakFinnesIkke, Versjonskonflikt, type Oppdragsrad } from './lager.ts';
+import {
+  lesJournal,
+  lesLeveringsmaal,
+  SakFinnesIkke,
+  skrevetAvKjernen,
+  Versjonskonflikt,
+  type Leveringsmaal,
+  type Oppdragsrad,
+} from './lager.ts';
 
 export { SakFinnesIkke, Versjonskonflikt };
 
@@ -63,29 +72,6 @@ function oversett(feil: unknown, forventet: number | null): unknown {
   }
 }
 
-interface Lagret {
-  event_id: string;
-  sak_id: string;
-  event_type: string;
-  versjon: number;
-  tidsstempel: Date;
-  aktor_id: string;
-  aktor_rolle: Journalrad['aktor_rolle'];
-  aktor_team_id: string | null;
-  refererer_til_event_id: string | null;
-  format: number | null;
-  data: string;
-}
-
-function journalrad(r: Lagret): Journalrad {
-  return {
-    ...r,
-    tidsstempel: r.tidsstempel.toISOString(),
-    aktor_id: r.aktor_id.toLowerCase(),
-    data: JSON.parse(r.data) as Record<string, unknown>,
-  };
-}
-
 /**
  * Oppretter saken med `sak_opprettet` som versjon 1. Basen lager saks-ID-en og
  * hendelses-ID-en og stempler tidspunktet, aktøren, siden og teamet.
@@ -121,6 +107,8 @@ export interface Skrivegrunnlag {
   journal: Journalrad[];
   /** Basens klokke for skrivingen; raden må ha nøyaktig dette tidspunktet. */
   tidspunkt: Date;
+  /** Målet i Catenda for brevet. */
+  maal: Leveringsmaal;
 }
 
 /** Raden og oppdraget som skal lagres, eller en avvisning som avbryter uten å skrive. */
@@ -156,13 +144,17 @@ export async function skrivHendelse<A>(
       if (!finnes.recordset.length)
         throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
       const journal = await lesJournal(foresp, sakId, true);
+      // Samme skille som lesingen, så GET og POST svarer likt for saken (#716 punkt 1).
+      if (!skrevetAvKjernen(journal))
+        throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
       const versjon = journal.at(-1)?.versjon ?? 0;
       if (versjon !== forventet) throw new Versjonskonflikt(forventet, versjon);
       const tid = await foresp()
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      const utfall = lag({ journal, tidspunkt });
+      const maal = await lesLeveringsmaal(foresp, sakId);
+      const utfall = lag({ journal, tidspunkt, maal });
       // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
       if (!utfall.skriv) throw new IkkeSkrevet(utfall);
       const { rad, oppdrag } = utfall;
@@ -220,21 +212,4 @@ function kontrollerRad(
   ].filter(Boolean);
   if (avvik.length)
     throw new Error(`Raden skiller seg fra det basen stempler: ${avvik.join(', ')}.`);
-}
-
-/** Journalen i saken, i versjonsrekkefølge. Med `laas` holder transaksjonen saken til den er ferdig. */
-async function lesJournal(
-  foresp: () => sql.Request,
-  sakId: string,
-  laas: boolean
-): Promise<Journalrad[]> {
-  const svar = await foresp()
-    .input('sak_id', sql.NVarChar(36), sakId)
-    .query<Lagret>(
-      `SELECT event_id, sak_id, event_type, versjon, tidsstempel, aktor_id, aktor_rolle, aktor_team_id,
-              refererer_til_event_id, format, data
-         FROM koe.hendelse ${laas ? 'WITH (UPDLOCK, HOLDLOCK)' : ''}
-        WHERE sak_id = @sak_id ORDER BY versjon`
-    );
-  return svar.recordset.map(journalrad);
 }

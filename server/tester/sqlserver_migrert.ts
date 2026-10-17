@@ -189,3 +189,21 @@ export async function iTransaksjon<T>(
     throw feil;
   }
 }
+
+/**
+ * Basens klokke når den har passert `tid`. En medlemsliste hentet i samme
+ * millisekund som en rad basen førte, er ikke nyere (`synced_at >= @hentet`,
+ * `observed_at >= @hentet`).
+ */
+export async function basensKlokkeEtter(pool: Pool, tid: Date): Promise<Date> {
+  const frist = Date.now() + 2_000;
+  while (Date.now() < frist) {
+    const svar = await pool.request().query<{
+      naa: Date;
+    }>('SELECT CAST(DATETRUNC(millisecond, SYSUTCDATETIME()) AS datetime2(3)) AS naa');
+    const naa = svar.recordset[0].naa;
+    if (naa.getTime() > tid.getTime()) return naa;
+    await new Promise((r) => setTimeout(r, 1));
+  }
+  throw new Error(`Basens klokke har ikke passert ${tid.toISOString()}.`);
+}

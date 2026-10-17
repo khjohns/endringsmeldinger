@@ -31,7 +31,7 @@ import {
   opprettKjernesak,
   rydd,
   startServer,
-  BEGGE_BASENE,
+  TESTBASE_URL,
   type KjorendeServer,
   type Oppsett,
 } from './testbase.ts';
@@ -82,7 +82,7 @@ describe('registeret over inngangene', () => {
   );
 });
 
-describe.skipIf(!BEGGE_BASENE)('hver inngang i registeret mot testbasene', () => {
+describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () => {
   let o: Oppsett;
   let server: KjorendeServer;
   let sak: string;
@@ -130,7 +130,7 @@ describe.skipIf(!BEGGE_BASENE)('hver inngang i registeret mot testbasene', () =>
 
   // En egen sesjon, så utloggingen ikke tar sesjonen de andre testene bruker.
   it.each(utenProsjekt)('%s: kontrollsaken uten prosjekt gir 200', async (_n, r) => {
-    const ny = await opprettSesjon(o.datalag!.kjoeretid.pool, o.te.id);
+    const ny = await opprettSesjon(o.datalag.kjoeretid.pool, o.te.id);
     const svar = await kall(server.url, r.eksempel(''), {
       bruker: { ...o.te, token: ny.token, csrf: ny.csrfToken },
       prosjektId: null,

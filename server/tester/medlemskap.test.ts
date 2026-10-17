@@ -31,7 +31,7 @@ import {
   type Medlem,
 } from '../medlemskap.ts';
 import { medlemslistensAlder } from '../autorisasjon.ts';
-import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
+import { basensKlokkeEtter, opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   feilnummer,
   opprettKjoeretid,
@@ -90,8 +90,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       .input('kobling', sql.NVarChar(10), kobling).query(`
         INSERT koe.projects (id, name, organisasjon_id, is_active) VALUES (@id, @id, N'oslobygg', 1);
         IF @kobling <> N'ingen'
-          INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active)
-          VALUES (@id, @catenda, IIF(@kobling = N'aktiv', 1, 0));`);
+          INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, is_active)
+          VALUES (@id, @catenda, NEWID(), IIF(@kobling = N'aktiv', 1, 0));`);
     return { id, catenda, catendaId: catenda.replaceAll('-', '') };
   }
 
@@ -390,8 +390,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
   it.each<[string, string]>([
     [
       'catenda_project_configs.internal_project_id',
-      `INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active)
-       VALUES (@p, NEWID(), 1)`,
+      `INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, is_active)
+       VALUES (@p, NEWID(), NEWID(), 1)`,
     ],
     [
       'app_membership_sync.project_id',
@@ -750,6 +750,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       return { id: prosjektId, catenda };
     }
 
+    /** Basens klokke etter at triggeren førte endringen av koblingen. */
+    const etterEndringen = async (prosjektId: string) =>
+      basensKlokkeEtter(base.pool, (await synkrad(prosjektId)).synced_at);
+
     it.each([
       [
         'endres til et annet Catenda-prosjekt',
@@ -785,7 +789,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       );
       expect(await synk(ny, [a, b], sekunder(-2))).toBe(false);
       expect(await aktive(p.id)).toEqual([]);
-      expect(await synk(ny, [a, b], await basensKlokke(base.pool))).toBe(true);
+      expect(await synk(ny, [a, b], await etterEndringen(p.id))).toBe(true);
       expect(await aktive(p.id)).toEqual([a.subjekt, b.subjekt].sort());
       expect(await medlemslistensAlder(kjoeretid.pool, p.id)).not.toBeNull();
     });
@@ -805,7 +809,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       expect(await aktive(p.id)).toEqual([]);
       expect(await medlemslistensAlder(kjoeretid.pool, p.id)).toBeNull();
       expect(await synk(p, [a], sekunder(-5))).toBe(false);
-      expect(await synk(p, [a], await basensKlokke(base.pool))).toBe(true);
+      expect(await synk(p, [a], await etterEndringen(p.id))).toBe(true);
       expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
 
@@ -889,7 +893,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     'SELECT * FROM koe.catenda_project_configs',
     'SELECT * FROM koe.app_project_memberships',
     'UPDATE koe.app_project_memberships SET active = 1 WHERE 1 = 0',
-    "INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, is_active) VALUES (N'x', NEWID(), 1)",
+    "INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, is_active) VALUES (N'x', NEWID(), NEWID(), 1)",
   ])('kjøretiden kan ikke lese eller skrive tabellene direkte: %s (229)', async (setning) => {
     const feil = await kjoeretid.pool
       .request()

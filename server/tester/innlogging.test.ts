@@ -26,12 +26,12 @@ import { CatendaUtilgjengelig, type CatendaBruker } from '../catenda.ts';
 import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
 import { basensKlokke, synkroniserMedlemskap, type Medlem } from '../medlemskap.ts';
 import { opprettInnloggingsforsoek, opprettSesjon } from '../sesjon.ts';
-import { settInn } from './sqlserver_migrert.ts';
+import { basensKlokkeEtter, settInn } from './sqlserver_migrert.ts';
 import {
   lagOppsett,
   rydd,
   startServer,
-  BEGGE_BASENE,
+  TESTBASE_URL,
   type KjorendeServer,
   type Oppsett,
 } from './testbase.ts';
@@ -157,7 +157,7 @@ async function hent(
 const verdi = (kapsel: string | undefined) =>
   kapsel?.split(';', 1)[0].split('=').slice(1).join('=');
 
-describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
+describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
   const FRONTEND = 'https://app.example.no';
   const SESJON = sesjonsnavn();
   const FORSOEK = `${SESJON}_login`;
@@ -209,7 +209,7 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
     medlemslister = {};
   });
 
-  const eier = () => o.datalag!.base.pool;
+  const eier = () => o.datalag.base.pool;
 
   async function startInnlogging(returTil?: string) {
     const sti = returTil === undefined ? '' : `?return_to=${encodeURIComponent(returTil)}`;
@@ -344,6 +344,7 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
       await settInn(r, 'catenda_project_configs', {
         internal_project_id: p.id,
         catenda_project_id: p.catenda,
+        library_id: randomUUID(),
         is_active: true,
       });
       return { ...p, catendaId: catendaId(p.catenda)! };
@@ -389,6 +390,7 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
       const hentetFoer = new Date(Date.now() - 5_000);
       catendaProsjekter = new Set();
       expect((await loggInn()).kapsler.has(SESJON)).toBe(true);
+      const innlogget = await basensKlokke(eier());
       await synkroniserMedlemskap(eier(), {
         prosjekt: p.id,
         catendaProsjekt: p.catenda,
@@ -400,7 +402,7 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
       await synkroniserMedlemskap(eier(), {
         prosjekt: p.id,
         catendaProsjekt: p.catenda,
-        hentet: await basensKlokke(eier()),
+        hentet: await basensKlokkeEtter(eier(), innlogget),
         medlemmer: [som(bruker)],
       });
       expect(await aktive(p.id)).toEqual([bruker.subjekt]);
@@ -454,7 +456,7 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
   });
 
   it('den lagrede returstien kontrolleres igjen etter at forsøket er brukt', async () => {
-    const forsoek = await opprettInnloggingsforsoek(o.datalag!.kjoeretid.pool, '/api/auth/session');
+    const forsoek = await opprettInnloggingsforsoek(o.datalag.kjoeretid.pool, '/api/auth/session');
     const svar = await tilbakekall(`state=${forsoek.state}&code=god-kode`, {
       [FORSOEK]: forsoek.nettleser,
     });
@@ -467,7 +469,7 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
   });
 
   it('en ny innlogging sletter den gamle sesjonen', async () => {
-    const gammel = await opprettSesjon(o.datalag!.kjoeretid.pool, o.te.id);
+    const gammel = await opprettSesjon(o.datalag.kjoeretid.pool, o.te.id);
     const svar = await loggInn(undefined, { [SESJON]: gammel.token });
     expect(svar.kapsler.has(SESJON)).toBe(true);
     const etter = await hent(`${server.url}/api/auth/session`, {
@@ -492,7 +494,7 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
   });
 
   it('utloggingen sletter sesjonen og tømmer kapselen', async () => {
-    const ny = await opprettSesjon(o.datalag!.kjoeretid.pool, o.te.id);
+    const ny = await opprettSesjon(o.datalag.kjoeretid.pool, o.te.id);
     const kapsler = { [SESJON]: ny.token };
     const svar = await hent(`${server.url}/api/auth/logout`, {
       kapsler,

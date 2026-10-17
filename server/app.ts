@@ -16,8 +16,7 @@
 
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { Pool } from 'pg';
-import { utledJournal, vurder, type Kontekst } from '../kjerne/kommandoer/skriving.ts';
+import { utledJournal, vurder } from '../kjerne/kommandoer/skriving.ts';
 import type { Journalrad } from '../kjerne/typer.ts';
 import { KJERNE, type Kjerne } from '../kjerne/versjon.ts';
 import { visning } from '../kjerne/utledning/visning.ts';
@@ -37,20 +36,25 @@ import {
 import type { Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
-import { lesSaken, SakFinnesIkke, skrivMedOppdrag, Versjonskonflikt } from './lager.ts';
+import { lesSaken } from './lager.ts';
+import {
+  SakFinnesIkke,
+  SkrivingAvvist,
+  skrivHendelse,
+  UgyldigKommando,
+  Versjonskonflikt,
+} from './kommandoer.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
 
 export interface Avhengigheter {
-  /** PostgreSQL, med journalen og oppdraget fram til F0b-7 (#661). */
-  pool: Pool;
-  /** SQL Server, med sesjonen, medlemskapet, kontraktsteamene og sakene i prosjektet (#658). */
+  /** SQL Server, med sesjonen, medlemskapet, kontraktsteamene, journalen og oppdragene (#658, #661). */
   datalag: Datalag;
   catenda: Catenda;
   /** Catenda-innloggingen. Uten den svarer innloggingen 503, som når oppsettet mangler i Python. */
   innlogging?: Innlogging | null;
   kjerne?: Kjerne;
-  /** Klokke og ID-er, så testene kan styre dem. */
+  /** Klokke og ID-er, så testene kan styre dem. Et brev får basens klokke (DL-U3). */
   tidspunkt?: () => Date;
   nyId?: () => string;
 }
@@ -196,14 +200,21 @@ function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
 }
 
 async function visSaken(
-  { prosjekt, sakId }: Forespoersel,
+  { bruker, prosjekt, sakId }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const { journal, oppdrag } = await lesSaken(avh.pool, sakId, prosjekt.prosjektId);
-  // En sak TS-kjernen ikke har skrevet, har ingen `format` i første rad (#705).
-  if (!journal.length || journal[0].format === null) return finnesIkke();
-  // Leserens side for visningen; lesingen krever den ikke (#705).
-  const side = await lesKontraktsside(avh.datalag, avh.catenda, prosjekt);
+  // Leserens side er for visningen; lesingen krever den ikke (#705).
+  let saken, side;
+  try {
+    [saken, side] = await Promise.all([
+      lesSaken(avh.datalag, { aktor: bruker.id, prosjekt: prosjekt.prosjektId }, sakId),
+      lesKontraktsside(avh.datalag, avh.catenda, prosjekt),
+    ]);
+  } catch (feil) {
+    if (feil instanceof SakFinnesIkke) return finnesIkke();
+    throw feil;
+  }
+  const { journal, oppdrag } = saken;
   return [
     200,
     {
@@ -240,24 +251,35 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   const forventet = kropp.expected_version;
   if (!erHeltall(forventet)) return ugyldig('expected_version må være et heltall ≥ 0.');
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
-  // Aktøren, tidspunktet og ID-ene settes her, aldri av klienten.
-  const kontekst: Kontekst = {
-    sakId,
-    aktoerId: bruker.id,
-    part: side!.rolle,
-    teamId: side!.teamId,
-    tidspunkt: avh.tidspunkt,
-    nyId: avh.nyId,
+  // Aktøren, siden og teamet er konteksten basen stempler; tidspunktet er basens klokke.
+  // Teamet står bare når det er entydig (DL-U4, `krevKontraktsrolle`).
+  const kontekst = {
+    aktor: bruker.id,
+    prosjekt: prosjekt.prosjektId,
+    side: side!.rolle,
+    ...(side!.teamId ? { team: side!.teamId } : {}),
   };
   let utfall;
   try {
-    utfall = await skrivMedOppdrag(
-      avh.pool,
-      prosjekt.prosjektId,
+    utfall = await skrivHendelse(
+      avh.datalag,
+      kontekst,
       sakId,
       forventet,
-      ({ journal, maal }) => {
-        const vurdert = vurder(kropp.kommando, kontekst, journal, avh.kjerne);
+      ({ journal, tidspunkt, maal }) => {
+        const vurdert = vurder(
+          kropp.kommando,
+          {
+            sakId,
+            aktoerId: bruker.id,
+            part: side!.rolle,
+            teamId: side!.teamId,
+            tidspunkt: () => tidspunkt,
+            nyId: avh.nyId,
+          },
+          journal,
+          avh.kjerne
+        );
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
         const [rad] = vurdert.hendelser;
         const etter = sakenSomVises([...journal, rad], avh.kjerne);
@@ -281,6 +303,8 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         },
       ];
     if (feil instanceof SakFinnesIkke) return finnesIkke();
+    if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+    if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
     throw feil;
   }
   if (!utfall.skriv) {
@@ -291,13 +315,17 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
     ];
   }
   // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen.
-  const { journal } = await lesSaken(avh.pool, sakId, prosjekt.prosjektId);
+  const { journal } = await lesSaken(
+    avh.datalag,
+    { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
+    sakId
+  );
   return [
     201,
     {
       success: true,
       event_id: utfall.rad.event_id,
-      leveringsoppdrag: utfall.oppdrag.id,
+      leveringsoppdrag: utfall.oppdrag!.id,
       ...sakenSomVises(journal, avh.kjerne),
     },
   ];
