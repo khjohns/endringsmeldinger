@@ -141,17 +141,22 @@ describe('skjemaet for ny sak på TS-stien', () => {
     await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(complete).toHaveBeenCalledOnce());
-    expect(sendKommando).toHaveBeenCalledWith(SAK, 1, {
-      type: 'krav',
-      spor: 'grunnlag',
-      innhold: {
-        hovedkategori: 'endring',
-        underkategori: 'irregulaer_endring',
-        paalegg_mottatt: '2026-09-01',
+    expect(sendKommando).toHaveBeenCalledWith(
+      SAK,
+      1,
+      {
+        type: 'krav',
+        spor: 'grunnlag',
+        innhold: {
+          hovedkategori: 'endring',
+          underkategori: 'irregulaer_endring',
+          paalegg_mottatt: '2026-09-01',
+        },
+        utdypning: 'Byggherren har pålagt et større fundament.',
+        brevtekst: vist,
       },
-      utdypning: 'Byggherren har pålagt et større fundament.',
-      brevtekst: vist,
-    });
+      'project'
+    );
     expect(oncreated).toHaveBeenCalledWith(SAK);
     expect(localStorage.getItem(UTKAST)).toBeNull();
   });

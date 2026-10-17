@@ -135,7 +135,25 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(forventet?.length).toBeGreaterThan(0);
 
     expect(await sak.send(grunnlagskrav)).toBe(true);
-    expect(send).toHaveBeenCalledWith(SAK, 1, { ...grunnlagskrav, brevtekst: forventet });
+    expect(send).toHaveBeenCalledWith(
+      SAK,
+      1,
+      { ...grunnlagskrav, brevtekst: forventet },
+      undefined
+    );
+  });
+
+  it('sender kommandoen til prosjektet saken ble lest i', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-2', leveringsoppdrag: 'l-1', versjon: 2 });
+    const hent = vi.fn(async () => svar([opprettet]));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-2', part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(true);
+    expect(hent).toHaveBeenCalledWith(SAK, 'p-2');
+    expect(send.mock.calls[0][3]).toBe('p-2');
   });
 
   it('laster saken på nytt ved versjonskonflikt og lar meldingen stå', async () => {

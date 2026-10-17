@@ -48,9 +48,21 @@ export const opprettSak = (kommando: unknown, prosjektId?: string) =>
     body: JSON.stringify({ kommando }),
   });
 
-/** Kommandoen sendes med versjonen skjemaet så. Aktøren og tidspunktet settes av serveren. */
-export const sendKommando = (sakId: string, expectedVersion: number, kommando: unknown) =>
+/**
+ * Kommandoen sendes med versjonen skjemaet så, til prosjektet fra ruta eller det
+ * aktive. Aktøren og tidspunktet settes av serveren.
+ */
+export const sendKommando = (
+  sakId: string,
+  expectedVersion: number,
+  kommando: unknown,
+  prosjektId?: string
+) =>
   apiFetch<{ event_id: string; leveringsoppdrag: string; versjon: number }>(
     `${sti(sakId)}/kommandoer`,
-    { method: 'POST', body: JSON.stringify({ expected_version: expectedVersion, kommando }) }
+    {
+      method: 'POST',
+      headers: projectHeaders(prosjektId),
+      body: JSON.stringify({ expected_version: expectedVersion, kommando }),
+    }
   );
