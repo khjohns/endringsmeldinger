@@ -22,7 +22,7 @@ from pathlib import Path
 
 FEILINNFOERINGER = [
     ("S1", "kontraktsrollen kontrolleres ikke for en inngang som krever den", "server/app.ts",
-     "r.tilgang.kontraktsrolle === 'kreves'\n          ? await", "false\n          ? await",
+     "r.tilgang.kontraktsrolle === 'kreves'\n        ? await", "false\n        ? await",
      "kontraktsrollen"),
     ("S2", "CSRF kontrolleres ikke på en endring", "server/autorisasjon.ts",
      "!['GET', 'HEAD', 'OPTIONS'].includes(metode) &&", "false &&",
