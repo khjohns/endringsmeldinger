@@ -284,11 +284,13 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   const forventet = kropp.expected_version;
   if (!erHeltall(forventet)) return ugyldig('expected_version må være et heltall ≥ 0.');
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
+  // Kjernen får aktøren, siden og teamet fra samme kontekst som basen (#739 punkt 4).
+  const kontekst = skrivekontekst(bruker, prosjekt, side!);
   let utfall;
   try {
     utfall = await skrivHendelse(
       avh.datalag,
-      skrivekontekst(bruker, prosjekt, side!),
+      kontekst,
       sakId,
       forventet,
       ({ journal, tidspunkt, maal }) => {
@@ -296,9 +298,9 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
           kropp.kommando,
           {
             sakId,
-            aktoerId: bruker.id,
-            part: side!.rolle,
-            teamId: side!.teamId,
+            aktoerId: kontekst.aktor,
+            part: kontekst.side,
+            teamId: kontekst.team ?? null,
             tidspunkt: () => tidspunkt,
             nyId: avh.nyId,
           },
