@@ -794,6 +794,13 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > venter.» På spørsmål om regelen også gjelder i FK og F0b før #310, som unntak
 > fra merknaden 16.10, svarte oppdragsgiver: «Ja, også i FK og F0b (Recommended)».
 
+> **Merknad 2026-10-17 til AF-06 (review-oppfølging i FK og F0b, levert):**
+> punktene i merknaden 17.10 om review-oppfølging i FK og F0b er levert: serveren
+> i [#755](https://github.com/khjohns/endringsmeldinger/pull/755), kjernen i
+> [#762](https://github.com/khjohns/endringsmeldinger/pull/762), verktøyene i
+> [#757](https://github.com/khjohns/endringsmeldinger/pull/757) og vaktene i
+> [#758](https://github.com/khjohns/endringsmeldinger/pull/758).
+
 ### 3.3 Anbefalinger som ikke er vedtatt
 
 | Anbefaling | Kilde | Status |
