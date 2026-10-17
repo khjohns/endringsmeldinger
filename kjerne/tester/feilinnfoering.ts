@@ -415,7 +415,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [['        gjelder: u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id,\n', '']],
+    endringer: [
+      [
+        '        gjelder: varseletFoerSvaret(\n          u.spor.frist.varsel ? [u.spor.frist.varsel] : [],\n          u.spor.frist.krav,\n          () => true\n        )!,\n',
+        '',
+      ],
+    ],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -920,7 +925,10 @@ const MUTASJONER: Mutasjon[] = [
       'påberopelsen etter § 33.4 viser til kravversjonen svaret gjelder, ikke det første fristkravet (VS-U20, OV-U5, KK-07)',
     fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
-      ['u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id', 'u.spor.frist.varsel?.id ?? krav.id'],
+      [
+        '          u.spor.frist.krav,\n          () => true',
+        '          [krav],\n          () => true',
+      ],
     ],
     mal: [
       'uten registrert varsel gjelder den det første fristkravet',
@@ -1482,14 +1490,19 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F171',
     feilklasse: 'en registrert begrunnelse sendt før svaret godtas (KA-U36)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['if (k.sendt === undefined || !svaret || k.sendt >= svaret)', 'if (true)']],
+    endringer: [
+      [
+        'if (k.sendt === undefined || !svaret || kalenderdag(k.sendt) >= kalenderdag(svaret))',
+        'if (true)',
+      ],
+    ],
     mal: ['før datoen appen registrerte svaret, avvises den', 'F-MM-BG1'],
   },
   {
     id: 'F172',
     feilklasse: 'en registrert begrunnelse med samme dato som svaret avvises (KA-U37)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['!svaret || k.sendt >= svaret)', '!svaret || k.sendt > svaret)']],
+    endringer: [['>= kalenderdag(svaret))', '> kalenderdag(svaret))']],
     mal: ['før datoen appen registrerte svaret, avvises den, og samme dato godtas', 'F-MM-BG1'],
   },
   {
@@ -1815,7 +1828,10 @@ const MUTASJONER: Mutasjon[] = [
       'leseren godtar en påberopelse etter § 33.4 mot kravversjonen svaret gjelder (VS-U20, HF-U1, KK-07)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['if (p.gjelder !== varselet)', 'if (p.gjelder !== varselet && p.gjelder !== s.gjelder)'],
+      [
+        'if (p.gjelder !== varseletFoerSvaret(varsler, spor.frist.krav, (v) => bakover(s.id, v)))',
+        'if (p.gjelder !== varseletFoerSvaret(varsler, spor.frist.krav, (v) => bakover(s.id, v)) && p.gjelder !== s.gjelder)',
+      ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
   },
@@ -2061,8 +2077,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    (s) => grunnlagssvaret(s, 'paalegg_frafalt') && !u.elementer[s.dokument]?.registrertBrev",
-        "    (s) =>\n      grunnlagssvaret(s, 'paalegg_frafalt') &&\n      s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id &&\n      !u.elementer[s.dokument]?.registrertBrev",
+        '(s) => frafaller(s) && !u.elementer[s.dokument]?.registrertBrev',
+        '(s) =>\n      frafaller(s) &&\n      s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id &&\n      !u.elementer[s.dokument]?.registrertBrev',
       ],
     ],
     mal: ['byggherren kan svare med frafall eller endringsordre, ikke med avslag', 'F-MM-G38'],
@@ -2074,8 +2090,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    else if (bundet && s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt'))",
-        "    else if (bundet && s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt') && !u)",
+        "      standpunktet(s, 'grunnlag')?.resultat === 'avslaatt'\n",
+        "      standpunktet(s, 'grunnlag')?.resultat === 'avslaatt' &&\n      !u\n",
       ],
     ],
     mal: ['gjør saken ikke forstått'],
@@ -2104,11 +2120,9 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F235',
     feilklasse:
-      'visningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (GR-U24, #510)',
-    fil: `${K}/utledning/visning.ts`,
-    endringer: [
-      ['  venterPaaSvar(u.spor[spor]) && !kraveneErAvgjort(u);', '  venterPaaSvar(u.spor[spor]);'],
-    ],
+      'utledningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (GR-U24, #510, #580)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [[' && !s.trukket && !kraveneErAvgjort(u);', ' && !s.trukket;']],
     mal: ['svaret på versjon 2 avvises (GR-U24'],
   },
   {
@@ -2226,14 +2240,24 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F250',
     feilklasse: 'en dato etter brevets dato godtas (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dato <= brevetsDato) return null;', 'dato <= brevetsDato || true) return null;']],
+    endringer: [
+      [
+        'kalenderdag(dato) <= kalenderdag(brevetsDato))',
+        'kalenderdag(dato) <= kalenderdag(brevetsDato) || true)',
+      ],
+    ],
     mal: ['en dato etter brevets dato avvises'],
   },
   {
     id: 'F251',
     feilklasse: 'en dato samme dag som brevet avvises (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dato <= brevetsDato) return null;', 'dato < brevetsDato) return null;']],
+    endringer: [
+      [
+        'kalenderdag(dato) <= kalenderdag(brevetsDato))',
+        'kalenderdag(dato) < kalenderdag(brevetsDato))',
+      ],
+    ],
     mal: ['samme dag godtas', 'brevets dato er datoen i norsk tid'],
   },
   {
@@ -2268,6 +2292,26 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/opprettelse.ts`,
     endringer: [["  if (part !== 'TE')", '  if (false)']],
     mal: ['byggherren kan ikke opprette en KOE-sak'],
+  },
+  {
+    id: 'F256',
+    feilklasse: 'et beløp som ikke er et tall, gir en feil på serveren, ikke en avvisning (#550)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'if (feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep)',
+        'if (feil instanceof UgyldigVurdering)',
+      ],
+    ],
+    mal: ['et godkjent beløp som ikke er et tall, avvises som en ugyldig vurdering'],
+  },
+  {
+    id: 'F257',
+    feilklasse:
+      'en lagret dato med klokkeslett sammenliknes som tekst, ikke som kalenderdag (KA-U37, #474)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(dato)) return dato;', '  return dato;']],
+    mal: ['en sendt-dato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
 ];
 

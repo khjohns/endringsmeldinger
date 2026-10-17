@@ -309,6 +309,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'predikat', 'harSagtITide', ['kommandoer/nyttelast.ts']],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
   ['utledning/utled.ts', 'predikat', 'frafalletBinder', ['kommandoer/nyttelast.ts']],
+  // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 gjelder (#496).
+  ['utledning/utled.ts', 'relasjon', 'varseletFoerSvaret', ['kommandoer/standpunkter.ts']],
   ['Rettidighet', 'utsagn', 'hjemmel gjelder'],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
@@ -385,6 +387,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['regler/regelsett.ts', 'regelsett', 'GJELDENDE_REGLER'],
   ['regler/beloep.ts', 'regelsett', 'beloep erEndelig tilKrone tilTall NULL_OERE'],
   ['regler/feil.ts', 'regelsett', 'UgyldigVurdering'],
+  // #550: et beløp som ikke er et tall, avvises som en ugyldig vurdering.
+  ['regler/beloep.ts', 'regelsett', 'UgyldigBeloep', ['kommandoer/nyttelast.ts']],
   [
     'regler/grunnlag.ts',
     'regelsett',
@@ -656,6 +660,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
+  // #474: datoene i KA-U36 og VS-U26 sammenliknes som kalenderdager.
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/nyttelast.ts']],
 
   // Brevteksten (frosset/brevtekst.ts, LV-U2, LV-U3, #369). Leses bare når brevet skrives.
   ['format/leser.ts:lesDokument', 'rad', 'brevtekst', ['format/leser.ts']],

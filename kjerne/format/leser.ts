@@ -62,6 +62,18 @@ export const registrertDato = (d: Pick<Dokument, 'registrert'>): string =>
   OSLO.format(new Date(d.registrert));
 
 /**
+ * Kalenderdagen for en lagret dato: en dato på formen ÅÅÅÅ-MM-DD som den står, og et
+ * tidspunkt i norsk tid, som `norskDato` viser det (#474, KA-U37). Leseren krever ikke
+ * kalenderdato (MM-U2), så datoer sammenliknes som dager, ikke som tekst. En tekst som
+ * ikke er et tidspunkt, står som den er.
+ */
+export function kalenderdag(dato: string): string {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dato)) return dato;
+  const tidspunkt = new Date(dato);
+  return Number.isNaN(tidspunkt.getTime()) ? dato : OSLO.format(tidspunkt);
+}
+
+/**
  * Datoopplysningen om et varsel: den som `gjelder` varselet, ellers den om
  * dokumentet varselet står i, når det er registrert for seg (HF-U1, MM-U1).
  */
