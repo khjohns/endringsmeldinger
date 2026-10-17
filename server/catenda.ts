@@ -6,12 +6,13 @@
  * Brukertokenet lever bare i forespørselen: kalleren gir det til hvert kall, og
  * klienten holder ingen tilstand. Integrasjonsnøkkelen er et eget objekt med sitt
  * eget token og tar aldri imot et brukertoken. Innloggingsinngangene i `innlogging.ts`
- * bruker OAuth-innloggingen (#659).
+ * bruker OAuth-innloggingen (#659), og tilgangskontrollen bruker integrasjonsnøkkelen
+ * gjennom `integrasjonen()` (F0b-5b).
  *
  * Feilmeldingene har aldri med svarkropp, kode eller token fra Catenda.
  */
 
-import { catendaId } from './autorisasjon.ts';
+import { catendaId, type Catenda } from './autorisasjon.ts';
 import type { Medlem } from './medlemskap.ts';
 
 export const CATENDA = 'https://api.catenda.com';
@@ -295,6 +296,8 @@ export class Integrasjonsnokkel {
 /**
  * Klienten og integrasjonsnøkkelen fra miljøet. Mangler klient-ID, hemmelighet
  * eller tilbakekallsadresse, kastes feil. Kontrollen av adressene gjør inngangen.
+ * `CATENDA_GRUNNADRESSE` godtas bare i utvikling og bare mot localhost, for en
+ * testleverandør (F0b-8).
  */
 export function catendaFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): {
   oauth: CatendaOAuth;
@@ -305,6 +308,19 @@ export function catendaFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): {
     klienthemmelighet: miljoe.CATENDA_CLIENT_SECRET ?? '',
     tilbakekallsadresse: miljoe.CATENDA_LOGIN_REDIRECT_URI ?? '',
   };
+  if (miljoe.CATENDA_GRUNNADRESSE) {
+    const adresse = URL.parse(miljoe.CATENDA_GRUNNADRESSE);
+    if (
+      miljoe.APP_ENV !== 'development' ||
+      adresse?.protocol !== 'http:' ||
+      !['localhost', '127.0.0.1'].includes(adresse.hostname) ||
+      adresse.pathname !== '/' ||
+      adresse.search ||
+      adresse.username
+    )
+      throw new Error('CATENDA_GRUNNADRESSE godtas bare mot localhost i utvikling');
+    oppsett.grunnadresse = adresse.origin;
+  }
   if (!oppsett.klientId || !oppsett.klienthemmelighet || !oppsett.tilbakekallsadresse) {
     throw new Error(
       'Catenda-applikasjonen mangler klient-ID, hemmelighet eller tilbakekallsadresse'
@@ -313,5 +329,21 @@ export function catendaFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): {
   return {
     oauth: new CatendaOAuth(oppsett),
     integrasjonsnokkel: new Integrasjonsnokkel(oppsett, miljoe.CATENDA_ACCESS_TOKEN || undefined),
+  };
+}
+
+/** Medlemmene og teamene for tilgangskontrollen, med integrasjonens eget token. */
+export function integrasjonen(catenda: {
+  oauth: CatendaOAuth;
+  integrasjonsnokkel: Integrasjonsnokkel;
+}): Catenda {
+  return {
+    async medlemmer(catendaProsjektId) {
+      return catenda.oauth.medlemmer(catendaProsjektId, await catenda.integrasjonsnokkel.token());
+    },
+    async teammedlemmer(catendaProsjektId, teamId) {
+      const token = await catenda.integrasjonsnokkel.token();
+      return catenda.oauth.teammedlemmer(catendaProsjektId, teamId, token);
+    },
   };
 }

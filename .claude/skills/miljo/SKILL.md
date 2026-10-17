@@ -19,8 +19,9 @@ npx tsc -p server/tsconfig.json      # eller server/
 ruff check backend/                  # porten, skal være 0
 ```
 
-`npm run server` starter TS-serveren i `server/` (B-18), og vite-proxyen sender
-`/api/kjerne` dit.
+`npm run server` starter TS-serveren i `server/` (B-18), med miljøvariablene i
+headeren til `server/start.ts`. Vite-proxyen sender det `tilTsServeren()` i
+`server/ruting.ts` velger, dit (F0b-8), og resten av `/api` til Python.
 
 I skyøktene lager `.claude/hooks/session-start.sh` venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
 

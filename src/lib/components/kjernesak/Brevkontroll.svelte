@@ -4,8 +4,7 @@
   annen (LV-U2). Teksten rettes i skjemaet, ikke her.
 -->
 <script lang="ts">
-  import { ArrowLeft, Send } from 'lucide-svelte';
-  import ApprovalPanel from '$lib/components/approval/ApprovalPanel.svelte';
+  import Brevskall from '$lib/components/approval/Brevskall.svelte';
 
   let {
     tekst,
@@ -25,17 +24,21 @@
     onbekreft: () => void;
     onavbryt: () => void;
   } = $props();
-  let kontrollert = $state(false);
-  const tilToppen = (node: HTMLElement) => node.scrollIntoView?.({ block: 'start' });
 </script>
 
-<section class="brevkontroll" aria-label="Brevkontroll" use:tilToppen>
-  <div class="verktoey">
-    <button type="button" class="tekstknapp" onclick={onavbryt}
-      ><ArrowLeft size={15} />Tilbake til skjemaet</button
-    >
-  </div>
-  <div class="oppsett">
+<Brevskall
+  tilbakeTekst="Tilbake til skjemaet"
+  panel={{
+    title: 'Du sender kravet',
+    description: beskrivelse,
+    confirmLabel: 'Jeg har kontrollert brevet.',
+    primaryLabel: 'Send til byggherren',
+    footnote: 'Innsendt brev kan ikke endres, bare følges opp med en ny versjon.',
+  }}
+  onsend={onbekreft}
+  {onavbryt}
+>
+  {#snippet dokument()}
     <article class="dokument">
       <h2>{tittel}</h2>
       <p class="hjelp">Teksten lages av appen fra valgene i skjemaet og kan ikke endres her.</p>
@@ -47,63 +50,11 @@
         <p class="utdypning" data-testid="utdypning">{utdypning}</p>
       {/if}
     </article>
-    <aside>
-      <ApprovalPanel
-        eyebrow="Utkast · ikke sendt"
-        title="Du sender kravet"
-        description={beskrivelse}
-        confirmLabel="Jeg har kontrollert brevet."
-        bind:confirmed={kontrollert}
-        primaryLabel="Send til byggherren"
-        onprimary={onbekreft}
-        footnote="Innsendt brev kan ikke endres, bare følges opp med en ny versjon."
-      >
-        {#snippet primaryIcon()}<Send size={15} />{/snippet}
-      </ApprovalPanel>
-    </aside>
-  </div>
-</section>
+  {/snippet}
+</Brevskall>
 
 <style>
-  .brevkontroll {
-    padding: 20px 32px 64px;
-    color: var(--ink);
-  }
-  .verktoey {
-    max-width: 1180px;
-    margin: 0 auto 24px;
-  }
-  .tekstknapp {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border: 0;
-    background: transparent;
-    color: var(--ink-3);
-    padding: 8px;
-    font: inherit;
-    font-size: 12px;
-    cursor: pointer;
-    border-radius: 8px;
-  }
-  .tekstknapp:hover {
-    background: var(--surface-inset);
-    color: var(--ink);
-  }
-  .tekstknapp:focus-visible {
-    outline: 2px solid var(--brand);
-    outline-offset: 3px;
-  }
-  .oppsett {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 28px;
-    max-width: 1180px;
-    margin: 0 auto;
-    align-items: start;
-  }
   .dokument {
-    min-width: 0;
     padding: 28px 32px;
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -125,18 +76,5 @@
   }
   .utdypning {
     white-space: pre-wrap;
-  }
-  @media (max-width: 1000px) {
-    .oppsett {
-      grid-template-columns: 1fr;
-    }
-    aside :global(.approval-panel) {
-      position: static;
-    }
-  }
-  @media (max-width: 600px) {
-    .brevkontroll {
-      padding: 16px 12px 48px;
-    }
   }
 </style>

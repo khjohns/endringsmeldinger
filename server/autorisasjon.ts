@@ -11,16 +11,22 @@
  *   `AuthService.contract_membership`: kontraktssiden fra
  *   `koe_api.kontraktsteam` og teammedlemskapet i Catenda.
  *
- * Catenda er utenfor prøven og står bak grensesnittet `Catenda`. Et medlemskap
- * som ikke er ferskt, krever synkronisering mot Catenda; uten den nektes
- * tilgangen med 503, som når Catenda er nede.
+ * Catenda står bak grensesnittet `Catenda`. Er medlemslisten ikke fersk, hentes
+ * den på nytt fra Catenda-prosjektet i koblingen (`synkroniserProsjekt()`); feiler
+ * det, nektes tilgangen med 503, som i Python.
  */
 
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Part as Rolle } from '../kjerne/typer.ts';
 import { sql, transaksjon, type Pool } from './datalag.ts';
-import { medlemslistensAlder } from './medlemskap.ts';
+import {
+  oversett,
+  prosjektkobling,
+  synkroniserProsjekt,
+  UgyldigMedlemsliste,
+  type Medlem,
+} from './medlemskap.ts';
 import { lesSesjon, type Sesjon } from './sesjon.ts';
 
 export interface Bruker {
@@ -30,8 +36,8 @@ export interface Bruker {
 }
 
 export interface Catenda {
-  /** `AuthService.sync`: medlemmene i prosjektet hentes på nytt. */
-  synkroniser(prosjektId: string): Promise<void>;
+  /** Medlemmene i Catenda-prosjektet, hentet med integrasjonens eget token (`AuthService.sync`). */
+  medlemmer(catendaProsjektId: string): Promise<Medlem[]>;
   /** Subjektene i et Catenda-team. */
   teammedlemmer(catendaProsjektId: string, teamId: string): Promise<Set<string>>;
 }
@@ -181,12 +187,32 @@ function medlemskapsalder(): number {
 }
 
 async function prosjektoppsett(db: Pool, prosjektId: string): Promise<Prosjektoppsett | null> {
-  const svar = await db
-    .request()
-    .input('prosjekt', sql.NVarChar(4000), prosjektId)
-    .execute<{ catenda_prosjekt: string }>('koe_api.prosjektkobling');
-  const rad = svar.recordset[0];
-  return rad ? { catendaProsjekt: rad.catenda_prosjekt.toLowerCase() } : null;
+  const catendaProsjekt = await prosjektkobling(db, prosjektId);
+  return catendaProsjekt ? { catendaProsjekt } : null;
+}
+
+/**
+ * Når listen for prosjektet ble hentet, og alderen i sekunder etter basens klokke,
+ * minst 0 (B-04 punkt 4). `null` når ingen liste fra det koblede Catenda-prosjektet
+ * er skrevet. Bare tilgangskontrollen leser den, etter at koblingen er
+ * kontrollert (#638 punkt 2); eksportert for testene.
+ *
+ * @throws UgyldigProsjekt
+ */
+export async function medlemslistensAlder(
+  pool: Pool,
+  prosjekt: string
+): Promise<{ hentet: Date; alderSekunder: number } | null> {
+  try {
+    const svar = await pool
+      .request()
+      .input('prosjekt', sql.NVarChar(4000), prosjekt)
+      .execute<{ hentet: Date; alder_sekunder: string | number }>('koe_api.medlemsliste_alder');
+    const rad = svar.recordset[0];
+    return rad ? { hentet: rad.hentet, alderSekunder: Number(rad.alder_sekunder) } : null;
+  } catch (feil) {
+    throw oversett(feil, UgyldigMedlemsliste);
+  }
 }
 
 /**
@@ -195,10 +221,14 @@ async function prosjektoppsett(db: Pool, prosjektId: string): Promise<Prosjektop
  * om prosjektet er koblet og når listen ble hentet, så den leses bare her, før
  * medlemskapet er avgjort, og gis aldri videre (#638 punkt 2).
  */
-async function ferskeMedlemmer(db: Pool, catenda: Catenda, prosjektId: string): Promise<void> {
+export async function ferskeMedlemmer(
+  db: Pool,
+  catenda: Catenda,
+  prosjektId: string
+): Promise<void> {
   const sist = await medlemslistensAlder(db, prosjektId);
   if (sist === null || sist.alderSekunder >= medlemskapsalder())
-    await catenda.synkroniser(prosjektId);
+    await synkroniserProsjekt(db, prosjektId, (c) => catenda.medlemmer(c));
 }
 
 /** Prosjekt-ID-en slik basen har den: SQL Server ser bort fra mellomrom til slutt. */
