@@ -748,8 +748,8 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 >   endringen: «Ja, du godkjenner i appen (Recommended)».
 
 > **Merknad 2026-10-17 til AF-06 (retningen fram til #310):** oppdragsgiver
-> svarte 17.10 på tre spørsmål om arbeidet etter første krav ende til ende
-> ([#655](https://github.com/khjohns/endringsmeldinger/issues/655)). Planen står i
+> svarte 17.10 på tre spørsmål om retningen fram til #310 (spørsmål 3 gjelder
+> etterfølgeren til [#655](https://github.com/khjohns/endringsmeldinger/issues/655)). Planen står i
 > [#764](https://github.com/khjohns/endringsmeldinger/issues/764). Spørsmålene og
 > svarene, ordrett:
 >
@@ -776,10 +776,6 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 >    godkjenningsflyten i TS, slik at en sak har begge sider før leveringen
 >    bygges.»; «Begge parallelt»: «Levering i F0b-sporet og BH-svaret i
 >    FK-sporet, med én felles orkestrator som i runde 5.»
->
-> Svar 1 er et unntak fra merknaden 16.10 for kjernegjelden og for
-> review-oppfølging i filer en runde uansett endrer. Ellers står stoppen i
-> merknaden 16.10.
 
 ### 3.3 Anbefalinger som ikke er vedtatt
 
