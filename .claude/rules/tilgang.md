@@ -67,7 +67,8 @@ leser PostgreSQL, fordi `server/autorisasjon.ts` flyttes til SQL Server (#658).
   `koe.sak_metadata` under radsikkerheten, med aktøren og prosjektet i
   konteksten. Alderen på medlemslisten leses bare i `server/autorisasjon.ts`
   (#638 punkt 2, `server/tester/arkitektur.test.ts`).
-- **Prosjektgrensen** holdes også i lageret (`server/lager.ts`), som bare låser
-  og skriver en sak i det autoriserte prosjektet.
+- **Prosjektgrensen** holdes også av radsikkerheten ved lesing og skriving av
+  journalen: `server/lager.ts` leser og `server/kommandoer.ts` låser og skriver
+  saken i én transaksjon med aktøren og prosjektet i konteksten.
 - Språkprøvens server har ikke registeret. Der prøves hver inngang for seg
   (`.claude/rules/tester.md`).
