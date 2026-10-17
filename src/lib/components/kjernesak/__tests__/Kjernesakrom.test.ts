@@ -12,11 +12,14 @@ import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import type { Journalrad, Part } from '$kjerne/typer';
 import Kjernesakrom from '../Kjernesakrom.svelte';
+import type { Mode, SporKey } from '$lib/components/kontraktsbord/types';
 import {
   SAK,
   medFristvarsel,
   medGrunnlag,
   medSvar,
+  medTrukketVederlag,
+  medUkjentHendelse,
   medVederlag,
   medVederlagssvar,
 } from '$lib/kjernesak/__tests__/provejournal';
@@ -48,13 +51,18 @@ const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
   ],
 });
 
-async function vis(journal: Journalrad[], part: Part | null, track = 'ansvar' as const) {
+async function vis(
+  journal: Journalrad[],
+  part: Part | null,
+  track: SporKey = 'ansvar',
+  mode: Mode = 'read'
+) {
   const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, part) });
   await kjernesak.last();
   render(Kjernesakrom, {
     kjernesak,
     projectId: 'p-1',
-    view: { track, mode: 'read', role: 'TE' },
+    view: { track, mode, role: 'TE' },
     onviewchange: () => {},
     onnewcase: () => {},
   });
@@ -91,18 +99,23 @@ describe('TS-saken i Kontrollrommet', () => {
     expect(screen.getByText('250 000 kr')).toBeInTheDocument();
     cleanup();
 
-    await vis(medVederlagssvar, 'TE');
+    await vis(medVederlagssvar, 'TE', 'vederlag');
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
     expect(spor.getByRole('button', { name: /Vederlag/ })).toHaveTextContent('BH har svart');
     expect(screen.queryByText('250 000 kr')).toBeNull();
+    // Vederlagsoversikten i midtkolonnen sier ikke at byggherren ikke har vurdert kravet.
+    expect(screen.queryByText(/ikke registrert noen beløpsvurdering/)).toBeNull();
+    expect(screen.getAllByText('Byggherre har svart', { exact: false }).length).toBeGreaterThan(0);
   });
 
   it('et registrert fristvarsel vises som varslet, ikke som «Ikke varslet» (§ 33.4)', async () => {
-    await vis(medFristvarsel, 'TE');
+    await vis(medFristvarsel, 'TE', 'frist');
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
     expect(spor.getByRole('button', { name: /Fristforlengelse/ })).toHaveTextContent(
       'Varslet – ikke spesifisert'
     );
+    // Handlingslinjen sier det samme, ikke «Ingen krav».
+    expect(screen.queryByText('Ingen krav')).toBeNull();
   });
 
   it.each([['TE'], ['BH']] as const)(
@@ -136,19 +149,39 @@ describe('TS-saken i Kontrollrommet', () => {
   });
 
   it('en hendelse kjernen ikke forstår, merkes, og saken sier at den ikke kan utledes (MM-U2)', async () => {
-    const ukjent: Journalrad = {
-      ...medGrunnlag[1],
-      event_id: 'e-ukjent',
-      event_type: 'ukjent_hendelse',
-      versjon: 3,
-      data: {},
-    };
-    const kjernesak = await vis([...medGrunnlag, ukjent], 'TE');
+    const kjernesak = await vis(medUkjentHendelse, 'TE');
     expect(kjernesak.visning!.status.kode).toBe('kan_ikke_utledes');
     expect(screen.getByText(`Saksstatus: ${kjernesak.visning!.status.tekst}`)).toBeInTheDocument();
+    // Handlingslinjen sier heller ikke «Ingen krav» for en sak som har krav.
+    expect(screen.getByText(kjernesak.visning!.status.tekst)).toBeInTheDocument();
+    expect(screen.queryByText('Ingen krav')).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Historikk' }));
     expect(within(screen.getByTestId('journal-3')).getByText('Ikke tolket')).toBeInTheDocument();
     for (const m of kjernesak.saksbilde!.merknader)
       expect(screen.getByText(m.tekst)).toBeInTheDocument();
+  });
+
+  // Statusfeltene i `SakState` kaster for en TS-sak (sakstilstand.ts). Ingen visning
+  // leser dem: status er en etikett, og kjernens etiketter står i `visning` (#718, #313).
+  it.each(
+    (['TE', 'BH'] as const).flatMap((part) =>
+      (['read', 'form'] as const).flatMap((mode) =>
+        (['ansvar', 'vederlag', 'frist'] as const).map((track) => [part, mode, track] as const)
+      )
+    )
+  )('Kontrollrommet leser ingen statusfelt for %s i %s på %s', async (part, mode, track) => {
+    for (const journal of [
+      medGrunnlag,
+      medSvar,
+      medVederlagssvar,
+      medFristvarsel,
+      medTrukketVederlag,
+      medUkjentHendelse,
+    ]) {
+      await vis(journal, part, track, mode);
+      for (const fane of ['Historikk', 'Bestemmelser'])
+        await fireEvent.click(screen.getByRole('button', { name: fane }));
+      cleanup();
+    }
   });
 });

@@ -30,7 +30,8 @@
   const prinsipaltGodkjent = $derived(standpunkt.prinsipalt);
   const subsidiaertGodkjent = $derived(standpunkt.subsidiaert);
   const atterSubsidiaert = $derived(standpunkt.atterSubsidiaert);
-  const hasBhResponse = $derived(Boolean(vederlag.bh_resultat));
+  // TS-saken viser bare at BH har svart (#718), i CenterRead. Resultatet projiseres ikke.
+  const hasBhResponse = $derived(!store.erKjernesak && Boolean(vederlag.bh_resultat));
   const hasSubsidiaryPosition = $derived(
     hasBhResponse && (avslattPaaGrunnlag || vederlag.subsidiaer_godkjent_belop != null)
   );
@@ -163,7 +164,11 @@
         };
       });
   });
-  const teVersionCount = $derived(Math.max(vederlag.antall_versjoner, teEvents.length, 1));
+  const teVersionCount = $derived(
+    store.erKjernesak
+      ? Math.max(store.display('vederlag').antallVersjoner, 1)
+      : Math.max(vederlag.antall_versjoner, teEvents.length, 1)
+  );
   const teRevision = $derived(teVersionCount - 1);
   const teDate = $derived(formatDateShortNorwegian(teEvents.at(-1)?.time));
   const bhDate = $derived(
@@ -347,7 +352,7 @@
       <ExpandableReasoning label="Byggherrens begrunnelse" html={vederlag.bh_begrunnelse} />
     {/if}
   </StatementCard>
-{:else}
+{:else if !store.display('vederlag').bhHarSvart}
   <div class="pending-response">
     <PendingResponseCard
       partyName={store.bhNavn}

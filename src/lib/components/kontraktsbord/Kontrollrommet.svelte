@@ -81,6 +81,7 @@
   } | null>(null);
   const bhSvarerPaaFristvarsel = $derived.by(
     () =>
+      !kjernesak &&
       sel === 'frist' &&
       role === 'BH' &&
       fristErSendt(store.sak) &&
@@ -107,7 +108,7 @@
       currentRole = role,
       track = sel;
     untrack(() => {
-      if (currentMode === 'form' && currentRole === 'BH')
+      if (!kjernesak && currentMode === 'form' && currentRole === 'BH')
         approval.beginEdit(track === 'ansvar' ? 'grunnlag' : track);
       else approval.endEdit();
     });

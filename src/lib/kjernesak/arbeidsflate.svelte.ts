@@ -16,7 +16,7 @@ import {
 import type { SakState, TimelineEvent } from '$lib/types/timeline';
 import { getPartsNavn } from '$lib/utils/partsNavn';
 import type { Kjernesakkontekst } from './kontekst.svelte';
-import { sporvisning, tilSakState, tilTidslinje } from './sakstilstand';
+import { sporetsStatustekst, sporvisning, tilSakState, tilTidslinje } from './sakstilstand';
 import { tilbyrFoersteVederlagskrav } from './vederlagskrav';
 
 interface Projeksjon {
@@ -101,6 +101,12 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
       return kjernesak.feil;
     },
     display: (track: SporKey) => projeksjon.visning[track],
+    statustekst(track: SporKey) {
+      const { visning, utledning } = kjernesak;
+      return visning && utledning
+        ? sporetsStatustekst(visning, utledning, track, kjernesak.part, bhNavn)
+        : '';
+    },
     getUI: (): SporUIState => TOM_UI,
     setDraft() {},
     beginEdit() {},

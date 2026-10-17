@@ -20,7 +20,6 @@ describe('TS-saken som Kontrollrommet leser den', () => {
       hovedkategori: 'ENDRING',
       underkategori: 'IRREG',
       beskrivelse: 'BH påla ny peling.',
-      antall_versjoner: 1,
     });
     expect(sak.vederlag).toMatchObject({
       metode: 'FASTPRIS_TILBUD',
@@ -43,7 +42,7 @@ describe('TS-saken som Kontrollrommet leser den', () => {
 
     const u = utledJournal(medSvar, KJERNE);
     const sak = tilSakState(SAK, null, medSvar, u);
-    expect(sak.grunnlag.bh_resultat).toBeUndefined();
+    expect(() => sak.grunnlag.bh_resultat).toThrow(/projiseres ikke/);
     expect(sak.grunnlag.bh_begrunnelse).toBeUndefined();
     const grunnlag = sporvisning(sak, u, 'ansvar');
     expect(grunnlag).toMatchObject({
@@ -52,6 +51,22 @@ describe('TS-saken som Kontrollrommet leser den', () => {
       isDisputed: false,
     });
     expect(sporvisning(sak, u, 'vederlag').bhHarSvart).toBe(false);
+  });
+
+  it('statusfeltene projiseres ikke, så en lesing av dem kaster (#718, #313)', () => {
+    const u = utledJournal(medSvar, KJERNE);
+    const sak = tilSakState(SAK, null, medSvar, u);
+    expect(() => sak.overordnet_status).toThrow(/overordnet_status projiseres ikke/);
+    expect(() => sak.kan_utstede_eo).toThrow(/projiseres ikke/);
+    expect(() => sak.er_subsidiaert_vederlag).toThrow(/projiseres ikke/);
+    for (const spor of [sak.grunnlag, sak.vederlag, sak.frist]) {
+      expect(() => spor.status).toThrow(/status projiseres ikke/);
+      expect(() => spor.antall_versjoner).toThrow(/projiseres ikke/);
+      expect(() => spor.bh_resultat).toThrow(/projiseres ikke/);
+    }
+    expect(() => sak.grunnlag.laast).toThrow(/projiseres ikke/);
+    // Spredningen kopierer ikke getterne, så den kaster ikke.
+    expect({ ...sak.vederlag }).not.toHaveProperty('status');
   });
 
   it('et registrert varsel etter § 33.4 gir fristsporet et varsel uten krevde dager', () => {

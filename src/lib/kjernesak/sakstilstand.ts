@@ -1,9 +1,14 @@
 /**
  * TS-saken slik Kontrollrommet leser den (FK-8b, #718): utledningen og journalen
- * projisert til `SakState`, `TimelineEvent` og visningen per spor. Her står ingen
- * regel, bare oppslag. Kategoriene og metoden oversettes til katalogens koder med
- * `tilKatalogen`. Byggherrens svar vises bare som at svar finnes (oppdragsgiver
- * 17.10, #718), så resultatet, beløpet og subsidiariteten leses ikke her.
+ * projisert til `SakState`, `TimelineEvent` og visningen per spor. Kategoriene og
+ * metoden oversettes til katalogens koder med `tilKatalogen`. Byggherrens svar vises
+ * bare som at svar finnes (oppdragsgiver 17.10, #718), så resultatet, beløpet og
+ * subsidiariteten leses ikke her.
+ *
+ * Statusfeltene i `SakState` projiseres ikke: status er en etikett, og kjernens
+ * etiketter står i `visning`. Leser Kontrollrommet et av feltene for en TS-sak,
+ * kaster getteren i utvikling og test, så en ny lesing gir rød test i stedet for
+ * en oppdiktet status.
  */
 
 import {
@@ -14,13 +19,8 @@ import {
 } from '$kjerne/format/koder';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Avsnitt, Journalrad, Krav, Spor } from '$kjerne/typer';
-import type {
-  SakState,
-  SporStatus,
-  SporType,
-  TimelineEvent,
-  VederlagsMetode,
-} from '$lib/types/timeline';
+import type { Visning } from '$kjerne/utledning/visning';
+import type { SakState, SporType, TimelineEvent, VederlagsMetode } from '$lib/types/timeline';
 import { getHjemmelLabel, getHjemmelObj } from '$lib/constants/categories';
 import type { TrackDisplay } from '$lib/components/kontraktsbord/derive';
 import type { SporKey } from '$lib/components/kontraktsbord/types';
@@ -53,13 +53,33 @@ function sisteOppdatert(journal: Journalrad[], u: Utledning, spor: Spor): string
     : undefined;
 }
 
-/** Etiketten for sporet. Den er ikke en status kjernen leser, og den leses ikke av regler i appen. */
-function sporStatus(u: Utledning, spor: Spor): SporStatus {
-  const s = u.spor[spor];
-  if (s.trukket) return 'trukket';
-  if (s.gjeldendeSvar) return 'under_behandling';
-  return s.gjeldendeKrav ? 'sendt' : 'ikke_relevant';
+/** Gir `o` gettere som kaster for feltene som ikke projiseres for en TS-sak. */
+function utenStatus<T, K extends keyof T & string>(o: Omit<T, K>, felt: readonly K[]): T {
+  for (const f of felt)
+    Object.defineProperty(o, f, {
+      enumerable: false,
+      // I produksjon gir lesingen `undefined`, så en lesing testene ikke fanger,
+      // ikke tar ned hele Kontrollrommet.
+      get() {
+        if (import.meta.env.DEV)
+          throw new Error(`${f} projiseres ikke for en TS-sak. Les kjernens visning (#718).`);
+      },
+    });
+  return o as T;
 }
+
+const SPORETS_STATUSFELT = ['status', 'antall_versjoner', 'bh_resultat'] as const;
+const SAKENS_STATUSFELT = [
+  'overordnet_status',
+  'kan_utstede_eo',
+  'sum_krevd',
+  'sum_godkjent',
+  'er_subsidiaert_vederlag',
+  'er_subsidiaert_frist',
+  'visningsstatus_vederlag',
+  'visningsstatus_frist',
+  'neste_handling',
+] as const;
 
 const tall = (v: unknown): number | undefined => (typeof v === 'number' ? v : undefined);
 const tekst = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
@@ -74,48 +94,45 @@ export function tilSakState(
   const v = u.spor.vederlag.gjeldendeKrav;
   const f = u.spor.frist.gjeldendeKrav;
   const beloep = tall(v?.innhold.beloep);
-  const felles = (spor: Spor) => ({
-    status: sporStatus(u, spor),
-    antall_versjoner: u.spor[spor].krav.length,
-    siste_oppdatert: sisteOppdatert(journal, u, spor),
-  });
-  return {
-    sak_id: sakId,
-    sakstittel: tittel ?? 'Sak',
-    sakstype: 'standard',
-    grunnlag: {
-      ...felles('grunnlag'),
-      hovedkategori: tekst(tilKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, g?.innhold.hovedkategori)),
-      underkategori: tekst(tilKatalogen(UNDERKATEGORI_FRA_KATALOGEN, g?.innhold.underkategori)),
-      beskrivelse: utdypning(journal, u, g),
-      laast: false,
+  const sist = (spor: Spor) => ({ siste_oppdatert: sisteOppdatert(journal, u, spor) });
+  return utenStatus<SakState, (typeof SAKENS_STATUSFELT)[number]>(
+    {
+      sak_id: sakId,
+      sakstittel: tittel ?? 'Sak',
+      sakstype: 'standard',
+      grunnlag: utenStatus<SakState['grunnlag'], (typeof SPORETS_STATUSFELT)[number] | 'laast'>(
+        {
+          ...sist('grunnlag'),
+          hovedkategori: tekst(tilKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, g?.innhold.hovedkategori)),
+          underkategori: tekst(tilKatalogen(UNDERKATEGORI_FRA_KATALOGEN, g?.innhold.underkategori)),
+          beskrivelse: utdypning(journal, u, g),
+        },
+        [...SPORETS_STATUSFELT, 'laast']
+      ),
+      vederlag: utenStatus<SakState['vederlag'], (typeof SPORETS_STATUSFELT)[number]>(
+        {
+          ...sist('vederlag'),
+          metode: tekst(tilKatalogen(METODE_FRA_KATALOGEN, v?.innhold.metode)) as
+            | VederlagsMetode
+            | undefined,
+          belop_direkte: beloep,
+          krevd_belop: beloep,
+          begrunnelse: utdypning(journal, u, v),
+        },
+        SPORETS_STATUSFELT
+      ),
+      frist: utenStatus<SakState['frist'], (typeof SPORETS_STATUSFELT)[number]>(
+        {
+          ...sist('frist'),
+          krevd_dager: tall(f?.innhold.dager),
+          begrunnelse: utdypning(journal, u, f),
+        },
+        SPORETS_STATUSFELT
+      ),
+      antall_events: journal.length,
     },
-    vederlag: {
-      ...felles('vederlag'),
-      metode: tekst(tilKatalogen(METODE_FRA_KATALOGEN, v?.innhold.metode)) as
-        | VederlagsMetode
-        | undefined,
-      belop_direkte: beloep,
-      krevd_belop: beloep,
-      begrunnelse: utdypning(journal, u, v),
-    },
-    frist: {
-      ...felles('frist'),
-      krevd_dager: tall(f?.innhold.dager),
-      begrunnelse: utdypning(journal, u, f),
-    },
-    er_subsidiaert_vederlag: false,
-    er_subsidiaert_frist: false,
-    visningsstatus_vederlag: '',
-    visningsstatus_frist: '',
-    // Leses ikke for en TS-sak. Kontrollrommet viser `visning.status` (#718).
-    overordnet_status: 'UNDER_BEHANDLING',
-    kan_utstede_eo: false,
-    neste_handling: { rolle: null, handling: '', spor: null },
-    sum_krevd: 0,
-    sum_godkjent: 0,
-    antall_events: journal.length,
-  };
+    SAKENS_STATUSFELT
+  );
 }
 
 /** Sporet en hendelse har krav eller svar i. */
@@ -188,4 +205,30 @@ export function sporvisning(sak: SakState, u: Utledning, nokkel: SporKey): Track
     teText: sak[nokkel].begrunnelse ?? '',
     sisteOppdatert: sak[nokkel].siste_oppdatert,
   };
+}
+
+/**
+ * Statusteksten for sporet i handlingslinjen, fra kjernens visning. Kan saken ikke
+ * utledes (MM-U2), er det sakens status. Ellers er det etikettene for sporet:
+ * `trukket`, `venter_paa_svar` (GR-U24 er lest inn der) og `ingen_krav`, og
+ * deretter om sporet har svar, krav eller et varsel etter § 33.4.
+ */
+export function sporetsStatustekst(
+  vist: Visning,
+  u: Utledning,
+  nokkel: SporKey,
+  part: 'TE' | 'BH' | null,
+  bhNavn: string
+): string {
+  if (vist.status.kode === 'kan_ikke_utledes') return vist.status.tekst;
+  const spor = SPOR_FOR[nokkel];
+  const etiketter = vist.spor[spor].etiketter;
+  if (etiketter.includes('trukket')) return 'Kravet er trukket';
+  if (etiketter.includes('venter_paa_svar'))
+    return part === 'BH' ? 'Kravet er ikke besvart' : `Avventer svar fra ${bhNavn}`;
+  if (etiketter.includes('ingen_krav')) return 'Ingen krav';
+  const s = u.spor[spor];
+  if (s.gjeldendeSvar) return `${bhNavn} har svart`;
+  if (s.krav.length) return vist.status.tekst;
+  return s.varsel ? 'Varslet – ikke spesifisert' : 'Ingen krav';
 }

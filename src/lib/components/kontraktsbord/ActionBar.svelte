@@ -71,14 +71,7 @@
   const tilbyrVederlagskrav = $derived(
     kjernesak?.part === 'TE' && sel === 'vederlag' && kjernesak.tilbyrVederlagskrav
   );
-  const kjernesakStatus = $derived.by(() => {
-    if (!kjernesak) return '';
-    const display = store.display(sel);
-    if (display.isWithdrawn) return 'Kravet er trukket';
-    if (display.bhHarSvart) return `${store.bhNavn} har svart`;
-    if (display.antallVersjoner === 0) return 'Ingen krav';
-    return role === 'BH' ? 'Kravet er ikke besvart' : `Avventer svar fra ${store.bhNavn}`;
-  });
+  const kjernesakStatus = $derived(kjernesak ? kjernesak.statustekst(sel) : '');
 </script>
 
 <div

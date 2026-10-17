@@ -45,8 +45,8 @@
 
   // TS-saken viser kjernens statustekst (#718). Status er bare en etikett.
   const statusStyle = $derived(
-    store.erKjernesak && store.saksbilde
-      ? { label: store.saksbilde.status.tekst, variant: 'default', sendt: false }
+    store.erKjernesak
+      ? { label: store.saksbilde?.status.tekst ?? '', variant: 'default', sendt: false }
       : saksstatus(store.sak)
   );
   // For en TS-sak vises bare at BH har svart (#718), så et besvart krav står ikke som uavklart.
@@ -171,7 +171,7 @@
             {:else if display.isBinary}
               {display.isDisputed && !display.isPrecluded
                 ? 'BH bestrider grunnlaget'
-                : track.bh_resultat
+                : !store.erKjernesak && track.bh_resultat
                   ? `BH: ${display.bhPosition}`
                   : display.antallVersjoner > 0
                     ? 'Ikke vurdert'

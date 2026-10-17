@@ -97,3 +97,11 @@ export const medFristvarsel = skrevet(medGrunnlag, 'TE', {
   hjemmel: '33.4',
   sendt: '2026-10-10',
 });
+
+export const medTrukketVederlag = skrevet(medVederlag, 'TE', { type: 'trekk', spor: 'vederlag' });
+
+/** En hendelse kjernen ikke kjenner, så saken ikke kan utledes (MM-U2). */
+export const medUkjentHendelse: Journalrad[] = [
+  ...medGrunnlag,
+  { ...medGrunnlag[1], event_id: 'e-ukjent', event_type: 'ukjent_hendelse', versjon: 3, data: {} },
+];

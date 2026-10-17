@@ -54,8 +54,6 @@ const TILLATT: Record<string, string> = {
   'src/lib/domain/followUp.ts': 'speilet av Python-reglene, utenfor denne delen av #313',
   'src/lib/approval/authority.ts': 'fullmakten, som speiler `krav_fra_tilstand` i Python',
   'src/lib/mockup/store.svelte.ts': 'demolageret, som har sin egen statusregel',
-  'src/lib/kjernesak/sakstilstand.ts':
-    'projeksjonen av TS-saken til `SakState`, som skriver etiketten og ikke leser den (#718)',
 };
 
 const filer = readdirSync(SRC, { recursive: true, encoding: 'utf8' })

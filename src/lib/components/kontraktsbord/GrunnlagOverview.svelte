@@ -17,7 +17,17 @@
 
   let expandedSide: 'te' | 'bh' | null = $state(null);
 
+  const harBhResultat = $derived(!store.erKjernesak && Boolean(grunnlag.bh_resultat));
   const status = $derived.by(() => {
+    // TS-saken viser bare at BH har svart (#718). Resultatet projiseres ikke.
+    if (store.erKjernesak)
+      return store.display('ansvar').bhHarSvart
+        ? { icon: Check, text: `${store.bhNavn} har svart`, variant: 'pending' as const }
+        : {
+            icon: Clock3,
+            text: `Avventer standpunkt fra ${store.bhNavn}`,
+            variant: 'pending' as const,
+          };
     if (grunnlag.bh_resultat !== 'frafalt' && grunnlagetErPrekludert(store.sak)) {
       return {
         icon: X,
@@ -46,9 +56,6 @@
         variant: 'warning' as const,
       };
     }
-    if (store.display('ansvar').bhHarSvart) {
-      return { icon: Check, text: `${store.bhNavn} har svart`, variant: 'pending' as const };
-    }
     return {
       icon: Clock3,
       text: `Avventer standpunkt fra ${store.bhNavn}`,
@@ -61,7 +68,11 @@
   const grunnlagEvents = $derived(store.timeline.filter((event) => event.spor === 'grunnlag'));
   const teEvents = $derived(grunnlagEvents.filter((event) => event.actorrole === 'TE'));
   const bhEvents = $derived(grunnlagEvents.filter((event) => event.actorrole === 'BH'));
-  const teVersionCount = $derived(Math.max(grunnlag.antall_versjoner, teEvents.length, 1));
+  const teVersionCount = $derived(
+    store.erKjernesak
+      ? Math.max(store.display('ansvar').antallVersjoner, 1)
+      : Math.max(grunnlag.antall_versjoner, teEvents.length, 1)
+  );
   const teRevision = $derived(teVersionCount - 1);
   const bhAnsweredVersion = $derived(
     grunnlag.bh_respondert_versjon == null ? null : grunnlag.bh_respondert_versjon + 1
@@ -104,7 +115,7 @@
             {#if teDate}<span>Sendt {teDate}</span>{/if}
             {#if teRevision > 0}<span>Rev. {teRevision}</span>{/if}
           </div>
-        {:else if grunnlag.bh_resultat}
+        {:else if harBhResultat}
           <div class="submission-meta">
             {#if bhDate}<span>Svart {bhDate}</span>{/if}
             {#if bhAnsweredVersion !== null && teVersionCount > 1}
@@ -207,7 +218,7 @@
         <div>
           <span class="eyebrow">Byggherrens standpunkt</span>
           <h3>{store.bhNavn}</h3>
-          {#if grunnlag.bh_resultat}
+          {#if harBhResultat}
             <div class="submission-meta">
               {#if bhDate}<span>Svart {bhDate}</span>{/if}
               {#if bhAnsweredVersion !== null && teVersionCount > 1}
