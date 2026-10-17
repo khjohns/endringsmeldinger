@@ -37,7 +37,7 @@ import {
 import type { Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
-import { lesSaken } from './lager.ts';
+import { IngenLeveringsmaal, lesSaken } from './lager.ts';
 import {
   opprettSak,
   SakFinnesIkke,
@@ -205,6 +205,8 @@ function kroppsfeil(verdi: unknown): string | null {
   return null;
 }
 
+const UVENTET: Svar = [500, { success: false, error: 'INTERNAL_ERROR', message: 'Uventet feil.' }];
+
 const feilsvar = (status: number, error: string, message: string): Svar => [
   status,
   { success: false, error, message },
@@ -331,6 +333,9 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       ];
     if (feil instanceof SakFinnesIkke) return finnesIkke();
     if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+    // Koblingen er slått av etter tilgangskontrollen, som ellers ville nektet (#739 punkt 1).
+    if (feil instanceof IngenLeveringsmaal)
+      return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
     if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
     throw feil;
   }
@@ -510,16 +515,15 @@ export function lagServer(avh: Avhengigheter) {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent prosjekt.');
     }
     const bruker = await krevInnlogging(full.datalag, foresporsel);
-    // Ellers kunne stien vise et annet prosjekt enn det tilgangen er avgjort for.
-    if (foresporsel.headers['x-project-id'] !== prosjektId)
-      throw new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
     const prosjekt = await krevProsjekttilgang(
       full.datalag,
       full.catenda,
       foresporsel,
       bruker,
       r.tilgang.prosjektrolle,
-      {}
+      {},
+      null,
+      prosjektId
     );
     return r.behandle({ bruker, prosjekt }, full);
   }
@@ -537,18 +541,16 @@ export function lagServer(avh: Avhengigheter) {
   }
 
   return async function behandle(foresporsel: IncomingMessage, respons: ServerResponse) {
-    const { pathname } = new URL(foresporsel.url ?? '/', 'http://localhost');
+    // En sti `new URL` ikke kan lese, som `//`, finnes ikke (#754).
+    const pathname = URL.parse(foresporsel.url ?? '/', 'http://localhost')?.pathname;
     const metode = foresporsel.method ?? 'GET';
     let funnet: { r: Rute; treff: RegExpMatchArray } | null = null;
     for (const r of RUTER) {
-      const treff = pathname.match(r.sti);
+      const treff = pathname?.match(r.sti);
       if (treff && r.metode === metode) funnet = { r, treff };
       if (funnet) break;
     }
-    let [status, kropp, hoder]: Svar = [
-      500,
-      { success: false, error: 'INTERNAL_ERROR', message: 'Uventet feil.' },
-    ];
+    let [status, kropp, hoder]: Svar = UVENTET;
     try {
       [status, kropp, hoder] = funnet
         ? await kjoer(funnet.r, funnet.treff, foresporsel)
@@ -557,11 +559,24 @@ export function lagServer(avh: Avhengigheter) {
       if (feil instanceof Nektet) [status, kropp] = [feil.status, feil.kropp];
       else console.error(feil);
     }
-    respons.writeHead(status, {
-      ...(kropp ? { 'content-type': 'application/json; charset=utf-8' } : {}),
-      ...funnet?.r.hoder,
-      ...hoder,
-    });
-    respons.end(kropp ? JSON.stringify(kropp) : undefined);
+    // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2).
+    let tekst: string | undefined;
+    try {
+      tekst = kropp ? JSON.stringify(kropp) : undefined;
+      respons.writeHead(status, {
+        ...(kropp ? { 'content-type': 'application/json; charset=utf-8' } : {}),
+        ...funnet?.r.hoder,
+        ...hoder,
+      });
+    } catch (feil) {
+      console.error(feil);
+      tekst = JSON.stringify(UVENTET[1]);
+      // Node beholder årsaksfrasen fra det første forsøket, og rutens hoder gjelder også dette svaret.
+      respons.writeHead(500, 'Internal Server Error', {
+        'content-type': 'application/json; charset=utf-8',
+        ...funnet?.r.hoder,
+      });
+    }
+    respons.end(tekst);
   };
 }

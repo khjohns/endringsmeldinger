@@ -258,7 +258,8 @@ async function sakerIProsjektet(
 }
 
 /**
- * `require_project_access(min_role)`. `sakIdFraSti` er saken i URL-en;
+ * `require_project_access(min_role)`. `sakIdFraSti` er saken i URL-en og
+ * `prosjektIdFraSti` prosjektet i URL-en, som må være prosjektet i `X-Project-ID`;
  * `nyttelast` er JSON-kroppen, eller `{}` uten kropp.
  */
 export async function krevProsjekttilgang(
@@ -268,12 +269,15 @@ export async function krevProsjekttilgang(
   bruker: Bruker,
   minsteRolle: 'viewer' | 'member' | 'admin',
   nyttelast: unknown,
-  sakIdFraSti: string | null = null
+  sakIdFraSti: string | null = null,
+  prosjektIdFraSti: string | null = null
 ): Promise<Prosjekttilgang> {
   const nekt = () => new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   const hode = foresporsel.headers['x-project-id'];
   const prosjektId = typeof hode === 'string' && hode ? hode : null;
   if (!prosjektId || !gyldigProsjektId(prosjektId)) throw nekt();
+  // Ellers kunne stien vise et annet prosjekt enn det tilgangen er avgjort for (#724 punkt 1).
+  if (prosjektIdFraSti !== null && prosjektIdFraSti !== prosjektId) throw nekt();
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
     if (!oppsett) throw nekt();

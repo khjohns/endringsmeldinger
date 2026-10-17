@@ -22,7 +22,7 @@ from pathlib import Path
 
 FEILINNFOERINGER = [
     ("S1", "kontraktsrollen kontrolleres ikke for en inngang som krever den", "server/app.ts",
-     "r.tilgang.kontraktsrolle === 'kreves'\n        ? await", "false\n        ? await",
+     "tilgang.kontraktsrolle === 'kreves'\n        ? await", "false\n        ? await",
      "kontraktsrollen"),
     ("S2", "CSRF kontrolleres ikke på en endring", "server/autorisasjon.ts",
      "!['GET', 'HEAD', 'OPTIONS'].includes(metode) &&", "false &&",
@@ -37,13 +37,14 @@ FEILINNFOERINGER = [
      "    if (!skrevetAvKjernen(journal))\n      throw", "    if (false)\n      throw",
      "ikke har skrevet"),
     ("S6", "ukjente felt i kroppen godtas", "server/app.ts",
-     "if (ukjente.length) return", "if (false) return",
+     "!KOMMANDOKROPP.has(k));\n  if (ukjente.length) return",
+     "!KOMMANDOKROPP.has(k));\n  if (false) return",
      "kan ikke settes av klienten"),
     ("S7", "skrivingen godtar en sak TS-kjernen ikke har skrevet", "server/kommandoer.ts",
      "      if (!skrevetAvKjernen(journal))\n        throw", "      if (false)\n        throw",
      "ikke har skrevet"),
     ("S8", "aktøren tas fra kroppen når den er oppgitt", "server/app.ts",
-     "aktoerId: bruker.id,", "aktoerId: (kropp.aktor_id as string) ?? bruker.id,",
+     "aktoerId: kontekst.aktor,", "aktoerId: (kropp.aktor_id as string) ?? kontekst.aktor,",
      "kan ikke settes av klienten"),
     ("S9", "summen regnes uten sorterte nøkler", "server/levering.ts",
      "    return `{${Object.keys(verdi)\n      .sort()", "    return `{${Object.keys(verdi)",
@@ -54,9 +55,19 @@ FEILINNFOERINGER = [
     ("S11", "dybdegrensen for kroppen mangler", "server/app.ts",
      "if (dybde > STORSTE_DYBDE) return", "if (false) return",
      "dypt nestet"),
+    ("S12", "prosjektet i stien sammenliknes ikke med X-Project-ID", "server/autorisasjon.ts",
+     "if (prosjektIdFraSti !== null && prosjektIdFraSti !== prosjektId) throw nekt();",
+     "void prosjektIdFraSti;",
+     "et annet prosjekt i stien"),
+    ("S13", "en sak uten leveringsmål gir 500, ikke en avvisning", "server/app.ts",
+     "    if (feil instanceof IngenLeveringsmaal)\n      return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');\n",
+     "",
+     "uten leveringsmål"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
+# Slapp den gjennom, ville kontrollerRad i kommandoer.ts avvist raden, fordi
+# basen stempler aktøren fra sesjonen i skrivekonteksten (#750).
 FORVENTET_OVERLEVER = {"S8"}
 
 

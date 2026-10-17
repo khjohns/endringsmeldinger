@@ -379,4 +379,12 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       expect(svar.status, `${metode} ${sti}`).toBe(404);
     }
   });
+
+  it('en sti new URL ikke kan lese, gir 404 og tar ikke ned serveren (#754)', async () => {
+    const svar = await fetch(`${server.url}//`);
+    expect(svar.status).toBe(404);
+    expect(((await svar.json()) as { error: string }).error).toBe('NOT_FOUND');
+    // Kontrollsak: serveren svarer fortsatt.
+    expect((await fetch(`${server.url}/api/ukjent`)).status).toBe(404);
+  });
 });
