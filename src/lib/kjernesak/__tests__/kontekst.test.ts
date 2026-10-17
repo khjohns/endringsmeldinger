@@ -153,7 +153,7 @@ describe('sakskonteksten for en TS-sak', () => {
 
     expect(await sak.send(grunnlagskrav)).toBe(true);
     expect(hent).toHaveBeenCalledWith(SAK, 'p-2');
-    expect(send.mock.calls[0][3]).toBe('p-2');
+    expect(send).toHaveBeenCalledWith(SAK, 1, expect.anything(), 'p-2');
   });
 
   it('laster saken på nytt ved versjonskonflikt og lar meldingen stå', async () => {
