@@ -128,7 +128,7 @@ export type Skriveutfall<A> =
  * klokke og avgjør hva som skrives. Raden må gjelde saken og neste versjon og
  * ha aktøren, siden, teamet og tidspunktet basen stempler; ellers skrives ingenting.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando
+ * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, IngenLeveringsmaal
  */
 export async function skrivHendelse<A>(
   pool: Pool,

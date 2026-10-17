@@ -197,6 +197,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       minsteRolle = 'viewer' as const as 'viewer' | 'member' | 'admin',
       nyttelast = {} as unknown,
       sakIdFraSti = null as string | null,
+      prosjektIdFraSti = null as string | null,
     } = {}
   ) =>
     krevProsjekttilgang(
@@ -206,7 +207,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       m.bruker,
       minsteRolle,
       nyttelast,
-      sakIdFraSti
+      sakIdFraSti,
+      prosjektIdFraSti
     );
 
   describe('prosjekttilgangen', () => {
@@ -256,6 +258,18 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       const annet = await prosjekt();
       const m = await medlem(annet);
       expect(await nektet(tilgang(m, p.id))).toEqual({ status: 403, error: 'FORBIDDEN' });
+    });
+
+    it('et annet prosjekt i stien enn i X-Project-ID gir 403, også for et medlem av prosjektet i hodet (#724 punkt 1)', async () => {
+      const p = await prosjekt();
+      const annet = await prosjekt();
+      const m = await medlem(p);
+      expect(await nektet(tilgang(m, p.id, { prosjektIdFraSti: annet.id }))).toEqual({
+        status: 403,
+        error: 'FORBIDDEN',
+      });
+      // Kontrollsak: samme prosjekt i stien og i hodet gir tilgang.
+      expect((await tilgang(m, p.id, { prosjektIdFraSti: p.id })).prosjektId).toBe(p.id);
     });
 
     it('uten X-Project-ID er prosjektet ukjent og gir 403', async () => {
