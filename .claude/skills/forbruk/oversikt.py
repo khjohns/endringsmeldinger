@@ -12,24 +12,45 @@ import re
 from pathlib import Path
 
 
+def les_svar(tekst):
+    start = tekst.find('{"ccr"')
+    svar = json.loads(
+        tekst[start if start >= 0 else tekst.find("{") : tekst.rfind("}") + 1]
+    )
+    if isinstance(svar.get("text"), str):
+        return les_svar(svar["text"])
+    return svar.get("ccr", svar)
+
+
 def les_okter(stier):
+    """Øktene i sidene, og om siden med de eldste øktene har flere etter seg."""
     okter = {}
-    har_mer = True
+    eldste, har_mer = None, False
     for sti in stier:
-        tekst = Path(sti).read_text(encoding="utf-8")
-        svar = json.loads(tekst[tekst.find("{") : tekst.rfind("}") + 1])
-        svar = svar.get("ccr", svar)
-        har_mer = svar.get("has_more", False)
-        for okt in svar["data"]:
+        svar = les_svar(Path(sti).read_text(encoding="utf-8"))
+        data = svar.get("data") or []
+        for okt in data:
             okter[okt["id"]] = okt
-    return okter, har_mer
+        if data:
+            sidens_eldste = min(o["created_at"] for o in data)
+            if eldste is None or sidens_eldste < eldste:
+                eldste, har_mer = sidens_eldste, svar.get("has_more", False)
+    return okter, eldste, har_mer
+
+
+def tittel(okt):
+    return okt.get("title") or ""
+
+
+def metadata(okt):
+    return okt.get("external_metadata") or {}
 
 
 def rolle(okt, foreldre):
-    tittel = okt.get("title", "").lower()
-    if okt["id"] in foreldre or re.search(r"orkestr|orchestr|planlegg", tittel):
+    t = tittel(okt).lower()
+    if okt["id"] in foreldre or re.search(r"orkestr|orchestr|planlegg", t):
         return "orkestrator"
-    if "review" in tittel:
+    if "review" in t:
         return "review"
     return "bygg"
 
@@ -42,25 +63,36 @@ def main():
     p.add_argument("filer", nargs="+")
     a = p.parse_args()
 
-    alle, har_mer = les_okter(a.filer)
-    eldste = min(o["created_at"][:10] for o in alle.values())
+    alle, eldste, har_mer = les_okter(a.filer)
+    if not alle:
+        print("ingen økter i sidene")
+        return
     foreldre = {o.get("parent_session_id") for o in alle.values()}
-    okter = [o for o in alle.values() if a.fra <= o["created_at"][:10] < a.til]
+    # Kostnaden er samlet over hele økta, så en økt telles når den var aktiv i perioden.
+    okter = [
+        o
+        for o in alle.values()
+        if o["updated_at"][:10] >= a.fra and o["created_at"][:10] < a.til
+    ]
+    for_perioden = [o for o in okter if o["created_at"][:10] < a.fra]
 
     def bruk(o):
-        return o.get("usage") or o.get("external_metadata", {}).get("usage") or {}
+        return o.get("usage") or metadata(o).get("usage") or {}
 
     def kontekst(o):
-        return (
-            o.get("external_metadata", {}).get("context_usage", {}).get("used_tokens")
-            or 0
-        )
+        return (metadata(o).get("context_usage") or {}).get("used_tokens") or 0
 
     print(
-        f"{len(okter)} økter fra {a.fra} til {a.til} (eldste i sidene: {eldste}, has_more: {har_mer})"
+        f"{len(okter)} økter aktive fra {a.fra} til {a.til} "
+        f"(eldste opprettet i sidene: {eldste[:10]}, has_more: {har_mer})"
     )
-    if eldste >= a.fra and har_mer:
+    if har_mer and eldste[:10] >= a.fra:
         print("ADVARSEL: sidene når ikke tilbake til --fra; hent flere sider")
+    if for_perioden:
+        print(
+            f"{len(for_perioden)} økter er opprettet før --fra og kan ha brukt noe "
+            "av kostnaden før perioden"
+        )
     uten = [o for o in okter if not bruk(o)]
     if uten:
         print(f"{len(uten)} økter uten usage")
@@ -76,7 +108,7 @@ def main():
         r[0] += 1
         r[1] += k
         r[2] += bruk(o).get("cache_read_tokens") or 0
-    print("\nper dag:")
+    print("\nper dag, etter opprettelse:")
     for dag, (n, k) in sorted(per_dag.items()):
         print(f"  {dag}  {n:3} økter  {k:6.0f} USD")
     print("\nper rolle:")
@@ -99,7 +131,7 @@ def main():
         print(
             f"  {b.get('cost_usd') or 0:6.1f} USD  kontekst {kontekst(o):>7}  "
             f"cache_read {(b.get('cache_read_tokens') or 0) / 1e6:5.1f}M  "
-            f"{rolle(o, foreldre):11}  {o['id']}  {o.get('title', '')[:60]}"
+            f"{rolle(o, foreldre):11}  {o['id']}  {tittel(o)[:60]}"
         )
 
 

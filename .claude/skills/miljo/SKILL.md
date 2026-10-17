@@ -61,6 +61,8 @@ det, så svarene holdes små:
 
 `.claude/settings.json` setter `bashOutputMaxChars` til 10 000 tegn. Lengre
 utdata fra Bash lagres til fil, og økta får en kort forhåndsvisning og stien.
+Les den lagrede fila med `Read` med `offset` og `limit`, eller med `grep`. `cat`
+av hele fila gir bare en ny fil og en ny forhåndsvisning.
 
 ## Feilinnføringer
 

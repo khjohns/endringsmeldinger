@@ -28,10 +28,11 @@ grensen. Runden kan ta mange av dem så lenge de lar seg orkestrere etter
 filoverlapp, og de tekniske valgene tas mellom orkestratoren og øktene, ikke av
 oppdragsgiver. Et valg som blir en kontrakt, en regel i domenekjernen eller et
 lagret navn, er ikke teknisk og venter på oppdragsgiver, som under «2. Oppdraget
-til hver økt». Merge krever fortsatt godkjenning fra oppdragsgiver, per PR
-eller på forhånd for runden etter punkt 4 (oppdragsgiver 16.10, #600: «tekniske issues som ikke behøver avklaringer for meg kan vi ta mange av,
+til hver økt». Merge krever fortsatt godkjenning fra oppdragsgiver
+(oppdragsgiver 16.10, #600: «tekniske issues som ikke behøver avklaringer for meg kan vi ta mange av,
 så lenge det lar seg orkestrere, og beslutningene går mellom deg og sesjonene
-(og ikke meg)»).
+(og ikke meg)»). Godkjenningen kan gis per PR eller på forhånd for runden
+(punkt 4).
 Grensen settes av hvor mye oppdragsgiver kan gå gjennom, av konflikter ved
 merge og av kostnaden, ikke av antall issues.
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
@@ -142,7 +143,8 @@ issue. Oppdraget skal inneholde:
   Det venter. For kjerne-oppgaver er spørsmålene samlet i kartleggingen (punkt 1),
   og svarene står i oppdraget. Dekker ikke svarene det byggeøkta møter, stanser
   den og spør på samme måte;
-- at økta ikke skriver i hovedplanen, med unntaket under «Spørsmål og vedtak»;
+- at økta ikke skriver i hovedplanen, med unntaket i
+  [vedtaksskillen](../vedtak/SKILL.md);
 - at feil utenfor oppdraget, som ikke er reviewfunn, blir egne issues (regelen i
   `AGENTS.md`), og at økta løser en slik feil i samme PR med `Closes #n` bare når
   rettingen er noen få linjer i en fil den allerede endrer. Alt annet venter til neste
@@ -254,12 +256,15 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   med aktivt arbeid, sikkerhetssjekkene settes innen 55 minutter mens noe pågår,
   og etter mer enn en time uten aktivitet avsluttes runden heller enn å vekkes
   (oppdragsgiver 12.10, #425).
+- **Følg med i hver sjekk.** Orkestratoren leser brukt kontekst
+  (`external_metadata.context_usage.used_tokens`) og kostnad
+  (`external_metadata.usage.cost_usd`) for hver økt med `get_session` i hver
+  sjekk, og bruker grensene under også når en økt ikke har meldt fra.
 - **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
   review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
   finnes, og leser sin egen kontekst med `get_session` uten `session_id`, i
-  `external_metadata.context_usage.used_tokens`. Kostnaden står i
-  `external_metadata.usage.cost_usd`. Har økta passert om lag 150 000 tokens,
-  stopper den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk.
+  `external_metadata.context_usage.used_tokens`. Har økta passert om lag
+  150 000 tokens, stopper den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk.
   Tilstanden skal gjøre det mulig å lese seg inn på nytt: vedtakene i
   hovedplanen, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
   gjenstår (oppdragsgiver 14.10, #484).
