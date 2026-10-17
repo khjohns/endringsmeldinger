@@ -118,7 +118,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   [Vakttestene](../../../docs/vedtaksregister/README.md#vakttestene) erstatter
   kontrollrundene av vedtaksteksten. Det som krever skjønn, og kontrollen av
   `folge` og merknadene mot svarene, står i
-  [orkestreringsskillen](../orkestrering/SKILL.md#spørsmål-og-vedtak).
+  [vedtaksskillen](../vedtak/SKILL.md).
 - Gjennomfør uavhengig review etter `AGENTS.md`, med akseptkriteriene som
   grunnlag. Se særlig etter ny duplisering, om regelen ligger der den skal eies,
   og om utfasingen er planlagt. Funn om dette følger stoppregelen for funn i

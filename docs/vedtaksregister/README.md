@@ -187,11 +187,11 @@ Det testene ikke ser: om et alternativ strider mot et vedtak, om forholdet er en
 presisering eller en endring, forhold som Følge i en importert post bare sier med
 andre ord, og om et sitat er tatt ut av sammenhengen. Det
 kontrolleres én gang, når spørsmålet stilles
-([orkestreringsskillen](../../.claude/skills/orkestrering/SKILL.md#spørsmål-og-vedtak)).
+([vedtaksskillen](../../.claude/skills/vedtak/SKILL.md)).
 Testen ser heller ikke et sitat som ikke er ført som `sitat`. Testene ser bare
 at ny tekst i `folge`, `etter` og `innledning` er lagt til, ikke hva den sier.
 Innholdet kontrolleres av en subagent før vedtaks-PR-en merges
-([orkestreringsskillen](../../.claude/skills/orkestrering/SKILL.md#spørsmål-og-vedtak)).
+([vedtaksskillen](../../.claude/skills/vedtak/SKILL.md)).
 
 **Kildene.** NS 8407-teksten er opphavsrettsbeskyttet og ligger verken i treet
 eller historikken, men i det private repoet `khjohns/kontrakt` (#424).

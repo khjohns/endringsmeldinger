@@ -5,7 +5,8 @@ description: Når én økt fordeler issues på flere skyøkter og følger PR-ene
 
 # Orkestrering av flere økter
 
-Oppdragsgiver ser over PR-ene, svarer på spørsmål og godkjenner merge.
+Oppdragsgiver ser over PR-ene, svarer på spørsmål og godkjenner merge, per PR
+eller på forhånd for runden (punkt 4).
 Orkestreringsøkta fordeler arbeidet, går gjennom resultatet og fører det inn
 der det hører hjemme. Den skriver ikke koden selv.
 
@@ -17,10 +18,8 @@ eller lukket og oppdragsgiver har fått avslutningen (punkt 5), er runden over
 og økta ferdig. Neste runde starter i en ny økt. Det som skal videre, står i
 issuene, ikke i økta.
 
-Grunnen er kostnad. Hele konteksten sendes på nytt ved hver hendelse i økta,
-og etter en time uten aktivitet er hurtigbufferen borte. Da betaler neste
-vekking for hele konteksten. En økt som lever over natta, blir dyrere for hver
-sjekk.
+Grunnen er kostnad: en økt som lever over natta, blir dyrere for hver sjekk
+(se «Kontekst i arbeidsøktene»).
 
 **Størrelse.** Høyst tre PR-er per runde (oppdragsgiver 12.10, #425). En reviewøkt
 som fortsetter samme PR, teller ikke i grensen (oppdragsgiver 14.10, #491).
@@ -32,7 +31,8 @@ lagret navn, er ikke teknisk og venter på oppdragsgiver, som under «2. Oppdrag
 til hver økt». Merge krever fortsatt godkjenning fra oppdragsgiver
 (oppdragsgiver 16.10, #600: «tekniske issues som ikke behøver avklaringer for meg kan vi ta mange av,
 så lenge det lar seg orkestrere, og beslutningene går mellom deg og sesjonene
-(og ikke meg)»).
+(og ikke meg)»). Godkjenningen kan gis per PR eller på forhånd for runden
+(punkt 4).
 Grensen settes av hvor mye oppdragsgiver kan gå gjennom, av konflikter ved
 merge og av kostnaden, ikke av antall issues.
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velg runden slik:
@@ -143,7 +143,9 @@ issue. Oppdraget skal inneholde:
   Det venter. For kjerne-oppgaver er spørsmålene samlet i kartleggingen (punkt 1),
   og svarene står i oppdraget. Dekker ikke svarene det byggeøkta møter, stanser
   den og spør på samme måte;
-- at økta ikke skriver i hovedplanen, med unntaket under «Spørsmål og vedtak»;
+- at økta ikke skriver i hovedplanen, unntatt når den er den eneste PR-en i
+  runden som rører planen. Da kan den føre et vedtak den trenger, slik
+  [vedtaksskillen](../vedtak/SKILL.md) sier;
 - at feil utenfor oppdraget, som ikke er reviewfunn, blir egne issues (regelen i
   `AGENTS.md`), og at økta løser en slik feil i samme PR med `Closes #n` bare når
   rettingen er noen få linjer i en fil den allerede endrer. Alt annet venter til neste
@@ -153,7 +155,9 @@ issue. Oppdraget skal inneholde:
 - at økta melder fra om egen størrelse etter hvert hovedsteg, og stopper ved om
   lag 150 000 tokens (se «Kontekst i arbeidsøktene»);
 - at kartlegging, lesing av store filer og CI-logger gjøres av subagenter, så
-  øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425);
+  øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425), og at hver
+  subagent avgrenses etter «Subagenter har samme grense» (se «Kontekst i
+  arbeidsøktene»);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det, med skillen `mockup-nettleser`. `/mockup` har demodata og en egen
   statusregel, så den viser ikke at den ekte saksruta virker, og det finnes
@@ -197,111 +201,9 @@ et annet nivå, må det settes i økta i appen.
 
 ## Spørsmål og vedtak
 
-Domenespørsmålene fra øktene går gjennom orkestratoren, ikke rett til
-oppdragsgiver.
-
-- **Det prinsipielle først.** Still først spørsmålene som avgjør retningen. Et
-  eksempel er om appen skal vurdere selv eller bare registrere, eller hva et
-  sendt brev binder. Detaljene venter til retningen er avgjort: for
-  kjerne-oppgaver stilles de i kartleggingen (punkt 1), ellers i byggeøkta for
-  bestemmelsen. I FK runde 3 trengte spørsmålene fem kontrollrunder, fordi
-  alternativene ble detaljerte før retningen var valgt.
-- **Den som stilte spørsmålet, retter det.** Finner kontrollen feil, sender
-  orkestratoren funnene til økta som stilte spørsmålet. Orkestratoren skriver
-  ikke spørsmålet om selv. Skriver orkestratoren likevel, går teksten gjennom
-  samme kontroll. Er spørsmålet stilt av kartleggingssubagenten (punkt 1), kjøres
-  den på nytt med funnene.
-- **Samle før du spør.** Still spørsmålene fra øktene samlet. Hvert spørsmål
-  har alternativer, belegg i kontraktsteksten eller vedtaket, en anbefaling og
-  hva valget styrer. Kommer spørsmål fra flere økter omtrent samtidig, vent på
-  dem. En økt som venter, kan arbeide videre med anbefalingen merket som
-  foreslått.
-- **Still dem slik oppdragsgiver kan svare.** Skill de juridiske spørsmålene fra
-  de tekniske. Still de juridiske i kontraktens språk, uten kodenavn, og legg de
-  tekniske fram med en anbefaling som kan godtas samlet. Spørsmålsverktøyet tar
-  høyst fire spørsmål per kall. Er det flere, eller vil oppdragsgiver det, legg
-  dem fram som en nummerert liste i tekst med anbefalt svar, så oppdragsgiver
-  kan svare «ja» eller rette enkeltpunkter.
-- **Hvert spørsmål står på egne bein i verktøyet.** Tekst du skriver før et
-  kall til spørsmålsverktøyet, vises ikke for oppdragsgiver i appen. Bakgrunnen,
-  alternativene og anbefalingen skal derfor stå i selve spørsmålet og i
-  beskrivelsene av alternativene. Trengs mer tekst, avslutt turen med listen i
-  stedet for å kalle verktøyet (FK runde 5).
-- **Lagre spørsmålene ordrett før du stiller dem.** Skriv hvert spørsmål med
-  alle alternativene, etikett og beskrivelse slik de vises i verktøyet, til en
-  fil før kallet. Før svarene inn i samme fil. Vedtaket føres fra den fila,
-  også de forkastede alternativene, av orkestratoren eller en subagent. I FK
-  runde 4 ga fila bare etikettene for de forkastede alternativene, og
-  vedtaks-PR-en fikk tekster fra et utkast oppdragsgiver ikke hadde sett.
-- **Prinsipp før enkeltvedtak.** Følger svaret av et vedtatt prinsipp, trengs
-  ikke et eget vedtak. Valget føres da som arbeidsvalg i paragrafmatrisen,
-  domenetabellen eller issuet, med henvisning til prinsippet, og står til
-  review. Et eget vedtak trengs når valget ikke følger av et prinsipp, endrer et
-  vedtak eller blir en kontrakt. Er spørsmålene mange og detaljerte, gå rett
-  til én samlet tilslutning: ett helhetlig forslag, eventuelt prøvd i juridisk
-  sparring, som oppdragsgiver kan svare «ja» på med rettelser per punkt. I FK
-  runde 4 tok spørsmålene for byggedel 1 tre versjoner før oppdragsgiver
-  sluttet seg til en samlet vurdering.
-- **Juridisk sparring.** Vil oppdragsgiver drøfte spørsmålene med en annen
-  modell eller en rådgiver, lag en selvstendig prompt med bakgrunnen,
-  prinsippene og spørsmålene, uten saksdata. Et svar fra sparringen gjelder
-  først når oppdragsgiver slutter seg til det, og det prøves mot vedtakene som
-  andre svar. Lagre svaret ordrett i en fil og la en subagent prøve det mot
-  vedtakene og koden før spørsmålene stilles. I FK runde 6 fant prøvingen at en
-  anbefaling sparringen kalte teknisk, snudde planen for leveringen, og at et
-  sitat fra et vedtak var halvt.
-- **Skriv alternativene i vedtaksform.** Det valgte alternativet blir
-  vedtaksteksten ordrett, og et alternativ oppdragsgiver forkaster, blir
-  «Forkastet» ordrett ([vedtaksregisteret](../../../docs/vedtaksregister/README.md)).
-  Skriv dem derfor i kontraktens begreper og uten kodenavn (avsnitt 8 i
-  hovedplanen), og så fullstendige at de kan stå alene i 3.1.
-- **Kontroller belegget før du spør.** Sitater fra vedtak og NS 8407 skal være
-  ordrette og hele setninger, og de føres som `sitat` i registeret
-  ([vakttestene](../../../docs/vedtaksregister/README.md#vakttestene)). NS 8407-teksten er opphavsrettsbeskyttet og ligger
-  i det private repoet `khjohns/kontrakt`. Legg det til med `add_repo`, som kloner
-  det til `../kontrakt`, der verktøyet leser det, eller sett `NS8407_TEKST` til fila. Ellers
-  hoppes sitattestene over lokalt. Teksten legges aldri i dette repoet, i et issue eller i en PR
-  (#424). Påstander om koden i
-  spørsmålene kontrolleres av en subagent. En økt ser bare det den har lett
-  etter.
-- **Prøv hvert alternativ mot vedtakene i 3.1, én gang, når spørsmålet
-  stilles.** Det er skjønn og ingen vakttest ser det. En subagent gjør det, med
-  kildene: strider alternativet mot et vedtak, og stemmer forholdet
-  (presiserer, utvider, snevrer inn, endrer, opphever) med spørsmålet? Et
-  alternativ som strider mot et vedtak, er enten feil eller et forslag om å
-  oppheve vedtaket, og det skal stå i alternativet. Forholdet skrives i
-  spørsmålet, så det følger svaret inn i registeret.
-- **Passer svaret ikke på et alternativ, still et oppfølgingsspørsmål** med
-  lesningene du ser. Velg ikke selv.
-- **Send svaret ordrett** til hver økt det berører, også til økter som ikke
-  stilte spørsmålet. Retter et senere svar et tidligere, si uttrykkelig hvilken
-  tekst som ikke lenger gjelder.
-
-Vedtakene føres i hovedplanen gjennom
-[vedtaksregisteret](../../../docs/vedtaksregister/README.md). Arbeidsøktene
-skriver ikke der.
-
-- Svarene fra en spørsmålsrunde fører orkestratoren inn i én liten PR: én ny
-  post i `docs/vedtaksregister/vedtak.toml` per vedtak, med spørsmålet,
-  alternativene, det valgte, svaret ordrett, kilden, forholdet til andre vedtak
-  og sitatene. `python3 docs/verktoy/vedtaksregister.py` skriver raden i 3.1 og
-  henvisningen i Følge hos vedtaket forholdet gjelder. Skriv ikke i 3.1 for
-  hånd. PR-en merges før arbeids-PR-ene, som viser til ID-ene. Da får
-  parallelle PR-er ikke konflikt i 3.1. Lenker et vedtak til et dokument i en
-  arbeids-PR, merges den PR-en først, så lenken virker.
-- Rører bare én PR i runden planen, kan den økta føre et vedtak den trenger, i
-  samme PR, på samme måte.
-- En vedtakstekst skrives ikke om, verken når den føres eller etter merge.
-  [Vakttestene](../../../docs/vedtaksregister/README.md#vakttestene) i CI
-  erstatter kontrollrundene av vedtaksteksten. Det som krever skjønn, er
-  kontrollert én gang, da spørsmålet ble stilt (over). Kommer et svar som ikke
-  passer på et alternativ, stilles et oppfølgingsspørsmål.
-- Før vedtaks-PR-en merges, kontrollerer en subagent én gang `folge` i de nye
-  postene, hver endret `folge` i en importert post og hver ny eller endret
-  tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,
-  beskrivelser av dagens atferd uten belegg, og arbeidsstatus.
-- Merknaden om at et punkt i en arbeidspakke er levert, skriver orkestratoren i
-  en egen liten PR etter mergen.
+Hvordan domenespørsmålene fra øktene stilles til oppdragsgiver, og hvordan
+svarene føres som vedtak, står i [vedtaksskillen](../vedtak/SKILL.md). Les den
+før en spørsmålsrunde og før en vedtaks-PR.
 
 ## `/simplify`
 
@@ -333,37 +235,51 @@ Bestillingen til økta sier:
 
 ## Kontekst i arbeidsøktene
 
-Hele konteksten sendes på nytt ved hver hendelse i en økt. Hurtigbufferen gjør
-det billig innenfor en time. Etter en time uten aktivitet skrives hele
-konteksten på nytt ved neste vekking, og det er dyrest når konteksten er stor.
-Øktene venter ofte lenger enn en time på oppdragsgiver, CI eller review. Med
-stor kontekst blir de også dårligere: etter en komprimering arbeider økta på et
-sammendrag, og ordrette vedtak og rettelser kan gå tapt.
+Hele konteksten sendes på nytt ved hvert kall til modellen, i økta og i hver
+subagent. Hurtigbufferen gjør det billig innenfor en time. Etter en time uten
+aktivitet skrives hele konteksten på nytt ved neste vekking. Kostnaden vokser
+derfor med antall kall ganger kontekststørrelsen, og et stort verktøysvar tidlig
+i økta leses på nytt i hvert kall etter det. I en byggeøkt 16.10 sto én subagent,
+med 115 kall og en kontekst som vokste til 356 000 tokens, for om lag 60 % av
+kostnaden. Med stor kontekst blir øktene også dårligere: etter en komprimering
+arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 
-- **Arbeid i timer, ikke i døgn.** Hurtigbufferen varer en time. Et oppdrag
-  avgrenses slik at økta kan bli ferdig på om lag 45–60 minutter med aktivt
-  arbeid. Den kan gå over for å gjøre seg ferdig, innen 150 000 tokens: pushe,
-  skrive tilstanden i PR-beskrivelsen og melde fra. Venter økta på CI eller
-  feilinnføringene og regner med å fortsette innen en time, venter den med en bakgrunnskommando
-  som vekker den, så hurtigbufferen holder seg varm. Venter den lenger, for
-  eksempel på oppdragsgiver, skriver den tilstanden i PR-en og stopper. En ny,
-  liten økt tar over med en avgrenset bestilling (under), i stedet for at den
-  store økta vekkes kald. Det samme gjelder orkestratoren: runden avgrenses til
-  om lag én time med aktivt arbeid, sikkerhetssjekkene settes innen 55 minutter
-  mens noe pågår, og etter mer enn en time uten aktivitet avsluttes runden
-  heller enn å vekkes (oppdragsgiver 12.10, #425).
-- **Følg med i hver sjekk.** `get_session` viser brukt kontekst
+- **Arbeid i timer, ikke i døgn.** Et oppdrag avgrenses slik at økta kan bli
+  ferdig på om lag 45–60 minutter med aktivt arbeid. Den kan gå over for å gjøre
+  seg ferdig, innen 150 000 tokens: pushe, skrive tilstanden i PR-beskrivelsen og
+  melde fra. Venter økta på CI eller feilinnføringene og regner med å fortsette
+  innen en time, venter den med en bakgrunnskommando som vekker den, så
+  hurtigbufferen holder seg varm. Venter den lenger, for eksempel på
+  oppdragsgiver, skriver den tilstanden i PR-en og stopper. Den vekkes ikke
+  igjen: en ny, liten økt tar over fra PR-en, vedtakene og issuet. Still derfor
+  spørsmålene tidlig, og send svarene samlet så snart de foreligger, helst innen
+  en time. Det samme gjelder orkestratoren: runden avgrenses til om lag én time
+  med aktivt arbeid, sikkerhetssjekkene settes innen 55 minutter mens noe pågår,
+  og etter mer enn en time uten aktivitet avsluttes runden heller enn å vekkes
+  (oppdragsgiver 12.10, #425).
+- **Følg med i hver sjekk.** Orkestratoren leser brukt kontekst
   (`external_metadata.context_usage.used_tokens`) og kostnad
-  (`external_metadata.usage.cost_usd`).
+  (`external_metadata.usage.cost_usd`) for hver økt med `get_session` i hver
+  sjekk, og bruker grensene under også når en økt ikke har meldt fra.
 - **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
   review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
-  finnes. Etter hvert hovedsteg leser økta sin egen kontekst med `get_session`
-  uten `session_id`, i feltet `external_metadata.context_usage.used_tokens`.
-  Har den passert om lag 150 000 tokens, stopper den der og tar ikke nye
-  oppgaver, uten å vente på orkestratorens sjekk. Tilstanden skal gjøre det mulig
-  å lese seg inn på nytt: vedtakene i hovedplanen, arbeidsvalgene i issuet,
-  kravene i PR-beskrivelsen og hva som gjenstår. En ny, liten økt tar over fra
-  PR-en (oppdragsgiver 14.10, #484).
+  finnes, og leser sin egen kontekst med `get_session` uten `session_id`, i
+  `external_metadata.context_usage.used_tokens`. Har økta passert om lag
+  150 000 tokens, stopper den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk.
+  Tilstanden skal gjøre det mulig å lese seg inn på nytt: vedtakene i
+  hovedplanen, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
+  gjenstår (oppdragsgiver 14.10, #484).
+- **Subagenter har samme grense.** En subagent får en bestilling den kan gjøre
+  ferdig på om lag 80 kall og under 150 000 tokens: én fil, én gruppe bevis-saker
+  eller ett spørsmål. Større arbeid deles på flere subagenter etter hverandre,
+  hver med sin avgrensede bestilling. Bestillingen sier hva sluttrapporten skal
+  inneholde, og at den ikke gjengir filer, differ eller testutdata (oppdragsgiver
+  17.10).
+- **Hovedtråden leser ikke det subagenten har lest.** Når arbeidet er
+  delegert, holder økta seg til bestillinger, rapporter og beslutninger. Skal en
+  rapport kontrolleres, gjør en ny subagent det (oppdragsgiver 17.10).
+- **Små verktøysvar.** Les smalt og tell før du leser: se «Utdata» i
+  [miljø-skillen](../miljo/SKILL.md#utdata).
 - **Review i ny økt.** Byggeøkta pusher, skriver tilstanden i PR-en og stopper,
   uten å kjøre `/code-review`, og lar PR-en stå som utkast. En ny, liten økt tar
   reviewet og rettingene fra PR-en etter `AGENTS.md`, og markerer PR-en klar når
@@ -377,25 +293,19 @@ sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   orkestratoren én samlet sjekkliste over det som gjenstår, med kildene som
   skal leses på nytt. Gjenstår mer enn rettinger og CI, overtar en ny økt fra
   PR-en og issuene. Den gamle pusher det den har, og avsluttes. Den nye økta
-  får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene.
-  Økta skal ha stoppet ved 150 000 tokens, så dette er en reserve. Den leser ikke
-  hele historikken og arbeider under de samme grensene
-  (oppdragsgiver 12.10, #425).
-- **Venting.** Har en økt stoppet ved om lag 150 000 tokens og ventet mer enn en
-  time på oppdragsgiver, vekkes den ikke. En ny økt overtar fra PR-en,
-  vedtakene og issuet. Skriv derfor tilstanden i PR-beskrivelsen før økta
-  begynner å vente, for eksempel som utkast-PR. Still spørsmålene tidlig, og
-  send svarene samlet så snart de foreligger, helst innen en time.
+  får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene,
+  og arbeider under de samme grensene. Økta skal ha stoppet ved 150 000 tokens,
+  så dette er en reserve. Passerer orkestratoren selv om lag 300 000 tokens,
+  avsluttes runden når PR-ene som er nær merge, er merget. Resten går til neste
+  runde (oppdragsgiver 12.10, #425).
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i hovedplanen
   og arbeidsvalg i issuet. Meldingen viser dit.
 - **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av
   hele konteksten.
 
-Det samme gjelder orkestratoren. Tilstanden holdes i issuene og PR-ene, ikke
-bare i samtalen. Orkestratoren gjentar ikke lange lister i samtalen.
-Spørsmålene står i én fil som oppdragsgiver får, og samtalen viser bare det som
-er endret. Passerer orkestratoren om lag 300 000 tokens, avsluttes runden når
-PR-ene som er nær merge, er merget. Resten går til neste runde.
+Orkestratoren holder tilstanden i issuene og PR-ene, ikke bare i samtalen. Den
+gjentar ikke lange lister i samtalen. Spørsmålene står i én fil som
+oppdragsgiver får, og samtalen viser bare det som er endret.
 
 ## 3. Gjennomgang når øktene er ferdige
 
@@ -434,6 +344,23 @@ Gjør dette for hver PR:
 ## 4. Merge
 
 Merge bare når oppdragsgiver har godkjent det og CI er grønn på siste commit.
+
+**Forhåndsgodkjenning.** Når runden legges fram, spør orkestratoren om
+oppdragsgiver godkjenner merge av alle PR-er i runden som oppfyller vilkårene.
+Svarer oppdragsgiver ja, merger orkestratoren uten å spørre per PR. Godkjenningen
+gjelder bare den runden. Vilkårene er:
+
+- CI er grønn på siste commit, også etter oppdateringen mot `main` (under);
+- reviewøkta har kjørt `/code-review` og markert PR-en klar;
+- PR-en har ingen åpne spørsmål til oppdragsgiver;
+- kontrollen av sikkerhetsinvariantene i punkt 3.2 er gjort der PR-en legger til
+  en serverinngang, en tabell eller en migrasjon.
+
+Godkjenningen gjelder ikke en PR som rører `kjerne/`, fører et vedtak i
+vedtaksregisteret eller endrer `AGENTS.md` eller en skill. Den venter på
+oppdragsgiver som før (oppdragsgiver 17.10). Avslutningen (punkt 5) sier hvilke
+PR-er som er merget på forhånd.
+
 Bruk `expectedHeadSha`, slik at en push som kom etter gjennomgangen, stopper
 mergen. Regelsettet på `main` krever de fire CI-jobbene (Backend, Database,
 Frontend, Lint) fra repoet ble offentlig 11.10.
