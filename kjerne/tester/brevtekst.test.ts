@@ -795,6 +795,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     expect(s.avvist('BH', brev(100000)), 'kontrollsak').toBeNull();
+    expect(() => s.avvisning('BH', brev('abc'))).not.toThrow();
     expect(s.avvisning('BH', brev('abc'))).toEqual({
       regel: 'UGYLDIG_VURDERING',
       melding: 'Vurderingene kan ikke regnes ut: ikke et tall: abc.',
