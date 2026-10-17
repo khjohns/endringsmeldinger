@@ -768,6 +768,9 @@ function ghSkriving([underkommando, ...resten]) {
   return null;
 }
 
+const ALENE =
+  'Kjør git commit og git push hver i sitt eget kall, uten rør og uten andre kommandoer enn git og cd.';
+
 /**
  * Begrunnelsen når et kall med commit eller push kan virke på et annet tre enn det kontrollen
  * leser. Kallet kan bare ha git-ledd og `cd` som ender i samme arbeidstre som cwd.
@@ -779,7 +782,7 @@ function utenforTreet(leddene, cwd, rot) {
       mappe = path.resolve(mappe, ord[1]);
       if (arbeidstreet(mappe) !== rot) return `cd ${ord[1]} går ut av arbeidstreet.`;
     } else if (ord[0] !== 'git') {
-      return `${ord[0] ?? 'Skallsyntaks'} står i samme kall som commit eller push.`;
+      return `${ord[0] ?? 'Skallsyntaks'} står i samme kall som git commit eller git push. ${ALENE}`;
     } else {
       let gitMappe = mappe;
       for (let i = 1; i < ord.length && ord[i].startsWith('-'); i++) {
@@ -873,7 +876,13 @@ function vurder(input) {
     leddene.some((del) => del.ukjentSyntaks) &&
     [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) => m.test(kommando))
   ) {
-    return 'Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.';
+    const blandet =
+      eff.some((del) => !['git', 'cd'].includes(del.ord[0])) &&
+      eff.some(
+        (del) =>
+          del.ord[0] === 'git' && ['commit', 'push'].includes(gitKommando(del.ord).underkommando)
+      );
+    return `Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.${blandet ? ` ${ALENE}` : ''}`;
   }
 
   if (

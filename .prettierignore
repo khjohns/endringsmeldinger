@@ -1,0 +1,24 @@
+# Omfanget for prettier. lint, format og lint-staged leser bare denne fila: det som
+# ikke er med her, er ignorert. Rota og docs/ er utenfor, med unntak av konfigurasjon.
+
+/*
+!/*.js
+!/*.ts
+!/src/
+!/kjerne/
+!/sprakprove/
+!/server/
+!/scripts/
+!/prove/
+!/.claude/
+/.claude/*
+!/.claude/hooks/
+
+# Filer som et verktøy skriver, og filer som ikke er TypeScript i mapper som bare har TypeScript.
+/kjerne/**/*.json
+/server/**/*.json
+/sprakprove/**/*.json
+/sprakprove/**/*.html
+/scripts/**/*.ts
+/prove/**/*.json
+**/tsconfig*.json

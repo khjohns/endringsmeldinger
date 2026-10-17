@@ -188,6 +188,35 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
+  it('sier at git commit og git push skal kjøres alene når et etterfølgende ledd står i kallet', () => {
+    for (const kommando of [
+      'git commit -qm x | tail -3',
+      'git push -u origin claude/test-1; echo $?',
+      'npm test && git commit -qm x',
+      'command git commit -m "$(printf x)" && npm test',
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).toContain(
+        'hver i sitt eget kall, uten rør og uten andre kommandoer enn git og cd'
+      );
+    }
+  });
+
+  it('ber ikke om eget kall når kallet bare har git og cd og stoppes for skallsyntaks', () => {
+    for (const kommando of [
+      'git commit -m "$(cat <<EOF\nmelding\nEOF\n)"',
+      'git commit -m "$(printf x)"',
+      'git log --grep=push > "$(mktemp)"',
+      'git add -A && git commit -m "$(printf x)"',
+      'cd docs && git push -u origin "$(git branch --show-current)"',
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).not.toContain('sitt eget kall');
+    }
+  });
+
   it('stopper endring av treet i samme kall som commit eller push', () => {
     for (const kommando of [
       'git merge feat-kjerne --no-edit && git push -u origin claude/test-1',

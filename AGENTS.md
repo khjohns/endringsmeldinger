@@ -133,7 +133,7 @@ står i miljø-skillen.
 **Nettleserkontroll av `/mockup` går gjennom skillen `mockup-nettleser`.** Kjør
 aldri `npm i playwright` eller `playwright install`; skillen sier hvorfor.
 
-**`npm run lint` håndhever prettier** for omfanget i `package.json` og
+**`npm run lint` håndhever prettier** for omfanget i `.prettierignore` og
 navnereglene i eslint for `kjerne/`, og `npm run format` skriver prettier.
 Utenfor er JSON som et verktøy skriver (som `regler.json`), tsconfig-filene og
 `docs/`: der ville prettier og verktøyet skrevet om hverandres form.
