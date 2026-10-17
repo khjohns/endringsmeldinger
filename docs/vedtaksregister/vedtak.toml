@@ -4414,6 +4414,97 @@ Nye brev får en ny tekst for et uttrykkelig «i tide» etter HF-U4.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "LV-U9"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#741"]
+sporsmal = '''
+Spørsmålet «Før topic», ordrett slik det ble vist i spørsmålsverktøyet:
+
+En sak som opprettes i appen, skal få en topic i Catenda (KT-U3). Topicen lages etter at saken er lagret. Det tar normalt sekunder, men kan ta lengre tid hvis Catenda er nede, og TE sender ofte grunnlagskravet straks. Det som leveres for et brev, fryses når brevet lagres (LV-U1). Appen regner bindingen og akseptfristen fra sendingen og avgjør ikke når brevet er kommet fram (LV-U7). Kan TE sende brev i saken før topicen finnes? Anbefalt: A, fordi TE ikke skal hindres i å varsle i appen fordi Catenda er nede.
+
+Alternativene slik de ble vist:
+
+Ja, leveringen venter (Recommended): Vedtakstekst: «En sak som er opprettet i appen, kan få brev før den har fått sin topic i Catenda. Brevet er sendt når det er lagret i appen, og appen regner bindingen og akseptfristen fra sendingen (LV-U7). Leveringen til Catenda venter til saken har fått topicen, og brevet leveres da til den. Brevet og vedleggene er frosset da brevet ble lagret (LV-U1), og topicen er sakens og endres ikke. Forkastet: at TE må vente med å sende til topicen finnes, og at brevet leveres uten henvisning til topicen.» Presiserer KT-U3 og LV-U7.
+
+Nei, vent på topicen: Vedtakstekst: «En sak som er opprettet i appen, kan ikke få brev før den har fått sin topic i Catenda. Kan topicen ikke lages, sender partene brevet utenfor appen og registrerer det senere (OV-U4). Forkastet: at brevet sendes i appen før topicen finnes.» Strider ikke mot et vedtak, men gjør sendingen avhengig av Catenda.
+
+Ja, lever uten topic: Vedtakstekst: «Et brev som sendes før saken har fått sin topic, leveres til Catenda som dokument uten henvisning til topicen og knyttes ikke til den senere. Forkastet: at leveringen venter på topicen.» Snevrer inn KT-U3 for de første brevene.'''
+valgt = "Ja, leveringen venter"
+svar = '''
+«Ja, leveringen venter (Recommended)»'''
+forhold = [
+  { art = "presiserer", vedtak = "kt-u3" },
+  { art = "presiserer", vedtak = "lv-u7" },
+]
+folge = '''
+Ikke bygget (#741).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, leveringen venter"
+tekst = '''
+En sak som er opprettet i appen, kan få brev før den har fått sin topic i Catenda. Brevet er sendt når det er lagret i appen, og appen regner bindingen og akseptfristen fra sendingen (LV-U7). Leveringen til Catenda venter til saken har fått topicen, og brevet leveres da til den. Brevet og vedleggene er frosset da brevet ble lagret (LV-U1), og topicen er sakens og endres ikke. Forkastet: at TE må vente med å sende til topicen finnes, og at brevet leveres uten henvisning til topicen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, vent på topicen"
+tekst = '''
+En sak som er opprettet i appen, kan ikke få brev før den har fått sin topic i Catenda. Kan topicen ikke lages, sender partene brevet utenfor appen og registrerer det senere (OV-U4). Forkastet: at brevet sendes i appen før topicen finnes.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, lever uten topic"
+tekst = '''
+Et brev som sendes før saken har fått sin topic, leveres til Catenda som dokument uten henvisning til topicen og knyttes ikke til den senere. Forkastet: at leveringen venter på topicen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U10"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#497"]
+sporsmal = '''
+Spørsmålet «Brevtekst», ordrett slik det ble vist i spørsmålsverktøyet:
+
+Når byggherren gjør gjeldende at TEs varsel kom for sent, sier brevet i dag hvilket brev varselet står i, med datoen for det brevet. Har TE oppgitt at varselet ble sendt utenfor appen tidligere, står ikke den datoen i brevet. Er ingen varsel registrert, gjelder påberopelsen TEs første krav, som skjemaet viser som det første varselet appen kjenner, men brevet sier det ikke. Det som ikke står i teksten, er ikke meddelt (LV-U3). Hva skal brevet si? Anbefalt: A, fordi påberopelsen skal vise uttrykkelig til varselet (HF-U1), og fordi det første varselet appen kjenner, er appens kunnskap og ikke byggherrens utsagn.
+
+Alternativene slik de ble vist:
+
+Gjengi TEs dato (Recommended): Vedtakstekst: «Når byggherren tar stilling til om et varsel kom i tide, viser brevet til varselet slik TE har meddelt det: brevet varselet står i, og, når TE har oppgitt at varselet ble sendt utenfor appen, datoen TE oppga, for eksempel «TEs varsel om fristforlengelse etter NS 8407 § 33.4, som TE i brev 4 av 4. oktober 2026 oppgir ble sendt 28. september 2026». Gjelder påberopelsen et krav fordi ingen tidligere varsel er registrert, sier brevet at den gjelder varselet i TEs krav i brev <n> av <dato>. Brevet sier ikke at varselet er det første appen kjenner; det står i skjemaet og visningen. Endret tekst gjelder bare nye brev (MM-U9). Forkastet: at brevet bare nevner brevet, og at brevet sier at varselet er det første byggherren har mottatt.» Utvider ordlyden i LV-U4 punkt 5.
+
+Også «første varsel mottatt»: Vedtakstekst: «Når byggherren tar stilling til om et varsel kom i tide, viser brevet til brevet varselet står i og til datoen TE oppga for et varsel sendt utenfor appen. Gjelder påberopelsen et krav fordi ingen tidligere varsel er registrert, sier brevet at kravet i brev <n> av <dato> er det første varselet byggherren har mottatt i saken. Endret tekst gjelder bare nye brev (MM-U9). Forkastet: at brevet bare viser til kravet.» Utvider ordlyden i LV-U4 punkt 5.
+
+Som i dag: Vedtakstekst: «Brevet viser bare til brevet varselet står i, med datoen for det brevet. Datoen TE oppga og at varselet er det første appen kjenner, står i visningen og ikke i brevet. Forkastet: å gjengi TEs dato i brevet.» Strider ikke mot et vedtak.'''
+valgt = "Gjengi TEs dato"
+svar = '''
+«Gjengi TEs dato (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "lv-u4" }]
+folge = '''
+Utvidelsen gjelder ordlyden i LV-U4 punkt 5. Ikke bygget (#497).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Gjengi TEs dato"
+tekst = '''
+Når byggherren tar stilling til om et varsel kom i tide, viser brevet til varselet slik TE har meddelt det: brevet varselet står i, og, når TE har oppgitt at varselet ble sendt utenfor appen, datoen TE oppga, for eksempel «TEs varsel om fristforlengelse etter NS 8407 § 33.4, som TE i brev 4 av 4. oktober 2026 oppgir ble sendt 28. september 2026». Gjelder påberopelsen et krav fordi ingen tidligere varsel er registrert, sier brevet at den gjelder varselet i TEs krav i brev <n> av <dato>. Brevet sier ikke at varselet er det første appen kjenner; det står i skjemaet og visningen. Endret tekst gjelder bare nye brev (MM-U9). Forkastet: at brevet bare nevner brevet, og at brevet sier at varselet er det første byggherren har mottatt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Også «første varsel mottatt»"
+tekst = '''
+Når byggherren tar stilling til om et varsel kom i tide, viser brevet til brevet varselet står i og til datoen TE oppga for et varsel sendt utenfor appen. Gjelder påberopelsen et krav fordi ingen tidligere varsel er registrert, sier brevet at kravet i brev <n> av <dato> er det første varselet byggherren har mottatt i saken. Endret tekst gjelder bare nye brev (MM-U9). Forkastet: at brevet bare viser til kravet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Som i dag"
+tekst = '''
+Brevet viser bare til brevet varselet står i, med datoen for det brevet. Datoen TE oppga og at varselet er det første appen kjenner, står i visningen og ikke i brevet. Forkastet: å gjengi TEs dato i brevet.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det som ikke står i teksten, er ikke meddelt (LV-U3)."
+
+[[gruppe.vedtak]]
 id = "MM-U21"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -4696,6 +4787,90 @@ tekst = "i første versjon (OV-U1) føres forsering og endringsordre som egen sa
 kilde = "hovedplanen"
 tekst = "Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles."
 
+[[gruppe.vedtak]]
+id = "MM-U26"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#276"]
+sporsmal = '''
+Spørsmålet «Retting», ordrett slik det ble vist i spørsmålsverktøyet:
+
+En retting av et sendt brev er et nytt utsagn fra avsenderen. En retting i motpartens favør gjelder som en revisjon, og en retting til avsenderens fordel er et tilbud som gjelder når motparten godtar det (MM-U21). Hvem som kan rette, hvilken godkjenning rettingen trenger, og hva motparten ser, står åpent under B-16. Byggherrens svar går gjennom godkjenningen etter fullmakten. Hvordan skal det være? Anbefalt: A, fordi også et tilbud binder byggherren når TE godtar det.
+
+Alternativene slik de ble vist:
+
+Samme godkjenning alltid (Recommended): Vedtakstekst: «En retting sendes av avsenderens side som et nytt brev fra appen. En retting fra byggherren går gjennom godkjenningen etter fullmakten som et svar med det innholdet rettingen gir, også når rettingen er et tilbud til byggherrens fordel. Motparten ser rettingen som et nytt brev med henvisning til brevet den retter. En retting til avsenderens fordel vises som et tilbud til motparten har godtatt den. Det første brevet og dokumentet i Catenda står. Forkastet: at bare en retting i motpartens favør går gjennom godkjenningen, og at rettingen sendes utenfor appen.» Presiserer MM-U21.
+
+Godkjenning bare i TEs favør: Vedtakstekst: «En retting sendes av avsenderens side som et nytt brev fra appen. En retting fra byggherren i TEs favør går gjennom godkjenningen etter fullmakten som en revisjon. En retting til byggherrens fordel er et tilbud og går ikke gjennom godkjenningen. Motparten ser rettingen som et nytt brev med henvisning til brevet den retter. Det første brevet og dokumentet i Catenda står. Forkastet: at også et tilbud om retting går gjennom godkjenningen.» Presiserer MM-U21.
+
+Administrator retter etter avtale: Vedtakstekst: «Retting skjer ved at en administrator i appen registrerer rettingen etter skriftlig avtale mellom partene. Forkastet: at partene retter selv i appen.» Endrer MM-U21, som sier at rettingen er et nytt utsagn fra avsenderen.'''
+valgt = "Samme godkjenning alltid"
+svar = '''
+«Samme godkjenning alltid (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u21" }]
+folge = '''
+Ikke bygget (#276).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samme godkjenning alltid"
+tekst = '''
+En retting sendes av avsenderens side som et nytt brev fra appen. En retting fra byggherren går gjennom godkjenningen etter fullmakten som et svar med det innholdet rettingen gir, også når rettingen er et tilbud til byggherrens fordel. Motparten ser rettingen som et nytt brev med henvisning til brevet den retter. En retting til avsenderens fordel vises som et tilbud til motparten har godtatt den. Det første brevet og dokumentet i Catenda står. Forkastet: at bare en retting i motpartens favør går gjennom godkjenningen, og at rettingen sendes utenfor appen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Godkjenning bare i TEs favør"
+tekst = '''
+En retting sendes av avsenderens side som et nytt brev fra appen. En retting fra byggherren i TEs favør går gjennom godkjenningen etter fullmakten som en revisjon. En retting til byggherrens fordel er et tilbud og går ikke gjennom godkjenningen. Motparten ser rettingen som et nytt brev med henvisning til brevet den retter. Det første brevet og dokumentet i Catenda står. Forkastet: at også et tilbud om retting går gjennom godkjenningen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Administrator retter etter avtale"
+tekst = '''
+Retting skjer ved at en administrator i appen registrerer rettingen etter skriftlig avtale mellom partene. Forkastet: at partene retter selv i appen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "MM-U27"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#568"]
+sporsmal = '''
+Spørsmålet «Feil rader», ordrett slik det ble vist i spørsmålsverktøyet:
+
+Alle skrivinger går gjennom kommandoene. De avviser en påberopelse av «for sent» når samme part har sagt «i tide» fra appen (HF-U4), og en revisjon som senker noe byggherren har innrømmet (HF-U5). En rad som likevel finnes, kan bare komme fra en feil. I dag stopper saken bare for rader som strider mot vedtakene om enighet og lukking (MM-U18). Skal saken også stoppe for slike rader? Anbefalt: A, fordi en feilaktig rad da stopper saken i stedet for å gi virkning.
+
+Alternativene slik de ble vist:
+
+HF-U4 og HF-U5 (Recommended): Vedtakstekst: «En hendelse som ikke er et registrert brev, og som påberoper at et varsel, krav eller svar kom for sent etter en bestemmelse der samme part i et utsagn sendt fra appen uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det (HF-U4), gjør saken ikke forstått, som etter MM-U18. Det samme gjelder en revisjon som senker noe byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5). Det er en kontroll av at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet. Forkastet: at hendelsen leses med virkning.» Utvider MM-U18.
+
+Bare HF-U4: Vedtakstekst: «En hendelse som ikke er et registrert brev, og som påberoper at et varsel, krav eller svar kom for sent etter en bestemmelse der samme part i et utsagn sendt fra appen uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det (HF-U4), gjør saken ikke forstått, som etter MM-U18. Forkastet: å utvide kontrollen til HF-U5.» Utvider MM-U18.
+
+Bare i kommandoene: Vedtakstekst: «Kontrollen av HF-U4 og HF-U5 står bare i kommandoene. En hendelse utenfor kommandoene leses som før. Forkastet: å utvide MM-U18.» Strider ikke mot et vedtak.'''
+valgt = "HF-U4 og HF-U5"
+svar = '''
+«HF-U4 og HF-U5 (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "mm-u18" }]
+folge = '''
+Ikke bygget (#568).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "HF-U4 og HF-U5"
+tekst = '''
+En hendelse som ikke er et registrert brev, og som påberoper at et varsel, krav eller svar kom for sent etter en bestemmelse der samme part i et utsagn sendt fra appen uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det (HF-U4), gjør saken ikke forstått, som etter MM-U18. Det samme gjelder en revisjon som senker noe byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5). Det er en kontroll av at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet. Forkastet: at hendelsen leses med virkning.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare HF-U4"
+tekst = '''
+En hendelse som ikke er et registrert brev, og som påberoper at et varsel, krav eller svar kom for sent etter en bestemmelse der samme part i et utsagn sendt fra appen uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det (HF-U4), gjør saken ikke forstått, som etter MM-U18. Forkastet: å utvide kontrollen til HF-U5.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare i kommandoene"
+tekst = '''
+Kontrollen av HF-U4 og HF-U5 står bare i kommandoene. En hendelse utenfor kommandoene leses som før. Forkastet: å utvide MM-U18.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -4844,6 +5019,53 @@ navn = "Ingen topic for app-saker"
 tekst = '''
 En sak som opprettes i appen, får ingen topic i Catenda. Brevene i saken leveres som dokumenter i prosjektets bibliotek uten referanse til en topic.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "KT-U4"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#741"]
+sporsmal = '''
+Spørsmålet «Topic-board», ordrett slik det ble vist i spørsmålsverktøyet:
+
+En sak som opprettes i appen, får topic på boardet prosjektets konfigurasjon angir for saken (KT-U3). I dag har konfigurasjonen bare en mengde aktive boards per prosjekt. Python lager endringsordre- og forseringstopics på samme board og leser sakstypen av topic-typen. Hvordan skal boardet angis? Anbefalt: A, hvis prosjektene i Catenda har ett board for endringssakene, slik Python forutsetter.
+
+Alternativene slik de ble vist:
+
+Ett board per prosjekt (Recommended): Vedtakstekst: «Hvert prosjekt angir i konfigurasjonen ett topic-board for saker som opprettes i appen. Sakstypen står i topicens type, og alle sakstyper bruker samme board. Forkastet: ett board per sakstype, og at den som oppretter saken, velger board.» Presiserer KT-U3.
+
+Ett board per sakstype: Vedtakstekst: «Hvert prosjekt angir i konfigurasjonen ett topic-board per sakstype (KOE-sak, endringsordre og forsering) for saker som opprettes i appen. Forkastet: ett board for alle sakstyper.» Presiserer KT-U3.
+
+Brukeren velger board: Vedtakstekst: «Den som oppretter saken, velger blant prosjektets aktive topic-boards. Forkastet: at konfigurasjonen angir boardet.» Strider mot KT-U3 («prosjektets konfigurasjon angir») og er et forslag om å endre det.'''
+valgt = "Ett board per prosjekt"
+svar = '''
+«Ett board per prosjekt (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "kt-u3" }]
+folge = '''
+Ikke bygget (#741).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ett board per prosjekt"
+tekst = '''
+Hvert prosjekt angir i konfigurasjonen ett topic-board for saker som opprettes i appen. Sakstypen står i topicens type, og alle sakstyper bruker samme board. Forkastet: ett board per sakstype, og at den som oppretter saken, velger board.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ett board per sakstype"
+tekst = '''
+Hvert prosjekt angir i konfigurasjonen ett topic-board per sakstype (KOE-sak, endringsordre og forsering) for saker som opprettes i appen. Forkastet: ett board for alle sakstyper.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Brukeren velger board"
+tekst = '''
+Den som oppretter saken, velger blant prosjektets aktive topic-boards. Forkastet: at konfigurasjonen angir boardet.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+utdrag = true
+tekst = "prosjektets konfigurasjon angir"
 
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
@@ -5302,6 +5524,142 @@ Visningen sier «Alle fremsatte krav er avgjort». Er det registrert brev i sake
 navn = "C"
 tekst = '''
 OV-U3 står uendret.'''
+
+[[gruppe.vedtak]]
+id = "OV-U11"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#276"]
+sporsmal = '''
+Spørsmålet «Varseldato», ordrett slik det ble vist i spørsmålsverktøyet:
+
+TE kan i et brev fra appen oppgi at et varsel ble sendt utenfor appen på en bestemt dato, og datoen settes én gang (SK-12, OV-U5, HF-U13). Retting av skrivefeil i et sendt brev følger MM-U21. Eksempel: TE oppgir 28. september, men varselet ble sendt 18. september (til TEs fordel) eller 8. oktober (i byggherrens favør). Hvordan rettes en feil dato? Anbefalt: A, fordi TE da ikke kan flytte varselet til sin egen fordel uten byggherrens samtykke.
+
+Alternativene slik de ble vist:
+
+Etter rettingsregelen (Recommended): Vedtakstekst: «En feil dato TE har oppgitt for et varsel sendt utenfor appen (OV-U5), rettes etter MM-U21. TE sender en retting med henvisning til brevet med opplysningen, og opplysningen i det brevet står uendret. En senere dato er en retting i byggherrens favør og gjelder straks som premiss for nye svar. En tidligere dato er til TEs fordel og gjelder først når byggherren godtar rettingen; til da gjelder datoen TE først oppga. Et svar byggherren alt har gitt, står med virkningen det hadde (OV-U5), og byggherren kan ta stilling på nytt. At datoen settes én gang (SK-12, OV-U5, HF-U13), betyr at TE ikke kan endre den alene til sin egen fordel. Appen avgjør ikke hvilken dato som er riktig (MM-U12). Forkastet: at datoen ikke kan rettes i appen.» Snevrer inn SK-12, OV-U5 og HF-U13.
+
+Rettes ikke i appen: Vedtakstekst: «Datoen TE har oppgitt for et varsel sendt utenfor appen, settes én gang og rettes ikke i appen, heller ikke etter MM-U21. Har TE oppgitt feil dato, forklarer TE det i et nytt brev, og byggherren tar det i betraktning i begrunnelsen for svaret. Appen regner videre med datoen TE først oppga. Forkastet: å rette datoen etter MM-U21.» Snevrer inn MM-U21.
+
+Fritt til byggherren svarer: Vedtakstekst: «TE kan rette datoen alene så lenge byggherren ikke har svart med datoen som premiss. Deretter rettes den ikke i appen. Dette endrer SK-12 og OV-U5. Forkastet: at datoen settes én gang også før byggherren har svart.» Endrer SK-12 og OV-U5.'''
+valgt = "Etter rettingsregelen"
+svar = '''
+«Etter rettingsregelen (Recommended)»'''
+forhold = [
+  { art = "snevrer inn", vedtak = "ov-u5" },
+  { art = "snevrer inn", vedtak = "hf-u13" },
+]
+folge = '''
+Snevrer inn også SK-12. Ikke bygget (#276).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Etter rettingsregelen"
+tekst = '''
+En feil dato TE har oppgitt for et varsel sendt utenfor appen (OV-U5), rettes etter MM-U21. TE sender en retting med henvisning til brevet med opplysningen, og opplysningen i det brevet står uendret. En senere dato er en retting i byggherrens favør og gjelder straks som premiss for nye svar. En tidligere dato er til TEs fordel og gjelder først når byggherren godtar rettingen; til da gjelder datoen TE først oppga. Et svar byggherren alt har gitt, står med virkningen det hadde (OV-U5), og byggherren kan ta stilling på nytt. At datoen settes én gang (SK-12, OV-U5, HF-U13), betyr at TE ikke kan endre den alene til sin egen fordel. Appen avgjør ikke hvilken dato som er riktig (MM-U12). Forkastet: at datoen ikke kan rettes i appen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Rettes ikke i appen"
+tekst = '''
+Datoen TE har oppgitt for et varsel sendt utenfor appen, settes én gang og rettes ikke i appen, heller ikke etter MM-U21. Har TE oppgitt feil dato, forklarer TE det i et nytt brev, og byggherren tar det i betraktning i begrunnelsen for svaret. Appen regner videre med datoen TE først oppga. Forkastet: å rette datoen etter MM-U21.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fritt til byggherren svarer"
+tekst = '''
+TE kan rette datoen alene så lenge byggherren ikke har svart med datoen som premiss. Deretter rettes den ikke i appen. Dette endrer SK-12 og OV-U5. Forkastet: at datoen settes én gang også før byggherren har svart.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U12"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#669"]
+sporsmal = '''
+Spørsmålet «EO registrert», ordrett slik det ble vist i spørsmålsverktøyet:
+
+Byggherren kan registrere sin egen endringsordre, sendt utenfor appen, som svar på gjeldende kravversjon av grunnlaget, også som revisjon av et svar som ikke er godtatt (OV-U6). Andre brev sendt utenfor appen er dokumentasjon uten virkning (OV-U4). Har TE også sendt kravet utenfor appen, eller viser endringsordren til et registrert svar, svarer den på noe appen ikke regner som krav eller svar. I dag stopper saken da som ikke forstått. OV-U6 forkastet at endringsordren bare er dokumentasjon. Hva skal skje? Anbefalt: A, fordi et svar skal vise til det det gjelder (HF-U1), og fordi inngangen kan avvise i stedet for å stoppe saken.
+
+Alternativene slik de ble vist:
+
+Avvis som svar (Recommended): Vedtakstekst: «En endringsordre byggherren registrerer etter OV-U6, må være svar på en kravversjon TE har sendt fra appen, eller revisjon av et svar sendt fra appen. Viser den til et krav eller svar som bare er registrert som dokumentasjon (OV-U4), avvises registreringen som svar, med beskjed om at kravet må være sendt fra appen. Byggherren kan registrere brevet som dokumentasjon etter OV-U4. Forkastet: at saken stopper som ikke forstått, og at registreringen gjelder et annet krav enn det endringsordren viser til.» Snevrer inn OV-U6 og gjør for dette tilfellet unntak fra det forkastede alternativet «At endringsordren bare er dokumentasjon.»
+
+Gjelder kravet fra appen: Vedtakstekst: «En endringsordre byggherren registrerer etter OV-U6 og som viser til et registrert krav eller svar, gjelder som svar på gjeldende kravversjon av grunnlaget sendt fra appen, når en slik finnes. Finnes ingen, avvises registreringen. Forkastet: å avvise registreringen når et krav fra appen finnes.» Presiserer OV-U6 og snevrer inn HF-U1, fordi appen avgjør hva svaret gjelder.
+
+Saken stopper: Vedtakstekst: «En slik registrering gjør saken ikke forstått (MM-U2), og ingen bindende handling godtas før en kjerne som forstår den, er rullet ut. Forkastet: å avvise registreringen.» Følger MM-U2 og er dagens atferd.'''
+valgt = "Avvis som svar"
+svar = '''
+«Avvis som svar (Recommended)»'''
+forhold = [{ art = "snevrer inn", vedtak = "ov-u6" }]
+folge = '''
+Gjør for dette tilfellet unntak fra det forkastede alternativet «At endringsordren bare er dokumentasjon.» i OV-U6. Ikke bygget (#669).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Avvis som svar"
+tekst = '''
+En endringsordre byggherren registrerer etter OV-U6, må være svar på en kravversjon TE har sendt fra appen, eller revisjon av et svar sendt fra appen. Viser den til et krav eller svar som bare er registrert som dokumentasjon (OV-U4), avvises registreringen som svar, med beskjed om at kravet må være sendt fra appen. Byggherren kan registrere brevet som dokumentasjon etter OV-U4. Forkastet: at saken stopper som ikke forstått, og at registreringen gjelder et annet krav enn det endringsordren viser til.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Gjelder kravet fra appen"
+tekst = '''
+En endringsordre byggherren registrerer etter OV-U6 og som viser til et registrert krav eller svar, gjelder som svar på gjeldende kravversjon av grunnlaget sendt fra appen, når en slik finnes. Finnes ingen, avvises registreringen. Forkastet: å avvise registreringen når et krav fra appen finnes.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Saken stopper"
+tekst = '''
+En slik registrering gjør saken ikke forstått (MM-U2), og ingen bindende handling godtas før en kjerne som forstår den, er rullet ut. Forkastet: å avvise registreringen.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "At endringsordren bare er dokumentasjon."
+
+[[gruppe.vedtak]]
+id = "OV-U13"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#669"]
+sporsmal = '''
+Spørsmålet «Avklaring», ordrett slik det ble vist i spørsmålsverktøyet:
+
+Byggherren oppgir i registreringen av sin egen endringsordre at brevet oppfyller § 31.3 (OV-U6). OV-U6 sier at det for andre registrerte brev ikke oppgis om brevet er en endringsordre. MM-U12 sier at en senere avklaring registreres som et nytt utsagn, og GR-U13 overlot til byggingen hvordan opplysningen avklares. Avklaringer av registrerte brev er utsatt i første versjon (OV-U7). I dag godtas en senere avklaring og vises, men den gir ingen virkning. Hva skal skje med en senere avklaring av § 31.3? Anbefalt: A, fordi den følger OV-U6 og utsettelsen i OV-U7.
+
+Alternativene slik de ble vist:
+
+Avvis i første versjon (Recommended): Vedtakstekst: «Opplysningen om at et registrert brev er en endringsordre etter § 31.3, gis i første versjon bare når byggherren registrerer sin egen endringsordre som svar (OV-U6). En senere avklaring av § 31.3 avvises i første versjon, med beskjed om at den kan registreres som dokumentasjon. Den bygges med merking og avklaring av registrerte brev (OV-U7). Forkastet: å godta avklaringen med eller uten virkning.» Presiserer OV-U6 og GR-U13 og utsetter for § 31.3 det MM-U12 sier om en senere avklaring.
+
+Vis uten virkning: Vedtakstekst: «En senere avklaring av § 31.3 registreres som et nytt utsagn med part og dato (MM-U12) og vises, men gir ingen virkning i første versjon. Forkastet: å avvise avklaringen.» Følger MM-U12, men endrer setningen i OV-U6 om at det ikke oppgis for andre registrerte brev.
+
+Gir virkning som registrering: Vedtakstekst: «En senere avklaring av at byggherrens registrerte svar på grunnlaget var en endringsordre, gir fra avklaringen samme virkning som en registrering etter OV-U6, når vilkårene i OV-U6 ellers er oppfylt. Forkastet: at opplysningen bare kan gis i registreringen.» Endrer OV-U6 og OV-U4.'''
+valgt = "Avvis i første versjon"
+svar = '''
+«Avvis i første versjon (Recommended)»'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u6" },
+  { art = "presiserer", vedtak = "gr-u13" },
+]
+folge = '''
+Utsetter for § 31.3 det MM-U12 sier om en senere avklaring. Ikke bygget (#669).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Avvis i første versjon"
+tekst = '''
+Opplysningen om at et registrert brev er en endringsordre etter § 31.3, gis i første versjon bare når byggherren registrerer sin egen endringsordre som svar (OV-U6). En senere avklaring av § 31.3 avvises i første versjon, med beskjed om at den kan registreres som dokumentasjon. Den bygges med merking og avklaring av registrerte brev (OV-U7). Forkastet: å godta avklaringen med eller uten virkning.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Vis uten virkning"
+tekst = '''
+En senere avklaring av § 31.3 registreres som et nytt utsagn med part og dato (MM-U12) og vises, men gir ingen virkning i første versjon. Forkastet: å avvise avklaringen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Gir virkning som registrering"
+tekst = '''
+En senere avklaring av at byggherrens registrerte svar på grunnlaget var en endringsordre, gir fra avklaringen samme virkning som en registrering etter OV-U6, når vilkårene i OV-U6 ellers er oppfylt. Forkastet: at opplysningen bare kan gis i registreringen.'''
+forkastet = true
 
 [[gruppe.vedtak]]
 anker = "hf-u2"
