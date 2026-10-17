@@ -1,6 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
-import type { Plugin } from 'vite';
+import type { Connect, Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { tilTsServeren } from './server/ruting.ts';
 
@@ -11,15 +11,14 @@ const TS_PREFIKS = '/__ts-serveren';
  * proxyen, med et prefiks som regelen for TS-serveren fjerner igjen.
  */
 function tsServeren(): Plugin {
-  return {
-    name: 'ts-serveren',
-    configureServer(server) {
-      server.middlewares.use((req, _res, next) => {
-        if (req.url && tilTsServeren(req.method ?? 'GET', req.url)) req.url = TS_PREFIKS + req.url;
-        next();
-      });
-    },
+  const prefiks = (server: { middlewares: Connect.Server }): void => {
+    server.middlewares.use((req, _res, next) => {
+      if (req.url && tilTsServeren(req.method ?? 'GET', req.url)) req.url = TS_PREFIKS + req.url;
+      next();
+    });
   };
+  // `vite preview` bruker også proxyen i `server.proxy`.
+  return { name: 'ts-serveren', configureServer: prefiks, configurePreviewServer: prefiks };
 }
 
 export default defineConfig({
