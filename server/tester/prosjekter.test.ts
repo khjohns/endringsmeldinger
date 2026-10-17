@@ -187,4 +187,12 @@ describe.skipIf(!BEGGE_BASENE)('prosjektinngangene mot testbasene', () => {
       expect(svar.kropp).toEqual(iLista);
     }
   });
+
+  it('et medlem med leserolle får prosjektet, som `require_project_access()` med `viewer`', async () => {
+    const b = await nyBruker();
+    const id = await prosjekt(b, { leser: true });
+    const svar = await kall(server.url, `/api/projects/${id}`, { bruker: b, prosjektId: id });
+    expect(svar.status).toBe(200);
+    expect(svar.kropp.id).toBe(id);
+  });
 });

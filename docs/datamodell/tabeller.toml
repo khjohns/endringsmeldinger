@@ -655,14 +655,17 @@ type = ["grunndata"]
 status = "uavklart"
 beskrivelse = """
 Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten
-standardverdi (AGENTS.md)."""
+standardverdi (AGENTS.md). `server/prosjekter.ts` leser prosjektene aktøren er
+aktivt medlem i med `koe_api.brukerens_prosjekter`, og ett av dem med
+`koe_api.prosjekt` (#660). Tabellen har ikke `settings` og `created_by` fra
+PostgreSQL."""
 lagres_fra = "Ingen skriver ennå (#53, del 3)."
 fra_catenda = "ikke kontrollert"
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
 skrivere = []
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 17.10: migrasjonen og søk i `server/`."
 
 [[tabell]]
 navn = "koe.app_project_memberships"

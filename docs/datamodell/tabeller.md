@@ -535,7 +535,7 @@ Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda
 
 ### `koe.projects`
 
-Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standardverdi (AGENTS.md).
+Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standardverdi (AGENTS.md). `server/prosjekter.ts` leser prosjektene aktøren er aktivt medlem i med `koe_api.brukerens_prosjekter`, og ett av dem med `koe_api.prosjekt` (#660). Tabellen har ikke `settings` og `created_by` fra PostgreSQL.
 
 | Felt | Innhold |
 | --- | --- |
@@ -548,7 +548,7 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 | Personopplysninger | Ingen kjente. |
 | Skrives av | Ingen funnet |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+| Belegg | L 17.10: migrasjonen og søk i `server/`. |
 
 ### `koe.app_project_memberships`
 
