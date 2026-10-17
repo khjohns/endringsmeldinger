@@ -5994,27 +5994,25 @@ dato = 2026-10-17
 hvem = "oppdragsgiver"
 kilde = ["#724", "#707"]
 sporsmal = '''
-Hva skal det bety at drift har markert et prosjekt som inaktivt, mens medlemmene og koblingen til Catenda fortsatt er aktive? I dag åpnes prosjektet hvis man går direkte til det, men det vises ikke i lista over brukerens prosjekter, og sakene i det nektes. Ingen vedtak gjelder dette. Nærmest er B-04 og DL-U10 (nye handlinger opphører når tilgangen er borte) og P7 (journalen bevares). Rettingen krever en migrasjon, så den får et eget issue og tas ikke i runden. Anbefaling: lesbart, ikke skrivbart.'''
-valgt = "B: Lesbart, ikke skrivbart"
+Hva skal det bety at drift har markert et prosjekt som inaktivt, mens medlemmene og koblingen til Catenda fortsatt er aktive? I dag åpnes prosjektet hvis man går direkte til det, men det vises ikke i lista over brukerens prosjekter, og sakene i det nektes. Ingen vedtak gjelder dette. Nærmest er B-04 og DL-U10 (nye handlinger opphører når tilgangen er borte) og P7 (journalen bevares). Rettingen krever en migrasjon og får derfor et eget issue. Den tas ikke i denne runden. Anbefaling: B.'''
+valgt = "Lesbart, ikke skrivbart"
 svar = '''
-«B: Lesbart, ikke skrivbart (Recommended)»'''
+«Lesbart, ikke skrivbart (Recommended)»'''
 forhold = [{ art = "utvider", vedtak = "dl-u10" }]
-folge = '''
-Rettingen krever en migrasjon og får et eget issue.'''
 
 [[gruppe.vedtak.alternativ]]
-navn = "A: Stengt helt"
+navn = "Stengt helt"
 tekst = '''
 Et inaktivt prosjekt er stengt. Ingen kan lese eller handle i prosjektet før drift gjør det aktivt igjen. Brevene bevares.'''
 
 [[gruppe.vedtak.alternativ]]
-navn = "B: Lesbart, ikke skrivbart"
+navn = "Lesbart, ikke skrivbart"
 tekst = '''
 I et inaktivt prosjekt kan medlemmene lese sakene og brevene, men ingen kan sende brev eller gjøre andre handlinger, unntatt å bestride en opplysning etter MM-U7. Prosjektet vises i lista som inaktivt.'''
 anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
-navn = "C: Bare skjult i lista"
+navn = "Bare skjult i lista"
 tekst = '''
 At et prosjekt er inaktivt, betyr bare at det ikke vises i lista over brukerens prosjekter. Medlemmene kan fortsatt lese og handle i prosjektet.'''
 

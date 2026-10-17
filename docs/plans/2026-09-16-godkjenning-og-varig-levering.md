@@ -601,7 +601,7 @@ eksplisitt oppheves.
 | <a id="dl-u8"></a>DL-U8: Deaktiveringen ved innlogging er nyere enn en medlemsliste som ble hentet før innloggingen. En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet. Forkastet: «Deaktiveringen ved innlogging gjelder til neste synkronisering, uansett når listen ble hentet.» | 16.10, oppdragsgiver (#53) | Presiserer [DL-U7](#dl-u7). Utvidet 16.10 av [DL-U9](#dl-u9). Presiserer B-04 punkt 1. Bygget 16.10 i TS-stien (#53, del 3b, #612 og #633). |
 | <a id="dl-u9"></a>DL-U9: Innloggingen er nyere enn en medlemsliste som ble hentet før innloggingen, også for en bruker som ikke hadde noe medlemskap i prosjektet. En slik liste gir ikke brukeren et nytt medlemskap. Forkastet: «En medlemsliste som ble hentet før innloggingen, kan gi et nytt medlemskap til en bruker som ikke hadde noe medlemskap i prosjektet. Medlemskapet gjelder til neste medlemsliste.»; «Vedtakstekst som B. Det bygges når innloggingen kobles til den nye basen (#375). Til da oppfører koden seg som i A.» | 16.10, oppdragsgiver (#625) | Utvider [DL-U8](#dl-u8). Presiserer [DL-U7](#dl-u7). Presiserer B-04 punkt 1. Bygget 16.10 i TS-stien (#625, #652). |
 | <a id="dl-u10"></a>DL-U10: I begge tilfellene blir medlemskapene inaktive straks koblingen oppheves eller endres. Ingen kan handle i prosjektet før en ny medlemsliste er hentet fra det koblede Catenda-prosjektet. Forkastet: «Medlemskapene står i begge tilfellene til en ny medlemsliste er skrevet»; «delt (inaktive når koblingen oppheves; står til ny liste når den endres)» | 16.10, oppdragsgiver (#655, #614) | Utvidet 17.10 av [DL-U11](#dl-u11). Presiserer B-04 og snevrer inn punkt 4 for disse to tilfellene. Ikke bygget. |
-| <a id="dl-u11"></a>DL-U11: I et inaktivt prosjekt kan medlemmene lese sakene og brevene, men ingen kan sende brev eller gjøre andre handlinger, unntatt å bestride en opplysning etter MM-U7. Prosjektet vises i lista som inaktivt. | 17.10, oppdragsgiver (#724, #707) | Utvider [DL-U10](#dl-u10). Rettingen krever en migrasjon og får et eget issue. |
+| <a id="dl-u11"></a>DL-U11: I et inaktivt prosjekt kan medlemmene lese sakene og brevene, men ingen kan sende brev eller gjøre andre handlinger, unntatt å bestride en opplysning etter MM-U7. Prosjektet vises i lista som inaktivt. | 17.10, oppdragsgiver (#724, #707) | Utvider [DL-U10](#dl-u10). |
 
 > **Merknad 2026-09-23 til 3.1: direkte tilkobling erstatter RPC over PostgREST.**
 > Oppdragsgiver bekreftet 23.09 alternativ C med transport T2 fra
@@ -744,7 +744,8 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > - F0b, serveren: #750, #739 punkt 1, #716 punkt 2 og #724 punkt 1.
 > - FK, kjernen: #550, #474 punkt 1, #562 punkt 1 og 2, #580 punkt 1 og #496.
 > - Verktøyene: #604.
-> - Vaktene i `.claude/`: #563, godkjent av oppdragsgiver 17.10.
+> - Vaktene i `.claude/`: #563. Oppdragsgiver svarte 17.10 om hvem som godkjenner
+>   endringen: «Ja, du godkjenner i appen (Recommended)».
 
 ### 3.3 Anbefalinger som ikke er vedtatt
 
