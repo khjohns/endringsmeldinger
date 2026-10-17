@@ -143,8 +143,9 @@ issue. Oppdraget skal inneholde:
   Det venter. For kjerne-oppgaver er spørsmålene samlet i kartleggingen (punkt 1),
   og svarene står i oppdraget. Dekker ikke svarene det byggeøkta møter, stanser
   den og spør på samme måte;
-- at økta ikke skriver i hovedplanen, med unntaket i
-  [vedtaksskillen](../vedtak/SKILL.md);
+- at økta ikke skriver i hovedplanen, unntatt når den er den eneste PR-en i
+  runden som rører planen. Da kan den føre et vedtak den trenger, slik
+  [vedtaksskillen](../vedtak/SKILL.md) sier;
 - at feil utenfor oppdraget, som ikke er reviewfunn, blir egne issues (regelen i
   `AGENTS.md`), og at økta løser en slik feil i samme PR med `Closes #n` bare når
   rettingen er noen få linjer i en fil den allerede endrer. Alt annet venter til neste
