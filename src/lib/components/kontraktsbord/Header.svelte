@@ -49,7 +49,7 @@
     caseLabel={creatingCase ? 'Ny sak' : store.sak.sak_id}
     {role}
     {onrolechange}
-    lockedRole={creatingCase}
+    lockedRole={creatingCase || store.erKjernesak}
   >
     {#snippet leading()}
       {#if mode === 'form' || creatingCase || mobileView === 'detail'}

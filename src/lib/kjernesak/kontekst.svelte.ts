@@ -117,6 +117,12 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get versjon() {
       return utledning?.versjon ?? null;
     },
+    get journal() {
+      return journal;
+    },
+    get utledning() {
+      return utledning;
+    },
     get visning() {
       return vist;
     },

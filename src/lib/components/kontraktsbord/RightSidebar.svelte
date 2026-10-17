@@ -5,6 +5,7 @@
   import { S, sporBestemmelser } from './data.js';
   import CaseHistory from './CaseHistory.svelte';
   import VedleggPanel from './VedleggPanel.svelte';
+  import Kjernejournal from '$lib/components/kjernesak/Kjernejournal.svelte';
   import type { SporKey, Mode, RightTab } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
 
@@ -33,7 +34,14 @@
 
   const readTabs: RightTab[] = ['bestemmelser', 'historikk', 'vedlegg'];
   const formTabs: RightTab[] = ['bestemmelser', 'historikk', 'filer'];
-  const tabs = $derived(mode === 'read' ? readTabs : formTabs);
+  // Vedlegg og filer finnes ikke for en TS-sak ennå (OV-U1, #718).
+  const tabs = $derived(
+    store.erKjernesak
+      ? (['bestemmelser', 'historikk'] as RightTab[])
+      : mode === 'read'
+        ? readTabs
+        : formTabs
+  );
 
   const tabLabels: Record<RightTab, string> = {
     bestemmelser: 'Bestemmelser',
@@ -92,11 +100,13 @@
       {/key}
     {/if}
 
-    {#if tab === 'historikk'}
+    {#if tab === 'historikk' && store.erKjernesak}
+      {#if store.saksbilde}<Kjernejournal bilde={store.saksbilde} />{/if}
+    {:else if tab === 'historikk'}
       <CaseHistory events={store.timeline} {sel} {activeEvent} {oneventclick} {onletterclick} />
     {/if}
 
-    {#if tab === 'vedlegg'}
+    {#if tab === 'vedlegg' && !store.erKjernesak}
       {#if store.isDemo}
         {@render attList(true)}
       {:else}
@@ -116,7 +126,7 @@
       {/if}
     {/if}
 
-    {#if tab === 'filer'}
+    {#if tab === 'filer' && !store.erKjernesak}
       {#if store.isDemo}
         {@render attList(false)}
       {:else}

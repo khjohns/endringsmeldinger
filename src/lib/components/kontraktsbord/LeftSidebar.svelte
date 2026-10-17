@@ -43,20 +43,30 @@
       : store.projectId
   );
 
-  const statusStyle = $derived(saksstatus(store.sak));
+  // TS-saken viser kjernens statustekst (#718). Status er bare en etikett.
+  const statusStyle = $derived(
+    store.erKjernesak
+      ? { label: store.saksbilde?.status.tekst ?? '', variant: 'default', sendt: false }
+      : saksstatus(store.sak)
+  );
+  // For en TS-sak vises bare at BH har svart (#718), så et besvart krav står ikke som uavklart.
   const exposureGroups = $derived(
     [
       {
         label: 'Uavklart',
         values: [
-          prinV === undefined && !store.display('vederlag').isWithdrawn
+          prinV === undefined &&
+          !store.display('vederlag').isWithdrawn &&
+          !store.display('vederlag').bhHarSvart
             ? store.display('vederlag').unspecified
               ? store.display('vederlag').hasNotice
                 ? 'Vederlag ikke spesifisert'
                 : null
               : `${fmt(store.display('vederlag').krevdValue!)} kr`
             : null,
-          prinF === undefined && !store.display('frist').isWithdrawn
+          prinF === undefined &&
+          !store.display('frist').isWithdrawn &&
+          !store.display('frist').bhHarSvart
             ? store.display('frist').unspecified
               ? store.display('frist').hasNotice
                 ? 'Frist ikke spesifisert'
@@ -156,10 +166,12 @@
               Kravet er trukket
             {:else if display.isRejectionAccepted}
               Avslaget er godtatt
+            {:else if display.bhHarSvart}
+              BH har svart
             {:else if display.isBinary}
               {display.isDisputed && !display.isPrecluded
                 ? 'BH bestrider grunnlaget'
-                : track.bh_resultat
+                : !store.erKjernesak && track.bh_resultat
                   ? `BH: ${display.bhPosition}`
                   : display.antallVersjoner > 0
                     ? 'Ikke vurdert'

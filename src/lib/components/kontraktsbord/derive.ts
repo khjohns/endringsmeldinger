@@ -30,6 +30,8 @@ export interface TrackDisplay {
   tePosition?: string;
   teRef?: string;
   bhPosition?: string;
+  /** TS-sak: byggherren har svart. Resultatet vises ikke ennå (#718). */
+  bhHarSvart?: boolean;
   // Vederlag/Frist (numeric)
   krevdValue?: number;
   krevdUnit?: string;

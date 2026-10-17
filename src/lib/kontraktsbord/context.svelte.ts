@@ -5,6 +5,7 @@ import { submitEvent } from '$lib/api/events';
 import type { CaseContextResponse } from '$lib/types/api';
 import type { EventType } from '$lib/types/timeline';
 import type { DemoCaseWorkspace } from '$lib/mockup/store.svelte';
+import type { KjernesakArbeidsflate } from '$lib/kjernesak/arbeidsflate.svelte';
 import type { SporKey, SporUIState } from '$lib/components/kontraktsbord/types';
 import type { Draft } from '$lib/components/kontraktsbord/types';
 import {
@@ -112,6 +113,7 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
 
   return {
     isDemo: false as const,
+    erKjernesak: false as const,
     sakId,
     projectId: options.projectId,
     demo: undefined,
@@ -173,7 +175,7 @@ export function createCaseWorkspace(initial: CaseContextResponse, options: Works
 }
 
 export type LiveCaseWorkspace = ReturnType<typeof createCaseWorkspace>;
-export type CaseWorkspace = LiveCaseWorkspace | DemoCaseWorkspace;
+export type CaseWorkspace = LiveCaseWorkspace | DemoCaseWorkspace | KjernesakArbeidsflate;
 
 export function setCaseWorkspace<T extends CaseWorkspace>(workspace: T): T {
   return setContext<T>(CONTEXT_KEY, workspace);

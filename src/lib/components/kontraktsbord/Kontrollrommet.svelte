@@ -5,6 +5,8 @@
   import { assessedGap, fristErSendt } from './derive';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  // TS-saken (#718): det kjernen ennå ikke kan, vises ikke (OV-U1).
+  const kjernesak = store.erKjernesak ? store : null;
   import { createApprovalWorkspace, setApprovalWorkspace } from '$lib/approval/context.svelte';
   import ClaimApprovalView from './ClaimApprovalView.svelte';
   import { onMount, untrack } from 'svelte';
@@ -14,7 +16,7 @@
   const claimReview = setClaimReview(createClaimReview(store));
   let showApproval = $state(false);
   onMount(() => {
-    if (role === 'BH') void approval.load();
+    if (role === 'BH' && !kjernesak) void approval.load();
   });
   import Header from './Header.svelte';
   import EndringsordreLink from '$lib/components/endringsordre/EndringsordreLink.svelte';
@@ -34,6 +36,7 @@
   import LetterPreviewModal from './LetterPreviewModal.svelte';
   import NewCaseForm from './NewCaseForm.svelte';
   import NewCaseActionBar from './NewCaseActionBar.svelte';
+  import Vederlagsskjema from '$lib/components/kjernesak/Vederlagsskjema.svelte';
   import { buildLetterContent } from './letterContentBuilder.js';
   import type { Role, Mode, SporKey, RightTab } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
@@ -53,7 +56,8 @@
 
   type MobileView = 'matrix' | 'detail';
 
-  let role: Role = $state(readPreferredRole());
+  // Rollen i en TS-sak er leserens side fra serveren, ikke rollebryteren (#705, #718).
+  let role: Role = $state(kjernesak?.part ?? readPreferredRole());
   let sel: SporKey = $state('vederlag');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
@@ -77,6 +81,7 @@
   } | null>(null);
   const bhSvarerPaaFristvarsel = $derived.by(
     () =>
+      !kjernesak &&
       sel === 'frist' &&
       role === 'BH' &&
       fristErSendt(store.sak) &&
@@ -85,9 +90,13 @@
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   $effect(() => {
-    if (view) {
+    if (kjernesak) {
+      if (kjernesak.part) role = kjernesak.part;
+    } else if (view) {
       role = view.role;
       savePreferredRole(view.role);
+    }
+    if (view) {
       sel = view.track;
       mode = view.mode;
       if (view.mode === 'form') mobileView = 'detail';
@@ -99,7 +108,7 @@
       currentRole = role,
       track = sel;
     untrack(() => {
-      if (currentMode === 'form' && currentRole === 'BH')
+      if (!kjernesak && currentMode === 'form' && currentRole === 'BH')
         approval.beginEdit(track === 'ansvar' ? 'grunnlag' : track);
       else approval.endEdit();
     });
@@ -110,6 +119,7 @@
   }
 
   function changeRole(next: Role) {
+    if (kjernesak) return;
     role = next;
     savePreferredRole(next);
     mode = 'read';
@@ -133,7 +143,7 @@
 
   async function goForm(key: SporKey) {
     const track = key === 'ansvar' ? 'grunnlag' : key;
-    if (role === 'BH') {
+    if (role === 'BH' && !kjernesak) {
       const items = approval.state.items.filter((i) => i.track === track);
       if (items.some((i) => i.status === 'til_godkjenning')) {
         showApproval = true;
@@ -229,11 +239,11 @@
       }}
     />
 
-    {#if !store.isDemo && !creatingCase}
+    {#if !store.isDemo && !kjernesak && !creatingCase}
       <CatendaSyncNotice status={store.catendaSyncStatus} />
     {/if}
 
-    {#if !store.isDemo && !creatingCase && mode === 'read'}
+    {#if !store.isDemo && !kjernesak && !creatingCase && mode === 'read'}
       <EndringsordreLink state={store.sak} projectId={store.projectId} {role} />
     {/if}
     <div class="body">
@@ -255,7 +265,7 @@
             mode === 'read' &&
             mobileView === 'matrix'}
         >
-          {#if role === 'BH' && !creatingCase && !showApproval}
+          {#if role === 'BH' && !kjernesak && !creatingCase && !showApproval}
             <div class="approval-entry">
               <div>
                 <strong>Brev og intern godkjenning</strong><span
@@ -269,6 +279,9 @@
                 >Åpne brev</button
               >
             </div>
+          {/if}
+          {#if kjernesak?.submissionError && mode === 'read'}
+            <div class="approval-entry"><p role="alert">{kjernesak.submissionError}</p></div>
           {/if}
           <ClaimLetterView review={claimReview} />
           <!-- Hidden, not unmounted, while the letter is checked: the form's submission resumes on confirm. -->
@@ -297,6 +310,21 @@
                 onform={goForm}
                 onbacktonow={() => (activeEvent = null)}
               />
+            {:else if kjernesak}
+              <!-- Midlertidig til FK-8c viser TeVederlagForm for TS-saken (#718). -->
+              {#if sel === 'vederlag' && role === 'TE' && kjernesak.tilbyrVederlagskrav}
+                <Vederlagsskjema
+                  kjernesak={kjernesak.kjernesak}
+                  sakstittel={store.sak.sakstittel}
+                  onsendt={goRead}
+                  onavbryt={goRead}
+                />
+              {:else}
+                <div class="approval-entry">
+                  <p role="status">Dette skjemaet finnes ikke for saken ennå.</p>
+                  <button class="btn btn-secondary" onclick={goRead}>Tilbake</button>
+                </div>
+              {/if}
             {:else if bhSvarerPaaFristvarsel}
               <FristVarselForm onsend={goMatrix} onactions={(a) => (formActions = a)} />
             {:else if role === 'BH' && (!approval.loaded || !approval.canPrepare)}
@@ -337,7 +365,9 @@
               <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {/if}
 
-            {#if showApproval && role === 'BH' && !creatingCase}
+            {#if kjernesak && mode === 'form'}
+              <!-- Vederlagsskjema har egne knapper. -->
+            {:else if showApproval && role === 'BH' && !creatingCase}
               <!-- The approval panel carries the actions in this step. -->
             {:else if creatingCase}
               {#if !newCaseActions?.reviewing}<NewCaseActionBar

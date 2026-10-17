@@ -6,7 +6,7 @@
   import CaseWorkspace from '$lib/kontraktsbord/CaseWorkspace.svelte';
   import EndringsordrePage from '$lib/components/endringsordre/EndringsordrePage.svelte';
   import { projectStore } from '$lib/stores/project.svelte';
-  import Saksbilde from '$lib/components/kjernesak/Saksbilde.svelte';
+  import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
   import { sakskilde, tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
   import {
@@ -18,7 +18,7 @@
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
   const bryterPaa = tsStienForNyeKoeSaker();
-  // Leserens side kommer fra serveren (#705). Uten side viser saksbildet ingen handling.
+  // Leserens side kommer fra serveren (#705). Uten side viser Kontrollrommet ingen handling.
   const kjernesak = $derived(bryterPaa ? lagKjernesak({ sakId, prosjektId }) : null);
   const kilde = $derived(sakskilde(bryterPaa, kjernesak?.finnes ?? null));
   // Uten saks-ID er Python-spørringen av, så den venter til TS-serveren har svart.
@@ -64,7 +64,13 @@
 
 {#if kilde === 'ts' && kjernesak?.saksbilde}
   {#key prosjektId + ':' + sakId}
-    <Saksbilde bilde={kjernesak.saksbilde} {kjernesak} />
+    <Kjernesakrom
+      {kjernesak}
+      projectId={prosjektId}
+      {view}
+      onviewchange={changeView}
+      onnewcase={() => goto(resolve('/[prosjektId]/ny', { prosjektId }))}
+    />
   {/key}
 {:else if kilde === 'venter' && kjernesak?.feil}
   <div class="case-message" role="alert">

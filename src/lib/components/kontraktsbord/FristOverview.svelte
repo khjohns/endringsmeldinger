@@ -29,7 +29,8 @@
   const prinsipaltGodkjent = $derived(standpunkt.prinsipalt);
   const subsidiaertGodkjent = $derived(standpunkt.subsidiaert);
   const atterSubsidiaert = $derived(standpunkt.atterSubsidiaert);
-  const hasBhResponse = $derived(Boolean(frist.bh_resultat));
+  // TS-saken viser bare at BH har svart (#718), i CenterRead. Resultatet projiseres ikke.
+  const hasBhResponse = $derived(!store.erKjernesak && Boolean(frist.bh_resultat));
   const hasSubsidiaryPosition = $derived(
     hasBhResponse &&
       (avslattPaaGrunnlag ||
@@ -56,7 +57,11 @@
     return bhEvents.at(-1)?.data as Partial<ResponsFristEventData> | undefined;
   });
 
-  const teVersionCount = $derived(Math.max(frist.antall_versjoner, teEvents.length, 1));
+  const teVersionCount = $derived(
+    store.erKjernesak
+      ? Math.max(store.display('frist').antallVersjoner, 1)
+      : Math.max(frist.antall_versjoner, teEvents.length, 1)
+  );
   const teRevision = $derived(teVersionCount - 1);
   const teDate = $derived(formatDateShortNorwegian(teEvents.at(-1)?.time ?? frist.siste_oppdatert));
   const bhDate = $derived(
@@ -268,7 +273,7 @@
       <ExpandableReasoning label="Byggherrens begrunnelse" html={frist.bh_begrunnelse} />
     {/if}
   </StatementCard>
-{:else}
+{:else if !store.display('frist').bhHarSvart}
   <div class="pending-response">
     <PendingResponseCard
       partyName={store.bhNavn}

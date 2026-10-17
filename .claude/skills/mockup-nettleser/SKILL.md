@@ -69,7 +69,7 @@ TEST_BASE_URL=http://localhost:5173 node scripts/test_brev_godkjenning.mjs
 
 `test_endringsordre.mjs` kjøres på samme måte.
 
-`scripts/test_kjernesak_vederlag.ts` driver vederlagskravet fra saksbildet for en
+`scripts/test_kjernesak_vederlag.ts` driver vederlagskravet fra Kontrollrommet for en
 TS-sak og tar skjermbilder. Skriptet svarer selv for API-et, med journalen skrevet
 av kjernen, så det trenger bare vite med bryteren på:
 

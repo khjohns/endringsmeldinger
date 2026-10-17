@@ -1,5 +1,5 @@
 /**
- * Vederlagskravet fra saksbildet på TS-stien (#667). Konteksten er den ekte, med
+ * Vederlagskravet fra Kontrollrommet på TS-stien (#667, #718). Konteksten er den ekte, med
  * falske `hent` og `send`; at serveren lagrer kravet, prøves i
  * `sprakprove/skrivesti/vederlagskrav.test.ts`. Kildene er formatet i kjernen
  * (bare tilbud, OV-U1), avgjørelsen om valgfri utdypning (oppdragsgiver 17.10) og
@@ -9,7 +9,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
-import Saksbilde from '../Saksbilde.svelte';
+import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { ApiError } from '$lib/api/client';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
@@ -33,17 +33,9 @@ const opprettet: Journalrad = {
   data: { sakstittel: 'Ny peling', sakstype: 'standard' },
 };
 
-function medGrunnlagskrav(): Journalrad[] {
+function medKrav(foer: Journalrad[], kommando: Record<string, unknown>): Journalrad[] {
   const utfall = forhaandsvis(
-    {
-      type: 'krav',
-      spor: 'grunnlag',
-      innhold: {
-        hovedkategori: 'endring',
-        underkategori: 'irregulaer_endring',
-        paalegg_mottatt: '2026-10-01',
-      },
-    },
+    kommando,
     {
       sakId: SAK,
       aktoerId: 'te',
@@ -52,19 +44,27 @@ function medGrunnlagskrav(): Journalrad[] {
       tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
       nyId: () => crypto.randomUUID(),
     },
-    [opprettet],
+    foer,
     KJERNE
   );
   if (!utfall.godtatt) throw new Error(utfall.avvisning.melding);
-  return [opprettet, { ...utfall.hendelser[0], versjon: 2 }];
+  return [...foer, { ...utfall.hendelser[0], versjon: foer.length + 1 }];
 }
 
-const journal = medGrunnlagskrav();
-const svar = (part: Part | null): Kjernesak => ({
-  versjon: 2,
+const journal = medKrav([opprettet], {
+  type: 'krav',
+  spor: 'grunnlag',
+  innhold: {
+    hovedkategori: 'endring',
+    underkategori: 'irregulaer_endring',
+    paalegg_mottatt: '2026-10-01',
+  },
+});
+const svar = (part: Part | null, rader = journal): Kjernesak => ({
+  versjon: rader.length,
   part,
   visning: {} as Kjernesak['visning'],
-  journal: journal.map(
+  journal: rader.map(
     ({ event_id, versjon, event_type, tidsstempel, aktor_rolle, format, data }): Journallinje => ({
       event_id,
       versjon,
@@ -78,15 +78,28 @@ const svar = (part: Part | null): Kjernesak => ({
   leveringsoppdrag: [],
 });
 
+const VIEW = { track: 'vederlag', mode: 'read', role: 'BH' } as const;
+
+const visRom = (kjernesak: ReturnType<typeof lagKjernesak>) =>
+  render(Kjernesakrom, {
+    kjernesak,
+    projectId: 'p-1',
+    view: VIEW,
+    onviewchange: () => {},
+    onnewcase: () => {},
+  });
+
 async function vis(part: Part | null) {
   const send = vi.fn().mockResolvedValue({ event_id: 'e-3', leveringsoppdrag: 'l-1', versjon: 3 });
   const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar(part), send });
   await kjernesak.last();
-  render(Saksbilde, { bilde: kjernesak.saksbilde!, kjernesak });
+  visRom(kjernesak);
   return { send };
 }
 
-describe('vederlagskravet fra saksbildet', () => {
+const leseflate = () => document.querySelector('.read-content');
+
+describe('vederlagskravet fra Kontrollrommet', () => {
   it('TE sender tilbudet med den låste teksten og uten utdypning når begrunnelsen er tom', async () => {
     const { send } = await vis('TE');
     await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
@@ -97,7 +110,7 @@ describe('vederlagskravet fra saksbildet', () => {
     for (const ikke of [/Regningsarbeid/, /Enhetspris/, /Rigg og drift/, /Produktivitet/, /Varsel/])
       expect(skjema.queryByText(ikke)).toBeNull();
     expect(skjema.queryByText(/vedlegg/i)).toBeNull();
-    expect(screen.getByTestId('status').closest('article')).not.toBeVisible();
+    expect(leseflate()).toBeNull();
 
     const knapp = screen.getByRole('button', { name: 'Se brev og send' });
     expect(knapp).toBeDisabled();
@@ -113,8 +126,8 @@ describe('vederlagskravet fra saksbildet', () => {
     await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
 
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
-    // Etter sendingen er skjemaet lukket, og saksbildet vises igjen.
-    await waitFor(() => expect(screen.getByTestId('status').closest('article')).toBeVisible());
+    // Etter sendingen er skjemaet lukket, og sporet vises igjen.
+    await waitFor(() => expect(leseflate()).not.toBeNull());
     expect(document.querySelector('.vederlagsskjema')).toBeNull();
     const [sakId, versjon, kommando] = send.mock.calls[0];
     expect(sakId).toBe(SAK);
@@ -144,7 +157,7 @@ describe('vederlagskravet fra saksbildet', () => {
     expect(send.mock.calls[0][2]).toMatchObject({ utdypning: 'Tilbudet gjelder ny peling' });
   });
 
-  it('når saken ikke kan lastes på nytt etter sendingen, sier saksbildet at kravet er lagret, og hvorfor saken ikke er oppdatert', async () => {
+  it('når saken ikke kan lastes på nytt etter sendingen, sier Kontrollrommet at kravet er lagret, og hvorfor saken ikke er oppdatert', async () => {
     const send = vi
       .fn()
       .mockResolvedValue({ event_id: 'e-3', leveringsoppdrag: 'l-1', versjon: 3 });
@@ -154,7 +167,7 @@ describe('vederlagskravet fra saksbildet', () => {
       .mockRejectedValueOnce(new ApiError(503, 'Catenda svarte ikke.'));
     const kjernesak = lagKjernesak({ sakId: SAK, hent, send });
     await kjernesak.last();
-    render(Saksbilde, { bilde: kjernesak.saksbilde!, kjernesak });
+    visRom(kjernesak);
     await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
     await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
@@ -162,7 +175,7 @@ describe('vederlagskravet fra saksbildet', () => {
     await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
     await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
 
-    await waitFor(() => expect(screen.getByTestId('status').closest('article')).toBeVisible());
+    await waitFor(() => expect(leseflate()).not.toBeNull());
     expect(send).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Kommandoen er lagret, men saken kunne ikke lastes på nytt. Catenda svarte ikke.'
@@ -170,19 +183,15 @@ describe('vederlagskravet fra saksbildet', () => {
   });
 
   it('når sporet har et vederlagskrav, tilbys ikke skjemaet, selv om kjernen tilbyr ny versjon (#667)', async () => {
-    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE') });
+    const rader = medKrav(journal, {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { metode: 'tilbud', beloep: 1000 },
+    });
+    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE', rader) });
     await kjernesak.last();
     expect(kjernesak.handlinger).toContain('krav:vederlag');
-    const bilde = kjernesak.saksbilde!;
-    const medKrav = {
-      ...bilde,
-      spor: bilde.spor.map((s) =>
-        s.spor === 'vederlag'
-          ? { ...s, poster: [{ ...bilde.spor[0].poster[0], id: 'v-1', brev: 3 }] }
-          : s
-      ),
-    };
-    render(Saksbilde, { bilde: medKrav, kjernesak });
+    visRom(kjernesak);
     expect(screen.queryByRole('button', { name: 'Send krav om vederlagsjustering' })).toBeNull();
   });
 
