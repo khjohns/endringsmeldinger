@@ -140,6 +140,13 @@
       </div>
     {/if}
 
+    {#if display.bhHarSvart && !display.isWithdrawn}
+      <!-- TS-saken viser bare at svar finnes (oppdragsgiver 17.10, #718). -->
+      <p class="sub-notice-top sub-notice-top-text" role="note">
+        {store.bhNavn} har svart. Svarbrevet står i Historikk.
+      </p>
+    {/if}
+
     <!-- Trukket-visning -->
     {#if display.isWithdrawn}
       <div class="withdrawn-card">

@@ -1,5 +1,5 @@
 /**
- * Vederlagskravet fra saksbildet for en TS-sak i Chromium (#667), med skjermbilder.
+ * Vederlagskravet fra Kontrollrommet for en TS-sak i Chromium (#667, #718), med skjermbilder.
  * API-et svares av skriptet: journalen skrives med kjernen (`forhaandsvis`), og
  * GET svarer med `part: "TE"`. Det prøver altså frontenden, ikke TS-serveren;
  * serveren prøves i `sprakprove/skrivesti/vederlagskrav.test.ts`.
@@ -146,20 +146,27 @@ await side.route(
 
 const knapp = side.getByRole('button', { name: 'Send krav om vederlagsjustering' });
 await side.goto(`${values.url}/p-1/${SAK}`);
-await knapp.waitFor({ timeout: 60_000 });
-await side.screenshot({ path: join(UT, '1-saksbilde.png'), fullPage: true });
+const sporene = side.getByRole('navigation', { name: 'Sakens spor' });
+await sporene.waitFor({ timeout: 60_000 });
+await side.screenshot({ path: join(UT, '1-grunnlag.png'), fullPage: true });
+await sporene.getByRole('button', { name: /Vederlag/ }).click();
+await knapp.waitFor();
+await side.screenshot({ path: join(UT, '2-vederlag.png'), fullPage: true });
 await knapp.click();
 await side.getByLabel('Fast pris').fill('250000');
 await side.locator('.tiptap').click();
 await side.keyboard.type('Tilbudet omfatter peling, rigging og nedrigging av pelemaskin.');
-await side.screenshot({ path: join(UT, '2-skjema.png'), fullPage: true });
+await side.screenshot({ path: join(UT, '3-skjema.png'), fullPage: true });
 await side.getByRole('button', { name: 'Se brev og send' }).click();
 await side.getByRole('region', { name: 'Brevkontroll' }).waitFor();
 await side.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }).check();
-await side.screenshot({ path: join(UT, '3-brevkontroll.png'), fullPage: true });
+await side.screenshot({ path: join(UT, '4-brevkontroll.png'), fullPage: true });
 await side.getByRole('button', { name: 'Send til byggherren' }).click();
+await sporene.getByRole('button', { name: /Krevd: 250/ }).waitFor();
+await side.screenshot({ path: join(UT, '5-sendt.png'), fullPage: true });
+await side.getByRole('button', { name: 'Historikk' }).click();
 await side.getByTestId('journal-3').waitFor();
-await side.screenshot({ path: join(UT, '4-sendt.png'), fullPage: true });
+await side.screenshot({ path: join(UT, '6-historikk.png'), fullPage: true });
 if (await knapp.count()) feil.push('Knappen for vederlagskravet står igjen etter sendingen.');
 await nettleser.close();
 

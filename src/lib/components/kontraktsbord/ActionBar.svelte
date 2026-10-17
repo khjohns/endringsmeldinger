@@ -63,9 +63,22 @@
         ? 'Oppdater krav'
         : 'Spesifiser krav'
   );
+  const kjernesak = store.erKjernesak ? store : null;
   const isTeTrackActions = $derived(
-    mode === 'read' && role === 'TE' && (sel === 'ansvar' || sel === 'frist')
+    !kjernesak && mode === 'read' && role === 'TE' && (sel === 'ansvar' || sel === 'frist')
   );
+  // TS-saken (#718): bare det første vederlagskravet tilbys, og bare til leserens side.
+  const tilbyrVederlagskrav = $derived(
+    kjernesak?.part === 'TE' && sel === 'vederlag' && kjernesak.tilbyrVederlagskrav
+  );
+  const kjernesakStatus = $derived.by(() => {
+    if (!kjernesak) return '';
+    const display = store.display(sel);
+    if (display.isWithdrawn) return 'Kravet er trukket';
+    if (display.bhHarSvart) return `${store.bhNavn} har svart`;
+    if (display.antallVersjoner === 0) return 'Ingen krav';
+    return role === 'BH' ? 'Kravet er ikke besvart' : `Avventer svar fra ${store.bhNavn}`;
+  });
 </script>
 
 <div
@@ -79,16 +92,20 @@
         <div class="status-dot"></div>
         <div>
           <div class="status-label">
-            {mode === 'form'
-              ? 'Redigerer kladd'
-              : sel === 'ansvar'
-                ? 'Sist aktivitet'
-                : (isVederlagPending || isFristPending) && hasDraft
-                  ? 'Kladd'
-                  : 'Saksstatus'}
+            {kjernesak
+              ? 'Saksstatus'
+              : mode === 'form'
+                ? 'Redigerer kladd'
+                : sel === 'ansvar'
+                  ? 'Sist aktivitet'
+                  : (isVederlagPending || isFristPending) && hasDraft
+                    ? 'Kladd'
+                    : 'Saksstatus'}
           </div>
           <div class="status-text">
-            {#if mode === 'form'}
+            {#if kjernesak}
+              <span style="color: var(--ink-2)">{kjernesakStatus}</span>
+            {:else if mode === 'form'}
               <span style="color: var(--ink-2)"
                 >Autolagret — {role === 'BH' ? 'klar til ferdigstilling' : 'ikke sendt'}</span
               >
@@ -144,7 +161,13 @@
           <span class="context-btn-text">Kontekst</span>
         </button>
       {/if}
-      {#if mode === 'form'}
+      {#if kjernesak}
+        {#if tilbyrVederlagskrav && mode === 'read'}
+          <button class="btn btn-primary" onclick={() => onform(sel)}>
+            <PencilLine size={14} /> Send krav om vederlagsjustering
+          </button>
+        {/if}
+      {:else if mode === 'form'}
         <button class="btn btn-secondary" onclick={oncloseform}>Lukk kladd</button>
         <button class="btn btn-primary" disabled={!canSend} onclick={onsend}
           ><Send size={14} /> {sendLabel}</button

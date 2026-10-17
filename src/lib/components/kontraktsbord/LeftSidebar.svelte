@@ -43,7 +43,12 @@
       : store.projectId
   );
 
-  const statusStyle = $derived(saksstatus(store.sak));
+  // TS-saken viser kjernens statustekst (#718). Status er bare en etikett.
+  const statusStyle = $derived(
+    store.erKjernesak && store.saksbilde
+      ? { label: store.saksbilde.status.tekst, variant: 'default', sendt: false }
+      : saksstatus(store.sak)
+  );
   const exposureGroups = $derived(
     [
       {
@@ -156,6 +161,8 @@
               Kravet er trukket
             {:else if display.isRejectionAccepted}
               Avslaget er godtatt
+            {:else if display.bhHarSvart}
+              BH har svart
             {:else if display.isBinary}
               {display.isDisputed && !display.isPrecluded
                 ? 'BH bestrider grunnlaget'

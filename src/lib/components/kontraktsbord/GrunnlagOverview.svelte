@@ -46,6 +46,9 @@
         variant: 'warning' as const,
       };
     }
+    if (store.display('ansvar').bhHarSvart) {
+      return { icon: Check, text: `${store.bhNavn} har svart`, variant: 'pending' as const };
+    }
     return {
       icon: Clock3,
       text: `Avventer standpunkt fra ${store.bhNavn}`,

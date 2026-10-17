@@ -1,0 +1,128 @@
+/**
+ * TS-saken i Kontrollrommet (FK-8b, #718), med den ekte sakskonteksten og en falsk
+ * `hent`. Kildene er avgjørelsene 17.10 i #718: det kjernen ennå ikke kan, vises
+ * ikke (OV-U1), byggherrens svar vises bare som at svar finnes, saksstatusen er
+ * `visning.status`, rollen er leserens side fra serveren (#705), og journalen
+ * vises med den låste teksten (LV-U2) og merknadene (MM-U2).
+ */
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
+import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import type { Journalrad, Part } from '$kjerne/typer';
+import Kjernesakrom from '../Kjernesakrom.svelte';
+import { SAK, medGrunnlag, medSvar } from '$lib/kjernesak/__tests__/provejournal';
+
+const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
+  versjon: journal.length,
+  part,
+  visning: {} as Kjernesak['visning'],
+  journal: journal.map(
+    ({ event_id, versjon, event_type, tidsstempel, aktor_rolle, format, data }): Journallinje => ({
+      event_id,
+      versjon,
+      event_type,
+      tidsstempel,
+      aktor_rolle,
+      format,
+      data,
+    })
+  ),
+  leveringsoppdrag: [
+    {
+      id: 'l-1',
+      event_id: journal[1].event_id,
+      dokumentnoekkel: 'brev-2',
+      filnavn: 'krav.pdf',
+      innhold_sha256: '0'.repeat(64),
+      opprettet: '2026-10-16T09:00:01.000Z',
+    },
+  ],
+});
+
+async function vis(journal: Journalrad[], part: Part | null, track = 'ansvar' as const) {
+  const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, part) });
+  await kjernesak.last();
+  render(Kjernesakrom, {
+    kjernesak,
+    projectId: 'p-1',
+    view: { track, mode: 'read', role: 'TE' },
+    onviewchange: () => {},
+    onnewcase: () => {},
+  });
+  return kjernesak;
+}
+
+const fetchSpion = vi.fn();
+beforeEach(() => {
+  fetchSpion.mockReset().mockRejectedValue(new Error('Ingen nettverkskall i prøven.'));
+  vi.stubGlobal('fetch', fetchSpion);
+});
+afterEach(() => vi.unstubAllGlobals());
+
+describe('TS-saken i Kontrollrommet', () => {
+  it('venstrekolonnen viser tittelen, kjernens statustekst og kravene per spor', async () => {
+    const kjernesak = await vis(medGrunnlag, 'TE');
+    expect(screen.getByRole('heading', { name: 'Ny peling' })).toBeInTheDocument();
+    expect(screen.getByText(`Saksstatus: ${kjernesak.visning!.status.tekst}`)).toBeInTheDocument();
+    const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
+    expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent('Ikke vurdert');
+    expect(spor.getByRole('button', { name: /Vederlag/ })).toBeInTheDocument();
+  });
+
+  it('byggherrens svar vises bare som at svar finnes (oppdragsgiver 17.10)', async () => {
+    await vis(medSvar, 'TE');
+    const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
+    expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent('BH har svart');
+    expect(spor.getByRole('button', { name: /Grunnlag/ })).not.toHaveTextContent(/godkjent/i);
+    expect(screen.getAllByText('Byggherre har svart').length).toBeGreaterThan(0);
+  });
+
+  it.each([['TE'], ['BH']] as const)(
+    'det kjernen ennå ikke kan, vises ikke for %s (OV-U1)',
+    async (part) => {
+      await vis(medSvar, part);
+      expect(screen.queryByText('Brev og intern godkjenning')).toBeNull();
+      expect(screen.queryByRole('button', { name: /Trekk/ })).toBeNull();
+      for (const navn of [/Oppdater/, /Svar på/, /Fortsett/, /Send fristvarsel/, /Spesifiser/])
+        expect(screen.queryByRole('button', { name: navn })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Vedlegg' })).toBeNull();
+      // Rollen er leserens side og kan ikke byttes.
+      expect(screen.queryByRole('group', { name: 'Vis som' })).toBeNull();
+      expect(
+        screen.getByText(part === 'BH' ? 'Byggherre BH' : 'Entreprenør TE')
+      ).toBeInTheDocument();
+      // Verken godkjenningene, endringsordrene eller vedleggene hentes fra Python.
+      expect(fetchSpion).not.toHaveBeenCalled();
+    }
+  );
+
+  it('Historikk viser journalen med den låste teksten, utdypningen og leveringsoppdraget', async () => {
+    await vis(medGrunnlag, 'TE');
+    await fireEvent.click(screen.getByRole('button', { name: 'Historikk' }));
+    const brev = within(screen.getByTestId('journal-2'));
+    expect(brev.getByText('Brev fra TE', { exact: false })).toBeInTheDocument();
+    expect(brev.getByText('BH påla ny peling.')).toBeInTheDocument();
+    expect(
+      brev.getByText(/Leveringsoppdrag krav\.pdf: frosset .*, ikke levert/)
+    ).toBeInTheDocument();
+  });
+
+  it('en hendelse kjernen ikke forstår, merkes, og saken sier at den ikke kan utledes (MM-U2)', async () => {
+    const ukjent: Journalrad = {
+      ...medGrunnlag[1],
+      event_id: 'e-ukjent',
+      event_type: 'ukjent_hendelse',
+      versjon: 3,
+      data: {},
+    };
+    const kjernesak = await vis([...medGrunnlag, ukjent], 'TE');
+    expect(kjernesak.visning!.status.kode).toBe('kan_ikke_utledes');
+    expect(screen.getByText(`Saksstatus: ${kjernesak.visning!.status.tekst}`)).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Historikk' }));
+    expect(within(screen.getByTestId('journal-3')).getByText('Ikke tolket')).toBeInTheDocument();
+    for (const m of kjernesak.saksbilde!.merknader)
+      expect(screen.getByText(m.tekst)).toBeInTheDocument();
+  });
+});
