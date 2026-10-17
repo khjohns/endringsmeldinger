@@ -36,9 +36,10 @@ tilkobling() {
 # Venter også mens Docker starter en krasjet server på nytt (`--restart
 # on-failure:3`, #525), men gir opp med en gang den ikke blir startet igjen.
 # Docker viser «restarting» til omstarten, så en container som står stoppet i
-# to kontroller på rad, er stoppet for godt (som etter `docker stop`).
+# to kontroller på rad, er stoppet for godt (som etter `docker stop`). Hver
+# oppstart får 180 s, så fristen flyttes ved hver omstart (#563).
 vent() {
-  local tilstand status omstarter kode stoppet=0 sa_passord frist=$((SECONDS + 180))
+  local tilstand status omstarter kode stoppet=0 sa_passord frist=$((SECONDS + 180)) sett=0
   sa_passord="$(passord 2> /dev/null)" || sa_passord=""
   while ((SECONDS < frist)); do
     if docker exec "$navn" /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$sa_passord" \
@@ -49,6 +50,10 @@ vent() {
       --format '{{.State.Status}} {{.RestartCount}} {{.State.ExitCode}}' "$navn" 2> /dev/null)" \
       || tilstand="mangler 0 0"
     read -r status omstarter kode <<< "$tilstand"
+    if ((omstarter > sett)); then
+      sett=$omstarter
+      frist=$((SECONDS + 180))
+    fi
     if [[ "$status" =~ ^(exited|dead)$ ]]; then stoppet=$((stoppet + 1)); else stoppet=0; fi
     if [ "$status" = mangler ]; then
       echo "Containeren $navn finnes ikke." >&2
@@ -62,7 +67,7 @@ vent() {
     fi
     sleep 1
   done
-  echo "SQL Server i $navn svarte ikke på 180 s." >&2
+  echo "SQL Server i $navn svarte ikke på 180 s etter oppstart nummer $((sett + 1))." >&2
   docker logs "$navn" 2>&1 | tail -20 >&2
   return 1
 }
