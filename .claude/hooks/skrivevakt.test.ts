@@ -189,10 +189,15 @@ describe('skrivevakten for mekanisk-pr', () => {
   });
 
   it('sier at git commit og git push skal kjøres alene når et etterfølgende ledd står i kallet', () => {
-    for (const kommando of ['git commit -qm x | tail -3', 'git push -u origin claude/test-1; echo $?']) {
+    for (const kommando of [
+      'git commit -qm x | tail -3',
+      'git push -u origin claude/test-1; echo $?',
+    ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
-      expect(resultat.stderr, kommando).toContain('alene i et eget kall, uten rør eller kommandoer etter');
+      expect(resultat.stderr, kommando).toContain(
+        'alene i et eget kall, uten rør eller kommandoer etter'
+      );
     }
   });
 
