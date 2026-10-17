@@ -779,7 +779,10 @@ function utenforTreet(leddene, cwd, rot) {
       mappe = path.resolve(mappe, ord[1]);
       if (arbeidstreet(mappe) !== rot) return `cd ${ord[1]} går ut av arbeidstreet.`;
     } else if (ord[0] !== 'git') {
-      return `${ord[0] ?? 'Skallsyntaks'} står i samme kall som commit eller push.`;
+      return (
+        `${ord[0] ?? 'Skallsyntaks'} står i samme kall som git commit eller git push. ` +
+        'Kjør git commit og git push alene i et eget kall, uten rør eller kommandoer etter.'
+      );
     } else {
       let gitMappe = mappe;
       for (let i = 1; i < ord.length && ord[i].startsWith('-'); i++) {
@@ -873,7 +876,10 @@ function vurder(input) {
     leddene.some((del) => del.ukjentSyntaks) &&
     [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) => m.test(kommando))
   ) {
-    return 'Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.';
+    const alene = /\bgit\b.*\b(commit|push)\b/.test(kommando)
+      ? ' Kjør git commit og git push alene i et eget kall, uten rør eller kommandoer etter.'
+      : '';
+    return `Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.${alene}`;
   }
 
   if (
