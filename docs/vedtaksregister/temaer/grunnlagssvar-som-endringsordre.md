@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `cbfc4885da912ebd2ae4acfa15ff47191ebd0afd0a7fc073e0c5103d582a533e`
+Kontrollsum (SHA-256 over utdraget visningen leser): `f39e254450b266c80cd2da7d77bda778f32dce6840383606fdf614eae3b24d92`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -444,11 +444,11 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 > MM-U24: Ved kravet står det som foreligger: et krav som venter på byggherrens svar, et svar TE ikke har godtatt (med akseptfristen), eller en aksept etter fristen som venter på byggherren. Fristveiledningen står ved kravet, regnet fra sendingen. Appen sier ikke at en part har plikt, at en frist er oversittet, eller at TE ikke har flere krav.
 
-**Forkastet:** «Ved hvert krav viser appen hvilken part som har neste trekk, og om det etter kontrakten er en plikt med frist eller en mulighet, for eksempel at byggherren skal svare, eller at TE kan godta svaret innen akseptfristen eller sende en ny kravversjon. Fristveiledningen står ved kravet som i A. Appen sier ikke hva taushet fører til (VS-U2, OV-U3).»; «Appen angir ikke hvem som har neste trekk, utover at et krav venter på svar fra byggherren. Fristveiledningen etter VS-U2, VS-U10 og HF-U5 vises i skjemaet for handlingen den gjelder, med det OV-U4 krever.»
+**Forkastet:** «Ved kravet står hvem som har neste trekk, og om det er en plikt med frist eller en mulighet, med fristveiledningen som i det anbefalte alternativet.»; «Appen angir bare at et krav venter på byggherrens svar, og fristveiledningen står i skjemaet for handlingen.»
 
-**Vedtatt:** 17.10, oppdragsgiver (FK runde 4, #655)
+**Vedtatt:** 17.10, oppdragsgiver (FK runde 4 (#655), #718)
 
-**Følge:** Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2). Presiserer [VS-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10). Presiserer [HF-U5](#hf-u5). Presiserer [LV-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u7). Presiserer [OV-U4](#ov-u4). Ikke bygget. Visningen hører til #313.
+**Følge:** Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2). Presiserer [VS-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10). Presiserer [HF-U5](#hf-u5). Presiserer [LV-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u7). Presiserer [OV-U4](#ov-u4). Ikke bygget.
 
 **Regelrader:** —
 
