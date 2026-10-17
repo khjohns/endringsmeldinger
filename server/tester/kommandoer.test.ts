@@ -98,6 +98,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     return svar.recordset[0].n > 0;
   }
 
+  /** Om `koe.skrivetidspunkt` har en rad for transaksjonen, lest av eieren. */
+  async function transaksjonStaar(tx: string): Promise<boolean> {
+    const svar = await base.pool.request().input('tx', sql.NVarChar(20), tx).query<{
+      n: number;
+    }>('SELECT COUNT(*) AS n FROM koe.skrivetidspunkt WHERE transaksjon = CAST(@tx AS bigint)');
+    return svar.recordset[0].n > 0;
+  }
+
   /** Radene i saken, lest av eieren i konteksten. */
   function lagret(sakId: string, k: Kontekst = te) {
     return transaksjon(base.pool, k, async (f) => {
@@ -617,17 +625,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
           return tx.recordset[0].tx;
         });
       // Raden finnes på transaksjonen, ikke tidspunktet: to føringer kan få samme millisekund (#676).
-      const raden = async (tx: string) =>
-        (
-          await base.pool.request().input('tx', sql.NVarChar(20), tx).query<{
-            n: number;
-          }>('SELECT COUNT(*) AS n FROM koe.skrivetidspunkt WHERE transaksjon = CAST(@tx AS bigint)')
-        ).recordset[0].n > 0;
       const foerste = await foerOgCommit();
-      expect(await raden(foerste)).toBe(true);
+      expect(await transaksjonStaar(foerste)).toBe(true);
       const andre = await foerOgCommit();
-      expect(await raden(foerste)).toBe(false);
-      expect(await raden(andre)).toBe(true);
+      expect(await transaksjonStaar(foerste)).toBe(false);
+      expect(await transaksjonStaar(andre)).toBe(true);
     });
 
     it('kjøretiden kan ikke føre eller endre tidspunktet selv', async () => {
