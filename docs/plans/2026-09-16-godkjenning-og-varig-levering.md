@@ -520,7 +520,7 @@ eksplisitt oppheves.
 | Et tilstandsløst endepunkt som regner ut et utkast med serverens regler, utredes ikke nå. Speilet i `src/lib/domain/` står under regelversjonsvakten, og B-13 er uendret. Vurderes på nytt når M1 er levert | 05.10, oppdragsgiver | Merknaden 07.10 lot utsettelsen gjelde til nytt vedtak, og en eventuell tidligere utredning skulle behandles separat under B-15. B-15 er avgjort 09.10 ([B-15](#b-15)): serverbasert forhåndsvurdering utredes ikke som erstatning |
 | <a id="b-15"></a>B-15: når nødvendig saksgrunnlag er lastet, skal brukeren kunne utforske vurderinger og se tilhørende beregninger og brevutkast uten å vente på serverkall. Ved innsending validerer serveren på nytt. Serverbasert forhåndsvurdering utredes derfor ikke som erstatning. B-13 er uendret | 09.10, oppdragsgiver (#274) | Flyttet fra 3.4 ved sluttredigeringen 09.10 |
 | Saker opprettes både fra skjemaet i appen og fra en topic i Catenda | 29.09, oppdragsgiver | Ikke bygget: skjemaet får 403 (DM-05) |
-| <a id="kt-u3"></a>KT-U3: En sak som opprettes i appen, får en topic i Catenda på det topic-boardet prosjektets konfigurasjon angir for saken. Forkastet: «En sak som opprettes i appen, får ingen topic i Catenda. Brevene i saken leveres som dokumenter i prosjektets bibliotek uten referanse til en topic.» | 17.10, oppdragsgiver (#370) | Utvider vedtaket 29.09 («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). 29.09 har ingen anker, så forholdet står her med ord. Det første svaret står ordrett på #370 (kommentaren 6235082223). Ikke bygget (#370) |
+| <a id="kt-u3"></a>KT-U3: En sak som opprettes i appen, får en topic i Catenda på det topic-boardet prosjektets konfigurasjon angir for saken. Forkastet: «En sak som opprettes i appen, får ingen topic i Catenda. Brevene i saken leveres som dokumenter i prosjektets bibliotek uten referanse til en topic.» | 17.10, oppdragsgiver (#370) | Utvider vedtaket 29.09 («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). 29.09 har ingen anker, så forholdet står her med ord. Det første svaret står ordrett på #370 (kommentaren 6235082223). Ikke bygget (#741) |
 
 #### Arkitektur, språk og overgang
 
@@ -1322,6 +1322,8 @@ historikk og mappa stemmer.
 > krav i [#637](https://github.com/khjohns/endringsmeldinger/issues/637) og
 > [#638](https://github.com/khjohns/endringsmeldinger/issues/638)).
 
+> **Merknad 2026-10-17 til F0b:** levert: journalen og leveringsoppdraget for kommandoinngangene i [`server/`](../../server/) leses og skrives i SQL Server, og `pg` er ute av `server/` ([#661](https://github.com/khjohns/endringsmeldinger/issues/661), PR #738, merge 395a5be). Migrasjonen `20261017233000_leveringsmaal.sql` gir koblingen til Catenda-prosjektet kolonnene `library_id` og `folder_id`, og tabellen `koe.sak_catenda_topic` for topicen per sak. Leveringsmålet leses med `koe_api.leveringsmaal`, og kjøretiden får ingen ny tabellrett. Ikke levert: skrivingen av topicen i Catenda, som er skilt ut i [#741](https://github.com/khjohns/endringsmeldinger/issues/741), og leveringen ([#371](https://github.com/khjohns/endringsmeldinger/issues/371)).
+
 **Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
 alternativ C prøves tidlig i T-SQL ([B-12, databasen](#b-12-databasen), #395). Lagringsformen avgjøres senest før
 KOE-byttet skriver den første reelle hendelsen
@@ -1648,6 +1650,10 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > [OV-U5](#ov-u5) og [HF-U1](#hf-u1) sier fortsatt «Ikke bygget». Frontenden (`src/`)
 > er ikke endret i PR #495. Følgene for skjema og visning står på
 > [#313](https://github.com/khjohns/endringsmeldinger/issues/313).
+
+> **Merknad 2026-10-17 til FK:** levert:
+> - Opprettelsen av en KOE-sak er bygget som kommando i kjernen og som inngangen `POST /api/kjerne/saker` i TS-serveren. Saken og `sak_opprettet` skrives i samme transaksjon, med prosjektet fra autorisert kontekst ([#370](https://github.com/khjohns/endringsmeldinger/issues/370), PR #742, merge 407687a). Topicen i Catenda for en sak som opprettes i appen, er ikke bygget. Den er skilt ut i [#741](https://github.com/khjohns/endringsmeldinger/issues/741) etter vedtak KT-U3 (PR #740, merge a3b1b47).
+> - TS-sakene vises i Kontrollrommet med de eksisterende skjemaene ([#718](https://github.com/khjohns/endringsmeldinger/issues/718)): et felles brevskall for `Brevkontroll` og `ClaimLetterView` (PR #728, merge da1c9c3), Kontrollrommet for TS-saken i stedet for `Saksbilde` (PR #730, merge 97650bb), og `TeVederlagForm` for TS-saker (PR #736, merge 4f9ae6b). `Vederlagsskjema.svelte` er fjernet. For TS-saker skjules §§ 34.1.2/34.1.3, særskilte krav og vedlegg, og utkast er av (arbeidsvalgene i [#718](https://github.com/khjohns/endringsmeldinger/issues/718), kommentaren 6230282330).
 
 ### F3 — Øvrige adaptere og drift
 
