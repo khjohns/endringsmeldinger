@@ -4818,6 +4818,33 @@ vedtatt = "29.09, oppdragsgiver"
 folge = '''
 Ikke bygget: skjemaet får 403 (DM-05)'''
 
+[[gruppe.vedtak]]
+id = "KT-U3"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["#370"]
+sporsmal = '''
+Du svarte: «Ja sak som opprettes via app må få topic i catenda under riktig topic board». Vedtaksregisteret krever alternativer i vedtaksform. Hvilken tekst skal stå som vedtak? Det utvider vedtaket 29.09 («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»), som ikke sier noe om topic for saker fra appen. Når topicen lages (etter at saken er lagret), er et teknisk valg og står ikke i vedtaket.
+
+Beskrivelsen av det første alternativet, slik den ble vist: (Gjengir svaret ditt; «riktig topic board» er lest som boardet prosjektets konfigurasjon angir.)'''
+valgt = "Topic på prosjektets board"
+svar = '''
+Topic på prosjektets board (Recommended)'''
+folge = '''
+Utvider vedtaket 29.09 («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). 29.09 har ingen anker, så forholdet står her med ord. Det første svaret står ordrett på #370 (kommentaren 6235082223). Ikke bygget (#370)'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Topic på prosjektets board"
+tekst = '''
+En sak som opprettes i appen, får en topic i Catenda på det topic-boardet prosjektets konfigurasjon angir for saken.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen topic for app-saker"
+tekst = '''
+En sak som opprettes i appen, får ingen topic i Catenda. Brevene i saken leveres som dokumenter i prosjektets bibliotek uten referanse til en topic.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
 etter = '''
