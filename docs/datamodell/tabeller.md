@@ -565,7 +565,7 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i 
 | Personopplysninger | E-post og visningsnavn. |
 | Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261016210000_catenda_id.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+| Belegg | L 17.10: migrasjonen og søk i `server/`. |
 
 ### `koe.catenda_contract_teams`
 
@@ -599,7 +599,7 @@ Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (a
 | Personopplysninger | Ingen kjente. |
 | Skrives av | Ingen funnet |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+| Belegg | L 17.10: migrasjonen og søk i `server/`. |
 
 ### `koe.app_membership_absences`
 
@@ -620,7 +620,7 @@ Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at b
 
 ### `koe.app_membership_sync`
 
-Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2), også for hvert prosjekt i lista i `server/prosjekter.ts` (#660). Svarer til `app_membership_sync` i PostgreSQL.
+Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2), også gjennom `ferskeMedlemmer` for hvert prosjekt i lista i `server/prosjekter.ts` (#660). Svarer til `app_membership_sync` i PostgreSQL.
 
 | Felt | Innhold |
 | --- | --- |
@@ -633,7 +633,7 @@ Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosje
 | Personopplysninger | Ingen kjente. |
 | Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`. |
+| Belegg | L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`. |
 
 ### `koe.sak_metadata`
 
