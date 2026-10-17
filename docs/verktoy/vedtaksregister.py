@@ -555,11 +555,19 @@ def _nevner(navn: str, tekst: str) -> bool:
     return bool(re.search(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst))
 
 
+_TIL_ANBEFALINGEN = re.compile(r"(?:^|[.!\n])\s*ja til (?:alle )?anbefaling(?:en|ene)(?!\w)", re.IGNORECASE)
+_FORBEHOLD = re.compile(
+    r"(?<!\w)(?:ikke|ikkje|nei|men|unntatt|untatt|unntak|utenom|bortsett|feil)(?!\w)", re.IGNORECASE
+)
+
+
 def _slutter_seg_til_anbefalingen(svar: str) -> bool:
-    """Et svar som «Ja til anbefalingen» eller «Ja til alle anbefalingene» (#486)."""
-    return bool(
-        re.search(r"(?<!\w)ja(?!\w)(?:(?!\bikke\b)[^.])*?(?<!\w)anbefaling(en|ene)(?!\w)", svar, re.IGNORECASE)
-    )
+    """Et svar som begynner en setning med «Ja til anbefalingen» eller «Ja til alle anbefalingene» (#486).
+
+    Et ord som avviser eller tar forbehold, som «ikke», «men» eller «unntatt», et sted i
+    svaret gjør at det ikke regnes som tilslutning (#604). Da må svaret nevne alternativet.
+    """
+    return bool(_TIL_ANBEFALINGEN.search(svar)) and not _FORBEHOLD.search(svar)
 
 
 def _delfeil(p: dict, navn: str, deler: dict) -> list[str]:
@@ -625,6 +633,11 @@ def valider(register: dict) -> list[str]:
             anbefalte = [a["navn"] for a in p["alternativ"] if a.get("anbefalt")]
             if len(anbefalte) > 1:
                 feil.append(f"{navn}: mer enn ett alternativ er anbefalt")
+            feil += [
+                f"{navn}: alternativ {a['navn']} er både anbefalt og forkastet"
+                for a in p["alternativ"]
+                if a.get("anbefalt") and a.get("forkastet")
+            ]
             slutter_seg = _slutter_seg_til_anbefalingen(p["svar"])
             if not _nevner(p["valgt"], p["svar"]) and not (anbefalte == [p["valgt"]] and slutter_seg):
                 grunn = ""
@@ -633,6 +646,8 @@ def valider(register: dict) -> list[str]:
                         grunn = ", og ingen alternativer er merket anbefalt"
                     elif p["valgt"] not in anbefalte:
                         grunn = ", og det valgte alternativet er ikke det anbefalte"
+                    else:
+                        grunn = ", og mer enn ett alternativ er anbefalt"
                 feil.append(
                     f"{navn}: svaret nevner ikke det valgte alternativet «{p['valgt']}»{grunn}"
                 )

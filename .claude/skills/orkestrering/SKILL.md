@@ -110,6 +110,13 @@ innsatsen settes i appen.
 - Del arbeidet i runder etter filoverlapp. Issues som rører samme filer, tas
   etter hverandre i én økt eller i senere runder. Parallelle PR-er i samme fil
   gir konflikter ved hver merge.
+- **Review-oppfølging i hver runde.** Når filene er fordelt, slår
+  orkestratoren opp de åpne punktene i issuene med `review-oppfølging` som
+  gjelder filene hver økt likevel endrer. Punktene tas med i bestillingen, med
+  issuenummer og punkt, innenfor grensen på om lag 800 linjer. Byggeøkta legger
+  ikke til punkter selv. Punkter i filer runden ikke rører, venter. Regelen
+  gjelder også i FK og F0b før #310 (oppdragsgiver 17.10, merknaden 17.10 til
+  AF-06 i hovedplanen).
 - Filoverlapp mellom PR-er kontrolleres med
   `git fetch origin <branch> && git diff --name-only origin/main...origin/<branch>`,
   ikke med `get_files` fra GitHub-MCP. Det svaret har patchene med og blir for

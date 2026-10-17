@@ -600,7 +600,8 @@ eksplisitt oppheves.
 | <a id="dl-u7"></a>DL-U7: Synkroniseringen lagrer når medlemslisten ble hentet og fra hvilket Catenda-prosjekt. En eldre liste skriver ikke over en nyere. Forkastet: «Synkroniseringen lagrer ikke når listen ble hentet før innloggingen er flyttet til TS.» | 16.10, oppdragsgiver (#53) | Presisert 16.10 av [DL-U8](#dl-u8). Presisert 16.10 av [DL-U9](#dl-u9). Presiserer merknaden 23.09 til B-04, punkt 1 og 4. Endrer [arbeidsvalget 16.10 i #53](https://github.com/khjohns/endringsmeldinger/issues/53#issuecomment-6209851162), som la tabellen for synkroniseringen til senere. Bygget 16.10 i TS-stien (#53, del 3b, #612). |
 | <a id="dl-u8"></a>DL-U8: Deaktiveringen ved innlogging er nyere enn en medlemsliste som ble hentet før innloggingen. En slik liste gjør ikke medlemmet aktivt igjen i det prosjektet. Forkastet: «Deaktiveringen ved innlogging gjelder til neste synkronisering, uansett når listen ble hentet.» | 16.10, oppdragsgiver (#53) | Presiserer [DL-U7](#dl-u7). Utvidet 16.10 av [DL-U9](#dl-u9). Presiserer B-04 punkt 1. Bygget 16.10 i TS-stien (#53, del 3b, #612 og #633). |
 | <a id="dl-u9"></a>DL-U9: Innloggingen er nyere enn en medlemsliste som ble hentet før innloggingen, også for en bruker som ikke hadde noe medlemskap i prosjektet. En slik liste gir ikke brukeren et nytt medlemskap. Forkastet: «En medlemsliste som ble hentet før innloggingen, kan gi et nytt medlemskap til en bruker som ikke hadde noe medlemskap i prosjektet. Medlemskapet gjelder til neste medlemsliste.»; «Vedtakstekst som B. Det bygges når innloggingen kobles til den nye basen (#375). Til da oppfører koden seg som i A.» | 16.10, oppdragsgiver (#625) | Utvider [DL-U8](#dl-u8). Presiserer [DL-U7](#dl-u7). Presiserer B-04 punkt 1. Bygget 16.10 i TS-stien (#625, #652). |
-| <a id="dl-u10"></a>DL-U10: I begge tilfellene blir medlemskapene inaktive straks koblingen oppheves eller endres. Ingen kan handle i prosjektet før en ny medlemsliste er hentet fra det koblede Catenda-prosjektet. Forkastet: «Medlemskapene står i begge tilfellene til en ny medlemsliste er skrevet»; «delt (inaktive når koblingen oppheves; står til ny liste når den endres)» | 16.10, oppdragsgiver (#655, #614) | Presiserer B-04 og snevrer inn punkt 4 for disse to tilfellene. Ikke bygget. |
+| <a id="dl-u10"></a>DL-U10: I begge tilfellene blir medlemskapene inaktive straks koblingen oppheves eller endres. Ingen kan handle i prosjektet før en ny medlemsliste er hentet fra det koblede Catenda-prosjektet. Forkastet: «Medlemskapene står i begge tilfellene til en ny medlemsliste er skrevet»; «delt (inaktive når koblingen oppheves; står til ny liste når den endres)» | 16.10, oppdragsgiver (#655, #614) | Utvidet 17.10 av [DL-U11](#dl-u11). Presiserer B-04 og snevrer inn punkt 4 for disse to tilfellene. Ikke bygget. |
+| <a id="dl-u11"></a>DL-U11: I et inaktivt prosjekt kan medlemmene lese sakene og brevene, men ingen kan sende brev eller gjøre andre handlinger, unntatt å bestride en opplysning etter MM-U7. Prosjektet vises i lista som inaktivt. | 17.10, oppdragsgiver (#724, #707) | Utvider [DL-U10](#dl-u10). |
 
 > **Merknad 2026-09-23 til 3.1: direkte tilkobling erstatter RPC over PostgREST.**
 > Oppdragsgiver bekreftet 23.09 alternativ C med transport T2 fra
@@ -731,6 +732,59 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > - Oppdelingen av #375 og kartleggingen av skrivestien (#375, #310, #370, #371,
 >   #376, #418, #487 og #313) gjøres samlet for FK og F0b, og fordelingen av
 >   filer legges fram for oppdragsgiver.
+
+> **Merknad 2026-10-17 til AF-06 (review-oppfølging i FK og F0b):** oppdragsgiver
+> godkjente 17.10 at en runde tar de anbefalte punktene fra sorteringen i
+> [#709](https://github.com/khjohns/endringsmeldinger/issues/709#issuecomment-6237500889),
+> som unntak fra merknaden 16.10. Svaret, ordrett: «Ja opprett issue og lag prompt
+> til orkestrator som kan ta dine anbefalte issues (alle anbefalte - den velger selv
+> å avslutte og prompte neste orkestrator dersom dens egen kontekst blir for høy)».
+> Punktene er:
+>
+> - F0b, serveren: #750, #739 punkt 1, #716 punkt 2 og #724 punkt 1.
+> - FK, kjernen: #550, #474 punkt 1, #562 punkt 1 og 2, #580 punkt 1 og #496.
+> - Verktøyene: #604.
+> - Vaktene i `.claude/`: #563. Oppdragsgiver svarte 17.10 om hvem som godkjenner
+>   endringen: «Ja, du godkjenner i appen (Recommended)».
+
+> **Merknad 2026-10-17 til AF-06 (retningen fram til #310):** oppdragsgiver
+> svarte 17.10 på tre spørsmål om retningen fram til #310 (spørsmål 3 gjelder
+> etterfølgeren til [#655](https://github.com/khjohns/endringsmeldinger/issues/655)). Planen står i
+> [#764](https://github.com/khjohns/endringsmeldinger/issues/764). Spørsmålene og
+> svarene, ordrett:
+>
+> 1. «Hvilken hovedretning skal arbeidet ha fram til aktiveringen (#310)?» Svar:
+>    «Funksjon + medfølgende (Recommended)», som lyder: «Neste plan mot #310 er
+>    hovedsporet. Én runde med kjernegjelden før byggedel 2 (nytt unntak fra
+>    merknaden 16.10). Annen review-oppfølging tas bare i filer som runden uansett
+>    endrer.» Forkastet: «Review-oppfølging først»: «To eller tre runder som
+>    tømmer gruppe 3 (om lag 165 punkter) før ny funksjon. Mye av frontenddelen
+>    kan bli overflødig når skjemaene og #313 bygges.»; «Bare funksjon»:
+>    «Stoppen i merknaden 16.10 står uendret til #310 er levert, utover
+>    unntaksrunden som pågår. Kjernegjelden venter også.»
+> 2. «Skal vi ta oppryddingen uten kode nå: avvise Python-punkter etter DL-U2,
+>    rette foreldede etiketter og stille de 22 spørsmålene som venter på deg,
+>    samlet?» Svar: «Ja, nå (Recommended)», som lyder: «Én liten runde, mest i
+>    issuene. Spørsmålene stilles i grupper med alternativer og anbefaling.»
+>    Forkastet: «Bare oppryddingen»: «Avvisninger og etiketter nå. Spørsmålene
+>    stilles når hvert punkt blir aktuelt.»; «Nei, vent»: «La gruppe 4 og 5 stå
+>    til den ukentlige sorteringen.»
+> 3. «Hva skal det nye planissuet (etterfølgeren til #655) ta først?» Svar:
+>    «Levering + topic (Recommended)», som lyder: «Spørsmålene i #741, deretter
+>    #371 og #741 med felles jobbkjører, og #418. Dette stenger aktiveringen
+>    uansett.» Forkastet: «BH-svaret først»: «Byggherrens svarskjema og
+>    godkjenningsflyten i TS, slik at en sak har begge sider før leveringen
+>    bygges.»; «Begge parallelt»: «Levering i F0b-sporet og BH-svaret i
+>    FK-sporet, med én felles orkestrator som i runde 5.»
+
+> **Merknad 2026-10-17 til AF-06 (review-oppfølging i filene en økt endrer):**
+> oppdragsgiver bestemte 17.10: «Review-oppfølging i hver runde. Når orkestratoren
+> fordeler filene i kartleggingen, slår den opp de åpne punktene med
+> review-oppfølging i filene hver økt uansett endrer. Punktene tas med i
+> bestillingen, med nummer og punkt, innenfor grensen på om lag 800 linjer.
+> Byggeøkta legger ikke til punkter selv. Punkter i filer runden ikke rører,
+> venter.» På spørsmål om regelen også gjelder i FK og F0b før #310, som unntak
+> fra merknaden 16.10, svarte oppdragsgiver: «Ja, også i FK og F0b (Recommended)».
 
 ### 3.3 Anbefalinger som ikke er vedtatt
 
