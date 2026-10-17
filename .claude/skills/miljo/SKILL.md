@@ -1,6 +1,6 @@
 ---
 name: miljo
-description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, og omveiene i skyøkta i endringsmeldinger, med gh api-søk i issues (sider og --paginate) og vitest-timeout. Brukes når en sjekk skal kjøres, eller når en kommando feiler i en skyøkt.
+description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, hvordan utdataene holdes små, og omveiene i skyøkta i endringsmeldinger, med gh api-søk i issues (sider og --paginate) og vitest-timeout. Brukes når en sjekk skal kjøres, eller når en kommando feiler i en skyøkt.
 ---
 
 # Miljø og kommandoer
@@ -40,10 +40,27 @@ npx vitest run server/tester/sqlserver.test.ts
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
-Testutdata leses i kortform: `npx vitest run --reporter=dot | tail -30`, og
-pytest med `-q` som i blokken over, også `| tail -30`. Skal hele utdataene
-leses, gjør en subagent det og rapporterer bare feilene. Timeouten for en hel
-vitest-kjøring står i «Miljø» i `AGENTS.md`.
+Timeouten for en hel vitest-kjøring står i «Miljø» i `AGENTS.md`.
+
+## Utdata
+
+Hvert verktøysvar blir værende i konteksten og leses på nytt i hvert kall etter
+det, så svarene holdes små:
+
+- Testutdata leses i kortform: `npx vitest run --reporter=dot | tail -30`, og
+  pytest med `-q` som i blokken over, også `| tail -30`. Skal hele utdataene
+  leses, gjør en subagent det og rapporterer bare feilene.
+- Tell før du leser: `grep -c` eller `grep -l` først, deretter `grep -n` på
+  de filene som gjelder. Et søk med mange alternativer over hele treet gir
+  fort over 10 000 tegn.
+- Les et vindu, ikke hele fila: `Read` med `offset` og `limit`, eller
+  `sed -n 'a,bp'` rundt treffet. En hel fil leses bare når hele trengs.
+- `git diff --stat` eller `--name-only` før `git diff`, og diffen fil for fil.
+- Store JSON-svar, også fra MCP-verktøy, lagres til fil og leses med et kort
+  skript som skriver ut bare det som trengs.
+
+`.claude/settings.json` setter `bashOutputMaxChars` til 10 000 tegn. Lengre
+utdata fra Bash lagres til fil, og økta får en kort forhåndsvisning og stien.
 
 ## Feilinnføringer
 

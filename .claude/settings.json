@@ -1,4 +1,5 @@
 {
+  "bashOutputMaxChars": 10000,
   "hooks": {
     "SessionStart": [
       {
