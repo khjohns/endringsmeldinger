@@ -193,24 +193,27 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git commit -qm x | tail -3',
       'git push -u origin claude/test-1; echo $?',
       'npm test && git commit -qm x',
+      'command git commit -m "$(printf x)" && npm test',
     ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
       expect(resultat.stderr, kommando).toContain(
-        'i et eget kall, uten rør og med bare git og cd ved siden av'
+        'hver i sitt eget kall, uten rør og uten andre kommandoer enn git og cd'
       );
     }
   });
 
-  it('ber ikke om eget kall når git commit står alene og meldingen har skallsyntaks', () => {
+  it('ber ikke om eget kall når kallet bare har git og cd og stoppes for skallsyntaks', () => {
     for (const kommando of [
       'git commit -m "$(cat <<EOF\nmelding\nEOF\n)"',
       'git commit -m "$(printf x)"',
       'git log --grep=push > "$(mktemp)"',
+      'git add -A && git commit -m "$(printf x)"',
+      'cd docs && git push -u origin "$(git branch --show-current)"',
     ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
-      expect(resultat.stderr, kommando).not.toContain('eget kall');
+      expect(resultat.stderr, kommando).not.toContain('sitt eget kall');
     }
   });
 

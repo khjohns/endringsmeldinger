@@ -769,7 +769,7 @@ function ghSkriving([underkommando, ...resten]) {
 }
 
 const ALENE =
-  'Kjør git commit og git push i et eget kall, uten rør og med bare git og cd ved siden av.';
+  'Kjør git commit og git push hver i sitt eget kall, uten rør og uten andre kommandoer enn git og cd.';
 
 /**
  * Begrunnelsen når et kall med commit eller push kan virke på et annet tre enn det kontrollen
@@ -876,13 +876,13 @@ function vurder(input) {
     leddene.some((del) => del.ukjentSyntaks) &&
     [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) => m.test(kommando))
   ) {
-    const medCommitEllerPush =
-      leddene.length > 1 &&
-      leddene.some(
+    const blandet =
+      eff.some((del) => !['git', 'cd'].includes(del.ord[0])) &&
+      eff.some(
         (del) =>
           del.ord[0] === 'git' && ['commit', 'push'].includes(gitKommando(del.ord).underkommando)
       );
-    return `Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.${medCommitEllerPush ? ` ${ALENE}` : ''}`;
+    return `Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.${blandet ? ` ${ALENE}` : ''}`;
   }
 
   if (
