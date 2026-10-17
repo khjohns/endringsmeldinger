@@ -175,8 +175,9 @@ start_sqlserver() {
     steg=(docker start "$navn")
   fi
   # Fristen dekker hentingen (hent_bilde.sh gir opp etter om lag ti minutter med
-  # én kilde) og `vent`. `timeout` dreper hele prosessgruppen, så ingen prosess
-  # holder startlåsen etter fristen.
+  # én kilde) og `vent`. `timeout` dreper hele prosessgruppen. Unntaket er
+  # `timeout 180 docker pull` i hent_bilde.sh, som lager sin egen gruppe og kan
+  # holde startlåsen i opptil 180 s etter fristen.
   SKRIPT="$skript" STEMPEL="$stempel" CONTAINER="$container" \
     setsid nohup timeout --kill-after 10 1800 bash -c \
     '{ "$@" > /dev/null && "$SKRIPT" vent && echo "$CONTAINER" > "$STEMPEL"; } || rm -f "$STEMPEL"' \
