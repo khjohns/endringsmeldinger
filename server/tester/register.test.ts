@@ -8,12 +8,19 @@
  * - inngangen krever kontraktsrolle: et medlem uten kontraktsteam får 403;
  * - kontrollsaken: TE med alt i orden kommer forbi tilgangen.
  *
+ * En inngang uten prosjekt eller uten sesjon står i en lukket liste her, med
+ * begrunnelsen i registeret, som `OFFENTLIGE_RUTER` og `UTEN_PROSJEKT` i
+ * `backend/tests/test_security/test_public_route_registry.py`. En ny slik
+ * inngang gir rød test til den står i listen. En inngang uten prosjekt prøves
+ * uten sesjon og uten og med feil CSRF-token.
+ *
  * Ruteren kontrollerer tilgangen fra registeret, så en inngang som ikke står
  * der, finnes ikke: den gir 404 før noen behandler kalles.
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { RUTER, type Rute } from '../app.ts';
+import { erAapen, erSaksrute, erUtenProsjekt, RUTER, type Rute } from '../app.ts';
+import { opprettSesjon } from '../sesjon.ts';
 import {
   kall,
   lagOppsett,
@@ -28,8 +35,29 @@ import {
 const navn = (r: Rute) => `${r.metode} ${r.eksempel('<sak>')}`;
 const kropp = (r: Rute) => (r.metode === 'GET' ? undefined : {});
 
+const UTEN_SESJON = ['GET /api/auth/catenda/login', 'GET /api/auth/catenda/callback'];
+const UTEN_PROSJEKT = ['GET /api/auth/session', 'POST /api/auth/logout', 'GET /api/csrf-token'];
+
 describe('registeret over inngangene', () => {
-  it.each(RUTER.map((r) => [navn(r), r] as const))(
+  it('inngangene uten sesjon og uten prosjekt er de i de lukkede listene', () => {
+    expect(RUTER.filter(erAapen).map(navn)).toEqual(UTEN_SESJON);
+    expect(RUTER.filter(erUtenProsjekt).map(navn)).toEqual(UTEN_PROSJEKT);
+  });
+
+  it.each(RUTER.filter((r) => !erSaksrute(r)).map((r) => [navn(r), r] as const))(
+    '%s har en skriftlig begrunnelse for å stå uten prosjekt eller sesjon',
+    (_navn, r) => {
+      const begrunnelse = erAapen(r)
+        ? r.tilgang.utenSesjon
+        : erUtenProsjekt(r)
+          ? r.tilgang.utenProsjekt
+          : '';
+      expect(begrunnelse.trim().length).toBeGreaterThan(20);
+      expect(r.eksempel('x')).toMatch(r.sti);
+    }
+  );
+
+  it.each(RUTER.filter(erSaksrute).map((r) => [navn(r), r] as const))(
     '%s har prosjektrolle og kontraktsrolle, eller en begrunnelse for at den ikke krever rolle',
     (_navn, r) => {
       expect(['viewer', 'member']).toContain(r.tilgang.prosjektrolle);
@@ -58,7 +86,54 @@ describe.skipIf(!BEGGE_BASENE)('hver inngang i registeret mot testbasene', () =>
     if (o) await rydd(o);
   });
 
-  const hver = RUTER.map((r) => [navn(r), r] as const);
+  const hver = RUTER.filter(erSaksrute).map((r) => [navn(r), r] as const);
+  const utenProsjekt = RUTER.filter(erUtenProsjekt).map((r) => [navn(r), r] as const);
+
+  it.each(utenProsjekt)('%s: uten sesjon gir 401', async (_n, r) => {
+    const svar = await kall(server.url, r.eksempel(''), {
+      bruker: null,
+      prosjektId: null,
+      kropp: kropp(r),
+    });
+    expect(svar.status).toBe(401);
+    expect(svar.kropp.error).toBe('UNAUTHORIZED');
+  });
+
+  it.each(utenProsjekt.filter(([, r]) => r.metode !== 'GET'))(
+    '%s: uten eller med feil CSRF-token gir 403',
+    async (_n, r) => {
+      for (const csrf of [null, 'feil']) {
+        const svar = await kall(server.url, r.eksempel(''), {
+          bruker: o.te,
+          prosjektId: null,
+          kropp: kropp(r),
+          csrf,
+        });
+        expect(svar.status).toBe(403);
+        expect(svar.kropp.error).toBe('CSRF validation failed');
+      }
+    }
+  );
+
+  // En egen sesjon, så utloggingen ikke tar sesjonen de andre testene bruker.
+  it.each(utenProsjekt)('%s: kontrollsaken uten prosjekt gir 200', async (_n, r) => {
+    const ny = await opprettSesjon(o.datalag!.kjoeretid.pool, o.te.id);
+    const svar = await kall(server.url, r.eksempel(''), {
+      bruker: { ...o.te, token: ny.token, csrf: ny.csrfToken },
+      prosjektId: null,
+      kropp: kropp(r),
+    });
+    expect(svar.status).toBe(200);
+  });
+
+  it.each(RUTER.filter(erAapen).map((r) => [navn(r), r] as const))(
+    '%s: uten sesjon kommer forbi tilgangen',
+    async (_n, r) => {
+      const svar = await kall(server.url, r.eksempel(''), { bruker: null, prosjektId: null });
+      expect(svar.status).not.toBe(401);
+      expect(svar.status).not.toBe(403);
+    }
+  );
 
   it.each(hver)('%s: uten sesjon gir 401', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(sak), {
@@ -129,6 +204,31 @@ describe.skipIf(!BEGGE_BASENE)('hver inngang i registeret mot testbasene', () =>
     });
     expect([200, 400]).toContain(svar.status);
     expect(svar.kropp.error ?? 'ingen').not.toMatch(/FORBIDDEN|CSRF|UNAUTHORIZED|CONTRACT/);
+  });
+
+  it('lesingen av saken gir leserens side i part, og null uten kontraktsteam (#705)', async () => {
+    for (const [bruker, part] of [
+      [o.te, 'TE'],
+      [o.bh, 'BH'],
+      [o.utenTeam, null],
+    ] as const) {
+      const svar = await kall(server.url, `/api/kjerne/saker/${sak}`, {
+        bruker,
+        prosjektId: o.prosjekt.id,
+      });
+      expect(svar.status).toBe(200);
+      expect(svar.kropp.part).toBe(part);
+    }
+  });
+
+  it('en sak TS-kjernen ikke har skrevet, gir 404 (#705)', async () => {
+    const pythonsak = await opprettKjernesak(o, o.prosjekt, null);
+    const svar = await kall(server.url, `/api/kjerne/saker/${pythonsak}`, {
+      bruker: o.te,
+      prosjektId: o.prosjekt.id,
+    });
+    expect(svar.status).toBe(404);
+    expect(svar.kropp.error).toBe('SAK_FINNES_IKKE');
   });
 
   it('en sti som ikke står i registeret, gir 404', async () => {

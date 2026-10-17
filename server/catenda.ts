@@ -5,7 +5,8 @@
  *
  * Brukertokenet lever bare i forespørselen: kalleren gir det til hvert kall, og
  * klienten holder ingen tilstand. Integrasjonsnøkkelen er et eget objekt med sitt
- * eget token og tar aldri imot et brukertoken. Ingen inngang kaller modulen ennå.
+ * eget token og tar aldri imot et brukertoken. Innloggingsinngangene i `innlogging.ts`
+ * bruker OAuth-innloggingen (#659).
  *
  * Feilmeldingene har aldri med svarkropp, kode eller token fra Catenda.
  */
