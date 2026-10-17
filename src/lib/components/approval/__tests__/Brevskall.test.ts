@@ -1,7 +1,8 @@
 /**
  * Brevskallet (#711) med de to brukerne: Brevkontroll på TS-stien og ClaimLetterView på
- * Python-stien. Forventningene er tekstene og gangen i de to komponentene før skallet ble
- * trukket ut (FK-8a, #718): atferden skal være uendret.
+ * Python-stien. De to første testene karakteriserer tekstene og gangen i de to brukerne
+ * slik de er på `main` 945abd6 (#718, kommentaren 6230282330). Den tredje gjelder én
+ * avkrysning per brev, som i TS-stien (PR #728). Ingen av dem er et vedtak.
  */
 import { cleanup, fireEvent, render, within } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -70,5 +71,20 @@ describe('Brevskall', () => {
     expect(review.confirm).toHaveBeenCalledOnce();
     await fireEvent.click(kontroll.getByRole('button', { name: 'Tilbake til kravet' }));
     expect(review.cancel).toHaveBeenCalledOnce();
+  });
+
+  it('ClaimLetterView krever ny avkrysning når brevet lukkes og åpnes igjen', async () => {
+    const tjeneste = { confirm: vi.fn(), cancel: vi.fn() };
+    const screen = render(ClaimLetterView, { review: { letter: brev, ...tjeneste } });
+    await fireEvent.click(
+      screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    );
+    await screen.rerender({ review: { letter: null, ...tjeneste } });
+    expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
+    await screen.rerender({ review: { letter: brev, ...tjeneste } });
+    expect(
+      screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    ).not.toBeChecked();
+    expect(screen.getByRole('button', { name: 'Send til byggherren' })).toBeDisabled();
   });
 });
