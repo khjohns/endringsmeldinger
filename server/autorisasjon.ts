@@ -195,7 +195,11 @@ async function prosjektoppsett(db: Pool, prosjektId: string): Promise<Prosjektop
  * om prosjektet er koblet og når listen ble hentet, så den leses bare her, før
  * medlemskapet er avgjort, og gis aldri videre (#638 punkt 2).
  */
-async function ferskeMedlemmer(db: Pool, catenda: Catenda, prosjektId: string): Promise<void> {
+export async function ferskeMedlemmer(
+  db: Pool,
+  catenda: Catenda,
+  prosjektId: string
+): Promise<void> {
   const sist = await medlemslistensAlder(db, prosjektId);
   if (sist === null || sist.alderSekunder >= medlemskapsalder())
     await catenda.synkroniser(prosjektId);
