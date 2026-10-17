@@ -227,6 +227,12 @@ oppdragsgiver.
   alternativene og anbefalingen skal derfor stå i selve spørsmålet og i
   beskrivelsene av alternativene. Trengs mer tekst, avslutt turen med listen i
   stedet for å kalle verktøyet (FK runde 5).
+- **Lagre spørsmålene ordrett før du stiller dem.** Skriv hvert spørsmål med
+  alle alternativene, etikett og beskrivelse slik de vises i verktøyet, til en
+  fil før kallet. Før svarene inn i samme fil. Vedtaket føres fra den fila,
+  også de forkastede alternativene, av orkestratoren eller en subagent. I FK
+  runde 4 ga fila bare etikettene for de forkastede alternativene, og
+  vedtaks-PR-en fikk tekster fra et utkast oppdragsgiver ikke hadde sett.
 - **Prinsipp før enkeltvedtak.** Følger svaret av et vedtatt prinsipp, trengs
   ikke et eget vedtak. Valget føres da som arbeidsvalg i paragrafmatrisen,
   domenetabellen eller issuet, med henvisning til prinsippet, og står til
