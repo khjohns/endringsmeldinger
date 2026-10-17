@@ -4,7 +4,6 @@
  */
 
 import { randomBytes } from 'node:crypto';
-import { basensKlokke } from '../medlemskap.ts';
 import { lesMigrasjoner, migrer } from '../migrering.ts';
 import { feilnummer, opprettTestbase, sql, type Pool, type Testbase } from './sqlserver.ts';
 
@@ -197,8 +196,12 @@ export async function iTransaksjon<T>(
  * `observed_at >= @hentet`).
  */
 export async function basensKlokkeEtter(pool: Pool, tid: Date): Promise<Date> {
-  for (let forsoek = 0; forsoek < 100; forsoek++) {
-    const naa = await basensKlokke(pool);
+  const frist = Date.now() + 2_000;
+  while (Date.now() < frist) {
+    const svar = await pool.request().query<{
+      naa: Date;
+    }>('SELECT CAST(DATETRUNC(millisecond, SYSUTCDATETIME()) AS datetime2(3)) AS naa');
+    const naa = svar.recordset[0].naa;
     if (naa.getTime() > tid.getTime()) return naa;
     await new Promise((r) => setTimeout(r, 1));
   }

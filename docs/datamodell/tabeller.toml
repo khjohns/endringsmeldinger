@@ -48,12 +48,13 @@ skrivere = [
     "backend/services/endringsordre_service.py",
     "backend/services/approval_service.py",
     "backend/services/catenda_webhook_service.py (via sak_creation_service)",
-    "sprakprove/server/lager.ts (språkprøvens server mot testbasen)",
+    "sprakprove/server/lager.ts (språkprøvens server og `sprakprove/kjernelagring/bane.ts`, mot testbasen)",
 ]
 funn = ["MS-01", "MS-02", "MS-03", "AR-02", "DM-06"]
 belegg = """
 K 29.09: kolonnene i testbasen og prosjektet, og skrankene (også CASCADE) i
-testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`."""
+testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`. L 17.10:
+`SETT_INN` i `sprakprove/server/lager.ts`."""
 
 [[tabell]]
 navn = "leveringsoppdrag"

@@ -69,9 +69,11 @@ leser PostgreSQL, fordi `server/autorisasjon.ts` flyttes til SQL Server (#658).
   (#638 punkt 2, `server/tester/arkitektur.test.ts`).
 - **Prosjektgrensen** holdes også ved lesing og skriving av journalen. Lesingen
   i `server/lager.ts` og skrivingen i `server/kommandoer.ts` går hver i sin
-  transaksjon med aktøren og prosjektet i konteksten. Radsikkerheten
-  (`koe_sikkerhet.medlem`) slipper bare gjennom saker og hendelser i prosjektet i
-  konteksten, så en sak utenfor finnes ikke. `koe_api.skriv_hendelse` kontrollerer
-  og stempler prosjektet fra konteksten i tillegg.
+  transaksjon med aktøren og prosjektet i konteksten. Filterpredikatet
+  `koe_sikkerhet.medlem` slipper bare gjennom saker og hendelser i prosjektet i
+  konteksten, så en sak utenfor finnes ikke, og blokkpredikatet
+  `koe_sikkerhet.skriver` stopper en rad i et annet prosjekt.
+  `koe_api.skriv_hendelse` kontrollerer og stempler prosjektet fra konteksten i
+  tillegg.
 - Språkprøvens server har ikke registeret. Der prøves hver inngang for seg
   (`.claude/rules/tester.md`).
