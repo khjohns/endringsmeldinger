@@ -9,7 +9,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+import { lagKjernesakflate } from '$lib/kjernesak/arbeidsflate.svelte';
+import { kandidater } from '$kjerne/kommandoer/handlinger';
+import { noekkel } from '$kjerne/kommandoer/forutsetninger';
 import type { Journalrad, Part } from '$kjerne/typer';
 import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { Mode, SporKey } from '$lib/components/kontraktsbord/types';
@@ -51,14 +54,20 @@ const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
   ],
 });
 
+/** Konteksten med handlingene i `handlinger` i stedet for dem kjernen regner ut. */
+const medHandlinger = (k: Kjernesakkontekst, handlinger: string[]): Kjernesakkontekst =>
+  new Proxy(k, { get: (t, p) => (p === 'handlinger' ? handlinger : Reflect.get(t, p)) });
+
 async function vis(
   journal: Journalrad[],
   part: Part | null,
   track: SporKey = 'ansvar',
-  mode: Mode = 'read'
+  mode: Mode = 'read',
+  handlinger?: string[]
 ) {
-  const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, part) });
-  await kjernesak.last();
+  const ekte = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, part) });
+  await ekte.last();
+  const kjernesak = handlinger ? medHandlinger(ekte, handlinger) : ekte;
   render(Kjernesakrom, {
     kjernesak,
     projectId: 'p-1',
@@ -183,5 +192,69 @@ describe('TS-saken i Kontrollrommet', () => {
         await fireEvent.click(screen.getByRole('button', { name: fane }));
       cleanup();
     }
+  });
+
+  // Krav G i #718: knappene og skjemaene for en TS-sak følger bare `kjernesak.handlinger`.
+  // Med alle kandidatene tilbys bare det som er bygget: det første vederlagskravet
+  // (oppdragsgiver 17.10, MM-U25). Uten handlinger tilbys ingenting.
+  it.each(
+    (['TE', 'BH'] as const).flatMap((part) =>
+      (['tom', 'full'] as const).flatMap((tabell) =>
+        (
+          [
+            ['uten vederlagskrav', medGrunnlag],
+            ['med vederlagskrav', medVederlag],
+          ] as const
+        ).map(([navn, journal]) => [part, tabell, navn, journal] as const)
+      )
+    )
+  )(
+    '%s med %s handlingsliste, %s: knappene og skjemaet følger handlingene',
+    async (part, tabell, _navn, journal) => {
+      const ekte = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, part) });
+      await ekte.last();
+      const handlinger = tabell === 'tom' ? [] : kandidater(ekte.utledning!).map(noekkel);
+      const tilbys =
+        part === 'TE' &&
+        handlinger.includes('krav:vederlag') &&
+        ekte.utledning!.spor.vederlag.gjeldendeKrav === null;
+
+      for (const track of ['ansvar', 'vederlag', 'frist'] as const) {
+        await vis(journal, part, track, 'read', handlinger);
+        const knapper = [...document.querySelectorAll('.action-buttons button')]
+          .map((b) => b.textContent?.trim())
+          .filter((t) => t !== 'Kontekst');
+        expect(knapper).toEqual(
+          tilbys && track === 'vederlag' ? ['Send krav om vederlagsjustering'] : []
+        );
+        cleanup();
+
+        await vis(journal, part, track, 'form', handlinger);
+        const skjema = document.querySelector('.form-content');
+        if (tilbys && track === 'vederlag') {
+          expect(skjema).not.toBeNull();
+          expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeInTheDocument();
+        } else {
+          expect(skjema).toBeNull();
+          expect(
+            screen.getByText('Dette skjemaet finnes ikke for saken ennå.')
+          ).toBeInTheDocument();
+          expect(screen.queryByRole('button', { name: 'Se brev og send' })).toBeNull();
+        }
+        cleanup();
+      }
+    }
+  );
+
+  // Krav E i #718: domenekonfigurasjonen leser `bh_resultat` i Python-projeksjonen, så
+  // TS-saken har den ikke. Kravversjonen skjemaet bygger på, kommer fra utledningen.
+  it('TS-saken har ingen domenekonfigurasjon, og kravversjonen kommer fra utledningen', async () => {
+    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar(medVederlag, 'TE') });
+    await kjernesak.last();
+    const flate = lagKjernesakflate(kjernesak, 'p-1');
+    for (const felt of ['vederlagDomainConfig', 'fristDomainConfig', 'grunnlagDomainConfig'])
+      expect(felt in flate).toBe(false);
+    expect(flate.kravversjon('vederlag')).toBe(1);
+    expect(flate.kravversjon('frist')).toBe(0);
   });
 });

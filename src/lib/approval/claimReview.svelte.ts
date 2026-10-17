@@ -95,5 +95,7 @@ export function createClaimReview(store: CaseWorkspace) {
   };
 }
 export type ClaimReview = ReturnType<typeof createClaimReview>;
-export const setClaimReview = (review: ClaimReview) => setContext(KEY, review);
-export const getClaimReview = () => getContext<ClaimReview | undefined>(KEY);
+/** Skjemaene kaller bare `submit`. En TS-sak har sin egen kontroll (#718). */
+type Skjemakontroll = Pick<ClaimReview, 'submit'>;
+export const setClaimReview = <T extends Skjemakontroll>(review: T) => setContext(KEY, review);
+export const getClaimReview = () => getContext<Skjemakontroll | undefined>(KEY);
