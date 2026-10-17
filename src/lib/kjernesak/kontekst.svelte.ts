@@ -93,6 +93,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       const tekst = brevtekst(kommando);
       await send(sakId, sak.versjon, tekst ? { ...kommando, brevtekst: tekst } : kommando);
       await last();
+      if (feil) feil = `Kommandoen er lagret, men saken kunne ikke lastes på nytt. ${feil}`;
       return true;
     } catch (e) {
       const melding = meldingFra(e, 'Kommandoen ble ikke sendt.');

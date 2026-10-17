@@ -144,7 +144,7 @@ describe('vederlagskravet fra saksbildet', () => {
     expect(send.mock.calls[0][2]).toMatchObject({ utdypning: 'Tilbudet gjelder ny peling' });
   });
 
-  it('når saken ikke kan lastes på nytt etter sendingen, viser saksbildet hvorfor', async () => {
+  it('når saken ikke kan lastes på nytt etter sendingen, sier saksbildet at kravet er lagret, og hvorfor saken ikke er oppdatert', async () => {
     const send = vi
       .fn()
       .mockResolvedValue({ event_id: 'e-3', leveringsoppdrag: 'l-1', versjon: 3 });
@@ -164,7 +164,9 @@ describe('vederlagskravet fra saksbildet', () => {
 
     await waitFor(() => expect(screen.getByTestId('status').closest('article')).toBeVisible());
     expect(send).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('alert')).toHaveTextContent('Catenda svarte ikke.');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Kommandoen er lagret, men saken kunne ikke lastes på nytt. Catenda svarte ikke.'
+    );
   });
 
   it('når sporet har et vederlagskrav, tilbys ikke skjemaet, selv om kjernen tilbyr ny versjon (#667)', async () => {
