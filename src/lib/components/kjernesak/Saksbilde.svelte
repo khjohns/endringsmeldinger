@@ -2,22 +2,48 @@
   /**
    * Saksbildet for en TS-sak (#665): kravene og svarene per spor, med status og
    * etiketter fra `visning`, og journalen med den låste brevteksten og
-   * leveringsoppdragene. Komponenten leser bare saksbildet fra konteksten (#313).
+   * leveringsoppdragene. Med sakskonteksten tilbys det første vederlagskravet når
+   * kjernen tilbyr det for leserens side (#667).
    */
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
   import type { Saksbilde } from '$lib/kjernesak/saksbilde';
+  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { tilbyrFoersteVederlagskrav } from '$lib/kjernesak/vederlagskrav';
+  import Vederlagsskjema from './Vederlagsskjema.svelte';
 
-  let { bilde }: { bilde: Saksbilde } = $props();
+  let { bilde, kjernesak }: { bilde: Saksbilde; kjernesak?: Kjernesakkontekst } = $props();
+  let iSkjema = $state(false);
+  const tilbyrVederlagskrav = $derived(
+    kjernesak ? tilbyrFoersteVederlagskrav(kjernesak.handlinger, bilde) : false
+  );
+  const visSkjema = $derived(iSkjema && tilbyrVederlagskrav);
 </script>
 
-<article class="saksbilde">
+{#if visSkjema && kjernesak}
+  <div class="skjema">
+    <Vederlagsskjema
+      {kjernesak}
+      sakstittel={bilde.tittel ?? 'Sak'}
+      onsendt={() => (iSkjema = false)}
+      onavbryt={() => (iSkjema = false)}
+    />
+  </div>
+{/if}
+
+<article class="saksbilde" hidden={visSkjema}>
   <header>
     <h1>{bilde.tittel ?? 'Sak'}</h1>
     <p class="status" data-testid="status">{bilde.status.tekst}</p>
     <p class="dempet">Versjon {bilde.versjon}</p>
+    {#if kjernesak?.feil}<p role="alert" class="feil">{kjernesak.feil}</p>{/if}
     {#each bilde.merknader as m (m.kode)}
       <p class="merknad" role="note">{m.tekst}</p>
     {/each}
+    {#if tilbyrVederlagskrav}
+      <button type="button" class="handling" onclick={() => (iSkjema = true)}
+        >Send krav om vederlagsjustering</button
+      >
+    {/if}
   </header>
 
   {#each bilde.spor as s (s.spor)}
@@ -71,6 +97,23 @@
 </article>
 
 <style>
+  .skjema {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+  .handling {
+    justify-self: start;
+    margin-top: 8px;
+    border: 1px solid var(--brand);
+    background: var(--brand);
+    color: var(--surface);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
   .saksbilde {
     max-width: 48rem;
     margin: 0 auto;
@@ -78,6 +121,9 @@
     color: var(--color-ink);
     display: grid;
     gap: 24px;
+  }
+  .saksbilde[hidden] {
+    display: none;
   }
   h1 {
     font-size: 22px;
@@ -93,6 +139,13 @@
   }
   .dempet {
     color: var(--color-ink-muted);
+    font-size: 14px;
+  }
+  .feil {
+    margin: 8px 0;
+    padding: 10px 12px;
+    border: 1px solid var(--color-danger, #c0392b);
+    border-radius: 8px;
     font-size: 14px;
   }
   .merknad {

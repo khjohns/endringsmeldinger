@@ -562,6 +562,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       );
       expect(svar.recordset.map((r) => r.rett).sort()).toEqual([
         'GRANT EXECUTE koe_api.bruk_innloggingsforsoek',
+        'GRANT EXECUTE koe_api.brukerens_prosjekter',
         'GRANT EXECUTE koe_api.catenda_identitet',
         'GRANT EXECUTE koe_api.deaktiver_ved_innlogging',
         'GRANT EXECUTE koe_api.koblede_prosjekter',
@@ -572,6 +573,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.opprett_innloggingsforsoek',
         'GRANT EXECUTE koe_api.opprett_sak',
         'GRANT EXECUTE koe_api.opprett_sesjon',
+        'GRANT EXECUTE koe_api.prosjekt',
         'GRANT EXECUTE koe_api.prosjektkobling',
         'GRANT EXECUTE koe_api.prosjektmedlemskap',
         'GRANT EXECUTE koe_api.rydd_utloepte',

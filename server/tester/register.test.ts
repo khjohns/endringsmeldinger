@@ -8,7 +8,11 @@
  * - inngangen krever kontraktsrolle: et medlem uten kontraktsteam får 403;
  * - kontrollsaken: TE med alt i orden kommer forbi tilgangen.
  *
- * En inngang uten prosjekt eller uten sesjon står i en lukket liste her, med
+ * En inngang til prosjektet selv, uten sak, prøves uten sesjon, uten
+ * `X-Project-ID`, med et annet prosjekt i hodet enn i stien og i et prosjekt
+ * brukeren ikke er med i.
+ *
+ * En inngang uten prosjekt, uten sak eller uten sesjon står i en lukket liste her, med
  * begrunnelsen i registeret, som `OFFENTLIGE_RUTER` og `UTEN_PROSJEKT` i
  * `backend/tests/test_security/test_public_route_registry.py`. En ny slik
  * inngang gir rød test til den står i listen. En inngang uten prosjekt prøves
@@ -19,7 +23,7 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { erAapen, erSaksrute, erUtenProsjekt, RUTER, type Rute } from '../app.ts';
+import { erAapen, erSaksrute, erUtenProsjekt, erUtenSak, RUTER, type Rute } from '../app.ts';
 import { opprettSesjon } from '../sesjon.ts';
 import {
   kall,
@@ -32,26 +36,35 @@ import {
   type Oppsett,
 } from './testbase.ts';
 
-const navn = (r: Rute) => `${r.metode} ${r.eksempel('<sak>')}`;
+const navn = (r: Rute) => `${r.metode} ${r.eksempel(erUtenSak(r) ? '<prosjekt>' : '<sak>')}`;
 const kropp = (r: Rute) => (r.metode === 'GET' ? undefined : {});
 
 const UTEN_SESJON = ['GET /api/auth/catenda/login', 'GET /api/auth/catenda/callback'];
-const UTEN_PROSJEKT = ['GET /api/auth/session', 'POST /api/auth/logout', 'GET /api/csrf-token'];
+const UTEN_PROSJEKT = [
+  'GET /api/auth/session',
+  'POST /api/auth/logout',
+  'GET /api/csrf-token',
+  'GET /api/projects',
+];
+const UTEN_SAK = ['GET /api/projects/<prosjekt>'];
 
 describe('registeret over inngangene', () => {
-  it('inngangene uten sesjon og uten prosjekt er de i de lukkede listene', () => {
+  it('inngangene uten sesjon, uten prosjekt og uten sak er de i de lukkede listene', () => {
     expect(RUTER.filter(erAapen).map(navn)).toEqual(UTEN_SESJON);
     expect(RUTER.filter(erUtenProsjekt).map(navn)).toEqual(UTEN_PROSJEKT);
+    expect(RUTER.filter(erUtenSak).map(navn)).toEqual(UTEN_SAK);
   });
 
   it.each(RUTER.filter((r) => !erSaksrute(r)).map((r) => [navn(r), r] as const))(
-    '%s har en skriftlig begrunnelse for å stå uten prosjekt eller sesjon',
+    '%s har en skriftlig begrunnelse for å stå uten sak, prosjekt eller sesjon',
     (_navn, r) => {
       const begrunnelse = erAapen(r)
         ? r.tilgang.utenSesjon
         : erUtenProsjekt(r)
           ? r.tilgang.utenProsjekt
-          : '';
+          : erUtenSak(r)
+            ? r.tilgang.utenSak
+            : '';
       expect(begrunnelse.trim().length).toBeGreaterThan(20);
       expect(r.eksempel('x')).toMatch(r.sti);
     }
@@ -124,6 +137,45 @@ describe.skipIf(!BEGGE_BASENE)('hver inngang i registeret mot testbasene', () =>
       kropp: kropp(r),
     });
     expect(svar.status).toBe(200);
+  });
+
+  const utenSak = RUTER.filter(erUtenSak).map((r) => [navn(r), r] as const);
+
+  it.each(utenSak)('%s: uten sesjon gir 401', async (_n, r) => {
+    const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
+      bruker: null,
+      prosjektId: o.prosjekt.id,
+    });
+    expect(svar.status).toBe(401);
+    expect(svar.kropp.error).toBe('UNAUTHORIZED');
+  });
+
+  it.each(utenSak)(
+    '%s: uten prosjekt, med et annet prosjekt i hodet enn i stien eller i feil prosjekt gir 403',
+    async (_n, r) => {
+      const forsok = [
+        { bruker: o.te, prosjektId: null, iStien: o.prosjekt.id },
+        { bruker: o.te, prosjektId: o.annetProsjekt.id, iStien: o.prosjekt.id },
+        { bruker: o.te, prosjektId: o.prosjekt.id, iStien: o.annetProsjekt.id },
+        { bruker: o.te, prosjektId: o.annetProsjekt.id, iStien: o.annetProsjekt.id },
+        { bruker: o.utenfor, prosjektId: o.prosjekt.id, iStien: o.prosjekt.id },
+      ];
+      for (const { bruker, prosjektId, iStien } of forsok) {
+        const svar = await kall(server.url, r.eksempel(iStien), { bruker, prosjektId });
+        expect(svar.status, JSON.stringify({ prosjektId, iStien })).toBe(403);
+        expect(svar.kropp.error).toBe('FORBIDDEN');
+      }
+    }
+  );
+
+  it.each(utenSak)('%s: kontrollsaken i eget prosjekt gir 200', async (_n, r) => {
+    for (const bruker of [o.te, o.utenTeam]) {
+      const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
+        bruker,
+        prosjektId: o.prosjekt.id,
+      });
+      expect(svar.status).toBe(200);
+    }
   });
 
   it.each(RUTER.filter(erAapen).map((r) => [navn(r), r] as const))(

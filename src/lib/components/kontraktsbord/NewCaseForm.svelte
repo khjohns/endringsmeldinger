@@ -371,7 +371,8 @@
   <Brevkontroll
     tekst={brevkontroll.letter.tekst}
     utdypning={brevkontroll.letter.utdypning}
-    sakstittel={tittel.trim()}
+    tittel="Grunnlag – {tittel.trim()}"
+    beskrivelse="Saken er opprettet. Kravet sendes først når du bekrefter."
     onbekreft={brevkontroll.confirm}
     onavbryt={brevkontroll.cancel}
   />
