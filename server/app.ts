@@ -27,6 +27,7 @@ import {
   krevKontraktsrolle,
   krevProsjekttilgang,
   krevSesjon,
+  lesKontraktsside,
   Nektet,
   type Bruker,
   type Catenda,
@@ -179,11 +180,15 @@ async function visSaken(
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
   const { journal, oppdrag } = await lesSaken(avh.pool, sakId, prosjekt.prosjektId);
-  if (!journal.length) return finnesIkke();
+  // En sak TS-kjernen ikke har skrevet, har ingen `format` i første rad (#705).
+  if (!journal.length || journal[0].format === null) return finnesIkke();
+  // Leserens side for visningen; lesingen krever den ikke (#705).
+  const side = await lesKontraktsside(avh.datalag, avh.catenda, prosjekt);
   return [
     200,
     {
       success: true,
+      part: side?.rolle ?? null,
       ...sakenSomVises(journal, avh.kjerne),
       journal: journal.map((r) => ({
         event_id: r.event_id,
@@ -288,7 +293,7 @@ const KJERNERUTER: readonly Saksrute[] = [
     tilgang: {
       prosjektrolle: 'viewer',
       kontraktsrolle: {
-        ikke: 'Lesing: et prosjektmedlem uten kontraktsside ser saken, som `GET /api/cases/<sak_id>/state` i Python.',
+        ikke: 'Lesing: et prosjektmedlem uten kontraktsside ser saken, som `GET /api/cases/<sak_id>/state` i Python. Svaret har leserens side i `part`, eller `null` (#705).',
       },
     },
     behandle: visSaken,

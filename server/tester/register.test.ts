@@ -206,6 +206,31 @@ describe.skipIf(!BEGGE_BASENE)('hver inngang i registeret mot testbasene', () =>
     expect(svar.kropp.error ?? 'ingen').not.toMatch(/FORBIDDEN|CSRF|UNAUTHORIZED|CONTRACT/);
   });
 
+  it('lesingen av saken gir leserens side i part, og null uten kontraktsteam (#705)', async () => {
+    for (const [bruker, part] of [
+      [o.te, 'TE'],
+      [o.bh, 'BH'],
+      [o.utenTeam, null],
+    ] as const) {
+      const svar = await kall(server.url, `/api/kjerne/saker/${sak}`, {
+        bruker,
+        prosjektId: o.prosjekt.id,
+      });
+      expect(svar.status).toBe(200);
+      expect(svar.kropp.part).toBe(part);
+    }
+  });
+
+  it('en sak TS-kjernen ikke har skrevet, gir 404 (#705)', async () => {
+    const pythonsak = await opprettKjernesak(o, o.prosjekt, null);
+    const svar = await kall(server.url, `/api/kjerne/saker/${pythonsak}`, {
+      bruker: o.te,
+      prosjektId: o.prosjekt.id,
+    });
+    expect(svar.status).toBe(404);
+    expect(svar.kropp.error).toBe('SAK_FINNES_IKKE');
+  });
+
   it('en sti som ikke står i registeret, gir 404', async () => {
     for (const [metode, sti] of [
       ['GET', `/api/kjerne/saker/${sak}/journal`],

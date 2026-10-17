@@ -284,12 +284,15 @@ export interface Kontraktstilgang {
   teamId: string | null;
 }
 
-/** `require_contract_role()` med `contract_membership`. Uten entydig side: 403. */
-export async function krevKontraktsrolle(
+/**
+ * Siden og teamet med samme oppslag som `krevKontraktsrolle`, eller `null` uten
+ * entydig side. For lesing, som ikke krever kontraktsrolle (#705).
+ */
+export async function lesKontraktsside(
   db: Pool,
   catenda: Catenda,
   tilgang: Prosjekttilgang
-): Promise<Kontraktstilgang> {
+): Promise<Kontraktstilgang | null> {
   let funnet: [Rolle | null, string | null];
   try {
     funnet = await kontraktsside(db, catenda, tilgang);
@@ -297,10 +300,20 @@ export async function krevKontraktsrolle(
     throw new Nektet(503, 'CONTRACT_ACCESS_UNAVAILABLE', 'Teamtilknytning kunne ikke bekreftes.');
   }
   const [rolle, teamId] = funnet;
-  if (rolle !== 'TE' && rolle !== 'BH') {
+  return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
+}
+
+/** `require_contract_role()` med `contract_membership`. Uten entydig side: 403. */
+export async function krevKontraktsrolle(
+  db: Pool,
+  catenda: Catenda,
+  tilgang: Prosjekttilgang
+): Promise<Kontraktstilgang> {
+  const side = await lesKontraktsside(db, catenda, tilgang);
+  if (!side) {
     throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', 'Du har ikke nødvendig TE/BH-teamtilknytning.');
   }
-  return { rolle, teamId };
+  return side;
 }
 
 /**
