@@ -7,13 +7,14 @@
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '$lib/api/client';
 import { laastBrevtekst } from './brevtekst';
+import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
-import { hentKjernesak, sendKommando, type Journallinje, type Kjernesak } from '$lib/api/kjerne';
+import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/api/kjerne';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
-import type { Journalrad, Part } from '$kjerne/typer';
+import type { Part } from '$kjerne/typer';
 
 export interface Kjernesakvalg {
   sakId: string;
@@ -28,20 +29,6 @@ export interface Kjernesakvalg {
   send?: typeof sendKommando;
   kjerne?: Kjerne;
 }
-
-/**
- * Radene slik kjernen leser dem. Serveren sender ikke aktøren, teamet eller
- * referansen; kjernen skriver ingen rad med referanse, og utledningen leser ikke
- * aktøren eller teamet.
- */
-const somJournal = (sakId: string, linjer: Journallinje[]): Journalrad[] =>
-  linjer.map((l) => ({
-    ...l,
-    sak_id: sakId,
-    aktor_id: '',
-    aktor_team_id: null,
-    refererer_til_event_id: null,
-  }));
 
 const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
 

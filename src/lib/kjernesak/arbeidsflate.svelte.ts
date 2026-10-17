@@ -7,16 +7,17 @@
  */
 
 import type { SporKey, SporUIState } from '$lib/components/kontraktsbord/types';
-import {
-  type TrackDisplay,
-  deriveFristDomainConfig,
-  deriveGrunnlagDomainConfig,
-  deriveVederlagDomainConfig,
-} from '$lib/components/kontraktsbord/derive';
+import type { TrackDisplay } from '$lib/components/kontraktsbord/derive';
 import type { SakState, TimelineEvent } from '$lib/types/timeline';
 import { getPartsNavn } from '$lib/utils/partsNavn';
 import type { Kjernesakkontekst } from './kontekst.svelte';
-import { sporetsStatustekst, sporvisning, tilSakState, tilTidslinje } from './sakstilstand';
+import {
+  SPOR_FOR,
+  sporetsStatustekst,
+  sporvisning,
+  tilSakState,
+  tilTidslinje,
+} from './sakstilstand';
 import { tilbyrFoersteVederlagskrav } from './vederlagskrav';
 
 interface Projeksjon {
@@ -77,21 +78,26 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
       return kjernesak.saksbilde;
     },
     get tilbyrVederlagskrav() {
-      const bilde = kjernesak.saksbilde;
-      return bilde ? tilbyrFoersteVederlagskrav(kjernesak.handlinger, bilde) : false;
+      const u = kjernesak.utledning;
+      return u ? tilbyrFoersteVederlagskrav(kjernesak.handlinger, u) : false;
+    },
+    /**
+     * Antall versjoner av det gjeldende kravet i sporet, talt langs `erstatter` fra
+     * `gjeldendeKrav`. 0 når sporet ikke har et gjeldende krav (krav E i #718).
+     */
+    kravversjon(track: SporKey): number {
+      const s = kjernesak.utledning?.spor[SPOR_FOR[track]];
+      let antall = 0;
+      for (let k = s?.gjeldendeKrav; k; antall++) {
+        const forrige = k.erstatter;
+        k = s!.krav.find((e) => e.id === forrige);
+      }
+      return antall;
     },
     teNavn,
     bhNavn,
-    // Skjemaene for byggherrens svar vises ikke for en TS-sak ennå (OV-U1).
-    get vederlagDomainConfig() {
-      return deriveVederlagDomainConfig(projeksjon.sak);
-    },
-    get fristDomainConfig() {
-      return deriveFristDomainConfig(projeksjon.sak);
-    },
-    get grunnlagDomainConfig() {
-      return deriveGrunnlagDomainConfig(projeksjon.sak);
-    },
+    // Ingen `*DomainConfig`: de leser Python-projeksjonens statusfelt, og skjemaene for
+    // byggherrens svar vises ikke for en TS-sak ennå (OV-U1, krav E i #718).
     draftCount: 0,
     get submitting() {
       return kjernesak.sender;

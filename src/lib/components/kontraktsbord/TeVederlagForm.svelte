@@ -30,6 +30,10 @@
   } from '$lib/constants/paymentMethods';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  // TS-saken (#718): bare tilbud, uten varsler, særskilte krav, vedlegg og utkast (OV-U1),
+  // og begrunnelsen er valgfri (#667). Kravversjonen kommer fra utledningen (krav E).
+  const kjernesak = store.erKjernesak ? store : null;
+  import { metodeKanSendesTilKjernen } from '$lib/kjernesak/vederlagskrav';
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import { fmt } from './utils.js';
@@ -48,7 +52,9 @@
   } = $props();
 
   let mode = $state<'varsel' | 'spesifisert'>(
-    store.sak.vederlag.varsler?.length || store.sak.vederlag.metode ? 'spesifisert' : 'varsel'
+    kjernesak || store.sak.vederlag.varsler?.length || store.sak.vederlag.metode
+      ? 'spesifisert'
+      : 'varsel'
   );
   let varsler = $state<VarselValg>({});
   const noticeData = $derived(
@@ -59,10 +65,14 @@
       false
     )
   );
-  const scenario = store.sak.vederlag.metode ? 'edit' : 'new';
+  const scenario = (kjernesak ? kjernesak.kravversjon('vederlag') : store.sak.vederlag.metode)
+    ? 'edit'
+    : 'new';
   const defaults = getDefaults({ scenario, existing: store.sak.vederlag });
 
-  let metode = $state<VederlagsMetode>(defaults.metode ?? 'REGNINGSARBEID');
+  let metode = $state<VederlagsMetode>(
+    defaults.metode ?? (kjernesak ? 'FASTPRIS_TILBUD' : 'REGNINGSARBEID')
+  );
   let belopDirekte = $state<number | undefined>(defaults.belopDirekte);
   let kostnadsOverslag = $state<number | undefined>(defaults.kostnadsOverslag);
   let belopRigg = $state<number | undefined>(defaults.belopRigg);
@@ -105,14 +115,16 @@
   const kanSende = $derived(
     mode === 'varsel'
       ? Object.keys(noticeData).length > 0
-      : beregnCanSubmit(mappedState) && charCount >= 10
+      : kjernesak
+        ? metodeKanSendesTilKjernen(metode) && (belopDirekte ?? 0) > 0
+        : beregnCanSubmit(mappedState) && charCount >= 10
   );
   const draft = createFormDraft(
-    !store.isDemo,
+    !store.isDemo && !kjernesak,
     {
       sakId: store.sak.sak_id,
       spor: 'vederlag',
-      revisjon: store.sak.vederlag.antall_versjoner,
+      revisjon: kjernesak ? kjernesak.kravversjon('vederlag') : store.sak.vederlag.antall_versjoner,
     },
     () => ({
       vedleggIds,
@@ -211,10 +223,12 @@
   const metodeDescription = $derived(metode ? VEDERLAGSMETODE_DESCRIPTIONS[metode] : undefined);
 
   const METODE_OPTIONS: { value: VederlagsMetode; label: string }[] =
-    VEDERLAGSMETODER_OPTIONS.filter((o) => o.value !== '').map((o) => ({
-      value: o.value as VederlagsMetode,
-      label: getVederlagsmetodeShortLabel(o.value),
-    }));
+    VEDERLAGSMETODER_OPTIONS.filter((o) => o.value !== '')
+      .map((o) => ({
+        value: o.value as VederlagsMetode,
+        label: getVederlagsmetodeShortLabel(o.value),
+      }))
+      .filter((o) => !kjernesak || metodeKanSendesTilKjernen(o.value));
 </script>
 
 {#if draft.ready}
@@ -228,31 +242,35 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo}
+      visVedlegg={!store.isDemo && !kjernesak}
       bind:vedleggIds
       bind:vedleggOpptatt
     />
 
     <FormPageHeader
       title="Krav om vederlagsjustering"
-      intro="Varsle kravet nå, eller spesifiser det når beregningsgrunnlaget foreligger."
+      intro={kjernesak
+        ? 'Oppgi den faste prisen du tilbyr for endringen.'
+        : 'Varsle kravet nå, eller spesifiser det når beregningsgrunnlaget foreligger.'}
     />
 
-    <FormSection title="Innsending">
-      <p class="submission-question">Hva vil du sende?</p>
-      <SegmentedControl
-        label="Hva vil du sende?"
-        value={mode}
-        options={[
-          { value: 'varsel', label: 'Varsel' },
-          { value: 'spesifisert', label: 'Spesifisert krav' },
-        ]}
-        onchange={(value) => (mode = value as typeof mode)}
-      />
-      <p class="helptext">
-        {mode === 'varsel' ? 'Varsle uten å oppgi beløp.' : 'Oppgi beregningsmetode og beløp.'}
-      </p>
-    </FormSection>
+    {#if !kjernesak}
+      <FormSection title="Innsending">
+        <p class="submission-question">Hva vil du sende?</p>
+        <SegmentedControl
+          label="Hva vil du sende?"
+          value={mode}
+          options={[
+            { value: 'varsel', label: 'Varsel' },
+            { value: 'spesifisert', label: 'Spesifisert krav' },
+          ]}
+          onchange={(value) => (mode = value as typeof mode)}
+        />
+        <p class="helptext">
+          {mode === 'varsel' ? 'Varsle uten å oppgi beløp.' : 'Oppgi beregningsmetode og beløp.'}
+        </p>
+      </FormSection>
+    {/if}
     {#if mode === 'varsel'}
       <KonsekvensVarsler
         bind:value={varsler}
@@ -284,31 +302,35 @@
         />
       </FormSection>
 
-      <FormSection title="Særskilte krav" paragrafRef="§ 34.1.3">
-        <p class="helptext">
-          Eventuelle tilleggskrav for rigg- og driftskostnader eller produktivitetstap.
-        </p>
-        <div class="saerskilt-grid">
-          <NumberField
-            id="te-rigg"
-            label="Rigg og drift"
-            suffix="kr"
-            value={belopRigg}
-            onchange={(value) => (belopRigg = value)}
-          />
-          <NumberField
-            id="te-produktivitet"
-            label="Produktivitetstap"
-            suffix="kr"
-            value={belopProduktivitet}
-            onchange={(value) => (belopProduktivitet = value)}
-          />
-        </div>
-      </FormSection>
+      {#if !kjernesak}
+        <FormSection title="Særskilte krav" paragrafRef="§ 34.1.3">
+          <p class="helptext">
+            Eventuelle tilleggskrav for rigg- og driftskostnader eller produktivitetstap.
+          </p>
+          <div class="saerskilt-grid">
+            <NumberField
+              id="te-rigg"
+              label="Rigg og drift"
+              suffix="kr"
+              value={belopRigg}
+              onchange={(value) => (belopRigg = value)}
+            />
+            <NumberField
+              id="te-produktivitet"
+              label="Produktivitetstap"
+              suffix="kr"
+              value={belopProduktivitet}
+              onchange={(value) => (belopProduktivitet = value)}
+            />
+          </div>
+        </FormSection>
+      {/if}
 
       <ReasoningEditor
         paragrafRef="§ 34.2"
-        helptext="Beskriv grunnlaget for kravet, omfanget og hvorfor den valgte beregningsmetoden passer."
+        helptext={kjernesak
+          ? 'Valgfri. Begrunnelsen følger kravet som utdypning under den låste teksten.'
+          : 'Beskriv grunnlaget for kravet, omfanget og hvorfor den valgte beregningsmetoden passer.'}
         body={begrunnelse}
         placeholder="Begrunn kravets omfang og den valgte beregningsmetoden..."
         onchange={(html) => (begrunnelse = html)}

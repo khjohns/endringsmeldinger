@@ -1,9 +1,9 @@
 /**
- * Vederlagskravet fra Kontrollrommet på TS-stien (#667, #718). Konteksten er den ekte, med
- * falske `hent` og `send`; at serveren lagrer kravet, prøves i
- * `sprakprove/skrivesti/vederlagskrav.test.ts`. Kildene er formatet i kjernen
- * (bare tilbud, OV-U1), avgjørelsen om valgfri utdypning (oppdragsgiver 17.10) og
- * leserens side fra serveren (#705).
+ * Vederlagskravet fra `TeVederlagForm` i Kontrollrommet på TS-stien (#667, #718).
+ * Konteksten er den ekte, med falske `hent` og `send`; at serveren lagrer kravet,
+ * prøves i `sprakprove/skrivesti/vederlagskrav.test.ts`. Kildene er formatet i kjernen
+ * (bare tilbud, OV-U1), avgjørelsene 17.10 i #718 (valgfri utdypning, utkast av,
+ * det kjernen ikke kan, skjules), LV-U2 og leserens side fra serveren (#705).
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -12,7 +12,8 @@ import { userEvent } from '@testing-library/user-event';
 import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { ApiError } from '$lib/api/client';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { forhaandsvis } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad, Part } from '$kjerne/typer';
@@ -104,12 +105,14 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     const { send } = await vis('TE');
     await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
 
-    // Bare tilbud kan sendes; de andre metodene, de særskilte kravene og varslene vises ikke.
-    const skjema = within(document.querySelector('.vederlagsskjema') as HTMLElement);
+    // Bare tilbud kan sendes; de andre metodene, de særskilte kravene, varslene,
+    // vedleggene og utkastet vises ikke (OV-U1, oppdragsgiver 17.10).
+    const skjema = within(document.querySelector('.form-content') as HTMLElement);
     expect(skjema.getByText('Fastpris')).toBeInTheDocument();
     for (const ikke of [/Regningsarbeid/, /Enhetspris/, /Rigg og drift/, /Produktivitet/, /Varsel/])
       expect(skjema.queryByText(ikke)).toBeNull();
     expect(skjema.queryByText(/vedlegg/i)).toBeNull();
+    expect(skjema.queryByText(/kladd|utkast|autolagret/i)).toBeNull();
     expect(leseflate()).toBeNull();
 
     const knapp = screen.getByRole('button', { name: 'Se brev og send' });
@@ -128,7 +131,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
     // Etter sendingen er skjemaet lukket, og sporet vises igjen.
     await waitFor(() => expect(leseflate()).not.toBeNull());
-    expect(document.querySelector('.vederlagsskjema')).toBeNull();
+    expect(document.querySelector('.form-content')).toBeNull();
     const [sakId, versjon, kommando] = send.mock.calls[0];
     expect(sakId).toBe(SAK);
     expect(versjon).toBe(2);
@@ -202,4 +205,87 @@ describe('vederlagskravet fra Kontrollrommet', () => {
       expect(screen.queryByRole('button', { name: 'Send krav om vederlagsjustering' })).toBeNull();
     }
   );
+
+  it('når serveren avviser kravet, står skjemaet med serverens begrunnelse', async () => {
+    const send = vi.fn().mockRejectedValue(new ApiError(400, 'Beløpet er ikke gyldig.'));
+    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE'), send });
+    await kjernesak.last();
+    visRom(kjernesak);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
+    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
+    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
+    expect(document.querySelector('.form-content')).not.toBeNull();
+    expect(leseflate()).toBeNull();
+  });
+
+  it('tilbake fra brevkontrollen går til skjemaet uten å sende, og avkrysningen gjelder ikke neste brev (#729)', async () => {
+    const { send } = await vis('TE');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
+    let kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
+    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    await fireEvent.click(kontroll.getByRole('button', { name: 'Tilbake til skjemaet' }));
+    expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
+    expect(screen.getByLabelText('Fast pris')).toHaveValue('1000');
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeEnabled()
+    );
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
+    kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
+    expect(
+      kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' })
+    ).not.toBeChecked();
+    expect(send).not.toHaveBeenCalled();
+  });
+});
+
+describe('kontrollen før en TS-sak sender kravet', () => {
+  const data = {
+    grunnlag_event_id: 'e-2',
+    metode: 'FASTPRIS_TILBUD' as const,
+    belop_direkte: 1000,
+    kostnads_overslag: undefined,
+    begrunnelse: '<p>Ny peling</p>',
+    krever_justert_ep: undefined,
+    varslet_for_oppstart: undefined,
+    saerskilt_krav: null,
+    vedlegg_ids: [],
+  };
+
+  it('uten låst tekst sendes ikke kravet, og TE får vite hvorfor (#719)', async () => {
+    const send = vi.fn();
+    const kjernesak = { brevtekst: () => null, send } as unknown as Kjernesakkontekst;
+    const kontroll = lagKravkontroll(kjernesak);
+    await expect(kontroll.submit('vederlag', 'vederlag_krav_sendt', data)).rejects.toThrow(
+      'Kravet er ikke sendt.'
+    );
+    expect(kontroll.letter).toBeNull();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['en ny versjon', 'vederlag', 'vederlag_krav_oppdatert', data],
+    ['et annet spor', 'frist', 'vederlag_krav_sendt', data],
+    [
+      'særskilte krav',
+      'vederlag',
+      'vederlag_krav_sendt',
+      { ...data, saerskilt_krav: { rigg_drift: { belop: 1 } } },
+    ],
+    ['vedlegg', 'vederlag', 'vederlag_krav_sendt', { ...data, vedlegg_ids: ['v-1'] }],
+  ] as const)('%s avvises før brevet vises (OV-U1)', async (_navn, spor, type, d) => {
+    const send = vi.fn();
+    const kjernesak = { brevtekst: () => ['tekst'], send } as unknown as Kjernesakkontekst;
+    const kontroll = lagKravkontroll(kjernesak);
+    await expect(kontroll.submit(spor, type, d)).rejects.toThrow('ennå');
+    expect(kontroll.letter).toBeNull();
+    expect(send).not.toHaveBeenCalled();
+  });
 });
