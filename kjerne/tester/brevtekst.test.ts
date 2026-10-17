@@ -32,6 +32,8 @@ import {
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
+import type { Kommando } from '../kommandoer/kommando.ts';
+import { oppgittDatoEtterBrevet } from '../kommandoer/nyttelast.ts';
 import type { Avsnitt, Dokument, Journalrad, Part } from '../typer.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort } from '../utledning/utled.ts';
@@ -433,6 +435,19 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
     );
   });
 
+  it('en oppgitt dato med klokkeslett samme dag som brevet godtas, og dagen etter avvises (#474)', () => {
+    const med = (dato: string) =>
+      oppgittDatoEtterBrevet(
+        {
+          ...GRUNNLAGSKRAV,
+          innhold: { ...GRUNNLAGSKRAV.innhold, paalegg_mottatt: dato },
+        } as Kommando,
+        '2026-10-02'
+      )?.regel ?? null;
+    expect(med('2026-10-02T15:00:00Z')).toBeNull();
+    expect(med('2026-10-03T08:00:00Z'), 'kontrollsak').toBe('DATO_ETTER_BREVET');
+  });
+
   it('brevets dato er datoen i norsk tid, ikke i UTC (VS-U8)', () => {
     const s = sak();
     // 15. oktober kl. 22.30 UTC er 16. oktober kl. 00.30 i Oslo.
@@ -764,6 +779,26 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(laast(rad)).toEqual([
       `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('124 999,60')}`,
     ]);
+  });
+
+  it('et godkjent beløp som ikke er et tall, avvises som en ugyldig vurdering, ikke som en feil på serveren (#550)', () => {
+    const s = sakMedKrav();
+    const brev = (beloep: unknown) => ({
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { ...VEDERLAG_DELVIS[0], hovedkrav_godkjent_belop: beloep },
+          VEDERLAG_DELVIS[1]
+        ),
+      ],
+    });
+    expect(s.avvist('BH', brev(100000)), 'kontrollsak').toBeNull();
+    expect(s.avvisning('BH', brev('abc'))).toEqual({
+      regel: 'UGYLDIG_VURDERING',
+      melding: 'Vurderingene kan ikke regnes ut: ikke et tall: abc.',
+    });
   });
 
   it('§ 34.2.2 «nei»: byggherren aksepterer ikke tilbudet og oppgir metoden, som standpunkt og ikke som appens avgjørelse (arbeidsvalget i #479)', () => {
@@ -1940,6 +1975,18 @@ describe('den senere begrunnelsen (KA-U34)', () => {
       );
       expect(s.avvist('BH', registrert(svaret, '2026-09-18')), 'kontrollsak').toBeNull();
       expect(s.avvist('BH', registrert(svaret, '2026-09-17'))).toBe('BEGRUNNELSE_FOER_SVARET');
+    });
+
+    it('en sendt-dato med klokkeslett sammenliknes som dagen i norsk tid, så samme dag godtas (KA-U37, #474)', () => {
+      const { s, svaret } = registrertSvar({
+        id: randomUUID(),
+        hva: 'sendt',
+        dato: '2026-09-18T15:00:00Z',
+      });
+      expect(s.avvist('BH', registrert(svaret, '2026-09-18'))).toBeNull();
+      expect(s.avvist('BH', registrert(svaret, '2026-09-17')), 'kontrollsak').toBe(
+        'BEGRUNNELSE_FOER_SVARET'
+      );
     });
 
     it('et registrert svar med bare mottatt-dato gir ingen kontroll (KA-U38)', () => {

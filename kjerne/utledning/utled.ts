@@ -21,7 +21,6 @@
 import { datoFor, erRegistrert, registrertDato, sammeSlag } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
-import type { Grunnlagsresultat } from '../regler/typer.ts';
 import {
   blirEndringsordre,
   enighetsgrunnlag,
@@ -327,7 +326,11 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
         element: s.id,
         grunn: 'et svar på et krav etter at det er trukket (MM-U20, GR-U5)',
       });
-    else if (bundet && s.spor === 'grunnlag' && grunnlagssvaret(s, 'avslaatt'))
+    else if (
+      bundet &&
+      s.spor === 'grunnlag' &&
+      standpunktet(s, 'grunnlag')?.resultat === 'avslaatt'
+    )
       ut.push({
         element: s.id,
         grunn: 'et avslag av grunnlaget etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
@@ -533,11 +536,8 @@ function utledSporene(
           ugyldig(s.id, 'påberopelsen etter § 34.1.2 viser ikke til det første vederlagskravet');
         continue;
       }
-      // VS-U20, OV-U5, HF-U1: påberopelsen etter § 33.4 gjelder varselet som var registrert
-      // da svaret ble sendt, ellers det første fristkravet (arbeidsvalget i #309).
       if (p.hjemmel === '33.4') {
-        const varselet = varsler.find((v) => bakover(s.id, v.id))?.id ?? spor.frist.krav[0]?.id;
-        if (p.gjelder !== varselet)
+        if (p.gjelder !== varseletFoerSvaret(varsler, spor.frist.krav, (v) => bakover(s.id, v)))
           ugyldig(
             s.id,
             'påberopelsen etter § 33.4 viser ikke til varselet før svaret eller, uten varsel, det første fristkravet'
@@ -810,11 +810,7 @@ function utledSporene(
     // ikke på nytt (MM-U9), og det avhenger ikke av om brevet sier noe om varslingen.
     endringsordre,
     // GR-U3, GR-U9: frafallet er byggherrens standpunkt, uavhengig av hva TE har sagt.
-    frafalt:
-      venterEtterFrafall ||
-      (gBrev !== null &&
-        prinsipalt(gBrev.virkninger)?.art === 'grunnlag' &&
-        standpunktet(gBrev.svar, 'grunnlag')?.resultat === 'paalegg_frafalt'),
+    frafalt: venterEtterFrafall || (gSvar !== null && frafaller(gSvar)),
   };
 }
 
@@ -896,9 +892,15 @@ export function harSagtITide(u: Utledning, spor: Spor, r: Rettidighet): boolean 
   );
 }
 
-/** Svaret har resultatet i standpunktet til grunnlaget. */
-const grunnlagssvaret = (s: Pick<Svar, 'standpunkter'>, resultat: Grunnlagsresultat): boolean =>
-  s.standpunkter.some((p) => p.art === 'grunnlag' && p.resultat === resultat);
+/**
+ * GR-U3, GR-U9: svaret frafaller pålegget etter § 32.3 c, og frafallet er svarets
+ * prinsipale standpunkt. Kommandoene avviser et frafall sammen med en påberopelse
+ * etter § 32.2 som har virkning (#235), så et svar fra appen som frafaller, har alltid
+ * frafallet prinsipalt (#562).
+ */
+const frafaller = (s: Svar): boolean =>
+  prinsipalt(s.beslutningsgrunnlag.virkninger)?.art === 'grunnlag' &&
+  standpunktet(s, 'grunnlag')?.resultat === 'paalegg_frafalt';
 
 /** Svaret påberoper at varselet etter § 32.2 kom for sent. */
 const paaberoperVarselet = (s: Pick<Svar, 'standpunkter'>): boolean =>
@@ -912,9 +914,7 @@ const paaberoperVarselet = (s: Pick<Svar, 'standpunkter'>): boolean =>
  * binder ikke (OV-U4).
  */
 export const frafalletBinder = (u: Pick<Utledning, 'spor' | 'elementer'>): boolean =>
-  u.spor.grunnlag.svar.some(
-    (s) => grunnlagssvaret(s, 'paalegg_frafalt') && !u.elementer[s.dokument]?.registrertBrev
-  );
+  u.spor.grunnlag.svar.some((s) => frafaller(s) && !u.elementer[s.dokument]?.registrertBrev);
 
 /**
  * Grunnlagskravet et svar vurderes mot: kravet et grunnlagssvar gjelder, ellers
@@ -930,6 +930,23 @@ export function grunnlagskravFor(
   return u.spor.grunnlag.gjeldendeKrav;
 }
 
-/** Sporet har et krav byggherren ikke har svart på, og kravet er ikke trukket. */
-export const venterPaaSvar = (s: Sporutledning): boolean =>
-  s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket;
+/**
+ * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og kravene
+ * er ikke avgjort, så et svar ville blitt avvist (GR-U24, OV-U3).
+ */
+export function venterPaaSvar(u: Utledning, spor: Spor): boolean {
+  const s = u.spor[spor];
+  return s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket && !kraveneErAvgjort(u);
+}
+
+/**
+ * VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 gjelder, er varselet som var
+ * registrert da svaret ble sendt, ellers det første fristkravet, som er det første
+ * varselet appen kjenner (arbeidsvalget i #309). `foerSvaret` sier om et varsel står før
+ * svaret. Skriveren og valideringen leser det herfra (#496).
+ */
+export const varseletFoerSvaret = (
+  varsler: readonly Pick<Extract<LestUtsagn, { art: 'varsel' }>, 'id'>[],
+  fristkrav: readonly Pick<Krav, 'id'>[],
+  foerSvaret: (varsel: string) => boolean
+): string | undefined => varsler.find((v) => foerSvaret(v.id))?.id ?? fristkrav[0]?.id;
