@@ -270,6 +270,29 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     expect(send).not.toHaveBeenCalled();
   });
 
+  const kommando = { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 1000 } };
+
+  it('kravet sendes med teksten TE kontrollerte, ikke en tekst laget på nytt ved sendingen (LV-U2)', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-3', leveringsoppdrag: 'l-1', versjon: 3 });
+    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE'), send });
+    await kjernesak.last();
+    expect(await kjernesak.send(kommando, ['brevet TE så'])).toBe(true);
+    expect(send.mock.calls[0][2]).toMatchObject({ brevtekst: ['brevet TE så'] });
+  });
+
+  it('kontrollen sender kravet med teksten TE bekreftet', async () => {
+    const send = vi.fn().mockResolvedValue(true);
+    const kjernesak = { brevtekst: () => ['brevet TE ser'], send } as unknown as Kjernesakkontekst;
+    const kontroll = lagKravkontroll(kjernesak);
+    const sending = kontroll.submit('vederlag', 'vederlag_krav_sendt', data);
+    await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
+    kontroll.confirm();
+    await sending;
+    expect(send).toHaveBeenCalledWith(expect.objectContaining({ type: 'krav' }), ['brevet TE ser']);
+  });
+
   it.each([
     ['en ny versjon', 'vederlag', 'vederlag_krav_oppdatert', data],
     ['et annet spor', 'frist', 'vederlag_krav_sendt', data],

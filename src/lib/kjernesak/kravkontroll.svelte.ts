@@ -40,7 +40,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
         tekst,
         utdypning: kommando.utdypning,
       });
-      if (!(await kjernesak.send(kommando)))
+      if (!(await kjernesak.send(kommando, tekst)))
         throw new Error(kjernesak.feil ?? 'Kravet ble ikke sendt.');
     },
   };

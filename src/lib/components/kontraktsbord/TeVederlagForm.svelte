@@ -332,7 +332,9 @@
           ? 'Valgfri. Begrunnelsen følger kravet som utdypning under den låste teksten.'
           : 'Beskriv grunnlaget for kravet, omfanget og hvorfor den valgte beregningsmetoden passer.'}
         body={begrunnelse}
-        placeholder="Begrunn kravets omfang og den valgte beregningsmetoden..."
+        placeholder={kjernesak
+          ? 'Utdyp kravet om du vil...'
+          : 'Begrunn kravets omfang og den valgte beregningsmetoden...'}
         onchange={(html) => (begrunnelse = html)}
         oncharcount={(count) => (charCount = count)}
       />

@@ -96,8 +96,7 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     },
     teNavn,
     bhNavn,
-    // Ingen `*DomainConfig`: de leser Python-projeksjonens statusfelt, og skjemaene for
-    // byggherrens svar vises ikke for en TS-sak ennå (OV-U1, krav E i #718).
+    // Ingen `*DomainConfig`: de leser Python-projeksjonens statusfelt (krav E i #718).
     draftCount: 0,
     get submitting() {
       return kjernesak.sender;
