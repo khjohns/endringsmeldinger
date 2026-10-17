@@ -67,7 +67,7 @@ export function forbudteImporter(fil: string, kilde: string): string[] {
 }
 
 /** Filene som kan lese alderen på medlemslisten (#638 punkt 2). */
-const ALDEREN = new Set(['autorisasjon.ts', 'medlemskap.ts']);
+const ALDEREN = new Set(['autorisasjon.ts']);
 
 /** Om `kilde` viser til alderen på medlemslisten, som navn eller som prosedyre. */
 export function viserTilAlderen(kilde: string): boolean {
@@ -117,8 +117,8 @@ describe('grensene rundt TS-serveren', () => {
   });
 
   it.each([
-    ["import { medlemslistensAlder } from './medlemskap.ts';"],
-    ["import * as m from './medlemskap.ts';\nawait m.medlemslistensAlder(pool, p);"],
+    ["import { medlemslistensAlder } from './autorisasjon.ts';"],
+    ["import * as m from './autorisasjon.ts';\nawait m.medlemslistensAlder(pool, p);"],
     ["await pool.request().execute('koe_api.medlemsliste_alder');"],
     ['await pool.request().query(`EXEC koe_api.medlemsliste_alder @prosjekt = 1`);'],
   ])('oppdager at app.ts leser alderen med %s', (linje) => {

@@ -7,9 +7,12 @@
  *
  * Tilbakekallet løser identiteten gjennom `koe_api.catenda_identitet`, med
  * issueren låst i basen og subjektet i `catendaId()`-formen fra `CatendaOAuth`,
- * og oppretter sesjonen. Lar identiteten seg ikke avgjøre, opprettes ingen
- * sesjon. Medlemssynkroniseringen og deaktiveringen ved innlogging er F0b-5b
- * (#638, #614).
+ * og deretter medlemskapet, som `AuthService.login` i Python (F0b-5b, #638): med
+ * brukerens token hentes medlemslisten for hvert koblet prosjekt brukeren er med i
+ * i Catenda, og medlemskapet blir inaktivt i de koblede prosjektene brukeren ikke
+ * lenger er med i (DL-U8). Identiteten løses før deaktiveringen, så fraværet føres
+ * også ved første innlogging (DL-U9, PR #652). Subjektet kommer fra Catenda, aldri
+ * fra forespørselen. Feiler et ledd, opprettes ingen sesjon.
  *
  * Kode, token og feil fra Catenda når aldri loggen, svaret eller adressen;
  * loggen får bare navnet på feiltypen, som i Python.
@@ -22,6 +25,12 @@ import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, type Pool } from './datalag.ts';
 import {
+  basensKlokke,
+  deaktiverVedInnlogging,
+  kobledeProsjekter,
+  synkroniserProsjekt,
+} from './medlemskap.ts';
+import {
   brukInnloggingsforsoek,
   opprettInnloggingsforsoek,
   opprettSesjon,
@@ -31,7 +40,7 @@ import {
 /** Det inngangene trenger av `CatendaOAuth`, så testene kan stå for Catenda. */
 export type Innloggingsleverandoer = Pick<
   CatendaOAuth,
-  'autorisasjonsadresse' | 'byttKode' | 'bruker'
+  'autorisasjonsadresse' | 'byttKode' | 'bruker' | 'prosjekter' | 'medlemmer'
 >;
 
 export interface Innlogging {
@@ -149,6 +158,30 @@ export async function catendaIdentitet(pool: Pool, bruker: CatendaBruker): Promi
   return id.toLowerCase();
 }
 
+/**
+ * `AuthService.login`: identiteten, så medlemslistene og deaktiveringen. Tidspunktet
+ * for prosjektlisten leses av basens klokke før listen hentes (B-04 punkt 1), og
+ * en ufullstendig liste gir feil, aldri en deaktivering (B-04 punkt 4).
+ */
+async function medlemskapVedInnlogging(
+  pool: Pool,
+  oauth: Innloggingsleverandoer,
+  token: string
+): Promise<string> {
+  const catendaBruker = await oauth.bruker(token);
+  const bruker = await catendaIdentitet(pool, catendaBruker);
+  const hentet = await basensKlokke(pool);
+  const catendaProsjekter = [...(await oauth.prosjekter(token))];
+  for (const prosjekt of await kobledeProsjekter(pool, catendaProsjekter))
+    await synkroniserProsjekt(pool, prosjekt, (c) => oauth.medlemmer(c, token));
+  await deaktiverVedInnlogging(pool, {
+    subjekt: catendaBruker.subjekt,
+    catendaProsjekter,
+    hentet,
+  });
+  return bruker;
+}
+
 const loggFeil = (hvor: string, feil: unknown) =>
   console.warn(`${hvor} (${(feil as Error)?.constructor?.name ?? typeof feil})`);
 
@@ -189,7 +222,7 @@ async function tilbakekall(
     if (retursti === null || url.searchParams.get('error') || kode.length !== 1 || !kode[0])
       return mislyktes;
     const token = await innlogging.oauth.byttKode(kode[0]);
-    const bruker = await catendaIdentitet(avh.datalag, await innlogging.oauth.bruker(token));
+    const bruker = await medlemskapVedInnlogging(avh.datalag, innlogging.oauth, token);
     const sesjon = await opprettSesjon(avh.datalag, bruker);
     const gammel = informasjonskapsel(foresporsel, navn);
     if (gammel) await slettSesjon(avh.datalag, gammel);

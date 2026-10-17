@@ -1,14 +1,15 @@
 /**
- * Medlemskapet i SQL Server (#53, del 3b, DL-U7, DL-U8, DL-U9):
- * `koe_api.synkroniser_medlemskap`, `koe_api.deaktiver_ved_innlogging` og
- * `koe_api.medlemsliste_alder`. Synkroniseringen og innloggingen er systemkall uten
+ * Medlemskapet i SQL Server (#53, del 3b, DL-U7, DL-U8, DL-U9, DL-U10):
+ * `koe_api.prosjektkobling`, `koe_api.synkroniser_medlemskap`,
+ * `koe_api.koblede_prosjekter` og `koe_api.deaktiver_ved_innlogging`. Alderen på
+ * medlemslisten leses i `autorisasjon.ts` (#638). Synkroniseringen og innloggingen er systemkall uten
  * aktør og prosjektkontekst (RB2-04), så de går utenom `transaksjon()`; prosedyrene
  * har sin egen transaksjon og samme applås per prosjekt.
  *
  * Tidskilden er basens klokke (B-04 punkt 1): kalleren leser `basensKlokke()` før
  * den henter listen fra Catenda, og oppgir tidspunktet som `hentet`. Catenda-ID-en
- * til prosjektet hentes fra koblingen, aldri fra forespørselen. Ingen inngang kaller
- * modulen ennå (#375).
+ * til prosjektet hentes fra koblingen med `synkroniserProsjekt()`, aldri fra
+ * forespørselen (#638). Tilgangskontrollen og innloggingen kaller modulen (F0b-5b).
  */
 
 import { feilnummer, sql, type Pool } from './datalag.ts';
@@ -44,7 +45,7 @@ const UGYLDIG_PROSJEKT = 52043;
 const LAAST = 52044;
 const UGYLDIG_PROSJEKTLISTE = 52045;
 
-function oversett(
+export function oversett(
   feil: unknown,
   ugyldig: new (melding: string, valg: ErrorOptions) => Error
 ): unknown {
@@ -78,12 +79,67 @@ export async function basensKlokke(pool: Pool): Promise<Date> {
 }
 
 /**
+ * Catenda-prosjektet et prosjekt er koblet til, som UUID med små bokstaver, eller
+ * `null` uten aktiv kobling.
+ */
+export async function prosjektkobling(pool: Pool, prosjekt: string): Promise<string | null> {
+  const svar = await pool
+    .request()
+    .input('prosjekt', sql.NVarChar(4000), prosjekt)
+    .execute<{ catenda_prosjekt: string }>('koe_api.prosjektkobling');
+  const rad = svar.recordset[0];
+  return rad ? rad.catenda_prosjekt.toLowerCase() : null;
+}
+
+/**
+ * Henter medlemmene fra Catenda-prosjektet prosjektet er koblet til, og skriver
+ * listen med `synkroniserMedlemskap()`. Catenda-ID-en kommer fra koblingen, og
+ * `hentet` fra basens klokke før hentingen (#638, B-04 punkt 1). Er koblingen
+ * endret før listen skrives, avviser basen den.
+ *
+ * @throws FeilCatendaProsjekt uten aktiv kobling, ellers som `synkroniserMedlemskap()`
+ */
+export async function synkroniserProsjekt(
+  pool: Pool,
+  prosjekt: string,
+  hentMedlemmer: (catendaProsjekt: string) => Promise<Medlem[]>
+): Promise<boolean> {
+  const catendaProsjekt = await prosjektkobling(pool, prosjekt);
+  if (!catendaProsjekt) throw new FeilCatendaProsjekt('Prosjektet har ingen aktiv kobling');
+  const hentet = await basensKlokke(pool);
+  const medlemmer = await hentMedlemmer(catendaProsjekt);
+  return synkroniserMedlemskap(pool, { prosjekt, catendaProsjekt, hentet, medlemmer });
+}
+
+/**
+ * Prosjektene med aktiv kobling til ett av `catendaProsjekter`, sortert. Hver ID
+ * har `catendaId()`-formen.
+ *
+ * @throws UgyldigInnlogging
+ */
+export async function kobledeProsjekter(
+  pool: Pool,
+  catendaProsjekter: string[]
+): Promise<string[]> {
+  try {
+    const svar = await pool
+      .request()
+      .input('catenda_prosjekter', sql.NVarChar(sql.MAX), JSON.stringify(catendaProsjekter))
+      .execute<{ prosjekt: string }>('koe_api.koblede_prosjekter');
+    return svar.recordset.map((r) => r.prosjekt);
+  } catch (feil) {
+    throw oversett(feil, UgyldigInnlogging);
+  }
+}
+
+/**
  * Skriver en fullstendig medlemsliste for prosjektet. Medlemmer som ikke står i
  * listen, blir inaktive. Returnerer `false` uten å endre noe når en liste hentet
  * samtidig eller senere alt er skrevet (DL-U7). En bruker uten medlemskap, som
  * en innlogging med en liste hentet samtidig eller senere viste ikke er med i
  * prosjektet, får ikke noe medlemskap (DL-U9). `catendaProsjekt` kommer fra
- * koblingen, og `hentet` fra `basensKlokke()`.
+ * koblingen, og `hentet` fra `basensKlokke()`. Inngangene kaller
+ * `synkroniserProsjekt()`, som leser koblingen.
  *
  * @throws UgyldigMedlemsliste, UgyldigProsjekt, FeilCatendaProsjekt, MedlemskapetLaast
  */
@@ -144,28 +200,5 @@ export async function deaktiverVedInnlogging(
     return svar.recordset.map((r) => r.prosjekt);
   } catch (feil) {
     throw oversett(feil, UgyldigInnlogging);
-  }
-}
-
-/**
- * Når listen for prosjektet ble hentet, og alderen i sekunder etter basens klokke,
- * minst 0 (B-04 punkt 4). `null` når ingen liste fra det koblede Catenda-prosjektet
- * er skrevet. En inngang som kaller den, må kreve tilgang til prosjektet.
- *
- * @throws UgyldigProsjekt
- */
-export async function medlemslistensAlder(
-  pool: Pool,
-  prosjekt: string
-): Promise<{ hentet: Date; alderSekunder: number } | null> {
-  try {
-    const svar = await pool
-      .request()
-      .input('prosjekt', sql.NVarChar(4000), prosjekt)
-      .execute<{ hentet: Date; alder_sekunder: string | number }>('koe_api.medlemsliste_alder');
-    const rad = svar.recordset[0];
-    return rad ? { hentet: rad.hentet, alderSekunder: Number(rad.alder_sekunder) } : null;
-  } catch (feil) {
-    throw oversett(feil, UgyldigMedlemsliste);
   }
 }

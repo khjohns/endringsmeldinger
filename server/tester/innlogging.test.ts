@@ -9,14 +9,24 @@
  * AGENTS.md: samme issuer og normaliserte subjekt, og ingen sesjon når
  * identiteten ikke kan avgjøres.
  *
+ * Medlemskapet ved innlogging (F0b-5b, #638) følger `AuthService.login`: listen
+ * hentes med brukerens token for hvert koblet prosjekt brukeren er med i, og
+ * medlemskapet blir inaktivt i de andre koblede prosjektene (DL-U8). Identiteten
+ * løses før deaktiveringen, så fraværet føres også ved første innlogging (DL-U9,
+ * kravet under «Åpne spørsmål» i PR #652). En ufullstendig prosjektliste gir ingen
+ * deaktivering og ingen sesjon (B-04 punkt 4).
+ *
  * Catenda står bak `Innloggingsleverandoer`; ekte OAuth mot Catenda prøves ikke.
  */
 
+import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { sesjonsnavn } from '../autorisasjon.ts';
+import { catendaId, sesjonsnavn } from '../autorisasjon.ts';
 import { CatendaUtilgjengelig, type CatendaBruker } from '../catenda.ts';
 import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
+import { basensKlokke, synkroniserMedlemskap, type Medlem } from '../medlemskap.ts';
 import { opprettInnloggingsforsoek, opprettSesjon } from '../sesjon.ts';
+import { settInn } from './sqlserver_migrert.ts';
 import {
   lagOppsett,
   rydd,
@@ -156,6 +166,8 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
   let server: KjorendeServer;
   let utenOppsett: KjorendeServer;
   let catenda: CatendaBruker | Error;
+  let catendaProsjekter: Set<string> | Error;
+  let medlemslister: Record<string, Medlem[] | Error>;
   const oauth: Innloggingsleverandoer = {
     autorisasjonsadresse: (state) => `https://catenda.test/oauth2/authorize?state=${state}`,
     async byttKode(kode) {
@@ -166,6 +178,18 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
       expect(token).toBe('brukertoken');
       if (catenda instanceof Error) throw catenda;
       return catenda;
+    },
+    async prosjekter(token) {
+      expect(token).toBe('brukertoken');
+      if (catendaProsjekter instanceof Error) throw catendaProsjekter;
+      return catendaProsjekter;
+    },
+    async medlemmer(catendaProsjekt, token) {
+      expect(token).toBe('brukertoken');
+      const liste = medlemslister[catendaId(catendaProsjekt)!];
+      if (!liste) throw new Error('Ingen medlemsliste i testen');
+      if (liste instanceof Error) throw liste;
+      return liste;
     },
   };
 
@@ -181,6 +205,8 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
   });
   beforeEach(() => {
     catenda = { subjekt: 'a'.repeat(32), epost: 'kari@test.example', navn: 'Kari' };
+    catendaProsjekter = new Set();
+    medlemslister = {};
   });
 
   const eier = () => o.datalag!.base.pool;
@@ -301,6 +327,121 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
     expect(svar.hoder.get('location')).toBe(MISLYKTES);
     expect(svar.kapsler.has(SESJON)).toBe(false);
     expect(svar.kapsler.get(FORSOEK)).toContain('Max-Age=0');
+  });
+
+  describe('medlemskapet ved innlogging', () => {
+    const r = () => eier().request();
+
+    /** Et prosjekt koblet til et nytt Catenda-prosjekt, uten medlemsliste. */
+    async function koblet() {
+      const p = { id: `innlogging-${randomBytes(4).toString('hex')}`, catenda: randomUUID() };
+      await settInn(r, 'projects', {
+        id: p.id,
+        name: p.id,
+        organisasjon_id: 'org-test',
+        is_active: true,
+      });
+      await settInn(r, 'catenda_project_configs', {
+        internal_project_id: p.id,
+        catenda_project_id: p.catenda,
+        is_active: true,
+      });
+      return { ...p, catendaId: catendaId(p.catenda)! };
+    }
+
+    async function aktive(prosjektId: string) {
+      const svar = await r()
+        .input('p', prosjektId)
+        .query<{ catenda_subject: string }>(
+          `SELECT catenda_subject FROM koe.app_project_memberships
+            WHERE project_id = @p AND active = 1 ORDER BY catenda_subject`
+        );
+      return svar.recordset.map((m) => m.catenda_subject);
+    }
+
+    const som = (b: CatendaBruker): Medlem => ({
+      subjekt: b.subjekt,
+      epost: b.epost,
+      navn: b.navn,
+      rolle: 'member',
+    });
+
+    beforeEach(() => {
+      const s = randomBytes(16).toString('hex');
+      catenda = { subjekt: s, epost: `${s.slice(0, 6)}@test.example`, navn: 'Ny' };
+    });
+
+    it('listen hentes for hvert koblet prosjekt brukeren er med i, og gir medlemskapet', async () => {
+      const med = await koblet();
+      const utenListe = await koblet();
+      const bruker = catenda as CatendaBruker;
+      catendaProsjekter = new Set([med.catendaId, catendaId(randomUUID())!]);
+      medlemslister = { [med.catendaId]: [som(bruker)] };
+      const svar = await loggInn();
+      expect(svar.kapsler.has(SESJON)).toBe(true);
+      expect(await aktive(med.id)).toEqual([bruker.subjekt]);
+      expect(await aktive(utenListe.id)).toEqual([]);
+    });
+
+    it('ved første innlogging gir en liste hentet før innloggingen ikke medlemskap i et prosjekt brukeren ikke er med i (DL-U9)', async () => {
+      const p = await koblet();
+      const bruker = catenda as CatendaBruker;
+      const hentetFoer = new Date(Date.now() - 5_000);
+      catendaProsjekter = new Set();
+      expect((await loggInn()).kapsler.has(SESJON)).toBe(true);
+      await synkroniserMedlemskap(eier(), {
+        prosjekt: p.id,
+        catendaProsjekt: p.catenda,
+        hentet: hentetFoer,
+        medlemmer: [som(bruker)],
+      });
+      expect(await aktive(p.id)).toEqual([]);
+      // Kontroll: en liste hentet etter innloggingen gir medlemskapet.
+      await synkroniserMedlemskap(eier(), {
+        prosjekt: p.id,
+        catendaProsjekt: p.catenda,
+        hentet: await basensKlokke(eier()),
+        medlemmer: [som(bruker)],
+      });
+      expect(await aktive(p.id)).toEqual([bruker.subjekt]);
+    });
+
+    it('medlemskapet blir inaktivt i et koblet prosjekt brukeren ikke lenger er med i (DL-U8)', async () => {
+      const p = await koblet();
+      const bruker = catenda as CatendaBruker;
+      catendaProsjekter = new Set([p.catendaId]);
+      medlemslister = { [p.catendaId]: [som(bruker)] };
+      await loggInn();
+      expect(await aktive(p.id)).toEqual([bruker.subjekt]);
+      catendaProsjekter = new Set();
+      expect((await loggInn()).kapsler.has(SESJON)).toBe(true);
+      expect(await aktive(p.id)).toEqual([]);
+    });
+
+    it.each([
+      [
+        'prosjektlisten',
+        () => (catendaProsjekter = new CatendaUtilgjengelig('Ufullstendig samling')),
+      ],
+      ['medlemslisten', (c: string) => (medlemslister = { [c]: new CatendaUtilgjengelig('Nede') })],
+    ])(
+      'feiler %s, gir tilbakekallet login_failed uten sesjon og uten deaktivering',
+      async (_navn, feil) => {
+        const p = await koblet();
+        const bruker = catenda as CatendaBruker;
+        catendaProsjekter = new Set([p.catendaId]);
+        medlemslister = { [p.catendaId]: [som(bruker)] };
+        await loggInn();
+        expect(await aktive(p.id)).toEqual([bruker.subjekt]);
+        const annet = await koblet();
+        catendaProsjekter = new Set([annet.catendaId]);
+        feil(annet.catendaId);
+        const svar = await loggInn();
+        expect(svar.hoder.get('location')).toBe(MISLYKTES);
+        expect(svar.kapsler.has(SESJON)).toBe(false);
+        expect(await aktive(p.id)).toEqual([bruker.subjekt]);
+      }
+    );
   });
 
   it('forsøket kan bare brukes én gang', async () => {

@@ -323,7 +323,7 @@ export interface KjorendeServer {
 /** Catendas team-API fra oppsettet. Medlemskapene er ferske, så synkroniseringen kalles ikke. */
 export function catendaFra(teammedlemmer: Record<string, string[]>): Catenda {
   return {
-    async synkroniser() {
+    async medlemmer() {
       throw new Error('Synkronisering er ikke forventet i testene.');
     },
     async teammedlemmer(_prosjekt, teamId) {
