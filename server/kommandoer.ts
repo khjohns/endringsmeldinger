@@ -34,7 +34,8 @@ export class UgyldigKommando extends Error {}
  * Konteksten gir ikke rett til å skrive: radsikkerheten blokkerte raden (33504),
  * basen fant ingen aktør, side eller prosjekt i konteksten (51403 fra
  * `opprett_sak`), eller konteksten har ingen kontraktsside, som `skrivHendelse`
- * prøver før basen, uten `cause`.
+ * prøver før basen, eller en annen side enn TE, som `opprettSak` prøver før basen.
+ * De to siste har ingen `cause`.
  */
 export class SkrivingAvvist extends Error {}
 
@@ -74,7 +75,10 @@ function oversett(feil: unknown, forventet: number | null): unknown {
 
 /**
  * Oppretter saken med `sak_opprettet` som versjon 1. Basen lager saks-ID-en og
- * hendelses-ID-en og stempler tidspunktet, aktøren, siden og teamet.
+ * hendelses-ID-en og stempler tidspunktet, aktøren, siden og teamet. `innhold`
+ * er det `opprettelse` i kjernen har godtatt. Bare TE oppretter (OV-U1), også
+ * her, så en kaller som hopper over kjernen, ikke skriver en sak fra BH i den
+ * uforanderlige journalen (#696).
  *
  * @throws SkrivingAvvist, UgyldigKommando
  */
@@ -85,6 +89,8 @@ export async function opprettSak(
 ): Promise<Journalrad> {
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
+      // Etter at transaksjon() har prøvd konteksten, som i skrivHendelse (#596).
+      if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
       const svar = await foresp()
         .input('format', sql.Int, innhold.format)
         .input('data', sql.NVarChar(sql.MAX), JSON.stringify(innhold.data))

@@ -38,12 +38,13 @@ export const hentKjernesak = (sakId: string, prosjektId?: string) =>
   apiFetch<Kjernesak>(sti(sakId), { headers: projectHeaders(prosjektId) });
 
 /**
- * Oppretter saken. Serveren lager saks-ID-en og stempler aktøren og tidspunktet.
- * Inngangen bygges i #370 (FK-7); formen her er det klienten sender dit.
+ * Oppretter saken i prosjektet fra ruta, eller det aktive. Serveren lager
+ * saks-ID-en og stempler aktøren og tidspunktet.
  */
-export const opprettSak = (kommando: unknown) =>
+export const opprettSak = (kommando: unknown, prosjektId?: string) =>
   apiFetch<{ sak_id: string; versjon: number }>(SAKER, {
     method: 'POST',
+    headers: projectHeaders(prosjektId),
     body: JSON.stringify({ kommando }),
   });
 

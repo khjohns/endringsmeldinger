@@ -121,10 +121,10 @@ describe('skjemaet for ny sak på TS-stien', () => {
     actions()!.send();
 
     const brev = await screen.findByRole('region', { name: 'Brevkontroll' });
-    expect(opprettSak).toHaveBeenCalledWith({
-      type: 'opprett_sak',
-      sakstittel: 'Endret fundament',
-    });
+    expect(opprettSak).toHaveBeenCalledWith(
+      { type: 'opprett_sak', sakstittel: 'Endret fundament' },
+      'project'
+    );
     expect(hentKjernesak).toHaveBeenCalledWith(SAK, 'project');
     const vist = Array.from(
       brev.querySelectorAll('[data-testid="laast-tekst"] p'),

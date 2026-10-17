@@ -798,7 +798,7 @@ status = "i bruk"
 beskrivelse = """
 Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og
 sletting."""
-lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53)."
+lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`, som `POST /api/kjerne/saker` kaller (#370)."
 fra_catenda = "Nei"
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` peker på en bruker."
@@ -814,7 +814,7 @@ status = "i bruk"
 beskrivelse = """
 Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger
 avviser endring og sletting. Teamet står bare når det er entydig (DL-U4)."""
-lagres_fra = "`koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. `koe_api.skriv_hendelse` kalles fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661); ingen HTTP-inngang oppretter saker ennå (#370)."
+lagres_fra = "`koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. `koe_api.skriv_hendelse` kalles fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661), og `koe_api.opprett_sak` fra `POST /api/kjerne/saker` (#370)."
 fra_catenda = "Nei"
 kan_gjenoppbygges = "nei. Journalen er kilden alt annet regnes fra."
 personopplysninger = """
@@ -869,7 +869,7 @@ Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til:
 topicen lages etter at saken er lagret, og saksraden er uforanderlig.
 `koe_api.leveringsmaal` leser den, og leveringsoppdraget fryser topicen, eller
 null uten rad (F0b-7, #661)."""
-lagres_fra = "Ingen prosedyre skriver den ennå (#370, #371)."
+lagres_fra = "Ingen prosedyre skriver den ennå (#741, #371)."
 fra_catenda = "Ja, ID-ene er Catendas."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Nei."

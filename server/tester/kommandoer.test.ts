@@ -204,6 +204,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       ['et prosjekt aktøren ikke er medlem av', () => ({ ...te, prosjekt: P2, team: TE_P2 })],
       ['et team på motpartens side', () => ({ ...te, team: BH1 })],
       ['uten side', () => ({ ...te, side: undefined })],
+      // Bare TE oppretter, også i skrivelaget (OV-U1, #696); basen godtar BH.
+      ['BH med eget team', () => ({ aktor: b.bh, prosjekt: P1, side: 'BH', team: BH1 })],
     ])('avvises for %s', async (_, k) => {
       await expect(nySak(k())).rejects.toBeInstanceOf(SkrivingAvvist);
     });
