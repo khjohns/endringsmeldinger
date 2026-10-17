@@ -4,7 +4,8 @@
  * her, som `secrets.token_urlsafe(32)` i Python, og basen får bare SHA-256 av
  * sesjonstokenet, staten og nettlesertokenet. Levetidene og klokka er basens.
  * Kallene er systemkall uten aktør og prosjektkontekst, så de går utenom
- * `transaksjon()`. Ingen inngang kaller modulen ennå (F0b-5a, #659).
+ * `transaksjon()`. Innloggingsinngangene i `innlogging.ts` oppretter og sletter
+ * sesjonen (#659), og `autorisasjon.ts` leser den for hver inngang som krever den.
  */
 
 import { randomBytes } from 'node:crypto';

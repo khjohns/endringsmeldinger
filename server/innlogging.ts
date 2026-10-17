@@ -86,13 +86,17 @@ export function innloggingFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): In
 /**
  * `safe_return_path` i `backend/lib/auth/domain.py`: bare en lokal sti utenfor
  * `/api/` og `/login`, ellers `/`. Kontrollen gjøres på stien dekodet én gang
- * til, og stien selv må også begynne med én `/`, som basen krever. Lengden
- * telles i UTF-16-enheter, som basen teller (kravet i #659).
+ * til, og stien selv må også begynne med én `/`, som basen krever. `/api/` og
+ * `/login` prøves etter punktsegmentene, som nettleseren løser opp. Tegn utenfor
+ * ASCII prosentkodes, så stien kan stå i `Location`, og lengden telles etterpå,
+ * i UTF-16-enheter, som basen teller (kravet i #659).
  */
 export function tryggRetursti(verdi: string | null | undefined): string {
-  const sti = verdi || '/';
+  let sti: string;
   let dekodet: string;
   try {
+    // Et hode tar bare ASCII; `%` og resten av ASCII står som de er.
+    sti = (verdi || '/').replace(/[^\x21-\x7e]+/g, encodeURIComponent);
     dekodet = decodeURIComponent(sti);
   } catch {
     return '/';
@@ -107,7 +111,7 @@ export function tryggRetursti(verdi: string | null | undefined): string {
     sti.length > STOERSTE_RETURSTI ||
     !lokal(sti) ||
     !lokal(dekodet) ||
-    /^\/(api\/|login)/.test(dekodet.split('?', 1)[0])
+    /^\/(api\/|login)/.test(new URL(dekodet, 'http://lokal').pathname)
   )
     return '/';
   return sti;

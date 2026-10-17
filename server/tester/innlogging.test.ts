@@ -43,6 +43,17 @@ describe('returstien kontrolleres som safe_return_path', () => {
     ['/%61pi/auth/session', '/'],
     ['/login', '/'],
     ['/login?error=x', '/'],
+    // Nettleseren løser opp punktsegmentene før den følger omdirigeringen.
+    ['/./login', '/'],
+    ['/saker/../api/auth/session', '/'],
+    ['/%2e/api/auth/session', '/'],
+    ['/saker/../saker/1', '/saker/../saker/1'],
+    // Tegn utenfor ASCII prosentkodes, så stien kan stå i `Location`.
+    ['/😀/æ', '/%F0%9F%98%80/%C3%A6'],
+    ['/saker 1', '/saker%201'],
+    ['/\ud800', '/'],
+    // 2047 tegn, men 6142 enheter prosentkodet.
+    [`/${'æ'.repeat(2047)}`, '/'],
     ['https://angriper.example', '/'],
     // Dekodet begynner den med `/`, men basen krever at stien selv gjør det.
     ['%2Fsaker', '/'],
@@ -232,6 +243,12 @@ describe.skipIf(!BEGGE_BASENE)('innloggingsinngangene mot testbasene', () => {
       user: { id: bruker, email: 'kari@test.example', name: 'Kari' },
       csrfToken: expect.stringMatching(/^[\w-]{43}$/),
     });
+  });
+
+  it('en retursti med tegn utenfor ASCII prosentkodes i Location', async () => {
+    const svar = await loggInn('/😀/æ');
+    expect(svar.status).toBe(302);
+    expect(svar.hoder.get('location')).toBe(`${FRONTEND}/%F0%9F%98%80/%C3%A6`);
   });
 
   it('samme Catenda-identitet gir samme bruker ved neste innlogging', async () => {

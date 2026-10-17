@@ -10,8 +10,8 @@
  * Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
  * `tester/register.test.ts` prøver hver inngang i registeret over HTTP.
  *
- * Saker opprettes ikke her (#370). Catenda kalles ikke;
- * leveringen stopper ved det frosne oppdraget (#371).
+ * Saker opprettes ikke her (#370). Leveringen stopper ved det frosne oppdraget
+ * og kaller ikke Catenda (#371).
  */
 
 import { randomUUID } from 'node:crypto';
