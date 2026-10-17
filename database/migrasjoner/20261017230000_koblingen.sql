@@ -85,3 +85,17 @@ END
 GO
 
 GRANT EXECUTE ON koe_api.koblede_prosjekter TO koe_runtime;
+GO
+
+-- De anvendte migrasjonene, så serveren kan nekte å starte mot en base som
+-- avviker fra `database/migrasjoner/` (F0b-8, #662). Historikken har ingen
+-- saksdata; kjøretiden får den gjennom prosedyren, ikke tabellen.
+CREATE PROCEDURE koe_api.migrasjonshistorikk
+AS
+BEGIN
+  SET NOCOUNT ON;
+  SELECT versjon, filnavn, sha256 FROM koe_migrering.historikk ORDER BY versjon;
+END
+GO
+
+GRANT EXECUTE ON koe_api.migrasjonshistorikk TO koe_runtime;

@@ -47,11 +47,8 @@ const utenCatenda: Catenda = {
 /** Det som hindrer at serveren bruker basen: avvik fra filene, eller en fil som ikke er anvendt. */
 async function migrasjonsavvik(datalag: Pool): Promise<string[]> {
   const filer = lesMigrasjoner();
-  const anvendt = (
-    await datalag
-      .request()
-      .query<Anvendt>('SELECT versjon, filnavn, sha256 FROM koe_migrering.historikk')
-  ).recordset;
+  const anvendt = (await datalag.request().execute<Anvendt>('koe_api.migrasjonshistorikk'))
+    .recordset;
   const kjent = new Set(anvendt.map((a) => a.versjon));
   return [
     ...avvik(anvendt, filer),

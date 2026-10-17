@@ -558,14 +558,14 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i 
 | --- | --- |
 | Type | grunndata, kopi |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, skriver medlemslisten fra Catenda og gjør medlemmer som ikke står i den, inaktive. `koe_api.deaktiver_ved_innlogging`, også kalt derfra, gjør brukerens medlemskap inaktivt i koblede prosjekter som ikke står i brukerens liste fra Catenda. `deactivated_at` er når medlemskapet sist ble gjort inaktivt, etter basens klokke; en liste hentet før det gjør det ikke aktivt igjen (DL-U8). For en bruker uten medlemskap fører innloggingen en rad i `koe.app_membership_absences`, og en liste hentet før den gir ikke et nytt medlemskap (DL-U9). Ingen inngang kaller modulen ennå. |
+| Hvor fra appen lagres og redigeres | `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, skriver medlemslisten fra Catenda og gjør medlemmer som ikke står i den, inaktive. `koe_api.deaktiver_ved_innlogging`, også kalt derfra, gjør brukerens medlemskap inaktivt i koblede prosjekter som ikke står i brukerens liste fra Catenda. `deactivated_at` er når medlemskapet sist ble gjort inaktivt, etter basens klokke; en liste hentet før det gjør det ikke aktivt igjen (DL-U8). For en bruker uten medlemskap fører innloggingen en rad i `koe.app_membership_absences`, og en liste hentet før den gir ikke et nytt medlemskap (DL-U9). Tilgangskontrollen i `server/autorisasjon.ts` og tilbakekallet i `server/innlogging.ts` kaller modulen (F0b-5b). Blir koblingen opphevet, slettet eller endret, gjør triggeren `koe.catenda_project_configs_kobling_endret` alle medlemskapene i prosjektet inaktive med `deactivated_at` satt til tidspunktet for endringen (DL-U10). |
 | Data fra Catenda | Ja, medlemslisten i Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id); unik (project_id, catenda_subject). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ikke kontrollert |
 | Personopplysninger | E-post og visningsnavn. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261016210000_catenda_id.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`) |
+| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261016210000_catenda_id.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. K 17.10: `server/tester/medlemskap.test.ts` (DL-U10). |
 
 ### `koe.catenda_contract_teams`
 
@@ -586,7 +586,7 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 
 ### `koe.catenda_project_configs`
 
-Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt. `server/autorisasjon.ts` leser en aktiv kobling med `koe_api.prosjektkobling` (#658).
+Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt. `server/medlemskap.ts` leser en aktiv kobling med `koe_api.prosjektkobling` (#658, #638), og `koe_api.koblede_prosjekter` gir prosjektene koblet til brukerens Catenda-prosjekter ved innlogging. Triggeren `koe.catenda_project_configs_kobling_endret` gjør medlemskapene inaktive når koblingen oppheves, slettes eller endres (DL-U10). Den tomme Catenda-ID-en er ikke lov; den merker synkroniseringsraden etter en slik endring.
 
 | Felt | Innhold |
 | --- | --- |
@@ -609,7 +609,7 @@ Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at b
 | --- | --- |
 | Type | grunndata |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`, setter inn raden eller flytter `observed_at` fram. `koe_api.synkroniser_medlemskap` sletter radene i prosjektet med `observed_at` før listen den skriver. Ingen inngang kaller modulen ennå. |
+| Hvor fra appen lagres og redigeres | `koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`, setter inn raden eller flytter `observed_at` fram. `koe_api.synkroniser_medlemskap` sletter radene i prosjektet med `observed_at` før listen den skriver. Innloggingen kaller modulen fra tilbakekallet i `server/innlogging.ts` (F0b-5b). |
 | Data fra Catenda | Delvis. Tidspunktet er når hentingen fra Catenda begynte. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny innlogging |
@@ -620,20 +620,20 @@ Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at b
 
 ### `koe.app_membership_sync`
 
-Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2). Svarer til `app_membership_sync` i PostgreSQL.
+Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2). Svarer til `app_membership_sync` i PostgreSQL. Etter at koblingen er opphevet, slettet eller endret, har raden den tomme Catenda-ID-en og tidspunktet for endringen, så ingen liste fra det koblede prosjektet finnes, og en liste hentet før endringen ikke skrives (DL-U10).
 
 | Felt | Innhold |
 | --- | --- |
 | Type | grunndata |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`. Ingen inngang kaller modulen ennå. |
+| Hvor fra appen lagres og redigeres | `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, og triggeren `koe.catenda_project_configs_kobling_endret` når koblingen endres. |
 | Data fra Catenda | Delvis. Tidspunktet er når hentingen fra Catenda begynte. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (project_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny synkronisering |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`) |
+| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`. |
+| Belegg | L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`. K 17.10: DL-U10 i samme test. |
 
 ### `koe.sak_metadata`
 
