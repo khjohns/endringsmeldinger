@@ -747,7 +747,9 @@
      ["catenda_project_id", "uniqueidentifier", "NOT NULL"],
      ["is_active", "bit", "NOT NULL"],
      ["created_at", "datetime2(3)", "NOT NULL"],
-     ["updated_at", "datetime2(3)", "NOT NULL"]
+     ["updated_at", "datetime2(3)", "NOT NULL"],
+     ["library_id", "uniqueidentifier", "NULL"],
+     ["folder_id", "uniqueidentifier", "NULL"]
     ],
     "primærnøkkel": ["internal_project_id"],
     "unike": [
@@ -902,7 +904,8 @@
      ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
      ["sakstype", "nvarchar(40)", "NOT NULL"],
      ["created_by", "uniqueidentifier", "NOT NULL"],
-     ["created_at", "datetime2(3)", "NOT NULL"]
+     ["created_at", "datetime2(3)", "NOT NULL"],
+     ["catenda_topic_id", "nvarchar(100)", "NULL"]
     ],
     "primærnøkkel": ["sak_id"],
     "unike": [

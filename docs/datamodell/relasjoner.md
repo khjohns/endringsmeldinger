@@ -447,6 +447,9 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.app_project_memberships.user_email` | Kopi av e-posten i medlemslisten fra Catenda. Personen er `user_id`. |
 | `koe.projects.organisasjon_id` | Virksomheten prosjektet tilhører. Det finnes ingen tabell for virksomheter (MS-10). |
 | `koe.catenda_project_configs.catenda_project_id` | ID-en til prosjektet i Catenda, unik per kobling. Ingen tabell i SQL Server har Catenda-prosjektene. |
+| `koe.catenda_project_configs.library_id` | Dokumentbiblioteket i Catenda for brevene. Fryses i leveringsoppdraget (F0b-7, #661). |
+| `koe.catenda_project_configs.folder_id` | Mappen i biblioteket. Samme som `library_id`. |
+| `koe.sak_metadata.catenda_topic_id` | ID-en til topicen i Catenda for saken. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
 
 ## Dataflyt mot Catenda

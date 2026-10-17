@@ -660,7 +660,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. Ingen HTTP-inngang kaller dem ennå (#53). |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. `koe_api.skriv_hendelse` kalles fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661); ingen HTTP-inngang oppretter saker ennå (#370). |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
@@ -694,7 +694,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`. Ingen HTTP-inngang kaller den ennå (#53). |
+| Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661). |
 | Data fra Catenda | Nei, men oppdraget gjelder en levering til Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |

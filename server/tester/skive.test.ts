@@ -1,8 +1,10 @@
 /**
  * Skiva i #347 mot testbasen: et grunnlagskrav og et vederlagskrav fra TE går
  * over HTTP gjennom tilgangskontrollen og kjernen til journalen og
- * leveringsoppdraget, og tilbake til visningen. Krever `KOE_TESTBASE_URL`. Kjør
- * ikke samtidig med pytest mot samme base.
+ * leveringsoppdraget i SQL Server, og tilbake til visningen. Krever
+ * `KOE_SQLSERVER_TILKOBLING`. Lagringsgarantiene for brevet og oppdraget (én
+ * transaksjon, uforanderlige rader, prosjektgrensen) prøves mot basen i
+ * `journal.test.ts`, `kommandoer.test.ts` og `tilgang.test.ts`.
  *
  * Forventningene har kilde i vedtakene: LV-U1 (oppdraget fryses i samme
  * transaksjon som hendelsen, og et lagret oppdrag er ikke en levering), B-03,
@@ -14,19 +16,21 @@
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { lesJournal, SakFinnesIkke, skrivMedOppdrag } from '../lager.ts';
+import { lesSaken } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { gjengiOppdrag, kanonisk, OPPDRAGSFORMAT, sjekksum } from '../levering.ts';
+import { sql } from './sqlserver.ts';
+import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
-  BEGGE_BASENE,
   kall,
   lagOppsett,
   opprettKjernesak,
   rydd,
   startServer,
+  TESTBASE_URL,
   type KjorendeServer,
   type Oppsett,
 } from './testbase.ts';
@@ -63,11 +67,15 @@ interface Oppdragsrad {
   innhold_sha256: string;
 }
 
-describe.skipIf(!BEGGE_BASENE)(
+describe.skipIf(!TESTBASE_URL)(
   'skiva: krav fra skjemaet til journalen og leveringsoppdraget',
   () => {
     let o: Oppsett;
     let server: KjorendeServer;
+    /** Prosjektet i konteksten for lesingen under radsikkerheten. */
+    const leser = () => ({ aktor: o.te.id, prosjekt: o.prosjekt.id });
+    const journalen = async (sakId: string) =>
+      (await lesSaken(o.datalag.kjoeretid.pool, leser(), sakId)).journal;
     /**
      * Kommandoen med den låste teksten klienten viste (A1 i paragrafmatrisen, LV-U2),
      * laget av kjernen mot journalen i basen slik nettleseren gjør (B-15).
@@ -75,7 +83,7 @@ describe.skipIf(!BEGGE_BASENE)(
     const send = async (sakId: string, kropp: unknown, bruker = o.te) => {
       const k = (kropp as { kommando?: unknown }).kommando;
       if (k && typeof k === 'object' && !('brevtekst' in k)) {
-        const journal = await lesJournal(o.pool, sakId, o.prosjekt.id);
+        const journal = await journalen(sakId);
         const vist = forhaandsvis(
           k,
           {
@@ -98,16 +106,31 @@ describe.skipIf(!BEGGE_BASENE)(
         kropp,
       });
     };
-    const oppdragene = async (sakId: string) =>
-      (
-        await o.pool.query<Oppdragsrad>(
-          `SELECT o.id::text AS id, o.prosjekt_id, o.sak_id, o.event_id::text AS event_id,
-                o.dokumentnoekkel, o.innhold, o.innhold_sha256
-           FROM leveringsoppdrag o JOIN hendelse h ON h.event_id = o.event_id
-          WHERE o.sak_id = $1 ORDER BY h.versjon`,
-          [sakId]
-        )
-      ).rows;
+    const oppdragene = async (sakId: string): Promise<Oppdragsrad[]> => {
+      const svar = await iTransaksjon(
+        o.datalag.base.pool,
+        { ...leser(), side: 'TE', team: null },
+        (r) =>
+          r()
+            .input('sak_id', sql.NVarChar(36), sakId)
+            .query<Oppdragsrad & { innhold: string }>(
+              `SELECT LOWER(CONVERT(nvarchar(36), o.id)) AS id, o.prosjekt_id, o.sak_id, o.event_id,
+                    o.dokumentnoekkel, o.innhold, o.innhold_sha256
+               FROM koe.leveringsoppdrag o JOIN koe.hendelse h ON h.event_id = o.event_id
+              WHERE o.sak_id = @sak_id ORDER BY h.versjon`
+            )
+      );
+      return svar.recordset.map((x) => ({ ...x, innhold: JSON.parse(x.innhold) }));
+    };
+    /** Biblioteket i koblingen for prosjektet, satt av eieren som driften gjør. */
+    const settBibliotek = (bibliotek: string | null) =>
+      o.datalag.base.pool
+        .request()
+        .input('prosjekt', sql.NVarChar(100), o.prosjekt.id)
+        .input('bibliotek', sql.UniqueIdentifier, bibliotek)
+        .query(
+          'UPDATE koe.catenda_project_configs SET library_id = @bibliotek WHERE internal_project_id = @prosjekt'
+        );
 
     beforeAll(async () => {
       o = await lagOppsett();
@@ -129,7 +152,7 @@ describe.skipIf(!BEGGE_BASENE)(
       expect(vederlag.kropp.versjon).toBe(3);
 
       // Journalen i basen: kjernens rader, med aktøren fra sesjonen.
-      const journal = await lesJournal(o.pool, sakId, o.prosjekt.id);
+      const journal = await journalen(sakId);
       expect(journal.map((r) => [r.versjon, r.event_type, r.format])).toEqual([
         [1, 'sak_opprettet', 1],
         [2, 'dokument_registrert', 1],
@@ -184,6 +207,9 @@ describe.skipIf(!BEGGE_BASENE)(
         });
         expect(x.innhold.maal).toMatchObject({
           catenda_project_id: o.prosjekt.catendaProsjekt,
+          library_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
+          folder_id: null,
+          topic_id: null,
         });
         // Summen kan regnes på nytt av det basen gir tilbake.
         expect(x.innhold_sha256).toBe(sjekksum(x.innhold));
@@ -251,7 +277,7 @@ describe.skipIf(!BEGGE_BASENE)(
         const svar = await send(sakId, kropp);
         expect(svar.status, hva).toBe(400);
       }
-      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
+      expect(await journalen(sakId)).toHaveLength(1);
       expect(await oppdragene(sakId)).toEqual([]);
     });
 
@@ -270,7 +296,7 @@ describe.skipIf(!BEGGE_BASENE)(
           message: 'Teksten har tegn som ikke kan lagres.',
         });
       }
-      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
+      expect(await journalen(sakId)).toHaveLength(1);
       expect(await oppdragene(sakId)).toEqual([]);
     });
 
@@ -289,7 +315,7 @@ describe.skipIf(!BEGGE_BASENE)(
       const med = await fetch(sti, { method: 'POST', headers: hoder(true), body: kropp });
       expect(med.status).toBe(400);
       expect((await med.json()).message).toBe('Kroppen er for dypt nestet.');
-      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
+      expect(await journalen(sakId)).toHaveLength(1);
     });
 
     it('en kommando kjernen avviser, skriver ingenting', async () => {
@@ -297,7 +323,7 @@ describe.skipIf(!BEGGE_BASENE)(
       const svar = await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV }, o.bh);
       expect(svar.status).toBe(400);
       expect(svar.kropp.error).toBe('REGELBRUDD');
-      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
+      expect(await journalen(sakId)).toHaveLength(1);
       expect(await oppdragene(sakId)).toEqual([]);
     });
 
@@ -308,7 +334,7 @@ describe.skipIf(!BEGGE_BASENE)(
         expect(svar.status).toBe(409);
         expect(svar.kropp).toMatchObject({ error: 'VERSJONSKONFLIKT', current_version: 1 });
       }
-      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(1);
+      expect(await journalen(sakId)).toHaveLength(1);
       expect(await oppdragene(sakId)).toEqual([]);
     });
 
@@ -319,114 +345,46 @@ describe.skipIf(!BEGGE_BASENE)(
         send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV }),
       ]);
       expect(svar.map((s) => s.status).sort()).toEqual([201, 409]);
-      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toHaveLength(2);
+      expect(await journalen(sakId)).toHaveLength(2);
       expect(await oppdragene(sakId)).toHaveLength(1);
     });
 
-    it.each([
-      ['en krok som kaster', async () => Promise.reject(new Error('avbrutt før COMMIT'))],
-      [
-        'en avbrutt forbindelse',
-        async (klient: import('pg').ClientBase) =>
-          void (await klient.query('SELECT pg_terminate_backend(pg_backend_pid())')),
-      ],
-    ] as const)('hendelsen og oppdraget lagres samlet eller ikke: %s', async (_hva, foerCommit) => {
-      const sakId = await opprettKjernesak(o);
-      const foer = await lesJournal(o.pool, sakId, o.prosjekt.id);
-      const eventId = randomUUID();
-      await expect(
-        skrivMedOppdrag(
-          o.pool,
-          o.prosjekt.id,
-          sakId,
-          1,
-          () => ({
-            skriv: true,
-            rad: { ...foer[0], event_id: eventId, versjon: 2, event_type: 'dokument_registrert' },
-            oppdrag: {
-              id: randomUUID(),
-              event_id: eventId,
-              dokumentnoekkel: eventId,
-              innhold: {},
-              innhold_sha256: sjekksum({}),
-            },
-          }),
-          { foerCommit }
-        )
-      ).rejects.toThrow();
-      expect(await lesJournal(o.pool, sakId, o.prosjekt.id)).toEqual(foer);
-      expect(await oppdragene(sakId)).toEqual([]);
+    it('en sak TS-kjernen ikke har skrevet, finnes ikke for lesingen eller en kommando (#705, #716 punkt 1)', async () => {
+      const sakId = await opprettKjernesak(o, o.prosjekt, null);
+      const lest = await kall(server.url, `/api/kjerne/saker/${sakId}`, {
+        bruker: o.te,
+        prosjektId: o.prosjekt.id,
+      });
+      expect(lest.status).toBe(404);
+      const svar = await send(sakId, {
+        expected_version: 1,
+        kommando: { ...GRUNNLAGSKRAV, brevtekst: [] },
+      });
+      expect(svar.status).toBe(404);
+      expect(svar.kropp.error).toBe('SAK_FINNES_IKKE');
+      // Kontrollsak: samme kommando i en sak kjernen har skrevet, går gjennom.
+      const kjernesak = await opprettKjernesak(o);
+      expect((await send(kjernesak, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
+        201
+      );
     });
 
-    it('lageret skriver ikke i en sak utenfor prosjektet, selv om kalleren ber om det', async () => {
-      const annenSak = await opprettKjernesak(o, o.annetProsjekt);
-      await expect(
-        skrivMedOppdrag(o.pool, o.prosjekt.id, annenSak, 1, () => {
-          throw new Error('Forutsetning: lageret skal avvise før raden lages');
-        })
-      ).rejects.toBeInstanceOf(SakFinnesIkke);
-    });
-
-    it('oppdraget kan ikke endres, og ikke føres til et annet prosjekt enn brevet', async () => {
+    it('uten bibliotek i koblingen skrives verken brevet eller oppdraget', async () => {
       const sakId = await opprettKjernesak(o);
-      const svar = await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV });
-      expect(svar.status).toBe(201);
-      await expect(
-        o.pool.query("UPDATE leveringsoppdrag SET innhold = '{}' WHERE sak_id = $1", [sakId])
-      ).rejects.toThrow(/uforanderlig/);
-
-      const annenSak = await opprettKjernesak(o, o.annetProsjekt);
-      // Triggeren avviser før unik-skranken på event_id, så avvisningen gjelder saken og prosjektet.
-      for (const [hva, prosjekt, sak] of [
-        ['annen sak og annet prosjekt', o.annetProsjekt.id, annenSak],
-        ['samme sak, annet prosjekt', o.annetProsjekt.id, sakId],
-        ['annen sak, samme prosjekt', o.prosjekt.id, annenSak],
-      ]) {
-        await expect(
-          o.pool.query(
-            `INSERT INTO leveringsoppdrag (id, prosjekt_id, sak_id, event_id, dokumentnoekkel, innhold, innhold_sha256)
-           VALUES ($1, $2, $3, $4, $5, '{}'::jsonb, $6)`,
-            [randomUUID(), prosjekt, sak, svar.kropp.event_id, randomUUID(), sjekksum({})]
-          ),
-          hva
-        ).rejects.toThrow(/sak og prosjekt/);
+      await settBibliotek(null);
+      try {
+        const svar = await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV });
+        expect(svar.status).toBe(409);
+        expect(svar.kropp.error).toBe('LEVERINGSMAAL_MANGLER');
+        expect(await journalen(sakId)).toHaveLength(1);
+        expect(await oppdragene(sakId)).toEqual([]);
+      } finally {
+        await settBibliotek(randomUUID());
       }
-    });
-
-    it('oppdraget kan ikke slettes eller tømmes, men følger saken når den slettes', async () => {
-      const sakId = await opprettKjernesak(o);
+      // Kontrollsak: med bibliotek skrives brevet.
       expect((await send(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV })).status).toBe(
         201
       );
-      const klient = await o.pool.connect();
-      try {
-        for (const sql of [
-          'DELETE FROM leveringsoppdrag WHERE sak_id = $1',
-          'TRUNCATE leveringsoppdrag',
-        ]) {
-          // Som service_role: plattformen gir rollen alt på nye tabeller, migrasjonen tar det tilbake.
-          await klient.query('BEGIN');
-          try {
-            await klient.query('SET LOCAL ROLE service_role');
-            await expect(
-              klient.query(sql, sql.includes('$1') ? [sakId] : []),
-              `${sql} som service_role`
-            ).rejects.toThrow(/permission denied/);
-          } finally {
-            await klient.query('ROLLBACK');
-          }
-          // Som eieren: triggeren stopper det.
-          await expect(
-            klient.query(sql, sql.includes('$1') ? [sakId] : []),
-            `${sql} som eier`
-          ).rejects.toThrow(/uforanderlig/);
-        }
-      } finally {
-        klient.release();
-      }
-      expect(await oppdragene(sakId)).toHaveLength(1);
-      await o.pool.query('DELETE FROM sak_metadata WHERE sak_id = $1', [sakId]);
-      expect(await oppdragene(sakId)).toEqual([]);
     });
 
     it('sjekksummen er uavhengig av rekkefølgen på nøklene', () => {

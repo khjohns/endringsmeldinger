@@ -15,17 +15,17 @@ import {
   lagOppsett,
   rydd,
   startServer,
-  BEGGE_BASENE,
+  TESTBASE_URL,
   type KjorendeServer,
   type Oppsett,
   type Testbruker,
 } from './testbase.ts';
 import { settInn } from './sqlserver_migrert.ts';
 
-describe.skipIf(!BEGGE_BASENE)('prosjektinngangene mot testbasene', () => {
+describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
   let o: Oppsett;
   let server: KjorendeServer;
-  const eier = () => o.datalag!.base.pool.request();
+  const eier = () => o.datalag.base.pool.request();
 
   beforeAll(async () => {
     o = await lagOppsett();

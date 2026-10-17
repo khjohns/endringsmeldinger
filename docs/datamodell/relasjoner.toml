@@ -920,6 +920,18 @@ kolonne = "koe.catenda_project_configs.catenda_project_id"
 begrunnelse = "ID-en til prosjektet i Catenda, unik per kobling. Ingen tabell i SQL Server har Catenda-prosjektene."
 
 [[uten_relasjon]]
+kolonne = "koe.catenda_project_configs.library_id"
+begrunnelse = "Dokumentbiblioteket i Catenda for brevene. Fryses i leveringsoppdraget (F0b-7, #661)."
+
+[[uten_relasjon]]
+kolonne = "koe.catenda_project_configs.folder_id"
+begrunnelse = "Mappen i biblioteket. Samme som `library_id`."
+
+[[uten_relasjon]]
+kolonne = "koe.sak_metadata.catenda_topic_id"
+begrunnelse = "ID-en til topicen i Catenda for saken. Fryses i leveringsoppdraget (F0b-7, #661)."
+
+[[uten_relasjon]]
 kolonne = "koe.app_membership_sync.catenda_project_id"
 begrunnelse = """
 Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i
