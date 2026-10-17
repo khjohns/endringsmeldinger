@@ -5,13 +5,13 @@
  * regelversjonen; innholdet står i brevet (KA-U10).
  */
 
-import { beloep } from '../regler/beloep.ts';
+import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
 import { oppgittDato, type OppgittDato } from '../format/format.ts';
-import { datoFor, sammeSlag } from '../format/leser.ts';
+import { datoFor, kalenderdag, sammeSlag } from '../format/leser.ts';
 import { tekst } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -58,7 +58,8 @@ function kontrollerSvar(
       regler
     );
   } catch (feil) {
-    if (feil instanceof UgyldigVurdering)
+    // #550: et beløp som ikke er et tall, er en ugyldig vurdering, ikke en feil på serveren.
+    if (feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep)
       return avvis('UGYLDIG_VURDERING', `Vurderingene kan ikke regnes ut: ${feil.message}.`);
     throw feil;
   }
@@ -230,7 +231,7 @@ function begrunnelsensDato(
   u: Utledning
 ): Avvisning | null {
   const svaret = u.svarSendt[k.gjelder];
-  if (k.sendt === undefined || !svaret || k.sendt >= svaret) return null;
+  if (k.sendt === undefined || !svaret || kalenderdag(k.sendt) >= kalenderdag(svaret)) return null;
   return avvis(
     'BEGRUNNELSE_FOER_SVARET',
     `Begrunnelsen er oppgitt sendt ${norskDato(k.sendt)}, men svaret den begrunner, ble sendt ${norskDato(svaret)}.`
@@ -252,7 +253,8 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
   if (k.type !== 'krav' || k.spor !== 'grunnlag') return null;
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
   const dato = felt === null ? undefined : k.innhold[felt];
-  if (felt === null || typeof dato !== 'string' || dato <= brevetsDato) return null;
+  if (felt === null || typeof dato !== 'string' || kalenderdag(dato) <= kalenderdag(brevetsDato))
+    return null;
   return avvis(
     'DATO_ETTER_BREVET',
     `TE har oppgitt at ${OPPGITT[felt]} ${norskDato(dato)}, etter brevets dato ${norskDato(brevetsDato)}.`

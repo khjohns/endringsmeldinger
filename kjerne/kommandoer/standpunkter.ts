@@ -10,7 +10,7 @@ import { standpunkterISvaret } from '../format/leser.ts';
 import { grunnlagsstandpunkter } from '../frosset/frysing.ts';
 import { kroner } from '../frosset/standpunkt.ts';
 import type { Svarutkast } from './kommando.ts';
-import type { Utledning } from '../utledning/utled.ts';
+import { varseletFoerSvaret, type Utledning } from '../utledning/utled.ts';
 import type { Grunnlagsresultat } from '../regler/typer.ts';
 import type { Krav, Standpunkt, Svar } from '../typer.ts';
 
@@ -43,13 +43,17 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
       });
     ut.push({ id: nyId(), art: 'beloep' });
   } else {
-    // VS-U20, OV-U5, HF-U1: påberopelsen gjelder varselet som er registrert nå, ellers det
-    // første fristkravet, som er det første varselet appen kjenner (arbeidsvalget i #309).
+    // VS-U20, OV-U5, HF-U1: varselet før svaret. Svaret skrives nå, så et registrert varsel
+    // står før det.
     if (typeof v.frist_varsel_ok === 'boolean')
       ut.push({
         id: nyId(),
         art: 'rettidighet',
-        gjelder: u.spor.frist.varsel?.id ?? u.spor.frist.krav[0]!.id,
+        gjelder: varseletFoerSvaret(
+          u.spor.frist.varsel ? [u.spor.frist.varsel] : [],
+          u.spor.frist.krav,
+          () => true
+        )!,
         hjemmel: HJEMMEL.frist,
         i_tide: v.frist_varsel_ok,
       });
