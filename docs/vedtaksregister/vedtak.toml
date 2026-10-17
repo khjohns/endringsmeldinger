@@ -4453,6 +4453,249 @@ tekst = '''
 retting skjer bare utenfor appen, i en dokumentert prosess.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "MM-U22"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["FK runde 4", "#655"]
+sporsmal = '''
+Hva viser appen om hvor saken og hvert krav står? Vedtakene sier at det bindende er hvem som har sagt hva om hvilket krav, og at brevet er autoritativt. I dag viser appen likevel én samlet status for saken, blant annet «Under forhandling», som ikke svarer til noe partene har sagt, og «Avsluttet: oppgjort», som strider mot OV-U3 og OV-U10. Vedtakene knytter bare fire tilstander til hele saken.
+
+Alternativene er A (anbefalt), B og C. Hvert er skrevet i vedtaksform, slik det ble stilt.
+
+Belegg, ordrett fra vedtakene:
+- MM-U13: Ingen regel leser en samlebetegnelse i stedet for spørsmålet, heller ikke en som er utledet og ikke lagret.
+- MM-U15: Oversikten viser siste kjente status for saken, merket «Oppdateres».
+- OV-U3: Den sier ikke at saken er oppgjort eller at TE ikke har flere krav, og taushet er ikke et avkall.
+- OV-U10: Visningen sier «Alle krav sendt i appen er avgjort».
+- MM-U2: Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles.'''
+valgt = "Betegnelse per krav"
+svar = '''
+«Betegnelse per krav (Anbefalt)»'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u3" },
+  { art = "presiserer", vedtak = "ov-u10" },
+  { art = "presiserer", vedtak = "gr-u5" },
+  { art = "presiserer", vedtak = "mm-u2" },
+  { art = "presiserer", vedtak = "mm-u15" },
+  { art = "presiserer", vedtak = "b-03-dokument" },
+]
+folge = '''
+Ikke bygget. Visningen hører til #313.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Betegnelse per krav"
+tekst = '''
+Hvert krav har én kort betegnelse fra en fast liste som bare sier hvilket utsagn eller hvilken relasjon som foreligger, med partenes siste krav og svar og brevet under. Saken har ingen samlet betegnelse, unntatt når kravene er avgjort (OV-U10), avslaget på grunnlaget er godtatt (SK-01), grunnlaget er trukket (GR-U5) eller saken ikke er forstått (MM-U2).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare gjengivelse"
+tekst = '''
+For grunnlaget, vederlaget og fristen viser appen partenes siste krav og svar, med part, dato og henvisning til brevet, uten en egen betegnelse. Et brev sendt utenfor appen vises etter OV-U4. Saken har ingen samlet betegnelse, unntatt i tilstandene vedtakene knytter til hele saken: kravene er avgjort (teksten i OV-U10), TE har godtatt avslaget på grunnlaget (SK-01), grunnlaget er trukket (GR-U5), og saken er ikke forstått (teksten i MM-U2).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samlet status alltid"
+tekst = '''
+Hvert krav og saken har alltid én betegnelse appen avleder av utsagnene, fra en fast liste som også har betegnelser som ikke svarer til ett utsagn, som «Under forhandling». Når kravene er avgjort, er betegnelsen for saken teksten i OV-U10, og saken sies ikke å være oppgjort (OV-U3). Partenes krav og svar og brevene vises når brukeren åpner kravet.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Ingen regel leser en samlebetegnelse i stedet for spørsmålet, heller ikke en som er utledet og ikke lagret."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Oversikten viser siste kjente status for saken, merket «Oppdateres»."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Den sier ikke at saken er oppgjort eller at TE ikke har flere krav, og taushet er ikke et avkall."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Visningen sier «Alle krav sendt i appen er avgjort»."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles."
+
+[[gruppe.vedtak]]
+id = "MM-U23"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["FK runde 4", "#655"]
+sporsmal = '''
+Gjengivelse: spørsmålet ble først stilt, og den ordlyden er ikke lagret. Svaret på den første stillingen er tatt med under, ordrett. Etter UX-vurderingen ble spørsmålet stilt på nytt:
+
+Hvordan viser appen virkningen av det partene har sagt?
+
+Bakgrunn: Visningen sier i dag med appens stemme at et krav er «Prekludert» når byggherren har sagt at det er varslet for sent. Den viser også egne summer og differanser («subsidiært 0 kr», «Bestridt subsidiært 2 930 000», «Gap») som kan avvike fra brevet. Svarskjemaet og brevet viser derimot byggherrens subsidiære standpunkt tydelig, i byggherrens egne ord. HF-U2, MM-U9, MM-U16, MM-U17 og OV-U10 krever allerede noen merknader fra appen, og MM-U12 sier at appen ikke avgjør det kontrakten overlater til partene. Spørsmålet gjelder visningen. Brevteksten følger LV-U2, LV-U3, KA-U16 og B-13.
+
+Alternativene er A (anbefalt), B og C.
+
+Belegg, ordrett fra vedtakene:
+- HF-U2: At et standpunkt er uten virkning, er appens vurdering. Det lagres atskilt fra det byggherren sa, og vises ikke som noe byggherren har sagt.
+- MM-U12: Appen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene.
+- KA-U16: I et brev fra appen utleder appen virkningen av standpunktet i den faste teksten.'''
+valgt = "Partenes ord, appens merket"
+svar = '''
+Altså dissr prinsipper må vurderes i relasjon til hva dagens ux / design gjør bra og dårlig.
+
+Etter at spørsmålet ble stilt på nytt: «Partenes ord, appens merket (Anbefalt)»'''
+forhold = [
+  { art = "utvider", vedtak = "hf-u2" },
+  { art = "presiserer", vedtak = "mm-u12" },
+]
+folge = '''
+Ikke bygget. Visningen hører til #313.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Partenes ord, appens merket"
+tekst = '''
+Ved kravet står partenes standpunkter med part, dato og henvisning til brevet, for eksempel «BH: varslet for sent», og hvert tall skal kunne finnes igjen i et brev. Appens egen vurdering vises bare der et vedtak krever det, og er da merket som appens. Appen sier aldri selv at et krav er prekludert, tapt eller avgjort.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare partenes ord"
+tekst = '''
+Visningen viser bare partenes utsagn. Appens vurdering styrer handlingene, men vises ikke.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Appens utfall først, merket"
+tekst = '''
+Appens vurdering av utfallet står først, merket som appens, for eksempel «Etter appens vurdering prekludert». Partenes utsagn står under, med henvisning til brevet.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "At et standpunkt er uten virkning, er appens vurdering."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det lagres atskilt fra det byggherren sa, og vises ikke som noe byggherren har sagt."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "I et brev fra appen utleder appen virkningen av standpunktet i den faste teksten."
+
+[[gruppe.vedtak]]
+id = "MM-U24"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["FK runde 4", "#655"]
+sporsmal = '''
+Viser appen hvem som skal handle, og hvor står fristene? Fristveiledningen er vedtatt (VS-U2, VS-U10, HF-U5, LV-U7), men ikke bygget, og kjernen sier bare at byggherren skal svare. VS-U2 lar appen vise frist og bestemmelse «uten at appen trekker konklusjonen», og fristene gjelder begge parter (§ 33.6.2 tredje ledd er TEs). Etter HF-U5 er en aksept etter akseptfristen et nytt tilbud som byggherren skal ta stilling til.
+
+Alternativene er A (anbefalt), B og C.
+
+Belegg, ordrett fra vedtakene:
+- VS-U2: § 32.3 annet ledd, § 33.6.2 tredje ledd, § 33.7 annet ledd, § 34.3.3 annet ledd og § 35.2 vises med frist og bestemmelse, uten at appen trekker konklusjonen
+- VS-U10: for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunnet opphold» etter mottaket, viser appen mottaksdatoen, antall dager siden og bestemmelsen, uten en fast frist.
+- HF-U5: En aksept etter fristen er et nytt tilbud fra TE om å godta svaret slik det står (avtaleloven § 4).
+- LV-U7: Når bindingen inntrer og når en akseptfrist løper ut, regner appen fra sendingen av brevet og viser leveringskvitteringen ved siden av, uten å avgjøre når brevet er kommet fram (MM-U12).'''
+valgt = "Det som foreligger"
+svar = '''
+«Det som foreligger (Anbefalt)»'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u2" },
+  { art = "presiserer", vedtak = "vs-u10" },
+  { art = "presiserer", vedtak = "hf-u5" },
+  { art = "presiserer", vedtak = "lv-u7" },
+  { art = "presiserer", vedtak = "ov-u4" },
+]
+folge = '''
+Ikke bygget. Visningen hører til #313.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Det som foreligger"
+tekst = '''
+Ved kravet står det som foreligger: et krav som venter på byggherrens svar, et svar TE ikke har godtatt (med akseptfristen), eller en aksept etter fristen som venter på byggherren. Fristveiledningen står ved kravet, regnet fra sendingen. Appen sier ikke at en part har plikt, at en frist er oversittet, eller at TE ikke har flere krav.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Neste trekk, plikt/mulighet"
+tekst = '''
+Ved hvert krav viser appen hvilken part som har neste trekk, og om det etter kontrakten er en plikt med frist eller en mulighet, for eksempel at byggherren skal svare, eller at TE kan godta svaret innen akseptfristen eller sende en ny kravversjon. Fristveiledningen står ved kravet som i A. Appen sier ikke hva taushet fører til (VS-U2, OV-U3).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fristene bare i skjemaet"
+tekst = '''
+Appen angir ikke hvem som har neste trekk, utover at et krav venter på svar fra byggherren. Fristveiledningen etter VS-U2, VS-U10 og HF-U5 vises i skjemaet for handlingen den gjelder, med det OV-U4 krever.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "§ 32.3 annet ledd, § 33.6.2 tredje ledd, § 33.7 annet ledd, § 34.3.3 annet ledd og § 35.2 vises med frist og bestemmelse, uten at appen trekker konklusjonen"
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "for en frist etter VS-U2 eller § 5 tredje ledd som løper «uten ugrunnet opphold» etter mottaket, viser appen mottaksdatoen, antall dager siden og bestemmelsen, uten en fast frist."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En aksept etter fristen er et nytt tilbud fra TE om å godta svaret slik det står (avtaleloven § 4)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Når bindingen inntrer og når en akseptfrist løper ut, regner appen fra sendingen av brevet og viser leveringskvitteringen ved siden av, uten å avgjøre når brevet er kommet fram (MM-U12)."
+
+[[gruppe.vedtak]]
+id = "MM-U25"
+dato = 2026-10-17
+hvem = "oppdragsgiver"
+kilde = ["FK runde 4", "#655"]
+sporsmal = '''
+Hvordan viser appen handlingene den ikke tilbyr? Kjernen vet for hver handling som ikke tilbys, hva som hindrer, men det vises ikke. OV-U2 og MM-U2 krever at visningen sier noe om det som må gjøres utenfor appen. Etter svaret ditt 17.10 i #718 skjules i dag det som ikke er bygget.
+
+Alternativene er A (anbefalt), B og C.
+
+Belegg, ordrett fra vedtakene:
+- OV-U2: i første versjon (OV-U1) føres forsering og endringsordre som egen sak utenfor appen, og KOE-saken viser at de ikke støttes ennå.
+- MM-U2: Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles.'''
+valgt = "Bare mulige, sperrer forklart"
+svar = '''
+«Bare mulige, sperrer forklart (Anbefalt)»'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u2" },
+  { art = "presiserer", vedtak = "mm-u2" },
+]
+folge = '''
+Ikke bygget. Visningen hører til #313.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare mulige, sperrer forklart"
+tekst = '''
+Appen viser bare handlingene parten kan gjøre nå. Kan et krav ikke lenger endres, sier kravet det i én linje, med henvisning til utsagnet som hindrer. Der OV-U2 og MM-U2 krever det, sier saken at noe må sendes utenfor appen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alle, sperrede med begrunnelse"
+tekst = '''
+Appen viser alle handlingene parten kan ha i kravet etter kontrakten. De parten ikke kan gjøre nå, vises inaktive med det som hindrer: utsagnet, vedtaket, eller at appen ikke kan det ennå.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare mulige, uten begrunnelse"
+tekst = '''
+Appen viser bare handlingene parten kan gjøre nå, uten begrunnelse for det som mangler. Merknadene OV-U2 og MM-U2 krever, vises som før.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "i første versjon (OV-U1) føres forsering og endringsordre som egen sak utenfor appen, og KOE-saken viser at de ikke støttes ennå."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Visningen sier at et varsel med frist må sendes utenfor appen og registreres senere, og drift varsles."
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
