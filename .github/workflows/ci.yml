@@ -206,5 +206,13 @@ jobs:
       - name: Typesjekk av skrivestien i språkprøven
         run: npx tsc -p sprakprove/skrivesti/tsconfig.json
 
+      # #602: lenkekontrollen er stdlib-Python uten avhengigheter, og kontrollerer alle .md under docs/.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Lenker i docs/
+        run: python3 docs/verktoy/lenkekontroll.py
+
       - name: Lint
         run: npm run lint
