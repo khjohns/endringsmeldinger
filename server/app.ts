@@ -6,8 +6,8 @@
  * Hver inngang står i `RUTER` med tilgangen den krever. Ruteren kontrollerer
  * innlogging (med CSRF), prosjekttilgang og kontraktsrolle fra registeret før
  * behandleren kalles, så en behandler ikke kan glemme dem. En inngang uten
- * prosjekt eller uten sesjon står i registeret med en skriftlig begrunnelse.
- * Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
+ * prosjekt eller uten sesjon står i registeret med en skriftlig begrunnelse,
+ * og det gjør også en inngang til prosjektet selv, uten sak. Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
  * `tester/register.test.ts` prøver hver inngang i registeret over HTTP.
  *
  * Saker opprettes ikke her (#370). Leveringen stopper ved det frosne oppdraget
@@ -36,6 +36,7 @@ import {
 } from './autorisasjon.ts';
 import type { Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
+import { PROSJEKTRUTER } from './prosjekter.ts';
 import { lesSaken, SakFinnesIkke, skrivMedOppdrag, Versjonskonflikt } from './lager.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
@@ -73,6 +74,12 @@ interface Forespoersel {
   kropp: Record<string, unknown>;
 }
 
+/** Forespørselen til en inngang til prosjektet selv. */
+export interface Prosjektforespoersel {
+  bruker: Bruker;
+  prosjekt: Prosjekttilgang;
+}
+
 /** Forespørselen til en inngang uten prosjekt, etter innloggingen og CSRF. */
 export interface Innlogget {
   sesjon: Sesjon;
@@ -82,10 +89,10 @@ export interface Innlogget {
 
 interface Felles {
   metode: 'GET' | 'POST';
-  /** Stien som mønster. For en saksinngang er første gruppe saken. */
+  /** Stien som mønster. For en saksinngang er første gruppe saken, for en prosjektinngang prosjektet. */
   sti: RegExp;
-  /** Eksempelsti for testen av registeret. */
-  eksempel: (sakId: string) => string;
+  /** Eksempelsti for testen av registeret, med saken eller prosjektet. */
+  eksempel: (id: string) => string;
   /** Hoder på hvert svar fra inngangen, også en avvisning. */
   hoder?: Record<string, string>;
 }
@@ -96,6 +103,17 @@ type Behandler<F> = (f: F, avh: Required<Avhengigheter>) => Promise<Svar>;
 export interface Saksrute extends Felles {
   tilgang: Tilgang;
   behandle: Behandler<Forespoersel>;
+}
+
+/**
+ * En inngang med sesjon og prosjekttilgang, men uten sak. Prosjektet i stien
+ * må være prosjektet i `X-Project-ID`. Begrunnelsen står i registeret.
+ */
+export interface Prosjektrute extends Felles {
+  /** Kroppen leses ikke. */
+  metode: 'GET';
+  tilgang: { prosjektrolle: 'viewer' | 'member'; utenSak: string };
+  behandle: Behandler<Prosjektforespoersel>;
 }
 
 /** En inngang med sesjon, men uten prosjekt. Begrunnelsen står i registeret. */
@@ -110,11 +128,13 @@ export interface AapenRute extends Felles {
   behandle: Behandler<IncomingMessage>;
 }
 
-export type Rute = Saksrute | Sesjonsrute | AapenRute;
+export type Rute = Saksrute | Prosjektrute | Sesjonsrute | AapenRute;
 
 export const erAapen = (r: Rute): r is AapenRute => 'utenSesjon' in r.tilgang;
 export const erUtenProsjekt = (r: Rute): r is Sesjonsrute => 'utenProsjekt' in r.tilgang;
-export const erSaksrute = (r: Rute): r is Saksrute => !erAapen(r) && !erUtenProsjekt(r);
+export const erUtenSak = (r: Rute): r is Prosjektrute => 'utenSak' in r.tilgang;
+export const erSaksrute = (r: Rute): r is Saksrute =>
+  !erAapen(r) && !erUtenProsjekt(r) && !erUtenSak(r);
 
 const STORSTE_KROPP = 1_000_000;
 
@@ -308,7 +328,7 @@ const KJERNERUTER: readonly Saksrute[] = [
 ];
 
 /** Registeret over inngangene. En ny inngang står her, ellers finnes den ikke. */
-export const RUTER: readonly Rute[] = [...KJERNERUTER, ...INNLOGGINGSRUTER];
+export const RUTER: readonly Rute[] = [...KJERNERUTER, ...INNLOGGINGSRUTER, ...PROSJEKTRUTER];
 
 export function lagServer(avh: Avhengigheter) {
   const full: Required<Avhengigheter> = {
@@ -353,6 +373,32 @@ export function lagServer(avh: Avhengigheter) {
     return r.behandle({ bruker, prosjekt, side, sakId, kropp }, full);
   }
 
+  async function prosjektrute(
+    r: Prosjektrute,
+    treff: RegExpMatchArray,
+    foresporsel: IncomingMessage
+  ): Promise<Svar> {
+    let prosjektId: string;
+    try {
+      prosjektId = decodeURIComponent(treff[1]);
+    } catch {
+      return feilsvar(404, 'NOT_FOUND', 'Ukjent prosjekt.');
+    }
+    const bruker = await krevInnlogging(full.datalag, foresporsel);
+    // Ellers kunne stien vise et annet prosjekt enn det tilgangen er avgjort for.
+    if (foresporsel.headers['x-project-id'] !== prosjektId)
+      throw new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+    const prosjekt = await krevProsjekttilgang(
+      full.datalag,
+      full.catenda,
+      foresporsel,
+      bruker,
+      r.tilgang.prosjektrolle,
+      {}
+    );
+    return r.behandle({ bruker, prosjekt }, full);
+  }
+
   async function kjoer(
     r: Rute,
     treff: RegExpMatchArray,
@@ -360,6 +406,7 @@ export function lagServer(avh: Avhengigheter) {
   ): Promise<Svar> {
     if (erAapen(r)) return r.behandle(foresporsel, full);
     if (erUtenProsjekt(r)) return r.behandle(await krevSesjon(full.datalag, foresporsel), full);
+    if (erUtenSak(r)) return prosjektrute(r, treff, foresporsel);
     return saksrute(r, treff, foresporsel);
   }
 
