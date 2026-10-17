@@ -76,8 +76,9 @@ const linje = ({
 });
 
 /** Svaret fra serveren, med en visning kjernen aldri lager, så det synes om konteksten leser den. */
-const svar = (journal: Journalrad[]): Kjernesak => ({
+const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): Kjernesak => ({
   versjon: journal.at(-1)!.versjon,
+  part,
   visning: { status: { kode: 'fra_serveren', tekst: 'Fra serveren' } } as unknown as Visning,
   journal: journal.map(linje),
   leveringsoppdrag: [],
@@ -103,6 +104,17 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(bh.handlinger).toEqual(handlinger(u, 'BH'));
     expect(bh.handlinger).toContain('svare:grunnlag');
     expect(te.handlinger).not.toContain('svare:grunnlag');
+  });
+
+  it('bruker leserens side fra serveren når ruta ikke oppgir en (#705)', async () => {
+    const journal = [opprettet, skrevet(grunnlagskrav, [opprettet])];
+    const te = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, 'TE') });
+    const uten = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, null) });
+    expect(te.part).toBeNull();
+    await Promise.all([te.last(), uten.last()]);
+    expect(te.part).toBe('TE');
+    expect(te.handlinger).toContain('krav:vederlag');
+    expect(uten.handlinger).toEqual([]);
   });
 
   it('tilbyr ingen handling og lager ingen brevtekst uten kontraktsside', async () => {
@@ -180,28 +192,16 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.saksbilde).toBeNull();
   });
 
-  it('sier at saken ikke er en TS-sak når journalen begynner med en rad uten format (B-17)', async () => {
-    const python = { ...opprettet, format: null, data: { sakstittel: 'Fra Python' } };
-    // Raden som oppretter saken avgjør, også når en senere rad har format.
-    const senere = { ...opprettet, event_id: 'e-2', versjon: 2 };
-    const sak = lagKjernesak({ sakId: SAK, part: null, hent: async () => svar([python, senere]) });
-    await sak.last();
-    expect(sak.finnes).toBe(false);
-    expect(sak.sak).toBeNull();
-    expect(sak.saksbilde).toBeNull();
-    expect(sak.feil).toBe('Saken er ikke opprettet i TS-stien og vises ikke her.');
-  });
-
   it('lar det være uavgjort om saken finnes når serveren svarer med en annen feil', async () => {
     const sak = lagKjernesak({
       sakId: SAK,
       part: null,
       hent: async () => {
-        throw new ApiError(500, 'Serveren svarte ikke.');
+        throw new ApiError(503, 'Catenda svarte ikke.');
       },
     });
     await sak.last();
     expect(sak.finnes).toBeNull();
-    expect(sak.feil).toBe('Serveren svarte ikke.');
+    expect(sak.feil).toBe('Catenda svarte ikke.');
   });
 });

@@ -1,5 +1,5 @@
 <!--
-  Brevkontrollen på TS-stien (#666): den låste teksten kjernen lager for kravet, og
+  Brevkontrollen på TS-stien (#666, #667): den låste teksten kjernen lager for kravet, og
   TEs utdypning under. Kommandoen bærer den samme teksten, og serveren avviser en
   annen (LV-U2). Teksten rettes i skjemaet, ikke her.
 -->
@@ -10,14 +10,18 @@
   let {
     tekst,
     utdypning,
-    sakstittel,
+    tittel,
+    beskrivelse,
     onbekreft,
     onavbryt,
   }: {
     /** De låste avsnittene, i rekkefølgen kommandoen bærer dem. */
     tekst: string[];
     utdypning?: string;
-    sakstittel: string;
+    /** Brevets overskrift, som «Grunnlag – sakstittel». */
+    tittel: string;
+    /** Det som skjer når TE bekrefter, i panelet ved siden av brevet. */
+    beskrivelse: string;
     onbekreft: () => void;
     onavbryt: () => void;
   } = $props();
@@ -33,7 +37,7 @@
   </div>
   <div class="oppsett">
     <article class="dokument">
-      <h2>Grunnlag – {sakstittel}</h2>
+      <h2>{tittel}</h2>
       <p class="hjelp">Teksten lages av appen fra valgene i skjemaet og kan ikke endres her.</p>
       <div data-testid="laast-tekst">
         {#each tekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
@@ -47,7 +51,7 @@
       <ApprovalPanel
         eyebrow="Utkast · ikke sendt"
         title="Du sender kravet"
-        description="Saken er opprettet. Kravet sendes først når du bekrefter."
+        description={beskrivelse}
         confirmLabel="Jeg har kontrollert brevet."
         bind:confirmed={kontrollert}
         primaryLabel="Send til byggherren"

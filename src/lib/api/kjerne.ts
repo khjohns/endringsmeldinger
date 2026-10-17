@@ -4,7 +4,7 @@
  */
 
 import { apiFetch, projectHeaders } from '$lib/api/client';
-import type { Journalrad } from '$kjerne/typer';
+import type { Journalrad, Part } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
 export type Journallinje = Pick<
@@ -23,6 +23,8 @@ export interface Leveringsoppdrag {
 
 export interface Kjernesak {
   versjon: number;
+  /** Leserens kontraktsside etter Catenda-teamet, `null` uten side (#705). */
+  part: Part | null;
   visning: Visning;
   journal: Journallinje[];
   leveringsoppdrag: Leveringsoppdrag[];

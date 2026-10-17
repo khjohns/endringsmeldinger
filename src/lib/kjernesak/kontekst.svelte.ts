@@ -19,8 +19,11 @@ export interface Kjernesakvalg {
   sakId: string;
   /** Prosjektet fra ruta. Uten det brukes det aktive prosjektet. */
   prosjektId?: string;
-  /** Leserens kontraktsside. Uten side tilbys ingen handling. */
-  part: Part | null;
+  /**
+   * Siden brevteksten forhåndsvises for, før saken er lastet eller i prøvene. Uten
+   * den brukes leserens side fra serveren (#705). Uten side tilbys ingen handling.
+   */
+  part?: Part | null;
   hent?: typeof hentKjernesak;
   send?: typeof sendKommando;
   kjerne?: Kjerne;
@@ -43,7 +46,7 @@ const somJournal = (sakId: string, linjer: Journallinje[]): Journalrad[] =>
 const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
 
 export function lagKjernesak(valg: Kjernesakvalg) {
-  const { sakId, part } = valg;
+  const { sakId } = valg;
   const hent = valg.hent ?? hentKjernesak;
   const send = valg.send ?? sendKommando;
   const kjerne = valg.kjerne ?? KJERNE;
@@ -52,6 +55,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let feil = $state<string | null>(null);
   let sender = $state(false);
   let finnes = $state<boolean | null>(null);
+  const part = $derived(valg.part !== undefined ? valg.part : (sak?.part ?? null));
 
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
   const utledning = $derived(sak ? utledJournal(journal, kjerne) : null);
@@ -63,13 +67,11 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   async function last() {
     try {
-      const svar = await hent(sakId, valg.prosjektId);
-      // TS-serveren leser hele `hendelse`, også en Python-sak. En rad uten format er
-      // ikke skrevet av TS-kjernen (B-17), så da er saken ikke en TS-sak.
-      finnes = svar.journal[0]?.format != null;
-      sak = finnes ? svar : null;
-      feil = finnes ? null : 'Saken er ikke opprettet i TS-stien og vises ikke her.';
+      sak = await hent(sakId, valg.prosjektId);
+      finnes = true;
+      feil = null;
     } catch (e) {
+      // Serveren svarer 404 for en sak TS-kjernen ikke har skrevet (#705).
       if (e instanceof ApiError && e.status === 404) {
         finnes = false;
         sak = null;
@@ -91,6 +93,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       const tekst = brevtekst(kommando);
       await send(sakId, sak.versjon, tekst ? { ...kommando, brevtekst: tekst } : kommando);
       await last();
+      if (feil) feil = `Kommandoen er lagret, men saken kunne ikke lastes på nytt. ${feil}`;
       return true;
     } catch (e) {
       const melding = meldingFra(e, 'Kommandoen ble ikke sendt.');
@@ -105,7 +108,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   return {
     sakId,
-    part,
+    get part() {
+      return part;
+    },
     get sak() {
       return sak;
     },
@@ -122,8 +127,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       return bilde;
     },
     /**
-     * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404, eller
-     * journalen begynner med en rad uten format. `null` før svaret.
+     * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404. `null`
+     * før svaret, og når serveren svarte med en annen feil.
      */
     get finnes() {
       return finnes;
