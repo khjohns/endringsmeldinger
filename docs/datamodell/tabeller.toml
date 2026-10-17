@@ -655,14 +655,17 @@ type = ["grunndata"]
 status = "uavklart"
 beskrivelse = """
 Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten
-standardverdi (AGENTS.md)."""
+standardverdi (AGENTS.md). `server/prosjekter.ts` leser prosjektene aktøren er
+aktivt medlem i med `koe_api.brukerens_prosjekter`, og ett av dem med
+`koe_api.prosjekt` (#660). Tabellen har ikke `settings` og `created_by` fra
+PostgreSQL."""
 lagres_fra = "Ingen skriver ennå (#53, del 3)."
 fra_catenda = "ikke kontrollert"
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
 skrivere = []
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 17.10: migrasjonen og søk i `server/`."
 
 [[tabell]]
 navn = "koe.app_project_memberships"
@@ -672,7 +675,9 @@ status = "i bruk"
 beskrivelse = """
 Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i
 PostgreSQL. `server/autorisasjon.ts` leser aktørens aktive medlemskap med
-`koe_api.prosjektmedlemskap` (#658)."""
+`koe_api.prosjektmedlemskap` (#658). `koe_api.brukerens_prosjekter` og
+`koe_api.prosjekt`, kalt fra `server/prosjekter.ts`, leser bare prosjekter der
+aktøren har et aktivt medlemskap (#660)."""
 lagres_fra = """
 `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, skriver
 medlemslisten fra Catenda og gjør medlemmer som ikke står i den, inaktive.
@@ -688,7 +693,7 @@ kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
 skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261016210000_catenda_id.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)"]
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 17.10: migrasjonen og søk i `server/`."
 
 [[tabell]]
 navn = "koe.catenda_contract_teams"
@@ -718,14 +723,15 @@ Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv
 (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL,
 uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet
 Catenda-prosjekt. `server/autorisasjon.ts` leser en aktiv kobling med
-`koe_api.prosjektkobling` (#658)."""
+`koe_api.prosjektkobling` (#658). `koe_api.brukerens_prosjekter`, kalt fra
+`server/prosjekter.ts`, tar bare med prosjekter med aktiv kobling (#660)."""
 lagres_fra = "Settes av driften. Ingen prosedyre skriver tabellen."
 fra_catenda = "Delvis. ID-en til Catenda-prosjektet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
 skrivere = []
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 17.10: migrasjonen og søk i `server/`."
 
 [[tabell]]
 navn = "koe.app_membership_absences"
@@ -759,7 +765,9 @@ beskrivelse = """
 Når medlemslisten for prosjektet sist ble hentet, og fra hvilket
 Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen
 leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra
-`server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2). Svarer til
+`server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2), også
+gjennom `ferskeMedlemmer` for hvert prosjekt i lista i `server/prosjekter.ts`
+(#660). Svarer til
 `app_membership_sync` i PostgreSQL."""
 lagres_fra = "`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`. Ingen inngang kaller modulen ennå."
 fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
@@ -767,7 +775,7 @@ kan_gjenoppbygges = "ja, ved en ny synkronisering"
 personopplysninger = "Ingen kjente."
 skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)"]
 funn = []
-belegg = "L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`."
+belegg = "L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`."
 
 [[tabell]]
 navn = "koe.sak_metadata"
