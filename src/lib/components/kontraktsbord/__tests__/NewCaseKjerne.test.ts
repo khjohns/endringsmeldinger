@@ -51,6 +51,7 @@ beforeEach(() => {
     .mockReset()
     .mockResolvedValue({
       versjon: 1,
+      part: 'TE',
       visning: {} as never,
       leveringsoppdrag: [],
       journal: [

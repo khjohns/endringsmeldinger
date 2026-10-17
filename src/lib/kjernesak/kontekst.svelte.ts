@@ -19,8 +19,11 @@ export interface Kjernesakvalg {
   sakId: string;
   /** Prosjektet fra ruta. Uten det brukes det aktive prosjektet. */
   prosjektId?: string;
-  /** Leserens kontraktsside. Uten side tilbys ingen handling. */
-  part: Part | null;
+  /**
+   * Siden brevteksten forhåndsvises for, før saken er lastet eller i prøvene. Uten
+   * den brukes leserens side fra serveren (#705). Uten side tilbys ingen handling.
+   */
+  part?: Part | null;
   hent?: typeof hentKjernesak;
   send?: typeof sendKommando;
   kjerne?: Kjerne;
@@ -43,7 +46,7 @@ const somJournal = (sakId: string, linjer: Journallinje[]): Journalrad[] =>
 const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
 
 export function lagKjernesak(valg: Kjernesakvalg) {
-  const { sakId, part } = valg;
+  const { sakId } = valg;
   const hent = valg.hent ?? hentKjernesak;
   const send = valg.send ?? sendKommando;
   const kjerne = valg.kjerne ?? KJERNE;
@@ -52,6 +55,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let feil = $state<string | null>(null);
   let sender = $state(false);
   let finnes = $state<boolean | null>(null);
+  const part = $derived(valg.part !== undefined ? valg.part : (sak?.part ?? null));
 
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
   const utledning = $derived(sak ? utledJournal(journal, kjerne) : null);
@@ -105,7 +109,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   return {
     sakId,
-    part,
+    get part() {
+      return part;
+    },
     get sak() {
       return sak;
     },

@@ -18,8 +18,8 @@
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
   const bryterPaa = tsStienForNyeKoeSaker();
-  // Uten kontraktsside viser saksbildet ingen handling (#665).
-  const kjernesak = $derived(bryterPaa ? lagKjernesak({ sakId, prosjektId, part: null }) : null);
+  // Leserens side kommer fra serveren (#705). Uten side viser saksbildet ingen handling.
+  const kjernesak = $derived(bryterPaa ? lagKjernesak({ sakId, prosjektId }) : null);
   const kilde = $derived(sakskilde(bryterPaa, kjernesak?.finnes ?? null));
   // Uten saks-ID er Python-spørringen av, så den venter til TS-serveren har svart.
   const query = createCaseContextQuery(
@@ -64,7 +64,7 @@
 
 {#if kilde === 'ts' && kjernesak?.saksbilde}
   {#key prosjektId + ':' + sakId}
-    <Saksbilde bilde={kjernesak.saksbilde} />
+    <Saksbilde bilde={kjernesak.saksbilde} {kjernesak} />
   {/key}
 {:else if kilde === 'venter' && kjernesak?.feil}
   <div class="case-message" role="alert">
