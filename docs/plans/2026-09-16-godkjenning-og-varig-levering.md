@@ -747,6 +747,15 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > - Vaktene i `.claude/`: #563. Oppdragsgiver svarte 17.10 om hvem som godkjenner
 >   endringen: «Ja, du godkjenner i appen (Recommended)».
 
+> **Merknad 2026-10-17 til AF-06 (review-oppfølging i filene en økt endrer):**
+> oppdragsgiver bestemte 17.10: «Review-oppfølging i hver runde. Når orkestratoren
+> fordeler filene i kartleggingen, slår den opp de åpne punktene med
+> review-oppfølging i filene hver økt uansett endrer. Punktene tas med i
+> bestillingen, med nummer og punkt, innenfor grensen på om lag 800 linjer.
+> Byggeøkta legger ikke til punkter selv. Punkter i filer runden ikke rører,
+> venter.» På spørsmål om regelen også gjelder i FK og F0b før #310, som unntak
+> fra merknaden 16.10, svarte oppdragsgiver: «Ja, også i FK og F0b (Recommended)».
+
 ### 3.3 Anbefalinger som ikke er vedtatt
 
 | Anbefaling | Kilde | Status |
