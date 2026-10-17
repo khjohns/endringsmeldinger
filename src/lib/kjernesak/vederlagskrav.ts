@@ -1,5 +1,5 @@
 /**
- * Vederlagskravet saksbildet sender på TS-stien (#667, B-17). I prøven gjelder bare
+ * Vederlagskravet TE sender på TS-stien (#667, #718, B-17). I prøven gjelder bare
  * tilbud (fast beløp): formatet har ingen annen metode ennå, så regningsarbeid og
  * enhetspriser avvises og tilbys ikke (OV-U1). Det samme gjelder rigg og drift,
  * produktivitet og varslene etter § 34.1.2 og § 34.1.3. TEs begrunnelse er
@@ -7,7 +7,9 @@
  */
 
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
-import type { Saksbilde } from './saksbilde';
+import type { Utledning } from '$kjerne/utledning/utled';
+import { letterText } from '$lib/approval/letter';
+import type { VederlagSubmissionEventData } from '$lib/domain/vederlagSubmissionDomain';
 
 export interface Vederlagsvalg {
   /** Katalogens kode, som `FASTPRIS_TILBUD`. */
@@ -25,13 +27,12 @@ export type Vederlagskrav = {
 };
 
 /**
- * Saksbildet tilbyr skjemaet når kjernen tilbyr leseren et vederlagskrav og sporet
- * ennå ikke har et krav. Kjernen tilbyr også en ny versjon av kravet, men skjemaet
- * for den kommer senere (arbeidsvalg i #667, #655).
+ * Skjemaet tilbys når kjernen tilbyr leseren et vederlagskrav og sporet ennå ikke har
+ * et gjeldende krav. Kjernen tilbyr også en ny versjon av kravet, men skjemaet for den
+ * kommer senere (arbeidsvalg i #667, #655).
  */
-export const tilbyrFoersteVederlagskrav = (handlinger: string[], bilde: Saksbilde) =>
-  handlinger.includes('krav:vederlag') &&
-  !bilde.spor.some((s) => s.spor === 'vederlag' && s.poster.some((p) => p.art === 'krav'));
+export const tilbyrFoersteVederlagskrav = (handlinger: string[], u: Utledning) =>
+  handlinger.includes('krav:vederlag') && u.spor.vederlag.gjeldendeKrav === null;
 
 /** Katalogens metode kan sendes til kjernen. Bare tilbud kan det i prøven. */
 export const metodeKanSendesTilKjernen = (metode: string) =>
@@ -48,4 +49,22 @@ export function vederlagskrav(valg: Vederlagsvalg): Vederlagskrav {
     innhold: { metode: 'tilbud', beloep: valg.beloep },
     ...(utdypning ? { utdypning } : {}),
   };
+}
+
+/**
+ * Kravet fra dataene `TeVederlagForm` bygger (#718). Begrunnelsen er HTML fra
+ * editoren og blir utdypningen som ren tekst. Særskilte krav og vedlegg kan ikke
+ * sendes ennå (OV-U1), så de avvises her og sendes ikke.
+ */
+export function vederlagskravFraSkjema(
+  data: VederlagSubmissionEventData & { vedlegg_ids?: string[] }
+): Vederlagskrav {
+  if (data.saerskilt_krav)
+    throw new Error('Særskilte krav etter § 34.1.3 kan ikke sendes i TS-stien ennå.');
+  if (data.vedlegg_ids?.length) throw new Error('Vedlegg kan ikke sendes i TS-stien ennå.');
+  return vederlagskrav({
+    metode: data.metode,
+    beloep: data.belop_direkte ?? 0,
+    utdypning: letterText(data.begrunnelse),
+  });
 }

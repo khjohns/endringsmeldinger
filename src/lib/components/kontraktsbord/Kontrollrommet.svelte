@@ -12,8 +12,14 @@
   import { onMount, untrack } from 'svelte';
   const approval = setApprovalWorkspace(createApprovalWorkspace(store));
   import { createClaimReview, setClaimReview } from '$lib/approval/claimReview.svelte';
+  import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
   import ClaimLetterView from './ClaimLetterView.svelte';
-  const claimReview = setClaimReview(createClaimReview(store));
+  import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
+  const claimReview = createClaimReview(store);
+  // TS-saken sendes med kommandoen til kjernen og den låste teksten (#718, LV-U2).
+  const kravkontroll = kjernesak ? lagKravkontroll(kjernesak.kjernesak) : null;
+  setClaimReview(kravkontroll ?? claimReview);
+  const brevApent = $derived(Boolean(kravkontroll?.letter ?? claimReview.letter));
   let showApproval = $state(false);
   onMount(() => {
     if (role === 'BH' && !kjernesak) void approval.load();
@@ -36,7 +42,6 @@
   import LetterPreviewModal from './LetterPreviewModal.svelte';
   import NewCaseForm from './NewCaseForm.svelte';
   import NewCaseActionBar from './NewCaseActionBar.svelte';
-  import Vederlagsskjema from '$lib/components/kjernesak/Vederlagsskjema.svelte';
   import { buildLetterContent } from './letterContentBuilder.js';
   import type { Role, Mode, SporKey, RightTab } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
@@ -86,6 +91,10 @@
       role === 'BH' &&
       fristErSendt(store.sak) &&
       !kravetErSpesifisert(store.sak.frist)
+  );
+  // Skjemaene for en TS-sak følger bare handlingene kjernen tilbyr leseren (krav G i #718).
+  const kjerneskjema = $derived(
+    kjernesak !== null && sel === 'vederlag' && role === 'TE' && kjernesak.tilbyrVederlagskrav
   );
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
@@ -283,9 +292,21 @@
           {#if kjernesak?.submissionError && mode === 'read'}
             <div class="approval-entry"><p role="alert">{kjernesak.submissionError}</p></div>
           {/if}
+          {#if kravkontroll?.letter}
+            {#key kravkontroll.letter}
+              <Brevkontroll
+                tekst={kravkontroll.letter.tekst}
+                utdypning={kravkontroll.letter.utdypning}
+                tittel={kravkontroll.letter.tittel}
+                beskrivelse="Kravet sendes først når du bekrefter."
+                onbekreft={kravkontroll.confirm}
+                onavbryt={kravkontroll.cancel}
+              />
+            {/key}
+          {/if}
           <ClaimLetterView review={claimReview} />
           <!-- Hidden, not unmounted, while the letter is checked: the form's submission resumes on confirm. -->
-          <div class="work" hidden={Boolean(claimReview.letter)}>
+          <div class="work" hidden={brevApent}>
             {#if showApproval && role === 'BH' && !creatingCase}
               <ClaimApprovalView
                 onclose={() => (showApproval = false)}
@@ -310,21 +331,13 @@
                 onform={goForm}
                 onbacktonow={() => (activeEvent = null)}
               />
+            {:else if kjerneskjema}
+              <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {:else if kjernesak}
-              <!-- Midlertidig til FK-8c viser TeVederlagForm for TS-saken (#718). -->
-              {#if sel === 'vederlag' && role === 'TE' && kjernesak.tilbyrVederlagskrav}
-                <Vederlagsskjema
-                  kjernesak={kjernesak.kjernesak}
-                  sakstittel={store.sak.sakstittel}
-                  onsendt={goRead}
-                  onavbryt={goRead}
-                />
-              {:else}
-                <div class="approval-entry">
-                  <p role="status">Dette skjemaet finnes ikke for saken ennå.</p>
-                  <button class="btn btn-secondary" onclick={goRead}>Tilbake</button>
-                </div>
-              {/if}
+              <div class="approval-entry">
+                <p role="status">Dette skjemaet finnes ikke for saken ennå.</p>
+                <button class="btn btn-secondary" onclick={goRead}>Tilbake</button>
+              </div>
             {:else if bhSvarerPaaFristvarsel}
               <FristVarselForm onsend={goMatrix} onactions={(a) => (formActions = a)} />
             {:else if role === 'BH' && (!approval.loaded || !approval.canPrepare)}
@@ -355,7 +368,7 @@
               />
             {:else if sel === 'vederlag' && role === 'TE'}
               <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
-            {:else if sel === 'ansvar' && role === 'BH'}
+            {:else if sel === 'ansvar' && role === 'BH' && !store.erKjernesak}
               <GrunnlagForm
                 domainConfig={store.grunnlagDomainConfig}
                 onsend={handleSend}
@@ -365,8 +378,8 @@
               <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {/if}
 
-            {#if kjernesak && mode === 'form'}
-              <!-- Vederlagsskjema har egne knapper. -->
+            {#if kjernesak && mode === 'form' && !kjerneskjema}
+              <!-- Uten skjema har saken bare «Tilbake». -->
             {:else if showApproval && role === 'BH' && !creatingCase}
               <!-- The approval panel carries the actions in this step. -->
             {:else if creatingCase}

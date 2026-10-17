@@ -154,14 +154,17 @@
           <span class="context-btn-text">Kontekst</span>
         </button>
       {/if}
-      {#if kjernesak}
-        {#if tilbyrVederlagskrav && mode === 'read'}
+      {#if kjernesak && mode === 'read'}
+        {#if tilbyrVederlagskrav}
           <button class="btn btn-primary" onclick={() => onform(sel)}>
             <PencilLine size={14} /> Send krav om vederlagsjustering
           </button>
         {/if}
       {:else if mode === 'form'}
-        <button class="btn btn-secondary" onclick={oncloseform}>Lukk kladd</button>
+        <!-- Utkast er av for en TS-sak (oppdragsgiver 17.10, #718), så det er ingen kladd å lukke. -->
+        <button class="btn btn-secondary" onclick={oncloseform}
+          >{kjernesak ? 'Avbryt' : 'Lukk kladd'}</button
+        >
         <button class="btn btn-primary" disabled={!canSend} onclick={onsend}
           ><Send size={14} /> {sendLabel}</button
         >
