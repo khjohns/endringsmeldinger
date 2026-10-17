@@ -520,6 +520,7 @@ eksplisitt oppheves.
 | Et tilstandsløst endepunkt som regner ut et utkast med serverens regler, utredes ikke nå. Speilet i `src/lib/domain/` står under regelversjonsvakten, og B-13 er uendret. Vurderes på nytt når M1 er levert | 05.10, oppdragsgiver | Merknaden 07.10 lot utsettelsen gjelde til nytt vedtak, og en eventuell tidligere utredning skulle behandles separat under B-15. B-15 er avgjort 09.10 ([B-15](#b-15)): serverbasert forhåndsvurdering utredes ikke som erstatning |
 | <a id="b-15"></a>B-15: når nødvendig saksgrunnlag er lastet, skal brukeren kunne utforske vurderinger og se tilhørende beregninger og brevutkast uten å vente på serverkall. Ved innsending validerer serveren på nytt. Serverbasert forhåndsvurdering utredes derfor ikke som erstatning. B-13 er uendret | 09.10, oppdragsgiver (#274) | Flyttet fra 3.4 ved sluttredigeringen 09.10 |
 | Saker opprettes både fra skjemaet i appen og fra en topic i Catenda | 29.09, oppdragsgiver | Ikke bygget: skjemaet får 403 (DM-05) |
+| <a id="kt-u3"></a>KT-U3: En sak som opprettes i appen, får en topic i Catenda på det topic-boardet prosjektets konfigurasjon angir for saken. Forkastet: «En sak som opprettes i appen, får ingen topic i Catenda. Brevene i saken leveres som dokumenter i prosjektets bibliotek uten referanse til en topic.» | 17.10, oppdragsgiver (#370) | Utvider vedtaket 29.09 («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). 29.09 har ingen anker, så forholdet står her med ord. Ikke bygget (#370) |
 
 #### Arkitektur, språk og overgang
 
