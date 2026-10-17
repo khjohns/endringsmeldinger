@@ -260,12 +260,17 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 - **Følg med i hver sjekk.** Orkestratoren leser brukt kontekst
   (`external_metadata.context_usage.used_tokens`) og kostnad
   (`external_metadata.usage.cost_usd`) for hver økt med `get_session` i hver
-  sjekk, og bruker grensene under også når en økt ikke har meldt fra.
+  sjekk, og bruker grensene under også når en økt ikke har meldt fra. Er
+  `used_tokens` 0, er verdien ukjent, ikke lav, og orkestratoren leser i stedet
+  transkriptet med `list_events`. `usage.cost_usd` kan mangle i svaret. Dette
+  gjelder til feltet er pålitelig (#731), og da fjernes regelen.
 - **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
   review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
   finnes, og leser sin egen kontekst med `get_session` uten `session_id`, i
-  `external_metadata.context_usage.used_tokens`. Har økta passert om lag
-  150 000 tokens, stopper den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk.
+  `external_metadata.context_usage.used_tokens`. Er verdien 0, er den ukjent, og
+  økta anslår i stedet brukt kontekst ut fra det den har lest og kjørt, og
+  skriver anslaget i PR-en (#731). Har økta passert om lag 150 000 tokens, stopper
+  den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk.
   Tilstanden skal gjøre det mulig å lese seg inn på nytt: vedtakene i
   hovedplanen, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
   gjenstår (oppdragsgiver 14.10, #484).
