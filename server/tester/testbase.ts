@@ -249,9 +249,14 @@ async function datalag(o: Oppsett): Promise<Pool> {
 /**
  * En KOE-sak med `sak_opprettet` i kjernens format. Kjernen har ingen kommando
  * for opprettelsen ennå (#370); radene er de
- * `sprakprove/kjernelagring/bane.ts` skriver.
+ * `sprakprove/kjernelagring/bane.ts` skriver. Med `format: null` er den en sak
+ * Python har skrevet.
  */
-export async function opprettKjernesak(o: Oppsett, prosjekt = o.prosjekt): Promise<string> {
+export async function opprettKjernesak(
+  o: Oppsett,
+  prosjekt = o.prosjekt,
+  format: 1 | null = 1
+): Promise<string> {
   const sakId = randomUUID();
   await o.pool.query(
     "INSERT INTO sak_metadata (sak_id, prosjekt_id, created_by, sakstype, catenda_topic_id) VALUES ($1, $2, 'testmiljo', 'standard', $3)",
@@ -259,7 +264,7 @@ export async function opprettKjernesak(o: Oppsett, prosjekt = o.prosjekt): Promi
   );
   await o.pool.query(
     `INSERT INTO hendelse (event_id, source, type, subject, actorid, actorrole, data, prosjekt_id, sak_id, event_type, versjon, format)
-     VALUES ($1, $2, 'no.oslo.koe.sak_opprettet', $3, $4, 'TE', $5::jsonb, $6, $3, 'sak_opprettet', 1, 1)`,
+     VALUES ($1, $2, 'no.oslo.koe.sak_opprettet', $3, $4, 'TE', $5::jsonb, $6, $3, 'sak_opprettet', 1, $7)`,
     [
       randomUUID(),
       `/projects/${prosjekt.id}/cases/${sakId}`,
@@ -267,6 +272,7 @@ export async function opprettKjernesak(o: Oppsett, prosjekt = o.prosjekt): Promi
       o.te.id,
       JSON.stringify({ sakstittel: 'Skiva', sakstype: 'standard' }),
       prosjekt.id,
+      format,
     ]
   );
   if (o.datalag) await sakIDatalaget(o, sakId, prosjekt);

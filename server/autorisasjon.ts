@@ -66,7 +66,7 @@ export function sha256(tekst: string): string {
   return createHash('sha256').update(tekst).digest('hex');
 }
 
-function informasjonskapsel(foresporsel: IncomingMessage, navn: string): string {
+export function informasjonskapsel(foresporsel: IncomingMessage, navn: string): string {
   for (const del of (foresporsel.headers.cookie ?? '').split(';')) {
     const [nokkel, ...verdi] = del.trim().split('=');
     if (nokkel !== navn) continue;
@@ -88,8 +88,11 @@ function like(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-/** `require_auth`. */
-export async function krevInnlogging(db: Pool, foresporsel: IncomingMessage): Promise<Bruker> {
+/** `require_auth`, med sesjonen og kapselverdien for inngangene som trenger dem. */
+export async function krevSesjon(
+  db: Pool,
+  foresporsel: IncomingMessage
+): Promise<{ sesjon: Sesjon; token: string }> {
   const token = informasjonskapsel(foresporsel, sesjonsnavn());
   let sesjon: Sesjon | null = null;
   try {
@@ -107,7 +110,12 @@ export async function krevInnlogging(db: Pool, foresporsel: IncomingMessage): Pr
   ) {
     throw new Nektet(403, 'CSRF validation failed', 'Prøv igjen.');
   }
-  return sesjon.bruker;
+  return { sesjon, token };
+}
+
+/** `require_auth`. */
+export async function krevInnlogging(db: Pool, foresporsel: IncomingMessage): Promise<Bruker> {
+  return (await krevSesjon(db, foresporsel)).sesjon.bruker;
 }
 
 interface Medlemskap {
@@ -276,12 +284,15 @@ export interface Kontraktstilgang {
   teamId: string | null;
 }
 
-/** `require_contract_role()` med `contract_membership`. Uten entydig side: 403. */
-export async function krevKontraktsrolle(
+/**
+ * Siden og teamet med samme oppslag som `krevKontraktsrolle`, eller `null` uten
+ * entydig side. For lesing, som ikke krever kontraktsrolle (#705).
+ */
+export async function lesKontraktsside(
   db: Pool,
   catenda: Catenda,
   tilgang: Prosjekttilgang
-): Promise<Kontraktstilgang> {
+): Promise<Kontraktstilgang | null> {
   let funnet: [Rolle | null, string | null];
   try {
     funnet = await kontraktsside(db, catenda, tilgang);
@@ -289,10 +300,20 @@ export async function krevKontraktsrolle(
     throw new Nektet(503, 'CONTRACT_ACCESS_UNAVAILABLE', 'Teamtilknytning kunne ikke bekreftes.');
   }
   const [rolle, teamId] = funnet;
-  if (rolle !== 'TE' && rolle !== 'BH') {
+  return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
+}
+
+/** `require_contract_role()` med `contract_membership`. Uten entydig side: 403. */
+export async function krevKontraktsrolle(
+  db: Pool,
+  catenda: Catenda,
+  tilgang: Prosjekttilgang
+): Promise<Kontraktstilgang> {
+  const side = await lesKontraktsside(db, catenda, tilgang);
+  if (!side) {
     throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', 'Du har ikke nødvendig TE/BH-teamtilknytning.');
   }
-  return { rolle, teamId };
+  return side;
 }
 
 /**

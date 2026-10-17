@@ -1,0 +1,265 @@
+/**
+ * Innloggingsinngangene (F0b-5a, #659): Catenda-innloggingen, sesjonen,
+ * utloggingen og CSRF-tokenet, med samme stier, svar og kapsler som
+ * `backend/routes/auth_routes.py` og `/api/csrf-token` i
+ * `backend/routes/utility_routes.py`, så frontenden ikke endres når rutingen
+ * flyttes (F0b-8).
+ *
+ * Tilbakekallet løser identiteten gjennom `koe_api.catenda_identitet`, med
+ * issueren låst i basen og subjektet i `catendaId()`-formen fra `CatendaOAuth`,
+ * og oppretter sesjonen. Lar identiteten seg ikke avgjøre, opprettes ingen
+ * sesjon. Medlemssynkroniseringen og deaktiveringen ved innlogging er F0b-5b
+ * (#638, #614).
+ *
+ * Kode, token og feil fra Catenda når aldri loggen, svaret eller adressen;
+ * loggen får bare navnet på feiltypen, som i Python.
+ */
+
+import type { IncomingMessage } from 'node:http';
+
+import type { Avhengigheter, Innlogget, Rute, Svar } from './app.ts';
+import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
+import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
+import { sql, type Pool } from './datalag.ts';
+import {
+  brukInnloggingsforsoek,
+  opprettInnloggingsforsoek,
+  opprettSesjon,
+  slettSesjon,
+} from './sesjon.ts';
+
+/** Det inngangene trenger av `CatendaOAuth`, så testene kan stå for Catenda. */
+export type Innloggingsleverandoer = Pick<
+  CatendaOAuth,
+  'autorisasjonsadresse' | 'byttKode' | 'bruker'
+>;
+
+export interface Innlogging {
+  /** Opprinnelsen til frontenden, uten `/` til slutt (`AUTH_FRONTEND_URL`). */
+  frontend: string;
+  oauth: Innloggingsleverandoer;
+}
+
+const SESJONENS_LEVETID = 8 * 3600;
+const FORSOEKETS_LEVETID = 600;
+const STOERSTE_RETURSTI = 2048;
+
+const PRIVAT = { 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' };
+
+/** `validate_config` i `AuthService`: statiske HTTPS-adresser, HTTP bare mot localhost i utvikling. */
+function kontrollerAdresse(verdi: string, miljoe: NodeJS.ProcessEnv): URL {
+  let adresse: URL;
+  try {
+    adresse = new URL(verdi);
+  } catch {
+    throw new Error('Innloggingen trenger statiske HTTPS-adresser');
+  }
+  const lokal =
+    miljoe.APP_ENV === 'development' && ['localhost', '127.0.0.1'].includes(adresse.hostname);
+  if (
+    !adresse.host ||
+    adresse.username ||
+    adresse.password ||
+    adresse.search ||
+    adresse.hash ||
+    verdi.includes('?') ||
+    verdi.includes('#') ||
+    !(adresse.protocol === 'https:' || (lokal && adresse.protocol === 'http:'))
+  ) {
+    throw new Error('Innloggingen trenger statiske HTTPS-adresser');
+  }
+  return adresse;
+}
+
+/**
+ * Innloggingen fra miljøet. Kaster når oppsettet mangler eller er ugyldig;
+ * meldingen har aldri med verdiene, så hemmeligheten ikke kan havne i loggen.
+ */
+export function innloggingFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Innlogging {
+  const frontend = (miljoe.AUTH_FRONTEND_URL ?? '').replace(/\/+$/, '');
+  if (kontrollerAdresse(frontend, miljoe).pathname !== '/')
+    throw new Error('AUTH_FRONTEND_URL må være en opprinnelse');
+  kontrollerAdresse(miljoe.CATENDA_LOGIN_REDIRECT_URI ?? '', miljoe);
+  return { frontend, oauth: catendaFraMiljoe(miljoe).oauth };
+}
+
+/**
+ * `safe_return_path` i `backend/lib/auth/domain.py`: bare en lokal sti utenfor
+ * `/api/` og `/login`, ellers `/`. Kontrollen gjøres på stien dekodet én gang
+ * til, og stien selv må også begynne med én `/`, som basen krever. `/api/` og
+ * `/login` prøves etter punktsegmentene, som nettleseren løser opp. Tegn utenfor
+ * ASCII prosentkodes, så stien kan stå i `Location`, og lengden telles etterpå,
+ * i UTF-16-enheter, som basen teller (kravet i #659).
+ */
+export function tryggRetursti(verdi: string | null | undefined): string {
+  let sti: string;
+  let dekodet: string;
+  try {
+    // Et hode tar bare ASCII; `%` og resten av ASCII står som de er.
+    sti = (verdi || '/').replace(/[^\x21-\x7e]+/g, encodeURIComponent);
+    dekodet = decodeURIComponent(sti);
+  } catch {
+    return '/';
+  }
+  const lokal = (s: string) =>
+    s.startsWith('/') &&
+    !s.startsWith('//') &&
+    !s.includes('\\') &&
+    // eslint-disable-next-line no-control-regex
+    !/[\u0000-\u001f\u007f]/.test(s);
+  if (
+    sti.length > STOERSTE_RETURSTI ||
+    !lokal(sti) ||
+    !lokal(dekodet) ||
+    /^\/(api\/|login)/.test(new URL(dekodet, 'http://lokal').pathname)
+  )
+    return '/';
+  return sti;
+}
+
+/** `set_cookie` i `auth_routes.py`: `Secure` følger `__Host-`-prefikset. */
+function kapsel(navn: string, verdi: string, levetid: number, naa: Date): string {
+  const utloeper = new Date(naa.getTime() + levetid * 1000).toUTCString();
+  const sikker = navn.startsWith('__Host-') ? '; Secure' : '';
+  return `${navn}=${verdi}; Expires=${utloeper}; Max-Age=${levetid}${sikker}; HttpOnly; Path=/; SameSite=Lax`;
+}
+
+const omdiriger = (adresse: string, kapsler: string[]): Svar => [
+  302,
+  null,
+  { Location: adresse, 'Set-Cookie': kapsler },
+];
+
+const utilgjengelig = (): Svar => [
+  503,
+  { error: 'AUTH_UNAVAILABLE', message: 'Innlogging er midlertidig utilgjengelig.' },
+];
+
+/** `app_users.id` for Catenda-identiteten. Basen avviser et subjekt som ikke er normalisert. */
+export async function catendaIdentitet(pool: Pool, bruker: CatendaBruker): Promise<string> {
+  const svar = await pool
+    .request()
+    .input('subjekt', sql.NVarChar(400), bruker.subjekt)
+    .input('epost', sql.NVarChar(320), bruker.epost)
+    .input('navn', sql.NVarChar(400), bruker.navn)
+    .output('bruker', sql.UniqueIdentifier)
+    .execute('koe_api.catenda_identitet');
+  const id = svar.output.bruker;
+  if (typeof id !== 'string' || !id) throw new Error('Identiteten ble ikke avgjort');
+  return id.toLowerCase();
+}
+
+const loggFeil = (hvor: string, feil: unknown) =>
+  console.warn(`${hvor} (${(feil as Error)?.constructor?.name ?? typeof feil})`);
+
+async function loggInn(foresporsel: IncomingMessage, avh: Required<Avhengigheter>): Promise<Svar> {
+  if (!avh.innlogging) return utilgjengelig();
+  const url = new URL(foresporsel.url ?? '/', 'http://localhost');
+  try {
+    const forsoek = await opprettInnloggingsforsoek(
+      avh.datalag,
+      tryggRetursti(url.searchParams.get('return_to'))
+    );
+    return omdiriger(avh.innlogging.oauth.autorisasjonsadresse(forsoek.state), [
+      kapsel(`${sesjonsnavn()}_login`, forsoek.nettleser, FORSOEKETS_LEVETID, avh.tidspunkt()),
+    ]);
+  } catch (feil) {
+    loggFeil('Innloggingen kunne ikke startes', feil);
+    return utilgjengelig();
+  }
+}
+
+async function tilbakekall(
+  foresporsel: IncomingMessage,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const innlogging = avh.innlogging;
+  if (!innlogging) return [503, { error: 'AUTH_UNAVAILABLE' }];
+  const url = new URL(foresporsel.url ?? '/', 'http://localhost');
+  const navn = sesjonsnavn();
+  const naa = avh.tidspunkt();
+  const ryddForsoek = kapsel(`${navn}_login`, '', 0, naa);
+  const mislyktes = omdiriger(`${innlogging.frontend}/login?error=login_failed`, [ryddForsoek]);
+  try {
+    const state = url.searchParams.getAll('state');
+    const kode = url.searchParams.getAll('code');
+    const nettleser = informasjonskapsel(foresporsel, `${navn}_login`);
+    if (state.length !== 1 || !state[0] || !nettleser) return mislyktes;
+    const retursti = await brukInnloggingsforsoek(avh.datalag, state[0], nettleser);
+    if (retursti === null || url.searchParams.get('error') || kode.length !== 1 || !kode[0])
+      return mislyktes;
+    const token = await innlogging.oauth.byttKode(kode[0]);
+    const bruker = await catendaIdentitet(avh.datalag, await innlogging.oauth.bruker(token));
+    const sesjon = await opprettSesjon(avh.datalag, bruker);
+    const gammel = informasjonskapsel(foresporsel, navn);
+    if (gammel) await slettSesjon(avh.datalag, gammel);
+    // Basen gir den lagrede stien tilbake uten ny kontroll.
+    return omdiriger(`${innlogging.frontend}${tryggRetursti(retursti)}`, [
+      kapsel(navn, sesjon.token, SESJONENS_LEVETID, naa),
+      ryddForsoek,
+    ]);
+  } catch (feil) {
+    loggFeil('Tilbakekallet fra innloggingen feilet', feil);
+    return mislyktes;
+  }
+}
+
+async function visSesjon({ sesjon }: Innlogget): Promise<Svar> {
+  return [200, { user: sesjon.bruker, csrfToken: sesjon.csrfToken }];
+}
+
+async function loggUt({ token }: Innlogget, avh: Required<Avhengigheter>): Promise<Svar> {
+  await slettSesjon(avh.datalag, token);
+  return [
+    200,
+    { success: true },
+    { 'Set-Cookie': [kapsel(sesjonsnavn(), '', 0, avh.tidspunkt())] },
+  ];
+}
+
+async function csrfToken({ sesjon }: Innlogget): Promise<Svar> {
+  return [200, { csrfToken: sesjon.csrfToken, expiresIn: 3600 }];
+}
+
+const fast = (sti: string) => ({ sti: new RegExp(`^${sti}$`), eksempel: () => sti });
+
+export const INNLOGGINGSRUTER: readonly Rute[] = [
+  {
+    metode: 'GET',
+    ...fast('/api/auth/catenda/login'),
+    tilgang: { utenSesjon: 'Starter innloggingen; brukeren har ingen sesjon ennå.' },
+    hoder: PRIVAT,
+    behandle: loggInn,
+  },
+  {
+    metode: 'GET',
+    ...fast('/api/auth/catenda/callback'),
+    tilgang: {
+      utenSesjon:
+        'Tilbakekallet fra Catenda, som oppretter sesjonen. Staten og innloggingskapselen binder det til forsøket.',
+    },
+    hoder: PRIVAT,
+    behandle: tilbakekall,
+  },
+  {
+    metode: 'GET',
+    ...fast('/api/auth/session'),
+    tilgang: { utenProsjekt: 'Sesjonen gjelder brukeren, ikke et prosjekt.' },
+    hoder: PRIVAT,
+    behandle: visSesjon,
+  },
+  {
+    metode: 'POST',
+    ...fast('/api/auth/logout'),
+    tilgang: { utenProsjekt: 'Utloggingen sletter brukerens sesjon, uavhengig av prosjekt.' },
+    hoder: PRIVAT,
+    behandle: loggUt,
+  },
+  {
+    metode: 'GET',
+    ...fast('/api/csrf-token'),
+    tilgang: { utenProsjekt: 'CSRF-tokenet hører til sesjonen, ikke til et prosjekt.' },
+    hoder: { 'Cache-Control': 'no-store' },
+    behandle: csrfToken,
+  },
+];

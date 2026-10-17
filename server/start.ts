@@ -17,12 +17,16 @@
  *   Vite-proxyen sender `/api/kjerne` til port 8090.
  * - `TESTMILJO_TEAMMEDLEMMER` står for Catendas team-API. Medlemssynkronisering
  *   mot Catenda er ikke bygget; et medlemskap som ikke er ferskt, gir 503.
+ * - Innloggingen leser `AUTH_FRONTEND_URL`, `CATENDA_CLIENT_ID`,
+ *   `CATENDA_CLIENT_SECRET` og `CATENDA_LOGIN_REDIRECT_URI`, som Python. Mangler
+ *   oppsettet eller er det ugyldig, svarer innloggingen 503.
  */
 
 import { createServer } from 'node:http';
 import { lagServer } from './app.ts';
 import { catendaId, type Catenda } from './autorisasjon.ts';
 import { opprettPool, sql } from './datalag.ts';
+import { innloggingFraMiljoe, type Innlogging } from './innlogging.ts';
 import { kobleTilKastbarTestbase } from './kastbar.ts';
 
 function teamFraMiljo(): Catenda {
@@ -52,7 +56,15 @@ datalag.on('error', (feil) =>
   console.error('Forbindelsen til SQL Server ble brutt:', feil.message)
 );
 
-const server = createServer(lagServer({ pool, datalag, catenda: teamFraMiljo() }));
+let innlogging: Innlogging | null = null;
+try {
+  innlogging = innloggingFraMiljoe();
+} catch (feil) {
+  // Meldingen har ingen verdier fra oppsettet, så hemmeligheten når ikke loggen.
+  console.warn(`Innloggingen er ikke satt opp: ${(feil as Error).message}`);
+}
+
+const server = createServer(lagServer({ pool, datalag, catenda: teamFraMiljo(), innlogging }));
 server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
   const adresse = server.address();
   const port = typeof adresse === 'object' && adresse ? adresse.port : 0;
