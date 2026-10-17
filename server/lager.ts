@@ -25,6 +25,9 @@ export class Versjonskonflikt extends Error {
 /** Saken finnes ikke i det autoriserte prosjektet, eller er ikke skrevet av TS-kjernen. */
 export class SakFinnesIkke extends Error {}
 
+/** Saken har ingen aktiv kobling til Catenda og dermed ikke noe leveringsmål (#739 punkt 1). */
+export class IngenLeveringsmaal extends Error {}
+
 /** Målet i Catenda for brevene i saken: koblingen for prosjektet og topicen for saken, når den finnes. */
 export interface Leveringsmaal {
   catenda_project_id: string;
@@ -150,6 +153,7 @@ export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<L
   const svar = await foresp()
     .input('sak_id', sql.NVarChar(36), sakId)
     .execute<Leveringsmaal>('koe_api.leveringsmaal');
-  if (!svar.recordset[0]) throw new Error(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
+  if (!svar.recordset[0])
+    throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
   return svar.recordset[0];
 }

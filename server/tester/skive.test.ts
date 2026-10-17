@@ -25,6 +25,7 @@ import { gjengiOppdrag, kanonisk, OPPDRAGSFORMAT, sjekksum } from '../levering.t
 import { sql } from './sqlserver.ts';
 import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
 import {
+  catendaFra,
   kall,
   lagOppsett,
   opprettKjernesak,
@@ -397,3 +398,65 @@ describe.skipIf(!TESTBASE_URL)(
     });
   }
 );
+
+describe.skipIf(!TESTBASE_URL)('koblingen slås av under skrivingen (#739 punkt 1)', () => {
+  let o: Oppsett;
+  beforeAll(async () => {
+    o = await lagOppsett();
+  });
+  afterAll(async () => {
+    if (o) await rydd(o);
+  });
+
+  /**
+   * Serveren der eieren slår av koblingen når kontraktsrollen spør Catenda, etter
+   * prosjekttilgangen. DL-U10 gjør medlemskapene inaktive i samme transaksjon, og eieren
+   * setter dem aktive igjen: slik ser en skrivetransaksjon basen når koblingen slås av
+   * etter at den har lest saken og før den leser leveringsmålet.
+   */
+  async function kommandoMedKobling(aktiv: boolean, sakId: string) {
+    const catenda = catendaFra(o.teammedlemmer);
+    const server = await startServer(o, {
+      catenda: {
+        ...catenda,
+        async teammedlemmer(prosjekt, team) {
+          await o.datalag.base.pool
+            .request()
+            .input('p', sql.NVarChar(100), o.prosjekt.id)
+            .input('a', sql.Bit, aktiv).query(`
+              UPDATE koe.catenda_project_configs SET is_active = @a WHERE internal_project_id = @p;
+              UPDATE koe.app_project_memberships SET active = 1, deactivated_at = NULL
+               WHERE project_id = @p;`);
+          return catenda.teammedlemmer(prosjekt, team);
+        },
+      },
+    });
+    try {
+      return await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
+        bruker: o.te,
+        prosjektId: o.prosjekt.id,
+        // Brevteksten er ikke den kjernen lager, så kommandoen avvises om den når kjernen.
+        kropp: { expected_version: 1, kommando: { ...GRUNNLAGSKRAV, brevtekst: [] } },
+      });
+    } finally {
+      await server.stopp();
+    }
+  }
+
+  it('uten leveringsmål gir kommandoen 403 før kjernen, og ingenting skrives', async () => {
+    const sakId = await opprettKjernesak(o);
+    // Kontrollsak: med koblingen på når kommandoen kjernen, som avviser den.
+    const kontroll = await kommandoMedKobling(true, sakId);
+    expect(kontroll.status).toBe(400);
+    const svar = await kommandoMedKobling(false, sakId);
+    expect(svar.status).toBe(403);
+    expect(svar.kropp.error).toBe('FORBIDDEN');
+    const lest = await lesSaken(
+      o.datalag.kjoeretid.pool,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      sakId
+    );
+    expect(lest.journal).toHaveLength(1);
+    expect(lest.oppdrag).toEqual([]);
+  });
+});

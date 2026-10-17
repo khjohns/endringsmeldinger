@@ -250,6 +250,26 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
     expect(svar.hoder.get('referrer-policy')).toBe('no-referrer');
   });
 
+  it('et hode Node ikke godtar, gir 500 og tar ikke ned serveren (#716 punkt 2)', async () => {
+    const galt = await startServer(o, {
+      innlogging: {
+        frontend: FRONTEND,
+        oauth: { ...oauth, autorisasjonsadresse: (state) => `https://catenda.test/\r\n${state}` },
+      },
+    });
+    try {
+      const svar = await hent(`${galt.url}/api/auth/catenda/login`);
+      expect(svar.status).toBe(500);
+      expect(svar.kropp?.error).toBe('INTERNAL_ERROR');
+      expect(svar.hoder.get('location')).toBeNull();
+      // Kontrollsak: med en gyldig adresse svarer samme inngang 302.
+      expect((await startInnlogging()).svar.status).toBe(302);
+      expect((await hent(`${galt.url}/api/auth/catenda/login`)).status).toBe(500);
+    } finally {
+      await galt.stopp();
+    }
+  });
+
   it('tilbakekallet løser identiteten, oppretter sesjonen og sender til returstien', async () => {
     const svar = await loggInn('/saker/1?fane=frist');
     expect(svar.status).toBe(302);
