@@ -72,3 +72,28 @@ export const medSvar = skrevet(medVederlag, 'BH', {
     },
   ],
 });
+
+export const medVederlagssvar = skrevet(medVederlag, 'BH', {
+  type: 'brev',
+  svar: [
+    {
+      spor: 'vederlag',
+      gjelder: kravId(medVederlag, 'vederlag'),
+      regelversjon: KJERNE.regler.versjon,
+      vurderinger: {
+        hovedkrav_vurdering: 'godkjent',
+        hovedkrav_godkjent_belop: 250000,
+        aksepterer_metode: true,
+      },
+      resultat: { resultat: 'godkjent', godkjent_beloep: 250000 },
+      utdypning: 'Tilbudet godtas.',
+    },
+  ],
+});
+
+export const medFristvarsel = skrevet(medGrunnlag, 'TE', {
+  type: 'varsel',
+  spor: 'frist',
+  hjemmel: '33.4',
+  sendt: '2026-10-10',
+});

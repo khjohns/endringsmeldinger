@@ -7,12 +7,19 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import type { Journalrad, Part } from '$kjerne/typer';
 import Kjernesakrom from '../Kjernesakrom.svelte';
-import { SAK, medGrunnlag, medSvar } from '$lib/kjernesak/__tests__/provejournal';
+import {
+  SAK,
+  medFristvarsel,
+  medGrunnlag,
+  medSvar,
+  medVederlag,
+  medVederlagssvar,
+} from '$lib/kjernesak/__tests__/provejournal';
 
 const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
   versjon: journal.length,
@@ -77,6 +84,25 @@ describe('TS-saken i Kontrollrommet', () => {
     expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent('BH har svart');
     expect(spor.getByRole('button', { name: /Grunnlag/ })).not.toHaveTextContent(/godkjent/i);
     expect(screen.getAllByText('Byggherre har svart').length).toBeGreaterThan(0);
+  });
+
+  it('et besvart vederlagskrav står som besvart og ikke som uavklart (oppdragsgiver 17.10)', async () => {
+    await vis(medVederlag, 'TE');
+    expect(screen.getByText('250 000 kr')).toBeInTheDocument();
+    cleanup();
+
+    await vis(medVederlagssvar, 'TE');
+    const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
+    expect(spor.getByRole('button', { name: /Vederlag/ })).toHaveTextContent('BH har svart');
+    expect(screen.queryByText('250 000 kr')).toBeNull();
+  });
+
+  it('et registrert fristvarsel vises som varslet, ikke som «Ikke varslet» (§ 33.4)', async () => {
+    await vis(medFristvarsel, 'TE');
+    const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
+    expect(spor.getByRole('button', { name: /Fristforlengelse/ })).toHaveTextContent(
+      'Varslet – ikke spesifisert'
+    );
   });
 
   it.each([['TE'], ['BH']] as const)(

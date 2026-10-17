@@ -49,19 +49,24 @@
       ? { label: store.saksbilde.status.tekst, variant: 'default', sendt: false }
       : saksstatus(store.sak)
   );
+  // For en TS-sak vises bare at BH har svart (#718), så et besvart krav står ikke som uavklart.
   const exposureGroups = $derived(
     [
       {
         label: 'Uavklart',
         values: [
-          prinV === undefined && !store.display('vederlag').isWithdrawn
+          prinV === undefined &&
+          !store.display('vederlag').isWithdrawn &&
+          !store.display('vederlag').bhHarSvart
             ? store.display('vederlag').unspecified
               ? store.display('vederlag').hasNotice
                 ? 'Vederlag ikke spesifisert'
                 : null
               : `${fmt(store.display('vederlag').krevdValue!)} kr`
             : null,
-          prinF === undefined && !store.display('frist').isWithdrawn
+          prinF === undefined &&
+          !store.display('frist').isWithdrawn &&
+          !store.display('frist').bhHarSvart
             ? store.display('frist').unspecified
               ? store.display('frist').hasNotice
                 ? 'Frist ikke spesifisert'

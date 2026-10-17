@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import { sporvisning, tilSakState, tilTidslinje } from '$lib/kjernesak/sakstilstand';
-import { SAK, medSvar, medVederlag } from './provejournal';
+import { SAK, medFristvarsel, medSvar, medVederlag } from './provejournal';
 
 describe('TS-saken som Kontrollrommet leser den', () => {
   it('kategorien og metoden står med katalogens koder, og TEs utdypning er begrunnelsen', () => {
@@ -52,6 +52,19 @@ describe('TS-saken som Kontrollrommet leser den', () => {
       isDisputed: false,
     });
     expect(sporvisning(sak, u, 'vederlag').bhHarSvart).toBe(false);
+  });
+
+  it('et registrert varsel etter § 33.4 gir fristsporet et varsel uten krevde dager', () => {
+    const uten = utledJournal(medVederlag, KJERNE);
+    expect(sporvisning(tilSakState(SAK, null, medVederlag, uten), uten, 'frist').hasNotice).toBe(
+      false
+    );
+
+    const u = utledJournal(medFristvarsel, KJERNE);
+    expect(sporvisning(tilSakState(SAK, null, medFristvarsel, u), u, 'frist')).toMatchObject({
+      hasNotice: true,
+      unspecified: true,
+    });
   });
 
   it('journalen blir tidslinjen i rekkefølgen og med sporet hendelsen har krav eller svar i', () => {
