@@ -114,10 +114,13 @@ export interface Kontekst {
 }
 
 /** En ny bruker med en Catenda-identitet, gjennom `koe_api.catenda_identitet`. Gir `app_users.id`. */
-export async function catendaBruker(pool: Pool): Promise<string> {
+export async function catendaBruker(
+  pool: Pool,
+  subjekt = randomBytes(16).toString('hex')
+): Promise<string> {
   const svar = await pool
     .request()
-    .input('subjekt', sql.NVarChar(400), randomBytes(16).toString('hex'))
+    .input('subjekt', sql.NVarChar(400), subjekt)
     .input('epost', sql.NVarChar(320), '')
     .input('navn', sql.NVarChar(400), '')
     .output('bruker', sql.UniqueIdentifier)

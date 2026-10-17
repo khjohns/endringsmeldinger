@@ -1,8 +1,9 @@
 /**
- * Start TS-serveren mot den kastbare testbasen (B-18, skiva i #347):
+ * Start TS-serveren mot den kastbare testbasen (B-18, F0b-8 i #662):
  *
  *   KOE_TESTBASE_URL=… KOE_DATALAG_TILKOBLING=… APP_ENV=development \
- *     TESTMILJO_TEAMMEDLEMMER='{"<team-id>": ["<subjekt>"]}' npm run server -- 8090
+ *     AUTH_FRONTEND_URL=http://localhost:5173 CATENDA_CLIENT_ID=… \
+ *     CATENDA_CLIENT_SECRET=… CATENDA_LOGIN_REDIRECT_URI=… npm run server -- 8090
  *
  * Serveren lytter på 127.0.0.1 og skriver «lytter på http://127.0.0.1:<port>»
  * når den er klar. Port 0 gir en ledig port.
@@ -10,36 +11,49 @@
  * - Den nekter å starte mot en base som ikke er merket kastbar av
  *   `scripts/testbase/bygg_testbase.sh`. Skiva er for testmiljøet.
  * - `KOE_DATALAG_TILKOBLING` er tilkoblingsstrengen til en migrert base i
- *   SQL Server, med sesjonen, medlemskapet og kontraktsteamene (#658). Journalen
- *   står i PostgreSQL fram til F0b-7 (#661).
+ *   SQL Server, med sesjonen, medlemskapet og kontraktsteamene (#658). Den nekter å
+ *   starte når historikken i basen avviker fra `database/migrasjoner/` eller en fil
+ *   ikke er anvendt. Journalen står i PostgreSQL fram til F0b-7 (#661).
  * - `APP_ENV` må være den Python har. Med `development` heter sesjonskapselen
  *   `koe_session`, ellers `__Host-koe_session`, som krever HTTPS (B18-01).
- *   Vite-proxyen sender `/api/kjerne` til port 8090.
- * - `TESTMILJO_TEAMMEDLEMMER` står for Catendas team-API. Medlemssynkronisering
- *   mot Catenda er ikke bygget; et medlemskap som ikke er ferskt, gir 503.
- * - Innloggingen leser `AUTH_FRONTEND_URL`, `CATENDA_CLIENT_ID`,
- *   `CATENDA_CLIENT_SECRET` og `CATENDA_LOGIN_REDIRECT_URI`, som Python. Mangler
- *   oppsettet eller er det ugyldig, svarer innloggingen 503.
+ *   Vite-proxyen sender innloggingen, `/api/csrf-token`, prosjektene og
+ *   `/api/kjerne` til port 8090.
+ * - Innloggingen og Catenda leser `AUTH_FRONTEND_URL`, `CATENDA_CLIENT_ID`,
+ *   `CATENDA_CLIENT_SECRET`, `CATENDA_LOGIN_REDIRECT_URI` og `CATENDA_ACCESS_TOKEN`,
+ *   som Python. Medlemslistene og teamene hentes med integrasjonens eget token.
+ *   Mangler oppsettet eller er det ugyldig, svarer innloggingen 503, og en
+ *   medlemsliste som må hentes, gir 503. `CATENDA_GRUNNADRESSE` peker Catenda mot en
+ *   testleverandør på localhost, bare i utvikling.
  */
 
 import { createServer } from 'node:http';
 import { lagServer } from './app.ts';
-import { catendaId, type Catenda } from './autorisasjon.ts';
-import { opprettPool, sql } from './datalag.ts';
+import type { Catenda } from './autorisasjon.ts';
+import { catendaFraMiljoe, CatendaUtilgjengelig, integrasjonen } from './catenda.ts';
+import { opprettPool, sql, type Pool } from './datalag.ts';
 import { innloggingFraMiljoe, type Innlogging } from './innlogging.ts';
 import { kobleTilKastbarTestbase } from './kastbar.ts';
+import { avvik, lesMigrasjoner, type Anvendt } from './migrering.ts';
 
-function teamFraMiljo(): Catenda {
-  const team = JSON.parse(process.env.TESTMILJO_TEAMMEDLEMMER ?? '{}') as Record<string, string[]>;
-  return {
-    async synkroniser() {
-      throw new Error('Medlemssynkronisering mot Catenda er ikke bygget i TS-serveren.');
-    },
-    async teammedlemmer(_prosjekt, teamId) {
-      const funnet = Object.entries(team).find(([id]) => catendaId(id) === teamId);
-      return new Set(funnet?.[1] ?? []);
-    },
-  };
+const utenCatenda: Catenda = {
+  async medlemmer() {
+    throw new CatendaUtilgjengelig('Catenda er ikke satt opp');
+  },
+  async teammedlemmer() {
+    throw new CatendaUtilgjengelig('Catenda er ikke satt opp');
+  },
+};
+
+/** Det som hindrer at serveren bruker basen: avvik fra filene, eller en fil som ikke er anvendt. */
+async function migrasjonsavvik(datalag: Pool): Promise<string[]> {
+  const filer = lesMigrasjoner();
+  const anvendt = (await datalag.request().execute<Anvendt>('koe_api.migrasjonshistorikk'))
+    .recordset;
+  const kjent = new Set(anvendt.map((a) => a.versjon));
+  return [
+    ...avvik(anvendt, filer),
+    ...filer.filter((f) => !kjent.has(f.versjon)).map((f) => `${f.filnavn} er ikke anvendt.`),
+  ];
 }
 
 const url = process.env.KOE_TESTBASE_URL;
@@ -56,15 +70,20 @@ datalag.on('error', (feil) =>
   console.error('Forbindelsen til SQL Server ble brutt:', feil.message)
 );
 
+const funn = await migrasjonsavvik(datalag);
+if (funn.length) throw new Error(`Basen er ikke migrert som repoet:\n${funn.join('\n')}`);
+
 let innlogging: Innlogging | null = null;
+let catenda = utenCatenda;
 try {
   innlogging = innloggingFraMiljoe();
+  catenda = integrasjonen(catendaFraMiljoe());
 } catch (feil) {
   // Meldingen har ingen verdier fra oppsettet, så hemmeligheten når ikke loggen.
-  console.warn(`Innloggingen er ikke satt opp: ${(feil as Error).message}`);
+  console.warn(`Innloggingen og Catenda er ikke satt opp: ${(feil as Error).message}`);
 }
 
-const server = createServer(lagServer({ pool, datalag, catenda: teamFraMiljo(), innlogging }));
+const server = createServer(lagServer({ pool, datalag, catenda, innlogging }));
 server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
   const adresse = server.address();
   const port = typeof adresse === 'object' && adresse ? adresse.port : 0;

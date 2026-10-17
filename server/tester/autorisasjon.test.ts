@@ -24,6 +24,7 @@ import {
   type Bruker,
   type Catenda,
 } from '../autorisasjon.ts';
+import type { Medlem as Medlemsrad } from '../medlemskap.ts';
 import {
   catendaBruker,
   iTransaksjon,
@@ -58,13 +59,19 @@ interface Medlem {
   subjekt: string;
 }
 
-/** Catendas team-API som et kart fra team til subjekter, og hvor ofte synkroniseringen kalles. */
-function catendaMed(team: Record<string, string[]> = {}, synk?: () => Promise<void>) {
+/**
+ * Catendas team-API som et kart fra team til subjekter, og hvilke Catenda-prosjekter
+ * medlemslisten hentes fra.
+ */
+function catendaMed(
+  team: Record<string, string[]> = {},
+  medlemmer: () => Promise<Medlemsrad[]> = async () => []
+) {
   const kall: string[] = [];
   const catenda: Catenda = {
-    async synkroniser(prosjektId) {
-      kall.push(prosjektId);
-      await synk?.();
+    async medlemmer(catendaProsjekt) {
+      kall.push(catendaProsjekt);
+      return medlemmer();
     },
     async teammedlemmer(_prosjekt, teamId) {
       return new Set(team[teamId] ?? []);
@@ -152,8 +159,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
   }
 
   async function medlem(p: Prosjekt, valg: Medlemsvalg = {}): Promise<Medlem> {
-    const id = await catendaBruker(base.pool);
     const subjekt = hex();
+    const id = await catendaBruker(base.pool, subjekt);
     await settInn(r, 'app_project_memberships', {
       project_id: p.id,
       user_id: id,
@@ -321,7 +328,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         });
     });
 
-    it('en gammel eller manglende liste synkroniseres, en fersk ikke', async () => {
+    it('en gammel eller manglende liste hentes fra Catenda-prosjektet i koblingen, en fersk ikke', async () => {
       for (const [liste, forventet] of [
         ['fersk', 0],
         ['gammel', 1],
@@ -329,10 +336,22 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       ] as const) {
         const p = await prosjekt({ liste });
         const m = await medlem(p);
-        const { catenda, kall } = catendaMed();
-        await tilgang(m, p.id, { catenda });
-        expect(kall, liste).toEqual(Array(forventet).fill(p.id));
+        const { catenda, kall } = catendaMed({}, async () => [
+          { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
+        ]);
+        expect(await tilgang(m, p.id, { catenda }), liste).toBeTruthy();
+        expect(kall, liste).toEqual(Array(forventet).fill(p.catenda));
       }
+    });
+
+    it('en ny liste uten medlemmet gir 403', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const { catenda } = catendaMed();
+      expect(await nektet(tilgang(m, p.id, { catenda }))).toEqual({
+        status: 403,
+        error: 'FORBIDDEN',
+      });
     });
 
     it('feiler synkroniseringen, gir det 503 og ikke tilgang', async () => {

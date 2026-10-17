@@ -8,7 +8,10 @@
  * sikkerhetsinvariantene i AGENTS.md (én brukerrad per person, normalisert subjekt)
  * og arbeidsvalget 16.10 i #53 (koblingen settes av driften). At innloggingen ikke
  * endrer et prosjekt med en liste hentet senere, og at innloggingen gjelder ved
- * samme tidspunkt, er arbeidsvalg i #53 som følger av DL-U7 og DL-U8.
+ * samme tidspunkt, er arbeidsvalg i #53 som følger av DL-U7 og DL-U8. DL-U10:
+ * medlemskapene blir inaktive straks koblingen oppheves eller endres, og ingen kan
+ * handle før en ny liste er hentet fra det koblede Catenda-prosjektet. #638: listen
+ * hentes fra Catenda-prosjektet i koblingen.
  * Krever `KOE_SQLSERVER_TILKOBLING`.
  */
 
@@ -19,13 +22,15 @@ import {
   deaktiverVedInnlogging,
   FeilCatendaProsjekt,
   MedlemskapetLaast,
-  medlemslistensAlder,
   synkroniserMedlemskap,
   UgyldigInnlogging,
   UgyldigMedlemsliste,
   UgyldigProsjekt,
+  kobledeProsjekter,
+  synkroniserProsjekt,
   type Medlem,
 } from '../medlemskap.ts';
+import { medlemslistensAlder } from '../autorisasjon.ts';
 import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   feilnummer,
@@ -506,9 +511,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         .input('u', sql.NVarChar(100), uten.id).query(`
           UPDATE koe.catenda_project_configs SET is_active = 0 WHERE internal_project_id = @i;
           DELETE koe.catenda_project_configs WHERE internal_project_id = @u;`);
+      // Koblingen ble opphevet, så medlemskapene der er alt inaktive (DL-U10).
+      const foer = [await medlemskap(inaktiv.id), await medlemskap(uten.id)];
       const endret = await logginn(a.subjekt, [aktiv.catendaId], sekunder(-1));
       expect(endret.filter((id) => [aktiv.id, inaktiv.id, uten.id].includes(id))).toEqual([]);
-      for (const p of [aktiv, inaktiv, uten]) expect(await aktive(p.id)).toEqual([a.subjekt]);
+      expect(await aktive(aktiv.id)).toEqual([a.subjekt]);
+      expect([await medlemskap(inaktiv.id), await medlemskap(uten.id)]).toEqual(foer);
     });
 
     describe('for en bruker uten medlemskap i prosjektet (DL-U9)', () => {
@@ -730,6 +738,149 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         );
       expect(await medlemslistensAlder(kjoeretid.pool, p.id)).toBeNull();
     });
+  });
+
+  describe('koblingen oppheves eller endres (DL-U10)', () => {
+    async function endreKobling(prosjektId: string, sett: string, catenda = randomUUID()) {
+      await base.pool
+        .request()
+        .input('p', sql.NVarChar(100), prosjektId)
+        .input('c', sql.UniqueIdentifier, catenda)
+        .query(sett);
+      return { id: prosjektId, catenda };
+    }
+
+    it.each([
+      [
+        'endres til et annet Catenda-prosjekt',
+        'UPDATE koe.catenda_project_configs SET catenda_project_id = @c WHERE internal_project_id = @p',
+      ],
+      [
+        'oppheves',
+        'UPDATE koe.catenda_project_configs SET is_active = 0 WHERE internal_project_id = @p',
+      ],
+      ['slettes', 'DELETE koe.catenda_project_configs WHERE internal_project_id = @p'],
+    ])(
+      'koblingen %s: medlemskapene blir inaktive straks, og alderen er borte',
+      async (_navn, setning) => {
+        const p = await prosjekt();
+        const a = medlem();
+        await synk(p, [a], sekunder(-10));
+        expect(await aktive(p.id)).toEqual([a.subjekt]);
+        await endreKobling(p.id, setning);
+        expect(await aktive(p.id)).toEqual([]);
+        expect((await medlemskap(p.id))[0].deactivated_at).not.toBeNull();
+        expect(await medlemslistensAlder(kjoeretid.pool, p.id)).toBeNull();
+      }
+    );
+
+    it('en liste fra det nye Catenda-prosjektet hentet etter endringen gjør medlemmet aktivt, en hentet før ikke', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      const b = medlem();
+      await synk(p, [a], sekunder(-10));
+      const ny = await endreKobling(
+        p.id,
+        'UPDATE koe.catenda_project_configs SET catenda_project_id = @c WHERE internal_project_id = @p'
+      );
+      expect(await synk(ny, [a, b], sekunder(-2))).toBe(false);
+      expect(await aktive(p.id)).toEqual([]);
+      expect(await synk(ny, [a, b], await basensKlokke(base.pool))).toBe(true);
+      expect(await aktive(p.id)).toEqual([a.subjekt, b.subjekt].sort());
+      expect(await medlemslistensAlder(kjoeretid.pool, p.id)).not.toBeNull();
+    });
+
+    it('koblingen slås på igjen: ingen kan handle før en ny liste er hentet', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      await synk(p, [a], sekunder(-10));
+      await endreKobling(
+        p.id,
+        'UPDATE koe.catenda_project_configs SET is_active = 0 WHERE internal_project_id = @p'
+      );
+      await endreKobling(
+        p.id,
+        'UPDATE koe.catenda_project_configs SET is_active = 1 WHERE internal_project_id = @p'
+      );
+      expect(await aktive(p.id)).toEqual([]);
+      expect(await medlemslistensAlder(kjoeretid.pool, p.id)).toBeNull();
+      expect(await synk(p, [a], sekunder(-5))).toBe(false);
+      expect(await synk(p, [a], await basensKlokke(base.pool))).toBe(true);
+      expect(await aktive(p.id)).toEqual([a.subjekt]);
+    });
+
+    it('en endring som ikke rører koblingen, endrer ikke medlemskapet (kontroll)', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      await synk(p, [a], sekunder(-10));
+      await endreKobling(
+        p.id,
+        'UPDATE koe.catenda_project_configs SET updated_at = SYSUTCDATETIME() WHERE internal_project_id = @p'
+      );
+      expect(await aktive(p.id)).toEqual([a.subjekt]);
+      expect(await medlemslistensAlder(kjoeretid.pool, p.id)).not.toBeNull();
+    });
+
+    it('ingen kobling kan ha den tomme Catenda-ID-en (547)', async () => {
+      const p = await prosjekt();
+      const feil = await endreKobling(
+        p.id,
+        'UPDATE koe.catenda_project_configs SET catenda_project_id = @c WHERE internal_project_id = @p',
+        '00000000-0000-0000-0000-000000000000'
+      ).then(() => null, feilnummer);
+      expect(feil).toBe(CHECK_BRUDD);
+    });
+  });
+
+  describe('listen hentes fra Catenda-prosjektet i koblingen (#638)', () => {
+    it('synkroniseringen henter fra Catenda-prosjektet i koblingen', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      const hentetFra: string[] = [];
+      const skrevet = await synkroniserProsjekt(kjoeretid.pool, p.id, async (c) => {
+        hentetFra.push(c);
+        return [a];
+      });
+      expect(skrevet).toBe(true);
+      expect(hentetFra).toEqual([p.catenda]);
+      expect(await aktive(p.id)).toEqual([a.subjekt]);
+    });
+
+    it.each(['inaktiv', 'ingen'] as const)(
+      'uten aktiv kobling (%s) hentes ingen liste',
+      async (kobling) => {
+        const p = await prosjekt(kobling);
+        let hentet = false;
+        await expect(
+          synkroniserProsjekt(kjoeretid.pool, p.id, async () => {
+            hentet = true;
+            return [];
+          })
+        ).rejects.toBeInstanceOf(FeilCatendaProsjekt);
+        expect(hentet).toBe(false);
+      }
+    );
+
+    it('de koblede prosjektene er de med aktiv kobling til ett av Catenda-prosjektene', async () => {
+      const [a, b, inaktiv] = [await prosjekt(), await prosjekt(), await prosjekt('inaktiv')];
+      const svar = await kobledeProsjekter(kjoeretid.pool, [
+        a.catendaId,
+        inaktiv.catendaId,
+        subjekt(),
+      ]);
+      expect(svar).toEqual([a.id]);
+      expect(await kobledeProsjekter(kjoeretid.pool, [])).toEqual([]);
+      expect(svar).not.toContain(b.id);
+    });
+
+    it.each([[['ikke-en-id']], [[1]], [[randomUUID()]]])(
+      'en prosjektliste som ikke er normalisert, avvises: %j',
+      async (liste) => {
+        await expect(kobledeProsjekter(kjoeretid.pool, liste as string[])).rejects.toBeInstanceOf(
+          UgyldigInnlogging
+        );
+      }
+    );
   });
 
   it.each([

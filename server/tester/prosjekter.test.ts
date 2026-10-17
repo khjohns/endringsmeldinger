@@ -140,17 +140,19 @@ describe.skipIf(!BEGGE_BASENE)('prosjektinngangene mot testbasene', () => {
     const synkronisert: string[] = [];
     const catenda: Catenda = {
       ...catendaFra(o.teammedlemmer),
-      async synkroniser(prosjektId) {
-        synkronisert.push(prosjektId);
-        await eier()
-          .input('prosjekt', prosjektId)
-          .query('UPDATE koe.app_project_memberships SET active = 0 WHERE project_id = @prosjekt');
+      // En fullstendig liste uten brukeren gjør medlemskapet inaktivt.
+      async medlemmer(catendaProsjekt) {
+        synkronisert.push(catendaProsjekt);
+        return [];
       },
     };
+    const kobling = await eier().input('prosjekt', gammel).query<{
+      c: string;
+    }>('SELECT catenda_project_id AS c FROM koe.catenda_project_configs WHERE internal_project_id = @prosjekt');
     const egen = await startServer(o, { catenda });
     try {
       expect(ider((await liste(b, egen.url)).kropp)).toEqual([fersk]);
-      expect(synkronisert).toEqual([gammel]);
+      expect(synkronisert).toEqual([kobling.recordset[0].c.toLowerCase()]);
     } finally {
       await egen.stopp();
     }
@@ -162,7 +164,7 @@ describe.skipIf(!BEGGE_BASENE)('prosjektinngangene mot testbasene', () => {
     const egen = await startServer(o, {
       catenda: {
         ...catendaFra(o.teammedlemmer),
-        async synkroniser() {
+        async medlemmer() {
           throw new Error('Catenda er nede');
         },
       },
