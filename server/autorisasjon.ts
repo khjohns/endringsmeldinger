@@ -66,7 +66,7 @@ export function sha256(tekst: string): string {
   return createHash('sha256').update(tekst).digest('hex');
 }
 
-function informasjonskapsel(foresporsel: IncomingMessage, navn: string): string {
+export function informasjonskapsel(foresporsel: IncomingMessage, navn: string): string {
   for (const del of (foresporsel.headers.cookie ?? '').split(';')) {
     const [nokkel, ...verdi] = del.trim().split('=');
     if (nokkel !== navn) continue;
@@ -88,8 +88,11 @@ function like(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-/** `require_auth`. */
-export async function krevInnlogging(db: Pool, foresporsel: IncomingMessage): Promise<Bruker> {
+/** `require_auth`, med sesjonen og kapselverdien for inngangene som trenger dem. */
+export async function krevSesjon(
+  db: Pool,
+  foresporsel: IncomingMessage
+): Promise<{ sesjon: Sesjon; token: string }> {
   const token = informasjonskapsel(foresporsel, sesjonsnavn());
   let sesjon: Sesjon | null = null;
   try {
@@ -107,7 +110,12 @@ export async function krevInnlogging(db: Pool, foresporsel: IncomingMessage): Pr
   ) {
     throw new Nektet(403, 'CSRF validation failed', 'Prøv igjen.');
   }
-  return sesjon.bruker;
+  return { sesjon, token };
+}
+
+/** `require_auth`. */
+export async function krevInnlogging(db: Pool, foresporsel: IncomingMessage): Promise<Bruker> {
+  return (await krevSesjon(db, foresporsel)).sesjon.bruker;
 }
 
 interface Medlemskap {

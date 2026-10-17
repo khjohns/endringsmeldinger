@@ -622,8 +622,8 @@ beskrivelse = """
 til `app_users` i PostgreSQL."""
 lagres_fra = """
 `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter
-brukeren første gang en identitet sees. Ingen inngang i `server/` kaller den
-ennå (#53, del 3)."""
+brukeren første gang en identitet sees. Tilbakekallet fra innloggingen kaller den
+fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659)."""
 fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
 kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
@@ -640,7 +640,7 @@ beskrivelse = """
 Identitetene til en bruker, unike på leverandør, issuer og subjekt. En
 Catenda-identitet har issueren og subjektformen basen kontrollerer, så samme
 person ikke får to brukerrader (AGENTS.md)."""
-lagres_fra = "`koe.resolve_identity`, sammen med brukeren. Ingen inngang i `server/` kaller den ennå (#53, del 3)."
+lagres_fra = "`koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api.catenda_identitet` fra tilbakekallet i `server/innlogging.ts` (F0b-5a, #659)."
 fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Subjektet identifiserer en person."
@@ -889,8 +889,8 @@ sesjonen utløper, 8 timer etter opprettelsen. Svarer til `app_sessions` i
 PostgreSQL (B-19, #656). Kjøretiden har ingen rett på tabellen."""
 lagres_fra = """
 `koe_api.opprett_sesjon` oppretter, `koe_api.slett_sesjon` sletter og
-`koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`;
-ingen HTTP-inngang kaller modulen ennå (F0b-5a, #659)."""
+`koe_api.rydd_utloepte` sletter utløpte rader. Kalt fra `server/sesjon.ts`, av
+tilbakekallet og utloggingen i `server/innlogging.ts` (F0b-5a, #659)."""
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
 personopplysninger = "Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`)."
@@ -911,8 +911,8 @@ Kjøretiden har ingen rett på tabellen."""
 lagres_fra = """
 `koe_api.opprett_innloggingsforsoek` oppretter, `koe_api.bruk_innloggingsforsoek`
 sletter raden når den brukes, og `koe_api.rydd_utloepte` sletter utløpte rader.
-Kalt fra `server/sesjon.ts`; ingen HTTP-inngang kaller modulen ennå (F0b-5a,
-#659)."""
+Kalt fra `server/sesjon.ts`, av innloggingen og tilbakekallet i
+`server/innlogging.ts` (F0b-5a, #659)."""
 fra_catenda = "Nei, men raden hører til en innlogging hos Catenda."
 kan_gjenoppbygges = "nei, men radene er kortlevde."
 personopplysninger = "Ingen kjente; bare hasher og en returadresse."

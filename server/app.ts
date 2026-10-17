@@ -5,7 +5,9 @@
  *
  * Hver inngang står i `RUTER` med tilgangen den krever. Ruteren kontrollerer
  * innlogging (med CSRF), prosjekttilgang og kontraktsrolle fra registeret før
- * behandleren kalles, så en behandler ikke kan glemme dem. Testen i
+ * behandleren kalles, så en behandler ikke kan glemme dem. En inngang uten
+ * prosjekt eller uten sesjon står i registeret med en skriftlig begrunnelse.
+ * Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
  * `tester/register.test.ts` prøver hver inngang i registeret over HTTP.
  *
  * Saker opprettes ikke her (#370). Catenda kalles ikke;
@@ -24,6 +26,7 @@ import {
   krevInnlogging,
   krevKontraktsrolle,
   krevProsjekttilgang,
+  krevSesjon,
   Nektet,
   type Bruker,
   type Catenda,
@@ -31,8 +34,10 @@ import {
   type Prosjekttilgang,
 } from './autorisasjon.ts';
 import type { Pool as Datalag } from './datalag.ts';
+import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { lesSaken, SakFinnesIkke, skrivMedOppdrag, Versjonskonflikt } from './lager.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
+import type { Sesjon } from './sesjon.ts';
 
 export interface Avhengigheter {
   /** PostgreSQL, med journalen og oppdraget fram til F0b-7 (#661). */
@@ -40,15 +45,18 @@ export interface Avhengigheter {
   /** SQL Server, med sesjonen, medlemskapet, kontraktsteamene og sakene i prosjektet (#658). */
   datalag: Datalag;
   catenda: Catenda;
+  /** Catenda-innloggingen. Uten den svarer innloggingen 503, som når oppsettet mangler i Python. */
+  innlogging?: Innlogging | null;
   kjerne?: Kjerne;
   /** Klokke og ID-er, så testene kan styre dem. */
   tidspunkt?: () => Date;
   nyId?: () => string;
 }
 
-type Svar = [number, Record<string, unknown>];
+/** Status, JSON-kroppen eller ingen kropp, og hoder. */
+export type Svar = [number, Record<string, unknown> | null, Record<string, string | string[]>?];
 
-/** Tilgangen en inngang krever. Prosjekttilgang kreves alltid (AGENTS.md). */
+/** Tilgangen en saksinngang krever. */
 export interface Tilgang {
   prosjektrolle: 'viewer' | 'member';
   /** Kontraktsrolle, eller begrunnelsen for at inngangen ikke krever den. */
@@ -64,15 +72,48 @@ interface Forespoersel {
   kropp: Record<string, unknown>;
 }
 
-export interface Rute {
+/** Forespørselen til en inngang uten prosjekt, etter innloggingen og CSRF. */
+export interface Innlogget {
+  sesjon: Sesjon;
+  /** Verdien i sesjonskapselen. */
+  token: string;
+}
+
+interface Felles {
   metode: 'GET' | 'POST';
-  /** Stien som mønster. Første gruppe er saken. */
+  /** Stien som mønster. For en saksinngang er første gruppe saken. */
   sti: RegExp;
   /** Eksempelsti for testen av registeret. */
   eksempel: (sakId: string) => string;
-  tilgang: Tilgang;
-  behandle: (f: Forespoersel, avh: Required<Avhengigheter>) => Promise<Svar>;
+  /** Hoder på hvert svar fra inngangen, også en avvisning. */
+  hoder?: Record<string, string>;
 }
+
+type Behandler<F> = (f: F, avh: Required<Avhengigheter>) => Promise<Svar>;
+
+/** En inngang med sesjon og prosjekttilgang (AGENTS.md). */
+export interface Saksrute extends Felles {
+  tilgang: Tilgang;
+  behandle: Behandler<Forespoersel>;
+}
+
+/** En inngang med sesjon, men uten prosjekt. Begrunnelsen står i registeret. */
+export interface Sesjonsrute extends Felles {
+  tilgang: { utenProsjekt: string };
+  behandle: Behandler<Innlogget>;
+}
+
+/** En inngang uten sesjon. Begrunnelsen står i registeret. */
+export interface AapenRute extends Felles {
+  tilgang: { utenSesjon: string };
+  behandle: Behandler<IncomingMessage>;
+}
+
+export type Rute = Saksrute | Sesjonsrute | AapenRute;
+
+export const erAapen = (r: Rute): r is AapenRute => 'utenSesjon' in r.tilgang;
+export const erUtenProsjekt = (r: Rute): r is Sesjonsrute => 'utenProsjekt' in r.tilgang;
+export const erSaksrute = (r: Rute): r is Saksrute => !erAapen(r) && !erUtenProsjekt(r);
 
 const STORSTE_KROPP = 1_000_000;
 
@@ -239,8 +280,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
 
 const SAK = '([^/]+)';
 
-/** Registeret over inngangene. En ny inngang står her, ellers finnes den ikke. */
-export const RUTER: readonly Rute[] = [
+const KJERNERUTER: readonly Saksrute[] = [
   {
     metode: 'GET',
     sti: new RegExp(`^/api/kjerne/saker/${SAK}$`),
@@ -262,63 +302,88 @@ export const RUTER: readonly Rute[] = [
   },
 ];
 
+/** Registeret over inngangene. En ny inngang står her, ellers finnes den ikke. */
+export const RUTER: readonly Rute[] = [...KJERNERUTER, ...INNLOGGINGSRUTER];
+
 export function lagServer(avh: Avhengigheter) {
   const full: Required<Avhengigheter> = {
     kjerne: KJERNE,
     tidspunkt: () => new Date(),
     nyId: randomUUID,
     ...avh,
+    innlogging: avh.innlogging ?? null,
   };
 
-  async function rute(foresporsel: IncomingMessage): Promise<Svar> {
-    const url = new URL(foresporsel.url ?? '/', 'http://localhost');
-    const metode = foresporsel.method ?? 'GET';
-    for (const r of RUTER) {
-      const treff = url.pathname.match(r.sti);
-      if (!treff || r.metode !== metode) continue;
-      let sakId: string;
-      try {
-        sakId = decodeURIComponent(treff[1]);
-      } catch {
-        return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
-      }
-      // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
-      // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
-      const bruker = await krevInnlogging(full.datalag, foresporsel);
-      const innhold = metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
-      const prosjekt = await krevProsjekttilgang(
-        full.datalag,
-        full.catenda,
-        foresporsel,
-        bruker,
-        r.tilgang.prosjektrolle,
-        'feil' in innhold ? {} : innhold.verdi,
-        sakId
-      );
-      const side =
-        r.tilgang.kontraktsrolle === 'kreves'
-          ? await krevKontraktsrolle(full.datalag, full.catenda, prosjekt)
-          : null;
-      if ('feil' in innhold) throw innhold.feil;
-      // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
-      const kropp = innhold.verdi as Record<string, unknown>;
-      return r.behandle({ bruker, prosjekt, side, sakId, kropp }, full);
+  async function saksrute(
+    r: Saksrute,
+    treff: RegExpMatchArray,
+    foresporsel: IncomingMessage
+  ): Promise<Svar> {
+    let sakId: string;
+    try {
+      sakId = decodeURIComponent(treff[1]);
+    } catch {
+      return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
     }
-    return feilsvar(404, 'NOT_FOUND', 'Ukjent rute.');
+    // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
+    // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
+    const bruker = await krevInnlogging(full.datalag, foresporsel);
+    const innhold = r.metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
+    const prosjekt = await krevProsjekttilgang(
+      full.datalag,
+      full.catenda,
+      foresporsel,
+      bruker,
+      r.tilgang.prosjektrolle,
+      'feil' in innhold ? {} : innhold.verdi,
+      sakId
+    );
+    const side =
+      r.tilgang.kontraktsrolle === 'kreves'
+        ? await krevKontraktsrolle(full.datalag, full.catenda, prosjekt)
+        : null;
+    if ('feil' in innhold) throw innhold.feil;
+    // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
+    const kropp = innhold.verdi as Record<string, unknown>;
+    return r.behandle({ bruker, prosjekt, side, sakId, kropp }, full);
+  }
+
+  async function kjoer(
+    r: Rute,
+    treff: RegExpMatchArray,
+    foresporsel: IncomingMessage
+  ): Promise<Svar> {
+    if (erAapen(r)) return r.behandle(foresporsel, full);
+    if (erUtenProsjekt(r)) return r.behandle(await krevSesjon(full.datalag, foresporsel), full);
+    return saksrute(r, treff, foresporsel);
   }
 
   return async function behandle(foresporsel: IncomingMessage, respons: ServerResponse) {
-    let [status, kropp]: Svar = [
+    const { pathname } = new URL(foresporsel.url ?? '/', 'http://localhost');
+    const metode = foresporsel.method ?? 'GET';
+    let funnet: { r: Rute; treff: RegExpMatchArray } | null = null;
+    for (const r of RUTER) {
+      const treff = pathname.match(r.sti);
+      if (treff && r.metode === metode) funnet = { r, treff };
+      if (funnet) break;
+    }
+    let [status, kropp, hoder]: Svar = [
       500,
       { success: false, error: 'INTERNAL_ERROR', message: 'Uventet feil.' },
     ];
     try {
-      [status, kropp] = await rute(foresporsel);
+      [status, kropp, hoder] = funnet
+        ? await kjoer(funnet.r, funnet.treff, foresporsel)
+        : feilsvar(404, 'NOT_FOUND', 'Ukjent rute.');
     } catch (feil) {
       if (feil instanceof Nektet) [status, kropp] = [feil.status, feil.kropp];
       else console.error(feil);
     }
-    respons.writeHead(status, { 'content-type': 'application/json; charset=utf-8' });
-    respons.end(JSON.stringify(kropp));
+    respons.writeHead(status, {
+      ...(kropp ? { 'content-type': 'application/json; charset=utf-8' } : {}),
+      ...funnet?.r.hoder,
+      ...hoder,
+    });
+    respons.end(kropp ? JSON.stringify(kropp) : undefined);
   };
 }
