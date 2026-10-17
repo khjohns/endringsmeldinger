@@ -20,5 +20,5 @@
 /sprakprove/**/*.json
 /sprakprove/**/*.html
 /scripts/**/*.ts
-/prove/**/package-lock.json
+/prove/**/*.json
 **/tsconfig*.json

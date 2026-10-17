@@ -6,7 +6,7 @@ effort: high
 isolation: worktree
 skills:
   - leveranse
-disallowedTools: Agent, Monitor, Workflow, EnterWorktree, ExitWorktree, CronCreate, ScheduleWakeup, RemoteTrigger, mcp__claude-code-remote__create_session, mcp__claude-code-remote__send_message, mcp__claude-code-remote__create_trigger, mcp__claude-code-remote__update_trigger, mcp__claude-code-remote__fire_trigger, mcp__claude-code-remote__send_later, mcp__github__push_files, mcp__github__create_or_update_file, mcp__github__delete_file, mcp__github__merge_pull_request, mcp__github__enable_pr_auto_merge, mcp__github__update_pull_request_branch, mcp__github__update_pull_request
+disallowedTools: Agent, Monitor, Workflow, EnterWorktree, ExitWorktree, CronCreate, ScheduleWakeup, RemoteTrigger, mcp__claude-code-remote__create_session, mcp__claude-code-remote__send_message, mcp__claude-code-remote__create_trigger, mcp__claude-code-remote__update_trigger, mcp__claude-code-remote__fire_trigger, mcp__claude-code-remote__send_later, mcp__claude-code-remote__unarchive_session, mcp__claude-code-remote__watch_url, mcp__claude-code-remote__subscribe_pr_activity, mcp__github__actions_run_trigger, SendMessage, mcp__github__push_files, mcp__github__create_or_update_file, mcp__github__delete_file, mcp__github__merge_pull_request, mcp__github__enable_pr_auto_merge, mcp__github__update_pull_request_branch, mcp__github__update_pull_request
 experimental:
   cacheTtl: 1h
 ---
