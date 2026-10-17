@@ -123,6 +123,16 @@ def test_lenkene_i_de_innsjekkede_visningene_er_hele(temaer, capsys):
     ("[GR-U2](#gr-u2)", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2)"),
     ("[#264](https://github.com/khjohns/endringsmeldinger/issues/264)",
      "[#264](https://github.com/khjohns/endringsmeldinger/issues/264)"),
+    ("[#264](HTTPS://github.com/a)", "[#264](HTTPS://github.com/a)"),
+    ("[e-post](mailto:a@b.no)", "[e-post](mailto:a@b.no)"),
+    ('[tabellen](../domenetabell/README.md "Tabellen")', '[tabellen](../../domenetabell/README.md "Tabellen")'),
+    ("[tabellen](<../domenetabell/README.md> \"T\")", "[tabellen](<../../domenetabell/README.md> \"T\")"),
+    ("[GR-U2](#gr-u2 'GR-U2')", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2 'GR-U2')"),
+    ("[tabellen](/docs/domenetabell/README.md#a)", "[tabellen](../../domenetabell/README.md#a)"),
+    ("[GR-U10](2026-09-16-godkjenning-og-varig-levering.md#gr-u10)", "[GR-U10](#gr-u10)"),
+    ("[GR-U2](2026-09-16-godkjenning-og-varig-levering.md#gr-u2)", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2)"),
+    ("[GR-U10](/docs/plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10)", "[GR-U10](#gr-u10)"),
+    ("[planen](2026-09-16-godkjenning-og-varig-levering.md)", f"[planen]({tv.TIL_PLANEN})"),
 ])
 def test_lenkene_fra_3_1_skrives_om_til_mappen_visningen_ligger_i(tekst, forventet):
     assert tv._lenker(tekst, {"gr-u10"}) == forventet
@@ -231,7 +241,6 @@ def test_et_nytt_vedtak_som_endrer_kjeden_gir_feil_til_det_er_tatt_inn(tema, kil
     assert "> XX-U1: Det valgte alternativet." in tekst
     assert "**Forkastet:** «Et forkastet alternativ.»" in tekst
     assert "Endret 12.10 av [XX-U1](#xx-u1)." in tekst
-
 
 
 def test_datoen_til_et_senere_vedtak_utenfor_temaet_endrer_kontrollsummen(tema, kilder):

@@ -120,7 +120,9 @@ tekst = "et ordrett utdrag"
 - **Svaret** er oppdragsgivers ordrett og nevner det valgte alternativet ved navn.
   Ble ett alternativ anbefalt da spørsmålet ble stilt, får det `anbefalt = true`.
   Er det valgt, kan svaret i stedet slutte seg til anbefalingen, som «Ja til
-  anbefalingen» eller «Ja til alle anbefalingene» (#486).
+  anbefalingen» eller «Ja til alle anbefalingene» (#486). Et svar med forbehold,
+  som «unntatt» eller «men», regnes ikke som tilslutning og må nevne alternativet
+  (#604). Et anbefalt alternativ kan ikke være forkastet.
 
 ## Temavisningene
 

@@ -128,31 +128,34 @@ start_sqlserver() {
   docker info > /dev/null 2>&1 || return 1
   local skript="$rot/scripts/testbase/docker_sqlserver.sh" port="${KOE_SQLSERVER_PORT:-14331}"
   local navn="koe-sqlserver-$port" stempel="/tmp/koe-sqlserver-$port.container"
-  local passordfil="/tmp/koe-sqlserver-$port.passord" container opprett=nei
+  local passordfil="/tmp/koe-sqlserver-$port.passord" container steg
   # Skriptet bærer bildet, så summen av det avgjør om containeren lages på nytt.
   container="$(sha256sum < "$skript" | cut -d' ' -f1)" || return 1
-  # Låsen holdes til serveren svarer eller har gitt opp, også av
-  # bakgrunnsjobben, så en ny kjøring av hooken ikke lager containeren på nytt
-  # mens den starter. Den nye kjøringen skriver ut tilkoblingen med passordet i
-  # passordfila, som gjelder for hver container hooken lager (#546).
-  exec 9> "/tmp/koe-sqlserver-$port.lock"
+  # To låser. Forgrunnslåsen (fd 8) holdes mens en kjøring rydder og bestemmer
+  # passordet, så en ny kjøring som venter på den, ser containeren og passordfila
+  # slik de blir, og aldri en gammel container som er i ferd med å slettes (#563).
+  # Startlåsen (fd 9) holdes også av bakgrunnsjobben til serveren svarer, har gitt
+  # opp eller fristen har gått ut, så en ny kjøring ikke lager containeren på nytt
+  # mens den starter.
+  exec 8> "/tmp/koe-sqlserver-$port.forgrunn.lock" 9> "/tmp/koe-sqlserver-$port.lock"
+  if ! flock --wait 120 8; then
+    echo "En annen kjøring av hooken har holdt forgrunnslåsen for $navn i over 120 s." >&2
+    return 3
+  fi
   if ! flock --nonblock 9; then
     echo "En annen kjøring av hooken starter $navn." >&2
-    exec 9>&-
-    # Den første kjøringen skriver passordfila like etter at den tok låsen.
-    for _ in 1 2 3 4 5 6 7 8 9 10; do
-      [ -s "$passordfil" ] || docker container inspect "$navn" > /dev/null 2>&1 && break
-      sleep 0.5
-    done
+    exec 8>&- 9>&-
     KOE_SQLSERVER_SA_PASSORD="$(cat "$passordfil" 2> /dev/null)" "$skript" tilkobling
     return
   fi
   : > "$sqllogg"
   # Stempelet skrives først når serveren har svart, så en container som aldri
   # kom opp, lages på nytt ved neste kjøring i stedet for å startes igjen (#525).
+  # En container med stempel har svart før; den beholder stempelet mens den
+  # startes, og mister det bare når starten eller `vent` feiler.
   if ! docker container inspect "$navn" > /dev/null 2>&1 \
     || [ "$(cat "$stempel" 2> /dev/null)" != "$container" ]; then
-    opprett=ja
+    rm -f "$stempel"
     "$skript" stopp
     if [ ! -s "$passordfil" ]; then
       (umask 077 && echo "Koe-$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')-Aa1" > "$passordfil") \
@@ -160,26 +163,38 @@ start_sqlserver() {
     fi
     KOE_SQLSERVER_SA_PASSORD="$(cat "$passordfil")"
     export KOE_SQLSERVER_SA_PASSORD
+    # Bildet (2,4 GB) hentes i bakgrunnen. Finnes det, lages containeren her, så
+    # en feil i `docker run` vises i meldingen fra hooken.
+    if docker image inspect "$("$skript" bilde)" > /dev/null 2>&1; then
+      "$skript" opprett > /dev/null || return 1
+      steg=(:)
+    else
+      steg=("$skript" opprett)
+    fi
+  else
+    steg=(docker start "$navn")
   fi
-  rm -f "$stempel"
-  # Bildet (2,4 GB) hentes i bakgrunnen. Finnes det, lages containeren her, så
-  # en feil i `docker run` vises i meldingen fra hooken.
-  if [ "$opprett" = ja ] && docker image inspect "$("$skript" bilde)" > /dev/null 2>&1; then
-    "$skript" opprett > /dev/null || return 1
-    opprett=nei
-  fi
-  setsid nohup bash -c 'if [ "$1" = ja ]; then "$2" opprett > /dev/null; else docker start "$3" > /dev/null; fi \
-    && "$2" vent && echo "$4" > "$5"' _ "$opprett" "$skript" "$navn" "$container" "$stempel" \
-    >> "$sqllogg" 2>&1 < /dev/null &
-  exec 9>&-
+  # Fristen dekker hentingen (hent_bilde.sh gir opp etter om lag ti minutter med
+  # én kilde) og `vent`. `timeout` dreper hele prosessgruppen. Unntaket er
+  # `timeout 180 docker pull` i hent_bilde.sh, som lager sin egen gruppe og kan
+  # holde startlåsen i opptil 180 s etter fristen.
+  SKRIPT="$skript" STEMPEL="$stempel" CONTAINER="$container" \
+    setsid nohup timeout --kill-after 10 1800 bash -c \
+    '{ "$@" > /dev/null && "$SKRIPT" vent && echo "$CONTAINER" > "$STEMPEL"; } || rm -f "$STEMPEL"' \
+    _ "${steg[@]}" >> "$sqllogg" 2>&1 < /dev/null 8>&- &
+  exec 8>&- 9>&-
   "$skript" tilkobling
 }
 
-if tilkobling="$(start_sqlserver 2>> "$sqllogg")"; then
+sqlstatus=0
+tilkobling="$(start_sqlserver 2>> "$sqllogg")" || sqlstatus=$?
+if [ "$sqlstatus" = 0 ]; then
   if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     echo "export KOE_SQLSERVER_TILKOBLING='$tilkobling'" >> "$CLAUDE_ENV_FILE"
   fi
   echo "SQL Server: starter i bakgrunnen (koe-sqlserver-${KOE_SQLSERVER_PORT:-14331}), KOE_SQLSERVER_TILKOBLING er satt. Testene i server/tester/sqlserver.test.ts venter på den; logg i $sqllogg."
+elif [ "$sqlstatus" = 3 ]; then
+  echo "ADVARSEL: en annen kjøring av hooken starter SQL Server og ble ikke ferdig med forgrunnen på 120 s; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt. Kjør hooken på nytt når den andre kjøringen er ferdig."
 elif ! docker info > /dev/null 2>&1; then
   echo "ADVARSEL: SQL Server startet ikke fordi Docker ikke svarer; se $logg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/tester/sqlserver.test.ts hoppes over."
 else

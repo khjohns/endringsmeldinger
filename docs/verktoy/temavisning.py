@@ -51,8 +51,9 @@ BEVIS = {
 TIL_PLANEN = "../../plans/2026-09-16-godkjenning-og-varig-levering.md"
 TIL_TABELLEN = "../../domenetabell/README.md#tabellen"
 LENKE = re.compile(r"\]\(#([^)\s]+)\)")
-# En relativ lenke i vedtaksteksten er relativ til hovedplanen i docs/plans/ (#494).
-RELATIV = re.compile(r"\]\((?!#|[a-z]+:)([^)\s]+)\)")
+# Målet i en lenke i vedtaksteksten, også i vinkelparenteser og med tittel (#494, #604).
+MAAL = re.compile(r"\]\(\s*(<[^<>\n]*>|[^)\s]+)((?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*)\)")
+SKJEMA = re.compile(r"[a-z][a-z0-9+.-]*:", re.IGNORECASE)
 # Et merke som begynner en setning i vedtaksteksten til en importert post: «Forkastet:»,
 # formene med en avgrensning, som «Forkastet foreløpig:», og «Utsatt:».
 MERKE = re.compile(r"(?<=[.»] )(?:Forkastet|Utsatt)[^:«]{0,60}?: ")
@@ -170,20 +171,38 @@ def kontrollsum(ut: dict) -> str:
     return hashlib.sha256(tekst.encode("utf-8")).hexdigest()
 
 
-def _fra_planen(maal: str) -> str:
-    """Stien til en relativ lenke i 3.1, skrevet om fra docs/plans/ til mappen visningen ligger i."""
+def _fra_planen(maal: str, medlemmer: set[str]) -> str:
+    """Et lenkemål i 3.1, skrevet om fra hovedplanen i docs/plans/ til mappen visningen ligger i.
+
+    Et anker i planen går til overskriften i visningen når vedtaket er i temaet, også når
+    lenken nevner filnavnet til planen. En sti med `/` først er relativ til roten av repoet.
+    """
+    if SKJEMA.match(maal):
+        return maal
     fil, skille, fragment = maal.partition("#")
-    sti = os.path.normpath(os.path.join(PLANMAPPE, fil))
-    return pathlib.Path(os.path.relpath(sti, MAPPE)).as_posix() + skille + fragment
+    if fil:
+        sti = pathlib.Path(os.path.normpath(ROT / fil.lstrip("/") if fil.startswith("/") else PLANMAPPE / fil))
+        if sti != vr.HOVEDPLAN:
+            return pathlib.Path(os.path.relpath(sti, MAPPE)).as_posix() + skille + fragment
+    if not skille:
+        return TIL_PLANEN
+    return f"#{fragment}" if fragment in medlemmer else f"{TIL_PLANEN}#{fragment}"
 
 
 def _lenker(tekst: str, medlemmer: set[str]) -> str:
-    """Lenkene i 3.1 går til ankre i planen. Et vedtak i temaet har sin egen overskrift i visningen."""
-    tekst = RELATIV.sub(lambda m: f"]({_fra_planen(m.group(1))})", tekst)
-    return LENKE.sub(
-        lambda m: f"](#{m.group(1)})" if m.group(1) in medlemmer else f"]({TIL_PLANEN}#{m.group(1)})",
-        tekst,
-    )
+    """Lenkene i 3.1 er relative til hovedplanen: ankrene i den og filstiene fra docs/plans/.
+
+    Et vedtak i temaet har sin egen overskrift i visningen. Resten går til planen, og
+    filstiene skrives om til mappen visningen ligger i. Tittel og vinkelparenteser beholdes.
+    """
+
+    def skriv_om(m: re.Match) -> str:
+        maal = m.group(1)
+        if maal.startswith("<"):
+            return f"](<{_fra_planen(maal[1:-1], medlemmer)}>{m.group(2)})"
+        return f"]({_fra_planen(maal, medlemmer)}{m.group(2)})"
+
+    return MAAL.sub(skriv_om, tekst)
 
 
 def vedtak_og_forkastet(post: dict) -> tuple[str, list[tuple[str, str]]]:
