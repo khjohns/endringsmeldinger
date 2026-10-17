@@ -750,6 +750,18 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       return { id: prosjektId, catenda };
     }
 
+    /**
+     * Basens klokke etter at triggeren førte endringen. En liste hentet i samme
+     * millisekund som endringen er ikke nyere (`synced_at >= @hentet`).
+     */
+    async function etterEndringen(prosjektId: string) {
+      const endret = (await synkrad(prosjektId)).synced_at.getTime();
+      for (;;) {
+        const naa = await basensKlokke(base.pool);
+        if (naa.getTime() > endret) return naa;
+      }
+    }
+
     it.each([
       [
         'endres til et annet Catenda-prosjekt',
@@ -785,7 +797,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       );
       expect(await synk(ny, [a, b], sekunder(-2))).toBe(false);
       expect(await aktive(p.id)).toEqual([]);
-      expect(await synk(ny, [a, b], await basensKlokke(base.pool))).toBe(true);
+      expect(await synk(ny, [a, b], await etterEndringen(p.id))).toBe(true);
       expect(await aktive(p.id)).toEqual([a.subjekt, b.subjekt].sort());
       expect(await medlemslistensAlder(kjoeretid.pool, p.id)).not.toBeNull();
     });
@@ -805,7 +817,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       expect(await aktive(p.id)).toEqual([]);
       expect(await medlemslistensAlder(kjoeretid.pool, p.id)).toBeNull();
       expect(await synk(p, [a], sekunder(-5))).toBe(false);
-      expect(await synk(p, [a], await basensKlokke(base.pool))).toBe(true);
+      expect(await synk(p, [a], await etterEndringen(p.id))).toBe(true);
       expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
 
