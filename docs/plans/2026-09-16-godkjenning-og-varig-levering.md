@@ -1322,6 +1322,8 @@ historikk og mappa stemmer.
 > krav i [#637](https://github.com/khjohns/endringsmeldinger/issues/637) og
 > [#638](https://github.com/khjohns/endringsmeldinger/issues/638)).
 
+> **Merknad 2026-10-17 til F0b:** levert: journalen og leveringsoppdraget for kommandoinngangene i [`server/`](../../server/) leses og skrives i SQL Server, og `pg` er ute av `server/` ([#661](https://github.com/khjohns/endringsmeldinger/issues/661), PR #738, merge 395a5be). Migrasjonen `20261017233000_leveringsmaal.sql` gir koblingen til Catenda-prosjektet kolonnene `library_id` og `folder_id`, og tabellen `koe.sak_catenda_topic` for topicen per sak. Leveringsmålet leses med `koe_api.leveringsmaal`, og kjøretiden får ingen ny tabellrett. Ikke levert: skrivingen av topicen i Catenda, som er skilt ut i [#741](https://github.com/khjohns/endringsmeldinger/issues/741), og leveringen ([#371](https://github.com/khjohns/endringsmeldinger/issues/371)).
+
 **Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
 alternativ C prøves tidlig i T-SQL ([B-12, databasen](#b-12-databasen), #395). Lagringsformen avgjøres senest før
 KOE-byttet skriver den første reelle hendelsen
@@ -1648,6 +1650,10 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > [OV-U5](#ov-u5) og [HF-U1](#hf-u1) sier fortsatt «Ikke bygget». Frontenden (`src/`)
 > er ikke endret i PR #495. Følgene for skjema og visning står på
 > [#313](https://github.com/khjohns/endringsmeldinger/issues/313).
+
+> **Merknad 2026-10-17 til FK:** levert:
+> - Opprettelsen av en KOE-sak er bygget som kommando i kjernen og som inngangen `POST /api/kjerne/saker` i TS-serveren. Saken og `sak_opprettet` skrives i samme transaksjon, med prosjektet fra autorisert kontekst ([#370](https://github.com/khjohns/endringsmeldinger/issues/370), PR #742, merge 407687a). Topicen i Catenda for en sak som opprettes i appen, er ikke bygget. Den er skilt ut i [#741](https://github.com/khjohns/endringsmeldinger/issues/741) etter vedtak KT-U3 (PR #740, merge a3b1b47). Følge i raden for KT-U3 sier fortsatt «Ikke bygget (#370)».
+> - TS-sakene vises i Kontrollrommet med de eksisterende skjemaene ([#718](https://github.com/khjohns/endringsmeldinger/issues/718)): et felles brevskall for `Brevkontroll` og `ClaimLetterView` (PR #728, merge da1c9c3), Kontrollrommet for TS-saken i stedet for `Saksbilde` (PR #730, merge 97650bb), og `TeVederlagForm` for TS-saker (PR #736, merge 4f9ae6b). `Vederlagsskjema.svelte` er fjernet. Ikke levert i TS-modus: innsending, særskilte krav (§ 34.1.3) og vedlegg, som er skjult etter [OV-U1](#ov-u1).
 
 ### F3 — Øvrige adaptere og drift
 
