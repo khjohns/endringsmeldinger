@@ -984,7 +984,7 @@ til = "koe.projects.id"
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
-Prosjektet fullmakten gjelder i. Driften setter den opp (runde 7 i #764)."""
+Prosjektet fullmakten gjelder i. Driften setter den opp (GFK-U1)."""
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 

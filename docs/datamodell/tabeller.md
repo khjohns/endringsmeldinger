@@ -802,7 +802,7 @@ Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og S
 
 ### `koe.fullmakt`
 
-Byggherrens fullmakter i prosjektet (S-1a, #818): personen, tittelen, grensen i kroner (ingen grense er ubegrenset) og plassen i godkjenningskjeden. Driften setter dem opp etter skriftlig bestilling fra byggherren, og appen viser ikke hvem som har endret dem (runde 7 i #764). Kjøretiden leser dem bare gjennom `koe_api.fullmakter`, som byggherren.
+Byggherrens fullmakter i prosjektet (S-1a, #818): personen, tittelen, grensen i kroner (ingen grense er ubegrenset) og plassen i godkjenningskjeden. Driften setter dem opp etter skriftlig bestilling fra byggherren, og appen viser ikke hvem som har endret dem (GFK-U1). Kjøretiden leser dem bare gjennom `koe_api.fullmakter`, som byggherren.
 
 | Felt | Innhold |
 | --- | --- |

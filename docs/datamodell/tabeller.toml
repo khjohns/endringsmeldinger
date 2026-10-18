@@ -970,7 +970,7 @@ beskrivelse = """
 Byggherrens fullmakter i prosjektet (S-1a, #818): personen, tittelen, grensen i
 kroner (ingen grense er ubegrenset) og plassen i godkjenningskjeden. Driften setter
 dem opp etter skriftlig bestilling fra byggherren, og appen viser ikke hvem som har
-endret dem (runde 7 i #764). Kjøretiden leser dem bare gjennom `koe_api.fullmakter`,
+endret dem (GFK-U1). Kjøretiden leser dem bare gjennom `koe_api.fullmakter`,
 som byggherren."""
 lagres_fra = "Driften, som eier. Lest av `koe_api.fullmakter` fra `server/godkjenning.ts`."
 fra_catenda = "Nei."
