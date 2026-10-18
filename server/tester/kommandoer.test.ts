@@ -1042,6 +1042,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect(utfall).toBe('ferdig');
     });
 
+    // Kilde: invariant 4. Det første forsøket holder låsen og kan ennå committe, så et
+    // nytt forsøk må beholde kommando-ID-en (#418).
+    it('når låsen på nøkkelen ikke gis innen tidsgrensen, er utfallet usikkert, ikke en feil (#792 punkt 1)', async () => {
+      const kommando = ny();
+      let feil: unknown;
+      await transaksjon(kjoeretid.pool, te, async (f) => {
+        await slaaOpp(f, kommando.id);
+        feil = await opprettSak(kjoeretid.pool, te, kommando, {
+          format: 1,
+          data: SAK_OPPRETTET,
+        }).catch((e: unknown) => e);
+      });
+      expect(feil).toBeInstanceOf(UsikkertUtfall);
+    }, 30_000);
+
     it('et gjentak venter ikke på en annen skriving til saken: journalen låses ikke (#792 punkt 3)', async () => {
       const sak = await nySak();
       const kommando = ny();

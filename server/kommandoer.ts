@@ -16,7 +16,14 @@
  */
 
 import type { Journalrad } from '../kjerne/typer.ts';
-import { feilnummer, sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
+import {
+  feilnummer,
+  sql,
+  transaksjon,
+  UsikkertUtfall,
+  type Kontekst,
+  type Pool,
+} from './datalag.ts';
 import { sjekksum } from './levering.ts';
 import {
   IngenLeveringsmaal,
@@ -58,6 +65,7 @@ const INGEN_BOARD = 51412;
 const KONFLIKT = 51409;
 const ID_BRUKT = 51410;
 const UGYLDIG = 51422;
+const LAAS_IKKE_GITT = 51408;
 const BLOKKERT = 33504;
 
 /** Formen `sak_metadata_sak_id_form` krever; saksnummeret er en slik ID (DL-U6). */
@@ -94,6 +102,9 @@ function oversett(feil: unknown, forventet: number | null): unknown {
       return new IngenTopicBoard(melding, { cause: feil });
     case BLOKKERT:
       return new SkrivingAvvist(melding, { cause: feil });
+    // Et forsøk med samme nøkkel holder låsen og kan ennå committe (#792 punkt 1).
+    case LAAS_IKKE_GITT:
+      return new UsikkertUtfall(melding, { cause: feil });
     default:
       return feil;
   }

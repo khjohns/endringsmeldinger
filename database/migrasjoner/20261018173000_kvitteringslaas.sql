@@ -1,14 +1,13 @@
 -- Låsen på kvitteringen gjelder bare nøkkelen (#792 punkt 1).
 --
--- `koe_api.kvittering` leste med `UPDLOCK, HOLDLOCK`. Fantes ikke nøkkelen, låste
--- det gapet til neste nøkkel i indeksen til COMMIT, så kommandoer med andre nøkler i
--- samme gap ventet på hverandre, også fra andre aktører og prosjekter. Nå tar
--- oppslaget en applås på nøkkelen (prosjektet, aktøren og kommando-ID-en) med
--- `sp_getapplock`, eid av transaksjonen. En samtidig kommando med samme nøkkel venter
--- på den første og leser kvitteringen etter COMMIT; andre nøkler venter ikke.
+-- Oppslaget tar en applås på nøkkelen (prosjektet, aktøren og kommando-ID-en) med
+-- `sp_getapplock`, eid av transaksjonen, og leser kvitteringen uten range-lås. En
+-- samtidig kommando med samme nøkkel venter på den første og leser kvitteringen
+-- etter COMMIT; kommandoer med andre nøkler i samme gap i indeksen venter ikke.
+-- Gis ikke låsen innen ti sekunder, kastes 51408: et forsøk med samme nøkkel kan
+-- ennå committe, så utfallet er usikkert.
 --
--- Prosedyren er ellers som i `20261018123000_kvittering.sql`, med samme feilkoder og
--- rettigheter.
+-- Feilkodene og rettighetene er ellers som i `20261018123000_kvittering.sql`.
 
 CREATE OR ALTER PROCEDURE koe_api.kvittering
   @kommando_id nvarchar(4000), @kommando_sha256 nvarchar(4000),

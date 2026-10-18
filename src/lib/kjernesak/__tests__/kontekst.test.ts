@@ -225,14 +225,15 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(await sak.provIgjen()).toBe(false);
   });
 
-  it('ved UTFALL_USIKKERT får samme kommando samme ID; en annen kommando får en ny, og en avvisning fjerner den ventende (#418)', async () => {
+  it('ved UTFALL_USIKKERT og en annen serverfeil får samme kommando samme ID; en annen kommando får en ny, og en avvisning fjerner den ventende (#418)', async () => {
     const usikkert = new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' });
     const send = vi
       .fn()
       .mockRejectedValueOnce(usikkert)
       .mockRejectedValueOnce(usikkert)
       .mockRejectedValueOnce(new ApiError(400, 'Kravet er avvist.'))
-      .mockRejectedValueOnce(new ApiError(503, 'Catenda svarte ikke.'));
+      .mockRejectedValueOnce(new ApiError(504, 'Gateway Timeout'))
+      .mockRejectedValueOnce(new ApiError(500, 'Intern feil.'));
     const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
     await sak.last();
 
@@ -243,10 +244,13 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(send.mock.calls[2][2]).not.toBe(send.mock.calls[0][2]);
     expect(sak.ventende).toBeNull();
     expect(sak.feil).toBe('Kravet er avvist.');
-    // En 503 uten UTFALL_USIKKERT er ikke et usikkert utfall.
+    // En serverfeil kan komme etter COMMIT, eller fra en proxy mens serveren skriver.
     await sak.send(grunnlagskrav);
-    expect(sak.ventende).toBeNull();
-    expect(sak.feil).toBe('Catenda svarte ikke.');
+    expect(sak.ventende).not.toBeNull();
+    const id = send.mock.calls[3][2];
+    await sak.send(grunnlagskrav);
+    expect(send.mock.calls[4][2]).toBe(id);
+    expect(sak.ventende).not.toBeNull();
   });
 
   it('sier at saken ikke finnes i TS når serveren svarer 404', async () => {
