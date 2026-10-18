@@ -45,6 +45,11 @@ const vederlagskrav = {
   innhold: { metode: 'tilbud', beloep: 250000 },
 };
 
+const VEDLEGG = '00000000-0000-4000-8000-000000000001';
+const vedlegg = new Map([
+  [VEDLEGG, { vedlegg_id: VEDLEGG, filnavn: 'varsel.pdf', innhold_sha256: '0'.repeat(64) }],
+]);
+
 function skrevet(kommando: unknown, journal: Journalrad[]): Journalrad {
   const utfall = forhaandsvis(
     kommando,
@@ -57,7 +62,8 @@ function skrevet(kommando: unknown, journal: Journalrad[]): Journalrad {
       nyId: () => crypto.randomUUID(),
     },
     journal,
-    KJERNE
+    KJERNE,
+    vedlegg
   );
   if (!utfall.godtatt) throw new Error(`Kjernen avviste kommandoen: ${utfall.avvisning.melding}`);
   return { ...utfall.hendelser[0], versjon: journal.length + 1 };
@@ -151,7 +157,13 @@ describe('saksbildet for en TS-sak', () => {
   // #712: etikettene `visning` lager for opplysningene, med datoen TE oppga.
   it('viser opplysningene i brevet med etikettene fra visningen og datoen som er oppgitt', () => {
     const varsel = skrevet(
-      { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-10-02' },
+      {
+        type: 'varsel',
+        spor: 'frist',
+        hjemmel: '33.4',
+        sendt: '2026-10-02',
+        dokumentasjon: [VEDLEGG],
+      },
       [opprettet, g]
     );
     const { bilde, vist, u } = bildeAv([opprettet, g, varsel]);
