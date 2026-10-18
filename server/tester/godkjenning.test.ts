@@ -10,14 +10,19 @@
  * - B-04 punkt 3 og svaret 18.10 i #818: alle i teamet kan trekke pakken, også når alle
  *   steg er godkjent;
  * - det tekniske valget 18.10 i #818: en pakke erstattes bare én gang, og teamet har
- *   høyst én åpen pakke i saken.
+ *   høyst én åpen pakke i saken;
+ * - #829 punkt 1, 3 og 5: siden i konteksten leses uten avkutting, et brudd på en unik
+ *   indeks er en avsluttet pakke og ikke en rå databasefeil, og pakken er godkjent når
+ *   hvert steg er det.
  */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
-import { transaksjon, type Kontekst } from '../datalag.ts';
+import { feilnummer, transaksjon, type Kontekst } from '../datalag.ts';
 import {
   erGodkjent,
+  type LagretHandling,
+  type LagretPakke,
   lagPakke,
   lesFullmakter,
   lesPakke,
@@ -322,5 +327,84 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     await expect(
       i(som(leder, { team: raadgiverteam }), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))
     ).rejects.toThrow(PakkeNektet);
+  });
+
+  // Konteksten settes uten kontrollen i `transaksjon`, som bare godtar TE og BH.
+  const medSide = <T>(aktor: string, side: string, arbeid: Parameters<typeof iTransaksjon<T>>[2]) =>
+    iTransaksjon(
+      o.datalag.kjoeretid.pool,
+      { aktor, prosjekt: o.prosjekt.id, side, team: catendaId(o.prosjekt.bhTeam)! },
+      arbeid
+    );
+  const nummer = (arbeid: Promise<unknown>) =>
+    arbeid.then(
+      () => undefined,
+      (feil: unknown) => {
+        expect(feil).toBeInstanceOf(PakkeNektet);
+        return feilnummer((feil as Error).cause);
+      }
+    );
+
+  it('en side som bare begynner med BH, avvises av prosedyrene og ikke først av radsikkerheten (#829 punkt 1)', async () => {
+    // Avkuttet til `nvarchar(2)` ble `BHX` til `BH`, og blokkpredikatet stoppet
+    // skrivingen med 33504.
+    expect(await nummer(medSide(o.bh.id, 'BHX', (f) => lagPakke(f, pakke([leder]))))).toBe(51403);
+    const p = pakke([leder]);
+    await i(som(o.bh.id), (f) => lagPakke(f, p));
+    expect(
+      await nummer(medSide(leder, 'BHX', (f) => registrerHandling(f, p.pakkeId, 'godkjent')))
+    ).toBe(51403);
+    const lest = (await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId)))!;
+    expect(lest.handlinger).toEqual([]);
+  });
+
+  it('et brudd på en unik nøkkel gir PakkeAvsluttet, ikke en rå databasefeil (#829 punkt 3)', async () => {
+    const p = pakke([leder]);
+    await i(som(o.bh.id), (f) => lagPakke(f, p));
+    const annenSak = await opprettKjernesak(o);
+    const feil = await i(som(o.bh.id), (f) => lagPakke(f, { ...p, sakId: annenSak })).then(
+      () => undefined,
+      (e: unknown) => e
+    );
+    expect(feil).toBeInstanceOf(PakkeAvsluttet);
+    expect(feilnummer((feil as Error).cause)).toBe(2627);
+  });
+});
+
+// Kilde: #829 punkt 5. Pakken er godkjent når hvert steg i kjeden har en godkjenning,
+// uavhengig av de unike indeksene som hindrer to godkjenninger i samme steg.
+describe('erGodkjent', () => {
+  const godkjent = (steg: number): LagretHandling => ({
+    handling: 'godkjent',
+    steg,
+    aktorId: randomUUID(),
+    fullmakt: { tittel: 'Seksjonsleder', grense: null },
+    begrunnelse: null,
+    tidspunkt: new Date(0),
+  });
+  const pakke = (godkjennere: number, handlinger: LagretHandling[]): LagretPakke => ({
+    pakkeId: randomUUID(),
+    sakId: randomUUID(),
+    forrigePakkeId: null,
+    aktorId: randomUUID(),
+    brev: {},
+    fullmaktsgrunnlag: {},
+    opprettet: new Date(0),
+    godkjennere: Array.from({ length: godkjennere }, () => randomUUID()),
+    handlinger,
+  });
+
+  it('godkjent i hvert steg er godkjent', () => {
+    expect(erGodkjent(pakke(2, [godkjent(1), godkjent(2)]))).toBe(true);
+  });
+  it('to godkjenninger i samme steg dekker ikke kjeden', () => {
+    expect(erGodkjent(pakke(2, [godkjent(1), godkjent(1)]))).toBe(false);
+  });
+  it('et steg uten godkjenning er ikke godkjent', () => {
+    expect(erGodkjent(pakke(2, [godkjent(1)]))).toBe(false);
+  });
+  it('en trukket pakke er ikke godkjent, også når hvert steg er det', () => {
+    const trukket = { ...godkjent(1), handling: 'trukket' as const, steg: null };
+    expect(erGodkjent(pakke(1, [godkjent(1), trukket]))).toBe(false);
   });
 });

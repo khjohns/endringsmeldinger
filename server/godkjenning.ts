@@ -24,6 +24,9 @@ const NEKTET = 51403;
 const AVSLUTTET = 51409;
 const UGYLDIG = 51422;
 const BLOKKERT = 33504;
+/** Brudd på en unik indeks eller nøkkel: en samtidig pakke eller handling kom først. */
+const UNIK_INDEKS = 2601;
+const UNIK_NOEKKEL = 2627;
 
 async function kall<T>(arbeid: Promise<T>): Promise<T> {
   try {
@@ -33,6 +36,10 @@ async function kall<T>(arbeid: Promise<T>): Promise<T> {
     const melding = feil instanceof Error ? feil.message : String(feil);
     if (nr === NEKTET || nr === BLOKKERT) throw new PakkeNektet(melding, { cause: feil });
     if (nr === AVSLUTTET) throw new PakkeAvsluttet(melding, { cause: feil });
+    if (nr === UNIK_INDEKS || nr === UNIK_NOEKKEL)
+      throw new PakkeAvsluttet('En samtidig pakke eller handling ble lagret først', {
+        cause: feil,
+      });
     if (nr === UGYLDIG) throw new UgyldigPakke(melding, { cause: feil });
     throw feil;
   }
@@ -184,11 +191,9 @@ export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretP
   };
 }
 
-/**
- * Godkjent i alle steg, og verken returnert eller trukket. Tellingen holder fordi
- * indeksene `godkjenningshandling_godkjent` og `_avsluttet` tillater én godkjenning per
- * steg og én avslutning per pakke.
- */
-export const erGodkjent = (p: LagretPakke): boolean =>
-  p.handlinger.every((h) => h.handling === 'godkjent') &&
-  p.handlinger.length === p.godkjennere.length;
+/** Godkjent i hvert steg i kjeden, og verken returnert eller trukket. Stegene telles fra 1. */
+export function erGodkjent(p: LagretPakke): boolean {
+  if (p.handlinger.some((h) => h.handling !== 'godkjent')) return false;
+  const godkjent = new Set(p.handlinger.map((h) => h.steg));
+  return p.godkjennere.every((_, i) => godkjent.has(i + 1));
+}
