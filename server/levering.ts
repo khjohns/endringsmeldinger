@@ -20,7 +20,7 @@
 import { createHash } from 'node:crypto';
 import type { Brevdokument } from './catenda.ts';
 import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
-import { lesBrevPdf, skrivBrevPdf } from './brevpdf.ts';
+import { lesBrevPdf, skrivBrevPdf, TegnUtenforSkriften } from './brevpdf.ts';
 import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Visning } from '../kjerne/utledning/visning.ts';
@@ -29,9 +29,13 @@ import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
 export const OPPDRAGSFORMAT = 4;
 
-/** JSON med nøklene sortert, så summen kan regnes på nytt av det basen gir tilbake. */
+/**
+ * JSON med nøklene sortert, så summen kan regnes på nytt av det basen gir tilbake.
+ * Summen av oppdragene og av kommandoene (`kommandosum`) regnes begge herfra.
+ */
 export function kanonisk(verdi: unknown): string {
-  if (Array.isArray(verdi)) return `[${verdi.map(kanonisk).join(',')}]`;
+  if (Array.isArray(verdi))
+    return `[${verdi.map((v) => (v === undefined ? 'null' : kanonisk(v))).join(',')}]`;
   if (verdi !== null && typeof verdi === 'object')
     return `{${Object.keys(verdi)
       .sort()
@@ -95,14 +99,17 @@ export function lagOppdrag(
  */
 export function gjengiOppdrag(innhold: Record<string, unknown>): string | null {
   const brev = innhold.brev as Oppdragsbrev;
-  if (!brev.brevtekst) return null;
+  return brev.brevtekst ? gjengiBrev(brev, brev.brevtekst) : null;
+}
+
+function gjengiBrev(brev: Oppdragsbrev, brevtekst: Avsnitt[]): string {
   const fra = brev.avsender.part === 'TE' ? 'Totalentreprenøren (TE)' : 'Byggherren (BH)';
   return [
     `Sak ${brev.sak_id}, brev ${brev.saksversjon}`,
     `Fra: ${fra}`,
     `Dato: ${norskDato(brev.tidsstempel)}`,
     '',
-    gjengi(brev.brevtekst),
+    gjengi(brevtekst),
   ].join('\n');
 }
 
@@ -118,30 +125,54 @@ interface Oppdragsbrev {
 export class UgjengivbartBrev extends Error {}
 
 /**
- * PDF-en av brevet (L-1c1, #371 del 2), med dokumentnøkkelen i navnet, så et forsøk
- * etter et tapt svar finner det igjen (B-03). PDF-en leses tilbake og kontrolleres mot
- * den frosne brevteksten før den gis fra seg (LV-U2, `gjengirTro`).
+ * Navnet på PDF-en i Catenda, med dokumentnøkkelen, så et forsøk etter et tapt svar
+ * finner den igjen (B-03).
+ *
+ * @throws UgjengivbartBrev når oppdraget ikke har noe dokument, som et registrert brev (LV-U11)
+ */
+export const dokumentnavn = (innhold: Record<string, unknown>, dokumentnoekkel: string): string =>
+  `${grunnnavn(innhold)}-${dokumentnoekkel}.pdf`;
+
+function grunnnavn(innhold: Record<string, unknown>): string {
+  const navn = filnavn(innhold);
+  if (navn === null)
+    throw new UgjengivbartBrev('Oppdraget har ikke noe dokument med tekst fra appen');
+  return navn.replace(/\.pdf$/, '');
+}
+
+/**
+ * PDF-en av brevet (L-1c1, #371 del 2). PDF-en leses tilbake og kontrolleres mot den
+ * frosne brevteksten før den gis fra seg (LV-U2, `gjengirTro`). Lesingen er
+ * deterministisk for samme oppdrag, så en feil i den er en avvisning, som et tegn
+ * skriften ikke har (#795 punkt 2 og 3).
  */
 export async function brevdokument(
   innhold: Record<string, unknown>,
   dokumentnoekkel: string
 ): Promise<Brevdokument> {
-  const dokument = innhold.dokument as { filnavn: string } | null;
+  const navn = dokumentnavn(innhold, dokumentnoekkel);
   const brev = innhold.brev as Oppdragsbrev;
-  const tekst = gjengiOppdrag(innhold);
-  if (!dokument || !brev.brevtekst || tekst === null)
-    throw new UgjengivbartBrev('Oppdraget har ikke noe dokument med tekst fra appen');
-  const grunnnavn = dokument.filnavn.replace(/\.pdf$/, '');
-  const pdf = await skrivBrevPdf(tekst, `${grunnnavn}.pdf`, new Date(brev.tidsstempel)).catch(
-    (feil: unknown) => {
-      throw new UgjengivbartBrev('Brevteksten kan ikke settes med skriften i PDF-en', {
-        cause: feil,
-      });
-    }
-  );
-  if (!gjengirTro(lesBrevPdf(pdf), brev.brevtekst))
+  if (!brev.brevtekst) throw new UgjengivbartBrev('Oppdraget har et dokument, men ingen brevtekst');
+  const tittel = `${grunnnavn(innhold)}.pdf`;
+  let pdf: Uint8Array;
+  try {
+    pdf = await skrivBrevPdf(gjengiBrev(brev, brev.brevtekst), tittel, new Date(brev.tidsstempel));
+  } catch (feil) {
+    if (feil instanceof TegnUtenforSkriften)
+      throw new UgjengivbartBrev(feil.message, { cause: feil });
+    throw feil;
+  }
+  let lest: string;
+  try {
+    lest = lesBrevPdf(pdf);
+  } catch (feil) {
+    throw new UgjengivbartBrev(`PDF-en kan ikke leses tilbake: ${(feil as Error).message}`, {
+      cause: feil,
+    });
+  }
+  if (!gjengirTro(lest, brev.brevtekst))
     throw new UgjengivbartBrev('PDF-en gjengir ikke brevteksten tro');
-  return { navn: `${grunnnavn}-${dokumentnoekkel}.pdf`, innhold: pdf };
+  return { navn, innhold: pdf };
 }
 
 /** SHA-256 av PDF-en, som basen kontrollerer mot det den lagrer. */

@@ -50,6 +50,7 @@ const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
       filnavn: 'krav.pdf',
       innhold_sha256: '0'.repeat(64),
       opprettet: '2026-10-16T09:00:01.000Z',
+      levert: null,
     },
   ],
 });
@@ -153,7 +154,7 @@ describe('TS-saken i Kontrollrommet', () => {
     expect(brev.getByText('Brev fra TE', { exact: false })).toBeInTheDocument();
     expect(brev.getByText('BH påla ny peling.')).toBeInTheDocument();
     expect(
-      brev.getByText(/Leveringsoppdrag krav\.pdf: frosset .*, ikke levert/)
+      brev.getByText(/Leveringsoppdrag krav\.pdf: frosset .*, ikke levert ennå/)
     ).toBeInTheDocument();
   });
 

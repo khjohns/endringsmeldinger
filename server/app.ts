@@ -301,6 +301,7 @@ async function visSaken(
         filnavn: filnavn(o.innhold),
         innhold_sha256: o.innhold_sha256,
         opprettet: o.opprettet,
+        levert: o.levert,
       })),
     },
   ];

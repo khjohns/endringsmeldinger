@@ -11,6 +11,7 @@
   import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
   import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+  import { leveringstekst } from '$lib/kjernesak/saksbilde';
   import type { Part } from '$kjerne/typer';
 
   const sakId = $derived(page.params.sakId ?? '');
@@ -89,7 +90,7 @@
   <h1 class="text-xl font-semibold">Sak i TS-kjernen</h1>
   <p class="text-sm text-gray-600">
     Prøve for testmiljøet (#347). Kravene sendes til TS-serveren, og hvert brev får et frosset
-    leveringsoppdrag. Leveringen til Catenda er ikke bygget.
+    leveringsoppdrag. Leveringen er ikke prøvd mot Catendas API (#371).
   </p>
 
   <label class="block text-sm"
@@ -193,10 +194,7 @@
       {#if sak.leveringsoppdrag.length}
         <ul class="text-sm" data-testid="leveringsoppdrag">
           {#each sak.leveringsoppdrag as l (l.id)}
-            <li>
-              {l.filnavn ?? l.dokumentnoekkel}: frosset {formatDateTimeNorwegian(l.opprettet)}, ikke
-              levert
-            </li>
+            <li>{leveringstekst(l)}</li>
           {/each}
         </ul>
       {:else}

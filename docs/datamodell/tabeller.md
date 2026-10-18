@@ -768,7 +768,7 @@ PDF-en av brevet i et leveringsoppdrag (#371 del 2, merknaden 12.10): bytene og 
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts`. |
+| Hvor fra appen lagres og redigeres | `koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts` når `koe_api.lagret_brevdokument` ikke gir noen PDF for oppdraget (#795 punkt 4). |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id). Viser til: leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Det er PDF-en som ble levert. |
@@ -779,7 +779,7 @@ PDF-en av brevet i et leveringsoppdrag (#371 del 2, merknaden 12.10): bytene og 
 
 ### `koe.leveringskvittering`
 
-Kvitteringen for hver obligatoriske operasjon i leveringen av et brev (#371 del 1, invariant 7): `dokument` når dokumentet ligger i biblioteket, og `dokumentreferanse` når referansen står på topicen. Brevet er levert når begge radene finnes (B-03, arbeidsvalget 18.10 i #371). Raden har leasen og ID-en Catenda ga, og endres ikke. Bare kjøreveien, `koe_jobbkjoerer`, kan legge inn en rad.
+Kvitteringen for hver obligatoriske operasjon i leveringen av et brev (#371 del 1, invariant 7): `dokument` når dokumentet ligger i biblioteket, og `dokumentreferanse` når referansen står på topicen. Brevet er levert når begge radene finnes (B-03, arbeidsvalget 18.10 i #371). Raden har leasen og ID-en Catenda ga, og endres ikke. Bare kjøreveien, `koe_jobbkjoerer`, kan legge inn en rad. Kjøretiden leser tidspunktet for `dokumentreferanse` som «levert» i visningen av saken (`lesOppdrag` i `server/lager.ts`, #764).
 
 | Felt | Innhold |
 | --- | --- |

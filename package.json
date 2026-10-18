@@ -50,6 +50,7 @@
 		"vitest": "^3.1.0"
 	},
 	"dependencies": {
+		"@pdf-lib/fontkit": "1.1.1",
 		"@tanstack/svelte-query": "^6.1.0",
 		"@tiptap/core": "^2.27.2",
 		"@tiptap/extension-character-count": "^2.27.2",
