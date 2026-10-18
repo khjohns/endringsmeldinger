@@ -23,6 +23,7 @@ import {
   MIGRASJONSMAPPE,
   migrer,
   MigreringAvvist,
+  somSetning,
   type Migrasjon,
 } from '../migrering.ts';
 import { katalog, opprettMigrertTestbase } from './sqlserver_migrert.ts';
@@ -228,6 +229,24 @@ describe('kontrollen mot historikken', () => {
     expect(egen.options?.requestTimeout).toBe(forventet);
   });
 
+  it.each([
+    [
+      'uten punktum får punktum',
+      new Error('Connection lost - read ECONNRESET'),
+      'Connection lost - read ECONNRESET.',
+    ],
+    [
+      'med punktum får ikke ett til',
+      new Error("Invalid object name 'x'."),
+      "Invalid object name 'x'.",
+    ],
+    ['med linjeskift etter punktum', new Error('Login failed.\n'), 'Login failed.'],
+    ['uten tekst får navnet på feilen', new Error(''), 'Error.'],
+    ['som ikke er en Error, får teksten sin', 'brutt', 'brutt.'],
+  ])('feilmeldingen i en avvisning %s', (_, feil, forventet) => {
+    expect(somSetning(feil)).toBe(forventet);
+  });
+
   it('migrer avviser to filer med samme versjon før den kobler til basen', async () => {
     const a = fil('20260101000000');
     const ingenBase = {} as Parameters<typeof migrer>[0];
@@ -242,6 +261,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
 
   beforeAll(async () => {
     base = await opprettTestbase('migrering');
+    // Historikktabellen finnes da også for en test som kjøres alene, der runneren
+    // ellers lager den i transaksjonen som rulles tilbake.
+    await migrer(base.pool, []);
   }, 240_000);
   afterAll(async () => {
     await base?.slett();

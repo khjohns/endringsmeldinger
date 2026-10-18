@@ -300,6 +300,12 @@ async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand>
   return { ...t, id: t.id ?? '' };
 }
 
+/** Feilmeldingen som én setning, så teksten etter den ikke henger rett på. */
+export function somSetning(feil: unknown): string {
+  const tekst = (feil instanceof Error ? feil.message : String(feil)).trim() || String(feil);
+  return /[.!?…]$/.test(tekst) ? tekst : `${tekst}.`;
+}
+
 /**
  * Hva som er lagret når runnerens transaksjon ikke lenger er åpen. Finnes merket
  * da, ble transaksjonen committet av fila, ikke rullet tilbake.
@@ -349,21 +355,17 @@ async function anvendNeste(
     try {
       await egen.request().batch(sats);
     } catch (feil) {
-      throw new MigreringAvvist(
-        `${sted}: ${(feil as Error).message}${await lagret(egen, runnerens)}`,
-        {
-          cause: feil,
-        }
-      );
+      throw new MigreringAvvist(`${sted}: ${somSetning(feil)}${await lagret(egen, runnerens)}`, {
+        cause: feil,
+      });
     }
     let etter: Forbindelsestilstand;
     try {
       etter = await tilstand(egen);
     } catch (feil) {
-      throw new MigreringAvvist(
-        `${sted}: ${(feil as Error).message}${await lagret(egen, runnerens)}`,
-        { cause: feil }
-      );
+      throw new MigreringAvvist(`${sted}: ${somSetning(feil)}${await lagret(egen, runnerens)}`, {
+        cause: feil,
+      });
     }
     if (etter.id !== runnerens.id || etter.nivaa !== runnerens.nivaa)
       throw new MigreringAvvist(
@@ -385,7 +387,7 @@ async function anvendNeste(
       );
   } catch (feil) {
     throw new MigreringAvvist(
-      `${neste.filnavn}, historikkraden: ${(feil as Error).message}${await lagret(egen, runnerens)}`,
+      `${neste.filnavn}, historikkraden: ${somSetning(feil)}${await lagret(egen, runnerens)}`,
       { cause: feil }
     );
   }
@@ -460,7 +462,7 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
       if (feil instanceof MigreringAvvist) throw feil;
       // En feil utenfor en fil, som at forbindelsen er brutt før neste fil (#641).
       throw new MigreringAvvist(
-        `Migreringen stoppet utenfor en fil: ${(feil as Error).message}. ` +
+        `Migreringen stoppet utenfor en fil: ${somSetning(feil)} ` +
           `Anvendt i denne kjøringen: ${kjoert.join(', ') || 'ingen'}.`,
         { cause: feil }
       );
