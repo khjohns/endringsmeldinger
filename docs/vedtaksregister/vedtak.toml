@@ -5232,9 +5232,9 @@ Når klienten sender samme kommando på nytt (samme kommando-ID) etter et tapt s
 
 Alternativene slik de ble vist:
 
-Versjonen hendelsen fikk (Recommended): svaret på gjentaket er det samme som det første svaret (invariant 4: samme kvittering), også om saken har fått nye hendelser siden.
+Versjonen hendelsen fikk (Recommended): Svaret på gjentaket er det samme som det første svaret (invariant 4: samme kvittering), også om saken har fått nye hendelser siden.
 
-Sakens versjon nå: svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
+Sakens versjon nå: Svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
 valgt = "Versjonen hendelsen fikk"
 svar = '''
 «Versjonen hendelsen fikk (Recommended)»'''
