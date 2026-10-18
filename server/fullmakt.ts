@@ -6,6 +6,7 @@
  */
 import { kroner, regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
+import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
 import { KRAVSPOR, type Kravspor } from '../kjerne/typer.ts';
 import type { Sporutledning, Utledning } from '../kjerne/utledning/utled.ts';
@@ -35,7 +36,8 @@ export class IngenFullmakter extends Error {}
 /** Ingen i kjeden har fullmakt til det brevet gir ansvar for. */
 export class UtilstrekkeligFullmakt extends Error {}
 
-const oere = (kroner: number) => Math.round(kroner * 100) / 100;
+/** Hele øre, rundet som reglene runder beløp (`beloep`), ikke som flyttallet. */
+const oere = (kr: number) => tilTall(beloep(kr)!);
 
 /**
  * Verdien av svarene i ett brev. Et spor som besvares i brevet, har verdien i svaret.

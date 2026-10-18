@@ -148,6 +148,39 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([])))).rejects.toThrow(UgyldigPakke);
   });
 
+  it('en godkjenner to ganger, eller godkjennerne som et JSON-objekt, er en ugyldig pakke', async () => {
+    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder, leder])))).rejects.toThrow(
+      UgyldigPakke
+    );
+    const objekt = { ...pakke([]), godkjennere: { a: leder } as unknown as string[] };
+    await expect(i(som(o.bh.id), (f) => lagPakke(f, objekt))).rejects.toThrow(UgyldigPakke);
+  });
+
+  it('en leser på byggherresiden ser ingen fullmakter eller sats', async () => {
+    const leser = randomUUID();
+    await eier(async (r) => {
+      await settInn(r, 'app_users', {
+        id: leser,
+        email: `${leser}@test.example`,
+        name: 'Testbruker',
+      });
+      await settInn(r, 'app_project_memberships', {
+        project_id: o.prosjekt.id,
+        user_id: leser,
+        catenda_subject: randomBytes(16).toString('hex'),
+        user_email: `${leser}@test.example`,
+        display_name: 'Testbruker',
+        role: 'member',
+        viewer_override: true,
+        active: true,
+      });
+    });
+    expect(await i(som(leser), (f) => lesFullmakter(f))).toEqual({
+      fullmakter: [],
+      dagmulktssats: null,
+    });
+  });
+
   it('stegene godkjennes i rekkefølge, og pakken er godkjent når alle er det', async () => {
     const p = pakke([leder, direktoer]);
     await i(som(o.bh.id), (f) => lagPakke(f, p));

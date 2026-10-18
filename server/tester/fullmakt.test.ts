@@ -130,6 +130,12 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
     ).toEqual({ beloep: 100000 + 20 * SATS, gulv: 200000 });
   });
 
+  it('verdien rundes til hele øre som reglene runder beløp, ikke som flyttallet', async () => {
+    const krav = { ...KRAV_VEDERLAG, innhold: { metode: 'tilbud', beloep: 1.005 } };
+    // Fristkravet er ikke sendt, så bare gulvet er verdsatt.
+    expect((await verdi([KRAV_GRUNNLAG, krav], [GRUNNLAG_GODKJENT], SATS)).gulv).toBe(1.01);
+  });
+
   it('avslått grunnlag er 0', async () => {
     expect(
       await verdi(

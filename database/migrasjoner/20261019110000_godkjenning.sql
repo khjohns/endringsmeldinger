@@ -138,9 +138,12 @@ BEGIN
   IF @@TRANCOUNT = 0 OR TRY_CAST(SESSION_CONTEXT(N'koe_tx') AS bigint) IS DISTINCT FROM CURRENT_TRANSACTION_ID()
     THROW 51000, N'Fullmaktene leses bare i en transaksjon med konteksten satt', 1;
   DECLARE @prosjekt nvarchar(100) = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(100));
+  -- `oppretter` binder siden til et kontraktsteam og utelukker lesere.
   DECLARE @byggherre bit = IIF(
-    TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(2)) = N'BH'
-    AND EXISTS (SELECT 1 FROM koe_sikkerhet.medlem(@prosjekt)), 1, 0);
+    TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(4000)) = N'BH'
+    AND DATALENGTH(TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(4000))) = DATALENGTH(N'BH')
+    AND EXISTS (SELECT 1 FROM koe_sikkerhet.oppretter(@prosjekt, TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier))),
+    1, 0);
   SELECT LOWER(CONVERT(nvarchar(36), bruker_id)) AS bruker_id, tittel, grense, plass
     FROM koe.fullmakt WHERE prosjekt_id = @prosjekt AND @byggherre = 1 ORDER BY plass;
   SELECT sats FROM koe.dagmulktssats WHERE prosjekt_id = @prosjekt AND @byggherre = 1;
@@ -184,7 +187,7 @@ BEGIN
          JOIN koe.godkjenningshandling h ON h.pakke_id = p.pakke_id AND h.handling <> N'godkjent'
         WHERE p.pakke_id = @forrige_pakke_id AND p.sak_id = @sak_id)
     THROW 51409, N'Den forrige pakken er ikke returnert eller trukket i saken', 1;
-  IF ISJSON(@godkjennere) = 0
+  IF ISJSON(@godkjennere) = 0 OR LEFT(LTRIM(@godkjennere), 1) <> N'['
     THROW 51422, N'Godkjennerne er ikke en JSON-liste', 1;
 
   DECLARE @steg TABLE (steg int NOT NULL PRIMARY KEY, godkjenner_id uniqueidentifier NULL);
@@ -194,6 +197,8 @@ BEGIN
     THROW 51422, N'En pakke uten godkjennere trengs ikke', 1;
   IF EXISTS (SELECT 1 FROM @steg WHERE godkjenner_id IS NULL OR godkjenner_id = @aktor)
     THROW 51422, N'En godkjenner mangler eller er saksbehandleren selv', 1;
+  IF (SELECT COUNT(DISTINCT godkjenner_id) FROM @steg) <> (SELECT COUNT(*) FROM @steg)
+    THROW 51422, N'En godkjenner står to ganger i kjeden', 1;
   IF EXISTS (SELECT 1 FROM @steg s WHERE NOT EXISTS (
        SELECT 1 FROM koe.fullmakt f WHERE f.prosjekt_id = @prosjekt AND f.bruker_id = s.godkjenner_id))
     THROW 51422, N'En godkjenner har ingen fullmakt i prosjektet', 1;
