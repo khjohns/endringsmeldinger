@@ -156,6 +156,7 @@ export async function lagOppsett(): Promise<Oppsett> {
  * som i drift (#778).
  */
 const TESTRETTIGHETER = [
+  'SELECT ON koe.brevdokument',
   'SELECT, UPDATE ON koe.jobb',
   'SELECT ON koe.jobbforsoek',
   'SELECT ON koe.leveringskvittering',

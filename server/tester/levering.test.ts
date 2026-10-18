@@ -21,7 +21,10 @@ import {
 import type { Pool } from '../datalag.ts';
 import { kjoerEnJobb, LEASETID_S } from '../jobber.ts';
 import { lesSaken } from '../lager.ts';
-import { gjengiOppdrag } from '../levering.ts';
+import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
+import type { Avsnitt } from '../../kjerne/typer.ts';
+import { lesBrevPdf } from '../brevpdf.ts';
+import { pdfsum } from '../levering.ts';
 import { sql } from './sqlserver.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
@@ -52,6 +55,7 @@ const LEASE_UGYLDIG = 54001;
 const UFORANDERLIG = 51001;
 const INGEN_RETT = 229;
 const FREMMEDNOEKKEL = 547;
+const BRUTT_SJEKK = 547;
 
 interface Kvittering {
   operasjon: string;
@@ -61,7 +65,7 @@ interface Kvittering {
 
 /** Catenda i minnet: biblioteket som navn → dokument, og referansene per topic. */
 class FalskCatenda implements Dokumentleverandoer {
-  bibliotek = new Map<string, { id: string; innhold: string; maal: Dokumentmaal }>();
+  bibliotek = new Map<string, { id: string; innhold: Uint8Array; maal: Dokumentmaal }>();
   referanser = new Map<string, { id: string; dokumentId: string }[]>();
   opplastinger = 0;
   nyeReferanser = 0;
@@ -81,7 +85,7 @@ class FalskCatenda implements Dokumentleverandoer {
     const id = randomUUID().replaceAll('-', '');
     this.bibliotek.set(dokument.navn, {
       id,
-      innhold: new TextDecoder().decode(dokument.innhold),
+      innhold: dokument.innhold,
       maal,
     });
     this.etter.lastOppDokument?.();
@@ -150,6 +154,28 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
         { sak: sakId }
       )
     ).recordset;
+  const brevdokumentene = async (sakId: string) =>
+    (
+      await somKjoerer<{ pdf_sha256: string; pdf: Buffer }>(
+        `SELECT d.pdf_sha256, d.pdf FROM koe.brevdokument d
+           JOIN koe.leveringsoppdrag o ON o.id = d.leveringsoppdrag_id WHERE o.sak_id = @sak`,
+        { sak: sakId }
+      )
+    ).recordset.map((d) => ({ pdf_sha256: d.pdf_sha256, pdf: new Uint8Array(d.pdf) }));
+  const hentLease = async () =>
+    (
+      await o.datalag.kjoeretid.pool
+        .request()
+        .input('leasetid_sekunder', sql.Int, LEASETID_S)
+        .execute<{ lease: string }>('koe_api.hent_jobb')
+    ).recordset[0].lease;
+  const lagre = (lease: string, pdf: Uint8Array, sum = pdfsum(pdf)) =>
+    o.datalag.kjoeretid.pool
+      .request()
+      .input('lease', sql.UniqueIdentifier, lease)
+      .input('pdf', sql.VarBinary(sql.MAX), Buffer.from(pdf))
+      .input('pdf_sha256', sql.NVarChar(64), sum)
+      .execute<{ pdf: Buffer }>('koe_api.lagre_brevdokument');
   const startPaaNytt = async (sakId: string) => {
     const [{ jobb_id }] = await leveringen(sakId);
     await o.datalag.base.pool
@@ -252,8 +278,13 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     );
     const brev = journal.at(-1)!;
     const oppdrag = oppdragene.find((x) => x.event_id === brev.event_id)!;
-    expect(navn).toBe(`brev-${sakId}-2-${brev.event_id}.txt`);
-    expect(dokument.innhold).toBe(gjengiOppdrag(oppdrag.innhold));
+    expect(navn).toBe(`brev-${sakId}-2-${brev.event_id}.pdf`);
+    const { brevtekst } = oppdrag.innhold.brev as { brevtekst: Avsnitt[] };
+    expect(gjengirTro(lesBrevPdf(dokument.innhold), brevtekst)).toBe(true);
+    expect(lesBrevPdf(dokument.innhold)).toContain(`Sak ${sakId}, brev 2`);
+    expect(await brevdokumentene(sakId)).toEqual([
+      { pdf_sha256: pdfsum(dokument.innhold), pdf: dokument.innhold },
+    ]);
     expect(dokument.maal).toMatchObject({ catenda_project_id: o.prosjekt.catendaProsjekt });
 
     const [referanse] = [...catenda.referanser.values()].flat();
@@ -341,7 +372,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     catenda.finnDokument = async (maal, navn) => {
       if (foersteOppslag) {
         foersteOppslag = false;
-        catenda.bibliotek.set(navn, { id: 'finnes1234', innhold: '', maal });
+        catenda.bibliotek.set(navn, { id: 'finnes1234', innhold: new Uint8Array(), maal });
         return null;
       }
       return opprinnelig(maal, navn);
@@ -392,6 +423,83 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     } finally {
       await bibliotek(gammel);
     }
+  });
+
+  // Kilde: merknaden 12.10 i #371: PDF-en lagres én gang per oppdrag, før første
+  // forsøk, med SHA-256, og den som kommer sist, sender den som er lagret.
+  it('L8: PDF-en lagres før opplastingen, også når opplastingen feiler, og bare én gang per oppdrag', async () => {
+    const sakId = await sakMedBrev();
+    catenda.foer.lastOppDokument = () => {
+      throw new CatendaUtilgjengelig('Catenda svarte med feil');
+    };
+    expect(await kjoer()).toBe(true);
+    const [lagret] = await brevdokumentene(sakId);
+    expect(lagret.pdf_sha256).toBe(pdfsum(lagret.pdf));
+    expect(catenda.opplastinger).toBe(0);
+
+    await somKjoerer(
+      `UPDATE koe.jobb SET neste_forsoek = SYSUTCDATETIME() WHERE sak_id = @sak AND jobbtype = N'levering'`,
+      { sak: sakId }
+    );
+    const annen = new TextEncoder().encode('%PDF-1.7 en annen fil');
+    const svar = await lagre(await hentLease(), annen);
+    expect(new Uint8Array(svar.recordset[0].pdf)).toEqual(lagret.pdf);
+    expect(await brevdokumentene(sakId)).toEqual([lagret]);
+  });
+
+  it('L8: basen avviser en PDF med feil sum, og et lagret brevdokument endres ikke', async () => {
+    const sakId = await sakMedBrev();
+    const lease = await hentLease();
+    const pdf = new TextEncoder().encode('%PDF-1.7');
+    expect(await avvisning(lagre(lease, pdf, pdfsum(new Uint8Array([1]))))).toBe(BRUTT_SJEKK);
+    expect(await brevdokumentene(sakId)).toEqual([]);
+    await lagre(lease, pdf);
+    expect(
+      await avvisning(o.datalag.base.pool.request().query(`UPDATE koe.brevdokument SET pdf = 0x00`))
+    ).toBe(UFORANDERLIG);
+    expect(
+      await avvisning(o.datalag.kjoeretid.pool.request().query(`SELECT pdf FROM koe.brevdokument`))
+    ).toBe(INGEN_RETT);
+  });
+
+  // Kilde: LV-U11 18.10: et registrert brev blir ikke et eget dokument i Catenda.
+  it('L9: et registrert brev får oppdraget uten dokument og ingen leveringsjobb, så ingen forsøk', async () => {
+    const sakId = await sakMedBrev();
+    expect(await kjoer()).toBe(true);
+    const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
+      bruker: o.te,
+      prosjektId: o.prosjekt.id,
+      kropp: {
+        expected_version: 2,
+        kommando_id: randomUUID(),
+        kommando: { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-10-01' },
+      },
+    });
+    expect(svar.status).toBe(201);
+    const { journal, oppdrag } = await lesSaken(
+      o.datalag.kjoeretid.pool,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      sakId
+    );
+    const registrert = oppdrag.find((x) => x.event_id === journal.at(-1)!.event_id)!;
+    expect(registrert.innhold).toMatchObject({ dokument: null, brev: { brevtekst: null } });
+    const jobbene = await leveringen(sakId);
+    expect(jobbene.map((j) => j.tilstand)).toEqual(['utfoert']);
+    expect(jobbene[0].oppdrag).not.toBe(registrert.id.toLowerCase());
+    expect(await kjoer()).toBe(false);
+    expect(await forsoekene(sakId)).toEqual([['utfoert', null]]);
+    expect(catenda.opplastinger).toBe(1);
+  });
+
+  // Kilde: #783 punkt 2: en lokal feil som ikke går over, skal ikke prøves i det uendelige.
+  it('L10: en uventet lokal feil i leveringen parkerer jobben som usikker, uten feilmeldingen', async () => {
+    const sakId = await sakMedBrev();
+    catenda.foer.dokumentreferanser = () => {
+      throw new RangeError('hemmelig detalj');
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+    expect(await forsoekene(sakId)).toEqual([['usikkert', 'Uventet feil i jobben']]);
   });
 
   it('L7: kvitteringen krever en gyldig lease, og referansen krever kvittert dokument', async () => {
