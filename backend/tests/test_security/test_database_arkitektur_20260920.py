@@ -85,13 +85,58 @@ def _opprettede_tabeller() -> set[str]:
     return funnet
 
 
-# Kommentarer fjernes før navnene leses; en strengliteral beholdes, så `--` inne i
-# en streng ikke tas for en kommentar.
-_SQL_DEL = re.compile(r"'(?:[^']|'')*'|--[^\n]*|/\*.*?\*/", re.DOTALL)
+# Kommentarer fjernes før navnene leses; en strengliteral beholdes, så `--` eller
+# en apostrof inne i den ikke forskyver hva som regnes som kommentar. Et
+# dollar-sitat (`$$…$$`, `$tag$…$tag$`) er i migrasjonene en funksjons- eller
+# DO-kropp, altså kode: grensene beholdes, og kroppen renses for seg (#634).
+_SQL_DEL = re.compile(
+    r"(?P<dollar>(?P<aapning>\$(?P<tag>[A-Za-z_][A-Za-z0-9_]*|)\$)(?P<kropp>.*?)\$(?P=tag)\$)"
+    r"|(?P<streng>(?<![A-Za-z0-9_$])[Ee]'(?:[^'\\]|\\.|'')*'|'(?:[^']|'')*')"
+    r"|--[^\n]*|/\*.*?\*/",
+    re.DOTALL,
+)
+
+
+def _erstatt(m: re.Match) -> str:
+    if m.group("dollar"):
+        return m.group("aapning") + uten_kommentarer(m.group("kropp")) + m.group("aapning")
+    return m.group("streng") or " "
 
 
 def uten_kommentarer(sql: str) -> str:
-    return _SQL_DEL.sub(lambda m: m.group(0) if m.group(0).startswith("'") else " ", sql)
+    return _SQL_DEL.sub(_erstatt, sql)
+
+
+def test_uten_kommentarer_apostrof_og_strek_i_dollarsitat_forskyver_ikke_resten():
+    sql = (
+        "DO $$ BEGIN -- TE's merknad\n RAISE NOTICE 'TE''s'; END $$;"
+        " -- borte\nCREATE TABLE b ();"
+    )
+    renset = uten_kommentarer(sql)
+    assert "RAISE NOTICE 'TE''s'; END $$;" in renset
+    assert "merknad" not in renset
+    assert "borte" not in renset
+    assert "CREATE TABLE b" in renset
+
+
+def test_uten_kommentarer_avslutter_tagget_dollarsitat_bare_paa_samme_tag():
+    sql = "DO $fmt$ SELECT $$ ' $$; $x$ ' $x$ $fmt$; -- borte\nCREATE TABLE b ();"
+    renset = uten_kommentarer(sql)
+    assert "CREATE TABLE b" in renset
+    assert "borte" not in renset
+
+
+def test_uten_kommentarer_kjenner_omvendt_skraastrek_i_e_streng():
+    sql = "SELECT E'TE\\'s -- ikke kommentar'; -- borte\nCREATE TABLE b ();"
+    renset = uten_kommentarer(sql)
+    assert "E'TE\\'s -- ikke kommentar'" in renset
+    assert "borte" not in renset
+    assert "CREATE TABLE b" in renset
+
+
+def test_uten_kommentarer_beholder_dobbel_apostrof_og_fjerner_blokkommentar():
+    renset = uten_kommentarer("SELECT 'TE''s -- krav' /* CREATE TABLE x */;")
+    assert renset == "SELECT 'TE''s -- krav'  ;"
 
 
 def test_hver_tabell_i_basen_opprettes_av_en_migrasjonsfil():

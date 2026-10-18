@@ -90,7 +90,58 @@ def test_vakta_melder_logisk_kobling_paa_en_kolonne_i_sammensatt_fremmednokkel(k
     sammensatt = next(r for r in endret["relasjon"] if r["fra"] == ["koe.notat.sak_id", "koe.notat.prosjekt_id"])
     endret["relasjon"].append({**sammensatt, "fra": "koe.notat.sak_id", "til": "koe.sak_metadata.sak_id", "art": "logisk"})
     feil = rel.valider(endret, kilder["katalog"])
-    assert "koe.notat.sak_id → koe.sak_metadata.sak_id: står som logisk, men katalogen har en fremmednøkkel" in feil
+    assert (
+        "koe.notat.sak_id → koe.sak_metadata.sak_id: står som logisk, men katalogen har fremmednøkkelen "
+        "koe.notat.(sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id), som dekker den"
+    ) in feil, feil
+
+
+def _logisk_fra_notat_sak_id(kilder) -> dict:
+    endret = copy.deepcopy(kilder["relasjoner"])
+    sammensatt = next(r for r in endret["relasjon"] if r["fra"] == ["koe.notat.sak_id", "koe.notat.prosjekt_id"])
+    endret["relasjon"].append({**sammensatt, "fra": "koe.notat.sak_id", "til": "koe.sak_metadata.sak_id", "art": "logisk"})
+    return endret
+
+
+def test_del_av_sammensatt_noekkel_med_nullbar_kolonne_er_ikke_haandhevet(kilder):
+    """#635: under MATCH SIMPLE sjekkes ikke raden når en annen kolonne i nøkkelen er NULL."""
+    katalog = copy.deepcopy(kilder["katalog"])
+    rad = next(r for r in katalog["sqlserver"]["tabeller"]["koe.notat"]["kolonner"] if r[0] == "prosjekt_id")
+    rad[2] = "NULL"
+    feil = rel.valider(_logisk_fra_notat_sak_id(kilder), katalog)
+    assert not any("står som logisk" in f for f in feil), feil
+
+
+def test_del_av_sammensatt_noekkel_er_haandhevet_naar_bare_den_dekkede_kolonnen_er_nullbar(kilder):
+    """#635: under MATCH SIMPLE sjekkes raden når den dekkede kolonnen har en verdi og
+    resten av nøkkelen er NOT NULL, så koblingen er håndhevet og ikke logisk."""
+    katalog = copy.deepcopy(kilder["katalog"])
+    rad = next(r for r in katalog["sqlserver"]["tabeller"]["koe.notat"]["kolonner"] if r[0] == "sak_id")
+    rad[2] = "NULL"
+    feil = rel.valider(_logisk_fra_notat_sak_id(kilder), katalog)
+    assert any("står som logisk" in f for f in feil), feil
+
+
+def test_er_diagrammet_merker_logisk_kobling_fra_kolonne_i_annen_fremmednokkel(kilder):
+    """#635: diagrammet avgjør «håndhevet» etter kolonneparene i én nøkkel, som `valider()`."""
+    endret = copy.deepcopy(kilder["relasjoner"])
+    sammensatt = next(r for r in endret["relasjon"] if r["fra"] == ["koe.notat.sak_id", "koe.notat.prosjekt_id"])
+    endret["relasjon"].append({**sammensatt, "fra": "koe.notat.sak_id", "til": "koe.app_users.id", "art": "logisk"})
+    assert not any("står som logisk" in f for f in rel.valider(endret, kilder["katalog"]))
+    diagram = rel.er_diagram(endret, kilder["katalog"], "SQL Server")
+    notat = diagram.split("    koe_notat {\n", 1)[1].split("    }", 1)[0]
+    assert '        nvarchar_36 sak_id FK "uten fremmednøkkel"' in notat.splitlines(), notat
+
+
+def test_er_diagrammet_for_sqlite_tegner_tabell_utenfor_katalogen_som_ekstern(kilder):
+    """#635: en kobling fra SQLite til en tabell katalogen ikke har, gir en ekstern entitet."""
+    endret = copy.deepcopy(kilder["relasjoner"])
+    endret["relasjon"].append(
+        {**endret["relasjon"][0], "fra": "utkast.case_id", "til": "ekstern.sak.id", "art": "logisk", "antall": "mange til én"}
+    )
+    diagram = rel.er_diagram(endret, kilder["katalog"], "SQLite")
+    assert "    ekstern_sak {\n        TEXT id PK\n    }" in diagram
+    assert '    ekstern_sak |o..o{ utkast : "case_id"' in diagram
 
 
 def test_vakta_melder_sammensatt_nokkel_med_ulike_ender(kilder):
@@ -173,6 +224,41 @@ def test_vakta_melder_kode_som_ikke_finnes(kilder, tabellregister):
     feil = df.valider(endret, kilder["katalog"], tabellregister)
     assert any("finnes_ikke er ikke definert" in f for f in feil), feil
     assert any("koe_finnes_ikke finnes ikke i katalogen" in f for f in feil), feil
+
+
+def _med_kode(kilder, kode: str) -> dict:
+    endret = copy.deepcopy(kilder["dataflyt"])
+    endret["flyt"][0]["steg"][0]["kode"] = [kode]
+    return endret
+
+
+def test_dataflyten_godtar_kode_i_ts_serveren(kilder, tabellregister):
+    """#713: `server/…/fil.ts:symbol` er en gyldig henvisning når symbolet er deklarert i fila."""
+    endret = _med_kode(kilder, "server/innlogging.ts:catendaIdentitet")
+    assert df.valider(endret, kilder["katalog"], tabellregister) == []
+
+
+def test_vakta_melder_ts_fil_som_ikke_finnes(kilder, tabellregister):
+    endret = _med_kode(kilder, "server/finnes_ikke.ts:catendaIdentitet")
+    feil = df.valider(endret, kilder["katalog"], tabellregister)
+    assert any("fila server/finnes_ikke.ts finnes ikke" in f for f in feil), feil
+
+
+def test_vakta_melder_ts_symbol_som_ikke_er_deklarert(kilder, tabellregister):
+    endret = _med_kode(kilder, "server/innlogging.ts:finnesIkke")
+    feil = df.valider(endret, kilder["katalog"], tabellregister)
+    assert any("finnesIkke er ikke definert i server/innlogging.ts" in f for f in feil), feil
+
+
+def test_ts_symbol_som_bare_brukes_i_fila_er_ikke_deklarert():
+    """Et kall eller en lokal variabel er ikke en deklarasjon på toppnivå."""
+    assert "catendaIdentitet" in df.definisjoner("server/innlogging.ts")
+    assert "bruker" not in df.definisjoner("server/innlogging.ts")
+
+
+def test_dataflyt_bruker_samme_relasjonsmodul_som_datamodell():
+    """#635: `_last` laster relasjoner.py én gang."""
+    assert df.rel is dm.rel
 
 
 def test_vakta_melder_pil_som_ikke_berorer_catenda(kilder, tabellregister):
