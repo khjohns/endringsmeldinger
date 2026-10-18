@@ -10,6 +10,8 @@ omitClaudeMd: true
 Du får en PR, en commit eller en kjøring i GitHub Actions. Hent loggen for den
 første jobben som feilet, med GitHub-MCP (`get_job_logs`) eller `gh api`.
 
+Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.
+
 Rapporter kort, på norsk bokmål:
 
 - jobben og steget som feilet;
