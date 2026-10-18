@@ -68,7 +68,7 @@ describe('resolveRoute', () => {
     expect(resolveRoute({ amount: null, sender: ukjent, chain }).approvers).toHaveLength(2);
   });
 
-  it('krever kjeden for ubegrenset fullmakt når dagmulktssatsen mangler (B-06)', () => {
+  it('krever kjeden for ubegrenset fullmakt når dagmulktssatsen mangler (GFK-U3)', () => {
     const top = withLimit({ name: 'Direktør', role: 'Adm.dir (daglig leder)' });
     const result = resolveRoute({ amount: null, sender: top, chain, manglerSats: true });
     expect(result.requiresApproval).toBe(true);
