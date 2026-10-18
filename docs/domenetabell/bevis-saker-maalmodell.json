@@ -2903,7 +2903,7 @@
         "GR-29"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og OV-U6: er det oppgitt at registrert korrespondanse ikke var en endringsordre, er godkjenningen dokumentasjon uten virkning, og TE kan trekke grunnlaget som avkall etter GR-U5",
+      "forslag": "OV-U13 og OV-U6: opplysningen om § 31.3 gis bare når byggherren registrerer sin egen endringsordre som svar. En opplysning om at registrert korrespondanse ikke var en endringsordre, gjør saken ikke forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2915,11 +2915,6 @@
           "resultat": "godkjent",
           "sendt": "2026-09-30",
           "endringsordre": false
-        },
-        {
-          "handling": "trekk",
-          "spor": "grunnlag",
-          "navn": "D5"
         }
       ],
       "kontroller": [
@@ -2927,42 +2922,22 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U13",
             "OV-U6"
           ],
           "forventet": {
-            "gjeldende_svar.grunnlag": null,
-            "enighet.grunnlag": null,
-            "opplysning.D4#endringsordre.oppfylt": false,
-            "endringsordre": "nei",
-            "handlinger.TE": {
-              "inneholder": [
-                "trekke:grunnlag"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U6",
-            "GR-U5",
-            "KA-U14"
-          ],
-          "forventet": {
-            "avvist": false,
-            "trukket.grunnlag": true,
-            "trukket.vederlag": true
+            "forstaatt": false
           }
         }
       ]
     },
     {
       "id": "F-MM-G22",
-      "rader": ["GR-29"],
+      "rader": [
+        "GR-29"
+      ],
       "start": "krav_irreg",
-      "forslag": "MM-U12 og OV-U4: en senere avklaring av at registrert korrespondanse ikke var en endringsordre, skriver ikke brevet om. Trekket av grunnlaget godtas før og etter avklaringen, fordi et registrert brev ikke gir noen sperre (OV-U6)",
+      "forslag": "OV-U13 og OV-U4: en senere avklaring av at registrert korrespondanse ikke var en endringsordre, er ikke med i første versjon og gjør saken ikke forstått. Trekket av grunnlaget godtas før avklaringen, fordi et registrert brev ikke gir noen sperre (OV-U6)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2974,33 +2949,38 @@
           "resultat": "godkjent",
           "sendt": "2026-09-30"
         },
-        { "handling": "rad", "avklarer": "D4", "oppfylt": false, "navn": "D5" },
-        { "handling": "trekk", "spor": "grunnlag", "navn": "D6" }
+        {
+          "handling": "rad",
+          "avklarer": "D4",
+          "oppfylt": false,
+          "navn": "D5"
+        }
       ],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["OV-U4", "OV-U6"],
-          "prov": { "handling": "trekk", "spor": "grunnlag" },
-          "forventet": { "avvist": false }
+          "kilde": [
+            "OV-U4",
+            "OV-U6"
+          ],
+          "prov": {
+            "handling": "trekk",
+            "spor": "grunnlag"
+          },
+          "forventet": {
+            "avvist": false
+          }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U12", "GR-U13", "KA-U14"],
+          "kilde": [
+            "OV-U13"
+          ],
           "forventet": {
-            "forstaatt": true,
-            "opplysning.D5#endringsordre.oppfylt": false,
-            "endringsordre": "nei",
-            "handlinger.TE": { "inneholder": ["trekke:grunnlag"] }
+            "forstaatt": false
           }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": ["KA-U6", "GR-U5", "KA-U14"],
-          "forventet": { "avvist": false, "trukket.grunnlag": true }
         }
       ]
     },
@@ -8502,11 +8482,10 @@
       "id": "F-MM-BG1",
       "rader": [
         "KA-42",
-        "KA-43",
-        "KA-45"
+        "KA-43"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev, som ikke kan være sendt før svaret (KA-U36), og TE bestrider datoen i det registrerte brevet (MM-U7). Kontrollsakene er samme begrunnelse av svaret, fra byggherren, med tekst og med vedlegg",
+      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev, som godtas også med en sendt-dato før svaret fordi datokontrollene er utsatt (OV-U7, KA-U36), og TE bestrider datoen i det registrerte brevet (MM-U7). Kontrollsakene er samme begrunnelse av svaret, fra byggherren, med tekst og med vedlegg",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8691,8 +8670,8 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "KA-U36",
-            "KA-U37"
+            "OV-U7",
+            "KA-U36"
           ],
           "prov": {
             "handling": "begrunnelse",
@@ -8701,26 +8680,6 @@
             "sendt": "2026-09-19",
             "dokumentasjon": [
               "brev 19.09"
-            ]
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "BEGRUNNELSE_FOER_SVARET"
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U37"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "BH",
-            "gjelder": "S-g1",
-            "sendt": "2026-09-20",
-            "dokumentasjon": [
-              "brev 20.09"
             ]
           },
           "forventet": {

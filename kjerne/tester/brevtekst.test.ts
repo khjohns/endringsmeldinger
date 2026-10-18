@@ -21,7 +21,7 @@ import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { gjengi, gjengirTro, lagBrevtekst, norskDato } from '../frosset/brevtekst.ts';
 import { kroner, regnUtSvar } from '../frosset/standpunkt.ts';
-import { lesJournal, registrertDato } from '../format/leser.ts';
+import { lesJournal } from '../format/leser.ts';
 import {
   forhaandsvis,
   frysBrev,
@@ -1921,99 +1921,17 @@ describe('den senere begrunnelsen (KA-U34)', () => {
     expect(etter.spor).toEqual(foer.spor);
   });
 
-  describe('en registrert begrunnelse kan ikke være sendt før svaret (KA-U36)', () => {
-    const registrert = (gjelder: string, sendt: string) => ({
-      type: 'begrunnelse',
-      gjelder,
-      sendt,
-      dokumentasjon: [randomUUID()],
-    });
-    /** Et registrert grunnlagssvar med opplysningene; grunnlagskravet er brev 2. */
-    const registrertSvar = (...opplysninger: Data[]) => {
-      const s = sak();
-      s.send('TE', GRUNNLAGSKRAV);
-      const svaret = s.rad('BH', {
-        svar: [
-          {
-            id: randomUUID(),
-            spor: 'grunnlag',
-            gjelder: s.krav('grunnlag'),
-            standpunkter: [{ id: randomUUID(), art: 'grunnlag', resultat: 'avslaatt' }],
-          },
-        ],
-        opplysninger,
-      });
-      return { s, svaret: svarId(svaret) };
-    };
-
-    it('før datoen appen registrerte svaret, avvises den, og samme dato godtas (KA-U37)', () => {
-      const { s, brev } = medSvar();
-      expect(brev.tidsstempel, 'forutsetning').toBe('2026-10-05T10:00:00.000Z');
-      expect(s.avvist('BH', registrert(svarId(brev), '2026-10-05')), 'kontrollsak').toBeNull();
-      expect(s.avvisning('BH', registrert(svarId(brev), '2026-10-04'))).toEqual({
-        regel: 'BEGRUNNELSE_FOER_SVARET',
-        melding:
-          'Begrunnelsen er oppgitt sendt 4. oktober 2026, men svaret den begrunner, ble sendt 5. oktober 2026.',
-      });
-    });
-
-    it('datoen for svaret fra appen er i norsk tid, som i brevet (KA-U37)', () => {
-      const { s, brev } = medSvar();
-      // 22.30 UTC 4. oktober er 00.30 i Oslo 5. oktober.
-      brev.tidsstempel = '2026-10-04T22:30:00.000Z';
-      expect(s.avvist('BH', registrert(svarId(brev), '2026-10-05')), 'kontrollsak').toBeNull();
-      expect(s.avvist('BH', registrert(svarId(brev), '2026-10-04'))).toBe(
-        'BEGRUNNELSE_FOER_SVARET'
-      );
-      expect(registrertDato({ registrert: '2026-10-04T21:59:59.000Z' })).toBe('2026-10-04');
-      expect(registrertDato({ registrert: '2026-10-04T22:00:00.000Z' })).toBe('2026-10-05');
-    });
-
-    it('for et registrert svar gjelder datoen det ble sendt, ikke den første datoen (KA-U38)', () => {
-      const { s, svaret } = registrertSvar(
-        { id: randomUUID(), hva: 'mottatt', dato: '2026-09-20' },
-        { id: randomUUID(), hva: 'sendt', dato: '2026-09-18' }
-      );
-      expect(s.avvist('BH', registrert(svaret, '2026-09-18')), 'kontrollsak').toBeNull();
-      expect(s.avvist('BH', registrert(svaret, '2026-09-17'))).toBe('BEGRUNNELSE_FOER_SVARET');
-    });
-
-    it('en sendt-dato med klokkeslett sammenliknes som dagen i norsk tid, så samme dag godtas (KA-U37, #474)', () => {
-      const { s, svaret } = registrertSvar({
-        id: randomUUID(),
-        hva: 'sendt',
-        dato: '2026-09-18T15:00:00Z',
-      });
-      expect(s.avvist('BH', registrert(svaret, '2026-09-18'))).toBeNull();
-      expect(s.avvist('BH', registrert(svaret, '2026-09-17')), 'kontrollsak').toBe(
-        'BEGRUNNELSE_FOER_SVARET'
-      );
-    });
-
-    it('et registrert svar med bare mottatt-dato gir ingen kontroll (KA-U38)', () => {
-      const { s, svaret } = registrertSvar({
-        id: randomUUID(),
-        hva: 'mottatt',
-        dato: '2026-09-20',
-      });
-      expect(s.avvist('BH', registrert(svaret, '2026-09-01'))).toBeNull();
-    });
-
-    it('en bestridelse av datoen på svaret endrer ikke kontrollen (KA-U39)', () => {
-      const sendt = randomUUID();
-      const { s, svaret } = registrertSvar({ id: sendt, hva: 'sendt', dato: '2026-09-18' });
-      s.send('TE', { type: 'bestridelse', gjelder: sendt, hva: 'sendt' });
-      expect(s.avvist('BH', registrert(svaret, '2026-09-18')), 'kontrollsak').toBeNull();
-      expect(s.avvist('BH', registrert(svaret, '2026-09-17'))).toBe('BEGRUNNELSE_FOER_SVARET');
-    });
-
-    it('en begrunnelse fra appen har ingen sendt-dato og kontrolleres ikke (KA-U34)', () => {
-      const { s, brev } = medSvar();
-      brev.tidsstempel = '2026-12-31T10:00:00.000Z';
-      expect(
-        s.avvist('BH', { type: 'begrunnelse', gjelder: svarId(brev), utdypning: BEGRUNNELSE })
-      ).toBeNull();
-    });
+  it('en registrert begrunnelse oppgitt sendt før svaret godtas, fordi datokontrollene er utsatt (OV-U7, KA-U36)', () => {
+    const { s, brev } = medSvar();
+    expect(brev.tidsstempel, 'forutsetning').toBe('2026-10-05T10:00:00.000Z');
+    expect(
+      s.avvist('BH', {
+        type: 'begrunnelse',
+        gjelder: svarId(brev),
+        sendt: '2026-10-04',
+        dokumentasjon: [randomUUID()],
+      })
+    ).toBeNull();
   });
 
   it('en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises (KA-U35)', () => {
@@ -3384,6 +3302,88 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
         innhold: { metode: 'tilbud', beloep: 120000 },
       });
       expect(s.avvist('BH', nyttSvar(s, 'vederlag', beloep(50000)))).toBeNull();
+    });
+  });
+
+  /**
+   * MM-U27: en revisjon i en hendelse som ikke er et registrert brev, og som byggherren ikke
+   * kunne sendt fra appen etter HF-U4 eller HF-U5, gjør saken ikke forstått. Raden er en
+   * kopi av svaret fra appen med ett felt endret.
+   */
+  describe('en rad utenfor kommandoene som bryter bindingen (MM-U27)', () => {
+    /** Revisjonen av det siste svaret, med `endre` brukt på en kopi av det. */
+    const kopi = (s: Sak, endre: (svar: Data) => void) => {
+      const forrige = (s.journal.at(-1)!.data.svar as Data[])[0];
+      const svar = structuredClone(forrige);
+      svar.id = randomUUID();
+      svar.erstatter = forrige.id;
+      for (const p of svar.standpunkter as Data[]) p.id = randomUUID();
+      endre(svar);
+      return svar;
+    };
+    const registrert = { opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-20' }] };
+    const grunner = (s: Sak) => s.u().begrensninger.map((b) => b.grunn);
+
+    it('en revisjon som senker det godkjente beløpet, gjør saken ikke forstått (HF-U5)', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      s.rad('BH', {
+        svar: [kopi(s, (v) => ((v.utregning as Data).godkjent_beloep = 80000))],
+      });
+      expect(s.u().forstaatt).toBe(false);
+      expect(grunner(s)).toEqual([
+        'en revisjon som senker det byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5, MM-U27)',
+      ]);
+    });
+
+    it('en revisjon som hever beløpet, er forstått (kontrollsak, HF-U5)', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      s.rad('BH', {
+        svar: [kopi(s, (v) => ((v.utregning as Data).godkjent_beloep = 110000))],
+      });
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('den samme revisjonen i et registrert brev gjør ikke saken uforstått (OV-U4)', () => {
+      const s = sakMedKrav();
+      brev(s, 'vederlag', delvis);
+      s.rad('BH', {
+        svar: [kopi(s, (v) => ((v.utregning as Data).godkjent_beloep = 80000))],
+        ...registrert,
+      });
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it.each([
+      ['varselet etter § 33.4', 'rettidighet'],
+      ['spesifiseringen etter § 33.6.1', 'spesifisering'],
+    ])(
+      'en revisjon som sier at %s kom for sent, etter at byggherren sa i tide, gjør saken ikke forstått (HF-U4)',
+      (_n, art) => {
+        const s = sakMedKrav();
+        brev(s, 'frist', dager);
+        s.rad('BH', {
+          svar: [
+            kopi(s, (v) => {
+              const p = (v.standpunkter as Data[]).find((x) => x.art === art)!;
+              p.i_tide = false;
+              if (art === 'spesifisering') p.dager = 10;
+            }),
+          ],
+        });
+        expect(s.u().forstaatt).toBe(false);
+        expect(grunner(s)).toEqual([
+          'et svar som påberoper at det kom for sent, etter at byggherren har sagt at det kom i tide (HF-U4, MM-U27)',
+        ]);
+      }
+    );
+
+    it('en revisjon som gjentar «i tide», er forstått (kontrollsak, HF-U4)', () => {
+      const s = sakMedKrav();
+      brev(s, 'frist', dager);
+      s.rad('BH', { svar: [kopi(s, () => {})] });
+      expect(s.u().forstaatt).toBe(true);
     });
   });
 });

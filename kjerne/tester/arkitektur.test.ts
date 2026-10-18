@@ -294,6 +294,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
   ['Element', 'relasjon', 'hendelse part art innsigelse registrertBrev'],
+  // OV-U12: dokumentet kravet eller svaret endringsordren viser til, står i.
+  ['utledning/utled.ts:utledSporene.fraAppen', 'relasjon', 'dokument'],
   // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse kanFaaProtest KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
@@ -357,7 +359,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'relasjon',
     'innsigelsenPaaberoper',
-    ['frosset/brevtekst.ts', 'kommandoer/nyttelast.ts:nyttelastkontroll'],
+    [
+      'frosset/brevtekst.ts',
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
+      'utledning/utled.ts:bryterBindingen',
+    ],
   ],
   [
     'frosset/standpunkt.ts:innsigelsenPaaberoper',
@@ -641,6 +647,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // HF-U5, HF-U14: det en revisjon senker av det svaret innrømmer, standpunkt for standpunkt.
   ['kommandoer/standpunkter.ts', 'predikat', 'senketStandpunkt', ['kommandoer/nyttelast.ts']],
+  // MM-U27: utledningen sammenlikner en revisjon utenfor kommandoene på samme måte.
+  [
+    'utledning/innroemmelse.ts',
+    'predikat',
+    'senketInnroemmelse',
+    ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
+  ],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
     'kommandoer/skriving.ts:frysBrev(s)',
@@ -715,7 +728,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'brevtekst',
     'kroner',
-    ['frosset/brevtekst.ts', 'kommandoer/standpunkter.ts'],
+    ['frosset/brevtekst.ts', 'utledning/innroemmelse.ts'],
   ],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
@@ -726,18 +739,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst ordnes', ['frosset/brevtekst.ts']],
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts']],
-  // KA-U36–KA-U39: datoen svaret ble sendt, som en registrert begrunnelse ikke kan ligge
-  // før. For et svar fra appen er det datoen appen registrerte det.
+  // Datoen appen registrerte brevet.
   ['Dokument', 'relasjon', 'registrert', ['format/leser.ts:registrertDato']],
-  ['format/leser.ts', 'relasjon', 'registrertDato', ['utledning/utled.ts']],
-  ['Utledning', 'utsagn', 'svarSendt', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
-  ['Utledning.svarSendt', 'utsagn', '*', ['kommandoer/nyttelast.ts:begrunnelsensDato']],
   // Datoene i meldingen, skrevet som i brevet.
   [
     'frosset/brevtekst.ts',
     'brevtekst',
     'norskDato',
-    ['kommandoer/nyttelast.ts:begrunnelsensDato', 'kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
+    ['kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
   ],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
   ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],

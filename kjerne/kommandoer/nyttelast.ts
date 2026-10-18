@@ -30,13 +30,15 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { senketStandpunkt, standpunkter } from './standpunkter.ts';
-import type { Avvisning, Svar } from '../typer.ts';
+import type { Avvisning, Krav, Svar } from '../typer.ts';
 
+/** `forrige` er svaret en revisjon erstatter, så bindingen kontrolleres (HF-U5). */
 function kontrollerSvar(
   s: Svarutkast,
   u: Utledning,
   regler: Regelsett,
-  utdypningKreves: boolean
+  utdypningKreves: boolean,
+  forrige: Svar | null = null
 ): Avvisning | null {
   const krav = u.spor[s.spor].gjeldendeKrav!;
   if (s.gjelder !== krav.id)
@@ -49,6 +51,8 @@ function kontrollerSvar(
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
     return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);
+  // #766: et ugyldig beløp i det lagrede kravet er ikke byggherrens vurdering.
+  if (s.spor === 'vederlag') beloep(krav.innhold.beloep as number | undefined);
   let server: Record<string, unknown>;
   try {
     server = regnUtSvar(
@@ -89,24 +93,24 @@ function kontrollerSvar(
       'BEGRUNNELSE_MANGLER',
       `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
     );
-  return null;
+  return forrige && binding(s, forrige, krav, u, server);
 }
 
 /**
  * HF-U5, HF-U14, HF-U21: en revisjon av et svar TE ikke har godtatt, kan ikke senke noe
  * byggherren har innrømmet i svaret, også etter en ny grunnlagsversjon med samme hjemmel.
- * En ny kravversjon gir et nytt svar, ikke en revisjon (HF-U8). Et registrert brev
- * binder ikke (OV-U4). Kjøres etter `kontrollerSvar`, så vurderingene kan regnes ut.
+ * En ny kravversjon gir et nytt svar, ikke en revisjon (HF-U8). Et registrert svar med
+ * virkning er bare byggherrens endringsordre etter OV-U6, som gir enighet ved sammenfall,
+ * så revisjonen av det er avvist før dette (GR-U10, KA-U7). `server` er serverens
+ * utregning av revisjonen.
  */
-function binding(s: Svarutkast, forrige: Svar, u: Utledning, regler: Regelsett): Avvisning | null {
-  if (u.elementer[forrige.dokument]?.registrertBrev) return null;
-  const krav = u.spor[s.spor].gjeldendeKrav!;
-  const server = regnUtSvar(
-    s.spor,
-    s.vurderinger,
-    { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
-    regler
-  );
+function binding(
+  s: Svarutkast,
+  forrige: Svar,
+  krav: Krav,
+  u: Utledning,
+  server: Record<string, unknown>
+): Avvisning | null {
   let n = 0;
   const senket = senketStandpunkt(
     forrige,
@@ -221,23 +225,6 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
     : null;
 }
 
-/**
- * KA-U36: en registrert begrunnelse kan ikke være sendt før svaret den begrunner.
- * Datoen for svaret står i utledningen (KA-U37–KA-U39). Om begrunnelsen kom i tide,
- * vurderes ikke.
- */
-function begrunnelsensDato(
-  k: Extract<Kommando, { type: 'begrunnelse' }>,
-  u: Utledning
-): Avvisning | null {
-  const svaret = u.svarSendt[k.gjelder];
-  if (k.sendt === undefined || !svaret || kalenderdag(k.sendt) >= kalenderdag(svaret)) return null;
-  return avvis(
-    'BEGRUNNELSE_FOER_SVARET',
-    `Begrunnelsen er oppgitt sendt ${norskDato(k.sendt)}, men svaret den begrunner, ble sendt ${norskDato(svaret)}.`
-  );
-}
-
 const OPPGITT: Record<OppgittDato, string> = {
   paalegg_mottatt: 'pålegget ble mottatt',
   klar_over_forholdet: 'TE ble klar over forholdet',
@@ -292,7 +279,7 @@ export function nyttelastkontroll(
           'Varselet er sendt fra appen eller registrert uten dato for sendingen, og kravet kan ikke oppgi en (SK-12).'
         );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return sendt.dato === k.varsel.sendt
+      return kalenderdag(sendt.dato) === kalenderdag(k.varsel.sendt)
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
@@ -309,9 +296,7 @@ export function nyttelastkontroll(
       const forrige = u.spor[k.svar.spor].gjeldendeSvar;
       if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
-      return (
-        kontrollerSvar(k.svar, u, regler, utdypningKreves) ?? binding(k.svar, forrige, u, regler)
-      );
+      return kontrollerSvar(k.svar, u, regler, utdypningKreves, forrige);
     }
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar.
@@ -366,9 +351,8 @@ export function nyttelastkontroll(
         : null;
     }
     case 'begrunnelse': {
-      // Datoen kontrolleres også i forhåndsvisningen; teksten bare når den sendes.
-      const tekst = utdypningKreves ? begrunnelsensTekst(k) : null;
-      return tekst ?? begrunnelsensDato(k, u);
+      // OV-U7: datokontrollene for registrert begrunnelse (KA-U36–KA-U39) bygges ikke.
+      return utdypningKreves ? begrunnelsensTekst(k) : null;
     }
   }
 }

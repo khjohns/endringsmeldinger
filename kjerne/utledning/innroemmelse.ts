@@ -1,0 +1,70 @@
+/**
+ * HF-U5, HF-U14: sammenlikningen av en revisjon med svaret den erstatter. Kommandoene
+ * avviser revisjonen, og utledningen gjør saken ikke forstått når en hendelse utenfor
+ * kommandoene gjør det samme (MM-U27).
+ */
+
+import { beloep } from '../regler/beloep.ts';
+import { kroner } from '../frosset/standpunkt.ts';
+import type { Grunnlagsresultat } from '../regler/typer.ts';
+import type { Standpunkt, Svar } from '../typer.ts';
+
+/** Arbeidsvalget i kartleggingen 16.10 på #502: godkjenning over frafall over avslag. */
+const RANG: Record<Grunnlagsresultat, number> = { avslaatt: 0, paalegg_frafalt: 1, godkjent: 2 };
+
+const GRUNNLAG: Record<Grunnlagsresultat, string> = {
+  godkjent: 'godkjent',
+  paalegg_frafalt: 'pålegget frafalt',
+  avslaatt: 'avslått',
+};
+
+const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
+
+/**
+ * HF-U5, HF-U14: det revisjonen senker av det byggherren har innrømmet i svaret den
+ * erstatter, standpunkt for standpunkt, som en setning til meldingen, eller `null`.
+ * Beløpet og dagene sammenliknes slik de står, prinsipalt eller subsidiært, så en
+ * revisjon som senker ett standpunkt, avvises også når den hever et annet.
+ * Rettidigheten sammenliknes ikke her: et «i tide» sperres av `SAGT_I_TIDE` (HF-U4).
+ * Byggherrens ønskede metode sammenliknes ikke (MM-U12).
+ */
+export function senketInnroemmelse(
+  forrige: Pick<Svar, 'standpunkter' | 'beslutningsgrunnlag'>,
+  nye: Standpunkt[]
+): string | null {
+  const ny = <A extends Standpunkt['art']>(art: A) =>
+    nye.find((p): p is Extract<Standpunkt, { art: A }> => p.art === art);
+  const subsidiaert = (id: string) =>
+    forrige.beslutningsgrunnlag.virkninger.some(
+      (p) => p.standpunkt === id && p.virkning === 'subsidiaert'
+    )
+      ? 'subsidiært '
+      : '';
+  for (const f of forrige.standpunkter) {
+    if (f.art === 'grunnlag') {
+      const n = ny('grunnlag')!;
+      if (RANG[n.resultat] < RANG[f.resultat])
+        return `I svaret er grunnlaget ${subsidiaert(f.id)}${GRUNNLAG[f.resultat]}, og revisjonen endrer det til ${GRUNNLAG[n.resultat]}`;
+    } else if (f.art === 'beloep') {
+      const n = ny('beloep')!;
+      if (beloep(n.godkjent)! < beloep(f.godkjent)!)
+        return `Svaret godkjenner ${subsidiaert(f.id)}${kroner(f.godkjent)}, og revisjonen senker beløpet til ${kroner(n.godkjent)}`;
+    } else if (f.art === 'dager') {
+      const n = ny('dager')!;
+      if (n.vurdert < f.vurdert)
+        return `Svaret godkjenner ${subsidiaert(f.id)}${dager(f.vurdert)}, og revisjonen senker dagene til ${dager(n.vurdert)}`;
+    } else if (f.art === 'spesifisering' && !f.iTide) {
+      // VS-U4: dagene byggherren måtte forstå at TE hadde krav på, når begge svar sier «for sent».
+      const n = ny('spesifisering');
+      if (n && !n.iTide && n.dager! < f.dager!)
+        return `Svaret sier at byggherren måtte forstå at TE hadde krav på ${dager(f.dager!)} (§ 33.6.1), og revisjonen senker det til ${dager(n.dager!)}`;
+    } else if (f.art === 'hindring' && f.oppfylt) {
+      if (ny('hindring')?.oppfylt === false)
+        return 'Svaret godtar at fremdriften er hindret som følge av forholdet (§ 33.1), og revisjonen tar det tilbake';
+    } else if (f.art === 'metode' && f.aksepterer) {
+      if (ny('metode')?.aksepterer === false)
+        return 'Svaret aksepterer beregningsmåten i tilbudet (§ 34.2.2, HF-U14), og revisjonen tar aksepten tilbake';
+    }
+  }
+  return null;
+}

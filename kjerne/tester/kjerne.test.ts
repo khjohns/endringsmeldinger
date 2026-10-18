@@ -471,29 +471,62 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(riktig.godtatt).toBe(true);
   });
 
-  it('en avklaring gjelder ett registrert brev, og to opplysninger om samme brev er ikke forstått (MM-U12)', async () => {
+  it('en senere avklaring av § 31.3 er ikke forstått, også når den sier at brevet var en endringsordre (OV-U13)', async () => {
     const bane = minnebane();
-    const k = await bygg(bane, [
+    await bygg(bane, [
       'krav_irreg',
       registrert({ sendt: '2026-09-30' }),
       { handling: 'rad', avklarer: 'D4', oppfylt: true, navn: 'D5' },
     ]);
     const journal = await bane.journal();
-    expect(forstaatt(journal)).toBe(true);
-    const igjen = structuredClone(journal.at(-1)!);
-    igjen.event_id = randomUUID();
-    igjen.versjon += 1;
-    (igjen.data.opplysninger as Data[])[0].id = randomUUID();
-    expect(forstaatt([...journal, igjen])).toBe(false);
-    // Kontrollsak: et brev sendt i appen er ikke registrert korrespondanse og avklares ikke.
-    const app = minnebane();
-    const a = await bygg(app, ['krav_irreg', registrert({})]);
-    const appJournal = await app.journal();
-    const avklaring = structuredClone(journal.at(-1)!);
-    avklaring.versjon = appJournal.at(-1)!.versjon + 1;
-    (avklaring.data.opplysninger as Data[])[0].gjelder = a.navn.id('D4');
-    expect(forstaatt([...appJournal, avklaring])).toBe(false);
-    expect(k.navn.id('D5')).toBe(journal.at(-1)!.event_id);
+    expect(forstaatt(journal.slice(0, -1)), 'kontrollsak: saken før avklaringen').toBe(true);
+    expect(forstaatt(journal)).toBe(false);
+  });
+
+  it.each<[string, Data]>([
+    ['et avslag', { resultat: 'avslaatt' }],
+    ['en påberopt preklusjon etter § 32.2', { varslet_i_tide: false }],
+    ['opplysningen om at § 31.3 ikke er oppfylt', { endringsordre: false }],
+  ])(
+    'opplysningen om § 31.3 ved %s er ikke forstått, bare ved byggherrens endringsordre (OV-U13, OV-U6, #669)',
+    async (_n, endring) => {
+      const bane = minnebane();
+      await bygg(bane, [
+        'krav_irreg',
+        registrert({ sendt: '2026-09-30', endringsordre: true, ...endring }),
+      ]);
+      expect(forstaatt(await bane.journal())).toBe(false);
+    }
+  );
+
+  it('byggherrens endringsordre med opplysningen om § 31.3 er forstått (kontrollsak, OV-U6)', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
+    expect(forstaatt(await bane.journal())).toBe(true);
+  });
+
+  it('en endringsordre registrert som svar på et krav som bare er dokumentasjon, er ikke forstått (OV-U12)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      'krav_irreg',
+      {
+        handling: 'rad',
+        krav: true,
+        part: 'TE',
+        spor: 'grunnlag',
+        underkategori: 'irregulaer_endring',
+        navn: 'K-g2',
+        sendt: '2026-09-29',
+      },
+      {
+        ...registrert({ sendt: '2026-09-30', endringsordre: true }),
+        dokument: 'D5',
+        gjelder: 'K-g2',
+      },
+    ]);
+    const journal = await bane.journal();
+    expect(forstaatt(journal.slice(0, -1)), 'kontrollsak: det registrerte kravet').toBe(true);
+    expect(forstaatt(journal)).toBe(false);
   });
 
   it('korrespondanse som bare er mottatt, er også registrert, og godkjenningen i den er dokumentasjon uten virkning (OV-U4)', async () => {
@@ -520,7 +553,8 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
 
 /** HF-U1: en opplysning om dokumentet og en om varselet i det står ved siden av hverandre. */
 describe('datoene for et registrert krav og varselet i det', () => {
-  it('leses hver for seg, og varselets dato er den SK-12 sammenlikner med (KA-19)', async () => {
+  /** Saken med et registrert fristkrav der varselet er oppgitt sendt `dato`. */
+  const medVarsel = async (dato: string) => {
     const bane = minnebane();
     const k = await bygg(bane, ['godkjent_grunnlag']);
     const journal = await bane.journal();
@@ -537,17 +571,28 @@ describe('datoene for et registrert krav og varselet i det', () => {
         utsagn: [{ id: varsel, art: 'varsel', hjemmel: '33.4' }],
         opplysninger: [
           { id: randomUUID(), hva: 'sendt', dato: '2026-09-10' },
-          { id: randomUUID(), hva: 'sendt', dato: '2026-09-02', gjelder: varsel },
+          { id: randomUUID(), hva: 'sendt', dato, gjelder: varsel },
         ],
       },
     };
     await bane.skriv([rad], siste.versjon);
     expect(forstaatt(await bane.journal())).toBe(true);
-    const ny = (sendt: string) =>
-      k.prov({ handling: 'krav', spor: 'frist', dager: 25, varsel_sendt: sendt });
-    expect((await ny('2026-09-02')).godtatt).toBe(true);
-    const flyttet = await ny('2026-09-10');
-    expect(flyttet.godtatt ? 'godtatt' : flyttet.avvisning.regel).toBe('VARSEL_REGISTRERT');
+    return async (sendt: string) => {
+      const u = await k.prov({ handling: 'krav', spor: 'frist', dager: 25, varsel_sendt: sendt });
+      return u.godtatt ? null : u.avvisning.regel;
+    };
+  };
+
+  it('leses hver for seg, og varselets dato er den SK-12 sammenlikner med (KA-19)', async () => {
+    const ny = await medVarsel('2026-09-02');
+    expect(await ny('2026-09-02')).toBeNull();
+    expect(await ny('2026-09-10')).toBe('VARSEL_REGISTRERT');
+  });
+
+  it('en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid, så samme dag godtas (SK-12, #766)', async () => {
+    const ny = await medVarsel('2026-09-02T09:00:00Z');
+    expect(await ny('2026-09-02')).toBeNull();
+    expect(await ny('2026-09-03'), 'kontrollsak').toBe('VARSEL_REGISTRERT');
   });
 });
 

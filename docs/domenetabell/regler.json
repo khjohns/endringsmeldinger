@@ -927,6 +927,13 @@
       "radetikett": "OV-U7: i første versjon bygges ikke disse vedtakene og delene av dem"
     },
     {
+      "id": "OV-U13",
+      "type": "vedtak",
+      "dato": "2026-10-17",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u13",
+      "radetikett": "OV-U13: Opplysningen om at et registrert brev er en endringsordre etter § 31.3, gis i første versjon bare når byggherren registrerer sin egen endringsordre som svar (OV-U6)"
+    },
+    {
       "id": "VS-U24",
       "type": "vedtak",
       "dato": "2026-10-15",
@@ -2045,7 +2052,7 @@
     {
       "id": "GR-29",
       "tilfelle": "Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting.",
-      "forventet": "Med opplysningen om at brevet er en endringsordre etter § 31.3, er godkjenningen byggherrens svar etter [OV-U6](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u6): partene er enige ved sammenfall, og grunnlaget er avklart. Opplysningen vises, men gir ingen egen virkning i appen. Med opplysningen om at § 31.3 ikke er oppfylt, eller uten opplysningen, er brevet dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): det gir ikke gjeldende svar, enighet eller et uavklart utfall. I alle tilfellene kan TE trekke grunnlaget som avkall etter KA-U6 og GR-U5: en endringsordre byggherren har registrert, sperrer ikke trekket, og et registrert brev gir ingen sperre. En senere avklaring er et nytt dokument som viser til brevet; brevet skrives ikke om. To opplysninger om samme brev gir en sak som ikke er forstått.",
+      "forventet": "Med opplysningen om at brevet er en endringsordre etter § 31.3, er godkjenningen byggherrens svar etter [OV-U6](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u6): partene er enige ved sammenfall, og grunnlaget er avklart. Opplysningen vises, men gir ingen egen virkning i appen. Uten opplysningen er brevet dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): det gir ikke gjeldende svar, enighet eller et uavklart utfall. I alle tilfellene kan TE trekke grunnlaget som avkall etter KA-U6 og GR-U5: en endringsordre byggherren har registrert, sperrer ikke trekket, og et registrert brev gir ingen sperre. Opplysningen gis bare ved byggherrens endringsordre som svar etter OV-U6 ([OV-U13](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u13)). En opplysning om at § 31.3 ikke er oppfylt, en opplysning ved et annet registrert brev og en senere avklaring gir en sak som ikke er forstått.",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "§ 32.3 a gir en endringsordre bare når § 31.3 også er oppfylt. Opplysningen er registratorens, ikke en rettslig avgjørelse. Et trekk opphever ikke et pålegg eller en utførelsesplikt.",
       "rettidighet": "—",
@@ -2061,7 +2068,8 @@
         "KA-U14",
         "MM-U12",
         "OV-U6",
-        "OV-U4"
+        "OV-U4",
+        "OV-U13"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2993,16 +3001,11 @@
         "KA-U36",
         "KA-U37",
         "KA-U38",
-        "KA-U39"
+        "KA-U39",
+        "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#begrunnelsensDato",
-        "kjerne/utledning/utled.ts#utledSporene"
-      ],
-      "regelkoder": [
-        "BEGRUNNELSE_FOER_SVARET"
-      ]
+      "utsatt": "OV-U7"
     },
     {
       "id": "KA-46",
