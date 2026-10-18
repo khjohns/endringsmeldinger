@@ -73,7 +73,7 @@ BEGIN
   IF @kommando_id IS NULL OR TRY_CAST(@kommando_id AS uniqueidentifier) IS NULL OR DATALENGTH(@kommando_id) <> 72
      OR @kommando_id COLLATE Latin1_General_100_BIN2_UTF8 <> LOWER(@kommando_id)
     THROW 51422, N'Kommando-ID-en mangler eller er ikke en UUID med små bokstaver', 1;
-  IF DATALENGTH(@kommando_sha256) <> 128 OR @kommando_sha256 COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^0-9a-f]%'
+  IF @kommando_sha256 IS NULL OR DATALENGTH(@kommando_sha256) <> 128 OR @kommando_sha256 COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^0-9a-f]%'
     THROW 51422, N'Summen for kommandoen er ikke 64 små heksadesimale tegn', 1;
   DECLARE @prosjekt nvarchar(4000) = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(4000)),
           @aktor uniqueidentifier = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier);
@@ -106,7 +106,7 @@ BEGIN
   IF @kommando_id IS NULL OR TRY_CAST(@kommando_id AS uniqueidentifier) IS NULL OR DATALENGTH(@kommando_id) <> 72
      OR @kommando_id COLLATE Latin1_General_100_BIN2_UTF8 <> LOWER(@kommando_id)
     THROW 51422, N'Kommando-ID-en mangler eller er ikke en UUID med små bokstaver', 1;
-  IF DATALENGTH(@kommando_sha256) <> 128 OR @kommando_sha256 COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^0-9a-f]%'
+  IF @kommando_sha256 IS NULL OR DATALENGTH(@kommando_sha256) <> 128 OR @kommando_sha256 COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^0-9a-f]%'
     THROW 51422, N'Summen for kommandoen er ikke 64 små heksadesimale tegn', 1;
   IF @forventet_versjon IS NULL OR @forventet_versjon < 1
     THROW 51422, N'Forventet versjon mangler eller er under 1', 1;
@@ -201,7 +201,7 @@ BEGIN
   IF @kommando_id IS NULL OR TRY_CAST(@kommando_id AS uniqueidentifier) IS NULL OR DATALENGTH(@kommando_id) <> 72
      OR @kommando_id COLLATE Latin1_General_100_BIN2_UTF8 <> LOWER(@kommando_id)
     THROW 51422, N'Kommando-ID-en mangler eller er ikke en UUID med små bokstaver', 1;
-  IF DATALENGTH(@kommando_sha256) <> 128 OR @kommando_sha256 COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^0-9a-f]%'
+  IF @kommando_sha256 IS NULL OR DATALENGTH(@kommando_sha256) <> 128 OR @kommando_sha256 COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^0-9a-f]%'
     THROW 51422, N'Summen for kommandoen er ikke 64 små heksadesimale tegn', 1;
   IF @format IS NULL OR @format < 1
     THROW 51422, N'Formatet mangler eller er under 1', 1;

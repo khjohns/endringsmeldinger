@@ -178,18 +178,28 @@ describe.skipIf(!TESTBASE_URL)(
       expect((await journalen(sakId)).map((r) => r.versjon)).toEqual([1, 2, 3]);
     });
 
-    it('en kommando uten kommando_id avvises med 400, og ingenting skrives (#418)', async () => {
-      const sakId = await opprettKjernesak(o);
-      const uten: Record<string, unknown> = await laas(sakId, {
-        expected_version: 1,
-        kommando: GRUNNLAGSKRAV,
-      });
-      delete uten.kommando_id;
-      const svar = await sendSom(sakId, uten);
-      expect(svar.status).toBe(400);
-      expect(svar.kropp.message).toBe('kommando_id er påkrevd.');
-      expect(await journalen(sakId)).toHaveLength(1);
-    });
+    it.each<[string, (id: unknown) => unknown]>([
+      ['uten kommando_id', () => undefined],
+      ['med kommando_id i store bokstaver', (id) => String(id).toUpperCase()],
+      ['med kommando_id som ikke er en UUID', () => 'k-1'],
+    ])(
+      'en kommando %s avvises med 400 som sier hva, og ingenting skrives (#418)',
+      async (_, id) => {
+        const sakId = await opprettKjernesak(o);
+        const kropp: Record<string, unknown> = await laas(sakId, {
+          expected_version: 1,
+          kommando: GRUNNLAGSKRAV,
+        });
+        kropp.kommando_id = id(kropp.kommando_id);
+        if (kropp.kommando_id === undefined) delete kropp.kommando_id;
+        const svar = await sendSom(sakId, kropp);
+        expect(svar.status).toBe(400);
+        expect(svar.kropp.message).toBe(
+          'kommando_id mangler eller er ikke en UUID med små bokstaver.'
+        );
+        expect(await journalen(sakId)).toHaveLength(1);
+      }
+    );
 
     it('grunnlagskravet og vederlagskravet blir to brev, hvert med sitt frosne oppdrag', async () => {
       const sakId = await opprettKjernesak(o);

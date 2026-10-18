@@ -898,6 +898,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       // Med låsen på kvitteringen venter det andre bak det første og leser den etter
       // commit; uten låsen leser begge «ingen kvittering», og det andre får 409.
       let utfall: unknown[] = [];
+      let overlappet = false;
       await transaksjon(base.pool, te, async (f) => {
         await f()
           .input('sak_id', sql.NVarChar(36), sak.sak_id)
@@ -915,15 +916,36 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         for (let n = 0; n < 100; n++) {
           const svar = await base.pool.request().query<{
             n: number;
-          }>('SELECT COUNT(*) AS n FROM sys.dm_exec_requests WHERE blocking_session_id <> 0');
-          if (svar.recordset[0].n >= 2) break;
+          }>('SELECT COUNT(*) AS n FROM sys.dm_exec_requests WHERE blocking_session_id <> 0 AND database_id = DB_ID()');
+          overlappet = svar.recordset[0].n >= 2;
+          if (overlappet) break;
           await new Promise((ok) => setTimeout(ok, 50));
         }
         utfall = [begge];
       });
       const resultat = await (utfall[0] as Promise<unknown[]>);
+      expect(overlappet).toBe(true);
       expect(resultat.map(String).sort()).toEqual(['gjentatt', 'true']);
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(2);
+    });
+
+    it('en kommando-ID med kvittering og uten sum avvises (51422), og kvitteringen gis ikke ut', async () => {
+      const sak = await nySak();
+      const kommando = ny();
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag());
+      const svar = await avvisningMedMelding(
+        transaksjon(kjoeretid.pool, te, (f) =>
+          f()
+            .input('kommando_id', sql.NVarChar(4000), kommando.id)
+            .input('kommando_sha256', sql.NVarChar(4000), null)
+            .output('sak_id', sql.NVarChar(36))
+            .output('event_id', sql.NVarChar(36))
+            .output('versjon', sql.Int)
+            .execute('koe_api.kvittering')
+        )
+      );
+      expect(svar?.nummer).toBe(UGYLDIG);
+      expect(svar?.melding).toMatch(/Summen for kommandoen/);
     });
 
     it('usikkert utfall av COMMIT for et brev: et nytt forsøk med samme kommando gir kvitteringen og ingen nytt brev', async () => {

@@ -241,9 +241,11 @@ function skriveavvisning(feil: unknown): Svar {
   throw feil;
 }
 
-/** Kommando-ID-en fra kroppen; formen prøver basen (51422). */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/** Kommando-ID-en fra kroppen når den er en UUID med små bokstaver, som basen krever (51422). */
 const kommandoId = (kropp: Record<string, unknown>): string | null =>
-  typeof kropp.kommando_id === 'string' ? kropp.kommando_id : null;
+  typeof kropp.kommando_id === 'string' && UUID.test(kropp.kommando_id) ? kropp.kommando_id : null;
 
 /** Siden `kontraktsrolle: 'kreves'` i registeret har krevd; uten den er svaret 403 (#743). */
 function medSide(side: Kontraktstilgang | null): Kontraktstilgang {
@@ -325,7 +327,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   if (!erHeltall(forventet)) return ugyldig('expected_version må være et heltall ≥ 0.');
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
   const id = kommandoId(kropp);
-  if (id === null) return ugyldig('kommando_id er påkrevd.');
+  if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');
   const kommando = {
     id,
     sha256: kommandosum({
@@ -415,7 +417,7 @@ async function opprettNySak(
   if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
   const id = kommandoId(kropp);
-  if (id === null) return ugyldig('kommando_id er påkrevd.');
+  if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');
   const vurdert = opprettelse(kropp.kommando, side.rolle);
   if (!vurdert.godtatt) return regelavvisning(vurdert);
   let rad;
