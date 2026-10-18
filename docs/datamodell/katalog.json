@@ -892,7 +892,9 @@
     "unike": [
      ["pakke_id", "prosjekt_id", "aktor_team_id"]
     ],
-    "unike_indekser": [],
+    "unike_indekser": [
+     "(forrige_pakke_id) WHERE ([forrige_pakke_id] IS NOT NULL)"
+    ],
     "fremmednøkler": [
      {
       "kolonner": ["aktor_id"],
