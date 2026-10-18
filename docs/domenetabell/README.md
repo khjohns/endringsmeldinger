@@ -442,8 +442,8 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | KA-42 | [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts), [`begrunnelsensTekst`](../../kjerne/kommandoer/nyttelast.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | KA-43 | [`formfeil`](../../kjerne/kommandoer/kommando.ts) |
 | KA-44 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
-| KA-48 | [`harSagtITide`](../../kjerne/utledning/utled.ts), [`paaberopt`](../../kjerne/kommandoer/nyttelast.ts), [`bryterBindingen`](../../kjerne/utledning/utled.ts) |
-| KA-49 | [`senketStandpunkt`](../../kjerne/kommandoer/standpunkter.ts), [`binding`](../../kjerne/kommandoer/nyttelast.ts), [`bryterBindingen`](../../kjerne/utledning/utled.ts) |
+| KA-48 | [`harSagtITide`](../../kjerne/utledning/utled.ts), [`paaberoptEtterITide`](../../kjerne/utledning/utled.ts), [`bryterBindingen`](../../kjerne/utledning/utled.ts) |
+| KA-49 | [`senketInnroemmelse`](../../kjerne/utledning/innroemmelse.ts), [`binding`](../../kjerne/kommandoer/nyttelast.ts), [`bryterBindingen`](../../kjerne/utledning/utled.ts) |
 | KA-50 | [`dokumentasjonIBrevet`](../../kjerne/utledning/utled.ts) |
 <!-- sporbarhet:slutt -->
 

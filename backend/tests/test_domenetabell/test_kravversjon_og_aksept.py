@@ -75,12 +75,13 @@ def test_kontrollen_finner_feil_i_bevis_sakene_for_maalmodellen():
     maal = copy.deepcopy(korpus.verktoy.les_maalmodell())
     assert korpus.verktoy.valider(korpus.REGLER, korpus.KORPUS, maalmodell=maal) == []
     forlop, *resten = maal["forlop"]
-    # #798: en rad som ikke er utsatt og ikke står i det endrede forløpet, så testen ikke
-    # avhenger av hvilke rader som er utsatt.
+    # #798: en rad som ikke er utsatt, og som bare har bevis-sak i målmodellen utenfor det
+    # endrede forløpet, så testen ikke avhenger av hvilke rader som er utsatt.
+    i_korpuset = {r for f in korpus.KORPUS["forlop"] for r in f["rader"]}
     rad = next(
         r["id"]
         for r in korpus.REGLER["rader"]
-        if "utsatt" not in r and r["id"] not in forlop["rader"]
+        if "utsatt" not in r and r["id"] not in forlop["rader"] and r["id"] not in i_korpuset
     )
     forlop["kontroller"][0]["kilde"] = []
     forlop["steg"][0]["handling"] = "ukjent"
