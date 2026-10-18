@@ -277,6 +277,37 @@ erDiagram
         nvarchar_100 internal_project_id PK, FK
         uniqueidentifier catenda_project_id UK
     }
+    koe_dagmulktssats {
+        nvarchar_100 prosjekt_id PK, FK
+    }
+    koe_fullmakt {
+        nvarchar_100 prosjekt_id PK, FK, UK
+        uniqueidentifier bruker_id PK, FK
+        smallint plass UK
+    }
+    koe_godkjenningshandling {
+        uniqueidentifier pakke_id PK, FK
+        int loepenr PK
+        nvarchar_100 prosjekt_id FK
+        tinyint steg FK
+        uniqueidentifier aktor_id FK
+        nvarchar_32 aktor_team_id FK
+    }
+    koe_godkjenningspakke {
+        uniqueidentifier pakke_id PK, UK
+        nvarchar_100 prosjekt_id FK, UK
+        nvarchar_36 sak_id FK
+        uniqueidentifier forrige_pakke_id FK
+        uniqueidentifier aktor_id FK
+        nvarchar_32 aktor_team_id UK "uten fremmednøkkel"
+    }
+    koe_godkjenningssteg {
+        uniqueidentifier pakke_id PK, FK, UK
+        nvarchar_100 prosjekt_id FK
+        nvarchar_32 aktor_team_id FK
+        tinyint steg PK
+        uniqueidentifier godkjenner_id FK, UK
+    }
     koe_hendelse {
         nvarchar_36 event_id PK, UK
         nvarchar_36 sak_id FK, UK
@@ -390,6 +421,18 @@ erDiagram
     koe_app_users ||--o{ koe_vedlegg : "lastet_opp_av"
     koe_hendelse |o--o{ koe_vedlegg : "(bundet_av_event_id, sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_vedlegg : "lastet_opp_team"
+    koe_projects ||--o{ koe_fullmakt : "prosjekt_id"
+    koe_app_users ||--o{ koe_fullmakt : "bruker_id"
+    koe_projects ||--o{ koe_dagmulktssats : "prosjekt_id"
+    koe_sak_metadata ||--o{ koe_godkjenningspakke : "(sak_id, prosjekt_id)"
+    koe_godkjenningspakke |o--o{ koe_godkjenningspakke : "forrige_pakke_id"
+    koe_app_users ||--o{ koe_godkjenningspakke : "aktor_id"
+    koe_catenda_contract_teams |o..o{ koe_godkjenningspakke : "aktor_team_id"
+    koe_godkjenningspakke ||--o{ koe_godkjenningssteg : "(pakke_id, prosjekt_id, aktor_team_id)"
+    koe_app_users ||--o{ koe_godkjenningssteg : "godkjenner_id"
+    koe_godkjenningspakke ||--o{ koe_godkjenningshandling : "(pakke_id, prosjekt_id, aktor_team_id)"
+    koe_godkjenningssteg |o--o{ koe_godkjenningshandling : "(pakke_id, steg)"
+    koe_app_users ||--o{ koe_godkjenningshandling : "aktor_id"
 ```
 
 ## Relasjonene
@@ -490,6 +533,18 @@ erDiagram
 | `koe.vedlegg.lastet_opp_av` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). | — | K 18.10: katalogen. |
 | `koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id)` | `koe.hendelse.(event_id, sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den første hendelsen som viser til vedlegget (arbeidsvalg 4 i #790), i samme sak og prosjekt. Tom for et ubundet vedlegg. | — | K 18.10: katalogen. |
 | `koe.vedlegg.lastet_opp_team` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser og sletter vedlegget før det er bundet. Basen avviser et vedlegg uten team (AGENTS.md). | — | L 18.10: migrasjonen. |
+| `koe.fullmakt.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet fullmakten gjelder i. Driften setter den opp (runde 7 i #764). | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.fullmakt.bruker_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Personen som har fullmakten. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.dagmulktssats.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet satsen gjelder i. Uten rad mangler satsen (B-06). | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningspakke.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken svaret i pakken gjelder, i samme prosjekt. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningspakke.forrige_pakke_id` | `koe.godkjenningspakke.pakke_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Pakken som ble returnert eller trukket, og som denne erstatter. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningspakke.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saksbehandleren som utarbeidet svaret. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningspakke.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser pakken. Basen avviser en pakke uten team (AGENTS.md). | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningssteg.(pakke_id, prosjekt_id, aktor_team_id)` | `koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Pakken steget hører til, med samme prosjekt og team, så radsikkerheten leser dem i steget. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningssteg.godkjenner_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Godkjenneren i steget. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningshandling.(pakke_id, prosjekt_id, aktor_team_id)` | `koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Pakken handlingen gjelder, med samme prosjekt og team. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningshandling.(pakke_id, steg)` | `koe.godkjenningssteg.(pakke_id, steg)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Steget som er godkjent eller returnert. En trekking har ikke steg. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.godkjenningshandling.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som godkjente, returnerte eller trakk pakken. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
 ## Nøkkelkolonner uten relasjon
 
@@ -724,6 +779,11 @@ flowchart LR
 | `koe.kvittering` | — | — | — |
 | `koe.brevdokument` | — | — | — |
 | `koe.vedlegg` | — | — | — |
+| `koe.fullmakt` | — | — | — |
+| `koe.dagmulktssats` | — | — | — |
+| `koe.godkjenningspakke` | — | — | — |
+| `koe.godkjenningssteg` | — | — | — |
+| `koe.godkjenningshandling` | — | — | — |
 | `koe.leveringskvittering` | — | — | — |
 | `koe.sak_catenda_topic` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |

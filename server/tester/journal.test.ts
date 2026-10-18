@@ -60,6 +60,9 @@ const UTEN_TRIGGER: Record<string, string> = {
   app_sessions: 'Sesjonen slettes ved utlogging og når den er utløpt (B-19, #656).',
   app_oauth_attempts:
     'Innloggingsforsøket slettes når det brukes, og når det er utløpt (B-19, #656).',
+  fullmakt:
+    'Driften setter opp og endrer fullmaktene (runde 7 i #764); en godkjenning fryser fullmakten den ble gitt med (#818).',
+  dagmulktssats: 'Driften setter opp og endrer satsen, som fullmaktene (#818).',
   jobb: 'Leasen, tilstanden og neste forsøk endres av jobbkjøreren; hvert forsøk står i jobbforsoek (#741).',
 };
 
