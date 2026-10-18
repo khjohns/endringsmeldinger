@@ -392,13 +392,18 @@ describe('topicen for en sak fra appen (#741)', () => {
     expect(TOPICTYPE).toBe('Krav om endringsordre');
   });
 
-  it('et feilsvar er en sikker feil, ikke et usikkert utfall', async () => {
-    svar = () => ({ status: 400, json: { message: 'LEKKET' } });
-    const feil = await new CatendaOAuth(oppsett()).opprettTopic(BOARD, topic, 't').catch((e) => e);
-    expect(feil).toBeInstanceOf(CatendaUtilgjengelig);
-    expect(feil).not.toBeInstanceOf(UsikkertUtfall);
-    expect(String(feil.message)).not.toMatch(/LEKKET/);
-  });
+  it.each([400, 503])(
+    'feilsvaret %i er en sikker feil, ikke et usikkert utfall',
+    async (status) => {
+      svar = () => ({ status, json: { message: 'LEKKET' } });
+      const feil = await new CatendaOAuth(oppsett())
+        .opprettTopic(BOARD, topic, 't')
+        .catch((e) => e);
+      expect(feil).toBeInstanceOf(CatendaUtilgjengelig);
+      expect(feil).not.toBeInstanceOf(UsikkertUtfall);
+      expect(String(feil.message)).not.toMatch(/LEKKET/);
+    }
+  );
 
   it('når forbindelsen avvises, er topicen ikke laget', async () => {
     const lukket = createServer();
@@ -413,6 +418,8 @@ describe('topicen for en sak fra appen (#741)', () => {
 
   it.each<[string, Svar]>([
     ['svaret uteblir til tidsavbruddet', { vent: 500, json: { guid: 'sen' } }],
+    ['Catenda svarer 500', { status: 500, json: { message: 'x' } }],
+    ['en mellomtjener svarer 504', { status: 504, tekst: 'Gateway Timeout' }],
     ['svaret er ikke JSON', { status: 201, tekst: 'ikke json' }],
     ['svaret har ingen GUID', { status: 201, json: { title: 'x' } }],
   ])('%s: utfallet er usikkert (invariant 7)', async (_n, s) => {

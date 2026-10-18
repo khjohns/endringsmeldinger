@@ -26,7 +26,8 @@ export class CatendaUtilgjengelig extends Error {}
 
 /**
  * En endring i Catenda kan ha skjedd: svaret uteble etter at forespørselen kan ha
- * nådd fram, eller et vellykket svar hadde ikke forventet form (invariant 7).
+ * nådd fram, svaret var en 5xx utenom 503, eller et vellykket svar hadde ikke
+ * forventet form (invariant 7).
  */
 export class UsikkertUtfall extends CatendaUtilgjengelig {}
 
@@ -97,6 +98,10 @@ async function forespoersel(
   }
   if (svar.status !== 200 && !(endring && svar.status === 201)) {
     await svar.body?.cancel().catch(() => {});
+    // En 5xx kan komme etter at endringen er gjort, også fra en mellomtjener. 503 betyr
+    // at forespørselen ikke ble behandlet.
+    if (endring && svar.status >= 500 && svar.status !== 503)
+      throw new UsikkertUtfall('Catenda svarte med feil');
     throw new CatendaUtilgjengelig('Catenda svarte med feil');
   }
   try {
