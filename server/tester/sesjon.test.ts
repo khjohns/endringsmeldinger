@@ -258,7 +258,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
 
   // Kolonnene i likhetssøkene i indeksen `noekkel`. Søket står i en `IndexScan`
   // eller rett i en `Update` eller `SimpleUpdate` (som `Clustered Index Delete`),
-  // og indeksen er det første `Object` etter operatoren.
+  // og indeksen er det første `Object` etter operatoren. Et nøkkeloppslag
+  // (`IndexScan` med `Lookup`) teller ikke: der kommer nøkkelen fra en annen indeks.
   function soek(xml: string, noekkel: string): string[] {
     return [...xml.matchAll(/<SeekPredicateNew>(.*?)<\/SeekPredicateNew>/gs)].flatMap((m) => {
       const foer = xml.slice(0, m.index);
@@ -267,7 +268,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
         foer.lastIndexOf('<Update '),
         foer.lastIndexOf('<SimpleUpdate ')
       );
-      const indeks = /<Object [^>]*Index="\[([^\]]*)\]"/.exec(foer.slice(operator))?.[1];
+      const etter = foer.slice(operator);
+      if (/^<IndexScan [^>]*Lookup="(1|true)"/.test(etter)) return [];
+      const indeks = /<Object [^>]*Index="\[([^\]]*)\]"/.exec(etter)?.[1];
       const kolonne =
         /<Prefix ScanType="EQ">\s*<RangeColumns>\s*<ColumnReference [^>]*Column="([^"]*)"/.exec(
           m[1]
@@ -280,8 +283,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
   // En `nvarchar`-parameter mot en `varchar`-kolonne konverterer kolonnen, og
   // oppslaget leser hele tabellen eller søker i et område med kolonnen konvertert
   // (#691). Søket kan stå i en egen operator eller inne i `Clustered Index
-  // Delete`. Testen krever et likhetssøk på hashkolonnen i primærnøkkelen, og
-  // ingen skanning, så heller ikke en sekundærindeks med oppslag i nøkkelen.
+  // Delete`. Testen krever et likhetssøk på hashkolonnen i primærnøkkelen som ikke
+  // er et nøkkeloppslag, og ingen skanning.
   it.each([
     [
       'les_sesjon',
