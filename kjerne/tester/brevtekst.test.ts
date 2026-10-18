@@ -87,15 +87,15 @@ function sak() {
       nyId: randomUUID,
     };
   };
-  const prov = (part: Part, kommando: Data): Utfall => {
+  const prov = (part: Part, kommando: Data, kjerne = KJERNE): Utfall => {
     const k = structuredClone(kommando);
     try {
       if (!('brevtekst' in k)) {
-        const vist = forhaandsvis(structuredClone(k), kontekst(part), journal, KJERNE);
+        const vist = forhaandsvis(structuredClone(k), kontekst(part), journal, kjerne);
         const t = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
         if (t) k.brevtekst = t;
       }
-      return vurder(k, kontekst(part), journal, KJERNE);
+      return vurder(k, kontekst(part), journal, kjerne);
     } catch (feil) {
       // 7.1.2 i designnotatet: kjernen skal forstå det den selv skriver.
       if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
@@ -111,9 +111,9 @@ function sak() {
     return utfall.hendelser[0];
   };
   /** Den låste teksten forhåndsvisningen gir, eller `null` når den avvises (A1). */
-  const vis = (part: Part, kommando: Data): string[] | null => {
+  const vis = (part: Part, kommando: Data, kjerne = KJERNE): string[] | null => {
     try {
-      const vist = forhaandsvis(structuredClone(kommando), kontekst(part), journal, KJERNE);
+      const vist = forhaandsvis(structuredClone(kommando), kontekst(part), journal, kjerne);
       return vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
     } catch (feil) {
       if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
@@ -121,11 +121,12 @@ function sak() {
     }
   };
   /** Avvisningen kommandoen får, eller `null` når den godtas. */
-  const avvisning = (part: Part, kommando: Data) => {
-    const u = prov(part, kommando);
+  const avvisning = (part: Part, kommando: Data, kjerne = KJERNE) => {
+    const u = prov(part, kommando, kjerne);
     return u.godtatt ? null : u.avvisning;
   };
-  const avvist = (part: Part, kommando: Data) => avvisning(part, kommando)?.regel ?? null;
+  const avvist = (part: Part, kommando: Data, kjerne = KJERNE) =>
+    avvisning(part, kommando, kjerne)?.regel ?? null;
   /** En rad skrevet utenfor kommandoene, som registrert korrespondanse; svarene fryses. */
   const rad = (part: Part, data: Data): Journalrad => {
     const r: Journalrad = {
@@ -1732,7 +1733,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
                 hjemmel: '32.2',
                 i_tide: true,
               },
-              { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
+              { id: randomUUID(), art: 'grunnlag', resultat: 'avslaatt' },
             ],
           },
         ],
@@ -1750,6 +1751,21 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       };
       const u = utledJournal(s.journal, nyere);
       expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+      expect(
+        s.avvist('BH', innsigelse, nyere),
+        'en ny innsigelse er heller ingen påberopelse under det nyere regelsettet (MM-U18, #776)'
+      ).toBeNull();
+      const revisjon = {
+        type: 'revisjon',
+        erstatter: s.u().spor.grunnlag.gjeldendeSvar!.id,
+        svar: svar('grunnlag', krav, { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      };
+      // Karakteriserer dagens atferd: brevteksten spør regelsettet når brevet skrives
+      // (`innsigelsenPaaberoper`, #776). Revisjonen fryser at § 32.2 gjelder, så svaret og
+      // teksten sier det samme (#798).
+      expect(s.vis('BH', revisjon, nyere)?.[0]).toContain(
+        `${girOpp} etter NS 8407 § 5 i brev 4 av 4. oktober 2026`
+      );
     });
   });
 

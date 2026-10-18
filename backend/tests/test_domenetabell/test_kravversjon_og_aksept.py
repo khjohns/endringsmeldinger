@@ -74,14 +74,22 @@ def test_kontrollen_finner_feil_i_bevis_sakene_for_maalmodellen():
     uten kilde, en ukjent handling og en rad uten bevis-sak gir feil."""
     maal = copy.deepcopy(korpus.verktoy.les_maalmodell())
     assert korpus.verktoy.valider(korpus.REGLER, korpus.KORPUS, maalmodell=maal) == []
-    forlop = maal["forlop"][0]
+    forlop, *resten = maal["forlop"]
+    # #798: en rad som ikke er utsatt, og som bare har bevis-sak i målmodellen utenfor det
+    # endrede forløpet, så testen ikke avhenger av hvilke rader som er utsatt.
+    i_korpuset = {r for f in korpus.KORPUS["forlop"] for r in f["rader"]}
+    rad = next(
+        r["id"]
+        for r in korpus.REGLER["rader"]
+        if "utsatt" not in r and r["id"] not in forlop["rader"] and r["id"] not in i_korpuset
+    )
     forlop["kontroller"][0]["kilde"] = []
     forlop["steg"][0]["handling"] = "ukjent"
-    maal["forlop"] = [f for f in maal["forlop"] if "KA-24" not in f["rader"]] + [forlop]
+    maal["forlop"] = [forlop] + [f for f in resten if rad not in f["rader"]]
     feil = korpus.verktoy.valider(korpus.REGLER, korpus.KORPUS, maalmodell=maal)
     assert any("mangler kilde" in f for f in feil)
     assert any("ukjent handling 'ukjent'" in f for f in feil)
-    assert "KA-24: ingen bevis-sak" in feil
+    assert f"{rad}: ingen bevis-sak" in feil
 
 
 def test_en_utsatt_rad_staar_uten_bevis_sak_men_ikke_med_en():

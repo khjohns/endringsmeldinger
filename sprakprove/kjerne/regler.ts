@@ -68,6 +68,7 @@ export function kontrollerGrunnlagssvar(
   const k = kategoriFraKatalogen({ hovedkategori, underkategori });
   try {
     grunnlag.kontrollerGrunnlagssvar(
+      GJELDENDE_REGLER,
       k.hovedkategori,
       k.underkategori,
       grunnlagsresultat(resultat),

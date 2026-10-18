@@ -303,16 +303,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'predikat',
     'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel',
   ],
-  // HF-U4, HF-U8: byggherren har sagt «i tide» i et svar sendt fra appen. Leses av nyttelastkontrollen.
-  ['utledning/utled.ts', 'predikat', 'harSagtITide', ['kommandoer/nyttelast.ts']],
+  // HF-U4, HF-U8: en påberopelse i svaret etter et «i tide» i et svar sendt fra appen,
+  // kontrollert likt i kommandoene og utledningen (#776).
+  ['utledning/utled.ts', 'predikat', 'paaberoptEtterITide', ['kommandoer/nyttelast.ts']],
   // HF-U4, VS-U24: en innsigelse etter et «i tide», kontrollert likt i kommandoene og
   // utledningen (#776). Det innsigelsen gjelder, leses av dokumentene i journalen (#536).
   ['utledning/utled.ts', 'predikat', 'innsigelsenEtterITide', ['kommandoer/nyttelast.ts']],
   ['Utledning', 'utsagn', 'journal', ['utledning/utled.ts:innsigelsenEtterITide']],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
   ['utledning/utled.ts', 'predikat', 'frafalletBinder', ['kommandoer/nyttelast.ts']],
-  // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 gjelder (#496).
-  ['utledning/utled.ts', 'relasjon', 'varseletFoerSvaret', ['kommandoer/standpunkter.ts']],
+  // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 i et nytt svar gjelder (#496, #766).
+  ['utledning/utled.ts', 'relasjon', 'varseletForNyttSvar', ['kommandoer/standpunkter.ts']],
   ['Rettidighet', 'utsagn', 'hjemmel gjelder'],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
@@ -368,6 +369,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // GR-U22, MM-U18: varslingsplikten for en versjon leses av svaret på en versjon i samme
   // kategori, slik den ble frosset (#776).
   ['frosset/standpunkt.ts', 'utsagn', 'sammeKategori', ['utledning/utled.ts']],
+  // OV-U4: kravene i et registrert brev er dokumentasjon (#787).
+  ['frosset/standpunkt.ts', 'relasjon', 'kravetErDokumentasjon', ['utledning/utled.ts']],
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
   ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
@@ -649,14 +652,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts', 'kommandoer/nyttelast.ts'],
   ],
   // HF-U5, HF-U14: det en revisjon senker av det svaret innrømmer, standpunkt for standpunkt.
-  ['kommandoer/standpunkter.ts', 'predikat', 'senketStandpunkt', ['kommandoer/nyttelast.ts']],
   // MM-U27: utledningen sammenlikner en revisjon utenfor kommandoene på samme måte.
   [
     'utledning/innroemmelse.ts',
     'predikat',
     'senketInnroemmelse',
-    ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
+    ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
   ],
+  // Detalj 4 i HF-U5: standpunktet med samme art og plass i revisjonen.
+  ['utledning/innroemmelse.ts:senketInnroemmelse.ny', 'relasjon', 'art'],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
     'kommandoer/skriving.ts:frysBrev(s)',
@@ -670,7 +674,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'rad',
     'standpunkterISvaret',
-    ['frosset/frysing.ts', 'kommandoer/standpunkter.ts'],
+    ['frosset/frysing.ts', 'kommandoer/nyttelast.ts'],
   ],
   ['format/leser.ts', 'rad', 'Uforstaatt', ['kommandoer/skriving.ts', 'frosset/frysing.ts']],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen

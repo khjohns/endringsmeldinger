@@ -3071,7 +3071,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#harSagtITide",
-        "kjerne/kommandoer/nyttelast.ts#paaberopt",
+        "kjerne/utledning/utled.ts#paaberoptEtterITide",
         "kjerne/utledning/utled.ts#bryterBindingen"
       ],
       "regelkoder": [
@@ -3096,7 +3096,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/standpunkter.ts#senketStandpunkt",
+        "kjerne/utledning/innroemmelse.ts#senketInnroemmelse",
         "kjerne/kommandoer/nyttelast.ts#binding",
         "kjerne/utledning/utled.ts#bryterBindingen"
       ],
