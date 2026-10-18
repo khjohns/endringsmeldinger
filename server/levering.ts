@@ -21,6 +21,7 @@ import { createHash } from 'node:crypto';
 import type { Brevdokument } from './catenda.ts';
 import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
 import { lesBrevPdf, skrivBrevPdf, TegnUtenforSkriften } from './brevpdf.ts';
+import { sjekksum } from './sjekksum.ts';
 import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Visning } from '../kjerne/utledning/visning.ts';
@@ -29,24 +30,8 @@ import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
 export const OPPDRAGSFORMAT = 4;
 
-/**
- * JSON med nøklene sortert, så summen kan regnes på nytt av det basen gir tilbake.
- * Summen av oppdragene og av kommandoene (`kommandosum`) regnes begge herfra.
- */
-export function kanonisk(verdi: unknown): string {
-  if (Array.isArray(verdi))
-    return `[${verdi.map((v) => (v === undefined ? 'null' : kanonisk(v))).join(',')}]`;
-  if (verdi !== null && typeof verdi === 'object')
-    return `{${Object.keys(verdi)
-      .sort()
-      .filter((k) => (verdi as Record<string, unknown>)[k] !== undefined)
-      .map((k) => `${JSON.stringify(k)}:${kanonisk((verdi as Record<string, unknown>)[k])}`)
-      .join(',')}}`;
-  return JSON.stringify(verdi);
-}
-
-export const sjekksum = (innhold: unknown): string =>
-  createHash('sha256').update(kanonisk(innhold)).digest('hex');
+/** For `server/tester/kommandoer.test.ts`, som L-2b eier i runde 6 (#764); fjernes etter. */
+export { sjekksum };
 
 /** Filnavnet dokumentet får i Catenda, fra innholdet i et lagret oppdrag. */
 export const filnavn = (innhold: Record<string, unknown>): string | null =>
