@@ -72,8 +72,11 @@ export type Kommando = (
       regelversjon: number;
     }
   | { type: 'trekk'; spor: Spor }
-  /** Registrerer et varsel etter § 33.4 sendt utenfor appen (MM-U1, SK-12). */
-  | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon?: string[] }
+  /**
+   * Registrerer et varsel etter § 33.4 sendt utenfor appen (MM-U1, SK-12), med brevet
+   * som vedlegg (OV-U4). `dokumentasjon` er ID-ene i mellomlageret (LV-U14).
+   */
+  | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon: string[] }
   /** VS-U15: TE sender et eget varsel etter § 33.4 fra appen, uten dager. */
   | { type: 'send_varsel'; spor: 'frist'; hjemmel: '33.4' }
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
@@ -161,7 +164,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       sendt: DATO,
       dokumentasjon: liste(ID),
     },
-    ['type', 'spor', 'hjemmel', 'sendt']
+    ['type', 'spor', 'hjemmel', 'sendt', 'dokumentasjon']
   ),
   send_varsel: objekt(
     {
@@ -253,6 +256,14 @@ export function formfeil(kommando: unknown): string[] {
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');
     if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
   }
+  const vedlegg = (kommando as { dokumentasjon?: unknown[] }).dokumentasjon;
+  // En UUID er den samme med store og små bokstaver.
+  if (
+    !feil.length &&
+    vedlegg &&
+    new Set(vedlegg.map((v) => (v as string).toLowerCase())).size !== vedlegg.length
+  )
+    feil.push('$.dokumentasjon: samme vedlegg står to ganger');
   if (type === 'begrunnelse' && !feil.length) {
     const k = kommando as { utdypning?: unknown; dokumentasjon?: unknown[] };
     if ('sendt' in kommando) {
