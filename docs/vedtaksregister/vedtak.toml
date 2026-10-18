@@ -4547,6 +4547,117 @@ Et registrert brev leveres til Catenda som et dokument med sak, part, dato og at
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "LV-U12"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["#790"]
+sporsmal = '''
+Spørsmålet «Fil til levert», runde 6, ordrett slik det ble vist i spørsmålsverktøyet:
+
+Vedlegg i TS-stien (#790), spørsmål 1. P4 lyder «vedlegg lagres bare i Catenda». Men LV-U1 fryser brev og vedlegg i leveringsoppdraget, LV-U9 lar leveringen vente til saken har topicen, og invariant 1, 5 og 8 krever at et vedlegg kontrolleres og holdes privat hos oss før det bindes til et brev. Filen må altså finnes hos oss før brevet registreres eller sendes. Python-stien mellomlagrer i dag og sletter når Catenda har kvittert; bevaringstiden er åpen (B-05). Gjelder «bare i Catenda» i P4 lagringen etter levering, slik at appen kan ha filen fram til Catenda har kvittert for den? Valget styrer om appen sletter innholdet etter levering, og om nedlasting etter levering går via Catenda.
+
+Alternativene slik de ble vist:
+
+Hos oss til levert (Recommended): Et vedlegg ligger hos appen fra det lastes opp til Catenda har kvittert for det. Det legges i Catenda bare av leveringen, etter at brevet det hører til, er registrert eller sendt, og saken har fått topicen. Når Catenda har kvittert, sletter appen filen og beholder hash og frosset grunnlag. Et vedlegg som aldri blir del av et brev, slettes av appen og når aldri Catenda. Bevaringstiden avgjøres i B-05. (Presiserer P4.)
+
+Hos oss til bevaring avgjort: Som over, men appen beholder filen også etter at Catenda har kvittert, til bevaringstiden er avgjort i B-05. (Endrer P4 inntil B-05 er avgjort.)'''
+valgt = "Hos oss til levert"
+svar = '''
+«Hos oss til levert (Recommended)»'''
+folge = '''
+Presiserer P4. Svaret er gitt med spørsmålsverktøyet og står på #764 (kommentaren 6251668902). Ikke bygget (#790).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hos oss til levert"
+tekst = '''
+Et vedlegg ligger hos appen fra det lastes opp til Catenda har kvittert for det. Det legges i Catenda bare av leveringen, etter at brevet det hører til, er registrert eller sendt, og saken har fått topicen. Når Catenda har kvittert, sletter appen filen og beholder hash og frosset grunnlag. Et vedlegg som aldri blir del av et brev, slettes av appen og når aldri Catenda. Bevaringstiden avgjøres i B-05.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hos oss til bevaring avgjort"
+tekst = '''
+Som over, men appen beholder filen også etter at Catenda har kvittert, til bevaringstiden er avgjort i B-05.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "vedlegg lagres bare i Catenda"
+
+[[gruppe.vedtak]]
+id = "LV-U13"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["#790"]
+sporsmal = '''
+Spørsmålet «Catenda-tilgang», runde 6, ordrett slik det ble vist i spørsmålsverktøyet:
+
+Vedlegg i TS-stien (#790), spørsmål 2. Vedtaket «Vedlegg er kontraktskorrespondanse» (18.09) har følgen «Deltakere uten TE- eller BH-tilknytning leser ikke vedlegg»; i appen håndheves det med kravet om kontraktsside. I Catenda styrer prosjektets egen tilgang hvem som leser et dokument, og appen kan ikke se eller sette tilgangen på mappen. Leveringen tar bibliotek og mappe fra prosjektets konfigurasjon. Svaret gjelder også brevene. Skal appen sørge for at bare kontraktspartene kan lese brev og vedlegg i Catenda, eller gjelder vedtaket lesing i appen?
+
+Alternativene slik de ble vist:
+
+Gjelder i appen (Recommended): Vedtaket gjelder lesing i appen. Appen legger brev og vedlegg i biblioteket og mappen prosjektets konfigurasjon skal angi. Hvem som leser dem i Catenda, styres av tilgangen prosjektet har satt på mappen. (Presiserer vedtaket.)
+
+Bare mappe for partene: Prosjektets konfigurasjon angir en mappe som bare kontraktspartene har tilgang til i Catenda, og appen leverer brev og vedlegg bare dit. Uten en slik mappe leveres ingenting. (Utvider vedtaket til Catenda; beror på konfigurasjonen, som appen ikke kan kontrollere.)'''
+valgt = "Gjelder i appen"
+svar = '''
+«Gjelder i appen (Recommended)»'''
+folge = '''
+Presiserer «Vedlegg er kontraktskorrespondanse». Svaret er gitt med spørsmålsverktøyet og står på #764 (kommentaren 6251668902). Ikke bygget (#790).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Gjelder i appen"
+tekst = '''
+Vedtaket gjelder lesing i appen. Appen legger brev og vedlegg i biblioteket og mappen prosjektets konfigurasjon skal angi. Hvem som leser dem i Catenda, styres av tilgangen prosjektet har satt på mappen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare mappe for partene"
+tekst = '''
+Prosjektets konfigurasjon angir en mappe som bare kontraktspartene har tilgang til i Catenda, og appen leverer brev og vedlegg bare dit. Uten en slik mappe leveres ingenting.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Vedlegg er kontraktskorrespondanse"
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Deltakere uten TE- eller BH-tilknytning leser ikke vedlegg"
+
+[[gruppe.vedtak]]
+id = "LV-U14"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["#790"]
+sporsmal = '''
+Spørsmålet «Vedlegg i brev», runde 6, ordrett slik det ble vist i spørsmålsverktøyet:
+
+Vedlegg i TS-stien (#790), spørsmål 3. I dag bærer hendelsen bare vedleggets ID. Hendelsen er append-only, og feltene blir kontrakter når den første reelle hendelsen er skrevet. RP-U1 sier at hele brevinnholdet skal gå tapsfritt til rapporteringen. Hva skal brevet selv lagre om hvert vedlegg? Valget styrer formatet på vedleggslisten i brevet, og om innholdet kan etterprøves fra journalen alene.
+
+Alternativene slik de ble vist:
+
+ID, filnavn og hash (Recommended): For hvert vedlegg lagrer brevet vedleggets ID, filnavnet og hashen av innholdet. Serveren fyller inn filnavn og hash fra det som er lastet opp, og klienten oppgir bare ID-en.
+
+Bare ID: Brevet lagrer bare vedleggets ID. Filnavn og hash står i vedleggsregisteret og i leveringsoppdraget, som fryses i samme transaksjon (LV-U1). Journalen alene viser ikke hvilket innhold brevet hadde.'''
+valgt = "ID, filnavn og hash"
+svar = '''
+«ID, filnavn og hash (Recommended)»'''
+folge = '''
+Følger P4, LV-U1, LV-U2 og RP-U1. Svaret er gitt med spørsmålsverktøyet og står på #764 (kommentaren 6251668902). Ikke bygget (#790).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "ID, filnavn og hash"
+tekst = '''
+For hvert vedlegg lagrer brevet vedleggets ID, filnavnet og hashen av innholdet. Serveren fyller inn filnavn og hash fra det som er lastet opp, og klienten oppgir bare ID-en.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare ID"
+tekst = '''
+Brevet lagrer bare vedleggets ID. Filnavn og hash står i vedleggsregisteret og i leveringsoppdraget, som fryses i samme transaksjon (LV-U1). Journalen alene viser ikke hvilket innhold brevet hadde.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 id = "MM-U21"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -5108,6 +5219,40 @@ forkastet = true
 kilde = "hovedplanen"
 utdrag = true
 tekst = "prosjektets konfigurasjon angir"
+
+
+[[gruppe.vedtak]]
+id = "KT-U5"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["#418", "#792"]
+sporsmal = '''
+Spørsmålet «Versjon», runde 6, ordrett slik det ble vist i spørsmålsverktøyet:
+
+Når klienten sender samme kommando på nytt (samme kommando-ID) etter et tapt svar, svarer serveren med kvitteringen i stedet for å lagre på nytt. Hvilken versjon skal svaret oppgi? I dag svarer opprettelsen alltid versjon 1, kommandoene versjonen hendelsen fikk (#792 p2). Dette blir en API-kontrakt.
+
+Alternativene slik de ble vist:
+
+Versjonen hendelsen fikk (Recommended): svaret på gjentaket er det samme som det første svaret (invariant 4: samme kvittering), også om saken har fått nye hendelser siden.
+
+Sakens versjon nå: svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
+valgt = "Versjonen hendelsen fikk"
+svar = '''
+«Versjonen hendelsen fikk (Recommended)»'''
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #764 (kommentaren 6251668902).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Versjonen hendelsen fikk"
+tekst = '''
+svaret på gjentaket er det samme som det første svaret (invariant 4: samme kvittering), også om saken har fått nye hendelser siden.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Sakens versjon nå"
+tekst = '''
+svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
