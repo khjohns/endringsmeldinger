@@ -12,6 +12,7 @@ SQL Server-tabellene sammenliknes med katalog.json i
 import importlib.util
 import pathlib
 import re
+import sys
 
 import pytest
 
@@ -126,20 +127,25 @@ def test_excel_har_ikts_kolonner_og_de_fire_oppdragsgiver_valgte():
 
 
 SQLSERVER_DEFINISJON = re.compile(
-    r"^\s*(?:CREATE(?:\s+OR\s+ALTER)?|ALTER)\s+(?:PROCEDURE|PROC|TRIGGER|FUNCTION)\s+(\w+\.\w+)",
+    r"^\s*(CREATE(?:\s+OR\s+ALTER)?|ALTER|DROP)\s+(?:PROCEDURE|PROC|TRIGGER|FUNCTION)"
+    r"(?:\s+IF\s+EXISTS)?\s+(\w+\.\w+)",
     re.IGNORECASE | re.MULTILINE,
 )
-SQLSERVER_SKRIVER = re.compile(r"^(database/migrasjoner/\S+\.sql) \((.*)\)$")
+SQLSERVER_SKRIVER = re.compile(r"^(database/migrasjoner/\S+\.sql) \((.*)\)")
 
 
 def siste_sqlserver_definisjon() -> dict[str, str]:
     """Migrasjonen med den gjeldende definisjonen av hver prosedyre og trigger.
+    En som er fjernet med `DROP` og ikke laget igjen, har ingen.
 
     Filnavnrekkefølgen er rekkefølgen runneren anvender filene i."""
     siste = {}
     for fil in sorted((ROT / "database" / "migrasjoner").glob("*.sql")):
-        for navn in SQLSERVER_DEFINISJON.findall(fil.read_text(encoding="utf-8")):
-            siste[navn] = fil.relative_to(ROT).as_posix()
+        for verb, navn in SQLSERVER_DEFINISJON.findall(fil.read_text(encoding="utf-8")):
+            if verb.upper() == "DROP":
+                siste.pop(navn, None)
+            else:
+                siste[navn] = fil.relative_to(ROT).as_posix()
     return siste
 
 
@@ -151,6 +157,8 @@ def skrivere_i_feil_migrasjon(register: dict, siste: dict[str, str]) -> list[str
         for skriver in tabell.get("skrivere", []):
             treff = SQLSERVER_SKRIVER.match(skriver)
             if not treff:
+                if skriver.startswith("database/migrasjoner/"):
+                    feil.append(f"{tabell['navn']}: skriveren har ikke formen «fil (…)»: {skriver}")
                 continue
             fil, resten = treff.groups()
             resten = re.sub(r"innført i `[^`]*`", "", resten)
@@ -180,3 +188,30 @@ def test_vakta_melder_skriver_ved_en_eldre_definisjon(register):
         ]
     }
     assert len(skrivere_i_feil_migrasjon(endret, siste)) == 2
+
+
+def test_vakta_melder_skriver_uten_formen_fil_og_parentes():
+    """#836: en oppføring uten parentes ble hoppet over uten melding."""
+    endret = {
+        "tabell": [
+            {
+                "navn": "koe.hendelse",
+                "skrivere": ["database/migrasjoner/20261016120000_kommandoer.sql `koe_api.skriv_hendelse`"],
+            }
+        ]
+    }
+    assert len(skrivere_i_feil_migrasjon(endret, siste_sqlserver_definisjon())) == 1
+
+
+def test_en_prosedyre_som_er_fjernet_med_drop_har_ingen_gjeldende_definisjon(tmp_path, monkeypatch):
+    """#836: `DROP PROCEDURE` ble oversett, så en fjernet prosedyre sto ved sin siste `CREATE`."""
+    migrasjoner = tmp_path / "database" / "migrasjoner"
+    migrasjoner.mkdir(parents=True)
+    (migrasjoner / "1_a.sql").write_text("CREATE PROCEDURE koe_api.a AS SELECT 1\nGO\n", encoding="utf-8")
+    (migrasjoner / "2_b.sql").write_text(
+        "DROP PROCEDURE koe_api.a;\nGO\nCREATE PROCEDURE koe_api.b AS SELECT 1\nGO\n"
+        "DROP PROCEDURE IF EXISTS koe_api.b;\nGO\nCREATE OR ALTER PROCEDURE koe_api.b AS SELECT 2\nGO\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sys.modules[__name__], "ROT", tmp_path)
+    assert siste_sqlserver_definisjon() == {"koe_api.b": "database/migrasjoner/2_b.sql"}
