@@ -505,6 +505,8 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(forstaatt(await bane.journal())).toBe(true);
   });
 
+  // OV-U12: et krav i et registrert brev er dokumentasjon uten virkning (OV-U4), så
+  // referansekontrollen i utledningen finner ikke kravet endringsordren viser til.
   it('en endringsordre registrert som svar på et krav som bare er dokumentasjon, er ikke forstått (OV-U12)', async () => {
     const bane = minnebane();
     await bygg(bane, [

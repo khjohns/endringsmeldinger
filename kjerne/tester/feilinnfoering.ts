@@ -2238,7 +2238,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(dato)) return dato;', '  return dato;']],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
-  // K-1 økt A (#770): MM-U27, OV-U12, OV-U13, #766 punkt 1 og #522.
+  // K-1 økt A (#770): MM-U27, OV-U13, #766 punkt 1 og #522.
   {
     id: 'F258',
     feilklasse:
@@ -2324,14 +2324,6 @@ const MUTASJONER: Mutasjon[] = [
       ['    if (!brev.svar.some((s) => erRegistrertEndringsordre(s, brev)))', '    if (false)'],
     ],
     mal: ['opplysningen om § 31.3 ved'],
-  },
-  {
-    id: 'F268',
-    feilklasse:
-      'en endringsordre registrert som svar på et krav som bare er dokumentasjon, godtas (OV-U12)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['      !fraAppen(alleKrav.get(s.gjelder)) ||', '      false ||']],
-    mal: ['en endringsordre registrert som svar på et krav som bare er dokumentasjon'],
   },
 ];
 

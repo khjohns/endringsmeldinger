@@ -644,21 +644,6 @@ function utledSporene(
         'opplysningen om § 31.3 står ikke ved byggherrens endringsordre som svar på grunnlaget (OV-U6, OV-U13)'
       );
   }
-  // OV-U12: endringsordren er svar på en kravversjon sendt fra appen, eller revisjon av et
-  // svar sendt fra appen, ikke av et krav eller svar som bare er dokumentasjon.
-  for (const s of spor.grunnlag.svar) {
-    if (!elementer[s.dokument]?.registrertBrev) continue;
-    const fraAppen = (e: { dokument: string } | undefined) =>
-      e !== undefined && !elementer[e.dokument]?.registrertBrev;
-    if (
-      !fraAppen(alleKrav.get(s.gjelder)) ||
-      (s.erstatter !== null && !fraAppen(alleSvar.get(s.erstatter)))
-    )
-      ugyldig(
-        s.id,
-        'endringsordren viser til et krav eller svar som bare er registrert som dokumentasjon (OV-U12)'
-      );
-  }
   // § 5 og VS-U12: hvert utsagn som viser til et annet, viser bakover til noe det kan
   // gjelde. Innsigelsen og protesten gjelder motparten (VS-U1, VS-U14, MP-U6).
   // Et element uten virkning er bevart og vist (MM-U18), så et utsagn kan vise til det,
