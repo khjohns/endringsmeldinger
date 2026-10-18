@@ -344,9 +344,14 @@ function lesDokument(h: Journalrad): Dokument {
           ...(typeof o.gjelder === 'string' ? { gjelder: o.gjelder } : {}),
         };
   });
-  // Opplysningen om § 31.3 i brevet selv hører til registrert korrespondanse med et svar
-  // på grunnlaget. En avklaring av et tidligere brev kontrolleres i utledningen.
-  const iBrevet = opplysninger.some((o) => o.hva === 'endringsordre' && o.brev === id);
+  // OV-U13: opplysningen om § 31.3 gis bare i brevet selv, som hører til registrert
+  // korrespondanse med et svar på grunnlaget. At svaret er byggherrens endringsordre etter
+  // OV-U6, kontrolleres i utledningen.
+  if (opplysninger.some((o) => o.hva === 'endringsordre' && o.brev !== id))
+    throw new Uforstaatt(
+      'en senere avklaring av at et brev er en endringsordre etter § 31.3, er ikke med i første versjon (OV-U13)'
+    );
+  const iBrevet = opplysninger.some((o) => o.hva === 'endringsordre');
   if (
     iBrevet &&
     (!erRegistrert(opplysninger) ||
