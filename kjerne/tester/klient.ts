@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto';
 import type { Journalrad } from '../typer.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Kommando, Svarutkast } from '../kommandoer/kommando.ts';
+import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar, type Svarvurdering } from '../frosset/standpunkt.ts';
 import type { Utledning } from '../utledning/utled.ts';
@@ -232,7 +233,10 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         spor: 'frist',
         hjemmel: '33.4',
         sendt: h.sendt as string,
-        ...(Array.isArray(h.dokumentasjon) ? { dokumentasjon: h.dokumentasjon as string[] } : {}),
+        // OV-U4: det registrerte varselet har brevet som vedlegg, også når forløpet ikke nevner det.
+        dokumentasjon: Array.isArray(h.dokumentasjon)
+          ? (h.dokumentasjon as string[])
+          : [randomUUID()],
       };
     case 'bestridelse': {
       const varsel = u.spor.frist.varsel;
@@ -425,4 +429,19 @@ export function radFor(
     format: typeof h.format === 'number' ? h.format : 1,
     data,
   };
+}
+
+/**
+ * Mellomlageret slik serveren leser det, for vedleggene kommandoen viser til: hvert av
+ * dem finnes, med filnavnet av ID-en. Et vedlegg som ikke finnes, prøves for seg.
+ */
+export function mellomlager(kommando: unknown): Vedleggsoppslag {
+  const ider = (kommando as { dokumentasjon?: unknown }).dokumentasjon;
+  const vedlegg = (Array.isArray(ider) ? ider : []).filter((id) => typeof id === 'string');
+  return new Map(
+    vedlegg.map((id: string) => [
+      id.toLowerCase(),
+      { vedlegg_id: id.toLowerCase(), filnavn: `${id}.pdf`, innhold_sha256: '0'.repeat(64) },
+    ])
+  );
 }

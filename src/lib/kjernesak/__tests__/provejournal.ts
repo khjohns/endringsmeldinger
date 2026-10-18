@@ -1,6 +1,6 @@
 /** Journalen for prøvene av TS-saken i Kontrollrommet, skrevet av kjernen selv (#718). */
 
-import { forhaandsvis, utledJournal } from '$kjerne/kommandoer/skriving';
+import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad, Part } from '$kjerne/typer';
 
@@ -20,7 +20,12 @@ const opprettet: Journalrad = {
   data: { sakstittel: 'Ny peling', sakstype: 'standard' },
 };
 
-export function skrevet(journal: Journalrad[], part: Part, kommando: unknown): Journalrad[] {
+export function skrevet(
+  journal: Journalrad[],
+  part: Part,
+  kommando: unknown,
+  vedlegg: Vedleggsoppslag = new Map()
+): Journalrad[] {
   const utfall = forhaandsvis(
     kommando,
     {
@@ -33,7 +38,8 @@ export function skrevet(journal: Journalrad[], part: Part, kommando: unknown): J
       nyId: () => crypto.randomUUID(),
     },
     journal,
-    KJERNE
+    KJERNE,
+    vedlegg
   );
   if (!utfall.godtatt) throw new Error(`Kjernen avviste kommandoen: ${utfall.avvisning.melding}`);
   return [...journal, { ...utfall.hendelser[0], versjon: journal.length + 1 }];
@@ -91,12 +97,26 @@ export const medVederlagssvar = skrevet(medVederlag, 'BH', {
   ],
 });
 
-export const medFristvarsel = skrevet(medGrunnlag, 'TE', {
-  type: 'varsel',
-  spor: 'frist',
-  hjemmel: '33.4',
-  sendt: '2026-10-10',
-});
+/** Varselet registrert med brevet som vedlegg (OV-U4). */
+const VARSELBREVET = '0b6f3c2e-1d4a-4e8b-9c7f-2a5d6e8f9a10';
+
+export const medFristvarsel = skrevet(
+  medGrunnlag,
+  'TE',
+  {
+    type: 'varsel',
+    spor: 'frist',
+    hjemmel: '33.4',
+    sendt: '2026-10-10',
+    dokumentasjon: [VARSELBREVET],
+  },
+  new Map([
+    [
+      VARSELBREVET,
+      { vedlegg_id: VARSELBREVET, filnavn: 'varsel.pdf', innhold_sha256: '0'.repeat(64) },
+    ],
+  ])
+);
 
 export const medTrukketVederlag = skrevet(medVederlag, 'TE', { type: 'trekk', spor: 'vederlag' });
 
