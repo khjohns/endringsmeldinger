@@ -531,6 +531,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'sak_metadata',
         'skrivetidspunkt',
         'vedlegg',
+        'vedleggskvittering',
       ]);
       expect(k2).toEqual(k1);
     } finally {

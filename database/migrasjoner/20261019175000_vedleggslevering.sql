@@ -55,8 +55,8 @@ ALTER SECURITY POLICY koe_sikkerhet.tilgang
 GO
 
 -- To endringer er lov: bindingen, `bundet_av_event_id` fra NULL til en hendelse, og
--- slettingen av innholdet i et bundet vedlegg når dokumentet er kvittert (LV-U12). Hver
--- annen endring kaster som før, også begge i samme setning.
+-- slettingen av innholdet i et bundet vedlegg når dokumentet er kvittert (LV-U12). Alle
+-- andre endringer kaster, også de to i samme setning.
 CREATE OR ALTER TRIGGER koe.vedlegg_uten_endring ON koe.vedlegg INSTEAD OF UPDATE AS
 BEGIN
   SET NOCOUNT ON;
