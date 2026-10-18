@@ -60,6 +60,9 @@ const UTEN_TRIGGER: Record<string, string> = {
   app_sessions: 'Sesjonen slettes ved utlogging og når den er utløpt (B-19, #656).',
   app_oauth_attempts:
     'Innloggingsforsøket slettes når det brukes, og når det er utløpt (B-19, #656).',
+  fullmakt:
+    'Driften setter opp og endrer fullmaktene (GFK-U1); en godkjenning fryser fullmakten den ble gitt med (#818).',
+  dagmulktssats: 'Driften setter opp og endrer satsen, som fullmaktene (#818).',
   jobb: 'Leasen, tilstanden og neste forsøk endres av jobbkjøreren; hvert forsøk står i jobbforsoek (#741).',
 };
 
@@ -473,6 +476,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
           WHERE COL_NAME(k.parent_object_id, k.parent_column_id) IN (N'aktor_id', N'created_by', N'aktor_team_id')`
       );
       expect(svar.recordset.map((r) => `${r.kolonne} -> ${r.til}`).sort()).toEqual([
+        'godkjenningshandling.aktor_id -> app_users.id',
+        'godkjenningshandling.aktor_team_id -> godkjenningspakke.aktor_team_id',
+        'godkjenningspakke.aktor_id -> app_users.id',
+        'godkjenningssteg.aktor_team_id -> godkjenningspakke.aktor_team_id',
         'hendelse.aktor_id -> app_users.id',
         'notat.aktor_id -> app_users.id',
         'sak_metadata.created_by -> app_users.id',

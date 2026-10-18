@@ -144,6 +144,14 @@ type Grunn =
 const UTEN_KONTROLL: Record<string, Grunn> = {
   'koe.hendelse.aktor_rolle': { grunn: 'verdiene_fyller_kolonnen', kontroll: 'hendelse_rolle' },
   'koe.notat.aktor_rolle': { grunn: 'verdiene_fyller_kolonnen', kontroll: 'notat_rolle' },
+  'koe.godkjenningspakke.aktor_rolle': {
+    grunn: 'verdiene_fyller_kolonnen',
+    kontroll: 'godkjenningspakke_rolle',
+  },
+  'koe.godkjenningshandling.aktor_rolle': {
+    grunn: 'verdiene_fyller_kolonnen',
+    kontroll: 'godkjenningshandling_rolle',
+  },
   'koe.catenda_contract_teams.contract_role': {
     grunn: 'verdiene_fyller_kolonnen',
     kontroll: 'contract_teams_role',
