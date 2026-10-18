@@ -46,7 +46,7 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     const sider = (latin1(hel).match(/\/Type \/Page\b/g) ?? []).length;
     expect(sider).toBeGreaterThan(1);
     const utenSisteSide = latin1(hel).replace(/\/Kids \[ ((?:\d+ 0 R )+)\d+ 0 R \]/, '/Kids [ $1]');
-    const kortere = lesBrevPdf(Uint8Array.from(utenSisteSide, (t) => t.charCodeAt(0)));
+    const kortere = lesBrevPdf(new Uint8Array(Buffer.from(utenSisteSide, 'latin1')));
     expect(gjengirTro(kortere, LANG)).toBe(false);
   });
 
@@ -111,5 +111,5 @@ describe('PDF-en av brevet (#371 del 2)', () => {
 });
 
 function latin1(b: Uint8Array): string {
-  return new TextDecoder('latin1').decode(b);
+  return Buffer.from(b).toString('latin1');
 }
