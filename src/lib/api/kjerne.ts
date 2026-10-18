@@ -7,10 +7,11 @@ import { ApiError, apiFetch, projectHeaders } from '$lib/api/client';
 import type { Journalrad, Part } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
+/** Navnet er slått opp ved visning; uten treff er det `aktor_id` (#820). */
 export type Journallinje = Pick<
   Journalrad,
   'event_id' | 'versjon' | 'event_type' | 'tidsstempel' | 'aktor_rolle' | 'format' | 'data'
->;
+> & { aktor_navn?: string };
 
 export interface Leveringsoppdrag {
   id: string;

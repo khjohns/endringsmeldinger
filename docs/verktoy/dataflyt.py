@@ -9,9 +9,9 @@ skal stå som kode i en pil eller under [[uten_flyt]] med begrunnelse.
 import ast
 import copy
 import functools
-import importlib.util
 import pathlib
 import re
+import sys
 
 import tomllib
 
@@ -19,9 +19,8 @@ ROT = pathlib.Path(__file__).resolve().parents[2]
 BACKEND = ROT / "backend"
 REGISTER = ROT / "docs" / "datamodell" / "dataflyt.toml"
 
-_spesifikasjon = importlib.util.spec_from_file_location("relasjoner", pathlib.Path(__file__).with_name("relasjoner.py"))
-rel = importlib.util.module_from_spec(_spesifikasjon)
-_spesifikasjon.loader.exec_module(rel)
+# Samme instans som datamodell.py har, lastet av `_last` der før denne modulen (#635).
+rel = sys.modules["verktoy.relasjoner"]
 
 KLIENTLAG = (
     "backend/integrations/catenda/",
@@ -41,7 +40,12 @@ FLYT_ID = re.compile(r"^C\d{2}$")
 FUNN_ID = re.compile(r"^[A-Z][A-Z0-9]*-\d{2}$")
 KVITTERING = "catenda:svar"
 DATABASEFUNKSJON = "databasefunksjon:"
-KODEREFERANSE = re.compile(r"^(backend/[\w/]+\.py):([\w.]+)$")
+KODEREFERANSE = re.compile(r"^(backend/[\w/]+\.py|server/[\w/]+\.ts):([\w.$]+)$")
+TS_DEKLARASJON = re.compile(
+    r"^(?:export\s+)?(?:default\s+)?(?:declare\s+)?(?:async\s+)?"
+    r"(?:function\s*\*?|const|let|var|class|interface|type|enum)\s+([\w$]+)",
+    re.MULTILINE,
+)
 
 
 def les(sti: pathlib.Path = REGISTER) -> dict:
@@ -163,7 +167,10 @@ def kallsteder(unntak: frozenset[str] = frozenset()) -> dict[str, frozenset[str]
 
 @functools.cache
 def definisjoner(relativ: str) -> frozenset[str]:
-    """Kvalifiserte navn på klassene og funksjonene i en fil."""
+    """Kvalifiserte navn på klassene og funksjonene i en Python-fil, eller navnene
+    deklarert på toppnivå i en TS-fil (#713)."""
+    if relativ.endswith(".ts"):
+        return frozenset(TS_DEKLARASJON.findall((ROT / relativ).read_text(encoding="utf-8")))
     tre = ast.parse((ROT / relativ).read_text(encoding="utf-8"))
     navn: set[str] = set()
 
@@ -245,7 +252,10 @@ def valider(
                     continue
                 treff = KODEREFERANSE.match(kode)
                 if not treff:
-                    feil.append(f"{hvor}: {kode!r} er ikke på formen backend/…/fil.py:Klasse.funksjon")
+                    feil.append(
+                        f"{hvor}: {kode!r} er ikke på formen backend/…/fil.py:Klasse.funksjon "
+                        "eller server/…/fil.ts:symbol"
+                    )
                 elif not (ROT / treff[1]).exists():
                     feil.append(f"{hvor}: fila {treff[1]} finnes ikke")
                 elif treff[2] not in definisjoner(treff[1]):

@@ -1,6 +1,6 @@
 /**
  * Grensen for tiden mellom tidspunktet og skrivingen i `koe_api.skriv_hendelse`
- * (`20261019200000_skrivetidspunkt_grense.sql`). Kildene er DL-U3 med svaret 16.10
+ * (`20261020030000_skrivetidspunkt_grense.sql`). Kildene er DL-U3 med svaret 16.10
  * i #53 (basen godtar bare tidspunktet den ga for transaksjonen), avgjørelsen 17.10
  * i #599 (skrivingen avvises når det har gått mer enn 30 sekunder siden basen ga
  * tidspunktet) og punktet i #597 om at kontrollen av tidspunktet ikke avhenger av

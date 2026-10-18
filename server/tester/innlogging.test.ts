@@ -24,7 +24,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { catendaId, sesjonsnavn } from '../autorisasjon.ts';
 import { CatendaUtilgjengelig, type CatendaBruker } from '../catenda.ts';
 import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
-import { basensKlokke, synkroniserMedlemskap, type Medlem } from '../medlemskap.ts';
+import { synkroniserMedlemskap, type Medlem } from '../medlemskap.ts';
 import { opprettInnloggingsforsoek, opprettSesjon } from '../sesjon.ts';
 import { basensKlokkeEtter, settInn } from './sqlserver_migrert.ts';
 import {
@@ -236,6 +236,25 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
       }>("SELECT user_id FROM koe.app_identities WHERE provider = N'catenda' AND subject = @s")
     ).recordset.map((r) => r.user_id.toLowerCase());
 
+  /** `observed_at` for fraværet i prosjektet, når innloggingen har ført det (DL-U9). */
+  async function fravaeretFoert(prosjektId: string, subjekt: string): Promise<Date> {
+    const frist = Date.now() + 5_000;
+    for (;;) {
+      const svar = await eier()
+        .request()
+        .input('p', prosjektId)
+        .input('s', subjekt)
+        .query<{ observed_at: Date }>(
+          `SELECT a.observed_at FROM koe.app_membership_absences a
+             JOIN koe.app_identities i ON i.user_id = a.user_id AND i.provider = N'catenda'
+            WHERE a.project_id = @p AND i.subject = @s`
+        );
+      if (svar.recordset.length > 0) return svar.recordset[0].observed_at;
+      if (Date.now() > frist) throw new Error(`Innloggingen førte ikke fraværet i ${prosjektId}`);
+      await new Promise((ok) => setTimeout(ok, 50));
+    }
+  }
+
   it('innloggingen sender til Catenda med staten og setter innloggingskapselen', async () => {
     const { svar, state, nettleser } = await startInnlogging('/saker/1');
     expect(svar.status).toBe(302);
@@ -412,14 +431,15 @@ describe.skipIf(!TESTBASE_URL)('innloggingsinngangene mot testbasene', () => {
     it('ved første innlogging gir en liste hentet før innloggingen ikke medlemskap i et prosjekt brukeren ikke er med i (DL-U9)', async () => {
       const p = await koblet();
       const bruker = catenda as CatendaBruker;
-      const hentetFoer = new Date(Date.now() - 5_000);
       catendaProsjekter = new Set();
       expect((await loggInn()).kapsler.has(SESJON)).toBe(true);
-      const innlogget = await basensKlokke(eier());
+      // Tidspunktet innloggingen førte fraværet med, ikke basens klokke etter svaret:
+      // det holder også om fraværet føres etter svaret (#739).
+      const innlogget = await fravaeretFoert(p.id, bruker.subjekt);
       await synkroniserMedlemskap(eier(), {
         prosjekt: p.id,
         catendaProsjekt: p.catenda,
-        hentet: hentetFoer,
+        hentet: new Date(innlogget.getTime() - 5_000),
         medlemmer: [som(bruker)],
       });
       expect(await aktive(p.id)).toEqual([]);

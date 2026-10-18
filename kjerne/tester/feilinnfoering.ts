@@ -703,14 +703,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F62',
     feilklasse: 'kjernen gir tekst basen ikke kan lagre, en annen kode enn sin egen (#373)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/format/skjema.ts`,
     endringer: [
       [
-        '  if (harUlagringsbarTekst(kommando))',
-        '  if (!kommando && harUlagringsbarTekst(kommando))',
+        '  return harUlagringsbarTekst(kommando)',
+        '  return !kommando && harUlagringsbarTekst(kommando)',
       ],
     ],
-    mal: ['gir TEKST_KAN_IKKE_LAGRES'],
+    mal: ['gir TEKST_KAN_IKKE_LAGRES', 'avviser en tittel basen ikke kan lagre (#373)'],
   },
   {
     id: 'F63',
@@ -1116,7 +1116,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F125',
     feilklasse: 'vedleggene står ikke i brevteksten (A4, LV-U2)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (nytt.dokumentasjon.length) legg(', '  if (false) legg(']],
+    endringer: [['  if (nytt.dokumentasjon.length)\n    legg(', '  if (false)\n    legg(']],
     mal: ['et brev med vedlegg får et avsnitt'],
   },
   {
@@ -2160,14 +2160,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F250',
     feilklasse: 'en dato etter brevets dato godtas (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dag <= brevet) return null;', 'dag <= brevet || true) return null;']],
+    endringer: [['dag <= brevetsDato) return null;', 'dag <= brevetsDato || true) return null;']],
     mal: ['en dato etter brevets dato avvises'],
   },
   {
     id: 'F251',
     feilklasse: 'en dato samme dag som brevet avvises (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dag <= brevet) return null;', 'dag < brevet) return null;']],
+    endringer: [['dag <= brevetsDato) return null;', 'dag < brevetsDato) return null;']],
     mal: ['samme dag godtas', 'brevets dato er datoen i norsk tid'],
   },
   {
@@ -2371,6 +2371,18 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['      if (nytt === null || godkjent === null)', '      if (false)']],
     mal: ['sammenliknes ikke og avvises'],
   },
+  {
+    id: 'F292',
+    feilklasse: 'dager som mangler i svaret, sammenliknes som null dager (HF-U5, #814)',
+    fil: `${K}/utledning/innroemmelse.ts`,
+    endringer: [
+      [
+        "      if (typeof n.vurdert !== 'number' || typeof f.vurdert !== 'number')",
+        '      if (false)',
+      ],
+    ],
+    mal: ['dagene sammenliknes ikke, og revisjonen avvises'],
+  },
   // K-1 B1 (#770): T5 om grenene i `strid` og referansekontrollen (#669), #776 p1 og #522.
   {
     id: 'F276',
@@ -2492,6 +2504,59 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['når et svar utenfor kommandoene har besvart den'],
+  },
+  {
+    id: 'F287',
+    feilklasse:
+      'kjernen godtar et vedlegg serveren ikke fant i saken (LV-U14, arbeidsvalg 3 i #790)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['(id) => !vedlegg.has(id.toLowerCase())', '() => false'],
+      [
+        'vedlegg.get(id.toLowerCase())!',
+        "(vedlegg.get(id.toLowerCase()) ?? { vedlegg_id: id, filnavn: id, innhold_sha256: '0'.repeat(64) })",
+      ],
+    ],
+    mal: ['et vedlegg serveren ikke fant i saken, avvises'],
+  },
+  {
+    id: 'F288',
+    feilklasse:
+      'brevet lagrer ID-en fra klienten uten filnavnet og summen fra mellomlageret (LV-U14)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        'ider.map((id) => vedlegg.get(id.toLowerCase())!)',
+        'ider.map((id) => ({ ...vedlegg.get(id.toLowerCase())!, vedlegg_id: id }))',
+      ],
+    ],
+    mal: ['et vedlegg serveren ikke fant i saken, avvises, og ID-en lagres med små bokstaver'],
+  },
+  {
+    id: 'F289',
+    feilklasse: 'et registrert varsel godtas uten brevet som vedlegg (OV-U4)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        "['type', 'spor', 'hjemmel', 'sendt', 'dokumentasjon']",
+        "['type', 'spor', 'hjemmel', 'sendt']",
+      ],
+    ],
+    mal: ['avviser et registrert varsel uten vedlegg'],
+  },
+  {
+    id: 'F290',
+    feilklasse: 'samme vedlegg godtas to ganger i en kommando (#790)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [['.size !== vedlegg.length', '.size < 0']],
+    mal: ['med samme vedlegg to ganger'],
+  },
+  {
+    id: 'F291',
+    feilklasse: 'brevteksten lister vedleggenes ID i stedet for filnavnet (arbeidsvalg 10 i #790)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['`«${v.filnavn}»`', '`«${v.vedlegg_id}»`']],
+    mal: ['et brev med vedlegg får et avsnitt som lister filnavnene'],
   },
 ];
 

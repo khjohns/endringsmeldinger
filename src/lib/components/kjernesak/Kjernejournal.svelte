@@ -30,6 +30,11 @@
             {/each}
           </div>
         {/if}
+        {#if j.opplysninger.length}
+          <ul class="opplysninger" aria-label="Opplysninger i brevet">
+            {#each j.opplysninger as o (o.id)}<li>{o.tekst}</li>{/each}
+          </ul>
+        {/if}
         {#each j.oppdrag as o (o.id)}
           <p class="dempet">
             Leveringsoppdrag {leveringstekst(o)}
@@ -64,6 +69,10 @@
     padding: 8px 10px;
     border: 1px solid var(--border);
     border-radius: 6px;
+    color: var(--ink-2);
+  }
+  .opplysninger {
+    margin: 4px 0;
     color: var(--ink-2);
   }
   .utdypning {
