@@ -101,10 +101,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('skrivetidspunktet i SQL Server', () => {
     return tidspunkt;
   }
 
-  it('kontrollsak: et tidspunkt basen ga for 29 sekunder siden godtas, og brevet skrives', async () => {
+  it('kontrollsak: et tidspunkt basen ga for 28 sekunder siden godtas, og brevet skrives', async () => {
     const sak = await nySak();
     await transaksjon(kjoeretid.pool, te, async (f) =>
-      skriv(f, sak.sak_id, await foerTidspunkt(f, 29_000))
+      skriv(f, sak.sak_id, await foerTidspunkt(f, 28_000))
     );
     expect(await antallBrev(sak.sak_id)).toBe(2);
   });
@@ -159,4 +159,44 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('skrivetidspunktet i SQL Server', () => {
     },
     30_000
   );
+
+  it('et tidspunkt som var under 30 sekunder før låsen, avvises når ventingen på låsen tar det over (#599)', async () => {
+    const sak = await nySak();
+    let slipp!: () => void;
+    const holdt = new Promise<void>((ok) => (slipp = ok));
+    let laast!: () => void;
+    const laasen = new Promise<void>((ok) => (laast = ok));
+    const holder = transaksjon(kjoeretid.pool, te, async (f) => {
+      const svar = await f()
+        .output('tidspunkt', sql.DateTime2(3))
+        .execute('koe_api.skrivetidspunkt');
+      await skriv(f, sak.sak_id, svar.output.tidspunkt as Date);
+      laast();
+      await holdt;
+    });
+    await laasen;
+    try {
+      // 27 s gammelt ved kontrollen før låsen, og minst 31 s når låsen slippes.
+      let foert!: () => void;
+      const tidspunktet = new Promise<void>((ok) => (foert = ok));
+      const forsoek = avvisning(
+        transaksjon(kjoeretid.pool, te, async (f) => {
+          const tidspunkt = await foerTidspunkt(f, 27_000);
+          foert();
+          return skriv(f, sak.sak_id, tidspunkt, 2);
+        })
+      );
+      await Promise.race([tidspunktet, forsoek]);
+      await new Promise((ok) => setTimeout(ok, 4_000));
+      expect(await Promise.race([forsoek, Promise.resolve('venter på låsen')])).toBe(
+        'venter på låsen'
+      );
+      slipp();
+      expect(await forsoek).toBe(FOR_GAMMELT);
+    } finally {
+      slipp();
+      await holder;
+    }
+    expect(await antallBrev(sak.sak_id)).toBe(2);
+  }, 30_000);
 });

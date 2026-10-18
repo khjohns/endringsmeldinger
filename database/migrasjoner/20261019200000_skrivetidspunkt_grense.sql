@@ -3,16 +3,17 @@
 -- mer enn 30 sekunder siden `koe_api.skrivetidspunkt` ga tidspunktet, regnet med
 -- basens klokke da prosedyren kjøres. Tidspunktet kan ellers ligge så lenge før
 -- skrivingen som transaksjonen holdes åpen. Transaksjonen rulles tilbake, og
--- serveren kan hente et nytt tidspunkt og prøve igjen; den delen er i
--- `server/kommandoer.ts`.
+-- serveren skal hente et nytt tidspunkt og prøve igjen; den delen bygges i
+-- `server/kommandoer.ts` (#599).
 --
 -- Kontrollen av tidspunktet går før låsen på journalen (#597): den avhenger ikke
 -- av versjonen, så en skriving med et tidspunkt som ikke godtas, venter ikke på en
--- annen skriving til saken. Innloggingen leses med samme uttrykk som i
--- `skrivetidspunkt` (`20261016170000_kommandoform.sql`), uten koblingen mot
--- `sys.dm_exec_sessions` på økt-ID-en, som `t.oekt = @@SPID` alt gir. Viser
--- `sys.dm_exec_sessions` ikke økta, finnes ingen rad og tidspunktet avvises med
--- 51422, som før.
+-- annen skriving til saken. Grensen prøves igjen etter låsen, så ventetiden på en
+-- annen skriving ikke kommer i tillegg til grensen. Innloggingen leses med samme
+-- uttrykk som i `skrivetidspunkt` (`20261016170000_kommandoform.sql`), uten
+-- koblingen mot `sys.dm_exec_sessions` på økt-ID-en, som `t.oekt = @@SPID` alt
+-- gir. Viser `sys.dm_exec_sessions` ikke økta, finnes ingen rad og tidspunktet
+-- avvises med 51422, som før.
 --
 -- Prosedyren er ellers som i `20261018123000_kvittering.sql`, med samme navn,
 -- feilkoder og rettigheter. Feilkodene der gjelder, og i tillegg:
@@ -92,7 +93,8 @@ BEGIN
       WHERE oekt = @@SPID AND transaksjon = CURRENT_TRANSACTION_ID() AND innlogget = @innlogget);
   IF @klokke IS NULL OR @tidsstempel <> @klokke
     THROW 51422, N'Tidspunktet er ikke basens klokke for skrivingen', 1;
-  IF DATEDIFF_BIG(millisecond, @klokke, SYSUTCDATETIME()) > 30000
+  DECLARE @grense bigint = 30000;
+  IF DATEDIFF_BIG(millisecond, @klokke, SYSUTCDATETIME()) > @grense
     THROW 51419, N'Det har gått mer enn 30 sekunder siden basen ga tidspunktet', 1;
   DELETE koe.skrivetidspunkt WHERE oekt = @@SPID;
 
@@ -102,6 +104,8 @@ BEGIN
     DECLARE @konflikt nvarchar(200) = CONCAT(N'Versjonskonflikt: journalen har versjon ', ISNULL(@siste, 0));
     THROW 51409, @konflikt, 1;
   END
+  IF DATEDIFF_BIG(millisecond, @klokke, SYSUTCDATETIME()) > @grense
+    THROW 51419, N'Det har gått mer enn 30 sekunder siden basen ga tidspunktet', 1;
 
   DECLARE @skriving uniqueidentifier = NEWID();
   EXEC sp_set_session_context N'koe_skriving', @skriving;
