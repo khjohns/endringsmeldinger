@@ -41,7 +41,7 @@ BEGIN
   SELECT @forrige = catenda_project_id
     FROM koe.catenda_project_configs WITH (UPDLOCK, HOLDLOCK)
    WHERE internal_project_id = @prosjekt;
-  IF @forrige <> @catenda_prosjekt
+  IF @nytt = 0 AND (@forrige IS NULL OR @forrige <> @catenda_prosjekt)
   BEGIN
     IF EXISTS (SELECT 1 FROM koe.prosjekt_med_saker WITH (UPDLOCK, HOLDLOCK) WHERE prosjekt_id = @prosjekt)
       THROW 52066, N'Prosjektet har saker: Catenda-prosjektet kan ikke byttes', 1;

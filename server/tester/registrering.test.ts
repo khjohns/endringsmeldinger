@@ -332,6 +332,29 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     expect(await prosjektrad(r.prosjekt)).toMatchObject({ name: 'Med board' });
   });
 
+  it('et prosjekt uten kobling regnes som et bytte og krever --bh og --te (52067), og ingenting skrives (#844)', async () => {
+    const { prosjekt } = await nyttProsjekt(naaFor());
+    await o.datalag.base.pool
+      .request()
+      .input('p', prosjekt)
+      .query('DELETE koe.catenda_project_configs WHERE internal_project_id = @p');
+    const kall = skript(
+      'registrer',
+      '--prosjekt',
+      prosjekt,
+      '--navn',
+      'Uten kobling',
+      '--organisasjon',
+      'org-1',
+      '--catenda-prosjekt',
+      randomUUID(),
+      '--bibliotek',
+      randomUUID()
+    );
+    expect(await avvisning(kall)).toBe(52067);
+    expect(await prosjektrad(prosjekt)).not.toMatchObject({ name: 'Uten kobling' });
+  });
+
   it('et team som ikke finnes i Catenda-prosjektet, avvises før noe skrives', async () => {
     const prosjekt = `p-reg-${randomUUID().slice(0, 8)}`;
     iCatenda = new Map([[team(), 'Annet']]);
