@@ -2464,11 +2464,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F284',
     feilklasse: 'et «i tide» etter § 33.6.1 binder byggherren etter § 33.4 (HF-U4, #522)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        ": p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide",
-        ": (p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide) ||\n            (p.art === 'spesifisering' && r.hjemmel === '33.4' && p.iTide)",
+        '  const bundet = paaberoptEtterITide(u, s.spor, nye);',
+        "  const bundet = paaberoptEtterITide(\n    forrige\n      ? { ...u, spor: { ...u.spor, frist: { ...u.spor.frist, svar: u.spor.frist.svar.map((x) => ({ ...x, standpunkter: x.standpunkter.map((p) => (p.art === 'spesifisering' ? { ...p, art: 'rettidighet' as const, hjemmel: '33.4' as const } : p)) })) } } }\n      : u,\n    s.spor,\n    nye\n  );",
       ],
     ],
     mal: ['«i tide» etter § 33.6.1 sier ingenting om § 33.4'],

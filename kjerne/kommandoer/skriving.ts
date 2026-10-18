@@ -228,9 +228,17 @@ function skriv(
   const lest = lesJournal(journal, kjerne.leserformat);
   const u = utled(lest, kjerne.regler);
   const tidspunkt = kontekst.tidspunkt();
-  const brudd =
-    avvisning(k, kontekst.part, u, kjerne.regler, sendes) ??
-    oppgittDatoEtterBrevet(k, registrertDato({ registrert: tidspunkt.toISOString() }));
+  let brudd;
+  try {
+    brudd =
+      avvisning(k, kontekst.part, u, kjerne.regler, sendes) ??
+      oppgittDatoEtterBrevet(k, registrertDato({ registrert: tidspunkt.toISOString() }));
+  } catch (feil) {
+    // Nyttelastkontrollen leser standpunktene slik brevet ville lagret dem (#776).
+    if (feil instanceof Uforstaatt)
+      throw new Skrivefeil(`Kjernen forstår ikke dokumentet den selv skriver: ${feil.message}`);
+    throw feil;
+  }
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
 
   const eventId = kontekst.nyId();
