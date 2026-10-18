@@ -247,6 +247,22 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
     expect(forstaatt([...journal, i, protest('BH')])).toBe(false);
   });
 
+  it('en innsigelse fra TE mot eget grunnlagskrav etter «i tide» gir bare grunnen etter VS-U1, ikke MM-U27 (HF-U4 gjelder BH)', async () => {
+    const { k, journal } = await grunnlag();
+    const grunner = (part: 'TE' | 'BH') => {
+      const r = rad(journal, part, {
+        utsagn: [{ id: randomUUID(), art: 'innsigelse', gjelder: k.navn.id('K-g1') }],
+      });
+      return utled(lesJournal([...journal, r], KJERNE.leserformat), GJELDENDE_REGLER)
+        .begrensninger.map((b) => b.grunn)
+        .join('\n');
+    };
+    // Kontrollsak: den samme innsigelsen fra BH bryter «i tide».
+    expect(grunner('BH'), 'kontrollsak').toContain('MM-U27');
+    expect(grunner('TE')).toContain('innsigelse viser ikke til noe den kan gjelde før den');
+    expect(grunner('TE')).not.toContain('MM-U27');
+  });
+
   it('en passivitet fra BH er ikke forstått (VS-U12)', async () => {
     const { k, journal } = await grunnlag();
     const r = rad(journal, 'BH', {

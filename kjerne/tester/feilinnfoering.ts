@@ -2288,7 +2288,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en innsigelse utenfor kommandoene leses med virkning etter «i tide» (MM-U27, HF-U4, VS-U24)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["    if (x.art !== 'innsigelse') continue;", '    continue;']],
+    endringer: [
+      ["    if (x.art !== 'innsigelse' || d.avsender !== 'BH') continue;", '    continue;'],
+    ],
     mal: ['etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)'],
   },
   {
@@ -2324,6 +2326,18 @@ const MUTASJONER: Mutasjon[] = [
       ['    if (!brev.svar.some((s) => erRegistrertEndringsordre(s, brev)))', '    if (false)'],
     ],
     mal: ['opplysningen om § 31.3 ved'],
+  },
+  {
+    id: 'F269',
+    feilklasse: 'en innsigelse fra TE regnes som brudd på byggherrens «i tide» (MM-U27, HF-U4)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    if (x.art !== 'innsigelse' || d.avsender !== 'BH') continue;",
+        "    if (x.art !== 'innsigelse') continue;",
+      ],
+    ],
+    mal: ['en innsigelse fra TE mot eget grunnlagskrav etter «i tide»'],
   },
 ];
 

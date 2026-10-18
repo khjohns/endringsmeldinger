@@ -3366,9 +3366,10 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
         s.rad('BH', {
           svar: [
             kopi(s, (v) => {
-              const p = (v.standpunkter as Data[]).find((x) => x.art === art)!;
-              p.i_tide = false;
-              if (art === 'spesifisering') p.dager = 10;
+              const p = (v.standpunkter as Data[]).find((x) => x.art === art);
+              expect(p?.i_tide, `forutsetning: byggherren sa at ${art} var i tide`).toBe(true);
+              p!.i_tide = false;
+              if (art === 'spesifisering') p!.dager = 10;
             }),
           ],
         });

@@ -397,7 +397,8 @@ function bryterBindingen(d: Dokument, u: Utledning, regler: Regelsett): Strid[] 
       });
   }
   for (const x of d.utsagn) {
-    if (x.art !== 'innsigelse') continue;
+    // HF-U4 binder parten som sa «i tide», altså byggherren.
+    if (x.art !== 'innsigelse' || d.avsender !== 'BH') continue;
     const maal = u.elementer[x.gjelder];
     const hjemmel = innsigelsenPaaberoper(
       maal && { art: maal.art, krav: u.spor.grunnlag.krav.find((k) => k.id === x.gjelder) },
