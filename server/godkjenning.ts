@@ -111,7 +111,7 @@ export interface LagretPakke {
   pakkeId: string;
   sakId: string;
   forrigePakkeId: string | null;
-  /** Saksbehandleren som utarbeidet svaret. */
+  /** Saksbehandleren som utarbeidet svaret og står i brevet som saksbehandler (LV-U15). */
   aktorId: string;
   brev: unknown;
   fullmaktsgrunnlag: unknown;

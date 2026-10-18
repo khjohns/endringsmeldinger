@@ -1,6 +1,6 @@
 /**
- * Fullmakten byggherrens svar krever (GFK-06 med presiseringen 24.09, B-06 i runde 7
- * i #764). Kravene er kjernens kravversjoner (KA-U2, DT-02), og svarets beløp og dager
+ * Fullmakten byggherrens svar krever (GFK-06 med presiseringen 24.09, GFK-U2, GFK-U3
+ * og GFK-U4). Kravene er kjernens kravversjoner (KA-U2, DT-02), og svarets beløp og dager
  * er kjernens utregning (B-13). Fullmaktene og dagmulktssatsen leses i
  * `server/godkjenning.ts`.
  */
@@ -22,14 +22,14 @@ export interface Fullmakt {
 /**
  * Verdien brevet gir byggherren ansvar for, i kroner. `beloep` er `null` når noe i
  * brevet ikke kan verdsettes; da kreves hele kjeden, og kjeden må dekke `gulv`, det
- * som lar seg verdsette (vedtaket 23.09 om ubegrenset fullmakt).
+ * som lar seg verdsette (vedtaket 23.09 om ubegrenset fullmakt, GFK-U4).
  */
 export interface Brevverdi {
   beloep: number | null;
   gulv: number;
 }
 
-/** Prosjektet har ingen registrerte fullmakter (runde 7 i #764). */
+/** Prosjektet har ingen registrerte fullmakter (GFK-U2). */
 export class IngenFullmakter extends Error {}
 
 /** Ingen i kjeden har fullmakt til det brevet gir ansvar for. */
@@ -42,7 +42,7 @@ const oere = (kroner: number) => Math.round(kroner * 100) / 100;
  * Godkjenner brevet grunnlaget, har et kravspor som ikke besvares, verdien i TEs
  * gjeldende krav: et krav som ikke er sendt, kan ikke verdsettes, og et trukket krav
  * er 0. Avslått og frafalt ansvar er 0 (presiseringen 24.09). Fristdager uten
- * dagmulktssats kan ikke verdsettes (B-06). Hovedstandpunktet og det subsidiære
+ * dagmulktssats kan ikke verdsettes (GFK-U3). Hovedstandpunktet og det subsidiære
  * summeres hver for seg, og det største gjelder; alternativene legges ikke sammen.
  *
  * Svarene må være kontrollert av kjernen først. Kaster `UgyldigVurdering` fra

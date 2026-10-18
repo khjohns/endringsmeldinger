@@ -1,10 +1,10 @@
 -- Fullmaktene og godkjenningspakkene for byggherrens svar (S-1a, del av #818).
 --
 -- Fullmaktene settes opp av driften etter skriftlig bestilling fra byggherren, og
--- appen viser ikke hvem som har endret dem (runde 7 i #764). Kjøretiden leser dem og
+-- appen viser ikke hvem som har endret dem (GFK-U1). Kjøretiden leser dem og
 -- skriver dem ikke; driften skriver som eier. Plassen er rekkefølgen i
 -- godkjenningskjeden, og en fullmakt uten grense er ubegrenset. Mangler
--- dagmulktssatsen, finnes ingen rad i `koe.dagmulktssats` (B-06).
+-- dagmulktssatsen, finnes ingen rad i `koe.dagmulktssats` (GFK-U3).
 --
 -- En godkjenningspakke er et utkast til et svar: bare teamet som laget den, ser den,
 -- og uten entydig team finnes den ikke (invarianten om utkast). Pakken og stegene

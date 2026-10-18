@@ -1,7 +1,7 @@
 /**
  * Fullmakten byggherrens svar krever (S-1a, #818). Forventningene er GFK-06 med
- * presiseringen 24.09, vedtaket 23.09 om ubegrenset fullmakt og B-06 og «svar uten
- * registrerte fullmakter» fra runde 7 (kommentaren «Runde 7: avgjort 18.10» i #764).
+ * presiseringen 24.09, vedtaket 23.09 om ubegrenset fullmakt og GFK-U2, GFK-U3 og
+ * GFK-U4.
  * Kravene skrives gjennom kjernens `vurder`, så de er kjernens kravversjoner (KA-U2),
  * og beløpene og dagene i svaret er kjernens utregning (B-13).
  */
@@ -177,13 +177,13 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
     });
   });
 
-  it('B-06: fristdager uten dagmulktssats kan ikke verdsettes', async () => {
+  it('GFK-U3: fristdager uten dagmulktssats kan ikke verdsettes', async () => {
     expect(
       await verdi([KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST], [GRUNNLAG_GODKJENT], null)
     ).toEqual({ beloep: null, gulv: 100000 });
   });
 
-  it('B-06: et fristsvar på 0 dager trenger ingen sats', async () => {
+  it('GFK-U3: et fristsvar på 0 dager trenger ingen sats', async () => {
     expect(
       await verdi(
         [KRAV_GRUNNLAG, KRAV_VEDERLAG, KRAV_FRIST],
@@ -231,7 +231,7 @@ const fullmakt = (brukerId: string, grense: number | null, plass: number): Fullm
 const KJEDE = [fullmakt('pl', 200000, 1), fullmakt('sl', 1500000, 2), fullmakt('dir', null, 3)];
 
 describe('godkjenningskjeden', () => {
-  it('runde 7: uten registrerte fullmakter kan svaret ikke sendes', () => {
+  it('GFK-U2: uten registrerte fullmakter kan svaret ikke sendes', () => {
     expect(() => godkjenningskjede({ beloep: 0, gulv: 0 }, 'sb', [])).toThrow(IngenFullmakter);
   });
 
@@ -257,7 +257,7 @@ describe('godkjenningskjeden', () => {
     ).toEqual(['sl', 'dir']);
   });
 
-  it('ubegrenset fullmakt sender alene også når beløpet ikke kan verdsettes (23.09)', () => {
+  it('ubegrenset fullmakt sender alene også når beløpet ikke kan verdsettes (23.09, GFK-U4)', () => {
     expect(godkjenningskjede({ beloep: null, gulv: 5000000 }, 'dir', KJEDE)).toEqual([]);
   });
 

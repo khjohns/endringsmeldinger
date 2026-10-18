@@ -3,7 +3,7 @@
  * migrasjonene. Forventningene har kilde i:
  * - invarianten om utkast i AGENTS.md: pakken finnes bare for teamet som laget den,
  *   og uten entydig team finnes den ikke;
- * - runde 7 i #764: fullmaktene settes opp av driften, ikke av appen, og er byggherrens;
+ * - GFK-U1: fullmaktene settes opp av driften, ikke av appen, og er byggherrens;
  * - B-04 punkt 1 og 2: en godkjenning gitt med fullmakt står når fullmakten endres
  *   senere, og uten fullmakt gis ingen ny godkjenning;
  * - arbeidsvalget i #818: fullmakten fryses i godkjenningen når den gis.
@@ -77,7 +77,7 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
           active: true,
         });
       }
-      // Driften setter opp fullmaktene (runde 7). Saksbehandleren `bh` har ingen.
+      // Driften setter opp fullmaktene (GFK-U1). Saksbehandleren `bh` har ingen.
       await settInn(r, 'fullmakt', {
         prosjekt_id: o.prosjekt.id,
         bruker_id: leder,
