@@ -409,7 +409,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         (f: Error) => ({ nummer: feilnummer(f), melding: f.message })
       );
     expect(feil?.nummer).toBe(CHECK_BRUDD);
-    expect(feil?.melding).toContain(`${kolonne.replace('.', '_')}_uten_mellomrom`);
+    expect(feil?.melding).toContain(`${kolonne.replace('.', '_')}_tegnklasse`);
   });
 
   it('leserollen (viewer_override) står seg gjennom synkroniseringen', async () => {
