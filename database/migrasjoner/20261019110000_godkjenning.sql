@@ -13,7 +13,8 @@
 -- da den ble gitt, så den står om fullmakten endres senere (B-04 punkt 2).
 
 CREATE TABLE koe.fullmakt (
-  prosjekt_id nvarchar(100) NOT NULL CONSTRAINT fullmakt_prosjekt FOREIGN KEY REFERENCES koe.projects (id),
+  prosjekt_id nvarchar(100) NOT NULL CONSTRAINT fullmakt_prosjekt FOREIGN KEY REFERENCES koe.projects (id)
+    CONSTRAINT fullmakt_prosjekt_id_uten_mellomrom CHECK (DATALENGTH(prosjekt_id) = DATALENGTH(RTRIM(prosjekt_id))),
   bruker_id uniqueidentifier NOT NULL CONSTRAINT fullmakt_bruker FOREIGN KEY REFERENCES koe.app_users (id),
   tittel nvarchar(200) NOT NULL CONSTRAINT fullmakt_tittel CHECK (LEN(tittel) > 0),
   grense decimal(15, 2) NULL CONSTRAINT fullmakt_grense CHECK (grense >= 0),
@@ -25,20 +26,23 @@ GO
 
 CREATE TABLE koe.dagmulktssats (
   prosjekt_id nvarchar(100) NOT NULL CONSTRAINT dagmulktssats_pk PRIMARY KEY
-    CONSTRAINT dagmulktssats_prosjekt FOREIGN KEY REFERENCES koe.projects (id),
+    CONSTRAINT dagmulktssats_prosjekt FOREIGN KEY REFERENCES koe.projects (id)
+    CONSTRAINT dagmulktssats_prosjekt_id_uten_mellomrom CHECK (DATALENGTH(prosjekt_id) = DATALENGTH(RTRIM(prosjekt_id))),
   sats decimal(15, 2) NOT NULL CONSTRAINT dagmulktssats_sats CHECK (sats > 0)
 );
 GO
 
 CREATE TABLE koe.godkjenningspakke (
   pakke_id uniqueidentifier NOT NULL CONSTRAINT godkjenningspakke_pk PRIMARY KEY,
-  prosjekt_id nvarchar(100) NOT NULL,
-  sak_id nvarchar(36) NOT NULL,
+  prosjekt_id nvarchar(100) NOT NULL
+    CONSTRAINT godkjenningspakke_prosjekt_id_uten_mellomrom CHECK (DATALENGTH(prosjekt_id) = DATALENGTH(RTRIM(prosjekt_id))),
+  sak_id nvarchar(36) NOT NULL
+    CONSTRAINT godkjenningspakke_sak_id_uten_mellomrom CHECK (DATALENGTH(sak_id) = DATALENGTH(RTRIM(sak_id))),
   -- Pakken som ble returnert eller trukket, og som denne erstatter.
   forrige_pakke_id uniqueidentifier NULL
     CONSTRAINT godkjenningspakke_forrige FOREIGN KEY REFERENCES koe.godkjenningspakke (pakke_id),
   aktor_id uniqueidentifier NOT NULL CONSTRAINT godkjenningspakke_aktor FOREIGN KEY REFERENCES koe.app_users (id),
-  aktor_rolle nvarchar(2) NOT NULL CONSTRAINT godkjenningspakke_rolle CHECK (aktor_rolle = N'BH'),
+  aktor_rolle nvarchar(2) NOT NULL CONSTRAINT godkjenningspakke_rolle CHECK (aktor_rolle IN (N'BH')),
   aktor_team_id nvarchar(32) NOT NULL CONSTRAINT godkjenningspakke_team_form
     CHECK (DATALENGTH(aktor_team_id) = 64 AND aktor_team_id COLLATE Latin1_General_100_BIN2_UTF8 NOT LIKE N'%[^0-9a-f]%'),
   brev nvarchar(max) NOT NULL CONSTRAINT godkjenningspakke_brev CHECK (ISJSON(brev) = 1),
@@ -53,8 +57,10 @@ GO
 
 CREATE TABLE koe.godkjenningssteg (
   pakke_id uniqueidentifier NOT NULL,
-  prosjekt_id nvarchar(100) NOT NULL,
-  aktor_team_id nvarchar(32) NOT NULL,
+  prosjekt_id nvarchar(100) NOT NULL
+    CONSTRAINT godkjenningssteg_prosjekt_id_uten_mellomrom CHECK (DATALENGTH(prosjekt_id) = DATALENGTH(RTRIM(prosjekt_id))),
+  aktor_team_id nvarchar(32) NOT NULL CONSTRAINT godkjenningssteg_team_form
+    CHECK (DATALENGTH(aktor_team_id) = 64 AND aktor_team_id COLLATE Latin1_General_100_BIN2_UTF8 NOT LIKE N'%[^0-9a-f]%'),
   steg tinyint NOT NULL CONSTRAINT godkjenningssteg_steg CHECK (steg >= 1),
   godkjenner_id uniqueidentifier NOT NULL
     CONSTRAINT godkjenningssteg_godkjenner FOREIGN KEY REFERENCES koe.app_users (id),
@@ -68,13 +74,16 @@ GO
 CREATE TABLE koe.godkjenningshandling (
   pakke_id uniqueidentifier NOT NULL,
   loepenr int NOT NULL CONSTRAINT godkjenningshandling_loepenr CHECK (loepenr >= 1),
-  prosjekt_id nvarchar(100) NOT NULL,
+  prosjekt_id nvarchar(100) NOT NULL
+    CONSTRAINT godkjenningshandling_prosjekt_id_uten_mellomrom CHECK (DATALENGTH(prosjekt_id) = DATALENGTH(RTRIM(prosjekt_id))),
   handling nvarchar(20) NOT NULL
-    CONSTRAINT godkjenningshandling_handling CHECK (handling IN (N'godkjent', N'returnert', N'trukket')),
+    CONSTRAINT godkjenningshandling_handling CHECK (handling IN (N'godkjent', N'returnert', N'trukket')
+      AND DATALENGTH(handling) = DATALENGTH(RTRIM(handling))),
   steg tinyint NULL,
   aktor_id uniqueidentifier NOT NULL CONSTRAINT godkjenningshandling_aktor FOREIGN KEY REFERENCES koe.app_users (id),
-  aktor_rolle nvarchar(2) NOT NULL CONSTRAINT godkjenningshandling_rolle CHECK (aktor_rolle = N'BH'),
-  aktor_team_id nvarchar(32) NOT NULL,
+  aktor_rolle nvarchar(2) NOT NULL CONSTRAINT godkjenningshandling_rolle CHECK (aktor_rolle IN (N'BH')),
+  aktor_team_id nvarchar(32) NOT NULL CONSTRAINT godkjenningshandling_team_form
+    CHECK (DATALENGTH(aktor_team_id) = 64 AND aktor_team_id COLLATE Latin1_General_100_BIN2_UTF8 NOT LIKE N'%[^0-9a-f]%'),
   -- Fullmakten godkjenneren hadde da godkjenningen ble gitt (B-04 punkt 2).
   fullmakt_tittel nvarchar(200) NULL,
   fullmakt_grense decimal(15, 2) NULL,

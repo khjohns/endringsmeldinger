@@ -476,6 +476,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
           WHERE COL_NAME(k.parent_object_id, k.parent_column_id) IN (N'aktor_id', N'created_by', N'aktor_team_id')`
       );
       expect(svar.recordset.map((r) => `${r.kolonne} -> ${r.til}`).sort()).toEqual([
+        'godkjenningshandling.aktor_id -> app_users.id',
+        'godkjenningshandling.aktor_team_id -> godkjenningspakke.aktor_team_id',
+        'godkjenningspakke.aktor_id -> app_users.id',
+        'godkjenningssteg.aktor_team_id -> godkjenningspakke.aktor_team_id',
         'hendelse.aktor_id -> app_users.id',
         'notat.aktor_id -> app_users.id',
         'sak_metadata.created_by -> app_users.id',

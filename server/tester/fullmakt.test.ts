@@ -2,16 +2,21 @@
  * Fullmakten byggherrens svar krever (S-1a, #818). Forventningene er GFK-06 med
  * presiseringen 24.09, vedtaket 23.09 om ubegrenset fullmakt og B-06 og «svar uten
  * registrerte fullmakter» fra runde 7 (kommentaren «Runde 7: avgjort 18.10» i #764).
- * Sakene bygges gjennom kjernen med klienten fra bevis-sakene, så kravene og
- * utregningen er kjernens (KA-U2, B-13).
+ * Kravene skrives gjennom kjernens `vurder`, så de er kjernens kravversjoner (KA-U2),
+ * og beløpene og dagene i svaret er kjernens utregning (B-13).
  */
+import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { Svarutkast } from '../../kjerne/kommandoer/kommando.ts';
-import { GJELDENDE_REGLER } from '../../kjerne/regler/regelsett.ts';
-import { minnebane } from '../../kjerne/tester/bane.ts';
-import { Kjoering } from '../../kjerne/tester/kjoerer.ts';
-import { kommandoFor, type Handling } from '../../kjerne/tester/klient.ts';
+import {
+  forhaandsvis,
+  laastTekst,
+  utledJournal,
+  vurder,
+} from '../../kjerne/kommandoer/skriving.ts';
+import type { Journalrad, Spor } from '../../kjerne/typer.ts';
 import type { Utledning } from '../../kjerne/utledning/utled.ts';
+import { KJERNE } from '../../kjerne/versjon.ts';
 import {
   brevverdi,
   godkjenningskjede,
@@ -20,32 +25,102 @@ import {
   type Fullmakt,
 } from '../fullmakt.ts';
 
-const KRAV_GRUNNLAG: Handling = {
-  handling: 'krav',
+const UTDYPNING = 'Byggherren har pålagt en annen fundamentering.';
+const KRAV_GRUNNLAG = {
+  type: 'krav',
   spor: 'grunnlag',
-  underkategori: 'irregulaer_endring',
-  navn: 'K-g1',
+  innhold: {
+    hovedkategori: 'endring',
+    underkategori: 'irregulaer_endring',
+    tittel: 'Endret fundamentering',
+    paalegg_mottatt: '2026-10-01',
+  },
+  utdypning: UTDYPNING,
 };
-const KRAV_VEDERLAG: Handling = { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' };
-const KRAV_FRIST: Handling = { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' };
+const KRAV_VEDERLAG = {
+  type: 'krav',
+  spor: 'vederlag',
+  innhold: { metode: 'tilbud', beloep: 100000 },
+};
+const KRAV_FRIST = { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING };
 const GRUNNLAG_GODKJENT = { spor: 'grunnlag', resultat: 'godkjent', varslet_i_tide: true };
 const SATS = 5000;
+const { regler } = KJERNE;
 
-async function sak(krav: Handling[], svar: Record<string, unknown>[]) {
-  const k = new Kjoering(minnebane());
-  for (const h of krav) {
-    const utfall = await k.send(h);
-    if (!utfall?.godtatt) throw new Error(`Forutsetning: kravet ${String(h.navn)} ble avvist`);
+function utledning(krav: object[]): Utledning {
+  const sakId = randomUUID();
+  let klokke = Date.UTC(2026, 9, 2, 8);
+  const journal: Journalrad[] = [
+    {
+      event_id: randomUUID(),
+      sak_id: sakId,
+      event_type: 'sak_opprettet',
+      versjon: 1,
+      tidsstempel: new Date(klokke).toISOString(),
+      aktor_id: 'te',
+      aktor_rolle: 'TE',
+      aktor_team_id: null,
+      refererer_til_event_id: null,
+      format: 1,
+      data: { sakstittel: 'Fullmakten', sakstype: 'standard' },
+    },
+  ];
+  for (const k of krav) {
+    const kontekst = {
+      sakId,
+      aktoerId: 'te',
+      part: 'TE' as const,
+      teamId: 'team-te',
+      tidspunkt: () => new Date((klokke += 60_000)),
+      nyId: () => randomUUID(),
+    };
+    // Avsenderen godkjenner teksten kjernen viser (LV-U2).
+    const vist = forhaandsvis(structuredClone(k), kontekst, journal, KJERNE);
+    const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
+    const utfall = vurder(tekst ? { ...k, brevtekst: tekst } : k, kontekst, journal, KJERNE);
+    if (!utfall.godtatt)
+      throw new Error(`Forutsetning: kravet ble avvist: ${JSON.stringify(utfall)}`);
+    utfall.hendelser.forEach((h) => journal.push({ ...h, versjon: journal.length + 1 }));
   }
-  const u: Utledning = await k.utledning();
-  const brev = kommandoFor({ handling: 'brev', svar } as Handling, u, GJELDENDE_REGLER, k.navn);
-  if (brev.type !== 'brev') throw new Error('Forutsetning: kommandoen er ikke et brev');
-  return { u, svar: brev.svar as Svarutkast[] };
+  return utledJournal(journal, KJERNE);
 }
 
-const verdi = async (krav: Handling[], svar: Record<string, unknown>[], sats: number | null) => {
-  const s = await sak(krav, svar);
-  return brevverdi(s.svar, s.u, sats, GJELDENDE_REGLER);
+/** Byggherrens vurderinger i kjernens form (`Svarvurdering`). */
+function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
+  const spor = h.spor as Spor;
+  const vurderinger =
+    spor === 'grunnlag'
+      ? { resultat: h.resultat, grunnlag_varslet_i_tide: h.varslet_i_tide }
+      : spor === 'vederlag'
+        ? {
+            hovedkrav_vurdering: h.vurdering,
+            hovedkrav_godkjent_belop: h.godkjent_belop,
+            aksepterer_metode: true,
+          }
+        : {
+            frist_varsel_ok: h.varsel_i_tide,
+            spesifisert_krav_ok: h.spesifisering_i_tide,
+            dager_maatte_forstaa: h.maatte_forstaa,
+            vilkar_oppfylt: h.hindring,
+            dager: h.dager ?? u.spor.frist.gjeldendeKrav?.innhold.dager,
+          };
+  return {
+    spor,
+    gjelder: u.spor[spor].gjeldendeKrav?.id ?? 'ingen',
+    regelversjon: regler.versjon,
+    vurderinger,
+    resultat: {},
+  };
+}
+
+const verdi = async (krav: object[], svar: Record<string, unknown>[], sats: number | null) => {
+  const u = utledning(krav);
+  return brevverdi(
+    svar.map((h) => svarutkast(h, u)),
+    u,
+    sats,
+    regler
+  );
 };
 
 describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
