@@ -1,6 +1,7 @@
 /**
  * Returstien og hodene i tilbakekallet fra innloggingen (#716 punkt 7, #763
- * punkt 8). Resten av innloggingsinngangene prøves i `innlogging.test.ts`.
+ * punkt 8), med frontenden fra miljøet. Resten av innloggingsinngangene prøves i
+ * `innlogging.test.ts`.
  *
  * Forventningen for returstien er kravet i #659: en lokal sti, og nettleseren
  * løser opp punktsegmentene før den følger omdirigeringen, så stien må være
@@ -11,7 +12,8 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sesjonsnavn } from '../autorisasjon.ts';
-import { tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
+import { validateHeaderValue } from 'node:http';
+import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
 import { lesSesjon, opprettInnloggingsforsoek, opprettSesjon } from '../sesjon.ts';
 import {
   lagOppsett,
@@ -39,6 +41,19 @@ describe('en retursti som løses opp til //, gir / (#716 punkt 7)', () => {
     ['/x/../saker//1', '/x/../saker//1'],
   ])('kontrollsak: %j gir %j', (inn, ut) => {
     expect(tryggRetursti(inn)).toBe(ut);
+  });
+});
+
+describe('en frontend med tegn utenfor ASCII i verten (#763 punkt 8)', () => {
+  it('gir verten i punycode, så adressen kan stå i Location', () => {
+    const { frontend } = innloggingFraMiljoe({
+      AUTH_FRONTEND_URL: 'https://endring.øbf.example/',
+      CATENDA_CLIENT_ID: 'klient',
+      CATENDA_CLIENT_SECRET: 'hemmelig',
+      CATENDA_LOGIN_REDIRECT_URI: 'https://endring.xn--bf-kka.example/api/auth/catenda/callback',
+    });
+    expect(frontend).toBe('https://endring.xn--bf-kka.example');
+    expect(() => validateHeaderValue('Location', `${frontend}/saker/1`)).not.toThrow();
   });
 });
 

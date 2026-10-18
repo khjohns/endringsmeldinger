@@ -85,11 +85,11 @@ function kontrollerAdresse(verdi: string, miljoe: NodeJS.ProcessEnv): URL {
  * meldingen har aldri med verdiene, så hemmeligheten ikke kan havne i loggen.
  */
 export function innloggingFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Innlogging {
-  const frontend = (miljoe.AUTH_FRONTEND_URL ?? '').replace(/\/+$/, '');
-  if (kontrollerAdresse(frontend, miljoe).pathname !== '/')
-    throw new Error('AUTH_FRONTEND_URL må være en opprinnelse');
+  const frontend = kontrollerAdresse(miljoe.AUTH_FRONTEND_URL ?? '', miljoe);
+  if (frontend.pathname !== '/') throw new Error('AUTH_FRONTEND_URL må være en opprinnelse');
   kontrollerAdresse(miljoe.CATENDA_LOGIN_REDIRECT_URI ?? '', miljoe);
-  return { frontend, oauth: catendaFraMiljoe(miljoe).oauth };
+  // Opprinnelsen har verten i punycode, så adressen kan stå i `Location` (#763 punkt 8).
+  return { frontend: frontend.origin, oauth: catendaFraMiljoe(miljoe).oauth };
 }
 
 /**
