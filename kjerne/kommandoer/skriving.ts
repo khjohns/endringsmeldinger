@@ -184,7 +184,7 @@ function dokument(
         return {
           utsagn,
           opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
-          dokumentasjon: bundne(k.dokumentasjon!),
+          ...(k.dokumentasjon ? { dokumentasjon: bundne(k.dokumentasjon) } : {}),
         };
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
       return { utsagn };

@@ -2498,7 +2498,13 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'kjernen godtar et vedlegg serveren ikke fant i saken (LV-U14, arbeidsvalg 3 i #790)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['(id) => !vedlegg.has(id.toLowerCase())', '() => false']],
+    endringer: [
+      ['(id) => !vedlegg.has(id.toLowerCase())', '() => false'],
+      [
+        'vedlegg.get(id.toLowerCase())!',
+        "(vedlegg.get(id.toLowerCase()) ?? { vedlegg_id: id, filnavn: id, innhold_sha256: '0'.repeat(64) })",
+      ],
+    ],
     mal: ['et vedlegg serveren ikke fant i saken, avvises'],
   },
   {
