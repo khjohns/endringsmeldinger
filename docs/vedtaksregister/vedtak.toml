@@ -4851,7 +4851,7 @@ svar = '''
 «HF-U4 og HF-U5 (Recommended)»'''
 forhold = [{ art = "utvider", vedtak = "mm-u18" }]
 folge = '''
-Ikke bygget (#568).'''
+Ikke bygget (#568). Bygget 18.10 i PR #775.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "HF-U4 og HF-U5"

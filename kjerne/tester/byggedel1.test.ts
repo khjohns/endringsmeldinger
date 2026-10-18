@@ -214,7 +214,14 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
   });
 
   it.each<[string, 'TE' | 'BH', string, string, boolean]>([
-    ['en innsigelse fra BH mot TEs krav', 'BH', 'innsigelse', 'K-g1', true],
+    ['en innsigelse fra BH mot TEs krav', 'BH', 'innsigelse', 'K-v1', true],
+    [
+      'en innsigelse fra BH mot grunnlagskravet etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)',
+      'BH',
+      'innsigelse',
+      'K-g1',
+      false,
+    ],
     ['en innsigelse fra TE mot eget krav', 'TE', 'innsigelse', 'K-g1', false],
     ['en innsigelse fra TE mot BHs svar', 'TE', 'innsigelse', 'S-g1', true],
     ['en innsigelse mot et dokument', 'TE', 'innsigelse', 'D4', false],
@@ -232,12 +239,28 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
 
   it('en protest mot en innsigelse fra motparten er forstått; mot egen innsigelse ikke (VS-U1)', async () => {
     const { k, journal } = await grunnlag();
-    const innsigelse = { id: randomUUID(), art: 'innsigelse', gjelder: k.navn.id('K-g1') };
+    const innsigelse = { id: randomUUID(), art: 'innsigelse', gjelder: k.navn.id('K-v1') };
     const i = rad(journal, 'BH', { utsagn: [innsigelse] });
     const protest = (part: 'TE' | 'BH') =>
       rad([i], part, { utsagn: [{ id: randomUUID(), art: 'protest', gjelder: innsigelse.id }] });
     expect(forstaatt([...journal, i, protest('TE')])).toBe(true);
     expect(forstaatt([...journal, i, protest('BH')])).toBe(false);
+  });
+
+  it('en innsigelse fra TE mot eget grunnlagskrav etter «i tide» gir bare grunnen etter VS-U1, ikke MM-U27 (HF-U4 gjelder BH)', async () => {
+    const { k, journal } = await grunnlag();
+    const grunner = (part: 'TE' | 'BH') => {
+      const r = rad(journal, part, {
+        utsagn: [{ id: randomUUID(), art: 'innsigelse', gjelder: k.navn.id('K-g1') }],
+      });
+      return utled(lesJournal([...journal, r], KJERNE.leserformat), GJELDENDE_REGLER)
+        .begrensninger.map((b) => b.grunn)
+        .join('\n');
+    };
+    // Kontrollsak: den samme innsigelsen fra BH bryter «i tide».
+    expect(grunner('BH'), 'kontrollsak').toContain('MM-U27');
+    expect(grunner('TE')).toContain('innsigelse viser ikke til noe den kan gjelde før den');
+    expect(grunner('TE')).not.toContain('MM-U27');
   });
 
   it('en passivitet fra BH er ikke forstått (VS-U12)', async () => {
@@ -346,7 +369,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     expect(u.utenVirkning).toEqual([]);
   });
 
-  it('en registrert begrunnelse av et registrert svar, sendt før svaret, avvises (KA-U36, KA-U38)', async () => {
+  it('en registrert begrunnelse av et registrert svar, oppgitt sendt før svaret, godtas, fordi datokontrollene er utsatt (OV-U7, KA-U36)', async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
       ...foer,
@@ -379,8 +402,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
       );
       return u.godtatt ? null : u.avvisning.regel;
     };
-    expect(begrunnelse('2026-10-02'), 'kontrollsak').toBeNull();
-    expect(begrunnelse('2026-10-01')).toBe('BEGRUNNELSE_FOER_SVARET');
+    expect(begrunnelse('2026-10-01')).toBeNull();
   });
 
   it('en påberopt passivitet mot den er forstått', async () => {

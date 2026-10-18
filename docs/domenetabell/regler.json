@@ -927,6 +927,20 @@
       "radetikett": "OV-U7: i første versjon bygges ikke disse vedtakene og delene av dem"
     },
     {
+      "id": "MM-U27",
+      "type": "vedtak",
+      "dato": "2026-10-17",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u27",
+      "radetikett": "MM-U27: En hendelse som ikke er et registrert brev, og som påberoper at et varsel, krav eller svar kom for sent etter en bestemmelse der samme part i et utsagn sendt fra appen uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det (HF-U4), gjør saken ikke forstått, som etter MM-U18"
+    },
+    {
+      "id": "OV-U13",
+      "type": "vedtak",
+      "dato": "2026-10-17",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u13",
+      "radetikett": "OV-U13: Opplysningen om at et registrert brev er en endringsordre etter § 31.3, gis i første versjon bare når byggherren registrerer sin egen endringsordre som svar (OV-U6)"
+    },
+    {
       "id": "VS-U24",
       "type": "vedtak",
       "dato": "2026-10-15",
@@ -2045,7 +2059,7 @@
     {
       "id": "GR-29",
       "tilfelle": "Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting.",
-      "forventet": "Med opplysningen om at brevet er en endringsordre etter § 31.3, er godkjenningen byggherrens svar etter [OV-U6](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u6): partene er enige ved sammenfall, og grunnlaget er avklart. Opplysningen vises, men gir ingen egen virkning i appen. Med opplysningen om at § 31.3 ikke er oppfylt, eller uten opplysningen, er brevet dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): det gir ikke gjeldende svar, enighet eller et uavklart utfall. I alle tilfellene kan TE trekke grunnlaget som avkall etter KA-U6 og GR-U5: en endringsordre byggherren har registrert, sperrer ikke trekket, og et registrert brev gir ingen sperre. En senere avklaring er et nytt dokument som viser til brevet; brevet skrives ikke om. To opplysninger om samme brev gir en sak som ikke er forstått.",
+      "forventet": "Med opplysningen om at brevet er en endringsordre etter § 31.3, er godkjenningen byggherrens svar etter [OV-U6](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u6): partene er enige ved sammenfall, og grunnlaget er avklart. Opplysningen vises, men gir ingen egen virkning i appen. Uten opplysningen er brevet dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): det gir ikke gjeldende svar, enighet eller et uavklart utfall. I alle tilfellene kan TE trekke grunnlaget som avkall etter KA-U6 og GR-U5: en endringsordre byggherren har registrert, sperrer ikke trekket, og et registrert brev gir ingen sperre. Opplysningen gis bare ved byggherrens endringsordre som svar etter OV-U6 ([OV-U13](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u13)). En opplysning om at § 31.3 ikke er oppfylt, en opplysning ved et annet registrert brev og en senere avklaring gir en sak som ikke er forstått.",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "§ 32.3 a gir en endringsordre bare når § 31.3 også er oppfylt. Opplysningen er registratorens, ikke en rettslig avgjørelse. Et trekk opphever ikke et pålegg eller en utførelsesplikt.",
       "rettidighet": "—",
@@ -2061,7 +2075,8 @@
         "KA-U14",
         "MM-U12",
         "OV-U6",
-        "OV-U4"
+        "OV-U4",
+        "OV-U13"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2993,16 +3008,11 @@
         "KA-U36",
         "KA-U37",
         "KA-U38",
-        "KA-U39"
+        "KA-U39",
+        "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#begrunnelsensDato",
-        "kjerne/utledning/utled.ts#utledSporene"
-      ],
-      "regelkoder": [
-        "BEGRUNNELSE_FOER_SVARET"
-      ]
+      "utsatt": "OV-U7"
     },
     {
       "id": "KA-46",
@@ -3045,7 +3055,7 @@
     {
       "id": "KA-48",
       "tilfelle": "Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § 32.2, § 33.4 eller § 34.1.2, eller at fristkravet ble spesifisert i tide etter § 33.6.1. Senere sender byggherren et svar eller en revisjon som påberoper at det samme kom for sent etter samme bestemmelse.",
-      "forventet": "Svaret eller revisjonen avvises. Resten av svaret kan revideres. Et «i tide» etter § 32.2, § 33.4 og § 34.1.2 står mot hver senere kravversjon, også et svar regnet mot en ny grunnlagsversjon, og etter § 33.4 også når TE senere registrerer et tidligere sendt varsel. Et «i tide» etter § 33.6.1 gjelder kravversjonen. Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt. Et registrert svar binder ikke. Kontrollen gjøres når et svar sendes eller registreres med kommandoen, ikke når saken leses.",
+      "forventet": "Svaret eller revisjonen avvises. Resten av svaret kan revideres. Et «i tide» etter § 32.2, § 33.4 og § 34.1.2 står mot hver senere kravversjon, også et svar regnet mot en ny grunnlagsversjon, og etter § 33.4 også når TE senere registrerer et tidligere sendt varsel. Et «i tide» etter § 33.6.1 gjelder kravversjonen. Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt. Et registrert svar binder ikke. Kontrollen gjøres når et svar sendes eller registreres med kommandoen. Et svar eller en revisjon utenfor kommandoene som ikke er et registrert brev, gjør saken ikke forstått (MM-U27).",
       "bh_standpunkt": "«I tide» i et sendt svar, deretter «for sent» etter samme bestemmelse.",
       "rettslig_virkning": "Byggherren er bundet av sitt «i tide» fra det er kommet fram. Om byggherren likevel er løst fra det, avgjør ikke appen.",
       "rettidighet": "Byggherrens tidligere «i tide» etter samme bestemmelse.",
@@ -3053,12 +3063,14 @@
       "kilder": [
         "HF-U4",
         "HF-U8",
-        "HF-U1"
+        "HF-U1",
+        "MM-U27"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#harSagtITide",
-        "kjerne/kommandoer/nyttelast.ts#paaberopt"
+        "kjerne/kommandoer/nyttelast.ts#paaberopt",
+        "kjerne/utledning/utled.ts#bryterBindingen"
       ],
       "regelkoder": [
         "SAGT_I_TIDE"
@@ -3067,7 +3079,7 @@
     {
       "id": "KA-49",
       "tilfelle": "Byggherren reviderer et svar sendt fra appen som TE ikke har godtatt, og revisjonen senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, at fremdriften er hindret etter § 33.1, dagene byggherren måtte forstå etter § 33.6.1 når begge svar sier «for sent», eller aksepten av beregningsmåten etter § 34.2.2.",
-      "forventet": "Revisjonen avvises, også når den hever et annet standpunkt, retter en skrivefeil eller kommer etter en ny grunnlagsversjon med samme hjemmel. Meldingen sier hvilket standpunkt som senkes. En revisjon med de samme standpunktene senker ikke. Byggherrens ønskede metode når tilbudet ikke er akseptert, sammenliknes ikke. Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar binder ikke. Kontrollen gjøres når revisjonen sendes med kommandoen, ikke når saken leses.",
+      "forventet": "Revisjonen avvises, også når den hever et annet standpunkt, retter en skrivefeil eller kommer etter en ny grunnlagsversjon med samme hjemmel. Meldingen sier hvilket standpunkt som senkes. En revisjon med de samme standpunktene senker ikke. Byggherrens ønskede metode når tilbudet ikke er akseptert, sammenliknes ikke. Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar binder ikke. Kontrollen gjøres når revisjonen sendes med kommandoen. En revisjon utenfor kommandoene som ikke er et registrert brev, gjør saken ikke forstått (MM-U27).",
       "bh_standpunkt": "Det byggherren har innrømmet i et sendt svar, deretter en revisjon som senker det.",
       "rettslig_virkning": "Byggherren er bundet av det svaret innrømmer, til TE godtar svaret eller sender en ny kravversjon. Om byggherren likevel er løst, avgjør ikke appen.",
       "rettidighet": "—",
@@ -3077,12 +3089,14 @@
         "HF-U14",
         "HF-U21",
         "HF-U8",
-        "OV-U4"
+        "OV-U4",
+        "MM-U27"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/standpunkter.ts#senketStandpunkt",
-        "kjerne/kommandoer/nyttelast.ts#binding"
+        "kjerne/kommandoer/nyttelast.ts#binding",
+        "kjerne/utledning/utled.ts#bryterBindingen"
       ],
       "regelkoder": [
         "SENKER_INNROEMMELSE"

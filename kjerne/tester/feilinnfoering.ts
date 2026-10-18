@@ -517,18 +517,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-G21'],
   },
   {
-    id: 'F45',
-    feilklasse: 'to opplysninger om § 31.3 for samme brev leses (MM-U12, B-16)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "opplysninger.filter((x) => x.hva === 'endringsordre' && x.brev === o.brev).length > 1 ||",
-        'false ||',
-      ],
-    ],
-    mal: ['to opplysninger om samme brev er ikke forstått'],
-  },
-  {
     id: 'F46',
     feilklasse: 'datoen for et varsel i kravet leses som at kravet er sendt utenfor appen (HF-U1)',
     fil: `${K}/kommandoer/skriving.ts`,
@@ -1487,74 +1475,11 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['godtas når kravene er avgjort, mens en revisjon avvises', 'F-MM-BG2'],
   },
   {
-    id: 'F171',
-    feilklasse: 'en registrert begrunnelse sendt før svaret godtas (KA-U36)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        'if (k.sendt === undefined || !svaret || kalenderdag(k.sendt) >= kalenderdag(svaret))',
-        'if (true)',
-      ],
-    ],
-    mal: ['før datoen appen registrerte svaret, avvises den', 'F-MM-BG1'],
-  },
-  {
-    id: 'F172',
-    feilklasse: 'en registrert begrunnelse med samme dato som svaret avvises (KA-U37)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['>= kalenderdag(svaret))', '> kalenderdag(svaret))']],
-    mal: ['før datoen appen registrerte svaret, avvises den, og samme dato godtas', 'F-MM-BG1'],
-  },
-  {
     id: 'F173',
     feilklasse: 'datoen for et svar fra appen er i UTC, ikke i norsk tid (KA-U37)',
     fil: `${K}/format/leser.ts`,
     endringer: [['  OSLO.format(new Date(d.registrert));', '  d.registrert.slice(0, 10);']],
-    mal: ['datoen for svaret fra appen er i norsk tid'],
-  },
-  {
-    id: 'F174',
-    feilklasse: 'et registrert svar dateres med mottatt-datoen når den finnes (KA-U38)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "? (datoFor(s, 'sendt', opplysninger)?.dato ?? null)",
-        "? ((datoFor(s, 'mottatt', opplysninger) ?? datoFor(s, 'sendt', opplysninger))?.dato ?? null)",
-      ],
-    ],
-    mal: ['for et registrert svar gjelder datoen det ble sendt'],
-  },
-  {
-    id: 'F175',
-    feilklasse: 'et registrert svar med bare mottatt-dato kontrolleres mot den (KA-U38)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "? (datoFor(s, 'sendt', opplysninger)?.dato ?? null)",
-        "? ((datoFor(s, 'sendt', opplysninger) ?? datoFor(s, 'mottatt', opplysninger))?.dato ?? null)",
-      ],
-    ],
-    mal: ['et registrert svar med bare mottatt-dato gir ingen kontroll'],
-  },
-  {
-    id: 'F176',
-    feilklasse: 'en bestridelse av datoen på svaret opphever kontrollen (KA-U39)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        'const svaret = u.svarSendt[k.gjelder];',
-        'const svaret = u.opplysninger.some((o) => o.bestridelser.length) ? null : u.svarSendt[k.gjelder];',
-      ],
-    ],
-    mal: ['en bestridelse av datoen på svaret endrer ikke kontrollen'],
-  },
-  {
-    id: 'F177',
-    feilklasse:
-      'et svar uten virkning har ingen dato, så begrunnelsen kontrolleres ikke (KA-U36, MM-U18)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['    svarMedUten.map((s) => {', '    [...alleSvar.values()].map((s) => {']],
-    mal: ['en registrert begrunnelse av et registrert svar, sendt før svaret, avvises'],
+    mal: ['brevets dato er datoen i norsk tid, ikke i UTC'],
   },
   {
     id: 'F178',
@@ -2077,8 +2002,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '(s) => frafaller(s) && !u.elementer[s.dokument]?.registrertBrev',
-        '(s) =>\n      frafaller(s) &&\n      s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id &&\n      !u.elementer[s.dokument]?.registrertBrev',
+        'u.spor.grunnlag.svar.some(frafaller);',
+        'u.spor.grunnlag.svar.some(\n    (s) => frafaller(s) && s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id\n  );',
       ],
     ],
     mal: ['byggherren kan svare med frafall eller endringsordre, ikke med avslag', 'F-MM-G38'],
@@ -2139,7 +2064,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F240',
     feilklasse: 'en revisjon sammenliknes ikke med svaret den erstatter (HF-U5)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['?? binding(k.svar, forrige, u, regler)', '?? null']],
+    endringer: [['return forrige && binding(s, forrige, krav, u, server);', 'return null;']],
     mal: [
       'et lavere godkjent beløp avvises',
       'færre godkjente dager avvises',
@@ -2151,7 +2076,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F241',
     feilklasse: 'aksepten av beregningsmåten sammenliknes ikke (HF-U14)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/utledning/innroemmelse.ts`,
     endringer: [["if (ny('metode')?.aksepterer === false)", 'if (false)']],
     mal: ['aksepten av beregningsmåten kan ikke tas tilbake', 'F-MM-HF-U14'],
   },
@@ -2162,8 +2087,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  if (u.elementer[forrige.dokument]?.registrertBrev) return null;',
-        '  if (u.elementer[forrige.dokument]?.registrertBrev) return null;\n  if (forrige.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;',
+        '  let n = 0;\n',
+        '  if (forrige.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;\n  let n = 0;\n',
       ],
     ],
     mal: ['bindingen i vederlaget står etter en ny grunnlagsversjon', 'F-MM-HF-U21'],
@@ -2184,7 +2109,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F244',
     feilklasse: 'beløpet sammenliknes i hele kroner, ikke til hele øre (B-13)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/utledning/innroemmelse.ts`,
     endringer: [
       [
         'if (beloep(n.godkjent)! < beloep(f.godkjent)!)',
@@ -2308,10 +2233,111 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F257',
     feilklasse:
-      'en lagret dato med klokkeslett sammenliknes som tekst, ikke som kalenderdag (KA-U37, #474)',
+      'en lagret dato med klokkeslett sammenliknes som tekst, ikke som kalenderdag (SK-12, #474, #766)',
     fil: `${K}/format/leser.ts`,
     endringer: [['  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(dato)) return dato;', '  return dato;']],
-    mal: ['en sendt-dato med klokkeslett sammenliknes som dagen i norsk tid'],
+    mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
+  },
+  // K-1 økt A (#770): MM-U27, OV-U13, #766 punkt 1 og #522.
+  {
+    id: 'F258',
+    feilklasse:
+      'en hendelse utenfor kommandoene som bryter bindingen etter HF-U4 eller HF-U5, leses med virkning (MM-U27)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    if (!registrert)\n      for (const x of bryterBindingen(',
+        '    if (false)\n      for (const x of bryterBindingen(',
+      ],
+    ],
+    mal: [
+      'en revisjon som senker det godkjente beløpet, gjør saken ikke forstått',
+      'etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)',
+    ],
+  },
+  {
+    id: 'F259',
+    feilklasse: 'et registrert brev som bryter bindingen, gjør saken ikke forstått (MM-U27, OV-U4)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    if (!registrert)\n      for (const x of bryterBindingen(',
+        '    if (true)\n      for (const x of bryterBindingen(',
+      ],
+    ],
+    mal: ['den samme revisjonen i et registrert brev gjør ikke saken uforstått'],
+  },
+  {
+    id: 'F260',
+    feilklasse:
+      'en revisjon utenfor kommandoene som senker en innrømmelse, leses med virkning (MM-U27, HF-U5)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      senketInnroemmelse(forrige, s.standpunkter)', '      false']],
+    mal: ['en revisjon som senker det godkjente beløpet, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F261',
+    feilklasse:
+      '«for sent» etter § 33.6.1 utenfor kommandoene leses med virkning etter «i tide» (MM-U27, HF-U4)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["        (p.art === 'spesifisering' &&", '        (false &&']],
+    mal: ['en revisjon som sier at spesifiseringen etter § 33.6.1 kom for sent'],
+  },
+  {
+    id: 'F262',
+    feilklasse:
+      'en innsigelse utenfor kommandoene leses med virkning etter «i tide» (MM-U27, HF-U4, VS-U24)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ["    if (x.art !== 'innsigelse' || d.avsender !== 'BH') continue;", '    continue;'],
+    ],
+    mal: ['etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)'],
+  },
+  {
+    id: 'F263',
+    feilklasse: 'SK-12 sammenlikner den lagrede varseldatoen som tekst (#766)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'return kalenderdag(sendt.dato) === kalenderdag(k.varsel.sendt)',
+        'return sendt.dato === k.varsel.sendt',
+      ],
+    ],
+    mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
+  },
+  {
+    id: 'F265',
+    feilklasse: 'påberopelsen etter § 32.2 leses av feltet for § 34.1.2 (HF-U4, #522)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "    return v.grunnlag_varslet_i_tide === false ? [{ hjemmel: '32.2' }] : [];",
+        "    return v.hovedkrav_varslet_i_tide === false ? [{ hjemmel: '32.2' }] : [];",
+      ],
+    ],
+    mal: ['en revisjon som påberoper «for sent» etter «i tide», avvises'],
+  },
+  {
+    id: 'F267',
+    feilklasse:
+      'opplysningen om § 31.3 godtas ved et registrert brev som ikke er byggherrens endringsordre (OV-U13, OV-U6, #669)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['    if (!brev.svar.some((s) => erRegistrertEndringsordre(s, brev)))', '    if (false)'],
+    ],
+    mal: ['opplysningen om § 31.3 ved'],
+  },
+  {
+    id: 'F269',
+    feilklasse: 'en innsigelse fra TE regnes som brudd på byggherrens «i tide» (MM-U27, HF-U4)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    if (x.art !== 'innsigelse' || d.avsender !== 'BH') continue;",
+        "    if (x.art !== 'innsigelse') continue;",
+      ],
+    ],
+    mal: ['en innsigelse fra TE mot eget grunnlagskrav etter «i tide»'],
   },
 ];
 

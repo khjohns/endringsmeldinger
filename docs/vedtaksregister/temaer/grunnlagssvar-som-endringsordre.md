@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `5d1c12eaebaa21ff295fe066bae80b805242bb4bd376eeca5b72eb5dda944352`
+Kontrollsum (SHA-256 over utdraget visningen leser): `3d93c3dfc7876660010b1fe804ac353d760ba16302e7d3be68d0d6bb7571204b`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -101,7 +101,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [GR-28](#rad-gr-28), [GR-29](#rad-gr-29)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G43 (målmodellen), F-MM-G22 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G43 (målmodellen)
 
 ### <a id="gr-u14"></a>GR-U14
 
@@ -469,7 +469,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-30](#rad-ka-30), [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [GR-31](#rad-gr-31), [GR-32](#rad-gr-32), [GR-33](#rad-gr-33), [KA-32](#rad-ka-32), [KA-34](#rad-ka-34), [KA-36](#rad-ka-36), [KA-37](#rad-ka-37), [KA-38](#rad-ka-38), [KA-40](#rad-ka-40), [KA-41](#rad-ka-41), [VS-02](#rad-vs-02), [KA-49](#rad-ka-49), [KA-50](#rad-ka-50)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G43 (målmodellen), F-MM-G44 (målmodellen), F-MM-G44-kontroll (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G46 (målmodellen), F-MM-U326n (målmodellen), F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen), F-MM-S342 (målmodellen), F-MM-V2 (målmodellen), F-MM-U326f (målmodellen), F-MM-U326g (målmodellen), F-MM-IK5 (målmodellen), F-MM-IK6 (målmodellen), F-MM-U326j (målmodellen), F-MM-U326k (målmodellen), F-MM-V9 (målmodellen), F-MM-V3c (målmodellen), F-MM-U326l (målmodellen), F-MM-U326m (målmodellen), F-MM-U20e (målmodellen), F-MM-U20f (målmodellen), F-MM-U20g (målmodellen), F-MM-U20i (målmodellen), F-MM-U20j (målmodellen), F-MM-U20k (målmodellen), F-MM-G37 (målmodellen), F-MM-G38 (målmodellen), F-MM-G41 (målmodellen), F-MM-G42x (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G43 (målmodellen), F-MM-G44 (målmodellen), F-MM-G44-kontroll (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G46 (målmodellen), F-MM-U326n (målmodellen), F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G22 (målmodellen), F-MM-S342 (målmodellen), F-MM-V2 (målmodellen), F-MM-U326f (målmodellen), F-MM-U326g (målmodellen), F-MM-IK5 (målmodellen), F-MM-IK6 (målmodellen), F-MM-U326j (målmodellen), F-MM-U326k (målmodellen), F-MM-V9 (målmodellen), F-MM-V3c (målmodellen), F-MM-U326l (målmodellen), F-MM-U326m (målmodellen), F-MM-U20e (målmodellen), F-MM-U20f (målmodellen), F-MM-U20g (målmodellen), F-MM-U20i (målmodellen), F-MM-U20j (målmodellen), F-MM-U20k (målmodellen), F-MM-G37 (målmodellen), F-MM-G38 (målmodellen), F-MM-G41 (målmodellen), F-MM-G42x (målmodellen)
 
 ### <a id="ov-u5"></a>OV-U5
 
@@ -561,9 +561,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Presiserer [OV-U6](#ov-u6). Presiserer [GR-U13](#gr-u13). Utsetter for § 31.3 det MM-U12 sier om en senere avklaring. Ikke bygget (#669).
 
-**Regelrader:** —
+**Regelrader:** [GR-29](#rad-gr-29)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-G21 (målmodellen), F-MM-G22 (målmodellen)
 
 ## Regelradene
 
@@ -584,7 +584,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-22"></a>GR-22 | TE godtar vederlagssvaret før byggherren har svart på grunnlaget, og byggherren godkjenner deretter grunnlaget. | [GR-U10](#gr-u10) | F-GR-22, F-MM-G36 (målmodellen), F-MM-G35 (målmodellen) |
 | <a id="rad-gr-27"></a>GR-27 | Byggherren har godkjent grunnlaget uten å påberope preklusjon. Byggherren vil deretter revidere svaret, eller TE sender en ny kravversjon av grunnlaget. | [GR-U10](#gr-u10) | F-MM-G10 (målmodellen) |
 | <a id="rad-gr-28"></a>GR-28 | TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon. | [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4) | F-MM-G10 (målmodellen), F-MM-G13 (målmodellen), F-MM-G14 (målmodellen), F-MM-G15 (målmodellen), F-MM-G16 (målmodellen), F-MM-G17 (målmodellen), F-MM-G18 (målmodellen), F-MM-G19 (målmodellen) |
-| <a id="rad-gr-29"></a>GR-29 | Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting. | [GR-U12](#gr-u12), [GR-U10](#gr-u10), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4) | F-MM-G43 (målmodellen), F-MM-G45 (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen) |
+| <a id="rad-gr-29"></a>GR-29 | Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting. | [GR-U12](#gr-u12), [GR-U10](#gr-u10), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4), [OV-U13](#ov-u13) | F-MM-G43 (målmodellen), F-MM-G45 (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen) |
 | <a id="rad-gr-31"></a>GR-31 | Byggherren har frafalt pålegget (§ 32.3 c) i et svar sendt fra appen, og reviderer svaret. | [GR-U17](#gr-u17), [HF-U4](#hf-u4), [OV-U4](#ov-u4) | F-MM-G37 (målmodellen), F-MM-G37x (målmodellen), F-MM-G41 (målmodellen), F-MM-G41x (målmodellen) |
 | <a id="rad-gr-32"></a>GR-32 | Byggherren har frafalt pålegget i et svar sendt fra appen, og TE sender en ny grunnlagsversjon. | [GR-U20](#gr-u20), [GR-U17](#gr-u17), [GR-U22](#gr-u22), [OV-U4](#ov-u4) | F-MM-G38 (målmodellen), F-MM-G39 (målmodellen) |
 | <a id="rad-gr-33"></a>GR-33 | Byggherren har frafalt pålegget i et svar sendt fra appen, TE sender en ny grunnlagsversjon, og den venter på byggherrens svar. Et annet sendt krav står åpent, for eksempel fristkravet. | [GR-U24](#gr-u24), [GR-U23](#gr-u23), [GR-U20](#gr-u20), [GR-U17](#gr-u17), [OV-U4](#ov-u4) | F-MM-G42 (målmodellen), F-MM-G42x (målmodellen) |
