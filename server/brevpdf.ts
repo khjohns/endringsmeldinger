@@ -8,41 +8,53 @@
  */
 
 import { inflateSync } from 'node:zlib';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { beginMarkedContent, endMarkedContent, PDFDocument, StandardFonts } from 'pdf-lib';
 
 const A4 = [595.28, 841.89] as const;
 const MARG = 56;
 const SKRIFTSTOERRELSE = 11;
 const LINJEAVSTAND = 15;
+const DELT = 'Delt';
 
-/** Bryter et avsnitt på ord, så hver linje holder seg innenfor `bredde`. Et ord som er for langt, deles. */
-function linjer(avsnitt: string, bredde: number, maal: (t: string) => number): string[] {
-  const ut: string[] = [];
+/**
+ * Bryter et avsnitt på ord, så hver linje holder seg innenfor `bredde`. Et ord som er for
+ * langt, deles, og delen som fortsetter på neste linje, er `delt`.
+ */
+function linjer(
+  avsnitt: string,
+  bredde: number,
+  maal: (t: string) => number
+): { tekst: string; delt: boolean }[] {
+  const ut: { tekst: string; delt: boolean }[] = [];
   let linje = '';
   for (const ord of avsnitt.split(/ +/)) {
     let rest = ord;
-    while (maal(rest) > bredde) {
-      let n = rest.length - 1;
-      while (n > 1 && maal(rest.slice(0, n)) > bredde) n--;
-      if (linje) ut.push(linje);
-      ut.push(rest.slice(0, n));
+    for (;;) {
+      let n = 0;
+      for (let b = 0; n < rest.length && (b += maal(rest[n])) <= bredde; ) n++;
+      if (n === rest.length) break;
+      n = Math.max(n, 1);
+      if (linje) ut.push({ tekst: linje, delt: false });
+      ut.push({ tekst: rest.slice(0, n), delt: true });
       linje = '';
       rest = rest.slice(n);
     }
     const kandidat = linje ? `${linje} ${rest}` : rest;
     if (maal(kandidat) <= bredde) linje = kandidat;
     else {
-      ut.push(linje);
+      ut.push({ tekst: linje, delt: false });
       linje = rest;
     }
   }
-  ut.push(linje);
+  ut.push({ tekst: linje, delt: false });
   return ut;
 }
 
 /**
  * Brevet som PDF. Tidspunktet i metadataene er brevets, så samme tekst gir samme fil.
- * Et tegn Helvetica ikke har (utenfor WinAnsi), gir en feil fra pdf-lib.
+ * Tab, CR, FF og VT settes som mellomrom og linjeskift, som `gjengirTro` tåler.
+ * Et tegn Helvetica ellers ikke har (utenfor WinAnsi), gir en feil fra pdf-lib.
+ * Et delt ord merkes `/Delt`, så lesingen setter delene sammen igjen.
  */
 export async function skrivBrevPdf(
   tekst: string,
@@ -61,13 +73,18 @@ export async function skrivBrevPdf(
 
   let side = pdf.addPage([...A4]);
   let y = A4[1] - MARG;
-  for (const avsnitt of tekst.split('\n')) {
+  const normalisert = tekst.replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
+  for (const avsnitt of normalisert.split('\n')) {
     for (const linje of linjer(avsnitt, bredde, maal)) {
-      if (y < MARG) {
-        side = pdf.addPage([...A4]);
-        y = A4[1] - MARG;
+      if (linje.tekst) {
+        if (y < MARG) {
+          side = pdf.addPage([...A4]);
+          y = A4[1] - MARG;
+        }
+        if (linje.delt) side.pushOperators(beginMarkedContent(DELT));
+        side.drawText(linje.tekst, { x: MARG, y, size: SKRIFTSTOERRELSE, font: skrift });
+        if (linje.delt) side.pushOperators(endMarkedContent());
       }
-      if (linje) side.drawText(linje, { x: MARG, y, size: SKRIFTSTOERRELSE, font: skrift });
       y -= LINJEAVSTAND;
     }
   }
@@ -112,7 +129,7 @@ const referanse = (ordbok: string, navn: string) => {
   return Number(r[1]);
 };
 
-/** Teksten i PDF-en, side for side og én linje per tekstoperator. */
+/** Teksten i PDF-en, side for side og én linje per tekstoperator, med et delt ord satt sammen. */
 export function lesBrevPdf(pdf: Uint8Array): string {
   const obj = objekter(pdf);
   const hent = (n: number) => {
@@ -123,7 +140,8 @@ export function lesBrevPdf(pdf: Uint8Array): string {
   const trailer = latin1.decode(pdf).split('trailer').at(-1)!;
   const sider = hent(referanse(hent(referanse(trailer, 'Root')).ordbok, 'Pages')).ordbok;
   const barn = /\/Kids \[([^\]]*)\]/.exec(sider)?.[1] ?? '';
-  const linjer: string[] = [];
+  let tekst = '';
+  let delt: 'ingen' | 'aapnet' | 'lest' = 'ingen';
   for (const [, n] of barn.matchAll(/(\d+) 0 R/g)) {
     const side = hent(Number(n));
     if (!/\/Type \/Page\b/.test(side.ordbok)) throw new Error('PDF-en har sider i flere nivåer');
@@ -132,9 +150,26 @@ export function lesBrevPdf(pdf: Uint8Array): string {
     for (const [, m] of innhold.matchAll(/(\d+) 0 R/g)) {
       const stroem = hent(Number(m)).stroem;
       if (!stroem) throw new Error('Sideinnholdet er ikke en strøm');
-      for (const [, hex] of latin1.decode(stroem).matchAll(/<([0-9A-Fa-f]*)> Tj/g))
-        linjer.push(winAnsi((hex.match(/../g) ?? []).map((b) => parseInt(b, 16))));
+      for (const [, merke, annet, hex, slutt] of latin1
+        .decode(stroem)
+        .matchAll(/\/(\w+) BMC|\b(BDC|MP|DP)\b|<([0-9A-Fa-f]*)> Tj|\b(EMC)\b/g)) {
+        if (annet) throw new Error(`PDF-en har det ukjente merket ${annet}`);
+        if (merke !== undefined) {
+          if (merke !== DELT || delt !== 'ingen')
+            throw new Error(`PDF-en har merket /${merke} der det ikke hører hjemme`);
+          delt = 'aapnet';
+        } else if (slutt) {
+          if (delt !== 'lest') throw new Error('PDF-en har et delt ord uten tekst');
+          delt = 'ingen';
+        } else {
+          if (delt === 'lest') throw new Error('PDF-en har mer enn én linje i et delt ord');
+          tekst += winAnsi((hex.match(/../g) ?? []).map((b) => parseInt(b, 16)));
+          if (delt === 'aapnet') delt = 'lest';
+          else tekst += '\n';
+        }
+      }
     }
   }
-  return linjer.join('\n');
+  if (delt !== 'ingen') throw new Error('PDF-en har et delt ord som ikke er avsluttet');
+  return tekst.replace(/\n$/, '');
 }

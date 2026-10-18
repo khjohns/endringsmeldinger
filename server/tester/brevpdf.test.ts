@@ -55,6 +55,51 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     expect(a.innhold).toEqual(b.innhold);
   });
 
+  it('gjengir et ord som er lengre enn linjen, tro, når det deles over flere linjer', async () => {
+    const tekst: Avsnitt[] = [
+      {
+        gjelder: 'a',
+        laast: 'Se tegningen.',
+        utdypning: `Se https://example.com/${'x'.repeat(300)} nå.`,
+      },
+    ];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    expect(lest).toContain(`https://example.com/${'x'.repeat(300)} nå.`);
+    expect(gjengirTro(lest, tekst)).toBe(true);
+  });
+
+  it('setter tab og CR som mellomrom og linjeskift og gjengir teksten tro', async () => {
+    const tekst: Avsnitt[] = [{ gjelder: 'a', laast: 'Post\t1:\r\nMengde\r2' }];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    expect(gjengirTro(lest, tekst)).toBe(true);
+  });
+
+  it('lager ingen tom side for tomme linjer over et sidebrekk', async () => {
+    const tekst: Avsnitt[] = [
+      { gjelder: 'a', laast: 'Tekst', utdypning: `Slutt${'\n'.repeat(80)}` },
+    ];
+    const pdf = (await brevdokument(oppdrag(tekst), 'n')).innhold;
+    expect((latin1(pdf).match(/\/Type \/Page\b/g) ?? []).length).toBe(1);
+    expect(gjengirTro(lesBrevPdf(pdf), tekst)).toBe(true);
+  });
+
+  it('setter sammen et ord som er delt over et sidebrekk, på neste side', async () => {
+    const ord = `ref-${'y'.repeat(200)}`;
+    const tekst: Avsnitt[] = [
+      { gjelder: 'a', laast: 'Start', utdypning: `${'linje\n'.repeat(45)}${ord} slutt.` },
+    ];
+    const pdf = (await brevdokument(oppdrag(tekst), 'n')).innhold;
+    expect((latin1(pdf).match(/\/Type \/Page\b/g) ?? []).length).toBe(2);
+    expect(lesBrevPdf(pdf)).toContain(`${ord} slutt.`);
+  });
+
+  it('beholder hardt mellomrom, som skriften har', async () => {
+    const tekst: Avsnitt[] = [{ gjelder: 'a', laast: 'Etter §\u00a033.8 gjelder 21\u00a0dager.' }];
+    expect(lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold)).toContain(
+      'Etter §\u00a033.8 gjelder 21\u00a0dager.'
+    );
+  });
+
   it('avviser et tegn skriften ikke har, i stedet for å utelate det', async () => {
     const tekst: Avsnitt[] = [{ gjelder: 'a', laast: 'Fristen er 3 uker → 21 dager.' }];
     await expect(brevdokument(oppdrag(tekst), 'n')).rejects.toBeInstanceOf(UgjengivbartBrev);

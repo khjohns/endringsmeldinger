@@ -126,7 +126,7 @@ FEILINNFOERINGER = [
      "    if (false)\n      return {\n        feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen under COMMIT.'),",
      "tilbakerulling under COMMIT uten feil"),
     ("S33", "PDF-en utelater siste linje på hver side (#371, LV-U2)", "server/brevpdf.ts",
-     "      if (linje) side.drawText(", "      if (linje && y > MARG + LINJEAVSTAND) side.drawText(",
+     "        side.drawText(linje.tekst,", "        if (y > MARG + LINJEAVSTAND) side.drawText(linje.tekst,",
      "gjengir en tekst over flere sider tro"),
     ("S34", "basen godtar en PDF med feil sum (#371)", "database/migrasjoner/20261018140000_brevdokument.sql",
      "CONSTRAINT brevdokument_sum CHECK (pdf_sha256 =", "CONSTRAINT brevdokument_sum CHECK (1 = 1 OR pdf_sha256 =",
@@ -141,6 +141,9 @@ FEILINNFOERINGER = [
     ("S37", "en uventet lokal feil prøves igjen i det uendelige (#783 punkt 2)", "server/jobber.ts",
      "\n  return { utfall: 'usikkert', melding };", "\n  return { utfall: 'feilet', melding };",
      "en uventet lokal feil i leveringen parkerer jobben"),
+    ("S38", "et ord som er delt over to linjer, leses som to ord (#371, LV-U2)", "server/brevpdf.ts",
+     "ut.push({ tekst: rest.slice(0, n), delt: true });", "ut.push({ tekst: rest.slice(0, n), delt: false });",
+     "gjengir et ord som er lengre enn linjen"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
