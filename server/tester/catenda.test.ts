@@ -393,7 +393,7 @@ describe('topicen for en sak fra appen (#741)', () => {
   });
 
   it.each([400, 403, 404, 429])(
-    'avvisningen %i (4xx, RFC 9110 15.5) er en sikker feil, ikke et usikkert utfall',
+    'avvisningen %i er en sikker feil, ikke et usikkert utfall (arbeidsvalget i PR #772)',
     async (status) => {
       svar = () => ({ status, json: { message: 'LEKKET' } });
       const feil = await new CatendaOAuth(oppsett())
@@ -422,6 +422,7 @@ describe('topicen for en sak fra appen (#741)', () => {
     ['en mellomtjener svarer 504', { status: 504, tekst: 'Gateway Timeout' }],
     ['en mellomtjener svarer 503', { status: 503, tekst: 'Service Unavailable' }],
     ['en mellomtjener svarer 408', { status: 408, tekst: 'Request Timeout' }],
+    ['en mellomtjener svarer 499', { status: 499, tekst: 'Client Closed Request' }],
     ['Catenda svarer 202', { status: 202, json: { guid: 'x' } }],
     ['Catenda omdirigerer', { status: 303, tekst: '' }],
     ['svaret er ikke JSON', { status: 201, tekst: 'ikke json' }],

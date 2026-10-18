@@ -26,13 +26,17 @@ export class CatendaUtilgjengelig extends Error {}
 
 /**
  * En endring i Catenda kan ha skjedd: svaret uteble etter at forespørselen kan ha
- * nådd fram, svaret var ingen avvisning (4xx), eller et vellykket svar hadde ikke
- * forventet form (invariant 7).
+ * nådd fram, svaret var ingen avvisning (`avvistUtenEndring`), eller et vellykket
+ * svar hadde ikke forventet form (invariant 7).
  */
 export class UsikkertUtfall extends CatendaUtilgjengelig {}
 
-/** Statusene der Catenda har avvist en endring uten å gjøre den. */
-const AVVIST_UTEN_ENDRING = (status: number) =>
+/**
+ * Statusene vi regner som en avvisning uten endring: en 4xx utenom tidsavbruddene 408
+ * og 499. En annen status, også 503, kan komme fra en mellomtjener etter at Catenda
+ * fikk forespørselen, og gir et usikkert utfall (arbeidsvalg i PR #772).
+ */
+const avvistUtenEndring = (status: number) =>
   status >= 400 && status < 500 && status !== 408 && status !== 499;
 
 /** Feilkodene der forbindelsen aldri ble åpnet, så forespørselen ikke er sendt. */
@@ -103,9 +107,7 @@ async function forespoersel(
   if (svar.status !== 200 && !(endring && svar.status === 201)) {
     await svar.body?.cancel().catch(() => {});
     const melding = `Catenda svarte med status ${svar.status}`;
-    // Bare en 4xx sier at endringen ikke er gjort. En 5xx, også 503, kan komme fra en
-    // mellomtjener etter at Catenda fikk forespørselen, og 408 og 499 er tidsavbrudd.
-    if (endring && !AVVIST_UTEN_ENDRING(svar.status)) throw new UsikkertUtfall(melding);
+    if (endring && !avvistUtenEndring(svar.status)) throw new UsikkertUtfall(melding);
     throw new CatendaUtilgjengelig(melding);
   }
   try {
