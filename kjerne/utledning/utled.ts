@@ -876,10 +876,9 @@ export function enighetensVirkning(
 /**
  * KA-U11: kravene er avgjort når grunnlaget er avklart, og hvert vederlags- og
  * fristkrav er trukket, har «ingen krav» (KA-U12) eller har en virksom enighet.
- * Et spor TE ikke har sendt, er ikke avgjort (EO-U2, GR-U3). Da avvises alt.
- * Predikatet leses av utsagnene og relasjonene, ikke av en
- * status: `enighetensVirkning` er selv et predikat av enigheten, grunnlaget og
- * trekkene.
+ * Et spor TE ikke har sendt, er ikke avgjort (EO-U2, GR-U3). Predikatet leses av
+ * utsagnene og relasjonene, ikke av en status: `enighetensVirkning` er selv et
+ * predikat av enigheten, grunnlaget og trekkene.
  */
 export function kraveneErAvgjort(u: Utledning): boolean {
   return (
