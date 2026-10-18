@@ -60,6 +60,15 @@ const fontkitMedBindestrek: Parameters<PDFDocument['registerFontkit']>[0] = {
   },
 };
 
+/** Kalles av `start.ts` før serveren lytter, så en skrift som ikke kan brukes, stopper oppstarten. */
+export function kontrollerSkrifter(): void {
+  try {
+    for (const s of skrifter()) fontkitMedBindestrek.create(s.bytes);
+  } catch (feil) {
+    throw new Error(`Skriftene til brev-PDF-en kan ikke brukes: ${(feil as Error).message}`);
+  }
+}
+
 const skriftPerKode = new Map<number, number>();
 
 /** Skriften for tegnet, som indeks i `skrifter()`. */

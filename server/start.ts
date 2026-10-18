@@ -30,6 +30,7 @@
 import { createServer } from 'node:http';
 import { lagServer } from './app.ts';
 import type { Catenda } from './autorisasjon.ts';
+import { kontrollerSkrifter } from './brevpdf.ts';
 import {
   catendaFraMiljoe,
   CatendaUtilgjengelig,
@@ -62,6 +63,8 @@ async function migrasjonsavvik(datalag: Pool): Promise<string[]> {
     ...filer.filter((f) => !kjent.has(f.versjon)).map((f) => `${f.filnavn} er ikke anvendt.`),
   ];
 }
+
+kontrollerSkrifter();
 
 const tilkobling = process.env.KOE_DATALAG_TILKOBLING;
 if (!tilkobling) throw new Error('KOE_DATALAG_TILKOBLING er ikke satt');
