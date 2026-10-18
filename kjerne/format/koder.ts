@@ -7,39 +7,19 @@
  */
 
 import { foersteUnderkategori } from '../regler/grunnlag.ts';
-import type {
-  Beloepsvurdering,
-  Grunnlagsresultat,
-  SubsidiaerUtloser,
-  Vederlagsmetode,
-  Vederlagsresultat,
+import {
+  KATEGORIER,
+  type Beloepsvurdering,
+  type Grunnlagsresultat,
+  type Hovedkategori,
+  type SubsidiaerUtloser,
+  type Underkategori,
+  type Vederlagsmetode,
+  type Vederlagsresultat,
 } from '../regler/typer.ts';
 
-/** Hovedkategoriene (§ 33.1 a–c, § 33.3) med underkategoriene, som kontraktens overskrifter. */
-export const KATEGORIER = {
-  endring: [
-    'endringsordre',
-    'irregulaer_endring',
-    'valg_av_loesning',
-    'svar_paa_varsel',
-    'lovendring_gjenstand',
-    'lovendring_prosess',
-    'gebyrer_og_avgifter',
-    'samordning',
-  ],
-  svikt: ['medvirkning', 'grunnforhold', 'kulturminner', 'prosjektering'],
-  andre_forhold: [
-    'nektet_kontraktsmedhjelper',
-    'skade_fra_byggherren',
-    'brukstakelse',
-    'stans_ved_betalingsmislighold',
-    'annet_forhold',
-  ],
-  force_majeure: [],
-} as const satisfies Record<string, readonly string[]>;
-
-export type Hovedkategori = keyof typeof KATEGORIER;
-export type Underkategori = (typeof KATEGORIER)[Hovedkategori][number];
+/** Kategoriene står i regelsettet, så reglene kan types mot dem (#516). */
+export { KATEGORIER, type Hovedkategori, type Underkategori };
 
 export const HOVEDKATEGORIER = Object.keys(KATEGORIER) as Hovedkategori[];
 export const UNDERKATEGORIER = Object.values(KATEGORIER).flat() as Underkategori[];

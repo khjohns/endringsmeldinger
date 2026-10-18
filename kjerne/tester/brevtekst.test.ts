@@ -19,9 +19,15 @@
 import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { gjengi, gjengirTro, lagBrevtekst, norskDato } from '../frosset/brevtekst.ts';
+import {
+  gjengi,
+  gjengirTro,
+  KanIkkeUttrykkes,
+  lagBrevtekst,
+  norskDato,
+} from '../frosset/brevtekst.ts';
 import { kroner, regnUtSvar } from '../frosset/standpunkt.ts';
-import { lesJournal } from '../format/leser.ts';
+import { kalenderdag, lesJournal } from '../format/leser.ts';
 import {
   forhaandsvis,
   frysBrev,
@@ -1356,6 +1362,66 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     );
   });
 
+  // Arbeidsvalg 1 i #770 (#536): et grunnlagskrav i et registrert brev er dokumentasjon
+  // (OV-U4), og en innsigelse mot det er ingen påberopelse etter § 32.2. Kommandoene og
+  // brevteksten leser det likt.
+  describe('innsigelse mot et registrert grunnlagskrav (#536)', () => {
+    const medRegistrertKrav = () => {
+      const s = sakMedKrav();
+      const registrert = randomUUID();
+      s.rad('TE', {
+        krav: [
+          {
+            id: registrert,
+            spor: 'grunnlag',
+            hovedkategori: 'endring',
+            underkategori: 'irregulaer_endring',
+          },
+        ],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+      });
+      expect(s.u().forstaatt).toBe(true);
+      return { s, registrert };
+    };
+    const avslag = (s: ReturnType<typeof sak>) => ({
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), {
+          resultat: 'avslaatt',
+          grunnlag_varslet_i_tide: false,
+        }),
+      ],
+    });
+    const iTide = (s: ReturnType<typeof sak>) => ({
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: true,
+        }),
+      ],
+    });
+
+    it('brevteksten gjentar den ikke i svaret, men innsigelsen mot kravet fra appen', () => {
+      const { s, registrert } = medRegistrertKrav();
+      s.send('BH', { type: 'innsigelse', gjelder: registrert });
+      expect(laast(s.send('BH', avslag(s)))[0]).not.toContain('jf. innsigelsen');
+      // Kontrollsak: samme forløp med innsigelsen mot grunnlagskravet fra appen.
+      const k = medRegistrertKrav().s;
+      k.send('BH', { type: 'innsigelse', gjelder: k.krav('grunnlag') });
+      expect(laast(k.send('BH', avslag(k)))[0]).toContain('jf. innsigelsen');
+    });
+
+    it('kommandoene avviser den ikke etter et «i tide» (HF-U4), men innsigelsen mot kravet fra appen', () => {
+      const { s, registrert } = medRegistrertKrav();
+      s.send('BH', iTide(s));
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: registrert })).toBeNull();
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBe(
+        'SAGT_I_TIDE'
+      );
+    });
+  });
+
   it('gir byggherren innsigelsen opp, sier brevet det uttrykkelig (VS-U11)', () => {
     const s = medInnsigelse();
     const rad = s.send('BH', {
@@ -2381,6 +2447,22 @@ describe('formen på tall og datoer', () => {
     expect(norskDato('2026-09-28')).toBe('28. september 2026');
     // Klokka 23.30 UTC 31.12 er 1. januar i Oslo.
     expect(norskDato('2026-12-31T23:30:00Z')).toBe('1. januar 2027');
+  });
+
+  // T1 i #770 (#766, #472): brevet og kontrollene leser datoen med samme kalenderdag.
+  it.each([
+    ['2026-10-02', '2026-10-02'],
+    ['2026-10-02T22:30:00Z', '2026-10-03'],
+    ['2026-10-02T23:30:00+02:00', '2026-10-02'],
+    ['2026-10-02T23:30:00', null],
+    ['2026-02-30', null],
+    ['2026-02-30T10:00:00Z', null],
+    ['2026-10-02T24:00:00+02:00', null],
+    ['2. oktober', null],
+  ])('kalenderdagen for %s er %s', (dato, dag) => {
+    expect(kalenderdag(dato)).toBe(dag);
+    if (dag === null) expect(() => norskDato(dato)).toThrow(KanIkkeUttrykkes);
+    else expect(norskDato(dato)).toBe(norskDato(dag));
   });
 });
 

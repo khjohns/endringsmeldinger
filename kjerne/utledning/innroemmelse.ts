@@ -5,20 +5,12 @@
  */
 
 import { beloep } from '../regler/beloep.ts';
-import { kroner } from '../frosset/standpunkt.ts';
+import { dager, GRUNNLAGSSVARET, kroner } from '../frosset/standpunkt.ts';
 import type { Grunnlagsresultat } from '../regler/typer.ts';
 import type { Standpunkt, Svar } from '../typer.ts';
 
 /** Arbeidsvalget i kartleggingen 16.10 på #502: godkjenning over frafall over avslag. */
 const RANG: Record<Grunnlagsresultat, number> = { avslaatt: 0, paalegg_frafalt: 1, godkjent: 2 };
-
-const GRUNNLAG: Record<Grunnlagsresultat, string> = {
-  godkjent: 'godkjent',
-  paalegg_frafalt: 'pålegget frafalt',
-  avslaatt: 'avslått',
-};
-
-const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
 
 /**
  * HF-U5, HF-U14: det revisjonen senker av det byggherren har innrømmet i svaret den
@@ -44,10 +36,14 @@ export function senketInnroemmelse(
     if (f.art === 'grunnlag') {
       const n = ny('grunnlag')!;
       if (RANG[n.resultat] < RANG[f.resultat])
-        return `I svaret er grunnlaget ${subsidiaert(f.id)}${GRUNNLAG[f.resultat]}, og revisjonen endrer det til ${GRUNNLAG[n.resultat]}`;
+        return `I svaret er grunnlaget ${subsidiaert(f.id)}${GRUNNLAGSSVARET[f.resultat]}, og revisjonen endrer det til ${GRUNNLAGSSVARET[n.resultat]}`;
     } else if (f.art === 'beloep') {
       const n = ny('beloep')!;
-      if (beloep(n.godkjent)! < beloep(f.godkjent)!)
+      const [nytt, godkjent] = [beloep(n.godkjent), beloep(f.godkjent)];
+      // #627: et beløp som mangler, er ikke null kroner. Revisjonen kan da ikke sammenliknes.
+      if (nytt === null || godkjent === null)
+        return 'Beløpet mangler i svaret eller i revisjonen, så revisjonen kan ikke sammenliknes med svaret';
+      if (nytt < godkjent)
         return `Svaret godkjenner ${subsidiaert(f.id)}${kroner(f.godkjent)}, og revisjonen senker beløpet til ${kroner(n.godkjent)}`;
     } else if (f.art === 'dager') {
       const n = ny('dager')!;

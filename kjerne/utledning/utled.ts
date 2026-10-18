@@ -240,10 +240,20 @@ function ikkeErstattet(svar: Svar[], kravId: string): Svar[] {
 /** Elementene i et dokument som kan endre utfallet (KA-U11). Andre utsagn har ingen virkning på det. */
 const ENDRER_UTFALLET = new Set<string>(['aksept', 'trekk', 'ingen_krav', 'varsel']);
 
-const kanStride = (d: Dokument): boolean =>
+/**
+ * Dokumentet kan stride mot journalen før det (`foer`): det har et krav, et svar, et utsagn
+ * som kan endre utfallet, eller en innsigelse som er en påberopelse (HF-U4, MM-U27). Andre
+ * innsigelser utleder ikke prefikset på nytt (#776, #400). Hvilken part som er bundet,
+ * avgjør `innsigelsenEtterITide`.
+ */
+const kanStride = (d: Dokument, foer: Dokument[], regler: Regelsett): boolean =>
   d.krav.length > 0 ||
   d.svar.length > 0 ||
-  d.utsagn.some((x) => ENDRER_UTFALLET.has(x.art) || x.art === 'innsigelse');
+  d.utsagn.some(
+    (x) =>
+      ENDRER_UTFALLET.has(x.art) ||
+      (x.art === 'innsigelse' && innsigelsenPaaberoper(x.gjelder, foer, regler) !== null)
+  );
 
 interface Strid {
   element: string;
@@ -396,17 +406,9 @@ function bryterBindingen(d: Dokument, u: Utledning, regler: Regelsett): Strid[] 
           'en revisjon som senker det byggherren har innrømmet i et svar TE ikke har godtatt (HF-U5, MM-U27)',
       });
   }
-  for (const x of d.utsagn) {
-    // HF-U4 binder parten som sa «i tide», altså byggherren.
-    if (x.art !== 'innsigelse' || d.avsender !== 'BH') continue;
-    const maal = u.elementer[x.gjelder];
-    const hjemmel = innsigelsenPaaberoper(
-      maal && { art: maal.art, krav: u.spor.grunnlag.krav.find((k) => k.id === x.gjelder) },
-      regler
-    );
-    if (hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel }))
+  for (const x of d.utsagn)
+    if (x.art === 'innsigelse' && innsigelsenEtterITide(x.gjelder, d.avsender, u, regler))
       ut.push({ element: x.id, grunn: `en innsigelse som ${sagtITide}` });
-  }
   return ut;
 }
 
@@ -418,8 +420,11 @@ function bryterBindingen(d: Dokument, u: Utledning, regler: Regelsett): Strid[] 
 export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const uten = new Map<string, { hendelse: string; grunn: string }>();
   const konflikter: Utledning['begrensninger'] = [];
+  const dokumenter: Dokument[] = [];
   for (const [i, h] of journal.entries()) {
-    if (h.art !== 'dokument' || !kanStride(h.dokument)) continue;
+    if (h.art !== 'dokument') continue;
+    dokumenter.push(h.dokument);
+    if (!kanStride(h.dokument, dokumenter.slice(0, -1), regler)) continue;
     // Kontrollen trenger saken slik den var før dokumentet, så prefikset utledes for
     // hvert dokument som kan endre utfallet. Kostnaden er målt i #400.
     const foer = utledSporene(journal.slice(0, i), regler, uten);
@@ -801,7 +806,7 @@ function utledSporene(
     !spor.grunnlag.trukket &&
     gSvar === null &&
     spor.grunnlag.gjeldendeKrav !== null &&
-    frafalletBinder({ spor });
+    frafalletBinder({ spor, elementer });
   return {
     ...tom(journal, regler, begrensninger),
     forstaatt: true,
@@ -897,6 +902,26 @@ export function kanInngaaIEo(u: Utledning): boolean {
   );
 }
 
+/**
+ * HF-U4, VS-U24: partens egen innsigelse påberoper at varselet kom for sent etter
+ * bestemmelsen, etter at byggherren har sagt i et svar fra appen at det kom i tide. Bare
+ * byggherren er bundet av sitt «i tide». Kommandoene og utledningen kontrollerer det her
+ * (#776).
+ */
+export function innsigelsenEtterITide(
+  gjelder: string,
+  part: Part,
+  u: Utledning,
+  regler: Regelsett
+): Extract<Hjemmel, '32.2' | '33.4'> | null {
+  if (part !== 'BH') return null;
+  const dokumenter = u.journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : []));
+  const hjemmel = innsigelsenPaaberoper(gjelder, dokumenter, regler);
+  return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })
+    ? hjemmel
+    : null;
+}
+
 /** En påberopelse av at varselet kom for sent, eller at kravet ble spesifisert for sent. */
 export type Rettidighet = { hjemmel: Hjemmel } | { hjemmel: '33.6.1'; gjelder: string };
 
@@ -913,7 +938,7 @@ export type Rettidighet = { hjemmel: Hjemmel } | { hjemmel: '33.6.1'; gjelder: s
 export function harSagtITide(u: Utledning, spor: Spor, r: Rettidighet): boolean {
   return u.spor[spor].svar.some(
     (s) =>
-      !u.elementer[s.dokument]?.registrertBrev &&
+      binder(u, s) &&
       s.standpunkter.some((p) =>
         'gjelder' in r
           ? p.art === 'spesifisering' && p.gjelder === r.gjelder && p.iTide
@@ -941,11 +966,18 @@ const paaberoperVarselet = (s: Pick<Svar, 'standpunkter'>): boolean =>
  * og er bundet av løftet om endringsordre, så svaret på gjeldende grunnlagsversjon kan
  * ikke være et avslag eller en påberopelse etter § 32.2. Frafallet står også når svaret
  * er revidert, og når TE har sendt en ny grunnlagsversjon (GR-U20). Et registrert svar
- * med virkning er bare byggherrens endringsordre etter OV-U6, som godkjenner grunnlaget og
- * aldri frafaller.
+ * binder ikke (`binder`).
  */
-export const frafalletBinder = (u: Pick<Utledning, 'spor'>): boolean =>
-  u.spor.grunnlag.svar.some(frafaller);
+export const frafalletBinder = (u: Pick<Utledning, 'spor' | 'elementer'>): boolean =>
+  u.spor.grunnlag.svar.some((s) => binder(u, s) && frafaller(s));
+
+/**
+ * OV-U4, HF-U4: et svar binder byggherren bare når det er sendt fra appen. Et registrert
+ * svar med virkning er byggherrens endringsordre etter OV-U6, og den binder heller ikke
+ * (#776).
+ */
+const binder = (u: Pick<Utledning, 'elementer'>, s: Svar): boolean =>
+  !u.elementer[s.dokument]?.registrertBrev;
 
 /**
  * Grunnlagskravet et svar vurderes mot: kravet et grunnlagssvar gjelder, ellers

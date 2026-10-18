@@ -15,17 +15,16 @@
 import { beloep, tilTall } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
-import {
-  foersteUnderkategori,
-  gyldigeResultater,
-  type Subsidiaergrunn,
-} from '../regler/grunnlag.ts';
+import { foersteUnderkategori, type Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
+import type { Grunnlagsresultat } from '../regler/typer.ts';
+import { erRegistrert } from '../format/leser.ts';
 import { tekst } from '../format/skjema.ts';
 import { beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
 import { HJEMMEL, METODER } from '../format/format.ts';
 import type {
   Beslutningsgrunnlag,
+  Dokument,
   Enighetsgrunnlag,
   Hjemmel,
   Krav,
@@ -114,14 +113,27 @@ export function virkninger(
  * varsel etter § 32.2 i grunnlaget, som er grunnlagskravet når § 32.2 gjelder kategorien
  * i det (GR-U11). Varselet etter § 32.2 er det samme i hver grunnlagsversjon
  * (arbeidsvalget 15.10 i #500). Svaret i sporet gjentar den eller gir den opp. Mot et
- * annet krav eller et svar er den uten virkning.
+ * annet krav eller et svar er den uten virkning. Et krav i et registrert brev er
+ * dokumentasjon (OV-U4), så en innsigelse mot det er heller ingen påberopelse; byggherren
+ * påberoper § 32.2 i svaret (arbeidsvalg 1 i #770). Kommandoene, utledningen og
+ * brevteksten finner det innsigelsen gjelder, i `dokumenter` her (#536).
  */
 export function innsigelsenPaaberoper(
-  maal: { art: string; krav?: Pick<Krav, 'spor' | 'innhold'> } | undefined,
+  gjelder: string,
+  dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,
   regler: Regelsett
 ): Extract<Hjemmel, '32.2' | '33.4'> | null {
-  if (maal?.art === 'varsel') return '33.4';
-  if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return '32.2';
+  for (const d of dokumenter) {
+    const utsagn = d.utsagn.find((x) => x.id === gjelder);
+    if (utsagn) return utsagn.art === 'varsel' ? '33.4' : null;
+    const krav = d.krav.find((k) => k.id === gjelder);
+    if (krav)
+      return krav.spor === 'grunnlag' &&
+        !erRegistrert(d.opplysninger) &&
+        gjelderVarslingsplikten(krav, regler)
+        ? '32.2'
+        : null;
+  }
   return null;
 }
 
@@ -269,6 +281,16 @@ export function kroner(n: number): string {
   return `${i < 0n ? '−' : ''}${gruppert}${oere === '00' ? '' : `,${oere}`}\u00a0kr`;
 }
 
+/** «1 dag», «12 dager». Brevteksten og meldingen om en senket revisjon bruker samme ord (#628). */
+export const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
+
+/** Svaret på grunnlaget med ordene i brevet (#628). */
+export const GRUNNLAGSSVARET: Record<Grunnlagsresultat, string> = {
+  godkjent: 'godkjent',
+  avslaatt: 'avslått',
+  paalegg_frafalt: 'pålegget frafalt (§ 32.3 c)',
+};
+
 /**
  * Linjen i brevet for svaret: byggherrens standpunkt, med den prinsipale grunnen først
  * (vedtaket 05.10 om avslag sammen med § 32.2). Leddene ordnes som i brevteksten (HF-U2, VS-U3).
@@ -293,11 +315,7 @@ function beslutningslinje(
   const grunner = v.filter((p) => p.art in grunntekst && p.virkning !== 'uten_virkning');
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
-    standpunkt = {
-      godkjent: 'godkjent',
-      avslaatt: 'avslått',
-      paalegg_frafalt: 'pålegget frafalt (§ 32.3 c)',
-    }[standpunktet(svar, 'grunnlag')!.resultat];
+    standpunkt = GRUNNLAGSSVARET[standpunktet(svar, 'grunnlag')!.resultat];
   } else if (svar.spor === 'vederlag') {
     const b = standpunktet(svar, 'beloep')!;
     standpunkt = b.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
@@ -399,7 +417,7 @@ export function regnUtSvar(
     const { hovedkategori, underkategori } = kategori(krav);
     const feil: Record<string, string> = {};
     const resultat = v.resultat as never;
-    if (!gyldigeResultater(hovedkategori, underkategori).includes(resultat))
+    if (!regler.gyldigeGrunnlagsresultater(hovedkategori, underkategori).includes(resultat))
       feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (§ 32.3 c)`;
     const iTide = v.grunnlag_varslet_i_tide;
     if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {

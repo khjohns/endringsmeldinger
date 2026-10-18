@@ -56,5 +56,5 @@ export function avvisning(
     const brudd = forutsetninger(h, part, u);
     if (brudd) return brudd;
   }
-  return nyttelastkontroll(k, u, regler, utdypningKreves);
+  return nyttelastkontroll(k, part, u, regler, utdypningKreves);
 }

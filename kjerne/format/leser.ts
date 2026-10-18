@@ -22,7 +22,7 @@ import {
   SVAR,
   UTSAGN,
 } from './format.ts';
-import { erObjekt, feilI, type Skjema } from './skjema.ts';
+import { erKalenderdato, erObjekt, feilI, type Skjema } from './skjema.ts';
 import type {
   Avsnitt,
   Beslutningsgrunnlag,
@@ -57,21 +57,31 @@ const OSLO = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 });
 
-/** Datoen et dokument fra appen ble registrert, i norsk tid, som i brevet (KA-U37). */
-export const registrertDato = (d: Pick<Dokument, 'registrert'>): string =>
-  OSLO.format(new Date(d.registrert));
+/** Et tidspunkt med tidssone, så dagen ikke avhenger av vertens tidssone (T1 i #770). */
+const TIDSPUNKT =
+  /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
 
 /**
- * Kalenderdagen for en lagret dato: en dato på formen ÅÅÅÅ-MM-DD som den står, og et
- * tidspunkt i norsk tid, som `norskDato` viser det (#474, KA-U37). Leseren krever ikke
- * kalenderdato (MM-U2), så datoer sammenliknes som dager, ikke som tekst. En tekst som
- * ikke er et tidspunkt, står som den er.
+ * Kalenderdagen for en lagret dato, eller `null` når den ikke kan tolkes: en dato på
+ * formen ÅÅÅÅ-MM-DD som finnes i kalenderen, som den står, og et tidspunkt med tidssone
+ * i norsk tid (#474, KA-U37). Et tidspunkt uten tidssone kan ikke tolkes (#766). Leseren
+ * krever ikke kalenderdato (MM-U2), så datoer sammenliknes som dager, ikke som tekst.
+ * Brevteksten viser datoen herfra (`norskDato`, #472).
  */
-export function kalenderdag(dato: string): string {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dato)) return dato;
+export function kalenderdag(dato: string): string | null {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dato)) return erKalenderdato(dato) ? dato : null;
+  // `Date` ruller 2026-02-30T10:00Z og T24:00 over til en annen dag, så dag og klokkeslett må finnes.
+  if (!TIDSPUNKT.test(dato) || !erKalenderdato(dato.slice(0, 10))) return null;
   const tidspunkt = new Date(dato);
-  return Number.isNaN(tidspunkt.getTime()) ? dato : OSLO.format(tidspunkt);
+  return Number.isNaN(tidspunkt.getTime()) ? null : OSLO.format(tidspunkt);
 }
+
+/**
+ * Datoen et dokument fra appen ble registrert, i norsk tid, som i brevet (KA-U37).
+ * Serveren setter tidspunktet med tidssone (VS-U8).
+ */
+export const registrertDato = (d: Pick<Dokument, 'registrert'>): string =>
+  kalenderdag(d.registrert)!;
 
 /**
  * Datoopplysningen om et varsel: den som `gjelder` varselet, ellers den om

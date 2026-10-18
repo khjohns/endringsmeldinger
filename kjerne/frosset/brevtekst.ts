@@ -15,14 +15,14 @@
  */
 
 import { HJEMMEL } from '../format/format.ts';
-import { erRegistrert } from '../format/leser.ts';
-import { erKalenderdato } from '../format/skjema.ts';
+import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import { beloep } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
   blirEndringsordre,
+  dager,
   gjelderVarslingsplikten,
   grunnerFraGrunnlaget,
   innsigelsenErOppgitt,
@@ -83,29 +83,16 @@ const MAANEDER = [
   'desember',
 ];
 
-const DAG = /^(\d{4})-(\d{2})-(\d{2})$/;
-
-const OSLO = new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'Europe/Oslo',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-});
-
 /** Datoen i Oslo for et tidspunkt, eller datoen slik den er oppgitt. «2. oktober 2026». */
 export function norskDato(tid: string): string {
-  const tidspunkt = new Date(tid);
-  if (DAG.test(tid) ? !erKalenderdato(tid) : Number.isNaN(tidspunkt.getTime()))
-    throw new KanIkkeUttrykkes(`${tid} er ikke en dato`);
-  const dag = DAG.test(tid) ? tid : OSLO.format(tidspunkt);
-  const [, aar, maaned, dato] = DAG.exec(dag)!;
+  const dag = kalenderdag(tid);
+  if (dag === null) throw new KanIkkeUttrykkes(`${tid} er ikke en dato`);
+  const [aar, maaned, dato] = dag.split('-');
   return `${Number(dato)}. ${MAANEDER[Number(maaned) - 1]} ${aar}`;
 }
 
 /** Et beløp i brevet er uten merverdiavgift, og teksten sier det (LV-U4 punkt 2). */
 const eksMva = (n: number) => `${kroner(n)} eks. mva.`;
-
-const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
 
 /** Setningen med punktum, også når den slutter på en forkortelse. */
 const punktum = (t: string) => (t.endsWith('.') ? t : `${t}.`);
@@ -375,11 +362,6 @@ function aapneInnsigelser(
   j: Journalen,
   regler: Regelsett
 ): Innsigelse[] {
-  const maal = new Map<string, { art: string; krav?: Krav }>();
-  for (const d of j.dokumenter) {
-    for (const k of d.krav) maal.set(k.id, { art: 'krav', krav: k });
-    for (const u of d.utsagn) maal.set(u.id, { art: u.art });
-  }
   const svarFraParten: Svar[] = [];
   const innsigelser: (Innsigelse & { fra: number })[] = [];
   for (const d of j.dokumenter) {
@@ -392,7 +374,7 @@ function aapneInnsigelser(
   }
   return innsigelser.filter(
     (i) =>
-      innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] &&
+      innsigelsenPaaberoper(i.gjelder, j.dokumenter, regler) === HJEMMEL[svar.spor] &&
       !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra))
   );
 }

@@ -20,6 +20,9 @@ import {
 } from '../format/koder.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
+import { oppgittDato } from '../format/format.ts';
+import { regnUtSvar } from '../frosset/standpunkt.ts';
+import { UgyldigVurdering } from '../regler/feil.ts';
 import { erByggherrensPaalegg, gyldigeResultater } from '../regler/grunnlag.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import {
@@ -31,12 +34,13 @@ import {
 } from '../regler/typer.ts';
 import { gjelderVarslingspliktenForVederlag } from '../regler/vederlag.ts';
 import { svaretBlirEndringsordre } from '../frosset/frysing.ts';
-import type { Journalrad } from '../typer.ts';
+import type { Journalrad, Krav } from '../typer.ts';
 import { utled } from '../utledning/utled.ts';
 import { KJERNE } from '../versjon.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { Kjoering } from './kjoerer.ts';
+import { NESTE_REGLER } from './klient.ts';
 
 const PAR = HOVEDKATEGORIER.flatMap((h) => KATEGORIER[h].map((u) => [h, u] as const));
 
@@ -157,6 +161,43 @@ describe('reglene med kjernens koder', () => {
       ['irregulaer_endring', 'valg_av_loesning', 'samordning', 'svar_paa_varsel'].includes(u);
     expect(erByggherrensPaalegg(h, u)).toBe(paalegg);
     expect(gyldigeResultater(h, u).includes('paalegg_frafalt')).toBe(paalegg);
+    expect(GJELDENDE_REGLER.gyldigeGrunnlagsresultater(h, u).includes('paalegg_frafalt')).toBe(
+      paalegg
+    );
+  });
+
+  // VS-U26: datoen pålegget ble mottatt, oppgis der § 32.2 gjelder. Brevteksten skriver
+  // setningen om § 32.2 etter regelsettet og datosetningen etter feltet (T2 i #770, #698).
+  it.each(PAR)('feltet for datoen i %s/%s følger § 32.2 i regelsettet', (h, u) => {
+    expect(oppgittDato(h, u) === 'paalegg_mottatt').toBe(
+      GJELDENDE_REGLER.gjelderVarslingsplikten(h, u)
+    );
+  });
+
+  // GR-U18 er en tolkning av § 32.3 c, ikke av § 32.2, så testregelsettet endrer dem hver
+  // for seg (T4 i #770, #514).
+  it('regelsettet n+1 endrer frafallet og § 32.2 hver for seg', () => {
+    expect(NESTE_REGLER.gjelderVarslingsplikten('endring', 'samordning')).toBe(false);
+    expect(NESTE_REGLER.gyldigeGrunnlagsresultater('endring', 'samordning')).toContain(
+      'paalegg_frafalt'
+    );
+    expect(NESTE_REGLER.gjelderVarslingsplikten('endring', 'valg_av_loesning')).toBe(true);
+    expect(NESTE_REGLER.gyldigeGrunnlagsresultater('endring', 'valg_av_loesning')).not.toContain(
+      'paalegg_frafalt'
+    );
+  });
+
+  it('utregningen av svaret på grunnlaget leser frafallet av regelsettet (#514)', () => {
+    const krav = { innhold: { hovedkategori: 'endring', underkategori: 'valg_av_loesning' } };
+    const regn = (regler: typeof GJELDENDE_REGLER) => () =>
+      regnUtSvar(
+        'grunnlag',
+        { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true },
+        { krav: krav as unknown as Krav, grunnlagskrav: null },
+        regler
+      );
+    expect(regn(GJELDENDE_REGLER)).not.toThrow();
+    expect(regn(NESTE_REGLER)).toThrow(UgyldigVurdering);
   });
 
   it.each(HOVEDKATEGORIER)('varslingsplikten for vederlaget i %s (§ 34.1.2)', (h) => {
