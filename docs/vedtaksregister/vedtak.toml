@@ -5340,6 +5340,111 @@ forkastet = true
 kilde = "hovedplanen"
 tekst = "Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes"
 
+[[gruppe.vedtak]]
+id = "GFK-U5"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 8 (#764)", "#818"]
+sporsmal = '''
+S1 (header «Godkjenner»): Fullmaktshaveren (f.eks. adm. dir.) er typisk ikke i Catenda eller i et team (ditt svar i #818). I dag ser bare innloggede prosjektmedlemmer (Catenda) saken, og et svar til godkjenning er et utkast som bare teamet som skrev det, ser (B-04 punkt 3). Hvordan skal fullmaktshaveren se og godkjenne svaret i første versjon?
+«Prosjektmedlem, ikke teammedlem (Recommended)»: Godkjenneren logger inn med Catenda og er medlem av prosjektet, men trenger ikke være med i teamet. Utvider skjermingen av utkast: et svar til godkjenning er også synlig for godkjennerne i kjeden (B-04 punkt 3).
+«Må være i teamet nå»: Godkjenneren må være medlem av byggherrens team, som i dag. Skjermingen av utkast er uendret.
+«Egen innlogging nå»: Godkjennere uten Catenda logger inn med virksomhetens egen innlogging, og kjeden hentes fra organisasjonshierarkiet. Styrer: godkjenningsinngangene venter til dette er bygget.
+
+O1 (header «S-1b»): Du svarte at fullmaktshaveren logger inn med Entra ID, som bygges senere, og at fullmakten følger rollen i HR-dataene. Skal godkjenningen bygges nå eller vente?
+«Venter på Entra og HR (Recommended)»: Godkjenningsinngangene bygges når innloggingen med Entra ID og rollene fra HR-dataene finnes, så de ikke bygges på fullmaktsregisteret som nå skal endres. Runde 8 tar V-3, registreringen av prosjekt og team (F-1) og navn ved visning (F-1b).
+«Bygges nå, Entra senere»: Godkjenningen bygges nå for den som har registrert fullmakt, uavhengig av team. Til Entra ID finnes, kan bare en godkjenner med Catenda-innlogging godkjenne. Utvider skjermingen av utkast til godkjennerne i kjeden (B-04 punkt 3).'''
+valgt = "Venter på Entra og HR"
+svar = '''
+Fritt svar på S1, som ikke passet på et alternativ og ble fulgt opp med O1: «Egen innlogging ka. Entra id. Bygges senere»
+
+O1: «Venter på Entra og HR (Recommended)»'''
+folge = '''
+Ikke bygget. Godkjenningsinngangene venter på innlogging med Entra ID og rollene fra HR-dataene.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Venter på Entra og HR"
+tekst = '''
+Godkjenningsinngangene bygges når innloggingen med Entra ID og rollene fra HR-dataene finnes, så de ikke bygges på fullmaktsregisteret som nå skal endres.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bygges nå, Entra senere"
+tekst = '''
+Godkjenningen bygges nå for den som har registrert fullmakt, uavhengig av team. Til Entra ID finnes, kan bare en godkjenner med Catenda-innlogging godkjenne. Utvider skjermingen av utkast til godkjennerne i kjeden (B-04 punkt 3).'''
+
+[[gruppe.vedtak]]
+id = "GFK-U6"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 8 (#764)", "#818"]
+sporsmal = '''
+S2 (header «Hierarkiet»): GFK-U1 sier at driften setter opp fullmaktene. Ingen vedtak sier ennå noe om organisasjonshierarkiet. Når kjeden senere hentes derfra, hva skal hierarkiet bestemme?
+«GFK-U1 står (Recommended)»: Driften registrerer hvem som har fullmakt, beløpsgrensen og rekkefølgen. Hierarkiet brukes bare til å finne personen. Presiserer GFK-U1.
+«Rekkefølgen fra hierarkiet»: Rekkefølgen i kjeden følger hierarkiet; driften registrerer beløpsgrensene. Endrer GFK-U1 for rekkefølgen: driften registrerer ikke lenger rekkefølgen.
+«Fullmakten følger stillingen»: Fullmakt og grense følger stillingen i hierarkiet. Endrer GFK-U1.
+
+O2 (header «Grense»): Fullmakten følger rollen (prosjektleder, avdelingsleder osv.), og rollen og hierarkiet hentes fra HR-dataene. Hvem fastsetter beløpsgrensen for hver rolle?
+«Driften per rolle (Recommended)»: Driften registrerer beløpsgrensen for hver rolle. Hvem som har rollen, og hierarkiet hentes fra HR-dataene. Endrer GFK-U1.
+«Fra HR-dataene»: Også beløpsgrensen hentes fra HR-dataene. Endrer GFK-U1.
+«Avgjøres senere»: Grensen avgjøres når innhentingen fra HR-dataene kartlegges.'''
+valgt = "Driften per rolle"
+svar = '''
+Fritt svar på S2, som ikke passet på et alternativ og ble fulgt opp med O2: «Fullmakten følger av rolle (prosjektleder, avdelingsleder osv).  Rollen og hiearki følger av hr / grap api.»
+
+O2: «Driften per rolle (Recommended)»'''
+forhold = [{ art = "endrer", vedtak = "gfk-u1" }]
+folge = '''
+Byggestatus ikke kontrollert mot koden ved vedtaket.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Driften per rolle"
+tekst = '''
+Driften registrerer beløpsgrensen for hver rolle. Hvem som har rollen, og hierarkiet hentes fra HR-dataene. Endrer GFK-U1.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fra HR-dataene"
+tekst = '''
+Også beløpsgrensen hentes fra HR-dataene. Endrer GFK-U1.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Avgjøres senere"
+tekst = '''
+Grensen avgjøres når innhentingen fra HR-dataene kartlegges.'''
+
+[[gruppe.vedtak]]
+id = "GFK-U7"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 8 (#764)"]
+sporsmal = '''
+S3 (header «Sending»): Fullmaktshaveren er avsender av svaret (LV-U15). Når alle i kjeden har godkjent, hva sender svaret til TE?
+«Siste godkjenning sender (Recommended)»: Den siste godkjenningen sender svaret med det samme. Kan svaret ikke sendes fordi kravet er endret etter at svaret ble lagt fram, avvises godkjenningen.
+«Saksbehandler sender etterpå»: Saksbehandleren utløser sendingen av det godkjente svaret. Avsenderen i journalen er fullmaktshaveren (LV-U15).
+«Siste godkjenner trykker Send»: Den siste godkjenneren godkjenner og sender i to steg.'''
+valgt = "Siste godkjenning sender"
+svar = '''
+«Siste godkjenning sender (Recommended)»'''
+folge = '''
+Byggestatus ikke kontrollert mot koden ved vedtaket.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Siste godkjenning sender"
+tekst = '''
+Den siste godkjenningen sender svaret med det samme. Kan svaret ikke sendes fordi kravet er endret etter at svaret ble lagt fram, avvises godkjenningen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Saksbehandler sender etterpå"
+tekst = '''
+Saksbehandleren utløser sendingen av det godkjente svaret. Avsenderen i journalen er fullmaktshaveren (LV-U15).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Siste godkjenner trykker Send"
+tekst = '''
+Den siste godkjenneren godkjenner og sender i to steg.'''
+
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
 
@@ -5514,6 +5619,38 @@ navn = "Sakens versjon nå"
 tekst = '''
 Svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
 forkastet = true
+
+[[gruppe.vedtak]]
+id = "KT-U6"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 8 (#764)"]
+sporsmal = '''
+S4 (header «Kontraktsteam»): Driften registrerer prosjektet og hvilke team som er TE og BH. Kan driften endre teamene etter at prosjektet har saker? Et team som bytter side, tar med seg tilgangen til egne utkast og interne notater.
+«Bare legge til (Recommended)»: Et nytt team kan legges til. Å flytte et team til den andre siden eller fjerne det avvises når prosjektet har saker.
+«Fritt»: Driften kan erstatte teamene når som helst.
+«Ingen endring etter første sak»: Teamene ligger fast når første sak er opprettet.'''
+valgt = "Bare legge til"
+svar = '''
+«Bare legge til (Recommended)»'''
+folge = '''
+Byggestatus ikke kontrollert mot koden ved vedtaket.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare legge til"
+tekst = '''
+Et nytt team kan legges til. Å flytte et team til den andre siden eller fjerne det avvises når prosjektet har saker.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fritt"
+tekst = '''
+Driften kan erstatte teamene når som helst.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen endring etter første sak"
+tekst = '''
+Teamene ligger fast når første sak er opprettet.'''
 
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
@@ -6821,6 +6958,38 @@ anbefalt = true
 navn = "Bare skjult i lista"
 tekst = '''
 At et prosjekt er inaktivt, betyr bare at det ikke vises i lista over brukerens prosjekter. Medlemmene kan fortsatt lese og handle i prosjektet.'''
+
+[[gruppe.vedtak]]
+id = "DL-U12"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 8 (#764)"]
+sporsmal = '''
+O3 (header «Navn»): Journalen lagrer hvem som skrev hver hendelse, ikke navnet; navnet slås opp når saken vises. Hvem skal se navnet på personen bak en hendelse?
+«Alle som kan lese saken (Recommended)»: Navnet vises ved hver hendelse for alle som har tilgang til saken.
+«Bare egen side»: Den andre siden ser bare TE eller BH.
+«Kontraktspartene»: TE og BH ser navnene; prosjektmedlemmer uten kontraktsside ser bare TE eller BH.'''
+valgt = "Alle som kan lese saken"
+svar = '''
+«Alle som kan lese saken (Recommended)»'''
+folge = '''
+Byggestatus ikke kontrollert mot koden ved vedtaket.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alle som kan lese saken"
+tekst = '''
+Navnet vises ved hver hendelse for alle som har tilgang til saken.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare egen side"
+tekst = '''
+Den andre siden ser bare TE eller BH.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Kontraktspartene"
+tekst = '''
+TE og BH ser navnene; prosjektmedlemmer uten kontraktsside ser bare TE eller BH.'''
 
 [[gruppe]]
 tittel = "Premissene P1–P7"
