@@ -10,7 +10,7 @@
 
 import { randomBytes } from 'node:crypto';
 
-import { sha256, type Bruker } from './autorisasjon.ts';
+import { sha256, type Bruker } from './bruker.ts';
 import { feilnummer, sql, type Pool } from './datalag.ts';
 
 /** Basen avviste en hash, et CSRF-token eller en returadresse med feil form. */

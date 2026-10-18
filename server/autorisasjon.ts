@@ -16,24 +16,15 @@
  * det, nektes tilgangen med 503, som i Python.
  */
 
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Part as Rolle } from '../kjerne/typer.ts';
+import type { Bruker } from './bruker.ts';
 import { sql, transaksjon, type Pool } from './datalag.ts';
-import {
-  oversett,
-  prosjektkobling,
-  synkroniserProsjekt,
-  UgyldigMedlemsliste,
-  type Medlem,
-} from './medlemskap.ts';
+import { oversett, prosjektkobling, synkroniserKobling, type Medlem } from './medlemskap.ts';
 import { lesSesjon, type Sesjon } from './sesjon.ts';
 
-export interface Bruker {
-  id: string;
-  email: string;
-  name: string;
-}
+export { sha256, type Bruker } from './bruker.ts';
 
 export interface Catenda {
   /** Medlemmene i Catenda-prosjektet, hentet med integrasjonens eget token (`AuthService.sync`). */
@@ -66,10 +57,6 @@ export function catendaId(verdi: unknown): string | null {
     .replace(/^\{(.*)\}$/, '$1')
     .replaceAll('-', '');
   return /^[0-9a-f]{32}$/.test(hex) ? hex : null;
-}
-
-export function sha256(tekst: string): string {
-  return createHash('sha256').update(tekst).digest('hex');
 }
 
 export function informasjonskapsel(foresporsel: IncomingMessage, navn: string): string {
@@ -211,24 +198,59 @@ export async function medlemslistensAlder(
     const rad = svar.recordset[0];
     return rad ? { hentet: rad.hentet, alderSekunder: Number(rad.alder_sekunder) } : null;
   } catch (feil) {
-    throw oversett(feil, UgyldigMedlemsliste);
+    throw oversett(feil);
   }
 }
+
+/** Hentingene fra Catenda som pågår, per base og kobling, så samtidige forespørsler deler én (#726 punkt 3). */
+const hentinger = new WeakMap<Pool, Map<string, Promise<boolean>>>();
 
 /**
  * `AuthService.ensure_fresh` for et registrert prosjekt: synkroniser når listen
  * fra det koblede Catenda-prosjektet mangler eller er for gammel. Alderen røper
  * om prosjektet er koblet og når listen ble hentet, så den leses bare her, før
  * medlemskapet er avgjort, og gis aldri videre (#638 punkt 2).
+ *
+ * `catendaProsjekt` er koblingen tilgangskontrollen alt har lest, så listen og
+ * teamene kommer fra samme Catenda-prosjekt (#726 punkt 2). Er listen ikke fersk
+ * etter synkroniseringen, kaster den, også når en annen skrev først (#707,
+ * kommentar a).
  */
+async function oppdaterMedlemslisten(
+  db: Pool,
+  catenda: Catenda,
+  prosjekt: string,
+  catendaProsjekt: string
+): Promise<void> {
+  const fersk = async () => {
+    const sist = await medlemslistensAlder(db, prosjekt);
+    return sist !== null && sist.alderSekunder < medlemskapsalder();
+  };
+  if (await fersk()) return;
+  let iBasen = hentinger.get(db);
+  if (!iBasen) hentinger.set(db, (iBasen = new Map()));
+  const noekkel = JSON.stringify([prosjekt, catendaProsjekt]);
+  let henting = iBasen.get(noekkel);
+  if (!henting) {
+    const paagaar = iBasen;
+    henting = synkroniserKobling(db, { prosjekt, catendaProsjekt }, (c) =>
+      catenda.medlemmer(c)
+    ).finally(() => paagaar.delete(noekkel));
+    iBasen.set(noekkel, henting);
+  }
+  await henting;
+  if (!(await fersk())) throw new Error('Medlemslisten er ikke fersk etter synkroniseringen');
+}
+
+/** Som `oppdaterMedlemslisten()`, med koblingen lest her. For lista over brukerens prosjekter. */
 export async function ferskeMedlemmer(
   db: Pool,
   catenda: Catenda,
   prosjektId: string
 ): Promise<void> {
-  const sist = await medlemslistensAlder(db, prosjektId);
-  if (sist === null || sist.alderSekunder >= medlemskapsalder())
-    await synkroniserProsjekt(db, prosjektId, (c) => catenda.medlemmer(c));
+  const oppsett = await prosjektoppsett(db, prosjektId);
+  if (!oppsett) throw new Error('Prosjektet har ingen aktiv kobling');
+  await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
 }
 
 /** Prosjekt-ID-en slik basen har den: SQL Server ser bort fra mellomrom til slutt. */
@@ -281,7 +303,7 @@ export async function krevProsjekttilgang(
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
     if (!oppsett) throw nekt();
-    await ferskeMedlemmer(db, catenda, prosjektId);
+    await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
     const svar = await db
       .request()
       .input('aktor', sql.UniqueIdentifier, bruker.id)
@@ -375,13 +397,14 @@ async function kontraktsside(
   }
   if (!team.TE.size || !team.BH.size || [...team.TE].some((t) => team.BH.has(t)))
     return [null, null];
-  const treff: [Rolle, string][] = [];
-  for (const rolle of ['TE', 'BH'] as const) {
-    for (const teamId of team[rolle]) {
+  // Teamene slås opp samtidig (#716 punkt 5).
+  const oppslag = (['TE', 'BH'] as const).flatMap((rolle) =>
+    [...team[rolle]].map(async (teamId): Promise<[Rolle, string] | null> => {
       const medlemmer = await catenda.teammedlemmer(oppsett.catendaProsjekt, teamId);
-      if ([...medlemmer].map(catendaId).includes(subjekt)) treff.push([rolle, teamId]);
-    }
-  }
+      return [...medlemmer].map(catendaId).includes(subjekt) ? [rolle, teamId] : null;
+    })
+  );
+  const treff = (await Promise.all(oppslag)).filter((t) => t !== null);
   const roller = new Set(treff.map(([r]) => r));
   if (roller.size !== 1) return [null, null];
   const lag = new Set(treff.map(([, t]) => t));
