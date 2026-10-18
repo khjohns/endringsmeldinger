@@ -4505,6 +4505,48 @@ kilde = "hovedplanen"
 tekst = "Det som ikke står i teksten, er ikke meddelt (LV-U3)."
 
 [[gruppe.vedtak]]
+id = "LV-U11"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["#764", "#371"]
+sporsmal = '''
+Spørsmålet «Registrert brev», runde 4, ordrett slik det ble vist i spørsmålsverktøyet:
+
+Et brev som parten har sendt utenfor appen og registrert i den, har ingen tekst fra appen. Brevet ligger ved registreringen som vedlegg (OV-U4, KA-U35), og vedlegg lagres bare i Catenda (P4). Skal registreringen i tillegg bli et eget dokument i Catenda, slik hvert brev som leveres, blir ett dokument (B-03, LV-U1)?
+
+Alternativene slik de ble vist:
+
+Ja, originalbrevet som dokument: Et registrert brev leveres til Catenda som ett dokument, og dokumentet er brevet parten la ved registreringen. Forhold: presiserer B-03 (dokumentet) og LV-U2.
+
+Ja, et dokument med hodet: Et registrert brev leveres til Catenda som et dokument med sak, part, dato og at brevet er sendt utenfor appen, uten brevets innhold. Forhold: utvider B-03 (dokumentet).
+
+Nei, ikke eget dokument (Recommended): Et registrert brev blir ikke et eget dokument i Catenda, fordi det alt er sendt utenfor appen. Brevet som ligger ved, lagres i Catenda som vedlegg (P4). Visningen sier at brevet er sendt utenfor appen, ikke at levering mangler. Forhold: presiserer B-03 (dokumentet) og LV-U1.'''
+valgt = "Nei, ikke eget dokument"
+svar = '''
+«Nei, ikke eget dokument (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "b-03-dokument" }, { art = "presiserer", vedtak = "lv-u1" }]
+folge = '''
+Svaret står på #764 (kommentaren 6248105628), gitt med spørsmålsverktøyet. Ikke bygget (#371).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, ikke eget dokument"
+tekst = '''
+Et registrert brev blir ikke et eget dokument i Catenda, fordi det alt er sendt utenfor appen. Brevet som ligger ved, lagres i Catenda som vedlegg (P4). Visningen sier at brevet er sendt utenfor appen, ikke at levering mangler.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, originalbrevet som dokument"
+tekst = '''
+Et registrert brev leveres til Catenda som ett dokument, og dokumentet er brevet parten la ved registreringen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, et dokument med hodet"
+tekst = '''
+Et registrert brev leveres til Catenda som et dokument med sak, part, dato og at brevet er sendt utenfor appen, uten brevets innhold.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 id = "MM-U21"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
