@@ -90,7 +90,7 @@
   <h1 class="text-xl font-semibold">Sak i TS-kjernen</h1>
   <p class="text-sm text-gray-600">
     Prøve for testmiljøet (#347). Kravene sendes til TS-serveren, og hvert brev får et frosset
-    leveringsoppdrag. Leveringen til Catenda er ikke prøvd mot Catendas API.
+    leveringsoppdrag. Leveringen er ikke prøvd mot Catendas API (#371).
   </p>
 
   <label class="block text-sm"

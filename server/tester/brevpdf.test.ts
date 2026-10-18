@@ -25,7 +25,7 @@ const oppdrag = (brevtekst: Avsnitt[] | null) => ({
 /** Nok tekst til flere sider, med tegnene utenfor ASCII som brevene bruker. */
 const LANG: Avsnitt[] = Array.from({ length: 40 }, (_, i) => ({
   gjelder: `a${i}`,
-  laast: `Avsnitt ${i}: Totalentreprenøren krever endring etter NS 8407 § 33.4 – «varsel» → ÆØÅ æøå.`,
+  laast: `Avsnitt ${i}: Totalentreprenøren krever endring etter NS 8407 § 33.4 – «varsel» om ÆØÅ æøå.`,
   utdypning: `Utdypning ${i}: ${'Byggherren har pålagt en annen fundamentering. '.repeat(6)}`,
 }));
 
@@ -50,10 +50,13 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     expect(gjengirTro(kortere, LANG)).toBe(false);
   });
 
-  it('samme oppdrag gir samme fil', async () => {
-    const [a, b] = await Promise.all([1, 2].map(() => brevdokument(oppdrag(LANG), 'n')));
-    expect(a.innhold).toEqual(b.innhold);
-  });
+  it('samme oppdrag gir samme fil, også med reserveskriften', async () => {
+    const medPil = LANG.map((a) => ({ ...a, laast: a.laast.replace(' om ', ' → ') }));
+    for (const tekst of [LANG, medPil]) {
+      const [a, b] = await Promise.all([1, 2].map(() => brevdokument(oppdrag(tekst), 'n')));
+      expect(a.innhold).toEqual(b.innhold);
+    }
+  }, 20_000);
 
   it('gjengir et ord som er lengre enn linjen, tro, når det deles over flere linjer', async () => {
     const tekst: Avsnitt[] = [
@@ -144,8 +147,12 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     for (const [laast, kode] of [
       ['myk\u00adbindestrek', 'U+00AD'],
       ['null\u200bbredde', 'U+200B'],
+      ['bom\ufeffmidt', 'U+FEFF'],
     ]) {
-      const svar = brevdokument(oppdrag([{ gjelder: 'a', laast }]), 'n');
+      const svar = brevdokument(
+        oppdrag([{ gjelder: 'a', laast: 'Tekst.', utdypning: laast }]),
+        'n'
+      );
       await expect(svar).rejects.toBeInstanceOf(UgjengivbartBrev);
       await expect(svar).rejects.toThrow(kode);
     }

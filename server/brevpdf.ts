@@ -29,22 +29,22 @@ const SKRIFTER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'].map((fil) 
   return { bytes, tegnsett: fontkit.create(bytes) };
 });
 
-/** Brevteksten har et tegn ingen av skriftene har, som emoji. */
+/** Brevteksten har et tegn PDF-en ikke kan sette tro: emoji, eller et usynlig tegn som mykt bindestrek. */
 export class TegnUtenforSkriften extends Error {}
 
 /** Skriften for tegnet, som indeks i `SKRIFTER`. */
 function skriftFor(tegn: string): number {
   const kode = tegn.codePointAt(0)!;
-  const navn = `U+${kode.toString(16).toUpperCase().padStart(4, '0')}`;
-  // fontkit setter et usynlig tegn, som mykt bindestrek, som mellomrom.
-  if (/\p{Default_Ignorable_Code_Point}/u.test(tegn))
-    throw new TegnUtenforSkriften(
-      `Brevteksten har det usynlige tegnet ${navn}, som PDF-en ville satt som mellomrom`
-    );
+  const navn = () => `U+${kode.toString(16).toUpperCase().padStart(4, '0')}`;
   const i = SKRIFTER.findIndex((s) => s.tegnsett.hasGlyphForCodePoint(kode));
   if (i < 0)
     throw new TegnUtenforSkriften(
-      `Brevteksten har tegnet ${navn}, som skriftene i PDF-en ikke har`
+      `Brevteksten har tegnet ${navn()}, som skriftene i PDF-en ikke har`
+    );
+  // fontkit setter et usynlig tegn som mellomrom eller utelater det.
+  if (/\p{Default_Ignorable_Code_Point}/u.test(tegn))
+    throw new TegnUtenforSkriften(
+      `Brevteksten har det usynlige tegnet ${navn()}, som PDF-en ikke kan sette tro`
     );
   return i;
 }
@@ -99,7 +99,8 @@ function linjer(
  * Tab, CR, FF og VT settes som mellomrom og linjeskift, som `gjengirTro` tåler.
  * Et delt ord merkes `/Delt`, så lesingen setter delene sammen igjen.
  *
- * @throws TegnUtenforSkriften når skriftene mangler et tegn, i stedet for å sette en tom glyf
+ * @throws TegnUtenforSkriften når skriftene mangler et tegn eller tegnet er usynlig, i stedet for
+ *   å sette en tom glyf eller et mellomrom
  */
 export async function skrivBrevPdf(
   tekst: string,
