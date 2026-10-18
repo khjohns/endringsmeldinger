@@ -39,6 +39,10 @@ describe('filnavnet og innholdet', () => {
     [encodeURIComponent('Måling æøå.xlsx'), 'Måling æøå.xlsx'],
     ['a%3Cb%3E.txt', 'a_b_.txt'],
     [encodeURIComponent('हिंदी रिपोर्ट.pdf'), 'हिंदी रिपोर्ट.pdf'],
+    ['rapport.pdf%CD%8F', 'rapport.pdf_'],
+    ['rapport.p%EF%B8%8Fdf', 'rapport.p_df'],
+    ['rapport.%CC%81pdf', 'rapport._pdf'],
+    ['_%CC%81rapport.pdf', 'rapport.pdf'],
   ])('%s gir filnavnet %s', (kodet, navn) => {
     expect(rensetFilnavn(kodet)).toBe(navn);
   });
@@ -57,6 +61,7 @@ describe('filnavnet og innholdet', () => {
     expect(innholdsfeil('rapport.pdf', PDF)).toBeNull();
     expect(innholdsfeil('modell.ifc', Buffer.from('ISO-10303-21;'))).toBeNull();
     expect(innholdsfeil('pdf', Buffer.from('\x89PNG\r\n\x1a\n'))).toMatch(/\.pdf/);
+    expect(innholdsfeil('rapport.pdf\u0301', Buffer.from('\x89PNG\r\n\x1a\n'))).toMatch(/\.pdf/);
   });
 });
 
@@ -142,13 +147,14 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     expect((await lastNed(o.te, id)).status).toBe(200);
   });
 
-  it('nedlastingen gir filnavnet etter RFC 8187 og finner vedlegget også med store bokstaver i ID-en', async () => {
+  it('nedlastingen gir filnavnet etter RFC 8187, og nedlasting og sletting finner vedlegget også med store bokstaver i ID-en', async () => {
     const id = (await lastOpp(o.te, PDF, 'rapport (1).pdf')).kropp.vedlegg.vedlegg_id;
     const ned = await lastNed(o.te, id.toUpperCase());
     expect(ned.status).toBe(200);
     expect(ned.headers.get('content-disposition')).toBe(
       "attachment; filename*=UTF-8''rapport%20%281%29.pdf"
     );
+    expect((await slett(o.te, id.toUpperCase())).status).toBe(200);
   });
 
   it('et vedlegg-ID som ikke kan dekodes, gir en feil om ressursen, ikke om saken', async () => {

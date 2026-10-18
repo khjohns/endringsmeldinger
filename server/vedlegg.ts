@@ -47,7 +47,8 @@ export async function lesFil(foresporsel: IncomingMessage): Promise<Fil> {
 
 /**
  * Filnavnet uten sti og uten tegn som ikke hører hjemme i et filnavn, som
- * `secure_filename` i Python, men med bokstavene i alle språk. `null` når ingenting er igjen.
+ * `secure_filename` i Python, men med bokstavene i alle språk og de kombinerende tegnene
+ * som står på en bokstav. Usynlige tegn blir `_`. `null` når ingenting er igjen.
  */
 export function rensetFilnavn(kodet: string): string | null {
   let navn: string;
@@ -59,7 +60,8 @@ export function rensetFilnavn(kodet: string): string | null {
   if (ulagringsbarTekst(navn)) return null;
   const renset = (navn.split(/[/\\]/).pop() ?? '')
     .normalize('NFC')
-    .replace(/[^\p{L}\p{M}\p{N} ._()-]/gu, '_')
+    .replace(/\p{Default_Ignorable_Code_Point}|[^\p{L}\p{M}\p{N} ._()-]/gu, '_')
+    .replace(/(?<![\p{L}\p{M}])\p{M}/gu, '_')
     .replace(/\s+/g, ' ')
     .replace(/^[ ._]+|[ .]+$/g, '');
   if (!renset || !/[\p{L}\p{N}]/u.test(renset) || renset.length > STOERSTE_FILNAVN) return null;
@@ -94,8 +96,9 @@ export function innholdsfeil(filnavn: string, innhold: Buffer): string | null {
   for (const [signatur, hva] of KJOERBARE)
     if (innhold.subarray(0, signatur.length).equals(signatur))
       return `Filen ser ut til å være et program (${hva}) og kan ikke lastes opp som vedlegg.`;
-  // Som `rpartition('.')` i Python: et navn uten punktum er selve endelsen.
-  const endelse = filnavn.split('.').pop()!.toLowerCase();
+  // Som `rpartition('.')` i Python: et navn uten punktum er selve endelsen. Kombinerende
+  // tegn tas bort, så «pdf» med aksent kontrolleres som .pdf.
+  const endelse = filnavn.split('.').pop()!.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
   const forventet = FORMATER[endelse];
   if (forventet && !forventet.some((s) => innhold.subarray(0, s.length).equals(s)))
     return `Innholdet stemmer ikke med filtypen .${endelse}. Last opp filen i det formatet navnet oppgir.`;
