@@ -159,8 +159,9 @@ issue. Oppdraget skal inneholde:
   runde, også funn i andre øktes filer og funn som krever en avgjørelse;
 - at oppdraget er avgrenset til om lag 45–60 minutter med aktivt arbeid, og
   hvordan økta venter (se «Kontekst i arbeidsøktene»);
-- at økta melder fra om egen størrelse etter hvert hovedsteg, og stopper ved om
-  lag 150 000 tokens (se «Kontekst i arbeidsøktene»);
+- at økta melder fra om egen størrelse etter hvert hovedsteg, setter påminnelsen
+  og stopper etter grensen i «Melder fra om egen størrelse» (se «Kontekst i
+  arbeidsøktene»);
 - at kartlegging, lesing av store filer og CI-logger gjøres av subagenter, så
   øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425), og at hver
   subagent avgrenses etter «Subagenter har samme grense» (se «Kontekst i
@@ -253,11 +254,12 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 
 - **Arbeid i timer, ikke i døgn.** Et oppdrag avgrenses slik at økta kan bli
   ferdig på om lag 45–60 minutter med aktivt arbeid. Den kan gå over for å gjøre
-  seg ferdig, innen 150 000 tokens: pushe, skrive tilstanden i PR-beskrivelsen og
-  melde fra. Venter økta på CI eller feilinnføringene og regner med å fortsette
-  innen en time, venter den med en bakgrunnskommando som vekker den, så
-  hurtigbufferen holder seg varm. Venter den lenger, for eksempel på
-  oppdragsgiver, skriver den tilstanden i PR-en og stopper. Den vekkes ikke
+  seg ferdig, innen grensen i «Melder fra om egen størrelse»: pushe, skrive
+  tilstanden i PR-beskrivelsen og melde fra. Venter økta på CI eller
+  feilinnføringene og regner med å fortsette innen en time, venter den med en
+  bakgrunnskommando som vekker den, så hurtigbufferen holder seg varm. Venter
+  den lenger, for eksempel på oppdragsgiver, skriver den tilstanden i PR-en og
+  stopper. Den vekkes ikke
   igjen: en ny, liten økt tar over fra PR-en, vedtakene og issuet. Still derfor
   spørsmålene tidlig, og send svarene samlet så snart de foreligger, helst innen
   en time. Det samme gjelder orkestratoren: runden avgrenses til om lag én time
@@ -277,7 +279,23 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   `external_metadata.context_usage.used_tokens`. Er verdien 0, er den ukjent, og
   økta anslår i stedet brukt kontekst ut fra det den har lest og kjørt, og
   skriver anslaget i PR-en (#731). Har økta passert om lag 150 000 tokens, stopper
-  den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk.
+  den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk. Det
+  gjelder ikke når økta har pågått under en time: da fortsetter den forbi 150 000
+  til oppgaven er ferdig, men stopper ved om lag 300 000 tokens eller før en
+  komprimering. Etter en time, eller etter en pause over en time, gjelder 150 000
+  som før (oppdragsgiver 18.10, #777). En økt som har passert 150 000 når
+  timen er gått, tar ikke nye steg, men kan pushe og skrive tilstanden, slik
+  «Arbeid i timer» sier. Økta setter en påminnelse med `send_later` om 45
+  minutter når den starter, og skriver `trigger_id` i tilstanden i PR-en (eller i
+  issuet før PR-en finnes), så den kan slettes etter en komprimering eller av en
+  ny økt. Når påminnelsen kommer, vurderer økta tre utfall: kan den bli ferdig
+  innen en time fra start uten å passere grensen som gjelder den, fortsetter
+  den. Kan den ikke det, men et naturlig stoppunkt er nært, gjør den seg ferdig
+  dit, pusher og
+  skriver tilstanden i PR-en. Ellers stopper den, slik at en ny økt overtar fra
+  PR-en. Stopper økta, av hvilken grunn som helst (ferdig, stoppgrensen eller
+  venting på oppdragsgiver), sletter den påminnelsen med `delete_trigger`, så
+  den ikke vekker en økt som har stoppet (oppdragsgiver 18.10, #777).
   Tilstanden skal gjøre det mulig å lese seg inn på nytt: vedtakene i
   hovedplanen, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
   gjenstår (oppdragsgiver 14.10, #484).
@@ -301,13 +319,15 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   per runde. For økter som ikke er orkestrert, gjelder dette bare når diffen
   rører `kjerne/` eller er over om lag 800 endrede linjer utenom `docs/`
   (oppdragsgiver 14.10, #484, #490 og #491).
-- **Ved om lag 300 000 tokens, eller etter en komprimering,** sender
-  orkestratoren én samlet sjekkliste over det som gjenstår, med kildene som
-  skal leses på nytt. Gjenstår mer enn rettinger og CI, overtar en ny økt fra
-  PR-en og issuene. Den gamle pusher det den har, og avsluttes. Den nye økta
+- **Passerer en økt grensen sin uten å stoppe, eller blir den komprimert,**
+  sender orkestratoren én samlet sjekkliste over det som gjenstår, med kildene
+  som skal leses på nytt. Orkestratoren ser ikke pauser, så den regner grensen
+  slik: om lag 300 000 tokens, eller om lag 150 000 tokens når mer enn en time er
+  gått siden økta ble opprettet. Gjenstår mer enn rettinger og CI, overtar en
+  ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Den nye økta
   får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene,
-  og arbeider under de samme grensene. Økta skal ha stoppet ved 150 000 tokens,
-  så dette er en reserve. Passerer orkestratoren selv om lag 300 000 tokens,
+  og arbeider under de samme grensene. Passerer orkestratoren selv om lag
+  300 000 tokens,
   avsluttes runden når PR-ene som er nær merge, er merget. Resten går til neste
   runde (oppdragsgiver 12.10, #425).
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i hovedplanen
