@@ -19,13 +19,17 @@ UNNTAKSLISTE = pathlib.Path(__file__).with_name("avhengighetsunntak.toml")
 FELT = ("advisory", "pakke", "dato", "issue", "begrunnelse")
 
 
-def les_unntak(sti: pathlib.Path) -> dict[str, dict]:
+def les_unntak(sti: pathlib.Path) -> dict[tuple[str, str], dict]:
+    """Unntakene etter (advisory, pakke). En post slipper bare advisoryen i sin egen pakke."""
     unntak = {}
     for post in tomllib.loads(sti.read_text(encoding="utf-8")).get("unntak", []):
         mangler = [f for f in FELT if not post.get(f)]
         if mangler:
             raise ValueError(f"Unntaket {post.get('advisory', '?')} mangler {', '.join(mangler)}.")
-        unntak[post["advisory"]] = post
+        nøkkel = (post["advisory"], post["pakke"])
+        if nøkkel in unntak:
+            raise ValueError(f"Unntaket {post['advisory']} for {post['pakke']} står to ganger.")
+        unntak[nøkkel] = post
     return unntak
 
 
@@ -47,16 +51,16 @@ def funn(rapport: dict) -> list[tuple[str, str, str, str]]:
 def main(argumenter: list[str]) -> int:
     unntak = les_unntak(pathlib.Path(argumenter[0]) if argumenter else UNNTAKSLISTE)
     treff = funn(json.load(sys.stdin))
-    blokkerende = [t for t in treff if t[0] not in unntak]
-    for advisory, pakke, alvorlighet, tittel in treff:
-        if advisory in unntak:
-            post = unntak[advisory]
-            print(f"UNNTAK ({post['dato']}, #{post['issue']}): {pakke} {advisory} {alvorlighet}")
+    brukt = [t for t in treff if t[:2] in unntak]
+    blokkerende = [t for t in treff if t[:2] not in unntak]
+    for advisory, pakke, alvorlighet, _ in brukt:
+        post = unntak[(advisory, pakke)]
+        print(f"UNNTAK ({post['dato']}, #{post['issue']}): {pakke} {advisory} {alvorlighet}")
     for advisory, pakke, alvorlighet, tittel in blokkerende:
         print(f"::error title=Sårbar kjøretidsavhengighet::{pakke} {advisory} ({alvorlighet}): {tittel}")
-    for advisory in sorted(set(unntak) - {t[0] for t in treff}):
-        print(f"::warning title=Unntak uten treff::{advisory} treffer ikke lenger og kan fjernes fra listen.")
-    print(f"blokkerende: {len(blokkerende)}; unntak brukt: {len(treff) - len(blokkerende)}")
+    for advisory, pakke in sorted(set(unntak) - {t[:2] for t in treff}):
+        print(f"::warning title=Unntak uten treff::{advisory} i {pakke} treffer ikke lenger og kan fjernes fra listen.")
+    print(f"blokkerende: {len(blokkerende)}; unntak brukt: {len(brukt)}")
     return 1 if blokkerende else 0
 
 

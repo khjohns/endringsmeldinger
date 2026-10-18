@@ -1,4 +1,4 @@
-"""Lenkekontrollen som CI-steget «Lenker i docs/» kjører (#602).
+"""Lenkekontrollen som CI-steget «Lenker i Markdown» kjører (#602, #752).
 
 Leveranseskillen krever et gyldig tilfelle og et representativt avvik for en
 kontroll som kjører i CI. Hvert tilfelle lager en egen rot med docs/ i tmp_path
@@ -104,11 +104,11 @@ def test_lenke_i_kode_kontrolleres_ikke(tmp_path, kilde):
 
 
 @pytest.mark.parametrize(
-    "mål, kode",
+    "maal, kode",
     [("maal.md#andre-avsnitt", 0), ("maal.md#finnes-ikke", 1), ("<finnes-ikke.md>", 1)],
 )
-def test_referansedefinisjon_kontrolleres(tmp_path, mål, kode):
-    resultat = _kjoer(tmp_path, "", f"Se [målet][m].\n\n[m]: {mål}\n")
+def test_referansedefinisjon_kontrolleres(tmp_path, maal, kode):
+    resultat = _kjoer(tmp_path, "", f"Se [målet][m].\n\n[m]: {maal}\n")
     assert resultat.returncode == kode, resultat.stdout + resultat.stderr
 
 
@@ -116,8 +116,22 @@ def test_referansedefinisjon_kontrolleres(tmp_path, mål, kode):
 def test_brutt_anker_i_filene_som_lastes_i_oektene_gir_exit_1(tmp_path, fil):
     sti = tmp_path / fil
     sti.parent.mkdir(parents=True, exist_ok=True)
-    mål = "docs/maal.md" if sti.parent == tmp_path else "../../docs/maal.md"
-    sti.write_text(f"Se [planen]({mål}#finnes-ikke).\n", encoding="utf-8")
+    maal = "docs/maal.md" if sti.parent == tmp_path else "../../docs/maal.md"
+    sti.write_text(f"Se [planen]({maal}#finnes-ikke).\n", encoding="utf-8")
     resultat = _kjoer(tmp_path, "maal.md")
     assert resultat.returncode == 1, resultat.stdout + resultat.stderr
     assert f"BRUTT ANKER: {fil} ->" in resultat.stdout
+
+
+@pytest.mark.parametrize("kilde", ["Tekst.[^1]\n\n[^1]: Se vedtaket B-17.\n", "[Merk]:\nDette gjelder TE.\n"])
+def test_fotnote_og_tom_referanselinje_er_ikke_lenker(tmp_path, kilde):
+    resultat = _kjoer(tmp_path, "", kilde)
+    assert resultat.returncode == 0, resultat.stdout + resultat.stderr
+
+
+def test_arbeidstre_under_claude_kontrolleres_ikke(tmp_path):
+    kopi = tmp_path / ".claude/worktrees/gren/docs/brutt.md"
+    kopi.parent.mkdir(parents=True)
+    kopi.write_text("Se [x](finnes-ikke.md).\n", encoding="utf-8")
+    resultat = _kjoer(tmp_path, "maal.md")
+    assert resultat.returncode == 0, resultat.stdout + resultat.stderr

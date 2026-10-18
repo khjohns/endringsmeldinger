@@ -75,6 +75,12 @@ def test_unntak_for_en_annen_advisory_blokkerer_fortsatt(tmp_path):
     assert "Unntak uten treff::GHSA-aaaa-bbbb-cccc" in resultat.stdout
 
 
+def test_unntak_for_samme_advisory_i_en_annen_pakke_blokkerer_fortsatt(tmp_path):
+    resultat = _kjoer(tmp_path, _rapport("high", True), UNNTAK.replace('"pakke-a"', '"pakke-c"'))
+    assert resultat.returncode == 1, resultat.stdout + resultat.stderr
+    assert "Unntak uten treff::GHSA-aaaa-bbbb-cccc i pakke-c" in resultat.stdout
+
+
 def test_unntak_uten_dato_avvises(tmp_path):
     resultat = _kjoer(tmp_path, _rapport("high", True), UNNTAK.replace('dato = "2026-10-18"\n', ""))
     assert resultat.returncode != 0

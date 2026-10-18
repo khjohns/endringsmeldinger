@@ -6,7 +6,8 @@ AGENTS.md og CLAUDE.md i roten. De to siste lastes automatisk i øktene og
 lenker til ankre i hovedplanen (#752).
 
 Lenkeformene som kontrolleres: [x](mål), [x](<mål>), mål med ett nivå
-parenteser, og referansedefinisjoner ([x]: mål).
+parenteser, og referansedefinisjoner ([x]: mål), men ikke fotnoter ([^1]: tekst).
+Arbeidstrærne i .claude/worktrees/ er kopier av repoet og kontrolleres ikke.
 """
 
 import functools
@@ -20,7 +21,7 @@ KODEBLOKK = re.compile(r"^(```|~~~).*?^\1[^\n]*$", re.S | re.M)
 INLINE_KODE = re.compile(r"`[^`\n]*`")
 MÅL = r"(<[^<>\n]+>|(?:[^()\s]|\([^()\s]*\))+)"
 LENKE = re.compile(r"\]\(\s*" + MÅL + r"(?:\s+(?:\"[^\"]*\"|'[^']*'|\([^)]*\)))?\s*\)")
-REFERANSE = re.compile(r"^ {0,3}\[[^\]\n]+\]:\s*" + MÅL, re.M)
+REFERANSE = re.compile(r"^ {0,3}\[(?!\^)[^\]\n]+\]:[ \t]*" + MÅL, re.M)
 OVERSKRIFT = re.compile(r"^#{1,6}\s+(.*?)\s*#*\s*$", re.M)
 EKSPLISITT_ID = re.compile(r"""(?:id|name)=["']([^"']+)["']""")
 EKSTERN = re.compile(r"^(https?:|mailto:|file:)")
@@ -52,7 +53,8 @@ def ankre(sti: pathlib.Path) -> frozenset[str]:
 
 
 def standardfiler() -> list[pathlib.Path]:
-    stier = sorted(pathlib.Path("docs").rglob("*.md")) + sorted(pathlib.Path(".claude").rglob("*.md"))
+    claude = [s for s in pathlib.Path(".claude").rglob("*.md") if not s.is_relative_to(".claude/worktrees")]
+    stier = sorted(pathlib.Path("docs").rglob("*.md")) + sorted(claude)
     return stier + [pathlib.Path(f) for f in ROTFILER if pathlib.Path(f).is_file()]
 
 
