@@ -51,7 +51,12 @@ const medlem = (s = subjekt(), rolle: Medlem['rolle'] = 'member'): Medlem => ({
   navn: `Medlem ${s.slice(0, 6)}`,
   rolle,
 });
-const sekunder = (n: number) => new Date(Date.now() + n * 1000);
+/**
+ * Basens klokke minus testmaskinens, målt i `beforeAll`. Prosedyrene avviser et
+ * tidspunkt etter basens klokke, så tidspunktene regnes fra den (#639 punkt 2).
+ */
+let forskyvning = 0;
+const sekunder = (n: number) => new Date(Date.now() + forskyvning + n * 1000);
 
 interface Medlemsrad {
   catenda_subject: string;
@@ -68,6 +73,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
   beforeAll(async () => {
     base = await opprettMigrertTestbase('medlemskap', { maks: 24 });
     kjoeretid = await opprettKjoeretid(base, { maks: 12 });
+    const foer = Date.now();
+    const naa = await basensKlokke(base.pool);
+    forskyvning = naa.getTime() - (foer + Date.now()) / 2;
   }, 240_000);
   afterAll(async () => {
     await kjoeretid?.slett();
@@ -741,6 +749,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
           await iKoe(2);
         } finally {
           await laas.slipp();
+          // Kaster iKoe, ventes kallene likevel på, så ingen avvisning blir uhåndtert.
+          await Promise.allSettled(kall);
         }
         await Promise.all(kall);
         expect(await aktive(p.id)).toEqual(aktivTilSlutt ? [a.subjekt] : []);
@@ -753,12 +763,24 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       const [a, b] = [medlem(), medlem()];
       await synk(p, [a, b], sekunder(-60));
       const foerste = await holdInnlogging(a.subjekt, [], sekunder(-30));
+      let andre: Promise<string[]> | undefined;
+      let tidtaker: ReturnType<typeof setTimeout> | undefined;
+      let svar: unknown;
       try {
         expect(foerste.endret).toEqual([p.id]);
-        expect(await logginn(b.subjekt, [], sekunder(-30))).toEqual([p.id]);
+        andre = logginn(b.subjekt, [], sekunder(-30));
+        // Egen tidsgrense: venter den andre på en lås, slippes den første før
+        // assertionen, så senere tester ikke arver låsene (#774).
+        svar = await Promise.race([
+          andre,
+          new Promise((ok) => (tidtaker = setTimeout(() => ok('ventet'), 10_000))),
+        ]);
       } finally {
+        clearTimeout(tidtaker);
         await foerste.slipp();
+        await Promise.allSettled([andre]);
       }
+      expect(svar).toEqual([p.id]);
       expect(await aktive(p.id)).toEqual([]);
     }, 30_000);
 
@@ -767,11 +789,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       const a = medlem();
       await synk(annet, [a], sekunder(-120));
       const foerste = await holdInnlogging(a.subjekt, [annet.catendaId], sekunder(-40));
-      const andre = logginn(a.subjekt, [annet.catendaId], sekunder(-20));
+      let andre: Promise<string[]> | undefined;
       try {
+        andre = logginn(a.subjekt, [annet.catendaId], sekunder(-20));
         await iKoe(1);
       } finally {
         await foerste.slipp();
+        await Promise.allSettled([andre]);
       }
       await andre;
       expect(await synk(p, [a], sekunder(-30))).toBe(true);

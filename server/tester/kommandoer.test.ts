@@ -56,6 +56,9 @@ const TE_P2 = heks();
 const ny = (): Kommando => ({ id: randomUUID(), sha256: heks() + heks() });
 const SAK_OPPRETTET = { sakstittel: 'Kommandoene', sakstype: 'standard' };
 
+/** Økta som fikk tidspunktet, og økta som skrev. */
+type Oektene = { annen: number; skriving: number };
+
 describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
   let base: Testbase;
   let kjoeretid: { pool: Pool; slett(): Promise<void> };
@@ -556,7 +559,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
      * med `annen_transaksjon`. Testen prøver forutsetningen etter avvisningen, så et
      * brudd ikke vises som feil feilnummer.
      */
-    let oektene: { annen: number; skriving: number } | undefined;
+    let oektene: Oektene | undefined;
 
     /** Kaller prosedyren direkte som kjøretiden; `tid` avgjør tidspunktet og nøkkelen. */
     async function direkte(
@@ -860,10 +863,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const sak = await nySak();
       oektene = undefined;
       const feil = await avvisning(direkte(sak.sak_id, valg));
-      if (valg?.tid === 'annen_transaksjon')
-        expect(oektene?.skriving, 'skrivingen gikk i økta som fikk tidspunktet').toBe(
-          oektene?.annen
-        );
+      if (valg?.tid === 'annen_transaksjon') {
+        const o = oektene as Oektene | undefined;
+        expect(o, 'skrivingen gikk i økta som fikk tidspunktet').toEqual({
+          annen: expect.any(Number),
+          skriving: o?.annen,
+        });
+      }
       expect(feil).toBe(UGYLDIG);
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
     });
