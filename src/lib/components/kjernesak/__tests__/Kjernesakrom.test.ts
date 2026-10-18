@@ -96,6 +96,35 @@ describe('TS-saken i Kontrollrommet', () => {
     expect(spor.getByRole('button', { name: /Vederlag/ })).toBeInTheDocument();
   });
 
+  // Kilde: #719 p5: etter et lagret brev og en mislykket lasting har saksbildet en vei videre.
+  it('når brevet er lagret, men saken ikke er lastet på nytt, kan saken lastes fra rommet', async () => {
+    let lastet = 0;
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar(medGrunnlag, 'TE'))
+      .mockImplementation(async () => {
+        lastet++;
+        return svar(medGrunnlag, 'TE');
+      });
+    const ekte = lagKjernesak({ sakId: SAK, hent });
+    await ekte.last();
+    const kjernesak = new Proxy(ekte, {
+      get: (t, p) => (p === 'utdatert' ? lastet === 0 : Reflect.get(t, p)),
+    });
+    render(Kjernesakrom, {
+      kjernesak,
+      projectId: 'p-1',
+      view: { track: 'ansvar', mode: 'read', role: 'TE' },
+      onviewchange: () => {},
+      onnewcase: () => {},
+    });
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Saken som vises, er ikke oppdatert etter det siste brevet.'
+    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Last saken på nytt' }));
+    expect(lastet).toBe(1);
+  });
+
   it('byggherrens svar vises bare som at svar finnes (oppdragsgiver 17.10)', async () => {
     await vis(medSvar, 'TE');
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));

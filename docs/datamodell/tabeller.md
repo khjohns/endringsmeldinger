@@ -662,7 +662,7 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 | Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.sak_catenda_topic.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` peker på en bruker. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -679,7 +679,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.kvittering.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel); koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -713,7 +713,7 @@ Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En 
 | Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Sakstittelen kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261019175000_vedleggslevering.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261019175000_vedleggslevering.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`. |
 
@@ -747,7 +747,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedleggskvittering.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -764,7 +764,7 @@ Kvitteringen per kommando (invariant 4, #418): kommando-ID-en klienten gir, summ
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id, aktor_id, kommando_id); unik (event_id). Viser til: aktor_id → koe.app_users.id (uten fremmednøkkel); (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Aktørens `app_users.id`. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`. |
 
@@ -849,7 +849,7 @@ Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget f
 | Relasjoner | Nøkler: primærnøkkel (pakke_id); unik (pakke_id, prosjekt_id, aktor_team_id); unik indeks (forrige_pakke_id) WHERE ([forrige_pakke_id] IS NOT NULL). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); forrige_pakke_id → koe.godkjenningspakke.pakke_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel). Vises til fra: koe.godkjenningshandling.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Saksbehandleren (`aktor_id`) og innholdet i svaret. |
-| Skrives av | database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
@@ -866,7 +866,7 @@ Godkjennerne i en pakke i kjedens rekkefølge, regnet av `server/fullmakt.ts` da
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, steg); unik (pakke_id, godkjenner_id). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); godkjenner_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningshandling.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Godkjennerne (`godkjenner_id`). |
-| Skrives av | database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
@@ -883,7 +883,7 @@ Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning f
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, loepenr); unik indeks (pakke_id) WHERE ([handling]<>N'godkjent'); unik indeks (pakke_id, steg) WHERE ([handling]=N'godkjent'). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); (pakke_id, steg) → koe.godkjenningssteg.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Den som handlet (`aktor_id`) og begrunnelsen for en retur. |
-| Skrives av | database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
@@ -968,7 +968,7 @@ Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel
 | Relasjoner | Nøkler: primærnøkkel (oekt). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | ja. Raden brukes bare i transaksjonen som førte den. |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`); database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`) |
+| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`); database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`. |
 
