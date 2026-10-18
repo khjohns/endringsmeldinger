@@ -242,8 +242,9 @@ const ENDRER_UTFALLET = new Set<string>(['aksept', 'trekk', 'ingen_krav', 'varse
 
 /**
  * Dokumentet kan stride mot journalen før det (`foer`): det har et krav, et svar, et utsagn
- * som kan endre utfallet, eller en innsigelse fra byggherren som er en påberopelse (HF-U4,
- * MM-U27). Andre innsigelser utleder ikke prefikset på nytt (#776, #400).
+ * som kan endre utfallet, eller en innsigelse som er en påberopelse (HF-U4, MM-U27). Andre
+ * innsigelser utleder ikke prefikset på nytt (#776, #400). Hvilken part som er bundet,
+ * avgjør `innsigelsenEtterITide`.
  */
 const kanStride = (d: Dokument, foer: Dokument[], regler: Regelsett): boolean =>
   d.krav.length > 0 ||
@@ -251,9 +252,7 @@ const kanStride = (d: Dokument, foer: Dokument[], regler: Regelsett): boolean =>
   d.utsagn.some(
     (x) =>
       ENDRER_UTFALLET.has(x.art) ||
-      (x.art === 'innsigelse' &&
-        d.avsender === 'BH' &&
-        innsigelsenPaaberoper(x.gjelder, foer, regler) !== null)
+      (x.art === 'innsigelse' && innsigelsenPaaberoper(x.gjelder, foer, regler) !== null)
   );
 
 interface Strid {
