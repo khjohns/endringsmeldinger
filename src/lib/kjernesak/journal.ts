@@ -5,9 +5,10 @@ import type { Journalrad } from '$kjerne/typer';
 export type Visningsrad = Journalrad & { aktor_navn?: string };
 
 /**
- * Radene slik kjernen leser dem. Serveren sender ikke aktøren, teamet eller
- * referansen; kjernen skriver ingen rad med referanse, og utledningen leser ikke
- * aktøren eller teamet.
+ * Radene slik kjernen leser dem, med navnet på aktøren for visningen. Serveren
+ * sender navnet, eller `aktor_id` når navnet ikke finnes (#820), men ikke teamet
+ * eller referansen. `aktor_id` i raden er tom; kjernen skriver ingen rad med
+ * referanse, og utledningen leser ikke aktøren eller teamet.
  */
 export const somJournal = (sakId: string, linjer: Journallinje[]): Visningsrad[] =>
   linjer.map((l) => ({

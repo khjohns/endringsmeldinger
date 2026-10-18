@@ -222,6 +222,17 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     expect(uten).toEqual([]);
   });
 
+  it('skjemaet for vederlagskravet lukkes når visningen bytter til et annet spor i skjemamodus (#737 p4)', async () => {
+    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE'), send: vi.fn() });
+    await kjernesak.last();
+    const { rerender } = visRom(kjernesak);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    expect(screen.getByLabelText('Fast pris')).toBeInTheDocument();
+
+    await rerender({ view: { track: 'frist', mode: 'form', role: 'TE' } });
+    expect(screen.queryByLabelText('Fast pris')).toBeNull();
+  });
+
   it('når sporet har et vederlagskrav, tilbys ikke skjemaet, selv om kjernen tilbyr ny versjon (#667)', async () => {
     const rader = medKrav(journal, {
       type: 'krav',

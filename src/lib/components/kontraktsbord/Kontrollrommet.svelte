@@ -101,10 +101,10 @@
   // ikke kjernen lenger det første kravet, men skjemaet skal fullføre sendingen (#737 p4).
   let kjerneskjemaAapent = $state(false);
   $effect(() => {
-    if (mode !== 'form') kjerneskjemaAapent = false;
+    if (mode !== 'form' || sel !== 'vederlag') kjerneskjemaAapent = false;
     else if (kjerneskjema) kjerneskjemaAapent = true;
   });
-  const visKjerneskjema = $derived(kjerneskjema || kjerneskjemaAapent);
+  const visKjerneskjema = $derived(kjerneskjema || (sel === 'vederlag' && kjerneskjemaAapent));
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   $effect(() => {
@@ -267,7 +267,9 @@
     {/if}
     <!-- Over panelene, så varselet også vises i matrisen på mobil (#719 p10). -->
     {#if kjernesak?.submissionError && mode === 'read'}
-      <div class="approval-entry"><p role="alert">{kjernesak.submissionError}</p></div>
+      <div class="approval-entry innsendingsvarsel">
+        <p role="alert">{kjernesak.submissionError}</p>
+      </div>
     {/if}
     <div class="body">
       {#if !creatingCase}
@@ -491,6 +493,14 @@
     background: var(--surface);
     font-size: 12px;
   }
+  /* Står ved siden av venstrekolonnen og over `.body`, som trekkes opp under hodet. */
+  .innsendingsvarsel {
+    width: calc(100% - var(--mockup-sidebar-width));
+    margin-left: var(--mockup-sidebar-width);
+    position: relative;
+    z-index: 30;
+    flex-shrink: 0;
+  }
   .approval-entry span {
     display: block;
     margin-top: 4px;
@@ -566,6 +576,10 @@
     }
     .body {
       margin-top: 0;
+    }
+    .innsendingsvarsel {
+      width: 100%;
+      margin-left: 0;
     }
     .center {
       padding-top: 0;
