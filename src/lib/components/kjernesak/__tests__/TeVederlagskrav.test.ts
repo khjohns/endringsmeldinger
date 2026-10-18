@@ -182,7 +182,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await waitFor(() => expect(leseflate()).not.toBeNull());
     expect(send).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'Kommandoen er lagret, men saken kunne ikke lastes på nytt. Catenda svarte ikke.'
+      'Brevet er lagret, men saken kunne ikke lastes på nytt. Catenda svarte ikke.'
     );
   });
 
