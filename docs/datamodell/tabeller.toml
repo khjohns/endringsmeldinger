@@ -662,13 +662,17 @@ standardverdi (AGENTS.md). `server/prosjekter.ts` leser prosjektene aktøren er
 aktivt medlem i med `koe_api.brukerens_prosjekter`, og ett av dem med
 `koe_api.prosjekt` (#660). Tabellen har ikke `settings` og `created_by` fra
 PostgreSQL."""
-lagres_fra = "Ingen skriver ennå (#53, del 3)."
-fra_catenda = "ikke kontrollert"
+lagres_fra = """
+Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller
+`koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820).
+En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt,
+men endrer ikke virksomheten."""
+fra_catenda = "Delvis. Navnet oppgis av driften; i Python kan det hentes fra Catenda-prosjektet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
-skrivere = []
+skrivere = ["database/migrasjoner/20261019140000_registrering.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
 funn = []
-belegg = "L 17.10: migrasjonen og søk i `server/`."
+belegg = "L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`."
 
 [[tabell]]
 navn = "koe.app_project_memberships"
@@ -715,13 +719,18 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har
 `catenda_id()`-formen, som `aktor_team_id` i journalen. `server/autorisasjon.ts`
 leser prosjektets kontraktsteam med `koe_api.kontraktsteam`, bare for en aktør
 med aktivt medlemskap uten leserollen (#658)."""
-lagres_fra = "Ingen skriver ennå (#53, del 3)."
-fra_catenda = "Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes i appen."
+lagres_fra = """
+Driften setter teamene med skriptet `server/registrering.ts`, som kontrollerer
+dem mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`, direkte
+eller gjennom `koe_drift.registrer_prosjekt` (F-1, #820). Begge sider må ha minst
+ett team. Uten saker erstatter listen teamene; står prosjektet i
+`koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764)."""
+fra_catenda = "Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes av driften."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
-skrivere = []
+skrivere = ["database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, også gjennom `koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`."
 
 [[tabell]]
 navn = "koe.catenda_project_configs"
@@ -743,13 +752,16 @@ ikke lov; den merker synkroniseringsraden etter en slik endring.
 `topic_board_id` er boardet for saker som opprettes i appen (KT-U4); uten det
 avviser `koe_api.opprett_sak` saken (#741). Triggeren
 `koe.catenda_project_configs_endret` setter `updated_at` ved hver endring (#618)."""
-lagres_fra = "Settes av driften. Ingen prosedyre skriver tabellen."
+lagres_fra = """
+Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller
+`koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over
+Catenda-prosjektet, biblioteket, mappen og boardet og gjør koblingen aktiv."""
 fra_catenda = "Delvis. ID-ene til Catenda-prosjektet og boardet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
-skrivere = []
+skrivere = ["database/migrasjoner/20261019140000_registrering.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
 funn = []
-belegg = "L 17.10: migrasjonen og søk i `server/`. K 18.10: `server/tester/jobber.test.ts`."
+belegg = "L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/jobber.test.ts` og `server/tester/registrering.test.ts`."
 
 [[tabell]]
 navn = "koe.app_membership_absences"
@@ -1093,6 +1105,25 @@ funn = []
 belegg = "L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 18.10: `server/tester/jobber.test.ts`."
 
 [[tabell]]
+navn = "koe.prosjekt_med_saker"
+lagring = "SQL Server"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Prosjektene som har minst én sak. Radsikkerheten skjuler sakene også for eieren,
+så `koe_drift.sett_kontraktsteam` leser her om kontraktsteamene bare kan få nye
+team (svaret 18.10 i #764, F-1, #820). Raden kan ikke endres eller slettes.
+Hadde `koe.sak_metadata` rader da migrasjonen ble anvendt, ble hvert prosjekt
+ført, fordi sakene ikke kunne leses."""
+lagres_fra = "Triggeren `koe.sak_metadata_prosjekt_med_saker`, i samme transaksjon som den første saken i prosjektet."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei; sakene kan ikke leses uten kontekst."
+personopplysninger = "Ingen kjente."
+skrivere = ["database/migrasjoner/20261019140000_registrering.sql (triggeren `koe.sak_metadata_prosjekt_med_saker`)"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/registrering.test.ts`."
+
+[[tabell]]
 navn = "koe.skrivetidspunkt"
 lagring = "SQL Server"
 type = ["teknisk"]
@@ -1150,7 +1181,7 @@ kan_gjenoppbygges = "nei, men tapet betyr bare at brukerne må logge inn igjen."
 personopplysninger = "Knyttet til en bruker gjennom `user_id`, med når sesjonen ble opprettet (`created_at`) og når den utløper (`expires_at`)."
 skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_sesjon`, `koe_api.rydd_utloepte`)", "database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.slett_sesjon`, innført i `20261016190000_sesjon.sql`)"]
 funn = []
-belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`."
+belegg = "L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på tokenhashen (#700)."
 
 [[tabell]]
 navn = "koe.app_oauth_attempts"
@@ -1172,7 +1203,7 @@ kan_gjenoppbygges = "nei, men radene er kortlevde."
 personopplysninger = "Ingen kjente; bare hasher og en returadresse."
 skrivere = ["database/migrasjoner/20261016190000_sesjon.sql (`koe_api.opprett_innloggingsforsoek`, `koe_api.rydd_utloepte`)", "database/migrasjoner/20261016233000_hashparametre.sql (`koe_api.bruk_innloggingsforsoek`, innført i `20261016190000_sesjon.sql`)"]
 funn = []
-belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/sesjon.test.ts`."
+belegg = "L 16.10: de to migrasjonene i `skrivere`. K 16.10: `server/tester/sesjon.test.ts`, med plantesten for oppslaget på statehashen (#700)."
 
 # ---------------------------------------------------------------------------
 # Data utenfor appens databaser. Ikke tabeller, men del av datamodellen.

@@ -150,13 +150,13 @@ export async function opprettTestbase(
 }
 
 /**
- * En innlogging som er medlem av `koe_runtime` i basen, og en pool som logger inn
+ * En innlogging som er medlem av `rolle` (standard `koe_runtime`) i basen, og en pool som logger inn
  * med den, så kjøretiden prøves med sine egne rettigheter gjennom `transaksjon()`
  * (#53, del 3a). Innloggingen hører til serveren og slettes med `slett()`, før basen.
  */
 export async function opprettKjoeretid(
   base: Testbase,
-  { maks = 4 } = {}
+  { maks = 4, rolle = 'koe_runtime' } = {}
 ): Promise<{ pool: Pool; slett(): Promise<void> }> {
   const navn = `koe_kjoeretid_${randomBytes(4).toString('hex')}`;
   const passord = `${randomBytes(24).toString('base64url')}aA1!`;
@@ -172,9 +172,7 @@ export async function opprettKjoeretid(
   }
   await base.pool
     .request()
-    .batch(
-      `CREATE USER [${navn}] FOR LOGIN [${navn}]; ALTER ROLE koe_runtime ADD MEMBER [${navn}];`
-    );
+    .batch(`CREATE USER [${navn}] FOR LOGIN [${navn}]; ALTER ROLE ${rolle} ADD MEMBER [${navn}];`);
   const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
   const pool = await opprettPool(
     {
