@@ -634,7 +634,7 @@ kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
 skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`, innført i `20261016140000_medlemskap.sql`)"]
 funn = []
-belegg = "L 16.10: migrasjonen og søk i `server/`."
+belegg = "L 16.10: migrasjonen og søk i `server/`. L 18.10: `20261019160000_aktornavn.sql`. K 18.10: `server/tester/aktornavn.test.ts` mot testbasen."
 
 [[tabell]]
 navn = "koe.app_identities"
