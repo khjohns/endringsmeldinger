@@ -512,6 +512,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'catenda_project_configs',
         'hendelse',
         'historikk',
+        'jobb',
+        'jobbforsoek',
         'kjernebuffer',
         'leveringsoppdrag',
         'notat',

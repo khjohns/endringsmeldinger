@@ -767,6 +767,35 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
+fra = ["koe.jobb.sak_id", "koe.jobb.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Saken jobben gjelder. Sammensatt med `prosjekt_id`, så jobben står i sakens
+prosjekt. En sak har høyst én jobb `catenda_topic` (#741)."""
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.jobbforsoek.jobb_id"
+til = "koe.jobb.jobb_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Jobben forsøket gjelder. Fremmednøkkelen hindrer også TRUNCATE av jobbene (#582)."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.jobb.siste_forsoek"
+til = "koe.jobbforsoek.forsoek_id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = "Det siste forsøket på jobben. Fremmednøkkelen hindrer også TRUNCATE av forsøkene (#582)."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
 fra = ["koe.sak_catenda_topic.sak_id", "koe.sak_catenda_topic.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
@@ -945,6 +974,22 @@ begrunnelse = "Boardet topicen står i, i Catenda. Fryses i leveringsoppdraget (
 [[uten_relasjon]]
 kolonne = "koe.sak_catenda_topic.catenda_topic_id"
 begrunnelse = "ID-en til sakens topic i Catenda. Fryses i leveringsoppdraget (F0b-7, #661)."
+
+[[uten_relasjon]]
+kolonne = "koe.catenda_project_configs.topic_board_id"
+begrunnelse = "Boardet for saker som opprettes i appen, i Catenda (KT-U4)."
+
+[[uten_relasjon]]
+kolonne = "koe.jobb.catenda_project_id"
+begrunnelse = "Catenda-prosjektet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6)."
+
+[[uten_relasjon]]
+kolonne = "koe.jobb.catenda_board_id"
+begrunnelse = "Boardet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6)."
+
+[[uten_relasjon]]
+kolonne = "koe.jobb.lease"
+begrunnelse = "Leasen for forsøket som pågår. Blir forsøkets ID når utfallet lagres (invariant 7)."
 
 [[uten_relasjon]]
 kolonne = "koe.app_membership_sync.catenda_project_id"
