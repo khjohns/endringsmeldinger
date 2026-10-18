@@ -288,9 +288,10 @@ const erRegistrertEndringsordre = (s: Svar, d: Dokument): boolean =>
  * virkning (OV-U5).
  */
 function dokumentasjonIBrevet(d: Dokument): Set<string> {
-  if (!erRegistrert(d.opplysninger)) return new Set();
+  const krav = kravetErDokumentasjon(d) ? d.krav.map((k) => k.id) : [];
+  if (!erRegistrert(d.opplysninger)) return new Set(krav);
   return new Set([
-    ...(kravetErDokumentasjon(d) ? d.krav.map((k) => k.id) : []),
+    ...krav,
     ...d.svar.filter((s) => !erRegistrertEndringsordre(s, d)).map((s) => s.id),
     ...d.utsagn.filter((x) => x.art === 'aksept' || x.art === 'trekk').map((x) => x.id),
   ]);

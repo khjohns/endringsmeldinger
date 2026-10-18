@@ -1711,6 +1711,84 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(s.avvist('BH', { type: 'innsigelse', gjelder: foerste })).toBe('SAGT_I_TIDE');
     });
 
+    /** Underkategorien skifter innenfor endring, og § 32.2 gjelder begge (GR-U11). */
+    const samordning = {
+      ...GRUNNLAGSKRAV,
+      innhold: { ...GRUNNLAGSKRAV.innhold, underkategori: 'samordning' },
+    };
+    /** Svaret fra appen på den første versjonen, så skiftet til en ny underkategori. */
+    const skifteEtter = (iTide: boolean) => {
+      const s = sak();
+      s.send('TE', GRUNNLAGSKRAV);
+      s.send('BH', {
+        type: 'brev',
+        svar: [
+          svar('grunnlag', s.krav('grunnlag'), {
+            resultat: 'avslaatt',
+            grunnlag_varslet_i_tide: iTide,
+          }),
+        ],
+      });
+      skifte(s, samordning);
+      return s;
+    };
+    /** Et svar på den nye versjonen utenfor kommandoene, uten et standpunkt om rettidigheten. */
+    const besvar = (s: ReturnType<typeof sak>, registrert: boolean) =>
+      s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            gjelder: s.krav('grunnlag'),
+            standpunkter: [{ id: randomUUID(), art: 'grunnlag', resultat: 'avslaatt' }],
+          },
+        ],
+        ...(registrert
+          ? { opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }] }
+          : {}),
+      });
+
+    it('etter et «i tide» på en tidligere versjon avvises en innsigelse mot en versjon i en annen underkategori der § 32.2 gjelder, når et svar utenfor kommandoene har besvart den (HF-U8, arbeidsvalget i #798)', () => {
+      const kontroll = skifteEtter(false);
+      besvar(kontroll, false);
+      expect(
+        kontroll.avvist('BH', { type: 'innsigelse', gjelder: kontroll.krav('grunnlag') }),
+        'kontrollsak: den første versjonen fikk «for sent»'
+      ).toBeNull();
+      const s = skifteEtter(true);
+      besvar(s, false);
+      const u = s.u();
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+      const nytt = u.spor.grunnlag.svar.find((x) => x.gjelder === s.krav('grunnlag'));
+      expect(
+        nytt?.beslutningsgrunnlag.varslingsplikt,
+        'forutsetning: svaret på den nye versjonen frøs at § 32.2 gjelder (GR-U12)'
+      ).toBe(true);
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBe(
+        'SAGT_I_TIDE'
+      );
+    });
+
+    it.each([
+      ['ubesvart', false],
+      ['besvart bare i et registrert brev', true],
+    ])(
+      'etter et «i tide» på en tidligere versjon godtas en innsigelse mot en versjon i en annen underkategori som er %s (restavviket i #798)',
+      (_, registrert) => {
+        // Karakteriserer dagens atferd, ikke en vedtatt forventning: ingen svar med virkning
+        // har frosset varslingsplikten i den nye underkategorien, så innsigelsen leses ikke
+        // som en påberopelse etter § 32.2. Et registrert svar er dokumentasjon (OV-U4).
+        // Avviket gjelder bare et kategoriskifte fra før GR-U22.
+        const s = skifteEtter(true);
+        if (registrert) besvar(s, true);
+        expect(
+          s.u().spor.grunnlag.svar.some((x) => x.gjelder === s.krav('grunnlag')),
+          'forutsetning: ingen svar med virkning på den nye versjonen'
+        ).toBe(false);
+        expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBeNull();
+      }
+    );
+
     it('hjemmelen for innsigelsen leses av svaret som sa «i tide», ikke av et nyere regelsett (MM-U18, GR-U12, #776)', () => {
       const s = sak();
       s.send('TE', {

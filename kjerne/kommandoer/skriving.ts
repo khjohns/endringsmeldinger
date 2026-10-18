@@ -12,7 +12,13 @@ import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { avvis } from './forutsetninger.ts';
-import { erRegistrert, lesJournal, registrertDato, Uforstaatt } from '../format/leser.ts';
+import {
+  erRegistrert,
+  lesJournal,
+  registrertDato,
+  standpunkterISvaret,
+  Uforstaatt,
+} from '../format/leser.ts';
 import { oppgittDatoEtterBrevet } from './nyttelast.ts';
 import { harUlagringsbarTekst } from '../format/skjema.ts';
 import { regnUtSvar } from '../frosset/standpunkt.ts';
@@ -62,12 +68,16 @@ function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
 /** Partens utdypning per element i brevet, til brevteksten (B-13 om begrunnelsestekst). */
 type Utdypninger = Map<string, string>;
 
+/** Standpunktene nyttelastkontrollen leste i hvert svarutkast, i formen brevet lagrer dem (#804). */
+type Bygde = Map<Svarutkast, Data[]>;
+
 function svar(
   s: Svarutkast,
   u: Utledning,
   kjerne: Kjerne,
   nyId: () => string,
   utdypninger: Utdypninger,
+  bygde: Bygde,
   erstatter?: string
 ): Data {
   const krav = u.spor[s.spor].gjeldendeKrav!;
@@ -80,7 +90,7 @@ function svar(
     ...(erstatter ? { erstatter } : {}),
     // #342: grunnlagsversjonen svaret regnes mot, som `regnUtSvar` under.
     ...(s.spor === 'grunnlag' ? {} : { grunnlagskrav: u.spor.grunnlag.gjeldendeKrav!.id }),
-    standpunkter: standpunkter(s, krav, u, nyId),
+    standpunkter: bygde.get(s),
   };
   // B-13: serverens utregning lagres, ikke klientens.
   if (s.spor !== 'grunnlag')
@@ -102,7 +112,8 @@ function dokument(
   u: Utledning,
   kjerne: Kjerne,
   nyId: () => string,
-  utdypninger: Utdypninger
+  utdypninger: Utdypninger,
+  bygde: Bygde
 ): Data {
   switch (k.type) {
     case 'krav': {
@@ -122,9 +133,9 @@ function dokument(
       return data;
     }
     case 'brev':
-      return { svar: k.svar.map((s) => svar(s, u, kjerne, nyId, utdypninger)) };
+      return { svar: k.svar.map((s) => svar(s, u, kjerne, nyId, utdypninger, bygde)) };
     case 'revisjon':
-      return { svar: [svar(k.svar, u, kjerne, nyId, utdypninger, k.erstatter)] };
+      return { svar: [svar(k.svar, u, kjerne, nyId, utdypninger, bygde, k.erstatter)] };
     case 'aksept':
       // KA-U10: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
       return {
@@ -228,24 +239,29 @@ function skriv(
   const lest = lesJournal(journal, kjerne.leserformat);
   const u = utled(lest, kjerne.regler);
   const tidspunkt = kontekst.tidspunkt();
-  let brudd;
-  try {
-    brudd =
-      avvisning(k, kontekst.part, u, kjerne.regler, sendes) ??
-      oppgittDatoEtterBrevet(k, registrertDato({ registrert: tidspunkt.toISOString() }));
-  } catch (feil) {
-    // Nyttelastkontrollen leser standpunktene slik brevet ville lagret dem (#776).
-    if (feil instanceof Uforstaatt)
-      throw new Skrivefeil(`Kjernen forstår ikke dokumentet den selv skriver: ${feil.message}`);
-    throw feil;
-  }
+  const bygde: Bygde = new Map();
+  // Nyttelastkontrollen leser standpunktene slik brevet lagrer dem (#776).
+  const svarstandpunkter = (s: Svarutkast, utregning: Data) => {
+    const lagret = standpunkter(s, u.spor[s.spor].gjeldendeKrav!, u, kontekst.nyId);
+    bygde.set(s, lagret);
+    try {
+      return standpunkterISvaret(s.spor, { standpunkter: lagret, utregning });
+    } catch (feil) {
+      if (feil instanceof Uforstaatt)
+        throw new Skrivefeil(`Kjernen forstår ikke dokumentet den selv skriver: ${feil.message}`);
+      throw feil;
+    }
+  };
+  const brudd =
+    avvisning(k, kontekst.part, u, kjerne.regler, svarstandpunkter, sendes) ??
+    oppgittDatoEtterBrevet(k, registrertDato({ registrert: tidspunkt.toISOString() }));
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
 
   const eventId = kontekst.nyId();
   const utdypninger: Utdypninger = new Map();
   let data: Data;
   try {
-    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger);
+    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger, bygde);
   } catch (feil) {
     // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
     if (feil instanceof Uforstaatt)

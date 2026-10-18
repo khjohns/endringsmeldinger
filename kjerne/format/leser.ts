@@ -82,8 +82,11 @@ export function kalenderdag(dato: string): string | null {
  * kalleren, ikke en dato kontrollene kan hoppe over (#787).
  */
 export function registrertDato(d: Pick<Dokument, 'registrert'>): string {
-  const dag = TIDSPUNKT.test(d.registrert) ? kalenderdag(d.registrert) : null;
-  if (dag === null) throw new Error(`Registreringstidspunktet ${d.registrert} har ikke tidssone.`);
+  if (!TIDSPUNKT.test(d.registrert))
+    throw new Error(`Registreringstidspunktet ${d.registrert} er ikke et tidspunkt med tidssone.`);
+  const dag = kalenderdag(d.registrert);
+  if (dag === null)
+    throw new Error(`Registreringstidspunktet ${d.registrert} finnes ikke i kalenderen.`);
   return dag;
 }
 
