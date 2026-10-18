@@ -148,6 +148,62 @@ describe('saksbildet for en TS-sak', () => {
     expect(bilde.merknader.map((m) => m.kode)).toEqual(['varsel_med_frist_utenfor_appen']);
   });
 
+  // #712: etikettene `visning` lager for opplysningene, med datoen TE oppga.
+  it('viser opplysningene i brevet med etikettene fra visningen og datoen som er oppgitt', () => {
+    const varsel = skrevet(
+      { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-10-02' },
+      [opprettet, g]
+    );
+    const { bilde, vist, u } = bildeAv([opprettet, g, varsel]);
+    const id = u.opplysninger[0].opplysning.id;
+    expect(vist.opplysninger[id]).toEqual(['sendt_ifolge_TE', 'mottaksdato_mangler']);
+    expect(bilde.journal[2].opplysninger).toEqual([
+      {
+        id,
+        dato: '2026-10-02',
+        etiketter: [
+          { kode: 'sendt_ifolge_TE', tekst: 'Sendt ifølge TE' },
+          { kode: 'mottaksdato_mangler', tekst: 'Mottaksdatoen mangler' },
+        ],
+        tekst: 'Sendt ifølge TE 2. oktober 2026. Mottaksdatoen mangler',
+      },
+    ]);
+    expect(bilde.journal.slice(0, 2).map((j) => j.opplysninger)).toEqual([[], []]);
+  });
+
+  it('har tekst for hver etikett visningen kan gi en opplysning', () => {
+    const koder = ['sendt', 'mottatt', 'endringsordre', 'ikke_endringsordre'].flatMap((hva) =>
+      ['TE', 'BH'].map((part) => `${hva}_ifolge_${part}`)
+    );
+    koder.push(
+      'mottaksdato_mangler',
+      'sending_bestridt',
+      'mottak_bestridt',
+      'endringsordre_bestridt'
+    );
+    expect(koder.filter((k) => etikett(k).tekst === k)).toEqual([]);
+  });
+
+  // MM-U2: en rad kjernen ikke har tolket, velter ikke saksbildet.
+  it('viser en ikke tolket rad uten tekst, også når brevteksten har en annen form', () => {
+    for (const brevtekst of [{ avsnitt: ['Tekst'] }, ['Tekst'], [{ laast: 1 }], 'Tekst']) {
+      const nyere: Journalrad = {
+        ...opprettet,
+        event_id: 'e-x',
+        event_type: 'dokument_registrert',
+        versjon: 2,
+        format: 99,
+        data: { brevtekst },
+      };
+      const { bilde } = bildeAv([opprettet, nyere]);
+      expect(bilde.journal[1]).toMatchObject({
+        tolket: false,
+        tekst: null,
+        tittel: 'dokument_registrert fra TE',
+      });
+    }
+  });
+
   it('viser en kode uten tekst som koden selv', () => {
     expect(etikett('ny_etikett_fra_kjernen')).toEqual({
       kode: 'ny_etikett_fra_kjernen',
