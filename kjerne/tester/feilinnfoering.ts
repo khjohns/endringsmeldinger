@@ -415,12 +415,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [
-      [
-        '        gjelder: varseletFoerSvaret(\n          u.spor.frist.varsel ? [u.spor.frist.varsel] : [],\n          u.spor.frist.krav,\n          () => true\n        )!,\n',
-        '',
-      ],
-    ],
+    endringer: [['        gjelder: varseletForNyttSvar(u),\n', '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -912,11 +907,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F99',
     feilklasse:
       'påberopelsen etter § 33.4 viser til kravversjonen svaret gjelder, ikke det første fristkravet (VS-U20, OV-U5, KK-07)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '          u.spor.frist.krav,\n          () => true',
-        '          [krav],\n          () => true',
+        'frist.varsel ? [frist.varsel] : [], frist.krav, () => true',
+        'frist.varsel ? [frist.varsel] : [], frist.krav.slice(-1), () => true',
       ],
     ],
     mal: [
@@ -1474,7 +1469,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F173',
     feilklasse: 'datoen for et svar fra appen er i UTC, ikke i norsk tid (KA-U37)',
     fil: `${K}/format/leser.ts`,
-    endringer: [['  kalenderdag(d.registrert)!;', '  d.registrert.slice(0, 10);']],
+    endringer: [
+      [
+        'TIDSPUNKT.test(d.registrert) ? kalenderdag(d.registrert) : null',
+        'TIDSPUNKT.test(d.registrert) ? d.registrert.slice(0, 10) : null',
+      ],
+    ],
     mal: ['brevets dato er datoen i norsk tid, ikke i UTC'],
   },
   {
@@ -1848,8 +1848,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F217',
     feilklasse: 'et «for sent» etter et «i tide» fra appen godtas (HF-U4, #498)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['.find((r) => harSagtITide(u, s.spor, r))', '.find(() => false)']],
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['.find((r) => harSagtITide(u, spor, r))', '.find(() => false)']],
     mal: [
       'en revisjon som påberoper «for sent» etter «i tide», avvises',
       'F-MM-HF-U4-33-4',
@@ -1931,8 +1931,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "krav.spor === 'grunnlag' && !erRegistrert(d.opplysninger) && varslingsplikt(krav)",
-        "krav.spor === 'grunnlag' && !erRegistrert(d.opplysninger) && true",
+        "krav.spor === 'grunnlag' && !kravetErDokumentasjon(d) && varslingsplikt(krav)",
+        "krav.spor === 'grunnlag' && !kravetErDokumentasjon(d) && true",
       ],
     ],
     mal: [
@@ -1977,7 +1977,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);',
-        "  if (paaberopt(s, krav.id).some((r) => harSagtITide(u, s.spor, r)))\n    return avvis('SAGT_I_TIDE', '');\n  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);",
+        "  if (s.vurderinger.grunnlag_varslet_i_tide === false && paaberoptEtterITide(u, s.spor, [{ id: '', art: 'rettidighet', gjelder: '', hjemmel: '32.2', iTide: false }]))\n    return avvis('SAGT_I_TIDE', '');\n  const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);",
       ],
     ],
     mal: ['på en registrert versjon i svikt avvises av utregningen'],
@@ -2063,7 +2063,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F240',
     feilklasse: 'en revisjon sammenliknes ikke med svaret den erstatter (HF-U5)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['return forrige && binding(s, forrige, krav, u, server);', 'return null;']],
+    endringer: [['return forrige && binding(forrige, nye);', 'return null;']],
     mal: [
       'et lavere godkjent beløp avvises',
       'færre godkjente dager avvises',
@@ -2076,7 +2076,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F241',
     feilklasse: 'aksepten av beregningsmåten sammenliknes ikke (HF-U14)',
     fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [["if (ny('metode')?.aksepterer === false)", 'if (false)']],
+    endringer: [['if (ny(f)?.aksepterer === false)', 'if (false)']],
     mal: ['aksepten av beregningsmåten kan ikke tas tilbake', 'F-MM-HF-U14'],
   },
   {
@@ -2099,8 +2099,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '    forrige,\n    standpunkter(s, krav, u',
-        '    u.spor[s.spor].svar.find((x) => x.gjelder === forrige.gjelder)!,\n    standpunkter(s, krav, u',
+        'return forrige && binding(forrige, nye);',
+        'return forrige && binding(u.spor[s.spor].svar.find((x) => x.gjelder === forrige.gjelder)!, nye);',
       ],
     ],
     mal: ['sammenliknes med svaret revisjonen erstatter'],
@@ -2271,7 +2271,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       '«for sent» etter § 33.6.1 utenfor kommandoene leses med virkning etter «i tide» (MM-U27, HF-U4)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["        (p.art === 'spesifisering' &&", '        (false &&']],
+    endringer: [[": p.art === 'spesifisering' && !p.iTide", ': false && !p.iTide']],
     mal: ['en revisjon som sier at spesifiseringen etter § 33.6.1 kom for sent'],
   },
   {
@@ -2299,12 +2299,13 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F265',
     feilklasse: 'påberopelsen etter § 32.2 leses av feltet for § 34.1.2 (HF-U4, #522)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        "    return v.grunnlag_varslet_i_tide === false ? [{ hjemmel: '32.2' }] : [];",
-        "    return v.hovedkrav_varslet_i_tide === false ? [{ hjemmel: '32.2' }] : [];",
+        "if (typeof v.grunnlag_varslet_i_tide === 'boolean')",
+        "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
       ],
+      ['i_tide: v.grunnlag_varslet_i_tide,', 'i_tide: v.hovedkrav_varslet_i_tide,'],
     ],
     mal: ['en revisjon som påberoper «for sent» etter «i tide», avvises'],
   },
@@ -2330,7 +2331,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en innsigelse mot et grunnlagskrav i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['&& !erRegistrert(d.opplysninger) &&', '&& true &&']],
+    endringer: [['&& !kravetErDokumentasjon(d) &&', '&& true &&']],
     mal: [
       'brevteksten gjentar den ikke i svaret',
       'kommandoene avviser den ikke etter et «i tide»',
@@ -2436,14 +2437,49 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F282',
     feilklasse: 'påberopelsen etter § 34.1.2 leses av feltet for § 32.2 (HF-U4, #522)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/kommandoer/standpunkter.ts`,
     endringer: [
       [
-        "    return v.hovedkrav_varslet_i_tide === false ? [{ hjemmel: '34.1.2' }] : [];",
-        "    return v.grunnlag_varslet_i_tide === false ? [{ hjemmel: '34.1.2' }] : [];",
+        "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
+        "if (typeof v.grunnlag_varslet_i_tide === 'boolean')",
       ],
+      ['i_tide: v.hovedkrav_varslet_i_tide,', 'i_tide: v.grunnlag_varslet_i_tide,'],
     ],
     mal: ['en revisjon som påberoper «for sent» etter «i tide», avvises'],
+  },
+  {
+    id: 'F283',
+    feilklasse:
+      'et svar som utelater vurderingen etter § 34.1.2, påberoper at varselet kom for sent (HF-U4, KA-U4, #522)',
+    fil: `${K}/kommandoer/standpunkter.ts`,
+    endringer: [
+      [
+        "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
+        'if (v.hovedkrav_varslet_i_tide !== true)',
+      ],
+      ['i_tide: v.hovedkrav_varslet_i_tide,', 'i_tide: v.hovedkrav_varslet_i_tide === true,'],
+    ],
+    mal: ['kontrollsak: grunnlaget godkjent gir ingen prinsipal grunn fra grunnlaget', 'F-MM-B1'],
+  },
+  {
+    id: 'F284',
+    feilklasse: 'et «i tide» etter § 33.6.1 binder byggherren etter § 33.4 (HF-U4, #522)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        ": p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide",
+        ": (p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide) ||\n            (p.art === 'spesifisering' && r.hjemmel === '33.4' && p.iTide)",
+      ],
+    ],
+    mal: ['«i tide» etter § 33.6.1 sier ingenting om § 33.4'],
+  },
+  {
+    id: 'F285',
+    feilklasse:
+      'brevteksten leser ikke regelsettet for om en innsigelse er en påberopelse etter § 32.2 (VS-U24, #798)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['(k) => gjelderVarslingsplikten(k, regler)) ===', '() => false) ===']],
+    mal: ['ikke av et nyere regelsett'],
   },
 ];
 

@@ -78,10 +78,14 @@ export function kalenderdag(dato: string): string | null {
 
 /**
  * Datoen et dokument fra appen ble registrert, i norsk tid, som i brevet (KA-U37).
- * Serveren setter tidspunktet med tidssone (VS-U8).
+ * Serveren setter tidspunktet med tidssone (VS-U8), og et annet tidspunkt er en feil i
+ * kalleren, ikke en dato kontrollene kan hoppe over (#787).
  */
-export const registrertDato = (d: Pick<Dokument, 'registrert'>): string =>
-  kalenderdag(d.registrert)!;
+export function registrertDato(d: Pick<Dokument, 'registrert'>): string {
+  const dag = TIDSPUNKT.test(d.registrert) ? kalenderdag(d.registrert) : null;
+  if (dag === null) throw new Error(`Registreringstidspunktet ${d.registrert} har ikke tidssone.`);
+  return dag;
+}
 
 /**
  * Datoopplysningen om et varsel: den som `gjelder` varselet, ellers den om

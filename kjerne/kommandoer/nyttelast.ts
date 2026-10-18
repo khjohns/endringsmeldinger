@@ -11,7 +11,7 @@ import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
 import { oppgittDato, type OppgittDato } from '../format/format.ts';
-import { datoFor, kalenderdag } from '../format/leser.ts';
+import { datoFor, kalenderdag, standpunkterISvaret } from '../format/leser.ts';
 import { tekst } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -24,13 +24,13 @@ import {
 } from '../frosset/standpunkt.ts';
 import {
   frafalletBinder,
-  harSagtITide,
   innsigelsenEtterITide,
-  type Rettidighet,
+  paaberoptEtterITide,
   type Utledning,
 } from '../utledning/utled.ts';
-import { senketStandpunkt, standpunkter } from './standpunkter.ts';
-import type { Avvisning, Krav, Part, Svar } from '../typer.ts';
+import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
+import { standpunkter } from './standpunkter.ts';
+import type { Avvisning, Part, Standpunkt, Svar } from '../typer.ts';
 
 /** `forrige` er svaret en revisjon erstatter, så bindingen kontrolleres (HF-U5). */
 function kontrollerSvar(
@@ -68,7 +68,12 @@ function kontrollerSvar(
     throw feil;
   }
   // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette.
-  const bundet = paaberopt(s, krav.id).find((r) => harSagtITide(u, s.spor, r));
+  let n = 0;
+  const nye = standpunkterISvaret(s.spor, {
+    standpunkter: standpunkter(s, krav, u, () => `utkast-${++n}`),
+    utregning: server,
+  });
+  const bundet = paaberoptEtterITide(u, s.spor, nye);
   if (bundet)
     return avvis(
       'SAGT_I_TIDE',
@@ -93,7 +98,7 @@ function kontrollerSvar(
       'BEGRUNNELSE_MANGLER',
       `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
     );
-  return forrige && binding(s, forrige, krav, u, server);
+  return forrige && binding(forrige, nye);
 }
 
 /**
@@ -101,41 +106,17 @@ function kontrollerSvar(
  * byggherren har innrømmet i svaret, også etter en ny grunnlagsversjon med samme hjemmel.
  * En ny kravversjon gir et nytt svar, ikke en revisjon (HF-U8). Et registrert svar med
  * virkning er bare byggherrens endringsordre etter OV-U6, som gir enighet ved sammenfall,
- * så revisjonen av det er avvist før dette (GR-U10, KA-U7). `server` er serverens
- * utregning av revisjonen.
+ * så revisjonen av det er avvist før dette (GR-U10, KA-U7). `nye` er standpunktene i
+ * revisjonen slik brevet ville lagret dem, med serverens utregning.
  */
-function binding(
-  s: Svarutkast,
-  forrige: Svar,
-  krav: Krav,
-  u: Utledning,
-  server: Record<string, unknown>
-): Avvisning | null {
-  let n = 0;
-  const senket = senketStandpunkt(
-    forrige,
-    standpunkter(s, krav, u, () => `revisjon-${++n}`),
-    server
-  );
+function binding(forrige: Svar, nye: Standpunkt[]): Avvisning | null {
+  const senket = senketInnroemmelse(forrige, nye);
   return senket
     ? avvis(
         'SENKER_INNROEMMELSE',
         `${senket}. Byggherren er bundet av det svaret innrømmer, til TE godtar det eller sender en ny kravversjon, og kan bare revidere svaret i TEs favør (HF-U5).`
       )
     : null;
-}
-
-/** Påberopelsene i svaret av at varselet kom for sent, eller at kravet ble spesifisert for sent. */
-function paaberopt(s: Svarutkast, krav: string): Rettidighet[] {
-  const v = s.vurderinger;
-  if (s.spor === 'grunnlag')
-    return v.grunnlag_varslet_i_tide === false ? [{ hjemmel: '32.2' }] : [];
-  if (s.spor === 'vederlag')
-    return v.hovedkrav_varslet_i_tide === false ? [{ hjemmel: '34.1.2' }] : [];
-  return [
-    ...(v.frist_varsel_ok === false ? [{ hjemmel: '33.4' as const }] : []),
-    ...(v.spesifisert_krav_ok === false ? [{ hjemmel: '33.6.1' as const, gjelder: krav }] : []),
-  ];
 }
 
 /**

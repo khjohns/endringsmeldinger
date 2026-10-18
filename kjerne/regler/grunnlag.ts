@@ -1,6 +1,7 @@
 /** Byggherrens svar på grunnlaget, NS 8407 § 32.2 og § 32.3. Port av `regler/grunnlag.py`. */
 
 import type { Grunnlagsresultat, Hovedkategori, Underkategori } from './typer.ts';
+import type { Regelsett } from './regelsett.ts';
 import { UgyldigVurdering } from './feil.ts';
 
 export function foersteUnderkategori(
@@ -69,7 +70,9 @@ export function gyldigeResultater(
     : resultater;
 }
 
+/** Svaret mot svarvalgene og varslingsplikten i regelsettet, som kjernen leser dem (#514). */
 export function kontrollerGrunnlagssvar(
+  regler: Regelsett,
   hovedkategori: string | null,
   underkategori: string | null,
   resultat: Grunnlagsresultat | null,
@@ -78,10 +81,10 @@ export function kontrollerGrunnlagssvar(
   const feil: Record<string, string> = {};
   if (resultat === null) {
     feil.resultat = 'mangler';
-  } else if (!gyldigeResultater(hovedkategori, underkategori).includes(resultat)) {
+  } else if (!regler.gyldigeGrunnlagsresultater(hovedkategori, underkategori).includes(resultat)) {
     feil.resultat = `«${resultat}» kan ikke velges i denne kategorien (§ 32.3 c)`;
   }
-  if (erEndringMedVarslingsplikt(hovedkategori, underkategori)) {
+  if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
     if (varsletITide === null) feil.grunnlag_varslet_i_tide = 'mangler (§ 32.2)';
   } else if (varsletITide !== null) {
     feil.grunnlag_varslet_i_tide = 'gjelder bare § 32.2';

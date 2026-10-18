@@ -1,16 +1,13 @@
 /**
- * Standpunktene i et svarutkast, slik brevet lagrer dem, og sammenlikningen av en
- * revisjon med svaret den erstatter (HF-U5, HF-U14). Skrivingen og
+ * Standpunktene i et svarutkast, slik brevet lagrer dem. Skrivingen og
  * nyttelastkontrollen bruker de samme standpunktene.
  */
 
 import { HJEMMEL } from '../format/format.ts';
-import { standpunkterISvaret } from '../format/leser.ts';
 import { grunnlagsstandpunkter } from '../frosset/frysing.ts';
 import type { Svarutkast } from './kommando.ts';
-import { varseletFoerSvaret, type Utledning } from '../utledning/utled.ts';
-import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import type { Krav, Svar } from '../typer.ts';
+import { varseletForNyttSvar, type Utledning } from '../utledning/utled.ts';
+import type { Krav } from '../typer.ts';
 
 type Data = Record<string, unknown>;
 
@@ -41,17 +38,12 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
       });
     ut.push({ id: nyId(), art: 'beloep' });
   } else {
-    // VS-U20, OV-U5, HF-U1: varselet før svaret. Svaret skrives nå, så et registrert varsel
-    // står før det.
+    // VS-U20, OV-U5, HF-U1: varselet før svaret.
     if (typeof v.frist_varsel_ok === 'boolean')
       ut.push({
         id: nyId(),
         art: 'rettidighet',
-        gjelder: varseletFoerSvaret(
-          u.spor.frist.varsel ? [u.spor.frist.varsel] : [],
-          u.spor.frist.krav,
-          () => true
-        )!,
+        gjelder: varseletForNyttSvar(u),
         hjemmel: HJEMMEL.frist,
         i_tide: v.frist_varsel_ok,
       });
@@ -70,18 +62,3 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
   }
   return ut;
 }
-
-/**
- * HF-U5, HF-U14: det revisjonen senker av det svaret innrømmer (`senketInnroemmelse`).
- * `revisjon` er standpunktene slik skrivingen lager dem, og `server` serverens utregning av
- * revisjonen.
- */
-export const senketStandpunkt = (
-  forrige: Pick<Svar, 'spor' | 'standpunkter' | 'beslutningsgrunnlag'>,
-  revisjon: Data[],
-  server: Data
-): string | null =>
-  senketInnroemmelse(
-    forrige,
-    standpunkterISvaret(forrige.spor, { standpunkter: revisjon, utregning: server })
-  );

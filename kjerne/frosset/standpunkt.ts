@@ -114,6 +114,13 @@ export function virkninger(
 }
 
 /**
+ * OV-U4: kravene i et registrert brev er dokumentasjon og får ingen virkning. Utledningen
+ * og `innsigelsenPaaberoper` leser regelen herfra (#787).
+ */
+export const kravetErDokumentasjon = (d: Pick<Dokument, 'opplysninger'>): boolean =>
+  erRegistrert(d.opplysninger);
+
+/**
  * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den
  * gjelder, bare kan komme for sent etter den: varselet etter § 33.4 i fristen, og TEs
  * varsel etter § 32.2 i grunnlaget, som er grunnlagskravet når § 32.2 gjelder kategorien
@@ -136,7 +143,7 @@ export function innsigelsenPaaberoper(
     if (utsagn) return utsagn.art === 'varsel' ? '33.4' : null;
     const krav = d.krav.find((k) => k.id === gjelder);
     if (krav)
-      return krav.spor === 'grunnlag' && !erRegistrert(d.opplysninger) && varslingsplikt(krav)
+      return krav.spor === 'grunnlag' && !kravetErDokumentasjon(d) && varslingsplikt(krav)
         ? '32.2'
         : null;
   }
