@@ -66,8 +66,10 @@ subagent gjøre analysen, med denne bestillingen:
 - `bashOutputMaxChars` i `.claude/settings.json` er satt til 10 000. Kjør
   `python3 -c "print('x' * 15000)"`. Kommer svaret inline og ikke som fil med
   forhåndsvisning, virker ikke innstillingen fra prosjektoppsettet. Det er et funn.
-- Se om grensene i «Kontekst i arbeidsøktene» holder: byggeøkter over 150 000
-  tokens etter en time, eller over 300 000 tokens, orkestratorer over 300 000, og subagenter over 150 000 eller 80 kall i
+- Se om grensene i «Kontekst i arbeidsøktene» holder: en arbeidsøkt som varte
+  over en time og endte over 150 000 tokens, eller en som endte over om lag
+  300 000 tokens, orkestratorer over 300 000, og subagenter over 150 000 eller 80
+  kall i
   økta som ble sett nærmere på.
 
 ## 4. Issuet
