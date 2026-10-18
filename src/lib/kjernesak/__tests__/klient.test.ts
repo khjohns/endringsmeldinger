@@ -6,7 +6,7 @@ import { opprettSak, sendKommando } from '$lib/api/kjerne';
 import { setActiveProjectId } from '$lib/api/client';
 import { sakskilde, tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const ID = '0b9c4c64-3f0e-4a8e-9a43-2a4b8f7f6a10';
 
 const json = (kropp: unknown, status = 200) =>
   new Response(JSON.stringify(kropp), { status, headers: { 'content-type': 'application/json' } });
@@ -29,12 +29,12 @@ describe('klienten mot TS-serveren', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('oppretter saken med kommandoen alene, med prosjektet og CSRF-tokenet', async () => {
-    await opprettSak({ type: 'opprett' });
+    await opprettSak(ID, { type: 'opprett' });
     const [[url, init]] = kall;
     expect(url).toBe('/api/kjerne/saker');
     expect(init.method).toBe('POST');
     expect(JSON.parse(init.body as string)).toEqual({
-      kommando_id: expect.stringMatching(UUID),
+      kommando_id: ID,
       kommando: { type: 'opprett' },
     });
     const headers = new Headers(init.headers);
@@ -43,22 +43,22 @@ describe('klienten mot TS-serveren', () => {
   });
 
   it('oppretter saken i prosjektet fra ruta, ikke i det aktive', async () => {
-    await opprettSak({ type: 'opprett' }, 'prosjekt-2');
+    await opprettSak(ID, { type: 'opprett' }, 'prosjekt-2');
     expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('prosjekt-2');
   });
 
   it('sender kommandoen til prosjektet fra ruta, ikke til det aktive', async () => {
-    await sendKommando('a', 1, { type: 'krav' }, 'prosjekt-2');
+    await sendKommando('a', 1, ID, { type: 'krav' }, 'prosjekt-2');
     expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('prosjekt-2');
   });
 
   it('sender kommandoen med versjonen skjemaet så, til saken', async () => {
-    await sendKommando('a/b', 3, { type: 'krav' });
+    await sendKommando('a/b', 3, ID, { type: 'krav' });
     const [[url, init]] = kall;
     expect(url).toBe('/api/kjerne/saker/a%2Fb/kommandoer');
     expect(JSON.parse(init.body as string)).toEqual({
       expected_version: 3,
-      kommando_id: expect.stringMatching(UUID),
+      kommando_id: ID,
       kommando: { type: 'krav' },
     });
   });

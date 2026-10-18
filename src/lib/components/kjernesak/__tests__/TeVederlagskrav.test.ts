@@ -132,9 +132,10 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     // Etter sendingen er skjemaet lukket, og sporet vises igjen.
     await waitFor(() => expect(leseflate()).not.toBeNull());
     expect(document.querySelector('.form-content')).toBeNull();
-    const [sakId, versjon, kommando] = send.mock.calls[0];
+    const [sakId, versjon, kommandoId, kommando] = send.mock.calls[0];
     expect(sakId).toBe(SAK);
     expect(versjon).toBe(2);
+    expect(kommandoId).toMatch(/^[0-9a-f-]{36}$/);
     expect(kommando).toEqual({
       type: 'krav',
       spor: 'vederlag',
@@ -157,7 +158,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
     await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
-    expect(send.mock.calls[0][2]).toMatchObject({ utdypning: 'Tilbudet gjelder ny peling' });
+    expect(send.mock.calls[0][3]).toMatchObject({ utdypning: 'Tilbudet gjelder ny peling' });
   });
 
   it('når saken ikke kan lastes på nytt etter sendingen, sier Kontrollrommet at kravet er lagret, og hvorfor saken ikke er oppdatert', async () => {
@@ -279,7 +280,7 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE'), send });
     await kjernesak.last();
     expect(await kjernesak.send(kommando, ['brevet TE så'])).toBe(true);
-    expect(send.mock.calls[0][2]).toMatchObject({ brevtekst: ['brevet TE så'] });
+    expect(send.mock.calls[0][3]).toMatchObject({ brevtekst: ['brevet TE så'] });
   });
 
   it('kontrollen sender kravet med teksten TE bekreftet', async () => {

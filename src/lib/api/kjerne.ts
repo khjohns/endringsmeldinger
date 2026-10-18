@@ -3,7 +3,7 @@
  * vert under `/api/kjerne/`, med samme sesjon og CSRF-token som resten av appen.
  */
 
-import { apiFetch, projectHeaders } from '$lib/api/client';
+import { ApiError, apiFetch, projectHeaders } from '$lib/api/client';
 import type { Journalrad, Part } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
@@ -35,11 +35,20 @@ export interface Kjernesak {
 const SAKER = '/api/kjerne/saker';
 
 /**
- * Serveren krever en kommando-ID og gir kvitteringen når samme ID kommer igjen
- * (#418). Her får hvert kall en ny ID, så et nytt forsøk fra kalleren er en ny
- * kommando.
+ * Kommando-ID-en for én brukerhandling. Serveren gir kvitteringen når samme ID kommer
+ * igjen med samme innhold, så et nytt forsøk på samme handling sender samme ID (#418).
  */
-const nyKommandoId = () => crypto.randomUUID();
+export const nyKommandoId = () => crypto.randomUUID();
+
+/**
+ * Svaret kom ikke fram, eller serveren vet ikke om COMMIT lyktes. Kommandoen kan være
+ * lagret, så et nytt forsøk sender samme kommando med samme ID (#418).
+ */
+export const erUsikkertUtfall = (e: unknown) =>
+  e instanceof ApiError &&
+  (e.status === 0 ||
+    (e.status === 503 && (e.data as { error?: unknown } | undefined)?.error === 'UTFALL_USIKKERT'));
+
 const sti = (sakId: string) => `${SAKER}/${encodeURIComponent(sakId)}`;
 
 /** Prosjektet fra ruta går med, så saken ikke leses i et annet aktivt prosjekt. */
@@ -50,11 +59,11 @@ export const hentKjernesak = (sakId: string, prosjektId?: string) =>
  * Oppretter saken i prosjektet fra ruta, eller det aktive. Serveren lager
  * saks-ID-en og stempler aktøren og tidspunktet.
  */
-export const opprettSak = (kommando: unknown, prosjektId?: string) =>
+export const opprettSak = (kommandoId: string, kommando: unknown, prosjektId?: string) =>
   apiFetch<{ sak_id: string; versjon: number }>(SAKER, {
     method: 'POST',
     headers: projectHeaders(prosjektId),
-    body: JSON.stringify({ kommando_id: nyKommandoId(), kommando }),
+    body: JSON.stringify({ kommando_id: kommandoId, kommando }),
   });
 
 /**
@@ -64,6 +73,7 @@ export const opprettSak = (kommando: unknown, prosjektId?: string) =>
 export const sendKommando = (
   sakId: string,
   expectedVersion: number,
+  kommandoId: string,
   kommando: unknown,
   prosjektId?: string
 ) =>
@@ -74,7 +84,7 @@ export const sendKommando = (
       headers: projectHeaders(prosjektId),
       body: JSON.stringify({
         expected_version: expectedVersion,
-        kommando_id: nyKommandoId(),
+        kommando_id: kommandoId,
         kommando,
       }),
     }
