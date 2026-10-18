@@ -894,11 +894,35 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     it('to samtidige forsøk med samme kommando gir ett brev: det ene skriver, det andre får kvitteringen', async () => {
       const sak = await nySak();
       const kommando = ny();
-      const utfall = await Promise.all([
-        skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag()),
-        skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag()),
-      ]);
-      expect(utfall.map((u) => u.skriv).sort()).toEqual(['gjentatt', true].sort());
+      // Eieren holder journalen låst til begge forsøkene venter, så de overlapper.
+      // Med låsen på kvitteringen venter det andre bak det første og leser den etter
+      // commit; uten låsen leser begge «ingen kvittering», og det andre får 409.
+      let utfall: unknown[] = [];
+      await transaksjon(base.pool, te, async (f) => {
+        await f()
+          .input('sak_id', sql.NVarChar(36), sak.sak_id)
+          .query(
+            'SELECT versjon FROM koe.hendelse WITH (UPDLOCK, HOLDLOCK) WHERE sak_id = @sak_id'
+          );
+        const begge = Promise.all(
+          [1, 2].map(() =>
+            skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag()).then(
+              (u) => u.skriv,
+              (e: unknown) => (e as Error).constructor.name
+            )
+          )
+        );
+        for (let n = 0; n < 100; n++) {
+          const svar = await base.pool.request().query<{
+            n: number;
+          }>('SELECT COUNT(*) AS n FROM sys.dm_exec_requests WHERE blocking_session_id <> 0');
+          if (svar.recordset[0].n >= 2) break;
+          await new Promise((ok) => setTimeout(ok, 50));
+        }
+        utfall = [begge];
+      });
+      const resultat = await (utfall[0] as Promise<unknown[]>);
+      expect(resultat.map(String).sort()).toEqual(['gjentatt', 'true']);
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(2);
     });
 
