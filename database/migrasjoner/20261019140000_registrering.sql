@@ -155,7 +155,7 @@ BEGIN
   IF EXISTS (SELECT 1 FROM koe.catenda_project_configs WITH (UPDLOCK, HOLDLOCK) WHERE internal_project_id = @prosjekt)
     UPDATE koe.catenda_project_configs
        SET catenda_project_id = @catenda_prosjekt, library_id = @bibliotek, folder_id = @mappe,
-           topic_board_id = @board, is_active = 1
+           topic_board_id = ISNULL(@board, topic_board_id), is_active = 1
      WHERE internal_project_id = @prosjekt;
   ELSE
     INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, folder_id, topic_board_id, is_active)

@@ -190,6 +190,38 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     });
   });
 
+  it('kontraktsteam med både prosjektargument og --prosjekt avvises, så et ekstra team-ID ikke blir prosjektet', async () => {
+    const { prosjekt } = await nyttProsjekt([
+      { team_id: team(), contract_role: 'BH' },
+      { team_id: team(), contract_role: 'TE' },
+    ]);
+    expect(await avvisning(skript('kontraktsteam', '--prosjekt', prosjekt, team()))).toMatch(
+      /oppgitt to ganger/
+    );
+  });
+
+  it('en ny registrering uten --board beholder boardet, som koe_register_project', async () => {
+    const prosjekt = `p-reg-${randomUUID().slice(0, 8)}`;
+    const catendaProsjekt = randomUUID();
+    const board = randomUUID();
+    const felles = [
+      '--prosjekt',
+      prosjekt,
+      '--organisasjon',
+      'org-1',
+      '--catenda-prosjekt',
+      catendaProsjekt,
+      '--bibliotek',
+      randomUUID(),
+    ];
+    await skript('registrer', ...felles, '--navn', 'Med board', '--board', board);
+    await skript('registrer', ...felles, '--navn', 'Uten board');
+    const svar = await o.datalag.base.pool.request().input('p', prosjekt).query<{
+      board: string;
+    }>('SELECT LOWER(CONVERT(nvarchar(36), topic_board_id)) AS board FROM koe.catenda_project_configs WHERE internal_project_id = @p');
+    expect(svar.recordset[0]?.board).toBe(board);
+  });
+
   it('et team som ikke finnes i Catenda-prosjektet, avvises før noe skrives', async () => {
     const prosjekt = `p-reg-${randomUUID().slice(0, 8)}`;
     iCatenda = new Map([[team(), 'Annet']]);

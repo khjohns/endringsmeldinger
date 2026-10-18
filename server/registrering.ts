@@ -208,6 +208,10 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   }
 
   if (kommando === 'kontraktsteam') {
+    if (prosjektArgument && v.prosjekt)
+      throw new Registreringsfeil(
+        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
+      );
     const prosjekt = prosjektArgument ?? v.prosjekt;
     if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
     const pool = await a.pool();
