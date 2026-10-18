@@ -102,7 +102,11 @@ server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
   console.log(`lytter på http://127.0.0.1:${port}`);
 });
 
+// Et nytt signal venter på stoppen som pågår, så poolen ikke lukkes mens løkka kvitterer (#778).
+let stoppes: Promise<void> | undefined;
 const stopp = () =>
-  server.close(() => void (jobber?.stopp() ?? Promise.resolve()).then(() => datalag.close()));
+  void (stoppes ??= new Promise<void>((lukket) => server.close(() => lukket()))
+    .then(() => jobber?.stopp())
+    .then(() => datalag.close()));
 process.on('SIGTERM', stopp);
 process.on('SIGINT', stopp);
