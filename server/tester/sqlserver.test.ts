@@ -271,12 +271,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
           await transaksjoner[forste].commit();
           await Promise.all(skrivinger);
         } finally {
+          // Hver transaksjon rulles tilbake når skrivingen dens er ferdig: en skriving
+          // som venter, kan ikke rulles tilbake, og den venter på låsene til en ferdig
+          // transaksjon som ennå er åpen. Den committede gir en feil som svelges.
           await Promise.all(
             transaksjoner.map((tx, i) =>
-              utfall[i]?.status === 'fulfilled' ? undefined : tx.rollback().catch(() => undefined)
+              skrivinger[i].then(() => tx.rollback().catch(() => undefined))
             )
           );
-          await Promise.allSettled(skrivinger);
         }
 
         const lyktes = hendelser.filter((_, i) => utfall[i]?.status === 'fulfilled');
