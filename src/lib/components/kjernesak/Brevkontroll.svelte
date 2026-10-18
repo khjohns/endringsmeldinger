@@ -27,7 +27,7 @@
 </script>
 
 <Brevskall
-  brev={JSON.stringify([tekst, utdypning ?? null])}
+  brev={JSON.stringify([tittel, tekst, utdypning ?? null])}
   tilbakeTekst="Tilbake til skjemaet"
   panel={{
     title: 'Du sender kravet',

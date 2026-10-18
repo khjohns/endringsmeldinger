@@ -104,7 +104,7 @@ describe('Brevskall', () => {
     expect(screen.getByRole('button', { name: 'Send til byggherren' })).toBeDisabled();
   });
 
-  it('Brevkontroll krever ny avkrysning når den låste teksten endres, og etter sendingen', async () => {
+  it('Brevkontroll krever ny avkrysning når den låste teksten, utdypningen eller tittelen endres, og etter sendingen, men ikke når det samme brevet tegnes på nytt', async () => {
     const props = {
       tekst: ['Første avsnitt.'],
       tittel: 'Grunnlag – Fundament',
@@ -122,6 +122,11 @@ describe('Brevskall', () => {
     expect(avkrysning()).not.toBeChecked();
     expect(send()).toBeDisabled();
     await screen.rerender({ ...props, tekst: ['Første avsnitt.'], utdypning: 'Utdypet.' });
+    expect(avkrysning()).not.toBeChecked();
+    await fireEvent.click(avkrysning());
+    await screen.rerender({ ...props, utdypning: 'Utdypet.' });
+    expect(avkrysning()).toBeChecked();
+    await screen.rerender({ ...props, utdypning: 'Utdypet.', tittel: 'Grunnlag – Fundament nord' });
     expect(avkrysning()).not.toBeChecked();
   });
 });
