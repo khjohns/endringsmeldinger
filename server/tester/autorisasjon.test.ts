@@ -5,6 +5,9 @@
  * - `require_project_access` i `backend/lib/auth/project_access.py`: aktiv kobling,
  *   aktivt medlemskap, leserollen, prosjektgrensen for hver sak det vises til (RV-07);
  * - `AuthService.ensure_fresh`: en liste som mangler eller er for gammel, synkroniseres;
+ *   listen hentes fra koblingen tilgangskontrollen alt har lest, samtidige
+ *   forespørsler deler hentingen, og en liste som ikke er fersk etter
+ *   synkroniseringen, gir 503 (#726 punkt 2 og 3, #707 kommentar a);
  * - `require_contract_role` og `contract_membership`: én entydig side, ellers 403;
  * - #53, kommentar 6212192068: teamet er et kontraktsteam på avsenderens side, og
  *   `null` når avsenderen er med i flere av dem;
@@ -18,6 +21,7 @@ import type { IncomingMessage } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   catendaId,
+  ferskeProsjekter,
   krevKontraktsrolle,
   krevProsjekttilgang,
   Nektet,
@@ -40,6 +44,26 @@ import {
 } from './sqlserver.ts';
 
 const hex = () => randomBytes(16).toString('hex');
+
+/** `pool`, der `foer` kjøres før hvert kall til prosedyren `prosedyre`. */
+function medFoer(pool: Pool, prosedyre: string, foer: () => Promise<void>): Pool {
+  return new Proxy(pool, {
+    get(maal, navn) {
+      if (navn === 'request')
+        return () => {
+          const foresp = maal.request();
+          const utfoer = foresp.execute.bind(foresp);
+          foresp.execute = (async (p: string) => {
+            if (p === prosedyre) await foer();
+            return utfoer(p);
+          }) as typeof foresp.execute;
+          return foresp;
+        };
+      const verdi = Reflect.get(maal, navn, maal);
+      return typeof verdi === 'function' ? verdi.bind(maal) : verdi;
+    },
+  });
+}
 
 interface Medlemsvalg {
   rolle?: 'viewer' | 'member' | 'admin';
@@ -198,10 +222,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       nyttelast = {} as unknown,
       sakIdFraSti = null as string | null,
       prosjektIdFraSti = null as string | null,
+      pool = kjoeretid.pool,
     } = {}
   ) =>
     krevProsjekttilgang(
-      kjoeretid.pool,
+      pool,
       catenda,
       foresporsel(prosjektId),
       m.bruker,
@@ -367,6 +392,84 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         status: 403,
         error: 'FORBIDDEN',
       });
+    });
+
+    it('samtidige forespørsler med gammel liste deler én henting fra Catenda (#726 punkt 3)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const { catenda, kall } = catendaMed({}, async () => {
+        await new Promise((ferdig) => setTimeout(ferdig, 500));
+        return [{ subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' }];
+      });
+      const svar = await Promise.all([1, 2, 3].map(() => tilgang(m, p.id, { catenda })));
+      expect(svar.every(Boolean)).toBe(true);
+      expect(kall).toEqual([p.catenda]);
+    });
+
+    it('endres koblingen under kontrollen, hentes listen fra koblingen som ble lest først, og basen avviser den med 503 (#726 punkt 2)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const ny = randomUUID();
+      // Koblingen flyttes etter at tilgangskontrollen har lest den, rett før alderen leses.
+      const pool = medFoer(kjoeretid.pool, 'koe_api.medlemsliste_alder', async () => {
+        await r()
+          .input('prosjekt', sql.NVarChar(100), p.id)
+          .input('ny', sql.UniqueIdentifier, ny)
+          .query(
+            `UPDATE koe.catenda_project_configs SET catenda_project_id = @ny
+              WHERE internal_project_id = @prosjekt AND catenda_project_id <> @ny`
+          );
+      });
+      const { catenda, kall } = catendaMed({}, async () => [
+        { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
+      ]);
+      expect(await nektet(tilgang(m, p.id, { catenda, pool }))).toEqual({
+        status: 503,
+        error: 'ACCESS_UNAVAILABLE',
+      });
+      expect(kall).toEqual([p.catenda]);
+    });
+
+    it('skriver ikke synkroniseringen fordi listen er markert nyere, og listen er fortsatt ikke fersk, gir det 503 (#707 kommentar a)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      // Det triggeren på koblingen etterlater når koblingen endres under hentingen:
+      // en markør uten Catenda-prosjekt, satt etter `hentet`.
+      const { catenda, kall } = catendaMed({}, async () => {
+        await r()
+          .input('prosjekt', sql.NVarChar(100), p.id)
+          .query(
+            `UPDATE koe.app_membership_sync
+                SET catenda_project_id = '00000000-0000-0000-0000-000000000000',
+                    synced_at = DATEADD(second, 1, SYSUTCDATETIME())
+              WHERE project_id = @prosjekt`
+          );
+        return [{ subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' }];
+      });
+      expect(await nektet(tilgang(m, p.id, { catenda }))).toEqual({
+        status: 503,
+        error: 'ACCESS_UNAVAILABLE',
+      });
+      expect(kall).toEqual([p.catenda]);
+    });
+
+    it('ferskeProsjekter henter listene for gamle prosjekter samtidig, og ikke for et ferskt (#724 punkt 5)', async () => {
+      const [a, b, c] = [
+        await prosjekt({ liste: 'gammel' }),
+        await prosjekt({ liste: 'ingen' }),
+        await prosjekt(),
+      ];
+      let aktive = 0;
+      let flest = 0;
+      const { catenda, kall } = catendaMed({}, async () => {
+        flest = Math.max(flest, ++aktive);
+        await new Promise((ferdig) => setTimeout(ferdig, 300));
+        aktive--;
+        return [];
+      });
+      await ferskeProsjekter(kjoeretid.pool, catenda, [a.id, b.id, c.id]);
+      expect(kall.sort()).toEqual([a.catenda, b.catenda].sort());
+      expect(flest).toBe(2);
     });
 
     it('feiler synkroniseringen, gir det 503 og ikke tilgang', async () => {

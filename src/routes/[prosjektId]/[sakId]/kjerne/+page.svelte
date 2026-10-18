@@ -7,11 +7,15 @@
    */
   import { page } from '$app/state';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
-  import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
-  import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
-  import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
+  import type { OppgittDato } from '$kjerne/format/format';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
   import { leveringstekst } from '$lib/kjernesak/saksbilde';
+  import {
+    datofelt,
+    gjelderEndringsordre,
+    grunnlagskrav as grunnlagskravFra,
+    KJERNEKATEGORIER,
+  } from '$lib/kjernesak/grunnlagskrav';
   import type { Part } from '$kjerne/typer';
 
   const sakId = $derived(page.params.sakId ?? '');
@@ -22,45 +26,33 @@
   const kjernesak = $derived(lagKjernesak({ sakId, prosjektId, part }));
   const sak = $derived(kjernesak.sak);
 
-  // Kategoriene som kjernen har et par for (#335).
-  const forhold = KRAV_STRUKTUR_NS8407.filter((h) => h.kode in HOVEDKATEGORI_FRA_KATALOGEN).map(
-    (h) => ({
-      ...h,
-      hjemler: h.hjemler.filter((u) => u.kode in UNDERKATEGORI_FRA_KATALOGEN),
-    })
-  );
-  let hoved = $state(forhold[0]?.kode ?? '');
+  let hoved = $state(KJERNEKATEGORIER[0]?.kode ?? '');
   let under = $state('');
-  let tittel = $state('');
   let beskrivelse = $state('');
+  let endringsordre = $state('');
   // Datoen står under feltet den er oppgitt for, så den følger ikke med til en annen betydning.
   let datoer = $state<Partial<Record<OppgittDato, string>>>({});
   let beloep = $state<number | null>(null);
-  const underkategorier = $derived(forhold.find((h) => h.kode === hoved)?.hjemler ?? []);
+  const underkategorier = $derived(KJERNEKATEGORIER.find((h) => h.kode === hoved)?.hjemler ?? []);
 
   // VS-U26: datoen varslingsplikten løper fra, påkrevd i krav fra appen.
   const DATOEN: Record<OppgittDato, string> = {
     paalegg_mottatt: 'Datoen pålegget ble mottatt',
     klar_over_forholdet: 'Datoen TE ble klar over forholdet',
   };
-  const datofelt = $derived(
-    under
-      ? oppgittDato(HOVEDKATEGORI_FRA_KATALOGEN[hoved], UNDERKATEGORI_FRA_KATALOGEN[under])
-      : null
-  );
+  const dato = $derived(under ? datofelt(hoved, under) : null);
+  const eo = $derived(!!under && gjelderEndringsordre(under));
 
-  const grunnlagskrav = $derived({
-    type: 'krav',
-    spor: 'grunnlag',
-    innhold: {
-      hovedkategori: HOVEDKATEGORI_FRA_KATALOGEN[hoved],
-      underkategori: UNDERKATEGORI_FRA_KATALOGEN[under],
-      ...(tittel.trim() ? { tittel: tittel.trim() } : {}),
-      ...(datofelt && datoer[datofelt] ? { [datofelt]: datoer[datofelt] } : {}),
-    },
-    // TEs beskrivelse av pålegget er utdypningen under kravet (GR-U15).
-    ...(beskrivelse.trim() ? { utdypning: beskrivelse.trim() } : {}),
-  });
+  // Samme krav som skjemaet for ny sak, uten egen tittel på forholdet (avgjørelse 2 i #666).
+  const grunnlagskrav = $derived(
+    grunnlagskravFra({
+      hovedkategori: hoved,
+      underkategori: under,
+      datoer,
+      endringsordre,
+      utdypning: beskrivelse,
+    })
+  );
   const vederlagskrav = $derived({
     type: 'krav',
     spor: 'vederlag',
@@ -69,14 +61,15 @@
   const grunnlagstekst = $derived(under ? kjernesak.brevtekst(grunnlagskrav) : null);
   const vederlagstekst = $derived(beloep ? kjernesak.brevtekst(vederlagskrav) : null);
 
+  // Teksten som vises, er teksten som sendes (LV-U2, #737).
   function sendGrunnlag(e: SubmitEvent) {
     e.preventDefault();
-    void kjernesak.send(grunnlagskrav);
+    void kjernesak.send(grunnlagskrav, grunnlagstekst ?? undefined);
   }
 
   function sendVederlag(e: SubmitEvent) {
     e.preventDefault();
-    void kjernesak.send(vederlagskrav);
+    void kjernesak.send(vederlagskrav, vederlagstekst ?? undefined);
   }
 
   $effect(() => {
@@ -101,7 +94,7 @@
     </select>
   </label>
 
-  {#if kjernesak.feil}
+  {#if kjernesak.feil || kjernesak.ventende}
     <p role="alert" class="rounded border border-red-300 bg-red-50 p-2 text-sm">
       {kjernesak.feil}
       {#if kjernesak.ventende}
@@ -132,7 +125,7 @@
       <label class="block"
         >Hovedkategori
         <select class="block w-full border" bind:value={hoved} onchange={() => (under = '')}>
-          {#each forhold as h (h.kode)}<option value={h.kode}>{h.label}</option>{/each}
+          {#each KJERNEKATEGORIER as h (h.kode)}<option value={h.kode}>{h.label}</option>{/each}
         </select>
       </label>
       <label class="block"
@@ -142,11 +135,16 @@
           {#each underkategorier as u (u.kode)}<option value={u.kode}>{u.label}</option>{/each}
         </select>
       </label>
-      <label class="block">Tittel <input class="block w-full border" bind:value={tittel} /></label>
-      {#if datofelt}
+      {#if dato}
         <label class="block"
-          >{DATOEN[datofelt]}
-          <input class="block w-full border" type="date" bind:value={datoer[datofelt]} required />
+          >{DATOEN[dato]}
+          <input class="block w-full border" type="date" bind:value={datoer[dato]} required />
+        </label>
+      {/if}
+      {#if eo}
+        <label class="block"
+          >Endringsordrens dato eller nummer
+          <input class="block w-full border" bind:value={endringsordre} required />
         </label>
       {/if}
       <label class="block"

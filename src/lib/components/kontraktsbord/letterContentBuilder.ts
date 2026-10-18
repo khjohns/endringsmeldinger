@@ -33,12 +33,23 @@ function extractBegrunnelse(event: TimelineEvent): string {
   );
 }
 
-export function buildLetterContent(event: TimelineEvent, sak: SakState): BrevInnhold {
+/**
+ * Brevet for en hendelse: det lagrede brevet, eller et brev bygget for sporet. En
+ * hendelse uten spor og uten lagret brev, som forsering eller endringsordre, får
+ * ikke noe brev (#365).
+ */
+export function buildLetterContent(
+  event: TimelineEvent & { spor: SporType },
+  sak: SakState
+): BrevInnhold;
+export function buildLetterContent(event: TimelineEvent, sak: SakState): BrevInnhold | null;
+export function buildLetterContent(event: TimelineEvent, sak: SakState): BrevInnhold | null {
   const stored = (event.data as unknown as Record<string, unknown> | undefined)?.brev as
     | BrevInnhold
     | undefined;
   if (stored?.seksjoner && stored.referanser) return JSON.parse(JSON.stringify(stored));
-  const sporType: SporType = event.spor ?? 'grunnlag';
+  if (!event.spor) return null;
+  const sporType = event.spor;
   const dato = formatDateNorwegian(event.time) || formatDateNorwegian(new Date().toISOString());
   const sporLabel = getSporLabel(sporType);
   const sakstittel = sak.grunnlag.tittel ?? sak.sak_id;
