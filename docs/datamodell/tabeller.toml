@@ -1152,6 +1152,24 @@ funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`."
 
 [[tabell]]
+navn = "koe.toemmingsvern"
+lagring = "SQL Server"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Vernet mot TRUNCATE for de uforanderlige tabellene ingen annen fremmednøkkel
+viser til (#582). TRUNCATE avfyrer ingen trigger, men avvises for en tabell en
+fremmednøkkel viser til. Tabellen kan ikke ha rader (`toemmingsvern_tom`), og
+kjøretiden har ingen rett på den."""
+lagres_fra = "Ingen. Migrasjonen lager tabellen, og skranken avviser hver rad."
+fra_catenda = "Nei"
+kan_gjenoppbygges = "ja. Tabellen har ingen rader."
+personopplysninger = "Nei."
+skrivere = ["database/migrasjoner/20261019211000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad)"]
+funn = []
+belegg = "L 18.10: `database/migrasjoner/20261019211000_toemmingsvern.sql`. K 18.10: `server/tester/journal.test.ts`."
+
+[[tabell]]
 navn = "koe.kjernebuffer"
 lagring = "SQL Server"
 type = ["avledet"]

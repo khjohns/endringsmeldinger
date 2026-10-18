@@ -64,7 +64,15 @@ const UTEN_TRIGGER: Record<string, string> = {
     'Driften setter opp og endrer fullmaktene (GFK-U1); en godkjenning fryser fullmakten den ble gitt med (#818).',
   dagmulktssats: 'Driften setter opp og endrer satsen, som fullmaktene (#818).',
   jobb: 'Leasen, tilstanden og neste forsøk endres av jobbkjøreren; hvert forsøk står i jobbforsoek (#741).',
+  toemmingsvern:
+    'Tabellen kan ikke ha rader (toemmingsvern_tom). Fremmednøklene fra den stopper TRUNCATE av tabellene de viser til (#582).',
 };
+
+/**
+ * Tabellene utenfor triggerne som heller ikke skal kunne tømmes: jobbene og
+ * forsøkene (#741) og vedleggene, der et bundet vedlegg ikke kan slettes (#790).
+ */
+const OGSAA_UTEN_TOEMMING = ['jobb', 'vedlegg'];
 
 const PROSJEKT = 'journal-p1';
 const ANNET_PROSJEKT = 'journal-p2';
@@ -450,13 +458,25 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
       expect(etter.recordset.length).toBe(1);
     });
 
-    it.each(['sak_metadata', 'hendelse', 'jobb', 'jobbforsoek'])(
-      'koe.%s kan ikke tømmes med TRUNCATE, fordi en fremmednøkkel viser til den (4712)',
-      async (tabell) => {
-        const feil = await avvisning(base.pool.request().batch(`TRUNCATE TABLE koe.${tabell}`));
-        expect(feil).toBe(TOEMMING_AVVIST);
-      }
-    );
+    it('hver tabell med triggeren, jobbene og vedleggene kan ikke tømmes med TRUNCATE av eieren, fordi en fremmednøkkel viser til dem (4712, #582)', async () => {
+      const med = (await tabeller())
+        .filter((t) => !(t.tabell in UTEN_TRIGGER))
+        .map((t) => t.tabell);
+      expect(med).toEqual(expect.arrayContaining(['sak_metadata', 'hendelse', 'leveringsoppdrag']));
+      const avvist: Record<string, number | undefined> = {};
+      for (const tabell of [...med, ...OGSAA_UTEN_TOEMMING].sort())
+        avvist[tabell] = await avvisning(base.pool.request().batch(`TRUNCATE TABLE koe.${tabell}`));
+      expect(avvist).toEqual(
+        Object.fromEntries(Object.keys(avvist).map((t) => [t, TOEMMING_AVVIST]))
+      );
+    });
+
+    it('toemmingsvern kan ikke ha rader (547)', async () => {
+      const feil = await avvisning(
+        base.pool.request().batch('INSERT koe.toemmingsvern (vedlegg_id) VALUES (NULL)')
+      );
+      expect(feil).toBe(CHECK_BRUDD);
+    });
   });
 
   describe('katalogen', () => {

@@ -878,6 +878,78 @@ funn = []
 belegg = "L 18.10: `database/migrasjoner/20261018120000_levering.sql`."
 
 [[relasjon]]
+fra = "koe.toemmingsvern.app_identities_id"
+til = "koe.app_identities.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.toemmingsvern.brevdokument_id"
+til = "koe.brevdokument.leveringsoppdrag_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = ["koe.toemmingsvern.godkjenningshandling_pakke_id", "koe.toemmingsvern.godkjenningshandling_loepenr"]
+til = ["koe.godkjenningshandling.pakke_id", "koe.godkjenningshandling.loepenr"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = ["koe.toemmingsvern.kvittering_prosjekt_id", "koe.toemmingsvern.kvittering_aktor_id", "koe.toemmingsvern.kvittering_kommando_id"]
+til = ["koe.kvittering.prosjekt_id", "koe.kvittering.aktor_id", "koe.kvittering.kommando_id"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = ["koe.toemmingsvern.leveringskvittering_oppdrag_id", "koe.toemmingsvern.leveringskvittering_operasjon"]
+til = ["koe.leveringskvittering.leveringsoppdrag_id", "koe.leveringskvittering.operasjon"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.toemmingsvern.prosjekt_med_saker_id"
+til = "koe.prosjekt_med_saker.prosjekt_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.toemmingsvern.sak_catenda_topic_sak_id"
+til = "koe.sak_catenda_topic.sak_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.toemmingsvern.vedlegg_id"
+til = "koe.vedlegg.vedlegg_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
 fra = ["koe.sak_catenda_topic.sak_id", "koe.sak_catenda_topic.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
@@ -1237,10 +1309,6 @@ begrunnelse = "Catenda-prosjektet frosset da jobben ble lagt inn. Sammenliknes m
 [[uten_relasjon]]
 kolonne = "koe.jobb.catenda_board_id"
 begrunnelse = "Boardet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6)."
-
-[[uten_relasjon]]
-kolonne = "koe.kvittering.kommando_id"
-begrunnelse = "ID-en klienten gir kommandoen (#418). Den viser ikke til en rad; nøkkelen er prosjektet, aktøren og ID-en."
 
 [[uten_relasjon]]
 kolonne = "koe.jobb.lease"
