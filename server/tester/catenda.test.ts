@@ -13,7 +13,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   CatendaAvvisning,
   CatendaOAuth,
+  CatendaOppsettfeil,
   CatendaUtilgjengelig,
+  dokumentleverandoer,
   Integrasjonsnokkel,
   TOPICTYPE,
   UsikkertCatendautfall,
@@ -513,17 +515,61 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     );
   });
 
-  it('leser referansene med dokument-ID-en uten bindestreker, og setter en ny', async () => {
+  it('leser referansene med dokument-ID-en normalisert som catendaId, og setter en ny (#783 punkt 4)', async () => {
     const sti = `/opencde/bcf/3.0/projects/${BOARD}/topics/topic-1/document_references`;
-    svar = () => ({ json: [{ guid: 'r1', document_guid: 'ABCD-1234' }, { guid: 'r2' }] });
+    svar = () => ({ json: [{ guid: 'r1', document_guid: `{${BRUKER}}` }] });
     const oauth = new CatendaOAuth(oppsett());
     expect(await oauth.dokumentreferanser(BOARD, 'topic-1', 'i')).toEqual([
-      { id: 'r1', dokumentId: 'abcd1234' },
+      { id: 'r1', dokumentId: hex(BRUKER) },
     ]);
     svar = () => ({ status: 201, json: { guid: 'r3' } });
     expect(await oauth.opprettDokumentreferanse(BOARD, 'topic-1', 'abcd1234', 'i')).toBe('r3');
     expect([mottatt[1].metode, mottatt[1].sti]).toEqual(['POST', sti]);
     expect(JSON.parse(mottatt[1].raa)).toEqual({ document_guid: 'abcd1234' });
+  });
+
+  // Kilde: #783 punkt 3: en rad med feil form droppes ikke, så referansen lages ikke to ganger.
+  it.each<[string, unknown]>([
+    ['en referanse uten dokument', [{ guid: 'r2' }]],
+    ['en referanse uten GUID', [{ document_guid: BRUKER }]],
+    ['en referanse med en GUID over 100 tegn', [{ guid: 'r'.repeat(101), document_guid: BRUKER }]],
+  ])('%s fra Catenda gir CatendaUtilgjengelig', async (_n, json) => {
+    svar = () => ({ json });
+    await expect(
+      new CatendaOAuth(oppsett()).dokumentreferanser(BOARD, 'topic-1', 'i')
+    ).rejects.toBeInstanceOf(CatendaUtilgjengelig);
+  });
+
+  it('et dokument som finnes igjen med en ID av feil form, gir CatendaUtilgjengelig (#783 punkt 3)', async () => {
+    svar = () => ({ json: [{ id: ' b2', name: dokument.navn }] });
+    await expect(
+      new CatendaOAuth(oppsett()).finnDokument(maal, dokument.navn, 'i')
+    ).rejects.toBeInstanceOf(CatendaUtilgjengelig);
+  });
+
+  it('et token Catenda svarer 401 på, forkastes, og neste kall henter et nytt (#783 punkt 5)', async () => {
+    let n = 0;
+    svar = (m) =>
+      m.sti === '/oauth2/token'
+        ? { json: { access_token: `token-${++n}`, expires_in: 3600 } }
+        : m.autorisasjon === 'Bearer token-1'
+          ? { status: 401, json: {} }
+          : { json: [] };
+    const catenda = {
+      oauth: new CatendaOAuth(oppsett()),
+      integrasjonsnokkel: new Integrasjonsnokkel(oppsett()),
+    };
+    const leverandoer = dokumentleverandoer(catenda);
+    await expect(leverandoer.dokumentreferanser(BOARD, 'topic-1')).rejects.toBeInstanceOf(
+      CatendaUtilgjengelig
+    );
+    expect(await leverandoer.dokumentreferanser(BOARD, 'topic-1')).toEqual([]);
+    expect(mottatt.map((m) => m.autorisasjon ?? m.sti)).toEqual([
+      '/oauth2/token',
+      'Bearer token-1',
+      '/oauth2/token',
+      'Bearer token-2',
+    ]);
   });
 
   it('et ugyldig mål eller en ugyldig topic kaller ikke Catenda', async () => {
@@ -572,7 +618,7 @@ describe('integrasjonsnøkkelen', () => {
     svar = () => ({ status: 400, json: { error: 'invalid_client' } });
     const nokkel = new Integrasjonsnokkel(oppsett());
     const feil = await nokkel.token().catch((f: unknown) => f);
-    expect(feil).toBeInstanceOf(CatendaUtilgjengelig);
+    expect(feil, '#783 punkt 5: oppsettet er feil').toBeInstanceOf(CatendaOppsettfeil);
     expect(feil).not.toBeInstanceOf(CatendaAvvisning);
     svar = () => ({ json: { access_token: 'nytt', expires_in: 3600 } });
     expect(await nokkel.token()).toBe('nytt');

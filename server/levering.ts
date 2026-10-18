@@ -13,11 +13,12 @@
  * den tro (`gjengirTro` i `kjerne/frosset/brevtekst.ts`), og lages av oppdraget
  * alene, uten journalen. Et registrert brev har ingen tekst fra appen (MM-U17):
  * `brevtekst` er `null`, og `dokument` er `null`, fordi brevet alt er sendt utenfor
- * appen og ikke blir et eget dokument i Catenda (LV-U11). Bare `dokument` avgjør om
- * oppdraget får en leveringsjobb (triggeren `koe.leveringsoppdrag_levering`).
+ * appen og ikke blir et eget dokument i Catenda (LV-U11).
  *
- * `vedlegg` er vedleggene brevet binder, med ID-en, filnavnet og summen brevet lagret
- * (LV-U1, LV-U14). Leveringen av dem til Catenda hører til V-3 i #790.
+ * Vedleggene brevet binder, står bare i brevet, i `dokumentasjon` med ID-en, filnavnet
+ * og summen (LV-U14), og leveringen leser dem der (#827 punkt 6). Et oppdrag med
+ * vedlegg får leveringsjobben også uten dokument (LV-U11, triggeren
+ * `koe.leveringsoppdrag_levering`).
  */
 
 import { createHash } from 'node:crypto';
@@ -25,13 +26,13 @@ import type { Brevdokument } from './catenda.ts';
 import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
 import { lesBrevPdf, skrivBrevPdf, TegnUtenforSkriften } from './brevpdf.ts';
 import { sjekksum } from './sjekksum.ts';
-import type { Avsnitt, Journalrad, Vedlegg } from '../kjerne/typer.ts';
+import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
-export const OPPDRAGSFORMAT = 5;
+export const OPPDRAGSFORMAT = 6;
 
 /** For `server/tester/kommandoer.test.ts`, som L-2b eier i runde 6 (#764); fjernes etter. */
 export { sjekksum };
@@ -63,7 +64,6 @@ export function lagOppdrag(
     dokument: brevtekst
       ? { noekkel: rad.event_id, filnavn: `brev-${rad.sak_id}-${rad.versjon}.pdf` }
       : null,
-    vedlegg: (rad.data.dokumentasjon ?? []) as Vedlegg[],
     maal,
     status,
     kjerne: {
@@ -162,6 +162,18 @@ export async function brevdokument(
   if (!gjengirTro(lest, brev.brevtekst))
     throw new UgjengivbartBrev('PDF-en gjengir ikke brevteksten tro');
   return { navn, innhold: pdf };
+}
+
+/**
+ * Navnet vedlegget får i Catenda: filnavnet med vedleggets ID foran endelsen, så et
+ * forsøk etter et tapt svar finner det igjen, og to vedlegg med samme filnavn ikke
+ * kolliderer i mappen.
+ */
+export function vedleggsnavn(filnavn: string, vedleggId: string): string {
+  const punktum = filnavn.lastIndexOf('.');
+  return punktum > 0
+    ? `${filnavn.slice(0, punktum)}-${vedleggId}${filnavn.slice(punktum)}`
+    : `${filnavn}-${vedleggId}`;
 }
 
 /** SHA-256 av PDF-en, som basen kontrollerer mot det den lagrer. */

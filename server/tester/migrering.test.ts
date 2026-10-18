@@ -658,6 +658,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'skrivetidspunkt',
         'toemmingsvern',
         'vedlegg',
+        'vedleggskvittering',
       ]);
       expect(k2).toEqual(k1);
     } finally {

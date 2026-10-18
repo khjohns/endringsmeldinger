@@ -1287,7 +1287,9 @@
      ["leveringskvittering_operasjon", "nvarchar(20)", "NULL"],
      ["prosjekt_med_saker_id", "nvarchar(100)", "NULL"],
      ["sak_catenda_topic_sak_id", "nvarchar(36)", "NULL"],
-     ["vedlegg_id", "uniqueidentifier", "NULL"]
+     ["vedlegg_id", "uniqueidentifier", "NULL"],
+     ["vedleggskvittering_vedlegg_id", "uniqueidentifier", "NULL"],
+     ["vedleggskvittering_operasjon", "nvarchar(20)", "NULL"]
     ],
     "primærnøkkel": [],
     "unike": [],
@@ -1340,6 +1342,12 @@
       "til": "koe.vedlegg",
       "til_kolonner": ["vedlegg_id"],
       "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["vedleggskvittering_vedlegg_id", "vedleggskvittering_operasjon"],
+      "til": "koe.vedleggskvittering",
+      "til_kolonner": ["vedlegg_id", "operasjon"],
+      "ved_sletting": "NO ACTION"
      }
     ]
    },
@@ -1378,6 +1386,41 @@
       "kolonner": ["sak_id", "prosjekt_id"],
       "til": "koe.sak_metadata",
       "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.vedleggskvittering": {
+    "kolonner": [
+     ["vedlegg_id", "uniqueidentifier", "NOT NULL"],
+     ["operasjon", "nvarchar(20)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["leveringsoppdrag_id", "uniqueidentifier", "NOT NULL"],
+     ["catenda_id", "nvarchar(100)", "NOT NULL"],
+     ["forsoek_id", "uniqueidentifier", "NOT NULL"],
+     ["kvittert", "datetime2(3)", "NOT NULL"],
+     ["forutsetning", "nvarchar(20)", "NULL"]
+    ],
+    "primærnøkkel": ["vedlegg_id", "operasjon"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["leveringsoppdrag_id"],
+      "til": "koe.leveringsoppdrag",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["vedlegg_id"],
+      "til": "koe.vedlegg",
+      "til_kolonner": ["vedlegg_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["vedlegg_id", "forutsetning"],
+      "til": "koe.vedleggskvittering",
+      "til_kolonner": ["vedlegg_id", "operasjon"],
       "ved_sletting": "NO ACTION"
      }
     ]
