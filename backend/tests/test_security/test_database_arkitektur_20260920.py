@@ -10,7 +10,6 @@ Testen leser migrasjonsfilene, ikke databasen — den sier at repoet *erklærer*
 tabellen, ikke at basen har den.
 """
 
-import json
 import re
 from pathlib import Path
 
@@ -19,9 +18,6 @@ MIGRATIONS = [
     REPO_ROOT / "backend" / "migrations",
     REPO_ROOT / "supabase" / "migrations",
 ]
-# Katalogen over basene, med SQL Server-delen lest fra en base bygget fra
-# database/migrasjoner/ (#558).
-KATALOG = REPO_ROOT / "docs" / "datamodell" / "katalog.json"
 
 # Alle 19 tabellene i public, kontrollert mot basen 2026-09-21 (notat kom til
 # med MS-05; de øvrige atten ble kontrollert 2026-09-20).
@@ -96,18 +92,6 @@ _SQL_DEL = re.compile(r"'(?:[^']|'')*'|--[^\n]*|/\*.*?\*/", re.DOTALL)
 
 def uten_kommentarer(sql: str) -> str:
     return _SQL_DEL.sub(lambda m: m.group(0) if m.group(0).startswith("'") else " ", sql)
-
-
-def tabeller_i_sqlserver_migrasjonene() -> set[str]:
-    """Tabellene migrasjonene i SQL Server etterlater, kvalifisert med skjemaet (#558).
-
-    Leser katalogen i katalog.json, som er lest fra en base bygget av runneren i
-    server/migrering.ts, ikke teksten i migrasjonene (#647, #634).
-    `server/tester/katalog.test.ts` holder katalogen lik en ny base bygget fra
-    database/migrasjoner/, så en migrasjon som oppretter, sletter eller gir en
-    tabell nytt navn, gjør den testen rød til katalogen er tatt på nytt."""
-    katalog = json.loads(KATALOG.read_text(encoding="utf-8"))
-    return set(katalog["sqlserver"]["tabeller"])
 
 
 def test_hver_tabell_i_basen_opprettes_av_en_migrasjonsfil():

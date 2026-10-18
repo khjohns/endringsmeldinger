@@ -494,4 +494,24 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     // Kontrollsak: serveren svarer fortsatt.
     expect((await fetch(`${server.url}/api/ukjent`)).status).toBe(404);
   });
+
+  it('en sti som begynner med //, leses ikke som en vert foran en kjent rute (#763 punkt 6)', async () => {
+    const sti = `/api/projects/${encodeURIComponent(o.prosjekt.id)}/members`;
+    // Kontrollsak: den kjente ruta finnes og krever innlogging.
+    expect((await fetch(`${server.url}${sti}`)).status).toBe(401);
+    const svar = await fetch(`${server.url}//angriper.example${sti}`);
+    expect(svar.status).toBe(404);
+    expect(((await svar.json()) as { error: string }).error).toBe('NOT_FOUND');
+  });
+
+  it('et medlems-ID som ikke kan dekodes, gir en feil om ressursen, ikke om prosjektet (#825 punkt 5)', async () => {
+    const svar = await fetch(
+      `${server.url}/api/projects/${encodeURIComponent(o.prosjekt.id)}/members/%E0%A4%A`,
+      { method: 'PATCH' }
+    );
+    expect(svar.status).toBe(404);
+    expect(((await svar.json()) as { message: string }).message).toBe(
+      'Ukjent ressurs i prosjektet.'
+    );
+  });
 });

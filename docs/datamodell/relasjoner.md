@@ -363,6 +363,9 @@ erDiagram
     koe_projects {
         nvarchar_100 id PK
     }
+    koe_prosjekt_med_saker {
+        nvarchar_100 prosjekt_id PK, FK
+    }
     koe_sak_catenda_topic {
         nvarchar_36 sak_id PK, FK
         nvarchar_100 prosjekt_id FK
@@ -412,6 +415,7 @@ erDiagram
     koe_leveringskvittering |o--o| koe_leveringskvittering : "(leveringsoppdrag_id, forutsetning)"
     koe_jobbforsoek |o..o{ koe_leveringskvittering : "forsoek_id"
     koe_sak_metadata ||--o| koe_sak_catenda_topic : "(sak_id, prosjekt_id)"
+    koe_projects ||--o| koe_prosjekt_med_saker : "prosjekt_id"
     koe_sak_metadata ||--o| koe_kjernebuffer : "(sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_hendelse : "aktor_team_id"
     koe_hendelse |o..o{ koe_hendelse : "refererer_til_event_id"
@@ -524,6 +528,7 @@ erDiagram
 | `koe.leveringskvittering.(leveringsoppdrag_id, forutsetning)` | `koe.leveringskvittering.(leveringsoppdrag_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Referansen på topicen forutsetter at dokumentet er kvittert for samme oppdrag. | — | K 18.10: katalogen. |
 | `koe.leveringskvittering.forsoek_id` | `koe.jobbforsoek.forsoek_id` | uten fremmednøkkel | mange til én | Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er over, etter kvitteringen for dokumentet, så det er ingen fremmednøkkel. | — | L 18.10: `database/migrasjoner/20261018120000_levering.sql`. |
 | `koe.sak_catenda_topic.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst én topic. Sammensatt med `prosjekt_id`, så raden står i sakens prosjekt. | — | K 17.10: katalogen. |
+| `koe.prosjekt_med_saker.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Prosjektet som har saker. `prosjekt_id` er primærnøkkelen, så hvert prosjekt står høyst én gang (F-1, #820). | — | K 18.10: katalogen. |
 | `koe.kjernebuffer.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. `sak_id` er primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
 | `koe.hendelse.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, i `catenda_id()`-formen. Tom når teamet ikke var entydig (DL-U4). | — | L 16.10: migrasjonen. |
 | `koe.hendelse.refererer_til_event_id` | `koe.hendelse.event_id` | uten fremmednøkkel | mange til én | Brevet dette brevet svarer på eller viser til. | — | L 16.10: migrasjonen. |
@@ -786,6 +791,7 @@ flowchart LR
 | `koe.godkjenningshandling` | — | — | — |
 | `koe.leveringskvittering` | — | — | — |
 | `koe.sak_catenda_topic` | — | — | — |
+| `koe.prosjekt_med_saker` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |
 | `koe.kjernebuffer` | — | — | — |
 | `koe.app_sessions` | — | — | — |
@@ -1034,7 +1040,7 @@ Leser fra Catenda og svarer; ingenting lagres.
 
 **Retning:** inn. **Utløses av:** `scripts/catenda_admin.py register`.
 
-Drift oppgir Catenda-prosjekt, bibliotek, mappe, board og kontraktsteam. Navnet hentes fra Catenda om det ikke er oppgitt, og teamene kontrolleres mot Catenda. Én databasefunksjon skriver alt atomisk; triggeren på `projects` legger i tillegg inn en rad i `project_memberships`.
+Drift oppgir Catenda-prosjekt, bibliotek, mappe, board og kontraktsteam. Navnet hentes fra Catenda om det ikke er oppgitt, og teamene kontrolleres mot Catenda. Én databasefunksjon skriver alt atomisk; triggeren på `projects` legger i tillegg inn en rad i `project_memberships`. I TS gjør driftsskriptet `server/registrering.ts registrer` det samme mot `koe_drift.registrer_prosjekt` i SQL Server, uten å hente navnet fra Catenda (F-1, #820).
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
@@ -1047,7 +1053,7 @@ Drift oppgir Catenda-prosjekt, bibliotek, mappe, board og kontraktsteam. Navnet 
 
 **Retning:** inn. **Utløses av:** `scripts/catenda_admin.py contract-teams` med `--bh` og `--te`.
 
-Samme kontroll som i C18, og funksjonen erstatter prosjektets team i én transaksjon.
+Samme kontroll som i C18, og funksjonen erstatter prosjektets team i én transaksjon. I TS gjør driftsskriptet `server/registrering.ts kontraktsteam` samme kontroll mot Catenda og kaller `koe_drift.sett_kontraktsteam`; har prosjektet saker, kan teamene bare få nye team (F-1, #820).
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |

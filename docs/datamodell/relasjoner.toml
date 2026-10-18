@@ -889,6 +889,15 @@ funn = []
 belegg = "K 17.10: katalogen."
 
 [[relasjon]]
+fra = "koe.prosjekt_med_saker.prosjekt_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = "Prosjektet som har saker. `prosjekt_id` er primærnøkkelen, så hvert prosjekt står høyst én gang (F-1, #820)."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
 fra = ["koe.kjernebuffer.sak_id", "koe.kjernebuffer.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
