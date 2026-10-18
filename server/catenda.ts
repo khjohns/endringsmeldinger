@@ -34,7 +34,8 @@ export class UsikkertCatendautfall extends CatendaUtilgjengelig {}
 /**
  * Catenda avviste forespørselen, og samme forespørsel blir avvist igjen: en 4xx utenom
  * 401 (tokenet fornyes), 408, 429 og 499 (#778). Jobben parkeres i stedet for å prøves
- * hver time uten ende.
+ * hver time uten ende. En avvisning fra tokenkallet til integrasjonen gjelder oppsettet,
+ * ikke jobben, og gir `CatendaUtilgjengelig` (`Integrasjonsnokkel`).
  */
 export class CatendaAvvisning extends CatendaUtilgjengelig {
   readonly status: number;
@@ -496,13 +497,21 @@ export class Integrasjonsnokkel {
   }
 
   async #hent(): Promise<string> {
-    const data = await forespoersel(this.#oppsett, 'POST', '/oauth2/token', {
-      skjema: {
-        grant_type: 'client_credentials',
-        client_id: this.#oppsett.klientId,
-        client_secret: this.#oppsett.klienthemmelighet,
-      },
-    });
+    let data: unknown;
+    try {
+      data = await forespoersel(this.#oppsett, 'POST', '/oauth2/token', {
+        skjema: {
+          grant_type: 'client_credentials',
+          client_id: this.#oppsett.klientId,
+          client_secret: this.#oppsett.klienthemmelighet,
+        },
+      });
+    } catch (feil) {
+      // Et avvist tokenkall gjelder oppsettet, ikke jobben som ba om tokenet (#778).
+      if (feil instanceof CatendaAvvisning)
+        throw new CatendaUtilgjengelig(`Catenda avviste tokenet med status ${feil.status}`);
+      throw feil;
+    }
     if (!erObjekt(data) || typeof data.access_token !== 'string' || !data.access_token) {
       throw new CatendaUtilgjengelig('Ugyldig tokensvar');
     }

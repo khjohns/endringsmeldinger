@@ -568,6 +568,17 @@ describe('integrasjonsnøkkelen', () => {
     expect(mottatt).toHaveLength(2);
   });
 
+  it('et avvist tokenkall gir CatendaUtilgjengelig, ikke CatendaAvvisning, og neste kall henter tokenet på nytt', async () => {
+    svar = () => ({ status: 400, json: { error: 'invalid_client' } });
+    const nokkel = new Integrasjonsnokkel(oppsett());
+    const feil = await nokkel.token().catch((f: unknown) => f);
+    expect(feil).toBeInstanceOf(CatendaUtilgjengelig);
+    expect(feil).not.toBeInstanceOf(CatendaAvvisning);
+    svar = () => ({ json: { access_token: 'nytt', expires_in: 3600 } });
+    expect(await nokkel.token()).toBe('nytt');
+    expect(mottatt).toHaveLength(2);
+  });
+
   it('samtidige kall deler én henting', async () => {
     svar = () => ({ vent: 50, json: { access_token: 'delt', expires_in: 3600 } });
     const nokkel = new Integrasjonsnokkel(oppsett());

@@ -77,7 +77,7 @@ FEILINNFOERINGER = [
      "  ADD BLOCK PREDICATE koe_sikkerhet.jobbkjoerer_eller_medlem(prosjekt_id) ON koe.sak_catenda_topic AFTER INSERT;",
      "et medlem kan ikke skrive topicen"),
     ("S18", "et usikkert utfall prøves igjen i stedet for å parkeres", "server/jobber.ts",
-     "if (feil instanceof UsikkertCatendautfall) return 'usikkert';", "",
+     "if (feil instanceof UsikkertCatendautfall) return { utfall: 'usikkert', melding };", "",
      "et usikkert utfall parkeres"),
     ("S19", "en endret kobling parkerer ikke jobben (invariant 6)", "database/migrasjoner/20261018120000_levering.sql",
      "(j.jobbtype = N'catenda_topic' AND c.topic_board_id = j.catenda_board_id)",
