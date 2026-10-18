@@ -13,12 +13,12 @@
  * den tro (`gjengirTro` i `kjerne/frosset/brevtekst.ts`), og lages av oppdraget
  * alene, uten journalen. Et registrert brev har ingen tekst fra appen (MM-U17):
  * `brevtekst` er `null`, og `dokument` er `null`, fordi brevet alt er sendt utenfor
- * appen og ikke blir et eget dokument i Catenda (LV-U11). `dokument` og vedleggene
- * avgjør om oppdraget får en leveringsjobb (triggeren `koe.leveringsoppdrag_levering`).
+ * appen og ikke blir et eget dokument i Catenda (LV-U11).
  *
  * Vedleggene brevet binder, står bare i brevet, i `dokumentasjon` med ID-en, filnavnet
  * og summen (LV-U14), og leveringen leser dem der (#827 punkt 6). Et oppdrag med
- * vedlegg får leveringsjobben også uten dokument (LV-U11).
+ * vedlegg får leveringsjobben også uten dokument (LV-U11, triggeren
+ * `koe.leveringsoppdrag_levering`).
  */
 
 import { createHash } from 'node:crypto';
