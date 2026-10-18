@@ -3366,7 +3366,7 @@ svar = '''
 «A: datoen fristen løper fra»'''
 forhold = [{ art = "presiserer", vedtak = "vs-u25" }, { art = "utvider", vedtak = "lv-u4" }]
 folge = '''
-Ikke bygget.'''
+Ikke bygget. Bygget 18.10 i PR #784 (#770): en vakttest holder at datofeltet er «pålegg mottatt» der § 32.2 gjelder, for alle kategoripar med gjeldende regelsett.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A: datoen fristen løper fra"
