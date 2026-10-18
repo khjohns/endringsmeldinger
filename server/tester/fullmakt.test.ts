@@ -77,7 +77,13 @@ function utledning(krav: object[]): Utledning {
     // Avsenderen godkjenner teksten kjernen viser (LV-U2).
     const vist = forhaandsvis(structuredClone(k), kontekst, journal, KJERNE);
     const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
-    const utfall = vurder(tekst ? { ...k, brevtekst: tekst } : k, kontekst, journal, KJERNE);
+    const utfall = vurder(
+      tekst ? { ...k, brevtekst: tekst } : k,
+      kontekst,
+      journal,
+      KJERNE,
+      new Map()
+    );
     if (!utfall.godtatt)
       throw new Error(`Forutsetning: kravet ble avvist: ${JSON.stringify(utfall)}`);
     utfall.hendelser.forEach((h) => journal.push({ ...h, versjon: journal.length + 1 }));
