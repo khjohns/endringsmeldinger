@@ -61,10 +61,16 @@ class AvvistKvittering extends Error {}
 
 type Utfall = 'feilet' | 'usikkert' | 'avvist';
 
-function utfallAv(feil: unknown): Utfall {
-  if (feil instanceof UsikkertCatendautfall) return 'usikkert';
-  if (feil instanceof CatendaAvvisning || feil instanceof UgjennomfoerbarJobb) return 'avvist';
-  return 'feilet';
+/** Meldingene fra catenda.ts og fra kjøreren har ingen svarkropp eller token; andre feil lagres ikke. */
+function utfallAv(feil: unknown): { utfall: Utfall; melding: string } {
+  const melding =
+    feil instanceof CatendaUtilgjengelig || feil instanceof UgjennomfoerbarJobb
+      ? feil.message
+      : 'Uventet feil i jobben';
+  if (feil instanceof UsikkertCatendautfall) return { utfall: 'usikkert', melding };
+  if (feil instanceof CatendaAvvisning || feil instanceof UgjennomfoerbarJobb)
+    return { utfall: 'avvist', melding };
+  return { utfall: 'feilet', melding };
 }
 
 /**
@@ -113,12 +119,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     }
   } catch (feil) {
     if (feil instanceof AvvistKvittering) throw feil.cause;
-    const utfall = utfallAv(feil);
-    // Meldingene fra catenda.ts og fra kjøreren har ingen svarkropp eller token; andre feil lagres ikke.
-    const melding =
-      feil instanceof CatendaUtilgjengelig || feil instanceof UgjennomfoerbarJobb
-        ? feil.message
-        : 'Uventet feil i jobben';
+    const { utfall, melding } = utfallAv(feil);
     if (utfall === 'feilet') logg.warn(`Jobben ${jobb.jobb_id} feilet og prøves igjen:`, feil);
     else
       logg.error(
@@ -145,10 +146,10 @@ async function leverBrev(
   jobb: Jobbrad,
   kvitter: (prosedyre: string, felt: string, verdi: string) => Promise<void>
 ): Promise<string> {
-  const oppdrag = JSON.parse(jobb.oppdrag!) as Record<string, unknown>;
-  const maal = oppdrag.maal as Dokumentmaal;
   let dokumentId = jobb.dokument_id;
   if (!dokumentId) {
+    const oppdrag = JSON.parse(jobb.oppdrag!) as Record<string, unknown>;
+    const maal = oppdrag.maal as Dokumentmaal;
     const dokument = brevdokument(oppdrag, jobb.dokumentnoekkel!);
     if (!dokument) throw new UgjennomfoerbarJobb('Brevet har ingen tekst fra appen');
     dokumentId =

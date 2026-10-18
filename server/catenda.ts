@@ -121,20 +121,23 @@ async function forespoersel(
   }
   const hoder: Record<string, string> = { Accept: 'application/json' };
   if (valg.token) hoder.Authorization = `Bearer ${valg.token}`;
-  const endring = valg.json !== undefined || valg.fil !== undefined;
-  if (valg.json !== undefined) hoder['Content-Type'] = 'application/json';
-  if (valg.fil)
+  let kropp: BodyInit | undefined;
+  if (valg.fil) {
+    kropp = Buffer.from(valg.fil.innhold);
     Object.assign(hoder, valg.fil.hoder, { 'Content-Type': 'application/octet-stream' });
+  } else if (valg.json !== undefined) {
+    kropp = JSON.stringify(valg.json);
+    hoder['Content-Type'] = 'application/json';
+  } else if (valg.skjema) {
+    kropp = new URLSearchParams(valg.skjema);
+  }
+  const endring = valg.json !== undefined || valg.fil !== undefined;
   let svar: Response;
   try {
     svar = await fetch(adresse, {
       method: metode,
       headers: hoder,
-      body:
-        (valg.fil && Buffer.from(valg.fil.innhold)) ??
-        (valg.json !== undefined
-          ? JSON.stringify(valg.json)
-          : valg.skjema && new URLSearchParams(valg.skjema)),
+      body: kropp,
       redirect: 'manual',
       signal: AbortSignal.timeout(oppsett.tidsavbruddMs ?? 15_000),
     });
@@ -286,10 +289,7 @@ export class CatendaOAuth {
         json: { title: topic.tittel, description: topic.beskrivelse, topic_type: TOPICTYPE },
       }
     );
-    const guid = erObjekt(svar) ? svar.guid : undefined;
-    if (typeof guid !== 'string' || !guid || guid.length > 100)
-      throw new UsikkertCatendautfall('Catenda svarte uten topic');
-    return guid;
+    return idFraSvar(svar, 'guid', 'Catenda svarte uten topic');
   }
 
   /** Dokumentet med navnet i mappen (eller roten av biblioteket), eller `null`. */
@@ -331,10 +331,7 @@ export class CatendaOAuth {
       throw feil;
     }
     const rad = Array.isArray(svar) && svar.length === 1 ? svar[0] : svar;
-    const id = erObjekt(rad) ? rad.id : undefined;
-    if (typeof id !== 'string' || !id || id.length > 100)
-      throw new UsikkertCatendautfall('Catenda svarte uten dokument');
-    return id;
+    return idFraSvar(rad, 'id', 'Catenda svarte uten dokument');
   }
 
   /** Dokumentene topicen viser til, som `document_guid` uten bindestreker. */
@@ -367,11 +364,15 @@ export class CatendaOAuth {
       token,
       json: { document_guid: dokumentId },
     });
-    const guid = erObjekt(svar) ? svar.guid : undefined;
-    if (typeof guid !== 'string' || !guid || guid.length > 100)
-      throw new UsikkertCatendautfall('Catenda svarte uten dokumentreferanse');
-    return guid;
+    return idFraSvar(svar, 'guid', 'Catenda svarte uten dokumentreferanse');
   }
+}
+
+/** ID-en i svaret fra Catenda, høyst 100 tegn som kolonnene den kvitteres i. */
+function idFraSvar(svar: unknown, felt: 'guid' | 'id', melding: string): string {
+  const id = erObjekt(svar) ? svar[felt] : undefined;
+  if (typeof id !== 'string' || !id || id.length > 100) throw new UsikkertCatendautfall(melding);
+  return id;
 }
 
 /** Biblioteket og mappen i det frosne leveringsmålet (LV-U1). */

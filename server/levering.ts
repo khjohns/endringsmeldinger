@@ -16,6 +16,7 @@
  */
 
 import { createHash } from 'node:crypto';
+import type { Brevdokument } from './catenda.ts';
 import { gjengi, norskDato } from '../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
@@ -117,7 +118,7 @@ export function gjengiOppdrag(innhold: Record<string, unknown>): string | null {
 export function brevdokument(
   innhold: Record<string, unknown>,
   dokumentnoekkel: string
-): { navn: string; innhold: Uint8Array } | null {
+): Brevdokument | null {
   const tekst = gjengiOppdrag(innhold);
   if (tekst === null) return null;
   const grunnnavn = (filnavn(innhold) ?? 'brev').replace(/\.pdf$/, '');
