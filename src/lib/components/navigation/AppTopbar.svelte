@@ -16,7 +16,8 @@
     projectName: string;
     projectHref?: string;
     caseLabel?: string;
-    role: Role;
+    /** `null` når leseren ikke har en kontraktsside i saken; da vises ingen rolle. */
+    role: Role | null;
     onrolechange: (role: Role) => void;
     leading?: Snippet;
     actions?: Snippet;
@@ -48,9 +49,9 @@
   </div>
   <div class="actions">
     {#if actions}{@render actions()}{/if}
-    {#if lockedRole}<span class="locked-role"
-        >{role === 'BH' ? 'Byggherre BH' : 'Entreprenør TE'}</span
-      >
+    {#if lockedRole}{#if role}<span class="locked-role"
+          >{role === 'BH' ? 'Byggherre BH' : 'Entreprenør TE'}</span
+        >{/if}
     {:else}
       <div class="role-control">
         <span class="role-caption">Vis som</span>

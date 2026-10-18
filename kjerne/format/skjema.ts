@@ -29,7 +29,7 @@ export const ulagringsbarTekst = (t: string): boolean =>
   t.includes('\u0000') || ENSLIG_SURROGAT.test(t);
 
 /** Verdien har en tekst, også et feltnavn, som basen ikke kan lagre (#373). Uten rekursjon. */
-export function harUlagringsbarTekst(verdi: unknown): boolean {
+function harUlagringsbarTekst(verdi: unknown): boolean {
   const igjen: unknown[] = [verdi];
   while (igjen.length) {
     const v = igjen.pop();
@@ -38,6 +38,18 @@ export function harUlagringsbarTekst(verdi: unknown): boolean {
       for (const [k, del] of Object.entries(v)) igjen.push(k, del);
   }
   return false;
+}
+
+/** Avvisningen av en kommando med tekst basen ikke kan lagre (#373), eller `null`. */
+export function tekstSomIkkeKanLagres(
+  kommando: unknown
+): { regel: 'TEKST_KAN_IKKE_LAGRES'; melding: string } | null {
+  return harUlagringsbarTekst(kommando)
+    ? {
+        regel: 'TEKST_KAN_IKKE_LAGRES',
+        melding: 'Kommandoen har tegn som ikke kan lagres (NUL eller en enslig surrogat).',
+      }
+    : null;
 }
 
 /** En dato på formen ÅÅÅÅ-MM-DD som finnes i kalenderen. */

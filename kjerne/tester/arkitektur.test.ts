@@ -488,7 +488,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/skjema.ts',
     'skjema',
-    'harUlagringsbarTekst',
+    'tekstSomIkkeKanLagres',
     ['kommandoer/skriving.ts:skriv', 'kommandoer/opprettelse.ts:opprettelse'],
   ],
   // Opprettelsen av saken (#664): kommandoen og raden `sak_opprettet` den gir.

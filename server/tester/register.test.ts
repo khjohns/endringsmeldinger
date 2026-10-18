@@ -38,6 +38,7 @@ import {
   type Rute,
 } from '../app.ts';
 import { catendaId, sha256 } from '../autorisasjon.ts';
+import { fast, type Innloggingsleverandoer } from '../innlogging.ts';
 import { opprettSesjon } from '../sesjon.ts';
 import { settInn } from './sqlserver_migrert.ts';
 import {
@@ -95,6 +96,13 @@ describe('registeret over inngangene', () => {
     }
   );
 
+  it('en fast sti treffer bare seg selv, også med tegn som betyr noe i et regulært uttrykk (#716 punkt 4)', () => {
+    const { sti } = fast('/api/a.b+c?(d)');
+    expect('/api/a.b+c?(d)').toMatch(sti);
+    for (const annen of ['/api/aXb+c?(d)', '/api/a.bbc?(d)', '/api/a.b+(d)', '/api/a.b+cd'])
+      expect(annen).not.toMatch(sti);
+  });
+
   it.each(RUTER.filter(erSaksrute).map((r) => [navn(r), r] as const))(
     '%s har prosjektrolle og kontraktsrolle, eller en begrunnelse for at den ikke krever rolle',
     (_navn, r) => {
@@ -131,9 +139,19 @@ async function adminI(o: Oppsett, leser: boolean): Promise<Testbruker> {
   return b;
 }
 
+const CATENDA: Innloggingsleverandoer = {
+  autorisasjonsadresse: (state) => `https://catenda.test/oauth2/authorize?state=${state}`,
+  byttKode: () => Promise.reject(new Error('Ingen kode i registertesten.')),
+  bruker: () => Promise.reject(new Error('Ingen bruker i registertesten.')),
+  prosjekter: () => Promise.reject(new Error('Ingen prosjekter i registertesten.')),
+  medlemmer: () => Promise.reject(new Error('Ingen medlemmer i registertesten.')),
+};
+
 describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () => {
   let o: Oppsett;
   let server: KjorendeServer;
+  // Med en innloggingsleverandør som står for Catenda, så de åpne inngangene ikke svarer 503.
+  let medInnlogging: KjorendeServer;
   let sak: string;
   let annenSak: string;
 
@@ -145,13 +163,18 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     o = await lagOppsett();
     [admin, leserAdmin] = [await adminI(o, false), await adminI(o, true)];
     server = await startServer(o);
+    medInnlogging = await startServer(o, {
+      innlogging: { frontend: 'https://app.example.no', oauth: CATENDA },
+    });
     sak = await opprettKjernesak(o);
     annenSak = await opprettKjernesak(o, o.annetProsjekt);
-  });
+    // Oppsettet mot en SQL Server som nettopp har startet, kan ta mer enn 10 s (#797).
+  }, 240_000);
   afterAll(async () => {
     await server?.stopp();
+    await medInnlogging?.stopp();
     if (o) await rydd(o);
-  });
+  }, 60_000);
 
   const hver = RUTER.filter(erSaksrute).map((r) => [navn(r), r] as const);
   const utenProsjekt = RUTER.filter(erUtenProsjekt).map((r) => [navn(r), r] as const);
@@ -278,27 +301,36 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     }
   );
 
-  // Kroppen `{}` og Catenda uten medlemsliste stopper etter tilgangen (400 og 503);
+  // Kroppen `{}` og Catenda uten medlemsliste stopper etter tilgangen;
   // hva inngangene gjør, prøves i `prosjekter.test.ts`.
+  const ETTER_TILGANGEN: Record<string, number> = {
+    'POST /api/projects/<prosjekt>/members/sync': 503,
+    'PATCH /api/projects/<prosjekt>/members/00000000-0000-0000-0000-000000000000': 400,
+  };
   it.each(utenSak.filter(([, r]) => r.tilgang.prosjektrolle === 'admin'))(
     '%s: kontrollsaken med admin i eget prosjekt kommer forbi tilgangen',
-    async (_n, r) => {
+    async (n, r) => {
       const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
         bruker: admin,
         prosjektId: o.prosjekt.id,
         kropp: kropp(r),
         metode: r.metode,
       });
-      expect([401, 403, 404]).not.toContain(svar.status);
+      expect(svar.status).toBe(ETTER_TILGANGEN[n]);
     }
   );
 
+  // Innloggingen sender til Catenda, og tilbakekallet uten forsøk til `login_failed`.
+  const OMDIRIGERING: Record<string, string> = {
+    'GET /api/auth/catenda/login': 'https://catenda.test/oauth2/authorize?state=',
+    'GET /api/auth/catenda/callback': 'https://app.example.no/login?error=login_failed',
+  };
   it.each(RUTER.filter(erAapen).map((r) => [navn(r), r] as const))(
-    '%s: uten sesjon kommer forbi tilgangen',
-    async (_n, r) => {
-      const svar = await kall(server.url, r.eksempel(''), { bruker: null, prosjektId: null });
-      expect(svar.status).not.toBe(401);
-      expect(svar.status).not.toBe(403);
+    '%s: uten sesjon kommer forbi tilgangen og omdirigerer',
+    async (n, r) => {
+      const svar = await fetch(`${medInnlogging.url}${r.eksempel('')}`, { redirect: 'manual' });
+      expect(svar.status).toBe(302);
+      expect(svar.headers.get('location')?.startsWith(OMDIRIGERING[n])).toBe(true);
     }
   );
 

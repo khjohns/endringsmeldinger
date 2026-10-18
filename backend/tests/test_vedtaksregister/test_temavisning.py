@@ -138,6 +138,28 @@ def test_lenkene_fra_3_1_skrives_om_til_mappen_visningen_ligger_i(tekst, forvent
     assert tv._lenker(tekst, {"gr-u10"}) == forventet
 
 
+@pytest.mark.parametrize("tekst", [
+    "[ekstern](//example.com/x)",
+    "[spørring](?q)",
+    "[tom](<>)",
+])
+def test_protokollrelative_lenker_og_maal_uten_sti_og_anker_staar_som_de_er(tekst):
+    """#759."""
+    assert tv._lenker(tekst, {"gr-u10"}) == tekst
+
+
+@pytest.mark.parametrize("tekst, forventet", [
+    ("[tabellen](../domenetabell/README.md (Tabellen))", "[tabellen](../../domenetabell/README.md (Tabellen))"),
+    ('[tabellen](x.md "t")', '[tabellen](../../plans/x.md "t")'),
+    ("[GR-U2](#gr-u2 (GR-U2))", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2 (GR-U2))"),
+])
+def test_en_lenke_med_tittel_i_parentes_eller_anfoerselstegn_faar_stien_skrevet_om_og_tittelen_bevart(
+    tekst, forventet
+):
+    """#759."""
+    assert tv._lenker(tekst, {"gr-u10"}) == forventet
+
+
 def test_visningen_sier_at_3_1_er_autoritativ_og_lager_ingen_sammenslatt_ordlyd(tema, kilder):
     tekst = tv.visning(tema, kilder)
     assert "**Avsnitt [3.1 i hovedplanen](" in tekst
@@ -254,6 +276,25 @@ def test_datoen_til_et_senere_vedtak_utenfor_temaet_endrer_kontrollsummen(tema, 
     senere_dato = copy.deepcopy(endret)
     _post(senere_dato["register"], "xx-u1")["dato"] = datetime.date(2026, 10, 13)
     assert tv.kontrollsum(tv.utdrag(tema, senere_dato)) != tv.kontrollsum(ut)
+
+
+@pytest.mark.parametrize("maal", [
+    "#{a}",
+    "2026-09-16-godkjenning-og-varig-levering.md#{a}",
+    "/docs/plans/2026-09-16-godkjenning-og-varig-levering.md#{a}",
+    "<#{a}> \"t\"",
+])
+def test_etiketten_til_et_vedtak_lenket_paa_hver_form_kommer_med_i_kontrollsummen(tema, kilder, maal):
+    """#759: utdraget kjenner de samme lenkemålene som `_lenker`, så en endret etikett gjør visningen foreldet."""
+    register = kilder["register"]
+    ut = tv.utdrag(tema, kilder)
+    medlemmer = {vr.anker(p) for p in ut["poster"]}
+    alle, _ = vr.indeks(register)
+    utenfor = next(a for a in alle if a not in medlemmer and a not in ut["etiketter"])
+    endret = copy.deepcopy(kilder)
+    post = tv.utdrag(tema, endret)["poster"][0]
+    post["folge"] = f"Se [vedtaket]({maal.format(a=utenfor)})."
+    assert utenfor in tv.utdrag(tema, endret)["etiketter"]
 
 
 def test_et_ukjent_vedtak_og_en_kjerne_utenfor_vedtakene_gir_feil(tema, kilder):

@@ -692,9 +692,19 @@ def _med_anbefalt(*navn: str, **endringer) -> dict:
     return post
 
 
-@pytest.mark.parametrize("svar", ["Ja til anbefalingen", "Ja til alle anbefalingene, merge #481"])
+@pytest.mark.parametrize("svar", [
+    "Ja til anbefalingen",
+    "Ja til alle anbefalingene, merge #481",
+    "Ja til anbefalingen. Det er ikke nødvendig å vente.",
+    "Svar: Ja til anbefalingen",
+    "«Ja til anbefalingen»",
+])
 def test_svaret_kan_slutte_seg_til_anbefalingen_naar_det_valgte_er_anbefalt(grunnregister, svar):
-    """#486: svaret nevner ingen bokstav, men det valgte alternativet er det anbefalte."""
+    """#486: svaret nevner ingen bokstav, men det valgte alternativet er det anbefalte.
+
+    #759: et forbeholdsord i en senere setning hindrer ikke, og setningen kan begynne
+    etter et kolon eller et anførselstegn.
+    """
     assert vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar))) == []
 
 
@@ -707,12 +717,33 @@ def test_svaret_kan_slutte_seg_til_anbefalingen_naar_det_valgte_er_anbefalt(grun
     "Ja til anbefalingen unntatt punkt 2",
     "Ja til alle anbefalingene. Men ikke for punkt 3",
     "Nei. Ja til anbefalingen bare om B faller bort",
+    "Ja til anbefalingen, med forbehold om punkt 2",
+    "Ja til anbefalingen dersom B faller bort",
+    "Ja til anbefalingen hvis B faller bort",
+    "Ja til anbefalingen kun for punkt 1",
+    "Ja til anbefalingen med mindre B faller bort",
+    "Ja til anbefalingen så nær som punkt 2",
     "Ja",
 ])
 def test_et_svar_som_avviser_eller_tar_forbehold_slutter_seg_ikke_til_anbefalingen(grunnregister, svar):
-    """#604: svaret må da nevne det valgte alternativet, selv om det er det anbefalte."""
+    """#604, #759: svaret må da nevne det valgte alternativet, selv om det er det anbefalte."""
     feil = vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar)))
-    assert "XX-U1: svaret nevner ikke det valgte alternativet «A»" in feil, feil
+    assert any(f.startswith("XX-U1: svaret nevner ikke det valgte alternativet «A»") for f in feil), feil
+
+
+@pytest.mark.parametrize("svar, ordet", [
+    ("Nei. Ja til anbefalingen bare om B faller bort", "bare"),
+    ("Ja til anbefalingen, med forbehold om punkt 2", "forbehold"),
+    ("Ja til alle anbefalingene. Men ikke for punkt 3", "Men"),
+    ("Ja til anbefalingen så nær som punkt 2", "så nær som"),
+])
+def test_feilmeldingen_nevner_forbeholdsordet_som_hindrer_tilslutningen(grunnregister, svar, ordet):
+    """#759: ordet i setningen med «Ja til anbefalingen» går foran et ord i setningen før."""
+    feil = vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar)))
+    assert (
+        f"XX-U1: svaret nevner ikke det valgte alternativet «A», og «{ordet}» gjør at svaret "
+        "ikke slutter seg til anbefalingen"
+    ) in feil, feil
 
 
 @pytest.mark.parametrize("anbefalte, grunn", [

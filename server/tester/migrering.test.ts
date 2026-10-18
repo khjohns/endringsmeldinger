@@ -23,6 +23,7 @@ import {
   MIGRASJONSMAPPE,
   migrer,
   MigreringAvvist,
+  somSetning,
   type Migrasjon,
 } from '../migrering.ts';
 import { katalog, opprettMigrertTestbase } from './sqlserver_migrert.ts';
@@ -64,6 +65,11 @@ describe('lesingen av migrasjonsfilene', () => {
     expect(delPaaGo('SELECT 1\nGO -- slutt\r')).toEqual(['SELECT 1']);
   });
 
+  it('avviser GO med mer etter, med linjenummeret, også etter en enslig CR først på linjen', () => {
+    expect(() => delPaaGo('SELECT 1\n\rGO 5')).toThrow(/^Linje 2 begynner med GO/);
+    expect(() => delPaaGo('SELECT 1\n \r\tGO;')).toThrow(/^Linje 2 begynner med GO/);
+  });
+
   it('deler ikke på GO inne i en linje eller i et navn', () => {
     expect(delPaaGo("SELECT N'GO' AS GOTO\nGOTO slutt")).toHaveLength(1);
   });
@@ -96,12 +102,12 @@ describe('lesingen av migrasjonsfilene', () => {
 
   it('feilen fra delingen sier hvilken fil den gjelder', () => {
     const m = mappe({ [A]: 'SELECT 1\nGO 2' });
-    expect(() => lesMigrasjoner(m)).toThrow(`${A}: Linje 2`);
-    try {
-      lesMigrasjoner(m);
-    } catch (feil) {
-      expect((feil as Error).cause).toBeInstanceOf(MigreringAvvist);
-    }
+    expect(() => lesMigrasjoner(m)).toThrow(
+      expect.objectContaining({
+        message: expect.stringContaining(`${A}: Linje 2`),
+        cause: expect.any(MigreringAvvist),
+      })
+    );
   });
 
   it.each([['20260101000000_a.SQL'], ['20260101000000_a.sql.bak'], ['README.md']])(
@@ -199,10 +205,47 @@ describe('kontrollen mot historikken', () => {
       expect(egenKonfig(pool as unknown as Parameters<typeof egenKonfig>[0])).toMatchObject({
         server: 's',
         requestTimeout: forventet,
+        options: { requestTimeout: forventet },
         pool: { min: 1, max: 1 },
       });
     }
   );
+
+  // Rekkefølgen og grensene er de `mssql` bruker for poolen (`tedious/connection-pool.js`).
+  it.each([
+    [
+      'grensen i options foran den på toppnivå',
+      { options: { requestTimeout: 1_000 }, requestTimeout: 0 },
+      90_000,
+    ],
+    ['en høyere grense i options', { options: { requestTimeout: 600_000 } }, 600_000],
+    ['grensen i timeout når requestTimeout mangler', { timeout: 120_000 }, 120_000],
+    ['en negativ grense som uten grense', { requestTimeout: -1 }, 0],
+    ['en uendelig grense i options som uten grense', { options: { requestTimeout: Infinity } }, 0],
+  ])('runnerens tidsgrense leser %s', (_, config, forventet) => {
+    const pool = { config: { server: 's', ...config } };
+    const egen = egenKonfig(pool as unknown as Parameters<typeof egenKonfig>[0]);
+    expect(egen.requestTimeout).toBe(forventet);
+    expect(egen.options?.requestTimeout).toBe(forventet);
+  });
+
+  it.each([
+    [
+      'uten punktum får punktum',
+      new Error('Connection lost - read ECONNRESET'),
+      'Connection lost - read ECONNRESET.',
+    ],
+    [
+      'med punktum får ikke ett til',
+      new Error("Invalid object name 'x'."),
+      "Invalid object name 'x'.",
+    ],
+    ['med linjeskift etter punktum', new Error('Login failed.\n'), 'Login failed.'],
+    ['uten tekst får navnet på feilen', new Error(''), 'Error.'],
+    ['som ikke er en Error, får teksten sin', 'brutt', 'brutt.'],
+  ])('feilmeldingen i en avvisning %s', (_, feil, forventet) => {
+    expect(somSetning(feil)).toBe(forventet);
+  });
 
   it('migrer avviser to filer med samme versjon før den kobler til basen', async () => {
     const a = fil('20260101000000');
@@ -218,6 +261,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
 
   beforeAll(async () => {
     base = await opprettTestbase('migrering');
+    // Historikktabellen finnes da også for en test som kjøres alene, der runneren
+    // ellers lager den i transaksjonen som rulles tilbake.
+    await migrer(base.pool, []);
   }, 240_000);
   afterAll(async () => {
     await base?.slett();
@@ -425,6 +471,86 @@ BEGIN TRANSACTION;`,
       await kjoeretid.slett();
     }
   }, 60_000);
+
+  it.each([['koe_runtime'], ['db_owner']])(
+    'avviser en identitet som ikke er dbo, også i %s, før den anvender noe',
+    async (rolle) => {
+      await base.pool
+        .request()
+        .batch("IF DATABASE_PRINCIPAL_ID(N'koe_runtime') IS NULL CREATE ROLE koe_runtime;");
+      const identitet = await opprettKjoeretid(base, { maks: 1, rolle });
+      try {
+        const m = mappe({ [A]: 'CREATE SCHEMA prove_s;' });
+        await expect(migrer(identitet.pool, lesMigrasjoner(m))).rejects.toThrow(
+          /^Runneren kjøres som koe_kjoeretid_[0-9a-f]{8}, ikke som dbo\. Migreringen krever databaseeieren, så skjemaene får eieren dbo\.$/
+        );
+        const svar = await base.pool
+          .request()
+          .query<{ n: number }>("SELECT COUNT(*) AS n FROM sys.schemas WHERE name = N'prove_s'");
+        expect(svar.recordset[0].n).toBe(0);
+      } finally {
+        await identitet.slett();
+      }
+    },
+    60_000
+  );
+
+  it('en fil som fanger en feil og etterlater transaksjonen dømt, avvises med filnavnet av feilen 3998 på slutten av satsen', async () => {
+    const m = mappe({
+      [A]: [
+        'CREATE TABLE dbo.prove_a (id int NOT NULL);',
+        'GO',
+        'BEGIN TRY',
+        '  SELECT 1/0;',
+        'END TRY',
+        'BEGIN CATCH',
+        'END CATCH',
+      ].join('\n'),
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    const feil = await migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
+    expect(feil).toBeInstanceOf(MigreringAvvist);
+    expect((feil as Error).message).toMatch(
+      /^20260101000000_a\.sql, sats 2: Uncommittable transaction .*\. Ingenting fra fila er lagret\.$/
+    );
+    expect(await aapneTransaksjoner()).toBe(0);
+    expect(await tabeller()).toEqual([]);
+    expect(await historikk()).toEqual([]);
+  });
+
+  it('en brutt forbindelse utenfor en fil gir MigreringAvvist, ikke en rå feil fra tedious', async () => {
+    const holder = base.pool.transaction();
+    await holder.begin();
+    try {
+      await holder
+        .request()
+        .batch(
+          "EXEC sp_getapplock @Resource = N'koe_migrering', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @DbPrincipal = N'db_owner';"
+        );
+      const m = mappe({ [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);' });
+      const kjoering = migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
+      let sesjon: number | undefined;
+      for (let i = 0; i < 40 && sesjon === undefined; i++) {
+        await new Promise((ok) => setTimeout(ok, 100));
+        sesjon = (
+          await base.pool.request().query<{
+            id: number;
+          }>("SELECT session_id AS id FROM sys.dm_exec_requests WHERE wait_resource LIKE N'APPLICATION%' AND database_id = DB_ID()")
+        ).recordset[0]?.id;
+      }
+      expect(sesjon).toBeTypeOf('number');
+      await base.pool.request().batch(`KILL ${sesjon};`);
+      const feil = await kjoering;
+      expect(feil).toBeInstanceOf(MigreringAvvist);
+      expect((feil as Error).message).toMatch(
+        /^Migreringen stoppet utenfor en fil: .*\. Anvendt i denne kjøringen: ingen\.$/
+      );
+      expect((feil as Error).cause).toBeDefined();
+    } finally {
+      await holder.rollback().catch(() => undefined);
+    }
+    expect(await tabeller()).toEqual([]);
+  }, 30_000);
 
   it('lagrer versjonen, filnavnet og sha256 av hele fila', async () => {
     const m = mappe({ [A]: '-- en kommentar\nCREATE TABLE dbo.prove_a (id int NOT NULL);' });
