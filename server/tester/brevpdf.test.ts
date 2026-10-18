@@ -25,7 +25,7 @@ const oppdrag = (brevtekst: Avsnitt[] | null) => ({
 /** Nok tekst til flere sider, med tegnene utenfor ASCII som brevene bruker. */
 const LANG: Avsnitt[] = Array.from({ length: 40 }, (_, i) => ({
   gjelder: `a${i}`,
-  laast: `Avsnitt ${i}: Totalentreprenøren krever endring etter NS 8407 § 33.4 – «varsel» om ÆØÅ æøå.`,
+  laast: `Avsnitt ${i}: Totalentreprenøren krever endring etter NS 8407 § 33.4 – «varsel» → ÆØÅ æøå.`,
   utdypning: `Utdypning ${i}: ${'Byggherren har pålagt en annen fundamentering. '.repeat(6)}`,
 }));
 
@@ -138,6 +138,17 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     const svar = brevdokument(oppdrag([{ gjelder: 'a', laast: 'Bra → 😀' }]), 'n');
     await expect(svar).rejects.toBeInstanceOf(UgjengivbartBrev);
     await expect(svar).rejects.toThrow('U+1F600');
+  });
+
+  it('avviser et usynlig tegn, som mykt bindestrek, i stedet for å sette det som mellomrom', async () => {
+    for (const [laast, kode] of [
+      ['myk\u00adbindestrek', 'U+00AD'],
+      ['null\u200bbredde', 'U+200B'],
+    ]) {
+      const svar = brevdokument(oppdrag([{ gjelder: 'a', laast }]), 'n');
+      await expect(svar).rejects.toBeInstanceOf(UgjengivbartBrev);
+      await expect(svar).rejects.toThrow(kode);
+    }
   });
 
   it('avviser ikke en feil som ikke gjelder skriften, som et tidsstempel som ikke kan tolkes, som skriftfeil (#795 punkt 3)', async () => {

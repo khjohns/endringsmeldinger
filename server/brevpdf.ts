@@ -35,10 +35,16 @@ export class TegnUtenforSkriften extends Error {}
 /** Skriften for tegnet, som indeks i `SKRIFTER`. */
 function skriftFor(tegn: string): number {
   const kode = tegn.codePointAt(0)!;
+  const navn = `U+${kode.toString(16).toUpperCase().padStart(4, '0')}`;
+  // fontkit setter et usynlig tegn, som mykt bindestrek, som mellomrom.
+  if (/\p{Default_Ignorable_Code_Point}/u.test(tegn))
+    throw new TegnUtenforSkriften(
+      `Brevteksten har det usynlige tegnet ${navn}, som PDF-en ville satt som mellomrom`
+    );
   const i = SKRIFTER.findIndex((s) => s.tegnsett.hasGlyphForCodePoint(kode));
   if (i < 0)
     throw new TegnUtenforSkriften(
-      `Brevteksten har tegnet U+${kode.toString(16).toUpperCase().padStart(4, '0')}, som skriftene i PDF-en ikke har`
+      `Brevteksten har tegnet ${navn}, som skriftene i PDF-en ikke har`
     );
   return i;
 }
