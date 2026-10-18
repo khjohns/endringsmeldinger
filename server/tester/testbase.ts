@@ -151,9 +151,10 @@ export async function lagOppsett(): Promise<Oppsett> {
 
 /**
  * Rettighetene testene trenger for å lese og endre jobbene som kjøreveien. I en
- * migrert base har brukeren ingen; prosedyrene går gjennom eierskapskjeden. De gis
- * bare så lenge setningen kjører, så en prosedyre som trenger dem, feiler i testene
- * som i drift (#778).
+ * migrert base har brukeren ingen; prosedyrene går gjennom eierskapskjeden. De gis og
+ * trekkes tilbake i samme transaksjon som setningen, så de aldri er synlige for en
+ * annen forbindelse: en jobbløkke som kjører samtidig, venter og ser bare rettighetene
+ * drift har (#778).
  */
 const TESTRETTIGHETER = [
   'SELECT ON koe.brevdokument',
@@ -168,9 +169,9 @@ const ta = TESTRETTIGHETER.map((r) => `REVOKE ${r} FROM koe_jobbkjoerer;`).join(
 
 /**
  * Setningen som eieren kjører som `koe_jobbkjoerer`, så radsikkerheten slipper den
- * gjennom, med `TESTRETTIGHETER` mens den kjører. Identiteten og rettighetene settes
- * tilbake også når setningen feiler, så forbindelsen i poolen ikke blir stående som
- * kjøreveien.
+ * gjennom, med `TESTRETTIGHETER` i transaksjonen. Feiler setningen, rulles den og
+ * rettighetene tilbake, og identiteten settes tilbake, så forbindelsen i poolen ikke
+ * blir stående som kjøreveien.
  */
 export function somJobbkjoerer<T>(
   o: Oppsett,
@@ -180,11 +181,14 @@ export function somJobbkjoerer<T>(
   const r = o.datalag.base.pool.request();
   for (const [navn, verdi] of Object.entries(parametre)) r.input(navn, verdi);
   return r.query<T>(
-    `${gi}
+    `BEGIN TRANSACTION;
+     ${gi}
      EXECUTE AS USER = 'koe_jobbkjoerer';
-     BEGIN TRY ${setning}; END TRY BEGIN CATCH REVERT; ${ta} THROW; END CATCH;
+     BEGIN TRY ${setning}; END TRY
+     BEGIN CATCH REVERT; IF XACT_STATE() <> 0 ROLLBACK; THROW; END CATCH;
      REVERT;
-     ${ta}`
+     ${ta}
+     COMMIT;`
   );
 }
 
