@@ -171,7 +171,7 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(await sak.send(grunnlagskrav)).toBe(false);
     expect(hent).toHaveBeenCalledTimes(2);
     expect(sak.versjon).toBe(2);
-    expect(sak.feil).toBe('Saken er endret. Last den inn på nytt.');
+    expect(sak.feil).toBe('Brevet ble ikke sendt. Saken er endret. Last den inn på nytt.');
     expect(sak.sender).toBe(false);
   });
 
@@ -185,7 +185,7 @@ describe('sakskonteksten for en TS-sak', () => {
 
     expect(await sak.send(grunnlagskrav)).toBe(false);
     expect(hent).toHaveBeenCalledTimes(1);
-    expect(sak.feil).toBe('Grunnlaget er allerede krevd.');
+    expect(sak.feil).toBe('Brevet ble ikke sendt. Grunnlaget er allerede krevd.');
   });
 
   it('sier at saken finnes når serveren svarer, og bygger saksbildet av journalen', async () => {
@@ -214,7 +214,7 @@ describe('sakskonteksten for en TS-sak', () => {
 
     expect(await sak.send(grunnlagskrav)).toBe(false);
     expect(sak.feil).toBe(
-      'Det er usikkert om kommandoen ble lagret. Prøv igjen: den lagres ikke to ganger.'
+      'Det er usikkert om brevet ble lagret. Prøv igjen: det lagres ikke to ganger.'
     );
     expect(sak.ventende).not.toBeNull();
     expect(await sak.provIgjen()).toBe(true);
@@ -246,11 +246,11 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.send({ ...grunnlagskrav, utdypning: 'En annen utdypning.' });
     expect(send.mock.calls[2][2]).not.toBe(send.mock.calls[0][2]);
     expect(sak.ventende).toBeNull();
-    expect(sak.feil).toBe('Kravet er avvist.');
+    expect(sak.feil).toBe('Brevet ble ikke sendt. Kravet er avvist.');
     // Tilgangskontrollen svarer før kommandoen er kjørt (server/autorisasjon.ts).
     await sak.send(grunnlagskrav);
     expect(sak.ventende).toBeNull();
-    expect(sak.feil).toBe('Tilgang kunne ikke bekreftes.');
+    expect(sak.feil).toBe('Brevet ble ikke sendt. Tilgang kunne ikke bekreftes.');
     // En proxy kan svare mens serveren skriver, og serveren kan feile etter COMMIT.
     await sak.send(grunnlagskrav);
     expect(sak.ventende).not.toBeNull();
@@ -283,5 +283,87 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.last();
     expect(sak.finnes).toBeNull();
     expect(sak.feil).toBe('Catenda svarte ikke.');
+  });
+
+  // Kilde: #695 p1. Bare det siste kallet skriver saken.
+  it('et eldre svar som kommer sist, overskriver ikke saken fra et nyere kall', async () => {
+    const nyere = [opprettet, skrevet(grunnlagskrav, [opprettet])];
+    let slipp: (k: Kjernesak) => void = () => {};
+    const hent = vi
+      .fn()
+      .mockReturnValueOnce(new Promise<Kjernesak>((r) => (slipp = r)))
+      .mockResolvedValueOnce(svar(nyere));
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent });
+    const foerste = sak.last();
+    expect(await sak.last()).toBe(true);
+    slipp(svar([opprettet]));
+    expect(await foerste).toBe(true);
+    expect(sak.versjon).toBe(2);
+  });
+
+  // Kilde: #695 p2 og #719 p6, p7 og p12.
+  it('en 404 på lastingen etter sendingen beholder saken, sier at den er utdatert, og en vellykket lasting fjerner meldingen', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-2', leveringsoppdrag: 'l-1', versjon: 2 });
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar([opprettet]))
+      .mockRejectedValueOnce(new ApiError(404, 'Saken finnes ikke.'))
+      .mockResolvedValueOnce(svar([opprettet, skrevet(grunnlagskrav, [opprettet])]));
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(true);
+    expect(sak.finnes).toBe(true);
+    expect(sak.utdatert).toBe(true);
+    expect(sak.versjon).toBe(1);
+    expect(sak.feil).toBe(
+      'Brevet er lagret, men saken kunne ikke lastes på nytt. Saken finnes ikke.'
+    );
+
+    expect(await sak.last()).toBe(true);
+    expect(sak.utdatert).toBe(false);
+    expect(sak.feil).toBeNull();
+    expect(sak.versjon).toBe(2);
+  });
+
+  // Kilde: #695 p3. En avvisning fra kjernen sendes ikke; serveren ville avvist den.
+  it('sender ikke en kommando kjernen avviser, og sier hvorfor', async () => {
+    const send = vi.fn();
+    const sak = lagKjernesak({ sakId: SAK, part: 'BH', hent: async () => svar([opprettet]), send });
+    await sak.last();
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(send).not.toHaveBeenCalled();
+    expect(sak.feil).toMatch(/^Brevet ble ikke sendt\. ./);
+  });
+
+  // Kilde: #737 p2. Kalleren skal ikke vise en gammel melding.
+  it('sier hvorfor når saken ikke er lastet, eller når et brev alt sendes', async () => {
+    let slipp: () => void = () => {};
+    const send = vi.fn(() => new Promise<never>((_, avvis) => (slipp = () => avvis(new Error()))));
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(sak.feil).toBe('Saken er ikke lastet. Last den på nytt og prøv igjen.');
+
+    await sak.last();
+    const foerste = sak.send(grunnlagskrav);
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(sak.feil).toBe('Et brev sendes allerede. Vent til det er ferdig.');
+    slipp();
+    await foerste;
+  });
+
+  // Kilde: #816 p3. Uten meldingen står «Prøv igjen» alene.
+  it('meldingen om et usikkert utfall står etter en ny lasting så lenge kommandoen venter', async () => {
+    const send = vi.fn().mockRejectedValue(new ApiError(0, 'Network error'));
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
+    await sak.last();
+    await sak.send(grunnlagskrav);
+    await sak.last();
+    expect(sak.ventende).not.toBeNull();
+    expect(sak.feil).toBe(
+      'Det er usikkert om brevet ble lagret. Prøv igjen: det lagres ikke to ganger.'
+    );
   });
 });

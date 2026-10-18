@@ -16,6 +16,7 @@
     onsend,
     onavbryt,
     dokument,
+    brev,
   }: {
     tilbakeTekst: string;
     /** Navnet på redigeringssteget kontrollen går tilbake til. Uten det vises ingen fremdrift. */
@@ -27,8 +28,10 @@
     onsend: () => void;
     onavbryt: () => void;
     dokument: Snippet;
+    /** Innholdet avkrysningen gjelder. Endres det, må det nye brevet krysses av på nytt (#729). */
+    brev: string;
   } = $props();
-  let kontrollert = $state(false);
+  let kontrollertBrev = $state<string | null>(null);
   // Brevet erstatter skjemaet i samme rullebeholder: start øverst.
   const tilToppen = (node: HTMLElement) => node.scrollIntoView?.({ block: 'start' });
 </script>
@@ -53,7 +56,7 @@
       <ApprovalPanel
         eyebrow="Utkast · ikke sendt"
         {...panel}
-        bind:confirmed={kontrollert}
+        bind:confirmed={() => kontrollertBrev === brev, (v) => (kontrollertBrev = v ? brev : null)}
         onprimary={onsend}
       >
         {#snippet primaryIcon()}<Send size={15} />{/snippet}

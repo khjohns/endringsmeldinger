@@ -15,6 +15,9 @@
  * `brevtekst` er `null`, og `dokument` er `null`, fordi brevet alt er sendt utenfor
  * appen og ikke blir et eget dokument i Catenda (LV-U11). Bare `dokument` avgjør om
  * oppdraget får en leveringsjobb (triggeren `koe.leveringsoppdrag_levering`).
+ *
+ * `vedlegg` er vedleggene brevet binder, med ID-en, filnavnet og summen brevet lagret
+ * (LV-U1, LV-U14). Leveringen av dem til Catenda hører til V-3 i #790.
  */
 
 import { createHash } from 'node:crypto';
@@ -22,13 +25,13 @@ import type { Brevdokument } from './catenda.ts';
 import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
 import { lesBrevPdf, skrivBrevPdf, TegnUtenforSkriften } from './brevpdf.ts';
 import { sjekksum } from './sjekksum.ts';
-import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
+import type { Avsnitt, Journalrad, Vedlegg } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
-export const OPPDRAGSFORMAT = 4;
+export const OPPDRAGSFORMAT = 5;
 
 /** For `server/tester/kommandoer.test.ts`, som L-2b eier i runde 6 (#764); fjernes etter. */
 export { sjekksum };
@@ -60,6 +63,7 @@ export function lagOppdrag(
     dokument: brevtekst
       ? { noekkel: rad.event_id, filnavn: `brev-${rad.sak_id}-${rad.versjon}.pdf` }
       : null,
+    vedlegg: (rad.data.dokumentasjon ?? []) as Vedlegg[],
     maal,
     status,
     kjerne: {

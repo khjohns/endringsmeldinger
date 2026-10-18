@@ -628,7 +628,7 @@
    "koe.app_membership_sync": {
     "kolonner": [
      ["project_id", "nvarchar(100)", "NOT NULL"],
-     ["catenda_project_id", "uniqueidentifier", "NOT NULL"],
+     ["catenda_project_id", "uniqueidentifier", "NULL"],
      ["synced_at", "datetime2(3)", "NOT NULL"],
      ["updated_at", "datetime2(3)", "NOT NULL"]
     ],

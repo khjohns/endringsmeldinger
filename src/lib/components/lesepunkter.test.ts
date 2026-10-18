@@ -12,9 +12,9 @@
  * For TS-sakene er lesepunktet `src/lib/kjernesak/` (#665). Bare der hentes
  * saken (`hentKjernesak`) og kalles utledningen, visningen, handlingene og
  * forhåndsvisningen i kjernen. Typeimporter er tillatt. Vakten kjenner igjen
- * en import fra `$kjerne/utledning/` og `$kjerne/kommandoer/` og en import av
- * `hentKjernesak`, ikke en relativ sti inn i kjernen; den fanger
- * `src/lib/kjernegrense.test.ts`.
+ * en import, en re-eksport og en dynamisk import fra `$kjerne/utledning/` og
+ * `$kjerne/kommandoer/`, og navnet `hentKjernesak`. Den kjenner ikke igjen en
+ * relativ sti inn i kjernen; den fanger `src/lib/kjernegrense.test.ts`.
  */
 
 import { readdirSync, readFileSync } from 'node:fs';
@@ -97,7 +97,11 @@ describe('lesepunktene for statusene', () => {
 });
 
 const KJERNELESING: [string, RegExp][] = [
-  ['kjernekall', /\bimport\s+(?!type\b)[^;'"]*?from\s+['"]\$kjerne\/(utledning|kommandoer)\//g],
+  [
+    'kjernekall',
+    /\b(?:import|export)\s+(?!type\b)[^;'"]*?from\s+['"]\$kjerne\/(utledning|kommandoer)\//g,
+  ],
+  ['kjernekall', /\bimport\s*\(\s*['"`]\$kjerne\/(utledning|kommandoer)\//g],
   ['kjernehenting', /\bhentKjernesak\b/g],
 ];
 
@@ -138,9 +142,20 @@ describe('lesepunktet for TS-sakene', () => {
           `  } from '$kjerne/kommandoer/skriving';`,
           `  import { hentKjernesak } from '$lib/api/kjerne';`,
           `  import { HOVEDKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';`,
+          `  export { visning } from '$kjerne/utledning/visning';`,
+          `  export type { Visning } from '$kjerne/utledning/visning';`,
+          `  export * from '$kjerne/kommandoer/skriving';`,
+          `  const skriving = await import('$kjerne/kommandoer/skriving');`,
           `</script>`,
         ].join('\n')
       )
-    ).toEqual(['2: kjernekall', '4: kjernekall', '8: kjernehenting']);
+    ).toEqual([
+      '2: kjernekall',
+      '4: kjernekall',
+      '8: kjernehenting',
+      '10: kjernekall',
+      '12: kjernekall',
+      '13: kjernekall',
+    ]);
   });
 });

@@ -17,7 +17,7 @@ import { createHash } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Avhengigheter, Forespoersel, Saksrute, Svar } from './app.ts';
 import { Nektet } from './autorisasjon.ts';
-import { feilnummer, sql, transaksjon, type Kontekst } from './datalag.ts';
+import { feilnummer, sql, transaksjon, UUID, type Kontekst } from './datalag.ts';
 import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 
 /** Under grensen i Python (arbeidsvalg 5 i #790); `stoerrelse` i tabellen har samme grense. */
@@ -132,8 +132,6 @@ function kontekst({ bruker, prosjekt, side }: Forespoersel): Kontekst {
   };
 }
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 interface Vedleggsrad {
   vedlegg_id: string;
   filnavn: string;
@@ -210,12 +208,19 @@ const attrTegn = (navn: string) =>
     (t) => `%${t.charCodeAt(0).toString(16).toUpperCase()}`
   );
 
+/** Vedlegg-ID-en fra stien med små bokstaver, eller `null` når den ikke er en UUID (#815 punkt 3). */
+const vedleggId = (f: Forespoersel): string | null => {
+  const id = f.ressurs?.toLowerCase();
+  return id && UUID.test(id) ? id : null;
+};
+
 async function lastNed(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
-  if (!f.ressurs || !UUID.test(f.ressurs)) return finnesIkke();
+  const id = vedleggId(f);
+  if (!id) return finnesIkke();
   const rad = await transaksjon(avh.datalag, kontekst(f), async (foresp) => {
     const svar = await foresp()
       .input('sak', sql.NVarChar(36), f.sakId)
-      .input('id', sql.UniqueIdentifier, f.ressurs)
+      .input('id', sql.UniqueIdentifier, id)
       .query<{
         filnavn: string;
         innhold: Buffer | null;
@@ -240,11 +245,12 @@ async function lastNed(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
 
 async function slett(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
   if (!f.side?.teamId) return UTEN_TEAM;
-  if (!f.ressurs || !UUID.test(f.ressurs)) return finnesIkke();
+  const id = vedleggId(f);
+  if (!id) return finnesIkke();
   try {
     const slettet = await transaksjon(avh.datalag, kontekst(f), async (foresp) => {
       const svar = await foresp()
-        .input('vedlegg_id', sql.UniqueIdentifier, f.ressurs)
+        .input('vedlegg_id', sql.UniqueIdentifier, id)
         .input('sak_id', sql.NVarChar(36), f.sakId)
         .execute<{ slettet: number }>('koe_api.slett_vedlegg');
       return svar.recordset[0].slettet;

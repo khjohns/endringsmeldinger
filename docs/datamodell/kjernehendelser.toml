@@ -277,6 +277,17 @@ felt = ["gjelder", "laast", "utdypning"]
 grunnlag = "LV-U2, LV-U3, LV-U4, B-13 om begrunnelsestekst, KA-U22, KA-U25"
 
 [[del]]
+navn = "dokumentasjon"
+beskrivelse = """
+Vedleggene brevet binder, ett per vedlegg: ID-en i mellomlageret (`vedlegg_id`),
+filnavnet (`filnavn`) og SHA-256 av innholdet (`innhold_sha256`). Klienten oppgir
+ID-en, og serveren fyller inn filnavnet og summen fra mellomlageret i samme
+transaksjon som brevet skrives og vedlegget bindes. Et registrert brev har brevet
+som vedlegg."""
+felt = ["vedlegg_id", "filnavn", "innhold_sha256"]
+grunnlag = "LV-U14, LV-U1, OV-U4, KT-U5, arbeidsvalg 3, 4 og 10 i #790"
+
+[[del]]
 navn = "utregning"
 spor = "vederlag"
 beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet, og det subsidiære standpunktet ved preklusjon etter § 34.1.2."
