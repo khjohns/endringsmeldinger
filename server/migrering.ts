@@ -13,6 +13,12 @@
  * Én applås i basen, eid av runnerens sesjon, gjør at to runnere ikke anvender
  * samme fil.
  *
+ * Runneren kjøres som `dbo`, databaseeieren, og avviser andre identiteter (#564).
+ * Da eies skjemaene filene lager, av `dbo`, og eierskapskjeden fra `koe_api` og
+ * `koe_drift` til tabellene og predikatene holder (#567). Å gi skjemaene eieren
+ * `dbo` i ettertid ville fjernet rettighetene på objektene i dem. Hvem som er
+ * databaseeier, hører til utrullingen (A8 og A9 i #78).
+ *
  * Historikktabellen er runnerens bokføring og lages av runneren selv; alt annet
  * i skjemaet kommer fra filene (`.claude/rules/database.md`).
  */
@@ -29,7 +35,7 @@ const FILNAVN = /^(\d{14})_[a-z0-9_]+\.sql$/;
 // `\r` er med for en `GO`-linje som slutter på en enslig CR (#577).
 const GO = /^[ \t\r]*GO[ \t\r]*(?:--[^\n]*)?$/i;
 /** `GO` fulgt av noe annet enn et navn, som `GO 5`, `GO;` og `GO` med en blokkommentar. */
-const ANNEN_GO = /^[ \t]*GO(?![\p{L}\p{N}_@#$])/iu;
+const ANNEN_GO = /^[ \t\r]*GO(?![\p{L}\p{N}_@#$])/iu;
 const BOM = Buffer.from([0xef, 0xbb, 0xbf]);
 const APPLAAS = 'koe_migrering';
 const LAASVENT = 60_000;
@@ -205,18 +211,45 @@ IF OBJECT_ID(N'koe_migrering.historikk', N'U') IS NULL
   );`;
 
 /**
+ * Tidsgrensen `mssql` gir forespørslene med `config`, i ms, der 0 er uten grense:
+ * `options.requestTimeout`, så `requestTimeout`, så `timeout`, ellers 15 s, og en
+ * negativ eller uendelig grense er uten grense (`tedious/connection-pool.js`).
+ */
+function poolensGrense(config: sql.config & { timeout?: number }): number {
+  const grense =
+    config.options?.requestTimeout ?? config.requestTimeout ?? config.timeout ?? 15_000;
+  if (Number.isNaN(grense)) return 15_000;
+  return grense < 0 || grense === Infinity ? 0 : grense;
+}
+
+/**
  * Konfigurasjonen for runnerens egen forbindelse: poolens, med én forbindelse og
- * tidsgrensen `TIDSGRENSE` når poolens er lavere. `requestTimeout: 0` er uten
- * grense og beholdes, så en lang sats får poolens grense (#564).
+ * tidsgrensen `TIDSGRENSE` når poolens er lavere. En pool uten grense beholdes
+ * uten, så en lang sats får poolens grense (#564, #641). Grensen settes både på
+ * toppnivå og i `options`, der `mssql` leser den først.
  */
 export function egenKonfig(pool: sql.ConnectionPool): sql.config {
   const { config } = pool as unknown as { config: sql.config };
-  const grense = config.requestTimeout ?? 15_000;
+  const grense = poolensGrense(config);
+  const requestTimeout = grense === 0 ? 0 : Math.max(grense, TIDSGRENSE);
   return {
     ...config,
-    requestTimeout: grense === 0 ? 0 : Math.max(grense, TIDSGRENSE),
+    requestTimeout,
+    options: { ...config.options, requestTimeout },
     pool: { ...config.pool, min: 1, max: 1 },
   };
+}
+
+/** Avviser en annen identitet enn `dbo` før runneren tar applåsen. */
+async function kontrollerIdentitet(egen: sql.ConnectionPool): Promise<void> {
+  const { bruker } = (
+    await egen.request().query<{ bruker: string }>('SELECT USER_NAME() AS bruker')
+  ).recordset[0];
+  if (bruker !== 'dbo')
+    throw new MigreringAvvist(
+      `Runneren kjøres som ${bruker}, ikke som dbo. Migreringen krever databaseeieren, ` +
+        'så skjemaene får eieren dbo.'
+    );
 }
 
 /**
@@ -323,7 +356,15 @@ async function anvendNeste(
         }
       );
     }
-    const etter = await tilstand(egen);
+    let etter: Forbindelsestilstand;
+    try {
+      etter = await tilstand(egen);
+    } catch (feil) {
+      throw new MigreringAvvist(
+        `${sted}: ${(feil as Error).message}${await lagret(egen, runnerens)}`,
+        { cause: feil }
+      );
+    }
     if (etter.id !== runnerens.id || etter.nivaa !== runnerens.nivaa)
       throw new MigreringAvvist(
         `${sted}: satsen avsluttet eller åpnet en transaksjon (@@TRANCOUNT ${etter.nivaa}). ` +
@@ -331,16 +372,23 @@ async function anvendNeste(
           (await lagret(egen, runnerens))
       );
   }
-  await egen
-    .request()
-    .input('versjon', sql.Char(14), neste.versjon)
-    .input('filnavn', sql.NVarChar(260), neste.filnavn)
-    .input('sha256', sql.Char(64), neste.sha256)
-    .batch(
-      `DROP TABLE #koe_migrering;
-       INSERT koe_migrering.historikk (versjon, filnavn, sha256) VALUES (@versjon, @filnavn, @sha256);
-       COMMIT;`
+  try {
+    await egen
+      .request()
+      .input('versjon', sql.Char(14), neste.versjon)
+      .input('filnavn', sql.NVarChar(260), neste.filnavn)
+      .input('sha256', sql.Char(64), neste.sha256)
+      .batch(
+        `DROP TABLE #koe_migrering;
+         INSERT koe_migrering.historikk (versjon, filnavn, sha256) VALUES (@versjon, @filnavn, @sha256);
+         COMMIT;`
+      );
+  } catch (feil) {
+    throw new MigreringAvvist(
+      `${neste.filnavn}, historikkraden: ${(feil as Error).message}${await lagret(egen, runnerens)}`,
+      { cause: feil }
     );
+  }
   return neste.versjon;
 }
 
@@ -398,15 +446,24 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
   try {
     forbindelse = await (egenPool as unknown as Utlaan).acquire(egenPool);
     const egen = fast(egenPool, forbindelse);
+    const kjoert: string[] = [];
     try {
       await egen.request().batch('SET XACT_ABORT ON;');
+      await kontrollerIdentitet(egen);
       await laas(egen);
-      const kjoert: string[] = [];
       for (;;) {
         const versjon = await anvendNeste(egen, filer);
         if (versjon === undefined) return kjoert;
         kjoert.push(versjon);
       }
+    } catch (feil) {
+      if (feil instanceof MigreringAvvist) throw feil;
+      // En feil utenfor en fil, som at forbindelsen er brutt før neste fil (#641).
+      throw new MigreringAvvist(
+        `Migreringen stoppet utenfor en fil: ${(feil as Error).message}. ` +
+          `Anvendt i denne kjøringen: ${kjoert.join(', ') || 'ingen'}.`,
+        { cause: feil }
+      );
     } finally {
       await egen
         .request()
@@ -416,7 +473,9 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
            IF APPLOCK_MODE(N'db_owner', @ressurs, N'Session') = 'Exclusive'
              EXEC sp_releaseapplock @Resource = @ressurs, @LockOwner = 'Session', @DbPrincipal = N'db_owner';`
         )
-        .catch(() => undefined);
+        .catch((feil: unknown) => {
+          console.error('Migreringen: transaksjonen og applåsen kunne ikke ryddes:', feil);
+        });
     }
   } finally {
     // Poolen lukker forbindelsen når den selv lukkes.
