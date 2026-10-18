@@ -1769,8 +1769,6 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 >   (`review-oppfølging`), og fire er avvist i PR-en. Samspillsreviewet med bl.a.
 >   LV-U14, KT-U5, OV-U4 og MM-U9 ga ingen brudd. Feilinnføringene F125, F126,
 >   F164, F167 og F287–F291 ble oppdaget, og `feilinnfoering.ts --ankre` er grønn.
-> - Ikke levert: V-3 (leveringen av vedleggene til Catenda) og V-4 (klienten),
->   jf. #790.
 
 ### F3 — Øvrige adaptere og drift
 
