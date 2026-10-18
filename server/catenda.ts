@@ -14,6 +14,7 @@
 
 import { catendaId, type Catenda } from './autorisasjon.ts';
 import type { Medlem } from './medlemskap.ts';
+import { UUID } from './datalag.ts';
 
 export const CATENDA = 'https://api.catenda.com';
 
@@ -411,8 +412,6 @@ function referansesti(boardId: string, topicId: string): string {
 
 /** Typen topicen for en sak fra appen får (#741 punkt 15). */
 export const TOPICTYPE = 'Krav om endringsordre';
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export interface NyTopic {
   tittel: string;
