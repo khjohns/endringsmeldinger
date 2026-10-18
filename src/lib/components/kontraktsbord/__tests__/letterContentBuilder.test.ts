@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { buildLetterContent } from '../letterContentBuilder';
-import type { SakState, TimelineEvent } from '$lib/types/timeline';
+import type { SakState, SporType, TimelineEvent } from '$lib/types/timeline';
 
 const sak = { sak_id: 'KOE-1', grunnlag: { tittel: 'Tegninger' } } as SakState;
-const hendelse = (actorrole: 'TE' | 'BH', spor: TimelineEvent['spor']) =>
+const hendelse = (actorrole: 'TE' | 'BH', spor: SporType) =>
   ({
     id: 'e1',
     type: 'no.oslo.koe.grunnlag_opprettet',
@@ -11,7 +11,7 @@ const hendelse = (actorrole: 'TE' | 'BH', spor: TimelineEvent['spor']) =>
     time: '2026-10-10T12:00:00Z',
     spor,
     data: { begrunnelse: 'Begrunnelse.' },
-  }) as TimelineEvent;
+  }) as TimelineEvent & { spor: SporType };
 
 // HF-U2 og arbeidsvalget 10.10 i #313: «grunnlaget», ikke «ansvarsgrunnlaget».
 describe('brevet for grunnlaget', () => {
@@ -42,5 +42,21 @@ describe('brevet for grunnlaget', () => {
     expect(buildLetterContent(hendelse('BH', 'frist'), sak).tittel).toBe(
       'Svar på krav om fristforlengelse — Tegninger'
     );
+  });
+});
+
+// #365: brevet for sporet forutsetter et spor. En hendelse uten spor får ikke brevet for
+// grunnlaget; et lagret brev vises fortsatt.
+describe('en hendelse uten spor', () => {
+  const utenSpor = { ...hendelse('BH', 'grunnlag'), type: 'forsering_respons', spor: null };
+
+  it('får ikke noe brev', () => {
+    expect(buildLetterContent(utenSpor as TimelineEvent, sak)).toBeNull();
+  });
+
+  it('viser det lagrede brevet', () => {
+    const brev = buildLetterContent(hendelse('BH', 'frist'), sak);
+    const lagret = { ...utenSpor, data: { brev } } as unknown as TimelineEvent;
+    expect(buildLetterContent(lagret, sak)).toEqual(brev);
   });
 });
