@@ -656,6 +656,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'sak_catenda_topic',
         'sak_metadata',
         'skrivetidspunkt',
+        'toemmingsvern',
         'vedlegg',
         'vedleggskvittering',
       ]);

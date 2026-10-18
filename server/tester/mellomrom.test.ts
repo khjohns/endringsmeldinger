@@ -33,15 +33,25 @@ const TE1 = team();
  * Katalogvakten (#608, #643). En tekstkolonne trenger kontrollen mot mellomrom
  * til slutt når den sammenliknes med `=`: i en indeksnøkkel, i en fremmednøkkel
  * (begge sider), i en kontroll som godtar en lukket mengde verdier, eller når
- * policyen eller en funksjon i `koe_sikkerhet` leser den
- * (`sys.sql_expression_dependencies`). Resten står i `OGSAA_KONTROLL`. Vakten
+ * policyen, en funksjon i `koe_sikkerhet` eller en funksjon eller visning de
+ * leser, leser den (`sys.sql_expression_dependencies`). Resten står i `OGSAA_KONTROLL`. Vakten
  * leser kolonnene og definisjonene i katalogen, ikke navnene på kontrollene.
  * Kontrollen må være på og betrodd, og definisjonen må være lik en av `MALER`,
  * slik basen normaliserer den.
  */
 const TEKSTKOLONNER = `
+WITH sikkerhet AS (
+  SELECT object_id FROM sys.objects
+   WHERE OBJECT_SCHEMA_NAME(object_id) = N'koe_sikkerhet' AND type IN ('FN', 'IF', 'TF')
+  UNION SELECT object_id FROM sys.security_policies
+  UNION ALL
+  SELECT d.referenced_id
+    FROM sys.sql_expression_dependencies d JOIN sikkerhet s ON s.object_id = d.referencing_id
+    JOIN sys.objects o ON o.object_id = d.referenced_id
+   WHERE o.type IN ('FN', 'IF', 'TF', 'V') AND d.referenced_minor_id = 0
+)
 SELECT OBJECT_SCHEMA_NAME(c.object_id) + N'.' + OBJECT_NAME(c.object_id) + N'.' + c.name AS kolonne,
-       TYPE_NAME(c.system_type_id) AS type, c.max_length AS bytes,
+       TYPE_NAME(c.system_type_id) AS type, c.max_length AS bytes, c.collation_name AS sortering,
        CAST(IIF(EXISTS (SELECT 1 FROM sys.index_columns ic
                          WHERE ic.object_id = c.object_id AND ic.column_id = c.column_id AND ic.key_ordinal > 0)
              OR EXISTS (SELECT 1 FROM sys.foreign_key_columns f
@@ -50,8 +60,7 @@ SELECT OBJECT_SCHEMA_NAME(c.object_id) + N'.' + OBJECT_NAME(c.object_id) + N'.' 
                 1, 0) AS bit) AS i_noekkel,
        CAST(IIF(EXISTS (SELECT 1 FROM sys.sql_expression_dependencies d
                          WHERE d.referenced_id = c.object_id AND d.referenced_minor_id = c.column_id
-                           AND (OBJECT_SCHEMA_NAME(d.referencing_id) = N'koe_sikkerhet'
-                                OR d.referencing_id IN (SELECT object_id FROM sys.security_policies))),
+                           AND d.referencing_id IN (SELECT object_id FROM sikkerhet)),
                 1, 0) AS bit) AS i_sikkerhet
   FROM sys.columns c JOIN sys.tables t ON t.object_id = c.object_id
  WHERE t.is_ms_shipped = 0 AND TYPE_NAME(c.system_type_id) IN (N'nvarchar', N'nchar', N'varchar', N'char')`;
@@ -59,13 +68,22 @@ SELECT OBJECT_SCHEMA_NAME(c.object_id) + N'.' + OBJECT_NAME(c.object_id) + N'.' 
  * `sys.sql_expression_dependencies` har kolonnen bare for en referanse med
  * `SCHEMABINDING`; ellers er `referenced_minor_id` 0, og kravet ville ikke blitt
  * utledet. Policyen binder predikatfunksjonene (`tilgang.test.ts`), så dette
- * gjelder de andre funksjonene i `koe_sikkerhet`.
+ * gjelder de andre funksjonene i `koe_sikkerhet` og funksjonene og visningene de
+ * leser, i hvilket som helst skjema (#673).
  */
 const UBUNDNE_SIKKERHETSFUNKSJONER = `
-SELECT OBJECT_SCHEMA_NAME(m.object_id) + N'.' + OBJECT_NAME(m.object_id) AS funksjon
-  FROM sys.sql_modules m JOIN sys.objects o ON o.object_id = m.object_id
- WHERE OBJECT_SCHEMA_NAME(m.object_id) = N'koe_sikkerhet' AND o.type IN ('FN', 'IF', 'TF')
-   AND m.is_schema_bound = 0`;
+WITH sikkerhet AS (
+  SELECT object_id FROM sys.objects
+   WHERE OBJECT_SCHEMA_NAME(object_id) = N'koe_sikkerhet' AND type IN ('FN', 'IF', 'TF')
+  UNION ALL
+  SELECT d.referenced_id
+    FROM sys.sql_expression_dependencies d JOIN sikkerhet s ON s.object_id = d.referencing_id
+    JOIN sys.objects o ON o.object_id = d.referenced_id
+   WHERE o.type IN ('FN', 'IF', 'TF', 'V') AND d.referenced_minor_id = 0
+)
+SELECT DISTINCT OBJECT_SCHEMA_NAME(m.object_id) + N'.' + OBJECT_NAME(m.object_id) AS funksjon
+  FROM sys.sql_modules m
+ WHERE m.object_id IN (SELECT object_id FROM sikkerhet) AND m.is_schema_bound = 0`;
 const KONTROLLER = `
 SELECT OBJECT_SCHEMA_NAME(parent_object_id) + N'.' + OBJECT_NAME(parent_object_id) AS tabell,
        COL_NAME(parent_object_id, parent_column_id) AS kolonne, name AS navn, definition AS definisjon,
@@ -84,6 +102,7 @@ interface Katalog {
     kolonne: string;
     type: string;
     bytes: number;
+    sortering: string;
     i_noekkel: boolean;
     i_sikkerhet: boolean;
   }[];
@@ -180,7 +199,8 @@ const UTEN_KONTROLL: Record<string, Grunn> = {
  * også når den er like streng.
  */
 const MALER = [
-  '(datalength([{k}])=datalength(rtrim([{k}])))',
+  // Synlige ASCII-tegn, for ID- og nøkkelkolonnene uten en strengere form (#609).
+  "(NOT ([{k}]) collate Latin1_General_100_BIN2_UTF8 like N'%[^!-~]%')",
   "(datalength([{k}])=({n}) AND NOT ([{k}]) collate Latin1_General_100_BIN2_UTF8 like N'%[^0-9a-f]%')",
   '(TRY_CAST([{k}] AS [uniqueidentifier]) IS NOT NULL AND datalength([{k}])=({n}) AND ([{k}]) collate Latin1_General_100_BIN2_UTF8=lower([{k}]))',
   '([{k}] IS NULL OR TRY_CAST([{k}] AS [uniqueidentifier]) IS NOT NULL AND datalength([{k}])=({n}) AND ([{k}]) collate Latin1_General_100_BIN2_UTF8=lower([{k}]))',
@@ -189,8 +209,18 @@ const MALER = [
   "(NOT ([{k}]) collate Latin1_General_100_BIN2_UTF8 like N'%[^-a-z0-9_]%')",
 ];
 
+/**
+ * Sorteringen hver tekstkolonne må ha. Kontrollene, `=`, `IN` og nøklene skiller
+ * da hvert tegn og store og små bokstaver (#609, #704).
+ */
+const BIN2 = 'Latin1_General_100_BIN2_UTF8';
+
+/** Tekstkolonnene med en annen sortering enn `BIN2`. */
+const utenBinaerSortering = (k: Katalog) =>
+  k.kolonner.filter((c) => c.sortering !== BIN2).map((c) => c.kolonne);
+
 const iRegExp = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const mellomromskontroll = (k: string) => MALER[0].replaceAll('{k}', k);
+const tegnklassekontroll = (k: string) => MALER[0].replaceAll('{k}', k);
 
 /** Malen definisjonen er lik for kolonnen `k`, med den faste lengden når malen har en. */
 function form(k: string, definisjon: string): { lengde?: number } | undefined {
@@ -266,6 +296,14 @@ function fastLengde(k: Katalog, kolonne: string): number | undefined {
   return undefined;
 }
 
+/** Lengden i byte av `v` i kolonnens koding: UTF-16 for `nchar` og `nvarchar`, ellers sorteringens tegnsett. */
+function bytesI(c: Katalog['kolonner'][number], v: string): number {
+  if (c.type.startsWith('n')) return Buffer.byteLength(v, 'utf16le');
+  return c.sortering.endsWith('_UTF8')
+    ? Buffer.byteLength(v, 'utf8')
+    : Buffer.byteLength(v, 'latin1');
+}
+
 /** Linjene i `grunner` der grunnen ikke holder i katalogen. */
 function uholdbareGrunner(k: Katalog, grunner: Record<string, Grunn> = UTEN_KONTROLL): string[] {
   return Object.entries(grunner)
@@ -273,25 +311,30 @@ function uholdbareGrunner(k: Katalog, grunner: Record<string, Grunn> = UTEN_KONT
       const c = k.kolonner.find((c) => c.kolonne === kolonne);
       if (!c) return true;
       if (g.grunn === 'fast_bredde') return c.type !== 'char' && c.type !== 'nchar';
-      if (g.grunn === 'fremmednoekkel')
+      if (g.grunn === 'fremmednoekkel') {
+        const lengde = fastLengde(k, g.til);
         return (
           !k.fremmednoekler.some((f) => f.fra === kolonne && f.til === g.til && f.ok) ||
-          fastLengde(k, kolonne) === undefined
+          lengde === undefined ||
+          c.bytes > lengde
         );
+      }
       const kontroll = kontrollerPaa(k, kolonne).find((kt) => kt.navn === g.kontroll && kt.ok);
       const verdier = kontroll && verdimengde(del(kolonne)[1], kontroll.definisjon);
-      const tegnbytes = c.type.startsWith('n') ? 2 : 1;
-      return !verdier || verdier.some((v) => v.length * tegnbytes !== c.bytes);
+      return !verdier || verdier.some((v) => bytesI(c, v) !== c.bytes);
     })
     .map(([kolonne]) => kolonne)
     .sort();
 }
 
-/** Kontrollene som heter `…_uten_mellomrom`, men ikke er den kontrollen på sin kolonne, på og betrodd. */
+/**
+ * Kontrollene som heter `…_tegnklasse`, men ikke er den kontrollen på sin
+ * kolonne, på og betrodd, og de som fortsatt heter `…_uten_mellomrom` (#609).
+ */
 function uthulteKontroller(k: Katalog): string[] {
   return k.kontroller
-    .filter((c) => c.navn.endsWith('_uten_mellomrom'))
-    .filter((c) => !c.ok || !c.kolonne || c.definisjon !== mellomromskontroll(c.kolonne))
+    .filter((c) => c.navn.endsWith('_tegnklasse') || c.navn.endsWith('_uten_mellomrom'))
+    .filter((c) => !c.ok || !c.kolonne || c.definisjon !== tegnklassekontroll(c.kolonne))
     .map((c) => c.navn)
     .sort();
 }
@@ -312,11 +355,12 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
   const kolonne = (
     kolonne: string,
     bytes: number,
-    valg: { noekkel?: boolean; sikkerhet?: boolean } = {}
+    valg: { noekkel?: boolean; sikkerhet?: boolean; type?: string } = {}
   ) => ({
     kolonne,
-    type: 'nvarchar',
+    type: valg.type ?? 'nvarchar',
     bytes,
+    sortering: BIN2,
     i_noekkel: valg.noekkel ?? false,
     i_sikkerhet: valg.sikkerhet ?? false,
   });
@@ -331,7 +375,7 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
       kolonne('koe.notat.sak_id', 72, { noekkel: true }),
     ],
     kontroller: [
-      kontroll('koe.projects', 'id', mellomromskontroll('id'), 'projects_id_uten_mellomrom'),
+      kontroll('koe.projects', 'id', tegnklassekontroll('id'), 'projects_id_tegnklasse'),
       kontroll(
         'koe.notat',
         'aktor_team_id',
@@ -397,14 +441,14 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
     const k = katalog();
     k.kontroller[0].definisjon = '((1)=(1))';
     expect(krav(k)).toEqual(['koe.projects.id']);
-    expect(uthulteKontroller(k)).toEqual(['projects_id_uten_mellomrom']);
+    expect(uthulteKontroller(k)).toEqual(['projects_id_tegnklasse']);
   });
 
   it('en kontroll som er slått av eller ikke betrodd, gir avvik', () => {
     const k = katalog();
     k.kontroller[0].ok = false;
     expect(krav(k)).toEqual(['koe.projects.id']);
-    expect(uthulteKontroller(k)).toEqual(['projects_id_uten_mellomrom']);
+    expect(uthulteKontroller(k)).toEqual(['projects_id_tegnklasse']);
   });
 
   it.each([
@@ -445,6 +489,70 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
     const avslaatt = katalog();
     avslaatt.fremmednoekler[0].ok = false;
     expect(uholdbareGrunner(avslaatt, grunner)).toEqual(['koe.notat.sak_id']);
+  });
+
+  it('fremmednoekkel holder ikke når den faste lengden kommer fra en annen nøkkel enn målet (#673)', () => {
+    const k = katalog();
+    k.kontroller = k.kontroller.filter((c) => c.tabell !== 'koe.sak_metadata');
+    k.kolonner.push(kolonne('koe.hendelse.event_id', 72, { noekkel: true }));
+    k.kontroller.push(
+      kontroll(
+        'koe.hendelse',
+        'event_id',
+        '(TRY_CAST([event_id] AS [uniqueidentifier]) IS NOT NULL AND datalength([event_id])=(72) AND ([event_id]) collate Latin1_General_100_BIN2_UTF8=lower([event_id]))'
+      )
+    );
+    k.fremmednoekler.push({ fra: 'koe.notat.sak_id', til: 'koe.hendelse.event_id', ok: true });
+    expect(uholdbareGrunner(k, grunner)).toEqual(['koe.notat.sak_id']);
+  });
+
+  it('fremmednoekkel holder ikke når kolonnens egen kontroll gir lengden, men målet ikke har fast lengde (#673)', () => {
+    const k = katalog();
+    k.kontroller = k.kontroller.filter((c) => c.tabell !== 'koe.sak_metadata');
+    k.kontroller.push(
+      kontroll(
+        'koe.notat',
+        'sak_id',
+        '(TRY_CAST([sak_id] AS [uniqueidentifier]) IS NOT NULL AND datalength([sak_id])=(72) AND ([sak_id]) collate Latin1_General_100_BIN2_UTF8=lower([sak_id]))'
+      )
+    );
+    expect(uholdbareGrunner(k, grunner)).toEqual(['koe.notat.sak_id']);
+  });
+
+  it.each<[string, string, number, string, string[]]>([
+    ['varchar med UTF-8 og en verdi utenfor ASCII', 'varchar', 2, BIN2, []],
+    ['varchar med UTF-8 og en for bred kolonne', 'varchar', 3, BIN2, ['koe.notat.spor']],
+    ['varchar med Latin1', 'varchar', 1, 'Latin1_General_100_BIN2', []],
+    ['nvarchar', 'nvarchar', 2, BIN2, []],
+  ])(
+    'verdiene_fyller_kolonnen regner lengden i byte i kolonnens koding: %s (#673)',
+    (_, type, bytes, sortering, uholdbare) => {
+      const k = katalog();
+      k.kolonner.push({ ...kolonne('koe.notat.spor', bytes, { type }), sortering });
+      k.kontroller.push(kontroll('koe.notat', 'spor', "([spor]='æ')", 'notat_spor'));
+      const g: Record<string, Grunn> = {
+        'koe.notat.spor': { grunn: 'verdiene_fyller_kolonnen', kontroll: 'notat_spor' },
+      };
+      expect(uholdbareGrunner(k, g)).toEqual(uholdbare);
+    }
+  );
+
+  it('en kontroll som fortsatt heter …_uten_mellomrom, med RTRIM, gir avvik (#609)', () => {
+    const k = katalog();
+    k.kontroller[0] = kontroll(
+      'koe.projects',
+      'id',
+      '(datalength([id])=datalength(rtrim([id])))',
+      'projects_id_uten_mellomrom'
+    );
+    expect(krav(k)).toEqual(['koe.projects.id']);
+    expect(uthulteKontroller(k)).toEqual(['projects_id_uten_mellomrom']);
+  });
+
+  it('en kolonne med en annen sortering enn den binære gir avvik (#609)', () => {
+    const k = katalog();
+    k.kolonner[0].sortering = 'SQL_Latin1_General_CP1_CI_AS';
+    expect(utenBinaerSortering(k)).toEqual(['koe.projects.id']);
   });
 
   it('fast_bredde holder ikke for nvarchar', () => {
@@ -610,7 +718,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         'sak_metadata',
         'prosjekt_id',
         { prosjekt_id: `${P1} ` },
-        'sak_metadata_prosjekt_id_uten_mellomrom',
+        'sak_metadata_prosjekt_id_tegnklasse',
       ],
       [
         'sak_metadata',
@@ -618,15 +726,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         { sakstype: 'endringsforespoersel ' },
         'sak_metadata_sakstype_form',
       ],
-      ['hendelse', 'prosjekt_id', { prosjekt_id: `${P1} ` }, 'hendelse_prosjekt_id_uten_mellomrom'],
+      ['hendelse', 'prosjekt_id', { prosjekt_id: `${P1} ` }, 'hendelse_prosjekt_id_tegnklasse'],
       ['hendelse', 'event_type', { event_type: 'sak_opprettet ' }, 'hendelse_event_type_form'],
-      ['notat', 'prosjekt_id', { prosjekt_id: `${P1} ` }, 'notat_prosjekt_id_uten_mellomrom'],
-      ['notat', 'spor', { spor: 'frist ' }, 'notat_spor_uten_mellomrom'],
+      ['notat', 'prosjekt_id', { prosjekt_id: `${P1} ` }, 'notat_prosjekt_id_tegnklasse'],
+      ['notat', 'spor', { spor: 'frist ' }, 'notat_spor_tegnklasse'],
       [
         'leveringsoppdrag',
         'prosjekt_id',
         { prosjekt_id: `${P1} ` },
-        'leveringsoppdrag_prosjekt_id_uten_mellomrom',
+        'leveringsoppdrag_prosjekt_id_tegnklasse',
       ],
       [
         'leveringsoppdrag',
@@ -638,7 +746,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         'kjernebuffer',
         'prosjekt_id',
         { prosjekt_id: `${P1} ` },
-        'kjernebuffer_prosjekt_id_uten_mellomrom',
+        'kjernebuffer_prosjekt_id_tegnklasse',
       ],
     ])('%s.%s avviser mellomrom til slutt (547)', async (tabell, _, rad, begrensning) => {
       const feil = await avvisningMedMelding(lagreSak({ tabell, rad }));
@@ -669,6 +777,47 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         const feil = await avvisningMedMelding(lagreSak({ tabell, rad }));
         expect(feil?.nummer).toBe(CHECK_BRUDD);
         expect(feil?.melding).toContain(begrensning);
+      }
+    );
+
+    it.each(
+      ['\t', '\u00a0', '\u3000', '\u200b', '\ufeff', '\u0000', 'æ', ' x'].flatMap(
+        (tegn) =>
+          [
+            [
+              'sak_metadata',
+              { prosjekt_id: `${P1}${tegn}` },
+              'sak_metadata_prosjekt_id_tegnklasse',
+            ],
+            ['hendelse', { prosjekt_id: `${P1}${tegn}` }, 'hendelse_prosjekt_id_tegnklasse'],
+            ['notat', { prosjekt_id: `${P1}${tegn}` }, 'notat_prosjekt_id_tegnklasse'],
+            [
+              'leveringsoppdrag',
+              { prosjekt_id: `${P1}${tegn}` },
+              'leveringsoppdrag_prosjekt_id_tegnklasse',
+            ],
+            [
+              'kjernebuffer',
+              { prosjekt_id: `${P1}${tegn}` },
+              'kjernebuffer_prosjekt_id_tegnklasse',
+            ],
+          ] as [string, Rad, string][]
+      )
+    )(
+      '%s.prosjekt_id avviser et tegn utenfor synlig ASCII (547, #609): %o',
+      async (tabell, rad, begrensning) => {
+        const feil = await avvisningMedMelding(lagreSak({ tabell, rad }));
+        expect(feil?.nummer).toBe(CHECK_BRUDD);
+        expect(feil?.melding).toContain(begrensning);
+      }
+    );
+
+    it.each(['FRIST', 'Frist'])(
+      'notat.spor skiller store og små bokstaver og avviser %s (547, #704)',
+      async (spor) => {
+        const feil = await avvisningMedMelding(lagreSak({ tabell: 'notat', rad: { spor } }));
+        expect(feil?.nummer).toBe(CHECK_BRUDD);
+        expect(feil?.melding).toContain('notat_spor');
       }
     );
 
@@ -728,21 +877,24 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
     it('projects.id avviser mellomrom til slutt (547)', async () => {
       const feil = await avvisningMedMelding(nyttProsjekt(`mp-${randomUUID()} `));
       expect(feil?.nummer).toBe(CHECK_BRUDD);
-      expect(feil?.melding).toContain('projects_id_uten_mellomrom');
+      expect(feil?.melding).toContain('projects_id_tegnklasse');
     });
 
     it('projects.organisasjon_id avviser mellomrom til slutt (547)', async () => {
       const feil = await avvisningMedMelding(nyttProsjekt(`mp-${randomUUID()}`, 'org '));
       expect(feil?.nummer).toBe(CHECK_BRUDD);
-      expect(feil?.melding).toContain('projects_organisasjon_id_uten_mellomrom');
+      expect(feil?.melding).toContain('projects_organisasjon_id_tegnklasse');
     });
 
-    it.each<[string, string, string]>([
-      ['project_id', `${P1} `, 'member'],
-      ['role', P1, 'member '],
+    it.each<[string, string, string, string]>([
+      ['project_id', `${P1} `, 'member', 'memberships_project_id_tegnklasse'],
+      ['project_id', `${P1}\u00a0`, 'member', 'memberships_project_id_tegnklasse'],
+      ['role', P1, 'member ', 'memberships_role_tegnklasse'],
+      ['role', P1, 'member\t', 'memberships_role_tegnklasse'],
+      ['role', P1, 'Admin', 'memberships_role'],
     ])(
-      'app_project_memberships.%s avviser mellomrom til slutt (547)',
-      async (kolonne, p, rolle) => {
+      'app_project_memberships.%s avviser prosjektet %o med rollen %o (547, #609, #704)',
+      async (_, p, rolle, begrensning) => {
         const feil = await avvisningMedMelding(
           base.pool
             .request()
@@ -755,23 +907,31 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
             VALUES (@p, @u, @s, N'', N'', @r, 0, 1);`)
         );
         expect(feil?.nummer).toBe(CHECK_BRUDD);
-        expect(feil?.melding).toContain(`memberships_${kolonne}_uten_mellomrom`);
+        expect(feil?.melding).toContain(begrensning);
       }
     );
 
-    it('catenda_contract_teams.internal_project_id avviser mellomrom til slutt (547)', async () => {
-      const feil = await avvisningMedMelding(
-        base.pool
-          .request()
-          .input('p', sql.NVarChar(100), `${P1} `)
-          .input('t', sql.NVarChar(32), team())
-          .query(
-            `INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role) VALUES (@p, @t, N'TE')`
-          )
-      );
-      expect(feil?.nummer).toBe(CHECK_BRUDD);
-      expect(feil?.melding).toContain('contract_teams_internal_project_id_uten_mellomrom');
-    });
+    it.each<[string, string, string]>([
+      [`${P1} `, 'TE', 'contract_teams_internal_project_id_tegnklasse'],
+      [`${P1}\u3000`, 'TE', 'contract_teams_internal_project_id_tegnklasse'],
+      [P1, 'te', 'contract_teams_role'],
+    ])(
+      'catenda_contract_teams avviser prosjektet %o med rollen %o (547, #609, #704)',
+      async (p, rolle, begrensning) => {
+        const feil = await avvisningMedMelding(
+          base.pool
+            .request()
+            .input('p', sql.NVarChar(100), p)
+            .input('t', sql.NVarChar(32), team())
+            .input('r', sql.NVarChar(2), rolle)
+            .query(
+              `INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role) VALUES (@p, @t, @r)`
+            )
+        );
+        expect(feil?.nummer).toBe(CHECK_BRUDD);
+        expect(feil?.melding).toContain(begrensning);
+      }
+    );
 
     function identitet(provider: string, issuer: string, subject: string) {
       return base.pool
@@ -794,12 +954,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
       ['provider', 'entra ', 'https://login.example/tenant', randomUUID()],
       ['issuer', 'entra', 'https://login.example/tenant ', randomUUID()],
       ['subject', 'entra', 'https://login.example/tenant', `${randomUUID()} `],
+      ['provider', 'entra\t', 'https://login.example/tenant', randomUUID()],
+      ['issuer', 'entra', 'https://login.example/tenant\u00a0', randomUUID()],
+      ['subject', 'entra', 'https://login.example/tenant', `${randomUUID()}\u200b`],
     ])(
-      'app_identities.%s avviser mellomrom til slutt, også fra eieren (547)',
+      'app_identities.%s avviser mellomrom og usynlige tegn, også fra eieren (547, #609): %o %o %o',
       async (kolonne, p, i, s) => {
         const feil = await avvisningMedMelding(identitet(p, i, s));
         expect(feil?.nummer).toBe(CHECK_BRUDD);
-        expect(feil?.melding).toContain(`app_identities_${kolonne}_uten_mellomrom`);
+        expect(feil?.melding).toContain(`app_identities_${kolonne}_tegnklasse`);
       }
     );
 
@@ -829,6 +992,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         expect(feil?.nummer).toBe(IKKE_NORMALISERT);
       }
     );
+
+    it.each<[string, (s: string) => [string, string, string]]>([
+      ['provideren', (s) => ['entra\t', 'https://login.example/tenant', s]],
+      ['issueren', (s) => ['entra', 'https://login.example/tenant\u00a0', s]],
+      ['subjektet', (s) => ['entra', 'https://login.example/tenant', `${s}\u3000`]],
+    ])(
+      'koe.resolve_identity gir ingen bruker for et usynlig tegn etter %s, fordi tabellen avviser identiteten (547, #609)',
+      async (_, med) => {
+        const s = randomUUID();
+        await resolve('entra', 'https://login.example/tenant', s);
+        const feil = await avvisningMedMelding(resolve(...med(s)));
+        expect(feil?.nummer).toBe(CHECK_BRUDD);
+        expect(feil?.melding).toContain('app_identities_');
+      }
+    );
   });
 
   it('katalogvakten: hver tekstkolonne i en nøkkel, en fremmednøkkel eller et predikat har kontrollen', async () => {
@@ -843,6 +1021,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
       'vakten utleder kravet selv; linjen i OGSAA_KONTROLL skal ut'
     ).toEqual([]);
     expect(uthulteKontroller(k)).toEqual([]);
+    expect(utenBinaerSortering(k), 'kolonnen har en annen sortering enn BIN2').toEqual([]);
   });
 
   it('kontrollsak: hver kjent hendelsestype og sakstype passer kontrollene på kolonnen i katalogen (#609)', async () => {
@@ -871,6 +1050,42 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         avvist.recordset.map((r) => r.v),
         `${kolonne}: verdien avvises av ${vilkaar}`
       ).toEqual([]);
+    }
+  });
+
+  it('katalogvakten følger funksjonene koe_sikkerhet leser, også i et annet skjema (#673)', async () => {
+    const tx = new sql.Transaction(base.pool);
+    await tx.begin();
+    try {
+      const kjoer = (s: string) => new sql.Request(tx).batch(s);
+      await kjoer('CREATE SCHEMA koe_proeve');
+      await kjoer(
+        'CREATE TABLE koe_proeve.t (bundet nvarchar(10) NULL, ubundet nvarchar(10) NULL)'
+      );
+      await kjoer(`CREATE FUNCTION koe_proeve.bundet(@x nvarchar(10)) RETURNS TABLE WITH SCHEMABINDING AS
+                   RETURN SELECT 1 AS a FROM koe_proeve.t WHERE bundet = @x`);
+      await kjoer(`CREATE FUNCTION koe_proeve.ubundet(@x nvarchar(10)) RETURNS TABLE AS
+                   RETURN SELECT 1 AS a FROM koe_proeve.t WHERE ubundet = @x`);
+      await kjoer(`CREATE FUNCTION koe_sikkerhet.proeve(@x nvarchar(10)) RETURNS TABLE WITH SCHEMABINDING AS
+                   RETURN SELECT a FROM koe_proeve.bundet(@x)`);
+      await kjoer(`CREATE FUNCTION koe_sikkerhet.proeve_ubundet(@x nvarchar(10)) RETURNS TABLE AS
+                   RETURN SELECT a FROM koe_proeve.ubundet(@x)`);
+      const kolonner = (await new sql.Request(tx).query(TEKSTKOLONNER)).recordset;
+      expect(
+        kolonner
+          .filter((c) => c.kolonne.startsWith('koe_proeve.'))
+          .map((c) => [c.kolonne, c.i_sikkerhet])
+      ).toEqual([
+        ['koe_proeve.t.bundet', true],
+        ['koe_proeve.t.ubundet', false],
+      ]);
+      const ubundne = (await new sql.Request(tx).query(UBUNDNE_SIKKERHETSFUNKSJONER)).recordset;
+      expect(ubundne.map((r) => r.funksjon).sort()).toEqual([
+        'koe_proeve.ubundet',
+        'koe_sikkerhet.proeve_ubundet',
+      ]);
+    } finally {
+      await tx.rollback();
     }
   });
 

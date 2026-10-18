@@ -1274,6 +1274,83 @@
     "unike_indekser": [],
     "fremmednøkler": []
    },
+   "koe.toemmingsvern": {
+    "kolonner": [
+     ["app_identities_id", "uniqueidentifier", "NULL"],
+     ["brevdokument_id", "uniqueidentifier", "NULL"],
+     ["godkjenningshandling_pakke_id", "uniqueidentifier", "NULL"],
+     ["godkjenningshandling_loepenr", "int", "NULL"],
+     ["kvittering_prosjekt_id", "nvarchar(100)", "NULL"],
+     ["kvittering_aktor_id", "uniqueidentifier", "NULL"],
+     ["kvittering_kommando_id", "nvarchar(36)", "NULL"],
+     ["leveringskvittering_oppdrag_id", "uniqueidentifier", "NULL"],
+     ["leveringskvittering_operasjon", "nvarchar(20)", "NULL"],
+     ["prosjekt_med_saker_id", "nvarchar(100)", "NULL"],
+     ["sak_catenda_topic_sak_id", "nvarchar(36)", "NULL"],
+     ["vedlegg_id", "uniqueidentifier", "NULL"],
+     ["vedleggskvittering_vedlegg_id", "uniqueidentifier", "NULL"],
+     ["vedleggskvittering_operasjon", "nvarchar(20)", "NULL"]
+    ],
+    "primærnøkkel": [],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["app_identities_id"],
+      "til": "koe.app_identities",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["brevdokument_id"],
+      "til": "koe.brevdokument",
+      "til_kolonner": ["leveringsoppdrag_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["godkjenningshandling_pakke_id", "godkjenningshandling_loepenr"],
+      "til": "koe.godkjenningshandling",
+      "til_kolonner": ["pakke_id", "loepenr"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["kvittering_prosjekt_id", "kvittering_aktor_id", "kvittering_kommando_id"],
+      "til": "koe.kvittering",
+      "til_kolonner": ["prosjekt_id", "aktor_id", "kommando_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["leveringskvittering_oppdrag_id", "leveringskvittering_operasjon"],
+      "til": "koe.leveringskvittering",
+      "til_kolonner": ["leveringsoppdrag_id", "operasjon"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["prosjekt_med_saker_id"],
+      "til": "koe.prosjekt_med_saker",
+      "til_kolonner": ["prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["sak_catenda_topic_sak_id"],
+      "til": "koe.sak_catenda_topic",
+      "til_kolonner": ["sak_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["vedlegg_id"],
+      "til": "koe.vedlegg",
+      "til_kolonner": ["vedlegg_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["vedleggskvittering_vedlegg_id", "vedleggskvittering_operasjon"],
+      "til": "koe.vedleggskvittering",
+      "til_kolonner": ["vedlegg_id", "operasjon"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.vedlegg": {
     "kolonner": [
      ["vedlegg_id", "uniqueidentifier", "NOT NULL"],

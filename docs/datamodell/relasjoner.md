@@ -379,6 +379,22 @@ erDiagram
     koe_skrivetidspunkt {
         smallint oekt PK
     }
+    koe_toemmingsvern {
+        uniqueidentifier app_identities_id FK
+        uniqueidentifier brevdokument_id FK
+        uniqueidentifier godkjenningshandling_pakke_id FK
+        int godkjenningshandling_loepenr FK
+        nvarchar_100 kvittering_prosjekt_id FK
+        uniqueidentifier kvittering_aktor_id FK
+        nvarchar_36 kvittering_kommando_id FK
+        uniqueidentifier leveringskvittering_oppdrag_id FK
+        nvarchar_20 leveringskvittering_operasjon FK
+        nvarchar_100 prosjekt_med_saker_id FK
+        nvarchar_36 sak_catenda_topic_sak_id FK
+        uniqueidentifier vedlegg_id FK
+        uniqueidentifier vedleggskvittering_vedlegg_id FK
+        nvarchar_20 vedleggskvittering_operasjon FK
+    }
     koe_vedlegg {
         uniqueidentifier vedlegg_id PK
         nvarchar_100 prosjekt_id FK
@@ -425,6 +441,15 @@ erDiagram
     koe_vedleggskvittering |o--o| koe_vedleggskvittering : "(vedlegg_id, forutsetning)"
     koe_leveringsoppdrag ||--o{ koe_vedleggskvittering : "leveringsoppdrag_id"
     koe_jobbforsoek |o..o{ koe_vedleggskvittering : "forsoek_id"
+    koe_app_identities |o--o{ koe_toemmingsvern : "app_identities_id"
+    koe_brevdokument |o--o{ koe_toemmingsvern : "brevdokument_id"
+    koe_godkjenningshandling |o--o{ koe_toemmingsvern : "(godkjenningshandling_pakke_id, godkjenningshandling_loepenr)"
+    koe_kvittering |o--o{ koe_toemmingsvern : "(kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id)"
+    koe_leveringskvittering |o--o{ koe_toemmingsvern : "(leveringskvittering_oppdrag_id, leveringskvittering_operasjon)"
+    koe_prosjekt_med_saker |o--o{ koe_toemmingsvern : "prosjekt_med_saker_id"
+    koe_sak_catenda_topic |o--o{ koe_toemmingsvern : "sak_catenda_topic_sak_id"
+    koe_vedlegg |o--o{ koe_toemmingsvern : "vedlegg_id"
+    koe_vedleggskvittering |o--o{ koe_toemmingsvern : "(vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon)"
     koe_sak_metadata ||--o| koe_sak_catenda_topic : "(sak_id, prosjekt_id)"
     koe_projects ||--o| koe_prosjekt_med_saker : "prosjekt_id"
     koe_sak_metadata ||--o| koe_kjernebuffer : "(sak_id, prosjekt_id)"
@@ -542,6 +567,15 @@ erDiagram
 | `koe.vedleggskvittering.(vedlegg_id, forutsetning)` | `koe.vedleggskvittering.(vedlegg_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Referansen på topicen forutsetter at dokumentet er kvittert for samme vedlegg. | — | K 18.10: katalogen. |
 | `koe.vedleggskvittering.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Oppdraget som leverte vedlegget. Et senere oppdrag som viser til samme vedlegg, får ingen ny rad. | — | K 18.10: katalogen. |
 | `koe.vedleggskvittering.forsoek_id` | `koe.jobbforsoek.forsoek_id` | uten fremmednøkkel | mange til én | Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er over, etter kvitteringen, så det er ingen fremmednøkkel. | — | L 18.10: `database/migrasjoner/20261020020000_vedleggslevering.sql`. |
+| `koe.toemmingsvern.app_identities_id` | `koe.app_identities.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.brevdokument_id` | `koe.brevdokument.leveringsoppdrag_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.(godkjenningshandling_pakke_id, godkjenningshandling_loepenr)` | `koe.godkjenningshandling.(pakke_id, loepenr)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.(kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id)` | `koe.kvittering.(prosjekt_id, aktor_id, kommando_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.(leveringskvittering_oppdrag_id, leveringskvittering_operasjon)` | `koe.leveringskvittering.(leveringsoppdrag_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.prosjekt_med_saker_id` | `koe.prosjekt_med_saker.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.sak_catenda_topic_sak_id` | `koe.sak_catenda_topic.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.vedlegg_id` | `koe.vedlegg.vedlegg_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.(vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon)` | `koe.vedleggskvittering.(vedlegg_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 19.10: katalogen. |
 | `koe.sak_catenda_topic.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst én topic. Sammensatt med `prosjekt_id`, så raden står i sakens prosjekt. | — | K 17.10: katalogen. |
 | `koe.prosjekt_med_saker.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Prosjektet som har saker. `prosjekt_id` er primærnøkkelen, så hvert prosjekt står høyst én gang (F-1, #820). | — | K 18.10: katalogen. |
 | `koe.kjernebuffer.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. `sak_id` er primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
@@ -602,7 +636,6 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.catenda_project_configs.topic_board_id` | Boardet for saker som opprettes i appen, i Catenda (KT-U4). |
 | `koe.jobb.catenda_project_id` | Catenda-prosjektet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6). |
 | `koe.jobb.catenda_board_id` | Boardet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6). |
-| `koe.kvittering.kommando_id` | ID-en klienten gir kommandoen (#418). Den viser ikke til en rad; nøkkelen er prosjektet, aktøren og ID-en. |
 | `koe.jobb.lease` | Leasen for forsøket som pågår. Blir forsøkets ID når utfallet lagres (invariant 7). |
 | `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
 | `koe.brevdokument.prosjekt_id` | Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5). |
@@ -811,6 +844,7 @@ flowchart LR
 | `koe.sak_catenda_topic` | — | — | — |
 | `koe.prosjekt_med_saker` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |
+| `koe.toemmingsvern` | — | — | — |
 | `koe.kjernebuffer` | — | — | — |
 | `koe.app_sessions` | — | — | — |
 | `koe.app_oauth_attempts` | — | — | — |
