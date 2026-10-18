@@ -572,6 +572,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.kvitter_levering',
         'GRANT EXECUTE koe_api.kvitter_topic',
         'GRANT EXECUTE koe_api.kvittering',
+        'GRANT EXECUTE koe_api.lagre_brevdokument',
         'GRANT EXECUTE koe_api.les_sesjon',
         'GRANT EXECUTE koe_api.leveringsmaal',
         'GRANT EXECUTE koe_api.medlemsliste_alder',
@@ -615,6 +616,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'koe_api.kvitter_dokument',
         'koe_api.kvitter_levering',
         'koe_api.kvitter_topic',
+        'koe_api.lagre_brevdokument',
         'koe_api.registrer_jobbfeil',
         'koe_api.start_jobb_paa_nytt',
       ]);

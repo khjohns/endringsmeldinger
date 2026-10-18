@@ -722,6 +722,27 @@
     "unike_indekser": [],
     "fremmednøkler": []
    },
+   "koe.brevdokument": {
+    "kolonner": [
+     ["leveringsoppdrag_id", "uniqueidentifier", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["pdf", "varbinary(max)", "NOT NULL"],
+     ["pdf_sha256", "nvarchar(64)", "NOT NULL"],
+     ["forsoek_id", "uniqueidentifier", "NOT NULL"],
+     ["lagret", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["leveringsoppdrag_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["leveringsoppdrag_id"],
+      "til": "koe.leveringsoppdrag",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.catenda_contract_teams": {
     "kolonner": [
      ["internal_project_id", "nvarchar(100)", "NOT NULL"],

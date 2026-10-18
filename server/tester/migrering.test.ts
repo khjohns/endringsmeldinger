@@ -508,6 +508,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'app_project_memberships',
         'app_sessions',
         'app_users',
+        'brevdokument',
         'catenda_contract_teams',
         'catenda_project_configs',
         'hendelse',

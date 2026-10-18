@@ -827,6 +827,26 @@ funn = []
 belegg = "K 18.10: katalogen."
 
 [[relasjon]]
+fra = "koe.brevdokument.leveringsoppdrag_id"
+til = "koe.leveringsoppdrag.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = "Oppdraget PDF-en gjengir. Det er én PDF per oppdrag (#371 del 2)."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.brevdokument.forsoek_id"
+til = "koe.jobbforsoek.forsoek_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Leasen PDF-en ble lagret med. Forsøket med samme ID lagres når forsøket er over, så
+det er ingen fremmednøkkel."""
+funn = []
+belegg = "L 18.10: `database/migrasjoner/20261018140000_brevdokument.sql`."
+
+[[relasjon]]
 fra = "koe.leveringskvittering.leveringsoppdrag_id"
 til = "koe.leveringsoppdrag.id"
 art = "fremmednøkkel"
@@ -1063,6 +1083,10 @@ begrunnelse = """
 Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i
 `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel:
 koblingen kan endres etter at listen er skrevet."""
+
+[[uten_relasjon]]
+kolonne = "koe.brevdokument.prosjekt_id"
+begrunnelse = "Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5)."
 
 [[uten_relasjon]]
 kolonne = "koe.leveringskvittering.catenda_id"

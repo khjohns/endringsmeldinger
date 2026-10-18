@@ -23,7 +23,7 @@ import {
   type Topicoppretter,
 } from './catenda.ts';
 import { sql, type Pool } from './datalag.ts';
-import { brevdokument } from './levering.ts';
+import { brevdokument, pdfsum, UgjengivbartBrev } from './levering.ts';
 
 /** Lengre enn tidsavbruddet mot Catenda (15 s) ganger kallene i en levering, med kvitteringen. */
 export const LEASETID_S = 120;
@@ -61,16 +61,28 @@ class AvvistKvittering extends Error {}
 
 type Utfall = 'feilet' | 'usikkert' | 'avvist';
 
-/** Meldingene fra catenda.ts og fra kjøreren har ingen svarkropp eller token; andre feil lagres ikke. */
+/**
+ * Meldingene fra catenda.ts, levering.ts og kjøreren har ingen svarkropp eller token;
+ * andre feil lagres ikke. Bare Catenda og basen kan svikte forbigående. En annen feil
+ * i kjøreren går ikke over av seg selv, og parkeres som usikker, fordi den kan komme
+ * etter en endring i Catenda (#783 punkt 2).
+ */
 function utfallAv(feil: unknown): { utfall: Utfall; melding: string } {
-  const melding =
-    feil instanceof CatendaUtilgjengelig || feil instanceof UgjennomfoerbarJobb
-      ? feil.message
-      : 'Uventet feil i jobben';
+  const kjent =
+    feil instanceof CatendaUtilgjengelig ||
+    feil instanceof UgjennomfoerbarJobb ||
+    feil instanceof UgjengivbartBrev;
+  const melding = kjent ? feil.message : 'Uventet feil i jobben';
   if (feil instanceof UsikkertCatendautfall) return { utfall: 'usikkert', melding };
-  if (feil instanceof CatendaAvvisning || feil instanceof UgjennomfoerbarJobb)
+  if (
+    feil instanceof CatendaAvvisning ||
+    feil instanceof UgjennomfoerbarJobb ||
+    feil instanceof UgjengivbartBrev
+  )
     return { utfall: 'avvist', melding };
-  return { utfall: 'feilet', melding };
+  if (feil instanceof CatendaUtilgjengelig || feil instanceof sql.MSSQLError)
+    return { utfall: 'feilet', melding };
+  return { utfall: 'usikkert', melding };
 }
 
 /**
@@ -112,7 +124,16 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       await kvitter('koe_api.kvitter_topic', 'topic_id', topic);
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
-      const referanse = await leverBrev(avh.dokumenter, jobb, kvitter);
+      const lagre = async (pdf: Uint8Array) => {
+        const lagret = await avh.datalag
+          .request()
+          .input('lease', sql.UniqueIdentifier, jobb.lease)
+          .input('pdf', sql.VarBinary(sql.MAX), Buffer.from(pdf))
+          .input('pdf_sha256', sql.NVarChar(64), pdfsum(pdf))
+          .execute<{ pdf: Buffer }>('koe_api.lagre_brevdokument');
+        return new Uint8Array(lagret.recordset[0].pdf);
+      };
+      const referanse = await leverBrev(avh.dokumenter, jobb, lagre, kvitter);
       logg.info(`Jobben ${jobb.jobb_id} leverte brevet med referansen ${referanse} på topicen.`);
     } else {
       throw new UgjennomfoerbarJobb(`Jobbtypen ${jobb.jobbtype} er ukjent for kjøreren`);
@@ -137,21 +158,23 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
 
 /**
  * Leverer brevet (B-03, #371): dokumentet i biblioteket, så referansen på topicen,
- * hver operasjon kvittert for seg. Hvert steg avstemmes først, mot navnet i
+ * hver operasjon kvittert for seg. PDF-en lagres før opplastingen, og det er den
+ * lagrede som lastes opp, også når et tidligere forsøk lagret den (#371 del 2). Hvert steg avstemmes først, mot navnet i
  * biblioteket og mot referansene på topicen, så et forsøk etter en omstart ikke lager
  * et dokument eller en referanse til.
  */
 async function leverBrev(
   catenda: Dokumentleverandoer,
   jobb: Jobbrad,
+  lagre: (pdf: Uint8Array) => Promise<Uint8Array>,
   kvitter: (prosedyre: string, felt: string, verdi: string) => Promise<void>
 ): Promise<string> {
   let dokumentId = jobb.dokument_id;
   if (!dokumentId) {
     const oppdrag = JSON.parse(jobb.oppdrag!) as Record<string, unknown>;
     const maal = oppdrag.maal as Dokumentmaal;
-    const dokument = brevdokument(oppdrag, jobb.dokumentnoekkel!);
-    if (!dokument) throw new UgjennomfoerbarJobb('Brevet har ingen tekst fra appen');
+    const laget = await brevdokument(oppdrag, jobb.dokumentnoekkel!);
+    const dokument = { ...laget, innhold: await lagre(laget.innhold) };
     dokumentId =
       (await catenda.finnDokument(maal, dokument.navn)) ??
       (await catenda.lastOppDokument(maal, dokument)) ??
