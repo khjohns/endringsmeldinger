@@ -1,6 +1,7 @@
 /**
- * Testbasen i SQL Server mot standardinnstillingene i Azure SQL Database, og
- * samtidige skrivinger i samme sak med READ_COMMITTED_SNAPSHOT på (#488).
+ * Testbasen i SQL Server mot standardinnstillingene i Azure SQL Database,
+ * samtidige skrivinger i samme sak med READ_COMMITTED_SNAPSHOT på (#488), og
+ * oppryddingen av innloggingen fra `opprettKjoeretid` (#727).
  * Forventningene har kilde i #78 (svaret på A3: basen får standardinnstillingene
  * i Azure) og punkt 2 og 3 i #488.
  *
@@ -16,6 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   avvikFraAzure,
   feilnummer,
+  opprettKjoeretid,
   opprettTestbase,
   sql,
   SQLSERVER_TILKOBLING,
@@ -89,6 +91,14 @@ async function skrivOgCommit(pool: Pool, sakId: string, forventet: number, event
   }
 }
 
+/** Antall forespørsler i basen som venter på en lås, lest i `sys.dm_exec_requests`. */
+async function ventendeILaas(pool: Pool): Promise<number> {
+  const r = await pool.request().query<{
+    n: number;
+  }>("SELECT COUNT(*) AS n FROM sys.dm_exec_requests WHERE database_id = DB_ID() AND wait_type LIKE N'LCK[_]%'");
+  return r.recordset[0].n;
+}
+
 async function lagret(pool: Pool, sakId: string) {
   const r = await pool
     .request()
@@ -111,7 +121,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
   let base: Testbase;
 
   beforeAll(async () => {
-    base = await opprettTestbase('samtidighet');
+    // Åtte åpne transaksjoner og oppslaget i sys.dm_exec_requests samtidig.
+    base = await opprettTestbase('samtidighet', { maks: 12 });
     for (const batch of SKJEMA) await base.pool.request().batch(batch);
   }, 240_000);
 
@@ -134,6 +145,37 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
         ]);
       } finally {
         await standard.slett();
+      }
+    }, 60_000);
+  });
+
+  describe('oppryddingen i opprettKjoeretid (#727)', () => {
+    it('innloggingen slettes også når en økt med den ennå er åpen', async () => {
+      await base.pool.request().batch('CREATE ROLE koe_test_rolle;');
+      const kjoeretid = await opprettKjoeretid(base, { maks: 1, rolle: 'koe_test_rolle' });
+      const navn = (
+        await kjoeretid.pool.request().query<{ navn: string }>('SELECT SUSER_NAME() AS navn')
+      ).recordset[0].navn;
+      // En økt utenfor bassenget, som en forbindelse close() ikke har fått lukket ennå.
+      const passord = `${randomUUID()}aA1!`;
+      await base.pool.request().batch(`ALTER LOGIN [${navn}] WITH PASSWORD = N'${passord}'`);
+      const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
+      const aapen = await new sql.ConnectionPool({
+        ...config,
+        user: navn,
+        password: passord,
+        database: base.navn,
+        pool: { max: 1 },
+      }).connect();
+      try {
+        await aapen.request().query('SELECT 1');
+        await kjoeretid.slett();
+        const igjen = await base.pool.request().input('navn', sql.NVarChar(128), navn).query<{
+          n: number;
+        }>('SELECT COUNT(*) AS n FROM sys.server_principals WHERE name = @navn');
+        expect(igjen.recordset[0].n).toBe(0);
+      } finally {
+        await aapen.close().catch(() => undefined);
       }
     }, 60_000);
   });
@@ -196,17 +238,54 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
       });
 
       it('åtte samtidige skrivinger med samme forventede versjon: nøyaktig én lagres, de andre får versjonskonflikt eller vranglås', async () => {
+        // Alle åtte har lest før den første committer: den første holder transaksjonen
+        // åpen til de sju andre venter på en lås i basen eller er avvist. Uten
+        // `UPDLOCK, HOLDLOCK` venter de da på unikheten og får 2627 (#560).
         const sakId = await nySak(base.pool);
         const hendelser = Array.from({ length: 8 }, () => randomUUID());
-        const utfall = await Promise.allSettled(
-          hendelser.map((id) => skrivOgCommit(base.pool, sakId, 1, id))
+        const transaksjoner = hendelser.map(() => new sql.Transaction(base.pool));
+        await Promise.all(transaksjoner.map((tx) => tx.begin()));
+        const utfall: (PromiseSettledResult<unknown> | undefined)[] = hendelser.map(
+          () => undefined
         );
+        const skrivinger = hendelser.map((id, i) =>
+          skriv(transaksjoner[i], sakId, 1, id).then(
+            (verdi) => (utfall[i] = { status: 'fulfilled', value: verdi }),
+            (reason: unknown) => (utfall[i] = { status: 'rejected', reason })
+          )
+        );
+        try {
+          const slutt = Date.now() + 10_000;
+          for (;;) {
+            const ferdige = utfall.filter((u) => u !== undefined).length;
+            const venter = await ventendeILaas(base.pool);
+            if (ferdige + venter === hendelser.length && utfall.some(Boolean)) break;
+            if (Date.now() > slutt)
+              throw new Error(
+                `${ferdige} skrivinger er ferdige og ${venter} venter på en lås etter 10 s`
+              );
+            await new Promise((ok) => setTimeout(ok, 50));
+          }
+          const forste = utfall.findIndex((u) => u?.status === 'fulfilled');
+          expect(forste, 'én skriving er ferdig uten å vente').toBeGreaterThanOrEqual(0);
+          await transaksjoner[forste].commit();
+          await Promise.all(skrivinger);
+        } finally {
+          // Hver transaksjon rulles tilbake når skrivingen dens er ferdig: en skriving
+          // som venter, kan ikke rulles tilbake, og den venter på låsene til en ferdig
+          // transaksjon som ennå er åpen. Den committede gir en feil som svelges.
+          await Promise.all(
+            transaksjoner.map((tx, i) =>
+              skrivinger[i].then(() => tx.rollback().catch(() => undefined))
+            )
+          );
+        }
 
-        const lyktes = hendelser.filter((_, i) => utfall[i].status === 'fulfilled');
+        const lyktes = hendelser.filter((_, i) => utfall[i]?.status === 'fulfilled');
         expect(lyktes).toHaveLength(1);
         // Et vranglåsoffer er også en avvist skriving (#547).
         for (const u of utfall) {
-          if (u.status === 'rejected')
+          if (u?.status === 'rejected')
             expect([VERSJONSKONFLIKT, VRANGLAAS]).toContain(feilnummer(u.reason));
         }
         const rader = await lagret(base.pool, sakId);
