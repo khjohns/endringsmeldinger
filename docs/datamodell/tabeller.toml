@@ -957,7 +957,7 @@ lagres_fra = "`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `serv
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Før levering finnes filen bare her."
 personopplysninger = "Filen og filnavnet kan ha navn på personer i prosjektet."
-skrivere = ["database/migrasjoner/20261018190000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`)"]
+skrivere = ["database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/vedlegg.test.ts`."
 

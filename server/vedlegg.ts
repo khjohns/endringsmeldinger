@@ -6,7 +6,7 @@
  *
  * Hver inngang krever kontraktsrolle («Vedlegg er kontraktskorrespondanse», og
  * spørsmål 2 A i #790 for lesingen i appen). Hvem som ser og sletter, avgjør
- * radsikkerheten i `20261018190000_vedlegg.sql`: et ubundet vedlegg finnes bare for
+ * radsikkerheten i `20261018193000_vedlegg.sql`: et ubundet vedlegg finnes bare for
  * teamet som lastet det opp.
  *
  * Innholdskontrollen er den samme som `backend/lib/vedlegg_innhold.py`. Den er ikke

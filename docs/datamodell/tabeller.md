@@ -791,7 +791,7 @@ Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og S
 | Relasjoner | Nøkler: primærnøkkel (vedlegg_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_av → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); (bundet_av_event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_team → koe.catenda_contract_teams.team_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Før levering finnes filen bare her. |
 | Personopplysninger | Filen og filnavnet kan ha navn på personer i prosjektet. |
-| Skrives av | database/migrasjoner/20261018190000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`) |
+| Skrives av | database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/vedlegg.test.ts`. |
 
