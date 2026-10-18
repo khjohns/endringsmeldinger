@@ -668,11 +668,12 @@ lagres_fra = """
 Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller
 `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820).
 En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt,
-men endrer ikke virksomheten."""
+men endrer ikke virksomheten; skriptet sier fra når `--organisasjon` er en annen
+(#836)."""
 fra_catenda = "Delvis. Navnet oppgis av driften; i Python kan det hentes fra Catenda-prosjektet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261019140000_registrering.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
+skrivere = ["database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`."
 
@@ -707,7 +708,7 @@ leserolle (#820)."""
 fra_catenda = "Ja, medlemslisten i Catenda."
 kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
-skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`)", "database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`)"]
+skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`)", "database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`)"]
 funn = []
 belegg = "L 17.10: migrasjonen og søk i `server/`. K 17.10: `server/tester/medlemskap.test.ts` (DL-U10)."
 
@@ -726,11 +727,12 @@ Driften setter teamene med skriptet `server/registrering.ts`, som kontrollerer
 dem mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`, direkte
 eller gjennom `koe_drift.registrer_prosjekt` (F-1, #820). Begge sider må ha minst
 ett team. Uten saker erstatter listen teamene; står prosjektet i
-`koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764)."""
+`koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764). Byttes
+Catenda-prosjektet, må teamene oppgis på nytt (#836)."""
 fra_catenda = "Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes av driften."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, også gjennom `koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
+skrivere = ["database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, kalt fra `server/registrering.ts`)", "database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`."
 
@@ -749,21 +751,23 @@ prosjektene koblet til brukerens Catenda-prosjekter ved innlogging.
 `koe_api.brukerens_prosjekter`, kalt fra `server/prosjekter.ts`, tar bare med
 prosjekter med aktiv kobling (#660). Triggeren
 `koe.catenda_project_configs_kobling_endret` gjør medlemskapene inaktive når
-koblingen oppheves, slettes eller endres (DL-U10). Den tomme Catenda-ID-en er
-ikke lov; den merker synkroniseringsraden etter en slik endring.
+koblingen oppheves, slettes eller endres (DL-U10), og setter Catenda-ID-en i
+synkroniseringsraden til NULL. Den tomme Catenda-ID-en er ikke lov.
 `topic_board_id` er boardet for saker som opprettes i appen (KT-U4); uten det
 avviser `koe_api.opprett_sak` saken (#741). Triggeren
 `koe.catenda_project_configs_endret` setter `updated_at` ved hver endring (#618)."""
 lagres_fra = """
 Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller
 `koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over
-Catenda-prosjektet, biblioteket og mappen og gjør koblingen aktiv. Boardet
-skrives over når det er oppgitt. Ellers står det hvis Catenda-prosjektet er det
-samme, og fjernes hvis det er byttet."""
+Catenda-prosjektet og biblioteket og gjør koblingen aktiv. Mappen og boardet
+skrives over når de er oppgitt. Ellers står de hvis Catenda-prosjektet er det
+samme, og fjernes hvis det er byttet. Mappen fjernes også når biblioteket er
+byttet. Har prosjektet saker, avvises bytte av
+Catenda-prosjekt, og uten saker krever et bytte nye kontraktsteam (#836)."""
 fra_catenda = "Delvis. ID-ene til Catenda-prosjektet og boardet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261019140000_registrering.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
+skrivere = ["database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/jobber.test.ts` og `server/tester/registrering.test.ts`."
 
@@ -802,14 +806,14 @@ leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra
 `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2), også
 gjennom `ferskeMedlemmer` for hvert prosjekt i lista i `server/prosjekter.ts`
 (#660). Svarer til `app_membership_sync` i PostgreSQL. Etter at koblingen er
-opphevet, slettet eller endret, har raden den tomme Catenda-ID-en og tidspunktet
+opphevet, slettet eller endret, har raden ingen Catenda-ID (NULL) og tidspunktet
 for endringen, så ingen liste fra det koblede prosjektet finnes, og en liste hentet
-før endringen ikke skrives (DL-U10)."""
+før endringen ikke skrives (DL-U10, #726). Den tomme Catenda-ID-en er ikke lov."""
 lagres_fra = "`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, og triggeren `koe.catenda_project_configs_kobling_endret` når koblingen endres."
 fra_catenda = "Delvis. Tidspunktet er når hentingen fra Catenda begynte."
 kan_gjenoppbygges = "ja, ved en ny synkronisering"
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`)"]
+skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`)"]
 funn = []
 belegg = "L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`. K 17.10: DL-U10 i samme test."
 
@@ -825,7 +829,7 @@ lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `oppre
 fra_catenda = "Nei"
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` peker på en bruker."
-skrivere = ["database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -844,7 +848,7 @@ personopplysninger = """
 `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde
 personopplysninger."""
 skrivere = [
-    "database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)",
+    "database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)",
     "server/kommandoer.ts",
 ]
 funn = []
@@ -884,7 +888,7 @@ lagres_fra = "`koe_api.opprett_sak` og triggeren `koe.leveringsoppdrag_levering`
 fra_catenda = "Delvis. ID-ene til Catenda-prosjektet og boardet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Sakstittelen kan inneholde personopplysninger."
-skrivere = ["database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261018140000_brevdokument.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen)"]
+skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261018140000_brevdokument.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`."
 
@@ -919,7 +923,7 @@ lagres_fra = "`koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme
 fra_catenda = "Nei, men oppdraget gjelder en levering til Catenda."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innholdet er brevet og kan inneholde personopplysninger."
-skrivere = ["database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -938,7 +942,7 @@ lagres_fra = "`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `ko
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Aktørens `app_users.id`."
-skrivere = ["database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`."
 
@@ -1034,7 +1038,7 @@ lagres_fra = "`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`.
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei."
 personopplysninger = "Saksbehandleren (`aktor_id`) og innholdet i svaret."
-skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`)"]
+skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
@@ -1050,7 +1054,7 @@ lagres_fra = "`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`.
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei."
 personopplysninger = "Godkjennerne (`godkjenner_id`)."
-skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`)"]
+skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
@@ -1067,7 +1071,7 @@ lagres_fra = "`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjen
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei."
 personopplysninger = "Den som handlet (`aktor_id`) og begrunnelsen for en retur."
-skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`)"]
+skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
@@ -1150,7 +1154,7 @@ tidspunkt. Tabellen har høyst én rad per økt-ID."""
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Raden brukes bare i transaksjonen som førte den."
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`)", "database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`)", "database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)"]
 funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`."
 

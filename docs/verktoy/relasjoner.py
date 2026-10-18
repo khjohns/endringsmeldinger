@@ -90,6 +90,29 @@ def fremmednøkler(katalog: dict) -> dict[Nøkkel, str]:
     }
 
 
+def _ikke_null(katalog: dict, referanse: str) -> bool:
+    rad = kolonne(katalog, referanse)
+    return rad is not None and rad[2] != "NULL"
+
+
+def dekkende_fremmednøkkel(r: dict, katalog: dict, fk: dict[Nøkkel, str]) -> Nøkkel | None:
+    """Fremmednøkkelen i katalogen som håndhever koblingen, eller None.
+
+    Kolonneparene i `r` må stå i én og samme nøkkel. Dekker de bare en del av en
+    sammensatt nøkkel, sjekker basen raden bare når hver kolonne i nøkkelen har en
+    verdi (MATCH SIMPLE), så da håndhever nøkkelen koblingen bare når kolonnene i
+    nøkkelen utenfor koblingen er NOT NULL.
+    """
+    par = set(zip(*nøkkel(r)))
+    for k in fk:
+        if not par <= set(zip(*k)):
+            continue
+        dekket = {fra for fra, _ in par}
+        if all(_ikke_null(katalog, c) for c in k[0] if c not in dekket):
+            return k
+    return None
+
+
 def _referanse(referanser: tuple[str, ...] | list[str]) -> str:
     """«tabell.kolonne», eller «tabell.(a, b)» for en sammensatt nøkkel."""
     if len(referanser) == 1:
@@ -161,8 +184,11 @@ def valider(register: dict, katalog: dict, funntekst: str | None = None) -> list
         er_fk = nøkkel(r) in fk
         if r["art"] == "fremmednøkkel" and not er_fk:
             feil.append(f"{hvor}: står som fremmednøkkel, men katalogen har ingen slik")
-        if r["art"] == "logisk" and any(set(zip(*nøkkel(r))) <= set(zip(*k)) for k in fk):
-            feil.append(f"{hvor}: står som logisk, men katalogen har en fremmednøkkel")
+        if r["art"] == "logisk" and (dekket := dekkende_fremmednøkkel(r, katalog, fk)):
+            feil.append(
+                f"{hvor}: står som logisk, men katalogen har fremmednøkkelen "
+                f"{_referanse(dekket[0])} → {_referanse(dekket[1])}, som dekker den"
+            )
         for ende in ("fra", "til"):
             if er_fk and ende == "til":
                 continue
@@ -330,8 +356,13 @@ def _attributter(
     relasjoner: list[dict], katalog: dict, fk: dict, entitet: str, med: set[str] | None
 ) -> list[str]:
     """Nøkkelkolonnene og kolonnene i en tegnet relasjon; `med` begrenser til disse."""
-    innhold = tabeller(katalog).get(entitet)
-    logiske = {k for r in relasjoner if r["art"] == "logisk" for k in kolonner(r, "fra")}
+    innhold = tabeller(katalog)[entitet]
+    uten_fk = {
+        k
+        for r in relasjoner
+        if r["art"] == "logisk" and not dekkende_fremmednøkkel(r, katalog, fk)
+        for k in kolonner(r, "fra")
+    }
     i_relasjon = {k for r in relasjoner for e in ("fra", "til") for k in kolonner(r, e)}
     unike = {k for u in innhold["unike"] for k in u}
     fk_kolonner = {k for fra, _ in fk for k in fra}
@@ -352,7 +383,7 @@ def _attributter(
         deler = [_mermaidtype(type_), navn]
         if merker:
             deler.append(", ".join(merker))
-        if fullt in logiske and "FK" not in merker:
+        if fullt in uten_fk:
             deler.append('"uten fremmednøkkel"')
         linjer.append("        " + " ".join(deler))
     return linjer
@@ -375,7 +406,8 @@ def er_diagram(register: dict, katalog: dict, lagring: str) -> str:
         entiteter = {t: None for t, i in alle.items() if i["lagring"] == "SQLite"}
         for r in relasjoner:
             for ende in ("fra", "til"):
-                if lag(r, ende) == "PostgreSQL":
+                # En tabell utenfor katalogen tegnes som ekstern entitet nedenfor.
+                if lag(r, ende) == "PostgreSQL" and tabell(r, ende) in alle:
                     entiteter.setdefault(tabell(r, ende), set()).update(
                         k.rpartition(".")[2] for k in kolonner(r, ende)
                     )

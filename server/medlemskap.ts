@@ -4,12 +4,15 @@
  * `koe_api.koblede_prosjekter` og `koe_api.deaktiver_ved_innlogging`. Alderen på
  * medlemslisten leses i `autorisasjon.ts` (#638). Synkroniseringen og innloggingen er systemkall uten
  * aktør og prosjektkontekst (RB2-04), så de går utenom `transaksjon()`; prosedyrene
- * har sin egen transaksjon og samme applås per prosjekt.
+ * har sin egen transaksjon. Synkroniseringen tar applåsen `koe.medlemskap:<prosjekt>`
+ * som `Exclusive`. Innloggingen tar først `koe.innlogging:<bruker>` og deretter
+ * låsen som `Shared` for hvert aktive prosjekt som ikke er i brukerens liste.
  *
  * Tidskilden er basens klokke (B-04 punkt 1): kalleren leser `basensKlokke()` før
  * den henter listen fra Catenda, og oppgir tidspunktet som `hentet`. Catenda-ID-en
- * til prosjektet hentes fra koblingen med `synkroniserProsjekt()`, aldri fra
- * forespørselen (#638). Tilgangskontrollen og innloggingen kaller modulen (F0b-5b).
+ * til prosjektet hentes fra koblingen med `synkroniserProsjekt()`, eller med
+ * `prosjektkobling()` før `synkroniserKobling()`, aldri fra forespørselen (#638).
+ * Tilgangskontrollen og innloggingen kaller modulen (F0b-5b).
  */
 
 import { feilnummer, sql, type Pool } from './datalag.ts';
@@ -45,9 +48,10 @@ const UGYLDIG_PROSJEKT = 52043;
 const LAAST = 52044;
 const UGYLDIG_PROSJEKTLISTE = 52045;
 
+/** `ugyldig` er klassen for en ugyldig liste eller innlogging; uten den gis feilen videre. */
 export function oversett(
   feil: unknown,
-  ugyldig: new (melding: string, valg: ErrorOptions) => Error
+  ugyldig?: new (melding: string, valg: ErrorOptions) => Error
 ): unknown {
   const melding = (feil as Error)?.message ?? '';
   switch (feilnummer(feil)) {
@@ -61,7 +65,7 @@ export function oversett(
     case UGYLDIG_LISTE:
     case UGYLDIG_TIDSPUNKT:
     case UGYLDIG_PROSJEKTLISTE:
-      return new ugyldig(melding, { cause: feil });
+      return ugyldig ? new ugyldig(melding, { cause: feil }) : feil;
     default:
       return feil;
   }
@@ -106,9 +110,24 @@ export async function synkroniserProsjekt(
 ): Promise<boolean> {
   const catendaProsjekt = await prosjektkobling(pool, prosjekt);
   if (!catendaProsjekt) throw new FeilCatendaProsjekt('Prosjektet har ingen aktiv kobling');
+  return synkroniserKobling(pool, { prosjekt, catendaProsjekt }, hentMedlemmer);
+}
+
+/**
+ * Som `synkroniserProsjekt()`, for en kaller som alt har lest koblingen med
+ * `prosjektkobling()` og skal bruke samme Catenda-prosjekt videre (#726 punkt 2).
+ * Er koblingen endret siden, avviser basen listen.
+ *
+ * @throws som `synkroniserMedlemskap()`
+ */
+export async function synkroniserKobling(
+  pool: Pool,
+  kobling: { prosjekt: string; catendaProsjekt: string },
+  hentMedlemmer: (catendaProsjekt: string) => Promise<Medlem[]>
+): Promise<boolean> {
   const hentet = await basensKlokke(pool);
-  const medlemmer = await hentMedlemmer(catendaProsjekt);
-  return synkroniserMedlemskap(pool, { prosjekt, catendaProsjekt, hentet, medlemmer });
+  const medlemmer = await hentMedlemmer(kobling.catendaProsjekt);
+  return synkroniserMedlemskap(pool, { ...kobling, hentet, medlemmer });
 }
 
 /**
@@ -138,8 +157,7 @@ export async function kobledeProsjekter(
  * samtidig eller senere alt er skrevet (DL-U7). En bruker uten medlemskap, som
  * en innlogging med en liste hentet samtidig eller senere viste ikke er med i
  * prosjektet, får ikke noe medlemskap (DL-U9). `catendaProsjekt` kommer fra
- * koblingen, og `hentet` fra `basensKlokke()`. Inngangene kaller
- * `synkroniserProsjekt()`, som leser koblingen.
+ * koblingen, og `hentet` fra `basensKlokke()`.
  *
  * @throws UgyldigMedlemsliste, UgyldigProsjekt, FeilCatendaProsjekt, MedlemskapetLaast
  */

@@ -21,6 +21,7 @@ import type { Utledning } from '$kjerne/utledning/utled';
 import type { Avsnitt, Journalrad, Krav, Spor } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 import type { SakState, SporType, TimelineEvent, VederlagsMetode } from '$lib/types/timeline';
+import type { Visningsrad } from './journal';
 import { getHjemmelLabel, getHjemmelObj } from '$lib/constants/categories';
 import type { TrackDisplay } from '$lib/components/kontraktsbord/derive';
 import type { SporKey } from '$lib/components/kontraktsbord/types';
@@ -94,6 +95,9 @@ export function tilSakState(
   const v = u.spor.vederlag.gjeldendeKrav;
   const f = u.spor.frist.gjeldendeKrav;
   const beloep = tall(v?.innhold.beloep);
+  const metode = tekst(tilKatalogen(METODE_FRA_KATALOGEN, v?.innhold.metode)) as
+    | VederlagsMetode
+    | undefined;
   const sist = (spor: Spor) => ({ siste_oppdatert: sisteOppdatert(journal, u, spor) });
   return utenStatus<SakState, (typeof SAKENS_STATUSFELT)[number]>(
     {
@@ -112,10 +116,11 @@ export function tilSakState(
       vederlag: utenStatus<SakState['vederlag'], (typeof SPORETS_STATUSFELT)[number]>(
         {
           ...sist('vederlag'),
-          metode: tekst(tilKatalogen(METODE_FRA_KATALOGEN, v?.innhold.metode)) as
-            | VederlagsMetode
-            | undefined,
-          belop_direkte: beloep,
+          metode,
+          // Beløpet står i feltet metoden har i katalogen (`VederlagKompensasjon`, #732 p4).
+          ...(metode === 'REGNINGSARBEID'
+            ? { kostnads_overslag: beloep }
+            : { belop_direkte: beloep }),
           krevd_belop: beloep,
           begrunnelse: utdypning(journal, u, v),
         },
@@ -147,7 +152,7 @@ function sporFor(u: Utledning, hendelse: string): SporType | null {
 export function tilTidslinje(
   prosjektId: string,
   sakId: string,
-  journal: Journalrad[],
+  journal: Visningsrad[],
   u: Utledning,
   titler: Record<string, string>
 ): TimelineEvent[] {
@@ -159,10 +164,27 @@ export function tilTidslinje(
     time: r.tidsstempel,
     subject: sakId,
     streamposition: r.versjon,
+    actor: r.aktor_navn,
     actorrole: r.aktor_rolle,
     summary: titler[r.event_id],
     spor: sporFor(u, r.event_id),
   }));
+}
+
+/**
+ * Antall versjoner av det gjeldende kravet i sporet, talt langs `erstatter` fra
+ * `gjeldendeKrav`. 0 når sporet ikke har et gjeldende krav (krav E i #718). Et krav
+ * som alt er talt, telles ikke igjen, så en syklus i `erstatter` stopper tellingen.
+ */
+export function kravversjon(u: Utledning, nokkel: SporKey): number {
+  const s = u.spor[SPOR_FOR[nokkel]];
+  const krav = new Map(s.krav.map((k) => [k.id, k]));
+  const talt = new Set<string>();
+  for (let k = s.gjeldendeKrav ?? undefined; k && !talt.has(k.id); ) {
+    talt.add(k.id);
+    k = k.erstatter ? krav.get(k.erstatter) : undefined;
+  }
+  return talt.size;
 }
 
 /** Visningen av sporet i venstrekolonnen og bestemmelsespanelet. */

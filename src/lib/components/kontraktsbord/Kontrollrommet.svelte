@@ -7,6 +7,7 @@
   const store = getCaseWorkspace();
   // TS-saken (#718): det kjernen ennå ikke kan, vises ikke (OV-U1).
   const kjernesak = store.erKjernesak ? store : null;
+  const pythonsak = store.erKjernesak ? null : store;
   import { createApprovalWorkspace, setApprovalWorkspace } from '$lib/approval/context.svelte';
   import ClaimApprovalView from './ClaimApprovalView.svelte';
   import { onMount, untrack } from 'svelte';
@@ -94,8 +95,16 @@
   );
   // Skjemaene for en TS-sak følger bare handlingene kjernen tilbyr leseren (krav G i #718).
   const kjerneskjema = $derived(
-    kjernesak !== null && sel === 'vederlag' && role === 'TE' && kjernesak.tilbyrVederlagskrav
+    kjernesak !== null && sel === 'vederlag' && kjernesak.tilbyrVederlagskrav
   );
+  // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
+  // ikke kjernen lenger det første kravet, men skjemaet skal fullføre sendingen (#737 p4).
+  let kjerneskjemaAapent = $state(false);
+  $effect(() => {
+    if (mode !== 'form' || sel !== 'vederlag') kjerneskjemaAapent = false;
+    else if (kjerneskjema) kjerneskjemaAapent = true;
+  });
+  const visKjerneskjema = $derived(kjerneskjema || (sel === 'vederlag' && kjerneskjemaAapent));
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   $effect(() => {
@@ -232,8 +241,9 @@
 
 <div class="mockup" class:dark>
   <div class="shell">
+    <!-- En TS-sak viser leserens side fra serveren, og ingen side uten den (#732 p6). -->
     <Header
-      {role}
+      role={kjernesak ? kjernesak.part : role}
       {mode}
       {dark}
       {mobileView}
@@ -254,6 +264,12 @@
 
     {#if !store.isDemo && !kjernesak && !creatingCase && mode === 'read'}
       <EndringsordreLink state={store.sak} projectId={store.projectId} {role} />
+    {/if}
+    <!-- Over panelene, så varselet også vises i matrisen på mobil (#719 p10). -->
+    {#if kjernesak?.submissionError && mode === 'read'}
+      <div class="approval-entry innsendingsvarsel">
+        <p role="alert">{kjernesak.submissionError}</p>
+      </div>
     {/if}
     <div class="body">
       {#if !creatingCase}
@@ -288,9 +304,6 @@
                 >Åpne brev</button
               >
             </div>
-          {/if}
-          {#if kjernesak?.submissionError && mode === 'read'}
-            <div class="approval-entry"><p role="alert">{kjernesak.submissionError}</p></div>
           {/if}
           {#if kravkontroll?.letter}
             {#key kravkontroll.letter}
@@ -331,7 +344,7 @@
                 onform={goForm}
                 onbacktonow={() => (activeEvent = null)}
               />
-            {:else if kjerneskjema}
+            {:else if visKjerneskjema}
               <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {:else if kjernesak}
               <div class="approval-entry">
@@ -368,9 +381,9 @@
               />
             {:else if sel === 'vederlag' && role === 'TE'}
               <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
-            {:else if sel === 'ansvar' && role === 'BH' && !store.erKjernesak}
+            {:else if sel === 'ansvar' && role === 'BH' && pythonsak}
               <GrunnlagForm
-                domainConfig={store.grunnlagDomainConfig}
+                domainConfig={pythonsak.grunnlagDomainConfig}
                 onsend={handleSend}
                 onactions={(a) => (formActions = a)}
               />
@@ -378,7 +391,7 @@
               <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {/if}
 
-            {#if kjernesak && mode === 'form' && !kjerneskjema}
+            {#if kjernesak && mode === 'form' && !visKjerneskjema}
               <!-- Uten skjema har saken bare «Tilbake». -->
             {:else if showApproval && role === 'BH' && !creatingCase}
               <!-- The approval panel carries the actions in this step. -->
@@ -480,6 +493,14 @@
     background: var(--surface);
     font-size: 12px;
   }
+  /* Står ved siden av venstrekolonnen og over `.body`, som trekkes opp under hodet. */
+  .innsendingsvarsel {
+    width: calc(100% - var(--mockup-sidebar-width));
+    margin-left: var(--mockup-sidebar-width);
+    position: relative;
+    z-index: 30;
+    flex-shrink: 0;
+  }
   .approval-entry span {
     display: block;
     margin-top: 4px;
@@ -555,6 +576,10 @@
     }
     .body {
       margin-top: 0;
+    }
+    .innsendingsvarsel {
+      width: 100%;
+      margin-left: 0;
     }
     .center {
       padding-top: 0;

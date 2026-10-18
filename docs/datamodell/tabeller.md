@@ -554,12 +554,12 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820). En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt, men endrer ikke virksomheten. |
+| Hvor fra appen lagres og redigeres | Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820). En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt, men endrer ikke virksomheten; skriptet sier fra når `--organisasjon` er en annen (#836). |
 | Data fra Catenda | Delvis. Navnet oppgis av driften; i Python kan det hentes fra Catenda-prosjektet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.dagmulktssats.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.fullmakt.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`. |
 
@@ -576,7 +576,7 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i 
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id); unik (project_id, catenda_subject). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ikke kontrollert |
 | Personopplysninger | E-post og visningsnavn. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`); database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`) |
+| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`); database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`) |
 | Funn | — |
 | Belegg | L 17.10: migrasjonen og søk i `server/`. K 17.10: `server/tester/medlemskap.test.ts` (DL-U10). |
 
@@ -588,29 +588,29 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | Driften setter teamene med skriptet `server/registrering.ts`, som kontrollerer dem mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`, direkte eller gjennom `koe_drift.registrer_prosjekt` (F-1, #820). Begge sider må ha minst ett team. Uten saker erstatter listen teamene; står prosjektet i `koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764). |
+| Hvor fra appen lagres og redigeres | Driften setter teamene med skriptet `server/registrering.ts`, som kontrollerer dem mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`, direkte eller gjennom `koe_drift.registrer_prosjekt` (F-1, #820). Begge sider må ha minst ett team. Uten saker erstatter listen teamene; står prosjektet i `koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764). Byttes Catenda-prosjektet, må teamene oppgis på nytt (#836). |
 | Data fra Catenda | Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes av driften. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.aktor_team_id (uten fremmednøkkel); koe.hendelse.aktor_team_id (uten fremmednøkkel); koe.notat.aktor_team_id (uten fremmednøkkel); koe.vedlegg.lastet_opp_team (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, også gjennom `koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, kalt fra `server/registrering.ts`); database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`. |
 
 ### `koe.catenda_project_configs`
 
-Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt. `server/medlemskap.ts` leser en aktiv kobling med `koe_api.prosjektkobling` (#658, #638), og `koe_api.koblede_prosjekter` gir prosjektene koblet til brukerens Catenda-prosjekter ved innlogging. `koe_api.brukerens_prosjekter`, kalt fra `server/prosjekter.ts`, tar bare med prosjekter med aktiv kobling (#660). Triggeren `koe.catenda_project_configs_kobling_endret` gjør medlemskapene inaktive når koblingen oppheves, slettes eller endres (DL-U10). Den tomme Catenda-ID-en er ikke lov; den merker synkroniseringsraden etter en slik endring. `topic_board_id` er boardet for saker som opprettes i appen (KT-U4); uten det avviser `koe_api.opprett_sak` saken (#741). Triggeren `koe.catenda_project_configs_endret` setter `updated_at` ved hver endring (#618).
+Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt. `server/medlemskap.ts` leser en aktiv kobling med `koe_api.prosjektkobling` (#658, #638), og `koe_api.koblede_prosjekter` gir prosjektene koblet til brukerens Catenda-prosjekter ved innlogging. `koe_api.brukerens_prosjekter`, kalt fra `server/prosjekter.ts`, tar bare med prosjekter med aktiv kobling (#660). Triggeren `koe.catenda_project_configs_kobling_endret` gjør medlemskapene inaktive når koblingen oppheves, slettes eller endres (DL-U10), og setter Catenda-ID-en i synkroniseringsraden til NULL. Den tomme Catenda-ID-en er ikke lov. `topic_board_id` er boardet for saker som opprettes i appen (KT-U4); uten det avviser `koe_api.opprett_sak` saken (#741). Triggeren `koe.catenda_project_configs_endret` setter `updated_at` ved hver endring (#618).
 
 | Felt | Innhold |
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over Catenda-prosjektet, biblioteket og mappen og gjør koblingen aktiv. Boardet skrives over når det er oppgitt. Ellers står det hvis Catenda-prosjektet er det samme, og fjernes hvis det er byttet. |
+| Hvor fra appen lagres og redigeres | Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over Catenda-prosjektet og biblioteket og gjør koblingen aktiv. Mappen og boardet skrives over når de er oppgitt. Ellers står de hvis Catenda-prosjektet er det samme, og fjernes hvis det er byttet. Mappen fjernes også når biblioteket er byttet. Har prosjektet saker, avvises bytte av Catenda-prosjekt, og uten saker krever et bytte nye kontraktsteam (#836). |
 | Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id); unik (catenda_project_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/jobber.test.ts` og `server/tester/registrering.test.ts`. |
 
@@ -633,7 +633,7 @@ Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at b
 
 ### `koe.app_membership_sync`
 
-Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2), også gjennom `ferskeMedlemmer` for hvert prosjekt i lista i `server/prosjekter.ts` (#660). Svarer til `app_membership_sync` i PostgreSQL. Etter at koblingen er opphevet, slettet eller endret, har raden den tomme Catenda-ID-en og tidspunktet for endringen, så ingen liste fra det koblede prosjektet finnes, og en liste hentet før endringen ikke skrives (DL-U10).
+Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2), også gjennom `ferskeMedlemmer` for hvert prosjekt i lista i `server/prosjekter.ts` (#660). Svarer til `app_membership_sync` i PostgreSQL. Etter at koblingen er opphevet, slettet eller endret, har raden ingen Catenda-ID (NULL) og tidspunktet for endringen, så ingen liste fra det koblede prosjektet finnes, og en liste hentet før endringen ikke skrives (DL-U10, #726). Den tomme Catenda-ID-en er ikke lov.
 
 | Felt | Innhold |
 | --- | --- |
@@ -644,7 +644,7 @@ Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosje
 | Relasjoner | Nøkler: primærnøkkel (project_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny synkronisering |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`) |
+| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`) |
 | Funn | — |
 | Belegg | L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`. K 17.10: DL-U10 i samme test. |
 
@@ -661,7 +661,7 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 | Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.sak_catenda_topic.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` peker på en bruker. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -678,7 +678,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.kvittering.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel); koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -712,7 +712,7 @@ Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En 
 | Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Sakstittelen kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261018140000_brevdokument.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261018140000_brevdokument.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`. |
 
@@ -746,7 +746,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -763,7 +763,7 @@ Kvitteringen per kommando (invariant 4, #418): kommando-ID-en klienten gir, summ
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id, aktor_id, kommando_id); unik (event_id). Viser til: aktor_id → koe.app_users.id (uten fremmednøkkel); (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Aktørens `app_users.id`. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`. |
 
@@ -848,7 +848,7 @@ Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget f
 | Relasjoner | Nøkler: primærnøkkel (pakke_id); unik (pakke_id, prosjekt_id, aktor_team_id); unik indeks (forrige_pakke_id) WHERE ([forrige_pakke_id] IS NOT NULL). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); forrige_pakke_id → koe.godkjenningspakke.pakke_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel). Vises til fra: koe.godkjenningshandling.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Saksbehandleren (`aktor_id`) og innholdet i svaret. |
-| Skrives av | database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
@@ -865,7 +865,7 @@ Godkjennerne i en pakke i kjedens rekkefølge, regnet av `server/fullmakt.ts` da
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, steg); unik (pakke_id, godkjenner_id). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); godkjenner_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningshandling.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Godkjennerne (`godkjenner_id`). |
-| Skrives av | database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
@@ -882,7 +882,7 @@ Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning f
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, loepenr); unik indeks (pakke_id) WHERE ([handling]<>N'godkjent'); unik indeks (pakke_id, steg) WHERE ([handling]=N'godkjent'). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); (pakke_id, steg) → koe.godkjenningssteg.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Den som handlet (`aktor_id`) og begrunnelsen for en retur. |
-| Skrives av | database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
@@ -950,7 +950,7 @@ Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel
 | Relasjoner | Nøkler: primærnøkkel (oekt). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | ja. Raden brukes bare i transaksjonen som førte den. |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`); database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`) |
+| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`); database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`. |
 

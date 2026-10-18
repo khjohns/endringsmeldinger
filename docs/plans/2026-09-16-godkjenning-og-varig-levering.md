@@ -1747,6 +1747,29 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 > - Opprettelsen av en KOE-sak er bygget som kommando i kjernen og som inngangen `POST /api/kjerne/saker` i TS-serveren. Saken og `sak_opprettet` skrives i samme transaksjon, med prosjektet fra autorisert kontekst ([#370](https://github.com/khjohns/endringsmeldinger/issues/370), PR #742, merge 407687a). Topicen i Catenda for en sak som opprettes i appen, er ikke bygget. Den er skilt ut i [#741](https://github.com/khjohns/endringsmeldinger/issues/741) etter vedtak KT-U3 (PR #740, merge a3b1b47).
 > - TS-sakene vises i Kontrollrommet med de eksisterende skjemaene ([#718](https://github.com/khjohns/endringsmeldinger/issues/718)): et felles brevskall for `Brevkontroll` og `ClaimLetterView` (PR #728, merge da1c9c3), Kontrollrommet for TS-saken i stedet for `Saksbilde` (PR #730, merge 97650bb), og `TeVederlagForm` for TS-saker (PR #736, merge 4f9ae6b). `Vederlagsskjema.svelte` er fjernet. For TS-saker skjules §§ 34.1.2/34.1.3, særskilte krav og vedlegg, og utkast er av (arbeidsvalgene i [#718](https://github.com/khjohns/endringsmeldinger/issues/718), kommentaren 6230282330).
 
+> **Merknad 2026-10-18 til FK:** levert: punkt V-2 i
+> [#790](https://github.com/khjohns/endringsmeldinger/issues/790), bindingen av
+> vedlegg i brevet ([PR #826](https://github.com/khjohns/endringsmeldinger/pull/826),
+> merge fee5cb1).
+> - Et vedlegg i brevet må finnes i vedleggsoppslaget, og det bindes i
+>   skrivetransaksjonen etter at saken er låst. Et ukjent vedlegg avvises med
+>   `VEDLEGG_FINNES_IKKE`. Et vedlegg fra en annen sak og et ubundet vedlegg fra
+>   et annet team avvises også, og da skrives ingenting. `koe_api.bind_vedlegg`
+>   leser vedleggene fra den lagrede hendelsen og kontrollerer at hvert vedlegg
+>   er bundet med samme filnavn og hash. Ellers rulles skrivingen tilbake (51422).
+>   Et gjentak med kvittering binder ikke på nytt ([KT-U5](#kt-u5)).
+> - Brevet lagrer for hvert vedlegg ID, filnavn og hash. Serveren fyller inn
+>   filnavn og hash fra mellomlageret, og klienten oppgir bare ID-en
+>   ([LV-U14](#lv-u14)). Et registrert varsel krever brevet som vedlegg
+>   ([OV-U4](#ov-u4)). Brevteksten lister filnavnene.
+> - Migrasjonen er `20261019170000_vedleggsbinding.sql`.
+> - Belegg i PR #826: `/code-review high` på de to byggecommitene ga 10 funn. Ingen
+>   gir feil resultat nå eller bryter et vedtak, så ingen er rettet i koden. Seks
+>   står i [#827](https://github.com/khjohns/endringsmeldinger/issues/827)
+>   (`review-oppfølging`), og fire er avvist i PR-en. Samspillsreviewet med bl.a.
+>   LV-U14, KT-U5, OV-U4 og MM-U9 ga ingen brudd. Feilinnføringene F125, F126,
+>   F164, F167 og F287–F291 ble oppdaget, og `feilinnfoering.ts --ankre` er grønn.
+
 ### F3 — Øvrige adaptere og drift
 
 **Avhenger av:** F2 grønn. Utvid én adapter om gangen.
