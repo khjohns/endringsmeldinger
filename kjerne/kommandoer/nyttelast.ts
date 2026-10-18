@@ -11,7 +11,7 @@ import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
 import { oppgittDato, type OppgittDato } from '../format/format.ts';
-import { datoFor, kalenderdag, standpunkterISvaret } from '../format/leser.ts';
+import { datoFor, kalenderdag } from '../format/leser.ts';
 import { tekst } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -29,14 +29,20 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import { standpunkter } from './standpunkter.ts';
 import type { Avvisning, Part, Standpunkt, Svar } from '../typer.ts';
+
+/**
+ * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.
+ * Skrivingen bygger dem én gang per svar, og brevet lagrer de samme (#804).
+ */
+export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown>) => Standpunkt[];
 
 /** `forrige` er svaret en revisjon erstatter, så bindingen kontrolleres (HF-U5). */
 function kontrollerSvar(
   s: Svarutkast,
   u: Utledning,
   regler: Regelsett,
+  svarstandpunkter: Svarstandpunkter,
   utdypningKreves: boolean,
   forrige: Svar | null = null
 ): Avvisning | null {
@@ -68,11 +74,7 @@ function kontrollerSvar(
     throw feil;
   }
   // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette.
-  let n = 0;
-  const nye = standpunkterISvaret(s.spor, {
-    standpunkter: standpunkter(s, krav, u, () => `utkast-${++n}`),
-    utregning: server,
-  });
+  const nye = svarstandpunkter(s, server);
   const bundet = paaberoptEtterITide(u, s.spor, nye);
   if (bundet)
     return avvis(
@@ -240,6 +242,7 @@ export function nyttelastkontroll(
   part: Part,
   u: Utledning,
   regler: Regelsett,
+  svarstandpunkter: Svarstandpunkter,
   utdypningKreves = true
 ): Avvisning | null {
   switch (k.type) {
@@ -278,7 +281,7 @@ export function nyttelastkontroll(
     }
     case 'brev':
       for (const s of k.svar) {
-        const a = kontrollerSvar(s, u, regler, utdypningKreves);
+        const a = kontrollerSvar(s, u, regler, svarstandpunkter, utdypningKreves);
         if (a) return a;
       }
       return null;
@@ -286,7 +289,7 @@ export function nyttelastkontroll(
       const forrige = u.spor[k.svar.spor].gjeldendeSvar;
       if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
-      return kontrollerSvar(k.svar, u, regler, utdypningKreves, forrige);
+      return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves, forrige);
     }
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar.

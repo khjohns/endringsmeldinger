@@ -6,7 +6,7 @@
 
 import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
 import type { Kommando } from './kommando.ts';
-import { nyttelastkontroll } from './nyttelast.ts';
+import { nyttelastkontroll, type Svarstandpunkter } from './nyttelast.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Avvisning, Part } from '../typer.ts';
@@ -50,11 +50,12 @@ export function avvisning(
   part: Part,
   u: Utledning,
   regler: Regelsett,
+  svarstandpunkter: Svarstandpunkter,
   utdypningKreves = true
 ): Avvisning | null {
   for (const h of handlingsnoekler(k)) {
     const brudd = forutsetninger(h, part, u);
     if (brudd) return brudd;
   }
-  return nyttelastkontroll(k, part, u, regler, utdypningKreves);
+  return nyttelastkontroll(k, part, u, regler, svarstandpunkter, utdypningKreves);
 }

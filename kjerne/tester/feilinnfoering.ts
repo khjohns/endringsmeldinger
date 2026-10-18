@@ -1470,10 +1470,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'datoen for et svar fra appen er i UTC, ikke i norsk tid (KA-U37)',
     fil: `${K}/format/leser.ts`,
     endringer: [
-      [
-        'TIDSPUNKT.test(d.registrert) ? kalenderdag(d.registrert) : null',
-        'TIDSPUNKT.test(d.registrert) ? d.registrert.slice(0, 10) : null',
-      ],
+      ['  const dag = kalenderdag(d.registrert);', '  const dag = d.registrert.slice(0, 10);'],
     ],
     mal: ['brevets dato er datoen i norsk tid, ikke i UTC'],
   },
@@ -2119,7 +2116,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et krav, svar, en aksept eller et trekk i et registrert brev får virkning igjen (OV-U4, #574)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['  if (!erRegistrert(d.opplysninger)) return new Set();', '  return new Set();']],
+    endringer: [
+      ['  if (!erRegistrert(d.opplysninger)) return new Set(krav);', '  return new Set();'],
+    ],
     mal: ['F-MM-G44', 'F-MM-G45-kontroll', 'F-MM-G46'],
   },
   {
@@ -2480,6 +2479,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['(k) => gjelderVarslingsplikten(k, regler)) ===', '() => false) ===']],
     mal: ['ikke av et nyere regelsett'],
+  },
+  {
+    id: 'F286',
+    feilklasse:
+      'et «i tide» etter § 32.2 binder bare versjoner i samme kategori (HF-U8, arbeidsvalget i #798, #804)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      binder(u, s) &&\n      s.standpunkter.some((p) =>',
+        "      binder(u, s) &&\n      (spor !== 'grunnlag' ||\n        sammeKategori(\n          u.spor.grunnlag.krav.find((k) => k.id === s.gjelder)!,\n          u.spor.grunnlag.gjeldendeKrav!\n        )) &&\n      s.standpunkter.some((p) =>",
+      ],
+    ],
+    mal: ['når et svar utenfor kommandoene har besvart den'],
   },
 ];
 
