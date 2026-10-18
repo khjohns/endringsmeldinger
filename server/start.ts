@@ -77,10 +77,9 @@ let innlogging: Innlogging | null = null;
 let catenda = utenCatenda;
 let jobber: Jobbkjoerer | null = null;
 try {
-  innlogging = innloggingFraMiljoe();
+  const { frontend } = (innlogging = innloggingFraMiljoe());
   const klient = catendaFraMiljoe();
   catenda = integrasjonen(klient);
-  const frontend = new URL(process.env.AUTH_FRONTEND_URL ?? '').origin;
   jobber = startJobbkjoerer({
     datalag,
     catenda: topicoppretter(klient),

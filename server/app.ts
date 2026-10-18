@@ -223,11 +223,11 @@ const regelavvisning = ({ feil, avvisning }: { feil: string; avvisning: Avvisnin
   { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
 ];
 
-/** Svaret på en avvisning fra skrivelaget som er felles for inngangene, eller `null` (#743). */
-function skriveavvisning(feil: unknown): Svar | null {
+/** Svaret på en avvisning fra skrivelaget som er felles for inngangene (#743). Andre feil kastes videre. */
+function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
-  return null;
+  throw feil;
 }
 
 const erHeltall = (v: unknown): v is number =>
@@ -348,9 +348,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         },
       ];
     if (feil instanceof SakFinnesIkke) return finnesIkke();
-    const svar = skriveavvisning(feil);
-    if (svar) return svar;
-    throw feil;
+    return skriveavvisning(feil);
   }
   if (!utfall.skriv) return regelavvisning(utfall.avvisning);
   // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen.
@@ -396,9 +394,7 @@ async function opprettNySak(
         'INGEN_TOPIC_BOARD',
         'Prosjektet har ikke noe topic-board i Catenda for nye saker. Saken er ikke opprettet.'
       );
-    const svar = skriveavvisning(feil);
-    if (svar) return svar;
-    throw feil;
+    return skriveavvisning(feil);
   }
   avh.vekkJobbkjoereren();
   return [201, { success: true, sak_id: rad.sak_id, versjon: rad.versjon }];

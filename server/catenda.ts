@@ -79,18 +79,14 @@ async function forespoersel(
   }
   const hoder: Record<string, string> = { Accept: 'application/json' };
   if (valg.token) hoder.Authorization = `Bearer ${valg.token}`;
-  if (valg.json) hoder['Content-Type'] = 'application/json';
   const endring = valg.json !== undefined;
+  if (endring) hoder['Content-Type'] = 'application/json';
   let svar: Response;
   try {
     svar = await fetch(adresse, {
       method: metode,
       headers: hoder,
-      body: valg.json
-        ? JSON.stringify(valg.json)
-        : valg.skjema
-          ? new URLSearchParams(valg.skjema)
-          : undefined,
+      body: endring ? JSON.stringify(valg.json) : valg.skjema && new URLSearchParams(valg.skjema),
       redirect: 'manual',
       signal: AbortSignal.timeout(oppsett.tidsavbruddMs ?? 15_000),
     });
