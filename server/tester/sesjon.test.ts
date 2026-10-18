@@ -20,6 +20,7 @@ import {
   UgyldigSesjonsdata,
   UkjentBruker,
 } from '../sesjon.ts';
+import { opprettPool } from '../datalag.ts';
 import { avvisning, catendaBruker, opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   opprettKjoeretid,
@@ -228,46 +229,88 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
     );
   });
 
-  // Planen for prosedyren, uten å kjøre den, på en egen forbindelse, så
-  // SHOWPLAN_XML aldri følger en forbindelse tilbake til poolen.
-  async function plan(kall: string): Promise<string> {
+  // Planen for prosedyren, uten å kjøre den. Forbindelsen er egen og har
+  // datalagets konfigurasjon, så SHOWPLAN_XML aldri følger en forbindelse
+  // tilbake til poolen testene ellers bruker.
+  let planforbindelse: Pool;
+  beforeAll(async () => {
     const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
-    const forbindelse = await new sql.ConnectionPool({
-      ...config,
-      database: base.navn,
-      pool: { max: 1 },
-    }).connect();
+    planforbindelse = await opprettPool(
+      { ...config, database: base.navn, connectionTimeout: 5_000, requestTimeout: 60_000 },
+      { maks: 1 }
+    );
+  });
+  afterAll(async () => {
+    await planforbindelse?.close();
+  });
+
+  async function plan(kall: string): Promise<string> {
+    await planforbindelse.request().batch('SET SHOWPLAN_XML ON');
     try {
-      await forbindelse.request().batch('SET SHOWPLAN_XML ON');
-      const svar = await forbindelse.request().batch(kall);
+      const svar = await planforbindelse.request().batch(kall);
       return (svar.recordsets as unknown as Record<string, string>[][])
         .flatMap((sett) => sett.map((rad) => Object.values(rad).join('')))
         .join('\n');
     } finally {
-      await forbindelse.close();
+      await planforbindelse.request().batch('SET SHOWPLAN_XML OFF');
     }
+  }
+
+  // Kolonnene i likhetssøkene i indeksen `noekkel`. Søket står i en `IndexScan`
+  // eller rett i en `Update` eller `SimpleUpdate` (som `Clustered Index Delete`),
+  // og indeksen er det første `Object` etter operatoren.
+  function soek(xml: string, noekkel: string): string[] {
+    return [...xml.matchAll(/<SeekPredicateNew>(.*?)<\/SeekPredicateNew>/gs)].flatMap((m) => {
+      const foer = xml.slice(0, m.index);
+      const operator = Math.max(
+        foer.lastIndexOf('<IndexScan '),
+        foer.lastIndexOf('<Update '),
+        foer.lastIndexOf('<SimpleUpdate ')
+      );
+      const indeks = /<Object [^>]*Index="\[([^\]]*)\]"/.exec(foer.slice(operator))?.[1];
+      const kolonne =
+        /<Prefix ScanType="EQ">\s*<RangeColumns>\s*<ColumnReference [^>]*Column="([^"]*)"/.exec(
+          m[1]
+        )?.[1];
+      return operator >= 0 && indeks === noekkel && kolonne ? [kolonne] : [];
+    });
   }
 
   const H = '0'.repeat(64);
   // En `nvarchar`-parameter mot en `varchar`-kolonne konverterer kolonnen, og
   // oppslaget leser hele tabellen eller søker i et område med kolonnen konvertert
   // (#691). Søket kan stå i en egen operator eller inne i `Clustered Index
-  // Delete`, så testen krever bare at nøkkelen brukes uten skanning og
-  // konvertering.
+  // Delete`. Testen krever et likhetssøk på hashkolonnen i primærnøkkelen, og
+  // ingen skanning, så heller ikke en sekundærindeks med oppslag i nøkkelen.
   it.each([
-    ['les_sesjon', `EXEC koe_api.les_sesjon @token_hash = N'${H}'`, 'app_sessions_pk'],
-    ['slett_sesjon', `EXEC koe_api.slett_sesjon @token_hash = N'${H}'`, 'app_sessions_pk'],
+    [
+      'les_sesjon',
+      `EXEC koe_api.les_sesjon @token_hash = N'${H}'`,
+      'app_sessions_pk',
+      'token_hash',
+    ],
+    [
+      'slett_sesjon',
+      `EXEC koe_api.slett_sesjon @token_hash = N'${H}'`,
+      'app_sessions_pk',
+      'token_hash',
+    ],
     [
       'bruk_innloggingsforsoek',
       `EXEC koe_api.bruk_innloggingsforsoek @state_hash = N'${H}', @nettleser_hash = N'${H}'`,
       'app_oauth_attempts_pk',
+      'state_hash',
     ],
-  ])('%s søker i primærnøkkelen uten å konvertere hashkolonnen', async (_, kall, noekkel) => {
-    const xml = await plan(kall);
-    expect(xml).toContain(`Index="[${noekkel}]"`);
-    expect(xml).not.toMatch(/PhysicalOp="Clustered Index Scan"/);
-    expect(xml).not.toMatch(/CONVERT_IMPLICIT\([^)]*\)?,[^,]*\[(token|state|browser)_hash\]/);
-  });
+  ])(
+    '%s søker i primærnøkkelen uten å konvertere hashkolonnen',
+    async (_, kall, noekkel, kolonne) => {
+      const xml = await plan(kall);
+      const skanninger = [...xml.matchAll(/PhysicalOp="([^"]*Scan[^"]*)"/g)].map((m) => m[1]);
+      expect(skanninger.filter((op) => op !== 'Constant Scan')).toEqual([]);
+      expect(soek(xml, noekkel)).toContain(kolonne);
+      expect(xml).not.toMatch(/CONVERT_IMPLICIT\([^)]*\)?,[^,]*\[(token|state|browser)_hash\]/);
+    }
+  );
 
   it.each(['app_sessions', 'app_oauth_attempts'])(
     'kjøretiden kan ikke lese eller endre koe.%s direkte',
