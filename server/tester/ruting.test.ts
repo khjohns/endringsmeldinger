@@ -1,9 +1,9 @@
 /**
  * Den lokale rutingen (F0b-8, #662): TS-serveren svarer på innloggingen og
- * `/api/csrf-token` (F0b-5a, #659), kjernen og `GET` av prosjektene (F0b-6, #660).
- * Opprettelsen, endringen, deaktiveringen og medlemmene av prosjektene ligger
- * fortsatt i Python (`backend/routes/project_routes.py` og
- * `membership_routes.py`), og ville fått 404 fra TS.
+ * `/api/csrf-token` (F0b-5a, #659), kjernen, `GET` av prosjektene (F0b-6, #660) og
+ * medlemmene (F-1a, #820). Opprettelsen, endringen og deaktiveringen av
+ * prosjektene ligger fortsatt i Python (`backend/routes/project_routes.py`), og
+ * ville fått 404 fra TS.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -21,6 +21,9 @@ describe('den lokale rutingen til TS-serveren', () => {
     ['GET', '/api/projects/p1'],
     ['GET', '/api/kjerne/saker/1'],
     ['POST', '/api/kjerne/saker/1/kommandoer'],
+    ['GET', '/api/projects/p1/members'],
+    ['PATCH', '/api/projects/p1/members/m1'],
+    ['POST', '/api/projects/p1/members/sync'],
   ])('%s %s går til TS', (metode, url) => {
     expect(tilTsServeren(metode, url)).toBe(true);
   });
@@ -29,9 +32,7 @@ describe('den lokale rutingen til TS-serveren', () => {
     ['POST', '/api/projects'],
     ['PATCH', '/api/projects/p1'],
     ['PATCH', '/api/projects/p1/deactivate'],
-    ['GET', '/api/projects/p1/members'],
-    ['PATCH', '/api/projects/p1/members/m1'],
-    ['POST', '/api/projects/p1/members/sync'],
+    ['GET', '/api/projects/p1/membersx'],
     ['GET', '/api/cases/1/state'],
     ['GET', '/api/authx'],
     ['GET', '/api/csrf-token/x'],

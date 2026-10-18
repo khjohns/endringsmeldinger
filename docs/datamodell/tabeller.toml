@@ -680,7 +680,8 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i
 PostgreSQL. `server/autorisasjon.ts` leser aktørens aktive medlemskap med
 `koe_api.prosjektmedlemskap` (#658). `koe_api.brukerens_prosjekter` og
 `koe_api.prosjekt`, kalt fra `server/prosjekter.ts`, leser bare prosjekter der
-aktøren har et aktivt medlemskap (#660)."""
+aktøren har et aktivt medlemskap (#660). `koe_api.medlemmer`, også kalt derfra,
+leser de aktive medlemmene for en aktør med aktivt medlemskap (#820)."""
 lagres_fra = """
 `koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`, skriver
 medlemslisten fra Catenda og gjør medlemmer som ikke står i den, inaktive.
@@ -693,11 +694,14 @@ hentet før den gir ikke et nytt medlemskap (DL-U9). Tilgangskontrollen i
 `server/autorisasjon.ts` og tilbakekallet i `server/innlogging.ts` kaller modulen
 (F0b-5b). Blir koblingen opphevet, slettet eller endret, gjør triggeren
 `koe.catenda_project_configs_kobling_endret` alle medlemskapene i prosjektet
-inaktive med `deactivated_at` satt til tidspunktet for endringen (DL-U10)."""
+inaktive med `deactivated_at` satt til tidspunktet for endringen (DL-U10).
+`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`, setter
+`viewer_override` for et annet aktivt medlem når aktøren er aktiv admin uten
+leserolle (#820)."""
 fra_catenda = "Ja, medlemslisten i Catenda."
 kan_gjenoppbygges = "ikke kontrollert"
 personopplysninger = "E-post og visningsnavn."
-skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`)"]
+skrivere = ["database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`)", "database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`)", "database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`)"]
 funn = []
 belegg = "L 17.10: migrasjonen og søk i `server/`. K 17.10: `server/tester/medlemskap.test.ts` (DL-U10)."
 
