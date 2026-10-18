@@ -129,13 +129,6 @@ export async function lagOppsett(): Promise<Oppsett> {
         });
       }
     }
-    // Testene leser og endrer jobbene og topicen som kjøreveien (`somJobbkjoerer`). I en
-    // migrert base har brukeren ingen rettigheter; prosedyrene går gjennom eierskapskjeden.
-    await r().batch(
-      `GRANT SELECT, UPDATE ON koe.jobb TO koe_jobbkjoerer;
-       GRANT SELECT ON koe.jobbforsoek TO koe_jobbkjoerer;
-       GRANT INSERT ON koe.sak_catenda_topic TO koe_jobbkjoerer;`
-    );
     return {
       datalag: { base, kjoeretid: await opprettKjoeretid(base) },
       prosjekt: p,
@@ -157,9 +150,26 @@ export async function lagOppsett(): Promise<Oppsett> {
 }
 
 /**
+ * Rettighetene testene trenger for å lese og endre jobbene som kjøreveien. I en
+ * migrert base har brukeren ingen; prosedyrene går gjennom eierskapskjeden. De gis
+ * bare så lenge setningen kjører, så en prosedyre som trenger dem, feiler i testene
+ * som i drift (#778).
+ */
+const TESTRETTIGHETER = [
+  'SELECT, UPDATE ON koe.jobb',
+  'SELECT ON koe.jobbforsoek',
+  'SELECT ON koe.leveringskvittering',
+  'SELECT ON koe.leveringsoppdrag',
+  'SELECT, INSERT ON koe.sak_catenda_topic',
+];
+const gi = TESTRETTIGHETER.map((r) => `GRANT ${r} TO koe_jobbkjoerer;`).join(' ');
+const ta = TESTRETTIGHETER.map((r) => `REVOKE ${r} FROM koe_jobbkjoerer;`).join(' ');
+
+/**
  * Setningen som eieren kjører som `koe_jobbkjoerer`, så radsikkerheten slipper den
- * gjennom. Identiteten settes tilbake også når setningen feiler, så forbindelsen i
- * poolen ikke blir stående som kjøreveien.
+ * gjennom, med `TESTRETTIGHETER` mens den kjører. Identiteten og rettighetene settes
+ * tilbake også når setningen feiler, så forbindelsen i poolen ikke blir stående som
+ * kjøreveien.
  */
 export function somJobbkjoerer<T>(
   o: Oppsett,
@@ -169,9 +179,11 @@ export function somJobbkjoerer<T>(
   const r = o.datalag.base.pool.request();
   for (const [navn, verdi] of Object.entries(parametre)) r.input(navn, verdi);
   return r.query<T>(
-    `EXECUTE AS USER = 'koe_jobbkjoerer';
-     BEGIN TRY ${setning}; END TRY BEGIN CATCH REVERT; THROW; END CATCH;
-     REVERT;`
+    `${gi}
+     EXECUTE AS USER = 'koe_jobbkjoerer';
+     BEGIN TRY ${setning}; END TRY BEGIN CATCH REVERT; ${ta} THROW; END CATCH;
+     REVERT;
+     ${ta}`
   );
 }
 

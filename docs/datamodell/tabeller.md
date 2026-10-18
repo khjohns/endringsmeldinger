@@ -48,6 +48,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.jobb`](#koejobb) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.jobbforsoek`](#koejobbforsoek) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.leveringsoppdrag`](#koeleveringsoppdrag) | SQL Server | transaksjon | i bruk | Ja | Nei |
+| [`koe.leveringskvittering`](#koeleveringskvittering) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.sak_catenda_topic`](#koesak_catenda_topic) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.skrivetidspunkt`](#koeskrivetidspunkt) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.kjernebuffer`](#koekjernebuffer) | SQL Server | avledet | uavklart | Nei | Nei |
@@ -691,24 +692,24 @@ Interne notater, skjermet på teamet (AGENTS.md). Ikke et kontraktsvarsel, og ka
 
 ### `koe.jobb`
 
-Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En sak fra appen får jobben `catenda_topic` i samme transaksjon, med boardet, Catenda-prosjektet og sakstittelen frosset (KT-U3, invariant 6). Jobben har en lease mens den gjøres, og tilstanden `venter`, `utfoert` eller `parkert`. Bare kjøreveien, `koe_jobbkjoerer`, ser og endrer jobbene; kjøretiden har ingen rett på tabellen.
+Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En sak fra appen får jobben `catenda_topic` i samme transaksjon, med boardet, Catenda-prosjektet og sakstittelen frosset (KT-U3, invariant 6). Et brev med tekst fra appen får jobben `levering` for leveringsoppdraget, lagt inn av triggeren `koe.leveringsoppdrag_levering` (#371). Jobben har en lease mens den gjøres, og tilstanden `venter`, `utfoert` eller `parkert`. Bare kjøreveien, `koe_jobbkjoerer`, ser og endrer jobbene; kjøretiden har ingen rett på tabellen.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.opprett_sak`, og endres av `koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.registrer_jobbfeil` og driftsverktøyet `koe_api.start_jobb_paa_nytt`. |
+| Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` og triggeren `koe.leveringsoppdrag_levering`, og endres av `koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.kvitter_levering`, `koe_api.registrer_jobbfeil` og driftsverktøyet `koe_api.start_jobb_paa_nytt`. |
 | Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Sakstittelen kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018100000_jobber.sql (`koe_api.opprett_sak` og prosedyrene for jobbkjøreren, kalt fra `server/kommandoer.ts` og `server/jobber.ts`) |
+| Skrives av | database/migrasjoner/20261018100000_jobber.sql (`koe_api.opprett_sak` og prosedyrene for jobbkjøreren, kalt fra `server/kommandoer.ts` og `server/jobber.ts`); database/migrasjoner/20261018120000_levering.sql (triggeren `koe.leveringsoppdrag_levering` ved `koe_api.skriv_hendelse`, og prosedyrene for jobbkjøreren) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`. |
 
 ### `koe.jobbforsoek`
 
-Hvert forsøk, hver feil, hver kvittering og hver omstart av en jobb for seg (LV-U1, invariant 7 og 8). Forsøket har leasens ID og lagres når utfallet er kjent: `utfoert`, `feilet`, `usikkert`, `kobling_endret` eller `startet_paa_nytt`, med innloggingen som startet jobben på nytt. Raden endres ikke.
+Hvert forsøk, hver feil, hver kvittering og hver omstart av en jobb for seg (LV-U1, invariant 7 og 8). Forsøket har leasens ID og lagres når utfallet er kjent: `utfoert`, `feilet`, `usikkert`, `avvist`, `kobling_endret` eller `startet_paa_nytt`, med innloggingen som startet jobben på nytt. Raden endres ikke.
 
 | Felt | Innhold |
 | --- | --- |
@@ -716,10 +717,10 @@ Hvert forsøk, hver feil, hver kvittering og hver omstart av en jobb for seg (LV
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Prosedyrene for jobbkjøreren og driftsverktøyet i `database/migrasjoner/20261018100000_jobber.sql`. |
 | Data fra Catenda | Nei. Meldingen er fra klienten i `server/catenda.ts`, uten svarkropp. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (forsoek_id). Viser til: jobb_id → koe.jobb.jobb_id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobb.siste_forsoek (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (forsoek_id). Viser til: jobb_id → koe.jobb.jobb_id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobb.siste_forsoek (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.forsoek_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innloggingen til den i driften som startet en jobb på nytt. |
-| Skrives av | database/migrasjoner/20261018100000_jobber.sql (`koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.registrer_jobbfeil` og `koe_api.start_jobb_paa_nytt`) |
+| Skrives av | database/migrasjoner/20261018120000_levering.sql (`koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.kvitter_levering`, `koe_api.registrer_jobbfeil` og `koe_api.start_jobb_paa_nytt`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`. |
 
@@ -733,12 +734,29 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661). |
 | Data fra Catenda | Nei, men oppdraget gjelder en levering til Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobb.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
 | Skrives av | database/migrasjoner/20261016230000_skranker.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
+
+### `koe.leveringskvittering`
+
+Kvitteringen for hver obligatoriske operasjon i leveringen av et brev (#371 del 1, invariant 7): `dokument` når dokumentet ligger i biblioteket, og `dokumentreferanse` når referansen står på topicen. Brevet er levert når begge radene finnes (B-03, arbeidsvalget 18.10 i #371). Raden har leasen og ID-en Catenda ga, og endres ikke. Bare kjøreveien, `koe_jobbkjoerer`, kan legge inn en rad.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | transaksjon |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt av jobbkjøreren i `server/jobber.ts`. |
+| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id, operasjon). Viser til: leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, forutsetning) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Nei. |
+| Skrives av | database/migrasjoner/20261018120000_levering.sql (`koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt fra `server/jobber.ts`) |
+| Funn | — |
+| Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/levering.test.ts`. |
 
 ### `koe.sak_catenda_topic`
 

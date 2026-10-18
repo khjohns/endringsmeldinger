@@ -820,15 +820,23 @@
      ["lease", "uniqueidentifier", "NULL"],
      ["lease_startet", "datetime2(3)", "NULL"],
      ["lease_utloeper", "datetime2(3)", "NULL"],
-     ["siste_forsoek", "uniqueidentifier", "NULL"]
+     ["siste_forsoek", "uniqueidentifier", "NULL"],
+     ["leveringsoppdrag_id", "uniqueidentifier", "NULL"]
     ],
     "primærnøkkel": ["jobb_id"],
     "unike": [],
     "unike_indekser": [
      "(lease) WHERE ([lease] IS NOT NULL)",
+     "(leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL)",
      "(sak_id) WHERE ([jobbtype]=N'catenda_topic')"
     ],
     "fremmednøkler": [
+     {
+      "kolonner": ["leveringsoppdrag_id"],
+      "til": "koe.leveringsoppdrag",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
      {
       "kolonner": ["sak_id", "prosjekt_id"],
       "til": "koe.sak_metadata",
@@ -882,6 +890,34 @@
       "kolonner": ["sak_id", "prosjekt_id"],
       "til": "koe.sak_metadata",
       "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.leveringskvittering": {
+    "kolonner": [
+     ["leveringsoppdrag_id", "uniqueidentifier", "NOT NULL"],
+     ["operasjon", "nvarchar(20)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["catenda_id", "nvarchar(100)", "NOT NULL"],
+     ["forsoek_id", "uniqueidentifier", "NOT NULL"],
+     ["kvittert", "datetime2(3)", "NOT NULL"],
+     ["forutsetning", "nvarchar(20)", "NULL"]
+    ],
+    "primærnøkkel": ["leveringsoppdrag_id", "operasjon"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["leveringsoppdrag_id"],
+      "til": "koe.leveringsoppdrag",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["leveringsoppdrag_id", "forutsetning"],
+      "til": "koe.leveringskvittering",
+      "til_kolonner": ["leveringsoppdrag_id", "operasjon"],
       "ved_sletting": "NO ACTION"
      }
     ]
