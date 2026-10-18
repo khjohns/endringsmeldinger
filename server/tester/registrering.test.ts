@@ -201,8 +201,11 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
   });
 
   it.each([
-    ['samme Catenda-prosjekt beholder boardet', true],
-    ['et nytt Catenda-prosjekt fjerner boardet', false],
+    ['samme Catenda-prosjekt beholder boardet, som koe_register_project', true],
+    [
+      'et nytt Catenda-prosjekt fjerner boardet, så en ny sak ikke får en topic i det gamle prosjektet',
+      false,
+    ],
   ])('en ny registrering uten --board og %s', async (_tilfelle, sammeProsjekt) => {
     const prosjekt = `p-reg-${randomUUID().slice(0, 8)}`;
     const catendaProsjekt = randomUUID();

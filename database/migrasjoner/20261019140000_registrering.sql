@@ -114,8 +114,10 @@ GO
 
 -- Registrerer prosjektet og koblingen, eller registrerer et prosjekt på nytt, som
 -- `koe_register_project` i PostgreSQL: navnet, beskrivelsen og koblingen skrives
--- over, og prosjektet og koblingen blir aktive. Uten `@board` står boardet, men
--- bare når Catenda-prosjektet er det samme; ellers fjernes det. Virksomheten endres ikke ved ny
+-- over, og prosjektet og koblingen blir aktive. Uten `@board` står boardet når
+-- Catenda-prosjektet er det samme. Byttes prosjektet, fjernes det, så en ny sak
+-- ikke får en topic i det gamle prosjektet; her avviker prosedyren fra
+-- PostgreSQL, der det gamle boardet står. Virksomheten endres ikke ved ny
 -- registrering. Endres koblingen, gjør triggeren
 -- `koe.catenda_project_configs_kobling_endret` medlemskapene inaktive (DL-U10).
 -- Med `@team` settes kontraktsteamene i samme transaksjon.
