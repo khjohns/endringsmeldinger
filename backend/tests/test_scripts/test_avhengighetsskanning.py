@@ -87,6 +87,12 @@ def test_unntak_uten_dato_avvises(tmp_path):
     assert "mangler dato" in resultat.stderr
 
 
+def test_samme_unntak_to_ganger_avvises(tmp_path):
+    resultat = _kjoer(tmp_path, _rapport("high", True), UNNTAK + "\n" + UNNTAK)
+    assert resultat.returncode != 0
+    assert "står to ganger" in resultat.stderr
+
+
 def test_feil_fra_npm_audit_gir_ikke_gront(tmp_path):
     resultat = _kjoer(tmp_path, {"error": {"code": "ENOTFOUND"}})
     assert resultat.returncode != 0

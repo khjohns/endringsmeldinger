@@ -209,8 +209,8 @@ jobs:
       - name: Typesjekk av skrivestien i språkprøven
         run: npx tsc -p sprakprove/skrivesti/tsconfig.json
 
-      # #602, #752: lenkekontrollen er stdlib-Python uten avhengigheter, og
-      # kontrollerer alle .md under docs/ og .claude/, og AGENTS.md og CLAUDE.md.
+      # #602, #752: lenkekontrollen er stdlib-Python uten avhengigheter.
+      # Omfanget står i docstringen i docs/verktoy/lenkekontroll.py.
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
