@@ -2,6 +2,7 @@
 -- «Runde 8b»). Har prosjektet saker, avvises bytte av Catenda-prosjekt. Uten saker
 -- krever et bytte at kontraktsteamene oppgis på nytt, og de gamle teamene
 -- erstattes. Mappen og boardet beholdes bare når Catenda-prosjektet er det samme.
+-- Mappen hører til biblioteket, så den beholdes bare når biblioteket også er det samme.
 --
 -- Prosedyren gir utfallet tilbake, så skriptet kan si at virksomheten er uendret
 -- (KR-01) og at prosjektet står uten board.
@@ -60,7 +61,8 @@ BEGIN
     UPDATE koe.catenda_project_configs
        SET catenda_project_id = @catenda_prosjekt, library_id = @bibliotek,
            folder_id = CASE WHEN @mappe IS NOT NULL THEN @mappe
-                            WHEN catenda_project_id = @catenda_prosjekt THEN folder_id END,
+                            WHEN catenda_project_id = @catenda_prosjekt
+                                 AND library_id = @bibliotek THEN folder_id END,
            topic_board_id = CASE WHEN @board IS NOT NULL THEN @board
                                  WHEN catenda_project_id = @catenda_prosjekt THEN topic_board_id END,
            is_active = 1

@@ -244,14 +244,20 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
   }
 
   /** Registrerer prosjektet med mappe og board, og så på nytt uten dem. */
-  async function registrerPaaNytt(sammeProsjekt: boolean, nyeTeam: Kontraktsteam[] | null) {
+  async function registrerPaaNytt(
+    sammeProsjekt: boolean,
+    nyeTeam: Kontraktsteam[] | null,
+    nyttBibliotek = false
+  ) {
     const t = naaFor();
     const { prosjekt, catendaProsjekt } = await nyttProsjekt(t);
-    const [mappe, board] = [randomUUID(), randomUUID()];
-    const felles = ['--prosjekt', prosjekt, '--organisasjon', 'org-1', '--bibliotek', randomUUID()];
+    const [mappe, board, bibliotek] = [randomUUID(), randomUUID(), randomUUID()];
+    const felles = ['--prosjekt', prosjekt, '--organisasjon', 'org-1'];
     await skript(
       'registrer',
       ...felles,
+      '--bibliotek',
+      bibliotek,
       '--catenda-prosjekt',
       catendaProsjekt,
       '--navn',
@@ -267,6 +273,8 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     const kall = skript(
       'registrer',
       ...felles,
+      '--bibliotek',
+      nyttBibliotek ? randomUUID() : bibliotek,
       '--catenda-prosjekt',
       nyttCatenda,
       '--navn',
@@ -286,6 +294,19 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     });
     expect((await lesKontraktsteam(drift.pool, r.prosjekt))?.team).toEqual(r.gamleTeam);
     expect(linjer.join('\n')).not.toMatch(/board/);
+  });
+
+  it('et nytt bibliotek i samme Catenda-prosjekt fjerner mappen, beholder boardet og sier det (#836, svaret 18.10 i #764; mappen hører til biblioteket)', async () => {
+    const r = await registrerPaaNytt(true, null, true);
+    await r.kall;
+    expect(await kobling(r.prosjekt)).toEqual({
+      catenda: r.catendaProsjekt,
+      mappe: null,
+      board: r.board,
+    });
+    expect(linjer).toContain(
+      'Prosjektet har ingen mappe: dokumentene lastes opp i roten av biblioteket.'
+    );
   });
 
   it('et nytt Catenda-prosjekt uten saker fjerner mappen og boardet, erstatter teamene og varsler om boardet (#836)', async () => {
@@ -429,6 +450,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
 
     it('bytte av Catenda-prosjekt avvises med 52066, også med nye team (#836, svaret 18.10 i #764)', async () => {
       const foer = await kobling(o.prosjekt.id);
+      const teamFoer = (await lesKontraktsteam(drift.pool, o.prosjekt.id))!.team;
       const nye = naaFor();
       iCatenda = new Map(nye.map((x) => [x.team_id, 'Team']));
       const kall = skript(
@@ -447,7 +469,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       );
       expect(await avvisning(kall)).toBe(52066);
       expect(await kobling(o.prosjekt.id)).toEqual(foer);
-      expect((await lesKontraktsteam(drift.pool, o.prosjekt.id))!.team).not.toEqual(nye);
+      expect((await lesKontraktsteam(drift.pool, o.prosjekt.id))!.team).toEqual(teamFoer);
     });
 
     it('et team som fjernes, avvises med 52064, og teamene står', async () => {

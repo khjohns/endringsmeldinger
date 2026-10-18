@@ -3,7 +3,8 @@
  * etter `register` og `contract-teams` i `backend/scripts/catenda_admin.py`.
  * Registreringen er ingen inngang i appen; skriptet kjører prosedyrene i
  * `koe_drift`, som bare `koe_driftsrolle` kan kjøre
- * (`database/migrasjoner/20261019140000_registrering.sql`).
+ * (`database/migrasjoner/20261019140000_registrering.sql`; `registrer_prosjekt` er
+ * sist definert i `20261019230000_registrering_bytte.sql`).
  *
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts registrer \
  *     --prosjekt oslobygg --navn "Oslobygg" --organisasjon org-1 \
@@ -91,6 +92,7 @@ async function catendaTeam(
 interface Registrert {
   nytt: boolean;
   organisasjon_id: string;
+  mappe: string | null;
   board: string | null;
 }
 
@@ -248,6 +250,8 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       a.skriv(
         `Virksomheten er uendret: ${utfall.organisasjon_id}. En ny registrering endrer den ikke (KR-01).`
       );
+    if (!utfall.mappe)
+      a.skriv('Prosjektet har ingen mappe: dokumentene lastes opp i roten av biblioteket.');
     if (!utfall.board)
       a.skriv(
         'Prosjektet har ikke noe board: nye saker avvises (51412) til det registreres med --board.'

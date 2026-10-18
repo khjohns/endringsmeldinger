@@ -605,7 +605,7 @@ Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (a
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over Catenda-prosjektet og biblioteket og gjør koblingen aktiv. Mappen og boardet skrives over når de er oppgitt. Ellers står de hvis Catenda-prosjektet er det samme, og fjernes hvis det er byttet. Har prosjektet saker, avvises bytte av Catenda-prosjekt, og uten saker krever et bytte nye kontraktsteam (#836). |
+| Hvor fra appen lagres og redigeres | Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over Catenda-prosjektet og biblioteket og gjør koblingen aktiv. Mappen og boardet skrives over når de er oppgitt. Ellers står de hvis Catenda-prosjektet er det samme, og fjernes hvis det er byttet. Mappen fjernes også når biblioteket er byttet. Har prosjektet saker, avvises bytte av Catenda-prosjekt, og uten saker krever et bytte nye kontraktsteam (#836). |
 | Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id); unik (catenda_project_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
