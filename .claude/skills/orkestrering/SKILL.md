@@ -269,16 +269,20 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
 - **Følg med i hver sjekk.** Orkestratoren leser brukt kontekst
   (`external_metadata.context_usage.used_tokens`) og kostnad
   (`external_metadata.usage.cost_usd`) for hver økt med `get_session` i hver
-  sjekk, og bruker grensene under også når en økt ikke har meldt fra. Er
-  `used_tokens` 0, er verdien ukjent, ikke lav, og orkestratoren leser i stedet
-  transkriptet med `list_events`. `usage.cost_usd` kan mangle i svaret. Dette
-  gjelder til feltet er pålitelig (#731), og da fjernes regelen.
+  sjekk, og bruker grensene under også når en økt ikke har meldt fra.
+  `get_session` oppdateres bare når en tur ender. Er `used_tokens` 0, eller
+  mangler `usage`, har økta ikke fullført sin første tur. Ellers er verdien fra
+  siste avsluttede tur, og den kan ligge en hel tur bak. Orkestratoren leser da
+  tallet økta skriver i PR-en eller i issuet, fordi `list_events` heller ikke
+  viser noe før turen er ferdig. `usage.cost_usd` kan mangle i svaret. (oppdragsgiver
+  18.10, #731)
 - **Melder fra om egen størrelse.** Etter hvert hovedsteg (kartlegging, bygging,
   review, rettinger) skriver økta tilstanden i PR-en, eller i issuet før PR-en
-  finnes, og leser sin egen kontekst med `get_session` uten `session_id`, i
-  `external_metadata.context_usage.used_tokens`. Er verdien 0, er den ukjent, og
-  økta anslår i stedet brukt kontekst ut fra det den har lest og kjørt, og
-  skriver anslaget i PR-en (#731). Har økta passert om lag 150 000 tokens, stopper
+  finnes. Brukt kontekst måler økta med transkriptet, ikke med `get_session`:
+  `jq -s '[.[]|select(.type=="assistant" and (.isSidechain|not) and .message.usage)]|last|.message.usage|.input_tokens+.cache_read_input_tokens+.cache_creation_input_tokens+.output_tokens' ~/.claude/projects/*/"$CLAUDE_CODE_SESSION_ID".jsonl`
+  gir konteksten etter siste API-kall, og tallet skrives i PR-en (#731). Finnes
+  ikke transkriptet, anslår økta brukt kontekst ut fra det den har lest og
+  kjørt, og skriver anslaget i PR-en. Har økta passert om lag 150 000 tokens, stopper
   den der og tar ikke nye oppgaver, uten å vente på orkestratorens sjekk. Det
   gjelder ikke når økta har pågått under en time: da fortsetter den forbi 150 000
   til oppgaven er ferdig, men stopper ved om lag 300 000 tokens eller før en
