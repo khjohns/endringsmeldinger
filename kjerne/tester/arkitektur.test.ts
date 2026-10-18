@@ -477,6 +477,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'type spor innhold svar varsel sendt dokumentasjon',
   ],
   ['kommandoer/kommando.ts:formfeil.varsel', 'kommando', 'sendt'],
+  // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
+  ['kommandoer/skriving.ts:skriv', 'kommando', 'dokumentasjon'],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
@@ -759,6 +761,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
   ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],
+  // Arbeidsvalg 10 i #790: teksten lister vedleggene med filnavnet.
+  ['Vedlegg', 'utsagn', 'filnavn', ['frosset/brevtekst.ts']],
   // GR-U14: TEs beskrivelse siteres fra teksten i brevet kravet står i.
   // Unntaket fra «ingen regel leser teksten»: PAALEGGET_IKKE_BESKREVET leser bare om
   // utdypningen finnes (A6).

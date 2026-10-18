@@ -40,6 +40,7 @@ import type {
   Standpunktsvirkning,
   Svar,
   Utsagnsart,
+  Vedlegg,
   Virkning,
 } from '../typer.ts';
 
@@ -318,7 +319,7 @@ function lesDokument(h: Journalrad): Dokument {
     svar?: unknown[];
     utsagn?: unknown[];
     opplysninger?: Data[];
-    dokumentasjon?: string[];
+    dokumentasjon?: Vedlegg[];
     brevtekst?: Avsnitt[];
   };
   const avklaring = (data.opplysninger ?? []).some(

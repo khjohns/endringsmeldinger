@@ -38,6 +38,7 @@ import {
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
+import { mellomlager } from './klient.ts';
 import type { Kommando } from '../kommandoer/kommando.ts';
 import { oppgittDatoEtterBrevet } from '../kommandoer/nyttelast.ts';
 import type { Avsnitt, Dokument, Journalrad, Part } from '../typer.ts';
@@ -95,7 +96,7 @@ function sak() {
         const t = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
         if (t) k.brevtekst = t;
       }
-      return vurder(k, kontekst(part), journal, kjerne);
+      return vurder(k, kontekst(part), journal, kjerne, mellomlager(k));
     } catch (feil) {
       // 7.1.2 i designnotatet: kjernen skal forstå det den selv skriver.
       if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
@@ -2127,10 +2128,44 @@ describe('den senere begrunnelsen (KA-U34)', () => {
     expect(rad.data.opplysninger).toEqual([
       { id: expect.any(String), hva: 'sendt', dato: '2026-10-06' },
     ]);
-    expect(rad.data.dokumentasjon).toEqual([vedlegg]);
+    // LV-U14: brevet lagrer ID-en, filnavnet og summen serveren fant i mellomlageret.
+    expect(rad.data.dokumentasjon).toEqual([
+      { vedlegg_id: vedlegg, filnavn: `${vedlegg}.pdf`, innhold_sha256: '0'.repeat(64) },
+    ]);
     const etter = s.u();
     expect(etter.forstaatt).toBe(true);
     expect(etter.spor).toEqual(foer.spor);
+  });
+
+  it('et vedlegg serveren ikke fant i saken, avvises, og ID-en lagres med små bokstaver (LV-U14, arbeidsvalg 3 i #790)', () => {
+    const { s, brev } = medSvar();
+    const vedlegg = randomUUID();
+    const kommando = {
+      type: 'begrunnelse',
+      gjelder: svarId(brev),
+      sendt: '2026-10-06',
+      dokumentasjon: [vedlegg.toUpperCase()],
+    };
+    const kontekst = {
+      sakId: SAK,
+      aktoerId: 'bh',
+      part: 'BH' as const,
+      teamId: null,
+      tidspunkt: () => new Date('2026-10-07T08:00:00Z'),
+      nyId: randomUUID,
+    };
+    const godtatt = vurder(
+      kommando,
+      kontekst,
+      s.journal,
+      KJERNE,
+      mellomlager({ dokumentasjon: [vedlegg] })
+    );
+    expect(godtatt.godtatt && godtatt.hendelser[0].data.dokumentasjon, 'kontrollsak').toEqual([
+      { vedlegg_id: vedlegg, filnavn: `${vedlegg}.pdf`, innhold_sha256: '0'.repeat(64) },
+    ]);
+    const u = vurder(kommando, kontekst, s.journal, KJERNE, new Map());
+    expect(u.godtatt ? null : u.avvisning.regel).toBe('VEDLEGG_FINNES_IKKE');
   });
 
   it('en registrert begrunnelse oppgitt sendt før svaret godtas, fordi datokontrollene er utsatt (OV-U7, KA-U36)', () => {
@@ -2328,7 +2363,8 @@ describe('teksten avsenderen godkjenner, er den som fryses (LV-U2, A1)', () => {
         nyId: randomUUID,
       },
       s.journal,
-      KJERNE
+      KJERNE,
+      new Map()
     );
     expect(u.godtatt ? null : u.avvisning.regel).toBe('BREVTEKST_MANGLER');
   });
@@ -2360,7 +2396,13 @@ describe('teksten avsenderen godkjenner, er den som fryses (LV-U2, A1)', () => {
   it('en registrering bærer ingen tekst (MM-U17)', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);
-    const varsel = { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-09-28' };
+    const varsel = {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-09-28',
+      dokumentasjon: [randomUUID()],
+    };
     expect(s.avvist('TE', { ...varsel, brevtekst: ['x'] })).toBe('UGYLDIG_FORM');
     const rad = s.send('TE', varsel);
     expect(rad.data.brevtekst).toBeUndefined();
@@ -2463,12 +2505,16 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
 });
 
 describe('vedleggene står i teksten (A4)', () => {
-  const dokument = (dokumentasjon: string[]): Dokument => ({
+  const dokument = (filnavn: string[]): Dokument => ({
     id: 'brevet',
     avsender: 'TE',
     registrert: '2026-10-05T10:00:00Z',
     opplysninger: [],
-    dokumentasjon,
+    dokumentasjon: filnavn.map((f) => ({
+      vedlegg_id: randomUUID(),
+      filnavn: f,
+      innhold_sha256: '0'.repeat(64),
+    })),
     krav: [],
     svar: [],
     utsagn: [{ id: 'u', art: 'ingen_krav', spor: 'frist' }],
@@ -2481,11 +2527,11 @@ describe('vedleggene står i teksten (A4)', () => {
     subsidiaer: { vederlag: [], frist: [] },
   };
 
-  it('et brev med vedlegg får et avsnitt som lister dem og gjelder dokumentet', () => {
+  it('et brev med vedlegg får et avsnitt som lister filnavnene og gjelder dokumentet (arbeidsvalg 10 i #790)', () => {
     const t = lagBrevtekst(dokument(['tegning-12.pdf', 'referat-4.pdf']), [], saken, KJERNE.regler);
     expect(t.at(-1)).toEqual({
       gjelder: 'brevet',
-      laast: 'Brevet har vedlegg: tegning-12.pdf og referat-4.pdf.',
+      laast: 'Brevet har vedlegg: «tegning-12.pdf» og «referat-4.pdf».',
     });
   });
 
@@ -2522,10 +2568,12 @@ describe('leseren kontrollerer brevteksten (HF-U1, MM-U17)', () => {
     );
     // Kontrollsak: med vedlegg kan et avsnitt gjelde dokumentet.
     const h = medTekst((d, r) => {
-      d.dokumentasjon = ['tegning.pdf'];
+      d.dokumentasjon = [
+        { vedlegg_id: randomUUID(), filnavn: 'tegning.pdf', innhold_sha256: '0'.repeat(64) },
+      ];
       (d.brevtekst as Avsnitt[]).push({
         gjelder: r.event_id,
-        laast: 'Brevet har vedlegg: tegning.pdf.',
+        laast: 'Brevet har vedlegg: «tegning.pdf».',
       });
     });
     expect(h.art).toBe('dokument');
@@ -2583,7 +2631,13 @@ describe('formen på tall og datoer', () => {
     for (const sendt of ['02.10.2026', '2026-13-45', 'xxxxxxxxxx'])
       expect(s.avvist('TE', { ...FRISTKRAV, varsel: { sendt } })).toBe('UGYLDIG_FORM');
     expect(
-      s.avvist('TE', { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-02-30' })
+      s.avvist('TE', {
+        type: 'varsel',
+        spor: 'frist',
+        hjemmel: '33.4',
+        sendt: '2026-02-30',
+        dokumentasjon: [randomUUID()],
+      })
     ).toBe('UGYLDIG_FORM');
   });
 
@@ -2731,7 +2785,13 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
         utdypning: 'Fire uker.',
       });
       brev(s, 'frist', iTide);
-      s.send('TE', { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-09-01' });
+      s.send('TE', {
+        type: 'varsel',
+        spor: 'frist',
+        hjemmel: '33.4',
+        sendt: '2026-09-01',
+        dokumentasjon: [randomUUID()],
+      });
       expect(s.u().spor.frist.varsel, 'forutsetning: varselet er registrert').not.toBeNull();
       expect(s.avvist('BH', revisjon(s, 'frist', forSent334))).toBe('SAGT_I_TIDE');
     });

@@ -1116,7 +1116,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F125',
     feilklasse: 'vedleggene står ikke i brevteksten (A4, LV-U2)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (nytt.dokumentasjon.length) legg(', '  if (false) legg(']],
+    endringer: [['  if (nytt.dokumentasjon.length)\n    legg(', '  if (false)\n    legg(']],
     mal: ['et brev med vedlegg får et avsnitt'],
   },
   {
@@ -2504,6 +2504,59 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['når et svar utenfor kommandoene har besvart den'],
+  },
+  {
+    id: 'F287',
+    feilklasse:
+      'kjernen godtar et vedlegg serveren ikke fant i saken (LV-U14, arbeidsvalg 3 i #790)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['(id) => !vedlegg.has(id.toLowerCase())', '() => false'],
+      [
+        'vedlegg.get(id.toLowerCase())!',
+        "(vedlegg.get(id.toLowerCase()) ?? { vedlegg_id: id, filnavn: id, innhold_sha256: '0'.repeat(64) })",
+      ],
+    ],
+    mal: ['et vedlegg serveren ikke fant i saken, avvises'],
+  },
+  {
+    id: 'F288',
+    feilklasse:
+      'brevet lagrer ID-en fra klienten uten filnavnet og summen fra mellomlageret (LV-U14)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        'ider.map((id) => vedlegg.get(id.toLowerCase())!)',
+        'ider.map((id) => ({ ...vedlegg.get(id.toLowerCase())!, vedlegg_id: id }))',
+      ],
+    ],
+    mal: ['et vedlegg serveren ikke fant i saken, avvises, og ID-en lagres med små bokstaver'],
+  },
+  {
+    id: 'F289',
+    feilklasse: 'et registrert varsel godtas uten brevet som vedlegg (OV-U4)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        "['type', 'spor', 'hjemmel', 'sendt', 'dokumentasjon']",
+        "['type', 'spor', 'hjemmel', 'sendt']",
+      ],
+    ],
+    mal: ['avviser et registrert varsel uten vedlegg'],
+  },
+  {
+    id: 'F290',
+    feilklasse: 'samme vedlegg godtas to ganger i en kommando (#790)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [['.size !== vedlegg.length', '.size < 0']],
+    mal: ['med samme vedlegg to ganger'],
+  },
+  {
+    id: 'F291',
+    feilklasse: 'brevteksten lister vedleggenes ID i stedet for filnavnet (arbeidsvalg 10 i #790)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['`«${v.filnavn}»`', '`«${v.vedlegg_id}»`']],
+    mal: ['et brev med vedlegg får et avsnitt som lister filnavnene'],
   },
 ];
 
