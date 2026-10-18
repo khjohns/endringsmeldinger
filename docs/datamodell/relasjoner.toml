@@ -914,7 +914,7 @@ beskrivelse = """
 Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er
 over, etter kvitteringen, så det er ingen fremmednøkkel."""
 funn = []
-belegg = "L 18.10: `database/migrasjoner/20261019180000_vedleggslevering.sql`."
+belegg = "L 18.10: `database/migrasjoner/20261019175000_vedleggslevering.sql`."
 [[relasjon]]
 fra = ["koe.sak_catenda_topic.sak_id", "koe.sak_catenda_topic.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
