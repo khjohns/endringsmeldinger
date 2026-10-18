@@ -287,6 +287,7 @@ erDiagram
         nvarchar_36 sak_id FK
         nvarchar_100 prosjekt_id FK
         uniqueidentifier siste_forsoek FK
+        uniqueidentifier leveringsoppdrag_id FK
     }
     koe_jobbforsoek {
         uniqueidentifier forsoek_id PK
@@ -295,6 +296,12 @@ erDiagram
     koe_kjernebuffer {
         nvarchar_36 sak_id PK, FK
         nvarchar_100 prosjekt_id FK
+    }
+    koe_leveringskvittering {
+        uniqueidentifier leveringsoppdrag_id PK, FK
+        nvarchar_20 operasjon PK
+        uniqueidentifier forsoek_id "uten fremmednøkkel"
+        nvarchar_20 forutsetning FK
     }
     koe_leveringsoppdrag {
         uniqueidentifier id PK
@@ -346,6 +353,10 @@ erDiagram
     koe_sak_metadata ||--o{ koe_jobb : "(sak_id, prosjekt_id)"
     koe_jobb ||--o{ koe_jobbforsoek : "jobb_id"
     koe_jobbforsoek |o--o| koe_jobb : "siste_forsoek"
+    koe_leveringsoppdrag |o--o| koe_jobb : "leveringsoppdrag_id"
+    koe_leveringsoppdrag ||--o{ koe_leveringskvittering : "leveringsoppdrag_id"
+    koe_leveringskvittering |o--o| koe_leveringskvittering : "(leveringsoppdrag_id, forutsetning)"
+    koe_jobbforsoek |o..o{ koe_leveringskvittering : "forsoek_id"
     koe_sak_metadata ||--o| koe_sak_catenda_topic : "(sak_id, prosjekt_id)"
     koe_sak_metadata ||--o| koe_kjernebuffer : "(sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_hendelse : "aktor_team_id"
@@ -434,6 +445,10 @@ erDiagram
 | `koe.jobb.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken jobben gjelder. Sammensatt med `prosjekt_id`, så jobben står i sakens prosjekt. En sak har høyst én jobb `catenda_topic` (#741). | — | K 18.10: katalogen. |
 | `koe.jobbforsoek.jobb_id` | `koe.jobb.jobb_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Jobben forsøket gjelder. Fremmednøkkelen hindrer også TRUNCATE av jobbene (#582). | — | K 18.10: katalogen. |
 | `koe.jobb.siste_forsoek` | `koe.jobbforsoek.forsoek_id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Det siste forsøket på jobben. Fremmednøkkelen hindrer også TRUNCATE av forsøkene (#582). | — | K 18.10: katalogen. |
+| `koe.jobb.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Oppdraget en jobb `levering` leverer (#371). Hvert oppdrag har høyst én jobb. | — | K 18.10: katalogen. |
+| `koe.leveringskvittering.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Oppdraget kvitteringen gjelder: én rad for dokumentet og én for referansen på topicen (B-03, #371). | — | K 18.10: katalogen. |
+| `koe.leveringskvittering.(leveringsoppdrag_id, forutsetning)` | `koe.leveringskvittering.(leveringsoppdrag_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Referansen på topicen forutsetter at dokumentet er kvittert for samme oppdrag. | — | K 18.10: katalogen. |
+| `koe.leveringskvittering.forsoek_id` | `koe.jobbforsoek.forsoek_id` | uten fremmednøkkel | mange til én | Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er over, etter kvitteringen for dokumentet, så det er ingen fremmednøkkel. | — | L 18.10: `database/migrasjoner/20261018120000_levering.sql`. |
 | `koe.sak_catenda_topic.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst én topic. Sammensatt med `prosjekt_id`, så raden står i sakens prosjekt. | — | K 17.10: katalogen. |
 | `koe.kjernebuffer.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. `sak_id` er primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
 | `koe.hendelse.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, i `catenda_id()`-formen. Tom når teamet ikke var entydig (DL-U4). | — | L 16.10: migrasjonen. |
@@ -479,6 +494,8 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.jobb.catenda_board_id` | Boardet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6). |
 | `koe.jobb.lease` | Leasen for forsøket som pågår. Blir forsøkets ID når utfallet lagres (invariant 7). |
 | `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
+| `koe.leveringskvittering.catenda_id` | ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda. |
+| `koe.leveringskvittering.prosjekt_id` | Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5). |
 
 ## Dataflyt mot Catenda
 
@@ -667,6 +684,7 @@ flowchart LR
 | `koe.jobb` | — | — | — |
 | `koe.jobbforsoek` | — | — | — |
 | `koe.leveringsoppdrag` | — | — | — |
+| `koe.leveringskvittering` | — | — | — |
 | `koe.sak_catenda_topic` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |
 | `koe.kjernebuffer` | — | — | — |

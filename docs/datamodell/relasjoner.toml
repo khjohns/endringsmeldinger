@@ -796,6 +796,46 @@ funn = []
 belegg = "K 18.10: katalogen."
 
 [[relasjon]]
+fra = "koe.jobb.leveringsoppdrag_id"
+til = "koe.leveringsoppdrag.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = "Oppdraget en jobb `levering` leverer (#371). Hvert oppdrag har høyst én jobb."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.leveringskvittering.leveringsoppdrag_id"
+til = "koe.leveringsoppdrag.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Oppdraget kvitteringen gjelder: én rad for dokumentet og én for referansen på
+topicen (B-03, #371)."""
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = ["koe.leveringskvittering.leveringsoppdrag_id", "koe.leveringskvittering.forutsetning"]
+til = ["koe.leveringskvittering.leveringsoppdrag_id", "koe.leveringskvittering.operasjon"]
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = "Referansen på topicen forutsetter at dokumentet er kvittert for samme oppdrag."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.leveringskvittering.forsoek_id"
+til = "koe.jobbforsoek.forsoek_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er
+over, etter kvitteringen for dokumentet, så det er ingen fremmednøkkel."""
+funn = []
+belegg = "L 18.10: `database/migrasjoner/20261018120000_levering.sql`."
+
+[[relasjon]]
 fra = ["koe.sak_catenda_topic.sak_id", "koe.sak_catenda_topic.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
@@ -997,3 +1037,11 @@ begrunnelse = """
 Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i
 `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel:
 koblingen kan endres etter at listen er skrevet."""
+
+[[uten_relasjon]]
+kolonne = "koe.leveringskvittering.catenda_id"
+begrunnelse = "ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda."
+
+[[uten_relasjon]]
+kolonne = "koe.leveringskvittering.prosjekt_id"
+begrunnelse = "Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5)."

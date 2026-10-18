@@ -29,7 +29,20 @@ export class CatendaUtilgjengelig extends Error {}
  * nådd fram, svaret var ingen avvisning (`avvistUtenEndring`), eller et vellykket
  * svar hadde ikke forventet form (invariant 7).
  */
-export class UsikkertUtfall extends CatendaUtilgjengelig {}
+export class UsikkertCatendautfall extends CatendaUtilgjengelig {}
+
+/**
+ * Catenda avviste forespørselen, og samme forespørsel blir avvist igjen: en 4xx utenom
+ * 401 (tokenet fornyes), 408, 429 og 499 (#778). Jobben parkeres i stedet for å prøves
+ * hver time uten ende.
+ */
+export class CatendaAvvisning extends CatendaUtilgjengelig {
+  readonly status: number;
+  constructor(status: number) {
+    super(`Catenda avviste forespørselen med status ${status}`);
+    this.status = status;
+  }
+}
 
 /**
  * Statusene vi regner som en avvisning uten endring: en 4xx utenom tidsavbruddene 408
@@ -39,8 +52,26 @@ export class UsikkertUtfall extends CatendaUtilgjengelig {}
 const avvistUtenEndring = (status: number) =>
   status >= 400 && status < 500 && status !== 408 && status !== 499;
 
-/** Feilkodene der forbindelsen aldri ble åpnet, så forespørselen ikke er sendt. */
-const IKKE_SENDT = new Set(['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN']);
+const varigAvvist = (status: number) =>
+  avvistUtenEndring(status) && status !== 401 && status !== 429;
+
+/**
+ * Feilkodene der forespørselen ikke er sendt: forbindelsen ble aldri åpnet, eller
+ * TLS-forhandlingen feilet før noe ble sendt (#778).
+ */
+const IKKE_SENDT = new Set([
+  'ECONNREFUSED',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'CERT_HAS_EXPIRED',
+  'CERT_NOT_YET_VALID',
+  'DEPTH_ZERO_SELF_SIGNED_CERT',
+  'SELF_SIGNED_CERT_IN_CHAIN',
+  'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+  'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+  'ERR_TLS_CERT_ALTNAME_INVALID',
+]);
 
 export interface CatendaOppsett {
   klientId: string;
@@ -79,6 +110,8 @@ async function forespoersel(
     skjema?: Record<string, string>;
     /** Kroppen til en endring. Svaret kan da gjøre utfallet usikkert. */
     json?: Record<string, unknown>;
+    /** En fil som endring, med hodene Catenda krever for den. */
+    fil?: { innhold: Uint8Array; hoder: Record<string, string> };
     parametre?: Record<string, string>;
   } = {}
 ): Promise<unknown> {
@@ -88,32 +121,40 @@ async function forespoersel(
   }
   const hoder: Record<string, string> = { Accept: 'application/json' };
   if (valg.token) hoder.Authorization = `Bearer ${valg.token}`;
-  const endring = valg.json !== undefined;
-  if (endring) hoder['Content-Type'] = 'application/json';
+  const endring = valg.json !== undefined || valg.fil !== undefined;
+  if (valg.json !== undefined) hoder['Content-Type'] = 'application/json';
+  if (valg.fil)
+    Object.assign(hoder, valg.fil.hoder, { 'Content-Type': 'application/octet-stream' });
   let svar: Response;
   try {
     svar = await fetch(adresse, {
       method: metode,
       headers: hoder,
-      body: endring ? JSON.stringify(valg.json) : valg.skjema && new URLSearchParams(valg.skjema),
+      body:
+        (valg.fil && Buffer.from(valg.fil.innhold)) ??
+        (valg.json !== undefined
+          ? JSON.stringify(valg.json)
+          : valg.skjema && new URLSearchParams(valg.skjema)),
       redirect: 'manual',
       signal: AbortSignal.timeout(oppsett.tidsavbruddMs ?? 15_000),
     });
   } catch (feil) {
     const kode = ((feil as Error)?.cause as { code?: unknown } | undefined)?.code;
-    if (endring && !IKKE_SENDT.has(String(kode))) throw new UsikkertUtfall('Catenda svarte ikke');
+    if (endring && !IKKE_SENDT.has(String(kode)))
+      throw new UsikkertCatendautfall('Catenda svarte ikke');
     throw new CatendaUtilgjengelig('Catenda svarte ikke');
   }
   if (svar.status !== 200 && !(endring && svar.status === 201)) {
     await svar.body?.cancel().catch(() => {});
     const melding = `Catenda svarte med status ${svar.status}`;
-    if (endring && !avvistUtenEndring(svar.status)) throw new UsikkertUtfall(melding);
+    if (endring && !avvistUtenEndring(svar.status)) throw new UsikkertCatendautfall(melding);
+    if (varigAvvist(svar.status)) throw new CatendaAvvisning(svar.status);
     throw new CatendaUtilgjengelig(melding);
   }
   try {
     return await svar.json();
   } catch {
-    if (endring) throw new UsikkertUtfall('Catenda svarte med et ugyldig svar');
+    if (endring) throw new UsikkertCatendautfall('Catenda svarte med et ugyldig svar');
     throw new CatendaUtilgjengelig('Catenda svarte med feil');
   }
 }
@@ -232,7 +273,7 @@ export class CatendaOAuth {
    * Lager topicen på boardet og gir topicens GUID. Statusen er boardets standard
    * (#741 punkt 15).
    *
-   * @throws UsikkertUtfall når topicen kan være laget; ellers CatendaUtilgjengelig
+   * @throws UsikkertCatendautfall når topicen kan være laget; ellers CatendaUtilgjengelig
    */
   async opprettTopic(boardId: string, topic: NyTopic, token: string): Promise<string> {
     if (!UUID.test(boardId)) throw new RangeError('Ugyldig board-ID');
@@ -247,9 +288,123 @@ export class CatendaOAuth {
     );
     const guid = erObjekt(svar) ? svar.guid : undefined;
     if (typeof guid !== 'string' || !guid || guid.length > 100)
-      throw new UsikkertUtfall('Catenda svarte uten topic');
+      throw new UsikkertCatendautfall('Catenda svarte uten topic');
     return guid;
   }
+
+  /** Dokumentet med navnet i mappen (eller roten av biblioteket), eller `null`. */
+  async finnDokument(maal: Dokumentmaal, navn: string, token: string): Promise<string | null> {
+    const rader = await this.samling(dokumentsti(maal), token, {
+      scope: 'all',
+      parentId: maal.folder_id ?? 'root',
+    });
+    const treff = rader.filter((rad) => rad.name === navn);
+    if (treff.length > 1) throw new CatendaUtilgjengelig('Flere dokumenter har samme navn');
+    return treff.length ? (treff[0].id as string) : null;
+  }
+
+  /**
+   * Laster opp dokumentet med `failOnDocumentExists` (B-03) og gir ID-en. `null` når
+   * et dokument med navnet alt finnes.
+   *
+   * @throws UsikkertCatendautfall når dokumentet kan være lastet opp
+   */
+  async lastOppDokument(
+    maal: Dokumentmaal,
+    dokument: Brevdokument,
+    token: string
+  ): Promise<string | null> {
+    const parametre = {
+      name: dokument.navn,
+      document: { type: 'file', filename: dokument.navn },
+      failOnDocumentExists: true,
+      ...(maal.folder_id ? { parentId: maal.folder_id } : {}),
+    };
+    let svar: unknown;
+    try {
+      svar = await forespoersel(this.#oppsett, 'POST', dokumentsti(maal), {
+        token,
+        fil: { innhold: dokument.innhold, hoder: { 'Bimsync-Params': JSON.stringify(parametre) } },
+      });
+    } catch (feil) {
+      if (feil instanceof CatendaAvvisning && feil.status === 409) return null;
+      throw feil;
+    }
+    const rad = Array.isArray(svar) && svar.length === 1 ? svar[0] : svar;
+    const id = erObjekt(rad) ? rad.id : undefined;
+    if (typeof id !== 'string' || !id || id.length > 100)
+      throw new UsikkertCatendautfall('Catenda svarte uten dokument');
+    return id;
+  }
+
+  /** Dokumentene topicen viser til, som `document_guid` uten bindestreker. */
+  async dokumentreferanser(boardId: string, topicId: string, token: string): Promise<Referanse[]> {
+    const svar = await forespoersel(this.#oppsett, 'GET', referansesti(boardId, topicId), {
+      token,
+    });
+    if (!Array.isArray(svar)) throw new CatendaUtilgjengelig('Ugyldige dokumentreferanser');
+    return svar
+      .filter(erObjekt)
+      .flatMap((rad) =>
+        typeof rad.guid === 'string' && typeof rad.document_guid === 'string'
+          ? [{ id: rad.guid, dokumentId: utenBindestreker(rad.document_guid) }]
+          : []
+      );
+  }
+
+  /**
+   * Setter referansen til dokumentet på topicen og gir referansens GUID.
+   *
+   * @throws UsikkertCatendautfall når referansen kan være laget
+   */
+  async opprettDokumentreferanse(
+    boardId: string,
+    topicId: string,
+    dokumentId: string,
+    token: string
+  ): Promise<string> {
+    const svar = await forespoersel(this.#oppsett, 'POST', referansesti(boardId, topicId), {
+      token,
+      json: { document_guid: dokumentId },
+    });
+    const guid = erObjekt(svar) ? svar.guid : undefined;
+    if (typeof guid !== 'string' || !guid || guid.length > 100)
+      throw new UsikkertCatendautfall('Catenda svarte uten dokumentreferanse');
+    return guid;
+  }
+}
+
+/** Biblioteket og mappen i det frosne leveringsmålet (LV-U1). */
+export interface Dokumentmaal {
+  catenda_project_id: string;
+  library_id: string;
+  folder_id: string | null;
+}
+
+export interface Brevdokument {
+  navn: string;
+  innhold: Uint8Array;
+}
+
+export interface Referanse {
+  id: string;
+  dokumentId: string;
+}
+
+/** Catenda gir dokument-ID-en uten bindestreker, og BCF kan gi den med. */
+export const utenBindestreker = (id: string) => id.replaceAll('-', '').toLowerCase();
+
+function dokumentsti(maal: Dokumentmaal): string {
+  if (!UUID.test(maal.catenda_project_id) || !UUID.test(maal.library_id))
+    throw new RangeError('Ugyldig leveringsmål');
+  if (maal.folder_id !== null && !UUID.test(maal.folder_id)) throw new RangeError('Ugyldig mappe');
+  return `/v2/projects/${maal.catenda_project_id}/libraries/${maal.library_id}/items`;
+}
+
+function referansesti(boardId: string, topicId: string): string {
+  if (!UUID.test(boardId)) throw new RangeError('Ugyldig board-ID');
+  if (!/^[0-9a-zA-Z-]{1,100}$/.test(topicId)) throw new RangeError('Ugyldig topic-ID');
+  return `/opencde/bcf/3.0/projects/${boardId}/topics/${topicId}/document_references`;
 }
 
 /** Typen topicen for en sak fra appen får (#741 punkt 15). */
@@ -410,6 +565,31 @@ export function topicoppretter(catenda: {
 
 export interface Topicoppretter {
   opprettTopic(boardId: string, topic: NyTopic): Promise<string>;
+}
+
+/** Brevet som dokument i biblioteket, med referansen på topicen (B-03, #371). */
+export interface Dokumentleverandoer {
+  finnDokument(maal: Dokumentmaal, navn: string): Promise<string | null>;
+  lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument): Promise<string | null>;
+  dokumentreferanser(boardId: string, topicId: string): Promise<Referanse[]>;
+  opprettDokumentreferanse(boardId: string, topicId: string, dokumentId: string): Promise<string>;
+}
+
+/** Leveringen gjøres av integrasjonen, med dens eget token, som topicen. */
+export function dokumentleverandoer(catenda: {
+  oauth: CatendaOAuth;
+  integrasjonsnokkel: Integrasjonsnokkel;
+}): Dokumentleverandoer {
+  const token = () => catenda.integrasjonsnokkel.token();
+  return {
+    finnDokument: async (maal, navn) => catenda.oauth.finnDokument(maal, navn, await token()),
+    lastOppDokument: async (maal, dokument) =>
+      catenda.oauth.lastOppDokument(maal, dokument, await token()),
+    dokumentreferanser: async (board, topic) =>
+      catenda.oauth.dokumentreferanser(board, topic, await token()),
+    opprettDokumentreferanse: async (board, topic, dokument) =>
+      catenda.oauth.opprettDokumentreferanse(board, topic, dokument, await token()),
+  };
 }
 
 /** Medlemmene og teamene for tilgangskontrollen, med integrasjonens eget token. */

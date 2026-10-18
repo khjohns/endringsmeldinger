@@ -11,11 +11,12 @@ import type { AddressInfo } from 'node:net';
 import { inspect } from 'node:util';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
+  CatendaAvvisning,
   CatendaOAuth,
   CatendaUtilgjengelig,
   Integrasjonsnokkel,
   TOPICTYPE,
-  UsikkertUtfall,
+  UsikkertCatendautfall,
   catendaFraMiljoe,
   type CatendaOppsett,
 } from '../catenda.ts';
@@ -27,6 +28,7 @@ interface Mottatt {
   autorisasjon: string | undefined;
   kropp: URLSearchParams;
   raa: string;
+  hoder: IncomingMessage['headers'];
 }
 
 type Svar = {
@@ -59,6 +61,7 @@ beforeAll(async () => {
       autorisasjon: req.headers.authorization,
       kropp: new URLSearchParams(raa),
       raa,
+      hoder: req.headers,
     };
     mottatt.push(m);
     const s = svar(m);
@@ -400,7 +403,9 @@ describe('topicen for en sak fra appen (#741)', () => {
         .opprettTopic(BOARD, topic, 't')
         .catch((e) => e);
       expect(feil).toBeInstanceOf(CatendaUtilgjengelig);
-      expect(feil).not.toBeInstanceOf(UsikkertUtfall);
+      expect(feil).not.toBeInstanceOf(UsikkertCatendautfall);
+      // En varig avvisning parkeres; 429 går over og prøves igjen (#778).
+      expect(feil instanceof CatendaAvvisning).toBe(status !== 429);
       expect(String(feil.message)).not.toMatch(/LEKKET/);
     }
   );
@@ -413,7 +418,7 @@ describe('topicen for en sak fra appen (#741)', () => {
     const oauth = new CatendaOAuth(oppsett({ grunnadresse: `http://127.0.0.1:${port}` }));
     const feil = await oauth.opprettTopic(BOARD, topic, 't').catch((e) => e);
     expect(feil).toBeInstanceOf(CatendaUtilgjengelig);
-    expect(feil).not.toBeInstanceOf(UsikkertUtfall);
+    expect(feil).not.toBeInstanceOf(UsikkertCatendautfall);
   });
 
   it.each<[string, Svar]>([
@@ -430,12 +435,103 @@ describe('topicen for en sak fra appen (#741)', () => {
   ])('%s: utfallet er usikkert (invariant 7)', async (_n, s) => {
     svar = () => s;
     const oauth = new CatendaOAuth(oppsett({ tidsavbruddMs: 100 }));
-    await expect(oauth.opprettTopic(BOARD, topic, 't')).rejects.toBeInstanceOf(UsikkertUtfall);
+    await expect(oauth.opprettTopic(BOARD, topic, 't')).rejects.toBeInstanceOf(
+      UsikkertCatendautfall
+    );
   });
 
   it('en ugyldig board-ID kaller ikke Catenda', async () => {
     const oauth = new CatendaOAuth(oppsett());
     await expect(oauth.opprettTopic('../x', topic, 't')).rejects.toBeInstanceOf(RangeError);
+    expect(mottatt).toHaveLength(0);
+  });
+});
+
+describe('brevet som dokument med referansen på topicen (#371)', () => {
+  const maal = {
+    catenda_project_id: '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d',
+    library_id: '1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e',
+    folder_id: '2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f',
+  };
+  const BOARD = '6f1c2d3e-4a5b-4c6d-8e7f-901a2b3c4d5e';
+  const dokument = {
+    navn: 'brev-s-2-noekkel.txt',
+    innhold: new TextEncoder().encode('Brevet æøå'),
+  };
+  const bibliotek = `/v2/projects/${maal.catenda_project_id}/libraries/${maal.library_id}/items`;
+
+  it('laster opp filen med failOnDocumentExists og navnet, i mappen, og gir ID-en (B-03)', async () => {
+    svar = () => ({ status: 201, json: [{ id: 'abc123', name: dokument.navn }] });
+    expect(await new CatendaOAuth(oppsett()).lastOppDokument(maal, dokument, 'i')).toBe('abc123');
+    const [m] = mottatt;
+    expect([m.metode, m.sti, m.autorisasjon]).toEqual(['POST', bibliotek, 'Bearer i']);
+    expect(m.hoder['content-type']).toBe('application/octet-stream');
+    expect(JSON.parse(String(m.hoder['bimsync-params']))).toEqual({
+      name: dokument.navn,
+      document: { type: 'file', filename: dokument.navn },
+      failOnDocumentExists: true,
+      parentId: maal.folder_id,
+    });
+    expect(m.raa).toBe('Brevet æøå');
+  });
+
+  it('et dokument som finnes med navnet (409), gir null, ikke en feil', async () => {
+    svar = () => ({ status: 409, json: { message: 'exists' } });
+    expect(await new CatendaOAuth(oppsett()).lastOppDokument(maal, dokument, 'i')).toBeNull();
+  });
+
+  it.each<[string, Svar]>([
+    ['Catenda svarer 503', { status: 503, tekst: 'Service Unavailable' }],
+    ['svaret har ingen ID', { status: 201, json: [{ name: 'x' }] }],
+  ])('%s ved opplastingen: utfallet er usikkert (invariant 7)', async (_n, s) => {
+    svar = () => s;
+    await expect(
+      new CatendaOAuth(oppsett()).lastOppDokument(maal, dokument, 'i')
+    ).rejects.toBeInstanceOf(UsikkertCatendautfall);
+  });
+
+  it('finner dokumentet på navnet i mappen, og avviser to med samme navn', async () => {
+    svar = () => ({
+      json: [
+        { id: 'a1', name: 'annet' },
+        { id: 'b2', name: dokument.navn },
+      ],
+    });
+    const oauth = new CatendaOAuth(oppsett());
+    expect(await oauth.finnDokument(maal, dokument.navn, 'i')).toBe('b2');
+    expect(mottatt[0].sti).toBe(bibliotek);
+    expect(mottatt[0].parametre.get('parentId')).toBe(maal.folder_id);
+    expect(await oauth.finnDokument(maal, 'ukjent', 'i')).toBeNull();
+    svar = () => ({
+      json: [
+        { id: 'a1', name: dokument.navn },
+        { id: 'b2', name: dokument.navn },
+      ],
+    });
+    await expect(oauth.finnDokument(maal, dokument.navn, 'i')).rejects.toBeInstanceOf(
+      CatendaUtilgjengelig
+    );
+  });
+
+  it('leser referansene med dokument-ID-en uten bindestreker, og setter en ny', async () => {
+    const sti = `/opencde/bcf/3.0/projects/${BOARD}/topics/topic-1/document_references`;
+    svar = () => ({ json: [{ guid: 'r1', document_guid: 'ABCD-1234' }, { guid: 'r2' }] });
+    const oauth = new CatendaOAuth(oppsett());
+    expect(await oauth.dokumentreferanser(BOARD, 'topic-1', 'i')).toEqual([
+      { id: 'r1', dokumentId: 'abcd1234' },
+    ]);
+    svar = () => ({ status: 201, json: { guid: 'r3' } });
+    expect(await oauth.opprettDokumentreferanse(BOARD, 'topic-1', 'abcd1234', 'i')).toBe('r3');
+    expect([mottatt[1].metode, mottatt[1].sti]).toEqual(['POST', sti]);
+    expect(JSON.parse(mottatt[1].raa)).toEqual({ document_guid: 'abcd1234' });
+  });
+
+  it('et ugyldig mål eller en ugyldig topic kaller ikke Catenda', async () => {
+    const oauth = new CatendaOAuth(oppsett());
+    await expect(
+      oauth.lastOppDokument({ ...maal, library_id: '../x' }, dokument, 'i')
+    ).rejects.toBeInstanceOf(RangeError);
+    await expect(oauth.dokumentreferanser(BOARD, '../x', 'i')).rejects.toBeInstanceOf(RangeError);
     expect(mottatt).toHaveLength(0);
   });
 });

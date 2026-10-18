@@ -568,6 +568,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.hent_jobb',
         'GRANT EXECUTE koe_api.koblede_prosjekter',
         'GRANT EXECUTE koe_api.kontraktsteam',
+        'GRANT EXECUTE koe_api.kvitter_dokument',
+        'GRANT EXECUTE koe_api.kvitter_levering',
         'GRANT EXECUTE koe_api.kvitter_topic',
         'GRANT EXECUTE koe_api.les_sesjon',
         'GRANT EXECUTE koe_api.leveringsmaal',
@@ -609,6 +611,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       );
       expect(somDen.recordset.map((r) => r.prosedyre).sort()).toEqual([
         'koe_api.hent_jobb',
+        'koe_api.kvitter_dokument',
+        'koe_api.kvitter_levering',
         'koe_api.kvitter_topic',
         'koe_api.registrer_jobbfeil',
         'koe_api.start_jobb_paa_nytt',
