@@ -942,6 +942,26 @@ funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/levering.test.ts`."
 
 [[tabell]]
+navn = "koe.vedlegg"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og
+SHA-256 av bytene, som basen regner etter. Filen ligger her til Catenda har
+kvittert for den (spørsmål 1 A i #790, 18.10). Et ubundet vedlegg er et utkast som
+bare teamet som lastet det opp, ser og sletter. Når en hendelse viser til det, får
+det `bundet_av_event_id` og ses av begge kontraktssider; et bundet vedlegg slettes
+ikke. Bindingen kommer i V-2 og slettingen av innholdet etter levering i V-3."""
+lagres_fra = "`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Før levering finnes filen bare her."
+personopplysninger = "Filen og filnavnet kan ha navn på personer i prosjektet."
+skrivere = ["database/migrasjoner/20261018190000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`)"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/vedlegg.test.ts`."
+
+[[tabell]]
 navn = "koe.leveringskvittering"
 lagring = "SQL Server"
 type = ["transaksjon"]

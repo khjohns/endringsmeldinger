@@ -345,6 +345,14 @@ erDiagram
     koe_skrivetidspunkt {
         smallint oekt PK
     }
+    koe_vedlegg {
+        uniqueidentifier vedlegg_id PK
+        nvarchar_100 prosjekt_id FK
+        nvarchar_36 sak_id FK
+        uniqueidentifier lastet_opp_av FK
+        nvarchar_32 lastet_opp_team "uten fremmednøkkel"
+        nvarchar_36 bundet_av_event_id FK
+    }
     koe_app_users ||--o{ koe_app_identities : "user_id"
     koe_projects ||--o{ koe_app_project_memberships : "project_id"
     koe_app_users ||--o{ koe_app_project_memberships : "user_id"
@@ -378,6 +386,10 @@ erDiagram
     koe_hendelse |o..o{ koe_hendelse : "refererer_til_event_id"
     koe_catenda_contract_teams |o..o{ koe_notat : "aktor_team_id"
     koe_hendelse |o..o{ koe_notat : "refererer_til_event_id"
+    koe_sak_metadata ||--o{ koe_vedlegg : "(sak_id, prosjekt_id)"
+    koe_app_users ||--o{ koe_vedlegg : "lastet_opp_av"
+    koe_hendelse |o--o{ koe_vedlegg : "(bundet_av_event_id, sak_id, prosjekt_id)"
+    koe_catenda_contract_teams |o..o{ koe_vedlegg : "lastet_opp_team"
 ```
 
 ## Relasjonene
@@ -474,6 +486,10 @@ erDiagram
 | `koe.hendelse.refererer_til_event_id` | `koe.hendelse.event_id` | uten fremmednøkkel | mange til én | Brevet dette brevet svarer på eller viser til. | — | L 16.10: migrasjonen. |
 | `koe.notat.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som kan lese notatet. Basen avviser et notat uten team (AGENTS.md). | — | L 16.10: migrasjonen. |
 | `koe.notat.refererer_til_event_id` | `koe.hendelse.event_id` | uten fremmednøkkel | mange til én | Brevet notatet gjelder, uten fremmednøkkel, så notatet kan slettes uten å røre journalen. | — | L 16.10: migrasjonen. |
+| `koe.vedlegg.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken vedlegget er lastet opp i. Sammensatt med `prosjekt_id`, så vedlegget står i sakens prosjekt. | — | K 18.10: katalogen. |
+| `koe.vedlegg.lastet_opp_av` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). | — | K 18.10: katalogen. |
+| `koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id)` | `koe.hendelse.(event_id, sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den første hendelsen som viser til vedlegget (arbeidsvalg 4 i #790), i samme sak og prosjekt. Tom for et ubundet vedlegg. | — | K 18.10: katalogen. |
+| `koe.vedlegg.lastet_opp_team` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser og sletter vedlegget før det er bundet. Basen avviser et vedlegg uten team (AGENTS.md). | — | L 18.10: migrasjonen. |
 
 ## Nøkkelkolonner uten relasjon
 
@@ -707,6 +723,7 @@ flowchart LR
 | `koe.leveringsoppdrag` | — | — | — |
 | `koe.kvittering` | — | — | — |
 | `koe.brevdokument` | — | — | — |
+| `koe.vedlegg` | — | — | — |
 | `koe.leveringskvittering` | — | — | — |
 | `koe.sak_catenda_topic` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |

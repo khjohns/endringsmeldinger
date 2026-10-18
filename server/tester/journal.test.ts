@@ -51,6 +51,8 @@ const UTEN_TRIGGER: Record<string, string> = {
   app_membership_sync:
     'Hver synkronisering skriver over når listen ble hentet (DL-U7); bare den siste gjelder.',
   notat: 'Notatet er ikke et kontraktsvarsel og kan endres og slettes (MS-05).',
+  vedlegg:
+    'Et ubundet vedlegg kan slettes av teamet som lastet det opp (#790). `koe.vedlegg_uten_endring` stopper hver endring, og `koe.vedlegg_bundet` slettingen av et bundet vedlegg.',
   kjernebuffer:
     'Bufferen er avledet og kan slettes og bygges på nytt fra journalen (arbeidsvalg 1 i #53).',
   skrivetidspunkt:

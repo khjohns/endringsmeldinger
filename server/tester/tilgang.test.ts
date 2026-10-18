@@ -573,6 +573,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.kvitter_topic',
         'GRANT EXECUTE koe_api.kvittering',
         'GRANT EXECUTE koe_api.lagre_brevdokument',
+        'GRANT EXECUTE koe_api.lagre_vedlegg',
         'GRANT EXECUTE koe_api.lagret_brevdokument',
         'GRANT EXECUTE koe_api.les_sesjon',
         'GRANT EXECUTE koe_api.leveringsmaal',
@@ -589,6 +590,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.skriv_hendelse',
         'GRANT EXECUTE koe_api.skrivetidspunkt',
         'GRANT EXECUTE koe_api.slett_sesjon',
+        'GRANT EXECUTE koe_api.slett_vedlegg',
         'GRANT EXECUTE koe_api.synkroniser_medlemskap',
         'GRANT SELECT koe.hendelse',
         'GRANT SELECT koe.kjernebuffer',
@@ -596,6 +598,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT SELECT koe.leveringsoppdrag',
         'GRANT SELECT koe.notat',
         'GRANT SELECT koe.sak_metadata',
+        'GRANT SELECT koe.vedlegg',
       ]);
     });
 
@@ -636,8 +639,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       expect(kjoeretid.recordset.filter((r) => r.filter !== 1)).toEqual([]);
       expect(kjoeretid.recordset.map((r) => r.tabell).sort()).toEqual(
         // Kvitteringen har ingen `sak_id`; den leses for «levert» (#764), og L7 i
-        // `levering.test.ts` viser at kjøretiden ikke kan skrive den.
-        [...SAKSTABELLER, 'leveringskvittering'].map((t) => `koe.${t}`).sort()
+        // `levering.test.ts` viser at kjøretiden ikke kan skrive den. Vedleggene prøves
+        // i `vedlegg.test.ts`.
+        [...SAKSTABELLER, 'leveringskvittering', 'vedlegg'].map((t) => `koe.${t}`).sort()
       );
     });
   });
