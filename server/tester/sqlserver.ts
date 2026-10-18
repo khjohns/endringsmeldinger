@@ -151,7 +151,7 @@ export async function opprettTestbase(
 
 /**
  * En innlogging som er medlem av `rolle` (standard `koe_runtime`) i basen, og en pool som logger inn
- * med den, så kjøretiden prøves med sine egne rettigheter gjennom `transaksjon()`
+ * med den, så rollen prøves med sine egne rettigheter gjennom `transaksjon()`
  * (#53, del 3a). Innloggingen hører til serveren og slettes med `slett()`, før basen.
  */
 export async function opprettKjoeretid(
@@ -172,7 +172,9 @@ export async function opprettKjoeretid(
   }
   await base.pool
     .request()
-    .batch(`CREATE USER [${navn}] FOR LOGIN [${navn}]; ALTER ROLE ${rolle} ADD MEMBER [${navn}];`);
+    .batch(
+      `CREATE USER [${navn}] FOR LOGIN [${navn}]; ALTER ROLE [${rolle}] ADD MEMBER [${navn}];`
+    );
   const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
   const pool = await opprettPool(
     {

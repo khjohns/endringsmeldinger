@@ -22,12 +22,11 @@ import { parseArgs } from 'node:util';
 import { catendaId } from './autorisasjon.ts';
 import { catendaFraMiljoe, type CatendaOAuth } from './catenda.ts';
 import { opprettPool, sql, type Pool } from './datalag.ts';
-
-export type Kontraktsside = 'TE' | 'BH';
+import type { Part } from '../kjerne/typer.ts';
 
 export interface Kontraktsteam {
   team_id: string;
-  contract_role: Kontraktsside;
+  contract_role: Part;
 }
 
 export interface Registrering {
@@ -44,8 +43,7 @@ export interface Registrering {
 
 export class Registreringsfeil extends Error {}
 
-function uuid(verdi: string | undefined, navn: string): string | null {
-  if (verdi === undefined) return null;
+function uuid(verdi: string, navn: string): string {
   const id = catendaId(verdi);
   if (!id) throw new Registreringsfeil(`${navn} er ikke en UUID: ${verdi}`);
   return `${id.slice(0, 8)}-${id.slice(8, 12)}-${id.slice(12, 16)}-${id.slice(16, 20)}-${id.slice(20)}`;
@@ -74,17 +72,14 @@ export function kontraktsteamFra(bh: string[], te: string[]): Kontraktsteam[] {
   return team;
 }
 
-/** Teamene i Catenda-prosjektet, med navnet, etter `catenda_id()`-formen. */
-export async function catendaTeam(
+/** Teamene i Catenda-prosjektet, med navnet. Prosjektet og teamene er i `catenda_id()`-formen. */
+async function catendaTeam(
   oauth: CatendaOAuth,
   token: string,
   catendaProsjekt: string
 ): Promise<Map<string, string>> {
-  const id = catendaId(catendaProsjekt);
-  if (!id)
-    throw new Registreringsfeil(`Catenda-prosjektet er ikke en Catenda-ID: ${catendaProsjekt}`);
   const team = new Map<string, string>();
-  for (const rad of await oauth.samling(`/v2/projects/${id}/teams`, token)) {
+  for (const rad of await oauth.samling(`/v2/projects/${catendaProsjekt}/teams`, token)) {
     const bruker = rad.user as { id?: unknown; type?: unknown; name?: unknown } | undefined;
     const teamId = bruker?.type === 'team' ? catendaId(bruker.id) : null;
     if (teamId) team.set(teamId, typeof bruker?.name === 'string' ? bruker.name : '');
@@ -92,13 +87,7 @@ export async function catendaTeam(
   return team;
 }
 
-export function kontrollerMotCatenda(team: Kontraktsteam[], iCatenda: Map<string, string>): void {
-  const mangler = team.filter((t) => !iCatenda.has(t.team_id)).map((t) => t.team_id);
-  if (mangler.length)
-    throw new Registreringsfeil(`Teamet finnes ikke i Catenda-prosjektet: ${mangler.join(', ')}`);
-}
-
-export async function registrer(pool: Pool, r: Registrering): Promise<void> {
+async function registrer(pool: Pool, r: Registrering): Promise<void> {
   await pool
     .request()
     .input('prosjekt', sql.NVarChar(4000), r.prosjekt)
@@ -113,7 +102,7 @@ export async function registrer(pool: Pool, r: Registrering): Promise<void> {
     .execute('koe_drift.registrer_prosjekt');
 }
 
-export async function settKontraktsteam(
+async function settKontraktsteam(
   pool: Pool,
   prosjekt: string,
   team: Kontraktsteam[]
@@ -188,8 +177,10 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
 
   async function kontrollerTeam(catendaProsjekt: string, team: Kontraktsteam[]): Promise<void> {
     const { oauth, token } = a.catenda();
-    const iCatenda = await catendaTeam(oauth, await token(), catendaProsjekt);
-    kontrollerMotCatenda(team, iCatenda);
+    const iCatenda = await catendaTeam(oauth, await token(), catendaId(catendaProsjekt)!);
+    const mangler = team.filter((t) => !iCatenda.has(t.team_id)).map((t) => t.team_id);
+    if (mangler.length)
+      throw new Registreringsfeil(`Teamet finnes ikke i Catenda-prosjektet: ${mangler.join(', ')}`);
     for (const t of team)
       a.skriv(`  ${t.contract_role}: ${iCatenda.get(t.team_id)} (${t.team_id})`);
   }
@@ -204,10 +195,10 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       catendaProsjekt: uuid(
         paakrevd(v['catenda-prosjekt'], 'catenda-prosjekt'),
         'Catenda-prosjektet'
-      )!,
-      bibliotek: uuid(paakrevd(v.bibliotek, 'bibliotek'), 'Biblioteket')!,
-      mappe: uuid(v.mappe, 'Mappen'),
-      board: uuid(v.board, 'Boardet'),
+      ),
+      bibliotek: uuid(paakrevd(v.bibliotek, 'bibliotek'), 'Biblioteket'),
+      mappe: v.mappe === undefined ? null : uuid(v.mappe, 'Mappen'),
+      board: v.board === undefined ? null : uuid(v.board, 'Boardet'),
       team: oppgittTeam,
     };
     if (r.team) await kontrollerTeam(r.catendaProsjekt, r.team);
