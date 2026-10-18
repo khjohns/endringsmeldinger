@@ -22,7 +22,8 @@ GO
 
 CREATE TABLE koe.prosjekt_med_saker (
   prosjekt_id nvarchar(100) NOT NULL CONSTRAINT prosjekt_med_saker_pk PRIMARY KEY
-    CONSTRAINT prosjekt_med_saker_prosjekt FOREIGN KEY REFERENCES koe.projects (id),
+    CONSTRAINT prosjekt_med_saker_prosjekt FOREIGN KEY REFERENCES koe.projects (id)
+    CONSTRAINT prosjekt_med_saker_prosjekt_id_uten_mellomrom CHECK (DATALENGTH(prosjekt_id) = DATALENGTH(RTRIM(prosjekt_id))),
   created_at datetime2(3) NOT NULL CONSTRAINT prosjekt_med_saker_created_at DEFAULT SYSUTCDATETIME()
 );
 GO
