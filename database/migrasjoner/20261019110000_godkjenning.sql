@@ -53,6 +53,9 @@ CREATE TABLE koe.godkjenningspakke (
   CONSTRAINT godkjenningspakke_omfang UNIQUE (pakke_id, prosjekt_id, aktor_team_id)
 );
 CREATE INDEX godkjenningspakke_sak_id ON koe.godkjenningspakke (sak_id);
+-- En returnert eller trukket pakke erstattes bare én gang.
+CREATE UNIQUE INDEX godkjenningspakke_erstattet_en_gang ON koe.godkjenningspakke (forrige_pakke_id)
+  WHERE forrige_pakke_id IS NOT NULL;
 GO
 
 CREATE TABLE koe.godkjenningssteg (
@@ -182,6 +185,21 @@ BEGIN
     THROW 51403, N'Bare byggherren lager en godkjenningspakke', 1;
   IF NOT EXISTS (SELECT 1 FROM koe.sak_metadata WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt)
     THROW 51403, N'Ukjent sak', 1;
+  -- Låsen på saken i indeksen hindrer at to pakker lages samtidig. Teamet ser bare sine
+  -- egne pakker, så en åpen pakke i et annet team stopper ikke denne.
+  IF EXISTS (
+       SELECT 1 FROM koe.godkjenningspakke p WITH (UPDLOCK, HOLDLOCK, INDEX (godkjenningspakke_sak_id))
+        WHERE p.sak_id = @sak_id
+          AND NOT EXISTS (SELECT 1 FROM koe.godkjenningshandling h
+                           WHERE h.pakke_id = p.pakke_id AND h.handling <> N'godkjent')
+          AND EXISTS (SELECT 1 FROM koe.godkjenningssteg s
+                       WHERE s.pakke_id = p.pakke_id AND NOT EXISTS (
+                         SELECT 1 FROM koe.godkjenningshandling h
+                          WHERE h.pakke_id = s.pakke_id AND h.steg = s.steg AND h.handling = N'godkjent')))
+    THROW 51409, N'Teamet har en åpen pakke i saken', 1;
+  IF @forrige_pakke_id IS NOT NULL AND EXISTS (
+       SELECT 1 FROM koe.godkjenningspakke WHERE forrige_pakke_id = @forrige_pakke_id)
+    THROW 51409, N'Den forrige pakken er alt erstattet', 1;
   IF @forrige_pakke_id IS NOT NULL AND NOT EXISTS (
        SELECT 1 FROM koe.godkjenningspakke p
          JOIN koe.godkjenningshandling h ON h.pakke_id = p.pakke_id AND h.handling <> N'godkjent'
@@ -212,8 +230,9 @@ END
 GO
 
 -- Registrerer en godkjenning, en retur eller en trekking. Godkjenningen og returen
--- gis av godkjenneren i det neste steget som ikke er godkjent, trekkingen av
--- saksbehandleren. En godkjenning krever en fullmakt nå (B-04 punkt 1), og fryser den.
+-- gis av godkjenneren i det neste steget som ikke er godkjent. Alle i teamet som
+-- utarbeidet svaret, kan trekke pakken, også når alle steg er godkjent (B-04 punkt 3).
+-- En godkjenning krever en fullmakt nå (B-04 punkt 1), og fryser den.
 CREATE PROCEDURE koe_api.registrer_godkjenningshandling
   @pakke_id uniqueidentifier, @handling nvarchar(20), @begrunnelse nvarchar(4000)
 AS
@@ -228,10 +247,8 @@ BEGIN
   IF @team IS NULL OR TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(2)) IS DISTINCT FROM N'BH'
     THROW 51403, N'Ukjent pakke', 1;
 
-  DECLARE @saksbehandler uniqueidentifier;
-  SELECT @saksbehandler = aktor_id FROM koe.godkjenningspakke WITH (UPDLOCK, HOLDLOCK)
-   WHERE pakke_id = @pakke_id AND prosjekt_id = @prosjekt;
-  IF @saksbehandler IS NULL
+  IF NOT EXISTS (SELECT 1 FROM koe.godkjenningspakke WITH (UPDLOCK, HOLDLOCK)
+                  WHERE pakke_id = @pakke_id AND prosjekt_id = @prosjekt)
     THROW 51403, N'Ukjent pakke', 1;
   IF EXISTS (SELECT 1 FROM koe.godkjenningshandling WHERE pakke_id = @pakke_id AND handling <> N'godkjent')
     THROW 51409, N'Pakken er returnert eller trukket', 1;
@@ -243,18 +260,14 @@ BEGIN
      AND NOT EXISTS (SELECT 1 FROM koe.godkjenningshandling h
                       WHERE h.pakke_id = s.pakke_id AND h.steg = s.steg AND h.handling = N'godkjent')
    ORDER BY s.steg;
-  IF @steg IS NULL
-    THROW 51409, N'Pakken er godkjent i alle steg', 1;
 
   DECLARE @tittel nvarchar(200), @grense decimal(15, 2), @ubegrenset bit;
   IF @handling = N'trukket'
-  BEGIN
-    IF @aktor IS DISTINCT FROM @saksbehandler
-      THROW 51403, N'Bare saksbehandleren trekker pakken', 1;
     SET @steg = NULL;
-  END
   ELSE IF @handling IN (N'godkjent', N'returnert')
   BEGIN
+    IF @steg IS NULL
+      THROW 51409, N'Pakken er godkjent i alle steg', 1;
     IF @aktor IS DISTINCT FROM @godkjenner
       THROW 51403, N'Pakken venter ikke på deg', 1;
     IF @handling = N'godkjent'

@@ -6,10 +6,14 @@
  * - GFK-U1: fullmaktene settes opp av driften, ikke av appen, og er byggherrens;
  * - B-04 punkt 1 og 2: en godkjenning gitt med fullmakt står når fullmakten endres
  *   senere, og uten fullmakt gis ingen ny godkjenning;
- * - arbeidsvalget i #818: fullmakten fryses i godkjenningen når den gis.
+ * - arbeidsvalget i #818: fullmakten fryses i godkjenningen når den gis;
+ * - B-04 punkt 3 og svaret 18.10 i #818: alle i teamet kan trekke pakken, også når alle
+ *   steg er godkjent;
+ * - det tekniske valget 18.10 i #818: en pakke erstattes bare én gang, og teamet har
+ *   høyst én åpen pakke i saken.
  */
 import { randomBytes, randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { transaksjon, type Kontekst } from '../datalag.ts';
 import {
@@ -57,7 +61,6 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
 
   beforeAll(async () => {
     o = await lagOppsett();
-    sakId = await opprettKjernesak(o);
     await eier(async (r) => {
       await settInn(r, 'catenda_contract_teams', {
         internal_project_id: o.prosjekt.id,
@@ -95,6 +98,10 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
       await settInn(r, 'dagmulktssats', { prosjekt_id: o.prosjekt.id, sats: 5000 });
     });
   }, 240_000);
+  // Hver test har sin egen sak, fordi teamet bare kan ha én åpen pakke i saken.
+  beforeEach(async () => {
+    sakId = await opprettKjernesak(o);
+  });
   afterAll(async () => {
     if (o) await rydd(o);
   }, 60_000);
@@ -258,16 +265,44 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     expect((await i(som(o.bh.id), (f) => lesPakke(f, ny.pakkeId)))!.forrigePakkeId).toBe(p.pakkeId);
   });
 
-  it('bare saksbehandleren trekker pakken', async () => {
+  it('en pakke erstattes bare én gang, og teamet har høyst én åpen pakke i saken', async () => {
     const p = pakke([leder]);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
-    await expect(i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'trukket'))).rejects.toThrow(
-      PakkeNektet
+    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder])))).rejects.toThrow(
+      PakkeAvsluttet
     );
-    await i(som(o.bh.id), (f) => registrerHandling(f, p.pakkeId, 'trukket'));
+    await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert'));
+    const ny = pakke([leder], p.pakkeId);
+    await i(som(o.bh.id), (f) => lagPakke(f, ny));
+    await i(som(o.bh.id), (f) => registrerHandling(f, ny.pakkeId, 'trukket'));
+    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder], p.pakkeId)))).rejects.toThrow(
+      PakkeAvsluttet
+    );
+    // En pakke som er godkjent i alle steg, er ikke åpen.
+    const godkjent = pakke([leder], ny.pakkeId);
+    await i(som(o.bh.id), (f) => lagPakke(f, godkjent));
+    await i(som(leder), (f) => registrerHandling(f, godkjent.pakkeId, 'godkjent'));
+    await i(som(o.bh.id), (f) => lagPakke(f, pakke([leder])));
+  });
+
+  it('alle i teamet kan trekke pakken, også når alle steg er godkjent (B-04 punkt 3)', async () => {
+    const p = pakke([leder]);
+    await i(som(o.bh.id), (f) => lagPakke(f, p));
+    await expect(
+      i(som(raadgiver, { team: raadgiverteam }), (f) => registrerHandling(f, p.pakkeId, 'trukket'))
+    ).rejects.toThrow(PakkeNektet);
+    await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'trukket'));
     expect((await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId)))!.handlinger).toMatchObject([
-      { handling: 'trukket', steg: null, aktorId: o.bh.id, fullmakt: null },
+      { handling: 'trukket', steg: null, aktorId: leder, fullmakt: null },
     ]);
+
+    const godkjent = pakke([leder], p.pakkeId);
+    await i(som(o.bh.id), (f) => lagPakke(f, godkjent));
+    await i(som(leder), (f) => registrerHandling(f, godkjent.pakkeId, 'godkjent'));
+    await i(som(o.bh.id), (f) => registrerHandling(f, godkjent.pakkeId, 'trukket'));
+    const lest = (await i(som(o.bh.id), (f) => lesPakke(f, godkjent.pakkeId)))!;
+    expect(lest.handlinger.map((h) => h.handling)).toEqual(['godkjent', 'trukket']);
+    expect(erGodkjent(lest)).toBe(false);
   });
 
   it('en pakke i et annet team kan ikke godkjennes', async () => {
