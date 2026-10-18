@@ -167,7 +167,7 @@ export function eoExposureFloor(payload: CreateEORequest, dailyRate: number | nu
   return money;
 }
 
-/** Fristdager uten dagmulktssats. Da gjelder B-06, og ubegrenset fullmakt sender ikke alene. */
+/** Fristdager uten dagmulktssats. Da gjelder GFK-U3, og ubegrenset fullmakt sender ikke alene. */
 export function eoManglerSats(payload: CreateEORequest, dailyRate: number | null): boolean {
   return (payload.frist_dager ?? 0) > 0 && !(dailyRate && dailyRate > 0);
 }

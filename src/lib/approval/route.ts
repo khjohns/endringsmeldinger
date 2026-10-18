@@ -65,7 +65,7 @@ const covers = (limit: number | null | undefined, amount: number | null) =>
  * `amount: null` (uncomputable) requires the whole configured chain, and `minimum` —
  * the part already agreed — must still be within someone's authority.
  * Ubegrenset fullmakt sender alene, også når beløpet ikke kan verdsettes (vedtak 23.09).
- * Unntaket er `manglerSats`: uten dagmulktssats gjelder B-06, og da kreves kjeden.
+ * Unntaket er `manglerSats`: uten dagmulktssats gjelder GFK-U3, og da kreves kjeden.
  * Mirrors `resolve_route` in backend/services/approval_authority.py.
  */
 export function resolveRoute({

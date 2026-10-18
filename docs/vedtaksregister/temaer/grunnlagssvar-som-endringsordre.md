@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `b045da955a940ea060050ef30e109ecc2fb922c24c88120ef451c687ed287deb`
+Kontrollsum (SHA-256 over utdraget visningen leser): `14cc97387fd006c46b49eb36d551aa7fb56cc7eee23b6645f456e9e253157611`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -477,9 +477,11 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 > GFK-U2: Har byggherren ikke registrert fullmakter i prosjektet, kan svar som går gjennom fullmakten, ikke sendes fra appen. Svaret på et forseringsvarsel kan sendes (FO-U6).
 
+**Forkastet:** «Har byggherren ikke registrert fullmakter i prosjektet, sendes svar direkte av den som skriver dem. Et svar som er en endringsordre etter § 31.3, og en endringsordre i en EO-sak kan ikke sendes fra appen.»; «Har byggherren ikke registrert fullmakter i prosjektet, sendes alle svar direkte av den som skriver dem, også endringsordrer. Dette endrer GR-U13 og EO-U6 for slike prosjekter.»
+
 **Vedtatt:** 18.10, oppdragsgiver (runde 7 (#764), #818)
 
-**Følge:** Presiserer [GR-U13](#gr-u13). Presiserer [EO-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6). Presiserer [FO-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u6). Ikke bygget.
+**Følge:** Presiserer [GR-U13](#gr-u13). Presiserer [EO-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6). Presiserer [FO-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u6). Ikke bygget. Presiserer B-02 punkt 3 (vedtaket 23.09).
 
 **Regelrader:** —
 

@@ -518,9 +518,10 @@ eksplisitt oppheves.
 | Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes | 23.09, oppdragsgiver | Endret 10.10 av [EO-U6](#eo-u6), ikke bygget: en endringsordre som er byggherrens svar på grunnlaget i en KOE-sak, går gjennom fullmakten som en godkjenning av grunnlaget etter GFK-06. Bygget 24.09 i `resolve_route` og speilet `resolveRoute` (merknaden i GFK-02). Gjelder fristsvar med ny sluttdato (GFK-02) og endringsordrer (`resolve_route`). Alle andre trenger fortsatt hele kjeden, og kjeden må dekke det som lar seg verdsette |
 | B-02 punkt 3: «ikke omgå godkjenning» betyr prosedyregaranti (v2 avsnitt 5, alternativ a) | 23.09, oppdragsgiver | En EO utstedes bare gjennom kommandoen, og kommandoens regler holder: pakke, policyversjon, fullmakt og side. At en overtatt runtime kan opptre som en godkjenner, er restrisiko. Den føres i ROS-analysen og vurderes på nytt før produksjon (F5). Bevis på menneskelig godkjenning (b) bygges ikke nå |
 | Policy nøkles på `user_id` | 18.09 | `BH_APPROVAL_POLICIES` må ha `user_id` per oppføring før produksjon |
-| <a id="gfk-u1"></a>GFK-U1: Fullmaktene settes opp i appens oppsett av driften etter skriftlig bestilling fra byggherren. Appen viser ikke hvem som har endret dem. | 18.10, oppdragsgiver (runde 7 (#764), #818) | Ikke bygget. |
-| <a id="gfk-u2"></a>GFK-U2: Har byggherren ikke registrert fullmakter i prosjektet, kan svar som går gjennom fullmakten, ikke sendes fra appen. Svaret på et forseringsvarsel kan sendes (FO-U6). | 18.10, oppdragsgiver (runde 7 (#764), #818) | Presiserer [GR-U13](#gr-u13). Presiserer [EO-U6](#eo-u6). Presiserer [FO-U6](#fo-u6). Ikke bygget. |
-| <a id="gfk-u3"></a>GFK-U3: Mangler dagmulktssatsen, kan fristdagene ikke verdsettes, og fristsporet behandles som et krav som ikke er tallfestet: det krever hele kjeden. | 18.10, oppdragsgiver (runde 7 (#764), #818) | Ikke bygget. Besvarer B-06 i 3.4. |
+| <a id="gfk-u1"></a>GFK-U1: Fullmaktene settes opp i appens oppsett av driften etter skriftlig bestilling fra byggherren. Appen viser ikke hvem som har endret dem. Forkastet: «Fullmaktene i appen gjengir fullmakter byggherren har gitt. Bare byggherrens representant etter § 9 kan registrere dem i appen. Hver endring står med tidspunkt og hvem som registrerte den.» | 18.10, oppdragsgiver (runde 7 (#764), #818) | Ikke bygget. Presiserer vedtaket 18.09 «Policy nøkles på `user_id`» og B-04 punkt 2. |
+| <a id="gfk-u2"></a>GFK-U2: Har byggherren ikke registrert fullmakter i prosjektet, kan svar som går gjennom fullmakten, ikke sendes fra appen. Svaret på et forseringsvarsel kan sendes (FO-U6). Forkastet: «Har byggherren ikke registrert fullmakter i prosjektet, sendes svar direkte av den som skriver dem. Et svar som er en endringsordre etter § 31.3, og en endringsordre i en EO-sak kan ikke sendes fra appen.»; «Har byggherren ikke registrert fullmakter i prosjektet, sendes alle svar direkte av den som skriver dem, også endringsordrer. Dette endrer GR-U13 og EO-U6 for slike prosjekter.» | 18.10, oppdragsgiver (runde 7 (#764), #818) | Presiserer [GR-U13](#gr-u13). Presiserer [EO-U6](#eo-u6). Presiserer [FO-U6](#fo-u6). Ikke bygget. Presiserer B-02 punkt 3 (vedtaket 23.09). |
+| <a id="gfk-u3"></a>GFK-U3: Mangler dagmulktssatsen, kan fristdagene ikke verdsettes, og fristsporet behandles som et krav som ikke er tallfestet: det krever hele kjeden. Forkastet: «Mangler dagmulktssatsen, kan et svar som godkjenner fristdager, ikke sendes fra appen før satsen er registrert.»; «Mangler dagmulktssatsen, oppgir den som utarbeider svaret en verdi per dag, og fullmakten regnes av den. Verdien står i godkjenningen.» | 18.10, oppdragsgiver (runde 7 (#764), #818) | Presisert 18.10 av [GFK-U4](#gfk-u4). Presiserer GFK-06 og presiseringen 24.09 av den. Avgjør B-06. Bygget for endringsordrer (`eoManglerSats`, `resolveRoute`); for svar i KOE-saken regnes dagene som 0 kr (GFK-01). |
+| <a id="gfk-u4"></a>GFK-U4: Mangler dagmulktssatsen, kan den som har ubegrenset fullmakt, sende svaret alene, som for et krav som ikke er tallfestet; alle andre trenger hele kjeden. Forkastet: «Mangler dagmulktssatsen, kreves hele kjeden også når den som utarbeidet svaret, har ubegrenset fullmakt.» | 18.10, oppdragsgiver (runde 7 (#764), #818) | Presiserer [GFK-U3](#gfk-u3). Presiserer vedtaket 23.09 om ubegrenset fullmakt. Ikke bygget. |
 
 #### Kontrakt, API og saksopprettelse
 
@@ -832,7 +833,6 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 | --- | --- | --- | --- | --- | --- | --- |
 | B-01 | Hvordan skal relasjoner mellom saker lagres? | (a) Relasjonsprojeksjon med prosjektavgrensede fremmednøkler, én skriver. (b) Utledning fra hendelsenes jsonb med GIN-indeks. (c) Reservasjonstabell for KOE-tilknytning pluss (a) eller (b) | (a) er foretrukket til vurdering (AF-03). En GIN-indeks er ikke et revisjonsspor (RGK-04) | Utvikler, med review. Ikke utpekt | Sammenlikning mot referanseintegritet, eksklusivitet, gjenoppbygging og samtidighet | KOE-tilknytning og relasjoner, i FK etter merknaden 09.10 til F2. DB-04, MS-08 |
 | B-05 | Hvilke bevaringskrav gjelder utover journalen? | Bevaringstid for journal, filer, logger, backup og stagingfiler | P7 fastsetter bare at journalen bevares uten kryptografisk sletting | Behandlingsansvarlig, med råd fra personvernombudet | DPIA og arkivfaglig vurdering | Bevarings- og sletteregler i F4. Produksjonsport |
-| B-06 | Hvilken fullmakt kreves når dagmulktssats mangler? | Kjedens toppnivå; avvisning; manuell verdsetting | Ingen | Oppdragsgiver (BH-siden), ikke utpekt | Domenevurdering | Restansen på GFK-01/FE-04 |
 | B-07 | Hvilken drivmekanisme skal workeren ha? | Tabell med `SKIP LOCKED`, `pgmq`, Cloud Tasks, Cloud Scheduler, jobber i Azure Container Apps, fast instans | Én kømekanisme; tabell og `SKIP LOCKED` er beskrevet i transaksjonsplanen | Utvikler, ikke utpekt | Plattformens skalering til null og krav om start uten brukerhandling | Minimal worker i F2 |
 | B-09 | Hvilke driftsverdier gjelder? | Kapasitet, svartid, køalarm, rate limits, oppbevaring av stagingfiler | Tall i 3.3 er forslag uten kilde | Driftsansvarlig, ikke utpekt | Lastforutsetninger, Catendas kvoter, fristkrav | Akseptkriterier for kapasitet og varsling i F3 |
 | B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
@@ -853,6 +853,7 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
   saksdokument) og dokumentet 10.10 ([B-03, dokumentet](#b-03-dokument)), med
   [MM-U10](#mm-u10) om flere spor i ett brev.
 - **B-04** tilbakekalling: avgjort 23.09. Vedtaket står i merknaden til B-04 i 3.1.
+- **B-06** fullmakt når dagmulktssatsen mangler: avgjort 18.10 med [GFK-U3](#gfk-u3).
 - **B-08** KOE-eksklusivitet: avgjort 08.10 med [EO-U3](#eo-u3).
 - **B-10** versjonering av hendelsesformat og regler: avgjort 10.10
   ([B-10](#b-10)), med [HF-U1](#hf-u1) og [HF-U2](#hf-u2) om lagringsformatet og
@@ -1813,7 +1814,7 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
 Kan gå parallelt. Hver retting får regresjonstest og holdes innenfor sitt
 funn. TFR-02 til TFR-06, GFK-02, GFK-06, INT-07, OBS-03, BR-01 (reprodusert
 23.09, rettes etter B-13), DRF-01–DRF-03, SD-01–SD-04, og restansen på
-GFK-01 når B-06 er avgjort.
+GFK-01 etter [GFK-U3](#gfk-u3).
 
 > **Merknad 2026-09-23 til spor D:** TFR-02–TFR-05, GFK-02, INT-07 og OBS-03
 > er rettet; se radene i 4.2 og
@@ -1923,7 +1924,6 @@ står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
 | B-07 drivmekanisme | Workeren for leveringen (punkt 3 i F2, som er levering og integrasjon etter merknaden 09.10 til F2) |
 | B-09 driftsverdier | Akseptkriteriene for kapasitet og varsling i F3, og grensene for utdatert medlemsliste (B-04) |
 | B-05 bevaring, B-11 tidskilde | Eksport og bevaring i F4, og produksjonsporten |
-| B-06 fullmakt uten sats | Restansen på GFK-01 |
 | B-16 korrigering av låste opplysninger | Korrigeringsfunksjon og avklaring før produksjon |
 
 ## 7. Catenda: leveringsgarantier

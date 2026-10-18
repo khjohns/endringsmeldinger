@@ -5178,7 +5178,7 @@ valgt = "Driften setter dem opp"
 svar = '''
 «Driften setter dem opp»'''
 folge = '''
-Ikke bygget.'''
+Ikke bygget. Presiserer vedtaket 18.09 «Policy nøkles på `user_id`» og B-04 punkt 2.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Byggherren registrerer i appen"
@@ -5188,6 +5188,7 @@ anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "Representanten registrerer"
+forkastet = true
 tekst = '''
 Fullmaktene i appen gjengir fullmakter byggherren har gitt. Bare byggherrens representant etter § 9 kan registrere dem i appen. Hver endring står med tidspunkt og hvem som registrerte den.'''
 
@@ -5224,7 +5225,7 @@ svar = '''
 «Ingen svar uten fullmakter (Recommended)»'''
 forhold = [{ art = "presiserer", vedtak = "gr-u13" }, { art = "presiserer", vedtak = "eo-u6" }, { art = "presiserer", vedtak = "fo-u6" }]
 folge = '''
-Ikke bygget.'''
+Ikke bygget. Presiserer B-02 punkt 3 (vedtaket 23.09).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ingen svar uten fullmakter"
@@ -5234,11 +5235,13 @@ anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "Bare endringsordrer sperres"
+forkastet = true
 tekst = '''
 Har byggherren ikke registrert fullmakter i prosjektet, sendes svar direkte av den som skriver dem. Et svar som er en endringsordre etter § 31.3, og en endringsordre i en EO-sak kan ikke sendes fra appen.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Alle svar sendes direkte"
+forkastet = true
 tekst = '''
 Har byggherren ikke registrert fullmakter i prosjektet, sendes alle svar direkte av den som skriver dem, også endringsordrer. Dette endrer GR-U13 og EO-U6 for slike prosjekter.'''
 
@@ -5273,7 +5276,7 @@ valgt = "Hele kjeden"
 svar = '''
 «Hele kjeden (Recommended)»'''
 folge = '''
-Ikke bygget. Besvarer B-06 i 3.4.'''
+Presiserer GFK-06 og presiseringen 24.09 av den. Avgjør B-06. Bygget for endringsordrer (`eoManglerSats`, `resolveRoute`); for svar i KOE-saken regnes dagene som 0 kr (GFK-01).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Hele kjeden"
@@ -5283,11 +5286,13 @@ anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "Svaret avvises"
+forkastet = true
 tekst = '''
 Mangler dagmulktssatsen, kan et svar som godkjenner fristdager, ikke sendes fra appen før satsen er registrert.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Manuell verdsetting"
+forkastet = true
 tekst = '''
 Mangler dagmulktssatsen, oppgir den som utarbeider svaret en verdi per dag, og fullmakten regnes av den. Verdien står i godkjenningen.'''
 
@@ -5298,6 +5303,42 @@ tekst = "Godkjenning av ansvarsgrunnlaget (GFK-06): fullmakten regnes av TEs kre
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Et krav som ikke er sendt, krever hele kjeden som et krav som ikke er tallfestet; et trukket krav er 0."
+
+[[gruppe.vedtak]]
+id = "GFK-U4"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 7 (#764)", "#818"]
+sporsmal = '''
+S-1, ubegrenset fullmakt uten dagmulktssats: Du har avgjort at når dagmulktssatsen mangler, «behandles fristsporet som et krav som ikke er tallfestet: det krever hele kjeden» (GFK-U3). Vedtaket 23.09 sier: «Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes», og «Alle andre trenger fortsatt hele kjeden» (EO-U6 endret dette bare for endringsordren). Python lar i dag ikke ubegrenset fullmakt sende alene når satsen mangler; den regelen er eldre enn GFK-U3. Kan en saksbehandler med ubegrenset fullmakt sende et slikt svar alene?
+
+«Ja, ubegrenset kan sende alene (Recommended)»: «Mangler dagmulktssatsen, kan den som har ubegrenset fullmakt, sende svaret alene, som for et krav som ikke er tallfestet; alle andre trenger hele kjeden.» Presiserer GFK-U3 og vedtaket 23.09.
+«Nei, hele kjeden alltid»: «Mangler dagmulktssatsen, kreves hele kjeden også når den som utarbeidet svaret, har ubegrenset fullmakt.» Snevrer inn vedtaket 23.09 for dette tilfellet.
+
+Belegg, ordrett fra vedtakene:
+- 23.09: «Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes»'''
+valgt = "Ja, ubegrenset kan sende alene"
+svar = '''
+«Ja, ubegrenset kan sende alene (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "gfk-u3" }]
+folge = '''
+Presiserer vedtaket 23.09 om ubegrenset fullmakt. Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, ubegrenset kan sende alene"
+tekst = '''
+Mangler dagmulktssatsen, kan den som har ubegrenset fullmakt, sende svaret alene, som for et krav som ikke er tallfestet; alle andre trenger hele kjeden.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, hele kjeden alltid"
+tekst = '''
+Mangler dagmulktssatsen, kreves hele kjeden også når den som utarbeidet svaret, har ubegrenset fullmakt.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes"
 
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
