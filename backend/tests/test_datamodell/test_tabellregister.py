@@ -3,9 +3,10 @@
 PostgreSQL-tabellene sammenliknes med `TABELLER_I_BASEN`, som katalogtesten i
 CI-jobben `database` holder lik en base bygget fra migrasjonene. En ny migrasjon
 gjør dermed først katalogtesten rød, og deretter denne. SQLite-tabellene
-sammenliknes med `CREATE TABLE` i modulene som bruker `sqlite_connection`, og
-SQL Server-tabellene med katalog.json, som `server/tester/katalog.test.ts` holder
-lik en base bygget fra database/migrasjoner/ (#558, #647).
+sammenliknes med `CREATE TABLE` i modulene som bruker `sqlite_connection`.
+SQL Server-tabellene sammenliknes med katalog.json i
+`test_katalogen_har_de_samme_tabellene_som_registeret`
+(`test_relasjoner_og_dataflyt.py`, #558, #647, #673).
 """
 
 import importlib.util
@@ -14,10 +15,7 @@ import re
 
 import pytest
 
-from tests.test_security.test_database_arkitektur_20260920 import (
-    TABELLER_I_BASEN,
-    tabeller_i_sqlserver_migrasjonene,
-)
+from tests.test_security.test_database_arkitektur_20260920 import TABELLER_I_BASEN
 
 ROT = pathlib.Path(__file__).resolve().parents[3]
 BACKEND = ROT / "backend"
@@ -70,15 +68,6 @@ def test_hver_sqlite_tabell_har_en_oppforing(register):
     uten_oppforing, uten_tabell = dm.avvik(register, "SQLite", i_koden)
     assert uten_oppforing == [], "SQLite-tabeller uten oppføring i registeret"
     assert uten_tabell == [], "Oppføringer uten SQLite-tabell i koden"
-
-
-def test_hver_sqlserver_tabell_har_en_oppforing(register):
-    i_migrasjonene = tabeller_i_sqlserver_migrasjonene()
-    if not i_migrasjonene:
-        pytest.fail("Fant ingen SQL Server-tabeller i katalog.json")
-    uten_oppforing, uten_tabell = dm.avvik(register, "SQL Server", i_migrasjonene)
-    assert uten_oppforing == [], "Tabeller i SQL Server-katalogen uten oppføring i registeret"
-    assert uten_tabell == [], "Oppføringer uten tabell i SQL Server-katalogen"
 
 
 def test_vakta_melder_tabell_som_mangler_og_oppforing_som_er_til_overs(register):
@@ -134,3 +123,60 @@ def test_excel_har_ikts_kolonner_og_de_fire_oppdragsgiver_valgte():
         "Status",
         "Personopplysninger",
     ]
+
+
+SQLSERVER_DEFINISJON = re.compile(
+    r"^\s*(?:CREATE(?:\s+OR\s+ALTER)?|ALTER)\s+(?:PROCEDURE|PROC|TRIGGER|FUNCTION)\s+(\w+\.\w+)",
+    re.IGNORECASE | re.MULTILINE,
+)
+SQLSERVER_SKRIVER = re.compile(r"^(database/migrasjoner/\S+\.sql) \((.*)\)$")
+
+
+def siste_sqlserver_definisjon() -> dict[str, str]:
+    """Migrasjonen med den gjeldende definisjonen av hver prosedyre og trigger.
+
+    Filnavnrekkefølgen er rekkefølgen runneren anvender filene i."""
+    siste = {}
+    for fil in sorted((ROT / "database" / "migrasjoner").glob("*.sql")):
+        for navn in SQLSERVER_DEFINISJON.findall(fil.read_text(encoding="utf-8")):
+            siste[navn] = fil.relative_to(ROT).as_posix()
+    return siste
+
+
+def skrivere_i_feil_migrasjon(register: dict, siste: dict[str, str]) -> list[str]:
+    """Hver prosedyre eller trigger i `skrivere` står ved migrasjonen som definerer
+    den sist. Navnet etter «innført i» er der den ble laget, og telles ikke."""
+    feil = []
+    for tabell in register["tabell"]:
+        for skriver in tabell.get("skrivere", []):
+            treff = SQLSERVER_SKRIVER.match(skriver)
+            if not treff:
+                continue
+            fil, resten = treff.groups()
+            resten = re.sub(r"innført i `[^`]*`", "", resten)
+            for navn in re.findall(r"`(koe\w*\.\w+)`", resten):
+                if siste.get(navn) != fil:
+                    feil.append(f"{tabell['navn']}: {navn} er sist definert i {siste.get(navn)}, ikke i {fil}")
+    return feil
+
+
+def test_skriverne_i_sql_server_viser_til_den_gjeldende_definisjonen(register):
+    """#703: hvilken migrasjon som har den gjeldende definisjonen, ble ført for hånd
+    og gled fra migrasjonene to ganger (#682, #700)."""
+    assert skrivere_i_feil_migrasjon(register, siste_sqlserver_definisjon()) == []
+
+
+def test_vakta_melder_skriver_ved_en_eldre_definisjon(register):
+    siste = siste_sqlserver_definisjon()
+    endret = {
+        "tabell": [
+            {
+                "navn": "koe.hendelse",
+                "skrivere": [
+                    "database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.skriv_hendelse`)",
+                    "database/migrasjoner/20261016120000_kommandoer.sql (`koe_api.finnes_ikke`)",
+                ],
+            }
+        ]
+    }
+    assert len(skrivere_i_feil_migrasjon(endret, siste)) == 2
