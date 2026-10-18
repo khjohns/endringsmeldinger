@@ -30,7 +30,7 @@ import {
   synkroniserProsjekt,
   type Medlem,
 } from '../medlemskap.ts';
-import { medlemslistensAlder } from '../autorisasjon.ts';
+import { catendaId, medlemslistensAlder } from '../autorisasjon.ts';
 import { basensKlokkeEtter, opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   feilnummer,
@@ -92,7 +92,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         IF @kobling <> N'ingen'
           INSERT koe.catenda_project_configs (internal_project_id, catenda_project_id, library_id, is_active)
           VALUES (@id, @catenda, NEWID(), IIF(@kobling = N'aktiv', 1, 0));`);
-    return { id, catenda, catendaId: catenda.replaceAll('-', '') };
+    return { id, catenda, catendaId: catendaId(catenda)! };
   }
 
   function synk(
@@ -446,6 +446,39 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       return { slipp: () => laas.commit() };
     }
 
+    /**
+     * Innloggingen kjøres i en transaksjon testen holder åpen, så den holder låsene
+     * sine til `slipp()` kalles, som en innlogging mot en treg base.
+     */
+    async function holdInnlogging(s: string, catendaProsjekter: string[], hentet: Date) {
+      const innlogging = new sql.Transaction(kjoeretid.pool);
+      await innlogging.begin();
+      const svar = await innlogging
+        .request()
+        .input('subjekt', sql.NVarChar(400), s)
+        .input('catenda_prosjekter', sql.NVarChar(sql.MAX), JSON.stringify(catendaProsjekter))
+        .input('hentet', sql.DateTime2(3), hentet)
+        .execute<{ prosjekt: string }>('koe_api.deaktiver_ved_innlogging');
+      return {
+        endret: svar.recordset.map((r) => r.prosjekt),
+        slipp: () => innlogging.commit(),
+      };
+    }
+
+    /** Venter til `antall` forespørsler i basen står i kø for en applås. */
+    async function iKoe(antall: number) {
+      for (let forsoek = 0; forsoek < 100; forsoek++) {
+        const svar = await base.pool.request().query<{ antall: number }>(
+          `SELECT COUNT(*) AS antall FROM sys.dm_tran_locks
+            WHERE resource_type = N'APPLICATION' AND request_status = N'WAIT'
+              AND resource_database_id = DB_ID()`
+        );
+        if (svar.recordset[0].antall >= antall) return;
+        await new Promise((ferdig) => setTimeout(ferdig, 50));
+      }
+      throw new Error(`Færre enn ${antall} forespørsler i kø for en applås`);
+    }
+
     it('kontrollsak: medlemskapet i et koblet prosjekt som ikke står i brukerens liste, blir inaktivt med innloggingens tidspunkt', async () => {
       const [p1, p2] = [await prosjekt(), await prosjekt()];
       const [a, b] = [medlem(), medlem()];
@@ -517,6 +550,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       expect(endret.filter((id) => [aktiv.id, inaktiv.id, uten.id].includes(id))).toEqual([]);
       expect(await aktive(aktiv.id)).toEqual([a.subjekt]);
       expect([await medlemskap(inaktiv.id), await medlemskap(uten.id)]).toEqual(foer);
+    });
+
+    it('en Catenda-ID med store bokstaver og bindestreker treffer prosjektet når den er normalisert med catendaId() (#682)', async () => {
+      const p = await prosjekt();
+      const a = medlem();
+      await synk(p, [a], sekunder(-30));
+      const annenForm = `{${p.catenda.toUpperCase()}}`;
+      expect(await logginn(a.subjekt, [catendaId(annenForm)!], sekunder(-1))).not.toContain(p.id);
+      expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
 
     describe('for en bruker uten medlemskap i prosjektet (DL-U9)', () => {
@@ -675,31 +717,66 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       expect(await aktive(p.id)).toEqual([a.subjekt]);
     }, 30_000);
 
-    it.each<[string, number, boolean]>([
-      ['hentet før innloggingen', -40, false],
-      ['hentet etter innloggingen', -20, true],
+    it.each<[string, 'innloggingen' | 'synkroniseringen', number, boolean]>([
+      ['hentet før innloggingen', 'innloggingen', -40, false],
+      ['hentet før innloggingen', 'synkroniseringen', -40, false],
+      ['hentet etter innloggingen', 'innloggingen', -20, true],
+      ['hentet etter innloggingen', 'synkroniseringen', -20, true],
     ])(
-      'samtidig med synkroniseringen av en liste %s ender medlemmet likt i hver rekkefølge (DL-U8)',
-      async (_, listeHentet, aktivTilSlutt) => {
+      'samtidig med synkroniseringen av en liste %s ender medlemmet likt når %s får låsen først (DL-U8, #639)',
+      async (_, foerst, listeHentet, aktivTilSlutt) => {
+        const p = await prosjekt();
         const a = medlem();
-        const prosjekter = await Promise.all(Array.from({ length: 6 }, () => prosjekt()));
-        for (const p of prosjekter) await synk(p, [a], sekunder(-60));
-        const innlogging = sekunder(-30);
-        const liste = sekunder(listeHentet);
-        const laaser = await Promise.all(prosjekter.map((p) => holdLaasen(p.id)));
-        const kall = prosjekter.flatMap((p, i) =>
-          i % 2 === 0
-            ? [synk(p, [a], liste), logginn(a.subjekt, [], innlogging)]
-            : [logginn(a.subjekt, [], innlogging), synk(p, [a], liste)]
-        );
-        await new Promise((ferdig) => setTimeout(ferdig, 1000));
-        for (const l of [...laaser].reverse()) await l.slipp();
+        await synk(p, [a], sekunder(-60));
+        const innlogging = () => logginn(a.subjekt, [], sekunder(-30));
+        const synkronisering = () => synk(p, [a], sekunder(listeHentet));
+        const [foerste, andre] =
+          foerst === 'innloggingen' ? [innlogging, synkronisering] : [synkronisering, innlogging];
+        const laas = await holdLaasen(p.id);
+        const kall: Promise<unknown>[] = [];
+        try {
+          kall.push(foerste());
+          await iKoe(1);
+          kall.push(andre());
+          await iKoe(2);
+        } finally {
+          await laas.slipp();
+        }
         await Promise.all(kall);
-        for (const p of prosjekter)
-          expect(await aktive(p.id)).toEqual(aktivTilSlutt ? [a.subjekt] : []);
+        expect(await aktive(p.id)).toEqual(aktivTilSlutt ? [a.subjekt] : []);
       },
       30_000
     );
+
+    it('to innlogginger for ulike brukere venter ikke på hverandre (#636)', async () => {
+      const p = await prosjekt();
+      const [a, b] = [medlem(), medlem()];
+      await synk(p, [a, b], sekunder(-60));
+      const foerste = await holdInnlogging(a.subjekt, [], sekunder(-30));
+      try {
+        expect(foerste.endret).toEqual([p.id]);
+        expect(await logginn(b.subjekt, [], sekunder(-30))).toEqual([p.id]);
+      } finally {
+        await foerste.slipp();
+      }
+      expect(await aktive(p.id)).toEqual([]);
+    }, 30_000);
+
+    it('to samtidige innlogginger for samme bruker går etter hverandre, og den siste gjelder (#636, DL-U9)', async () => {
+      const [p, annet] = [await prosjekt(), await prosjekt()];
+      const a = medlem();
+      await synk(annet, [a], sekunder(-120));
+      const foerste = await holdInnlogging(a.subjekt, [annet.catendaId], sekunder(-40));
+      const andre = logginn(a.subjekt, [annet.catendaId], sekunder(-20));
+      try {
+        await iKoe(1);
+      } finally {
+        await foerste.slipp();
+      }
+      await andre;
+      expect(await synk(p, [a], sekunder(-30))).toBe(true);
+      expect(await aktive(p.id)).toEqual([]);
+    }, 30_000);
   });
 
   describe('alderen på listen (B-04 punkt 4)', () => {
