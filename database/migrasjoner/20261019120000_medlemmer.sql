@@ -17,13 +17,13 @@ BEGIN
   IF @prosjekt IS NULL OR LEN(@prosjekt) = 0 OR DATALENGTH(@prosjekt) > 200
      OR DATALENGTH(@prosjekt) <> DATALENGTH(RTRIM(@prosjekt))
     THROW 52043, N'Prosjekt-ID-en er tom, for lang eller har mellomrom til slutt', 1;
-  IF NOT EXISTS (SELECT 1 FROM koe.app_project_memberships
-                  WHERE project_id = @prosjekt AND user_id = @aktor AND active = 1)
-    RETURN;
+  -- Kontrollen står i utvalget, så svaret alltid har et resultatsett, også tomt.
   SELECT m.project_id, m.user_id, m.catenda_subject, m.user_email, m.display_name, m.role,
          m.viewer_override, m.created_at, m.updated_at
     FROM koe.app_project_memberships m
    WHERE m.project_id = @prosjekt AND m.active = 1
+     AND EXISTS (SELECT 1 FROM koe.app_project_memberships a
+                  WHERE a.project_id = @prosjekt AND a.user_id = @aktor AND a.active = 1)
    ORDER BY m.display_name, m.user_id;
 END
 GO

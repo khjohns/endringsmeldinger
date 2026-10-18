@@ -423,6 +423,19 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
     expect(await leserolle(p.id, maal.id)).toBe(false);
   });
 
+  it('prosedyren gir en tom liste, ikke et manglende resultatsett, til en aktør som ikke er aktivt medlem i prosjektet', async () => {
+    const p = await prosjektMed([{ rolle: 'admin' }, { rolle: 'member', aktiv: false }]);
+    const annet = await prosjektMed([{ rolle: 'admin' }]);
+    for (const aktor of [p.deltakere[1].id, annet.deltakere[0].id, randomUUID(), null]) {
+      const svar = await o.datalag.kjoeretid.pool
+        .request()
+        .input('aktor', sql.UniqueIdentifier, aktor)
+        .input('prosjekt', sql.NVarChar(4000), p.id)
+        .execute('koe_api.medlemmer');
+      expect(svar.recordset).toEqual([]);
+    }
+  });
+
   it('synkroniseringen skriver listen fra det koblede Catenda-prosjektet og teller medlemmene og de deaktiverte', async () => {
     const p = await prosjektMed([{ rolle: 'admin' }, { rolle: 'member' }]);
     const [admin, fjernet] = p.deltakere;
