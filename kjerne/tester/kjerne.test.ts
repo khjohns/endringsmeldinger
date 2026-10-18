@@ -580,9 +580,9 @@ describe('datoene for et registrert krav og varselet i det', () => {
     };
     await bane.skriv([rad], siste.versjon);
     expect(forstaatt(await bane.journal())).toBe(true);
-    return async (sendt: string) => {
+    return async (sendt: string, melding = false) => {
       const u = await k.prov({ handling: 'krav', spor: 'frist', dager: 25, varsel_sendt: sendt });
-      return u.godtatt ? null : u.avvisning.regel;
+      return u.godtatt ? null : melding ? u.avvisning.melding : u.avvisning.regel;
     };
   };
 
@@ -596,6 +596,12 @@ describe('datoene for et registrert krav og varselet i det', () => {
     const ny = await medVarsel('2026-09-02T09:00:00Z');
     expect(await ny('2026-09-02')).toBeNull();
     expect(await ny('2026-09-03'), 'kontrollsak').toBe('VARSEL_REGISTRERT');
+  });
+
+  it('en lagret varseldato uten tidssone kan ikke leses, og meldingen sier det, ikke at datoen er en annen (SK-12, #766)', async () => {
+    const ny = await medVarsel('2026-09-02T09:00:00');
+    expect(await ny('2026-09-02')).toBe('VARSEL_REGISTRERT');
+    expect(await ny('2026-09-02', true)).toMatch(/kan ikke leses som en dato/);
   });
 });
 

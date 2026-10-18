@@ -281,9 +281,14 @@ export function nyttelastkontroll(
           'VARSEL_REGISTRERT',
           'Varselet er sendt fra appen eller registrert uten dato for sendingen, og kravet kan ikke oppgi en (SK-12).'
         );
+      const registrert = kalenderdag(sendt.dato);
+      if (registrert === null)
+        return avvis(
+          'VARSEL_REGISTRERT',
+          'Datoen varselet er registrert med, kan ikke leses som en dato, så kravet kan ikke kontrolleres mot den (SK-12).'
+        );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return kalenderdag(sendt.dato) === kalenderdag(k.varsel.sendt) &&
-        kalenderdag(sendt.dato) !== null
+      return registrert === kalenderdag(k.varsel.sendt)
         ? null
         : avvis(
             'VARSEL_REGISTRERT',

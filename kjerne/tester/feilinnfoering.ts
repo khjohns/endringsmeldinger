@@ -2286,10 +2286,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'SK-12 sammenlikner den lagrede varseldatoen som tekst (#766)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      [
-        'return kalenderdag(sendt.dato) === kalenderdag(k.varsel.sendt)',
-        'return sendt.dato === k.varsel.sendt',
-      ],
+      ['return registrert === kalenderdag(k.varsel.sendt)', 'return sendt.dato === k.varsel.sendt'],
     ],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
@@ -2337,8 +2334,29 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F271',
     feilklasse: 'et tidspunkt uten tidssone tolkes i vertens tidssone (T1 i #770, #766)',
     fil: `${K}/format/leser.ts`,
-    endringer: [['  return TIDSPUNKT.test(dato) && ', '  return true && ']],
+    endringer: [['  if (!TIDSPUNKT.test(dato) || ', '  if (false || ']],
     mal: ['kalenderdagen for 2026-10-02T23:30:00 er null'],
+  },
+  {
+    id: 'F273',
+    feilklasse: 'et tidspunkt med en dag som ikke finnes, rulles over til en annen dag (T1 i #770)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['|| !erKalenderdato(dato.slice(0, 10))) return null;', ') return null;']],
+    mal: ['kalenderdagen for 2026-02-30T10:00:00Z er null'],
+  },
+  {
+    id: 'F275',
+    feilklasse: 'et tidspunkt klokka 24 rulles over til neste dag (T1 i #770)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['T([01]\\d|2[0-3]):[0-5]\\d', 'T\\d{2}:\\d{2}']],
+    mal: ['kalenderdagen for 2026-10-02T24:00:00+02:00 er null'],
+  },
+  {
+    id: 'F274',
+    feilklasse: 'SK-12 sier at en lagret varseldato som ikke kan leses, er en annen dato (#766)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['      if (registrert === null)', '      if (false)']],
+    mal: ['en lagret varseldato uten tidssone kan ikke leses'],
   },
   {
     id: 'F272',

@@ -58,7 +58,8 @@ const OSLO = new Intl.DateTimeFormat('en-CA', {
 });
 
 /** Et tidspunkt med tidssone, så dagen ikke avhenger av vertens tidssone (T1 i #770). */
-const TIDSPUNKT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
+const TIDSPUNKT =
+  /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d(:[0-5]\d(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
 
 /**
  * Kalenderdagen for en lagret dato, eller `null` når den ikke kan tolkes: en dato på
@@ -69,8 +70,10 @@ const TIDSPUNKT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\
  */
 export function kalenderdag(dato: string): string | null {
   if (/^\d{4}-\d{2}-\d{2}$/.test(dato)) return erKalenderdato(dato) ? dato : null;
+  // `Date` ruller 2026-02-30T10:00Z og T24:00 over til en annen dag, så dag og klokkeslett må finnes.
+  if (!TIDSPUNKT.test(dato) || !erKalenderdato(dato.slice(0, 10))) return null;
   const tidspunkt = new Date(dato);
-  return TIDSPUNKT.test(dato) && !Number.isNaN(tidspunkt.getTime()) ? OSLO.format(tidspunkt) : null;
+  return Number.isNaN(tidspunkt.getTime()) ? null : OSLO.format(tidspunkt);
 }
 
 /**

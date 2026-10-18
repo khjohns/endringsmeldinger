@@ -2456,6 +2456,8 @@ describe('formen på tall og datoer', () => {
     ['2026-10-02T23:30:00+02:00', '2026-10-02'],
     ['2026-10-02T23:30:00', null],
     ['2026-02-30', null],
+    ['2026-02-30T10:00:00Z', null],
+    ['2026-10-02T24:00:00+02:00', null],
     ['2. oktober', null],
   ])('kalenderdagen for %s er %s', (dato, dag) => {
     expect(kalenderdag(dato)).toBe(dag);
