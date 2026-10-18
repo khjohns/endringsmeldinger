@@ -265,6 +265,10 @@ erDiagram
     koe_app_users {
         uniqueidentifier id PK
     }
+    koe_brevdokument {
+        uniqueidentifier leveringsoppdrag_id PK, FK
+        uniqueidentifier forsoek_id "uten fremmednøkkel"
+    }
     koe_catenda_contract_teams {
         nvarchar_100 internal_project_id PK, FK
         nvarchar_32 team_id PK
@@ -363,6 +367,8 @@ erDiagram
     koe_jobb ||--o{ koe_jobbforsoek : "jobb_id"
     koe_jobbforsoek |o--o| koe_jobb : "siste_forsoek"
     koe_leveringsoppdrag |o--o| koe_jobb : "leveringsoppdrag_id"
+    koe_leveringsoppdrag ||--o| koe_brevdokument : "leveringsoppdrag_id"
+    koe_jobbforsoek |o..o{ koe_brevdokument : "forsoek_id"
     koe_leveringsoppdrag ||--o{ koe_leveringskvittering : "leveringsoppdrag_id"
     koe_leveringskvittering |o--o| koe_leveringskvittering : "(leveringsoppdrag_id, forutsetning)"
     koe_jobbforsoek |o..o{ koe_leveringskvittering : "forsoek_id"
@@ -457,6 +463,8 @@ erDiagram
 | `koe.jobbforsoek.jobb_id` | `koe.jobb.jobb_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Jobben forsøket gjelder. Fremmednøkkelen hindrer også TRUNCATE av jobbene (#582). | — | K 18.10: katalogen. |
 | `koe.jobb.siste_forsoek` | `koe.jobbforsoek.forsoek_id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Det siste forsøket på jobben. Fremmednøkkelen hindrer også TRUNCATE av forsøkene (#582). | — | K 18.10: katalogen. |
 | `koe.jobb.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Oppdraget en jobb `levering` leverer (#371). Hvert oppdrag har høyst én jobb. | — | K 18.10: katalogen. |
+| `koe.brevdokument.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Oppdraget PDF-en gjengir. Det er én PDF per oppdrag (#371 del 2). | — | K 18.10: katalogen. |
+| `koe.brevdokument.forsoek_id` | `koe.jobbforsoek.forsoek_id` | uten fremmednøkkel | mange til én | Leasen PDF-en ble lagret med. Forsøket med samme ID lagres når forsøket er over, så det er ingen fremmednøkkel. | — | L 18.10: `database/migrasjoner/20261018140000_brevdokument.sql`. |
 | `koe.leveringskvittering.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Oppdraget kvitteringen gjelder: én rad for dokumentet og én for referansen på topicen (B-03, #371). | — | K 18.10: katalogen. |
 | `koe.leveringskvittering.(leveringsoppdrag_id, forutsetning)` | `koe.leveringskvittering.(leveringsoppdrag_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Referansen på topicen forutsetter at dokumentet er kvittert for samme oppdrag. | — | K 18.10: katalogen. |
 | `koe.leveringskvittering.forsoek_id` | `koe.jobbforsoek.forsoek_id` | uten fremmednøkkel | mange til én | Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er over, etter kvitteringen for dokumentet, så det er ingen fremmednøkkel. | — | L 18.10: `database/migrasjoner/20261018120000_levering.sql`. |
@@ -506,6 +514,7 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.kvittering.kommando_id` | ID-en klienten gir kommandoen (#418). Den viser ikke til en rad; nøkkelen er prosjektet, aktøren og ID-en. |
 | `koe.jobb.lease` | Leasen for forsøket som pågår. Blir forsøkets ID når utfallet lagres (invariant 7). |
 | `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
+| `koe.brevdokument.prosjekt_id` | Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5). |
 | `koe.leveringskvittering.catenda_id` | ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda. |
 | `koe.leveringskvittering.prosjekt_id` | Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5). |
 
@@ -697,6 +706,7 @@ flowchart LR
 | `koe.jobbforsoek` | — | — | — |
 | `koe.leveringsoppdrag` | — | — | — |
 | `koe.kvittering` | — | — | — |
+| `koe.brevdokument` | — | — | — |
 | `koe.leveringskvittering` | — | — | — |
 | `koe.sak_catenda_topic` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |

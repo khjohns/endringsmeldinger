@@ -10,6 +10,7 @@
  *   `tester/migrering.test.ts`, får `sql` fra testbasen (#567). Testen ser bare
  *   de statiske importene av `mssql`, ikke et lager som bruker `sql` fra
  *   `datalag.ts` eller en pool fra `opprettPool` utenom `transaksjon` (#542).
+ * - `pdf-lib` importeres bare i `brevpdf.ts`, som lager PDF-en av brevet (#371).
  *
  * - Alderen på medlemslisten røper om et prosjekt er koblet og når listen ble
  *   hentet, så utenom testene leser bare `autorisasjon.ts` den, etter at koblingen
@@ -56,6 +57,7 @@ export function forbudteImporter(fil: string, kilde: string): string[] {
       return i.startsWith('node:') ||
         PAKKER.has(i) ||
         (i === 'mssql' && datalaget(fil)) ||
+        (i === 'pdf-lib' && relative(SERVER, fil) === 'brevpdf.ts') ||
         (test && TESTPAKKER.has(i))
         ? []
         : [i];
@@ -138,6 +140,7 @@ describe('grensene rundt TS-serveren', () => {
     ["import sql from 'mssql';", 'tester/migrering.test.ts'],
     ["import type { ConnectionPool } from 'mssql';", 'app.ts'],
     ["const sql = require('mssql');", 'tester/register.test.ts'],
+    ["import { PDFDocument } from 'pdf-lib';", 'levering.ts'],
     ["import pg from 'pg';", 'lager.ts'],
     ["import type { Pool } from 'pg';", 'app.ts'],
     ["const pg = require('pg');", 'tester/testbase.ts'],

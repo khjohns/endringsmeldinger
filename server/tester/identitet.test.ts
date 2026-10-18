@@ -201,6 +201,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.app_membership_absences.project_id',
         'koe.app_membership_sync.project_id',
         'koe.app_project_memberships.project_id',
+        'koe.brevdokument.prosjekt_id',
         'koe.catenda_contract_teams.internal_project_id',
         'koe.catenda_project_configs.internal_project_id',
         'koe.hendelse.prosjekt_id',

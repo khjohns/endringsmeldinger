@@ -125,6 +125,22 @@ FEILINNFOERINGER = [
      "    if (rulletTilbake)\n      return {\n        feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen under COMMIT.'),",
      "    if (false)\n      return {\n        feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen under COMMIT.'),",
      "tilbakerulling under COMMIT uten feil"),
+    ("S33", "PDF-en utelater siste linje på hver side (#371, LV-U2)", "server/brevpdf.ts",
+     "      if (linje) side.drawText(", "      if (linje && y > MARG + LINJEAVSTAND) side.drawText(",
+     "gjengir en tekst over flere sider tro"),
+    ("S34", "basen godtar en PDF med feil sum (#371)", "database/migrasjoner/20261018140000_brevdokument.sql",
+     "CONSTRAINT brevdokument_sum CHECK (pdf_sha256 =", "CONSTRAINT brevdokument_sum CHECK (1 = 1 OR pdf_sha256 =",
+     "basen avviser en PDF med feil sum"),
+    ("S35", "et nytt forsøk lagrer en ny PDF for oppdraget (#371)", "database/migrasjoner/20261018140000_brevdokument.sql",
+     "  IF NOT EXISTS (SELECT 1 FROM koe.brevdokument WITH (UPDLOCK, HOLDLOCK) WHERE leveringsoppdrag_id = @oppdrag)",
+     "  IF 1 = 1",
+     "bare én gang per oppdrag"),
+    ("S36", "et registrert brev får en leveringsjobb (LV-U11)", "database/migrasjoner/20261018140000_brevdokument.sql",
+     "   WHERE JSON_QUERY(i.innhold, '$.dokument') IS NOT NULL;", "   WHERE JSON_QUERY(i.innhold, '$.brev') IS NOT NULL;",
+     "et registrert brev får oppdraget uten dokument"),
+    ("S37", "en uventet lokal feil prøves igjen i det uendelige (#783 punkt 2)", "server/jobber.ts",
+     "\n  return { utfall: 'usikkert', melding };", "\n  return { utfall: 'feilet', melding };",
+     "en uventet lokal feil i leveringen parkerer jobben"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

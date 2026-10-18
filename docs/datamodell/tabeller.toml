@@ -923,6 +923,25 @@ funn = []
 belegg = "L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`."
 
 [[tabell]]
+navn = "koe.brevdokument"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+PDF-en av brevet i et leveringsoppdrag (#371 del 2, merknaden 12.10): bytene og
+SHA-256 av dem, lagret én gang per oppdrag før første opplasting. Kjøreren har
+kontrollert at PDF-en gjengir den frosne brevteksten tro (LV-U2), og laster opp den
+lagrede. Basen regner summen etter. Raden endres ikke, og bare kjøreveien,
+`koe_jobbkjoerer`, kan legge inn en."""
+lagres_fra = "`koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Det er PDF-en som ble levert."
+personopplysninger = "Brevteksten kan ha navn på personer i prosjektet."
+skrivere = ["database/migrasjoner/20261018140000_brevdokument.sql (`koe_api.lagre_brevdokument`, kalt fra `server/jobber.ts`)"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/levering.test.ts`."
+
+[[tabell]]
 navn = "koe.leveringskvittering"
 lagring = "SQL Server"
 type = ["transaksjon"]
