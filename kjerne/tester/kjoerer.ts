@@ -145,7 +145,8 @@ export class Kjoering {
         structuredClone(k),
         { ...this.kontekst(h), tidspunkt: () => new Date(this.klokke) },
         journal,
-        medRegler(klientregler, this.kjerne)
+        medRegler(klientregler, this.kjerne),
+        mellomlager(k)
       );
       const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
       if (tekst) k.brevtekst = tekst;
