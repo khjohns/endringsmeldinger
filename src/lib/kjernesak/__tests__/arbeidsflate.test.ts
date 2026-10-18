@@ -47,7 +47,8 @@ describe('TS-saken i Kontrollrommet etter en ny lasting', () => {
 
     finnes = false;
     await kjernesak.last();
-    expect(kjernesak.utledning).toBeNull();
+    // En sak som alt er lastet, beholdes ved en 404 (#719).
+    expect(kjernesak.finnes).toBe(true);
     expect(flate.statustekst('vederlag')).toBe(foer);
     expect(flate.kravversjon('vederlag')).toBe(1);
   });
