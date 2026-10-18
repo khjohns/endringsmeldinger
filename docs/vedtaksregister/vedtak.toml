@@ -4643,7 +4643,7 @@ valgt = "ID, filnavn og hash"
 svar = '''
 «ID, filnavn og hash (Recommended)»'''
 folge = '''
-Følger P4, LV-U1, LV-U2 og RP-U1. Svaret er gitt med spørsmålsverktøyet og står på #764 (kommentaren 6251668902). Ikke bygget (#790).'''
+Svaret er gitt med spørsmålsverktøyet og står på #764 (kommentaren 6251668902). Ikke bygget (#790).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "ID, filnavn og hash"
@@ -5220,7 +5220,6 @@ kilde = "hovedplanen"
 utdrag = true
 tekst = "prosjektets konfigurasjon angir"
 
-
 [[gruppe.vedtak]]
 id = "KT-U5"
 dato = 2026-10-18
@@ -5240,18 +5239,18 @@ valgt = "Versjonen hendelsen fikk"
 svar = '''
 «Versjonen hendelsen fikk (Recommended)»'''
 folge = '''
-Svaret er gitt med spørsmålsverktøyet og står på #764 (kommentaren 6251668902).'''
+Svaret er gitt med spørsmålsverktøyet og står på #764 (kommentaren 6251668902). Ikke bygget (#418).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Versjonen hendelsen fikk"
 tekst = '''
-svaret på gjentaket er det samme som det første svaret (invariant 4: samme kvittering), også om saken har fått nye hendelser siden.'''
+Svaret på gjentaket er det samme som det første svaret (invariant 4: samme kvittering), også om saken har fått nye hendelser siden.'''
 anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "Sakens versjon nå"
 tekst = '''
-svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
+Svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
 forkastet = true
 
 [[gruppe]]
