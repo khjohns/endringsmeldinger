@@ -5,7 +5,8 @@
  * `vekk()` etter en opprettelse korter ventetiden, men det er pollingen som sikrer
  * at jobben blir gjort. Løkka krever en instans som alltid kjører (B-07, B-12).
  *
- * Jobbene er topicen for en ny sak og leveringen av et brev (L-1b, #371).
+ * Jobbene er topicen for en ny sak og leveringen av et brev med vedleggene (L-1b, #371;
+ * V-3, #790).
  * Bare en gyldig lease kvitterer (invariant 7). Et usikkert eller varig avvist
  * utfall parkeres og logges, og driften starter jobben på nytt med `koe_api.start_jobb_paa_nytt`
  * (svaret «Driften» 18.10, #371). Prosedyrene for løkka kjører som
@@ -13,17 +14,20 @@
  * (`database/migrasjoner/20261018100000_jobber.sql`).
  */
 
+import { catendaId } from './autorisasjon.ts';
 import {
   CatendaAvvisning,
+  CatendaOppsettfeil,
   CatendaUtilgjengelig,
-  utenBindestreker,
   UsikkertCatendautfall,
+  type Brevdokument,
   type Dokumentleverandoer,
   type Dokumentmaal,
+  type Referanse,
   type Topicoppretter,
 } from './catenda.ts';
-import { sql, type Pool } from './datalag.ts';
-import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev } from './levering.ts';
+import { feilnummer, sql, type Pool } from './datalag.ts';
+import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
 /** Lengre enn tidsavbruddet mot Catenda (15 s) ganger kallene i en levering, med kvitteringen. */
 export const LEASETID_S = 120;
@@ -62,12 +66,28 @@ class AvvistKvittering extends Error {}
 type Utfall = 'feilet' | 'usikkert' | 'avvist';
 
 /**
- * Meldingene fra catenda.ts, levering.ts og kjøreren har ingen svarkropp eller token;
- * andre feil lagres ikke. Bare Catenda og basen kan svikte forbigående. En annen feil
- * i kjøreren går ikke over av seg selv, og parkeres som usikker, fordi den kan komme
- * etter en endring i Catenda (#783 punkt 2).
+ * Feilnumrene fra SQL Server som går over: vranglås, tidsavbrudd for en lås, og
+ * Azure SQL som er opptatt eller flytter basen. En feil fra basen uten nummer gjelder
+ * forbindelsen og går også over.
  */
-function utfallAv(feil: unknown): { utfall: Utfall; melding: string } {
+const FORBIGAAENDE_SQL = new Set([
+  1205, 1222, 4060, 10928, 10929, 40197, 40501, 40613, 49918, 49919, 49920,
+]);
+
+function forbigaaendeISql(feil: unknown): boolean {
+  if (!(feil instanceof sql.MSSQLError)) return false;
+  const nummer = feilnummer(feil);
+  return nummer === undefined || FORBIGAAENDE_SQL.has(nummer);
+}
+
+/**
+ * Meldingene fra catenda.ts, levering.ts og kjøreren har ingen svarkropp eller token;
+ * andre feil lagres ikke. Bare Catenda og basen kan svikte forbigående (#795 punkt 1).
+ * En annen feil går ikke over av seg selv og parkeres (#783 punkt 2): som avvist når
+ * forsøket ikke har bedt Catenda om noen endring, ellers som usikker, fordi den kan
+ * komme etter en endring i Catenda (#813 punkt 5).
+ */
+function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; melding: string } {
   const kjent =
     feil instanceof CatendaUtilgjengelig ||
     feil instanceof UgjennomfoerbarJobb ||
@@ -80,9 +100,26 @@ function utfallAv(feil: unknown): { utfall: Utfall; melding: string } {
     feil instanceof UgjengivbartBrev
   )
     return { utfall: 'avvist', melding };
-  if (feil instanceof CatendaUtilgjengelig || feil instanceof sql.MSSQLError)
+  if (feil instanceof CatendaUtilgjengelig || forbigaaendeISql(feil))
     return { utfall: 'feilet', melding };
-  return { utfall: 'usikkert', melding };
+  return { utfall: endringBedt ? 'usikkert' : 'avvist', melding };
+}
+
+/** Leverandøren, med et flagg som settes før hver endring kjøreren ber Catenda om. */
+function medEndringsflagg(dokumenter: Dokumentleverandoer, flagg: { endringBedt: boolean }) {
+  return {
+    ...dokumenter,
+    finnDokument: dokumenter.finnDokument.bind(dokumenter),
+    dokumentreferanser: dokumenter.dokumentreferanser.bind(dokumenter),
+    lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
+      flagg.endringBedt = true;
+      return dokumenter.lastOppDokument(maal, dokument);
+    },
+    opprettDokumentreferanse(board: string, topic: string, dokumentId: string) {
+      flagg.endringBedt = true;
+      return dokumenter.opprettDokumentreferanse(board, topic, dokumentId);
+    },
+  } satisfies Dokumentleverandoer;
 }
 
 /**
@@ -98,58 +135,67 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   const jobb = svar.recordset[0];
   if (!jobb) return false;
 
-  const kvitter = async (prosedyre: string, felt: string, verdi: string) => {
+  const kvitter: Kvitter = async (prosedyre, parametre) => {
     try {
-      await avh.datalag
-        .request()
-        .input('lease', sql.UniqueIdentifier, jobb.lease)
-        .input(felt, sql.NVarChar(100), verdi)
-        .execute(prosedyre);
+      const foresp = avh.datalag.request().input('lease', sql.UniqueIdentifier, jobb.lease);
+      for (const [navn, verdi] of Object.entries(parametre))
+        foresp.input(navn, sql.NVarChar(100), verdi);
+      await foresp.execute(prosedyre);
     } catch (feil) {
       // Endringen finnes i Catenda uten kvittering; neste henting parkerer jobben som usikker.
       logg.error(
-        `Jobben ${jobb.jobb_id} fikk ${verdi} fra Catenda, men kvitteringen ble avvist:`,
+        `Jobben ${jobb.jobb_id} fikk ${Object.values(parametre).join(', ')} fra Catenda, men kvitteringen ble avvist:`,
         feil
       );
       throw new AvvistKvittering('Kvitteringen ble avvist', { cause: feil });
     }
   };
+  const flagg = { endringBedt: false };
 
   try {
     if (jobb.jobbtype === 'catenda_topic') {
+      flagg.endringBedt = true;
       const topic = await avh.catenda.opprettTopic(jobb.catenda_board_id!, {
         tittel: jobb.tittel!,
         beskrivelse: `Saken i endringsappen: ${avh.saksadresse(jobb.prosjekt_id, jobb.sak_id)}`,
       });
-      await kvitter('koe_api.kvitter_topic', 'topic_id', topic);
+      await kvitter('koe_api.kvitter_topic', { topic_id: topic });
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
-      const lagret = async () => {
-        const svar = await avh.datalag
-          .request()
-          .input('lease', sql.UniqueIdentifier, jobb.lease)
-          .execute<{ pdf: Buffer }>('koe_api.lagret_brevdokument');
-        const rad = svar.recordset[0];
+      const lease = () => avh.datalag.request().input('lease', sql.UniqueIdentifier, jobb.lease);
+      const lagre = async (pdf: Uint8Array | null) => {
+        const lagret = await lease()
+          .input('pdf', sql.VarBinary(sql.MAX), pdf && Buffer.from(pdf))
+          .input('pdf_sha256', sql.NVarChar(64), pdf && pdfsum(pdf))
+          .execute<{ pdf: Buffer }>('koe_api.lagre_brevdokument');
+        const rad = lagret.recordset[0];
         return rad ? new Uint8Array(rad.pdf) : null;
       };
-      const lagre = async (pdf: Uint8Array) => {
-        const lagret = await avh.datalag
-          .request()
-          .input('lease', sql.UniqueIdentifier, jobb.lease)
-          .input('pdf', sql.VarBinary(sql.MAX), Buffer.from(pdf))
-          .input('pdf_sha256', sql.NVarChar(64), pdfsum(pdf))
-          .execute<{ pdf: Buffer }>('koe_api.lagre_brevdokument');
-        return new Uint8Array(lagret.recordset[0].pdf);
+      const lager: Leveringslager = {
+        lagret: () => lagre(null),
+        lagre: async (pdf) => (await lagre(pdf))!,
+        vedlegg: async () =>
+          (await lease().execute<Vedleggsrad>('koe_api.vedlegg_i_levering')).recordset,
+        async vedleggsinnhold(vedleggId) {
+          const svar = await lease()
+            .input('vedlegg_id', sql.UniqueIdentifier, vedleggId)
+            .execute<{ innhold: Buffer }>('koe_api.vedleggsinnhold');
+          const rad = svar.recordset[0];
+          return rad ? new Uint8Array(rad.innhold) : null;
+        },
+        kvitter,
       };
-      const referanse = await leverBrev(avh.dokumenter, jobb, { lagret, lagre }, kvitter);
-      logg.info(`Jobben ${jobb.jobb_id} leverte brevet med referansen ${referanse} på topicen.`);
+      await lever(medEndringsflagg(avh.dokumenter, flagg), jobb, lager);
+      logg.info(`Jobben ${jobb.jobb_id} leverte brevet og vedleggene til topicen.`);
     } else {
       throw new UgjennomfoerbarJobb(`Jobbtypen ${jobb.jobbtype} er ukjent for kjøreren`);
     }
   } catch (feil) {
     if (feil instanceof AvvistKvittering) throw feil.cause;
-    const { utfall, melding } = utfallAv(feil);
-    if (utfall === 'feilet') logg.warn(`Jobben ${jobb.jobb_id} feilet og prøves igjen:`, feil);
+    const { utfall, melding } = utfallAv(feil, flagg.endringBedt);
+    if (feil instanceof CatendaOppsettfeil)
+      logg.error(`Jobben ${jobb.jobb_id} venter på at driften retter oppsettet mot Catenda:`, feil);
+    else if (utfall === 'feilet') logg.warn(`Jobben ${jobb.jobb_id} feilet og prøves igjen:`, feil);
     else
       logg.error(
         `Jobben ${jobb.jobb_id} er parkert som ${utfall} (${melding}). Driften starter den på nytt.`
@@ -164,49 +210,95 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   return true;
 }
 
+type Kvitter = (prosedyre: string, parametre: Record<string, string | null>) => Promise<void>;
+
+interface Vedleggsrad {
+  vedlegg_id: string;
+  filnavn: string;
+  finnes: boolean;
+  dokument_id: string | null;
+  referanse_id: string | null;
+}
+
+/** Det leveringen leser og skriver i basen, med leasen til forsøket. */
+interface Leveringslager {
+  lagret: () => Promise<Uint8Array | null>;
+  lagre: (pdf: Uint8Array) => Promise<Uint8Array>;
+  vedlegg: () => Promise<Vedleggsrad[]>;
+  /** `null` når innholdet er slettet etter kvitteringen (LV-U12). */
+  vedleggsinnhold: (vedleggId: string) => Promise<Uint8Array | null>;
+  kvitter: Kvitter;
+}
+
 /**
- * Leverer brevet (B-03, #371): dokumentet i biblioteket, så referansen på topicen,
- * hver operasjon kvittert for seg. PDF-en lagres før opplastingen, og det er den
- * lagrede som lastes opp. Har et tidligere forsøk lagret den, lages ingen ny
- * (#371 del 2, #795 punkt 4). Hvert steg avstemmes først, mot navnet i
- * biblioteket og mot referansene på topicen, så et forsøk etter en omstart ikke lager
- * et dokument eller en referanse til.
+ * Leverer brevet (B-03, #371) og vedleggene det binder (V-3, #790): hvert dokument i
+ * biblioteket, så referansen på topicen, hver operasjon kvittert for seg. Vedleggene
+ * leveres først. Et vedlegg som alt står på topicen, leveres ikke igjen. Et registrert
+ * brev har ikke noe dokument, bare vedlegg (LV-U11). Til slutt kvitterer
+ * `koe_api.kvitter_levering` leveringen som fullført.
+ *
+ * PDF-en av brevet lagres før opplastingen, og det er den lagrede som lastes opp. Har
+ * et tidligere forsøk lagret den, lages ingen ny (#371 del 2, #795 punkt 4). Hvert steg
+ * avstemmes først, mot navnet i biblioteket og mot referansene på topicen, så et forsøk
+ * etter en omstart ikke lager et dokument eller en referanse til.
  */
-async function leverBrev(
-  catenda: Dokumentleverandoer,
-  jobb: Jobbrad,
-  pdf: {
-    lagret: () => Promise<Uint8Array | null>;
-    lagre: (pdf: Uint8Array) => Promise<Uint8Array>;
-  },
-  kvitter: (prosedyre: string, felt: string, verdi: string) => Promise<void>
-): Promise<string> {
-  let dokumentId = jobb.dokument_id;
-  if (!dokumentId) {
-    const oppdrag = JSON.parse(jobb.oppdrag!) as Record<string, unknown>;
-    const maal = oppdrag.maal as Dokumentmaal;
-    const dokument = {
-      navn: dokumentnavn(oppdrag, jobb.dokumentnoekkel!),
-      innhold:
-        (await pdf.lagret()) ??
-        (await pdf.lagre((await brevdokument(oppdrag, jobb.dokumentnoekkel!)).innhold)),
-    };
-    dokumentId =
-      (await catenda.finnDokument(maal, dokument.navn)) ??
-      (await catenda.lastOppDokument(maal, dokument)) ??
-      (await catenda.finnDokument(maal, dokument.navn));
-    if (!dokumentId) throw new CatendaUtilgjengelig('Dokumentet finnes, men ble ikke funnet');
-    await kvitter('koe_api.kvitter_dokument', 'dokument_id', dokumentId);
-  }
+async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leveringslager) {
+  const oppdrag = JSON.parse(jobb.oppdrag!) as Record<string, unknown>;
+  const maal = oppdrag.maal as Dokumentmaal;
   const board = jobb.topic_board_id!;
   const topic = jobb.topic_id!;
-  const funnet = (await catenda.dokumentreferanser(board, topic)).find(
-    (r) => r.dokumentId === utenBindestreker(dokumentId)
-  );
-  const referanse =
-    funnet?.id ?? (await catenda.opprettDokumentreferanse(board, topic, dokumentId));
-  await kvitter('koe_api.kvitter_levering', 'referanse_id', referanse);
-  return referanse;
+  let referanser: Referanse[] | null = null;
+  const referanse = async (dokumentId: string) => {
+    referanser ??= await catenda.dokumentreferanser(board, topic);
+    const funnet = referanser.find((r) => r.dokumentId === catendaId(dokumentId));
+    return funnet?.id ?? (await catenda.opprettDokumentreferanse(board, topic, dokumentId));
+  };
+  const dokument = async (navn: string, innhold: () => Promise<Uint8Array>) => {
+    const id =
+      (await catenda.finnDokument(maal, navn)) ??
+      (await catenda.lastOppDokument(maal, { navn, innhold: await innhold() })) ??
+      (await catenda.finnDokument(maal, navn));
+    if (!id) throw new CatendaUtilgjengelig('Dokumentet finnes, men ble ikke funnet');
+    return id;
+  };
+
+  for (const vedlegg of await lager.vedlegg()) {
+    if (!vedlegg.finnes)
+      throw new UgjennomfoerbarJobb('Et vedlegg i brevet er ikke bundet i saken');
+    if (vedlegg.referanse_id) continue;
+    const kvitterVedlegg = (operasjon: string, catenda_id: string) =>
+      lager.kvitter('koe_api.kvitter_vedlegg', {
+        vedlegg_id: vedlegg.vedlegg_id,
+        operasjon,
+        catenda_id,
+      });
+    let dokumentId = vedlegg.dokument_id;
+    if (!dokumentId) {
+      dokumentId = await dokument(vedleggsnavn(vedlegg.filnavn, vedlegg.vedlegg_id), async () => {
+        const innhold = await lager.vedleggsinnhold(vedlegg.vedlegg_id);
+        if (!innhold) throw new UgjennomfoerbarJobb('Innholdet i vedlegget finnes ikke');
+        return innhold;
+      });
+      await kvitterVedlegg('dokument', dokumentId);
+    }
+    await kvitterVedlegg('dokumentreferanse', await referanse(dokumentId));
+  }
+
+  if (oppdrag.dokument === null) {
+    await lager.kvitter('koe_api.kvitter_levering', { referanse_id: null });
+    return;
+  }
+  let dokumentId = jobb.dokument_id;
+  if (!dokumentId) {
+    dokumentId = await dokument(
+      dokumentnavn(oppdrag, jobb.dokumentnoekkel!),
+      async () =>
+        (await lager.lagret()) ??
+        (await lager.lagre((await brevdokument(oppdrag, jobb.dokumentnoekkel!)).innhold))
+    );
+    await lager.kvitter('koe_api.kvitter_dokument', { dokument_id: dokumentId });
+  }
+  await lager.kvitter('koe_api.kvitter_levering', { referanse_id: await referanse(dokumentId) });
 }
 
 export interface Jobbkjoerer {

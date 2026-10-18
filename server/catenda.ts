@@ -46,6 +46,16 @@ export class CatendaAvvisning extends CatendaUtilgjengelig {
   }
 }
 
+/** Catenda godtok ikke tokenet (401). Integrasjonsnøkkelen forkaster det (#783 punkt 5). */
+export class CatendaUautorisert extends CatendaUtilgjengelig {}
+
+/**
+ * Catenda avviste tokenkallet til integrasjonen: oppsettet er feil, for eksempel
+ * hemmeligheten eller Boost-lisensen. Jobben prøves igjen, men driften må rette
+ * oppsettet (#783 punkt 5).
+ */
+export class CatendaOppsettfeil extends CatendaUtilgjengelig {}
+
 /**
  * Statusene vi regner som en avvisning uten endring: en 4xx utenom tidsavbruddene 408
  * og 499. En annen status, også 503, kan komme fra en mellomtjener etter at Catenda
@@ -154,6 +164,7 @@ async function forespoersel(
     const melding = `Catenda svarte med status ${svar.status}`;
     if (endring && !avvistUtenEndring(svar.status)) throw new UsikkertCatendautfall(melding);
     if (varigAvvist(svar.status)) throw new CatendaAvvisning(svar.status);
+    if (svar.status === 401) throw new CatendaUautorisert(melding);
     throw new CatendaUtilgjengelig(melding);
   }
   try {
@@ -302,7 +313,7 @@ export class CatendaOAuth {
     });
     const treff = rader.filter((rad) => rad.name === navn);
     if (treff.length > 1) throw new CatendaUtilgjengelig('Flere dokumenter har samme navn');
-    return treff.length ? (treff[0].id as string) : null;
+    return treff.length ? lestId(treff[0].id) : null;
   }
 
   /**
@@ -336,19 +347,18 @@ export class CatendaOAuth {
     return idFraSvar(rad, 'id', 'Catenda svarte uten dokument');
   }
 
-  /** Dokumentene topicen viser til, som `document_guid` uten bindestreker. */
+  /** Dokumentene topicen viser til, med `document_guid` normalisert som `catendaId`. */
   async dokumentreferanser(boardId: string, topicId: string, token: string): Promise<Referanse[]> {
     const svar = await forespoersel(this.#oppsett, 'GET', referansesti(boardId, topicId), {
       token,
     });
     if (!Array.isArray(svar)) throw new CatendaUtilgjengelig('Ugyldige dokumentreferanser');
-    return svar
-      .filter(erObjekt)
-      .flatMap((rad) =>
-        typeof rad.guid === 'string' && typeof rad.document_guid === 'string'
-          ? [{ id: rad.guid, dokumentId: utenBindestreker(rad.document_guid) }]
-          : []
-      );
+    return svar.map((rad) => {
+      const dokumentId = erObjekt(rad) ? catendaId(rad.document_guid) : null;
+      if (!erObjekt(rad) || !dokumentId)
+        throw new CatendaUtilgjengelig('Ugyldig dokumentreferanse fra Catenda');
+      return { id: lestId(rad.guid), dokumentId };
+    });
   }
 
   /**
@@ -377,6 +387,16 @@ function idFraSvar(svar: unknown, felt: 'guid' | 'id', melding: string): string 
   return id;
 }
 
+/**
+ * En ID som er lest fra Catenda og funnet igjen, med samme form som `idFraSvar` krever
+ * av en ny, så kvitteringen ikke blir avvist (#783 punkt 3).
+ */
+function lestId(id: unknown): string {
+  if (typeof id !== 'string' || !id || id.length > 100 || id.trim() !== id)
+    throw new CatendaUtilgjengelig('Ugyldig ID fra Catenda');
+  return id;
+}
+
 /** Biblioteket og mappen i det frosne leveringsmålet (LV-U1). */
 export interface Dokumentmaal {
   catenda_project_id: string;
@@ -393,9 +413,6 @@ export interface Referanse {
   id: string;
   dokumentId: string;
 }
-
-/** Catenda gir dokument-ID-en uten bindestreker, og BCF kan gi den med. */
-export const utenBindestreker = (id: string) => id.replaceAll('-', '').toLowerCase();
 
 function dokumentsti(maal: Dokumentmaal): string {
   if (!UUID.test(maal.catenda_project_id) || !UUID.test(maal.library_id))
@@ -487,6 +504,11 @@ export class Integrasjonsnokkel {
     }
   }
 
+  /** Forkaster tokenet når Catenda ikke godtok det, så neste kall henter et nytt. */
+  forkast(token: string): void {
+    if (this.#token === token) this.#token = null;
+  }
+
   async token(): Promise<string> {
     if (this.#token && this.#naa() < this.#utloeper) return this.#token;
     this.#henter ??= this.#hent().finally(() => {
@@ -507,8 +529,8 @@ export class Integrasjonsnokkel {
       });
     } catch (feil) {
       // Et avvist tokenkall gjelder oppsettet, ikke jobben som ba om tokenet (#778).
-      if (feil instanceof CatendaAvvisning)
-        throw new CatendaUtilgjengelig(`Catenda avviste tokenet med status ${feil.status}`);
+      if (feil instanceof CatendaAvvisning || feil instanceof CatendaUautorisert)
+        throw new CatendaOppsettfeil('Catenda avviste tokenkallet til integrasjonen');
       throw feil;
     }
     if (!erObjekt(data) || typeof data.access_token !== 'string' || !data.access_token) {
@@ -560,15 +582,28 @@ export function catendaFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): {
   };
 }
 
-/** Topicene for sakene fra appen lages av integrasjonen, med dens eget token (#741 punkt 16). */
-export function topicoppretter(catenda: {
+/** Integrasjonsnøkkelen og klienten, slik leverandørene under tar dem imot. */
+interface Integrasjon {
   oauth: CatendaOAuth;
   integrasjonsnokkel: Integrasjonsnokkel;
-}): Topicoppretter {
+}
+
+/** Kallet med integrasjonens token. Et token Catenda ikke godtar, forkastes (#783 punkt 5). */
+async function medToken<T>(catenda: Integrasjon, kall: (token: string) => Promise<T>): Promise<T> {
+  const token = await catenda.integrasjonsnokkel.token();
+  try {
+    return await kall(token);
+  } catch (feil) {
+    if (feil instanceof CatendaUautorisert) catenda.integrasjonsnokkel.forkast(token);
+    throw feil;
+  }
+}
+
+/** Topicene for sakene fra appen lages av integrasjonen, med dens eget token (#741 punkt 16). */
+export function topicoppretter(catenda: Integrasjon): Topicoppretter {
   return {
-    async opprettTopic(boardId, topic) {
-      return catenda.oauth.opprettTopic(boardId, topic, await catenda.integrasjonsnokkel.token());
-    },
+    opprettTopic: (boardId, topic) =>
+      medToken(catenda, (t) => catenda.oauth.opprettTopic(boardId, topic, t)),
   };
 }
 
@@ -576,7 +611,7 @@ export interface Topicoppretter {
   opprettTopic(boardId: string, topic: NyTopic): Promise<string>;
 }
 
-/** Brevet som dokument i biblioteket, med referansen på topicen (B-03, #371). */
+/** Brevet og vedleggene som dokumenter i biblioteket, med referansene på topicen (B-03, #371, #790). */
 export interface Dokumentleverandoer {
   finnDokument(maal: Dokumentmaal, navn: string): Promise<string | null>;
   lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument): Promise<string | null>;
@@ -585,34 +620,25 @@ export interface Dokumentleverandoer {
 }
 
 /** Leveringen gjøres av integrasjonen, med dens eget token, som topicen. */
-export function dokumentleverandoer(catenda: {
-  oauth: CatendaOAuth;
-  integrasjonsnokkel: Integrasjonsnokkel;
-}): Dokumentleverandoer {
-  const token = () => catenda.integrasjonsnokkel.token();
+export function dokumentleverandoer(catenda: Integrasjon): Dokumentleverandoer {
   return {
-    finnDokument: async (maal, navn) => catenda.oauth.finnDokument(maal, navn, await token()),
-    lastOppDokument: async (maal, dokument) =>
-      catenda.oauth.lastOppDokument(maal, dokument, await token()),
-    dokumentreferanser: async (board, topic) =>
-      catenda.oauth.dokumentreferanser(board, topic, await token()),
-    opprettDokumentreferanse: async (board, topic, dokument) =>
-      catenda.oauth.opprettDokumentreferanse(board, topic, dokument, await token()),
+    finnDokument: (maal, navn) =>
+      medToken(catenda, (t) => catenda.oauth.finnDokument(maal, navn, t)),
+    lastOppDokument: (maal, dokument) =>
+      medToken(catenda, (t) => catenda.oauth.lastOppDokument(maal, dokument, t)),
+    dokumentreferanser: (board, topic) =>
+      medToken(catenda, (t) => catenda.oauth.dokumentreferanser(board, topic, t)),
+    opprettDokumentreferanse: (board, topic, dokument) =>
+      medToken(catenda, (t) => catenda.oauth.opprettDokumentreferanse(board, topic, dokument, t)),
   };
 }
 
 /** Medlemmene og teamene for tilgangskontrollen, med integrasjonens eget token. */
-export function integrasjonen(catenda: {
-  oauth: CatendaOAuth;
-  integrasjonsnokkel: Integrasjonsnokkel;
-}): Catenda {
+export function integrasjonen(catenda: Integrasjon): Catenda {
   return {
-    async medlemmer(catendaProsjektId) {
-      return catenda.oauth.medlemmer(catendaProsjektId, await catenda.integrasjonsnokkel.token());
-    },
-    async teammedlemmer(catendaProsjektId, teamId) {
-      const token = await catenda.integrasjonsnokkel.token();
-      return catenda.oauth.teammedlemmer(catendaProsjektId, teamId, token);
-    },
+    medlemmer: (catendaProsjektId) =>
+      medToken(catenda, (t) => catenda.oauth.medlemmer(catendaProsjektId, t)),
+    teammedlemmer: (catendaProsjektId, teamId) =>
+      medToken(catenda, (t) => catenda.oauth.teammedlemmer(catendaProsjektId, teamId, t)),
   };
 }

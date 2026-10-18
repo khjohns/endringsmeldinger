@@ -177,7 +177,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
       .input('pdf_sha256', sql.NVarChar(64), sum)
       .execute<{ pdf: Buffer }>('koe_api.lagre_brevdokument');
   const startPaaNytt = async (sakId: string) => {
-    const [{ jobb_id }] = await leveringen(sakId);
+    const { jobb_id } = (await leveringen(sakId)).find((j) => j.tilstand === 'parkert')!;
     await o.datalag.base.pool
       .request()
       .input('jobb_id', sql.UniqueIdentifier, jobb_id)
@@ -480,9 +480,15 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     const kall = vi.spyOn(sql.Request.prototype, 'execute');
     try {
       expect(await kjoer()).toBe(true);
-      expect(kall.mock.calls.map(([prosedyre]) => prosedyre)).not.toContain(
-        'koe_api.lagre_brevdokument'
+      const pdfene = kall.mock.calls.flatMap(([prosedyre], i) =>
+        prosedyre === 'koe_api.lagre_brevdokument'
+          ? [
+              (kall.mock.contexts[i] as { parameters: { pdf: { value: unknown } } }).parameters.pdf
+                .value,
+            ]
+          : []
       );
+      expect(pdfene, 'bare den lagrede hentes, uten en ny PDF (#805 punkt 5)').toEqual([null]);
     } finally {
       kall.mockRestore();
     }
@@ -506,38 +512,74 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
   });
 
   // Kilde: LV-U11 18.10: et registrert brev blir ikke et eget dokument i Catenda.
-  it('L9: et registrert brev får oppdraget uten dokument og ingen leveringsjobb, så ingen forsøk', async () => {
-    const sakId = await sakMedBrev();
-    expect(await kjoer()).toBe(true);
-    // OV-U4: det registrerte varselet har brevet som vedlegg.
-    const opplastet = await fetch(`${server.url}/api/kjerne/saker/${sakId}/vedlegg`, {
+  /** Laster opp et vedlegg til saken som TE og gir ID-en. */
+  async function lastOppVedlegg(sakId: string, filnavn: string, innhold: Uint8Array<ArrayBuffer>) {
+    const svar = await fetch(`${server.url}/api/kjerne/saker/${sakId}/vedlegg`, {
       method: 'POST',
       headers: {
         Cookie: `__Host-koe_session=${o.te.token}`,
         'X-CSRF-Token': o.te.csrf,
         'X-Project-ID': o.prosjekt.id,
         'Content-Type': 'application/octet-stream',
-        'X-Filnavn': 'varsel.pdf',
+        'X-Filnavn': filnavn,
       },
-      body: new Uint8Array(Buffer.from('%PDF-1.7\nVarselet\n')),
+      body: innhold,
     });
-    const { vedlegg } = (await opplastet.json()) as { vedlegg: { vedlegg_id: string } };
+    if (svar.status !== 201) throw new Error(`Vedlegget ble avvist: ${svar.status}`);
+    return ((await svar.json()) as { vedlegg: { vedlegg_id: string } }).vedlegg.vedlegg_id;
+  }
+
+  /** Registrerer et varsel om frist med vedleggene (OV-U4: brevet ligger ved). */
+  async function registrerVarsel(sakId: string, versjon: number, vedlegg: string[]) {
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
       bruker: o.te,
       prosjektId: o.prosjekt.id,
       kropp: {
-        expected_version: 2,
+        expected_version: versjon,
         kommando_id: randomUUID(),
         kommando: {
           type: 'varsel',
           spor: 'frist',
           hjemmel: '33.4',
           sendt: '2026-10-01',
-          dokumentasjon: [vedlegg.vedlegg_id],
+          dokumentasjon: vedlegg,
         },
       },
     });
-    expect(svar.status).toBe(201);
+    if (svar.status !== 201)
+      throw new Error(`Varselet ble avvist: ${svar.status} ${JSON.stringify(svar.kropp)}`);
+  }
+
+  const vedlegget = async (vedleggId: string) =>
+    (
+      await somKjoerer<{ filnavn: string; innhold_sha256: string; innhold: Buffer | null }>(
+        `SELECT filnavn, innhold_sha256, innhold FROM koe.vedlegg WHERE vedlegg_id = @id`,
+        { id: vedleggId }
+      )
+    ).recordset[0];
+  const vedleggskvitteringene = async (vedleggId: string) =>
+    (
+      await somKjoerer<{ operasjon: string; catenda_id: string }>(
+        `SELECT operasjon, catenda_id FROM koe.vedleggskvittering WHERE vedlegg_id = @id ORDER BY operasjon`,
+        { id: vedleggId }
+      )
+    ).recordset;
+  const VARSELET = new Uint8Array(Buffer.from('%PDF-1.7\nVarselet\n'));
+
+  /** Saken med brevet levert og et registrert varsel med vedlegget, med leveringsjobben klar. */
+  async function sakMedRegistrertVarsel() {
+    const sakId = await sakMedBrev();
+    expect(await kjoer()).toBe(true);
+    const vedleggId = await lastOppVedlegg(sakId, 'varsel.pdf', VARSELET);
+    await registrerVarsel(sakId, 2, [vedleggId]);
+    return { sakId, vedleggId };
+  }
+
+  // Kilde: LV-U11 (registrert brev blir ikke eget dokument, vedlegget lagres i Catenda),
+  // LV-U12 (filen slettes etter kvitteringen, hash og frosset grunnlag beholdes) og
+  // arbeidsvalg 7 i #790 (samme bibliotek og mappe, referanse på topicen).
+  it('L9: et registrert brev blir ikke et eget dokument, men vedlegget leveres til topicen, og innholdet slettes etter kvitteringen', async () => {
+    const { sakId, vedleggId } = await sakMedRegistrertVarsel();
     const { journal, oppdrag } = await lesSaken(
       o.datalag.kjoeretid.pool,
       { aktor: o.te.id, prosjekt: o.prosjekt.id },
@@ -545,16 +587,102 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     );
     const registrert = oppdrag.find((x) => x.event_id === journal.at(-1)!.event_id)!;
     expect(registrert.innhold).toMatchObject({ dokument: null, brev: { brevtekst: null } });
-    const jobbene = await leveringen(sakId);
-    expect(jobbene.map((j) => j.tilstand)).toEqual(['utfoert']);
-    expect(jobbene[0].oppdrag).not.toBe(registrert.id.toLowerCase());
-    expect(await kjoer()).toBe(false);
-    expect(await forsoekene(sakId)).toEqual([['utfoert', null]]);
-    expect(catenda.opplastinger).toBe(1);
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId)).map((j) => j.tilstand)).toEqual(['utfoert', 'utfoert']);
+    expect(await forsoekene(sakId)).toEqual([
+      ['utfoert', null],
+      ['utfoert', null],
+    ]);
+
+    const navn = `varsel-${vedleggId}.pdf`;
+    const levert = catenda.bibliotek.get(navn)!;
+    expect(levert.innhold).toEqual(VARSELET);
+    expect(catenda.opplastinger, 'brevet og vedlegget, ikke det registrerte brevet').toBe(2);
+    const [topic] = [...catenda.referanser.keys()];
+    expect(catenda.referanser.get(topic)!.map((r) => r.dokumentId)).toContain(levert.id);
+    const kvitteringer = await vedleggskvitteringene(vedleggId);
+    expect(kvitteringer.map((k) => k.operasjon)).toEqual(['dokument', 'dokumentreferanse']);
+    expect(kvitteringer[0].catenda_id).toBe(levert.id);
+    expect(await vedlegget(vedleggId)).toEqual({
+      filnavn: 'varsel.pdf',
+      innhold_sha256: pdfsum(VARSELET),
+      innhold: null,
+    });
+    expect(
+      (await kvitteringene(sakId)).map((k) => k.operasjon),
+      'bare brevet med tekst fra appen har kvitteringer for et dokument'
+    ).toEqual(['dokument', 'dokumentreferanse']);
+  });
+
+  it('L9: et tapt svar ved opplastingen av vedlegget parkeres, og forsøket etter omstarten finner det på navnet (invariant 7)', async () => {
+    const { sakId, vedleggId } = await sakMedRegistrertVarsel();
+    catenda.etter.lastOppDokument = () => {
+      throw new UsikkertCatendautfall('Catenda svarte ikke');
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId)).map((j) => j.tilstand).sort()).toEqual(['parkert', 'utfoert']);
+    expect(
+      (await vedlegget(vedleggId)).innhold,
+      'innholdet ligger til Catenda har kvittert'
+    ).not.toBeNull();
+    catenda.etter = {};
+    await startPaaNytt(sakId);
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId)).map((j) => j.tilstand)).toEqual(['utfoert', 'utfoert']);
+    expect(catenda.opplastinger).toBe(2);
+    expect((await vedlegget(vedleggId)).innhold).toBeNull();
+  });
+
+  // Kilde: LV-U11 og LV-U12. Basen holder reglene, ikke bare kjøreren.
+  it('L9: basen kvitterer ikke leveringen før vedlegget står på topicen, og en kvittering for vedlegget gjelder én gang', async () => {
+    const { vedleggId } = await sakMedRegistrertVarsel();
+    const lease = await hentLease();
+    const kjoeretid = o.datalag.kjoeretid.pool;
+    expect(
+      await avvisning(
+        kjoeretid
+          .request()
+          .input('lease', sql.UniqueIdentifier, lease)
+          .input('referanse_id', sql.NVarChar(100), null)
+          .execute('koe_api.kvitter_levering')
+      )
+    ).toBe(51422);
+    expect(
+      await avvisning(
+        kjoeretid
+          .request()
+          .input('lease', sql.UniqueIdentifier, lease)
+          .input('referanse_id', sql.NVarChar(100), 'r')
+          .execute('koe_api.kvitter_levering')
+      ),
+      'det registrerte brevet har ikke noe dokument å vise til'
+    ).toBe(51422);
+    const kvitterVedlegg = (id: string, operasjon: string, catendaId: string) =>
+      kjoeretid
+        .request()
+        .input('lease', sql.UniqueIdentifier, lease)
+        .input('vedlegg_id', sql.UniqueIdentifier, id)
+        .input('operasjon', sql.NVarChar(20), operasjon)
+        .input('catenda_id', sql.NVarChar(100), catendaId)
+        .execute('koe_api.kvitter_vedlegg');
+    expect(
+      await avvisning(kvitterVedlegg(randomUUID(), 'dokument', 'd')),
+      'et vedlegg utenfor brevet'
+    ).toBe(51422);
+    await kvitterVedlegg(vedleggId, 'dokument', 'd');
+    await kvitterVedlegg(vedleggId, 'dokument', 'd');
+    expect(
+      await avvisning(kvitterVedlegg(vedleggId, 'dokument', 'annen')),
+      'kvittert med en annen ID'
+    ).toBe(51409);
+    expect((await vedlegget(vedleggId)).innhold).toBeNull();
+    expect(await vedleggskvitteringene(vedleggId)).toEqual([
+      { operasjon: 'dokument', catenda_id: 'd' },
+    ]);
   });
 
   // Kilde: #783 punkt 2: en lokal feil som ikke går over, skal ikke prøves i det uendelige.
-  it('L10: en uventet lokal feil i leveringen parkerer jobben som usikker, uten feilmeldingen', async () => {
+  it('L10: en uventet lokal feil etter opplastingen parkerer jobben som usikker, uten feilmeldingen', async () => {
     const sakId = await sakMedBrev();
     catenda.foer.dokumentreferanser = () => {
       throw new RangeError('hemmelig detalj');
@@ -562,6 +690,18 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(await kjoer()).toBe(true);
     expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
     expect(await forsoekene(sakId)).toEqual([['usikkert', 'Uventet feil i jobben']]);
+  });
+
+  // Kilde: #813 punkt 5: en feil før Catenda er bedt om noe, er ikke et usikkert utfall.
+  it('L10: en uventet lokal feil før kjøreren har bedt Catenda om en endring, parkerer jobben som avvist', async () => {
+    const sakId = await sakMedBrev();
+    catenda.foer.finnDokument = () => {
+      throw new RangeError('hemmelig detalj');
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+    expect(await forsoekene(sakId)).toEqual([['avvist', 'Uventet feil i jobben']]);
+    expect(catenda.opplastinger).toBe(0);
   });
 
   it('L7: kvitteringen krever en gyldig lease, og referansen krever kvittert dokument', async () => {
@@ -681,5 +821,61 @@ describe('kjøreren og en jobbtype den ikke kjenner (#778)', () => {
       utfall: 'avvist',
       melding: 'Jobbtypen ny_type er ukjent for kjøreren',
     });
+  });
+});
+
+// Kilde: #795 punkt 1 og #783 punkt 2: en varig feil fra basen prøves ikke igjen i det
+// uendelige, mens en vranglås eller en tapt forbindelse går over.
+describe('kjøreren og feil fra basen (#795)', () => {
+  it.each<[string, number | undefined, string]>([
+    ['brudd på en CHECK (547)', 547, 'avvist'],
+    ['en rett som mangler (229)', 229, 'avvist'],
+    ['en vranglås (1205)', 1205, 'feilet'],
+    ['en feil uten nummer, i forbindelsen', undefined, 'feilet'],
+  ])('%s før Catenda er bedt om noe, gir utfallet %s', async (_n, nummer, utfall) => {
+    const registrert: Record<string, unknown>[] = [];
+    const datalag = {
+      request() {
+        const parametre: Record<string, unknown> = {};
+        const r = {
+          input(navn: string, _type: unknown, verdi: unknown) {
+            parametre[navn] = verdi;
+            return r;
+          },
+          async execute(prosedyre: string) {
+            if (prosedyre === 'koe_api.hent_jobb')
+              return {
+                recordset: [
+                  { jobb_id: 'j', jobbtype: 'levering', lease: 'l', oppdrag: '{"maal":{}}' },
+                ],
+              };
+            if (prosedyre === 'koe_api.registrer_jobbfeil') {
+              registrert.push(parametre);
+              return { recordset: [] };
+            }
+            const feil = new sql.RequestError('fra basen');
+            if (nummer !== undefined) Object.assign(feil, { number: nummer });
+            throw feil;
+          },
+        };
+        return r;
+      },
+    } as unknown as Pool;
+    const ikkeKall = async (): Promise<never> => {
+      throw new Error('Catenda skal ikke kalles');
+    };
+    await kjoerEnJobb({
+      datalag,
+      catenda: { opprettTopic: ikkeKall },
+      dokumenter: {
+        finnDokument: ikkeKall,
+        lastOppDokument: ikkeKall,
+        dokumentreferanser: ikkeKall,
+        opprettDokumentreferanse: ikkeKall,
+      },
+      saksadresse: () => 'x',
+      logg: { info() {}, warn() {}, error() {} },
+    });
+    expect(registrert).toEqual([{ lease: 'l', utfall, melding: 'Uventet feil i jobben' }]);
   });
 });
