@@ -810,6 +810,22 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
   });
 
+  it('et ugyldig beløp i det lagrede kravet gjør saken ikke forstått, og meldes ikke som byggherrens ugyldige vurdering (#766)', () => {
+    const s = sakMedKrav();
+    const brev = {
+      type: 'brev',
+      svar: [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
+    };
+    expect(s.avvist('BH', brev), 'kontrollsak').toBeNull();
+    const lagret = s.journal
+      .flatMap((r) => ((r.data as { krav?: Data[] }).krav ?? []) as Data[])
+      .find((k) => k.id === s.krav('vederlag'))!;
+    expect(lagret.beloep, 'forutsetning').toBe(125000);
+    lagret.beloep = 'abc';
+    // Leseren tolker ikke kravet, så saken er ikke forstått før svaret regnes ut (MM-U2).
+    expect(s.avvist('BH', brev)).toBe('SAK_IKKE_FORSTAATT');
+  });
+
   it('§ 34.2.2 «nei»: byggherren aksepterer ikke tilbudet og oppgir metoden, som standpunkt og ikke som appens avgjørelse (arbeidsvalget i #479)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {

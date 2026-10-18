@@ -2,7 +2,8 @@
  * Brevskallet (#711) med de to brukerne: Brevkontroll på TS-stien og ClaimLetterView på
  * Python-stien. De to første testene karakteriserer tekstene og gangen i de to brukerne
  * slik de er på `main` 945abd6 (#718, kommentaren 6230282330). Den tredje gjelder én
- * avkrysning per brev, som i TS-stien (PR #728). Ingen av dem er et vedtak.
+ * avkrysning per brev, som i TS-stien (PR #728), og de to siste at avkrysningen følger
+ * brevet og ikke komponenten (#729). Ingen av dem er et vedtak.
  */
 import { cleanup, fireEvent, render, within } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -86,5 +87,46 @@ describe('Brevskall', () => {
       screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
     ).not.toBeChecked();
     expect(screen.getByRole('button', { name: 'Send til byggherren' })).toBeDisabled();
+  });
+
+  it('ClaimLetterView krever ny avkrysning når et annet brev vises uten at skallet lukkes', async () => {
+    const tjeneste = { confirm: vi.fn(), cancel: vi.fn() };
+    const screen = render(ClaimLetterView, { review: { letter: brev, ...tjeneste } });
+    await fireEvent.click(
+      screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    );
+    expect(screen.getByRole('button', { name: 'Send til byggherren' })).toBeEnabled();
+    const annet = { ...brev, tittel: 'Krav om vederlagsjustering' };
+    await screen.rerender({ review: { letter: annet, ...tjeneste } });
+    expect(
+      screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet og vedleggene.' })
+    ).not.toBeChecked();
+    expect(screen.getByRole('button', { name: 'Send til byggherren' })).toBeDisabled();
+  });
+
+  it('Brevkontroll krever ny avkrysning når den låste teksten, utdypningen eller tittelen endres, og etter sendingen, men ikke når det samme brevet tegnes på nytt', async () => {
+    const props = {
+      tekst: ['Første avsnitt.'],
+      tittel: 'Grunnlag – Fundament',
+      beskrivelse: 'Kravet sendes først når du bekrefter.',
+      onbekreft: vi.fn(),
+      onavbryt: vi.fn(),
+    };
+    const screen = render(Brevkontroll, props);
+    const avkrysning = () => screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' });
+    const send = () => screen.getByRole('button', { name: 'Send til byggherren' });
+    await fireEvent.click(avkrysning());
+    await fireEvent.click(send());
+    expect(props.onbekreft).toHaveBeenCalledOnce();
+    await screen.rerender({ ...props, tekst: ['Første avsnitt, endret.'] });
+    expect(avkrysning()).not.toBeChecked();
+    expect(send()).toBeDisabled();
+    await screen.rerender({ ...props, tekst: ['Første avsnitt.'], utdypning: 'Utdypet.' });
+    expect(avkrysning()).not.toBeChecked();
+    await fireEvent.click(avkrysning());
+    await screen.rerender({ ...props, utdypning: 'Utdypet.' });
+    expect(avkrysning()).toBeChecked();
+    await screen.rerender({ ...props, utdypning: 'Utdypet.', tittel: 'Grunnlag – Fundament nord' });
+    expect(avkrysning()).not.toBeChecked();
   });
 });
