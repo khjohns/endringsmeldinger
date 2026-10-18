@@ -12,6 +12,7 @@ import { KRAVINNHOLD, objekt, UTREGNING } from '../format/format.ts';
 import { lesJournal } from '../format/leser.ts';
 import { feilI } from '../format/skjema.ts';
 import { forhaandsvis, laastTekst, vurder } from '../kommandoer/skriving.ts';
+import { mellomlager } from './klient.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import type { Journalrad } from '../typer.ts';
 import { utled } from '../utledning/utled.ts';
@@ -89,7 +90,13 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
     const journal = await minnebane().journal();
     const vist = forhaandsvis(structuredClone(k), kontekst, journal, KJERNE);
     const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
-    return vurder(tekst ? { ...k, brevtekst: tekst } : k, kontekst, journal, KJERNE);
+    return vurder(
+      tekst ? { ...k, brevtekst: tekst } : k,
+      kontekst,
+      journal,
+      KJERNE,
+      mellomlager(k)
+    );
   };
 
   it.each([
@@ -387,8 +394,14 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     ]);
     const journal = await bane.journal();
     const begrunnelse = (sendt: string) => {
+      const kommando = {
+        type: 'begrunnelse',
+        gjelder: k.navn.id('S-v1'),
+        sendt,
+        dokumentasjon: [randomUUID()],
+      };
       const u = vurder(
-        { type: 'begrunnelse', gjelder: k.navn.id('S-v1'), sendt, dokumentasjon: [randomUUID()] },
+        kommando,
         {
           sakId: journal[0].sak_id,
           aktoerId: 'bh',
@@ -398,7 +411,8 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
           nyId: () => randomUUID(),
         },
         journal,
-        KJERNE
+        KJERNE,
+        mellomlager(kommando)
       );
       return u.godtatt ? null : u.avvisning.regel;
     };

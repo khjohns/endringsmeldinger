@@ -388,6 +388,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `UGYLDIG_VURDERING` | GR-17, GR-18, VS-03 | — |
 | `VARSEL_REGISTRERT` | VS-06 | — |
 | `VARSLINGSPLIKT_GJELDER_IKKE` | VS-04 | — |
+| `VEDLEGG_FINNES_IKKE` | — | Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts` og `server/tester/vedlegg.test.ts`. |
 | `VURDERING_UTENFOR_KJERNEN` | — | Avvisningen av en vurdering kjernen ennå ikke kan lagre (`utenforOmfanget`). Raden VS-03 viste til den til sperren etter en innsigelse mot vederlagskravet ble fjernet (VS-U24, #517); ingen rad sier avvisningen nå. |
 
 | Rad | Gjennomføres av |

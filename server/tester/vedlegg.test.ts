@@ -15,6 +15,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { feilnummer, sql } from '../datalag.ts';
 import { innholdsfeil, rensetFilnavn, STOERSTE_VEDLEGG } from '../vedlegg.ts';
+import { forhaandsvis, laastTekst, vurder } from '../../kjerne/kommandoer/skriving.ts';
+import { KJERNE } from '../../kjerne/versjon.ts';
+import { skrivHendelse, UgyldigKommando } from '../kommandoer.ts';
+import { lesSaken } from '../lager.ts';
+import { OPPDRAGSFORMAT } from '../levering.ts';
 import {
   kall,
   lagOppsett,
@@ -30,6 +35,18 @@ import {
 import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
 
 const PDF = Buffer.from('%PDF-1.7\nInnhold\n');
+
+const GRUNNLAGSKRAV = {
+  type: 'krav',
+  spor: 'grunnlag',
+  innhold: {
+    hovedkategori: 'endring',
+    underkategori: 'irregulaer_endring',
+    tittel: 'Endret fundamentering',
+    paalegg_mottatt: '2026-10-01',
+  },
+  utdypning: 'Byggherren har pålagt en annen fundamentering.',
+};
 
 describe('filnavnet og innholdet', () => {
   it.each([
@@ -110,7 +127,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
         bruker,
         prosjektId: o.prosjekt.id,
       })
-    ).kropp.vedlegg as { vedlegg_id: string }[];
+    ).kropp.vedlegg as { vedlegg_id: string; bundet_av_event_id: string | null }[];
 
   const lastNed = (bruker: Testbruker, id: string, sakId = sak) =>
     fetch(`${server.url}/api/kjerne/saker/${sakId}/vedlegg/${id}`, {
@@ -224,7 +241,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     });
     let id: string;
 
-    // Bindingen fra en hendelse kommer i V-2; her legger eieren inn raden med kontrollene i tabellen.
+    // Eieren legger inn en bundet rad direkte, med kontrollene i tabellen.
     beforeAll(async () => {
       id = randomUUID();
       await iTransaksjon(o.datalag.base.pool, te(), async (r) => {
@@ -266,6 +283,207 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
         expect(feilnummer(feil), setning).toBe(51001);
       }
       expect((await liste(o.te)).map((v) => v.vedlegg_id)).toContain(id);
+    });
+  });
+
+  /**
+   * V-2 (#790): et registrert brev binder vedleggene det viser til. Forventningene har
+   * kilde i LV-U14 (klienten oppgir ID-en, serveren fyller inn filnavn og sum), KT-U5
+   * (et gjentak med kvittering binder ikke på nytt) og arbeidsvalg 3 og 4 i #790.
+   */
+  describe('bindingen i brevet', () => {
+    const SUM = createHash('sha256').update(PDF).digest('hex');
+    const teKontekst = () => ({
+      aktor: o.te.id,
+      prosjekt: o.prosjekt.id,
+      side: 'TE' as const,
+      team: catendaId(o.prosjekt.teTeam)!,
+    });
+    const varsel = (dokumentasjon: string[]) => ({
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-10-01',
+      dokumentasjon,
+    });
+    const journal = async (sakId: string) =>
+      (await lesSaken(o.datalag.kjoeretid.pool, { aktor: o.te.id, prosjekt: o.prosjekt.id }, sakId))
+        .journal;
+
+    /** Saken med TEs grunnlagskrav, så et varsel kan registreres (versjon 2). */
+    async function sakMedGrunnlag(): Promise<string> {
+      const sakId = await opprettKjernesak(o);
+      const vist = forhaandsvis(
+        GRUNNLAGSKRAV,
+        {
+          sakId,
+          aktoerId: o.te.id,
+          part: 'TE',
+          teamId: null,
+          tidspunkt: () => new Date(),
+          nyId: randomUUID,
+        },
+        await journal(sakId),
+        KJERNE
+      );
+      if (!vist.godtatt) throw new Error('Kravet ble ikke godtatt i forhåndsvisningen');
+      const svar = await send(sakId, 1, {
+        ...GRUNNLAGSKRAV,
+        brevtekst: laastTekst(vist.hendelser[0]),
+      });
+      if (svar.status !== 201) throw new Error(`Kravet ble avvist: ${svar.status}`);
+      return sakId;
+    }
+
+    const send = (sakId: string, versjon: number, kommando: unknown, kommandoId = randomUUID()) =>
+      kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
+        bruker: o.te,
+        prosjektId: o.prosjekt.id,
+        kropp: { expected_version: versjon, kommando_id: kommandoId, kommando },
+      });
+
+    it('TE registrerer et varsel med et nytt og et bundet vedlegg: brevet lagrer ID, filnavn og sum, og bare det nye bindes til brevet', async () => {
+      const sakId = await sakMedGrunnlag();
+      const ny = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+      const bundet = randomUUID();
+      const foerste = (await journal(sakId))[0].event_id;
+      await iTransaksjon(o.datalag.base.pool, teKontekst(), (r) =>
+        settInn(r, 'vedlegg', {
+          vedlegg_id: bundet,
+          prosjekt_id: o.prosjekt.id,
+          sak_id: sakId,
+          filnavn: 'tidligere.pdf',
+          stoerrelse: PDF.length,
+          innhold_sha256: SUM,
+          innhold: PDF,
+          lastet_opp_av: o.te.id,
+          lastet_opp_side: 'TE',
+          lastet_opp_team: catendaId(o.prosjekt.teTeam)!,
+          bundet_av_event_id: foerste,
+        })
+      );
+      // #815 punkt 3: ID-en gjøres om til små bokstaver der den kommer inn.
+      const svar = await send(sakId, 2, varsel([ny.toUpperCase(), bundet]));
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
+      const brevet = svar.kropp.event_id as string;
+      const rad = (await journal(sakId)).find((r) => r.event_id === brevet)!;
+      expect(rad.data.dokumentasjon).toEqual([
+        { vedlegg_id: ny, filnavn: 'varsel.pdf', innhold_sha256: SUM },
+        { vedlegg_id: bundet, filnavn: 'tidligere.pdf', innhold_sha256: SUM },
+      ]);
+      const synlig = await liste(o.bh, sakId);
+      expect(synlig.find((v) => v.vedlegg_id === ny)?.bundet_av_event_id, 'BH ser det bundne').toBe(
+        brevet
+      );
+      expect(
+        synlig.find((v) => v.vedlegg_id === bundet)?.bundet_av_event_id,
+        'et bundet vedlegg bindes ikke på nytt'
+      ).toBe(foerste);
+      const { oppdrag } = await lesSaken(
+        o.datalag.kjoeretid.pool,
+        { aktor: o.te.id, prosjekt: o.prosjekt.id },
+        sakId
+      );
+      const innhold = oppdrag.find((d) => d.event_id === brevet)!.innhold;
+      expect(innhold.oppdragsformat).toBe(OPPDRAGSFORMAT);
+      expect(innhold.vedlegg, 'LV-U1: vedleggene fryses i oppdraget').toEqual(
+        rad.data.dokumentasjon
+      );
+    });
+
+    it('samme kommando sendt på nytt gir brevet fra kvitteringen og binder ikke på nytt (KT-U5)', async () => {
+      const sakId = await sakMedGrunnlag();
+      const id = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+      const kommandoId = randomUUID();
+      const foerste = await send(sakId, 2, varsel([id]), kommandoId);
+      expect(foerste.status).toBe(201);
+      const igjen = await send(sakId, 2, varsel([id]), kommandoId);
+      expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
+      expect(igjen.kropp.event_id).toBe(foerste.kropp.event_id);
+      expect((await journal(sakId)).length).toBe(3);
+    });
+
+    it.each([
+      ['et ukjent vedlegg', async () => randomUUID()],
+      [
+        'et vedlegg i en annen sak i prosjektet',
+        async () =>
+          (await lastOpp(o.te, PDF, 'annen.pdf', await opprettKjernesak(o))).kropp.vedlegg
+            .vedlegg_id,
+      ],
+    ])('%s avvises med VEDLEGG_FINNES_IKKE, og ingenting skrives', async (_hva, vedlegg) => {
+      const sakId = await sakMedGrunnlag();
+      const svar = await send(sakId, 2, varsel([await vedlegg()]));
+      expect(svar.status).toBe(400);
+      expect(svar.kropp.rule).toBe('VEDLEGG_FINNES_IKKE');
+      expect((await journal(sakId)).length).toBe(2);
+    });
+
+    it('et ubundet vedlegg BH har lastet opp, kan ikke bindes av TE (arbeidsvalg 3)', async () => {
+      const sakId = await sakMedGrunnlag();
+      const bhs = (await lastOpp(o.bh, PDF, 'bh.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+      const tes = (await lastOpp(o.te, PDF, 'te.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+      const svar = await send(sakId, 2, varsel([tes, bhs]));
+      expect(svar.kropp.rule).toBe('VEDLEGG_FINNES_IKKE');
+      expect(svar.kropp.message).toContain(bhs);
+      expect((await liste(o.te, sakId)).map((v) => v.vedlegg_id)).toContain(tes);
+      expect(
+        (await liste(o.te, sakId)).every((v) => v.bundet_av_event_id === null),
+        'TEs vedlegg er ikke bundet av den avviste kommandoen'
+      ).toBe(true);
+    });
+
+    it('basen binder ikke et vedlegg serveren ikke fant, og hendelsen rulles tilbake (51422)', async () => {
+      const sakId = await sakMedGrunnlag();
+      const falskt = randomUUID();
+      const feil = await skrivHendelse(
+        o.datalag.kjoeretid.pool,
+        teKontekst(),
+        sakId,
+        2,
+        { id: randomUUID(), sha256: 'a'.repeat(64) },
+        ({ journal: j, tidspunkt, vedlegg }) => {
+          expect(vedlegg.has(falskt), 'forutsetning: serveren fant ikke vedlegget').toBe(false);
+          const vurdert = vurder(
+            varsel([falskt]),
+            {
+              sakId,
+              aktoerId: o.te.id,
+              part: 'TE',
+              teamId: teKontekst().team,
+              tidspunkt: () => tidspunkt,
+              nyId: randomUUID,
+            },
+            j,
+            KJERNE,
+            new Map([[falskt, { vedlegg_id: falskt, filnavn: 'falskt.pdf', innhold_sha256: SUM }]])
+          );
+          if (!vurdert.godtatt) throw new Error(vurdert.avvisning.melding);
+          return { skriv: true, rad: vurdert.hendelser[0], oppdrag: null };
+        }
+      ).catch((f: unknown) => f);
+      expect(feil).toBeInstanceOf(UgyldigKommando);
+      expect(feilnummer((feil as Error).cause)).toBe(51422);
+      expect((await journal(sakId)).length).toBe(2);
+    });
+
+    it('et bundet vedlegg kan ikke bindes på nytt eller løses, heller ikke av eieren (51001)', async () => {
+      const sakId = await sakMedGrunnlag();
+      const id = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+      expect((await send(sakId, 2, varsel([id]))).status).toBe(201);
+      const [annen] = await journal(sakId);
+      for (const setning of [
+        'UPDATE koe.vedlegg SET bundet_av_event_id = NULL WHERE vedlegg_id = @id',
+        'UPDATE koe.vedlegg SET bundet_av_event_id = @annen WHERE vedlegg_id = @id',
+      ]) {
+        const feil = await iTransaksjon(o.datalag.base.pool, teKontekst(), (r) =>
+          r()
+            .input('id', sql.UniqueIdentifier, id)
+            .input('annen', sql.NVarChar(36), annen.event_id)
+            .query(setning)
+        ).catch((f: unknown) => f);
+        expect(feilnummer(feil), setning).toBe(51001);
+      }
     });
   });
 

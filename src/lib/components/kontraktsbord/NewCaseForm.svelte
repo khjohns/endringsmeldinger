@@ -29,9 +29,11 @@
     datofelt,
     gjelderEndringsordre,
     grunnlagskrav,
-    kanSendesTilKjernen,
+    KJERNEKATEGORIER,
     opprettelse,
   } from '$lib/kjernesak/grunnlagskrav';
+  import { kravMotNySak } from '$lib/kjernesak/brevtekst';
+  import { KJERNE } from '$kjerne/versjon';
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
   import type { OppgittDato } from '$kjerne/format/format';
   const letterConfirmation = createLetterConfirmation();
@@ -71,12 +73,7 @@
   // TS-stien (B-17, #666): kjernens kategorier, datoen etter VS-U26 og endringsordren (GR-U16).
   // Vedlegg og varslene etter § 34.1.2 og § 34.1.3 bygges før aktiveringen (arbeidsvalg i #655).
   const tsStien = tsStienForNyeKoeSaker();
-  const kategorier = tsStien
-    ? KRAV_STRUKTUR_NS8407.map((g) => ({
-        ...g,
-        hjemler: g.hjemler.filter((h) => kanSendesTilKjernen(h.kode)),
-      })).filter((g) => g.hjemler.length)
-    : KRAV_STRUKTUR_NS8407;
+  const kategorier = tsStien ? KJERNEKATEGORIER : KRAV_STRUKTUR_NS8407;
   // Datoen står under feltet den er oppgitt for, så den følger ikke med til en annen betydning.
   let datoer = $state<Partial<Record<OppgittDato, string>>>({});
   let endringsordre = $state('');
@@ -176,6 +173,8 @@
           (!kjerneEo || endringsordre.trim().length > 0)
       : datoOppdaget.length > 0
   );
+  // #816: med et forsøk med usikkert utfall låses skjemaet, så «Prøv igjen» sender det TE så.
+  const venter = $derived(tsStien && Boolean(ventendeOpprettelse || ventendeKrav));
   const iKontroll = $derived(Boolean(letterConfirmation.letter) || Boolean(brevkontroll.letter));
   const canSend = $derived(
     tittel.trim().length >= 5 &&
@@ -232,6 +231,11 @@
       utdypning: letterText(begrunnelseHtml),
     });
     if (!createdCase) {
+      if (!ventendeOpprettelse) {
+        // #711: kravet prøves før saken opprettes, så en avvisning etterlater ingen sak uten krav.
+        const avvist = kravMotNySak(opprettelse(tittel), kommando, 'TE', KJERNE);
+        if (avvist) throw new Error(avvist.melding);
+      }
       const forsoek = (ventendeOpprettelse ??= {
         kommandoId: nyKommandoId(),
         kommando: opprettelse(tittel),
@@ -253,22 +257,17 @@
       createdCase = { id: opprettet.sak_id, version: opprettet.versjon };
       saveDraft(dk, utkast());
     }
-    const sak = lagKjernesak({
-      sakId: createdCase.id,
-      prosjektId,
-      part: 'TE',
-      ventende: ventendeKrav,
-    });
-    await sak.last();
-    if (sak.feil) throw new Error(sak.feil);
+    // Siden er leserens side fra serveren (#705, #711), som også avgjør den.
+    const sak = lagKjernesak({ sakId: createdCase.id, prosjektId, ventende: ventendeKrav });
+    if (!(await sak.last())) throw new Error(sak.feil ?? 'Saken kunne ikke hentes.');
     // Kravet med usikkert utfall er kontrollert og sendes uendret på nytt.
     let lagret;
     if (ventendeKrav) lagret = await sak.provIgjen();
     else {
       const tekst = sak.brevtekst(kommando);
-      // Uten tekst godtar ikke kjernen kravet, og serveren avviser det med sin begrunnelse.
+      // Uten tekst sender ikke konteksten kravet, og den sier hvorfor (#695), også uten side.
       if (tekst) await brevkontroll.show({ tekst, utdypning: kommando.utdypning });
-      lagret = await sak.send(kommando);
+      lagret = await sak.send(kommando, tekst ?? undefined);
     }
     ventendeKrav = sak.ventende;
     saveDraft(dk, utkast());
@@ -464,150 +463,160 @@
       </FormSection>
     {/if}
 
-    <FormSection title="Saksopplysninger">
-      <div class="field">
-        <label for="new-case-title">Kort tittel på forholdet</label>
-        <input
-          id="new-case-title"
-          class="text-input"
-          value={tittel}
-          oninput={(event) => (tittel = event.currentTarget.value)}
-          placeholder="Eksempel: Uforutsette grunnforhold ved akse C5–C8"
-        />
-        <span class="field-help">Bruk en tittel som gjør saken lett å kjenne igjen.</span>
-      </div>
+    {#if venter}
+      <p role="status" class="venter">
+        Et forsøk venter på svar. Skjemaet er låst, og «Prøv igjen» sender det som ble sendt.
+      </p>
+    {/if}
+    <div inert={venter} data-testid="skjemafelt">
+      <FormSection title="Saksopplysninger">
+        <div class="field">
+          <label for="new-case-title">Kort tittel på forholdet</label>
+          <input
+            id="new-case-title"
+            class="text-input"
+            value={tittel}
+            oninput={(event) => (tittel = event.currentTarget.value)}
+            placeholder="Eksempel: Uforutsette grunnforhold ved akse C5–C8"
+          />
+          <span class="field-help">Bruk en tittel som gjør saken lett å kjenne igjen.</span>
+        </div>
 
-      {#if tsStien}
-        {#if kjernedato}
-          {@const felt = kjernedato}
+        {#if tsStien}
+          {#if kjernedato}
+            {@const felt = kjernedato}
+            {@render datofeltet(
+              DATOSPOERSMAAL[felt],
+              datoer[felt] ?? '',
+              (verdi) => (datoer = { ...datoer, [felt]: verdi }),
+              'Datoen står i brevet som din opplysning.'
+            )}
+          {/if}
+          {#if kjerneEo}
+            <div class="field">
+              <label for="new-case-eo">Endringsordrens dato eller nummer</label>
+              <input
+                id="new-case-eo"
+                class="text-input"
+                value={endringsordre}
+                oninput={(event) => (endringsordre = event.currentTarget.value)}
+              />
+            </div>
+          {/if}
+        {:else}
           {@render datofeltet(
-            DATOSPOERSMAAL[felt],
-            datoer[felt] ?? '',
-            (verdi) => (datoer = { ...datoer, [felt]: verdi }),
-            'Datoen står i brevet som din opplysning.'
+            'Når ble forholdet oppdaget?',
+            datoOppdaget,
+            (verdi) => (datoOppdaget = verdi),
+            'Datoen brukes ved vurderingen av kontraktens varslingsfrister.'
           )}
         {/if}
-        {#if kjerneEo}
-          <div class="field">
-            <label for="new-case-eo">Endringsordrens dato eller nummer</label>
-            <input
-              id="new-case-eo"
-              class="text-input"
-              value={endringsordre}
-              oninput={(event) => (endringsordre = event.currentTarget.value)}
-            />
-          </div>
-        {/if}
-      {:else}
-        {@render datofeltet(
-          'Når ble forholdet oppdaget?',
-          datoOppdaget,
-          (verdi) => (datoOppdaget = verdi),
-          'Datoen brukes ved vurderingen av kontraktens varslingsfrister.'
-        )}
-      {/if}
-    </FormSection>
+      </FormSection>
 
-    <FormSection title="Kontraktsforhold">
-      {#snippet aside()}
+      <FormSection title="Kontraktsforhold">
+        {#snippet aside()}
+          {#if valgtHjemmel && !hjemmelvelgerApen}
+            <button class="change-button" onclick={() => (hjemmelvelgerApen = true)}
+              >Endre valg</button
+            >
+          {/if}
+        {/snippet}
+        <p class="section-intro">
+          Velg forholdet totalentreprenøren mener byggherren har risikoen for.
+        </p>
+
         {#if valgtHjemmel && !hjemmelvelgerApen}
-          <button class="change-button" onclick={() => (hjemmelvelgerApen = true)}
-            >Endre valg</button
-          >
-        {/if}
-      {/snippet}
-      <p class="section-intro">
-        Velg forholdet totalentreprenøren mener byggherren har risikoen for.
-      </p>
-
-      {#if valgtHjemmel && !hjemmelvelgerApen}
-        {@const forhold = valgtHjemmel.kontraktsforhold}
-        {@const hjemmel = valgtHjemmel.hjemmel}
-        {@const hjemmelRef = hjemmel?.hjemmel_basis ?? forhold.hjemmel_frist}
-        {@const kontraktsregel = getKontraktsregel(hjemmelRef)}
-        <div class="selected-basis">
-          <div class="selected-header">
-            <div>
-              <span class="selected-category">{forhold.label}</span>
-              <h3>{hjemmel?.label ?? forhold.label}</h3>
+          {@const forhold = valgtHjemmel.kontraktsforhold}
+          {@const hjemmel = valgtHjemmel.hjemmel}
+          {@const hjemmelRef = hjemmel?.hjemmel_basis ?? forhold.hjemmel_frist}
+          {@const kontraktsregel = getKontraktsregel(hjemmelRef)}
+          <div class="selected-basis">
+            <div class="selected-header">
+              <div>
+                <span class="selected-category">{forhold.label}</span>
+                <h3>{hjemmel?.label ?? forhold.label}</h3>
+              </div>
+              <span class="font-mono selected-ref">§ {hjemmelRef}</span>
             </div>
-            <span class="font-mono selected-ref">§ {hjemmelRef}</span>
-          </div>
-          <div class="selected-rule">
-            {#if kontraktsregel}
-              <p>{kontraktsregel.regel}</p>
-              <p class="rule-consequence">{kontraktsregel.konsekvens}</p>
-            {:else}
-              <p>{hjemmel?.beskrivelse ?? forhold.beskrivelse}</p>
-            {/if}
-          </div>
-        </div>
-      {:else}
-        <div class="basis-picker">
-          <label class="search-field">
-            <Search size={15} aria-hidden="true" />
-            <input bind:value={sok} placeholder="Søk etter forhold eller paragraf" />
-          </label>
-
-          <div class="basis-groups">
-            {#each kategorier as gruppe (gruppe.kode)}
-              {#if groupMatches(gruppe)}
-                {@const isStandalone = gruppe.hjemler.length === 0}
-                {@const isOpen = apenKategori === gruppe.kode || normalizedSearch.length > 0}
-                <div class="basis-group">
-                  <button
-                    class="group-button"
-                    onclick={() => {
-                      if (isStandalone) selectHjemmel(gruppe, null);
-                      else apenKategori = apenKategori === gruppe.kode ? null : gruppe.kode;
-                    }}
-                  >
-                    <span>
-                      <strong>{gruppe.label}</strong>
-                      <small>{gruppe.type_krav}</small>
-                    </span>
-                    <span class="group-end">
-                      <span class="font-mono">§ {gruppe.hjemmel_frist}</span>
-                      {#if !isStandalone}
-                        {#if isOpen}<ChevronUp size={15} />{:else}<ChevronDown size={15} />{/if}
-                      {/if}
-                    </span>
-                  </button>
-
-                  {#if !isStandalone && isOpen}
-                    <div class="home-list">
-                      {#each visibleHjemler(gruppe) as hjemmel (hjemmel.kode)}
-                        <button class="home-button" onclick={() => selectHjemmel(gruppe, hjemmel)}>
-                          <span>{hjemmel.label}</span>
-                          <span class="font-mono">§ {hjemmel.hjemmel_basis}</span>
-                        </button>
-                      {/each}
-                    </div>
-                  {/if}
-                </div>
+            <div class="selected-rule">
+              {#if kontraktsregel}
+                <p>{kontraktsregel.regel}</p>
+                <p class="rule-consequence">{kontraktsregel.konsekvens}</p>
+              {:else}
+                <p>{hjemmel?.beskrivelse ?? forhold.beskrivelse}</p>
               {/if}
-            {/each}
+            </div>
           </div>
-        </div>
-      {/if}
-    </FormSection>
+        {:else}
+          <div class="basis-picker">
+            <label class="search-field">
+              <Search size={15} aria-hidden="true" />
+              <input bind:value={sok} placeholder="Søk etter forhold eller paragraf" />
+            </label>
 
-    <FormSection title="Redegjørelse">
-      {#snippet aside()}<span class="font-mono char-count">{charCount} tegn</span>{/snippet}
-      <p class="section-intro">
-        Beskriv hva som har skjedd, hvorfor forholdet omfattes av kontraktshjemmelen og hvilke
-        konsekvenser det har.
-      </p>
-      <div class="editor-wrapper">
-        <RichTextEditor
-          body={begrunnelseHtml}
-          onchange={(html) => (begrunnelseHtml = html)}
-          placeholder="Redegjør for grunnlaget..."
-          maxHeight="none"
-          oncharcount={(count) => (charCount = count)}
-        />
-      </div>
-    </FormSection>
+            <div class="basis-groups">
+              {#each kategorier as gruppe (gruppe.kode)}
+                {#if groupMatches(gruppe)}
+                  {@const isStandalone = gruppe.hjemler.length === 0}
+                  {@const isOpen = apenKategori === gruppe.kode || normalizedSearch.length > 0}
+                  <div class="basis-group">
+                    <button
+                      class="group-button"
+                      onclick={() => {
+                        if (isStandalone) selectHjemmel(gruppe, null);
+                        else apenKategori = apenKategori === gruppe.kode ? null : gruppe.kode;
+                      }}
+                    >
+                      <span>
+                        <strong>{gruppe.label}</strong>
+                        <small>{gruppe.type_krav}</small>
+                      </span>
+                      <span class="group-end">
+                        <span class="font-mono">§ {gruppe.hjemmel_frist}</span>
+                        {#if !isStandalone}
+                          {#if isOpen}<ChevronUp size={15} />{:else}<ChevronDown size={15} />{/if}
+                        {/if}
+                      </span>
+                    </button>
+
+                    {#if !isStandalone && isOpen}
+                      <div class="home-list">
+                        {#each visibleHjemler(gruppe) as hjemmel (hjemmel.kode)}
+                          <button
+                            class="home-button"
+                            onclick={() => selectHjemmel(gruppe, hjemmel)}
+                          >
+                            <span>{hjemmel.label}</span>
+                            <span class="font-mono">§ {hjemmel.hjemmel_basis}</span>
+                          </button>
+                        {/each}
+                      </div>
+                    {/if}
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </FormSection>
+
+      <FormSection title="Redegjørelse">
+        {#snippet aside()}<span class="font-mono char-count">{charCount} tegn</span>{/snippet}
+        <p class="section-intro">
+          Beskriv hva som har skjedd, hvorfor forholdet omfattes av kontraktshjemmelen og hvilke
+          konsekvenser det har.
+        </p>
+        <div class="editor-wrapper">
+          <RichTextEditor
+            body={begrunnelseHtml}
+            onchange={(html) => (begrunnelseHtml = html)}
+            placeholder="Redegjør for grunnlaget..."
+            maxHeight="none"
+            oncharcount={(count) => (charCount = count)}
+          />
+        </div>
+      </FormSection>
+    </div>
 
     {#if !tsStien}
       <KonsekvensVarsler
@@ -631,6 +640,12 @@
   }
   .form-header {
     margin-bottom: 32px;
+  }
+  .venter {
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    border: 1px solid var(--color-wire-strong);
+    background: var(--color-vekt-bg);
   }
   .eyebrow {
     display: block;

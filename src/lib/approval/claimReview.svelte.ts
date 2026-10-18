@@ -70,7 +70,7 @@ export function createClaimReview(store: CaseWorkspace) {
           time: new SvelteDate().toISOString(),
           spor: track,
           data: snapshot,
-        } as TimelineEvent,
+        } as TimelineEvent & { spor: SporType },
         store.sak
       );
       if (!store.isDemo && snapshot.vedlegg_ids?.length) {
