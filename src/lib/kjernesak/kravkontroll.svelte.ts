@@ -25,8 +25,8 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     },
     confirm: kontroll.confirm,
     cancel: kontroll.cancel,
-    async submit(track: SporType, type: EventType, data: object): Promise<void> {
-      if (track !== 'vederlag' || type !== 'vederlag_krav_sendt')
+    async submit(spor: SporType, type: EventType, data: object): Promise<void> {
+      if (spor !== 'vederlag' || type !== 'vederlag_krav_sendt')
         throw new Error('Bare det første vederlagskravet kan sendes for denne saken ennå.');
       const kommando = vederlagskravFraSkjema(data as VederlagSubmissionEventData);
       const tekst = kjernesak.brevtekst(kommando);
