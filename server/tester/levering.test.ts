@@ -506,13 +506,32 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
   it('L9: et registrert brev får oppdraget uten dokument og ingen leveringsjobb, så ingen forsøk', async () => {
     const sakId = await sakMedBrev();
     expect(await kjoer()).toBe(true);
+    // OV-U4: det registrerte varselet har brevet som vedlegg.
+    const opplastet = await fetch(`${server.url}/api/kjerne/saker/${sakId}/vedlegg`, {
+      method: 'POST',
+      headers: {
+        Cookie: `__Host-koe_session=${o.te.token}`,
+        'X-CSRF-Token': o.te.csrf,
+        'X-Project-ID': o.prosjekt.id,
+        'Content-Type': 'application/octet-stream',
+        'X-Filnavn': 'varsel.pdf',
+      },
+      body: new Uint8Array(Buffer.from('%PDF-1.7\nVarselet\n')),
+    });
+    const { vedlegg } = (await opplastet.json()) as { vedlegg: { vedlegg_id: string } };
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
       bruker: o.te,
       prosjektId: o.prosjekt.id,
       kropp: {
         expected_version: 2,
         kommando_id: randomUUID(),
-        kommando: { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-10-01' },
+        kommando: {
+          type: 'varsel',
+          spor: 'frist',
+          hjemmel: '33.4',
+          sendt: '2026-10-01',
+          dokumentasjon: [vedlegg.vedlegg_id],
+        },
       },
     });
     expect(svar.status).toBe(201);

@@ -34,7 +34,7 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import { UsikkertUtfall, type Pool as Datalag } from './datalag.ts';
+import { UsikkertUtfall, UUID, type Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
 import { lesSaken } from './lager.ts';
@@ -252,8 +252,6 @@ function skriveavvisning(feil: unknown): Svar {
   throw feil;
 }
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-
 /** Kommando-ID-en fra kroppen når den er en UUID med små bokstaver, som basen krever (51422). */
 const kommandoId = (kropp: Record<string, unknown>): string | null =>
   typeof kropp.kommando_id === 'string' && UUID.test(kropp.kommando_id) ? kropp.kommando_id : null;
@@ -359,7 +357,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       sakId,
       forventet,
       kommando,
-      ({ journal, tidspunkt, maal }) => {
+      ({ journal, tidspunkt, maal, vedlegg }) => {
         const vurdert = vurder(
           kropp.kommando,
           {
@@ -371,7 +369,8 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
             nyId: avh.nyId,
           },
           journal,
-          avh.kjerne
+          avh.kjerne,
+          vedlegg
         );
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };
         const [rad] = vurdert.hendelser;

@@ -780,20 +780,20 @@ PDF-en av brevet i et leveringsoppdrag (#371 del 2, merknaden 12.10): bytene og 
 
 ### `koe.vedlegg`
 
-Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og SHA-256 av bytene, som basen regner etter. Filen ligger her til Catenda har kvittert for den (spørsmål 1 A i #790, 18.10). Et ubundet vedlegg er et utkast som bare teamet som lastet det opp, ser og sletter. Når en hendelse viser til det, får det `bundet_av_event_id` og ses av begge kontraktssider; et bundet vedlegg slettes ikke. Bindingen kommer i V-2 og slettingen av innholdet etter levering i V-3.
+Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og SHA-256 av bytene, som basen regner etter. Filen ligger her til Catenda har kvittert for den (spørsmål 1 A i #790, 18.10). Et ubundet vedlegg er et utkast som bare teamet som lastet det opp, ser og sletter. Når en hendelse viser til det, får det `bundet_av_event_id` og ses av begge kontraktssider; et bundet vedlegg slettes ikke. `koe_api.bind_vedlegg` binder vedleggene hendelsen viser til, i samme transaksjon som hendelsen (V-2); bindingen er den eneste endringen triggeren `koe.vedlegg_uten_endring` slipper gjennom. Slettingen av innholdet etter levering kommer i V-3.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`. |
+| Hvor fra appen lagres og redigeres | `koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`, og `koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`. |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (vedlegg_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_av → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); (bundet_av_event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_team → koe.catenda_contract_teams.team_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Før levering finnes filen bare her. |
 | Personopplysninger | Filen og filnavnet kan ha navn på personer i prosjektet. |
-| Skrives av | database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`) |
+| Skrives av | database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261019100000_vedleggsbinding.sql (`koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
-| Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/vedlegg.test.ts`. |
+| Belegg | L 18.10: migrasjonene. K 18.10: `server/tester/vedlegg.test.ts`. |
 
 ### `koe.leveringskvittering`
 
