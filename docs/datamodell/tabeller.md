@@ -576,7 +576,7 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i 
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id); unik (project_id, catenda_subject). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ikke kontrollert |
 | Personopplysninger | E-post og visningsnavn. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`); database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`) |
+| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261019180000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`); database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`) |
 | Funn | — |
 | Belegg | L 17.10: migrasjonen og søk i `server/`. K 17.10: `server/tester/medlemskap.test.ts` (DL-U10). |
 
@@ -599,7 +599,7 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 
 ### `koe.catenda_project_configs`
 
-Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt. `server/medlemskap.ts` leser en aktiv kobling med `koe_api.prosjektkobling` (#658, #638), og `koe_api.koblede_prosjekter` gir prosjektene koblet til brukerens Catenda-prosjekter ved innlogging. `koe_api.brukerens_prosjekter`, kalt fra `server/prosjekter.ts`, tar bare med prosjekter med aktiv kobling (#660). Triggeren `koe.catenda_project_configs_kobling_endret` gjør medlemskapene inaktive når koblingen oppheves, slettes eller endres (DL-U10). Den tomme Catenda-ID-en er ikke lov; den merker synkroniseringsraden etter en slik endring. `topic_board_id` er boardet for saker som opprettes i appen (KT-U4); uten det avviser `koe_api.opprett_sak` saken (#741). Triggeren `koe.catenda_project_configs_endret` setter `updated_at` ved hver endring (#618).
+Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (arbeidsvalget 16.10 i #53). Svarer til `catenda_project_configs` i PostgreSQL, uten mappene for webhooken. Synkroniseringen avviser en liste fra et annet Catenda-prosjekt. `server/medlemskap.ts` leser en aktiv kobling med `koe_api.prosjektkobling` (#658, #638), og `koe_api.koblede_prosjekter` gir prosjektene koblet til brukerens Catenda-prosjekter ved innlogging. `koe_api.brukerens_prosjekter`, kalt fra `server/prosjekter.ts`, tar bare med prosjekter med aktiv kobling (#660). Triggeren `koe.catenda_project_configs_kobling_endret` gjør medlemskapene inaktive når koblingen oppheves, slettes eller endres (DL-U10), og setter Catenda-ID-en i synkroniseringsraden til NULL. Den tomme Catenda-ID-en er ikke lov. `topic_board_id` er boardet for saker som opprettes i appen (KT-U4); uten det avviser `koe_api.opprett_sak` saken (#741). Triggeren `koe.catenda_project_configs_endret` setter `updated_at` ved hver endring (#618).
 
 | Felt | Innhold |
 | --- | --- |
@@ -633,7 +633,7 @@ Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at b
 
 ### `koe.app_membership_sync`
 
-Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2), også gjennom `ferskeMedlemmer` for hvert prosjekt i lista i `server/prosjekter.ts` (#660). Svarer til `app_membership_sync` i PostgreSQL. Etter at koblingen er opphevet, slettet eller endret, har raden den tomme Catenda-ID-en og tidspunktet for endringen, så ingen liste fra det koblede prosjektet finnes, og en liste hentet før endringen ikke skrives (DL-U10).
+Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosjekt (DL-U7). En eldre liste skriver ikke over en nyere. Alderen leses av `koe_api.medlemsliste_alder` (B-04 punkt 4), kalt fra `server/autorisasjon.ts` etter at koblingen er kontrollert (#638 punkt 2), også gjennom `ferskeMedlemmer` for hvert prosjekt i lista i `server/prosjekter.ts` (#660). Svarer til `app_membership_sync` i PostgreSQL. Etter at koblingen er opphevet, slettet eller endret, har raden ingen Catenda-ID (NULL) og tidspunktet for endringen, så ingen liste fra det koblede prosjektet finnes, og en liste hentet før endringen ikke skrives (DL-U10, #726). Den tomme Catenda-ID-en er ikke lov.
 
 | Felt | Innhold |
 | --- | --- |
@@ -644,7 +644,7 @@ Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosje
 | Relasjoner | Nøkler: primærnøkkel (project_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny synkronisering |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261017230000_koblingen.sql (triggeren `koe.catenda_project_configs_kobling_endret`) |
+| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261019180000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`) |
 | Funn | — |
 | Belegg | L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`. K 17.10: DL-U10 i samme test. |
 
