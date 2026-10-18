@@ -12,6 +12,8 @@ kommandoer gjennom i Bash, ledd for ledd: git-lesing, `gh api` uten skrivende
 flagg, `git grep`, `grep` og `rg` (#442, #460). Skriveverktøy stoppes. Den
 kjenner agenten bare på `agent_type` i kallet.
 
+Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.
+
 Hent branchen og diffen:
 
 ```bash

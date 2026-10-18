@@ -304,7 +304,7 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   eller ett spørsmål. Større arbeid deles på flere subagenter etter hverandre,
   hver med sin avgrensede bestilling. Bestillingen sier hva sluttrapporten skal
   inneholde, og at den ikke gjengir filer, differ eller testutdata (oppdragsgiver
-  17.10).
+  17.10). Bestillingen til subagenten har også med setningen «Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.», ordrett og på engelsk, for bedre balanse mellom grundighet og tid (kilde: Claude Code 2.1.299, oppdragsgiver 18.10, #779).
 - **Hovedtråden leser ikke det subagenten har lest.** Når arbeidet er
   delegert, holder økta seg til bestillinger, rapporter og beslutninger. Skal en
   rapport kontrolleres, gjør en ny subagent det (oppdragsgiver 17.10).
@@ -329,7 +329,10 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   og arbeider under de samme grensene. Passerer orkestratoren selv om lag
   300 000 tokens,
   avsluttes runden når PR-ene som er nær merge, er merget. Resten går til neste
-  runde (oppdragsgiver 12.10, #425).
+  runde (oppdragsgiver 12.10, #425). En økt som vekkes etter over en time uten
+  aktivitet, kan være komprimert av Claude Code (`idleCompaction`, standardverdien
+  beholdes), og behandles da som komprimert: den leser vedtakene, issuet og
+  PR-beskrivelsen på nytt før den fortsetter (oppdragsgiver 18.10, #779).
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i hovedplanen
   og arbeidsvalg i issuet. Meldingen viser dit.
 - **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av
