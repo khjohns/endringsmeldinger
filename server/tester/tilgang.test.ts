@@ -531,6 +531,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       ],
       ['å lese et predikat direkte', "SELECT * FROM koe_sikkerhet.medlem(N'x');", INGEN_RETT],
       ['å slå av en trigger', 'DISABLE TRIGGER koe.hendelse_uforanderlig ON koe.hendelse;', 1088],
+      // 230 er «ingen rett på kolonnen»; «levert» leser bare tidspunktet (#805).
+      [
+        'å lese Catenda-ID-en i kvitteringen',
+        'SELECT catenda_id FROM koe.leveringskvittering WHERE 1 = 0;',
+        230,
+      ],
+      ['å lese hele kvitteringen', 'SELECT * FROM koe.leveringskvittering WHERE 1 = 0;', 230],
     ])('kjøretiden avvises ved %s (%i)', async (_, setning, nummer) => {
       const feil = await avvisning(
         base.pool.request().batch(
@@ -556,7 +563,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         `SELECT CONCAT(p.state_desc, N' ', p.permission_name, N' ',
                        CASE p.class WHEN 1 THEN CONCAT(OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id))
                                     WHEN 3 THEN CONCAT(N'SCHEMA::', SCHEMA_NAME(p.major_id))
-                                    ELSE p.class_desc END) AS rett
+                                    ELSE p.class_desc END,
+                       CASE WHEN p.minor_id > 0 THEN CONCAT(N' (', COL_NAME(p.major_id, p.minor_id), N')') END) AS rett
            FROM sys.database_permissions p
           WHERE p.grantee_principal_id = DATABASE_PRINCIPAL_ID(N'koe_runtime')`
       );
@@ -592,7 +600,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.synkroniser_medlemskap',
         'GRANT SELECT koe.hendelse',
         'GRANT SELECT koe.kjernebuffer',
-        'GRANT SELECT koe.leveringskvittering',
+        // Bare kolonnene «levert» trenger (#805).
+        'GRANT SELECT koe.leveringskvittering (kvittert)',
+        'GRANT SELECT koe.leveringskvittering (leveringsoppdrag_id)',
+        'GRANT SELECT koe.leveringskvittering (operasjon)',
         'GRANT SELECT koe.leveringsoppdrag',
         'GRANT SELECT koe.notat',
         'GRANT SELECT koe.sak_metadata',
@@ -627,7 +638,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
 
     it('hver tabell kjøretiden kan lese, har et filterpredikat i policyen', async () => {
       const kjoeretid = await base.pool.request().query<{ tabell: string; filter: number }>(
-        `SELECT CONCAT(OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS tabell,
+        `SELECT DISTINCT CONCAT(OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS tabell,
                 (SELECT COUNT(*) FROM sys.security_predicates sp
                   WHERE sp.target_object_id = p.major_id AND sp.predicate_type = 0) AS filter
            FROM sys.database_permissions p JOIN sys.tables t ON t.object_id = p.major_id

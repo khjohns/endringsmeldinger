@@ -23,16 +23,24 @@ const MARG = 56;
 const SKRIFTSTOERRELSE = 11;
 const LINJEAVSTAND = 15;
 const DELT = 'Delt';
-/** Hovedskriften først; et tegn settes med den første som har det. */
-const SKRIFTER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'].map((fil) => {
-  const bytes = readFileSync(new URL(`./skrift/${fil}`, import.meta.url));
-  return { bytes, tegnsett: fontkit.create(bytes) };
-});
-
 /** Brevteksten har et tegn PDF-en ikke kan sette tro: emoji, eller et usynlig tegn som U+200B. */
 export class TegnUtenforSkriften extends Error {}
 
 const MYKT_BINDESTREK = 0xad;
+
+/** Et usynlig tegn som settes med glyfen skriften har for det, og ikke som mellomrom. */
+const settesMedGlyfen = (kode: number): boolean => kode === MYKT_BINDESTREK;
+
+type Skrift = { bytes: Uint8Array; tegnsett: ReturnType<typeof fontkit.create> };
+let lesteSkrifter: Skrift[] | undefined;
+
+/** Hovedskriften først; et tegn settes med den første som har det. Leses når den første PDF-en lages. */
+function skrifter(): Skrift[] {
+  return (lesteSkrifter ??= ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'].map((fil) => {
+    const bytes = readFileSync(new URL(`./skrift/${fil}`, import.meta.url));
+    return { bytes, tegnsett: fontkit.create(bytes) };
+  }));
+}
 
 /**
  * fontkit der mykt bindestrek settes med glyfen skriften har for det, så `ToUnicode` gir
@@ -45,27 +53,41 @@ const fontkitMedBindestrek: Parameters<PDFDocument['registerFontkit']>[0] = {
     const motor = (font as unknown as { _layoutEngine: { isDefaultIgnorable(k: number): boolean } })
       ._layoutEngine;
     const usynlig = motor.isDefaultIgnorable.bind(motor);
-    motor.isDefaultIgnorable = (k) => k !== MYKT_BINDESTREK && usynlig(k);
+    motor.isDefaultIgnorable = (k) => !settesMedGlyfen(k) && usynlig(k);
     if (font.layout('\u00ad').glyphs[0]?.codePoints[0] !== MYKT_BINDESTREK)
       throw new Error('fontkit setter ikke mykt bindestrek med glyfen i skriften');
     return font;
   },
 };
 
-/** Skriften for tegnet, som indeks i `SKRIFTER`. */
+/** Kalles av `start.ts` før serveren lytter, så en skrift som ikke kan brukes, stopper oppstarten. */
+export function kontrollerSkrifter(): void {
+  try {
+    for (const s of skrifter()) fontkitMedBindestrek.create(s.bytes);
+  } catch (feil) {
+    throw new Error(`Skriftene til brev-PDF-en kan ikke brukes: ${(feil as Error).message}`);
+  }
+}
+
+const skriftPerKode = new Map<number, number>();
+
+/** Skriften for tegnet, som indeks i `skrifter()`. */
 function skriftFor(tegn: string): number {
   const kode = tegn.codePointAt(0)!;
+  const kjent = skriftPerKode.get(kode);
+  if (kjent !== undefined) return kjent;
   const navn = () => `U+${kode.toString(16).toUpperCase().padStart(4, '0')}`;
-  const i = SKRIFTER.findIndex((s) => s.tegnsett.hasGlyphForCodePoint(kode));
+  const i = skrifter().findIndex((s) => s.tegnsett.hasGlyphForCodePoint(kode));
   if (i < 0)
     throw new TegnUtenforSkriften(
       `Brevteksten har tegnet ${navn()}, som skriftene i PDF-en ikke har`
     );
   // fontkit setter et usynlig tegn som mellomrom eller utelater det.
-  if (kode !== MYKT_BINDESTREK && /\p{Default_Ignorable_Code_Point}/u.test(tegn))
+  if (!settesMedGlyfen(kode) && /\p{Default_Ignorable_Code_Point}/u.test(tegn))
     throw new TegnUtenforSkriften(
       `Brevteksten har det usynlige tegnet ${navn()}, som PDF-en ikke kan sette tro`
     );
+  skriftPerKode.set(kode, i);
   return i;
 }
 
@@ -82,7 +104,9 @@ function loep(tekst: string): { tekst: string; skrift: number }[] {
 
 /**
  * Bryter et avsnitt på ord, så hver linje holder seg innenfor `bredde`. Et ord som er for
- * langt, deles, og delen som fortsetter på neste linje, er `delt`.
+ * langt, deles, og delen som fortsetter på neste linje, er `delt`. Bredden av en linje er
+ * summen av ordene og mellomrommene, så `maal` kalles én gang per ord og tegn den ikke
+ * har sett.
  */
 function linjer(
   avsnitt: string,
@@ -91,6 +115,7 @@ function linjer(
 ): { tekst: string; delt: boolean }[] {
   const ut: { tekst: string; delt: boolean }[] = [];
   let linje = '';
+  let linjebredde = 0;
   for (const ord of avsnitt.split(/ +/)) {
     let rest = [...ord];
     for (;;) {
@@ -101,13 +126,19 @@ function linjer(
       if (linje) ut.push({ tekst: linje, delt: false });
       ut.push({ tekst: rest.slice(0, n).join(''), delt: true });
       linje = '';
+      linjebredde = 0;
       rest = rest.slice(n);
     }
-    const kandidat = linje ? `${linje} ${rest.join('')}` : rest.join('');
-    if (maal(kandidat) <= bredde) linje = kandidat;
-    else {
+    const resten = rest.join('');
+    const ordbredde = maal(resten);
+    const kandidat = linje ? linjebredde + maal(' ') + ordbredde : ordbredde;
+    if (kandidat <= bredde) {
+      linje = linje ? `${linje} ${resten}` : resten;
+      linjebredde = kandidat;
+    } else {
       ut.push({ tekst: linje, delt: false });
-      linje = rest.join('');
+      linje = resten;
+      linjebredde = ordbredde;
     }
   }
   ut.push({ tekst: linje, delt: false });
@@ -137,15 +168,20 @@ export async function skrivBrevPdf(
   const normalisert = tekst.replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
   const brukt = new Set(loep(normalisert.replace(/\n/g, '')).map((l) => l.skrift));
   // En skrift som ikke brukes, bygges ikke inn, så brev uten reservetegn er uendret.
-  const skrifter = await Promise.all(
-    SKRIFTER.map((s, i) => (brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true }) : null))
+  const innbygd = await Promise.all(
+    skrifter().map((s, i) => (brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true }) : null))
   );
   const settes = (t: string) =>
     loep(t).map((l) => {
-      const skrift = skrifter[l.skrift]!;
+      const skrift = innbygd[l.skrift]!;
       return { ...l, skrift, bredde: skrift.widthOfTextAtSize(l.tekst, SKRIFTSTOERRELSE) };
     });
-  const maal = (t: string) => settes(t).reduce((sum, l) => sum + l.bredde, 0);
+  const bredder = new Map<string, number>();
+  const maal = (t: string) => {
+    let b = bredder.get(t);
+    if (b === undefined) bredder.set(t, (b = settes(t).reduce((sum, l) => sum + l.bredde, 0)));
+    return b;
+  };
   const bredde = A4[0] - 2 * MARG;
 
   let side = pdf.addPage([...A4]);

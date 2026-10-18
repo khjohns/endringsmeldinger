@@ -30,6 +30,7 @@
 import { createServer } from 'node:http';
 import { lagServer } from './app.ts';
 import type { Catenda } from './autorisasjon.ts';
+import { kontrollerSkrifter } from './brevpdf.ts';
 import {
   catendaFraMiljoe,
   CatendaUtilgjengelig,
@@ -62,6 +63,8 @@ async function migrasjonsavvik(datalag: Pool): Promise<string[]> {
     ...filer.filter((f) => !kjent.has(f.versjon)).map((f) => `${f.filnavn} er ikke anvendt.`),
   ];
 }
+
+kontrollerSkrifter();
 
 const tilkobling = process.env.KOE_DATALAG_TILKOBLING;
 if (!tilkobling) throw new Error('KOE_DATALAG_TILKOBLING er ikke satt');
@@ -102,7 +105,11 @@ server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
   console.log(`lytter på http://127.0.0.1:${port}`);
 });
 
+// Et nytt signal venter på stoppen som pågår, så poolen ikke lukkes mens løkka kvitterer (#778).
+let stoppes: Promise<void> | undefined;
 const stopp = () =>
-  server.close(() => void (jobber?.stopp() ?? Promise.resolve()).then(() => datalag.close()));
+  void (stoppes ??= new Promise<void>((lukket) => server.close(() => lukket()))
+    .then(() => jobber?.stopp())
+    .then(() => datalag.close()));
 process.on('SIGTERM', stopp);
 process.on('SIGINT', stopp);

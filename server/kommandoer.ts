@@ -24,7 +24,7 @@ import {
   type Kontekst,
   type Pool,
 } from './datalag.ts';
-import { sjekksum } from './levering.ts';
+import { sjekksum } from './sjekksum.ts';
 import {
   IngenLeveringsmaal,
   lesJournal,
