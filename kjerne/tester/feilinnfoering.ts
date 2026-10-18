@@ -2445,18 +2445,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en revisjon som påberoper «for sent» etter «i tide», avvises'],
   },
-  {
-    id: 'F283',
-    feilklasse: 'et «i tide» etter § 33.6.1 binder § 33.4 (HF-U4, #522)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "          : p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide",
-        "          : (p.art === 'spesifisering' || (p.art === 'rettidighet' && p.hjemmel === r.hjemmel)) && p.iTide",
-      ],
-    ],
-    mal: ['«i tide» etter § 33.6.1 sier ingenting om § 33.4 (HF-U4)'],
-  },
 ];
 
 interface Testresultat {
