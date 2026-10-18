@@ -106,6 +106,10 @@ interface Opprettelsesforespoersel {
 export interface Prosjektforespoersel {
   bruker: Bruker;
   prosjekt: Prosjekttilgang;
+  /** Andre gruppe i stien, som medlemmet, eller `null`. */
+  ressurs: string | null;
+  /** `{}` for `GET`. */
+  kropp: Record<string, unknown>;
 }
 
 /** Forespørselen til en inngang uten prosjekt, etter innloggingen og CSRF. */
@@ -116,7 +120,7 @@ export interface Innlogget {
 }
 
 interface Felles {
-  metode: 'GET' | 'POST' | 'DELETE';
+  metode: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   /** Stien som mønster. For en saksinngang er første gruppe saken, for en prosjektinngang prosjektet. */
   sti: RegExp;
   /** Eksempelsti for testen av registeret, med saken eller prosjektet. */
@@ -140,9 +144,8 @@ export interface Saksrute extends Felles {
  * må være prosjektet i `X-Project-ID`. Begrunnelsen står i registeret.
  */
 export interface Prosjektrute extends Felles {
-  /** Kroppen leses ikke. */
-  metode: 'GET';
-  tilgang: { prosjektrolle: 'viewer' | 'member'; utenSak: string };
+  metode: 'GET' | 'POST' | 'PATCH';
+  tilgang: { prosjektrolle: 'viewer' | 'member' | 'admin'; utenSak: string };
   behandle: Behandler<Prosjektforespoersel>;
 }
 
@@ -586,23 +589,29 @@ export function lagServer(avh: Avhengigheter) {
     foresporsel: IncomingMessage
   ): Promise<Svar> {
     let prosjektId: string;
+    let ressurs: string | null;
     try {
       prosjektId = decodeURIComponent(treff[1]);
+      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent prosjekt.');
     }
+    // Som `tilgangOgKropp`: innloggingen før kroppen, og en ugyldig kropp avvises etter tilgangen.
     const bruker = await krevInnlogging(full.datalag, foresporsel);
+    const innhold = r.metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
     const prosjekt = await krevProsjekttilgang(
       full.datalag,
       full.catenda,
       foresporsel,
       bruker,
       r.tilgang.prosjektrolle,
-      {},
+      'feil' in innhold ? {} : innhold.verdi,
       null,
       prosjektId
     );
-    return r.behandle({ bruker, prosjekt }, full);
+    if ('feil' in innhold) throw innhold.feil;
+    const kropp = innhold.verdi as Record<string, unknown>;
+    return r.behandle({ bruker, prosjekt, ressurs, kropp }, full);
   }
 
   async function kjoer(

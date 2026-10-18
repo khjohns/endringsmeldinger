@@ -10,11 +10,16 @@
  *
  * `koe.projects` har ikke `settings` og `created_by`; svaret har `{}` og
  * `null`, som Python gir et prosjekt uten dem (#660).
+ *
+ * Medlemsinngangene (F-1a, #820) har stiene og svarene fra
+ * `backend/routes/membership_routes.py`. Medlemskapet har ingen egen ID i SQL
+ * Server, så `id` i svaret og i stien er brukeren.
  */
 
 import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './app.ts';
 import { ferskeMedlemmer } from './autorisasjon.ts';
 import { sql, type Pool } from './datalag.ts';
+import { synkroniserProsjekt, type Medlem } from './medlemskap.ts';
 
 interface Prosjektrad {
   id: string;
@@ -83,6 +88,115 @@ async function visProsjektet(
   return [200, prosjektet(rad)];
 }
 
+interface Medlemsrad {
+  project_id: string;
+  user_id: string;
+  catenda_subject: string;
+  user_email: string;
+  display_name: string;
+  role: 'admin' | 'member';
+  viewer_override: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+/** `public_member` i `backend/routes/membership_routes.py`. */
+const medlemmet = (m: Medlemsrad) => ({
+  id: m.user_id.toLowerCase(),
+  project_id: m.project_id,
+  user_id: m.user_id.toLowerCase(),
+  user_email: m.user_email,
+  display_name: m.display_name,
+  created_at: m.created_at.toISOString(),
+  updated_at: m.updated_at.toISOString(),
+  external_id: m.catenda_subject,
+  source: 'catenda',
+  role: m.viewer_override ? 'viewer' : m.role,
+  catenda_role: m.role,
+  viewer_override: m.viewer_override,
+});
+
+async function lesMedlemmer(db: Pool, aktor: string, prosjekt: string): Promise<Medlemsrad[]> {
+  const svar = await db
+    .request()
+    .input('aktor', sql.UniqueIdentifier, aktor)
+    .input('prosjekt', sql.NVarChar(4000), prosjekt)
+    .execute<Medlemsrad>('koe_api.medlemmer');
+  return svar.recordset;
+}
+
+async function medlemmene(
+  { bruker, prosjekt }: Prosjektforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const rader = await lesMedlemmer(avh.datalag, bruker.id, prosjekt.prosjektId);
+  return [200, { members: rader.map(medlemmet) }];
+}
+
+/**
+ * `sync_members`: henter listen fra Catenda og skriver den. `deactivated` er
+ * medlemmene som var aktive før og ikke står i listen, som `AuthService.sync`
+ * teller dem; 0 når en liste hentet samtidig eller senere alt var skrevet.
+ */
+async function synkroniser(
+  { bruker, prosjekt }: Prosjektforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  try {
+    const foer = await lesMedlemmer(avh.datalag, bruker.id, prosjekt.prosjektId);
+    let hentet: Medlem[] = [];
+    const skrevet = await synkroniserProsjekt(avh.datalag, prosjekt.prosjektId, async (c) => {
+      hentet = await avh.catenda.medlemmer(c);
+      return hentet;
+    });
+    const iListen = new Set(hentet.map((m) => m.subjekt));
+    const deaktivert = skrevet ? foer.filter((m) => !iListen.has(m.catenda_subject)).length : 0;
+    return [200, { success: true, members: hentet.length, deactivated: deaktivert }];
+  } catch {
+    return [
+      503,
+      {
+        success: false,
+        error: 'SYNC_UNAVAILABLE',
+        message: 'Medlemskap kunne ikke oppdateres. Prøv igjen senere.',
+      },
+    ];
+  }
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** `limit_member`: leserollen for et annet aktivt medlem; kroppen er bare `viewer_override`. */
+async function begrensMedlem(
+  { bruker, prosjekt, ressurs, kropp }: Prosjektforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const verdi = kropp.viewer_override;
+  if (typeof verdi !== 'boolean' || Object.keys(kropp).length !== 1)
+    return [
+      400,
+      {
+        success: false,
+        error: 'INVALID_REQUEST',
+        message: 'Angi viewer_override som true eller false.',
+      },
+    ];
+  const nekt: Svar = [
+    403,
+    { success: false, error: 'FORBIDDEN', message: 'Du har ikke tilgang til denne endringen.' },
+  ];
+  if (!ressurs || !UUID.test(ressurs)) return nekt;
+  const svar = await avh.datalag
+    .request()
+    .input('aktor', sql.UniqueIdentifier, bruker.id)
+    .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
+    .input('medlem', sql.UniqueIdentifier, ressurs)
+    .input('leserolle', sql.Bit, verdi)
+    .output('endret', sql.Bit)
+    .execute('koe_api.sett_leserolle');
+  return svar.output.endret === true ? [200, { success: true }] : nekt;
+}
+
 export const PROSJEKTRUTER: readonly Rute[] = [
   {
     metode: 'GET',
@@ -104,5 +218,36 @@ export const PROSJEKTRUTER: readonly Rute[] = [
         'Prosjektet selv, som frontenden henter før en side i prosjektet vises; det finnes ingen sak.',
     },
     behandle: visProsjektet,
+  },
+  {
+    metode: 'GET',
+    sti: /^\/api\/projects\/([^/]+)\/members$/,
+    eksempel: (p) => `/api/projects/${p}/members`,
+    tilgang: {
+      prosjektrolle: 'viewer',
+      utenSak: 'Medlemmene i prosjektet, fra Catenda; de hører til prosjektet, ikke til en sak.',
+    },
+    behandle: medlemmene,
+  },
+  {
+    metode: 'POST',
+    sti: /^\/api\/projects\/([^/]+)\/members\/sync$/,
+    eksempel: (p) => `/api/projects/${p}/members/sync`,
+    tilgang: {
+      prosjektrolle: 'admin',
+      utenSak: 'Synkroniseringen av medlemmene i prosjektet fra Catenda; den gjelder ingen sak.',
+    },
+    behandle: synkroniser,
+  },
+  {
+    metode: 'PATCH',
+    sti: /^\/api\/projects\/([^/]+)\/members\/([^/]+)$/,
+    eksempel: (p) => `/api/projects/${p}/members/00000000-0000-0000-0000-000000000000`,
+    tilgang: {
+      prosjektrolle: 'admin',
+      utenSak:
+        'Leserollen til et medlem i prosjektet; medlemskapet hører til prosjektet, ikke til en sak.',
+    },
+    behandle: begrensMedlem,
   },
 ];
