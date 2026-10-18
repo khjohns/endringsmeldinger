@@ -274,8 +274,10 @@ export function lagBrevtekst(
     if (erDato(o) && o.gjelder !== undefined) continue;
     legg(o.id, opplysningstekst(o, nytt.avsender, j));
   }
-  // A4: vedleggene står i teksten, så det som fryses, er teksten og vedleggene (LV-U2).
-  if (nytt.dokumentasjon.length) legg(nytt.id, `Brevet har vedlegg: ${liste(nytt.dokumentasjon)}.`);
+  // A4: vedleggene står i teksten med filnavnet, så det som fryses, er teksten og
+  // vedleggene (LV-U2, arbeidsvalg 10 i #790).
+  if (nytt.dokumentasjon.length)
+    legg(nytt.id, `Brevet har vedlegg: ${liste(nytt.dokumentasjon.map((v) => `«${v.filnavn}»`))}.`);
   return avsnitt;
 }
 
