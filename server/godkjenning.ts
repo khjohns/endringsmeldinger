@@ -28,9 +28,9 @@ async function kall<T>(arbeid: Promise<T>): Promise<T> {
   } catch (feil) {
     const nr = feilnummer(feil);
     const melding = feil instanceof Error ? feil.message : String(feil);
-    if (nr === NEKTET || nr === BLOKKERT) throw new PakkeNektet(melding);
-    if (nr === AVSLUTTET) throw new PakkeAvsluttet(melding);
-    if (nr === UGYLDIG) throw new UgyldigPakke(melding);
+    if (nr === NEKTET || nr === BLOKKERT) throw new PakkeNektet(melding, { cause: feil });
+    if (nr === AVSLUTTET) throw new PakkeAvsluttet(melding, { cause: feil });
+    if (nr === UGYLDIG) throw new UgyldigPakke(melding, { cause: feil });
     throw feil;
   }
 }
@@ -136,36 +136,56 @@ export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretP
          FROM koe.godkjenningshandling WHERE pakke_id = @pakke_id ORDER BY loepenr;`
     );
   const [pakker, steg, handlinger] = r.recordsets as unknown as [
-    Record<string, unknown>[],
+    {
+      pakke_id: string;
+      sak_id: string;
+      forrige_pakke_id: string | null;
+      aktor_id: string;
+      brev: string;
+      fullmaktsgrunnlag: string;
+      opprettet: Date;
+    }[],
     { godkjenner_id: string }[],
-    Record<string, unknown>[],
+    {
+      handling: Godkjenningshandling;
+      steg: number | null;
+      aktor_id: string;
+      fullmakt_tittel: string | null;
+      fullmakt_grense: unknown;
+      begrunnelse: string | null;
+      tidspunkt: Date;
+    }[],
   ];
   const p = pakker[0];
   if (!p) return null;
   return {
-    pakkeId: p.pakke_id as string,
-    sakId: p.sak_id as string,
-    forrigePakkeId: (p.forrige_pakke_id as string | null) ?? null,
-    aktorId: p.aktor_id as string,
-    brev: JSON.parse(p.brev as string),
-    fullmaktsgrunnlag: JSON.parse(p.fullmaktsgrunnlag as string),
-    opprettet: p.opprettet as Date,
+    pakkeId: p.pakke_id,
+    sakId: p.sak_id,
+    forrigePakkeId: p.forrige_pakke_id,
+    aktorId: p.aktor_id,
+    brev: JSON.parse(p.brev),
+    fullmaktsgrunnlag: JSON.parse(p.fullmaktsgrunnlag),
+    opprettet: p.opprettet,
     godkjennere: steg.map((s) => s.godkjenner_id),
     handlinger: handlinger.map((h) => ({
-      handling: h.handling as Godkjenningshandling,
-      steg: h.steg as number | null,
-      aktorId: h.aktor_id as string,
+      handling: h.handling,
+      steg: h.steg,
+      aktorId: h.aktor_id,
       fullmakt:
         h.fullmakt_tittel === null
           ? null
-          : { tittel: h.fullmakt_tittel as string, grense: tall(h.fullmakt_grense) },
-      begrunnelse: h.begrunnelse as string | null,
-      tidspunkt: h.tidspunkt as Date,
+          : { tittel: h.fullmakt_tittel, grense: tall(h.fullmakt_grense) },
+      begrunnelse: h.begrunnelse,
+      tidspunkt: h.tidspunkt,
     })),
   };
 }
 
-/** Godkjent i alle steg, og verken returnert eller trukket. */
+/**
+ * Godkjent i alle steg, og verken returnert eller trukket. Tellingen holder fordi
+ * indeksene `godkjenningshandling_godkjent` og `_avsluttet` tillater én godkjenning per
+ * steg og én avslutning per pakke.
+ */
 export const erGodkjent = (p: LagretPakke): boolean =>
   p.handlinger.every((h) => h.handling === 'godkjent') &&
   p.handlinger.length === p.godkjennere.length;

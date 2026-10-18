@@ -4,7 +4,7 @@
  * er kjernens utregning (B-13). Fullmaktene og dagmulktssatsen leses i
  * `server/godkjenning.ts`.
  */
-import { regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
+import { kroner, regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
 import { KRAVSPOR, type Kravspor } from '../kjerne/typer.ts';
@@ -142,13 +142,9 @@ export function godkjenningskjede(
   const kjede = fullmakter
     .filter((f) => f.brukerId !== avsenderId)
     .sort((a, b) => a.plass - b.plass);
-  if (verdi.beloep !== null) {
-    const siste = kjede.findIndex((f) => dekker(f, verdi.beloep));
-    if (siste < 0)
-      throw new UtilstrekkeligFullmakt(`Ingen i kjeden har fullmakt til ${verdi.beloep} kr`);
-    return kjede.slice(0, siste + 1);
-  }
-  if (!kjede.some((f) => dekker(f, verdi.gulv)))
-    throw new UtilstrekkeligFullmakt(`Ingen i kjeden har fullmakt til ${verdi.gulv} kr`);
-  return kjede;
+  const maal = verdi.beloep ?? verdi.gulv;
+  const siste = kjede.findIndex((f) => dekker(f, maal));
+  if (siste < 0)
+    throw new UtilstrekkeligFullmakt(`Ingen i kjeden har fullmakt til ${kroner(maal)}`);
+  return verdi.beloep === null ? kjede : kjede.slice(0, siste + 1);
 }
