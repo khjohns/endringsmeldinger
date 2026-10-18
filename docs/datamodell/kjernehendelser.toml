@@ -209,11 +209,10 @@ avsender = "TE eller BH"
 beskrivelse = """
 Innsigelse etter § 5 tredje ledd: parten gjør gjeldende at motpartens varsel,
 krav eller svar (`gjelder`) kom for sent. Registreres og vises uten virkning på
-utfallet. Et senere registrert svar fra samme part uten standpunkt om
-rettidighet leses med den første innsigelsen (VS-U11), og står da i svarets
-`virkninger`."""
+utfallet. Et senere svar fra appen gjentar innsigelsen (VS-U11). Et registrert
+svar er dokumentasjon og leses ikke med innsigelsen (OV-U4)."""
 felt = ["id", "art", "gjelder"]
-grunnlag = "VS-U1, VS-U9, VS-U11, VS-U14"
+grunnlag = "VS-U1, VS-U9, VS-U11, VS-U14, OV-U4"
 
 [[utsagn]]
 art = "protest"
@@ -261,11 +260,10 @@ standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene
 uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet
 (`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og
 underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller
-`uten_virkning`. Et registrert svar uten standpunkt om rettidighet kan være lest
-med en innsigelse fra samme part (VS-U11): da står innsigelsen først i
-`virkninger`. Utfallet og vilkåret utledes og lagres ikke."""
+`uten_virkning`. Et registrert brev er dokumentasjon, og appen fryser ingen
+vurdering av det (OV-U4). Utfallet og vilkåret utledes og lagres ikke."""
 felt = ["regelversjon", "virkninger", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
-grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10"
+grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10, OV-U4"
 
 [[del]]
 navn = "brevtekst"
@@ -277,6 +275,17 @@ vedleggene, som gjelder dokumentet, med den låste delen appen lager av valgene
 ikke i teksten, og ingen regel leser den. Et registrert brev har ingen (MM-U17)."""
 felt = ["gjelder", "laast", "utdypning"]
 grunnlag = "LV-U2, LV-U3, LV-U4, B-13 om begrunnelsestekst, KA-U22, KA-U25"
+
+[[del]]
+navn = "dokumentasjon"
+beskrivelse = """
+Vedleggene brevet binder, ett per vedlegg: ID-en i mellomlageret (`vedlegg_id`),
+filnavnet (`filnavn`) og SHA-256 av innholdet (`innhold_sha256`). Klienten oppgir
+ID-en, og serveren fyller inn filnavnet og summen fra mellomlageret i samme
+transaksjon som brevet skrives og vedlegget bindes. Et registrert brev har brevet
+som vedlegg."""
+felt = ["vedlegg_id", "filnavn", "innhold_sha256"]
+grunnlag = "LV-U14, LV-U1, OV-U4, KT-U5, arbeidsvalg 3, 4 og 10 i #790"
 
 [[del]]
 navn = "utregning"

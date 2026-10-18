@@ -179,13 +179,23 @@ export interface Avsnitt {
   utdypning?: string;
 }
 
+/**
+ * Et vedlegg brevet binder (LV-U14): ID-en klienten oppga, og filnavnet og summen
+ * av innholdet serveren fant i mellomlageret.
+ */
+export interface Vedlegg {
+  vedlegg_id: string;
+  filnavn: string;
+  innhold_sha256: string;
+}
+
 export interface Dokument {
   id: string;
   avsender: Part;
   /** Satt av serveren. Det eneste tidspunktet systemet selv vet (2.4). */
   registrert: string;
   opplysninger: LestOpplysning[];
-  dokumentasjon: string[];
+  dokumentasjon: Vedlegg[];
   krav: Krav[];
   svar: Svar[];
   utsagn: LestUtsagn[];

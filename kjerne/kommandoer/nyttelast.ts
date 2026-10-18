@@ -217,7 +217,7 @@ const OPPGITT: Record<OppgittDato, string> = {
  * Datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato, som er
  * serverens (VS-U8) i norsk tid. Det er en kontroll av en dato som ikke kan
  * stemme; om varselet kom i tide, vurderes ikke (arbeidsvalg 1 i #664, samme form
- * som KA-U36).
+ * som KA-U36). `brevetsDato` er en kalenderdag, ÅÅÅÅ-MM-DD, fra `registrertDato`.
  */
 export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisning | null {
   if (k.type !== 'krav' || k.spor !== 'grunnlag') return null;
@@ -225,8 +225,7 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
   const dato = felt === null ? undefined : k.innhold[felt];
   // #766: en dato som ikke kan tolkes, kontrolleres ikke her, som når den mangler (KA-U38).
   const dag = typeof dato === 'string' ? kalenderdag(dato) : null;
-  const brevet = kalenderdag(brevetsDato);
-  if (felt === null || dag === null || brevet === null || dag <= brevet) return null;
+  if (felt === null || dag === null || dag <= brevetsDato) return null;
   return avvis(
     'DATO_ETTER_BREVET',
     `TE har oppgitt at ${OPPGITT[felt]} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`

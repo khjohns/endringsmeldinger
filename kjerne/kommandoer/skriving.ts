@@ -20,11 +20,19 @@ import {
   Uforstaatt,
 } from '../format/leser.ts';
 import { oppgittDatoEtterBrevet } from './nyttelast.ts';
-import { harUlagringsbarTekst } from '../format/skjema.ts';
+import { tekstSomIkkeKanLagres } from '../format/skjema.ts';
 import { regnUtSvar } from '../frosset/standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
-import type { Avsnitt, Avvisning, Beslutningsgrunnlag, Journalrad, Krav, Part } from '../typer.ts';
+import type {
+  Avsnitt,
+  Avvisning,
+  Beslutningsgrunnlag,
+  Journalrad,
+  Krav,
+  Part,
+  Vedlegg,
+} from '../typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -35,6 +43,13 @@ export interface Kontekst {
   tidspunkt: () => Date;
   nyId: () => string;
 }
+
+/**
+ * Vedleggene kommandoen kan binde, etter ID med små bokstaver (LV-U14). Serveren leser
+ * dem i skrivetransaksjonen: de i saken og prosjektet, og et ubundet vedlegg bare for
+ * teamet som lastet det opp (arbeidsvalg 3 i #790).
+ */
+export type Vedleggsoppslag = ReadonlyMap<string, Vedlegg>;
 
 export type Utfall =
   | { godtatt: true; hendelser: Journalrad[] }
@@ -113,8 +128,11 @@ function dokument(
   kjerne: Kjerne,
   nyId: () => string,
   utdypninger: Utdypninger,
-  bygde: Bygde
+  bygde: Bygde,
+  vedlegg: Vedleggsoppslag
 ): Data {
+  // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
+  const bundne = (ider: string[]) => ider.map((id) => vedlegg.get(id.toLowerCase())!);
   switch (k.type) {
     case 'krav': {
       const forrige = u.spor[k.spor].gjeldendeKrav;
@@ -147,7 +165,7 @@ function dokument(
       return {
         utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }],
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
-        ...(k.dokumentasjon?.length ? { dokumentasjon: k.dokumentasjon } : {}),
+        dokumentasjon: bundne(k.dokumentasjon),
       };
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
@@ -166,7 +184,7 @@ function dokument(
         return {
           utsagn,
           opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
-          dokumentasjon: k.dokumentasjon,
+          ...(k.dokumentasjon ? { dokumentasjon: bundne(k.dokumentasjon) } : {}),
         };
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
       return { utsagn };
@@ -187,24 +205,28 @@ export function vurder(
   kommando: unknown,
   kontekst: Kontekst,
   journal: Journalrad[],
-  kjerne: Kjerne
+  kjerne: Kjerne,
+  vedlegg: Vedleggsoppslag
 ): Utfall {
-  return skriv(kommando, kontekst, journal, kjerne, true);
+  return skriv(kommando, kontekst, journal, kjerne, vedlegg, true);
 }
 
 /**
  * Det klienten viser avsenderen før brevet sendes: raden kommandoen ville gitt,
  * med brevteksten, uten kontrollen av teksten kommandoen bærer og uten kravet til
  * begrunnelse og beskrivelse, som ikke endrer den låste teksten. Klienten sender
- * den låste teksten herfra med kommandoen (A1).
+ * den låste teksten herfra med kommandoen (A1). Et brev med vedlegg er registrert og
+ * har ingen tekst fra appen, så forhåndsvisningen trenger vedleggene bare for å
+ * godta det.
  */
 export function forhaandsvis(
   kommando: unknown,
   kontekst: Kontekst,
   journal: Journalrad[],
-  kjerne: Kjerne
+  kjerne: Kjerne,
+  vedlegg: Vedleggsoppslag = new Map()
 ): Utfall {
-  return skriv(kommando, kontekst, journal, kjerne, false);
+  return skriv(kommando, kontekst, journal, kjerne, vedlegg, false);
 }
 
 /** Den låste teksten i en rad, slik kommandoen bærer den (A1). `null` for et registrert brev. */
@@ -216,18 +238,12 @@ function skriv(
   kontekst: Kontekst,
   journal: Journalrad[],
   kjerne: Kjerne,
+  vedlegg: Vedleggsoppslag,
   sendes: boolean
 ): Utfall {
   // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
-  if (harUlagringsbarTekst(kommando))
-    return {
-      godtatt: false,
-      feil: 'UGYLDIG_FORM',
-      avvisning: {
-        regel: 'TEKST_KAN_IKKE_LAGRES',
-        melding: 'Kommandoen har tegn som ikke kan lagres (NUL eller en enslig surrogat).',
-      },
-    };
+  const ulagringsbar = tekstSomIkkeKanLagres(kommando);
+  if (ulagringsbar) return { godtatt: false, feil: 'UGYLDIG_FORM', avvisning: ulagringsbar };
   const feil = formfeil(kommando);
   if (feil.length)
     return {
@@ -256,12 +272,21 @@ function skriv(
     avvisning(k, kontekst.part, u, kjerne.regler, svarstandpunkter, sendes) ??
     oppgittDatoEtterBrevet(k, registrertDato({ registrert: tidspunkt.toISOString() }));
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
+  const ukjent = (k as { dokumentasjon?: string[] }).dokumentasjon?.find(
+    (id) => !vedlegg.has(id.toLowerCase())
+  );
+  if (ukjent !== undefined)
+    return {
+      godtatt: false,
+      feil: 'REGELBRUDD',
+      avvisning: avvis('VEDLEGG_FINNES_IKKE', `Vedlegget ${ukjent} finnes ikke i saken.`),
+    };
 
   const eventId = kontekst.nyId();
   const utdypninger: Utdypninger = new Map();
   let data: Data;
   try {
-    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger, bygde);
+    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger, bygde, vedlegg);
   } catch (feil) {
     // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
     if (feil instanceof Uforstaatt)

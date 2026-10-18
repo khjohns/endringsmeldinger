@@ -72,11 +72,16 @@ describe('formen på kravet', () => {
   );
 
   // Code-review av #273: en tom streng ville gitt en rad kjernen selv ikke forstår.
-  it('avviser tom dokumentasjon i varselet', () => {
+  // OV-U4: det registrerte varselet har brevet som vedlegg, så uten vedlegg avvises formen.
+  it('avviser et registrert varsel uten vedlegg, med tom ID eller med samme vedlegg to ganger', () => {
     const varsel = { type: 'varsel', spor: 'frist', hjemmel: '33.4', sendt: '2026-09-02' };
+    expect(formfeil({ ...varsel, dokumentasjon: ['vedlegg-1'] }), 'kontrollsak').toEqual([]);
+    expect(formfeil(varsel)).toEqual(['$.dokumentasjon: mangler']);
     expect(formfeil({ ...varsel, dokumentasjon: [''] })).not.toEqual([]);
     expect(formfeil({ ...varsel, dokumentasjon: [] })).not.toEqual([]);
-    expect(formfeil({ ...varsel, dokumentasjon: ['vedlegg-1'] })).toEqual([]);
+    expect(formfeil({ ...varsel, dokumentasjon: ['A-1', 'a-1'] })).toEqual([
+      '$.dokumentasjon: samme vedlegg står to ganger',
+    ]);
   });
 
   it('avviser et varsel etter § 33.4 i et krav utenfor fristen', () => {
@@ -1229,5 +1234,30 @@ describe('revisjonen av et svar uten beløp', () => {
   it('kontrollsak: med beløpet sammenliknes revisjonen', () => {
     expect(senketInnroemmelse(svar(100), revisjon(100))).toBeNull();
     expect(senketInnroemmelse(svar(100), revisjon(50))).toMatch(/senker beløpet/);
+  });
+});
+
+// HF-U5: dagene som mangler i et lagret svar, er ikke null dager, så en revisjon med færre
+// dager slipper ikke gjennom uten sammenlikning (#814 punkt 3, som #627 for beløpet).
+describe('revisjonen av et svar uten dager', () => {
+  const svar = (vurdert: number | undefined) =>
+    ({
+      standpunkter: [{ id: 'd', art: 'dager', resultat: 'godkjent', vurdert }],
+      beslutningsgrunnlag: { virkninger: [] },
+    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
+  const revisjon = (vurdert: number) =>
+    [{ id: 'n', art: 'dager', resultat: 'delvis_godkjent', vurdert }] as Parameters<
+      typeof senketInnroemmelse
+    >[1];
+
+  it('dagene sammenliknes ikke, og revisjonen avvises', () => {
+    expect(senketInnroemmelse(svar(undefined), revisjon(0))).toEqual(
+      expect.stringMatching(/Dagene mangler/)
+    );
+  });
+
+  it('kontrollsak: med dagene sammenliknes revisjonen', () => {
+    expect(senketInnroemmelse(svar(10), revisjon(10))).toBeNull();
+    expect(senketInnroemmelse(svar(10), revisjon(5))).toMatch(/senker dagene/);
   });
 });

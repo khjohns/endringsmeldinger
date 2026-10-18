@@ -18,7 +18,7 @@
  * loggen får bare navnet på feiltypen, som i Python.
  */
 
-import type { IncomingMessage } from 'node:http';
+import { validateHeaderValue, type IncomingMessage } from 'node:http';
 
 import type { Avhengigheter, Innlogget, Rute, Svar } from './app.ts';
 import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
@@ -85,20 +85,21 @@ function kontrollerAdresse(verdi: string, miljoe: NodeJS.ProcessEnv): URL {
  * meldingen har aldri med verdiene, så hemmeligheten ikke kan havne i loggen.
  */
 export function innloggingFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Innlogging {
-  const frontend = (miljoe.AUTH_FRONTEND_URL ?? '').replace(/\/+$/, '');
-  if (kontrollerAdresse(frontend, miljoe).pathname !== '/')
-    throw new Error('AUTH_FRONTEND_URL må være en opprinnelse');
+  const frontend = kontrollerAdresse(miljoe.AUTH_FRONTEND_URL ?? '', miljoe);
+  if (frontend.pathname !== '/') throw new Error('AUTH_FRONTEND_URL må være en opprinnelse');
   kontrollerAdresse(miljoe.CATENDA_LOGIN_REDIRECT_URI ?? '', miljoe);
-  return { frontend, oauth: catendaFraMiljoe(miljoe).oauth };
+  // Opprinnelsen har verten i punycode, så adressen kan stå i `Location` (#763 punkt 8).
+  return { frontend: frontend.origin, oauth: catendaFraMiljoe(miljoe).oauth };
 }
 
 /**
  * `safe_return_path` i `backend/lib/auth/domain.py`: bare en lokal sti utenfor
  * `/api/` og `/login`, ellers `/`. Kontrollen gjøres på stien dekodet én gang
- * til, og stien selv må også begynne med én `/`, som basen krever. `/api/` og
- * `/login` prøves etter punktsegmentene, som nettleseren løser opp. Tegn utenfor
- * ASCII prosentkodes, så stien kan stå i `Location`, og lengden telles etterpå,
- * i UTF-16-enheter, som basen teller (kravet i #659).
+ * til, og stien selv må også begynne med én `/`, som basen krever. `/api/`,
+ * `/login` og `//` prøves også etter punktsegmentene, som nettleseren løser opp:
+ * `/.//x` blir `//x`, som en klient ville lest som en vert (#716 punkt 7). Tegn
+ * utenfor ASCII prosentkodes, så stien kan stå i `Location`, og lengden telles
+ * etterpå, i UTF-16-enheter, som basen teller (kravet i #659).
  */
 export function tryggRetursti(verdi: string | null | undefined): string {
   let sti: string;
@@ -116,11 +117,14 @@ export function tryggRetursti(verdi: string | null | undefined): string {
     !s.includes('\\') &&
     // eslint-disable-next-line no-control-regex
     !/[\u0000-\u001f\u007f]/.test(s);
+  const opploest = (s: string) => new URL(s, 'http://lokal').pathname;
   if (
     sti.length > STOERSTE_RETURSTI ||
     !lokal(sti) ||
     !lokal(dekodet) ||
-    /^\/(api\/|login)/.test(new URL(dekodet, 'http://lokal').pathname)
+    opploest(sti).startsWith('//') ||
+    opploest(dekodet).startsWith('//') ||
+    /^\/(api\/|login)/.test(opploest(dekodet))
   )
     return '/';
   return sti;
@@ -138,6 +142,12 @@ const omdiriger = (adresse: string, kapsler: string[]): Svar => [
   null,
   { Location: adresse, 'Set-Cookie': kapsler },
 ];
+
+/** Kaster som `writeHead` for et hode Node ikke godtar. */
+function kontrollerHoder([, , hoder]: Svar): void {
+  for (const [navn, verdi] of Object.entries(hoder ?? {}))
+    for (const v of [verdi].flat()) validateHeaderValue(navn, v);
+}
 
 const utilgjengelig = (): Svar => [
   503,
@@ -221,16 +231,21 @@ async function tilbakekall(
     const retursti = await brukInnloggingsforsoek(avh.datalag, state[0], nettleser);
     if (retursti === null || url.searchParams.get('error') || kode.length !== 1 || !kode[0])
       return mislyktes;
+    // Basen gir den lagrede stien tilbake uten ny kontroll.
+    const innlogget = (token: string) =>
+      omdiriger(`${innlogging.frontend}${tryggRetursti(retursti)}`, [
+        kapsel(navn, token, SESJONENS_LEVETID, naa),
+        ryddForsoek,
+      ]);
+    // Hodene prøves før sesjonen endres, så et hode Node avviser, ikke etterlater en
+    // sesjon klienten aldri fikk (#763 punkt 8). Tokenet er base64url.
+    kontrollerHoder(innlogget(''));
     const token = await innlogging.oauth.byttKode(kode[0]);
     const bruker = await medlemskapVedInnlogging(avh.datalag, innlogging.oauth, token);
     const sesjon = await opprettSesjon(avh.datalag, bruker);
     const gammel = informasjonskapsel(foresporsel, navn);
     if (gammel) await slettSesjon(avh.datalag, gammel);
-    // Basen gir den lagrede stien tilbake uten ny kontroll.
-    return omdiriger(`${innlogging.frontend}${tryggRetursti(retursti)}`, [
-      kapsel(navn, sesjon.token, SESJONENS_LEVETID, naa),
-      ryddForsoek,
-    ]);
+    return innlogget(sesjon.token);
   } catch (feil) {
     loggFeil('Tilbakekallet fra innloggingen feilet', feil);
     return mislyktes;
@@ -254,7 +269,11 @@ async function csrfToken({ sesjon }: Innlogget): Promise<Svar> {
   return [200, { csrfToken: sesjon.csrfToken, expiresIn: 3600 }];
 }
 
-const fast = (sti: string) => ({ sti: new RegExp(`^${sti}$`), eksempel: () => sti });
+/** En rute med én fast sti; tegnene i stien står for seg selv i uttrykket (#716 punkt 4). */
+export const fast = (sti: string) => ({
+  sti: new RegExp(`^${sti.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
+  eksempel: () => sti,
+});
 
 export const INNLOGGINGSRUTER: readonly Rute[] = [
   {

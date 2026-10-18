@@ -50,9 +50,10 @@ BEVIS = {
 
 TIL_PLANEN = "../../plans/2026-09-16-godkjenning-og-varig-levering.md"
 TIL_TABELLEN = "../../domenetabell/README.md#tabellen"
-LENKE = re.compile(r"\]\(#([^)\s]+)\)")
-# Målet i en lenke i vedtaksteksten, også i vinkelparenteser og med tittel (#494, #604).
-MAAL = re.compile(r"\]\(\s*(<[^<>\n]*>|[^)\s]+)((?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*)\)")
+# Målet i en lenke i vedtaksteksten, også i vinkelparenteser og med tittel (#494, #604, #759).
+MAAL = re.compile(
+    r"\]\(\s*(<[^<>\n]*>|[^)\s]+)((?:\s+(?:\"[^\"]*\"|'[^']*'|\([^()\n]*\)))?\s*)\)"
+)
 SKJEMA = re.compile(r"[a-z][a-z0-9+.-]*:", re.IGNORECASE)
 # Et merke som begynner en setning i vedtaksteksten til en importert post: «Forkastet:»,
 # formene med en avgrensning, som «Forkastet foreløpig:», og «Utsatt:».
@@ -144,7 +145,12 @@ def utdrag(tema: dict, kilder: dict, ix: tuple[dict, dict] | None = None) -> dic
     radider = {r["id"] for r in rader}
     alle, _ = ix
     lenket = sorted(
-        {m.group(1) for p in medlemmer for m in LENKE.finditer(vr.folgecelle(p, register, ix))}
+        {
+            a
+            for p in medlemmer
+            for m in MAAL.finditer(vr.folgecelle(p, register, ix))
+            if (a := _planankeret(_uten_vinkler(m.group(1))))
+        }
         | {a for fra, _, til in _forhold(register) for a in (fra, til) if ankre & {fra, til}}
     )
     return {
@@ -171,22 +177,47 @@ def kontrollsum(ut: dict) -> str:
     return hashlib.sha256(tekst.encode("utf-8")).hexdigest()
 
 
+def _uten_vinkler(maal: str) -> str:
+    return maal[1:-1] if maal.startswith("<") else maal
+
+
+def _skrives_ikke_om(maal: str) -> bool:
+    """En URL med skjema eller protokollrelativ, eller et mål uten sti og anker (#759)."""
+    return bool(SKJEMA.match(maal)) or maal.startswith(("//", "?")) or not maal
+
+
+def _i_planen(fil: str) -> bool:
+    return not fil or _sti(fil) == vr.HOVEDPLAN
+
+
+def _sti(fil: str) -> pathlib.Path:
+    """En sti med `/` først er relativ til roten av repoet, ellers til docs/plans/."""
+    return pathlib.Path(os.path.normpath(ROT / fil.lstrip("/") if fil.startswith("/") else PLANMAPPE / fil))
+
+
+def _planankeret(maal: str) -> str | None:
+    """Ankeret i hovedplanen et lenkemål i 3.1 peker på, med eller uten filnavnet til planen."""
+    if _skrives_ikke_om(maal):
+        return None
+    fil, skille, fragment = maal.partition("#")
+    return fragment if skille and fragment and _i_planen(fil) else None
+
+
 def _fra_planen(maal: str, medlemmer: set[str]) -> str:
     """Et lenkemål i 3.1, skrevet om fra hovedplanen i docs/plans/ til mappen visningen ligger i.
 
     Et anker i planen går til overskriften i visningen når vedtaket er i temaet, også når
-    lenken nevner filnavnet til planen. En sti med `/` først er relativ til roten av repoet.
+    lenken nevner filnavnet til planen.
     """
-    if SKJEMA.match(maal):
+    if _skrives_ikke_om(maal):
         return maal
     fil, skille, fragment = maal.partition("#")
-    if fil:
-        sti = pathlib.Path(os.path.normpath(ROT / fil.lstrip("/") if fil.startswith("/") else PLANMAPPE / fil))
-        if sti != vr.HOVEDPLAN:
-            return pathlib.Path(os.path.relpath(sti, MAPPE)).as_posix() + skille + fragment
-    if not skille:
+    if not _i_planen(fil):
+        return pathlib.Path(os.path.relpath(_sti(fil), MAPPE)).as_posix() + skille + fragment
+    anker = _planankeret(maal)
+    if anker is None:
         return TIL_PLANEN
-    return f"#{fragment}" if fragment in medlemmer else f"{TIL_PLANEN}#{fragment}"
+    return f"#{anker}" if anker in medlemmer else f"{TIL_PLANEN}#{anker}"
 
 
 def _lenker(tekst: str, medlemmer: set[str]) -> str:
@@ -199,7 +230,7 @@ def _lenker(tekst: str, medlemmer: set[str]) -> str:
     def skriv_om(m: re.Match) -> str:
         maal = m.group(1)
         if maal.startswith("<"):
-            return f"](<{_fra_planen(maal[1:-1], medlemmer)}>{m.group(2)})"
+            return f"](<{_fra_planen(_uten_vinkler(maal), medlemmer)}>{m.group(2)})"
         return f"]({_fra_planen(maal, medlemmer)}{m.group(2)})"
 
     return MAAL.sub(skriv_om, tekst)
