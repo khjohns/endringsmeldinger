@@ -1,6 +1,6 @@
 /** Byggherrens svar på grunnlaget, NS 8407 § 32.2 og § 32.3. Port av `regler/grunnlag.py`. */
 
-import type { Grunnlagsresultat } from './typer.ts';
+import type { Grunnlagsresultat, Hovedkategori, Underkategori } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 
 export function foersteUnderkategori(
@@ -10,14 +10,17 @@ export function foersteUnderkategori(
   return underkategori ?? null;
 }
 
+const ENDRING: Hovedkategori = 'endring';
+const ENDRINGSORDRE: Underkategori = 'endringsordre';
+
 export function erEndringMedVarslingsplikt(
   hovedkategori: string | null,
   underkategori: string | null
 ): boolean {
-  return hovedkategori === 'endring' && underkategori !== 'endringsordre';
+  return hovedkategori === ENDRING && underkategori !== ENDRINGSORDRE;
 }
 
-const BYGGHERRENS_PAALEGG = [
+const BYGGHERRENS_PAALEGG: readonly Underkategori[] = [
   'irregulaer_endring',
   'valg_av_loesning',
   'samordning',
@@ -32,7 +35,7 @@ export function erByggherrensPaalegg(
   hovedkategori: string | null,
   underkategori: string | null
 ): boolean {
-  return hovedkategori === 'endring' && BYGGHERRENS_PAALEGG.includes(underkategori ?? '');
+  return hovedkategori === ENDRING && BYGGHERRENS_PAALEGG.some((u) => u === underkategori);
 }
 
 export function erPrekludert(

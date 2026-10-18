@@ -15,12 +15,20 @@ import type { Krav, Part, Spor } from '../typer.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
 
-/** § 32.2 gjelder ikke `samordning`. Står for innsnevringen #220 kan gi; omfanget avgjøres ikke her. */
+/**
+ * § 32.2 gjelder ikke `samordning`. Står for innsnevringen #220 kan gi; omfanget avgjøres
+ * ikke her. Frafallet endres for seg: det gjelder ikke `valg_av_loesning`, men fortsatt
+ * `samordning`, fordi GR-U18 er en tolkning av § 32.3 c, ikke av § 32.2 (T4 i #770).
+ */
 export const NESTE_REGLER: Regelsett = {
   ...GJELDENDE_REGLER,
   versjon: GJELDENDE_REGLER.versjon + 1,
   gjelderVarslingsplikten: (h, u) =>
     GJELDENDE_REGLER.gjelderVarslingsplikten(h, u) && u !== 'samordning',
+  gyldigeGrunnlagsresultater: (h, u) =>
+    GJELDENDE_REGLER.gyldigeGrunnlagsresultater(h, u).filter(
+      (r) => r !== 'paalegg_frafalt' || u !== 'valg_av_loesning'
+    ),
 };
 
 export const REGELSETT: Record<string, Regelsett> = { n: GJELDENDE_REGLER, 'n+1': NESTE_REGLER };
@@ -366,6 +374,7 @@ export function radFor(
   let eventId = typeof h.dokument === 'string' ? navn.ta(h.dokument) : randomUUID();
   if (typeof h.avklarer === 'string') {
     // MM-U12: en senere avklaring av om et registrert brev var en endringsordre (§ 31.3).
+    // Leseren avviser den i første versjon (OV-U13).
     eventId = navn.ta(h.navn);
     data = {
       opplysninger: [

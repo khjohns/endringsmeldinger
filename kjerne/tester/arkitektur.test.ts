@@ -307,6 +307,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // HF-U4, HF-U8: byggherren har sagt «i tide» i et svar sendt fra appen. Leses av nyttelastkontrollen.
   ['utledning/utled.ts', 'predikat', 'harSagtITide', ['kommandoer/nyttelast.ts']],
+  // HF-U4, VS-U24: en innsigelse etter et «i tide», kontrollert likt i kommandoene og
+  // utledningen (#776). Det innsigelsen gjelder, leses av dokumentene i journalen (#536).
+  ['utledning/utled.ts', 'predikat', 'innsigelsenEtterITide', ['kommandoer/nyttelast.ts']],
+  ['Utledning', 'utsagn', 'journal', ['utledning/utled.ts:innsigelsenEtterITide']],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
   ['utledning/utled.ts', 'predikat', 'frafalletBinder', ['kommandoer/nyttelast.ts']],
   // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 gjelder (#496).
@@ -359,15 +363,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'innsigelsenPaaberoper',
     [
       'frosset/brevtekst.ts',
-      'kommandoer/nyttelast.ts:nyttelastkontroll',
-      'utledning/utled.ts:bryterBindingen',
+      'utledning/utled.ts:innsigelsenEtterITide',
+      'utledning/utled.ts:kanStride',
     ],
-  ],
-  [
-    'frosset/standpunkt.ts:innsigelsenPaaberoper',
-    'relasjon',
-    'art krav',
-    ['frosset/standpunkt.ts'],
   ],
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
   ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
@@ -387,7 +385,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
 
   // Regelsettet (regler/).
-  ['Regelsett', 'regelsett', 'versjon gjelderVarslingsplikten gjelderVarslingspliktenForVederlag'],
+  [
+    'Regelsett',
+    'regelsett',
+    'versjon gjelderVarslingsplikten gjelderVarslingspliktenForVederlag gyldigeGrunnlagsresultater',
+  ],
   ['regler/regelsett.ts', 'regelsett', 'GJELDENDE_REGLER'],
   ['regler/beloep.ts', 'regelsett', 'beloep erEndelig tilKrone tilTall NULL_OERE'],
   ['regler/feil.ts', 'regelsett', 'UgyldigVurdering'],
@@ -560,7 +562,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
   // Kodene i formatet for kategoriene (#335): formen på grunnlagskravet.
-  ['format/koder.ts', 'skjema', 'HOVEDKATEGORIER KATEGORIER UNDERKATEGORIER', ['format/format.ts']],
+  ['format/koder.ts', 'skjema', 'HOVEDKATEGORIER UNDERKATEGORIER', ['format/format.ts']],
+  // #516: kategoriene står i regelsettet, så reglene types mot dem.
+  ['regler/typer.ts', 'skjema', 'KATEGORIER', ['format/format.ts', 'format/koder.ts']],
   ['KATEGORIER', 'skjema', 'endring svikt andre_forhold force_majeure', ['format/format.ts']],
   // Oversettelsen fra katalogens koder, for klienten og språkprøven (#335).
   ['format/koder.ts:fraKatalogen(tabell)', 'kommando', '*', ['format/koder.ts']],
@@ -672,7 +676,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
   // #474: datoene i KA-U36 og VS-U26 sammenliknes som kalenderdager.
-  ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/nyttelast.ts']],
+  [
+    'format/leser.ts',
+    'relasjon',
+    'kalenderdag',
+    ['kommandoer/nyttelast.ts', 'frosset/brevtekst.ts'],
+  ],
 
   // Brevteksten (frosset/brevtekst.ts, LV-U2, LV-U3, #369). Leses bare når brevet skrives.
   ['format/leser.ts:lesDokument', 'rad', 'brevtekst', ['format/leser.ts']],
@@ -725,9 +734,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/standpunkt.ts',
     'brevtekst',
-    'kroner',
+    'kroner dager',
     ['frosset/brevtekst.ts', 'utledning/innroemmelse.ts'],
   ],
+  // #628: meldingen om en senket revisjon sier grunnlagssvaret med ordene i brevet.
+  ['frosset/standpunkt.ts', 'brevtekst', 'GRUNNLAGSSVARET', ['utledning/innroemmelse.ts']],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av

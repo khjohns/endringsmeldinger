@@ -15,6 +15,7 @@ import { lesJournal } from '../format/leser.ts';
 import { kanInngaaIEo, kraveneErAvgjort, utled } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
 import { visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
@@ -1181,5 +1182,28 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
     expect(() =>
       regnUtSvar('vederlag', vurderinger, { krav, grunnlagskrav }, GJELDENDE_REGLER)
     ).toThrow(/gjelder bare svikt og andre forhold/);
+  });
+});
+
+// HF-U5: et beløp som mangler i et lagret svar, er ikke null kroner, så en revisjon med et
+// lavere beløp slipper ikke gjennom uten sammenlikning (#627 punkt 3).
+describe('revisjonen av et svar uten beløp', () => {
+  const svar = (godkjent: number | undefined) =>
+    ({
+      standpunkter: [{ id: 'b', art: 'beloep', resultat: 'godkjent', godkjent }],
+      beslutningsgrunnlag: { virkninger: [] },
+    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
+  const revisjon = (godkjent: number) =>
+    [{ id: 'n', art: 'beloep', resultat: 'delvis_godkjent', godkjent }] as Parameters<
+      typeof senketInnroemmelse
+    >[1];
+
+  it('sammenliknes ikke og avvises', () => {
+    expect(senketInnroemmelse(svar(undefined), revisjon(0))).toMatch(/Beløpet mangler/);
+  });
+
+  it('kontrollsak: med beløpet sammenliknes revisjonen', () => {
+    expect(senketInnroemmelse(svar(100), revisjon(100))).toBeNull();
+    expect(senketInnroemmelse(svar(100), revisjon(50))).toMatch(/senker beløpet/);
   });
 });

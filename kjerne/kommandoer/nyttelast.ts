@@ -17,7 +17,6 @@ import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
-  innsigelsenPaaberoper,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
@@ -26,11 +25,12 @@ import {
 import {
   frafalletBinder,
   harSagtITide,
+  innsigelsenEtterITide,
   type Rettidighet,
   type Utledning,
 } from '../utledning/utled.ts';
 import { senketStandpunkt, standpunkter } from './standpunkter.ts';
-import type { Avvisning, Krav, Svar } from '../typer.ts';
+import type { Avvisning, Krav, Part, Svar } from '../typer.ts';
 
 /** `forrige` er svaret en revisjon erstatter, så bindingen kontrolleres (HF-U5). */
 function kontrollerSvar(
@@ -240,11 +240,13 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
   if (k.type !== 'krav' || k.spor !== 'grunnlag') return null;
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
   const dato = felt === null ? undefined : k.innhold[felt];
-  if (felt === null || typeof dato !== 'string' || kalenderdag(dato) <= kalenderdag(brevetsDato))
-    return null;
+  // #766: en dato som ikke kan tolkes, kontrolleres ikke her, som når den mangler (KA-U38).
+  const dag = typeof dato === 'string' ? kalenderdag(dato) : null;
+  const brevet = kalenderdag(brevetsDato);
+  if (felt === null || dag === null || brevet === null || dag <= brevet) return null;
   return avvis(
     'DATO_ETTER_BREVET',
-    `TE har oppgitt at ${OPPGITT[felt]} ${norskDato(dato)}, etter brevets dato ${norskDato(brevetsDato)}.`
+    `TE har oppgitt at ${OPPGITT[felt]} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
   );
 }
 
@@ -254,6 +256,7 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
  */
 export function nyttelastkontroll(
   k: Kommando,
+  part: Part,
   u: Utledning,
   regler: Regelsett,
   utdypningKreves = true
@@ -279,7 +282,8 @@ export function nyttelastkontroll(
           'Varselet er sendt fra appen eller registrert uten dato for sendingen, og kravet kan ikke oppgi en (SK-12).'
         );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
-      return kalenderdag(sendt.dato) === kalenderdag(k.varsel.sendt)
+      return kalenderdag(sendt.dato) === kalenderdag(k.varsel.sendt) &&
+        kalenderdag(sendt.dato) !== null
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
@@ -338,12 +342,8 @@ export function nyttelastkontroll(
       // VS-U24, HF-U4: en innsigelse mot varselet etter § 33.4 eller TEs varsel etter § 32.2
       // er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at
       // varselet kom i tide, avvises den (del 2 av #498).
-      const maal = u.elementer[k.gjelder];
-      const hjemmel = innsigelsenPaaberoper(
-        maal && { art: maal.art, krav: u.spor.grunnlag.krav.find((x) => x.id === k.gjelder) },
-        regler
-      );
-      return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })
+      const hjemmel = innsigelsenEtterITide(k.gjelder, part, u, regler);
+      return hjemmel
         ? avvis(
             'SAGT_I_TIDE',
             `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, VS-U24).`

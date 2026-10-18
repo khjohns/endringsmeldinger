@@ -895,8 +895,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (maal?.art === 'varsel') return '33.4';",
-        "if (maal?.art === 'varsel' || (maal?.art === 'krav' && maal.spor !== 'grunnlag')) return '33.4';",
+        '    if (krav)\n',
+        "    if (krav && krav.spor !== 'grunnlag') return '33.4';\n    if (krav)\n",
       ],
     ],
     mal: [
@@ -927,12 +927,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F100',
     feilklasse: 'en innsigelse mot TEs varsel etter § 32.2 leses ikke som en påberopelse (VS-U24)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return '32.2';",
-        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return null;",
-      ],
-    ],
+    endringer: [["        ? '32.2'", '        ? null']],
     mal: [
       'svaret gjentar innsigelsen og viser til den',
       'gir byggherren innsigelsen opp, sier brevet det uttrykkelig',
@@ -1478,7 +1473,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F173',
     feilklasse: 'datoen for et svar fra appen er i UTC, ikke i norsk tid (KA-U37)',
     fil: `${K}/format/leser.ts`,
-    endringer: [['  OSLO.format(new Date(d.registrert));', '  d.registrert.slice(0, 10);']],
+    endringer: [['  kalenderdag(d.registrert)!;', '  d.registrert.slice(0, 10);']],
     mal: ['brevets dato er datoen i norsk tid, ikke i UTC'],
   },
   {
@@ -1766,7 +1761,10 @@ const MUTASJONER: Mutasjon[] = [
       'en innsigelse mot varselet etter § 33.4 leses ikke som en påberopelse (VS-U24, VS-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
-      ["if (maal?.art === 'varsel') return '33.4';", "if (maal?.art === 'varsel') return null;"],
+      [
+        "    if (utsagn) return utsagn.art === 'varsel' ? '33.4' : null;",
+        '    if (utsagn) return null;',
+      ],
     ],
     mal: [
       'gir byggherren opp innsigelsen mot fristvarselet',
@@ -1781,8 +1779,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] &&',
-        "innsigelsenPaaberoper(maal.get(i.gjelder), regler) === HJEMMEL[svar.spor] && (svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) &&",
+        'innsigelsenPaaberoper(i.gjelder, j.dokumenter, regler) === HJEMMEL[svar.spor] &&',
+        "innsigelsenPaaberoper(i.gjelder, j.dokumenter, regler) === HJEMMEL[svar.spor] && (svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) &&",
       ],
     ],
     mal: [
@@ -1892,8 +1890,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })",
-        "return hjemmel && !u && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })",
+        '      const hjemmel = innsigelsenEtterITide(k.gjelder, part, u, regler);',
+        '      const hjemmel = null && innsigelsenEtterITide(k.gjelder, part, u, regler);',
       ],
     ],
     mal: ['F-MM-V10', 'F-MM-V7c'],
@@ -1930,12 +1928,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en innsigelse mot en grunnlagsversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        "if (maal?.krav?.spor === 'grunnlag' && gjelderVarslingsplikten(maal.krav, regler)) return '32.2';",
-        "if (maal?.krav?.spor === 'grunnlag') return '32.2';",
-      ],
-    ],
+    endringer: [['        gjelderVarslingsplikten(krav, regler)', '        true']],
     mal: [
       'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
       'etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder',
@@ -2002,8 +1995,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'u.spor.grunnlag.svar.some(frafaller);',
-        'u.spor.grunnlag.svar.some(\n    (s) => frafaller(s) && s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id\n  );',
+        'binder(u, s) && frafaller(s));',
+        'binder(u, s) && frafaller(s) && s.gjelder === u.spor.grunnlag.gjeldendeKrav?.id);',
       ],
     ],
     mal: ['byggherren kan svare med frafall eller endringsordre, ikke med avslag', 'F-MM-G38'],
@@ -2111,10 +2104,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'beløpet sammenliknes i hele kroner, ikke til hele øre (B-13)',
     fil: `${K}/utledning/innroemmelse.ts`,
     endringer: [
-      [
-        'if (beloep(n.godkjent)! < beloep(f.godkjent)!)',
-        'if (Math.floor(n.godkjent) < Math.floor(f.godkjent))',
-      ],
+      ['      if (nytt < godkjent)', '      if (Math.floor(n.godkjent) < Math.floor(f.godkjent))'],
     ],
     mal: ['beløpet sammenliknes til hele øre'],
   },
@@ -2165,24 +2155,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F250',
     feilklasse: 'en dato etter brevets dato godtas (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        'kalenderdag(dato) <= kalenderdag(brevetsDato))',
-        'kalenderdag(dato) <= kalenderdag(brevetsDato) || true)',
-      ],
-    ],
+    endringer: [['dag <= brevet) return null;', 'dag <= brevet || true) return null;']],
     mal: ['en dato etter brevets dato avvises'],
   },
   {
     id: 'F251',
     feilklasse: 'en dato samme dag som brevet avvises (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        'kalenderdag(dato) <= kalenderdag(brevetsDato))',
-        'kalenderdag(dato) < kalenderdag(brevetsDato))',
-      ],
-    ],
+    endringer: [['dag <= brevet) return null;', 'dag < brevet) return null;']],
     mal: ['samme dag godtas', 'brevets dato er datoen i norsk tid'],
   },
   {
@@ -2235,7 +2215,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en lagret dato med klokkeslett sammenliknes som tekst, ikke som kalenderdag (SK-12, #474, #766)',
     fil: `${K}/format/leser.ts`,
-    endringer: [['  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(dato)) return dato;', '  return dato;']],
+    endringer: [
+      [
+        '  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(dato)) return erKalenderdato(dato) ? dato : null;',
+        '  return dato;',
+      ],
+    ],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
   // K-1 økt A (#770): MM-U27, OV-U13, #766 punkt 1 og #522.
@@ -2289,7 +2274,10 @@ const MUTASJONER: Mutasjon[] = [
       'en innsigelse utenfor kommandoene leses med virkning etter «i tide» (MM-U27, HF-U4, VS-U24)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["    if (x.art !== 'innsigelse' || d.avsender !== 'BH') continue;", '    continue;'],
+      [
+        "    if (x.art === 'innsigelse' && innsigelsenEtterITide(x.gjelder, d.avsender, u, regler))",
+        '    if (false)',
+      ],
     ],
     mal: ['etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)'],
   },
@@ -2331,13 +2319,33 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F269',
     feilklasse: 'en innsigelse fra TE regnes som brudd på byggherrens «i tide» (MM-U27, HF-U4)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "    if (x.art !== 'innsigelse' || d.avsender !== 'BH') continue;",
-        "    if (x.art !== 'innsigelse') continue;",
-      ],
-    ],
+    endringer: [["  if (part !== 'BH') return null;", '  if (false) return null;']],
     mal: ['en innsigelse fra TE mot eget grunnlagskrav etter «i tide»'],
+  },
+  {
+    id: 'F270',
+    feilklasse:
+      'en innsigelse mot et grunnlagskrav i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['        !erRegistrert(d.opplysninger) &&', '        true &&']],
+    mal: [
+      'brevteksten gjentar den ikke i svaret',
+      'kommandoene avviser den ikke etter et «i tide»',
+    ],
+  },
+  {
+    id: 'F271',
+    feilklasse: 'et tidspunkt uten tidssone tolkes i vertens tidssone (T1 i #770, #766)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['  return TIDSPUNKT.test(dato) && ', '  return true && ']],
+    mal: ['kalenderdagen for 2026-10-02T23:30:00 er null'],
+  },
+  {
+    id: 'F272',
+    feilklasse: 'et beløp som mangler i svaret, sammenliknes som null kroner (HF-U5, #627)',
+    fil: `${K}/utledning/innroemmelse.ts`,
+    endringer: [['      if (nytt === null || godkjent === null)', '      if (false)']],
+    mal: ['sammenliknes ikke og avvises'],
   },
 ];
 

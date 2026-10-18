@@ -346,8 +346,8 @@ export const UTSAGNSARTER = Object.keys(UTSAGN) as Utsagnsart[];
  * et varsel i dokumentet, for eksempel et varsel sendt før kravet det står i
  * (HF-U1, MM-U1). `endringsordre` gjelder registrert korrespondanse med et svar på
  * grunnlaget: den som registrerer, oppgir om brevet var en endringsordre etter
- * § 31.3 (GR-U13). Uten `gjelder` står den i brevet selv; med `gjelder` er den en
- * senere avklaring av et registrert brev, uten at brevet skrives om (MM-U12).
+ * § 31.3 (GR-U13), i brevet selv. En senere avklaring med `gjelder` (MM-U12) er ikke
+ * med i første versjon: skjemaet godtar feltet, men leseren avviser den (OV-U13).
  * Merkingen etter KA-U20 og avklaringen av den er ikke med i første versjon, så en
  * rad med dem er ikke forstått (OV-U7, HF-U1, B-10).
  */

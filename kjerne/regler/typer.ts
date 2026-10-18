@@ -34,3 +34,29 @@ export const SUBSIDIAERE_UTLOSERE = [
   'metode_avslaatt',
 ] as const;
 export type SubsidiaerUtloser = (typeof SUBSIDIAERE_UTLOSERE)[number];
+
+/** Hovedkategoriene (§ 33.1 a–c, § 33.3) med underkategoriene, som kontraktens overskrifter. */
+export const KATEGORIER = {
+  endring: [
+    'endringsordre',
+    'irregulaer_endring',
+    'valg_av_loesning',
+    'svar_paa_varsel',
+    'lovendring_gjenstand',
+    'lovendring_prosess',
+    'gebyrer_og_avgifter',
+    'samordning',
+  ],
+  svikt: ['medvirkning', 'grunnforhold', 'kulturminner', 'prosjektering'],
+  andre_forhold: [
+    'nektet_kontraktsmedhjelper',
+    'skade_fra_byggherren',
+    'brukstakelse',
+    'stans_ved_betalingsmislighold',
+    'annet_forhold',
+  ],
+  force_majeure: [],
+} as const satisfies Record<string, readonly string[]>;
+
+export type Hovedkategori = keyof typeof KATEGORIER;
+export type Underkategori = (typeof KATEGORIER)[Hovedkategori][number];
