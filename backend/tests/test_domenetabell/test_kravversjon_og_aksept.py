@@ -113,6 +113,46 @@ def test_en_utsatt_rad_staar_uten_bevis_sak_men_ikke_med_en():
     assert "KA-32: er utsatt, men har en bevis-sak" in feil
 
 
+def test_en_utsatt_rad_med_et_vedtak_som_ikke_utsetter_eller_med_funksjoner_gir_feil():
+    """#669: `utsatt` må være et vedtak som utsetter (OV-U7), ikke hvilket som helst
+    vedtak blant kildene, og en utsatt rad har ingen funksjoner før den bygges."""
+    regler = copy.deepcopy(korpus.REGLER)
+    rader = {r["id"]: r for r in regler["rader"]}
+    rader["KA-32"]["kilder"].append("OV-U4")
+    rader["KA-32"]["utsatt"] = "OV-U4"
+    rader["KA-32"]["funksjoner"] = ["kjerne/utledning/utled.ts#utled"]
+    feil = korpus.verktoy.valider(regler, korpus.KORPUS)
+    assert "KA-32: `utsatt` er OV-U4, som ikke utsetter en rad (OV-U7)" in feil
+    assert "KA-32: en utsatt rad har ingen funksjoner" in feil
+
+
+def _avvik_med(funn, issue):
+    korpus_ = copy.deepcopy(korpus.KORPUS)
+    forlop = next(f for f in korpus_["forlop"] if f["id"] == "F-GR-02")
+    forlop["kjent_avvik"] = {"funn": funn} if issue is None else {"funn": funn, "issue": issue}
+    return korpus.verktoy.valider(korpus.REGLER, korpus_)
+
+
+def test_et_kjent_avvik_med_en_vedtaks_id_krever_vedtaket_blant_radens_kilder_og_et_issue():
+    """#628: et vedtak i 3.1 som `funn` godtas bare når det er en kilde for raden
+    avviket gjelder, og `issue` sier hvilket issue som sporer avviket."""
+    melding = (
+        "F-GR-02: funnet {} står ikke i hovedplanens funnregister, "
+        "og er ikke et vedtak i 3.1 blant radenes kilder med `issue`"
+    )
+    assert _avvik_med("GR-U22", 837) == []
+    assert melding.format("GR-U22") in _avvik_med("GR-U22", None)
+    assert melding.format("HF-U5") in _avvik_med("HF-U5", 837)
+
+
+def test_en_rad_uten_id_gir_feil_og_ikke_krasj():
+    """#475: kontrollen melder en rad uten `id` i stedet for å feile med `KeyError`."""
+    regler = copy.deepcopy(korpus.REGLER)
+    del regler["rader"][0]["id"]
+    feil = korpus.verktoy.valider(regler, korpus.KORPUS)
+    assert any(f.startswith("<uten id>: feltene er") for f in feil)
+
+
 def test_tabellen_i_readme_er_skrevet_av_verktoyet():
     readme = korpus.verktoy.README.read_text(encoding="utf-8")
     assert korpus.verktoy.med_tabell(readme, korpus.REGLER, korpus.KORPUS) == readme, (

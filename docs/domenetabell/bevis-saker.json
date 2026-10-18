@@ -397,15 +397,15 @@
         { "handling": "grunnlagssvar", "resultat": "godkjent", "varslet_i_tide": false },
         { "handling": "vederlagssvar", "vurdering": "godkjent" },
         { "handling": "fristsvar", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true },
-        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" },
-        { "handling": "grunnlagssvar", "resultat": "godkjent" }
+        { "handling": "grunnlag_ny_versjon", "underkategori": "EO" }
       ],
       "kontroller": [
+        { "etter": 3, "rolle": "kontroll", "prov": { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" }, "forventet": { "avvist": false } },
         { "etter": 3, "rolle": "forutsetning", "forventet": { "grunnlag.status": "under_forhandling", "er_subsidiaert_vederlag": true } },
-        { "etter": 4, "rolle": "mal", "forventet": { "grunnlag.status": "sendt", "grunnlag.grunnlag_varslet_i_tide": null, "grunnlag.laast": false, "er_subsidiaert_vederlag": true, "er_subsidiaert_frist": true } },
-        { "etter": 5, "rolle": "mal", "forventet": { "grunnlag.status": "laast", "er_subsidiaert_vederlag": false, "er_subsidiaert_frist": false, "vederlag.status": "godkjent", "overordnet_status": "OMFORENT", "kan_utstede_eo": true } }
+        { "etter": 4, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.underkategori": "IRREG", "grunnlag.status": "under_forhandling" } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning"
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "GR-U22", "issue": 837 }
     },
     {
       "id": "F-GR-03",
@@ -645,11 +645,12 @@
         { "handling": "grunnlagssvar", "resultat": "frafalt" }
       ],
       "kontroller": [
-        { "etter": 3, "rolle": "kontroll", "prov": { "handling": "grunnlagssvar", "resultat": "frafalt", "varslet_i_tide": true }, "forventet": { "avvist": false } },
-        { "etter": 4, "rolle": "forutsetning", "forventet": { "grunnlag.underkategori": "EO" } },
-        { "etter": 5, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.bh_resultat": null } }
+        { "etter": 3, "rolle": "kontroll", "prov": { "handling": "grunnlag_ny_versjon", "underkategori": "IRREG" }, "forventet": { "avvist": false } },
+        { "etter": 4, "rolle": "mal", "forventet": { "avvist": true, "grunnlag.underkategori": "IRREG" } },
+        { "etter": 5, "rolle": "mal", "forventet": { "avvist": false, "grunnlag.bh_resultat": "frafalt" } }
       ],
-      "forventningsgrunnlag": "avklart_tolkning"
+      "forventningsgrunnlag": "avklart_tolkning",
+      "kjent_avvik": { "funn": "GR-U22", "issue": 837 }
     },
     {
       "id": "F-GR-19",

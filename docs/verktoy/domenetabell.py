@@ -46,6 +46,8 @@ RADFELT = (
 # Sporbarheten innføres gradvis (#455), så feltene er valgfrie.
 SPORBARHET = ("funksjoner", "regelkoder")
 VALGFRIE_RADFELT = SPORBARHET + ("utsatt",)
+# Vedtakene som utsetter en rad til den bygges (OV-U7). Et nytt vedtak som utsetter, føres her.
+UTSETTER = {"OV-U7"}
 KILDETYPER = {"vedtak", "standard", "arbeidsvalg"}
 # Regelkodene i kjernen er strenglitteraler i disse formene; `_regelkoder_i_kjernen`
 # feiler på et kall til `avvis` uten en. Blokkommentarer og linjer som er kommentarer, leses ikke.
@@ -157,12 +159,17 @@ def _valider_rader(regler: dict) -> list[str]:
         typer = {kilder[k]["type"] for k in rad["kilder"] if k in kilder}
         if rad["tolkningsstatus"] == "avklart_tolkning" and "vedtak" not in typer:
             feil.append(f"{navn}: avklart tolkning uten et vedtak blant kildene")
-        # OV-U7: vedtaket som utsetter raden, står blant kildene, og raden har ingen regelkode.
+        # OV-U7: vedtaket som utsetter raden, står blant kildene, og raden har ingen
+        # regelkode eller funksjon før den bygges.
         if "utsatt" in rad:
             if rad["utsatt"] not in rad["kilder"] or kilder.get(rad["utsatt"], {}).get("type") != "vedtak":
                 feil.append(f"{navn}: `utsatt` er ikke et vedtak blant kildene")
+            elif rad["utsatt"] not in UTSETTER:
+                feil.append(f"{navn}: `utsatt` er {rad['utsatt']}, som ikke utsetter en rad ({', '.join(sorted(UTSETTER))})")
             if rad.get("regelkoder"):
                 feil.append(f"{navn}: en utsatt rad har ingen regelkoder")
+            if rad.get("funksjoner"):
+                feil.append(f"{navn}: en utsatt rad har ingen funksjoner")
     return feil
 
 
@@ -294,17 +301,22 @@ def _valider_saker(navn: str, forlop: dict) -> list[str]:
 
 def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maalmodell: set[str]) -> list[str]:
     feil, sett = [], set()
-    rader = {r["id"]: r for r in regler["rader"]}
+    rader = {r["id"]: r for r in regler["rader"] if "id" in r}  # En rad uten id er rapportert av _valider_rader.
     bevist = set(maalmodell)
 
-    def funnet(avvik):
+    def funnet(avvik, radider):
         """Et avvik uten funn-ID er et vedtatt issue (#235); da er `funn` issuenummeret,
-        og issuet har en vedtaksrad i hovedplanen 3.1. `funn` kan også være en vedtaks-ID."""
+        og issuet har en vedtaksrad i hovedplanen 3.1. `funn` kan også være en vedtaks-ID
+        blant kildene til radene avviket gjelder, med issuet som sporer avviket i `issue`."""
         if avvik["funn"].startswith("#"):
             return avvik["funn"] == f"#{avvik.get('issue')}" and f"| {avvik['funn']}:" in vedtak
+        if re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE):
+            return True
         # Et vedtak i 3.1 er også et funn mot Python-stien, som rettes etter DL-U2 (#611).
-        return re.search(rf"^\| {re.escape(avvik['funn'])} \|", funntekst, re.MULTILINE) or (
+        return (
             f"</a>{avvik['funn']}:" in vedtak
+            and isinstance(avvik.get("issue"), int)
+            and any(avvik["funn"] in rader[r]["kilder"] for r in radider if r in rader)
         )
 
     for forlop in korpus["forlop"]:
@@ -337,16 +349,19 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
         if not any(k["rolle"] == "mal" for k in forlop["kontroller"]):
             feil.append(f"{navn}: mangler målkontroll")
         avvik = forlop.get("kjent_avvik")
-        if avvik and not funnet(avvik):
-            feil.append(f"{navn}: funnet {avvik['funn']} står ikke i hovedplanens funnregister eller 3.1")
+        if avvik and not funnet(avvik, forlop["rader"]):
+            feil.append(f"{navn}: funnet {avvik['funn']} står ikke i hovedplanens funnregister, og er ikke et vedtak i 3.1 blant radenes kilder med `issue`")
 
     for inv in korpus["invarianter"]:
         feil += [f"{inv['id']}: ukjent rad {r}" for r in inv["rader"] if r not in rader]
         for avvik in inv["kjente_avvik"]:
             if avvik["forlop"] not in sett:
                 feil.append(f"{inv['id']}: ukjent forløp {avvik['forlop']}")
-            if not funnet(avvik):
-                feil.append(f"{inv['id']}: funnet {avvik['funn']} står ikke i funnregisteret")
+            if not funnet(avvik, inv["rader"]):
+                feil.append(
+                    f"{inv['id']}: funnet {avvik['funn']} står ikke i hovedplanens funnregister, "
+                    "og er ikke et vedtak i 3.1 blant radenes kilder med `issue`"
+                )
     feil += [f"{r}: ingen bevis-sak" for r in rader if r not in bevist and "utsatt" not in rader[r]]
     feil += [f"{r}: er utsatt, men har en bevis-sak" for r in rader if r in bevist and "utsatt" in rader[r]]
     return feil
@@ -378,7 +393,7 @@ def _valider_maalmodell(regler: dict, korpus: dict, maal: dict) -> list[str]:
     """Bevis-sakene for målmodellen: radene finnes, hver kontroll har en kilde, og
     forventningsgrunnlaget er det svakeste blant radene, som i hovedkorpuset."""
     feil = []
-    rader = {r["id"]: r for r in regler["rader"]}
+    rader = {r["id"]: r for r in regler["rader"] if "id" in r}
     kilder = {k["id"] for k in regler["kilder"]} | set(rader) | MAALMODELL_KILDER
     sett = {f["id"] for f in korpus["forlop"]}
     for forlop in maal["forlop"]:
