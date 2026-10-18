@@ -77,11 +77,11 @@ def test_kontrollen_finner_feil_i_bevis_sakene_for_maalmodellen():
     forlop = maal["forlop"][0]
     forlop["kontroller"][0]["kilde"] = []
     forlop["steg"][0]["handling"] = "ukjent"
-    maal["forlop"] = [f for f in maal["forlop"] if "KA-21" not in f["rader"]] + [forlop]
+    maal["forlop"] = [f for f in maal["forlop"] if "KA-24" not in f["rader"]] + [forlop]
     feil = korpus.verktoy.valider(korpus.REGLER, korpus.KORPUS, maalmodell=maal)
     assert any("mangler kilde" in f for f in feil)
     assert any("ukjent handling 'ukjent'" in f for f in feil)
-    assert "KA-21: ingen bevis-sak" in feil
+    assert "KA-24: ingen bevis-sak" in feil
 
 
 def test_en_utsatt_rad_staar_uten_bevis_sak_men_ikke_med_en():
