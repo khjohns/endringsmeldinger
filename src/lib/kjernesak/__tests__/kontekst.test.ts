@@ -225,16 +225,18 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(await sak.provIgjen()).toBe(false);
   });
 
-  it('ved UTFALL_USIKKERT og 504 fra en proxy får samme kommando samme ID; en annen kommando får en ny, og en avvisning fjerner den ventende (#418)', async () => {
+  it('ved UTFALL_USIKKERT og en annen serverfeil får samme kommando samme ID; en annen kommando får en ny, og en avvisning fjerner den ventende (#418)', async () => {
     const usikkert = new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' });
     const send = vi
       .fn()
       .mockRejectedValueOnce(usikkert)
       .mockRejectedValueOnce(usikkert)
       .mockRejectedValueOnce(new ApiError(400, 'Kravet er avvist.'))
-      .mockRejectedValueOnce(new ApiError(503, 'Catenda svarte ikke.'))
+      .mockRejectedValueOnce(
+        new ApiError(503, 'Tilgang kunne ikke bekreftes.', { error: 'ACCESS_UNAVAILABLE' })
+      )
       .mockRejectedValueOnce(new ApiError(504, 'Gateway Timeout'))
-      .mockRejectedValueOnce(new ApiError(504, 'Gateway Timeout'));
+      .mockRejectedValueOnce(new ApiError(500, 'Uventet feil.', { error: 'INTERNAL_ERROR' }));
     const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
     await sak.last();
 
@@ -245,11 +247,11 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(send.mock.calls[2][2]).not.toBe(send.mock.calls[0][2]);
     expect(sak.ventende).toBeNull();
     expect(sak.feil).toBe('Kravet er avvist.');
-    // En 503 uten UTFALL_USIKKERT er et sikkert svar fra serveren.
+    // Tilgangskontrollen svarer før kommandoen er kjørt (server/autorisasjon.ts).
     await sak.send(grunnlagskrav);
     expect(sak.ventende).toBeNull();
-    expect(sak.feil).toBe('Catenda svarte ikke.');
-    // En 504 fra en proxy kan komme mens serveren skriver.
+    expect(sak.feil).toBe('Tilgang kunne ikke bekreftes.');
+    // En proxy kan svare mens serveren skriver, og serveren kan feile etter COMMIT.
     await sak.send(grunnlagskrav);
     expect(sak.ventende).not.toBeNull();
     const id = send.mock.calls[4][2];

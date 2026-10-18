@@ -40,18 +40,24 @@ const SAKER = '/api/kjerne/saker';
  */
 export const nyKommandoId = () => crypto.randomUUID();
 
+/** Koder serveren svarer med fra tilgangskontrollen, før kommandoen er kjørt. */
+const FOER_SKRIVINGEN = new Set([
+  'AUTH_UNAVAILABLE',
+  'ACCESS_UNAVAILABLE',
+  'CONTRACT_ACCESS_UNAVAILABLE',
+]);
+
 /**
- * Svaret kom ikke fram, en proxy fikk ikke svar fra serveren (502, 504), eller serveren
- * vet ikke om COMMIT lyktes (503 `UTFALL_USIKKERT`). Kommandoen kan være lagret, så et
- * nytt forsøk sender samme kommando med samme ID (#418). Andre svar fra serveren er
- * sikre.
+ * Svaret kom ikke fram, eller det kom en serverfeil (5xx) som ikke er fra
+ * tilgangskontrollen: `UTFALL_USIKKERT`, en feil etter COMMIT eller en proxy uten svar
+ * fra serveren. Kommandoen kan være lagret, så et nytt forsøk sender samme kommando med
+ * samme ID (#418). Med samme ID gir serveren kvitteringen og lagrer ikke noe nytt.
  */
 export const erUsikkertUtfall = (e: unknown) =>
   e instanceof ApiError &&
   (e.status === 0 ||
-    e.status === 502 ||
-    e.status === 504 ||
-    (e.status === 503 && (e.data as { error?: unknown } | undefined)?.error === 'UTFALL_USIKKERT'));
+    (e.status >= 500 &&
+      !FOER_SKRIVINGEN.has(String((e.data as { error?: unknown } | undefined)?.error))));
 
 const sti = (sakId: string) => `${SAKER}/${encodeURIComponent(sakId)}`;
 
