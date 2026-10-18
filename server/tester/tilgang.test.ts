@@ -531,6 +531,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       ],
       ['å lese et predikat direkte', "SELECT * FROM koe_sikkerhet.medlem(N'x');", INGEN_RETT],
       ['å slå av en trigger', 'DISABLE TRIGGER koe.hendelse_uforanderlig ON koe.hendelse;', 1088],
+      // 230 er «ingen rett på kolonnen»; «levert» leser bare tidspunktet (#805).
+      [
+        'å lese Catenda-ID-en i kvitteringen',
+        'SELECT catenda_id FROM koe.leveringskvittering WHERE 1 = 0;',
+        230,
+      ],
+      ['å lese hele kvitteringen', 'SELECT * FROM koe.leveringskvittering WHERE 1 = 0;', 230],
     ])('kjøretiden avvises ved %s (%i)', async (_, setning, nummer) => {
       const feil = await avvisning(
         base.pool.request().batch(
@@ -556,7 +563,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         `SELECT CONCAT(p.state_desc, N' ', p.permission_name, N' ',
                        CASE p.class WHEN 1 THEN CONCAT(OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id))
                                     WHEN 3 THEN CONCAT(N'SCHEMA::', SCHEMA_NAME(p.major_id))
-                                    ELSE p.class_desc END) AS rett
+                                    ELSE p.class_desc END,
+                       CASE WHEN p.minor_id > 0 THEN CONCAT(N' (', COL_NAME(p.major_id, p.minor_id), N')') END) AS rett
            FROM sys.database_permissions p
           WHERE p.grantee_principal_id = DATABASE_PRINCIPAL_ID(N'koe_runtime')`
       );
@@ -573,6 +581,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.kvitter_topic',
         'GRANT EXECUTE koe_api.kvittering',
         'GRANT EXECUTE koe_api.lagre_brevdokument',
+        'GRANT EXECUTE koe_api.lagre_vedlegg',
         'GRANT EXECUTE koe_api.lagret_brevdokument',
         'GRANT EXECUTE koe_api.les_sesjon',
         'GRANT EXECUTE koe_api.leveringsmaal',
@@ -589,13 +598,18 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.skriv_hendelse',
         'GRANT EXECUTE koe_api.skrivetidspunkt',
         'GRANT EXECUTE koe_api.slett_sesjon',
+        'GRANT EXECUTE koe_api.slett_vedlegg',
         'GRANT EXECUTE koe_api.synkroniser_medlemskap',
         'GRANT SELECT koe.hendelse',
         'GRANT SELECT koe.kjernebuffer',
-        'GRANT SELECT koe.leveringskvittering',
+        // Bare kolonnene «levert» trenger (#805).
+        'GRANT SELECT koe.leveringskvittering (kvittert)',
+        'GRANT SELECT koe.leveringskvittering (leveringsoppdrag_id)',
+        'GRANT SELECT koe.leveringskvittering (operasjon)',
         'GRANT SELECT koe.leveringsoppdrag',
         'GRANT SELECT koe.notat',
         'GRANT SELECT koe.sak_metadata',
+        'GRANT SELECT koe.vedlegg',
       ]);
     });
 
@@ -627,7 +641,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
 
     it('hver tabell kjøretiden kan lese, har et filterpredikat i policyen', async () => {
       const kjoeretid = await base.pool.request().query<{ tabell: string; filter: number }>(
-        `SELECT CONCAT(OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS tabell,
+        `SELECT DISTINCT CONCAT(OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS tabell,
                 (SELECT COUNT(*) FROM sys.security_predicates sp
                   WHERE sp.target_object_id = p.major_id AND sp.predicate_type = 0) AS filter
            FROM sys.database_permissions p JOIN sys.tables t ON t.object_id = p.major_id
@@ -636,8 +650,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       expect(kjoeretid.recordset.filter((r) => r.filter !== 1)).toEqual([]);
       expect(kjoeretid.recordset.map((r) => r.tabell).sort()).toEqual(
         // Kvitteringen har ingen `sak_id`; den leses for «levert» (#764), og L7 i
-        // `levering.test.ts` viser at kjøretiden ikke kan skrive den.
-        [...SAKSTABELLER, 'leveringskvittering'].map((t) => `koe.${t}`).sort()
+        // `levering.test.ts` viser at kjøretiden ikke kan skrive den. Vedleggene prøves
+        // i `vedlegg.test.ts`.
+        [...SAKSTABELLER, 'leveringskvittering', 'vedlegg'].map((t) => `koe.${t}`).sort()
       );
     });
   });

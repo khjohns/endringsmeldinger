@@ -50,6 +50,7 @@ interface Jobb {
 }
 
 interface Forsoek {
+  forsoek_id: string;
   utfall: string;
   melding: string | null;
   startet: Date | null;
@@ -89,7 +90,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
   const forsoekene = async (sakId: string) =>
     (
       await somKjoerer<Forsoek>(
-        `SELECT f.utfall, f.melding, f.startet, f.avsluttet
+        `SELECT f.forsoek_id, f.utfall, f.melding, f.startet, f.avsluttet
            FROM koe.jobbforsoek f JOIN koe.jobb j ON j.jobb_id = f.jobb_id
           WHERE j.sak_id = @sak ORDER BY f.avsluttet, f.utfall`,
         { sak: sakId }
@@ -324,12 +325,24 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     expect(await kjoer()).toBe(true);
     expect((await jobben(sakId))[0].tilstand).toBe('parkert');
     expect(await kjoer()).toBe(false);
+    // Forsøkene har ingen løpenummer, og to av dem kan få samme `avsluttet` i millisekunder.
+    // Rekkefølgen leses derfor av hvilket steg som skrev hvert forsøk.
+    const sett = new Set<string>();
+    const rekkefoelge: (string | null)[][] = [];
+    const nyeForsoek = async () => {
+      const nye = (await forsoekene(sakId)).filter((f) => !sett.has(f.forsoek_id));
+      expect(nye).toHaveLength(1);
+      sett.add(nye[0].forsoek_id);
+      rekkefoelge.push([nye[0].utfall, nye[0].melding]);
+    };
+    await nyeForsoek();
 
     const { jobb_id } = (await jobben(sakId))[0];
     await o.datalag.base.pool
       .request()
       .input('jobb_id', sql.UniqueIdentifier, jobb_id)
       .execute('koe_api.start_jobb_paa_nytt');
+    await nyeForsoek();
     // Backoffen begynner forfra etter en omstart (#778).
     expect((await jobben(sakId))[0].antall_forsoek).toBe(0);
     expect(
@@ -343,7 +356,8 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     svar = async () => 'topic-paa-nytt';
     expect(await kjoer()).toBe(true);
     expect(await topicen(sakId)).toMatchObject({ topic_id: 'topic-paa-nytt' });
-    expect((await forsoekene(sakId)).map((f) => [f.utfall, f.melding])).toEqual([
+    await nyeForsoek();
+    expect(rekkefoelge).toEqual([
       ['usikkert', 'Catenda svarte ikke'],
       ['startet_paa_nytt', 'sa'],
       ['utfoert', null],

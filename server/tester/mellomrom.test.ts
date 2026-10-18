@@ -157,6 +157,12 @@ const UTEN_KONTROLL: Record<string, Grunn> = {
   'koe.leveringsoppdrag.event_id': { grunn: 'fremmednoekkel', til: 'koe.hendelse.event_id' },
   'koe.kvittering.sak_id': { grunn: 'fremmednoekkel', til: 'koe.hendelse.sak_id' },
   'koe.kvittering.event_id': { grunn: 'fremmednoekkel', til: 'koe.hendelse.event_id' },
+  'koe.vedlegg.lastet_opp_side': {
+    grunn: 'verdiene_fyller_kolonnen',
+    kontroll: 'vedlegg_lastet_opp_side',
+  },
+  'koe.vedlegg.sak_id': { grunn: 'fremmednoekkel', til: 'koe.sak_metadata.sak_id' },
+  'koe.vedlegg.bundet_av_event_id': { grunn: 'fremmednoekkel', til: 'koe.hendelse.event_id' },
   'koe_migrering.historikk.versjon': { grunn: 'fast_bredde' },
 };
 

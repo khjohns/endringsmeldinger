@@ -122,6 +122,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       bruker: null,
       prosjektId: null,
       kropp: kropp(r),
+      metode: r.metode,
     });
     expect(svar.status).toBe(401);
     expect(svar.kropp.error).toBe('UNAUTHORIZED');
@@ -135,6 +136,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
           bruker: o.te,
           prosjektId: null,
           kropp: kropp(r),
+          metode: r.metode,
           csrf,
         });
         expect(svar.status).toBe(403);
@@ -150,6 +152,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       bruker: { ...o.te, token: ny.token, csrf: ny.csrfToken },
       prosjektId: null,
       kropp: kropp(r),
+      metode: r.metode,
     });
     expect(svar.status).toBe(200);
   });
@@ -207,6 +210,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       bruker: null,
       prosjektId: o.prosjekt.id,
       kropp: kropp(r),
+      metode: r.metode,
     });
     expect(svar.status).toBe(401);
   });
@@ -219,6 +223,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
           bruker: o.te,
           prosjektId: o.prosjekt.id,
           kropp: kropp(r),
+          metode: r.metode,
           csrf,
         });
         expect(svar.status).toBe(403);
@@ -242,6 +247,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
           bruker,
           prosjektId,
           kropp: kropp(r),
+          metode: r.metode,
         });
         expect(svar.status, JSON.stringify({ prosjektId, sakId })).toBe(403);
         expect(svar.kropp.error).toBe('FORBIDDEN');
@@ -254,6 +260,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       bruker: o.utenTeam,
       prosjektId: o.prosjekt.id,
       kropp: kropp(r),
+      metode: r.metode,
     });
     if (r.tilgang.kontraktsrolle === 'kreves') {
       expect(svar.status).toBe(403);
@@ -268,8 +275,11 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       bruker: o.te,
       prosjektId: o.prosjekt.id,
       kropp: kropp(r),
+      metode: r.metode,
     });
-    expect([200, 400]).toContain(svar.status);
+    // Vedlegget i eksempelstien finnes ikke; 404 kommer etter tilgangen.
+    if (svar.kropp.error === 'VEDLEGG_FINNES_IKKE') expect(svar.status).toBe(404);
+    else expect([200, 400]).toContain(svar.status);
     expect(svar.kropp.error ?? 'ingen').not.toMatch(/FORBIDDEN|CSRF|UNAUTHORIZED|CONTRACT/);
   });
 

@@ -21,7 +21,8 @@ import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import { gjengiOppdrag, kanonisk, OPPDRAGSFORMAT, sjekksum } from '../levering.ts';
+import { gjengiOppdrag, OPPDRAGSFORMAT } from '../levering.ts';
+import { kanonisk, sjekksum } from '../sjekksum.ts';
 import { sql } from './sqlserver.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
