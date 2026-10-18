@@ -848,7 +848,8 @@ personopplysninger = """
 `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde
 personopplysninger."""
 skrivere = [
-    "database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)",
+    "database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`)",
+    "database/migrasjoner/20261020030000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)",
     "server/kommandoer.ts",
 ]
 funn = []
@@ -923,7 +924,7 @@ lagres_fra = "`koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme
 fra_catenda = "Nei, men oppdraget gjelder en levering til Catenda."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innholdet er brevet og kan inneholde personopplysninger."
-skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261020030000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -942,7 +943,7 @@ lagres_fra = "`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `ko
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Aktørens `app_users.id`."
-skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261020030000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`."
 
@@ -1166,8 +1167,8 @@ beskrivelse = """
 Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel,
 og transaksjonen og når økta logget inn, fordi transaksjons-ID-en begynner på
 nytt etter en omstart. `koe_api.skriv_hendelse` godtar bare dette tidspunktet på
-brevet, i samme transaksjon og økt (DL-U3, svaret 16.10 i #53). Kjøretiden har
-ingen rett på tabellen."""
+brevet, i samme transaksjon og økt (DL-U3, svaret 16.10 i #53), og bare i 30
+sekunder etter at det ble gitt (#599). Kjøretiden har ingen rett på tabellen."""
 lagres_fra = """
 `koe_api.skrivetidspunkt` fører raden, og `koe_api.skriv_hendelse` sletter den i
 samme transaksjon. Kalt fra `skrivHendelse` i `server/kommandoer.ts`, som ruller
@@ -1177,9 +1178,9 @@ tidspunkt. Tabellen har høyst én rad per økt-ID."""
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Raden brukes bare i transaksjonen som førte den."
 personopplysninger = "Ingen kjente."
-skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`)", "database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)"]
+skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`)", "database/migrasjoner/20261020030000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)"]
 funn = []
-belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`."
+belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`. K 18.10: `server/tester/skrivetidspunkt.test.ts` (grensen på 30 sekunder)."
 
 [[tabell]]
 navn = "koe.toemmingsvern"
