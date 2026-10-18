@@ -13,14 +13,20 @@
  * Hver kommando har en ID fra klienten og en kvittering i samme transaksjon som
  * brevet (invariant 4, #418). Samme ID med samme innhold gir brevet fra
  * kvitteringen uten å skrive, og samme ID med et annet innhold avvises.
+ *
+ * Vedleggene kommandoen kan binde, leses i skrivetransaksjonen og gis til `lag`, og
+ * `koe_api.bind_vedlegg` binder dem brevet viser til, etter at brevet er skrevet
+ * (arbeidsvalg 3 og 4 i #790). Et gjentak med kvittering binder ikke på nytt (KT-U5).
  */
 
-import type { Journalrad } from '../kjerne/typer.ts';
+import type { Vedleggsoppslag } from '../kjerne/kommandoer/skriving.ts';
+import type { Journalrad, Vedlegg } from '../kjerne/typer.ts';
 import {
   feilnummer,
   sql,
   transaksjon,
   UsikkertUtfall,
+  UUID,
   type Kontekst,
   type Pool,
 } from './datalag.ts';
@@ -67,9 +73,6 @@ const ID_BRUKT = 51410;
 const UGYLDIG = 51422;
 const LAAS_IKKE_GITT = 51408;
 const BLOKKERT = 33504;
-
-/** Formen `sak_metadata_sak_id_form` krever; saksnummeret er en slik ID (DL-U6). */
-const ID_FORM = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 /** Meldingen `koe_api.skriv_hendelse` gir med 51409; formen er en kontrakt (`20261016230000_skranker.sql`). */
 const KONFLIKTMELDING = /^Versjonskonflikt: journalen har versjon (\d+)$/;
@@ -208,6 +211,8 @@ export interface Skrivegrunnlag {
   tidspunkt: Date;
   /** Målet i Catenda for brevet. */
   maal: Leveringsmaal;
+  /** Vedleggene i saken kommandoen kan binde. */
+  vedlegg: Vedleggsoppslag;
 }
 
 /** Raden og oppdraget som skal lagres, eller en avvisning som avbryter uten å skrive. */
@@ -241,7 +246,8 @@ export async function skrivHendelse<A>(
       // Etter at transaksjon() har prøvd konteksten, så en ugyldig kontekst gir UgyldigKontekst (#596).
       if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
       // En annen form kan ikke være en sak (#566).
-      if (typeof sakId !== 'string' || !ID_FORM.test(sakId))
+      // Formen `sak_metadata_sak_id_form` krever; saksnummeret er en slik ID (DL-U6).
+      if (typeof sakId !== 'string' || !UUID.test(sakId))
         throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
       // Kvitteringen låses før saken, i samme rekkefølge som opprettelsen.
       const kvittering = await lesKvittering(foresp, kommando);
@@ -261,7 +267,8 @@ export async function skrivHendelse<A>(
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      const utfall = lag({ journal, tidspunkt, maal });
+      const vedlegg = await lesVedlegg(foresp, kontekst, sakId);
+      const utfall = lag({ journal, tidspunkt, maal, vedlegg });
       // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
       if (!utfall.skriv) throw new IkkeSkrevet(utfall);
       const { rad, oppdrag } = utfall;
@@ -281,12 +288,39 @@ export async function skrivHendelse<A>(
         .input('kommando_id', sql.NVarChar(4000), kommando.id)
         .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
         .execute('koe_api.skriv_hendelse');
+      await foresp()
+        .input('event_id', sql.NVarChar(36), rad.event_id)
+        .input('sak_id', sql.NVarChar(36), sakId)
+        .execute('koe_api.bind_vedlegg');
       return utfall;
     });
   } catch (feil) {
     if (feil instanceof IkkeSkrevet) return feil.utfall as Skriveutfall<A>;
     throw oversett(feil, forventet);
   }
+}
+
+/**
+ * Vedleggene i saken kommandoen kan binde: de bundne, og de ubundne teamet i konteksten
+ * har lastet opp (arbeidsvalg 3 i #790). Radsikkerheten holder prosjektet og teamet i
+ * tillegg. Innholdet leses ikke.
+ */
+async function lesVedlegg(
+  foresp: Foresp,
+  kontekst: Kontekst,
+  sakId: string
+): Promise<Vedleggsoppslag> {
+  const svar = await foresp()
+    .input('sak_id', sql.NVarChar(36), sakId)
+    .input('prosjekt', sql.NVarChar(100), kontekst.prosjekt)
+    .input('team', sql.NVarChar(32), kontekst.team ?? null)
+    .query<Vedlegg>(
+      `SELECT LOWER(CONVERT(nvarchar(36), vedlegg_id)) AS vedlegg_id, filnavn, innhold_sha256
+         FROM koe.vedlegg
+        WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt
+          AND (bundet_av_event_id IS NOT NULL OR lastet_opp_team = @team)`
+    );
+  return new Map(svar.recordset.map((v) => [v.vedlegg_id, v]));
 }
 
 /** `lag` avviste; kastes for at transaksjonen skal rulles tilbake. */

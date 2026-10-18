@@ -570,6 +570,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       );
       expect(svar.recordset.map((r) => r.rett).sort()).toEqual([
         'GRANT EXECUTE koe_api.aktornavn',
+        'GRANT EXECUTE koe_api.bind_vedlegg',
         'GRANT EXECUTE koe_api.bruk_innloggingsforsoek',
         'GRANT EXECUTE koe_api.brukerens_prosjekter',
         'GRANT EXECUTE koe_api.catenda_identitet',

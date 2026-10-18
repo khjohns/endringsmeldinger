@@ -376,6 +376,12 @@ export const BREVTEKST: Skjema = liste(
   objekt({ gjelder: ID, laast: TEKST, utdypning: TEKST }, ['gjelder', 'laast'])
 );
 
+/** Et vedlegg i brevet (LV-U14). Summen er SHA-256 av innholdet, som mellomlageret har den. */
+export const VEDLEGG: Skjema = objekt(
+  { vedlegg_id: ID, filnavn: TEKST, innhold_sha256: { type: 'string', minLength: 64 } },
+  ['vedlegg_id', 'filnavn', 'innhold_sha256']
+);
+
 /** `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`. */
 export const DOKUMENT: Skjema = objekt(
   {
@@ -383,7 +389,7 @@ export const DOKUMENT: Skjema = objekt(
     svar: { type: 'array', minItems: 1 },
     utsagn: { type: 'array', minItems: 1 },
     opplysninger: { type: 'array', minItems: 1 },
-    dokumentasjon: liste(ID),
+    dokumentasjon: liste(VEDLEGG),
     brevtekst: BREVTEKST,
   },
   []

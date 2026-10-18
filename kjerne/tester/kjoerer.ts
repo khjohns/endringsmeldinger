@@ -31,6 +31,7 @@ import { visning } from '../utledning/visning.ts';
 import type { Bane } from './bane.ts';
 import {
   kommandoFor,
+  mellomlager,
   Navn,
   NESTE_REGLER,
   partFor,
@@ -144,11 +145,12 @@ export class Kjoering {
         structuredClone(k),
         { ...this.kontekst(h), tidspunkt: () => new Date(this.klokke) },
         journal,
-        medRegler(klientregler, this.kjerne)
+        medRegler(klientregler, this.kjerne),
+        mellomlager(k)
       );
       const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
       if (tekst) k.brevtekst = tekst;
-      return vurder(structuredClone(k), this.kontekst(h), journal, this.kjerne);
+      return vurder(structuredClone(k), this.kontekst(h), journal, this.kjerne, mellomlager(k));
     } catch (feil) {
       if (feil instanceof Skrivefeil)
         throw new AssertionError({ message: `${h.handling}: ${feil.message}` });
