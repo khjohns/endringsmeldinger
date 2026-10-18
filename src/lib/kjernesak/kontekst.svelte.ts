@@ -9,12 +9,30 @@ import { ApiError } from '$lib/api/client';
 import { laastBrevtekst } from './brevtekst';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
-import { hentKjernesak, sendKommando, type Kjernesak } from '$lib/api/kjerne';
+import {
+  erUsikkertUtfall,
+  hentKjernesak,
+  nyKommandoId,
+  sendKommando,
+  type Kjernesak,
+} from '$lib/api/kjerne';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
 import type { Part } from '$kjerne/typer';
+
+/**
+ * En kommando som fikk et usikkert utfall. Den kan være lagret, så et nytt forsøk
+ * sender den uendret, med samme ID og versjon, og får kvitteringen hvis den er det (#418).
+ */
+export interface Ventende {
+  kommandoId: string;
+  versjon: number;
+  kommando: Record<string, unknown>;
+}
+
+const USIKKERT = 'Det er usikkert om kommandoen ble lagret. Prøv igjen: den lagres ikke to ganger.';
 
 export interface Kjernesakvalg {
   sakId: string;
@@ -28,6 +46,8 @@ export interface Kjernesakvalg {
   hent?: typeof hentKjernesak;
   send?: typeof sendKommando;
   kjerne?: Kjerne;
+  /** Kommandoen med usikkert utfall fra et tidligere forsøk, som i utkastet for opprettelsen. */
+  ventende?: Ventende | null;
 }
 
 const meldingFra = (e: unknown, reserve: string) => (e instanceof ApiError ? e.message : reserve);
@@ -42,6 +62,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let feil = $state<string | null>(null);
   let sender = $state(false);
   let finnes = $state<boolean | null>(null);
+  let ventende = $state<Ventende | null>(valg.ventende ?? null);
   const part = $derived(valg.part !== undefined ? valg.part : (sak?.part ?? null));
 
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
@@ -74,25 +95,40 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   /**
    * Sender kommandoen med den låste teksten. `true` når serveren lagret den. Med `sett`
    * sendes teksten avsenderen har kontrollert, og serveren avviser den hvis saken nå gir
-   * en annen (LV-U2).
+   * en annen (LV-U2). Er det samme kommandoen mot samme versjon som en ventende, er det
+   * samme brukerhandling, og den sendes med samme ID.
    */
   async function sendMedBrev(kommando: Record<string, unknown>, sett?: string[]): Promise<boolean> {
     if (!sak || sender) return false;
+    const tekst = sett ?? brevtekst(kommando);
+    const innhold = tekst ? { ...kommando, brevtekst: tekst } : kommando;
+    const igjen =
+      ventende?.versjon === sak.versjon &&
+      JSON.stringify(ventende.kommando) === JSON.stringify(innhold);
+    return sendForsoek(
+      igjen && ventende
+        ? ventende
+        : { kommandoId: nyKommandoId(), versjon: sak.versjon, kommando: innhold }
+    );
+  }
+
+  /** Sender den ventende kommandoen uendret, med samme ID. `false` uten ventende kommando. */
+  async function provIgjen(): Promise<boolean> {
+    return ventende && !sender ? sendForsoek(ventende) : false;
+  }
+
+  async function sendForsoek(forsoek: Ventende): Promise<boolean> {
     sender = true;
     feil = null;
     try {
-      const tekst = sett ?? brevtekst(kommando);
-      await send(
-        sakId,
-        sak.versjon,
-        tekst ? { ...kommando, brevtekst: tekst } : kommando,
-        valg.prosjektId
-      );
+      await send(sakId, forsoek.versjon, forsoek.kommandoId, forsoek.kommando, valg.prosjektId);
+      ventende = null;
       await last();
       if (feil) feil = `Kommandoen er lagret, men saken kunne ikke lastes på nytt. ${feil}`;
       return true;
     } catch (e) {
-      const melding = meldingFra(e, 'Kommandoen ble ikke sendt.');
+      ventende = erUsikkertUtfall(e) ? forsoek : null;
+      const melding = ventende ? USIKKERT : meldingFra(e, 'Kommandoen ble ikke sendt.');
       // Saken er endret siden den ble lastet. Den lastes på nytt, og meldingen skal stå etterpå.
       if (e instanceof ApiError && e.status === 409) await last();
       feil = feil ? `${melding} ${feil}` : melding;
@@ -141,9 +177,14 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get sender() {
       return sender;
     },
+    /** Kommandoen med usikkert utfall, som «Prøv igjen» sender på nytt, eller `null`. */
+    get ventende() {
+      return ventende;
+    },
     last,
     brevtekst,
     send: sendMedBrev,
+    provIgjen,
   };
 }
 

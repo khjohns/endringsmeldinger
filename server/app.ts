@@ -399,22 +399,32 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
     return skriveavvisning(feil);
   }
   if (!utfall.skriv) return regelavvisning(utfall.avvisning);
-  // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen. Et
-  // gjentatt svar har samme brev og oppdrag som det første (#418).
+  // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen. Den
+  // regnes til og med brevet, så et gjentak får samme svar som det første, også om
+  // saken har fått nye hendelser siden (#418, avgjørelse 2 i #764).
   const { journal, oppdrag } = await lesSaken(
     avh.datalag,
     { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
     sakId
   );
+  const tilBrevet = journal.filter((r) => r.versjon <= utfall.rad.versjon);
   return [
     201,
     {
       success: true,
       event_id: utfall.rad.event_id,
       leveringsoppdrag: oppdrag.find((o) => o.event_id === utfall.rad.event_id)?.id ?? null,
-      ...sakenSomVises(journal, avh.kjerne),
+      ...sakenSomVises(tilBrevet, avh.kjerne),
     },
   ];
+}
+
+/** Kjernens avvisning av opprettelsen; kastes for at transaksjonen skal rulles tilbake. */
+class Regelavvisning {
+  readonly vurdert: { feil: string; avvisning: Avvisning };
+  constructor(vurdert: { feil: string; avvisning: Avvisning }) {
+    this.vurdert = vurdert;
+  }
 }
 
 /**
@@ -430,16 +440,17 @@ async function opprettNySak(
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
   const id = kommandoId(kropp);
   if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');
-  const vurdert = opprettelse(kropp.kommando, side.rolle);
-  if (!vurdert.godtatt) return regelavvisning(vurdert);
   let rad;
   try {
     const kommando = { id, sha256: kommandosum({ rute: 'opprettelse', kommando: kropp.kommando }) };
-    rad = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), kommando, {
-      format: vurdert.format,
-      data: vurdert.data,
+    // Kjernen vurderer etter at kvitteringen er lest, så et gjentak får saken (#792 punkt 2).
+    rad = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), kommando, () => {
+      const vurdert = opprettelse(kropp.kommando, side.rolle);
+      if (!vurdert.godtatt) throw new Regelavvisning(vurdert);
+      return { format: vurdert.format, data: vurdert.data };
     });
   } catch (feil) {
+    if (feil instanceof Regelavvisning) return regelavvisning(feil.vurdert);
     if (feil instanceof IngenTopicBoard)
       return feilsvar(
         409,

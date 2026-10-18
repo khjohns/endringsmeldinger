@@ -16,7 +16,14 @@
  */
 
 import type { Journalrad } from '../kjerne/typer.ts';
-import { feilnummer, sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
+import {
+  feilnummer,
+  sql,
+  transaksjon,
+  UsikkertUtfall,
+  type Kontekst,
+  type Pool,
+} from './datalag.ts';
 import { sjekksum } from './sjekksum.ts';
 import {
   IngenLeveringsmaal,
@@ -58,6 +65,7 @@ const INGEN_BOARD = 51412;
 const KONFLIKT = 51409;
 const ID_BRUKT = 51410;
 const UGYLDIG = 51422;
+const LAAS_IKKE_GITT = 51408;
 const BLOKKERT = 33504;
 
 /** Formen `sak_metadata_sak_id_form` krever; saksnummeret er en slik ID (DL-U6). */
@@ -69,6 +77,12 @@ const KONFLIKTMELDING = /^Versjonskonflikt: journalen har versjon (\d+)$/;
 /** Feilen fra basen som en av feilene over, med basens feil i `cause`. */
 function oversett(feil: unknown, forventet: number | null): unknown {
   const melding = (feil as Error)?.message ?? '';
+  // Koblingen er slått av etter tilgangskontrollen, som ellers ville nektet (#739
+  // punkt 1). Et tomt mål av en annen grunn ville sett likt ut, så årsaken logges (#763).
+  if (feil instanceof IngenLeveringsmaal) {
+    console.warn(`Skrivingen ble avvist: ${melding}`);
+    return new SkrivingAvvist(melding, { cause: feil });
+  }
   switch (feilnummer(feil)) {
     case UKJENT_SAK:
       return forventet === null
@@ -88,6 +102,9 @@ function oversett(feil: unknown, forventet: number | null): unknown {
       return new IngenTopicBoard(melding, { cause: feil });
     case BLOKKERT:
       return new SkrivingAvvist(melding, { cause: feil });
+    // Et forsøk med samme nøkkel holder låsen og kan ennå committe (#792 punkt 1).
+    case LAAS_IKKE_GITT:
+      return new UsikkertUtfall(melding, { cause: feil });
     default:
       return feil;
   }
@@ -103,6 +120,12 @@ export interface Kommando {
 export const kommandosum = sjekksum;
 
 type Foresp = () => sql.Request;
+
+/** Innholdet i `sak_opprettet` som kjernen har godtatt. */
+export interface Innhold {
+  format: number;
+  data: Record<string, unknown>;
+}
 
 /** Saken og brevet fra kvitteringen, eller `null` når kommandoen ikke er skrevet. */
 async function lesKvittering(
@@ -135,25 +158,33 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * uforanderlige journalen (#696).
  *
  * Har kommandoen en kvittering, er svaret `sak_opprettet` i saken fra kvitteringen.
+ * Kvitteringen leses før `innhold` kalles, så et nytt forsøk får saken selv om
+ * reglene er endret siden (#792 punkt 2, avgjørelse 3 i #764). Uten TE kalles
+ * `innhold` likevel først, så kjernens avvisning går foran avslaget her.
  *
- * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt
+ * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, UsikkertUtfall, og det `innhold` kaster
  */
 export async function opprettSak(
   pool: Pool,
   kontekst: Kontekst,
   kommando: Kommando,
-  innhold: { format: number; data: Record<string, unknown> }
+  innhold: Innhold | (() => Innhold)
 ): Promise<Journalrad> {
+  const lag = typeof innhold === 'function' ? innhold : () => innhold;
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
       // Etter at transaksjon() har prøvd konteksten, som i skrivHendelse (#596).
-      if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
+      if (kontekst.side !== 'TE') {
+        lag();
+        throw new SkrivingAvvist('Bare TE oppretter en sak.');
+      }
       const kvittering = await lesKvittering(foresp, kommando);
       if (kvittering)
         return kvittertRad(await lesJournal(foresp, kvittering.sak_id, false), kvittering.event_id);
+      const { format, data } = lag();
       const svar = await foresp()
-        .input('format', sql.Int, innhold.format)
-        .input('data', sql.NVarChar(sql.MAX), JSON.stringify(innhold.data))
+        .input('format', sql.Int, format)
+        .input('data', sql.NVarChar(sql.MAX), JSON.stringify(data))
         .input('kommando_id', sql.NVarChar(4000), kommando.id)
         .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
         .output('sak_id', sql.NVarChar(36))
@@ -195,7 +226,7 @@ export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
  * Har kommandoen en kvittering for saken, er svaret brevet fra den, uten
  * versjonskontroll og uten å kalle `lag`.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt
+ * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, UsikkertUtfall
  */
 export async function skrivHendelse<A>(
   pool: Pool,
@@ -214,8 +245,9 @@ export async function skrivHendelse<A>(
         throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
       // Kvitteringen låses før saken, i samme rekkefølge som opprettelsen.
       const kvittering = await lesKvittering(foresp, kommando);
-      // En sak uten journal er ikke skrevet av kjernen (#739, #597).
-      const journal = await lesJournal(foresp, sakId, true);
+      // En sak uten journal er ikke skrevet av kjernen (#739, #597). Et gjentak skriver
+      // ingenting, så journalen låses ikke (#792 punkt 3).
+      const journal = await lesJournal(foresp, sakId, !kvittering);
       // Samme skille som lesingen, så GET og POST svarer likt for saken (#716 punkt 1).
       if (!skrevetAvKjernen(journal))
         throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
@@ -253,12 +285,6 @@ export async function skrivHendelse<A>(
     });
   } catch (feil) {
     if (feil instanceof IkkeSkrevet) return feil.utfall as Skriveutfall<A>;
-    // Koblingen er slått av etter tilgangskontrollen, som ellers ville nektet (#739
-    // punkt 1). Et tomt mål av en annen grunn ville sett likt ut, så årsaken logges (#763).
-    if (feil instanceof IngenLeveringsmaal) {
-      console.warn(`Skrivingen ble avvist: ${feil.message}`);
-      throw new SkrivingAvvist(feil.message, { cause: feil });
-    }
     throw oversett(feil, forventet);
   }
 }

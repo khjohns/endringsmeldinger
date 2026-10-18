@@ -102,7 +102,17 @@
   </label>
 
   {#if kjernesak.feil}
-    <p role="alert" class="rounded border border-red-300 bg-red-50 p-2 text-sm">{kjernesak.feil}</p>
+    <p role="alert" class="rounded border border-red-300 bg-red-50 p-2 text-sm">
+      {kjernesak.feil}
+      {#if kjernesak.ventende}
+        <button
+          type="button"
+          class="ml-2 underline"
+          disabled={kjernesak.sender}
+          onclick={() => void kjernesak.provIgjen()}>Prøv igjen</button
+        >
+      {/if}
+    </p>
   {/if}
 
   {#if sak}

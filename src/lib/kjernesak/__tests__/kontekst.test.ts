@@ -15,6 +15,7 @@ import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad } from '$kjerne/typer';
 
 const SAK = 'sak-1';
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 const opprettet: Journalrad = {
   event_id: 'e-1',
@@ -138,6 +139,7 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(send).toHaveBeenCalledWith(
       SAK,
       1,
+      expect.stringMatching(UUID),
       { ...grunnlagskrav, brevtekst: forventet },
       undefined
     );
@@ -153,7 +155,7 @@ describe('sakskonteksten for en TS-sak', () => {
 
     expect(await sak.send(grunnlagskrav)).toBe(true);
     expect(hent).toHaveBeenCalledWith(SAK, 'p-2');
-    expect(send).toHaveBeenCalledWith(SAK, 1, expect.anything(), 'p-2');
+    expect(send).toHaveBeenCalledWith(SAK, 1, expect.anything(), expect.anything(), 'p-2');
   });
 
   it('laster saken på nytt ved versjonskonflikt og lar meldingen stå', async () => {
@@ -195,6 +197,66 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.finnes).toBe(true);
     expect(sak.saksbilde?.status.tekst).not.toBe('Fra serveren');
     expect(sak.saksbilde?.journal.map((j) => j.versjon)).toEqual([1]);
+  });
+
+  // Kilde: invariant 4 i 2.3 i hovedplanen og #418: et nytt forsøk sender samme kommando-ID.
+  it('når svaret går tapt, sender «Prøv igjen» samme kommando med samme ID og versjon, og saken lastes etter kvitteringen (#418)', async () => {
+    const send = vi
+      .fn()
+      .mockRejectedValueOnce(new ApiError(0, 'Network error: Could not connect to server'))
+      .mockResolvedValueOnce({ event_id: 'e-2', leveringsoppdrag: 'l-1', versjon: 2 });
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar([opprettet]))
+      .mockResolvedValueOnce(svar([opprettet, skrevet(grunnlagskrav, [opprettet])]));
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(sak.feil).toBe(
+      'Det er usikkert om kommandoen ble lagret. Prøv igjen: den lagres ikke to ganger.'
+    );
+    expect(sak.ventende).not.toBeNull();
+    expect(await sak.provIgjen()).toBe(true);
+    expect(send.mock.calls[0][2]).toMatch(UUID);
+    expect(send.mock.calls[1]).toEqual(send.mock.calls[0]);
+    expect(sak.ventende).toBeNull();
+    expect(sak.versjon).toBe(2);
+    expect(await sak.provIgjen()).toBe(false);
+  });
+
+  it('ved UTFALL_USIKKERT og en annen serverfeil får samme kommando samme ID; en annen kommando får en ny, og en avvisning fjerner den ventende (#418)', async () => {
+    const usikkert = new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' });
+    const send = vi
+      .fn()
+      .mockRejectedValueOnce(usikkert)
+      .mockRejectedValueOnce(usikkert)
+      .mockRejectedValueOnce(new ApiError(400, 'Kravet er avvist.'))
+      .mockRejectedValueOnce(
+        new ApiError(503, 'Tilgang kunne ikke bekreftes.', { error: 'ACCESS_UNAVAILABLE' })
+      )
+      .mockRejectedValueOnce(new ApiError(504, 'Gateway Timeout'))
+      .mockRejectedValueOnce(new ApiError(500, 'Uventet feil.', { error: 'INTERNAL_ERROR' }));
+    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
+    await sak.last();
+
+    await sak.send(grunnlagskrav);
+    await sak.send(grunnlagskrav);
+    expect(send.mock.calls[1][2]).toBe(send.mock.calls[0][2]);
+    await sak.send({ ...grunnlagskrav, utdypning: 'En annen utdypning.' });
+    expect(send.mock.calls[2][2]).not.toBe(send.mock.calls[0][2]);
+    expect(sak.ventende).toBeNull();
+    expect(sak.feil).toBe('Kravet er avvist.');
+    // Tilgangskontrollen svarer før kommandoen er kjørt (server/autorisasjon.ts).
+    await sak.send(grunnlagskrav);
+    expect(sak.ventende).toBeNull();
+    expect(sak.feil).toBe('Tilgang kunne ikke bekreftes.');
+    // En proxy kan svare mens serveren skriver, og serveren kan feile etter COMMIT.
+    await sak.send(grunnlagskrav);
+    expect(sak.ventende).not.toBeNull();
+    const id = send.mock.calls[4][2];
+    await sak.send(grunnlagskrav);
+    expect(send.mock.calls[5][2]).toBe(id);
   });
 
   it('sier at saken ikke finnes i TS når serveren svarer 404', async () => {

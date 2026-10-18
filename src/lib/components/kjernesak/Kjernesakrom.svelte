@@ -25,4 +25,18 @@
   setCaseWorkspace(lagKjernesakflate(kjernesak, projectId));
 </script>
 
+{#if kjernesak.ventende}
+  <div
+    role="alert"
+    class="flex items-center gap-3 border-b border-amber-300 bg-amber-50 p-2 text-sm"
+  >
+    <p>{kjernesak.feil}</p>
+    <button
+      type="button"
+      class="rounded border border-amber-400 px-2 py-1"
+      disabled={kjernesak.sender}
+      onclick={() => void kjernesak.provIgjen()}>Prøv igjen</button
+    >
+  </div>
+{/if}
 <Kontrollrommet {view} {onviewchange} {onnewcase} overviewHref="/{projectId}" />

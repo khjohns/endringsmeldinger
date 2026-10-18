@@ -22,9 +22,9 @@
   import { projectStore } from '$lib/stores/project.svelte';
   import { formatDateNorwegian } from '$lib/utils/dateFormatters';
   import ClaimLetterView from './ClaimLetterView.svelte';
-  import { opprettSak } from '$lib/api/kjerne';
+  import { erUsikkertUtfall, nyKommandoId, opprettSak } from '$lib/api/kjerne';
   import { tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
-  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+  import { lagKjernesak, type Ventende } from '$lib/kjernesak/kontekst.svelte';
   import {
     datofelt,
     gjelderEndringsordre,
@@ -101,6 +101,10 @@
   }
   // Keep the case identity between retries if creating the basis fails after case creation.
   let createdCase = $state<{ id: string; version: number } | null>(null);
+  // Opprettelsen og kravet med ID-en til svaret er sikkert, så et nytt forsøk, også
+  // etter at siden er lastet på nytt, sender samme kommando med samme ID (#418).
+  let ventendeOpprettelse = $state<{ kommandoId: string; kommando: unknown } | null>(null);
+  let ventendeKrav = $state<Ventende | null>(null);
   const dk = draftKey(tsStien ? 'kontraktsbord-ny-kjerne' : 'kontraktsbord-ny', prosjektId);
   const utkast = () => ({
     tittel,
@@ -110,6 +114,8 @@
     valgtHjemmel,
     begrunnelseHtml,
     createdCase,
+    ventendeOpprettelse,
+    ventendeKrav,
     varsler,
     filer: filutkast(),
   });
@@ -124,6 +130,8 @@
         valgtHjemmel: ValgtHjemmel | null;
         begrunnelseHtml: string;
         createdCase: { id: string; version: number } | null;
+        ventendeOpprettelse?: { kommandoId: string; kommando: unknown } | null;
+        ventendeKrav?: Ventende | null;
         filer?: Filvalg[];
       }>(dk);
       if (draft) {
@@ -136,6 +144,8 @@
         begrunnelseHtml = draft.begrunnelseHtml ?? '';
         charCount = begrunnelseHtml.replace(/<[^>]*>/g, '').trim().length;
         createdCase = draft.createdCase ?? null;
+        ventendeOpprettelse = draft.ventendeOpprettelse ?? null;
+        ventendeKrav = draft.ventendeKrav ?? null;
         filer = draft.filer ?? [];
         hjemmelvelgerApen = !valgtHjemmel;
       }
@@ -222,17 +232,47 @@
       utdypning: letterText(begrunnelseHtml),
     });
     if (!createdCase) {
-      const opprettet = await opprettSak(opprettelse(tittel), prosjektId);
+      const forsoek = (ventendeOpprettelse ??= {
+        kommandoId: nyKommandoId(),
+        kommando: opprettelse(tittel),
+      });
+      saveDraft(dk, utkast());
+      let opprettet;
+      try {
+        opprettet = await opprettSak(forsoek.kommandoId, forsoek.kommando, prosjektId);
+      } catch (e) {
+        if (!erUsikkertUtfall(e)) ventendeOpprettelse = null;
+        saveDraft(dk, utkast());
+        if (ventendeOpprettelse)
+          throw new Error(
+            'Det er usikkert om saken ble opprettet. Prøv igjen: den opprettes ikke to ganger.'
+          );
+        throw e;
+      }
+      ventendeOpprettelse = null;
       createdCase = { id: opprettet.sak_id, version: opprettet.versjon };
       saveDraft(dk, utkast());
     }
-    const sak = lagKjernesak({ sakId: createdCase.id, prosjektId, part: 'TE' });
+    const sak = lagKjernesak({
+      sakId: createdCase.id,
+      prosjektId,
+      part: 'TE',
+      ventende: ventendeKrav,
+    });
     await sak.last();
     if (sak.feil) throw new Error(sak.feil);
-    const tekst = sak.brevtekst(kommando);
-    // Uten tekst godtar ikke kjernen kravet, og serveren avviser det med sin begrunnelse.
-    if (tekst) await brevkontroll.show({ tekst, utdypning: kommando.utdypning });
-    if (!(await sak.send(kommando))) throw new Error(sak.feil ?? 'Kravet ble ikke sendt.');
+    // Kravet med usikkert utfall er kontrollert og sendes uendret på nytt.
+    let lagret;
+    if (ventendeKrav) lagret = await sak.provIgjen();
+    else {
+      const tekst = sak.brevtekst(kommando);
+      // Uten tekst godtar ikke kjernen kravet, og serveren avviser det med sin begrunnelse.
+      if (tekst) await brevkontroll.show({ tekst, utdypning: kommando.utdypning });
+      lagret = await sak.send(kommando);
+    }
+    ventendeKrav = sak.ventende;
+    saveDraft(dk, utkast());
+    if (!lagret) throw new Error(sak.feil ?? 'Kravet ble ikke sendt.');
     draftReady = false;
     clearDraft(dk);
   }
@@ -241,7 +281,7 @@
     onactions?.({
       reviewing: iKontroll,
       canSend: canSend && !submission.pending,
-      sendLabel: 'Se brev og send',
+      sendLabel: ventendeOpprettelse || ventendeKrav ? 'Prøv igjen' : 'Se brev og send',
       send: () => {
         if (!canSend || !valgtHjemmel) return;
         if (tsStien) {

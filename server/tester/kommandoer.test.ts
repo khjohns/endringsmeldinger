@@ -1005,6 +1005,101 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect(await sakerIP1()).toBe(foer);
     });
 
+    /** `'ferdig'` når løftet er ferdig innen tre sekunder, ellers `'venter'`. */
+    const innen = (loefte: Promise<unknown>) =>
+      Promise.race([
+        loefte.then(
+          () => 'ferdig',
+          () => 'ferdig'
+        ),
+        new Promise((ok) => setTimeout(() => ok('venter'), 3000)),
+      ]);
+
+    const slaaOpp = (f: () => sql.Request, kommandoId: string) =>
+      f()
+        .input('kommando_id', sql.NVarChar(4000), kommandoId)
+        .input('kommando_sha256', sql.NVarChar(4000), heks() + heks())
+        .output('sak_id', sql.NVarChar(36))
+        .output('event_id', sql.NVarChar(36))
+        .output('versjon', sql.Int)
+        .execute('koe_api.kvittering');
+
+    // Kilde: #792 punkt 1. Låsen skal gjelde nøkkelen, ikke gapet i indeksen.
+    it('oppslaget av en kvittering som ikke finnes, holder ikke igjen et oppslag av en annen nøkkel i samme gap (#792 punkt 1)', async () => {
+      // To nøkler etter hverandre i indeksen, uten noen lagret nøkkel mellom seg.
+      const [a, b] = [
+        'ffffffff-ffff-4fff-bfff-fffffffffffe',
+        'ffffffff-ffff-4fff-bfff-ffffffffffff',
+      ];
+      let andre: Promise<unknown> = Promise.resolve();
+      let utfall: unknown;
+      await transaksjon(kjoeretid.pool, te, async (f) => {
+        await slaaOpp(f, a);
+        andre = transaksjon(kjoeretid.pool, te, (g) => slaaOpp(g, b));
+        utfall = await innen(andre);
+      });
+      await andre;
+      expect(utfall).toBe('ferdig');
+    });
+
+    // Kilde: invariant 4. Det første forsøket holder låsen og kan ennå committe, så et
+    // nytt forsøk må beholde kommando-ID-en (#418).
+    it('når låsen på nøkkelen ikke gis innen tidsgrensen, kastes UsikkertUtfall (#792 punkt 1)', async () => {
+      const kommando = ny();
+      let feil: unknown;
+      await transaksjon(kjoeretid.pool, te, async (f) => {
+        await slaaOpp(f, kommando.id);
+        feil = await opprettSak(kjoeretid.pool, te, kommando, {
+          format: 1,
+          data: SAK_OPPRETTET,
+        }).catch((e: unknown) => e);
+      });
+      expect(feil).toBeInstanceOf(UsikkertUtfall);
+    }, 30_000);
+
+    it('et gjentak venter ikke på en annen skriving til saken: journalen låses ikke (#792 punkt 3)', async () => {
+      const sak = await nySak();
+      const kommando = ny();
+      const foerste = await skrivHendelse(
+        kjoeretid.pool,
+        te,
+        sak.sak_id,
+        1,
+        kommando,
+        medOppdrag()
+      );
+      let gjentak: Promise<unknown> = Promise.resolve();
+      let utfall: unknown;
+      // Eieren holder journalen låst, som en annen skriving til saken.
+      await transaksjon(base.pool, te, async (f) => {
+        await f()
+          .input('sak_id', sql.NVarChar(36), sak.sak_id)
+          .query(
+            'SELECT versjon FROM koe.hendelse WITH (UPDLOCK, HOLDLOCK) WHERE sak_id = @sak_id'
+          );
+        gjentak = skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag());
+        utfall = await innen(gjentak);
+      });
+      expect(utfall).toBe('ferdig');
+      expect(await gjentak).toEqual({
+        skriv: 'gjentatt',
+        rad: (foerste as { rad: Journalrad }).rad,
+      });
+    });
+
+    // Kilde: avgjørelse 3 i #764: kvitteringen leses før regelkontrollen.
+    it('et nytt forsøk på opprettelsen får saken fra kvitteringen uten at innholdet vurderes igjen (#792 punkt 2)', async () => {
+      const kommando = ny();
+      const foerste = await opprettSak(kjoeretid.pool, te, kommando, {
+        format: 1,
+        data: SAK_OPPRETTET,
+      });
+      const igjen = await opprettSak(kjoeretid.pool, te, kommando, () => {
+        throw new Error('Reglene er endret siden det første forsøket.');
+      });
+      expect(igjen).toEqual(foerste);
+    });
+
     /** Antall saker i P1, lest av eieren i konteksten. */
     async function sakerIP1(): Promise<number> {
       return transaksjon(base.pool, te, async (f) => {
