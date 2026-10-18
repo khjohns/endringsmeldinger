@@ -15,10 +15,9 @@
  * kvitteringen uten å skrive, og samme ID med et annet innhold avvises.
  */
 
-import { createHash } from 'node:crypto';
-
 import type { Journalrad } from '../kjerne/typer.ts';
 import { feilnummer, sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
+import { sjekksum } from './levering.ts';
 import {
   IngenLeveringsmaal,
   lesJournal,
@@ -100,22 +99,8 @@ export interface Kommando {
   sha256: string;
 }
 
-function kanonisk(v: unknown): unknown {
-  if (Array.isArray(v)) return v.map(kanonisk);
-  if (v !== null && typeof v === 'object')
-    return Object.fromEntries(
-      Object.keys(v)
-        .sort()
-        .map((k) => [k, kanonisk((v as Record<string, unknown>)[k])])
-    );
-  return v;
-}
-
-/** Summen av innholdet, uavhengig av rekkefølgen på nøklene. */
-export const kommandosum = (innhold: unknown): string =>
-  createHash('sha256')
-    .update(JSON.stringify(kanonisk(innhold)))
-    .digest('hex');
+/** Summen av innholdet, uavhengig av rekkefølgen på nøklene: samme sum som oppdragene (#792 punkt 4). */
+export const kommandosum = sjekksum;
 
 type Foresp = () => sql.Request;
 

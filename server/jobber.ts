@@ -23,7 +23,7 @@ import {
   type Topicoppretter,
 } from './catenda.ts';
 import { sql, type Pool } from './datalag.ts';
-import { brevdokument, pdfsum, UgjengivbartBrev } from './levering.ts';
+import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev } from './levering.ts';
 
 /** Lengre enn tidsavbruddet mot Catenda (15 s) ganger kallene i en levering, med kvitteringen. */
 export const LEASETID_S = 120;
@@ -124,6 +124,14 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       await kvitter('koe_api.kvitter_topic', 'topic_id', topic);
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
+      const lagret = async () => {
+        const svar = await avh.datalag
+          .request()
+          .input('lease', sql.UniqueIdentifier, jobb.lease)
+          .execute<{ pdf: Buffer }>('koe_api.lagret_brevdokument');
+        const rad = svar.recordset[0];
+        return rad ? new Uint8Array(rad.pdf) : null;
+      };
       const lagre = async (pdf: Uint8Array) => {
         const lagret = await avh.datalag
           .request()
@@ -133,7 +141,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
           .execute<{ pdf: Buffer }>('koe_api.lagre_brevdokument');
         return new Uint8Array(lagret.recordset[0].pdf);
       };
-      const referanse = await leverBrev(avh.dokumenter, jobb, lagre, kvitter);
+      const referanse = await leverBrev(avh.dokumenter, jobb, { lagret, lagre }, kvitter);
       logg.info(`Jobben ${jobb.jobb_id} leverte brevet med referansen ${referanse} på topicen.`);
     } else {
       throw new UgjennomfoerbarJobb(`Jobbtypen ${jobb.jobbtype} er ukjent for kjøreren`);
@@ -159,22 +167,30 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
 /**
  * Leverer brevet (B-03, #371): dokumentet i biblioteket, så referansen på topicen,
  * hver operasjon kvittert for seg. PDF-en lagres før opplastingen, og det er den
- * lagrede som lastes opp, også når et tidligere forsøk lagret den (#371 del 2). Hvert steg avstemmes først, mot navnet i
+ * lagrede som lastes opp. Har et tidligere forsøk lagret den, lages ingen ny
+ * (#371 del 2, #795 punkt 4). Hvert steg avstemmes først, mot navnet i
  * biblioteket og mot referansene på topicen, så et forsøk etter en omstart ikke lager
  * et dokument eller en referanse til.
  */
 async function leverBrev(
   catenda: Dokumentleverandoer,
   jobb: Jobbrad,
-  lagre: (pdf: Uint8Array) => Promise<Uint8Array>,
+  pdf: {
+    lagret: () => Promise<Uint8Array | null>;
+    lagre: (pdf: Uint8Array) => Promise<Uint8Array>;
+  },
   kvitter: (prosedyre: string, felt: string, verdi: string) => Promise<void>
 ): Promise<string> {
   let dokumentId = jobb.dokument_id;
   if (!dokumentId) {
     const oppdrag = JSON.parse(jobb.oppdrag!) as Record<string, unknown>;
     const maal = oppdrag.maal as Dokumentmaal;
-    const laget = await brevdokument(oppdrag, jobb.dokumentnoekkel!);
-    const dokument = { ...laget, innhold: await lagre(laget.innhold) };
+    const dokument = {
+      navn: dokumentnavn(oppdrag, jobb.dokumentnoekkel!),
+      innhold:
+        (await pdf.lagret()) ??
+        (await pdf.lagre((await brevdokument(oppdrag, jobb.dokumentnoekkel!)).innhold)),
+    };
     dokumentId =
       (await catenda.finnDokument(maal, dokument.navn)) ??
       (await catenda.lastOppDokument(maal, dokument)) ??

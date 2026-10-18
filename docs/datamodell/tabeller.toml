@@ -933,7 +933,7 @@ SHA-256 av dem, lagret én gang per oppdrag før første opplasting. Kjøreren h
 kontrollert at PDF-en gjengir den frosne brevteksten tro (LV-U2), og laster opp den
 lagrede. Basen regner summen etter. Raden endres ikke, og bare kjøreveien,
 `koe_jobbkjoerer`, kan legge inn en."""
-lagres_fra = "`koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts`."
+lagres_fra = "`koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts` når `koe_api.lagret_brevdokument` ikke gir noen PDF for oppdraget (#795 punkt 4)."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Det er PDF-en som ble levert."
 personopplysninger = "Brevteksten kan ha navn på personer i prosjektet."
@@ -952,7 +952,8 @@ invariant 7): `dokument` når dokumentet ligger i biblioteket, og
 `dokumentreferanse` når referansen står på topicen. Brevet er levert når begge
 radene finnes (B-03, arbeidsvalget 18.10 i #371). Raden har leasen og ID-en
 Catenda ga, og endres ikke. Bare kjøreveien, `koe_jobbkjoerer`, kan legge inn en
-rad."""
+rad. Kjøretiden leser tidspunktet for `dokumentreferanse` som «levert» i
+visningen av saken (`lesOppdrag` i `server/lager.ts`, #764)."""
 lagres_fra = "`koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt av jobbkjøreren i `server/jobber.ts`."
 fra_catenda = "Ja, ID-ene er Catendas."
 kan_gjenoppbygges = "nei"

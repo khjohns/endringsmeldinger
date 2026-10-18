@@ -11,6 +11,7 @@
   import { HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
   import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+  import { leveringstekst } from '$lib/kjernesak/saksbilde';
   import type { Part } from '$kjerne/typer';
 
   const sakId = $derived(page.params.sakId ?? '');
@@ -193,10 +194,7 @@
       {#if sak.leveringsoppdrag.length}
         <ul class="text-sm" data-testid="leveringsoppdrag">
           {#each sak.leveringsoppdrag as l (l.id)}
-            <li>
-              {l.filnavn ?? l.dokumentnoekkel}: frosset {formatDateTimeNorwegian(l.opprettet)}, ikke
-              levert
-            </li>
+            <li>{leveringstekst(l)}</li>
           {/each}
         </ul>
       {:else}

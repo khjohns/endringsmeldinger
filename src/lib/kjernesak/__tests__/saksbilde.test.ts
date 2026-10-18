@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { Leveringsoppdrag } from '$lib/api/kjerne';
-import { etikett, lagSaksbilde } from '$lib/kjernesak/saksbilde';
+import { etikett, lagSaksbilde, leveringstekst } from '$lib/kjernesak/saksbilde';
 import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE } from '$kjerne/versjon';
@@ -70,6 +70,7 @@ const oppdrag = (event_id: string): Leveringsoppdrag => ({
   filnavn: `${event_id}.pdf`,
   innhold_sha256: '0'.repeat(64),
   opprettet: '2026-10-16T09:00:01.000Z',
+  levert: null,
 });
 
 function bildeAv(journal: Journalrad[], lev: Leveringsoppdrag[] = []) {
@@ -152,5 +153,26 @@ describe('saksbildet for en TS-sak', () => {
       kode: 'ny_etikett_fra_kjernen',
       tekst: 'ny_etikett_fra_kjernen',
     });
+  });
+});
+
+// Kilde: oppdragsgiver 18.10 (#764): «levert» er tidspunktet i kvitteringen for
+// dokumentreferansen, ellers «ikke levert ennå»; et registrert brev er sendt utenfor
+// appen (LV-U11).
+describe('leveringen av et oppdrag', () => {
+  it('er ikke levert ennå uten kvittering for dokumentreferansen', () => {
+    expect(leveringstekst(oppdrag('e-2'))).toMatch(/^e-2\.pdf: frosset .*, ikke levert ennå$/);
+  });
+
+  it('er levert med tidspunktet i kvitteringen', () => {
+    const tekst = leveringstekst({ ...oppdrag('e-2'), levert: '2026-10-16T10:15:00.000Z' });
+    expect(tekst).toMatch(/, levert \S/);
+    expect(tekst).not.toMatch(/ikke levert/);
+  });
+
+  it('er sendt utenfor appen for et registrert brev, som ikke har noe dokument', () => {
+    expect(leveringstekst({ ...oppdrag('e-2'), filnavn: null })).toMatch(
+      /^brev-e-2: frosset .*, sendt utenfor appen$/
+    );
   });
 });

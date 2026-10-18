@@ -100,9 +100,40 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     );
   });
 
-  it('avviser et tegn skriften ikke har, i stedet for å utelate det', async () => {
-    const tekst: Avsnitt[] = [{ gjelder: 'a', laast: 'Fristen er 3 uker → 21 dager.' }];
-    await expect(brevdokument(oppdrag(tekst), 'n')).rejects.toBeInstanceOf(UgjengivbartBrev);
+  // Kilde: #799 og oppdragsgiver 18.10 (#764): skriften er Noto Sans bygd inn, så tegn
+  // utenfor WinAnsi leveres. Emoji støttes ikke i første versjon og parkeres.
+  it('gjengir gresk, hardt bindestrek (U+2011) og ligaturer tro med den innebygde skriften', async () => {
+    const tekst: Avsnitt[] = [
+      {
+        gjelder: 'a',
+        laast: 'Faktor α = 0,8 og Ω-profil i 2\u20113 etasje.',
+        utdypning: 'Flere fiffige filer.',
+      },
+    ];
+    const pdf = (await brevdokument(oppdrag(tekst), 'n')).innhold;
+    expect(lesBrevPdf(pdf)).toContain('Faktor α = 0,8 og Ω-profil i 2\u20113 etasje.');
+    expect(lesBrevPdf(pdf)).toContain('Flere fiffige filer.');
+    expect(latin1(pdf)).toContain('/Encoding /Identity-H');
+    expect(latin1(pdf)).not.toContain('Helvetica');
+  });
+
+  it('avviser et tegn skriften ikke har, som emoji eller →, og sier hvilket tegn', async () => {
+    for (const [laast, kode] of [
+      ['Bra 😀', 'U+1F600'],
+      ['Fristen er 3 uker → 21 dager.', 'U+2192'],
+    ]) {
+      const svar = brevdokument(oppdrag([{ gjelder: 'a', laast }]), 'n');
+      await expect(svar).rejects.toBeInstanceOf(UgjengivbartBrev);
+      await expect(svar).rejects.toThrow(kode);
+    }
+  });
+
+  it('avviser ikke en feil som ikke gjelder skriften, som et tidsstempel som ikke kan tolkes, som skriftfeil (#795 punkt 3)', async () => {
+    const o = oppdrag([{ gjelder: 'a', laast: 'Tekst.' }]);
+    o.brev.tidsstempel = 'ikke en dato';
+    const feil = await brevdokument(o, 'n').catch((f: unknown) => f);
+    expect(feil).toBeInstanceOf(Error);
+    expect(feil).not.toBeInstanceOf(UgjengivbartBrev);
   });
 
   it('avviser et oppdrag uten dokument, som et registrert brev (LV-U11)', async () => {
