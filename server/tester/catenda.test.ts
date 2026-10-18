@@ -14,6 +14,8 @@ import {
   CatendaOAuth,
   CatendaUtilgjengelig,
   Integrasjonsnokkel,
+  TOPICTYPE,
+  UsikkertUtfall,
   catendaFraMiljoe,
   type CatendaOppsett,
 } from '../catenda.ts';
@@ -24,6 +26,7 @@ interface Mottatt {
   parametre: URLSearchParams;
   autorisasjon: string | undefined;
   kropp: URLSearchParams;
+  raa: string;
 }
 
 type Svar = {
@@ -48,12 +51,14 @@ async function les(req: IncomingMessage): Promise<string> {
 beforeAll(async () => {
   server = createServer(async (req, res) => {
     const adresse = new URL(req.url ?? '/', 'http://x');
+    const raa = await les(req);
     const m: Mottatt = {
       metode: req.method ?? '',
       sti: adresse.pathname,
       parametre: adresse.searchParams,
       autorisasjon: req.headers.authorization,
-      kropp: new URLSearchParams(await les(req)),
+      kropp: new URLSearchParams(raa),
+      raa,
     };
     mottatt.push(m);
     const s = svar(m);
@@ -363,6 +368,65 @@ function jwt(exp: number): string {
   const del = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
   return `${del({ alg: 'none' })}.${del({ exp })}.signatur`;
 }
+
+describe('topicen for en sak fra appen (#741)', () => {
+  const BOARD = '6f1c2d3e-4a5b-4c6d-8e7f-901a2b3c4d5e';
+  const topic = {
+    tittel: 'Endret fundamentering',
+    beskrivelse: 'Saken: https://app.example.no/p/s/kjerne',
+  };
+
+  it('poster tittelen, beskrivelsen og typen uten status, og gir GUID-en (punkt 15)', async () => {
+    svar = () => ({ status: 201, json: { guid: 'topic-1', title: topic.tittel } });
+    const oauth = new CatendaOAuth(oppsett());
+    expect(await oauth.opprettTopic(BOARD, topic, 'integrasjon')).toBe('topic-1');
+    const [m] = mottatt;
+    expect(m.metode).toBe('POST');
+    expect(m.sti).toBe(`/opencde/bcf/3.0/projects/${BOARD}/topics`);
+    expect(m.autorisasjon).toBe('Bearer integrasjon');
+    expect(JSON.parse(m.raa)).toEqual({
+      title: topic.tittel,
+      description: topic.beskrivelse,
+      topic_type: TOPICTYPE,
+    });
+    expect(TOPICTYPE).toBe('Krav om endringsordre');
+  });
+
+  it('et feilsvar er en sikker feil, ikke et usikkert utfall', async () => {
+    svar = () => ({ status: 400, json: { message: 'LEKKET' } });
+    const feil = await new CatendaOAuth(oppsett()).opprettTopic(BOARD, topic, 't').catch((e) => e);
+    expect(feil).toBeInstanceOf(CatendaUtilgjengelig);
+    expect(feil).not.toBeInstanceOf(UsikkertUtfall);
+    expect(String(feil.message)).not.toMatch(/LEKKET/);
+  });
+
+  it('når forbindelsen avvises, er topicen ikke laget', async () => {
+    const lukket = createServer();
+    await new Promise<void>((r) => lukket.listen(0, '127.0.0.1', r));
+    const port = (lukket.address() as AddressInfo).port;
+    await new Promise<void>((r) => lukket.close(() => r()));
+    const oauth = new CatendaOAuth(oppsett({ grunnadresse: `http://127.0.0.1:${port}` }));
+    const feil = await oauth.opprettTopic(BOARD, topic, 't').catch((e) => e);
+    expect(feil).toBeInstanceOf(CatendaUtilgjengelig);
+    expect(feil).not.toBeInstanceOf(UsikkertUtfall);
+  });
+
+  it.each<[string, Svar]>([
+    ['svaret uteblir til tidsavbruddet', { vent: 500, json: { guid: 'sen' } }],
+    ['svaret er ikke JSON', { status: 201, tekst: 'ikke json' }],
+    ['svaret har ingen GUID', { status: 201, json: { title: 'x' } }],
+  ])('%s: utfallet er usikkert (invariant 7)', async (_n, s) => {
+    svar = () => s;
+    const oauth = new CatendaOAuth(oppsett({ tidsavbruddMs: 100 }));
+    await expect(oauth.opprettTopic(BOARD, topic, 't')).rejects.toBeInstanceOf(UsikkertUtfall);
+  });
+
+  it('en ugyldig board-ID kaller ikke Catenda', async () => {
+    const oauth = new CatendaOAuth(oppsett());
+    await expect(oauth.opprettTopic('../x', topic, 't')).rejects.toBeInstanceOf(RangeError);
+    expect(mottatt).toHaveLength(0);
+  });
+});
 
 describe('integrasjonsnøkkelen', () => {
   it('henter med client_credentials og gjenbruker tokenet til expires_in minus 300 s', async () => {

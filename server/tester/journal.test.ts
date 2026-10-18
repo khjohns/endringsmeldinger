@@ -58,6 +58,7 @@ const UTEN_TRIGGER: Record<string, string> = {
   app_sessions: 'Sesjonen slettes ved utlogging og når den er utløpt (B-19, #656).',
   app_oauth_attempts:
     'Innloggingsforsøket slettes når det brukes, og når det er utløpt (B-19, #656).',
+  jobb: 'Leasen, tilstanden og neste forsøk endres av jobbkjøreren; hvert forsøk står i jobbforsoek (#741).',
 };
 
 const PROSJEKT = 'journal-p1';
@@ -444,7 +445,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
       expect(etter.recordset.length).toBe(1);
     });
 
-    it.each(['sak_metadata', 'hendelse'])(
+    it.each(['sak_metadata', 'hendelse', 'jobb', 'jobbforsoek'])(
       'koe.%s kan ikke tømmes med TRUNCATE, fordi en fremmednøkkel viser til den (4712)',
       async (tabell) => {
         const feil = await avvisning(base.pool.request().batch(`TRUNCATE TABLE koe.${tabell}`));

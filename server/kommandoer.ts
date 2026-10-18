@@ -7,12 +7,14 @@
  * gir, som `skriv_hendelse` krever.
  *
  * Leveringsmålet leses i skrivetransaksjonen og gis til `lag`. Kjernebufferen
- * skrives ikke her (B-10).
+ * skrives ikke her (B-10). `opprett_sak` legger jobben for topicen i Catenda inn i
+ * samme transaksjon som saken (KT-U3, #741).
  */
 
 import type { Journalrad } from '../kjerne/typer.ts';
 import { feilnummer, sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
 import {
+  IngenLeveringsmaal,
   lesJournal,
   lesLeveringsmaal,
   SakFinnesIkke,
@@ -33,13 +35,18 @@ export class UgyldigKommando extends Error {}
 /**
  * Konteksten gir ikke rett til å skrive: radsikkerheten blokkerte raden (33504),
  * basen fant ingen aktør, side eller prosjekt i konteksten (51403 fra
- * `opprett_sak`), eller konteksten har ingen kontraktsside, som `skrivHendelse`
- * prøver før basen, eller en annen side enn TE, som `opprettSak` prøver før basen.
- * De to siste har ingen `cause`.
+ * `opprett_sak`), saken har ikke noe leveringsmål (`IngenLeveringsmaal` i `cause`),
+ * eller konteksten har ingen kontraktsside, som `skrivHendelse` prøver før basen,
+ * eller en annen side enn TE, som `opprettSak` prøver før basen. De to siste har
+ * ingen `cause`.
  */
 export class SkrivingAvvist extends Error {}
 
+/** Prosjektet har ikke noe topic-board for nye saker, så saken lagres ikke (KT-U4, 51412). */
+export class IngenTopicBoard extends Error {}
+
 const UKJENT_SAK = 51403;
+const INGEN_BOARD = 51412;
 const KONFLIKT = 51409;
 const UGYLDIG = 51422;
 const BLOKKERT = 33504;
@@ -66,6 +73,8 @@ function oversett(feil: unknown, forventet: number | null): unknown {
     }
     case UGYLDIG:
       return new UgyldigKommando(melding, { cause: feil });
+    case INGEN_BOARD:
+      return new IngenTopicBoard(melding, { cause: feil });
     case BLOKKERT:
       return new SkrivingAvvist(melding, { cause: feil });
     default:
@@ -80,7 +89,7 @@ function oversett(feil: unknown, forventet: number | null): unknown {
  * her, så en kaller som hopper over kjernen, ikke skriver en sak fra BH i den
  * uforanderlige journalen (#696).
  *
- * @throws SkrivingAvvist, UgyldigKommando
+ * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard
  */
 export async function opprettSak(
   pool: Pool,
@@ -128,7 +137,7 @@ export type Skriveutfall<A> =
  * klokke og avgjør hva som skrives. Raden må gjelde saken og neste versjon og
  * ha aktøren, siden, teamet og tidspunktet basen stempler; ellers skrives ingenting.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, IngenLeveringsmaal
+ * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando
  */
 export async function skrivHendelse<A>(
   pool: Pool,
@@ -182,6 +191,12 @@ export async function skrivHendelse<A>(
     });
   } catch (feil) {
     if (feil instanceof IkkeSkrevet) return feil.utfall as Skriveutfall<A>;
+    // Koblingen er slått av etter tilgangskontrollen, som ellers ville nektet (#739
+    // punkt 1). Et tomt mål av en annen grunn ville sett likt ut, så årsaken logges (#763).
+    if (feil instanceof IngenLeveringsmaal) {
+      console.warn(`Skrivingen ble avvist: ${feil.message}`);
+      throw new SkrivingAvvist(feil.message, { cause: feil });
+    }
     throw oversett(feil, forventet);
   }
 }

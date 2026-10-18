@@ -10,15 +10,15 @@
  * og det gjør også en inngang til prosjektet selv, uten sak. Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
  * `tester/register.test.ts` prøver hver inngang i registeret over HTTP.
  *
- * Leveringen stopper ved det frosne oppdraget og kaller ikke Catenda (#371),
- * og en ny sak får ingen topic i Catenda ennå (#741).
+ * Leveringen stopper ved det frosne oppdraget og kaller ikke Catenda (#371). En ny
+ * sak får topicen i Catenda av jobbkjøreren i `jobber.ts` etter commit (#741).
  */
 
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import { utledJournal, vurder } from '../kjerne/kommandoer/skriving.ts';
-import type { Journalrad } from '../kjerne/typer.ts';
+import type { Avvisning, Journalrad } from '../kjerne/typer.ts';
 import { KJERNE, type Kjerne } from '../kjerne/versjon.ts';
 import { visning } from '../kjerne/utledning/visning.ts';
 import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
@@ -37,8 +37,9 @@ import {
 import type { Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
-import { IngenLeveringsmaal, lesSaken } from './lager.ts';
+import { lesSaken } from './lager.ts';
 import {
+  IngenTopicBoard,
   opprettSak,
   SakFinnesIkke,
   SkrivingAvvist,
@@ -59,6 +60,8 @@ export interface Avhengigheter {
   /** Klokke og ID-er, så testene kan styre dem. Et brev får basens klokke (DL-U3). */
   tidspunkt?: () => Date;
   nyId?: () => string;
+  /** Vekker jobbkjøreren etter en opprettelse, så topicen kommer uten å vente på pollingen. */
+  vekkJobbkjoereren?: () => void;
 }
 
 /** Status, JSON-kroppen eller ingen kropp, og hoder. */
@@ -214,6 +217,19 @@ const feilsvar = (status: number, error: string, message: string): Svar => [
 const ugyldig = (melding: string) => feilsvar(400, 'UGYLDIG_FORESPOERSEL', melding);
 const finnesIkke = () => feilsvar(404, 'SAK_FINNES_IKKE', 'Saken finnes ikke.');
 
+/** Kjernens avvisning av kommandoen, i samme form fra hver inngang (#743). */
+const regelavvisning = ({ feil, avvisning }: { feil: string; avvisning: Avvisning }): Svar => [
+  400,
+  { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
+];
+
+/** Svaret på en avvisning fra skrivelaget som er felles for inngangene, eller `null` (#743). */
+function skriveavvisning(feil: unknown): Svar | null {
+  if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+  if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
+  return null;
+}
+
 const erHeltall = (v: unknown): v is number =>
   typeof v === 'number' && Number.isInteger(v) && v >= 0;
 
@@ -332,20 +348,11 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
         },
       ];
     if (feil instanceof SakFinnesIkke) return finnesIkke();
-    if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
-    // Koblingen er slått av etter tilgangskontrollen, som ellers ville nektet (#739 punkt 1).
-    if (feil instanceof IngenLeveringsmaal)
-      return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
-    if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
+    const svar = skriveavvisning(feil);
+    if (svar) return svar;
     throw feil;
   }
-  if (!utfall.skriv) {
-    const { feil, avvisning } = utfall.avvisning;
-    return [
-      400,
-      { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
-    ];
-  }
+  if (!utfall.skriv) return regelavvisning(utfall.avvisning);
   // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen.
   const { journal } = await lesSaken(
     avh.datalag,
@@ -375,13 +382,7 @@ async function opprettNySak(
   if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
   const vurdert = opprettelse(kropp.kommando, side.rolle);
-  if (!vurdert.godtatt) {
-    const { feil, avvisning } = vurdert;
-    return [
-      400,
-      { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
-    ];
-  }
+  if (!vurdert.godtatt) return regelavvisning(vurdert);
   let rad;
   try {
     rad = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), {
@@ -389,10 +390,17 @@ async function opprettNySak(
       data: vurdert.data,
     });
   } catch (feil) {
-    if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
-    if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
+    if (feil instanceof IngenTopicBoard)
+      return feilsvar(
+        409,
+        'INGEN_TOPIC_BOARD',
+        'Prosjektet har ikke noe topic-board i Catenda for nye saker. Saken er ikke opprettet.'
+      );
+    const svar = skriveavvisning(feil);
+    if (svar) return svar;
     throw feil;
   }
+  avh.vekkJobbkjoereren();
   return [201, { success: true, sak_id: rad.sak_id, versjon: rad.versjon }];
 }
 
@@ -446,6 +454,7 @@ export function lagServer(avh: Avhengigheter) {
     kjerne: KJERNE,
     tidspunkt: () => new Date(),
     nyId: randomUUID,
+    vekkJobbkjoereren: () => {},
     ...avh,
     innlogging: avh.innlogging ?? null,
   };
