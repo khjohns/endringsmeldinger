@@ -1099,6 +1099,45 @@
     "unike": [],
     "unike_indekser": [],
     "fremmednøkler": []
+   },
+   "koe.vedlegg": {
+    "kolonner": [
+     ["vedlegg_id", "uniqueidentifier", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["filnavn", "nvarchar(200)", "NOT NULL"],
+     ["stoerrelse", "int", "NOT NULL"],
+     ["innhold_sha256", "nvarchar(64)", "NOT NULL"],
+     ["innhold", "varbinary(max)", "NULL"],
+     ["lastet_opp_av", "uniqueidentifier", "NOT NULL"],
+     ["lastet_opp_side", "nvarchar(2)", "NOT NULL"],
+     ["lastet_opp_team", "nvarchar(32)", "NOT NULL"],
+     ["lastet_opp", "datetime2(3)", "NOT NULL"],
+     ["bundet_av_event_id", "nvarchar(36)", "NULL"]
+    ],
+    "primærnøkkel": ["vedlegg_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["bundet_av_event_id", "sak_id", "prosjekt_id"],
+      "til": "koe.hendelse",
+      "til_kolonner": ["event_id", "sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["lastet_opp_av"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
    }
   }
  }

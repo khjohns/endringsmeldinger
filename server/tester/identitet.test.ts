@@ -213,6 +213,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.notat.prosjekt_id',
         'koe.sak_catenda_topic.prosjekt_id',
         'koe.sak_metadata.prosjekt_id',
+        'koe.vedlegg.prosjekt_id',
       ]);
       expect(svar.recordset.filter((r) => r.har_default)).toEqual([]);
       const pk = await base.pool.request().query<{ har_default: boolean }>(

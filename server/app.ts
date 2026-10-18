@@ -51,6 +51,7 @@ import {
 } from './kommandoer.ts';
 import { filnavn, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
+import { lesFil, VEDLEGGSRUTER, type Fil } from './vedlegg.ts';
 
 export interface Avhengigheter {
   /** SQL Server, med sesjonen, medlemskapet, kontraktsteamene, journalen og oppdragene (#658, #661). */
@@ -66,8 +67,12 @@ export interface Avhengigheter {
   vekkJobbkjoereren?: () => void;
 }
 
-/** Status, JSON-kroppen eller ingen kropp, og hoder. */
-export type Svar = [number, Record<string, unknown> | null, Record<string, string | string[]>?];
+/** Status, JSON-kroppen, bytene i en fil eller ingen kropp, og hoder. */
+export type Svar = [
+  number,
+  Record<string, unknown> | Buffer | null,
+  Record<string, string | string[]>?,
+];
 
 /** Tilgangen en saksinngang krever. */
 export interface Tilgang {
@@ -76,13 +81,17 @@ export interface Tilgang {
   kontraktsrolle: 'kreves' | { ikke: string };
 }
 
-interface Forespoersel {
+export interface Forespoersel {
   bruker: Bruker;
   prosjekt: Prosjekttilgang;
   /** Satt når inngangen krever kontraktsrolle. */
   side: Kontraktstilgang | null;
   sakId: string;
+  /** Andre gruppe i stien, som vedlegget, eller `null`. */
+  ressurs: string | null;
   kropp: Record<string, unknown>;
+  /** Kroppen som fil, for en inngang med `fil`. */
+  fil: Fil | null;
 }
 
 /** Forespørselen til inngangen som oppretter en sak. */
@@ -107,7 +116,7 @@ export interface Innlogget {
 }
 
 interface Felles {
-  metode: 'GET' | 'POST';
+  metode: 'GET' | 'POST' | 'DELETE';
   /** Stien som mønster. For en saksinngang er første gruppe saken, for en prosjektinngang prosjektet. */
   sti: RegExp;
   /** Eksempelsti for testen av registeret, med saken eller prosjektet. */
@@ -121,6 +130,8 @@ type Behandler<F> = (f: F, avh: Required<Avhengigheter>) => Promise<Svar>;
 /** En inngang med sesjon og prosjekttilgang (AGENTS.md). */
 export interface Saksrute extends Felles {
   tilgang: Tilgang;
+  /** Kroppen er en fil, som leses etter tilgangskontrollen og ikke tolkes som JSON. */
+  fil?: true;
   behandle: Behandler<Forespoersel>;
 }
 
@@ -481,6 +492,7 @@ const OPPRETTELSE: Opprettelsesrute = {
 /** Registeret over inngangene. En ny inngang står her, ellers finnes den ikke. */
 export const RUTER: readonly Rute[] = [
   ...KJERNERUTER,
+  ...VEDLEGGSRUTER,
   OPPRETTELSE,
   ...INNLOGGINGSRUTER,
   ...PROSJEKTRUTER,
@@ -504,12 +516,13 @@ export function lagServer(avh: Avhengigheter) {
     tilgang: Tilgang,
     metode: Felles['metode'],
     foresporsel: IncomingMessage,
-    sakId: string | null
+    sakId: string | null,
+    fil = false
   ) {
     // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
     // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
     const bruker = await krevInnlogging(full.datalag, foresporsel);
-    const innhold = metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
+    const innhold = metode === 'GET' || fil ? { verdi: {} } : await lesKropp(foresporsel);
     const prosjekt = await krevProsjekttilgang(
       full.datalag,
       full.catenda,
@@ -535,13 +548,20 @@ export function lagServer(avh: Avhengigheter) {
     foresporsel: IncomingMessage
   ): Promise<Svar> {
     let sakId: string;
+    let ressurs: string | null;
     try {
       sakId = decodeURIComponent(treff[1]);
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
     }
-    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, sakId);
-    return r.behandle({ ...f, sakId }, full);
+    try {
+      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
+    } catch {
+      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i saken.');
+    }
+    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, sakId, r.fil);
+    const fil = r.fil ? await lesFil(foresporsel) : null;
+    return r.behandle({ ...f, sakId, ressurs, fil }, full);
   }
 
   async function opprettelsesrute(r: Opprettelsesrute, foresporsel: IncomingMessage) {
@@ -606,11 +626,12 @@ export function lagServer(avh: Avhengigheter) {
       else console.error(feil);
     }
     // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2).
-    let tekst: string | undefined;
+    let tekst: string | Buffer | undefined;
     try {
-      tekst = kropp ? JSON.stringify(kropp) : undefined;
+      const json = kropp !== null && !Buffer.isBuffer(kropp);
+      tekst = Buffer.isBuffer(kropp) ? kropp : json ? JSON.stringify(kropp) : undefined;
       respons.writeHead(status, {
-        ...(kropp ? { 'content-type': 'application/json; charset=utf-8' } : {}),
+        ...(json ? { 'content-type': 'application/json; charset=utf-8' } : {}),
         ...funnet?.r.hoder,
         ...hoder,
       });
