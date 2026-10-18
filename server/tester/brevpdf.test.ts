@@ -101,7 +101,8 @@ describe('PDF-en av brevet (#371 del 2)', () => {
   });
 
   // Kilde: #799 og oppdragsgiver 18.10 (#764): skriften er Noto Sans bygd inn, så tegn
-  // utenfor WinAnsi leveres. Emoji støttes ikke i første versjon og parkeres.
+  // utenfor WinAnsi leveres. Et tegn Noto Sans mangler, som →, settes med Noto Sans Math
+  // (arbeidsvalget i #799). Emoji støttes ikke i første versjon og parkeres.
   it('gjengir gresk, hardt bindestrek (U+2011) og ligaturer tro med den innebygde skriften', async () => {
     const tekst: Avsnitt[] = [
       {
@@ -117,15 +118,26 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     expect(latin1(pdf)).not.toContain('Helvetica');
   });
 
-  it('avviser et tegn skriften ikke har, som emoji eller →, og sier hvilket tegn', async () => {
-    for (const [laast, kode] of [
-      ['Bra 😀', 'U+1F600'],
-      ['Fristen er 3 uker → 21 dager.', 'U+2192'],
-    ]) {
-      const svar = brevdokument(oppdrag([{ gjelder: 'a', laast }]), 'n');
-      await expect(svar).rejects.toBeInstanceOf(UgjengivbartBrev);
-      await expect(svar).rejects.toThrow(kode);
-    }
+  it('gjengir → og ⇒ med reserveskriften tro, også i et ord som deles over linjer', async () => {
+    const langt = `A→B${'x→'.repeat(80)}`;
+    const tekst: Avsnitt[] = [
+      { gjelder: 'a', laast: 'Fristen er 3 uker → 21 dager, så ⇒ ny frist.', utdypning: langt },
+    ];
+    const pdf = (await brevdokument(oppdrag(tekst), 'n')).innhold;
+    expect(lesBrevPdf(pdf)).toContain('Fristen er 3 uker → 21 dager, så ⇒ ny frist.');
+    expect(lesBrevPdf(pdf).replace(/\n/g, '')).toContain(langt);
+    expect(latin1(pdf)).toContain('/BaseFont /NotoSansMath-Regular');
+  });
+
+  it('bygger ikke inn reserveskriften når brevet ikke trenger den', async () => {
+    const pdf = (await brevdokument(oppdrag([{ gjelder: 'a', laast: 'Tekst.' }]), 'n')).innhold;
+    expect(latin1(pdf)).not.toContain('NotoSansMath');
+  });
+
+  it('avviser et tegn ingen av skriftene har, som emoji, og sier hvilket tegn', async () => {
+    const svar = brevdokument(oppdrag([{ gjelder: 'a', laast: 'Bra → 😀' }]), 'n');
+    await expect(svar).rejects.toBeInstanceOf(UgjengivbartBrev);
+    await expect(svar).rejects.toThrow('U+1F600');
   });
 
   it('avviser ikke en feil som ikke gjelder skriften, som et tidsstempel som ikke kan tolkes, som skriftfeil (#795 punkt 3)', async () => {
