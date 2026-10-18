@@ -141,8 +141,6 @@ function dokument(
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
       return { utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }] };
-    case 'bestridelse':
-      return { utsagn: [{ id: nyId(), art: 'bestridelse', gjelder: k.gjelder, hva: k.hva }] };
     case 'ingen_krav':
       return { utsagn: [{ id: nyId(), art: 'ingen_krav', spor: k.spor }] };
     case 'innsigelse':
@@ -162,6 +160,7 @@ function dokument(
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
       return { utsagn };
     }
+    case 'bestridelse':
     case 'merking':
     case 'avklaring':
       // OV-U7: forutsetningene avviser kommandoen før dokumentet lages.

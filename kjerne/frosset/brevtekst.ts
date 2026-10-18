@@ -374,8 +374,8 @@ function aapneInnsigelser(
   }
   return innsigelser.filter(
     (i) =>
-      innsigelsenPaaberoper(i.gjelder, j.dokumenter, regler) === HJEMMEL[svar.spor] &&
-      !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra))
+      innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) => gjelderVarslingsplikten(k, regler)) ===
+        HJEMMEL[svar.spor] && !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra))
   );
 }
 

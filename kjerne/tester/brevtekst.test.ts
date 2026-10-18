@@ -1126,7 +1126,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       type: 'brev',
       svar: [svar('grunnlag', id, { resultat: 'godkjent', grunnlag_varslet_i_tide: true })],
     };
-    expect(s.avvist('BH', godkjent)).not.toBeNull();
+    expect(s.avvist('BH', godkjent), 'kravet i brevet er ikke et krav (OV-U4)').toBe('INGEN_KRAV');
   });
 
   it('et krav fra appen uten beskrivelse gir ingen godkjenning som endringsordre (GR-U14)', () => {
@@ -1709,6 +1709,48 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('grunnlag') })).toBeNull();
       expect(s.avvist('BH', { type: 'innsigelse', gjelder: foerste })).toBe('SAGT_I_TIDE');
     });
+
+    it('hjemmelen for innsigelsen leses av svaret som sa «i tide», ikke av et nyere regelsett (MM-U18, GR-U12, #776)', () => {
+      const s = sak();
+      s.send('TE', {
+        ...GRUNNLAGSKRAV,
+        innhold: { hovedkategori: 'svikt', underkategori: 'medvirkning', ...KLAR_OVER },
+      });
+      const krav = s.krav('grunnlag');
+      // Et svar utenfor kommandoene med «i tide» etter § 32.2, der § 32.2 ikke gjelder kategorien.
+      s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            gjelder: krav,
+            standpunkter: [
+              {
+                id: randomUUID(),
+                art: 'rettidighet',
+                gjelder: krav,
+                hjemmel: '32.2',
+                i_tide: true,
+              },
+              { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
+            ],
+          },
+        ],
+      });
+      expect(
+        s.u().spor.grunnlag.svar[0].beslutningsgrunnlag.varslingsplikt,
+        'forutsetning: § 32.2 gjaldt ikke kategorien da svaret ble sendt (GR-U11)'
+      ).toBe(false);
+      const innsigelse = { type: 'innsigelse', gjelder: krav };
+      expect(s.avvist('BH', innsigelse), 'innsigelsen er ingen påberopelse (VS-U24)').toBeNull();
+      s.send('BH', innsigelse);
+      const nyere = {
+        ...KJERNE,
+        regler: { ...KJERNE.regler, gjelderVarslingsplikten: () => true },
+      };
+      const u = utledJournal(s.journal, nyere);
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+    });
   });
 
   it('protesten mot innsigelsen, mot påberopelsen i et svar og mot alle innsigelsene i et brev', () => {
@@ -1775,34 +1817,28 @@ describe('bestridelse, merking og avklaring (LV-U4 punkt 10–12)', () => {
     return { s, rad, opplysning };
   };
 
-  it('bestridelsen av datoen og av opplysningen om § 31.3', () => {
+  it('bestridelsen av datoen og av opplysningen om § 31.3 avvises i første versjon (OV-U7)', () => {
     const { s, opplysning } = medRegistrertSvar([
       { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
     ]);
     expect(
-      laast(s.send('TE', { type: 'bestridelse', gjelder: opplysning('sendt'), hva: 'sendt' }))
-    ).toEqual([
-      'TE bestrider opplysningen i brev 3 av 3. oktober 2026 om at brevet ble sendt 3. oktober 2026.',
-    ]);
+      s.avvist('TE', { type: 'bestridelse', gjelder: opplysning('sendt'), hva: 'sendt' })
+    ).toBe('IKKE_I_FOERSTE_VERSJON');
     expect(
-      laast(
-        s.send('TE', {
-          type: 'bestridelse',
-          gjelder: opplysning('endringsordre'),
-          hva: 'endringsordre',
-        })
-      )
-    ).toEqual([
-      'TE bestrider opplysningen i brev 3 av 3. oktober 2026 om at brevet var en endringsordre etter NS 8407 § 31.3.',
-    ]);
+      s.avvist('TE', {
+        type: 'bestridelse',
+        gjelder: opplysning('endringsordre'),
+        hva: 'endringsordre',
+      })
+    ).toBe('IKKE_I_FOERSTE_VERSJON');
   });
 
-  it('bestridelsen av datoen for et varsel etter § 33.4', () => {
+  it('bestridelsen av datoen for et varsel etter § 33.4 avvises i første versjon (OV-U7)', () => {
     const s = sakMedKrav();
     const varsel = (s.journal.at(-1)!.data.opplysninger as Data[])[0].id as string;
-    expect(laast(s.send('BH', { type: 'bestridelse', gjelder: varsel, hva: 'sendt' }))).toEqual([
-      'Byggherren bestrider opplysningen i brev 4 av 4. oktober 2026 om at varselet etter NS 8407 § 33.4 i brevet ble sendt 28. september 2026.',
-    ]);
+    expect(s.avvist('BH', { type: 'bestridelse', gjelder: varsel, hva: 'sendt' })).toBe(
+      'IKKE_I_FOERSTE_VERSJON'
+    );
   });
 
   it('merkingen av et registrert brev og avklaringen avvises i første versjon (OV-U7)', () => {
@@ -3091,6 +3127,159 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(u.forstaatt).toBe(true);
       expect(u.frafalt).toBe(false);
       expect(u.spor.grunnlag.gjeldendeSvar).toBeNull();
+    });
+  });
+
+  /**
+   * T5 i kartleggingen av #770 (#669): hver gren i `strid` og i referansekontrollen har en
+   * test som krever den bestemte grunnen. Radene står utenfor kommandoene, som en rad som
+   * verken er registrert eller sendt fra appen (MM-U18).
+   */
+  it('en revisjon av frafallet på versjon 1 til avslag, etter en versjon 2 uten frafall og utenfor kommandoene, gjør saken ikke forstått (arbeidsvalg 3 i #770, #562)', () => {
+    const s = medFrafall();
+    const foerste = s.u().spor.grunnlag.gjeldendeKrav!.id;
+    const frafallet = s.u().spor.grunnlag.gjeldendeSvar!.id;
+    // GR-U22: kommandoene kan ikke endre underkategorien, så versjon 2 står utenfor dem.
+    s.rad('TE', {
+      krav: [
+        {
+          id: randomUUID(),
+          spor: 'grunnlag',
+          erstatter: foerste,
+          hovedkategori: 'svikt',
+          underkategori: 'grunnforhold',
+        },
+      ],
+    });
+    s.rad('BH', {
+      svar: [
+        {
+          id: randomUUID(),
+          spor: 'grunnlag',
+          gjelder: foerste,
+          erstatter: frafallet,
+          standpunkter: [
+            {
+              id: randomUUID(),
+              art: 'rettidighet',
+              gjelder: foerste,
+              hjemmel: '32.2',
+              i_tide: true,
+            },
+            { id: randomUUID(), art: 'grunnlag', resultat: 'avslaatt' },
+          ],
+        },
+      ],
+    });
+    const u = s.u();
+    expect(u.forstaatt).toBe(false);
+    expect(u.begrensninger.map((b) => b.grunn)).toContain(
+      'et avslag av grunnlaget etter at byggherren har frafalt pålegget (GR-U17, GR-U20)'
+    );
+  });
+
+  describe('hver grunn i kontrollen mot journalen før brevet (MM-U18, #669)', () => {
+    const grunner = (s: Sak) => s.u().begrensninger.map((b) => b.grunn);
+    const medEnighet = () => {
+      const s = sakMedKrav();
+      s.send('BH', nyttSvar(s, endringsordre));
+      expect(s.u().spor.grunnlag.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
+      return s;
+    };
+    const raaAksept = (s: Sak, gjelder: string) =>
+      s.rad('TE', {
+        utsagn: [{ id: randomUUID(), art: 'aksept', gjelder, regelversjon: KJERNE.regler.versjon }],
+      });
+
+    it('en revisjon av et svar partene er enige om (GR-U10, KA-U7)', () => {
+      const s = medEnighet();
+      registrertSvar(s, 'avslaatt', false);
+      expect(grunner(s)).toEqual(['en revisjon av et svar partene er enige om (GR-U10, KA-U7)']);
+    });
+
+    it('en aksept av et svar partene alt er enige om (GR-U8, KA-U7)', () => {
+      const s = medEnighet();
+      raaAksept(s, s.u().spor.grunnlag.gjeldendeSvar!.id);
+      // Leseren avviser også aksepten av et sammenfall (GR-U8).
+      expect(grunner(s)).toContain('en aksept av et svar partene alt er enige om (GR-U8, KA-U7)');
+    });
+
+    it('en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)', () => {
+      const s = sakMedKrav();
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
+      });
+      const svaret = s.u().spor.vederlag.gjeldendeSvar!.id;
+      s.send('TE', { type: 'trekk', spor: 'vederlag' });
+      raaAksept(s, svaret);
+      expect(grunner(s)).toEqual([
+        'en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)',
+      ]);
+    });
+
+    /** Byggherrens registrerte endringsordre (OV-U6) etter trekket av grunnlaget, uten virkning. */
+    const endringsordreUtenVirkning = () => {
+      const s = sakMedKrav();
+      const krav = s.krav('grunnlag');
+      s.send('TE', { type: 'trekk', spor: 'grunnlag' });
+      const id = randomUUID();
+      s.rad('BH', {
+        svar: [
+          {
+            id,
+            spor: 'grunnlag',
+            gjelder: krav,
+            standpunkter: [
+              {
+                id: randomUUID(),
+                art: 'rettidighet',
+                gjelder: krav,
+                hjemmel: '32.2',
+                i_tide: true,
+              },
+              { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
+            ],
+          },
+        ],
+        opplysninger: [
+          { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
+          { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
+        ],
+      });
+      const u = s.u();
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+      expect(
+        u.utenVirkning.map((x) => x.element),
+        'forutsetning: endringsordren har ingen virkning'
+      ).toEqual([id]);
+      return { s, id };
+    };
+
+    it('en revisjon av et svar uten virkning (MM-U18)', () => {
+      const { s, id } = endringsordreUtenVirkning();
+      const krav = s.u().spor.grunnlag.krav[0].id;
+      s.rad('BH', {
+        svar: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            gjelder: krav,
+            erstatter: id,
+            standpunkter: [{ id: randomUUID(), art: 'grunnlag', resultat: 'avslaatt' }],
+          },
+        ],
+      });
+      // Leseren avviser også kjeden, fordi svaret uten virkning ikke er lest inn i sporet.
+      expect(grunner(s)).toContain('svaret viser til et element uten virkning');
+    });
+
+    it('en innsigelse mot egen endringsordre uten virkning viser ikke til noe den kan gjelde (VS-U1, MM-U18)', () => {
+      const { s, id } = endringsordreUtenVirkning();
+      const innsigelse = randomUUID();
+      s.rad('BH', { utsagn: [{ id: innsigelse, art: 'innsigelse', gjelder: id }] });
+      expect(s.u().forstaatt).toBe(false);
+      expect(grunner(s)).toContain('innsigelse viser ikke til noe den kan gjelde før den');
     });
   });
 });

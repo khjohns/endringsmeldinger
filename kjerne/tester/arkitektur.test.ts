@@ -289,7 +289,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts:enighetensVirkning', 'utledning/utled.ts:kraveneErAvgjort'],
   ],
   ['Utledning.opplysninger', 'utsagn', 'opplysning'],
-  ['Utledning.opplysninger', 'relasjon', 'bestridelser'],
   // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U18).
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
@@ -299,7 +298,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
   // MM-U18: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
-  ['Bestridelse', 'relasjon', 'part'],
   [
     'Sporutledning',
     'predikat',
@@ -367,6 +365,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:kanStride',
     ],
   ],
+  // GR-U22, MM-U18: varslingsplikten for en versjon leses av svaret på en versjon i samme
+  // kategori, slik den ble frosset (#776).
+  ['frosset/standpunkt.ts', 'utsagn', 'sammeKategori', ['utledning/utled.ts']],
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
   ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
@@ -451,7 +452,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Kommando',
     'kommando',
-    'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder hva',
+    'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder',
   ],
   ['Kommando.varsel', 'kommando', 'sendt'],
   // GR-U22: hjemmelen i en ny grunnlagsversjon sammenliknes med gjeldende versjon.

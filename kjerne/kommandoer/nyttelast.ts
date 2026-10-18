@@ -11,7 +11,7 @@ import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
 import { oppgittDato, type OppgittDato } from '../format/format.ts';
-import { datoFor, kalenderdag, sammeSlag } from '../format/leser.ts';
+import { datoFor, kalenderdag } from '../format/leser.ts';
 import { tekst } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -318,13 +318,6 @@ export function nyttelastkontroll(
         );
       return null;
     }
-    case 'bestridelse': {
-      // MM-U7: en opplysning om § 31.3 bestrides som det, en dato som sendt eller mottatt.
-      const o = u.opplysninger.find((x) => x.opplysning.id === k.gjelder)?.opplysning;
-      return o && !sammeSlag(o.hva, k.hva)
-        ? avvis('FEIL_BESTRIDELSE', `Opplysningen gjelder ${o.hva}, ikke ${k.hva}.`)
-        : null;
-    }
     case 'passivitet': {
       // VS-U12 og GR-U11: passivitetsregelen gjelder bare der § 32.2 gjelder.
       const krav = u.spor.grunnlag.krav.find((x) => x.id === k.gjelder);
@@ -340,6 +333,7 @@ export function nyttelastkontroll(
     case 'send_varsel':
     case 'ingen_krav':
     case 'protest':
+    case 'bestridelse':
     case 'merking':
     case 'avklaring':
       return null;
@@ -347,7 +341,7 @@ export function nyttelastkontroll(
       // VS-U24, HF-U4: en innsigelse mot varselet etter § 33.4 eller TEs varsel etter § 32.2
       // er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at
       // varselet kom i tide, avvises den (del 2 av #498).
-      const hjemmel = innsigelsenEtterITide(k.gjelder, part, u, regler);
+      const hjemmel = innsigelsenEtterITide(k.gjelder, part, u);
       return hjemmel
         ? avvis(
             'SAGT_I_TIDE',

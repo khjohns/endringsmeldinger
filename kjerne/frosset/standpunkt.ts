@@ -46,6 +46,12 @@ function kategori(krav: Pick<Krav, 'innhold'> | null | undefined) {
   };
 }
 
+/** To grunnlagsversjoner har samme hovedkategori og underkategori (GR-U22). */
+export function sammeKategori(a: Pick<Krav, 'innhold'>, b: Pick<Krav, 'innhold'>): boolean {
+  const [x, y] = [kategori(a), kategori(b)];
+  return x.hovedkategori === y.hovedkategori && x.underkategori === y.underkategori;
+}
+
 /** Varslingsplikten i § 32.2 gjelder kategorien i grunnlagskravet (GR-U11). */
 export function gjelderVarslingsplikten(
   krav: Pick<Krav, 'innhold'> | null | undefined,
@@ -116,21 +122,21 @@ export function virkninger(
  * annet krav eller et svar er den uten virkning. Et krav i et registrert brev er
  * dokumentasjon (OV-U4), så en innsigelse mot det er heller ingen påberopelse; byggherren
  * påberoper § 32.2 i svaret (arbeidsvalg 1 i #770). Kommandoene, utledningen og
- * brevteksten finner det innsigelsen gjelder, i `dokumenter` her (#536).
+ * brevteksten finner det innsigelsen gjelder, i `dokumenter` her (#536). `varslingsplikt`
+ * sier om § 32.2 gjelder kategorien: brevteksten spør regelsettet når brevet skrives,
+ * utledningen leser det som er frosset (MM-U18, #776).
  */
 export function innsigelsenPaaberoper(
   gjelder: string,
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,
-  regler: Regelsett
+  varslingsplikt: (krav: Krav) => boolean
 ): Extract<Hjemmel, '32.2' | '33.4'> | null {
   for (const d of dokumenter) {
     const utsagn = d.utsagn.find((x) => x.id === gjelder);
     if (utsagn) return utsagn.art === 'varsel' ? '33.4' : null;
     const krav = d.krav.find((k) => k.id === gjelder);
     if (krav)
-      return krav.spor === 'grunnlag' &&
-        !erRegistrert(d.opplysninger) &&
-        gjelderVarslingsplikten(krav, regler)
+      return krav.spor === 'grunnlag' && !erRegistrert(d.opplysninger) && varslingsplikt(krav)
         ? '32.2'
         : null;
   }
