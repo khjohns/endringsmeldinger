@@ -787,6 +787,163 @@
      }
     ]
    },
+   "koe.dagmulktssats": {
+    "kolonner": [
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["sats", "decimal(15,2)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["prosjekt_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["prosjekt_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.fullmakt": {
+    "kolonner": [
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["bruker_id", "uniqueidentifier", "NOT NULL"],
+     ["tittel", "nvarchar(200)", "NOT NULL"],
+     ["grense", "decimal(15,2)", "NULL"],
+     ["plass", "smallint", "NOT NULL"]
+    ],
+    "primærnøkkel": ["prosjekt_id", "bruker_id"],
+    "unike": [
+     ["prosjekt_id", "plass"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["bruker_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["prosjekt_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.godkjenningshandling": {
+    "kolonner": [
+     ["pakke_id", "uniqueidentifier", "NOT NULL"],
+     ["loepenr", "int", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["handling", "nvarchar(20)", "NOT NULL"],
+     ["steg", "tinyint", "NULL"],
+     ["aktor_id", "uniqueidentifier", "NOT NULL"],
+     ["aktor_rolle", "nvarchar(2)", "NOT NULL"],
+     ["aktor_team_id", "nvarchar(32)", "NOT NULL"],
+     ["fullmakt_tittel", "nvarchar(200)", "NULL"],
+     ["fullmakt_grense", "decimal(15,2)", "NULL"],
+     ["fullmakt_ubegrenset", "bit", "NULL"],
+     ["begrunnelse", "nvarchar(4000)", "NULL"],
+     ["tidspunkt", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["pakke_id", "loepenr"],
+    "unike": [],
+    "unike_indekser": [
+     "(pakke_id) WHERE ([handling]<>N'godkjent')",
+     "(pakke_id, steg) WHERE ([handling]=N'godkjent')"
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["aktor_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["pakke_id", "prosjekt_id", "aktor_team_id"],
+      "til": "koe.godkjenningspakke",
+      "til_kolonner": ["pakke_id", "prosjekt_id", "aktor_team_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["pakke_id", "steg"],
+      "til": "koe.godkjenningssteg",
+      "til_kolonner": ["pakke_id", "steg"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.godkjenningspakke": {
+    "kolonner": [
+     ["pakke_id", "uniqueidentifier", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["forrige_pakke_id", "uniqueidentifier", "NULL"],
+     ["aktor_id", "uniqueidentifier", "NOT NULL"],
+     ["aktor_rolle", "nvarchar(2)", "NOT NULL"],
+     ["aktor_team_id", "nvarchar(32)", "NOT NULL"],
+     ["brev", "nvarchar(max)", "NOT NULL"],
+     ["fullmaktsgrunnlag", "nvarchar(max)", "NOT NULL"],
+     ["opprettet", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["pakke_id"],
+    "unike": [
+     ["pakke_id", "prosjekt_id", "aktor_team_id"]
+    ],
+    "unike_indekser": [
+     "(forrige_pakke_id) WHERE ([forrige_pakke_id] IS NOT NULL)"
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["aktor_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["forrige_pakke_id"],
+      "til": "koe.godkjenningspakke",
+      "til_kolonner": ["pakke_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.godkjenningssteg": {
+    "kolonner": [
+     ["pakke_id", "uniqueidentifier", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["aktor_team_id", "nvarchar(32)", "NOT NULL"],
+     ["steg", "tinyint", "NOT NULL"],
+     ["godkjenner_id", "uniqueidentifier", "NOT NULL"]
+    ],
+    "primærnøkkel": ["pakke_id", "steg"],
+    "unike": [
+     ["pakke_id", "godkjenner_id"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["godkjenner_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["pakke_id", "prosjekt_id", "aktor_team_id"],
+      "til": "koe.godkjenningspakke",
+      "til_kolonner": ["pakke_id", "prosjekt_id", "aktor_team_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.hendelse": {
     "kolonner": [
      ["event_id", "nvarchar(36)", "NOT NULL"],

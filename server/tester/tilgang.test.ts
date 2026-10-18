@@ -574,6 +574,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.brukerens_prosjekter',
         'GRANT EXECUTE koe_api.catenda_identitet',
         'GRANT EXECUTE koe_api.deaktiver_ved_innlogging',
+        'GRANT EXECUTE koe_api.fullmakter',
         'GRANT EXECUTE koe_api.hent_jobb',
         'GRANT EXECUTE koe_api.koblede_prosjekter',
         'GRANT EXECUTE koe_api.kontraktsteam',
@@ -581,6 +582,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.kvitter_levering',
         'GRANT EXECUTE koe_api.kvitter_topic',
         'GRANT EXECUTE koe_api.kvittering',
+        'GRANT EXECUTE koe_api.lag_godkjenningspakke',
         'GRANT EXECUTE koe_api.lagre_brevdokument',
         'GRANT EXECUTE koe_api.lagre_vedlegg',
         'GRANT EXECUTE koe_api.lagret_brevdokument',
@@ -595,6 +597,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.prosjekt',
         'GRANT EXECUTE koe_api.prosjektkobling',
         'GRANT EXECUTE koe_api.prosjektmedlemskap',
+        'GRANT EXECUTE koe_api.registrer_godkjenningshandling',
         'GRANT EXECUTE koe_api.registrer_jobbfeil',
         'GRANT EXECUTE koe_api.rydd_utloepte',
         'GRANT EXECUTE koe_api.sett_leserolle',
@@ -603,6 +606,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.slett_sesjon',
         'GRANT EXECUTE koe_api.slett_vedlegg',
         'GRANT EXECUTE koe_api.synkroniser_medlemskap',
+        'GRANT SELECT koe.godkjenningshandling',
+        'GRANT SELECT koe.godkjenningspakke',
+        'GRANT SELECT koe.godkjenningssteg',
         'GRANT SELECT koe.hendelse',
         'GRANT SELECT koe.kjernebuffer',
         // Bare kolonnene «levert» trenger (#805).
@@ -654,8 +660,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       expect(kjoeretid.recordset.map((r) => r.tabell).sort()).toEqual(
         // Kvitteringen har ingen `sak_id`; den leses for «levert» (#764), og L7 i
         // `levering.test.ts` viser at kjøretiden ikke kan skrive den. Vedleggene prøves
-        // i `vedlegg.test.ts`.
-        [...SAKSTABELLER, 'leveringskvittering', 'vedlegg'].map((t) => `koe.${t}`).sort()
+        // i `vedlegg.test.ts`, og godkjenningspakkene i `godkjenning.test.ts`.
+        [
+          ...SAKSTABELLER,
+          'leveringskvittering',
+          'vedlegg',
+          'godkjenningspakke',
+          'godkjenningssteg',
+          'godkjenningshandling',
+        ]
+          .map((t) => `koe.${t}`)
+          .sort()
       );
     });
   });

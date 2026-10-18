@@ -969,6 +969,93 @@ funn = []
 belegg = "L 18.10: migrasjonene. K 18.10: `server/tester/vedlegg.test.ts`."
 
 [[tabell]]
+navn = "koe.fullmakt"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Byggherrens fullmakter i prosjektet (S-1a, #818): personen, tittelen, grensen i
+kroner (ingen grense er ubegrenset) og plassen i godkjenningskjeden. Driften setter
+dem opp etter skriftlig bestilling fra byggherren, og appen viser ikke hvem som har
+endret dem (GFK-U1). Kjøretiden leser dem bare gjennom `koe_api.fullmakter`,
+som byggherren."""
+lagres_fra = "Driften, som eier. Lest av `koe_api.fullmakter` fra `server/godkjenning.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Bestillingen fra byggherren er kilden."
+personopplysninger = "Hvem som har fullmakt, med tittel og beløpsgrense."
+skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (tabellen); radene skrives av driften som eier"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[tabell]]
+navn = "koe.dagmulktssats"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Dagmulktssatsen i prosjektet, som fristdagene verdsettes med i fullmakten
+(GFK-06). Uten rad mangler satsen, og fristdagene kan ikke verdsettes (B-06). Driften
+setter den opp som fullmaktene."""
+lagres_fra = "Driften, som eier. Lest av `koe_api.fullmakter` fra `server/godkjenning.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Kontrakten er kilden."
+personopplysninger = "Ingen."
+skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (tabellen); radene skrives av driften som eier"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[tabell]]
+navn = "koe.godkjenningspakke"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget
+fullmakten ble regnet av, saksbehandleren og teamet. Pakken er et utkast som bare
+teamet som laget den, ser, og uten team finnes den ikke (AGENTS.md). Den endres
+ikke; en ny pakke kan erstatte en returnert eller trukket."""
+lagres_fra = "`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei."
+personopplysninger = "Saksbehandleren (`aktor_id`) og innholdet i svaret."
+skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`)"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[tabell]]
+navn = "koe.godkjenningssteg"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Godkjennerne i en pakke i kjedens rekkefølge, regnet av `server/fullmakt.ts` da
+pakken ble laget. Endres ikke."""
+lagres_fra = "`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei."
+personopplysninger = "Godkjennerne (`godkjenner_id`)."
+skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`)"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[tabell]]
+navn = "koe.godkjenningshandling"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning
+fryser tittelen og grensen godkjenneren hadde da den ble gitt, så den står om
+fullmakten endres senere (B-04 punkt 2). Endres ikke."""
+lagres_fra = "`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei."
+personopplysninger = "Den som handlet (`aktor_id`) og begrunnelsen for en retur."
+skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`)"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[tabell]]
 navn = "koe.leveringskvittering"
 lagring = "SQL Server"
 type = ["transaksjon"]

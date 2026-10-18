@@ -978,6 +978,126 @@ Teamet som ser og sletter vedlegget før det er bundet. Basen avviser et vedlegg
 funn = []
 belegg = "L 18.10: migrasjonen."
 
+[[relasjon]]
+fra = "koe.fullmakt.prosjekt_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Prosjektet fullmakten gjelder i. Driften setter den opp (GFK-U1)."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = "koe.fullmakt.bruker_id"
+til = "koe.app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Personen som har fullmakten."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = "koe.dagmulktssats.prosjekt_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Prosjektet satsen gjelder i. Uten rad mangler satsen (B-06)."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = ["koe.godkjenningspakke.sak_id", "koe.godkjenningspakke.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Saken svaret i pakken gjelder, i samme prosjekt."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = "koe.godkjenningspakke.forrige_pakke_id"
+til = "koe.godkjenningspakke.pakke_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Pakken som ble returnert eller trukket, og som denne erstatter."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = "koe.godkjenningspakke.aktor_id"
+til = "koe.app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Saksbehandleren som utarbeidet svaret."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = "koe.godkjenningspakke.aktor_team_id"
+til = "koe.catenda_contract_teams.team_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Teamet som ser pakken. Basen avviser en pakke uten team (AGENTS.md)."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = ["koe.godkjenningssteg.pakke_id", "koe.godkjenningssteg.prosjekt_id", "koe.godkjenningssteg.aktor_team_id"]
+til = ["koe.godkjenningspakke.pakke_id", "koe.godkjenningspakke.prosjekt_id", "koe.godkjenningspakke.aktor_team_id"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Pakken steget hører til, med samme prosjekt og team, så radsikkerheten leser dem i steget."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = "koe.godkjenningssteg.godkjenner_id"
+til = "koe.app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Godkjenneren i steget."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = ["koe.godkjenningshandling.pakke_id", "koe.godkjenningshandling.prosjekt_id", "koe.godkjenningshandling.aktor_team_id"]
+til = ["koe.godkjenningspakke.pakke_id", "koe.godkjenningspakke.prosjekt_id", "koe.godkjenningspakke.aktor_team_id"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Pakken handlingen gjelder, med samme prosjekt og team."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = ["koe.godkjenningshandling.pakke_id", "koe.godkjenningshandling.steg"]
+til = ["koe.godkjenningssteg.pakke_id", "koe.godkjenningssteg.steg"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Steget som er godkjent eller returnert. En trekking har ikke steg."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
+[[relasjon]]
+fra = "koe.godkjenningshandling.aktor_id"
+til = "koe.app_users.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Den som godkjente, returnerte eller trakk pakken."""
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+
 # ---------------------------------------------------------------------------
 # Kolonner som ser ut som nøkler eller personreferanser, men som ikke viser
 # til en tabell i appen. Testen krever en begrunnelse for hver.
