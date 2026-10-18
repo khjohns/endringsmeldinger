@@ -112,6 +112,16 @@ def test_del_av_sammensatt_noekkel_med_nullbar_kolonne_er_ikke_haandhevet(kilder
     assert not any("står som logisk" in f for f in feil), feil
 
 
+def test_del_av_sammensatt_noekkel_er_haandhevet_naar_bare_den_dekkede_kolonnen_er_nullbar(kilder):
+    """#635: under MATCH SIMPLE sjekkes raden når den dekkede kolonnen har en verdi og
+    resten av nøkkelen er NOT NULL, så koblingen er håndhevet og ikke logisk."""
+    katalog = copy.deepcopy(kilder["katalog"])
+    rad = next(r for r in katalog["sqlserver"]["tabeller"]["koe.notat"]["kolonner"] if r[0] == "sak_id")
+    rad[2] = "NULL"
+    feil = rel.valider(_logisk_fra_notat_sak_id(kilder), katalog)
+    assert any("står som logisk" in f for f in feil), feil
+
+
 def test_er_diagrammet_merker_logisk_kobling_fra_kolonne_i_annen_fremmednokkel(kilder):
     """#635: diagrammet avgjør «håndhevet» etter kolonneparene i én nøkkel, som `valider()`."""
     endret = copy.deepcopy(kilder["relasjoner"])

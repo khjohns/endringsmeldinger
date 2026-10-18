@@ -316,7 +316,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
         return (
             f"</a>{avvik['funn']}:" in vedtak
             and isinstance(avvik.get("issue"), int)
-            and any(avvik["funn"] in rader[r]["kilder"] for r in radider if r in rader)
+            and any(avvik["funn"] in rader[r].get("kilder", ()) for r in radider if r in rader)
         )
 
     for forlop in korpus["forlop"]:
@@ -407,7 +407,7 @@ def _valider_maalmodell(regler: dict, korpus: dict, maal: dict) -> list[str]:
         if ukjente or not forlop["rader"]:
             feil.append(f"{navn}: ukjente eller manglende rader {ukjente}")
             continue
-        statuser = [rader[r]["tolkningsstatus"] for r in forlop["rader"]]
+        statuser = [rader[r].get("tolkningsstatus") for r in forlop["rader"]]
         if all(s in STYRKE for s in statuser) and forlop.get("forventningsgrunnlag") != min(
             statuser, key=STYRKE.__getitem__
         ):

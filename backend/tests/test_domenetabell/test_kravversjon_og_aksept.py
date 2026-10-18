@@ -153,6 +153,29 @@ def test_en_rad_uten_id_gir_feil_og_ikke_krasj():
     assert any(f.startswith("<uten id>: feltene er") for f in feil)
 
 
+def test_en_rad_uten_kilder_med_et_kjent_avvik_gir_feil_og_ikke_krasj():
+    """#475: en rad uten `kilder` som et kjent avvik med vedtaks-ID gjelder, meldes
+    i stedet for å feile med `KeyError` når avviket kontrolleres."""
+    korpus_ = copy.deepcopy(korpus.KORPUS)
+    forlop = next(f for f in korpus_["forlop"] if f["id"] == "F-GR-02")
+    forlop["kjent_avvik"] = {"funn": "GR-U22", "issue": 837}
+    regler = copy.deepcopy(korpus.REGLER)
+    rad = next(r for r in regler["rader"] if r["id"] in forlop["rader"])
+    del rad["kilder"]
+    feil = korpus.verktoy.valider(regler, korpus_)
+    assert any(f.startswith(f"{rad['id']}: feltene er") for f in feil)
+
+
+def test_en_rad_uten_tolkningsstatus_i_et_maalmodellforloep_gir_feil_og_ikke_krasj():
+    """#475: en rad uten `tolkningsstatus` som et målmodellforløp bruker, meldes
+    i stedet for å feile med `KeyError`."""
+    regler = copy.deepcopy(korpus.REGLER)
+    radid = korpus.verktoy.les_maalmodell()["forlop"][0]["rader"][0]
+    del next(r for r in regler["rader"] if r["id"] == radid)["tolkningsstatus"]
+    feil = korpus.verktoy.valider(regler, korpus.KORPUS)
+    assert any(f.startswith(f"{radid}: feltene er") for f in feil)
+
+
 def test_tabellen_i_readme_er_skrevet_av_verktoyet():
     readme = korpus.verktoy.README.read_text(encoding="utf-8")
     assert korpus.verktoy.med_tabell(readme, korpus.REGLER, korpus.KORPUS) == readme, (

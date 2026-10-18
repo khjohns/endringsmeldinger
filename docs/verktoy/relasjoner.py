@@ -100,14 +100,15 @@ def dekkende_fremmednøkkel(r: dict, katalog: dict, fk: dict[Nøkkel, str]) -> N
 
     Kolonneparene i `r` må stå i én og samme nøkkel. Dekker de bare en del av en
     sammensatt nøkkel, sjekker basen raden bare når hver kolonne i nøkkelen har en
-    verdi (MATCH SIMPLE), så da håndhever nøkkelen koblingen bare når alle
-    kolonnene i den er NOT NULL.
+    verdi (MATCH SIMPLE), så da håndhever nøkkelen koblingen bare når kolonnene i
+    nøkkelen utenfor koblingen er NOT NULL.
     """
     par = set(zip(*nøkkel(r)))
     for k in fk:
         if not par <= set(zip(*k)):
             continue
-        if par == set(zip(*k)) or all(_ikke_null(katalog, c) for c in k[0]):
+        dekket = {fra for fra, _ in par}
+        if all(_ikke_null(katalog, c) for c in k[0] if c not in dekket):
             return k
     return None
 
