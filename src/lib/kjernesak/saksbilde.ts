@@ -5,6 +5,7 @@
  */
 
 import type { Leveringsoppdrag } from '$lib/api/kjerne';
+import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
 import { laastTekst } from '$kjerne/kommandoer/skriving';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Statuskode, Visning } from '$kjerne/utledning/visning';
@@ -91,6 +92,18 @@ const TEKST: Record<string, string> = {
 };
 
 export const etikett = (kode: string): Etikett => ({ kode, tekst: TEKST[kode] ?? kode });
+
+/**
+ * Leveringen av et oppdrag for TE og BH (#764): levert med tidspunktet i kvitteringen,
+ * eller ikke levert ennå. Et registrert brev har ikke noe dokument fra appen og er
+ * sendt utenfor appen (LV-U11). Parkering vises ikke; den er for driften.
+ */
+export function leveringstekst(o: Leveringsoppdrag): string {
+  const navn = o.filnavn ?? o.dokumentnoekkel;
+  const frosset = `frosset ${formatDateTimeNorwegian(o.opprettet)}`;
+  if (o.filnavn === null) return `${navn}: ${frosset}, sendt utenfor appen`;
+  return `${navn}: ${frosset}, ${o.levert ? `levert ${formatDateTimeNorwegian(o.levert)}` : 'ikke levert ennå'}`;
+}
 
 /** Brevteksten i raden, med samme lesing som `laastTekst` i kjernen. */
 const brevtekst = (rad: Journalrad): Avsnitt[] | null =>

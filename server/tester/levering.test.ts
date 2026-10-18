@@ -7,7 +7,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import {
@@ -268,6 +268,8 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
 
   it('L2: kjøreren laster opp brevet med dokumentnøkkelen i navnet, setter referansen og kvitterer hver operasjon (B-03)', async () => {
     const sakId = await sakMedBrev();
+    const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id };
+    expect((await lesSaken(o.datalag.kjoeretid.pool, leser, sakId)).oppdrag[0].levert).toBeNull();
     expect(await kjoer()).toBe(true);
 
     const [[navn, dokument]] = [...catenda.bibliotek];
@@ -296,6 +298,18 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(await forsoekene(sakId)).toEqual([['utfoert', null]]);
     expect((await leveringen(sakId))[0].tilstand).toBe('utfoert');
     expect(await kjoer()).toBe(false);
+
+    // Kilde: oppdragsgiver 18.10 (#764): «levert» er tidspunktet i kvitteringen for
+    // dokumentreferansen, og leses av medlemmet under radsikkerheten.
+    const [{ kvittert }] = (
+      await somKjoerer<{ kvittert: Date }>(
+        `SELECT k.kvittert FROM koe.leveringskvittering k
+           JOIN koe.leveringsoppdrag o ON o.id = k.leveringsoppdrag_id
+          WHERE o.sak_id = @sak AND k.operasjon = N'dokumentreferanse'`,
+        { sak: sakId }
+      )
+    ).recordset;
+    expect(oppdrag.levert).toBe(kvittert.toISOString());
   });
 
   it('L3: et tapt svar ved opplastingen parkeres, og forsøket etter omstarten finner dokumentet på navnet (invariant 7, B-03)', async () => {
@@ -445,6 +459,32 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     const svar = await lagre(await hentLease(), annen);
     expect(new Uint8Array(svar.recordset[0].pdf)).toEqual(lagret.pdf);
     expect(await brevdokumentene(sakId)).toEqual([lagret]);
+  });
+
+  it('L8: et nytt forsøk laster opp PDF-en som er lagret, uten å lage og lagre en ny (#795 punkt 4)', async () => {
+    const sakId = await sakMedBrev();
+    const lagretFoer = new TextEncoder().encode('%PDF-1.7 lagret av et tidligere forsøk');
+    await lagre(await hentLease(), lagretFoer);
+    await somKjoerer(
+      `UPDATE koe.jobb SET lease_utloeper = DATEADD(second, -1, SYSUTCDATETIME())
+        WHERE sak_id = @sak AND jobbtype = N'levering'`,
+      { sak: sakId }
+    );
+    // Leasen utløp uten kvittering, så jobben parkeres, og driften starter den på nytt.
+    expect(await kjoer()).toBe(false);
+    await startPaaNytt(sakId);
+
+    const kall = vi.spyOn(sql.Request.prototype, 'execute');
+    try {
+      expect(await kjoer()).toBe(true);
+      expect(kall.mock.calls.map(([prosedyre]) => prosedyre)).not.toContain(
+        'koe_api.lagre_brevdokument'
+      );
+    } finally {
+      kall.mockRestore();
+    }
+    const [[, dokument]] = [...catenda.bibliotek];
+    expect(dokument.innhold).toEqual(lagretFoer);
   });
 
   it('L8: basen avviser en PDF med feil sum, og et lagret brevdokument endres ikke', async () => {

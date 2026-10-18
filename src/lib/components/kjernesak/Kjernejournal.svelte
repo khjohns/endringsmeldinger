@@ -5,7 +5,7 @@
    * brevteksten og leveringsoppdragene (LV-U2).
    */
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
-  import type { Saksbilde } from '$lib/kjernesak/saksbilde';
+  import { leveringstekst, type Saksbilde } from '$lib/kjernesak/saksbilde';
 
   let { bilde }: { bilde: Saksbilde } = $props();
 </script>
@@ -32,9 +32,7 @@
         {/if}
         {#each j.oppdrag as o (o.id)}
           <p class="dempet">
-            Leveringsoppdrag {o.filnavn ?? o.dokumentnoekkel}: frosset {formatDateTimeNorwegian(
-              o.opprettet
-            )}, ikke levert
+            Leveringsoppdrag {leveringstekst(o)}
           </p>
         {/each}
       </li>

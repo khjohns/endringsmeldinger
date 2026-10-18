@@ -19,6 +19,8 @@ export interface Leveringsoppdrag {
   filnavn: string | null;
   innhold_sha256: string;
   opprettet: string;
+  /** Tidspunktet dokumentreferansen på topicen ble kvittert, eller `null` (#764). */
+  levert: string | null;
 }
 
 export interface Kjernesak {

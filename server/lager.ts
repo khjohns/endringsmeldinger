@@ -45,7 +45,8 @@ export interface Oppdragsrad {
   innhold_sha256: string;
 }
 
-export type LagretOppdrag = Oppdragsrad & { opprettet: string };
+/** `levert` er tidspunktet i kvitteringen for dokumentreferansen på topicen, eller `null` (#764). */
+export type LagretOppdrag = Oppdragsrad & { opprettet: string; levert: string | null };
 
 type Foresp = () => sql.Request;
 
@@ -91,15 +92,17 @@ export async function lesJournal(
   }));
 }
 
-interface LagretOppdragsrad extends Omit<LagretOppdrag, 'innhold' | 'opprettet'> {
+interface LagretOppdragsrad extends Omit<LagretOppdrag, 'innhold' | 'opprettet' | 'levert'> {
   innhold: string;
   opprettet: Date;
+  levert: Date | null;
 }
 
 /**
  * Leveringsoppdragene til brevene til og med `versjon`, i rekkefølgen brevene ble
  * skrevet. Et oppdrag skrives i samme transaksjon som brevet og endres ikke, så
- * grensen gir samme bilde som journalen som er lest før.
+ * grensen gir samme bilde som journalen som er lest før. Kvitteringen for
+ * dokumentreferansen kan komme etter journalen er lest; den viser bare leveringen.
  */
 async function lesOppdrag(
   foresp: Foresp,
@@ -111,9 +114,11 @@ async function lesOppdrag(
     .input('versjon', sql.Int, versjon)
     .query<LagretOppdragsrad>(
       `SELECT LOWER(CONVERT(nvarchar(36), o.id)) AS id, o.event_id, o.dokumentnoekkel, o.innhold,
-              o.innhold_sha256, o.opprettet
+              o.innhold_sha256, o.opprettet, k.kvittert AS levert
          FROM koe.leveringsoppdrag o
          JOIN koe.hendelse h ON h.event_id = o.event_id AND h.sak_id = o.sak_id
+         LEFT JOIN koe.leveringskvittering k
+           ON k.leveringsoppdrag_id = o.id AND k.operasjon = N'dokumentreferanse'
         WHERE o.sak_id = @sak_id AND h.versjon <= @versjon
         ORDER BY h.versjon`
     );
@@ -121,6 +126,7 @@ async function lesOppdrag(
     ...o,
     innhold: JSON.parse(o.innhold) as Record<string, unknown>,
     opprettet: o.opprettet.toISOString(),
+    levert: o.levert?.toISOString() ?? null,
   }));
 }
 
