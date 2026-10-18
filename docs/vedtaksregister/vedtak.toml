@@ -5024,6 +5024,84 @@ tekst = '''
 Kontrollen av HF-U4 og HF-U5 står bare i kommandoene. En hendelse utenfor kommandoene leses som før. Forkastet: å utvide MM-U18.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "LV-U15"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 7 (#764)", "#818"]
+sporsmal = '''
+Hvem er byggherrens avsender av et svar som er godkjent internt?
+
+Etter LV-U2 godkjenner avsenderen brevteksten, og journalen fører den som sendte. Når et svar går gjennom flere godkjennere, må det avgjøres hvem brevet og journalen viser som avsender.
+
+A. Saksbehandleren: «Avsenderen er den som utarbeidet svaret. Den interne godkjenningen er ikke en del av brevet. Er svaret en endringsordre etter § 31.3, må avsenderen selv ha fullmakt til den.»
+B. Den siste godkjenneren (anbefalt): «Avsenderen er den siste godkjenneren, som har fullmakt til svaret. Avsenderen godkjenner brevteksten (LV-U2). Den som utarbeidet svaret, og de andre godkjenningene står i godkjenningen, ikke i brevet.»
+C. Saksbehandleren, med merknad: «Avsenderen er den som utarbeidet svaret, og brevet sier at svaret er godkjent av en person med fullmakt, uten å nevne hvem.»
+
+Anbefaling: B.
+
+Svaret var fritt: «To signaturer: saksbehandler og fullmaktshaver». Det passet ikke på et alternativ, og oppfølgingen er dette spørsmålet:
+
+Du svarte «To signaturer: saksbehandler og fullmaktshaver» om avsenderen av et svar som er godkjent internt. Hvordan skal det leses for brevet og journalen?
+
+«Fullmaktshaver er avsender (Recommended)»: «Brevet har to signaturer: den som utarbeidet svaret, og den som godkjente det med fullmakt til svaret. Avsenderen i journalen er den som har fullmakten; den som utarbeidet svaret, står i brevet som saksbehandler.»
+«Saksbehandler er avsender»: «Brevet har to signaturer: den som utarbeidet svaret, og den som godkjente det med fullmakt til svaret. Avsenderen i journalen er den som utarbeidet svaret; den som har fullmakten, står i brevet som godkjenner.»
+«Begge er avsendere»: «Brevet har to signaturer, og journalen fører begge som avsendere av brevet: den som utarbeidet svaret, og den som godkjente det med fullmakt til svaret.»
+
+Belegg, ordrett fra vedtakene:
+- LV-U2: «LV-U2: i et brev appen sender, godkjenner avsenderen brevteksten appen lager av brevets utsagn, og det er den teksten som fryses som brevet.»
+- GR-U13: «GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt: endringsordren «skal være skriftlig og gi beskjed om at det kreves en endring, samt hva endringen går ut på», og den «må være gitt av byggherrens representant, jf. punkt 9, eller av en person med skriftlig fullmakt til å utstede slike».»'''
+valgt = "Fullmaktshaver er avsender"
+svar = '''
+Q3: «To signaturer: saksbehandler og fullmaktshaver». Q3b: «Fullmaktshaver er avsender (Recommended)».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u2" }, { art = "presiserer", vedtak = "gr-u13" }]
+folge = '''
+Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Saksbehandleren"
+tekst = '''
+Avsenderen er den som utarbeidet svaret. Den interne godkjenningen er ikke en del av brevet. Er svaret en endringsordre etter § 31.3, må avsenderen selv ha fullmakt til den.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Den siste godkjenneren"
+tekst = '''
+Avsenderen er den siste godkjenneren, som har fullmakt til svaret. Avsenderen godkjenner brevteksten (LV-U2). Den som utarbeidet svaret, og de andre godkjenningene står i godkjenningen, ikke i brevet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Saksbehandleren, med merknad"
+tekst = '''
+Avsenderen er den som utarbeidet svaret, og brevet sier at svaret er godkjent av en person med fullmakt, uten å nevne hvem.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fullmaktshaver er avsender"
+tekst = '''
+Brevet har to signaturer: den som utarbeidet svaret, og den som godkjente det med fullmakt til svaret. Avsenderen i journalen er den som har fullmakten; den som utarbeidet svaret, står i brevet som saksbehandler.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Saksbehandler er avsender"
+tekst = '''
+Brevet har to signaturer: den som utarbeidet svaret, og den som godkjente det med fullmakt til svaret. Avsenderen i journalen er den som utarbeidet svaret; den som har fullmakten, står i brevet som godkjenner.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Begge er avsendere"
+tekst = '''
+Brevet har to signaturer, og journalen fører begge som avsendere av brevet: den som utarbeidet svaret, og den som godkjente det med fullmakt til svaret.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "LV-U2: i et brev appen sender, godkjenner avsenderen brevteksten appen lager av brevets utsagn, og det er den teksten som fryses som brevet."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt: endringsordren «skal være skriftlig og gi beskjed om at det kreves en endring, samt hva endringen går ut på», og den «må være gitt av byggherrens representant, jf. punkt 9, eller av en person med skriftlig fullmakt til å utstede slike»."
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -5077,6 +5155,190 @@ Policy nøkles på `user_id`'''
 vedtatt = "18.09"
 folge = '''
 `BH_APPROVAL_POLICIES` må ha `user_id` per oppføring før produksjon'''
+
+[[gruppe.vedtak]]
+id = "GFK-U1"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 7 (#764)", "#818"]
+sporsmal = '''
+Hvem registrerer byggherrens fullmakter i appen?
+
+Byggherrens interne godkjenning av svar regnes etter fullmakter (GFK-06), og § 31.3 krever at en endringsordre gis av byggherrens representant eller en person med skriftlig fullmakt. I dag står fullmaktene i appens oppsett, satt av driften; de skal flyttes til databasen, og da må det avgjøres hvem som fører dem.
+
+A. Byggherren registrerer i appen (anbefalt): «Fullmaktene i appen gjengir fullmakter byggherren har gitt; appen gir ingen fullmakt selv. De registreres i appen av personer byggherren har utpekt til det, og bare for personer på byggherrens side. Hver endring står med tidspunkt og hvem som registrerte den, og en godkjenning vurderes etter fullmaktene som gjaldt da den ble gitt.»
+B. Representanten registrerer: «Fullmaktene i appen gjengir fullmakter byggherren har gitt. Bare byggherrens representant etter § 9 kan registrere dem i appen. Hver endring står med tidspunkt og hvem som registrerte den.»
+C. Driften setter dem opp: «Fullmaktene settes opp i appens oppsett av driften etter skriftlig bestilling fra byggherren. Appen viser ikke hvem som har endret dem.»
+
+Anbefaling: A.
+
+Belegg, ordrett fra vedtakene:
+- B-04 punkt 2 (merknaden 23.09): «**En godkjenning** som ble gitt mens godkjenneren hadde fullmakt, står.»'''
+valgt = "Driften setter dem opp"
+svar = '''
+«Driften setter dem opp»'''
+folge = '''
+Ikke bygget. Presiserer vedtaket 18.09 «Policy nøkles på `user_id`» og B-04 punkt 2.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Byggherren registrerer i appen"
+tekst = '''
+Fullmaktene i appen gjengir fullmakter byggherren har gitt; appen gir ingen fullmakt selv. De registreres i appen av personer byggherren har utpekt til det, og bare for personer på byggherrens side. Hver endring står med tidspunkt og hvem som registrerte den, og en godkjenning vurderes etter fullmaktene som gjaldt da den ble gitt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Representanten registrerer"
+forkastet = true
+tekst = '''
+Fullmaktene i appen gjengir fullmakter byggherren har gitt. Bare byggherrens representant etter § 9 kan registrere dem i appen. Hver endring står med tidspunkt og hvem som registrerte den.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Driften setter dem opp"
+tekst = '''
+Fullmaktene settes opp i appens oppsett av driften etter skriftlig bestilling fra byggherren. Appen viser ikke hvem som har endret dem.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "**En godkjenning** som ble gitt mens godkjenneren hadde fullmakt, står."
+
+[[gruppe.vedtak]]
+id = "GFK-U2"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 7 (#764)", "#818"]
+sporsmal = '''
+Kan byggherren svare fra appen i et prosjekt uten registrerte fullmakter?
+
+Etter vedtakene går byggherrens svar på grunnlag, vederlag og frist gjennom fullmakten, mens svaret på et forseringsvarsel sendes uten intern godkjenning (FO-U6). I dag sender appen alle svar direkte når prosjektet ikke har fullmakter.
+
+A. Ingen svar uten fullmakter (anbefalt): «Har byggherren ikke registrert fullmakter i prosjektet, kan svar som går gjennom fullmakten, ikke sendes fra appen. Svaret på et forseringsvarsel kan sendes (FO-U6).»
+B. Bare endringsordrer sperres: «Har byggherren ikke registrert fullmakter i prosjektet, sendes svar direkte av den som skriver dem. Et svar som er en endringsordre etter § 31.3, og en endringsordre i en EO-sak kan ikke sendes fra appen.»
+C. Alle svar sendes direkte: «Har byggherren ikke registrert fullmakter i prosjektet, sendes alle svar direkte av den som skriver dem, også endringsordrer. Dette endrer GR-U13 og EO-U6 for slike prosjekter.»
+
+Anbefaling: A.
+
+Belegg, ordrett fra vedtakene:
+- GR-U13: «For brev sendt fra appen sørger appen for det: brevet sier at endringen kreves og viser til pålegget i varselet, og fullmakten kontrolleres i godkjenningsflyten (GFK-06).»
+- FO-U6: «Svaret på forseringsvarselet (FO-U3) sendes uten intern godkjenning, fordi det ikke påtar byggherren noe ansvar.»'''
+valgt = "Ingen svar uten fullmakter"
+svar = '''
+«Ingen svar uten fullmakter (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "gr-u13" }, { art = "presiserer", vedtak = "eo-u6" }, { art = "presiserer", vedtak = "fo-u6" }]
+folge = '''
+Ikke bygget. Presiserer B-02 punkt 3 (vedtaket 23.09).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen svar uten fullmakter"
+tekst = '''
+Har byggherren ikke registrert fullmakter i prosjektet, kan svar som går gjennom fullmakten, ikke sendes fra appen. Svaret på et forseringsvarsel kan sendes (FO-U6).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare endringsordrer sperres"
+forkastet = true
+tekst = '''
+Har byggherren ikke registrert fullmakter i prosjektet, sendes svar direkte av den som skriver dem. Et svar som er en endringsordre etter § 31.3, og en endringsordre i en EO-sak kan ikke sendes fra appen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alle svar sendes direkte"
+forkastet = true
+tekst = '''
+Har byggherren ikke registrert fullmakter i prosjektet, sendes alle svar direkte av den som skriver dem, også endringsordrer. Dette endrer GR-U13 og EO-U6 for slike prosjekter.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "For brev sendt fra appen sørger appen for det: brevet sier at endringen kreves og viser til pålegget i varselet, og fullmakten kontrolleres i godkjenningsflyten (GFK-06)."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Svaret på forseringsvarselet (FO-U3) sendes uten intern godkjenning, fordi det ikke påtar byggherren noe ansvar."
+
+[[gruppe.vedtak]]
+id = "GFK-U3"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 7 (#764)", "#818"]
+sporsmal = '''
+Hvilken fullmakt kreves for fristdager når dagmulktssatsen mangler (B-06)?
+
+Fullmakten for et svar regnes av beløpet, og fristdager regnes om til beløp med dagmulktssatsen (GFK-06). B-06 i 3.4 spør hva som gjelder når satsen ikke er registrert; i dag regnes dagene da som 0 kr (GFK-01).
+
+A. Hele kjeden (anbefalt): «Mangler dagmulktssatsen, kan fristdagene ikke verdsettes, og fristsporet behandles som et krav som ikke er tallfestet: det krever hele kjeden.»
+B. Svaret avvises: «Mangler dagmulktssatsen, kan et svar som godkjenner fristdager, ikke sendes fra appen før satsen er registrert.»
+C. Manuell verdsetting: «Mangler dagmulktssatsen, oppgir den som utarbeider svaret en verdi per dag, og fullmakten regnes av den. Verdien står i godkjenningen.»
+
+Anbefaling: A.
+
+Belegg, ordrett fra vedtakene:
+- GFK-06: «Godkjenning av ansvarsgrunnlaget (GFK-06): fullmakten regnes av TEs krevde beløp, vederlag pluss krevde fristdager ganget med dagmulktssatsen.»
+- Presiseringen 24.09: «Et krav som ikke er sendt, krever hele kjeden som et krav som ikke er tallfestet; et trukket krav er 0.»'''
+valgt = "Hele kjeden"
+svar = '''
+«Hele kjeden (Recommended)»'''
+folge = '''
+Presiserer GFK-06 og presiseringen 24.09 av den. Avgjør B-06. Bygget for endringsordrer (`eoManglerSats`, `resolveRoute`); for svar i KOE-saken regnes dagene som 0 kr (GFK-01).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hele kjeden"
+tekst = '''
+Mangler dagmulktssatsen, kan fristdagene ikke verdsettes, og fristsporet behandles som et krav som ikke er tallfestet: det krever hele kjeden.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Svaret avvises"
+forkastet = true
+tekst = '''
+Mangler dagmulktssatsen, kan et svar som godkjenner fristdager, ikke sendes fra appen før satsen er registrert.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Manuell verdsetting"
+forkastet = true
+tekst = '''
+Mangler dagmulktssatsen, oppgir den som utarbeider svaret en verdi per dag, og fullmakten regnes av den. Verdien står i godkjenningen.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Godkjenning av ansvarsgrunnlaget (GFK-06): fullmakten regnes av TEs krevde beløp, vederlag pluss krevde fristdager ganget med dagmulktssatsen."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et krav som ikke er sendt, krever hele kjeden som et krav som ikke er tallfestet; et trukket krav er 0."
+
+[[gruppe.vedtak]]
+id = "GFK-U4"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 7 (#764)", "#818"]
+sporsmal = '''
+S-1, ubegrenset fullmakt uten dagmulktssats: Du har avgjort at når dagmulktssatsen mangler, «behandles fristsporet som et krav som ikke er tallfestet: det krever hele kjeden» (GFK-U3). Vedtaket 23.09 sier: «Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes», og «Alle andre trenger fortsatt hele kjeden» (EO-U6 endret dette bare for endringsordren). Python lar i dag ikke ubegrenset fullmakt sende alene når satsen mangler; den regelen er eldre enn GFK-U3. Kan en saksbehandler med ubegrenset fullmakt sende et slikt svar alene?
+
+«Ja, ubegrenset kan sende alene (Recommended)»: «Mangler dagmulktssatsen, kan den som har ubegrenset fullmakt, sende svaret alene, som for et krav som ikke er tallfestet; alle andre trenger hele kjeden.» Presiserer GFK-U3 og vedtaket 23.09.
+«Nei, hele kjeden alltid»: «Mangler dagmulktssatsen, kreves hele kjeden også når den som utarbeidet svaret, har ubegrenset fullmakt.» Snevrer inn vedtaket 23.09 for dette tilfellet.
+
+Belegg, ordrett fra vedtakene:
+- 23.09: «Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes»'''
+valgt = "Ja, ubegrenset kan sende alene"
+svar = '''
+«Ja, ubegrenset kan sende alene (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "gfk-u3" }]
+folge = '''
+Presiserer vedtaket 23.09 om ubegrenset fullmakt. Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, ubegrenset kan sende alene"
+tekst = '''
+Mangler dagmulktssatsen, kan den som har ubegrenset fullmakt, sende svaret alene, som for et krav som ikke er tallfestet; alle andre trenger hele kjeden.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, hele kjeden alltid"
+tekst = '''
+Mangler dagmulktssatsen, kreves hele kjeden også når den som utarbeidet svaret, har ubegrenset fullmakt.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes"
 
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"

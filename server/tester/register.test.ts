@@ -10,7 +10,8 @@
  *
  * En inngang til prosjektet selv, uten sak, prøves uten sesjon, uten
  * `X-Project-ID`, med et annet prosjekt i hodet enn i stien og i et prosjekt
- * brukeren ikke er med i.
+ * brukeren ikke er med i. En endring prøves også uten og med feil CSRF-token, og en
+ * inngang som krever admin, med et medlem og en admin med leserolle.
  *
  * Inngangen som oppretter en sak, har ingen sak i stien. Den prøves som en
  * saksinngang, med en sak i et annet prosjekt i kroppen i stedet for i stien.
@@ -25,6 +26,7 @@
  * der, finnes ikke: den gir 404 før noen behandler kalles.
  */
 
+import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   erAapen,
@@ -35,7 +37,9 @@ import {
   RUTER,
   type Rute,
 } from '../app.ts';
+import { catendaId, sha256 } from '../autorisasjon.ts';
 import { opprettSesjon } from '../sesjon.ts';
+import { settInn } from './sqlserver_migrert.ts';
 import {
   kall,
   lagOppsett,
@@ -45,6 +49,7 @@ import {
   TESTBASE_URL,
   type KjorendeServer,
   type Oppsett,
+  type Testbruker,
 } from './testbase.ts';
 
 const navn = (r: Rute) => `${r.metode} ${r.eksempel(erUtenSak(r) ? '<prosjekt>' : '<sak>')}`;
@@ -57,7 +62,12 @@ const UTEN_PROSJEKT = [
   'GET /api/csrf-token',
   'GET /api/projects',
 ];
-const UTEN_SAK = ['GET /api/projects/<prosjekt>'];
+const UTEN_SAK = [
+  'GET /api/projects/<prosjekt>',
+  'GET /api/projects/<prosjekt>/members',
+  'POST /api/projects/<prosjekt>/members/sync',
+  'PATCH /api/projects/<prosjekt>/members/00000000-0000-0000-0000-000000000000',
+];
 const NY_SAK = ['POST /api/kjerne/saker'];
 
 describe('registeret over inngangene', () => {
@@ -97,14 +107,43 @@ describe('registeret over inngangene', () => {
   );
 });
 
+/** En innlogget bruker med rollen admin i `o.prosjekt`. */
+async function adminI(o: Oppsett, leser: boolean): Promise<Testbruker> {
+  const b = { id: randomUUID(), subjekt: randomUUID(), token: randomUUID(), csrf: randomUUID() };
+  const eier = () => o.datalag.base.pool.request();
+  await settInn(eier, 'app_users', { id: b.id, email: `${b.id}@test.example`, name: 'Admin' });
+  await settInn(eier, 'app_project_memberships', {
+    project_id: o.prosjekt.id,
+    user_id: b.id,
+    catenda_subject: catendaId(b.subjekt),
+    user_email: `${b.id}@test.example`,
+    display_name: 'Admin',
+    role: 'admin',
+    viewer_override: leser,
+    active: true,
+  });
+  await settInn(eier, 'app_sessions', {
+    token_hash: sha256(b.token),
+    user_id: b.id,
+    csrf_token: b.csrf,
+    expires_at: { sql: 'DATEADD(hour, 1, SYSUTCDATETIME())' },
+  });
+  return b;
+}
+
 describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () => {
   let o: Oppsett;
   let server: KjorendeServer;
   let sak: string;
   let annenSak: string;
 
+  // Admin i prosjektet, med og uten leserolle, for inngangene som krever admin.
+  let admin: Testbruker;
+  let leserAdmin: Testbruker;
+
   beforeAll(async () => {
     o = await lagOppsett();
+    [admin, leserAdmin] = [await adminI(o, false), await adminI(o, true)];
     server = await startServer(o);
     sak = await opprettKjernesak(o);
     annenSak = await opprettKjernesak(o, o.annetProsjekt);
@@ -163,10 +202,45 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
       bruker: null,
       prosjektId: o.prosjekt.id,
+      kropp: kropp(r),
+      metode: r.metode,
     });
     expect(svar.status).toBe(401);
     expect(svar.kropp.error).toBe('UNAUTHORIZED');
   });
+
+  it.each(utenSak.filter(([, r]) => r.metode !== 'GET'))(
+    '%s: uten eller med feil CSRF-token gir 403',
+    async (_n, r) => {
+      for (const csrf of [null, 'feil']) {
+        const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
+          bruker: admin,
+          prosjektId: o.prosjekt.id,
+          kropp: kropp(r),
+          metode: r.metode,
+          csrf,
+        });
+        expect(svar.status).toBe(403);
+        expect(svar.kropp.error).toBe('CSRF validation failed');
+      }
+    }
+  );
+
+  it.each(utenSak.filter(([, r]) => r.tilgang.prosjektrolle === 'admin'))(
+    '%s: et medlem og en admin med leserolle gir 403',
+    async (_n, r) => {
+      for (const bruker of [o.te, leserAdmin]) {
+        const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
+          bruker,
+          prosjektId: o.prosjekt.id,
+          kropp: kropp(r),
+          metode: r.metode,
+        });
+        expect(svar.status).toBe(403);
+        expect(svar.kropp.error).toBe('FORBIDDEN');
+      }
+    }
+  );
 
   it.each(utenSak)(
     '%s: uten prosjekt, med et annet prosjekt i hodet enn i stien eller i feil prosjekt gir 403',
@@ -179,22 +253,45 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
         { bruker: o.utenfor, prosjektId: o.prosjekt.id, iStien: o.prosjekt.id },
       ];
       for (const { bruker, prosjektId, iStien } of forsok) {
-        const svar = await kall(server.url, r.eksempel(iStien), { bruker, prosjektId });
+        const svar = await kall(server.url, r.eksempel(iStien), {
+          bruker: bruker === o.te && r.tilgang.prosjektrolle === 'admin' ? admin : bruker,
+          prosjektId,
+          kropp: kropp(r),
+          metode: r.metode,
+        });
         expect(svar.status, JSON.stringify({ prosjektId, iStien })).toBe(403);
         expect(svar.kropp.error).toBe('FORBIDDEN');
       }
     }
   );
 
-  it.each(utenSak)('%s: kontrollsaken i eget prosjekt gir 200', async (_n, r) => {
-    for (const bruker of [o.te, o.utenTeam]) {
-      const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
-        bruker,
-        prosjektId: o.prosjekt.id,
-      });
-      expect(svar.status).toBe(200);
+  it.each(utenSak.filter(([, r]) => r.tilgang.prosjektrolle !== 'admin'))(
+    '%s: kontrollsaken i eget prosjekt gir 200',
+    async (_n, r) => {
+      for (const bruker of [o.te, o.utenTeam]) {
+        const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
+          bruker,
+          prosjektId: o.prosjekt.id,
+        });
+        expect(svar.status).toBe(200);
+      }
     }
-  });
+  );
+
+  // Kroppen `{}` og Catenda uten medlemsliste stopper etter tilgangen (400 og 503);
+  // hva inngangene gjør, prøves i `prosjekter.test.ts`.
+  it.each(utenSak.filter(([, r]) => r.tilgang.prosjektrolle === 'admin'))(
+    '%s: kontrollsaken med admin i eget prosjekt kommer forbi tilgangen',
+    async (_n, r) => {
+      const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
+        bruker: admin,
+        prosjektId: o.prosjekt.id,
+        kropp: kropp(r),
+        metode: r.metode,
+      });
+      expect([401, 403, 404]).not.toContain(svar.status);
+    }
+  );
 
   it.each(RUTER.filter(erAapen).map((r) => [navn(r), r] as const))(
     '%s: uten sesjon kommer forbi tilgangen',
