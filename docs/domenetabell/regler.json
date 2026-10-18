@@ -927,6 +927,13 @@
       "radetikett": "OV-U7: i første versjon bygges ikke disse vedtakene og delene av dem"
     },
     {
+      "id": "MM-U27",
+      "type": "vedtak",
+      "dato": "2026-10-17",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u27",
+      "radetikett": "MM-U27: En hendelse som ikke er et registrert brev, og som påberoper at et varsel, krav eller svar kom for sent etter en bestemmelse der samme part i et utsagn sendt fra appen uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det (HF-U4), gjør saken ikke forstått, som etter MM-U18"
+    },
+    {
       "id": "OV-U13",
       "type": "vedtak",
       "dato": "2026-10-17",
@@ -3048,7 +3055,7 @@
     {
       "id": "KA-48",
       "tilfelle": "Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § 32.2, § 33.4 eller § 34.1.2, eller at fristkravet ble spesifisert i tide etter § 33.6.1. Senere sender byggherren et svar eller en revisjon som påberoper at det samme kom for sent etter samme bestemmelse.",
-      "forventet": "Svaret eller revisjonen avvises. Resten av svaret kan revideres. Et «i tide» etter § 32.2, § 33.4 og § 34.1.2 står mot hver senere kravversjon, også et svar regnet mot en ny grunnlagsversjon, og etter § 33.4 også når TE senere registrerer et tidligere sendt varsel. Et «i tide» etter § 33.6.1 gjelder kravversjonen. Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt. Et registrert svar binder ikke. Kontrollen gjøres når et svar sendes eller registreres med kommandoen, ikke når saken leses.",
+      "forventet": "Svaret eller revisjonen avvises. Resten av svaret kan revideres. Et «i tide» etter § 32.2, § 33.4 og § 34.1.2 står mot hver senere kravversjon, også et svar regnet mot en ny grunnlagsversjon, og etter § 33.4 også når TE senere registrerer et tidligere sendt varsel. Et «i tide» etter § 33.6.1 gjelder kravversjonen. Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt. Et registrert svar binder ikke. Kontrollen gjøres når et svar sendes eller registreres med kommandoen. Et svar eller en revisjon utenfor kommandoene som ikke er et registrert brev, gjør saken ikke forstått (MM-U27).",
       "bh_standpunkt": "«I tide» i et sendt svar, deretter «for sent» etter samme bestemmelse.",
       "rettslig_virkning": "Byggherren er bundet av sitt «i tide» fra det er kommet fram. Om byggherren likevel er løst fra det, avgjør ikke appen.",
       "rettidighet": "Byggherrens tidligere «i tide» etter samme bestemmelse.",
@@ -3056,12 +3063,14 @@
       "kilder": [
         "HF-U4",
         "HF-U8",
-        "HF-U1"
+        "HF-U1",
+        "MM-U27"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#harSagtITide",
-        "kjerne/kommandoer/nyttelast.ts#paaberopt"
+        "kjerne/kommandoer/nyttelast.ts#paaberopt",
+        "kjerne/utledning/utled.ts#bryterBindingen"
       ],
       "regelkoder": [
         "SAGT_I_TIDE"
@@ -3070,7 +3079,7 @@
     {
       "id": "KA-49",
       "tilfelle": "Byggherren reviderer et svar sendt fra appen som TE ikke har godtatt, og revisjonen senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, at fremdriften er hindret etter § 33.1, dagene byggherren måtte forstå etter § 33.6.1 når begge svar sier «for sent», eller aksepten av beregningsmåten etter § 34.2.2.",
-      "forventet": "Revisjonen avvises, også når den hever et annet standpunkt, retter en skrivefeil eller kommer etter en ny grunnlagsversjon med samme hjemmel. Meldingen sier hvilket standpunkt som senkes. En revisjon med de samme standpunktene senker ikke. Byggherrens ønskede metode når tilbudet ikke er akseptert, sammenliknes ikke. Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar binder ikke. Kontrollen gjøres når revisjonen sendes med kommandoen, ikke når saken leses.",
+      "forventet": "Revisjonen avvises, også når den hever et annet standpunkt, retter en skrivefeil eller kommer etter en ny grunnlagsversjon med samme hjemmel. Meldingen sier hvilket standpunkt som senkes. En revisjon med de samme standpunktene senker ikke. Byggherrens ønskede metode når tilbudet ikke er akseptert, sammenliknes ikke. Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar binder ikke. Kontrollen gjøres når revisjonen sendes med kommandoen. En revisjon utenfor kommandoene som ikke er et registrert brev, gjør saken ikke forstått (MM-U27).",
       "bh_standpunkt": "Det byggherren har innrømmet i et sendt svar, deretter en revisjon som senker det.",
       "rettslig_virkning": "Byggherren er bundet av det svaret innrømmer, til TE godtar svaret eller sender en ny kravversjon. Om byggherren likevel er løst, avgjør ikke appen.",
       "rettidighet": "—",
@@ -3080,12 +3089,14 @@
         "HF-U14",
         "HF-U21",
         "HF-U8",
-        "OV-U4"
+        "OV-U4",
+        "MM-U27"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/standpunkter.ts#senketStandpunkt",
-        "kjerne/kommandoer/nyttelast.ts#binding"
+        "kjerne/kommandoer/nyttelast.ts#binding",
+        "kjerne/utledning/utled.ts#bryterBindingen"
       ],
       "regelkoder": [
         "SENKER_INNROEMMELSE"
