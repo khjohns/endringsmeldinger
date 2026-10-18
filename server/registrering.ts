@@ -14,7 +14,8 @@
  * `KOE_DRIFT_TILKOBLING` er tilkoblingsstrengen for en bruker med
  * `koe_driftsrolle`. Med `--bh` og `--te` kontrolleres teamene mot Catenda-
  * prosjektet med integrasjonens token (`catendaFraMiljoe`), som i Python.
- * Uten dem viser `kontraktsteam` teamene som står.
+ * Uten dem viser `kontraktsteam` teamene som står. Som i Python kan én `--bh` eller
+ * `--te` ha flere team (`--bh a b`).
  */
 
 import { fileURLToPath } from 'node:url';
@@ -87,8 +88,14 @@ async function catendaTeam(
   return team;
 }
 
-async function registrer(pool: Pool, r: Registrering): Promise<void> {
-  await pool
+interface Registrert {
+  nytt: boolean;
+  organisasjon_id: string;
+  board: string | null;
+}
+
+async function registrer(pool: Pool, r: Registrering): Promise<Registrert> {
+  const svar = await pool
     .request()
     .input('prosjekt', sql.NVarChar(4000), r.prosjekt)
     .input('navn', sql.NVarChar(4000), r.navn)
@@ -99,7 +106,8 @@ async function registrer(pool: Pool, r: Registrering): Promise<void> {
     .input('mappe', sql.UniqueIdentifier, r.mappe)
     .input('board', sql.UniqueIdentifier, r.board)
     .input('team', sql.NVarChar(sql.MAX), r.team && JSON.stringify(r.team))
-    .execute('koe_drift.registrer_prosjekt');
+    .execute<Registrert>('koe_drift.registrer_prosjekt');
+  return svar.recordset[0]!;
 }
 
 async function settKontraktsteam(
@@ -159,6 +167,38 @@ const VALG = {
   te: { type: 'string', multiple: true },
 } as const;
 
+const BARE_REGISTRER = [
+  'navn',
+  'beskrivelse',
+  'organisasjon',
+  'catenda-prosjekt',
+  'bibliotek',
+  'mappe',
+  'board',
+] as const;
+
+/** `--bh a b` blir `--bh a --bh b`, som `nargs="+"` i `catenda_admin.py`. */
+function flereTeam(argv: string[]): string[] {
+  const ut: string[] = [];
+  let flagg: string | null = null;
+  let utenVerdi = false;
+  for (const arg of argv) {
+    const nyttFlagg = arg.startsWith('-');
+    if (nyttFlagg && flagg && utenVerdi) ut.push(flagg);
+    if (arg === '--bh' || arg === '--te') {
+      [flagg, utenVerdi] = [arg, true];
+    } else if (nyttFlagg) {
+      flagg = null;
+      ut.push(arg);
+    } else if (flagg) {
+      ut.push(flagg, arg);
+      utenVerdi = false;
+    } else ut.push(arg);
+  }
+  if (flagg && utenVerdi) ut.push(flagg);
+  return ut;
+}
+
 function paakrevd(verdi: string | undefined, navn: string): string {
   if (!verdi) throw new Registreringsfeil(`--${navn} må oppgis.`);
   return verdi;
@@ -167,7 +207,7 @@ function paakrevd(verdi: string | undefined, navn: string): string {
 /** Kjører kommandoen i `argv` (uten `node` og skriptet). */
 export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   const { values: v, positionals } = parseArgs({
-    args: argv,
+    args: flereTeam(argv),
     options: VALG,
     allowPositionals: true,
   });
@@ -202,8 +242,16 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       team: oppgittTeam,
     };
     if (r.team) await kontrollerTeam(r.catendaProsjekt, r.team);
-    await registrer(await a.pool(), r);
+    const utfall = await registrer(await a.pool(), r);
     a.skriv(`Prosjektet ${r.prosjekt} er registrert${r.team ? ' med kontraktsteamene' : ''}.`);
+    if (!utfall.nytt && utfall.organisasjon_id !== r.organisasjon)
+      a.skriv(
+        `Virksomheten er uendret: ${utfall.organisasjon_id}. En ny registrering endrer den ikke (KR-01).`
+      );
+    if (!utfall.board)
+      a.skriv(
+        'Prosjektet har ikke noe board: nye saker avvises (51412) til det registreres med --board.'
+      );
     return;
   }
 
@@ -214,10 +262,19 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       );
     const prosjekt = prosjektArgument ?? v.prosjekt;
     if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
+    const ukjente = BARE_REGISTRER.filter((navn) => v[navn] !== undefined);
+    if (ukjente.length)
+      throw new Registreringsfeil(
+        `${ukjente.map((navn) => `--${navn}`).join(', ')} gjelder bare «registrer».`
+      );
     const pool = await a.pool();
     const naa = await lesKontraktsteam(pool, prosjekt);
     if (!naa) throw new Registreringsfeil(`Prosjektet ${prosjekt} har ingen kobling til Catenda.`);
     if (oppgittTeam) {
+      if (!naa.aktiv)
+        throw new Registreringsfeil(
+          `Koblingen til Catenda er inaktiv: registrer ${prosjekt} på nytt før kontraktsteamene settes.`
+        );
       await kontrollerTeam(naa.catendaProsjekt, oppgittTeam);
       await settKontraktsteam(pool, prosjekt, oppgittTeam);
       a.skriv(`Kontraktsteamene i ${prosjekt} er lagret.`);
@@ -227,6 +284,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       const ider = naa.team.filter((t) => t.contract_role === side).map((t) => t.team_id);
       a.skriv(`${side}: ${ider.join(', ') || '(ingen)'}`);
     }
+    if (!naa.aktiv) a.skriv('Koblingen til Catenda er inaktiv.');
     if (naa.harSaker) a.skriv('Prosjektet har saker: kontraktsteamene kan bare få nye team.');
     return;
   }

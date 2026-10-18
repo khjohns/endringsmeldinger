@@ -554,12 +554,12 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820). En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt, men endrer ikke virksomheten. |
+| Hvor fra appen lagres og redigeres | Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820). En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt, men endrer ikke virksomheten; skriptet sier fra når `--organisasjon` er en annen (#836). |
 | Data fra Catenda | Delvis. Navnet oppgis av driften; i Python kan det hentes fra Catenda-prosjektet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.dagmulktssats.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.fullmakt.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`. |
 
@@ -588,12 +588,12 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | Driften setter teamene med skriptet `server/registrering.ts`, som kontrollerer dem mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`, direkte eller gjennom `koe_drift.registrer_prosjekt` (F-1, #820). Begge sider må ha minst ett team. Uten saker erstatter listen teamene; står prosjektet i `koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764). |
+| Hvor fra appen lagres og redigeres | Driften setter teamene med skriptet `server/registrering.ts`, som kontrollerer dem mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`, direkte eller gjennom `koe_drift.registrer_prosjekt` (F-1, #820). Begge sider må ha minst ett team. Uten saker erstatter listen teamene; står prosjektet i `koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764). Byttes Catenda-prosjektet, må teamene oppgis på nytt (#836). |
 | Data fra Catenda | Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes av driften. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.aktor_team_id (uten fremmednøkkel); koe.hendelse.aktor_team_id (uten fremmednøkkel); koe.notat.aktor_team_id (uten fremmednøkkel); koe.vedlegg.lastet_opp_team (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, også gjennom `koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.sett_kontraktsteam`, kalt fra `server/registrering.ts`); database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/registrering.test.ts`. |
 
@@ -605,12 +605,12 @@ Koblingen mellom prosjektet i appen og Catenda-prosjektet, og om den er aktiv (a
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over Catenda-prosjektet, biblioteket og mappen og gjør koblingen aktiv. Boardet skrives over når det er oppgitt. Ellers står det hvis Catenda-prosjektet er det samme, og fjernes hvis det er byttet. |
+| Hvor fra appen lagres og redigeres | Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over Catenda-prosjektet og biblioteket og gjør koblingen aktiv. Mappen og boardet skrives over når de er oppgitt. Ellers står de hvis Catenda-prosjektet er det samme, og fjernes hvis det er byttet. Har prosjektet saker, avvises bytte av Catenda-prosjekt, og uten saker krever et bytte nye kontraktsteam (#836). |
 | Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id); unik (catenda_project_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261019140000_registrering.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261019230000_registrering_bytte.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene og søk i `server/`. K 18.10: `server/tester/jobber.test.ts` og `server/tester/registrering.test.ts`. |
 
