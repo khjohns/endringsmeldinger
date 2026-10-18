@@ -35,9 +35,9 @@ export class TegnUtenforSkriften extends Error {}
 const MYKT_BINDESTREK = 0xad;
 
 /**
- * fontkit der mykt bindestrek settes med glyfen skriften har for det, som WinAnsi gjorde
- * før Noto Sans (orkestratoren 18.10, #802). Ellers bytter fontkit det ut med mellomrom, og
- * `ToUnicode` gir U+0020 tilbake.
+ * fontkit der mykt bindestrek settes med glyfen skriften har for det, så `ToUnicode` gir
+ * U+00AD tilbake (orkestratoren 18.10, #802). fontkit selv setter det som mellomrom.
+ * Endringen går gjennom en privat del av fontkit, så `create` kaster hvis den ikke virker.
  */
 const fontkitMedBindestrek: Parameters<PDFDocument['registerFontkit']>[0] = {
   create(data) {
@@ -46,6 +46,8 @@ const fontkitMedBindestrek: Parameters<PDFDocument['registerFontkit']>[0] = {
       ._layoutEngine;
     const usynlig = motor.isDefaultIgnorable.bind(motor);
     motor.isDefaultIgnorable = (k) => k !== MYKT_BINDESTREK && usynlig(k);
+    if (font.layout('\u00ad').glyphs[0]?.codePoints[0] !== MYKT_BINDESTREK)
+      throw new Error('fontkit setter ikke mykt bindestrek med glyfen i skriften');
     return font;
   },
 };
@@ -117,8 +119,8 @@ function linjer(
  * Tab, CR, FF og VT settes som mellomrom og linjeskift, som `gjengirTro` tåler.
  * Et delt ord merkes `/Delt`, så lesingen setter delene sammen igjen.
  *
- * @throws TegnUtenforSkriften når skriftene mangler et tegn eller tegnet er usynlig, i stedet for
- *   å sette en tom glyf eller et mellomrom
+ * @throws TegnUtenforSkriften når skriftene mangler et tegn eller tegnet er usynlig (unntatt
+ *   mykt bindestrek), i stedet for å sette en tom glyf eller et mellomrom
  */
 export async function skrivBrevPdf(
   tekst: string,

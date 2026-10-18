@@ -143,7 +143,7 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     await expect(svar).rejects.toThrow('U+1F600');
   });
 
-  // Kilde: orkestratoren 18.10 (#802): det main leverte med Helvetica og WinAnsi, leveres fortsatt.
+  // Kilde: orkestratoren 18.10 (#802): hvert tegn i WinAnsi leveres, også U+00AD.
   it('leverer hvert tegn i WinAnsi, også mykt bindestrek, og leser teksten tilbake ordrett', async () => {
     const winAnsi = [
       ...new TextDecoder('windows-1252').decode(Uint8Array.from({ length: 224 }, (_, i) => i + 32)),
