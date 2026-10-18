@@ -386,9 +386,13 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       );
       const innhold = oppdrag.find((d) => d.event_id === brevet)!.innhold;
       expect(innhold.oppdragsformat).toBe(OPPDRAGSFORMAT);
-      expect(innhold.vedlegg, 'LV-U1: vedleggene fryses i oppdraget').toEqual(
-        rad.data.dokumentasjon
+      expect(innhold, '#827 punkt 6: vedleggslista står bare i brevet').not.toHaveProperty(
+        'vedlegg'
       );
+      expect(
+        (innhold.brev as { dokument: { dokumentasjon: unknown } }).dokument.dokumentasjon,
+        'LV-U1: vedleggene fryses i oppdraget'
+      ).toEqual(rad.data.dokumentasjon);
     });
 
     it('samme kommando sendt på nytt gir brevet fra kvitteringen og binder ikke på nytt (KT-U5)', async () => {
@@ -475,6 +479,8 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       for (const setning of [
         'UPDATE koe.vedlegg SET bundet_av_event_id = NULL WHERE vedlegg_id = @id',
         'UPDATE koe.vedlegg SET bundet_av_event_id = @annen WHERE vedlegg_id = @id',
+        // LV-U12: innholdet slettes først når Catenda har kvittert for dokumentet.
+        'UPDATE koe.vedlegg SET innhold = NULL WHERE vedlegg_id = @id',
       ]) {
         const feil = await iTransaksjon(o.datalag.base.pool, teKontekst(), (r) =>
           r()

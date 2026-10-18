@@ -1312,6 +1312,41 @@
       "ved_sletting": "NO ACTION"
      }
     ]
+   },
+   "koe.vedleggskvittering": {
+    "kolonner": [
+     ["vedlegg_id", "uniqueidentifier", "NOT NULL"],
+     ["operasjon", "nvarchar(20)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["leveringsoppdrag_id", "uniqueidentifier", "NOT NULL"],
+     ["catenda_id", "nvarchar(100)", "NOT NULL"],
+     ["forsoek_id", "uniqueidentifier", "NOT NULL"],
+     ["kvittert", "datetime2(3)", "NOT NULL"],
+     ["forutsetning", "nvarchar(20)", "NULL"]
+    ],
+    "primærnøkkel": ["vedlegg_id", "operasjon"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["leveringsoppdrag_id"],
+      "til": "koe.leveringsoppdrag",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["vedlegg_id"],
+      "til": "koe.vedlegg",
+      "til_kolonner": ["vedlegg_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["vedlegg_id", "forutsetning"],
+      "til": "koe.vedleggskvittering",
+      "til_kolonner": ["vedlegg_id", "operasjon"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
    }
   }
  }

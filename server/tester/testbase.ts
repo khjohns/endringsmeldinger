@@ -163,6 +163,8 @@ const TESTRETTIGHETER = [
   'SELECT ON koe.leveringskvittering',
   'SELECT ON koe.leveringsoppdrag',
   'SELECT, INSERT ON koe.sak_catenda_topic',
+  'SELECT, UPDATE ON koe.vedlegg',
+  'SELECT ON koe.vedleggskvittering',
 ];
 const gi = TESTRETTIGHETER.map((r) => `GRANT ${r} TO koe_jobbkjoerer;`).join(' ');
 const ta = TESTRETTIGHETER.map((r) => `REVOKE ${r} FROM koe_jobbkjoerer;`).join(' ');

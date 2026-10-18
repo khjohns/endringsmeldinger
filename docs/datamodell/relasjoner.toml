@@ -877,6 +877,44 @@ over, etter kvitteringen for dokumentet, så det er ingen fremmednøkkel."""
 funn = []
 belegg = "L 18.10: `database/migrasjoner/20261018120000_levering.sql`."
 
+
+[[relasjon]]
+fra = "koe.vedleggskvittering.vedlegg_id"
+til = "koe.vedlegg.vedlegg_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vedlegget kvitteringen gjelder: én rad for dokumentet og én for referansen på topicen (V-3, #790)."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = ["koe.vedleggskvittering.vedlegg_id", "koe.vedleggskvittering.forutsetning"]
+til = ["koe.vedleggskvittering.vedlegg_id", "koe.vedleggskvittering.operasjon"]
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = "Referansen på topicen forutsetter at dokumentet er kvittert for samme vedlegg."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.vedleggskvittering.leveringsoppdrag_id"
+til = "koe.leveringsoppdrag.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Oppdraget som leverte vedlegget. Et senere oppdrag som viser til samme vedlegg, får ingen ny rad."
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
+fra = "koe.vedleggskvittering.forsoek_id"
+til = "koe.jobbforsoek.forsoek_id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er
+over, etter kvitteringen, så det er ingen fremmednøkkel."""
+funn = []
+belegg = "L 18.10: `database/migrasjoner/20261020020000_vedleggslevering.sql`."
 [[relasjon]]
 fra = ["koe.sak_catenda_topic.sak_id", "koe.sak_catenda_topic.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
@@ -1263,4 +1301,12 @@ begrunnelse = "ID-en Catenda ga dokumentet eller referansen. Den finnes bare i C
 
 [[uten_relasjon]]
 kolonne = "koe.leveringskvittering.prosjekt_id"
+begrunnelse = "Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5)."
+
+[[uten_relasjon]]
+kolonne = "koe.vedleggskvittering.catenda_id"
+begrunnelse = "ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda."
+
+[[uten_relasjon]]
+kolonne = "koe.vedleggskvittering.prosjekt_id"
 begrunnelse = "Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5)."
