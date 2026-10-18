@@ -17,7 +17,7 @@ describe('notices submitted with basis', () => {
       time: '2026-09-06T12:00:00Z',
       spor: 'grunnlag',
       data: { beskrivelse: 'Tegninger mangler.', varsler },
-    } as TimelineEvent;
+    } as TimelineEvent & { spor: 'grunnlag' };
     const sak = { sak_id: 'case', grunnlag: { tittel: 'Tegninger' } } as SakState;
     const text = buildLetterContent(event, sak).seksjoner.begrunnelse.originalTekst;
     expect(text).toContain('Tegninger mangler.');

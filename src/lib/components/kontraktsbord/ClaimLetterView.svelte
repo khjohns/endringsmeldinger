@@ -22,6 +22,7 @@
 {#if review.letter}
   {@const letter = review.letter}
   <Brevskall
+    brev={JSON.stringify(letter)}
     tilbakeTekst={tilTe ? 'Tilbake til skjemaet' : 'Tilbake til kravet'}
     steg={stepLabel}
     panel={{
