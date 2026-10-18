@@ -2086,8 +2086,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  let n = 0;\n',
-        '  if (forrige.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;\n  let n = 0;\n',
+        '  return forrige && binding(forrige, nye);\n',
+        '  if (forrige?.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;\n  return forrige && binding(forrige, nye);\n',
       ],
     ],
     mal: ['bindingen i vederlaget står etter en ny grunnlagsversjon', 'F-MM-HF-U21'],
