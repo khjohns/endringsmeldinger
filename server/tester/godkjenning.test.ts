@@ -346,8 +346,8 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     );
 
   it('en side som bare begynner med BH, avvises av prosedyrene og ikke først av radsikkerheten (#829 punkt 1)', async () => {
-    // Avkuttet til `nvarchar(2)` ble `BHX` til `BH`, og blokkpredikatet stoppet
-    // skrivingen med 33504.
+    // Lest som `nvarchar(2)` blir `BHX` til `BH` og slipper forbi kontrollen i
+    // prosedyren, så blokkpredikatet stopper skrivingen med 33504 i stedet for 51403.
     expect(await nummer(medSide(o.bh.id, 'BHX', (f) => lagPakke(f, pakke([leder]))))).toBe(51403);
     const p = pakke([leder]);
     await i(som(o.bh.id), (f) => lagPakke(f, p));

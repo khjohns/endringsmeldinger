@@ -15,7 +15,8 @@ export type Godkjenningshandling = 'godkjent' | 'returnert' | 'trukket';
 export class PakkeNektet extends Error {}
 /**
  * Pakken er returnert, trukket eller godkjent i alle steg, den forrige pakken er alt
- * erstattet, eller teamet har en åpen pakke i saken. Meldingen sier hvilket.
+ * erstattet, teamet har en åpen pakke i saken, eller lagringen brøt en unik indeks eller nøkkel,
+ * som når en samtidig pakke eller handling kom først. Meldingen sier hvilket.
  */
 export class PakkeAvsluttet extends Error {}
 export class UgyldigPakke extends Error {}
@@ -24,7 +25,6 @@ const NEKTET = 51403;
 const AVSLUTTET = 51409;
 const UGYLDIG = 51422;
 const BLOKKERT = 33504;
-/** Brudd på en unik indeks eller nøkkel: en samtidig pakke eller handling kom først. */
 const UNIK_INDEKS = 2601;
 const UNIK_NOEKKEL = 2627;
 
@@ -37,7 +37,7 @@ async function kall<T>(arbeid: Promise<T>): Promise<T> {
     if (nr === NEKTET || nr === BLOKKERT) throw new PakkeNektet(melding, { cause: feil });
     if (nr === AVSLUTTET) throw new PakkeAvsluttet(melding, { cause: feil });
     if (nr === UNIK_INDEKS || nr === UNIK_NOEKKEL)
-      throw new PakkeAvsluttet('En samtidig pakke eller handling ble lagret først', {
+      throw new PakkeAvsluttet('En pakke eller handling med samme nøkkel er alt lagret', {
         cause: feil,
       });
     if (nr === UGYLDIG) throw new UgyldigPakke(melding, { cause: feil });
