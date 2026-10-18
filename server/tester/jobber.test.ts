@@ -198,6 +198,33 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     ]);
   });
 
+  it('en ny jobb er klar fra tidsstempelet for opprettelsen, kuttet som i hent_jobb', async () => {
+    const vurdert = opprettelse({ type: 'opprett_sak', sakstittel: 'Klar straks' }, 'TE');
+    if (!vurdert.godtatt) throw new Error(vurdert.avvisning.melding);
+    const kontekst = { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const };
+    const { sak_id, tidsstempel } = await transaksjon(
+      o.datalag.kjoeretid.pool,
+      kontekst,
+      async (foresp) =>
+        (
+          await foresp()
+            .input('format', sql.Int, vurdert.format)
+            .input('data', sql.NVarChar(sql.MAX), JSON.stringify(vurdert.data))
+            .output('sak_id', sql.NVarChar(36))
+            .output('event_id', sql.NVarChar(36))
+            .output('tidsstempel', sql.DateTime2(3))
+            .execute('koe_api.opprett_sak')
+        ).output as { sak_id: string; tidsstempel: Date }
+    );
+    const [jobb] = (
+      await somKjoerer<{ neste_forsoek: Date }>(
+        'SELECT neste_forsoek FROM koe.jobb WHERE sak_id = @sak',
+        { sak: sak_id }
+      )
+    ).recordset;
+    expect(jobb.neste_forsoek.getTime()).toBe(tidsstempel.getTime());
+  });
+
   it('2: rulles saken tilbake, finnes heller ingen jobb', async () => {
     const vurdert = opprettelse({ type: 'opprett_sak', sakstittel: 'Rulles tilbake' }, 'TE');
     if (!vurdert.godtatt) throw new Error(vurdert.avvisning.melding);
@@ -436,7 +463,17 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       );
     expect((await les()).toISOString()).toBe('2000-01-01T00:00:00.000Z');
     await settBoard(board);
-    expect(Date.now() - (await les()).getTime()).toBeLessThan(60_000);
+    const [{ sekunder }] = (
+      await o.datalag.base.pool
+        .request()
+        .input('p', o.prosjekt.id)
+        .query<{ sekunder: number }>(
+          `SELECT DATEDIFF(second, updated_at, SYSUTCDATETIME()) AS sekunder
+             FROM koe.catenda_project_configs WHERE internal_project_id = @p`
+        )
+    ).recordset;
+    expect(sekunder).toBeGreaterThanOrEqual(-1);
+    expect(sekunder).toBeLessThan(60);
   });
 
   it('løkka gjør en ny jobb når den vekkes, uten å vente på pollingen', async () => {
