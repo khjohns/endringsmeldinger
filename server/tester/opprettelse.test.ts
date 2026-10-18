@@ -43,6 +43,12 @@ const GRUNNLAGSKRAV = {
   utdypning: 'Byggherren har pålagt en annen fundamentering.',
 };
 
+const VEDERLAGSKRAV = {
+  type: 'krav',
+  spor: 'vederlag',
+  innhold: { metode: 'tilbud', beloep: 1000 },
+};
+
 describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => {
   let o: Oppsett;
   let server: KjorendeServer;
@@ -170,6 +176,53 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
     expect(endret.status, JSON.stringify(endret.kropp)).toBe(422);
     expect(endret.kropp.error).toBe('KOMMANDO_ID_BRUKT');
     expect(await antall()).toEqual({ saker: foer.saker + 1, hendelser: foer.hendelser + 1 });
+  });
+
+  /** Kommandoen med den låste teksten for saken slik den er lagret nå (LV-U2). */
+  async function medTekst(sakId: string, kommando: Record<string, unknown>) {
+    const { journal } = await lesSaken(
+      o.datalag.kjoeretid.pool,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      sakId
+    );
+    const vist = forhaandsvis(
+      kommando,
+      {
+        sakId,
+        aktoerId: o.te.id,
+        part: 'TE',
+        teamId: null,
+        tidspunkt: () => new Date(),
+        nyId: randomUUID,
+      },
+      journal,
+      KJERNE
+    );
+    if (!vist.godtatt) throw new Error(JSON.stringify(vist));
+    return { ...kommando, brevtekst: laastTekst(vist.hendelser[0]) };
+  }
+
+  // Kilde: avgjørelse 2 i #764 (invariant 4: samme kvittering).
+  it('et gjentak av et krav får det første svaret, også når saken har fått en ny hendelse siden (#792 punkt 2)', async () => {
+    const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
+    const send = (expected_version: number, kommando_id: string, kommando: unknown) =>
+      kall(server.url, `${SAKER}/${sakId}/kommandoer`, {
+        bruker: o.te,
+        prosjektId: o.prosjekt.id,
+        kropp: { expected_version, kommando_id, kommando },
+      });
+    const grunnlagId = randomUUID();
+    const grunnlag = await medTekst(sakId, GRUNNLAGSKRAV);
+    const foerste = await send(1, grunnlagId, grunnlag);
+    expect(foerste.status, JSON.stringify(foerste.kropp)).toBe(201);
+    const vederlag = await send(2, randomUUID(), await medTekst(sakId, VEDERLAGSKRAV));
+    expect(vederlag.status, JSON.stringify(vederlag.kropp)).toBe(201);
+    expect(vederlag.kropp.versjon).toBe(3);
+
+    const igjen = await send(1, grunnlagId, grunnlag);
+    expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
+    expect(igjen.kropp).toEqual(foerste.kropp);
+    expect(igjen.kropp.versjon).toBe(2);
   });
 
   it('to opprettelser gir to saksnumre (DL-U6)', async () => {
