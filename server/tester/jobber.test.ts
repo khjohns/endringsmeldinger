@@ -5,6 +5,7 @@
  * står i #741 (kommentaren 18.10), med nummeret i testnavnet.
  */
 
+import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import {
@@ -179,7 +180,10 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     const svar = await kall(server.url, '/api/kjerne/saker', {
       bruker: o.te,
       prosjektId: o.prosjekt.id,
-      kropp: { kommando: { type: 'opprett_sak', sakstittel: 'Uten board' } },
+      kropp: {
+        kommando_id: randomUUID(),
+        kommando: { type: 'opprett_sak', sakstittel: 'Uten board' },
+      },
     });
     expect(svar.status).toBe(409);
     expect(svar.kropp.error).toBe('INGEN_TOPIC_BOARD');
@@ -193,7 +197,10 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     const svar = await kall(server.url, '/api/kjerne/saker', {
       bruker: o.te,
       prosjektId: o.prosjekt.id,
-      kropp: { kommando: { type: 'opprett_sak', sakstittel: 'Med board' } },
+      kropp: {
+        kommando_id: randomUUID(),
+        kommando: { type: 'opprett_sak', sakstittel: 'Med board' },
+      },
     });
     expect(svar.status).toBe(201);
     expect(await jobben(svar.kropp.sak_id as string)).toHaveLength(1);
@@ -225,6 +232,8 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
           await foresp()
             .input('format', sql.Int, vurdert.format)
             .input('data', sql.NVarChar(sql.MAX), JSON.stringify(vurdert.data))
+            .input('kommando_id', sql.NVarChar(4000), randomUUID())
+            .input('kommando_sha256', sql.NVarChar(4000), '0'.repeat(64))
             .output('sak_id', sql.NVarChar(36))
             .output('event_id', sql.NVarChar(36))
             .output('tidsstempel', sql.DateTime2(3))
@@ -249,6 +258,8 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       const s = await foresp()
         .input('format', sql.Int, vurdert.format)
         .input('data', sql.NVarChar(sql.MAX), JSON.stringify(vurdert.data))
+        .input('kommando_id', sql.NVarChar(4000), randomUUID())
+        .input('kommando_sha256', sql.NVarChar(4000), '0'.repeat(64))
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))

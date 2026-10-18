@@ -13,9 +13,19 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Journalrad } from '../../kjerne/typer.ts';
-import { sql, transaksjon, UgyldigKontekst, type Kontekst, type Pool } from '../datalag.ts';
 import {
+  sql,
+  transaksjon,
+  UgyldigKontekst,
+  UsikkertUtfall,
+  type Kontekst,
+  type Pool,
+} from '../datalag.ts';
+import { enGang, tidsavbrudd, vedNesteLaan } from './forbindelse.ts';
+import {
+  KommandoIdBrukt,
   opprettSak,
+  type Kommando,
   SakFinnesIkke,
   SkrivingAvvist,
   skrivHendelse,
@@ -42,6 +52,8 @@ const heks = () => randomBytes(16).toString('hex');
 const TE1 = heks();
 const BH1 = heks();
 const TE_P2 = heks();
+/** En ny kommando: en ID og en sum som ingen annen kommando har. */
+const ny = (): Kommando => ({ id: randomUUID(), sha256: heks() + heks() });
 const SAK_OPPRETTET = { sakstittel: 'Kommandoene', sakstype: 'standard' };
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
@@ -79,7 +91,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
   }, 60_000);
 
   const nySak = (k: Kontekst = te) =>
-    opprettSak(kjoeretid.pool, k, { format: 1, data: SAK_OPPRETTET });
+    opprettSak(kjoeretid.pool, k, ny(), { format: 1, data: SAK_OPPRETTET });
 
   /** Basens klokke, lest av eieren. */
   async function klokka(): Promise<number> {
@@ -243,7 +255,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     ])(
       'avvises %s med UgyldigKommando og en melding som sier hva (#596, #607)',
       async (_, data, melding) => {
-        const feil = await opprettSak(kjoeretid.pool, te, { format: 1, data }).catch(
+        const feil = await opprettSak(kjoeretid.pool, te, ny(), { format: 1, data }).catch(
           (e: unknown) => e
         );
         expect(feil).toBeInstanceOf(UgyldigKommando);
@@ -258,6 +270,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
           f()
             .input('format', sql.Int, 1)
             .input('data', sql.NVarChar(sql.MAX), '{"sakstype":"standard","sakstype":"forsering"}')
+            .input('kommando_id', sql.NVarChar(4000), randomUUID())
+            .input('kommando_sha256', sql.NVarChar(4000), heks() + heks())
             .output('sak_id', sql.NVarChar(36))
             .output('event_id', sql.NVarChar(36))
             .output('tidsstempel', sql.DateTime2(3))
@@ -273,7 +287,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const sak = await nySak();
       const foer = await klokka();
       let sett: Date | undefined;
-      const utfall = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, (g) => {
+      const utfall = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), (g) => {
         sett = g.tidspunkt;
         expect(g.journal.map((r) => r.event_id)).toEqual([sak.event_id]);
         return medOppdrag()(g);
@@ -281,7 +295,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const etter = await klokka();
       expect(sett!.getTime()).toBeGreaterThanOrEqual(foer);
       expect(sett!.getTime()).toBeLessThanOrEqual(etter);
-      if (!utfall.skriv) throw new Error('Brevet ble ikke skrevet.');
+      if (utfall.skriv !== true) throw new Error('Brevet ble ikke skrevet.');
       const { hendelser, oppdrag } = await lagret(sak.sak_id);
       expect(hendelser).toHaveLength(2);
       expect(hendelser[1]).toMatchObject({
@@ -306,9 +320,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     it('motparten skriver med sitt team, og uten team når konteksten er uten', async () => {
       const sak = await nySak();
       const bh: Kontekst = { aktor: b.bh, prosjekt: P1, side: 'BH', team: BH1 };
-      await skrivHendelse(kjoeretid.pool, bh, sak.sak_id, 1, medOppdrag(bh));
+      await skrivHendelse(kjoeretid.pool, bh, sak.sak_id, 1, ny(), medOppdrag(bh));
       const utenTeam = { ...te, team: undefined };
-      await skrivHendelse(kjoeretid.pool, utenTeam, sak.sak_id, 2, medOppdrag(utenTeam));
+      await skrivHendelse(kjoeretid.pool, utenTeam, sak.sak_id, 2, ny(), medOppdrag(utenTeam));
       const { hendelser } = await lagret(sak.sak_id);
       expect(hendelser.map((h) => [h.aktor_rolle, h.aktor_team_id])).toEqual([
         ['TE', TE1],
@@ -320,7 +334,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     it('en annen versjon enn journalens gir Versjonskonflikt, og ingenting skrives', async () => {
       const sak = await nySak();
       let kalt = false;
-      const feil = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, (g) => {
+      const feil = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, ny(), (g) => {
         kalt = true;
         return medOppdrag()(g);
       }).catch((e: unknown) => e);
@@ -334,7 +348,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const p2 = await nySak({ aktor: b.p2, prosjekt: P2, side: 'TE', team: TE_P2 });
       for (const sakId of [p2.sak_id, randomUUID()])
         await expect(
-          skrivHendelse(kjoeretid.pool, te, sakId, 1, medOppdrag())
+          skrivHendelse(kjoeretid.pool, te, sakId, 1, ny(), medOppdrag())
         ).rejects.toBeInstanceOf(SakFinnesIkke);
       const k2: Kontekst = { aktor: b.p2, prosjekt: P2, side: 'TE', team: TE_P2 };
       expect((await lagret(p2.sak_id, k2)).hendelser).toHaveLength(1);
@@ -347,7 +361,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     ])('en saks-ID %s gir SakFinnesIkke, og ingenting skrives (#566)', async (_, form) => {
       const sak = await nySak();
       await expect(
-        skrivHendelse(kjoeretid.pool, te, form(sak.sak_id), 1, medOppdrag())
+        skrivHendelse(kjoeretid.pool, te, form(sak.sak_id), 1, ny(), medOppdrag())
       ).rejects.toBeInstanceOf(SakFinnesIkke);
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
     });
@@ -356,7 +370,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const sak = await nySak();
       const leser: Kontekst = { aktor: b.leser, prosjekt: P1, side: 'TE', team: TE1 };
       await expect(
-        skrivHendelse(kjoeretid.pool, leser, sak.sak_id, 1, medOppdrag(leser))
+        skrivHendelse(kjoeretid.pool, leser, sak.sak_id, 1, ny(), medOppdrag(leser))
       ).rejects.toBeInstanceOf(SkrivingAvvist);
     });
 
@@ -369,7 +383,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const sak = await nySak();
       const lag = (g: { journal: Journalrad[]; tidspunkt: Date }) =>
         medOppdrag(te, endring(g.tidspunkt))(g);
-      await expect(skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, lag)).rejects.toThrow(
+      await expect(skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), lag)).rejects.toThrow(
         /skiller seg fra det basen stempler/
       );
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
@@ -377,7 +391,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
 
     it('en avvisning fra lag skriver ingenting', async () => {
       const sak = await nySak();
-      const utfall = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, () => ({
+      const utfall = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), () => ({
         skriv: false,
         avvisning: 'nei',
       }));
@@ -388,11 +402,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     it('verken en skriving eller en avvisning fra lag etterlater tidspunktet', async () => {
       const sak = await nySak();
       const gitt: Date[] = [];
-      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, (g) => {
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), (g) => {
         gitt.push(g.tidspunkt);
         return medOppdrag(te)(g);
       });
-      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, (g) => {
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, ny(), (g) => {
         gitt.push(g.tidspunkt);
         return { skriv: false, avvisning: 0 };
       });
@@ -405,7 +419,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const utfall = await transaksjon(enForbindelse.pool, te, async (f) => {
         await f().output('tidspunkt', sql.DateTime2(3)).execute('koe_api.skrivetidspunkt');
         return Promise.race([
-          skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, medOppdrag(te)).then(() => 'skrevet'),
+          skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), medOppdrag(te)).then(
+            () => 'skrevet'
+          ),
           new Promise((ok) => setTimeout(() => ok('ventet'), 10_000)),
         ]);
       });
@@ -463,7 +479,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
           const [r, o] = endre(rad, oppdragFor(rad));
           return { skriv: true, rad: r, oppdrag: { ...o, event_id: r.event_id } };
         };
-        const feil = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, lag).catch(
+        const feil = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), lag).catch(
           (e: unknown) => e
         );
         expect(feil).toBeInstanceOf(UgyldigKommando);
@@ -476,7 +492,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     it('null som kontekst gir UgyldigKontekst, ikke TypeError (#596)', async () => {
       const sak = await nySak();
       await expect(
-        skrivHendelse(kjoeretid.pool, null as unknown as Kontekst, sak.sak_id, 1, medOppdrag())
+        skrivHendelse(
+          kjoeretid.pool,
+          null as unknown as Kontekst,
+          sak.sak_id,
+          1,
+          ny(),
+          medOppdrag()
+        )
       ).rejects.toBeInstanceOf(UgyldigKontekst);
     });
 
@@ -484,7 +507,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       const sak = await nySak();
       const utenSide: Kontekst = { aktor: b.te, prosjekt: P1, team: TE1 };
       await expect(
-        skrivHendelse(kjoeretid.pool, utenSide, sak.sak_id, 1, medOppdrag(te))
+        skrivHendelse(kjoeretid.pool, utenSide, sak.sak_id, 1, ny(), medOppdrag(te))
       ).rejects.toBeInstanceOf(SkrivingAvvist);
     });
   });
@@ -506,7 +529,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         forventet = 1,
         felt = {} as Partial<
           Record<
-            'event_id' | 'dokumentnoekkel' | 'oppdrag_sha256' | 'oppdrag' | 'data' | 'oppdrag_id',
+            | 'event_id'
+            | 'dokumentnoekkel'
+            | 'oppdrag_sha256'
+            | 'oppdrag'
+            | 'data'
+            | 'oppdrag_id'
+            | 'kommando_id'
+            | 'kommando_sha256',
             string
           >
         > & { format?: number },
@@ -591,6 +621,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
             sql.NVarChar(4000),
             oppdrag ? (felt.oppdrag_sha256 ?? sjekksum(innhold)) : null
           )
+          .input('kommando_id', sql.NVarChar(4000), felt.kommando_id ?? randomUUID())
+          .input('kommando_sha256', sql.NVarChar(4000), felt.kommando_sha256 ?? heks() + heks())
           .execute('koe_api.skriv_hendelse');
         const k = await f().query<{ skriving: string | null }>(
           "SELECT CAST(SESSION_CONTEXT(N'koe_skriving') AS nvarchar(36)) AS skriving"
@@ -736,6 +768,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       ['et oppdrag som ikke er et JSON-objekt', { felt: { oppdrag: '"x"' } }, /Oppdraget/],
       ['en sum på 65 tegn', { felt: { oppdrag_sha256: 'a'.repeat(65) } }, /Summen/],
       ['en sum med store bokstaver', { felt: { oppdrag_sha256: 'A'.repeat(64) } }, /Summen/],
+      [
+        'en kommando-ID med store bokstaver (#418)',
+        { felt: { kommando_id: randomUUID().toUpperCase() } },
+        /Kommando-ID-en/,
+      ],
+      [
+        'en kommando-ID som ikke er en UUID (#418)',
+        { felt: { kommando_id: 'k-1' } },
+        /Kommando-ID-en/,
+      ],
+      [
+        'en sum for kommandoen på 63 tegn (#418)',
+        { felt: { kommando_sha256: 'a'.repeat(63) } },
+        /Summen for kommandoen/,
+      ],
     ])(
       'avviser %s (51422) med en melding som sier hva, ikke 547 (#605, #607, #596)',
       async (_, valg, tekst) => {
@@ -767,5 +814,203 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect(await avvisning(direkte(sak.sak_id, valg))).toBe(UGYLDIG);
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
     });
+  });
+
+  // Kilde: invariant 4 i 2.3 i hovedplanen (kvitteringen i samme transaksjon som
+  // brevet), merknaden 12.10 i #418 (et usikkert utfall av COMMIT, #419) og kravet
+  // fra #742 om opprettelsen.
+  describe('kvitteringen per kommando (#418)', () => {
+    /** COMMIT lykkes på serveren, men klienten får tidsavbrudd, ved neste lån. */
+    const tapSvaretEtterCommit = () =>
+      vedNesteLaan(kjoeretid.pool, (f) =>
+        enGang(
+          f,
+          'commitTransaction',
+          (ekte) =>
+            (cb, ...rest) =>
+              ekte(() => cb(tidsavbrudd()), ...rest)
+        )
+      );
+
+    it('samme kommando to ganger gir ett brev og samme brev i svaret, uten å kalle lag igjen', async () => {
+      const sak = await nySak();
+      const kommando = ny();
+      const foerste = await skrivHendelse(
+        kjoeretid.pool,
+        te,
+        sak.sak_id,
+        1,
+        kommando,
+        medOppdrag()
+      );
+      let kalt = false;
+      const igjen = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, (g) => {
+        kalt = true;
+        return medOppdrag()(g);
+      });
+      expect(foerste.skriv).toBe(true);
+      expect(igjen).toEqual({ skriv: 'gjentatt', rad: (foerste as { rad: Journalrad }).rad });
+      expect(kalt).toBe(false);
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(2);
+    });
+
+    it('samme kommando-ID med et annet innhold avvises med KommandoIdBrukt, og ingenting skrives', async () => {
+      const sak = await nySak();
+      const kommando = ny();
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag());
+      const feil = await skrivHendelse(
+        kjoeretid.pool,
+        te,
+        sak.sak_id,
+        2,
+        { ...kommando, sha256: heks() + heks() },
+        medOppdrag()
+      ).catch((e: unknown) => e);
+      expect(feil).toBeInstanceOf(KommandoIdBrukt);
+      expect(feilnummer((feil as Error).cause)).toBe(51410);
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(2);
+      // Kontrollsak: med en ny ID skrives brevet.
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, ny(), medOppdrag());
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(3);
+    });
+
+    it('kvitteringen gjelder aktøren: motparten med samme kommando-ID skriver sitt eget brev', async () => {
+      const sak = await nySak();
+      const kommando = ny();
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag());
+      const bh: Kontekst = { aktor: b.bh, prosjekt: P1, side: 'BH', team: BH1 };
+      const motparten = await skrivHendelse(
+        kjoeretid.pool,
+        bh,
+        sak.sak_id,
+        2,
+        kommando,
+        medOppdrag(bh)
+      );
+      expect(motparten.skriv).toBe(true);
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(3);
+    });
+
+    it('to samtidige forsøk med samme kommando gir ett brev: det ene skriver, det andre får kvitteringen', async () => {
+      const sak = await nySak();
+      const kommando = ny();
+      // Eieren holder journalen låst til begge forsøkene venter, så de overlapper.
+      // Med låsen på kvitteringen venter det andre bak det første og leser den etter
+      // commit; uten låsen leser begge «ingen kvittering», og det andre får 409.
+      let utfall: unknown[] = [];
+      let overlappet = false;
+      await transaksjon(base.pool, te, async (f) => {
+        await f()
+          .input('sak_id', sql.NVarChar(36), sak.sak_id)
+          .query(
+            'SELECT versjon FROM koe.hendelse WITH (UPDLOCK, HOLDLOCK) WHERE sak_id = @sak_id'
+          );
+        const begge = Promise.all(
+          [1, 2].map(() =>
+            skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag()).then(
+              (u) => u.skriv,
+              (e: unknown) => (e as Error).constructor.name
+            )
+          )
+        );
+        for (let n = 0; n < 100; n++) {
+          const svar = await base.pool.request().query<{
+            n: number;
+          }>('SELECT COUNT(*) AS n FROM sys.dm_exec_requests WHERE blocking_session_id <> 0 AND database_id = DB_ID()');
+          overlappet = svar.recordset[0].n >= 2;
+          if (overlappet) break;
+          await new Promise((ok) => setTimeout(ok, 50));
+        }
+        utfall = [begge];
+      });
+      const resultat = await (utfall[0] as Promise<unknown[]>);
+      expect(overlappet).toBe(true);
+      expect(resultat.map(String).sort()).toEqual(['gjentatt', 'true']);
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(2);
+    });
+
+    it('en kommando-ID med kvittering og uten sum avvises (51422), og kvitteringen gis ikke ut', async () => {
+      const sak = await nySak();
+      const kommando = ny();
+      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag());
+      const svar = await avvisningMedMelding(
+        transaksjon(kjoeretid.pool, te, (f) =>
+          f()
+            .input('kommando_id', sql.NVarChar(4000), kommando.id)
+            .input('kommando_sha256', sql.NVarChar(4000), null)
+            .output('sak_id', sql.NVarChar(36))
+            .output('event_id', sql.NVarChar(36))
+            .output('versjon', sql.Int)
+            .execute('koe_api.kvittering')
+        )
+      );
+      expect(svar?.nummer).toBe(UGYLDIG);
+      expect(svar?.melding).toMatch(/Summen for kommandoen/);
+    });
+
+    it('usikkert utfall av COMMIT for et brev: et nytt forsøk med samme kommando gir kvitteringen og ingen nytt brev', async () => {
+      const sak = await nySak();
+      const kommando = ny();
+      tapSvaretEtterCommit();
+      const feil = await skrivHendelse(
+        kjoeretid.pool,
+        te,
+        sak.sak_id,
+        1,
+        kommando,
+        medOppdrag()
+      ).catch((e: unknown) => e);
+      expect(feil).toBeInstanceOf(UsikkertUtfall);
+      const { hendelser } = await lagret(sak.sak_id);
+      expect(hendelser).toHaveLength(2);
+      const igjen = await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, kommando, medOppdrag());
+      expect(igjen).toMatchObject({ skriv: 'gjentatt', rad: { event_id: hendelser[1].event_id } });
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(2);
+    });
+
+    it('usikkert utfall av COMMIT for opprettelsen: et nytt forsøk med samme kommando gir samme sak og ingen ny', async () => {
+      const kommando = ny();
+      const foer = await sakerIP1();
+      tapSvaretEtterCommit();
+      const feil = await opprettSak(kjoeretid.pool, te, kommando, {
+        format: 1,
+        data: SAK_OPPRETTET,
+      }).catch((e: unknown) => e);
+      expect(feil).toBeInstanceOf(UsikkertUtfall);
+      expect(await sakerIP1()).toBe(foer + 1);
+      const igjen = await opprettSak(kjoeretid.pool, te, kommando, {
+        format: 1,
+        data: SAK_OPPRETTET,
+      });
+      const igjen2 = await opprettSak(kjoeretid.pool, te, kommando, {
+        format: 1,
+        data: SAK_OPPRETTET,
+      });
+      expect(igjen2).toEqual(igjen);
+      expect(igjen).toMatchObject({ event_type: 'sak_opprettet', versjon: 1 });
+      expect(await sakerIP1()).toBe(foer + 1);
+    });
+
+    it('opprettelsen med samme kommando-ID og et annet innhold avvises, og ingen sak lagres', async () => {
+      const kommando = ny();
+      await opprettSak(kjoeretid.pool, te, kommando, { format: 1, data: SAK_OPPRETTET });
+      const foer = await sakerIP1();
+      const feil = await opprettSak(
+        kjoeretid.pool,
+        te,
+        { ...kommando, sha256: heks() + heks() },
+        { format: 1, data: SAK_OPPRETTET }
+      ).catch((e: unknown) => e);
+      expect(feil).toBeInstanceOf(KommandoIdBrukt);
+      expect(await sakerIP1()).toBe(foer);
+    });
+
+    /** Antall saker i P1, lest av eieren i konteksten. */
+    async function sakerIP1(): Promise<number> {
+      return transaksjon(base.pool, te, async (f) => {
+        const svar = await f().query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.sak_metadata');
+        return svar.recordset[0].n;
+      });
+    }
   });
 });

@@ -8,6 +8,7 @@
  * og LV-U2.
  */
 
+import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   kall,
@@ -66,6 +67,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
       prosjektId: o.prosjekt.id,
       kropp: {
         expected_version: sak.versjon,
+        kommando_id: randomUUID(),
         kommando: tekst ? { ...kommando, brevtekst: tekst } : kommando,
       },
     });

@@ -31,6 +31,13 @@ export interface Kjernesak {
 }
 
 const SAKER = '/api/kjerne/saker';
+
+/**
+ * Serveren krever en kommando-ID og gir kvitteringen når samme ID kommer igjen
+ * (#418). Her får hvert kall en ny ID, så et nytt forsøk fra kalleren er en ny
+ * kommando.
+ */
+const nyKommandoId = () => crypto.randomUUID();
 const sti = (sakId: string) => `${SAKER}/${encodeURIComponent(sakId)}`;
 
 /** Prosjektet fra ruta går med, så saken ikke leses i et annet aktivt prosjekt. */
@@ -45,7 +52,7 @@ export const opprettSak = (kommando: unknown, prosjektId?: string) =>
   apiFetch<{ sak_id: string; versjon: number }>(SAKER, {
     method: 'POST',
     headers: projectHeaders(prosjektId),
-    body: JSON.stringify({ kommando }),
+    body: JSON.stringify({ kommando_id: nyKommandoId(), kommando }),
   });
 
 /**
@@ -63,6 +70,10 @@ export const sendKommando = (
     {
       method: 'POST',
       headers: projectHeaders(prosjektId),
-      body: JSON.stringify({ expected_version: expectedVersion, kommando }),
+      body: JSON.stringify({
+        expected_version: expectedVersion,
+        kommando_id: nyKommandoId(),
+        kommando,
+      }),
     }
   );
