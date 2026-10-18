@@ -200,26 +200,36 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     );
   });
 
-  it('en ny registrering uten --board beholder boardet, som koe_register_project', async () => {
+  it.each([
+    ['samme Catenda-prosjekt beholder boardet', true],
+    ['et nytt Catenda-prosjekt fjerner boardet', false],
+  ])('en ny registrering uten --board og %s', async (_tilfelle, sammeProsjekt) => {
     const prosjekt = `p-reg-${randomUUID().slice(0, 8)}`;
     const catendaProsjekt = randomUUID();
     const board = randomUUID();
-    const felles = [
-      '--prosjekt',
-      prosjekt,
-      '--organisasjon',
-      'org-1',
+    const felles = ['--prosjekt', prosjekt, '--organisasjon', 'org-1', '--bibliotek', randomUUID()];
+    await skript(
+      'registrer',
+      ...felles,
       '--catenda-prosjekt',
       catendaProsjekt,
-      '--bibliotek',
-      randomUUID(),
-    ];
-    await skript('registrer', ...felles, '--navn', 'Med board', '--board', board);
-    await skript('registrer', ...felles, '--navn', 'Uten board');
+      '--navn',
+      'Med board',
+      '--board',
+      board
+    );
+    await skript(
+      'registrer',
+      ...felles,
+      '--catenda-prosjekt',
+      sammeProsjekt ? catendaProsjekt : randomUUID(),
+      '--navn',
+      'Uten board'
+    );
     const svar = await o.datalag.base.pool.request().input('p', prosjekt).query<{
-      board: string;
+      board: string | null;
     }>('SELECT LOWER(CONVERT(nvarchar(36), topic_board_id)) AS board FROM koe.catenda_project_configs WHERE internal_project_id = @p');
-    expect(svar.recordset[0]?.board).toBe(board);
+    expect(svar.recordset[0]?.board).toBe(sammeProsjekt ? board : null);
   });
 
   it('et team som ikke finnes i Catenda-prosjektet, avvises før noe skrives', async () => {

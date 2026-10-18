@@ -755,7 +755,9 @@ avviser `koe_api.opprett_sak` saken (#741). Triggeren
 lagres_fra = """
 Driften registrerer koblingen med skriptet `server/registrering.ts`, som kaller
 `koe_drift.registrer_prosjekt` (F-1, #820). En ny registrering skriver over
-Catenda-prosjektet, biblioteket, mappen og boardet og gjør koblingen aktiv."""
+Catenda-prosjektet, biblioteket og mappen og gjør koblingen aktiv. Boardet
+skrives over når det er oppgitt. Ellers står det hvis Catenda-prosjektet er det
+samme, og fjernes hvis det er byttet."""
 fra_catenda = "Delvis. ID-ene til Catenda-prosjektet og boardet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Ingen kjente."
