@@ -16,6 +16,7 @@
  */
 
 import { createHash } from 'node:crypto';
+import type { Brevdokument } from './catenda.ts';
 import { gjengi, norskDato } from '../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
@@ -106,4 +107,23 @@ export function gjengiOppdrag(innhold: Record<string, unknown>): string | null {
     '',
     gjengi(brev.brevtekst),
   ].join('\n');
+}
+
+/**
+ * Dokumentet som lastes opp for brevet, med dokumentnøkkelen i navnet, så et forsøk
+ * etter et tapt svar finner det igjen (B-03). Til PDF-en finnes (L-1c, #371 del 2),
+ * er det brevet som UTF-8-tekst fra `gjengiOppdrag`. `null` når brevet ikke har tekst
+ * fra appen (MM-U17).
+ */
+export function brevdokument(
+  innhold: Record<string, unknown>,
+  dokumentnoekkel: string
+): Brevdokument | null {
+  const tekst = gjengiOppdrag(innhold);
+  if (tekst === null) return null;
+  const grunnnavn = (filnavn(innhold) ?? 'brev').replace(/\.pdf$/, '');
+  return {
+    navn: `${grunnnavn}-${dokumentnoekkel}.txt`,
+    innhold: new TextEncoder().encode(tekst),
+  };
 }

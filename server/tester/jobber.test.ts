@@ -7,7 +7,12 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
-import { CatendaUtilgjengelig, UsikkertUtfall, type NyTopic } from '../catenda.ts';
+import {
+  CatendaAvvisning,
+  CatendaUtilgjengelig,
+  UsikkertCatendautfall,
+  type NyTopic,
+} from '../catenda.ts';
 import { transaksjon } from '../datalag.ts';
 import { kjoerEnJobb, LEASETID_S, startJobbkjoerer } from '../jobber.ts';
 import { lesLeveringsmaal } from '../lager.ts';
@@ -57,6 +62,15 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
   let kall_: { boardId: string; topic: NyTopic }[];
   let svar: () => Promise<string>;
   const logg = { info() {}, warn() {}, error() {} };
+  const ingenLevering = async (): Promise<never> => {
+    throw new Error('Ingen levering i testene av topicen');
+  };
+  const utenDokumenter = {
+    finnDokument: ingenLevering,
+    lastOppDokument: ingenLevering,
+    dokumentreferanser: ingenLevering,
+    opprettDokumentreferanse: ingenLevering,
+  };
 
   const somKjoerer = <T>(setning: string, parametre: Record<string, unknown> = {}) =>
     somJobbkjoerer<T>(o, setning, parametre);
@@ -93,6 +107,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
           return svar();
         },
       },
+      dokumenter: utenDokumenter,
       saksadresse: (p, s) => `https://app.example.no/${p}/${s}/kjerne`,
       logg,
     });
@@ -293,7 +308,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
   it('4 og 8: et usikkert utfall parkeres, og driften starter jobben på nytt', async () => {
     const sakId = await opprettKjernesak(o);
     svar = async () => {
-      throw new UsikkertUtfall('Catenda svarte ikke');
+      throw new UsikkertCatendautfall('Catenda svarte ikke');
     };
     expect(await kjoer()).toBe(true);
     expect((await jobben(sakId))[0].tilstand).toBe('parkert');
@@ -304,6 +319,8 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       .request()
       .input('jobb_id', sql.UniqueIdentifier, jobb_id)
       .execute('koe_api.start_jobb_paa_nytt');
+    // Backoffen begynner forfra etter en omstart (#778).
+    expect((await jobben(sakId))[0].antall_forsoek).toBe(0);
     expect(
       await avvisning(
         o.datalag.base.pool
@@ -320,6 +337,19 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       ['startet_paa_nytt', 'sa'],
       ['utfoert', null],
     ]);
+  });
+
+  it('4: en varig avvisning fra Catenda parkeres som avvist i stedet for å prøves hver time (#778)', async () => {
+    const sakId = await opprettKjernesak(o);
+    svar = async () => {
+      throw new CatendaAvvisning(403);
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await jobben(sakId))[0].tilstand).toBe('parkert');
+    expect((await forsoekene(sakId)).map((f) => [f.utfall, f.melding])).toEqual([
+      ['avvist', 'Catenda avviste forespørselen med status 403'],
+    ]);
+    expect(await kjoer()).toBe(false);
   });
 
   it('5: en utløpt lease parkeres som usikker, og kvitteringen med den avvises (invariant 7)', async () => {
@@ -343,14 +373,15 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     const annen = o.datalag.base.pool.transaction();
     await annen.begin();
     try {
-      await annen
-        .request()
-        .input('sak', sakId)
-        .query(
-          `EXECUTE AS USER = 'koe_jobbkjoerer';
-           SELECT jobb_id FROM koe.jobb WITH (UPDLOCK, ROWLOCK) WHERE sak_id = @sak;
-           REVERT;`
-        );
+      // Den andre kjøreren henter jobben i en transaksjon som holder låsen til rollback.
+      expect(
+        (
+          await annen
+            .request()
+            .input('leasetid_sekunder', sql.Int, LEASETID_S)
+            .execute<{ sak_id: string }>('koe_api.hent_jobb')
+        ).recordset
+      ).toEqual([expect.objectContaining({ sak_id: sakId })]);
       const start = Date.now();
       expect((await hent()).recordset).toEqual([]);
       expect(Date.now() - start).toBeLessThan(5000);
@@ -483,6 +514,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       {
         datalag: o.datalag.kjoeretid.pool,
         catenda: { opprettTopic: async () => svar() },
+        dokumenter: utenDokumenter,
         saksadresse: () => 'x',
         logg,
       },

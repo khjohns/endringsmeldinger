@@ -34,6 +34,7 @@ import {
   catendaFraMiljoe,
   CatendaUtilgjengelig,
   integrasjonen,
+  dokumentleverandoer,
   topicoppretter,
 } from './catenda.ts';
 import { opprettPool, sql, type Pool } from './datalag.ts';
@@ -83,6 +84,7 @@ try {
   jobber = startJobbkjoerer({
     datalag,
     catenda: topicoppretter(klient),
+    dokumenter: dokumentleverandoer(klient),
     saksadresse: (prosjektId, sakId) =>
       `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}/kjerne`,
   });
