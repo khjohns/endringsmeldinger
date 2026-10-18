@@ -6,6 +6,7 @@
  * i stedet (GR-U16).
  */
 
+import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
 import { kategoriFraKatalogen, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
 
@@ -45,6 +46,12 @@ export const gjelderEndringsordre = (underkategori: string) =>
  */
 export const kanSendesTilKjernen = (underkategori: string) =>
   Object.hasOwn(UNDERKATEGORI_FRA_KATALOGEN, underkategori);
+
+/** Katalogens kategorier med bare underkategoriene kjernen har en kode for. */
+export const KJERNEKATEGORIER = KRAV_STRUKTUR_NS8407.map((g) => ({
+  ...g,
+  hjemler: g.hjemler.filter((h) => kanSendesTilKjernen(h.kode)),
+})).filter((g) => g.hjemler.length);
 
 export const opprettelse = (sakstittel: string) => ({
   type: 'opprett_sak' as const,
