@@ -455,7 +455,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(catenda.opplastinger).toBe(0);
 
     await somKjoerer(
-      `UPDATE koe.jobb SET neste_forsoek = SYSUTCDATETIME() WHERE sak_id = @sak AND jobbtype = N'levering'`,
+      `UPDATE koe.jobb SET neste_forsoek = DATETRUNC(millisecond, SYSUTCDATETIME()) WHERE sak_id = @sak AND jobbtype = N'levering'`,
       { sak: sakId }
     );
     const annen = new TextEncoder().encode('%PDF-1.7 en annen fil');
