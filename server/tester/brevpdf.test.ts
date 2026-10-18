@@ -143,9 +143,25 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     await expect(svar).rejects.toThrow('U+1F600');
   });
 
-  it('avviser et usynlig tegn, som mykt bindestrek, i stedet for å sette det som mellomrom', async () => {
+  // Kilde: orkestratoren 18.10 (#802): det main leverte med Helvetica og WinAnsi, leveres fortsatt.
+  it('leverer hvert tegn i WinAnsi, også mykt bindestrek, og leser teksten tilbake ordrett', async () => {
+    const winAnsi = [
+      ...new TextDecoder('windows-1252').decode(Uint8Array.from({ length: 224 }, (_, i) => i + 32)),
+    ]
+      .filter((t) => !/\p{Cc}/u.test(t))
+      .join('');
+    expect(winAnsi).toContain('\u00ad');
+    const tekst: Avsnitt[] = [
+      { gjelder: 'a', laast: 'Tekst.', utdypning: `${winAnsi} og myk\u00adbindestrek` },
+    ];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    expect(lest).toContain('myk\u00adbindestrek');
+    expect(lest.replace(/\s+/g, ' ')).toContain(winAnsi.replace(/\s+/g, ' '));
+    expect(gjengirTro(lest, tekst)).toBe(true);
+  });
+
+  it('avviser et usynlig tegn, som U+200B, i stedet for å sette det som mellomrom', async () => {
     for (const [laast, kode] of [
-      ['myk\u00adbindestrek', 'U+00AD'],
       ['null\u200bbredde', 'U+200B'],
       ['bom\ufeffmidt', 'U+FEFF'],
     ]) {

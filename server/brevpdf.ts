@@ -29,8 +29,26 @@ const SKRIFTER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'].map((fil) 
   return { bytes, tegnsett: fontkit.create(bytes) };
 });
 
-/** Brevteksten har et tegn PDF-en ikke kan sette tro: emoji, eller et usynlig tegn som mykt bindestrek. */
+/** Brevteksten har et tegn PDF-en ikke kan sette tro: emoji, eller et usynlig tegn som U+200B. */
 export class TegnUtenforSkriften extends Error {}
+
+const MYKT_BINDESTREK = 0xad;
+
+/**
+ * fontkit der mykt bindestrek settes med glyfen skriften har for det, som WinAnsi gjorde
+ * før Noto Sans (orkestratoren 18.10, #802). Ellers bytter fontkit det ut med mellomrom, og
+ * `ToUnicode` gir U+0020 tilbake.
+ */
+const fontkitMedBindestrek: Parameters<PDFDocument['registerFontkit']>[0] = {
+  create(data) {
+    const font = fontkit.create(data);
+    const motor = (font as unknown as { _layoutEngine: { isDefaultIgnorable(k: number): boolean } })
+      ._layoutEngine;
+    const usynlig = motor.isDefaultIgnorable.bind(motor);
+    motor.isDefaultIgnorable = (k) => k !== MYKT_BINDESTREK && usynlig(k);
+    return font;
+  },
+};
 
 /** Skriften for tegnet, som indeks i `SKRIFTER`. */
 function skriftFor(tegn: string): number {
@@ -42,7 +60,7 @@ function skriftFor(tegn: string): number {
       `Brevteksten har tegnet ${navn()}, som skriftene i PDF-en ikke har`
     );
   // fontkit setter et usynlig tegn som mellomrom eller utelater det.
-  if (/\p{Default_Ignorable_Code_Point}/u.test(tegn))
+  if (kode !== MYKT_BINDESTREK && /\p{Default_Ignorable_Code_Point}/u.test(tegn))
     throw new TegnUtenforSkriften(
       `Brevteksten har det usynlige tegnet ${navn()}, som PDF-en ikke kan sette tro`
     );
@@ -113,7 +131,7 @@ export async function skrivBrevPdf(
   pdf.setCreator('Endringsmeldinger');
   pdf.setCreationDate(tidspunkt);
   pdf.setModificationDate(tidspunkt);
-  pdf.registerFontkit(fontkit);
+  pdf.registerFontkit(fontkitMedBindestrek);
   const normalisert = tekst.replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
   const brukt = new Set(loep(normalisert.replace(/\n/g, '')).map((l) => l.skrift));
   // En skrift som ikke brukes, bygges ikke inn, så brev uten reservetegn er uendret.
