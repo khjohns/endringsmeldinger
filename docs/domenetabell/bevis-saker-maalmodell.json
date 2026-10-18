@@ -874,7 +874,7 @@
     {
       "id": "F-MM-D",
       "forslag": "D",
-      "rader": ["KA-19", "KA-20", "KA-21"],
+      "rader": ["KA-19", "KA-20"],
       "start": "godkjent_grunnlag",
       "steg": [
         { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
@@ -892,8 +892,7 @@
           "dokumentasjon": ["e-post 02.09"],
           "navn": "D4"
         },
-        { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt", "navn": "D5" },
-        { "handling": "varsel", "spor": "frist", "sendt": "2026-08-01", "navn": "D6" }
+        { "handling": "varsel", "spor": "frist", "sendt": "2026-08-01", "navn": "D5" }
       ],
       "kontroller": [
         {
@@ -942,7 +941,7 @@
             "standpunkt.S-f1.rettidighet.gjelder": "K-f1",
             "visning.opplysning.D4#sendt": { "inneholder": ["sendt_ifolge_TE", "mottaksdato_mangler"] },
             "visning.etiketter.frist": { "inneholder": ["svaret_gjaldt_et_annet_varsel"] },
-            "handlinger.BH": { "inneholder": ["revidere:frist", "bestride:D4#sendt"] },
+            "handlinger.BH": { "inneholder": ["revidere:frist"] },
             "annet_varsel.S-f1": ["rettidighet"]
           }
         },
@@ -962,21 +961,6 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["MM-U1"],
-          "forventet": {
-            "avvist": false,
-            "opplysning.D4#sendt.dato": "2026-09-02",
-            "opplysning.D4#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "hendelse": "D5" }],
-            "virkning.S-f1.rettidighet": "prinsipalt",
-            "visning.opplysning.D4#sendt": { "inneholder": ["sendt_ifolge_TE", "mottak_bestridt"] },
-            "visning.etiketter.frist": { "inneholder": ["svaret_gjaldt_et_annet_varsel"] },
-            "handlinger.BH": { "inneholder": ["revidere:frist"], "mangler": ["bestride:D4#sendt"] },
-            "annet_varsel.S-f1": ["rettidighet"]
-          }
-        },
-        {
-          "etter": 5,
-          "rolle": "mal",
           "kilde": ["V-SK12", "MM-U1"],
           "forventet": {
             "avvist": true,
@@ -986,14 +970,14 @@
           }
         },
         {
-          "etter": 5,
+          "etter": 4,
           "rolle": "mal",
           "kilde": ["V-SK12"],
           "prov": { "handling": "krav", "spor": "frist", "dager": 20, "varsel_sendt": "2026-08-01" },
           "forventet": { "avvist": true, "regel": "VARSEL_REGISTRERT" }
         },
         {
-          "etter": 5,
+          "etter": 4,
           "rolle": "kontroll",
           "kilde": ["V-SK12"],
           "prov": { "handling": "krav", "spor": "frist", "dager": 20, "varsel_sendt": "2026-09-02" },
@@ -1383,56 +1367,6 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
             "visning.etiketter.grunnlag": { "mangler": ["regel_endret_etter_brevet"] }
-          }
-        }
-      ],
-      "forventningsgrunnlag": "avklart_tolkning"
-    },
-    {
-      "id": "F-MM-D-avsluttet",
-      "forslag": "D, steg 5 etter at saken er avsluttet (MM-U7)",
-      "rader": ["KA-21"],
-      "start": null,
-      "steg": [
-        { "handling": "krav", "spor": "grunnlag", "underkategori": "irregulaer_endring", "navn": "K-g1" },
-        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
-        { "handling": "varsel", "spor": "frist", "sendt": "2026-09-02", "navn": "D3" },
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "avslaatt", "varslet_i_tide": true }]
-        },
-        { "handling": "aksept", "spor": "grunnlag", "navn": "D5" },
-        { "handling": "bestridelse", "part": "BH", "gjelder": "D3#sendt", "hva": "mottatt", "navn": "D6" }
-      ],
-      "kontroller": [
-        { "etter": 5, "rolle": "forutsetning", "kilde": ["V-SK01"], "forventet": { "grunnlag_avvist": true } },
-        {
-          "etter": 5,
-          "rolle": "mal",
-          "kilde": ["MM-U7", "KA-U34"],
-          "forventet": { "handlinger.BH": ["bestride:D3#sendt", "innsigelse:K-g1", "innsigelse:K-f1", "innsigelse:D3#varsel", "begrunne:S-g1"], "handlinger.TE": ["innsigelse:S-g1", "passivitet:K-g1"] }
-        },
-        {
-          "etter": 5,
-          "rolle": "kontroll",
-          "kilde": ["V-SK01", "MM-U7"],
-          "prov": { "handling": "krav", "spor": "frist", "dager": 25 },
-          "forventet": { "avvist": true, "regel": "GRUNNLAG_AVVIST" }
-        },
-        {
-          "etter": 6,
-          "rolle": "mal",
-          "kilde": ["MM-U7", "MM-U1", "KA-U34"],
-          "forventet": {
-            "avvist": false,
-            "nye_hendelser": 1,
-            "opplysning.D3#sendt.dato": "2026-09-02",
-            "opplysning.D3#sendt.bestridelser": [{ "part": "BH", "hva": "mottatt", "hendelse": "D6" }],
-            "visning.status": "avsluttet_avslaatt",
-            "visning.opplysning.D3#sendt": { "inneholder": ["mottak_bestridt"] },
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-f1", "innsigelse:D3#varsel", "begrunne:S-g1"],
-            "grunnlag_avvist": true
           }
         }
       ],
@@ -3008,7 +2942,7 @@
       "id": "F-MM-E9",
       "rader": ["KA-24"],
       "start": "godkjent_grunnlag",
-      "forslag": "MM-U14: en bestridelse avvises også når saken ikke er forstått",
+      "forslag": "MM-U2: en sak som ikke er forstått, avviser bestridelsen med SAK_IKKE_FORSTAATT før avvisningen i første versjon (OV-U7, som utsetter MM-U7 og MM-U14)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
@@ -3019,14 +2953,14 @@
         {
           "etter": 2,
           "rolle": "kontroll",
-          "kilde": ["MM-U7"],
+          "kilde": ["OV-U7"],
           "prov": { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt" },
-          "forventet": { "avvist": false }
+          "forventet": { "avvist": true, "regel": "IKKE_I_FOERSTE_VERSJON" }
         },
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U14", "MM-U2"],
+          "kilde": ["MM-U2"],
           "prov": { "handling": "bestridelse", "part": "BH", "gjelder": "D4#sendt", "hva": "mottatt" },
           "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
         }
@@ -8485,7 +8419,7 @@
         "KA-43"
       ],
       "start": "krav_irreg",
-      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev, som godtas også med en sendt-dato før svaret fordi datokontrollene er utsatt (OV-U7, KA-U36), og TE bestrider datoen i det registrerte brevet (MM-U7). Kontrollsakene er samme begrunnelse av svaret, fra byggherren, med tekst og med vedlegg",
+      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev, som godtas også med en sendt-dato før svaret fordi datokontrollene er utsatt (OV-U7, KA-U36). Kontrollsakene er samme begrunnelse av svaret, fra byggherren, med tekst og med vedlegg",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -8515,13 +8449,6 @@
             "brev 25.09"
           ],
           "navn": "D6"
-        },
-        {
-          "handling": "bestridelse",
-          "part": "TE",
-          "gjelder": "D6#sendt",
-          "hva": "sendt",
-          "navn": "D7"
         }
       ],
       "kontroller": [
@@ -8698,34 +8625,8 @@
             "forstaatt": true,
             "registrert.D6": true,
             "registrert.D5": false,
-            "gjeldende_svar.grunnlag": "S-g1",
-            "enighet.grunnlag": null,
-            "handlinger.TE": {
-              "inneholder": [
-                "godta:grunnlag"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 4,
-          "rolle": "mal",
-          "kilde": [
-            "MM-U7",
-            "KA-U35"
-          ],
-          "forventet": {
-            "avvist": false,
-            "forstaatt": true,
             "opplysning.D6#sendt.dato": "2026-09-25",
             "opplysning.D6#sendt.oppgitt_av": "BH",
-            "opplysning.D6#sendt.bestridelser": [
-              {
-                "part": "TE",
-                "hva": "sendt",
-                "hendelse": "D7"
-              }
-            ],
             "gjeldende_svar.grunnlag": "S-g1",
             "enighet.grunnlag": null,
             "handlinger.TE": {

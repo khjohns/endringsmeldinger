@@ -212,15 +212,33 @@ describe('formatet (7.1.2, 4.4)', () => {
  */
 describe('lesereglene for referansene (4.2)', () => {
   const vederlagIgjen = { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' };
-  const varselOgBestridelse = [
+  // OV-U7: kommandoen for bestridelse avvises, så bestridelsen lages av BHs innsigelse D5.
+  const varselOgInnsigelse = [
     'godkjent_grunnlag',
     { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
     { handling: 'varsel', spor: 'frist', sendt: '2026-09-02', navn: 'D4' },
-    { handling: 'bestridelse', part: 'BH', gjelder: 'D4#sendt', hva: 'mottatt', navn: 'D5' },
+    { handling: 'innsigelse', part: 'BH', gjelder: 'D4#varsel', navn: 'D5' },
   ];
   const element = (r: Journalrad[], k: Kjoering, navn: string, felt: 'krav' | 'utsagn') =>
     (radMed(r, k, navn).data[felt] as Data[])[0];
   const id = (k: Kjoering, navn: string) => k.navn.id(navn);
+  const tilBestridelse = (r: Journalrad[], k: Kjoering) =>
+    Object.assign(element(r, k, 'D5', 'utsagn'), {
+      art: 'bestridelse',
+      gjelder: id(k, 'D4#sendt'),
+      hva: 'mottatt',
+    });
+
+  it('en bestridelse fra motparten som står i journalen, leses (MM-U7)', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, varselOgInnsigelse as Parameters<typeof bygg>[1]);
+    const rader = structuredClone(await bane.journal());
+    tilBestridelse(rader, k);
+    const u = utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.forstaatt).toBe(true);
+    const o = u.opplysninger.find((x) => x.opplysning.id === id(k, 'D4#sendt'));
+    expect(o?.bestridelser.map((b) => [b.part, b.hva])).toEqual([['BH', 'mottatt']]);
+  });
 
   it.each<[string, (string | Data)[], (r: Journalrad[], k: Kjoering) => void]>([
     [
@@ -273,8 +291,11 @@ describe('lesereglene for referansene (4.2)', () => {
     ],
     [
       'en bestridelse av egen opplysning (MM-U7)',
-      varselOgBestridelse,
-      (r, k) => (radMed(r, k, 'D5').aktor_rolle = 'TE'),
+      varselOgInnsigelse,
+      (r, k) => {
+        tilBestridelse(r, k);
+        radMed(r, k, 'D5').aktor_rolle = 'TE';
+      },
     ],
     [
       'to standpunkter med samme ID',
@@ -451,25 +472,20 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     ...opplysninger,
   });
 
-  it('en bestridelse av opplysningen må gjelde § 31.3, ikke en dato (MM-U7)', async () => {
+  it('en bestridelse av opplysningen avvises i første versjon, både av § 31.3 og av en dato (OV-U7)', async () => {
     const k = await bygg(minnebane(), [
       'krav_irreg',
       registrert({ sendt: '2026-09-30', endringsordre: true }),
     ]);
-    const feil = await k.prov({
-      handling: 'bestridelse',
-      part: 'TE',
-      gjelder: 'D4#endringsordre',
-      hva: 'sendt',
-    });
-    expect(feil.godtatt ? 'godtatt' : feil.avvisning.regel).toBe('FEIL_BESTRIDELSE');
-    const riktig = await k.prov({
-      handling: 'bestridelse',
-      part: 'TE',
-      gjelder: 'D4#endringsordre',
-      hva: 'endringsordre',
-    });
-    expect(riktig.godtatt).toBe(true);
+    for (const hva of ['endringsordre', 'sendt']) {
+      const svar = await k.prov({
+        handling: 'bestridelse',
+        part: 'TE',
+        gjelder: 'D4#endringsordre',
+        hva,
+      });
+      expect(svar.godtatt ? 'godtatt' : svar.avvisning.regel).toBe('IKKE_I_FOERSTE_VERSJON');
+    }
   });
 
   it('en senere avklaring av § 31.3 er ikke forstått, også når den sier at brevet var en endringsordre (OV-U13)', async () => {

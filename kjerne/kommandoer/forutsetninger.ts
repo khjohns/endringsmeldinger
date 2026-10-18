@@ -50,8 +50,8 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
 
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element: § 5, VS-U12
- * og KA-U34. Som bestridelsen (MM-U7) godtas de også når kravene er avgjort
- * eller avslaget av grunnlaget er godtatt (KA-U11, KA-U28, KA-U29, KA-U34).
+ * og KA-U34. De godtas også når kravene er avgjort eller avslaget av grunnlaget er
+ * godtatt (KA-U11, KA-U28, KA-U29, KA-U34).
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
   const maal = u.elementer[h.gjelder];
@@ -76,30 +76,20 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
       return u.spor.grunnlag.krav.some((k) => k.id === h.gjelder)
         ? null
         : avvis('INGEN_VARSEL_ETTER_32_2', 'Påberopelsen må vise til TEs varsel etter § 32.2.');
+    case 'bestride':
     case 'merke':
     case 'avklare':
-      // OV-U7: merkingen etter KA-U20 og avklaringen av den bygges ikke i første versjon.
+      // OV-U7: bestridelsen (MM-U7, MM-U14), merkingen etter KA-U20 og avklaringen av
+      // den bygges ikke i første versjon.
       return avvis(
         'IKKE_I_FOERSTE_VERSJON',
-        'Merking og avklaring av registrerte brev er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
+        'Bestridelse, merking og avklaring er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
       );
     case 'begrunne':
       // KA-U34: et svar, sendt eller registrert. Et svar er alltid fra BH (format/leser.ts).
       return maal?.art === 'svar'
         ? null
         : avvis('INGEN_SVAR_AA_BEGRUNNE', 'Begrunnelsen må gjelde et svar fra byggherren.');
-    case 'bestride': {
-      // MM-U7: en bestridelse endrer ikke noe utfall og kan registreres når som helst.
-      const o = u.opplysninger.find((x) => x.opplysning.id === h.gjelder);
-      if (!o || o.opplysning.oppgittAv === part)
-        return avvis(
-          'INGENTING_AA_BESTRIDE',
-          'Det finnes ingen opplysning fra motparten å bestride.'
-        );
-      if (o.bestridelser.some((b) => b.part === part))
-        return avvis('INGENTING_AA_BESTRIDE', 'Opplysningen er allerede bestridt.');
-      return null;
-    }
   }
 }
 

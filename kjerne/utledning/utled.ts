@@ -27,6 +27,7 @@ import {
   grunnerFraGrunnlaget,
   grunnlagetErAvklart,
   innsigelsenPaaberoper,
+  sammeKategori,
   prinsipalt,
   sammenfallStemmer,
   standpunktet,
@@ -242,17 +243,17 @@ const ENDRER_UTFALLET = new Set<string>(['aksept', 'trekk', 'ingen_krav', 'varse
 
 /**
  * Dokumentet kan stride mot journalen før det (`foer`): det har et krav, et svar, et utsagn
- * som kan endre utfallet, eller en innsigelse som er en påberopelse (HF-U4, MM-U27). Andre
- * innsigelser utleder ikke prefikset på nytt (#776, #400). Hvilken part som er bundet,
- * avgjør `innsigelsenEtterITide`.
+ * som kan endre utfallet, eller en innsigelse som kan være en påberopelse (HF-U4, MM-U27).
+ * Andre innsigelser utleder ikke prefikset på nytt (#776, #400). Om § 32.2 gjaldt
+ * kategorien, og hvilken part som er bundet, avgjør `innsigelsenEtterITide`.
  */
-const kanStride = (d: Dokument, foer: Dokument[], regler: Regelsett): boolean =>
+const kanStride = (d: Dokument, foer: Dokument[]): boolean =>
   d.krav.length > 0 ||
   d.svar.length > 0 ||
   d.utsagn.some(
     (x) =>
       ENDRER_UTFALLET.has(x.art) ||
-      (x.art === 'innsigelse' && innsigelsenPaaberoper(x.gjelder, foer, regler) !== null)
+      (x.art === 'innsigelse' && innsigelsenPaaberoper(x.gjelder, foer, () => true) !== null)
   );
 
 interface Strid {
@@ -306,7 +307,10 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
     : kraveneErAvgjort(u)
       ? 'kravene er avgjort (KA-U11)'
       : null;
-  const utenVirkning = (...id: (string | null)[]) => id.some((x) => x !== null && uten.has(x));
+  // Et krav havner aldri i `uten`: kravene i et registrert brev er dokumentasjon (OV-U4),
+  // og en strid utenfor et registrert brev stopper utledningen. Bare svar og utsagn
+  // kontrolleres derfor mot `uten` (#669).
+  const utenVirkning = (id: string | null) => id !== null && uten.has(id);
   const bundet = frafalletBinder(u);
   for (const k of d.krav)
     if (lukket) ut.push({ element: k.id, grunn: `en kravversjon etter at ${lukket}` });
@@ -316,8 +320,6 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
       ut.push({ element: k.id, grunn: 'en kravversjon i et spor med «ingen krav» (KA-U12)' });
     else if (u.spor[k.spor].enighet)
       ut.push({ element: k.id, grunn: 'en ny kravversjon i et spor med enighet (KA-U7)' });
-    else if (utenVirkning(k.erstatter))
-      ut.push({ element: k.id, grunn: 'kravversjonen erstatter en kravversjon uten virkning' });
   for (const s of d.svar)
     if (lukket) ut.push({ element: s.id, grunn: `et svar etter at ${lukket}` });
     else if (s.erstatter !== null && u.spor[s.spor].enighet)
@@ -325,7 +327,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
         element: s.id,
         grunn: 'en revisjon av et svar partene er enige om (GR-U10, KA-U7)',
       });
-    else if (utenVirkning(s.gjelder, s.erstatter, s.grunnlagskrav))
+    else if (utenVirkning(s.erstatter))
       ut.push({ element: s.id, grunn: 'svaret viser til et element uten virkning' });
     else if (u.spor[s.spor].trukket)
       ut.push({
@@ -381,7 +383,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
  * og en revisjon som senker det hen har innrømmet i et svar TE ikke har godtatt (HF-U5).
  * Samme kontroller som kommandoene, så journalen henger sammen også utenfor dem.
  */
-function bryterBindingen(d: Dokument, u: Utledning, regler: Regelsett): Strid[] {
+function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
   const ut: Strid[] = [];
   const sagtITide =
     'påberoper at det kom for sent, etter at byggherren har sagt at det kom i tide (HF-U4, MM-U27)';
@@ -407,7 +409,7 @@ function bryterBindingen(d: Dokument, u: Utledning, regler: Regelsett): Strid[] 
       });
   }
   for (const x of d.utsagn)
-    if (x.art === 'innsigelse' && innsigelsenEtterITide(x.gjelder, d.avsender, u, regler))
+    if (x.art === 'innsigelse' && innsigelsenEtterITide(x.gjelder, d.avsender, u))
       ut.push({ element: x.id, grunn: `en innsigelse som ${sagtITide}` });
   return ut;
 }
@@ -424,7 +426,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   for (const [i, h] of journal.entries()) {
     if (h.art !== 'dokument') continue;
     dokumenter.push(h.dokument);
-    if (!kanStride(h.dokument, dokumenter.slice(0, -1), regler)) continue;
+    if (!kanStride(h.dokument, dokumenter.slice(0, -1))) continue;
     // Kontrollen trenger saken slik den var før dokumentet, så prefikset utledes for
     // hvert dokument som kan endre utfallet. Kostnaden er målt i #400.
     const foer = utledSporene(journal.slice(0, i), regler, uten);
@@ -439,7 +441,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     }
     // MM-U27: bare utenfor et registrert brev, og én grunn per element.
     if (!registrert)
-      for (const x of bryterBindingen(h.dokument, foer, regler))
+      for (const x of bryterBindingen(h.dokument, foer))
         if (!stridene.some((y) => y.element === x.element))
           konflikter.push({ hendelse: h.id, grunn: x.grunn });
     if (konflikter.length) break;
@@ -906,17 +908,30 @@ export function kanInngaaIEo(u: Utledning): boolean {
  * HF-U4, VS-U24: partens egen innsigelse påberoper at varselet kom for sent etter
  * bestemmelsen, etter at byggherren har sagt i et svar fra appen at det kom i tide. Bare
  * byggherren er bundet av sitt «i tide». Kommandoene og utledningen kontrollerer det her
- * (#776).
+ * (#776). Om § 32.2 gjelder kategorien i kravet innsigelsen gjelder, leses av svaret som
+ * sa «i tide» på en versjon i samme kategori, slik det ble frosset (GR-U12), ikke av
+ * dagens regelsett. Et nytt regelsett gjør da ikke en innsigelse kommandoen godtok,
+ * uforstått (MM-U18, #776).
  */
 export function innsigelsenEtterITide(
   gjelder: string,
   part: Part,
-  u: Utledning,
-  regler: Regelsett
+  u: Utledning
 ): Extract<Hjemmel, '32.2' | '33.4'> | null {
   if (part !== 'BH') return null;
   const dokumenter = u.journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : []));
-  const hjemmel = innsigelsenPaaberoper(gjelder, dokumenter, regler);
+  const frosset = (krav: Krav) =>
+    u.spor.grunnlag.svar.some((s) => {
+      const besvart = u.spor.grunnlag.krav.find((k) => k.id === s.gjelder);
+      return (
+        binder(u, s) &&
+        s.beslutningsgrunnlag.varslingsplikt === true &&
+        besvart !== undefined &&
+        sammeKategori(besvart, krav) &&
+        s.standpunkter.some((p) => p.art === 'rettidighet' && p.hjemmel === '32.2' && p.iTide)
+      );
+    });
+  const hjemmel = innsigelsenPaaberoper(gjelder, dokumenter, frosset);
   return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })
     ? hjemmel
     : null;

@@ -525,7 +525,8 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F47',
-    feilklasse: 'en bestridelse godtas i en sak som ikke er forstått (MM-U14)',
+    feilklasse:
+      'en sak som ikke er forstått, avviser ikke bestridelsen med SAK_IKKE_FORSTAATT (MM-U2, MM-U14)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [['  if (!u.forstaatt)\n', "  if (!u.forstaatt && h.type !== 'bestride')\n"]],
     mal: ['F-MM-E9'],
@@ -1779,8 +1780,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'innsigelsenPaaberoper(i.gjelder, j.dokumenter, regler) === HJEMMEL[svar.spor] &&',
-        "innsigelsenPaaberoper(i.gjelder, j.dokumenter, regler) === HJEMMEL[svar.spor] && (svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) &&",
+        'innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) => gjelderVarslingsplikten(k, regler)) ===',
+        "(svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) && innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) => gjelderVarslingsplikten(k, regler)) ===",
       ],
     ],
     mal: [
@@ -1890,8 +1891,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '      const hjemmel = innsigelsenEtterITide(k.gjelder, part, u, regler);',
-        '      const hjemmel = null && innsigelsenEtterITide(k.gjelder, part, u, regler);',
+        '      const hjemmel = innsigelsenEtterITide(k.gjelder, part, u);',
+        '      const hjemmel = null && innsigelsenEtterITide(k.gjelder, part, u);',
       ],
     ],
     mal: ['F-MM-V10', 'F-MM-V7c'],
@@ -1928,7 +1929,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en innsigelse mot en grunnlagsversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['        gjelderVarslingsplikten(krav, regler)', '        true']],
+    endringer: [
+      [
+        "krav.spor === 'grunnlag' && !erRegistrert(d.opplysninger) && varslingsplikt(krav)",
+        "krav.spor === 'grunnlag' && !erRegistrert(d.opplysninger) && true",
+      ],
+    ],
     mal: [
       'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
       'etter et «i tide» etter § 32.2 avvises ikke en innsigelse mot en versjon der § 32.2 ikke gjelder',
@@ -2275,7 +2281,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    if (x.art === 'innsigelse' && innsigelsenEtterITide(x.gjelder, d.avsender, u, regler))",
+        "    if (x.art === 'innsigelse' && innsigelsenEtterITide(x.gjelder, d.avsender, u))",
         '    if (false)',
       ],
     ],
@@ -2324,7 +2330,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en innsigelse mot et grunnlagskrav i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['        !erRegistrert(d.opplysninger) &&', '        true &&']],
+    endringer: [['&& !erRegistrert(d.opplysninger) &&', '&& true &&']],
     mal: [
       'brevteksten gjentar den ikke i svaret',
       'kommandoene avviser den ikke etter et «i tide»',
@@ -2364,6 +2370,92 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/innroemmelse.ts`,
     endringer: [['      if (nytt === null || godkjent === null)', '      if (false)']],
     mal: ['sammenliknes ikke og avvises'],
+  },
+  // K-1 B1 (#770): T5 om grenene i `strid` og referansekontrollen (#669), #776 p1 og #522.
+  {
+    id: 'F276',
+    feilklasse:
+      'en revisjon av et svar partene er enige om, leses med virkning (GR-U10, KA-U7, #669)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    else if (s.erstatter !== null && u.spor[s.spor].enighet)',
+        '    else if (s.erstatter !== null && u.spor[s.spor].enighet && !s)',
+      ],
+    ],
+    mal: ['en revisjon av et svar partene er enige om (GR-U10, KA-U7)'],
+  },
+  {
+    id: 'F277',
+    feilklasse:
+      'en aksept av et svar partene alt er enige om, gir ingen strid (GR-U8, KA-U7, #669)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    else if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
+        '    else if (false)',
+      ],
+    ],
+    mal: ['en aksept av et svar partene alt er enige om (GR-U8, KA-U7)'],
+  },
+  {
+    id: 'F278',
+    feilklasse: 'en aksept av et svar i et trukket spor gir ingen strid (MM-U20, GR-U5, #669)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    else if (sporet && u.spor[sporet].trukket)', '    else if (false)']],
+    mal: ['en aksept av et svar i et spor etter at kravet er trukket (MM-U20, GR-U5)'],
+  },
+  {
+    id: 'F279',
+    feilklasse:
+      'et utsagn kan vise til et element uten virkning uten krav til art og part (VS-U1, MM-U18, #669)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder)',
+        '      !(uten.has(x.gjelder) || kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder))',
+      ],
+    ],
+    mal: ['en innsigelse mot egen endringsordre uten virkning viser ikke til noe den kan gjelde'],
+  },
+  {
+    id: 'F280',
+    feilklasse: 'en revisjon av et svar uten virkning gir ingen strid (MM-U18, #669)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    else if (utenVirkning(s.erstatter))', '    else if (false)']],
+    mal: ['en revisjon av et svar uten virkning (MM-U18)'],
+  },
+  {
+    id: 'F281',
+    feilklasse:
+      'hjemmelen for en innsigelse leses uten varslingsplikten som ble frosset i svaret (MM-U18, GR-U12, #776)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['        s.beslutningsgrunnlag.varslingsplikt === true &&\n', '']],
+    mal: ['hjemmelen for innsigelsen leses av svaret som sa «i tide», ikke av et nyere regelsett'],
+  },
+  {
+    id: 'F282',
+    feilklasse: 'påberopelsen etter § 34.1.2 leses av feltet for § 32.2 (HF-U4, #522)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "    return v.hovedkrav_varslet_i_tide === false ? [{ hjemmel: '34.1.2' }] : [];",
+        "    return v.grunnlag_varslet_i_tide === false ? [{ hjemmel: '34.1.2' }] : [];",
+      ],
+    ],
+    mal: ['en revisjon som påberoper «for sent» etter «i tide», avvises'],
+  },
+  {
+    id: 'F283',
+    feilklasse: 'et «i tide» etter § 33.6.1 binder § 33.4 (HF-U4, #522)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "          : p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide",
+        "          : (p.art === 'spesifisering' || (p.art === 'rettidighet' && p.hjemmel === r.hjemmel)) && p.iTide",
+      ],
+    ],
+    mal: ['«i tide» etter § 33.6.1 sier ingenting om § 33.4 (HF-U4)'],
   },
 ];
 

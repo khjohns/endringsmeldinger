@@ -1301,9 +1301,11 @@
       "tidsakse": "sendt_mottatt",
       "kilder": [
         "MM-U1",
-        "MM-U7"
+        "MM-U7",
+        "OV-U7"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "OV-U7"
     },
     {
       "id": "KA-22",
@@ -3130,11 +3132,9 @@
     "DATO_ETTER_BREVET": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "BESKRIVELSE_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "BREVTEKST_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "FEIL_BESTRIDELSE": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475).",
     "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475).",
-    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter, merking og avklaring av registrerte brev (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen.",
-    "INGENTING_AA_BESTRIDE": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen.",
     "INGEN_KRAV": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "INGEN_SVAR": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
     "INGEN_VARSEL_ETTER_32_2": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
