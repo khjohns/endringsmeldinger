@@ -392,8 +392,8 @@ describe('topicen for en sak fra appen (#741)', () => {
     expect(TOPICTYPE).toBe('Krav om endringsordre');
   });
 
-  it.each([400, 503])(
-    'feilsvaret %i er en sikker feil, ikke et usikkert utfall',
+  it.each([400, 403, 404, 429])(
+    'avvisningen %i (4xx, RFC 9110 15.5) er en sikker feil, ikke et usikkert utfall',
     async (status) => {
       svar = () => ({ status, json: { message: 'LEKKET' } });
       const feil = await new CatendaOAuth(oppsett())
@@ -420,6 +420,10 @@ describe('topicen for en sak fra appen (#741)', () => {
     ['svaret uteblir til tidsavbruddet', { vent: 500, json: { guid: 'sen' } }],
     ['Catenda svarer 500', { status: 500, json: { message: 'x' } }],
     ['en mellomtjener svarer 504', { status: 504, tekst: 'Gateway Timeout' }],
+    ['en mellomtjener svarer 503', { status: 503, tekst: 'Service Unavailable' }],
+    ['en mellomtjener svarer 408', { status: 408, tekst: 'Request Timeout' }],
+    ['Catenda svarer 202', { status: 202, json: { guid: 'x' } }],
+    ['Catenda omdirigerer', { status: 303, tekst: '' }],
     ['svaret er ikke JSON', { status: 201, tekst: 'ikke json' }],
     ['svaret har ingen GUID', { status: 201, json: { title: 'x' } }],
   ])('%s: utfallet er usikkert (invariant 7)', async (_n, s) => {

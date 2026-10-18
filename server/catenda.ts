@@ -26,10 +26,14 @@ export class CatendaUtilgjengelig extends Error {}
 
 /**
  * En endring i Catenda kan ha skjedd: svaret uteble etter at forespørselen kan ha
- * nådd fram, svaret var en 5xx utenom 503, eller et vellykket svar hadde ikke
+ * nådd fram, svaret var ingen avvisning (4xx), eller et vellykket svar hadde ikke
  * forventet form (invariant 7).
  */
 export class UsikkertUtfall extends CatendaUtilgjengelig {}
+
+/** Statusene der Catenda har avvist en endring uten å gjøre den. */
+const AVVIST_UTEN_ENDRING = (status: number) =>
+  status >= 400 && status < 500 && status !== 408 && status !== 499;
 
 /** Feilkodene der forbindelsen aldri ble åpnet, så forespørselen ikke er sendt. */
 const IKKE_SENDT = new Set(['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN']);
@@ -98,11 +102,11 @@ async function forespoersel(
   }
   if (svar.status !== 200 && !(endring && svar.status === 201)) {
     await svar.body?.cancel().catch(() => {});
-    // En 5xx kan komme etter at endringen er gjort, også fra en mellomtjener. 503 betyr
-    // at forespørselen ikke ble behandlet.
-    if (endring && svar.status >= 500 && svar.status !== 503)
-      throw new UsikkertUtfall('Catenda svarte med feil');
-    throw new CatendaUtilgjengelig('Catenda svarte med feil');
+    const melding = `Catenda svarte med status ${svar.status}`;
+    // Bare en 4xx sier at endringen ikke er gjort. En 5xx, også 503, kan komme fra en
+    // mellomtjener etter at Catenda fikk forespørselen, og 408 og 499 er tidsavbrudd.
+    if (endring && !AVVIST_UTEN_ENDRING(svar.status)) throw new UsikkertUtfall(melding);
+    throw new CatendaUtilgjengelig(melding);
   }
   try {
     return await svar.json();
