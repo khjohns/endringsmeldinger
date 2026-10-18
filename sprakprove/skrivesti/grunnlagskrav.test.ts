@@ -6,6 +6,7 @@
  * etter kategorien, og at den ikke kan være etter brevets dato), GR-U16 og LV-U2.
  */
 
+import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   kall,
@@ -78,6 +79,7 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
       prosjektId: o.prosjekt.id,
       kropp: {
         expected_version: sak.versjon,
+        kommando_id: randomUUID(),
         kommando: tekst ? { ...kommando, brevtekst: tekst } : kommando,
       },
     });

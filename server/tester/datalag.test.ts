@@ -26,6 +26,7 @@ import {
   type Kontekst,
   type Pool,
 } from '../datalag.ts';
+import { enGang, tidsavbrudd, vedNesteLaan, type Kall } from './forbindelse.ts';
 import { feilnummer, opprettTestbase, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const KONTEKST: Kontekst = {
@@ -84,37 +85,6 @@ async function borte(pool: Pool, forbindelse: string): Promise<boolean> {
   }
   return false;
 }
-
-/** Endrer forbindelsen poolen gir ut ved neste lån, før `transaksjon` får den. */
-function vedNesteLaan(pool: Pool, endre: (f: Forbindelse) => void): void {
-  const utlaan = pool as unknown as { acquire: (...a: unknown[]) => Promise<Forbindelse> };
-  const ekte = utlaan.acquire;
-  utlaan.acquire = async (...a) => {
-    utlaan.acquire = ekte;
-    const f = await ekte.apply(pool, a);
-    endre(f);
-    return f;
-  };
-}
-
-type Kall = (callback: (feil?: Error) => void, ...rest: unknown[]) => void;
-
-/** Erstatter metoden for ett kall; den opprinnelige brukes igjen etterpå. */
-function enGang(
-  f: Forbindelse,
-  metode: 'commitTransaction' | 'reset' | 'close',
-  erstatning: (ekte: Kall) => Kall
-) {
-  const objekt = f as unknown as Record<string, Kall>;
-  const ekte = objekt[metode].bind(f);
-  objekt[metode] = (...a) => {
-    objekt[metode] = ekte;
-    return erstatning(ekte)(...a);
-  };
-}
-
-const tidsavbrudd = () =>
-  Object.assign(new Error('Timeout: Request failed to complete in 60000ms'), { code: 'ETIMEOUT' });
 
 if (!SQLSERVER_TILKOBLING) {
   console.warn('KOE_SQLSERVER_TILKOBLING er ikke satt: testene av datalaget hoppes over (#419).');
@@ -294,6 +264,29 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     const etter = await sesjonen(() => pool.request());
     expect(etter).toMatchObject({ forbindelse: inne!.forbindelse, trancount: 0, ...ingenKontekst });
     expect(await lagret(pool, id)).toBe(false);
+  });
+
+  // Kilde: #543 punkt 1. Serveren melder tilbakerulling under COMMIT og COMMIT
+  // feiler ikke: utfallet er kjent, ikke vellykket og ikke usikkert.
+  it('tilbakerulling under COMMIT uten feil fra COMMIT: TransaksjonAvbrutt, ikke svaret', async () => {
+    vedNesteLaan(pool, (f) =>
+      enGang(
+        f,
+        'commitTransaction',
+        (ekte) =>
+          (cb, ...rest) =>
+            ekte(
+              () => {
+                (f as unknown as { emit: (h: string) => void }).emit('rollbackTransaction');
+                cb();
+              },
+              ...rest
+            )
+      )
+    );
+    const feil = await transaksjon(pool, KONTEKST, async () => 'svar').catch((e: unknown) => e);
+    expect(feil).toBeInstanceOf(TransaksjonAvbrutt);
+    expect(feil).not.toBeInstanceOf(UsikkertUtfall);
   });
 
   // Vakten mot en annen versjon av mssql (#533): uten `_abort` som lytter sendes

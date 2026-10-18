@@ -184,6 +184,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
       prosjektId: o.prosjekt.id,
       kropp: {
         expected_version: 1,
+        kommando_id: randomUUID(),
         kommando: { ...GRUNNLAGSKRAV, brevtekst: laastTekst(vist.hendelser[0]) },
       },
     });

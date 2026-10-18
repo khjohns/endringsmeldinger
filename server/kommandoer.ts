@@ -9,7 +9,13 @@
  * Leveringsmålet leses i skrivetransaksjonen og gis til `lag`. Kjernebufferen
  * skrives ikke her (B-10). `opprett_sak` legger jobben for topicen i Catenda inn i
  * samme transaksjon som saken (KT-U3, #741).
+ *
+ * Hver kommando har en ID fra klienten og en kvittering i samme transaksjon som
+ * brevet (invariant 4, #418). Samme ID med samme innhold gir brevet fra
+ * kvitteringen uten å skrive, og samme ID med et annet innhold avvises.
  */
+
+import { createHash } from 'node:crypto';
 
 import type { Journalrad } from '../kjerne/typer.ts';
 import { feilnummer, sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
@@ -42,12 +48,16 @@ export class UgyldigKommando extends Error {}
  */
 export class SkrivingAvvist extends Error {}
 
+/** Kommando-ID-en har en kvittering for et annet innhold (51410). */
+export class KommandoIdBrukt extends Error {}
+
 /** Prosjektet har ikke noe topic-board for nye saker, så saken lagres ikke (KT-U4, 51412). */
 export class IngenTopicBoard extends Error {}
 
 const UKJENT_SAK = 51403;
 const INGEN_BOARD = 51412;
 const KONFLIKT = 51409;
+const ID_BRUKT = 51410;
 const UGYLDIG = 51422;
 const BLOKKERT = 33504;
 
@@ -73,6 +83,8 @@ function oversett(feil: unknown, forventet: number | null): unknown {
     }
     case UGYLDIG:
       return new UgyldigKommando(melding, { cause: feil });
+    case ID_BRUKT:
+      return new KommandoIdBrukt(melding, { cause: feil });
     case INGEN_BOARD:
       return new IngenTopicBoard(melding, { cause: feil });
     case BLOKKERT:
@@ -82,6 +94,54 @@ function oversett(feil: unknown, forventet: number | null): unknown {
   }
 }
 
+/** Kommando-ID-en fra klienten og summen av innholdet, regnet ut av serveren. */
+export interface Kommando {
+  id: string;
+  sha256: string;
+}
+
+function kanonisk(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(kanonisk);
+  if (v !== null && typeof v === 'object')
+    return Object.fromEntries(
+      Object.keys(v)
+        .sort()
+        .map((k) => [k, kanonisk((v as Record<string, unknown>)[k])])
+    );
+  return v;
+}
+
+/** Summen av innholdet, uavhengig av rekkefølgen på nøklene. */
+export const kommandosum = (innhold: unknown): string =>
+  createHash('sha256')
+    .update(JSON.stringify(kanonisk(innhold)))
+    .digest('hex');
+
+type Foresp = () => sql.Request;
+
+/** Saken og brevet fra kvitteringen, eller `null` når kommandoen ikke er skrevet. */
+async function lesKvittering(
+  foresp: Foresp,
+  kommando: Kommando
+): Promise<{ sak_id: string; event_id: string } | null> {
+  const svar = await foresp()
+    .input('kommando_id', sql.NVarChar(4000), kommando.id)
+    .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
+    .output('sak_id', sql.NVarChar(36))
+    .output('event_id', sql.NVarChar(36))
+    .output('versjon', sql.Int)
+    .execute('koe_api.kvittering');
+  const { sak_id, event_id } = svar.output as { sak_id: string | null; event_id: string | null };
+  return sak_id && event_id ? { sak_id, event_id } : null;
+}
+
+/** Brevet kvitteringen viser til, lest i transaksjonen. */
+function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
+  const rad = journal.find((r) => r.event_id === eventId);
+  if (!rad) throw new Error('Brevet i kvitteringen ble ikke lest tilbake.');
+  return rad;
+}
+
 /**
  * Oppretter saken med `sak_opprettet` som versjon 1. Basen lager saks-ID-en og
  * hendelses-ID-en og stempler tidspunktet, aktøren, siden og teamet. `innhold`
@@ -89,20 +149,28 @@ function oversett(feil: unknown, forventet: number | null): unknown {
  * her, så en kaller som hopper over kjernen, ikke skriver en sak fra BH i den
  * uforanderlige journalen (#696).
  *
- * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard
+ * Har kommandoen en kvittering, er svaret `sak_opprettet` i saken fra kvitteringen.
+ *
+ * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt
  */
 export async function opprettSak(
   pool: Pool,
   kontekst: Kontekst,
+  kommando: Kommando,
   innhold: { format: number; data: Record<string, unknown> }
 ): Promise<Journalrad> {
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
       // Etter at transaksjon() har prøvd konteksten, som i skrivHendelse (#596).
       if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
+      const kvittering = await lesKvittering(foresp, kommando);
+      if (kvittering)
+        return kvittertRad(await lesJournal(foresp, kvittering.sak_id, false), kvittering.event_id);
       const svar = await foresp()
         .input('format', sql.Int, innhold.format)
         .input('data', sql.NVarChar(sql.MAX), JSON.stringify(innhold.data))
+        .input('kommando_id', sql.NVarChar(4000), kommando.id)
+        .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))
@@ -131,21 +199,27 @@ export type Skriveutfall<A> =
   | { skriv: true; rad: Journalrad; oppdrag: Oppdragsrad | null }
   | { skriv: false; avvisning: A };
 
+/** Kommandoen er skrevet før; brevet fra kvitteringen. */
+export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
+
 /**
  * Skriver én rad, og oppdraget for den, i én transaksjon. Saken låses og
  * journalen leses, versjonen kontrolleres, og `lag` får journalen og basens
  * klokke og avgjør hva som skrives. Raden må gjelde saken og neste versjon og
  * ha aktøren, siden, teamet og tidspunktet basen stempler; ellers skrives ingenting.
+ * Har kommandoen en kvittering for saken, er svaret brevet fra den, uten
+ * versjonskontroll og uten å kalle `lag`.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando
+ * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt
  */
 export async function skrivHendelse<A>(
   pool: Pool,
   kontekst: Kontekst,
   sakId: string,
   forventet: number,
+  kommando: Kommando,
   lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>
-): Promise<Skriveutfall<A>> {
+): Promise<Skriveutfall<A> | Gjentatt> {
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
       // Etter at transaksjon() har prøvd konteksten, så en ugyldig kontekst gir UgyldigKontekst (#596).
@@ -153,22 +227,23 @@ export async function skrivHendelse<A>(
       // En annen form kan ikke være en sak (#566).
       if (typeof sakId !== 'string' || !ID_FORM.test(sakId))
         throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
-      const finnes = await foresp()
-        .input('sak_id', sql.NVarChar(36), sakId)
-        .query('SELECT 1 AS finnes FROM koe.sak_metadata WHERE sak_id = @sak_id');
-      if (!finnes.recordset.length)
-        throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
+      // Kvitteringen låses før saken, i samme rekkefølge som opprettelsen.
+      const kvittering = await lesKvittering(foresp, kommando);
+      // En sak uten journal er ikke skrevet av kjernen (#739, #597).
       const journal = await lesJournal(foresp, sakId, true);
       // Samme skille som lesingen, så GET og POST svarer likt for saken (#716 punkt 1).
       if (!skrevetAvKjernen(journal))
         throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
+      // Summen gjelder saken, så en kvittering for en annen sak har gitt 51410.
+      if (kvittering) return { skriv: 'gjentatt', rad: kvittertRad(journal, kvittering.event_id) };
+      // Målet før versjonen, så klienten hører om det som hindrer (#763 punkt 1).
+      const maal = await lesLeveringsmaal(foresp, sakId);
       const versjon = journal.at(-1)?.versjon ?? 0;
       if (versjon !== forventet) throw new Versjonskonflikt(forventet, versjon);
       const tid = await foresp()
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      const maal = await lesLeveringsmaal(foresp, sakId);
       const utfall = lag({ journal, tidspunkt, maal });
       // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
       if (!utfall.skriv) throw new IkkeSkrevet(utfall);
@@ -186,6 +261,8 @@ export async function skrivHendelse<A>(
         .input('dokumentnoekkel', sql.NVarChar(4000), oppdrag?.dokumentnoekkel ?? null)
         .input('oppdrag', sql.NVarChar(sql.MAX), oppdrag ? JSON.stringify(oppdrag.innhold) : null)
         .input('oppdrag_sha256', sql.NVarChar(4000), oppdrag?.innhold_sha256 ?? null)
+        .input('kommando_id', sql.NVarChar(4000), kommando.id)
+        .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
         .execute('koe_api.skriv_hendelse');
       return utfall;
     });
