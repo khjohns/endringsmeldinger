@@ -5359,8 +5359,6 @@ svar = '''
 Fritt svar på S1, som ikke passet på et alternativ og ble fulgt opp med O1: «Egen innlogging ka. Entra id. Bygges senere»
 
 O1: «Venter på Entra og HR (Recommended)»'''
-folge = '''
-Ikke bygget. Godkjenningsinngangene venter på innlogging med Entra ID og rollene fra HR-dataene.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Venter på Entra og HR"
@@ -5371,7 +5369,8 @@ anbefalt = true
 [[gruppe.vedtak.alternativ]]
 navn = "Bygges nå, Entra senere"
 tekst = '''
-Godkjenningen bygges nå for den som har registrert fullmakt, uavhengig av team. Til Entra ID finnes, kan bare en godkjenner med Catenda-innlogging godkjenne. Utvider skjermingen av utkast til godkjennerne i kjeden (B-04 punkt 3).'''
+Godkjenningen bygges nå for den som har registrert fullmakt, uavhengig av team. Til Entra ID finnes, kan bare en godkjenner med Catenda-innlogging godkjenne.'''
+forkastet = true
 
 [[gruppe.vedtak]]
 id = "GFK-U6"
@@ -5394,19 +5393,17 @@ Fritt svar på S2, som ikke passet på et alternativ og ble fulgt opp med O2: «
 
 O2: «Driften per rolle (Recommended)»'''
 forhold = [{ art = "endrer", vedtak = "gfk-u1" }]
-folge = '''
-Byggestatus ikke kontrollert mot koden ved vedtaket.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Driften per rolle"
 tekst = '''
-Driften registrerer beløpsgrensen for hver rolle. Hvem som har rollen, og hierarkiet hentes fra HR-dataene. Endrer GFK-U1.'''
+Driften registrerer beløpsgrensen for hver rolle. Hvem som har rollen, og hierarkiet hentes fra HR-dataene.'''
 anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "Fra HR-dataene"
 tekst = '''
-Også beløpsgrensen hentes fra HR-dataene. Endrer GFK-U1.'''
+Også beløpsgrensen hentes fra HR-dataene.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Avgjøres senere"
@@ -5426,8 +5423,6 @@ S3 (header «Sending»): Fullmaktshaveren er avsender av svaret (LV-U15). Når a
 valgt = "Siste godkjenning sender"
 svar = '''
 «Siste godkjenning sender (Recommended)»'''
-folge = '''
-Byggestatus ikke kontrollert mot koden ved vedtaket.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Siste godkjenning sender"
@@ -5619,38 +5614,6 @@ navn = "Sakens versjon nå"
 tekst = '''
 Svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
 forkastet = true
-
-[[gruppe.vedtak]]
-id = "KT-U6"
-dato = 2026-10-18
-hvem = "oppdragsgiver"
-kilde = ["runde 8 (#764)"]
-sporsmal = '''
-S4 (header «Kontraktsteam»): Driften registrerer prosjektet og hvilke team som er TE og BH. Kan driften endre teamene etter at prosjektet har saker? Et team som bytter side, tar med seg tilgangen til egne utkast og interne notater.
-«Bare legge til (Recommended)»: Et nytt team kan legges til. Å flytte et team til den andre siden eller fjerne det avvises når prosjektet har saker.
-«Fritt»: Driften kan erstatte teamene når som helst.
-«Ingen endring etter første sak»: Teamene ligger fast når første sak er opprettet.'''
-valgt = "Bare legge til"
-svar = '''
-«Bare legge til (Recommended)»'''
-folge = '''
-Byggestatus ikke kontrollert mot koden ved vedtaket.'''
-
-[[gruppe.vedtak.alternativ]]
-navn = "Bare legge til"
-tekst = '''
-Et nytt team kan legges til. Å flytte et team til den andre siden eller fjerne det avvises når prosjektet har saker.'''
-anbefalt = true
-
-[[gruppe.vedtak.alternativ]]
-navn = "Fritt"
-tekst = '''
-Driften kan erstatte teamene når som helst.'''
-
-[[gruppe.vedtak.alternativ]]
-navn = "Ingen endring etter første sak"
-tekst = '''
-Teamene ligger fast når første sak er opprettet.'''
 
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
@@ -6972,8 +6935,6 @@ O3 (header «Navn»): Journalen lagrer hvem som skrev hver hendelse, ikke navnet
 valgt = "Alle som kan lese saken"
 svar = '''
 «Alle som kan lese saken (Recommended)»'''
-folge = '''
-Byggestatus ikke kontrollert mot koden ved vedtaket.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Alle som kan lese saken"
@@ -6990,6 +6951,36 @@ Den andre siden ser bare TE eller BH.'''
 navn = "Kontraktspartene"
 tekst = '''
 TE og BH ser navnene; prosjektmedlemmer uten kontraktsside ser bare TE eller BH.'''
+
+[[gruppe.vedtak]]
+id = "DL-U13"
+dato = 2026-10-18
+hvem = "oppdragsgiver"
+kilde = ["runde 8 (#764)"]
+sporsmal = '''
+S4 (header «Kontraktsteam»): Driften registrerer prosjektet og hvilke team som er TE og BH. Kan driften endre teamene etter at prosjektet har saker? Et team som bytter side, tar med seg tilgangen til egne utkast og interne notater.
+«Bare legge til (Recommended)»: Et nytt team kan legges til. Å flytte et team til den andre siden eller fjerne det avvises når prosjektet har saker.
+«Fritt»: Driften kan erstatte teamene når som helst.
+«Ingen endring etter første sak»: Teamene ligger fast når første sak er opprettet.'''
+valgt = "Bare legge til"
+svar = '''
+«Bare legge til (Recommended)»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare legge til"
+tekst = '''
+Et nytt team kan legges til. Å flytte et team til den andre siden eller fjerne det avvises når prosjektet har saker.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fritt"
+tekst = '''
+Driften kan erstatte teamene når som helst.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen endring etter første sak"
+tekst = '''
+Teamene ligger fast når første sak er opprettet.'''
 
 [[gruppe]]
 tittel = "Premissene P1–P7"
