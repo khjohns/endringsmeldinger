@@ -7,7 +7,7 @@
  */
 
 import { FORMAT, SAK_OPPRETTET, objekt, TEKST } from '../format/format.ts';
-import { erObjekt, feilI, harUlagringsbarTekst } from '../format/skjema.ts';
+import { erObjekt, feilI, tekstSomIkkeKanLagres } from '../format/skjema.ts';
 import { avvis } from './forutsetninger.ts';
 import type { Avvisning, Part } from '../typer.ts';
 
@@ -33,11 +33,8 @@ const ugyldig = (regel: string, melding: string): Opprettelsesutfall => ({
 
 /** Raden kommandoen gir, eller avvisningen. Parten er serverens (AGENTS.md). */
 export function opprettelse(kommando: unknown, part: Part): Opprettelsesutfall {
-  if (harUlagringsbarTekst(kommando))
-    return ugyldig(
-      'TEKST_KAN_IKKE_LAGRES',
-      'Kommandoen har tegn som ikke kan lagres (NUL eller en enslig surrogat).'
-    );
+  const ulagringsbar = tekstSomIkkeKanLagres(kommando);
+  if (ulagringsbar) return { godtatt: false, feil: 'UGYLDIG_FORM', avvisning: ulagringsbar };
   const feil = erObjekt(kommando) ? feilI(kommando, SKJEMA) : ['Kommandoen må være et objekt.'];
   const k = kommando as Opprettelse;
   if (!feil.length && !k.sakstittel.trim()) feil.push('$.sakstittel: saken må ha en tittel');

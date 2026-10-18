@@ -20,7 +20,7 @@ import {
   Uforstaatt,
 } from '../format/leser.ts';
 import { oppgittDatoEtterBrevet } from './nyttelast.ts';
-import { harUlagringsbarTekst } from '../format/skjema.ts';
+import { tekstSomIkkeKanLagres } from '../format/skjema.ts';
 import { regnUtSvar } from '../frosset/standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
@@ -219,15 +219,8 @@ function skriv(
   sendes: boolean
 ): Utfall {
   // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
-  if (harUlagringsbarTekst(kommando))
-    return {
-      godtatt: false,
-      feil: 'UGYLDIG_FORM',
-      avvisning: {
-        regel: 'TEKST_KAN_IKKE_LAGRES',
-        melding: 'Kommandoen har tegn som ikke kan lagres (NUL eller en enslig surrogat).',
-      },
-    };
+  const ulagringsbar = tekstSomIkkeKanLagres(kommando);
+  if (ulagringsbar) return { godtatt: false, feil: 'UGYLDIG_FORM', avvisning: ulagringsbar };
   const feil = formfeil(kommando);
   if (feil.length)
     return {
