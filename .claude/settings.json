@@ -17,7 +17,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/skrivevakt.mjs\" --etter-agent"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/skrivevakt.mjs\" --etter-agent",
+            "onFailure": "block"
           }
         ]
       }
