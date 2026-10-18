@@ -678,7 +678,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.kvittering.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel); koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, `koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
+| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`); database/migrasjoner/20261019200000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -746,7 +746,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261019200000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -763,7 +763,7 @@ Kvitteringen per kommando (invariant 4, #418): kommando-ID-en klienten gir, summ
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id, aktor_id, kommando_id); unik (event_id). Viser til: aktor_id → koe.app_users.id (uten fremmednøkkel); (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Aktørens `app_users.id`. |
-| Skrives av | database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261019200000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`) og database/migrasjoner/20261018123000_kvittering.sql (`koe_api.opprett_sak`), kalt fra `server/kommandoer.ts` |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`. |
 
@@ -939,7 +939,7 @@ Prosjektene som har minst én sak. Radsikkerheten skjuler sakene også for eiere
 
 ### `koe.skrivetidspunkt`
 
-Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel, og transaksjonen og når økta logget inn, fordi transaksjons-ID-en begynner på nytt etter en omstart. `koe_api.skriv_hendelse` godtar bare dette tidspunktet på brevet, i samme transaksjon og økt (DL-U3, svaret 16.10 i #53). Kjøretiden har ingen rett på tabellen.
+Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel, og transaksjonen og når økta logget inn, fordi transaksjons-ID-en begynner på nytt etter en omstart. `koe_api.skriv_hendelse` godtar bare dette tidspunktet på brevet, i samme transaksjon og økt (DL-U3, svaret 16.10 i #53), og bare i 30 sekunder etter at det ble gitt (#599). Kjøretiden har ingen rett på tabellen.
 
 | Felt | Innhold |
 | --- | --- |
@@ -950,9 +950,9 @@ Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel
 | Relasjoner | Nøkler: primærnøkkel (oekt). Ingen relasjoner til andre tabeller. |
 | Kan bygges opp igjen | ja. Raden brukes bare i transaksjonen som førte den. |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`); database/migrasjoner/20261018123000_kvittering.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`) |
+| Skrives av | database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`); database/migrasjoner/20261019200000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`. |
+| Belegg | L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`. K 18.10: `server/tester/skrivetidspunkt.test.ts` (grensen på 30 sekunder). |
 
 ### `koe.kjernebuffer`
 
