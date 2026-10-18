@@ -159,8 +159,9 @@ issue. Oppdraget skal inneholde:
   runde, også funn i andre øktes filer og funn som krever en avgjørelse;
 - at oppdraget er avgrenset til om lag 45–60 minutter med aktivt arbeid, og
   hvordan økta venter (se «Kontekst i arbeidsøktene»);
-- at økta melder fra om egen størrelse etter hvert hovedsteg, og stopper etter
-  grensen i «Melder fra om egen størrelse» (se «Kontekst i arbeidsøktene»);
+- at økta melder fra om egen størrelse etter hvert hovedsteg, setter påminnelsen
+  og stopper etter grensen i «Melder fra om egen størrelse» (se «Kontekst i
+  arbeidsøktene»);
 - at kartlegging, lesing av store filer og CI-logger gjøres av subagenter, så
   øktas egen kontekst holder seg liten (oppdragsgiver 12.10, #425), og at hver
   subagent avgrenses etter «Subagenter har samme grense» (se «Kontekst i
@@ -282,6 +283,13 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   til oppgaven er ferdig, men stopper ved om lag 300 000 tokens eller før en
   komprimering. Etter en time, eller etter en pause over en time, gjelder 150 000
   som før (oppdragsgiver 18.10).
+  - Når økta starter, setter den en påminnelse til seg selv med `send_later` om
+    45 minutter. Når den kommer, vurderer økta tre utfall: kan den bli ferdig
+    innen tidsgrensen og stoppgrensen, fortsetter den. Kan den ikke det, men et
+    naturlig stoppunkt er nært, gjør den seg ferdig dit, pusher og skriver
+    tilstanden i PR-en. Ellers stopper den, slik at en ny økt tar over fra PR-en.
+    Er økta ferdig før påminnelsen, sletter den den med `delete_trigger`, så den
+    ikke vekker en økt som har stoppet (oppdragsgiver 18.10).
   Tilstanden skal gjøre det mulig å lese seg inn på nytt: vedtakene i
   hovedplanen, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
   gjenstår (oppdragsgiver 14.10, #484).
