@@ -1,6 +1,7 @@
 /**
- * Testbasen i SQL Server mot standardinnstillingene i Azure SQL Database, og
- * samtidige skrivinger i samme sak med READ_COMMITTED_SNAPSHOT på (#488).
+ * Testbasen i SQL Server mot standardinnstillingene i Azure SQL Database,
+ * samtidige skrivinger i samme sak med READ_COMMITTED_SNAPSHOT på (#488), og
+ * oppryddingen av innloggingen fra `opprettKjoeretid` (#727).
  * Forventningene har kilde i #78 (svaret på A3: basen får standardinnstillingene
  * i Azure) og punkt 2 og 3 i #488.
  *
@@ -16,6 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   avvikFraAzure,
   feilnummer,
+  opprettKjoeretid,
   opprettTestbase,
   sql,
   SQLSERVER_TILKOBLING,
@@ -143,6 +145,37 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
         ]);
       } finally {
         await standard.slett();
+      }
+    }, 60_000);
+  });
+
+  describe('oppryddingen i opprettKjoeretid (#727)', () => {
+    it('innloggingen slettes også når en økt med den ennå er åpen', async () => {
+      await base.pool.request().batch('CREATE ROLE koe_test_rolle;');
+      const kjoeretid = await opprettKjoeretid(base, { maks: 1, rolle: 'koe_test_rolle' });
+      const navn = (
+        await kjoeretid.pool.request().query<{ navn: string }>('SELECT SUSER_NAME() AS navn')
+      ).recordset[0].navn;
+      // En økt utenfor bassenget, som en forbindelse close() ikke har fått lukket ennå.
+      const passord = `${randomUUID()}aA1!`;
+      await base.pool.request().batch(`ALTER LOGIN [${navn}] WITH PASSWORD = N'${passord}'`);
+      const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
+      const aapen = await new sql.ConnectionPool({
+        ...config,
+        user: navn,
+        password: passord,
+        database: base.navn,
+        pool: { max: 1 },
+      }).connect();
+      try {
+        await aapen.request().query('SELECT 1');
+        await kjoeretid.slett();
+        const igjen = await base.pool.request().input('navn', sql.NVarChar(128), navn).query<{
+          n: number;
+        }>('SELECT COUNT(*) AS n FROM sys.server_principals WHERE name = @navn');
+        expect(igjen.recordset[0].n).toBe(0);
+      } finally {
+        await aapen.close().catch(() => undefined);
       }
     }, 60_000);
   });
