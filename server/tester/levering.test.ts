@@ -322,6 +322,9 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(await kjoer()).toBe(false);
 
     catenda.etter = {};
+    // Forsøkene sorteres på `avsluttet` i millisekunder. Uten pausen kan omstarten få
+    // samme tidspunkt som det parkerte forsøket, og da avgjør alfabetet rekkefølgen.
+    await new Promise((r) => setTimeout(r, 5));
     await startPaaNytt(sakId);
     expect(await kjoer()).toBe(true);
     expect(catenda.opplastinger).toBe(1);
