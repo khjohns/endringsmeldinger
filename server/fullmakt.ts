@@ -59,13 +59,15 @@ export function brevverdi(
   let hoved = 0;
   let subsidiaert = 0;
   let ukjent = false;
-  const dagverdi = (dager: number) => {
+  /** Vederlag er kroner; frist er dager ganger dagmulktssatsen. */
+  const sporverdi = (spor: Kravspor, kroner: unknown, dager: unknown): number => {
+    if (spor === 'vederlag') return kroner as number;
     if (dager === 0) return 0;
     if (dagmulktssats === null) {
       ukjent = true;
       return 0;
     }
-    return dager * dagmulktssats;
+    return (dager as number) * dagmulktssats;
   };
 
   for (const s of svar) {
@@ -78,15 +80,12 @@ export function brevverdi(
       { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
       regler
     );
-    if (s.spor === 'vederlag') {
-      const h = r.godkjent_beloep as number;
-      hoved += h;
-      subsidiaert += (r.subsidiaert_godkjent_beloep as number | undefined) ?? h;
-    } else {
-      const h = r.godkjent_dager as number;
-      hoved += dagverdi(h);
-      subsidiaert += dagverdi((r.subsidiaert_godkjent_dager as number | undefined) ?? h);
-    }
+    hoved += sporverdi(s.spor, r.godkjent_beloep, r.godkjent_dager);
+    subsidiaert += sporverdi(
+      s.spor,
+      r.subsidiaert_godkjent_beloep ?? r.godkjent_beloep,
+      r.subsidiaert_godkjent_dager ?? r.godkjent_dager
+    );
   }
 
   const grunnlag = svar.find((s) => s.spor === 'grunnlag');
@@ -94,7 +93,9 @@ export function brevverdi(
     const besvart = new Set(svar.map((s) => s.spor));
     for (const spor of KRAVSPOR) {
       if (besvart.has(spor)) continue;
-      const v = kravverdi(spor, u.spor[spor], dagverdi);
+      const v = kravverdi(u.spor[spor], (innhold) =>
+        sporverdi(spor, innhold.beloep, innhold.dager)
+      );
       if (v === null) ukjent = true;
       else {
         hoved += v;
@@ -108,14 +109,12 @@ export function brevverdi(
 }
 
 function kravverdi(
-  spor: Kravspor,
   sp: Sporutledning,
-  dagverdi: (dager: number) => number
+  verdi: (innhold: Record<string, unknown>) => number
 ): number | null {
   if (sp.trukket || sp.ingenKrav) return 0;
   if (!sp.gjeldendeKrav) return null;
-  const innhold = sp.gjeldendeKrav.innhold;
-  return spor === 'vederlag' ? (innhold.beloep as number) : dagverdi(innhold.dager as number);
+  return verdi(sp.gjeldendeKrav.innhold);
 }
 
 const dekker = (f: Fullmakt | undefined, beloep: number | null): boolean =>

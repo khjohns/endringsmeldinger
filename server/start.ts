@@ -10,8 +10,12 @@
  *
  * - `KOE_DATALAG_TILKOBLING` er tilkoblingsstrengen til en migrert base i
  *   SQL Server, med sesjonen, medlemskapet, kontraktsteamene, journalen og
- *   leveringsoppdragene. Den nekter å starte når historikken i basen avviker fra
- *   `database/migrasjoner/` eller en fil ikke er anvendt.
+ *   leveringsoppdragene, som en innlogging i rollen `koe_runtime`. Den nekter å
+ *   starte som eier av basen eller `sysadmin`, når historikken i basen avviker
+ *   fra `database/migrasjoner/` eller en fil ikke er anvendt (`oppstart.ts`).
+ *   Navnet er et annet enn `KOE_SQLSERVER_TILKOBLING`, som hooken og testene
+ *   bruker: den strengen er `sa` mot serveren, og testene lager baser og
+ *   kjøretidsinnlogginger med den (`opprettKjoeretid` i `tester/sqlserver.ts`).
  * - `APP_ENV` må være den Python har. Med `development` heter sesjonskapselen
  *   `koe_session`, ellers `__Host-koe_session`, som krever HTTPS (B18-01).
  *   Vite-proxyen sender innloggingen, `/api/csrf-token`, prosjektene og
@@ -19,10 +23,10 @@
  * - Innloggingen og Catenda leser `AUTH_FRONTEND_URL`, `CATENDA_CLIENT_ID`,
  *   `CATENDA_CLIENT_SECRET`, `CATENDA_LOGIN_REDIRECT_URI` og `CATENDA_ACCESS_TOKEN`,
  *   som Python. Medlemslistene og teamene hentes med integrasjonens eget token.
- *   Mangler oppsettet eller er det ugyldig, svarer innloggingen 503, og en
- *   medlemsliste som må hentes, gir 503. `CATENDA_GRUNNADRESSE` peker Catenda mot en
+ *   Mangler oppsettet for innloggingen eller er det ugyldig, svarer innloggingen
+ *   503; mangler Catenda-oppsettet, gir også en medlemsliste som må hentes, 503. `CATENDA_GRUNNADRESSE` peker Catenda mot en
  *   testleverandør på localhost, bare i utvikling.
- * - Med Catenda satt opp starter jobbkjøreren (`jobber.ts`, #741), som lager
+ * - Med både innloggingen og Catenda satt opp starter jobbkjøreren (`jobber.ts`, #741), som lager
  *   topicen for en ny sak med integrasjonens token. Lenken i topicen peker til
  *   `AUTH_FRONTEND_URL`. Uten Catenda venter jobbene i basen.
  */
@@ -38,10 +42,11 @@ import {
   dokumentleverandoer,
   topicoppretter,
 } from './catenda.ts';
-import { opprettPool, sql, type Pool } from './datalag.ts';
+import { opprettPool, sql } from './datalag.ts';
 import { innloggingFraMiljoe, type Innlogging } from './innlogging.ts';
 import { startJobbkjoerer, type Jobbkjoerer } from './jobber.ts';
-import { avvik, lesMigrasjoner, type Anvendt } from './migrering.ts';
+import { lesMigrasjoner } from './migrering.ts';
+import { hindringer } from './oppstart.ts';
 
 const utenCatenda: Catenda = {
   async medlemmer() {
@@ -51,18 +56,6 @@ const utenCatenda: Catenda = {
     throw new CatendaUtilgjengelig('Catenda er ikke satt opp');
   },
 };
-
-/** Det som hindrer at serveren bruker basen: avvik fra filene, eller en fil som ikke er anvendt. */
-async function migrasjonsavvik(datalag: Pool): Promise<string[]> {
-  const filer = lesMigrasjoner();
-  const anvendt = (await datalag.request().execute<Anvendt>('koe_api.migrasjonshistorikk'))
-    .recordset;
-  const kjent = new Set(anvendt.map((a) => a.versjon));
-  return [
-    ...avvik(anvendt, filer),
-    ...filer.filter((f) => !kjent.has(f.versjon)).map((f) => `${f.filnavn} er ikke anvendt.`),
-  ];
-}
 
 kontrollerSkrifter();
 
@@ -74,16 +67,29 @@ datalag.on('error', (feil) =>
   console.error('Forbindelsen til SQL Server ble brutt:', feil.message)
 );
 
-const funn = await migrasjonsavvik(datalag);
-if (funn.length) throw new Error(`Basen er ikke migrert som repoet:\n${funn.join('\n')}`);
+const funn = await hindringer(datalag, lesMigrasjoner());
+if (funn.length) throw new Error(`Serveren kan ikke bruke basen:\n${funn.join('\n')}`);
 
-let innlogging: Innlogging | null = null;
+// Catenda og innloggingen settes opp hver for seg, så et feil oppsett for den ene
+// ikke stenger den andre (#726 punkt 4). Meldingene har ingen verdier fra
+// oppsettet, så hemmeligheten når ikke loggen.
+let klient: ReturnType<typeof catendaFraMiljoe> | null = null;
 let catenda = utenCatenda;
-let jobber: Jobbkjoerer | null = null;
 try {
-  const { frontend } = (innlogging = innloggingFraMiljoe());
-  const klient = catendaFraMiljoe();
+  klient = catendaFraMiljoe();
   catenda = integrasjonen(klient);
+} catch (feil) {
+  console.warn(`Catenda er ikke satt opp: ${(feil as Error).message}`);
+}
+let innlogging: Innlogging | null = null;
+try {
+  innlogging = innloggingFraMiljoe();
+} catch (feil) {
+  console.warn(`Innloggingen er ikke satt opp: ${(feil as Error).message}`);
+}
+let jobber: Jobbkjoerer | null = null;
+if (klient && innlogging) {
+  const { frontend } = innlogging;
   jobber = startJobbkjoerer({
     datalag,
     catenda: topicoppretter(klient),
@@ -91,9 +97,6 @@ try {
     saksadresse: (prosjektId, sakId) =>
       `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}/kjerne`,
   });
-} catch (feil) {
-  // Meldingen har ingen verdier fra oppsettet, så hemmeligheten når ikke loggen.
-  console.warn(`Innloggingen og Catenda er ikke satt opp: ${(feil as Error).message}`);
 }
 
 const server = createServer(
