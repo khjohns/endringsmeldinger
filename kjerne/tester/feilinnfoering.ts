@@ -2372,7 +2372,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['sammenliknes ikke og avvises'],
   },
   {
-    id: 'F287',
+    id: 'F292',
     feilklasse: 'dager som mangler i svaret, sammenliknes som null dager (HF-U5, #814)',
     fil: `${K}/utledning/innroemmelse.ts`,
     endringer: [
