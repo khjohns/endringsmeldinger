@@ -645,12 +645,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/frysing.ts', 'regelsett', 'frys', ['kommandoer/skriving.ts']],
   ['frosset/frysing.ts', 'regelsett', 'grunnlagsstandpunkter', ['kommandoer/standpunkter.ts']],
   // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
-  [
-    'kommandoer/standpunkter.ts',
-    'utsagn',
-    'standpunkter',
-    ['kommandoer/skriving.ts', 'kommandoer/nyttelast.ts'],
-  ],
+  ['kommandoer/standpunkter.ts', 'utsagn', 'standpunkter', ['kommandoer/skriving.ts']],
   // HF-U5, HF-U14: det en revisjon senker av det svaret innrømmer, standpunkt for standpunkt.
   // MM-U27: utledningen sammenlikner en revisjon utenfor kommandoene på samme måte.
   [
@@ -674,7 +669,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'rad',
     'standpunkterISvaret',
-    ['frosset/frysing.ts', 'kommandoer/nyttelast.ts'],
+    ['frosset/frysing.ts', 'kommandoer/skriving.ts'],
   ],
   ['format/leser.ts', 'rad', 'Uforstaatt', ['kommandoer/skriving.ts', 'frosset/frysing.ts']],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
