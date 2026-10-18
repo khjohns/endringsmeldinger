@@ -889,7 +889,7 @@ lagres_fra = "`koe_api.opprett_sak` og triggeren `koe.leveringsoppdrag_levering`
 fra_catenda = "Delvis. ID-ene til Catenda-prosjektet og boardet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Sakstittelen kan inneholde personopplysninger."
-skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261018140000_brevdokument.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen)"]
+skrivere = ["database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261020020000_vedleggslevering.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`."
 
@@ -908,7 +908,7 @@ lagres_fra = "Prosedyrene for jobbkjøreren og driftsverktøyet i `database/migr
 fra_catenda = "Nei. Meldingen er fra klienten i `server/catenda.ts`, uten svarkropp."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innloggingen til den i driften som startet en jobb på nytt."
-skrivere = ["database/migrasjoner/20261018120000_levering.sql (`koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.kvitter_levering`, `koe_api.registrer_jobbfeil` og `koe_api.start_jobb_paa_nytt`)"]
+skrivere = ["database/migrasjoner/20261018120000_levering.sql (`koe_api.hent_jobb` og `koe_api.start_jobb_paa_nytt`)", "database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_topic`, `koe_api.kvitter_levering` og `koe_api.registrer_jobbfeil`, gjennom `koe_api.avslutt_forsoek`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`."
 
@@ -958,11 +958,11 @@ SHA-256 av dem, lagret én gang per oppdrag før første opplasting. Kjøreren h
 kontrollert at PDF-en gjengir den frosne brevteksten tro (LV-U2), og laster opp den
 lagrede. Basen regner summen etter. Raden endres ikke, og bare kjøreveien,
 `koe_jobbkjoerer`, kan legge inn en."""
-lagres_fra = "`koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts` når `koe_api.lagret_brevdokument` ikke gir noen PDF for oppdraget (#795 punkt 4)."
+lagres_fra = "`koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts` med PDF-en når samme prosedyre uten PDF ikke gir noen lagret for oppdraget (#795 punkt 4, #805 punkt 5)."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Det er PDF-en som ble levert."
 personopplysninger = "Brevteksten kan ha navn på personer i prosjektet."
-skrivere = ["database/migrasjoner/20261018140000_brevdokument.sql (`koe_api.lagre_brevdokument`, kalt fra `server/jobber.ts`)"]
+skrivere = ["database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.lagre_brevdokument`, innført i `20261018140000_brevdokument.sql`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/levering.test.ts`."
 
@@ -978,14 +978,15 @@ kvittert for den (spørsmål 1 A i #790, 18.10). Et ubundet vedlegg er et utkast
 bare teamet som lastet det opp, ser og sletter. Når en hendelse viser til det, får
 det `bundet_av_event_id` og ses av begge kontraktssider; et bundet vedlegg slettes
 ikke. `koe_api.bind_vedlegg` binder vedleggene hendelsen viser til, i samme
-transaksjon som hendelsen (V-2); bindingen er den eneste endringen triggeren
-`koe.vedlegg_uten_endring` slipper gjennom. Slettingen av innholdet etter levering
-kommer i V-3."""
-lagres_fra = "`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`, og `koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`."
+transaksjon som hendelsen (V-2). Når Catenda har kvittert for dokumentet, setter
+`koe_api.kvitter_vedlegg` innholdet til NULL og beholder filnavnet og summen
+(LV-U12, V-3). Triggeren `koe.vedlegg_uten_endring` slipper bare gjennom de to
+endringene."""
+lagres_fra = "`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`, `koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`, og `koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Før levering finnes filen bare her."
 personopplysninger = "Filen og filnavnet kan ha navn på personer i prosjektet."
-skrivere = ["database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`)", "database/migrasjoner/20261019170000_vedleggsbinding.sql (`koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`)", "database/migrasjoner/20261019170000_vedleggsbinding.sql (`koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_vedlegg`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonene. K 18.10: `server/tester/vedlegg.test.ts`."
 
@@ -1085,7 +1086,8 @@ beskrivelse = """
 Kvitteringen for hver obligatoriske operasjon i leveringen av et brev (#371 del 1,
 invariant 7): `dokument` når dokumentet ligger i biblioteket, og
 `dokumentreferanse` når referansen står på topicen. Brevet er levert når begge
-radene finnes (B-03, arbeidsvalget 18.10 i #371). Raden har leasen og ID-en
+radene finnes (B-03, arbeidsvalget 18.10 i #371). Et registrert brev har ingen
+rader (LV-U11); vedleggene kvitteres i `koe.vedleggskvittering`. Raden har leasen og ID-en
 Catenda ga, og endres ikke. Bare kjøreveien, `koe_jobbkjoerer`, kan legge inn en
 rad. Kjøretiden leser tidspunktet for `dokumentreferanse` som «levert» i
 visningen av saken (`lesOppdrag` i `server/lager.ts`, #764)."""
@@ -1093,10 +1095,31 @@ lagres_fra = "`koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt av 
 fra_catenda = "Ja, ID-ene er Catendas."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Nei."
-skrivere = ["database/migrasjoner/20261018120000_levering.sql (`koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt fra `server/jobber.ts`)"]
+skrivere = ["database/migrasjoner/20261018120000_levering.sql (`koe_api.kvitter_dokument`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/levering.test.ts`."
 
+
+[[tabell]]
+navn = "koe.vedleggskvittering"
+lagring = "SQL Server"
+type = ["transaksjon"]
+status = "i bruk"
+beskrivelse = """
+Kvitteringen for hver operasjon i leveringen av et vedlegg (V-3, del av #790,
+invariant 7): `dokument` når vedlegget ligger i biblioteket, og `dokumentreferanse`
+når referansen står på topicen. Kvitteringen gjelder vedlegget, ikke oppdraget, så
+et vedlegg et senere brev viser til igjen, leveres ikke på nytt. Raden har leasen,
+oppdraget som leverte og ID-en Catenda ga, og endres ikke. Bare kjøreveien,
+`koe_jobbkjoerer`, kan legge inn en rad. `koe_api.kvitter_levering` kvitterer
+leveringen som fullført først når hvert vedlegg i brevet har en referanse."""
+lagres_fra = "`koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`."
+fra_catenda = "Ja, ID-ene er Catendas."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Nei."
+skrivere = ["database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_vedlegg`, kalt fra `server/jobber.ts`)"]
+funn = []
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/levering.test.ts`."
 [[tabell]]
 navn = "koe.sak_catenda_topic"
 lagring = "SQL Server"
@@ -1112,7 +1135,7 @@ lagres_fra = "`koe_api.kvitter_topic`, kalt av jobbkjøreren i `server/jobber.ts
 fra_catenda = "Ja, ID-ene er Catendas."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Nei."
-skrivere = ["database/migrasjoner/20261018120000_levering.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)"]
+skrivere = ["database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 18.10: `server/tester/jobber.test.ts`."
 
@@ -1158,6 +1181,24 @@ personopplysninger = "Ingen kjente."
 skrivere = ["database/migrasjoner/20261016170000_kommandoform.sql (`koe_api.skrivetidspunkt`)", "database/migrasjoner/20261020030000_skrivetidspunkt_grense.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)"]
 funn = []
 belegg = "L 16.10: migrasjonen. K 16.10: `server/tester/kommandoer.test.ts`. K 18.10: `server/tester/skrivetidspunkt.test.ts` (grensen på 30 sekunder)."
+
+[[tabell]]
+navn = "koe.toemmingsvern"
+lagring = "SQL Server"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Vernet mot TRUNCATE for de uforanderlige tabellene ingen annen fremmednøkkel
+viser til (#582). TRUNCATE avfyrer ingen trigger, men avvises for en tabell en
+fremmednøkkel viser til. Tabellen kan ikke ha rader (`toemmingsvern_tom`), og
+kjøretiden har ingen rett på den."""
+lagres_fra = "Ingen. Migrasjonen lager tabellen, og skranken avviser hver rad."
+fra_catenda = "Nei"
+kan_gjenoppbygges = "ja. Tabellen har ingen rader."
+personopplysninger = "Nei."
+skrivere = ["database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad)", "database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene)"]
+funn = []
+belegg = "L 18.10: `database/migrasjoner/20261020011000_toemmingsvern.sql`. K 18.10: `server/tester/journal.test.ts`."
 
 [[tabell]]
 navn = "koe.kjernebuffer"
