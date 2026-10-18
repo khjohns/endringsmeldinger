@@ -21,6 +21,7 @@ import type { IncomingMessage } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   catendaId,
+  ferskeProsjekter,
   krevKontraktsrolle,
   krevProsjekttilgang,
   Nektet,
@@ -450,6 +451,25 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         error: 'ACCESS_UNAVAILABLE',
       });
       expect(kall).toEqual([p.catenda]);
+    });
+
+    it('ferskeProsjekter henter listene for gamle prosjekter samtidig, og ikke for et ferskt (#724 punkt 5)', async () => {
+      const [a, b, c] = [
+        await prosjekt({ liste: 'gammel' }),
+        await prosjekt({ liste: 'ingen' }),
+        await prosjekt(),
+      ];
+      let aktive = 0;
+      let flest = 0;
+      const { catenda, kall } = catendaMed({}, async () => {
+        flest = Math.max(flest, ++aktive);
+        await new Promise((ferdig) => setTimeout(ferdig, 300));
+        aktive--;
+        return [];
+      });
+      await ferskeProsjekter(kjoeretid.pool, catenda, [a.id, b.id, c.id]);
+      expect(kall.sort()).toEqual([a.catenda, b.catenda].sort());
+      expect(flest).toBe(2);
     });
 
     it('feiler synkroniseringen, gir det 503 og ikke tilgang', async () => {

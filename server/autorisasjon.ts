@@ -253,6 +253,18 @@ export async function ferskeMedlemmer(
   await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
 }
 
+/**
+ * `ferskeMedlemmer()` for hvert av prosjektene, samtidig. For lista over brukerens
+ * prosjekter, som skal kalle denne i stedet (#724 punkt 3 og 5).
+ */
+export async function ferskeProsjekter(
+  db: Pool,
+  catenda: Catenda,
+  prosjekter: string[]
+): Promise<void> {
+  await Promise.all(prosjekter.map((p) => ferskeMedlemmer(db, catenda, p)));
+}
+
 /** Prosjekt-ID-en slik basen har den: SQL Server ser bort fra mellomrom til slutt. */
 const gyldigProsjektId = (id: string) => id.trim() === id && id.length <= 100;
 
