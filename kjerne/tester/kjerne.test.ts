@@ -1199,7 +1199,9 @@ describe('revisjonen av et svar uten beløp', () => {
     >[1];
 
   it('sammenliknes ikke og avvises', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0))).toMatch(/Beløpet mangler/);
+    expect(senketInnroemmelse(svar(undefined), revisjon(0))).toEqual(
+      expect.stringMatching(/Beløpet mangler/)
+    );
   });
 
   it('kontrollsak: med beløpet sammenliknes revisjonen', () => {
