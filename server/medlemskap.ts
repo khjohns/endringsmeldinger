@@ -4,7 +4,9 @@
  * `koe_api.koblede_prosjekter` og `koe_api.deaktiver_ved_innlogging`. Alderen på
  * medlemslisten leses i `autorisasjon.ts` (#638). Synkroniseringen og innloggingen er systemkall uten
  * aktør og prosjektkontekst (RB2-04), så de går utenom `transaksjon()`; prosedyrene
- * har sin egen transaksjon og samme applås per prosjekt.
+ * har sin egen transaksjon. Synkroniseringen tar applåsen `koe.medlemskap:<prosjekt>`
+ * som `Exclusive`. Innloggingen tar først `koe.innlogging:<bruker>` og deretter
+ * låsen som `Shared` for hvert aktive prosjekt som ikke er i brukerens liste.
  *
  * Tidskilden er basens klokke (B-04 punkt 1): kalleren leser `basensKlokke()` før
  * den henter listen fra Catenda, og oppgir tidspunktet som `hentet`. Catenda-ID-en
