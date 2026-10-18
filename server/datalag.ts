@@ -118,7 +118,11 @@ export async function opprettPool(
   }).connect();
 }
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/**
+ * En UUID med små bokstaver, formen basen krever for ID-ene den sammenlikner som tekst.
+ * En ID utenfra gjøres om til små bokstaver der den kommer inn (#815 punkt 3).
+ */
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const TEAM = /^[0-9a-f]{32}$/;
 
 function kontroller(k: Kontekst): void {
