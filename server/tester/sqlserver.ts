@@ -170,35 +170,71 @@ export async function opprettKjoeretid(
   } finally {
     await master.close();
   }
-  await base.pool
-    .request()
-    .batch(
-      `CREATE USER [${navn}] FOR LOGIN [${navn}]; ALTER ROLE [${rolle}] ADD MEMBER [${navn}];`
+  let pool: Pool;
+  try {
+    await base.pool
+      .request()
+      .batch(
+        `CREATE USER [${navn}] FOR LOGIN [${navn}]; ALTER ROLE [${rolle}] ADD MEMBER [${navn}];`
+      );
+    const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
+    pool = await opprettPool(
+      {
+        ...config,
+        user: navn,
+        password: passord,
+        database: base.navn,
+        connectionTimeout: 5_000,
+        requestTimeout: 60_000,
+      },
+      { maks }
     );
-  const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
-  const pool = await opprettPool(
-    {
-      ...config,
-      user: navn,
-      password: passord,
-      database: base.navn,
-      connectionTimeout: 5_000,
-      requestTimeout: 60_000,
-    },
-    { maks }
-  );
+  } catch (feil) {
+    await slettInnlogging(navn).catch(() => undefined);
+    throw feil;
+  }
   return {
     pool,
     async slett() {
-      await pool.close();
-      const m = await kobleTilServer(SLETTEFRIST);
       try {
-        await m.request().batch(`DROP LOGIN [${navn}];`);
+        await pool.close();
       } finally {
-        await m.close();
+        await slettInnlogging(navn);
       }
     },
   };
+}
+
+/**
+ * Sletter innloggingen `navn` fra serveren. `pool.close()` venter ikke på at
+ * serveren har lukket øktene, så `DROP LOGIN` kan komme mens en av dem ennå
+ * står i `sys.dm_exec_sessions` (#727). Øktene til innloggingen avsluttes derfor
+ * med `KILL`, og innloggingen slettes først når ingen står igjen.
+ */
+async function slettInnlogging(navn: string): Promise<void> {
+  const m = await kobleTilServer(SLETTEFRIST);
+  try {
+    await m
+      .request()
+      .input('navn', sql.NVarChar(128), navn)
+      .batch(
+        `DECLARE @oekt int, @setning nvarchar(40), @runder int = 0;
+       WHILE EXISTS (SELECT 1 FROM sys.dm_exec_sessions WHERE login_name = @navn)
+       BEGIN
+         IF @runder = 100 THROW 50000, N'Øktene til innloggingen ble ikke avsluttet på 10 s', 1;
+         SET @oekt = (SELECT MIN(session_id) FROM sys.dm_exec_sessions WHERE login_name = @navn);
+         SET @setning = CONCAT(N'KILL ', @oekt);
+         -- KILL venter ikke på at økta er borte, og økta kan ha lukket seg selv (6106).
+         BEGIN TRY EXEC (@setning); END TRY
+         BEGIN CATCH IF ERROR_NUMBER() <> 6106 THROW; END CATCH
+         WAITFOR DELAY '00:00:00.100';
+         SET @runder += 1;
+       END
+       DROP LOGIN [${navn}];`
+      );
+  } finally {
+    await m.close();
+  }
 }
 
 export { sql };

@@ -89,6 +89,14 @@ async function skrivOgCommit(pool: Pool, sakId: string, forventet: number, event
   }
 }
 
+/** Antall forespørsler i basen som venter på en lås, lest i `sys.dm_exec_requests`. */
+async function ventendeILaas(pool: Pool): Promise<number> {
+  const r = await pool.request().query<{
+    n: number;
+  }>("SELECT COUNT(*) AS n FROM sys.dm_exec_requests WHERE database_id = DB_ID() AND wait_type LIKE N'LCK[_]%'");
+  return r.recordset[0].n;
+}
+
 async function lagret(pool: Pool, sakId: string) {
   const r = await pool
     .request()
@@ -111,7 +119,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
   let base: Testbase;
 
   beforeAll(async () => {
-    base = await opprettTestbase('samtidighet');
+    // Åtte åpne transaksjoner og oppslaget i sys.dm_exec_requests samtidig.
+    base = await opprettTestbase('samtidighet', { maks: 12 });
     for (const batch of SKJEMA) await base.pool.request().batch(batch);
   }, 240_000);
 
@@ -196,17 +205,52 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
       });
 
       it('åtte samtidige skrivinger med samme forventede versjon: nøyaktig én lagres, de andre får versjonskonflikt eller vranglås', async () => {
+        // Alle åtte har lest før den første committer: den første holder transaksjonen
+        // åpen til de sju andre venter på en lås i basen eller er avvist. Uten
+        // `UPDLOCK, HOLDLOCK` venter de da på unikheten og får 2627 (#560).
         const sakId = await nySak(base.pool);
         const hendelser = Array.from({ length: 8 }, () => randomUUID());
-        const utfall = await Promise.allSettled(
-          hendelser.map((id) => skrivOgCommit(base.pool, sakId, 1, id))
+        const transaksjoner = hendelser.map(() => new sql.Transaction(base.pool));
+        await Promise.all(transaksjoner.map((tx) => tx.begin()));
+        const utfall: (PromiseSettledResult<unknown> | undefined)[] = hendelser.map(
+          () => undefined
         );
+        const skrivinger = hendelser.map((id, i) =>
+          skriv(transaksjoner[i], sakId, 1, id).then(
+            (verdi) => (utfall[i] = { status: 'fulfilled', value: verdi }),
+            (reason: unknown) => (utfall[i] = { status: 'rejected', reason })
+          )
+        );
+        try {
+          const slutt = Date.now() + 10_000;
+          for (;;) {
+            const ferdige = utfall.filter((u) => u !== undefined).length;
+            const venter = await ventendeILaas(base.pool);
+            if (ferdige + venter === hendelser.length && utfall.some(Boolean)) break;
+            if (Date.now() > slutt)
+              throw new Error(
+                `${ferdige} skrivinger er ferdige og ${venter} venter på en lås etter 10 s`
+              );
+            await new Promise((ok) => setTimeout(ok, 50));
+          }
+          const forste = utfall.findIndex((u) => u?.status === 'fulfilled');
+          expect(forste, 'én skriving er ferdig uten å vente').toBeGreaterThanOrEqual(0);
+          await transaksjoner[forste].commit();
+          await Promise.all(skrivinger);
+        } finally {
+          await Promise.all(
+            transaksjoner.map((tx, i) =>
+              utfall[i]?.status === 'fulfilled' ? undefined : tx.rollback().catch(() => undefined)
+            )
+          );
+          await Promise.allSettled(skrivinger);
+        }
 
-        const lyktes = hendelser.filter((_, i) => utfall[i].status === 'fulfilled');
+        const lyktes = hendelser.filter((_, i) => utfall[i]?.status === 'fulfilled');
         expect(lyktes).toHaveLength(1);
         // Et vranglåsoffer er også en avvist skriving (#547).
         for (const u of utfall) {
-          if (u.status === 'rejected')
+          if (u?.status === 'rejected')
             expect([VERSJONSKONFLIKT, VRANGLAAS]).toContain(feilnummer(u.reason));
         }
         const rader = await lagret(base.pool, sakId);

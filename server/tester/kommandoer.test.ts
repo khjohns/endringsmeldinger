@@ -85,9 +85,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     te = { aktor: b.te, prosjekt: P1, side: 'TE', team: TE1 };
   }, 240_000);
   afterAll(async () => {
-    await kjoeretid?.slett();
-    await enForbindelse?.slett();
-    await base?.slett();
+    try {
+      await kjoeretid?.slett();
+    } finally {
+      try {
+        await enForbindelse?.slett();
+      } finally {
+        await base?.slett();
+      }
+    }
   }, 60_000);
 
   const nySak = (k: Kontekst = te) =>
@@ -101,12 +107,26 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     return svar.recordset[0].naa.getTime();
   }
 
-  /** Om `koe.skrivetidspunkt` har en rad med tidspunktet, lest av eieren. */
-  async function tidspunktStaar(t: Date): Promise<boolean> {
+  /** Økt-ID-en til forbindelsen i `enForbindelse`. */
+  async function oektenTilEnForbindelse(): Promise<number> {
+    return transaksjon(enForbindelse.pool, te, async (f) => {
+      const svar = await f().query<{ spid: number }>('SELECT @@SPID AS spid');
+      return svar.recordset[0].spid;
+    });
+  }
+
+  /**
+   * Om `koe.skrivetidspunkt` har en rad for økta med tidspunktet, lest av eieren.
+   * Økta skiller raden fra en en annen test lot ligge med samme millisekund (#751).
+   */
+  async function tidspunktStaar(oekt: number, t: Date): Promise<boolean> {
     const svar = await base.pool
       .request()
+      .input('oekt', sql.SmallInt, oekt)
       .input('t', sql.DateTime2(3), t)
-      .query<{ n: number }>('SELECT COUNT(*) AS n FROM koe.skrivetidspunkt WHERE tidspunkt = @t');
+      .query<{
+        n: number;
+      }>('SELECT COUNT(*) AS n FROM koe.skrivetidspunkt WHERE oekt = @oekt AND tidspunkt = @t');
     return svar.recordset[0].n > 0;
   }
 
@@ -401,31 +421,40 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
 
     it('verken en skriving eller en avvisning fra lag etterlater tidspunktet', async () => {
       const sak = await nySak();
+      const oekt = await oektenTilEnForbindelse();
       const gitt: Date[] = [];
-      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), (g) => {
+      await skrivHendelse(enForbindelse.pool, te, sak.sak_id, 1, ny(), (g) => {
         gitt.push(g.tidspunkt);
         return medOppdrag(te)(g);
       });
-      await skrivHendelse(kjoeretid.pool, te, sak.sak_id, 2, ny(), (g) => {
+      await skrivHendelse(enForbindelse.pool, te, sak.sak_id, 2, ny(), (g) => {
         gitt.push(g.tidspunkt);
         return { skriv: false, avvisning: 0 };
       });
       expect(gitt).toHaveLength(2);
-      for (const t of gitt) expect(await tidspunktStaar(t), t.toISOString()).toBe(false);
+      expect(await oektenTilEnForbindelse(), 'skrivingene gikk i samme økt').toBe(oekt);
+      for (const t of gitt) expect(await tidspunktStaar(oekt, t), t.toISOString()).toBe(false);
     });
 
     it('en skriving venter ikke på en annen åpen transaksjon som har ført sitt tidspunkt', async () => {
       const sak = await nySak();
-      const utfall = await transaksjon(enForbindelse.pool, te, async (f) => {
-        await f().output('tidspunkt', sql.DateTime2(3)).execute('koe_api.skrivetidspunkt');
-        return Promise.race([
-          skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), medOppdrag(te)).then(
-            () => 'skrevet'
-          ),
-          new Promise((ok) => setTimeout(() => ok('ventet'), 10_000)),
-        ]);
-      });
-      expect(utfall).toBe('skrevet');
+      let skriving: Promise<unknown> | undefined;
+      let tidtaker: ReturnType<typeof setTimeout> | undefined;
+      try {
+        const utfall = await transaksjon(enForbindelse.pool, te, async (f) => {
+          await f().output('tidspunkt', sql.DateTime2(3)).execute('koe_api.skrivetidspunkt');
+          skriving = skrivHendelse(kjoeretid.pool, te, sak.sak_id, 1, ny(), medOppdrag(te));
+          return Promise.race([
+            skriving.then(() => 'skrevet'),
+            new Promise((ok) => (tidtaker = setTimeout(() => ok('ventet'), 10_000))),
+          ]);
+        });
+        expect(utfall).toBe('skrevet');
+      } finally {
+        clearTimeout(tidtaker);
+        // Ventet skrivingen, fortsetter den når transaksjonen over er avsluttet.
+        await Promise.allSettled([skriving]);
+      }
     }, 30_000);
 
     it.each<[string, (rad: Journalrad, o: Oppdragsrad) => [Journalrad, Oppdragsrad], RegExp]>([
@@ -503,16 +532,32 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       ).rejects.toBeInstanceOf(UgyldigKontekst);
     });
 
-    it('en kontekst uten kontraktsside gir SkrivingAvvist', async () => {
+    it.each<[string, Kontekst['side'], boolean]>([
+      ['kontrollsak: med kontraktssiden skrives brevet', 'TE', true],
+      ['en kontekst uten kontraktsside gir SkrivingAvvist, og lag kalles ikke', undefined, false],
+    ])('%s', async (_, side, skrives) => {
       const sak = await nySak();
-      const utenSide: Kontekst = { aktor: b.te, prosjekt: P1, team: TE1 };
-      await expect(
-        skrivHendelse(kjoeretid.pool, utenSide, sak.sak_id, 1, ny(), medOppdrag(te))
-      ).rejects.toBeInstanceOf(SkrivingAvvist);
+      const kontekst: Kontekst = { aktor: b.te, prosjekt: P1, team: TE1, side };
+      let kalt = 0;
+      const skriving = skrivHendelse(kjoeretid.pool, kontekst, sak.sak_id, 1, ny(), (g) => {
+        kalt++;
+        return medOppdrag(te)(g);
+      });
+      if (skrives) await expect(skriving).resolves.toMatchObject({ skriv: true });
+      else await expect(skriving).rejects.toBeInstanceOf(SkrivingAvvist);
+      expect(kalt).toBe(skrives ? 1 : 0);
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(skrives ? 2 : 1);
     });
   });
 
   describe('basen avviser det lageret ikke skal kunne sende (koe_api.skriv_hendelse)', () => {
+    /**
+     * Økta transaksjonen med tidspunktet hadde, og økta som skrev, ved siste kall
+     * med `annen_transaksjon`. Testen prøver forutsetningen etter avvisningen, så et
+     * brudd ikke vises som feil feilnummer.
+     */
+    let oektene: { annen: number; skriving: number } | undefined;
+
     /** Kaller prosedyren direkte som kjøretiden; `tid` avgjør tidspunktet og nøkkelen. */
     async function direkte(
       sakId: string,
@@ -558,12 +603,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
         let tidspunkt: Date;
         if (annen) {
           // Samme økt, så bare transaksjons-ID-en skiller dem.
-          expect(await oekt(f)).toBe(annen.spid);
+          oektene = { annen: annen.spid, skriving: await oekt(f) };
           tidspunkt = annen.tidspunkt;
         } else if (tid === 'uten') tidspunkt = new Date(await klokka());
         else if (tid === 'etter_omstart') {
           // Som en rad en tidligere økt etterlot før en omstart: samme transaksjons-ID
-          // og økt-ID, men innlogget før denne økta.
+          // og økt-ID, men innlogget før denne økta. Økta er primærnøkkelen, så en rad
+          // den har fra før, slettes først.
           const denne = await f().query<{ tx: string; spid: number; inn: Date }>(
             `SELECT CAST(CURRENT_TRANSACTION_ID() AS nvarchar(20)) AS tx, @@SPID AS spid,
                     (SELECT CAST(login_time AS datetime2(3)) FROM sys.dm_exec_sessions WHERE session_id = @@SPID) AS inn`
@@ -577,7 +623,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
             .input('inn', sql.DateTime2(3), new Date(inn.getTime() - 60_000))
             .input('t', sql.DateTime2(3), tidspunkt)
             .query(
-              'INSERT koe.skrivetidspunkt (oekt, transaksjon, innlogget, tidspunkt) VALUES (@spid, @tx, @inn, @t)'
+              `DELETE koe.skrivetidspunkt WHERE oekt = @spid;
+               INSERT koe.skrivetidspunkt (oekt, transaksjon, innlogget, tidspunkt) VALUES (@spid, @tx, @inn, @t)`
             );
         } else if (tid === 'egen_noekkel') {
           tidspunkt = new Date(await klokka());
@@ -666,7 +713,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
 
     it('kjøretiden kan ikke føre eller endre tidspunktet selv', async () => {
       for (const setning of [
-        'INSERT koe.skrivetidspunkt (transaksjon, oekt, innlogget, tidspunkt) VALUES (CURRENT_TRANSACTION_ID(), @@SPID, SYSUTCDATETIME(), SYSUTCDATETIME())',
+        'INSERT koe.skrivetidspunkt (oekt, transaksjon, innlogget, tidspunkt) VALUES (@@SPID, CURRENT_TRANSACTION_ID(), SYSUTCDATETIME(), SYSUTCDATETIME())',
         'UPDATE koe.skrivetidspunkt SET tidspunkt = SYSUTCDATETIME()',
         'DELETE koe.skrivetidspunkt',
       ]) {
@@ -811,7 +858,76 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       ['sak_opprettet', { eventType: 'sak_opprettet', oppdrag: false }],
     ])('avviser %s (51422), og ingenting skrives', async (_, valg) => {
       const sak = await nySak();
-      expect(await avvisning(direkte(sak.sak_id, valg))).toBe(UGYLDIG);
+      oektene = undefined;
+      const feil = await avvisning(direkte(sak.sak_id, valg));
+      if (valg?.tid === 'annen_transaksjon')
+        expect(oektene?.skriving, 'skrivingen gikk i økta som fikk tidspunktet').toBe(
+          oektene?.annen
+        );
+      expect(feil).toBe(UGYLDIG);
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
+    });
+  });
+
+  // Feilinnføringen K3 i #597: oppslaget i koe.skrivetidspunkt ser bort fra
+  // transaksjonen. Gjennom transaksjon() fanges den ikke, for en ny transaksjon får
+  // en nullstilt forbindelse med en annen login_time, og koe_tx er skrivebeskyttet.
+  // Her går begge transaksjonene i én batch på samme forbindelse, med konteksten
+  // satt uten @read_only, så bare transaksjons-ID-en skiller dem.
+  describe('tidspunktet er bundet til transaksjonen, også i samme økt uten nullstilling (#597, K3)', () => {
+    async function toTransaksjoner(sakId: string, tidspunktFra: 'første' | 'andre') {
+      const eventId = randomUUID();
+      const innhold = { event_id: eventId };
+      return kjoeretid.pool
+        .request()
+        .input('aktor', sql.UniqueIdentifier, te.aktor)
+        .input('prosjekt', sql.NVarChar(100), te.prosjekt)
+        .input('side', sql.NVarChar(2), te.side)
+        .input('team', sql.NVarChar(32), te.team)
+        .input('fra_andre', sql.Bit, tidspunktFra === 'andre')
+        .input('sak_id', sql.NVarChar(4000), sakId)
+        .input('event_id', sql.NVarChar(4000), eventId)
+        .input('oppdrag_id', sql.NVarChar(4000), randomUUID())
+        .input('dokumentnoekkel', sql.NVarChar(4000), `dok-${eventId}`)
+        .input('oppdrag', sql.NVarChar(sql.MAX), JSON.stringify(innhold))
+        .input('oppdrag_sha256', sql.NVarChar(4000), sjekksum(innhold))
+        .input('kommando_id', sql.NVarChar(4000), randomUUID())
+        .input('kommando_sha256', sql.NVarChar(4000), heks() + heks())
+        .batch(
+          `SET XACT_ABORT ON;
+           DECLARE @tx bigint, @t datetime2(3);
+           BEGIN TRANSACTION;
+           SET @tx = CURRENT_TRANSACTION_ID();
+           EXEC sp_set_session_context N'koe_aktor', @aktor;
+           EXEC sp_set_session_context N'koe_prosjekt', @prosjekt;
+           EXEC sp_set_session_context N'koe_side', @side;
+           EXEC sp_set_session_context N'koe_team', @team;
+           EXEC sp_set_session_context N'koe_tx', @tx;
+           EXEC koe_api.skrivetidspunkt @tidspunkt = @t OUTPUT;
+           COMMIT;
+           BEGIN TRANSACTION;
+           SET @tx = CURRENT_TRANSACTION_ID();
+           EXEC sp_set_session_context N'koe_tx', @tx;
+           IF @fra_andre = 1 EXEC koe_api.skrivetidspunkt @tidspunkt = @t OUTPUT;
+           EXEC koe_api.skriv_hendelse
+             @sak_id = @sak_id, @forventet_versjon = 1, @event_id = @event_id,
+             @event_type = N'dokument_registrert', @tidsstempel = @t, @format = 1, @data = N'{}',
+             @oppdrag_id = @oppdrag_id, @dokumentnoekkel = @dokumentnoekkel, @oppdrag = @oppdrag,
+             @oppdrag_sha256 = @oppdrag_sha256, @kommando_id = @kommando_id,
+             @kommando_sha256 = @kommando_sha256;
+           COMMIT;`
+        );
+    }
+
+    it('kontrollsak: med tidspunktet den andre transaksjonen fikk selv, lagres brevet', async () => {
+      const sak = await nySak();
+      await toTransaksjoner(sak.sak_id, 'andre');
+      expect((await lagret(sak.sak_id)).hendelser).toHaveLength(2);
+    });
+
+    it('med tidspunktet en committet transaksjon fikk i samme økt, avvises skrivingen (51422), og ingenting skrives', async () => {
+      const sak = await nySak();
+      expect(await avvisning(toTransaksjoner(sak.sak_id, 'første'))).toBe(UGYLDIG);
       expect((await lagret(sak.sak_id)).hendelser).toHaveLength(1);
     });
   });
