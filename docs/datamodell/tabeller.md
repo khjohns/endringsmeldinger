@@ -513,7 +513,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 
 ### `koe.app_users`
 
-Én rad per person. `id` er aktøren i journalen og notatet (AGENTS.md). Svarer til `app_users` i PostgreSQL.
+Én rad per person. `id` er aktøren i journalen og notatet (AGENTS.md). Svarer til `app_users` i PostgreSQL. Navnet leses for visningen av saken gjennom `koe_api.aktornavn`, bare for aktørene i en sak leseren kan lese (F-1b, #104), fra `lesAktornavn` i `server/lager.ts`.
 
 | Felt | Innhold |
 | --- | --- |
@@ -526,7 +526,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Personopplysninger | Navn og e-post. |
 | Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261016150000_deaktivering.sql (`koe_api.synkroniser_medlemskap`, gjennom `koe.resolve_identity`, innført i `20261016140000_medlemskap.sql`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonen og søk i `server/`. |
+| Belegg | L 16.10: migrasjonen og søk i `server/`. L 18.10: `20261019160000_aktornavn.sql`. K 18.10: `server/tester/aktornavn.test.ts` mot testbasen. |
 
 ### `koe.app_identities`
 

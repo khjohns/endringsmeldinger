@@ -151,6 +151,24 @@ export async function lesSaken(
 }
 
 /**
+ * Navnet bak hver aktør i sakens journal, fra `koe_api.aktornavn` (DM-08, #104).
+ * Hendelsene leses under radsikkerheten, så en sak utenfor prosjektet i
+ * konteksten gir ingen navn. En aktør uten navn mangler i svaret.
+ */
+export async function lesAktornavn(
+  pool: Pool,
+  kontekst: Kontekst,
+  sakId: string
+): Promise<Map<string, string>> {
+  return transaksjon(pool, kontekst, async (foresp) => {
+    const svar = await foresp()
+      .input('sak_id', sql.NVarChar(36), sakId)
+      .execute<{ aktor_id: string; navn: string }>('koe_api.aktornavn');
+    return new Map(svar.recordset.filter((r) => r.navn).map((r) => [r.aktor_id, r.navn]));
+  });
+}
+
+/**
  * Leveringsmålet for saken i prosjektet i konteksten, fra `koe_api.leveringsmaal`.
  * Kalles etter at saken er funnet; en sak uten aktiv kobling har ikke noe mål, og
  * da skrives ikke brevet.
