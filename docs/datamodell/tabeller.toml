@@ -622,7 +622,9 @@ type = ["grunndata"]
 status = "uavklart"
 beskrivelse = """
 Én rad per person. `id` er aktøren i journalen og notatet (AGENTS.md). Svarer
-til `app_users` i PostgreSQL."""
+til `app_users` i PostgreSQL. Navnet leses for visningen av saken gjennom
+`koe_api.aktornavn`, bare for aktørene i en sak leseren kan lese (F-1b, #104),
+fra `lesAktornavn` i `server/lager.ts`."""
 lagres_fra = """
 `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter
 brukeren første gang en identitet sees. Tilbakekallet fra innloggingen kaller den

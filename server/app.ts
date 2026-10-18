@@ -34,10 +34,10 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import { UsikkertUtfall, type Pool as Datalag } from './datalag.ts';
+import { UsikkertUtfall, type Kontekst, type Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
-import { lesSaken } from './lager.ts';
+import { lesAktornavn, lesSaken } from './lager.ts';
 import {
   IngenTopicBoard,
   KommandoIdBrukt,
@@ -277,16 +277,34 @@ function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
   return { versjon: u.versjon, visning: visning(u, kjerne.regler) };
 }
 
+/**
+ * Navnet bak aktørene i saken. Navnet er en visningsdetalj: et oppslag som
+ * feiler, logges og gir ingen navn, så visningen faller tilbake til identiteten
+ * og aldri velter (AGENTS.md, `backend/lib/aktor_navn.py`).
+ */
+async function aktornavn(datalag: Datalag, kontekst: Kontekst, sakId: string) {
+  try {
+    return await lesAktornavn(datalag, kontekst, sakId);
+  } catch (feil) {
+    console.warn(
+      `Navneoppslaget i saken ${sakId} feilet (${(feil as Error)?.constructor?.name ?? typeof feil})`
+    );
+    return new Map<string, string>();
+  }
+}
+
 async function visSaken(
   { bruker, prosjekt, sakId }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
+  const kontekst = { aktor: bruker.id, prosjekt: prosjekt.prosjektId };
   // Leserens side er for visningen; lesingen krever den ikke (#705).
-  let saken, side;
+  let saken, side, navn;
   try {
-    [saken, side] = await Promise.all([
-      lesSaken(avh.datalag, { aktor: bruker.id, prosjekt: prosjekt.prosjektId }, sakId),
+    [saken, side, navn] = await Promise.all([
+      lesSaken(avh.datalag, kontekst, sakId),
       lesKontraktsside(avh.datalag, avh.catenda, prosjekt),
+      aktornavn(avh.datalag, kontekst, sakId),
     ]);
   } catch (feil) {
     if (feil instanceof SakFinnesIkke) return finnesIkke();
@@ -305,6 +323,8 @@ async function visSaken(
         event_type: r.event_type,
         tidsstempel: r.tidsstempel,
         aktor_rolle: r.aktor_rolle,
+        // Navnet vises for alle som kan lese saken (oppdragsgiver 18.10, #820).
+        aktor_navn: navn.get(r.aktor_id) ?? r.aktor_id,
         format: r.format,
         data: r.data,
       })),
@@ -592,9 +612,13 @@ export function lagServer(avh: Avhengigheter) {
     let ressurs: string | null;
     try {
       prosjektId = decodeURIComponent(treff[1]);
-      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent prosjekt.');
+    }
+    try {
+      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
+    } catch {
+      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i prosjektet.');
     }
     // Som `tilgangOgKropp`: innloggingen før kroppen, og en ugyldig kropp avvises etter tilgangen.
     const bruker = await krevInnlogging(full.datalag, foresporsel);
@@ -627,12 +651,12 @@ export function lagServer(avh: Avhengigheter) {
   }
 
   return async function behandle(foresporsel: IncomingMessage, respons: ServerResponse) {
-    // En sti `new URL` ikke kan lese, som `//`, finnes ikke (#754).
-    const pathname = URL.parse(foresporsel.url ?? '/', 'http://localhost')?.pathname;
+    // Stien leses som den står; `URL.parse` ville lest `//x/api/…` som verten `x` (#763 punkt 6).
+    const pathname = (foresporsel.url ?? '/').split('?')[0];
     const metode = foresporsel.method ?? 'GET';
     let funnet: { r: Rute; treff: RegExpMatchArray } | null = null;
     for (const r of RUTER) {
-      const treff = pathname?.match(r.sti);
+      const treff = pathname.match(r.sti);
       if (treff && r.metode === metode) funnet = { r, treff };
       if (funnet) break;
     }
