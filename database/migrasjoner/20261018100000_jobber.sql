@@ -187,8 +187,9 @@ BEGIN
                        aktor_team_id, refererer_til_event_id, format, data, transaksjon, skriving)
   VALUES (@event_id, @sak_id, @prosjekt, N'sak_opprettet', 1, @tidsstempel, @aktor, @side,
           @team, NULL, @format, @data, CURRENT_TRANSACTION_ID(), NEWID());
-  INSERT koe.jobb (jobbtype, sak_id, prosjekt_id, catenda_project_id, catenda_board_id, tittel)
-  VALUES (N'catenda_topic', @sak_id, @prosjekt, @catenda_prosjekt, @board, @tittel);
+  -- Kuttet som `@naa` i `hent_jobb`. Standarden runder av og kan ligge etter `@naa`.
+  INSERT koe.jobb (jobbtype, sak_id, prosjekt_id, catenda_project_id, catenda_board_id, tittel, neste_forsoek)
+  VALUES (N'catenda_topic', @sak_id, @prosjekt, @catenda_prosjekt, @board, @tittel, @tidsstempel);
 END
 GO
 

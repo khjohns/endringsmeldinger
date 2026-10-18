@@ -428,10 +428,15 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
           t: Date;
         }>('SELECT updated_at AS t FROM koe.catenda_project_configs WHERE internal_project_id = @p')
       ).recordset[0].t;
-    const foer = await les();
-    await new Promise((r) => setTimeout(r, 20));
+    await o.datalag.base.pool
+      .request()
+      .input('p', o.prosjekt.id)
+      .query(
+        `UPDATE koe.catenda_project_configs SET updated_at = '2000-01-01' WHERE internal_project_id = @p`
+      );
+    expect((await les()).toISOString()).toBe('2000-01-01T00:00:00.000Z');
     await settBoard(board);
-    expect((await les()).getTime()).toBeGreaterThan(foer.getTime());
+    expect(Date.now() - (await les()).getTime()).toBeLessThan(60_000);
   });
 
   it('løkka gjør en ny jobb når den vekkes, uten å vente på pollingen', async () => {
