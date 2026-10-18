@@ -257,9 +257,9 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   seg ferdig, innen grensen i «Melder fra om egen størrelse»: pushe, skrive
   tilstanden i PR-beskrivelsen og melde fra. Venter økta på CI eller
   feilinnføringene og regner med å fortsette innen en time, venter den med en
-  bakgrunnskommando som vekker den, så
-  hurtigbufferen holder seg varm. Venter den lenger, for eksempel på
-  oppdragsgiver, skriver den tilstanden i PR-en og stopper. Den vekkes ikke
+  bakgrunnskommando som vekker den, så hurtigbufferen holder seg varm. Venter
+  den lenger, for eksempel på oppdragsgiver, skriver den tilstanden i PR-en og
+  stopper. Den vekkes ikke
   igjen: en ny, liten økt tar over fra PR-en, vedtakene og issuet. Still derfor
   spørsmålene tidlig, og send svarene samlet så snart de foreligger, helst innen
   en time. Det samme gjelder orkestratoren: runden avgrenses til om lag én time
@@ -289,8 +289,9 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   minutter når den starter, og skriver `trigger_id` i tilstanden i PR-en (eller i
   issuet før PR-en finnes), så den kan slettes etter en komprimering eller av en
   ny økt. Når påminnelsen kommer, vurderer økta tre utfall: kan den bli ferdig
-  innen en time uten å passere grensen som gjelder den, fortsetter den. Kan den
-  ikke det, men et naturlig stoppunkt er nært, gjør den seg ferdig dit, pusher og
+  innen en time fra start uten å passere grensen som gjelder den, fortsetter
+  den. Kan den ikke det, men et naturlig stoppunkt er nært, gjør den seg ferdig
+  dit, pusher og
   skriver tilstanden i PR-en. Ellers stopper den, slik at en ny økt overtar fra
   PR-en. Stopper økta, av hvilken grunn som helst (ferdig, stoppgrensen eller
   venting på oppdragsgiver), sletter den påminnelsen med `delete_trigger`, så
@@ -318,15 +319,15 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   per runde. For økter som ikke er orkestrert, gjelder dette bare når diffen
   rører `kjerne/` eller er over om lag 800 endrede linjer utenom `docs/`
   (oppdragsgiver 14.10, #484, #490 og #491).
-- **Ved om lag 300 000 tokens, eller etter en komprimering,** sender
-  orkestratoren én samlet sjekkliste over det som gjenstår, med kildene som
-  skal leses på nytt. Gjenstår mer enn rettinger og CI, overtar en ny økt fra
-  PR-en og issuene. Den gamle pusher det den har, og avsluttes. Den nye økta
+- **Passerer en økt grensen sin uten å stoppe, eller blir den komprimert,**
+  sender orkestratoren én samlet sjekkliste over det som gjenstår, med kildene
+  som skal leses på nytt. Orkestratoren ser ikke pauser, så den regner grensen
+  slik: om lag 300 000 tokens, eller om lag 150 000 tokens når mer enn en time er
+  gått siden økta ble opprettet. Gjenstår mer enn rettinger og CI, overtar en
+  ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Den nye økta
   får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene,
-  og arbeider under de samme grensene. Orkestratoren griper inn når en økt har
-  passert grensen i «Melder fra om egen størrelse» uten å stoppe, og ikke ved
-  en fast verdi på 300 000; det er en reserve for økter som ikke stoppet selv.
-  Passerer orkestratoren selv om lag 300 000 tokens,
+  og arbeider under de samme grensene. Passerer orkestratoren selv om lag
+  300 000 tokens,
   avsluttes runden når PR-ene som er nær merge, er merget. Resten går til neste
   runde (oppdragsgiver 12.10, #425).
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i hovedplanen
