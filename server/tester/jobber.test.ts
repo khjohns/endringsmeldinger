@@ -248,7 +248,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     const ventetid: number[] = [];
     for (const antall of [1, 2, 9]) {
       await somKjoerer(
-        `UPDATE koe.jobb SET neste_forsoek = SYSUTCDATETIME(), antall_forsoek = @a - 1 WHERE sak_id = @sak`,
+        `UPDATE koe.jobb SET neste_forsoek = DATETRUNC(millisecond, SYSUTCDATETIME()), antall_forsoek = @a - 1 WHERE sak_id = @sak`,
         { sak: sakId, a: String(antall) }
       );
       expect(await kjoer()).toBe(true);
