@@ -13,7 +13,10 @@ export type Godkjenningshandling = 'godkjent' | 'returnert' | 'trukket';
 
 /** Pakken finnes ikke for aktøren, eller aktøren kan ikke gjøre handlingen. */
 export class PakkeNektet extends Error {}
-/** Pakken er returnert, trukket eller godkjent i alle steg. */
+/**
+ * Pakken er returnert, trukket eller godkjent i alle steg, den forrige pakken er alt
+ * erstattet, eller teamet har en åpen pakke i saken. Meldingen sier hvilket.
+ */
 export class PakkeAvsluttet extends Error {}
 export class UgyldigPakke extends Error {}
 

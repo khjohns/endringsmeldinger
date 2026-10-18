@@ -269,20 +269,31 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     const p = pakke([leder]);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder])))).rejects.toThrow(
-      PakkeAvsluttet
+      /åpen pakke i saken/
     );
     await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert'));
     const ny = pakke([leder], p.pakkeId);
     await i(som(o.bh.id), (f) => lagPakke(f, ny));
     await i(som(o.bh.id), (f) => registrerHandling(f, ny.pakkeId, 'trukket'));
     await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder], p.pakkeId)))).rejects.toThrow(
-      PakkeAvsluttet
+      /alt erstattet/
     );
     // En pakke som er godkjent i alle steg, er ikke åpen.
     const godkjent = pakke([leder], ny.pakkeId);
     await i(som(o.bh.id), (f) => lagPakke(f, godkjent));
     await i(som(leder), (f) => registrerHandling(f, godkjent.pakkeId, 'godkjent'));
     await i(som(o.bh.id), (f) => lagPakke(f, pakke([leder])));
+  });
+
+  it('to pakker som lages samtidig i samme sak, gir én åpen pakke', async () => {
+    const utfall = await Promise.allSettled(
+      [pakke([leder]), pakke([leder]), pakke([leder])].map((p) =>
+        i(som(o.bh.id), (f) => lagPakke(f, p))
+      )
+    );
+    expect(utfall.filter((u) => u.status === 'fulfilled')).toHaveLength(1);
+    for (const u of utfall.filter((u) => u.status === 'rejected'))
+      expect((u as PromiseRejectedResult).reason).toBeInstanceOf(PakkeAvsluttet);
   });
 
   it('alle i teamet kan trekke pakken, også når alle steg er godkjent (B-04 punkt 3)', async () => {

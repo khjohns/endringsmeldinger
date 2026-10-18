@@ -141,10 +141,9 @@ BEGIN
   IF @@TRANCOUNT = 0 OR TRY_CAST(SESSION_CONTEXT(N'koe_tx') AS bigint) IS DISTINCT FROM CURRENT_TRANSACTION_ID()
     THROW 51000, N'Fullmaktene leses bare i en transaksjon med konteksten satt', 1;
   DECLARE @prosjekt nvarchar(100) = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(100));
-  -- `oppretter` binder siden til et kontraktsteam og utelukker lesere.
+  -- `oppretter` krever et kontraktsteam på siden i konteksten og utelukker lesere.
   DECLARE @byggherre bit = IIF(
     TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(4000)) = N'BH'
-    AND DATALENGTH(TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(4000))) = DATALENGTH(N'BH')
     AND EXISTS (SELECT 1 FROM koe_sikkerhet.oppretter(@prosjekt, TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier))),
     1, 0);
   SELECT LOWER(CONVERT(nvarchar(36), bruker_id)) AS bruker_id, tittel, grense, plass
@@ -185,10 +184,15 @@ BEGIN
     THROW 51403, N'Bare byggherren lager en godkjenningspakke', 1;
   IF NOT EXISTS (SELECT 1 FROM koe.sak_metadata WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt)
     THROW 51403, N'Ukjent sak', 1;
-  -- Låsen på saken i indeksen hindrer at to pakker lages samtidig. Teamet ser bare sine
-  -- egne pakker, så en åpen pakke i et annet team stopper ikke denne.
+  -- Låsen på saken i indeksen hindrer at to pakker lages samtidig. Den tas i en egen
+  -- setning, så kontrollen etter leser det en samtidig pakke skrev, også med
+  -- READ_COMMITTED_SNAPSHOT. Teamet ser bare sine egne pakker, så en åpen pakke i et
+  -- annet team stopper ikke denne.
+  DECLARE @laas int;
+  SELECT @laas = COUNT(*) FROM koe.godkjenningspakke WITH (UPDLOCK, HOLDLOCK, INDEX (godkjenningspakke_sak_id))
+   WHERE sak_id = @sak_id;
   IF EXISTS (
-       SELECT 1 FROM koe.godkjenningspakke p WITH (UPDLOCK, HOLDLOCK, INDEX (godkjenningspakke_sak_id))
+       SELECT 1 FROM koe.godkjenningspakke p
         WHERE p.sak_id = @sak_id
           AND NOT EXISTS (SELECT 1 FROM koe.godkjenningshandling h
                            WHERE h.pakke_id = p.pakke_id AND h.handling <> N'godkjent')
@@ -205,7 +209,7 @@ BEGIN
          JOIN koe.godkjenningshandling h ON h.pakke_id = p.pakke_id AND h.handling <> N'godkjent'
         WHERE p.pakke_id = @forrige_pakke_id AND p.sak_id = @sak_id)
     THROW 51409, N'Den forrige pakken er ikke returnert eller trukket i saken', 1;
-  IF ISJSON(@godkjennere) = 0 OR LEFT(LTRIM(@godkjennere), 1) <> N'['
+  IF ISJSON(@godkjennere, ARRAY) = 0
     THROW 51422, N'Godkjennerne er ikke en JSON-liste', 1;
 
   DECLARE @steg TABLE (steg int NOT NULL PRIMARY KEY, godkjenner_id uniqueidentifier NULL);
