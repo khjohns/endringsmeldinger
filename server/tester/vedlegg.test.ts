@@ -43,6 +43,7 @@ describe('filnavnet og innholdet', () => {
     ['rapport.p%EF%B8%8Fdf', 'rapport.p_df'],
     ['rapport.%CC%81pdf', 'rapport._pdf'],
     ['_%CC%81rapport.pdf', 'rapport.pdf'],
+    ['_%CC%81%CC%81rapport.pdf', 'rapport.pdf'],
   ])('%s gir filnavnet %s', (kodet, navn) => {
     expect(rensetFilnavn(kodet)).toBe(navn);
   });
@@ -62,6 +63,9 @@ describe('filnavnet og innholdet', () => {
     expect(innholdsfeil('modell.ifc', Buffer.from('ISO-10303-21;'))).toBeNull();
     expect(innholdsfeil('pdf', Buffer.from('\x89PNG\r\n\x1a\n'))).toMatch(/\.pdf/);
     expect(innholdsfeil('rapport.pdf\u0301', Buffer.from('\x89PNG\r\n\x1a\n'))).toMatch(/\.pdf/);
+    expect(innholdsfeil('rapport.\uFF50\uFF44\uFF46', Buffer.from('\x89PNG\r\n\x1a\n'))).toMatch(
+      /\.pdf/
+    );
   });
 });
 
