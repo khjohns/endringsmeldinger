@@ -24,6 +24,24 @@ const SIKKERHETSMARGIN_MS = 300_000;
 /** Catenda svarte ikke, svarte med feil, eller svaret hadde ikke forventet form. */
 export class CatendaUtilgjengelig extends Error {}
 
+/**
+ * En endring i Catenda kan ha skjedd: svaret uteble etter at forespørselen kan ha
+ * nådd fram, svaret var ingen avvisning (`avvistUtenEndring`), eller et vellykket
+ * svar hadde ikke forventet form (invariant 7).
+ */
+export class UsikkertUtfall extends CatendaUtilgjengelig {}
+
+/**
+ * Statusene vi regner som en avvisning uten endring: en 4xx utenom tidsavbruddene 408
+ * og 499. En annen status, også 503, kan komme fra en mellomtjener etter at Catenda
+ * fikk forespørselen, og gir et usikkert utfall (arbeidsvalg i PR #772).
+ */
+const avvistUtenEndring = (status: number) =>
+  status >= 400 && status < 500 && status !== 408 && status !== 499;
+
+/** Feilkodene der forbindelsen aldri ble åpnet, så forespørselen ikke er sendt. */
+const IKKE_SENDT = new Set(['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN']);
+
 export interface CatendaOppsett {
   klientId: string;
   klienthemmelighet: string;
@@ -56,7 +74,13 @@ async function forespoersel(
   oppsett: CatendaOppsett,
   metode: 'GET' | 'POST',
   sti: string,
-  valg: { token?: string; skjema?: Record<string, string>; parametre?: Record<string, string> } = {}
+  valg: {
+    token?: string;
+    skjema?: Record<string, string>;
+    /** Kroppen til en endring. Svaret kan da gjøre utfallet usikkert. */
+    json?: Record<string, unknown>;
+    parametre?: Record<string, string>;
+  } = {}
 ): Promise<unknown> {
   const adresse = new URL((oppsett.grunnadresse ?? CATENDA) + sti);
   for (const [navn, verdi] of Object.entries(valg.parametre ?? {})) {
@@ -64,25 +88,32 @@ async function forespoersel(
   }
   const hoder: Record<string, string> = { Accept: 'application/json' };
   if (valg.token) hoder.Authorization = `Bearer ${valg.token}`;
+  const endring = valg.json !== undefined;
+  if (endring) hoder['Content-Type'] = 'application/json';
   let svar: Response;
   try {
     svar = await fetch(adresse, {
       method: metode,
       headers: hoder,
-      body: valg.skjema ? new URLSearchParams(valg.skjema) : undefined,
+      body: endring ? JSON.stringify(valg.json) : valg.skjema && new URLSearchParams(valg.skjema),
       redirect: 'manual',
       signal: AbortSignal.timeout(oppsett.tidsavbruddMs ?? 15_000),
     });
-  } catch {
+  } catch (feil) {
+    const kode = ((feil as Error)?.cause as { code?: unknown } | undefined)?.code;
+    if (endring && !IKKE_SENDT.has(String(kode))) throw new UsikkertUtfall('Catenda svarte ikke');
     throw new CatendaUtilgjengelig('Catenda svarte ikke');
   }
-  if (svar.status !== 200) {
+  if (svar.status !== 200 && !(endring && svar.status === 201)) {
     await svar.body?.cancel().catch(() => {});
-    throw new CatendaUtilgjengelig('Catenda svarte med feil');
+    const melding = `Catenda svarte med status ${svar.status}`;
+    if (endring && !avvistUtenEndring(svar.status)) throw new UsikkertUtfall(melding);
+    throw new CatendaUtilgjengelig(melding);
   }
   try {
     return await svar.json();
   } catch {
+    if (endring) throw new UsikkertUtfall('Catenda svarte med et ugyldig svar');
     throw new CatendaUtilgjengelig('Catenda svarte med feil');
   }
 }
@@ -196,6 +227,39 @@ export class CatendaOAuth {
     }
     return subjekter;
   }
+
+  /**
+   * Lager topicen på boardet og gir topicens GUID. Statusen er boardets standard
+   * (#741 punkt 15).
+   *
+   * @throws UsikkertUtfall når topicen kan være laget; ellers CatendaUtilgjengelig
+   */
+  async opprettTopic(boardId: string, topic: NyTopic, token: string): Promise<string> {
+    if (!UUID.test(boardId)) throw new RangeError('Ugyldig board-ID');
+    const svar = await forespoersel(
+      this.#oppsett,
+      'POST',
+      `/opencde/bcf/3.0/projects/${boardId}/topics`,
+      {
+        token,
+        json: { title: topic.tittel, description: topic.beskrivelse, topic_type: TOPICTYPE },
+      }
+    );
+    const guid = erObjekt(svar) ? svar.guid : undefined;
+    if (typeof guid !== 'string' || !guid || guid.length > 100)
+      throw new UsikkertUtfall('Catenda svarte uten topic');
+    return guid;
+  }
+}
+
+/** Typen topicen for en sak fra appen får (#741 punkt 15). */
+export const TOPICTYPE = 'Krav om endringsordre';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+export interface NyTopic {
+  tittel: string;
+  beskrivelse: string;
 }
 
 function tekst(verdi: unknown): string {
@@ -330,6 +394,22 @@ export function catendaFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): {
     oauth: new CatendaOAuth(oppsett),
     integrasjonsnokkel: new Integrasjonsnokkel(oppsett, miljoe.CATENDA_ACCESS_TOKEN || undefined),
   };
+}
+
+/** Topicene for sakene fra appen lages av integrasjonen, med dens eget token (#741 punkt 16). */
+export function topicoppretter(catenda: {
+  oauth: CatendaOAuth;
+  integrasjonsnokkel: Integrasjonsnokkel;
+}): Topicoppretter {
+  return {
+    async opprettTopic(boardId, topic) {
+      return catenda.oauth.opprettTopic(boardId, topic, await catenda.integrasjonsnokkel.token());
+    },
+  };
+}
+
+export interface Topicoppretter {
+  opprettTopic(boardId: string, topic: NyTopic): Promise<string>;
 }
 
 /** Medlemmene og teamene for tilgangskontrollen, med integrasjonens eget token. */

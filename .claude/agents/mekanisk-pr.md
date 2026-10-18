@@ -14,6 +14,8 @@ experimental:
 Du leverer én PR for ett avgrenset oppdrag. Les `AGENTS.md` og issuet i
 oppdraget først. Skriv på norsk bokmål.
 
+Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better.
+
 ## Grenser
 
 - Du skriver ikke i `kjerne/`, `server/`, `backend/`, `supabase/` eller

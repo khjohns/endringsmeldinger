@@ -22,14 +22,23 @@
  *   Mangler oppsettet eller er det ugyldig, svarer innloggingen 503, og en
  *   medlemsliste som må hentes, gir 503. `CATENDA_GRUNNADRESSE` peker Catenda mot en
  *   testleverandør på localhost, bare i utvikling.
+ * - Med Catenda satt opp starter jobbkjøreren (`jobber.ts`, #741), som lager
+ *   topicen for en ny sak med integrasjonens token. Lenken i topicen peker til
+ *   `AUTH_FRONTEND_URL`. Uten Catenda venter jobbene i basen.
  */
 
 import { createServer } from 'node:http';
 import { lagServer } from './app.ts';
 import type { Catenda } from './autorisasjon.ts';
-import { catendaFraMiljoe, CatendaUtilgjengelig, integrasjonen } from './catenda.ts';
+import {
+  catendaFraMiljoe,
+  CatendaUtilgjengelig,
+  integrasjonen,
+  topicoppretter,
+} from './catenda.ts';
 import { opprettPool, sql, type Pool } from './datalag.ts';
 import { innloggingFraMiljoe, type Innlogging } from './innlogging.ts';
+import { startJobbkjoerer, type Jobbkjoerer } from './jobber.ts';
 import { avvik, lesMigrasjoner, type Anvendt } from './migrering.ts';
 
 const utenCatenda: Catenda = {
@@ -66,21 +75,32 @@ if (funn.length) throw new Error(`Basen er ikke migrert som repoet:\n${funn.join
 
 let innlogging: Innlogging | null = null;
 let catenda = utenCatenda;
+let jobber: Jobbkjoerer | null = null;
 try {
-  innlogging = innloggingFraMiljoe();
-  catenda = integrasjonen(catendaFraMiljoe());
+  const { frontend } = (innlogging = innloggingFraMiljoe());
+  const klient = catendaFraMiljoe();
+  catenda = integrasjonen(klient);
+  jobber = startJobbkjoerer({
+    datalag,
+    catenda: topicoppretter(klient),
+    saksadresse: (prosjektId, sakId) =>
+      `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}/kjerne`,
+  });
 } catch (feil) {
   // Meldingen har ingen verdier fra oppsettet, så hemmeligheten når ikke loggen.
   console.warn(`Innloggingen og Catenda er ikke satt opp: ${(feil as Error).message}`);
 }
 
-const server = createServer(lagServer({ datalag, catenda, innlogging }));
+const server = createServer(
+  lagServer({ datalag, catenda, innlogging, vekkJobbkjoereren: () => jobber?.vekk() })
+);
 server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
   const adresse = server.address();
   const port = typeof adresse === 'object' && adresse ? adresse.port : 0;
   console.log(`lytter på http://127.0.0.1:${port}`);
 });
 
-const stopp = () => server.close(() => void datalag.close());
+const stopp = () =>
+  server.close(() => void (jobber?.stopp() ?? Promise.resolve()).then(() => datalag.close()));
 process.on('SIGTERM', stopp);
 process.on('SIGINT', stopp);

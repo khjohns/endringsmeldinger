@@ -918,6 +918,14 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 > ([designnotatet om inbox og outbox](../design-durable-inbox-outbox-2026-09-17.md#5-azure-sql-eller-bli-på-postgres); H).
 > Beslutningsstatus er uendret: åpen.
 
+> **Merknad 2026-10-18 til B-07:** arbeidsvalget for drivmekanismen står i
+> [#741](https://github.com/khjohns/endringsmeldinger/issues/741) (kommentaren
+> 18.10), godkjent av oppdragsgiver for runden: en jobbtabell i SQL Server hentet
+> med `READPAST` og `UPDLOCK`, drevet av en løkke i TS-serveren. Den er bygget for
+> topicen i Catenda (L-1a, `database/migrasjoner/20261018100000_jobber.sql` og
+> `server/jobber.ts`). Skalering til null og hostingen (B-12) er åpne, så
+> beslutningsstatus er uendret: åpen.
+
 > **Merknad 2026-10-11 til den samlede merknaden 09.10 om B-12, ved sluttredigeringen:**
 > den samlede merknaden er skrevet før databasen ble avgjort. Punktet 29.09
 > viser hva som var PostgreSQL-spesifikt da (L 29.09); siden er TS-lagringen i

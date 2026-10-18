@@ -34,7 +34,7 @@ export class UgyldigProsjekt extends Error {}
 /** Prosjektet er ikke koblet til Catenda-prosjektet listen kom fra, eller koblingen er ikke aktiv. */
 export class FeilCatendaProsjekt extends Error {}
 
-/** Applåsen for medlemskapet i et prosjekt ble ikke tatt innen 10 s. Forbigående; kallet kan gjentas. */
+/** Applåsen for medlemskapet i et prosjekt eller for innloggingen til brukeren ble ikke tatt innen 10 s. Forbigående; kallet kan gjentas. */
 export class MedlemskapetLaast extends Error {}
 
 const IKKE_NORMALISERT = 52022;

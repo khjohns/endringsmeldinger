@@ -23,13 +23,14 @@ import type { Avsnitt } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { gjengiOppdrag, kanonisk, OPPDRAGSFORMAT, sjekksum } from '../levering.ts';
 import { sql } from './sqlserver.ts';
-import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
+import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
   catendaFra,
   kall,
   lagOppsett,
   opprettKjernesak,
   rydd,
+  somJobbkjoerer,
   startServer,
   TESTBASE_URL,
   type KjorendeServer,
@@ -123,15 +124,13 @@ describe.skipIf(!TESTBASE_URL)(
       );
       return svar.recordset.map((x) => ({ ...x, innhold: JSON.parse(x.innhold) }));
     };
-    /** Sakens topic i Catenda, lagt inn av eieren; ingen prosedyre skriver den ennå (#741). */
+    /** Sakens topic i Catenda, lagt inn av eieren som kjøreveien, `koe_jobbkjoerer` (#741). */
     const settTopic = (sakId: string, board: string, topic: string) =>
-      iTransaksjon(o.datalag.base.pool, { ...leser(), side: 'TE', team: null }, (r) =>
-        settInn(r, 'sak_catenda_topic', {
-          sak_id: sakId,
-          prosjekt_id: o.prosjekt.id,
-          catenda_board_id: board,
-          catenda_topic_id: topic,
-        })
+      somJobbkjoerer(
+        o,
+        `INSERT koe.sak_catenda_topic (sak_id, prosjekt_id, catenda_board_id, catenda_topic_id)
+         VALUES (@sak_id, @prosjekt_id, @board, @topic)`,
+        { sak_id: sakId, prosjekt_id: o.prosjekt.id, board, topic }
       );
 
     beforeAll(async () => {

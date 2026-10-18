@@ -282,6 +282,16 @@ erDiagram
         nvarchar_32 aktor_team_id "uten fremmednøkkel"
         nvarchar_36 refererer_til_event_id "uten fremmednøkkel"
     }
+    koe_jobb {
+        uniqueidentifier jobb_id PK
+        nvarchar_36 sak_id FK
+        nvarchar_100 prosjekt_id FK
+        uniqueidentifier siste_forsoek FK
+    }
+    koe_jobbforsoek {
+        uniqueidentifier forsoek_id PK
+        uniqueidentifier jobb_id FK
+    }
     koe_kjernebuffer {
         nvarchar_36 sak_id PK, FK
         nvarchar_100 prosjekt_id FK
@@ -307,6 +317,7 @@ erDiagram
     koe_sak_catenda_topic {
         nvarchar_36 sak_id PK, FK
         nvarchar_100 prosjekt_id FK
+        nvarchar_100 catenda_topic_id UK
     }
     koe_sak_metadata {
         nvarchar_36 sak_id PK, UK
@@ -332,6 +343,9 @@ erDiagram
     koe_sak_metadata ||--o{ koe_notat : "(sak_id, prosjekt_id)"
     koe_app_users ||--o{ koe_notat : "aktor_id"
     koe_hendelse ||--o| koe_leveringsoppdrag : "(event_id, sak_id, prosjekt_id)"
+    koe_sak_metadata ||--o{ koe_jobb : "(sak_id, prosjekt_id)"
+    koe_jobb ||--o{ koe_jobbforsoek : "jobb_id"
+    koe_jobbforsoek |o--o| koe_jobb : "siste_forsoek"
     koe_sak_metadata ||--o| koe_sak_catenda_topic : "(sak_id, prosjekt_id)"
     koe_sak_metadata ||--o| koe_kjernebuffer : "(sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_hendelse : "aktor_team_id"
@@ -417,6 +431,9 @@ erDiagram
 | `koe.notat.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken notatet er skrevet i. Sammensatt med `prosjekt_id`, så notatet står i sakens prosjekt. | — | K 16.10: katalogen. |
 | `koe.notat.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Forfatteren, `app_users.id`. | — | K 16.10: katalogen. |
 | `koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id)` | `koe.hendelse.(event_id, sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Brevet oppdraget leverer. `event_id` er unik, så hvert brev har ett oppdrag. Sammensatt med `sak_id` og `prosjekt_id`, så oppdraget står i brevets sak og prosjekt. | — | K 16.10: katalogen. |
+| `koe.jobb.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken jobben gjelder. Sammensatt med `prosjekt_id`, så jobben står i sakens prosjekt. En sak har høyst én jobb `catenda_topic` (#741). | — | K 18.10: katalogen. |
+| `koe.jobbforsoek.jobb_id` | `koe.jobb.jobb_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Jobben forsøket gjelder. Fremmednøkkelen hindrer også TRUNCATE av jobbene (#582). | — | K 18.10: katalogen. |
+| `koe.jobb.siste_forsoek` | `koe.jobbforsoek.forsoek_id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Det siste forsøket på jobben. Fremmednøkkelen hindrer også TRUNCATE av forsøkene (#582). | — | K 18.10: katalogen. |
 | `koe.sak_catenda_topic.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst én topic. Sammensatt med `prosjekt_id`, så raden står i sakens prosjekt. | — | K 17.10: katalogen. |
 | `koe.kjernebuffer.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. `sak_id` er primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
 | `koe.hendelse.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, i `catenda_id()`-formen. Tom når teamet ikke var entydig (DL-U4). | — | L 16.10: migrasjonen. |
@@ -457,6 +474,10 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.catenda_project_configs.folder_id` | Mappen i biblioteket. Samme som `library_id`. |
 | `koe.sak_catenda_topic.catenda_board_id` | Boardet topicen står i, i Catenda. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.sak_catenda_topic.catenda_topic_id` | ID-en til sakens topic i Catenda. Fryses i leveringsoppdraget (F0b-7, #661). |
+| `koe.catenda_project_configs.topic_board_id` | Boardet for saker som opprettes i appen, i Catenda (KT-U4). |
+| `koe.jobb.catenda_project_id` | Catenda-prosjektet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6). |
+| `koe.jobb.catenda_board_id` | Boardet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6). |
+| `koe.jobb.lease` | Leasen for forsøket som pågår. Blir forsøkets ID når utfallet lagres (invariant 7). |
 | `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
 
 ## Dataflyt mot Catenda
@@ -643,6 +664,8 @@ flowchart LR
 | `koe.sak_metadata` | — | — | — |
 | `koe.hendelse` | — | — | — |
 | `koe.notat` | — | — | — |
+| `koe.jobb` | — | — | — |
+| `koe.jobbforsoek` | — | — | — |
 | `koe.leveringsoppdrag` | — | — | — |
 | `koe.sak_catenda_topic` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |

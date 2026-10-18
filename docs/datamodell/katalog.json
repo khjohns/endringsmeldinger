@@ -749,7 +749,8 @@
      ["created_at", "datetime2(3)", "NOT NULL"],
      ["updated_at", "datetime2(3)", "NOT NULL"],
      ["library_id", "uniqueidentifier", "NOT NULL"],
-     ["folder_id", "uniqueidentifier", "NULL"]
+     ["folder_id", "uniqueidentifier", "NULL"],
+     ["topic_board_id", "uniqueidentifier", "NULL"]
     ],
     "primærnøkkel": ["internal_project_id"],
     "unike": [
@@ -799,6 +800,66 @@
       "kolonner": ["sak_id", "prosjekt_id"],
       "til": "koe.sak_metadata",
       "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.jobb": {
+    "kolonner": [
+     ["jobb_id", "uniqueidentifier", "NOT NULL"],
+     ["jobbtype", "nvarchar(40)", "NOT NULL"],
+     ["sak_id", "nvarchar(36)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["catenda_project_id", "uniqueidentifier", "NULL"],
+     ["catenda_board_id", "uniqueidentifier", "NULL"],
+     ["tittel", "nvarchar(max)", "NULL"],
+     ["opprettet", "datetime2(3)", "NOT NULL"],
+     ["tilstand", "nvarchar(20)", "NOT NULL"],
+     ["neste_forsoek", "datetime2(3)", "NOT NULL"],
+     ["antall_forsoek", "int", "NOT NULL"],
+     ["lease", "uniqueidentifier", "NULL"],
+     ["lease_startet", "datetime2(3)", "NULL"],
+     ["lease_utloeper", "datetime2(3)", "NULL"],
+     ["siste_forsoek", "uniqueidentifier", "NULL"]
+    ],
+    "primærnøkkel": ["jobb_id"],
+    "unike": [],
+    "unike_indekser": [
+     "(lease) WHERE ([lease] IS NOT NULL)",
+     "(sak_id) WHERE ([jobbtype]=N'catenda_topic')"
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["siste_forsoek"],
+      "til": "koe.jobbforsoek",
+      "til_kolonner": ["forsoek_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.jobbforsoek": {
+    "kolonner": [
+     ["forsoek_id", "uniqueidentifier", "NOT NULL"],
+     ["jobb_id", "uniqueidentifier", "NOT NULL"],
+     ["startet", "datetime2(3)", "NULL"],
+     ["avsluttet", "datetime2(3)", "NOT NULL"],
+     ["utfall", "nvarchar(20)", "NOT NULL"],
+     ["melding", "nvarchar(400)", "NULL"]
+    ],
+    "primærnøkkel": ["forsoek_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["jobb_id"],
+      "til": "koe.jobb",
+      "til_kolonner": ["jobb_id"],
       "ved_sletting": "NO ACTION"
      }
     ]
@@ -906,7 +967,9 @@
      ["catenda_topic_id", "nvarchar(100)", "NOT NULL"]
     ],
     "primærnøkkel": ["sak_id"],
-    "unike": [],
+    "unike": [
+     ["catenda_topic_id"]
+    ],
     "unike_indekser": [],
     "fremmednøkler": [
      {

@@ -88,6 +88,7 @@ export async function lagOppsett(): Promise<Oppsett> {
         internal_project_id: prosjekt.id,
         catenda_project_id: prosjekt.catendaProsjekt,
         library_id: randomUUID(),
+        topic_board_id: randomUUID(),
         is_active: true,
       });
       await settInn(r, 'app_membership_sync', {
@@ -128,6 +129,13 @@ export async function lagOppsett(): Promise<Oppsett> {
         });
       }
     }
+    // Testene leser og endrer jobbene og topicen som kjøreveien (`somJobbkjoerer`). I en
+    // migrert base har brukeren ingen rettigheter; prosedyrene går gjennom eierskapskjeden.
+    await r().batch(
+      `GRANT SELECT, UPDATE ON koe.jobb TO koe_jobbkjoerer;
+       GRANT SELECT ON koe.jobbforsoek TO koe_jobbkjoerer;
+       GRANT INSERT ON koe.sak_catenda_topic TO koe_jobbkjoerer;`
+    );
     return {
       datalag: { base, kjoeretid: await opprettKjoeretid(base) },
       prosjekt: p,
@@ -146,6 +154,25 @@ export async function lagOppsett(): Promise<Oppsett> {
     await base.slett();
     throw feil;
   }
+}
+
+/**
+ * Setningen som eieren kjører som `koe_jobbkjoerer`, så radsikkerheten slipper den
+ * gjennom. Identiteten settes tilbake også når setningen feiler, så forbindelsen i
+ * poolen ikke blir stående som kjøreveien.
+ */
+export function somJobbkjoerer<T>(
+  o: Oppsett,
+  setning: string,
+  parametre: Record<string, unknown> = {}
+) {
+  const r = o.datalag.base.pool.request();
+  for (const [navn, verdi] of Object.entries(parametre)) r.input(navn, verdi);
+  return r.query<T>(
+    `EXECUTE AS USER = 'koe_jobbkjoerer';
+     BEGIN TRY ${setning}; END TRY BEGIN CATCH REVERT; THROW; END CATCH;
+     REVERT;`
+  );
 }
 
 export async function rydd(o: Oppsett): Promise<void> {

@@ -565,8 +565,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.brukerens_prosjekter',
         'GRANT EXECUTE koe_api.catenda_identitet',
         'GRANT EXECUTE koe_api.deaktiver_ved_innlogging',
+        'GRANT EXECUTE koe_api.hent_jobb',
         'GRANT EXECUTE koe_api.koblede_prosjekter',
         'GRANT EXECUTE koe_api.kontraktsteam',
+        'GRANT EXECUTE koe_api.kvitter_topic',
         'GRANT EXECUTE koe_api.les_sesjon',
         'GRANT EXECUTE koe_api.leveringsmaal',
         'GRANT EXECUTE koe_api.medlemsliste_alder',
@@ -577,6 +579,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.prosjekt',
         'GRANT EXECUTE koe_api.prosjektkobling',
         'GRANT EXECUTE koe_api.prosjektmedlemskap',
+        'GRANT EXECUTE koe_api.registrer_jobbfeil',
         'GRANT EXECUTE koe_api.rydd_utloepte',
         'GRANT EXECUTE koe_api.skriv_hendelse',
         'GRANT EXECUTE koe_api.skrivetidspunkt',
@@ -587,6 +590,28 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT SELECT koe.leveringsoppdrag',
         'GRANT SELECT koe.notat',
         'GRANT SELECT koe.sak_metadata',
+      ]);
+    });
+
+    it('kjøreveien har ingen rettigheter, bare eierskapskjeden i prosedyrene som kjører som den (#741)', async () => {
+      const svar = await base.pool.request().query<{ rett: string; innlogging: number }>(
+        `SELECT CONCAT(p.state_desc, N' ', p.permission_name, N' ', p.class_desc) AS rett,
+                (SELECT COUNT(*) FROM sys.database_principals d
+                  WHERE d.name = N'koe_jobbkjoerer' AND d.authentication_type_desc = N'NONE') AS innlogging
+           FROM sys.database_permissions p
+          WHERE p.grantee_principal_id = DATABASE_PRINCIPAL_ID(N'koe_jobbkjoerer')`
+      );
+      expect(svar.recordset).toEqual([{ rett: 'GRANT CONNECT DATABASE', innlogging: 1 }]);
+      const somDen = await base.pool.request().query<{ prosedyre: string }>(
+        `SELECT CONCAT(OBJECT_SCHEMA_NAME(m.object_id), N'.', OBJECT_NAME(m.object_id)) AS prosedyre
+           FROM sys.sql_modules m
+          WHERE m.execute_as_principal_id = DATABASE_PRINCIPAL_ID(N'koe_jobbkjoerer')`
+      );
+      expect(somDen.recordset.map((r) => r.prosedyre).sort()).toEqual([
+        'koe_api.hent_jobb',
+        'koe_api.kvitter_topic',
+        'koe_api.registrer_jobbfeil',
+        'koe_api.start_jobb_paa_nytt',
       ]);
     });
 
