@@ -108,9 +108,9 @@ function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; meldin
 /** Leverandøren, med et flagg som settes før hver endring kjøreren ber Catenda om. */
 function medEndringsflagg(dokumenter: Dokumentleverandoer, flagg: { endringBedt: boolean }) {
   return {
-    ...dokumenter,
-    finnDokument: dokumenter.finnDokument.bind(dokumenter),
-    dokumentreferanser: dokumenter.dokumentreferanser.bind(dokumenter),
+    finnDokument: (maal: Dokumentmaal, navn: string) => dokumenter.finnDokument(maal, navn),
+    dokumentreferanser: (board: string, topic: string) =>
+      dokumenter.dokumentreferanser(board, topic),
     lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
       flagg.endringBedt = true;
       return dokumenter.lastOppDokument(maal, dokument);
@@ -135,9 +135,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   const jobb = svar.recordset[0];
   if (!jobb) return false;
 
+  const lease = () => avh.datalag.request().input('lease', sql.UniqueIdentifier, jobb.lease);
   const kvitter: Kvitter = async (prosedyre, parametre) => {
     try {
-      const foresp = avh.datalag.request().input('lease', sql.UniqueIdentifier, jobb.lease);
+      const foresp = lease();
       for (const [navn, verdi] of Object.entries(parametre))
         foresp.input(navn, sql.NVarChar(100), verdi);
       await foresp.execute(prosedyre);
@@ -162,8 +163,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       await kvitter('koe_api.kvitter_topic', { topic_id: topic });
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
-      const lease = () => avh.datalag.request().input('lease', sql.UniqueIdentifier, jobb.lease);
-      const lagre = async (pdf: Uint8Array | null) => {
+      const brevPdf = async (pdf: Uint8Array | null) => {
         const lagret = await lease()
           .input('pdf', sql.VarBinary(sql.MAX), pdf && Buffer.from(pdf))
           .input('pdf_sha256', sql.NVarChar(64), pdf && pdfsum(pdf))
@@ -172,8 +172,8 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         return rad ? new Uint8Array(rad.pdf) : null;
       };
       const lager: Leveringslager = {
-        lagret: () => lagre(null),
-        lagre: async (pdf) => (await lagre(pdf))!,
+        lagret: () => brevPdf(null),
+        lagre: async (pdf) => (await brevPdf(pdf))!,
         vedlegg: async () =>
           (await lease().execute<Vedleggsrad>('koe_api.vedlegg_i_levering')).recordset,
         async vedleggsinnhold(vedleggId) {
@@ -200,9 +200,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       logg.error(
         `Jobben ${jobb.jobb_id} er parkert som ${utfall} (${melding}). Driften starter den på nytt.`
       );
-    await avh.datalag
-      .request()
-      .input('lease', sql.UniqueIdentifier, jobb.lease)
+    await lease()
       .input('utfall', sql.NVarChar(20), utfall)
       .input('melding', sql.NVarChar(400), melding)
       .execute('koe_api.registrer_jobbfeil');
@@ -250,7 +248,8 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
   let referanser: Referanse[] | null = null;
   const referanse = async (dokumentId: string) => {
     referanser ??= await catenda.dokumentreferanser(board, topic);
-    const funnet = referanser.find((r) => r.dokumentId === catendaId(dokumentId));
+    const id = catendaId(dokumentId);
+    const funnet = referanser.find((r) => r.dokumentId === id);
     return funnet?.id ?? (await catenda.opprettDokumentreferanse(board, topic, dokumentId));
   };
   const dokument = async (navn: string, innhold: () => Promise<Uint8Array>) => {

@@ -354,9 +354,8 @@ export class CatendaOAuth {
     });
     if (!Array.isArray(svar)) throw new CatendaUtilgjengelig('Ugyldige dokumentreferanser');
     return svar.map((rad) => {
-      const dokumentId = erObjekt(rad) ? catendaId(rad.document_guid) : null;
-      if (!erObjekt(rad) || !dokumentId)
-        throw new CatendaUtilgjengelig('Ugyldig dokumentreferanse fra Catenda');
+      const dokumentId = erObjekt(rad) && catendaId(rad.document_guid);
+      if (!dokumentId) throw new CatendaUtilgjengelig('Ugyldig dokumentreferanse fra Catenda');
       return { id: lestId(rad.guid), dokumentId };
     });
   }
@@ -383,8 +382,12 @@ export class CatendaOAuth {
 /** ID-en i svaret fra Catenda, høyst 100 tegn som kolonnene den kvitteres i. */
 function idFraSvar(svar: unknown, felt: 'guid' | 'id', melding: string): string {
   const id = erObjekt(svar) ? svar[felt] : undefined;
-  if (typeof id !== 'string' || !id || id.length > 100) throw new UsikkertCatendautfall(melding);
+  if (!erKvitterbarId(id)) throw new UsikkertCatendautfall(melding);
   return id;
+}
+
+function erKvitterbarId(id: unknown): id is string {
+  return typeof id === 'string' && id !== '' && id.length <= 100;
 }
 
 /**
@@ -392,7 +395,7 @@ function idFraSvar(svar: unknown, felt: 'guid' | 'id', melding: string): string 
  * av en ny, så kvitteringen ikke blir avvist (#783 punkt 3).
  */
 function lestId(id: unknown): string {
-  if (typeof id !== 'string' || !id || id.length > 100 || id.trim() !== id)
+  if (!erKvitterbarId(id) || id.trim() !== id)
     throw new CatendaUtilgjengelig('Ugyldig ID fra Catenda');
   return id;
 }
