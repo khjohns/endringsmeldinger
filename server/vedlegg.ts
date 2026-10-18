@@ -21,9 +21,9 @@ import { feilnummer, sql, transaksjon, type Kontekst } from './datalag.ts';
 import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 
 /** Under grensen i Python (arbeidsvalg 5 i #790); `stoerrelse` i tabellen har samme grense. */
-export const STORSTE_VEDLEGG = 15 * 1024 * 1024;
+export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;
 
-const STORSTE_FILNAVN = 200;
+const STOERSTE_FILNAVN = 200;
 
 /** Bytene i kroppen og filnavnet fra hodet `X-Filnavn`, kodet med `encodeURIComponent`. */
 export interface Fil {
@@ -34,10 +34,10 @@ export interface Fil {
 /** Leser kroppen som bytes, etter tilgangskontrollen. Over grensen: 413. */
 export async function lesFil(foresporsel: IncomingMessage): Promise<Fil> {
   const deler: Buffer[] = [];
-  let storrelse = 0;
+  let stoerrelse = 0;
   for await (const del of foresporsel) {
-    storrelse += (del as Buffer).length;
-    if (storrelse > STORSTE_VEDLEGG)
+    stoerrelse += (del as Buffer).length;
+    if (stoerrelse > STOERSTE_VEDLEGG)
       throw new Nektet(413, 'FOR_STOR_FIL', 'Filen er større enn 15 MB.');
     deler.push(del as Buffer);
   }
@@ -59,14 +59,14 @@ export function rensetFilnavn(kodet: string): string | null {
   if (ulagringsbarTekst(navn)) return null;
   const renset = (navn.split(/[/\\]/).pop() ?? '')
     .normalize('NFC')
-    .replace(/[^\p{L}\p{N} ._()-]/gu, '_')
+    .replace(/[^\p{L}\p{M}\p{N} ._()-]/gu, '_')
     .replace(/\s+/g, ' ')
     .replace(/^[ ._]+|[ .]+$/g, '');
-  if (!renset || !/[\p{L}\p{N}]/u.test(renset) || renset.length > STORSTE_FILNAVN) return null;
+  if (!renset || !/[\p{L}\p{N}]/u.test(renset) || renset.length > STOERSTE_FILNAVN) return null;
   return renset;
 }
 
-const KJORBARE: readonly [Buffer, string][] = [
+const KJOERBARE: readonly [Buffer, string][] = [
   [Buffer.from('MZ'), 'Windows-kjørbar'],
   [Buffer.from([0x7f, 0x45, 0x4c, 0x46]), 'Linux-kjørbar'],
   [Buffer.from([0xfe, 0xed, 0xfa, 0xce]), 'macOS-kjørbar'],
@@ -91,10 +91,11 @@ const FORMATER: Record<string, Buffer[]> = {
 
 /** Hva som er galt med innholdet, eller `null`. Ukjente endelser kontrolleres ikke mot innholdet. */
 export function innholdsfeil(filnavn: string, innhold: Buffer): string | null {
-  for (const [signatur, hva] of KJORBARE)
+  for (const [signatur, hva] of KJOERBARE)
     if (innhold.subarray(0, signatur.length).equals(signatur))
       return `Filen ser ut til å være et program (${hva}) og kan ikke lastes opp som vedlegg.`;
-  const endelse = filnavn.includes('.') ? filnavn.split('.').pop()!.toLowerCase() : '';
+  // Som `rpartition('.')` i Python: et navn uten punktum er selve endelsen.
+  const endelse = filnavn.split('.').pop()!.toLowerCase();
   const forventet = FORMATER[endelse];
   if (forventet && !forventet.some((s) => innhold.subarray(0, s.length).equals(s)))
     return `Innholdet stemmer ikke med filtypen .${endelse}. Last opp filen i det formatet navnet oppgir.`;
@@ -128,7 +129,7 @@ function kontekst({ bruker, prosjekt, side }: Forespoersel): Kontekst {
   };
 }
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface Vedleggsrad {
   vedlegg_id: string;
@@ -170,7 +171,7 @@ async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
       await foresp()
         .input('vedlegg_id', sql.UniqueIdentifier, vedleggId)
         .input('sak_id', sql.NVarChar(36), f.sakId)
-        .input('filnavn', sql.NVarChar(STORSTE_FILNAVN), filnavn)
+        .input('filnavn', sql.NVarChar(STOERSTE_FILNAVN), filnavn)
         .input('innhold', sql.VarBinary(sql.MAX), fil.innhold)
         .input('innhold_sha256', sql.NVarChar(64), sum)
         .execute('koe_api.lagre_vedlegg');
@@ -199,6 +200,13 @@ async function listVedlegg(f: Forespoersel, avh: Required<Avhengigheter>): Promi
   return [200, { success: true, vedlegg: rader.map(somSvar) }];
 }
 
+/** `filename*` etter RFC 8187: `encodeURIComponent` lar `'()*` stå, men de er ikke attr-char. */
+const attrTegn = (navn: string) =>
+  encodeURIComponent(navn).replace(
+    /['()*]/g,
+    (t) => `%${t.charCodeAt(0).toString(16).toUpperCase()}`
+  );
+
 async function lastNed(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
   if (!f.ressurs || !UUID.test(f.ressurs)) return finnesIkke();
   const rad = await transaksjon(avh.datalag, kontekst(f), async (foresp) => {
@@ -220,7 +228,7 @@ async function lastNed(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
     rad.innhold,
     {
       'content-type': 'application/octet-stream',
-      'content-disposition': `attachment; filename*=UTF-8''${encodeURIComponent(rad.filnavn)}`,
+      'content-disposition': `attachment; filename*=UTF-8''${attrTegn(rad.filnavn)}`,
       'x-content-type-options': 'nosniff',
       'cache-control': 'no-store',
     },

@@ -551,9 +551,13 @@ export function lagServer(avh: Avhengigheter) {
     let ressurs: string | null;
     try {
       sakId = decodeURIComponent(treff[1]);
-      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
+    }
+    try {
+      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
+    } catch {
+      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i saken.');
     }
     const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, sakId, r.fil);
     const fil = r.fil ? await lesFil(foresporsel) : null;

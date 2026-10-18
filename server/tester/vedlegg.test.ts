@@ -14,7 +14,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { feilnummer, sql } from '../datalag.ts';
-import { innholdsfeil, rensetFilnavn, STORSTE_VEDLEGG } from '../vedlegg.ts';
+import { innholdsfeil, rensetFilnavn, STOERSTE_VEDLEGG } from '../vedlegg.ts';
 import {
   kall,
   lagOppsett,
@@ -38,6 +38,7 @@ describe('filnavnet og innholdet', () => {
     ['C%3A%5Cmappe%5Cbrev%20 1.docx', 'brev 1.docx'],
     [encodeURIComponent('Måling æøå.xlsx'), 'Måling æøå.xlsx'],
     ['a%3Cb%3E.txt', 'a_b_.txt'],
+    [encodeURIComponent('हिंदी रिपोर्ट.pdf'), 'हिंदी रिपोर्ट.pdf'],
   ])('%s gir filnavnet %s', (kodet, navn) => {
     expect(rensetFilnavn(kodet)).toBe(navn);
   });
@@ -55,6 +56,7 @@ describe('filnavnet og innholdet', () => {
     expect(innholdsfeil('rapport.pdf', Buffer.from('\x89PNG\r\n\x1a\n'))).toMatch(/\.pdf/);
     expect(innholdsfeil('rapport.pdf', PDF)).toBeNull();
     expect(innholdsfeil('modell.ifc', Buffer.from('ISO-10303-21;'))).toBeNull();
+    expect(innholdsfeil('pdf', Buffer.from('\x89PNG\r\n\x1a\n'))).toMatch(/\.pdf/);
   });
 });
 
@@ -140,6 +142,21 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     expect((await lastNed(o.te, id)).status).toBe(200);
   });
 
+  it('nedlastingen gir filnavnet etter RFC 8187 og finner vedlegget også med store bokstaver i ID-en', async () => {
+    const id = (await lastOpp(o.te, PDF, 'rapport (1).pdf')).kropp.vedlegg.vedlegg_id;
+    const ned = await lastNed(o.te, id.toUpperCase());
+    expect(ned.status).toBe(200);
+    expect(ned.headers.get('content-disposition')).toBe(
+      "attachment; filename*=UTF-8''rapport%20%281%29.pdf"
+    );
+  });
+
+  it('et vedlegg-ID som ikke kan dekodes, gir en feil om ressursen, ikke om saken', async () => {
+    const svar = await lastNed(o.te, '%E0%A4%A');
+    expect(svar.status).toBe(404);
+    expect((await svar.json()).message).toBe('Ukjent ressurs i saken.');
+  });
+
   it('TE sletter sitt ubundne vedlegg, og etterpå finnes det ikke', async () => {
     const id = (await lastOpp(o.te, PDF, 'feil.pdf')).kropp.vedlegg.vedlegg_id;
     expect((await slett(o.te, id)).status).toBe(200);
@@ -169,7 +186,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     ['et filnavn uten tegn igjen', PDF, '..', 400, 'UGYLDIG_FILNAVN'],
     [
       'en fil over 15 MiB',
-      Buffer.alloc(STORSTE_VEDLEGG + 1, 0x41),
+      Buffer.alloc(STOERSTE_VEDLEGG + 1, 0x41),
       'stor.txt',
       413,
       'FOR_STOR_FIL',
@@ -183,9 +200,9 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
   });
 
   it('en fil på nøyaktig 15 MiB lagres', async () => {
-    const svar = await lastOpp(o.te, Buffer.alloc(STORSTE_VEDLEGG, 0x41), 'akkurat.txt');
+    const svar = await lastOpp(o.te, Buffer.alloc(STOERSTE_VEDLEGG, 0x41), 'akkurat.txt');
     expect(svar.status).toBe(201);
-    expect(svar.kropp.vedlegg.stoerrelse).toBe(STORSTE_VEDLEGG);
+    expect(svar.kropp.vedlegg.stoerrelse).toBe(STOERSTE_VEDLEGG);
   });
 
   describe('et bundet vedlegg', () => {
