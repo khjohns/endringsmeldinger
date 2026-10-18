@@ -69,7 +69,7 @@
   );
   // TS-saken (#718): bare det første vederlagskravet tilbys, og bare til leserens side.
   const tilbyrVederlagskrav = $derived(
-    kjernesak?.part === 'TE' && sel === 'vederlag' && kjernesak.tilbyrVederlagskrav
+    sel === 'vederlag' && kjernesak?.tilbyrVederlagskrav === true
   );
   const kjernesakStatus = $derived(kjernesak ? kjernesak.statustekst(sel) : '');
 </script>

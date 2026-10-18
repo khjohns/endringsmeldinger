@@ -16,7 +16,7 @@
     ondarkchange,
     overviewHref = store.isDemo ? '/mockup/oversikt' : undefined,
   }: {
-    role: Role;
+    role: Role | null;
     mode: Mode;
     dark?: boolean;
     mobileView?: 'matrix' | 'detail';

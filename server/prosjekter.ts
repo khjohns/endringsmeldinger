@@ -19,7 +19,13 @@
 import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './app.ts';
 import { ferskeMedlemmer } from './autorisasjon.ts';
 import { sql, type Pool } from './datalag.ts';
-import { synkroniserProsjekt, type Medlem } from './medlemskap.ts';
+import {
+  MedlemskapetLaast,
+  oversett,
+  synkroniserProsjekt,
+  UgyldigProsjekt,
+  type Medlem,
+} from './medlemskap.ts';
 
 interface Prosjektrad {
   id: string;
@@ -62,7 +68,8 @@ async function brukerensProsjekter(
     const ider = new Set(foer.map((p) => p.id));
     const etter = await lesBrukerensProsjekter(avh.datalag, sesjon.bruker.id);
     return [200, { projects: etter.filter((p) => ider.has(p.id)).map(prosjektet) }];
-  } catch {
+  } catch (feil) {
+    console.error(feil);
     return [
       503,
       {
@@ -133,6 +140,15 @@ async function medlemmene(
   return [200, { members: rader.map(medlemmet) }];
 }
 
+const IKKE_OPPDATERT: Svar = [
+  503,
+  {
+    success: false,
+    error: 'SYNC_UNAVAILABLE',
+    message: 'Medlemskap kunne ikke oppdateres. Prøv igjen senere.',
+  },
+];
+
 /**
  * `sync_members`: henter listen fra Catenda og skriver den. `deactivated` er
  * medlemmene som var aktive før og ikke står i listen, som `AuthService.sync`
@@ -152,15 +168,9 @@ async function synkroniser(
     const iListen = new Set(hentet.map((m) => m.subjekt));
     const deaktivert = skrevet ? foer.filter((m) => !iListen.has(m.catenda_subject)).length : 0;
     return [200, { success: true, members: hentet.length, deactivated: deaktivert }];
-  } catch {
-    return [
-      503,
-      {
-        success: false,
-        error: 'SYNC_UNAVAILABLE',
-        message: 'Medlemskap kunne ikke oppdateres. Prøv igjen senere.',
-      },
-    ];
+  } catch (feil) {
+    console.error(feil);
+    return IKKE_OPPDATERT;
   }
 }
 
@@ -186,15 +196,21 @@ async function begrensMedlem(
     { success: false, error: 'FORBIDDEN', message: 'Du har ikke tilgang til denne endringen.' },
   ];
   if (!ressurs || !UUID.test(ressurs)) return nekt;
-  const svar = await avh.datalag
-    .request()
-    .input('aktor', sql.UniqueIdentifier, bruker.id)
-    .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
-    .input('medlem', sql.UniqueIdentifier, ressurs)
-    .input('leserolle', sql.Bit, verdi)
-    .output('endret', sql.Bit)
-    .execute('koe_api.sett_leserolle');
-  return svar.output.endret === true ? [200, { success: true }] : nekt;
+  try {
+    const svar = await avh.datalag
+      .request()
+      .input('aktor', sql.UniqueIdentifier, bruker.id)
+      .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
+      .input('medlem', sql.UniqueIdentifier, ressurs)
+      .input('leserolle', sql.Bit, verdi)
+      .output('endret', sql.Bit)
+      .execute('koe_api.sett_leserolle');
+    return svar.output.endret === true ? [200, { success: true }] : nekt;
+  } catch (feil) {
+    // Applåsen er forbigående og gir 503, som synkroniseringen; annet går til ruterens 500.
+    if (oversett(feil, UgyldigProsjekt) instanceof MedlemskapetLaast) return IKKE_OPPDATERT;
+    throw feil;
+  }
 }
 
 export const PROSJEKTRUTER: readonly Rute[] = [

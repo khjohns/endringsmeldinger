@@ -88,7 +88,8 @@ describe('opprettelsen av en KOE-sak (#664)', () => {
         nyId: () => crypto.randomUUID(),
       },
       [rad],
-      KJERNE
+      KJERNE,
+      new Map()
     );
     // Uten den låste teksten avvises kravet, og avvisningen viser at alt annet holdt.
     expect(!krav.godtatt && krav.avvisning.regel).toBe('BREVTEKST_MANGLER');
