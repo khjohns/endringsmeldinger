@@ -2,8 +2,11 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { opprettSak, sendKommando } from '$lib/api/kjerne';
+
 import { setActiveProjectId } from '$lib/api/client';
 import { sakskilde, tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 const json = (kropp: unknown, status = 200) =>
   new Response(JSON.stringify(kropp), { status, headers: { 'content-type': 'application/json' } });
@@ -30,7 +33,10 @@ describe('klienten mot TS-serveren', () => {
     const [[url, init]] = kall;
     expect(url).toBe('/api/kjerne/saker');
     expect(init.method).toBe('POST');
-    expect(JSON.parse(init.body as string)).toEqual({ kommando: { type: 'opprett' } });
+    expect(JSON.parse(init.body as string)).toEqual({
+      kommando_id: expect.stringMatching(UUID),
+      kommando: { type: 'opprett' },
+    });
     const headers = new Headers(init.headers);
     expect(headers.get('X-Project-ID')).toBe('prosjekt-1');
     expect(headers.get('X-CSRF-Token')).toBe('token');
@@ -52,6 +58,7 @@ describe('klienten mot TS-serveren', () => {
     expect(url).toBe('/api/kjerne/saker/a%2Fb/kommandoer');
     expect(JSON.parse(init.body as string)).toEqual({
       expected_version: 3,
+      kommando_id: expect.stringMatching(UUID),
       kommando: { type: 'krav' },
     });
   });

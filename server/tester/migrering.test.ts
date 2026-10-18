@@ -515,6 +515,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'jobb',
         'jobbforsoek',
         'kjernebuffer',
+        'kvittering',
         'leveringskvittering',
         'leveringsoppdrag',
         'notat',

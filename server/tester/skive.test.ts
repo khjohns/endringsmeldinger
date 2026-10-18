@@ -82,7 +82,7 @@ describe.skipIf(!TESTBASE_URL)(
      * Kommandoen med den låste teksten klienten viste (A1 i paragrafmatrisen, LV-U2),
      * laget av kjernen mot journalen i basen slik nettleseren gjør (B-15).
      */
-    const send = async (sakId: string, kropp: unknown, bruker = o.te) => {
+    const laas = async (sakId: string, kropp: unknown, bruker = o.te) => {
       const k = (kropp as { kommando?: unknown }).kommando;
       if (k && typeof k === 'object' && !('brevtekst' in k)) {
         const journal = await journalen(sakId);
@@ -102,12 +102,17 @@ describe.skipIf(!TESTBASE_URL)(
         const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
         if (tekst) kropp = { ...(kropp as object), kommando: { ...k, brevtekst: tekst } };
       }
-      return kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
+      return { kommando_id: randomUUID(), ...(kropp as object) };
+    };
+    /** Kroppen slik den er, som når klienten sender samme kommando på nytt. */
+    const sendSom = (sakId: string, kropp: unknown, bruker = o.te) =>
+      kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
         bruker,
         prosjektId: o.prosjekt.id,
         kropp,
       });
-    };
+    const send = async (sakId: string, kropp: unknown, bruker = o.te) =>
+      sendSom(sakId, await laas(sakId, kropp, bruker), bruker);
     const oppdragene = async (sakId: string): Promise<Oppdragsrad[]> => {
       const svar = await iTransaksjon(
         o.datalag.base.pool,
@@ -140,6 +145,50 @@ describe.skipIf(!TESTBASE_URL)(
     afterAll(async () => {
       await server?.stopp();
       if (o) await rydd(o);
+    });
+
+    // Kilde: invariant 4 i 2.3 i hovedplanen og kravet fra #711 i #418: et nytt forsøk
+    // etter et tapt svar sender ikke grunnlagskravet eller vederlagskravet to ganger.
+    it('samme kommando-ID to ganger for grunnlagskravet og vederlagskravet gir ett brev hver og samme kvittering (#418)', async () => {
+      const sakId = await opprettKjernesak(o);
+      const grunnlag = await laas(sakId, { expected_version: 1, kommando: GRUNNLAGSKRAV });
+      const foerste = await sendSom(sakId, grunnlag);
+      expect(foerste.status, JSON.stringify(foerste.kropp)).toBe(201);
+      const igjen = await sendSom(sakId, grunnlag);
+      expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
+      expect(igjen.kropp).toMatchObject({
+        event_id: foerste.kropp.event_id,
+        leveringsoppdrag: foerste.kropp.leveringsoppdrag,
+        versjon: 2,
+      });
+
+      const vederlag = await laas(sakId, { expected_version: 2, kommando: VEDERLAGSKRAV });
+      const [a, b] = [await sendSom(sakId, vederlag), await sendSom(sakId, vederlag)];
+      expect([a.status, b.status]).toEqual([201, 201]);
+      expect(b.kropp.event_id).toBe(a.kropp.event_id);
+      expect(b.kropp.leveringsoppdrag).toBe(a.kropp.leveringsoppdrag);
+
+      expect((await journalen(sakId)).map((r) => r.versjon)).toEqual([1, 2, 3]);
+      expect(await oppdragene(sakId)).toHaveLength(2);
+
+      // Samme ID med et annet innhold avvises, og ingenting skrives.
+      const endret = await sendSom(sakId, { ...vederlag, expected_version: 3 });
+      expect(endret.status, JSON.stringify(endret.kropp)).toBe(422);
+      expect(endret.kropp.error).toBe('KOMMANDO_ID_BRUKT');
+      expect((await journalen(sakId)).map((r) => r.versjon)).toEqual([1, 2, 3]);
+    });
+
+    it('en kommando uten kommando_id avvises med 400, og ingenting skrives (#418)', async () => {
+      const sakId = await opprettKjernesak(o);
+      const uten: Record<string, unknown> = await laas(sakId, {
+        expected_version: 1,
+        kommando: GRUNNLAGSKRAV,
+      });
+      delete uten.kommando_id;
+      const svar = await sendSom(sakId, uten);
+      expect(svar.status).toBe(400);
+      expect(svar.kropp.message).toBe('kommando_id er påkrevd.');
+      expect(await journalen(sakId)).toHaveLength(1);
     });
 
     it('grunnlagskravet og vederlagskravet blir to brev, hvert med sitt frosne oppdrag', async () => {
@@ -435,7 +484,11 @@ describe.skipIf(!TESTBASE_URL)('koblingen slås av under skrivingen (#739 punkt 
         bruker: o.te,
         prosjektId: o.prosjekt.id,
         // Brevteksten er ikke den kjernen lager, så kommandoen avvises om den når kjernen.
-        kropp: { expected_version: 1, kommando: { ...GRUNNLAGSKRAV, brevtekst: [] } },
+        kropp: {
+          expected_version: 1,
+          kommando_id: randomUUID(),
+          kommando: { ...GRUNNLAGSKRAV, brevtekst: [] },
+        },
       });
     } finally {
       await server.stopp();

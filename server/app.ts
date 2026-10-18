@@ -34,12 +34,14 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import type { Pool as Datalag } from './datalag.ts';
+import { UsikkertUtfall, type Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
 import { lesSaken } from './lager.ts';
 import {
   IngenTopicBoard,
+  KommandoIdBrukt,
+  kommandosum,
   opprettSak,
   SakFinnesIkke,
   SkrivingAvvist,
@@ -227,7 +229,27 @@ const regelavvisning = ({ feil, avvisning }: { feil: string; avvisning: Avvisnin
 function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
+  if (feil instanceof KommandoIdBrukt)
+    return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
+  // Klienten sender på nytt med samme kommando-ID og får kvitteringen hvis COMMIT lyktes (#418).
+  if (feil instanceof UsikkertUtfall)
+    return feilsvar(
+      503,
+      'UTFALL_USIKKERT',
+      'Det er usikkert om kommandoen ble lagret. Send den på nytt med samme kommando-ID.'
+    );
   throw feil;
+}
+
+/** Kommando-ID-en fra kroppen; formen prøver basen (51422). */
+const kommandoId = (kropp: Record<string, unknown>): string | null =>
+  typeof kropp.kommando_id === 'string' ? kropp.kommando_id : null;
+
+/** Siden `kontraktsrolle: 'kreves'` i registeret har krevd; uten den er svaret 403 (#743). */
+function medSide(side: Kontraktstilgang | null): Kontraktstilgang {
+  if (!side)
+    throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', 'Du har ikke nødvendig TE/BH-teamtilknytning.');
+  return side;
 }
 
 const erHeltall = (v: unknown): v is number =>
@@ -293,7 +315,7 @@ const skrivekontekst = (bruker: Bruker, prosjekt: Prosjekttilgang, side: Kontrak
   ...(side.teamId ? { team: side.teamId } : {}),
 });
 
-const KOMMANDOKROPP = new Set(['expected_version', 'kommando']);
+const KOMMANDOKROPP = new Set(['expected_version', 'kommando', 'kommando_id']);
 
 async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
   const { bruker, prosjekt, side, sakId, kropp } = f;
@@ -302,8 +324,19 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   const forventet = kropp.expected_version;
   if (!erHeltall(forventet)) return ugyldig('expected_version må være et heltall ≥ 0.');
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
+  const id = kommandoId(kropp);
+  if (id === null) return ugyldig('kommando_id er påkrevd.');
+  const kommando = {
+    id,
+    sha256: kommandosum({
+      rute: 'kommando',
+      sak_id: sakId,
+      expected_version: forventet,
+      kommando: kropp.kommando,
+    }),
+  };
   // Kjernen får aktøren, siden og teamet fra samme kontekst som basen (#739 punkt 4).
-  const kontekst = skrivekontekst(bruker, prosjekt, side!);
+  const kontekst = skrivekontekst(bruker, prosjekt, medSide(side));
   let utfall;
   try {
     utfall = await skrivHendelse(
@@ -311,6 +344,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       kontekst,
       sakId,
       forventet,
+      kommando,
       ({ journal, tidspunkt, maal }) => {
         const vurdert = vurder(
           kropp.kommando,
@@ -351,8 +385,9 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
     return skriveavvisning(feil);
   }
   if (!utfall.skriv) return regelavvisning(utfall.avvisning);
-  // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen.
-  const { journal } = await lesSaken(
+  // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen. Et
+  // gjentatt svar har samme brev og oppdrag som det første (#418).
+  const { journal, oppdrag } = await lesSaken(
     avh.datalag,
     { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
     sakId
@@ -362,7 +397,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
     {
       success: true,
       event_id: utfall.rad.event_id,
-      leveringsoppdrag: utfall.oppdrag!.id,
+      leveringsoppdrag: oppdrag.find((o) => o.event_id === utfall.rad.event_id)?.id ?? null,
       ...sakenSomVises(journal, avh.kjerne),
     },
   ];
@@ -376,14 +411,17 @@ async function opprettNySak(
   { bruker, prosjekt, side, kropp }: Opprettelsesforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const ukjente = Object.keys(kropp).filter((k) => k !== 'kommando');
+  const ukjente = Object.keys(kropp).filter((k) => k !== 'kommando' && k !== 'kommando_id');
   if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
+  const id = kommandoId(kropp);
+  if (id === null) return ugyldig('kommando_id er påkrevd.');
   const vurdert = opprettelse(kropp.kommando, side.rolle);
   if (!vurdert.godtatt) return regelavvisning(vurdert);
   let rad;
   try {
-    rad = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), {
+    const kommando = { id, sha256: kommandosum({ rute: 'opprettelse', kommando: kropp.kommando }) };
+    rad = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), kommando, {
       format: vurdert.format,
       data: vurdert.data,
     });
@@ -505,7 +543,7 @@ export function lagServer(avh: Avhengigheter) {
 
   async function opprettelsesrute(r: Opprettelsesrute, foresporsel: IncomingMessage) {
     const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, null);
-    return r.behandle({ ...f, side: f.side! }, full);
+    return r.behandle({ ...f, side: medSide(f.side) }, full);
   }
 
   async function prosjektrute(

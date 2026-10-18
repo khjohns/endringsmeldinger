@@ -318,6 +318,12 @@ async function committ<T>(
   forbindelse.on('rollbackTransaction', merk);
   try {
     await tx.commit();
+    // Rullet serveren tilbake uten at COMMIT feilet, er utfallet likevel kjent (#543).
+    if (rulletTilbake)
+      return {
+        feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen under COMMIT.'),
+        avsluttet: true,
+      };
     return { svar, avsluttet: true };
   } catch (feil) {
     if (rulletTilbake)

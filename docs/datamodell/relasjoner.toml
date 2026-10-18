@@ -767,6 +767,28 @@ funn = []
 belegg = "K 16.10: katalogen."
 
 [[relasjon]]
+fra = "koe.kvittering.aktor_id"
+til = "koe.app_users.id"
+art = "logisk"
+antall = "mange til én"
+beskrivelse = """
+Aktøren som sendte kommandoen, `app_users.id`. Triggeren `koe.kvittering_samme_transaksjon` krever at den er
+lik `aktor_id` i brevet, så det er ingen egen fremmednøkkel."""
+funn = []
+belegg = "K 18.10: migrasjonen."
+
+[[relasjon]]
+fra = ["koe.kvittering.event_id", "koe.kvittering.sak_id", "koe.kvittering.prosjekt_id"]
+til = ["koe.hendelse.event_id", "koe.hendelse.sak_id", "koe.hendelse.prosjekt_id"]
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Brevet kommandoen ga (#418). `event_id` er unik, så hvert brev har høyst én kvittering. Sammensatt med
+`sak_id` og `prosjekt_id`, så kvitteringen står i brevets sak og prosjekt."""
+funn = []
+belegg = "K 18.10: katalogen."
+
+[[relasjon]]
 fra = ["koe.jobb.sak_id", "koe.jobb.prosjekt_id"]
 til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
 art = "fremmednøkkel"
@@ -1026,6 +1048,10 @@ begrunnelse = "Catenda-prosjektet frosset da jobben ble lagt inn. Sammenliknes m
 [[uten_relasjon]]
 kolonne = "koe.jobb.catenda_board_id"
 begrunnelse = "Boardet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6)."
+
+[[uten_relasjon]]
+kolonne = "koe.kvittering.kommando_id"
+begrunnelse = "ID-en klienten gir kommandoen (#418). Den viser ikke til en rad; nøkkelen er prosjektet, aktøren og ID-en."
 
 [[uten_relasjon]]
 kolonne = "koe.jobb.lease"

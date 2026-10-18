@@ -57,7 +57,11 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
   });
 
   const opprett = (kropp: unknown, bruker: Testbruker = o.te, prosjektId = o.prosjekt.id) =>
-    kall(server.url, SAKER, { bruker, prosjektId, kropp });
+    kall(server.url, SAKER, {
+      bruker,
+      prosjektId,
+      kropp: { kommando_id: randomUUID(), ...(kropp as object) },
+    });
 
   /** Sakene i prosjektet og radene i journalen, lest av eieren med konteksten satt. */
   const antall = () =>
@@ -145,11 +149,27 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
       prosjektId: o.prosjekt.id,
       kropp: {
         expected_version: svar.kropp.versjon,
+        kommando_id: randomUUID(),
         kommando: { ...GRUNNLAGSKRAV, brevtekst: laastTekst(vist.hendelser[0]) },
       },
     });
     expect(krav.status, JSON.stringify(krav.kropp)).toBe(201);
     expect(krav.kropp.versjon).toBe(2);
+  });
+
+  // Kilde: invariant 4 i 2.3 i hovedplanen og kravet fra reviewet av #742 i #418.
+  it('samme kommando-ID to ganger gir én sak og samme sak_id; med et annet innhold avvises den (#418)', async () => {
+    const kropp = { kommando_id: randomUUID(), kommando: OPPRETT };
+    const foer = await antall();
+    const [a, b] = [await opprett(kropp), await opprett(kropp)];
+    expect([a.status, b.status]).toEqual([201, 201]);
+    expect(b.kropp).toEqual(a.kropp);
+    expect(await antall()).toEqual({ saker: foer.saker + 1, hendelser: foer.hendelser + 1 });
+
+    const endret = await opprett({ ...kropp, kommando: { ...OPPRETT, sakstittel: 'Annen' } });
+    expect(endret.status, JSON.stringify(endret.kropp)).toBe(422);
+    expect(endret.kropp.error).toBe('KOMMANDO_ID_BRUKT');
+    expect(await antall()).toEqual({ saker: foer.saker + 1, hendelser: foer.hendelser + 1 });
   });
 
   it('to opprettelser gir to saksnumre (DL-U6)', async () => {
@@ -186,7 +206,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
       const svar = await kall(server.url, SAKER, {
         bruker: o.te,
         prosjektId: o.prosjekt.id,
-        kropp: { kommando: OPPRETT },
+        kropp: { kommando_id: randomUUID(), kommando: OPPRETT },
         csrf,
       });
       expect(svar.status).toBe(403);
@@ -289,7 +309,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
         const svar = await kall(server.url, `${SAKER}/${sakId}/kommandoer`, {
           bruker: o.te,
           prosjektId: o.prosjekt.id,
-          kropp: { expected_version, kommando: GRUNNLAGSKRAV },
+          kropp: { expected_version, kommando_id: randomUUID(), kommando: GRUNNLAGSKRAV },
         });
         expect(svar.status).toBe(404);
         expect(svar.kropp.error).toBe('SAK_FINNES_IKKE');
