@@ -71,6 +71,9 @@ export class UgyldigKontekst extends Error {}
 /**
  * COMMIT feilet eller fikk ikke svar, uten at serveren meldte tilbakerulling.
  * Serveren kan ha committet, så utfallet er usikkert. Forbindelsen er forkastet.
+ * `server/kommandoer.ts` kaster den også når låsen på kvitteringen ikke gis (51408):
+ * da er denne transaksjonen rullet tilbake, men et forsøk med samme nøkkel kan ennå
+ * committe.
  */
 export class UsikkertUtfall extends Error {}
 

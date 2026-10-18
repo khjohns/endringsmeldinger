@@ -162,7 +162,7 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * reglene er endret siden (#792 punkt 2, avgjørelse 3 i #764). Uten TE kalles
  * `innhold` likevel først, så kjernens avvisning går foran avslaget her.
  *
- * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, og det `innhold` kaster
+ * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, UsikkertUtfall, og det `innhold` kaster
  */
 export async function opprettSak(
   pool: Pool,
@@ -226,7 +226,7 @@ export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
  * Har kommandoen en kvittering for saken, er svaret brevet fra den, uten
  * versjonskontroll og uten å kalle `lag`.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt
+ * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, UsikkertUtfall
  */
 export async function skrivHendelse<A>(
   pool: Pool,

@@ -41,13 +41,17 @@ const SAKER = '/api/kjerne/saker';
 export const nyKommandoId = () => crypto.randomUUID();
 
 /**
- * Svaret kom ikke fram, eller det kom en serverfeil (5xx), som `UTFALL_USIKKERT`, en
- * proxy uten svar fra serveren eller en feil etter COMMIT. Kommandoen kan være lagret,
- * så et nytt forsøk sender samme kommando med samme ID (#418). Med samme ID gir
- * serveren kvitteringen og lagrer ikke noe nytt, så et nytt forsøk er trygt.
+ * Svaret kom ikke fram, en proxy fikk ikke svar fra serveren (502, 504), eller serveren
+ * vet ikke om COMMIT lyktes (503 `UTFALL_USIKKERT`). Kommandoen kan være lagret, så et
+ * nytt forsøk sender samme kommando med samme ID (#418). Andre svar fra serveren er
+ * sikre.
  */
 export const erUsikkertUtfall = (e: unknown) =>
-  e instanceof ApiError && (e.status === 0 || e.status >= 500);
+  e instanceof ApiError &&
+  (e.status === 0 ||
+    e.status === 502 ||
+    e.status === 504 ||
+    (e.status === 503 && (e.data as { error?: unknown } | undefined)?.error === 'UTFALL_USIKKERT'));
 
 const sti = (sakId: string) => `${SAKER}/${encodeURIComponent(sakId)}`;
 
