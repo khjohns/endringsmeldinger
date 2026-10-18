@@ -155,8 +155,7 @@ export async function kobledeProsjekter(
  * samtidig eller senere alt er skrevet (DL-U7). En bruker uten medlemskap, som
  * en innlogging med en liste hentet samtidig eller senere viste ikke er med i
  * prosjektet, får ikke noe medlemskap (DL-U9). `catendaProsjekt` kommer fra
- * koblingen, og `hentet` fra `basensKlokke()`. Inngangene kaller
- * `synkroniserProsjekt()`, som leser koblingen.
+ * koblingen, og `hentet` fra `basensKlokke()`.
  *
  * @throws UgyldigMedlemsliste, UgyldigProsjekt, FeilCatendaProsjekt, MedlemskapetLaast
  */

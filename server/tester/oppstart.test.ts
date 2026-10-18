@@ -56,10 +56,25 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
     expect(await hindringer(kjoeretid.pool, lesMigrasjoner())).toEqual([]);
   });
 
-  it('eieren av basen nektes (#707 punkt 3)', async () => {
+  it('sa, som er eier av basen, nektes (#707 punkt 3)', async () => {
     const funn = await hindringer(base.pool, lesMigrasjoner());
     expect(funn).toHaveLength(1);
     expect(funn[0]).toMatch(/ikke kjøretidens/);
+  });
+
+  it('kjøretiden nektes når den også er eier av basen (#707 punkt 3)', async () => {
+    const eier = await opprettKjoeretid(base, { maks: 1 });
+    try {
+      const navn = (await eier.pool.request().query<{ navn: string }>('SELECT USER_NAME() AS navn'))
+        .recordset[0].navn;
+      expect(await hindringer(eier.pool, lesMigrasjoner())).toEqual([]);
+      await base.pool.request().batch(`ALTER ROLE db_owner ADD MEMBER [${navn}];`);
+      const funn = await hindringer(eier.pool, lesMigrasjoner());
+      expect(funn).toHaveLength(1);
+      expect(funn[0]).toMatch(/ikke kjøretidens/);
+    } finally {
+      await eier.slett();
+    }
   });
 
   it('en fil som ikke er anvendt, er en hindring for kjøretiden', async () => {

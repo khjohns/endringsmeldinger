@@ -12,8 +12,8 @@
  *   `koe_api.kontraktsteam` og teammedlemskapet i Catenda.
  *
  * Catenda står bak grensesnittet `Catenda`. Er medlemslisten ikke fersk, hentes
- * den på nytt fra Catenda-prosjektet i koblingen (`synkroniserProsjekt()`); feiler
- * det, nektes tilgangen med 503, som i Python.
+ * den på nytt fra Catenda-prosjektet i koblingen kontrollen alt har lest
+ * (`synkroniserKobling()`); feiler det, nektes tilgangen med 503, som i Python.
  */
 
 import { timingSafeEqual } from 'node:crypto';
