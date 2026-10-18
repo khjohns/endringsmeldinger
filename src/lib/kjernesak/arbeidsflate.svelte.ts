@@ -10,9 +10,10 @@ import type { SporKey, SporUIState } from '$lib/components/kontraktsbord/types';
 import type { TrackDisplay } from '$lib/components/kontraktsbord/derive';
 import type { SakState, TimelineEvent } from '$lib/types/timeline';
 import { getPartsNavn } from '$lib/utils/partsNavn';
+import type { Utledning } from '$kjerne/utledning/utled';
 import type { Kjernesakkontekst } from './kontekst.svelte';
 import {
-  SPOR_FOR,
+  kravversjon,
   sporetsStatustekst,
   sporvisning,
   tilSakState,
@@ -22,6 +23,8 @@ import { tilbyrFoersteVederlagskrav } from './vederlagskrav';
 
 interface Projeksjon {
   sak: SakState;
+  utledning: Utledning;
+  statustekst: Record<SporKey, string>;
   timeline: TimelineEvent[];
   visning: Record<SporKey, TrackDisplay>;
 }
@@ -30,6 +33,8 @@ const TOM_UI: SporUIState = { draft: null, att: [], note: null };
 
 export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: string) {
   const { sakId } = kjernesak;
+  const teNavn = getPartsNavn('TE');
+  const bhNavn = getPartsNavn('BH');
   // Etter en ny lasting som feiler, står saken slik den sist ble lest.
   let forrige: Projeksjon | null = null;
   const projeksjon = $derived.by(() => {
@@ -38,8 +43,17 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     if (u && bilde) {
       const titler = Object.fromEntries(bilde.journal.map((j) => [j.hendelse, j.tittel]));
       const sak = tilSakState(sakId, bilde.tittel, kjernesak.journal, u);
+      const vist = kjernesak.visning;
+      const statustekst = (spor: SporKey) =>
+        vist ? sporetsStatustekst(vist, u, spor, kjernesak.part, bhNavn) : '';
       forrige = {
         sak,
+        utledning: u,
+        statustekst: {
+          ansvar: statustekst('ansvar'),
+          vederlag: statustekst('vederlag'),
+          frist: statustekst('frist'),
+        },
         timeline: tilTidslinje(projectId, sakId, kjernesak.journal, u, titler),
         visning: {
           ansvar: sporvisning(sak, u, 'ansvar'),
@@ -51,9 +65,6 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     if (!forrige) throw new Error('TS-saken er ikke lastet.');
     return forrige;
   });
-  const teNavn = getPartsNavn('TE');
-  const bhNavn = getPartsNavn('BH');
-
   return {
     isDemo: false as const,
     erKjernesak: true as const,
@@ -77,23 +88,15 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     get saksbilde() {
       return kjernesak.saksbilde;
     },
+    /** Bare TE sender det første vederlagskravet; uten side tilbys det ikke (#737 p3). */
     get tilbyrVederlagskrav() {
       const u = kjernesak.utledning;
-      return u ? tilbyrFoersteVederlagskrav(kjernesak.handlinger, u) : false;
+      return kjernesak.part === 'TE' && u
+        ? tilbyrFoersteVederlagskrav(kjernesak.handlinger, u)
+        : false;
     },
-    /**
-     * Antall versjoner av det gjeldende kravet i sporet, talt langs `erstatter` fra
-     * `gjeldendeKrav`. 0 når sporet ikke har et gjeldende krav (krav E i #718).
-     */
-    kravversjon(track: SporKey): number {
-      const s = kjernesak.utledning?.spor[SPOR_FOR[track]];
-      let antall = 0;
-      for (let k = s?.gjeldendeKrav; k; antall++) {
-        const forrige = k.erstatter;
-        k = s!.krav.find((e) => e.id === forrige);
-      }
-      return antall;
-    },
+    /** Kravversjonen i saken slik den sist ble lest (krav E i #718). */
+    kravversjon: (spor: SporKey) => kravversjon(projeksjon.utledning, spor),
     teNavn,
     bhNavn,
     // Ingen `*DomainConfig`: de leser Python-projeksjonens statusfelt (krav E i #718).
@@ -105,13 +108,9 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     get submissionError() {
       return kjernesak.feil;
     },
-    display: (track: SporKey) => projeksjon.visning[track],
-    statustekst(track: SporKey) {
-      const { visning, utledning } = kjernesak;
-      return visning && utledning
-        ? sporetsStatustekst(visning, utledning, track, kjernesak.part, bhNavn)
-        : '';
-    },
+    display: (spor: SporKey) => projeksjon.visning[spor],
+    /** Fra saken slik den sist ble lest, som resten av Kontrollrommet (#732 p10). */
+    statustekst: (spor: SporKey) => projeksjon.statustekst[spor],
     getUI: (): SporUIState => TOM_UI,
     setDraft() {},
     beginEdit() {},

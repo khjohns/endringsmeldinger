@@ -19,7 +19,8 @@ const RANG: Record<Grunnlagsresultat, number> = { avslaatt: 0, paalegg_frafalt: 
  * revisjonen (detalj 4 i HF-U5). Beløpet og dagene sammenliknes slik de står, prinsipalt
  * eller subsidiært, så en revisjon som senker ett standpunkt, avvises også når den hever
  * et annet. Grunnlaget, beløpet og dagene står i hvert svar (`STANDPUNKTER_I_SPORET`). Mangler
- * beløpet i svaret eller i revisjonen, kan det ikke sammenliknes, og revisjonen avvises (#627).
+ * beløpet eller dagene i svaret eller i revisjonen, kan de ikke sammenliknes, og revisjonen
+ * avvises (#627, #814).
  * Rettidigheten sammenliknes ikke her: et «i tide» sperres av `SAGT_I_TIDE` (HF-U4).
  * Byggherrens ønskede metode sammenliknes ikke (MM-U12).
  */
@@ -54,6 +55,8 @@ export function senketInnroemmelse(
         return `Svaret godkjenner ${subsidiaert(f.id)}${kroner(f.godkjent)}, og revisjonen senker beløpet til ${kroner(n.godkjent)}`;
     } else if (f.art === 'dager') {
       const n = ny(f)!;
+      if (typeof n.vurdert !== 'number' || typeof f.vurdert !== 'number')
+        return 'Dagene mangler i svaret eller i revisjonen, så revisjonen kan ikke sammenliknes med svaret';
       if (n.vurdert < f.vurdert)
         return `Svaret godkjenner ${subsidiaert(f.id)}${dager(f.vurdert)}, og revisjonen senker dagene til ${dager(n.vurdert)}`;
     } else if (f.art === 'spesifisering' && !f.iTide) {

@@ -17,10 +17,20 @@ import tomllib
 
 
 def _last(navn: str):
+    """Verktøymodulen `navn`, lastet én gang og lagt i sys.modules som
+    «verktoy.<navn>», så en modul som bruker en annen, får samme instans (#635)."""
+    nøkkel = f"verktoy.{navn}"
+    if nøkkel in sys.modules:
+        return sys.modules[nøkkel]
     sti = pathlib.Path(__file__).resolve().parent / f"{navn}.py"
-    spesifikasjon = importlib.util.spec_from_file_location(navn, sti)
+    spesifikasjon = importlib.util.spec_from_file_location(nøkkel, sti)
     modul = importlib.util.module_from_spec(spesifikasjon)
-    spesifikasjon.loader.exec_module(modul)
+    sys.modules[nøkkel] = modul
+    try:
+        spesifikasjon.loader.exec_module(modul)
+    except BaseException:
+        del sys.modules[nøkkel]
+        raise
     return modul
 
 

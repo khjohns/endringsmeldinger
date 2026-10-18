@@ -8,7 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
-import { sporvisning, tilSakState, tilTidslinje } from '$lib/kjernesak/sakstilstand';
+import { kravversjon, sporvisning, tilSakState, tilTidslinje } from '$lib/kjernesak/sakstilstand';
 import { SAK, medFristvarsel, medSvar, medVederlag } from './provejournal';
 
 describe('TS-saken som Kontrollrommet leser den', () => {
@@ -80,6 +80,51 @@ describe('TS-saken som Kontrollrommet leser den', () => {
       hasNotice: true,
       unspecified: true,
     });
+  });
+
+  it('beløpet står i feltet metoden har i katalogen: belop_direkte for tilbud, kostnads_overslag for regningsarbeid (#732 p4)', () => {
+    const u = utledJournal(medVederlag, KJERNE);
+    const tilbud = tilSakState(SAK, null, medVederlag, u).vederlag;
+    expect([tilbud.belop_direkte, tilbud.kostnads_overslag, tilbud.krevd_belop]).toEqual([
+      250000,
+      undefined,
+      250000,
+    ]);
+
+    // Kjernen tar bare imot tilbud ennå, så regningsarbeidet settes inn i utledningen.
+    const regning = structuredClone(u);
+    regning.spor.vederlag.gjeldendeKrav!.innhold.metode = 'regningsarbeid';
+    const v = tilSakState(SAK, null, medVederlag, regning).vederlag;
+    // Feltene leses ett og ett: getterne for statusfeltene kaster (#718).
+    expect([v.metode, v.belop_direkte, v.kostnads_overslag, v.krevd_belop]).toEqual([
+      'REGNINGSARBEID',
+      undefined,
+      250000,
+      250000,
+    ]);
+  });
+
+  it('kravversjonen telles langs erstatter, og en syklus i erstatter stopper tellingen (#737 p6)', () => {
+    const u = utledJournal(medVederlag, KJERNE);
+    expect(kravversjon(u, 'vederlag')).toBe(1);
+    expect(kravversjon(u, 'frist')).toBe(0);
+
+    // Kjernen lager ingen syklus; den settes inn for å vise at tellingen stopper.
+    const syklus = structuredClone(u);
+    const krav = syklus.spor.vederlag.gjeldendeKrav!;
+    krav.erstatter = krav.id;
+    syklus.spor.vederlag.krav = [krav];
+    expect(kravversjon(syklus, 'vederlag')).toBe(1);
+  });
+
+  it('aktøren i tidslinjen er navnet serveren slo opp, ikke bare rollen (#835 p1)', () => {
+    const u = utledJournal(medSvar, KJERNE);
+    const rader = medSvar.map((r, i) =>
+      i === 3 ? { ...r, aktor_navn: 'Byggherrens saksbehandler' } : r
+    );
+    const tidslinje = tilTidslinje('p-1', SAK, rader, u, {});
+    expect(tidslinje[3]).toMatchObject({ actor: 'Byggherrens saksbehandler', actorrole: 'BH' });
+    expect(tidslinje[0].actor).toBeUndefined();
   });
 
   it('journalen blir tidslinjen i rekkefølgen og med sporet hendelsen har krav eller svar i', () => {

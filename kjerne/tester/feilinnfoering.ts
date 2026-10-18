@@ -703,14 +703,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F62',
     feilklasse: 'kjernen gir tekst basen ikke kan lagre, en annen kode enn sin egen (#373)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/format/skjema.ts`,
     endringer: [
       [
-        '  if (harUlagringsbarTekst(kommando))',
-        '  if (!kommando && harUlagringsbarTekst(kommando))',
+        '  return harUlagringsbarTekst(kommando)',
+        '  return !kommando && harUlagringsbarTekst(kommando)',
       ],
     ],
-    mal: ['gir TEKST_KAN_IKKE_LAGRES'],
+    mal: ['gir TEKST_KAN_IKKE_LAGRES', 'avviser en tittel basen ikke kan lagre (#373)'],
   },
   {
     id: 'F63',
@@ -2160,14 +2160,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F250',
     feilklasse: 'en dato etter brevets dato godtas (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dag <= brevet) return null;', 'dag <= brevet || true) return null;']],
+    endringer: [['dag <= brevetsDato) return null;', 'dag <= brevetsDato || true) return null;']],
     mal: ['en dato etter brevets dato avvises'],
   },
   {
     id: 'F251',
     feilklasse: 'en dato samme dag som brevet avvises (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dag <= brevet) return null;', 'dag < brevet) return null;']],
+    endringer: [['dag <= brevetsDato) return null;', 'dag < brevetsDato) return null;']],
     mal: ['samme dag godtas', 'brevets dato er datoen i norsk tid'],
   },
   {
@@ -2370,6 +2370,18 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/innroemmelse.ts`,
     endringer: [['      if (nytt === null || godkjent === null)', '      if (false)']],
     mal: ['sammenliknes ikke og avvises'],
+  },
+  {
+    id: 'F292',
+    feilklasse: 'dager som mangler i svaret, sammenliknes som null dager (HF-U5, #814)',
+    fil: `${K}/utledning/innroemmelse.ts`,
+    endringer: [
+      [
+        "      if (typeof n.vurdert !== 'number' || typeof f.vurdert !== 'number')",
+        '      if (false)',
+      ],
+    ],
+    mal: ['dagene sammenliknes ikke, og revisjonen avvises'],
   },
   // K-1 B1 (#770): T5 om grenene i `strid` og referansekontrollen (#669), #776 p1 og #522.
   {

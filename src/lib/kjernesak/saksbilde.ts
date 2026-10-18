@@ -5,8 +5,7 @@
  */
 
 import type { Leveringsoppdrag } from '$lib/api/kjerne';
-import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
-import { laastTekst } from '$kjerne/kommandoer/skriving';
+import { formatDateNorwegian, formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Statuskode, Visning } from '$kjerne/utledning/visning';
 import { SPOR, type Avsnitt, type Journalrad, type Spor } from '$kjerne/typer';
@@ -35,6 +34,15 @@ export interface Sporbilde {
   poster: Sporpost[];
 }
 
+/** En opplysning i brevet, med etikettene fra `visning`: hvem som oppgir den, og bestridelsene. */
+export interface Opplysningspost {
+  id: string;
+  /** Datoen som er oppgitt sendt eller mottatt. `null` for en opplysning om endringsordre. */
+  dato: string | null;
+  etiketter: Etikett[];
+  tekst: string;
+}
+
 export interface Journalpost {
   hendelse: string;
   versjon: number;
@@ -47,6 +55,7 @@ export interface Journalpost {
    * hver for seg (B-15, LV-U2). `null` for et registrert brev.
    */
   tekst: Avsnitt[] | null;
+  opplysninger: Opplysningspost[];
   oppdrag: Leveringsoppdrag[];
 }
 
@@ -86,6 +95,18 @@ const TEKST: Record<string, string> = {
   passivitet_paaberopt: 'Passivitet påberopt',
   ingen_krav: 'Ingen krav',
   varsel_ikke_registrert: 'Varsel ikke registrert',
+  sendt_ifolge_TE: 'Sendt ifølge TE',
+  sendt_ifolge_BH: 'Sendt ifølge BH',
+  mottatt_ifolge_TE: 'Mottatt ifølge TE',
+  mottatt_ifolge_BH: 'Mottatt ifølge BH',
+  endringsordre_ifolge_TE: 'Endringsordre ifølge TE',
+  endringsordre_ifolge_BH: 'Endringsordre ifølge BH',
+  ikke_endringsordre_ifolge_TE: 'Ikke endringsordre ifølge TE',
+  ikke_endringsordre_ifolge_BH: 'Ikke endringsordre ifølge BH',
+  mottaksdato_mangler: 'Mottaksdatoen mangler',
+  sending_bestridt: 'Sendingen er bestridt',
+  mottak_bestridt: 'Mottaket er bestridt',
+  endringsordre_bestridt: 'Endringsordren er bestridt',
   registrert_brev_uten_virkning: 'Et registrert brev står uten virkning',
   varsel_med_frist_utenfor_appen:
     'Saken kan ikke utledes. Et varsel med frist må sendes utenfor appen og registreres senere.',
@@ -105,16 +126,25 @@ export function leveringstekst(o: Leveringsoppdrag): string {
   return `${navn}: ${frosset}, ${o.levert ? `levert ${formatDateTimeNorwegian(o.levert)}` : 'ikke levert ennå'}`;
 }
 
-/** Brevteksten i raden, med samme lesing som `laastTekst` i kjernen. */
-const brevtekst = (rad: Journalrad): Avsnitt[] | null =>
-  laastTekst(rad) ? (rad.data.brevtekst as Avsnitt[]) : null;
+const erAvsnitt = (a: unknown): a is Avsnitt =>
+  typeof a === 'object' &&
+  a !== null &&
+  typeof (a as Avsnitt).laast === 'string' &&
+  ['string', 'undefined'].includes(typeof (a as Avsnitt).utdypning);
 
-function journaltittel(rad: Journalrad): string {
+/**
+ * Brevteksten i en rad kjernen har tolket. En rad den ikke har tolket, eller en tekst
+ * med en annen form, vises uten tekst og velter ikke saksbildet (MM-U2).
+ */
+function brevtekst(rad: Journalrad, tolket: boolean): Avsnitt[] | null {
+  const t = rad.data.brevtekst;
+  return tolket && Array.isArray(t) && t.every(erAvsnitt) ? t : null;
+}
+
+function journaltittel(rad: Journalrad, tolket: boolean, tekst: Avsnitt[] | null): string {
   if (rad.event_type === 'sak_opprettet') return `Saken er opprettet av ${rad.aktor_rolle}`;
-  if (rad.event_type === 'dokument_registrert')
-    return brevtekst(rad)
-      ? `Brev fra ${rad.aktor_rolle}`
-      : `Registrert brev fra ${rad.aktor_rolle}`;
+  if (tolket && rad.event_type === 'dokument_registrert')
+    return tekst ? `Brev fra ${rad.aktor_rolle}` : `Registrert brev fra ${rad.aktor_rolle}`;
   return `${rad.event_type} fra ${rad.aktor_rolle}`;
 }
 
@@ -134,6 +164,16 @@ export function lagSaksbilde(
   const brev = (id: string) => versjonFor.get(u.elementer[id]?.hendelse ?? '') ?? null;
   const tolket = new Map(vist.journal.map((j) => [j.hendelse, j.tolket]));
   const opprettet = journal.find((r) => r.event_type === 'sak_opprettet');
+  const opplysningerI = (hendelse: string): Opplysningspost[] =>
+    u.opplysninger
+      .filter(({ opplysning: o }) => u.elementer[o.id]?.hendelse === hendelse)
+      .map(({ opplysning: o }) => {
+        const etiketter = (vist.opplysninger[o.id] ?? []).map(etikett);
+        const dato = o.hva === 'endringsordre' ? null : o.dato;
+        const tekster = etiketter.map((e) => e.tekst);
+        if (dato && tekster.length) tekster[0] += ` ${formatDateNorwegian(dato)}`;
+        return { id: o.id, dato, etiketter, tekst: tekster.join('. ') };
+      });
 
   return {
     tittel: typeof opprettet?.data.sakstittel === 'string' ? opprettet.data.sakstittel : null,
@@ -166,14 +206,19 @@ export function lagSaksbilde(
           .map((p) => ({ ...p, tekst: postTekst(p) })),
       };
     }),
-    journal: journal.map((r) => ({
-      hendelse: r.event_id,
-      versjon: r.versjon,
-      tidsstempel: r.tidsstempel,
-      tittel: journaltittel(r),
-      tolket: tolket.get(r.event_id) ?? false,
-      tekst: brevtekst(r),
-      oppdrag: oppdrag.filter((o) => o.event_id === r.event_id),
-    })),
+    journal: journal.map((r) => {
+      const erTolket = tolket.get(r.event_id) ?? false;
+      const tekst = brevtekst(r, erTolket);
+      return {
+        hendelse: r.event_id,
+        versjon: r.versjon,
+        tidsstempel: r.tidsstempel,
+        tittel: journaltittel(r, erTolket, tekst),
+        tolket: erTolket,
+        tekst,
+        opplysninger: opplysningerI(r.event_id),
+        oppdrag: oppdrag.filter((o) => o.event_id === r.event_id),
+      };
+    }),
   };
 }

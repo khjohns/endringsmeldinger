@@ -33,13 +33,14 @@ tilkobling() {
   echo "Server=127.0.0.1,$port;User Id=sa;Password=$1;Encrypt=true;TrustServerCertificate=true"
 }
 
-# Venter også mens Docker starter en krasjet server på nytt (`--restart
-# on-failure:3`, #525), men gir opp med en gang den ikke blir startet igjen.
-# Docker viser «restarting» til omstarten, så en container som står stoppet i
-# to kontroller på rad, er stoppet for godt (som etter `docker stop`). Hver
-# oppstart får 180 s, så fristen flyttes ved hver omstart (#563).
+# Serveren krasjer av og til i oppstarten, med stakken i `sqlpal.dll` og
+# `lsass.exe` (#525). En omstart i samme container har aldri reddet den, men en
+# ny container har gjort det. `vent` lager derfor en stoppet container på nytt,
+# med samme passord, inntil to ganger. `docker stop` gir også kode 137, så en
+# container stoppes for godt med `stopp`, som sletter den. Hver oppstart får
+# 180 s.
 vent() {
-  local tilstand status omstarter kode stoppet=0 sa_passord frist=$((SECONDS + 180)) sett=0
+  local tilstand status kode sa_passord frist=$((SECONDS + 180)) nye=0
   sa_passord="$(passord 2> /dev/null)" || sa_passord=""
   while ((SECONDS < frist)); do
     if docker exec "$navn" /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$sa_passord" \
@@ -47,27 +48,30 @@ vent() {
       return 0
     fi
     tilstand="$(docker container inspect \
-      --format '{{.State.Status}} {{.RestartCount}} {{.State.ExitCode}}' "$navn" 2> /dev/null)" \
-      || tilstand="mangler 0 0"
-    read -r status omstarter kode <<< "$tilstand"
-    if ((omstarter > sett)); then
-      sett=$omstarter
-      frist=$((SECONDS + 180))
-    fi
-    if [[ "$status" =~ ^(exited|dead)$ ]]; then stoppet=$((stoppet + 1)); else stoppet=0; fi
+      --format '{{.State.Status}} {{.State.ExitCode}}' "$navn" 2> /dev/null)" \
+      || tilstand="mangler 0"
+    read -r status kode <<< "$tilstand"
     if [ "$status" = mangler ]; then
       echo "Containeren $navn finnes ikke." >&2
       return 1
     fi
-    if ((stoppet >= 2)) \
-      || { ((stoppet == 1)) && { ((omstarter >= 3)) || ((kode == 0)); }; }; then
-      echo "SQL Server i $navn stoppet ($status, avslutningskode $kode, $omstarter omstarter)." >&2
+    if [[ "$status" =~ ^(exited|dead)$ ]]; then
+      if [ "$status" = exited ] && ((nye < 2)) && [ -n "$sa_passord" ]; then
+        nye=$((nye + 1))
+        echo "SQL Server i $navn stoppet (avslutningskode $kode). Lager containeren på nytt ($nye av 2)." >&2
+        docker logs "$navn" 2>&1 | grep -A3 'fatal error' | tail -20 >&2 || true
+        docker rm --force "$navn" > /dev/null
+        KOE_SQLSERVER_SA_PASSORD="$sa_passord" opprett
+        frist=$((SECONDS + 180))
+        continue
+      fi
+      echo "SQL Server i $navn stoppet ($status, avslutningskode $kode, $nye nye containere)." >&2
       docker logs "$navn" 2>&1 | tail -40 >&2
       return 1
     fi
     sleep 1
   done
-  echo "SQL Server i $navn svarte ikke på 180 s etter oppstart nummer $((sett + 1))." >&2
+  echo "SQL Server i $navn svarte ikke på 180 s etter oppstart nummer $((nye + 1))." >&2
   docker logs "$navn" 2>&1 | tail -20 >&2
   return 1
 }
@@ -79,10 +83,9 @@ opprett() {
   fi
   "$rot/scripts/ci/hent_bilde.sh" "$sqlserver_bilde" "$sqlserver_bilde" >&2
   # Passordet må oppfylle kravene i SQL Server: store og små bokstaver, tall og tegn.
-  # Serveren krasjet to ganger i oppstarten i skyøkta 15.10 (lsass, errno 11), så
-  # Docker starter den på nytt.
+  # Uten omstart i Docker: `vent` lager en krasjet container på nytt (#525).
   docker run --detach --name "$navn" \
-    --env ACCEPT_EULA=Y --env MSSQL_PID=Developer --restart on-failure:3 \
+    --env ACCEPT_EULA=Y --env MSSQL_PID=Developer \
     --env MSSQL_SA_PASSWORD="${KOE_SQLSERVER_SA_PASSORD:-Koe-$(head -c 12 /dev/urandom | od -An -tx1 | tr -d ' \n')-Aa1}" \
     --publish "127.0.0.1:$port:1433" \
     "$sqlserver_bilde" > /dev/null

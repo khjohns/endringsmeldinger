@@ -38,5 +38,18 @@
       onclick={() => void kjernesak.provIgjen()}>Prøv igjen</button
     >
   </div>
+{:else if kjernesak.utdatert}
+  <!-- #719: brevet er lagret, men saken som vises, er lastet før det. Årsaken står i Kontrollrommet. -->
+  <div
+    role="status"
+    class="flex items-center gap-3 border-b border-amber-300 bg-amber-50 p-2 text-sm"
+  >
+    <p>Saken som vises, er ikke oppdatert etter det siste brevet.</p>
+    <button
+      type="button"
+      class="rounded border border-amber-400 px-2 py-1"
+      onclick={() => void kjernesak.last()}>Last saken på nytt</button
+    >
+  </div>
 {/if}
 <Kontrollrommet {view} {onviewchange} {onnewcase} overviewHref="/{projectId}" />

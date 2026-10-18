@@ -555,19 +555,46 @@ def _nevner(navn: str, tekst: str) -> bool:
     return bool(re.search(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst))
 
 
-_TIL_ANBEFALINGEN = re.compile(r"(?:^|[.!\n])\s*ja til (?:alle )?anbefaling(?:en|ene)(?!\w)", re.IGNORECASE)
-_FORBEHOLD = re.compile(
-    r"(?<!\w)(?:ikke|ikkje|nei|men|unntatt|untatt|unntak|utenom|bortsett|feil)(?!\w)", re.IGNORECASE
+_TIL_ANBEFALINGEN = re.compile(
+    r"(?:^|[.!?:\n])\s*[«\"]?\s*ja til (?:alle )?anbefaling(?:en|ene)(?!\w)", re.IGNORECASE
 )
+_FORBEHOLD_ORD = (
+    r"(?:ikke|ikkje|nei|men|unntatt|untatt|unntak|utenom|bortsett|feil|forbehold|bare|kun|dersom|hvis"
+    r"|med\s+mindre|så\s+nær\s+som)"
+)
+_FORBEHOLD = re.compile(rf"(?<!\w){_FORBEHOLD_ORD}(?!\w)", re.IGNORECASE)
+_FORBEHOLD_FOERST = re.compile(rf"\s*[«\"]?\s*({_FORBEHOLD_ORD})(?!\w)", re.IGNORECASE)
+_SETNINGSSLUTT = re.compile(r"[.!?\n]")
+
+
+def _forbeholdet(svar: str) -> str | None:
+    """Ordet som hindrer at svaret slutter seg til anbefalingen, eller None (#604, #759).
+
+    Ordet leses i setningen med «Ja til anbefalingen» og foran den, og i en senere setning
+    bare når den begynner med ordet, som «Men ikke for punkt 3».
+    """
+    treff = _TIL_ANBEFALINGEN.search(svar)
+    if not treff:
+        return None
+    slutt = _SETNINGSSLUTT.search(svar, treff.end())
+    grense = slutt.start() if slutt else len(svar)
+    ord_ = _FORBEHOLD.search(svar, treff.start(), grense) or _FORBEHOLD.search(svar, 0, treff.start())
+    if ord_:
+        return ord_.group(0)
+    for setning in _SETNINGSSLUTT.split(svar[grense:]):
+        if ord_ := _FORBEHOLD_FOERST.match(setning):
+            return ord_.group(1)
+    return None
 
 
 def _slutter_seg_til_anbefalingen(svar: str) -> bool:
     """Et svar som begynner en setning med «Ja til anbefalingen» eller «Ja til alle anbefalingene» (#486).
 
-    Et ord som avviser eller tar forbehold, som «ikke», «men» eller «unntatt», et sted i
-    svaret gjør at det ikke regnes som tilslutning (#604). Da må svaret nevne alternativet.
+    En setning kan også begynne etter et kolon eller et anførselstegn. Et ord som avviser
+    eller tar forbehold, som «ikke», «men» eller «dersom», gjør at det ikke regnes som
+    tilslutning (#604, `_forbeholdet`). Da må svaret nevne alternativet.
     """
-    return bool(_TIL_ANBEFALINGEN.search(svar)) and not _FORBEHOLD.search(svar)
+    return bool(_TIL_ANBEFALINGEN.search(svar)) and _forbeholdet(svar) is None
 
 
 def _delfeil(p: dict, navn: str, deler: dict) -> list[str]:
@@ -641,7 +668,9 @@ def valider(register: dict) -> list[str]:
             slutter_seg = _slutter_seg_til_anbefalingen(p["svar"])
             if not _nevner(p["valgt"], p["svar"]) and not (anbefalte == [p["valgt"]] and slutter_seg):
                 grunn = ""
-                if slutter_seg:
+                if forbehold := _forbeholdet(p["svar"]):
+                    grunn = f", og «{forbehold}» gjør at svaret ikke slutter seg til anbefalingen"
+                elif slutter_seg:
                     if not anbefalte:
                         grunn = ", og ingen alternativer er merket anbefalt"
                     elif p["valgt"] not in anbefalte:

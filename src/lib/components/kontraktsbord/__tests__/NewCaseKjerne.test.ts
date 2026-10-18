@@ -268,23 +268,55 @@ describe('skjemaet for ny sak på TS-stien', () => {
     expect(sendKommando).not.toHaveBeenCalled();
   });
 
-  it('viser avvisningen DATO_ETTER_BREVET med meldingen fra serveren og beholder verdiene (VS-U26)', async () => {
+  // Kilde: VS-U26 og #711 p1: reglene for kravet prøves før saken opprettes.
+  it('avviser DATO_ETTER_BREVET før saken opprettes, uten brevkontroll, og beholder verdiene (VS-U26, #711)', async () => {
     const etter = '2999-01-01';
     seed({ datoer: { paalegg_mottatt: etter } });
-    const melding =
-      'TE har oppgitt at pålegget ble mottatt 1. januar 2999, etter brevets dato 16. oktober 2026.';
-    vi.mocked(sendKommando).mockRejectedValue(
-      new ApiError(400, melding, { error: 'REGELBRUDD', rule: 'DATO_ETTER_BREVET' })
-    );
     const { screen, complete, actions } = vis();
     await waitFor(() => expect(actions()?.canSend).toBe(true));
     actions()!.send();
-    expect(await screen.findByRole('alert')).toHaveTextContent(melding);
-    // Kjernen lager ingen tekst for et krav den avviser, så TE får ingen brevkontroll.
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /TE har oppgitt at pålegget ble mottatt 1\. januar 2999, etter brevets dato/
+    );
     expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
-    const kommando = vi.mocked(sendKommando).mock.calls[0][3] as Record<string, unknown>;
-    expect(kommando).not.toHaveProperty('brevtekst');
+    expect(opprettSak).not.toHaveBeenCalled();
+    expect(sendKommando).not.toHaveBeenCalled();
     expect(complete).not.toHaveBeenCalled();
     expect(screen.getByLabelText('Når ble pålegget mottatt?')).toHaveValue(etter);
+  });
+
+  // Kilde: #816 p2. «Prøv igjen» sender det som ble sendt, så skjemaet kan ikke endres imens.
+  it('låser feltene mens et forsøk med usikkert utfall venter, og låser dem opp etter et sikkert svar', async () => {
+    vi.mocked(opprettSak)
+      .mockRejectedValueOnce(new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' }))
+      .mockRejectedValueOnce(new ApiError(400, 'Prosjektet tar ikke imot saker.'));
+    const { screen, actions } = vis();
+    await waitFor(() => expect(actions()?.canSend).toBe(true));
+    const felt = () => screen.getByTestId('skjemafelt').inert;
+    expect(felt()).toBe(false);
+    actions()!.send();
+    expect(await screen.findByRole('status')).toHaveTextContent('Skjemaet er låst');
+    expect(felt()).toBe(true);
+
+    actions()!.send();
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('Prosjektet tar ikke imot saker.')
+    );
+    await waitFor(() => expect(felt()).toBe(false));
+  });
+
+  // Kilde: #705 og #711 p3: siden er leserens side fra serveren, ikke fast TE.
+  it('bruker leserens side fra serveren, og sender ikke kravet uten side', async () => {
+    const lest = await vi.mocked(hentKjernesak).getMockImplementation()!(SAK, 'project');
+    vi.mocked(hentKjernesak).mockResolvedValue({ ...lest, part: null });
+    const { screen, complete, actions } = vis();
+    await waitFor(() => expect(actions()?.canSend).toBe(true));
+    actions()!.send();
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Du har ingen kontraktsside i saken og kan ikke sende brev i den.'
+    );
+    expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
+    expect(sendKommando).not.toHaveBeenCalled();
+    expect(complete).not.toHaveBeenCalled();
   });
 });

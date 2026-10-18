@@ -1,6 +1,9 @@
 /**
- * `avvisning(kommando, part, u)`: kommandovalideringen, delt i forutsetningene
- * og nyttelastkontrollen (2.6 i modellforslaget). Serveren legger til
+ * `avvisning(kommando, part, u, regler, svarstandpunkter, utdypningKreves)`:
+ * kommandovalideringen, delt i forutsetningene og nyttelastkontrollen (2.6 i
+ * modellforslaget). `regler` er regelsettet svarene regnes ut med, og
+ * `svarstandpunkter` gir standpunktene i et svar fra utregningen, slik skrivingen
+ * lagrer dem. `utdypningKreves` er usann i forhåndsvisningen. Serveren legger til
  * prosjekt, team og kontraktsside før kjernen spørres; kjernen får parten.
  */
 
