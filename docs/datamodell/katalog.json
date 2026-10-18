@@ -1196,6 +1196,23 @@
     "unike_indekser": [],
     "fremmednøkler": []
    },
+   "koe.prosjekt_med_saker": {
+    "kolonner": [
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["created_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["prosjekt_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["prosjekt_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.sak_catenda_topic": {
     "kolonner": [
      ["sak_id", "nvarchar(36)", "NOT NULL"],
