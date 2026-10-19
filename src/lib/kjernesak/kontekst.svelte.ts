@@ -36,8 +36,8 @@ const USIKKERT = 'Det er usikkert om brevet ble lagret. Prøv igjen: det lagres 
 
 export interface Kjernesakvalg {
   sakId: string;
-  /** Prosjektet fra ruta, for lesingen og kommandoene. Uten det brukes det aktive prosjektet. */
-  prosjektId?: string;
+  /** Prosjektet fra ruta, for lesingen og kommandoene (#743). */
+  prosjektId: string;
   /**
    * Siden brevteksten forhåndsvises for, før saken er lastet eller i prøvene. Uten
    * den brukes leserens side fra serveren (#705). Uten side tilbys ingen handling.
@@ -189,6 +189,14 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     }
   }
 
+  /**
+   * Fjerner feilen når brukeren avbryter (#719). Meldingen om et usikkert utfall står til
+   * «Prøv igjen» har fått svar, for kommandoen kan være lagret.
+   */
+  function fjernFeil() {
+    feil = ventende ? USIKKERT : null;
+  }
+
   return {
     sakId,
     get part() {
@@ -240,6 +248,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     brevtekst,
     send: sendMedBrev,
     provIgjen,
+    fjernFeil,
   };
 }
 

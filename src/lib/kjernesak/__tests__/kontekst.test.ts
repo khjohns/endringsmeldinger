@@ -88,7 +88,12 @@ const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): Kjernesak 
 describe('sakskonteksten for en TS-sak', () => {
   it('regner visningen og versjonen av journalen, ikke av visningen i svaret', async () => {
     const journal = [opprettet, skrevet(grunnlagskrav, [opprettet])];
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar(journal) });
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => svar(journal),
+    });
     await sak.last();
     expect(sak.versjon).toBe(2);
     expect(sak.visning).toEqual(visning(utledJournal(journal, KJERNE), KJERNE.regler));
@@ -98,8 +103,18 @@ describe('sakskonteksten for en TS-sak', () => {
   it('tilbyr parten det kjernen tilbyr for journalen, og svaret tilbys BH etter kravet (INV-MM-1)', async () => {
     const journal = [opprettet, skrevet(grunnlagskrav, [opprettet])];
     const u = utledJournal(journal, KJERNE);
-    const te = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar(journal) });
-    const bh = lagKjernesak({ sakId: SAK, part: 'BH', hent: async () => svar(journal) });
+    const te = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => svar(journal),
+    });
+    const bh = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'BH',
+      hent: async () => svar(journal),
+    });
     await Promise.all([te.last(), bh.last()]);
     expect(te.handlinger).toEqual(handlinger(u, 'TE'));
     expect(bh.handlinger).toEqual(handlinger(u, 'BH'));
@@ -109,8 +124,16 @@ describe('sakskonteksten for en TS-sak', () => {
 
   it('bruker leserens side fra serveren når ruta ikke oppgir en (#705)', async () => {
     const journal = [opprettet, skrevet(grunnlagskrav, [opprettet])];
-    const te = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, 'TE') });
-    const uten = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, null) });
+    const te = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(journal, 'TE'),
+    });
+    const uten = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(journal, null),
+    });
     expect(te.part).toBeNull();
     await Promise.all([te.last(), uten.last()]);
     expect(te.part).toBe('TE');
@@ -119,7 +142,12 @@ describe('sakskonteksten for en TS-sak', () => {
   });
 
   it('tilbyr ingen handling og lager ingen brevtekst uten kontraktsside', async () => {
-    const sak = lagKjernesak({ sakId: SAK, part: null, hent: async () => svar([opprettet]) });
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: null,
+      hent: async () => svar([opprettet]),
+    });
     await sak.last();
     expect(sak.visning).not.toBeNull();
     expect(sak.handlinger).toEqual([]);
@@ -130,7 +158,13 @@ describe('sakskonteksten for en TS-sak', () => {
     const send = vi
       .fn()
       .mockResolvedValue({ event_id: 'e-2', leveringsoppdrag: 'l-1', versjon: 2 });
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => svar([opprettet]),
+      send,
+    });
     await sak.last();
     const forventet = laastTekst(skrevet(grunnlagskrav, [opprettet]));
     expect(forventet?.length).toBeGreaterThan(0);
@@ -141,7 +175,7 @@ describe('sakskonteksten for en TS-sak', () => {
       1,
       expect.stringMatching(UUID),
       { ...grunnlagskrav, brevtekst: forventet },
-      undefined
+      'p-1'
     );
   });
 
@@ -165,7 +199,7 @@ describe('sakskonteksten for en TS-sak', () => {
       journal = [opprettet, skrevet(grunnlagskrav, [opprettet])];
       throw new ApiError(409, 'Saken er endret. Last den inn på nytt.');
     });
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent, send });
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
     await sak.last();
 
     expect(await sak.send(grunnlagskrav)).toBe(false);
@@ -180,7 +214,7 @@ describe('sakskonteksten for en TS-sak', () => {
     const send = vi.fn(async () => {
       throw new ApiError(400, 'Grunnlaget er allerede krevd.');
     });
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent, send });
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
     await sak.last();
 
     expect(await sak.send(grunnlagskrav)).toBe(false);
@@ -209,7 +243,7 @@ describe('sakskonteksten for en TS-sak', () => {
       .fn()
       .mockResolvedValueOnce(svar([opprettet]))
       .mockResolvedValueOnce(svar([opprettet, skrevet(grunnlagskrav, [opprettet])]));
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent, send });
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
     await sak.last();
 
     expect(await sak.send(grunnlagskrav)).toBe(false);
@@ -237,7 +271,13 @@ describe('sakskonteksten for en TS-sak', () => {
       )
       .mockRejectedValueOnce(new ApiError(504, 'Gateway Timeout'))
       .mockRejectedValueOnce(new ApiError(500, 'Uventet feil.', { error: 'INTERNAL_ERROR' }));
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => svar([opprettet]),
+      send,
+    });
     await sak.last();
 
     await sak.send(grunnlagskrav);
@@ -262,6 +302,7 @@ describe('sakskonteksten for en TS-sak', () => {
   it('sier at saken ikke finnes i TS når serveren svarer 404', async () => {
     const sak = lagKjernesak({
       sakId: SAK,
+      prosjektId: 'p-1',
       part: null,
       hent: async () => {
         throw new ApiError(404, 'Saken finnes ikke.');
@@ -275,6 +316,7 @@ describe('sakskonteksten for en TS-sak', () => {
   it('lar det være uavgjort om saken finnes når serveren svarer med en annen feil', async () => {
     const sak = lagKjernesak({
       sakId: SAK,
+      prosjektId: 'p-1',
       part: null,
       hent: async () => {
         throw new ApiError(503, 'Catenda svarte ikke.');
@@ -293,7 +335,7 @@ describe('sakskonteksten for en TS-sak', () => {
       .fn()
       .mockReturnValueOnce(new Promise<Kjernesak>((r) => (slipp = r)))
       .mockResolvedValueOnce(svar(nyere));
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent });
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent });
     const foerste = sak.last();
     expect(await sak.last()).toBe(true);
     slipp(svar([opprettet]));
@@ -311,7 +353,7 @@ describe('sakskonteksten for en TS-sak', () => {
       .mockResolvedValueOnce(svar([opprettet]))
       .mockRejectedValueOnce(new ApiError(404, 'Saken finnes ikke.'))
       .mockResolvedValueOnce(svar([opprettet, skrevet(grunnlagskrav, [opprettet])]));
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent, send });
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
     await sak.last();
 
     expect(await sak.send(grunnlagskrav)).toBe(true);
@@ -331,7 +373,13 @@ describe('sakskonteksten for en TS-sak', () => {
   // Kilde: #695 p3. En avvisning fra kjernen sendes ikke; serveren ville avvist den.
   it('sender ikke en kommando kjernen avviser, og sier hvorfor', async () => {
     const send = vi.fn();
-    const sak = lagKjernesak({ sakId: SAK, part: 'BH', hent: async () => svar([opprettet]), send });
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'BH',
+      hent: async () => svar([opprettet]),
+      send,
+    });
     await sak.last();
     expect(await sak.send(grunnlagskrav)).toBe(false);
     expect(send).not.toHaveBeenCalled();
@@ -342,7 +390,13 @@ describe('sakskonteksten for en TS-sak', () => {
   it('sier hvorfor når saken ikke er lastet, eller når et brev alt sendes', async () => {
     let slipp: () => void = () => {};
     const send = vi.fn(() => new Promise<never>((_, avvis) => (slipp = () => avvis(new Error()))));
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => svar([opprettet]),
+      send,
+    });
     expect(await sak.send(grunnlagskrav)).toBe(false);
     expect(sak.feil).toBe('Saken er ikke lastet. Last den på nytt og prøv igjen.');
 
@@ -357,7 +411,13 @@ describe('sakskonteksten for en TS-sak', () => {
   // Kilde: #816 p3. Uten meldingen står «Prøv igjen» alene.
   it('meldingen om et usikkert utfall står etter en ny lasting så lenge kommandoen venter', async () => {
     const send = vi.fn().mockRejectedValue(new ApiError(0, 'Network error'));
-    const sak = lagKjernesak({ sakId: SAK, part: 'TE', hent: async () => svar([opprettet]), send });
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => svar([opprettet]),
+      send,
+    });
     await sak.last();
     await sak.send(grunnlagskrav);
     await sak.last();
