@@ -1,5 +1,7 @@
-import { describe } from 'vitest';
+import { describe, vi } from 'vitest';
 import { bufferen } from '../../kjerne/tester/bufferprove.ts';
-import { TESTBASE_URL, testbasen } from './bane.ts';
+import { GRENSER, TESTBASE_URL, testbasen } from './bane.ts';
+
+vi.setConfig(GRENSER);
 
 describe.skipIf(!TESTBASE_URL)('mot testbasen', () => bufferen(testbasen));

@@ -1,6 +1,6 @@
 /**
  * Banene en test kjører i. Kjernen har banen i minnet; banen mot testbasen
- * står i `sprakprove/kjernelagring/baner.ts`, og samme suiter kjøres der.
+ * står i `sprakprove/kjernelagring/bane.ts`, og samme suiter kjøres der.
  */
 
 import { minnebuffer, type Bufferlager } from '../utledning/buffer.ts';
