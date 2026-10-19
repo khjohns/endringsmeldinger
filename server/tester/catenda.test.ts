@@ -369,6 +369,38 @@ describe('teammedlemmene', () => {
   });
 });
 
+describe('Catenda-prosjektet til et board (#836 punkt 2)', () => {
+  it('leser bimsync_project_id i boardets detaljer, normalisert', async () => {
+    const board = uuid(7);
+    svar = () => ({ json: { project_id: board, bimsync_project_id: PROSJEKT, name: 'KOE' } });
+    expect(await new CatendaOAuth(oppsett()).boardetsProsjekt(board, 't')).toBe(hex(PROSJEKT));
+    expect(mottatt[0].sti).toBe(`/opencde/bcf/3.0/projects/${board}`);
+    expect(mottatt[0].autorisasjon).toBe('Bearer t');
+  });
+
+  it('et ukjent board (404) gir null', async () => {
+    svar = () => ({ status: 404 });
+    expect(await new CatendaOAuth(oppsett()).boardetsProsjekt(uuid(7), 't')).toBeNull();
+  });
+
+  it.each([
+    ['uten gyldig bimsync_project_id', { project_id: uuid(7), bimsync_project_id: 'x' }],
+    ['for et annet board', { project_id: uuid(8), bimsync_project_id: PROSJEKT }],
+  ])('et svar %s avvises', async (_, json) => {
+    svar = () => ({ json });
+    await expect(new CatendaOAuth(oppsett()).boardetsProsjekt(uuid(7), 't')).rejects.toBeInstanceOf(
+      CatendaUtilgjengelig
+    );
+  });
+
+  it('en board-ID som ikke er en UUID, når ikke Catenda', async () => {
+    await expect(
+      new CatendaOAuth(oppsett()).boardetsProsjekt('x/../y', 't')
+    ).rejects.toBeInstanceOf(RangeError);
+    expect(mottatt).toHaveLength(0);
+  });
+});
+
 function jwt(exp: number): string {
   const del = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
   return `${del({ alg: 'none' })}.${del({ exp })}.signatur`;
@@ -685,6 +717,16 @@ describe('oppsettet fra miljøet', () => {
     const { oauth, integrasjonsnokkel } = catendaFraMiljoe(miljoe);
     expect(new URL(oauth.autorisasjonsadresse('s')).origin).toBe('https://api.catenda.com');
     expect(integrasjonsnokkel).toBeInstanceOf(Integrasjonsnokkel);
+  });
+
+  it('sender tilbakekallsadressen normalisert, som frontenden i innloggingen (#854 punkt 4)', () => {
+    const { oauth } = catendaFraMiljoe({
+      ...miljoe,
+      CATENDA_LOGIN_REDIRECT_URI: 'https://Endring.øbf.example:443/api/auth/catenda/callback',
+    });
+    expect(new URL(oauth.autorisasjonsadresse('s')).searchParams.get('redirect_uri')).toBe(
+      'https://endring.xn--bf-kka.example/api/auth/catenda/callback'
+    );
   });
 
   it.each(['CATENDA_CLIENT_ID', 'CATENDA_CLIENT_SECRET', 'CATENDA_LOGIN_REDIRECT_URI'])(

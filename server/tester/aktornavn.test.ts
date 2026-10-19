@@ -76,7 +76,12 @@ describe.skipIf(!TESTBASE_URL)('navnet bak hendelsen i visningen av saken (#104)
     await rett('REVOKE EXECUTE ON koe_api.aktornavn FROM koe_runtime');
     try {
       expect((await journalen(o.bh))[0].aktor_navn).toBe(o.te.id);
-      expect(advarsel).toHaveBeenCalledWith(expect.stringContaining('Navneoppslaget'));
+      expect(advarsel).toHaveBeenCalledOnce();
+      // Loggen sier hvorfor oppslaget feilet, med feilnummeret, og har ingen navn (#835 punkt 3).
+      const [linje] = advarsel.mock.calls[0] as [string];
+      expect(linje).toContain('Navneoppslaget');
+      expect(linje).toContain('feilnummer 229');
+      expect(linje).not.toContain('Kari');
     } finally {
       await rett('GRANT EXECUTE ON koe_api.aktornavn TO koe_runtime');
       advarsel.mockRestore();
