@@ -10,7 +10,52 @@ Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 
 **Ansvarlig:** repoeieren (khjohns). Tillatelseslisten følger Catenda-kallene i
 `docs/datamodell/dataflyt.toml`. Får integrasjonen et nytt kall, må det inn i
-`TILLATT` og i `broker.test.ts`.
+`TILLATT` og i `broker.test.ts`. Slettingen av topics, dokumentreferanser og items
+er bare for live-testene, som rydder etter seg. Appen sletter ingen av dem, så de
+står ikke i `dataflyt.toml`.
+
+## Slettingen
+
+Testprosjektet er delt, så sletting skal aldri treffe andres filer eller topics. Live-testene
+navngir alt de oppretter med prefikset `koe-livetest-` (`LIVETESTPREFIKS` i `broker.ts`).
+Før en sletting slår brokeren opp ressursen med Catenda-tokenet og sletter bare når:
+
+- et item har `name` som begynner med prefikset, og `parentId` er `CATENDA_MAPPE_ID`
+- en topic har `title` som begynner med prefikset
+- en dokumentreferanse står i lista over referanser på en topic der `title` begynner
+  med prefikset
+
+Ellers svarer brokeren 403 uten å slette. Gir oppslaget noe annet enn 200, får økta
+Catendas svar, og ingenting slettes. Et kall med query eller `Bimsync-Params` avvises.
+
+En PUT på en topic tolkes strengt som et JSON-objekt i UTF-8 og sendes til Catenda i
+kanonisk form (`JSON.stringify` av det som ble tolket, med `Content-Type: application/json`).
+En kropp som ikke er et JSON-objekt, er i et annet tegnsett, begynner med BOM, er større enn
+64 KiB eller har mer enn 32 nivåer av objekter og lister, avvises. Kroppen leses ikke
+lenger enn til den biten som går over grensen.
+Kan en nøkkel eller streng i kroppen bli prefikset, må topicen ha prefikset fra før.
+Strengen sammenlignes med `koelivetest` bare på bokstaver og sifre, etter at prosentkoding,
+tallentiteter og tagger er dekodet eller fjernet, med NFKC og små bokstaver. Hver form
+underveis sammenlignes, i den rekkefølgen brokeren dekoder: NFKC, prosentkoding,
+tallentiteter, så tagger fra en «<» til neste «>». Det
+hindrer at en økt gir en annens topic prefikset og så sletter den.
+
+Mappen `CATENDA_MAPPE_ID` skal bare brukes av live-testene. En undermappe med prefiks
+rett under den kan slettes, og Catenda sletter da innholdet med.
+
+### Hva brokeren ikke hindrer
+
+- PUT og DELETE på `related_topics` kontrolleres ikke mot prefiks. En økt kan endre
+  koblinger på andres topics på testboardet. Koblinger kan settes tilbake, men ingenting
+  varsler om endringen. Vurderes på nytt når relasjonene flyttes til TS (FK, #902).
+- Kontrollen av PUT på en topic forutsetter at Catenda lagrer tittelen slik den ble sendt,
+  bortsett fra det kontrollen selv dekoder og normaliserer. Fjerner Catenda andre tegn eller
+  dekoder andre former, kan en økt likevel gi en annens topic prefikset. Eksempler som ikke
+  fanges: navngitte entiteter (`&kopf;`), ugyldige UTF-8-bytes blandet med gyldige i
+  prosentkoding, en tagg med «>» i et attributt (`koe-<a title="x>y">livetest`), og former
+  som bare oppstår når tagger fjernes før entiteter dekodes (`koe-&#60;live<b>test>`).
+- Oppslaget og slettingen er to kall. Flyttes et item ut av testmappen eller får en
+  topic ny tittel mellom dem, slettes ressursen likevel.
 
 ## Hemmelighetene
 
@@ -20,6 +65,11 @@ Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 | `CATENDA_CLIENT_ID`, `CATENDA_CLIENT_SECRET` | Integrasjonens nøkkel i Catenda |
 | `CATENDA_PROSJEKT_ID` | Testprosjektets ID i `/v2/projects/…` |
 | `CATENDA_TOPIC_BOARD_ID` | Testprosjektets topic board i `/opencde/bcf/3.0/projects/…` |
+| `CATENDA_BIBLIOTEK_ID` | Biblioteket live-testene sletter items i, samme verdi som `CATENDA_LIBRARY_ID` i skymiljøet |
+| `CATENDA_MAPPE_ID` | Mappen i biblioteket der live-testene sletter items, samme verdi som `CATENDA_FOLDER_ID` i skymiljøet |
+
+Mangler `CATENDA_BIBLIOTEK_ID` eller `CATENDA_MAPPE_ID`, avvises sletting av items,
+og ingenting annet endres. Prefikset er en konstant i koden, ikke en hemmelighet.
 
 Settes fra egen maskin, aldri fra en skyøkt. Verdiene skrives ikke i issues,
 PR-er eller chat.
@@ -74,6 +124,11 @@ Cloudflare-kontoen. Repoet ruller ikke ut noe av seg selv.
 tillatelseslisten og videresendingen mot en fetch-dobbel. Det testene ikke
 prøver: at Catenda godtar de videresendte kallene, og at verten er tillatt
 fra skyøkta. Det prøves fra skyøkta etter utrullingen.
+
+Brokerens egne avvisninger har en kropp, så de skilles fra Catendas 401 og 403:
+`{"feil": "brokernoekkel"}` (401) betyr at brokernøkkelen mangler eller er feil, og
+`{"feil": "broker_avviste"}` (403) at kallet ikke står i tillatelseslisten, eller at
+ressursen som skulle slettes, ikke oppfyller kravene under «Slettingen».
 
 En 502 fra brokeren har en kropp som sier hvilket steg som feilet:
 `{"feil": "tokenkall", "status": 401}` betyr at Catenda avviste brokerens
