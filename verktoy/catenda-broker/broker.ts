@@ -122,24 +122,38 @@ const sammeId = (a: unknown, b: string) =>
   typeof a === 'string' && (a.toLowerCase() === b.toLowerCase() || (catendaId(a) ?? 0) === catendaId(b));
 
 /**
- * En PUT på en topic sendes i kanonisk form: kroppen tolkes strengt som UTF-8-JSON og sendes
- * som `JSON.stringify` av resultatet. Da ser Catenda det samme som kontrollen, uten dupliserte
- * nøkler, escapes eller annet tegnsett. Kan kroppen ikke tolkes, gir det `null`.
+ * En PUT på en topic sendes i kanonisk form: kroppen tolkes strengt som et JSON-objekt i UTF-8
+ * og sendes som `JSON.stringify` av resultatet. Da ser Catenda det samme som kontrollen, uten
+ * dupliserte nøkler eller annet tegnsett. Kan kroppen ikke tolkes slik, gir det `null`.
  */
-function kanoniskJson(kropp: ArrayBuffer | undefined): string | null {
+function tolketKropp(kropp: ArrayBuffer | undefined): { verdi: object; tekst: string } | null {
   try {
     const verdi: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(kropp));
-    return typeof verdi === 'object' && verdi !== null && !Array.isArray(verdi) ? JSON.stringify(verdi) : null;
+    if (typeof verdi !== 'object' || verdi === null || Array.isArray(verdi)) return null;
+    return { verdi, tekst: JSON.stringify(verdi) };
   } catch {
     return null;
   }
+}
+
+const USYNLIG = /[\p{Cc}\p{Cf}\p{Cs}\p{Z}\s]/gu;
+
+/**
+ * Om en nøkkel eller streng i verdien kan bli prefikset når Catenda lagrer den: etter NFKC,
+ * uten kontroll-, format-, surrogat- og mellomromstegn og med små bokstaver.
+ */
+function kanGiPrefiks(verdi: unknown): boolean {
+  if (typeof verdi === 'string')
+    return verdi.replace(USYNLIG, '').normalize('NFKC').replace(USYNLIG, '').toLowerCase().includes(LIVETESTPREFIKS);
+  if (typeof verdi !== 'object' || verdi === null) return false;
+  return Object.entries(verdi).some(([nokkel, v]) => kanGiPrefiks(nokkel) || kanGiPrefiks(v));
 }
 
 /**
  * Oppslagene i Catenda som alle må gi 200 og oppfylle kravet før kallet sendes. En PUT som
  * gir en topic prefikset, krever at den har det fra før, så prefikssperren ikke kan omgås.
  */
-function oppslagene(foersjekk: Foersjekk, sti: string, miljoe: Miljoe, kropp: string | undefined): Oppslag[] {
+function oppslagene(foersjekk: Foersjekk, sti: string, miljoe: Miljoe, kropp: object | undefined): Oppslag[] {
   const mappe = mappeId(miljoe);
   switch (foersjekk) {
     case 'item':
@@ -164,9 +178,7 @@ function oppslagene(foersjekk: Foersjekk, sti: string, miljoe: Miljoe, kropp: st
       ];
     }
     case 'topicendring':
-      // Prefikset hvor som helst i den kanoniske kroppen, i alle felt og uansett store og små
-      // bokstaver, krever at topicen har det fra før.
-      return kropp?.toLowerCase().includes(LIVETESTPREFIKS) ? [{ sti, krav: (r) => harPrefiks(r.title) }] : [];
+      return kanGiPrefiks(kropp) ? [{ sti, krav: (r) => harPrefiks(r.title) }] : [];
   }
 }
 
@@ -291,9 +303,9 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
 
     const harKropp = !['GET', 'HEAD'].includes(foresp.method);
     const raa = harKropp ? await foresp.arrayBuffer() : undefined;
-    const kanonisk = regel.foersjekk === 'topicendring' ? kanoniskJson(raa) : undefined;
+    const kanonisk = regel.foersjekk === 'topicendring' ? tolketKropp(raa) : undefined;
     if (kanonisk === null) return svar(403, { feil: 'broker_avviste' });
-    const kropp = kanonisk ?? raa;
+    const kropp = kanonisk?.tekst ?? raa;
 
     let token: string;
     try {
@@ -302,7 +314,7 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       // Bare steget og Catendas statuskode, så en 502 kan feilsøkes fra økta (#806).
       return svar(502, { feil: 'tokenkall', status: feil instanceof Tokenfeil ? feil.status : 0 });
     }
-    for (const { sti, krav } of regel.foersjekk ? oppslagene(regel.foersjekk, adresse.pathname, miljoe, kanonisk) : []) {
+    for (const { sti, krav } of regel.foersjekk ? oppslagene(regel.foersjekk, adresse.pathname, miljoe, kanonisk?.verdi) : []) {
       let oppslag: Response;
       try {
         oppslag = await hent(CATENDA + sti, {

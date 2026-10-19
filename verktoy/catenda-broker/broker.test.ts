@@ -291,7 +291,8 @@ describe('endringen av en topic', () => {
   const metoder = () => ut().map((k) => k.init.method);
   const sendt = (i: number) => {
     const kropp = ut()[i].init.body;
-    return typeof kropp === 'string' ? kropp : new TextDecoder().decode(kropp as ArrayBuffer);
+    expect(typeof kropp).toBe('string');
+    return kropp as string;
   };
   const put = (kropp: BodyInit, type = 'application/json', hoder: Record<string, string> = {}) =>
     new Request(`https://broker.example${TOPICSTI}`, {
@@ -309,6 +310,13 @@ describe('endringen av en topic', () => {
     ['prefikset med store bokstaver', JSON.stringify({ title: `${P.toUpperCase()}x` })],
     ['prefikset i et annet felt', JSON.stringify({ description: `${P}x` })],
     ['prefikset skrevet med escape', '{"title":"\\u006boe-livetest-x"}'],
+    ['prefikset delt av NUL', '{"title":"koe-\\u0000livetest-x"}'],
+    ['prefikset delt av et ensomt surrogat', '{"title":"koe-\\ud800livetest-x"}'],
+    ['prefikset delt av myk bindestrek', '{"title":"koe\\u00ad-livetest-x"}'],
+    ['prefikset delt av nullbreddes mellomrom', '{"title":"koe-\\u200blivetest-x"}'],
+    ['prefikset med fullbreddes bokstaver', JSON.stringify({ title: 'ｋｏｅ-livetest-x' })],
+    ['prefikset i en nøkkel', JSON.stringify({ [`${P}x`]: 'y' })],
+    ['prefikset i en liste', JSON.stringify({ labels: ['a', `${P}x`] })],
   ])('slår opp og gir 403 uten PUT for %s når topicen er uten prefiks', async (_navn, kropp) => {
     catendasvar = topicUtenPrefiks;
     const s = await behandle(put(kropp), miljoe);
@@ -328,6 +336,8 @@ describe('endringen av en topic', () => {
   it.each([
     ['en tittel uten prefiks', JSON.stringify({ title: 'Ny tittel', topic_status: 'Closed' }), '{"title":"Ny tittel","topic_status":"Closed"}'],
     ['æøå skrevet med escape, som Python sender', '{"title": "Grunnforhold p\\u00e5 tomta"}', '{"title":"Grunnforhold på tomta"}'],
+    ['æøå i UTF-8', JSON.stringify({ title: 'Grunnforhold på tomta' }), '{"title":"Grunnforhold på tomta"}'],
+    ['ingen tittel', JSON.stringify({ topic_status: 'Closed' }), '{"topic_status":"Closed"}'],
     ['dupliserte titler, der den siste er uten prefiks', `{"title":"${P}x","title":"Ekte sak"}`, '{"title":"Ekte sak"}'],
   ])('sender PUT med %s uten oppslag, i kanonisk form', async (_navn, kropp, kanonisk) => {
     const s = await behandle(put(kropp, 'application/json; charset=utf-7'), miljoe);
@@ -342,6 +352,7 @@ describe('endringen av en topic', () => {
     ['er skjemakodet', `title=%6Boe-livetest-x`, 'application/x-www-form-urlencoded'],
     ['har en ugyldig escape', '{"title":"k\\oe-livetest-x"}', 'application/json'],
     ['er en liste', '[]', 'application/json'],
+    ['er en streng', '"x"', 'application/json'],
     ['har BOM', '﻿{"title":"Ny"}', 'application/json'],
     ['er ugyldig UTF-8', new Uint8Array([0x7b, 0xff, 0x7d]), 'application/json'],
     ['er UTF-16', new Uint8Array([...'{"title":"x"}'].flatMap((t) => [t.charCodeAt(0), 0])), 'application/json; charset=utf-16'],

@@ -28,11 +28,12 @@ Før en sletting slår brokeren opp ressursen med Catenda-tokenet og sletter bar
 Ellers svarer brokeren 403 uten å slette. Gir oppslaget noe annet enn 200, får økta
 Catendas svar, og ingenting slettes. Et kall med query eller `Bimsync-Params` avvises.
 
-En PUT på en topic tolkes strengt som UTF-8-JSON og sendes til Catenda i kanonisk form
-(`JSON.stringify` av det som ble tolket, med `Content-Type: application/json`). Kan kroppen
-ikke tolkes, avvises PUT-en. Har den kanoniske kroppen prefikset noe sted, uansett store og
-små bokstaver, må topicen ha prefikset fra før. Det hindrer at en økt gir en annens topic
-prefikset og så sletter den.
+En PUT på en topic tolkes strengt som et JSON-objekt i UTF-8 og sendes til Catenda i
+kanonisk form (`JSON.stringify` av det som ble tolket, med `Content-Type: application/json`).
+En kropp som ikke er et JSON-objekt, er i et annet tegnsett eller begynner med BOM, avvises.
+Kan en nøkkel eller streng i kroppen bli prefikset, må topicen ha prefikset fra før. Strengen
+sammenlignes etter NFKC, uten kontroll-, format- og mellomromstegn og med små bokstaver. Det
+hindrer at en økt gir en annens topic prefikset og så sletter den.
 
 Mappen `CATENDA_MAPPE_ID` skal bare brukes av live-testene. En undermappe med prefiks
 rett under den kan slettes, og Catenda sletter da innholdet med.
