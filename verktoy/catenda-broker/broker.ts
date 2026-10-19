@@ -139,19 +139,19 @@ export class Tokenlager {
     let s: Response;
     try {
       s = await this.#hent(`${CATENDA}/oauth2/token`, {
-      method: 'POST',
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: miljoe.CATENDA_CLIENT_ID,
-        client_secret: miljoe.CATENDA_CLIENT_SECRET,
-      }),
-      redirect: 'manual',
+        method: 'POST',
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: miljoe.CATENDA_CLIENT_ID,
+          client_secret: miljoe.CATENDA_CLIENT_SECRET,
+        }),
+        redirect: 'manual',
       });
     } catch {
       throw new Tokenfeil(0);
     }
     if (s.status !== 200) {
-      await s.body?.cancel();
+      await s.body?.cancel().catch(() => {});
       throw new Tokenfeil(s.status);
     }
     const data = (await s.json().catch(() => ({}))) as {
