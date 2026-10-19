@@ -146,10 +146,12 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     const laget: { hva: string; sti: string }[] = [];
     /** Hvert kall klienten sendte i steg B, med status, eller hvorfor `fetch` kastet. */
     const sendt: { metode: string; sti: string; status: number | 'ikke sendt' | 'kastet' }[] = [];
+    /** Det som kan være laget uten at steg B fikk ID-en, og som derfor ikke kan slettes. */
+    const usikre: string[] = [];
     let maal: ReturnType<typeof dokumentmaal>;
-    let topic: string;
-    let dokument: string;
-    let dokumentnavn: string;
+    let topic: string | undefined;
+    let dokument: string | undefined;
+    let dokumentnavn: string | undefined;
 
     async function kall(metode: string, sti: string, json?: object): Promise<Response> {
       return fetch(adresse + sti, {
@@ -202,25 +204,51 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
         );
         if (status < 200 || status > 299) igjen.push(`${hva} (DELETE ga ${status})`);
       }
+      for (const hva of usikre) igjen.push(`kanskje ${hva} (utfallet var usikkert, ingen ID)`);
       if (igjen.length) throw new Error(`Ble liggende igjen i Catenda: ${igjen.join('; ')}`);
     });
 
     const sisteTil = (metode: string, slutt: string) =>
       [...sendt].reverse().find((k) => k.metode === metode && k.sti.endsWith(slutt))?.status;
 
+    /** En 4xx eller et kall som ikke ble sendt, har ikke laget noe. Alt annet kan ha det. */
+    const kanHaLaget = (status: (typeof sendt)[number]['status'] | undefined) =>
+      status !== 'ikke sendt' && !(typeof status === 'number' && status >= 400 && status < 500);
+
+    /** Kjører et kall som lager `hva`. Kaster det etter at noe kan ha blitt laget, navngis det i `afterAll`. */
+    async function lag<T>(hva: string, kall: () => Promise<T>): Promise<T> {
+      try {
+        return await kall();
+      } catch (feil) {
+        if (kanHaLaget(sendt.at(-1)?.status)) usikre.push(hva);
+        throw feil;
+      }
+    }
+
+    function krev<T>(verdi: T | undefined, hva: string): T {
+      if (verdi === undefined) throw new Error(`Forutsetningen mangler: ${hva}`);
+      return verdi;
+    }
+
     // topic-api-openapi.yaml, POST …/topics: svaret har topicens `guid`. Topic-typen er
     // `TOPICTYPE` (#741 punkt 15), og boardet må kjenne den.
     it('B1: opprettTopic gir en GUID, og topic-typen godtas på boardet', async () => {
       const tittel = `${PREFIKS}${randomUUID()}`;
-      topic = await oauth.opprettTopic(
-        board,
-        { tittel, beskrivelse: 'Live-test fra endringsmeldinger (#902). Slettes etter kjøringen.' },
-        token
+      const guid = await lag(`topic ${tittel}`, () =>
+        oauth.opprettTopic(
+          board,
+          {
+            tittel,
+            beskrivelse: 'Live-test fra endringsmeldinger (#902). Slettes etter kjøringen.',
+          },
+          token
+        )
       );
       laget.push({
         hva: `topic ${tittel}`,
-        sti: `/opencde/bcf/3.0/projects/${board}/topics/${topic}`,
+        sti: `/opencde/bcf/3.0/projects/${board}/topics/${guid}`,
       });
+      topic = guid;
       const lest = (await hent(`/opencde/bcf/3.0/projects/${board}/topics/${topic}`)) as {
         guid: string;
         title: string;
@@ -241,22 +269,27 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
           topic_type: TOPICTYPE,
         });
       const tittel = `${PREFIKS}${randomUUID()}`;
-      const foerste = await ny(tittel);
-      const svar = (await foerste.json()) as { guid?: string };
-      if (svar.guid)
+      const foerste = await lag(`topic ${tittel}`, () => ny(tittel));
+      // GUID-en er valgt her, så topicen kan slettes selv om svaret ikke kan leses.
+      if (foerste.ok)
         laget.push({
           hva: `topic ${tittel}`,
-          sti: `/opencde/bcf/3.0/projects/${board}/topics/${svar.guid}`,
+          sti: `/opencde/bcf/3.0/projects/${board}/topics/${guid}`,
         });
+      else if (kanHaLaget(foerste.status)) usikre.push(`topic ${tittel}`);
       expect(foerste.status).toBe(201);
-      expect(svar.guid).toBe(guid);
-      const andre = await ny(`${PREFIKS}${randomUUID()}`);
-      const andreSvar = (await andre.json().catch(() => null)) as { guid?: string } | null;
-      if (andre.ok && andreSvar?.guid && andreSvar.guid !== guid)
-        laget.push({
-          hva: 'topic med gjentatt GUID',
-          sti: `/opencde/bcf/3.0/projects/${board}/topics/${andreSvar.guid}`,
-        });
+      expect(((await foerste.json()) as { guid?: string }).guid).toBe(guid);
+      const andreTittel = `${PREFIKS}${randomUUID()}`;
+      const andre = await lag(`topic ${andreTittel}`, () => ny(andreTittel));
+      if (andre.ok) {
+        const annen = ((await andre.json().catch(() => ({}))) as { guid?: string }).guid;
+        if (annen && annen !== guid)
+          laget.push({
+            hva: `topic ${andreTittel}`,
+            sti: `/opencde/bcf/3.0/projects/${board}/topics/${annen}`,
+          });
+        else if (!annen) usikre.push(`topic ${andreTittel}`);
+      } else if (kanHaLaget(andre.status)) usikre.push(`topic ${andreTittel}`);
       expect(andre.status).toBe(400);
       const lest = (await hent(`/opencde/bcf/3.0/projects/${board}/topics/${guid}`)) as {
         title: string;
@@ -268,29 +301,31 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     // kompakt UUID (`library-item-document`). Samme navn i mappen med `failOnDocumentExists`
     // gir 409, som klienten gjør til `null` (B-03).
     it('B2: lastOppDokument gir en kompakt ID med 200, og samme navn igjen gir null (409)', async () => {
-      dokumentnavn = `${PREFIKS}${randomUUID()}.pdf`;
-      const id = await oauth.lastOppDokument(maal, { navn: dokumentnavn, innhold: PDF }, token);
-      if (id) laget.push({ hva: `dokument ${dokumentnavn}`, sti: `${itemsti(maal)}/${id}` });
+      const navn = `${PREFIKS}${randomUUID()}.pdf`;
+      const last = () =>
+        lag(`dokument ${navn}`, () => oauth.lastOppDokument(maal, { navn, innhold: PDF }, token));
+      const id = await last();
+      if (id) laget.push({ hva: `dokument ${navn}`, sti: `${itemsti(maal)}/${id}` });
       expect(sisteTil('POST', '/items')).toBe(200);
       expect(id).toMatch(/^[0-9a-f]{32}$/);
       dokument = id!;
-      expect(
-        await oauth.lastOppDokument(maal, { navn: dokumentnavn, innhold: PDF }, token)
-      ).toBeNull();
+      dokumentnavn = navn;
+      expect(await last()).toBeNull();
       expect(sisteTil('POST', '/items')).toBe(409);
       const lest = (await hent(`${itemsti(maal)}/${dokument}`)) as {
         name: string;
         parentId: string;
       };
       expect({ navn: lest.name, mappe: catendaId(lest.parentId) }).toEqual({
-        navn: dokumentnavn,
+        navn,
         mappe: catendaId(process.env.CATENDA_FOLDER_ID),
       });
     });
 
     // document-api-openapi.yaml, getLibraryItems med `parentId` og `scope`.
     it('B3: finnDokument finner det opplastede dokumentet', async () => {
-      expect(await oauth.finnDokument(maal, dokumentnavn, token)).toBe(dokument);
+      const navn = krev(dokumentnavn, 'dokumentet fra B2');
+      expect(await oauth.finnDokument(maal, navn, token)).toBe(dokument);
     });
 
     // document-api-openapi.yaml, `search` på getLibraryItems: «Filter the result by search
@@ -298,11 +333,12 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     // mappen (#783 punkt 1). Øyeblikksbildet sier ikke om søket er eksakt, så `finnDokument`
     // må fortsatt sammenligne navnet selv.
     it('B3: search filtrerer på navnet hos Catenda (#783)', async () => {
+      const navn = krev(dokumentnavn, 'dokumentet fra B2');
       const med = (sok: string) =>
         hent(
           `${itemsti(maal)}?${new URLSearchParams({ scope: 'all', parentId: maal.folder_id!, search: sok })}`
         ) as Promise<{ id: string }[]>;
-      expect((await med(dokumentnavn)).map((r) => r.id)).toEqual([dokument]);
+      expect((await med(navn)).map((r) => r.id)).toEqual([dokument]);
       expect(await med(`${PREFIKS}${randomUUID()}.pdf`)).toEqual([]);
     });
 
@@ -310,13 +346,18 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     // `guid`, og lista har `document_guid`. ID-en fra biblioteket må sendes som UUID med
     // bindestreker (#902, `bcfDokumentId`).
     it('B4: opprettDokumentreferanse gir en GUID, og dokumentreferanser finner den med samme dokument-ID', async () => {
-      const referanse = await oauth.opprettDokumentreferanse(board, topic, dokument, token);
+      const paa = krev(topic, 'topicen fra B1');
+      const til = krev(dokument, 'dokumentet fra B2');
+      const hva = `dokumentreferanse til ${dokumentnavn}`;
+      const referanse = await lag(hva, () =>
+        oauth.opprettDokumentreferanse(board, paa, til, token)
+      );
       laget.push({
-        hva: `dokumentreferanse til ${dokumentnavn}`,
-        sti: `/opencde/bcf/3.0/projects/${board}/topics/${topic}/document_references/${referanse}`,
+        hva,
+        sti: `/opencde/bcf/3.0/projects/${board}/topics/${paa}/document_references/${referanse}`,
       });
-      expect(await oauth.dokumentreferanser(board, topic, token)).toEqual([
-        { id: referanse, dokumentId: sammenlignbarDokumentId(dokument) },
+      expect(await oauth.dokumentreferanser(board, paa, token)).toEqual([
+        { id: referanse, dokumentId: sammenlignbarDokumentId(til) },
       ]);
     });
 
@@ -329,7 +370,9 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
         const navn = `${PREFIKS}${randomUUID()}-Łódź.pdf`;
         let id: string | null;
         try {
-          id = await oauth.lastOppDokument(maal, { navn, innhold: PDF }, token);
+          id = await lag(`dokument ${navn}`, () =>
+            oauth.lastOppDokument(maal, { navn, innhold: PDF }, token)
+          );
         } catch (feil) {
           if (feil instanceof UsikkertCatendautfall && sisteTil('POST', '/items') === 'ikke sendt')
             throw feil;
