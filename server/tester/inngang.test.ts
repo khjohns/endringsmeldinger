@@ -65,6 +65,33 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     expect(linje).not.toContain('Kari');
   });
 
+  it('et navn med linjeskift kommer ikke med i rammene', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loggFeil('Navnet', Object.assign(new Error('m'), { name: 'N\n    at Kari' }));
+    const [linje] = logg.mock.calls[0] as [string];
+    expect(linje).toMatch(/\n\s+at /);
+    expect(linje).not.toContain('Kari');
+  });
+
+  it('en melding endret etter at stakken ble laget, gir ingen rammer', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const feil = new Error('a\n    at Kari token=hemmelig');
+    void feil.stack;
+    feil.message = 'kort';
+    loggFeil('Endret', feil);
+    expect(logg).toHaveBeenCalledWith('Endret (Error)');
+  });
+
+  it('null og undefined gir typen', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loggFeil('Ingen årsak', undefined);
+    loggFeil('Ingen årsak', null);
+    expect(logg.mock.calls.map(([l]) => l)).toEqual([
+      'Ingen årsak (undefined)',
+      'Ingen årsak (object)',
+    ]);
+  });
+
   it('en verdi som ikke er en feil, gir typen', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     loggFeil('Svaret kunne ikke skrives', 'token=hemmelig');

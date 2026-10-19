@@ -37,13 +37,16 @@ export function loggFeil(hvor: string, feil: unknown): void {
   const klasse = (feil as Error)?.constructor?.name ?? typeof feil;
   const nummer = feilnummer(feil);
   const stakk = typeof (feil as Error)?.stack === 'string' ? (feil as Error).stack! : '';
-  // Stakken begynner med meldingen; en linje i den kan også begynne med «at».
-  const meldingslinjer = String((feil as Error).message ?? '').split('\n').length;
-  const rammer = stakk
-    .split('\n')
-    .slice(meldingslinjer)
-    .filter((l) => /^\s+at /.test(l))
-    .join('\n');
+  // Stakken begynner med navnet og meldingen, og en linje i dem kan også begynne med
+  // «at». Begynner den ikke med dem slik de er nå, logges ingen rammer.
+  const hode = stakk ? Error.prototype.toString.call(feil) : '';
+  const rammer = stakk.startsWith(hode)
+    ? stakk
+        .slice(hode.length)
+        .split('\n')
+        .filter((l) => /^\s+at /.test(l))
+        .join('\n')
+    : '';
   console.error(
     `${hvor} (${klasse}${nummer === undefined ? '' : `, feilnummer ${nummer}`})${rammer ? `\n${rammer}` : ''}`
   );

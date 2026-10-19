@@ -232,14 +232,15 @@ const hentinger = new WeakMap<Pool, Map<string, Promise<Synkronisering>>>();
  * (#858 punkt 1). Er det ingen slik liste, kaster den, også når en annen skrev
  * først (#707, kommentar a).
  *
- * Returnerer synkroniseringen når denne forespørselen startet den, ellers `null`.
+ * Returnerer synkroniseringen, uten `hentet`, når denne forespørselen startet
+ * den, ellers `null`.
  */
 async function oppdaterMedlemslisten(
   db: Pool,
   catenda: Catenda,
   prosjekt: string,
   catendaProsjekt: string
-): Promise<Synkronisering | null> {
+): Promise<Omit<Synkronisering, 'hentet'> | null> {
   const sist = await medlemslistensAlder(db, prosjekt);
   if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;
   let iBasen = hentinger.get(db);
@@ -258,7 +259,9 @@ async function oppdaterMedlemslisten(
   const etter = await medlemslistensAlder(db, prosjekt);
   if (etter === null || etter.hentet.getTime() < synkronisering.hentet.getTime())
     throw new Error('Medlemslisten er ikke fersk etter synkroniseringen');
-  return egen ? synkronisering : null;
+  if (!egen) return null;
+  const { skrevet, medlemmer, deaktivert } = synkronisering;
+  return { skrevet, medlemmer, deaktivert };
 }
 
 /** Som `oppdaterMedlemslisten()`, med koblingen lest her. */
@@ -372,15 +375,7 @@ export async function krevProsjekttilgang(
       rolle,
       oppsett,
       medlemskap: medlemskap!,
-      ...(synkronisert
-        ? {
-            synkronisert: {
-              skrevet: synkronisert.skrevet,
-              medlemmer: synkronisert.medlemmer,
-              deaktivert: synkronisert.deaktivert,
-            },
-          }
-        : {}),
+      ...(synkronisert ? { synkronisert } : {}),
     };
   } catch (feil) {
     if (feil instanceof Nektet) throw feil;
