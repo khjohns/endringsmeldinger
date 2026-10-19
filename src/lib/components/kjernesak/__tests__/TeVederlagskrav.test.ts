@@ -243,7 +243,8 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     expect(screen.queryByLabelText('Fast pris')).toBeNull();
   });
 
-  it('når sporet har et vederlagskrav, tilbys ikke skjemaet, selv om kjernen tilbyr ny versjon (#667)', async () => {
+  // Kilde: oppdraget S-2a.1 i #909: en ny versjon sendes som `krav` når kjernen tilbyr `krav:vederlag`.
+  it('når sporet har et vederlagskrav, tilbys en ny versjon i stedet for det første kravet (#909)', async () => {
     const rader = medKrav(journal, {
       type: 'krav',
       spor: 'vederlag',
@@ -258,6 +259,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     expect(kjernesak.handlinger).toContain('krav:vederlag');
     visRom(kjernesak);
     expect(screen.queryByRole('button', { name: 'Send krav om vederlagsjustering' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Send ny versjon av kravet' })).toBeInTheDocument();
   });
 
   it.each([['BH'], [null]] as const)(
@@ -456,7 +458,6 @@ describe('kontrollen før en TS-sak sender kravet', () => {
   });
 
   it.each([
-    ['en ny versjon', 'vederlag', 'vederlag_krav_oppdatert', data],
     ['et annet spor', 'frist', 'vederlag_krav_sendt', data],
     [
       'særskilte krav',

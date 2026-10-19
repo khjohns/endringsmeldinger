@@ -7,7 +7,7 @@
  */
 
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
-import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
+import { KRAVINNHOLD, oppgittDato, type OppgittDato } from '$kjerne/format/format';
 import { kategoriFraKatalogen, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
 
 export interface Grunnlagsvalg {
@@ -80,4 +80,22 @@ export function grunnlagskrav(valg: Grunnlagsvalg): Grunnlagskrav {
     },
     ...(utdypning ? { utdypning } : {}),
   };
+}
+
+/**
+ * En ny versjon av grunnlagskravet med samme hjemmel (GR-U22): kategorien, datoen
+ * (VS-U26) og endringsordren står som i gjeldende versjon, og TE endrer beskrivelsen,
+ * som er utdypningen (GR-U15).
+ */
+export function nyGrunnlagsversjon(
+  gjeldende: Record<string, unknown>,
+  utdypning: string
+): Grunnlagskrav {
+  const innhold = Object.fromEntries(
+    Object.entries(gjeldende).filter(([felt]) =>
+      Object.hasOwn(KRAVINNHOLD.grunnlag.properties, felt)
+    )
+  );
+  const tekst = utdypning.trim();
+  return { type: 'krav', spor: 'grunnlag', innhold, ...(tekst ? { utdypning: tekst } : {}) };
 }

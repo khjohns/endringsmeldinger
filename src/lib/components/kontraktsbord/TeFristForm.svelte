@@ -29,6 +29,10 @@
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  // TS-saken (#909): foreløpig varsel uten fritekst (VS-U15) og spesifisert krav med
+  // begrunnelse (KA-U33), uten utsatt beregning, vedlegg og utkast. Kravversjonen og
+  // varselet kommer fra kjernen.
+  const kjernesak = store.erKjernesak ? store : null;
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import FormPageHeader from './components/FormPageHeader.svelte';
@@ -46,21 +50,28 @@
   } = $props();
 
   const existing = store.sak.frist;
-  const scenario: SubmissionScenario =
-    existing.har_bh_foresporsel && existing.varsel_type !== 'spesifisert'
+  const scenario: SubmissionScenario = kjernesak
+    ? kjernesak.kravversjon('frist') > 0
+      ? 'edit'
+      : kjernesak.tilbyrTe('sende_varsel:frist')
+        ? 'new'
+        : 'spesifisering'
+    : existing.har_bh_foresporsel && existing.varsel_type !== 'spesifisert'
       ? 'foresporsel'
       : existing.varsel_type === 'spesifisert' && existing.krevd_dager !== undefined
         ? 'edit'
         : existing.frist_varsel
           ? 'spesifisering'
           : 'new';
+  const existingVarselType =
+    scenario === 'edit' && kjernesak ? 'spesifisert' : existing.varsel_type;
   const existingVarselDato = $derived(store.sak.frist.frist_varsel?.dato_sendt);
   const defaults = getDefaults({
     scenario,
     existingVarselDato: existing.frist_varsel?.dato_sendt,
-    existing: existing.varsel_type
+    existing: existingVarselType
       ? {
-          varsel_type: existing.varsel_type,
+          varsel_type: existingVarselType,
           antall_dager: existing.krevd_dager,
           begrunnelse: existing.begrunnelse,
           frist_varsel: existing.frist_varsel?.dato_sendt
@@ -80,6 +91,15 @@
   let charCount = $state(defaults.begrunnelse.replace(/<[^>]*>/g, '').trim().length);
 
   const visibility = $derived(beregnVisibility({ varselType }, { scenario }));
+  const segmentOptions = $derived(
+    kjernesak && scenario !== 'new'
+      ? visibility.segmentOptions.filter((o) => o.value === 'spesifisert')
+      : visibility.segmentOptions
+  );
+  // KA-U33: kjernen avviser et fristkrav uten begrunnelse (BEGRUNNELSE_MANGLER).
+  const begrunnelseMangler = $derived(
+    Boolean(kjernesak) && varselType === 'spesifisert' && charCount === 0
+  );
   const varselDatoLabel = $derived(formatDateShortNorwegian(existingVarselDato));
   const mappedState: FristSubmissionFormState = $derived({
     varselType,
@@ -87,17 +107,29 @@
     varselDato: existingVarselDato,
     antallDager: antallDager ?? 0,
     nySluttdato: undefined,
-    begrunnelse,
+    // Varselet fra appen har ingen fritekst i TS-saken (VS-U15).
+    begrunnelse: kjernesak && varselType === 'varsel' ? '' : begrunnelse,
     begrunnelseValidationError: undefined,
     vilkarOppfylt: undefined,
   });
+  // Kjernen krever hele dager og en tekst, men vurderer ikke om teksten er nok (KA-U19).
   const kanSende = $derived(
-    beregnCanSubmit(mappedState, { scenario }) && (varselType === 'varsel' || charCount >= 10)
+    kjernesak
+      ? varselType === 'varsel' ||
+          (varselType === 'spesifisert' &&
+            Number.isInteger(antallDager) &&
+            (antallDager ?? 0) > 0 &&
+            !begrunnelseMangler)
+      : beregnCanSubmit(mappedState, { scenario }) && (varselType === 'varsel' || charCount >= 10)
   );
   const statusSummary = $derived(beregnTeStatusSummary(mappedState, { scenario }));
   const draft = createFormDraft(
-    !store.isDemo,
-    { sakId: store.sak.sak_id, spor: 'frist', revisjon: store.sak.frist.antall_versjoner },
+    !store.isDemo && !kjernesak,
+    {
+      sakId: store.sak.sak_id,
+      spor: 'frist',
+      revisjon: kjernesak ? 0 : store.sak.frist.antall_versjoner,
+    },
     () => ({ vedleggIds, varselType, antallDager, begrunnelse }),
     (saved) => {
       vedleggIds = saved.vedleggIds ?? [];
@@ -178,7 +210,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo}
+      visVedlegg={!store.isDemo && !kjernesak}
       bind:vedleggIds
       bind:vedleggOpptatt
     />
@@ -213,11 +245,16 @@
       <FormSection title="Kravstype" paragrafRef="§ 33.4 / § 33.6">
         <SegmentedControl
           label="Kravstype"
-          options={visibility.segmentOptions}
+          options={segmentOptions}
           value={varselType ?? ''}
           onchange={(value) => (varselType = value as FristVarselType)}
         />
-        {#if varselType === 'varsel'}
+        {#if varselType === 'varsel' && kjernesak}
+          <p class="helptext">
+            Varselet etter § 33.4 sendes med dagens dato, uten dager og uten fritekst. Antall dager
+            kreves senere i et spesifisert krav.
+          </p>
+        {:else if varselType === 'varsel'}
           <p class="helptext">
             Varselet registreres med dagens dato. Antall dager kan spesifiseres når grunnlaget for å
             beregne omfanget foreligger.
@@ -264,6 +301,11 @@
         onchange={(html) => (begrunnelse = html)}
         oncharcount={(count) => (charCount = count)}
       />
+      {#if begrunnelseMangler}
+        <p class="helptext" role="status">
+          Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1).
+        </p>
+      {/if}
     {/if}
 
     {#if kanSende && statusSummary}

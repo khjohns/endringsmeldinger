@@ -67,10 +67,19 @@
   const isTeTrackActions = $derived(
     !kjernesak && mode === 'read' && role === 'TE' && (sel === 'ansvar' || sel === 'frist')
   );
-  // TS-saken (#718): bare det første vederlagskravet tilbys, og bare til leserens side.
-  const tilbyrVederlagskrav = $derived(
-    sel === 'vederlag' && kjernesak?.tilbyrVederlagskrav === true
-  );
+  // TS-saken (#718, #909): bare handlingene kjernen tilbyr TE, i sporet som vises.
+  const kjernespor = $derived(sel === 'ansvar' ? 'grunnlag' : sel);
+  const kjernekrav = $derived.by(() => {
+    if (!kjernesak) return null;
+    const varsel = sel === 'frist' && kjernesak.tilbyrTe('sende_varsel:frist');
+    if (!varsel && !kjernesak.tilbyrTe(`krav:${kjernespor}`)) return null;
+    if (kjernesak.kravversjon(sel) > 0)
+      return sel === 'ansvar' ? 'Send ny versjon av grunnlaget' : 'Send ny versjon av kravet';
+    if (sel === 'vederlag') return 'Send krav om vederlagsjustering';
+    if (sel === 'frist') return varsel ? 'Send varsel eller krav' : 'Send krav om fristforlengelse';
+    return null;
+  });
+  const tilbyrKjernetrekk = $derived(kjernesak?.tilbyrTe(`trekke:${kjernespor}`) === true);
   const kjernesakStatus = $derived(kjernesak ? kjernesak.statustekst(sel) : '');
 </script>
 
@@ -155,9 +164,13 @@
         </button>
       {/if}
       {#if kjernesak && mode === 'read'}
-        {#if tilbyrVederlagskrav}
+        {#if tilbyrKjernetrekk}
+          <button class="btn btn-danger" onclick={onwithdraw}><XSquare size={14} /> Trekk</button>
+        {/if}
+        {#if kjernekrav}
           <button class="btn btn-primary" onclick={() => onform(sel)}>
-            <PencilLine size={14} /> Send krav om vederlagsjustering
+            <PencilLine size={14} />
+            {kjernekrav}
           </button>
         {/if}
       {:else if mode === 'form'}
