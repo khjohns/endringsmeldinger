@@ -313,6 +313,8 @@ describe('skrivevakten for mekanisk-pr', () => {
       "cat <<'EOF' | bash\ngit push\nEOF",
       "cat > /tmp/a <<'EOF'\ngit push\n",
       "cat > /tmp/a <<'EOF'\nSett GIT_DIR=x\nEOF\ngit push --force origin HEAD:main",
+      "echo $(#x <<'EOF'\ngit push --force origin HEAD:main\nEOF\n echo x)",
+      "echo ${x#<<'EOF' }\ngit push --force origin HEAD:main\nEOF",
     ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
@@ -396,6 +398,13 @@ describe('skrivevakten for mekanisk-pr', () => {
       ["cat > /tmp/a <<'EOF'\nGIT_SSH_COMMAND=x\nEOF", 2, 2],
       ["ls a#b <<'EOF'\n'x\ny'\nEOF", 2, 2],
       ["ls x$# <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls ${#x} <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls \"\"# <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls 'a'# <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls x=# <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["echo x # <<'EOF'\necho '\nGIT_DIR=x\n'\nEOF", 2, 2],
+      ["echo x #<<'EOF'\necho '\n$(x)\n'\nEOF", 2, 2],
+      ["echo $((1<<'EOF'))\necho '\nGIT_DIR=x\n'\nEOF", 2, 2],
     ];
     for (const [kommando, main, ny] of korpus) {
       if (main === 2) expect(ny, kommando).toBe(2);

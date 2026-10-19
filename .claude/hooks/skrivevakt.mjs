@@ -281,9 +281,9 @@ const ESCAPE_I_ANFORSEL = '$`"\\';
  * avgrenseren kan skallet ekspandere kroppen, så da er både heredocen og kroppsleddene ukjente
  * (#753). Kroppen er også ukjent når et skall eller et annet program enn `TEKSTMOTTAKERE` kan
  * lese den, direkte eller gjennom et rør. Kroppslinjene står i `liste.kroppslinjer` som
- * [start, slutt), og den er null når en kropp kan kjøres eller ikke avsluttes (#970). `<<` etter
- * en `#` som begynner et ord, og i aritmetikk åpner ingen heredoc, så linjene etter leses som
- * kommandoer. `iKropp` er satt når `tekst` er en
+ * [start, slutt). Den er null når en kropp ikke er bokstavelig, kan kjøres eller ikke avsluttes,
+ * eller når heredoc-linja har ukjent syntaks (#970). `<<` etter en `#` som begynner et ord, og i
+ * aritmetikk åpner ingen heredoc, så linjene etter leses som kommandoer. `iKropp` er satt når `tekst` er en
  * kroppslinje.
  */
 function lekser(tekst, iKropp = false) {
@@ -389,21 +389,26 @@ function lekser(tekst, iKropp = false) {
       avsluttOrd();
       merkOmdirigering();
       i += 2;
-    } else if (tegn === '<' && tekst[i + 1] === '<' && !iKropp && !kommentar && !aritmetikk) {
+    } else if (tegn === '<' && tekst[i + 1] === '<' && !iKropp) {
       // Heredoc. Avgrenseren leses som målet til omdirigeringen; anførselstegn og
-      // escape i den gjør kroppen bokstavelig.
+      // escape i den gjør kroppen bokstavelig. Etter `#` og i aritmetikk åpner `<<` ingen
+      // heredoc, men linjene fram til avgrenseren lekses likevel hver for seg, slik at en
+      // anførsel ikke kan skjule en linje (#970).
       avsluttOrd();
+      const undertrykt = kommentar || aritmetikk > 0;
       const fjernTab = tekst[i + 2] === '-';
       i += fjernTab ? 2 : 1;
       const raa = /^[ \t]*([^\s;&|<>()]*)/.exec(tekst.slice(i + 1))[1];
       const avgrenser = raa.replace(/['"\\]/g, '');
       // Bare enkle former, slik at vakten og skallet finner samme avgrenserlinje.
       const bokstavelig = /^(['"])[\w.-]+\1$|^\\[\w.-]+$/.test(raa);
-      if (!bokstavelig) merkUkjent();
       merkOmdirigering();
-      heredoc = true;
-      mottar = true;
-      if (avgrenser) aapnede.push({ avgrenser, fjernTab, bokstavelig });
+      if (!undertrykt) {
+        if (!bokstavelig) merkUkjent();
+        heredoc = true;
+        mottar = true;
+      }
+      if (avgrenser) aapnede.push({ avgrenser, fjernTab, bokstavelig, undertrykt });
     } else if (tegn === '<') {
       avsluttOrd();
       merkOmdirigering();
@@ -413,6 +418,8 @@ function lekser(tekst, iKropp = false) {
       const linja = liste.slice(linjestart);
       // `mottar` som står igjen, er et rør som fortsetter etter kroppen.
       const kjoeres = mottar || linja.some((del) => del.mottar && !leserSomTekst(del));
+      // Har heredoc-linja ukjent syntaks, kan vakten ha åpnet en heredoc som skallet ikke åpner.
+      const aapnetIUkjent = linja.some((del) => del.ukjentSyntaks);
       kropper.push(...aapnede.map((h) => ({ ...h, kjoeres })));
       aapnede = [];
       while (kropper.length && i < tekst.length) {
@@ -420,12 +427,19 @@ function lekser(tekst, iKropp = false) {
         const slutt = tekst.indexOf('\n', start);
         const linje = tekst.slice(start, slutt === -1 ? tekst.length : slutt);
         i = slutt === -1 ? tekst.length : slutt;
-        const { avgrenser, fjernTab, bokstavelig, kjoeres } = kropper[0];
-        if ((fjernTab ? linje.replace(/^\t+/, '') : linje) === avgrenser) {
+        const { avgrenser, fjernTab, bokstavelig, kjoeres, undertrykt } = kropper[0];
+        const avslutter = (fjernTab ? linje.replace(/^\t+/, '') : linje) === avgrenser;
+        if (undertrykt) {
+          liste.kroppslinjer = null;
+          liste.push(...lekser(linje, true));
+          if (avslutter) kropper.shift();
+          continue;
+        }
+        if (avslutter) {
           kropper.shift();
           continue;
         }
-        if (bokstavelig && !kjoeres) liste.kroppslinjer?.push([start, i]);
+        if (bokstavelig && !kjoeres && !aapnetIUkjent) liste.kroppslinjer?.push([start, i]);
         else liste.kroppslinjer = null;
         for (const del of lekser(linje, true)) {
           const ukjentKropp = bokstavelig && !kjoeres ? {} : { ukjent: true, ukjentSyntaks: true };
