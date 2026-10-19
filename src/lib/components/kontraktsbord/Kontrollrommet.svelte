@@ -322,8 +322,10 @@
           >
         {:else if kjernestatus === 'utdatert'}
           <!-- #719: brevet er lagret, men saken som vises, er lastet før det. -->
-          {#if kjernesak?.submissionError}<p role="alert">{kjernesak.submissionError}</p>{/if}
-          <p role="status">Saken som vises, er ikke oppdatert etter det siste brevet.</p>
+          <div>
+            {#if kjernesak?.submissionError}<p role="alert">{kjernesak.submissionError}</p>{/if}
+            <p role="status">Saken som vises, er ikke oppdatert etter det siste brevet.</p>
+          </div>
           <button
             type="button"
             class="btn btn-secondary"
