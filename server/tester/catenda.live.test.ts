@@ -239,7 +239,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       }
       for (const hva of usikre) igjen.push(`kanskje ${hva} (utfallet var usikkert, ingen ID)`);
       if (igjen.length) throw new Error(`Ble liggende igjen i Catenda: ${igjen.join('; ')}`);
-    });
+    }, 120_000);
 
     const sisteTil = (metode: string, slutt: string) =>
       [...sendt].reverse().find((k) => k.metode === metode && k.sti.endsWith(slutt))?.status;
@@ -436,7 +436,13 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     describe.skipIf(!TESTBASE_URL)('C: leveringen ende til ende (#371)', () => {
       let o: Oppsett;
       let server: KjorendeServer;
-      const logg = { info() {}, warn() {}, error() {} };
+      /** Det kjøreren logger, så en live-feil i jobben står i meldingen til testen. */
+      const meldinger: string[] = [];
+      const loggfoer = (...deler: unknown[]) =>
+        meldinger.push(
+          deler.map((d) => (d instanceof Error ? `${d.name}: ${d.message}` : String(d))).join(' ')
+        );
+      const logg = { info() {}, warn: loggfoer, error: loggfoer };
 
       const somKjoerer = <T>(setning: string, parametre: Record<string, unknown> = {}) =>
         somJobbkjoerer<T>(o, setning, parametre);
@@ -523,7 +529,9 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
           },
         });
         if (svar.status !== 201 && svar.status !== 200)
-          throw new Error(`Brevet ble avvist: ${svar.status}`);
+          throw new Error(
+            `Brevet ble avvist: ${svar.status} ${svar.kropp.rule ?? ''} ${svar.kropp.error ?? ''}`
+          );
       }
 
       beforeAll(async () => {
@@ -538,17 +546,19 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       afterAll(async () => {
         await server?.stopp();
         if (o) await rydd(o);
-      });
+      }, 120_000);
 
       it('C1: topicen lages, brevet lastes opp i mappen, referansen settes, og hver operasjon kvitteres', async () => {
         const sakId = await opprettKjernesak(o);
         expect(await kjoer()).toBe(true);
-        const [{ topic_id: topicId }] = (
+        const topics = (
           await somKjoerer<{ topic_id: string }>(
             `SELECT catenda_topic_id AS topic_id FROM koe.sak_catenda_topic WHERE sak_id = @sak`,
             { sak: sakId }
           )
         ).recordset;
+        expect(topics, meldinger.join('\n')).toHaveLength(1);
+        const topicId = topics[0].topic_id;
         await sendBrev(sakId);
         expect(await kjoer()).toBe(true);
 
@@ -566,7 +576,10 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
         ).recordset;
         const dokument = kvitteringer.find((k) => k.operasjon === 'dokument')?.catenda_id;
         const referanse = kvitteringer.find((k) => k.operasjon === 'dokumentreferanse')?.catenda_id;
-        expect(kvitteringer.map((k) => k.operasjon)).toEqual(['dokument', 'dokumentreferanse']);
+        expect(
+          kvitteringer.map((k) => k.operasjon),
+          meldinger.join('\n')
+        ).toEqual(['dokument', 'dokumentreferanse']);
         expect(await oauth.finnDokument(dokumentmaal(), navn, token)).toBe(dokument);
         expect(await oauth.dokumentreferanser(board, topicId, token)).toEqual([
           { id: referanse, dokumentId: sammenlignbarDokumentId(dokument!) },

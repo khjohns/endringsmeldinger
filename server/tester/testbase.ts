@@ -93,12 +93,13 @@ export async function lagOppsett(kobling?: Catendakobling): Promise<Oppsett> {
         organisasjon_id: 'org-test',
         is_active: true,
       });
+      const ekte = prosjekt === p ? kobling : undefined;
       await settInn(r, 'catenda_project_configs', {
         internal_project_id: prosjekt.id,
         catenda_project_id: prosjekt.catendaProsjekt,
-        library_id: prosjekt === p && kobling ? kobling.bibliotek : randomUUID(),
-        ...(prosjekt === p && kobling ? { folder_id: kobling.mappe } : {}),
-        topic_board_id: prosjekt === p && kobling ? kobling.board : randomUUID(),
+        library_id: ekte?.bibliotek ?? randomUUID(),
+        ...(ekte ? { folder_id: ekte.mappe } : {}),
+        topic_board_id: ekte?.board ?? randomUUID(),
         is_active: true,
       });
       await settInn(r, 'app_membership_sync', {
