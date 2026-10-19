@@ -326,11 +326,12 @@ export async function skrivHendelse<A>(
       const maal = await lesLeveringsmaal(foresp, sakId);
       const versjon = journal.at(-1)?.versjon ?? 0;
       if (versjon !== forventet) throw new Versjonskonflikt(forventet, versjon);
+      // Før tidspunktet, så ventingen på låsen på vedleggene ikke eldes det (#880-1).
+      const vedlegg = await lesVedlegg(foresp, kontekst, sakId, vedleggider);
       const tid = await foresp()
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      const vedlegg = await lesVedlegg(foresp, kontekst, sakId, vedleggider);
       const utfall = lag({ journal, tidspunkt, maal, vedlegg });
       // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
       if (!utfall.skriv) return new Tilbakerulling(utfall);
@@ -391,7 +392,7 @@ async function lesVedlegg(
     .input('ider', sql.NVarChar(sql.MAX), ider ? JSON.stringify(ider) : null)
     .query<Vedlegg>(
       `SELECT LOWER(CONVERT(nvarchar(36), vedlegg_id)) AS vedlegg_id, filnavn, innhold_sha256
-         FROM koe.vedlegg WITH (UPDLOCK)
+         FROM koe.vedlegg
         WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt
           AND (bundet_av_event_id IS NOT NULL OR lastet_opp_team = @team)
           AND (@ider IS NULL
