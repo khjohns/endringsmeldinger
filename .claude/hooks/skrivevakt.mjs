@@ -657,7 +657,7 @@ const TEKSTKOMMANDOER = new Set([
 // Kommandoer som leser stdin som tekst og aldri kjører den.
 const TEKSTMOTTAKERE = new Set([...TEKSTKOMMANDOER, 'tee']);
 // Et kall der hver annen kommando står her, kan ikke kjøre en heredoc-kropp den har skrevet
-// til en fil. Da er kroppen tekst og ikke kommandoer (#970).
+// til en fil. Da kan kroppen leses som tekst (#970).
 const UTEN_SKRIPT = new Set([...TEKSTMOTTAKERE, 'cd', 'mkdir']);
 
 function leserSomTekst(del) {
@@ -924,8 +924,11 @@ function utenTekstlinjer(tekst, linjer) {
   return ut + tekst.slice(fra);
 }
 
-/** Returnerer en begrunnelse når kallet skal stoppes, ellers null. */
-function vurder(input) {
+/**
+ * Returnerer en begrunnelse når kallet skal stoppes, ellers null. Med `kroppSomTekst` leses en
+ * heredoc-kropp som bare er tekst, ikke som kommandoer.
+ */
+function vurderKall(input, kroppSomTekst) {
   const verktoy = input.tool_name ?? '';
   const parametre = input.tool_input ?? {};
   const cwd = input.cwd ?? process.cwd();
@@ -979,9 +982,9 @@ function vurder(input) {
   if (eff.some((del) => del.ukjentKommando)) {
     return 'Kommandoen starter med skallsyntaks som ikke kan leses statisk.';
   }
-  // En heredoc-kropp som bare er tekst, er ikke kommandoer så lenge ingen annen kommando i
-  // kallet kan kjøre den fra en fil (#970). Tekstreglene over leser den fortsatt.
-  const tekstkropp = eff.every((del) => del.kropp || UTEN_SKRIPT.has(del.ord[0]));
+  // Med `kroppSomTekst` er en heredoc-kropp som bare er tekst, ikke kommandoer så lenge ingen
+  // annen kommando i kallet kan kjøre den fra en fil (#970). Tekstreglene over leser den fortsatt.
+  const tekstkropp = kroppSomTekst && eff.every((del) => del.kropp || UTEN_SKRIPT.has(del.ord[0]));
   const kommandoer = tekstkropp ? eff.filter((del) => !del.bareTekst) : eff;
   const kommandoledd = tekstkropp ? leddene.filter((del) => !del.bareTekst) : leddene;
   const tekstlinjer = tekstkropp ? leddene.tekstlinjer : [];
@@ -1108,6 +1111,17 @@ function vurder(input) {
     if (begrunnelse) return begrunnelse;
   }
   return null;
+}
+
+/**
+ * Kroppen i en heredoc leses som kommandoer, som på main, så en kropp med `git push` som tekst
+ * stoppes fortsatt. Når bare kroppen stopper kallet, sier begrunnelsen det (#970).
+ */
+function vurder(input) {
+  const somKommandoer = vurderKall(input, false);
+  const somTekst = vurderKall(input, true);
+  if (somTekst || !somKommandoer) return somTekst;
+  return `Kroppen i heredocen leses som kommandoer, og da gjelder dette: ${somKommandoer} Skriv teksten til en fil i /tmp med Write og vis til filen, for eksempel med -F body=@/tmp/<fil>.`;
 }
 
 // Hooks i frontmatter til prosjektagenter kjører bare i en mappe som er klarert

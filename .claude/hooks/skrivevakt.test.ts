@@ -282,6 +282,7 @@ describe('skrivevakten for mekanisk-pr', () => {
     for (const kommando of [
       "git commit -F - <<'EOF'\nmelding\nEOF",
       'git commit -F - <<"EOF"\nmelding\nEOF',
+      "cat <<'EOF'\ngit push origin HEAD:main\nEOF",
       'cat <<EOF | git commit -F -\nmelding\nEOF',
       'git commit -F - <<EOF\nmelding',
     ]) {
@@ -289,7 +290,7 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
-  it('leser kroppen i en heredoc med anførsel som tekst når mottakeren ikke kjører den (#970)', () => {
+  it('stopper kroppstekst med git som kommando og sier at det er kroppen som stopper (#970)', () => {
     for (const kommando of [
       "cat > /tmp/pr.md <<'EOF'\ngit commit -F fil\nEOF",
       "cat > /tmp/pr.md <<'EOF'\nkjør git push først\nEOF",
@@ -297,7 +298,9 @@ describe('skrivevakten for mekanisk-pr', () => {
       "cat > /tmp/a <<-'EOF'\n\tgit push --force origin HEAD:main\n\tEOF",
       "gh api repos/khjohns/endringsmeldinger/pulls/1 -X PATCH -F body=@- <<'EOF'\ngit push --force\nEOF",
     ]) {
-      expect(bash(kommando).status, kommando).toBe(0);
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).toContain('Kroppen i heredocen leses som kommandoer');
     }
   });
 
@@ -351,14 +354,13 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
-  // Avgjørelsene på origin/main bd250d4 er kjørt med samme tre og lagt inn for hånd. Bare
-  // kroppstekst som mottakeren ikke kjører, slippes nå der main nektet (#970, første punkt).
-  it('nekter alt main nektet, unntatt kroppstekst i en heredoc med anførsel (#970)', () => {
+  // Avgjørelsene på origin/main bd250d4 er kjørt med samme tre og lagt inn for hånd.
+  it('nekter alt main nektet (#970)', () => {
     const korpus: [string, 0 | 2, 0 | 2][] = [
-      ["cat > /tmp/pr.md <<'EOF'\ngit commit -F fil\nEOF", 2, 0],
-      ["cat > /tmp/pr.md <<'EOF'\nkjør git push først\nEOF", 2, 0],
-      ["cat <<'EOF'\ngit push origin HEAD:main\nEOF", 2, 0],
-      ["cat > /tmp/a <<'A' <<'B'\ngit push\nA\ngit commit\nB", 2, 0],
+      ["cat > /tmp/pr.md <<'EOF'\ngit commit -F fil\nEOF", 2, 2],
+      ["cat > /tmp/pr.md <<'EOF'\nkjør git push først\nEOF", 2, 2],
+      ["cat <<'EOF'\ngit push origin HEAD:main\nEOF", 2, 2],
+      ["cat > /tmp/a <<'A' <<'B'\ngit push\nA\ngit commit\nB", 2, 2],
       ["cat > /tmp/pr.md <<'EOF'\nlegg til lenke\nEOF", 0, 0],
       ["cat > /tmp/a <<-'EOF'\n\ttekst\n\tEOF", 0, 0],
       ["cat > /tmp/a <<'EOF'\nx\nEOF\nmkdir -p /tmp/b && cat /tmp/a", 0, 0],
@@ -378,9 +380,7 @@ describe('skrivevakten for mekanisk-pr', () => {
       ["cat > /tmp/a <<'EOF'\nGIT_SSH_COMMAND=x\nEOF", 2, 2],
     ];
     for (const [kommando, main, ny] of korpus) {
-      if (main === 2 && ny === 0) {
-        expect(kommando, 'bare kroppstekst kan slippes').toMatch(/^(cat|gh)\b[^\n]*<<'\w+'\n/);
-      }
+      if (main === 2) expect(ny, kommando).toBe(2);
       expect(bash(kommando).status, kommando).toBe(ny);
     }
   });
