@@ -575,6 +575,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.brukerens_prosjekter',
         'GRANT EXECUTE koe_api.catenda_identitet',
         'GRANT EXECUTE koe_api.deaktiver_ved_innlogging',
+        'GRANT EXECUTE koe_api.forny_lease',
         'GRANT EXECUTE koe_api.fullmakter',
         'GRANT EXECUTE koe_api.hent_jobb',
         'GRANT EXECUTE koe_api.koblede_prosjekter',
@@ -640,6 +641,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
           WHERE m.execute_as_principal_id = DATABASE_PRINCIPAL_ID(N'koe_jobbkjoerer')`
       );
       expect(somDen.recordset.map((r) => r.prosedyre).sort()).toEqual([
+        'koe_api.forny_lease',
         'koe_api.hent_jobb',
         'koe_api.kvitter_dokument',
         'koe_api.kvitter_levering',

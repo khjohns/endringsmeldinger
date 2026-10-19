@@ -24,7 +24,7 @@ import { lesSaken } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { lesBrevPdf } from '../brevpdf.ts';
-import { pdfsum } from '../levering.ts';
+import { pdfsum, vedleggsnavn } from '../levering.ts';
 import { sql } from './sqlserver.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
@@ -694,6 +694,91 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     ]);
   });
 
+  /**
+   * Skriver ID-en i vedleggslista til oppdraget om som eier. Kjernen lager ikke et slikt
+   * oppdrag, så vernene mot endring og radsikkerheten slås av i transaksjonen.
+   */
+  async function skrivOmVedleggIOppdraget(sakId: string, fra: string, til: string) {
+    const { oppdrag } = (await leveringen(sakId)).find((j) => j.tilstand === 'venter')!;
+    await o.datalag.base.pool
+      .request()
+      .input('oppdrag', sql.UniqueIdentifier, oppdrag)
+      .input('fra', sql.NVarChar(100), fra)
+      .input('til', sql.NVarChar(100), til).query(`
+        SET XACT_ABORT ON;
+        BEGIN TRANSACTION;
+        ALTER SECURITY POLICY koe_sikkerhet.tilgang WITH (STATE = OFF);
+        DISABLE TRIGGER koe.leveringsoppdrag_uforanderlig ON koe.leveringsoppdrag;
+        UPDATE koe.leveringsoppdrag SET innhold = REPLACE(innhold, @fra, @til) WHERE id = @oppdrag;
+        IF @@ROWCOUNT <> 1 THROW 50000, N'Oppdraget ble ikke skrevet om', 1;
+        ENABLE TRIGGER koe.leveringsoppdrag_uforanderlig ON koe.leveringsoppdrag;
+        ALTER SECURITY POLICY koe_sikkerhet.tilgang WITH (STATE = ON);
+        COMMIT;`);
+  }
+
+  // Kilde: kommentaren i #876. Leveringen kvitteres bare når hvert vedlegg i brevet er
+  // bundet i jobbens sak og prosjekt, ikke bare kvittert på topicen et annet sted.
+  it('L9: basen kvitterer ikke leveringen når brevet viser til et vedlegg som er levert fra en annen sak', async () => {
+    const fremmed = await sakMedRegistrertVarsel();
+    expect(await kjoer()).toBe(true);
+    expect(
+      (await vedleggskvitteringene(fremmed.vedleggId)).map((k) => k.operasjon),
+      'kontrollsaken: vedlegget er levert og kvittert i sin egen sak'
+    ).toEqual(['dokument', 'dokumentreferanse']);
+    const { sakId, vedleggId } = await sakMedRegistrertVarsel();
+    await skrivOmVedleggIOppdraget(sakId, vedleggId, fremmed.vedleggId);
+    const lease = await hentLease();
+    await expect(
+      o.datalag.kjoeretid.pool
+        .request()
+        .input('lease', sql.UniqueIdentifier, lease)
+        .input('referanse_id', sql.NVarChar(100), null)
+        .execute('koe_api.kvitter_levering')
+    ).rejects.toMatchObject({ number: 51422, message: 'Et vedlegg i brevet står ikke på topicen' });
+  });
+
+  // Kilde: #886, reviewet. Kjøreren sender ID-en som `uniqueidentifier`, så lista gir ID-en
+  // til det bundne vedlegget, også når brevet skriver den i en annen form.
+  it('L9: et vedlegg som brevet skriver med klammer og store bokstaver, leveres med ID-en til vedlegget', async () => {
+    const { sakId, vedleggId } = await sakMedRegistrertVarsel();
+    await skrivOmVedleggIOppdraget(sakId, vedleggId, `{${vedleggId.toUpperCase()}}`);
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId)).map((j) => j.tilstand)).not.toContain('parkert');
+    expect((await vedleggskvitteringene(vedleggId)).map((k) => k.operasjon)).toEqual([
+      'dokument',
+      'dokumentreferanse',
+    ]);
+  });
+
+  // Kilde: #876 r2. Leasetiden gjelder ett steg, ikke hele leveringen med alle vedleggene.
+  it('L11: forny_lease forlenger en gyldig lease fra nå, og en utløpt lease fornyes ikke', async () => {
+    const sakId = await sakMedBrev();
+    const lease = await hentLease();
+    const forny = () =>
+      o.datalag.kjoeretid.pool
+        .request()
+        .input('lease', sql.UniqueIdentifier, lease)
+        .input('leasetid_sekunder', sql.Int, 3600)
+        .execute('koe_api.forny_lease');
+    const igjen = async () =>
+      (
+        await somKjoerer<{ sekunder: number }>(
+          `SELECT DATEDIFF(second, SYSUTCDATETIME(), lease_utloeper) AS sekunder
+             FROM koe.jobb WHERE sak_id = @sak AND jobbtype = N'levering'`,
+          { sak: sakId }
+        )
+      ).recordset[0].sekunder;
+    expect(await igjen()).toBeLessThanOrEqual(LEASETID_S);
+    await forny();
+    expect(await igjen()).toBeGreaterThan(LEASETID_S);
+    await somKjoerer(
+      `UPDATE koe.jobb SET lease_utloeper = DATEADD(second, -1, SYSUTCDATETIME())
+        WHERE sak_id = @sak AND jobbtype = N'levering'`,
+      { sak: sakId }
+    );
+    expect(await avvisning(forny())).toBe(LEASE_UGYLDIG);
+  });
+
   // Kilde: #783 punkt 2: en lokal feil som ikke går over, skal ikke prøves i det uendelige.
   it('L10: en uventet lokal feil etter opplastingen parkerer jobben som usikker, uten feilmeldingen', async () => {
     const sakId = await sakMedBrev();
@@ -890,5 +975,129 @@ describe('kjøreren og feil fra basen (#795)', () => {
       logg: { info() {}, warn() {}, error() {} },
     });
     expect(registrert).toEqual([{ lease: 'l', utfall, melding: 'Uventet feil i jobben' }]);
+  });
+});
+
+describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
+  const vedlegg = (id: string) => ({
+    vedlegg_id: id,
+    filnavn: 'a.pdf',
+    finnes: true,
+    dokument_id: `dokument-${id}`,
+    referanse_id: null,
+  });
+
+  /** Basen for én leveringsjobb med to vedlegg som har dokument, men ikke referanse. */
+  function falskBase(jobbtype: string, feiler: { prosedyre: string; nummer: number } | null) {
+    const kall: { prosedyre: string; typer: Record<string, unknown> }[] = [];
+    const registrert: Record<string, unknown>[] = [];
+    const datalag = {
+      request() {
+        const parametre: Record<string, unknown> = {};
+        const typer: Record<string, unknown> = {};
+        const r = {
+          input(navn: string, type: unknown, verdi: unknown) {
+            parametre[navn] = verdi;
+            typer[navn] = type;
+            return r;
+          },
+          async execute(prosedyre: string) {
+            kall.push({ prosedyre, typer });
+            if (prosedyre === 'koe_api.hent_jobb')
+              return {
+                recordset: [
+                  {
+                    jobb_id: 'j',
+                    jobbtype,
+                    lease: 'l',
+                    sak_id: 's',
+                    prosjekt_id: 'p',
+                    catenda_board_id: 'b',
+                    tittel: 't',
+                    topic_board_id: 'b',
+                    topic_id: 't',
+                    oppdrag: '{"maal":{},"dokument":null}',
+                  },
+                ],
+              };
+            if (prosedyre === 'koe_api.vedlegg_i_levering')
+              return { recordset: [vedlegg('v1'), vedlegg('v2')] };
+            if (prosedyre === 'koe_api.registrer_jobbfeil') registrert.push(parametre);
+            if (prosedyre === feiler?.prosedyre)
+              throw Object.assign(new sql.RequestError('fra basen'), { number: feiler.nummer });
+            return { recordset: [] };
+          },
+        };
+        return r;
+      },
+    } as unknown as Pool;
+    const kjoer = () =>
+      kjoerEnJobb({
+        datalag,
+        catenda: { opprettTopic: async () => 'topic' },
+        dokumenter: {
+          finnDokument: async () => null,
+          lastOppDokument: async () => null,
+          dokumentreferanser: async () => [],
+          opprettDokumentreferanse: async () => 'referanse',
+        },
+        saksadresse: () => 'x',
+        logg: { info() {}, warn() {}, error() {} },
+      });
+    return { kall, registrert, kjoer };
+  }
+
+  // Kilde: #876 r2 og s3.
+  it('leasen fornyes før hvert vedlegg, og parametrene i kvitteringen har typene i prosedyren', async () => {
+    const base = falskBase('levering', null);
+    await base.kjoer();
+    expect(base.kall.map((k) => k.prosedyre.replace('koe_api.', ''))).toEqual([
+      'hent_jobb',
+      'vedlegg_i_levering',
+      'forny_lease',
+      'kvitter_vedlegg',
+      'forny_lease',
+      'kvitter_vedlegg',
+      'kvitter_levering',
+    ]);
+    const kvittering = base.kall.find((k) => k.prosedyre === 'koe_api.kvitter_vedlegg')!;
+    expect(kvittering.typer.vedlegg_id).toBe(sql.UniqueIdentifier);
+    expect(kvittering.typer.operasjon).toMatchObject({ type: sql.NVarChar, length: 20 });
+  });
+
+  // Kilde: #876 r3. Leveringen avstemmes mot Catenda ved neste forsøk, så en forbigående
+  // feil i kvitteringen prøves igjen. En annen feil parkeres som usikker når leasen går ut.
+  it.each<[string, number, string | null]>([
+    ['en vranglås (1205)', 1205, 'feilet'],
+    ['Azure SQL som flytter basen (40613)', 40613, 'feilet'],
+    ['en avvisning fra basen (51422)', 51422, null],
+  ])('%s i kvitteringen av et vedlegg gir utfallet %s', async (_n, nummer, utfall) => {
+    const base = falskBase('levering', { prosedyre: 'koe_api.kvitter_vedlegg', nummer });
+    if (utfall) {
+      await base.kjoer();
+      expect(base.registrert).toEqual([{ lease: 'l', utfall, melding: 'Uventet feil i jobben' }]);
+    } else {
+      await expect(base.kjoer()).rejects.toMatchObject({ number: nummer });
+      expect(base.registrert).toEqual([]);
+    }
+  });
+
+  // Kilde: #876 r3. Topicen kan ikke avstemmes, så et nytt forsøk ville laget en til.
+  it('en vranglås i kvitteringen av topicen registreres ikke som feilet', async () => {
+    const base = falskBase('catenda_topic', { prosedyre: 'koe_api.kvitter_topic', nummer: 1205 });
+    await expect(base.kjoer()).rejects.toMatchObject({ number: 1205 });
+    expect(base.registrert).toEqual([]);
+  });
+});
+
+describe('navnet vedlegget får i Catenda (#876)', () => {
+  // Kilde: #876 r7. Endelsen står etter siste punktum, også når den er hele navnet.
+  it.each([
+    ['varsel.pdf', 'varsel-ID.pdf'],
+    ['rapport.v2.pdf', 'rapport.v2-ID.pdf'],
+    ['.pdf', '-ID.pdf'],
+    ['uten_endelse', 'uten_endelse-ID'],
+  ])('%s blir %s', (filnavn, navn) => {
+    expect(vedleggsnavn(filnavn, 'ID')).toBe(navn);
   });
 });
