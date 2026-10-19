@@ -16,6 +16,9 @@
   import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
   import ClaimLetterView from './ClaimLetterView.svelte';
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
+  import InnsigelseModal from '$lib/components/kjernesak/InnsigelseModal.svelte';
+  import { SPOR_FOR } from '$lib/kjernesak/sakstilstand';
+  import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   const claimReview = createClaimReview(store);
   // TS-saken sendes med kommandoen til kjernen og den låste teksten (#718, LV-U2).
   const kravkontroll = kjernesak ? lagKravkontroll(kjernesak.kjernesak) : null;
@@ -75,6 +78,8 @@
     canSend: boolean;
     sendLabel?: string;
     send: () => void;
+    /** Et registrert brev har ingen brevkontroll (MM-U17), så knappen har skjemaets tekst. */
+    utenBrev?: boolean;
   } | null>(null);
   let activeEvent: TimelineEvent | null = $state(null);
   let showWithdrawModal = $state(false);
@@ -87,7 +92,7 @@
       ? 'ventende'
       : kjernesak?.kjernesak.utdatert
         ? 'utdatert'
-        : kjernesak?.submissionError && mode === 'read'
+        : (kjernesak?.submissionError || kravkontroll?.feil) && mode === 'read'
           ? 'feil'
           : null
   );
@@ -117,14 +122,7 @@
       !kravetErSpesifisert(store.sak.frist)
   );
   // Skjemaene for en TS-sak følger bare handlingene kjernen tilbyr leseren (krav G i #718).
-  const kjerneskjema = $derived.by(() => {
-    if (!kjernesak) return false;
-    const spor = sel === 'ansvar' ? 'grunnlag' : sel;
-    return (
-      kjernesak.tilbyrTe(`krav:${spor}`) ||
-      (sel === 'frist' && kjernesak.tilbyrTe('sende_varsel:frist'))
-    );
-  });
+  const kjerneskjema = $derived(Boolean(kjernesak?.teSkjema(sel)));
   // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
   // ikke kjernen nødvendigvis det samme, men skjemaet skal fullføre sendingen (#737 p4).
   // Mens brevet kontrolleres og sendes, står det også når visningen bytter spor (#872).
@@ -139,13 +137,28 @@
   );
   // Et trekk i en TS-sak har ingen fritekst og sendes med den låste teksten (KA-U22, LV-U2).
   // Avviser kjernen trekket, står meldingen i dialogen. En feil ved sendingen står i
-  // varselet i hodet (#719).
+  // varselet i hodet (#719, #943).
   function trekkKjernesporet() {
-    if (!kravkontroll) return;
-    const trekk = kravkontroll.trekk(sel === 'ansvar' ? 'grunnlag' : sel);
+    const trekk = kravkontroll!.trekk(SPOR_FOR[sel]);
     showWithdrawModal = false;
-    void trekk.send().catch(() => {});
+    void trekk.send();
   }
+  // Aksepten og innsigelsen har ingen fritekst (KA-U10, VS-U1). En avvisning står i hodet.
+  let innsigelseApen = $state(false);
+  const innsigelsesvalg = $derived.by(() => {
+    if (!kjernesak) return [];
+    const u = kjernesak.kjernesak.utledning;
+    const journal = kjernesak.saksbilde?.journal ?? [];
+    return kjernesak.innsigelser(sel).map((id) => {
+      const post = journal.find((j) => j.hendelse === u?.elementer[id]?.hendelse);
+      return {
+        id,
+        tekst: post
+          ? `Svaret sendt ${formatDateShortNorwegian(post.tidsstempel)}`
+          : 'Byggherrens svar',
+      };
+    });
+  });
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   $effect(() => {
@@ -250,6 +263,8 @@
   }
 
   function selectTrack(key: SporKey) {
+    if (mode === 'form') kjernesak?.kjernesak.fjernFeil();
+    kravkontroll?.fjernFeil();
     sel = key;
     mode = 'read';
     formActions = null;
@@ -332,7 +347,7 @@
             onclick={() => void kjernesak?.kjernesak.last()}>Last saken på nytt</button
           >
         {:else}
-          <p role="alert">{kjernesak?.submissionError}</p>
+          <p role="alert">{kjernesak?.submissionError || kravkontroll?.feil}</p>
         {/if}
       </div>
     {/snippet}
@@ -381,7 +396,7 @@
           {#if kravkontroll?.letter}
             <Brevkontroll
               brev={kravkontroll.letter}
-              beskrivelse="Kravet sendes først når du bekrefter."
+              beskrivelse="Brevet sendes først når du bekrefter."
               onbekreft={kravkontroll.confirm}
               onavbryt={kravkontroll.cancel}
             />
@@ -488,10 +503,17 @@
                 ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
                 onsend={() => formActions?.send()}
                 canSend={formActions?.canSend ?? false}
-                sendLabel={role === 'BH' && !bhSvarerPaaFristvarsel
-                  ? 'Ferdigstill vurdering'
-                  : 'Se brev og send'}
+                sendLabel={formActions?.utenBrev && formActions.sendLabel
+                  ? formActions.sendLabel
+                  : role === 'BH' && !bhSvarerPaaFristvarsel
+                    ? 'Ferdigstill vurdering'
+                    : 'Se brev og send'}
                 onwithdraw={() => (showWithdrawModal = true)}
+                ongodta={() => void kravkontroll?.aksept(SPOR_FOR[sel])}
+                oninnsigelse={() => {
+                  kjernesak?.kjernesak.fjernFeil();
+                  innsigelseApen = true;
+                }}
               />
             {/if}
           </div>
@@ -521,6 +543,17 @@
             showWithdrawModal = false;
           }}
           oncancel={() => (showWithdrawModal = false)}
+        />
+      {/if}
+
+      {#if innsigelseApen && kravkontroll}
+        <InnsigelseModal
+          valg={innsigelsesvalg}
+          onconfirm={(gjelder) => {
+            innsigelseApen = false;
+            void kravkontroll.innsigelse(gjelder, SPOR_FOR[sel]);
+          }}
+          oncancel={() => (innsigelseApen = false)}
         />
       {/if}
 

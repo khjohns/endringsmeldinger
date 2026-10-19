@@ -4,7 +4,7 @@
  */
 
 import { ApiError, apiFetch } from '$lib/api/client';
-import type { Journalrad, Part } from '$kjerne/typer';
+import type { Journalrad, Part, Vedlegg } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
 /** Navnet er slått opp ved visning; uten treff er det `aktor_id` (#820). */
@@ -94,3 +94,21 @@ export const sendKommando = (
       }),
     }
   );
+
+/** Vedlegget i mellomlageret, ubundet til det sendes med et brev (LV-U14). */
+export type Kjernevedlegg = Vedlegg & { stoerrelse: number };
+
+/**
+ * Laster opp filen til mellomlageret i saken. Kroppen er filen, og filnavnet står i
+ * hodet `X-Filnavn`. Serveren renser navnet og avviser en tom fil og en fil over 15 MB.
+ */
+export const lastOppKjernevedlegg = (sakId: string, fil: File, prosjektId: string) =>
+  apiFetch<{ vedlegg: Kjernevedlegg }>(`${sti(sakId)}/vedlegg`, {
+    method: 'POST',
+    headers: {
+      ...prosjekthode(prosjektId),
+      'Content-Type': 'application/octet-stream',
+      'X-Filnavn': encodeURIComponent(fil.name),
+    },
+    body: fil,
+  }).then((s) => s.vedlegg);
