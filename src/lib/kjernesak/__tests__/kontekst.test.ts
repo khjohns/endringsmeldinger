@@ -370,6 +370,34 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.versjon).toBe(2);
   });
 
+  // Kilde: #719 p9. Hodet i saksrommet viser til årsaken i Kontrollrommet.
+  it('etter Avbryt er feilen fra en avvist sending borte, men årsaken til at saken er utdatert står (#719 p9)', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValueOnce({ event_id: 'e-2', leveringsoppdrag: 'l-1', versjon: 2 })
+      .mockRejectedValueOnce(new ApiError(400, 'Beløpet er ikke gyldig.'));
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar([opprettet]))
+      .mockRejectedValueOnce(new ApiError(404, 'Saken finnes ikke.'));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
+    await sak.last();
+    expect(await sak.send(grunnlagskrav)).toBe(true);
+
+    sak.fjernFeil();
+    expect(sak.feil).toBe(
+      'Brevet er lagret, men saken kunne ikke lastes på nytt. Saken finnes ikke.'
+    );
+
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(sak.feil).toBe('Brevet ble ikke sendt. Beløpet er ikke gyldig.');
+    sak.fjernFeil();
+    expect(sak.utdatert).toBe(true);
+    expect(sak.feil).toBe(
+      'Brevet er lagret, men saken kunne ikke lastes på nytt. Saken finnes ikke.'
+    );
+  });
+
   // Kilde: #695 p3. En avvisning fra kjernen sendes ikke; serveren ville avvist den.
   it('sender ikke en kommando kjernen avviser, og sier hvorfor', async () => {
     const send = vi.fn();

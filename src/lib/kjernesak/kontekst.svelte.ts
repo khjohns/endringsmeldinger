@@ -67,7 +67,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let sender = $state(false);
   let finnes = $state<boolean | null>(null);
   let ventende = $state<Ventende | null>(valg.ventende ?? null);
-  let utdatert = $state(false);
+  // Årsaken til at saken som vises, er utdatert. Den står til saken er lastet på nytt.
+  let utdatertAarsak = $state<string | null>(null);
   const part = $derived(valg.part !== undefined ? valg.part : (sak?.part ?? null));
 
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
@@ -98,7 +99,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       if (nr !== lastinger) return gjeldende;
       sak = hentet;
       finnes = true;
-      utdatert = false;
+      utdatertAarsak = null;
       // Et usikkert utfall står til «Prøv igjen» har fått svar (#816).
       feil = ventende ? USIKKERT : null;
       return true;
@@ -172,8 +173,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       await send(sakId, forsoek.versjon, forsoek.kommandoId, forsoek.kommando, valg.prosjektId);
       ventende = null;
       if (!(await last())) {
-        utdatert = true;
-        feil = melding('Brevet er lagret, men saken kunne ikke lastes på nytt.', feil);
+        utdatertAarsak = melding('Brevet er lagret, men saken kunne ikke lastes på nytt.', feil);
+        feil = utdatertAarsak;
       }
       return true;
     } catch (e) {
@@ -191,10 +192,11 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   /**
    * Fjerner feilen når brukeren avbryter (#719). Meldingen om et usikkert utfall står til
-   * «Prøv igjen» har fått svar, for kommandoen kan være lagret.
+   * «Prøv igjen» har fått svar, for kommandoen kan være lagret. Ellers står årsaken til at
+   * saken er utdatert.
    */
   function fjernFeil() {
-    feil = ventende ? USIKKERT : null;
+    feil = ventende ? USIKKERT : utdatertAarsak;
   }
 
   return {
@@ -242,7 +244,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     /** Brevet er lagret, men saken er ikke lastet på nytt; den som vises, er utdatert. */
     get utdatert() {
-      return utdatert;
+      return utdatertAarsak !== null;
     },
     last,
     brevtekst,
