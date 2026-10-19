@@ -152,6 +152,20 @@ jobs:
           echo "Prosessorer: $(nproc)"
           node kjerne/tester/feilinnfoering.ts
 
+      # Et tidsavbrudd på en test som ikke er et mål, gjør mutasjonen «IKKE OPPDAGET».
+      # Steget viser om SQL Server eller runneren stanset (#961): minnet, OOM-killeren
+      # og errorlog fra containeren.
+      - name: Vis minnet og loggen fra SQL Server
+        if: failure() && steps.feilinnfoering.outcome == 'failure'
+        run: |
+          free -m
+          docker stats --no-stream
+          sudo dmesg | grep -iE 'oom|killed process|hung task' || true
+          docker exec koe-sqlserver-14331 cat /var/opt/mssql/log/errorlog \
+            | grep -aiE 'paged out|longer than 15 seconds|non-yielding|memory|backup|restore|deadlock|error' \
+            | grep -avE 'This is an informational message only|Database was restored|Restore is complete|RESTORE DATABASE successfully' \
+            | tail -n 200 || true
+
       # Skriptet muterer bare kopier utenfor treet (#378). Kontrollen fanger et
       # skript som likevel skriver i treet.
       - name: Kontroller at arbeidskopien er ren
