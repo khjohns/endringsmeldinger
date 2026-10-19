@@ -24,6 +24,7 @@ import {
 import { enGang, tidsavbrudd, vedNesteLaan } from './forbindelse.ts';
 import {
   KommandoIdBrukt,
+  LaasIkkeGitt,
   opprettSak,
   type Kommando,
   SakFinnesIkke,
@@ -1165,19 +1166,32 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
     });
 
     // Kilde: invariant 4. Det første forsøket holder låsen og kan ennå committe, så et
-    // nytt forsøk må beholde kommando-ID-en (#418).
-    it('når låsen på nøkkelen ikke gis innen tidsgrensen, kastes UsikkertUtfall (#792 punkt 1)', async () => {
-      const kommando = ny();
-      let feil: unknown;
-      await transaksjon(kjoeretid.pool, te, async (f) => {
-        await slaaOpp(f, kommando.id);
-        feil = await opprettSak(kjoeretid.pool, te, kommando, {
-          format: 1,
-          data: SAK_OPPRETTET,
-        }).catch((e: unknown) => e);
-      });
-      expect(feil).toBeInstanceOf(UsikkertUtfall);
-    }, 30_000);
+    // nytt forsøk må beholde kommando-ID-en (#418). Låsen har sin egen klasse (#816).
+    it.each([
+      [
+        'opprettelsen',
+        async (kommando: Kommando) =>
+          opprettSak(kjoeretid.pool, te, kommando, { format: 1, data: SAK_OPPRETTET }),
+      ],
+      [
+        'brevet',
+        async (kommando: Kommando) =>
+          skrivHendelse(kjoeretid.pool, te, (await nySak()).sak_id, 1, kommando, medOppdrag()),
+      ],
+    ] as const)(
+      'når låsen på nøkkelen ikke gis innen tidsgrensen for %s, kastes LaasIkkeGitt (#792 punkt 1, #816)',
+      async (_, kjoer) => {
+        const kommando = ny();
+        let feil: unknown;
+        await transaksjon(kjoeretid.pool, te, async (f) => {
+          await slaaOpp(f, kommando.id);
+          feil = await kjoer(kommando).catch((e: unknown) => e);
+        });
+        expect(feil).toBeInstanceOf(LaasIkkeGitt);
+        expect(feil).not.toBeInstanceOf(UsikkertUtfall);
+      },
+      30_000
+    );
 
     it('et gjentak venter ikke på en annen skriving til saken: journalen låses ikke (#792 punkt 3)', async () => {
       const sak = await nySak();
