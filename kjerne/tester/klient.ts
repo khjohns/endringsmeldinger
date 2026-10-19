@@ -7,7 +7,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Journalrad } from '../typer.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
-import type { Kommando, Svarutkast } from '../kommandoer/kommando.ts';
+import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
@@ -451,8 +451,8 @@ export function radFor(
  * dem finnes, med filnavnet av ID-en. Et vedlegg som ikke finnes, prøves for seg.
  */
 export function mellomlager(kommando: unknown): Vedleggsoppslag {
-  const k = kommando as { dokumentasjon?: unknown; varsel?: { dokumentasjon?: unknown } };
-  const ider = k.dokumentasjon ?? k.varsel?.dokumentasjon;
+  const ider: unknown =
+    typeof kommando === 'object' && kommando !== null ? vedleggI(kommando as Kommando) : [];
   const vedlegg = (Array.isArray(ider) ? ider : []).filter((id) => typeof id === 'string');
   return new Map(
     vedlegg.map((id: string) => [

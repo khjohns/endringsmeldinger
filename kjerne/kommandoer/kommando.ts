@@ -249,12 +249,14 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }
+  // Fristkravet har datoen og brevet med varselet under `varsel` (OV-U5).
+  const sti = type === 'krav' ? '$.varsel.' : '$.';
   // Datoen står i brevteksten og må være en dato (LV-U4 punkt 3).
   const sendt =
     (kommando as { varsel?: { sendt?: unknown }; sendt?: unknown }).varsel?.sendt ??
     (kommando as { sendt?: unknown }).sendt;
   if (!feil.length && sendt !== undefined && !erKalenderdato(sendt))
-    feil.push(`$.sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
+    feil.push(`${sti}sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
   if (type === 'brev' && !feil.length) {
     const spor = (kommando as { svar: Svarutkast[] }).svar.map((s) => s.spor);
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');
@@ -263,7 +265,7 @@ export function formfeil(kommando: unknown): string[] {
   const vedlegg = feil.length ? [] : vedleggI(kommando as unknown as Kommando);
   // En UUID er den samme med store og små bokstaver.
   if (new Set(vedlegg.map((v) => v.toLowerCase())).size !== vedlegg.length)
-    feil.push('$.dokumentasjon: samme vedlegg står to ganger');
+    feil.push(`${sti}dokumentasjon: samme vedlegg står to ganger`);
   if (type === 'begrunnelse' && !feil.length) {
     const k = kommando as { utdypning?: unknown; dokumentasjon?: unknown[] };
     if ('sendt' in kommando) {

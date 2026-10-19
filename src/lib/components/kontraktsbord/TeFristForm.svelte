@@ -115,7 +115,8 @@
       : undefined,
   });
 
-  // Standardvalget når kjernen tilbyr det, ellers det første valget kjernen tilbyr (VS-U16).
+  // Startvalget er standardvalget når kjernen tilbyr det, ellers det første valget kjernen
+  // tilbyr. Uten standardvalg er ingenting valgt, med mindre kjernen tilbyr bare ett valg.
   const tilbudteValg = () =>
     kjernesak
       ? [
@@ -127,7 +128,10 @@
   const kjernevalg = $derived(tilbudteValg());
   const startvalg = tilbudteValg();
   let varselType = $state<FristVarselType | 'registrert' | undefined>(
-    startvalg && !startvalg.some((v) => v === defaults.varselType)
+    startvalg &&
+      (defaults.varselType === undefined
+        ? startvalg.length === 1
+        : !startvalg.some((v) => v === defaults.varselType))
       ? startvalg[0]
       : defaults.varselType
   );
@@ -136,7 +140,7 @@
     registrerer || (varselType === 'spesifisert' && kanRegistrere && oppgirVarsel)
   );
   const varselet = $derived({ sendt: varselSendt, vedlegg: registrerteVedlegg });
-  // Regnes ut ved hver endring, så grensen følger datoen også etter midnatt.
+  // Leser dagens dato hver gang feltene endres, ikke én gang når skjemaet åpnes.
   const hindring = $derived(visVarselet ? varselhindring(varselet, dagensDato()) : null);
   let antallDager = $state<number | undefined>(defaults.antallDager || undefined);
   let begrunnelse = $state(defaults.begrunnelse);

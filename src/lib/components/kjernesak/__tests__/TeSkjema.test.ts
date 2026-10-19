@@ -113,6 +113,16 @@ describe('fristsporet fra TE-skjemaet', () => {
     expect(tekst).toContain('TE varsler etter NS 8407 § 33.4 at TE vil kreve fristforlengelse');
   });
 
+  // Fastholder atferden i Python-skjemaet (scenario `new`) og i `main` før #982: TE velger selv
+  // mellom varsel og krav. Ingen vedtak sier noe om startvalget.
+  it('uten standardvalg og med flere valg fra kjernen åpner skjemaet uten valgt kravstype (#968 p7)', async () => {
+    await vis(medGrunnlag, 'frist');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+    const valg = screen.getAllByRole('radio');
+    expect(valg.length, 'kjernen tilbyr flere valg').toBeGreaterThan(1);
+    for (const v of valg) expect(v).not.toBeChecked();
+  });
+
   it('når varselet er sendt, tilbys bare det spesifiserte kravet, ikke et nytt varsel (VS-U15)', async () => {
     const varslet = skrevet(medGrunnlag, 'TE', {
       type: 'send_varsel',

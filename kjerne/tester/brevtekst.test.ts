@@ -2495,7 +2495,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
       varsel: { sendt: '2026-09-28', dokumentasjon: [VARSELBREVET, VARSELBREVET.toUpperCase()] },
     };
     expect(s.avvisning('TE', dobbelt)?.melding).toBe(
-      '$.dokumentasjon: samme vedlegg står to ganger'
+      '$.varsel.dokumentasjon: samme vedlegg står to ganger'
     );
   });
 });
