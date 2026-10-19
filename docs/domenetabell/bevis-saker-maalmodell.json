@@ -3806,6 +3806,29 @@
       ]
     },
     {
+      "id": "F-MM-V4c",
+      "rader": ["VS-04"],
+      "start": "krav_irreg",
+      "forslag": "VS-U12: TEs varsel etter § 32.2 er kravet i grunnlagssporet, så en påberopelse av passiviteten som viser til vederlagskravet, avvises",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [{ "handling": "passivitet", "gjelder": "K-v1", "navn": "D3" }],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["VS-U12"],
+          "prov": { "handling": "passivitet", "gjelder": "K-g1" },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["VS-U12"],
+          "forventet": { "avvist": true, "regel": "INGEN_VARSEL_ETTER_32_2", "nye_hendelser": 0 }
+        }
+      ]
+    },
+    {
       "id": "F-MM-V5",
       "rader": [
         "VS-05"
@@ -11548,6 +11571,172 @@
             "grunnlag_avklart": false,
             "frafalt": false,
             "enighet.vederlag.virkning": "betinget"
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-GR-U15-beskrivelse",
+      "rader": [
+        "GR-34"
+      ],
+      "start": null,
+      "forslag": "GR-U15: TEs varsel etter § 32.2 fra appen uten beskrivelse av pålegget avvises",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "utdypning": false,
+          "navn": "K-g1"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U15"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "irregulaer_endring"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U15"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "BESKRIVELSE_MANGLER",
+            "nye_hendelser": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-GR-U14-uten-beskrivelse",
+      "rader": [
+        "GR-35"
+      ],
+      "start": null,
+      "forslag": "GR-U14 og GR-U15: et krav uten beskrivelse fra en annen skriver gir ingen endringsordre fra appen",
+      "forventningsgrunnlag": "arbeidshypotese",
+      "steg": [
+        {
+          "handling": "rad",
+          "krav": true,
+          "spor": "grunnlag",
+          "underkategori": "irregulaer_endring",
+          "part": "TE",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D2",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent",
+              "varslet_i_tide": true
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "GR-U12",
+            "GR-U13"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": false
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U14",
+            "GR-U15"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "PAALEGGET_IKKE_BESKREVET",
+            "nye_hendelser": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-LV-U2-annen-tekst",
+      "rader": [
+        "KA-51"
+      ],
+      "start": null,
+      "forslag": "LV-U2: teksten klienten viste etter et regelsett som er erstattet, er ikke den serveren lager, og kravet avvises",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "regelendring",
+          "regelsett": "n+1"
+        },
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "samordning",
+          "klientregler": "n",
+          "navn": "K-g1"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "LV-U2"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "samordning",
+            "klientregler": "n+1"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "LV-U2"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ANNEN_BREVTEKST",
+            "nye_hendelser": 0
           }
         }
       ]

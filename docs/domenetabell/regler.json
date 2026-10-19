@@ -960,6 +960,27 @@
       "issue": 500,
       "dato": "2026-10-15",
       "merknad": "Et «i tide» etter § 32.2 fra byggherren på en ny grunnlagsversjon gir opp en innsigelse mot en tidligere versjon. Varselet etter § 32.2 er det samme varselet i begge versjonene. Presiserer VS-U24 og HF-U4."
+    },
+    {
+      "id": "GR-U14",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u14",
+      "radetikett": "GR-U14: et grunnlagssvar fra appen som etter GR-U12 og GR-U13 er en endringsordre"
+    },
+    {
+      "id": "GR-U15",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u15",
+      "radetikett": "GR-U15: TEs varsel etter § 32.2 fra appen må ha en beskrivelse av pålegget"
+    },
+    {
+      "id": "LV-U2",
+      "type": "vedtak",
+      "dato": "2026-10-11",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u2",
+      "radetikett": "LV-U2: i et brev appen sender, godkjenner avsenderen brevteksten appen lager av brevets utsagn"
     }
   ],
   "rader": [
@@ -2552,6 +2573,47 @@
       ]
     },
     {
+      "id": "GR-34",
+      "tilfelle": "TE sender et varsel etter § 32.2 fra appen uten beskrivelse av pålegget.",
+      "forventet": "Varselet avvises og lagres ikke. Med en beskrivelse godtas det. Appen kontrollerer at beskrivelsen finnes, ikke hva den sier.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Varselet er ikke sendt fra appen. TE kan varsle utenfor appen og registrere varselet (GR-U15).",
+      "rettidighet": "Appen vurderer ikke om varselet blir gitt i tide.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U15"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/nyttelast.ts#kravetsUtdypning"
+      ],
+      "regelkoder": [
+        "BESKRIVELSE_MANGLER"
+      ]
+    },
+    {
+      "id": "GR-35",
+      "tilfelle": "Byggherren godkjenner fra appen et grunnlag som blir en endringsordre etter § 32.3 første ledd a, og TEs krav, sendt fra appen, har ingen beskrivelse av pålegget, for eksempel fordi en annen skriver har lagret det.",
+      "forventet": "Svaret avvises og lagres ikke, fordi endringsordren ikke kan si hva endringen går ut på (§ 31.3). Påberoper byggherren preklusjon, er godkjenningen ikke en endringsordre, og svaret godtas.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Ingen endringsordre fra appen.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "GR-U14",
+        "GR-U15",
+        "GR-U12",
+        "GR-U13"
+      ],
+      "tolkningsstatus": "arbeidshypotese",
+      "funksjoner": [
+        "kjerne/frosset/brevtekst.ts#endringsordretekst"
+      ],
+      "regelkoder": [
+        "PAALEGGET_IKKE_BESKREVET"
+      ]
+    },
+    {
       "id": "KA-31",
       "tilfelle": "TE sier «ingen krav» i vederlag eller frist fra appen.",
       "forventet": "Kommandoen godtas i et spor uten kravversjon når grunnlaget er sendt, også etter et varsel etter § 33.4. Den avvises før grunnlaget er sendt, i et spor med krav (TE trekker kravet i stedet), og når TE alt har sagt «ingen krav» i sporet. Kommandoen har ingen fritekst.",
@@ -2868,7 +2930,7 @@
     {
       "id": "VS-04",
       "tilfelle": "TE påberoper byggherrens passivitet etter § 32.3 annet ledd.",
-      "forventet": "Påberopelsen registreres og vises før og etter byggherrens svar, uten virkning på utfallet, og sperrer ikke svaret. Den avvises når § 32.2 ikke gjelder kategorien.",
+      "forventet": "Påberopelsen registreres og vises før og etter byggherrens svar, uten virkning på utfallet, og sperrer ikke svaret. Den avvises når § 32.2 ikke gjelder kategorien, og når den ikke viser til TEs varsel etter § 32.2.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Appen avgjør ikke om vilkårene var oppfylt.",
       "rettidighet": "—",
@@ -2884,7 +2946,8 @@
         "kjerne/kommandoer/forutsetninger.ts#henvisning"
       ],
       "regelkoder": [
-        "VARSLINGSPLIKT_GJELDER_IKKE"
+        "VARSLINGSPLIKT_GJELDER_IKKE",
+        "INGEN_VARSEL_ETTER_32_2"
       ]
     },
     {
@@ -3132,23 +3195,38 @@
       "funksjoner": [
         "kjerne/utledning/utled.ts#dokumentasjonIBrevet"
       ]
+    },
+    {
+      "id": "KA-51",
+      "tilfelle": "Avsenderen sender et brev der teksten avsenderen har sett, ikke er den serveren lager, for eksempel fordi klienten regnet med et regelsett som er erstattet.",
+      "forventet": "Brevet avvises og lagres ikke. Med teksten serveren lager, godtas det.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Brevet er ikke sendt.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "LV-U2"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/skriving.ts#tekstavvik"
+      ],
+      "regelkoder": [
+        "ANNEN_BREVTEKST"
+      ]
     }
   ],
   "koder_uten_rad": {
-    "ALLEREDE_SVART": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "ANNEN_BREVTEKST": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "ALLEREDE_SVART": "Kontrollen av kommandoen: et svar på en kravversjon som allerede har et svar, avvises, og svaret revideres i stedet. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "VEDLEGG_FINNES_IKKE": "Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts` og `server/tester/vedlegg.test.ts`.",
-    "ANNET_RESULTAT": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "DATO_ETTER_BREVET": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "BESKRIVELSE_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "BREVTEKST_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475).",
-    "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak kontrollerer koden ennå (#475).",
+    "ANNET_RESULTAT": "Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, ingen rad sier den, og ingen bevis-sak prøver den.",
+    "DATO_ETTER_BREVET": "Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`.",
+    "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den, og ingen bevis-sak prøver den ennå: kjøreren i `kjerne/tester/kjoerer.ts` sender kommandoen uten tekst bare når forhåndsvisningen avviser den (#877). Den prøves i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
+    "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
+    "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
     "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen.",
-    "INGEN_KRAV": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "INGEN_SVAR": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "INGEN_VARSEL_ETTER_32_2": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "PAALEGGET_IKKE_BESKREVET": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "INGEN_KRAV": "Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "INGEN_SVAR": "Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
     "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet.",
     "VURDERING_UTENFOR_KJERNEN": "Avvisningen av en vurdering kjernen ennå ikke kan lagre (`utenforOmfanget`). Raden VS-03 viste til den til sperren etter en innsigelse mot vederlagskravet ble fjernet (VS-U24, #517); ingen rad sier avvisningen nå."
   }
