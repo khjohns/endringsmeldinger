@@ -102,18 +102,20 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     return { id, catenda, catendaId: catendaId(catenda)! };
   }
 
-  function synk(
+  async function synk(
     p: { id: string; catenda: string },
     medlemmer: Medlem[],
     hentet: Date,
     pool: Pool = kjoeretid.pool
   ) {
-    return synkroniserMedlemskap(pool, {
-      prosjekt: p.id,
-      catendaProsjekt: p.catenda,
-      hentet,
-      medlemmer,
-    });
+    return (
+      await synkroniserMedlemskap(pool, {
+        prosjekt: p.id,
+        catendaProsjekt: p.catenda,
+        hentet,
+        medlemmer,
+      })
+    ).skrevet;
   }
 
   async function medlemskap(prosjektId: string): Promise<Medlemsrad[]> {
@@ -133,6 +135,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     }>(`SELECT catenda_project_id, synced_at FROM koe.app_membership_sync WHERE project_id = @p`);
     return svar.recordset[0];
   }
+
+  /** Basens klokke etter `synced_at` i synkraden, så en liste hentet nå skrives (DL-U7). */
+  const etterSynkraden = async (prosjektId: string) =>
+    basensKlokkeEtter(base.pool, (await synkrad(prosjektId)).synced_at);
 
   async function brukere(subjekter: string[]) {
     const svar = await base.pool
@@ -861,10 +867,6 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       return { id: prosjektId, catenda };
     }
 
-    /** Basens klokke etter at triggeren førte endringen av koblingen. */
-    const etterEndringen = async (prosjektId: string) =>
-      basensKlokkeEtter(base.pool, (await synkrad(prosjektId)).synced_at);
-
     it.each([
       [
         'endres til et annet Catenda-prosjekt',
@@ -900,7 +902,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       );
       expect(await synk(ny, [a, b], sekunder(-2))).toBe(false);
       expect(await aktive(p.id)).toEqual([]);
-      expect(await synk(ny, [a, b], await etterEndringen(p.id))).toBe(true);
+      expect(await synk(ny, [a, b], await etterSynkraden(p.id))).toBe(true);
       expect(await aktive(p.id)).toEqual([a.subjekt, b.subjekt].sort());
       expect(await medlemslistensAlder(kjoeretid.pool, p.id)).not.toBeNull();
     });
@@ -920,7 +922,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       expect(await aktive(p.id)).toEqual([]);
       expect(await medlemslistensAlder(kjoeretid.pool, p.id)).toBeNull();
       expect(await synk(p, [a], sekunder(-5))).toBe(false);
-      expect(await synk(p, [a], await etterEndringen(p.id))).toBe(true);
+      expect(await synk(p, [a], await etterSynkraden(p.id))).toBe(true);
       expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
 
@@ -1005,7 +1007,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       // En liste hentet etter at denne hentingen begynte, skrives først (DL-U7).
       let hentet: Date | undefined;
       const senere = await synkroniserProsjekt(kjoeretid.pool, p.id, async () => {
-        hentet = await basensKlokkeEtter(base.pool, (await synkrad(p.id)).synced_at);
+        hentet = await etterSynkraden(p.id);
         expect(await synk(p, [a], hentet)).toBe(true);
         return [];
       });

@@ -83,8 +83,10 @@ function kontrollerAdresse(verdi: string, miljoe: NodeJS.ProcessEnv): URL {
 
 /**
  * Innloggingen fra miljøet, med klienten integrasjonen også bruker når den er gitt
- * (#726 punkt 4). Kaster når oppsettet mangler eller er ugyldig; meldingen har aldri
- * med verdiene, så hemmeligheten ikke kan havne i loggen.
+ * (#726 punkt 4). Tilbakekallsadressen kontrolleres slik klienten sender den til
+ * Catenda, ikke i `miljoe`, som klienten kan være bygget uten (#879 punkt 4). Kaster
+ * når oppsettet mangler eller er ugyldig; meldingen har aldri med verdiene, så
+ * hemmeligheten ikke kan havne i loggen.
  */
 export function innloggingFraMiljoe(
   miljoe: NodeJS.ProcessEnv = process.env,
@@ -92,9 +94,13 @@ export function innloggingFraMiljoe(
 ): Innlogging {
   const frontend = kontrollerAdresse(miljoe.AUTH_FRONTEND_URL ?? '', miljoe);
   if (frontend.pathname !== '/') throw new Error('AUTH_FRONTEND_URL må være en opprinnelse');
-  kontrollerAdresse(miljoe.CATENDA_LOGIN_REDIRECT_URI ?? '', miljoe);
+  const { oauth } = catenda ?? catendaFraMiljoe(miljoe);
+  const tilbakekallsadresse = new URL(oauth.autorisasjonsadresse('')).searchParams.get(
+    'redirect_uri'
+  );
+  kontrollerAdresse(tilbakekallsadresse ?? '', miljoe);
   // Opprinnelsen har verten i punycode, så adressen kan stå i `Location` (#763 punkt 8).
-  return { frontend: frontend.origin, oauth: (catenda ?? catendaFraMiljoe(miljoe)).oauth };
+  return { frontend: frontend.origin, oauth };
 }
 
 /**

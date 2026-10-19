@@ -410,7 +410,10 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
     }
   });
 
-  it('en feil under skrivingen av brevet gir 503 UTFALL_USIKKERT, og et nytt forsøk med samme ID lagrer det én gang (#816 p1)', async () => {
+  // Kilde: oppdragsgiver 19.10, svar 3 i #764 (#877 #893-1): en kjent programfeil gir 500 med en
+  // feilkode, og UTFALL_USIKKERT bare når det er uvisst om noe ble lagret. Feilen kastes inne i
+  // transaksjonen, før COMMIT, så ingenting er lagret, og et nytt forsøk lagrer brevet én gang.
+  it('en programfeil under skrivingen av brevet gir 500 INTERNAL_ERROR, og ingenting er lagret (#893-1)', async () => {
     const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
     const feilende = await medFeil(new Error('Uventet'), 'nyId');
     try {
@@ -425,9 +428,11 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
           prosjektId: o.prosjekt.id,
           kropp,
         });
+      const foer = await antall();
       const svar = await send();
-      expect(svar.status, JSON.stringify(svar.kropp)).toBe(503);
-      expect(svar.kropp.error).toBe('UTFALL_USIKKERT');
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(500);
+      expect(svar.kropp.error).toBe('INTERNAL_ERROR');
+      expect((await antall()).hendelser).toBe(foer.hendelser);
       const igjen = await send();
       expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
       expect(igjen.kropp.versjon).toBe(2);
@@ -483,18 +488,63 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
   );
 
   // Kilde: oppdragsgiver 19.10 i #816 p4: -999 fra `sp_getapplock` gir 51407, som serveren
-  // gjør til 500. Basen kan ikke fås til å gi -999, så feilnummeret kastes i skrivingen.
-  // Og i #816 p1: «en sikker kode før» skrivingen. Vår lesing: `UgyldigKontekst` kastes før en
-  // forbindelse er lånt (datalag.ts). Feilen kastes her i skrivingen, som 51407.
-  it.each([
-    [
-      '51407 fra låsen',
-      Object.assign(new Error('Kallet på låsen for kvitteringen feilet'), { number: 51407 }),
-    ],
-    ['en ugyldig kontekst', new UgyldigKontekst('Teamet er ikke 32 små heksadesimale tegn.')],
-  ])('%s gir 500 med en sikker kode, ikke UTFALL_USIKKERT (#816 p1 og p4)', async (_, feil) => {
+  // gjør til 500. Basen kan ikke fås til å gi -999, så kallet på `koe_api.kvittering`, som tar
+  // låsen, kaster 51407 i stedet, for opprettelsen og for brevet (#877 #893-3).
+  it.each(['opprettelsen', 'brevet'] as const)(
+    '51407 fra låsen gir 500 med en sikker kode for %s, ikke UTFALL_USIKKERT (#816 p4)',
+    async (hva) => {
+      const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
+      const [sti, kropp] =
+        hva === 'opprettelsen'
+          ? [SAKER, { kommando_id: randomUUID(), kommando: OPPRETT }]
+          : [
+              `${SAKER}/${sakId}/kommandoer`,
+              {
+                expected_version: 1,
+                kommando_id: randomUUID(),
+                kommando: await medTekst(sakId, GRUNNLAGSKRAV),
+              },
+            ];
+      const ekte = sql.Request.prototype.execute;
+      let kastet = false;
+      const spion = vi.spyOn(sql.Request.prototype, 'execute').mockImplementation(function (
+        this: InstanceType<typeof sql.Request>,
+        prosedyre: string
+      ) {
+        if (prosedyre === 'koe_api.kvittering' && !kastet) {
+          kastet = true;
+          return Promise.reject(
+            Object.assign(new Error('Kallet på låsen for kvitteringen feilet'), { number: 51407 })
+          );
+        }
+        return (ekte as (p: string) => Promise<unknown>).call(this, prosedyre);
+      } as typeof ekte);
+      const foer = await antall();
+      try {
+        const svar = await kall(server.url, sti, {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp,
+        });
+        expect(kastet).toBe(true);
+        expect(svar.status, JSON.stringify(svar.kropp)).toBe(500);
+        expect(svar.kropp.error).toBe('INTERNAL_ERROR');
+      } finally {
+        spion.mockRestore();
+      }
+      expect(await antall()).toEqual(foer);
+    }
+  );
+
+  // Kilde: #816 p1 «en sikker kode før» skrivingen. `UgyldigKontekst` kastes av `kontroller()`
+  // før en forbindelse er lånt (datalag.ts). En gyldig sesjon gir alltid en gyldig kontekst, så
+  // over HTTP kastes feilen her inne i skrivingen; svaret er det samme (#893-3).
+  it('en ugyldig kontekst gir 500 med en sikker kode, ikke UTFALL_USIKKERT (#816 p1)', async () => {
     const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
-    const feilende = await medFeil(feil, 'nyId');
+    const feilende = await medFeil(
+      new UgyldigKontekst('Teamet er ikke 32 små heksadesimale tegn.'),
+      'nyId'
+    );
     try {
       const svar = await kall(feilende.url, `${SAKER}/${sakId}/kommandoer`, {
         bruker: o.te,

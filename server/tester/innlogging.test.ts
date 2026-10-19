@@ -96,6 +96,16 @@ describe('innloggingen fra miljøet, som validate_config', () => {
     expect(innloggingFraMiljoe(miljoe, klient).oauth).toBe(klient.oauth);
   });
 
+  it('kontrollerer tilbakekallsadressen klienten bruker, ikke den i miljøet (#879 punkt 4)', () => {
+    const klient = catendaFraMiljoe({
+      ...miljoe,
+      CATENDA_LOGIN_REDIRECT_URI: 'https://app.example.no/callback?x=1',
+    });
+    expect(() => innloggingFraMiljoe(miljoe, klient)).toThrow(
+      'Innloggingen trenger statiske HTTPS-adresser'
+    );
+  });
+
   it('godtar HTTP mot localhost bare i utvikling', () => {
     const lokal = {
       ...miljoe,

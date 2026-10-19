@@ -311,11 +311,15 @@ async function sakerIProsjektet(
   );
 }
 
+/** Stien har verken sak eller prosjekt, som opprettelsen av en sak. */
+export const UTEN_STI = Object.freeze({ utenSti: true } as const);
+
 /**
- * Saken eller prosjektet i URL-en, eller `null` når stien har ingen av dem. Et
- * objekt med navngitte felt, så kompilatoren fanger en ombytting (#763 punkt 4).
+ * Saken eller prosjektet i URL-en, eller `UTEN_STI`. Et objekt med navngitte felt,
+ * så kompilatoren fanger en ombytting (#763 punkt 4), og ingen tom verdi, så en
+ * rute ikke slipper kontrollen av stien ved å utelate den (#763, 17.10).
  */
-export type FraSti = { sakId: string } | { prosjektId: string } | null;
+export type FraSti = { sakId: string } | { prosjektId: string } | typeof UTEN_STI;
 
 /**
  * `require_project_access(min_role)`. `fraSti` er saken eller prosjektet i URL-en;
@@ -336,7 +340,7 @@ export async function krevProsjekttilgang(
   const prosjektId = typeof hode === 'string' && hode ? hode : null;
   if (!prosjektId || !gyldigProsjektId(prosjektId)) throw nekt();
   // Ellers kunne stien vise et annet prosjekt enn det tilgangen er avgjort for (#724 punkt 1).
-  if (fraSti && 'prosjektId' in fraSti && fraSti.prosjektId !== prosjektId) throw nekt();
+  if ('prosjektId' in fraSti && fraSti.prosjektId !== prosjektId) throw nekt();
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
     if (!oppsett) throw nekt();
@@ -364,8 +368,7 @@ export async function krevProsjekttilgang(
     )
       throw nekt();
     const saker = sakerDetVisesTil(kropp);
-    const hovedsak =
-      (fraSti && 'sakId' in fraSti ? fraSti.sakId : null) ?? kropp.sak_id ?? kropp.sakId;
+    const hovedsak = ('sakId' in fraSti ? fraSti.sakId : null) ?? kropp.sak_id ?? kropp.sakId;
     if (typeof hovedsak === 'string' && hovedsak) saker.add(hovedsak);
     // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
     const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, saker);
