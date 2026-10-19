@@ -20,13 +20,7 @@ import type { Kommando } from '$kjerne/kommandoer/kommando';
 import type { Journalrad, Part } from '$kjerne/typer';
 import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { SporKey } from '$lib/components/kontraktsbord/types';
-import {
-  SAK,
-  medGrunnlag,
-  medSvar,
-  medVederlag,
-  skrevet,
-} from '$lib/kjernesak/__tests__/provejournal';
+import { SAK, medGrunnlag, medVederlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
 
 const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
   versjon: journal.length,
@@ -248,6 +242,7 @@ describe('ny versjon av kravet', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av grunnlaget' }));
     expect(screen.getByText(/ny revisjon etter byggherrens svar/)).toBeInTheDocument();
     expect(screen.queryByText('Byggherrens standpunkt')).toBeNull();
+    expect(document.querySelector('.bh-context')).toBeNull();
   });
 });
 
