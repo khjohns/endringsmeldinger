@@ -71,10 +71,11 @@ listen; ellers er testen rød. TRUNCATE avfyrer ingen trigger, men avvises (4712
 for en tabell som en fremmednøkkel fra en annen tabell viser til; en nøkkel
 tabellen har til seg selv, hindrer det ikke (#582). Har en ny uforanderlig tabell
 ingen slik nøkkel mot seg, får `koe.toemmingsvern` en kolonne med fremmednøkkel
-mot den, i en ny migrasjon
-(`database/migrasjoner/20261020011000_toemmingsvern.sql`). Testen av TRUNCATE i
-`server/tester/journal.test.ts` prøver hver tabell med triggeren og er rød for en
-tabell uten vern.
+mot den, med `ALTER TABLE koe.toemmingsvern ADD` i en ny migrasjon, slik
+`database/migrasjoner/20261020021000_vedleggskvittering_vern.sql` gjør. Tabellen
+lages i `20261020011000_toemmingsvern.sql`, som er anvendt og ikke endres.
+Testen av TRUNCATE i `server/tester/journal.test.ts` prøver hver tabell med
+triggeren og er rød for en tabell uten vern.
 
 **Runneren kjøres som `dbo`, databaseeieren** (#564). Da eies skjemaene filene
 lager, av `dbo`, og eierskapskjeden fra `koe_api` og `koe_drift` til tabellene og
