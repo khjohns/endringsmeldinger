@@ -11,7 +11,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId } from '../autorisasjon.ts';
@@ -435,6 +435,51 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
       await feilende.stopp();
     }
   });
+
+  // Kilde: oppdragsgiver 19.10 i #816 p1: UTFALL_USIKKERT for hver feil etter at skrivingen kan
+  // ha begynt, også når svaret ikke kan skrives etter COMMIT (reservesvaret i ruteren).
+  it.each([
+    ['opprettelsen', 'sak_id'],
+    ['et brev', 'leveringsoppdrag'],
+  ])(
+    'kan ikke svaret på %s skrives etter COMMIT, er svaret 503 UTFALL_USIKKERT, og et nytt forsøk med samme ID gir én hendelse (#816 p1)',
+    async (_, kjennetegn) => {
+      const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
+      const [sti, kropp] =
+        kjennetegn === 'sak_id'
+          ? [SAKER, { kommando_id: randomUUID(), kommando: OPPRETT }]
+          : [
+              `${SAKER}/${sakId}/kommandoer`,
+              {
+                expected_version: 1,
+                kommando_id: randomUUID(),
+                kommando: await medTekst(sakId, GRUNNLAGSKRAV),
+              },
+            ];
+      const send = () => kall(server.url, sti, { bruker: o.te, prosjektId: o.prosjekt.id, kropp });
+      const ekte = JSON.stringify;
+      let kastet = false;
+      const spion = vi.spyOn(JSON, 'stringify').mockImplementation((verdi, ...resten) => {
+        if (!kastet && verdi && typeof verdi === 'object' && kjennetegn in verdi) {
+          kastet = true;
+          throw new TypeError('Svaret kan ikke serialiseres');
+        }
+        return ekte(verdi, ...resten);
+      });
+      const foer = await antall();
+      try {
+        const svar = await send();
+        expect(kastet).toBe(true);
+        expect(svar.status, JSON.stringify(svar.kropp)).toBe(503);
+        expect(svar.kropp.error).toBe('UTFALL_USIKKERT');
+      } finally {
+        spion.mockRestore();
+      }
+      const igjen = await send();
+      expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
+      expect((await antall()).hendelser).toBe(foer.hendelser + 1);
+    }
+  );
 
   // Kilde: oppdragsgiver 19.10 i #816 p4: -999 fra `sp_getapplock` gir 51407, som serveren
   // gjør til 500. Basen kan ikke fås til å gi -999, så feilnummeret kastes i skrivingen.

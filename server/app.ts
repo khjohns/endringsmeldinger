@@ -15,7 +15,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import { STATUS_CODES, type IncomingMessage, type ServerResponse } from 'node:http';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import { utledJournal, vurder } from '../kjerne/kommandoer/skriving.ts';
 import type { Avvisning, Journalrad } from '../kjerne/typer.ts';
@@ -137,6 +137,11 @@ interface Felles {
   eksempel: (id: string) => string;
   /** Hoder på hvert svar fra inngangen, også en avvisning. */
   hoder?: Record<string, string>;
+  /**
+   * Inngangen skriver en kommando med kommando-ID (#418). Kan ikke svaret skrives
+   * etter at skrivingen kan ha begynt, er utfallet usikkert (oppdragsgiver 19.10, #816 p1).
+   */
+  kommando?: true;
 }
 
 type Behandler<F> = (f: F, avh: Required<Avhengigheter>) => Promise<Svar>;
@@ -257,12 +262,15 @@ const regelavvisning = ({ feil, avvisning }: { feil: string; avvisning: Avvisnin
 function usikkert(feil: unknown): Svar {
   if (!(feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt))
     loggFeil('Kommandoen feilet etter at skrivingen kan ha begynt', feil);
-  return feilsvar(
+  return utfallUsikkert();
+}
+
+const utfallUsikkert = () =>
+  feilsvar(
     503,
     'UTFALL_USIKKERT',
     'Det er usikkert om kommandoen ble lagret. Send den på nytt med samme kommando-ID.'
   );
-}
 
 /**
  * Svaret på en feil fra skrivelaget, felles for inngangene (#743). En feil uten egen
@@ -526,6 +534,7 @@ const KJERNERUTER: readonly Saksrute[] = [
     sti: new RegExp(`^/api/kjerne/saker/${SAK}/kommandoer$`),
     eksempel: (s) => `/api/kjerne/saker/${s}/kommandoer`,
     tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves' },
+    kommando: true,
     behandle: sendKommando,
   },
 ];
@@ -539,6 +548,7 @@ const OPPRETTELSE: Opprettelsesrute = {
     nySak:
       'Opprettelsen: saken finnes ikke før basen har laget saks-ID-en, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE oppretter (OV-U1, #696).',
   },
+  kommando: true,
   behandle: opprettNySak,
 };
 
@@ -684,10 +694,14 @@ export function lagServer(avh: Avhengigheter) {
       respons.writeHead(status, svarhoder([status, kropp, hoder], funnet?.r.hoder));
     } catch (feil) {
       loggFeil('Svaret kunne ikke skrives', feil);
-      const reserve = uventet();
+      // Et svar som sier at kommandoen er lagret eller kan være det, blir usikkert (#816 p1).
+      const etterSkrivingen =
+        funnet?.r.kommando &&
+        (status < 300 || (kropp as { error?: unknown } | null)?.error === 'UTFALL_USIKKERT');
+      const reserve = etterSkrivingen ? utfallUsikkert() : uventet();
       tekst = JSON.stringify(reserve[1]);
       // Node beholder årsaksfrasen fra det første forsøket, og rutens hoder gjelder også dette svaret.
-      respons.writeHead(500, 'Internal Server Error', svarhoder(reserve, funnet?.r.hoder));
+      respons.writeHead(reserve[0], STATUS_CODES[reserve[0]], svarhoder(reserve, funnet?.r.hoder));
     }
     respons.end(tekst);
   };
