@@ -16,6 +16,7 @@
   // (GR-U22, VS-U26), uten vedlegg og utkast. Kjernen avgjør om beskrivelsen kreves (GR-U15).
   const kjernesak = store.erKjernesak ? store : null;
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
+  import { letterText } from '$lib/approval/letter';
   const claimReview = getClaimReview();
   import { TRACK_ICONS } from './data.js';
   import { buildTeRevisionEventData as buildDomainData } from '$lib/domain/grunnlagDomain';
@@ -69,7 +70,7 @@
     {
       sakId: store.sak.sak_id,
       spor: 'grunnlag',
-      revisjon: kjernesak ? 0 : store.sak.grunnlag.antall_versjoner,
+      revisjon: kjernesak ? kjernesak.kravversjon('ansvar') : store.sak.grunnlag.antall_versjoner,
     },
     () => ({ vedleggIds, begrunnelseHtml }),
     (saved) => {
@@ -82,7 +83,10 @@
     begrunnelseHtml.trim() !== originalBegrunnelse.trim() || vedleggIds.length > 0
   );
   // Kjernen vurderer ikke om beskrivelsen er nok (KA-U19), så TS-saken krever ikke 10 tegn.
-  const kanSende = $derived(charCount >= (kjernesak ? 1 : 10) && erEndret);
+  // TS-saken: blanke tegn teller ikke, som i adapteren (#943).
+  const kanSende = $derived(
+    (kjernesak ? letterText(begrunnelseHtml).trim().length > 0 : charCount >= 10) && erEndret
+  );
 
   $effect(() => {
     onactions?.({

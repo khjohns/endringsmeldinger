@@ -29,10 +29,31 @@
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
-  // TS-saken (#909): foreløpig varsel uten fritekst (VS-U15) og spesifisert krav med
-  // begrunnelse (KA-U33), uten utsatt beregning, vedlegg og utkast. Kravversjonen og
+  // TS-saken (#909): foreløpig varsel uten fritekst (VS-U15), registrering av et varsel
+  // sendt utenfor appen med datoen og brevet som vedlegg (MM-U1, OV-U4), og spesifisert
+  // krav med begrunnelse (KA-U33), uten utsatt beregning og utkast. Kravversjonen og
   // varselet kommer fra kjernen.
   const kjernesak = store.erKjernesak ? store : null;
+  import { letterText } from '$lib/approval/letter';
+  import type { Kjernevedlegg } from '$lib/api/kjerne';
+  const kanRegistrere = $derived(kjernesak?.tilbyrTe('varsle:frist') ?? false);
+  const idag = new Date().toLocaleDateString('sv-SE');
+  let varselSendt = $state('');
+  let registrerteVedlegg = $state<Kjernevedlegg[]>([]);
+  let opplastingsfeil = $state<string | null>(null);
+  async function lastOppTilKjernen(filer: FileList | null) {
+    if (!filer?.length || !kjernesak) return;
+    vedleggOpptatt = true;
+    opplastingsfeil = null;
+    try {
+      for (const fil of Array.from(filer))
+        registrerteVedlegg = [...registrerteVedlegg, await kjernesak.kjernesak.lastOppVedlegg(fil)];
+    } catch (e) {
+      opplastingsfeil = e instanceof Error ? e.message : 'Filen ble ikke lastet opp.';
+    } finally {
+      vedleggOpptatt = false;
+    }
+  }
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import FormPageHeader from './components/FormPageHeader.svelte';
@@ -46,7 +67,12 @@
     onactions,
   }: {
     onsend: () => void;
-    onactions?: (a: { canSend: boolean; sendLabel?: string; send: () => void }) => void;
+    onactions?: (a: {
+      canSend: boolean;
+      sendLabel?: string;
+      send: () => void;
+      utenBrev?: boolean;
+    }) => void;
   } = $props();
 
   const existing = store.sak.frist;
@@ -85,30 +111,53 @@
       : undefined,
   });
 
-  let varselType = $state<FristVarselType | undefined>(defaults.varselType);
+  // Tilbyr kjernen bare registreringen, er den valgt (VS-U16).
+  let varselType = $state<FristVarselType | 'registrert' | undefined>(
+    kjernesak?.tilbyrTe('varsle:frist') &&
+      !kjernesak.tilbyrTe('krav:frist') &&
+      !kjernesak.tilbyrTe('sende_varsel:frist')
+      ? 'registrert'
+      : defaults.varselType
+  );
+  const registrerer = $derived(varselType === 'registrert');
   let antallDager = $state<number | undefined>(defaults.antallDager || undefined);
   let begrunnelse = $state(defaults.begrunnelse);
   let charCount = $state(defaults.begrunnelse.replace(/<[^>]*>/g, '').trim().length);
 
-  const visibility = $derived(beregnVisibility({ varselType }, { scenario }));
+  const visibility = $derived(
+    beregnVisibility(
+      { varselType: registrerer ? 'varsel' : (varselType as FristVarselType) },
+      { scenario }
+    )
+  );
+  // Kjernen tilbyr valgene. Utsatt beregning etter § 33.6.2 har ingen kommando ennå.
   const segmentOptions = $derived(
-    kjernesak && scenario !== 'new'
-      ? visibility.segmentOptions.filter((o) => o.value === 'spesifisert')
+    kjernesak
+      ? [
+          ...(kjernesak.tilbyrTe('sende_varsel:frist')
+            ? [{ value: 'varsel', label: 'Foreløpig varsel' }]
+            : []),
+          ...(kjernesak.tilbyrTe('krav:frist')
+            ? [{ value: 'spesifisert', label: 'Spesifisert krav' }]
+            : []),
+          ...(kanRegistrere ? [{ value: 'registrert', label: 'Varsel sendt utenfor appen' }] : []),
+        ]
       : visibility.segmentOptions
   );
-  // KA-U33: kjernen avviser et fristkrav uten begrunnelse (BEGRUNNELSE_MANGLER).
+  // KA-U33: kjernen avviser et fristkrav uten begrunnelse (BEGRUNNELSE_MANGLER). Blanke
+  // tegn teller ikke, som i adapteren (#943).
   const begrunnelseMangler = $derived(
-    Boolean(kjernesak) && varselType === 'spesifisert' && charCount === 0
+    Boolean(kjernesak) && varselType === 'spesifisert' && !letterText(begrunnelse).trim()
   );
   const varselDatoLabel = $derived(formatDateShortNorwegian(existingVarselDato));
   const mappedState: FristSubmissionFormState = $derived({
-    varselType,
+    varselType: registrerer ? 'varsel' : (varselType as FristVarselType | undefined),
     tidligereVarslet: Boolean(existingVarselDato),
     varselDato: existingVarselDato,
     antallDager: antallDager ?? 0,
     nySluttdato: undefined,
     // Varselet fra appen har ingen fritekst i TS-saken (VS-U15).
-    begrunnelse: kjernesak && varselType === 'varsel' ? '' : begrunnelse,
+    begrunnelse: kjernesak && (varselType === 'varsel' || registrerer) ? '' : begrunnelse,
     begrunnelseValidationError: undefined,
     vilkarOppfylt: undefined,
   });
@@ -116,6 +165,10 @@
   const kanSende = $derived(
     kjernesak
       ? varselType === 'varsel' ||
+          (registrerer &&
+            varselSendt !== '' &&
+            varselSendt <= idag &&
+            registrerteVedlegg.length > 0) ||
           (varselType === 'spesifisert' &&
             Number.isInteger(antallDager) &&
             (antallDager ?? 0) > 0 &&
@@ -128,12 +181,12 @@
     {
       sakId: store.sak.sak_id,
       spor: 'frist',
-      revisjon: kjernesak ? 0 : store.sak.frist.antall_versjoner,
+      revisjon: kjernesak ? kjernesak.kravversjon('frist') : store.sak.frist.antall_versjoner,
     },
     () => ({ vedleggIds, varselType, antallDager, begrunnelse }),
     (saved) => {
       vedleggIds = saved.vedleggIds ?? [];
-      varselType = saved.varselType;
+      varselType = saved.varselType as FristVarselType | undefined;
       antallDager = saved.antallDager;
       begrunnelse = saved.begrunnelse ?? '';
     }
@@ -142,8 +195,10 @@
   $effect(() => {
     onactions?.({
       canSend: kanSende && !submission.pending && !vedleggOpptatt,
-      sendLabel:
-        scenario === 'edit'
+      utenBrev: registrerer,
+      sendLabel: registrerer
+        ? 'Registrer varselet'
+        : scenario === 'edit'
           ? 'Send oppdatert krav'
           : scenario === 'spesifisering'
             ? 'Send spesifisert krav'
@@ -158,24 +213,31 @@
               await claimReview.submit(
                 'frist',
                 getEventType({ scenario }) as EventType,
-                buildEventData(mappedState, {
-                  scenario,
-                  grunnlagEventId:
-                    submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
-                  originalEventId:
-                    scenario !== 'new'
-                      ? (submissionRefs(store.timeline, 'frist').claimId ??
-                        existing.varsler?.find((v) => v.type === 'frist')?.event_id)
-                      : undefined,
-                  erSvarPaForesporsel: scenario === 'foresporsel',
-                }),
+                {
+                  ...(registrerer
+                    ? { registrert: { sendt: varselSendt, vedlegg: registrerteVedlegg } }
+                    : {}),
+                  ...buildEventData(mappedState, {
+                    scenario,
+                    grunnlagEventId:
+                      submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
+                    originalEventId:
+                      scenario !== 'new'
+                        ? (submissionRefs(store.timeline, 'frist').claimId ??
+                          existing.varsler?.find((v) => v.type === 'frist')?.event_id)
+                        : undefined,
+                    erSvarPaForesporsel: scenario === 'foresporsel',
+                  }),
+                },
                 () => {
-                  if (store.isDemo) store.sendTeFrist(antallDager, varselType, begrunnelse);
+                  if (store.isDemo)
+                    store.sendTeFrist(antallDager, varselType as FristVarselType, begrunnelse);
                 }
               );
               return;
             }
-            if (store.isDemo) store.sendTeFrist(antallDager, varselType, begrunnelse);
+            if (store.isDemo)
+              store.sendTeFrist(antallDager, varselType as FristVarselType, begrunnelse);
             else
               await store.submit(getEventType({ scenario }) as EventType, {
                 ...buildEventData(mappedState, {
@@ -241,7 +303,7 @@
       <span class="font-mono standpunkt-ref">§ 33.1</span>
     </div>
 
-    {#if scenario !== 'edit'}
+    {#if scenario !== 'edit' || segmentOptions.length > 1 || registrerer}
       <FormSection title="Kravstype" paragrafRef="§ 33.4 / § 33.6">
         <SegmentedControl
           label="Kravstype"
@@ -249,7 +311,12 @@
           value={varselType ?? ''}
           onchange={(value) => (varselType = value as FristVarselType)}
         />
-        {#if varselType === 'varsel' && kjernesak}
+        {#if registrerer}
+          <p class="helptext">
+            Registrer et varsel etter § 33.4 som er sendt utenfor appen, med datoen det ble sendt og
+            brevet som vedlegg. Appen lager ikke noe brev, og datoen kan ikke endres etterpå.
+          </p>
+        {:else if varselType === 'varsel' && kjernesak}
           <p class="helptext">
             Varselet etter § 33.4 sendes med dagens dato, uten dager og uten fritekst. Antall dager
             kreves senere i et spesifisert krav.
@@ -271,7 +338,51 @@
       </FormSection>
     {/if}
 
-    {#if visibility.showKravSection}
+    {#if registrerer}
+      <FormSection title="Varselet som er sendt" paragrafRef="§ 33.4">
+        <label class="field-label" for="te-frist-varsel-sendt">Datoen varselet ble sendt</label>
+        <input
+          id="te-frist-varsel-sendt"
+          class="field-input"
+          type="date"
+          max={idag}
+          bind:value={varselSendt}
+        />
+        {#if varselSendt > idag}
+          <p class="helptext" role="status">Datoen er etter dagens dato.</p>
+        {/if}
+        <label class="field-label" for="te-frist-varsel-brev">Brevet med varselet</label>
+        <input
+          id="te-frist-varsel-brev"
+          type="file"
+          multiple
+          disabled={vedleggOpptatt}
+          onchange={(e) => {
+            const felt = e.currentTarget;
+            void lastOppTilKjernen(felt.files).then(() => (felt.value = ''));
+          }}
+        />
+        {#if vedleggOpptatt}<p class="helptext" role="status">Laster opp …</p>{/if}
+        {#if opplastingsfeil}<p role="alert">{opplastingsfeil}</p>{/if}
+        {#if registrerteVedlegg.length}
+          <ul class="vedleggsliste">
+            {#each registrerteVedlegg as v (v.vedlegg_id)}
+              <li>
+                {v.filnavn}
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick={() => (registrerteVedlegg = registrerteVedlegg.filter((x) => x !== v))}
+                  >Fjern</button
+                >
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="helptext">Brevet som ble sendt, må ligge ved.</p>
+        {/if}
+      </FormSection>
+    {:else if visibility.showKravSection}
       {#if varselType === 'spesifisert'}
         <FormSection title="Utmåling" paragrafRef="§ 33.5">
           <p class="helptext">
@@ -297,14 +408,12 @@
           ? 'Forklar hvorfor kravet ikke kan beregnes nå, og når et spesifisert krav kan forventes.'
           : 'Beskriv fremdriftshindringen, sammenhengen med kontraktsforholdet og hvordan antall dager er beregnet. Oppgi om virkningen ligger på kritisk linje.'}
         body={begrunnelse}
-        placeholder={getDynamicPlaceholder(varselType)}
+        placeholder={getDynamicPlaceholder(mappedState.varselType)}
         onchange={(html) => (begrunnelse = html)}
         oncharcount={(count) => (charCount = count)}
       />
       {#if begrunnelseMangler}
-        <p class="helptext" role="status">
-          Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1).
-        </p>
+        <p class="helptext" role="status">Begrunnelsen for antallet dager mangler.</p>
       {/if}
     {/if}
 
@@ -318,6 +427,33 @@
 {/if}
 
 <style>
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 12px 0 6px;
+  }
+  .field-input {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .vedleggsliste {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .vedleggsliste li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
   .prior-notice {
     margin-bottom: 24px;
     padding: 18px 20px;

@@ -9,6 +9,8 @@
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { KRAVINNHOLD, oppgittDato, type OppgittDato } from '$kjerne/format/format';
 import { kategoriFraKatalogen, UNDERKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';
+import { letterText } from '$lib/approval/letter';
+import { utenVedlegg } from './skjemadata';
 
 export interface Grunnlagsvalg {
   /** Katalogens kode, som `ENDRING`. */
@@ -98,4 +100,18 @@ export function nyGrunnlagsversjon(
   );
   const tekst = utdypning.trim();
   return { type: 'krav', spor: 'grunnlag', innhold, ...(tekst ? { utdypning: tekst } : {}) };
+}
+
+/**
+ * Den nye versjonen fra dataene `TeGrunnlagForm` bygger: beskrivelsen er HTML fra
+ * editoren og blir utdypningen som ren tekst. Uten sendt grunnlag er det ingen versjon.
+ */
+export function grunnlagsversjonFraSkjema(
+  gjeldende: Record<string, unknown> | undefined,
+  data: { begrunnelse?: string; vedlegg_ids?: string[] }
+): Grunnlagskrav {
+  if (!gjeldende)
+    throw new Error('Grunnlaget er ikke sendt, så det har ingen versjon å oppdatere.');
+  utenVedlegg(data);
+  return nyGrunnlagsversjon(gjeldende, letterText(data.begrunnelse ?? ''));
 }

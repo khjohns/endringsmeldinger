@@ -1,4 +1,9 @@
-import { forhaandsvis, laastTekst, type Kontekst } from '$kjerne/kommandoer/skriving';
+import {
+  forhaandsvis,
+  laastTekst,
+  type Kontekst,
+  type Vedleggsoppslag,
+} from '$kjerne/kommandoer/skriving';
 import { opprettelse as opprett } from '$kjerne/kommandoer/opprettelse';
 import type { Kjerne } from '$kjerne/versjon';
 import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
@@ -6,7 +11,8 @@ import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
 /**
  * Brevet kjernen lager for kommandoen mot journalen slik den er lastet (B-15):
  * den låste teksten, eller avvisningen. `tekst` er `null` når kommandoen ikke lager
- * en tekst, som et registrert brev. Avsenderen ser teksten, og kommandoen bærer den;
+ * en tekst, som et registrert brev; da trenger kjernen vedleggene kommandoen viser
+ * til (`vedlegg`). Avsenderen ser teksten, og kommandoen bærer den;
  * serveren avviser en annen (LV-U2). En programfeil i kjernen kastes videre (#695).
  */
 export type Brev = { tekst: string[] | null } | { avvisning: Avvisning };
@@ -26,9 +32,10 @@ export function brevFor(
   sakId: string,
   part: Part,
   journal: Journalrad[],
-  kjerne: Kjerne
+  kjerne: Kjerne,
+  vedlegg?: Vedleggsoppslag
 ): Brev {
-  const vurdert = forhaandsvis(kommando, stemplet(sakId, part), journal, kjerne);
+  const vurdert = forhaandsvis(kommando, stemplet(sakId, part), journal, kjerne, vedlegg);
   return vurdert.godtatt
     ? { tekst: laastTekst(vurdert.hendelser[0]) }
     : { avvisning: vurdert.avvisning };

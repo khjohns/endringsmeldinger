@@ -10,8 +10,14 @@ import { brevFor, type Brev } from './brevtekst';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
-import { hentKjernesak, nyKommandoId, sendKommando, type Kjernesak } from '$lib/api/kjerne';
-import { utledJournal } from '$kjerne/kommandoer/skriving';
+import {
+  hentKjernesak,
+  lastOppKjernevedlegg,
+  nyKommandoId,
+  sendKommando,
+  type Kjernesak,
+} from '$lib/api/kjerne';
+import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
@@ -137,10 +143,13 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * avvisningen. En programfeil i kjernen blir en melding, så visningen ikke velter.
    * `null` før saken er lastet og uten side.
    */
-  function brev(kommando: Record<string, unknown>): Brev | Programfeil | null {
+  function brev(
+    kommando: Record<string, unknown>,
+    vedlegg?: Vedleggsoppslag
+  ): Brev | Programfeil | null {
     if (!sak || !part) return null;
     try {
-      return brevFor(kommando, sakId, part, journal, kjerne);
+      return brevFor(kommando, sakId, part, journal, kjerne, vedlegg);
     } catch (e) {
       console.error(e);
       return { programfeil: PROGRAMFEIL };
@@ -153,9 +162,14 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * avsenderen har kontrollert, og serveren avviser den hvis saken nå gir en annen
    * (LV-U2). Uten `sett` sendes ingenting kjernen avviser (#695). Er det samme
    * kommandoen mot samme versjon som en ventende, er det samme brukerhandling, og den
-   * sendes med samme ID.
+   * sendes med samme ID. `vedlegg` er vedleggene et registrert brev viser til, som
+   * kjernen trenger for å godta det uten tekst (MM-U17).
    */
-  async function sendMedBrev(kommando: Record<string, unknown>, sett?: string[]): Promise<boolean> {
+  async function sendMedBrev(
+    kommando: Record<string, unknown>,
+    sett?: string[],
+    vedlegg?: Vedleggsoppslag
+  ): Promise<boolean> {
     if (sender) {
       feil = 'Et brev sendes allerede. Vent til det er ferdig.';
       return false;
@@ -170,7 +184,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
         feil = 'Du har ingen kontraktsside i saken og kan ikke sende brev i den.';
         return false;
       }
-      const vurdert = brev(kommando)!;
+      const vurdert = brev(kommando, vedlegg)!;
       if (!('tekst' in vurdert)) {
         feil = brevhindring(vurdert);
         return false;
@@ -253,6 +267,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get handlinger() {
       return tilbudt;
     },
+    /** Regelversjonen brevet forhåndsvises med, som aksepten bærer (KA-U10). */
+    get regelversjon() {
+      return kjerne.regler.versjon;
+    },
     get saksbilde() {
       return bilde;
     },
@@ -280,6 +298,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     last,
     brev,
     send: sendMedBrev,
+    /** Laster opp filen til mellomlageret i saken, i prosjektet fra ruta (#743). */
+    lastOppVedlegg: (fil: File) => lastOppKjernevedlegg(sakId, fil, valg.prosjektId),
     provIgjen,
     fjernFeil,
   };
