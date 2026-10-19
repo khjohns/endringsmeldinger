@@ -35,6 +35,7 @@ import {
   Tilbakerulling,
   transaksjon,
   UGYLDIG,
+  UNIK_NOEKKEL,
   UUID,
   type Foresp,
   type Kontekst,
@@ -76,6 +77,9 @@ export class KommandoIdBrukt extends Error {}
 
 /** Prosjektet har ikke noe topic-board for nye saker, så saken lagres ikke (KT-U4, 51412). */
 export class IngenTopicBoard extends Error {}
+
+/** Topicen saken skulle opprettes fra, hører alt til en sak (#741 punkt 17). */
+export class TopicHarSak extends Error {}
 
 /**
  * Låsen på kommando-ID-en ble ikke gitt: tidsgrensen gikk ut, kallet ble avbrutt
@@ -122,6 +126,10 @@ function oversett(feil: unknown, forventet: number | null): unknown {
       return new KommandoIdBrukt(melding, { cause: feil });
     case INGEN_BOARD:
       return new IngenTopicBoard(melding, { cause: feil });
+    case UNIK_NOEKKEL:
+      return melding.includes('sak_catenda_topic_topic_unik')
+        ? new TopicHarSak(melding, { cause: feil })
+        : feil;
     case BLOKKERT:
       return new SkrivingAvvist(melding, { cause: feil });
     // Et forsøk med samme nøkkel holder låsen og kan ennå committe (#792 punkt 1).
@@ -175,6 +183,14 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
 }
 
 /**
+ * Topicen en sak opprettes fra (KT-U6), med ID-ene i formen 8-4-4-4-12. Saken kobles til
+ * den i transaksjonen, og ingen ny topic lages.
+ */
+export interface Opprettelsesvalg {
+  topic?: { board: string; topic: string };
+}
+
+/**
  * Oppretter saken med `sak_opprettet` som versjon 1. Basen lager saks-ID-en og
  * hendelses-ID-en og stempler tidspunktet, aktøren, siden og teamet. `innhold`
  * er det `opprettelse` i kjernen har godtatt. Bare TE oppretter (OV-U1), også
@@ -188,25 +204,28 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * Avviser `innhold`, er svaret avvisningen, i samme form som fra `skrivHendelse`,
  * og transaksjonen rulles tilbake.
  *
- * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall, og det `innhold` kaster
+ * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, TopicHarSak, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall, og det `innhold` kaster
  */
 export function opprettSak(
   pool: Pool,
   kontekst: Kontekst,
   kommando: Kommando,
-  innhold: Innhold
+  innhold: Innhold,
+  valg?: Opprettelsesvalg
 ): Promise<Journalrad>;
 export function opprettSak<A>(
   pool: Pool,
   kontekst: Kontekst,
   kommando: Kommando,
-  innhold: () => Innhold | Avvist<A>
+  innhold: () => Innhold | Avvist<A>,
+  valg?: Opprettelsesvalg
 ): Promise<Journalrad | Avvist<A>>;
 export async function opprettSak<A>(
   pool: Pool,
   kontekst: Kontekst,
   kommando: Kommando,
-  innhold: Innhold | (() => Innhold | Avvist<A>)
+  innhold: Innhold | (() => Innhold | Avvist<A>),
+  { topic }: Opprettelsesvalg = {}
 ): Promise<Journalrad | Avvist<A>> {
   const lag = typeof innhold === 'function' ? innhold : () => innhold;
   try {
@@ -225,6 +244,8 @@ export async function opprettSak<A>(
         .input('data', sql.NVarChar(sql.MAX), data)
         .input('kommando_id', sql.NVarChar(4000), kommando.id)
         .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
+        .input('catenda_board_id', sql.NVarChar(100), topic?.board ?? null)
+        .input('catenda_topic_id', sql.NVarChar(100), topic?.topic ?? null)
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))

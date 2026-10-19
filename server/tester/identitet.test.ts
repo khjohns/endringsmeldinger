@@ -210,6 +210,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.godkjenningspakke.prosjekt_id',
         'koe.godkjenningssteg.prosjekt_id',
         'koe.hendelse.prosjekt_id',
+        'koe.innkommende_behandling.prosjekt_id',
         'koe.jobb.prosjekt_id',
         'koe.kjernebuffer.prosjekt_id',
         'koe.kvittering.prosjekt_id',

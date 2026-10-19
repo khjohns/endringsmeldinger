@@ -978,6 +978,15 @@ funn = []
 belegg = "K 19.10: katalogen."
 
 [[relasjon]]
+fra = "koe.toemmingsvern.innkommende_behandling_id"
+til = "koe.innkommende_behandling.innkommende_hendelse_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`. K 19.10: katalogen."
+
+[[relasjon]]
 fra = "koe.toemmingsvern.prosjekt_med_saker_id"
 til = "koe.prosjekt_med_saker.prosjekt_id"
 art = "fremmednøkkel"
@@ -1023,6 +1032,29 @@ Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst 
 `prosjekt_id`, så raden står i sakens prosjekt."""
 funn = []
 belegg = "K 17.10: katalogen."
+
+[[relasjon]]
+fra = "koe.innkommende_behandling.innkommende_hendelse_id"
+til = "koe.innkommende_hendelse.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Hendelsen i innboksen utfallet gjelder (W-1b.1, #819). Nøkkelen er primærnøkkelen,
+så hver hendelse har høyst ett utfall, og en hendelse uten rad er ikke behandlet."""
+funn = []
+belegg = "L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`. K 19.10: katalogen."
+
+[[relasjon]]
+fra = ["koe.innkommende_behandling.sak_id", "koe.innkommende_behandling.prosjekt_id"]
+til = ["koe.sak_metadata.sak_id", "koe.sak_metadata.prosjekt_id"]
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Saken hendelsen ga, bare med utfallet `sak_opprettet` (KT-U6). Med et annet utfall er
+`sak_id` tom, så nøkkelen gjelder ikke, og `prosjekt_id` er prosjektet koblingen ga,
+eller tom når prosjektet er ukjent."""
+funn = []
+belegg = "L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`. K 19.10: katalogen."
 
 [[relasjon]]
 fra = "koe.prosjekt_med_saker.prosjekt_id"
@@ -1357,6 +1389,12 @@ begrunnelse = "Mappen i biblioteket. Samme som `library_id`."
 [[uten_relasjon]]
 kolonne = "koe.innkommende_hendelse.hendelse_id"
 begrunnelse = "`event.id` fra Catenda, unik per kilde. Ingen tabell har Catendas hendelser."
+
+[[uten_relasjon]]
+kolonne = "koe.innkommende_behandling.catenda_topic_id"
+begrunnelse = """
+Topicen hendelsen gjelder, i Catenda, normalisert som i `koe.sak_catenda_topic`. Står
+også når hendelsen ikke ga noen sak, så den har ingen fremmednøkkel dit."""
 
 [[uten_relasjon]]
 kolonne = "koe.sak_catenda_topic.catenda_board_id"

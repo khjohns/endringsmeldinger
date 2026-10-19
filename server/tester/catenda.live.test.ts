@@ -14,7 +14,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import { catendaId } from '../autorisasjon.ts';
+import { catendaId, uuidMedBindestreker } from '../autorisasjon.ts';
 import { kjoerEnJobb, type Jobbavhengigheter } from '../jobber.ts';
 import { lesSaken } from '../lager.ts';
 import { vedleggsnavn } from '../levering.ts';
@@ -55,9 +55,9 @@ const VARIABLER = [
 
 /** ID-en i formen datalaget lagrer board, bibliotek og mappe i (`UUID` i `datalag.ts`). */
 function uuid(navn: (typeof VARIABLER)[number] | 'CATENDA_FOLDER_ID'): string {
-  const hex = catendaId(process.env[navn]);
-  if (!hex) throw new Error(`${navn} er ikke en Catenda-ID`);
-  return hex.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
+  const id = uuidMedBindestreker(process.env[navn]);
+  if (!id) throw new Error(`${navn} er ikke en Catenda-ID`);
+  return id;
 }
 
 function dokumentmaal() {
