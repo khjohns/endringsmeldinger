@@ -115,8 +115,12 @@ etter [DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2).
 Kommandoene for testene, typesjekkene og verktøykjeden står i
 [miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen `miljo`.
 Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
-Skyøkta har også en testbase for SQL Server
+Skyøkta har en testbase for SQL Server
 ([DL-U1](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)); kommandoene står i miljø-skillen.
+Oppstartshooken starter ikke PostgreSQL (#931). Katalogen i en base bygget fra
+`supabase/migrations/`, som resonneringsreglene og `docs/verktoy/katalog.py`
+trenger, bygger du derfor selv fra tom hver gang du skal bruke den, så en
+container fra et eldre øyeblikksbilde ikke svarer; kommandoene står i skillen.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.
@@ -218,7 +222,7 @@ og kjør det uten `DISABLE_AUTH`.
 `koe_resolve_identity`, `koe_reconcile_memberships`,
 `auto_create_project_membership` og flere. De er en del av applikasjonen, og et
 søk i Python- og TS-koden finner dem ikke. Søk også i `supabase/migrations/`, og
-spør katalogen i testbasen — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver
+spør katalogen i en PostgreSQL-base bygget fra dem (se «Miljø») — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver
 at noe ikke er i bruk. En trigger kan også være den egentlige skriveren.
 
 **Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.**
