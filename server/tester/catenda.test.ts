@@ -568,6 +568,17 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(JSON.parse(mottatt[1].raa)).toEqual({ document_guid: 'abcd1234' });
   });
 
+  it('setter referansen med dokument-ID-en fra biblioteket som UUID med bindestreker, som BCF-API-et finner (#902)', async () => {
+    svar = () => ({ status: 201, json: { guid: 'r3' } });
+    const oauth = new CatendaOAuth(oppsett());
+    await oauth.opprettDokumentreferanse(BOARD, 'topic-1', hex(BRUKER), 'i');
+    await oauth.opprettDokumentreferanse(BOARD, 'topic-1', BRUKER, 'i');
+    expect(mottatt.map((m) => JSON.parse(m.raa))).toEqual([
+      { document_guid: BRUKER.toLowerCase() },
+      { document_guid: BRUKER.toLowerCase() },
+    ]);
+  });
+
   // Kilde: oppdragsgiver 19.10 (#764): en referanse som verken er et dokument eller en
   // lenke, hoppes ikke over, avviket er varig, og meldingen sier hvilken referanse det er.
   it.each<[string, unknown, string]>([

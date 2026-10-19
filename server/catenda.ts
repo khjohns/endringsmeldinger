@@ -448,7 +448,7 @@ export class CatendaOAuth {
   ): Promise<string> {
     const svar = await forespoersel(this.#oppsett, 'POST', referansesti(boardId, topicId), {
       token,
-      json: { document_guid: dokumentId },
+      json: { document_guid: bcfDokumentId(dokumentId) },
     });
     return idFraSvar(svar, 'guid', 'Catenda svarte uten dokumentreferanse');
   }
@@ -509,6 +509,15 @@ function dokumentsti(maal: Dokumentmaal): string {
     throw new RangeError('Ugyldig leveringsmål');
   if (maal.folder_id !== null && !UUID.test(maal.folder_id)) throw new RangeError('Ugyldig mappe');
   return `/v2/projects/${maal.catenda_project_id}/libraries/${maal.library_id}/items`;
+}
+
+/**
+ * Dokument-ID-en i formen BCF-API-et finner dokumentet på: en UUID med bindestreker, som
+ * eksempelet for `document_guid` i `topic-api-openapi.yaml`. Dokument-API-et gir ID-en uten
+ * bindestreker, og den formen gir 404 (#902). En ID som ikke er en UUID, sendes som den er.
+ */
+function bcfDokumentId(id: string): string {
+  return catendaId(id)?.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5') ?? id;
 }
 
 function referansesti(boardId: string, topicId: string): string {
