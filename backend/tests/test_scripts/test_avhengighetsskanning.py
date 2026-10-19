@@ -1,7 +1,8 @@
 """Skanningen av kjøretidsavhengighetene i TS som CI kjører (#269 punkt 3).
 
 Kravet er avgjort 17.10 i #269: høy eller kritisk sårbarhet med rettet versjon
-blokkerer, med unntak fra en datert liste. Rapporten er en forkortet form av
+blokkerer, med unntak fra en datert liste. En rettet versjon leses av advisoryens
+sårbare område, ikke av `fixAvailable` (#851). Rapporten er en forkortet form av
 utdataene fra `npm audit --json`.
 """
 
@@ -23,14 +24,19 @@ begrunnelse = "Prøve."
 """
 
 
-def _rapport(alvorlighet: str, rettet, advisory: str = "GHSA-aaaa-bbbb-cccc") -> dict:
+def _rapport(
+    alvorlighet: str, område="<1.2.3", advisory: str = "GHSA-aaaa-bbbb-cccc", fiks=True
+) -> dict:
+    kilde = {"url": f"https://github.com/advisories/{advisory}", "severity": alvorlighet, "title": "Prøve"}
+    if område is not None:
+        kilde["range"] = område
     return {
         "vulnerabilities": {
             "pakke-a": {
                 "severity": alvorlighet,
-                "fixAvailable": rettet,
+                "fixAvailable": fiks,
                 "via": [
-                    {"url": f"https://github.com/advisories/{advisory}", "severity": alvorlighet, "title": "Prøve"},
+                    kilde,
                     "pakke-b",
                 ],
             }
@@ -50,45 +56,60 @@ def _kjoer(tmp_path, rapport, unntak: str = "") -> subprocess.CompletedProcess:
 
 
 @pytest.mark.parametrize("alvorlighet", ["high", "critical"])
-@pytest.mark.parametrize("rettet", [True, {"name": "pakke-a", "version": "2.0.0", "isSemVerMajor": True}])
-def test_hoey_eller_kritisk_med_rettet_versjon_blokkerer(tmp_path, alvorlighet, rettet):
-    resultat = _kjoer(tmp_path, _rapport(alvorlighet, rettet))
+@pytest.mark.parametrize(
+    "område", ["<1.2.3", ">=1.0.0 <1.2.3", ">=7.1.0 <=7.3.1", "<1.0.5 || >=2.0.0 <2.0.3", None]
+)
+def test_hoey_eller_kritisk_med_rettet_versjon_blokkerer(tmp_path, alvorlighet, område):
+    resultat = _kjoer(tmp_path, _rapport(alvorlighet, område))
     assert resultat.returncode == 1, resultat.stdout + resultat.stderr
     assert "pakke-a GHSA-aaaa-bbbb-cccc" in resultat.stdout
 
 
-@pytest.mark.parametrize("alvorlighet, rettet", [("moderate", True), ("low", True), ("high", False)])
-def test_lavere_alvorlighet_eller_uten_rettet_versjon_blokkerer_ikke(tmp_path, alvorlighet, rettet):
-    resultat = _kjoer(tmp_path, _rapport(alvorlighet, rettet))
+@pytest.mark.parametrize("fiks", [False, {"name": "forelder", "version": "3.0.0", "isSemVerMajor": True}])
+def test_rettet_versjon_blokkerer_ogsaa_naar_npm_audit_fix_ikke_naar_den(tmp_path, fiks):
+    """#851: `fixAvailable: false` sier bare at `npm audit fix` ikke når rettingen."""
+    resultat = _kjoer(tmp_path, _rapport("high", fiks=fiks))
+    assert resultat.returncode == 1, resultat.stdout + resultat.stderr
+
+
+@pytest.mark.parametrize("alvorlighet, område", [
+    ("moderate", "<1.2.3"),
+    ("low", "<1.2.3"),
+    ("high", "*"),
+    ("high", ">=0.0.0"),
+    ("critical", "<1.0.5 || >=2.0.0"),
+])
+def test_lavere_alvorlighet_eller_uten_rettet_versjon_blokkerer_ikke(tmp_path, alvorlighet, område):
+    resultat = _kjoer(tmp_path, _rapport(alvorlighet, område))
     assert resultat.returncode == 0, resultat.stdout + resultat.stderr
 
 
 def test_advisory_i_unntakslisten_blokkerer_ikke(tmp_path):
-    resultat = _kjoer(tmp_path, _rapport("high", True), UNNTAK)
+    resultat = _kjoer(tmp_path, _rapport("high"), UNNTAK)
     assert resultat.returncode == 0, resultat.stdout + resultat.stderr
     assert "UNNTAK (2026-10-18, #268)" in resultat.stdout
 
 
 def test_unntak_for_en_annen_advisory_blokkerer_fortsatt(tmp_path):
-    resultat = _kjoer(tmp_path, _rapport("high", True, "GHSA-dddd-eeee-ffff"), UNNTAK)
+    resultat = _kjoer(tmp_path, _rapport("high", advisory="GHSA-dddd-eeee-ffff"), UNNTAK)
     assert resultat.returncode == 1, resultat.stdout + resultat.stderr
     assert "Unntak uten treff::GHSA-aaaa-bbbb-cccc" in resultat.stdout
 
 
 def test_unntak_for_samme_advisory_i_en_annen_pakke_blokkerer_fortsatt(tmp_path):
-    resultat = _kjoer(tmp_path, _rapport("high", True), UNNTAK.replace('"pakke-a"', '"pakke-c"'))
+    resultat = _kjoer(tmp_path, _rapport("high"), UNNTAK.replace('"pakke-a"', '"pakke-c"'))
     assert resultat.returncode == 1, resultat.stdout + resultat.stderr
     assert "Unntak uten treff::GHSA-aaaa-bbbb-cccc i pakke-c" in resultat.stdout
 
 
 def test_unntak_uten_dato_avvises(tmp_path):
-    resultat = _kjoer(tmp_path, _rapport("high", True), UNNTAK.replace('dato = "2026-10-18"\n', ""))
+    resultat = _kjoer(tmp_path, _rapport("high"), UNNTAK.replace('dato = "2026-10-18"\n', ""))
     assert resultat.returncode != 0
     assert "mangler dato" in resultat.stderr
 
 
 def test_samme_unntak_to_ganger_avvises(tmp_path):
-    resultat = _kjoer(tmp_path, _rapport("high", True), UNNTAK + "\n" + UNNTAK)
+    resultat = _kjoer(tmp_path, _rapport("high"), UNNTAK + "\n" + UNNTAK)
     assert resultat.returncode != 0
     assert "står to ganger" in resultat.stderr
 

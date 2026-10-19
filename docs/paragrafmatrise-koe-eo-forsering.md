@@ -156,9 +156,10 @@ endringsordre og forsering, etter [OV-U1](plans/2026-09-16-godkjenning-og-varig-
   ([`typer.ts`](../kjerne/typer.ts), `Standpunkt`); `preklusjonPaaberopt` og
   `virkninger` i [`standpunkt.ts`](../kjerne/frosset/standpunkt.ts);
   `erEndringMedVarslingsplikt` i [`regler/grunnlag.ts`](../kjerne/regler/grunnlag.ts);
-  frosset som `varslingsplikt` i beslutningsgrunnlaget. Delvis: kategoriene er
-  fri tekst uten liste, og bare første underkategori leses
-  (`foersteUnderkategori`). Kodene er [#335](https://github.com/khjohns/endringsmeldinger/issues/335).
+  frosset som `varslingsplikt` i beslutningsgrunnlaget. Kategoriene er kodene i
+  `KATEGORIER` ([`regler/typer.ts`](../kjerne/regler/typer.ts)), og formatet
+  godtar bare dem og én underkategori per krav (`KRAVINNHOLD` i
+  [`format.ts`](../kjerne/format/format.ts), [#335](https://github.com/khjohns/endringsmeldinger/issues/335)).
 
 ### § 32.3 første ledd a–c — byggherrens svar
 

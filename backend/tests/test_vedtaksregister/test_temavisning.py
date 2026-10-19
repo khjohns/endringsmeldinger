@@ -10,38 +10,19 @@ et vedtak i temaet.
 
 import copy
 import datetime
-import importlib.util
 import pathlib
 import re
 
 import pytest
 
+from tests.verktoy import last
+
 ROT = pathlib.Path(__file__).resolve().parents[3]
 
 
-def _verktoy():
-    spesifikasjon = importlib.util.spec_from_file_location(
-        "temavisning", ROT / "docs" / "verktoy" / "temavisning.py"
-    )
-    modul = importlib.util.module_from_spec(spesifikasjon)
-    spesifikasjon.loader.exec_module(modul)
-    return modul
-
-
-tv = _verktoy()
+tv, lk = last("temavisning", "lenkekontroll")
 vr = tv.vr
 
-
-def _lenkekontroll():
-    spesifikasjon = importlib.util.spec_from_file_location(
-        "lenkekontroll", ROT / "docs" / "verktoy" / "lenkekontroll.py"
-    )
-    modul = importlib.util.module_from_spec(spesifikasjon)
-    spesifikasjon.loader.exec_module(modul)
-    return modul
-
-
-lk = _lenkekontroll()
 
 GRUNNLAGSSVAR = "grunnlagssvar-som-endringsordre"
 MERKET = re.compile(r"^\*\*((?:Forkastet|Utsatt)[^*]*:)\*\* ")

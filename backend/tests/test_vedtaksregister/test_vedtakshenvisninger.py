@@ -5,24 +5,16 @@ ID gir feil, og en opphevet ID gir feil når den står som eneste grunnlag, unnt
 i en test merket historisk.
 """
 
-import importlib.util
 import pathlib
 
 import pytest
 
+from tests.verktoy import last
+
 ROT = pathlib.Path(__file__).resolve().parents[3]
 
 
-def _verktoy():
-    spesifikasjon = importlib.util.spec_from_file_location(
-        "vedtakshenvisninger", ROT / "docs" / "verktoy" / "vedtakshenvisninger.py"
-    )
-    modul = importlib.util.module_from_spec(spesifikasjon)
-    spesifikasjon.loader.exec_module(modul)
-    return modul
-
-
-vh = _verktoy()
+vh = last("vedtakshenvisninger")
 vr = vh.vr
 
 KJENTE = {"MM-U4", "MM-U9", "KA-U1", "B-13"}

@@ -88,9 +88,11 @@ def _opprettede_tabeller() -> set[str]:
 # Kommentarer fjernes før navnene leses; en strengliteral beholdes, så `--` eller
 # en apostrof inne i den ikke forskyver hva som regnes som kommentar. Et
 # dollar-sitat (`$$…$$`, `$tag$…$tag$`) er i migrasjonene en funksjons- eller
-# DO-kropp, altså kode: grensene beholdes, og kroppen renses for seg (#634).
+# DO-kropp, altså kode: grensene beholdes, og kroppen renses for seg (#634). Som i
+# PostgreSQL åpner `$` etter et identifikatortegn ikke et sitat (`a$b$`), og kroppen
+# slutter ved neste `$tag$`, også i en kommentar i kroppen (#861).
 _SQL_DEL = re.compile(
-    r"(?P<dollar>(?P<aapning>\$(?P<tag>[A-Za-z_][A-Za-z0-9_]*|)\$)(?P<kropp>.*?)\$(?P=tag)\$)"
+    r"(?P<dollar>(?<![\w$])(?P<aapning>\$(?P<tag>[A-Za-z_][A-Za-z0-9_]*|)\$)(?P<kropp>.*?)\$(?P=tag)\$)"
     r"|(?P<streng>(?<![A-Za-z0-9_$])[Ee]'(?:[^'\\]|\\.|'')*'|'(?:[^']|'')*')"
     r"|--[^\n]*|/\*.*?\*/",
     re.DOTALL,
@@ -124,6 +126,14 @@ def test_uten_kommentarer_avslutter_tagget_dollarsitat_bare_paa_samme_tag():
     renset = uten_kommentarer(sql)
     assert "CREATE TABLE b" in renset
     assert "borte" not in renset
+
+
+def test_uten_kommentarer_tar_ikke_dollar_i_en_identifikator_som_dollarsitat():
+    """#861: `a$b$` er én identifikator i PostgreSQL, og `$b$` åpner ikke et sitat."""
+    sql = "SELECT a$b$ FROM t WHERE x = ' $b$ '; -- borte\nCREATE TABLE b (c text DEFAULT 'x');"
+    renset = uten_kommentarer(sql)
+    assert "borte" not in renset
+    assert "CREATE TABLE b (c text DEFAULT 'x');" in renset
 
 
 def test_uten_kommentarer_kjenner_omvendt_skraastrek_i_e_streng():

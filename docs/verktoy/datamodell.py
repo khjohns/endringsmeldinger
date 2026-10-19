@@ -16,30 +16,20 @@ import sys
 import tomllib
 
 
-def _last(navn: str):
-    """Verktøymodulen `navn`, lastet én gang og lagt i sys.modules som
-    «verktoy.<navn>», så en modul som bruker en annen, får samme instans (#635)."""
-    nøkkel = f"verktoy.{navn}"
-    if nøkkel in sys.modules:
-        return sys.modules[nøkkel]
-    sti = pathlib.Path(__file__).resolve().parent / f"{navn}.py"
-    spesifikasjon = importlib.util.spec_from_file_location(nøkkel, sti)
-    modul = importlib.util.module_from_spec(spesifikasjon)
-    sys.modules[nøkkel] = modul
-    try:
+def _laster():
+    """Den felles lasteren i laster.py, som ikke kan laste seg selv (#861)."""
+    if "verktoy.laster" not in sys.modules:
+        sti = pathlib.Path(__file__).resolve().parent / "laster.py"
+        spesifikasjon = importlib.util.spec_from_file_location("verktoy.laster", sti)
+        modul = importlib.util.module_from_spec(spesifikasjon)
         spesifikasjon.loader.exec_module(modul)
-    except BaseException:
-        del sys.modules[nøkkel]
-        raise
-    return modul
+        sys.modules["verktoy.laster"] = modul
+    return sys.modules["verktoy.laster"]
 
 
-hk = _last("hendelseskatalog")
-kh = _last("kjernehendelser")
-kat = _last("katalog")
-rel = _last("relasjoner")
-df = _last("dataflyt")
-lk = _last("lenkekontroll")
+hk, kh, kat, rel, df, lk = _laster().last(
+    "hendelseskatalog", "kjernehendelser", "katalog", "relasjoner", "dataflyt", "lenkekontroll"
+)
 
 ROT = pathlib.Path(__file__).resolve().parents[2]
 MAPPE = ROT / "docs" / "datamodell"
