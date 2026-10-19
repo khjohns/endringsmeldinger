@@ -2,7 +2,7 @@
  * Forløp A–E fra kjernen mot testbasen (#304, #308, #273): hver kommando lagres i
  * `hendelse` med lageret fra språkprøven, og journalen leses fra basen før hver
  * utledning. Prøvene 7.1–7.3 i designnotatet for #273 mot basen. Krever
- * `KOE_TESTBASE_URL`. Kjør ikke samtidig med pytest mot samme base.
+ * `KOE_TESTBASE_URL`.
  */
 
 import { randomUUID } from 'node:crypto';

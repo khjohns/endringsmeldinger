@@ -45,7 +45,6 @@ jobs:
           pip install -r backend/requirements.txt -r backend/requirements-dev.txt
 
       # Live-testene mot Supabase er opt-in med RUN_LIVE_SUPABASE=1 (RV-16).
-      # Databasetestene hoppes over her og kjøres i jobben database.
       - name: Kjør testene
         working-directory: backend
         run: python -m pytest -q -p no:cacheprovider
@@ -62,20 +61,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: pip
-          cache-dependency-path: |
-            backend/requirements.txt
-            backend/requirements-dev.txt
-
-      - name: Installer avhengigheter
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt -r backend/requirements-dev.txt
-
-      # TS-serveren i språkprøven (#274) prøves mot samme base, også fra pytest.
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -100,31 +85,17 @@ jobs:
       - name: Bygg basen fra tom
         run: scripts/testbase/bygg_testbase.sh
 
-      - name: Kjør databasetestene
-        working-directory: backend
-        run: python -m pytest -q -p no:cacheprovider -m database tests/test_database
-
-      # Autorisasjonen i server/ leser SQL Server og journalen PostgreSQL
-      # (#658), så testene over HTTP trenger begge basene.
-      - name: Start SQL Server
-        run: |
-          scripts/testbase/docker_sqlserver.sh start > /dev/null
-          tilkobling="$(scripts/testbase/docker_sqlserver.sh tilkobling)"
-          passord="${tilkobling#*Password=}"
-          echo "::add-mask::${passord%%;*}"
-          echo "KOE_SQLSERVER_TILKOBLING=$tilkobling" >> "$GITHUB_ENV"
-
-      # Hele sprakprove/ og server/, så en ny databasetest kommer med, også
-      # kjernens lagringstester i sprakprove/kjernelagring/ og skiva i #347.
-      # Uten KOE_TESTBASE_URL hoppes de over i frontend-jobben. Steget kommer
-      # etter pytest og ikke samtidig: oppryddingen der setter basen tilbake.
-      - name: Kjør kjernen, TS-serveren og språkprøven mot basen
-        run: npx vitest run kjerne/ server/ sprakprove/
+      # Kjernens lagringstester i sprakprove/kjernelagring/ leser journalen fra
+      # PostgreSQL til de prøves gjennom server/ mot SQL Server (#932). Hele
+      # sprakprove/, så en ny databasetest kommer med. Uten KOE_TESTBASE_URL
+      # hoppes de over i frontend-jobben.
+      - name: Kjør kjernen og språkprøven mot basen
+        run: npx vitest run kjerne/ sprakprove/
 
   # Testbasen for datalaget i F0b (#488): SQL Server 2025 Developer Edition i
-  # Docker, med basene i innstillingene fra Azure SQL Database. Ikke påkrevd på
-  # main. Hele server/, så nye tester mot SQL Server kommer med; testene mot
-  # PostgreSQL hoppes over her uten KOE_TESTBASE_URL.
+  # Docker, med basene i innstillingene fra Azure SQL Database. Hele server/, så
+  # nye tester mot SQL Server kommer med, og skrivestien i sprakprove/skrivesti/
+  # (#666), som går mot server/. Ingen av dem bruker PostgreSQL.
   sqlserver:
     name: SQL Server (testbasen for datalaget)
     if: ${{ !github.event.pull_request.draft }}
@@ -150,7 +121,7 @@ jobs:
           echo "KOE_SQLSERVER_TILKOBLING=$tilkobling" >> "$GITHUB_ENV"
 
       - name: Kjør TS-serverens tester mot SQL Server
-        run: npx vitest run server/
+        run: npx vitest run server/ sprakprove/skrivesti/
 
   frontend:
     name: Frontend (vitest)

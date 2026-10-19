@@ -351,7 +351,7 @@ med kontrollert commit.
 | Kontrakt | Pydantic-modellene og `test_kontrakt*` | Skjemaet validert ved kjøretid. Aksepten er streng, og serverfeltene avvises eller overskrives | `sprakprove/tester/kontrakt.test.ts` |
 | Tall, dager, fravær | 50 tilfeller grønne | 51 tilfeller grønne | [`sprakprove/grensetilfeller.json`](../sprakprove/grensetilfeller.json) |
 | Genererte forløp | 300 forløp på 8 steg, fire invarianter holder | Samme 300, samme utfall | [`sprakprove/genererte-forlop.json`](../sprakprove/genererte-forlop.json), seed 274 |
-| Feilinnføring M1–M8 | Alle oppdaget, på målassertionen | Alle oppdaget, på målassertionen | [`sprakprove/feilinnforing.py`](../sprakprove/feilinnforing.py) |
+| Feilinnføring M1–M8 | Alle oppdaget, på målassertionen | Alle oppdaget, på målassertionen | [`sprakprove/feilinnforing.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/sprakprove/feilinnforing.py) |
 | Regelendringen (enighet) | 3 produksjonsfiler (+74/−78). I tillegg fikk 2 testfiler nytt oppsett (+56/−10), og én xfail ble ordinær | 3 filer (+50/−22) | Commitene `4cdd012` og `28e5c2c` |
 
 **Gevinst fra begrepene, som begge alternativene får:**
@@ -440,13 +440,13 @@ i hovedplanen under B-14 (3.1).
 
 | Kriterium | Bevis | Resultat |
 | --- | --- | --- |
-| P2-1 Nettleser og server | [`sammenlikn.ts`](../sprakprove/nettleser/sammenlikn.ts): kjernen og korpuskjøreren bygget med Vite og kjørt i Chromium 141, holdt mot TS-serveren og testbasen | 30 forløp, 126 steg, 0 avvik. En miljøavhengig feil innført i kjernen ga 124 avvik |
-| P2-2 Tilgang | [`server.test.ts`](../sprakprove/tester/server.test.ts) | 401 uten sesjon og med utløpt sesjon. 403 for feil prosjekt, en sak eller relatert sak i et annet prosjekt, et annet prosjekt i nyttelasten, uten kontraktsteam, feil kontraktsside og manglende eller feil CSRF. Hver avvisning har en kontrollsak med 201 og uendret journal |
+| P2-1 Nettleser og server | [`sammenlikn.ts`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/sprakprove/nettleser/sammenlikn.ts): kjernen og korpuskjøreren bygget med Vite og kjørt i Chromium 141, holdt mot TS-serveren og testbasen | 30 forløp, 126 steg, 0 avvik. En miljøavhengig feil innført i kjernen ga 124 avvik |
+| P2-2 Tilgang | [`server.test.ts`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/sprakprove/tester/server.test.ts) | 401 uten sesjon og med utløpt sesjon. 403 for feil prosjekt, en sak eller relatert sak i et annet prosjekt, et annet prosjekt i nyttelasten, uten kontraktsteam, feil kontraktsside og manglende eller feil CSRF. Hver avvisning har en kontrollsak med 201 og uendret journal |
 | P2-2 Serverfelt, versjon og regelversjon | Samme | `event_id` og `tidsstempel` avvises, og aktørfeltene overskrives. Feil `expected_version` gir 409. To samtidige sendinger på samme versjon gir én 201 og én 409, og lageret alene avviser en andre skriving på samme versjon. Feil regelversjon gir `RULE_VERSION` |
-| P2-2 Lagring og gjenlesing | [`serverkorpus.test.ts`](../sprakprove/tester/serverkorpus.test.ts) og `server.test.ts` | De 30 forløpene holder gjennom `/api/events` og `/api/events/batch`, med tilstanden lest fra serveren: 60 av 60. Svaret er lik den gjenleste tilstanden og lik projeksjonen av radene. En batch med én avvist hendelse lagrer ingenting |
-| P2-2 Python og TS | [`test_sprakprove_ts_server.py`](../backend/tests/test_database/test_sprakprove_ts_server.py) | TS skriver og Python leser med `parse_event`, og omvendt: 60 av 60. Hvert felt TS-serveren sender, er likt Pythons `public_state`. Journalen er lik slik de to leser den, også tidspunktet. `data` i raden TS skrev, er det Flask ville lagret, unntatt feltene i SP-03 |
+| P2-2 Lagring og gjenlesing | [`serverkorpus.test.ts`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/sprakprove/tester/serverkorpus.test.ts) og `server.test.ts` | De 30 forløpene holder gjennom `/api/events` og `/api/events/batch`, med tilstanden lest fra serveren: 60 av 60. Svaret er lik den gjenleste tilstanden og lik projeksjonen av radene. En batch med én avvist hendelse lagrer ingenting |
+| P2-2 Python og TS | [`test_sprakprove_ts_server.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_sprakprove_ts_server.py) | TS skriver og Python leser med `parse_event`, og omvendt: 60 av 60. Hvert felt TS-serveren sender, er likt Pythons `public_state`. Journalen er lik slik de to leser den, også tidspunktet. `data` i raden TS skrev, er det Flask ville lagret, unntatt feltene i SP-03 |
 | P2-3 Godkjenningspakken | `server.test.ts` | Vederlaget vurderes mot grunnlagssvaret i pakken og blir subsidiært (GR-01). Et svar vurdert mot grunnlaget uten pakkens svar avvises, og det samme gjør en foreldet kravreferanse. Regelversjonen gjelder hvert element. Pakken skriver ikke i journalen |
-| Feilinnføring | [`feilinnforing.py`](../sprakprove/feilinnforing.py), M9–M11 | Se under |
+| Feilinnføring | [`feilinnforing.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/sprakprove/feilinnforing.py), M9–M11 | Se under |
 
 **Feilinnføring M9–M11.** Samme feilklasse i begge implementasjoner, én om
 gangen. Tallene er røde tester:

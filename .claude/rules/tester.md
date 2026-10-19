@@ -110,8 +110,7 @@ Ingen generell mutasjonsscore eller nytt verktøy kreves for alle endringer.
   ikke committes eller pushes. Fjern mutasjonen og kjør testene igjen.
   PR-en oppgir kontrollert commit/diff, feilklasse, test, observert feil og
   eventuelle overlevende mutasjoner med begrunnelse. Gjenbruk samme feilklasser
-  når to implementasjoner sammenliknes. En ny feilklasse for språkprøven eller
-  kjernen legges i `sprakprove/feilinnforing.py` eller
+  når to implementasjoner sammenliknes. En ny feilklasse for kjernen legges i
   `kjerne/tester/feilinnfoering.ts`, så den kan kjøres igjen.
 - En oppdaget feilinnføring viser at testen er følsom for feilen, ikke at
   forventningen er riktig. Forventningens grunnlag kontrolleres etter
