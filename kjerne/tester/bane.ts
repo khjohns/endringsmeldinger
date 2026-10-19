@@ -1,7 +1,7 @@
 /**
  * Veien journalen går i testene. Kjernen har bare banen i minnet; banen
- * gjennom `hendelse` i testbasen står i `sprakprove/kjernelagring/`, fordi den
- * trenger lageret og `pg`.
+ * gjennom `koe.hendelse` i testbasen står i `sprakprove/kjernelagring/`, fordi den
+ * trenger serverens lager og SQL Server.
  */
 
 import { randomUUID } from 'node:crypto';

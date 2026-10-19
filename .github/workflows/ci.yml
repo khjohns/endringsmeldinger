@@ -121,7 +121,7 @@ jobs:
           echo "KOE_SQLSERVER_TILKOBLING=$tilkobling" >> "$GITHUB_ENV"
 
       - name: Kjør TS-serverens tester mot SQL Server
-        run: npx vitest run server/ sprakprove/skrivesti/
+        run: npx vitest run server/ sprakprove/
 
   frontend:
     name: Frontend (vitest)

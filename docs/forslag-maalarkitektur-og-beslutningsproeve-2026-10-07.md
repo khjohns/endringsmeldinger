@@ -425,7 +425,7 @@ delte domenekjernen, med avgrensningene i anbefalingen nedenfor. Vedtaket står
 i hovedplanen under B-14 (3.1).
 
 **Hva som ble bygget:**
-- **TS-serveren** i [`sprakprove/server/`](../sprakprove/server/): Node 22 med
+- **TS-serveren** i [`sprakprove/server/`](https://github.com/khjohns/endringsmeldinger/tree/fc19484/sprakprove/server): Node 22 med
   `node:http` i egen prosess, uten rammeverk og uten byggesteg. Den er 939
   linjer: ruter 379, tilgang 317, lager 167, oppstart og basevakt 76. Kjernen
   fra port 1 er eneste regelkilde.

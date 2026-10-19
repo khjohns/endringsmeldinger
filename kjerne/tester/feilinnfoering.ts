@@ -25,16 +25,17 @@
  * (`.claude/rules/tester.md`).
  *
  * Mutasjonene fordeles på flere kopier av arbeidstreet, med lokale endringer,
- * som kjører samtidig (#378). Hver kopi har sin egen testbase i samme
- * PostgreSQL; de ekstra basene bygges fra tom og slettes etterpå, så brukeren i
- * `KOE_TESTBASE_URL` må kunne opprette baser. Arbeidstreet muteres ikke.
+ * som kjører samtidig (#378). Lagringstestene i `sprakprove/kjernelagring/` lager
+ * hver sin base fra malen på SQL Server-serveren i `KOE_SQLSERVER_TILKOBLING`
+ * (`server/tester/testbase.ts`, #932), så kopiene deler serveren, ikke basene.
+ * Arbeidstreet muteres ikke.
  * `FEILINNFOERING_ARBEIDSKOPIER` overstyrer antallet, som ellers er antallet
  * prosessorer. `FEILINNFOERING_DEL=i/n` kjører bare del i av n: hver n-te
  * mutasjon fra og med nummer i, med sin egen kontrollkjøring over hele
  * samlingen. Workflowen fordeler delene på flere jobber, og en ny mutasjon havner
  * i en av dem uten videre. Fra-strengene kontrolleres for alle delene.
  *
- * Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt:
+ * Kjøres fra repoets rot, med SQL Server oppe og `KOE_SQLSERVER_TILKOBLING` satt:
  *   node kjerne/tester/feilinnfoering.ts [F1 F2 ...]
  * Med `--ankre` kontrolleres bare at hver fra-streng finnes nøyaktig én gang i
  * fila (#430), og at hvert mål er en del av navnet på en test (#432), uten å
@@ -573,9 +574,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F50',
     feilklasse: 'spørringen etter utdaterte buffere ser bort fra saksversjonen (B-10, #316)',
     fil: 'sprakprove/kjernelagring/bane.ts',
-    endringer: [
-      ['             OR m.kjerne_saksversjon IS DISTINCT FROM h.versjon)', '             )'],
-    ],
+    endringer: [['OR b.saksversjon <> h.versjon)', ')']],
     mal: ['finner en sak med en ny hendelse etter bufferen, og bare den'],
   },
   {
@@ -584,8 +583,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: 'sprakprove/kjernelagring/bane.ts',
     endringer: [
       [
-        'SET kjerne_visning = $2::jsonb,',
-        'SET cached_status = kjerne_regelversjon::text, kjerne_visning = $2::jsonb,',
+        'UPDATE koe.kjernebuffer',
+        "UPDATE koe.projects SET name = CONCAT(N'Regel ', @regelversjon) WHERE id = @prosjekt_id;\n             UPDATE koe.kjernebuffer",
       ],
     ],
     mal: ['finner de utdaterte sakene og bygger dem på nytt uten å endre noe annet enn bufferen'],
@@ -631,9 +630,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F55',
     feilklasse: 'lista før en tilbakerulling tar med saker kjernen leser (B-10, MM-U2, #316)',
     fil: 'sprakprove/kjernelagring/bane.ts',
-    endringer: [
-      ['WHERE prosjekt_id = $1 AND format > $2', 'WHERE prosjekt_id = $1 AND format >= $2'],
-    ],
+    endringer: [['AND format > @leserformat', 'AND format >= @leserformat']],
     mal: ['lister sakene med en rad i et format kjernen ikke leser'],
   },
   {
@@ -641,7 +638,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'spørringen etter utdaterte buffere tar med saker uten rader fra kjernen (B-17, #316)',
     fil: 'sprakprove/kjernelagring/bane.ts',
-    endringer: [['GROUP BY sak_id HAVING count(format) > 0) h', 'GROUP BY sak_id) h']],
+    endringer: [['GROUP BY sak_id HAVING COUNT(format) > 0) h', 'GROUP BY sak_id) h']],
     mal: ['tar ikke med en sak uten rader fra kjernen'],
   },
   {
@@ -650,8 +647,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: 'sprakprove/kjernelagring/bane.ts',
     endringer: [
       [
-        'FROM sak_metadata WHERE sak_id = $1 AND prosjekt_id = $2`,',
-        'FROM sak_metadata WHERE sak_id = $1 AND $2::text IS NOT NULL`,',
+        'FROM koe.kjernebuffer WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt_id`',
+        'FROM koe.kjernebuffer WHERE sak_id = @sak_id AND @prosjekt_id IS NOT NULL`',
       ],
     ],
     mal: ['lar bufferen holde seg i prosjektet'],
@@ -661,7 +658,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'bufferen skrives på tvers av prosjektgrensen (AGENTS.md, #316)',
     fil: 'sprakprove/kjernelagring/bane.ts',
     endringer: [
-      ['WHERE sak_id = $1 AND prosjekt_id = $7`,', 'WHERE sak_id = $1 AND $7::text IS NOT NULL`,'],
+      [
+        'WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt_id;',
+        'WHERE sak_id = @sak_id AND @prosjekt_id IS NOT NULL;',
+      ],
     ],
     mal: ['lar bufferen holde seg i prosjektet'],
   },
@@ -2603,14 +2603,13 @@ interface Rapport {
   }[];
 }
 
-/** En kopi av arbeidstreet med sin egen testbase. */
+/** En kopi av arbeidstreet. */
 interface Arbeidskopi {
   rot: string;
-  base: string | undefined;
 }
 
 const ROT = process.cwd();
-const TESTBASE = process.env.KOE_TESTBASE_URL;
+const TESTBASE = process.env.KOE_SQLSERVER_TILKOBLING;
 
 /** En test i samlingen, med fila relativt til roten. */
 interface Test {
@@ -2630,7 +2629,7 @@ function testnavn(): Test[] {
         encoding: 'utf8',
         maxBuffer: 64 * 1024 * 1024,
         timeout: 300_000,
-        env: { ...process.env, KOE_TESTBASE_URL: 'postgresql://feilinnfoering.invalid/navn' },
+        env: { ...process.env, KOE_SQLSERVER_TILKOBLING: 'Server=feilinnfoering.invalid' },
       }
     );
     if (r.status !== 0 || !existsSync(ut))
@@ -2658,9 +2657,9 @@ function kjoerVitest(
   const ut = `${k.rot}-rapport.json`;
   rmSync(ut, { force: true });
   // Vitest 3.2 gir ikke `--hookTimeout` videre til prosjektene, så grensen går gjennom
-  // `vite.config.ts`.
-  const env = { ...process.env, KOE_TESTBASE_URL: k.base, KOE_HOOKGRENSE: '60000' };
-  if (k.base === undefined) delete env.KOE_TESTBASE_URL;
+  // `vite.config.ts`. `vi.setConfig` i lagringstestene virker bare for den første filen i
+  // en arbeider uten isolasjon, så grensen er den samme som `GRENSER` der.
+  const env = { ...process.env, KOE_HOOKGRENSE: '240000' };
   return new Promise((ok, feil) => {
     spawn(
       'npx',
@@ -2698,21 +2697,6 @@ function kjoerVitest(
   });
 }
 
-function psql(url: string, sql: string) {
-  const r = spawnSync('psql', [url, '--no-psqlrc', '--quiet', '-v', 'ON_ERROR_STOP=1', '-c', sql], {
-    encoding: 'utf8',
-  });
-  if (r.status !== 0) throw new Error(`psql: ${sql}: ${r.stderr || r.error}`);
-}
-
-/** Basen `navn` i samme PostgreSQL som testbasen. */
-function baseUrl(navn: string): string {
-  const url = new URL(TESTBASE!);
-  url.pathname = `/${encodeURIComponent(navn)}`;
-  return url.toString();
-}
-
-const ekstraBaser: string[] = [];
 let tempmappe: string | undefined;
 
 const grupper = new Set<number>();
@@ -2724,12 +2708,6 @@ function rydd() {
     } catch {
       // Gruppen er alt borte.
     }
-  for (const navn of ekstraBaser.splice(0))
-    try {
-      psql(TESTBASE!, `DROP DATABASE IF EXISTS "${navn}" WITH (FORCE)`);
-    } catch (e) {
-      console.error(`Fikk ikke slettet basen ${navn}; slett den for hånd.`, e);
-    }
   try {
     if (tempmappe) rmSync(tempmappe, { recursive: true, force: true, maxRetries: 5 });
   } catch (e) {
@@ -2740,8 +2718,7 @@ function rydd() {
 
 /**
  * Kopierer arbeidstreet slik det står, med lokale endringer og nye filer som git
- * ikke ignorerer, og deler `node_modules`. Den første kopien bruker testbasen;
- * de andre får hver sin base, bygget fra tom med `bygg_testbase.sh`.
+ * ikke ignorerer, og deler `node_modules`.
  */
 function lagArbeidskopier(antall: number): Arbeidskopi[] {
   tempmappe = mkdtempSync(join(tmpdir(), 'feilinnfoering-'));
@@ -2757,17 +2734,7 @@ function lagArbeidskopier(antall: number): Arbeidskopi[] {
       cpSync(f, join(rot, f), { verbatimSymlinks: true });
     }
     symlinkSync(join(ROT, 'node_modules'), join(rot, 'node_modules'));
-    if (i === 0 || TESTBASE === undefined) return { rot, base: TESTBASE };
-    const navn = `${decodeURIComponent(new URL(TESTBASE).pathname.slice(1))}_feilinnfoering_${process.pid}_${i + 1}`;
-    psql(TESTBASE, `CREATE DATABASE "${navn}"`);
-    ekstraBaser.push(navn);
-    const base = baseUrl(navn);
-    const bygg = spawnSync(join(ROT, 'scripts/testbase/bygg_testbase.sh'), {
-      env: { ...process.env, KOE_TESTBASE_URL: base },
-      encoding: 'utf8',
-    });
-    if (bygg.status !== 0) throw new Error(`Bygde ikke ${navn}: ${bygg.stderr}`);
-    return { rot, base };
+    return { rot };
   });
 }
 
@@ -2905,7 +2872,7 @@ else
 
 async function kjoer(): Promise<number> {
   const kopier = lagArbeidskopier(antallKopier);
-  // Kontrollen kjøres i hver kopi, så en kopi eller en base som avviker, stopper
+  // Kontrollen kjøres i hver kopi, så en kopi som avviker, stopper
   // kjøringen før noen mutasjon.
   const kontroller = await Promise.all(kopier.map((k) => kjoerVitest(k)));
   const antallTester = new Set<number>();
@@ -2921,7 +2888,7 @@ async function kjoer(): Promise<number> {
     const hoppet = kontrolltester.filter((t) => t.status !== 'passed');
     if (hoppet.length) {
       console.error(
-        `Kontrollkjøringen hoppet over ${hoppet.length} tester${TESTBASE ? '' : ' (KOE_TESTBASE_URL er ikke satt)'}, for eksempel ${hoppet[0].fullName}. Feilinnføringene krever at alle kjører.`
+        `Kontrollkjøringen hoppet over ${hoppet.length} tester${TESTBASE ? '' : ' (KOE_SQLSERVER_TILKOBLING er ikke satt)'}, for eksempel ${hoppet[0].fullName}. Feilinnføringene krever at alle kjører.`
       );
       return 2;
     }
