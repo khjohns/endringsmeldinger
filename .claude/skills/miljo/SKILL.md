@@ -42,7 +42,8 @@ fra skyøkta, der `CATENDA_GRUNNADRESSE` og de andre `CATENDA_*`-variablene er s
 De hoppes over uten `KOE_CATENDA_LIVE=1`, også i CI og i vanlig `npm test`.
 Steg B lager topics og dokumenter med prefikset `koe-livetest-` i
 `CATENDA_FOLDER_ID` og sletter dem etterpå. Feiler en sletting, blir kjøringen rød,
-og meldingen sier hva som ble liggende igjen:
+og meldingen sier hva som ble liggende igjen. Steg C leverer et brev ende til ende
+og trenger også `KOE_SQLSERVER_TILKOBLING`; uten den hoppes C over:
 
 ```bash
 KOE_CATENDA_LIVE=1 npx vitest run server/tester/catenda.live.test.ts

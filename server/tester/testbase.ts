@@ -55,7 +55,15 @@ export interface Datalag {
   kjoeretid: { pool: Pool; slett(): Promise<void> };
 }
 
-export async function lagOppsett(): Promise<Oppsett> {
+/** Koblingen til Catenda for det første prosjektet. Uten den får prosjektet tilfeldige ID-er. */
+export interface Catendakobling {
+  catendaProsjekt: string;
+  bibliotek: string;
+  mappe: string;
+  board: string;
+}
+
+export async function lagOppsett(kobling?: Catendakobling): Promise<Oppsett> {
   const brukerFor = (): Testbruker => ({
     id: randomUUID(),
     subjekt: randomUUID(),
@@ -69,6 +77,7 @@ export async function lagOppsett(): Promise<Oppsett> {
     bhTeam: randomUUID(),
   });
   const [p, annet] = [prosjektFor('a'), prosjektFor('b')];
+  if (kobling) p.catendaProsjekt = kobling.catendaProsjekt;
   const [te, bh, utenTeam, utenfor] = [brukerFor(), brukerFor(), brukerFor(), brukerFor()];
   const base = await opprettMigrertTestbase('serveren', { maks: 4 });
   const r = () => base.pool.request();
@@ -87,8 +96,9 @@ export async function lagOppsett(): Promise<Oppsett> {
       await settInn(r, 'catenda_project_configs', {
         internal_project_id: prosjekt.id,
         catenda_project_id: prosjekt.catendaProsjekt,
-        library_id: randomUUID(),
-        topic_board_id: randomUUID(),
+        library_id: prosjekt === p && kobling ? kobling.bibliotek : randomUUID(),
+        ...(prosjekt === p && kobling ? { folder_id: kobling.mappe } : {}),
+        topic_board_id: prosjekt === p && kobling ? kobling.board : randomUUID(),
         is_active: true,
       });
       await settInn(r, 'app_membership_sync', {
