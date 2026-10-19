@@ -392,7 +392,7 @@ async function lesVedlegg(
     .input('ider', sql.NVarChar(sql.MAX), ider ? JSON.stringify(ider) : null)
     .query<Vedlegg>(
       `SELECT LOWER(CONVERT(nvarchar(36), vedlegg_id)) AS vedlegg_id, filnavn, innhold_sha256
-         FROM koe.vedlegg
+         FROM koe.vedlegg WITH (UPDLOCK)
         WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt
           AND (bundet_av_event_id IS NOT NULL OR lastet_opp_team = @team)
           AND (@ider IS NULL
