@@ -38,7 +38,8 @@ import {
   type Rute,
 } from '../app.ts';
 import { catendaId, sha256 } from '../autorisasjon.ts';
-import { fast, type Innloggingsleverandoer } from '../innlogging.ts';
+import type { Innloggingsleverandoer } from '../innlogging.ts';
+import { fast } from '../inngang.ts';
 import { opprettSesjon } from '../sesjon.ts';
 import { settInn } from './sqlserver_migrert.ts';
 import {

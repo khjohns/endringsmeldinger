@@ -434,6 +434,39 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       const svar = await Promise.all([1, 2, 3].map(() => tilgang(m, p.id, { catenda, pool })));
       expect(svar.every(Boolean)).toBe(true);
       expect(kall).toEqual([p.catenda]);
+      // Bare forespørselen som startet hentingen, har synkroniseringen (#825 punkt 7).
+      expect(svar.filter((t) => t.synkronisert)).toHaveLength(1);
+    });
+
+    it('tar hentingen lenger enn den største alderen, godtas listen den skrev (#858 punkt 1)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const { catenda, kall } = catendaMed({}, async () => [
+        { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
+      ]);
+      // Etter hentingen sier basen at listen er eldre enn den største alderen, slik
+      // den gjør når hentingen og ventingen på låsen tar så lang tid.
+      let kallTilAlderen = 0;
+      const pool = medRundt(kjoeretid.pool, 'koe_api.medlemsliste_alder', async (kjoer) => {
+        const svar = await kjoer();
+        const rad = (svar as { recordset: { alder_sekunder: number }[] }).recordset[0];
+        if (++kallTilAlderen > 1 && rad) rad.alder_sekunder = 100_000;
+        return svar;
+      });
+      const t = await tilgang(m, p.id, { catenda, pool });
+      expect(kall).toEqual([p.catenda]);
+      expect(kallTilAlderen).toBe(2);
+      // Synkroniseringen denne forespørselen gjorde, følger tilgangen (#825 punkt 7).
+      expect(t.synkronisert).toMatchObject({ skrevet: true, medlemmer: 1 });
+    });
+
+    it('er listen fersk, følger ingen synkronisering tilgangen (#825 punkt 7)', async () => {
+      const p = await prosjekt();
+      const m = await medlem(p);
+      const { catenda, kall } = catendaMed();
+      const t = await tilgang(m, p.id, { catenda });
+      expect(kall).toEqual([]);
+      expect(t).not.toHaveProperty('synkronisert');
     });
 
     it('endres koblingen under kontrollen, hentes listen fra koblingen som ble lest først, og basen avviser den med 503 (#726 punkt 2)', async () => {
@@ -518,7 +551,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
           status: 503,
           error: 'ACCESS_UNAVAILABLE',
         });
-        expect(logg).toHaveBeenCalledWith(nede);
+        // Loggen har stedet og feilklassen, ikke meldingen (#867 punkt 5).
+        const [linje] = logg.mock.calls[0] as [string];
+        expect(linje).toMatch(/^Prosjekttilgangen kunne ikke avgjøres \(Error\)\n\s+at /);
+        expect(linje).not.toContain(nede.message);
       } finally {
         logg.mockRestore();
       }
