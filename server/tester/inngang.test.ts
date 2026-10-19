@@ -83,16 +83,17 @@ describe('loggen av en feil (#867 punkt 5)', () => {
   });
 
   it('en feil fra Node med kode har rammene', () => {
+    // Node skriver hodet som `navn [kode]: melding`; i vitest skrives stakken om uten koden.
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
-    let feil: unknown;
-    try {
-      Buffer.alloc(-1);
-    } catch (f) {
-      feil = f;
-    }
-    expect((feil as { code?: string }).code).toBe('ERR_OUT_OF_RANGE');
+    const feil = Object.assign(new RangeError('Received -1'), {
+      code: 'ERR_OUT_OF_RANGE',
+      stack:
+        'RangeError [ERR_OUT_OF_RANGE]: Received -1\n    at Function.alloc (node:buffer:395:3)',
+    });
     loggFeil('Kode', feil);
-    expect(logg.mock.calls[0][0]).toMatch(/^Kode \(RangeError\)\n\s+at /);
+    expect(logg).toHaveBeenCalledWith(
+      'Kode (RangeError)\n    at Function.alloc (node:buffer:395:3)'
+    );
   });
 
   it('et navn som ikke kan bli tekst, gir ingen rammer og ingen ny feil', () => {
