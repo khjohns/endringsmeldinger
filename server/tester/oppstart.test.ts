@@ -1,6 +1,7 @@
 /**
  * Kontrollene før TS-serveren tar i bruk basen (`server/oppstart.ts`). Kildene er
- * #707 punkt 3 (forbindelsen skal være kjøretidens, ikke eierens eller `sa`) og
+ * #707 punkt 3 og #858 punkt 2 (forbindelsen skal være kjøretidens, uten en fast
+ * rolle eller `CONTROL` i basen og ikke `sa`) og
  * #726 punkt 5 (en fil som ikke er anvendt, meldes én gang). Databasedelen krever
  * `KOE_SQLSERVER_TILKOBLING`.
  */
@@ -24,6 +25,20 @@ const anvendt = ({ versjon, filnavn, sha256 }: Migrasjon): Anvendt => ({
 });
 
 describe('migrasjonsavvik', () => {
+  it('hver fil som ikke er anvendt, meldes nøyaktig én gang, foran eller etter den høyeste anvendte', () => {
+    const [a, b, c, d] = [
+      '20260101000000',
+      '20260102000000',
+      '20260103000000',
+      '20260104000000',
+    ].map(fil);
+    const funn = migrasjonsavvik([anvendt(a), anvendt(c)], [a, b, c, d]);
+    expect(funn).toEqual([
+      `${b.filnavn} er ikke anvendt og kommer foran ${c.versjon}, som er anvendt.`,
+      `${d.filnavn} er ikke anvendt.`,
+    ]);
+  });
+
   it('en fil som ikke er anvendt og kommer foran den høyeste anvendte, meldes én gang (#726 punkt 5)', () => {
     const [a, b, c] = ['20260101000000', '20260102000000', '20260103000000'].map(fil);
     const funn = migrasjonsavvik([anvendt(a), anvendt(c)], [a, b, c]);
@@ -71,11 +86,43 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
       await base.pool.request().batch(`ALTER ROLE db_owner ADD MEMBER [${navn}];`);
       const funn = await hindringer(eier.pool, lesMigrasjoner());
       expect(funn).toHaveLength(1);
-      expect(funn[0]).toMatch(/ikke kjøretidens/);
+      expect(funn[0]).toMatch(/ikke kjøretidens: .*den er medlem av db_owner/);
     } finally {
       await eier.slett();
     }
   });
+
+  it.each([
+    [
+      'er medlem av db_datareader',
+      'ALTER ROLE db_datareader ADD MEMBER',
+      /den er medlem av db_datareader\./,
+    ],
+    [
+      'er medlem av db_ddladmin',
+      'ALTER ROLE db_ddladmin ADD MEMBER',
+      /den er medlem av db_ddladmin\./,
+    ],
+    ['har CONTROL på basen', 'GRANT CONTROL TO', /den har CONTROL på basen\./],
+  ])(
+    'kjøretiden nektes når den også %s, og meldingen sier hvilket vilkår (#858 punkt 2)',
+    async (_, tildeling, vilkaar) => {
+      const kjoeretid2 = await opprettKjoeretid(base, { maks: 1 });
+      try {
+        const navn = (
+          await kjoeretid2.pool.request().query<{ navn: string }>('SELECT USER_NAME() AS navn')
+        ).recordset[0].navn;
+        expect(await hindringer(kjoeretid2.pool, lesMigrasjoner())).toEqual([]);
+        await base.pool.request().batch(`${tildeling} [${navn}];`);
+        const funn = await hindringer(kjoeretid2.pool, lesMigrasjoner());
+        expect(funn).toHaveLength(1);
+        expect(funn[0]).toMatch(/^Forbindelsen er ikke kjøretidens: /);
+        expect(funn[0]).toMatch(vilkaar);
+      } finally {
+        await kjoeretid2.slett();
+      }
+    }
+  );
 
   it('en fil som ikke er anvendt, er en hindring for kjøretiden', async () => {
     const filer = lesMigrasjoner();

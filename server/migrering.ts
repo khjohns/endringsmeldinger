@@ -166,7 +166,7 @@ export function lesMigrasjoner(mappe = MIGRASJONSMAPPE): Migrasjon[] {
         satser = delPaaGo(innhold.toString('utf8'));
       } catch (feil) {
         if (feil instanceof MigreringAvvist)
-          throw new MigreringAvvist(`${filnavn}: ${feil.message}`, { cause: feil });
+          throw new MigreringAvvist(`${filnavn}: ${somSetning(feil)}`, { cause: feil });
         throw feil;
       }
       return {
@@ -177,6 +177,22 @@ export function lesMigrasjoner(mappe = MIGRASJONSMAPPE): Migrasjon[] {
       };
     })
   );
+}
+
+/**
+ * Filene som ikke er anvendt, delt i dem som kommer foran den høyeste anvendte
+ * versjonen, og dem som kommer etter. Hver fil havner i nøyaktig én av dem.
+ */
+export function ikkeAnvendt(
+  anvendt: Anvendt[],
+  filer: Migrasjon[]
+): { hoeyeste: string; foran: Migrasjon[]; etter: Migrasjon[] } {
+  const hoeyeste = anvendt.reduce((m, a) => (a.versjon > m ? a.versjon : m), '');
+  const kjent = new Set(anvendt.map((a) => a.versjon));
+  const foran: Migrasjon[] = [];
+  const etter: Migrasjon[] = [];
+  for (const f of filer) if (!kjent.has(f.versjon)) (f.versjon < hoeyeste ? foran : etter).push(f);
+  return { hoeyeste, foran, etter };
 }
 
 /**
@@ -192,11 +208,9 @@ export function avvik(anvendt: Anvendt[], filer: Migrasjon[]): string[] {
     else if (fil.sha256 !== a.sha256 || fil.filnavn !== a.filnavn)
       funn.push(`${a.filnavn} er endret etter at den ble anvendt.`);
   }
-  const hoeyeste = anvendt.reduce((m, a) => (a.versjon > m ? a.versjon : m), '');
-  const kjent = new Set(anvendt.map((a) => a.versjon));
-  for (const f of filer)
-    if (!kjent.has(f.versjon) && f.versjon < hoeyeste)
-      funn.push(`${f.filnavn} er ikke anvendt og kommer foran ${hoeyeste}, som er anvendt.`);
+  const { hoeyeste, foran } = ikkeAnvendt(anvendt, filer);
+  for (const f of foran)
+    funn.push(`${f.filnavn} er ikke anvendt og kommer foran ${hoeyeste}, som er anvendt.`);
   return funn;
 }
 
@@ -240,16 +254,15 @@ export function egenKonfig(pool: sql.ConnectionPool): sql.config {
   };
 }
 
+const IKKE_DBO = 'Migreringen krever databaseeieren, så skjemaene får eieren dbo.';
+
 /** Avviser en annen identitet enn `dbo` før runneren tar applåsen. */
 async function kontrollerIdentitet(egen: sql.ConnectionPool): Promise<void> {
   const { bruker } = (
     await egen.request().query<{ bruker: string }>('SELECT USER_NAME() AS bruker')
   ).recordset[0];
   if (bruker !== 'dbo')
-    throw new MigreringAvvist(
-      `Runneren kjøres som ${bruker}, ikke som dbo. Migreringen krever databaseeieren, ` +
-        'så skjemaene får eieren dbo.'
-    );
+    throw new MigreringAvvist(`Runneren kjøres som ${bruker}, ikke som dbo. ${IKKE_DBO}`);
 }
 
 /**
@@ -277,9 +290,11 @@ interface Forbindelsestilstand {
   /** Transaksjonen forbindelsen er i, og hvor mange nivåer den har. */
   id: string;
   nivaa: number;
-  laas: string;
+  laas: string | null;
   /** `#koe_migrering` finnes. Runneren lager den i sin transaksjon og sletter den før COMMIT. */
   merket: boolean;
+  /** `USER_NAME()`: en sats med `EXECUTE AS` uten `REVERT` bytter den for resten av sesjonen. */
+  bruker: string;
 }
 
 async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand> {
@@ -289,21 +304,34 @@ async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand>
     .query<{
       id: string | null;
       nivaa: number;
-      laas: string;
+      laas: string | null;
       merket: boolean;
+      bruker: string;
     }>(
+      // APPLOCK_MODE feiler for en bruker utenfor db_owner, så etter et
+      // identitetsbytte leses den ikke, og avvisningen sier hvem satsen byttet til.
       `SELECT CONVERT(varchar(20), CURRENT_TRANSACTION_ID()) AS id, @@TRANCOUNT AS nivaa,
-            APPLOCK_MODE(N'db_owner', @ressurs, N'Session') AS laas,
-            CAST(CASE WHEN OBJECT_ID(N'tempdb..#koe_migrering') IS NULL THEN 0 ELSE 1 END AS bit) AS merket`
+            CASE WHEN USER_NAME() = N'dbo' THEN APPLOCK_MODE(N'db_owner', @ressurs, N'Session') END AS laas,
+            CAST(CASE WHEN OBJECT_ID(N'tempdb..#koe_migrering') IS NULL THEN 0 ELSE 1 END AS bit) AS merket,
+            USER_NAME() AS bruker`
     );
   const t = svar.recordset[0];
   return { ...t, id: t.id ?? '' };
 }
 
-/** Feilmeldingen som én setning, så teksten etter den ikke henger rett på. */
+/**
+ * Feilmeldingen som én setning, så teksten etter den ikke henger rett på. Et
+ * punktum foran et avsluttende sitattegn eller en parentes avslutter også. En
+ * `code` fra Node, `tedious` eller `mssql` står foran meldingen når meldingen
+ * ikke har den, men ikke for en feil fra SQL Server (med `number`), der meldingen
+ * er serverens.
+ */
 export function somSetning(feil: unknown): string {
-  const tekst = (feil instanceof Error ? feil.message : String(feil)).trim() || String(feil);
-  return /[.!?…]$/.test(tekst) ? tekst : `${tekst}.`;
+  const { code, number } = (feil ?? {}) as { code?: unknown; number?: unknown };
+  let tekst = (feil instanceof Error ? feil.message : String(feil)).trim() || String(feil);
+  if (typeof code === 'string' && code && typeof number !== 'number' && !tekst.includes(code))
+    tekst = `${code}: ${tekst}`;
+  return /[.!?…]['"’”)\]]*$/.test(tekst) ? tekst : `${tekst}.`;
 }
 
 /**
@@ -320,6 +348,22 @@ async function lagret(egen: sql.ConnectionPool, runnerens: Forbindelsestilstand)
   if (etter.id !== runnerens.id && etter.merket)
     return ' Fila committet runnerens transaksjon, så det den gjorde før COMMIT, er lagret uten historikkrad.';
   return ' Ingenting fra fila er lagret.';
+}
+
+/** `kall`, med en feil fra det gjort om til en avvisning med `sted` og det som er lagret. */
+async function iFila<T>(
+  egen: sql.ConnectionPool,
+  runnerens: Forbindelsestilstand,
+  sted: string,
+  kall: () => Promise<T>
+): Promise<T> {
+  try {
+    return await kall();
+  } catch (feil) {
+    throw new MigreringAvvist(`${sted}: ${somSetning(feil)}${await lagret(egen, runnerens)}`, {
+      cause: feil,
+    });
+  }
 }
 
 /**
@@ -344,53 +388,54 @@ async function anvendNeste(
   ).recordset;
   const funn = avvik(anvendt, filer);
   if (funn.length) throw new MigreringAvvist(funn.join(' '));
-  const kjent = new Set(anvendt.map((a) => a.versjon));
-  const neste = filer.find((f) => !kjent.has(f.versjon));
+  const [neste] = ikkeAnvendt(anvendt, filer).etter;
   if (!neste) {
     await egen.request().batch('DROP TABLE #koe_migrering; COMMIT;');
     return undefined;
   }
   for (const [i, sats] of neste.satser.entries()) {
     const sted = `${neste.filnavn}, sats ${i + 1}`;
-    try {
-      await egen.request().batch(sats);
-    } catch (feil) {
-      throw new MigreringAvvist(`${sted}: ${somSetning(feil)}${await lagret(egen, runnerens)}`, {
-        cause: feil,
-      });
-    }
-    let etter: Forbindelsestilstand;
-    try {
-      etter = await tilstand(egen);
-    } catch (feil) {
-      throw new MigreringAvvist(`${sted}: ${somSetning(feil)}${await lagret(egen, runnerens)}`, {
-        cause: feil,
-      });
-    }
+    await iFila(egen, runnerens, sted, () => egen.request().batch(sats));
+    const etter = await iFila(egen, runnerens, sted, () => tilstand(egen));
     if (etter.id !== runnerens.id || etter.nivaa !== runnerens.nivaa)
       throw new MigreringAvvist(
         `${sted}: satsen avsluttet eller åpnet en transaksjon (@@TRANCOUNT ${etter.nivaa}). ` +
           'Runneren anvender hver fil i sin egen transaksjon.' +
           (await lagret(egen, runnerens))
       );
+    if (!etter.merket)
+      throw new MigreringAvvist(
+        `${sted}: satsen slettet #koe_migrering, som runneren ser om fila committet med.` +
+          (await lagret(egen, runnerens))
+      );
+    // Per sats, så verken resten av fila, historikkraden eller de neste filene
+    // kjøres som en annen enn `dbo` (#866 punkt 2).
+    if (etter.bruker !== 'dbo')
+      throw new MigreringAvvist(
+        `${sted}: satsen byttet identiteten til ${etter.bruker}. ${IKKE_DBO}` +
+          (await lagret(egen, runnerens))
+      );
   }
-  try {
-    await egen
+  await iFila(egen, runnerens, `${neste.filnavn}, historikkraden`, () =>
+    egen
       .request()
       .input('versjon', sql.Char(14), neste.versjon)
       .input('filnavn', sql.NVarChar(260), neste.filnavn)
       .input('sha256', sql.Char(64), neste.sha256)
       .batch(
-        `DROP TABLE #koe_migrering;
-         INSERT koe_migrering.historikk (versjon, filnavn, sha256) VALUES (@versjon, @filnavn, @sha256);
-         COMMIT;`
-      );
-  } catch (feil) {
-    throw new MigreringAvvist(
-      `${neste.filnavn}, historikkraden: ${somSetning(feil)}${await lagret(egen, runnerens)}`,
-      { cause: feil }
-    );
-  }
+        // Ikke alle feil avbryter satsen, heller ikke med XACT_ABORT, så uten
+        // CATCH kunne COMMIT kjøres etter en feil (#884).
+        `BEGIN TRY
+           DROP TABLE #koe_migrering;
+           INSERT koe_migrering.historikk (versjon, filnavn, sha256) VALUES (@versjon, @filnavn, @sha256);
+           COMMIT;
+         END TRY
+         BEGIN CATCH
+           IF @@TRANCOUNT > 0 ROLLBACK;
+           THROW;
+         END CATCH;`
+      )
+  );
   return neste.versjon;
 }
 
@@ -434,6 +479,8 @@ function fast(pool: sql.ConnectionPool, forbindelse: Forbindelse): sql.Connectio
 /**
  * Anvender filene som ikke er anvendt, én transaksjon per fil, og returnerer
  * versjonene som ble anvendt. Avviker historikken fra filene, anvendes ingenting.
+ * Hver feil etter at filene er ordnet, også fra tilkoblingen, kommer som
+ * `MigreringAvvist` med filene som er anvendt i denne kjøringen.
  *
  * Runneren holder én egen forbindelse med poolens konfigurasjon, ikke en
  * `mssql`-transaksjon: en `ROLLBACK` i en fil får da ikke `mssql` til å gi
@@ -443,12 +490,13 @@ function fast(pool: sql.ConnectionPool, forbindelse: Forbindelse): sql.Connectio
  */
 export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Promise<string[]> {
   filer = ordne(filer);
-  const egenPool = await new sql.ConnectionPool(egenKonfig(pool)).connect();
+  const egenPool = new sql.ConnectionPool(egenKonfig(pool));
   let forbindelse: Forbindelse | undefined;
+  const kjoert: string[] = [];
   try {
+    await egenPool.connect();
     forbindelse = await (egenPool as unknown as Utlaan).acquire(egenPool);
     const egen = fast(egenPool, forbindelse);
-    const kjoert: string[] = [];
     try {
       await egen.request().batch('SET XACT_ABORT ON;');
       await kontrollerIdentitet(egen);
@@ -458,14 +506,6 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
         if (versjon === undefined) return kjoert;
         kjoert.push(versjon);
       }
-    } catch (feil) {
-      if (feil instanceof MigreringAvvist) throw feil;
-      // En feil utenfor en fil, som at forbindelsen er brutt før neste fil (#641).
-      throw new MigreringAvvist(
-        `Migreringen stoppet utenfor en fil: ${somSetning(feil)} ` +
-          `Anvendt i denne kjøringen: ${kjoert.join(', ') || 'ingen'}.`,
-        { cause: feil }
-      );
     } finally {
       await egen
         .request()
@@ -479,6 +519,15 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
           console.error('Migreringen: transaksjonen og applåsen kunne ikke ryddes:', feil);
         });
     }
+  } catch (feil) {
+    const anvendt = ` Anvendt i denne kjøringen: ${kjoert.join(', ') || 'ingen'}.`;
+    if (feil instanceof MigreringAvvist)
+      throw new MigreringAvvist(`${feil.message}${anvendt}`, { cause: feil });
+    // En feil utenfor en fil, som at forbindelsen ikke kommer i gang eller er
+    // brutt før neste fil (#641, #866 punkt 3).
+    throw new MigreringAvvist(`Migreringen stoppet utenfor en fil: ${somSetning(feil)}${anvendt}`, {
+      cause: feil,
+    });
   } finally {
     // Poolen lukker forbindelsen når den selv lukkes.
     if (forbindelse) (egenPool as unknown as Utlaan).release(forbindelse);

@@ -19,29 +19,39 @@ export interface Kjernebrev {
 
 export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
   const kontroll = createLetterConfirmation<Kjernebrev>();
+  let sender = $state(false);
   return {
     get letter() {
       return kontroll.letter;
+    },
+    /** Fra kravet er levert fra skjemaet til sendingen er ferdig, også mens brevet kontrolleres. */
+    get sender() {
+      return sender;
     },
     confirm: kontroll.confirm,
     cancel: kontroll.cancel,
     async submit(spor: SporType, type: EventType, data: object): Promise<void> {
       if (spor !== 'vederlag' || type !== 'vederlag_krav_sendt')
         throw new Error('Bare det første vederlagskravet kan sendes for denne saken ennå.');
-      const kommando = vederlagskravFraSkjema(data as VederlagSubmissionEventData);
-      const tekst = kjernesak.brevtekst(kommando);
-      // #719: uten låst tekst sendes ikke kravet, så TE ser aldri et krav uten brevet.
-      if (!tekst)
-        throw new Error(
-          'Appen kunne ikke lage brevet for kravet. Kontroller beløpet. Kravet er ikke sendt.'
-        );
-      await kontroll.show({
-        tittel: `Vederlag – ${kjernesak.saksbilde?.tittel ?? 'Sak'}`,
-        tekst,
-        utdypning: kommando.utdypning,
-      });
-      if (!(await kjernesak.send(kommando, tekst)))
-        throw new Error(kjernesak.feil ?? 'Kravet ble ikke sendt.');
+      sender = true;
+      try {
+        const kommando = vederlagskravFraSkjema(data as VederlagSubmissionEventData);
+        const tekst = kjernesak.brevtekst(kommando);
+        // #719: uten låst tekst sendes ikke kravet, så TE ser aldri et krav uten brevet.
+        if (!tekst)
+          throw new Error(
+            'Appen kunne ikke lage brevet for kravet. Kontroller beløpet. Kravet er ikke sendt.'
+          );
+        await kontroll.show({
+          tittel: `Vederlag – ${kjernesak.saksbilde?.tittel ?? 'Sak'}`,
+          tekst,
+          utdypning: kommando.utdypning,
+        });
+        if (!(await kjernesak.send(kommando, tekst)))
+          throw new Error(kjernesak.feil ?? 'Kravet ble ikke sendt.');
+      } finally {
+        sender = false;
+      }
     },
   };
 }

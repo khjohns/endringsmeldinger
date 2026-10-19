@@ -33,11 +33,12 @@
     opprettelse,
   } from '$lib/kjernesak/grunnlagskrav';
   import { kravMotNySak } from '$lib/kjernesak/brevtekst';
+  import type { Kjernebrev } from '$lib/kjernesak/kravkontroll.svelte';
   import { KJERNE } from '$kjerne/versjon';
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
   import type { OppgittDato } from '$kjerne/format/format';
   const letterConfirmation = createLetterConfirmation();
-  const brevkontroll = createLetterConfirmation<{ tekst: string[]; utdypning?: string }>();
+  const brevkontroll = createLetterConfirmation<Kjernebrev>();
 
   let {
     onsend,
@@ -266,7 +267,12 @@
     else {
       const tekst = sak.brevtekst(kommando);
       // Uten tekst sender ikke konteksten kravet, og den sier hvorfor (#695), også uten side.
-      if (tekst) await brevkontroll.show({ tekst, utdypning: kommando.utdypning });
+      if (tekst)
+        await brevkontroll.show({
+          tittel: `Grunnlag – ${tittel.trim()}`,
+          tekst,
+          utdypning: kommando.utdypning,
+        });
       lagret = await sak.send(kommando, tekst ?? undefined);
     }
     ventendeKrav = sak.ventende;
@@ -408,9 +414,7 @@
 <ClaimLetterView review={letterConfirmation} stepLabel="Grunnlag" />
 {#if brevkontroll.letter}
   <Brevkontroll
-    tekst={brevkontroll.letter.tekst}
-    utdypning={brevkontroll.letter.utdypning}
-    tittel="Grunnlag – {tittel.trim()}"
+    brev={brevkontroll.letter}
     beskrivelse="Saken er opprettet. Kravet sendes først når du bekrefter."
     onbekreft={brevkontroll.confirm}
     onavbryt={brevkontroll.cancel}
