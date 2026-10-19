@@ -47,6 +47,8 @@ export default defineConfig({
   // Ett prosjekt per del, så oppsettet kjøres bare når en fil i delen er med: Testing
   // Library bare for frontenden, og malen for SQL Server-basene bare for serveren (#930, #934).
   test: {
+    // Prosjektene arver grensen herfra; `--hookTimeout` når dem ikke (feilinnfoering.ts).
+    ...(process.env.KOE_HOOKGRENSE && { hookTimeout: Number(process.env.KOE_HOOKGRENSE) }),
     projects: [
       {
         extends: true,

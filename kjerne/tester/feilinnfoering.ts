@@ -2657,7 +2657,9 @@ function kjoerVitest(
 ): Promise<Rapport> {
   const ut = `${k.rot}-rapport.json`;
   rmSync(ut, { force: true });
-  const env = { ...process.env, KOE_TESTBASE_URL: k.base };
+  // Vitest 3.2 gir ikke `--hookTimeout` videre til prosjektene, så grensen går gjennom
+  // `vite.config.ts`.
+  const env = { ...process.env, KOE_TESTBASE_URL: k.base, KOE_HOOKGRENSE: '60000' };
   if (k.base === undefined) delete env.KOE_TESTBASE_URL;
   return new Promise((ok, feil) => {
     spawn(
@@ -2667,13 +2669,12 @@ function kjoerVitest(
         'run',
         ...filer,
         '--no-cache',
-        // Filene deler modulene i en arbeider. Kontrollkjøringen fanger tilstand som lekker
-        // mellom dem (#934).
+        // Filene deler modulene i en arbeider. Kontrollkjøringen viser at hele samlingen er
+        // grønn slik; et utvalg grupperer filene annerledes (#934).
         '--no-isolate',
         // Kopiene deler prosessorene. Et tidsavbrudd er ikke en assertion og kan bare
         // gi «IKKE OPPDAGET» eller rød kontroll, så grensen heves over standarden på 5 s.
         '--testTimeout=60000',
-        '--hookTimeout=60000',
         // Prosessorene deles mellom kopiene, ikke ganges med dem.
         `--maxWorkers=${arbeiderePerKopi}`,
         '--reporter=json',
@@ -2855,14 +2856,16 @@ if (!delform || del < 1 || del > deler)
 // adresse til testbasen hopper ikke lagringstestene over seg selv; de kobler seg til i
 // hookene, som ikke kjøres.
 const navn = testnavn();
-const malfeil = valgte.flatMap((m) =>
-  m.mal
+const malfeil = valgte.flatMap((m) => [
+  // Uten mål ville ingen feilende test kreves, og utvalget ville vært hele repoet.
+  ...(m.mal.length ? [] : [`${m.id}: mutasjonen har ingen mål`]),
+  ...m.mal
     .filter((mal) => !navn.some((n) => harMal(n.navn, mal)))
     .map(
       (mal) =>
         `${m.id}: målet «${mal}» er ikke en del av navnet på noen test (et mål treffer ikke midt i et ord eller en ID)`
-    )
-);
+    ),
+]);
 if (malfeil.length) throw new Error(malfeil.join('\n'));
 const mutasjoner = valgte.filter((_, i) => i % deler === del - 1);
 // Avgjort av oppdragsgiver 19.10 (#934): på en PR kjører hver mutasjon bare filene med
