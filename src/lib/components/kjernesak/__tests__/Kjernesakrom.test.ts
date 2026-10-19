@@ -66,7 +66,11 @@ async function vis(
   mode: Mode = 'read',
   handlinger?: string[]
 ) {
-  const ekte = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, part) });
+  const ekte = lagKjernesak({
+    sakId: SAK,
+    prosjektId: 'p-1',
+    hent: async () => svar(journal, part),
+  });
   await ekte.last();
   const kjernesak = handlinger ? medHandlinger(ekte, handlinger) : ekte;
   render(Kjernesakrom, {
@@ -96,21 +100,19 @@ describe('TS-saken i Kontrollrommet', () => {
     expect(spor.getByRole('button', { name: /Vederlag/ })).toBeInTheDocument();
   });
 
-  // Kilde: #719 p5: etter et lagret brev og en mislykket lasting har saksbildet en vei videre.
+  // Kilde: #719 p5 og #865 p3: etter et lagret brev og en mislykket lasting har saksbildet
+  // en vei videre, og etter en vellykket lasting er feltet borte.
   it('når brevet er lagret, men saken ikke er lastet på nytt, kan saken lastes fra rommet', async () => {
-    let lastet = 0;
     const hent = vi
       .fn()
       .mockResolvedValueOnce(svar(medGrunnlag, 'TE'))
-      .mockImplementation(async () => {
-        lastet++;
-        return svar(medGrunnlag, 'TE');
-      });
-    const ekte = lagKjernesak({ sakId: SAK, hent });
-    await ekte.last();
-    const kjernesak = new Proxy(ekte, {
-      get: (t, p) => (p === 'utdatert' ? lastet === 0 : Reflect.get(t, p)),
-    });
+      .mockRejectedValueOnce(new Error('Nettverket svarte ikke.'))
+      .mockResolvedValue(svar(medGrunnlag, 'TE'));
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-9', leveringsoppdrag: 'l-9', versjon: 3 });
+    const kjernesak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', hent, send });
+    await kjernesak.last();
     render(Kjernesakrom, {
       kjernesak,
       projectId: 'p-1',
@@ -118,11 +120,23 @@ describe('TS-saken i Kontrollrommet', () => {
       onviewchange: () => {},
       onnewcase: () => {},
     });
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'Saken som vises, er ikke oppdatert etter det siste brevet.'
-    );
+    expect(screen.queryByRole('button', { name: 'Last saken på nytt' })).not.toBeInTheDocument();
+
+    // Med teksten avsenderen har sett, går kommandoen rett til serveren (LV-U2).
+    expect(await kjernesak.send({ type: 'krav' }, ['Kontrollert tekst.'])).toBe(true);
+    expect(send).toHaveBeenCalledOnce();
+    expect(
+      await screen.findByText('Saken som vises, er ikke oppdatert etter det siste brevet.')
+    ).toBeInTheDocument();
+
     await fireEvent.click(screen.getByRole('button', { name: 'Last saken på nytt' }));
-    expect(lastet).toBe(1);
+    expect(hent).toHaveBeenCalledTimes(3);
+    await vi.waitFor(() =>
+      expect(screen.queryByRole('button', { name: 'Last saken på nytt' })).not.toBeInTheDocument()
+    );
+    expect(
+      screen.queryByText('Saken som vises, er ikke oppdatert etter det siste brevet.')
+    ).not.toBeInTheDocument();
   });
 
   it('byggherrens svar vises bare som at svar finnes (oppdragsgiver 17.10)', async () => {
@@ -241,7 +255,11 @@ describe('TS-saken i Kontrollrommet', () => {
   )(
     '%s med %s handlingsliste, %s: knappene og skjemaet følger handlingene',
     async (part, tabell, _navn, journal) => {
-      const ekte = lagKjernesak({ sakId: SAK, hent: async () => svar(journal, part) });
+      const ekte = lagKjernesak({
+        sakId: SAK,
+        prosjektId: 'p-1',
+        hent: async () => svar(journal, part),
+      });
       await ekte.last();
       const handlinger = tabell === 'tom' ? [] : kandidater(ekte.utledning!).map(noekkel);
       const tilbys =
@@ -279,7 +297,11 @@ describe('TS-saken i Kontrollrommet', () => {
   // Krav E i #718: domenekonfigurasjonen leser `bh_resultat` i Python-projeksjonen, så
   // TS-saken har den ikke. Kravversjonen skjemaet bygger på, kommer fra utledningen.
   it('TS-saken har ingen domenekonfigurasjon, og kravversjonen kommer fra utledningen', async () => {
-    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar(medVederlag, 'TE') });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(medVederlag, 'TE'),
+    });
     await kjernesak.last();
     const flate = lagKjernesakflate(kjernesak, 'p-1');
     for (const felt of ['vederlagDomainConfig', 'fristDomainConfig', 'grunnlagDomainConfig'])

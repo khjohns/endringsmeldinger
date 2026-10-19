@@ -5,20 +5,16 @@
 -->
 <script lang="ts">
   import Brevskall from '$lib/components/approval/Brevskall.svelte';
+  import type { Kjernebrev } from '$lib/kjernesak/kravkontroll.svelte';
 
   let {
-    tekst,
-    utdypning,
-    tittel,
+    brev,
     beskrivelse,
     onbekreft,
     onavbryt,
   }: {
-    /** De låste avsnittene, i rekkefølgen kommandoen bærer dem. */
-    tekst: string[];
-    utdypning?: string;
-    /** Brevets overskrift, som «Grunnlag – sakstittel». */
-    tittel: string;
+    /** Brevet som vises, og som avkrysningen gjelder: endres det, krysses det av på nytt (#864). */
+    brev: Kjernebrev;
     /** Det som skjer når TE bekrefter, i panelet ved siden av brevet. */
     beskrivelse: string;
     onbekreft: () => void;
@@ -27,7 +23,7 @@
 </script>
 
 <Brevskall
-  brev={JSON.stringify([tittel, tekst, utdypning ?? null])}
+  brev={JSON.stringify(brev)}
   tilbakeTekst="Tilbake til skjemaet"
   panel={{
     title: 'Du sender kravet',
@@ -41,14 +37,14 @@
 >
   {#snippet dokument()}
     <article class="dokument">
-      <h2>{tittel}</h2>
+      <h2>{brev.tittel}</h2>
       <p class="hjelp">Teksten lages av appen fra valgene i skjemaet og kan ikke endres her.</p>
       <div data-testid="laast-tekst">
-        {#each tekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
+        {#each brev.tekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
       </div>
-      {#if utdypning}
+      {#if brev.utdypning}
         <h3>Utdypning</h3>
-        <p class="utdypning" data-testid="utdypning">{utdypning}</p>
+        <p class="utdypning" data-testid="utdypning">{brev.utdypning}</p>
       {/if}
     </article>
   {/snippet}
