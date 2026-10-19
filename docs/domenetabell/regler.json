@@ -2596,7 +2596,7 @@
       "tilfelle": "Byggherren godkjenner fra appen et grunnlag som blir en endringsordre etter § 32.3 første ledd a, og TEs krav, sendt fra appen, har ingen beskrivelse av pålegget, for eksempel fordi en annen skriver har lagret det.",
       "forventet": "Svaret avvises og lagres ikke, fordi endringsordren ikke kan si hva endringen går ut på (§ 31.3). Påberoper byggherren preklusjon, er godkjenningen ikke en endringsordre, og svaret godtas.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Ingen endringsordre fra appen. Byggherren må svare utenfor appen.",
+      "rettslig_virkning": "Ingen endringsordre fra appen.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -2930,7 +2930,7 @@
     {
       "id": "VS-04",
       "tilfelle": "TE påberoper byggherrens passivitet etter § 32.3 annet ledd.",
-      "forventet": "Påberopelsen registreres og vises før og etter byggherrens svar, uten virkning på utfallet, og sperrer ikke svaret. Den avvises når § 32.2 ikke gjelder kategorien.",
+      "forventet": "Påberopelsen registreres og vises før og etter byggherrens svar, uten virkning på utfallet, og sperrer ikke svaret. Den avvises når § 32.2 ikke gjelder kategorien, og når den ikke viser til TEs varsel etter § 32.2.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Appen avgjør ikke om vilkårene var oppfylt.",
       "rettidighet": "—",
@@ -3201,7 +3201,7 @@
       "tilfelle": "Avsenderen sender et brev der teksten avsenderen har sett, ikke er den serveren lager, for eksempel fordi klienten regnet med et regelsett som er erstattet.",
       "forventet": "Brevet avvises og lagres ikke. Med teksten serveren lager, godtas det.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Brevet er ikke sendt. Teksten avsenderen godkjenner, og teksten som fryses, er den samme (LV-U2).",
+      "rettslig_virkning": "Brevet er ikke sendt.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -3221,7 +3221,7 @@
     "VEDLEGG_FINNES_IKKE": "Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts` og `server/tester/vedlegg.test.ts`.",
     "ANNET_RESULTAT": "Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, ingen rad sier den, og ingen bevis-sak prøver den.",
     "DATO_ETTER_BREVET": "Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`.",
-    "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den, og ingen bevis-sak kan prøve den: kjøreren i `kjerne/tester/kjoerer.ts` sender alltid teksten forhåndsvisningen lager, og har ingen opsjon for å sende uten (#877). Den prøves i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
+    "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den, og ingen bevis-sak prøver den ennå: kjøreren i `kjerne/tester/kjoerer.ts` sender kommandoen uten tekst bare når forhåndsvisningen avviser den (#877). Den prøves i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
     "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
     "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
     "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen.",
