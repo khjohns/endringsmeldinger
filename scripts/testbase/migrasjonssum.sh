@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Skriver summen av det testbasen bygges av: bygg_testbase.sh, plattformstubben
 # og migrasjonene i filnavnrekkefølge. bygg_testbase.sh lagrer den i basen
-# (`koe.migrasjonssum`), og oppstartshooken og testoppsettet i pytest og TS
+# (`koe.migrasjonssum`), og oppstartshooken og testoppsettet i TS
 # nekter eller bygger på nytt en base med en annen sum (#379).
 #
 # Bruk: scripts/testbase/migrasjonssum.sh [rot]   # rot er repoet, som standard dette
