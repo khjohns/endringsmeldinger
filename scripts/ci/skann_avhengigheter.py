@@ -2,7 +2,9 @@
 
 Leser utdataene fra `npm audit --omit=dev --json` på stdin. Feiler for en
 sårbarhet med alvorlighet høy eller kritisk når det finnes en rettet versjon,
-med mindre advisoryen står i unntakslisten. Utviklingsavhengigheter og Python
+med mindre advisoryen står i unntakslisten. Om det finnes en rettet versjon,
+leses av advisoryens sårbare område (`range`), ikke av `fixAvailable`, som bare sier
+om `npm audit fix` når en retting gjennom dagens tre (#851). Utviklingsavhengigheter og Python
 skannes i egne steg som bare rapporterer (DL-U2, avgjort 17.10 i #269).
 
 Bruk: npm audit --omit=dev --json | python3 scripts/ci/skann_avhengigheter.py [unntaksliste]
@@ -10,6 +12,7 @@ Bruk: npm audit --omit=dev --json | python3 scripts/ci/skann_avhengigheter.py [u
 
 import json
 import pathlib
+import re
 import sys
 
 import tomllib
@@ -33,16 +36,40 @@ def les_unntak(sti: pathlib.Path) -> dict[tuple[str, str], dict]:
     return unntak
 
 
+_NEDRE_GRENSE = re.compile(r">=?v?\d[\w.+-]*")
+_JOKER = re.compile(r"[*xX](?:\.[*xX])*")
+
+
+def _uten_øvre_grense(alternativ: str) -> bool:
+    """Bare jokere (`*`, `x.x`) og nedre grenser (`>=1.0.0`). Alt annet, også et tomt eller
+    uleselig alternativ, regnes som å ha en øvre grense, så funnet blokkerer."""
+    ledd = re.sub(r"([<>]=?)\s+", r"\1", alternativ).split()
+    return bool(ledd) and all(_NEDRE_GRENSE.fullmatch(grense) or _JOKER.fullmatch(grense) for grense in ledd)
+
+
+def har_rettet_versjon(område: str | None) -> bool:
+    """Om advisoryen kan ha en rettet versjon: hvert alternativ i det sårbare området har
+    en øvre grense. `*` og `>=1.0.0` har ingen. `<=1.2.3` regnes som rettet, fordi npm
+    skriver et område med rettet versjon slik (`>=7.1.0 <=7.3.1` for vite, rettet i
+    7.3.2); en advisory uten rettet versjon i den formen føres i unntakslisten. Mangler
+    området, regnes versjonen som rettet, så funnet blokkerer."""
+    if not område:
+        return True
+    return not any(_uten_øvre_grense(del_) for del_ in område.split("||"))
+
+
 def funn(rapport: dict) -> list[tuple[str, str, str, str]]:
     """(advisory, pakke, alvorlighet, tittel) for hver blokkerende sårbarhet med rettet versjon."""
     if "vulnerabilities" not in rapport:
         raise ValueError(f"npm audit ga ingen rapport: {rapport.get('error', rapport)}")
     resultat = set()
     for pakke, sårbarhet in rapport["vulnerabilities"].items():
-        if sårbarhet.get("fixAvailable") is False:
-            continue
         for kilde in sårbarhet.get("via", []):
-            if isinstance(kilde, dict) and kilde.get("severity") in BLOKKERER:
+            if (
+                isinstance(kilde, dict)
+                and kilde.get("severity") in BLOKKERER
+                and har_rettet_versjon(kilde.get("range"))
+            ):
                 advisory = kilde["url"].rsplit("/", 1)[-1]
                 resultat.add((advisory, pakke, kilde["severity"], kilde.get("title", "")))
     return sorted(resultat)

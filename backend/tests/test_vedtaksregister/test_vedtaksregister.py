@@ -8,25 +8,17 @@ mangler, også i CI. De kjøres lokalt før en PR som fører et vedtak (#424).
 
 import copy
 import datetime
-import importlib.util
 import os
 import pathlib
 
 import pytest
 
+from tests.verktoy import last
+
 ROT = pathlib.Path(__file__).resolve().parents[3]
 
 
-def _verktoy():
-    spesifikasjon = importlib.util.spec_from_file_location(
-        "vedtaksregister", ROT / "docs" / "verktoy" / "vedtaksregister.py"
-    )
-    modul = importlib.util.module_from_spec(spesifikasjon)
-    spesifikasjon.loader.exec_module(modul)
-    return modul
-
-
-vr = _verktoy()
+vr = last("vedtaksregister")
 
 
 def _uten_historikk(melding: str):
@@ -696,6 +688,8 @@ def _med_anbefalt(*navn: str, **endringer) -> dict:
     "Ja til anbefalingen",
     "Ja til alle anbefalingene, merge #481",
     "Ja til anbefalingen. Det er ikke nødvendig å vente.",
+    "Ja til anbefalingen. I dag er det ikke nødvendig å vente.",
+    "Ja til anbefalingen, jf. NS 8407. Det er ikke nødvendig å vente.",
     "Svar: Ja til anbefalingen",
     "«Ja til anbefalingen»",
 ])
@@ -703,7 +697,8 @@ def test_svaret_kan_slutte_seg_til_anbefalingen_naar_det_valgte_er_anbefalt(grun
     """#486: svaret nevner ingen bokstav, men det valgte alternativet er det anbefalte.
 
     #759: et forbeholdsord i en senere setning hindrer ikke, og setningen kan begynne
-    etter et kolon eller et anførselstegn.
+    etter et kolon eller et anførselstegn. #861: punktumet etter en forkortelse slutter
+    ikke setningen.
     """
     assert vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar))) == []
 
@@ -723,10 +718,17 @@ def test_svaret_kan_slutte_seg_til_anbefalingen_naar_det_valgte_er_anbefalt(grun
     "Ja til anbefalingen kun for punkt 1",
     "Ja til anbefalingen med mindre B faller bort",
     "Ja til anbefalingen så nær som punkt 2",
+    "Ja til anbefalingen. Punkt 3 skal ikke med.",
+    "Ja til anbefalingen. B skal ikke med.",
+    "Ja til anbefalingen, jf. pkt. 2, men ikke punkt 3.",
     "Ja",
 ])
 def test_et_svar_som_avviser_eller_tar_forbehold_slutter_seg_ikke_til_anbefalingen(grunnregister, svar):
-    """#604, #759: svaret må da nevne det valgte alternativet, selv om det er det anbefalte."""
+    """#604, #759: svaret må da nevne det valgte alternativet, selv om det er det anbefalte.
+
+    #861: også når forbeholdet står i en senere setning om et punkt eller et alternativ,
+    eller etter en forkortelse som «jf.» i samme setning.
+    """
     feil = vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar)))
     assert any(f.startswith("XX-U1: svaret nevner ikke det valgte alternativet «A»") for f in feil), feil
 
