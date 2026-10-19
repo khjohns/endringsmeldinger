@@ -14,6 +14,10 @@ import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+# Miljøet går foran backend/.env, også for skriptene testene starter som egne
+# prosesser. Fixturen `ts_skrivesti_av` under dekker resten (#692).
+os.environ["TS_SKRIVESTI"] = "false"
+
 # CSRF håndheves i `require_auth`, som har sesjonen å sammenlikne mot. Det er
 # ett håndhevingspunkt, og det kan ikke slås av her — tester som sender en
 # mutasjon må sende `X-CSRF-Token` som samsvarer med sesjonens token, eller
@@ -49,7 +53,8 @@ def ts_skrivesti_av(monkeypatch):
     """Testene kjører med TS-skrivestien av, også når backend/.env slår den på (#692).
 
     Med bryteren på avviser Python-lageret hver hendelse (B-17), og resten av suiten
-    blir rød uten at noe peker på årsaken. En test som prøver bryteren, slår den på selv.
+    blir rød uten at noe peker på årsaken. En test som prøver bryteren, slår den på selv
+    med `monkeypatch`, og fixturen setter den av igjen før neste test.
     """
     from core.config import settings
 
