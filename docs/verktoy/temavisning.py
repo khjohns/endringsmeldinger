@@ -22,7 +22,6 @@ endring andre steder i kildene endrer den ikke.
 
 import argparse
 import hashlib
-import importlib.util
 import json
 import os
 import pathlib
@@ -30,20 +29,9 @@ import re
 import sys
 
 import tomllib
+from laster import last
 
-
-def _laster():
-    """Den felles lasteren i laster.py, som ikke kan laste seg selv (#861)."""
-    if "verktoy.laster" not in sys.modules:
-        sti = pathlib.Path(__file__).resolve().parent / "laster.py"
-        spesifikasjon = importlib.util.spec_from_file_location("verktoy.laster", sti)
-        modul = importlib.util.module_from_spec(spesifikasjon)
-        spesifikasjon.loader.exec_module(modul)
-        sys.modules["verktoy.laster"] = modul
-    return sys.modules["verktoy.laster"]
-
-
-vh = _laster().last("vedtakshenvisninger")
+vh = last("vedtakshenvisninger")
 vr = vh.vr
 
 ROT = vr.ROT

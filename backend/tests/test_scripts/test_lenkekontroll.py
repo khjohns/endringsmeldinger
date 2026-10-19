@@ -12,7 +12,9 @@ from pathlib import Path
 
 import pytest
 
-SKRIPT = Path(__file__).resolve().parents[3] / "docs/verktoy/lenkekontroll.py"
+from tests.verktoy import MAPPE
+
+SKRIPT = MAPPE / "lenkekontroll.py"
 
 
 MAAL = """# Mål
@@ -156,3 +158,14 @@ def test_usporet_fil_som_arbeidstre_eller_utkast_kontrolleres_ikke(tmp_path, fil
     """#851: filene velges med `git ls-files`."""
     resultat = _kjoer(tmp_path, "maal.md", usporet={fil: "Se [x](finnes-ikke.md).\n"})
     assert resultat.returncode == 0, resultat.stdout + resultat.stderr
+
+
+def test_uten_argumenter_fra_en_undermappe_kontrolleres_de_samme_filene(tmp_path):
+    """#925 punkt 4: `git ls-files` kjørt fra docs/ ga stier som ikke fantes, og
+    kontrollen gikk grønt uten å ha lest noe."""
+    _kjoer(tmp_path, "finnes-ikke.md")
+    resultat = subprocess.run(
+        [sys.executable, str(SKRIPT)], cwd=tmp_path / "docs", capture_output=True, text=True
+    )
+    assert resultat.returncode == 1, resultat.stdout + resultat.stderr
+    assert "BRUTT FIL: kilde.md -> finnes-ikke.md" in resultat.stdout
