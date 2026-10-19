@@ -13,7 +13,9 @@
  *   høyst én åpen pakke i saken;
  * - #829 punkt 1, 3 og 5: siden i konteksten leses uten avkutting, et brudd på en unik
  *   indeks er en avsluttet pakke og ikke en rå databasefeil, og pakken er godkjent når
- *   hvert steg er det.
+ *   hvert steg er det;
+ * - #860 punkt 2: bruddet prøves også på de tre unike indeksene (2601), med en rad som
+ *   lagres mens prosedyren venter.
  */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
@@ -33,7 +35,7 @@ import {
   type NyPakke,
 } from '../godkjenning.ts';
 import { lagOppsett, opprettKjernesak, rydd, TESTBASE_URL, type Oppsett } from './testbase.ts';
-import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
+import { iTransaksjon, settInn, type Foresp } from './sqlserver_migrert.ts';
 
 describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server', () => {
   let o: Oppsett;
@@ -368,6 +370,102 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     );
     expect(feil).toBeInstanceOf(PakkeAvsluttet);
     expect(feilnummer((feil as Error).cause)).toBe(2627);
+  });
+
+  // Eieren lagrer en rad som prosedyrens kontroller ikke ser, fordi den ikke er lagret
+  // ennå. Prosedyren venter på den unike indeksen og møter raden når eieren lagrer.
+  const underSamtidigLagring = async (
+    aktor: string,
+    rad: (r: Foresp) => Promise<unknown>,
+    kall: () => Promise<unknown>
+  ) => {
+    let utfall: Promise<unknown> | undefined;
+    const k = { aktor, prosjekt: o.prosjekt.id, side: 'BH', team: catendaId(o.prosjekt.bhTeam)! };
+    await iTransaksjon(o.datalag.base.pool, k, async (r) => {
+      await rad(r);
+      const { spid } = (await r().query<{ spid: number }>('SELECT @@SPID AS spid')).recordset[0];
+      utfall = kall().then(
+        () => undefined,
+        (e: unknown) => e
+      );
+      for (let forsoek = 0; ; forsoek++) {
+        const venter = await o.datalag.base.pool.request().input('spid', spid).query<{
+          antall: number;
+        }>('SELECT COUNT(*) AS antall FROM sys.dm_exec_requests WHERE blocking_session_id = @spid');
+        if (venter.recordset[0].antall > 0) break;
+        if (forsoek === 100) throw new Error('Prosedyren ventet aldri på raden');
+        await new Promise((ferdig) => setTimeout(ferdig, 50));
+      }
+    });
+    return utfall;
+  };
+  const handling = (pakkeId: string, rad: Record<string, unknown>) => (r: Foresp) =>
+    settInn(r, 'godkjenningshandling', {
+      pakke_id: pakkeId,
+      loepenr: 99,
+      prosjekt_id: o.prosjekt.id,
+      aktor_rolle: 'BH',
+      aktor_team_id: catendaId(o.prosjekt.bhTeam),
+      ...rad,
+    });
+  const avsluttetMed2601 = (feil: unknown) => {
+    expect(feil).toBeInstanceOf(PakkeAvsluttet);
+    expect(feilnummer((feil as Error).cause)).toBe(2601);
+  };
+
+  it('en pakke som erstattes samtidig, gir PakkeAvsluttet fra godkjenningspakke_erstattet_en_gang (#860 punkt 2)', async () => {
+    // Raden lagres i en sak som sorterer før saken prosedyren låser, så låsen på
+    // saken i indeksen ikke venter på den.
+    const [foer, etter] = [sakId, await opprettKjernesak(o)].sort();
+    const p = { ...pakke([leder]), sakId: etter };
+    await i(som(o.bh.id), (f) => lagPakke(f, p));
+    await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert'));
+    const feil = await underSamtidigLagring(
+      o.bh.id,
+      (r) =>
+        settInn(r, 'godkjenningspakke', {
+          pakke_id: randomUUID(),
+          prosjekt_id: o.prosjekt.id,
+          sak_id: foer,
+          forrige_pakke_id: p.pakkeId,
+          aktor_id: o.bh.id,
+          aktor_rolle: 'BH',
+          aktor_team_id: catendaId(o.prosjekt.bhTeam),
+          brev: '{}',
+          fullmaktsgrunnlag: '{}',
+        }),
+      () => i(som(o.bh.id), (f) => lagPakke(f, { ...pakke([leder], p.pakkeId), sakId: etter }))
+    );
+    avsluttetMed2601(feil);
+  });
+
+  it('et samtidig godkjent steg gir PakkeAvsluttet fra godkjenningshandling_godkjent (#860 punkt 2)', async () => {
+    const p = pakke([leder, direktoer]);
+    await i(som(o.bh.id), (f) => lagPakke(f, p));
+    const feil = await underSamtidigLagring(
+      leder,
+      handling(p.pakkeId, {
+        handling: 'godkjent',
+        steg: 1,
+        aktor_id: leder,
+        fullmakt_tittel: 'Seksjonsleder',
+        fullmakt_grense: 1500000,
+        fullmakt_ubegrenset: false,
+      }),
+      () => i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))
+    );
+    avsluttetMed2601(feil);
+  });
+
+  it('en samtidig returnert pakke gir PakkeAvsluttet fra godkjenningshandling_avsluttet (#860 punkt 2)', async () => {
+    const p = pakke([leder]);
+    await i(som(o.bh.id), (f) => lagPakke(f, p));
+    const feil = await underSamtidigLagring(
+      leder,
+      handling(p.pakkeId, { handling: 'returnert', aktor_id: leder }),
+      () => i(som(o.bh.id), (f) => registrerHandling(f, p.pakkeId, 'trukket'))
+    );
+    avsluttetMed2601(feil);
   });
 });
 
