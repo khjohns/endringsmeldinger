@@ -9,7 +9,6 @@ SQL Server-tabellene sammenliknes med katalog.json i
 (`test_relasjoner_og_dataflyt.py`, #558, #647, #673).
 """
 
-import importlib.util
 import pathlib
 import re
 import sys
@@ -17,22 +16,14 @@ import sys
 import pytest
 
 from tests.test_security.test_database_arkitektur_20260920 import TABELLER_I_BASEN
+from tests.verktoy import last
 
 ROT = pathlib.Path(__file__).resolve().parents[3]
 BACKEND = ROT / "backend"
 SQLITE_TABELL = re.compile(r"CREATE TABLE IF NOT EXISTS\s+(\w+)")
 
 
-def _verktoy():
-    spesifikasjon = importlib.util.spec_from_file_location(
-        "datamodell", ROT / "docs" / "verktoy" / "datamodell.py"
-    )
-    modul = importlib.util.module_from_spec(spesifikasjon)
-    spesifikasjon.loader.exec_module(modul)
-    return modul
-
-
-dm = _verktoy()
+dm = last("datamodell")
 
 
 @pytest.fixture(scope="module")

@@ -9,7 +9,8 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { lesAktornavn } from '../lager.ts';
+import { transaksjon, type Kontekst } from '../datalag.ts';
+import { lesSaken } from '../lager.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
   kall,
@@ -90,20 +91,20 @@ describe.skipIf(!TESTBASE_URL)('navnet bak hendelsen i visningen av saken (#104)
 
   it('prosedyren gir ingen navn for en sak i et annet prosjekt eller uten kontekst', async () => {
     await settNavn(o.te, 'Kari Testesen');
-    // Kontrollsak: i sakens prosjekt gir den navnet.
-    const egen = await lesAktornavn(
-      o.datalag.kjoeretid.pool,
-      { aktor: o.bh.id, prosjekt: o.prosjekt.id },
-      sakId
-    );
-    expect([...egen]).toEqual([[o.te.id, 'Kari Testesen']]);
+    const prosedyren = (kontekst: Kontekst) =>
+      transaksjon(o.datalag.kjoeretid.pool, kontekst, (foresp) =>
+        foresp().input('sak_id', sakId).execute('koe_api.aktornavn')
+      );
+    // Kontrollsak: i sakens prosjekt gir den navnet, som lesingen av saken.
+    const kontekst = { aktor: o.bh.id, prosjekt: o.prosjekt.id };
+    expect((await prosedyren(kontekst)).recordset).toEqual([
+      { aktor_id: o.te.id, navn: 'Kari Testesen' },
+    ]);
+    const lest = await lesSaken(o.datalag.kjoeretid.pool, kontekst, sakId, { navn: true });
+    expect([...lest.navn]).toEqual([[o.te.id, 'Kari Testesen']]);
 
-    const utenfor = await lesAktornavn(
-      o.datalag.kjoeretid.pool,
-      { aktor: o.utenfor.id, prosjekt: o.annetProsjekt.id },
-      sakId
-    );
-    expect(utenfor.size).toBe(0);
+    const utenfor = await prosedyren({ aktor: o.utenfor.id, prosjekt: o.annetProsjekt.id });
+    expect(utenfor.recordset).toEqual([]);
 
     const utenKontekst = await iTransaksjon(o.datalag.kjoeretid.pool, null, (r) =>
       r().input('sak_id', sakId).execute('koe_api.aktornavn')

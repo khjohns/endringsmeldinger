@@ -21,7 +21,7 @@ import {
   type Testbruker,
 } from './testbase.ts';
 import { settInn } from './sqlserver_migrert.ts';
-import { sql, type Pool } from '../datalag.ts';
+import { sql } from '../datalag.ts';
 
 describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
   let o: Oppsett;
@@ -181,6 +181,32 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
       expect(logg.mock.calls.join('\n')).not.toContain('Catenda er nede');
     } finally {
       logg.mockRestore();
+      await egen.stopp();
+    }
+  });
+
+  it('lista synkroniserer høyst tre gamle prosjekter samtidig, og alle blir synkronisert (#877)', async () => {
+    const b = await nyBruker();
+    for (let i = 0; i < 5; i++) await prosjekt(b, { alder: 3600 });
+    let samtidig = 0;
+    let flest = 0;
+    let hentinger = 0;
+    const catenda: Catenda = {
+      ...catendaFra(o.teammedlemmer),
+      async medlemmer() {
+        hentinger++;
+        flest = Math.max(flest, ++samtidig);
+        await new Promise((ferdig) => setTimeout(ferdig, 200));
+        samtidig--;
+        return [];
+      },
+    };
+    const egen = await startServer(o, { catenda });
+    try {
+      expect(await liste(b, egen.url)).toEqual({ status: 200, kropp: { projects: [] } });
+      expect(hentinger).toBe(5);
+      expect(flest).toBe(3);
+    } finally {
       await egen.stopp();
     }
   });
@@ -352,28 +378,21 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
     }
   });
 
-  it('applåsen (52044) fra prosedyren gir 503 SYNC_UNAVAILABLE på leserollen og endrer ingenting (#825, #867)', async () => {
+  it('en ekte admin får 503 SYNC_UNAVAILABLE på leserollen mens applåsen holdes i basen, og leserollen er urørt (#825, #867, #877)', async () => {
     const p = await prosjektMed([{ rolle: 'admin' }, { rolle: 'member' }]);
     const [admin, medlem] = p.deltakere;
-    // At prosedyren kaster 52044 når låsen ikke blir ledig, prøves mot basen i `medlemskap.test.ts`.
-    const pool = o.datalag.kjoeretid.pool;
-    const laast: Pool = new Proxy(pool, {
-      get(maal, navn) {
-        if (navn !== 'request') return Reflect.get(maal, navn, maal);
-        return () => {
-          const foresp = maal.request();
-          const utfoer = foresp.execute.bind(foresp);
-          foresp.execute = ((prosedyre: string) =>
-            prosedyre === 'koe_api.sett_leserolle'
-              ? Promise.reject(Object.assign(new Error('Fikk ikke låsen'), { number: 52044 }))
-              : utfoer(prosedyre)) as typeof foresp.execute;
-          return foresp;
-        };
-      },
-    });
-    const egen = await startServer(o, { datalag: laast });
+    // Eieren holder låsen synkroniseringen tar, så prosedyren gir 52044 etter tidsgrensen på 10 s.
+    const laas = new sql.Transaction(o.datalag.base.pool);
+    await laas.begin();
     try {
-      const svar = await kall(egen.url, `/api/projects/${p.id}/members/${medlem.id}`, {
+      await laas
+        .request()
+        .input('r', sql.NVarChar(255), `koe.medlemskap:${p.id}`)
+        .query(
+          `DECLARE @svar int; EXEC @svar = sp_getapplock @Resource = @r, @LockMode = 'Exclusive', @LockOwner = 'Transaction';
+           IF @svar < 0 THROW 50000, N'Fikk ikke låsen i testen', 1;`
+        );
+      const svar = await kall(server.url, `/api/projects/${p.id}/members/${medlem.id}`, {
         bruker: admin,
         prosjektId: p.id,
         metode: 'PATCH',
@@ -382,10 +401,10 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
       expect(svar.status).toBe(503);
       expect(svar.kropp.error).toBe('SYNC_UNAVAILABLE');
     } finally {
-      await egen.stopp();
+      await laas.commit();
     }
     expect(await leserolle(p.id, medlem.id)).toBe(false);
-  });
+  }, 30_000);
 
   it('en kropp med annet enn viewer_override som boolsk verdi gir 400 og endrer ingenting', async () => {
     const p = await prosjektMed([{ rolle: 'admin' }, { rolle: 'member' }]);

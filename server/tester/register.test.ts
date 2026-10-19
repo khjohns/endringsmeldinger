@@ -27,7 +27,8 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { ServerResponse } from 'node:http';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   erAapen,
   erOpprettelse,
@@ -518,6 +519,30 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       });
       expect(svar.status, `${metode} ${sti}`).toBe(404);
     }
+  });
+
+  it('godtar ikke Node rutens hoder, skrives reservesvaret uten dem, så klienten får et svar (#877 #893-5)', async () => {
+    const ekte = ServerResponse.prototype.writeHead;
+    const skrevet: unknown[][] = [];
+    const spion = vi.spyOn(ServerResponse.prototype, 'writeHead').mockImplementation(function (
+      this: ServerResponse,
+      ...argumenter: unknown[]
+    ) {
+      skrevet.push(argumenter);
+      // Første svar og første reservesvar har rutens hoder; Node avviser dem begge.
+      if (skrevet.length <= 2) throw new TypeError('Ugyldig hode');
+      return (ekte as (...a: unknown[]) => ServerResponse).apply(this, argumenter);
+    } as typeof ekte);
+    try {
+      const svar = await fetch(`${server.url}/api/auth/catenda/login`, { redirect: 'manual' });
+      expect(svar.status).toBe(500);
+      expect(((await svar.json()) as { error: string }).error).toBe('INTERNAL_ERROR');
+    } finally {
+      spion.mockRestore();
+    }
+    expect(skrevet).toHaveLength(3);
+    expect(skrevet[1].at(-1)).toHaveProperty('Referrer-Policy');
+    expect(skrevet[2].at(-1)).not.toHaveProperty('Referrer-Policy');
   });
 
   it('en sti new URL ikke kan lese, gir 404 og tar ikke ned serveren (#754)', async () => {

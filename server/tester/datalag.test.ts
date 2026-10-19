@@ -470,6 +470,82 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     expect(await lagret(pool, id)).toBe(false);
   });
 
+  // Kilde: #894 punkt 3. `mssql` validerer tegnparametrene i en batch mot
+  // sorteringen til forelderen, og uten den avvises parameteren med EPARAM.
+  it('batch med varchar- og char-parametre i transaksjonen: ingen EPARAM, og verdiene kommer tilbake', async () => {
+    const svar = await transaksjon(
+      pool,
+      KONTEKST,
+      async (f) =>
+        (
+          await f()
+            .input('v', sql.VarChar(10), 'abc')
+            .input('k', sql.Char(3), 'xyz')
+            .batch<{ v: string; k: string }>('SELECT @v AS v, @k AS k')
+        ).recordset[0]
+    );
+    expect(svar).toEqual({ v: 'abc', k: 'xyz' });
+  });
+
+  // Kilde: #894 punkt 1. Serveren har rullet tilbake, så utfallet er kjent, som når
+  // arbeidet fanger en feil der serveren avbrøt transaksjonen. Injisert: hendelsen
+  // fra serveren holdes igjen til neste runde av hendelsesløkka, etter at arbeidet
+  // har returnert og før ventingen i `committ` er over.
+  it('tilbakerulling fra serveren etter at arbeidet har returnert, før COMMIT: TransaksjonAvbrutt, ikke CommitIkkeSendt, ingenting lagret, og forbindelsen gjenbrukes', async () => {
+    const id = randomUUID();
+    let laant: Forbindelse | undefined;
+    vedNesteLaan(pool, (f) => (laant = f));
+    let inne: Sesjon | undefined;
+    let holdtIgjen = false;
+    const feil = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+      const utsender = laant as unknown as { emit: (h: string, ...a: unknown[]) => boolean };
+      const ekte = utsender.emit;
+      utsender.emit = function (h, ...a) {
+        if (h !== 'rollbackTransaction') return ekte.call(this, h, ...a);
+        holdtIgjen = true;
+        return true;
+      };
+      await f()
+        .batch(`THROW 51409, N'Versjonskonflikt', 1`)
+        .catch(() => undefined);
+      utsender.emit = ekte;
+      setImmediate(() => utsender.emit('rollbackTransaction'));
+    }).catch((e: unknown) => e);
+    expect(holdtIgjen).toBe(true);
+    expect(feil).toBeInstanceOf(TransaksjonAvbrutt);
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ forbindelse: inne!.forbindelse, trancount: 0, ...ingenKontekst });
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  // Kilde: #597 og `koe.skrivetidspunkt` (20261016120000_kommandoer.sql): raden
+  // gjelder når økta logget inn, og `sp_reset_connection` gir økta et nytt
+  // `login_time` på samme forbindelse og samme økt-ID. Uten nullstilling er
+  // tidspunktet det samme (kontrollsaken).
+  it('nullstillingen etter en transaksjon gir samme forbindelse og økt-ID et senere login_time, og uten nullstilling er det uendret', async () => {
+    const innlogging = async () =>
+      (
+        await pool.request().query<{ innlogget: string; oekt: number; forbindelse: string }>(
+          `SELECT CONVERT(varchar(23), s.login_time, 121) AS innlogget, @@SPID AS oekt,
+                  LOWER(CAST(c.connection_id AS nvarchar(36))) AS forbindelse
+             FROM sys.dm_exec_sessions s JOIN sys.dm_exec_connections c ON c.session_id = s.session_id
+            WHERE s.session_id = @@SPID`
+        )
+      ).recordset[0];
+    const pause = () => new Promise((ok) => setTimeout(ok, 20));
+    const foer = await innlogging();
+    await pause();
+    const uendret = await innlogging();
+    expect(uendret).toEqual(foer);
+    await pause();
+    await transaksjon(pool, KONTEKST, async () => undefined);
+    const etter = await innlogging();
+    expect(etter).toMatchObject({ oekt: foer.oekt, forbindelse: foer.forbindelse });
+    expect(etter.innlogget > foer.innlogget).toBe(true);
+  });
+
   it('opprettPool bruker konfig.pool.max når maks ikke er oppgitt, og maks foran den', async () => {
     const konfig = {
       ...sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING!),

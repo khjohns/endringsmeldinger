@@ -32,6 +32,7 @@
  */
 
 import { createServer } from 'node:http';
+import { constants } from 'node:os';
 import { lagServer } from './app.ts';
 import type { Catenda } from './autorisasjon.ts';
 import { kontrollerSkrifter } from './brevpdf.ts';
@@ -110,11 +111,18 @@ server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
   console.log(`lytter på http://127.0.0.1:${port}`);
 });
 
-// Et nytt signal venter på stoppen som pågår, så poolen ikke lukkes mens løkka kvitterer (#778).
-let stoppes: Promise<void> | undefined;
-const stopp = () =>
-  void (stoppes ??= new Promise<void>((lukket) => server.close(() => lukket()))
+// Poolen lukkes først når løkka har kvittert (#778). Et nytt signal mens stoppen
+// pågår, avslutter med en gang, så en stopp som henger, ikke krever SIGKILL (#813 punkt 3).
+let stoppes = false;
+const stopp = (signal: NodeJS.Signals) => {
+  if (stoppes) {
+    console.error(`${signal} mens stoppen pågår: avslutter uten å vente på serveren og jobbene`);
+    process.exit(128 + constants.signals[signal]);
+  }
+  stoppes = true;
+  void new Promise<void>((lukket) => server.close(() => lukket()))
     .then(() => jobber?.stopp())
-    .then(() => datalag.close()));
+    .then(() => datalag.close());
+};
 process.on('SIGTERM', stopp);
 process.on('SIGINT', stopp);
