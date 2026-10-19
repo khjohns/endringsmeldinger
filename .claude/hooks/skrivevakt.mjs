@@ -276,7 +276,8 @@ const ESCAPE_I_ANFORSEL = '$`"\\';
  * `ukjent` settes når leddet ikke kan leses uten å kjøre skallet: substitusjon, variabler,
  * globber, klammer, `#`, subshell, heredoc eller omdirigering til fil. `ukjentSyntaks` er
  * den delen som ikke er omdirigering, og `ukjentKommando` er satt når kommandoordet selv
- * ikke kan leses.
+ * ikke kan leses. Linjene i en heredoc-kropp leses som før, men leddene deres er ukjente og
+ * merket `kropp`, siden skallet kan ekspandere dem og de ikke er kommandoer (#753).
  */
 function lekser(tekst) {
   const liste = [];
@@ -286,6 +287,10 @@ function lekser(tekst) {
   let ukjent = false;
   let ukjentSyntaks = false;
   let ukjentKommando = false;
+  // Avgrenserne til heredocene som er åpnet på linja, og dem kroppslinjene ennå venter på.
+  let aapnede = [];
+  let kropper = [];
+  let iKropp = false;
 
   const merkUkjent = () => {
     ukjent = true;
@@ -306,7 +311,9 @@ function lekser(tekst) {
   };
   const avsluttLedd = () => {
     avsluttOrd();
-    if (ord.length || ukjent) liste.push({ ord, ukjent, ukjentSyntaks, ukjentKommando });
+    if (iKropp) merkUkjent();
+    if (ord.length || ukjent)
+      liste.push({ ord, ukjent, ukjentSyntaks, ukjentKommando, kropp: iKropp });
     ord = [];
     ukjent = false;
     ukjentSyntaks = false;
@@ -362,10 +369,38 @@ function lekser(tekst) {
         avsluttOrd();
         merkOmdirigering();
       }
+    } else if (tegn === '<' && tekst.startsWith('<<<', i)) {
+      avsluttOrd();
+      merkOmdirigering();
+      i += 2;
+    } else if (tegn === '<' && tekst[i + 1] === '<') {
+      // Heredoc. Avgrenseren leses som målet til omdirigeringen; anførselstegn og
+      // escape i den gjør kroppen bokstavelig, men leddet er ukjent uansett.
+      avsluttOrd();
+      merkUkjent();
+      merkOmdirigering();
+      const fjernTab = tekst[i + 2] === '-';
+      i += fjernTab ? 2 : 1;
+      const avgrenser = /^[ \t]*([^\s;&|<>()]*)/.exec(tekst.slice(i + 1))[1].replace(/['"\\]/g, '');
+      if (avgrenser) aapnede.push({ avgrenser, fjernTab });
     } else if (tegn === '<') {
       avsluttOrd();
       merkOmdirigering();
-    } else if (tegn === ';' || tegn === '&' || tegn === '|' || tegn === '\n') {
+    } else if (tegn === '\n') {
+      avsluttLedd();
+      kropper.push(...aapnede);
+      aapnede = [];
+      // Avgrenserlinjer hoppes over; ellers er neste linje en kroppslinje.
+      while (kropper.length) {
+        const slutt = tekst.indexOf('\n', i + 1);
+        const linje = tekst.slice(i + 1, slutt === -1 ? tekst.length : slutt);
+        const { avgrenser, fjernTab } = kropper[0];
+        if ((fjernTab ? linje.replace(/^\t+/, '') : linje) !== avgrenser) break;
+        kropper.shift();
+        i = slutt === -1 ? tekst.length : slutt;
+      }
+      iKropp = kropper.length > 0;
+    } else if (tegn === ';' || tegn === '&' || tegn === '|') {
       avsluttLedd();
     } else if (tegn === ' ' || tegn === '\t') {
       avsluttOrd();
@@ -865,6 +900,20 @@ function vurder(input) {
     ...leddene.flatMap((del) => del.ord),
     ...eff.flatMap((del) => [...del.ord, ...(del.forran ?? [])]),
   ];
+  const deler = ledd(kommando);
+  const gitene = eff.filter((del) => del.ord[0] === 'git').map((del) => gitKommando(del.ord));
+  // Det kallet committer og pusher. Både meldingen og reglene under leser disse.
+  const pushArgumenter = [
+    ...deler
+      .filter((del) => /^git(\s+-C\s+\S+)?\s+push\b/.test(del))
+      .map((del) => del.replace(/^.*?\bpush\b/, '')),
+    ...gitene
+      .filter((g) => g.underkommando === 'push' || g.underkommando === 'send-pack')
+      .map((g) => g.argumenter.join(' ')),
+  ];
+  const commiter =
+    deler.some((del) => /^git(\s+-C\s+\S+)?\s+(commit|add)\b/.test(del)) ||
+    gitene.some((g) => g.underkommando === 'commit' || g.underkommando === 'add');
   const miljoe = alleOrd.find((o) => !UFARLIG_MILJOE.test(o) && FARLIG_MILJOE.test(o));
   if (miljoe) return `mekanisk-pr setter ikke miljøvariabelen i ${miljoe}.`;
   if (
@@ -877,10 +926,9 @@ function vurder(input) {
     [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) => m.test(kommando))
   ) {
     const blandet =
-      eff.some((del) => !['git', 'cd'].includes(del.ord[0])) &&
-      eff.some(
-        (del) =>
-          del.ord[0] === 'git' && ['commit', 'push'].includes(gitKommando(del.ord).underkommando)
+      (pushArgumenter.length > 0 || commiter) &&
+      effektiveKommandoer(leddene.filter((del) => !del.kropp)).some(
+        (del) => !['git', 'cd'].includes(del.ord[0])
       );
     return `Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.${blandet ? ` ${ALENE}` : ''}`;
   }
@@ -894,8 +942,6 @@ function vurder(input) {
     return 'Kommandoen kan starte git, gh eller et skall gjennom et program vakten ikke kjenner.';
   }
 
-  const deler = ledd(kommando);
-  const gitene = eff.filter((del) => del.ord[0] === 'git').map((del) => gitKommando(del.ord));
   if (
     deler.some((del) => /^gh\b/.test(del) && GH_MERGE.test(del)) ||
     eff.some((del) => del.ord[0] === 'gh' && GH_MERGE.test(del.ord.join(' ')))
@@ -929,17 +975,6 @@ function vurder(input) {
   }
 
   // Siste vern: det som committes eller pushes, kontrolleres i git.
-  const pushArgumenter = [
-    ...deler
-      .filter((del) => /^git(\s+-C\s+\S+)?\s+push\b/.test(del))
-      .map((del) => del.replace(/^.*?\bpush\b/, '')),
-    ...gitene
-      .filter((g) => g.underkommando === 'push' || g.underkommando === 'send-pack')
-      .map((g) => g.argumenter.join(' ')),
-  ];
-  const commiter =
-    deler.some((del) => /^git(\s+-C\s+\S+)?\s+(commit|add)\b/.test(del)) ||
-    gitene.some((g) => g.underkommando === 'commit' || g.underkommando === 'add');
   if (pushArgumenter.length && commiter) return 'Kjør commit og push i hver sin kommando.';
   if (pushArgumenter.length || commiter) {
     const utenfor = utenforTreet(leddene, cwd, rot);

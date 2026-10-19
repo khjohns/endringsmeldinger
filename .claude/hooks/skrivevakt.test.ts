@@ -217,6 +217,48 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
+  it('ber om eget kall for git add og git send-pack, som reglene regner som commit og push (#753)', () => {
+    for (const kommando of [
+      'printf "$(date)" && git add docs/a.md',
+      'npm test; git send-pack origin "$(printf x)"',
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).toContain('hver i sitt eget kall');
+    }
+  });
+
+  it('stopper en heredoc uten anførselstegn som kjører kommandoer i kroppen (#753)', () => {
+    for (const kommando of [
+      "cat <<EOF\n'$(git push --force origin main)'\nEOF",
+      "cat <<-EOF\n\t'`git push --force origin main`'\n\tEOF",
+      "cat <<EOF | tail -1\n'$(git push --force origin main)'\nEOF",
+      "cat <<A <<B\na\nA\n'$(git push --force origin main)'\nB",
+      'cat <<\nrm -rf docs',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('leser heredoc-kroppen som tekst, ikke som kommandoledd (#753)', () => {
+    const resultat = bash('git commit -F - <<EOF\nmelding\nEOF');
+    expect(resultat.status).toBe(2);
+    expect(resultat.stderr).not.toContain('melding står i samme kall');
+    expect(resultat.stderr).toContain('skallsyntaks som ikke kan leses statisk');
+  });
+
+  it('stopper fortsatt heredoc med anførselstegn og heredoc rundt git (#753)', () => {
+    for (const kommando of [
+      "git commit -F - <<'EOF'\nmelding\nEOF",
+      'git commit -F - <<"EOF"\nmelding\nEOF',
+      "cat <<'EOF'\ngit push origin HEAD:main\nEOF",
+      'cat <<EOF | git commit -F -\nmelding\nEOF',
+      'git commit -F - <<EOF\nmelding',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
   it('stopper endring av treet i samme kall som commit eller push', () => {
     for (const kommando of [
       'git merge feat-kjerne --no-edit && git push -u origin claude/test-1',
@@ -907,6 +949,7 @@ describe('lesevakten for diffkontroll', () => {
       'grep x docs/a.md >&1x',
       'git log >> /tmp/x',
       'git log < /etc/hosts',
+      "git log <<'EOF'\nx\nEOF",
       'git log {a,b}',
       'git log *',
       'git log \\\nrm -rf docs',
