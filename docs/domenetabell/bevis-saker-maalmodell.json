@@ -11675,6 +11675,27 @@
           }
         },
         {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "GR-U12",
+            "GR-U13"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent",
+                "varslet_i_tide": false
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
           "etter": 2,
           "rolle": "mal",
           "kilde": [
