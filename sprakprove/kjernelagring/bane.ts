@@ -2,8 +2,7 @@
  * Kjernen mot testbasen: journalen går gjennom `hendelse` med lageret fra
  * språkprøven, og bufferen ligger i `sak_metadata` (B-10, #316). Banen leser
  * journalen fra basen før hver utledning, så hvert steg prøver lagring og
- * gjenlesing. Krever `KOE_TESTBASE_URL`. Kjør ikke samtidig med pytest mot
- * samme base.
+ * gjenlesing. Krever `KOE_TESTBASE_URL`.
  *
  * Journallageret er språkprøvens, ikke kjernens; skrivestien er #310. Her
  * prøves at kjernens rader og bufferen tåler basen.

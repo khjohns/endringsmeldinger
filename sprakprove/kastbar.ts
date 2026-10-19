@@ -1,7 +1,6 @@
 /**
- * Prøveserveren og testene skriver bare til en base `scripts/testbase/bygg_testbase.sh`
- * har merket kastbar, samme vakt som `krev_kastbar_testbase` i pytest, og bare
- * når basen er bygget av migrasjonene i arbeidstreet (#379).
+ * Testene skriver bare til en base `scripts/testbase/bygg_testbase.sh` har merket
+ * kastbar, og bare når basen er bygget av migrasjonene i arbeidstreet (#379).
  */
 
 import { execFileSync } from 'node:child_process';

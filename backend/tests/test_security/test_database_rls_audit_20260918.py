@@ -11,9 +11,8 @@ Testene her etterprøver funn i databaseskjemaet og migrasjonskjeden:
 
 Alle testene kjører lokalt uten nettverk og analyserer repoets faktiske SQL- og kodedefinisjoner.
 
-Merknad 2026-09-22: DB-03 og DB-07 kontrolleres nå mot katalogen i en base
-bygget fra migrasjonene, i tests/test_database/test_katalog.py. Reproduksjonene
-her leste filer som var flyttet eller ufullstendige (T-2), og er fjernet.
+Merknad 2026-09-22: Reproduksjonene av DB-03 og DB-07 her leste filer som var
+flyttet eller ufullstendige (T-2), og er fjernet.
 """
 
 import re

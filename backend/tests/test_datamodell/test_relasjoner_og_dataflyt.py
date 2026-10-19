@@ -1,8 +1,7 @@
 """Relasjonene og dataflyten mot Catenda i docs/datamodell/ (spor M, 1c).
 
-Relasjonsregisteret sammenliknes med katalog.json, som
-`test_database/test_katalog_json.py` holder lik en base bygget fra
-migrasjonene. Dataflyten sammenliknes med kallene til Catenda-klienten, funnet
+Relasjonsregisteret sammenliknes med katalog.json, øyeblikksbildet av basene
+bygget fra migrasjonene. Dataflyten sammenliknes med kallene til Catenda-klienten, funnet
 med AST i backend. Testene viser at registrene beskriver koden og skjemaet, ikke
 at koden gjør det riktige.
 """

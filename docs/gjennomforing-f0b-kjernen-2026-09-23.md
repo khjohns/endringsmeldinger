@@ -54,8 +54,8 @@ transporten og kontrakten som trådene i F0b punkt 2 skal bygge på.
 | [`backend/core/config.py`](../backend/core/config.py) | `database_url` (`SecretStr`, ingen standardverdi), poolstørrelse, tidsgrenser og retry |
 | [`backend/core/container.py`](../backend/core/container.py) | `container.database`, opprettet ved første bruk. `reset()` lukker poolen |
 | [`backend/requirements.txt`](../backend/requirements.txt) | `psycopg[binary]==3.3.6` flyttet hit fra dev, og `psycopg-pool==3.3.3` |
-| [`backend/tests/test_database/conftest.py`](../backend/tests/test_database/conftest.py) | Den lesende fixturen `testbase` er uendret. Nye: `testbase_url`, `skrivbar_base`, `container_mot_testbasen` og `testinnstillinger()` |
-| [`backend/tests/test_database/test_kjerne.py`](../backend/tests/test_database/test_kjerne.py) · [`test_skrivbar_fixture.py`](../backend/tests/test_database/test_skrivbar_fixture.py) | Testene i avsnitt 6 |
+| [`backend/tests/test_database/conftest.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/conftest.py) | Den lesende fixturen `testbase` er uendret. Nye: `testbase_url`, `skrivbar_base`, `container_mot_testbasen` og `testinnstillinger()` |
+| [`backend/tests/test_database/test_kjerne.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py) · [`test_skrivbar_fixture.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_skrivbar_fixture.py) | Testene i avsnitt 6 |
 | [`scripts/testbase/lokal_testbase.sh`](../scripts/testbase/lokal_testbase.sh) | Lokal oppstart: en kastbar PostgreSQL 17 med testbasen bygget |
 | [`scripts/testbase/bygg_testbase.sh`](../scripts/testbase/bygg_testbase.sh) | Setter til slutt merket `koe-kastbar-testbase` som kommentar på basen |
 | [`vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py`](vedlegg/f0b-kjernen-2026-09-23/mutasjoner.py) | 27 mutasjoner med oppskrift |
