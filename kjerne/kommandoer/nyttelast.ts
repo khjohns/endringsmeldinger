@@ -206,8 +206,25 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
     : null;
 }
 
+const VARSELET_SENDT = 'varselet etter § 33.4 ble sendt';
+
 /**
- * Datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato, som er
+ * Datoen TE oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
+ * fra i grunnlagskravet (VS-U26), og datoen et varsel etter § 33.4 ble sendt utenfor
+ * appen, registrert for seg eller i fristkravet (OV-U5).
+ */
+function oppgittDatoI(k: Kommando): { dato: unknown; gjelder: string } | null {
+  if (k.type === 'varsel') return { dato: k.sendt, gjelder: VARSELET_SENDT };
+  if (k.type !== 'krav') return null;
+  if (k.spor === 'frist')
+    return k.varsel ? { dato: k.varsel.sendt, gjelder: VARSELET_SENDT } : null;
+  if (k.spor !== 'grunnlag') return null;
+  const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
+  return felt === null ? null : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt] };
+}
+
+/**
+ * Datoen TE oppgir (`oppgittDatoI`), kan ikke være etter brevets dato, som er
  * serverens (VS-U8) i norsk tid. Det er en kontroll av en dato som ikke kan
  * stemme; om varselet kom i tide, vurderes ikke (arbeidsvalg 1 i #664, samme form
  * som KA-U36). `brevetsDato` er en kalenderdag, ÅÅÅÅ-MM-DD, fra `registrertDato`;
@@ -216,15 +233,13 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
 export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisning | null {
   if (!erKalenderdato(brevetsDato))
     throw new Error(`Brevets dato ${brevetsDato} er ikke en kalenderdag på formen ÅÅÅÅ-MM-DD.`);
-  if (k.type !== 'krav' || k.spor !== 'grunnlag') return null;
-  const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
-  const dato = felt === null ? undefined : k.innhold[felt];
+  const oppgitt = oppgittDatoI(k);
   // #766: en dato som ikke kan tolkes, kontrolleres ikke her, som når den mangler (KA-U38).
-  const dag = typeof dato === 'string' ? kalenderdag(dato) : null;
-  if (felt === null || dag === null || dag <= brevetsDato) return null;
+  const dag = typeof oppgitt?.dato === 'string' ? kalenderdag(oppgitt.dato) : null;
+  if (oppgitt === null || dag === null || dag <= brevetsDato) return null;
   return avvis(
     'DATO_ETTER_BREVET',
-    `TE har oppgitt at ${DATOEN_GJELDER[felt]} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
+    `TE har oppgitt at ${oppgitt.gjelder} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
   );
 }
 
@@ -246,8 +261,17 @@ export function nyttelastkontroll(
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;
+      if (k.spor !== 'frist' || !k.varsel) return null;
       const varsel = u.spor.frist.varsel;
-      if (k.spor !== 'frist' || !k.varsel || !varsel) return null;
+      // OV-U5: kravet registrerer varselet, og brevet med det ligger ved. Er varselet
+      // registrert, kreves bare samme dato (SK-12; arbeidsvalget i #909).
+      if (!varsel)
+        return k.varsel.dokumentasjon
+          ? null
+          : avvis(
+              'VEDLEGG_MANGLER',
+              'Kravet oppgir datoen varselet etter § 33.4 ble sendt, men brevet med varselet ligger ikke ved (OV-U5).'
+            );
       const sendt = datoFor(
         varsel,
         'sendt',

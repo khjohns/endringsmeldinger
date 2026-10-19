@@ -4,7 +4,8 @@
  * kommandoen til kjernen, TE ser den låste teksten (LV-U2), og kommandoen sendes med
  * `kjernesak.send`. Trekket, aksepten og innsigelsen har ikke noe skjema og går
  * gjennom `trekk`, `aksept` og `innsigelse`. Et registrert varsel har ingen tekst fra
- * appen (MM-U17) og sendes uten brevkontroll.
+ * appen (MM-U17) og sendes uten brevkontroll. Vedleggene brevet viser til, står i
+ * teksten, så kjernen får dem når brevet lages (OV-U5).
  */
 
 import { createLetterConfirmation, LetterCancelled } from '$lib/approval/claimReview.svelte';
@@ -54,7 +55,7 @@ function kommandoFraSkjema(
     const d = data as Fristskjemadata;
     return {
       kommando: fristkommandoFraSkjema(d),
-      vedlegg: d.registrert && vedleggsoppslag(d.registrert.vedlegg),
+      vedlegg: vedleggsoppslag((d.registrert ?? d.tidligereVarsel)?.vedlegg ?? []),
     };
   }
   if (spor === 'grunnlag' && type === 'grunnlag_oppdatert')
@@ -74,8 +75,8 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
   let feil = $state<string | null>(null);
 
   /** Brevet kjernen lager for kommandoen, eller avvisningen som feil (#719). */
-  function brev(kommando: Kommando, spor: Spor): Kjernebrev {
-    const b = kjernesak.brev(kommando);
+  function brev(kommando: Kommando, spor: Spor, vedlegg?: Vedleggsoppslag): Kjernebrev {
+    const b = kjernesak.brev(kommando, vedlegg);
     // #719: uten låst tekst sendes ikke kommandoen, så TE ser aldri et brev uten teksten.
     const tekst = b && 'tekst' in b ? b.tekst : null;
     if (!tekst)
@@ -154,7 +155,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
             throw new Error(kjernesak.feil ?? 'Varselet ble ikke registrert.');
           return;
         }
-        await visOgSend(kommando, brev(kommando, spor as Spor));
+        await visOgSend(kommando, brev(kommando, spor as Spor, vedlegg));
       } finally {
         sender = false;
       }

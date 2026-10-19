@@ -31,14 +31,18 @@
   const store = getCaseWorkspace();
   // TS-saken (#909): foreløpig varsel uten fritekst (VS-U15), registrering av et varsel
   // sendt utenfor appen med datoen og brevet som vedlegg (MM-U1, OV-U4), og spesifisert
-  // krav med begrunnelse (KA-U33), uten utsatt beregning og utkast. Kravversjonen og
-  // varselet kommer fra kjernen.
+  // krav med begrunnelse (KA-U33), som kan oppgi et varsel sendt utenfor appen på samme
+  // måte (OV-U5), uten utsatt beregning og utkast. Kravversjonen og varselet kommer fra
+  // kjernen.
   const kjernesak = store.erKjernesak ? store : null;
   import { letterText } from '$lib/approval/letter';
   import type { Kjernevedlegg } from '$lib/api/kjerne';
+  import { dagensDato, varselhindring } from '$lib/kjernesak/fristkrav';
+  // Kjernen tilbyr registreringen så lenge sporet ikke har et varsel (VARSEL_REGISTRERT).
   const kanRegistrere = $derived(kjernesak?.tilbyrTe('varsle:frist') ?? false);
-  const idag = new Date().toLocaleDateString('sv-SE');
   let varselSendt = $state('');
+  // Det spesifiserte kravet oppgir varselet TE sendte utenfor appen (OV-U5).
+  let oppgirVarsel = $state(false);
   let registrerteVedlegg = $state<Kjernevedlegg[]>([]);
   let opplastingsfeil = $state<string | null>(null);
   async function lastOppTilKjernen(filer: FileList | null) {
@@ -111,15 +115,29 @@
       : undefined,
   });
 
-  // Tilbyr kjernen bare registreringen, er den valgt (VS-U16).
+  // Standardvalget når kjernen tilbyr det, ellers det første valget kjernen tilbyr (VS-U16).
+  const tilbudteValg = () =>
+    kjernesak
+      ? [
+          ...(kjernesak.tilbyrTe('sende_varsel:frist') ? (['varsel'] as const) : []),
+          ...(kjernesak.tilbyrTe('krav:frist') ? (['spesifisert'] as const) : []),
+          ...(kjernesak.tilbyrTe('varsle:frist') ? (['registrert'] as const) : []),
+        ]
+      : null;
+  const kjernevalg = $derived(tilbudteValg());
+  const startvalg = tilbudteValg();
   let varselType = $state<FristVarselType | 'registrert' | undefined>(
-    kjernesak?.tilbyrTe('varsle:frist') &&
-      !kjernesak.tilbyrTe('krav:frist') &&
-      !kjernesak.tilbyrTe('sende_varsel:frist')
-      ? 'registrert'
+    startvalg && !startvalg.some((v) => v === defaults.varselType)
+      ? startvalg[0]
       : defaults.varselType
   );
   const registrerer = $derived(varselType === 'registrert');
+  const visVarselet = $derived(
+    registrerer || (varselType === 'spesifisert' && kanRegistrere && oppgirVarsel)
+  );
+  const varselet = $derived({ sendt: varselSendt, vedlegg: registrerteVedlegg });
+  // Regnes ut ved hver endring, så grensen følger datoen også etter midnatt.
+  const hindring = $derived(visVarselet ? varselhindring(varselet, dagensDato()) : null);
   let antallDager = $state<number | undefined>(defaults.antallDager || undefined);
   let begrunnelse = $state(defaults.begrunnelse);
   let charCount = $state(defaults.begrunnelse.replace(/<[^>]*>/g, '').trim().length);
@@ -131,17 +149,14 @@
     )
   );
   // Kjernen tilbyr valgene. Utsatt beregning etter § 33.6.2 har ingen kommando ennå.
+  const VALGNAVN = {
+    varsel: 'Foreløpig varsel',
+    spesifisert: 'Spesifisert krav',
+    registrert: 'Varsel sendt utenfor appen',
+  };
   const segmentOptions = $derived(
-    kjernesak
-      ? [
-          ...(kjernesak.tilbyrTe('sende_varsel:frist')
-            ? [{ value: 'varsel', label: 'Foreløpig varsel' }]
-            : []),
-          ...(kjernesak.tilbyrTe('krav:frist')
-            ? [{ value: 'spesifisert', label: 'Spesifisert krav' }]
-            : []),
-          ...(kanRegistrere ? [{ value: 'registrert', label: 'Varsel sendt utenfor appen' }] : []),
-        ]
+    kjernevalg
+      ? kjernevalg.map((value) => ({ value, label: VALGNAVN[value] }))
       : visibility.segmentOptions
   );
   // KA-U33: kjernen avviser et fristkrav uten begrunnelse (BEGRUNNELSE_MANGLER). Blanke
@@ -165,14 +180,12 @@
   const kanSende = $derived(
     kjernesak
       ? varselType === 'varsel' ||
-          (registrerer &&
-            varselSendt !== '' &&
-            varselSendt <= idag &&
-            registrerteVedlegg.length > 0) ||
+          (registrerer && hindring === null) ||
           (varselType === 'spesifisert' &&
             Number.isInteger(antallDager) &&
             (antallDager ?? 0) > 0 &&
-            !begrunnelseMangler)
+            !begrunnelseMangler &&
+            hindring === null)
       : beregnCanSubmit(mappedState, { scenario }) && (varselType === 'varsel' || charCount >= 10)
   );
   const statusSummary = $derived(beregnTeStatusSummary(mappedState, { scenario }));
@@ -215,8 +228,10 @@
                 getEventType({ scenario }) as EventType,
                 {
                   ...(registrerer
-                    ? { registrert: { sendt: varselSendt, vedlegg: registrerteVedlegg } }
-                    : {}),
+                    ? { registrert: varselet }
+                    : visVarselet
+                      ? { tidligereVarsel: varselet }
+                      : {}),
                   ...buildEventData(mappedState, {
                     scenario,
                     grunnlagEventId:
@@ -279,9 +294,11 @@
 
     <FormPageHeader
       title="Krav om fristforlengelse"
-      intro={scenario === 'edit'
-        ? 'Oppdater antall dager eller begrunnelsen for det innsendte fristkravet.'
-        : 'Angi kravstype, antall dager og hvordan kontraktsforholdet påvirker fremdriften.'}
+      intro={registrerer
+        ? 'Registrer et varsel etter § 33.4 som er sendt utenfor appen.'
+        : scenario === 'edit'
+          ? 'Oppdater antall dager eller begrunnelsen for det innsendte fristkravet.'
+          : 'Angi kravstype, antall dager og hvordan kontraktsforholdet påvirker fremdriften.'}
     />
 
     {#if existingVarselDato && scenario !== 'edit'}
@@ -330,6 +347,12 @@
           <p class="helptext">
             Angi det antall dager som kreves, og dokumenter virkningen på fremdriften.
           </p>
+          {#if kanRegistrere}
+            <label class="field-check">
+              <input type="checkbox" bind:checked={oppgirVarsel} />
+              Varselet etter § 33.4 er sendt tidligere, utenfor appen
+            </label>
+          {/if}
         {:else if varselType === 'begrunnelse_utsatt'}
           <p class="helptext">
             Begrunn hvorfor grunnlaget for å beregne kravet ennå ikke foreligger.
@@ -338,18 +361,24 @@
       </FormSection>
     {/if}
 
-    {#if registrerer}
+    {#if visVarselet}
       <FormSection title="Varselet som er sendt" paragrafRef="§ 33.4">
+        {#if !registrerer}
+          <p class="helptext">
+            Kravet oppgir datoen varselet ble sendt, og brevet med varselet legges ved. Datoen kan
+            ikke endres etterpå.
+          </p>
+        {/if}
         <label class="field-label" for="te-frist-varsel-sendt">Datoen varselet ble sendt</label>
         <input
           id="te-frist-varsel-sendt"
           class="field-input"
           type="date"
-          max={idag}
+          max={dagensDato()}
           bind:value={varselSendt}
         />
-        {#if varselSendt > idag}
-          <p class="helptext" role="status">Datoen er etter dagens dato.</p>
+        {#if varselSendt && hindring}
+          <p class="helptext" role="status">{hindring}</p>
         {/if}
         <label class="field-label" for="te-frist-varsel-brev">Brevet med varselet</label>
         <input
@@ -378,11 +407,12 @@
               </li>
             {/each}
           </ul>
-        {:else}
+        {:else if !varselSendt}
           <p class="helptext">Brevet som ble sendt, må ligge ved.</p>
         {/if}
       </FormSection>
-    {:else if visibility.showKravSection}
+    {/if}
+    {#if !registrerer && visibility.showKravSection}
       {#if varselType === 'spesifisert'}
         <FormSection title="Utmåling" paragrafRef="§ 33.5">
           <p class="helptext">
@@ -427,6 +457,13 @@
 {/if}
 
 <style>
+  .field-check {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+    margin-top: 8px;
+  }
   .field-label {
     display: block;
     font-size: 13px;

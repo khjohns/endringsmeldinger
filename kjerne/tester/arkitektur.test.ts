@@ -471,7 +471,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kommando',
     'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder',
   ],
-  ['Kommando.varsel', 'kommando', 'sendt'],
+  // OV-U5: varselet i fristkravet har datoen og brevet som vedlegg.
+  ['Kommando.varsel', 'kommando', 'sendt dokumentasjon'],
   // GR-U22: hjemmelen i en ny grunnlagsversjon sammenliknes med gjeldende versjon.
   [
     'Kommando.innhold',
@@ -484,15 +485,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
   ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
-  ['kommandoer/kommando.ts', 'kommando', 'formfeil'],
+  // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
+  ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
   [
     'kommandoer/kommando.ts:formfeil',
     'kommando',
     'type spor innhold svar varsel sendt dokumentasjon',
   ],
   ['kommandoer/kommando.ts:formfeil.varsel', 'kommando', 'sendt'],
-  // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
-  ['kommandoer/skriving.ts:skriv', 'kommando', 'dokumentasjon'],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
@@ -557,7 +557,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/format.ts',
     'skjema',
     'oppgittDato',
-    ['kommandoer/kommando.ts:datofeil', 'kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
+    ['kommandoer/kommando.ts:datofeil', 'kommandoer/nyttelast.ts:oppgittDatoI'],
   ],
   [
     'kommandoer/kommando.ts:datofeil(innhold)',
@@ -569,6 +569,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando.innhold',
     'kommando',
     'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
+    ['kommandoer/nyttelast.ts:oppgittDatoI'],
+  ],
+  // Datoen TE oppgir og det den gjelder, som bare kontrollen mot brevets dato leser.
+  [
+    'kommandoer/nyttelast.ts:oppgittDatoI',
+    'kommando',
+    'dato gjelder',
     ['kommandoer/nyttelast.ts:oppgittDatoEtterBrevet'],
   ],
   [

@@ -145,6 +145,7 @@ lagringsformatet står under.
 | Ny | Kommandoen `send_varsel` | [VS-U15](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15): TE sender et eget varsel etter § 33.4 fra appen. Kommandoen `varsel` registrerer et varsel sendt utenfor appen. Begge gir utsagnet `varsel`; et brev fra appen har ingen opplysning om datoen (VS-U8) |
 | Ny | Kommandoen `opprett_sak` (`opprettelse`) | #664: saken opprettes før grunnlagskravet, og bare av TE (`FEIL_PART`). Gir `data` i `sak_opprettet` |
 | Ny | `DATO_ETTER_BREVET` | Arbeidsvalg 1 i #664: datoen TE oppgir etter [VS-U26](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u26), er etter brevets dato. Rettidigheten vurderes ikke |
+| Ny | Kommandofeltet `varsel.dokumentasjon` i fristkravet og `VEDLEGG_MANGLER` | [OV-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u5): kravet oppgir datoen for et varsel sendt utenfor appen med brevet som vedlegg. Vedlegget kreves når kravet registrerer varselet (arbeidsvalget i #909) |
 | Ny | `FRISTKRAV_SENDT` | [VS-U16](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16): et varsel fra appen avvises når et fristkrav er sendt |
 | Ny | Kommandoen `begrunnelse`, handlingen `begrunne:<svar>` og `INGEN_SVAR_AA_BEGRUNNE` | [KA-U34](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u34), [KA-U35](../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u35): byggherrens senere begrunnelse av et svar, fra appen med tekst eller registrert med brevet som vedlegg |
 | `varsle:frist` (sende eller registrere varselet) | `varsle:frist` (registrere et varsel sendt utenfor appen) og `sende_varsel:frist` (sende varselet fra appen) | Handlingene i `pending_actions`. Et varsel fra appen avvises når et fristkrav er sendt, mens registreringen ikke gjør det ([#411](https://github.com/khjohns/endringsmeldinger/issues/411)), så de har hver sin nøkkel (INV-MM-1) |
@@ -358,7 +359,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `BEGRUNNELSE_MANGLER` | KA-42 | — |
 | `BESKRIVELSE_MANGLER` | GR-34 | — |
 | `BREVTEKST_MANGLER` | — | Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`. |
-| `DATO_ETTER_BREVET` | — | Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`. |
+| `DATO_ETTER_BREVET` | — | Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, og datoen et varsel etter § 33.4 ble sendt utenfor appen (#968), kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`. |
 | `ENIGHET_I_SPORET` | GR-07, GR-23, GR-24, GR-25, GR-27 | — |
 | `FEIL_KRAVREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
 | `FEIL_PART` | KA-42 | — |
@@ -391,6 +392,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `VARSEL_REGISTRERT` | VS-06 | — |
 | `VARSLINGSPLIKT_GJELDER_IKKE` | VS-04 | — |
 | `VEDLEGG_FINNES_IKKE` | — | Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts` og `server/tester/vedlegg.test.ts`. |
+| `VEDLEGG_MANGLER` | — | Kontrollen av kommandoen: et fristkrav som registrerer varselet etter § 33.4, må ha brevet med varselet som vedlegg (OV-U5; at vedlegget bare kreves første gang, er arbeidsvalget i #909). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `VURDERING_UTENFOR_KJERNEN` | — | Avvisningen av en vurdering kjernen ennå ikke kan lagre (`utenforOmfanget`). Raden VS-03 viste til den til sperren etter en innsigelse mot vederlagskravet ble fjernet (VS-U24, #517); ingen rad sier avvisningen nå. |
 
 | Rad | Gjennomføres av |
