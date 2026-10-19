@@ -359,6 +359,32 @@ export class CatendaOAuth {
   }
 
   /**
+   * Topicen slik Catenda har den på boardet, for behandlingen av innboksen (#819). Forfatteren
+   * er `bimsync_creation_author.user.ref` i `catendaId()`-formen, som i Python, og en tittel
+   * eller type som mangler, er tom. Gir null når Catenda ikke finner topicen på boardet (404).
+   */
+  async topic(boardId: string, topicId: string, token: string): Promise<Topic | null> {
+    let svar: unknown;
+    try {
+      svar = await forespoersel(this.#oppsett, 'GET', topicsti(boardId, topicId), { token });
+    } catch (feil) {
+      if (feil instanceof CatendaAvvisning && feil.status === 404) return null;
+      throw feil;
+    }
+    // Et svar som aldri blir gyldig, er varig, så hendelsen ikke stenger innboksen.
+    if (!erObjekt(svar) || catendaId(svar.guid) !== catendaId(topicId))
+      throw new VarigCatendaavvik('Ugyldig topic');
+    const forfatter = erObjekt(svar.bimsync_creation_author)
+      ? svar.bimsync_creation_author.user
+      : undefined;
+    return {
+      tittel: tekst(svar.title),
+      type: tekst(svar.topic_type),
+      forfatter: erObjekt(forfatter) ? catendaId(forfatter.ref) : null,
+    };
+  }
+
+  /**
    * Lager topicen på boardet og gir topicens GUID. Statusen er boardets standard
    * (#741 punkt 15).
    *
@@ -555,10 +581,21 @@ function boardsti(boardId: string): string {
   return `/opencde/bcf/3.0/projects/${boardId}`;
 }
 
-function referansesti(boardId: string, topicId: string): string {
+function topicsti(boardId: string, topicId: string): string {
   const board = boardsti(boardId);
   if (!/^[0-9a-zA-Z-]{1,100}$/.test(topicId)) throw new RangeError('Ugyldig topic-ID');
-  return `${board}/topics/${topicId}/document_references`;
+  return `${board}/topics/${topicId}`;
+}
+
+function referansesti(boardId: string, topicId: string): string {
+  return `${topicsti(boardId, topicId)}/document_references`;
+}
+
+/** En topic lest fra Catenda. `forfatter` er null når topicen ikke har en. */
+export interface Topic {
+  tittel: string;
+  type: string;
+  forfatter: string | null;
 }
 
 /** Typen topicen for en sak fra appen får (#741 punkt 15). */
@@ -792,6 +829,8 @@ export function dokumentleverandoer(catenda: Integrasjon): Dokumentleverandoer {
 export interface Innboksoppslag extends Catenda {
   /** Forfatteren av topicene integrasjonen lager, i `catendaId()`-formen (#741 punkt 17). */
   integrasjonensBruker(): Promise<string>;
+  /** Topicen på boardet, eller null når Catenda ikke finner den der. */
+  topic(boardId: string, topicId: string): Promise<Topic | null>;
 }
 
 export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
@@ -800,6 +839,7 @@ export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
     ...integrasjonen(catenda),
     integrasjonensBruker: async () =>
       (egen ??= await medToken(catenda, (t) => catenda.oauth.egenId(t))),
+    topic: (board, topic) => medToken(catenda, (t) => catenda.oauth.topic(board, topic, t)),
   };
 }
 

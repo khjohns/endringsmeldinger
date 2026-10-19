@@ -961,9 +961,12 @@ utloses_av = """
 Løkka i jobbkjøreren, etter jobbene: `behandleEnHendelse` i `server/jobber.ts` tar
 den eldste hendelsen i `koe.innkommende_hendelse` uten utfall (W-1b.1, #819)."""
 beskrivelse = """
-Bare en ny topic gir en sak. Prosjektet tas fra koblingen til Catenda-prosjektet og
-topic-boardet, aldri fra kroppen. En topic laget av integrasjonen selv gir ingen sak
-(#741 punkt 17), og forfatterens side avgjøres med kontraktsteamene i Catenda. En
+Bare en ny topic gir en sak. Catenda signerer ikke kroppen, så av den brukes bare
+topic-ID-en, boardet og Catenda-prosjektet, og prosjektet tas fra koblingen mellom de
+to. Forfatteren, typen og tittelen leses fra topicen i Catenda, og en topic Catenda
+ikke finner på boardet, gir ingen sak. En topic laget av integrasjonen selv gir ingen
+sak (#741 punkt 17). Identiteten løses først når forfatteren står i medlemslisten fra
+Catenda, med navnet og e-posten derfra, og siden avgjøres med kontraktsteamene i Catenda. En
 topic fra TE gir en sak med bare topicens tittel (KT-U6), og saken kobles til topicen
 i samme transaksjon, uten jobb for en ny topic. En topic fra BH gir ingen sak
 (KT-U7). Hver hendelse får ett utfall i `koe.innkommende_behandling`. Kommentaren
@@ -982,6 +985,35 @@ kode = [
     "server/catenda.ts:CatendaOAuth",
 ]
 data = "Integrasjonens egen Catenda-ID (`egenId`), som skiller topics integrasjonen laget. Lagres ikke."
+
+[[flyt.steg]]
+fra = "catenda:topic"
+til = ["appen"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid}"
+kode = [
+    "server/jobber.ts:behandleEnHendelse",
+    "server/hendelser.ts:behandle",
+    "server/catenda.ts:innboksintegrasjon",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = """
+Topicens tittel, type og forfatter (`bimsync_creation_author.user.ref`), med
+integrasjonens token. Kroppen fra webhooken leses ikke for dem. 404 gir utfallet
+`ugyldig_hendelse` uten sak."""
+
+[[flyt.steg]]
+fra = "catenda:medlemmer"
+til = ["appen"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis)"
+kode = [
+    "server/jobber.ts:behandleEnHendelse",
+    "server/hendelser.ts:behandle",
+    "server/catenda.ts:innboksintegrasjon",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = """
+Om forfatteren er medlem av prosjektet, og navnet og e-posten som sendes til
+`koe_api.catenda_identitet`. Uten medlemskap løses ingen identitet."""
 
 [[flyt.steg]]
 fra = "catenda:team"
@@ -1009,7 +1041,8 @@ data = """
 Topicens tittel blir sakstittelen i `sak_opprettet`, og topicen og boardet blir
 koblingen i `koe.sak_catenda_topic`, skrevet av `koe_api.koble_topic` fra
 `koe_api.opprett_sak`. Kvitteringen i `koe.kvittering` har en kommando-ID avledet
-av hendelsen i innboksen. Forfatteren løses til en brukerrad som ved innlogging."""
+av hendelsen i innboksen. Forfatteren løses til en brukerrad med navnet og e-posten
+fra medlemslisten, som ved medlemssynkroniseringen, og bare for et medlem."""
 
 [[flyt.steg]]
 fra = "catenda:webhook"

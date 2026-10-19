@@ -11,15 +11,18 @@
  * (INT-04). Hendelsen blir da liggende i innboksen med utfallet. Kommentaren tilbake til
  * topicen kommer i W-1b.2 og leser utfallet.
  *
- * ID-en og typen leses fra kolonnene dedupen brukte, ikke fra kroppen (#819). Prosjektet
- * tas fra koblingen til Catenda-prosjektet og boardet, aldri fra kroppen alene.
+ * ID-en og typen leses fra kolonnene dedupen brukte, ikke fra kroppen (#819). Catenda
+ * signerer ikke kroppen, så av den brukes bare topic-ID-en, boardet og Catenda-prosjektet,
+ * og prosjektet tas fra koblingen mellom de to. Forfatteren, typen og tittelen leses fra
+ * topicen i Catenda, og navnet og e-posten fra medlemslisten. Identiteten løses først når
+ * forfatteren er et medlem, så ingen brukerrad lages eller endres for andre.
  */
 
 import { createHash } from 'node:crypto';
 import { erObjekt } from '../kjerne/format/skjema.ts';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
-import { catendaId, kontraktssideUtenSesjon, uuidMedBindestreker } from './autorisasjon.ts';
-import { individueltSubjekt, tekst, TOPICTYPE, type Innboksoppslag } from './catenda.ts';
+import { kontraktssideUtenSesjon, uuidMedBindestreker } from './autorisasjon.ts';
+import { TOPICTYPE, type Innboksoppslag } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { catendaIdentitet } from './innlogging.ts';
 import {
@@ -119,7 +122,6 @@ export async function behandle(
   const prosjekt = erObjekt(kropp) ? kropp.project : undefined;
   if (!erObjekt(kropp) || !erObjekt(issue) || !erObjekt(prosjekt))
     return { utfall: 'ugyldig_hendelse', melding: 'Kroppen mangler issue eller project.' };
-  const forfatter = erObjekt(kropp.createdBy) ? kropp.createdBy : null;
   const topicId = uuidMedBindestreker(issue.id ?? issue.guid);
   const board = uuidMedBindestreker(issue.boardId);
   const catendaProsjekt = uuidMedBindestreker(prosjekt.id);
@@ -142,34 +144,31 @@ export async function behandle(
     ...(melding ? { melding } : {}),
   });
 
-  if (forfatter && catendaId(forfatter.id) === (await avh.catenda.integrasjonensBruker()))
+  const topic = await avh.catenda.topic(board, topicId);
+  if (!topic) return ut('ugyldig_hendelse', 'Catenda finner ikke topicen på boardet.');
+  if (topic.forfatter && topic.forfatter === (await avh.catenda.integrasjonensBruker()))
     return ut('laget_av_integrasjonen');
-  if (issue.type !== TOPICTYPE) return ut('sakstype_ikke_stoettet');
-  const subjekt = individueltSubjekt(forfatter);
-  if (!forfatter || !subjekt) return ut('ukjent_forfatter');
+  if (topic.type !== TOPICTYPE) return ut('sakstype_ikke_stoettet');
+  if (!topic.forfatter) return ut('ukjent_forfatter');
+  const medlem = (await avh.catenda.medlemmer(catendaProsjekt)).find(
+    (m) => m.subjekt === topic.forfatter
+  );
+  if (!medlem) return ut('ukjent_side');
 
-  const aktor = await catendaIdentitet(avh.datalag, {
-    subjekt,
-    epost: tekst(forfatter.email),
-    navn: tekst(forfatter.name),
-  });
+  const aktor = await catendaIdentitet(avh.datalag, medlem);
   const side = await kontraktssideUtenSesjon(avh.datalag, avh.catenda, prosjektId, aktor);
   if (!side) return ut('ukjent_side');
   if (side.rolle === 'BH') return ut('topic_fra_bh');
 
-  const kommando = { type: 'opprett_sak', sakstittel: issue.title };
+  const kommando = { type: 'opprett_sak', sakstittel: topic.tittel };
   try {
     const utfall = await opprettSak(
       avh.datalag,
       { aktor, prosjekt: prosjektId, side: 'TE', ...(side.teamId ? { team: side.teamId } : {}) },
       {
         id: kommandoId(rad),
-        sha256: kommandosum({
-          rute: 'innboks',
-          hendelse: rad.hendelse_id,
-          topic: topicId,
-          kommando,
-        }),
+        // Uten tittelen: den leses fra Catenda og kan endres mellom to forsøk.
+        sha256: kommandosum({ rute: 'innboks', hendelse: rad.hendelse_id, topic: topicId }),
       },
       () => {
         const vurdert = opprettelse(kommando, side.rolle);

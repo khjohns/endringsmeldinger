@@ -4,13 +4,15 @@
  * tittel), KT-U7 (en topic fra BH gir ingen sak), arbeidsvalget i #819 (endringsordre,
  * forsering og ukjent type gir ingen sak), #741 punkt 17 (ingen ny sak av en topic som
  * hører til en sak eller er laget av integrasjonen), kravene i #819 om normalisert
- * topic-ID, og INT-04 (uten entydig forfatter eller side ingen sak).
+ * topic-ID, og INT-04 (uten entydig forfatter eller side ingen sak). Kroppen er ikke
+ * signert, så forfatteren, typen og tittelen kommer fra topicen i Catenda, og en kropp som
+ * avviker, lager ingen sak og ingen brukerrad (orkestratorens kontroll av #957).
  */
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
-import { CatendaUtilgjengelig, TOPICTYPE, type Innboksoppslag } from '../catenda.ts';
+import { CatendaUtilgjengelig, TOPICTYPE, type Innboksoppslag, type Topic } from '../catenda.ts';
 import { behandleEnHendelse, type Jobbavhengigheter } from '../jobber.ts';
 import { transaksjon, UsikkertUtfall } from '../datalag.ts';
 import { behandle, nesteInnkommende } from '../hendelser.ts';
@@ -23,7 +25,6 @@ import {
   somJobbkjoerer,
   TESTBASE_URL,
   type Oppsett,
-  type Testbruker,
 } from './testbase.ts';
 
 const INTEGRASJONEN = randomUUID().replaceAll('-', '');
@@ -41,11 +42,25 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
   let innboks: Innboksoppslag;
   let avh: Jobbavhengigheter;
   const logg = { info() {}, warn() {}, error() {} };
+  /** Topicene slik Catenda har dem, med boardet og topicen i `catendaId()`-formen. */
+  const iCatenda = new Map<string, Topic>();
+  const noekkel = (board: string, topic: string) => `${catendaId(board)}/${catendaId(topic)}`;
 
   beforeAll(async () => {
     o = await lagOppsett();
     const team = catendaFra(o.teammedlemmer);
-    innboks = { ...team, integrasjonensBruker: async () => INTEGRASJONEN };
+    innboks = {
+      ...team,
+      medlemmer: async () =>
+        [o.te, o.bh, o.utenTeam].map((b) => ({
+          subjekt: catendaId(b.subjekt)!,
+          epost: `${b.id}@test.example`,
+          navn: 'Testbruker',
+          rolle: 'member' as const,
+        })),
+      integrasjonensBruker: async () => INTEGRASJONEN,
+      topic: async (b, t) => iCatenda.get(noekkel(b, t)) ?? null,
+    };
     avh = {
       datalag: o.datalag.kjoeretid.pool,
       catenda: { opprettTopic: async () => 'ingen' },
@@ -79,20 +94,48 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     if (o) await rydd(o);
   });
 
+  /**
+   * Kroppen for en ny topic, med topicen slik Catenda har den på boardet. `iKroppen`
+   * overstyrer bare kroppen, som en forfalsket hendelse.
+   */
   const kropp = (
     topic: string,
     {
-      forfatter = { id: catendaId(o.te.subjekt)!, type: 'user' } as { id: string; type: string },
+      forfatter = catendaId(o.te.subjekt) as string | null,
       type = TOPICTYPE,
       boardId = board,
       tittel = 'Rystelser fra spuntingen',
+      iKroppen = {} as { forfatter?: string; type?: string; tittel?: string },
     } = {}
-  ) => ({
-    createdBy: { ...forfatter, email: 'forfatter@test.example', name: 'Forfatter' },
-    event: { id: randomUUID(), type: 'issue.created' },
-    issue: { id: topic, boardId, title: tittel, type },
-    project: { id: catendaId(o.prosjekt.catendaProsjekt) },
-  });
+  ) => {
+    iCatenda.set(noekkel(boardId, topic), { tittel, type, forfatter });
+    return {
+      createdBy: {
+        id: iKroppen.forfatter ?? forfatter,
+        type: 'user',
+        email: 'forfatter@test.example',
+        name: 'Forfatter',
+      },
+      event: { id: randomUUID(), type: 'issue.created' },
+      issue: {
+        id: topic,
+        boardId,
+        title: iKroppen.tittel ?? tittel,
+        type: iKroppen.type ?? type,
+      },
+      project: { id: catendaId(o.prosjekt.catendaProsjekt) },
+    };
+  };
+
+  const brukerrader = async () =>
+    (
+      await somEier<{ id: string; email: string; name: string; subject: string | null }>(
+        `SELECT LOWER(CONVERT(nvarchar(36), u.id)) AS id, u.email, u.name, i.subject
+           FROM koe.app_users u LEFT JOIN koe.app_identities i ON i.user_id = u.id
+          ORDER BY u.id, i.subject`,
+        {}
+      )
+    ).recordset;
 
   /** Mottar hendelsen som webhooken og behandler den eldste i innboksen. */
   const behandleKropp = async (k: ReturnType<typeof kropp>, hendelsestype = 'issue.created') => {
@@ -167,9 +210,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
 
   it('KT-U7: en topic fra BH gir ingen sak, og utfallet står i innboksen', async () => {
     const topic = randomUUID();
-    const utfall = await behandleKropp(
-      kropp(topic, { forfatter: { id: catendaId(o.bh.subjekt)!, type: 'user' } })
-    );
+    const utfall = await behandleKropp(kropp(topic, { forfatter: catendaId(o.bh.subjekt) }));
     expect(utfall).toMatchObject({
       utfall: 'topic_fra_bh',
       prosjekt_id: o.prosjekt.id,
@@ -189,35 +230,104 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
 
   it('#741 punkt 17: en topic integrasjonen har laget, gir ingen sak', async () => {
     const topic = randomUUID();
-    const utfall = await behandleKropp(
-      kropp(topic, { forfatter: { id: INTEGRASJONEN, type: 'user' } })
-    );
+    const utfall = await behandleKropp(kropp(topic, { forfatter: INTEGRASJONEN }));
     expect(utfall.utfall).toBe('laget_av_integrasjonen');
     expect(await sakerForTopic(topic)).toEqual([]);
   });
 
-  it.each<[string, (b: Testbruker) => { id: string; type: string }, string]>([
-    [
-      'en forfatter som ikke er en individuell bruker',
-      (b) => ({ id: catendaId(b.subjekt)!, type: 'app' }),
-      'ukjent_forfatter',
-    ],
-    [
-      'et medlem uten kontraktsteam',
-      () => ({ id: catendaId(o.utenTeam.subjekt)!, type: 'user' }),
-      'ukjent_side',
-    ],
-    [
-      'en Catenda-bruker uten medlemskap',
-      () => ({ id: randomUUID().replaceAll('-', ''), type: 'user' }),
-      'ukjent_side',
-    ],
-  ])('INT-04: %s gir ingen sak', async (_, forfatter, forventet) => {
+  it.each<[string, () => string | null, string]>([
+    ['en topic uten forfatter i Catenda', () => null, 'ukjent_forfatter'],
+    ['et medlem uten kontraktsteam', () => catendaId(o.utenTeam.subjekt), 'ukjent_side'],
+    ['en Catenda-bruker uten medlemskap', () => randomUUID().replaceAll('-', ''), 'ukjent_side'],
+  ])('INT-04: %s gir ingen sak og ingen ny brukerrad', async (_, forfatter, forventet) => {
     const topic = randomUUID();
-    expect((await behandleKropp(kropp(topic, { forfatter: forfatter(o.te) }))).utfall).toBe(
-      forventet
-    );
+    const foer = await brukerrader();
+    expect((await behandleKropp(kropp(topic, { forfatter: forfatter() }))).utfall).toBe(forventet);
     expect(await sakerForTopic(topic)).toEqual([]);
+    expect(await brukerrader()).toEqual(foer);
+  });
+
+  it.each<[string, () => Parameters<typeof kropp>[1], string]>([
+    [
+      'en forfatter i kroppen som er et TE-medlem, når topicen er laget av en som ikke er medlem',
+      () => ({
+        forfatter: randomUUID().replaceAll('-', ''),
+        iKroppen: { forfatter: catendaId(o.te.subjekt)! },
+      }),
+      'ukjent_side',
+    ],
+    [
+      'en forfatter i kroppen fra TE, når topicen er laget av BH',
+      () => ({
+        forfatter: catendaId(o.bh.subjekt),
+        iKroppen: { forfatter: catendaId(o.te.subjekt)! },
+      }),
+      'topic_fra_bh',
+    ],
+    [
+      'typen krav om endringsordre i kroppen, når topicen er en endringsordre',
+      () => ({ type: 'Endringsordre', iKroppen: { type: TOPICTYPE } }),
+      'sakstype_ikke_stoettet',
+    ],
+  ])(
+    'en forfalsket kropp med %s gir ingen sak og ingen endret brukerrad',
+    async (_, valg, forventet) => {
+      const topic = randomUUID();
+      const foer = await brukerrader();
+      expect((await behandleKropp(kropp(topic, valg()))).utfall).toBe(forventet);
+      expect(await sakerForTopic(topic)).toEqual([]);
+      expect(await brukerrader()).toEqual(foer);
+    }
+  );
+
+  it('sakstittelen er topicens tittel i Catenda, ikke tittelen i kroppen', async () => {
+    const topic = randomUUID();
+    const foer = await brukerrader();
+    const utfall = await behandleKropp(
+      kropp(topic, { tittel: 'Tittelen i Catenda', iKroppen: { tittel: 'Valgt tittel' } })
+    );
+    expect(utfall.utfall).toBe('sak_opprettet');
+    const [hendelse] = await transaksjon(
+      avh.datalag,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      (foresp) => lesJournal(foresp, utfall.sak_id!, false)
+    );
+    expect(hendelse.data).toMatchObject({ sakstittel: 'Tittelen i Catenda' });
+    expect(await brukerrader()).toEqual(foer);
+  });
+
+  it('en topic Catenda ikke finner på boardet, gir ingen sak', async () => {
+    const topic = randomUUID();
+    const k = kropp(topic);
+    iCatenda.delete(noekkel(board, topic));
+    expect(await behandleKropp(k)).toMatchObject({
+      utfall: 'ugyldig_hendelse',
+      sak_id: null,
+      catenda_topic_id: topic,
+    });
+    expect(await sakerForTopic(topic)).toEqual([]);
+  });
+
+  it('når topicoppslaget i Catenda feiler, lagres ikke noe utfall, og neste runde behandler hendelsen', async () => {
+    const topic = randomUUID();
+    await mottaHendelse(
+      avh.datalag,
+      { id: randomUUID(), type: 'issue.created' },
+      JSON.stringify(kropp(topic))
+    );
+    const nede = {
+      ...avh,
+      innboks: {
+        ...innboks,
+        topic: async () => {
+          throw new CatendaUtilgjengelig('nede');
+        },
+      },
+    };
+    await expect(behandleEnHendelse(nede)).rejects.toBeInstanceOf(CatendaUtilgjengelig);
+    expect((await nesteInnkommende(avh.datalag))?.kropp).toContain(topic);
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    expect(await sakerForTopic(topic)).toHaveLength(1);
   });
 
   it('en topic på et annet board enn prosjektets gir ingen sak', async () => {
