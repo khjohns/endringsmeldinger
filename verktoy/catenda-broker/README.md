@@ -5,7 +5,9 @@ eller tokenet fra Catenda kommer inn i økta (#806). Den holder integrasjonens
 klient-ID og hemmelighet og henter tokenet selv. Den videresender bare kall
 som står i tillatelseslisten i `broker.ts`, avgrenset til ett Catenda-prosjekt og
 ett topic board. Sletting er avgrenset til topics og dokumentreferanser på boardet,
-koblinger mellom topics, og items i ett bibliotek. Økta får en brokernøkkel, som kan byttes uten å røre Catenda.
+koblinger mellom topics, og items som ligger rett under én mappe i ett bibliotek.
+Før et item slettes, slår brokeren det opp i Catenda og sletter bare når `parentId`
+er `CATENDA_MAPPE_ID`. Mappen selv og items i undermapper slettes ikke. Økta får en brokernøkkel, som kan byttes uten å røre Catenda.
 
 Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 
@@ -23,7 +25,11 @@ står ikke i `dataflyt.toml`.
 | `CATENDA_CLIENT_ID`, `CATENDA_CLIENT_SECRET` | Integrasjonens nøkkel i Catenda |
 | `CATENDA_PROSJEKT_ID` | Testprosjektets ID i `/v2/projects/…` |
 | `CATENDA_TOPIC_BOARD_ID` | Testprosjektets topic board i `/opencde/bcf/3.0/projects/…` |
-| `CATENDA_BIBLIOTEK_ID` | Biblioteket live-testene sletter items i, samme verdi som `CATENDA_LIBRARY_ID` i skymiljøet. Uten den avvises sletting av items, og ingenting annet endres |
+| `CATENDA_BIBLIOTEK_ID` | Biblioteket live-testene sletter items i, samme verdi som `CATENDA_LIBRARY_ID` i skymiljøet |
+| `CATENDA_MAPPE_ID` | Mappen i biblioteket der live-testene sletter items, samme verdi som `CATENDA_FOLDER_ID` i skymiljøet |
+
+Mangler `CATENDA_BIBLIOTEK_ID` eller `CATENDA_MAPPE_ID`, avvises sletting av items,
+og ingenting annet endres.
 
 Settes fra egen maskin, aldri fra en skyøkt. Verdiene skrives ikke i issues,
 PR-er eller chat.
@@ -81,7 +87,9 @@ fra skyøkta. Det prøves fra skyøkta etter utrullingen.
 
 Brokerens egne avvisninger har en kropp, så de skilles fra Catendas 401 og 403:
 `{"feil": "brokernoekkel"}` (401) betyr at brokernøkkelen mangler eller er feil, og
-`{"feil": "broker_avviste"}` (403) at kallet ikke står i tillatelseslisten.
+`{"feil": "broker_avviste"}` (403) at kallet ikke står i tillatelseslisten, eller at
+itemet som skulle slettes, ikke ligger i testmappen. Gir oppslaget før en sletting noe
+annet enn 200, får økta Catendas svar, og ingenting slettes.
 
 En 502 fra brokeren har en kropp som sier hvilket steg som feilet:
 `{"feil": "tokenkall", "status": 401}` betyr at Catenda avviste brokerens

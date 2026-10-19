@@ -17,18 +17,23 @@ export interface Miljoe {
   CATENDA_CLIENT_SECRET: string;
   CATENDA_PROSJEKT_ID: string;
   CATENDA_TOPIC_BOARD_ID: string;
-  /** Biblioteket live-testene sletter i. Uten den avvises sletting av items. */
+  /** Biblioteket og mappen live-testene sletter i. Uten begge avvises sletting av items. */
   CATENDA_BIBLIOTEK_ID?: string;
+  CATENDA_MAPPE_ID?: string;
 }
 
 const CATENDA = 'https://api.catenda.com';
 const SIKKERHETSMARGIN_MS = 300_000;
 const VIDERESENDTE_HODER = ['accept', 'content-type', 'bimsync-params'];
 
-/** En del er `=literal`, `prosjekt`, `board`, `bibliotek` eller `id`. */
-type Regel = { metoder: string[]; deler: string[] };
+/**
+ * En del er `=literal`, `prosjekt`, `board`, `bibliotek` eller `id`. Med `iMappen` slettes
+ * et item bare når Catenda sier at det ligger rett under `CATENDA_MAPPE_ID`.
+ */
+type Regel = { metoder: string[]; deler: string[]; iMappen: boolean };
 
 const ID = /^[0-9A-Za-z-]{1,64}$/;
+const KANONISK_ID = /^(?:[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 
 /**
  * Kallene i `docs/datamodell/dataflyt.toml` og `server/catenda.ts` som integrasjonen gjør,
@@ -41,7 +46,7 @@ const TILLATT: Regel[] = [
   ['GET', 'v2/projects/:prosjekt/teams/:id/members'],
   ['GET POST', 'v2/projects/:prosjekt/libraries/:id/items'],
   ['GET', 'v2/projects/:prosjekt/libraries/:id/items/:id'],
-  ['DELETE', 'v2/projects/:prosjekt/libraries/:bibliotek/items/:id'],
+  ['DELETE', 'v2/projects/:prosjekt/libraries/:bibliotek/items/:id', 'iMappen'],
   ['GET', 'v2/projects/:prosjekt/ifc/products/ifctypes'],
   ['GET', 'v2/projects/:prosjekt/ifc/products/:id/relations'],
   ['GET', 'opencde/bcf/3.0/projects/:board'],
@@ -52,9 +57,10 @@ const TILLATT: Regel[] = [
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics/:id'],
   ['GET POST', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references'],
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references/:id'],
-].map(([metoder, sti]) => ({
+].map(([metoder, sti, krav]) => ({
   metoder: metoder.split(' '),
   deler: sti.split('/').map((d) => (d.startsWith(':') ? d.slice(1) : `=${d}`)),
+  iMappen: krav === 'iMappen',
 }));
 
 /** Kopi av `catendaId` i `server/autorisasjon.ts`, som drar med seg datalaget ved import. */
@@ -68,27 +74,37 @@ function catendaId(verdi: string): string | null {
   return /^[0-9a-f]{32}$/.test(hex) ? hex : null;
 }
 
-export function tillatt(miljoe: Miljoe, metode: string, sti: string): boolean {
+/** Strengere enn `catendaId`: stien sendes uendret til Catenda, så bare kanonisk form godtas. */
+function stiId(verdi: string): string | null {
+  return KANONISK_ID.test(verdi) ? verdi.toLowerCase().replaceAll('-', '') : null;
+}
+
+export function regelFor(miljoe: Miljoe, metode: string, sti: string): Regel | undefined {
   // Hver del må treffe et literal eller en ID uten `%`, så en kodet skråstrek slipper ikke gjennom.
   const deler = sti.slice(1).split('/');
   const prosjekt = catendaId(miljoe.CATENDA_PROSJEKT_ID);
   const board = catendaId(miljoe.CATENDA_TOPIC_BOARD_ID);
   const bibliotek = catendaId(miljoe.CATENDA_BIBLIOTEK_ID ?? '');
-  if (!prosjekt || !board) return false;
-  return TILLATT.some(
+  const mappe = catendaId(miljoe.CATENDA_MAPPE_ID ?? '');
+  if (!prosjekt || !board) return undefined;
+  return TILLATT.find(
     (regel) =>
       regel.metoder.includes(metode) &&
       regel.deler.length === deler.length &&
+      (!regel.iMappen || mappe !== null) &&
       regel.deler.every((del, i) => {
         const verdi = deler[i];
         if (del.startsWith('=')) return verdi === del.slice(1);
-        if (!ID.test(verdi)) return false;
-        if (del === 'prosjekt') return catendaId(verdi) === prosjekt;
-        if (del === 'board') return catendaId(verdi) === board;
-        if (del === 'bibliotek') return bibliotek !== null && catendaId(verdi) === bibliotek;
-        return true;
+        if (del === 'prosjekt') return stiId(verdi) === prosjekt;
+        if (del === 'board') return stiId(verdi) === board;
+        if (del === 'bibliotek') return bibliotek !== null && stiId(verdi) === bibliotek;
+        return ID.test(verdi);
       })
   );
+}
+
+export function tillatt(miljoe: Miljoe, metode: string, sti: string): boolean {
+  return regelFor(miljoe, metode, sti) !== undefined;
 }
 
 const koder = new TextEncoder();
@@ -201,7 +217,8 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
     const bearer = /^Bearer (.+)$/.exec(foresp.headers.get('Authorization') ?? '')?.[1] ?? '';
     // Kroppen skiller brokerens avvisning fra Catendas 401 og 403.
     if (!(await sammeNokkel(bearer, miljoe.BROKERNOKKEL))) return svar(401, { feil: 'brokernoekkel' });
-    if (!tillatt(miljoe, foresp.method, adresse.pathname)) return svar(403, { feil: 'broker_avviste' });
+    const regel = regelFor(miljoe, foresp.method, adresse.pathname);
+    if (!regel) return svar(403, { feil: 'broker_avviste' });
 
     let token: string;
     try {
@@ -209,6 +226,24 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
     } catch (feil) {
       // Bare steget og Catendas statuskode, så en 502 kan feilsøkes fra økta (#806).
       return svar(502, { feil: 'tokenkall', status: feil instanceof Tokenfeil ? feil.status : 0 });
+    }
+    if (regel.iMappen) {
+      let oppslag: Response;
+      try {
+        oppslag = await hent(CATENDA + adresse.pathname, {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+          redirect: 'manual',
+        });
+      } catch {
+        return svar(502, { feil: 'catenda_svarte_ikke' });
+      }
+      if (oppslag.status === 401) tokenlager.forkast(token);
+      if (oppslag.status !== 200) return tilbake(oppslag);
+      const item = (await oppslag.json().catch(() => null)) as { parentId?: unknown } | null;
+      const forelder = typeof item?.parentId === 'string' ? catendaId(item.parentId) : null;
+      if (forelder === null || forelder !== catendaId(miljoe.CATENDA_MAPPE_ID ?? ''))
+        return svar(403, { feil: 'broker_avviste' });
     }
     const hoder = new Headers({ Authorization: `Bearer ${token}` });
     for (const navn of VIDERESENDTE_HODER) {
@@ -228,10 +263,14 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       return svar(502, { feil: 'catenda_svarte_ikke' });
     }
     if (ut.status === 401) tokenlager.forkast(token);
-    const svarhoder = new Headers(ut.headers);
-    svarhoder.delete('set-cookie');
-    return new Response(ut.body, { status: ut.status, headers: svarhoder });
+    return tilbake(ut);
   };
+}
+
+function tilbake(ut: Response): Response {
+  const svarhoder = new Headers(ut.headers);
+  svarhoder.delete('set-cookie');
+  return new Response(ut.body, { status: ut.status, headers: svarhoder });
 }
 
 const behandle = lagBroker();

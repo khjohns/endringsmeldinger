@@ -11,6 +11,7 @@ const PROSJEKT = '0123456789abcdef0123456789abcdef';
 const BOARD = 'fedcba9876543210fedcba9876543210';
 const ANNET = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const BIBLIOTEK = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+const MAPPE = 'dddddddddddddddddddddddddddddddd';
 const TOPIC = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
 const NOKKEL = 'brokernokkel-for-testen';
 
@@ -21,17 +22,18 @@ const miljoe: Miljoe = {
   CATENDA_PROSJEKT_ID: PROSJEKT,
   CATENDA_TOPIC_BOARD_ID: BOARD,
   CATENDA_BIBLIOTEK_ID: BIBLIOTEK,
+  CATENDA_MAPPE_ID: MAPPE,
 };
 
 type Kall = { adresse: string; init: RequestInit };
 let kall: Kall[];
-let catendasvar: () => Response;
+let catendasvar: (init: RequestInit) => Response;
 
 const hent = (async (adresse: string | URL | Request, init: RequestInit = {}) => {
   kall.push({ adresse: String(adresse), init });
   if (String(adresse).endsWith('/oauth2/token'))
     return Response.json({ access_token: 'catenda-token', expires_in: 3600 });
-  return catendasvar();
+  return catendasvar(init);
 }) as typeof fetch;
 
 const ut = () => kall.filter((k) => !k.adresse.endsWith('/oauth2/token'));
@@ -147,7 +149,6 @@ describe('slettingen live-testene rydder med', () => {
   it.each([
     ['en topic på boardet', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}`],
     ['en dokumentreferanse på boardet', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}/document_references/${ANNET}`],
-    ['et item i testbiblioteket', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items/${ANNET}`],
   ])('sender DELETE på %s til Catenda med Catenda-tokenet', async (_navn, sti) => {
     catendasvar = () => new Response(null, { status: 204 });
     const s = await behandle(medNokkel('DELETE', sti), miljoe);
@@ -158,27 +159,78 @@ describe('slettingen live-testene rydder med', () => {
     expect(init.method).toBe('DELETE');
     expect(new Headers(init.headers).get('authorization')).toBe('Bearer catenda-token');
   });
+});
 
-  it('godtar bibliotek-ID-en med bindestreker og store bokstaver, som catendaId', () => {
-    const medStreker = 'BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB';
-    expect(tillatt(miljoe, 'DELETE', `/v2/projects/${PROSJEKT}/libraries/${medStreker}/items/${ANNET}`)).toBe(true);
+describe('slettingen av items i testmappen', () => {
+  const ITEM = `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items/${ANNET}`;
+  const itemSvar = (oppslag: () => Response) => (init: RequestInit) =>
+    init.method === 'GET' ? oppslag() : new Response(null, { status: 204 });
+
+  it('(a) slår opp itemet og sletter det når parentId er testmappen', async () => {
+    catendasvar = itemSvar(() => Response.json({ id: ANNET, parentId: MAPPE }));
+    const s = await behandle(medNokkel('DELETE', ITEM), miljoe);
+    expect(s.status).toBe(204);
+    expect(ut().map((k) => [k.init.method, k.adresse])).toEqual([
+      ['GET', `https://api.catenda.com${ITEM}`],
+      ['DELETE', `https://api.catenda.com${ITEM}`],
+    ]);
+    for (const { init } of ut()) expect(new Headers(init.headers).get('authorization')).toBe('Bearer catenda-token');
+    expect(new Headers(ut()[0].init.headers).get('accept')).toBe('application/json');
   });
 
-  it('normaliserer CATENDA_BIBLIOTEK_ID i miljøet med catendaId', () => {
-    const m = { ...miljoe, CATENDA_BIBLIOTEK_ID: 'BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB' };
-    expect(tillatt(m, 'DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items/${ANNET}`)).toBe(true);
+  it('sletter når parentId og CATENDA_MAPPE_ID står med streker og store bokstaver', async () => {
+    catendasvar = itemSvar(() => Response.json({ parentId: MAPPE.toUpperCase().replace(/^(.{8})(.{4})(.{4})(.{4})/, '$1-$2-$3-$4-') }));
+    const m = { ...miljoe, CATENDA_MAPPE_ID: `urn:uuid:${MAPPE}` };
+    expect((await behandle(medNokkel('DELETE', ITEM), m)).status).toBe(204);
   });
 
-  it('gir 403 uten kall når CATENDA_BIBLIOTEK_ID mangler i miljøet, og lar resten være', async () => {
-    const utenBibliotek: Miljoe = { ...miljoe };
-    delete utenBibliotek.CATENDA_BIBLIOTEK_ID;
-    for (const m of [utenBibliotek, { ...miljoe, CATENDA_BIBLIOTEK_ID: '' }]) {
-      const s = await behandle(medNokkel('DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items/${ANNET}`), m);
+  it.each([
+    ['(b) et item i en annen mappe', { parentId: ANNET }],
+    ['(b) et item i roten', { parentId: null }],
+    ['(b) et item uten parentId', {}],
+    ['(c) selve testmappen', { id: MAPPE, parentId: ANNET, type: 'folder' }],
+  ])('gir 403 og ingen DELETE for %s', async (_navn, item) => {
+    catendasvar = itemSvar(() => Response.json(item));
+    const s = await behandle(medNokkel('DELETE', ITEM), miljoe);
+    expect(s.status).toBe(403);
+    expect(await s.json()).toEqual({ feil: 'broker_avviste' });
+    expect(ut().map((k) => k.init.method)).toEqual(['GET']);
+  });
+
+  it('gir 403 og ingen DELETE når oppslaget ikke er JSON', async () => {
+    catendasvar = itemSvar(() => new Response('ikke json'));
+    expect((await behandle(medNokkel('DELETE', ITEM), miljoe)).status).toBe(403);
+    expect(ut().map((k) => k.init.method)).toEqual(['GET']);
+  });
+
+  it.each([404, 403, 302])('(d) gir Catendas %i tilbake og ingen DELETE når oppslaget ikke gir 200', async (status) => {
+    catendasvar = itemSvar(() => new Response(null, { status }));
+    const s = await behandle(medNokkel('DELETE', ITEM), miljoe);
+    expect(s.status).toBe(status);
+    expect(ut().map((k) => k.init.method)).toEqual(['GET']);
+  });
+
+  it.each(['CATENDA_MAPPE_ID', 'CATENDA_BIBLIOTEK_ID'] as const)('(e) gir 403 uten kall når %s mangler eller er tom, og lar resten være', async (navn) => {
+    const uten: Miljoe = { ...miljoe };
+    delete uten[navn];
+    for (const m of [uten, { ...miljoe, [navn]: '' }]) {
+      catendasvar = itemSvar(() => Response.json({ parentId: MAPPE }));
+      const s = await behandle(medNokkel('DELETE', ITEM), m);
       expect(s.status).toBe(403);
       expect(kall).toEqual([]);
       expect(tillatt(m, 'GET', `/v2/projects/${PROSJEKT}/libraries/${ANNET}/items/${ANNET}`)).toBe(true);
       expect(tillatt(m, 'DELETE', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}`)).toBe(true);
     }
+  });
+
+  it('godtar bibliotek-ID-en i stien med streker og store bokstaver', () => {
+    const medStreker = 'BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB';
+    expect(tillatt(miljoe, 'DELETE', `/v2/projects/${PROSJEKT}/libraries/${medStreker}/items/${ANNET}`)).toBe(true);
+  });
+
+  it('tillater sletting når CATENDA_BIBLIOTEK_ID står med store bokstaver og streker', () => {
+    const m = { ...miljoe, CATENDA_BIBLIOTEK_ID: 'BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB' };
+    expect(tillatt(m, 'DELETE', ITEM)).toBe(true);
   });
 });
 
@@ -210,7 +262,8 @@ describe('avvisningen', () => {
     ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${ANNET}/items/${ANNET}`],
     ['DELETE', `/v2/projects/${PROSJEKT}/libraries/urn:uuid:${BIBLIOTEK}/items/${ANNET}`],
     ['GET', `/v2/projects/urn:uuid:${PROSJEKT}/teams`],
-    ['GET', `/opencde/bcf/3.0/projects/%7B${BOARD}%7D/topics`],
+    ['GET', `/v2/projects/${PROSJEKT.replace(/^(.{4})/, '$1-')}/teams`],
+    ['GET', `/v2/projects/-${PROSJEKT}/teams`],
     ['DELETE', `/v2/projects/${ANNET}/libraries/${BIBLIOTEK}/items/${ANNET}`],
     ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items`],
     ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}`],
