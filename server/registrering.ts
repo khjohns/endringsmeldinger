@@ -14,7 +14,8 @@
  *
  * `KOE_DRIFT_TILKOBLING` er tilkoblingsstrengen for en bruker med
  * `koe_driftsrolle`. Med `--bh` og `--te` kontrolleres teamene mot Catenda-
- * prosjektet med integrasjonens token (`catendaFraMiljoe`), som i Python.
+ * prosjektet med integrasjonens token (`catendaFraMiljoe`), som i Python, og med
+ * `--board` boardet (#836).
  * Uten dem viser `kontraktsteam` teamene som står. Som i Python kan én `--bh` eller
  * `--te` ha flere team (`--bh a b`).
  */
@@ -169,15 +170,10 @@ const VALG = {
   te: { type: 'string', multiple: true },
 } as const;
 
-const BARE_REGISTRER = [
-  'navn',
-  'beskrivelse',
-  'organisasjon',
-  'catenda-prosjekt',
-  'bibliotek',
-  'mappe',
-  'board',
-] as const;
+const FELLES = ['prosjekt', 'bh', 'te'];
+const BARE_REGISTRER = (Object.keys(VALG) as (keyof typeof VALG)[]).filter(
+  (navn) => !FELLES.includes(navn)
+);
 
 /** `--bh a b` blir `--bh a --bh b`, som `nargs="+"` i `catenda_admin.py`. */
 function flereTeam(argv: string[]): string[] {
@@ -227,6 +223,14 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       a.skriv(`  ${t.contract_role}: ${iCatenda.get(t.team_id)} (${t.team_id})`);
   }
 
+  /** Boardet må høre til Catenda-prosjektet, som teamene (#836 punkt 2). */
+  async function kontrollerBoard(catendaProsjekt: string, board: string): Promise<void> {
+    const { oauth, token } = a.catenda();
+    const boards = await oauth.boards(catendaProsjekt, await token());
+    if (!boards.has(catendaId(board)!))
+      throw new Registreringsfeil(`Boardet finnes ikke i Catenda-prosjektet: ${board}`);
+  }
+
   if (kommando === 'registrer') {
     if (prosjektArgument) throw new Registreringsfeil('Prosjektet oppgis med --prosjekt.');
     const r: Registrering = {
@@ -243,8 +247,16 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       board: v.board === undefined ? null : uuid(v.board, 'Boardet'),
       team: oppgittTeam,
     };
+    const pool = await a.pool();
+    // Basen avviser bytte med 52066 uansett; her avvises det før Catenda-kallet (#868 punkt 2).
+    const foer = await lesKontraktsteam(pool, r.prosjekt);
+    if (foer?.harSaker && catendaId(foer.catendaProsjekt) !== catendaId(r.catendaProsjekt))
+      throw new Registreringsfeil(
+        `Prosjektet ${r.prosjekt} har saker: Catenda-prosjektet kan ikke byttes (52066).`
+      );
     if (r.team) await kontrollerTeam(r.catendaProsjekt, r.team);
-    const utfall = await registrer(await a.pool(), r);
+    if (r.board) await kontrollerBoard(r.catendaProsjekt, r.board);
+    const utfall = await registrer(pool, r);
     a.skriv(`Prosjektet ${r.prosjekt} er registrert${r.team ? ' med kontraktsteamene' : ''}.`);
     if (!utfall.nytt && utfall.organisasjon_id !== r.organisasjon)
       a.skriv(

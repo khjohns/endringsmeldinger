@@ -369,6 +369,31 @@ describe('teammedlemmene', () => {
   });
 });
 
+describe('boardene i Catenda-prosjektet (#836 punkt 2)', () => {
+  it('gir boardene med prosjektet som bimsync_project_id, normalisert, og filtrerer på prosjektet', async () => {
+    const board = uuid(7);
+    svar = () => ({
+      json: [
+        { project_id: board, bimsync_project_id: PROSJEKT, name: 'KOE' },
+        // Et board i et annet prosjekt, som om Catenda ignorerte filteret.
+        { project_id: uuid(8), bimsync_project_id: uuid(9), name: 'Annet' },
+      ],
+    });
+    const boards = await new CatendaOAuth(oppsett()).boards(PROSJEKT, 't');
+    expect(boards).toEqual(new Set([hex(board)]));
+    expect(mottatt[0].sti).toBe('/opencde/bcf/3.0/projects');
+    expect(mottatt[0].parametre.get('bimsync_project_id')).toBe(hex(PROSJEKT));
+    expect(mottatt[0].autorisasjon).toBe('Bearer t');
+  });
+
+  it('et board uten gyldig ID avviser hele svaret', async () => {
+    svar = () => ({ json: [{ project_id: 'x', bimsync_project_id: PROSJEKT }] });
+    await expect(new CatendaOAuth(oppsett()).boards(PROSJEKT, 't')).rejects.toBeInstanceOf(
+      CatendaUtilgjengelig
+    );
+  });
+});
+
 function jwt(exp: number): string {
   const del = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
   return `${del({ alg: 'none' })}.${del({ exp })}.signatur`;
@@ -685,6 +710,16 @@ describe('oppsettet fra miljøet', () => {
     const { oauth, integrasjonsnokkel } = catendaFraMiljoe(miljoe);
     expect(new URL(oauth.autorisasjonsadresse('s')).origin).toBe('https://api.catenda.com');
     expect(integrasjonsnokkel).toBeInstanceOf(Integrasjonsnokkel);
+  });
+
+  it('sender tilbakekallsadressen normalisert, som frontenden i innloggingen (#854 punkt 4)', () => {
+    const { oauth } = catendaFraMiljoe({
+      ...miljoe,
+      CATENDA_LOGIN_REDIRECT_URI: 'https://Endring.øbf.example:443/api/auth/catenda/callback',
+    });
+    expect(new URL(oauth.autorisasjonsadresse('s')).searchParams.get('redirect_uri')).toBe(
+      'https://endring.xn--bf-kka.example/api/auth/catenda/callback'
+    );
   });
 
   it.each(['CATENDA_CLIENT_ID', 'CATENDA_CLIENT_SECRET', 'CATENDA_LOGIN_REDIRECT_URI'])(

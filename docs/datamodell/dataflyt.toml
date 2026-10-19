@@ -837,9 +837,13 @@ beskrivelse = """
 Drift oppgir Catenda-prosjekt, bibliotek, mappe, board og kontraktsteam.
 Navnet hentes fra Catenda om det ikke er oppgitt, og teamene kontrolleres mot
 Catenda. Én databasefunksjon skriver alt atomisk; triggeren på `projects`
-legger i tillegg inn en rad i `project_memberships`. I TS gjør driftsskriptet
-`server/registrering.ts registrer` det samme mot `koe_drift.registrer_prosjekt` i
-SQL Server, uten å hente navnet fra Catenda (F-1, #820)."""
+legger i tillegg inn en rad i `project_memberships`. I TS registrerer
+driftsskriptet `server/registrering.ts registrer` prosjektet mot
+`koe_drift.registrer_prosjekt` i SQL Server (F-1, #820). Det henter ikke navnet
+fra Catenda, men kontrollerer også et oppgitt board mot Catenda-prosjektet
+(#836). Hva en ny registrering gjør med mappen, boardet og et bytte av
+Catenda-prosjekt, står ved `catenda_project_configs` i `tabeller.toml`;
+`koe_register_project` i Python følger ikke de reglene (DL-U2, #868)."""
 funn = ["MS-12"]
 belegg = """
 L 29.09: `cmd_register`, `koe_register_project` i migrasjonene, og at den kaller
@@ -868,6 +872,13 @@ kode = [
     "databasefunksjon:koe_set_contract_teams",
 ]
 data = "Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene kommer fra drift."
+
+[[flyt.steg]]
+fra = "catenda:board"
+til = ["appen"]
+endepunkt = "GET /opencde/bcf/3.0/projects?bimsync_project_id={catenda_project_id}"
+kode = ["server/registrering.ts:kjoer", "server/catenda.ts:CatendaOAuth"]
+data = "Kontroll av at boardet drift oppgir, hører til Catenda-prosjektet. Bare TS-skriptet kontrollerer det (#836)."
 
 [[flyt]]
 id = "C19"

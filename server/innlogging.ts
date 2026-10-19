@@ -18,7 +18,7 @@
  * loggen får bare navnet på feiltypen, som i Python.
  */
 
-import { validateHeaderValue, type IncomingMessage } from 'node:http';
+import { validateHeaderName, validateHeaderValue, type IncomingMessage } from 'node:http';
 
 import type { Avhengigheter, Innlogget, Rute, Svar } from './app.ts';
 import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
@@ -81,15 +81,19 @@ function kontrollerAdresse(verdi: string, miljoe: NodeJS.ProcessEnv): URL {
 }
 
 /**
- * Innloggingen fra miljøet. Kaster når oppsettet mangler eller er ugyldig;
- * meldingen har aldri med verdiene, så hemmeligheten ikke kan havne i loggen.
+ * Innloggingen fra miljøet, med klienten integrasjonen også bruker når den er gitt
+ * (#726 punkt 4). Kaster når oppsettet mangler eller er ugyldig; meldingen har aldri
+ * med verdiene, så hemmeligheten ikke kan havne i loggen.
  */
-export function innloggingFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Innlogging {
+export function innloggingFraMiljoe(
+  miljoe: NodeJS.ProcessEnv = process.env,
+  catenda?: { oauth: CatendaOAuth }
+): Innlogging {
   const frontend = kontrollerAdresse(miljoe.AUTH_FRONTEND_URL ?? '', miljoe);
   if (frontend.pathname !== '/') throw new Error('AUTH_FRONTEND_URL må være en opprinnelse');
   kontrollerAdresse(miljoe.CATENDA_LOGIN_REDIRECT_URI ?? '', miljoe);
   // Opprinnelsen har verten i punycode, så adressen kan stå i `Location` (#763 punkt 8).
-  return { frontend: frontend.origin, oauth: catendaFraMiljoe(miljoe).oauth };
+  return { frontend: frontend.origin, oauth: (catenda ?? catendaFraMiljoe(miljoe)).oauth };
 }
 
 /**
@@ -143,10 +147,17 @@ const omdiriger = (adresse: string, kapsler: string[]): Svar => [
   { Location: adresse, 'Set-Cookie': kapsler },
 ];
 
-/** Kaster som `writeHead` for et hode Node ikke godtar. */
-function kontrollerHoder([, , hoder]: Svar): void {
-  for (const [navn, verdi] of Object.entries(hoder ?? {}))
-    for (const v of [verdi].flat()) validateHeaderValue(navn, v);
+/**
+ * Kaster som `writeHead` for et navn eller en verdi Node ikke godtar, i rutens
+ * hoder og svarets (#854 punkt 2). En omdirigering har ingen kropp, så `app.ts`
+ * legger ikke til `Content-Type`.
+ */
+function kontrollerHoder([, , hoder]: Svar, rute: Record<string, string>): void {
+  for (const [navn, verdi] of Object.entries({ ...rute, ...hoder }))
+    for (const v of [verdi].flat()) {
+      validateHeaderName(navn);
+      validateHeaderValue(navn, v);
+    }
 }
 
 const utilgjengelig = (): Svar => [
@@ -239,12 +250,17 @@ async function tilbakekall(
       ]);
     // Hodene prøves før sesjonen endres, så et hode Node avviser, ikke etterlater en
     // sesjon klienten aldri fikk (#763 punkt 8). Tokenet er base64url.
-    kontrollerHoder(innlogget(''));
+    kontrollerHoder(innlogget(''), PRIVAT);
     const token = await innlogging.oauth.byttKode(kode[0]);
     const bruker = await medlemskapVedInnlogging(avh.datalag, innlogging.oauth, token);
     const sesjon = await opprettSesjon(avh.datalag, bruker);
     const gammel = informasjonskapsel(foresporsel, navn);
-    if (gammel) await slettSesjon(avh.datalag, gammel);
+    // Den nye sesjonen slettes når den gamle ikke kan slettes, så klienten beholder én (#854 punkt 1).
+    if (gammel)
+      await slettSesjon(avh.datalag, gammel).catch(async (feil) => {
+        await slettSesjon(avh.datalag, sesjon.token).catch(() => {});
+        throw feil;
+      });
     return innlogget(sesjon.token);
   } catch (feil) {
     loggFeil('Tilbakekallet fra innloggingen feilet', feil);

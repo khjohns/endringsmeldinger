@@ -81,9 +81,10 @@ try {
 } catch (feil) {
   console.warn(`Catenda er ikke satt opp: ${(feil as Error).message}`);
 }
+// Innloggingen bruker samme klient som integrasjonen (#726 punkt 4).
 let innlogging: Innlogging | null = null;
 try {
-  innlogging = innloggingFraMiljoe();
+  if (klient) innlogging = innloggingFraMiljoe(process.env, klient);
 } catch (feil) {
   console.warn(`Innloggingen er ikke satt opp: ${(feil as Error).message}`);
 }
