@@ -33,6 +33,7 @@ import { uuidMedBindestreker } from './autorisasjon.ts';
 import { feilnummer, sql, utenKontekst, UsikkertUtfall, type Pool } from './datalag.ts';
 import { behandle, nesteInnkommende, registrerBehandling, type Behandling } from './hendelser.ts';
 import { LaasFeilet, LaasIkkeGitt } from './kommandoer.ts';
+import { MedlemskapetLaast } from './medlemskap.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
 /**
@@ -265,8 +266,9 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
 /**
  * Behandler den eldste hendelsen i innboksen og lagrer utfallet. Sann når en hendelse ble
  * behandlet. Kan utfallet ikke avgjøres nå, fordi Catenda eller basen ikke svarer, utfallet
- * av skrivingen er usikkert eller en lås ikke ble gitt, kastes feilen, og løkka prøver igjen ved neste runde. En annen feil gir
- * utfallet `feilet`, som blir stående, så én hendelse ikke stopper resten.
+ * av skrivingen er usikkert, eller låsen på kommandoen eller medlemskapet ikke ble tatt,
+ * kastes feilen, og løkka prøver igjen ved neste runde. En annen feil gir utfallet
+ * `feilet`, som blir stående, så én hendelse ikke stopper resten.
  */
 export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolean> {
   const logg = avh.logg ?? console;
@@ -277,12 +279,14 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
   try {
     behandling = await behandle({ datalag: avh.datalag, catenda: avh.innboks }, rad);
   } catch (feil) {
-    // Etter et usikkert utfall kan saken være lagret; et nytt forsøk finner den i kvitteringen.
+    // Etter et usikkert utfall kan saken være lagret; et nytt forsøk med samme kommando-ID
+    // finner den i kvitteringen.
     if (
       forbigaaende(feil) ||
       feil instanceof UsikkertUtfall ||
       feil instanceof LaasIkkeGitt ||
-      feil instanceof LaasFeilet
+      feil instanceof LaasFeilet ||
+      feil instanceof MedlemskapetLaast
     )
       throw feil;
     logg.error(`Hendelsen ${rad.id} i innboksen kunne ikke behandles:`, feil);
