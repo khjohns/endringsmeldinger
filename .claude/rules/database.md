@@ -42,6 +42,9 @@ virker bare fordi Supabase deler ut rettigheter. Testbasen, stubben av
 plattformen, katalogsummene og fallgruvene i PostgreSQL 18 står i
 `docs/migrasjoner-og-testbase.md`.
 
+Oppstartshooken starter ikke den basen. Endrer du en migrasjon, eller slår du
+inn en, bygg den på nytt før du spør katalogen; kommandoene står i miljø-skillen.
+
 **SQL Server: migrasjonene i T-SQL ligger i `database/migrasjoner/`, aldri i
 `supabase/migrations/`, og anvendes bare av runneren i `server/migrering.ts`**
 (#53, arbeidsvalget 16.10). Filnavnet er `ÅÅÅÅMMDDTTMMSS_navn.sql`; prefikset er

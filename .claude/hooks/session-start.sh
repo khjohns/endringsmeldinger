@@ -168,11 +168,11 @@ if [ "$sqlstatus" = 0 ]; then
   if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     echo "export KOE_SQLSERVER_TILKOBLING='$tilkobling'" >> "$CLAUDE_ENV_FILE"
   fi
-  echo "SQL Server: starter i bakgrunnen (koe-sqlserver-${KOE_SQLSERVER_PORT:-14331}), KOE_SQLSERVER_TILKOBLING er satt. Testene i server/tester/sqlserver.test.ts venter på den; logg i $sqllogg."
+  echo "SQL Server: starter i bakgrunnen (koe-sqlserver-${KOE_SQLSERVER_PORT:-14331}), KOE_SQLSERVER_TILKOBLING er satt. Testene i server/ og sprakprove/kjernelagring/ venter på den; logg i $sqllogg."
 elif [ "$sqlstatus" = 3 ]; then
   echo "ADVARSEL: en annen kjøring av hooken starter SQL Server og ble ikke ferdig med forgrunnen på 120 s; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt. Kjør hooken på nytt når den andre kjøringen er ferdig."
 elif ! docker info > /dev/null 2>&1; then
-  echo "ADVARSEL: SQL Server startet ikke fordi Docker ikke svarer; se $logg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/tester/sqlserver.test.ts hoppes over."
+  echo "ADVARSEL: SQL Server startet ikke fordi Docker ikke svarer; se $logg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/ og sprakprove/kjernelagring/ hoppes over, og en grønn npm test sier ingenting om lagringen."
 else
-  echo "ADVARSEL: SQL Server startet ikke; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/tester/sqlserver.test.ts hoppes over."
+  echo "ADVARSEL: SQL Server startet ikke; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/ og sprakprove/kjernelagring/ hoppes over, og en grønn npm test sier ingenting om lagringen."
 fi

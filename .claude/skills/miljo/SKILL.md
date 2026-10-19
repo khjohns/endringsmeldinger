@@ -25,6 +25,16 @@ headeren til `server/start.ts`. Vite-proxyen sender det `tilTsServeren()` i
 
 I skyøktene lager `.claude/hooks/session-start.sh` venv-en og starter Docker og testbasen i SQL Server.
 
+Hooken starter ikke PostgreSQL. Trenger du katalogen i en base bygget fra
+`supabase/migrations/` (`pg_proc`, `pg_trigger`, `pg_policy`, se
+`.claude/rules/database.md`) eller `docs/verktoy/katalog.py`, start den selv.
+Etter en endring i migrasjonene bygges den på nytt med `stopp` og `start`:
+
+```bash
+scripts/testbase/docker_testbase.sh stopp
+eval "$(scripts/testbase/docker_testbase.sh start | tail -1)"   # setter KOE_TESTBASE_URL
+```
+
 SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med
 `scripts/testbase/docker_sqlserver.sh`, og den setter `KOE_SQLSERVER_TILKOBLING`
 med en gang. Testene i `server/` og `sprakprove/kjernelagring/` venter på
