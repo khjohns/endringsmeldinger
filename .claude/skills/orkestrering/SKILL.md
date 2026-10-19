@@ -21,6 +21,35 @@ issuene, ikke i økta.
 Grunnen er kostnad: en økt som lever over natta, blir dyrere for hver sjekk
 (se «Kontekst i arbeidsøktene»).
 
+**Bølger.** Oppdragsgiver kan bestille et spor i bølger, en rekke runder der
+hver orkestrator starter den neste (oppdragsgiver 19.10). Bestillingen sier hva
+sporet omfatter, med en etikett, en milepæl eller en liste med issues, og hvilke
+spor som går parallelt. Orkestratoren starter neste runde når sin egen er over,
+eller når den nærmer seg grensene for orkestratoren i «Kontekst i
+arbeidsøktene». Da gjør den dette:
+
+1. Merger det som er nær merge og avslutter etter punkt 5. En åpen PR som ikke
+   er nær merge, går videre med økta som eier den.
+2. Skriver overleveringen som kommentar i issuet bestillingen viser til, eller
+   i et nytt issue med sporets milepæl eller etikett: hva som er merget, de
+   åpne PR-ene med økt-ID, de neste issuene i rekkefølge, avgjørelsene fra
+   oppdragsgiver ordrett eller med lenke, og filene det parallelle sporet
+   arbeider i.
+3. Sletter sjekkene sine.
+4. Starter neste orkestrator med `create_session`. Oppdraget er kort: les
+   `AGENTS.md`, denne skillen og overleveringen, og hva sporet omfatter. Det
+   gjengir ikke historikken.
+5. Sier til oppdragsgiver hva som er merget, og gir lenken til overleveringen
+   og ID-en til den nye økta.
+
+En orkestrator starter ingen ny runde når sporet er tomt, når det som
+gjenstår, venter på oppdragsgiver, eller når oppdragsgiver har sagt stopp.
+Venter det på oppdragsgiver, stiller den spørsmålene etter «Spørsmål og vedtak»
+og stopper. Forhåndsgodkjenningen for merge (punkt 4) gjelder bare runden den
+ble gitt i, så den nye orkestratoren spør på nytt når den legger fram runden.
+To parallelle spor rører aldri samme fil samtidig. En fil begge trenger, går til
+det ene sporet, og det andre venter.
+
 **Størrelse.** Høyst tre PR-er per runde (oppdragsgiver 12.10, #425). En reviewøkt
 som fortsetter samme PR, teller ikke i grensen (oppdragsgiver 14.10, #491).
 Tekniske issues som ikke krever svar fra oppdragsgiver, teller heller ikke i
