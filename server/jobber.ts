@@ -31,10 +31,12 @@ import { feilnummer, sql, utenKontekst, type Pool } from './datalag.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
 /**
- * Lengre enn ett steg: tidsavbruddet mot Catenda (15 s) ganger de fem kallene for ett
- * dokument, med kvitteringene. Leveringen fornyer leasen før hvert vedlegg og før brevet.
+ * Lengre enn tre fornyelser av leasen: leveringen fornyer den hvert tredjedel av leasetiden
+ * så lenge den pågår, fordi et oppslag i biblioteket blar side for side og ikke har noen
+ * øvre tid (#877 p16). Topicen er ett kall med tidsavbrudd (15 s) og kvitteringen.
  */
 export const LEASETID_S = 120;
+const FORNYELSE_MS = (LEASETID_S * 1000) / 3;
 export const POLLEINTERVALL_MS = 10_000;
 
 interface Jobbrad {
@@ -71,34 +73,56 @@ type Utfall = 'feilet' | 'usikkert' | 'avvist';
 
 /**
  * Feilnumrene fra SQL Server som går over: vranglås, tidsavbrudd for en lås, og
- * Azure SQL som er opptatt eller flytter basen. En feil fra basen uten nummer gjelder
- * forbindelsen og går også over.
+ * Azure SQL som er opptatt eller flytter basen.
  */
 const FORBIGAAENDE_SQL = new Set([
   1205, 1222, 4060, 10928, 10929, 40197, 40501, 40613, 49918, 49919, 49920,
 ]);
 
+/**
+ * Kodene i mssql og tedious for en feil uten nummer som gjelder forbindelsen. En annen
+ * feil uten nummer, som en parameter tedious avviser (EPARAM), går ikke over (#877 p14).
+ */
+const FORBIGAAENDE_KODER = new Set([
+  'ETIMEOUT',
+  'ESOCKET',
+  'ECONNRESET',
+  'ECONNCLOSED',
+  'ECLOSE',
+  'ENOCONN',
+  'ENOTOPEN',
+]);
+
 function forbigaaendeISql(feil: unknown): boolean {
   if (!(feil instanceof sql.MSSQLError)) return false;
   const nummer = feilnummer(feil);
-  return nummer === undefined || FORBIGAAENDE_SQL.has(nummer);
+  if (nummer !== undefined) return FORBIGAAENDE_SQL.has(nummer);
+  return feil instanceof sql.ConnectionError || FORBIGAAENDE_KODER.has(feil.code);
 }
 
 /**
- * Meldingene fra catenda.ts, levering.ts og kjøreren har ingen svarkropp eller token;
- * andre feil lagres ikke. Bare Catenda og basen kan svikte forbigående (#795 punkt 1).
- * En annen feil går ikke over av seg selv og parkeres (#783 punkt 2): som avvist når
- * forsøket ikke har bedt Catenda om noen endring, ellers som usikker, fordi den kan
- * komme etter en endring i Catenda (#813 punkt 5). Et varig avvik i Catenda parkeres
+ * Meldingene fra catenda.ts, levering.ts og kjøreren har ingen svarkropp eller token. De
+ * kan ha en ID fra Catenda, som GUID-en til en referanse med bare trygge tegn i
+ * `VarigCatendaavvik` (#895); andre feil lagres ikke. Bare Catenda og basen kan svikte
+ * forbigående (#795 punkt 1). Et tapt svar fra Catenda parkeres som usikkert, utenom i et
+ * forsøk som `avstemmes`: der finner neste forsøk det som ble laget, og jobben prøves igjen
+ * (#876 punkt 4). En annen feil går ikke over av seg selv og parkeres (#783 punkt 2): som
+ * avvist når forsøket ikke har bedt Catenda om noen endring, ellers som usikker, fordi den
+ * kan komme etter en endring i Catenda (#813 punkt 5). Et varig avvik i Catenda parkeres
  * som avvist (#876).
  */
-function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; melding: string } {
+function utfallAv(
+  feil: unknown,
+  endringBedt: boolean,
+  avstemmes: boolean
+): { utfall: Utfall; melding: string } {
   const kjent =
     feil instanceof CatendaUtilgjengelig ||
     feil instanceof UgjennomfoerbarJobb ||
     feil instanceof UgjengivbartBrev;
   const melding = kjent ? feil.message : 'Uventet feil i jobben';
-  if (feil instanceof UsikkertCatendautfall) return { utfall: 'usikkert', melding };
+  if (feil instanceof UsikkertCatendautfall)
+    return { utfall: avstemmes ? 'feilet' : 'usikkert', melding };
   if (
     feil instanceof CatendaAvvisning ||
     feil instanceof VarigCatendaavvik ||
@@ -124,6 +148,8 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   if (!jobb) return false;
 
   const lease = () => utenKontekst(avh.datalag).input('lease', sql.UniqueIdentifier, jobb.lease);
+  // Grenen for jobbtypen setter den når neste forsøk avstemmes mot Catenda (`lever`).
+  let avstemmes = false;
   const kvitter: Kvitter = async (prosedyre, parametre) => {
     try {
       const foresp = lease();
@@ -131,8 +157,8 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         foresp.input(navn, type, verdi);
       await foresp.execute(prosedyre);
     } catch (feil) {
-      // Leveringen avstemmes mot Catenda ved neste forsøk, så den prøves igjen som `feilet`.
-      if (jobb.jobbtype === 'levering' && forbigaaendeISql(feil)) throw feil;
+      // Et forsøk som avstemmes, prøves igjen som `feilet`.
+      if (avstemmes && forbigaaendeISql(feil)) throw feil;
       // Endringen finnes i Catenda uten kvittering; neste henting parkerer jobben som usikker.
       const verdier = Object.entries(parametre).map(([navn, [, verdi]]) => `${navn}=${verdi}`);
       logg.error(
@@ -155,6 +181,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       await kvitter('koe_api.kvitter_topic', { topic_id: [sql.NVarChar(100), topic] });
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
+      avstemmes = true;
       const brevPdf = async (pdf: Uint8Array | null) => {
         const lagret = await lease()
           .input('pdf', sql.VarBinary(sql.MAX), pdf && Buffer.from(pdf))
@@ -164,11 +191,6 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         return rad ? new Uint8Array(rad.pdf) : null;
       };
       const lager: Leveringslager = {
-        async fornyLease() {
-          await lease()
-            .input('leasetid_sekunder', sql.Int, LEASETID_S)
-            .execute('koe_api.forny_lease');
-        },
         lagret: () => brevPdf(null),
         lagre: async (pdf) => (await brevPdf(pdf))!,
         vedlegg: async () =>
@@ -182,14 +204,24 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         },
         kvitter,
       };
-      await medEndringsflagg(flagg, () => lever(avh.dokumenter, jobb, lager));
+      const fornyelse = setInterval(() => {
+        lease()
+          .input('leasetid_sekunder', sql.Int, LEASETID_S)
+          .execute('koe_api.forny_lease')
+          .catch((feil) => logg.warn(`Jobben ${jobb.jobb_id} fikk ikke fornyet leasen:`, feil));
+      }, FORNYELSE_MS);
+      try {
+        await medEndringsflagg(flagg, () => lever(avh.dokumenter, jobb, lager));
+      } finally {
+        clearInterval(fornyelse);
+      }
       logg.info(`Jobben ${jobb.jobb_id} leverte brevet og vedleggene til topicen.`);
     } else {
       throw new UgjennomfoerbarJobb(`Jobbtypen ${jobb.jobbtype} er ukjent for kjøreren`);
     }
   } catch (feil) {
     if (feil instanceof AvvistKvittering) throw feil.cause;
-    const { utfall, melding } = utfallAv(feil, flagg.endringBedt);
+    const { utfall, melding } = utfallAv(feil, flagg.endringBedt, avstemmes);
     if (feil instanceof CatendaOppsettfeil)
       logg.error(`Jobben ${jobb.jobb_id} venter på at driften retter oppsettet mot Catenda:`, feil);
     else if (utfall === 'feilet') logg.warn(`Jobben ${jobb.jobb_id} feilet og prøves igjen:`, feil);
@@ -220,7 +252,6 @@ interface Vedleggsrad {
 
 /** Det leveringen leser og skriver i basen, med leasen til forsøket. */
 interface Leveringslager {
-  fornyLease: () => Promise<void>;
   lagret: () => Promise<Uint8Array | null>;
   lagre: (pdf: Uint8Array) => Promise<Uint8Array>;
   vedlegg: () => Promise<Vedleggsrad[]>;
@@ -239,7 +270,7 @@ interface Leveringslager {
  * PDF-en av brevet lagres før opplastingen, og det er den lagrede som lastes opp. Har
  * et tidligere forsøk lagret den, lages ingen ny (#371 del 2, #795 punkt 4). Hvert steg
  * avstemmes først, mot navnet i biblioteket og mot referansene på topicen, så et forsøk
- * etter en omstart ikke lager et dokument eller en referanse til.
+ * etter en omstart eller et tapt svar ikke lager et dokument eller en referanse til.
  */
 async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leveringslager) {
   const oppdrag = JSON.parse(jobb.oppdrag!) as Record<string, unknown>;
@@ -266,7 +297,6 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
     if (!vedlegg.finnes)
       throw new UgjennomfoerbarJobb('Et vedlegg i brevet er ikke bundet i saken');
     if (vedlegg.referanse_id) continue;
-    await lager.fornyLease();
     const kvitterVedlegg = (operasjon: string, catenda_id: string) =>
       lager.kvitter('koe_api.kvitter_vedlegg', {
         vedlegg_id: [sql.UniqueIdentifier, vedlegg.vedlegg_id],
@@ -289,7 +319,6 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
     await lager.kvitter('koe_api.kvitter_levering', { referanse_id: [sql.NVarChar(100), null] });
     return;
   }
-  await lager.fornyLease();
   let dokumentId = jobb.dokument_id;
   if (!dokumentId) {
     dokumentId = await dokument(
