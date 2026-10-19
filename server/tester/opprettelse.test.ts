@@ -475,6 +475,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
       } finally {
         spion.mockRestore();
       }
+      expect((await antall()).hendelser, 'første forsøk er lagret').toBe(foer.hendelser + 1);
       const igjen = await send();
       expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
       expect((await antall()).hendelser).toBe(foer.hendelser + 1);

@@ -687,18 +687,16 @@ export function lagServer(avh: Avhengigheter) {
       if (feil instanceof Nektet) [status, kropp] = [feil.status, feil.kropp];
       else loggFeil(`${metode} ${funnet?.r.sti} feilet`, feil);
     }
-    // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2).
+    // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2),
+    // eller 503 UTFALL_USIKKERT når en kommando er lagret (#816 p1).
     let tekst: string | Buffer | undefined;
     try {
       tekst = kropp === null ? undefined : Buffer.isBuffer(kropp) ? kropp : JSON.stringify(kropp);
       respons.writeHead(status, svarhoder([status, kropp, hoder], funnet?.r.hoder));
     } catch (feil) {
       loggFeil('Svaret kunne ikke skrives', feil);
-      // Et svar som sier at kommandoen er lagret eller kan være det, blir usikkert (#816 p1).
-      const etterSkrivingen =
-        funnet?.r.kommando &&
-        (status < 300 || (kropp as { error?: unknown } | null)?.error === 'UTFALL_USIKKERT');
-      const reserve = etterSkrivingen ? utfallUsikkert() : uventet();
+      // Et svar som sier at kommandoen er lagret, blir usikkert (#816 p1).
+      const reserve = funnet?.r.kommando && status < 300 ? utfallUsikkert() : uventet();
       tekst = JSON.stringify(reserve[1]);
       // Node beholder årsaksfrasen fra det første forsøket, og rutens hoder gjelder også dette svaret.
       respons.writeHead(reserve[0], STATUS_CODES[reserve[0]], svarhoder(reserve, funnet?.r.hoder));
