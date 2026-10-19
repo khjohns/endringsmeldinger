@@ -428,17 +428,19 @@ export async function krevKontraktsrolle(
 
 /**
  * Siden og teamet for en aktør uten sesjon, som forfatteren av en topic (#819), med samme
- * oppslag som `lesKontraktsside`. `null` uten aktivt medlemskap i prosjektet eller uten
+ * oppslag som `lesKontraktsside` og en medlemsliste som er like fersk som i
+ * `krevProsjekttilgang` (B-04). `null` uten aktivt medlemskap i prosjektet eller uten
  * entydig side.
  */
 export async function kontraktssideUtenSesjon(
   db: Pool,
-  catenda: Pick<Catenda, 'teammedlemmer'>,
+  catenda: Catenda,
   prosjektId: string,
   aktor: string
 ): Promise<Kontraktstilgang | null> {
   const oppsett = await prosjektoppsett(db, prosjektId);
   if (!oppsett) return null;
+  await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
   const medlemskap = await prosjektmedlemskap(db, aktor, prosjektId);
   if (!medlemskap) return null;
   return somKontraktstilgang(

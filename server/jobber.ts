@@ -30,9 +30,9 @@ import {
   type Topicoppretter,
 } from './catenda.ts';
 import { uuidMedBindestreker } from './autorisasjon.ts';
-import { feilnummer, sql, utenKontekst, type Pool } from './datalag.ts';
+import { feilnummer, sql, utenKontekst, UsikkertUtfall, type Pool } from './datalag.ts';
 import { behandle, nesteInnkommende, registrerBehandling, type Behandling } from './hendelser.ts';
-import { LaasIkkeGitt } from './kommandoer.ts';
+import { LaasFeilet, LaasIkkeGitt } from './kommandoer.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
 /**
@@ -264,8 +264,8 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
 
 /**
  * Behandler den eldste hendelsen i innboksen og lagrer utfallet. Sann når en hendelse ble
- * behandlet. Kan utfallet ikke avgjøres nå, fordi Catenda eller basen ikke svarer eller en
- * lås ikke ble gitt, kastes feilen, og løkka prøver igjen ved neste runde. En annen feil gir
+ * behandlet. Kan utfallet ikke avgjøres nå, fordi Catenda eller basen ikke svarer, utfallet
+ * av skrivingen er usikkert eller en lås ikke ble gitt, kastes feilen, og løkka prøver igjen ved neste runde. En annen feil gir
  * utfallet `feilet`, som blir stående, så én hendelse ikke stopper resten.
  */
 export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolean> {
@@ -277,7 +277,14 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
   try {
     behandling = await behandle({ datalag: avh.datalag, catenda: avh.innboks }, rad);
   } catch (feil) {
-    if (forbigaaende(feil) || feil instanceof LaasIkkeGitt) throw feil;
+    // Etter et usikkert utfall kan saken være lagret; et nytt forsøk finner den i kvitteringen.
+    if (
+      forbigaaende(feil) ||
+      feil instanceof UsikkertUtfall ||
+      feil instanceof LaasIkkeGitt ||
+      feil instanceof LaasFeilet
+    )
+      throw feil;
     logg.error(`Hendelsen ${rad.id} i innboksen kunne ikke behandles:`, feil);
     behandling = { utfall: 'feilet', melding: 'Uventet feil i behandlingen' };
   }

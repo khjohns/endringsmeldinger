@@ -12,7 +12,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { CatendaUtilgjengelig, TOPICTYPE, type Innboksoppslag } from '../catenda.ts';
 import { behandleEnHendelse, type Jobbavhengigheter } from '../jobber.ts';
-import { transaksjon } from '../datalag.ts';
+import { transaksjon, UsikkertUtfall } from '../datalag.ts';
 import { behandle, nesteInnkommende } from '../hendelser.ts';
 import { lesJournal } from '../lager.ts';
 import { mottaHendelse } from '../webhook.ts';
@@ -45,10 +45,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
   beforeAll(async () => {
     o = await lagOppsett();
     const team = catendaFra(o.teammedlemmer);
-    innboks = {
-      teammedlemmer: team.teammedlemmer,
-      integrasjonensBruker: async () => INTEGRASJONEN,
-    };
+    innboks = { ...team, integrasjonensBruker: async () => INTEGRASJONEN };
     avh = {
       datalag: o.datalag.kjoeretid.pool,
       catenda: { opprettTopic: async () => 'ingen' },
@@ -282,6 +279,28 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await behandleEnHendelse(avh)).toBe(true);
     expect(await sakerForTopic(topic)).toHaveLength(1);
     expect(await behandleEnHendelse(avh)).toBe(false);
+  });
+
+  it('etter et usikkert utfall lagres ikke noe utfall, og neste runde får saken (code-review av #957)', async () => {
+    const topic = randomUUID();
+    await mottaHendelse(
+      avh.datalag,
+      { id: randomUUID(), type: 'issue.created' },
+      JSON.stringify(kropp(topic))
+    );
+    const usikker = {
+      ...avh,
+      innboks: {
+        ...innboks,
+        teammedlemmer: async () => {
+          throw new UsikkertUtfall('usikkert');
+        },
+      },
+    };
+    await expect(behandleEnHendelse(usikker)).rejects.toBeInstanceOf(UsikkertUtfall);
+    expect((await nesteInnkommende(avh.datalag))?.kropp).toContain(topic);
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    expect(await sakerForTopic(topic)).toHaveLength(1);
   });
 
   it('uten oppslagene for innboksen behandler løkka den ikke', async () => {

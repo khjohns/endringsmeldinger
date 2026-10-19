@@ -789,7 +789,7 @@ export function dokumentleverandoer(catenda: Integrasjon): Dokumentleverandoer {
 }
 
 /** Det behandlingen av innboksen slår opp i Catenda, med integrasjonens eget token (#819). */
-export interface Innboksoppslag extends Pick<Catenda, 'teammedlemmer'> {
+export interface Innboksoppslag extends Catenda {
   /** Forfatteren av topicene integrasjonen lager, i `catendaId()`-formen (#741 punkt 17). */
   integrasjonensBruker(): Promise<string>;
 }
@@ -797,7 +797,7 @@ export interface Innboksoppslag extends Pick<Catenda, 'teammedlemmer'> {
 export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
   let egen: string | null = null;
   return {
-    teammedlemmer: integrasjonen(catenda).teammedlemmer,
+    ...integrasjonen(catenda),
     integrasjonensBruker: async () =>
       (egen ??= await medToken(catenda, (t) => catenda.oauth.egenId(t))),
   };

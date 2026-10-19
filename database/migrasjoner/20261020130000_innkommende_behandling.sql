@@ -124,7 +124,7 @@ END
 GO
 
 -- `opprett_sak` får topicen saken opprettes fra. Uten topic legges jobben for topicen inn
--- som før (KT-U3). Med topic kobles saken til den i samme transaksjon, og ingen jobb
+-- (KT-U3). Med topic kobles saken til den i samme transaksjon, og ingen jobb
 -- legges inn. Topicen må stå på prosjektets topic-board, og ID-en er normalisert av
 -- kalleren (#819), så den unike begrensningen gjelder samme form.
 CREATE OR ALTER PROCEDURE koe_api.opprett_sak
