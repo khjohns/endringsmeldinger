@@ -48,7 +48,7 @@ skrivere = [
     "backend/services/endringsordre_service.py",
     "backend/services/approval_service.py",
     "backend/services/catenda_webhook_service.py (via sak_creation_service)",
-    "sprakprove/server/lager.ts (språkprøvens server og `sprakprove/kjernelagring/bane.ts`, mot testbasen)",
+    "sprakprove/server/lager.ts (`sprakprove/kjernelagring/bane.ts`, mot testbasen)",
 ]
 funn = ["MS-01", "MS-02", "MS-03", "AR-02", "DM-06"]
 belegg = """
@@ -1141,6 +1141,26 @@ personopplysninger = "Nei."
 skrivere = ["database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 18.10: `server/tester/jobber.test.ts`."
+
+[[tabell]]
+navn = "koe.innkommende_hendelse"
+lagring = "SQL Server"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Innboksen for webhooken fra Catenda (W-1a, #819). Hver hendelse lagres rå, med
+kilden, `event.id` og `event.type`, før svaret 200, og samme ID fra samme kilde
+lagres én gang (INT-02). Prosjektet og saken er ikke avgjort ved mottaket, så
+tabellen har ingen `prosjekt_id` og ingen radsikkerhet; kjøretiden har ingen rett på
+den og skriver med `koe_api.motta_hendelse`. Raden kan ikke endres eller slettes.
+Behandlingen kommer i W-1b."""
+lagres_fra = "`koe_api.motta_hendelse`, kalt av webhooken i `server/webhook.ts`."
+fra_catenda = "Ja, hele kroppen er Catendas."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Ja: kroppen har navnet og e-postadressen til den som laget topicen i Catenda."
+skrivere = ["database/migrasjoner/20261020124000_innkommende_hendelse.sql (`koe_api.motta_hendelse`, kalt fra `server/webhook.ts`)"]
+funn = ["INT-01", "INT-02"]
+belegg = "L 19.10: migrasjonen. K 19.10: `server/tester/webhook.test.ts`."
 
 [[tabell]]
 navn = "koe.prosjekt_med_saker"

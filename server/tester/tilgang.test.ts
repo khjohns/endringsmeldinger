@@ -591,6 +591,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.medlemmer',
         'GRANT EXECUTE koe_api.medlemsliste_alder',
         'GRANT EXECUTE koe_api.migrasjonshistorikk',
+        'GRANT EXECUTE koe_api.motta_hendelse',
         'GRANT EXECUTE koe_api.opprett_innloggingsforsoek',
         'GRANT EXECUTE koe_api.opprett_sak',
         'GRANT EXECUTE koe_api.opprett_sesjon',

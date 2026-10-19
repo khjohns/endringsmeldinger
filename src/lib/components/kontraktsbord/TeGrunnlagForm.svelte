@@ -12,6 +12,9 @@
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  // TS-saken (#909): en ny versjon med kategorien og datoen fra gjeldende versjon
+  // (GR-U22, VS-U26), uten vedlegg og utkast. Kjernen avgjør om beskrivelsen kreves (GR-U15).
+  const kjernesak = store.erKjernesak ? store : null;
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import { TRACK_ICONS } from './data.js';
@@ -42,7 +45,11 @@
   const bhEvents = $derived(
     store.timeline.filter((event) => event.spor === 'grunnlag' && event.actorrole === 'BH')
   );
-  const teVersionCount = $derived(Math.max(grunnlag.antall_versjoner, teEvents.length, 1));
+  const teVersionCount = $derived(
+    kjernesak
+      ? kjernesak.kravversjon('ansvar')
+      : Math.max(grunnlag.antall_versjoner, teEvents.length, 1)
+  );
   const teRevision = $derived(teVersionCount - 1);
   const teDate = $derived(
     formatDateShortNorwegian(teEvents.at(-1)?.time ?? grunnlag.grunnlag_varsel?.dato_sendt)
@@ -50,18 +57,19 @@
   const bhDate = $derived(formatDateShortNorwegian(bhEvents.at(-1)?.time));
   const bhAnsweredRevision = $derived(grunnlag.bh_respondert_versjon);
   const oppdagetDato = $derived(formatDateShortNorwegian(grunnlag.dato_oppdaget));
-  const hasBhResponse = $derived(Boolean(grunnlag.bh_resultat));
+  // TS-saken viser bare at BH har svart (#718).
+  const hasBhResponse = $derived(kjernesak ? d.bhHarSvart : Boolean(grunnlag.bh_resultat));
   const originalBegrunnelse = store.display('ansvar').teText;
 
   let begrunnelseHtml = $state(originalBegrunnelse);
   let charCount = $state(0);
   let bhContextExpanded = $state(false);
   const draft = createFormDraft(
-    !store.isDemo,
+    !store.isDemo && !kjernesak,
     {
       sakId: store.sak.sak_id,
       spor: 'grunnlag',
-      revisjon: store.sak.grunnlag.antall_versjoner,
+      revisjon: kjernesak ? 0 : store.sak.grunnlag.antall_versjoner,
     },
     () => ({ vedleggIds, begrunnelseHtml }),
     (saved) => {
@@ -73,7 +81,8 @@
   const erEndret = $derived(
     begrunnelseHtml.trim() !== originalBegrunnelse.trim() || vedleggIds.length > 0
   );
-  const kanSende = $derived(charCount >= 10 && erEndret);
+  // Kjernen vurderer ikke om beskrivelsen er nok (KA-U19), så TS-saken krever ikke 10 tegn.
+  const kanSende = $derived(charCount >= (kjernesak ? 1 : 10) && erEndret);
 
   $effect(() => {
     onactions?.({
@@ -128,7 +137,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo}
+      visVedlegg={!store.isDemo && !kjernesak}
       bind:vedleggIds
       bind:vedleggOpptatt
     />
@@ -164,42 +173,45 @@
     </section>
 
     {#if hasBhResponse}
-      <section class="bh-context">
-        <div class="bh-context-header">
-          <div class="bh-party">
-            <div class="context-label-row">
-              <TRACK_ICONS.ansvar size={14} />
-              <span class="eyebrow">Byggherrens standpunkt</span>
+      <!-- TS-saken har ikke byggherrens tekst i visningen (#718), så boksen ville stått tom. -->
+      {#if !kjernesak}
+        <section class="bh-context">
+          <div class="bh-context-header">
+            <div class="bh-party">
+              <div class="context-label-row">
+                <TRACK_ICONS.ansvar size={14} />
+                <span class="eyebrow">Byggherrens standpunkt</span>
+              </div>
+              <h2>{store.bhNavn}</h2>
+              <div class="response-meta">
+                {#if bhDate}<span>Svart {bhDate}</span>{/if}
+                {#if bhAnsweredRevision != null}
+                  <span>
+                    {bhAnsweredRevision === 0
+                      ? 'Svar på opprinnelig innsending'
+                      : `Svar på rev. ${bhAnsweredRevision}`}
+                  </span>
+                {/if}
+              </div>
             </div>
-            <h2>{store.bhNavn}</h2>
-            <div class="response-meta">
-              {#if bhDate}<span>Svart {bhDate}</span>{/if}
-              {#if bhAnsweredRevision != null}
-                <span>
-                  {bhAnsweredRevision === 0
-                    ? 'Svar på opprinnelig innsending'
-                    : `Svar på rev. ${bhAnsweredRevision}`}
-                </span>
-              {/if}
-            </div>
+            <span class="font-mono context-ref">{d.teRef}</span>
           </div>
-          <span class="font-mono context-ref">{d.teRef}</span>
-        </div>
-        <div class="bh-context-body">
-          <p class:clamped={!bhContextExpanded && d.bhText.length > 420} class="bh-text">
-            {d.bhText}
-          </p>
-          {#if d.bhText.length > 420}
-            <button
-              class="read-context-button"
-              onclick={() => (bhContextExpanded = !bhContextExpanded)}
-            >
-              {#if bhContextExpanded}<ChevronUp size={13} /> Vis mindre
-              {:else}<BookOpen size={13} /> Les hele vurderingen{/if}
-            </button>
-          {/if}
-        </div>
-      </section>
+          <div class="bh-context-body">
+            <p class:clamped={!bhContextExpanded && d.bhText.length > 420} class="bh-text">
+              {d.bhText}
+            </p>
+            {#if d.bhText.length > 420}
+              <button
+                class="read-context-button"
+                onclick={() => (bhContextExpanded = !bhContextExpanded)}
+              >
+                {#if bhContextExpanded}<ChevronUp size={13} /> Vis mindre
+                {:else}<BookOpen size={13} /> Les hele vurderingen{/if}
+              </button>
+            {/if}
+          </div>
+        </section>
+      {/if}
 
       <div class="revision-notice">
         <span class="notice-mark" aria-hidden="true"></span>

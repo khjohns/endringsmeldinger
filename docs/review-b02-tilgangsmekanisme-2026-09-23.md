@@ -358,7 +358,7 @@ poolgjenbruk gjennom Supavisor må prøves før T2 erklæres verifisert.
 
 **Sted:** designets avsnitt 7–8;
 [`database` i CI](../.github/workflows/ci.yml),
-[`testbase`-fixturen](../backend/tests/test_database/conftest.py) og F1 i hovedplanen.
+[`testbase`-fixturen](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/conftest.py) og F1 i hovedplanen.
 
 Testplanen mangler en eksplisitt rad for F1-akseptkriteriet **«Migrering og
 break-glass er separat, tidsavgrenset og logget»**. `pgaudit` og `VALID UNTIL`

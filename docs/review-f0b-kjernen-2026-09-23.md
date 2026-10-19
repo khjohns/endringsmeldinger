@@ -108,7 +108,7 @@ repositorietester allerede. `container_mot_testbasen` beviser i dag bare at
 ## RK-03 — resettestens to feil skjuler hverandre
 
 **Fil og symbol:** [`lib/db/database.py`](../backend/lib/db/database.py),
-`_er_ren`; [`test_kjerne.py`](../backend/tests/test_database/test_kjerne.py),
+`_er_ren`; [`test_kjerne.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py),
 `test_kontekst_satt_paa_sesjonsniva_kastes_med_forbindelsen`.
 
 Resettesten setter både rolle og krav på sesjonsnivå. Dermed blir forbindelsen
@@ -128,7 +128,7 @@ felt, som i vedlegget. Det krever ingen produksjonsendring.
 
 **Fil og symbol:** [`lib/db/database.py`](../backend/lib/db/database.py),
 `Database._kjor`; `test_transaksjon_som_er_avsluttet_i_blokken_avvises` i
-[`test_kjerne.py`](../backend/tests/test_database/test_kjerne.py).
+[`test_kjerne.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py).
 
 Gjennomføringsnotatet sier allerede at rå `COMMIT` kan ha committet før kjernen
 melder feil. Forsøket utvider denne kjente begrensningen (K):
@@ -373,7 +373,7 @@ containertestene faktisk beviser.
 ### RK-03: RM01 og RM02 blir nå røde
 
 **Fil/symbol:** [`_er_ren`](../backend/lib/db/database.py),
-[`test_hver_sesjonsrest_alene_kastes_med_forbindelsen`](../backend/tests/test_database/test_kjerne.py)
+[`test_hver_sesjonsrest_alene_kastes_med_forbindelsen`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py)
 og den opprinnelige
 [`test_reset_kontrollerer_hvert_felt_alene`](vedlegg/review-f0b-kjernen-2026-09-23/test_review.py).
 Uten mutasjon består begge feltvariantene i begge testene. En isolert
@@ -402,7 +402,7 @@ til `55ad006` og skal ikke brukes uendret som grønn port for `754c07e` (L).
 ### RK-04: xfail er ærlig, og en tekstvakt bør være fase 2-port
 
 **Fil/symbol:**
-[`test_raa_commit_og_begin_i_blokken_etterlater_ingenting`](../backend/tests/test_database/test_kjerne.py)
+[`test_raa_commit_og_begin_i_blokken_etterlater_ingenting`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_kjerne.py)
 og [`Database._kjor`](../backend/lib/db/database.py).
 
 Den strenge xfail-testen feiler på riktig assertion: uavhengig lesing finner

@@ -23,7 +23,7 @@ ruff check backend/                  # porten, skal være 0
 headeren til `server/start.ts`. Vite-proxyen sender det `tilTsServeren()` i
 `server/ruting.ts` velger, dit (F0b-8), og resten av `/api` til Python.
 
-I skyøktene lager `.claude/hooks/session-start.sh` venv-en og testbasen, og meldingen fra hooken sier om databasetestene kjører.
+I skyøktene lager `.claude/hooks/session-start.sh` venv-en og testbasen, og meldingen fra hooken sier om kjernens lagringstester mot PostgreSQL kjører.
 
 SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med
 `scripts/testbase/docker_sqlserver.sh`, og den setter `KOE_SQLSERVER_TILKOBLING`
