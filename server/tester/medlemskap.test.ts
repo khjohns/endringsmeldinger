@@ -999,11 +999,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         deaktivert: 1,
       });
       // En liste hentet etter at denne hentingen begynte, skrives først (DL-U7).
+      let hentet: Date | undefined;
       const senere = await synkroniserProsjekt(kjoeretid.pool, p.id, async () => {
-        expect(await synk(p, [a], await basensKlokke(base.pool))).toBe(true);
+        hentet = await basensKlokkeEtter(base.pool, (await synkrad(p.id)).synced_at);
+        expect(await synk(p, [a], hentet)).toBe(true);
         return [];
       });
       expect(senere).toEqual({ skrevet: false, medlemmer: 0, deaktivert: 0 });
+      expect((await synkrad(p.id)).synced_at).toEqual(hentet);
       expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
 

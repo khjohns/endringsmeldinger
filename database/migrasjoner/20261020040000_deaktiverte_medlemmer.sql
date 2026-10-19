@@ -1,11 +1,10 @@
 -- `koe_api.synkroniser_medlemskap` returnerer i `@deaktivert` hvor mange
 -- medlemskap listen gjorde inaktive (#825 punkt 1). Tallet telles under applåsen
--- og i samme transaksjon som skrivingen, så `deactivated` i `POST /members/sync`
--- ikke lenger regnes fra en lesing før skrivingen. Det er 0 når listen ikke
--- skrives (DL-U7).
+-- og i samme transaksjon som skrivingen, og er `deactivated` i
+-- `POST /members/sync` i TS-serveren. Det er 0 når listen ikke skrives (DL-U7).
 --
--- `@deaktivert` har standardverdien NULL, så et kall uten parameteren virker som
--- før. Ellers har prosedyren samme argumenter, rettigheter og virkning som i
+-- `@deaktivert` har standardverdien NULL, så et kall uten parameteren er gyldig.
+-- Ellers har prosedyren samme argumenter, rettigheter og virkning som i
 -- `20261016180000_fravaer.sql`.
 
 CREATE OR ALTER PROCEDURE koe_api.synkroniser_medlemskap
