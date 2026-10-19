@@ -62,8 +62,9 @@
 
   type MobileView = 'matrix' | 'detail';
 
-  // Rollen i en TS-sak er leserens side fra serveren, ikke rollebryteren (#705, #718).
-  let role: Role = $state(kjernesak?.part ?? readPreferredRole());
+  let valgtRolle: Role = $state(readPreferredRole());
+  // Rollen i en TS-sak er leserens side fra serveren, og ingen uten side (#705, #872).
+  const role: Role | null = $derived(kjernesak ? kjernesak.part : valgtRolle);
   let sel: SporKey = $state('vederlag');
   let rTab: RightTab = $state('bestemmelser');
   let mode: Mode = $state('read');
@@ -79,6 +80,17 @@
   let showWithdrawModal = $state(false);
   let letterEvent: TimelineEvent | null = $state(null);
   let creatingCase = $state(false);
+  const visVarsel = $derived(Boolean(kjernesak?.submissionError) && mode === 'read');
+  let varselhoeyde = $state(0);
+  // Høyden følger teksten og bredden. Uten ResizeObserver (jsdom) måles den én gang.
+  const maalVarsel = (node: HTMLElement) => {
+    const maal = () => (varselhoeyde = node.offsetHeight);
+    maal();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observator = new ResizeObserver(maal);
+    observator.observe(node);
+    return { destroy: () => observator.disconnect() };
+  };
   let newCaseActions = $state<{
     canSend: boolean;
     sendLabel: string;
@@ -99,19 +111,21 @@
   );
   // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
   // ikke kjernen lenger det første kravet, men skjemaet skal fullføre sendingen (#737 p4).
+  // Mens brevet kontrolleres og sendes, står det også når visningen bytter spor (#872).
   let kjerneskjemaAapent = $state(false);
   $effect(() => {
-    if (mode !== 'form' || sel !== 'vederlag') kjerneskjemaAapent = false;
-    else if (kjerneskjema) kjerneskjemaAapent = true;
+    if (mode === 'form' && kjerneskjema) kjerneskjemaAapent = true;
+    else if ((mode !== 'form' || sel !== 'vederlag') && !kravkontroll?.sender)
+      kjerneskjemaAapent = false;
   });
-  const visKjerneskjema = $derived(kjerneskjema || (sel === 'vederlag' && kjerneskjemaAapent));
+  const visKjerneskjema = $derived.by(
+    () => (mode === 'form' && kjerneskjema) || kjerneskjemaAapent
+  );
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   $effect(() => {
-    if (kjernesak) {
-      if (kjernesak.part) role = kjernesak.part;
-    } else if (view) {
-      role = view.role;
+    if (!kjernesak && view) {
+      valgtRolle = view.role;
       savePreferredRole(view.role);
     }
     if (view) {
@@ -132,13 +146,14 @@
     });
   });
 
+  // En TS-sak leser ikke rollen fra visningen; uten side står den lagrede i URL-en.
   function notifyView() {
-    onviewchange?.({ track: sel, mode, role });
+    onviewchange?.({ track: sel, mode, role: role ?? valgtRolle });
   }
 
   function changeRole(next: Role) {
     if (kjernesak) return;
-    role = next;
+    valgtRolle = next;
     savePreferredRole(next);
     mode = 'read';
     formActions = null;
@@ -185,6 +200,17 @@
     notifyView();
   }
 
+  /** Avbryt i skjemaet. Feilen fra en avvist sending står ikke etterpå (#719). */
+  function avbrytSkjema() {
+    kjernesak?.kjernesak.fjernFeil();
+    goRead();
+  }
+
+  function tilbake() {
+    if (mode === 'form') kjernesak?.kjernesak.fjernFeil();
+    goMatrix();
+  }
+
   function goRead() {
     mode = 'read';
     rTab = 'bestemmelser';
@@ -219,7 +245,7 @@
       onnewcase();
       return;
     }
-    role = 'TE';
+    valgtRolle = 'TE';
     creatingCase = true;
     mode = 'read';
     mobileView = 'detail';
@@ -240,36 +266,37 @@
 </script>
 
 <div class="mockup" class:dark>
-  <div class="shell">
+  <div class="shell" style:--varselhoeyde="{visVarsel ? varselhoeyde : 0}px">
     <!-- En TS-sak viser leserens side fra serveren, og ingen side uten den (#732 p6). -->
     <Header
-      role={kjernesak ? kjernesak.part : role}
+      {role}
       {mode}
       {dark}
       {mobileView}
       {creatingCase}
       onrolechange={changeRole}
       {overviewHref}
-      onback={creatingCase ? closeNewCase : goMatrix}
+      onback={creatingCase ? closeNewCase : tilbake}
       onnewcase={startNewCase}
       ondarkchange={(v) => {
         dark = v;
         saveDarkMode(v);
       }}
+      varsel={visVarsel ? innsendingsvarsel : undefined}
     />
+    <!-- I hodet, så varselet også vises i matrisen på mobil (#719 p10), og med hodets forskyvning (#872). -->
+    {#snippet innsendingsvarsel()}
+      <div class="approval-entry" use:maalVarsel>
+        <p role="alert">{kjernesak?.submissionError}</p>
+      </div>
+    {/snippet}
 
     {#if !store.isDemo && !kjernesak && !creatingCase}
       <CatendaSyncNotice status={store.catendaSyncStatus} />
     {/if}
 
     {#if !store.isDemo && !kjernesak && !creatingCase && mode === 'read'}
-      <EndringsordreLink state={store.sak} projectId={store.projectId} {role} />
-    {/if}
-    <!-- Over panelene, så varselet også vises i matrisen på mobil (#719 p10). -->
-    {#if kjernesak?.submissionError && mode === 'read'}
-      <div class="approval-entry innsendingsvarsel">
-        <p role="alert">{kjernesak.submissionError}</p>
-      </div>
+      <EndringsordreLink state={store.sak} projectId={store.projectId} role={valgtRolle} />
     {/if}
     <div class="body">
       {#if !creatingCase}
@@ -306,16 +333,12 @@
             </div>
           {/if}
           {#if kravkontroll?.letter}
-            {#key kravkontroll.letter}
-              <Brevkontroll
-                tekst={kravkontroll.letter.tekst}
-                utdypning={kravkontroll.letter.utdypning}
-                tittel={kravkontroll.letter.tittel}
-                beskrivelse="Kravet sendes først når du bekrefter."
-                onbekreft={kravkontroll.confirm}
-                onavbryt={kravkontroll.cancel}
-              />
-            {/key}
+            <Brevkontroll
+              brev={kravkontroll.letter}
+              beskrivelse="Kravet sendes først når du bekrefter."
+              onbekreft={kravkontroll.confirm}
+              onavbryt={kravkontroll.cancel}
+            />
           {/if}
           <ClaimLetterView review={claimReview} />
           <!-- Hidden, not unmounted, while the letter is checked: the form's submission resumes on confirm. -->
@@ -337,6 +360,8 @@
                 onsend={handleNewCaseSend}
                 onactions={(actions) => (newCaseActions = actions)}
               />
+            {:else if visKjerneskjema}
+              <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {:else if mode === 'read'}
               <CenterRead
                 {sel}
@@ -344,8 +369,6 @@
                 onform={goForm}
                 onbacktonow={() => (activeEvent = null)}
               />
-            {:else if visKjerneskjema}
-              <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
             {:else if kjernesak}
               <div class="approval-entry">
                 <p role="status">Dette skjemaet finnes ikke for saken ennå.</p>
@@ -408,7 +431,7 @@
                 {role}
                 {sel}
                 hasDraft={store.getUI(sel).draft !== null}
-                oncloseform={goRead}
+                oncloseform={avbrytSkjema}
                 onform={goForm}
                 ontogglecontext={() => (rightPanelOpen = !rightPanelOpen)}
                 onsend={() => formActions?.send()}
@@ -493,14 +516,6 @@
     background: var(--surface);
     font-size: 12px;
   }
-  /* Står ved siden av venstrekolonnen og over `.body`, som trekkes opp under hodet. */
-  .innsendingsvarsel {
-    width: calc(100% - var(--mockup-sidebar-width));
-    margin-left: var(--mockup-sidebar-width);
-    position: relative;
-    z-index: 30;
-    flex-shrink: 0;
-  }
   .approval-entry span {
     display: block;
     margin-top: 4px;
@@ -525,17 +540,18 @@
     background: var(--canvas);
     position: relative;
   }
+  /* Venstrekolonnen går opp ved siden av hodet, som er topplinjen og varselet. */
   .body {
-    margin-top: calc(-1 * var(--mockup-topbar-height));
+    margin-top: calc(-1 * (var(--mockup-topbar-height) + var(--varselhoeyde)));
   }
   .center {
-    padding-top: var(--mockup-topbar-height);
+    padding-top: calc(var(--mockup-topbar-height) + var(--varselhoeyde));
   }
   .right-panel {
     display: flex;
     flex-direction: column;
     min-width: var(--mockup-drawer-width);
-    padding-top: var(--mockup-topbar-height);
+    padding-top: calc(var(--mockup-topbar-height) + var(--varselhoeyde));
   }
   .right-panel-inner {
     display: flex;
@@ -576,10 +592,6 @@
     }
     .body {
       margin-top: 0;
-    }
-    .innsendingsvarsel {
-      width: 100%;
-      margin-left: 0;
     }
     .center {
       padding-top: 0;

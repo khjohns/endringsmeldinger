@@ -3,7 +3,7 @@
  * vert under `/api/kjerne/`, med samme sesjon og CSRF-token som resten av appen.
  */
 
-import { ApiError, apiFetch, projectHeaders } from '$lib/api/client';
+import { ApiError, apiFetch } from '$lib/api/client';
 import type { Journalrad, Part } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
@@ -62,37 +62,36 @@ export const erUsikkertUtfall = (e: unknown) =>
 
 const sti = (sakId: string) => `${SAKER}/${encodeURIComponent(sakId)}`;
 
-/** Prosjektet fra ruta går med, så saken ikke leses i et annet aktivt prosjekt. */
-export const hentKjernesak = (sakId: string, prosjektId?: string) =>
-  apiFetch<Kjernesak>(sti(sakId), { headers: projectHeaders(prosjektId) });
-
 /**
- * Oppretter saken i prosjektet fra ruta, eller det aktive. Serveren lager
- * saks-ID-en og stempler aktøren og tidspunktet.
+ * Prosjektet fra ruta er påkrevd i hvert kall og erstatter alltid det aktive (#743), så
+ * saken ikke leses eller skrives i et annet prosjekt. En tom streng avvises av serveren.
  */
-export const opprettSak = (kommandoId: string, kommando: unknown, prosjektId?: string) =>
+const prosjekthode = (prosjektId: string) => ({ 'X-Project-ID': prosjektId });
+
+export const hentKjernesak = (sakId: string, prosjektId: string) =>
+  apiFetch<Kjernesak>(sti(sakId), { headers: prosjekthode(prosjektId) });
+
+/** Oppretter saken i prosjektet. Serveren lager saks-ID-en og stempler aktøren og tidspunktet. */
+export const opprettSak = (kommandoId: string, kommando: unknown, prosjektId: string) =>
   apiFetch<{ sak_id: string; versjon: number }>(SAKER, {
     method: 'POST',
-    headers: projectHeaders(prosjektId),
+    headers: prosjekthode(prosjektId),
     body: JSON.stringify({ kommando_id: kommandoId, kommando }),
   });
 
-/**
- * Kommandoen sendes med versjonen skjemaet så, til prosjektet fra ruta eller det
- * aktive. Aktøren og tidspunktet settes av serveren.
- */
+/** Kommandoen sendes med versjonen skjemaet så. Aktøren og tidspunktet settes av serveren. */
 export const sendKommando = (
   sakId: string,
   expectedVersion: number,
   kommandoId: string,
   kommando: unknown,
-  prosjektId?: string
+  prosjektId: string
 ) =>
   apiFetch<{ event_id: string; leveringsoppdrag: string; versjon: number }>(
     `${sti(sakId)}/kommandoer`,
     {
       method: 'POST',
-      headers: projectHeaders(prosjektId),
+      headers: prosjekthode(prosjektId),
       body: JSON.stringify({
         expected_version: expectedVersion,
         kommando_id: kommandoId,
