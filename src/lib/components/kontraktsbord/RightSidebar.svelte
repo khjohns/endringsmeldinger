@@ -32,7 +32,7 @@
   } = $props();
 
   const ui = $derived(store.getUI(sel));
-  const best = $derived(sporBestemmelser(sel));
+  const best = $derived(sporBestemmelser(sel, store.sak.grunnlag.underkategori));
 
   const readTabs: RightTab[] = ['bestemmelser', 'historikk', 'vedlegg'];
   const formTabs: RightTab[] = ['bestemmelser', 'historikk', 'filer'];
@@ -80,7 +80,11 @@
 
   <div class="tab-content">
     {#if tab === 'bestemmelser'}
-      <p class="provisions-intro">Bestemmelser for dette sporet. Åpne dem du vil lese.</p>
+      {#if best.length > 0}
+        <p class="provisions-intro">Bestemmelser for dette sporet. Åpne dem du vil lese.</p>
+      {:else}
+        <p class="provisions-intro">Sakens kategori har ingen bestemmelse for dette sporet.</p>
+      {/if}
       {#key sel}
         {#each best as b, i (b.ref)}
           <details class="provision" open={i === 0}>
