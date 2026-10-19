@@ -659,6 +659,22 @@ BEGIN TRANSACTION;`,
     expect(await tabeller()).toEqual([]);
   });
 
+  it('en feil i historikkraden som ikke avbryter satsen, committer ikke fila (#884)', async () => {
+    // RAISERROR avbryter ikke satsen, heller ikke med XACT_ABORT.
+    const m = mappe({
+      [A]: [
+        'CREATE TABLE dbo.prove_a (id int NOT NULL);',
+        'GO',
+        "CREATE TRIGGER koe_migrering.prove_stopp ON koe_migrering.historikk AFTER INSERT AS RAISERROR (N'stoppet', 16, 1);",
+      ].join('\n'),
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, historikkraden: stoppet\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
+    );
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
+  });
+
   it('lagrer versjonen, filnavnet og sha256 av hele fila', async () => {
     const m = mappe({ [A]: '-- en kommentar\nCREATE TABLE dbo.prove_a (id int NOT NULL);' });
     const [fil] = lesMigrasjoner(m);
