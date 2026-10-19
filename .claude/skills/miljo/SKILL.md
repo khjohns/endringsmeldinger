@@ -30,7 +30,9 @@ SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med
 med en gang. Testene i `server/tester/sqlserver.test.ts` venter på serveren i
 opptil tre minutter og hoppes over uten variabelen. Hver testfil får sin egen
 base fra `opprettTestbase` i `server/tester/sqlserver.ts`, med innstillingene fra
-Azure SQL Database. Loggen står i `/tmp/koe-sqlserver.log`. Utenfor skyøkta:
+Azure SQL Database. `globalSetup` bygger malen bare når en fil fra `server/` er
+med i kjøringen. En fullført mal brukes uten lås. Loggen står i
+`/tmp/koe-sqlserver.log`. Utenfor skyøkta:
 
 ```bash
 eval "$(scripts/testbase/docker_sqlserver.sh start)"   # setter KOE_SQLSERVER_TILKOBLING
@@ -83,10 +85,11 @@ parallelle kopier av treet med hver sin testbase. Én kjøring tar lang tid; sta
 den i bakgrunnen. Med `--ankre` kontrollerer den bare at teksten hver
 feilinnføring bytter ut, finnes nøyaktig én gang, og at hvert mål er en del av
 navnet på en test, lest med `vitest list`. Det tar sekunder, og
-leveranseskillen sier når det kjøres. I CI fordeler workflowen `feilinnfoering.yml` dem på tre
+leveranseskillen sier når det kjøres. I CI fordeler workflowen `feilinnfoering.yml` dem på seks
 jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
-`feilinnfoering`.
+`feilinnfoering`. Med `FEILINNFOERING_UTVALG=1` kjører hver mutasjon bare filene med
+målene sine, slik CI gjør på en PR. Uten den kjøres hele samlingen, som om natta.
 
 Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt. `--ankre`
 trenger ikke basen.
