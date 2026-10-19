@@ -30,6 +30,25 @@ const team = () => randomBytes(16).toString('hex');
 const TE1 = team();
 
 /**
+ * Policyen, funksjonene og visningene i `koe_sikkerhet`, og funksjonene og
+ * visningene de leser, i hvilket som helst skjema (#673). `sti` er objektene på
+ * veien hit, så en funksjon som kaller seg selv eller en ring av funksjoner,
+ * ikke gir feil 530 (#871).
+ */
+const SIKKERHET = `
+WITH sikkerhet AS (
+  SELECT object_id, CAST(CONCAT(N'/', object_id, N'/') AS nvarchar(max)) AS sti FROM sys.objects
+   WHERE OBJECT_SCHEMA_NAME(object_id) = N'koe_sikkerhet' AND type IN ('FN', 'IF', 'TF', 'V')
+  UNION SELECT object_id, CAST(CONCAT(N'/', object_id, N'/') AS nvarchar(max)) FROM sys.security_policies
+  UNION ALL
+  SELECT d.referenced_id, CAST(CONCAT(s.sti, d.referenced_id, N'/') AS nvarchar(max))
+    FROM sys.sql_expression_dependencies d JOIN sikkerhet s ON s.object_id = d.referencing_id
+    JOIN sys.objects o ON o.object_id = d.referenced_id
+   WHERE o.type IN ('FN', 'IF', 'TF', 'V') AND d.referenced_minor_id = 0
+     AND CHARINDEX(CONCAT(N'/', d.referenced_id, N'/'), s.sti) = 0
+)`;
+
+/**
  * Katalogvakten (#608, #643). En tekstkolonne trenger kontrollen mot mellomrom
  * til slutt når den sammenliknes med `=`: i en indeksnøkkel, i en fremmednøkkel
  * (begge sider), i en kontroll som godtar en lukket mengde verdier, eller når
@@ -40,16 +59,7 @@ const TE1 = team();
  * slik basen normaliserer den.
  */
 const TEKSTKOLONNER = `
-WITH sikkerhet AS (
-  SELECT object_id FROM sys.objects
-   WHERE OBJECT_SCHEMA_NAME(object_id) = N'koe_sikkerhet' AND type IN ('FN', 'IF', 'TF')
-  UNION SELECT object_id FROM sys.security_policies
-  UNION ALL
-  SELECT d.referenced_id
-    FROM sys.sql_expression_dependencies d JOIN sikkerhet s ON s.object_id = d.referencing_id
-    JOIN sys.objects o ON o.object_id = d.referenced_id
-   WHERE o.type IN ('FN', 'IF', 'TF', 'V') AND d.referenced_minor_id = 0
-)
+${SIKKERHET}
 SELECT OBJECT_SCHEMA_NAME(c.object_id) + N'.' + OBJECT_NAME(c.object_id) + N'.' + c.name AS kolonne,
        TYPE_NAME(c.system_type_id) AS type, c.max_length AS bytes, c.collation_name AS sortering,
        CAST(IIF(EXISTS (SELECT 1 FROM sys.index_columns ic
@@ -72,15 +82,7 @@ SELECT OBJECT_SCHEMA_NAME(c.object_id) + N'.' + OBJECT_NAME(c.object_id) + N'.' 
  * leser, i hvilket som helst skjema (#673).
  */
 const UBUNDNE_SIKKERHETSFUNKSJONER = `
-WITH sikkerhet AS (
-  SELECT object_id FROM sys.objects
-   WHERE OBJECT_SCHEMA_NAME(object_id) = N'koe_sikkerhet' AND type IN ('FN', 'IF', 'TF')
-  UNION ALL
-  SELECT d.referenced_id
-    FROM sys.sql_expression_dependencies d JOIN sikkerhet s ON s.object_id = d.referencing_id
-    JOIN sys.objects o ON o.object_id = d.referenced_id
-   WHERE o.type IN ('FN', 'IF', 'TF', 'V') AND d.referenced_minor_id = 0
-)
+${SIKKERHET}
 SELECT DISTINCT OBJECT_SCHEMA_NAME(m.object_id) + N'.' + OBJECT_NAME(m.object_id) AS funksjon
   FROM sys.sql_modules m
  WHERE m.object_id IN (SELECT object_id FROM sikkerhet) AND m.is_schema_bound = 0`;
@@ -328,6 +330,22 @@ function uholdbareGrunner(k: Katalog, grunner: Record<string, Grunn> = UTEN_KONT
 }
 
 /**
+ * Kontrollene som prøver en kolonne med en av `MALER` med `LEN`. «Tom» er da
+ * ingen byte, som i prosedyrene (`DATALENGTH`): `LEN` ser bort fra mellomrom til
+ * slutt, og en verdi av bare mellomrom får navnet på feil kontroll i 547 (#704).
+ */
+function tomMedLen(k: Katalog): string[] {
+  return k.kolonner
+    .filter((c) => former(k, c.kolonne).length > 0)
+    .flatMap((c) => {
+      const len = new RegExp(`\\blen\\(\\[${iRegExp(del(c.kolonne)[1])}\\]\\)`);
+      return kontrollerPaa(k, c.kolonne).filter((kt) => len.test(kt.definisjon));
+    })
+    .map((kt) => kt.navn)
+    .sort();
+}
+
+/**
  * Kontrollene som heter `…_tegnklasse`, men ikke er den kontrollen på sin
  * kolonne, på og betrodd, og de som fortsatt heter `…_uten_mellomrom` (#609).
  */
@@ -547,6 +565,15 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
     );
     expect(krav(k)).toEqual(['koe.projects.id']);
     expect(uthulteKontroller(k)).toEqual(['projects_id_uten_mellomrom']);
+  });
+
+  it('«ikke tom» med LEN på en kolonne med tegnklassen gir avvik, med DATALENGTH ikke (#704)', () => {
+    const k = katalog();
+    k.kontroller.push(kontroll('koe.projects', 'id', '(len([id])>(0))', 'projects_id'));
+    k.kontroller.push(kontroll('koe.projects', 'name', '(len([name])>(0))', 'projects_name'));
+    expect(tomMedLen(k)).toEqual(['projects_id']);
+    k.kontroller.at(-2)!.definisjon = '(datalength([id])>(0))';
+    expect(tomMedLen(k)).toEqual([]);
   });
 
   it('en kolonne med en annen sortering enn den binære gir avvik (#609)', () => {
@@ -1022,6 +1049,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
     ).toEqual([]);
     expect(uthulteKontroller(k)).toEqual([]);
     expect(utenBinaerSortering(k), 'kolonnen har en annen sortering enn BIN2').toEqual([]);
+    expect(tomMedLen(k), 'kontrollen prøver «tom» med LEN, ikke DATALENGTH').toEqual([]);
   });
 
   it('kontrollsak: hver kjent hendelsestype og sakstype passer kontrollene på kolonnen i katalogen (#609)', async () => {
@@ -1083,6 +1111,40 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
       expect(ubundne.map((r) => r.funksjon).sort()).toEqual([
         'koe_proeve.ubundet',
         'koe_sikkerhet.proeve_ubundet',
+      ]);
+    } finally {
+      await tx.rollback();
+    }
+  });
+
+  it('katalogvakten følger en visning i koe_sikkerhet og stanser i en ring av funksjoner (#871)', async () => {
+    const tx = new sql.Transaction(base.pool);
+    await tx.begin();
+    try {
+      const kjoer = (s: string) => new sql.Request(tx).batch(s);
+      await kjoer('CREATE SCHEMA koe_proeve');
+      await kjoer('CREATE TABLE koe_proeve.t (sett nvarchar(10) NULL, usett nvarchar(10) NULL)');
+      await kjoer(`CREATE VIEW koe_sikkerhet.proeve WITH SCHEMABINDING AS
+                   SELECT sett FROM koe_proeve.t`);
+      await kjoer(`CREATE FUNCTION koe_sikkerhet.ring(@n int) RETURNS int AS
+                   BEGIN RETURN 0 END`);
+      await kjoer(`CREATE FUNCTION koe_proeve.ring(@n int) RETURNS int AS
+                   BEGIN RETURN koe_sikkerhet.ring(@n - 1) END`);
+      await kjoer(`ALTER FUNCTION koe_sikkerhet.ring(@n int) RETURNS int AS
+                   BEGIN RETURN IIF(@n > 0, koe_proeve.ring(@n), 0) END`);
+      const kolonner = (await new sql.Request(tx).query(TEKSTKOLONNER)).recordset;
+      expect(
+        kolonner
+          .filter((c) => c.kolonne.startsWith('koe_proeve.'))
+          .map((c) => [c.kolonne, c.i_sikkerhet])
+      ).toEqual([
+        ['koe_proeve.t.sett', true],
+        ['koe_proeve.t.usett', false],
+      ]);
+      const ubundne = (await new sql.Request(tx).query(UBUNDNE_SIKKERHETSFUNKSJONER)).recordset;
+      expect(ubundne.map((r) => r.funksjon).sort()).toEqual([
+        'koe_proeve.ring',
+        'koe_sikkerhet.ring',
       ]);
     } finally {
       await tx.rollback();

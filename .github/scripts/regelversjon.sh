@@ -21,7 +21,8 @@
 #    enn FORMAT. Kontrollen ser på diffen mot BASE, ikke på hva som er rullet
 #    ut; en PR som både leser og skriver et nytt format, feiler.
 #
-# Lokalt: BASE=<sha> .github/scripts/regelversjon.sh
+# Lokalt: BASE=<sha> .github/scripts/regelversjon.sh. I CI er BASE tuppen av
+# basegrenen når jobben kjører, eller tuppen før pushen til main (#870).
 set -u
 
 if [ -z "${BASE:-}" ]; then

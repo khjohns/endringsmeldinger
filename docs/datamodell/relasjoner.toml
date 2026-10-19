@@ -915,6 +915,7 @@ Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøke
 over, etter kvitteringen, så det er ingen fremmednøkkel."""
 funn = []
 belegg = "L 18.10: `database/migrasjoner/20261020020000_vedleggslevering.sql`."
+
 [[relasjon]]
 fra = "koe.toemmingsvern.app_identities_id"
 til = "koe.app_identities.id"
@@ -994,7 +995,7 @@ art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
 funn = []
-belegg = "K 19.10: katalogen."
+belegg = "L 19.10: `database/migrasjoner/20261020021000_vedleggskvittering_vern.sql`. K 19.10: katalogen."
 
 [[relasjon]]
 fra = ["koe.sak_catenda_topic.sak_id", "koe.sak_catenda_topic.prosjekt_id"]

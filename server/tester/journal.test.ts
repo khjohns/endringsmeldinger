@@ -69,8 +69,9 @@ const UTEN_TRIGGER: Record<string, string> = {
 };
 
 /**
- * Tabellene utenfor triggerne som heller ikke skal kunne tømmes: jobbene og
- * forsøkene (#741) og vedleggene, der et bundet vedlegg ikke kan slettes (#790).
+ * Tabellene utenfor triggerne som heller ikke skal kunne tømmes: jobbene (#741)
+ * og vedleggene, der et bundet vedlegg ikke kan slettes (#790). Forsøkene
+ * (`jobbforsoek`) har triggeren og dekkes gjennom triggerlista.
  */
 const OGSAA_UTEN_TOEMMING = ['jobb', 'vedlegg'];
 
