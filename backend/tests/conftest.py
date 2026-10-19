@@ -44,6 +44,18 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(skip_live)
 
 
+@pytest.fixture(autouse=True)
+def ts_skrivesti_av(monkeypatch):
+    """Testene kjører med TS-skrivestien av, også når backend/.env slår den på (#692).
+
+    Med bryteren på avviser Python-lageret hver hendelse (B-17), og resten av suiten
+    blir rød uten at noe peker på årsaken. En test som prøver bryteren, slår den på selv.
+    """
+    from core.config import settings
+
+    monkeypatch.setattr(settings, "ts_skrivesti", False)
+
+
 @pytest.fixture
 def app():
     """Create Flask app configured for testing"""
