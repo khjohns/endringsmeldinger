@@ -29,28 +29,22 @@ import {
   krevSesjon,
   lesKontraktsside,
   Nektet,
+  UTEN_STI,
   type Bruker,
   type FraSti,
   type Catenda,
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import {
-  feilnummer,
-  UgyldigKontekst,
-  UsikkertUtfall,
-  UUID,
-  type Pool as Datalag,
-} from './datalag.ts';
+import { UsikkertUtfall, UUID, type Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
-import { fast, loggFeil, svarhoder } from './inngang.ts';
+import { fast, lagret, lesInntil, loggFeil, reserveFor, svarhoder } from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
 import { lesSaken } from './lager.ts';
 import {
   IngenTopicBoard,
   KommandoIdBrukt,
   kommandosum,
-  LaasFeilet,
   LaasIkkeGitt,
   opprettSak,
   SakFinnesIkke,
@@ -137,11 +131,6 @@ interface Felles {
   eksempel: (id: string) => string;
   /** Hoder på hvert svar fra inngangen, også en avvisning. */
   hoder?: Record<string, string>;
-  /**
-   * Inngangen skriver en kommando med kommando-ID (#418). Kan ikke svaret skrives
-   * etter at skrivingen kan ha begynt, er utfallet usikkert (oppdragsgiver 19.10, #816 p1).
-   */
-  kommando?: true;
 }
 
 type Behandler<F> = (f: F, avh: Required<Avhengigheter>) => Promise<Svar>;
@@ -201,15 +190,9 @@ const STORSTE_KROPP = 1_000_000;
 async function lesKropp(
   foresporsel: IncomingMessage
 ): Promise<{ verdi: unknown } | { feil: Nektet }> {
-  const deler: Buffer[] = [];
-  let storrelse = 0;
-  for await (const del of foresporsel) {
-    storrelse += (del as Buffer).length;
-    if (storrelse > STORSTE_KROPP)
-      return { feil: new Nektet(413, 'PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.') };
-    deler.push(del as Buffer);
-  }
-  const tekst = Buffer.concat(deler).toString('utf8');
+  const kropp = await lesInntil(foresporsel, STORSTE_KROPP);
+  if (!kropp) return { feil: new Nektet(413, 'PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.') };
+  const tekst = kropp.toString('utf8');
   if (!tekst) return { verdi: {} };
   let verdi: unknown;
   try {
@@ -273,23 +256,21 @@ const utfallUsikkert = () =>
   );
 
 /**
- * Svaret på en feil fra skrivelaget, felles for inngangene (#743). En feil uten egen
- * kode er et usikkert utfall, for skrivingen kan ha begynt (oppdragsgiver 19.10, #816).
+ * Svaret på en feil fra skrivelaget, felles for inngangene (#743). Skrivingen går i
+ * én `transaksjon()`, som ruller tilbake når arbeidet kaster eller COMMIT ikke
+ * sendes. Bare `UsikkertUtfall` (COMMIT uten svar) og `LaasIkkeGitt` (et annet
+ * forsøk med samme ID kan committe) lar utfallet være uvisst. Hver annen feil er
+ * kjent, med ingenting lagret, og gir 500 med en feilkode, ikke «Prøv igjen»
+ * (oppdragsgiver 19.10, svar 3 i #764; #877 #893-1 og #893-2).
  */
 function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
   if (feil instanceof KommandoIdBrukt)
     return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
-  // Låsen ble aldri tatt (51407), eller ingen forbindelse ble lånt: ingenting er skrevet.
-  if (feil instanceof LaasFeilet || feil instanceof UgyldigKontekst) {
-    loggFeil(
-      feil instanceof LaasFeilet ? 'Låsen på kommando-ID-en feilet' : 'Konteksten er ugyldig',
-      feil
-    );
-    return uventet();
-  }
-  return usikkert(feil);
+  if (feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt) return utfallUsikkert();
+  loggFeil('Kommandoen ble ikke lagret', feil);
+  return feilsvar(500, 'INTERNAL_ERROR', 'Kommandoen ble ikke lagret på grunn av en feil.');
 }
 
 /** Kommando-ID-en fra kroppen når den er en UUID med små bokstaver, som basen krever (51422). */
@@ -330,12 +311,7 @@ async function visSaken(
   }
   const { journal, oppdrag, navn, navnefeil } = saken;
   // Et navneoppslag som feiler, gir identiteten (AGENTS.md). Loggen har feilen, ingen navn.
-  if ('navnefeil' in saken) {
-    const klasse = (navnefeil as Error)?.constructor?.name ?? typeof navnefeil;
-    console.warn(
-      `Navneoppslaget i saken ${sakId} feilet (${klasse}, feilnummer ${feilnummer(navnefeil) ?? 'ukjent'})`
-    );
-  }
+  if ('navnefeil' in saken) loggFeil(`Navneoppslaget i saken ${sakId} feilet`, navnefeil, 'warn');
   return [
     200,
     {
@@ -458,15 +434,18 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       sakId
     );
     const tilBrevet = journal.filter((r) => r.versjon <= utfall.rad.versjon);
-    return [
-      201,
-      {
-        success: true,
-        event_id: utfall.rad.event_id,
-        leveringsoppdrag: oppdrag.find((o) => o.event_id === utfall.rad.event_id)?.id ?? null,
-        ...sakenSomVises(tilBrevet, avh.kjerne),
-      },
-    ];
+    return lagret(
+      [
+        201,
+        {
+          success: true,
+          event_id: utfall.rad.event_id,
+          leveringsoppdrag: oppdrag.find((o) => o.event_id === utfall.rad.event_id)?.id ?? null,
+          ...sakenSomVises(tilBrevet, avh.kjerne),
+        },
+      ],
+      utfallUsikkert
+    );
   } catch (feil) {
     // Brevet er lagret; et nytt forsøk får kvitteringen og svaret.
     return usikkert(feil);
@@ -511,7 +490,10 @@ async function opprettNySak(
     // Saken er lagret; et nytt forsøk får kvitteringen og vekker igjen.
     return usikkert(feil);
   }
-  return [201, { success: true, sak_id: utfall.sak_id, versjon: utfall.versjon }];
+  return lagret(
+    [201, { success: true, sak_id: utfall.sak_id, versjon: utfall.versjon }],
+    utfallUsikkert
+  );
 }
 
 const SAK = '([^/]+)';
@@ -534,7 +516,6 @@ const KJERNERUTER: readonly Saksrute[] = [
     sti: new RegExp(`^/api/kjerne/saker/${SAK}/kommandoer$`),
     eksempel: (s) => `/api/kjerne/saker/${s}/kommandoer`,
     tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves' },
-    kommando: true,
     behandle: sendKommando,
   },
 ];
@@ -548,7 +529,6 @@ const OPPRETTELSE: Opprettelsesrute = {
     nySak:
       'Opprettelsen: saken finnes ikke før basen har laget saks-ID-en, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE oppretter (OV-U1, #696).',
   },
-  kommando: true,
   behandle: opprettNySak,
 };
 
@@ -624,12 +604,12 @@ export function lagServer(avh: Avhengigheter) {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i saken.');
     }
     const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, { sakId }, r.fil);
-    const fil = r.fil ? await lesFil(foresporsel) : null;
+    const fil = r.fil ? await lesFil(foresporsel, f.side) : null;
     return r.behandle({ ...f, sakId, ressurs, fil }, full);
   }
 
   async function opprettelsesrute(r: Opprettelsesrute, foresporsel: IncomingMessage) {
-    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, null);
+    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, UTEN_STI);
     return r.behandle({ ...f, side: medSide(f.side) }, full);
   }
 
@@ -678,28 +658,36 @@ export function lagServer(avh: Avhengigheter) {
       if (treff && r.metode === metode) funnet = { r, treff };
       if (funnet) break;
     }
-    let [status, kropp, hoder]: Svar = uventet();
+    let svar: Svar = uventet();
     try {
-      [status, kropp, hoder] = funnet
+      svar = funnet
         ? await kjoer(funnet.r, funnet.treff, foresporsel)
         : feilsvar(404, 'NOT_FOUND', 'Ukjent rute.');
     } catch (feil) {
-      if (feil instanceof Nektet) [status, kropp] = [feil.status, feil.kropp];
+      if (feil instanceof Nektet) svar = [feil.status, feil.kropp];
       else loggFeil(`${metode} ${funnet?.r.sti} feilet`, feil);
     }
+    const [status, kropp] = svar;
     // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2),
-    // eller 503 UTFALL_USIKKERT når en kommando er lagret (#816 p1).
+    // eller reservesvaret behandleren ga for en skriving som er lagret (#893).
     let tekst: string | Buffer | undefined;
     try {
       tekst = kropp === null ? undefined : Buffer.isBuffer(kropp) ? kropp : JSON.stringify(kropp);
-      respons.writeHead(status, svarhoder([status, kropp, hoder], funnet?.r.hoder));
+      respons.writeHead(status, svarhoder(svar, funnet?.r.hoder));
     } catch (feil) {
       loggFeil('Svaret kunne ikke skrives', feil);
-      // Et svar som sier at kommandoen er lagret, blir usikkert (#816 p1).
-      const reserve = funnet?.r.kommando && status < 300 ? utfallUsikkert() : uventet();
+      const reserve = (reserveFor(svar) ?? uventet)();
       tekst = JSON.stringify(reserve[1]);
       // Node beholder årsaksfrasen fra det første forsøket, og rutens hoder gjelder også dette svaret.
-      respons.writeHead(reserve[0], STATUS_CODES[reserve[0]], svarhoder(reserve, funnet?.r.hoder));
+      // Er det rutens hoder Node ikke godtar, skrives svaret uten dem, så klienten får et svar.
+      const skriv = (rute?: Record<string, string>) =>
+        respons.writeHead(reserve[0], STATUS_CODES[reserve[0]], svarhoder(reserve, rute));
+      try {
+        skriv(funnet?.r.hoder);
+      } catch (igjen) {
+        loggFeil('Reservesvaret kunne ikke skrives med rutens hoder', igjen);
+        skriv(undefined);
+      }
     }
     respons.end(tekst);
   };

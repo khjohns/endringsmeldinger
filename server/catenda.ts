@@ -69,7 +69,9 @@ const endringsvakt = new AsyncLocalStorage<{ endringBedt: boolean }>();
 
 /**
  * Kjører `kall` og setter `flagg.endringBedt` før hver endring `forespoersel` sender
- * til Catenda i kallet. En falsk `Dokumentleverandoer` kaller `merkEndring` selv.
+ * til Catenda i kallet. En falsk `Topicoppretter` eller `Dokumentleverandoer` kaller
+ * `merkEndring` selv. Flagget følger den asynkrone konteksten, så forespørselen må
+ * startes fra `kall`, ikke fra en kø eller tilbakekalling utenfor.
  */
 export function medEndringsflagg<T>(
   flagg: { endringBedt: boolean },
@@ -332,12 +334,9 @@ export class CatendaOAuth {
    * når Catenda ikke finner boardet (404).
    */
   async boardetsProsjekt(boardId: string, token: string): Promise<string | null> {
-    if (!UUID.test(boardId)) throw new RangeError('Ugyldig board-ID');
     let svar: unknown;
     try {
-      svar = await forespoersel(this.#oppsett, 'GET', `/opencde/bcf/3.0/projects/${boardId}`, {
-        token,
-      });
+      svar = await forespoersel(this.#oppsett, 'GET', boardsti(boardId), { token });
     } catch (feil) {
       if (feil instanceof CatendaAvvisning && feil.status === 404) return null;
       throw feil;
@@ -355,27 +354,27 @@ export class CatendaOAuth {
    * @throws UsikkertCatendautfall når topicen kan være laget; ellers CatendaUtilgjengelig
    */
   async opprettTopic(boardId: string, topic: NyTopic, token: string): Promise<string> {
-    if (!UUID.test(boardId)) throw new RangeError('Ugyldig board-ID');
-    const svar = await forespoersel(
-      this.#oppsett,
-      'POST',
-      `/opencde/bcf/3.0/projects/${boardId}/topics`,
-      {
-        token,
-        json: { title: topic.tittel, description: topic.beskrivelse, topic_type: TOPICTYPE },
-      }
-    );
+    const svar = await forespoersel(this.#oppsett, 'POST', `${boardsti(boardId)}/topics`, {
+      token,
+      json: { title: topic.tittel, description: topic.beskrivelse, topic_type: TOPICTYPE },
+    });
     return idFraSvar(svar, 'guid', 'Catenda svarte uten topic');
   }
 
-  /** Dokumentet med navnet i mappen (eller roten av biblioteket), eller `null`. */
+  /**
+   * Dokumentet med navnet i mappen (eller roten av biblioteket), eller `null`. Catenda
+   * filtrerer på `search` (prøvd live, B3 i #907), men øyeblikksbildet sier ikke at søket
+   * er eksakt, så navnet sammenlignes her (#783 punkt 1).
+   */
   async finnDokument(maal: Dokumentmaal, navn: string, token: string): Promise<string | null> {
     const rader = await this.samling(dokumentsti(maal), token, {
       scope: 'all',
       parentId: maal.folder_id ?? 'root',
+      search: navn,
     });
     const treff = rader.filter((rad) => rad.name === navn);
-    if (treff.length > 1) throw new CatendaUtilgjengelig('Flere dokumenter har samme navn');
+    // Catenda gir de samme dokumentene ved neste forsøk, så jobben parkeres (#877, #895-6).
+    if (treff.length > 1) throw new VarigCatendaavvik('Flere dokumenter har samme navn');
     return treff.length ? lestId(treff[0].id) : null;
   }
 
@@ -400,7 +399,7 @@ export class CatendaOAuth {
     try {
       svar = await forespoersel(this.#oppsett, 'POST', dokumentsti(maal), {
         token,
-        fil: { innhold: dokument.innhold, hoder: { 'Bimsync-Params': JSON.stringify(parametre) } },
+        fil: { innhold: dokument.innhold, hoder: { 'Bimsync-Params': asciiJson(parametre) } },
       });
     } catch (feil) {
       if (feil instanceof CatendaAvvisning && feil.status === 409) return null;
@@ -424,13 +423,18 @@ export class CatendaOAuth {
     });
     if (!Array.isArray(svar)) throw new CatendaUtilgjengelig('Ugyldige dokumentreferanser');
     return svar.flatMap((rad, nr) => {
-      if (erObjekt(rad) && erTekst(rad.document_guid))
-        return [{ id: lestId(rad.guid), dokumentId: sammenlignbarDokumentId(rad.document_guid) }];
-      if (erObjekt(rad) && rad.document_guid == null && erTekst(rad.url)) return [];
-      const guid = erObjekt(rad) ? rad.guid : undefined;
-      const navn = erLestId(guid) && TRYGG_GUID.test(guid) ? `med GUID ${guid}` : `nr. ${nr + 1}`;
-      throw new VarigCatendaavvik(
-        `Referansen ${navn} på topicen viser verken til et dokument eller en lenke`
+      if (!erObjekt(rad)) throw ikkeDokument(`nr. ${nr + 1}`);
+      if (erTekst(rad.document_guid)) {
+        if (!erKvitterbarId(rad.guid))
+          throw new VarigCatendaavvik(
+            `Referansen nr. ${nr + 1} på topicen har en GUID av feil form`
+          );
+        return [{ id: rad.guid, dokumentId: sammenlignbarDokumentId(rad.document_guid) }];
+      }
+      if (rad.document_guid == null && erTekst(rad.url)) return [];
+      const guid = rad.guid;
+      throw ikkeDokument(
+        typeof guid === 'string' && TRYGG_GUID.test(guid) ? `med GUID ${guid}` : `nr. ${nr + 1}`
       );
     });
   }
@@ -454,7 +458,21 @@ export class CatendaOAuth {
   }
 }
 
-/** ID-en i svaret fra Catenda, høyst 100 tegn som kolonnene den kvitteres i. */
+/**
+ * JSON med hvert tegn over U+007F som `\uXXXX`. En hodeverdi kan bare bære tegn til
+ * U+00FF, og Catenda leser ikke tegnene over U+007F som UTF-8 (#903).
+ */
+function asciiJson(verdi: unknown): string {
+  return JSON.stringify(verdi).replace(
+    /[\u0080-￿]/g,
+    (tegn) => `\\u${tegn.charCodeAt(0).toString(16).padStart(4, '0')}`
+  );
+}
+
+/**
+ * ID-en i svaret fra Catenda, med tegnklassen `[!-~]` og høyst 100 tegn som
+ * `koe.leveringskvittering.catenda_id` (#877, #889-6).
+ */
 function idFraSvar(svar: unknown, felt: 'guid' | 'id', melding: string): string {
   const id = erObjekt(svar) ? svar[felt] : undefined;
   if (!erKvitterbarId(id)) throw new UsikkertCatendautfall(melding);
@@ -462,7 +480,7 @@ function idFraSvar(svar: unknown, felt: 'guid' | 'id', melding: string): string 
 }
 
 function erKvitterbarId(id: unknown): id is string {
-  return typeof id === 'string' && id !== '' && id.length <= 100;
+  return typeof id === 'string' && /^[!-~]{1,100}$/.test(id);
 }
 
 /**
@@ -471,19 +489,20 @@ function erKvitterbarId(id: unknown): id is string {
  * neste forsøk, så feil form er et varig avvik (#891).
  */
 function lestId(id: unknown): string {
-  if (!erLestId(id)) throw new VarigCatendaavvik('Ugyldig ID fra Catenda');
+  if (!erKvitterbarId(id)) throw new VarigCatendaavvik('Ugyldig ID fra Catenda');
   return id;
 }
 
-function erLestId(id: unknown): id is string {
-  return erKvitterbarId(id) && id.trim() === id;
-}
+const ikkeDokument = (navn: string) =>
+  new VarigCatendaavvik(
+    `Referansen ${navn} på topicen viser verken til et dokument eller en lenke`
+  );
 
 /** En GUID som kan stå i meldingen; den lagres og logges, så den bærer ikke annen tekst fra svaret. */
 const TRYGG_GUID = /^[\w-]+$/;
 
 function erTekst(verdi: unknown): verdi is string {
-  return typeof verdi === 'string' && verdi !== '';
+  return typeof verdi === 'string' && verdi.trim() !== '';
 }
 
 /** Biblioteket og mappen i det frosne leveringsmålet (LV-U1). */
@@ -520,10 +539,15 @@ function bcfDokumentId(id: string): string {
   return catendaId(id)?.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5') ?? id;
 }
 
-function referansesti(boardId: string, topicId: string): string {
+function boardsti(boardId: string): string {
   if (!UUID.test(boardId)) throw new RangeError('Ugyldig board-ID');
+  return `/opencde/bcf/3.0/projects/${boardId}`;
+}
+
+function referansesti(boardId: string, topicId: string): string {
+  const board = boardsti(boardId);
   if (!/^[0-9a-zA-Z-]{1,100}$/.test(topicId)) throw new RangeError('Ugyldig topic-ID');
-  return `/opencde/bcf/3.0/projects/${boardId}/topics/${topicId}/document_references`;
+  return `${board}/topics/${topicId}/document_references`;
 }
 
 /** Typen topicen for en sak fra appen får (#741 punkt 15). */
@@ -722,6 +746,7 @@ export function topicoppretter(catenda: Integrasjon): Topicoppretter {
   };
 }
 
+/** `opprettTopic` endrer noe i Catenda og kaller `merkEndring` før forespørselen sendes. */
 export interface Topicoppretter {
   opprettTopic(boardId: string, topic: NyTopic): Promise<string>;
 }
