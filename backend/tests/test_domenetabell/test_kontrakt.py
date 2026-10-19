@@ -3,8 +3,7 @@
 Skjemaet står i docs/domenetabell/kontrakt.json. Her prøves at skjemaet er
 konsistent med modellene, at korpusets kommandoer, de lagrede dataene og den
 offentlige tilstanden i flyten holder skjemaet, og aksepten etter KA-U1 uten
-HTTP. Grensene gjennom ruta og testbasen prøves i
-`tests/test_database/test_kontrakt_aksept.py`.
+HTTP.
 """
 
 import importlib

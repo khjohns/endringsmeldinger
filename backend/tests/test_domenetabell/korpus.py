@@ -2,9 +2,7 @@
 
 Korpuset er språkuavhengig. Her blir handlingene forespørsler slik
 `/api/events` tar imot dem, og kontrollene leses mot tilstanden slik API-et
-sender den. Domenebanen kjører dem i minnet; databasebanen i
-`tests/test_database/test_domenetabell_lagring.py` sender de samme
-forespørslene gjennom ruta.
+sender den. Domenebanen kjører dem i minnet.
 """
 
 import copy

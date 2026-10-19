@@ -5,7 +5,7 @@
 # Bruk: KOE_TESTBASE_URL=postgresql://postgres@localhost:5432/koe_test \
 #         scripts/testbase/bygg_testbase.sh
 #
-# Samme variabel styrer databasetestene i backend/tests/test_database/.
+# Samme variabel styrer kjernens lagringstester i sprakprove/kjernelagring/.
 set -euo pipefail
 export LC_ALL=C
 export PGOPTIONS="${PGOPTIONS:-} -c client_min_messages=warning"

@@ -125,8 +125,8 @@ I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi
 `timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
 
 Testene er raske. Kjør dem ofte.
-Med `KOE_TESTBASE_URL` kjører `npm test` også TS-databasetestene. Kjør dem ikke
-samtidig med pytest mot samme base: oppryddingen i pytest setter basen tilbake.
+Med `KOE_TESTBASE_URL` kjører `npm test` også kjernens lagringstester i
+`sprakprove/kjernelagring/` mot PostgreSQL. `server/` bruker bare SQL Server.
 Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge. Hva den kjører,
 står i miljø-skillen.
 
