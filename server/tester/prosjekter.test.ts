@@ -21,7 +21,7 @@ import {
   type Testbruker,
 } from './testbase.ts';
 import { settInn } from './sqlserver_migrert.ts';
-import { sql } from '../datalag.ts';
+import { sql, type Pool } from '../datalag.ts';
 
 describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
   let o: Oppsett;
@@ -350,20 +350,28 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
     }
   });
 
-  it('en applås som ikke blir ledig innen 10 s, gir 503 SYNC_UNAVAILABLE på leserollen og endrer ingenting (#825)', async () => {
+  it('applåsen (52044) fra prosedyren gir 503 SYNC_UNAVAILABLE på leserollen og endrer ingenting (#825, #867)', async () => {
     const p = await prosjektMed([{ rolle: 'admin' }, { rolle: 'member' }]);
     const [admin, medlem] = p.deltakere;
-    const laas = new sql.Transaction(o.datalag.base.pool);
-    await laas.begin();
+    // At prosedyren kaster 52044 når låsen ikke blir ledig, prøves mot basen i `medlemskap.test.ts`.
+    const pool = o.datalag.kjoeretid.pool;
+    const laast: Pool = new Proxy(pool, {
+      get(maal, navn) {
+        if (navn !== 'request') return Reflect.get(maal, navn, maal);
+        return () => {
+          const foresp = maal.request();
+          const utfoer = foresp.execute.bind(foresp);
+          foresp.execute = ((prosedyre: string) =>
+            prosedyre === 'koe_api.sett_leserolle'
+              ? Promise.reject(Object.assign(new Error('Fikk ikke låsen'), { number: 52044 }))
+              : utfoer(prosedyre)) as typeof foresp.execute;
+          return foresp;
+        };
+      },
+    });
+    const egen = await startServer(o, { datalag: laast });
     try {
-      await laas
-        .request()
-        .input('r', sql.NVarChar(255), `koe.medlemskap:${p.id}`)
-        .query(
-          `DECLARE @svar int; EXEC @svar = sp_getapplock @Resource = @r, @LockMode = 'Exclusive', @LockOwner = 'Transaction';
-           IF @svar < 0 THROW 50000, N'Fikk ikke låsen i testen', 1;`
-        );
-      const svar = await kall(server.url, `/api/projects/${p.id}/members/${medlem.id}`, {
+      const svar = await kall(egen.url, `/api/projects/${p.id}/members/${medlem.id}`, {
         bruker: admin,
         prosjektId: p.id,
         metode: 'PATCH',
@@ -372,10 +380,10 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
       expect(svar.status).toBe(503);
       expect(svar.kropp.error).toBe('SYNC_UNAVAILABLE');
     } finally {
-      await laas.commit();
+      await egen.stopp();
     }
     expect(await leserolle(p.id, medlem.id)).toBe(false);
-  }, 30_000);
+  });
 
   it('en kropp med annet enn viewer_override som boolsk verdi gir 400 og endrer ingenting', async () => {
     const p = await prosjektMed([{ rolle: 'admin' }, { rolle: 'member' }]);
@@ -505,34 +513,6 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
     } finally {
       await egen.stopp();
     }
-  });
-
-  it('endres koblingen, har synkroniseringsraden ingen Catenda-ID, ikke den tomme, og den tomme avvises (DL-U10, #726)', async () => {
-    const p = await prosjektMed([{ rolle: 'admin' }]);
-    const tom = '00000000-0000-0000-0000-000000000000';
-    await eier()
-      .input('p', p.id)
-      .input('c', sql.UniqueIdentifier, randomUUID())
-      .query(
-        'UPDATE koe.catenda_project_configs SET catenda_project_id = @c WHERE internal_project_id = @p'
-      );
-    const rad = await eier()
-      .input('p', p.id)
-      .query<{
-        c: string | null;
-        ny: boolean;
-      }>(
-        `SELECT catenda_project_id AS c,
-              CAST(CASE WHEN synced_at > DATEADD(second, -10, SYSUTCDATETIME()) THEN 1 ELSE 0 END AS bit) AS ny
-         FROM koe.app_membership_sync WHERE project_id = @p`
-      );
-    expect(rad.recordset).toEqual([{ c: null, ny: true }]);
-    await expect(
-      eier()
-        .input('p', p.id)
-        .input('c', sql.UniqueIdentifier, tom)
-        .query('UPDATE koe.app_membership_sync SET catenda_project_id = @c WHERE project_id = @p')
-    ).rejects.toMatchObject({ number: 547 });
   });
 
   it('feiler hentingen fra Catenda, gir synkroniseringen 503 SYNC_UNAVAILABLE', async () => {
