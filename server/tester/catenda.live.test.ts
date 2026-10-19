@@ -12,22 +12,21 @@
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
-import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId, uuidMedBindestreker } from '../autorisasjon.ts';
 import { kjoerEnJobb, type Jobbavhengigheter } from '../jobber.ts';
 import { lesSaken } from '../lager.ts';
 import { vedleggsnavn } from '../levering.ts';
 import {
   kall as tilServeren,
+  type KjorendeServer,
   lagOppsett,
   opprettKjernesak,
+  type Oppsett,
   rydd,
+  sendKommando,
   somJobbkjoerer,
   startServer,
   TESTBASE_URL,
-  type KjorendeServer,
-  type Oppsett,
 } from './testbase.ts';
 import {
   avvistUtenEndring,
@@ -69,18 +68,6 @@ function dokumentmaal() {
 }
 
 const PREFIKS = 'koe-livetest-';
-
-const GRUNNLAGSKRAV = {
-  type: 'krav',
-  spor: 'grunnlag',
-  innhold: {
-    hovedkategori: 'endring',
-    underkategori: 'irregulaer_endring',
-    tittel: 'Endret fundamentering',
-    paalegg_mottatt: '2026-10-01',
-  },
-  utdypning: 'Byggherren har pålagt en annen fundamentering.',
-};
 
 function itemsti(maal: ReturnType<typeof dokumentmaal>): string {
   return `/v2/projects/${maal.catenda_project_id}/libraries/${maal.library_id}/items`;
@@ -492,34 +479,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
 
       /** Brevet med kravet om grunnlag, med den låste teksten klienten viste (LV-U2). */
       async function sendBrev(sakId: string) {
-        const { journal } = await lesSaken(
-          o.datalag.kjoeretid.pool,
-          { aktor: o.te.id, prosjekt: o.prosjekt.id },
-          sakId
-        );
-        const vist = forhaandsvis(
-          GRUNNLAGSKRAV,
-          {
-            sakId,
-            aktoerId: o.te.id,
-            part: 'TE',
-            teamId: null,
-            tidspunkt: () => new Date(),
-            nyId: randomUUID,
-          },
-          journal,
-          KJERNE
-        );
-        if (!vist.godtatt) throw new Error('Kravet ble ikke godtatt i forhåndsvisningen');
-        const svar = await tilServeren(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
-          bruker: o.te,
-          prosjektId: o.prosjekt.id,
-          kropp: {
-            expected_version: 1,
-            kommando_id: randomUUID(),
-            kommando: { ...GRUNNLAGSKRAV, brevtekst: laastTekst(vist.hendelser[0]) },
-          },
-        });
+        const svar = await sendKommando(server.url, o, sakId, { versjon: 1 });
         if (svar.status !== 201 && svar.status !== 200)
           throw new Error(
             `Brevet ble avvist: ${svar.status} ${svar.kropp.rule ?? ''} ${svar.kropp.error ?? ''}`
