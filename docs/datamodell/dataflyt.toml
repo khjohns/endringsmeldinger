@@ -938,8 +938,8 @@ beskrivelse = """
 Stien sammenlignes med hemmeligheten i konstant tid, og en feil sti gir 404 som en
 ukjent rute (INT-01). Kroppen lagres rå i `koe.innkommende_hendelse` før svaret 200,
 og samme `event.id` lagres én gang. Feiler lagringen, er svaret 500, så Catenda
-prøver igjen (INT-02). Behandlingen av innboksen er C22 (W-1b.1); kommentaren
-tilbake til topicen kommer i W-1b.2."""
+prøver igjen (INT-02). Behandlingen av innboksen er C22 (W-1b.1), og kommentaren
+tilbake til topicen er C23 (W-1b.2)."""
 funn = ["INT-01", "INT-02"]
 belegg = "L 19.10: `server/webhook.ts`. K 19.10: `server/tester/webhook.test.ts`."
 
@@ -959,7 +959,8 @@ navn = "Behandlingen av innboksen i TS-serveren"
 retning = "inn"
 utloses_av = """
 Løkka i jobbkjøreren, etter jobbene: `behandleEnHendelse` i `server/jobber.ts` tar
-den eldste hendelsen i `koe.innkommende_hendelse` uten utfall (W-1b.1, #819)."""
+den eldste hendelsen i `koe.innkommende_hendelse` uten utfall som ikke venter etter et
+forsøk (W-1b.1, #819)."""
 beskrivelse = """
 Bare en ny topic gir en sak. Catenda signerer ikke kroppen, så av den brukes bare
 topic-ID-en, boardet og Catenda-prosjektet, og prosjektet tas fra koblingen mellom de
@@ -969,10 +970,12 @@ sak (#741 punkt 17). Identiteten løses først når forfatteren står i medlemsl
 Catenda, med navnet og e-posten derfra, og siden avgjøres med kontraktsteamene i Catenda. En
 topic fra TE gir en sak med bare topicens tittel (KT-U6), og saken kobles til topicen
 i samme transaksjon, uten jobb for en ny topic. En topic fra BH gir ingen sak
-(KT-U7). Hver hendelse får ett utfall i `koe.innkommende_behandling`. Kommentaren
-tilbake til topicen kommer i W-1b.2."""
+(KT-U7). Hver hendelse får ett utfall i `koe.innkommende_behandling`, med boardet
+topicen ble slått opp på. Svarer ikke Catenda eller basen, lagres forsøket i
+`koe.innkommende_forsoek`, og hendelsen venter før neste forsøk, lenger for hvert
+forsøk (#963). Kommentaren tilbake til topicen er C23."""
 funn = []
-belegg = "L 19.10: `server/hendelser.ts`, `server/jobber.ts` og `database/migrasjoner/20261020130000_innkommende_behandling.sql`."
+belegg = "L 19.10: `server/hendelser.ts`, `server/jobber.ts`, `database/migrasjoner/20261020130000_innkommende_behandling.sql` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`."
 
 [[flyt.steg]]
 fra = "catenda:bruker"
@@ -1052,7 +1055,78 @@ kode = [
     "server/jobber.ts:behandleEnHendelse",
     "server/hendelser.ts:registrerBehandling",
 ]
-data = "Utfallet, med prosjektet, saken og topicen når de er kjent."
+data = "Utfallet, med prosjektet, saken, topicen og boardet når de er kjent."
+
+[[flyt.steg]]
+fra = "catenda:webhook"
+til = ["koe.innkommende_forsoek"]
+endepunkt = "Hendelsen i innboksen"
+kode = [
+    "server/jobber.ts:behandleEnHendelse",
+    "server/hendelser.ts:registrerForsoek",
+]
+data = "Steget `behandling` og feilklassen med meldingen, når Catenda eller basen ikke svarte."
+
+[[flyt]]
+id = "C23"
+navn = "Kommentaren tilbake til topicen fra innboksen i TS-serveren"
+retning = "ut"
+utloses_av = """
+Løkka i jobbkjøreren, etter behandlingen av innboksen: `skrivEnKommentar` i
+`server/jobber.ts` tar det eldste utfallet i `koe.innkommende_behandling` som skal ha
+en kommentar, ikke har en kvittering og ikke venter etter et forsøk (W-1b.2, #819)."""
+beskrivelse = """
+Utfallet `sak_opprettet` gir en kommentar med lenke til saken og saksnummeret (KT-U6).
+`topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet` (arbeidsvalget under OV-U1 i #819)
+gir en kommentar om hvorfor ingen sak er opprettet. Kommentarene på topicen leses
+først, og står samme tekst der alt, skrives ingen ny; da gir et nytt forsøk etter et
+tapt svar én kommentar. Kommentaren skrives på boardet topicen ble slått opp på, med
+integrasjonens token. Kvitteringen står i `koe.topic_kommentar`. Feiler et steg,
+lagres forsøket i `koe.innkommende_forsoek`, og utfallet venter før neste forsøk."""
+funn = []
+belegg = "L 19.10: `server/jobber.ts`, `server/hendelser.ts`, `server/catenda.ts` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`."
+
+[[flyt.steg]]
+fra = "catenda:kommentar"
+til = ["appen"]
+endepunkt = "GET /opencde/bcf/3.0/projects/{catenda_board_id}/topics/{catenda_topic_id}/comments"
+kode = [
+    "server/jobber.ts:skrivEnKommentar",
+    "server/catenda.ts:innboksintegrasjon",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = "Kommentarene på topicen, med ID og tekst. Står samme tekst der, brukes den kommentarens ID. Lagres ikke."
+
+[[flyt.steg]]
+fra = "koe.innkommende_behandling"
+til = ["catenda:kommentar"]
+endepunkt = "POST /opencde/bcf/3.0/projects/{catenda_board_id}/topics/{catenda_topic_id}/comments"
+kode = [
+    "server/jobber.ts:skrivEnKommentar",
+    "server/catenda.ts:innboksintegrasjon",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = "Kommentaren for utfallet (`comment`), bare når samme tekst ikke står på topicen."
+
+[[flyt.steg]]
+fra = "catenda:kommentar"
+til = ["koe.topic_kommentar"]
+endepunkt = "Svaret fra Catenda"
+kode = [
+    "server/jobber.ts:skrivEnKommentar",
+    "server/hendelser.ts:kvitterKommentar",
+]
+data = "ID-en til kommentaren i Catenda, funnet eller skrevet."
+
+[[flyt.steg]]
+fra = "catenda:kommentar"
+til = ["koe.innkommende_forsoek"]
+endepunkt = "Svaret fra Catenda, eller at det mangler"
+kode = [
+    "server/jobber.ts:skrivEnKommentar",
+    "server/hendelser.ts:registrerForsoek",
+]
+data = "Steget `kommentar` og feilklassen med meldingen, når Catenda eller basen ikke svarte."
 
 # ---------------------------------------------------------------------------
 # Kall til Catenda som ikke er en del av appens dataflyt

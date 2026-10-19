@@ -1177,15 +1177,59 @@ sak, med topicens tittel (KT-U6); en topic fra BH gir ingen sak (KT-U7), og hell
 ikke en topic som alt hører til en sak eller er laget av integrasjonen (#741 punkt
 17). Saken og prosjektet står bare når utfallet er `sak_opprettet`, og prosjektet
 når koblingen til Catenda-prosjektet og boardet ga det. Kjøretiden har ingen rett på
-tabellen og skriver med `koe_api.registrer_behandling`. Raden kan ikke endres eller
-slettes; en kommentar tilbake til topicen (W-1b.2) endrer ikke utfallet."""
+tabellen og skriver med `koe_api.registrer_behandling`. Boardet topicen ble slått
+opp på, står med utfallet, så kommentaren skrives på samme board. Raden kan ikke
+endres eller slettes; kommentaren tilbake til topicen (W-1b.2) står i
+`koe.topic_kommentar` og endrer ikke utfallet."""
 lagres_fra = "`koe_api.registrer_behandling`, kalt av `behandleEnHendelse` i `server/jobber.ts` med utfallet fra `server/hendelser.ts`."
 fra_catenda = "Delvis. ID-en til topicen er Catendas."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Nei. `melding` er en fast feiltekst fra serveren."
-skrivere = ["database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.registrer_behandling`, kalt fra `server/jobber.ts`)"]
+skrivere = ["database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.registrer_behandling`, innført i `20261020130000_innkommende_behandling.sql`, kalt fra `server/jobber.ts`)"]
 funn = []
-belegg = "L 19.10: migrasjonen og `server/hendelser.ts`."
+belegg = "L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`, `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql` og `server/hendelser.ts`."
+
+[[tabell]]
+navn = "koe.innkommende_forsoek"
+lagring = "SQL Server"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Forsøkene uten utfall for en hendelse i innboksen (W-1b.2, #819), med steget:
+`behandling` eller `kommentar`. Et forsøk lagres når Catenda eller basen ikke svarte.
+Hendelsen venter da før neste forsøk, lenger for hvert forsøk (30 s, dobbelt for
+hvert, høyst en time), og løkka går videre, så én hendelse ikke stenger innboksen
+(#963). `koe_api.neste_innkommende` og `koe_api.neste_kommentar` hopper over en
+hendelse som venter. Kjøretiden har ingen rett på tabellen og skriver med
+`koe_api.registrer_innkommende_forsoek`. Raden kan ikke endres eller slettes."""
+lagres_fra = "`koe_api.registrer_innkommende_forsoek`, kalt av `behandleEnHendelse` og `skrivEnKommentar` i `server/jobber.ts`."
+fra_catenda = "Delvis. `melding` kan være feilmeldingen fra Catenda."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Nei. `melding` er feilklassen og meldingen fra Catenda eller basen, uten saksdata."
+skrivere = ["database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.registrer_innkommende_forsoek`, kalt fra `server/jobber.ts`)"]
+funn = []
+belegg = "L 19.10: migrasjonen, `server/hendelser.ts` og `server/jobber.ts`."
+
+[[tabell]]
+navn = "koe.topic_kommentar"
+lagring = "SQL Server"
+type = ["teknisk"]
+status = "i bruk"
+beskrivelse = """
+Kvitteringen for kommentaren løkka skrev tilbake på topicen i Catenda (W-1b.2,
+#819), én rad per utfall. Utfallet `sak_opprettet` gir en kommentar med lenke og
+saksnummer (KT-U6), `topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet`
+(arbeidsvalget under OV-U1 i #819) en kommentar om hvorfor ingen sak er opprettet.
+Kommentarene på topicen leses først, og står teksten der alt, kvitteres den, så
+samme tekst skrives én gang. Kjøretiden har ingen rett på tabellen og skriver med
+`koe_api.kvitter_kommentar`. Raden kan ikke endres eller slettes."""
+lagres_fra = "`koe_api.kvitter_kommentar`, kalt av `skrivEnKommentar` i `server/jobber.ts` etter at kommentaren er funnet eller skrevet i Catenda."
+fra_catenda = "Ja, ID-en til kommentaren er Catendas."
+kan_gjenoppbygges = "nei"
+personopplysninger = "Nei."
+skrivere = ["database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.kvitter_kommentar`, kalt fra `server/jobber.ts`)"]
+funn = []
+belegg = "L 19.10: migrasjonen, `server/hendelser.ts` og `server/jobber.ts`."
 
 [[tabell]]
 navn = "koe.prosjekt_med_saker"
@@ -1245,7 +1289,7 @@ lagres_fra = "Ingen. Migrasjonen lager tabellen, og skranken avviser hver rad."
 fra_catenda = "Nei"
 kan_gjenoppbygges = "ja. Tabellen har ingen rader."
 personopplysninger = "Nei."
-skrivere = ["database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad)", "database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene)", "database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen)"]
+skrivere = ["database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad)", "database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene)", "database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen)", "database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (legger til fremmednøklene til forsøkene i innboksen og kommentarkvitteringene)"]
 funn = []
 belegg = "L 18.10: `database/migrasjoner/20261020011000_toemmingsvern.sql`. L 19.10: `database/migrasjoner/20261020021000_vedleggskvittering_vern.sql`. K 18.10: `server/tester/journal.test.ts`."
 
