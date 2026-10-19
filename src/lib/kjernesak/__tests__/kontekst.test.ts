@@ -7,7 +7,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '$lib/api/client';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
-import { brevhindring, lagKjernesak, PROGRAMFEIL } from '$lib/kjernesak/kontekst.svelte';
+import {
+  brevaarsak,
+  brevhindring,
+  lagKjernesak,
+  PROGRAMFEIL,
+} from '$lib/kjernesak/kontekst.svelte';
 import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
 import { visning, type Visning } from '$kjerne/utledning/visning';
@@ -430,9 +435,13 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.last();
     const brev = sak.brev(grunnlagskrav);
     expect(brev).toMatchObject({ avvisning: { melding: expect.any(String) } });
-    expect(brevhindring(brev!)).toBe(
-      `Brevet ble ikke sendt. ${(brev as { avvisning: { melding: string } }).avvisning.melding}`
-    );
+    const aarsak = (brev as { avvisning: { melding: string } }).avvisning.melding;
+    expect(brevhindring(brev!)).toBe(`Brevet ble ikke sendt. ${aarsak}`);
+    // Reviewet av #898: før noe er prøvd, sier ikke siden at brevet ikke ble sendt.
+    expect(brevaarsak(brev)).toBe(`Brevet kan ikke sendes. ${aarsak}`);
+    expect(brevaarsak(null)).toBeNull();
+    expect(brevaarsak({ tekst: ['brevet'] })).toBeNull();
+    expect(brevaarsak({ tekst: null })).toBeNull();
   });
 
   // Kilde: #865 p1. En programfeil i kjernen blir en melding om feil i appen, ikke en
@@ -458,7 +467,9 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.last();
     kast = true;
     const feil = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(sak.brev(grunnlagskrav)).toEqual({ programfeil: PROGRAMFEIL });
+    const brev = sak.brev(grunnlagskrav);
+    expect(brev).toEqual({ programfeil: PROGRAMFEIL });
+    expect(brevaarsak(brev)).toBe(PROGRAMFEIL);
     expect(await sak.send(grunnlagskrav)).toBe(false);
     expect(sak.feil).toBe(PROGRAMFEIL);
     expect(send).not.toHaveBeenCalled();

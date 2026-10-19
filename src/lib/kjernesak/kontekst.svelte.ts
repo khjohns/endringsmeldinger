@@ -57,6 +57,14 @@ export type Programfeil = { programfeil: string };
 export const PROGRAMFEIL =
   'Appen kunne ikke lage brevet på grunn av en feil i appen. Kravet er ikke avvist, men det kan ikke sendes nå.';
 
+/** Årsaken til at brevet ikke kan sendes, før noe er prøvd; `null` når det kan sendes. */
+export function brevaarsak(brev: Brev | Programfeil | null): string | null {
+  if (!brev || 'tekst' in brev) return null;
+  return 'programfeil' in brev
+    ? brev.programfeil
+    : melding('Brevet kan ikke sendes.', brev.avvisning.melding);
+}
+
 /** Det som hindrer at brevet sendes, eller `null` når det har en tekst eller ikke lager en. */
 export function brevhindring(brev: Brev | Programfeil): string | null {
   if ('programfeil' in brev) return brev.programfeil;
