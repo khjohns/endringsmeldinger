@@ -292,24 +292,25 @@ export class CatendaOAuth {
   }
 
   /**
-   * Boardene i Catenda-prosjektet, i `catendaId()`-formen. Bare rader med prosjektet
-   * som `bimsync_project_id` telles, så et filter Catenda ignorerer, ikke gir et board
-   * fra et annet prosjekt.
+   * Catenda-prosjektet boardet hører til (`bimsync_project_id`), i `catendaId()`-formen,
+   * fra boardets detaljer, som oppslaget i Python (`_make_bimsync_lookup`). Gir null
+   * når Catenda ikke finner boardet (404).
    */
-  async boards(catendaProsjektId: string, token: string): Promise<Set<string>> {
-    const prosjekt = kravId(catendaProsjektId);
-    const rader = await forespoersel(this.#oppsett, 'GET', '/opencde/bcf/3.0/projects', {
-      token,
-      parametre: { bimsync_project_id: prosjekt },
-    });
-    if (!Array.isArray(rader)) throw new CatendaUtilgjengelig('Ugyldig samling');
-    const boards = new Set<string>();
-    for (const rad of rader) {
-      const board = erObjekt(rad) ? catendaId(rad.project_id) : null;
-      if (!erObjekt(rad) || !board) throw new CatendaUtilgjengelig('Ugyldig board-ID');
-      if (catendaId(rad.bimsync_project_id) === prosjekt) boards.add(board);
+  async boardetsProsjekt(boardId: string, token: string): Promise<string | null> {
+    if (!UUID.test(boardId)) throw new RangeError('Ugyldig board-ID');
+    let svar: unknown;
+    try {
+      svar = await forespoersel(this.#oppsett, 'GET', `/opencde/bcf/3.0/projects/${boardId}`, {
+        token,
+      });
+    } catch (feil) {
+      if (feil instanceof CatendaAvvisning && feil.status === 404) return null;
+      throw feil;
     }
-    return boards;
+    const prosjekt = erObjekt(svar) ? catendaId(svar.bimsync_project_id) : null;
+    if (!erObjekt(svar) || catendaId(svar.project_id) !== catendaId(boardId) || !prosjekt)
+      throw new CatendaUtilgjengelig('Ugyldig board');
+    return prosjekt;
   }
 
   /**

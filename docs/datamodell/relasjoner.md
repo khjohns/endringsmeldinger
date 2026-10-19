@@ -1101,7 +1101,7 @@ Drift oppgir Catenda-prosjekt, bibliotek, mappe, board og kontraktsteam. Navnet 
 | --- | --- | --- | --- | --- | --- |
 | C18.1 | Catenda: prosjekter | projects | GET /v2/projects/{catenda_project_id} | [`cmd_register`](../../backend/scripts/catenda_admin.py) → [`fetch_catenda_project_name`](../../backend/scripts/catenda_admin.py) → [`AuthRepository.register_project`](../../backend/repositories/auth_repository.py) → databasefunksjonen `koe_register_project` | Prosjektnavnet, når drift ikke har oppgitt det. |
 | C18.2 | Catenda: team og teammedlemmer | catenda_contract_teams | GET /v2/projects/{catenda_project_id}/teams | [`cmd_register`](../../backend/scripts/catenda_admin.py) → [`AuthRepository.register_project`](../../backend/repositories/auth_repository.py) → databasefunksjonen `koe_register_project` → databasefunksjonen `koe_set_contract_teams` | Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene kommer fra drift. |
-| C18.3 | Catenda: topic board | Appen, lagres ikke | GET /opencde/bcf/3.0/projects?bimsync_project_id={catenda_project_id} | [`kjoer`](../../server/registrering.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Kontroll av at boardet drift oppgir, hører til Catenda-prosjektet. Bare TS-skriptet kontrollerer det (#836). |
+| C18.3 | Catenda: topic board | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{topic_board_id} | [`kjoer`](../../server/registrering.ts) → [`CatendaOAuth`](../../server/catenda.ts) | `bimsync_project_id` for boardet drift oppgir, kontrollert mot Catenda-prosjektet. Bare TS-skriptet kontrollerer det (#836). |
 
 **Funn:** MS-12. **Belegg:** L 29.09: `cmd_register`, `koe_register_project` i migrasjonene, og at den kaller `koe_set_contract_teams`. K 29.09: triggeren i katalogen.
 

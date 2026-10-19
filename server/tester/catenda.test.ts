@@ -369,28 +369,35 @@ describe('teammedlemmene', () => {
   });
 });
 
-describe('boardene i Catenda-prosjektet (#836 punkt 2)', () => {
-  it('gir boardene med prosjektet som bimsync_project_id, normalisert, og filtrerer på prosjektet', async () => {
+describe('Catenda-prosjektet til et board (#836 punkt 2)', () => {
+  it('leser bimsync_project_id i boardets detaljer, normalisert', async () => {
     const board = uuid(7);
-    svar = () => ({
-      json: [
-        { project_id: board, bimsync_project_id: PROSJEKT, name: 'KOE' },
-        // Et board i et annet prosjekt, som om Catenda ignorerte filteret.
-        { project_id: uuid(8), bimsync_project_id: uuid(9), name: 'Annet' },
-      ],
-    });
-    const boards = await new CatendaOAuth(oppsett()).boards(PROSJEKT, 't');
-    expect(boards).toEqual(new Set([hex(board)]));
-    expect(mottatt[0].sti).toBe('/opencde/bcf/3.0/projects');
-    expect(mottatt[0].parametre.get('bimsync_project_id')).toBe(hex(PROSJEKT));
+    svar = () => ({ json: { project_id: board, bimsync_project_id: PROSJEKT, name: 'KOE' } });
+    expect(await new CatendaOAuth(oppsett()).boardetsProsjekt(board, 't')).toBe(hex(PROSJEKT));
+    expect(mottatt[0].sti).toBe(`/opencde/bcf/3.0/projects/${board}`);
     expect(mottatt[0].autorisasjon).toBe('Bearer t');
   });
 
-  it('et board uten gyldig ID avviser hele svaret', async () => {
-    svar = () => ({ json: [{ project_id: 'x', bimsync_project_id: PROSJEKT }] });
-    await expect(new CatendaOAuth(oppsett()).boards(PROSJEKT, 't')).rejects.toBeInstanceOf(
+  it('et ukjent board (404) gir null', async () => {
+    svar = () => ({ status: 404 });
+    expect(await new CatendaOAuth(oppsett()).boardetsProsjekt(uuid(7), 't')).toBeNull();
+  });
+
+  it.each([
+    ['uten gyldig bimsync_project_id', { project_id: uuid(7), bimsync_project_id: 'x' }],
+    ['for et annet board', { project_id: uuid(8), bimsync_project_id: PROSJEKT }],
+  ])('et svar %s avvises', async (_, json) => {
+    svar = () => ({ json });
+    await expect(new CatendaOAuth(oppsett()).boardetsProsjekt(uuid(7), 't')).rejects.toBeInstanceOf(
       CatendaUtilgjengelig
     );
+  });
+
+  it('en board-ID som ikke er en UUID, når ikke Catenda', async () => {
+    await expect(
+      new CatendaOAuth(oppsett()).boardetsProsjekt('x/../y', 't')
+    ).rejects.toBeInstanceOf(RangeError);
+    expect(mottatt).toHaveLength(0);
   });
 });
 

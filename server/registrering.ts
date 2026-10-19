@@ -226,8 +226,8 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   /** Boardet må høre til Catenda-prosjektet, som teamene (#836 punkt 2). */
   async function kontrollerBoard(catendaProsjekt: string, board: string): Promise<void> {
     const { oauth, token } = a.catenda();
-    const boards = await oauth.boards(catendaProsjekt, await token());
-    if (!boards.has(catendaId(board)!))
+    const prosjekt = await oauth.boardetsProsjekt(board, await token());
+    if (prosjekt !== catendaId(catendaProsjekt))
       throw new Registreringsfeil(`Boardet finnes ikke i Catenda-prosjektet: ${board}`);
   }
 

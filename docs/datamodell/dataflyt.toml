@@ -876,9 +876,9 @@ data = "Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene
 [[flyt.steg]]
 fra = "catenda:board"
 til = ["appen"]
-endepunkt = "GET /opencde/bcf/3.0/projects?bimsync_project_id={catenda_project_id}"
+endepunkt = "GET /opencde/bcf/3.0/projects/{topic_board_id}"
 kode = ["server/registrering.ts:kjoer", "server/catenda.ts:CatendaOAuth"]
-data = "Kontroll av at boardet drift oppgir, hører til Catenda-prosjektet. Bare TS-skriptet kontrollerer det (#836)."
+data = "`bimsync_project_id` for boardet drift oppgir, kontrollert mot Catenda-prosjektet. Bare TS-skriptet kontrollerer det (#836)."
 
 [[flyt]]
 id = "C19"

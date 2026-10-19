@@ -70,9 +70,10 @@ datalag.on('error', (feil) =>
 const funn = await hindringer(datalag, lesMigrasjoner());
 if (funn.length) throw new Error(`Serveren kan ikke bruke basen:\n${funn.join('\n')}`);
 
-// Catenda og innloggingen settes opp hver for seg, så et feil oppsett for den ene
-// ikke stenger den andre (#726 punkt 4). Meldingene har ingen verdier fra
-// oppsettet, så hemmeligheten når ikke loggen.
+// Innloggingen bruker integrasjonens klient, så uten Catenda er den heller ikke
+// satt opp (#726 punkt 4). Et feil oppsett av innloggingen stenger ikke
+// integrasjonen. Meldingene har ingen verdier fra oppsettet, så hemmeligheten
+// når ikke loggen.
 let klient: ReturnType<typeof catendaFraMiljoe> | null = null;
 let catenda = utenCatenda;
 try {
@@ -81,10 +82,10 @@ try {
 } catch (feil) {
   console.warn(`Catenda er ikke satt opp: ${(feil as Error).message}`);
 }
-// Innloggingen bruker samme klient som integrasjonen (#726 punkt 4).
 let innlogging: Innlogging | null = null;
 try {
-  if (klient) innlogging = innloggingFraMiljoe(process.env, klient);
+  if (!klient) throw new Error('Catenda er ikke satt opp');
+  innlogging = innloggingFraMiljoe(process.env, klient);
 } catch (feil) {
   console.warn(`Innloggingen er ikke satt opp: ${(feil as Error).message}`);
 }

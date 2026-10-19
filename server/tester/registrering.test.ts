@@ -89,8 +89,8 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
   let o: Oppsett;
   let drift: { pool: Pool; slett(): Promise<void> };
   let iCatenda: Map<string, string>;
-  /** Boardene i Catenda-prosjektet, per prosjekt i `catendaId()`-formen. */
-  const boards = new Map<string, Set<string>>();
+  /** Catenda-prosjektet til hvert board, begge i `catendaId()`-formen. */
+  const boardProsjekt = new Map<string, string>();
   let catendaKall: number;
   const linjer: string[] = [];
 
@@ -112,9 +112,9 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
             catendaKall++;
             return [...iCatenda].map(([id, name]) => ({ user: { id, type: 'team', name } }));
           },
-          boards: async (catendaProsjekt: string) => {
+          boardetsProsjekt: async (board: string) => {
             catendaKall++;
-            return boards.get(catendaId(catendaProsjekt)!) ?? new Set();
+            return boardProsjekt.get(catendaId(board)!) ?? null;
           },
         } as unknown as CatendaOAuth,
         token: async () => 'token',
@@ -266,7 +266,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     const t = naaFor();
     const { prosjekt, catendaProsjekt } = await nyttProsjekt(t);
     const [mappe, board, bibliotek] = [randomUUID(), randomUUID(), randomUUID()];
-    boards.set(catendaId(catendaProsjekt)!, new Set([catendaId(board)!]));
+    boardProsjekt.set(catendaId(board)!, catendaId(catendaProsjekt)!);
     const felles = ['--prosjekt', prosjekt, '--organisasjon', 'org-1'];
     await skript(
       'registrer',
@@ -405,7 +405,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     const catendaProsjekt = randomUUID();
     // Boardet finnes, men i et annet Catenda-prosjekt.
     const board = randomUUID();
-    boards.set(catendaId(randomUUID())!, new Set([catendaId(board)!]));
+    boardProsjekt.set(catendaId(board)!, catendaId(randomUUID())!);
     const feil = await avvisning(
       skript(
         'registrer',
