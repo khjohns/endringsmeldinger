@@ -2,7 +2,8 @@
 
 Radene står i `regler.json`, bevis-sakene i `bevis-saker.json`. Bevis-sakene for
 målmodellen (#304, #308) står i `bevis-saker-maalmodell.json` og kjøres bare mot
-TS-kjernen i `kjerne/`, i minnet og gjennom testbasen (`sprakprove/kjernelagring/`).
+TS-kjernen i `kjerne/`, i minnet og gjennom testbasen i SQL Server
+(`sprakprove/kjernelagring/`).
 Tabellen og sporbarheten i README.md lages herfra og rettes ikke for hånd.
 Sporbarheten (#455, punkt 6 i #451): en rad kan vise til funksjonene som
 gjennomfører regelen (`funksjoner`) og regelkodene kjernen avviser med

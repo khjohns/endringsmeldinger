@@ -23,12 +23,12 @@ ruff check backend/                  # porten, skal være 0
 headeren til `server/start.ts`. Vite-proxyen sender det `tilTsServeren()` i
 `server/ruting.ts` velger, dit (F0b-8), og resten av `/api` til Python.
 
-I skyøktene lager `.claude/hooks/session-start.sh` venv-en og testbasen, og meldingen fra hooken sier om kjernens lagringstester mot PostgreSQL kjører.
+I skyøktene lager `.claude/hooks/session-start.sh` venv-en og starter Docker og testbasen i SQL Server.
 
 SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med
 `scripts/testbase/docker_sqlserver.sh`, og den setter `KOE_SQLSERVER_TILKOBLING`
-med en gang. Testene i `server/tester/sqlserver.test.ts` venter på serveren i
-opptil tre minutter og hoppes over uten variabelen. Hver testfil får sin egen
+med en gang. Testene i `server/` og `sprakprove/kjernelagring/` venter på
+serveren i opptil tre minutter og hoppes over uten variabelen. Hver testfil får sin egen
 base fra `opprettTestbase` i `server/tester/sqlserver.ts`, med innstillingene fra
 Azure SQL Database. Loggen står i `/tmp/koe-sqlserver.log`. Utenfor skyøkta:
 
@@ -90,8 +90,8 @@ jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 `feilinnfoering`.
 
-Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt. `--ankre`
-trenger ikke basen.
+Kjøres fra repoets rot, med SQL Server oppe og `KOE_SQLSERVER_TILKOBLING` satt.
+`--ankre` trenger ikke basen.
 
 Med `FEILINNFOERING_UTVALG=1` kjører hver mutasjon bare filene med målene sine, slik CI gjør på en PR. Uten den kjøres hele samlingen, som om natta.
 

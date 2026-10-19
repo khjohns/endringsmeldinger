@@ -106,7 +106,7 @@ liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres d
 `kjerne/versjon.ts`. `kjerne/frosset/` bestemmer hva beslutningsgrunnlaget fryser, så
 endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke for en
 flytting som bare endrer importstiene. Lagringstestene mot
-testbasen står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
+testbasen i SQL Server står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-koden for de tre sakstypene er overgangskode, og feil i Python rettes
 etter [DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2).
 
@@ -125,8 +125,9 @@ I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi
 `timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
 
 Testene er raske. Kjør dem ofte.
-Med `KOE_TESTBASE_URL` kjører `npm test` også kjernens lagringstester i
-`sprakprove/kjernelagring/` mot PostgreSQL. `server/` bruker bare SQL Server.
+Med `KOE_SQLSERVER_TILKOBLING` kjører `npm test` også testene mot SQL Server i
+`server/` og kjernens lagringstester i `sprakprove/kjernelagring/`. Ingen test
+bruker PostgreSQL (#931).
 Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge. Hva den kjører,
 står i miljø-skillen.
 

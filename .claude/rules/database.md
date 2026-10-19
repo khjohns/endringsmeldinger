@@ -7,7 +7,6 @@ paths:
   - "scripts/testbase/**"
   - "scripts/avstem_migrasjonshistorikk.sh"
   - "docs/migrasjoner-og-testbase.md"
-  - "sprakprove/server/**"
   - "server/**"
   - "sprakprove/kjernelagring/**"
 ---
@@ -37,16 +36,11 @@ base eller med et verktøy som stempler sin egen versjon** (som `apply_migration
 over Supabase-MCP). Versjonen i basen skal være versjonen
 i filnavnet (DA-03). Filnavnrekkefølgen er apply-rekkefølgen, og CI-jobben
 `database` bygger hele settet mot PostgreSQL 17
-ved hver PR. Åtte av nitten tabeller har ingen eksplisitt `GRANT` i repoet og
+ved hver PR. Ingen test i TS eller Python bruker den basen (#931). Åtte av
+nitten tabeller har ingen eksplisitt `GRANT` i repoet og
 virker bare fordi Supabase deler ut rettigheter. Testbasen, stubben av
 plattformen, katalogsummene og fallgruvene i PostgreSQL 18 står i
 `docs/migrasjoner-og-testbase.md`.
-
-Endrer du en migrasjon, eller slår du inn en, bygg testbasen på nytt med
-`scripts/testbase/bygg_paa_nytt.sh`. URL-en er den samme etterpå. Basen bærer
-summen av det den er bygget av (`scripts/testbase/migrasjonssum.sh`).
-Testoppsettet i TS nekter en base med en annen sum enn arbeidstreet,
-og oppstartshooken bygger den på nytt (#379).
 
 **SQL Server: migrasjonene i T-SQL ligger i `database/migrasjoner/`, aldri i
 `supabase/migrations/`, og anvendes bare av runneren i `server/migrering.ts`**

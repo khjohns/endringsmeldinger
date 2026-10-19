@@ -7,7 +7,6 @@ paths:
   - "backend/services/**"
   - "backend/repositories/**"
   - "backend/tests/test_security/**"
-  - "sprakprove/**/server/**"
   - "server/**"
   - "sprakprove/kjernelagring/**"
 ---
