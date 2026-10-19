@@ -42,24 +42,33 @@ export function loggFeil(hvor: string, feil: unknown): void {
   );
 }
 
+/** En ramme fra V8: `at sted (fil:linje:kolonne)` eller `at fil:linje:kolonne`. */
+const RAMME = /^\s+at (?:.* \((?:\S+:\d+:\d+|<anonymous>|native|index \d+)\)|\S+:\d+:\d+)$/;
+
 /**
  * Rammene i kallstakken, uten hodet med navnet og meldingen, der en linje også kan
- * begynne med «at». Hodet er `navn: melding`, eller `navn [kode]: melding` for
- * Nodes egne feil. Begynner stakken ikke med et av dem, gis ingen rammer.
+ * begynne med «at». Hodet lages som `Error.prototype.toString`, også i formen
+ * `navn [kode]: melding` for Nodes egne feil. Står ikke et av dem alene på
+ * første linje eller linjene, gis ingen rammer, og bare linjer med en plassering
+ * regnes som rammer.
  */
 function rammene(feil: unknown): string {
   try {
     const { stack, name, message, code } = feil as Error & { code?: unknown };
     if (typeof stack !== 'string') return '';
-    const hode = (navn: string) => (message ? `${navn}: ${String(message)}` : navn);
-    const hoder = [hode(String(name))];
-    if (typeof code === 'string') hoder.push(hode(`${String(name)} [${code}]`));
-    const funnet = hoder.find((h) => stack.startsWith(h));
+    const melding = message === undefined ? '' : String(message);
+    const hode = (navn: string) => (!navn ? melding : !melding ? navn : `${navn}: ${melding}`);
+    const navn = name === undefined ? 'Error' : String(name);
+    const hoder = [hode(navn)];
+    if (typeof code === 'string') hoder.push(hode(`${navn} [${code}]`));
+    const funnet = hoder.find(
+      (h) => stack.startsWith(h) && (stack.length === h.length || stack[h.length] === '\n')
+    );
     if (funnet === undefined) return '';
     return stack
       .slice(funnet.length)
       .split('\n')
-      .filter((l) => /^\s+at /.test(l))
+      .filter((l) => RAMME.test(l))
       .join('\n');
   } catch {
     return '';

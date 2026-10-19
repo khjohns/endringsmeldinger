@@ -96,10 +96,41 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     );
   });
 
-  it('et navn som ikke kan bli tekst, gir ingen rammer og ingen ny feil', () => {
+  it('en melding som ikke kan bli tekst, gir ingen rammer og ingen ny feil', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
-    loggFeil('Symbol', Object.assign(new Error('m'), { name: Symbol('n') }));
-    expect(logg).toHaveBeenCalledWith('Symbol (Error)');
+    const feil = {
+      stack: 'Error: m\n    at f (x.ts:1:1)',
+      get message(): string {
+        throw new Error('token=hemmelig');
+      },
+    };
+    loggFeil('Getter', feil);
+    expect(logg).toHaveBeenCalledWith('Getter (Object)');
+  });
+
+  it('en melding forkortet etter at stakken ble laget, gir ingen meldingslinje', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const feil = new Error('Catenda svarte:\n    at Kari token=hemmelig');
+    void feil.stack;
+    feil.message = 'Catenda svarte:';
+    loggFeil('Forkortet', feil);
+    const tom = new Error('x\n    at Kari');
+    void tom.stack;
+    tom.message = '';
+    loggFeil('Tom', tom);
+    const linjer = logg.mock.calls.map(([l]) => l as string);
+    expect(linjer).toHaveLength(2);
+    for (const l of linjer) expect(l).not.toContain('Kari');
+  });
+
+  it('et tomt navn gir rammene, som hodet V8 skriver', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const feil = Object.assign(new Error('m'), {
+      name: '',
+      stack: 'm\n    at f (x.ts:1:1)',
+    });
+    loggFeil('Tomt navn', feil);
+    expect(logg).toHaveBeenCalledWith('Tomt navn (Error)\n    at f (x.ts:1:1)');
   });
 
   it('null og undefined gir typen', () => {
