@@ -29,7 +29,7 @@ describe('klienten mot TS-serveren', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('oppretter saken med kommandoen alene, med prosjektet og CSRF-tokenet', async () => {
-    await opprettSak(ID, { type: 'opprett' });
+    await opprettSak(ID, { type: 'opprett' }, 'prosjekt-1');
     const [[url, init]] = kall;
     expect(url).toBe('/api/kjerne/saker');
     expect(init.method).toBe('POST');
@@ -52,8 +52,14 @@ describe('klienten mot TS-serveren', () => {
     expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('prosjekt-2');
   });
 
+  // Kilde: #743 p4. Uten prosjekt fra ruta avviser serveren, i stedet for å bruke det aktive.
+  it('en tom prosjekt-ID sendes som den er og gir ikke det aktive prosjektet', async () => {
+    await sendKommando('a', 1, ID, { type: 'krav' }, '');
+    expect(new Headers(kall[0][1].headers).get('X-Project-ID')).toBe('');
+  });
+
   it('sender kommandoen med versjonen skjemaet så, til saken', async () => {
-    await sendKommando('a/b', 3, ID, { type: 'krav' });
+    await sendKommando('a/b', 3, ID, { type: 'krav' }, 'prosjekt-1');
     const [[url, init]] = kall;
     expect(url).toBe('/api/kjerne/saker/a%2Fb/kommandoer');
     expect(JSON.parse(init.body as string)).toEqual({

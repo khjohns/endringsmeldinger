@@ -22,7 +22,7 @@
     onwithdraw,
   }: {
     mode: Mode;
-    role: Role;
+    role: Role | null;
     sel: SporKey;
     hasDraft: boolean;
     oncloseform: () => void;

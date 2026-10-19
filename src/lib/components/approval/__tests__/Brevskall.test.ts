@@ -37,9 +37,11 @@ describe('Brevskall', () => {
     const onbekreft = vi.fn();
     const onavbryt = vi.fn();
     const screen = render(Brevkontroll, {
-      tekst: ['Første avsnitt.', 'Andre avsnitt.'],
-      utdypning: 'Utdypet.',
-      tittel: 'Grunnlag – Fundament',
+      brev: {
+        tittel: 'Grunnlag – Fundament',
+        tekst: ['Første avsnitt.', 'Andre avsnitt.'],
+        utdypning: 'Utdypet.',
+      },
       beskrivelse: 'Kravet sendes først når du bekrefter.',
       onbekreft,
       onavbryt,
@@ -105,9 +107,9 @@ describe('Brevskall', () => {
   });
 
   it('Brevkontroll krever ny avkrysning når den låste teksten, utdypningen eller tittelen endres, og etter sendingen, men ikke når det samme brevet tegnes på nytt', async () => {
+    const brev = { tittel: 'Grunnlag – Fundament', tekst: ['Første avsnitt.'] };
     const props = {
-      tekst: ['Første avsnitt.'],
-      tittel: 'Grunnlag – Fundament',
+      brev,
       beskrivelse: 'Kravet sendes først når du bekrefter.',
       onbekreft: vi.fn(),
       onavbryt: vi.fn(),
@@ -118,15 +120,18 @@ describe('Brevskall', () => {
     await fireEvent.click(avkrysning());
     await fireEvent.click(send());
     expect(props.onbekreft).toHaveBeenCalledOnce();
-    await screen.rerender({ ...props, tekst: ['Første avsnitt, endret.'] });
+    await screen.rerender({ ...props, brev: { ...brev, tekst: ['Første avsnitt, endret.'] } });
     expect(avkrysning()).not.toBeChecked();
     expect(send()).toBeDisabled();
-    await screen.rerender({ ...props, tekst: ['Første avsnitt.'], utdypning: 'Utdypet.' });
+    await screen.rerender({ ...props, brev: { ...brev, utdypning: 'Utdypet.' } });
     expect(avkrysning()).not.toBeChecked();
     await fireEvent.click(avkrysning());
-    await screen.rerender({ ...props, utdypning: 'Utdypet.' });
+    await screen.rerender({ ...props, brev: { ...brev, utdypning: 'Utdypet.' } });
     expect(avkrysning()).toBeChecked();
-    await screen.rerender({ ...props, utdypning: 'Utdypet.', tittel: 'Grunnlag – Fundament nord' });
+    await screen.rerender({
+      ...props,
+      brev: { ...brev, utdypning: 'Utdypet.', tittel: 'Grunnlag – Fundament nord' },
+    });
     expect(avkrysning()).not.toBeChecked();
   });
 });
