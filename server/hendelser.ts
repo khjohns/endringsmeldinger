@@ -1,0 +1,194 @@
+/**
+ * Behandlingen av hendelsene i innboksen fra webhooken (W-1b.1, #819). Jobbløkka
+ * (`server/jobber.ts`) tar den eldste hendelsen uten utfall og lagrer utfallet i
+ * `koe.innkommende_behandling`.
+ *
+ * Bare en topic laget av TE gir en sak, med topicens tittel, og topicen er ikke et
+ * varsel eller krav i appen (KT-U6). En topic fra BH gir ingen sak (KT-U7). Det gjør
+ * heller ikke en topic av typen endringsordre, forsering eller ukjent type
+ * (arbeidsvalget i #819), en topic som alt hører til en sak eller er laget av
+ * integrasjonen (#741 punkt 17), eller en forfatter uten entydig identitet eller side
+ * (INT-04). Hendelsen blir da liggende i innboksen med utfallet. Kommentaren tilbake til
+ * topicen kommer i W-1b.2 og leser utfallet.
+ *
+ * ID-en og typen leses fra kolonnene dedupen brukte, ikke fra kroppen (#819). Prosjektet
+ * tas fra koblingen til Catenda-prosjektet og boardet, aldri fra kroppen alene.
+ */
+
+import { createHash } from 'node:crypto';
+import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
+import { catendaId, kontraktssideUtenSesjon, uuidMedBindestreker } from './autorisasjon.ts';
+import { TOPICTYPE, type Innboksoppslag } from './catenda.ts';
+import { sql, utenKontekst, type Pool } from './datalag.ts';
+import { catendaIdentitet } from './innlogging.ts';
+import {
+  IngenTopicBoard,
+  kommandosum,
+  opprettSak,
+  SkrivingAvvist,
+  TopicHarSak,
+  UgyldigKommando,
+} from './kommandoer.ts';
+
+export type Behandlingsutfall =
+  | 'sak_opprettet'
+  | 'topic_fra_bh'
+  | 'sakstype_ikke_stoettet'
+  | 'topic_har_sak'
+  | 'laget_av_integrasjonen'
+  | 'ukjent_prosjekt'
+  | 'ukjent_forfatter'
+  | 'ukjent_side'
+  | 'avvist'
+  | 'ugyldig_hendelse'
+  | 'ikke_behandlet_type'
+  | 'feilet';
+
+export interface Behandling {
+  utfall: Behandlingsutfall;
+  prosjektId?: string;
+  sakId?: string;
+  /** I formen 8-4-4-4-12, som `koe.sak_catenda_topic`. */
+  topicId?: string;
+  melding?: string;
+}
+
+export interface Innkommende {
+  /** `bigint`, som tekst fra mssql. */
+  id: string;
+  hendelse_id: string;
+  hendelsestype: string;
+  kropp: string;
+}
+
+export interface Behandlingsavhengigheter {
+  datalag: Pool;
+  catenda: Innboksoppslag;
+}
+
+/** Typene for en ny topic; de andre typene behandles ikke i W-1b.1. */
+const NY_TOPIC = new Set(['issue.created', 'bcf.issue.created']);
+
+const erObjekt = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
+
+const tekst = (v: unknown) => (typeof v === 'string' ? v : '');
+
+export async function nesteInnkommende(datalag: Pool): Promise<Innkommende | null> {
+  const svar = await utenKontekst(datalag).execute<Innkommende>('koe_api.neste_innkommende');
+  const rad = svar.recordset[0];
+  return rad ? { ...rad, id: String(rad.id) } : null;
+}
+
+export async function registrerBehandling(
+  datalag: Pool,
+  rad: Innkommende,
+  { utfall, prosjektId, sakId, topicId, melding }: Behandling
+): Promise<void> {
+  await utenKontekst(datalag)
+    .input('innkommende_hendelse_id', sql.BigInt, rad.id)
+    .input('utfall', sql.NVarChar(40), utfall)
+    .input('prosjekt_id', sql.NVarChar(100), prosjektId ?? null)
+    .input('sak_id', sql.NVarChar(36), sakId ?? null)
+    .input('catenda_topic_id', sql.NVarChar(100), topicId ?? null)
+    .input('melding', sql.NVarChar(400), melding?.slice(0, 400) ?? null)
+    .execute('koe_api.registrer_behandling');
+}
+
+/**
+ * Kommando-ID-en for opprettelsen er avledet av raden i innboksen, så et nytt forsøk
+ * etter et avbrudd får saken fra kvitteringen i stedet for en sak til.
+ */
+function kommandoId(rad: Innkommende): string {
+  const hex = createHash('sha256').update(`catenda-innboks:${rad.id}`).digest('hex');
+  return uuidMedBindestreker(hex.slice(0, 32))!;
+}
+
+/**
+ * Utfallet for hendelsen. Kaster når utfallet ikke kan avgjøres nå, som når Catenda eller
+ * basen ikke svarer; da prøver løkka igjen.
+ */
+export async function behandle(
+  avh: Behandlingsavhengigheter,
+  rad: Innkommende
+): Promise<Behandling> {
+  if (!NY_TOPIC.has(rad.hendelsestype)) return { utfall: 'ikke_behandlet_type' };
+  let kropp: unknown;
+  try {
+    kropp = JSON.parse(rad.kropp);
+  } catch {
+    return { utfall: 'ugyldig_hendelse', melding: 'Kroppen er ikke gyldig JSON.' };
+  }
+  const issue = erObjekt(kropp) ? (kropp.issue ?? kropp.topic) : undefined;
+  const prosjekt = erObjekt(kropp) ? kropp.project : undefined;
+  const forfatter = erObjekt(kropp) ? kropp.createdBy : undefined;
+  if (!erObjekt(issue) || !erObjekt(prosjekt))
+    return { utfall: 'ugyldig_hendelse', melding: 'Kroppen mangler issue eller project.' };
+  const topicId = uuidMedBindestreker(issue.id ?? issue.guid);
+  const board = uuidMedBindestreker(issue.boardId);
+  const catendaProsjekt = uuidMedBindestreker(prosjekt.id);
+  if (!topicId || !board || !catendaProsjekt)
+    return {
+      utfall: 'ugyldig_hendelse',
+      melding: 'Topicen, boardet eller prosjektet er ikke en UUID.',
+    };
+
+  const oppslag = await utenKontekst(avh.datalag)
+    .input('catenda_prosjekt', sql.UniqueIdentifier, catendaProsjekt)
+    .input('board', sql.UniqueIdentifier, board)
+    .execute<{ prosjekt_id: string }>('koe_api.topicens_prosjekt');
+  const prosjektId = oppslag.recordset[0]?.prosjekt_id;
+  if (!prosjektId) return { utfall: 'ukjent_prosjekt', topicId };
+  const ut = (utfall: Behandlingsutfall, melding?: string): Behandling => ({
+    utfall,
+    prosjektId,
+    topicId,
+    ...(melding ? { melding } : {}),
+  });
+
+  const subjekt = erObjekt(forfatter) && forfatter.type === 'user' ? catendaId(forfatter.id) : null;
+  if (erObjekt(forfatter) && catendaId(forfatter.id) === (await avh.catenda.integrasjonensBruker()))
+    return ut('laget_av_integrasjonen');
+  if (issue.type !== TOPICTYPE) return ut('sakstype_ikke_stoettet');
+  if (!subjekt) return ut('ukjent_forfatter');
+
+  const aktor = await catendaIdentitet(avh.datalag, {
+    subjekt,
+    epost: tekst((forfatter as Record<string, unknown>).email),
+    navn: tekst((forfatter as Record<string, unknown>).name),
+  });
+  const side = await kontraktssideUtenSesjon(avh.datalag, avh.catenda, prosjektId, aktor);
+  if (!side) return ut('ukjent_side');
+  if (side.rolle === 'BH') return ut('topic_fra_bh');
+
+  const kommando = { type: 'opprett_sak', sakstittel: issue.title };
+  try {
+    const utfall = await opprettSak(
+      avh.datalag,
+      { aktor, prosjekt: prosjektId, side: 'TE', ...(side.teamId ? { team: side.teamId } : {}) },
+      {
+        id: kommandoId(rad),
+        sha256: kommandosum({
+          rute: 'innboks',
+          hendelse: rad.hendelse_id,
+          topic: topicId,
+          kommando,
+        }),
+      },
+      () => {
+        const vurdert = opprettelse(kommando, side.rolle);
+        if (!vurdert.godtatt) return { skriv: false as const, avvisning: vurdert.avvisning };
+        return { format: vurdert.format, data: vurdert.data };
+      },
+      { topic: { board, topic: topicId } }
+    );
+    if ('avvisning' in utfall) return ut('avvist', utfall.avvisning.melding);
+    return { ...ut('sak_opprettet'), sakId: utfall.sak_id };
+  } catch (feil) {
+    if (feil instanceof TopicHarSak) return ut('topic_har_sak');
+    if (feil instanceof IngenTopicBoard) return ut('ukjent_prosjekt', feil.message);
+    if (feil instanceof SkrivingAvvist) return ut('ukjent_side', feil.message);
+    if (feil instanceof UgyldigKommando) return ut('avvist', feil.message);
+    throw feil;
+  }
+}

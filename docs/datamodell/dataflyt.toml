@@ -938,8 +938,8 @@ beskrivelse = """
 Stien sammenlignes med hemmeligheten i konstant tid, og en feil sti gir 404 som en
 ukjent rute (INT-01). Kroppen lagres rå i `koe.innkommende_hendelse` før svaret 200,
 og samme `event.id` lagres én gang. Feiler lagringen, er svaret 500, så Catenda
-prøver igjen (INT-02). Behandlingen av innboksen kommer i W-1b; til da skrives ingen
-sak og ingen kommentar."""
+prøver igjen (INT-02). Behandlingen av innboksen er C22 (W-1b.1); kommentaren
+tilbake til topicen kommer i W-1b.2."""
 funn = ["INT-01", "INT-02"]
 belegg = "L 19.10: `server/webhook.ts`. K 19.10: `server/tester/webhook.test.ts`."
 
@@ -952,6 +952,74 @@ kode = [
     "server/webhook.ts:mottaHendelse",
 ]
 data = "Hele kroppen, med `event.id` og `event.type` i egne kolonner."
+
+[[flyt]]
+id = "C22"
+navn = "Behandlingen av innboksen i TS-serveren"
+retning = "inn"
+utloses_av = """
+Løkka i jobbkjøreren, etter jobbene: `behandleEnHendelse` i `server/jobber.ts` tar
+den eldste hendelsen i `koe.innkommende_hendelse` uten utfall (W-1b.1, #819)."""
+beskrivelse = """
+Bare en ny topic gir en sak. Prosjektet tas fra koblingen til Catenda-prosjektet og
+topic-boardet, aldri fra kroppen. En topic laget av integrasjonen selv gir ingen sak
+(#741 punkt 17), og forfatterens side avgjøres med kontraktsteamene i Catenda. En
+topic fra TE gir en sak med bare topicens tittel (KT-U6), og saken kobles til topicen
+i samme transaksjon, uten jobb for en ny topic. En topic fra BH gir ingen sak
+(KT-U7). Hver hendelse får ett utfall i `koe.innkommende_behandling`. Kommentaren
+tilbake til topicen kommer i W-1b.2."""
+funn = []
+belegg = "L 19.10: `server/hendelser.ts`, `server/jobber.ts` og `database/migrasjoner/20261020130000_innkommende_behandling.sql`."
+
+[[flyt.steg]]
+fra = "catenda:bruker"
+til = ["appen"]
+endepunkt = "GET /v2/user"
+kode = [
+    "server/jobber.ts:behandleEnHendelse",
+    "server/hendelser.ts:behandle",
+    "server/catenda.ts:innboksintegrasjon",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = "Integrasjonens egen Catenda-ID (`egenId`), som skiller topics integrasjonen laget. Lagres ikke."
+
+[[flyt.steg]]
+fra = "catenda:team"
+til = ["appen"]
+endepunkt = "GET /v2/projects/{catenda_project_id}/teams/{team_id}/members (sidevis), for hvert kontraktsteam"
+kode = [
+    "server/jobber.ts:behandleEnHendelse",
+    "server/hendelser.ts:behandle",
+    "server/autorisasjon.ts:kontraktssideUtenSesjon",
+    "server/catenda.ts:innboksintegrasjon",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = "Forfatterens side og team. Blir `aktor_rolle` og `aktor_team_id` i `sak_opprettet`."
+
+[[flyt.steg]]
+fra = "catenda:webhook"
+til = ["koe.sak_metadata", "koe.hendelse", "koe.sak_catenda_topic"]
+endepunkt = "Hendelsen i innboksen"
+kode = [
+    "server/jobber.ts:behandleEnHendelse",
+    "server/hendelser.ts:behandle",
+    "server/kommandoer.ts:opprettSak",
+]
+data = """
+Topicens tittel blir sakstittelen i `sak_opprettet`, og topicen og boardet blir
+koblingen i `koe.sak_catenda_topic`, skrevet av `koe_api.koble_topic` fra
+`koe_api.opprett_sak`. Kvitteringen i `koe.kvittering` har en kommando-ID avledet
+av hendelsen i innboksen. Forfatteren løses til en brukerrad som ved innlogging."""
+
+[[flyt.steg]]
+fra = "catenda:webhook"
+til = ["koe.innkommende_behandling"]
+endepunkt = "Hendelsen i innboksen"
+kode = [
+    "server/jobber.ts:behandleEnHendelse",
+    "server/hendelser.ts:registrerBehandling",
+]
+data = "Utfallet, med prosjektet, saken og topicen når de er kjent."
 
 # ---------------------------------------------------------------------------
 # Kall til Catenda som ikke er en del av appens dataflyt

@@ -6,7 +6,8 @@
  * at jobben blir gjort. Løkka krever en instans som alltid kjører (B-07, B-12).
  *
  * Jobbene er topicen for en ny sak og leveringen av et brev med vedleggene (L-1b, #371;
- * V-3, #790).
+ * V-3, #790). Etter jobbene behandler løkka hendelsene i innboksen fra webhooken
+ * (`server/hendelser.ts`, #819).
  * Bare en gyldig lease kvitterer (invariant 7). Et usikkert eller varig avvist
  * utfall parkeres og logges, og driften starter jobben på nytt med `koe_api.start_jobb_paa_nytt`
  * (svaret «Driften» 18.10, #371). Prosedyrene for løkka kjører som
@@ -24,10 +25,14 @@ import {
   VarigCatendaavvik,
   type Dokumentleverandoer,
   type Dokumentmaal,
+  type Innboksoppslag,
   type Referanse,
   type Topicoppretter,
 } from './catenda.ts';
+import { uuidMedBindestreker } from './autorisasjon.ts';
 import { feilnummer, sql, utenKontekst, type Pool } from './datalag.ts';
+import { behandle, nesteInnkommende, registrerBehandling, type Behandling } from './hendelser.ts';
+import { LaasIkkeGitt } from './kommandoer.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
 /**
@@ -59,6 +64,8 @@ export interface Jobbavhengigheter {
   datalag: Pool;
   catenda: Topicoppretter;
   dokumenter: Dokumentleverandoer;
+  /** Oppslagene for behandlingen av innboksen (W-1b.1, #819). Uten dem behandles den ikke. */
+  innboks?: Innboksoppslag;
   /** Adressen til saken i appen, for beskrivelsen i topicen (#741 punkt 15). */
   saksadresse: (prosjektId: string, sakId: string) => string;
   logg?: Pick<Console, 'info' | 'warn' | 'error'>;
@@ -180,8 +187,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
           beskrivelse: `Saken i endringsappen: ${avh.saksadresse(jobb.prosjekt_id, jobb.sak_id)}`,
         })
       );
-      await kvitter('koe_api.kvitter_topic', { topic_id: [sql.NVarChar(100), topic] });
-      logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
+      // Samme form som topicene fra webhooken, så den unike begrensningen gjelder begge (#819).
+      const topicId = uuidMedBindestreker(topic) ?? topic;
+      await kvitter('koe_api.kvitter_topic', { topic_id: [sql.NVarChar(100), topicId] });
+      logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topicId} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
       avstemmes = true;
       const brevPdf = async (pdf: Uint8Array | null) => {
@@ -245,6 +254,36 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       await registrer();
     }
   }
+  return true;
+}
+
+/**
+ * Behandler den eldste hendelsen i innboksen og lagrer utfallet. Sann når en hendelse ble
+ * behandlet. Kan utfallet ikke avgjøres nå, fordi Catenda eller basen ikke svarer eller en
+ * lås ikke ble gitt, kastes feilen, og løkka prøver igjen ved neste runde. En annen feil gir
+ * utfallet `feilet`, som blir stående, så én hendelse ikke stopper resten.
+ */
+export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolean> {
+  const logg = avh.logg ?? console;
+  if (!avh.innboks) return false;
+  const rad = await nesteInnkommende(avh.datalag);
+  if (!rad) return false;
+  let behandling: Behandling;
+  try {
+    behandling = await behandle({ datalag: avh.datalag, catenda: avh.innboks }, rad);
+  } catch (feil) {
+    const varig = feil instanceof CatendaAvvisning || feil instanceof VarigCatendaavvik;
+    if (
+      (feil instanceof CatendaUtilgjengelig && !varig) ||
+      forbigaaendeISql(feil) ||
+      feil instanceof LaasIkkeGitt
+    )
+      throw feil;
+    logg.error(`Hendelsen ${rad.id} i innboksen kunne ikke behandles:`, feil);
+    behandling = { utfall: 'feilet', melding: 'Uventet feil i behandlingen' };
+  }
+  await registrerBehandling(avh.datalag, rad, behandling);
+  logg.info(`Hendelsen ${rad.id} i innboksen er behandlet: ${behandling.utfall}.`);
   return true;
 }
 
@@ -379,6 +418,7 @@ export function startJobbkjoerer(
     while (!stoppet) {
       try {
         while (!stoppet && (await kjoerEnJobb(avh)));
+        while (!stoppet && (await behandleEnHendelse(avh)));
       } catch (feil) {
         logg.error('Jobbkjøreren feilet:', feil);
       }

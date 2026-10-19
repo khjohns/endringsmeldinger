@@ -14,7 +14,7 @@
 
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { erObjekt } from '../kjerne/format/skjema.ts';
-import { catendaId, type Catenda } from './autorisasjon.ts';
+import { catendaId, uuidMedBindestreker, type Catenda } from './autorisasjon.ts';
 import type { Medlem } from './medlemskap.ts';
 import { UUID } from './datalag.ts';
 
@@ -262,6 +262,17 @@ export class CatendaOAuth {
       throw new CatendaUtilgjengelig('Forventet en brukeridentitet');
     }
     return { subjekt, epost: tekst(bruker.email), navn: tekst(bruker.name) };
+  }
+
+  /**
+   * ID-en til brukeren tokenet tilhører, i `catendaId()`-formen, også når det ikke er en
+   * individuell bruker. For integrasjonen er det forfatteren av topicene den lager.
+   */
+  async egenId(token: string): Promise<string> {
+    const bruker = await forespoersel(this.#oppsett, 'GET', '/v2/user', { token });
+    const id = erObjekt(bruker) ? catendaId(bruker.id) : null;
+    if (!id) throw new CatendaUtilgjengelig('Forventet en brukeridentitet');
+    return id;
   }
 
   /**
@@ -536,7 +547,7 @@ function dokumentsti(maal: Dokumentmaal): string {
  * bindestreker, og den formen gir 404 (#902). En ID som ikke er en UUID, sendes som den er.
  */
 function bcfDokumentId(id: string): string {
-  return catendaId(id)?.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5') ?? id;
+  return uuidMedBindestreker(id) ?? id;
 }
 
 function boardsti(boardId: string): string {
@@ -774,6 +785,22 @@ export function dokumentleverandoer(catenda: Integrasjon): Dokumentleverandoer {
       medToken(catenda, (t) => catenda.oauth.dokumentreferanser(board, topic, t)),
     opprettDokumentreferanse: (board, topic, dokument) =>
       medToken(catenda, (t) => catenda.oauth.opprettDokumentreferanse(board, topic, dokument, t)),
+  };
+}
+
+/** Det behandlingen av innboksen slår opp i Catenda, med integrasjonens eget token (#819). */
+export interface Innboksoppslag extends Pick<Catenda, 'teammedlemmer'> {
+  /** Forfatteren av topicene integrasjonen lager, i `catendaId()`-formen (#741 punkt 17). */
+  integrasjonensBruker(): Promise<string>;
+}
+
+export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
+  let egen: string | null = null;
+  return {
+    teammedlemmer: (catendaProsjektId, teamId) =>
+      medToken(catenda, (t) => catenda.oauth.teammedlemmer(catendaProsjektId, teamId, t)),
+    integrasjonensBruker: async () =>
+      (egen ??= await medToken(catenda, (t) => catenda.oauth.egenId(t))),
   };
 }
 

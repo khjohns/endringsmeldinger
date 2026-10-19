@@ -66,6 +66,11 @@ export function catendaId(verdi: unknown): string | null {
   return /^[0-9a-f]{32}$/.test(hex) ? hex : null;
 }
 
+/** Samme UUID i formen 8-4-4-4-12 med små bokstaver, som BCF og basen bruker, ellers `null` (#906). */
+export function uuidMedBindestreker(verdi: unknown): string | null {
+  return catendaId(verdi)?.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5') ?? null;
+}
+
 export function informasjonskapsel(foresporsel: IncomingMessage, navn: string): string {
   for (const del of (foresporsel.headers.cookie ?? '').split(';')) {
     const [nokkel, ...verdi] = del.trim().split('=');
@@ -427,13 +432,42 @@ export async function krevKontraktsrolle(
 }
 
 /**
+ * Siden og teamet for en aktør uten sesjon, som forfatteren av en topic (#819), med samme
+ * oppslag som `lesKontraktsside`. `null` uten aktivt medlemskap i prosjektet eller uten
+ * entydig side.
+ */
+export async function kontraktssideUtenSesjon(
+  db: Pool,
+  catenda: Pick<Catenda, 'teammedlemmer'>,
+  prosjektId: string,
+  aktor: string
+): Promise<Kontraktstilgang | null> {
+  const oppsett = await prosjektoppsett(db, prosjektId);
+  if (!oppsett) return null;
+  const svar = await utenKontekst(db)
+    .input('aktor', sql.UniqueIdentifier, aktor)
+    .input('prosjekt', sql.NVarChar(4000), prosjektId)
+    .execute<Medlemskap>('koe_api.prosjektmedlemskap');
+  const medlemskap = svar.recordset[0];
+  if (!medlemskap) return null;
+  const [rolle, teamId] = await kontraktsside(db, catenda, {
+    prosjektId,
+    aktor,
+    rolle: medlemskap.rolle,
+    oppsett,
+    medlemskap,
+  });
+  return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
+}
+
+/**
  * Siden og teamet. Teamet er ett av prosjektets kontraktsteam på den siden
  * aktøren er på, og `null` når aktøren er med i flere av dem, så det kan
  * settes som `koe_team` (#53, DL-U4).
  */
 async function kontraktsside(
   db: Pool,
-  catenda: Catenda,
+  catenda: Pick<Catenda, 'teammedlemmer'>,
   { prosjektId, aktor, oppsett, medlemskap }: Prosjekttilgang
 ): Promise<[Rolle | null, string | null]> {
   if (medlemskap.leserolle) return [null, null];
