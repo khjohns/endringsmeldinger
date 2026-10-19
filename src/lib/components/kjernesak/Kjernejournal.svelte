@@ -21,6 +21,7 @@
           <strong>{j.versjon}. {j.tittel}</strong>
           <span class="dempet">{formatDateTimeNorwegian(j.tidsstempel)}</span>
           {#if !j.tolket}<span class="merknad">Ikke tolket</span>{/if}
+          {#if j.hendelseskode}<span class="dempet">{j.hendelseskode}</span>{/if}
         </p>
         {#if j.tekst}
           <div class="brevtekst">

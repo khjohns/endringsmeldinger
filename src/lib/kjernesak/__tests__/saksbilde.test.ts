@@ -150,7 +150,13 @@ describe('saksbildet for en TS-sak', () => {
     };
     const { bilde } = bildeAv([opprettet, ukjent]);
     expect(bilde.status.kode).toBe('kan_ikke_utledes');
-    expect(bilde.journal[1].tolket).toBe(false);
+    // Tittel og kode for en rad som ikke er tolket: oppdragsgiver 19.10 (#764, svar 4).
+    expect(bilde.journal[1]).toMatchObject({
+      tolket: false,
+      tittel: 'Hendelse appen ikke forstår, fra TE',
+      hendelseskode: 'ukjent_type',
+    });
+    expect(bilde.journal[0].hendelseskode).toBeNull();
     expect(bilde.merknader.map((m) => m.kode)).toEqual(['varsel_med_frist_utenfor_appen']);
   });
 
@@ -211,9 +217,20 @@ describe('saksbildet for en TS-sak', () => {
       expect(bilde.journal[1]).toMatchObject({
         tolket: false,
         tekst: null,
-        tittel: 'dokument_registrert fra TE',
+        tittel: 'Hendelse appen ikke forstår, fra TE',
+        hendelseskode: 'dokument_registrert',
       });
     }
+  });
+
+  // Oppdragsgiver 19.10 (#764, svar 4): tittelen gjelder hver rad som ikke er tolket.
+  it('gir en ikke tolket sak_opprettet tittelen for en hendelse appen ikke forstår', () => {
+    const { bilde } = bildeAv([{ ...opprettet, format: 99 }]);
+    expect(bilde.journal[0]).toMatchObject({
+      tolket: false,
+      tittel: 'Hendelse appen ikke forstår, fra TE',
+      hendelseskode: 'sak_opprettet',
+    });
   });
 
   it('viser en kode uten tekst som koden selv', () => {

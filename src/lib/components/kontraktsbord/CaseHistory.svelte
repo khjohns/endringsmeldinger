@@ -10,12 +10,15 @@
     activeEvent = null,
     oneventclick,
     onletterclick,
+    harBrev,
   }: {
     events: TimelineEvent[];
     sel: SporKey;
     activeEvent?: TimelineEvent | null;
     oneventclick?: (event: TimelineEvent) => void;
     onletterclick?: (event: TimelineEvent) => void;
+    /** Knappen «Vis brev» vises bare for en hendelse denne sier har brev. */
+    harBrev?: (event: TimelineEvent) => boolean;
   } = $props();
   let scope = $state<'track' | 'case'>('track');
   const selectedTrack = $derived(sel === 'ansvar' ? 'grunnlag' : sel);
@@ -108,7 +111,7 @@
             >{/if}
           {#if item.version != null}<p class="version">Svar på versjon {item.version}</p>{/if}
           {#if item.detail}<p class="event-detail">{item.detail}</p>{/if}
-          {#if onletterclick}<button
+          {#if onletterclick && harBrev?.(item.event)}<button
               class="letter"
               aria-label={`Vis brev: ${item.title}`}
               onclick={() => onletterclick?.(item.event)}
