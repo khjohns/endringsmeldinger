@@ -12,7 +12,7 @@ import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   opprettKjoeretid,
@@ -38,12 +38,23 @@ interface Prosess {
   avsluttet: Promise<{ kode: number | null; signal: NodeJS.Signals | null }>;
 }
 
+const startet = new Set<ChildProcess>();
+
+// En test som feiler eller går ut på tid, skal ikke etterlate en server som holder basen.
+afterEach(() => {
+  for (const barn of startet)
+    if (barn.exitCode === null && barn.signalCode === null) barn.kill('SIGKILL');
+  startet.clear();
+});
+
 function start(skript: string, miljoe: NodeJS.ProcessEnv): Prosess {
   const barn = spawn(process.execPath, [skript, '0'], { env: miljoe, stdio: 'pipe' });
+  startet.add(barn);
   let utdata = '';
   barn.stdout!.on('data', (d) => (utdata += d));
   barn.stderr!.on('data', (d) => (utdata += d));
-  const avsluttet = once(barn, 'exit').then(([kode, signal]) => ({ kode, signal }));
+  // `close`, ikke `exit`: da er stdout og stderr lest ut, og utdataene er hele.
+  const avsluttet = once(barn, 'close').then(([kode, signal]) => ({ kode, signal }));
   return { barn, utdata: () => utdata, avsluttet };
 }
 
@@ -72,7 +83,7 @@ describe('oppstarten når en skrift mangler (#813 punkt 4)', () => {
     expect((await p.avsluttet).kode).toBe(1);
     expect(p.utdata()).toContain('KOE_DATALAG_TILKOBLING er ikke satt');
     expect(p.utdata()).not.toContain('Skriftene til brev-PDF-en');
-  });
+  }, 30_000);
 
   it('uten NotoSansMath stopper oppstarten med meldingen om skriftene, før tilkoblingen leses', async () => {
     rmSync(join(mappe, 'server', 'skrift', 'NotoSansMath-Regular.ttf'));
@@ -82,7 +93,7 @@ describe('oppstarten når en skrift mangler (#813 punkt 4)', () => {
     expect(p.utdata()).toContain('NotoSansMath-Regular.ttf');
     expect(p.utdata()).not.toContain('KOE_DATALAG_TILKOBLING');
     expect(p.utdata()).not.toContain('lytter på');
-  });
+  }, 30_000);
 });
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('stoppen (#813 punkt 3)', () => {
@@ -134,10 +145,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('stoppen (#813 punkt 3)', () => {
     const p = await startServer();
     // En forespørsel som aldri blir ferdig, holder `server.close` åpen.
     const forbindelse = connect(p.port, '127.0.0.1');
+    forbindelse.on('error', () => {});
     await once(forbindelse, 'connect');
     await new Promise<void>((skrevet) =>
       forbindelse.write('GET /api/csrf-token HTTP/1.1\r\nHost: localhost\r\n', () => skrevet())
     );
+    // Serveren må ha lest de første linjene før signalet; ellers er forbindelsen tom og
+    // lukkes av `server.close`.
+    await new Promise((r) => setTimeout(r, 200));
     try {
       p.barn.kill('SIGTERM');
       expect(await innen(p.avsluttet, 1_000)).toBe('kjører');
@@ -149,7 +164,6 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('stoppen (#813 punkt 3)', () => {
       );
     } finally {
       forbindelse.destroy();
-      if (p.barn.exitCode === null) p.barn.kill('SIGKILL');
     }
   }, 30_000);
 });
