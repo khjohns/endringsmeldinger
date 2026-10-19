@@ -3396,6 +3396,90 @@ kilde = "ns8407"
 utdrag = true
 tekst = "blir eller burde ha blitt klar over forholdene"
 
+[[gruppe.vedtak]]
+id = "VS-U27"
+dato = 2026-10-19
+hvem = "oppdragsgiver"
+kilde = ["#909"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble vist i spørsmålsverktøyet i runde 12:
+
+Så lenge totalentreprenøren ikke har fremmet et krav med antall dager, kan byggherren be om et spesifisert krav om fristforlengelse (§ 33.6.2). Totalentreprenøren skal da enten angi og begrunne dagene, eller begrunne hvorfor grunnlaget for å beregne kravet ikke foreligger (bokstav b). Det er vedtatt at begrunnelsen er totalentreprenørens svar på forespørselen (VS-U17), at byggherren kan sende forespørselen fra appen (VS-U19), og at en forespørsel sendt utenfor appen i første versjon bare er dokumentasjon (VS-U23). Åpent er hva som gjelder når forespørselen er sendt utenfor appen og registrert: kan totalentreprenøren da sende begrunnelsen fra appen som svar? Anbefalt: nei, som for byggherrens endringsordre som viser til et registrert krav (OV-U12).
+
+Alternativene slik de ble vist:
+
+Bare forespørsel fra appen (Recommended): Totalentreprenøren kan sende begrunnelsen etter § 33.6.2 annet ledd bokstav b fra appen bare som svar på en forespørsel byggherren har sendt fra appen. Er forespørselen sendt utenfor appen og registrert som dokumentasjon (VS-U23, OV-U4), svarer totalentreprenøren utenfor appen og registrerer svaret som dokumentasjon, eller sender et krav med dager fra appen. Appen viser at forespørselen er registrert, og avgjør ikke om svaret kom i tide. Forhold: presiserer VS-U17 og VS-U23, i tråd med OV-U12.
+
+Også til registrert forespørsel: Totalentreprenøren kan sende begrunnelsen etter § 33.6.2 annet ledd bokstav b fra appen også som svar på en forespørsel som er registrert som dokumentasjon. Begrunnelsen får serverens dato og vises ved forespørselen. Fordi forespørselen er dokumentasjon, utleder appen ingen virkning av begrunnelsen, heller ikke om byggherren senere gjør gjeldende at den kom for sent; den påberopelsen sendes utenfor appen og registreres (VS-U23). Forhold: presiserer VS-U17 og VS-U23; gjør unntak fra OV-U4 for et utsagn fra appen som viser til et registrert brev.
+
+Utsett § 33.6.2: Byggherrens forespørsel etter § 33.6.2 og totalentreprenørens svar etter bokstav b bygges ikke i første versjon. Begge sendes utenfor appen og registreres etter OV-U4. Totalentreprenøren kan sende et krav med dager fra appen som før. Forhold: endrer OV-U1 ved å ta forespørselen etter § 33.6.2 ut av første versjon, og utsetter VS-U17 og VS-U19 i rekkefølgen, som OV-U7.'''
+valgt = "Bare forespørsel fra appen"
+svar = '''
+«Bare forespørsel fra appen (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "vs-u17" }, { art = "presiserer", vedtak = "vs-u23" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #909 (kommentaren 6275298641). Ikke bygget (#909).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare forespørsel fra appen"
+tekst = '''
+Totalentreprenøren kan sende begrunnelsen etter § 33.6.2 annet ledd bokstav b fra appen bare som svar på en forespørsel byggherren har sendt fra appen. Er forespørselen sendt utenfor appen og registrert som dokumentasjon (VS-U23, OV-U4), svarer totalentreprenøren utenfor appen og registrerer svaret som dokumentasjon, eller sender et krav med dager fra appen. Appen viser at forespørselen er registrert, og avgjør ikke om svaret kom i tide. Forhold: presiserer VS-U17 og VS-U23, i tråd med OV-U12.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Også til registrert forespørsel"
+tekst = '''
+Totalentreprenøren kan sende begrunnelsen etter § 33.6.2 annet ledd bokstav b fra appen også som svar på en forespørsel som er registrert som dokumentasjon. Begrunnelsen får serverens dato og vises ved forespørselen. Fordi forespørselen er dokumentasjon, utleder appen ingen virkning av begrunnelsen, heller ikke om byggherren senere gjør gjeldende at den kom for sent; den påberopelsen sendes utenfor appen og registreres (VS-U23). Forhold: presiserer VS-U17 og VS-U23; gjør unntak fra OV-U4 for et utsagn fra appen som viser til et registrert brev.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Utsett § 33.6.2"
+tekst = '''
+Byggherrens forespørsel etter § 33.6.2 og totalentreprenørens svar etter bokstav b bygges ikke i første versjon. Begge sendes utenfor appen og registreres etter OV-U4. Totalentreprenøren kan sende et krav med dager fra appen som før. Forhold: endrer OV-U1 ved å ta forespørselen etter § 33.6.2 ut av første versjon, og utsetter VS-U17 og VS-U19 i rekkefølgen, som OV-U7.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U28"
+dato = 2026-10-19
+hvem = "oppdragsgiver"
+kilde = ["#909"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble vist i spørsmålsverktøyet i runde 12:
+
+Når kontraktens enhetspriser ikke kan brukes og byggherren ikke har akseptert et tilbud, skal vederlaget justeres etter reglene om regningsarbeid (§ 34.4 og § 30), og byggherren skal varsles før regningsarbeidet settes i gang. Etter vår lesning sier verken § 34.4 eller § 30 hva som skjer om det varselet ikke gis. § 30 har i tillegg kostnadsoverslag med varsel om overskridelse (§ 30.2) og ukentlige oppgaver med byggherrens kontroll (§ 30.3), med egne virkninger. Det er vedtatt at dette avgjøres når § 30 er lest (VS-U3). Skal totalentreprenøren i første versjon kunne kreve vederlag etter regning fra appen, og hva gjør appen med varselet før regningsarbeidet settes i gang? Anbefalt: kravet og varselet fra appen, registrert og vist uten utledet virkning; resten av § 30 utenfor appen.
+
+Alternativene slik de ble vist:
+
+Krav og varsel (Recommended): I første versjon kan totalentreprenøren kreve vederlag etter regning (§ 34.4) fra appen, med et anslått beløp som kravversjon. Kravet kan oppdateres med en ny kravversjon når kostnadene er kjent. Varselet til byggherren før regningsarbeidet settes i gang (§ 34.4 første ledd) kan sendes fra appen som et eget utsagn med serverens dato, eller totalentreprenøren kan oppgi datoen for et varsel sendt utenfor appen, som etter OV-U5. Byggherren kan gjøre gjeldende i svaret at varselet ikke ble gitt eller kom for sent. Appen registrerer og viser varselet og standpunktet med bestemmelsen, uten utledet virkning, og avgjør ikke hvilken virkning et manglende eller sent varsel har. Kostnadsoverslaget, totalentreprenørens varsel om at det vil bli overskredet, og tilbakeholdelsen etter § 30.2, og oppgavene og kontrollen etter § 30.3, sendes utenfor appen og registreres etter OV-U4. Appen avgjør ikke virkningene i § 30.3.1 tredje ledd og § 30.3.2 tredje ledd. Forhold: presiserer VS-U3 for § 34.4; utvider OV-U5 til varselet etter § 34.4.
+
+Krav fra appen, varsel utenfor: I første versjon kan totalentreprenøren kreve vederlag etter regning (§ 34.4) fra appen, med et anslått beløp som kravversjon. Varselet før regningsarbeidet settes i gang har ingen egen handling i appen: det sendes utenfor appen og registreres som dokumentasjon etter OV-U4, og appen utleder ingenting av det. Kostnadsoverslaget, totalentreprenørens varsel om at det vil bli overskredet, tilbakeholdelsen og oppgavene etter § 30.2 og § 30.3 sendes utenfor appen og registreres etter OV-U4. Forhold: presiserer VS-U3 for § 34.4.
+
+Regningsarbeid avvises nå: I første versjon avvises krav om vederlag etter regning (§ 34.4 og § 30), som justering av enhetspriser etter OV-U1. Totalentreprenøren kan kreve vederlag fra appen etter et tilbud (§ 34.2.1) eller etter kontraktens enhetspriser (§ 34.3.1). Et krav etter regning, varselet før regningsarbeidet, kostnadsoverslaget og varselet om at det vil bli overskredet (§ 30.2), og oppgavene (§ 30.3) sendes utenfor appen og registreres etter OV-U4. Byggherren kan fortsatt mene at vederlaget skal justeres etter regning når hen ikke aksepterer tilbudet. Vedtaket står og bygges senere; avgrensningen gjelder rekkefølgen, som i OV-U1. Forhold: utvider OV-U1 (legger § 34.4 og § 30 til det som avvises); presiserer VS-U3.'''
+valgt = "Krav og varsel"
+svar = '''
+«Krav og varsel (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "vs-u3" }, { art = "utvider", vedtak = "ov-u5" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #909 (kommentaren 6275298641). Ikke bygget (#909).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Krav og varsel"
+tekst = '''
+I første versjon kan totalentreprenøren kreve vederlag etter regning (§ 34.4) fra appen, med et anslått beløp som kravversjon. Kravet kan oppdateres med en ny kravversjon når kostnadene er kjent. Varselet til byggherren før regningsarbeidet settes i gang (§ 34.4 første ledd) kan sendes fra appen som et eget utsagn med serverens dato, eller totalentreprenøren kan oppgi datoen for et varsel sendt utenfor appen, som etter OV-U5. Byggherren kan gjøre gjeldende i svaret at varselet ikke ble gitt eller kom for sent. Appen registrerer og viser varselet og standpunktet med bestemmelsen, uten utledet virkning, og avgjør ikke hvilken virkning et manglende eller sent varsel har. Kostnadsoverslaget, totalentreprenørens varsel om at det vil bli overskredet, og tilbakeholdelsen etter § 30.2, og oppgavene og kontrollen etter § 30.3, sendes utenfor appen og registreres etter OV-U4. Appen avgjør ikke virkningene i § 30.3.1 tredje ledd og § 30.3.2 tredje ledd. Forhold: presiserer VS-U3 for § 34.4; utvider OV-U5 til varselet etter § 34.4.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Krav fra appen, varsel utenfor"
+tekst = '''
+I første versjon kan totalentreprenøren kreve vederlag etter regning (§ 34.4) fra appen, med et anslått beløp som kravversjon. Varselet før regningsarbeidet settes i gang har ingen egen handling i appen: det sendes utenfor appen og registreres som dokumentasjon etter OV-U4, og appen utleder ingenting av det. Kostnadsoverslaget, totalentreprenørens varsel om at det vil bli overskredet, tilbakeholdelsen og oppgavene etter § 30.2 og § 30.3 sendes utenfor appen og registreres etter OV-U4. Forhold: presiserer VS-U3 for § 34.4.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Regningsarbeid avvises nå"
+tekst = '''
+I første versjon avvises krav om vederlag etter regning (§ 34.4 og § 30), som justering av enhetspriser etter OV-U1. Totalentreprenøren kan kreve vederlag fra appen etter et tilbud (§ 34.2.1) eller etter kontraktens enhetspriser (§ 34.3.1). Et krav etter regning, varselet før regningsarbeidet, kostnadsoverslaget og varselet om at det vil bli overskredet (§ 30.2), og oppgavene (§ 30.3) sendes utenfor appen og registreres etter OV-U4. Byggherren kan fortsatt mene at vederlaget skal justeres etter regning når hen ikke aksepterer tilbudet. Vedtaket står og bygges senere; avgrensningen gjelder rekkefølgen, som i OV-U1. Forhold: utvider OV-U1 (legger § 34.4 og § 30 til det som avvises); presiserer VS-U3.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
