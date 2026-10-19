@@ -7,10 +7,12 @@ Base class for Catenda API client with authentication and HTTP helpers.
 
 import json
 import logging
+import os
 import random
 import time
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
+from urllib.parse import urlsplit
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -26,6 +28,52 @@ DEFAULT_TIMEOUT = 30
 
 # Use centralized logging (configured in core/logging_config.py)
 logger = logging.getLogger(__name__)
+
+CATENDA = "https://api.catenda.com"
+
+
+def grunnadresse(verdi: str | None, app_env: str | None) -> str:
+    """Origin-en i ``CATENDA_GRUNNADRESSE``, med samme regel som ``grunnadresse``
+    i ``server/catenda.ts``: en https-origin, som token-brokeren (#806), eller http
+    mot localhost i utvikling. Ikke satt gir Catenda. Alt annet avvises."""
+    if not verdi:
+        return CATENDA
+    try:
+        deler = urlsplit(verdi)
+        port = deler.port
+    except ValueError:
+        deler, port = None, None
+    lokal = (
+        deler is not None
+        and app_env == "development"
+        and deler.scheme == "http"
+        and deler.hostname in {"localhost", "127.0.0.1"}
+    )
+    if (
+        deler is None
+        or not deler.hostname
+        or not (deler.scheme == "https" or lokal)
+        or deler.path not in {"", "/"}
+        or deler.query
+        or deler.fragment
+        or deler.username is not None
+        or deler.password is not None
+    ):
+        raise ValueError(
+            "CATENDA_GRUNNADRESSE må være en https-origin, "
+            "eller localhost over http i utvikling"
+        )
+    # Som `URL.origin` i TS: punycode, og IPv6 i hakeparenteser.
+    if ":" in deler.hostname:
+        vert = f"[{deler.hostname}]"
+    else:
+        try:
+            vert = deler.hostname.encode("idna").decode("ascii")
+        except UnicodeError as feil:
+            raise ValueError("CATENDA_GRUNNADRESSE har en ugyldig vert") from feil
+    standard = {"https": 443, "http": 80}[deler.scheme]
+    tillegg = f":{port}" if port and port != standard else ""
+    return f"{deler.scheme}://{vert}{tillegg}"
 
 
 class CatendaClientBase:
@@ -55,7 +103,9 @@ class CatendaClientBase:
         """
         self.client_id = client_id
         self.client_secret = client_secret
-        self.base_url = "https://api.catenda.com"
+        self.base_url = grunnadresse(
+            os.environ.get("CATENDA_GRUNNADRESSE"), os.environ.get("APP_ENV")
+        )
         self.access_token: str | None = access_token
         self.token_expiry: datetime | None = None
         self.refresh_token: str | None = None

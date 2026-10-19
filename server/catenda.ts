@@ -632,10 +632,36 @@ export class Integrasjonsnokkel {
 const normalisertAdresse = (verdi: string) => URL.parse(verdi)?.href ?? verdi;
 
 /**
+ * Origin-en i `CATENDA_GRUNNADRESSE`: en https-origin, som token-brokeren fra
+ * skyøkta (#806), eller http mot localhost i utvikling, for en testleverandør
+ * (F0b-8). Sti, query, fragment og brukeropplysninger avvises. Innloggingen med
+ * `authorization_code` går også mot adressen, og brokeren slipper den ikke gjennom.
+ */
+export function grunnadresse(verdi: string, appEnv: string | undefined): string {
+  const adresse = URL.parse(verdi);
+  const lokal =
+    appEnv === 'development' &&
+    adresse?.protocol === 'http:' &&
+    ['localhost', '127.0.0.1'].includes(adresse.hostname);
+  if (
+    !adresse ||
+    !(adresse.protocol === 'https:' || lokal) ||
+    adresse.pathname !== '/' ||
+    adresse.search ||
+    adresse.hash ||
+    adresse.username ||
+    adresse.password
+  )
+    throw new Error(
+      'CATENDA_GRUNNADRESSE må være en https-origin, eller localhost over http i utvikling'
+    );
+  return adresse.origin;
+}
+
+/**
  * Klienten og integrasjonsnøkkelen fra miljøet. Mangler klient-ID, hemmelighet
  * eller tilbakekallsadresse, kastes feil. Kontrollen av adressene gjør inngangen.
- * `CATENDA_GRUNNADRESSE` godtas bare i utvikling og bare mot localhost, for en
- * testleverandør (F0b-8).
+ * `CATENDA_GRUNNADRESSE` erstatter Catenda, se `grunnadresse`.
  */
 export function catendaFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): {
   oauth: CatendaOAuth;
@@ -649,17 +675,7 @@ export function catendaFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): {
     tilbakekallsadresse: normalisertAdresse(miljoe.CATENDA_LOGIN_REDIRECT_URI ?? ''),
   };
   if (miljoe.CATENDA_GRUNNADRESSE) {
-    const adresse = URL.parse(miljoe.CATENDA_GRUNNADRESSE);
-    if (
-      miljoe.APP_ENV !== 'development' ||
-      adresse?.protocol !== 'http:' ||
-      !['localhost', '127.0.0.1'].includes(adresse.hostname) ||
-      adresse.pathname !== '/' ||
-      adresse.search ||
-      adresse.username
-    )
-      throw new Error('CATENDA_GRUNNADRESSE godtas bare mot localhost i utvikling');
-    oppsett.grunnadresse = adresse.origin;
+    oppsett.grunnadresse = grunnadresse(miljoe.CATENDA_GRUNNADRESSE, miljoe.APP_ENV);
   }
   if (!oppsett.klientId || !oppsett.klienthemmelighet || !oppsett.tilbakekallsadresse) {
     throw new Error(
