@@ -20,9 +20,9 @@ import {
   UgyldigSesjonsdata,
   UkjentBruker,
 } from '../sesjon.ts';
-import { opprettPool } from '../datalag.ts';
 import { avvisning, catendaBruker, opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
+  koble,
   opprettKjoeretid,
   sql,
   SQLSERVER_TILKOBLING,
@@ -200,6 +200,20 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
         '/sak/æøå?a=1&b=%2F'
       );
     });
+
+    // Grensen i prosedyren er kolonnelengden i byte, skrevet en gang til. Endres
+    // kolonnen uten prosedyren, avviser kontrollen gyldige stier eller slipper
+    // gjennom stier som INSERT avviser med 2628 (#691). Grensetestene over regner
+    // med 2048 tegn.
+    it('grensen i opprett_innloggingsforsoek er lengden på return_path i sys.columns', async () => {
+      const { recordset } = await base.pool.request().query<{ bytes: number; definisjon: string }>(
+        `SELECT COL_LENGTH(N'koe.app_oauth_attempts', N'return_path') AS bytes,
+                OBJECT_DEFINITION(OBJECT_ID(N'koe_api.opprett_innloggingsforsoek')) AS definisjon`
+      );
+      const grenser = [...recordset[0].definisjon.matchAll(/DATALENGTH\(@retursti\)\s*>\s*(\d+)/g)];
+      expect(grenser.map((g) => Number(g[1]))).toEqual([recordset[0].bytes]);
+      expect(recordset[0].bytes).toBe(2 * 2048);
+    });
   });
 
   it('ryddingen sletter utløpte sesjoner og forsøk og lar gyldige stå', async () => {
@@ -230,15 +244,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
   });
 
   // Planen for prosedyren, uten å kjøre den. Forbindelsen er egen og har
-  // datalagets konfigurasjon, så SHOWPLAN_XML aldri følger en forbindelse
-  // tilbake til poolen testene ellers bruker.
+  // datalagets konfigurasjon (`koble`), så SHOWPLAN_XML aldri følger en
+  // forbindelse tilbake til poolen testene ellers bruker.
   let planforbindelse: Pool;
   beforeAll(async () => {
-    const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
-    planforbindelse = await opprettPool(
-      { ...config, database: base.navn, connectionTimeout: 5_000, requestTimeout: 60_000 },
-      { maks: 1 }
-    );
+    planforbindelse = await koble(base.navn, 1);
   });
   afterAll(async () => {
     await planforbindelse?.close();
@@ -256,61 +266,103 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
     }
   }
 
-  // Kolonnene i likhetssøkene i indeksen `noekkel`. Søket står i en `IndexScan`
-  // eller rett i en `Update` eller `SimpleUpdate` (som `Clustered Index Delete`),
-  // og indeksen er det første `Object` etter operatoren. Et nøkkeloppslag
-  // (`IndexScan` med `Lookup`) teller ikke: der kommer nøkkelen fra en annen indeks.
-  function soek(xml: string, noekkel: string): string[] {
-    return [...xml.matchAll(/<SeekPredicateNew>(.*?)<\/SeekPredicateNew>/gs)].flatMap((m) => {
-      const foer = xml.slice(0, m.index);
-      const operator = Math.max(
-        foer.lastIndexOf('<IndexScan '),
-        foer.lastIndexOf('<Update '),
-        foer.lastIndexOf('<SimpleUpdate ')
+  interface Element {
+    navn: string;
+    attr: Record<string, string>;
+    barn: Element[];
+    forelder?: Element;
+  }
+
+  // Treet i planen. SHOWPLAN_XML har bare elementer og attributter, så det holder
+  // å lese taggene; navnerommet tas bort fra navnet.
+  function lesXml(xml: string): Element {
+    const rot: Element = { navn: '', attr: {}, barn: [] };
+    let her = rot;
+    for (const [, slutt, navn, attr, tom] of xml.matchAll(
+      /<(\/?)([\w:]+)((?:[^>"]|"[^"]*")*?)(\/?)>/g
+    )) {
+      if (slutt) {
+        her = her.forelder ?? rot;
+        continue;
+      }
+      const element: Element = {
+        navn: navn.replace(/^.*:/, ''),
+        attr: Object.fromEntries(
+          [...attr.matchAll(/([\w:]+)="([^"]*)"/g)].map((a) => [a[1], a[2]])
+        ),
+        barn: [],
+        forelder: her,
+      };
+      her.barn.push(element);
+      if (!tom) her = element;
+    }
+    return rot;
+  }
+
+  const etterkommere = (e: Element): Element[] => e.barn.flatMap((b) => [b, ...etterkommere(b)]);
+
+  // Per setning som leser `tabell`: kolonnene i likhetssøkene i primærnøkkelen.
+  // Søket står i en `IndexScan` eller rett i en `Update` eller `SimpleUpdate` (som
+  // `Clustered Index Delete`), og indeksen er operatorens eget `Object`. Et
+  // nøkkeloppslag (`IndexScan` med `Lookup`) teller ikke: der kommer nøkkelen fra
+  // en annen indeks.
+  function soekPerSetning(xml: string, tabell: string): string[][] {
+    return etterkommere(lesXml(xml))
+      .filter((e) => e.navn === 'StmtSimple')
+      .flatMap((s) => s.barn.filter((b) => b.navn === 'QueryPlan'))
+      .filter((q) =>
+        etterkommere(q).some((e) => e.navn === 'Object' && e.attr.Table === `[${tabell}]`)
+      )
+      .map((q) =>
+        etterkommere(q)
+          .filter((e) => e.navn === 'SeekPredicateNew')
+          .flatMap((p) => {
+            let operator = p.forelder;
+            while (operator && !['IndexScan', 'Update', 'SimpleUpdate'].includes(operator.navn))
+              operator = operator.forelder;
+            if (!operator || /^(1|true)$/.test(operator.attr.Lookup ?? '')) return [];
+            const objekt = operator.barn.find((b) => b.navn === 'Object');
+            if (objekt?.attr.Table !== `[${tabell}]` || objekt.attr.Index !== `[${tabell}_pk]`)
+              return [];
+            const kolonne = etterkommere(p)
+              .filter((e) => e.navn === 'Prefix' && e.attr.ScanType === 'EQ')
+              .flatMap(etterkommere)
+              .find((e) => e.navn === 'ColumnReference')?.attr.Column;
+            return kolonne ? [kolonne] : [];
+          })
       );
-      const etter = foer.slice(operator);
-      if (/^<IndexScan [^>]*Lookup="(1|true)"/.test(etter)) return [];
-      const indeks = /<Object [^>]*Index="\[([^\]]*)\]"/.exec(etter)?.[1];
-      const kolonne =
-        /<Prefix ScanType="EQ">\s*<RangeColumns>\s*<ColumnReference [^>]*Column="([^"]*)"/.exec(
-          m[1]
-        )?.[1];
-      return operator >= 0 && indeks === noekkel && kolonne ? [kolonne] : [];
-    });
   }
 
   const H = '0'.repeat(64);
   // En `nvarchar`-parameter mot en `varchar`-kolonne konverterer kolonnen, og
   // oppslaget leser hele tabellen eller søker i et område med kolonnen konvertert
   // (#691). Søket kan stå i en egen operator eller inne i `Clustered Index
-  // Delete`. Testen krever et likhetssøk på hashkolonnen i primærnøkkelen som ikke
-  // er et nøkkeloppslag, og ingen skanning.
+  // Delete`. Testen krever, i hver setning som leser tabellen, et likhetssøk på
+  // hashkolonnen i primærnøkkelen som ikke er et nøkkeloppslag, og ingen skanning
+  // (#855).
   it.each([
-    [
-      'les_sesjon',
-      `EXEC koe_api.les_sesjon @token_hash = N'${H}'`,
-      'app_sessions_pk',
-      'token_hash',
-    ],
+    ['les_sesjon', `EXEC koe_api.les_sesjon @token_hash = N'${H}'`, 'app_sessions', 'token_hash'],
     [
       'slett_sesjon',
       `EXEC koe_api.slett_sesjon @token_hash = N'${H}'`,
-      'app_sessions_pk',
+      'app_sessions',
       'token_hash',
     ],
     [
       'bruk_innloggingsforsoek',
       `EXEC koe_api.bruk_innloggingsforsoek @state_hash = N'${H}', @nettleser_hash = N'${H}'`,
-      'app_oauth_attempts_pk',
+      'app_oauth_attempts',
       'state_hash',
     ],
   ])(
     '%s søker i primærnøkkelen uten å konvertere hashkolonnen',
-    async (_, kall, noekkel, kolonne) => {
+    async (_, kall, tabell, kolonne) => {
       const xml = await plan(kall);
       const skanninger = [...xml.matchAll(/PhysicalOp="([^"]*Scan[^"]*)"/g)].map((m) => m[1]);
       expect(skanninger.filter((op) => op !== 'Constant Scan')).toEqual([]);
-      expect(soek(xml, noekkel)).toContain(kolonne);
+      const setninger = soekPerSetning(xml, tabell);
+      expect(setninger.length).toBeGreaterThan(0);
+      for (const soek of setninger) expect(soek).toContain(kolonne);
       expect(xml).not.toMatch(/CONVERT_IMPLICIT\([^)]*\)?,[^,]*\[(token|state|browser)_hash\]/);
     }
   );

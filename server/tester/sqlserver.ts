@@ -38,7 +38,7 @@ const SLETTEFRIST = 30_000;
 const vent = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
 /** En pool med konfigurasjonen datalaget bruker (`opprettPool`), mot `database`. */
-function koble(database: string, maks: number): Promise<Pool> {
+export function koble(database: string, maks: number): Promise<Pool> {
   const config = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING);
   return opprettPool(
     { ...config, database, connectionTimeout: 5_000, requestTimeout: 60_000 },
