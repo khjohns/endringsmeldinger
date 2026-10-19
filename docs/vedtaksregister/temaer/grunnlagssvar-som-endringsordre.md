@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `8945be1ef3ac01a152c9acddffde3b4f02fdff0ebe82cc5860282b827440b89b`
+Kontrollsum (SHA-256 over utdraget visningen leser): `f8cf63d292718ec0c9e8f4bbf9ae49ccb9ebee304e4e37dd812ab512433002a0`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -87,9 +87,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endret 13.10 av [OV-U4](#ov-u4). Presiserer GR-U10 og KA-U13, og utvider formen i MM-U11. Endret 10.10 av [GR-U13](#gr-u13): endringsordren krever også § 31.3, og om § 32.2 gjaldt, fryses som appens vurdering. Endret 10.10 av [MM-U17](#mm-u17) for registrerte brev: appens vurdering følger reglene ved registreringen, ikke da brevet ble sendt. Ikke bygget på vedtaksdatoen: kjernen leste da om brevet har et utsagn etter § 32.2 (#308). Bygget i kjernen 10.10 (merknaden 10.10 til FK, runde 2). Frysingen hører til formatet (#273), varselet og betegnelsen til frontenden (#313). Utvidet i kjernen 18.10 i PR #796 (#770, #776 p1): om § 32.2 gjelder kategorien i kravet en innsigelse gjelder, leses i utledningen og kommandoene av det frosne beslutningsgrunnlaget i svaret som sa «i tide» etter § 32.2 på en versjon i samme kategori, ikke av dagens regelsett (`innsigelsenEtterITide`). Brevteksten spør regelsettet når brevet skrives.
 
-**Regelrader:** [KA-30](#rad-ka-30), [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [VS-02](#rad-vs-02), [VS-03](#rad-vs-03)
+**Regelrader:** [KA-30](#rad-ka-30), [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [GR-35](#rad-gr-35), [VS-02](#rad-vs-02), [VS-03](#rad-vs-03)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G19 (målmodellen), F-MM-V2 (målmodellen), F-MM-V3 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G19 (målmodellen), F-MM-V2 (målmodellen), F-MM-V3 (målmodellen), F-MM-GR-U14-uten-beskrivelse (målmodellen)
 
 ### <a id="gr-u13"></a>GR-U13
 
@@ -101,9 +101,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endret 13.10 av [OV-U6](#ov-u6). Presisert 15.10 av [HF-U12](#hf-u12). Presisert 17.10 av [OV-U13](#ov-u13). Presisert 18.10 av [GFK-U2](#gfk-u2). Presisert 18.10 av [LV-U15](#lv-u15). Endrer GR-U10 og GR-U12: endringsordren krever også § 31.3. Endret 10.10 av [MM-U17](#mm-u17) for registrerte brev: om § 32.2 gjaldt, fryses som appens vurdering etter reglene ved registreringen, ikke da brevet ble sendt. Krav til skrivestien (#310): hvert grunnlagssvar fra appen som godkjenner grunnlaget uten påberopt preklusjon der § 32.2 gjelder, får brevteksten etter § 31.3 og går gjennom fullmakten. Hvordan opplysningen registreres og avklares, avgjøres med kommandoen i #310. Endret 11.10 av [GR-U14](#gr-u14) («varselet» leses som kravversjonen svaret gjelder; ordlyden) og utvidet av [GR-U15](#gr-u15) (beskrivelsen av pålegget i TEs varsel). Ikke bygget
 
-**Regelrader:** [GR-28](#rad-gr-28), [GR-29](#rad-gr-29)
+**Regelrader:** [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [GR-35](#rad-gr-35)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G43 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G43 (målmodellen), F-MM-GR-U14-uten-beskrivelse (målmodellen)
 
 ### <a id="gr-u14"></a>GR-U14
 
@@ -115,9 +115,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Endret 13.10 av [OV-U4](#ov-u4). Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V4 a). Varianten for registrerte krav er oppdragsgivers svar 11.10 i oppfølgingen på #369 (spørsmål 1): det registrerte brevet bærer selv beskrivelsen, og ordlyden følger GR-U13. Endrer [GR-U13](#gr-u13) («brevet sier at endringen kreves og viser til pålegget i varselet»): «varselet» leses som TEs krav i kravversjonen svaret gjelder. Beskrivelsen i TEs varsel følger [GR-U15](#gr-u15). Fullmakten kontrolleres i godkjenningsflyten (GFK-06) og bygges i #310; ingen reelle brev sendes før #310 ([OV-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1)). Ikke bygget. Teksten bygges i #369
 
-**Regelrader:** —
+**Regelrader:** [GR-35](#rad-gr-35)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-GR-U14-uten-beskrivelse (målmodellen)
 
 ### <a id="gr-u15"></a>GR-U15
 
@@ -129,9 +129,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V4 b, «Hva endringen går ut på, når TEs varsel ikke beskriver pålegget»). Utvider [GR-U13](#gr-u13): beskrivelsen er det endringsordren i [GR-U14](#gr-u14) viser til som hva endringen går ut på (§ 31.3). Varselet etter § 32.2 står i TEs grunnlagskrav ([LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4), punkt 1). Et registrert varsel kan stå uten beskrivelse; det følger av alternativet selv («må varsle utenfor appen og registrere varselet»), og [GR-U14](#gr-u14) har ordlyden for et registrert krav. Ikke bygget
 
-**Regelrader:** —
+**Regelrader:** [GR-34](#rad-gr-34), [GR-35](#rad-gr-35)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-GR-U15-beskrivelse (målmodellen), F-MM-GR-U14-uten-beskrivelse (målmodellen)
 
 ### <a id="gr-u17"></a>GR-U17
 
@@ -618,6 +618,8 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-31"></a>GR-31 | Byggherren har frafalt pålegget (§ 32.3 c) i et svar sendt fra appen, og reviderer svaret. | [GR-U17](#gr-u17), [HF-U4](#hf-u4), [OV-U4](#ov-u4) | F-MM-G37 (målmodellen), F-MM-G37x (målmodellen), F-MM-G41 (målmodellen), F-MM-G41x (målmodellen) |
 | <a id="rad-gr-32"></a>GR-32 | Byggherren har frafalt pålegget i et svar sendt fra appen, og TE sender en ny grunnlagsversjon. | [GR-U20](#gr-u20), [GR-U17](#gr-u17), [GR-U22](#gr-u22), [OV-U4](#ov-u4) | F-MM-G38 (målmodellen), F-MM-G39 (målmodellen) |
 | <a id="rad-gr-33"></a>GR-33 | Byggherren har frafalt pålegget i et svar sendt fra appen, TE sender en ny grunnlagsversjon, og den venter på byggherrens svar. Et annet sendt krav står åpent, for eksempel fristkravet. | [GR-U24](#gr-u24), [GR-U23](#gr-u23), [GR-U20](#gr-u20), [GR-U17](#gr-u17), [OV-U4](#ov-u4) | F-MM-G42 (målmodellen), F-MM-G42x (målmodellen) |
+| <a id="rad-gr-34"></a>GR-34 | TE sender et varsel etter § 32.2 fra appen uten beskrivelse av pålegget. | [GR-U15](#gr-u15) | F-MM-GR-U15-beskrivelse (målmodellen) |
+| <a id="rad-gr-35"></a>GR-35 | Byggherren godkjenner fra appen et grunnlag som blir en endringsordre etter § 32.3 første ledd a, og TEs krav, sendt fra appen, har ingen beskrivelse av pålegget, for eksempel fordi en annen skriver har lagret det. | [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U12](#gr-u12), [GR-U13](#gr-u13) | F-MM-GR-U14-uten-beskrivelse (målmodellen) |
 | <a id="rad-ka-32"></a>KA-32 | Et registrert brev er merket med noe appen ikke kan uttrykke, i brevet selv eller senere av en av partene. | [OV-U6](#ov-u6), [OV-U4](#ov-u4) | — |
 | <a id="rad-ka-34"></a>KA-34 | TE trekker vederlag, frist eller grunnlaget når en enighet trekket rammer, bygger på et merket brev, og merkingen gjelder sporet enigheten gjelder. | [OV-U4](#ov-u4) | — |
 | <a id="rad-ka-35"></a>KA-35 | En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en revisjon eller ny kravversjon i et spor med enighet, en ny kravversjon i et trukket spor eller i et spor med «ingen krav», en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet. | [GR-U10](#gr-u10) | F-MM-U326a (målmodellen), F-MM-U326a-kontroll (målmodellen), F-MM-U326b (målmodellen), F-MM-U326c (målmodellen), F-MM-U326d (målmodellen), F-MM-U326h (målmodellen), F-MM-U326h-kontroll (målmodellen), F-MM-IK5b (målmodellen), F-MM-IK6b (målmodellen), F-MM-IK6-kontroll (målmodellen), F-MM-U326b-kontroll (målmodellen), F-MM-U326c-kontroll (målmodellen), F-MM-U326d-kontroll (målmodellen) |
