@@ -199,6 +199,7 @@ describe('slettingen live-testene rydder med', () => {
     [404, ITEM],
     [404, TOPICSTI],
     [404, DOKREF],
+    [403, ITEM],
     [302, ITEM],
   ])('gir Catendas %i tilbake og ingen DELETE når oppslaget av %s ikke gir 200', async (status, sti) => {
     catendasvar = svarPaa(() => new Response(null, { status }));

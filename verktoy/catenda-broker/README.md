@@ -26,7 +26,7 @@ Før en sletting slår brokeren opp ressursen med Catenda-tokenet og sletter bar
 
 Ellers svarer brokeren 403 uten å slette. Gir oppslaget noe annet enn 200, får økta
 Catendas svar, og ingenting slettes. En sletting med query avvises. Koblinger mellom
-topics (`related_topics`) slettes uten oppslag, som før.
+topics (`related_topics`) slettes uten oppslag.
 
 Mappen `CATENDA_MAPPE_ID` skal bare brukes av live-testene. En undermappe med prefiks
 rett under den kan slettes, og Catenda sletter da innholdet med.

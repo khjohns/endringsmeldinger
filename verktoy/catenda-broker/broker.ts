@@ -43,7 +43,7 @@ const KANONISK_ID = /^(?:[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-
  * Kallene i `docs/datamodell/dataflyt.toml` og `server/catenda.ts` som integrasjonen gjør,
  * og slettingene live-testene rydder etter seg med. Appen sletter ingen av dem.
  */
-const TILLATT: Regel[] = [
+const REGLER: [string, string, Foersjekk?][] = [
   ['GET', 'v2/projects/:prosjekt'],
   ['GET', 'v2/projects/:prosjekt/members'],
   ['GET', 'v2/projects/:prosjekt/teams'],
@@ -62,10 +62,12 @@ const TILLATT: Regel[] = [
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics/:id'],
   ['GET POST', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references'],
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references/:id', 'dokumentreferanse'],
-].map(([metoder, sti, krav]) => ({
+];
+
+const TILLATT: Regel[] = REGLER.map(([metoder, sti, krav]) => ({
   metoder: metoder.split(' '),
   deler: sti.split('/').map((d) => (d.startsWith(':') ? d.slice(1) : `=${d}`)),
-  foersjekk: (krav as Foersjekk | undefined) ?? null,
+  foersjekk: krav ?? null,
 }));
 
 /** Kopi av `catendaId` i `server/autorisasjon.ts`, som drar med seg datalaget ved import. */
@@ -114,7 +116,7 @@ export function regelFor(miljoe: Miljoe, metode: string, sti: string): Regel | u
 
 /** Hvor foroppslaget går: ressursen selv, eller topicen en dokumentreferanse hører til. */
 function oppslagssti(foersjekk: Foersjekk, sti: string): string {
-  return foersjekk === 'dokumentreferanse' ? sti.split('/').slice(0, 8).join('/') : sti;
+  return foersjekk === 'dokumentreferanse' ? sti.split('/').slice(0, -2).join('/') : sti;
 }
 
 function godkjent(foersjekk: Foersjekk, ressurs: unknown, miljoe: Miljoe): boolean {
