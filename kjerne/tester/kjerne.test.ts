@@ -1245,13 +1245,24 @@ describe('revisjonen av et svar uten dager', () => {
       standpunkter: [{ id: 'd', art: 'dager', resultat: 'godkjent', vurdert }],
       beslutningsgrunnlag: { virkninger: [] },
     }) as unknown as Parameters<typeof senketInnroemmelse>[0];
-  const revisjon = (vurdert: number) =>
+  const revisjon = (vurdert: number | undefined) =>
     [{ id: 'n', art: 'dager', resultat: 'delvis_godkjent', vurdert }] as Parameters<
       typeof senketInnroemmelse
     >[1];
 
   it('dagene sammenliknes ikke, og revisjonen avvises', () => {
     expect(senketInnroemmelse(svar(undefined), revisjon(0))).toEqual(
+      expect.stringMatching(/Dagene mangler/)
+    );
+  });
+
+  // #870: begge sider kontrolleres, og dager som ikke er et tall, mangler, som beløpet (#627).
+  it.each([
+    ['dagene mangler i revisjonen', 10, undefined],
+    ['dagene i svaret er NaN', NaN, 0],
+    ['dagene i revisjonen er NaN', 10, NaN],
+  ])('%s: revisjonen avvises', (_navn, foer, etter) => {
+    expect(senketInnroemmelse(svar(foer), revisjon(etter))).toEqual(
       expect.stringMatching(/Dagene mangler/)
     );
   });

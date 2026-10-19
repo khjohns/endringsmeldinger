@@ -13,15 +13,14 @@ import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { avvis } from './forutsetninger.ts';
 import {
+  brevtekstI,
   erRegistrert,
   lesJournal,
   registrertDato,
   standpunkterISvaret,
   Uforstaatt,
 } from '../format/leser.ts';
-import { oppgittDatoEtterBrevet } from './nyttelast.ts';
 import { tekstSomIkkeKanLagres } from '../format/skjema.ts';
-import { regnUtSvar } from '../frosset/standpunkt.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
 import type {
@@ -55,6 +54,12 @@ export type Utfall =
   | { godtatt: true; hendelser: Journalrad[] }
   | { godtatt: false; feil: 'UGYLDIG_FORM' | 'REGELBRUDD'; avvisning: Avvisning };
 
+const ugyldigForm = (avvisning: Avvisning): Utfall => ({
+  godtatt: false,
+  feil: 'UGYLDIG_FORM',
+  avvisning,
+});
+
 /** Kjernen forstår ikke raden den selv skriver. Raden lagres ikke (MM-U2). */
 export class Skrivefeil extends Error {}
 
@@ -83,8 +88,11 @@ function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
 /** Partens utdypning per element i brevet, til brevteksten (B-13 om begrunnelsestekst). */
 type Utdypninger = Map<string, string>;
 
-/** Standpunktene nyttelastkontrollen leste i hvert svarutkast, i formen brevet lagrer dem (#804). */
-type Bygde = Map<Svarutkast, Data[]>;
+/**
+ * Standpunktene og serverens utregning nyttelastkontrollen leste i hvert svarutkast, i
+ * formen brevet lagrer dem (#804, #814). Brevet lagrer det kontrollen leste.
+ */
+type Bygde = Map<Svarutkast, { standpunkter: Data[]; utregning: Data }>;
 
 function svar(
   s: Svarutkast,
@@ -95,7 +103,9 @@ function svar(
   bygde: Bygde,
   erstatter?: string
 ): Data {
-  const krav = u.spor[s.spor].gjeldendeKrav!;
+  const bygd = bygde.get(s);
+  if (!bygd)
+    throw new Skrivefeil(`Nyttelastkontrollen har ikke kontrollert svaret på ${s.spor} (#814).`);
   const id = nyId();
   if (s.utdypning !== undefined) utdypninger.set(id, s.utdypning);
   const e: Data = {
@@ -105,16 +115,10 @@ function svar(
     ...(erstatter ? { erstatter } : {}),
     // #342: grunnlagsversjonen svaret regnes mot, som `regnUtSvar` under.
     ...(s.spor === 'grunnlag' ? {} : { grunnlagskrav: u.spor.grunnlag.gjeldendeKrav!.id }),
-    standpunkter: bygde.get(s),
+    standpunkter: bygd.standpunkter,
   };
-  // B-13: serverens utregning lagres, ikke klientens.
-  if (s.spor !== 'grunnlag')
-    e.utregning = regnUtSvar(
-      s.spor,
-      s.vurderinger,
-      { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
-      kjerne.regler
-    );
+  // B-13: serverens utregning lagres, ikke klientens. Grunnlagssvaret har ingen.
+  if (s.spor !== 'grunnlag') e.utregning = bygd.utregning;
   e.beslutningsgrunnlag = lagret(
     frys(e, grunnlagskravFor({ spor: s.spor, gjelder: s.gjelder }, u), kjerne.regler)
   );
@@ -231,7 +235,7 @@ export function forhaandsvis(
 
 /** Den låste teksten i en rad, slik kommandoen bærer den (A1). `null` for et registrert brev. */
 export const laastTekst = (rad: Journalrad): string[] | null =>
-  ((rad.data.brevtekst ?? null) as Avsnitt[] | null)?.map((a) => a.laast) ?? null;
+  brevtekstI(rad)?.map((a) => a.laast) ?? null;
 
 function skriv(
   kommando: unknown,
@@ -243,14 +247,9 @@ function skriv(
 ): Utfall {
   // #373: det basen ikke kan lagre, avvises før noe annet, med sin egen kode.
   const ulagringsbar = tekstSomIkkeKanLagres(kommando);
-  if (ulagringsbar) return { godtatt: false, feil: 'UGYLDIG_FORM', avvisning: ulagringsbar };
+  if (ulagringsbar) return ugyldigForm(ulagringsbar);
   const feil = formfeil(kommando);
-  if (feil.length)
-    return {
-      godtatt: false,
-      feil: 'UGYLDIG_FORM',
-      avvisning: { regel: 'UGYLDIG_FORM', melding: feil.join('; ') },
-    };
+  if (feil.length) return ugyldigForm({ regel: 'UGYLDIG_FORM', melding: feil.join('; ') });
   const k = kommando as Kommando;
   const lest = lesJournal(journal, kjerne.leserformat);
   const u = utled(lest, kjerne.regler);
@@ -259,7 +258,7 @@ function skriv(
   // Nyttelastkontrollen leser standpunktene slik brevet lagrer dem (#776).
   const svarstandpunkter = (s: Svarutkast, utregning: Data) => {
     const lagret = standpunkter(s, u.spor[s.spor].gjeldendeKrav!, u, kontekst.nyId);
-    bygde.set(s, lagret);
+    bygde.set(s, { standpunkter: lagret, utregning });
     try {
       return standpunkterISvaret(s.spor, { standpunkter: lagret, utregning });
     } catch (feil) {
@@ -268,9 +267,16 @@ function skriv(
       throw feil;
     }
   };
-  const brudd =
-    avvisning(k, kontekst.part, u, kjerne.regler, svarstandpunkter, sendes) ??
-    oppgittDatoEtterBrevet(k, registrertDato({ registrert: tidspunkt.toISOString() }));
+  const brevetsDato = registrertDato({ registrert: tidspunkt.toISOString() });
+  const brudd = avvisning(
+    k,
+    kontekst.part,
+    u,
+    kjerne.regler,
+    svarstandpunkter,
+    brevetsDato,
+    sendes
+  );
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
   const ukjent = (k as { dokumentasjon?: string[] }).dokumentasjon?.find(
     (id) => !vedlegg.has(id.toLowerCase())

@@ -12,6 +12,7 @@
 
 import {
   BESLUTNINGSGRUNNLAG,
+  BREVTEKST,
   HJEMMEL,
   DOKUMENT,
   KRAV,
@@ -312,6 +313,15 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   begrunnelse: 'BH',
 };
 
+/**
+ * Brevteksten i en lagret rad, eller `null` når raden ikke har en eller teksten ikke har
+ * formen i formatet. Skrivingen og saksbildet leser feltet her (#864).
+ */
+export function brevtekstI(rad: Journalrad): Avsnitt[] | null {
+  const t = rad.data.brevtekst;
+  return t !== undefined && !feilI(t, BREVTEKST).length ? (t as Avsnitt[]) : null;
+}
+
 function lesDokument(h: Journalrad): Dokument {
   kontroller(h.data, DOKUMENT, '$');
   const data = h.data as {
@@ -322,11 +332,8 @@ function lesDokument(h: Journalrad): Dokument {
     dokumentasjon?: Vedlegg[];
     brevtekst?: Avsnitt[];
   };
-  const avklaring = (data.opplysninger ?? []).some(
-    (o) => erObjekt(o) && typeof o.hva === 'string' && omBrevet(o.hva) && 'gjelder' in o
-  );
-  if (!data.krav && !data.svar && !data.utsagn && !avklaring)
-    throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller en avklaring');
+  if (!data.krav && !data.svar && !data.utsagn)
+    throw new Uforstaatt('dokumentet har verken krav, svar eller utsagn');
   const id = h.event_id;
   const avsender: Part = h.aktor_rolle;
   const kreverPart = (part: Part | null, hva: string) => {

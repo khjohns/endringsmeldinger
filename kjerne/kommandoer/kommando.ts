@@ -9,6 +9,7 @@
 
 import {
   DATO,
+  DATOEN_GJELDER,
   ID,
   KRAVINNHOLD,
   liste,
@@ -16,7 +17,6 @@ import {
   oppgittDato,
   OPPLYSNINGSSLAG,
   TEKST,
-  type OppgittDato,
 } from '../format/format.ts';
 import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
 import type { Svarvurdering } from '../frosset/standpunkt.ts';
@@ -211,11 +211,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 
 type Innhold = Record<string, unknown>;
 
-const DATOEN: Record<OppgittDato, string> = {
-  paalegg_mottatt: 'datoen pålegget ble mottatt',
-  klar_over_forholdet: 'datoen TE ble klar over forholdet',
-};
-
 /**
  * VS-U26: et grunnlagskrav fra appen har datoen kategorien har, som en dato.
  * Formatet binder feltet til kategorien; her kreves det.
@@ -224,7 +219,8 @@ function datofeil(innhold: Innhold): string[] {
   const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
   if (felt === null) return [];
   const dato = innhold[felt];
-  if (dato === undefined) return [`$.innhold.${felt}: TE må oppgi ${DATOEN[felt]} (VS-U26)`];
+  if (dato === undefined)
+    return [`$.innhold.${felt}: TE må oppgi datoen ${DATOEN_GJELDER[felt]} (VS-U26)`];
   return erKalenderdato(dato)
     ? []
     : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];

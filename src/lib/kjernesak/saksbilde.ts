@@ -8,6 +8,7 @@ import type { Leveringsoppdrag } from '$lib/api/kjerne';
 import { formatDateNorwegian, formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Statuskode, Visning } from '$kjerne/utledning/visning';
+import { brevtekstI } from '$kjerne/format/leser';
 import { SPOR, type Avsnitt, type Journalrad, type Spor } from '$kjerne/typer';
 
 export interface Etikett {
@@ -126,19 +127,12 @@ export function leveringstekst(o: Leveringsoppdrag): string {
   return `${navn}: ${frosset}, ${o.levert ? `levert ${formatDateTimeNorwegian(o.levert)}` : 'ikke levert ennå'}`;
 }
 
-const erAvsnitt = (a: unknown): a is Avsnitt =>
-  typeof a === 'object' &&
-  a !== null &&
-  typeof (a as Avsnitt).laast === 'string' &&
-  ['string', 'undefined'].includes(typeof (a as Avsnitt).utdypning);
-
 /**
  * Brevteksten i en rad kjernen har tolket. En rad den ikke har tolket, eller en tekst
  * med en annen form, vises uten tekst og velter ikke saksbildet (MM-U2).
  */
 function brevtekst(rad: Journalrad, tolket: boolean): Avsnitt[] | null {
-  const t = rad.data.brevtekst;
-  return tolket && Array.isArray(t) && t.every(erAvsnitt) ? t : null;
+  return tolket ? brevtekstI(rad) : null;
 }
 
 function journaltittel(rad: Journalrad, tolket: boolean, tekst: Avsnitt[] | null): string {
