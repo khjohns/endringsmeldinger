@@ -62,8 +62,9 @@ export class UgyldigKommando extends Error {}
 
 /**
  * Konteksten gir ikke rett til å skrive: radsikkerheten blokkerte raden (33504),
- * basen fant ingen aktør, side eller prosjekt i konteksten (51403 fra
- * `opprett_sak`), saken har ikke noe leveringsmål (`IngenLeveringsmaal` i `cause`),
+ * `opprett_sak` nektet med 51403 (konteksten mangler aktør, side eller prosjekt,
+ * aktøren er ikke lenger aktivt medlem av prosjektet, eller teamet er ikke lenger
+ * kontraktsteam på siden), saken har ikke noe leveringsmål (`IngenLeveringsmaal` i `cause`),
  * eller konteksten har ingen kontraktsside, som `skrivHendelse` prøver før basen,
  * eller en annen side enn TE, som `opprettSak` prøver før basen. De to siste har
  * ingen `cause`.
@@ -146,6 +147,8 @@ export const kommandosum = sjekksum;
 export interface Innhold {
   format: number;
   data: Record<string, unknown>;
+  /** Skiller innholdet fra en `Avvist`. */
+  skriv?: never;
 }
 
 /** Saken og brevet fra kvitteringen, eller `null` når kommandoen ikke er skrevet. */
@@ -183,7 +186,7 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * reglene er endret siden (#792 punkt 2, avgjørelse 3 i #764). Uten TE kalles
  * `innhold` likevel først, så kjernens avvisning går foran avslaget her.
  * Avviser `innhold`, er svaret avvisningen, i samme form som fra `skrivHendelse`,
- * og ingenting skrives.
+ * og transaksjonen rulles tilbake.
  *
  * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall, og det `innhold` kaster
  */
@@ -207,19 +210,14 @@ export async function opprettSak<A>(
 ): Promise<Journalrad | Avvist<A>> {
   const lag = typeof innhold === 'function' ? innhold : () => innhold;
   try {
-    return await transaksjon(pool, kontekst, async (foresp) => {
+    return await transaksjon<Journalrad | Avvist<A>>(pool, kontekst, async (foresp) => {
       // Etter at transaksjon() har prøvd konteksten, som i skrivHendelse (#596).
-      if (kontekst.side !== 'TE') {
-        const vurdert = lag();
-        if ('avvisning' in vurdert) return vurdert;
-        throw new SkrivingAvvist('Bare TE oppretter en sak.');
-      }
-      const kvittering = await lesKvittering(foresp, kommando);
+      const kvittering = kontekst.side === 'TE' ? await lesKvittering(foresp, kommando) : null;
       if (kvittering)
         return kvittertRad(await lesJournal(foresp, kvittering.sak_id, false), kvittering.event_id);
-      // Ingenting er skrevet ennå, så en avvisning trenger ingen tilbakerulling.
       const vurdert = lag();
-      if ('avvisning' in vurdert) return vurdert;
+      if (vurdert.skriv === false) return new Tilbakerulling(vurdert);
+      if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
       const { format } = vurdert;
       const data = JSON.stringify(vurdert.data);
       const svar = await foresp()
@@ -287,6 +285,10 @@ export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
  * Har kommandoen en kvittering for saken, er svaret brevet fra den, uten
  * versjonskontroll og uten å kalle `lag`.
  *
+ * Med `vedlegg` leses bare vedleggene kommandoen viser til, og ingen når lista er
+ * tom; uten leses alle kommandoen kan binde. Brevet bindes til vedleggene bare når
+ * det har `dokumentasjon` (#827 punkt 4).
+ *
  * Avviser basen brevet fordi tidspunktet er eldre enn 30 sekunder (51419),
  * prøves skrivingen én gang til med et nytt tidspunkt (#599). Avvises også den,
  * kastes basens feil.
@@ -299,7 +301,8 @@ export async function skrivHendelse<A>(
   sakId: string,
   forventet: number,
   kommando: Kommando,
-  lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>
+  lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>,
+  { vedlegg: vedleggider }: { vedlegg?: readonly string[] } = {}
 ): Promise<Skriveutfall<A> | Gjentatt> {
   const forsoek = () =>
     transaksjon<Skriveutfall<A> | Gjentatt>(pool, kontekst, async (foresp) => {
@@ -323,11 +326,12 @@ export async function skrivHendelse<A>(
       const maal = await lesLeveringsmaal(foresp, sakId);
       const versjon = journal.at(-1)?.versjon ?? 0;
       if (versjon !== forventet) throw new Versjonskonflikt(forventet, versjon);
+      // Før tidspunktet, så ventingen på låsen på vedleggene ikke eldes det (#880-1).
+      const vedlegg = await lesVedlegg(foresp, kontekst, sakId, vedleggider);
       const tid = await foresp()
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      const vedlegg = await lesVedlegg(foresp, kontekst, sakId);
       const utfall = lag({ journal, tidspunkt, maal, vedlegg });
       // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
       if (!utfall.skriv) return new Tilbakerulling(utfall);
@@ -348,10 +352,11 @@ export async function skrivHendelse<A>(
         .input('kommando_id', sql.NVarChar(4000), kommando.id)
         .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
         .execute('koe_api.skriv_hendelse');
-      await foresp()
-        .input('event_id', sql.NVarChar(36), rad.event_id)
-        .input('sak_id', sql.NVarChar(36), sakId)
-        .execute('koe_api.bind_vedlegg');
+      if (rad.data.dokumentasjon !== undefined)
+        await foresp()
+          .input('event_id', sql.NVarChar(36), rad.event_id)
+          .input('sak_id', sql.NVarChar(36), sakId)
+          .execute('koe_api.bind_vedlegg');
       return utfall;
     });
   try {
@@ -368,23 +373,30 @@ export async function skrivHendelse<A>(
 
 /**
  * Vedleggene i saken kommandoen kan binde: de bundne, og de ubundne teamet i konteksten
- * har lastet opp (arbeidsvalg 3 i #790). Radsikkerheten holder prosjektet og teamet i
- * tillegg. Innholdet leses ikke.
+ * har lastet opp (arbeidsvalg 3 i #790), og med `ider` bare de oppgitte. Radsikkerheten
+ * holder prosjektet og teamet i tillegg. Innholdet leses ikke. Radene låses til
+ * transaksjonen er ferdig, så et vedlegg som slettes samtidig, enten finnes for
+ * kjernen og bindes, eller mangler for begge (#827 punkt 2).
  */
 async function lesVedlegg(
   foresp: Foresp,
   kontekst: Kontekst,
-  sakId: string
+  sakId: string,
+  ider?: readonly string[]
 ): Promise<Vedleggsoppslag> {
+  if (ider?.length === 0) return new Map();
   const svar = await foresp()
     .input('sak_id', sql.NVarChar(36), sakId)
     .input('prosjekt', sql.NVarChar(100), kontekst.prosjekt)
     .input('team', sql.NVarChar(32), kontekst.team ?? null)
+    .input('ider', sql.NVarChar(sql.MAX), ider ? JSON.stringify(ider) : null)
     .query<Vedlegg>(
       `SELECT LOWER(CONVERT(nvarchar(36), vedlegg_id)) AS vedlegg_id, filnavn, innhold_sha256
-         FROM koe.vedlegg
+         FROM koe.vedlegg WITH (UPDLOCK)
         WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt
-          AND (bundet_av_event_id IS NOT NULL OR lastet_opp_team = @team)`
+          AND (bundet_av_event_id IS NOT NULL OR lastet_opp_team = @team)
+          AND (@ider IS NULL
+               OR vedlegg_id IN (SELECT TRY_CAST(value AS uniqueidentifier) FROM OPENJSON(@ider)))`
     );
   return new Map(svar.recordset.map((v) => [v.vedlegg_id, v]));
 }
