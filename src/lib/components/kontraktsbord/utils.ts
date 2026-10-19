@@ -2,6 +2,7 @@ import type { Bestemmelse } from '$lib/types';
 import type { SporKey } from './types.js';
 import { getParagrafTittel } from '$lib/constants/paragrafTitler.js';
 import { getKontraktsregel } from '$lib/constants/kontraktsregler.js';
+import { getHjemmelObj } from '$lib/constants/categories.js';
 
 /** Bare tallformatering (nb-NO). Produksjon bruker formatCurrency/formatDays med andre suffiks. */
 export function fmt(n: number): string {
@@ -17,24 +18,29 @@ function byggBestemmelse(key: string): Bestemmelse | null {
   return { ref: `§ ${key}`, title: tittel, text: kr.regel, note: kr.konsekvens };
 }
 
-/** Relevante bestemmelser per spor — tilpasset mockup-skjemavisningen. */
-const SPOR_PARAGRAFER: Record<SporKey, string[]> = {
-  ansvar: ['23.1', '32.2', '25.1.2'],
+/** Faste bestemmelser for vederlag og frist. Ansvar følger sakens underkategori. */
+const SPOR_PARAGRAFER: Record<Exclude<SporKey, 'ansvar'>, string[]> = {
   vederlag: ['34.1', '34.1.2', '34.1.3', '34.2', '34.4'],
   frist: ['33.1', '33.4', '33.6.1', '33.5'],
 };
 
-/** Precomputed — statisk data som aldri endres. */
-const SPOR_BESTEMMELSER: Record<SporKey, Bestemmelse[]> = {
-  ansvar: SPOR_PARAGRAFER.ansvar.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null),
-  vederlag: SPOR_PARAGRAFER.vederlag
-    .map(byggBestemmelse)
-    .filter((b): b is Bestemmelse => b !== null),
-  frist: SPOR_PARAGRAFER.frist.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null),
+function byggBestemmelser(keys: string[]): Bestemmelse[] {
+  return keys.map(byggBestemmelse).filter((b): b is Bestemmelse => b !== null);
+}
+
+const SPOR_BESTEMMELSER: Record<Exclude<SporKey, 'ansvar'>, Bestemmelse[]> = {
+  vederlag: byggBestemmelser(SPOR_PARAGRAFER.vederlag),
+  frist: byggBestemmelser(SPOR_PARAGRAFER.frist),
 };
 
-export function sporBestemmelser(spor: SporKey): Bestemmelse[] {
-  return SPOR_BESTEMMELSER[spor];
+/** Under ansvar: bestemmelsen kravet bygger på (`hjemmel_basis`), tom for en kategori uten hjemmel. */
+export function sporBestemmelser(
+  spor: SporKey,
+  underkategori?: string | string[] | null
+): Bestemmelse[] {
+  if (spor !== 'ansvar') return SPOR_BESTEMMELSER[spor];
+  const hjemmel = getHjemmelObj(underkategori);
+  return hjemmel ? byggBestemmelser([hjemmel.hjemmel_basis]) : [];
 }
 
 /** Toggle boolean | undefined: same value → undefined, different → value */
