@@ -144,11 +144,8 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     for (const { guid } of topics.slice(0, 10)) await oauth.dokumentreferanser(board, guid, token);
   });
   describe('B: skriving', () => {
-    /**
-     * Det steg B har laget, i rekkefølgen det ble laget. `afterAll` sletter baklengs. Med
-     * `kanMangle` var utfallet usikkert, og 404 på slettingen er i orden.
-     */
-    const laget: { hva: string; sti: string; kanMangle?: boolean }[] = [];
+    /** Det steg B har laget, i rekkefølgen det ble laget. `afterAll` sletter baklengs. */
+    const laget: { hva: string; sti: string }[] = [];
     /** Hvert kall klienten sendte i steg B, med status, eller hvorfor `fetch` kastet. */
     const sendt: { metode: string; sti: string; status: number | 'ikke sendt' | 'kastet' }[] = [];
     /** Det som kan være laget uten at steg B fikk ID-en, og som derfor ikke kan slettes. */
@@ -202,12 +199,11 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     afterAll(async () => {
       vi.restoreAllMocks();
       const igjen: string[] = [];
-      for (const { hva, sti, kanMangle } of laget.reverse()) {
+      for (const { hva, sti } of laget.reverse()) {
         const status = await kall('DELETE', sti).then(
           (svar) => svar.status,
           () => 0
         );
-        if (kanMangle && status === 404) continue;
         if (status < 200 || status > 299) igjen.push(`${hva} (DELETE ga ${status})`);
       }
       for (const hva of usikre) igjen.push(`kanskje ${hva} (utfallet var usikkert, ingen ID)`);
@@ -281,30 +277,29 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
           topic_type: TOPICTYPE,
         });
       const tittel = `${PREFIKS}${randomUUID()}`;
-      // GUID-en er valgt her, så topicen kan slettes også når utfallet er usikkert.
-      const egen = {
-        hva: `topic ${tittel}`,
-        sti: `/opencde/bcf/3.0/projects/${board}/topics/${guid}`,
-      };
-      const foerste = await ny(tittel).catch((feil: unknown) => {
-        laget.push({ ...egen, kanMangle: true });
-        throw feil;
-      });
-      if (foerste.ok) laget.push(egen);
-      else if (kanHaLaget(foerste.status)) laget.push({ ...egen, kanMangle: true });
+      const foerste = await lag(`topic ${tittel}`, () => ny(tittel));
+      const svar = foerste.ok
+        ? ((await foerste.json().catch(() => ({}))) as { guid?: string })
+        : {};
+      if (svar.guid)
+        laget.push({
+          hva: `topic ${tittel}`,
+          sti: `/opencde/bcf/3.0/projects/${board}/topics/${svar.guid}`,
+        });
+      else if (foerste.ok || kanHaLaget(foerste.status)) usikre.push(`topic ${tittel}`);
       expect(foerste.status).toBe(201);
-      expect(((await foerste.json()) as { guid?: string }).guid).toBe(guid);
+      expect(svar.guid).toBe(guid);
       const andreTittel = `${PREFIKS}${randomUUID()}`;
       const andre = await lag(`topic ${andreTittel}`, () => ny(andreTittel));
-      // En 2xx uten en ny GUID kan ha laget en kopi eller skrevet over topicen.
+      // En 2xx uten GUID i svaret kan ha laget en topic steg B ikke kan slette.
       if (andre.ok) {
         const annen = ((await andre.json().catch(() => ({}))) as { guid?: string }).guid;
-        if (annen && annen !== guid)
+        if (!annen) usikre.push(`topic ${andreTittel}`);
+        else if (annen !== svar.guid)
           laget.push({
             hva: `topic ${andreTittel}`,
             sti: `/opencde/bcf/3.0/projects/${board}/topics/${annen}`,
           });
-        else usikre.push(`topic ${andreTittel}`);
       } else if (kanHaLaget(andre.status)) usikre.push(`topic ${andreTittel}`);
       expect(andre.status).toBe(400);
       const lest = (await hent(`/opencde/bcf/3.0/projects/${board}/topics/${guid}`)) as {
@@ -327,7 +322,8 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       dokument = id!;
       dokumentnavn = navn;
       const kopi = await last(`kopi av dokument ${navn}`);
-      if (kopi) laget.push({ hva: `kopi av dokument ${navn}`, sti: `${itemsti(maal)}/${kopi}` });
+      if (kopi && kopi !== id)
+        laget.push({ hva: `kopi av dokument ${navn}`, sti: `${itemsti(maal)}/${kopi}` });
       expect(kopi).toBeNull();
       expect(sisteTil('POST', '/items')).toBe(409);
       const lest = (await hent(`${itemsti(maal)}/${dokument}`)) as {
