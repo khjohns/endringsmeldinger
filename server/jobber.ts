@@ -96,7 +96,7 @@ const FORBIGAAENDE_KODER = new Set([
 
 function forbigaaendeISql(feil: unknown): boolean {
   if (!(feil instanceof sql.MSSQLError)) return false;
-  // mssql setter `number` til koden fra tedious, som 'ETIMEOUT', når basen ikke ga et nummer.
+  // En RequestError fra mssql har koden fra tedious ('ETIMEOUT') i `number` når basen ikke ga et.
   const nummer = feilnummer(feil);
   if (typeof nummer === 'number') return FORBIGAAENDE_SQL.has(nummer);
   return feil instanceof sql.ConnectionError || FORBIGAAENDE_KODER.has(feil.code);
