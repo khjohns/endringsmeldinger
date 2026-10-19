@@ -38,7 +38,6 @@ vedtakene. Hva som gjenstår med dem, står i #309.
 | [bevis-saker-maalmodell.json](bevis-saker-maalmodell.json) | Forløp A–E fra [modellforslaget](../forslag-maalmodell-2026-10-09.md) med kilde per kontroll. Kjøres bare mot TS-kjernen i [`kjerne/`](../../kjerne/) (#304, #308), merket «(målmodellen)» i tabellen |
 | [`domenetabell.py`](../verktoy/domenetabell.py) | Kontrollerer referansene og skriver tabellen under |
 | [`test_domenetabell/`](../../backend/tests/test_domenetabell/) | Kjører bevis-sakene mot Python-projeksjonen i minnet |
-| [`test_domenetabell_lagring.py`](../../backend/tests/test_database/test_domenetabell_lagring.py) | Kjører dem gjennom `/api/events` og `/api/events/batch` mot testbasen, med gjenlesing |
 | [kontrakt.json](kontrakt.json) | Kommando, lagret hendelse og offentlig tilstand for flyten i språkprøven (#272), som JSON Schema; se [Kontrakten for flyten](#kontrakten-for-flyten) |
 
 ## Begreper
@@ -526,21 +525,13 @@ tidligere kravversjon. Om det er gjeldende svar, avgjør serveren (KA-U1).
 | Bane | Hva den prøver | Kjøres |
 | --- | --- | --- |
 | Domenet | Validering av data, parsing, forretningsreglene og projeksjonen i minnet, i samme rekkefølge som `/api/events`. Hendelsen journalen ville fått, er `to_cloudevent()` i minnet | `backend/tests/test_domenetabell/`, i CI |
-| `/api/events` og testbasen | Ruta med ekte dekoratører og lagre mot PostgreSQL. Avvisning gir uendret journal, og tilstanden i svaret er lik tilstanden regnet av journalen etter gjenlesing | `backend/tests/test_database/test_domenetabell_lagring.py`, i CI-jobben `database` |
-| `/api/events/batch` og testbasen | Som over, med hver handling som eneste hendelse i en batch | Samme fil, parameteren `batch` |
-| Batcher med flere hendelser | Forløpet sendt med TEs påfølgende handlinger i én batch, den første sammen med `sak_opprettet`, gir samme journal og tilstand som enkeltvis. En batch med en avvist TE-handling lagrer ingenting, og samme batch uten den godtas. Likhet mellom to innganger, ikke en domenefasit | Samme fil, `test_forlop_i_batcher_gir_samme_journal_og_tilstand` og `test_batch_med_en_avvist_hendelse_lagrer_ingenting` |
-| Godkjenningsflyten | Bare invarianten om gjeldende krav mot `claims()` | Begge banene over |
-| Flere saker | Hver sak er en egen bane av samme slag. En avvisning skal la journalen i alle sakene stå uendret | Domenebanen og begge rutebanene. Ikke i batchtestene, som sender én sak |
+| Godkjenningsflyten | Bare invarianten om gjeldende krav mot `claims()` | Domenebanen |
+| Flere saker | Hver sak er en egen bane av samme slag. En avvisning skal la journalen i alle sakene stå uendret | Domenebanen |
 
-Ikke kjørt: byggherrens svar i batch med andre hendelser (et svar viser til
-hendelser i tilstanden, og en batch har én kontraktsrolle), hele
-godkjenningsflyten med pakker og publisering, Catenda, frontendens skjemaer og
-en TypeScript-kjører. Tilfellene av en avvist hendelse i en batch utledes av
-korpuset; testen feiler hvis det ikke finnes noen.
-Kontrollsakene (`prov`) prøves mot forretningsreglene også i databasebanen,
-fordi en prøve gjennom ruta ville skrevet hendelsen. Gjenlesingen regner
-tilstanden som samme innloggede bruker som ruta, fordi projeksjonen slår opp
-navnet i `utstedt_av` (KR-04, MG-01).
+Ikke kjørt: `/api/events`, `/api/events/batch` og lagringen mot en base. Banene
+gjennom ruta og testbasen er fjernet med databasetestene for Python (#931). Heller
+ikke hele godkjenningsflyten med pakker og publisering, Catenda, frontendens
+skjemaer og en TypeScript-kjører.
 
 ## Kontrakten for flyten
 
@@ -578,10 +569,8 @@ Skjemaet bruker et lite utvalg av JSON Schema 2020-12. Validatoren i
 [`kontrakt.py`](../../backend/tests/test_domenetabell/kontrakt.py) kan akkurat
 det utvalget, og et annet nøkkelord gir rød test. Testene står i
 [`test_kontrakt.py`](../../backend/tests/test_domenetabell/test_kontrakt.py)
-(skjemaet mot modellene, korpusets kommandoer, data og tilstand i minnet) og
-[`test_kontrakt_aksept.py`](../../backend/tests/test_database/test_kontrakt_aksept.py)
-(aksept, avvisninger, versjonskonflikt, nullpolitikk og historikk gjennom begge
-rutene mot testbasen).
+(skjemaet mot modellene, korpusets kommandoer, data og tilstand i minnet).
+Grensene gjennom rutene og testbasen prøves ikke etter #931.
 
 Ikke i kontrakten: grensen for godkjenningspakker, kommandoene utenfor flyten,
 genererte typer (#274) og en hviteliste for hele tilstanden (#292).

@@ -27,13 +27,9 @@ from app import app as flask_app
 # Supabase må derfor merkes `@pytest.mark.live` og bes om eksplisitt.
 LIVE_SUPABASE_ENV = "RUN_LIVE_SUPABASE"
 
-# Databasetestene kobler bare til en base de får oppgitt her, bygget av
-# scripts/testbase/bygg_testbase.sh. Det finnes ingen standardverdi.
-TESTBASE_ENV = "KOE_TESTBASE_URL"
-
 
 def pytest_collection_modifyitems(config, items):
-    """Hopp over `live`- og `database`-merkede tester uten eksplisitt miljø.
+    """Hopp over `live`-merkede tester uten eksplisitt miljø.
 
     Skippingen skjer i innsamlingen, ikke i en fixture, slik at verken klienter
     eller opprydding kjører: standard `pytest` skal ikke gjøre nettverkskall.
@@ -41,20 +37,11 @@ def pytest_collection_modifyitems(config, items):
     skip_live = pytest.mark.skip(
         reason=f"Live Supabase-test. Sett {LIVE_SUPABASE_ENV}=1 for å kjøre."
     )
-    skip_database = pytest.mark.skip(
-        reason=(
-            f"Databasetest. Sett {TESTBASE_ENV} til en kastbar base bygget av "
-            "scripts/testbase/bygg_testbase.sh for å kjøre."
-        )
-    )
     kjor_live = os.environ.get(LIVE_SUPABASE_ENV) == "1"
-    kjor_database = bool(os.environ.get(TESTBASE_ENV))
 
     for item in items:
         if not kjor_live and item.get_closest_marker("live") is not None:
             item.add_marker(skip_live)
-        if not kjor_database and item.get_closest_marker("database") is not None:
-            item.add_marker(skip_database)
 
 
 @pytest.fixture

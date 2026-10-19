@@ -318,6 +318,9 @@ erDiagram
         nvarchar_32 aktor_team_id "uten fremmednøkkel"
         nvarchar_36 refererer_til_event_id "uten fremmednøkkel"
     }
+    koe_innkommende_hendelse {
+        bigint id PK
+    }
     koe_jobb {
         uniqueidentifier jobb_id PK
         nvarchar_36 sak_id FK
@@ -396,6 +399,7 @@ erDiagram
         uniqueidentifier vedlegg_id FK
         uniqueidentifier vedleggskvittering_vedlegg_id FK
         nvarchar_20 vedleggskvittering_operasjon FK
+        bigint innkommende_hendelse_id FK
     }
     koe_vedlegg {
         uniqueidentifier vedlegg_id PK
@@ -449,6 +453,7 @@ erDiagram
     koe_godkjenningshandling |o--o{ koe_toemmingsvern : "(godkjenningshandling_pakke_id, godkjenningshandling_loepenr)"
     koe_kvittering |o--o{ koe_toemmingsvern : "(kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id)"
     koe_leveringskvittering |o--o{ koe_toemmingsvern : "(leveringskvittering_oppdrag_id, leveringskvittering_operasjon)"
+    koe_innkommende_hendelse |o--o{ koe_toemmingsvern : "innkommende_hendelse_id"
     koe_prosjekt_med_saker |o--o{ koe_toemmingsvern : "prosjekt_med_saker_id"
     koe_sak_catenda_topic |o--o{ koe_toemmingsvern : "sak_catenda_topic_sak_id"
     koe_vedlegg |o--o{ koe_toemmingsvern : "vedlegg_id"
@@ -575,6 +580,7 @@ erDiagram
 | `koe.toemmingsvern.(godkjenningshandling_pakke_id, godkjenningshandling_loepenr)` | `koe.godkjenningshandling.(pakke_id, loepenr)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.(kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id)` | `koe.kvittering.(prosjekt_id, aktor_id, kommando_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.(leveringskvittering_oppdrag_id, leveringskvittering_operasjon)` | `koe.leveringskvittering.(leveringsoppdrag_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
+| `koe.toemmingsvern.innkommende_hendelse_id` | `koe.innkommende_hendelse.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 19.10: katalogen. |
 | `koe.toemmingsvern.prosjekt_med_saker_id` | `koe.prosjekt_med_saker.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.sak_catenda_topic_sak_id` | `koe.sak_catenda_topic.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.vedlegg_id` | `koe.vedlegg.vedlegg_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
@@ -634,6 +640,7 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.catenda_project_configs.catenda_project_id` | ID-en til prosjektet i Catenda, unik per kobling. Ingen tabell i SQL Server har Catenda-prosjektene. |
 | `koe.catenda_project_configs.library_id` | Dokumentbiblioteket i Catenda for brevene. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.catenda_project_configs.folder_id` | Mappen i biblioteket. Samme som `library_id`. |
+| `koe.innkommende_hendelse.hendelse_id` | `event.id` fra Catenda, unik per kilde. Ingen tabell har Catendas hendelser. |
 | `koe.sak_catenda_topic.catenda_board_id` | Boardet topicen står i, i Catenda. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.sak_catenda_topic.catenda_topic_id` | ID-en til sakens topic i Catenda. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.catenda_project_configs.topic_board_id` | Boardet for saker som opprettes i appen, i Catenda (KT-U4). |
@@ -682,6 +689,9 @@ flowchart LR
         t_utkast["utkast"]
         t_vedlegg["vedlegg"]
     end
+    subgraph g3["SQL Server"]
+        t_koe_innkommende_hendelse["koe.innkommende_hendelse"]
+    end
     subgraph g4["Utenfor databasene"]
         t_Webhook_reservasjon["Webhook-reservasjon"]
     end
@@ -723,6 +733,7 @@ flowchart LR
     c_ifc -->|"C16.2 list_ifc_types"| t_appen
     c_ifc -->|"C16.3 get_related_bim_objects"| t_appen
     c_prosjekt -->|"C17.1 catenda_health_check"| t_appen
+    c_webhook -->|"C21.1 mottaHendelse"| t_koe_innkommende_hendelse
 ```
 
 ### Ut til Catenda
@@ -845,6 +856,7 @@ flowchart LR
 | `koe.leveringskvittering` | — | — | — |
 | `koe.vedleggskvittering` | — | — | — |
 | `koe.sak_catenda_topic` | — | — | — |
+| `koe.innkommende_hendelse` | C21 | — | — |
 | `koe.prosjekt_med_saker` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |
 | `koe.toemmingsvern` | — | — | — |
@@ -1128,6 +1140,18 @@ Oppdaterer `projects.name` direkte, utenom `koe_register_project`. Skriptet bruk
 | C20.1 | Catenda: prosjekter | projects | GET /v2/projects/{catenda_project_id} | [`fetch_catenda_project_name`](../../backend/scripts/catenda_admin.py) → [`cmd_sync_name`](../../backend/scripts/catenda_admin.py) | Prosjektnavnet i Catenda, for hvert registrert prosjekt. |
 
 **Funn:** —. **Belegg:** L 29.09: `cmd_sync_name`.
+
+### C21 Webhooken fra Catenda til innboksen i TS-serveren
+
+**Retning:** inn. **Utløses av:** Webhook fra Catenda til `POST /webhook/catenda/<hemmelig sti>` i TS-serveren (W-1a, #819). Alle hendelsestyper tas imot, også `bcf.*`.
+
+Stien sammenlignes med hemmeligheten i konstant tid, og en feil sti gir 404 som en ukjent rute (INT-01). Kroppen lagres rå i `koe.innkommende_hendelse` før svaret 200, og samme `event.id` lagres én gang. Feiler lagringen, er svaret 500, så Catenda prøver igjen (INT-02). Behandlingen av innboksen kommer i W-1b; til da skrives ingen sak og ingen kommentar.
+
+| Pil | Fra | Til | Endepunkt | Kode | Data |
+| --- | --- | --- | --- | --- | --- |
+| C21.1 | Catenda: webhook-varsel | koe.innkommende_hendelse | Innkommende POST fra Catenda | [`taImot`](../../server/webhook.ts) → [`mottaHendelse`](../../server/webhook.ts) | Hele kroppen, med `event.id` og `event.type` i egne kolonner. |
+
+**Funn:** INT-01, INT-02. **Belegg:** L 19.10: `server/webhook.ts`. K 19.10: `server/tester/webhook.test.ts`.
 
 ## Kall til Catenda utenfor dataflyten
 

@@ -927,6 +927,32 @@ kode = [
 ]
 data = "Prosjektnavnet i Catenda, for hvert registrert prosjekt."
 
+[[flyt]]
+id = "C21"
+navn = "Webhooken fra Catenda til innboksen i TS-serveren"
+retning = "inn"
+utloses_av = """
+Webhook fra Catenda til `POST /webhook/catenda/<hemmelig sti>` i TS-serveren
+(W-1a, #819). Alle hendelsestyper tas imot, også `bcf.*`."""
+beskrivelse = """
+Stien sammenlignes med hemmeligheten i konstant tid, og en feil sti gir 404 som en
+ukjent rute (INT-01). Kroppen lagres rå i `koe.innkommende_hendelse` før svaret 200,
+og samme `event.id` lagres én gang. Feiler lagringen, er svaret 500, så Catenda
+prøver igjen (INT-02). Behandlingen av innboksen kommer i W-1b; til da skrives ingen
+sak og ingen kommentar."""
+funn = ["INT-01", "INT-02"]
+belegg = "L 19.10: `server/webhook.ts`. K 19.10: `server/tester/webhook.test.ts`."
+
+[[flyt.steg]]
+fra = "catenda:webhook"
+til = ["koe.innkommende_hendelse"]
+endepunkt = "Innkommende POST fra Catenda"
+kode = [
+    "server/webhook.ts:taImot",
+    "server/webhook.ts:mottaHendelse",
+]
+data = "Hele kroppen, med `event.id` og `event.type` i egne kolonner."
+
 # ---------------------------------------------------------------------------
 # Kall til Catenda som ikke er en del av appens dataflyt
 # ---------------------------------------------------------------------------

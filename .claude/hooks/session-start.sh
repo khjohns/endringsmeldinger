@@ -115,9 +115,9 @@ if (start_testbase) >> "$logg" 2>&1 \
   if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     echo "export KOE_TESTBASE_URL='$url'" >> "$CLAUDE_ENV_FILE"
   fi
-  echo "Testbase: PostgreSQL 17 i Docker (koe-testbase-${KOE_TESTBASE_PORT:-54317}), KOE_TESTBASE_URL er satt. Databasetestene kjører med vanlig pytest, og npm test kjører også TS-databasetestene i sprakprove/, blant dem kjernens lagringstester i sprakprove/kjernelagring/. Kjør dem ikke samtidig mot samme base."
+  echo "Testbase: PostgreSQL 17 i Docker (koe-testbase-${KOE_TESTBASE_PORT:-54317}), KOE_TESTBASE_URL er satt. npm test kjører også kjernens lagringstester i sprakprove/kjernelagring/ mot den. server/ bruker SQL Server, ikke denne basen."
 else
-  echo "ADVARSEL: testbasen i PostgreSQL 17 kom ikke opp; se $logg. KOE_TESTBASE_URL er ikke satt, så databasetestene i pytest og i sprakprove/ hoppes over, og grønn suite sier ingenting om datalaget. Maskinen har bare PostgreSQL 16. Kjør hooken på nytt med CLAUDE_CODE_REMOTE=true."
+  echo "ADVARSEL: testbasen i PostgreSQL 17 kom ikke opp; se $logg. KOE_TESTBASE_URL er ikke satt, så kjernens lagringstester i sprakprove/kjernelagring/ hoppes over, og grønn suite sier ingenting om lagringen av kjernens forløp. Maskinen har bare PostgreSQL 16. Kjør hooken på nytt med CLAUDE_CODE_REMOTE=true."
 fi
 
 # SQL Server for datalaget i F0b (#488) starter i bakgrunnen, så økter som ikke
@@ -128,11 +128,13 @@ sqllogg=/tmp/koe-sqlserver.log
 # (hent_bilde.sh gir opp etter om lag ti minutter med én kilde) og `vent`.
 # `timeout` dreper sin egen prosessgruppe, også `docker pull` i hent_bilde.sh,
 # som kjører med `--foreground` og blir i gruppen. Jobben selv står utenfor
-# gruppen, så den overlever fristen og fjerner stempelet: en utløpt frist er en
-# feil, og neste kjøring lager containeren på nytt (#761). Startlåsen (fd 9)
-# slippes når jobben er ferdig.
+# gruppen, så den overlever fristen. Feiler steget eller `vent`, eller går fristen
+# ut, er det en feil (#761): jobben fjerner stempelet og containeren, så
+# testhjelperen ikke kobler seg til en server hooken har meldt som feilet, og neste
+# kjøring lager containeren på nytt (#913). Startlåsen (fd 9) slippes når jobben er
+# ferdig, etter at containeren er fjernet.
 sqlserver_bakgrunn() {
-  local status=0
+  local status=0 start=$SECONDS
   timeout --kill-after 10 "$FRIST" bash -c '"$@" > /dev/null && "$SKRIPT" vent' _ "$@" \
     || status=$?
   if [ "$status" = 0 ]; then
@@ -140,8 +142,13 @@ sqlserver_bakgrunn() {
     return
   fi
   rm -f "$STEMPEL"
-  if [ "$status" = 124 ] || [ "$status" = 137 ]; then
-    echo "Fristen på $FRIST s for oppstarten av SQL Server gikk ut. Stempelet er fjernet, så neste kjøring av hooken lager containeren på nytt."
+  "$SKRIPT" stopp
+  # 137 er også statusen når barnet drepes med SIGKILL utenfra, for eksempel ved
+  # OOM. Da har fristen ikke gått ut.
+  if [ "$status" = 124 ] || { [ "$status" = 137 ] && [ $((SECONDS - start)) -ge "$FRIST" ]; }; then
+    echo "Fristen på $FRIST s for oppstarten av SQL Server gikk ut. Stempelet og containeren er fjernet, så neste kjøring av hooken lager containeren på nytt."
+  else
+    echo "Oppstarten av SQL Server feilet med status $status. Stempelet og containeren er fjernet, så neste kjøring av hooken lager containeren på nytt."
   fi
   return "$status"
 }

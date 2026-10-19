@@ -46,9 +46,7 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
 ## TS-stien
 
 `server/autorisasjon.ts` speiler `require_auth`, `require_project_access` og
-`require_contract_role`, i samme rekkefølge og med samme svar. Språkprøven i
-`sprakprove/server/` bruker en kopi i `sprakprove/server/autorisasjon.ts`, som
-leser PostgreSQL, fordi `server/autorisasjon.ts` flyttes til SQL Server (#658).
+`require_contract_role`, i samme rekkefølge og med samme svar.
 
 - **Registeret.** Hver inngang i TS-serveren står i `RUTER` i `server/app.ts`
   med prosjektrollen og kontraktsrollen den krever, eller en skriftlig
@@ -75,5 +73,3 @@ leser PostgreSQL, fordi `server/autorisasjon.ts` flyttes til SQL Server (#658).
   `koe_sikkerhet.skriver` stopper en rad i et annet prosjekt.
   `koe_api.skriv_hendelse` kontrollerer og stempler prosjektet fra konteksten i
   tillegg.
-- Språkprøvens server har ikke registeret. Der prøves hver inngang for seg
-  (`.claude/rules/tester.md`).

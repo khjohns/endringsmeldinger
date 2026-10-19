@@ -1,7 +1,7 @@
 /**
  * Sakskonteksten for en TS-sak (#663): journalen hentes, og visningen, handlingene
  * og den låste brevteksten regnes lokalt av kjernen. Serveren er erstattet av
- * falske `hent` og `send`; at serveren avgjør, prøves i `sprakprove/tester/server.test.ts`.
+ * falske `hent` og `send`; at serveren avgjør, prøves over HTTP i `server/tester/`.
  */
 
 import { describe, expect, it, vi } from 'vitest';

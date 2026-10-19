@@ -58,7 +58,11 @@ import {
 const navn = (r: Rute) => `${r.metode} ${r.eksempel(erUtenSak(r) ? '<prosjekt>' : '<sak>')}`;
 const kropp = (r: Rute) => (r.metode === 'GET' ? undefined : {});
 
-const UTEN_SESJON = ['GET /api/auth/catenda/login', 'GET /api/auth/catenda/callback'];
+const UTEN_SESJON = [
+  'GET /api/auth/catenda/login',
+  'GET /api/auth/catenda/callback',
+  'POST /webhook/catenda/<hemmelighet>',
+];
 const UTEN_PROSJEKT = [
   'GET /api/auth/session',
   'POST /api/auth/logout',
@@ -323,18 +327,20 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   );
 
   // Innloggingen sender til Catenda, og tilbakekallet uten forsøk til `login_failed`.
+  // Webhooken uten sesjon prøves med og uten hemmeligheten i `webhook.test.ts`.
   const OMDIRIGERING: Record<string, string> = {
     'GET /api/auth/catenda/login': 'https://catenda.test/oauth2/authorize?state=',
     'GET /api/auth/catenda/callback': 'https://app.example.no/login?error=login_failed',
   };
-  it.each(RUTER.filter(erAapen).map((r) => [navn(r), r] as const))(
-    '%s: uten sesjon kommer forbi tilgangen og omdirigerer',
-    async (n, r) => {
-      const svar = await fetch(`${medInnlogging.url}${r.eksempel('')}`, { redirect: 'manual' });
-      expect(svar.status).toBe(302);
-      expect(svar.headers.get('location')?.startsWith(OMDIRIGERING[n])).toBe(true);
-    }
-  );
+  it.each(
+    RUTER.filter(erAapen)
+      .map((r) => [navn(r), r] as const)
+      .filter(([n]) => n in OMDIRIGERING)
+  )('%s: uten sesjon kommer forbi tilgangen og omdirigerer', async (n, r) => {
+    const svar = await fetch(`${medInnlogging.url}${r.eksempel('')}`, { redirect: 'manual' });
+    expect(svar.status).toBe(302);
+    expect(svar.headers.get('location')?.startsWith(OMDIRIGERING[n])).toBe(true);
+  });
 
   it.each(hver)('%s: uten sesjon gir 401', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(sak), {

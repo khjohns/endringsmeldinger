@@ -18,7 +18,6 @@
 /kjerne/**/*.json
 /server/**/*.json
 /sprakprove/**/*.json
-/sprakprove/**/*.html
 /scripts/**/*.ts
 /prove/**/*.json
 **/tsconfig*.json

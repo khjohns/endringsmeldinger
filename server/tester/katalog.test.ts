@@ -1,6 +1,7 @@
 /**
  * `docs/datamodell/katalog.json` mot en base i SQL Server bygget fra
- * `database/migrasjoner/` (#558), som `test_katalog_json.py` for PostgreSQL.
+ * `database/migrasjoner/` (#558). PostgreSQL-delen kontrolleres ikke mot en base
+ * (#931).
  *
  * Registrene i `docs/datamodell/` kontrolleres mot øyeblikksbildet. Denne testen
  * holder SQL Server-delen av det lik katalogen, så en ny migrasjon som endrer
