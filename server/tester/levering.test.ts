@@ -20,6 +20,7 @@ import {
   type Brevdokument,
   type Dokumentleverandoer,
   type Dokumentmaal,
+  type Topicoppretter,
 } from '../catenda.ts';
 import type { Pool } from '../datalag.ts';
 import { kjoerEnJobb, LEASETID_S } from '../jobber.ts';
@@ -203,6 +204,12 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
       .input('pdf', sql.VarBinary(sql.MAX), Buffer.from(pdf))
       .input('pdf_sha256', sql.NVarChar(64), sum)
       .execute<{ pdf: Buffer }>('koe_api.lagre_brevdokument');
+  const provIgjenNaa = (sakId: string) =>
+    somKjoerer(
+      `UPDATE koe.jobb SET neste_forsoek = DATETRUNC(millisecond, SYSUTCDATETIME())
+        WHERE sak_id = @sak AND jobbtype = N'levering'`,
+      { sak: sakId }
+    );
   const startPaaNytt = async (sakId: string) => {
     const { jobb_id } = (await leveringen(sakId)).find((j) => j.tilstand === 'parkert')!;
     await o.datalag.base.pool
@@ -339,20 +346,20 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(oppdrag.levert).toBe(kvittert.toISOString());
   });
 
-  it('L3: et tapt svar ved opplastingen parkeres, og forsøket etter omstarten finner dokumentet på navnet (invariant 7, B-03)', async () => {
+  // Kilde: B-03 og #876 punkt 4: leveringen avstemmes mot navnet, så et tapt svar gir et
+  // nytt forsøk, ikke parkering.
+  it('L3: et tapt svar ved opplastingen prøves igjen, og neste forsøk finner dokumentet på navnet (invariant 7, B-03)', async () => {
     const sakId = await sakMedBrev();
     const nyeForsoek = forsoeksloggen(sakId);
     catenda.etter.lastOppDokument = () => {
       throw new UsikkertCatendautfall('Catenda svarte ikke');
     };
     expect(await kjoer()).toBe(true);
-    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
-    expect(await kjoer()).toBe(false);
-    expect((await nyeForsoek()).map(([utfall]) => utfall)).toEqual(['usikkert']);
+    expect((await leveringen(sakId))[0].tilstand).toBe('venter');
+    expect(await nyeForsoek()).toEqual([['feilet', 'Catenda svarte ikke']]);
 
     catenda.etter = {};
-    await startPaaNytt(sakId);
-    expect((await nyeForsoek()).map(([utfall]) => utfall)).toEqual(['startet_paa_nytt']);
+    await provIgjenNaa(sakId);
     expect(await kjoer()).toBe(true);
     expect(catenda.opplastinger).toBe(1);
     expect(await nyeForsoek()).toEqual([['utfoert', null]]);
@@ -368,7 +375,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     ['en UUID', () => randomUUID()],
     ['ingen UUID', () => `dok-${randomUUID()}`],
   ])(
-    'L3: et tapt svar ved referansen parkeres, og forsøket etter omstarten lager ingen referanse til (dokument-ID-en er %s)',
+    'L3: et tapt svar ved referansen prøves igjen, og neste forsøk lager ingen referanse til (dokument-ID-en er %s)',
     async (_n, nyDokumentId) => {
       const sakId = await sakMedBrev();
       catenda.nyDokumentId = nyDokumentId;
@@ -376,10 +383,10 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
         throw new UsikkertCatendautfall('Catenda svarte ikke');
       };
       expect(await kjoer()).toBe(true);
-      expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+      expect((await leveringen(sakId))[0].tilstand).toBe('venter');
 
       catenda.etter = {};
-      await startPaaNytt(sakId);
+      await provIgjenNaa(sakId);
       expect(await kjoer()).toBe(true);
       expect(catenda.opplastinger).toBe(1);
       expect(catenda.nyeReferanser).toBe(1);
@@ -402,11 +409,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     catenda.foer.finnDokument = () => {
       throw new Error('Dokumentet er kvittert og skal ikke slås opp igjen');
     };
-    await somKjoerer(
-      `UPDATE koe.jobb SET neste_forsoek = DATETRUNC(millisecond, SYSUTCDATETIME())
-        WHERE sak_id = @sak AND jobbtype = N'levering'`,
-      { sak: sakId }
-    );
+    await provIgjenNaa(sakId);
     expect(await kjoer()).toBe(true);
     expect(catenda.opplastinger).toBe(1);
     expect(await nyeForsoek()).toEqual([['utfoert', null]]);
@@ -447,12 +450,14 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
   it('L5: en referanse på topicen uten dokument parkerer leveringen som avvist (#876)', async () => {
     const sakId = await sakMedBrev();
     catenda.foer.dokumentreferanser = () => {
-      throw new VarigCatendaavvik('En referanse på topicen viser ikke til noe dokument');
+      throw new VarigCatendaavvik(
+        'Referansen nr. 1 på topicen viser verken til et dokument eller en lenke'
+      );
     };
     expect(await kjoer()).toBe(true);
     expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
     expect(await forsoekene(sakId)).toEqual([
-      ['avvist', 'En referanse på topicen viser ikke til noe dokument'],
+      ['avvist', 'Referansen nr. 1 på topicen viser verken til et dokument eller en lenke'],
     ]);
   });
 
@@ -659,19 +664,20 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     ).toEqual(['dokument', 'dokumentreferanse']);
   });
 
-  it('L9: et tapt svar ved opplastingen av vedlegget parkeres, og forsøket etter omstarten finner det på navnet (invariant 7)', async () => {
+  // Kilde: #876 punkt 4: et tapt svar på et vedlegg gir et nytt forsøk med avstemming.
+  it('L9: et tapt svar ved opplastingen av vedlegget prøves igjen, og neste forsøk finner det på navnet (invariant 7)', async () => {
     const { sakId, vedleggId } = await sakMedRegistrertVarsel();
     catenda.etter.lastOppDokument = () => {
       throw new UsikkertCatendautfall('Catenda svarte ikke');
     };
     expect(await kjoer()).toBe(true);
-    expect((await leveringen(sakId)).map((j) => j.tilstand).sort()).toEqual(['parkert', 'utfoert']);
+    expect((await leveringen(sakId)).map((j) => j.tilstand).sort()).toEqual(['utfoert', 'venter']);
     expect(
       (await vedlegget(vedleggId)).innhold,
       'innholdet ligger til Catenda har kvittert'
     ).not.toBeNull();
     catenda.etter = {};
-    await startPaaNytt(sakId);
+    await provIgjenNaa(sakId);
     expect(await kjoer()).toBe(true);
     expect((await leveringen(sakId)).map((j) => j.tilstand)).toEqual(['utfoert', 'utfoert']);
     expect(catenda.opplastinger).toBe(2);
@@ -957,12 +963,21 @@ describe('kjøreren og en jobbtype den ikke kjenner (#778)', () => {
 // Kilde: #795 punkt 1 og #783 punkt 2: en varig feil fra basen prøves ikke igjen i det
 // uendelige, mens en vranglås eller en tapt forbindelse går over.
 describe('kjøreren og feil fra basen (#795)', () => {
-  it.each<[string, number | undefined, string]>([
-    ['brudd på en CHECK (547)', 547, 'avvist'],
-    ['en rett som mangler (229)', 229, 'avvist'],
-    ['en vranglås (1205)', 1205, 'feilet'],
-    ['en feil uten nummer, i forbindelsen', undefined, 'feilet'],
-  ])('%s før Catenda er bedt om noe, gir utfallet %s', async (_n, nummer, utfall) => {
+  // Kilde: #877 p14 for feilene uten nummer: bare en feil i forbindelsen går over. En feil
+  // fra tedious uten `info` får koden som `number` når mssql pakker den inn.
+  it.each<[string, string, { number?: number | string; code?: string }]>([
+    ['brudd på en CHECK (547)', 'avvist', { number: 547 }],
+    ['en rett som mangler (229)', 'avvist', { number: 229 }],
+    ['en vranglås (1205)', 'feilet', { number: 1205 }],
+    ['en feil uten nummer, i forbindelsen (ESOCKET)', 'feilet', { code: 'ESOCKET' }],
+    ['et tidsavbrudd uten nummer (ETIMEOUT)', 'feilet', { code: 'ETIMEOUT' }],
+    [
+      'et tidsavbrudd i forespørselen, pakket av mssql (ETIMEOUT)',
+      'feilet',
+      { number: 'ETIMEOUT', code: 'ETIMEOUT' },
+    ],
+    ['en parameter tedious avviser (EPARAM)', 'avvist', { code: 'EPARAM' }],
+  ])('%s før Catenda er bedt om noe, gir utfallet %s', async (_n, utfall, egenskaper) => {
     const registrert: Record<string, unknown>[] = [];
     const datalag = {
       request() {
@@ -983,9 +998,7 @@ describe('kjøreren og feil fra basen (#795)', () => {
               registrert.push(parametre);
               return { recordset: [] };
             }
-            const feil = new sql.RequestError('fra basen');
-            if (nummer !== undefined) Object.assign(feil, { number: nummer });
-            throw feil;
+            throw Object.assign(new sql.RequestError('fra basen'), egenskaper);
           },
         };
         return r;
@@ -1019,10 +1032,27 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     referanse_id: null,
   });
 
-  /** Basen for én leveringsjobb med to vedlegg som har dokument, men ikke referanse. */
-  function falskBase(jobbtype: string, feiler: { prosedyre: string; nummer: number } | null) {
+  /**
+   * Basen for én leveringsjobb, som standard med to vedlegg som har dokument, men ikke
+   * referanse, og et oppdrag uten dokument.
+   */
+  function falskBase(
+    jobbtype: string,
+    feiler: {
+      prosedyre: string;
+      feil: { number?: number | string; code?: string };
+      ganger?: number;
+    } | null,
+    tillegg: {
+      jobb?: Record<string, unknown>;
+      vedlegg?: ReturnType<typeof vedlegg>[];
+      dokumenter?: Partial<Dokumentleverandoer>;
+      catenda?: Partial<Topicoppretter>;
+    } = {}
+  ) {
     const kall: { prosedyre: string; typer: Record<string, unknown> }[] = [];
     const registrert: Record<string, unknown>[] = [];
+    let feilet = 0;
     const datalag = {
       request() {
         const parametre: Record<string, unknown> = {};
@@ -1049,14 +1079,15 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
                     topic_board_id: 'b',
                     topic_id: 't',
                     oppdrag: '{"maal":{},"dokument":null}',
+                    ...tillegg.jobb,
                   },
                 ],
               };
             if (prosedyre === 'koe_api.vedlegg_i_levering')
-              return { recordset: [vedlegg('v1'), vedlegg('v2')] };
+              return { recordset: tillegg.vedlegg ?? [vedlegg('v1'), vedlegg('v2')] };
             if (prosedyre === 'koe_api.registrer_jobbfeil') registrert.push(parametre);
-            if (prosedyre === feiler?.prosedyre)
-              throw Object.assign(new sql.RequestError('fra basen'), { number: feiler.nummer });
+            if (prosedyre === feiler?.prosedyre && (feiler.ganger ?? Infinity) > feilet++)
+              throw Object.assign(new sql.RequestError('fra basen'), feiler.feil);
             return { recordset: [] };
           },
         };
@@ -1066,12 +1097,13 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     const kjoer = () =>
       kjoerEnJobb({
         datalag,
-        catenda: { opprettTopic: async () => 'topic' },
+        catenda: { opprettTopic: async () => 'topic', ...tillegg.catenda },
         dokumenter: {
           finnDokument: async () => null,
           lastOppDokument: async () => null,
           dokumentreferanser: async () => [],
           opprettDokumentreferanse: async () => 'referanse',
+          ...tillegg.dokumenter,
         },
         saksadresse: () => 'x',
         logg: { info() {}, warn() {}, error() {} },
@@ -1079,16 +1111,17 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     return { kall, registrert, kjoer };
   }
 
-  // Kilde: #876 r2 og s3.
-  it('leasen fornyes før hvert vedlegg, og parametrene i kvitteringen har typene i prosedyren', async () => {
+  const prosedyrene = (base: ReturnType<typeof falskBase>) =>
+    base.kall.map((k) => k.prosedyre.replace('koe_api.', ''));
+
+  // Kilde: #876 s3.
+  it('hvert vedlegg kvitteres for seg, og parametrene i kvitteringen har typene i prosedyren', async () => {
     const base = falskBase('levering', null);
     await base.kjoer();
-    expect(base.kall.map((k) => k.prosedyre.replace('koe_api.', ''))).toEqual([
+    expect(prosedyrene(base)).toEqual([
       'hent_jobb',
       'vedlegg_i_levering',
-      'forny_lease',
       'kvitter_vedlegg',
-      'forny_lease',
       'kvitter_vedlegg',
       'kvitter_levering',
     ]);
@@ -1099,26 +1132,137 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
 
   // Kilde: #876 r3. Leveringen avstemmes mot Catenda ved neste forsøk, så en forbigående
   // feil i kvitteringen prøves igjen. En annen feil parkeres som usikker når leasen går ut.
-  it.each<[string, number, string | null]>([
-    ['en vranglås (1205)', 1205, 'feilet'],
-    ['Azure SQL som flytter basen (40613)', 40613, 'feilet'],
-    ['en avvisning fra basen (51422)', 51422, null],
-  ])('%s i kvitteringen av et vedlegg gir utfallet %s', async (_n, nummer, utfall) => {
-    const base = falskBase('levering', { prosedyre: 'koe_api.kvitter_vedlegg', nummer });
+  // Kilde: #877 p14 for EPARAM: en parameter tedious avviser, går ikke over.
+  it.each<[string, string | null, { number?: number | string; code?: string }]>([
+    ['en vranglås (1205)', 'feilet', { number: 1205 }],
+    ['Azure SQL som flytter basen (40613)', 'feilet', { number: 40613 }],
+    [
+      'et tidsavbrudd i forespørselen, pakket av mssql (ETIMEOUT)',
+      'feilet',
+      { number: 'ETIMEOUT', code: 'ETIMEOUT' },
+    ],
+    ['en avvisning fra basen (51422)', null, { number: 51422 }],
+    ['en parameter tedious avviser (EPARAM)', null, { code: 'EPARAM' }],
+  ])('%s i kvitteringen av et vedlegg gir utfallet %s', async (_n, utfall, feil) => {
+    const base = falskBase('levering', { prosedyre: 'koe_api.kvitter_vedlegg', feil });
     if (utfall) {
       await base.kjoer();
       expect(base.registrert).toEqual([{ lease: 'l', utfall, melding: 'Uventet feil i jobben' }]);
     } else {
-      await expect(base.kjoer()).rejects.toMatchObject({ number: nummer });
+      await expect(base.kjoer()).rejects.toMatchObject(feil);
       expect(base.registrert).toEqual([]);
     }
   });
 
   // Kilde: #876 r3. Topicen kan ikke avstemmes, så et nytt forsøk ville laget en til.
   it('en vranglås i kvitteringen av topicen registreres ikke som feilet', async () => {
-    const base = falskBase('catenda_topic', { prosedyre: 'koe_api.kvitter_topic', nummer: 1205 });
+    const base = falskBase('catenda_topic', {
+      prosedyre: 'koe_api.kvitter_topic',
+      feil: { number: 1205 },
+    });
     await expect(base.kjoer()).rejects.toMatchObject({ number: 1205 });
     expect(base.registrert).toEqual([]);
+  });
+
+  // Arbeidsvalg i #877 p15 (alternativ B), ikke vedtatt av oppdragsgiver: registreringen
+  // prøves én gang til, så leasen ikke går ut og parkerer en levering som kunne vært avstemt.
+  it.each<[string, string, number]>([
+    ['én vranglås', 'registreres ved andre forsøk', 1],
+    ['to vranglåser', 'kastes etter andre forsøk, og leasen går ut', 2],
+  ])('%s når feilen registreres: feilen %s', async (_n, _utfall, ganger) => {
+    const base = falskBase(
+      'levering',
+      { prosedyre: 'koe_api.registrer_jobbfeil', feil: { number: 1205 }, ganger },
+      {
+        dokumenter: {
+          opprettDokumentreferanse: async () => {
+            throw new CatendaUtilgjengelig('Catenda svarte med feil');
+          },
+        },
+      }
+    );
+    const kjoering = base.kjoer();
+    if (ganger === 1) await kjoering;
+    else await expect(kjoering).rejects.toMatchObject({ number: 1205 });
+    expect(base.registrert).toHaveLength(2);
+    expect(base.registrert[0]).toEqual({
+      lease: 'l',
+      utfall: 'feilet',
+      melding: 'Catenda svarte med feil',
+    });
+  });
+
+  // Kilde: #876 punkt 4. Neste forsøk finner referansen til det første vedlegget og
+  // dokumentet til det andre igjen, så et tapt svar på vedlegg 2 av 2 parkeres ikke.
+  it('et tapt svar på referansen til det andre vedlegget gir et nytt forsøk, ikke parkering', async () => {
+    let referanser = 0;
+    const base = falskBase('levering', null, {
+      dokumenter: {
+        async opprettDokumentreferanse() {
+          merkEndring();
+          if (++referanser === 2) throw new UsikkertCatendautfall('Catenda svarte ikke');
+          return 'referanse';
+        },
+      },
+    });
+    await base.kjoer();
+    expect(base.registrert).toEqual([
+      { lease: 'l', utfall: 'feilet', melding: 'Catenda svarte ikke' },
+    ]);
+  });
+
+  // Kilde: #876 r3 og #813 punkt 5. Topicen kan ikke avstemmes, så et tapt svar er usikkert.
+  it('et tapt svar når topicen opprettes, parkerer jobben som usikker', async () => {
+    const base = falskBase('catenda_topic', null, {
+      catenda: {
+        async opprettTopic() {
+          merkEndring();
+          throw new UsikkertCatendautfall('Catenda svarte ikke');
+        },
+      },
+    });
+    await base.kjoer();
+    expect(base.registrert).toEqual([
+      { lease: 'l', utfall: 'usikkert', melding: 'Catenda svarte ikke' },
+    ]);
+  });
+
+  // Kilde: #877 p16 og p19. Oppslagene på topicen og i biblioteket blar side for side og
+  // har ingen øvre tid, så leasen fornyes så lenge steget varer, også brevsteget.
+  it('leasen fornyes mens brevsteget venter på Catenda, og ikke etter at leveringen er ferdig', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    try {
+      let slipp!: () => void;
+      let venter!: () => void;
+      const steget = new Promise<void>((ok) => (venter = ok));
+      const base = falskBase('levering', null, {
+        jobb: { oppdrag: '{"maal":{},"dokument":{}}', dokument_id: 'brevdokument' },
+        vedlegg: [],
+        dokumenter: {
+          dokumentreferanser: () => {
+            venter();
+            return new Promise((ok) => (slipp = () => ok([])));
+          },
+        },
+      });
+      const kjoering = base.kjoer();
+      await steget;
+      vi.advanceTimersByTime(LEASETID_S * 1000);
+      slipp();
+      await kjoering;
+      vi.advanceTimersByTime(LEASETID_S * 1000);
+      expect(prosedyrene(base)).toEqual([
+        'hent_jobb',
+        'vedlegg_i_levering',
+        'forny_lease',
+        'forny_lease',
+        'forny_lease',
+        'kvitter_levering',
+      ]);
+      expect(base.registrert).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

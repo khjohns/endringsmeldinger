@@ -818,22 +818,26 @@ funn = []
 belegg = "K 18.10: katalogen."
 
 [[relasjon]]
-fra = "koe.jobb.leveringsoppdrag_id"
-til = "koe.leveringsoppdrag.id"
+fra = ["koe.jobb.leveringsoppdrag_id", "koe.jobb.prosjekt_id"]
+til = ["koe.leveringsoppdrag.id", "koe.leveringsoppdrag.prosjekt_id"]
 art = "fremmednøkkel"
 antall = "én til én"
-beskrivelse = "Oppdraget en jobb `levering` leverer (#371). Hvert oppdrag har høyst én jobb."
+beskrivelse = """
+Oppdraget en jobb `levering` leverer (#371). Hvert oppdrag har høyst én jobb. Sammensatt med
+`prosjekt_id`, så jobben står i oppdragets prosjekt (#783)."""
 funn = []
-belegg = "K 18.10: katalogen."
+belegg = "K 19.10: katalogen."
 
 [[relasjon]]
-fra = "koe.brevdokument.leveringsoppdrag_id"
-til = "koe.leveringsoppdrag.id"
+fra = ["koe.brevdokument.leveringsoppdrag_id", "koe.brevdokument.prosjekt_id"]
+til = ["koe.leveringsoppdrag.id", "koe.leveringsoppdrag.prosjekt_id"]
 art = "fremmednøkkel"
 antall = "én til én"
-beskrivelse = "Oppdraget PDF-en gjengir. Det er én PDF per oppdrag (#371 del 2)."
+beskrivelse = """
+Oppdraget PDF-en gjengir. Det er én PDF per oppdrag (#371 del 2). Sammensatt med `prosjekt_id`, så
+PDF-en står i oppdragets prosjekt (#783)."""
 funn = []
-belegg = "K 18.10: katalogen."
+belegg = "K 19.10: katalogen."
 
 [[relasjon]]
 fra = "koe.brevdokument.forsoek_id"
@@ -847,15 +851,16 @@ funn = []
 belegg = "L 18.10: `database/migrasjoner/20261018140000_brevdokument.sql`."
 
 [[relasjon]]
-fra = "koe.leveringskvittering.leveringsoppdrag_id"
-til = "koe.leveringsoppdrag.id"
+fra = ["koe.leveringskvittering.leveringsoppdrag_id", "koe.leveringskvittering.prosjekt_id"]
+til = ["koe.leveringsoppdrag.id", "koe.leveringsoppdrag.prosjekt_id"]
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
 Oppdraget kvitteringen gjelder: én rad for dokumentet og én for referansen på
-topicen (B-03, #371)."""
+topicen (B-03, #371). Sammensatt med `prosjekt_id`, så kvitteringen står i oppdragets
+prosjekt (#783)."""
 funn = []
-belegg = "K 18.10: katalogen."
+belegg = "K 19.10: katalogen."
 
 [[relasjon]]
 fra = ["koe.leveringskvittering.leveringsoppdrag_id", "koe.leveringskvittering.forutsetning"]
@@ -897,13 +902,15 @@ funn = []
 belegg = "K 18.10: katalogen."
 
 [[relasjon]]
-fra = "koe.vedleggskvittering.leveringsoppdrag_id"
-til = "koe.leveringsoppdrag.id"
+fra = ["koe.vedleggskvittering.leveringsoppdrag_id", "koe.vedleggskvittering.prosjekt_id"]
+til = ["koe.leveringsoppdrag.id", "koe.leveringsoppdrag.prosjekt_id"]
 art = "fremmednøkkel"
 antall = "mange til én"
-beskrivelse = "Oppdraget som leverte vedlegget. Et senere oppdrag som viser til samme vedlegg, får ingen ny rad."
+beskrivelse = """
+Oppdraget som leverte vedlegget. Et senere oppdrag som viser til samme vedlegg, får ingen ny rad.
+Sammensatt med `prosjekt_id`, så kvitteringen står i oppdragets prosjekt (#783)."""
 funn = []
-belegg = "K 18.10: katalogen."
+belegg = "K 19.10: katalogen."
 
 [[relasjon]]
 fra = "koe.vedleggskvittering.forsoek_id"
@@ -1370,21 +1377,9 @@ Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i
 koblingen kan endres etter at listen er skrevet."""
 
 [[uten_relasjon]]
-kolonne = "koe.brevdokument.prosjekt_id"
-begrunnelse = "Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5)."
-
-[[uten_relasjon]]
 kolonne = "koe.leveringskvittering.catenda_id"
 begrunnelse = "ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda."
 
 [[uten_relasjon]]
-kolonne = "koe.leveringskvittering.prosjekt_id"
-begrunnelse = "Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5)."
-
-[[uten_relasjon]]
 kolonne = "koe.vedleggskvittering.catenda_id"
 begrunnelse = "ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda."
-
-[[uten_relasjon]]
-kolonne = "koe.vedleggskvittering.prosjekt_id"
-begrunnelse = "Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5)."

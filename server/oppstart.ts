@@ -10,7 +10,7 @@
  */
 
 import { utenKontekst, type Pool } from './datalag.ts';
-import { avvik, ikkeAnvendt, type Anvendt, type Migrasjon } from './migrering.ts';
+import { vurder, type Anvendt, type Migrasjon } from './migrering.ts';
 
 /** De faste rollene i basen som gir rettigheter. `db_denydata*` tar bare bort. */
 const FASTE_ROLLER = [
@@ -24,14 +24,12 @@ const FASTE_ROLLER = [
 ];
 
 /**
- * `avvik()`, og filene som ikke er anvendt og kommer etter den høyeste anvendte.
- * De som kommer foran, melder `avvik()` alt (#726 punkt 5).
+ * Funnene fra `vurder()`, og de nye filene, som runneren ville anvendt. De som
+ * kommer foran den høyeste anvendte, står alt i funnene (#726 punkt 5).
  */
 export function migrasjonsavvik(anvendt: Anvendt[], filer: Migrasjon[]): string[] {
-  return [
-    ...avvik(anvendt, filer),
-    ...ikkeAnvendt(anvendt, filer).etter.map((f) => `${f.filnavn} er ikke anvendt.`),
-  ];
+  const { funn, nye } = vurder(anvendt, filer);
+  return [...funn, ...nye.map((f) => `${f.filnavn} er ikke anvendt.`)];
 }
 
 /** Vilkårene for kjøretiden som forbindelsen bryter, som ledd i én setning. */
@@ -62,11 +60,7 @@ async function rollebrudd(pool: Pool): Promise<string[]> {
 
 export async function hindringer(pool: Pool, filer: Migrasjon[]): Promise<string[]> {
   const brudd = await rollebrudd(pool);
-  if (brudd.length)
-    return [
-      `Forbindelsen er ikke kjøretidens: ${brudd.join(', ')}. Kjøretiden skal være medlem av ` +
-        'koe_runtime, uten en fast rolle i basen, uten CONTROL på basen og ikke sysadmin.',
-    ];
+  if (brudd.length) return [`Forbindelsen er ikke kjøretidens: ${brudd.join(', ')}.`];
   const anvendt = (await utenKontekst(pool).execute<Anvendt>('koe_api.migrasjonshistorikk'))
     .recordset;
   return migrasjonsavvik(anvendt, filer);

@@ -19,6 +19,7 @@ import {
   Integrasjonsnokkel,
   medEndringsflagg,
   TOPICTYPE,
+  topicoppretter,
   UsikkertCatendautfall,
   VarigCatendaavvik,
   catendaFraMiljoe,
@@ -511,6 +512,18 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(m.raa).toBe('Brevet æøå');
   });
 
+  it('et navn med tegn over U+007F sendes som \\uXXXX i Bimsync-Params og leses tilbake uendret (#903)', async () => {
+    svar = () => ({ status: 201, json: [{ id: 'abc123' }] });
+    const navn = 'vedlegg-Łódź-æøå-😀.pdf';
+    expect(
+      await new CatendaOAuth(oppsett()).lastOppDokument(maal, { ...dokument, navn }, 'i')
+    ).toBe('abc123');
+    const hode = String(mottatt[0].hoder['bimsync-params']);
+    expect(hode).toMatch(/^[\x20-\x7e]+$/);
+    expect(hode).toContain('\\u0141\\u00f3d\\u017a');
+    expect(JSON.parse(hode)).toMatchObject({ name: navn, document: { filename: navn } });
+  });
+
   it('et dokument som finnes med navnet (409), gir null, ikke en feil', async () => {
     svar = () => ({ status: 409, json: { message: 'exists' } });
     expect(await new CatendaOAuth(oppsett()).lastOppDokument(maal, dokument, 'i')).toBeNull();
@@ -526,7 +539,9 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     ).rejects.toBeInstanceOf(UsikkertCatendautfall);
   });
 
-  it('finner dokumentet på navnet i mappen, og avviser to med samme navn', async () => {
+  // Arbeidsvalg (#877, #895-6): Catenda gir de samme to dokumentene ved neste forsøk, så
+  // jobben parkeres som for #891, i stedet for å prøves igjen uten ende.
+  it('finner dokumentet på navnet i mappen, og to med samme navn gir VarigCatendaavvik', async () => {
     svar = () => ({
       json: [
         { id: 'a1', name: 'annet' },
@@ -537,6 +552,7 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(await oauth.finnDokument(maal, dokument.navn, 'i')).toBe('b2');
     expect(mottatt[0].sti).toBe(bibliotek);
     expect(mottatt[0].parametre.get('parentId')).toBe(maal.folder_id);
+    expect(mottatt[0].parametre.get('search')).toBe(dokument.navn);
     expect(await oauth.finnDokument(maal, 'ukjent', 'i')).toBeNull();
     svar = () => ({
       json: [
@@ -545,7 +561,7 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
       ],
     });
     await expect(oauth.finnDokument(maal, dokument.navn, 'i')).rejects.toBeInstanceOf(
-      CatendaUtilgjengelig
+      VarigCatendaavvik
     );
   });
 
@@ -601,6 +617,11 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
       'en referanse med både url og et tomt dokument',
       [{ guid: 'r2', url: 'https://eksempel.no', document_guid: '' }],
       'med GUID r2',
+    ],
+    [
+      'en referanse med en url som bare er mellomrom (#895-7)',
+      [{ guid: 'r1', url: '  ' }],
+      'med GUID r1',
     ],
     [
       'en referanse uten dokument og med GUID av feil form',
@@ -673,11 +694,66 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     ['en referanse uten GUID', [{ document_guid: BRUKER }]],
     ['en referanse med en GUID over 100 tegn', [{ guid: 'r'.repeat(101), document_guid: BRUKER }]],
     ['en referanse med mellomrom rundt GUID-en', [{ guid: ' r1', document_guid: BRUKER }]],
-  ])('%s fra Catenda gir VarigCatendaavvik (#891)', async (_n, json) => {
-    svar = () => ({ json });
-    await expect(
-      new CatendaOAuth(oppsett()).dokumentreferanser(BOARD, 'topic-1', 'i')
-    ).rejects.toBeInstanceOf(VarigCatendaavvik);
+    [
+      'en referanse med en GUID med tegn utenfor [!-~] (#889-6)',
+      [{ guid: 'ræ', document_guid: BRUKER }],
+    ],
+  ])(
+    '%s fra Catenda gir VarigCatendaavvik som nevner referansen (#891, #895-4)',
+    async (_n, json) => {
+      svar = () => ({ json: [{ guid: 'r0', document_guid: BRUKER }, ...(json as unknown[])] });
+      const feil = await new CatendaOAuth(oppsett())
+        .dokumentreferanser(BOARD, 'topic-1', 'i')
+        .catch((f: unknown) => f);
+      expect(feil).toBeInstanceOf(VarigCatendaavvik);
+      expect((feil as Error).message).toBe('Referansen nr. 2 på topicen har en GUID av feil form');
+    }
+  );
+
+  // Kilde: tegnklassen `[!-~]` og lengden på `koe.leveringskvittering.catenda_id` (#889-6). En ny
+  // ID og en ID som finnes igjen, har samme regel (#895-1).
+  it.each(['abc 123', ' abc123', 'abcæ123', 'a'.repeat(101)])(
+    'ID-en %j avvises både i svaret på opplastingen og når dokumentet finnes igjen (#895-1, #889-6)',
+    async (id) => {
+      const oauth = new CatendaOAuth(oppsett());
+      svar = () => ({ status: 201, json: [{ id }] });
+      await expect(oauth.lastOppDokument(maal, dokument, 'i')).rejects.toBeInstanceOf(
+        UsikkertCatendautfall
+      );
+      svar = () => ({ json: [{ id, name: dokument.navn }] });
+      await expect(oauth.finnDokument(maal, dokument.navn, 'i')).rejects.toBeInstanceOf(
+        VarigCatendaavvik
+      );
+    }
+  );
+
+  // #877 p26: flagget følger den asynkrone konteksten. Kallet gjennom leverandøren venter først på
+  // tokenet, og en henting som en annen kontekst startet, skal ikke ta med seg merket.
+  it('flagget settes også gjennom leverandørene når tokenet hentes først, og bare i konteksten som ba om endringen (#877 p26)', async () => {
+    svar = (m) =>
+      m.sti === '/oauth2/token'
+        ? { vent: 50, json: { access_token: 't', expires_in: 3600 } }
+        : { status: 500, json: {} };
+    const catenda = {
+      oauth: new CatendaOAuth(oppsett()),
+      integrasjonsnokkel: new Integrasjonsnokkel(oppsett()),
+    };
+    const lesing = { endringBedt: false };
+    const endring = { endringBedt: false };
+    const topic = { endringBedt: false };
+    await Promise.all([
+      medEndringsflagg(lesing, () =>
+        dokumentleverandoer(catenda).dokumentreferanser(BOARD, 'topic-1')
+      ).catch(() => {}),
+      medEndringsflagg(endring, () =>
+        dokumentleverandoer(catenda).lastOppDokument(maal, dokument)
+      ).catch(() => {}),
+      medEndringsflagg(topic, () =>
+        topicoppretter(catenda).opprettTopic(BOARD, { tittel: 't', beskrivelse: 'b' })
+      ).catch(() => {}),
+    ]);
+    expect(mottatt.filter((m) => m.sti === '/oauth2/token')).toHaveLength(1);
+    expect([lesing, endring, topic].map((f) => f.endringBedt)).toEqual([false, true, true]);
   });
 
   it('et dokument som finnes igjen med en ID av feil form, gir VarigCatendaavvik (#783 punkt 3, #891)', async () => {

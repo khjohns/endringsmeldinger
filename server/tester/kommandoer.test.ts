@@ -35,7 +35,7 @@ import {
   type Skriveutfall,
 } from '../kommandoer.ts';
 import type { Oppdragsrad } from '../lager.ts';
-import { sjekksum } from '../levering.ts';
+import { sjekksum } from '../sjekksum.ts';
 import {
   avvisning,
   avvisningMedMelding,

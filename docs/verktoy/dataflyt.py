@@ -9,6 +9,7 @@ skal stå som kode i en pil eller under [[uten_flyt]] med begrunnelse.
 import ast
 import copy
 import functools
+import importlib.util
 import pathlib
 import re
 import sys
@@ -19,8 +20,18 @@ ROT = pathlib.Path(__file__).resolve().parents[2]
 BACKEND = ROT / "backend"
 REGISTER = ROT / "docs" / "datamodell" / "dataflyt.toml"
 
-# Samme instans som datamodell.py har, lastet av `_last` der før denne modulen (#635).
-rel = sys.modules["verktoy.relasjoner"]
+def _laster():
+    """Den felles lasteren i laster.py, som ikke kan laste seg selv (#861)."""
+    if "verktoy.laster" not in sys.modules:
+        sti = pathlib.Path(__file__).resolve().parent / "laster.py"
+        spesifikasjon = importlib.util.spec_from_file_location("verktoy.laster", sti)
+        modul = importlib.util.module_from_spec(spesifikasjon)
+        spesifikasjon.loader.exec_module(modul)
+        sys.modules["verktoy.laster"] = modul
+    return sys.modules["verktoy.laster"]
+
+
+rel = _laster().last("relasjoner")
 
 KLIENTLAG = (
     "backend/integrations/catenda/",
@@ -42,10 +53,53 @@ KVITTERING = "catenda:svar"
 DATABASEFUNKSJON = "databasefunksjon:"
 KODEREFERANSE = re.compile(r"^(backend/[\w/]+\.py|server/[\w/]+\.ts):([\w.$]+)$")
 TS_DEKLARASJON = re.compile(
-    r"^(?:export\s+)?(?:default\s+)?(?:declare\s+)?(?:async\s+)?"
-    r"(?:function\s*\*?|const|let|var|class|interface|type|enum)\s+([\w$]+)",
+    r"^(?:export\s+)?(?:default\s+)?(?:declare\s+)?(?:async\s+|abstract\s+)?"
+    r"(?:function\s*\*\s*|(?:(?:const\s+)?enum|function|const|let|var|class|interface|type)\s+)"
+    r"([\w$]+)",
     re.MULTILINE,
 )
+
+
+def _ts_kode(tekst: str) -> str:
+    """TS-teksten med kommentarer, strenger og malstrenger byttet ut med mellomrom, så
+    en linje som begynner med `const` i en SQL-mal, ikke leses som deklarasjon (#861).
+    Linjeskiftene står, og koden i `${...}` beholdes. Regulære uttrykk kjennes ikke."""
+    ut: list[str] = []
+    maler: list[int] = []  # klammedybden i hver åpne `${...}`
+    i, n = 0, len(tekst)
+
+    def blankt(slutt: int) -> None:
+        ut.append(re.sub(r"[^\n]", " ", tekst[i:slutt]))
+
+    while i < n:
+        c, to = tekst[i], tekst[i : i + 2]
+        if to == "//":
+            slutt = tekst.find("\n", i)
+            slutt = n if slutt < 0 else slutt
+        elif to == "/*":
+            slutt = tekst.find("*/", i + 2)
+            slutt = n if slutt < 0 else slutt + 2
+        elif c in "'\"":
+            m = re.compile(rf"{c}(?:\\.|[^{c}\\\n])*{c}?").match(tekst, i)
+            slutt = m.end()
+        elif c == "`" or (c == "}" and maler and maler[-1] == 0):
+            if c == "}":
+                maler.pop()
+            m = re.compile(r"(?:\\.|[^`\\$]|\$(?!\{))*(`|\$\{)?").match(tekst, i + 1)
+            slutt = m.end()
+            if m.group(1) == "${":
+                maler.append(0)
+        else:
+            if maler and c == "{":
+                maler[-1] += 1
+            elif maler and c == "}":
+                maler[-1] -= 1
+            ut.append(c)
+            i += 1
+            continue
+        blankt(slutt)
+        i = slutt
+    return "".join(ut)
 
 
 def les(sti: pathlib.Path = REGISTER) -> dict:
@@ -170,7 +224,7 @@ def definisjoner(relativ: str) -> frozenset[str]:
     """Kvalifiserte navn på klassene og funksjonene i en Python-fil, eller navnene
     deklarert på toppnivå i en TS-fil (#713)."""
     if relativ.endswith(".ts"):
-        return frozenset(TS_DEKLARASJON.findall((ROT / relativ).read_text(encoding="utf-8")))
+        return frozenset(TS_DEKLARASJON.findall(_ts_kode((ROT / relativ).read_text(encoding="utf-8"))))
     tre = ast.parse((ROT / relativ).read_text(encoding="utf-8"))
     navn: set[str] = set()
 

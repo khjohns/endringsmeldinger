@@ -17,6 +17,7 @@ import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId } from '../autorisasjon.ts';
 import { kjoerEnJobb, type Jobbavhengigheter } from '../jobber.ts';
 import { lesSaken } from '../lager.ts';
+import { vedleggsnavn } from '../levering.ts';
 import {
   kall as tilServeren,
   lagOppsett,
@@ -406,28 +407,19 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       ]);
     });
 
-    // #903: et navn med et tegn over U+00FF gjør `Bimsync-Params` til en ugyldig hodeverdi,
-    // og klienten gir `UsikkertCatendautfall` uten at noe er sendt. Blir en vanlig test når
-    // #903 er rettet. En annen feil enn den kjente lar testen fullføre, så `it.fails` blir rød.
-    it.fails(
-      'B6: et dokumentnavn med et tegn over U+00FF lastes opp og finnes igjen (#903)',
-      async () => {
-        const navn = `${PREFIKS}${randomUUID()}-Łódź.pdf`;
-        let id: string | null;
-        try {
-          id = await lag(`dokument ${navn}`, () =>
-            oauth.lastOppDokument(maal, { navn, innhold: PDF }, token)
-          );
-        } catch (feil) {
-          if (feil instanceof UsikkertCatendautfall && sisteTil('POST', '/items') === 'ikke sendt')
-            throw feil;
-          console.error('B6 feilet av en annen grunn enn #903:', feil);
-          return;
-        }
-        if (id) laget.push({ hva: `dokument ${navn}`, sti: `${itemsti(maal)}/${id}` });
-        expect(await oauth.finnDokument(maal, navn, token)).toBe(id);
-      }
-    );
+    // #903: `Bimsync-Params` bærer tegnene over U+007F som `\uXXXX`, som `json.dumps` i
+    // Python. Catenda lagrer navnet med tegnene, og `finnDokument` finner det på samme navn.
+    it('B6: et dokumentnavn med et tegn over U+00FF lastes opp og finnes igjen (#903)', async () => {
+      const navn = `${PREFIKS}${randomUUID()}-Łódź.pdf`;
+      const id = await lag(`dokument ${navn}`, () =>
+        oauth.lastOppDokument(maal, { navn, innhold: PDF }, token)
+      );
+      if (id) laget.push({ hva: `dokument ${navn}`, sti: `${itemsti(maal)}/${id}` });
+      expect(sisteTil('POST', '/items')).toBe(200);
+      expect(id).toMatch(/^[0-9a-f]{32}$/);
+      expect(((await hent(`${itemsti(maal)}/${id}`)) as { name: string }).name).toBe(navn);
+      expect(await oauth.finnDokument(maal, navn, token)).toBe(id);
+    });
     // C: leveringen ende til ende (#371): `kjoerEnJobb` lager topicen og leverer brevet med
     // de ekte leverandørene, mot en migrert testbase i SQL Server og ekte Catenda.
     // Innpakningen setter bare `PREFIKS` foran topic-tittelen og dokumentnavnet, så
@@ -548,8 +540,11 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
         if (o) await rydd(o);
       }, 120_000);
 
+      let sakId: string | undefined;
+      let topicId: string | undefined;
+
       it('C1: topicen lages, brevet lastes opp i mappen, referansen settes, og hver operasjon kvitteres', async () => {
-        const sakId = await opprettKjernesak(o);
+        sakId = await opprettKjernesak(o);
         expect(await kjoer()).toBe(true);
         const topics = (
           await somKjoerer<{ topic_id: string }>(
@@ -558,7 +553,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
           )
         ).recordset;
         expect(topics, meldinger.join('\n')).toHaveLength(1);
-        const topicId = topics[0].topic_id;
+        topicId = topics[0].topic_id;
         await sendBrev(sakId);
         expect(await kjoer()).toBe(true);
 
@@ -593,6 +588,84 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
         ).recordset;
         expect(forsoek).toEqual([{ utfall: 'utfoert', tilstand: 'utfoert' }]);
         expect(oppdrag.find((x) => x.event_id === brev.event_id)?.levert).not.toBeNull();
+        expect(await kjoer()).toBe(false);
+      }, 120_000);
+
+      // V-3 (#790): et registrert varsel med et vedlegg som er lastet opp gjennom vedleggsruten.
+      // Brevet har ikke noe dokument (LV-U11), så leveringen laster opp vedlegget med navnet fra
+      // `vedleggsnavn`, setter referansen på topicen og kvitterer begge i `koe.vedleggskvittering`.
+      // Filnavnet har et tegn over U+00FF, så #903 prøves også gjennom hele leveringen.
+      it('C2: et vedlegg i et registrert varsel ligger i mappen, har referanse på topicen og er kvittert (#790)', async () => {
+        const sak = krev(sakId, 'saken fra C1');
+        const paa = krev(topicId, 'topicen fra C1');
+        const filnavn = 'Łódź-plan.pdf';
+        const opplastet = await fetch(`${server.url}/api/kjerne/saker/${sak}/vedlegg`, {
+          method: 'POST',
+          headers: {
+            Cookie: `__Host-koe_session=${o.te.token}`,
+            'X-CSRF-Token': o.te.csrf,
+            'X-Project-ID': o.prosjekt.id,
+            'Content-Type': 'application/octet-stream',
+            'X-Filnavn': encodeURIComponent(filnavn),
+          },
+          body: PDF,
+        });
+        expect(opplastet.status).toBe(201);
+        const vedleggId = ((await opplastet.json()) as { vedlegg: { vedlegg_id: string } }).vedlegg
+          .vedlegg_id;
+        const varsel = await tilServeren(server.url, `/api/kjerne/saker/${sak}/kommandoer`, {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp: {
+            expected_version: 2,
+            kommando_id: randomUUID(),
+            kommando: {
+              type: 'varsel',
+              spor: 'frist',
+              hjemmel: '33.4',
+              sendt: '2026-10-01',
+              dokumentasjon: [vedleggId],
+            },
+          },
+        });
+        expect(varsel.status, JSON.stringify(varsel.kropp)).toBe(201);
+        expect(await kjoer(), meldinger.join('\n')).toBe(true);
+
+        const kvitteringer = (
+          await somKjoerer<{ operasjon: string; catenda_id: string }>(
+            `SELECT operasjon, catenda_id FROM koe.vedleggskvittering
+              WHERE vedlegg_id = @vedlegg ORDER BY operasjon`,
+            { vedlegg: vedleggId }
+          )
+        ).recordset;
+        expect(
+          kvitteringer.map((k) => k.operasjon),
+          meldinger.join('\n')
+        ).toEqual(['dokument', 'dokumentreferanse']);
+        const [dokument, referanse] = kvitteringer.map((k) => k.catenda_id);
+        const navn = `${PREFIKS}${vedleggsnavn(filnavn, vedleggId)}`;
+        expect(await oauth.finnDokument(dokumentmaal(), navn, token)).toBe(dokument);
+        const lest = (await hent(`${itemsti(dokumentmaal())}/${dokument}`)) as {
+          name: string;
+          parentId: string;
+        };
+        expect({ navn: lest.name, mappe: catendaId(lest.parentId) }).toEqual({
+          navn,
+          mappe: catendaId(process.env.CATENDA_FOLDER_ID),
+        });
+        expect(await oauth.dokumentreferanser(board, paa, token)).toContainEqual({
+          id: referanse,
+          dokumentId: sammenlignbarDokumentId(dokument),
+        });
+        // Et registrert brev får ingen rad i `leveringskvittering`, så `levert` er null (#912).
+        const forsoek = (
+          await somKjoerer<{ utfall: string; tilstand: string }>(
+            `SELECT f.utfall, j.tilstand FROM koe.jobbforsoek f JOIN koe.jobb j ON j.jobb_id = f.jobb_id
+              WHERE j.sak_id = @sak AND j.jobbtype = N'levering' ORDER BY f.startet`,
+            { sak }
+          )
+        ).recordset;
+        expect(forsoek.at(-1)).toEqual({ utfall: 'utfoert', tilstand: 'utfoert' });
         expect(await kjoer()).toBe(false);
       }, 120_000);
     });

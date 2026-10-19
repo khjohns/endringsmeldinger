@@ -186,8 +186,9 @@ function kontroller(k: Kontekst): void {
 
 /**
  * En forespørsel uten `SESSION_CONTEXT`, for prosedyrene og spørringene som ikke
- * leser konteksten: sesjonen, innloggingen, medlemskapet og oppslagene i
- * tilgangskontrollen. Saksdata leses og skrives i `transaksjon`. Utenom
+ * leser konteksten: sesjonen, innloggingen, medlemskapet, tilgangskontrollen,
+ * jobbene, registreringen, oppstartskontrollen og oppslagene i `prosjekter.ts`.
+ * Saksdata leses og skrives i `transaksjon`. Utenom
  * datalaget, migreringen og testene er dette den eneste veien til en forespørsel
  * (#542, `server/tester/arkitektur.test.ts`).
  */
@@ -305,15 +306,22 @@ export async function transaksjon<T>(
     const utfall = await iTransaksjon(forelder, forbindelse, kontekst, arbeid);
     if (utfall.avsluttet) gjenbrukbar = await nullstillOgKontroller(forbindelse, forelder);
     if ('feil' in utfall) throw utfall.feil;
-    return utfall.svar;
+    return 'tilbakerullet' in utfall ? utfall.tilbakerullet : utfall.svar;
   } finally {
     if (gjenbrukbar) utlaan.release(forbindelse);
     else forkast(pool, forbindelse);
   }
 }
 
-/** `avsluttet` er sann når serveren har bekreftet COMMIT eller ROLLBACK. */
-type Utfall<T> = { svar: T; avsluttet: boolean } | { feil: unknown; avsluttet: boolean };
+/**
+ * `avsluttet` er sann når serveren har bekreftet COMMIT eller ROLLBACK. `svar` er
+ * bare svaret etter en bekreftet COMMIT; svaret i en `Tilbakerulling` er
+ * `tilbakerullet`, også når ROLLBACK feilet (#877).
+ */
+type Utfall<T> =
+  | { svar: T; avsluttet: true }
+  | { tilbakerullet: T; avsluttet: boolean }
+  | { feil: unknown; avsluttet: boolean };
 
 async function iTransaksjon<T>(
   forelder: sql.ConnectionPool,
@@ -322,6 +330,9 @@ async function iTransaksjon<T>(
   arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>
 ): Promise<Utfall<T>> {
   const tx = new sql.Transaction(forelder);
+  // Forespørslene har transaksjonen som forelder, og `mssql` validerer tegnparametrene
+  // i en batch mot `parent.collation`, som `Transaction` ikke har (#894-3).
+  Object.defineProperty(tx, 'collation', { get: () => forbindelse.databaseCollation });
   let avbruttAvServeren = false;
   tx.on('rollback', (avbrutt: boolean) => (avbruttAvServeren ||= avbrutt));
   try {
@@ -358,22 +369,24 @@ async function iTransaksjon<T>(
   }
   // Har serveren alt rullet tilbake, er det utfallet arbeidet ba om.
   if (svar instanceof Tilbakerulling) {
-    if (avbruttAvServeren) return { svar: svar.svar, avsluttet: true };
+    if (avbruttAvServeren) return { tilbakerullet: svar.svar, avsluttet: true };
     try {
       await tx.rollback();
-      return { svar: svar.svar, avsluttet: true };
+      return { tilbakerullet: svar.svar, avsluttet: true };
     } catch {
-      return { svar: svar.svar, avsluttet: false };
+      return { tilbakerullet: svar.svar, avsluttet: false };
     }
   }
-  if (avbruttAvServeren)
-    return {
-      feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen før COMMIT.', {
-        cause: (tx as unknown as { _abortReason?: unknown })._abortReason,
-      }),
-      avsluttet: true,
-    };
-  return committ(tx, forbindelse, svar);
+  const avbrutt = (): Utfall<T> | null =>
+    avbruttAvServeren
+      ? {
+          feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen før COMMIT.', {
+            cause: (tx as unknown as { _abortReason?: unknown })._abortReason,
+          }),
+          avsluttet: true,
+        }
+      : null;
+  return avbrutt() ?? committ(tx, forbindelse, svar, avbrutt);
 }
 
 /**
@@ -385,12 +398,16 @@ async function iTransaksjon<T>(
 async function committ<T>(
   tx: sql.Transaction,
   forbindelse: Forbindelse,
-  svar: T
+  svar: T,
+  avbrutt: () => Utfall<T> | null
 ): Promise<Utfall<T>> {
   // En forespørsel arbeidet ikke ventet på, låner forbindelsen først i neste runde
   // av hendelsesløkka. Pågår den, ville COMMIT gått før den eller blitt avvist med
   // EREQINPROG (#543 punkt 3).
   await new Promise((ok) => setImmediate(ok));
+  // Serveren kan ha rullet tilbake i samme runde (#894-1).
+  const iVentingen = avbrutt();
+  if (iVentingen) return iVentingen;
   const { _abort: avbryt, _activeRequest: aktiv } = tx as unknown as {
     _abort: () => void;
     _activeRequest: unknown;
