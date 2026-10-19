@@ -37,6 +37,8 @@ eval "$(scripts/testbase/docker_sqlserver.sh start)"   # setter KOE_SQLSERVER_TI
 npx vitest run server/tester/sqlserver.test.ts
 ```
 
+`globalSetup` bygger malen bare når en fil fra `server/` er med i kjøringen. En fullført mal brukes uten lås.
+
 Kontraktstestene mot ekte Catenda (#902) går gjennom token-brokeren og bare
 fra skyøkta, der `CATENDA_GRUNNADRESSE` og de andre `CATENDA_*`-variablene er satt.
 De hoppes over uten `KOE_CATENDA_LIVE=1`, også i CI og i vanlig `npm test`.
@@ -83,13 +85,15 @@ parallelle kopier av treet med hver sin testbase. Én kjøring tar lang tid; sta
 den i bakgrunnen. Med `--ankre` kontrollerer den bare at teksten hver
 feilinnføring bytter ut, finnes nøyaktig én gang, og at hvert mål er en del av
 navnet på en test, lest med `vitest list`. Det tar sekunder, og
-leveranseskillen sier når det kjøres. I CI fordeler workflowen `feilinnfoering.yml` dem på tre
+leveranseskillen sier når det kjøres. I CI fordeler workflowen `feilinnfoering.yml` dem på seks
 jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 `feilinnfoering`.
 
 Kjøres fra repoets rot, med testbasen oppe og `KOE_TESTBASE_URL` satt. `--ankre`
 trenger ikke basen.
+
+Med `FEILINNFOERING_UTVALG=1` kjører hver mutasjon bare filene med målene sine, slik CI gjør på en PR. Uten den kjøres hele samlingen, som om natta.
 
 ## Skyøkta
 
