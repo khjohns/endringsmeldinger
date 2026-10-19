@@ -54,7 +54,7 @@ describe('TS-saken i Kontrollrommet etter en ny lasting', () => {
     expect(flate.kravversjon('vederlag')).toBe(1);
   });
 
-  it('bare TE får tilbud om det første vederlagskravet, uansett hva kjernen tilbyr (#737 p3)', async () => {
+  it('bare TE får tilbud om TE-handlingene, uansett hva kjernen tilbyr (#737 p3)', async () => {
     for (const [part, tilbys] of [
       ['TE', true],
       ['BH', false],
@@ -66,7 +66,7 @@ describe('TS-saken i Kontrollrommet etter en ny lasting', () => {
         hent: async () => svar(medVederlag.slice(0, 2), part),
       });
       await kjernesak.last();
-      expect(lagKjernesakflate(kjernesak, 'p-1').tilbyrVederlagskrav).toBe(tilbys);
+      expect(lagKjernesakflate(kjernesak, 'p-1').tilbyrTe('krav:vederlag')).toBe(tilbys);
     }
   });
 });

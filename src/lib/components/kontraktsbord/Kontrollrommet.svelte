@@ -80,7 +80,18 @@
   let showWithdrawModal = $state(false);
   let letterEvent: TimelineEvent | null = $state(null);
   let creatingCase = $state(false);
-  const visVarsel = $derived(Boolean(kjernesak?.submissionError) && mode === 'read');
+  // #881: feltet for en sending som venter eller en sak som ikke er lastet på nytt, står
+  // i hodet som varselet, så skallet beholder høyden.
+  const kjernestatus = $derived(
+    kjernesak?.kjernesak.ventende
+      ? 'ventende'
+      : kjernesak?.kjernesak.utdatert
+        ? 'utdatert'
+        : kjernesak?.submissionError && mode === 'read'
+          ? 'feil'
+          : null
+  );
+  const visVarsel = $derived(kjernestatus !== null);
   let varselhoeyde = $state(0);
   // Høyden følger teksten og bredden. Uten ResizeObserver (jsdom) måles den én gang.
   const maalVarsel = (node: HTMLElement) => {
@@ -106,21 +117,35 @@
       !kravetErSpesifisert(store.sak.frist)
   );
   // Skjemaene for en TS-sak følger bare handlingene kjernen tilbyr leseren (krav G i #718).
-  const kjerneskjema = $derived(
-    kjernesak !== null && sel === 'vederlag' && kjernesak.tilbyrVederlagskrav
-  );
+  const kjerneskjema = $derived.by(() => {
+    if (!kjernesak) return false;
+    const spor = sel === 'ansvar' ? 'grunnlag' : sel;
+    return (
+      kjernesak.tilbyrTe(`krav:${spor}`) ||
+      (sel === 'frist' && kjernesak.tilbyrTe('sende_varsel:frist'))
+    );
+  });
   // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
-  // ikke kjernen lenger det første kravet, men skjemaet skal fullføre sendingen (#737 p4).
+  // ikke kjernen nødvendigvis det samme, men skjemaet skal fullføre sendingen (#737 p4).
   // Mens brevet kontrolleres og sendes, står det også når visningen bytter spor (#872).
-  let kjerneskjemaAapent = $state(false);
+  let kjerneskjemaSpor = $state<SporKey | null>(null);
   $effect(() => {
-    if (mode === 'form' && kjerneskjema) kjerneskjemaAapent = true;
-    else if ((mode !== 'form' || sel !== 'vederlag') && !kravkontroll?.sender)
-      kjerneskjemaAapent = false;
+    if (mode === 'form' && kjerneskjema) kjerneskjemaSpor = sel;
+    else if ((mode !== 'form' || sel !== kjerneskjemaSpor) && !kravkontroll?.sender)
+      kjerneskjemaSpor = null;
   });
   const visKjerneskjema = $derived.by(
-    () => (mode === 'form' && kjerneskjema) || kjerneskjemaAapent
+    () => (mode === 'form' && kjerneskjema) || kjerneskjemaSpor !== null
   );
+  // Et trekk i en TS-sak har ingen fritekst og sendes med den låste teksten (KA-U22, LV-U2).
+  // Avviser kjernen trekket, står meldingen i dialogen. En feil ved sendingen står i
+  // varselet i hodet (#719).
+  function trekkKjernesporet() {
+    if (!kravkontroll) return;
+    const trekk = kravkontroll.trekk(sel === 'ansvar' ? 'grunnlag' : sel);
+    showWithdrawModal = false;
+    void trekk.send().catch(() => {});
+  }
   const brevInnhold = $derived(letterEvent ? buildLetterContent(letterEvent, store.sak) : null);
 
   $effect(() => {
@@ -287,7 +312,26 @@
     <!-- I hodet, så varselet også vises i matrisen på mobil (#719 p10), og med hodets forskyvning (#872). -->
     {#snippet innsendingsvarsel()}
       <div class="approval-entry" use:maalVarsel>
-        <p role="alert">{kjernesak?.submissionError}</p>
+        {#if kjernestatus === 'ventende'}
+          <p role="alert">{kjernesak?.submissionError}</p>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            disabled={kjernesak?.submitting}
+            onclick={() => void kjernesak?.kjernesak.provIgjen()}>Prøv igjen</button
+          >
+        {:else if kjernestatus === 'utdatert'}
+          <!-- #719: brevet er lagret, men saken som vises, er lastet før det. -->
+          {#if kjernesak?.submissionError}<p role="alert">{kjernesak.submissionError}</p>{/if}
+          <p role="status">Saken som vises, er ikke oppdatert etter det siste brevet.</p>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick={() => void kjernesak?.kjernesak.last()}>Last saken på nytt</button
+          >
+        {:else}
+          <p role="alert">{kjernesak?.submissionError}</p>
+        {/if}
       </div>
     {/snippet}
 
@@ -361,7 +405,13 @@
                 onactions={(actions) => (newCaseActions = actions)}
               />
             {:else if visKjerneskjema}
-              <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+              {#if (kjerneskjemaSpor ?? sel) === 'frist'}
+                <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+              {:else if (kjerneskjemaSpor ?? sel) === 'ansvar'}
+                <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+              {:else}
+                <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+              {/if}
             {:else if mode === 'read'}
               <CenterRead
                 {sel}
@@ -453,8 +503,10 @@
       {#if showWithdrawModal}
         <WithdrawModal
           spor={sel}
+          kjernesak={Boolean(kjernesak)}
           onconfirm={async (begr) => {
-            if (store.isDemo) store.withdrawTrack(sel, begr || undefined);
+            if (kjernesak) trekkKjernesporet();
+            else if (store.isDemo) store.withdrawTrack(sel, begr || undefined);
             else
               await store.submit(
                 sel === 'ansvar'

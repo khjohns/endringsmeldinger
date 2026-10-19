@@ -12,6 +12,9 @@
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
+  // TS-saken (#909): en ny versjon med kategorien og datoen fra gjeldende versjon
+  // (GR-U22, VS-U26), uten vedlegg og utkast. Kjernen avgjør om beskrivelsen kreves (GR-U15).
+  const kjernesak = store.erKjernesak ? store : null;
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import { TRACK_ICONS } from './data.js';
@@ -42,7 +45,11 @@
   const bhEvents = $derived(
     store.timeline.filter((event) => event.spor === 'grunnlag' && event.actorrole === 'BH')
   );
-  const teVersionCount = $derived(Math.max(grunnlag.antall_versjoner, teEvents.length, 1));
+  const teVersionCount = $derived(
+    kjernesak
+      ? kjernesak.kravversjon('ansvar')
+      : Math.max(grunnlag.antall_versjoner, teEvents.length, 1)
+  );
   const teRevision = $derived(teVersionCount - 1);
   const teDate = $derived(
     formatDateShortNorwegian(teEvents.at(-1)?.time ?? grunnlag.grunnlag_varsel?.dato_sendt)
@@ -50,18 +57,19 @@
   const bhDate = $derived(formatDateShortNorwegian(bhEvents.at(-1)?.time));
   const bhAnsweredRevision = $derived(grunnlag.bh_respondert_versjon);
   const oppdagetDato = $derived(formatDateShortNorwegian(grunnlag.dato_oppdaget));
-  const hasBhResponse = $derived(Boolean(grunnlag.bh_resultat));
+  // TS-saken viser bare at BH har svart (#718).
+  const hasBhResponse = $derived(kjernesak ? d.bhHarSvart : Boolean(grunnlag.bh_resultat));
   const originalBegrunnelse = store.display('ansvar').teText;
 
   let begrunnelseHtml = $state(originalBegrunnelse);
   let charCount = $state(0);
   let bhContextExpanded = $state(false);
   const draft = createFormDraft(
-    !store.isDemo,
+    !store.isDemo && !kjernesak,
     {
       sakId: store.sak.sak_id,
       spor: 'grunnlag',
-      revisjon: store.sak.grunnlag.antall_versjoner,
+      revisjon: kjernesak ? 0 : store.sak.grunnlag.antall_versjoner,
     },
     () => ({ vedleggIds, begrunnelseHtml }),
     (saved) => {
@@ -73,7 +81,8 @@
   const erEndret = $derived(
     begrunnelseHtml.trim() !== originalBegrunnelse.trim() || vedleggIds.length > 0
   );
-  const kanSende = $derived(charCount >= 10 && erEndret);
+  // Kjernen vurderer ikke om beskrivelsen er nok (KA-U19), så TS-saken krever ikke 10 tegn.
+  const kanSende = $derived(charCount >= (kjernesak ? 1 : 10) && erEndret);
 
   $effect(() => {
     onactions?.({
@@ -128,7 +137,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo}
+      visVedlegg={!store.isDemo && !kjernesak}
       bind:vedleggIds
       bind:vedleggOpptatt
     />
