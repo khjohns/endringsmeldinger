@@ -138,10 +138,12 @@ function brevtekst(rad: Journalrad, tolket: boolean): Avsnitt[] | null {
 }
 
 function journaltittel(rad: Journalrad, tolket: boolean, tekst: Avsnitt[] | null): string {
+  const ukjent = `Hendelse appen ikke forstår, fra ${rad.aktor_rolle}`;
+  if (!tolket) return ukjent;
   if (rad.event_type === 'sak_opprettet') return `Saken er opprettet av ${rad.aktor_rolle}`;
-  if (tolket && rad.event_type === 'dokument_registrert')
+  if (rad.event_type === 'dokument_registrert')
     return tekst ? `Brev fra ${rad.aktor_rolle}` : `Registrert brev fra ${rad.aktor_rolle}`;
-  return `Hendelse appen ikke forstår, fra ${rad.aktor_rolle}`;
+  return ukjent;
 }
 
 function postTekst(p: Omit<Sporpost, 'tekst'>): string {

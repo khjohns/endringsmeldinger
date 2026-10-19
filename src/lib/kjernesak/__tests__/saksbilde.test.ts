@@ -223,6 +223,16 @@ describe('saksbildet for en TS-sak', () => {
     }
   });
 
+  // Oppdragsgiver 19.10 (#764, svar 4): tittelen gjelder hver rad som ikke er tolket.
+  it('gir en ikke tolket sak_opprettet tittelen for en hendelse appen ikke forstår', () => {
+    const { bilde } = bildeAv([{ ...opprettet, format: 99 }]);
+    expect(bilde.journal[0]).toMatchObject({
+      tolket: false,
+      tittel: 'Hendelse appen ikke forstår, fra TE',
+      hendelseskode: 'sak_opprettet',
+    });
+  });
+
   it('viser en kode uten tekst som koden selv', () => {
     expect(etikett('ny_etikett_fra_kjernen')).toEqual({
       kode: 'ny_etikett_fra_kjernen',
