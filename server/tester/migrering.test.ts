@@ -13,7 +13,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { opprettPool } from '../datalag.ts';
 import {
   avvik,
@@ -110,7 +110,9 @@ describe('lesingen av migrasjonsfilene', () => {
     );
   });
 
-  it.each([['20260101000000_a.SQL'], ['20260101000000_a.sql.bak'], ['README.md']])(
+  // Et annet stamnavn enn A, så et filsystem uten skille mellom store og små
+  // bokstaver (APFS) ikke slår de to filene sammen (#900).
+  it.each([['20260101000001_b.SQL'], ['20260101000000_a.sql.bak'], ['README.md']])(
     'avviser %s i mappa i stedet for å hoppe over den',
     (navn) => {
       expect(() => lesMigrasjoner(mappe({ [A]: 'SELECT 1', [navn]: 'SELECT 2' }))).toThrow(
@@ -512,7 +514,7 @@ BEGIN TRANSACTION;`,
       try {
         const m = mappe({ [A]: 'CREATE SCHEMA prove_s;' });
         await expect(migrer(identitet.pool, lesMigrasjoner(m))).rejects.toThrow(
-          /^Runneren kjøres som koe_kjoeretid_[0-9a-f]{8}, ikke som dbo\. Migreringen krever databaseeieren, så skjemaene får eieren dbo\. Anvendt i denne kjøringen: ingen\.$/
+          /^Runneren kjøres som koe_kjoeretid_[0-9a-f]{8}, ikke som databaseeieren dbo\. Anvendt i denne kjøringen: ingen\.$/
         );
         const svar = await base.pool
           .request()
@@ -614,12 +616,18 @@ BEGIN TRANSACTION;`,
   ])(
     'avviser en fil som bytter identitet uten REVERT til en bruker %s, før historikkraden og før neste fil (#866 punkt 2)',
     async (_, rolle) => {
+      const feillogg = vi.spyOn(console, 'error');
+      onTestFinished(() => feillogg.mockRestore());
       const m = mappe({
         [A]: `CREATE USER prove_bruker WITHOUT LOGIN;${rolle}\nGO\nEXECUTE AS USER = N'prove_bruker';`,
         [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
       });
       await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
-        /^20260101000000_a\.sql, sats 2: satsen byttet identiteten til prove_bruker\. Migreringen krever databaseeieren, .*Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
+        /^20260101000000_a\.sql, sats 2: satsen byttet identiteten fra dbo til prove_bruker\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
+      );
+      // Runneren rydder ikke en forbindelse med en annen identitet (#885 punkt 6).
+      expect(feillogg.mock.calls.map((k) => String(k[0]))).not.toContainEqual(
+        expect.stringContaining('applåsen kunne ikke ryddes')
       );
       expect(await historikk()).toEqual([]);
       expect(await tabeller()).toEqual([]);
@@ -635,8 +643,9 @@ BEGIN TRANSACTION;`,
     const feil = await migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
     expect(feil).toBeInstanceOf(MigreringAvvist);
     expect((feil as Error).message).toMatch(
-      /^20260101000000_a\.sql, sats 1: .*Tilstanden etter feilen kunne ikke leses.* Anvendt i denne kjøringen: ingen\.$/
+      /^20260101000000_a\.sql, sats 1: Forbindelsen svarte uten tilstanden, så den kunne ikke leses\. Tilstanden etter feilen kunne ikke leses.* Anvendt i denne kjøringen: ingen\.$/
     );
+    expect((feil as Error).message).not.toMatch(/TypeError|Cannot read/);
     expect(await historikk()).toEqual([]);
     expect(await tabeller()).toEqual([]);
   });
