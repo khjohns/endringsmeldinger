@@ -121,28 +121,25 @@ const harPrefiks = (v: unknown) => typeof v === 'string' && v.startsWith(LIVETES
 const sammeId = (a: unknown, b: string) =>
   typeof a === 'string' && (a.toLowerCase() === b.toLowerCase() || (catendaId(a) ?? 0) === catendaId(b));
 
-function kanGiPrefiks(kropp: ArrayBuffer | undefined): boolean {
-  let tekst: string;
+/**
+ * En PUT på en topic sendes i kanonisk form: kroppen tolkes strengt som UTF-8-JSON og sendes
+ * som `JSON.stringify` av resultatet. Da ser Catenda det samme som kontrollen, uten dupliserte
+ * nøkler, escapes eller annet tegnsett. Kan kroppen ikke tolkes, gir det `null`.
+ */
+function kanoniskJson(kropp: ArrayBuffer | undefined): string | null {
   try {
-    tekst = new TextDecoder('utf-8', { fatal: true }).decode(kropp);
+    const verdi: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(kropp));
+    return typeof verdi === 'object' && verdi !== null && !Array.isArray(verdi) ? JSON.stringify(verdi) : null;
   } catch {
-    return true;
+    return null;
   }
-  return (
-    tekst.includes('\\u') ||
-    [...tekst].some((t) => {
-      const kode = t.charCodeAt(0);
-      return (kode < 0x20 && ![0x09, 0x0a, 0x0d].includes(kode)) || kode === 0xfeff;
-    }) ||
-    tekst.toLowerCase().includes(LIVETESTPREFIKS)
-  );
 }
 
 /**
  * Oppslagene i Catenda som alle må gi 200 og oppfylle kravet før kallet sendes. En PUT som
  * gir en topic prefikset, krever at den har det fra før, så prefikssperren ikke kan omgås.
  */
-function oppslagene(foersjekk: Foersjekk, sti: string, miljoe: Miljoe, kropp: ArrayBuffer | undefined): Oppslag[] {
+function oppslagene(foersjekk: Foersjekk, sti: string, miljoe: Miljoe, kropp: string | undefined): Oppslag[] {
   const mappe = mappeId(miljoe);
   switch (foersjekk) {
     case 'item':
@@ -167,9 +164,9 @@ function oppslagene(foersjekk: Foersjekk, sti: string, miljoe: Miljoe, kropp: Ar
       ];
     }
     case 'topicendring':
-      // Catenda kan lese kroppen annerledes enn vi (dupliserte nøkler, store bokstaver, escapes,
-      // tegnsett), så ethvert spor av prefikset krever at topicen har det fra før.
-      return kanGiPrefiks(kropp) ? [{ sti, krav: (r) => harPrefiks(r.title) }] : [];
+      // Prefikset hvor som helst i den kanoniske kroppen, i alle felt og uansett store og små
+      // bokstaver, krever at topicen har det fra før.
+      return kropp?.toLowerCase().includes(LIVETESTPREFIKS) ? [{ sti, krav: (r) => harPrefiks(r.title) }] : [];
   }
 }
 
@@ -292,6 +289,12 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
     if (!regel || (regel.foersjekk && (adresse.search || foresp.headers.has('bimsync-params'))))
       return svar(403, { feil: 'broker_avviste' });
 
+    const harKropp = !['GET', 'HEAD'].includes(foresp.method);
+    const raa = harKropp ? await foresp.arrayBuffer() : undefined;
+    const kanonisk = regel.foersjekk === 'topicendring' ? kanoniskJson(raa) : undefined;
+    if (kanonisk === null) return svar(403, { feil: 'broker_avviste' });
+    const kropp = kanonisk ?? raa;
+
     let token: string;
     try {
       token = await tokenlager.token(miljoe);
@@ -299,9 +302,7 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       // Bare steget og Catendas statuskode, så en 502 kan feilsøkes fra økta (#806).
       return svar(502, { feil: 'tokenkall', status: feil instanceof Tokenfeil ? feil.status : 0 });
     }
-    const harKropp = !['GET', 'HEAD'].includes(foresp.method);
-    const kropp = harKropp ? await foresp.arrayBuffer() : undefined;
-    for (const { sti, krav } of regel.foersjekk ? oppslagene(regel.foersjekk, adresse.pathname, miljoe, kropp) : []) {
+    for (const { sti, krav } of regel.foersjekk ? oppslagene(regel.foersjekk, adresse.pathname, miljoe, kanonisk) : []) {
       let oppslag: Response;
       try {
         oppslag = await hent(CATENDA + sti, {
@@ -323,6 +324,7 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       const verdi = foresp.headers.get(navn);
       if (verdi !== null) hoder.set(navn, verdi);
     }
+    if (kanonisk !== undefined) hoder.set('content-type', 'application/json');
     let ut: Response;
     try {
       ut = await hent(CATENDA + adresse.pathname + adresse.search, {

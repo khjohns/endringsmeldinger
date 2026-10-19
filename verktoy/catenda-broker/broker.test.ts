@@ -288,12 +288,30 @@ describe('slettingen live-testene rydder med', () => {
 describe('endringen av en topic', () => {
   const P = LIVETESTPREFIKS;
   const TOPICSTI = `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}`;
-  const put = (kropp: string) => medNokkel('PUT', TOPICSTI, { 'Content-Type': 'application/json' }, kropp);
   const metoder = () => ut().map((k) => k.init.method);
+  const sendt = (i: number) => {
+    const kropp = ut()[i].init.body;
+    return typeof kropp === 'string' ? kropp : new TextDecoder().decode(kropp as ArrayBuffer);
+  };
+  const put = (kropp: BodyInit, type = 'application/json', hoder: Record<string, string> = {}) =>
+    new Request(`https://broker.example${TOPICSTI}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${NOKKEL}`, 'Content-Type': type, ...hoder },
+      body: kropp,
+    });
+  const topicUtenPrefiks = (init: RequestInit) =>
+    init.method === 'GET' ? Response.json({ title: 'Ekte sak' }) : Response.json({});
 
-  it('gir 403 og ingen PUT når en topic uten prefiks skal få prefikset', async () => {
-    catendasvar = (init) => (init.method === 'GET' ? Response.json({ title: 'Ekte sak' }) : Response.json({}));
-    const s = await behandle(put(JSON.stringify({ title: `${P}x` })), miljoe);
+  it.each([
+    ['en tittel med prefiks', JSON.stringify({ title: `${P}x` })],
+    ['Title med stor forbokstav', JSON.stringify({ Title: `${P}x` })],
+    ['mellomrom foran prefikset', JSON.stringify({ title: ` ${P}x` })],
+    ['prefikset med store bokstaver', JSON.stringify({ title: `${P.toUpperCase()}x` })],
+    ['prefikset i et annet felt', JSON.stringify({ description: `${P}x` })],
+    ['prefikset skrevet med escape', '{"title":"\\u006boe-livetest-x"}'],
+  ])('slår opp og gir 403 uten PUT for %s når topicen er uten prefiks', async (_navn, kropp) => {
+    catendasvar = topicUtenPrefiks;
+    const s = await behandle(put(kropp), miljoe);
     expect(s.status).toBe(403);
     expect(await s.json()).toEqual({ feil: 'broker_avviste' });
     expect(metoder()).toEqual(['GET']);
@@ -304,66 +322,39 @@ describe('endringen av en topic', () => {
     const kropp = JSON.stringify({ title: `${P}ny` });
     expect((await behandle(put(kropp), miljoe)).status).toBe(200);
     expect(metoder()).toEqual(['GET', 'PUT']);
-    expect(new TextDecoder().decode(ut()[1].init.body as ArrayBuffer)).toBe(kropp);
+    expect(sendt(1)).toBe(kropp);
   });
 
   it.each([
-    ['dupliserte titler', `{"title":"${P}x","title":"Ekte sak"}`],
-    ['Title med stor forbokstav', JSON.stringify({ Title: `${P}x` })],
-    ['mellomrom foran prefikset', JSON.stringify({ title: ` ${P}x` })],
-    ['prefikset med store bokstaver', JSON.stringify({ title: `${P.toUpperCase()}x` })],
-    ['prefikset i et annet felt', JSON.stringify({ description: `${P}x` })],
-    ['en escape', '{"title":"\\u006boe-livetest-x"}'],
-    ['ugyldig UTF-8', new Uint8Array([0x7b, 0xff, 0x7d])],
-  ])('slår opp og gir 403 uten PUT for %s når topicen er uten prefiks', async (_navn, kropp) => {
-    catendasvar = (init) => (init.method === 'GET' ? Response.json({ title: 'Ekte sak' }) : Response.json({}));
-    const s = await behandle(
-      new Request(`https://broker.example${TOPICSTI}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${NOKKEL}`, 'Content-Type': 'application/json' },
-        body: kropp,
-      }),
-      miljoe
-    );
-    expect(s.status).toBe(403);
-    expect(metoder()).toEqual(['GET']);
+    ['en tittel uten prefiks', JSON.stringify({ title: 'Ny tittel', topic_status: 'Closed' }), '{"title":"Ny tittel","topic_status":"Closed"}'],
+    ['æøå skrevet med escape, som Python sender', '{"title": "Grunnforhold p\\u00e5 tomta"}', '{"title":"Grunnforhold på tomta"}'],
+    ['dupliserte titler, der den siste er uten prefiks', `{"title":"${P}x","title":"Ekte sak"}`, '{"title":"Ekte sak"}'],
+  ])('sender PUT med %s uten oppslag, i kanonisk form', async (_navn, kropp, kanonisk) => {
+    const s = await behandle(put(kropp, 'application/json; charset=utf-7'), miljoe);
+    expect(s.status).toBe(200);
+    expect(metoder()).toEqual(['PUT']);
+    expect(sendt(0)).toBe(kanonisk);
+    expect(new Headers(ut()[0].init.headers).get('content-type')).toBe('application/json');
   });
 
-  it('slår opp og gir 403 uten PUT for en UTF-16-kropp når topicen er uten prefiks', async () => {
-    catendasvar = (init) => (init.method === 'GET' ? Response.json({ title: 'Ekte sak' }) : Response.json({}));
-    const tekst = JSON.stringify({ title: `${P}x` });
-    const utf16 = new Uint8Array(tekst.length * 2);
-    for (let i = 0; i < tekst.length; i++) utf16[i * 2] = tekst.charCodeAt(i);
-    const s = await behandle(
-      new Request(`https://broker.example${TOPICSTI}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${NOKKEL}`, 'Content-Type': 'application/json; charset=utf-16' },
-        body: utf16,
-      }),
-      miljoe
-    );
-    expect(s.status).toBe(403);
-    expect(metoder()).toEqual(['GET']);
-  });
-
-  it('gir 403 uten kall for PUT med Bimsync-Params', async () => {
-    const s = await behandle(
-      medNokkel('PUT', TOPICSTI, { 'Bimsync-Params': '{}' }, JSON.stringify({ title: 'Ny' })),
-      miljoe
-    );
+  it.each([
+    ['ikke er JSON', 'ikke json', 'application/json'],
+    ['er skjemakodet', `title=%6Boe-livetest-x`, 'application/x-www-form-urlencoded'],
+    ['har en ugyldig escape', '{"title":"k\\oe-livetest-x"}', 'application/json'],
+    ['er en liste', '[]', 'application/json'],
+    ['har BOM', '﻿{"title":"Ny"}', 'application/json'],
+    ['er ugyldig UTF-8', new Uint8Array([0x7b, 0xff, 0x7d]), 'application/json'],
+    ['er UTF-16', new Uint8Array([...'{"title":"x"}'].flatMap((t) => [t.charCodeAt(0), 0])), 'application/json; charset=utf-16'],
+  ])('gir 403 uten kall når kroppen %s', async (_navn, kropp, type) => {
+    const s = await behandle(put(kropp, type), miljoe);
     expect(s.status).toBe(403);
     expect(kall).toEqual([]);
   });
 
-  it.each([
-    ['en tittel uten prefiks', JSON.stringify({ title: 'Ny tittel', topic_status: 'Closed' })],
-    ['ingen tittel', JSON.stringify({ topic_status: 'Closed' })],
-    ['æøå i tittelen', JSON.stringify({ title: 'Grunnforhold på tomta' })],
-  ])('sender PUT med %s uten oppslag', async (_navn, kropp) => {
-    const s = await behandle(put(kropp), miljoe);
-    expect(s.status).toBe(200);
-    expect(metoder()).toEqual(['PUT']);
-    expect(new TextDecoder().decode(ut()[0].init.body as ArrayBuffer)).toBe(kropp);
+  it('gir 403 uten kall for PUT med Bimsync-Params', async () => {
+    const s = await behandle(put(JSON.stringify({ title: 'Ny' }), 'application/json', { 'Bimsync-Params': '{}' }), miljoe);
+    expect(s.status).toBe(403);
+    expect(kall).toEqual([]);
   });
 });
 
