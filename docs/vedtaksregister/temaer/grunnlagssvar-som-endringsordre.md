@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `f8cf63d292718ec0c9e8f4bbf9ae49ccb9ebee304e4e37dd812ab512433002a0`
+Kontrollsum (SHA-256 over utdraget visningen leser): `702a491ffd5e1808630523ef3907e1bb134e558487ecf662da3ef77f21f6452d`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -443,7 +443,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-30](#rad-ka-30), [KA-43](#rad-ka-43)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G45 (målmodellen), F-MM-G45-regel (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-BG1 (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-G45 (målmodellen), F-MM-G45-regel (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-BG1 (målmodellen), F-MM-LV-U2-registrert-med-tekst (målmodellen)
 
 ### <a id="mm-u24"></a>MM-U24
 
@@ -630,7 +630,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-ka-41"></a>KA-41 | Byggherren registrerer et brev sendt utenfor appen med et svar uten sammenfall på et krav etter at TE har trukket det, for eksempel et avslag, eller et frafall av pålegget etter at grunnlaget er trukket. | [OV-U4](#ov-u4) | F-MM-U20g (målmodellen), F-MM-U20i (målmodellen) |
 | <a id="rad-vs-02"></a>VS-02 | Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten. | [VS-U24](#vs-u24), [OV-U4](#ov-u4), [HF-U4](#hf-u4), [GR-U12](#gr-u12) | F-MM-V2 (målmodellen), F-MM-V7c (målmodellen) |
 | <a id="rad-vs-03"></a>VS-03 | Byggherren har gjort innsigelse mot TEs varsel og svarer senere fra appen. | [VS-U24](#vs-u24), [GR-U12](#gr-u12) | F-MM-V3 (målmodellen), F-MM-V3b (målmodellen), F-MM-V3c (målmodellen) |
-| <a id="rad-ka-43"></a>KA-43 | Byggherren registrerer et brev sendt utenfor appen der byggherren senere begrunner sitt svar. | [MM-U17](#mm-u17) | F-MM-BG1 (målmodellen) |
+| <a id="rad-ka-43"></a>KA-43 | Byggherren registrerer et brev sendt utenfor appen der byggherren senere begrunner sitt svar. | [MM-U17](#mm-u17) | F-MM-BG1 (målmodellen), F-MM-LV-U2-registrert-med-tekst (målmodellen) |
 | <a id="rad-ka-46"></a>KA-46 | Byggherren svarer på et vederlagskrav for svikt eller andre forhold og vurderer om varselet om hovedkravet kom i tide (§ 34.1.2). | [GR-U10](#gr-u10) | F-MM-V-34-1-2-nei (målmodellen), F-MM-V-34-1-2-ja (målmodellen), F-MM-V-34-1-2-endring (målmodellen), F-MM-V-34-1-2-ny-kravversjon (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen), F-MM-V-34-1-2-hele-beloepet (målmodellen) |
 | <a id="rad-ka-47"></a>KA-47 | Byggherren svarer på et vederlagskrav med tilbud og tar stilling til om tilbudet aksepteres (§ 34.2.2). | [GR-U10](#gr-u10) | F-MM-V-34-2-2-nei (målmodellen), F-MM-V-34-2-2-ja (målmodellen), F-MM-V-34-1-2-og-34-2-2-nei (målmodellen) |
 | <a id="rad-ka-48"></a>KA-48 | Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § 32.2, § 33.4 eller § 34.1.2, eller at fristkravet ble spesifisert i tide etter § 33.6.1. Senere sender byggherren et svar eller en revisjon som påberoper at det samme kom for sent etter samme bestemmelse. | [HF-U4](#hf-u4), [OV-U4](#ov-u4) | F-MM-HF-U4-33-4 (målmodellen), F-MM-HF-U8-32-2 (målmodellen), F-MM-HF-U4-34-1-2 (målmodellen), F-MM-HF-U4-33-6-1 (målmodellen), F-MM-OV-U4-registrert-svar (målmodellen) |
