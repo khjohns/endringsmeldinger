@@ -243,6 +243,35 @@ describe('kontrollen mot historikken', () => {
     ['med linjeskift etter punktum', new Error('Login failed.\n'), 'Login failed.'],
     ['uten tekst får navnet på feilen', new Error(''), 'Error.'],
     ['som ikke er en Error, får teksten sin', 'brutt', 'brutt.'],
+    [
+      'med punktum inne i en parentes får ikke ett til',
+      new Error('Feilet (se x.)'),
+      'Feilet (se x.)',
+    ],
+    ['med punktum inne i et sitat får ikke ett til', new Error("Fant ikke 'x.'"), "Fant ikke 'x.'"],
+    [
+      'med en code fra Node får den foran',
+      Object.assign(new Error('Connection lost'), { code: 'ESOCKET' }),
+      'ESOCKET: Connection lost.',
+    ],
+    [
+      'med en code som alt står i meldingen, får den ikke to ganger',
+      Object.assign(new Error('connect ECONNREFUSED 127.0.0.1:1'), { code: 'ECONNREFUSED' }),
+      'connect ECONNREFUSED 127.0.0.1:1.',
+    ],
+    [
+      'uten tekst, men med code, får navnet og code',
+      Object.assign(new Error(''), { code: 'ETIMEOUT' }),
+      'ETIMEOUT: Error.',
+    ],
+    [
+      'fra SQL Server (med number) får ikke code foran',
+      Object.assign(new Error('Divide by zero error encountered.'), {
+        code: 'EREQUEST',
+        number: 8134,
+      }),
+      'Divide by zero error encountered.',
+    ],
   ])('feilmeldingen i en avvisning %s', (_, feil, forventet) => {
     expect(somSetning(feil)).toBe(forventet);
   });
@@ -382,7 +411,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
     expect(feil).toBeInstanceOf(MigreringAvvist);
     expect((feil as Error).message).toBe(
       `${A}, sats 1: satsen avsluttet eller åpnet en transaksjon (@@TRANCOUNT 1). ` +
-        'Runneren anvender hver fil i sin egen transaksjon. Ingenting fra fila er lagret.'
+        'Runneren anvender hver fil i sin egen transaksjon. Ingenting fra fila er lagret. ' +
+        'Anvendt i denne kjøringen: ingen.'
     );
     expect(await aapneTransaksjoner()).toBe(0);
     expect(await tabeller()).toEqual([]);
@@ -395,7 +425,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
       [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
     });
     await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
-      /^20260101000000_a\.sql, sats 1: .*Fila committet runnerens transaksjon, så det den gjorde før COMMIT, er lagret uten historikkrad\.$/
+      /^20260101000000_a\.sql, sats 1: .*Fila committet runnerens transaksjon, så det den gjorde før COMMIT, er lagret uten historikkrad\. Anvendt i denne kjøringen: ingen\.$/
     );
     expect(await tabeller()).toEqual(['prove_a']);
     expect(await historikk()).toEqual([]);
@@ -404,7 +434,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('runneren mot SQL Server', () => {
   it('sier at ingenting er lagret når en sats feiler uten COMMIT', async () => {
     const m = mappe({ [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nSELECT 1/0;' });
     await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
-      /^20260101000000_a\.sql, sats 1: .*\. Ingenting fra fila er lagret\.$/
+      /^20260101000000_a\.sql, sats 1: .*\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
     );
     expect(await tabeller()).toEqual([]);
   });
@@ -482,7 +512,7 @@ BEGIN TRANSACTION;`,
       try {
         const m = mappe({ [A]: 'CREATE SCHEMA prove_s;' });
         await expect(migrer(identitet.pool, lesMigrasjoner(m))).rejects.toThrow(
-          /^Runneren kjøres som koe_kjoeretid_[0-9a-f]{8}, ikke som dbo\. Migreringen krever databaseeieren, så skjemaene får eieren dbo\.$/
+          /^Runneren kjøres som koe_kjoeretid_[0-9a-f]{8}, ikke som dbo\. Migreringen krever databaseeieren, så skjemaene får eieren dbo\. Anvendt i denne kjøringen: ingen\.$/
         );
         const svar = await base.pool
           .request()
@@ -511,7 +541,7 @@ BEGIN TRANSACTION;`,
     const feil = await migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
     expect(feil).toBeInstanceOf(MigreringAvvist);
     expect((feil as Error).message).toMatch(
-      /^20260101000000_a\.sql, sats 2: Uncommittable transaction .*\. Ingenting fra fila er lagret\.$/
+      /^20260101000000_a\.sql, sats 2: Uncommittable transaction .*\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
     );
     expect(await aapneTransaksjoner()).toBe(0);
     expect(await tabeller()).toEqual([]);
@@ -551,6 +581,83 @@ BEGIN TRANSACTION;`,
     }
     expect(await tabeller()).toEqual([]);
   }, 30_000);
+
+  it('en feil fra tilkoblingen gir MigreringAvvist, ikke en rå feil fra mssql (#866 punkt 3)', async () => {
+    const { config } = base.pool as unknown as { config: Parameters<typeof opprettPool>[0] };
+    const feilPassord = { config: { ...config, password: 'ikke-passordet' } };
+    const feil = await migrer(feilPassord as unknown as Parameters<typeof migrer>[0], []).catch(
+      (f: unknown) => f
+    );
+    expect(feil).toBeInstanceOf(MigreringAvvist);
+    expect((feil as Error).message).toMatch(
+      /^Migreringen stoppet utenfor en fil: ELOGIN: .*\. Anvendt i denne kjøringen: ingen\.$/
+    );
+  }, 30_000);
+
+  it('en avvisning fra en fil sier hvilke filer kjøringen alt har anvendt (#866 punkt 4)', async () => {
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);\nSELECT 1/0;',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260102000000_b\.sql, sats 1: .*\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: 20260101000000\.$/
+    );
+    expect(await historikk()).toEqual(['20260101000000']);
+    expect(await tabeller()).toEqual(['prove_a']);
+  });
+
+  it('avviser en fil som bytter identitet uten REVERT, før historikkraden og før neste fil (#866 punkt 2)', async () => {
+    const m = mappe({
+      // I db_owner, så runnerens kontroller etter satsen ellers ville gått gjennom som prove_bruker.
+      [A]: "CREATE USER prove_bruker WITHOUT LOGIN;\nALTER ROLE db_owner ADD MEMBER prove_bruker;\nGO\nEXECUTE AS USER = N'prove_bruker';",
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, sats 2: satsen byttet identiteten til prove_bruker\. Migreringen krever databaseeieren, .*Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
+    );
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
+  });
+
+  it('en sats som gjør tilstanden ulesbar, avvises med filnavnet og satsen', async () => {
+    // Med NOEXEC kjører ikke runnerens spørring etter satsen, så den får ikke svar.
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nSET NOEXEC ON;',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    const feil = await migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
+    expect(feil).toBeInstanceOf(MigreringAvvist);
+    expect((feil as Error).message).toMatch(
+      /^20260101000000_a\.sql, sats 1: .*Tilstanden etter feilen kunne ikke leses.* Anvendt i denne kjøringen: ingen\.$/
+    );
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
+  });
+
+  it('en fil som sletter #koe_migrering, avvises før historikkraden, og ingenting er lagret (#884)', async () => {
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nDROP TABLE #koe_migrering;',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, sats 1: satsen slettet #koe_migrering, .*\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
+    );
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
+  });
+
+  it('en feil i satsen med historikkraden avvises med filnavnet og historikkraden, og ingenting er lagret', async () => {
+    // Fila skriver raden for sin egen versjon, så runnerens rad bryter primærnøkkelen.
+    const m = mappe({
+      [A]: "CREATE TABLE dbo.prove_a (id int NOT NULL);\nINSERT koe_migrering.historikk (versjon, filnavn, sha256) VALUES ('20260101000000', N'x', REPLICATE('0', 64));",
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, historikkraden: .*historikk_pk.*\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
+    );
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
+  });
 
   it('lagrer versjonen, filnavnet og sha256 av hele fila', async () => {
     const m = mappe({ [A]: '-- en kommentar\nCREATE TABLE dbo.prove_a (id int NOT NULL);' });
