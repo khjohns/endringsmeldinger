@@ -720,13 +720,13 @@ Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En 
 
 ### `koe.jobbforsoek`
 
-Hvert forsøk, hver feil, hver kvittering og hver omstart av en jobb for seg (LV-U1, invariant 7 og 8). Forsøket har leasens ID og lagres når utfallet er kjent: `utfoert`, `feilet`, `usikkert`, `avvist`, `kobling_endret` eller `startet_paa_nytt`, med innloggingen som startet jobben på nytt. Raden endres ikke.
+Hvert forsøk, hver feil, hver kvittering og hver omstart av en jobb for seg (LV-U1, invariant 7 og 8). Forsøket har leasens ID og lagres når utfallet er kjent: `utfoert`, `feilet`, `usikkert`, `avvist`, `kobling_endret` eller `startet_paa_nytt`, med SID-en til innloggingen som startet jobben på nytt (`sid:0x…`, eller `driften uten SID`). Raden endres ikke.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Prosedyrene for jobbkjøreren og driftsverktøyet i `database/migrasjoner/20261018100000_jobber.sql`. |
+| Hvor fra appen lagres og redigeres | Prosedyrene for jobbkjøreren i `database/migrasjoner/20261018100000_jobber.sql`, og driftsverktøyet `koe_api.start_jobb_paa_nytt`, sist definert i `20261020121000_oppretter_tid_og_oppdragsnoekkel.sql`. |
 | Data fra Catenda | Nei. Meldingen er fra klienten i `server/catenda.ts`, uten svarkropp. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (forsoek_id). Viser til: jobb_id → koe.jobb.jobb_id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.forsoek_id (uten fremmednøkkel); koe.jobb.siste_forsoek (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.forsoek_id (uten fremmednøkkel); koe.vedleggskvittering.forsoek_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |

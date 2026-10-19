@@ -634,6 +634,21 @@ BEGIN TRANSACTION;`,
     }
   );
 
+  it('rydder ikke en forbindelse som byttet identitet når en annen kontroll avviser satsen først (#885 punkt 6)', async () => {
+    const feillogg = vi.spyOn(console, 'error');
+    onTestFinished(() => feillogg.mockRestore());
+    const m = mappe({
+      [A]: `CREATE USER prove_bruker WITHOUT LOGIN;\nGO\nEXECUTE AS USER = N'prove_bruker';\nBEGIN TRANSACTION;`,
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, sats 2: satsen avsluttet eller åpnet en transaksjon/
+    );
+    expect(feillogg.mock.calls.map((k) => String(k[0]))).not.toContainEqual(
+      expect.stringContaining('applåsen kunne ikke ryddes')
+    );
+    expect(await historikk()).toEqual([]);
+  });
+
   it('en sats som gjør tilstanden ulesbar, avvises med filnavnet og satsen', async () => {
     // Med NOEXEC kjører ikke runnerens spørring etter satsen, så den får ikke svar.
     const m = mappe({

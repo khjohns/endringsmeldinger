@@ -904,9 +904,9 @@ beskrivelse = """
 Hvert forsøk, hver feil, hver kvittering og hver omstart av en jobb for seg
 (LV-U1, invariant 7 og 8). Forsøket har leasens ID og lagres når utfallet er
 kjent: `utfoert`, `feilet`, `usikkert`, `avvist`, `kobling_endret` eller
-`startet_paa_nytt`, med innloggingen som startet jobben på nytt. Raden endres
-ikke."""
-lagres_fra = "Prosedyrene for jobbkjøreren og driftsverktøyet i `database/migrasjoner/20261018100000_jobber.sql`."
+`startet_paa_nytt`, med SID-en til innloggingen som startet jobben på nytt
+(`sid:0x…`, eller `driften uten SID`). Raden endres ikke."""
+lagres_fra = "Prosedyrene for jobbkjøreren i `database/migrasjoner/20261018100000_jobber.sql`, og driftsverktøyet `koe_api.start_jobb_paa_nytt`, sist definert i `20261020121000_oppretter_tid_og_oppdragsnoekkel.sql`."
 fra_catenda = "Nei. Meldingen er fra klienten i `server/catenda.ts`, uten svarkropp."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innloggingen til den i driften som startet en jobb på nytt."

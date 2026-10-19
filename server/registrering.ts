@@ -4,7 +4,7 @@
  * Registreringen er ingen inngang i appen; skriptet kjører prosedyrene i
  * `koe_drift`, som bare `koe_driftsrolle` kan kjøre
  * (`database/migrasjoner/20261019140000_registrering.sql`; `registrer_prosjekt` er
- * sist definert i `20261019230000_registrering_bytte.sql`).
+ * sist definert i `20261020122000_registrering_bibliotek.sql`).
  *
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts registrer \
  *     --prosjekt oslobygg --navn "Oslobygg" --organisasjon org-1 \

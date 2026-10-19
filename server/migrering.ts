@@ -269,13 +269,6 @@ async function kontrollerIdentitet(egen: sql.ConnectionPool): Promise<void> {
 }
 
 /**
- * En sats byttet identiteten uten `REVERT`. Forbindelsen ryddes da ikke, for den
- * kjører som en annen og kan miste tilgangen til basen når transaksjonen rulles
- * tilbake. Serveren ruller tilbake og slipper applåsen når den lukkes.
- */
-class IdentitetByttet extends MigreringAvvist {}
-
-/**
  * Applåsen eies av sesjonen, så en `COMMIT` i en fil ikke slipper den, og av
  * `db_owner`, så en bruker utenfor rollen, som kjøretiden, ikke kan ta den
  * (#576, #564). Den slippes når forbindelsen lukkes.
@@ -426,7 +419,7 @@ async function anvendNeste(
     // Per sats, så verken resten av fila, historikkraden eller de neste filene
     // kjøres som en annen enn `EIER` (#866 punkt 2).
     if (etter.bruker !== EIER)
-      throw new IdentitetByttet(
+      throw new MigreringAvvist(
         `${sted}: satsen byttet identiteten fra ${EIER} til ${etter.bruker}.` +
           (await lagret(egen, runnerens))
       );
@@ -486,7 +479,8 @@ interface Utlaan {
  * `mssql`-transaksjon: en `ROLLBACK` i en fil får da ikke `mssql` til å gi
  * forbindelsen tilbake til poolen med en åpen transaksjon (#576). Til slutt, også
  * etter en feil, ruller runneren tilbake det som er åpent, slipper applåsen og
- * lukker forbindelsen. Faller forbindelsen ut, gjør serveren det samme.
+ * lukker forbindelsen. Har en sats byttet identiteten, eller faller forbindelsen
+ * ut, gjør serveren det samme når forbindelsen lukkes.
  */
 export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Promise<string[]> {
   filer = ordne(filer);
@@ -497,7 +491,6 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
   let uvisst: string | undefined;
   // Runneren rydder bare en forbindelse som har tatt applåsen og fortsatt er `EIER`.
   let laast = false;
-  let byttet = false;
   try {
     await egenPool.connect();
     forbindelse = await (egenPool as unknown as Utlaan).acquire(egenPool);
@@ -512,18 +505,22 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
         if (versjon === undefined) return kjoert;
         kjoert.push(versjon);
       }
-    } catch (feil) {
-      byttet = feil instanceof IdentitetByttet;
-      throw feil;
     } finally {
-      if (laast && !byttet)
+      // Identiteten leses her, ikke av feilen: en sats kan bytte den og feile, eller
+      // feile en annen kontroll først. Uten `EIER` ruller serveren tilbake og
+      // slipper låsen når forbindelsen lukkes (#885 punkt 6).
+      if (laast)
         await egen
           .request()
           .input('ressurs', sql.NVarChar(255), APPLAAS)
+          .input('eier', sql.NVarChar(128), EIER)
           .batch(
-            `IF @@TRANCOUNT > 0 ROLLBACK;
-           IF APPLOCK_MODE(N'db_owner', @ressurs, N'Session') = 'Exclusive'
-             EXEC sp_releaseapplock @Resource = @ressurs, @LockOwner = 'Session', @DbPrincipal = N'db_owner';`
+            `IF USER_NAME() = @eier
+           BEGIN
+             IF @@TRANCOUNT > 0 ROLLBACK;
+             IF APPLOCK_MODE(N'db_owner', @ressurs, N'Session') = 'Exclusive'
+               EXEC sp_releaseapplock @Resource = @ressurs, @LockOwner = 'Session', @DbPrincipal = N'db_owner';
+           END`
           )
           .catch((feil: unknown) => {
             console.error('Migreringen: transaksjonen og applåsen kunne ikke ryddes:', feil);

@@ -578,6 +578,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
 
     it('bytte av bibliotek avvises før Catenda-kallet når prosjektet har saker (#868 punkt 3, svar 4 19.10 i #764)', async () => {
       const foer = await kobling(o.prosjekt.id);
+      const bibliotekFoer = await bibliotek(o.prosjekt.id);
       catendaKall = 0;
       linjer.length = 0;
       const kall = skript(
@@ -593,7 +594,6 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
         '--bibliotek',
         randomUUID()
       );
-      const bibliotekFoer = await bibliotek(o.prosjekt.id);
       expect(await avvisning(kall)).toMatch(
         /har saker: Catenda-biblioteket kan ikke byttes \(52066\)/
       );
@@ -605,6 +605,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
 
     it('prosedyren avviser bytte av bibliotek med 52066 også uten skriptets kontroll (#868 punkt 3)', async () => {
       const foer = await kobling(o.prosjekt.id);
+      const bibliotekFoer = await bibliotek(o.prosjekt.id);
       const kall = drift.pool
         .request()
         .input('prosjekt', o.prosjekt.id)
@@ -617,7 +618,6 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
         .input('board', null)
         .input('team', null)
         .execute('koe_drift.registrer_prosjekt');
-      const bibliotekFoer = await bibliotek(o.prosjekt.id);
       expect(await avvisning(kall)).toBe(52066);
       expect(await kobling(o.prosjekt.id)).toEqual(foer);
       expect(await bibliotek(o.prosjekt.id)).toBe(bibliotekFoer);
