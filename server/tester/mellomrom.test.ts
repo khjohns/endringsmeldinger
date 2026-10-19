@@ -325,20 +325,45 @@ function uholdbareGrunner(k: Katalog, grunner: Record<string, Grunn> = UTEN_KONT
 }
 
 /**
- * Kontrollene som prøver en kolonne med en av `MALER` med `LEN`. «Tom» er da
+ * Fritekstkolonnene der «tom» prøves med `LEN`: en tekst av bare mellomrom er tom
+ * (`20261020070000_tom_og_tegnklasse.sql`). Listen er lukket: en linje for en
+ * kolonne uten en `LEN`-kontroll gjør testen rød.
+ */
+const FRITEKST_MED_LEN: Record<string, string> = {
+  'koe.notat.tekst': 'Notatet er fritekst.',
+  'koe.fullmakt.tittel': 'Tittelen er fritekst.',
+  'koe.jobb.tittel': 'Tittelen på topicen er fritekst.',
+  'koe.vedlegg.filnavn': 'Filnavnet er fritekst fra brukeren.',
+};
+
+/** Kontrollene på tekstkolonnen som prøver den med `LEN`. */
+function lenKontroller(k: Katalog, kolonne: string) {
+  const len = new RegExp(`\\blen\\(\\[${iRegExp(del(kolonne)[1])}\\]\\)`);
+  return kontrollerPaa(k, kolonne).filter((kt) => len.test(kt.definisjon));
+}
+
+/**
+ * Kontrollene som prøver en tekstkolonne utenfor `fritekst` med `LEN`. «Tom» er da
  * ingen byte, som i prosedyrene (`DATALENGTH`): `LEN` ser bort fra mellomrom til
  * slutt, og en verdi av bare mellomrom får navnet på feil kontroll i 547 (#704).
+ * Kolonnen trenger ingen mal: også en ID uten form fanges (#889 punkt 4).
  */
-function tomMedLen(k: Katalog): string[] {
+function tomMedLen(k: Katalog, fritekst: Record<string, string> = FRITEKST_MED_LEN): string[] {
   return k.kolonner
-    .filter((c) => former(k, c.kolonne).length > 0)
-    .flatMap((c) => {
-      const len = new RegExp(`\\blen\\(\\[${iRegExp(del(c.kolonne)[1])}\\]\\)`);
-      return kontrollerPaa(k, c.kolonne).filter((kt) => len.test(kt.definisjon));
-    })
+    .filter((c) => !(c.kolonne in fritekst))
+    .flatMap((c) => lenKontroller(k, c.kolonne))
     .map((kt) => kt.navn)
     .sort();
 }
+
+/** Linjene i `fritekst` for en kolonne som ikke finnes eller ikke har en `LEN`-kontroll. */
+const fritekstUtenLen = (k: Katalog, fritekst: Record<string, string> = FRITEKST_MED_LEN) =>
+  Object.keys(fritekst)
+    .filter(
+      (kolonne) =>
+        !k.kolonner.some((c) => c.kolonne === kolonne) || lenKontroller(k, kolonne).length === 0
+    )
+    .sort();
 
 /**
  * Kontrollene som heter `…_tegnklasse`, men ikke er den kontrollen på sin
@@ -566,9 +591,29 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
     const k = katalog();
     k.kontroller.push(kontroll('koe.projects', 'id', '(len([id])>(0))', 'projects_id'));
     k.kontroller.push(kontroll('koe.projects', 'name', '(len([name])>(0))', 'projects_name'));
-    expect(tomMedLen(k)).toEqual(['projects_id']);
+    const fritekst = { 'koe.projects.name': 'Navnet er fritekst.' };
+    expect(tomMedLen(k, fritekst)).toEqual(['projects_id']);
     k.kontroller.at(-2)!.definisjon = '(datalength([id])>(0))';
-    expect(tomMedLen(k)).toEqual([]);
+    expect(tomMedLen(k, fritekst)).toEqual([]);
+    expect(fritekstUtenLen(k, fritekst)).toEqual([]);
+  });
+
+  it('«ikke tom» med LEN på en ID-kolonne uten en mal gir avvik, og en fritekstkolonne utenfor listen også (#889 punkt 4)', () => {
+    const k = katalog();
+    k.kolonner.push(kolonne('koe.jobb.catenda_id', 200));
+    k.kontroller.push(
+      kontroll('koe.jobb', 'catenda_id', '(len([catenda_id])>(0))', 'jobb_catenda_id')
+    );
+    k.kontroller.push(kontroll('koe.projects', 'name', '(len([name])>(0))', 'projects_name'));
+    expect(tomMedLen(k, {})).toEqual(['jobb_catenda_id', 'projects_name']);
+  });
+
+  it('en linje i fritekstlisten for en kolonne uten en LEN-kontroll gir avvik', () => {
+    const k = katalog();
+    expect(fritekstUtenLen(k, { 'koe.projects.name': 'x', 'koe.finnes.ikke': 'x' })).toEqual([
+      'koe.finnes.ikke',
+      'koe.projects.name',
+    ]);
   });
 
   it('en kolonne med en annen sortering enn den binære gir avvik (#609)', () => {
@@ -652,6 +697,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
     const med = (tabell: string, rad: Rad) => (o?.tabell === tabell ? { ...rad, ...o.rad } : rad);
     const sakId = randomUUID();
     const eventId = randomUUID();
+    const oppdragId = randomUUID();
     return iKontekst(async (r) => {
       const s = med('sak_metadata', {
         sak_id: sakId,
@@ -684,7 +730,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
         r,
         'leveringsoppdrag',
         med('leveringsoppdrag', {
-          id: randomUUID(),
+          id: oppdragId,
           prosjekt_id: P1,
           sak_id: s.sak_id,
           event_id: eventId,
@@ -721,13 +767,59 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
           refererer_til_event_id: eventId,
         })
       );
+      return oppdragId;
     });
+  }
+
+  /**
+   * Dokumentkvitteringen for et nytt oppdrag, satt inn som `koe_jobbkjoerer`, som
+   * blokkpredikatet krever, i en egen transaksjon med retten gitt og trukket tilbake
+   * der. Ved en feil rulles transaksjonen tilbake før `REVERT`: en avbrutt transaksjon
+   * gir 3930 på `REVERT`, og forbindelsen gikk tilbake til poolen som kjøreveien.
+   */
+  async function lagreKvittering(catendaId: string) {
+    const oppdragId = await lagreSak();
+    return base.pool
+      .request()
+      .input('oppdrag', sql.UniqueIdentifier, oppdragId)
+      .input('prosjekt', sql.NVarChar(100), P1)
+      .input('catenda_id', sql.NVarChar(100), catendaId)
+      .input('forsoek', sql.UniqueIdentifier, randomUUID()).query(`
+        BEGIN TRANSACTION;
+        GRANT INSERT ON koe.leveringskvittering TO koe_jobbkjoerer;
+        EXECUTE AS USER = 'koe_jobbkjoerer';
+        BEGIN TRY
+          INSERT koe.leveringskvittering (leveringsoppdrag_id, operasjon, prosjekt_id, catenda_id, forsoek_id)
+          VALUES (@oppdrag, N'dokument', @prosjekt, @catenda_id, @forsoek);
+        END TRY
+        BEGIN CATCH IF XACT_STATE() <> 0 ROLLBACK; REVERT; THROW; END CATCH;
+        REVERT;
+        REVOKE INSERT ON koe.leveringskvittering FROM koe_jobbkjoerer;
+        COMMIT;`);
   }
 
   describe('sakstabellene', () => {
     it('kontrollsak: saken, brevet, oppdraget, bufferen og notatet lagres i den eksakte formen', async () => {
       await lagreSak();
     });
+
+    it('kontrollsak: en dokumentkvittering med en UUID som Catenda-ID lagres', async () => {
+      await lagreKvittering(randomUUID());
+    });
+
+    it.each<[string, string, string]>([
+      ['bare mellomrom', '   ', 'leveringskvittering_catenda_id_tegnklasse'],
+      ['en tab', `${randomUUID()}\t`, 'leveringskvittering_catenda_id_tegnklasse'],
+      ['en NBSP', `${randomUUID()}\u00a0`, 'leveringskvittering_catenda_id_tegnklasse'],
+      ['ingen tegn', '', 'leveringskvittering_catenda_id_ikke_tom'],
+    ])(
+      'leveringskvittering.catenda_id avviser en ID med %s (547, #889 punkt 5)',
+      async (_, catendaId, begrensning) => {
+        const feil = await avvisningMedMelding(lagreKvittering(catendaId));
+        expect(feil?.nummer).toBe(CHECK_BRUDD);
+        expect(feil?.melding).toContain(begrensning);
+      }
+    );
 
     it.each<[string, string, Rad, string]>([
       [
@@ -1039,6 +1131,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
     expect(uthulteKontroller(k)).toEqual([]);
     expect(utenBinaerSortering(k), 'kolonnen har en annen sortering enn BIN2').toEqual([]);
     expect(tomMedLen(k), 'kontrollen prøver «tom» med LEN, ikke DATALENGTH').toEqual([]);
+    expect(fritekstUtenLen(k), 'linjen i FRITEKST_MED_LEN har ingen LEN-kontroll').toEqual([]);
   });
 
   it('kontrollsak: hver kjent hendelsestype og sakstype passer kontrollene på kolonnen i katalogen (#609)', async () => {

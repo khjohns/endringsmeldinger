@@ -4,7 +4,7 @@
  * Registreringen er ingen inngang i appen; skriptet kjører prosedyrene i
  * `koe_drift`, som bare `koe_driftsrolle` kan kjøre
  * (`database/migrasjoner/20261019140000_registrering.sql`; `registrer_prosjekt` er
- * sist definert i `20261019230000_registrering_bytte.sql`).
+ * sist definert i `20261020122000_registrering_bibliotek.sql`).
  *
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts registrer \
  *     --prosjekt oslobygg --navn "Oslobygg" --organisasjon org-1 \
@@ -112,6 +112,28 @@ async function registrer(pool: Pool, r: Registrering): Promise<Registrert> {
   return svar.recordset[0]!;
 }
 
+/**
+ * Avviser et bytte av Catenda-prosjekt eller bibliotek i et prosjekt med saker, med
+ * vilkåret og meldingen fra `koe_drift.kontroller_bytte`, som `registrer_prosjekt`
+ * også kaller (#879 punkt 5).
+ */
+async function kontrollerBytte(pool: Pool, r: Registrering): Promise<void> {
+  try {
+    await utenKontekst(pool)
+      .input('prosjekt', sql.NVarChar(4000), r.prosjekt)
+      .input('catenda_prosjekt', sql.UniqueIdentifier, r.catendaProsjekt)
+      .input('bibliotek', sql.UniqueIdentifier, r.bibliotek)
+      .execute('koe_drift.kontroller_bytte');
+  } catch (feil) {
+    const { number, message } = feil as { number?: unknown; message?: unknown };
+    if (number === 52066)
+      throw new Registreringsfeil(`${String(message)} (52066).`, {
+        cause: feil,
+      });
+    throw feil;
+  }
+}
+
 async function settKontraktsteam(
   pool: Pool,
   prosjekt: string,
@@ -210,20 +232,30 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   if (resten.length) throw new Registreringsfeil(`Ukjente argumenter: ${resten.join(' ')}`);
   const oppgittTeam = v.bh || v.te ? kontraktsteamFra(v.bh ?? [], v.te ?? []) : null;
 
+  // Én klient og ett token for alle kontrollene i kjøringen (#879 punkt 1).
+  let catenda: Promise<{ oauth: CatendaOAuth; token: string }> | undefined;
+  function iCatenda(): Promise<{ oauth: CatendaOAuth; token: string }> {
+    catenda ??= (async () => {
+      const { oauth, token } = a.catenda();
+      return { oauth, token: await token() };
+    })();
+    return catenda;
+  }
+
   async function kontrollerTeam(catendaProsjekt: string, team: Kontraktsteam[]): Promise<void> {
-    const { oauth, token } = a.catenda();
-    const iCatenda = await catendaTeam(oauth, await token(), catendaId(catendaProsjekt)!);
-    const mangler = team.filter((t) => !iCatenda.has(t.team_id)).map((t) => t.team_id);
+    const { oauth, token } = await iCatenda();
+    const iCatendaTeam = await catendaTeam(oauth, token, catendaId(catendaProsjekt)!);
+    const mangler = team.filter((t) => !iCatendaTeam.has(t.team_id)).map((t) => t.team_id);
     if (mangler.length)
       throw new Registreringsfeil(`Teamet finnes ikke i Catenda-prosjektet: ${mangler.join(', ')}`);
     for (const t of team)
-      a.skriv(`  ${t.contract_role}: ${iCatenda.get(t.team_id)} (${t.team_id})`);
+      a.skriv(`  ${t.contract_role}: ${iCatendaTeam.get(t.team_id)} (${t.team_id})`);
   }
 
   /** Boardet må høre til Catenda-prosjektet, som teamene (#836 punkt 2). */
   async function kontrollerBoard(catendaProsjekt: string, board: string): Promise<void> {
-    const { oauth, token } = a.catenda();
-    const prosjekt = await oauth.boardetsProsjekt(board, await token());
+    const { oauth, token } = await iCatenda();
+    const prosjekt = await oauth.boardetsProsjekt(board, token);
     if (prosjekt !== catendaId(catendaProsjekt))
       throw new Registreringsfeil(`Boardet finnes ikke i Catenda-prosjektet: ${board}`);
   }
@@ -246,11 +278,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     };
     const pool = await a.pool();
     // Basen avviser bytte med 52066 uansett; her avvises det før Catenda-kallet (#868 punkt 2).
-    const foer = await lesKontraktsteam(pool, r.prosjekt);
-    if (foer?.harSaker && catendaId(foer.catendaProsjekt) !== catendaId(r.catendaProsjekt))
-      throw new Registreringsfeil(
-        `Prosjektet ${r.prosjekt} har saker: Catenda-prosjektet kan ikke byttes (52066).`
-      );
+    await kontrollerBytte(pool, r);
     if (r.team) await kontrollerTeam(r.catendaProsjekt, r.team);
     if (r.board) await kontrollerBoard(r.catendaProsjekt, r.board);
     const utfall = await registrer(pool, r);

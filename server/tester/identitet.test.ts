@@ -253,7 +253,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
       'koe.skrivetidspunkt.tidspunkt',
     ];
 
-    it('hvert tidspunkt er datetime2(3), og en standard er SYSUTCDATETIME() (DL-U3)', async () => {
+    it('hvert tidspunkt er datetime2(3), og en standard er SYSUTCDATETIME() kuttet til millisekunder (DL-U3, #778 punkt 7)', async () => {
       const svar = await base.pool.request().query<{
         kolonne: string;
         type: string;
@@ -275,7 +275,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
           .sort()
       ).toEqual(UTEN_STANDARD);
       expect(
-        svar.recordset.filter((r) => r.standard !== null && r.standard !== '(sysutcdatetime())')
+        svar.recordset.filter(
+          (r) => r.standard !== null && r.standard !== '(datetrunc(millisecond,sysutcdatetime()))'
+        )
       ).toEqual([]);
     });
 

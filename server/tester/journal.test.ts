@@ -17,6 +17,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   avvisning,
+  avvisningMedMelding,
   catendaBruker,
   type Foresp,
   iTransaksjon,
@@ -30,6 +31,7 @@ import { sql, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 const IKKE_NULL = 515;
 const CHECK_BRUDD = 547;
 const UNIK = 2627;
+const BLOKKERT = 33504;
 const TOEMMING_AVVIST = 4712;
 const UFORANDERLIG = 51001;
 const LAGRET_BREV = 51002;
@@ -320,6 +322,34 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
       );
       expect(feil).toBe(CHECK_BRUDD);
     });
+
+    it('en leveringskvittering i et annet prosjekt enn oppdragets avvises av fremmednøkkelen (547, #783)', async () => {
+      const { s } = await lagretSak();
+      const { id } = (
+        await iKontekst((r) =>
+          r()
+            .input('sak', sql.NVarChar(36), s.sak_id)
+            .query<{ id: string }>('SELECT id FROM koe.leveringsoppdrag WHERE sak_id = @sak')
+        )
+      ).recordset[0];
+      const kvittering = (prosjekt_id: string): Rad => ({
+        leveringsoppdrag_id: id,
+        operasjon: 'dokument',
+        prosjekt_id,
+        catenda_id: 'dokument-1',
+        forsoek_id: randomUUID(),
+      });
+      const feil = await avvisningMedMelding(
+        iKontekst((r) => settInn(r, 'leveringskvittering', kvittering(ANNET_PROSJEKT)))
+      );
+      expect(feil?.nummer).toBe(CHECK_BRUDD);
+      expect(feil?.melding).toContain('leveringskvittering_oppdrag');
+      // Kontrollsaken: med oppdragets prosjekt slipper fremmednøkkelen raden gjennom, og
+      // blokkpredikatet stopper den, fordi bare jobbkjøreren skriver kvitteringen.
+      expect(
+        await avvisning(iKontekst((r) => settInn(r, 'leveringskvittering', kvittering(PROSJEKT))))
+      ).toBe(BLOKKERT);
+    });
   });
 
   describe('notatet', () => {
@@ -505,6 +535,18 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
         'notat.aktor_id -> app_users.id',
         'sak_metadata.created_by -> app_users.id',
       ]);
+    });
+
+    it('en standard med SYSUTCDATETIME() kutter til millisekunder, som @naa i prosedyrene (#778 punkt 7)', async () => {
+      // Også `koe_migrering.historikk.anvendt`, som runneren lager (`HISTORIKK` i
+      // `server/migrering.ts`) og `20261020123000_historikk_tidsstandard.sql` retter.
+      const svar = await base.pool.request().query<{ standard: string }>(
+        `SELECT CONCAT(OBJECT_SCHEMA_NAME(parent_object_id), N'.', OBJECT_NAME(parent_object_id), N'.',
+                       COL_NAME(parent_object_id, parent_column_id)) AS standard
+           FROM sys.default_constraints
+          WHERE definition LIKE N'%sysutcdatetime()%' AND definition NOT LIKE N'(datetrunc(millisecond,sysutcdatetime()))'`
+      );
+      expect(svar.recordset.map((r) => r.standard)).toEqual([]);
     });
   });
 });
