@@ -3806,6 +3806,29 @@
       ]
     },
     {
+      "id": "F-MM-V4c",
+      "rader": ["VS-04"],
+      "start": "krav_irreg",
+      "forslag": "VS-U12: TEs varsel etter § 32.2 er kravet i grunnlagssporet, så en påberopelse av passiviteten som viser til vederlagskravet, avvises",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [{ "handling": "passivitet", "gjelder": "K-v1", "navn": "D3" }],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["VS-U12"],
+          "prov": { "handling": "passivitet", "gjelder": "K-g1" },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["VS-U12"],
+          "forventet": { "avvist": true, "regel": "INGEN_VARSEL_ETTER_32_2", "nye_hendelser": 0 }
+        }
+      ]
+    },
+    {
       "id": "F-MM-V5",
       "rader": [
         "VS-05"
