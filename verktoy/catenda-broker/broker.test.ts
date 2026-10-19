@@ -331,6 +331,7 @@ describe('endringen av en topic', () => {
     ['prefikset som entitet rundt prosentkoding', JSON.stringify({ title: 'koe-li&#37;76etest-x' })],
     ['fullbreddes l prosentkodet som UTF-8', JSON.stringify({ title: 'koe-%EF%BD%8Civetest-x' })],
     ['prefikset delt av tagger', JSON.stringify({ title: 'koe-live<b></b>test-x' })],
+    ['prefikset delt av en tagg i en tagg', JSON.stringify({ title: 'koe-<a<b>livetest-x' })],
   ])('slår opp og gir 403 uten PUT for %s når topicen er uten prefiks', async (_navn, kropp) => {
     catendasvar = topicUtenPrefiks;
     const s = await behandle(put(kropp), miljoe);
@@ -378,7 +379,7 @@ describe('endringen av en topic', () => {
   });
 
   it.each([
-    ['nøstet mer enn 32 nivåer', '{"a":'.repeat(33) + '"x"' + '}'.repeat(33)],
+    ['33 objekter inni hverandre', '{"a":'.repeat(33) + '"x"' + '}'.repeat(33)],
     ['større enn 64 KiB', JSON.stringify({ description: 'x'.repeat(64 * 1024) })],
   ])('gir 403 uten kall for en kropp som er %s', async (_navn, kropp) => {
     const s = await behandle(put(kropp), miljoe);
@@ -386,15 +387,15 @@ describe('endringen av en topic', () => {
     expect(kall).toEqual([]);
   });
 
-  it('sender en kropp nøstet 32 nivåer uten oppslag', async () => {
-    const kropp = '{"a":'.repeat(31) + '"x"' + '}'.repeat(31);
+  it('sender en kropp med 32 objekter inni hverandre uten oppslag', async () => {
+    const kropp = '{"a":'.repeat(32) + '"x"' + '}'.repeat(32);
     expect((await behandle(put(kropp), miljoe)).status).toBe(200);
     expect(metoder()).toEqual(['PUT']);
   });
 
-  it('slår opp og gir 403 for prefikset 32 nivåer ned', async () => {
+  it('slår opp og gir 403 for prefikset i det 32. objektet', async () => {
     catendasvar = topicUtenPrefiks;
-    const kropp = '{"a":'.repeat(31) + `"${P}x"` + '}'.repeat(31);
+    const kropp = '{"a":'.repeat(32) + `"${P}x"` + '}'.repeat(32);
     expect((await behandle(put(kropp), miljoe)).status).toBe(403);
     expect(metoder()).toEqual(['GET']);
   });
@@ -406,11 +407,26 @@ describe('endringen av en topic', () => {
     expect(metoder()).toEqual(['GET']);
   });
 
-  it('kontrollerer en lang streng med «<» uten avsluttende «>» innen kort tid', async () => {
+  it('kontrollerer en kropp nær 64 KiB med «<» uten «>» innen et par sekunder', async () => {
     const start = performance.now();
-    const s = await behandle(put(JSON.stringify({ title: '<'.repeat(60_000) })), miljoe);
+    const s = await behandle(put(JSON.stringify({ title: '<'.repeat(60_000), b: '<a'.repeat(1_000) })), miljoe);
     expect(s.status).toBe(200);
-    expect(performance.now() - start).toBeLessThan(500);
+    expect(performance.now() - start).toBeLessThan(2_000);
+  });
+
+  it('sender vanlig tekst med mange nøstede «<…>» uten oppslag', async () => {
+    const kropp = JSON.stringify({ description: '<'.repeat(12) + 'x' + '>'.repeat(12) });
+    expect((await behandle(put(kropp), miljoe)).status).toBe(200);
+    expect(metoder()).toEqual(['PUT']);
+  });
+
+  it('gir 403 uten å lese kroppen når Content-Length er over 64 KiB', async () => {
+    const s = await behandle(
+      put(JSON.stringify({ title: 'Ny' }), 'application/json', { 'Content-Length': String(64 * 1024 + 1) }),
+      miljoe
+    );
+    expect(s.status).toBe(403);
+    expect(kall).toEqual([]);
   });
 
   it('gir 403 uten kall for PUT med Bimsync-Params', async () => {

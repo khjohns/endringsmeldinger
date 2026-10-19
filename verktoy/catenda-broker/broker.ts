@@ -121,6 +121,10 @@ const harPrefiks = (v: unknown) => typeof v === 'string' && v.startsWith(LIVETES
 const sammeId = (a: unknown, b: string) =>
   typeof a === 'string' && (a.toLowerCase() === b.toLowerCase() || (catendaId(a) ?? 0) === catendaId(b));
 
+/** Grensene for en PUT på en topic, så kontrollen har en øvre grense for tid og dybde. */
+const MAKS_KROPP = 64 * 1024;
+const MAKS_DYBDE = 32;
+
 /**
  * En PUT på en topic sendes i kanonisk form: kroppen tolkes strengt som et JSON-objekt i UTF-8
  * og sendes som `JSON.stringify` av resultatet. Da ser Catenda det samme som kontrollen, uten
@@ -137,10 +141,6 @@ function tolketKropp(kropp: ArrayBuffer | undefined): { verdi: object; tekst: st
   }
 }
 
-/** Grensene for en PUT på en topic, så kontrollen har en øvre grense for tid og dybde. */
-const MAKS_KROPP = 64 * 1024;
-const MAKS_DYBDE = 32;
-
 function forDyp(verdi: object): boolean {
   const stabel: [unknown, number][] = [[verdi, 1]];
   while (stabel.length > 0) {
@@ -155,6 +155,19 @@ function forDyp(verdi: object): boolean {
 /** Prefikset slik `kanGiPrefiks` sammenligner: bare bokstaver og sifre. */
 const PREFIKSKJERNE = LIVETESTPREFIKS.replace(/[^a-z0-9]/g, '');
 
+/** Fjerner hvert spenn fra en «<» til neste «>», i én lineær gjennomgang. */
+function utenTagger(tekst: string): string {
+  let ut = '';
+  let fra = 0;
+  for (;;) {
+    const start = tekst.indexOf('<', fra);
+    const slutt = start < 0 ? -1 : tekst.indexOf('>', start);
+    if (slutt < 0) return ut + tekst.slice(fra);
+    ut += tekst.slice(fra, start);
+    fra = slutt + 1;
+  }
+}
+
 /**
  * Prosentkoding (som UTF-8), tallentiteter og tagger, fjernet til strengen står stille, så en
  * koding inni en annen heller ikke skjuler prefikset. Står den ikke stille, gir det `null`.
@@ -162,7 +175,7 @@ const PREFIKSKJERNE = LIVETESTPREFIKS.replace(/[^a-z0-9]/g, '');
 function dekodet(tekst: string): string | null {
   const tegn = (kode: number) => (kode <= 0x10ffff ? String.fromCodePoint(kode) : '');
   for (let runde = 0; runde < 10; runde++) {
-    const neste = tekst
+    let neste = tekst
       .replace(/(?:%[0-9a-f]{2})+/gi, (t) => {
         try {
           return decodeURIComponent(t);
@@ -171,8 +184,8 @@ function dekodet(tekst: string): string | null {
         }
       })
       .replace(/&#x([0-9a-f]+);?/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
-      .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)))
-      .replace(/<[^<>]*>/g, '');
+      .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)));
+    neste = utenTagger(neste);
     if (neste === tekst) return tekst;
     tekst = neste;
   }
@@ -353,6 +366,8 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       return svar(403, { feil: 'broker_avviste' });
 
     const harKropp = !['GET', 'HEAD'].includes(foresp.method);
+    if (regel.foersjekk === 'topicendring' && Number(foresp.headers.get('content-length') ?? 0) > MAKS_KROPP)
+      return svar(403, { feil: 'broker_avviste' });
     const raa = harKropp ? await foresp.arrayBuffer() : undefined;
     const kanonisk = regel.foersjekk === 'topicendring' ? tolketKropp(raa) : undefined;
     if (kanonisk === null) return svar(403, { feil: 'broker_avviste' });
