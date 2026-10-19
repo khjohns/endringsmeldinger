@@ -173,42 +173,45 @@
     </section>
 
     {#if hasBhResponse}
-      <section class="bh-context">
-        <div class="bh-context-header">
-          <div class="bh-party">
-            <div class="context-label-row">
-              <TRACK_ICONS.ansvar size={14} />
-              <span class="eyebrow">Byggherrens standpunkt</span>
+      <!-- TS-saken har ikke byggherrens tekst i visningen (#718), så boksen ville stått tom. -->
+      {#if !kjernesak}
+        <section class="bh-context">
+          <div class="bh-context-header">
+            <div class="bh-party">
+              <div class="context-label-row">
+                <TRACK_ICONS.ansvar size={14} />
+                <span class="eyebrow">Byggherrens standpunkt</span>
+              </div>
+              <h2>{store.bhNavn}</h2>
+              <div class="response-meta">
+                {#if bhDate}<span>Svart {bhDate}</span>{/if}
+                {#if bhAnsweredRevision != null}
+                  <span>
+                    {bhAnsweredRevision === 0
+                      ? 'Svar på opprinnelig innsending'
+                      : `Svar på rev. ${bhAnsweredRevision}`}
+                  </span>
+                {/if}
+              </div>
             </div>
-            <h2>{store.bhNavn}</h2>
-            <div class="response-meta">
-              {#if bhDate}<span>Svart {bhDate}</span>{/if}
-              {#if bhAnsweredRevision != null}
-                <span>
-                  {bhAnsweredRevision === 0
-                    ? 'Svar på opprinnelig innsending'
-                    : `Svar på rev. ${bhAnsweredRevision}`}
-                </span>
-              {/if}
-            </div>
+            <span class="font-mono context-ref">{d.teRef}</span>
           </div>
-          <span class="font-mono context-ref">{d.teRef}</span>
-        </div>
-        <div class="bh-context-body">
-          <p class:clamped={!bhContextExpanded && d.bhText.length > 420} class="bh-text">
-            {d.bhText}
-          </p>
-          {#if d.bhText.length > 420}
-            <button
-              class="read-context-button"
-              onclick={() => (bhContextExpanded = !bhContextExpanded)}
-            >
-              {#if bhContextExpanded}<ChevronUp size={13} /> Vis mindre
-              {:else}<BookOpen size={13} /> Les hele vurderingen{/if}
-            </button>
-          {/if}
-        </div>
-      </section>
+          <div class="bh-context-body">
+            <p class:clamped={!bhContextExpanded && d.bhText.length > 420} class="bh-text">
+              {d.bhText}
+            </p>
+            {#if d.bhText.length > 420}
+              <button
+                class="read-context-button"
+                onclick={() => (bhContextExpanded = !bhContextExpanded)}
+              >
+                {#if bhContextExpanded}<ChevronUp size={13} /> Vis mindre
+                {:else}<BookOpen size={13} /> Les hele vurderingen{/if}
+              </button>
+            {/if}
+          </div>
+        </section>
+      {/if}
 
       <div class="revision-notice">
         <span class="notice-mark" aria-hidden="true"></span>

@@ -20,7 +20,13 @@ import type { Kommando } from '$kjerne/kommandoer/kommando';
 import type { Journalrad, Part } from '$kjerne/typer';
 import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { SporKey } from '$lib/components/kontraktsbord/types';
-import { SAK, medGrunnlag, medVederlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
+import {
+  SAK,
+  medGrunnlag,
+  medSvar,
+  medVederlag,
+  skrevet,
+} from '$lib/kjernesak/__tests__/provejournal';
 
 const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
   versjon: journal.length,
@@ -221,6 +227,27 @@ describe('ny versjon av kravet', () => {
       screen.getByText(/Kontraktsforhold, hjemmel og dato kan ikke endres/)
     ).toBeInTheDocument();
     expect(screen.queryByText(/Vedlegg/)).toBeNull();
+  });
+
+  it('etter byggherrens svar viser skjemaet ikke en tom boks for byggherrens standpunkt (#718)', async () => {
+    const gjelder = utledJournal(medGrunnlag, KJERNE).spor.grunnlag.gjeldendeKrav!.id;
+    const avslag = skrevet(medGrunnlag, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'grunnlag',
+          gjelder,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
+          resultat: {},
+          utdypning: 'Avslått.',
+        },
+      ],
+    } as Kommando);
+    await vis(avslag, 'ansvar');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av grunnlaget' }));
+    expect(screen.getByText(/ny revisjon etter byggherrens svar/)).toBeInTheDocument();
+    expect(screen.queryByText('Byggherrens standpunkt')).toBeNull();
   });
 });
 
