@@ -176,8 +176,9 @@ describe.skipIf(!TESTBASE_URL)('prosjektinngangene mot testbasene', () => {
       const svar = await liste(b, egen.url);
       expect(svar.status).toBe(503);
       expect(svar.kropp.error).toBe('ACCESS_UNAVAILABLE');
-      // Årsaken logges, som ruterens sluttfanger gjør (#724 punkt 2).
-      expect(logg).toHaveBeenCalledWith(expect.objectContaining({ message: 'Catenda er nede' }));
+      // Årsaken logges, som ruterens sluttfanger gjør (#724 punkt 2), uten meldingen (#867 punkt 5).
+      expect(logg.mock.calls.join('\n')).toContain('Prosjektene kunne ikke leses (Error)');
+      expect(logg.mock.calls.join('\n')).not.toContain('Catenda er nede');
     } finally {
       logg.mockRestore();
       await egen.stopp();
@@ -229,7 +230,8 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
 
   /** Et koblet prosjekt med fersk medlemsliste og ett medlem per rolle i `roller`. */
   async function prosjektMed(
-    roller: { rolle: 'admin' | 'member'; leser?: boolean; aktiv?: boolean }[]
+    roller: { rolle: 'admin' | 'member'; leser?: boolean; aktiv?: boolean }[],
+    listensAlder = 30
   ): Promise<{ id: string; catenda: string; deltakere: Deltaker[] }> {
     const id = `p-medl-${randomUUID().slice(0, 8)}`;
     const catenda = randomUUID();
@@ -250,7 +252,7 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
     await settInn(eier, 'app_membership_sync', {
       project_id: id,
       catenda_project_id: catenda,
-      synced_at: { sql: 'DATEADD(second, -30, SYSUTCDATETIME())' },
+      synced_at: { sql: `DATEADD(second, -${listensAlder}, SYSUTCDATETIME())` },
     });
     const deltakere: Deltaker[] = [];
     for (const [i, { rolle, leser = false, aktiv = true }] of roller.entries()) {
@@ -477,43 +479,51 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
     }
   });
 
-  it('synkroniseringen skriver listen fra det koblede Catenda-prosjektet og teller medlemmene og de deaktiverte', async () => {
-    const p = await prosjektMed([{ rolle: 'admin' }, { rolle: 'member' }]);
-    const [admin, fjernet] = p.deltakere;
-    const nytt = catendaId(randomUUID())!;
-    const hentetFra: string[] = [];
-    const egen = await startServer(o, {
-      catenda: {
-        ...catendaFra(o.teammedlemmer),
-        async medlemmer(c) {
-          hentetFra.push(c);
-          return [
-            { subjekt: admin.catendaSubjekt, epost: 'a@test.example', navn: 'A', rolle: 'admin' },
-            { subjekt: nytt, epost: 'n@test.example', navn: 'N', rolle: 'member' },
-          ];
+  it.each([
+    ['fersk', 30],
+    ['gammel, så tilgangskontrollen synkroniserer først', 3600],
+  ])(
+    'synkroniseringen skriver listen fra det koblede Catenda-prosjektet og teller medlemmene og de deaktiverte, med én henting når listen er %s (#825 punkt 7)',
+    async (_liste, alder) => {
+      const p = await prosjektMed([{ rolle: 'admin' }, { rolle: 'member' }], alder);
+      const [admin, fjernet] = p.deltakere;
+      const nytt = catendaId(randomUUID())!;
+      const hentetFra: string[] = [];
+      const egen = await startServer(o, {
+        catenda: {
+          ...catendaFra(o.teammedlemmer),
+          async medlemmer(c) {
+            hentetFra.push(c);
+            return [
+              { subjekt: admin.catendaSubjekt, epost: 'a@test.example', navn: 'A', rolle: 'admin' },
+              { subjekt: nytt, epost: 'n@test.example', navn: 'N', rolle: 'member' },
+            ];
+          },
         },
-      },
-    });
-    try {
-      const svar = await kall(egen.url, `/api/projects/${p.id}/members/sync`, {
-        bruker: admin,
-        prosjektId: p.id,
-        kropp: {},
       });
-      expect(svar).toEqual({
-        status: 200,
-        kropp: { success: true, members: 2, deactivated: 1 },
-      });
-      expect(hentetFra).toEqual([p.catenda.toLowerCase()]);
-      const aktive = await eier().input('p', p.id).query<{
-        s: string;
-      }>('SELECT catenda_subject AS s FROM koe.app_project_memberships WHERE project_id = @p AND active = 1');
-      expect(aktive.recordset.map((r) => r.s).sort()).toEqual([admin.catendaSubjekt, nytt].sort());
-      expect(aktive.recordset.map((r) => r.s)).not.toContain(fjernet.catendaSubjekt);
-    } finally {
-      await egen.stopp();
+      try {
+        const svar = await kall(egen.url, `/api/projects/${p.id}/members/sync`, {
+          bruker: admin,
+          prosjektId: p.id,
+          kropp: {},
+        });
+        expect(svar).toEqual({
+          status: 200,
+          kropp: { success: true, members: 2, deactivated: 1 },
+        });
+        expect(hentetFra).toEqual([p.catenda.toLowerCase()]);
+        const aktive = await eier().input('p', p.id).query<{
+          s: string;
+        }>('SELECT catenda_subject AS s FROM koe.app_project_memberships WHERE project_id = @p AND active = 1');
+        expect(aktive.recordset.map((r) => r.s).sort()).toEqual(
+          [admin.catendaSubjekt, nytt].sort()
+        );
+        expect(aktive.recordset.map((r) => r.s)).not.toContain(fjernet.catendaSubjekt);
+      } finally {
+        await egen.stopp();
+      }
     }
-  });
+  );
 
   it('feiler hentingen fra Catenda, gir synkroniseringen 503 SYNC_UNAVAILABLE', async () => {
     const p = await prosjektMed([{ rolle: 'admin' }]);
@@ -534,7 +544,8 @@ describe.skipIf(!TESTBASE_URL)('medlemsinngangene mot testbasene', () => {
       });
       expect(svar.status).toBe(503);
       expect(svar.kropp.error).toBe('SYNC_UNAVAILABLE');
-      expect(logg).toHaveBeenCalledWith(expect.objectContaining({ message: 'Catenda er nede' }));
+      expect(logg.mock.calls.join('\n')).toContain('Medlemmene kunne ikke synkroniseres (Error)');
+      expect(logg.mock.calls.join('\n')).not.toContain('Catenda er nede');
     } finally {
       logg.mockRestore();
       await egen.stopp();

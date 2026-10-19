@@ -15,9 +15,10 @@
  *
  * - Alderen på medlemslisten røper om et prosjekt er koblet og når listen ble
  *   hentet, så utenom testene leser bare `autorisasjon.ts` den, etter at koblingen
- *   er kontrollert (#638 punkt 2). Testen ser navnet `medlemslistensAlder` og
- *   prosedyrenavnet `medlemsliste_alder` i kildeteksten, ikke et kall gjennom et
- *   annet navn.
+ *   er kontrollert (#638 punkt 2). Testen ser navnene `medlemslistensAlder` og
+ *   `ferskeMedlemmer` (som synkroniserer uten kontrollen av koblingen, #724 punkt
+ *   3) og prosedyrenavnet `medlemsliste_alder` i kildeteksten, ikke et kall
+ *   gjennom et annet navn.
  *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
  * `export … from`, `import()` og `require()` teller likt, med og uten endelse.
@@ -73,12 +74,14 @@ export function forbudteImporter(fil: string, kilde: string): string[] {
 /** Filene som kan lese alderen på medlemslisten (#638 punkt 2). */
 const ALDEREN = new Set(['autorisasjon.ts']);
 
+const ALDERSNAVN = new Set(['medlemslistensAlder', 'ferskeMedlemmer']);
+
 /** Om `kilde` viser til alderen på medlemslisten, som navn eller som prosedyre. */
 export function viserTilAlderen(kilde: string): boolean {
   const fil = ts.createSourceFile('kilde.ts', kilde, ts.ScriptTarget.Latest);
   let funnet = false;
   const besok = (node: ts.Node) => {
-    if (ts.isIdentifier(node) && node.text === 'medlemslistensAlder') funnet = true;
+    if (ts.isIdentifier(node) && ALDERSNAVN.has(node.text)) funnet = true;
     if (ts.isStringLiteralLike(node) && node.text.includes('medlemsliste_alder')) funnet = true;
     ts.forEachChild(node, besok);
   };
@@ -123,6 +126,7 @@ describe('grensene rundt TS-serveren', () => {
   it.each([
     ["import { medlemslistensAlder } from './autorisasjon.ts';"],
     ["import * as m from './autorisasjon.ts';\nawait m.medlemslistensAlder(pool, p);"],
+    ["import { ferskeMedlemmer } from './autorisasjon.ts';"],
     ["await pool.request().execute('koe_api.medlemsliste_alder');"],
     ['await pool.request().query(`EXEC koe_api.medlemsliste_alder @prosjekt = 1`);'],
   ])('oppdager at app.ts leser alderen med %s', (linje) => {

@@ -19,6 +19,7 @@
 import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './app.ts';
 import { ferskeProsjekter } from './autorisasjon.ts';
 import { sql, UUID, type Pool } from './datalag.ts';
+import { fast, loggFeil } from './inngang.ts';
 import { erLaast, synkroniserProsjekt } from './medlemskap.ts';
 
 interface Prosjektrad {
@@ -67,7 +68,7 @@ async function brukerensProsjekter(
     const etter = await lesBrukerensProsjekter(avh.datalag, sesjon.bruker.id);
     return [200, { projects: etter.filter((p) => ider.has(p.id)).map(prosjektet) }];
   } catch (feil) {
-    console.error(feil);
+    loggFeil('Prosjektene kunne ikke leses', feil);
     return [
       503,
       {
@@ -150,21 +151,23 @@ const IKKE_OPPDATERT: Svar = [
 /**
  * `sync_members`: henter listen fra Catenda og skriver den. `deactivated` er
  * medlemskapene skrivingen gjorde inaktive, talt av basen under applåsen (#825
- * punkt 1); 0 når en liste hentet samtidig eller senere alt var skrevet.
+ * punkt 1); 0 når en liste hentet samtidig eller senere alt var skrevet. Har
+ * tilgangskontrollen alt hentet og skrevet listen i denne forespørselen, er det
+ * den synkroniseringen som gjelder, så Catenda ikke spørres to ganger (#825 punkt 7).
  */
 async function synkroniser(
   { prosjekt }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
   try {
-    const { medlemmer, deaktivert } = await synkroniserProsjekt(
-      avh.datalag,
-      prosjekt.prosjektId,
-      (c) => avh.catenda.medlemmer(c)
-    );
+    const { medlemmer, deaktivert } =
+      prosjekt.synkronisert ??
+      (await synkroniserProsjekt(avh.datalag, prosjekt.prosjektId, (c) =>
+        avh.catenda.medlemmer(c)
+      ));
     return [200, { success: true, members: medlemmer, deactivated: deaktivert }];
   } catch (feil) {
-    console.error(feil);
+    loggFeil('Medlemmene kunne ikke synkroniseres', feil);
     return IKKE_OPPDATERT;
   }
 }
@@ -210,8 +213,7 @@ async function begrensMedlem(
 export const PROSJEKTRUTER: readonly Rute[] = [
   {
     metode: 'GET',
-    sti: /^\/api\/projects$/,
-    eksempel: () => '/api/projects',
+    ...fast('/api/projects'),
     tilgang: {
       utenProsjekt:
         'Lista over prosjektene brukeren er medlem i; den velger prosjektet, så den kan ikke kreve ett.',
