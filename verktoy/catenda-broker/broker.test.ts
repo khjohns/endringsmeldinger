@@ -377,19 +377,40 @@ describe('endringen av en topic', () => {
     expect(kall).toEqual([]);
   });
 
-  it('gir 403 uten kall for en kropp som er for dypt nøstet til å skrives kanonisk', async () => {
-    const dybde = 20_000;
-    const kropp = '{"a":'.repeat(dybde) + '"x"' + '}'.repeat(dybde);
+  it.each([
+    ['nøstet mer enn 32 nivåer', '{"a":'.repeat(33) + '"x"' + '}'.repeat(33)],
+    ['større enn 64 KiB', JSON.stringify({ description: 'x'.repeat(64 * 1024) })],
+  ])('gir 403 uten kall for en kropp som er %s', async (_navn, kropp) => {
     const s = await behandle(put(kropp), miljoe);
     expect(s.status).toBe(403);
     expect(kall).toEqual([]);
   });
 
-  it('slår opp og gir 403 for prefikset i et objekt 200 nivåer ned', async () => {
+  it('sender en kropp nøstet 32 nivåer uten oppslag', async () => {
+    const kropp = '{"a":'.repeat(31) + '"x"' + '}'.repeat(31);
+    expect((await behandle(put(kropp), miljoe)).status).toBe(200);
+    expect(metoder()).toEqual(['PUT']);
+  });
+
+  it('slår opp og gir 403 for prefikset 32 nivåer ned', async () => {
     catendasvar = topicUtenPrefiks;
-    const kropp = '{"a":'.repeat(200) + `"${P}x"` + '}'.repeat(200);
+    const kropp = '{"a":'.repeat(31) + `"${P}x"` + '}'.repeat(31);
     expect((await behandle(put(kropp), miljoe)).status).toBe(403);
     expect(metoder()).toEqual(['GET']);
+  });
+
+  it('slår opp når dekodingen ikke står stille etter ti runder', async () => {
+    catendasvar = topicUtenPrefiks;
+    const kropp = JSON.stringify({ title: 'koe-li%' + '25'.repeat(11) + '76etest-x' });
+    expect((await behandle(put(kropp), miljoe)).status).toBe(403);
+    expect(metoder()).toEqual(['GET']);
+  });
+
+  it('kontrollerer en lang streng med «<» uten avsluttende «>» innen kort tid', async () => {
+    const start = performance.now();
+    const s = await behandle(put(JSON.stringify({ title: '<'.repeat(60_000) })), miljoe);
+    expect(s.status).toBe(200);
+    expect(performance.now() - start).toBeLessThan(500);
   });
 
   it('gir 403 uten kall for PUT med Bimsync-Params', async () => {

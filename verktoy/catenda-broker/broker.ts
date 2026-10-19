@@ -127,13 +127,29 @@ const sammeId = (a: unknown, b: string) =>
  * dupliserte nøkler eller annet tegnsett. Kan kroppen ikke tolkes slik, gir det `null`.
  */
 function tolketKropp(kropp: ArrayBuffer | undefined): { verdi: object; tekst: string } | null {
+  if ((kropp?.byteLength ?? 0) > MAKS_KROPP) return null;
   try {
     const verdi: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(kropp));
-    if (typeof verdi !== 'object' || verdi === null || Array.isArray(verdi)) return null;
+    if (typeof verdi !== 'object' || verdi === null || Array.isArray(verdi) || forDyp(verdi)) return null;
     return { verdi, tekst: JSON.stringify(verdi) };
   } catch {
     return null;
   }
+}
+
+/** Grensene for en PUT på en topic, så kontrollen har en øvre grense for tid og dybde. */
+const MAKS_KROPP = 64 * 1024;
+const MAKS_DYBDE = 32;
+
+function forDyp(verdi: object): boolean {
+  const stabel: [unknown, number][] = [[verdi, 1]];
+  while (stabel.length > 0) {
+    const [v, dybde] = stabel.pop()!;
+    if (typeof v !== 'object' || v === null) continue;
+    if (dybde > MAKS_DYBDE) return true;
+    for (const barn of Object.values(v)) stabel.push([barn, dybde + 1]);
+  }
+  return false;
 }
 
 /** Prefikset slik `kanGiPrefiks` sammenligner: bare bokstaver og sifre. */
@@ -141,9 +157,9 @@ const PREFIKSKJERNE = LIVETESTPREFIKS.replace(/[^a-z0-9]/g, '');
 
 /**
  * Prosentkoding (som UTF-8), tallentiteter og tagger, fjernet til strengen står stille, så en
- * koding inni en annen heller ikke skjuler prefikset.
+ * koding inni en annen heller ikke skjuler prefikset. Står den ikke stille, gir det `null`.
  */
-function dekodet(tekst: string): string {
+function dekodet(tekst: string): string | null {
   const tegn = (kode: number) => (kode <= 0x10ffff ? String.fromCodePoint(kode) : '');
   for (let runde = 0; runde < 10; runde++) {
     const neste = tekst
@@ -156,11 +172,11 @@ function dekodet(tekst: string): string {
       })
       .replace(/&#x([0-9a-f]+);?/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
       .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)))
-      .replace(/<[^>]*>/g, '');
-    if (neste === tekst) break;
+      .replace(/<[^<>]*>/g, '');
+    if (neste === tekst) return tekst;
     tekst = neste;
   }
-  return tekst;
+  return null;
 }
 
 /**
@@ -173,7 +189,9 @@ function kanGiPrefiks(verdi: unknown): boolean {
   while (stabel.length > 0) {
     const v = stabel.pop();
     if (typeof v === 'string') {
-      const bokstaver = dekodet(v).normalize('NFKC').toLowerCase().normalize('NFKC').replace(/[^a-z0-9]/g, '');
+      const klar = dekodet(v);
+      if (klar === null) return true;
+      const bokstaver = klar.normalize('NFKC').toLowerCase().normalize('NFKC').replace(/[^a-z0-9]/g, '');
       if (bokstaver.includes(PREFIKSKJERNE)) return true;
     } else if (typeof v === 'object' && v !== null) {
       for (const [nokkel, barn] of Object.entries(v)) stabel.push(nokkel, barn);
