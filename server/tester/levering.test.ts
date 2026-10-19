@@ -13,7 +13,10 @@ import { KJERNE } from '../../kjerne/versjon.ts';
 import {
   CatendaAvvisning,
   CatendaUtilgjengelig,
+  merkEndring,
+  sammenlignbarDokumentId,
   UsikkertCatendautfall,
+  VarigCatendaavvik,
   type Brevdokument,
   type Dokumentleverandoer,
   type Dokumentmaal,
@@ -69,6 +72,7 @@ class FalskCatenda implements Dokumentleverandoer {
   referanser = new Map<string, { id: string; dokumentId: string }[]>();
   opplastinger = 0;
   nyeReferanser = 0;
+  nyDokumentId = () => randomUUID().replaceAll('-', '');
   /** Kalles før hver operasjon; kaster den, gjør operasjonen ingenting. */
   foer: Partial<Record<keyof Dokumentleverandoer, () => void>> = {};
   /** Kalles etter at endringen er gjort; kaster den, er svaret tapt. */
@@ -79,10 +83,11 @@ class FalskCatenda implements Dokumentleverandoer {
     return this.bibliotek.get(navn)?.id ?? null;
   }
   async lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
+    merkEndring();
     this.foer.lastOppDokument?.();
     if (this.bibliotek.has(dokument.navn)) return null;
     this.opplastinger++;
-    const id = randomUUID().replaceAll('-', '');
+    const id = this.nyDokumentId();
     this.bibliotek.set(dokument.navn, {
       id,
       innhold: dokument.innhold,
@@ -93,9 +98,13 @@ class FalskCatenda implements Dokumentleverandoer {
   }
   async dokumentreferanser(_board: string, topic: string) {
     this.foer.dokumentreferanser?.();
-    return this.referanser.get(topic) ?? [];
+    return (this.referanser.get(topic) ?? []).map((r) => ({
+      ...r,
+      dokumentId: sammenlignbarDokumentId(r.dokumentId),
+    }));
   }
   async opprettDokumentreferanse(_board: string, topic: string, dokumentId: string) {
+    merkEndring();
     this.foer.opprettDokumentreferanse?.();
     this.nyeReferanser++;
     const id = randomUUID();
@@ -353,21 +362,30 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     ]);
   });
 
-  it('L3: et tapt svar ved referansen parkeres, og forsøket etter omstarten lager ingen referanse til', async () => {
-    const sakId = await sakMedBrev();
-    catenda.etter.opprettDokumentreferanse = () => {
-      throw new UsikkertCatendautfall('Catenda svarte ikke');
-    };
-    expect(await kjoer()).toBe(true);
-    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+  // Kilde: #876: Catenda lover ikke at dokument-ID-en er en UUID, så referansen finnes
+  // igjen også når den ikke er det.
+  it.each([
+    ['en UUID', () => randomUUID()],
+    ['ingen UUID', () => `dok-${randomUUID()}`],
+  ])(
+    'L3: et tapt svar ved referansen parkeres, og forsøket etter omstarten lager ingen referanse til (dokument-ID-en er %s)',
+    async (_n, nyDokumentId) => {
+      const sakId = await sakMedBrev();
+      catenda.nyDokumentId = nyDokumentId;
+      catenda.etter.opprettDokumentreferanse = () => {
+        throw new UsikkertCatendautfall('Catenda svarte ikke');
+      };
+      expect(await kjoer()).toBe(true);
+      expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
 
-    catenda.etter = {};
-    await startPaaNytt(sakId);
-    expect(await kjoer()).toBe(true);
-    expect(catenda.opplastinger).toBe(1);
-    expect(catenda.nyeReferanser).toBe(1);
-    expect((await leveringen(sakId))[0].tilstand).toBe('utfoert');
-  });
+      catenda.etter = {};
+      await startPaaNytt(sakId);
+      expect(await kjoer()).toBe(true);
+      expect(catenda.opplastinger).toBe(1);
+      expect(catenda.nyeReferanser).toBe(1);
+      expect((await leveringen(sakId))[0].tilstand).toBe('utfoert');
+    }
+  );
 
   it('L4: en sikker feil ved referansen prøves igjen, og neste forsøk laster ikke opp dokumentet på nytt', async () => {
     const sakId = await sakMedBrev();
@@ -421,6 +439,20 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
     expect(await forsoekene(sakId)).toEqual([
       ['avvist', 'Catenda avviste forespørselen med status 404'],
+    ]);
+  });
+
+  // Kilde: oppdragsgiver 19.10 (#764): en referanse uten dokument er et varig avvik, og
+  // jobben parkeres som avvist uten nytt forsøk.
+  it('L5: en referanse på topicen uten dokument parkerer leveringen som avvist (#876)', async () => {
+    const sakId = await sakMedBrev();
+    catenda.foer.dokumentreferanser = () => {
+      throw new VarigCatendaavvik('En referanse på topicen viser ikke til noe dokument');
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+    expect(await forsoekene(sakId)).toEqual([
+      ['avvist', 'En referanse på topicen viser ikke til noe dokument'],
     ]);
   });
 
