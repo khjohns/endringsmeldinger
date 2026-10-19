@@ -131,7 +131,6 @@ const MAKS_DYBDE = 32;
  * dupliserte nøkler eller annet tegnsett. Kan kroppen ikke tolkes slik, gir det `null`.
  */
 function tolketKropp(kropp: ArrayBuffer | undefined): { verdi: object; tekst: string } | null {
-  if ((kropp?.byteLength ?? 0) > MAKS_KROPP) return null;
   try {
     const verdi: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(kropp));
     if (typeof verdi !== 'object' || verdi === null || Array.isArray(verdi) || forDyp(verdi)) return null;
@@ -139,6 +138,31 @@ function tolketKropp(kropp: ArrayBuffer | undefined): { verdi: object; tekst: st
   } catch {
     return null;
   }
+}
+
+/** Kroppen, eller `null` så snart den er større enn `maks`, uten å lese resten. */
+async function lesInntil(foresp: Request, maks: number): Promise<ArrayBuffer | null> {
+  if (!foresp.body) return new ArrayBuffer(0);
+  const leser = foresp.body.getReader();
+  const biter: Uint8Array[] = [];
+  let lengde = 0;
+  for (;;) {
+    const { done, value } = await leser.read();
+    if (done) break;
+    lengde += value.byteLength;
+    if (lengde > maks) {
+      await leser.cancel().catch(() => {});
+      return null;
+    }
+    biter.push(value);
+  }
+  const samlet = new Uint8Array(lengde);
+  let fra = 0;
+  for (const bit of biter) {
+    samlet.set(bit, fra);
+    fra += bit.byteLength;
+  }
+  return samlet.buffer;
 }
 
 function forDyp(verdi: object): boolean {
@@ -175,7 +199,8 @@ function utenTagger(tekst: string): string {
 function dekodet(tekst: string): string | null {
   const tegn = (kode: number) => (kode <= 0x10ffff ? String.fromCodePoint(kode) : '');
   for (let runde = 0; runde < 10; runde++) {
-    let neste = tekst
+    const neste = utenTagger(
+      tekst
       .replace(/(?:%[0-9a-f]{2})+/gi, (t) => {
         try {
           return decodeURIComponent(t);
@@ -184,8 +209,8 @@ function dekodet(tekst: string): string | null {
         }
       })
       .replace(/&#x([0-9a-f]+);?/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
-      .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)));
-    neste = utenTagger(neste);
+      .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)))
+    );
     if (neste === tekst) return tekst;
     tekst = neste;
   }
@@ -366,9 +391,12 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       return svar(403, { feil: 'broker_avviste' });
 
     const harKropp = !['GET', 'HEAD'].includes(foresp.method);
-    if (regel.foersjekk === 'topicendring' && Number(foresp.headers.get('content-length') ?? 0) > MAKS_KROPP)
-      return svar(403, { feil: 'broker_avviste' });
-    const raa = harKropp ? await foresp.arrayBuffer() : undefined;
+    const raa = !harKropp
+      ? undefined
+      : regel.foersjekk === 'topicendring'
+        ? await lesInntil(foresp, MAKS_KROPP)
+        : await foresp.arrayBuffer();
+    if (raa === null) return svar(403, { feil: 'broker_avviste' });
     const kanonisk = regel.foersjekk === 'topicendring' ? tolketKropp(raa) : undefined;
     if (kanonisk === null) return svar(403, { feil: 'broker_avviste' });
     const kropp = kanonisk?.tekst ?? raa;

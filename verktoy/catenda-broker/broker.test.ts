@@ -380,6 +380,7 @@ describe('endringen av en topic', () => {
 
   it.each([
     ['33 objekter inni hverandre', '{"a":'.repeat(33) + '"x"' + '}'.repeat(33)],
+    ['et objekt med 32 lister inni hverandre', '{"a":' + '['.repeat(32) + '"x"' + ']'.repeat(32) + '}'],
     ['større enn 64 KiB', JSON.stringify({ description: 'x'.repeat(64 * 1024) })],
   ])('gir 403 uten kall for en kropp som er %s', async (_navn, kropp) => {
     const s = await behandle(put(kropp), miljoe);
@@ -407,9 +408,9 @@ describe('endringen av en topic', () => {
     expect(metoder()).toEqual(['GET']);
   });
 
-  it('kontrollerer en kropp nær 64 KiB med «<» uten «>» innen et par sekunder', async () => {
+  it('kontrollerer en kropp nær 64 KiB med mange «<» og «<a>» innen et par sekunder', async () => {
     const start = performance.now();
-    const s = await behandle(put(JSON.stringify({ title: '<'.repeat(60_000), b: '<a'.repeat(1_000) })), miljoe);
+    const s = await behandle(put(JSON.stringify({ a: '<a>'.repeat(10_000), b: '<'.repeat(30_000) })), miljoe);
     expect(s.status).toBe(200);
     expect(performance.now() - start).toBeLessThan(2_000);
   });
@@ -420,13 +421,27 @@ describe('endringen av en topic', () => {
     expect(metoder()).toEqual(['PUT']);
   });
 
-  it('gir 403 uten å lese kroppen når Content-Length er over 64 KiB', async () => {
+  it('slutter å lese en strømmet kropp ved 64 KiB og gir 403 uten kall', async () => {
+    let lest = 0;
+    const strom = new ReadableStream<Uint8Array>({
+      pull(k) {
+        if (lest >= 1024 * 1024) return k.close();
+        lest += 16 * 1024;
+        k.enqueue(new Uint8Array(16 * 1024).fill(0x20));
+      },
+    });
     const s = await behandle(
-      put(JSON.stringify({ title: 'Ny' }), 'application/json', { 'Content-Length': String(64 * 1024 + 1) }),
+      new Request(`https://broker.example${TOPICSTI}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${NOKKEL}`, 'Content-Type': 'application/json' },
+        body: strom,
+        duplex: 'half',
+      } as RequestInit),
       miljoe
     );
     expect(s.status).toBe(403);
     expect(kall).toEqual([]);
+    expect(lest).toBeLessThan(200 * 1024);
   });
 
   it('gir 403 uten kall for PUT med Bimsync-Params', async () => {
