@@ -94,7 +94,8 @@ jobs:
 
   # Testbasen for datalaget i F0b (#488): SQL Server 2025 Developer Edition i
   # Docker, med basene i innstillingene fra Azure SQL Database. Hele server/, så
-  # nye tester mot SQL Server kommer med. server/ bruker ikke PostgreSQL.
+  # nye tester mot SQL Server kommer med, og skrivestien i sprakprove/skrivesti/
+  # (#666), som går mot server/. Ingen av dem bruker PostgreSQL.
   sqlserver:
     name: SQL Server (testbasen for datalaget)
     if: ${{ !github.event.pull_request.draft }}
@@ -120,7 +121,7 @@ jobs:
           echo "KOE_SQLSERVER_TILKOBLING=$tilkobling" >> "$GITHUB_ENV"
 
       - name: Kjør TS-serverens tester mot SQL Server
-        run: npx vitest run server/
+        run: npx vitest run server/ sprakprove/skrivesti/
 
   frontend:
     name: Frontend (vitest)

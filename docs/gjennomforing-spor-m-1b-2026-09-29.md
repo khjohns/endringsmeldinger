@@ -102,7 +102,7 @@ Den veien er lest, ikke kjørt.
 topic i Catenda. Oppdragsgiver har bekreftet at skjemaet skal virke.
 
 **Reproduksjon:** streng `xfail` i
-[`test_ny_sak_dm05.py`](../backend/tests/test_database/test_ny_sak_dm05.py),
+[`test_ny_sak_dm05.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_ny_sak_dm05.py),
 med batch-ruta som kontrollsak.
 
 **Ikke avgjort:** om skjemaet skal bruke batch-ruta, eller om enkeltruta skal
@@ -154,7 +154,7 @@ fordi ingen skjermbilder sender feltene; `POST /api/events` godtar dem fra BH
 i et prosjekt uten godkjenningspolicy.
 
 **Reproduksjon:** streng `xfail` i
-[`test_hendelse_rundtur_dm06.py`](../backend/tests/test_database/test_hendelse_rundtur_dm06.py),
+[`test_hendelse_rundtur_dm06.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_hendelse_rundtur_dm06.py),
 med `data.vederlag` som kontrollsak.
 
 ### DM-07 — `eo_opprettet` på en KOE-sak gjør den om til en endringsordresak *(middels)*
@@ -187,7 +187,7 @@ av sporstatusene som styrer samlet status. Hendelsen står i journalen og kan
 ikke fjernes.
 
 **Reproduksjon:** streng `xfail` i
-[`test_eo_paa_koe_sak_dm07.py`](../backend/tests/test_database/test_eo_paa_koe_sak_dm07.py).
+[`test_eo_paa_koe_sak_dm07.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_eo_paa_koe_sak_dm07.py).
 Den godtar bare en avvisning med `BUSINESS_RULE_VIOLATION` og en uendret
 journal; en annen avvisning gir `pytest.fail`. Kontrollsaken skiller seg bare i
 sakstypen.
