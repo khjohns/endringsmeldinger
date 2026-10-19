@@ -18,12 +18,13 @@
 
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   catendaId,
   ferskeProsjekter,
   krevKontraktsrolle,
   krevProsjekttilgang,
+  type FraSti,
   Nektet,
   type Bruker,
   type Catenda,
@@ -45,24 +46,44 @@ import {
 
 const hex = () => randomBytes(16).toString('hex');
 
-/** `pool`, der `foer` kjøres før hvert kall til prosedyren `prosedyre`. */
-function medFoer(pool: Pool, prosedyre: string, foer: () => Promise<void>): Pool {
+/** `pool`, der hvert kall til prosedyren `prosedyre` går gjennom `rundt`. */
+function medRundt(
+  pool: Pool,
+  prosedyre: string,
+  rundt: <T>(kjoer: () => Promise<T>) => Promise<T>
+): Pool {
   return new Proxy(pool, {
     get(maal, navn) {
       if (navn === 'request')
         return () => {
           const foresp = maal.request();
           const utfoer = foresp.execute.bind(foresp);
-          foresp.execute = (async (p: string) => {
-            if (p === prosedyre) await foer();
-            return utfoer(p);
-          }) as typeof foresp.execute;
+          foresp.execute = (async (p: string) =>
+            p === prosedyre ? rundt(() => utfoer(p)) : utfoer(p)) as typeof foresp.execute;
           return foresp;
         };
       const verdi = Reflect.get(maal, navn, maal);
       return typeof verdi === 'function' ? verdi.bind(maal) : verdi;
     },
   });
+}
+
+/** `pool`, der `foer` kjøres før hvert kall til prosedyren `prosedyre`. */
+const medFoer = (pool: Pool, prosedyre: string, foer: () => Promise<void>): Pool =>
+  medRundt(pool, prosedyre, async (kjoer) => {
+    await foer();
+    return kjoer();
+  });
+
+/** En sperre som slipper når `antall` har nådd den. */
+function sperre(antall: number) {
+  let slipp!: () => void;
+  const sluppet = new Promise<void>((ok) => (slipp = ok));
+  let ventende = 0;
+  return () => {
+    if (++ventende >= antall) slipp();
+    return sluppet;
+  };
 }
 
 interface Medlemsvalg {
@@ -220,8 +241,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       catenda = catendaMed().catenda,
       minsteRolle = 'viewer' as const as 'viewer' | 'member' | 'admin',
       nyttelast = {} as unknown,
-      sakIdFraSti = null as string | null,
-      prosjektIdFraSti = null as string | null,
+      fraSti = null as FraSti,
       pool = kjoeretid.pool,
     } = {}
   ) =>
@@ -232,8 +252,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       m.bruker,
       minsteRolle,
       nyttelast,
-      sakIdFraSti,
-      prosjektIdFraSti
+      fraSti
     );
 
   describe('prosjekttilgangen', () => {
@@ -289,12 +308,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       const p = await prosjekt();
       const annet = await prosjekt();
       const m = await medlem(p);
-      expect(await nektet(tilgang(m, p.id, { prosjektIdFraSti: annet.id }))).toEqual({
+      expect(await nektet(tilgang(m, p.id, { fraSti: { prosjektId: annet.id } }))).toEqual({
         status: 403,
         error: 'FORBIDDEN',
       });
       // Kontrollsak: samme prosjekt i stien og i hodet gir tilgang.
-      expect((await tilgang(m, p.id, { prosjektIdFraSti: p.id })).prosjektId).toBe(p.id);
+      expect((await tilgang(m, p.id, { fraSti: { prosjektId: p.id } })).prosjektId).toBe(p.id);
     });
 
     it('uten X-Project-ID er prosjektet ukjent og gir 403', async () => {
@@ -351,16 +370,19 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       const m = await medlem(p);
       const egen = await sak(p, m);
       const fremmed = await sak(annet, await medlem(annet));
-      expect(await tilgang(m, p.id, { sakIdFraSti: egen })).toBeTruthy();
+      expect(await tilgang(m, p.id, { fraSti: { sakId: egen } })).toBeTruthy();
       expect(
-        await tilgang(m, p.id, { sakIdFraSti: egen, nyttelast: { relaterte_koe_saker: [egen] } })
+        await tilgang(m, p.id, {
+          fraSti: { sakId: egen },
+          nyttelast: { relaterte_koe_saker: [egen] },
+        })
       ).toBeTruthy();
       for (const valg of [
-        { sakIdFraSti: fremmed },
+        { fraSti: { sakId: fremmed } },
         { nyttelast: { sak_id: fremmed } },
-        { sakIdFraSti: egen, nyttelast: { relaterte_koe_saker: [egen, fremmed] } },
-        { sakIdFraSti: egen, nyttelast: { data: { relatert_sak_id: fremmed } } },
-        { sakIdFraSti: randomUUID() },
+        { fraSti: { sakId: egen }, nyttelast: { relaterte_koe_saker: [egen, fremmed] } },
+        { fraSti: { sakId: egen }, nyttelast: { data: { relatert_sak_id: fremmed } } },
+        { fraSti: { sakId: randomUUID() } },
       ])
         expect(await nektet(tilgang(m, p.id, valg)), JSON.stringify(valg)).toEqual({
           status: 403,
@@ -397,11 +419,19 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
     it('samtidige forespørsler med gammel liste deler én henting fra Catenda (#726 punkt 3)', async () => {
       const p = await prosjekt({ liste: 'gammel' });
       const m = await medlem(p);
-      const { catenda, kall } = catendaMed({}, async () => {
-        await new Promise((ferdig) => setTimeout(ferdig, 500));
-        return [{ subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' }];
+      const { catenda, kall } = catendaMed({}, async () => [
+        { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
+      ]);
+      // De tre første svarene på alderen venter til alle tre har lest den, så hver
+      // forespørsel har sett den gamle listen før en henting kan bli ferdig (#858).
+      const lest = sperre(3);
+      let kallTilAlderen = 0;
+      const pool = medRundt(kjoeretid.pool, 'koe_api.medlemsliste_alder', async (kjoer) => {
+        const svar = await kjoer();
+        if (++kallTilAlderen <= 3) await lest();
+        return svar;
       });
-      const svar = await Promise.all([1, 2, 3].map(() => tilgang(m, p.id, { catenda })));
+      const svar = await Promise.all([1, 2, 3].map(() => tilgang(m, p.id, { catenda, pool })));
       expect(svar.every(Boolean)).toBe(true);
       expect(kall).toEqual([p.catenda]);
     });
@@ -461,9 +491,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       ];
       let aktive = 0;
       let flest = 0;
+      // Hver henting venter til begge har begynt (#858). Hentes de etter hverandre,
+      // slipper tidsgrensen den første, og `flest` blir 1.
+      const begge = sperre(2);
       const { catenda, kall } = catendaMed({}, async () => {
         flest = Math.max(flest, ++aktive);
-        await new Promise((ferdig) => setTimeout(ferdig, 300));
+        await Promise.race([begge(), new Promise((ferdig) => setTimeout(ferdig, 5_000))]);
         aktive--;
         return [];
       });
@@ -472,16 +505,23 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(flest).toBe(2);
     });
 
-    it('feiler synkroniseringen, gir det 503 og ikke tilgang', async () => {
+    it('feiler synkroniseringen, gir det 503 og ikke tilgang, og årsaken logges (#867 punkt 1)', async () => {
       const p = await prosjekt({ liste: 'gammel' });
       const m = await medlem(p);
+      const nede = new Error('Catenda er nede');
       const { catenda } = catendaMed({}, async () => {
-        throw new Error('Catenda er nede');
+        throw nede;
       });
-      expect(await nektet(tilgang(m, p.id, { catenda }))).toEqual({
-        status: 503,
-        error: 'ACCESS_UNAVAILABLE',
-      });
+      const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+      try {
+        expect(await nektet(tilgang(m, p.id, { catenda }))).toEqual({
+          status: 503,
+          error: 'ACCESS_UNAVAILABLE',
+        });
+        expect(logg).toHaveBeenCalledWith(nede);
+      } finally {
+        logg.mockRestore();
+      }
     });
   });
 

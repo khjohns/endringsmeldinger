@@ -322,6 +322,47 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
     expect(svar.kropp.message).toContain(melding);
   });
 
+  // Kilde: invariant 4 i 2.3 i hovedplanen og #792 punkt 1: et annet forsøk med samme
+  // kommando-ID holder låsen og kan ennå committe, så utfallet er usikkert (#816).
+  it.each([
+    ['opprettelsen', async () => ({ sti: SAKER, kropp: { kommando: OPPRETT } })],
+    [
+      'brevet',
+      async () => {
+        const svar = await opprett({ kommando: OPPRETT });
+        return {
+          sti: `${SAKER}/${svar.kropp.sak_id}/kommandoer`,
+          kropp: { expected_version: 1, kommando: GRUNNLAGSKRAV },
+        };
+      },
+    ],
+  ] as const)(
+    'når låsen på kommando-ID-en ikke gis for %s, svarer inngangen 503 UTFALL_USIKKERT (51408)',
+    async (_, forespoersel) => {
+      const { sti, kropp } = await forespoersel();
+      const kommando_id = randomUUID();
+      const kontekst = { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE', team: null };
+      const svar = await iTransaksjon(o.datalag.kjoeretid.pool, kontekst, async (r) => {
+        // Et annet forsøk med samme nøkkel holder låsen til transaksjonen er ferdig.
+        await r()
+          .input('kommando_id', sql.NVarChar(4000), kommando_id)
+          .input('kommando_sha256', sql.NVarChar(4000), 'a'.repeat(64))
+          .output('sak_id', sql.NVarChar(36))
+          .output('event_id', sql.NVarChar(36))
+          .output('versjon', sql.Int)
+          .execute('koe_api.kvittering');
+        return kall(server.url, sti, {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp: { ...kropp, kommando_id },
+        });
+      });
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(503);
+      expect(svar.kropp.error).toBe('UTFALL_USIKKERT');
+    },
+    30_000
+  );
+
   describe('en sak fra kjøretiden står aldri uten sak_opprettet (#696 krav 2)', () => {
     it('kjøretiden kan ikke legge inn en sak uten opprett_sak (229)', async () => {
       const kontekst = {

@@ -292,9 +292,15 @@ async function sakerIProsjektet(
 }
 
 /**
- * `require_project_access(min_role)`. `sakIdFraSti` er saken i URL-en og
- * `prosjektIdFraSti` prosjektet i URL-en, som må være prosjektet i `X-Project-ID`;
- * `nyttelast` er JSON-kroppen, eller `{}` uten kropp.
+ * Saken eller prosjektet i URL-en, eller `null` når stien har ingen av dem. Et
+ * objekt med navngitte felt, så kompilatoren fanger en ombytting (#763 punkt 4).
+ */
+export type FraSti = { sakId: string } | { prosjektId: string } | null;
+
+/**
+ * `require_project_access(min_role)`. `fraSti` er saken eller prosjektet i URL-en;
+ * prosjektet må være prosjektet i `X-Project-ID`. `nyttelast` er JSON-kroppen,
+ * eller `{}` uten kropp.
  */
 export async function krevProsjekttilgang(
   db: Pool,
@@ -303,15 +309,14 @@ export async function krevProsjekttilgang(
   bruker: Bruker,
   minsteRolle: 'viewer' | 'member' | 'admin',
   nyttelast: unknown,
-  sakIdFraSti: string | null = null,
-  prosjektIdFraSti: string | null = null
+  fraSti: FraSti
 ): Promise<Prosjekttilgang> {
   const nekt = () => new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   const hode = foresporsel.headers['x-project-id'];
   const prosjektId = typeof hode === 'string' && hode ? hode : null;
   if (!prosjektId || !gyldigProsjektId(prosjektId)) throw nekt();
   // Ellers kunne stien vise et annet prosjekt enn det tilgangen er avgjort for (#724 punkt 1).
-  if (prosjektIdFraSti !== null && prosjektIdFraSti !== prosjektId) throw nekt();
+  if (fraSti && 'prosjektId' in fraSti && fraSti.prosjektId !== prosjektId) throw nekt();
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
     if (!oppsett) throw nekt();
@@ -335,7 +340,8 @@ export async function krevProsjekttilgang(
     )
       throw nekt();
     const saker = sakerDetVisesTil(kropp);
-    const hovedsak = sakIdFraSti ?? kropp.sak_id ?? kropp.sakId;
+    const hovedsak =
+      (fraSti && 'sakId' in fraSti ? fraSti.sakId : null) ?? kropp.sak_id ?? kropp.sakId;
     if (typeof hovedsak === 'string' && hovedsak) saker.add(hovedsak);
     // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
     const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, saker);
@@ -343,6 +349,8 @@ export async function krevProsjekttilgang(
     return { prosjektId, aktor: bruker.id, rolle, oppsett, medlemskap: medlemskap! };
   } catch (feil) {
     if (feil instanceof Nektet) throw feil;
+    // Som ruteren i `app.ts`: årsaken logges, svaret sier bare at tilgangen ikke kunne bekreftes (#867 punkt 1).
+    console.error(feil);
     throw new Nektet(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
   }
 }
