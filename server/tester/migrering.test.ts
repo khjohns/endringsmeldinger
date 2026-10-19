@@ -606,18 +606,25 @@ BEGIN TRANSACTION;`,
     expect(await tabeller()).toEqual(['prove_a']);
   });
 
-  it('avviser en fil som bytter identitet uten REVERT, før historikkraden og før neste fil (#866 punkt 2)', async () => {
-    const m = mappe({
-      // I db_owner, så runnerens kontroller etter satsen ellers ville gått gjennom som prove_bruker.
-      [A]: "CREATE USER prove_bruker WITHOUT LOGIN;\nALTER ROLE db_owner ADD MEMBER prove_bruker;\nGO\nEXECUTE AS USER = N'prove_bruker';",
-      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
-    });
-    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
-      /^20260101000000_a\.sql, sats 2: satsen byttet identiteten til prove_bruker\. Migreringen krever databaseeieren, .*Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
-    );
-    expect(await historikk()).toEqual([]);
-    expect(await tabeller()).toEqual([]);
-  });
+  // I db_owner kunne de andre kontrollene etter satsen gått gjennom som prove_bruker.
+  // Utenfor kan ikke prove_bruker lese applåsen.
+  it.each([
+    ['i db_owner', '\nALTER ROLE db_owner ADD MEMBER prove_bruker;'],
+    ['utenfor db_owner', ''],
+  ])(
+    'avviser en fil som bytter identitet uten REVERT til en bruker %s, før historikkraden og før neste fil (#866 punkt 2)',
+    async (_, rolle) => {
+      const m = mappe({
+        [A]: `CREATE USER prove_bruker WITHOUT LOGIN;${rolle}\nGO\nEXECUTE AS USER = N'prove_bruker';`,
+        [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+      });
+      await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+        /^20260101000000_a\.sql, sats 2: satsen byttet identiteten til prove_bruker\. Migreringen krever databaseeieren, .*Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
+      );
+      expect(await historikk()).toEqual([]);
+      expect(await tabeller()).toEqual([]);
+    }
+  );
 
   it('en sats som gjør tilstanden ulesbar, avvises med filnavnet og satsen', async () => {
     // Med NOEXEC kjører ikke runnerens spørring etter satsen, så den får ikke svar.

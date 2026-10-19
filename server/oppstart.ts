@@ -46,7 +46,7 @@ async function rollebrudd(pool: Pool): Promise<string[]> {
       `SELECT IS_ROLEMEMBER(N'koe_runtime') AS kjoeretid,
               (SELECT STRING_AGG(r.navn, N', ') WITHIN GROUP (ORDER BY r.nr)
                  FROM (VALUES ${FASTE_ROLLER.map((r, i) => `(${i}, N'${r}')`).join(', ')}) AS r (nr, navn)
-                WHERE IS_ROLEMEMBER(r.navn) = 1) AS roller,
+                WHERE ISNULL(IS_ROLEMEMBER(r.navn), 1) <> 0) AS roller,
               HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CONTROL') AS kontroll,
               IS_SRVROLEMEMBER(N'sysadmin') AS sysadmin`
     )

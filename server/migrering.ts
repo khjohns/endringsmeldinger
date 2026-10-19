@@ -290,7 +290,7 @@ interface Forbindelsestilstand {
   /** Transaksjonen forbindelsen er i, og hvor mange nivåer den har. */
   id: string;
   nivaa: number;
-  laas: string;
+  laas: string | null;
   /** `#koe_migrering` finnes. Runneren lager den i sin transaksjon og sletter den før COMMIT. */
   merket: boolean;
   /** `USER_NAME()`: en sats med `EXECUTE AS` uten `REVERT` bytter den for resten av sesjonen. */
@@ -304,12 +304,14 @@ async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand>
     .query<{
       id: string | null;
       nivaa: number;
-      laas: string;
+      laas: string | null;
       merket: boolean;
       bruker: string;
     }>(
+      // APPLOCK_MODE feiler for en bruker utenfor db_owner, så etter et
+      // identitetsbytte leses den ikke, og avvisningen sier hvem satsen byttet til.
       `SELECT CONVERT(varchar(20), CURRENT_TRANSACTION_ID()) AS id, @@TRANCOUNT AS nivaa,
-            APPLOCK_MODE(N'db_owner', @ressurs, N'Session') AS laas,
+            CASE WHEN USER_NAME() = N'dbo' THEN APPLOCK_MODE(N'db_owner', @ressurs, N'Session') END AS laas,
             CAST(CASE WHEN OBJECT_ID(N'tempdb..#koe_migrering') IS NULL THEN 0 ELSE 1 END AS bit) AS merket,
             USER_NAME() AS bruker`
     );
