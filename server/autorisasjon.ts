@@ -142,7 +142,7 @@ export interface Prosjekttilgang {
    * Fraværende når listen var fersk, eller når forespørselen ventet på en
    * henting en annen hadde startet.
    */
-  synkronisert?: Synkronisering;
+  synkronisert?: Omit<Synkronisering, 'hentet'>;
 }
 
 const ENKELTREFERANSER = new Set(['sak_id', 'sakId', 'koe_sak_id', 'relatert_sak_id']);
@@ -372,7 +372,15 @@ export async function krevProsjekttilgang(
       rolle,
       oppsett,
       medlemskap: medlemskap!,
-      ...(synkronisert ? { synkronisert } : {}),
+      ...(synkronisert
+        ? {
+            synkronisert: {
+              skrevet: synkronisert.skrevet,
+              medlemmer: synkronisert.medlemmer,
+              deaktivert: synkronisert.deaktivert,
+            },
+          }
+        : {}),
     };
   } catch (feil) {
     if (feil instanceof Nektet) throw feil;

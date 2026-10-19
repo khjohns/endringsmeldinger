@@ -458,6 +458,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(kallTilAlderen).toBe(2);
       // Synkroniseringen denne forespørselen gjorde, følger tilgangen (#825 punkt 7).
       expect(t.synkronisert).toMatchObject({ skrevet: true, medlemmer: 1 });
+      // Tidspunktet for hentingen blir i autorisasjonen (#638 punkt 2).
+      expect(t.synkronisert).not.toHaveProperty('hentet');
     });
 
     it('er listen i basen etter hentingen eldre enn hentingen, gir det 503 (#858 punkt 1)', async () => {

@@ -37,8 +37,11 @@ export function loggFeil(hvor: string, feil: unknown): void {
   const klasse = (feil as Error)?.constructor?.name ?? typeof feil;
   const nummer = feilnummer(feil);
   const stakk = typeof (feil as Error)?.stack === 'string' ? (feil as Error).stack! : '';
+  // Stakken begynner med meldingen; en linje i den kan også begynne med «at».
+  const meldingslinjer = String((feil as Error).message ?? '').split('\n').length;
   const rammer = stakk
     .split('\n')
+    .slice(meldingslinjer)
     .filter((l) => /^\s+at /.test(l))
     .join('\n');
   console.error(

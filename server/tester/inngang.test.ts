@@ -53,6 +53,18 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     expect(linje).not.toContain('Kari');
   });
 
+  it('en meldingslinje som begynner med «at», kommer ikke med i stakken', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loggFeil(
+      'Synkroniseringen feilet',
+      new Error('Catenda svarte:\n    at Kari Nordmann token=hemmelig')
+    );
+    const [linje] = logg.mock.calls[0] as [string];
+    expect(linje).toMatch(/\n\s+at /);
+    expect(linje).not.toContain('hemmelig');
+    expect(linje).not.toContain('Kari');
+  });
+
   it('en verdi som ikke er en feil, gir typen', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     loggFeil('Svaret kunne ikke skrives', 'token=hemmelig');
