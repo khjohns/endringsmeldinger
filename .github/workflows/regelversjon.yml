@@ -8,8 +8,10 @@
 # På en PR er BASE tuppen av basegrenen når jobben kjører, ikke basen fra
 # hendelsen (#870): to PR-er som øker samme versjon, blir hver for seg grønne
 # mot basen de ble laget fra, men den som kjøres etter at den første er merget,
-# blir rød. GitHub kjører ikke PR-en på nytt når basen flytter seg, så vakten
-# kjøres også ved hver push til main, mot tuppen før pushen.
+# blir rød. PR-en flettes derfor inn i den tuppen før kontrollen, så også en
+# ny kjøring av en gammel hendelse ser basen slik den er. GitHub kjører ikke
+# PR-en på nytt når basen flytter seg, så vakten kjøres også ved hver push til
+# main, mot tuppen før pushen.
 name: Regelversjon
 
 # Ikke på utkast (#390), som ci.yml.
@@ -23,8 +25,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: regelversjon-${{ github.ref }}
-  # En kjøring på main avbrytes ikke av den neste, så hver merge kontrolleres.
+  # På main har hver push sin egen gruppe: en kjøring som venter, ville ellers
+  # blitt avbrutt av den neste, og den mergen ble ikke kontrollert.
+  group: regelversjon-${{ github.event_name == 'push' && github.sha || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -46,6 +49,10 @@ jobs:
             BASE=$FOER_PUSH
           else
             BASE=$(git rev-parse "origin/$BASEGREN")
+            PR=$(git rev-parse HEAD^2)
+            git checkout -q --detach "$BASE"
+            git -c user.name=regelversjon -c user.email=regelversjon@localhost \
+              merge -q --no-edit "$PR" || { echo "::error::PR-en kan ikke flettes inn i $BASEGREN. Oppdater den mot $BASEGREN; feilen gjelder ikke versjonene."; exit 1; }
           fi
           echo "BASE=$BASE"
           BASE=$BASE .github/scripts/regelversjon.sh

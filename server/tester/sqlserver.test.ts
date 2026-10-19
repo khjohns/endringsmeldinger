@@ -99,7 +99,9 @@ const RYDDEFRIST = 5_000;
  * Ruller `tx` tilbake når `skriving` er ferdig: en transaksjon kan ikke rulles
  * tilbake mens en forespørsel i den pågår. Gir `false` når skrivingen ikke er
  * ferdig etter `RYDDEFRIST`, for eksempel fordi den venter på en lås noe utenfor
- * testen holder; da ruller bare lukkingen av forbindelsen transaksjonen tilbake.
+ * testen holder. Da holder transaksjonen forbindelsen sin, og `pool.close()` venter
+ * på den, så kalleren lukker ikke poolen; `base.slett()` ruller den tilbake med
+ * `ROLLBACK IMMEDIATE`.
  */
 async function rullTilbakeEtter(
   tx: sql.Transaction,
@@ -261,8 +263,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
         } finally {
           // t1 først: den andre skrivingen venter på låsene til t1.
           await t1.rollback().catch(() => undefined);
-          await rullTilbakeEtter(t2, andreSkriving);
-          await pool.close();
+          if (await rullTilbakeEtter(t2, andreSkriving)) await pool.close();
         }
 
         expect(await lagret(base.pool, sakId)).toEqual([
@@ -309,8 +310,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
           // En skriving som venter, venter på låsene til en ferdig transaksjon som
           // ennå er åpen, så alle rulles tilbake samtidig. Den committede gir en
           // feil som svelges.
-          await Promise.all(transaksjoner.map((tx, i) => rullTilbakeEtter(tx, skrivinger[i])));
-          await pool.close();
+          const rullet = await Promise.all(
+            transaksjoner.map((tx, i) => rullTilbakeEtter(tx, skrivinger[i]))
+          );
+          if (rullet.every(Boolean)) await pool.close();
         }
 
         const lyktes = hendelser.filter((_, i) => utfall[i]?.status === 'fulfilled');

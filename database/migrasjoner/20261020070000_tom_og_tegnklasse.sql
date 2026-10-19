@@ -1,5 +1,5 @@
 -- «Tom» betyr én ting for kolonnene med tegnklassen eller en ID-form (#704): ingen
--- byte, som i prosedyrene (`DATALENGTH(x) = 0`). `LEN` ser bort fra mellomrom til
+-- byte (`DATALENGTH(x) = 0`). `LEN` ser bort fra mellomrom til
 -- slutt, så en verdi av bare mellomrom brøt «ikke tom»-skranken, og 547 bar navnet
 -- på den i stedet for tegnklassen. Skrankene beholder navnene. Fritekstkolonnene
 -- (`notat.tekst`, `fullmakt.tittel`, `jobb.tittel`) beholder `LEN`: der er en tekst
