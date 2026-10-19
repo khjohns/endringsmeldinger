@@ -14,7 +14,13 @@ import type { Journalrad } from '../../kjerne/typer.ts';
 import { sql, transaksjon, type Kontekst, type Pool } from '../datalag.ts';
 import { opprettSak, skrivHendelse, type Kommando } from '../kommandoer.ts';
 import { avvisning, catendaBruker, opprettMigrertTestbase } from './sqlserver_migrert.ts';
-import { feilnummer, opprettKjoeretid, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
+import {
+  feilnummer,
+  opprettKjoeretid,
+  slettAlle,
+  SQLSERVER_TILKOBLING,
+  type Testbase,
+} from './sqlserver.ts';
 
 const UGYLDIG = 51422;
 const FOR_GAMMELT = 51419;
@@ -44,10 +50,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('skrivetidspunktet i SQL Server', () => {
     kjoeretid = await opprettKjoeretid(base);
     te = { aktor: bruker, prosjekt: P1, side: 'TE', team: TE1 };
   }, 240_000);
-  afterAll(async () => {
-    await kjoeretid?.slett();
-    await base?.slett();
-  }, 60_000);
+  afterAll(() => slettAlle(kjoeretid, base), 60_000);
 
   const nySak = () =>
     opprettSak(kjoeretid.pool, te, ny(), {

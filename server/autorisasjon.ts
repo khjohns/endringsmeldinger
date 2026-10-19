@@ -20,7 +20,7 @@ import { timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Part as Rolle } from '../kjerne/typer.ts';
 import type { Bruker } from './bruker.ts';
-import { sql, transaksjon, type Pool } from './datalag.ts';
+import { sql, transaksjon, utenKontekst, type Pool } from './datalag.ts';
 import { loggFeil } from './inngang.ts';
 import {
   oversett,
@@ -208,8 +208,7 @@ export async function medlemslistensAlder(
   prosjekt: string
 ): Promise<{ hentet: Date; alderSekunder: number } | null> {
   try {
-    const svar = await pool
-      .request()
+    const svar = await utenKontekst(pool)
       .input('prosjekt', sql.NVarChar(4000), prosjekt)
       .execute<{ hentet: Date; alder_sekunder: string | number }>('koe_api.medlemsliste_alder');
     const rad = svar.recordset[0];
@@ -347,8 +346,7 @@ export async function krevProsjekttilgang(
       prosjektId,
       oppsett.catendaProsjekt
     );
-    const svar = await db
-      .request()
+    const svar = await utenKontekst(db)
       .input('aktor', sql.UniqueIdentifier, bruker.id)
       .input('prosjekt', sql.NVarChar(4000), prosjektId)
       .execute<Medlemskap>('koe_api.prosjektmedlemskap');
@@ -438,8 +436,7 @@ async function kontraktsside(
   if (medlemskap.leserolle) return [null, null];
   const subjekt = catendaId(medlemskap.subjekt);
   if (!subjekt) return [null, null];
-  const svar = await db
-    .request()
+  const svar = await utenKontekst(db)
     .input('aktor', sql.UniqueIdentifier, aktor)
     .input('prosjekt', sql.NVarChar(4000), prosjektId)
     .execute<{ team: string; side: Rolle }>('koe_api.kontraktsteam');

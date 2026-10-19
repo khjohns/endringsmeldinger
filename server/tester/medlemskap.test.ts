@@ -36,6 +36,7 @@ import { basensKlokkeEtter, opprettMigrertTestbase } from './sqlserver_migrert.t
 import {
   feilnummer,
   opprettKjoeretid,
+  slettAlle,
   sql,
   SQLSERVER_TILKOBLING,
   type Pool,
@@ -78,10 +79,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     const naa = await basensKlokke(base.pool);
     forskyvning = naa.getTime() - (foer + Date.now()) / 2;
   }, 240_000);
-  afterAll(async () => {
-    await kjoeretid?.slett();
-    await base?.slett();
-  }, 60_000);
+  afterAll(() => slettAlle(kjoeretid, base), 60_000);
 
   /**
    * Et nytt prosjekt koblet til et nytt Catenda-prosjekt, satt av driften (eieren).
