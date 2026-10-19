@@ -733,6 +733,33 @@ def test_et_svar_som_avviser_eller_tar_forbehold_slutter_seg_ikke_til_anbefaling
     assert any(f.startswith("XX-U1: svaret nevner ikke det valgte alternativet «A»") for f in feil), feil
 
 
+@pytest.mark.parametrize("svar", [
+    "Ja til anbefalingen. Vedlegg D er ikke oppdatert.",
+    "Ja til anbefalingen. Tabell H viser bare tallene.",
+])
+def test_et_forbeholdsord_i_en_senere_setning_om_noe_annet_enn_et_alternativ_hindrer_ikke(
+    grunnregister, svar
+):
+    """#925 punkt 3: en stor bokstav som ikke er et av postens alternativer, gjør ikke
+    setningen til et forbehold om anbefalingen."""
+    assert vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar))) == []
+
+
+@pytest.mark.parametrize("svar, ordet", [
+    ("Ja til anbefalingen. Anbefalingen er bare en formalitet.", "bare"),
+    ("Ja til anbefalingen. Punkt 3 er ikke kontroversielt.", "ikke"),
+])
+def test_et_forbeholdsord_i_en_senere_setning_om_et_punkt_gir_forbehold_med_vilje(
+    grunnregister, svar, ordet
+):
+    """#925 punkt 2, valg A: regelen leser ordet, ikke meningen, og feilen går i den
+    trygge retningen. Testen låser utfallet; svaret må da nevne alternativet."""
+    assert (
+        f"XX-U1: svaret nevner ikke det valgte alternativet «A», og «{ordet}» gjør at svaret "
+        "ikke slutter seg til anbefalingen"
+    ) in vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar)))
+
+
 @pytest.mark.parametrize("svar, ordet", [
     ("Nei. Ja til anbefalingen bare om B faller bort", "bare"),
     ("Ja til anbefalingen, med forbehold om punkt 2", "forbehold"),

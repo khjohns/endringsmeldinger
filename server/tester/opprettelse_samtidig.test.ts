@@ -63,7 +63,8 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
       .batch(
         `DECLARE @sak_id nvarchar(36), @event_id nvarchar(36), @tidsstempel datetime2(3);
          EXEC koe_api.opprett_sak @format = @format, @data = @data, @kommando_id = @kommando_id,
-           @kommando_sha256 = @kommando_sha256, @sak_id = @sak_id OUTPUT,
+           @kommando_sha256 = @kommando_sha256, @catenda_board_id = NULL,
+           @catenda_topic_id = NULL, @sak_id = @sak_id OUTPUT,
            @event_id = @event_id OUTPUT, @tidsstempel = @tidsstempel OUTPUT;`
       );
   };

@@ -66,6 +66,11 @@ export function catendaId(verdi: unknown): string | null {
   return /^[0-9a-f]{32}$/.test(hex) ? hex : null;
 }
 
+/** Samme UUID i formen 8-4-4-4-12 med små bokstaver, som BCF og basen bruker, ellers `null` (#906). */
+export function uuidMedBindestreker(verdi: unknown): string | null {
+  return catendaId(verdi)?.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5') ?? null;
+}
+
 export function informasjonskapsel(foresporsel: IncomingMessage, navn: string): string {
   for (const del of (foresporsel.headers.cookie ?? '').split(';')) {
     const [nokkel, ...verdi] = del.trim().split('=');
@@ -350,11 +355,7 @@ export async function krevProsjekttilgang(
       prosjektId,
       oppsett.catendaProsjekt
     );
-    const svar = await utenKontekst(db)
-      .input('aktor', sql.UniqueIdentifier, bruker.id)
-      .input('prosjekt', sql.NVarChar(4000), prosjektId)
-      .execute<Medlemskap>('koe_api.prosjektmedlemskap');
-    const medlemskap = svar.recordset[0];
+    const medlemskap = await prosjektmedlemskap(db, bruker.id, prosjektId);
     const rolle = medlemskap ? (medlemskap.leserolle ? 'viewer' : medlemskap.rolle) : null;
     if (rolle === null || !(rolle in PROSJEKTROLLER)) throw nekt();
     if (PROSJEKTROLLER[rolle] < PROSJEKTROLLER[minsteRolle]) throw nekt();
@@ -409,8 +410,7 @@ export async function lesKontraktsside(
   } catch {
     throw new Nektet(503, 'CONTRACT_ACCESS_UNAVAILABLE', 'Teamtilknytning kunne ikke bekreftes.');
   }
-  const [rolle, teamId] = funnet;
-  return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
+  return somKontraktstilgang(funnet);
 }
 
 /** `require_contract_role()` med `contract_membership`. Uten entydig side: 403. */
@@ -427,13 +427,60 @@ export async function krevKontraktsrolle(
 }
 
 /**
+ * Siden og teamet for en aktør uten sesjon, som forfatteren av en topic (#819), med samme
+ * oppslag som `lesKontraktsside` og en medlemsliste som er like fersk som i
+ * `krevProsjekttilgang` (B-04). `null` uten aktivt medlemskap i prosjektet eller uten
+ * entydig side.
+ */
+export async function kontraktssideUtenSesjon(
+  db: Pool,
+  catenda: Catenda,
+  prosjektId: string,
+  aktor: string
+): Promise<Kontraktstilgang | null> {
+  const oppsett = await prosjektoppsett(db, prosjektId);
+  if (!oppsett) return null;
+  await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
+  const medlemskap = await prosjektmedlemskap(db, aktor, prosjektId);
+  if (!medlemskap) return null;
+  return somKontraktstilgang(
+    await kontraktsside(db, catenda, {
+      prosjektId,
+      aktor,
+      rolle: medlemskap.rolle,
+      oppsett,
+      medlemskap,
+    })
+  );
+}
+
+async function prosjektmedlemskap(
+  db: Pool,
+  aktor: string,
+  prosjektId: string
+): Promise<Medlemskap | undefined> {
+  const svar = await utenKontekst(db)
+    .input('aktor', sql.UniqueIdentifier, aktor)
+    .input('prosjekt', sql.NVarChar(4000), prosjektId)
+    .execute<Medlemskap>('koe_api.prosjektmedlemskap');
+  return svar.recordset[0];
+}
+
+function somKontraktstilgang([rolle, teamId]: [
+  Rolle | null,
+  string | null,
+]): Kontraktstilgang | null {
+  return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
+}
+
+/**
  * Siden og teamet. Teamet er ett av prosjektets kontraktsteam på den siden
  * aktøren er på, og `null` når aktøren er med i flere av dem, så det kan
  * settes som `koe_team` (#53, DL-U4).
  */
 async function kontraktsside(
   db: Pool,
-  catenda: Catenda,
+  catenda: Pick<Catenda, 'teammedlemmer'>,
   { prosjektId, aktor, oppsett, medlemskap }: Prosjekttilgang
 ): Promise<[Rolle | null, string | null]> {
   if (medlemskap.leserolle) return [null, null];

@@ -296,6 +296,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
             .input('data', sql.NVarChar(sql.MAX), '{"sakstype":"standard","sakstype":"forsering"}')
             .input('kommando_id', sql.NVarChar(4000), randomUUID())
             .input('kommando_sha256', sql.NVarChar(4000), heks() + heks())
+            .input('catenda_board_id', sql.NVarChar(100), null)
+            .input('catenda_topic_id', sql.NVarChar(100), null)
             .output('sak_id', sql.NVarChar(36))
             .output('event_id', sql.NVarChar(36))
             .output('tidsstempel', sql.DateTime2(3))
