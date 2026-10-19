@@ -19,7 +19,7 @@
 import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './app.ts';
 import { ferskeProsjekter } from './autorisasjon.ts';
 import { sql, utenKontekst, UUID, type Pool } from './datalag.ts';
-import { fast, loggFeil } from './inngang.ts';
+import { fast, lagret, loggFeil } from './inngang.ts';
 import { erLaast, synkroniserProsjekt } from './medlemskap.ts';
 
 interface Prosjektrad {
@@ -50,6 +50,36 @@ async function lesBrukerensProsjekter(db: Pool, aktor: string): Promise<Prosjekt
   return svar.recordset;
 }
 
+/**
+ * Høyst så mange av lista synkroniseres samtidig. En synkronisering holder en
+ * forbindelse mens prosedyren venter på applåsen, opptil 10 s, så uten tak kan én
+ * bruker med mange prosjekter ta hele poolen (standard 10) fra resten av serveren (#877).
+ */
+const SAMTIDIGE_SYNKRONISERINGER = 3;
+
+/**
+ * `kjoer` for hvert element, med høyst `tak` samtidig. Feiler ett, startes ingen
+ * nye, og feilen kastes videre, som fra `Promise.all`.
+ */
+async function hverMedTak<T>(
+  elementer: T[],
+  tak: number,
+  kjoer: (element: T) => Promise<void>
+): Promise<void> {
+  const gjenstaar = [...elementer];
+  const arbeider = async () => {
+    for (let e = gjenstaar.shift(); e !== undefined; e = gjenstaar.shift()) {
+      try {
+        await kjoer(e);
+      } catch (feil) {
+        gjenstaar.length = 0;
+        throw feil;
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(tak, gjenstaar.length) }, arbeider));
+}
+
 async function brukerensProsjekter(
   { sesjon }: Innlogget,
   avh: Required<Avhengigheter>
@@ -57,10 +87,10 @@ async function brukerensProsjekter(
   try {
     const foer = await lesBrukerensProsjekter(avh.datalag, sesjon.bruker.id);
     if (!foer.length) return [200, { projects: [] }];
-    await ferskeProsjekter(
-      avh.datalag,
-      avh.catenda,
-      foer.map((p) => p.id)
+    await hverMedTak(
+      foer.map((p) => p.id),
+      SAMTIDIGE_SYNKRONISERINGER,
+      (p) => ferskeProsjekter(avh.datalag, avh.catenda, [p])
     );
     // Synkroniseringen kan ha fjernet et medlemskap; den legger ikke til et prosjekt som ikke var med.
     const ider = new Set(foer.map((p) => p.id));
@@ -162,7 +192,7 @@ async function synkroniser(
       (await synkroniserProsjekt(avh.datalag, prosjekt.prosjektId, (c) =>
         avh.catenda.medlemmer(c)
       ));
-    return [200, { success: true, members: medlemmer, deactivated: deaktivert }];
+    return lagret([200, { success: true, members: medlemmer, deactivated: deaktivert }]);
   } catch (feil) {
     loggFeil('Medlemmene kunne ikke synkroniseres', feil);
     return IKKE_OPPDATERT;
@@ -198,7 +228,7 @@ async function begrensMedlem(
       .input('leserolle', sql.Bit, verdi)
       .output('endret', sql.Bit)
       .execute('koe_api.sett_leserolle');
-    return svar.output.endret === true ? [200, { success: true }] : nekt;
+    return svar.output.endret === true ? lagret([200, { success: true }]) : nekt;
   } catch (feil) {
     // Applåsen er forbigående og gir 503, som synkroniseringen; annet går til ruterens 500.
     if (erLaast(feil)) return IKKE_OPPDATERT;

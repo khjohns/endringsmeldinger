@@ -25,6 +25,7 @@ import {
   krevKontraktsrolle,
   krevProsjekttilgang,
   type FraSti,
+  UTEN_STI,
   Nektet,
   type Bruker,
   type Catenda,
@@ -44,37 +45,9 @@ import {
   type Pool,
   type Testbase,
 } from './sqlserver.ts';
+import { medFoer, medRundt } from './rundt.ts';
 
 const hex = () => randomBytes(16).toString('hex');
-
-/** `pool`, der hvert kall til prosedyren `prosedyre` går gjennom `rundt`. */
-function medRundt(
-  pool: Pool,
-  prosedyre: string,
-  rundt: <T>(kjoer: () => Promise<T>) => Promise<T>
-): Pool {
-  return new Proxy(pool, {
-    get(maal, navn) {
-      if (navn === 'request')
-        return () => {
-          const foresp = maal.request();
-          const utfoer = foresp.execute.bind(foresp);
-          foresp.execute = (async (p: string) =>
-            p === prosedyre ? rundt(() => utfoer(p)) : utfoer(p)) as typeof foresp.execute;
-          return foresp;
-        };
-      const verdi = Reflect.get(maal, navn, maal);
-      return typeof verdi === 'function' ? verdi.bind(maal) : verdi;
-    },
-  });
-}
-
-/** `pool`, der `foer` kjøres før hvert kall til prosedyren `prosedyre`. */
-const medFoer = (pool: Pool, prosedyre: string, foer: () => Promise<void>): Pool =>
-  medRundt(pool, prosedyre, async (kjoer) => {
-    await foer();
-    return kjoer();
-  });
 
 /** En sperre som slipper når `antall` har nådd den. */
 function sperre(antall: number) {
@@ -239,7 +212,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       catenda = catendaMed().catenda,
       minsteRolle = 'viewer' as const as 'viewer' | 'member' | 'admin',
       nyttelast = {} as unknown,
-      fraSti = null as FraSti,
+      fraSti = UTEN_STI as FraSti,
       pool = kjoeretid.pool,
     } = {}
   ) =>
@@ -312,6 +285,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       });
       // Kontrollsak: samme prosjekt i stien og i hodet gir tilgang.
       expect((await tilgang(m, p.id, { fraSti: { prosjektId: p.id } })).prosjektId).toBe(p.id);
+    });
+
+    it('en rute kan ikke utelate stien; uten sak eller prosjekt i stien sier den UTEN_STI (#763, 17.10)', () => {
+      // @ts-expect-error `tsc -p server` feiler om `null` igjen blir en sti.
+      const utelatt: FraSti = null;
+      expect(utelatt).toBeNull();
     });
 
     it('uten X-Project-ID er prosjektet ukjent og gir 403', async () => {

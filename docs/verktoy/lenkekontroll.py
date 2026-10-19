@@ -1,18 +1,20 @@
 """Kontrollerer lokale lenker og ankre i Markdown.
 
 Kjøres fra repo-roten: python3 docs/verktoy/lenkekontroll.py [filer ...]
-Uten argumenter kontrolleres alle .md-filer under docs/ og .claude/, og
+Uten argumenter kontrolleres .md-filene git sporer under docs/ og .claude/, og
 AGENTS.md og CLAUDE.md i roten. De to siste lastes automatisk i øktene og
-lenker til ankre i hovedplanen (#752).
+lenker til ankre i hovedplanen (#752). Usporede filer, som arbeidstrærne i
+.claude/worktrees/, kontrolleres ikke (#851).
 
 Lenkeformene som kontrolleres: [x](mål), [x](<mål>), mål med ett nivå
-parenteser, og referansedefinisjoner ([x]: mål), men ikke fotnoter ([^1]: tekst).
-Arbeidstrærne i .claude/worktrees/ er kopier av repoet og kontrolleres ikke.
+parenteser, og referansedefinisjoner ([x]: mål "tittel"), men ikke fotnoter
+([^1]: tekst) eller en etikett med prosa etter ([Merk]: Dette gjelder TE.).
 """
 
 import functools
 import pathlib
 import re
+import subprocess
 import sys
 import unicodedata
 from urllib.parse import unquote
@@ -20,8 +22,11 @@ from urllib.parse import unquote
 KODEBLOKK = re.compile(r"^(```|~~~).*?^\1[^\n]*$", re.S | re.M)
 INLINE_KODE = re.compile(r"`[^`\n]*`")
 MÅL = r"(<[^<>\n]+>|(?:[^()\s]|\([^()\s]*\))+)"
-LENKE = re.compile(r"\]\(\s*" + MÅL + r"(?:\s+(?:\"[^\"]*\"|'[^']*'|\([^)]*\)))?\s*\)")
-REFERANSE = re.compile(r"^ {0,3}\[(?!\^)[^\]\n]+\]:[ \t]*" + MÅL, re.M)
+TITTEL = r"(?:\"[^\"]*\"|'[^']*'|\([^)]*\))"
+LENKE = re.compile(r"\]\(\s*" + MÅL + r"(?:\s+" + TITTEL + r")?\s*\)")
+REFERANSE = re.compile(
+    r"^ {0,3}\[(?!\^)[^\]\n]+\]:[ \t]*" + MÅL + r"(?:[ \t]+" + TITTEL + r")?[ \t]*$", re.M
+)
 OVERSKRIFT = re.compile(r"^#{1,6}\s+(.*?)\s*#*\s*$", re.M)
 EKSPLISITT_ID = re.compile(r"""(?:id|name)=["']([^"']+)["']""")
 EKSTERN = re.compile(r"^(https?:|mailto:|file:)")
@@ -53,9 +58,15 @@ def ankre(sti: pathlib.Path) -> frozenset[str]:
 
 
 def standardfiler() -> list[pathlib.Path]:
-    claude = [s for s in pathlib.Path(".claude").rglob("*.md") if not s.is_relative_to(".claude/worktrees")]
-    stier = sorted(pathlib.Path("docs").rglob("*.md")) + sorted(claude)
-    return stier + [pathlib.Path(f) for f in ROTFILER if pathlib.Path(f).is_file()]
+    sporet = subprocess.run(
+        ["git", "ls-files", "-z", "--", "*.md"], capture_output=True, text=True, check=True
+    ).stdout.split("\0")
+    stier = [
+        pathlib.Path(f)
+        for f in sorted(sporet)
+        if f.startswith(("docs/", ".claude/")) or f in ROTFILER
+    ]
+    return [s for s in stier if s.is_file()]
 
 
 def lenkemål(tekst: str) -> list[str]:

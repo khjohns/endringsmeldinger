@@ -24,6 +24,7 @@
 import { createHash } from 'node:crypto';
 import type { Brevdokument } from './catenda.ts';
 import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
+import { brevtekstI } from '../kjerne/format/leser.ts';
 import { lesBrevPdf, skrivBrevPdf, TegnUtenforSkriften } from './brevpdf.ts';
 import { sjekksum } from './sjekksum.ts';
 import type { Avsnitt, Journalrad } from '../kjerne/typer.ts';
@@ -33,9 +34,6 @@ import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
 export const OPPDRAGSFORMAT = 6;
-
-/** For `server/tester/kommandoer.test.ts`, som L-2b eier i runde 6 (#764); fjernes etter. */
-export { sjekksum };
 
 /** Filnavnet dokumentet får i Catenda, fra innholdet i et lagret oppdrag. */
 export const filnavn = (innhold: Record<string, unknown>): string | null =>
@@ -48,7 +46,7 @@ export function lagOppdrag(
   kjerne: Kjerne,
   nyId: () => string
 ): Oppdragsrad {
-  const brevtekst = rad.data.brevtekst ?? null;
+  const brevtekst = brevtekstI(rad);
   const innhold = {
     oppdragsformat: OPPDRAGSFORMAT,
     brev: {

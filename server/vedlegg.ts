@@ -16,7 +16,8 @@
 import { createHash } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Avhengigheter, Forespoersel, Saksrute, Svar } from './app.ts';
-import { Nektet } from './autorisasjon.ts';
+import { Nektet, type Kontraktstilgang } from './autorisasjon.ts';
+import { lagret, lesInntil } from './inngang.ts';
 import {
   BLOKKERT,
   feilnummer,
@@ -37,21 +38,24 @@ const STOERSTE_FILNAVN = 200;
 /** Bytene i kroppen og filnavnet fra hodet `X-Filnavn`, kodet med `encodeURIComponent`. */
 export interface Fil {
   innhold: Buffer;
-  filnavn: string | undefined;
+  filnavn: string;
 }
 
-/** Leser kroppen som bytes, etter tilgangskontrollen. Over grensen: 413. */
-export async function lesFil(foresporsel: IncomingMessage): Promise<Fil> {
-  const deler: Buffer[] = [];
-  let stoerrelse = 0;
-  for await (const del of foresporsel) {
-    stoerrelse += (del as Buffer).length;
-    if (stoerrelse > STOERSTE_VEDLEGG)
-      throw new Nektet(413, 'FOR_STOR_FIL', 'Filen er større enn 15 MB.');
-    deler.push(del as Buffer);
-  }
-  const hode = foresporsel.headers['x-filnavn'];
-  return { innhold: Buffer.concat(deler), filnavn: typeof hode === 'string' ? hode : undefined };
+/**
+ * Leser kroppen som bytes, etter tilgangskontrollen. Teamet og hodet `X-Filnavn`
+ * kontrolleres før kroppen leses (#815 punkt 1). Over grensen: 413.
+ */
+export async function lesFil(
+  foresporsel: IncomingMessage,
+  side: Kontraktstilgang | null
+): Promise<Fil> {
+  if (!side?.teamId) throw new Nektet(403, 'MANGLER_TEAM', UTEN_TEAM_MELDING);
+  const filnavn = foresporsel.headers['x-filnavn'];
+  if (typeof filnavn !== 'string')
+    throw new Nektet(400, 'MANGLER_FILNAVN', 'Hodet X-Filnavn med filnavnet mangler.');
+  const innhold = await lesInntil(foresporsel, STOERSTE_VEDLEGG);
+  if (!innhold) throw new Nektet(413, 'FOR_STOR_FIL', 'Filen er større enn 15 MB.');
+  return { innhold, filnavn };
 }
 
 /**
@@ -119,11 +123,8 @@ const feilsvar = (status: number, error: string, message: string): Svar => [
   { success: false, error, message },
 ];
 const finnesIkke = () => feilsvar(404, 'VEDLEGG_FINNES_IKKE', 'Vedlegget finnes ikke i saken.');
-const UTEN_TEAM = feilsvar(
-  403,
-  'MANGLER_TEAM',
-  'Vedlegg krever entydig teamtilknytning i Catenda.'
-);
+const UTEN_TEAM_MELDING = 'Vedlegg krever entydig teamtilknytning i Catenda.';
+const UTEN_TEAM = feilsvar(403, 'MANGLER_TEAM', UTEN_TEAM_MELDING);
 
 /** Konteksten for radsikkerheten. Uten team ses bare bundne vedlegg. */
 function kontekst({ bruker, prosjekt, side }: Forespoersel): Kontekst {
@@ -161,10 +162,8 @@ const somSvar = (r: Vedleggsrad) => ({
 });
 
 async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
-  if (!f.side?.teamId) return UTEN_TEAM;
+  // `lesFil` har avvist en forespørsel uten team eller uten filnavn.
   const fil = f.fil!;
-  if (fil.filnavn === undefined)
-    return feilsvar(400, 'MANGLER_FILNAVN', 'Hodet X-Filnavn med filnavnet mangler.');
   const filnavn = rensetFilnavn(fil.filnavn);
   if (filnavn === null) return feilsvar(400, 'UGYLDIG_FILNAVN', 'Filnavnet kan ikke brukes.');
   if (!fil.innhold.length) return feilsvar(400, 'TOM_FIL', 'Filen er tom.');
@@ -186,7 +185,7 @@ async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
         .query<Vedleggsrad>(`SELECT ${KOLONNER} FROM koe.vedlegg WHERE vedlegg_id = @id`);
       return svar.recordset[0];
     });
-    return [201, { success: true, vedlegg: somSvar(rad) }];
+    return lagret([201, { success: true, vedlegg: somSvar(rad) }]);
   } catch (feil) {
     const nr = feilnummer(feil);
     if (nr === NEKTET || nr === BLOKKERT) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
@@ -205,6 +204,16 @@ async function listVedlegg(f: Forespoersel, avh: Required<Avhengigheter>): Promi
   });
   return [200, { success: true, vedlegg: rader.map(somSvar) }];
 }
+
+/**
+ * `filename` som ASCII-reserve etter RFC 6266, 4.3, for en klient som ikke leser
+ * `filename*`: aksentene tas bort, og andre tegn utenfor ASCII blir `_` (#815 punkt 4).
+ */
+const asciiReserve = (navn: string) =>
+  navn
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
+    .replace(/[^\x20-\x7e]|["\\]/g, '_');
 
 /** `filename*` etter RFC 8187: `encodeURIComponent` lar `'()*` stå, men de er ikke attr-char. */
 const attrTegn = (navn: string) =>
@@ -241,7 +250,7 @@ async function lastNed(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
     rad.innhold,
     {
       'content-type': 'application/octet-stream',
-      'content-disposition': `attachment; filename*=UTF-8''${attrTegn(rad.filnavn)}`,
+      'content-disposition': `attachment; filename="${asciiReserve(rad.filnavn)}"; filename*=UTF-8''${attrTegn(rad.filnavn)}`,
       'x-content-type-options': 'nosniff',
       'cache-control': 'no-store',
     },
@@ -260,7 +269,7 @@ async function slett(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Sva
         .execute<{ slettet: number }>('koe_api.slett_vedlegg');
       return svar.recordset[0].slettet;
     });
-    return slettet ? [200, { success: true }] : finnesIkke();
+    return slettet ? lagret([200, { success: true }]) : finnesIkke();
   } catch (feil) {
     if (feilnummer(feil) === KONFLIKT)
       return feilsvar(

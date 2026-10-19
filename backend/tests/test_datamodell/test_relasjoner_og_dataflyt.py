@@ -256,8 +256,32 @@ def test_ts_symbol_som_bare_brukes_i_fila_er_ikke_deklarert():
     assert "bruker" not in df.definisjoner("server/innlogging.ts")
 
 
+TS_KILDE = """export const enum Kode { A }
+export abstract class Lager {}
+function*generator() {}
+const sql = `
+const iMalen = 1
+${verdi(`
+const iNestetMal = 2`)}
+const fortsatt = 3`;
+/*
+const kommentert = 4
+*/
+const s = "/* ikke en kommentar"; const x = 5
+export const etter = 6
+"""
+
+
+def test_ts_deklarasjonene_leses_utenom_kommentarer_og_malstrenger():
+    """#861: `const enum`, `abstract class` og `function*` gir navnet, og en linje som
+    begynner med `const` i en SQL-mal eller en blokkommentar, er ikke en deklarasjon."""
+    assert set(df.TS_DEKLARASJON.findall(df._ts_kode(TS_KILDE))) == {
+        "Kode", "Lager", "generator", "sql", "s", "etter"
+    }
+
+
 def test_dataflyt_bruker_samme_relasjonsmodul_som_datamodell():
-    """#635: `_last` laster relasjoner.py én gang."""
+    """#635, #861: lasteren gir samme relasjonsmodul i samme omfang."""
     assert df.rel is dm.rel
 
 

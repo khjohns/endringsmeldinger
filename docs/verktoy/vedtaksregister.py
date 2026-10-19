@@ -564,14 +564,26 @@ _FORBEHOLD_ORD = (
 )
 _FORBEHOLD = re.compile(rf"(?<!\w){_FORBEHOLD_ORD}(?!\w)", re.IGNORECASE)
 _FORBEHOLD_FOERST = re.compile(rf"\s*[«\"]?\s*({_FORBEHOLD_ORD})(?!\w)", re.IGNORECASE)
-_SETNINGSSLUTT = re.compile(r"[.!?\n]")
+_FORKORTELSER = ("jf", "pkt", "nr", "ca", "ev", "evt", "sml", "bl.a", "f.eks", "osv", "mv")
+# Et punktum slutter setningen bare foran stor forbokstav eller slutten, og ikke etter
+# en forkortelse, så «jf. pkt. 2, men ikke punkt 3» er én setning (#861).
+_SETNINGSSLUTT = re.compile(
+    "".join(rf"(?<!\b{re.escape(f)})" for f in _FORKORTELSER)
+    + r"\.(?=\s+[«\"]?[A-ZÆØÅ]|\s*$)|[!?]|\n"
+)
+# Det en senere setning kan ta forbehold om: et punkt, anbefalingen, et alternativ.
+_GJELDER_ANBEFALINGEN = re.compile(
+    r"(?<!\w)(?:(?i:punkt\w*|anbefaling\w*|alternativ\w*|del(?:en|ene)?)|[A-H])(?!\w)"
+)
 
 
 def _forbeholdet(svar: str) -> str | None:
     """Ordet som hindrer at svaret slutter seg til anbefalingen, eller None (#604, #759).
 
-    Ordet leses i setningen med «Ja til anbefalingen» og foran den, og i en senere setning
-    bare når den begynner med ordet, som «Men ikke for punkt 3».
+    Ordet leses i setningen med «Ja til anbefalingen» og foran den. I en senere setning
+    leses det når setningen begynner med ordet, som «Men ikke for punkt 3», eller når
+    setningen gjelder et punkt, anbefalingen eller et alternativ, som «Punkt 3 skal ikke
+    med» (#861). «Det er ikke nødvendig å vente» er ikke et forbehold.
     """
     treff = _TIL_ANBEFALINGEN.search(svar)
     if not treff:
@@ -584,6 +596,8 @@ def _forbeholdet(svar: str) -> str | None:
     for setning in _SETNINGSSLUTT.split(svar[grense:]):
         if ord_ := _FORBEHOLD_FOERST.match(setning):
             return ord_.group(1)
+        if _GJELDER_ANBEFALINGEN.search(setning) and (ord_ := _FORBEHOLD.search(setning)):
+            return ord_.group(0)
     return None
 
 
