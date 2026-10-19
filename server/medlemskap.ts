@@ -99,11 +99,16 @@ export async function prosjektkobling(pool: Pool, prosjekt: string): Promise<str
   return rad ? rad.catenda_prosjekt.toLowerCase() : null;
 }
 
-/** Utfallet av en synkronisering: om listen ble skrevet, hvor mange den hadde, og hvor mange medlemskap den gjorde inaktive (0 når den ikke ble skrevet). */
+/**
+ * Utfallet av en synkronisering: om listen ble skrevet, hvor mange den hadde, hvor
+ * mange medlemskap den gjorde inaktive (0 når den ikke ble skrevet), og `hentet`,
+ * basens klokke før hentingen.
+ */
 export interface Synkronisering {
   skrevet: boolean;
   medlemmer: number;
   deaktivert: number;
+  hentet: Date;
 }
 
 /**
@@ -121,7 +126,7 @@ export async function synkroniserProsjekt(
 ): Promise<Synkronisering> {
   const catendaProsjekt = await prosjektkobling(pool, prosjekt);
   if (!catendaProsjekt) throw new FeilCatendaProsjekt('Prosjektet har ingen aktiv kobling');
-  return hentOgSkriv(pool, { prosjekt, catendaProsjekt }, hentMedlemmer);
+  return synkroniserKobling(pool, { prosjekt, catendaProsjekt }, hentMedlemmer);
 }
 
 /**
@@ -135,20 +140,13 @@ export async function synkroniserKobling(
   pool: Pool,
   kobling: { prosjekt: string; catendaProsjekt: string },
   hentMedlemmer: (catendaProsjekt: string) => Promise<Medlem[]>
-): Promise<boolean> {
-  return (await hentOgSkriv(pool, kobling, hentMedlemmer)).skrevet;
-}
-
-async function hentOgSkriv(
-  pool: Pool,
-  kobling: { prosjekt: string; catendaProsjekt: string },
-  hentMedlemmer: (catendaProsjekt: string) => Promise<Medlem[]>
 ): Promise<Synkronisering> {
   const hentet = await basensKlokke(pool);
   const medlemmer = await hentMedlemmer(kobling.catendaProsjekt);
   return {
     ...(await skrivMedlemsliste(pool, { ...kobling, hentet, medlemmer })),
     medlemmer: medlemmer.length,
+    hentet,
   };
 }
 

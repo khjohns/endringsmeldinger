@@ -978,7 +978,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         hentetFra.push(c);
         return [a];
       });
-      expect(utfall).toEqual({ skrevet: true, medlemmer: 1, deaktivert: 0 });
+      expect(utfall).toEqual({
+        skrevet: true,
+        medlemmer: 1,
+        deaktivert: 0,
+        hentet: expect.any(Date),
+      });
       expect(hentetFra).toEqual([p.catenda]);
       expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
@@ -997,6 +1002,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         skrevet: true,
         medlemmer: 1,
         deaktivert: 1,
+        hentet: expect.any(Date),
       });
       // En liste hentet etter at denne hentingen begynte, skrives først (DL-U7).
       let hentet: Date | undefined;
@@ -1005,7 +1011,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
         expect(await synk(p, [a], hentet)).toBe(true);
         return [];
       });
-      expect(senere).toEqual({ skrevet: false, medlemmer: 0, deaktivert: 0 });
+      expect(senere).toEqual({
+        skrevet: false,
+        medlemmer: 0,
+        deaktivert: 0,
+        hentet: expect.any(Date),
+      });
       expect((await synkrad(p.id)).synced_at).toEqual(hentet);
       expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
