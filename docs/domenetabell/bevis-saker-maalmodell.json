@@ -10573,6 +10573,301 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
+      "id": "F-MM-HF-U4-34-1-2",
+      "forslag": "#521",
+      "rader": [
+        "KA-48"
+      ],
+      "start": null,
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "svikt",
+          "underkategori": "medvirkning",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent"
+            },
+            {
+              "spor": "vederlag",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "varslet_i_tide": true,
+              "navn": "S-v1"
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 120000,
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U4",
+            "HF-U1",
+            "AV-498"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 60000,
+            "varslet_i_tide": false
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SAGT_I_TIDE"
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U4",
+            "HF-U1",
+            "AV-498"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "vederlag",
+            "vurdering": "delvis",
+            "godkjent_belop": 70000,
+            "varslet_i_tide": true
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U4",
+            "HF-U1",
+            "AV-498"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 60000,
+                "varslet_i_tide": false
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SAGT_I_TIDE"
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U4",
+            "HF-U1",
+            "AV-498"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 60000,
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U4-33-6-1",
+      "forslag": "#521",
+      "rader": [
+        "KA-48"
+      ],
+      "start": "godkjent_grunnlag",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "frist",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 10,
+              "navn": "S-f1"
+            }
+          ]
+        },
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 25,
+          "navn": "K-f2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U4",
+            "AV-498"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": false,
+            "hindring": true,
+            "dager": 10,
+            "maatte_forstaa": 5
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "SAGT_I_TIDE"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U4",
+            "AV-498"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": true,
+            "hindring": true,
+            "dager": 15
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U4",
+            "HF-U8",
+            "AV-498"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "frist",
+                "varsel_i_tide": true,
+                "spesifisering_i_tide": false,
+                "hindring": true,
+                "dager": 10,
+                "maatte_forstaa": 5
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-OV-U4-registrert-svar",
+      "forslag": "#521",
+      "rader": [
+        "KA-48"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "rad",
+          "spor": "grunnlag",
+          "navn": "S-g1",
+          "dokument": "D4",
+          "gjelder": "K-g1",
+          "resultat": "avslaatt",
+          "varslet_i_tide": true,
+          "sendt": "2026-09-30"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "forutsetning",
+          "kilde": [
+            "OV-U4"
+          ],
+          "forventet": {
+            "forstaatt": true,
+            "registrert.S-g1": true
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U4",
+            "HF-U4"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "avslaatt",
+                "varslet_i_tide": false
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
       "id": "F-MM-G37",
       "rader": [
         "GR-31"

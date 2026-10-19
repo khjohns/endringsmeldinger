@@ -5,6 +5,8 @@
  * JSON skiller ikke 5 fra 5.0 i JavaScript, så `integer` godtar 5.0.
  */
 
+import type { Avvisning } from '../typer.ts';
+
 export type Skjema = Record<string, unknown>;
 
 export const NOEKKELORD = new Set([
@@ -41,9 +43,7 @@ function harUlagringsbarTekst(verdi: unknown): boolean {
 }
 
 /** Avvisningen av en kommando med tekst basen ikke kan lagre (#373), eller `null`. */
-export function tekstSomIkkeKanLagres(
-  kommando: unknown
-): { regel: 'TEKST_KAN_IKKE_LAGRES'; melding: string } | null {
+export function tekstSomIkkeKanLagres(kommando: unknown): Avvisning | null {
   return harUlagringsbarTekst(kommando)
     ? {
         regel: 'TEKST_KAN_IKKE_LAGRES',

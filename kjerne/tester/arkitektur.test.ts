@@ -374,6 +374,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
   ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
+  // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
+  [
+    'frosset/standpunkt.ts',
+    'regelsett',
+    'krevdBeloep',
+    ['kommandoer/nyttelast.ts', 'frosset/brevtekst.ts'],
+  ],
+  // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
+  ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
   ['frosset/standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   [
     'Svarvurdering',
@@ -398,7 +407,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['regler/beloep.ts', 'regelsett', 'beloep erEndelig tilKrone tilTall NULL_OERE'],
   ['regler/feil.ts', 'regelsett', 'UgyldigVurdering'],
   // #550: et beløp som ikke er et tall, avvises som en ugyldig vurdering.
-  ['regler/beloep.ts', 'regelsett', 'UgyldigBeloep', ['kommandoer/nyttelast.ts']],
+  [
+    'regler/beloep.ts',
+    'regelsett',
+    'UgyldigBeloep',
+    ['kommandoer/nyttelast.ts', 'frosset/standpunkt.ts'],
+  ],
   [
     'regler/grunnlag.ts',
     'regelsett',
@@ -561,7 +575,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kommandoer/nyttelast.ts',
     'kommando',
     'oppgittDatoEtterBrevet',
-    ['kommandoer/skriving.ts:skriv'],
+    ['kommandoer/avvisning.ts:avvisning'],
+  ],
+  // #698: det datoen gjelder, med de samme ordene i brevet, meldingene og skjemaet.
+  [
+    'format/format.ts',
+    'brevtekst',
+    'DATOEN_GJELDER',
+    ['frosset/brevtekst.ts', 'kommandoer/kommando.ts', 'kommandoer/nyttelast.ts'],
   ],
   // Brevets dato er serverens tidspunkt i norsk tid (VS-U8).
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
@@ -719,7 +740,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // A1: den låste teksten klienten viste, sammenliknet med teksten serveren lager.
   ['Brevtekst', 'kommando', 'brevtekst', ['kommandoer/skriving.ts:skriv']],
-  ['Journalrad.data', 'rad', 'brevtekst', ['kommandoer/skriving.ts:laastTekst']],
+  // #864: brevteksten i en lagret rad leses ett sted, med formen i formatet.
+  ['Journalrad.data', 'rad', 'brevtekst', ['format/leser.ts:brevtekstI']],
+  ['format/format.ts', 'skjema', 'BREVTEKST', ['format/leser.ts:brevtekstI']],
+  ['format/leser.ts', 'rad', 'brevtekstI', ['kommandoer/skriving.ts:laastTekst']],
   [
     'Avsnitt',
     'brevtekst',

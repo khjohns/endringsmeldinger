@@ -1,15 +1,17 @@
 /**
- * `avvisning(kommando, part, u, regler, svarstandpunkter, utdypningKreves)`:
+ * `avvisning(kommando, part, u, regler, svarstandpunkter, brevetsDato, utdypningKreves)`:
  * kommandovalideringen, delt i forutsetningene og nyttelastkontrollen (2.6 i
- * modellforslaget). `regler` er regelsettet svarene regnes ut med, og
- * `svarstandpunkter` gir standpunktene i et svar fra utregningen, slik skrivingen
- * lagrer dem. `utdypningKreves` er usann i forhåndsvisningen. Serveren legger til
- * prosjekt, team og kontraktsside før kjernen spørres; kjernen får parten.
+ * modellforslaget), med kontrollen av datoen TE oppgir mot brevets dato til sist
+ * (VS-U26). `regler` er regelsettet svarene regnes ut med. `svarstandpunkter` gir
+ * standpunktene i et svar fra utregningen, slik skrivingen lagrer dem, og registrerer
+ * dem og utregningen for skrivingen (#814). `brevetsDato` er en kalenderdag fra
+ * `registrertDato`. `utdypningKreves` er usann i forhåndsvisningen. Serveren legger
+ * til prosjekt, team og kontraktsside før kjernen spørres; kjernen får parten.
  */
 
 import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
 import type { Kommando } from './kommando.ts';
-import { nyttelastkontroll, type Svarstandpunkter } from './nyttelast.ts';
+import { nyttelastkontroll, oppgittDatoEtterBrevet, type Svarstandpunkter } from './nyttelast.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Avvisning, Part } from '../typer.ts';
@@ -54,11 +56,15 @@ export function avvisning(
   u: Utledning,
   regler: Regelsett,
   svarstandpunkter: Svarstandpunkter,
+  brevetsDato: string,
   utdypningKreves = true
 ): Avvisning | null {
   for (const h of handlingsnoekler(k)) {
     const brudd = forutsetninger(h, part, u);
     if (brudd) return brudd;
   }
-  return nyttelastkontroll(k, part, u, regler, svarstandpunkter, utdypningKreves);
+  return (
+    nyttelastkontroll(k, part, u, regler, svarstandpunkter, utdypningKreves) ??
+    oppgittDatoEtterBrevet(k, brevetsDato)
+  );
 }
