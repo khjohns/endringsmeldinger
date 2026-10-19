@@ -9,6 +9,15 @@ import type { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
 import type { Svar } from './app.ts';
 import { feilnummer } from './datalag.ts';
 
+/** Feilsvaret i samme form fra hver inngang, også de åpne (#942). */
+export const feilsvar = (status: number, error: string, message: string): Svar => [
+  status,
+  { success: false, error, message },
+];
+export const ugyldig = (melding: string) => feilsvar(400, 'UGYLDIG_FORESPOERSEL', melding);
+/** Koden og meldingen for en kropp over grensen. */
+export const FOR_STOR = ['PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.'] as const;
+
 /** En rute med én fast sti; tegnene i stien står for seg selv i uttrykket (#716 punkt 4). */
 export const fast = (sti: string) => ({
   sti: new RegExp(`^${sti.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),

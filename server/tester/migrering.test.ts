@@ -799,6 +799,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'hendelse',
         'historikk',
         'innkommende_behandling',
+        'innkommende_forsoek',
         'innkommende_hendelse',
         'jobb',
         'jobbforsoek',
@@ -813,6 +814,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'sak_metadata',
         'skrivetidspunkt',
         'toemmingsvern',
+        'topic_kommentar',
         'vedlegg',
         'vedleggskvittering',
       ]);

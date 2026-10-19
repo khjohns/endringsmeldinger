@@ -345,13 +345,9 @@ export class CatendaOAuth {
    * når Catenda ikke finner boardet (404).
    */
   async boardetsProsjekt(boardId: string, token: string): Promise<string | null> {
-    let svar: unknown;
-    try {
-      svar = await forespoersel(this.#oppsett, 'GET', boardsti(boardId), { token });
-    } catch (feil) {
-      if (feil instanceof CatendaAvvisning && feil.status === 404) return null;
-      throw feil;
-    }
+    const funnet = await this.#hentEllerIkkeFunnet(boardsti(boardId), token);
+    if (!funnet) return null;
+    const { svar } = funnet;
     const prosjekt = erObjekt(svar) ? catendaId(svar.bimsync_project_id) : null;
     if (!erObjekt(svar) || catendaId(svar.project_id) !== catendaId(boardId) || !prosjekt)
       throw new CatendaUtilgjengelig('Ugyldig board');
@@ -364,13 +360,9 @@ export class CatendaOAuth {
    * eller type som mangler, er tom. Gir null når Catenda ikke finner topicen på boardet (404).
    */
   async topic(boardId: string, topicId: string, token: string): Promise<Topic | null> {
-    let svar: unknown;
-    try {
-      svar = await forespoersel(this.#oppsett, 'GET', topicsti(boardId, topicId), { token });
-    } catch (feil) {
-      if (feil instanceof CatendaAvvisning && feil.status === 404) return null;
-      throw feil;
-    }
+    const funnet = await this.#hentEllerIkkeFunnet(topicsti(boardId, topicId), token);
+    if (!funnet) return null;
+    const { svar } = funnet;
     // Et svar som aldri blir gyldig, er varig, så hendelsen ikke stenger innboksen.
     if (!erObjekt(svar) || catendaId(svar.guid) !== catendaId(topicId))
       throw new VarigCatendaavvik('Ugyldig topic');
@@ -382,6 +374,52 @@ export class CatendaOAuth {
       type: tekst(svar.topic_type),
       forfatter: erObjekt(forfatter) ? catendaId(forfatter.ref) : null,
     };
+  }
+
+  /** Kommentarene på topicen (BCF 3.0), med ID-en og teksten. */
+  async kommentarer(boardId: string, topicId: string, token: string): Promise<Kommentar[]> {
+    const svar = await forespoersel(
+      this.#oppsett,
+      'GET',
+      `${topicsti(boardId, topicId)}/comments`,
+      { token }
+    );
+    if (!Array.isArray(svar)) throw new CatendaUtilgjengelig('Ugyldige kommentarer');
+    return svar.map((rad) => {
+      if (!erObjekt(rad) || typeof rad.guid !== 'string' || !rad.guid)
+        throw new CatendaUtilgjengelig('Kommentar uten ID');
+      return { id: rad.guid, tekst: tekst(rad.comment) };
+    });
+  }
+
+  /**
+   * Skriver kommentaren på topicen og gir ID-en.
+   *
+   * @throws UsikkertCatendautfall når kommentaren kan være skrevet; ellers CatendaUtilgjengelig
+   */
+  async opprettKommentar(
+    boardId: string,
+    topicId: string,
+    kommentar: string,
+    token: string
+  ): Promise<string> {
+    const svar = await forespoersel(
+      this.#oppsett,
+      'POST',
+      `${topicsti(boardId, topicId)}/comments`,
+      { token, json: { comment: kommentar } }
+    );
+    return idFraSvar(svar, 'guid', 'Catenda svarte uten kommentar');
+  }
+
+  /** Svaret på GET, eller null når Catenda ikke finner ressursen (404). */
+  async #hentEllerIkkeFunnet(sti: string, token: string): Promise<{ svar: unknown } | null> {
+    try {
+      return { svar: await forespoersel(this.#oppsett, 'GET', sti, { token }) };
+    } catch (feil) {
+      if (feil instanceof CatendaAvvisning && feil.status === 404) return null;
+      throw feil;
+    }
   }
 
   /**
@@ -600,6 +638,11 @@ export interface Topic {
 
 /** Typen topicen for en sak fra appen får (#741 punkt 15). */
 export const TOPICTYPE = 'Krav om endringsordre';
+
+export interface Kommentar {
+  id: string;
+  tekst: string;
+}
 
 export interface NyTopic {
   tittel: string;
@@ -831,6 +874,9 @@ export interface Innboksoppslag extends Catenda {
   integrasjonensBruker(): Promise<string>;
   /** Topicen på boardet, eller null når Catenda ikke finner den der. */
   topic(boardId: string, topicId: string): Promise<Topic | null>;
+  kommentarer(boardId: string, topicId: string): Promise<Kommentar[]>;
+  /** Endrer noe i Catenda og kaller `merkEndring` før forespørselen sendes. */
+  opprettKommentar(boardId: string, topicId: string, kommentar: string): Promise<string>;
 }
 
 export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
@@ -840,6 +886,10 @@ export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
     integrasjonensBruker: async () =>
       (egen ??= await medToken(catenda, (t) => catenda.oauth.egenId(t))),
     topic: (board, topic) => medToken(catenda, (t) => catenda.oauth.topic(board, topic, t)),
+    kommentarer: (board, topic) =>
+      medToken(catenda, (t) => catenda.oauth.kommentarer(board, topic, t)),
+    opprettKommentar: (board, topic, kommentar) =>
+      medToken(catenda, (t) => catenda.oauth.opprettKommentar(board, topic, kommentar, t)),
   };
 }
 

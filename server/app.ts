@@ -38,7 +38,17 @@ import {
 } from './autorisasjon.ts';
 import { UsikkertUtfall, UUID, type Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
-import { fast, lagret, lesInntil, loggFeil, reserveFor, svarhoder } from './inngang.ts';
+import {
+  fast,
+  feilsvar,
+  FOR_STOR,
+  lagret,
+  lesInntil,
+  loggFeil,
+  reserveFor,
+  svarhoder,
+  ugyldig,
+} from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
 import { lesSaken } from './lager.ts';
 import {
@@ -176,7 +186,12 @@ export interface Sesjonsrute extends Felles {
 /** En inngang uten sesjon. Begrunnelsen står i registeret. */
 export interface AapenRute extends Felles {
   tilgang: { utenSesjon: string };
-  behandle: Behandler<IncomingMessage>;
+  /** Med treffet fra ruteren, så stien tolkes ett sted (#942). */
+  behandle: (
+    foresporsel: IncomingMessage,
+    avh: Required<Avhengigheter>,
+    treff: RegExpMatchArray
+  ) => Promise<Svar>;
 }
 
 export type Rute = Saksrute | Opprettelsesrute | Prosjektrute | Sesjonsrute | AapenRute;
@@ -194,7 +209,7 @@ async function lesKropp(
   foresporsel: IncomingMessage
 ): Promise<{ verdi: unknown } | { feil: Nektet }> {
   const kropp = await lesInntil(foresporsel, STORSTE_KROPP);
-  if (!kropp) return { feil: new Nektet(413, 'PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.') };
+  if (!kropp) return { feil: new Nektet(413, ...FOR_STOR) };
   const tekst = kropp.toString('utf8');
   if (!tekst) return { verdi: {} };
   let verdi: unknown;
@@ -225,13 +240,8 @@ function kroppsfeil(verdi: unknown): string | null {
   return null;
 }
 
-const feilsvar = (status: number, error: string, message: string): Svar => [
-  status,
-  { success: false, error, message },
-];
 /** Et nytt svar hver gang, så ingen kode kan endre kroppen i et senere svar (#763 punkt 7). */
 const uventet = () => feilsvar(500, 'INTERNAL_ERROR', 'Uventet feil.');
-const ugyldig = (melding: string) => feilsvar(400, 'UGYLDIG_FORESPOERSEL', melding);
 const finnesIkke = () => feilsvar(404, 'SAK_FINNES_IKKE', 'Saken finnes ikke.');
 
 /** Kjernens avvisning av kommandoen, i samme form fra hver inngang (#743). */
@@ -646,7 +656,7 @@ export function lagServer(avh: Avhengigheter) {
     treff: RegExpMatchArray,
     foresporsel: IncomingMessage
   ): Promise<Svar> {
-    if (erAapen(r)) return r.behandle(foresporsel, full);
+    if (erAapen(r)) return r.behandle(foresporsel, full, treff);
     if (erUtenProsjekt(r)) return r.behandle(await krevSesjon(full.datalag, foresporsel), full);
     if (erUtenSak(r)) return prosjektrute(r, treff, foresporsel);
     if (erOpprettelse(r)) return opprettelsesrute(r, foresporsel);
