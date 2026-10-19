@@ -113,7 +113,7 @@ function svar(
     spor: s.spor,
     gjelder: s.gjelder,
     ...(erstatter ? { erstatter } : {}),
-    // #342: grunnlagsversjonen svaret regnes mot, som `regnUtSvar` under.
+    // #342: grunnlagsversjonen svaret regnes mot, som `regnUtSvar` i nyttelastkontrollen.
     ...(s.spor === 'grunnlag' ? {} : { grunnlagskrav: u.spor.grunnlag.gjeldendeKrav!.id }),
     standpunkter: bygd.standpunkter,
   };
@@ -133,10 +133,8 @@ function dokument(
   nyId: () => string,
   utdypninger: Utdypninger,
   bygde: Bygde,
-  vedlegg: Vedleggsoppslag
+  bundne: Vedlegg[]
 ): Data {
-  // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
-  const bundne = (ider: string[]) => ider.map((id) => vedlegg.get(id.toLowerCase())!);
   switch (k.type) {
     case 'krav': {
       const forrige = u.spor[k.spor].gjeldendeKrav;
@@ -169,7 +167,7 @@ function dokument(
       return {
         utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }],
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
-        dokumentasjon: bundne(k.dokumentasjon),
+        dokumentasjon: bundne,
       };
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
@@ -188,7 +186,7 @@ function dokument(
         return {
           utsagn,
           opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
-          ...(k.dokumentasjon ? { dokumentasjon: bundne(k.dokumentasjon) } : {}),
+          ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
         };
       if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
       return { utsagn };
@@ -278,21 +276,24 @@ function skriv(
     sendes
   );
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
-  const ukjent = (k as { dokumentasjon?: string[] }).dokumentasjon?.find(
-    (id) => !vedlegg.has(id.toLowerCase())
-  );
-  if (ukjent !== undefined)
-    return {
-      godtatt: false,
-      feil: 'REGELBRUDD',
-      avvisning: avvis('VEDLEGG_FINNES_IKKE', `Vedlegget ${ukjent} finnes ikke i saken.`),
-    };
+  // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
+  const bundne: Vedlegg[] = [];
+  for (const id of (k as { dokumentasjon?: string[] }).dokumentasjon ?? []) {
+    const funnet = vedlegg.get(id.toLowerCase());
+    if (!funnet)
+      return {
+        godtatt: false,
+        feil: 'REGELBRUDD',
+        avvisning: avvis('VEDLEGG_FINNES_IKKE', `Vedlegget ${id} finnes ikke i saken.`),
+      };
+    bundne.push(funnet);
+  }
 
   const eventId = kontekst.nyId();
   const utdypninger: Utdypninger = new Map();
   let data: Data;
   try {
-    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger, bygde, vedlegg);
+    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger, bygde, bundne);
   } catch (feil) {
     // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
     if (feil instanceof Uforstaatt)

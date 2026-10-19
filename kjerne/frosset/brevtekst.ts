@@ -16,7 +16,7 @@
 
 import { DATOEN_GJELDER, HJEMMEL } from '../format/format.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
-import { beloep } from '../regler/beloep.ts';
+import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
@@ -522,9 +522,10 @@ function standpunkttekst(
     case 'beloep': {
       // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
       // kan være det, til nærmeste krone som i B-13.
-      const heleBeloepet = erBeloepetGodkjentFullt(krevdBeloep(krav), beloep(p.godkjent)!);
+      const krevd = krevdBeloep(krav);
+      const heleBeloepet = erBeloepetGodkjentFullt(krevd, beloep(p.godkjent)!);
       const resultat = p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat;
-      return verdi(resultat, eksMva(p.godkjent), eksMva(krav.innhold.beloep as number));
+      return verdi(resultat, eksMva(p.godkjent), eksMva(tilTall(krevd)));
     }
     case 'dager':
       return verdi(p.resultat, dager(p.vurdert), dager(krav.innhold.dager as number));
@@ -608,7 +609,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
         return `TE trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
       const verdi =
         krav.spor === 'vederlag'
-          ? eksMva(krav.innhold.beloep as number)
+          ? eksMva(tilTall(krevdBeloep(krav)))
           : dager(krav.innhold.dager as number);
       return `TE trekker kravet om ${KRAVET_OM[krav.spor]} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }

@@ -47,8 +47,8 @@ const oere = (kr: number) => tilTall(beloep(kr)!);
  * dagmulktssats kan ikke verdsettes (GFK-U3). Hovedstandpunktet og det subsidiære
  * summeres hver for seg, og det største gjelder; alternativene legges ikke sammen.
  *
- * Svarene må være kontrollert av kjernen først. Kaster `UgyldigVurdering` fra
- * kjernens utregning.
+ * Svarene må være kontrollert av kjernen først. Kaster det kjernens utregning
+ * kaster (`regnUtSvar`): `UgyldigVurdering` og `UgyldigBeloep`.
  */
 export function brevverdi(
   svar: readonly Svarutkast[],

@@ -22,6 +22,7 @@ export const NOEKKELORD = new Set([
   'minimum',
   'exclusiveMinimum',
   'minLength',
+  'pattern',
   'minItems',
 ]);
 
@@ -114,6 +115,12 @@ export function feilI(verdi: unknown, s: Skjema, sti = '$', rot: Skjema = s): st
   if (typeof s.minLength === 'number' && typeof verdi === 'string' && verdi.length < s.minLength) {
     feil.push(`${sti}: er kortere enn ${s.minLength}`);
   }
+  if (
+    typeof s.pattern === 'string' &&
+    typeof verdi === 'string' &&
+    !new RegExp(s.pattern, 'u').test(verdi)
+  )
+    feil.push(`${sti}: ${vis(verdi)} har ikke formen ${s.pattern}`);
   if (erObjekt(verdi)) {
     const objekt = verdi;
     const egenskaper = (s.properties ?? {}) as Record<string, Skjema>;

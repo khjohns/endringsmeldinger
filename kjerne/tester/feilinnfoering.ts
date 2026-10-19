@@ -2506,10 +2506,9 @@ const MUTASJONER: Mutasjon[] = [
       'kjernen godtar et vedlegg serveren ikke fant i saken (LV-U14, arbeidsvalg 3 i #790)',
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
-      ['(id) => !vedlegg.has(id.toLowerCase())', '() => false'],
       [
-        'vedlegg.get(id.toLowerCase())!',
-        "(vedlegg.get(id.toLowerCase()) ?? { vedlegg_id: id, filnavn: id, innhold_sha256: '0'.repeat(64) })",
+        'const funnet = vedlegg.get(id.toLowerCase());',
+        "const funnet = vedlegg.get(id.toLowerCase()) ?? { vedlegg_id: id, filnavn: id, innhold_sha256: '0'.repeat(64) };",
       ],
     ],
     mal: ['et vedlegg serveren ikke fant i saken, avvises'],
@@ -2519,12 +2518,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet lagrer ID-en fra klienten uten filnavnet og summen fra mellomlageret (LV-U14)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [
-      [
-        'ider.map((id) => vedlegg.get(id.toLowerCase())!)',
-        'ider.map((id) => ({ ...vedlegg.get(id.toLowerCase())!, vedlegg_id: id }))',
-      ],
-    ],
+    endringer: [['bundne.push(funnet);', 'bundne.push({ ...funnet, vedlegg_id: id });']],
     mal: ['et vedlegg serveren ikke fant i saken, avvises, og ID-en lagres med små bokstaver'],
   },
   {
