@@ -17,8 +17,9 @@
  * `ConnectionPool.acquire`/`release` gir ut forbindelsen fra `tedious`, at en
  * `Transaction` henter og gir tilbake forbindelsen gjennom forelderens
  * `acquire(requester, callback)`, `release` og `config`, lytteren `_abort` og
- * `_abortReason` på transaksjonen, hendelsen `rollbackTransaction`,
- * `reset`, `close` og `hasError` på forbindelsen. Versjonen av `mssql` er låst
+ * `_abortReason` og `_activeRequest` på transaksjonen, hendelsen
+ * `rollbackTransaction`, `reset`, `close`, `hasError` og `databaseCollation` på
+ * forbindelsen. Versjonen av `mssql` er låst
  * i `package.json`, `tedious` i `package-lock.json`, og CI-jobben «SQL Server
  * (testbasen for datalaget)» kjører testene som vokter delene.
  */
@@ -71,9 +72,6 @@ export class UgyldigKontekst extends Error {}
 /**
  * COMMIT feilet eller fikk ikke svar, uten at serveren meldte tilbakerulling.
  * Serveren kan ha committet, så utfallet er usikkert. Forbindelsen er forkastet.
- * `server/kommandoer.ts` kaster den også når låsen på kvitteringen ikke gis (51408):
- * da er denne transaksjonen rullet tilbake, men et forsøk med samme nøkkel kan ennå
- * committe.
  */
 export class UsikkertUtfall extends Error {}
 
@@ -84,9 +82,18 @@ export class UsikkertUtfall extends Error {}
  */
 export class TransaksjonAvbrutt extends Error {}
 
+/**
+ * COMMIT ble ikke sendt: en forespørsel i arbeidet pågikk ennå da arbeidet var
+ * ferdig, eller transaksjonen i `mssql` lytter ikke med `_abort` (#533). Forbindelsen
+ * er forkastet med transaksjonen åpen, og serveren ruller den tilbake. Utfallet er
+ * kjent: transaksjonen er ikke committet.
+ */
+export class CommitIkkeSendt extends Error {}
+
 /** Forbindelsen fra `tedious`, med det `transaksjon` bruker. */
 export interface Forbindelse {
   reset(callback: (feil?: Error) => void): void;
+  databaseCollation?: unknown;
   close(): void;
   on(hendelse: 'rollbackTransaction', lytter: () => void): void;
   removeListener(hendelse: 'rollbackTransaction', lytter: () => void): void;
@@ -102,7 +109,8 @@ interface Utlaan {
 /**
  * En pool der hver forbindelse har `xact_abort` på. `tedious` setter det ved
  * innloggingen og etter hver nullstilling. `maks` går foran `konfig.pool.max`,
- * og standarden er 10.
+ * og standarden er 10. Grensene kontrolleres før tilkoblingen: `min` er et heltall
+ * fra 0, `max` et heltall fra 1, og `min` er ikke over `max`.
  */
 export async function opprettPool(
   konfig: sql.config,
@@ -110,6 +118,10 @@ export async function opprettPool(
 ): Promise<Pool> {
   const max = maks ?? konfig.pool?.max ?? 10;
   const min = konfig.pool?.min ?? 0;
+  if (!Number.isInteger(max) || max < 1)
+    throw new RangeError(`Poolen har maks ${max}, som ikke er et heltall fra 1.`);
+  if (!Number.isInteger(min) || min < 0)
+    throw new RangeError(`Poolen har min ${min}, som ikke er et heltall fra 0.`);
   if (min > max) throw new RangeError(`Poolen har min ${min}, som er over maks ${max}.`);
   return new sql.ConnectionPool({
     ...konfig,
@@ -142,17 +154,34 @@ function kontroller(k: Kontekst): void {
 }
 
 /**
+ * En forespørsel uten `SESSION_CONTEXT`, for prosedyrene og spørringene som ikke
+ * leser konteksten: sesjonen, innloggingen, medlemskapet og oppslagene i
+ * tilgangskontrollen. Saksdata leses og skrives i `transaksjon`. Utenom
+ * datalaget, migreringen og testene er dette den eneste veien til en forespørsel
+ * (#542, `server/tester/arkitektur.test.ts`).
+ */
+export function utenKontekst(pool: Pool): sql.Request {
+  return pool.request();
+}
+
+/**
  * Forelderen til transaksjonen og forespørslene: den gir ut den reserverte
  * forbindelsen og gir den aldri tilbake til poolen. `mssql` gir forbindelsen
  * tilbake før kallerens callback når COMMIT eller ROLLBACK er ferdig, også når
- * de feiler (#419); her blir det en tom operasjon.
+ * de feiler (#419); her blir det en tom operasjon. Faller forbindelsen ut,
+ * feiler de neste forespørslene i stedet for å få en ny sesjon. Migreringen
+ * bruker den også (`migrering.ts`).
  */
-function reservasjon(pool: Pool, forbindelse: Forbindelse) {
+export function reservasjon(pool: Pool, forbindelse: Forbindelse): Pool {
   const { config } = pool as unknown as { config: unknown };
-  return {
+  const forelder = {
     config,
     get connected() {
       return pool.connected;
+    },
+    // `mssql` validerer tegnparametrene mot sorteringen forbindelsen leste ved innloggingen.
+    get collation() {
+      return forbindelse.databaseCollation;
     },
     acquire(_requester: unknown, callback: (...a: unknown[]) => void) {
       setImmediate(callback, null, forbindelse, config);
@@ -161,7 +190,9 @@ function reservasjon(pool: Pool, forbindelse: Forbindelse) {
     release() {
       return this;
     },
-  } as unknown as sql.ConnectionPool;
+    request: () => new sql.Request(forelder as unknown as Pool),
+  };
+  return forelder as unknown as Pool;
 }
 
 function nullstill(forbindelse: Forbindelse): Promise<void> {
@@ -223,7 +254,7 @@ async function nullstillOgKontroller(
  * bundet til transaksjonen med `koe_tx`. Kaster `arbeid`, rulles transaksjonen
  * tilbake og feilen kastes videre. Har serveren rullet tilbake uten at arbeidet
  * kastet, eller under COMMIT, kastes `TransaksjonAvbrutt`. Feiler COMMIT uten
- * det, kastes `UsikkertUtfall`.
+ * det, kastes `UsikkertUtfall`. Sendes ikke COMMIT, kastes `CommitIkkeSendt`.
  * Forbindelsen går tilbake i poolen bare når transaksjonen er avsluttet og
  * forbindelsen er nullstilt og kontrollert; ellers forkastes den.
  */
@@ -313,10 +344,26 @@ async function committ<T>(
   forbindelse: Forbindelse,
   svar: T
 ): Promise<Utfall<T>> {
-  const { _abort: avbryt } = tx as unknown as { _abort: () => void };
+  // En forespørsel arbeidet ikke ventet på, låner forbindelsen først i neste runde
+  // av hendelsesløkka. Pågår den, ville COMMIT gått før den eller blitt avvist med
+  // EREQINPROG (#543 punkt 3).
+  await new Promise((ok) => setImmediate(ok));
+  const { _abort: avbryt, _activeRequest: aktiv } = tx as unknown as {
+    _abort: () => void;
+    _activeRequest: unknown;
+  };
+  if (aktiv)
+    return {
+      feil: new CommitIkkeSendt(
+        'En forespørsel pågikk da arbeidet var ferdig; COMMIT sendes ikke.'
+      ),
+      avsluttet: false,
+    };
   if (!forbindelse.listeners('rollbackTransaction').includes(avbryt))
     return {
-      feil: new Error('Transaksjonen i mssql lytter ikke med `_abort`; COMMIT sendes ikke.'),
+      feil: new CommitIkkeSendt(
+        'Transaksjonen i mssql lytter ikke med `_abort`; COMMIT sendes ikke.'
+      ),
       avsluttet: false,
     };
   let rulletTilbake = false;

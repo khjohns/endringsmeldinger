@@ -7,7 +7,7 @@
    */
   import { page } from '$app/state';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
-  import type { OppgittDato } from '$kjerne/format/format';
+  import { DATOEN_GJELDER, type OppgittDato } from '$kjerne/format/format';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
   import { leveringstekst } from '$lib/kjernesak/saksbilde';
   import {
@@ -36,10 +36,6 @@
   const underkategorier = $derived(KJERNEKATEGORIER.find((h) => h.kode === hoved)?.hjemler ?? []);
 
   // VS-U26: datoen varslingsplikten løper fra, påkrevd i krav fra appen.
-  const DATOEN: Record<OppgittDato, string> = {
-    paalegg_mottatt: 'Datoen pålegget ble mottatt',
-    klar_over_forholdet: 'Datoen TE ble klar over forholdet',
-  };
   const dato = $derived(under ? datofelt(hoved, under) : null);
   const eo = $derived(!!under && gjelderEndringsordre(under));
 
@@ -137,7 +133,7 @@
       </label>
       {#if dato}
         <label class="block"
-          >{DATOEN[dato]}
+          >Datoen {DATOEN_GJELDER[dato]}
           <input class="block w-full border" type="date" bind:value={datoer[dato]} required />
         </label>
       {/if}

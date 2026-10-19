@@ -15,7 +15,7 @@
  * Tilgangskontrollen og innloggingen kaller modulen (F0b-5b).
  */
 
-import { feilnummer, sql, type Pool } from './datalag.ts';
+import { feilnummer, sql, utenKontekst, type Pool } from './datalag.ts';
 
 /** Ett medlem i Catenda-prosjektet. `subjekt` har `catendaId()`-formen. */
 export interface Medlem {
@@ -80,7 +80,7 @@ export function oversett(
  * Catenda begynner, og brukes som `hentet` for listen hentingen gir.
  */
 export async function basensKlokke(pool: Pool): Promise<Date> {
-  const svar = await pool.request().query<{
+  const svar = await utenKontekst(pool).query<{
     naa: Date;
   }>('SELECT CAST(DATETRUNC(millisecond, SYSUTCDATETIME()) AS datetime2(3)) AS naa');
   return svar.recordset[0].naa;
@@ -91,8 +91,7 @@ export async function basensKlokke(pool: Pool): Promise<Date> {
  * `null` uten aktiv kobling.
  */
 export async function prosjektkobling(pool: Pool, prosjekt: string): Promise<string | null> {
-  const svar = await pool
-    .request()
+  const svar = await utenKontekst(pool)
     .input('prosjekt', sql.NVarChar(4000), prosjekt)
     .execute<{ catenda_prosjekt: string }>('koe_api.prosjektkobling');
   const rad = svar.recordset[0];
@@ -161,8 +160,7 @@ export async function kobledeProsjekter(
   catendaProsjekter: string[]
 ): Promise<string[]> {
   try {
-    const svar = await pool
-      .request()
+    const svar = await utenKontekst(pool)
       .input('catenda_prosjekter', sql.NVarChar(sql.MAX), JSON.stringify(catendaProsjekter))
       .execute<{ prosjekt: string }>('koe_api.koblede_prosjekter');
     return svar.recordset.map((r) => r.prosjekt);
@@ -199,8 +197,7 @@ async function skrivMedlemsliste(
     role: m.rolle,
   }));
   try {
-    const svar = await pool
-      .request()
+    const svar = await utenKontekst(pool)
       .input('prosjekt', sql.NVarChar(4000), liste.prosjekt)
       .input('catenda_prosjekt', sql.UniqueIdentifier, liste.catendaProsjekt)
       .input('medlemmer', sql.NVarChar(sql.MAX), JSON.stringify(medlemmer))
@@ -233,8 +230,7 @@ export async function deaktiverVedInnlogging(
   innlogging: { subjekt: string; catendaProsjekter: string[]; hentet: Date }
 ): Promise<string[]> {
   try {
-    const svar = await pool
-      .request()
+    const svar = await utenKontekst(pool)
       .input('subjekt', sql.NVarChar(400), innlogging.subjekt)
       .input(
         'catenda_prosjekter',

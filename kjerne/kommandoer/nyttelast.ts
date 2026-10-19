@@ -10,13 +10,14 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevtekst.ts';
-import { oppgittDato, type OppgittDato } from '../format/format.ts';
+import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
-import { tekst } from '../format/skjema.ts';
+import { erKalenderdato, tekst } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
+  krevdBeloep,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
@@ -29,7 +30,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import type { Avvisning, Part, Standpunkt, Svar } from '../typer.ts';
+import type { Avvisning, Krav, Part, Standpunkt, Svar } from '../typer.ts';
 
 /**
  * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.
@@ -58,7 +59,7 @@ function kontrollerSvar(
   if (utenfor)
     return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);
   // #766: et ugyldig beløp i det lagrede kravet er ikke byggherrens vurdering.
-  if (s.spor === 'vederlag') beloep(krav.innhold.beloep as number | undefined);
+  if (s.spor === 'vederlag') krevdBeloep(krav);
   let server: Record<string, unknown>;
   try {
     server = regnUtSvar(
@@ -94,7 +95,7 @@ function kontrollerSvar(
       'ANNET_RESULTAT',
       `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
     );
-  const grunner = avgrensninger(s, server, krav.innhold.beloep);
+  const grunner = avgrensninger(s, server, krav);
   if (utdypningKreves && grunner.length && !s.utdypning?.trim())
     return avvis(
       'BEGRUNNELSE_MANGLER',
@@ -128,11 +129,7 @@ function binding(forrige: Svar, nye: Standpunkt[]): Avvisning | null {
  * bygges. At et svar bare er subsidiært fordi grunnlaget er avslått, krever ingen
  * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten.
  */
-function avgrensninger(
-  s: Svarutkast,
-  server: Record<string, unknown>,
-  krevdBeloep: unknown
-): string[] {
+function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Krav): string[] {
   const v = s.vurderinger;
   const ut: string[] = [];
   const fulltGodkjent = (server.subsidiaert_resultat ?? server.resultat) === 'godkjent';
@@ -144,9 +141,12 @@ function avgrensninger(
     if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');
     if (v.aksepterer_metode === false) ut.push('et tilbud som ikke er akseptert (§ 34.2.2)');
     // B-13: beløpet alene, også uten aksept av tilbudet; da gjelder grunnen over i tillegg.
-    const godkjent = server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep;
-    const krevd = beloep((krevdBeloep as number | undefined) ?? 0)!;
-    if (!erBeloepetGodkjentFullt(krevd, beloep(godkjent as number)!))
+    const godkjent = beloep(
+      (server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep) as number | undefined
+    );
+    if (godkjent === null)
+      throw new Error('Utregningen av vederlaget har ikke godkjent beløp (#508).');
+    if (!erBeloepetGodkjentFullt(krevdBeloep(krav), godkjent))
       ut.push('et beløp som ikke er godkjent fullt');
   } else {
     if (v.frist_varsel_ok === false) ut.push('påberopt preklusjon etter § 33.4');
@@ -208,18 +208,16 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
     : null;
 }
 
-const OPPGITT: Record<OppgittDato, string> = {
-  paalegg_mottatt: 'pålegget ble mottatt',
-  klar_over_forholdet: 'TE ble klar over forholdet',
-};
-
 /**
  * Datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato, som er
  * serverens (VS-U8) i norsk tid. Det er en kontroll av en dato som ikke kan
  * stemme; om varselet kom i tide, vurderes ikke (arbeidsvalg 1 i #664, samme form
- * som KA-U36). `brevetsDato` er en kalenderdag, ÅÅÅÅ-MM-DD, fra `registrertDato`.
+ * som KA-U36). `brevetsDato` er en kalenderdag, ÅÅÅÅ-MM-DD, fra `registrertDato`;
+ * dagene sammenliknes som tekst, så et tidspunkt kaster (#870).
  */
 export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisning | null {
+  if (!erKalenderdato(brevetsDato))
+    throw new Error(`Brevets dato ${brevetsDato} er ikke en kalenderdag på formen ÅÅÅÅ-MM-DD.`);
   if (k.type !== 'krav' || k.spor !== 'grunnlag') return null;
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
   const dato = felt === null ? undefined : k.innhold[felt];
@@ -228,7 +226,7 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
   if (felt === null || dag === null || dag <= brevetsDato) return null;
   return avvis(
     'DATO_ETTER_BREVET',
-    `TE har oppgitt at ${OPPGITT[felt]} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
+    `TE har oppgitt at ${DATOEN_GJELDER[felt]} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
   );
 }
 

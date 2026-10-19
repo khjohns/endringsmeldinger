@@ -38,6 +38,7 @@ import {
 } from './sqlserver_migrert.ts';
 import {
   opprettKjoeretid,
+  slettAlle,
   sql,
   SQLSERVER_TILKOBLING,
   type Pool,
@@ -149,10 +150,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
     base = await opprettMigrertTestbase('autorisasjon', { maks: 8 });
     kjoeretid = await opprettKjoeretid(base, { maks: 4 });
   }, 240_000);
-  afterAll(async () => {
-    await kjoeretid?.slett();
-    await base?.slett();
-  }, 60_000);
+  afterAll(() => slettAlle(kjoeretid, base), 60_000);
 
   const r = () => base.pool.request();
 

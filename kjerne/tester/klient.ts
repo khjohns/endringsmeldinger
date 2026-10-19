@@ -10,6 +10,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Kommando, Svarutkast } from '../kommandoer/kommando.ts';
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
+import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar, type Svarvurdering } from '../frosset/standpunkt.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Krav, Part, Spor } from '../typer.ts';
@@ -173,17 +174,18 @@ const utdypning = (h: Record<string, unknown>) =>
     : { utdypning: typeof h.utdypning === 'string' ? h.utdypning : 'Utdypning i bevis-saken.' };
 
 const INNHOLD = {
-  grunnlag: (h: Handling) => ({
-    hovedkategori: h.hovedkategori ?? 'endring',
-    underkategori: h.underkategori,
-    // GR-U16: TE identifiserer endringsordren kravet følger av.
-    ...(h.underkategori === 'endringsordre'
-      ? { endringsordre: 'EO 1' }
-      : // VS-U26: datoen varslingsplikten løper fra, før kjørerens klokke.
-        (h.hovedkategori ?? 'endring') === 'endring'
-        ? { paalegg_mottatt: '2026-09-15' }
-        : { klar_over_forholdet: '2026-09-15' }),
-  }),
+  grunnlag: (h: Handling) => {
+    const hovedkategori = h.hovedkategori ?? 'endring';
+    // VS-U26: datoen varslingsplikten løper fra, før kjørerens klokke, i feltet formatet har.
+    const dato = oppgittDato(hovedkategori, h.underkategori);
+    return {
+      hovedkategori,
+      underkategori: h.underkategori,
+      // GR-U16: TE identifiserer endringsordren kravet følger av.
+      ...(h.underkategori === 'endringsordre' ? { endringsordre: 'EO 1' } : {}),
+      ...(dato ? { [dato]: '2026-09-15' } : {}),
+    };
+  },
   vederlag: (h: Handling) => ({ metode: 'tilbud', beloep: h.belop }),
   frist: (h: Handling) => ({ dager: h.dager }),
 };

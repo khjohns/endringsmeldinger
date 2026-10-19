@@ -28,6 +28,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sql from 'mssql';
+import { reservasjon, type Forbindelse } from './datalag.ts';
 
 export const MIGRASJONSMAPPE = fileURLToPath(new URL('../database/migrasjoner/', import.meta.url));
 
@@ -218,7 +219,9 @@ const HISTORIKK = `
 IF SCHEMA_ID(N'koe_migrering') IS NULL EXEC (N'CREATE SCHEMA koe_migrering');
 IF OBJECT_ID(N'koe_migrering.historikk', N'U') IS NULL
   CREATE TABLE koe_migrering.historikk (
-    versjon char(14) NOT NULL CONSTRAINT historikk_pk PRIMARY KEY,
+    versjon char(14) NOT NULL CONSTRAINT historikk_pk PRIMARY KEY
+      CONSTRAINT historikk_versjon_tegnklasse
+        CHECK (NOT versjon COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^!-~]%'),
     filnavn nvarchar(260) NOT NULL,
     sha256 char(64) NOT NULL,
     anvendt datetime2(3) NOT NULL CONSTRAINT historikk_anvendt DEFAULT SYSUTCDATETIME()
@@ -439,41 +442,9 @@ async function anvendNeste(
   return neste.versjon;
 }
 
-/** Forbindelsen fra `tedious`. Runneren bruker den bare gjennom `mssql`. */
-type Forbindelse = object;
-
 interface Utlaan {
   acquire(requester: unknown): Promise<Forbindelse>;
   release(forbindelse: Forbindelse): void;
-}
-
-/**
- * Forelderen til runnerens forespørsler: den gir alltid ut `forbindelse` og gir
- * den aldri tilbake til poolen, som `reservasjon` i `datalag.ts`. Faller
- * forbindelsen ut, feiler de neste forespørslene i stedet for å få en ny sesjon
- * uten runnerens transaksjon og applås.
- */
-function fast(pool: sql.ConnectionPool, forbindelse: Forbindelse): sql.ConnectionPool {
-  const { config } = pool as unknown as { config: unknown };
-  const forelder = {
-    config,
-    get connected() {
-      return pool.connected;
-    },
-    // `mssql` validerer tegnparametrene mot sorteringen poolen leste ved innloggingen.
-    get collation() {
-      return (pool as unknown as { collation: unknown }).collation;
-    },
-    acquire(_requester: unknown, callback: (...a: unknown[]) => void) {
-      setImmediate(callback, null, forbindelse, config);
-      return this;
-    },
-    release() {
-      return this;
-    },
-    request: () => new sql.Request(forelder as unknown as sql.ConnectionPool),
-  };
-  return forelder as unknown as sql.ConnectionPool;
 }
 
 /**
@@ -496,7 +467,7 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
   try {
     await egenPool.connect();
     forbindelse = await (egenPool as unknown as Utlaan).acquire(egenPool);
-    const egen = fast(egenPool, forbindelse);
+    const egen = reservasjon(egenPool, forbindelse);
     try {
       await egen.request().batch('SET XACT_ABORT ON;');
       await kontrollerIdentitet(egen);

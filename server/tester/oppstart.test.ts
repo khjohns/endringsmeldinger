@@ -10,7 +10,13 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { lesMigrasjoner, type Anvendt, type Migrasjon } from '../migrering.ts';
 import { hindringer, migrasjonsavvik } from '../oppstart.ts';
 import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
-import { opprettKjoeretid, SQLSERVER_TILKOBLING, type Pool, type Testbase } from './sqlserver.ts';
+import {
+  opprettKjoeretid,
+  slettAlle,
+  SQLSERVER_TILKOBLING,
+  type Pool,
+  type Testbase,
+} from './sqlserver.ts';
 
 const fil = (versjon: string): Migrasjon => ({
   versjon,
@@ -62,10 +68,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
     base = await opprettMigrertTestbase('oppstart');
     kjoeretid = await opprettKjoeretid(base, { maks: 1 });
   }, 240_000);
-  afterAll(async () => {
-    await kjoeretid?.slett();
-    await base?.slett();
-  }, 60_000);
+  afterAll(() => slettAlle(kjoeretid, base), 60_000);
 
   it('kjøretiden mot en base migrert som repoet har ingen hindringer (kontroll)', async () => {
     expect(await hindringer(kjoeretid.pool, lesMigrasjoner())).toEqual([]);

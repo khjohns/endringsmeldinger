@@ -9,7 +9,7 @@
  * - Historikken skal være filene i `database/migrasjoner/`, og hver fil anvendt.
  */
 
-import type { Pool } from './datalag.ts';
+import { utenKontekst, type Pool } from './datalag.ts';
 import { avvik, ikkeAnvendt, type Anvendt, type Migrasjon } from './migrering.ts';
 
 /** De faste rollene i basen som gir rettigheter. `db_denydata*` tar bare bort. */
@@ -37,7 +37,7 @@ export function migrasjonsavvik(anvendt: Anvendt[], filer: Migrasjon[]): string[
 /** Vilkårene for kjøretiden som forbindelsen bryter, som ledd i én setning. */
 async function rollebrudd(pool: Pool): Promise<string[]> {
   const svar = (
-    await pool.request().query<{
+    await utenKontekst(pool).query<{
       kjoeretid: number | null;
       roller: string | null;
       kontroll: number | null;
@@ -67,6 +67,7 @@ export async function hindringer(pool: Pool, filer: Migrasjon[]): Promise<string
       `Forbindelsen er ikke kjøretidens: ${brudd.join(', ')}. Kjøretiden skal være medlem av ` +
         'koe_runtime, uten en fast rolle i basen, uten CONTROL på basen og ikke sysadmin.',
     ];
-  const anvendt = (await pool.request().execute<Anvendt>('koe_api.migrasjonshistorikk')).recordset;
+  const anvendt = (await utenKontekst(pool).execute<Anvendt>('koe_api.migrasjonshistorikk'))
+    .recordset;
   return migrasjonsavvik(anvendt, filer);
 }

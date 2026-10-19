@@ -55,7 +55,7 @@ export function senketInnroemmelse(
         return `Svaret godkjenner ${subsidiaert(f.id)}${kroner(f.godkjent)}, og revisjonen senker beløpet til ${kroner(n.godkjent)}`;
     } else if (f.art === 'dager') {
       const n = ny(f)!;
-      if (typeof n.vurdert !== 'number' || typeof f.vurdert !== 'number')
+      if (!Number.isFinite(n.vurdert) || !Number.isFinite(f.vurdert))
         return 'Dagene mangler i svaret eller i revisjonen, så revisjonen kan ikke sammenliknes med svaret';
       if (n.vurdert < f.vurdert)
         return `Svaret godkjenner ${subsidiaert(f.id)}${dager(f.vurdert)}, og revisjonen senker dagene til ${dager(n.vurdert)}`;

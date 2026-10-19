@@ -24,6 +24,7 @@ import { avvisning, catendaBruker, opprettMigrertTestbase } from './sqlserver_mi
 import {
   koble,
   opprettKjoeretid,
+  slettAlle,
   sql,
   SQLSERVER_TILKOBLING,
   type Pool,
@@ -43,10 +44,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('sesjonen og innloggingsforsøket i SQL S
     kjoeretid = await opprettKjoeretid(base, { maks: 12 });
     bruker = await catendaBruker(kjoeretid.pool);
   }, 240_000);
-  afterAll(async () => {
-    await kjoeretid?.slett();
-    await base?.slett();
-  }, 60_000);
+  afterAll(() => slettAlle(kjoeretid, base), 60_000);
 
   // Avkortet til millisekundet som utløpet, så grensene holder på millisekundet.
   const klokke = async () =>

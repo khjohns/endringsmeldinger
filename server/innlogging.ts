@@ -23,7 +23,7 @@ import { validateHeaderName, validateHeaderValue, type IncomingMessage } from 'n
 import type { Avhengigheter, Innlogget, Rute, Svar } from './app.ts';
 import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
-import { sql, type Pool } from './datalag.ts';
+import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { fast, loggFeil, svarhoder } from './inngang.ts';
 import {
   basensKlokke,
@@ -167,8 +167,7 @@ const utilgjengelig = (): Svar => [
 
 /** `app_users.id` for Catenda-identiteten. Basen avviser et subjekt som ikke er normalisert. */
 export async function catendaIdentitet(pool: Pool, bruker: CatendaBruker): Promise<string> {
-  const svar = await pool
-    .request()
+  const svar = await utenKontekst(pool)
     .input('subjekt', sql.NVarChar(400), bruker.subjekt)
     .input('epost', sql.NVarChar(320), bruker.epost)
     .input('navn', sql.NVarChar(400), bruker.navn)

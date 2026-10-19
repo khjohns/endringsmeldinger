@@ -25,20 +25,20 @@ const SKJEMA = objekt({ type: { const: 'opprett_sak' }, sakstittel: TEKST }, [
   'sakstittel',
 ]);
 
-const ugyldig = (regel: string, melding: string): Opprettelsesutfall => ({
+const ugyldig = (avvisning: Avvisning): Opprettelsesutfall => ({
   godtatt: false,
   feil: 'UGYLDIG_FORM',
-  avvisning: { regel, melding },
+  avvisning,
 });
 
 /** Raden kommandoen gir, eller avvisningen. Parten er serverens (AGENTS.md). */
 export function opprettelse(kommando: unknown, part: Part): Opprettelsesutfall {
   const ulagringsbar = tekstSomIkkeKanLagres(kommando);
-  if (ulagringsbar) return { godtatt: false, feil: 'UGYLDIG_FORM', avvisning: ulagringsbar };
+  if (ulagringsbar) return ugyldig(ulagringsbar);
   const feil = erObjekt(kommando) ? feilI(kommando, SKJEMA) : ['Kommandoen må være et objekt.'];
   const k = kommando as Opprettelse;
   if (!feil.length && !k.sakstittel.trim()) feil.push('$.sakstittel: saken må ha en tittel');
-  if (feil.length) return ugyldig('UGYLDIG_FORM', feil.join('; '));
+  if (feil.length) return ugyldig({ regel: 'UGYLDIG_FORM', melding: feil.join('; ') });
   // Byggherrens endring er EO-saken, som ikke er med i første versjon (OV-U1).
   if (part !== 'TE')
     return {
