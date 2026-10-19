@@ -102,6 +102,15 @@ export const OPPGITT_DATO = {
 
 export type OppgittDato = (typeof OPPGITT_DATO)[keyof typeof OPPGITT_DATO];
 
+/**
+ * Det datoen gjelder, med ordene brevet, meldingene og skjemaet bruker (VS-U26, #698):
+ * «TE opplyser at pålegget ble mottatt …», «datoen pålegget ble mottatt».
+ */
+export const DATOEN_GJELDER: Record<OppgittDato, string> = {
+  paalegg_mottatt: 'pålegget ble mottatt',
+  klar_over_forholdet: 'TE ble klar over forholdet',
+};
+
 const OPPGITTE_DATOER = [...new Set(Object.values(OPPGITT_DATO))] as OppgittDato[];
 
 /** Feltet for datoen TE oppgir i kategorien, eller `null` når kategorien ikke har en (VS-U26). */

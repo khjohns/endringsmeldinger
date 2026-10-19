@@ -51,16 +51,17 @@ const grunnlagskrav = (innhold: Record<string, unknown>) => ({
 });
 
 /**
- * VS-U26: datoen varslingsplikten løper fra. Der § 32.2 gjelder (endring unntatt
- * endringsordre, GR-U11), datoen pålegget ble mottatt; i svikt og andre forhold
- * (§ 33.1 b–c) datoen TE ble klar over forholdet; i endringsordre ingen.
+ * VS-U26: datoen varslingsplikten løper fra, i feltet kategorien har etter formatet, så
+ * testene prøver paret og ikke feltet (#698). Regelen for feltet prøves for seg under.
  */
-const datoen = (hovedkategori: string, underkategori: string) =>
-  underkategori === 'endringsordre'
-    ? {}
-    : hovedkategori === 'endring'
-      ? { paalegg_mottatt: '2026-10-01' }
-      : { klar_over_forholdet: '2026-10-01' };
+const datoen = (hovedkategori: string, underkategori: string) => {
+  const felt = oppgittDato(hovedkategori, underkategori);
+  return felt ? { [felt]: '2026-10-01' } : {};
+};
+
+/** Meldingen formkontrollen gir når innholdet ikke er et av kategoriparene (#335). */
+const ikkeEtPar = (innhold: Record<string, unknown>) =>
+  `$.innhold: ${JSON.stringify(innhold)} passer ingen av alternativene`;
 
 describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, HF-U1)', () => {
   it.each(PAR)('godtar %s/%s', (hovedkategori, underkategori) => {
@@ -78,39 +79,44 @@ describe('kategorien i grunnlagskravet er et par fra den lukkede listen (#335, H
     ).toEqual([]);
   });
 
+  // Kontrollsakene er «godtar»-testene over, som skiller seg bare i feltet (#698).
   it('avviser et krav i underkategorien endringsordre uten endringsordrens dato eller nummer (GR-U16)', () => {
-    expect(
-      formfeil(grunnlagskrav({ hovedkategori: 'endring', underkategori: 'endringsordre' }))
-    ).not.toEqual([]);
+    const innhold = { hovedkategori: 'endring', underkategori: 'endringsordre' };
+    expect(formfeil(grunnlagskrav(innhold))).toEqual([ikkeEtPar(innhold)]);
   });
 
   it('avviser endringsordrens dato eller nummer i en annen underkategori (GR-U16)', () => {
-    expect(
-      formfeil(
-        grunnlagskrav({
-          hovedkategori: 'endring',
-          underkategori: 'irregulaer_endring',
-          endringsordre: 'EO 12',
-          paalegg_mottatt: '2026-10-01',
-        })
-      )
-    ).not.toEqual([]);
+    const innhold = {
+      hovedkategori: 'endring',
+      underkategori: 'irregulaer_endring',
+      endringsordre: 'EO 12',
+      paalegg_mottatt: '2026-10-01',
+    };
+    expect(formfeil(grunnlagskrav(innhold))).toEqual([ikkeEtPar(innhold)]);
   });
 
+  // Paret avviser de to siste alene; de to første avvises også av listen over koder (#698).
   it.each([
-    ['katalogens koder', 'ENDRING', 'IRREG'],
-    ['en ukjent underkategori', 'endring', 'noe_annet'],
-    ['en underkategori under feil hovedkategori', 'svikt', 'irregulaer_endring'],
-    ['force majeure, som ikke har noen underkategori', 'force_majeure', 'annet_forhold'],
-  ])('avviser %s', (_navn, hovedkategori, underkategori) => {
+    ['katalogens koder', 'ENDRING', 'IRREG', true],
+    ['en ukjent underkategori', 'endring', 'noe_annet', true],
+    ['en underkategori under feil hovedkategori', 'svikt', 'irregulaer_endring', false],
+    ['force majeure, som ikke har noen underkategori', 'force_majeure', 'annet_forhold', false],
+  ])('avviser %s', (_navn, hovedkategori, underkategori, ukjentKode) => {
     // Med datoen avvises kravet ikke fordi datoen mangler.
     const innhold = { hovedkategori, underkategori, ...datoen(hovedkategori, underkategori) };
-    expect(formfeil(grunnlagskrav(innhold))).not.toEqual([]);
+    const feil = formfeil(grunnlagskrav(innhold));
+    expect(feil[0]).toBe(ikkeEtPar(innhold));
+    expect(feil.length > 1).toBe(ukjentKode);
   });
 
-  // #367: om force majeure skal kunne skrives uten underkategori, er ikke avgjort.
-  it('avviser force majeure uten underkategori, som før #335', () => {
-    expect(formfeil(grunnlagskrav({ hovedkategori: 'force_majeure' }))).not.toEqual([]);
+  // #367: om force majeure skal kunne skrives uten underkategori, er ikke avgjort. I dag
+  // avvises det både fordi underkategorien er påkrevd og fordi det ikke er et par.
+  it('avviser force majeure uten underkategori, både som manglende felt og som par, som før #335', () => {
+    const innhold = { hovedkategori: 'force_majeure' };
+    expect(formfeil(grunnlagskrav(innhold))).toEqual([
+      ikkeEtPar(innhold),
+      '$.innhold.underkategori: mangler',
+    ]);
   });
 
   it('en lagret rad med katalogens koder er ikke forstått; kontrollsak: kjernens koder', async () => {

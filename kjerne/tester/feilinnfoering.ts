@@ -1201,11 +1201,8 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'standpunktet om rettidighet nevner feil varsel (LV-U4 punkt 5, LV-U5)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ['          ? `${VARSELET[p.hjemmel]} i ', "          ? `${VARSELET['32.2']} i "],
-      [
-        '          : VARSELET[p.hjemmel];',
-        "          : VARSELET[p.hjemmel === '32.2' ? '33.4' : '32.2'];",
-      ],
+      ['          ? VARSELET[p.hjemmel]\n', "          ? VARSELET['33.4']\n"],
+      ['          : `${VARSELET[p.hjemmel]} i ', "          : `${VARSELET['32.2']} i "],
     ],
     mal: [
       'nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)',
@@ -1806,7 +1803,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        'if (!erBeloepetGodkjentFullt(krevd, beloep(godkjent as number)!))',
+        'if (!erBeloepetGodkjentFullt(krevdBeloep(krav), godkjent))',
         "if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')",
       ],
     ],
@@ -2138,7 +2135,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F248',
     feilklasse: 'et grunnlagskrav fra appen uten datoen godtas (VS-U26, #664)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [['  if (dato === undefined) return [`', '  if (dato === undefined) return []; [`']],
+    endringer: [
+      ['  if (dato === undefined)\n    return [`', '  if (dato === undefined)\n    return []; [`'],
+    ],
     mal: [
       'et krav fra appen i endring/irregulaer_endring',
       'et krav fra appen i svikt/grunnforhold',
@@ -2219,12 +2218,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F257',
     feilklasse:
       'en lagret dato med klokkeslett sammenliknes som tekst, ikke som kalenderdag (SK-12, #474, #766)',
-    fil: `${K}/format/leser.ts`,
+    // I `kalenderdag` selv ville mutasjonen også gjøre registreringsdatoen til et tidspunkt,
+    // og datokontrollen kaster da i hver kommando (#870).
+    fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      [
-        '  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(dato)) return erKalenderdato(dato) ? dato : null;',
-        '  return dato;',
-      ],
+      ['      const registrert = kalenderdag(sendt.dato);', '      const registrert = sendt.dato;'],
     ],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
@@ -2376,10 +2374,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'dager som mangler i svaret, sammenliknes som null dager (HF-U5, #814)',
     fil: `${K}/utledning/innroemmelse.ts`,
     endringer: [
-      [
-        "      if (typeof n.vurdert !== 'number' || typeof f.vurdert !== 'number')",
-        '      if (false)',
-      ],
+      ['      if (!Number.isFinite(n.vurdert) || !Number.isFinite(f.vurdert))', '      if (false)'],
     ],
     mal: ['dagene sammenliknes ikke, og revisjonen avvises'],
   },
@@ -2557,6 +2552,44 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['`«${v.filnavn}»`', '`«${v.vedlegg_id}»`']],
     mal: ['et brev med vedlegg får et avsnitt som lister filnavnene'],
+  },
+  // Runde 9, gruppe K: #870 p1 og p3, tillegg b til #698.
+  {
+    id: 'F293',
+    feilklasse: 'dagene som mangler i revisjonen, sammenliknes (HF-U5, #870)',
+    fil: `${K}/utledning/innroemmelse.ts`,
+    endringer: [
+      [
+        '      if (!Number.isFinite(n.vurdert) || !Number.isFinite(f.vurdert))',
+        '      if (!Number.isFinite(f.vurdert))',
+      ],
+    ],
+    mal: ['dagene mangler i revisjonen: revisjonen avvises'],
+  },
+  {
+    id: 'F294',
+    feilklasse:
+      'skrivingen gjør formkontrollen før kontrollen av tekst basen ikke kan lagre (#373, #870)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        '  if (ulagringsbar) return ugyldigForm(ulagringsbar);\n  const feil = formfeil(kommando);\n',
+        '  const feil = formfeil(kommando);\n  if (ulagringsbar && !feil.length) return ugyldigForm(ulagringsbar);\n',
+      ],
+    ],
+    mal: ['NUL i en tekst gir TEKST_KAN_IKKE_LAGRES'],
+  },
+  {
+    id: 'F295',
+    feilklasse: 'endringsordrens dato eller nummer godtas i en annen underkategori (GR-U16, #698)',
+    fil: `${K}/format/format.ts`,
+    endringer: [
+      [
+        "        ...ikkeI(['endringsordre', ...OPPGITTE_DATOER.filter((d) => d !== dato)]),",
+        '        ...ikkeI(OPPGITTE_DATOER.filter((d) => d !== dato)),',
+      ],
+    ],
+    mal: ['avviser endringsordrens dato eller nummer i en annen underkategori'],
   },
 ];
 
@@ -2783,6 +2816,9 @@ const bareAnkre = argumenter.includes('--ankre');
 const valgt = argumenter.filter((a) => a !== '--ankre');
 const ukjente = valgt.filter((id) => !MUTASJONER.some((m) => m.id === id));
 if (ukjente.length) throw new Error(`Ukjente feilinnføringer: ${ukjente.join(', ')}`);
+// #870: resultatene nøkles på ID-en, så to like ID-er ville skjult det ene resultatet.
+const doble = MUTASJONER.map((m) => m.id).filter((id, i, alle) => alle.indexOf(id) !== i);
+if (doble.length) throw new Error(`Feilinnføringene har samme ID: ${doble.join(', ')}`);
 const valgte = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
 // Endringene i én feilinnføring gjøres etter hverandre, så hvert anker slås opp i teksten
 // slik den er etter de foregående.

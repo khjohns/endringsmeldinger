@@ -12,7 +12,7 @@
  * (vedtaket 05.10), og vilkåret i enighetsgrunnlaget (GR-U7).
  */
 
-import { beloep, tilTall } from '../regler/beloep.ts';
+import { beloep, tilTall, UgyldigBeloep, type Oere } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
 import { foersteUnderkategori, type Subsidiaergrunn } from '../regler/grunnlag.ts';
@@ -420,6 +420,17 @@ export interface Svarvurdering {
  * `format.ts`). Grunnlaget har ingen utregning, bare kontrollen av
  * vurderingene. Kaster `UgyldigVurdering`.
  */
+/**
+ * Det krevde beløpet i vederlagskravet, i øre, slik utregningen, kontrollen av
+ * begrunnelsen og brevet leser det (#508). Et beløp som mangler eller ikke er et tall,
+ * kaster `UgyldigBeloep`: det står i kravet og er ikke byggherrens vurdering (#766).
+ */
+export function krevdBeloep(krav: Krav): Oere {
+  const krevd = beloep(krav.innhold.beloep as number | undefined);
+  if (krevd === null) throw new UgyldigBeloep('det krevde beløpet mangler i kravet');
+  return krevd;
+}
+
 export function regnUtSvar(
   spor: Spor,
   v: Svarvurdering,
@@ -448,7 +459,7 @@ export function regnUtSvar(
   if (spor === 'vederlag') {
     const { hovedkategori, underkategori } = kategori(grunnlagskrav);
     const vkrav: Vederlagskrav = {
-      hovedkrav_belop: (krav.innhold.beloep as number | undefined) ?? 0,
+      hovedkrav_belop: tilTall(krevdBeloep(krav)),
       metode: 'tilbud',
       rigg_belop: null,
       produktivitet_belop: null,
