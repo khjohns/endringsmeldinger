@@ -8,26 +8,14 @@ venv-en i `.claude/skills/miljo/SKILL.md`. Katalogen over skjemaet, katalog.json
 katalog.py mot en testbase.
 """
 
-import importlib.util
 import pathlib
 import re
 import sys
 
 import tomllib
+from laster import last
 
-
-def _laster():
-    """Den felles lasteren i laster.py, som ikke kan laste seg selv (#861)."""
-    if "verktoy.laster" not in sys.modules:
-        sti = pathlib.Path(__file__).resolve().parent / "laster.py"
-        spesifikasjon = importlib.util.spec_from_file_location("verktoy.laster", sti)
-        modul = importlib.util.module_from_spec(spesifikasjon)
-        spesifikasjon.loader.exec_module(modul)
-        sys.modules["verktoy.laster"] = modul
-    return sys.modules["verktoy.laster"]
-
-
-hk, kh, kat, rel, df, lk = _laster().last(
+hk, kh, kat, rel, df, lk = last(
     "hendelseskatalog", "kjernehendelser", "katalog", "relasjoner", "dataflyt", "lenkekontroll"
 )
 

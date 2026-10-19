@@ -15,6 +15,12 @@ def last(*navn: str):
             "verktoy.laster", MAPPE / "laster.py"
         )
         modul = importlib.util.module_from_spec(spesifikasjon)
-        spesifikasjon.loader.exec_module(modul)
         sys.modules["verktoy.laster"] = modul
+        try:
+            spesifikasjon.loader.exec_module(modul)
+        except BaseException:
+            for n in ("verktoy.laster", "laster"):
+                if sys.modules.get(n) is modul:
+                    del sys.modules[n]
+            raise
     return sys.modules["verktoy.laster"].last(*navn)
