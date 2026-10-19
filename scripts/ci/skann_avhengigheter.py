@@ -12,6 +12,7 @@ Bruk: npm audit --omit=dev --json | python3 scripts/ci/skann_avhengigheter.py [u
 
 import json
 import pathlib
+import re
 import sys
 
 import tomllib
@@ -35,6 +36,17 @@ def les_unntak(sti: pathlib.Path) -> dict[tuple[str, str], dict]:
     return unntak
 
 
+_NEDRE_GRENSE = re.compile(r">=?v?\d[\w.+-]*")
+_JOKER = re.compile(r"[*xX](?:\.[*xX])*")
+
+
+def _uten_øvre_grense(alternativ: str) -> bool:
+    """Bare jokere (`*`, `x.x`) og nedre grenser (`>=1.0.0`). Alt annet, også et tomt eller
+    uleselig alternativ, regnes som å ha en øvre grense, så funnet blokkerer."""
+    ledd = re.sub(r"([<>]=?)\s+", r"\1", alternativ).split()
+    return bool(ledd) and all(_NEDRE_GRENSE.fullmatch(grense) or _JOKER.fullmatch(grense) for grense in ledd)
+
+
 def har_rettet_versjon(område: str | None) -> bool:
     """Om advisoryen kan ha en rettet versjon: hvert alternativ i det sårbare området har
     en øvre grense. `*` og `>=1.0.0` har ingen. `<=1.2.3` regnes som rettet, fordi npm
@@ -43,7 +55,7 @@ def har_rettet_versjon(område: str | None) -> bool:
     området, regnes versjonen som rettet, så funnet blokkerer."""
     if not område:
         return True
-    return all("<" in del_ for del_ in område.split("||"))
+    return not any(_uten_øvre_grense(del_) for del_ in område.split("||"))
 
 
 def funn(rapport: dict) -> list[tuple[str, str, str, str]]:

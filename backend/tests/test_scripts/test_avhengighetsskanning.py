@@ -57,7 +57,25 @@ def _kjoer(tmp_path, rapport, unntak: str = "") -> subprocess.CompletedProcess:
 
 @pytest.mark.parametrize("alvorlighet", ["high", "critical"])
 @pytest.mark.parametrize(
-    "område", ["<1.2.3", ">=1.0.0 <1.2.3", ">=7.1.0 <=7.3.1", "<1.0.5 || >=2.0.0 <2.0.3", None]
+    "område",
+    [
+        "<1.2.3",
+        ">=1.0.0 <1.2.3",
+        ">=7.1.0 <=7.3.1",
+        "<1.0.5 || >=2.0.0 <2.0.3",
+        "=4.0.1",
+        "4.0.1",
+        "1.0.0 - 1.2.3",
+        "^1.2.0",
+        "~1.2.0",
+        "1.2.x",
+        ">=1.0.0<2.0.0",
+        ">=1.0.0,<2.0.0",
+        "<1.2.3 ||",
+        " ",
+        ">=",
+        None,
+    ],
 )
 def test_hoey_eller_kritisk_med_rettet_versjon_blokkerer(tmp_path, alvorlighet, område):
     resultat = _kjoer(tmp_path, _rapport(alvorlighet, område))
@@ -78,6 +96,9 @@ def test_rettet_versjon_blokkerer_ogsaa_naar_npm_audit_fix_ikke_naar_den(tmp_pat
     ("high", "*"),
     ("high", ">=0.0.0"),
     ("critical", "<1.0.5 || >=2.0.0"),
+    ("high", ">= 1.0.0"),
+    ("high", ">1.0.0"),
+    ("high", "x.x.x"),
 ])
 def test_lavere_alvorlighet_eller_uten_rettet_versjon_blokkerer_ikke(tmp_path, alvorlighet, område):
     resultat = _kjoer(tmp_path, _rapport(alvorlighet, område))
