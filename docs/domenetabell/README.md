@@ -355,7 +355,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `ANNET_RESULTAT` | — | Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, ingen rad sier den, og ingen bevis-sak prøver den. |
 | `BEGRUNNELSE_MANGLER` | KA-42 | — |
 | `BESKRIVELSE_MANGLER` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
-| `BREVTEKST_MANGLER` | — | Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475). |
+| `BREVTEKST_MANGLER` | — | Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den, og ingen bevis-sak kan prøve den: kjøreren i `kjerne/tester/kjoerer.ts` sender alltid teksten forhåndsvisningen lager, og har ingen opsjon for å sende uten (#877). Den prøves i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`. |
 | `DATO_ETTER_BREVET` | — | Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`. |
 | `ENIGHET_I_SPORET` | GR-07, GR-23, GR-24, GR-25, GR-27 | — |
 | `FEIL_KRAVREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den. |

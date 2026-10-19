@@ -3142,7 +3142,7 @@
     "ANNET_RESULTAT": "Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, ingen rad sier den, og ingen bevis-sak prøver den.",
     "DATO_ETTER_BREVET": "Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`.",
     "BESKRIVELSE_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
-    "BREVTEKST_MANGLER": "Ingen bevis-sak for målmodellen kontrollerer koden ennå (#475).",
+    "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den, og ingen bevis-sak kan prøve den: kjøreren i `kjerne/tester/kjoerer.ts` sender alltid teksten forhåndsvisningen lager, og har ingen opsjon for å sende uten (#877). Den prøves i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
     "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
     "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
     "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen.",
