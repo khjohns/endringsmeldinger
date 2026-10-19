@@ -37,6 +37,14 @@ eval "$(scripts/testbase/docker_sqlserver.sh start)"   # setter KOE_SQLSERVER_TI
 npx vitest run server/tester/sqlserver.test.ts
 ```
 
+Kontraktstestene mot ekte Catenda (#902) går gjennom token-brokeren og bare
+fra skyøkta, der `CATENDA_GRUNNADRESSE` og de andre `CATENDA_*`-variablene er satt.
+De hoppes over uten `KOE_CATENDA_LIVE=1`, også i CI og i vanlig `npm test`:
+
+```bash
+KOE_CATENDA_LIVE=1 npx vitest run server/tester/catenda.live.test.ts
+```
+
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
