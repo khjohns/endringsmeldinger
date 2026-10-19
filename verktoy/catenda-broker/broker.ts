@@ -193,13 +193,16 @@ function utenTagger(tekst: string): string {
 }
 
 /**
- * Prosentkoding (som UTF-8), tallentiteter og tagger, fjernet til strengen står stille, så en
- * koding inni en annen heller ikke skjuler prefikset. Står den ikke stille, gir det `null`.
+ * Hver form strengen har underveis når prosentkoding (som UTF-8), tallentiteter og tagger
+ * dekodes eller fjernes til den står stille, med NFKC i hver runde. Står den ikke stille
+ * etter ti runder, gir det `null`.
  */
-function dekodet(tekst: string): string | null {
+function former(tekst: string): string[] | null {
   const tegn = (kode: number) => (kode <= 0x10ffff ? String.fromCodePoint(kode) : '');
+  const alle = [tekst];
   for (let runde = 0; runde < 10; runde++) {
     const utenKoding = tekst
+      .normalize('NFKC')
       .replace(/(?:%[0-9a-f]{2})+/gi, (t) => {
         try {
           return decodeURIComponent(t);
@@ -210,26 +213,29 @@ function dekodet(tekst: string): string | null {
       .replace(/&#x([0-9a-f]+);?/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
       .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)));
     const neste = utenTagger(utenKoding);
-    if (neste === tekst) return tekst;
+    alle.push(utenKoding, neste);
+    if (neste === tekst) return alle;
     tekst = neste;
   }
   return null;
 }
 
 /**
- * Om en nøkkel eller streng i verdien kan bli prefikset når Catenda lagrer den. Strengen
- * dekodes, normaliseres med NFKC og små bokstaver og sammenlignes bare på bokstaver og sifre,
- * så tegn mellom bokstavene og andre bokstavformer skjuler ikke prefikset.
+ * Om en nøkkel eller streng i verdien kan bli prefikset når Catenda lagrer den. Hver form fra
+ * `former` normaliseres med NFKC og små bokstaver og sammenlignes bare på bokstaver og sifre,
+ * så tegn mellom bokstavene, andre bokstavformer og koding skjuler ikke prefikset.
  */
 function kanGiPrefiks(verdi: unknown): boolean {
   const stabel: unknown[] = [verdi];
   while (stabel.length > 0) {
     const v = stabel.pop();
     if (typeof v === 'string') {
-      const klar = dekodet(v);
-      if (klar === null) return true;
-      const bokstaver = klar.normalize('NFKC').toLowerCase().normalize('NFKC').replace(/[^a-z0-9]/g, '');
-      if (bokstaver.includes(PREFIKSKJERNE)) return true;
+      const formene = former(v);
+      if (formene === null) return true;
+      for (const form of formene) {
+        const bokstaver = form.normalize('NFKC').toLowerCase().normalize('NFKC').replace(/[^a-z0-9]/g, '');
+        if (bokstaver.includes(PREFIKSKJERNE)) return true;
+      }
     } else if (typeof v === 'object' && v !== null) {
       for (const [nokkel, barn] of Object.entries(v)) stabel.push(nokkel, barn);
     }

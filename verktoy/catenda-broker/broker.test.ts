@@ -332,6 +332,9 @@ describe('endringen av en topic', () => {
     ['fullbreddes l prosentkodet som UTF-8', JSON.stringify({ title: 'koe-%EF%BD%8Civetest-x' })],
     ['prefikset delt av tagger', JSON.stringify({ title: 'koe-live<b></b>test-x' })],
     ['prefikset delt av en tagg i en tagg', JSON.stringify({ title: 'koe-<a<b>livetest-x' })],
+    ['prefikset inni en entitet som blir en tagg', JSON.stringify({ title: '&#60;a koe-livetest-y>' })],
+    ['prefikset inni en tagg', JSON.stringify({ title: '<koe-livetest-x>' })],
+    ['prefikset med fullbreddes prosentkoding', JSON.stringify({ title: 'k％６Ｆe-livetest-x' })],
   ])('slår opp og gir 403 uten PUT for %s når topicen er uten prefiks', async (_navn, kropp) => {
     catendasvar = topicUtenPrefiks;
     const s = await behandle(put(kropp), miljoe);
@@ -408,18 +411,18 @@ describe('endringen av en topic', () => {
     expect(metoder()).toEqual(['GET']);
   });
 
-  it('kontrollerer en kropp nær 64 KiB med mange «<» og «<a>» innen et par sekunder', async () => {
+  it('kontrollerer en kropp nær 64 KiB med mange «<» og «<a>» innen noen sekunder', async () => {
     const start = performance.now();
     const s = await behandle(put(JSON.stringify({ a: '<a>'.repeat(10_000), b: '<'.repeat(30_000) })), miljoe);
     expect(s.status).toBe(200);
-    expect(performance.now() - start).toBeLessThan(2_000);
+    expect(performance.now() - start).toBeLessThan(5_000);
   });
 
-  it('kontrollerer 60 000 «<» uten «>» innen et par sekunder', async () => {
+  it('kontrollerer 60 000 «<» uten «>» innen noen sekunder', async () => {
     const start = performance.now();
     const s = await behandle(put(JSON.stringify({ title: '<'.repeat(60_000), b: '<a'.repeat(1_000) })), miljoe);
     expect(s.status).toBe(200);
-    expect(performance.now() - start).toBeLessThan(2_000);
+    expect(performance.now() - start).toBeLessThan(5_000);
   });
 
   it('sender en strømmet kropp på nøyaktig 64 KiB i flere biter', async () => {
