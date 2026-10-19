@@ -969,6 +969,15 @@ funn = []
 belegg = "K 18.10: katalogen."
 
 [[relasjon]]
+fra = "koe.toemmingsvern.innkommende_hendelse_id"
+til = "koe.innkommende_hendelse.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "K 19.10: katalogen."
+
+[[relasjon]]
 fra = "koe.toemmingsvern.prosjekt_med_saker_id"
 til = "koe.prosjekt_med_saker.prosjekt_id"
 art = "fremmednøkkel"
@@ -1344,6 +1353,10 @@ begrunnelse = "Dokumentbiblioteket i Catenda for brevene. Fryses i leveringsoppd
 [[uten_relasjon]]
 kolonne = "koe.catenda_project_configs.folder_id"
 begrunnelse = "Mappen i biblioteket. Samme som `library_id`."
+
+[[uten_relasjon]]
+kolonne = "koe.innkommende_hendelse.hendelse_id"
+begrunnelse = "`event.id` fra Catenda, unik per kilde. Ingen tabell har Catendas hendelser."
 
 [[uten_relasjon]]
 kolonne = "koe.sak_catenda_topic.catenda_board_id"

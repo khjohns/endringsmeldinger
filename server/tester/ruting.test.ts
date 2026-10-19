@@ -24,6 +24,7 @@ describe('den lokale rutingen til TS-serveren', () => {
     ['GET', '/api/projects/p1/members'],
     ['PATCH', '/api/projects/p1/members/m1'],
     ['POST', '/api/projects/p1/members/sync'],
+    ['POST', '/webhook/catenda/hemmelig'],
   ])('%s %s går til TS', (metode, url) => {
     expect(tilTsServeren(metode, url)).toBe(true);
   });
@@ -36,6 +37,7 @@ describe('den lokale rutingen til TS-serveren', () => {
     ['GET', '/api/cases/1/state'],
     ['GET', '/api/authx'],
     ['GET', '/api/csrf-token/x'],
+    ['POST', '/webhook/catendax/hemmelig'],
   ])('%s %s blir i Python', (metode, url) => {
     expect(tilTsServeren(metode, url)).toBe(false);
   });
