@@ -19,7 +19,7 @@ describe('bestemmelsene under ansvar følger sakens underkategori (#946)', () =>
     expect(refs('EO')).toEqual(['§ 31.3']);
   });
 
-  it('flere underkategorier: den første avgjør', () => {
+  it('flere underkategorier: den første avgjør, slik getHjemmelObj velger', () => {
     expect(refs(['IRREG', 'GRUNN'])).toEqual(['§ 32.1']);
   });
 

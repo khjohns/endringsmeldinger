@@ -83,7 +83,9 @@
       {#if best.length > 0}
         <p class="provisions-intro">Bestemmelser for dette sporet. Åpne dem du vil lese.</p>
       {:else}
-        <p class="provisions-intro">Sakens kategori har ingen bestemmelse for dette sporet.</p>
+        <p class="provisions-intro">
+          Panelet har ingen bestemmelse å vise for sakens underkategori.
+        </p>
       {/if}
       {#key sel}
         {#each best as b, i (b.ref)}
