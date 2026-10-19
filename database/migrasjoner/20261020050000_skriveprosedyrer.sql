@@ -8,9 +8,10 @@
 -- kjørte mellom lesingen og triggeren på `koe.sak_metadata`, ga en sak under det
 -- gamle Catenda-prosjektet. Nå tar `opprett_sak` låsen på koblingen først, så den
 -- venter på et bytte som er i gang, og et bytte venter på saken og avvises da med
--- 52066. Etter låsen kontrolleres siden og teamet i konteksten mot medlemskapet og
--- kontraktsteamene, og en kontekst som ikke lenger holder, avvises med 51403, som
--- en kontekst uten aktør eller side.
+-- 52066. Etter låsen kontrolleres medlemskapet, og teamet i konteksten, når det er
+-- satt, mot kontraktsteamene på siden. En kontekst som ikke lenger holder, avvises
+-- med 51403, som en kontekst uten aktør eller side. Uten team kontrolleres ikke
+-- siden: hvilke team aktøren er med i, står i Catenda og ikke i basen.
 --
 -- I `skriv_hendelse` er formene for `event_id`, `sak_id` og summen for oppdraget de
 -- samme som før; de leses nå fra funksjonene. `@sak_id` med feil form gir fortsatt
@@ -164,22 +165,25 @@ BEGIN
           @team nvarchar(4000) = TRY_CAST(SESSION_CONTEXT(N'koe_team') AS nvarchar(4000));
   IF @prosjekt IS NULL OR @aktor IS NULL OR @side IS NULL OR @side NOT IN (N'TE', N'BH')
     THROW 51403, N'Ingen tilgang', 1;
-  -- Låsen på koblingen tas før noe annet leses, i samme rekkefølge som
-  -- `koe_drift.registrer_prosjekt` og `koe_drift.sett_kontraktsteam` (#868 punkt 1).
+  -- Låsen på koblingen tas før noe annet leses (#868 punkt 1). `koe_drift.registrer_prosjekt`
+  -- og `koe_drift.sett_kontraktsteam` låser også koblingen før `koe.prosjekt_med_saker`,
+  -- så de tre går etter hverandre. `registrer_prosjekt` låser `koe.projects` før koblingen;
+  -- her leses `koe.projects` bare uten oppdateringslås, av fremmednøklene og blokkpredikatene.
   DECLARE @catenda_prosjekt uniqueidentifier, @board uniqueidentifier, @aktiv bit;
   SELECT @catenda_prosjekt = catenda_project_id, @board = topic_board_id, @aktiv = is_active
     FROM koe.catenda_project_configs WITH (UPDLOCK, HOLDLOCK)
    WHERE internal_project_id = @prosjekt;
+  IF @aktiv IS DISTINCT FROM 1 OR @board IS NULL
+    THROW 51412, N'Prosjektet har ikke noe topic-board i Catenda for nye saker', 1;
   -- Siden og teamet regnet serveren ut før transaksjonen. Et bytte gjør medlemskapene
   -- inaktive, og nye kontraktsteam kan ha tatt teamet ut.
   IF NOT EXISTS (SELECT 1 FROM koe.app_project_memberships
                   WHERE project_id = @prosjekt AND user_id = @aktor AND active = 1 AND viewer_override = 0)
-     OR (@team IS NOT NULL
-         AND NOT EXISTS (SELECT 1 FROM koe.catenda_contract_teams
-                          WHERE internal_project_id = @prosjekt AND team_id = @team AND contract_role = @side))
-    THROW 51403, N'Aktøren er ikke aktivt medlem, eller teamet er ikke kontraktsteam på siden', 1;
-  IF @aktiv IS DISTINCT FROM 1 OR @board IS NULL
-    THROW 51412, N'Prosjektet har ikke noe topic-board i Catenda for nye saker', 1;
+    THROW 51403, N'Aktøren er ikke lenger aktivt medlem av prosjektet', 1;
+  IF @team IS NOT NULL
+     AND NOT EXISTS (SELECT 1 FROM koe.catenda_contract_teams
+                      WHERE internal_project_id = @prosjekt AND team_id = @team AND contract_role = @side)
+    THROW 51403, N'Teamet er ikke lenger kontraktsteam på siden i prosjektet', 1;
 
   SET @sak_id = LOWER(CONVERT(nvarchar(36), NEWID()));
   SET @event_id = LOWER(CONVERT(nvarchar(36), NEWID()));

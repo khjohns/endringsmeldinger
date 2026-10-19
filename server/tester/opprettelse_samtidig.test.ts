@@ -5,9 +5,10 @@
  *   Catenda-prosjekt med 52066;
  * - svaret 18.10 i #764 («Runde 8: avgjort 18.10»): har prosjektet saker, avvises
  *   flytting eller fjerning av et kontraktsteam med 52064;
- * - DL-U10: et bytte av kobling gjør medlemskapene inaktive, og RV-07: kontraktssiden
- *   avgjøres av kontraktsteamene, så en sak skrives ikke med en side eller et team
- *   som ikke lenger gjelder.
+ * - DL-U10: et bytte av kobling gjør medlemskapene inaktive;
+ * - arbeidsvalget 19.10 i runde 9 (#764, valg A): en sak der medlemskapet er blitt
+ *   inaktivt, eller teamet ikke lenger er kontraktsteam på siden, avvises med 51403
+ *   i stedet for å skrives (DL-U4 sier hvilket team som kan føres).
  *
  * Den ene skrivingen holdes åpen til den andre venter på den; da lagres den første,
  * og den andre fullføres eller avvises.
