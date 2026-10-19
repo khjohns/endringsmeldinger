@@ -17,7 +17,16 @@ import { createHash } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Avhengigheter, Forespoersel, Saksrute, Svar } from './app.ts';
 import { Nektet } from './autorisasjon.ts';
-import { feilnummer, sql, transaksjon, UUID, type Kontekst } from './datalag.ts';
+import {
+  BLOKKERT,
+  feilnummer,
+  KONFLIKT,
+  NEKTET,
+  sql,
+  transaksjon,
+  UUID,
+  type Kontekst,
+} from './datalag.ts';
 import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 
 /** Under grensen i Python (arbeidsvalg 5 i #790); `stoerrelse` i tabellen har samme grense. */
@@ -105,10 +114,6 @@ export function innholdsfeil(filnavn: string, innhold: Buffer): string | null {
   return null;
 }
 
-const UKJENT = 51403;
-const BUNDET = 51409;
-const BLOKKERT = 33504;
-
 const feilsvar = (status: number, error: string, message: string): Svar => [
   status,
   { success: false, error, message },
@@ -184,7 +189,7 @@ async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
     return [201, { success: true, vedlegg: somSvar(rad) }];
   } catch (feil) {
     const nr = feilnummer(feil);
-    if (nr === UKJENT || nr === BLOKKERT) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+    if (nr === NEKTET || nr === BLOKKERT) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
     throw feil;
   }
 }
@@ -257,7 +262,7 @@ async function slett(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Sva
     });
     return slettet ? [200, { success: true }] : finnesIkke();
   } catch (feil) {
-    if (feilnummer(feil) === BUNDET)
+    if (feilnummer(feil) === KONFLIKT)
       return feilsvar(
         409,
         'VEDLEGG_BUNDET',

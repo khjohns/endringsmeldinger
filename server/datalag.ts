@@ -66,6 +66,37 @@ export function feilnummer(feil: unknown): number | undefined {
   return f?.number ?? f?.originalError?.info?.number;
 }
 
+/**
+ * Feilnumrene fra basen som serveren oversetter. Numrene er kontrakter med
+ * prosedyrene i `database/migrasjoner/`; meningen står i hver prosedyre.
+ */
+export const NEKTET = 51403;
+export const LAAS_FEILET = 51407;
+export const LAAS_IKKE_GITT = 51408;
+export const KONFLIKT = 51409;
+export const ID_BRUKT = 51410;
+export const INGEN_BOARD = 51412;
+export const FOR_GAMMELT = 51419;
+export const UGYLDIG = 51422;
+/** Blokkpredikatet i radsikkerheten stoppet skrivingen. */
+export const BLOKKERT = 33504;
+export const UNIK_INDEKS = 2601;
+export const UNIK_NOEKKEL = 2627;
+
+/** Forespørslene i én transaksjon, med konteksten satt. */
+export type Foresp = () => sql.Request;
+
+/**
+ * Utfallet «rull tilbake og svar med `svar`» fra arbeidet i `transaksjon`: ingenting
+ * i transaksjonen committes, og kalleren får svaret.
+ */
+export class Tilbakerulling<T> {
+  readonly svar: T;
+  constructor(svar: T) {
+    this.svar = svar;
+  }
+}
+
 /** Konteksten er ugyldig. Ingen forbindelse er lånt. */
 export class UgyldigKontekst extends Error {}
 
@@ -252,7 +283,9 @@ async function nullstillOgKontroller(
 /**
  * Én transaksjon med konteksten satt først, skrivebeskyttet for sesjonen og
  * bundet til transaksjonen med `koe_tx`. Kaster `arbeid`, rulles transaksjonen
- * tilbake og feilen kastes videre. Har serveren rullet tilbake uten at arbeidet
+ * tilbake og feilen kastes videre. Returnerer `arbeid` en `Tilbakerulling`, rulles
+ * transaksjonen tilbake og svaret i den returneres; feiler ROLLBACK, forkastes
+ * forbindelsen, så serveren ruller tilbake, og svaret returneres likevel. Har serveren rullet tilbake uten at arbeidet
  * kastet, eller under COMMIT, kastes `TransaksjonAvbrutt`. Feiler COMMIT uten
  * det, kastes `UsikkertUtfall`. Sendes ikke COMMIT, kastes `CommitIkkeSendt`.
  * Forbindelsen går tilbake i poolen bare når transaksjonen er avsluttet og
@@ -261,7 +294,7 @@ async function nullstillOgKontroller(
 export async function transaksjon<T>(
   pool: Pool,
   kontekst: Kontekst,
-  arbeid: (foresp: () => sql.Request) => Promise<T>
+  arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>
 ): Promise<T> {
   kontroller(kontekst);
   const utlaan = pool as unknown as Utlaan;
@@ -280,13 +313,13 @@ export async function transaksjon<T>(
 }
 
 /** `avsluttet` er sann når serveren har bekreftet COMMIT eller ROLLBACK. */
-type Utfall<T> = { svar: T; avsluttet: true } | { feil: unknown; avsluttet: boolean };
+type Utfall<T> = { svar: T; avsluttet: boolean } | { feil: unknown; avsluttet: boolean };
 
 async function iTransaksjon<T>(
   forelder: sql.ConnectionPool,
   forbindelse: Forbindelse,
   kontekst: Kontekst,
-  arbeid: (foresp: () => sql.Request) => Promise<T>
+  arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>
 ): Promise<Utfall<T>> {
   const tx = new sql.Transaction(forelder);
   let avbruttAvServeren = false;
@@ -297,7 +330,7 @@ async function iTransaksjon<T>(
     return { feil, avsluttet: false };
   }
   const foresp = () => new sql.Request(tx);
-  let svar: T;
+  let svar: T | Tilbakerulling<T>;
   try {
     await foresp()
       .input('aktor', sql.UniqueIdentifier, kontekst.aktor)
@@ -321,6 +354,16 @@ async function iTransaksjon<T>(
       return { feil, avsluttet: true };
     } catch {
       return { feil, avsluttet: false };
+    }
+  }
+  // Har serveren alt rullet tilbake, er det utfallet arbeidet ba om.
+  if (svar instanceof Tilbakerulling) {
+    if (avbruttAvServeren) return { svar: svar.svar, avsluttet: true };
+    try {
+      await tx.rollback();
+      return { svar: svar.svar, avsluttet: true };
+    } catch {
+      return { svar: svar.svar, avsluttet: false };
     }
   }
   if (avbruttAvServeren)
