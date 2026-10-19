@@ -19,7 +19,6 @@ import {
   tilSakState,
   tilTidslinje,
 } from './sakstilstand';
-import { tilbyrFoersteVederlagskrav } from './vederlagskrav';
 
 interface Projeksjon {
   sak: SakState;
@@ -88,13 +87,12 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     get saksbilde() {
       return kjernesak.saksbilde;
     },
-    /** Bare TE sender det første vederlagskravet; uten side tilbys det ikke (#737 p3). */
-    get tilbyrVederlagskrav() {
-      const u = kjernesak.utledning;
-      return kjernesak.part === 'TE' && u
-        ? tilbyrFoersteVederlagskrav(kjernesak.handlinger, u)
-        : false;
-    },
+    /**
+     * Kjernen tilbyr TE handlingen, som `krav:frist` (krav G i #718). TE-skjemaene tilbys
+     * bare TE, og uten side tilbys ingenting (#737 p3).
+     */
+    tilbyrTe: (handling: string) =>
+      kjernesak.part === 'TE' && kjernesak.handlinger.includes(handling),
     /** Kravversjonen i saken slik den sist ble lest (krav E i #718). */
     kravversjon: (spor: SporKey) => kravversjon(projeksjon.utledning, spor),
     teNavn,

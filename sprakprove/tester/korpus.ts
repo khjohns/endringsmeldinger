@@ -205,8 +205,8 @@ export function kommando(h: Handling, sak: Sak): [Rolle, Record<string, unknown>
 
 /**
  * En vei kommandoene kan gå. `sak()` er saken klienten bygger kommandoene av;
- * `tilstand()` er den offentlige tilstanden målene leses av, i serverbanen
- * den gjenleste. `prov` skal ikke skrive.
+ * `tilstand()` er den offentlige tilstanden målene leses av. `prov` skal ikke
+ * skrive.
  */
 export interface Bane {
   sakId: string;

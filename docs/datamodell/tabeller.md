@@ -59,6 +59,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.leveringskvittering`](#koeleveringskvittering) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.vedleggskvittering`](#koevedleggskvittering) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.sak_catenda_topic`](#koesak_catenda_topic) | SQL Server | grunndata | uavklart | Nei | Ja |
+| [`koe.innkommende_hendelse`](#koeinnkommende_hendelse) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.prosjekt_med_saker`](#koeprosjekt_med_saker) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.skrivetidspunkt`](#koeskrivetidspunkt) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.toemmingsvern`](#koetoemmingsvern) | SQL Server | teknisk | i bruk | Nei | Nei |
@@ -81,7 +82,7 @@ Journalen. Én rad per formell hendelse i en sak: varsel, krav, svar, endringsor
 | Relasjoner | Nøkler: primærnøkkel (id); unik (event_id); unik (sak_id, versjon). Viser til: sak_id → sak_metadata.sak_id (fremmednøkkel, ON DELETE CASCADE); prosjekt_id → projects.id (uten fremmednøkkel); actorid → app_users.id (uten fremmednøkkel); actorteam → catenda_contract_teams.team_id (uten fremmednøkkel); referstoid → hendelse.event_id (uten fremmednøkkel); data → vedlegg_ids[] → vedlegg.vedlegg_id (uten fremmednøkkel). Vises til fra: approvals.body → items[].claimId (uten fremmednøkkel); approvals.body → packages[].eventIds[] (uten fremmednøkkel); catenda_delivery_status.event_id (uten fremmednøkkel); leveringsoppdrag.event_id (fremmednøkkel, ON DELETE CASCADE); notat.refererer_til_event_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `actorid` peker på en bruker. Fritekst i `data` og `comment` kan inneholde personopplysninger. Vurderingen hører til DPIA-en. |
-| Skrives av | backend/routes/event_routes.py; backend/services/sak_creation_service.py; backend/services/forsering_service.py; backend/services/endringsordre_service.py; backend/services/approval_service.py; backend/services/catenda_webhook_service.py (via sak_creation_service); sprakprove/server/lager.ts (språkprøvens server og `sprakprove/kjernelagring/bane.ts`, mot testbasen) |
+| Skrives av | backend/routes/event_routes.py; backend/services/sak_creation_service.py; backend/services/forsering_service.py; backend/services/endringsordre_service.py; backend/services/approval_service.py; backend/services/catenda_webhook_service.py (via sak_creation_service); sprakprove/server/lager.ts (`sprakprove/kjernelagring/bane.ts`, mot testbasen) |
 | Funn | MS-01, MS-02, MS-03, AR-02, DM-06 |
 | Belegg | K 29.09: kolonnene i testbasen og prosjektet, og skrankene (også CASCADE) i testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`. L 17.10: `SETT_INN` i `sprakprove/server/lager.ts`. |
 
@@ -939,6 +940,23 @@ Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til: t
 | Funn | — |
 | Belegg | L 17.10: `database/migrasjoner/20261017233000_leveringsmaal.sql`. K 18.10: `server/tester/jobber.test.ts`. |
 
+### `koe.innkommende_hendelse`
+
+Innboksen for webhooken fra Catenda (W-1a, #819). Hver hendelse lagres rå, med kilden, `event.id` og `event.type`, før svaret 200, og samme ID fra samme kilde lagres én gang (INT-02). Prosjektet og saken er ikke avgjort ved mottaket, så tabellen har ingen `prosjekt_id` og ingen radsikkerhet; kjøretiden har ingen rett på den og skriver med `koe_api.motta_hendelse`. Raden kan ikke endres eller slettes. Behandlingen kommer i W-1b.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | teknisk |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.motta_hendelse`, kalt av webhooken i `server/webhook.ts`. |
+| Data fra Catenda | Ja, hele kroppen er Catendas. Dataflyt: fra Catenda i C21 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik indeks (kilde, hendelse_id). Vises til fra: koe.toemmingsvern.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Ja: kroppen har navnet og e-postadressen til den som laget topicen i Catenda. |
+| Skrives av | database/migrasjoner/20261020124000_innkommende_hendelse.sql (`koe_api.motta_hendelse`, kalt fra `server/webhook.ts`) |
+| Funn | INT-01, INT-02 |
+| Belegg | L 19.10: migrasjonen. K 19.10: `server/tester/webhook.test.ts`. |
+
 ### `koe.prosjekt_med_saker`
 
 Prosjektene som har minst én sak. Radsikkerheten skjuler sakene også for eieren, så `koe_drift.sett_kontraktsteam` leser her om kontraktsteamene bare kan få nye team (svaret 18.10 i #764, F-1, #820). Raden kan ikke endres eller slettes. Hadde `koe.sak_metadata` rader da migrasjonen ble anvendt, ble hvert prosjekt ført, fordi sakene ikke kunne leses.
@@ -983,7 +1001,7 @@ Vernet mot TRUNCATE for de uforanderlige tabellene ingen annen fremmednøkkel vi
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Ingen. Migrasjonen lager tabellen, og skranken avviser hver rad. |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: ingen. Viser til: app_identities_id → koe.app_identities.id (fremmednøkkel, ON DELETE NO ACTION); brevdokument_id → koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); (godkjenningshandling_pakke_id, godkjenningshandling_loepenr) → koe.godkjenningshandling.(pakke_id, loepenr) (fremmednøkkel, ON DELETE NO ACTION); (kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id) → koe.kvittering.(prosjekt_id, aktor_id, kommando_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringskvittering_oppdrag_id, leveringskvittering_operasjon) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); prosjekt_med_saker_id → koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); sak_catenda_topic_sak_id → koe.sak_catenda_topic.sak_id (fremmednøkkel, ON DELETE NO ACTION); vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: ingen. Viser til: app_identities_id → koe.app_identities.id (fremmednøkkel, ON DELETE NO ACTION); brevdokument_id → koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); (godkjenningshandling_pakke_id, godkjenningshandling_loepenr) → koe.godkjenningshandling.(pakke_id, loepenr) (fremmednøkkel, ON DELETE NO ACTION); (kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id) → koe.kvittering.(prosjekt_id, aktor_id, kommando_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringskvittering_oppdrag_id, leveringskvittering_operasjon) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_med_saker_id → koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); sak_catenda_topic_sak_id → koe.sak_catenda_topic.sak_id (fremmednøkkel, ON DELETE NO ACTION); vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja. Tabellen har ingen rader. |
 | Personopplysninger | Nei. |
 | Skrives av | database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad); database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene) |

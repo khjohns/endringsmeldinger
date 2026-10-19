@@ -18,7 +18,7 @@ alle fire løp er inne (#49).
 | --- | --- |
 | [`backend/repositories/postgres/hendelse.py`](../backend/repositories/postgres/hendelse.py) | `PostgresEventRepository`, erstatter `SupabaseEventRepository` |
 | [`backend/repositories/postgres/notat.py`](../backend/repositories/postgres/notat.py) | `PostgresNotatRepository`, erstatter `SupabaseNotatRepository` |
-| [`backend/tests/test_database/test_hendelse_og_notat.py`](../backend/tests/test_database/test_hendelse_og_notat.py) | 34 tester mot testbasen, merket `database` |
+| [`backend/tests/test_database/test_hendelse_og_notat.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_hendelse_og_notat.py) | 34 tester mot testbasen, merket `database` |
 | [`backend/scripts/backfill_reporting_cache.py`](../backend/scripts/backfill_reporting_cache.py) | Leser hver sak under prosjektet metadataene oppgir |
 
 Containeren velger klassene med `DATALAG=postgres` gjennom `POSTGRES_LAGRE`,

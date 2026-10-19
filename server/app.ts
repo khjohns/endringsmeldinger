@@ -56,6 +56,7 @@ import {
 import { filnavn, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
 import { lesFil, VEDLEGGSRUTER, type Fil } from './vedlegg.ts';
+import { WEBHOOKRUTER, type Webhook } from './webhook.ts';
 
 export interface Avhengigheter {
   /** SQL Server, med sesjonen, medlemskapet, kontraktsteamene, journalen og oppdragene (#658, #661). */
@@ -63,6 +64,8 @@ export interface Avhengigheter {
   catenda: Catenda;
   /** Catenda-innloggingen. Uten den svarer innloggingen 503, som når oppsettet mangler i Python. */
   innlogging?: Innlogging | null;
+  /** Den hemmelige stien til webhooken fra Catenda. Uten den svarer mottaket 404, som en ukjent sti. */
+  webhook?: Webhook | null;
   kjerne?: Kjerne;
   /** Klokke og ID-er, så testene kan styre dem. Et brev får basens klokke (DL-U3). */
   tidspunkt?: () => Date;
@@ -539,6 +542,7 @@ export const RUTER: readonly Rute[] = [
   OPPRETTELSE,
   ...INNLOGGINGSRUTER,
   ...PROSJEKTRUTER,
+  ...WEBHOOKRUTER,
 ];
 
 export function lagServer(avh: Avhengigheter) {
@@ -549,6 +553,7 @@ export function lagServer(avh: Avhengigheter) {
     vekkJobbkjoereren: () => {},
     ...avh,
     innlogging: avh.innlogging ?? null,
+    webhook: avh.webhook ?? null,
   };
 
   /**

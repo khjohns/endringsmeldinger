@@ -60,7 +60,7 @@ feiler når:
 - SQLite-delen av katalogen ikke er skjemaet koden oppretter
 - de genererte filene er utdaterte
 
-[`test_katalog_json.py`](../backend/tests/test_database/test_katalog_json.py)
+[`test_katalog_json.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_katalog_json.py)
 kjører i CI-jobben `database` og holder PostgreSQL-delen lik en base bygget fra
 migrasjonene. En ny migrasjon gjør den røde til `katalog.py` er kjørt.
 

@@ -17,8 +17,8 @@ datert merknad under F0 og i radene DB-03, DB-07 og RV-17.
 | Byggeskript: stubben og deretter alle `supabase/migrations/*.sql` i filnavnrekkefølge (`LC_ALL=C`), med `ON_ERROR_STOP`. Avbryter hvis basen ikke er tom | [`scripts/testbase/bygg_testbase.sh`](../scripts/testbase/bygg_testbase.sh) |
 | CI-jobben `database`: tjenestecontainer `postgres:17`, kontroll av at serveren er 17, bygg fra tom, databasetestene | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) |
 | Merket `database` og skipping i innsamlingen når `KOE_TESTBASE_URL` mangler. Ingen standardverdi | [`backend/tests/conftest.py`](../backend/tests/conftest.py), [`backend/pyproject.toml`](../backend/pyproject.toml) |
-| Lesende tilkobling (`default_transaction_read_only`). Mangler driveren mens variabelen er satt, blir testen rød, ikke hoppet over | [`backend/tests/test_database/conftest.py`](../backend/tests/test_database/conftest.py) |
-| Databasetestene | [`backend/tests/test_database/test_katalog.py`](../backend/tests/test_database/test_katalog.py) |
+| Lesende tilkobling (`default_transaction_read_only`). Mangler driveren mens variabelen er satt, blir testen rød, ikke hoppet over | [`backend/tests/test_database/conftest.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/conftest.py) |
+| Databasetestene | [`backend/tests/test_database/test_katalog.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/backend/tests/test_database/test_katalog.py) |
 | Driver for testene: `psycopg[binary]==3.3.6` | [`backend/requirements-dev.txt`](../backend/requirements-dev.txt) |
 | T-5: `raises=AssertionError` på AP-04-testen | [`backend/tests/test_approval/test_audit_20260916.py`](../backend/tests/test_approval/test_audit_20260916.py) |
 | T-2 for DB-03 og DB-07: de to strenge reproduksjonene er fjernet etter at katalogtestene var grønne; begrunnelsen står datert i de nye testene | [`backend/tests/test_security/test_database_rls_audit_20260918.py`](../backend/tests/test_security/test_database_rls_audit_20260918.py) |

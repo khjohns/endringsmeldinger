@@ -7,7 +7,6 @@
  */
 
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
-import type { Utledning } from '$kjerne/utledning/utled';
 import { letterText } from '$lib/approval/letter';
 import type { VederlagSubmissionEventData } from '$lib/domain/vederlagSubmissionDomain';
 
@@ -25,14 +24,6 @@ export type Vederlagskrav = {
   innhold: { metode: 'tilbud'; beloep: number };
   utdypning?: string;
 };
-
-/**
- * Skjemaet tilbys når kjernen tilbyr leseren et vederlagskrav og sporet ennå ikke har
- * et gjeldende krav. Kjernen tilbyr også en ny versjon av kravet, men skjemaet for den
- * kommer senere (arbeidsvalg i #667, #655).
- */
-export const tilbyrFoersteVederlagskrav = (handlinger: string[], u: Utledning) =>
-  handlinger.includes('krav:vederlag') && u.spor.vederlag.gjeldendeKrav === null;
 
 /** Katalogens metode kan sendes til kjernen. Bare tilbud kan det i prøven. */
 export const metodeKanSendesTilKjernen = (metode: string) =>

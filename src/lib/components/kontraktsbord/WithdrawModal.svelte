@@ -8,10 +8,13 @@
 
   let {
     spor,
+    kjernesak = false,
     onconfirm,
     oncancel,
   }: {
     spor: SporKey;
+    /** TS-saken: trekket har ingen fritekst og trekker ikke grunnlaget (KA-U22). */
+    kjernesak?: boolean;
     onconfirm: (begrunnelse: string) => void | Promise<void>;
     oncancel: () => void;
   } = $props();
@@ -27,7 +30,7 @@
   const cascadeDown = $derived(spor === 'ansvar');
 
   const reverseCascade = $derived.by(() => {
-    if (spor === 'ansvar') return false;
+    if (spor === 'ansvar' || kjernesak) return false;
     const otherSpor = spor === 'vederlag' ? 'frist' : 'vederlag';
     const otherDisplay = store.display(otherSpor);
     const otherInactive = otherDisplay.isBinary ? false : (otherDisplay.krevdValue ?? 0) === 0;
@@ -54,10 +57,20 @@
       <h3 class="modal-title">Trekk tilbake {sporLabels[spor]}</h3>
     </div>
 
-    <p class="modal-desc">
-      Du er i ferd med å trekke tilbake {sporLabels[spor]}. Denne handlingen kan ikke angres uten å
-      sende et nytt krav.
-    </p>
+    {#if kjernesak}
+      <!-- KA-U22: at kravet ikke kan tas opp igjen, står her og ikke i brevet (GR-U5). -->
+      <p class="modal-desc">
+        {spor === 'ansvar'
+          ? 'Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Kravene kan ikke tas opp igjen i saken.'
+          : 'Trekket er avkall på kravet, også det byggherren har godkjent. Kravet kan ikke tas opp igjen i saken.'}
+        Du ser brevet før det sendes.
+      </p>
+    {:else}
+      <p class="modal-desc">
+        Du er i ferd med å trekke tilbake {sporLabels[spor]}. Denne handlingen kan ikke angres uten
+        å sende et nytt krav.
+      </p>
+    {/if}
 
     {#if cascadeDown}
       <div class="cascade-warning">
@@ -85,16 +98,16 @@
       </div>
     {/if}
 
-    <div class="field">
-      <label class="field-label" for="withdraw-reason">Begrunnelse (valgfritt)</label>
-      <textarea
-        id="withdraw-reason"
-        class="field-textarea"
-        bind:value={begrunnelse}
-        placeholder="Hvorfor trekkes kravet tilbake?"
-        rows="3"
-      ></textarea>
-    </div>
+    {#if !kjernesak}<div class="field">
+        <label class="field-label" for="withdraw-reason">Begrunnelse (valgfritt)</label>
+        <textarea
+          id="withdraw-reason"
+          class="field-textarea"
+          bind:value={begrunnelse}
+          placeholder="Hvorfor trekkes kravet tilbake?"
+          rows="3"
+        ></textarea>
+      </div>{/if}
 
     {#if submission.error}<p role="alert">{submission.error}</p>{/if}
     <div class="modal-actions">
@@ -107,7 +120,7 @@
         onclick={() => submission.run(() => onconfirm(begrunnelse))}
       >
         <XSquare size={14} />
-        {submission.pending ? 'Trekker tilbake …' : 'Trekk tilbake'}
+        {submission.pending ? 'Trekker tilbake …' : kjernesak ? 'Se brevet' : 'Trekk tilbake'}
       </button>
     </div>
   </div>

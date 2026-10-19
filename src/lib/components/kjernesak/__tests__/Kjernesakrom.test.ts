@@ -242,8 +242,8 @@ describe('TS-saken i Kontrollrommet', () => {
   });
 
   // Krav G i #718: knappene og skjemaene for en TS-sak følger bare `kjernesak.handlinger`.
-  // Med alle kandidatene tilbys bare det som er bygget: det første vederlagskravet
-  // (oppdragsgiver 17.10, MM-U25). Uten handlinger tilbys ingenting.
+  // Med alle kandidatene tilbys TE det som er bygget (#909): trekket, varselet etter
+  // § 33.4 og kravet eller en ny versjon av det i hvert spor. Uten handlinger tilbys ingenting.
   it.each(
     (['TE', 'BH'] as const).flatMap((part) =>
       (['tom', 'full'] as const).flatMap((tabell) =>
@@ -265,24 +265,28 @@ describe('TS-saken i Kontrollrommet', () => {
       });
       await ekte.last();
       const handlinger = tabell === 'tom' ? [] : kandidater(ekte.utledning!).map(noekkel);
-      const tilbys =
-        part === 'TE' &&
-        handlinger.includes('krav:vederlag') &&
-        ekte.utledning!.spor.vederlag.gjeldendeKrav === null;
+      const tilbys = part === 'TE' && tabell === 'full';
+      const harVederlagskrav = ekte.utledning!.spor.vederlag.gjeldendeKrav !== null;
+      const KNAPPER = {
+        ansvar: ['Trekk', 'Send ny versjon av grunnlaget'],
+        vederlag: [
+          'Trekk',
+          harVederlagskrav ? 'Send ny versjon av kravet' : 'Send krav om vederlagsjustering',
+        ],
+        frist: ['Trekk', 'Send varsel eller krav'],
+      };
 
       for (const track of ['ansvar', 'vederlag', 'frist'] as const) {
         await vis(journal, part, track, 'read', handlinger);
         const knapper = [...document.querySelectorAll('.action-buttons button')]
           .map((b) => b.textContent?.trim())
           .filter((t) => t !== 'Kontekst');
-        expect(knapper).toEqual(
-          tilbys && track === 'vederlag' ? ['Send krav om vederlagsjustering'] : []
-        );
+        expect(knapper).toEqual(tilbys ? KNAPPER[track] : []);
         cleanup();
 
         await vis(journal, part, track, 'form', handlinger);
         const skjema = document.querySelector('.form-content');
-        if (tilbys && track === 'vederlag') {
+        if (tilbys) {
           expect(skjema).not.toBeNull();
           expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeInTheDocument();
         } else {
