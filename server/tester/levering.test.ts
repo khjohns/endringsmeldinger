@@ -1032,7 +1032,11 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
    */
   function falskBase(
     jobbtype: string,
-    feiler: { prosedyre: string; feil: { number?: number; code?: string } } | null,
+    feiler: {
+      prosedyre: string;
+      feil: { number?: number; code?: string };
+      ganger?: number;
+    } | null,
     tillegg: {
       jobb?: Record<string, unknown>;
       vedlegg?: ReturnType<typeof vedlegg>[];
@@ -1042,6 +1046,7 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
   ) {
     const kall: { prosedyre: string; typer: Record<string, unknown> }[] = [];
     const registrert: Record<string, unknown>[] = [];
+    let feilet = 0;
     const datalag = {
       request() {
         const parametre: Record<string, unknown> = {};
@@ -1075,7 +1080,7 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
             if (prosedyre === 'koe_api.vedlegg_i_levering')
               return { recordset: tillegg.vedlegg ?? [vedlegg('v1'), vedlegg('v2')] };
             if (prosedyre === 'koe_api.registrer_jobbfeil') registrert.push(parametre);
-            if (prosedyre === feiler?.prosedyre)
+            if (prosedyre === feiler?.prosedyre && (feiler.ganger ?? Infinity) > feilet++)
               throw Object.assign(new sql.RequestError('fra basen'), feiler.feil);
             return { recordset: [] };
           },
@@ -1146,6 +1151,34 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     });
     await expect(base.kjoer()).rejects.toMatchObject({ number: 1205 });
     expect(base.registrert).toEqual([]);
+  });
+
+  // Kilde: #877 p15 og svaret fra orkestratoren 19.10 (B): registreringen prøves én gang
+  // til, så leasen ikke går ut og parkerer en levering som kunne vært avstemt.
+  it.each<[string, string, number]>([
+    ['én vranglås', 'registreres ved andre forsøk', 1],
+    ['to vranglåser', 'kastes etter andre forsøk, og leasen går ut', 2],
+  ])('%s når feilen registreres: feilen %s', async (_n, _utfall, ganger) => {
+    const base = falskBase(
+      'levering',
+      { prosedyre: 'koe_api.registrer_jobbfeil', feil: { number: 1205 }, ganger },
+      {
+        dokumenter: {
+          opprettDokumentreferanse: async () => {
+            throw new CatendaUtilgjengelig('Catenda svarte med feil');
+          },
+        },
+      }
+    );
+    const kjoering = base.kjoer();
+    if (ganger === 1) await kjoering;
+    else await expect(kjoering).rejects.toMatchObject({ number: 1205 });
+    expect(base.registrert).toHaveLength(2);
+    expect(base.registrert[0]).toEqual({
+      lease: 'l',
+      utfall: 'feilet',
+      melding: 'Catenda svarte med feil',
+    });
   });
 
   // Kilde: #876 punkt 4. Neste forsøk finner referansen til det første vedlegget og

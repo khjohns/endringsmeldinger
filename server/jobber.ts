@@ -229,10 +229,19 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       logg.error(
         `Jobben ${jobb.jobb_id} er parkert som ${utfall} (${melding}). Driften starter den på nytt.`
       );
-    await lease()
-      .input('utfall', sql.NVarChar(20), utfall)
-      .input('melding', sql.NVarChar(400), melding)
-      .execute('koe_api.registrer_jobbfeil');
+    const registrer = () =>
+      lease()
+        .input('utfall', sql.NVarChar(20), utfall)
+        .input('melding', sql.NVarChar(400), melding)
+        .execute('koe_api.registrer_jobbfeil');
+    try {
+      await registrer();
+    } catch (feilIBasen) {
+      // Går leasen ut uten registrering, parkerer `hent_jobb` jobben som usikker (#877 p15).
+      if (!forbigaaendeISql(feilIBasen)) throw feilIBasen;
+      logg.warn(`Jobben ${jobb.jobb_id} fikk ikke registrert feilen og prøver igjen:`, feilIBasen);
+      await registrer();
+    }
   }
   return true;
 }
