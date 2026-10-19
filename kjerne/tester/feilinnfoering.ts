@@ -2218,12 +2218,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F257',
     feilklasse:
       'en lagret dato med klokkeslett sammenliknes som tekst, ikke som kalenderdag (SK-12, #474, #766)',
-    fil: `${K}/format/leser.ts`,
+    // I `kalenderdag` selv ville mutasjonen også gjøre registreringsdatoen til et tidspunkt,
+    // og datokontrollen kaster da i hver kommando (#870).
+    fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      [
-        '  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(dato)) return erKalenderdato(dato) ? dato : null;',
-        '  return dato;',
-      ],
+      ['      const registrert = kalenderdag(sendt.dato);', '      const registrert = sendt.dato;'],
     ],
     mal: ['en lagret varseldato med klokkeslett sammenliknes som dagen i norsk tid'],
   },
