@@ -156,6 +156,13 @@ FEILINNFOERINGER = [
      ("CREATE TRIGGER koe.leveringsoppdrag_uforanderlig ON koe.leveringsoppdrag INSTEAD OF UPDATE, DELETE AS\n"
       "BEGIN\n  SET NOCOUNT ON;\n  THROW 51001, N'Et lagret leveringsoppdrag endres ikke', 1;\nEND\nGO\n"), "",
      "aktiv INSTEAD OF-trigger for UPDATE og DELETE"),
+    ("S42", "identiteten settes tilbake før tilbakerullingen i somJobbkjoerer (#922)", "server/tester/testbase.ts",
+     "BEGIN CATCH IF XACT_STATE() <> 0 ROLLBACK; REVERT; THROW; END CATCH;",
+     "BEGIN CATCH REVERT; IF XACT_STATE() <> 0 ROLLBACK; THROW; END CATCH;",
+     "en setning som feiler, gir den egentlige feilen"),
+    ("S43", "identiteten settes ikke tilbake etter et tidsavbrudd i somJobbkjoerer (#813)", "server/tester/testbase.ts",
+     "IF USER_NAME() = 'koe_jobbkjoerer' REVERT;`", "`",
+     "en setning som avbrytes av et tidsavbrudd"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
@@ -164,7 +171,7 @@ FEILINNFOERINGER = [
 FORVENTET_OVERLEVER = {"S8"}
 
 
-def kjoer(rot: Path) -> subprocess.CompletedProcess:
+def kjoer(rot: Path, mutert: bool = False) -> subprocess.CompletedProcess:
     return subprocess.run(
         # De levende Catenda-testene (#902) hoppes alltid over her, og ville stoppet kontrollen.
         ["npx", "vitest", "run", "server/tester", "--exclude", "server/tester/catenda.live.test.ts"],
@@ -172,6 +179,8 @@ def kjoer(rot: Path) -> subprocess.CompletedProcess:
         capture_output=True,
         text=True,
         check=False,
+        # En mutert migrasjon gir en mal ingen bruker igjen; globalt_oppsett.ts sletter den (#930).
+        env={**os.environ, "KOE_TESTMAL_ENGANGS": "1"} if mutert else None,
     )
 
 
@@ -180,10 +189,13 @@ def main(rot: Path) -> int:
     if ukjent := valgt - {f[0] for f in FEILINNFOERINGER}:
         print("ukjente feilinnføringer:", " ".join(sorted(ukjent)))
         return 1
+    if not os.environ.get("KOE_SQLSERVER_TILKOBLING"):
+        print("KOE_SQLSERVER_TILKOBLING er ikke satt; databasetestene ville hoppet over seg selv")
+        return 1
     # Kontrollen først: uten feilinnføring skal testene være grønne, og ingen
-    # databasetest hoppet over (uten KOE_SQLSERVER_TILKOBLING kjører de ikke).
+    # databasetest hoppet over.
     kontroll = kjoer(rot)
-    if kontroll.returncode or "skipped" in kontroll.stdout or not os.environ.get("KOE_SQLSERVER_TILKOBLING"):
+    if kontroll.returncode or "skipped" in kontroll.stdout:
         print("kontrollkjøringen feilet eller hoppet over tester; feilinnføringene sier ingenting")
         return 1
     mislykket = []
@@ -198,7 +210,7 @@ def main(rot: Path) -> int:
             continue
         sti.write_text(kilde.replace(fra, til))
         try:
-            r = kjoer(rot)
+            r = kjoer(rot, mutert=True)
         finally:
             sti.write_text(kilde)
         feilet = [

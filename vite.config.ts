@@ -44,17 +44,41 @@ export default defineConfig({
       },
     },
   },
+  // Ett prosjekt per del, så oppsettet kjøres bare når en fil i delen er med: Testing
+  // Library bare for frontenden, og malen for SQL Server-basene bare for serveren (#930, #934).
   test: {
-    include: [
-      'src/**/*.test.ts',
-      'kjerne/**/*.test.ts',
-      'sprakprove/**/*.test.ts',
-      'server/**/*.test.ts',
-      '.claude/hooks/*.test.ts',
-      'verktoy/**/*.test.ts',
+    // Prosjektene arver grensen herfra; `--hookTimeout` når dem ikke (feilinnfoering.ts).
+    ...(process.env.KOE_HOOKGRENSE && { hookTimeout: Number(process.env.KOE_HOOKGRENSE) }),
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'frontend',
+          include: ['src/**/*.test.ts'],
+          environmentMatchGlobs: [['src/lib/components/**/*.test.ts', 'jsdom']],
+          setupFiles: ['src/test-setup.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'node',
+          include: [
+            'kjerne/**/*.test.ts',
+            'sprakprove/**/*.test.ts',
+            '.claude/hooks/*.test.ts',
+            'verktoy/**/*.test.ts',
+          ],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'server',
+          include: ['server/**/*.test.ts'],
+          globalSetup: ['server/tester/globalt_oppsett.ts'],
+        },
+      },
     ],
-    environmentMatchGlobs: [['src/lib/components/**/*.test.ts', 'jsdom']],
-    setupFiles: ['src/test-setup.ts'],
-    globalSetup: ['server/tester/globalt_oppsett.ts'],
   },
 });
