@@ -37,6 +37,7 @@ import {
 } from './autorisasjon.ts';
 import { feilnummer, UsikkertUtfall, UUID, type Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
+import { fast, loggFeil, svarhoder } from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
 import { lesSaken } from './lager.ts';
 import {
@@ -495,8 +496,7 @@ const KJERNERUTER: readonly Saksrute[] = [
 
 const OPPRETTELSE: Opprettelsesrute = {
   metode: 'POST',
-  sti: /^\/api\/kjerne\/saker$/,
-  eksempel: () => '/api/kjerne/saker',
+  ...fast('/api/kjerne/saker'),
   tilgang: {
     prosjektrolle: 'member',
     kontraktsrolle: 'kreves',
@@ -639,26 +639,19 @@ export function lagServer(avh: Avhengigheter) {
         : feilsvar(404, 'NOT_FOUND', 'Ukjent rute.');
     } catch (feil) {
       if (feil instanceof Nektet) [status, kropp] = [feil.status, feil.kropp];
-      else console.error(feil);
+      else loggFeil(`${metode} ${funnet?.r.sti} feilet`, feil);
     }
     // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2).
     let tekst: string | Buffer | undefined;
     try {
-      const json = kropp !== null && !Buffer.isBuffer(kropp);
-      tekst = Buffer.isBuffer(kropp) ? kropp : json ? JSON.stringify(kropp) : undefined;
-      respons.writeHead(status, {
-        ...(json ? { 'content-type': 'application/json; charset=utf-8' } : {}),
-        ...funnet?.r.hoder,
-        ...hoder,
-      });
+      tekst = kropp === null ? undefined : Buffer.isBuffer(kropp) ? kropp : JSON.stringify(kropp);
+      respons.writeHead(status, svarhoder([status, kropp, hoder], funnet?.r.hoder));
     } catch (feil) {
-      console.error(feil);
-      tekst = JSON.stringify(uventet()[1]);
+      loggFeil('Svaret kunne ikke skrives', feil);
+      const reserve = uventet();
+      tekst = JSON.stringify(reserve[1]);
       // Node beholder årsaksfrasen fra det første forsøket, og rutens hoder gjelder også dette svaret.
-      respons.writeHead(500, 'Internal Server Error', {
-        'content-type': 'application/json; charset=utf-8',
-        ...funnet?.r.hoder,
-      });
+      respons.writeHead(500, 'Internal Server Error', svarhoder(reserve, funnet?.r.hoder));
     }
     respons.end(tekst);
   };

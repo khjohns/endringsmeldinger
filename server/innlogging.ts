@@ -24,6 +24,7 @@ import type { Avhengigheter, Innlogget, Rute, Svar } from './app.ts';
 import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, type Pool } from './datalag.ts';
+import { fast, loggFeil, svarhoder } from './inngang.ts';
 import {
   basensKlokke,
   deaktiverVedInnlogging,
@@ -148,15 +149,14 @@ const omdiriger = (adresse: string, kapsler: string[]): Svar => [
 ];
 
 /**
- * Kaster som `writeHead` for et navn eller en verdi Node ikke godtar, i rutens
- * hoder og svarets (#854 punkt 2). En omdirigering har ingen kropp, så `app.ts`
- * legger ikke til `Content-Type`.
+ * Kaster som `writeHead` for et navn eller en verdi Node ikke godtar, i hodene
+ * ruteren skriver for svaret på `rute` (#854 punkt 2).
  */
-function kontrollerHoder([, , hoder]: Svar, rute: Record<string, string>): void {
-  for (const [navn, verdi] of Object.entries({ ...rute, ...hoder }))
-    for (const v of [verdi].flat()) {
+function kontrollerHoder(svar: Svar, rute: Rute): void {
+  for (const [navn, verdi] of Object.entries(svarhoder(svar, rute.hoder)))
+    for (const v of verdi === undefined ? [] : [verdi].flat()) {
       validateHeaderName(navn);
-      validateHeaderValue(navn, v);
+      validateHeaderValue(navn, String(v));
     }
 }
 
@@ -203,9 +203,6 @@ async function medlemskapVedInnlogging(
   return bruker;
 }
 
-const loggFeil = (hvor: string, feil: unknown) =>
-  console.warn(`${hvor} (${(feil as Error)?.constructor?.name ?? typeof feil})`);
-
 async function loggInn(foresporsel: IncomingMessage, avh: Required<Avhengigheter>): Promise<Svar> {
   if (!avh.innlogging) return utilgjengelig();
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
@@ -250,7 +247,7 @@ async function tilbakekall(
       ]);
     // Hodene prøves før sesjonen endres, så et hode Node avviser, ikke etterlater en
     // sesjon klienten aldri fikk (#763 punkt 8). Tokenet er base64url.
-    kontrollerHoder(innlogget(''), PRIVAT);
+    kontrollerHoder(innlogget(''), TILBAKEKALLET);
     const token = await innlogging.oauth.byttKode(kode[0]);
     const bruker = await medlemskapVedInnlogging(avh.datalag, innlogging.oauth, token);
     const sesjon = await opprettSesjon(avh.datalag, bruker);
@@ -258,7 +255,9 @@ async function tilbakekall(
     // Den nye sesjonen slettes når den gamle ikke kan slettes, så klienten beholder én (#854 punkt 1).
     if (gammel)
       await slettSesjon(avh.datalag, gammel).catch(async (feil) => {
-        await slettSesjon(avh.datalag, sesjon.token).catch(() => {});
+        await slettSesjon(avh.datalag, sesjon.token).catch((rydding) =>
+          loggFeil('Den nye sesjonen kunne ikke slettes etter tilbakekallet', rydding)
+        );
         throw feil;
       });
     return innlogget(sesjon.token);
@@ -285,11 +284,16 @@ async function csrfToken({ sesjon }: Innlogget): Promise<Svar> {
   return [200, { csrfToken: sesjon.csrfToken, expiresIn: 3600 }];
 }
 
-/** En rute med én fast sti; tegnene i stien står for seg selv i uttrykket (#716 punkt 4). */
-export const fast = (sti: string) => ({
-  sti: new RegExp(`^${sti.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
-  eksempel: () => sti,
-});
+const TILBAKEKALLET: Rute = {
+  metode: 'GET',
+  ...fast('/api/auth/catenda/callback'),
+  tilgang: {
+    utenSesjon:
+      'Tilbakekallet fra Catenda, som oppretter sesjonen. Staten og innloggingskapselen binder det til forsøket.',
+  },
+  hoder: PRIVAT,
+  behandle: tilbakekall,
+};
 
 export const INNLOGGINGSRUTER: readonly Rute[] = [
   {
@@ -299,16 +303,7 @@ export const INNLOGGINGSRUTER: readonly Rute[] = [
     hoder: PRIVAT,
     behandle: loggInn,
   },
-  {
-    metode: 'GET',
-    ...fast('/api/auth/catenda/callback'),
-    tilgang: {
-      utenSesjon:
-        'Tilbakekallet fra Catenda, som oppretter sesjonen. Staten og innloggingskapselen binder det til forsøket.',
-    },
-    hoder: PRIVAT,
-    behandle: tilbakekall,
-  },
+  TILBAKEKALLET,
   {
     metode: 'GET',
     ...fast('/api/auth/session'),

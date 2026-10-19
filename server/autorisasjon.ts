@@ -21,7 +21,14 @@ import type { IncomingMessage } from 'node:http';
 import type { Part as Rolle } from '../kjerne/typer.ts';
 import type { Bruker } from './bruker.ts';
 import { sql, transaksjon, type Pool } from './datalag.ts';
-import { oversett, prosjektkobling, synkroniserKobling, type Medlem } from './medlemskap.ts';
+import { loggFeil } from './inngang.ts';
+import {
+  oversett,
+  prosjektkobling,
+  synkroniserKobling,
+  type Medlem,
+  type Synkronisering,
+} from './medlemskap.ts';
 import { lesSesjon, type Sesjon } from './sesjon.ts';
 
 export { sha256, type Bruker } from './bruker.ts';
@@ -122,6 +129,9 @@ interface Prosjektoppsett {
   catendaProsjekt: string;
 }
 
+/** Synkroniseringen uten tidspunktet for hentingen, som blir her (#638 punkt 2). */
+export type Synkroniseringsutfall = Omit<Synkronisering, 'hentet'>;
+
 export interface Prosjekttilgang {
   prosjektId: string;
   /** `app_users.id` for brukeren tilgangen er avgjort for. */
@@ -129,6 +139,13 @@ export interface Prosjekttilgang {
   rolle: string;
   oppsett: Prosjektoppsett;
   medlemskap: Medlemskap;
+  /**
+   * Synkroniseringen denne forespørselen gjorde fordi listen var for gammel, så
+   * en inngang som selv synkroniserer, ikke henter på nytt (#825 punkt 7).
+   * Fraværende når listen var fersk, eller når forespørselen ventet på en
+   * henting en annen hadde startet.
+   */
+  synkronisert?: Synkroniseringsutfall;
 }
 
 const ENKELTREFERANSER = new Set(['sak_id', 'sakId', 'koe_sak_id', 'relatert_sak_id']);
@@ -203,7 +220,7 @@ export async function medlemslistensAlder(
 }
 
 /** Hentingene fra Catenda som pågår, per base og kobling, så samtidige forespørsler deler én (#726 punkt 3). */
-const hentinger = new WeakMap<Pool, Map<string, Promise<boolean>>>();
+const hentinger = new WeakMap<Pool, Map<string, Promise<Synkronisering>>>();
 
 /**
  * `AuthService.ensure_fresh` for et registrert prosjekt: synkroniser når listen
@@ -212,25 +229,28 @@ const hentinger = new WeakMap<Pool, Map<string, Promise<boolean>>>();
  * medlemskapet er avgjort, og gis aldri videre (#638 punkt 2).
  *
  * `catendaProsjekt` er koblingen tilgangskontrollen alt har lest, så listen og
- * teamene kommer fra samme Catenda-prosjekt (#726 punkt 2). Er listen ikke fersk
- * etter synkroniseringen, kaster den, også når en annen skrev først (#707,
- * kommentar a).
+ * teamene kommer fra samme Catenda-prosjekt (#726 punkt 2). Etter
+ * synkroniseringen godtas listen når den er hentet samtidig med eller etter
+ * hentingen det ble ventet på, uansett hvor lenge hentingen og låsen tok
+ * (#858 punkt 1). Er det ingen slik liste, kaster den, også når en annen skrev
+ * først (#707, kommentar a).
+ *
+ * Returnerer synkroniseringen, uten `hentet`, når denne forespørselen startet
+ * den, ellers `null`.
  */
 async function oppdaterMedlemslisten(
   db: Pool,
   catenda: Catenda,
   prosjekt: string,
   catendaProsjekt: string
-): Promise<void> {
-  const fersk = async () => {
-    const sist = await medlemslistensAlder(db, prosjekt);
-    return sist !== null && sist.alderSekunder < medlemskapsalder();
-  };
-  if (await fersk()) return;
+): Promise<Synkroniseringsutfall | null> {
+  const sist = await medlemslistensAlder(db, prosjekt);
+  if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;
   let iBasen = hentinger.get(db);
   if (!iBasen) hentinger.set(db, (iBasen = new Map()));
   const noekkel = JSON.stringify([prosjekt, catendaProsjekt]);
   let henting = iBasen.get(noekkel);
+  const egen = !henting;
   if (!henting) {
     const paagaar = iBasen;
     henting = synkroniserKobling(db, { prosjekt, catendaProsjekt }, (c) =>
@@ -238,16 +258,17 @@ async function oppdaterMedlemslisten(
     ).finally(() => paagaar.delete(noekkel));
     iBasen.set(noekkel, henting);
   }
-  await henting;
-  if (!(await fersk())) throw new Error('Medlemslisten er ikke fersk etter synkroniseringen');
+  const synkronisering = await henting;
+  const etter = await medlemslistensAlder(db, prosjekt);
+  if (etter === null || etter.hentet.getTime() < synkronisering.hentet.getTime())
+    throw new Error('Medlemslisten er ikke fersk etter synkroniseringen');
+  if (!egen) return null;
+  const { skrevet, medlemmer, deaktivert } = synkronisering;
+  return { skrevet, medlemmer, deaktivert };
 }
 
-/** Som `oppdaterMedlemslisten()`, med koblingen lest her. For lista over brukerens prosjekter. */
-export async function ferskeMedlemmer(
-  db: Pool,
-  catenda: Catenda,
-  prosjektId: string
-): Promise<void> {
+/** Som `oppdaterMedlemslisten()`, med koblingen lest her. */
+async function ferskeMedlemmer(db: Pool, catenda: Catenda, prosjektId: string): Promise<void> {
   const oppsett = await prosjektoppsett(db, prosjektId);
   if (!oppsett) throw new Error('Prosjektet har ingen aktiv kobling');
   await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
@@ -255,7 +276,7 @@ export async function ferskeMedlemmer(
 
 /**
  * `ferskeMedlemmer()` for hvert av prosjektene, samtidig. For lista over brukerens
- * prosjekter, som skal kalle denne i stedet (#724 punkt 3 og 5).
+ * prosjekter (#724 punkt 3 og 5).
  */
 export async function ferskeProsjekter(
   db: Pool,
@@ -320,7 +341,12 @@ export async function krevProsjekttilgang(
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
     if (!oppsett) throw nekt();
-    await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
+    const synkronisert = await oppdaterMedlemslisten(
+      db,
+      catenda,
+      prosjektId,
+      oppsett.catendaProsjekt
+    );
     const svar = await db
       .request()
       .input('aktor', sql.UniqueIdentifier, bruker.id)
@@ -346,11 +372,18 @@ export async function krevProsjekttilgang(
     // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
     const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, saker);
     for (const sakId of saker) if (!iProsjektet.has(sakId)) throw nekt();
-    return { prosjektId, aktor: bruker.id, rolle, oppsett, medlemskap: medlemskap! };
+    return {
+      prosjektId,
+      aktor: bruker.id,
+      rolle,
+      oppsett,
+      medlemskap: medlemskap!,
+      ...(synkronisert ? { synkronisert } : {}),
+    };
   } catch (feil) {
     if (feil instanceof Nektet) throw feil;
     // Som ruteren i `app.ts`: årsaken logges, svaret sier bare at tilgangen ikke kunne bekreftes (#867 punkt 1).
-    console.error(feil);
+    loggFeil('Prosjekttilgangen kunne ikke avgjøres', feil);
     throw new Nektet(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
   }
 }
