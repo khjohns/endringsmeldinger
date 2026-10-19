@@ -276,10 +276,12 @@ const ESCAPE_I_ANFORSEL = '$`"\\';
  * `ukjent` settes når leddet ikke kan leses uten å kjøre skallet: substitusjon, variabler,
  * globber, klammer, `#`, subshell, heredoc eller omdirigering til fil. `ukjentSyntaks` er
  * den delen som ikke er omdirigering, og `ukjentKommando` er satt når kommandoordet selv
- * ikke kan leses. Linjene i en heredoc-kropp leses som før, men leddene deres er ukjente og
- * merket `kropp`, siden skallet kan ekspandere dem og de ikke er kommandoer (#753).
+ * ikke kan leses. Hver linje i en heredoc-kropp lekses for seg, slik at en anførsel i kroppen
+ * ikke sluker avgrenserlinja, og leddene merkes `kropp`, siden de ikke er kommandoer. Uten
+ * anførselstegn eller escape i avgrenseren kan skallet ekspandere kroppen, så da er både
+ * heredocen og kroppsleddene ukjente (#753). `iKropp` er satt når `tekst` er en kroppslinje.
  */
-function lekser(tekst) {
+function lekser(tekst, iKropp = false) {
   const liste = [];
   let ord = [];
   let innhold = '';
@@ -287,10 +289,10 @@ function lekser(tekst) {
   let ukjent = false;
   let ukjentSyntaks = false;
   let ukjentKommando = false;
+  let heredoc = false;
   // Avgrenserne til heredocene som er åpnet på linja, og dem kroppslinjene ennå venter på.
   let aapnede = [];
-  let kropper = [];
-  let iKropp = false;
+  const kropper = [];
 
   const merkUkjent = () => {
     ukjent = true;
@@ -311,10 +313,9 @@ function lekser(tekst) {
   };
   const avsluttLedd = () => {
     avsluttOrd();
-    if (iKropp) merkUkjent();
-    if (ord.length || ukjent)
-      liste.push({ ord, ukjent, ukjentSyntaks, ukjentKommando, kropp: iKropp });
+    if (ord.length || ukjent) liste.push({ ord, ukjent, ukjentSyntaks, ukjentKommando, heredoc });
     ord = [];
+    heredoc = false;
     ukjent = false;
     ukjentSyntaks = false;
     ukjentKommando = false;
@@ -373,16 +374,20 @@ function lekser(tekst) {
       avsluttOrd();
       merkOmdirigering();
       i += 2;
-    } else if (tegn === '<' && tekst[i + 1] === '<') {
+    } else if (tegn === '<' && tekst[i + 1] === '<' && !iKropp) {
       // Heredoc. Avgrenseren leses som målet til omdirigeringen; anførselstegn og
-      // escape i den gjør kroppen bokstavelig, men leddet er ukjent uansett.
+      // escape i den gjør kroppen bokstavelig.
       avsluttOrd();
-      merkUkjent();
-      merkOmdirigering();
       const fjernTab = tekst[i + 2] === '-';
       i += fjernTab ? 2 : 1;
-      const avgrenser = /^[ \t]*([^\s;&|<>()]*)/.exec(tekst.slice(i + 1))[1].replace(/['"\\]/g, '');
-      if (avgrenser) aapnede.push({ avgrenser, fjernTab });
+      const raa = /^[ \t]*([^\s;&|<>()]*)/.exec(tekst.slice(i + 1))[1];
+      const avgrenser = raa.replace(/['"\\]/g, '');
+      // Bare enkle former, slik at vakten og skallet finner samme avgrenserlinje.
+      const bokstavelig = /^(['"])[\w.-]+\1$|^\\[\w.-]+$/.test(raa);
+      if (!bokstavelig) merkUkjent();
+      merkOmdirigering();
+      heredoc = true;
+      if (avgrenser) aapnede.push({ avgrenser, fjernTab, bokstavelig });
     } else if (tegn === '<') {
       avsluttOrd();
       merkOmdirigering();
@@ -390,16 +395,20 @@ function lekser(tekst) {
       avsluttLedd();
       kropper.push(...aapnede);
       aapnede = [];
-      // Avgrenserlinjer hoppes over; ellers er neste linje en kroppslinje.
-      while (kropper.length) {
+      while (kropper.length && i < tekst.length) {
         const slutt = tekst.indexOf('\n', i + 1);
         const linje = tekst.slice(i + 1, slutt === -1 ? tekst.length : slutt);
-        const { avgrenser, fjernTab } = kropper[0];
-        if ((fjernTab ? linje.replace(/^\t+/, '') : linje) !== avgrenser) break;
-        kropper.shift();
         i = slutt === -1 ? tekst.length : slutt;
+        const { avgrenser, fjernTab, bokstavelig } = kropper[0];
+        if ((fjernTab ? linje.replace(/^\t+/, '') : linje) === avgrenser) {
+          kropper.shift();
+          continue;
+        }
+        for (const del of lekser(linje, true)) {
+          const ukjentKropp = bokstavelig ? {} : { ukjent: true, ukjentSyntaks: true };
+          liste.push({ ...del, ...ukjentKropp, kropp: true });
+        }
       }
-      iKropp = kropper.length > 0;
     } else if (tegn === ';' || tegn === '&' || tegn === '|') {
       avsluttLedd();
     } else if (tegn === ' ' || tegn === '\t') {
@@ -975,6 +984,9 @@ function vurder(input) {
   }
 
   // Siste vern: det som committes eller pushes, kontrolleres i git.
+  if ((pushArgumenter.length || commiter) && leddene.some((del) => del.heredoc)) {
+    return 'Kommandoen har en heredoc i samme kall som git commit eller git push. Skriv teksten til en fil i /tmp med Write og vis til filen, for eksempel med git commit -F.';
+  }
   if (pushArgumenter.length && commiter) return 'Kjør commit og push i hver sin kommando.';
   if (pushArgumenter.length || commiter) {
     const utenfor = utenforTreet(leddene, cwd, rot);

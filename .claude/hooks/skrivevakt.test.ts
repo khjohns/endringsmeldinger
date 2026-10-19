@@ -247,6 +247,37 @@ describe('skrivevakten for mekanisk-pr', () => {
     expect(resultat.stderr).toContain('skallsyntaks som ikke kan leses statisk');
   });
 
+  it('slipper heredoc med enkel avgrenser i anførsel som skriver en fil i /tmp eller en PR-tekst (#753)', () => {
+    for (const kommando of [
+      "cat > /tmp/pr.md <<'EOF'\nlegg til lenke\nEOF",
+      'cat > /tmp/pr.md <<"EOF"\nlegg til lenke\nEOF',
+      "cat > /tmp/pr.md <<'EOF'\nflytt a << b\nEOF",
+      "gh api repos/khjohns/endringsmeldinger/pulls/1 -X PATCH -F body=@- <<'EOF'\nlegg til lenke\nEOF",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(0);
+    }
+    for (const kommando of [
+      'cat > /tmp/pr.md <<EOF\nlegg til lenke\nEOF',
+      "cat > /tmp/pr.md <<'EOF'\n$(git push --force origin main)\nEOF",
+      "cat > /tmp/pr.md <<'A' <<B\na\nA\n'$(git push --force origin main)'\nB",
+      'cat > /tmp/a <<\'EOF\'\na"\nEOF\ngit --no-pager push --force origin HEAD:main #"',
+      "cat > /tmp/a <<'EOF'\na'\nEOF\ngit reset --hard origin/main #'",
+      "cat > /tmp/a <<'E F'\nE F\ngit push --force origin HEAD:main",
+      "cat > /tmp/a <<$'EOF'\nEOF\ngit push --force origin HEAD:main",
+      "cat > /tmp/a <<'EOF;'\nEOF;\ngit push --force origin HEAD:main",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper heredoc med anførselstegn i samme kall som git commit, også med tom kropp (#753)', () => {
+    for (const kommando of ["git commit -F - <<'EOF'\n\nEOF", "git commit -F - <<'EOF'\nEOF"]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).toContain('heredoc i samme kall som git commit');
+    }
+  });
+
   it('stopper fortsatt heredoc med anførselstegn og heredoc rundt git (#753)', () => {
     for (const kommando of [
       "git commit -F - <<'EOF'\nmelding\nEOF",
