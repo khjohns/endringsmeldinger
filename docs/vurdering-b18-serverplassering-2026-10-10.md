@@ -23,7 +23,7 @@ journalen for disse sakene. B-14 lot serverlaget stå åpent. Alternativene i
 1. **Serverlaget i SvelteKit:** kjernen i serverrutene, i samme app som
    frontenden.
 2. **En egen Node/TS-backend** med API-et, slik prøveserveren i
-   [`sprakprove/server/`](../sprakprove/server/) gjør.
+   [`sprakprove/server/`](https://github.com/khjohns/endringsmeldinger/tree/fc19484/sprakprove/server) gjør.
 3. **Et av de to, med Python ved siden av** for levering og Catenda.
 
 Alternativ 3 er ikke et tredje sted for kjernen. Det er et valg om Python
@@ -76,7 +76,7 @@ som KOE-saken (merknaden 09.10 til B-17).
 
 | Krav | Prøven | Hva som gjenstår, likt i 1 og 2 |
 | --- | --- | --- |
-| `expected_version` og samtidighet | `leggTil` i [`lager.ts`](../sprakprove/server/lager.ts) kontrollerer versjonen i transaksjonen. Unik-skranken stopper to samtidige skrivinger, og taperen får 409 (K 10.10, `server.test.ts`) | Ingenting prinsipielt |
+| `expected_version` og samtidighet | `leggTil` i [`lager.ts`](https://github.com/khjohns/endringsmeldinger/blob/fc19484/sprakprove/server/lager.ts) kontrollerer versjonen i transaksjonen. Unik-skranken stopper to samtidige skrivinger, og taperen får 409 (K 10.10, `server.test.ts`) | Ingenting prinsipielt |
 | Én sak per transaksjon | `leggTil` avviser hendelser i flere saker: «Alle hendelsene må gjelde samme sak» (L 10.10) | En EO-kommando skriver i EO-saken og leser og reserverer KOE-sakene. Det krever en lås per saksstrøm, tatt i sortert rekkefølge, og en reservasjon for KOE-tilknytningen (transaksjonsplanen, «Autoritativ utstedelseskommando», punkt 2 og 4; B-01 (c)). Ikke prøvd (—) |
 | Brev, beslutningsgrunnlag og leveringsintensjon | Prøven har ingen outbox og ikke noe brev (L 10.10) | Outboxen finnes ikke i noen migrasjon (L 10.10). Leveringsintensjonen i dag er `approval_outbox` i SQLite (`ApprovalService.deliver` i [`approval_service.py`](../backend/services/approval_service.py)), utenfor transaksjonen i PostgreSQL |
 | Transaksjonskontrakten fra F0b | Prøven bruker eierforbindelsen mot testbasen, uten transaksjonslokal rolle (L 10.10) | Rolle og kontekst per transaksjon, tilbakestilling av gjenbrukt forbindelse og retry av hele transaksjonen (#310) |
