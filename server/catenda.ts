@@ -141,7 +141,7 @@ export interface CatendaBruker {
 type Rad = Record<string, unknown>;
 
 /** Subjektet når brukeren er en individuell Catenda-bruker, ellers `null`. */
-function individueltSubjekt(bruker: unknown): string | null {
+export function individueltSubjekt(bruker: unknown): string | null {
   return erObjekt(bruker) && bruker.type === 'user' ? catendaId(bruker.id) : null;
 }
 
@@ -569,7 +569,7 @@ export interface NyTopic {
   beskrivelse: string;
 }
 
-function tekst(verdi: unknown): string {
+export function tekst(verdi: unknown): string {
   return typeof verdi === 'string' ? verdi : '';
 }
 
@@ -797,8 +797,7 @@ export interface Innboksoppslag extends Pick<Catenda, 'teammedlemmer'> {
 export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
   let egen: string | null = null;
   return {
-    teammedlemmer: (catendaProsjektId, teamId) =>
-      medToken(catenda, (t) => catenda.oauth.teammedlemmer(catendaProsjektId, teamId, t)),
+    teammedlemmer: integrasjonen(catenda).teammedlemmer,
     integrasjonensBruker: async () =>
       (egen ??= await medToken(catenda, (t) => catenda.oauth.egenId(t))),
   };

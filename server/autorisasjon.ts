@@ -355,11 +355,7 @@ export async function krevProsjekttilgang(
       prosjektId,
       oppsett.catendaProsjekt
     );
-    const svar = await utenKontekst(db)
-      .input('aktor', sql.UniqueIdentifier, bruker.id)
-      .input('prosjekt', sql.NVarChar(4000), prosjektId)
-      .execute<Medlemskap>('koe_api.prosjektmedlemskap');
-    const medlemskap = svar.recordset[0];
+    const medlemskap = await prosjektmedlemskap(db, bruker.id, prosjektId);
     const rolle = medlemskap ? (medlemskap.leserolle ? 'viewer' : medlemskap.rolle) : null;
     if (rolle === null || !(rolle in PROSJEKTROLLER)) throw nekt();
     if (PROSJEKTROLLER[rolle] < PROSJEKTROLLER[minsteRolle]) throw nekt();
@@ -414,8 +410,7 @@ export async function lesKontraktsside(
   } catch {
     throw new Nektet(503, 'CONTRACT_ACCESS_UNAVAILABLE', 'Teamtilknytning kunne ikke bekreftes.');
   }
-  const [rolle, teamId] = funnet;
-  return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
+  return somKontraktstilgang(funnet);
 }
 
 /** `require_contract_role()` med `contract_membership`. Uten entydig side: 403. */
@@ -444,19 +439,35 @@ export async function kontraktssideUtenSesjon(
 ): Promise<Kontraktstilgang | null> {
   const oppsett = await prosjektoppsett(db, prosjektId);
   if (!oppsett) return null;
+  const medlemskap = await prosjektmedlemskap(db, aktor, prosjektId);
+  if (!medlemskap) return null;
+  return somKontraktstilgang(
+    await kontraktsside(db, catenda, {
+      prosjektId,
+      aktor,
+      rolle: medlemskap.rolle,
+      oppsett,
+      medlemskap,
+    })
+  );
+}
+
+async function prosjektmedlemskap(
+  db: Pool,
+  aktor: string,
+  prosjektId: string
+): Promise<Medlemskap | undefined> {
   const svar = await utenKontekst(db)
     .input('aktor', sql.UniqueIdentifier, aktor)
     .input('prosjekt', sql.NVarChar(4000), prosjektId)
     .execute<Medlemskap>('koe_api.prosjektmedlemskap');
-  const medlemskap = svar.recordset[0];
-  if (!medlemskap) return null;
-  const [rolle, teamId] = await kontraktsside(db, catenda, {
-    prosjektId,
-    aktor,
-    rolle: medlemskap.rolle,
-    oppsett,
-    medlemskap,
-  });
+  return svar.recordset[0];
+}
+
+function somKontraktstilgang([rolle, teamId]: [
+  Rolle | null,
+  string | null,
+]): Kontraktstilgang | null {
   return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
 }
 

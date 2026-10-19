@@ -101,6 +101,12 @@ const FORBIGAAENDE_KODER = new Set([
   'ENOTOPEN',
 ]);
 
+/** Catenda svarer ikke, uten et varig avvik eller en avvisning, eller basen har en forbigående feil. */
+function forbigaaende(feil: unknown): boolean {
+  const varig = feil instanceof CatendaAvvisning || feil instanceof VarigCatendaavvik;
+  return (feil instanceof CatendaUtilgjengelig && !varig) || forbigaaendeISql(feil);
+}
+
 function forbigaaendeISql(feil: unknown): boolean {
   if (!(feil instanceof sql.MSSQLError)) return false;
   // En RequestError fra mssql har koden fra tedious ('ETIMEOUT') i `number` når basen ikke ga et.
@@ -139,8 +145,7 @@ function utfallAv(
     feil instanceof UgjengivbartBrev
   )
     return { utfall: 'avvist', melding };
-  if (feil instanceof CatendaUtilgjengelig || forbigaaendeISql(feil))
-    return { utfall: 'feilet', melding };
+  if (forbigaaende(feil)) return { utfall: 'feilet', melding };
   return { utfall: endringBedt ? 'usikkert' : 'avvist', melding };
 }
 
@@ -272,13 +277,7 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
   try {
     behandling = await behandle({ datalag: avh.datalag, catenda: avh.innboks }, rad);
   } catch (feil) {
-    const varig = feil instanceof CatendaAvvisning || feil instanceof VarigCatendaavvik;
-    if (
-      (feil instanceof CatendaUtilgjengelig && !varig) ||
-      forbigaaendeISql(feil) ||
-      feil instanceof LaasIkkeGitt
-    )
-      throw feil;
+    if (forbigaaende(feil) || feil instanceof LaasIkkeGitt) throw feil;
     logg.error(`Hendelsen ${rad.id} i innboksen kunne ikke behandles:`, feil);
     behandling = { utfall: 'feilet', melding: 'Uventet feil i behandlingen' };
   }

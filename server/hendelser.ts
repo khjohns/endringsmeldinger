@@ -16,9 +16,10 @@
  */
 
 import { createHash } from 'node:crypto';
+import { erObjekt } from '../kjerne/format/skjema.ts';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import { catendaId, kontraktssideUtenSesjon, uuidMedBindestreker } from './autorisasjon.ts';
-import { TOPICTYPE, type Innboksoppslag } from './catenda.ts';
+import { individueltSubjekt, tekst, TOPICTYPE, type Innboksoppslag } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { catendaIdentitet } from './innlogging.ts';
 import {
@@ -69,11 +70,6 @@ export interface Behandlingsavhengigheter {
 /** Typene for en ny topic; de andre typene behandles ikke i W-1b.1. */
 const NY_TOPIC = new Set(['issue.created', 'bcf.issue.created']);
 
-const erObjekt = (v: unknown): v is Record<string, unknown> =>
-  typeof v === 'object' && v !== null && !Array.isArray(v);
-
-const tekst = (v: unknown) => (typeof v === 'string' ? v : '');
-
 export async function nesteInnkommende(datalag: Pool): Promise<Innkommende | null> {
   const svar = await utenKontekst(datalag).execute<Innkommende>('koe_api.neste_innkommende');
   const rad = svar.recordset[0];
@@ -121,9 +117,9 @@ export async function behandle(
   }
   const issue = erObjekt(kropp) ? (kropp.issue ?? kropp.topic) : undefined;
   const prosjekt = erObjekt(kropp) ? kropp.project : undefined;
-  const forfatter = erObjekt(kropp) ? kropp.createdBy : undefined;
-  if (!erObjekt(issue) || !erObjekt(prosjekt))
+  if (!erObjekt(kropp) || !erObjekt(issue) || !erObjekt(prosjekt))
     return { utfall: 'ugyldig_hendelse', melding: 'Kroppen mangler issue eller project.' };
+  const forfatter = erObjekt(kropp.createdBy) ? kropp.createdBy : null;
   const topicId = uuidMedBindestreker(issue.id ?? issue.guid);
   const board = uuidMedBindestreker(issue.boardId);
   const catendaProsjekt = uuidMedBindestreker(prosjekt.id);
@@ -146,16 +142,16 @@ export async function behandle(
     ...(melding ? { melding } : {}),
   });
 
-  const subjekt = erObjekt(forfatter) && forfatter.type === 'user' ? catendaId(forfatter.id) : null;
-  if (erObjekt(forfatter) && catendaId(forfatter.id) === (await avh.catenda.integrasjonensBruker()))
+  if (forfatter && catendaId(forfatter.id) === (await avh.catenda.integrasjonensBruker()))
     return ut('laget_av_integrasjonen');
   if (issue.type !== TOPICTYPE) return ut('sakstype_ikke_stoettet');
-  if (!subjekt) return ut('ukjent_forfatter');
+  const subjekt = individueltSubjekt(forfatter);
+  if (!forfatter || !subjekt) return ut('ukjent_forfatter');
 
   const aktor = await catendaIdentitet(avh.datalag, {
     subjekt,
-    epost: tekst((forfatter as Record<string, unknown>).email),
-    navn: tekst((forfatter as Record<string, unknown>).name),
+    epost: tekst(forfatter.email),
+    navn: tekst(forfatter.name),
   });
   const side = await kontraktssideUtenSesjon(avh.datalag, avh.catenda, prosjektId, aktor);
   if (!side) return ut('ukjent_side');
