@@ -315,8 +315,18 @@ describe('endringen av en topic', () => {
     ['prefikset delt av myk bindestrek', '{"title":"koe\\u00ad-livetest-x"}'],
     ['prefikset delt av nullbreddes mellomrom', '{"title":"koe-\\u200blivetest-x"}'],
     ['prefikset med fullbreddes bokstaver', JSON.stringify({ title: 'ｋｏｅ-livetest-x' })],
+    ['livetest med fullbreddes bokstaver', JSON.stringify({ title: 'koe-ｌｉｖｅｔｅｓｔ-x' })],
+    ['livetest med matematiske bokstaver', JSON.stringify({ title: 'koe-𝐥𝐢𝐯𝐞𝐭𝐞𝐬𝐭-x' })],
     ['prefikset i en nøkkel', JSON.stringify({ [`${P}x`]: 'y' })],
     ['prefikset i en liste', JSON.stringify({ labels: ['a', `${P}x`] })],
+    ['prefikset i et nøstet objekt', JSON.stringify({ a: { b: { c: `${P}x` } } })],
+    ['prefikset delt av CGJ', '{"title":"koe-li\\u034fvetest-x"}'],
+    ['prefikset delt av hangul-fyll', '{"title":"koe\\u3164-livetest-x"}'],
+    ['prefikset med variantvelger', '{"title":"koe-livetest\\ufe0f-x"}'],
+    ['prefikset med Unicode-bindestrek', '{"title":"koe\\u2010livetest-x"}'],
+    ['prefikset med İ', '{"title":"koe-l\\u0130vetest-x"}'],
+    ['prefikset som HTML-entitet', JSON.stringify({ title: '&#107;oe-livetest-x' })],
+    ['prefikset prosentkodet', JSON.stringify({ title: '%6Boe-%6Civetest-x' })],
   ])('slår opp og gir 403 uten PUT for %s når topicen er uten prefiks', async (_navn, kropp) => {
     catendasvar = topicUtenPrefiks;
     const s = await behandle(put(kropp), miljoe);
@@ -360,6 +370,15 @@ describe('endringen av en topic', () => {
     const s = await behandle(put(kropp, type), miljoe);
     expect(s.status).toBe(403);
     expect(kall).toEqual([]);
+  });
+
+  it('slår opp og gir 403 uten å krasje for en dypt nøstet kropp med prefikset', async () => {
+    catendasvar = topicUtenPrefiks;
+    const dybde = 20_000;
+    const kropp = '{"a":'.repeat(dybde) + `"${P}x"` + '}'.repeat(dybde);
+    const s = await behandle(put(kropp), miljoe);
+    expect([403, 400]).toContain(s.status);
+    expect(metoder()).not.toContain('PUT');
   });
 
   it('gir 403 uten kall for PUT med Bimsync-Params', async () => {

@@ -31,8 +31,8 @@ Catendas svar, og ingenting slettes. Et kall med query eller `Bimsync-Params` av
 En PUT på en topic tolkes strengt som et JSON-objekt i UTF-8 og sendes til Catenda i
 kanonisk form (`JSON.stringify` av det som ble tolket, med `Content-Type: application/json`).
 En kropp som ikke er et JSON-objekt, er i et annet tegnsett eller begynner med BOM, avvises.
-Kan en nøkkel eller streng i kroppen bli prefikset, må topicen ha prefikset fra før. Strengen
-sammenlignes etter NFKC, uten kontroll-, format- og mellomromstegn og med små bokstaver. Det
+Inneholder en nøkkel eller streng i kroppen `livetest`, sammenlignet bare på bokstaver og
+sifre etter dekoding av `%XX` og `&#…;`, NFKC og små bokstaver, må topicen ha prefikset fra før. Det
 hindrer at en økt gir en annens topic prefikset og så sletter den.
 
 Mappen `CATENDA_MAPPE_ID` skal bare brukes av live-testene. En undermappe med prefiks

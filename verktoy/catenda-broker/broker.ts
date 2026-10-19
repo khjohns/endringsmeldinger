@@ -136,17 +136,35 @@ function tolketKropp(kropp: ArrayBuffer | undefined): { verdi: object; tekst: st
   }
 }
 
-const USYNLIG = /[\p{Cc}\p{Cf}\p{Cs}\p{Z}\s]/gu;
+/** Kjernen av prefikset, slik `kanGiPrefiks` sammenligner. */
+const PREFIKSKJERNE = 'livetest';
+
+/** Prosentkoding og tallentiteter (`%6B`, `&#107;`, `&#x6b;`), dekodet til tegnet. */
+function dekodet(tekst: string): string {
+  const tegn = (kode: number) => (kode <= 0x10ffff ? String.fromCodePoint(kode) : '');
+  return tekst
+    .replace(/%([0-9a-f]{2})/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
+    .replace(/&#x([0-9a-f]+);?/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
+    .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)));
+}
 
 /**
- * Om en nøkkel eller streng i verdien kan bli prefikset når Catenda lagrer den: etter NFKC,
- * uten kontroll-, format-, surrogat- og mellomromstegn og med små bokstaver.
+ * Om en nøkkel eller streng i verdien kan bli prefikset når Catenda lagrer den. Strengen
+ * sammenlignes bare på bokstaver og sifre, etter dekoding, NFKC og små bokstaver, så ingen
+ * tegn mellom bokstavene, ingen bokstavform og ingen koding (`%6B`, `&#107;`) skjuler `livetest`.
  */
 function kanGiPrefiks(verdi: unknown): boolean {
-  if (typeof verdi === 'string')
-    return verdi.replace(USYNLIG, '').normalize('NFKC').replace(USYNLIG, '').toLowerCase().includes(LIVETESTPREFIKS);
-  if (typeof verdi !== 'object' || verdi === null) return false;
-  return Object.entries(verdi).some(([nokkel, v]) => kanGiPrefiks(nokkel) || kanGiPrefiks(v));
+  const stabel: unknown[] = [verdi];
+  while (stabel.length > 0) {
+    const v = stabel.pop();
+    if (typeof v === 'string') {
+      const bokstaver = dekodet(v).normalize('NFKC').toLowerCase().normalize('NFKC').replace(/[^a-z0-9]/g, '');
+      if (bokstaver.includes(PREFIKSKJERNE)) return true;
+    } else if (typeof v === 'object' && v !== null) {
+      for (const [nokkel, barn] of Object.entries(v)) stabel.push(nokkel, barn);
+    }
+  }
+  return false;
 }
 
 /**
