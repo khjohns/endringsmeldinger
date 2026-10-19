@@ -9,11 +9,12 @@
  */
 
 import { randomBytes, randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import type { Journalrad } from '../../kjerne/typer.ts';
 import { sql, transaksjon, type Kontekst, type Pool } from '../datalag.ts';
-import { opprettSak, type Kommando } from '../kommandoer.ts';
+import { opprettSak, skrivHendelse, type Kommando } from '../kommandoer.ts';
 import { avvisning, catendaBruker, opprettMigrertTestbase } from './sqlserver_migrert.ts';
-import { opprettKjoeretid, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
+import { feilnummer, opprettKjoeretid, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const UGYLDIG = 51422;
 const FOR_GAMMELT = 51419;
@@ -199,4 +200,73 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('skrivetidspunktet i SQL Server', () => {
     }
     expect(await antallBrev(sak.sak_id)).toBe(2);
   }, 30_000);
+
+  /**
+   * `skrivHendelse` der de `gamle` første kallene til `koe_api.skrivetidspunkt` gir
+   * et tidspunkt basen førte for 31 sekunder siden, for samme økt og transaksjon.
+   * Resten går til basen. Svaret er utfallet, tidspunktene `lag` fikk, og antallet
+   * kall til `koe_api.skrivetidspunkt`.
+   */
+  async function skrivMedGamle(sakId: string, gamle: number) {
+    const ekte = sql.Request.prototype.execute as unknown as (
+      this: sql.Request,
+      prosedyre: string
+    ) => Promise<unknown>;
+    let kall = 0;
+    const tidspunkter: Date[] = [];
+    async function execute(this: sql.Request, prosedyre: string): Promise<unknown> {
+      if (prosedyre !== 'koe_api.skrivetidspunkt' || kall++ >= gamle)
+        return ekte.call(this, prosedyre);
+      const { parent } = this as unknown as { parent: sql.Transaction };
+      const tidspunkt = await foerTidspunkt(() => new sql.Request(parent), 31_000);
+      return { output: { tidspunkt } };
+    }
+    const spion = vi
+      .spyOn(sql.Request.prototype, 'execute')
+      .mockImplementation(execute as unknown as typeof sql.Request.prototype.execute);
+    try {
+      const utfall = await skrivHendelse(kjoeretid.pool, te, sakId, 1, ny(), (g) => {
+        tidspunkter.push(g.tidspunkt);
+        const forrige = g.journal.at(-1)!;
+        const rad: Journalrad = {
+          event_id: randomUUID(),
+          sak_id: sakId,
+          event_type: 'prove_brev',
+          versjon: forrige.versjon + 1,
+          tidsstempel: g.tidspunkt.toISOString(),
+          aktor_id: te.aktor,
+          aktor_rolle: 'TE',
+          aktor_team_id: te.team ?? null,
+          refererer_til_event_id: null,
+          format: 1,
+          data: {},
+        };
+        return { skriv: true, rad, oppdrag: null };
+      }).catch((feil: unknown) => ({ feil }));
+      return { utfall, tidspunkter, kall };
+    } finally {
+      spion.mockRestore();
+    }
+  }
+
+  // Kilde: avgjørelsen 17.10 i #599: serveren prøver én gang til.
+  it('når basen avviser det første tidspunktet med 51419, prøver serveren én gang til med et nytt tidspunkt, og brevet skrives én gang (#599)', async () => {
+    const sak = await nySak();
+    const { utfall, tidspunkter, kall } = await skrivMedGamle(sak.sak_id, 1);
+    expect(utfall).toMatchObject({ skriv: true, rad: { versjon: 2 } });
+    expect(kall).toBe(2);
+    expect(tidspunkter).toHaveLength(2);
+    expect(tidspunkter[1].getTime() - tidspunkter[0].getTime()).toBeGreaterThanOrEqual(31_000);
+    expect(await antallBrev(sak.sak_id)).toBe(2);
+  });
+
+  // Kilde: #599 og bestillingen i #764: avvises også det andre forsøket, får klienten
+  // det samme som 51419 ga før, basens feil, og det blir ikke flere forsøk.
+  it('avviser basen også det andre forsøket med 51419, kastes basens feil, og ingenting skrives (#599)', async () => {
+    const sak = await nySak();
+    const { utfall, kall } = await skrivMedGamle(sak.sak_id, 2);
+    expect(feilnummer((utfall as { feil: unknown }).feil)).toBe(FOR_GAMMELT);
+    expect(kall).toBe(2);
+    expect(await antallBrev(sak.sak_id)).toBe(1);
+  });
 });

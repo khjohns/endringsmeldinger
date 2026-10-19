@@ -21,15 +21,7 @@
 
 import type { Vedleggsoppslag } from '../kjerne/kommandoer/skriving.ts';
 import type { Journalrad, Vedlegg } from '../kjerne/typer.ts';
-import {
-  feilnummer,
-  sql,
-  transaksjon,
-  UsikkertUtfall,
-  UUID,
-  type Kontekst,
-  type Pool,
-} from './datalag.ts';
+import { feilnummer, sql, transaksjon, UUID, type Kontekst, type Pool } from './datalag.ts';
 import { sjekksum } from './sjekksum.ts';
 import {
   IngenLeveringsmaal,
@@ -66,12 +58,22 @@ export class KommandoIdBrukt extends Error {}
 /** Prosjektet har ikke noe topic-board for nye saker, så saken lagres ikke (KT-U4, 51412). */
 export class IngenTopicBoard extends Error {}
 
+/**
+ * Låsen på kommando-ID-en ble ikke gitt innen tidsgrensen (51408). Denne
+ * transaksjonen er rullet tilbake, men et forsøk med samme ID holder låsen og kan
+ * ennå committe (#792 punkt 1), så utfallet er usikkert for klienten, som ved
+ * `UsikkertUtfall`. En egen klasse, så `UsikkertUtfall` i datalaget bare gjelder
+ * COMMIT og en forkastet forbindelse (#816).
+ */
+export class LaasIkkeGitt extends Error {}
+
 const UKJENT_SAK = 51403;
 const INGEN_BOARD = 51412;
 const KONFLIKT = 51409;
 const ID_BRUKT = 51410;
 const UGYLDIG = 51422;
 const LAAS_IKKE_GITT = 51408;
+const FOR_GAMMELT = 51419;
 const BLOKKERT = 33504;
 
 /** Meldingen `koe_api.skriv_hendelse` gir med 51409; formen er en kontrakt (`20261016230000_skranker.sql`). */
@@ -107,7 +109,7 @@ function oversett(feil: unknown, forventet: number | null): unknown {
       return new SkrivingAvvist(melding, { cause: feil });
     // Et forsøk med samme nøkkel holder låsen og kan ennå committe (#792 punkt 1).
     case LAAS_IKKE_GITT:
-      return new UsikkertUtfall(melding, { cause: feil });
+      return new LaasIkkeGitt(melding, { cause: feil });
     default:
       return feil;
   }
@@ -164,39 +166,74 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * Kvitteringen leses før `innhold` kalles, så et nytt forsøk får saken selv om
  * reglene er endret siden (#792 punkt 2, avgjørelse 3 i #764). Uten TE kalles
  * `innhold` likevel først, så kjernens avvisning går foran avslaget her.
+ * Avviser `innhold`, er svaret avvisningen, i samme form som fra `skrivHendelse`,
+ * og ingenting skrives.
  *
- * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, UsikkertUtfall, og det `innhold` kaster
+ * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, UsikkertUtfall, og det `innhold` kaster
  */
-export async function opprettSak(
+export function opprettSak(
   pool: Pool,
   kontekst: Kontekst,
   kommando: Kommando,
-  innhold: Innhold | (() => Innhold)
-): Promise<Journalrad> {
+  innhold: Innhold
+): Promise<Journalrad>;
+export function opprettSak<A>(
+  pool: Pool,
+  kontekst: Kontekst,
+  kommando: Kommando,
+  innhold: () => Innhold | Avvist<A>
+): Promise<Journalrad | Avvist<A>>;
+export async function opprettSak<A>(
+  pool: Pool,
+  kontekst: Kontekst,
+  kommando: Kommando,
+  innhold: Innhold | (() => Innhold | Avvist<A>)
+): Promise<Journalrad | Avvist<A>> {
   const lag = typeof innhold === 'function' ? innhold : () => innhold;
   try {
     return await transaksjon(pool, kontekst, async (foresp) => {
       // Etter at transaksjon() har prøvd konteksten, som i skrivHendelse (#596).
       if (kontekst.side !== 'TE') {
-        lag();
+        const vurdert = lag();
+        if ('avvisning' in vurdert) return vurdert;
         throw new SkrivingAvvist('Bare TE oppretter en sak.');
       }
       const kvittering = await lesKvittering(foresp, kommando);
       if (kvittering)
         return kvittertRad(await lesJournal(foresp, kvittering.sak_id, false), kvittering.event_id);
-      const { format, data } = lag();
+      // Ingenting er skrevet ennå, så en avvisning trenger ingen tilbakerulling.
+      const vurdert = lag();
+      if ('avvisning' in vurdert) return vurdert;
+      const { format } = vurdert;
+      const data = JSON.stringify(vurdert.data);
       const svar = await foresp()
         .input('format', sql.Int, format)
-        .input('data', sql.NVarChar(sql.MAX), JSON.stringify(data))
+        .input('data', sql.NVarChar(sql.MAX), data)
         .input('kommando_id', sql.NVarChar(4000), kommando.id)
         .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))
         .execute('koe_api.opprett_sak');
-      const lest = await lesJournal(foresp, svar.output.sak_id as string, false);
-      if (lest.length !== 1) throw new Error('Saken ble ikke lest tilbake med én rad.');
-      return lest[0];
+      const { sak_id, event_id, tidsstempel } = svar.output as {
+        sak_id: string;
+        event_id: string;
+        tidsstempel: Date;
+      };
+      // Raden basen skrev: ID-ene og tidspunktet fra prosedyren, resten fra konteksten (#597).
+      return {
+        event_id,
+        sak_id,
+        event_type: 'sak_opprettet',
+        versjon: 1,
+        tidsstempel: tidsstempel.toISOString(),
+        aktor_id: kontekst.aktor.toLowerCase(),
+        aktor_rolle: kontekst.side,
+        aktor_team_id: kontekst.team ?? null,
+        refererer_til_event_id: null,
+        format,
+        data: JSON.parse(data) as Record<string, unknown>,
+      };
     });
   } catch (feil) {
     throw oversett(feil, null);
@@ -215,10 +252,13 @@ export interface Skrivegrunnlag {
   vedlegg: Vedleggsoppslag;
 }
 
+/** Kjernens avvisning; ingenting skrives. */
+export type Avvist<A> = { skriv: false; avvisning: A };
+
 /** Raden og oppdraget som skal lagres, eller en avvisning som avbryter uten å skrive. */
 export type Skriveutfall<A> =
   | { skriv: true; rad: Journalrad; oppdrag: Oppdragsrad | null }
-  | { skriv: false; avvisning: A };
+  | Avvist<A>;
 
 /** Kommandoen er skrevet før; brevet fra kvitteringen. */
 export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
@@ -231,7 +271,11 @@ export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
  * Har kommandoen en kvittering for saken, er svaret brevet fra den, uten
  * versjonskontroll og uten å kalle `lag`.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, UsikkertUtfall
+ * Avviser basen brevet fordi tidspunktet er eldre enn 30 sekunder (51419),
+ * prøves skrivingen én gang til med et nytt tidspunkt (#599). Avvises også den,
+ * kastes basens feil.
+ *
+ * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, LaasIkkeGitt, UsikkertUtfall
  */
 export async function skrivHendelse<A>(
   pool: Pool,
@@ -241,8 +285,8 @@ export async function skrivHendelse<A>(
   kommando: Kommando,
   lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>
 ): Promise<Skriveutfall<A> | Gjentatt> {
-  try {
-    return await transaksjon(pool, kontekst, async (foresp) => {
+  const forsoek = () =>
+    transaksjon(pool, kontekst, async (foresp): Promise<Skriveutfall<A> | Gjentatt> => {
       // Etter at transaksjon() har prøvd konteksten, så en ugyldig kontekst gir UgyldigKontekst (#596).
       if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
       // En annen form kan ikke være en sak (#566).
@@ -294,6 +338,13 @@ export async function skrivHendelse<A>(
         .execute('koe_api.bind_vedlegg');
       return utfall;
     });
+  try {
+    try {
+      return await forsoek();
+    } catch (feil) {
+      if (feilnummer(feil) !== FOR_GAMMELT) throw feil;
+      return await forsoek();
+    }
   } catch (feil) {
     if (feil instanceof IkkeSkrevet) return feil.utfall as Skriveutfall<A>;
     throw oversett(feil, forventet);

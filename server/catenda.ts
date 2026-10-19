@@ -12,6 +12,7 @@
  * Feilmeldingene har aldri med svarkropp, kode eller token fra Catenda.
  */
 
+import { erObjekt } from '../kjerne/format/skjema.ts';
 import { catendaId, type Catenda } from './autorisasjon.ts';
 import type { Medlem } from './medlemskap.ts';
 import { UUID } from './datalag.ts';
@@ -103,8 +104,17 @@ export interface CatendaBruker {
 
 type Rad = Record<string, unknown>;
 
-function erObjekt(verdi: unknown): verdi is Rad {
-  return typeof verdi === 'object' && verdi !== null && !Array.isArray(verdi);
+/** Subjektet når brukeren er en individuell Catenda-bruker, ellers `null`. */
+function individueltSubjekt(bruker: unknown): string | null {
+  return erObjekt(bruker) && bruker.type === 'user' ? catendaId(bruker.id) : null;
+}
+
+/** `access_token` i et tokensvar, for brukeren og for integrasjonen. */
+function tokenFraSvar(data: unknown): Rad & { access_token: string } {
+  if (!erObjekt(data) || typeof data.access_token !== 'string' || !data.access_token) {
+    throw new CatendaUtilgjengelig('Ugyldig tokensvar');
+  }
+  return data as Rad & { access_token: string };
 }
 
 function kravId(verdi: string): string {
@@ -205,15 +215,12 @@ export class CatendaOAuth {
         code: kode,
       },
     });
-    if (!erObjekt(data) || typeof data.access_token !== 'string' || !data.access_token) {
-      throw new CatendaUtilgjengelig('Ugyldig tokensvar');
-    }
-    return data.access_token;
+    return tokenFraSvar(data).access_token;
   }
 
   async bruker(token: string): Promise<CatendaBruker> {
     const bruker = await forespoersel(this.#oppsett, 'GET', '/v2/user', { token });
-    const subjekt = erObjekt(bruker) && bruker.type === 'user' ? catendaId(bruker.id) : null;
+    const subjekt = individueltSubjekt(bruker);
     if (!erObjekt(bruker) || !subjekt) {
       throw new CatendaUtilgjengelig('Forventet en brukeridentitet');
     }
@@ -277,12 +284,33 @@ export class CatendaOAuth {
     const sti = `/v2/projects/${kravId(catendaProsjektId)}/teams/${kravId(teamId)}/members`;
     const subjekter = new Set<string>();
     for (const rad of await this.samling(sti, token)) {
-      const bruker = rad.user;
-      const subjekt = erObjekt(bruker) && bruker.type === 'user' ? catendaId(bruker.id) : null;
+      const subjekt = individueltSubjekt(rad.user);
       if (!subjekt) throw new CatendaUtilgjengelig('Forventet individuelle teammedlemmer');
       subjekter.add(subjekt);
     }
     return subjekter;
+  }
+
+  /**
+   * Catenda-prosjektet boardet hører til (`bimsync_project_id`), i `catendaId()`-formen,
+   * fra boardets detaljer, som oppslaget i Python (`_make_bimsync_lookup`). Gir null
+   * når Catenda ikke finner boardet (404).
+   */
+  async boardetsProsjekt(boardId: string, token: string): Promise<string | null> {
+    if (!UUID.test(boardId)) throw new RangeError('Ugyldig board-ID');
+    let svar: unknown;
+    try {
+      svar = await forespoersel(this.#oppsett, 'GET', `/opencde/bcf/3.0/projects/${boardId}`, {
+        token,
+      });
+    } catch (feil) {
+      if (feil instanceof CatendaAvvisning && feil.status === 404) return null;
+      throw feil;
+    }
+    const prosjekt = erObjekt(svar) ? catendaId(svar.bimsync_project_id) : null;
+    if (!erObjekt(svar) || catendaId(svar.project_id) !== catendaId(boardId) || !prosjekt)
+      throw new CatendaUtilgjengelig('Ugyldig board');
+    return prosjekt;
   }
 
   /**
@@ -453,11 +481,9 @@ export function normaliserMedlemmer(rader: Rad[]): Medlem[] {
   const resultat = new Map<string, Medlem>();
   for (const rad of rader) {
     const bruker = rad.user;
-    if (!erObjekt(bruker) || bruker.type !== 'user') {
+    const subjekt = individueltSubjekt(bruker);
+    if (!erObjekt(bruker) || !subjekt)
       throw new CatendaUtilgjengelig('Forventet individuelle prosjektmedlemmer');
-    }
-    const subjekt = catendaId(bruker.id);
-    if (!subjekt) throw new CatendaUtilgjengelig('Ugyldig bruker-ID');
     if (resultat.has(subjekt)) throw new CatendaUtilgjengelig('Medlemmet står to ganger');
     const rolle =
       typeof rad.role === 'string' && Object.hasOwn(ROLLER, rad.role)
@@ -536,15 +562,15 @@ export class Integrasjonsnokkel {
         throw new CatendaOppsettfeil('Catenda avviste tokenkallet til integrasjonen');
       throw feil;
     }
-    if (!erObjekt(data) || typeof data.access_token !== 'string' || !data.access_token) {
-      throw new CatendaUtilgjengelig('Ugyldig tokensvar');
-    }
-    const varighet = typeof data.expires_in === 'number' ? data.expires_in : 3600;
-    this.#token = data.access_token;
+    const svar = tokenFraSvar(data);
+    const varighet = typeof svar.expires_in === 'number' ? svar.expires_in : 3600;
+    this.#token = svar.access_token;
     this.#utloeper = this.#naa() + varighet * 1000 - SIKKERHETSMARGIN_MS;
     return this.#token;
   }
 }
+
+const normalisertAdresse = (verdi: string) => URL.parse(verdi)?.href ?? verdi;
 
 /**
  * Klienten og integrasjonsnøkkelen fra miljøet. Mangler klient-ID, hemmelighet
@@ -559,7 +585,9 @@ export function catendaFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): {
   const oppsett: CatendaOppsett = {
     klientId: miljoe.CATENDA_CLIENT_ID ?? '',
     klienthemmelighet: miljoe.CATENDA_CLIENT_SECRET ?? '',
-    tilbakekallsadresse: miljoe.CATENDA_LOGIN_REDIRECT_URI ?? '',
+    // Verten i punycode, små bokstaver og uten standardport, som `AUTH_FRONTEND_URL` i
+    // innloggingen (#854 punkt 4). En adresse som ikke kan leses, avviser innloggingen.
+    tilbakekallsadresse: normalisertAdresse(miljoe.CATENDA_LOGIN_REDIRECT_URI ?? ''),
   };
   if (miljoe.CATENDA_GRUNNADRESSE) {
     const adresse = URL.parse(miljoe.CATENDA_GRUNNADRESSE);

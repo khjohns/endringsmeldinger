@@ -14,6 +14,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sesjonsnavn } from '../autorisasjon.ts';
 import { validateHeaderValue } from 'node:http';
 import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
+import type { Pool } from '../datalag.ts';
 import { lesSesjon, opprettInnloggingsforsoek, opprettSesjon } from '../sesjon.ts';
 import {
   lagOppsett,
@@ -103,6 +104,81 @@ describe.skipIf(!TESTBASE_URL)('hodene i tilbakekallet mot testbasene', () => {
     expect(svar.status).toBe(500);
     expect(svar.headers.getSetCookie()).toEqual([]);
     expect(byttet).toBe(0);
+    expect((await lesSesjon(pool, gammel.token))?.bruker.id.toLowerCase()).toBe(o.te.id);
+  });
+});
+
+describe.skipIf(!TESTBASE_URL)('sesjonene i tilbakekallet mot testbasene (#854 punkt 1)', () => {
+  const SESJON = sesjonsnavn();
+  let o: Oppsett;
+  let server: KjorendeServer;
+  let slettinger = 0;
+  const oauth: Innloggingsleverandoer = {
+    autorisasjonsadresse: (state) => `https://catenda.test/oauth2/authorize?state=${state}`,
+    byttKode: async () => 'brukertoken',
+    bruker: async () => ({ subjekt: 'c'.repeat(32), epost: 'kari@test.example', navn: 'Kari' }),
+    prosjekter: async () => new Set<string>(),
+    async medlemmer() {
+      throw new Error('Ingen koblede prosjekter i testen.');
+    },
+  };
+
+  /** Poolen, med den første slettingen av en sesjon som feiler. */
+  function medFeilendeSletting(pool: Pool): Pool {
+    return new Proxy(pool, {
+      get(maal, navn) {
+        if (navn !== 'request') {
+          const verdi = Reflect.get(maal, navn, maal);
+          return typeof verdi === 'function' ? verdi.bind(maal) : verdi;
+        }
+        return () => {
+          const foresporsel = maal.request();
+          const utfoer = foresporsel.execute.bind(foresporsel);
+          foresporsel.execute = ((prosedyre: string) =>
+            prosedyre === 'koe_api.slett_sesjon' && ++slettinger === 1
+              ? Promise.reject(new Error('Forbindelsen ble brutt'))
+              : utfoer(prosedyre)) as typeof foresporsel.execute;
+          return foresporsel;
+        };
+      },
+    });
+  }
+
+  const antallSesjoner = async () =>
+    (
+      await o.datalag.base.pool
+        .request()
+        .query<{ antall: number }>('SELECT COUNT(*) AS antall FROM koe.app_sessions')
+    ).recordset[0].antall;
+
+  beforeAll(async () => {
+    o = await lagOppsett();
+    server = await startServer(o, {
+      datalag: medFeilendeSletting(o.datalag.kjoeretid.pool),
+      innlogging: { frontend: 'https://app.example.no', oauth },
+    });
+  }, 240_000);
+  afterAll(async () => {
+    await server?.stopp();
+    if (o) await rydd(o);
+  }, 60_000);
+
+  it('feiler slettingen av den gamle sesjonen, slettes den nye, og den gamle består', async () => {
+    const pool = o.datalag.kjoeretid.pool;
+    const gammel = await opprettSesjon(pool, o.te.id);
+    const forsoek = await opprettInnloggingsforsoek(pool, '/saker/1');
+    const foer = await antallSesjoner();
+    const svar = await fetch(
+      `${server.url}/api/auth/catenda/callback?state=${forsoek.state}&code=kode`,
+      {
+        headers: { Cookie: `${SESJON}=${gammel.token}; ${SESJON}_login=${forsoek.nettleser}` },
+        redirect: 'manual',
+      }
+    );
+    expect(svar.headers.get('location')).toBe('https://app.example.no/login?error=login_failed');
+    expect(svar.headers.getSetCookie().some((k) => k.startsWith(`${SESJON}=`))).toBe(false);
+    expect(slettinger).toBe(2);
+    expect(await antallSesjoner()).toBe(foer);
     expect((await lesSesjon(pool, gammel.token))?.bruker.id.toLowerCase()).toBe(o.te.id);
   });
 });

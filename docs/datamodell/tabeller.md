@@ -527,7 +527,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.fullmakt.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
-| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over) |
+| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. L 18.10: `20261019160000_aktornavn.sql`. K 18.10: `server/tester/aktornavn.test.ts` mot testbasen. |
 
@@ -544,7 +544,7 @@ Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda
 | Relasjoner | Nøkler: primærnøkkel (id); unik (provider, issuer, subject). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.app_identities_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Subjektet identifiserer en person. |
-| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over) |
+| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
@@ -578,7 +578,7 @@ Medlemskapet i et prosjekt, fra Catenda. Leserollen er `viewer_override`, som i 
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id); unik (project_id, catenda_subject). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ikke kontrollert |
 | Personopplysninger | E-post og visningsnavn. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`); database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`) |
+| Skrives av | database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, innført i `20261016150000_deaktivering.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`); database/migrasjoner/20261019120000_medlemmer.sql (`koe_api.sett_leserolle`, kalt fra `server/prosjekter.ts`) |
 | Funn | — |
 | Belegg | L 17.10: migrasjonen og søk i `server/`. K 17.10: `server/tester/medlemskap.test.ts` (DL-U10). |
 
@@ -629,7 +629,7 @@ Prosjektene der innloggingens liste over brukerens Catenda-prosjekter viste at b
 | Relasjoner | Nøkler: primærnøkkel (project_id, user_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny innlogging |
 | Personopplysninger | Knyttet til en bruker gjennom `user_id`, med prosjektene brukeren ikke er med i og tidspunktene for innloggingene (`observed_at`, `updated_at`). |
-| Skrives av | database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, kalt fra `server/medlemskap.ts`) |
+| Skrives av | database/migrasjoner/20261018060000_innloggingslaas.sql (`koe_api.deaktiver_ved_innlogging`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og `server/tester/medlemskap.test.ts`. |
 
@@ -646,7 +646,7 @@ Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosje
 | Relasjoner | Nøkler: primærnøkkel (project_id). Viser til: project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja, ved en ny synkronisering |
 | Personopplysninger | Ingen kjente. |
-| Skrives av | database/migrasjoner/20261016180000_fravaer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`) |
+| Skrives av | database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, kalt fra `server/medlemskap.ts`); database/migrasjoner/20261020000000_synkroniseringsgrense.sql (triggeren `koe.catenda_project_configs_kobling_endret`, innført i `20261017230000_koblingen.sql`) |
 | Funn | — |
 | Belegg | L 17.10: migrasjonen og `server/tester/medlemskap.test.ts`. K 17.10: DL-U10 i samme test. |
 
