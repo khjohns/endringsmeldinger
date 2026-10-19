@@ -96,7 +96,7 @@ export function sammenlignbarDokumentId(id: string): string {
  * og 499. En annen status, også 503, kan komme fra en mellomtjener etter at Catenda
  * fikk forespørselen, og gir et usikkert utfall (arbeidsvalg i PR #772).
  */
-const avvistUtenEndring = (status: number) =>
+export const avvistUtenEndring = (status: number) =>
   status >= 400 && status < 500 && status !== 408 && status !== 499;
 
 const varigAvvist = (status: number) =>
