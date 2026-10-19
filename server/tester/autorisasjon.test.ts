@@ -460,6 +460,32 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(t.synkronisert).toMatchObject({ skrevet: true, medlemmer: 1 });
     });
 
+    it('er listen i basen etter hentingen eldre enn hentingen, gir det 503 (#858 punkt 1)', async () => {
+      const p = await prosjekt({ liste: 'gammel' });
+      const m = await medlem(p);
+      const { catenda } = catendaMed({}, async () => [
+        { subjekt: m.subjekt, epost: '', navn: '', rolle: 'member' },
+      ]);
+      let kallTilAlderen = 0;
+      const pool = medRundt(kjoeretid.pool, 'koe_api.medlemsliste_alder', async (kjoer) => {
+        const svar = await kjoer();
+        const rad = (svar as { recordset: { hentet: Date; alder_sekunder: number }[] })
+          .recordset[0];
+        if (++kallTilAlderen > 1 && rad)
+          Object.assign(rad, { hentet: new Date(0), alder_sekunder: 0 });
+        return svar;
+      });
+      const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+      try {
+        expect(await nektet(tilgang(m, p.id, { catenda, pool }))).toEqual({
+          status: 503,
+          error: 'ACCESS_UNAVAILABLE',
+        });
+      } finally {
+        logg.mockRestore();
+      }
+    });
+
     it('er listen fersk, følger ingen synkronisering tilgangen (#825 punkt 7)', async () => {
       const p = await prosjekt();
       const m = await medlem(p);
