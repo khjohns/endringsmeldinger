@@ -7,13 +7,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { Journalrad, Krav, Standpunktsvirkning } from '../typer.ts';
-import {
-  forhaandsvis,
-  frysBrev,
-  laastTekst,
-  utledJournal,
-  vurder,
-} from '../kommandoer/skriving.ts';
+import { frysBrev } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
@@ -26,7 +20,7 @@ import { visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
-import { kommandoFor, mellomlager, type Handling } from './klient.ts';
+import type { Handling } from './klient.ts';
 import type { Kjoering } from './kjoerer.ts';
 
 type Data = Record<string, unknown>;
@@ -1319,26 +1313,9 @@ describe('kontrollen av referansene og resultatet i svaret', () => {
     svar: [{ spor: 'grunnlag', resultat, varslet_i_tide: true, navn }],
   });
 
-  /** Kommandoen klienten sender, endret av `endre`, med den låste teksten fra forhåndsvisningen. */
+  /** Regelen kjernen avviser kommandoen med, eller «godtatt», gjennom `prov` i kjøreren. */
   async function skrivMed(k: Kjoering, h: Handling, endre: (kommando: Data) => void) {
-    const journal = await k.bane.journal();
-    const kommando = kommandoFor(
-      h,
-      utledJournal(journal, k.kjerne),
-      k.kjerne.regler,
-      k.navn
-    ) as unknown as Data;
-    endre(kommando);
-    const vist = forhaandsvis(
-      structuredClone(kommando),
-      k.kontekst(h),
-      journal,
-      k.kjerne,
-      mellomlager(kommando)
-    );
-    const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
-    if (tekst) kommando.brevtekst = tekst;
-    const u = vurder(kommando, k.kontekst(h), journal, k.kjerne, mellomlager(kommando));
+    const u = await k.prov(h, endre);
     return u.godtatt ? 'godtatt' : u.avvisning.regel;
   }
 

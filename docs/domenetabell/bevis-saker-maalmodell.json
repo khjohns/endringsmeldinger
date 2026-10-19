@@ -11658,16 +11658,15 @@
           "etter": 1,
           "rolle": "kontroll",
           "kilde": [
-            "GR-U12",
-            "GR-U13"
+            "GR-U12"
           ],
           "prov": {
             "handling": "brev",
             "svar": [
               {
                 "spor": "grunnlag",
-                "resultat": "godkjent",
-                "varslet_i_tide": false
+                "resultat": "avslaatt",
+                "varslet_i_tide": true
               }
             ]
           },

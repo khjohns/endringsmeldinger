@@ -129,16 +129,18 @@ export class Kjoering {
   /**
    * Vurder handlingen uten å lagre. Klienten regner med `klientregler`, ellers
    * kjernens regler. Klienten sender den låste teksten forhåndsvisningen viste; med
-   * `brevtekst: false` sender den ingen, og med en liste sender den den. Skriver kjernen
-   * en rad den selv ikke forstår, er det et brudd på 7.1.2 i designnotatet og meldes som
-   * en assertion, ikke som et oppsett som feilet.
+   * `brevtekst: false` sender den ingen, og med en liste sender den den. `endre` endrer
+   * kommandoen før forhåndsvisningen. Skriver kjernen en rad den selv ikke forstår, er det
+   * et brudd på 7.1.2 i designnotatet og meldes som en assertion, ikke som et oppsett som
+   * feilet.
    */
-  async prov(h: Handling): Promise<Utfall> {
+  async prov(h: Handling, endre?: (kommando: Record<string, unknown>) => void): Promise<Utfall> {
     const journal = await this.bane.journal();
     const klientregler =
       typeof h.klientregler === 'string' ? REGELSETT[h.klientregler] : this.kjerne.regler;
     const klient = utledJournal(journal, medRegler(klientregler, this.kjerne));
     const k = kommandoFor(h, klient, klientregler, this.navn);
+    endre?.(k as unknown as Record<string, unknown>);
     // A1: klienten sender den låste teksten den viste, laget med sine regler. Avviser
     // forhåndsvisningen kommandoen, sendes den uten tekst, og serveren avviser den.
     try {
