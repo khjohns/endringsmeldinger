@@ -33,71 +33,90 @@ export async function opprettMigrertTestbase(
   return base;
 }
 
+const medSkilletegn = (mappe: string) => mappe.replace(/\/?$/, '/');
+
 /**
- * En migrert testbase gjenopprettet fra en mal, så filene migreres én gang per
- * sett av migrasjoner og ikke én gang per testfil, parallelt med de andre (#887).
- * Malen er en sikkerhetskopi på serveren, navngitt etter summen av filene og
- * innstillingene. Den første som mangler den, bygger den med
- * `opprettMigrertTestbase` under en applås, og de andre venter. En kopi som ble
- * avbrutt, består ikke `VERIFYONLY` og bygges på nytt. Katalogen er malens, så
- * tester av migreringen selv bruker `opprettMigrertTestbase`.
+ * Malen for testbasene: en sikkerhetskopi på serveren av en base migrert fra
+ * filene, navngitt etter summen av filene og innstillingene (#887). Den første
+ * som mangler den, bygger den med `opprettMigrertTestbase` under en applås, og de
+ * andre venter. En kopi som ble avbrutt, består ikke `VERIFYONLY` og bygges på
+ * nytt. `globalSetup` i `vite.config.ts` bygger den før testfilene starter.
+ * Gir stien til kopien på serveren.
+ */
+export async function byggMal({ frist = 180_000 } = {}): Promise<string> {
+  const sum = createHash('sha256')
+    .update(JSON.stringify([lesMigrasjoner().map((m) => m.sha256), AZURE_INNSTILLINGER]))
+    .digest('hex')
+    .slice(0, 16);
+  const master = await kobleTilServer(frist);
+  let fil: string;
+  try {
+    await krevDeveloperEdition(master);
+    const sti = await master.request().query<{
+      kopier: string;
+    }>(`SELECT CAST(SERVERPROPERTY('InstanceDefaultBackupPath') AS nvarchar(400)) AS kopier`);
+    fil = `${medSkilletegn(sti.recordset[0].kopier)}koe_testmal_${sum}.bak`;
+  } finally {
+    await master.close();
+  }
+  // BACKUP går ikke i en transaksjon, så låsen eies av sesjonen, på en pool med én forbindelse.
+  const laas = await koble('master', 1);
+  try {
+    await laas
+      .request()
+      .query(
+        `EXEC sp_getapplock @Resource = N'koe_testmal_${sum}', @LockMode = 'Exclusive', @LockOwner = 'Session', @LockTimeout = ${frist}`
+      );
+    const finnes = await laas
+      .request()
+      .batch(`RESTORE VERIFYONLY FROM DISK = N'${fil}' WITH CHECKSUM`)
+      .then(
+        () => true,
+        () => false
+      );
+    if (!finnes) {
+      const mal = await opprettMigrertTestbase('mal', { maks: 1, frist });
+      try {
+        await laas
+          .request()
+          .batch(
+            `BACKUP DATABASE [${mal.navn}] TO DISK = N'${fil}' WITH INIT, FORMAT, COPY_ONLY, CHECKSUM`
+          );
+      } finally {
+        await mal.slett();
+      }
+    }
+  } finally {
+    await laas.close();
+  }
+  return fil;
+}
+
+/**
+ * En migrert testbase gjenopprettet fra malen (`byggMal`), så filene migreres én
+ * gang per sett av migrasjoner og ikke én gang per testfil, parallelt med de
+ * andre (#887). Katalogen er malens, så tester av migreringen selv bruker
+ * `opprettMigrertTestbase`.
  */
 export async function kopierMigrertTestbase(
   navn: string,
   { maks = 8, frist = 180_000 } = {}
 ): Promise<Testbase> {
-  const sum = createHash('sha256')
-    .update(JSON.stringify([lesMigrasjoner().map((m) => m.sha256), AZURE_INNSTILLINGER]))
-    .digest('hex')
-    .slice(0, 16);
+  const fil = await byggMal({ frist });
   const database = testbasenavn(navn);
   const master = await kobleTilServer(frist);
   try {
-    await krevDeveloperEdition(master);
-    const stier = await master.request().query<{ kopier: string; data: string; logg: string }>(
-      `SELECT CAST(SERVERPROPERTY('InstanceDefaultBackupPath') AS nvarchar(400)) AS kopier,
-                CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS nvarchar(400)) AS data,
-                CAST(SERVERPROPERTY('InstanceDefaultLogPath') AS nvarchar(400)) AS logg`
+    const stier = await master.request().query<{ data: string; logg: string }>(
+      `SELECT CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS nvarchar(400)) AS data,
+              CAST(SERVERPROPERTY('InstanceDefaultLogPath') AS nvarchar(400)) AS logg`
     );
-    const { kopier, data, logg } = stier.recordset[0];
-    const mappe = (m: string) => m.replace(/\/?$/, '/');
-    const fil = `${mappe(kopier)}koe_testmal_${sum}.bak`;
-    // BACKUP går ikke i en transaksjon, så låsen eies av sesjonen, på en pool med én forbindelse.
-    const laas = await koble('master', 1);
-    try {
-      await laas
-        .request()
-        .query(
-          `EXEC sp_getapplock @Resource = N'koe_testmal_${sum}', @LockMode = 'Exclusive', @LockOwner = 'Session', @LockTimeout = ${frist}`
-        );
-      const finnes = await laas
-        .request()
-        .batch(`RESTORE VERIFYONLY FROM DISK = N'${fil}' WITH CHECKSUM`)
-        .then(
-          () => true,
-          () => false
-        );
-      if (!finnes) {
-        const mal = await opprettMigrertTestbase('mal', { maks: 1, frist });
-        try {
-          await laas
-            .request()
-            .batch(
-              `BACKUP DATABASE [${mal.navn}] TO DISK = N'${fil}' WITH INIT, FORMAT, COPY_ONLY, CHECKSUM`
-            );
-        } finally {
-          await mal.slett();
-        }
-      }
-    } finally {
-      await laas.close();
-    }
+    const { data, logg } = stier.recordset[0];
     const filer = await master
       .request()
       .query<{ LogicalName: string; Type: string }>(`RESTORE FILELISTONLY FROM DISK = N'${fil}'`);
     const flytt = filer.recordset.map(
       (f, i) =>
-        `MOVE N'${f.LogicalName}' TO N'${mappe(f.Type === 'L' ? logg : data)}${database}_${i}.${f.Type === 'L' ? 'ldf' : 'mdf'}'`
+        `MOVE N'${f.LogicalName}' TO N'${medSkilletegn(f.Type === 'L' ? logg : data)}${database}_${i}.${f.Type === 'L' ? 'ldf' : 'mdf'}'`
     );
     await master
       .request()
