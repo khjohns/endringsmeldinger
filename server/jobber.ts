@@ -29,7 +29,10 @@ import {
 import { feilnummer, sql, type Pool } from './datalag.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
-/** Lengre enn tidsavbruddet mot Catenda (15 s) ganger kallene i en levering, med kvitteringen. */
+/**
+ * Lengre enn ett steg: tidsavbruddet mot Catenda (15 s) ganger de fem kallene for ett
+ * dokument, med kvitteringene. Leveringen fornyer leasen før hvert vedlegg og før brevet.
+ */
 export const LEASETID_S = 120;
 export const POLLEINTERVALL_MS = 10_000;
 
@@ -139,13 +142,16 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   const kvitter: Kvitter = async (prosedyre, parametre) => {
     try {
       const foresp = lease();
-      for (const [navn, verdi] of Object.entries(parametre))
-        foresp.input(navn, sql.NVarChar(100), verdi);
+      for (const [navn, [type, verdi]] of Object.entries(parametre))
+        foresp.input(navn, type, verdi);
       await foresp.execute(prosedyre);
     } catch (feil) {
+      // Leveringen avstemmes mot Catenda ved neste forsøk, så den prøves igjen som `feilet`.
+      if (jobb.jobbtype === 'levering' && forbigaaendeISql(feil)) throw feil;
       // Endringen finnes i Catenda uten kvittering; neste henting parkerer jobben som usikker.
+      const verdier = Object.entries(parametre).map(([navn, [, verdi]]) => `${navn}=${verdi}`);
       logg.error(
-        `Jobben ${jobb.jobb_id} fikk ${Object.values(parametre).join(', ')} fra Catenda, men kvitteringen ble avvist:`,
+        `Jobben ${jobb.jobb_id} fikk ${verdier.join(', ')} fra Catenda, men kvitteringen ble avvist:`,
         feil
       );
       throw new AvvistKvittering('Kvitteringen ble avvist', { cause: feil });
@@ -160,7 +166,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         tittel: jobb.tittel!,
         beskrivelse: `Saken i endringsappen: ${avh.saksadresse(jobb.prosjekt_id, jobb.sak_id)}`,
       });
-      await kvitter('koe_api.kvitter_topic', { topic_id: topic });
+      await kvitter('koe_api.kvitter_topic', { topic_id: [sql.NVarChar(100), topic] });
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
       const brevPdf = async (pdf: Uint8Array | null) => {
@@ -172,6 +178,11 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         return rad ? new Uint8Array(rad.pdf) : null;
       };
       const lager: Leveringslager = {
+        async fornyLease() {
+          await lease()
+            .input('leasetid_sekunder', sql.Int, LEASETID_S)
+            .execute('koe_api.forny_lease');
+        },
         lagret: () => brevPdf(null),
         lagre: async (pdf) => (await brevPdf(pdf))!,
         vedlegg: async () =>
@@ -208,7 +219,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   return true;
 }
 
-type Kvitter = (prosedyre: string, parametre: Record<string, string | null>) => Promise<void>;
+type Kvitter = (
+  prosedyre: string,
+  parametre: Record<string, [type: sql.ISqlType | (() => sql.ISqlType), verdi: string | null]>
+) => Promise<void>;
 
 interface Vedleggsrad {
   vedlegg_id: string;
@@ -220,6 +234,7 @@ interface Vedleggsrad {
 
 /** Det leveringen leser og skriver i basen, med leasen til forsøket. */
 interface Leveringslager {
+  fornyLease: () => Promise<void>;
   lagret: () => Promise<Uint8Array | null>;
   lagre: (pdf: Uint8Array) => Promise<Uint8Array>;
   vedlegg: () => Promise<Vedleggsrad[]>;
@@ -265,11 +280,12 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
     if (!vedlegg.finnes)
       throw new UgjennomfoerbarJobb('Et vedlegg i brevet er ikke bundet i saken');
     if (vedlegg.referanse_id) continue;
+    await lager.fornyLease();
     const kvitterVedlegg = (operasjon: string, catenda_id: string) =>
       lager.kvitter('koe_api.kvitter_vedlegg', {
-        vedlegg_id: vedlegg.vedlegg_id,
-        operasjon,
-        catenda_id,
+        vedlegg_id: [sql.UniqueIdentifier, vedlegg.vedlegg_id],
+        operasjon: [sql.NVarChar(20), operasjon],
+        catenda_id: [sql.NVarChar(100), catenda_id],
       });
     let dokumentId = vedlegg.dokument_id;
     if (!dokumentId) {
@@ -284,9 +300,10 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
   }
 
   if (oppdrag.dokument === null) {
-    await lager.kvitter('koe_api.kvitter_levering', { referanse_id: null });
+    await lager.kvitter('koe_api.kvitter_levering', { referanse_id: [sql.NVarChar(100), null] });
     return;
   }
+  await lager.fornyLease();
   let dokumentId = jobb.dokument_id;
   if (!dokumentId) {
     dokumentId = await dokument(
@@ -295,9 +312,13 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
         (await lager.lagret()) ??
         (await lager.lagre((await brevdokument(oppdrag, jobb.dokumentnoekkel!)).innhold))
     );
-    await lager.kvitter('koe_api.kvitter_dokument', { dokument_id: dokumentId });
+    await lager.kvitter('koe_api.kvitter_dokument', {
+      dokument_id: [sql.NVarChar(100), dokumentId],
+    });
   }
-  await lager.kvitter('koe_api.kvitter_levering', { referanse_id: await referanse(dokumentId) });
+  await lager.kvitter('koe_api.kvitter_levering', {
+    referanse_id: [sql.NVarChar(100), await referanse(dokumentId)],
+  });
 }
 
 export interface Jobbkjoerer {

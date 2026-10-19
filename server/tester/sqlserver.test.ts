@@ -17,6 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   avvikFraAzure,
   feilnummer,
+  koble,
   opprettKjoeretid,
   opprettTestbase,
   sql,
@@ -89,6 +90,34 @@ async function skrivOgCommit(pool: Pool, sakId: string, forventet: number, event
     await tx.rollback().catch(() => undefined);
     throw feil;
   }
+}
+
+/** Hvor lenge oppryddingen venter på en skriving før forbindelsen lukkes, ms. */
+const RYDDEFRIST = 5_000;
+
+/**
+ * Ruller `tx` tilbake når `skriving` er ferdig: en transaksjon kan ikke rulles
+ * tilbake mens en forespørsel i den pågår. Gir `false` når skrivingen ikke er
+ * ferdig etter `RYDDEFRIST`, for eksempel fordi den venter på en lås noe utenfor
+ * testen holder. Da holder transaksjonen forbindelsen sin, og `pool.close()` venter
+ * på den, så kalleren lukker ikke poolen; `base.slett()` ruller den tilbake med
+ * `ROLLBACK IMMEDIATE`.
+ */
+async function rullTilbakeEtter(
+  tx: sql.Transaction,
+  skriving: Promise<unknown> | undefined
+): Promise<boolean> {
+  let tidtaker: ReturnType<typeof setTimeout> | undefined;
+  const ferdig = await Promise.race([
+    Promise.resolve(skriving).then(
+      () => true,
+      () => true
+    ),
+    new Promise<boolean>((ok) => (tidtaker = setTimeout(() => ok(false), RYDDEFRIST))),
+  ]);
+  clearTimeout(tidtaker);
+  if (ferdig) await tx.rollback().catch(() => undefined);
+  return ferdig;
 }
 
 /** Antall forespørsler i basen som venter på en lås, lest i `sys.dm_exec_requests`. */
@@ -175,7 +204,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
         }>('SELECT COUNT(*) AS n FROM sys.server_principals WHERE name = @navn');
         expect(igjen.recordset[0].n).toBe(0);
       } finally {
+        // Innloggingen hører til serveren, så base.slett() fjerner den ikke når
+        // kjoeretid.slett() har kastet.
         await aapen.close().catch(() => undefined);
+        await kjoeretid.pool.close().catch(() => undefined);
+        await base.pool
+          .request()
+          .batch(`IF SUSER_ID(N'${navn}') IS NOT NULL DROP LOGIN [${navn}]`)
+          .catch(() => undefined);
       }
     }, 60_000);
   });
@@ -201,8 +237,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
       it('to transaksjoner som leste samme versjon: den første skriver, den andre får versjonskonflikt og etterlater ingenting', async () => {
         const sakId = await nySak(base.pool);
         const [forste, andre] = [randomUUID(), randomUUID()];
-        const t1 = new sql.Transaction(base.pool);
-        const t2 = new sql.Transaction(base.pool);
+        const pool = await koble(base.navn, 2);
+        const t1 = new sql.Transaction(pool);
+        const t2 = new sql.Transaction(pool);
         let andreSkriving: Promise<unknown> | undefined;
         await t1.begin();
         try {
@@ -224,11 +261,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
           );
           expect(feilnummer(feil)).toBe(VERSJONSKONFLIKT);
         } finally {
-          // t1 først: den andre skrivingen venter på låsene til t1, og t2 kan ikke
-          // rulles tilbake mens den pågår.
+          // t1 først: den andre skrivingen venter på låsene til t1.
           await t1.rollback().catch(() => undefined);
-          await andreSkriving?.catch(() => undefined);
-          await t2.rollback().catch(() => undefined);
+          if (await rullTilbakeEtter(t2, andreSkriving)) await pool.close();
         }
 
         expect(await lagret(base.pool, sakId)).toEqual([
@@ -243,7 +278,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
         // `UPDLOCK, HOLDLOCK` venter de da på unikheten og får 2627 (#560).
         const sakId = await nySak(base.pool);
         const hendelser = Array.from({ length: 8 }, () => randomUUID());
-        const transaksjoner = hendelser.map(() => new sql.Transaction(base.pool));
+        const pool = await koble(base.navn, hendelser.length);
+        const transaksjoner = hendelser.map(() => new sql.Transaction(pool));
         await Promise.all(transaksjoner.map((tx) => tx.begin()));
         const utfall: (PromiseSettledResult<unknown> | undefined)[] = hendelser.map(
           () => undefined
@@ -271,14 +307,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('SQL Server-testbasen (#488)', () => {
           await transaksjoner[forste].commit();
           await Promise.all(skrivinger);
         } finally {
-          // Hver transaksjon rulles tilbake når skrivingen dens er ferdig: en skriving
-          // som venter, kan ikke rulles tilbake, og den venter på låsene til en ferdig
-          // transaksjon som ennå er åpen. Den committede gir en feil som svelges.
-          await Promise.all(
-            transaksjoner.map((tx, i) =>
-              skrivinger[i].then(() => tx.rollback().catch(() => undefined))
-            )
+          // En skriving som venter, venter på låsene til en ferdig transaksjon som
+          // ennå er åpen, så alle rulles tilbake samtidig. Den committede gir en
+          // feil som svelges.
+          const rullet = await Promise.all(
+            transaksjoner.map((tx, i) => rullTilbakeEtter(tx, skrivinger[i]))
           );
+          if (rullet.every(Boolean)) await pool.close();
         }
 
         const lyktes = hendelser.filter((_, i) => utfall[i]?.status === 'fulfilled');

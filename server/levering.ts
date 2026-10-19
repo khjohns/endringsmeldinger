@@ -171,7 +171,7 @@ export async function brevdokument(
  */
 export function vedleggsnavn(filnavn: string, vedleggId: string): string {
   const punktum = filnavn.lastIndexOf('.');
-  return punktum > 0
+  return punktum >= 0
     ? `${filnavn.slice(0, punktum)}-${vedleggId}${filnavn.slice(punktum)}`
     : `${filnavn}-${vedleggId}`;
 }
