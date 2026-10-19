@@ -13,7 +13,7 @@
 import { randomBytes } from 'node:crypto';
 
 import { sha256, type Bruker } from './bruker.ts';
-import { feilnummer, sql, type Pool } from './datalag.ts';
+import { feilnummer, sql, utenKontekst, type Pool } from './datalag.ts';
 
 /** Basen avviste en hash, et CSRF-token eller en returadresse med feil form. */
 export class UgyldigSesjonsdata extends Error {}
@@ -66,8 +66,7 @@ export interface Sesjon {
 export async function opprettSesjon(pool: Pool, bruker: string): Promise<NySesjon> {
   const ny = { token: token(), csrfToken: token() };
   const svar = await kall(() =>
-    pool
-      .request()
+    utenKontekst(pool)
       .input('token_hash', sql.NVarChar(4000), sha256(ny.token))
       .input('bruker', sql.UniqueIdentifier, bruker)
       .input('csrf_token', sql.NVarChar(4000), ny.csrfToken)
@@ -80,7 +79,7 @@ export async function opprettSesjon(pool: Pool, bruker: string): Promise<NySesjo
 /** Sesjonen for kapselverdien, eller `null` når den ikke finnes eller er utløpt. */
 export async function lesSesjon(pool: Pool, sesjonstoken: string): Promise<Sesjon | null> {
   const svar = await kall(() =>
-    pool.request().input('token_hash', sql.NVarChar(4000), sha256(sesjonstoken)).execute<{
+    utenKontekst(pool).input('token_hash', sql.NVarChar(4000), sha256(sesjonstoken)).execute<{
       bruker: string;
       email: string;
       name: string;
@@ -99,8 +98,7 @@ export async function lesSesjon(pool: Pool, sesjonstoken: string): Promise<Sesjo
 
 export async function slettSesjon(pool: Pool, sesjonstoken: string): Promise<void> {
   await kall(() =>
-    pool
-      .request()
+    utenKontekst(pool)
       .input('token_hash', sql.NVarChar(4000), sha256(sesjonstoken))
       .execute('koe_api.slett_sesjon')
   );
@@ -121,8 +119,7 @@ export async function opprettInnloggingsforsoek(
 ): Promise<NyttInnloggingsforsoek> {
   const ny = { state: token(), nettleser: token() };
   const svar = await kall(() =>
-    pool
-      .request()
+    utenKontekst(pool)
       .input('state_hash', sql.NVarChar(4000), sha256(ny.state))
       .input('nettleser_hash', sql.NVarChar(4000), sha256(ny.nettleser))
       // `MAX`, så en for lang sti når basens kontroll i stedet for å feile i driveren.
@@ -143,8 +140,7 @@ export async function brukInnloggingsforsoek(
   nettleser: string
 ): Promise<string | null> {
   const svar = await kall(() =>
-    pool
-      .request()
+    utenKontekst(pool)
       .input('state_hash', sql.NVarChar(4000), sha256(state))
       .input('nettleser_hash', sql.NVarChar(4000), sha256(nettleser))
       .execute<{ retursti: string }>('koe_api.bruk_innloggingsforsoek')
@@ -155,8 +151,7 @@ export async function brukInnloggingsforsoek(
 /** Sletter utløpte sesjoner og innloggingsforsøk og gir antallet av hver. */
 export async function ryddUtloepte(pool: Pool): Promise<{ sesjoner: number; forsoek: number }> {
   const svar = await kall(() =>
-    pool
-      .request()
+    utenKontekst(pool)
       .output('sesjoner', sql.Int)
       .output('forsoek', sql.Int)
       .execute('koe_api.rydd_utloepte')

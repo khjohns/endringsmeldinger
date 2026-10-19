@@ -27,7 +27,7 @@ import {
   type Referanse,
   type Topicoppretter,
 } from './catenda.ts';
-import { feilnummer, sql, type Pool } from './datalag.ts';
+import { feilnummer, sql, utenKontekst, type Pool } from './datalag.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
 /**
@@ -117,14 +117,13 @@ function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; meldin
  */
 export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   const logg = avh.logg ?? console;
-  const svar = await avh.datalag
-    .request()
+  const svar = await utenKontekst(avh.datalag)
     .input('leasetid_sekunder', sql.Int, LEASETID_S)
     .execute<Jobbrad>('koe_api.hent_jobb');
   const jobb = svar.recordset[0];
   if (!jobb) return false;
 
-  const lease = () => avh.datalag.request().input('lease', sql.UniqueIdentifier, jobb.lease);
+  const lease = () => utenKontekst(avh.datalag).input('lease', sql.UniqueIdentifier, jobb.lease);
   const kvitter: Kvitter = async (prosedyre, parametre) => {
     try {
       const foresp = lease();
