@@ -5,7 +5,9 @@ server/tester/ mot SQL Server og setter stedet tilbake. Hver testfil lager sin
 egen base fra `database/migrasjoner/`. Kjør aldri mot arbeidstreet du committer fra:
 
     git worktree add /tmp/kopi HEAD && ln -s "$PWD/node_modules" /tmp/kopi/node_modules
-    KOE_SQLSERVER_TILKOBLING=... python3 server/tester/feilinnfoering.py /tmp/kopi
+    KOE_SQLSERVER_TILKOBLING=... python3 server/tester/feilinnfoering.py /tmp/kopi [S39 S40 ...]
+
+Med ID-er etter stien kjøres bare de feilinnføringene, etter kontrollkjøringen.
 
 Krever KOE_SQLSERVER_TILKOBLING (#658, #661). Lagringsgarantiene i basen har egne
 tester i journal.test.ts og kommandoer.test.ts. Først
@@ -144,6 +146,16 @@ FEILINNFOERINGER = [
     ("S38", "et ord som er delt over to linjer, leses som to ord (#371, LV-U2)", "server/brevpdf.ts",
      "ut.push({ tekst: rest.slice(0, n), delt: true });", "ut.push({ tekst: rest.slice(0, n), delt: false });",
      "gjengir et ord som er lengre enn linjen"),
+    ("S39", "skrivetransaksjonen får ikke prosjektet i konteksten (#739)", "server/datalag.ts",
+     "         EXEC sp_set_session_context N'koe_prosjekt', @prosjekt, @read_only = 1;\n", "",
+     "journalen har sak_opprettet som versjon 1"),
+    ("S40", "versjonen leses uten UPDLOCK og HOLDLOCK (#739)", "database/migrasjoner/20261020080000_skriveprosedyrer.sql",
+     "FROM koe.hendelse WITH (UPDLOCK, HOLDLOCK) WHERE sak_id = @sak_id", "FROM koe.hendelse WHERE sak_id = @sak_id",
+     "ventingen på låsen tar det over"),
+    ("S41", "triggeren mot endring av leveringsoppdraget mangler (#739)", "database/migrasjoner/20261016100000_journal.sql",
+     ("CREATE TRIGGER koe.leveringsoppdrag_uforanderlig ON koe.leveringsoppdrag INSTEAD OF UPDATE, DELETE AS\n"
+      "BEGIN\n  SET NOCOUNT ON;\n  THROW 51001, N'Et lagret leveringsoppdrag endres ikke', 1;\nEND\nGO\n"), "",
+     "aktiv INSTEAD OF-trigger for UPDATE og DELETE"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
@@ -154,7 +166,8 @@ FORVENTET_OVERLEVER = {"S8"}
 
 def kjoer(rot: Path) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["npx", "vitest", "run", "server/tester"],
+        # De levende Catenda-testene (#902) hoppes alltid over her, og ville stoppet kontrollen.
+        ["npx", "vitest", "run", "server/tester", "--exclude", "server/tester/catenda.live.test.ts"],
         cwd=rot,
         capture_output=True,
         text=True,
@@ -163,6 +176,10 @@ def kjoer(rot: Path) -> subprocess.CompletedProcess:
 
 
 def main(rot: Path) -> int:
+    valgt = set(sys.argv[2:])
+    if ukjent := valgt - {f[0] for f in FEILINNFOERINGER}:
+        print("ukjente feilinnføringer:", " ".join(sorted(ukjent)))
+        return 1
     # Kontrollen først: uten feilinnføring skal testene være grønne, og ingen
     # databasetest hoppet over (uten KOE_SQLSERVER_TILKOBLING kjører de ikke).
     kontroll = kjoer(rot)
@@ -171,6 +188,8 @@ def main(rot: Path) -> int:
         return 1
     mislykket = []
     for id_, hva, fil, fra, til, forventet in FEILINNFOERINGER:
+        if valgt and id_ not in valgt:
+            continue
         sti = rot / fil
         kilde = sti.read_text()
         if kilde.count(fra) != 1:

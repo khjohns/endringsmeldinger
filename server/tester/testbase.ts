@@ -14,7 +14,7 @@ import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import { kommandosum, opprettSak } from '../kommandoer.ts';
 import { opprettKjoeretid, SQLSERVER_TILKOBLING, type Pool, type Testbase } from './sqlserver.ts';
-import { iTransaksjon, opprettMigrertTestbase, settInn } from './sqlserver_migrert.ts';
+import { iTransaksjon, kopierMigrertTestbase, settInn } from './sqlserver_migrert.ts';
 
 /**
  * Tilkoblingen til SQL Server-serveren testbasene lages på, eller tom. Testene
@@ -79,7 +79,7 @@ export async function lagOppsett(kobling?: Catendakobling): Promise<Oppsett> {
   const [p, annet] = [prosjektFor('a'), prosjektFor('b')];
   if (kobling) p.catendaProsjekt = kobling.catendaProsjekt;
   const [te, bh, utenTeam, utenfor] = [brukerFor(), brukerFor(), brukerFor(), brukerFor()];
-  const base = await opprettMigrertTestbase('serveren', { maks: 4 });
+  const base = await kopierMigrertTestbase('serveren', { maks: 4 });
   const r = () => base.pool.request();
   const prosjekter: [Testprosjekt, Testbruker[]][] = [
     [p, [te, bh, utenTeam]],
@@ -184,7 +184,8 @@ const ta = TESTRETTIGHETER.map((r) => `REVOKE ${r} FROM koe_jobbkjoerer;`).join(
  * Setningen som eieren kjører som `koe_jobbkjoerer`, så radsikkerheten slipper den
  * gjennom, med `TESTRETTIGHETER` i transaksjonen. Feiler setningen, rulles den og
  * rettighetene tilbake, og identiteten settes tilbake, så forbindelsen i poolen ikke
- * blir stående som kjøreveien.
+ * blir stående som kjøreveien. `XACT_ABORT` ruller også tilbake ved et tidsavbrudd,
+ * som `CATCH` ikke ser (#813).
  */
 export function somJobbkjoerer<T>(
   o: Oppsett,
@@ -194,7 +195,8 @@ export function somJobbkjoerer<T>(
   const r = o.datalag.base.pool.request();
   for (const [navn, verdi] of Object.entries(parametre)) r.input(navn, verdi);
   return r.query<T>(
-    `BEGIN TRANSACTION;
+    `SET XACT_ABORT ON;
+     BEGIN TRANSACTION;
      ${gi}
      EXECUTE AS USER = 'koe_jobbkjoerer';
      BEGIN TRY ${setning}; END TRY

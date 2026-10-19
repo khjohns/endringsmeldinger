@@ -55,5 +55,6 @@ export default defineConfig({
     ],
     environmentMatchGlobs: [['src/lib/components/**/*.test.ts', 'jsdom']],
     setupFiles: ['src/test-setup.ts'],
+    globalSetup: ['server/tester/globalt_oppsett.ts'],
   },
 });

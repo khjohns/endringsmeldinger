@@ -9,7 +9,7 @@ from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 from core.container import get_container
 from lib.db import Kontekst
-from tests.test_database.conftest import _rydd, krev_kastbar_testbase
+from tests.test_database.conftest import _rydd, krev_kastbar_testbase, les_frodata
 
 pytestmark = pytest.mark.database
 
@@ -52,6 +52,24 @@ def test_ryddingen_tommer_nye_rader_og_gjenoppretter_frodata(testbase_url, _frod
     assert _tilstand(testbase_url) != foer
 
     _rydd(testbase_url, _frodata)
+
+    assert _tilstand(testbase_url) == foer
+
+
+def test_rad_fra_avbrutt_kjoering_regnes_ikke_som_frodata_697(testbase_url):
+    """En kjøring som ble avbrutt før ryddingen, etterlater raden. Neste kjøring
+    leser frødataene fra byggets øyeblikksbilde og fjerner raden."""
+    foer = _tilstand(testbase_url)
+    with psycopg.connect(testbase_url) as c, c.transaction():
+        c.execute(
+            "INSERT INTO projects (id, name, organisasjon_id)"
+            " SELECT 'p-avbrutt', 'Etterlatt', organisasjon_id FROM projects LIMIT 1"
+        )
+    try:
+        frodata = les_frodata(testbase_url)
+        assert all(r["id"] != "p-avbrutt" for r in frodata[0]["projects"])
+    finally:
+        _rydd(testbase_url, les_frodata(testbase_url))
 
     assert _tilstand(testbase_url) == foer
 

@@ -59,7 +59,7 @@ vent() {
       if [ "$status" = exited ] && ((nye < 2)) && [ -n "$sa_passord" ]; then
         nye=$((nye + 1))
         echo "SQL Server i $navn stoppet (avslutningskode $kode). Lager containeren på nytt ($nye av 2)." >&2
-        docker logs "$navn" 2>&1 | grep -A3 'fatal error' | tail -20 >&2 || true
+        docker logs "$navn" 2>&1 | tail -40 >&2 || true
         docker rm --force "$navn" > /dev/null
         KOE_SQLSERVER_SA_PASSORD="$sa_passord" opprett
         frist=$((SECONDS + 180))
