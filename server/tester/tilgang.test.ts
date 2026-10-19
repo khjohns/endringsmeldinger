@@ -22,9 +22,10 @@ import {
 } from './sqlserver_migrert.ts';
 import {
   opprettKjoeretid,
-  type Pool,
+  slettAlle,
   sql,
   SQLSERVER_TILKOBLING,
+  type Pool,
   type Testbase,
 } from './sqlserver.ts';
 
@@ -87,10 +88,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
              (N'${P2}', N'${TE_P2}', N'TE'), (N'${INAKTIVT}', N'${TE_P3}', N'TE');`);
     kjoeretid = await opprettKjoeretid(base);
   }, 240_000);
-  afterAll(async () => {
-    await kjoeretid?.slett();
-    await base?.slett();
-  }, 60_000);
+  afterAll(() => slettAlle(kjoeretid, base), 60_000);
 
   /**
    * Én transaksjon med konteksten satt først, som eieren eller som kjøretiden
