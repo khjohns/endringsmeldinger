@@ -11,6 +11,7 @@ import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { lagServer, type Avhengigheter } from '../app.ts';
 import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
+import { reservasjon, type Forbindelse } from '../datalag.ts';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import { kommandosum, opprettSak } from '../kommandoer.ts';
 import { opprettKjoeretid, SQLSERVER_TILKOBLING, type Pool, type Testbase } from './sqlserver.ts';
@@ -183,28 +184,49 @@ const ta = TESTRETTIGHETER.map((r) => `REVOKE ${r} FROM koe_jobbkjoerer;`).join(
 /**
  * Setningen som eieren kjører som `koe_jobbkjoerer`, så radsikkerheten slipper den
  * gjennom, med `TESTRETTIGHETER` i transaksjonen. Feiler setningen, rulles den og
- * rettighetene tilbake, og identiteten settes tilbake, så forbindelsen i poolen ikke
- * blir stående som kjøreveien. `XACT_ABORT` ruller også tilbake ved et tidsavbrudd,
- * som `CATCH` ikke ser (#813).
+ * rettighetene tilbake før identiteten settes tilbake, så feilen er setningens og
+ * ikke 3930 (#922). `XACT_ABORT` er på for hver forbindelse fra `opprettPool`, så
+ * et tidsavbrudd ruller også tilbake, men det avbryter satsen før `CATCH`, og
+ * identiteten blir stående. Derfor går setningen på en reservert forbindelse, som
+ * settes tilbake etter en feil, eller forkastes når det ikke går (#813).
  */
-export function somJobbkjoerer<T>(
-  o: Oppsett,
+export async function somJobbkjoerer<T>(
+  o: { datalag: { base: Pick<Testbase, 'pool'> } },
   setning: string,
   parametre: Record<string, unknown> = {}
 ) {
-  const r = o.datalag.base.pool.request();
-  for (const [navn, verdi] of Object.entries(parametre)) r.input(navn, verdi);
-  return r.query<T>(
-    `SET XACT_ABORT ON;
-     BEGIN TRANSACTION;
-     ${gi}
-     EXECUTE AS USER = 'koe_jobbkjoerer';
-     BEGIN TRY ${setning}; END TRY
-     BEGIN CATCH REVERT; IF XACT_STATE() <> 0 ROLLBACK; THROW; END CATCH;
-     REVERT;
-     ${ta}
-     COMMIT;`
-  );
+  const pool = o.datalag.base.pool;
+  const utlaan = pool as unknown as {
+    acquire(requester: unknown): Promise<Forbindelse>;
+    release(forbindelse: Forbindelse): void;
+  };
+  const forbindelse = await utlaan.acquire(pool);
+  const egen = reservasjon(pool, forbindelse);
+  try {
+    const r = egen.request();
+    for (const [navn, verdi] of Object.entries(parametre)) r.input(navn, verdi);
+    return await r.query<T>(
+      `BEGIN TRANSACTION;
+       ${gi}
+       EXECUTE AS USER = 'koe_jobbkjoerer';
+       BEGIN TRY ${setning}; END TRY
+       BEGIN CATCH IF XACT_STATE() <> 0 ROLLBACK; REVERT; THROW; END CATCH;
+       REVERT;
+       ${ta}
+       COMMIT;`
+    );
+  } catch (feil) {
+    await egen
+      .request()
+      .batch(`IF @@TRANCOUNT > 0 ROLLBACK; IF USER_NAME() = 'koe_jobbkjoerer' REVERT;`)
+      .catch(() => {
+        forbindelse.hasError = true;
+        forbindelse.close();
+      });
+    throw feil;
+  } finally {
+    utlaan.release(forbindelse);
+  }
 }
 
 export async function rydd(o: Oppsett): Promise<void> {

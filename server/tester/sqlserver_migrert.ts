@@ -4,6 +4,8 @@
  */
 
 import { createHash, randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { lesMigrasjoner, migrer } from '../migrering.ts';
 import {
   AZURE_INNSTILLINGER,
@@ -33,19 +35,98 @@ export async function opprettMigrertTestbase(
   return base;
 }
 
+const RUNNER = fileURLToPath(new URL('../migrering.ts', import.meta.url));
+
 const medSkilletegn = (mappe: string) => mappe.replace(/\/?$/, '/');
+
+/** En forespørsel med sin egen tidsgrense. `mssql` tar den, men typene mangler den. */
+const medGrense = (pool: Pool, requestTimeout: number) =>
+  (pool as unknown as { request(o: { requestTimeout: number }): sql.Request }).request({
+    requestTimeout,
+  });
+
+/** Hvor lenge en kopi av malen kan ta å skrive, og en annen fil venter på låsen. */
+const BYGGETID = 600_000;
+
+/**
+ * Sesjonslåsen `ressurs` på en egen forbindelse til `master`, mens `arbeid` kjører
+ * med forbindelsen. Venter i opptil `laasfrist` ms og feiler med svarkoden fra
+ * `sp_getapplock` uten låsen. Låsen eies av sesjonen fordi `BACKUP` ikke går i en
+ * transaksjon, så poolen har én forbindelse og lukker den ikke mens den er ledig.
+ * Grensen for hver forespørsel settes på forespørselen.
+ */
+export async function underLaas<T>(
+  ressurs: string,
+  laasfrist: number,
+  arbeid: (laas: Pool) => Promise<T>
+): Promise<T> {
+  const laas = await koble('master', 1, { pool: { idleTimeoutMillis: 2 ** 31 - 1 } });
+  try {
+    await medGrense(laas, laasfrist + 60_000).batch(
+      `DECLARE @svar int;
+       EXEC @svar = sp_getapplock @Resource = N'${ressurs}', @LockMode = 'Exclusive', @LockOwner = 'Session', @LockTimeout = ${laasfrist};
+       IF @svar < 0
+       BEGIN
+         DECLARE @melding nvarchar(200) = CONCAT(N'sp_getapplock ga ', @svar, N' for låsen ${ressurs}.');
+         THROW 50000, @melding, 1;
+       END`
+    );
+    return await arbeid(laas);
+  } finally {
+    await laas.close();
+  }
+}
+
+/**
+ * Om `fil` er en fullført kopi: hodet i fila har ID-en til en kopi som `msdb` har
+ * ført. `msdb` fører kopien når den er skrevet ferdig, så en kopi som ble avbrutt,
+ * eller som skrives nå, er ikke ført. Leser bare hodet, ikke hele fila.
+ */
+async function fullfoert(pool: Pool, fil: string): Promise<boolean> {
+  try {
+    const hode = await pool
+      .request()
+      .query<{ BackupSetGUID: string }>(`RESTORE HEADERONLY FROM DISK = N'${fil}'`);
+    const foert = await pool
+      .request()
+      .input('id', sql.UniqueIdentifier, hode.recordset[0].BackupSetGUID)
+      .query<{
+        n: number;
+      }>('SELECT COUNT(*) AS n FROM msdb.dbo.backupset WHERE backup_set_uuid = @id');
+    return foert.recordset[0].n > 0;
+  } catch {
+    return false;
+  }
+}
+
+let malen: Promise<{ fil: string; bygget: boolean }> | undefined;
 
 /**
  * Malen for testbasene: en sikkerhetskopi på serveren av en base migrert fra
- * filene, navngitt etter summen av filene og innstillingene (#887). Den første
- * som mangler den, bygger den med `opprettMigrertTestbase` under en applås, og de
- * andre venter. En kopi som ble avbrutt, består ikke `VERIFYONLY` og bygges på
- * nytt. `globalSetup` i `vite.config.ts` bygger den før testfilene starter.
- * Gir stien til kopien på serveren.
+ * filene, navngitt etter summen av filene, runneren og innstillingene (#887, #930).
+ * Er kopien fullført, brukes den uten lås. Ellers bygger den første som mangler
+ * den, kopien med `opprettMigrertTestbase` under en applås, og de andre venter i
+ * opptil `BYGGETID`. `globalSetup` for serverprosjektet i `vite.config.ts` bygger
+ * den før testfilene starter. Gir stien til kopien på serveren, og om den ble
+ * bygget nå, én gang per modul.
  */
-export async function byggMal({ frist = 180_000 } = {}): Promise<string> {
+export function byggMal({ frist = 180_000 } = {}): Promise<{ fil: string; bygget: boolean }> {
+  malen ??= byggMalNaa(frist).catch((feil: unknown) => {
+    malen = undefined;
+    throw feil;
+  });
+  return malen;
+}
+
+async function byggMalNaa(frist: number): Promise<{ fil: string; bygget: boolean }> {
   const sum = createHash('sha256')
-    .update(JSON.stringify([lesMigrasjoner().map((m) => m.sha256), AZURE_INNSTILLINGER]))
+    .update(
+      JSON.stringify([
+        lesMigrasjoner().map((m) => m.sha256),
+        createHash('sha256').update(readFileSync(RUNNER)).digest('hex'),
+        AZURE_INNSTILLINGER,
+      ])
+    )
     .digest('hex')
     .slice(0, 16);
   const master = await kobleTilServer(frist);
@@ -56,48 +137,37 @@ export async function byggMal({ frist = 180_000 } = {}): Promise<string> {
       kopier: string;
     }>(`SELECT CAST(SERVERPROPERTY('InstanceDefaultBackupPath') AS nvarchar(400)) AS kopier`);
     fil = `${medSkilletegn(sti.recordset[0].kopier)}koe_testmal_${sum}.bak`;
+    if (await fullfoert(master, fil)) return { fil, bygget: false };
   } finally {
     await master.close();
   }
-  // BACKUP går ikke i en transaksjon, så låsen eies av sesjonen, på en pool med én
-  // forbindelse som poolen ikke lukker mens den er ledig under migreringen.
-  const laas = await koble('master', 1, {
-    requestTimeout: frist + 120_000,
-    pool: { idleTimeoutMillis: 2 ** 31 - 1 },
-  });
-  try {
-    await laas.request().batch(
-      `DECLARE @svar int;
-       EXEC @svar = sp_getapplock @Resource = N'koe_testmal_${sum}', @LockMode = 'Exclusive', @LockOwner = 'Session', @LockTimeout = ${frist};
-       IF @svar < 0
-       BEGIN
-         DECLARE @melding nvarchar(200) = CONCAT(N'sp_getapplock ga ', @svar, N' for låsen koe_testmal_${sum}; malen bygges ikke uten den.');
-         THROW 50000, @melding, 1;
-       END`
-    );
-    const finnes = await laas
-      .request()
-      .batch(`RESTORE VERIFYONLY FROM DISK = N'${fil}' WITH CHECKSUM`)
-      .then(
-        () => true,
-        () => false
+  return underLaas(`koe_testmal_${sum}`, BYGGETID, async (laas) => {
+    if (await fullfoert(laas, fil)) return { fil, bygget: false };
+    const mal = await opprettMigrertTestbase('mal', { maks: 1, frist });
+    try {
+      await medGrense(laas, BYGGETID).batch(
+        `IF APPLOCK_MODE('public', N'koe_testmal_${sum}', 'Session') <> 'Exclusive'
+             THROW 50000, N'Sesjonen har mistet låsen for malen; kopien skrives ikke.', 1;
+           BACKUP DATABASE [${mal.navn}] TO DISK = N'${fil}' WITH INIT, FORMAT, COPY_ONLY, CHECKSUM`
       );
-    if (!finnes) {
-      const mal = await opprettMigrertTestbase('mal', { maks: 1, frist });
-      try {
-        await laas.request().batch(
-          `IF APPLOCK_MODE('public', N'koe_testmal_${sum}', 'Session') <> 'Exclusive'
-               THROW 50000, N'Sesjonen har mistet låsen for malen; kopien skrives ikke.', 1;
-             BACKUP DATABASE [${mal.navn}] TO DISK = N'${fil}' WITH INIT, FORMAT, COPY_ONLY, CHECKSUM`
-        );
-      } finally {
-        await mal.slett();
-      }
+    } finally {
+      await mal.slett();
     }
+    return { fil, bygget: true };
+  });
+}
+
+/** Sletter kopien `fil` på serveren. */
+export async function slettMal(fil: string): Promise<void> {
+  const master = await kobleTilServer(0);
+  try {
+    await master
+      .request()
+      .input('fil', sql.NVarChar(400), fil)
+      .batch('EXEC sys.xp_delete_files @fil');
   } finally {
-    await laas.close();
+    await master.close();
   }
-  return fil;
 }
 
 /**
@@ -110,7 +180,7 @@ export async function kopierMigrertTestbase(
   navn: string,
   { maks = 8, frist = 180_000 } = {}
 ): Promise<Testbase> {
-  const fil = await byggMal({ frist });
+  const { fil } = await byggMal({ frist });
   const database = testbasenavn(navn);
   const master = await kobleTilServer(frist);
   try {

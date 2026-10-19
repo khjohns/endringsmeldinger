@@ -17,7 +17,9 @@
  * F246–F247 registrerte brev som dokumentasjon (OV-U4, OV-U6, #574), og F248–F255
  * opprettelsen og datoen etter VS-U26 (#664). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
- * og `sprakprove/kjernelagring/`, og originalteksten settes tilbake etterpå. For
+ * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
+ * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
+ * PR, kjører hver mutasjon bare filene med målene sine (#934). For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
  * (`.claude/rules/tester.md`).
@@ -2610,8 +2612,14 @@ interface Arbeidskopi {
 const ROT = process.cwd();
 const TESTBASE = process.env.KOE_TESTBASE_URL;
 
-/** Navnet på hver test i samlingen, i formen `fullName` har i rapporten. */
-function testnavn(): string[] {
+/** En test i samlingen, med fila relativt til roten. */
+interface Test {
+  navn: string;
+  fil: string;
+}
+
+/** Hver test i samlingen, med navnet i formen `vitest list` gir. */
+function testnavn(): Test[] {
   const mappe = mkdtempSync(join(tmpdir(), 'feilinnfoering-navn-'));
   try {
     const ut = join(mappe, 'navn.json');
@@ -2629,13 +2637,24 @@ function testnavn(): string[] {
       throw new Error(
         `vitest list feilet (status ${r.status}, signal ${r.signal}, ${r.error ?? 'ingen feil fra spawn'}):\n${r.stderr}\n${r.stdout}`
       );
-    return (JSON.parse(readFileSync(ut, 'utf8')) as { name: string }[]).map((t) => t.name);
+    return (JSON.parse(readFileSync(ut, 'utf8')) as { name: string; file: string }[]).map((t) => ({
+      navn: t.name,
+      fil: relative(ROT, t.file),
+    }));
   } finally {
     rmSync(mappe, { recursive: true, force: true });
   }
 }
 
-function kjoerVitest(k: Arbeidskopi): Promise<Rapport> {
+/** `vitest list` skiller nivåene med ` > `, rapporten med mellomrom. */
+const harMal = (navn: string, mal: string) =>
+  treffer(navn, mal) || treffer(navn.split(' > ').join(' '), mal);
+
+/** Kjører `filer`, eller hele samlingen, i `k`. */
+function kjoerVitest(
+  k: Arbeidskopi,
+  filer = ['kjerne/', 'sprakprove/kjernelagring/']
+): Promise<Rapport> {
   const ut = `${k.rot}-rapport.json`;
   rmSync(ut, { force: true });
   const env = { ...process.env, KOE_TESTBASE_URL: k.base };
@@ -2646,9 +2665,11 @@ function kjoerVitest(k: Arbeidskopi): Promise<Rapport> {
       [
         'vitest',
         'run',
-        'kjerne/',
-        'sprakprove/kjernelagring/',
+        ...filer,
         '--no-cache',
+        // Filene deler modulene i en arbeider. Kontrollkjøringen fanger tilstand som lekker
+        // mellom dem (#934).
+        '--no-isolate',
         // Kopiene deler prosessorene. Et tidsavbrudd er ikke en assertion og kan bare
         // gi «IKKE OPPDAGET» eller rød kontroll, så grensen heves over standarden på 5 s.
         '--testTimeout=60000',
@@ -2793,7 +2814,7 @@ async function arbeider(
         fil,
         m.endringer.reduce((t, [fra, til]) => t.replace(fra, til), original)
       );
-      rapport = await kjoerVitest(k);
+      rapport = await kjoerVitest(k, filerFor(m));
     } catch (e) {
       koe.length = 0;
       throw e;
@@ -2836,8 +2857,7 @@ if (!delform || del < 1 || del > deler)
 const navn = testnavn();
 const malfeil = valgte.flatMap((m) =>
   m.mal
-    // `vitest list` skiller nivåene med ` > `, rapporten med mellomrom.
-    .filter((mal) => !navn.some((n) => treffer(n, mal) || treffer(n.split(' > ').join(' '), mal)))
+    .filter((mal) => !navn.some((n) => harMal(n.navn, mal)))
     .map(
       (mal) =>
         `${m.id}: målet «${mal}» er ikke en del av navnet på noen test (et mål treffer ikke midt i et ord eller en ID)`
@@ -2845,6 +2865,13 @@ const malfeil = valgte.flatMap((m) =>
 );
 if (malfeil.length) throw new Error(malfeil.join('\n'));
 const mutasjoner = valgte.filter((_, i) => i % deler === del - 1);
+// Avgjort av oppdragsgiver 19.10 (#934): på en PR kjører hver mutasjon bare filene med
+// målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele.
+const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
+const filerFor = (m: Mutasjon) =>
+  utvalg
+    ? [...new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil))]
+    : undefined;
 
 const antallKopier = Math.max(
   1,
@@ -2877,7 +2904,7 @@ async function kjoer(): Promise<number> {
   const kopier = lagArbeidskopier(antallKopier);
   // Kontrollen kjøres i hver kopi, så en kopi eller en base som avviker, stopper
   // kjøringen før noen mutasjon.
-  const kontroller = await Promise.all(kopier.map(kjoerVitest));
+  const kontroller = await Promise.all(kopier.map((k) => kjoerVitest(k)));
   const antallTester = new Set<number>();
   for (const kontroll of kontroller) {
     const kontrolltester = kontroll.testResults.flatMap((f) => f.assertionResults);
