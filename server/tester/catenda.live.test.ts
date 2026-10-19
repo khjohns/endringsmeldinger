@@ -12,12 +12,29 @@
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
+import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId } from '../autorisasjon.ts';
+import { kjoerEnJobb, type Jobbavhengigheter } from '../jobber.ts';
+import { lesSaken } from '../lager.ts';
+import {
+  kall as tilServeren,
+  lagOppsett,
+  opprettKjernesak,
+  rydd,
+  somJobbkjoerer,
+  startServer,
+  TESTBASE_URL,
+  type KjorendeServer,
+  type Oppsett,
+} from './testbase.ts';
 import {
   avvistUtenEndring,
   catendaFraMiljoe,
   CatendaOAuth,
   CatendaUtilgjengelig,
+  dokumentleverandoer,
+  topicoppretter,
   grunnadresse,
   sammenlignbarDokumentId,
   TOPICTYPE,
@@ -52,6 +69,18 @@ function dokumentmaal() {
 
 const PREFIKS = 'koe-livetest-';
 
+const GRUNNLAGSKRAV = {
+  type: 'krav',
+  spor: 'grunnlag',
+  innhold: {
+    hovedkategori: 'endring',
+    underkategori: 'irregulaer_endring',
+    tittel: 'Endret fundamentering',
+    paalegg_mottatt: '2026-10-01',
+  },
+  utdypning: 'Byggherren har pålagt en annen fundamentering.',
+};
+
 function itemsti(maal: ReturnType<typeof dokumentmaal>): string {
   return `/v2/projects/${maal.catenda_project_id}/libraries/${maal.library_id}/items`;
 }
@@ -60,6 +89,7 @@ const PDF = new TextEncoder().encode('%PDF-1.4\n%%EOF\n');
 describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
   let adresse: string;
   let oauth: CatendaOAuth;
+  let integrasjon: ReturnType<typeof catendaFraMiljoe>;
   let token: string;
   let prosjekt: string;
   let board: string;
@@ -86,6 +116,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     });
     adresse = grunnadresse(process.env.CATENDA_GRUNNADRESSE!, process.env.APP_ENV);
     oauth = catenda.oauth;
+    integrasjon = catenda;
     token = await catenda.integrasjonsnokkel.token();
     prosjekt = catendaId(process.env.CATENDA_PROJECT_ID)!;
     board = uuid('CATENDA_TOPIC_BOARD_ID');
@@ -208,7 +239,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       }
       for (const hva of usikre) igjen.push(`kanskje ${hva} (utfallet var usikkert, ingen ID)`);
       if (igjen.length) throw new Error(`Ble liggende igjen i Catenda: ${igjen.join('; ')}`);
-    });
+    }, 120_000);
 
     const sisteTil = (metode: string, slutt: string) =>
       [...sendt].reverse().find((k) => k.metode === metode && k.sti.endsWith(slutt))?.status;
@@ -397,5 +428,173 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
         expect(await oauth.finnDokument(maal, navn, token)).toBe(id);
       }
     );
+    // C: leveringen ende til ende (#371): `kjoerEnJobb` lager topicen og leverer brevet med
+    // de ekte leverandørene, mot en migrert testbase i SQL Server og ekte Catenda.
+    // Innpakningen setter bare `PREFIKS` foran topic-tittelen og dokumentnavnet, så
+    // brokeren slipper slettingen gjennom, og fører det som lages, til oppryddingen i B5.
+    // Forventningene har kilde i LV-U1, B-03 og «levert» i #764, som L2 i `levering.test.ts`.
+    describe.skipIf(!TESTBASE_URL)('C: leveringen ende til ende (#371)', () => {
+      let o: Oppsett;
+      let server: KjorendeServer;
+      /** Det kjøreren logger, så en live-feil i jobben står i meldingen til testen. */
+      const meldinger: string[] = [];
+      const loggfoer = (...deler: unknown[]) =>
+        meldinger.push(
+          deler.map((d) => (d instanceof Error ? `${d.name}: ${d.message}` : String(d))).join(' ')
+        );
+      const logg = { info() {}, warn: loggfoer, error: loggfoer };
+
+      const somKjoerer = <T>(setning: string, parametre: Record<string, unknown> = {}) =>
+        somJobbkjoerer<T>(o, setning, parametre);
+
+      function medPrefiks(): Pick<Jobbavhengigheter, 'catenda' | 'dokumenter'> {
+        const topics = topicoppretter(integrasjon);
+        const ekte = dokumentleverandoer(integrasjon);
+        return {
+          catenda: {
+            opprettTopic: async (boardId, topic) => {
+              const tittel = `${PREFIKS}${topic.tittel}`;
+              const guid = await lag(`topic ${tittel}`, () =>
+                topics.opprettTopic(boardId, { ...topic, tittel })
+              );
+              laget.push({
+                hva: `topic ${tittel}`,
+                sti: `/opencde/bcf/3.0/projects/${boardId}/topics/${guid}`,
+              });
+              return guid;
+            },
+          },
+          dokumenter: {
+            finnDokument: (maal, navn) => ekte.finnDokument(maal, `${PREFIKS}${navn}`),
+            lastOppDokument: async (maal, dokument) => {
+              const navn = `${PREFIKS}${dokument.navn}`;
+              const id = await lag(`dokument ${navn}`, () =>
+                ekte.lastOppDokument(maal, { ...dokument, navn })
+              );
+              if (id) laget.push({ hva: `dokument ${navn}`, sti: `${itemsti(maal)}/${id}` });
+              return id;
+            },
+            dokumentreferanser: (boardId, topic) => ekte.dokumentreferanser(boardId, topic),
+            opprettDokumentreferanse: async (boardId, topic, dokument) => {
+              const hva = `dokumentreferanse på topic ${topic}`;
+              const id = await lag(hva, () =>
+                ekte.opprettDokumentreferanse(boardId, topic, dokument)
+              );
+              laget.push({
+                hva,
+                sti: `/opencde/bcf/3.0/projects/${boardId}/topics/${topic}/document_references/${id}`,
+              });
+              return id;
+            },
+          },
+        };
+      }
+
+      const kjoer = () =>
+        kjoerEnJobb({
+          datalag: o.datalag.kjoeretid.pool,
+          ...medPrefiks(),
+          saksadresse: () => 'live-test (#902)',
+          logg,
+        });
+
+      /** Brevet med kravet om grunnlag, med den låste teksten klienten viste (LV-U2). */
+      async function sendBrev(sakId: string) {
+        const { journal } = await lesSaken(
+          o.datalag.kjoeretid.pool,
+          { aktor: o.te.id, prosjekt: o.prosjekt.id },
+          sakId
+        );
+        const vist = forhaandsvis(
+          GRUNNLAGSKRAV,
+          {
+            sakId,
+            aktoerId: o.te.id,
+            part: 'TE',
+            teamId: null,
+            tidspunkt: () => new Date(),
+            nyId: randomUUID,
+          },
+          journal,
+          KJERNE
+        );
+        if (!vist.godtatt) throw new Error('Kravet ble ikke godtatt i forhåndsvisningen');
+        const svar = await tilServeren(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp: {
+            expected_version: 1,
+            kommando_id: randomUUID(),
+            kommando: { ...GRUNNLAGSKRAV, brevtekst: laastTekst(vist.hendelser[0]) },
+          },
+        });
+        if (svar.status !== 201 && svar.status !== 200)
+          throw new Error(
+            `Brevet ble avvist: ${svar.status} ${svar.kropp.rule ?? ''} ${svar.kropp.error ?? ''}`
+          );
+      }
+
+      beforeAll(async () => {
+        o = await lagOppsett({
+          catendaProsjekt: uuid('CATENDA_PROJECT_ID'),
+          bibliotek: uuid('CATENDA_LIBRARY_ID'),
+          mappe: uuid('CATENDA_FOLDER_ID'),
+          board,
+        });
+        server = await startServer(o);
+      }, 300_000);
+      afterAll(async () => {
+        await server?.stopp();
+        if (o) await rydd(o);
+      }, 120_000);
+
+      it('C1: topicen lages, brevet lastes opp i mappen, referansen settes, og hver operasjon kvitteres', async () => {
+        const sakId = await opprettKjernesak(o);
+        expect(await kjoer()).toBe(true);
+        const topics = (
+          await somKjoerer<{ topic_id: string }>(
+            `SELECT catenda_topic_id AS topic_id FROM koe.sak_catenda_topic WHERE sak_id = @sak`,
+            { sak: sakId }
+          )
+        ).recordset;
+        expect(topics, meldinger.join('\n')).toHaveLength(1);
+        const topicId = topics[0].topic_id;
+        await sendBrev(sakId);
+        expect(await kjoer()).toBe(true);
+
+        const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id };
+        const { journal, oppdrag } = await lesSaken(o.datalag.kjoeretid.pool, leser, sakId);
+        const brev = journal.at(-1)!;
+        const navn = `${PREFIKS}brev-${sakId}-2-${brev.event_id}.pdf`;
+        const kvitteringer = (
+          await somKjoerer<{ operasjon: string; catenda_id: string }>(
+            `SELECT k.operasjon, k.catenda_id FROM koe.leveringskvittering k
+               JOIN koe.leveringsoppdrag o ON o.id = k.leveringsoppdrag_id
+              WHERE o.sak_id = @sak ORDER BY k.operasjon`,
+            { sak: sakId }
+          )
+        ).recordset;
+        const dokument = kvitteringer.find((k) => k.operasjon === 'dokument')?.catenda_id;
+        const referanse = kvitteringer.find((k) => k.operasjon === 'dokumentreferanse')?.catenda_id;
+        expect(
+          kvitteringer.map((k) => k.operasjon),
+          meldinger.join('\n')
+        ).toEqual(['dokument', 'dokumentreferanse']);
+        expect(await oauth.finnDokument(dokumentmaal(), navn, token)).toBe(dokument);
+        expect(await oauth.dokumentreferanser(board, topicId, token)).toEqual([
+          { id: referanse, dokumentId: sammenlignbarDokumentId(dokument!) },
+        ]);
+        const forsoek = (
+          await somKjoerer<{ utfall: string; tilstand: string }>(
+            `SELECT f.utfall, j.tilstand FROM koe.jobbforsoek f JOIN koe.jobb j ON j.jobb_id = f.jobb_id
+              WHERE j.sak_id = @sak AND j.jobbtype = N'levering'`,
+            { sak: sakId }
+          )
+        ).recordset;
+        expect(forsoek).toEqual([{ utfall: 'utfoert', tilstand: 'utfoert' }]);
+        expect(oppdrag.find((x) => x.event_id === brev.event_id)?.levert).not.toBeNull();
+        expect(await kjoer()).toBe(false);
+      }, 120_000);
+    });
   });
 });
