@@ -130,7 +130,7 @@ const MAKS_DYBDE = 32;
  * og sendes som `JSON.stringify` av resultatet. Da ser Catenda det samme som kontrollen, uten
  * dupliserte nøkler eller annet tegnsett. Kan kroppen ikke tolkes slik, gir det `null`.
  */
-function tolketKropp(kropp: ArrayBuffer | undefined): { verdi: object; tekst: string } | null {
+function tolketKropp(kropp: ArrayBuffer): { verdi: object; tekst: string } | null {
   try {
     const verdi: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(kropp));
     if (typeof verdi !== 'object' || verdi === null || Array.isArray(verdi) || forDyp(verdi)) return null;
@@ -199,8 +199,7 @@ function utenTagger(tekst: string): string {
 function dekodet(tekst: string): string | null {
   const tegn = (kode: number) => (kode <= 0x10ffff ? String.fromCodePoint(kode) : '');
   for (let runde = 0; runde < 10; runde++) {
-    const neste = utenTagger(
-      tekst
+    const utenKoding = tekst
       .replace(/(?:%[0-9a-f]{2})+/gi, (t) => {
         try {
           return decodeURIComponent(t);
@@ -209,8 +208,8 @@ function dekodet(tekst: string): string | null {
         }
       })
       .replace(/&#x([0-9a-f]+);?/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
-      .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)))
-    );
+      .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)));
+    const neste = utenTagger(utenKoding);
     if (neste === tekst) return tekst;
     tekst = neste;
   }
@@ -397,7 +396,7 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
         ? await lesInntil(foresp, MAKS_KROPP)
         : await foresp.arrayBuffer();
     if (raa === null) return svar(403, { feil: 'broker_avviste' });
-    const kanonisk = regel.foersjekk === 'topicendring' ? tolketKropp(raa) : undefined;
+    const kanonisk = regel.foersjekk === 'topicendring' ? tolketKropp(raa ?? new ArrayBuffer(0)) : undefined;
     if (kanonisk === null) return svar(403, { feil: 'broker_avviste' });
     const kropp = kanonisk?.tekst ?? raa;
 

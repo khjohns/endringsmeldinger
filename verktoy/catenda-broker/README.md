@@ -32,7 +32,7 @@ En PUT på en topic tolkes strengt som et JSON-objekt i UTF-8 og sendes til Cate
 kanonisk form (`JSON.stringify` av det som ble tolket, med `Content-Type: application/json`).
 En kropp som ikke er et JSON-objekt, er i et annet tegnsett, begynner med BOM, er større enn
 64 KiB eller har mer enn 32 nivåer av objekter og lister, avvises. Kroppen leses ikke
-lenger enn til grensen.
+lenger enn til den biten som går over grensen.
 Kan en nøkkel eller streng i kroppen bli prefikset, må topicen ha prefikset fra før.
 Strengen sammenlignes med `koelivetest` bare på bokstaver og sifre, etter at prosentkoding,
 tallentiteter og tagger er dekodet eller fjernet, og etter NFKC og små bokstaver. Det
@@ -51,7 +51,9 @@ rett under den kan slettes, og Catenda sletter da innholdet med.
   dekoder andre former, kan en økt likevel gi en annens topic prefikset. Eksempler som ikke
   fanges: navngitte entiteter (`&kopf;`), ugyldige UTF-8-bytes blandet med gyldige i
   prosentkoding, og prefikset inni noe som ligner en tagg (`<koe-livetest-x>`,
-  `<koe-livetest-<b>x`). Tagger fjernes fra en «<» til neste «>».
+  `<koe-livetest-<b>x`, `&#60;a koe-livetest-y>`), og tegn som først blir `%`, `&`, `<` eller
+  `>` etter NFKC (`％６Ｆ`). Tagger fjernes fra en «<» til neste «>», og bare den siste
+  formen etter dekodingen sammenlignes.
 - Oppslaget og slettingen er to kall. Flyttes et item ut av testmappen eller får en
   topic ny tittel mellom dem, slettes ressursen likevel.
 

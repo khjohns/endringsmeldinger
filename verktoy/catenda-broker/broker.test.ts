@@ -415,6 +415,38 @@ describe('endringen av en topic', () => {
     expect(performance.now() - start).toBeLessThan(2_000);
   });
 
+  it('kontrollerer 60 000 «<» uten «>» innen et par sekunder', async () => {
+    const start = performance.now();
+    const s = await behandle(put(JSON.stringify({ title: '<'.repeat(60_000), b: '<a'.repeat(1_000) })), miljoe);
+    expect(s.status).toBe(200);
+    expect(performance.now() - start).toBeLessThan(2_000);
+  });
+
+  it('sender en strømmet kropp på nøyaktig 64 KiB i flere biter', async () => {
+    const tekst = JSON.stringify({ description: '' });
+    const kropp = new TextEncoder().encode(tekst.slice(0, -2) + 'x'.repeat(64 * 1024 - tekst.length) + '"}');
+    expect(kropp.byteLength).toBe(64 * 1024);
+    let fra = 0;
+    const strom = new ReadableStream<Uint8Array>({
+      pull(k) {
+        if (fra >= kropp.byteLength) return k.close();
+        k.enqueue(kropp.slice(fra, fra + 10_000));
+        fra += 10_000;
+      },
+    });
+    const s = await behandle(
+      new Request(`https://broker.example${TOPICSTI}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${NOKKEL}`, 'Content-Type': 'application/json' },
+        body: strom,
+        duplex: 'half',
+      } as RequestInit),
+      miljoe
+    );
+    expect(s.status).toBe(200);
+    expect(metoder()).toEqual(['PUT']);
+  });
+
   it('sender vanlig tekst med mange nøstede «<…>» uten oppslag', async () => {
     const kropp = JSON.stringify({ description: '<'.repeat(12) + 'x' + '>'.repeat(12) });
     expect((await behandle(put(kropp), miljoe)).status).toBe(200);
