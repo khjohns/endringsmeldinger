@@ -35,7 +35,13 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import { feilnummer, UsikkertUtfall, UUID, type Pool as Datalag } from './datalag.ts';
+import {
+  feilnummer,
+  UgyldigKontekst,
+  UsikkertUtfall,
+  UUID,
+  type Pool as Datalag,
+} from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { fast, loggFeil, svarhoder } from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
@@ -267,9 +273,9 @@ function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
   if (feil instanceof KommandoIdBrukt)
     return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
-  // Låsen ble aldri tatt, og transaksjonen er rullet tilbake (51407).
-  if (feil instanceof LaasFeilet) {
-    loggFeil('Låsen på kommando-ID-en feilet', feil);
+  // Låsen ble aldri tatt (51407), eller ingen forbindelse ble lånt: ingenting er skrevet.
+  if (feil instanceof LaasFeilet || feil instanceof UgyldigKontekst) {
+    loggFeil('Kommandoen feilet før skrivingen', feil);
     return uventet();
   }
   return usikkert(feil);

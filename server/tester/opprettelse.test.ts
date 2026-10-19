@@ -15,6 +15,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId } from '../autorisasjon.ts';
+import { UgyldigKontekst } from '../datalag.ts';
 import { lesSaken } from '../lager.ts';
 import { sql } from './sqlserver.ts';
 import { avvisning, iTransaksjon, settInn } from './sqlserver_migrert.ts';
@@ -437,12 +438,16 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
 
   // Kilde: oppdragsgiver 19.10 i #816 p4: -999 fra `sp_getapplock` gir 51407, som serveren
   // gjør til 500. Basen kan ikke fås til å gi -999, så feilnummeret kastes i skrivingen.
-  it('51407 fra låsen gir 500 med en sikker kode, ikke UTFALL_USIKKERT (#816 p4)', async () => {
-    const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
-    const feilende = await medFeil(
+  // Og i #816 p1: en feil før skrivingen, som en ugyldig kontekst, gir en sikker kode.
+  it.each([
+    [
+      '51407 fra låsen',
       Object.assign(new Error('Kallet på låsen for kvitteringen feilet'), { number: 51407 }),
-      'nyId'
-    );
+    ],
+    ['en ugyldig kontekst', new UgyldigKontekst('Teamet er ikke 32 små heksadesimale tegn.')],
+  ])('%s gir 500 med en sikker kode, ikke UTFALL_USIKKERT (#816 p1 og p4)', async (_, feil) => {
+    const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
+    const feilende = await medFeil(feil, 'nyId');
     try {
       const svar = await kall(feilende.url, `${SAKER}/${sakId}/kommandoer`, {
         bruker: o.te,
