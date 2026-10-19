@@ -161,7 +161,7 @@ function kontroller(k: Kontekst): void {
  * (#542, `server/tester/arkitektur.test.ts`).
  */
 export function utenKontekst(pool: Pool): sql.Request {
-  return new sql.Request(pool);
+  return pool.request();
 }
 
 /**
