@@ -59,7 +59,8 @@ export class KommandoIdBrukt extends Error {}
 export class IngenTopicBoard extends Error {}
 
 /**
- * Låsen på kommando-ID-en ble ikke gitt innen tidsgrensen (51408). Denne
+ * Låsen på kommando-ID-en ble ikke gitt: tidsgrensen gikk ut, kallet ble avbrutt
+ * eller valgt som vranglåsoffer (51408). Denne
  * transaksjonen er rullet tilbake, men et forsøk med samme ID holder låsen og kan
  * ennå committe (#792 punkt 1), så utfallet er usikkert for klienten, som ved
  * `UsikkertUtfall`. En egen klasse, så `UsikkertUtfall` i datalaget bare gjelder
@@ -67,12 +68,19 @@ export class IngenTopicBoard extends Error {}
  */
 export class LaasIkkeGitt extends Error {}
 
+/**
+ * `sp_getapplock` avviste kallet (-999, 51407). Låsen ble aldri tatt, og
+ * transaksjonen er rullet tilbake, så utfallet er sikkert: ingenting er lagret (#816).
+ */
+export class LaasFeilet extends Error {}
+
 const UKJENT_SAK = 51403;
 const INGEN_BOARD = 51412;
 const KONFLIKT = 51409;
 const ID_BRUKT = 51410;
 const UGYLDIG = 51422;
 const LAAS_IKKE_GITT = 51408;
+const LAAS_FEILET = 51407;
 const FOR_GAMMELT = 51419;
 const BLOKKERT = 33504;
 
@@ -110,6 +118,8 @@ function oversett(feil: unknown, forventet: number | null): unknown {
     // Et forsøk med samme nøkkel holder låsen og kan ennå committe (#792 punkt 1).
     case LAAS_IKKE_GITT:
       return new LaasIkkeGitt(melding, { cause: feil });
+    case LAAS_FEILET:
+      return new LaasFeilet(melding, { cause: feil });
     default:
       return feil;
   }
@@ -169,7 +179,7 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * Avviser `innhold`, er svaret avvisningen, i samme form som fra `skrivHendelse`,
  * og ingenting skrives.
  *
- * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, UsikkertUtfall, og det `innhold` kaster
+ * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UsikkertUtfall, og det `innhold` kaster
  */
 export function opprettSak(
   pool: Pool,
@@ -275,7 +285,7 @@ export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
  * prøves skrivingen én gang til med et nytt tidspunkt (#599). Avvises også den,
  * kastes basens feil.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, LaasIkkeGitt, UsikkertUtfall
+ * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UsikkertUtfall
  */
 export async function skrivHendelse<A>(
   pool: Pool,

@@ -22,7 +22,8 @@
   import { projectStore } from '$lib/stores/project.svelte';
   import { formatDateNorwegian } from '$lib/utils/dateFormatters';
   import ClaimLetterView from './ClaimLetterView.svelte';
-  import { erUsikkertUtfall, nyKommandoId, opprettSak } from '$lib/api/kjerne';
+  import { nyKommandoId, opprettSak } from '$lib/api/kjerne';
+  import { sendForsoek, usikkertUtfall } from '$lib/kjernesak/forsoek';
   import { tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
   import { lagKjernesak, type Ventende } from '$lib/kjernesak/kontekst.svelte';
   import {
@@ -242,20 +243,18 @@
         kommando: opprettelse(tittel),
       });
       saveDraft(dk, utkast());
-      let opprettet;
-      try {
-        opprettet = await opprettSak(forsoek.kommandoId, forsoek.kommando, prosjektId);
-      } catch (e) {
-        if (!erUsikkertUtfall(e)) ventendeOpprettelse = null;
+      const utfall = await sendForsoek(forsoek, (f) =>
+        opprettSak(f.kommandoId, f.kommando, prosjektId)
+      );
+      if (!utfall.lagret) {
+        ventendeOpprettelse = utfall.ventende;
         saveDraft(dk, utkast());
         if (ventendeOpprettelse)
-          throw new Error(
-            'Det er usikkert om saken ble opprettet. Prøv igjen: den opprettes ikke to ganger.'
-          );
-        throw e;
+          throw new Error(usikkertUtfall('saken ble opprettet', 'den opprettes ikke to ganger'));
+        throw utfall.feil;
       }
       ventendeOpprettelse = null;
-      createdCase = { id: opprettet.sak_id, version: opprettet.versjon };
+      createdCase = { id: utfall.svar.sak_id, version: utfall.svar.versjon };
       saveDraft(dk, utkast());
     }
     // Siden er leserens side fra serveren (#705, #711), som også avgjør den.

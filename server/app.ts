@@ -44,6 +44,7 @@ import {
   IngenTopicBoard,
   KommandoIdBrukt,
   kommandosum,
+  LaasFeilet,
   LaasIkkeGitt,
   opprettSak,
   SakFinnesIkke,
@@ -242,20 +243,36 @@ const regelavvisning = ({ feil, avvisning }: { feil: string; avvisning: Avvisnin
   { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
 ];
 
-/** Svaret på en avvisning fra skrivelaget som er felles for inngangene (#743). Andre feil kastes videre. */
+/**
+ * Kommandoen kan være lagret. Klienten sender på nytt med samme kommando-ID og får
+ * kvitteringen hvis den er det (#418). En annen feil enn `UsikkertUtfall` og
+ * `LaasIkkeGitt` logges.
+ */
+function usikkert(feil: unknown): Svar {
+  if (!(feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt))
+    loggFeil('Kommandoen feilet etter at skrivingen kan ha begynt', feil);
+  return feilsvar(
+    503,
+    'UTFALL_USIKKERT',
+    'Det er usikkert om kommandoen ble lagret. Send den på nytt med samme kommando-ID.'
+  );
+}
+
+/**
+ * Svaret på en feil fra skrivelaget, felles for inngangene (#743). En feil uten egen
+ * kode er et usikkert utfall, for skrivingen kan ha begynt (oppdragsgiver 19.10, #816).
+ */
 function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
   if (feil instanceof KommandoIdBrukt)
     return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
-  // Klienten sender på nytt med samme kommando-ID og får kvitteringen hvis COMMIT lyktes (#418).
-  if (feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt)
-    return feilsvar(
-      503,
-      'UTFALL_USIKKERT',
-      'Det er usikkert om kommandoen ble lagret. Send den på nytt med samme kommando-ID.'
-    );
-  throw feil;
+  // Låsen ble aldri tatt, og transaksjonen er rullet tilbake (51407).
+  if (feil instanceof LaasFeilet) {
+    loggFeil('Låsen på kommando-ID-en feilet', feil);
+    return uventet();
+  }
+  return usikkert(feil);
 }
 
 /** Kommando-ID-en fra kroppen når den er en UUID med små bokstaver, som basen krever (51422). */
@@ -417,21 +434,26 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen. Den
   // regnes til og med brevet, så et gjentak får samme svar som det første, også om
   // saken har fått nye hendelser siden (#418, avgjørelse 2 i #764).
-  const { journal, oppdrag } = await lesSaken(
-    avh.datalag,
-    { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
-    sakId
-  );
-  const tilBrevet = journal.filter((r) => r.versjon <= utfall.rad.versjon);
-  return [
-    201,
-    {
-      success: true,
-      event_id: utfall.rad.event_id,
-      leveringsoppdrag: oppdrag.find((o) => o.event_id === utfall.rad.event_id)?.id ?? null,
-      ...sakenSomVises(tilBrevet, avh.kjerne),
-    },
-  ];
+  try {
+    const { journal, oppdrag } = await lesSaken(
+      avh.datalag,
+      { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
+      sakId
+    );
+    const tilBrevet = journal.filter((r) => r.versjon <= utfall.rad.versjon);
+    return [
+      201,
+      {
+        success: true,
+        event_id: utfall.rad.event_id,
+        leveringsoppdrag: oppdrag.find((o) => o.event_id === utfall.rad.event_id)?.id ?? null,
+        ...sakenSomVises(tilBrevet, avh.kjerne),
+      },
+    ];
+  } catch (feil) {
+    // Brevet er lagret; et nytt forsøk får kvitteringen og svaret.
+    return usikkert(feil);
+  }
 }
 
 /**
@@ -466,7 +488,12 @@ async function opprettNySak(
     return skriveavvisning(feil);
   }
   if ('avvisning' in utfall) return regelavvisning(utfall.avvisning);
-  avh.vekkJobbkjoereren();
+  try {
+    avh.vekkJobbkjoereren();
+  } catch (feil) {
+    // Saken er lagret; et nytt forsøk får kvitteringen og vekker igjen.
+    return usikkert(feil);
+  }
   return [201, { success: true, sak_id: utfall.sak_id, versjon: utfall.versjon }];
 }
 

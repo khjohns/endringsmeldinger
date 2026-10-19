@@ -363,6 +363,103 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
     30_000
   );
 
+  /** En server der `nyId` eller vekkingen av jobbkjøreren kaster én gang. */
+  async function medFeil(feil: Error, hvor: 'nyId' | 'vekkJobbkjoereren') {
+    let kastet = false;
+    const enGang = () => {
+      if (!kastet) {
+        kastet = true;
+        throw feil;
+      }
+    };
+    return startServer(
+      o,
+      hvor === 'nyId'
+        ? {
+            nyId: () => {
+              enGang();
+              return randomUUID();
+            },
+          }
+        : { vekkJobbkjoereren: enGang }
+    );
+  }
+
+  // Kilde: oppdragsgiver 19.10 i #816 p1: serveren svarer UTFALL_USIKKERT for hver feil
+  // etter at skrivingen kan ha begynt, og et nytt forsøk med samme ID får kvitteringen.
+  it('en feil etter at saken er lagret gir 503 UTFALL_USIKKERT, og et nytt forsøk med samme ID får saken (#816 p1)', async () => {
+    const feilende = await medFeil(new Error('Jobbkjøreren svarer ikke'), 'vekkJobbkjoereren');
+    try {
+      const kommando_id = randomUUID();
+      const foer = await antall();
+      const ny = () =>
+        kall(feilende.url, SAKER, {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp: { kommando_id, kommando: OPPRETT },
+        });
+      const svar = await ny();
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(503);
+      expect(svar.kropp.error).toBe('UTFALL_USIKKERT');
+      const igjen = await ny();
+      expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
+      expect((await antall()).saker).toBe(foer.saker + 1);
+    } finally {
+      await feilende.stopp();
+    }
+  });
+
+  it('en feil under skrivingen av brevet gir 503 UTFALL_USIKKERT, og et nytt forsøk med samme ID lagrer det én gang (#816 p1)', async () => {
+    const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
+    const feilende = await medFeil(new Error('Uventet'), 'nyId');
+    try {
+      const kropp = {
+        expected_version: 1,
+        kommando_id: randomUUID(),
+        kommando: await medTekst(sakId, GRUNNLAGSKRAV),
+      };
+      const send = () =>
+        kall(feilende.url, `${SAKER}/${sakId}/kommandoer`, {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp,
+        });
+      const svar = await send();
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(503);
+      expect(svar.kropp.error).toBe('UTFALL_USIKKERT');
+      const igjen = await send();
+      expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
+      expect(igjen.kropp.versjon).toBe(2);
+    } finally {
+      await feilende.stopp();
+    }
+  });
+
+  // Kilde: oppdragsgiver 19.10 i #816 p4: -999 fra `sp_getapplock` gir 51407, som serveren
+  // gjør til 500. Basen kan ikke fås til å gi -999, så feilnummeret kastes i skrivingen.
+  it('51407 fra låsen gir 500 med en sikker kode, ikke UTFALL_USIKKERT (#816 p4)', async () => {
+    const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
+    const feilende = await medFeil(
+      Object.assign(new Error('Kallet på låsen for kvitteringen feilet'), { number: 51407 }),
+      'nyId'
+    );
+    try {
+      const svar = await kall(feilende.url, `${SAKER}/${sakId}/kommandoer`, {
+        bruker: o.te,
+        prosjektId: o.prosjekt.id,
+        kropp: {
+          expected_version: 1,
+          kommando_id: randomUUID(),
+          kommando: await medTekst(sakId, GRUNNLAGSKRAV),
+        },
+      });
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(500);
+      expect(svar.kropp.error).toBe('INTERNAL_ERROR');
+    } finally {
+      await feilende.stopp();
+    }
+  });
+
   describe('en sak fra kjøretiden står aldri uten sak_opprettet (#696 krav 2)', () => {
     it('kjøretiden kan ikke legge inn en sak uten opprett_sak (229)', async () => {
       const kontekst = {

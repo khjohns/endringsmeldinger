@@ -286,24 +286,30 @@ describe('skjemaet for ny sak på TS-stien', () => {
   });
 
   // Kilde: #816 p2. «Prøv igjen» sender det som ble sendt, så skjemaet kan ikke endres imens.
-  it('låser feltene mens et forsøk med usikkert utfall venter, og låser dem opp etter et sikkert svar', async () => {
-    vi.mocked(opprettSak)
-      .mockRejectedValueOnce(new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' }))
-      .mockRejectedValueOnce(new ApiError(400, 'Prosjektet tar ikke imot saker.'));
-    const { screen, actions } = vis();
-    await waitFor(() => expect(actions()?.canSend).toBe(true));
-    const felt = () => screen.getByTestId('skjemafelt').inert;
-    expect(felt()).toBe(false);
-    actions()!.send();
-    expect(await screen.findByRole('status')).toHaveTextContent('Skjemaet er låst');
-    expect(felt()).toBe(true);
+  // En 5xx med en annen kode enn UTFALL_USIKKERT er sikker (oppdragsgiver 19.10, #816 p1).
+  it.each([
+    ['en avvisning', new ApiError(400, 'Prosjektet tar ikke imot saker.')],
+    ['en 500 med kode', new ApiError(500, 'Uventet feil.', { error: 'INTERNAL_ERROR' })],
+  ])(
+    'låser feltene mens et forsøk med usikkert utfall venter, og låser dem opp etter %s',
+    async (_, sikker) => {
+      vi.mocked(opprettSak)
+        .mockRejectedValueOnce(new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' }))
+        .mockRejectedValueOnce(sikker);
+      const { screen, actions } = vis();
+      await waitFor(() => expect(actions()?.canSend).toBe(true));
+      const felt = () => screen.getByTestId('skjemafelt').inert;
+      expect(felt()).toBe(false);
+      actions()!.send();
+      expect(await screen.findByRole('status')).toHaveTextContent('Skjemaet er låst');
+      expect(felt()).toBe(true);
 
-    actions()!.send();
-    await waitFor(() =>
-      expect(screen.getByRole('alert')).toHaveTextContent('Prosjektet tar ikke imot saker.')
-    );
-    await waitFor(() => expect(felt()).toBe(false));
-  });
+      actions()!.send();
+      await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(sikker.message));
+      await waitFor(() => expect(felt()).toBe(false));
+      expect(actions()?.sendLabel).toBe('Se brev og send');
+    }
+  );
 
   // Kilde: #705 og #711 p3: siden er leserens side fra serveren, ikke fast TE.
   it('bruker leserens side fra serveren, og sender ikke kravet uten side', async () => {
