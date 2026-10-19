@@ -25,7 +25,7 @@
   import { nyKommandoId, opprettSak } from '$lib/api/kjerne';
   import { sendForsoek, usikkertUtfall } from '$lib/kjernesak/forsoek';
   import { tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
-  import { lagKjernesak, type Ventende } from '$lib/kjernesak/kontekst.svelte';
+  import { brevhindring, lagKjernesak, type Ventende } from '$lib/kjernesak/kontekst.svelte';
   import {
     datofelt,
     gjelderEndringsordre,
@@ -264,8 +264,11 @@
     let lagret;
     if (ventendeKrav) lagret = await sak.provIgjen();
     else {
-      const tekst = sak.brevtekst(kommando);
-      // Uten tekst sender ikke konteksten kravet, og den sier hvorfor (#695), også uten side.
+      const brev = sak.brev(kommando);
+      const hindring = brev && brevhindring(brev);
+      if (hindring) throw new Error(hindring);
+      const tekst = brev && 'tekst' in brev ? brev.tekst : null;
+      // Uten side sender ikke konteksten kravet, og den sier hvorfor (#695).
       if (tekst)
         await brevkontroll.show({
           tittel: `Grunnlag – ${tittel.trim()}`,

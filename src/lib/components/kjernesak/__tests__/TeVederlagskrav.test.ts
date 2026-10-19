@@ -12,7 +12,7 @@ import { userEvent } from '@testing-library/user-event';
 import Kjernesakrom from '../Kjernesakrom.svelte';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { ApiError } from '$lib/api/client';
-import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+import { lagKjernesak, PROGRAMFEIL, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { forhaandsvis } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
@@ -398,11 +398,28 @@ describe('kontrollen før en TS-sak sender kravet', () => {
 
   it('uten låst tekst sendes ikke kravet, og TE får vite hvorfor (#719)', async () => {
     const send = vi.fn();
-    const kjernesak = { brevtekst: () => null, send } as unknown as Kjernesakkontekst;
+    const kjernesak = { brev: () => null, send } as unknown as Kjernesakkontekst;
     const kontroll = lagKravkontroll(kjernesak);
     await expect(kontroll.submit('vederlag', 'vederlag_krav_sendt', data)).rejects.toThrow(
       'Kravet er ikke sendt.'
     );
+    expect(kontroll.letter).toBeNull();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  // Kilde: #865 p2. TE ser hvorfor kjernen avviste kravet, ikke en gjetning om beløpet.
+  it.each([
+    [
+      'en avvisning gir meldingen fra kjernen',
+      { avvisning: { kode: 'X', melding: 'Kravet er allerede sendt.' } },
+      'Brevet ble ikke sendt. Kravet er allerede sendt.',
+    ],
+    ['en programfeil sier at feilen er i appen', { programfeil: PROGRAMFEIL }, PROGRAMFEIL],
+  ])('%s, og kravet sendes ikke', async (_navn, brev, melding) => {
+    const send = vi.fn();
+    const kjernesak = { brev: () => brev, send } as unknown as Kjernesakkontekst;
+    const kontroll = lagKravkontroll(kjernesak);
+    await expect(kontroll.submit('vederlag', 'vederlag_krav_sendt', data)).rejects.toThrow(melding);
     expect(kontroll.letter).toBeNull();
     expect(send).not.toHaveBeenCalled();
   });
@@ -426,7 +443,10 @@ describe('kontrollen før en TS-sak sender kravet', () => {
 
   it('kontrollen sender kravet med teksten TE bekreftet', async () => {
     const send = vi.fn().mockResolvedValue(true);
-    const kjernesak = { brevtekst: () => ['brevet TE ser'], send } as unknown as Kjernesakkontekst;
+    const kjernesak = {
+      brev: () => ({ tekst: ['brevet TE ser'] }),
+      send,
+    } as unknown as Kjernesakkontekst;
     const kontroll = lagKravkontroll(kjernesak);
     const sending = kontroll.submit('vederlag', 'vederlag_krav_sendt', data);
     await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
@@ -447,7 +467,7 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     ['vedlegg', 'vederlag', 'vederlag_krav_sendt', { ...data, vedlegg_ids: ['v-1'] }],
   ] as const)('%s avvises før brevet vises (OV-U1)', async (_navn, spor, type, d) => {
     const send = vi.fn();
-    const kjernesak = { brevtekst: () => ['tekst'], send } as unknown as Kjernesakkontekst;
+    const kjernesak = { brev: () => ({ tekst: ['tekst'] }), send } as unknown as Kjernesakkontekst;
     const kontroll = lagKravkontroll(kjernesak);
     await expect(kontroll.submit(spor, type, d)).rejects.toThrow('ennå');
     expect(kontroll.letter).toBeNull();

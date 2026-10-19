@@ -34,18 +34,6 @@ export function brevFor(
     : { avvisning: vurdert.avvisning };
 }
 
-/** Den låste teksten, eller `null` når kjernen avviser kommandoen eller ikke lager en tekst. */
-export function laastBrevtekst(
-  kommando: Record<string, unknown>,
-  sakId: string,
-  part: Part,
-  journal: Journalrad[],
-  kjerne: Kjerne
-): string[] | null {
-  const brev = brevFor(kommando, sakId, part, journal, kjerne);
-  return 'tekst' in brev ? brev.tekst : null;
-}
-
 /**
  * Avvisningen kjernen gir kravet mot en ny sak med bare opprettelsen, eller `null`.
  * Reglene for kravet, som datoen etter brevet (VS-U26), prøves da før saken

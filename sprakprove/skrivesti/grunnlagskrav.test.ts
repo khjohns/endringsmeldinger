@@ -1,6 +1,6 @@
 /**
  * Grunnlagskravet fra skjemaet for ny sak mot dagens TS-server (#666). Kommandoen
- * bygges av `grunnlagskrav` i klienten, og den låste teksten av `laastBrevtekst`,
+ * bygges av `grunnlagskrav` i klienten, og den låste teksten er den `brevFor` gir,
  * slik skjemaet gjør. Saken er en prøvesak fra testverktøyet; inngangen for
  * opprettelsen bygges i #370 (FK-7). Kilden til forventningene er VS-U26 (datoen
  * etter kategorien, og at den ikke kan være etter brevets dato), GR-U16 og LV-U2.
@@ -19,7 +19,7 @@ import {
   type Oppsett,
 } from '../../server/tester/testbase.ts';
 import { grunnlagskrav, type Grunnlagsvalg } from '../../src/lib/kjernesak/grunnlagskrav.ts';
-import { laastBrevtekst } from '../../src/lib/kjernesak/brevtekst.ts';
+import { brevFor } from '../../src/lib/kjernesak/brevtekst.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
@@ -73,7 +73,8 @@ describe.skipIf(!TESTBASE_URL)('grunnlagskravet fra skjemaet mot TS-serveren', (
       aktor_team_id: null,
       refererer_til_event_id: null,
     }));
-    const tekst = laastBrevtekst(kommando, sakId, 'TE', journal, KJERNE);
+    const brev = brevFor(kommando, sakId, 'TE', journal, KJERNE);
+    const tekst = 'tekst' in brev ? brev.tekst : null;
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
       bruker: o.te,
       prosjektId: o.prosjekt.id,

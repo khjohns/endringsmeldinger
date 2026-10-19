@@ -6,7 +6,7 @@
 
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '$lib/api/client';
-import { brevFor, laastBrevtekst } from './brevtekst';
+import { brevFor, type Brev } from './brevtekst';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
@@ -50,6 +50,27 @@ const meldingFra = (e: unknown, reserve: string | null) =>
 
 /** Meldingen til brukeren, med årsaken fra serveren eller lastingen etter når den finnes. */
 const melding = (hva: string, aarsak: string | null) => (aarsak ? `${hva} ${aarsak}` : hva);
+
+/** Kjernen kastet i stedet for å lage brevet eller avvise kommandoen (#695 p3, #865). */
+export type Programfeil = { programfeil: string };
+
+export const PROGRAMFEIL =
+  'Appen kunne ikke lage brevet på grunn av en feil i appen. Kravet er ikke avvist, men det kan ikke sendes nå.';
+
+/** Årsaken til at brevet ikke kan sendes, før noe er prøvd; `null` når det kan sendes. */
+export function brevaarsak(brev: Brev | Programfeil | null): string | null {
+  if (!brev || 'tekst' in brev) return null;
+  return 'programfeil' in brev
+    ? brev.programfeil
+    : melding('Brevet kan ikke sendes.', brev.avvisning.melding);
+}
+
+/** Det som hindrer at brevet sendes, eller `null` når det har en tekst eller ikke lager en. */
+export function brevhindring(brev: Brev | Programfeil): string | null {
+  if ('programfeil' in brev) return brev.programfeil;
+  if ('avvisning' in brev) return melding('Brevet ble ikke sendt.', brev.avvisning.melding);
+  return null;
+}
 
 export function lagKjernesak(valg: Kjernesakvalg) {
   const { sakId } = valg;
@@ -111,9 +132,20 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     }
   }
 
-  /** Den låste teksten for kommandoen mot saken slik den er lastet. Uten side er det ingen. */
-  const brevtekst = (kommando: Record<string, unknown>): string[] | null =>
-    sak && part ? laastBrevtekst(kommando, sakId, part, journal, kjerne) : null;
+  /**
+   * Brevet for kommandoen mot saken slik den er lastet: den låste teksten eller
+   * avvisningen. En programfeil i kjernen blir en melding, så visningen ikke velter.
+   * `null` før saken er lastet og uten side.
+   */
+  function brev(kommando: Record<string, unknown>): Brev | Programfeil | null {
+    if (!sak || !part) return null;
+    try {
+      return brevFor(kommando, sakId, part, journal, kjerne);
+    } catch (e) {
+      console.error(e);
+      return { programfeil: PROGRAMFEIL };
+    }
+  }
 
   /**
    * Sender kommandoen med den låste teksten. `true` når serveren lagret den; `utdatert`
@@ -138,12 +170,12 @@ export function lagKjernesak(valg: Kjernesakvalg) {
         feil = 'Du har ingen kontraktsside i saken og kan ikke sende brev i den.';
         return false;
       }
-      const brev = brevFor(kommando, sakId, part, journal, kjerne);
-      if ('avvisning' in brev) {
-        feil = melding('Brevet ble ikke sendt.', brev.avvisning.melding);
+      const vurdert = brev(kommando)!;
+      if (!('tekst' in vurdert)) {
+        feil = brevhindring(vurdert);
         return false;
       }
-      tekst = brev.tekst;
+      tekst = vurdert.tekst;
     }
     const innhold = tekst ? { ...kommando, brevtekst: tekst } : kommando;
     const igjen =
@@ -246,7 +278,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       return utdatertAarsak !== null;
     },
     last,
-    brevtekst,
+    brev,
     send: sendMedBrev,
     provIgjen,
     fjernFeil,

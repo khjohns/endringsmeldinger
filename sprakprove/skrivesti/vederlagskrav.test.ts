@@ -1,7 +1,7 @@
 /**
  * Grunnlagskravet og vederlagskravet fra skjemaene mot dagens TS-server (#667).
  * Kommandoene bygges av `grunnlagskrav` og `vederlagskrav` i klienten, og den
- * låste teksten av `laastBrevtekst`, slik skjemaene gjør. Vederlagskravet fra
+ * låste teksten er den `brevFor` gir, slik skjemaene gjør. Vederlagskravet fra
  * `TeVederlagForm` bygges av `buildEventData` og `vederlagskravFraSkjema` (#718). Saken er en prøvesak fra
  * testverktøyet. Kildene til forventningene er formatet i kjernen (bare tilbud i
  * prøven, OV-U1), avgjørelsen om valgfri utdypning (oppdragsgiver 17.10, #667)
@@ -22,7 +22,7 @@ import {
 } from '../../server/tester/testbase.ts';
 import { grunnlagskrav } from '../../src/lib/kjernesak/grunnlagskrav.ts';
 import { vederlagskrav, vederlagskravFraSkjema } from '../../src/lib/kjernesak/vederlagskrav.ts';
-import { laastBrevtekst } from '../../src/lib/kjernesak/brevtekst.ts';
+import { brevFor } from '../../src/lib/kjernesak/brevtekst.ts';
 import { somJournal } from '../../src/lib/kjernesak/journal.ts';
 import { buildEventData, getDefaults } from '../../src/lib/domain/vederlagSubmissionDomain.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
@@ -61,7 +61,8 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
   /** Som skjemaet: teksten kjernen lager for saken slik den er lastet, og kravet med den. */
   async function send(sakId: string, kommando: Record<string, unknown>) {
     const sak = await hent(sakId);
-    const tekst = laastBrevtekst(kommando, sakId, 'TE', somJournal(sakId, sak.journal), KJERNE);
+    const brev = brevFor(kommando, sakId, 'TE', somJournal(sakId, sak.journal), KJERNE);
+    const tekst = 'tekst' in brev ? brev.tekst : null;
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
       bruker: o.te,
       prosjektId: o.prosjekt.id,
