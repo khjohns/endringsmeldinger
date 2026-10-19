@@ -45,6 +45,7 @@ import {
 } from './catenda.ts';
 import { opprettPool, sql } from './datalag.ts';
 import { innloggingFraMiljoe, type Innlogging } from './innlogging.ts';
+import { webhookFraMiljoe, type Webhook } from './webhook.ts';
 import { startJobbkjoerer, type Jobbkjoerer } from './jobber.ts';
 import { lesMigrasjoner } from './migrering.ts';
 import { hindringer } from './oppstart.ts';
@@ -90,6 +91,13 @@ try {
 } catch (feil) {
   console.warn(`Innloggingen er ikke satt opp: ${(feil as Error).message}`);
 }
+// Uten hemmeligheten svarer webhooken 404, og meldingen har ikke verdien (INT-01).
+let webhook: Webhook | null = null;
+try {
+  webhook = webhookFraMiljoe();
+} catch (feil) {
+  console.warn(`Webhooken fra Catenda er ikke satt opp: ${(feil as Error).message}`);
+}
 let jobber: Jobbkjoerer | null = null;
 if (klient && innlogging) {
   const { frontend } = innlogging;
@@ -103,7 +111,7 @@ if (klient && innlogging) {
 }
 
 const server = createServer(
-  lagServer({ datalag, catenda, innlogging, vekkJobbkjoereren: () => jobber?.vekk() })
+  lagServer({ datalag, catenda, innlogging, webhook, vekkJobbkjoereren: () => jobber?.vekk() })
 );
 server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
   const adresse = server.address();

@@ -5,7 +5,7 @@
 
 /**
  * Det TS-serveren svarer på (F0b-8, #662): innloggingen, CSRF-tokenet, kjernen,
- * `GET` av prosjektene og medlemmene (F-1a, #820). Resten av `/api/projects`,
+ * `GET` av prosjektene og medlemmene (F-1a, #820) og webhooken fra Catenda (W-1a, #819). Resten av `/api/projects`,
  * som opprettelsen, endringen og deaktiveringen, ligger fortsatt i Python.
  */
 export function tilTsServeren(metode: string, url: string): boolean {
@@ -14,6 +14,7 @@ export function tilTsServeren(metode: string, url: string): boolean {
     /^\/api\/(kjerne|auth)(\/|$)/.test(sti) ||
     sti === '/api/csrf-token' ||
     (metode === 'GET' && /^\/api\/projects(\/[^/]+)?\/?$/.test(sti)) ||
-    /^\/api\/projects\/[^/]+\/members(\/|$)/.test(sti)
+    /^\/api\/projects\/[^/]+\/members(\/|$)/.test(sti) ||
+    /^\/webhook\/catenda(\/|$)/.test(sti)
   );
 }
