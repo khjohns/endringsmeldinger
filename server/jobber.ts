@@ -14,13 +14,14 @@
  * (`database/migrasjoner/20261018100000_jobber.sql`).
  */
 
-import { catendaId } from './autorisasjon.ts';
 import {
   CatendaAvvisning,
   CatendaOppsettfeil,
   CatendaUtilgjengelig,
+  medEndringsflagg,
+  sammenlignbarDokumentId,
   UsikkertCatendautfall,
-  type Brevdokument,
+  VarigCatendaavvik,
   type Dokumentleverandoer,
   type Dokumentmaal,
   type Referanse,
@@ -88,7 +89,8 @@ function forbigaaendeISql(feil: unknown): boolean {
  * andre feil lagres ikke. Bare Catenda og basen kan svikte forbigående (#795 punkt 1).
  * En annen feil går ikke over av seg selv og parkeres (#783 punkt 2): som avvist når
  * forsøket ikke har bedt Catenda om noen endring, ellers som usikker, fordi den kan
- * komme etter en endring i Catenda (#813 punkt 5).
+ * komme etter en endring i Catenda (#813 punkt 5). Et varig avvik i Catenda parkeres
+ * som avvist (#876).
  */
 function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; melding: string } {
   const kjent =
@@ -99,6 +101,7 @@ function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; meldin
   if (feil instanceof UsikkertCatendautfall) return { utfall: 'usikkert', melding };
   if (
     feil instanceof CatendaAvvisning ||
+    feil instanceof VarigCatendaavvik ||
     feil instanceof UgjennomfoerbarJobb ||
     feil instanceof UgjengivbartBrev
   )
@@ -106,23 +109,6 @@ function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; meldin
   if (feil instanceof CatendaUtilgjengelig || forbigaaendeISql(feil))
     return { utfall: 'feilet', melding };
   return { utfall: endringBedt ? 'usikkert' : 'avvist', melding };
-}
-
-/** Leverandøren, med et flagg som settes før hver endring kjøreren ber Catenda om. */
-function medEndringsflagg(dokumenter: Dokumentleverandoer, flagg: { endringBedt: boolean }) {
-  return {
-    finnDokument: (maal: Dokumentmaal, navn: string) => dokumenter.finnDokument(maal, navn),
-    dokumentreferanser: (board: string, topic: string) =>
-      dokumenter.dokumentreferanser(board, topic),
-    lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
-      flagg.endringBedt = true;
-      return dokumenter.lastOppDokument(maal, dokument);
-    },
-    opprettDokumentreferanse(board: string, topic: string, dokumentId: string) {
-      flagg.endringBedt = true;
-      return dokumenter.opprettDokumentreferanse(board, topic, dokumentId);
-    },
-  } satisfies Dokumentleverandoer;
 }
 
 /**
@@ -161,11 +147,12 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
 
   try {
     if (jobb.jobbtype === 'catenda_topic') {
-      flagg.endringBedt = true;
-      const topic = await avh.catenda.opprettTopic(jobb.catenda_board_id!, {
-        tittel: jobb.tittel!,
-        beskrivelse: `Saken i endringsappen: ${avh.saksadresse(jobb.prosjekt_id, jobb.sak_id)}`,
-      });
+      const topic = await medEndringsflagg(flagg, () =>
+        avh.catenda.opprettTopic(jobb.catenda_board_id!, {
+          tittel: jobb.tittel!,
+          beskrivelse: `Saken i endringsappen: ${avh.saksadresse(jobb.prosjekt_id, jobb.sak_id)}`,
+        })
+      );
       await kvitter('koe_api.kvitter_topic', { topic_id: [sql.NVarChar(100), topic] });
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
@@ -196,7 +183,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         },
         kvitter,
       };
-      await lever(medEndringsflagg(avh.dokumenter, flagg), jobb, lager);
+      await medEndringsflagg(flagg, () => lever(avh.dokumenter, jobb, lager));
       logg.info(`Jobben ${jobb.jobb_id} leverte brevet og vedleggene til topicen.`);
     } else {
       throw new UgjennomfoerbarJobb(`Jobbtypen ${jobb.jobbtype} er ukjent for kjøreren`);
@@ -263,7 +250,7 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
   let referanser: Referanse[] | null = null;
   const referanse = async (dokumentId: string) => {
     referanser ??= await catenda.dokumentreferanser(board, topic);
-    const id = catendaId(dokumentId);
+    const id = sammenlignbarDokumentId(dokumentId);
     const funnet = referanser.find((r) => r.dokumentId === id);
     return funnet?.id ?? (await catenda.opprettDokumentreferanse(board, topic, dokumentId));
   };

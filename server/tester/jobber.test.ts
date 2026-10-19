@@ -11,6 +11,7 @@ import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import {
   CatendaAvvisning,
   CatendaUtilgjengelig,
+  merkEndring,
   UsikkertCatendautfall,
   type NyTopic,
 } from '../catenda.ts';
@@ -105,6 +106,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       datalag: o.datalag.kjoeretid.pool,
       catenda: {
         async opprettTopic(boardId, topic) {
+          merkEndring();
           kall_.push({ boardId, topic });
           return svar();
         },
