@@ -48,6 +48,10 @@ const UGYLDIG_PROSJEKT = 52043;
 const LAAST = 52044;
 const UGYLDIG_PROSJEKTLISTE = 52045;
 
+/** Feilen er applåsen (52044), rå fra basen eller oversatt. */
+export const erLaast = (feil: unknown): boolean =>
+  feil instanceof MedlemskapetLaast || feilnummer(feil) === LAAST;
+
 /** `ugyldig` er klassen for en ugyldig liste eller innlogging; uten den gis feilen videre. */
 export function oversett(
   feil: unknown,
@@ -96,8 +100,20 @@ export async function prosjektkobling(pool: Pool, prosjekt: string): Promise<str
 }
 
 /**
+ * Utfallet av en synkronisering: om listen ble skrevet, hvor mange den hadde, hvor
+ * mange medlemskap den gjorde inaktive (0 når den ikke ble skrevet), og `hentet`,
+ * basens klokke før hentingen.
+ */
+export interface Synkronisering {
+  skrevet: boolean;
+  medlemmer: number;
+  deaktivert: number;
+  hentet: Date;
+}
+
+/**
  * Henter medlemmene fra Catenda-prosjektet prosjektet er koblet til, og skriver
- * listen med `synkroniserMedlemskap()`. Catenda-ID-en kommer fra koblingen, og
+ * listen som `synkroniserMedlemskap()`. Catenda-ID-en kommer fra koblingen, og
  * `hentet` fra basens klokke før hentingen (#638, B-04 punkt 1). Er koblingen
  * endret før listen skrives, avviser basen den.
  *
@@ -107,7 +123,7 @@ export async function synkroniserProsjekt(
   pool: Pool,
   prosjekt: string,
   hentMedlemmer: (catendaProsjekt: string) => Promise<Medlem[]>
-): Promise<boolean> {
+): Promise<Synkronisering> {
   const catendaProsjekt = await prosjektkobling(pool, prosjekt);
   if (!catendaProsjekt) throw new FeilCatendaProsjekt('Prosjektet har ingen aktiv kobling');
   return synkroniserKobling(pool, { prosjekt, catendaProsjekt }, hentMedlemmer);
@@ -124,10 +140,14 @@ export async function synkroniserKobling(
   pool: Pool,
   kobling: { prosjekt: string; catendaProsjekt: string },
   hentMedlemmer: (catendaProsjekt: string) => Promise<Medlem[]>
-): Promise<boolean> {
+): Promise<Synkronisering> {
   const hentet = await basensKlokke(pool);
   const medlemmer = await hentMedlemmer(kobling.catendaProsjekt);
-  return synkroniserMedlemskap(pool, { ...kobling, hentet, medlemmer });
+  return {
+    ...(await skrivMedlemsliste(pool, { ...kobling, hentet, medlemmer })),
+    medlemmer: medlemmer.length,
+    hentet,
+  };
 }
 
 /**
@@ -165,6 +185,13 @@ export async function synkroniserMedlemskap(
   pool: Pool,
   liste: { prosjekt: string; catendaProsjekt: string; hentet: Date; medlemmer: Medlem[] }
 ): Promise<boolean> {
+  return (await skrivMedlemsliste(pool, liste)).skrevet;
+}
+
+async function skrivMedlemsliste(
+  pool: Pool,
+  liste: { prosjekt: string; catendaProsjekt: string; hentet: Date; medlemmer: Medlem[] }
+): Promise<{ skrevet: boolean; deaktivert: number }> {
   const medlemmer = liste.medlemmer.map((m) => ({
     subject: m.subjekt,
     email: m.epost,
@@ -179,8 +206,9 @@ export async function synkroniserMedlemskap(
       .input('medlemmer', sql.NVarChar(sql.MAX), JSON.stringify(medlemmer))
       .input('hentet', sql.DateTime2(3), liste.hentet)
       .output('skrevet', sql.Bit)
+      .output('deaktivert', sql.Int)
       .execute('koe_api.synkroniser_medlemskap');
-    return svar.output.skrevet === true;
+    return { skrevet: svar.output.skrevet === true, deaktivert: svar.output.deaktivert ?? 0 };
   } catch (feil) {
     throw oversett(feil, UgyldigMedlemsliste);
   }

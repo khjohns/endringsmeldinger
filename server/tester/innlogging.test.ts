@@ -22,7 +22,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { catendaId, sesjonsnavn } from '../autorisasjon.ts';
-import { CatendaUtilgjengelig, type CatendaBruker } from '../catenda.ts';
+import { CatendaUtilgjengelig, catendaFraMiljoe, type CatendaBruker } from '../catenda.ts';
 import { innloggingFraMiljoe, tryggRetursti, type Innloggingsleverandoer } from '../innlogging.ts';
 import { synkroniserMedlemskap, type Medlem } from '../medlemskap.ts';
 import { opprettInnloggingsforsoek, opprettSesjon } from '../sesjon.ts';
@@ -89,6 +89,11 @@ describe('innloggingen fra miljøet, som validate_config', () => {
 
   it('gir opprinnelsen uten / til slutt', () => {
     expect(innloggingFraMiljoe(miljoe).frontend).toBe('https://app.example.no');
+  });
+
+  it('bruker klienten integrasjonen har, når den er gitt (#726 punkt 4)', () => {
+    const klient = catendaFraMiljoe(miljoe);
+    expect(innloggingFraMiljoe(miljoe, klient).oauth).toBe(klient.oauth);
   });
 
   it('godtar HTTP mot localhost bare i utvikling', () => {

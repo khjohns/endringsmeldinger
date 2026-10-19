@@ -14,13 +14,14 @@
  * (`database/migrasjoner/20261018100000_jobber.sql`).
  */
 
-import { catendaId } from './autorisasjon.ts';
 import {
   CatendaAvvisning,
   CatendaOppsettfeil,
   CatendaUtilgjengelig,
+  medEndringsflagg,
+  sammenlignbarDokumentId,
   UsikkertCatendautfall,
-  type Brevdokument,
+  VarigCatendaavvik,
   type Dokumentleverandoer,
   type Dokumentmaal,
   type Referanse,
@@ -29,7 +30,10 @@ import {
 import { feilnummer, sql, type Pool } from './datalag.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
-/** Lengre enn tidsavbruddet mot Catenda (15 s) ganger kallene i en levering, med kvitteringen. */
+/**
+ * Lengre enn ett steg: tidsavbruddet mot Catenda (15 s) ganger de fem kallene for ett
+ * dokument, med kvitteringene. Leveringen fornyer leasen før hvert vedlegg og før brevet.
+ */
 export const LEASETID_S = 120;
 export const POLLEINTERVALL_MS = 10_000;
 
@@ -85,7 +89,8 @@ function forbigaaendeISql(feil: unknown): boolean {
  * andre feil lagres ikke. Bare Catenda og basen kan svikte forbigående (#795 punkt 1).
  * En annen feil går ikke over av seg selv og parkeres (#783 punkt 2): som avvist når
  * forsøket ikke har bedt Catenda om noen endring, ellers som usikker, fordi den kan
- * komme etter en endring i Catenda (#813 punkt 5).
+ * komme etter en endring i Catenda (#813 punkt 5). Et varig avvik i Catenda parkeres
+ * som avvist (#876).
  */
 function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; melding: string } {
   const kjent =
@@ -96,6 +101,7 @@ function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; meldin
   if (feil instanceof UsikkertCatendautfall) return { utfall: 'usikkert', melding };
   if (
     feil instanceof CatendaAvvisning ||
+    feil instanceof VarigCatendaavvik ||
     feil instanceof UgjennomfoerbarJobb ||
     feil instanceof UgjengivbartBrev
   )
@@ -103,23 +109,6 @@ function utfallAv(feil: unknown, endringBedt: boolean): { utfall: Utfall; meldin
   if (feil instanceof CatendaUtilgjengelig || forbigaaendeISql(feil))
     return { utfall: 'feilet', melding };
   return { utfall: endringBedt ? 'usikkert' : 'avvist', melding };
-}
-
-/** Leverandøren, med et flagg som settes før hver endring kjøreren ber Catenda om. */
-function medEndringsflagg(dokumenter: Dokumentleverandoer, flagg: { endringBedt: boolean }) {
-  return {
-    finnDokument: (maal: Dokumentmaal, navn: string) => dokumenter.finnDokument(maal, navn),
-    dokumentreferanser: (board: string, topic: string) =>
-      dokumenter.dokumentreferanser(board, topic),
-    lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
-      flagg.endringBedt = true;
-      return dokumenter.lastOppDokument(maal, dokument);
-    },
-    opprettDokumentreferanse(board: string, topic: string, dokumentId: string) {
-      flagg.endringBedt = true;
-      return dokumenter.opprettDokumentreferanse(board, topic, dokumentId);
-    },
-  } satisfies Dokumentleverandoer;
 }
 
 /**
@@ -139,13 +128,16 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   const kvitter: Kvitter = async (prosedyre, parametre) => {
     try {
       const foresp = lease();
-      for (const [navn, verdi] of Object.entries(parametre))
-        foresp.input(navn, sql.NVarChar(100), verdi);
+      for (const [navn, [type, verdi]] of Object.entries(parametre))
+        foresp.input(navn, type, verdi);
       await foresp.execute(prosedyre);
     } catch (feil) {
+      // Leveringen avstemmes mot Catenda ved neste forsøk, så den prøves igjen som `feilet`.
+      if (jobb.jobbtype === 'levering' && forbigaaendeISql(feil)) throw feil;
       // Endringen finnes i Catenda uten kvittering; neste henting parkerer jobben som usikker.
+      const verdier = Object.entries(parametre).map(([navn, [, verdi]]) => `${navn}=${verdi}`);
       logg.error(
-        `Jobben ${jobb.jobb_id} fikk ${Object.values(parametre).join(', ')} fra Catenda, men kvitteringen ble avvist:`,
+        `Jobben ${jobb.jobb_id} fikk ${verdier.join(', ')} fra Catenda, men kvitteringen ble avvist:`,
         feil
       );
       throw new AvvistKvittering('Kvitteringen ble avvist', { cause: feil });
@@ -155,12 +147,13 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
 
   try {
     if (jobb.jobbtype === 'catenda_topic') {
-      flagg.endringBedt = true;
-      const topic = await avh.catenda.opprettTopic(jobb.catenda_board_id!, {
-        tittel: jobb.tittel!,
-        beskrivelse: `Saken i endringsappen: ${avh.saksadresse(jobb.prosjekt_id, jobb.sak_id)}`,
-      });
-      await kvitter('koe_api.kvitter_topic', { topic_id: topic });
+      const topic = await medEndringsflagg(flagg, () =>
+        avh.catenda.opprettTopic(jobb.catenda_board_id!, {
+          tittel: jobb.tittel!,
+          beskrivelse: `Saken i endringsappen: ${avh.saksadresse(jobb.prosjekt_id, jobb.sak_id)}`,
+        })
+      );
+      await kvitter('koe_api.kvitter_topic', { topic_id: [sql.NVarChar(100), topic] });
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topic} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
       const brevPdf = async (pdf: Uint8Array | null) => {
@@ -172,6 +165,11 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         return rad ? new Uint8Array(rad.pdf) : null;
       };
       const lager: Leveringslager = {
+        async fornyLease() {
+          await lease()
+            .input('leasetid_sekunder', sql.Int, LEASETID_S)
+            .execute('koe_api.forny_lease');
+        },
         lagret: () => brevPdf(null),
         lagre: async (pdf) => (await brevPdf(pdf))!,
         vedlegg: async () =>
@@ -185,7 +183,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         },
         kvitter,
       };
-      await lever(medEndringsflagg(avh.dokumenter, flagg), jobb, lager);
+      await medEndringsflagg(flagg, () => lever(avh.dokumenter, jobb, lager));
       logg.info(`Jobben ${jobb.jobb_id} leverte brevet og vedleggene til topicen.`);
     } else {
       throw new UgjennomfoerbarJobb(`Jobbtypen ${jobb.jobbtype} er ukjent for kjøreren`);
@@ -208,7 +206,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   return true;
 }
 
-type Kvitter = (prosedyre: string, parametre: Record<string, string | null>) => Promise<void>;
+type Kvitter = (
+  prosedyre: string,
+  parametre: Record<string, [type: sql.ISqlType | (() => sql.ISqlType), verdi: string | null]>
+) => Promise<void>;
 
 interface Vedleggsrad {
   vedlegg_id: string;
@@ -220,6 +221,7 @@ interface Vedleggsrad {
 
 /** Det leveringen leser og skriver i basen, med leasen til forsøket. */
 interface Leveringslager {
+  fornyLease: () => Promise<void>;
   lagret: () => Promise<Uint8Array | null>;
   lagre: (pdf: Uint8Array) => Promise<Uint8Array>;
   vedlegg: () => Promise<Vedleggsrad[]>;
@@ -248,7 +250,7 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
   let referanser: Referanse[] | null = null;
   const referanse = async (dokumentId: string) => {
     referanser ??= await catenda.dokumentreferanser(board, topic);
-    const id = catendaId(dokumentId);
+    const id = sammenlignbarDokumentId(dokumentId);
     const funnet = referanser.find((r) => r.dokumentId === id);
     return funnet?.id ?? (await catenda.opprettDokumentreferanse(board, topic, dokumentId));
   };
@@ -265,11 +267,12 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
     if (!vedlegg.finnes)
       throw new UgjennomfoerbarJobb('Et vedlegg i brevet er ikke bundet i saken');
     if (vedlegg.referanse_id) continue;
+    await lager.fornyLease();
     const kvitterVedlegg = (operasjon: string, catenda_id: string) =>
       lager.kvitter('koe_api.kvitter_vedlegg', {
-        vedlegg_id: vedlegg.vedlegg_id,
-        operasjon,
-        catenda_id,
+        vedlegg_id: [sql.UniqueIdentifier, vedlegg.vedlegg_id],
+        operasjon: [sql.NVarChar(20), operasjon],
+        catenda_id: [sql.NVarChar(100), catenda_id],
       });
     let dokumentId = vedlegg.dokument_id;
     if (!dokumentId) {
@@ -284,9 +287,10 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
   }
 
   if (oppdrag.dokument === null) {
-    await lager.kvitter('koe_api.kvitter_levering', { referanse_id: null });
+    await lager.kvitter('koe_api.kvitter_levering', { referanse_id: [sql.NVarChar(100), null] });
     return;
   }
+  await lager.fornyLease();
   let dokumentId = jobb.dokument_id;
   if (!dokumentId) {
     dokumentId = await dokument(
@@ -295,9 +299,13 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
         (await lager.lagret()) ??
         (await lager.lagre((await brevdokument(oppdrag, jobb.dokumentnoekkel!)).innhold))
     );
-    await lager.kvitter('koe_api.kvitter_dokument', { dokument_id: dokumentId });
+    await lager.kvitter('koe_api.kvitter_dokument', {
+      dokument_id: [sql.NVarChar(100), dokumentId],
+    });
   }
-  await lager.kvitter('koe_api.kvitter_levering', { referanse_id: await referanse(dokumentId) });
+  await lager.kvitter('koe_api.kvitter_levering', {
+    referanse_id: [sql.NVarChar(100), await referanse(dokumentId)],
+  });
 }
 
 export interface Jobbkjoerer {

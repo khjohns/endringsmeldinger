@@ -17,8 +17,10 @@ import {
   CatendaUtilgjengelig,
   dokumentleverandoer,
   Integrasjonsnokkel,
+  medEndringsflagg,
   TOPICTYPE,
   UsikkertCatendautfall,
+  VarigCatendaavvik,
   catendaFraMiljoe,
   type CatendaOppsett,
 } from '../catenda.ts';
@@ -369,6 +371,38 @@ describe('teammedlemmene', () => {
   });
 });
 
+describe('Catenda-prosjektet til et board (#836 punkt 2)', () => {
+  it('leser bimsync_project_id i boardets detaljer, normalisert', async () => {
+    const board = uuid(7);
+    svar = () => ({ json: { project_id: board, bimsync_project_id: PROSJEKT, name: 'KOE' } });
+    expect(await new CatendaOAuth(oppsett()).boardetsProsjekt(board, 't')).toBe(hex(PROSJEKT));
+    expect(mottatt[0].sti).toBe(`/opencde/bcf/3.0/projects/${board}`);
+    expect(mottatt[0].autorisasjon).toBe('Bearer t');
+  });
+
+  it('et ukjent board (404) gir null', async () => {
+    svar = () => ({ status: 404 });
+    expect(await new CatendaOAuth(oppsett()).boardetsProsjekt(uuid(7), 't')).toBeNull();
+  });
+
+  it.each([
+    ['uten gyldig bimsync_project_id', { project_id: uuid(7), bimsync_project_id: 'x' }],
+    ['for et annet board', { project_id: uuid(8), bimsync_project_id: PROSJEKT }],
+  ])('et svar %s avvises', async (_, json) => {
+    svar = () => ({ json });
+    await expect(new CatendaOAuth(oppsett()).boardetsProsjekt(uuid(7), 't')).rejects.toBeInstanceOf(
+      CatendaUtilgjengelig
+    );
+  });
+
+  it('en board-ID som ikke er en UUID, når ikke Catenda', async () => {
+    await expect(
+      new CatendaOAuth(oppsett()).boardetsProsjekt('x/../y', 't')
+    ).rejects.toBeInstanceOf(RangeError);
+    expect(mottatt).toHaveLength(0);
+  });
+});
+
 function jwt(exp: number): string {
   const del = (o: object) => Buffer.from(JSON.stringify(o)).toString('base64url');
   return `${del({ alg: 'none' })}.${del({ exp })}.signatur`;
@@ -515,12 +549,18 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     );
   });
 
-  it('leser referansene med dokument-ID-en normalisert som catendaId, og setter en ny (#783 punkt 4)', async () => {
+  it('leser referansene med dokument-ID-en normalisert som catendaId, ellers som den er, og setter en ny (#783 punkt 4, #876)', async () => {
     const sti = `/opencde/bcf/3.0/projects/${BOARD}/topics/topic-1/document_references`;
-    svar = () => ({ json: [{ guid: 'r1', document_guid: `{${BRUKER}}` }] });
+    svar = () => ({
+      json: [
+        { guid: 'r1', document_guid: `{${BRUKER}}` },
+        { guid: 'r2', document_guid: 'dok-1' },
+      ],
+    });
     const oauth = new CatendaOAuth(oppsett());
     expect(await oauth.dokumentreferanser(BOARD, 'topic-1', 'i')).toEqual([
       { id: 'r1', dokumentId: hex(BRUKER) },
+      { id: 'r2', dokumentId: 'dok-1' },
     ]);
     svar = () => ({ status: 201, json: { guid: 'r3' } });
     expect(await oauth.opprettDokumentreferanse(BOARD, 'topic-1', 'abcd1234', 'i')).toBe('r3');
@@ -528,9 +568,40 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(JSON.parse(mottatt[1].raa)).toEqual({ document_guid: 'abcd1234' });
   });
 
-  // Kilde: #783 punkt 3: en rad med feil form droppes ikke, så referansen lages ikke to ganger.
+  // Kilde: oppdragsgiver 19.10 (#764): raden hoppes ikke over, og avviket er varig.
   it.each<[string, unknown]>([
     ['en referanse uten dokument', [{ guid: 'r2' }]],
+    ['en referanse med et tomt dokument', [{ guid: 'r2', document_guid: '' }]],
+    ['en referanse med et dokument som ikke er tekst', [{ guid: 'r2', document_guid: 7 }]],
+  ])('%s fra Catenda gir VarigCatendaavvik (#876)', async (_n, json) => {
+    svar = () => ({ json });
+    await expect(
+      new CatendaOAuth(oppsett()).dokumentreferanser(BOARD, 'topic-1', 'i')
+    ).rejects.toBeInstanceOf(VarigCatendaavvik);
+  });
+
+  it('flagget for endring settes før en opplasting eller en ny referanse, ikke ved en lesing (#876)', async () => {
+    const oauth = new CatendaOAuth(oppsett());
+    const etter = async (kall: () => Promise<unknown>) => {
+      const flagg = { endringBedt: false };
+      await medEndringsflagg(flagg, kall).catch(() => {});
+      return flagg.endringBedt;
+    };
+    svar = () => ({ json: [] });
+    expect(await etter(() => oauth.dokumentreferanser(BOARD, 'topic-1', 'i'))).toBe(false);
+    expect(await etter(() => oauth.finnDokument(maal, dokument.navn, 'i'))).toBe(false);
+    svar = () => ({ status: 500, json: {} });
+    expect(await etter(() => oauth.lastOppDokument(maal, dokument, 'i'))).toBe(true);
+    expect(await etter(() => oauth.opprettDokumentreferanse(BOARD, 'topic-1', 'd', 'i'))).toBe(
+      true
+    );
+    expect(
+      await etter(() => oauth.opprettTopic(BOARD, { tittel: 't', beskrivelse: 'b' }, 'i'))
+    ).toBe(true);
+  });
+
+  // Kilde: #783 punkt 3: en rad med feil form droppes ikke, så referansen lages ikke to ganger.
+  it.each<[string, unknown]>([
     ['en referanse uten GUID', [{ document_guid: BRUKER }]],
     ['en referanse med en GUID over 100 tegn', [{ guid: 'r'.repeat(101), document_guid: BRUKER }]],
   ])('%s fra Catenda gir CatendaUtilgjengelig', async (_n, json) => {
@@ -685,6 +756,16 @@ describe('oppsettet fra miljøet', () => {
     const { oauth, integrasjonsnokkel } = catendaFraMiljoe(miljoe);
     expect(new URL(oauth.autorisasjonsadresse('s')).origin).toBe('https://api.catenda.com');
     expect(integrasjonsnokkel).toBeInstanceOf(Integrasjonsnokkel);
+  });
+
+  it('sender tilbakekallsadressen normalisert, som frontenden i innloggingen (#854 punkt 4)', () => {
+    const { oauth } = catendaFraMiljoe({
+      ...miljoe,
+      CATENDA_LOGIN_REDIRECT_URI: 'https://Endring.øbf.example:443/api/auth/catenda/callback',
+    });
+    expect(new URL(oauth.autorisasjonsadresse('s')).searchParams.get('redirect_uri')).toBe(
+      'https://endring.xn--bf-kka.example/api/auth/catenda/callback'
+    );
   });
 
   it.each(['CATENDA_CLIENT_ID', 'CATENDA_CLIENT_SECRET', 'CATENDA_LOGIN_REDIRECT_URI'])(

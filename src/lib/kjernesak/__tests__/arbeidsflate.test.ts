@@ -34,6 +34,7 @@ describe('TS-saken i Kontrollrommet etter en ny lasting', () => {
     let finnes = true;
     const kjernesak = lagKjernesak({
       sakId: SAK,
+      prosjektId: 'p-1',
       hent: async () => {
         if (!finnes) throw new ApiError(404, 'Saken finnes ikke.');
         return svar(medVederlag, 'TE');
@@ -61,6 +62,7 @@ describe('TS-saken i Kontrollrommet etter en ny lasting', () => {
     ] as const) {
       const kjernesak = lagKjernesak({
         sakId: SAK,
+        prosjektId: 'p-1',
         hent: async () => svar(medVederlag.slice(0, 2), part),
       });
       await kjernesak.last();

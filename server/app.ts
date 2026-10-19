@@ -30,18 +30,21 @@ import {
   lesKontraktsside,
   Nektet,
   type Bruker,
+  type FraSti,
   type Catenda,
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import { UsikkertUtfall, UUID, type Kontekst, type Pool as Datalag } from './datalag.ts';
+import { feilnummer, UsikkertUtfall, UUID, type Pool as Datalag } from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
+import { fast, loggFeil, svarhoder } from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
-import { lesAktornavn, lesSaken } from './lager.ts';
+import { lesSaken } from './lager.ts';
 import {
   IngenTopicBoard,
   KommandoIdBrukt,
   kommandosum,
+  LaasIkkeGitt,
   opprettSak,
   SakFinnesIkke,
   SkrivingAvvist,
@@ -224,12 +227,12 @@ function kroppsfeil(verdi: unknown): string | null {
   return null;
 }
 
-const UVENTET: Svar = [500, { success: false, error: 'INTERNAL_ERROR', message: 'Uventet feil.' }];
-
 const feilsvar = (status: number, error: string, message: string): Svar => [
   status,
   { success: false, error, message },
 ];
+/** Et nytt svar hver gang, så ingen kode kan endre kroppen i et senere svar (#763 punkt 7). */
+const uventet = () => feilsvar(500, 'INTERNAL_ERROR', 'Uventet feil.');
 const ugyldig = (melding: string) => feilsvar(400, 'UGYLDIG_FORESPOERSEL', melding);
 const finnesIkke = () => feilsvar(404, 'SAK_FINNES_IKKE', 'Saken finnes ikke.');
 
@@ -246,7 +249,7 @@ function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof KommandoIdBrukt)
     return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
   // Klienten sender på nytt med samme kommando-ID og får kvitteringen hvis COMMIT lyktes (#418).
-  if (feil instanceof UsikkertUtfall)
+  if (feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt)
     return feilsvar(
       503,
       'UTFALL_USIKKERT',
@@ -275,40 +278,30 @@ function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
   return { versjon: u.versjon, visning: visning(u, kjerne.regler) };
 }
 
-/**
- * Navnet bak aktørene i saken. Navnet er en visningsdetalj: et oppslag som
- * feiler, logges og gir ingen navn, så visningen faller tilbake til identiteten
- * og aldri velter (AGENTS.md, `backend/lib/aktor_navn.py`).
- */
-async function aktornavn(datalag: Datalag, kontekst: Kontekst, sakId: string) {
-  try {
-    return await lesAktornavn(datalag, kontekst, sakId);
-  } catch (feil) {
-    console.warn(
-      `Navneoppslaget i saken ${sakId} feilet (${(feil as Error)?.constructor?.name ?? typeof feil})`
-    );
-    return new Map<string, string>();
-  }
-}
-
 async function visSaken(
   { bruker, prosjekt, sakId }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
   const kontekst = { aktor: bruker.id, prosjekt: prosjekt.prosjektId };
   // Leserens side er for visningen; lesingen krever den ikke (#705).
-  let saken, side, navn;
+  let saken, side;
   try {
-    [saken, side, navn] = await Promise.all([
-      lesSaken(avh.datalag, kontekst, sakId),
+    [saken, side] = await Promise.all([
+      lesSaken(avh.datalag, kontekst, sakId, { navn: true }),
       lesKontraktsside(avh.datalag, avh.catenda, prosjekt),
-      aktornavn(avh.datalag, kontekst, sakId),
     ]);
   } catch (feil) {
     if (feil instanceof SakFinnesIkke) return finnesIkke();
     throw feil;
   }
-  const { journal, oppdrag } = saken;
+  const { journal, oppdrag, navn, navnefeil } = saken;
+  // Et navneoppslag som feiler, gir identiteten (AGENTS.md). Loggen har feilen, ingen navn.
+  if ('navnefeil' in saken) {
+    const klasse = (navnefeil as Error)?.constructor?.name ?? typeof navnefeil;
+    console.warn(
+      `Navneoppslaget i saken ${sakId} feilet (${klasse}, feilnummer ${feilnummer(navnefeil) ?? 'ukjent'})`
+    );
+  }
   return [
     200,
     {
@@ -441,14 +434,6 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   ];
 }
 
-/** Kjernens avvisning av opprettelsen; kastes for at transaksjonen skal rulles tilbake. */
-class Regelavvisning {
-  readonly vurdert: { feil: string; avvisning: Avvisning };
-  constructor(vurdert: { feil: string; avvisning: Avvisning }) {
-    this.vurdert = vurdert;
-  }
-}
-
 /**
  * Oppretter saken med `sak_opprettet` som versjon 1. Kjernen avgjør om kommandoen
  * godtas, med parten fra kontraktsteamet; basen lager saks-ID-en.
@@ -462,17 +447,16 @@ async function opprettNySak(
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
   const id = kommandoId(kropp);
   if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');
-  let rad;
+  let utfall;
   try {
     const kommando = { id, sha256: kommandosum({ rute: 'opprettelse', kommando: kropp.kommando }) };
     // Kjernen vurderer etter at kvitteringen er lest, så et gjentak får saken (#792 punkt 2).
-    rad = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), kommando, () => {
+    utfall = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), kommando, () => {
       const vurdert = opprettelse(kropp.kommando, side.rolle);
-      if (!vurdert.godtatt) throw new Regelavvisning(vurdert);
+      if (!vurdert.godtatt) return { skriv: false as const, avvisning: vurdert };
       return { format: vurdert.format, data: vurdert.data };
     });
   } catch (feil) {
-    if (feil instanceof Regelavvisning) return regelavvisning(feil.vurdert);
     if (feil instanceof IngenTopicBoard)
       return feilsvar(
         409,
@@ -481,8 +465,9 @@ async function opprettNySak(
       );
     return skriveavvisning(feil);
   }
+  if ('avvisning' in utfall) return regelavvisning(utfall.avvisning);
   avh.vekkJobbkjoereren();
-  return [201, { success: true, sak_id: rad.sak_id, versjon: rad.versjon }];
+  return [201, { success: true, sak_id: utfall.sak_id, versjon: utfall.versjon }];
 }
 
 const SAK = '([^/]+)';
@@ -511,8 +496,7 @@ const KJERNERUTER: readonly Saksrute[] = [
 
 const OPPRETTELSE: Opprettelsesrute = {
   metode: 'POST',
-  sti: /^\/api\/kjerne\/saker$/,
-  eksempel: () => '/api/kjerne/saker',
+  ...fast('/api/kjerne/saker'),
   tilgang: {
     prosjektrolle: 'member',
     kontraktsrolle: 'kreves',
@@ -542,14 +526,15 @@ export function lagServer(avh: Avhengigheter) {
   };
 
   /**
-   * Innloggingen, prosjekttilgangen og kontraktsrollen fra registeret, og kroppen.
-   * Uten sak i stien prøves bare sakene kroppen viser til.
+   * Innloggingen, prosjekttilgangen og kontraktsrollen fra registeret, og kroppen,
+   * i én rekkefølge for hver inngang med prosjekt (#825). Uten sak i stien prøves
+   * bare sakene kroppen viser til.
    */
   async function tilgangOgKropp(
-    tilgang: Tilgang,
+    tilgang: Tilgang | Prosjektrute['tilgang'],
     metode: Felles['metode'],
     foresporsel: IncomingMessage,
-    sakId: string | null,
+    fraSti: FraSti,
     fil = false
   ) {
     // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
@@ -563,10 +548,10 @@ export function lagServer(avh: Avhengigheter) {
       bruker,
       tilgang.prosjektrolle,
       'feil' in innhold ? {} : innhold.verdi,
-      sakId
+      fraSti
     );
     const side =
-      tilgang.kontraktsrolle === 'kreves'
+      'kontraktsrolle' in tilgang && tilgang.kontraktsrolle === 'kreves'
         ? await krevKontraktsrolle(full.datalag, full.catenda, prosjekt)
         : null;
     if ('feil' in innhold) throw innhold.feil;
@@ -592,7 +577,7 @@ export function lagServer(avh: Avhengigheter) {
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i saken.');
     }
-    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, sakId, r.fil);
+    const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, { sakId }, r.fil);
     const fil = r.fil ? await lesFil(foresporsel) : null;
     return r.behandle({ ...f, sakId, ressurs, fil }, full);
   }
@@ -619,21 +604,9 @@ export function lagServer(avh: Avhengigheter) {
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i prosjektet.');
     }
-    // Som `tilgangOgKropp`: innloggingen før kroppen, og en ugyldig kropp avvises etter tilgangen.
-    const bruker = await krevInnlogging(full.datalag, foresporsel);
-    const innhold = r.metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
-    const prosjekt = await krevProsjekttilgang(
-      full.datalag,
-      full.catenda,
-      foresporsel,
-      bruker,
-      r.tilgang.prosjektrolle,
-      'feil' in innhold ? {} : innhold.verdi,
-      null,
-      prosjektId
-    );
-    if ('feil' in innhold) throw innhold.feil;
-    const kropp = innhold.verdi as Record<string, unknown>;
+    const { bruker, prosjekt, kropp } = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, {
+      prosjektId,
+    });
     return r.behandle({ bruker, prosjekt, ressurs, kropp }, full);
   }
 
@@ -659,33 +632,26 @@ export function lagServer(avh: Avhengigheter) {
       if (treff && r.metode === metode) funnet = { r, treff };
       if (funnet) break;
     }
-    let [status, kropp, hoder]: Svar = UVENTET;
+    let [status, kropp, hoder]: Svar = uventet();
     try {
       [status, kropp, hoder] = funnet
         ? await kjoer(funnet.r, funnet.treff, foresporsel)
         : feilsvar(404, 'NOT_FOUND', 'Ukjent rute.');
     } catch (feil) {
       if (feil instanceof Nektet) [status, kropp] = [feil.status, feil.kropp];
-      else console.error(feil);
+      else loggFeil(`${metode} ${funnet?.r.sti} feilet`, feil);
     }
     // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2).
     let tekst: string | Buffer | undefined;
     try {
-      const json = kropp !== null && !Buffer.isBuffer(kropp);
-      tekst = Buffer.isBuffer(kropp) ? kropp : json ? JSON.stringify(kropp) : undefined;
-      respons.writeHead(status, {
-        ...(json ? { 'content-type': 'application/json; charset=utf-8' } : {}),
-        ...funnet?.r.hoder,
-        ...hoder,
-      });
+      tekst = kropp === null ? undefined : Buffer.isBuffer(kropp) ? kropp : JSON.stringify(kropp);
+      respons.writeHead(status, svarhoder([status, kropp, hoder], funnet?.r.hoder));
     } catch (feil) {
-      console.error(feil);
-      tekst = JSON.stringify(UVENTET[1]);
+      loggFeil('Svaret kunne ikke skrives', feil);
+      const reserve = uventet();
+      tekst = JSON.stringify(reserve[1]);
       // Node beholder årsaksfrasen fra det første forsøket, og rutens hoder gjelder også dette svaret.
-      respons.writeHead(500, 'Internal Server Error', {
-        'content-type': 'application/json; charset=utf-8',
-        ...funnet?.r.hoder,
-      });
+      respons.writeHead(500, 'Internal Server Error', svarhoder(reserve, funnet?.r.hoder));
     }
     respons.end(tekst);
   };

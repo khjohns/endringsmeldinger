@@ -17,15 +17,10 @@
  */
 
 import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './app.ts';
-import { ferskeMedlemmer } from './autorisasjon.ts';
-import { sql, type Pool } from './datalag.ts';
-import {
-  MedlemskapetLaast,
-  oversett,
-  synkroniserProsjekt,
-  UgyldigProsjekt,
-  type Medlem,
-} from './medlemskap.ts';
+import { ferskeProsjekter } from './autorisasjon.ts';
+import { sql, UUID, type Pool } from './datalag.ts';
+import { fast, loggFeil } from './inngang.ts';
+import { erLaast, synkroniserProsjekt } from './medlemskap.ts';
 
 interface Prosjektrad {
   id: string;
@@ -63,13 +58,17 @@ async function brukerensProsjekter(
   try {
     const foer = await lesBrukerensProsjekter(avh.datalag, sesjon.bruker.id);
     if (!foer.length) return [200, { projects: [] }];
-    for (const p of foer) await ferskeMedlemmer(avh.datalag, avh.catenda, p.id);
+    await ferskeProsjekter(
+      avh.datalag,
+      avh.catenda,
+      foer.map((p) => p.id)
+    );
     // Synkroniseringen kan ha fjernet et medlemskap; den legger ikke til et prosjekt som ikke var med.
     const ider = new Set(foer.map((p) => p.id));
     const etter = await lesBrukerensProsjekter(avh.datalag, sesjon.bruker.id);
     return [200, { projects: etter.filter((p) => ider.has(p.id)).map(prosjektet) }];
   } catch (feil) {
-    console.error(feil);
+    loggFeil('Prosjektene kunne ikke leses', feil);
     return [
       503,
       {
@@ -151,30 +150,27 @@ const IKKE_OPPDATERT: Svar = [
 
 /**
  * `sync_members`: henter listen fra Catenda og skriver den. `deactivated` er
- * medlemmene som var aktive før og ikke står i listen, som `AuthService.sync`
- * teller dem; 0 når en liste hentet samtidig eller senere alt var skrevet.
+ * medlemskapene skrivingen gjorde inaktive, talt av basen under applåsen (#825
+ * punkt 1); 0 når en liste hentet samtidig eller senere alt var skrevet. Har
+ * tilgangskontrollen alt hentet og skrevet listen i denne forespørselen, er det
+ * den synkroniseringen som gjelder, så Catenda ikke spørres to ganger (#825 punkt 7).
  */
 async function synkroniser(
-  { bruker, prosjekt }: Prosjektforespoersel,
+  { prosjekt }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
   try {
-    const foer = await lesMedlemmer(avh.datalag, bruker.id, prosjekt.prosjektId);
-    let hentet: Medlem[] = [];
-    const skrevet = await synkroniserProsjekt(avh.datalag, prosjekt.prosjektId, async (c) => {
-      hentet = await avh.catenda.medlemmer(c);
-      return hentet;
-    });
-    const iListen = new Set(hentet.map((m) => m.subjekt));
-    const deaktivert = skrevet ? foer.filter((m) => !iListen.has(m.catenda_subject)).length : 0;
-    return [200, { success: true, members: hentet.length, deactivated: deaktivert }];
+    const { medlemmer, deaktivert } =
+      prosjekt.synkronisert ??
+      (await synkroniserProsjekt(avh.datalag, prosjekt.prosjektId, (c) =>
+        avh.catenda.medlemmer(c)
+      ));
+    return [200, { success: true, members: medlemmer, deactivated: deaktivert }];
   } catch (feil) {
-    console.error(feil);
+    loggFeil('Medlemmene kunne ikke synkroniseres', feil);
     return IKKE_OPPDATERT;
   }
 }
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** `limit_member`: leserollen for et annet aktivt medlem; kroppen er bare `viewer_override`. */
 async function begrensMedlem(
@@ -195,20 +191,21 @@ async function begrensMedlem(
     403,
     { success: false, error: 'FORBIDDEN', message: 'Du har ikke tilgang til denne endringen.' },
   ];
-  if (!ressurs || !UUID.test(ressurs)) return nekt;
+  const medlem = ressurs?.toLowerCase();
+  if (!medlem || !UUID.test(medlem)) return nekt;
   try {
     const svar = await avh.datalag
       .request()
       .input('aktor', sql.UniqueIdentifier, bruker.id)
       .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
-      .input('medlem', sql.UniqueIdentifier, ressurs)
+      .input('medlem', sql.UniqueIdentifier, medlem)
       .input('leserolle', sql.Bit, verdi)
       .output('endret', sql.Bit)
       .execute('koe_api.sett_leserolle');
     return svar.output.endret === true ? [200, { success: true }] : nekt;
   } catch (feil) {
     // Applåsen er forbigående og gir 503, som synkroniseringen; annet går til ruterens 500.
-    if (oversett(feil, UgyldigProsjekt) instanceof MedlemskapetLaast) return IKKE_OPPDATERT;
+    if (erLaast(feil)) return IKKE_OPPDATERT;
     throw feil;
   }
 }
@@ -216,8 +213,7 @@ async function begrensMedlem(
 export const PROSJEKTRUTER: readonly Rute[] = [
   {
     metode: 'GET',
-    sti: /^\/api\/projects$/,
-    eksempel: () => '/api/projects',
+    ...fast('/api/projects'),
     tilgang: {
       utenProsjekt:
         'Lista over prosjektene brukeren er medlem i; den velger prosjektet, så den kan ikke kreve ett.',

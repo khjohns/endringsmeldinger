@@ -67,8 +67,16 @@ describe('argumentene til kontraktsteam, før basen og Catenda brukes', () => {
     );
   });
 
-  it.each([['--board'], ['--navn'], ['--organisasjon'], ['--mappe']])(
-    'flagget %s gjelder bare registrer og avvises (#836)',
+  it.each([
+    ['--board'],
+    ['--navn'],
+    ['--organisasjon'],
+    ['--mappe'],
+    ['--beskrivelse'],
+    ['--catenda-prosjekt'],
+    ['--bibliotek'],
+  ])(
+    'flagget %s gjelder bare registrer og avvises (#836, listen utledet av flaggene i #868)',
     async (flagg) => {
       await expect(skript('kontraktsteam', 'p-1', flagg, 'x')).rejects.toThrow(
         new RegExp(`${flagg} gjelder bare «registrer»`)
@@ -81,6 +89,8 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
   let o: Oppsett;
   let drift: { pool: Pool; slett(): Promise<void> };
   let iCatenda: Map<string, string>;
+  /** Catenda-prosjektet til hvert board, begge i `catendaId()`-formen. */
+  const boardProsjekt = new Map<string, string>();
   let catendaKall: number;
   const linjer: string[] = [];
 
@@ -101,6 +111,10 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
           samling: async () => {
             catendaKall++;
             return [...iCatenda].map(([id, name]) => ({ user: { id, type: 'team', name } }));
+          },
+          boardetsProsjekt: async (board: string) => {
+            catendaKall++;
+            return boardProsjekt.get(catendaId(board)!) ?? null;
           },
         } as unknown as CatendaOAuth,
         token: async () => 'token',
@@ -252,6 +266,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     const t = naaFor();
     const { prosjekt, catendaProsjekt } = await nyttProsjekt(t);
     const [mappe, board, bibliotek] = [randomUUID(), randomUUID(), randomUUID()];
+    boardProsjekt.set(catendaId(board)!, catendaId(catendaProsjekt)!);
     const felles = ['--prosjekt', prosjekt, '--organisasjon', 'org-1'];
     await skript(
       'registrer',
@@ -383,6 +398,36 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     expect(await prosjektrad(prosjekt)).toBeUndefined();
   });
 
+  it('et board som ikke hører til Catenda-prosjektet, avvises før noe skrives (#836 punkt 2)', async () => {
+    const prosjekt = `p-reg-${randomUUID().slice(0, 8)}`;
+    const t = naaFor();
+    iCatenda = new Map(t.map((x) => [x.team_id, 'Team']));
+    const catendaProsjekt = randomUUID();
+    // Boardet finnes, men i et annet Catenda-prosjekt.
+    const board = randomUUID();
+    boardProsjekt.set(catendaId(board)!, catendaId(randomUUID())!);
+    const feil = await avvisning(
+      skript(
+        'registrer',
+        '--prosjekt',
+        prosjekt,
+        '--navn',
+        'Avvist',
+        '--organisasjon',
+        'org-1',
+        '--catenda-prosjekt',
+        catendaProsjekt,
+        '--bibliotek',
+        randomUUID(),
+        '--board',
+        board,
+        ...teamArgumenter(t)
+      )
+    );
+    expect(feil).toMatch(/Boardet finnes ikke i Catenda-prosjektet/);
+    expect(await prosjektrad(prosjekt)).toBeUndefined();
+  });
+
   it('uten saker erstatter listen kontraktsteamene, også når et team bytter side', async () => {
     const [bh, te] = [team(), team()];
     const { prosjekt } = await nyttProsjekt([
@@ -471,11 +516,13 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       expect((await lesKontraktsteam(drift.pool, o.prosjekt.id))!.team).toEqual(foer);
     });
 
-    it('bytte av Catenda-prosjekt avvises med 52066, også med nye team (#836, svaret 18.10 i #764)', async () => {
+    it('bytte av Catenda-prosjekt avvises før Catenda-kallet, også med nye team (#836, svaret 18.10 i #764; #868 punkt 2)', async () => {
       const foer = await kobling(o.prosjekt.id);
       const teamFoer = (await lesKontraktsteam(drift.pool, o.prosjekt.id))!.team;
       const nye = naaFor();
       iCatenda = new Map(nye.map((x) => [x.team_id, 'Team']));
+      catendaKall = 0;
+      linjer.length = 0;
       const kall = skript(
         'registrer',
         '--prosjekt',
@@ -490,9 +537,31 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
         randomUUID(),
         ...teamArgumenter(nye)
       );
-      expect(await avvisning(kall)).toBe(52066);
+      expect(await avvisning(kall)).toMatch(
+        /har saker: Catenda-prosjektet kan ikke byttes \(52066\)/
+      );
+      expect(catendaKall).toBe(0);
+      expect(linjer).toEqual([]);
       expect(await kobling(o.prosjekt.id)).toEqual(foer);
       expect((await lesKontraktsteam(drift.pool, o.prosjekt.id))!.team).toEqual(teamFoer);
+    });
+
+    it('prosedyren avviser bytte av Catenda-prosjekt med 52066 også uten skriptets kontroll (#836)', async () => {
+      const foer = await kobling(o.prosjekt.id);
+      const kall = drift.pool
+        .request()
+        .input('prosjekt', o.prosjekt.id)
+        .input('navn', 'Byttet')
+        .input('beskrivelse', null)
+        .input('organisasjon', 'org-1')
+        .input('catenda_prosjekt', randomUUID())
+        .input('bibliotek', randomUUID())
+        .input('mappe', null)
+        .input('board', null)
+        .input('team', JSON.stringify(naaFor()))
+        .execute('koe_drift.registrer_prosjekt');
+      expect(await avvisning(kall)).toBe(52066);
+      expect(await kobling(o.prosjekt.id)).toEqual(foer);
     });
 
     it('et team som fjernes, avvises med 52064, og teamene står', async () => {

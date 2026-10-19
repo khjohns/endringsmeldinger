@@ -92,7 +92,12 @@ const visRom = (kjernesak: ReturnType<typeof lagKjernesak>) =>
 
 async function vis(part: Part | null) {
   const send = vi.fn().mockResolvedValue({ event_id: 'e-3', leveringsoppdrag: 'l-1', versjon: 3 });
-  const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar(part), send });
+  const kjernesak = lagKjernesak({
+    sakId: SAK,
+    prosjektId: 'p-1',
+    hent: async () => svar(part),
+    send,
+  });
   await kjernesak.last();
   visRom(kjernesak);
   return { send };
@@ -169,7 +174,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
       .fn()
       .mockResolvedValueOnce(svar('TE'))
       .mockRejectedValueOnce(new ApiError(503, 'Catenda svarte ikke.'));
-    const kjernesak = lagKjernesak({ sakId: SAK, hent, send });
+    const kjernesak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', hent, send });
     await kjernesak.last();
     visRom(kjernesak);
     await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
@@ -201,7 +206,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
       .fn()
       .mockResolvedValueOnce(svar('TE'))
       .mockResolvedValueOnce(svar('TE', etterSending));
-    const kjernesak = lagKjernesak({ sakId: SAK, hent, send });
+    const kjernesak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', hent, send });
     await kjernesak.last();
     visRom(kjernesak);
     const uten: string[] = [];
@@ -223,7 +228,12 @@ describe('vederlagskravet fra Kontrollrommet', () => {
   });
 
   it('skjemaet for vederlagskravet lukkes når visningen bytter til et annet spor i skjemamodus (#737 p4)', async () => {
-    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE'), send: vi.fn() });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar('TE'),
+      send: vi.fn(),
+    });
     await kjernesak.last();
     const { rerender } = visRom(kjernesak);
     await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
@@ -239,7 +249,11 @@ describe('vederlagskravet fra Kontrollrommet', () => {
       spor: 'vederlag',
       innhold: { metode: 'tilbud', beloep: 1000 },
     });
-    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE', rader) });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar('TE', rader),
+    });
     await kjernesak.last();
     expect(kjernesak.handlinger).toContain('krav:vederlag');
     visRom(kjernesak);
@@ -270,7 +284,12 @@ describe('vederlagskravet fra Kontrollrommet', () => {
 
   it('når serveren avviser kravet, står skjemaet med serverens begrunnelse', async () => {
     const send = vi.fn().mockRejectedValue(new ApiError(400, 'Beløpet er ikke gyldig.'));
-    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE'), send });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar('TE'),
+      send,
+    });
     await kjernesak.last();
     visRom(kjernesak);
     await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
@@ -283,6 +302,62 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
     expect(document.querySelector('.form-content')).not.toBeNull();
     expect(leseflate()).toBeNull();
+  });
+
+  async function sendMedAvvisning(feil: Error) {
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar('TE'),
+      send: vi.fn().mockRejectedValue(feil),
+    });
+    await kjernesak.last();
+    const rom = visRom(kjernesak);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
+    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
+    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    return { rom, kjernesak, send: kontroll.getByRole('button', { name: 'Send til byggherren' }) };
+  }
+
+  // Kilde: #719 p9. Avbryt fjerner feilen; den står ikke i saksbildet etterpå.
+  it('etter Avbryt står ikke feilen fra en avvist sending (#719 p9)', async () => {
+    const { send, kjernesak } = await sendMedAvvisning(
+      new ApiError(400, 'Beløpet er ikke gyldig.')
+    );
+    await fireEvent.click(send);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Avbryt' }));
+    expect(leseflate()).not.toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(kjernesak.feil).toBeNull();
+  });
+
+  // Kilde: #719 p9 og #418. Kommandoen kan være lagret, så meldingen står til den er avklart.
+  it('etter Avbryt står meldingen om et usikkert utfall (#719 p9)', async () => {
+    const { send } = await sendMedAvvisning(new ApiError(503, 'Tjenesten svarte ikke.'));
+    await fireEvent.click(send);
+    const usikkert = 'Det er usikkert om brevet ble lagret. Prøv igjen: det lagres ikke to ganger.';
+    expect(await screen.findByRole('alert')).toHaveTextContent(usikkert);
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Avbryt' }));
+    expect(leseflate()).not.toBeNull();
+    const varsler = screen.getAllByRole('alert').map((a) => a.textContent?.trim());
+    expect(varsler).toContain(usikkert);
+  });
+
+  // Kilde: #872 p4. Skjemaet avmonteres ikke før sendingen er ferdig, og feilen vises.
+  it('bytter visningen spor mens brevet kontrolleres, står skjemaet til sendingen er ferdig (#872 p4)', async () => {
+    const { rom, send } = await sendMedAvvisning(new ApiError(400, 'Beløpet er ikke gyldig.'));
+    await rom.rerender({ view: { track: 'frist', mode: 'read', role: 'TE' } });
+    expect(document.querySelector('.form-content')).not.toBeNull();
+
+    await fireEvent.click(send);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
+    await waitFor(() => expect(document.querySelector('.form-content')).toBeNull());
+    expect(screen.getByRole('alert')).toHaveTextContent('Beløpet er ikke gyldig.');
   });
 
   it('tilbake fra brevkontrollen går til skjemaet uten å sende, og avkrysningen gjelder ikke neste brev (#729)', async () => {
@@ -338,7 +413,12 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     const send = vi
       .fn()
       .mockResolvedValue({ event_id: 'e-3', leveringsoppdrag: 'l-1', versjon: 3 });
-    const kjernesak = lagKjernesak({ sakId: SAK, hent: async () => svar('TE'), send });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar('TE'),
+      send,
+    });
     await kjernesak.last();
     expect(await kjernesak.send(kommando, ['brevet TE så'])).toBe(true);
     expect(send.mock.calls[0][3]).toMatchObject({ brevtekst: ['brevet TE så'] });

@@ -18,12 +18,13 @@
  * loggen får bare navnet på feiltypen, som i Python.
  */
 
-import { validateHeaderValue, type IncomingMessage } from 'node:http';
+import { validateHeaderName, validateHeaderValue, type IncomingMessage } from 'node:http';
 
 import type { Avhengigheter, Innlogget, Rute, Svar } from './app.ts';
 import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, type Pool } from './datalag.ts';
+import { fast, loggFeil, svarhoder } from './inngang.ts';
 import {
   basensKlokke,
   deaktiverVedInnlogging,
@@ -81,15 +82,19 @@ function kontrollerAdresse(verdi: string, miljoe: NodeJS.ProcessEnv): URL {
 }
 
 /**
- * Innloggingen fra miljøet. Kaster når oppsettet mangler eller er ugyldig;
- * meldingen har aldri med verdiene, så hemmeligheten ikke kan havne i loggen.
+ * Innloggingen fra miljøet, med klienten integrasjonen også bruker når den er gitt
+ * (#726 punkt 4). Kaster når oppsettet mangler eller er ugyldig; meldingen har aldri
+ * med verdiene, så hemmeligheten ikke kan havne i loggen.
  */
-export function innloggingFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Innlogging {
+export function innloggingFraMiljoe(
+  miljoe: NodeJS.ProcessEnv = process.env,
+  catenda?: { oauth: CatendaOAuth }
+): Innlogging {
   const frontend = kontrollerAdresse(miljoe.AUTH_FRONTEND_URL ?? '', miljoe);
   if (frontend.pathname !== '/') throw new Error('AUTH_FRONTEND_URL må være en opprinnelse');
   kontrollerAdresse(miljoe.CATENDA_LOGIN_REDIRECT_URI ?? '', miljoe);
   // Opprinnelsen har verten i punycode, så adressen kan stå i `Location` (#763 punkt 8).
-  return { frontend: frontend.origin, oauth: catendaFraMiljoe(miljoe).oauth };
+  return { frontend: frontend.origin, oauth: (catenda ?? catendaFraMiljoe(miljoe)).oauth };
 }
 
 /**
@@ -143,10 +148,16 @@ const omdiriger = (adresse: string, kapsler: string[]): Svar => [
   { Location: adresse, 'Set-Cookie': kapsler },
 ];
 
-/** Kaster som `writeHead` for et hode Node ikke godtar. */
-function kontrollerHoder([, , hoder]: Svar): void {
-  for (const [navn, verdi] of Object.entries(hoder ?? {}))
-    for (const v of [verdi].flat()) validateHeaderValue(navn, v);
+/**
+ * Kaster som `writeHead` for et navn eller en verdi Node ikke godtar, i hodene
+ * ruteren skriver for svaret på `rute` (#854 punkt 2).
+ */
+function kontrollerHoder(svar: Svar, rute: Rute): void {
+  for (const [navn, verdi] of Object.entries(svarhoder(svar, rute.hoder)))
+    for (const v of verdi === undefined ? [] : [verdi].flat()) {
+      validateHeaderName(navn);
+      validateHeaderValue(navn, String(v));
+    }
 }
 
 const utilgjengelig = (): Svar => [
@@ -192,9 +203,6 @@ async function medlemskapVedInnlogging(
   return bruker;
 }
 
-const loggFeil = (hvor: string, feil: unknown) =>
-  console.warn(`${hvor} (${(feil as Error)?.constructor?.name ?? typeof feil})`);
-
 async function loggInn(foresporsel: IncomingMessage, avh: Required<Avhengigheter>): Promise<Svar> {
   if (!avh.innlogging) return utilgjengelig();
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
@@ -239,12 +247,19 @@ async function tilbakekall(
       ]);
     // Hodene prøves før sesjonen endres, så et hode Node avviser, ikke etterlater en
     // sesjon klienten aldri fikk (#763 punkt 8). Tokenet er base64url.
-    kontrollerHoder(innlogget(''));
+    kontrollerHoder(innlogget(''), TILBAKEKALLET);
     const token = await innlogging.oauth.byttKode(kode[0]);
     const bruker = await medlemskapVedInnlogging(avh.datalag, innlogging.oauth, token);
     const sesjon = await opprettSesjon(avh.datalag, bruker);
     const gammel = informasjonskapsel(foresporsel, navn);
-    if (gammel) await slettSesjon(avh.datalag, gammel);
+    // Den nye sesjonen slettes når den gamle ikke kan slettes, så klienten beholder én (#854 punkt 1).
+    if (gammel)
+      await slettSesjon(avh.datalag, gammel).catch(async (feil) => {
+        await slettSesjon(avh.datalag, sesjon.token).catch((rydding) =>
+          loggFeil('Den nye sesjonen kunne ikke slettes etter tilbakekallet', rydding)
+        );
+        throw feil;
+      });
     return innlogget(sesjon.token);
   } catch (feil) {
     loggFeil('Tilbakekallet fra innloggingen feilet', feil);
@@ -269,11 +284,16 @@ async function csrfToken({ sesjon }: Innlogget): Promise<Svar> {
   return [200, { csrfToken: sesjon.csrfToken, expiresIn: 3600 }];
 }
 
-/** En rute med én fast sti; tegnene i stien står for seg selv i uttrykket (#716 punkt 4). */
-export const fast = (sti: string) => ({
-  sti: new RegExp(`^${sti.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
-  eksempel: () => sti,
-});
+const TILBAKEKALLET: Rute = {
+  metode: 'GET',
+  ...fast('/api/auth/catenda/callback'),
+  tilgang: {
+    utenSesjon:
+      'Tilbakekallet fra Catenda, som oppretter sesjonen. Staten og innloggingskapselen binder det til forsøket.',
+  },
+  hoder: PRIVAT,
+  behandle: tilbakekall,
+};
 
 export const INNLOGGINGSRUTER: readonly Rute[] = [
   {
@@ -283,16 +303,7 @@ export const INNLOGGINGSRUTER: readonly Rute[] = [
     hoder: PRIVAT,
     behandle: loggInn,
   },
-  {
-    metode: 'GET',
-    ...fast('/api/auth/catenda/callback'),
-    tilgang: {
-      utenSesjon:
-        'Tilbakekallet fra Catenda, som oppretter sesjonen. Staten og innloggingskapselen binder det til forsøket.',
-    },
-    hoder: PRIVAT,
-    behandle: tilbakekall,
-  },
+  TILBAKEKALLET,
   {
     metode: 'GET',
     ...fast('/api/auth/session'),
