@@ -47,6 +47,25 @@ for fil in "${migrasjoner[@]}"; do
   "${psql_kjor[@]}" -f "$fil"
 done
 
+# Radene migrasjonene la inn, tatt vare på mens basen er ren. Den skrivbare
+# testfixturen setter `public` tilbake til dem etter hver test, også når en
+# avbrutt kjøring har etterlatt rader (#697).
+"${psql_kjor[@]}" <<'SQL'
+CREATE SCHEMA koe_testbase;
+REVOKE ALL ON SCHEMA koe_testbase FROM PUBLIC;
+CREATE TABLE koe_testbase.frodata (tabell text PRIMARY KEY, rader jsonb[] NOT NULL);
+DO $$
+DECLARE
+  tabell text;
+BEGIN
+  FOR tabell IN SELECT oid::regclass::text FROM pg_class
+                 WHERE relnamespace = 'public'::regnamespace AND relkind IN ('r', 'p') LOOP
+    EXECUTE format('INSERT INTO koe_testbase.frodata
+                    SELECT %L, coalesce(array_agg(to_jsonb(t)), ''{}'') FROM %s t', tabell, tabell);
+  END LOOP;
+END $$;
+SQL
+
 # Den skrivbare testfixturen skriver bare til en base med dette merket.
 "${psql_kjor[@]}" -c "DO \$\$ BEGIN
   EXECUTE format('COMMENT ON DATABASE %I IS %L', current_database(), 'koe-kastbar-testbase');

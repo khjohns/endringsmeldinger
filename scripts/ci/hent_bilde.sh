@@ -39,7 +39,7 @@ done
 # dreper gruppen, også stopper hentingen (#761).
 hent() {
   if command -v timeout > /dev/null; then
-    timeout --foreground 180 docker pull --quiet "$1"
+    timeout --foreground -k 10 180 docker pull --quiet "$1"
   else
     docker pull --quiet "$1"
   fi

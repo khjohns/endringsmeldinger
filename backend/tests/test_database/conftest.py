@@ -101,7 +101,9 @@ def testinnstillinger(url: str, **overstyr):
 
 
 def les_frodata(url: str):
-    """Radene i `public` og rekkefølgen tabellene kan tømmes i."""
+    """Radene migrasjonene la inn i `public`, slik `bygg_testbase.sh` tok vare på
+    dem i `koe_testbase.frodata` mens basen var ren, og rekkefølgen tabellene kan
+    tømmes i. Rader en avbrutt kjøring etterlot, regnes ikke med (#697)."""
     import psycopg
 
     with psycopg.connect(url, autocommit=True) as tilkobling:
@@ -113,12 +115,13 @@ def les_frodata(url: str):
                 " AND relkind IN ('r', 'p') ORDER BY 1"
             )
         ]
-        rader = {
-            tabell: tilkobling.execute(
-                f"SELECT coalesce(array_agg(to_jsonb(t)), '{{}}') FROM {tabell} t"
-            ).fetchone()[0]
-            for tabell in tabeller
-        }
+        rader = dict(tilkobling.execute("SELECT tabell, rader FROM koe_testbase.frodata"))
+        if set(rader) != set(tabeller):
+            pytest.fail(
+                "Tabellene i public er ikke de bygg_testbase.sh tok frødata fra. "
+                "Bygg basen på nytt med scripts/testbase/bygg_paa_nytt.sh.",
+                pytrace=False,
+            )
         avhengig = TopologicalSorter()
         for tabell in tabeller:
             avhengig.add(tabell)
@@ -134,11 +137,7 @@ def les_frodata(url: str):
 
 @pytest.fixture(scope="session")
 def _frodata(testbase_url):
-    """Radene migrasjonene la inn, lest før første skrivbare test.
-
-    Øyeblikksbildet stoler på basen slik den er ved oppstart. En kjøring som
-    ble drept midt i en test, kan ha etterlatt rader; bygg basen på nytt da.
-    """
+    """Radene migrasjonene la inn, fra øyeblikksbildet bygget tok."""
     return les_frodata(testbase_url)
 
 

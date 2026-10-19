@@ -50,7 +50,7 @@ export function koble(database: string, maks: number): Promise<Pool> {
  * En forbindelse til `master`. Hooken starter serveren i bakgrunnen, så de
  * første testene etter oppstarten av økta venter på den, i opptil `frist` ms.
  */
-async function kobleTilServer(frist: number): Promise<Pool> {
+export async function kobleTilServer(frist: number): Promise<Pool> {
   const slutt = Date.now() + frist;
   for (;;) {
     try {
@@ -99,17 +99,10 @@ export async function opprettTestbase(
   { maks = 8, azure = true, frist = 180_000 } = {}
 ): Promise<Testbase> {
   if (!SQLSERVER_TILKOBLING) throw new Error('KOE_SQLSERVER_TILKOBLING er ikke satt.');
-  const database = `koe_test_${navn}_${randomBytes(4).toString('hex')}`;
+  const database = testbasenavn(navn);
   const master = await kobleTilServer(frist);
   try {
-    const utgave = await master.request().query<{
-      utgave: string;
-    }>(`SELECT CAST(SERVERPROPERTY('Edition') AS nvarchar(128)) AS utgave`);
-    if (!utgave.recordset[0].utgave.includes('Developer Edition')) {
-      throw new Error(
-        `KOE_SQLSERVER_TILKOBLING peker på ${utgave.recordset[0].utgave}, ikke på en kastbar server i Developer Edition.`
-      );
-    }
+    await krevDeveloperEdition(master);
     if (azure) {
       await master.request().batch(
         `CREATE DATABASE [${database}] COLLATE ${AZURE_INNSTILLINGER.sortering};
@@ -122,6 +115,24 @@ export async function opprettTestbase(
   } finally {
     await master.close();
   }
+  return somTestbase(database, maks);
+}
+
+export const testbasenavn = (navn: string) => `koe_test_${navn}_${randomBytes(4).toString('hex')}`;
+
+export async function krevDeveloperEdition(master: Pool): Promise<void> {
+  const utgave = await master.request().query<{
+    utgave: string;
+  }>(`SELECT CAST(SERVERPROPERTY('Edition') AS nvarchar(128)) AS utgave`);
+  if (!utgave.recordset[0].utgave.includes('Developer Edition')) {
+    throw new Error(
+      `KOE_SQLSERVER_TILKOBLING peker på ${utgave.recordset[0].utgave}, ikke på en kastbar server i Developer Edition.`
+    );
+  }
+}
+
+/** Basen `database`, som finnes på serveren, med en pool og `slett()`. */
+export async function somTestbase(database: string, maks: number): Promise<Testbase> {
   const pool = await koble(database, maks);
   return {
     navn: database,
