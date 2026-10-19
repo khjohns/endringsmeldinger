@@ -14,7 +14,7 @@
  * utdypningen (KA-U16, KA-U19).
  */
 
-import { HJEMMEL } from '../format/format.ts';
+import { DATOEN_GJELDER, HJEMMEL } from '../format/format.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import { beloep } from '../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../regler/grunnlag.ts';
@@ -27,6 +27,7 @@ import {
   grunnerFraGrunnlaget,
   innsigelsenErOppgitt,
   innsigelsenPaaberoper,
+  krevdBeloep,
   kroner,
 } from './standpunkt.ts';
 import type {
@@ -313,7 +314,9 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
         );
       // VS-U26: TEs opplysning, etter setningen om § 32.2. Appen vurderer ikke rettidigheten.
       if (typeof k.innhold.paalegg_mottatt === 'string')
-        deler.push(`TE opplyser at pålegget ble mottatt ${norskDato(k.innhold.paalegg_mottatt)}.`);
+        deler.push(
+          `TE opplyser at ${DATOEN_GJELDER.paalegg_mottatt} ${norskDato(k.innhold.paalegg_mottatt)}.`
+        );
     } else if (LEDD_I_33_1[hoved] && u) {
       const ledd = LEDD_I_33_1[hoved];
       const hjemmel =
@@ -326,7 +329,7 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
       // VS-U26: etter kategorisetningen.
       if (typeof k.innhold.klar_over_forholdet === 'string')
         deler.push(
-          `TE opplyser at TE ble klar over forholdet ${norskDato(k.innhold.klar_over_forholdet)}.`
+          `TE opplyser at ${DATOEN_GJELDER.klar_over_forholdet} ${norskDato(k.innhold.klar_over_forholdet)}.`
         );
     } else {
       // Force majeure kan ikke uttrykkes i formatet ennå (#367).
@@ -477,10 +480,11 @@ function standpunkttekst(
     s.spor === 'grunnlag' ? krav : s.grunnlagskrav ? j.krav(s.grunnlagskrav) : null;
   switch (p.art) {
     case 'rettidighet': {
+      // HF-U1: brevet varselet står i, unntatt TEs varsel etter § 32.2 (oppdragsgiver 17.10, #497).
       const varselet =
-        p.hjemmel === '33.4'
-          ? `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`
-          : VARSELET[p.hjemmel];
+        p.hjemmel === '32.2'
+          ? VARSELET[p.hjemmel]
+          : `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`;
       // Et «for sent» gjentar de åpne innsigelsene, og et «i tide» gir dem opp (VS-U11, VS-U24).
       // Saken har ett varsel etter § 33.4 (oppdragsgiver 15.10, #498).
       const brevene = liste([...new Set(innsigelser.map((i) => j.brevet(i.dokument)))]);
@@ -518,10 +522,9 @@ function standpunkttekst(
     case 'beloep': {
       // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
       // kan være det, til nærmeste krone som i B-13.
-      const krevd = krav.innhold.beloep as number;
-      const heleBeloepet = erBeloepetGodkjentFullt(beloep(krevd)!, beloep(p.godkjent)!);
+      const heleBeloepet = erBeloepetGodkjentFullt(krevdBeloep(krav), beloep(p.godkjent)!);
       const resultat = p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat;
-      return verdi(resultat, eksMva(p.godkjent), eksMva(krevd));
+      return verdi(resultat, eksMva(p.godkjent), eksMva(krav.innhold.beloep as number));
     }
     case 'dager':
       return verdi(p.resultat, dager(p.vurdert), dager(krav.innhold.dager as number));
