@@ -4,10 +4,18 @@
  * `transaksjon` med byggherresiden og teamet i konteksten; uten team finnes ingen
  * pakke (invarianten om utkast).
  */
-import { feilnummer, sql } from './datalag.ts';
+import {
+  BLOKKERT,
+  feilnummer,
+  KONFLIKT,
+  NEKTET,
+  sql,
+  UGYLDIG,
+  UNIK_INDEKS,
+  UNIK_NOEKKEL,
+  type Foresp,
+} from './datalag.ts';
 import type { Fullmakt } from './fullmakt.ts';
-
-type Foresp = () => sql.Request;
 
 export type Godkjenningshandling = 'godkjent' | 'returnert' | 'trukket';
 
@@ -21,13 +29,6 @@ export class PakkeNektet extends Error {}
 export class PakkeAvsluttet extends Error {}
 export class UgyldigPakke extends Error {}
 
-const NEKTET = 51403;
-const AVSLUTTET = 51409;
-const UGYLDIG = 51422;
-const BLOKKERT = 33504;
-const UNIK_INDEKS = 2601;
-const UNIK_NOEKKEL = 2627;
-
 async function kall<T>(arbeid: Promise<T>): Promise<T> {
   try {
     return await arbeid;
@@ -35,7 +36,7 @@ async function kall<T>(arbeid: Promise<T>): Promise<T> {
     const nr = feilnummer(feil);
     const melding = feil instanceof Error ? feil.message : String(feil);
     if (nr === NEKTET || nr === BLOKKERT) throw new PakkeNektet(melding, { cause: feil });
-    if (nr === AVSLUTTET) throw new PakkeAvsluttet(melding, { cause: feil });
+    if (nr === KONFLIKT) throw new PakkeAvsluttet(melding, { cause: feil });
     if (nr === UNIK_INDEKS || nr === UNIK_NOEKKEL)
       throw new PakkeAvsluttet('En pakke eller handling med samme nøkkel er alt lagret', {
         cause: feil,

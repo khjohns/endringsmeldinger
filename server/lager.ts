@@ -9,7 +9,7 @@
  */
 
 import type { Journalrad, Part } from '../kjerne/typer.ts';
-import { sql, transaksjon, type Kontekst, type Pool } from './datalag.ts';
+import { sql, transaksjon, type Foresp, type Kontekst, type Pool } from './datalag.ts';
 
 export class Versjonskonflikt extends Error {
   readonly forventet: number;
@@ -47,8 +47,6 @@ export interface Oppdragsrad {
 
 /** `levert` er tidspunktet i kvitteringen for dokumentreferansen på topicen, eller `null` (#764). */
 export type LagretOppdrag = Oppdragsrad & { opprettet: string; levert: string | null };
-
-type Foresp = () => sql.Request;
 
 /** Første rad har kjernens format, som `lesJournal` i `kjerne/format/leser.ts` krever. */
 export function skrevetAvKjernen(journal: readonly Journalrad[]): boolean {

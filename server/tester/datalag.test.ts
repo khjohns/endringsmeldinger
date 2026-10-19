@@ -20,6 +20,7 @@ import {
   KONTEKSTNOEKLER,
   opprettPool,
   sql,
+  Tilbakerulling,
   transaksjon,
   TransaksjonAvbrutt,
   UgyldigKontekst,
@@ -405,6 +406,63 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
         throw new Error('arbeidet feilet');
       })
     ).rejects.toThrow('arbeidet feilet');
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
+    expect(etter.forbindelse).not.toBe(inne!.forbindelse);
+    expect(await borte(pool, inne!.forbindelse)).toBe(true);
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  // Kilde: utfallet «rull tilbake med dette svaret» i #597 punkt 2. Svaret skal ikke
+  // kreve et unntak, og forbindelsen behandles som etter ROLLBACK fordi arbeidet kaster.
+  it('arbeidet returnerer en Tilbakerulling: svaret gis, ingenting lagres, og forbindelsen gjenbrukes uten transaksjon og kontekst', async () => {
+    const id = randomUUID();
+    let inne: Sesjon | undefined;
+    const svar = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+      return new Tilbakerulling({ skriv: false as const, grunn: 'avvist' });
+    });
+    expect(svar).toEqual({ skriv: false, grunn: 'avvist' });
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ forbindelse: inne!.forbindelse, trancount: 0, ...ingenKontekst });
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  it('Tilbakerulling etter at serveren avbrøt transaksjonen: svaret gis, ikke TransaksjonAvbrutt, og forbindelsen gjenbrukes', async () => {
+    const id = randomUUID();
+    let inne: Sesjon | undefined;
+    const svar = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+      await f()
+        .batch(`THROW 51409, N'Versjonskonflikt', 1`)
+        .catch(() => undefined);
+      return new Tilbakerulling('avvist');
+    });
+    expect(svar).toBe('avvist');
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ forbindelse: inne!.forbindelse, trancount: 0, ...ingenKontekst });
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  it('Tilbakerulling der ROLLBACK feiler: svaret gis, og forbindelsen forkastes med den åpne transaksjonen', async () => {
+    const id = randomUUID();
+    vedNesteLaan(pool, (f) => {
+      const objekt = f as unknown as { rollbackTransaction: Kall };
+      const ekte = objekt.rollbackTransaction.bind(f);
+      objekt.rollbackTransaction = (cb) => {
+        objekt.rollbackTransaction = ekte;
+        setImmediate(cb, tidsavbrudd());
+      };
+    });
+    let inne: Sesjon | undefined;
+    const svar = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+      return new Tilbakerulling('avvist');
+    });
+    expect(svar).toBe('avvist');
     const etter = await sesjonen(() => pool.request());
     expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
     expect(etter.forbindelse).not.toBe(inne!.forbindelse);
