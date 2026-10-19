@@ -164,6 +164,11 @@ describe('slettingen live-testene rydder med', () => {
     expect(tillatt(miljoe, 'DELETE', `/v2/projects/${PROSJEKT}/libraries/${medStreker}/items/${ANNET}`)).toBe(true);
   });
 
+  it('normaliserer CATENDA_BIBLIOTEK_ID i miljøet med catendaId', () => {
+    const m = { ...miljoe, CATENDA_BIBLIOTEK_ID: 'BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB' };
+    expect(tillatt(m, 'DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items/${ANNET}`)).toBe(true);
+  });
+
   it('gir 403 uten kall når CATENDA_BIBLIOTEK_ID mangler i miljøet, og lar resten være', async () => {
     const utenBibliotek: Miljoe = { ...miljoe };
     delete utenBibliotek.CATENDA_BIBLIOTEK_ID;
@@ -203,6 +208,9 @@ describe('avvisningen', () => {
     ['POST', `/v2/projects/${PROSJEKT}`],
     ['GET', `/v2/projects/${PROSJEKT}/webhooks`],
     ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${ANNET}/items/${ANNET}`],
+    ['DELETE', `/v2/projects/${PROSJEKT}/libraries/urn:uuid:${BIBLIOTEK}/items/${ANNET}`],
+    ['GET', `/v2/projects/urn:uuid:${PROSJEKT}/teams`],
+    ['GET', `/opencde/bcf/3.0/projects/%7B${BOARD}%7D/topics`],
     ['DELETE', `/v2/projects/${ANNET}/libraries/${BIBLIOTEK}/items/${ANNET}`],
     ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items`],
     ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}`],

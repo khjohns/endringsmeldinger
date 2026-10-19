@@ -82,10 +82,11 @@ export function tillatt(miljoe: Miljoe, metode: string, sti: string): boolean {
       regel.deler.every((del, i) => {
         const verdi = deler[i];
         if (del.startsWith('=')) return verdi === del.slice(1);
+        if (!ID.test(verdi)) return false;
         if (del === 'prosjekt') return catendaId(verdi) === prosjekt;
         if (del === 'board') return catendaId(verdi) === board;
         if (del === 'bibliotek') return bibliotek !== null && catendaId(verdi) === bibliotek;
-        return ID.test(verdi);
+        return true;
       })
   );
 }
