@@ -2657,8 +2657,9 @@ function kjoerVitest(
   const ut = `${k.rot}-rapport.json`;
   rmSync(ut, { force: true });
   // Vitest 3.2 gir ikke `--hookTimeout` videre til prosjektene, så grensen går gjennom
-  // `vite.config.ts`.
-  const env = { ...process.env, KOE_HOOKGRENSE: '60000' };
+  // `vite.config.ts`. `vi.setConfig` i lagringstestene virker bare for den første filen i
+  // en arbeider uten isolasjon, så grensen er den samme som `GRENSER` der.
+  const env = { ...process.env, KOE_HOOKGRENSE: '240000' };
   return new Promise((ok, feil) => {
     spawn(
       'npx',

@@ -118,7 +118,9 @@ jobs:
       group: feilinnfoering-${{ github.event_name }}-${{ github.ref }}-${{ matrix.del }}
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # Den nattlige kjøringen tar lagringstestene mot SQL Server i hver mutasjon, om lag
+    # 220 s per kjøring og kopi (#932).
+    timeout-minutes: 90
     env:
       HUSKY: 0
     steps:

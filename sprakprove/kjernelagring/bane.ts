@@ -40,8 +40,9 @@ export { TESTBASE_URL };
 /**
  * Grensene for testene mot SQL Server. Oppsettet lager en base og en innlogging,
  * og hvert steg i et forløp er flere transaksjoner; standardgrensene på 5 og 10 s
- * holder ikke for de første testene i en fil. Testene i `server/tester/` setter
- * grensene på samme måte.
+ * holder ikke for de første testene i en fil. `vi.setConfig(GRENSER)` virker bare
+ * for den første filen i en arbeider uten isolasjon, så feilinnføringene setter
+ * grensene på kommandolinjen (`kjerne/tester/feilinnfoering.ts`).
  */
 export const GRENSER = { testTimeout: 60_000, hookTimeout: 240_000 };
 
