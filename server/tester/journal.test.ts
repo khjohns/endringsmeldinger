@@ -538,17 +538,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
     });
 
     it('en standard med SYSUTCDATETIME() kutter til millisekunder, som @naa i prosedyrene (#778 punkt 7)', async () => {
-      // `koe_migrering.historikk` lages av runneren i `server/migrering.ts`, ikke av en
-      // migrasjon, og er unntatt til runneren kutter standarden selv; da fjernes unntaket.
+      // Også `koe_migrering.historikk.anvendt`, som runneren lager (`HISTORIKK` i
+      // `server/migrering.ts`) og `20261020123000_historikk_tidsstandard.sql` retter.
       const svar = await base.pool.request().query<{ standard: string }>(
         `SELECT CONCAT(OBJECT_SCHEMA_NAME(parent_object_id), N'.', OBJECT_NAME(parent_object_id), N'.',
                        COL_NAME(parent_object_id, parent_column_id)) AS standard
            FROM sys.default_constraints
           WHERE definition LIKE N'%sysutcdatetime()%' AND definition NOT LIKE N'(datetrunc(millisecond,sysutcdatetime()))'`
       );
-      expect(
-        svar.recordset.map((r) => r.standard).filter((s) => s !== 'koe_migrering.historikk.anvendt')
-      ).toEqual([]);
+      expect(svar.recordset.map((r) => r.standard)).toEqual([]);
     });
   });
 });
