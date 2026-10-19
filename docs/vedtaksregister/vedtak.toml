@@ -5615,6 +5615,89 @@ tekst = '''
 Svaret oppgir sakens versjon på tidspunktet for gjentaket, så klienten ser om andre har skrevet siden.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "KT-U6"
+dato = 2026-10-19
+hvem = "oppdragsgiver"
+kilde = ["#819"]
+sporsmal = '''
+Spørsmålet «Topic fra TE», ordrett slik det ble vist i spørsmålsverktøyet:
+
+Vedtaket 29.09 sier at saker kan opprettes fra en topic i Catenda. Når TE lager en topic, oppretter appen KOE-saken. Hva betyr selve topicen i saken? Ingen vedtak avgjør det i dag.
+
+Alternativene slik de ble vist:
+
+Bare opprettelsen (Recommended): Saken opprettes med topicens tittel. Topicen er ikke et varsel eller krav i appen, og TE må sende varsel og krav fra appen. Mener TE at topicen var varselet etter § 32.2, oppgir TE datoen i et brev fra appen etter OV-U5. Appen avgjør ikke selv om topicen var et varsel.
+
+Registreres som brev utenfor appen: Saken opprettes, og integrasjonen registrerer topicen som et brev sendt utenfor appen, med datoen topicen ble laget. Appen utleder ingenting av den: ingen standpunkt og ingen frist. Utvider OV-U4, der den som registrerer, oppgir datoen og velger hvor brevet vises.
+
+Varsel etter § 32.2: Topicen regnes som TEs varsel etter § 32.2, med datoen topicen ble laget, og fristene i appen løper fra den. Endrer OV-U5, der TE selv oppgir datoen for et varsel sendt utenfor appen.'''
+valgt = "Bare opprettelsen"
+svar = '''
+«Bare opprettelsen (Recommended)»'''
+folge = '''
+Presiserer vedtaket 29.09 («Saker opprettes både fra skjemaet i appen og fra en topic i Catenda»). 29.09 har ingen anker, så forholdet står her med ord. Svaret er gitt med spørsmålsverktøyet og står på #819 (kommentaren 6268501789). Ikke bygget (#819).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare opprettelsen"
+tekst = '''
+Saken opprettes med topicens tittel. Topicen er ikke et varsel eller krav i appen, og TE må sende varsel og krav fra appen. Mener TE at topicen var varselet etter § 32.2, oppgir TE datoen i et brev fra appen etter OV-U5. Appen avgjør ikke selv om topicen var et varsel.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Registreres som brev utenfor appen"
+tekst = '''
+Saken opprettes, og integrasjonen registrerer topicen som et brev sendt utenfor appen, med datoen topicen ble laget. Appen utleder ingenting av den: ingen standpunkt og ingen frist. Utvider OV-U4, der den som registrerer, oppgir datoen og velger hvor brevet vises.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Varsel etter § 32.2"
+tekst = '''
+Topicen regnes som TEs varsel etter § 32.2, med datoen topicen ble laget, og fristene i appen løper fra den. Endrer OV-U5, der TE selv oppgir datoen for et varsel sendt utenfor appen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "KT-U7"
+dato = 2026-10-19
+hvem = "oppdragsgiver"
+kilde = ["#819"]
+sporsmal = '''
+Spørsmålet «Topic fra BH», ordrett slik det ble vist i spørsmålsverktøyet:
+
+Byggherren lager en topic i Catenda. Kjernen lar bare TE opprette en KOE-sak, som sin lesning av OV-U1. Kan appen ikke avgjøre hvilken side forfatteren er på, opprettes ingen sak (INT-04). Hva gjør appen når forfatteren er på byggherrens side?
+
+Alternativene slik de ble vist:
+
+Ingen sak, kommentar (Recommended): Appen oppretter ingen sak. Hendelsen beholdes i innboksen, og topicen får en kommentar om at saken ikke er opprettet i appen fordi bare TE kan opprette en KOE-sak der.
+
+Ingen sak, ingen kommentar: Appen oppretter ingen sak og skriver ingenting på topicen. Hendelsen beholdes i innboksen.
+
+Venter på TE: Topicen holdes i innboksen til TE tar den over i appen og oppretter saken.'''
+valgt = "Ingen sak, kommentar"
+svar = '''
+«Ingen sak, kommentar (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u1" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #819 (kommentaren 6268501789). Ikke bygget (#819).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen sak, kommentar"
+tekst = '''
+Appen oppretter ingen sak. Hendelsen beholdes i innboksen, og topicen får en kommentar om at saken ikke er opprettet i appen fordi bare TE kan opprette en KOE-sak der.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen sak, ingen kommentar"
+tekst = '''
+Appen oppretter ingen sak og skriver ingenting på topicen. Hendelsen beholdes i innboksen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Venter på TE"
+tekst = '''
+Topicen holdes i innboksen til TE tar den over i appen og oppretter saken.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Arkitektur, språk og overgang"
 etter = '''
