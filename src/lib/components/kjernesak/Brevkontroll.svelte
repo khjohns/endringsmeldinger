@@ -26,7 +26,7 @@
   brev={JSON.stringify(brev)}
   tilbakeTekst="Tilbake til skjemaet"
   panel={{
-    title: 'Du sender kravet',
+    title: brev.handling ?? 'Du sender kravet',
     description: beskrivelse,
     confirmLabel: 'Jeg har kontrollert brevet.',
     primaryLabel: 'Send til byggherren',

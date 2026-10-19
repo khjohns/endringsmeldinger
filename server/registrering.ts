@@ -22,7 +22,7 @@
 
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { catendaId } from './autorisasjon.ts';
+import { catendaId, uuidMedBindestreker } from './autorisasjon.ts';
 import { catendaFraMiljoe, type CatendaOAuth } from './catenda.ts';
 import { opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
 import type { Part } from '../kjerne/typer.ts';
@@ -47,9 +47,9 @@ export interface Registrering {
 export class Registreringsfeil extends Error {}
 
 function uuid(verdi: string, navn: string): string {
-  const id = catendaId(verdi);
+  const id = uuidMedBindestreker(verdi);
   if (!id) throw new Registreringsfeil(`${navn} er ikke en UUID: ${verdi}`);
-  return `${id.slice(0, 8)}-${id.slice(8, 12)}-${id.slice(12, 16)}-${id.slice(16, 20)}-${id.slice(20)}`;
+  return id;
 }
 
 /**

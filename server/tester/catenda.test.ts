@@ -409,6 +409,64 @@ function jwt(exp: number): string {
   return `${del({ alg: 'none' })}.${del({ exp })}.signatur`;
 }
 
+describe('topicen på boardet for innboksen (#819)', () => {
+  const board = uuid(7);
+  const topic = uuid(9);
+
+  it('leser tittelen, typen og forfatteren fra topicen, normalisert', async () => {
+    svar = () => ({
+      json: {
+        guid: topic,
+        title: 'Rystelser',
+        topic_type: TOPICTYPE,
+        bimsync_creation_author: { user: { ref: BRUKER, name: 'Kari' } },
+      },
+    });
+    expect(await new CatendaOAuth(oppsett()).topic(board, topic, 't')).toEqual({
+      tittel: 'Rystelser',
+      type: TOPICTYPE,
+      forfatter: hex(BRUKER),
+    });
+    expect(mottatt[0].sti).toBe(`/opencde/bcf/3.0/projects/${board}/topics/${topic}`);
+    expect(mottatt[0].autorisasjon).toBe('Bearer t');
+  });
+
+  it('en topic uten forfatter gir forfatteren null', async () => {
+    svar = () => ({ json: { guid: topic, title: 'x', topic_type: TOPICTYPE } });
+    expect((await new CatendaOAuth(oppsett()).topic(board, topic, 't'))?.forfatter).toBeNull();
+  });
+
+  it('en topic Catenda ikke finner på boardet (404), gir null', async () => {
+    svar = () => ({ status: 404 });
+    expect(await new CatendaOAuth(oppsett()).topic(board, topic, 't')).toBeNull();
+  });
+
+  it('en topic uten tittel og type gir tomme verdier, ikke en feil som stenger innboksen', async () => {
+    svar = () => ({ json: { guid: topic, topic_type: null } });
+    expect(await new CatendaOAuth(oppsett()).topic(board, topic, 't')).toMatchObject({
+      tittel: '',
+      type: '',
+    });
+  });
+
+  it.each([
+    ['for en annen topic', { guid: uuid(8), title: 'x', topic_type: TOPICTYPE }],
+    ['som ikke er et objekt', []],
+  ])('et svar %s er et varig avvik', async (_, json) => {
+    svar = () => ({ json });
+    await expect(new CatendaOAuth(oppsett()).topic(board, topic, 't')).rejects.toBeInstanceOf(
+      VarigCatendaavvik
+    );
+  });
+
+  it('en topic-ID som ikke kan stå i stien, når ikke Catenda', async () => {
+    await expect(new CatendaOAuth(oppsett()).topic(board, '../x', 't')).rejects.toBeInstanceOf(
+      RangeError
+    );
+    expect(mottatt).toHaveLength(0);
+  });
+});
+
 describe('topicen for en sak fra appen (#741)', () => {
   const BOARD = '6f1c2d3e-4a5b-4c6d-8e7f-901a2b3c4d5e';
   const topic = {
