@@ -15,8 +15,9 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Miljøet går foran backend/.env, også for skriptene testene starter som egne
-# prosesser. Fixturen `ts_skrivesti_av` under dekker resten (#692).
-os.environ["TS_SKRIVESTI"] = "false"
+# prosesser. Et uttrykkelig `TS_SKRIVESTI=true pytest` står seg for dem; i
+# testene holder fixturen `ts_skrivesti_av` under bryteren av (#692, #958).
+os.environ.setdefault("TS_SKRIVESTI", "false")
 
 # CSRF håndheves i `require_auth`, som har sesjonen å sammenlikne mot. Det er
 # ett håndhevingspunkt, og det kan ikke slås av her — tester som sender en

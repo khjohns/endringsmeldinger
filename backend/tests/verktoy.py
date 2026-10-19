@@ -19,8 +19,6 @@ def last(*navn: str):
         try:
             spesifikasjon.loader.exec_module(modul)
         except BaseException:
-            for n in ("verktoy.laster", "laster"):
-                if sys.modules.get(n) is modul:
-                    del sys.modules[n]
+            del sys.modules["verktoy.laster"]
             raise
     return sys.modules["verktoy.laster"].last(*navn)

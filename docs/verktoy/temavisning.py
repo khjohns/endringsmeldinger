@@ -29,7 +29,10 @@ import re
 import sys
 
 import tomllib
-from laster import last
+
+if "verktoy.laster" not in sys.modules:
+    sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
+from verktoy.laster import last
 
 vh = last("vedtakshenvisninger")
 vr = vh.vr

@@ -21,7 +21,9 @@ import pathlib
 import re
 import sys
 
-from laster import last
+if "verktoy.laster" not in sys.modules:
+    sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
+from verktoy.laster import last
 
 vr = last("vedtaksregister")
 

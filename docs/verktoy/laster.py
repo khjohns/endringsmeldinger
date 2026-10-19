@@ -8,24 +8,23 @@ det først. Neste kall utenfra får nye instanser, så to testmoduler deler ikke
 modulene eller cachen i dem.
 
 Lasteren selv er felles for prosessen, fordi omfanget må være det. Den kan
-ikke laste seg selv, så modulene importerer den med `from laster import last`.
-Kjøres en modul som skript, står mappa først i `sys.path`. Lastes den av denne
-lasteren eller av testene (`backend/tests/verktoy.py`), finnes `laster` allerede
-i `sys.modules`, fordi lasteren registrerer seg der under begge navnene.
+ikke laste seg selv, og den finnes bare under navnet `verktoy.laster`, så et
+annet toppnivånavn ikke kolliderer med den (#958). Lastes en modul av denne
+lasteren eller av testene (`backend/tests/verktoy.py`), står `verktoy.laster`
+allerede i `sys.modules`. Kjøres modulen som skript, også med `python -P` eller `-I`,
+legger den `docs/` til i `sys.path` og importerer `verktoy.laster` derfra.
 """
 
 import importlib.util
 import pathlib
-import sys
 import types
 
 MAPPE = pathlib.Path(__file__).resolve().parent
 
 _omfang: list[dict[str, types.ModuleType]] = []
 
-for _navn in ("laster", "verktoy.laster"):
-    if sys.modules.setdefault(_navn, sys.modules[__name__]) is not sys.modules[__name__]:
-        raise ImportError(f"{_navn} i sys.modules er en annen modul enn {__file__}")
+if __name__ != "verktoy.laster":
+    raise ImportError(f"{__file__} må lastes som verktoy.laster, ikke som {__name__}")
 
 
 def last(*navn: str):
