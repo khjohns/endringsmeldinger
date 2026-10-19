@@ -60,8 +60,8 @@ export class CatendaOppsettfeil extends CatendaUtilgjengelig {}
 
 /**
  * Catenda gir data kjøreren ikke kan lese, og gir dem igjen ved neste forsøk, som en
- * dokumentreferanse uten dokument. Jobben parkeres som avvist og prøves ikke igjen
- * (#876, oppdragsgiver 19.10).
+ * dokumentreferanse uten dokument eller en ID av feil form. Jobben parkeres som avvist
+ * og prøves ikke igjen (#876, #891, oppdragsgiver 19.10).
  */
 export class VarigCatendaavvik extends CatendaUtilgjengelig {}
 
@@ -412,18 +412,26 @@ export class CatendaOAuth {
 
   /**
    * Dokumentene topicen viser til, med `document_guid` som `sammenlignbarDokumentId`.
+   * En lenke, med `url` og uten `document_guid`, er ikke et dokument og hoppes over
+   * (oppdragsgiver 19.10, #877).
    *
-   * @throws VarigCatendaavvik når en referanse ikke viser til noe dokument
+   * @throws VarigCatendaavvik når en referanse verken viser til et dokument eller er en
+   *   lenke, eller har en ID av feil form
    */
   async dokumentreferanser(boardId: string, topicId: string, token: string): Promise<Referanse[]> {
     const svar = await forespoersel(this.#oppsett, 'GET', referansesti(boardId, topicId), {
       token,
     });
     if (!Array.isArray(svar)) throw new CatendaUtilgjengelig('Ugyldige dokumentreferanser');
-    return svar.map((rad) => {
-      if (!erObjekt(rad) || typeof rad.document_guid !== 'string' || rad.document_guid === '')
-        throw new VarigCatendaavvik('En referanse på topicen viser ikke til noe dokument');
-      return { id: lestId(rad.guid), dokumentId: sammenlignbarDokumentId(rad.document_guid) };
+    return svar.flatMap((rad, nr) => {
+      if (erObjekt(rad) && erTekst(rad.document_guid))
+        return [{ id: lestId(rad.guid), dokumentId: sammenlignbarDokumentId(rad.document_guid) }];
+      if (erObjekt(rad) && rad.document_guid == null && erTekst(rad.url)) return [];
+      const guid = erObjekt(rad) ? rad.guid : undefined;
+      const navn = erLestId(guid) ? `med GUID ${guid}` : `nr. ${nr + 1}`;
+      throw new VarigCatendaavvik(
+        `Referansen ${navn} på topicen viser verken til et dokument eller en lenke`
+      );
     });
   }
 
@@ -459,12 +467,20 @@ function erKvitterbarId(id: unknown): id is string {
 
 /**
  * En ID som er lest fra Catenda og funnet igjen, med samme form som `idFraSvar` krever
- * av en ny, så kvitteringen ikke blir avvist (#783 punkt 3).
+ * av en ny, så kvitteringen ikke blir avvist (#783 punkt 3). Catenda gir samme ID ved
+ * neste forsøk, så feil form er et varig avvik (#891).
  */
 function lestId(id: unknown): string {
-  if (!erKvitterbarId(id) || id.trim() !== id)
-    throw new CatendaUtilgjengelig('Ugyldig ID fra Catenda');
+  if (!erLestId(id)) throw new VarigCatendaavvik('Ugyldig ID fra Catenda');
   return id;
+}
+
+function erLestId(id: unknown): id is string {
+  return erKvitterbarId(id) && id.trim() === id;
+}
+
+function erTekst(verdi: unknown): verdi is string {
+  return typeof verdi === 'string' && verdi !== '';
 }
 
 /** Biblioteket og mappen i det frosne leveringsmålet (LV-U1). */

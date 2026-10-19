@@ -568,16 +568,60 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(JSON.parse(mottatt[1].raa)).toEqual({ document_guid: 'abcd1234' });
   });
 
-  // Kilde: oppdragsgiver 19.10 (#764): raden hoppes ikke over, og avviket er varig.
-  it.each<[string, unknown]>([
-    ['en referanse uten dokument', [{ guid: 'r2' }]],
-    ['en referanse med et tomt dokument', [{ guid: 'r2', document_guid: '' }]],
-    ['en referanse med et dokument som ikke er tekst', [{ guid: 'r2', document_guid: 7 }]],
-  ])('%s fra Catenda gir VarigCatendaavvik (#876)', async (_n, json) => {
-    svar = () => ({ json });
-    await expect(
-      new CatendaOAuth(oppsett()).dokumentreferanser(BOARD, 'topic-1', 'i')
-    ).rejects.toBeInstanceOf(VarigCatendaavvik);
+  // Kilde: oppdragsgiver 19.10 (#764): en referanse som verken er et dokument eller en
+  // lenke, hoppes ikke over, avviket er varig, og meldingen sier hvilken referanse det er.
+  it.each<[string, unknown, string]>([
+    ['en referanse uten dokument', [{ guid: 'r2' }], 'med GUID r2'],
+    ['en referanse med et tomt dokument', [{ guid: 'r2', document_guid: '' }], 'med GUID r2'],
+    [
+      'en referanse med et dokument som ikke er tekst',
+      [{ guid: 'r2', document_guid: 7 }],
+      'med GUID r2',
+    ],
+    [
+      'en referanse med tom url og uten dokument',
+      [
+        { guid: 'r1', document_guid: 'dok-1' },
+        { guid: 'r2', url: '' },
+      ],
+      'med GUID r2',
+    ],
+    [
+      'en referanse med både url og et tomt dokument',
+      [{ guid: 'r2', url: 'https://eksempel.no', document_guid: '' }],
+      'med GUID r2',
+    ],
+    [
+      'en referanse uten dokument og med GUID av feil form',
+      [{ guid: 'r1', document_guid: 'dok-1' }, { guid: ' r2' }],
+      'nr. 2',
+    ],
+  ])(
+    '%s fra Catenda gir VarigCatendaavvik som nevner referansen (#876, #877)',
+    async (_n, json, navn) => {
+      svar = () => ({ json });
+      const feil = await new CatendaOAuth(oppsett())
+        .dokumentreferanser(BOARD, 'topic-1', 'i')
+        .catch((f: unknown) => f);
+      expect(feil).toBeInstanceOf(VarigCatendaavvik);
+      expect((feil as Error).message).toBe(
+        `Referansen ${navn} på topicen viser verken til et dokument eller en lenke`
+      );
+    }
+  );
+
+  // Kilde: oppdragsgiver 19.10 (#764, #877): en lenke er en gyldig referanse og hoppes over.
+  it('en lenke på topicen, med url og uten dokument, hoppes over når dokumentene leses (#877)', async () => {
+    svar = () => ({
+      json: [
+        { guid: 'r1', url: 'https://eksempel.no/a' },
+        { guid: 'r2', document_guid: 'dok-1' },
+        { guid: 'r3', url: 'https://eksempel.no/b', document_guid: null },
+      ],
+    });
+    expect(await new CatendaOAuth(oppsett()).dokumentreferanser(BOARD, 'topic-1', 'i')).toEqual([
+      { id: 'r2', dokumentId: 'dok-1' },
+    ]);
   });
 
   it('flagget for endring settes før en opplasting eller en ny referanse, ikke ved en lesing (#876)', async () => {
@@ -601,21 +645,23 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
   });
 
   // Kilde: #783 punkt 3: en rad med feil form droppes ikke, så referansen lages ikke to ganger.
+  // Kilde: oppdragsgiver 19.10 (#764): feil form er et varig avvik, som r1 (#891).
   it.each<[string, unknown]>([
     ['en referanse uten GUID', [{ document_guid: BRUKER }]],
     ['en referanse med en GUID over 100 tegn', [{ guid: 'r'.repeat(101), document_guid: BRUKER }]],
-  ])('%s fra Catenda gir CatendaUtilgjengelig', async (_n, json) => {
+    ['en referanse med mellomrom rundt GUID-en', [{ guid: ' r1', document_guid: BRUKER }]],
+  ])('%s fra Catenda gir VarigCatendaavvik (#891)', async (_n, json) => {
     svar = () => ({ json });
     await expect(
       new CatendaOAuth(oppsett()).dokumentreferanser(BOARD, 'topic-1', 'i')
-    ).rejects.toBeInstanceOf(CatendaUtilgjengelig);
+    ).rejects.toBeInstanceOf(VarigCatendaavvik);
   });
 
-  it('et dokument som finnes igjen med en ID av feil form, gir CatendaUtilgjengelig (#783 punkt 3)', async () => {
+  it('et dokument som finnes igjen med en ID av feil form, gir VarigCatendaavvik (#783 punkt 3, #891)', async () => {
     svar = () => ({ json: [{ id: ' b2', name: dokument.navn }] });
     await expect(
       new CatendaOAuth(oppsett()).finnDokument(maal, dokument.navn, 'i')
-    ).rejects.toBeInstanceOf(CatendaUtilgjengelig);
+    ).rejects.toBeInstanceOf(VarigCatendaavvik);
   });
 
   it('et token Catenda svarer 401 på, forkastes, og neste kall henter et nytt (#783 punkt 5)', async () => {
