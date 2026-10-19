@@ -15,7 +15,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import { STATUS_CODES, type IncomingMessage, type ServerResponse } from 'node:http';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import { utledJournal, vurder } from '../kjerne/kommandoer/skriving.ts';
 import type { Avvisning, Journalrad } from '../kjerne/typer.ts';
@@ -35,7 +35,13 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import { feilnummer, UsikkertUtfall, UUID, type Pool as Datalag } from './datalag.ts';
+import {
+  feilnummer,
+  UgyldigKontekst,
+  UsikkertUtfall,
+  UUID,
+  type Pool as Datalag,
+} from './datalag.ts';
 import { INNLOGGINGSRUTER, type Innlogging } from './innlogging.ts';
 import { fast, loggFeil, svarhoder } from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
@@ -44,6 +50,7 @@ import {
   IngenTopicBoard,
   KommandoIdBrukt,
   kommandosum,
+  LaasFeilet,
   LaasIkkeGitt,
   opprettSak,
   SakFinnesIkke,
@@ -130,6 +137,11 @@ interface Felles {
   eksempel: (id: string) => string;
   /** Hoder på hvert svar fra inngangen, også en avvisning. */
   hoder?: Record<string, string>;
+  /**
+   * Inngangen skriver en kommando med kommando-ID (#418). Kan ikke svaret skrives
+   * etter at skrivingen kan ha begynt, er utfallet usikkert (oppdragsgiver 19.10, #816 p1).
+   */
+  kommando?: true;
 }
 
 type Behandler<F> = (f: F, avh: Required<Avhengigheter>) => Promise<Svar>;
@@ -242,20 +254,42 @@ const regelavvisning = ({ feil, avvisning }: { feil: string; avvisning: Avvisnin
   { success: false, error: feil, rule: avvisning.regel, message: avvisning.melding },
 ];
 
-/** Svaret på en avvisning fra skrivelaget som er felles for inngangene (#743). Andre feil kastes videre. */
+/**
+ * Kommandoen kan være lagret. Klienten sender på nytt med samme kommando-ID og får
+ * kvitteringen hvis den er det (#418). En annen feil enn `UsikkertUtfall` og
+ * `LaasIkkeGitt` logges.
+ */
+function usikkert(feil: unknown): Svar {
+  if (!(feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt))
+    loggFeil('Kommandoen feilet etter at skrivingen kan ha begynt', feil);
+  return utfallUsikkert();
+}
+
+const utfallUsikkert = () =>
+  feilsvar(
+    503,
+    'UTFALL_USIKKERT',
+    'Det er usikkert om kommandoen ble lagret. Send den på nytt med samme kommando-ID.'
+  );
+
+/**
+ * Svaret på en feil fra skrivelaget, felles for inngangene (#743). En feil uten egen
+ * kode er et usikkert utfall, for skrivingen kan ha begynt (oppdragsgiver 19.10, #816).
+ */
 function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof SkrivingAvvist) return feilsvar(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   if (feil instanceof UgyldigKommando) return ugyldig('Basen avviste kommandoen.');
   if (feil instanceof KommandoIdBrukt)
     return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
-  // Klienten sender på nytt med samme kommando-ID og får kvitteringen hvis COMMIT lyktes (#418).
-  if (feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt)
-    return feilsvar(
-      503,
-      'UTFALL_USIKKERT',
-      'Det er usikkert om kommandoen ble lagret. Send den på nytt med samme kommando-ID.'
+  // Låsen ble aldri tatt (51407), eller ingen forbindelse ble lånt: ingenting er skrevet.
+  if (feil instanceof LaasFeilet || feil instanceof UgyldigKontekst) {
+    loggFeil(
+      feil instanceof LaasFeilet ? 'Låsen på kommando-ID-en feilet' : 'Konteksten er ugyldig',
+      feil
     );
-  throw feil;
+    return uventet();
+  }
+  return usikkert(feil);
 }
 
 /** Kommando-ID-en fra kroppen når den er en UUID med små bokstaver, som basen krever (51422). */
@@ -417,21 +451,26 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   // Visningen leses av det basen lagret, så svaret også prøver gjenlesingen. Den
   // regnes til og med brevet, så et gjentak får samme svar som det første, også om
   // saken har fått nye hendelser siden (#418, avgjørelse 2 i #764).
-  const { journal, oppdrag } = await lesSaken(
-    avh.datalag,
-    { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
-    sakId
-  );
-  const tilBrevet = journal.filter((r) => r.versjon <= utfall.rad.versjon);
-  return [
-    201,
-    {
-      success: true,
-      event_id: utfall.rad.event_id,
-      leveringsoppdrag: oppdrag.find((o) => o.event_id === utfall.rad.event_id)?.id ?? null,
-      ...sakenSomVises(tilBrevet, avh.kjerne),
-    },
-  ];
+  try {
+    const { journal, oppdrag } = await lesSaken(
+      avh.datalag,
+      { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
+      sakId
+    );
+    const tilBrevet = journal.filter((r) => r.versjon <= utfall.rad.versjon);
+    return [
+      201,
+      {
+        success: true,
+        event_id: utfall.rad.event_id,
+        leveringsoppdrag: oppdrag.find((o) => o.event_id === utfall.rad.event_id)?.id ?? null,
+        ...sakenSomVises(tilBrevet, avh.kjerne),
+      },
+    ];
+  } catch (feil) {
+    // Brevet er lagret; et nytt forsøk får kvitteringen og svaret.
+    return usikkert(feil);
+  }
 }
 
 /**
@@ -466,7 +505,12 @@ async function opprettNySak(
     return skriveavvisning(feil);
   }
   if ('avvisning' in utfall) return regelavvisning(utfall.avvisning);
-  avh.vekkJobbkjoereren();
+  try {
+    avh.vekkJobbkjoereren();
+  } catch (feil) {
+    // Saken er lagret; et nytt forsøk får kvitteringen og vekker igjen.
+    return usikkert(feil);
+  }
   return [201, { success: true, sak_id: utfall.sak_id, versjon: utfall.versjon }];
 }
 
@@ -490,6 +534,7 @@ const KJERNERUTER: readonly Saksrute[] = [
     sti: new RegExp(`^/api/kjerne/saker/${SAK}/kommandoer$`),
     eksempel: (s) => `/api/kjerne/saker/${s}/kommandoer`,
     tilgang: { prosjektrolle: 'member', kontraktsrolle: 'kreves' },
+    kommando: true,
     behandle: sendKommando,
   },
 ];
@@ -503,6 +548,7 @@ const OPPRETTELSE: Opprettelsesrute = {
     nySak:
       'Opprettelsen: saken finnes ikke før basen har laget saks-ID-en, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE oppretter (OV-U1, #696).',
   },
+  kommando: true,
   behandle: opprettNySak,
 };
 
@@ -641,17 +687,19 @@ export function lagServer(avh: Avhengigheter) {
       if (feil instanceof Nektet) [status, kropp] = [feil.status, feil.kropp];
       else loggFeil(`${metode} ${funnet?.r.sti} feilet`, feil);
     }
-    // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2).
+    // Et hode Node ikke godtar, eller en kropp som ikke kan serialiseres, gir 500 (#716 punkt 2),
+    // eller 503 UTFALL_USIKKERT når en kommando er lagret (#816 p1).
     let tekst: string | Buffer | undefined;
     try {
       tekst = kropp === null ? undefined : Buffer.isBuffer(kropp) ? kropp : JSON.stringify(kropp);
       respons.writeHead(status, svarhoder([status, kropp, hoder], funnet?.r.hoder));
     } catch (feil) {
       loggFeil('Svaret kunne ikke skrives', feil);
-      const reserve = uventet();
+      // Et svar som sier at kommandoen er lagret, blir usikkert (#816 p1).
+      const reserve = funnet?.r.kommando && status < 300 ? utfallUsikkert() : uventet();
       tekst = JSON.stringify(reserve[1]);
       // Node beholder årsaksfrasen fra det første forsøket, og rutens hoder gjelder også dette svaret.
-      respons.writeHead(500, 'Internal Server Error', svarhoder(reserve, funnet?.r.hoder));
+      respons.writeHead(reserve[0], STATUS_CODES[reserve[0]], svarhoder(reserve, funnet?.r.hoder));
     }
     respons.end(tekst);
   };

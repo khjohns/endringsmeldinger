@@ -259,7 +259,9 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(await sak.provIgjen()).toBe(false);
   });
 
-  it('ved UTFALL_USIKKERT og en annen serverfeil får samme kommando samme ID; en annen kommando får en ny, og en avvisning fjerner den ventende (#418)', async () => {
+  // Kilde: #418, og oppdragsgiver 19.10 i #816: serveren avgjør. `UTFALL_USIKKERT` og en
+  // 5xx uten kode er usikre; en annen kode er sikker, og feilen vises.
+  it('ved UTFALL_USIKKERT og en 5xx uten kode får samme kommando samme ID; en annen kommando får en ny, og en avvisning eller en 5xx med en annen kode fjerner den ventende (#418, #816)', async () => {
     const usikkert = new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' });
     const send = vi
       .fn()
@@ -291,12 +293,15 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.send(grunnlagskrav);
     expect(sak.ventende).toBeNull();
     expect(sak.feil).toBe('Brevet ble ikke sendt. Tilgang kunne ikke bekreftes.');
-    // En proxy kan svare mens serveren skriver, og serveren kan feile etter COMMIT.
+    // En proxy kan svare mens serveren skriver.
     await sak.send(grunnlagskrav);
     expect(sak.ventende).not.toBeNull();
     const id = send.mock.calls[4][2];
+    // Serveren svarer med en kode før skrivingen har begynt.
     await sak.send(grunnlagskrav);
     expect(send.mock.calls[5][2]).toBe(id);
+    expect(sak.ventende).toBeNull();
+    expect(sak.feil).toBe('Brevet ble ikke sendt. Uventet feil.');
   });
 
   it('sier at saken ikke finnes i TS når serveren svarer 404', async () => {

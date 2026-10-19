@@ -9,13 +9,8 @@ import { ApiError } from '$lib/api/client';
 import { brevFor, laastBrevtekst } from './brevtekst';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
-import {
-  erUsikkertUtfall,
-  hentKjernesak,
-  nyKommandoId,
-  sendKommando,
-  type Kjernesak,
-} from '$lib/api/kjerne';
+import { sendForsoek, usikkertUtfall } from './forsoek';
+import { hentKjernesak, nyKommandoId, sendKommando, type Kjernesak } from '$lib/api/kjerne';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
 import { visning } from '$kjerne/utledning/visning';
@@ -32,7 +27,7 @@ export interface Ventende {
   kommando: Record<string, unknown>;
 }
 
-const USIKKERT = 'Det er usikkert om brevet ble lagret. Prøv igjen: det lagres ikke to ganger.';
+const USIKKERT = usikkertUtfall('brevet ble lagret', 'det lagres ikke to ganger');
 
 export interface Kjernesakvalg {
   sakId: string;
@@ -154,7 +149,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     const igjen =
       ventende?.versjon === sak.versjon &&
       JSON.stringify(ventende.kommando) === JSON.stringify(innhold);
-    return sendForsoek(
+    return sendBrev(
       igjen && ventende
         ? ventende
         : { kommandoId: nyKommandoId(), versjon: sak.versjon, kommando: innhold }
@@ -163,22 +158,26 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   /** Sender den ventende kommandoen uendret, med samme ID. `false` uten ventende kommando. */
   async function provIgjen(): Promise<boolean> {
-    return ventende && !sender ? sendForsoek(ventende) : false;
+    return ventende && !sender ? sendBrev(ventende) : false;
   }
 
-  async function sendForsoek(forsoek: Ventende): Promise<boolean> {
+  async function sendBrev(forsoek: Ventende): Promise<boolean> {
     sender = true;
     feil = null;
     try {
-      await send(sakId, forsoek.versjon, forsoek.kommandoId, forsoek.kommando, valg.prosjektId);
-      ventende = null;
-      if (!(await last())) {
-        utdatertAarsak = melding('Brevet er lagret, men saken kunne ikke lastes på nytt.', feil);
-        feil = utdatertAarsak;
+      const utfall = await sendForsoek(forsoek, (f) =>
+        send(sakId, f.versjon, f.kommandoId, f.kommando, valg.prosjektId)
+      );
+      if (utfall.lagret) {
+        ventende = null;
+        if (!(await last())) {
+          utdatertAarsak = melding('Brevet er lagret, men saken kunne ikke lastes på nytt.', feil);
+          feil = utdatertAarsak;
+        }
+        return true;
       }
-      return true;
-    } catch (e) {
-      ventende = erUsikkertUtfall(e) ? forsoek : null;
+      ventende = utfall.ventende;
+      const e = utfall.feil;
       const hva = ventende ? USIKKERT : 'Brevet ble ikke sendt.';
       const aarsak = ventende ? null : meldingFra(e, null);
       // Saken er endret siden den ble lastet. Den lastes på nytt, og meldingen skal stå etterpå.
