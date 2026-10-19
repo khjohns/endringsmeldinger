@@ -28,7 +28,7 @@ const VIDERESENDTE_HODER = ['accept', 'content-type', 'bimsync-params'];
 
 /**
  * En del er `=literal`, `prosjekt`, `board`, `bibliotek` eller `id`. En regel med `foersjekk`
- * slår opp ressursen i Catenda før kallet sendes, og sender det bare når `godkjent` sier ja.
+ * sender kallet bare når hvert oppslag fra `oppslagene` gir 200 og oppfyller sitt `krav`.
  */
 type Foersjekk = 'item' | 'topic' | 'dokumentreferanse' | 'topicendring';
 type Regel = { metoder: string[]; deler: string[]; foersjekk: Foersjekk | null };
@@ -121,6 +121,23 @@ const harPrefiks = (v: unknown) => typeof v === 'string' && v.startsWith(LIVETES
 const sammeId = (a: unknown, b: string) =>
   typeof a === 'string' && (a.toLowerCase() === b.toLowerCase() || (catendaId(a) ?? 0) === catendaId(b));
 
+function kanGiPrefiks(kropp: ArrayBuffer | undefined): boolean {
+  let tekst: string;
+  try {
+    tekst = new TextDecoder('utf-8', { fatal: true }).decode(kropp);
+  } catch {
+    return true;
+  }
+  return (
+    tekst.includes('\\u') ||
+    [...tekst].some((t) => {
+      const kode = t.charCodeAt(0);
+      return (kode < 0x20 && ![0x09, 0x0a, 0x0d].includes(kode)) || kode === 0xfeff;
+    }) ||
+    tekst.toLowerCase().includes(LIVETESTPREFIKS)
+  );
+}
+
 /**
  * Oppslagene i Catenda som alle må gi 200 og oppfylle kravet før kallet sendes. En PUT som
  * gir en topic prefikset, krever at den har det fra før, så prefikssperren ikke kan omgås.
@@ -149,16 +166,10 @@ function oppslagene(foersjekk: Foersjekk, sti: string, miljoe: Miljoe, kropp: Ar
         },
       ];
     }
-    case 'topicendring': {
-      let ny: unknown;
-      try {
-        ny = JSON.parse(new TextDecoder().decode(kropp));
-      } catch {
-        return [];
-      }
-      const tittel = typeof ny === 'object' && ny !== null ? (ny as { title?: unknown }).title : undefined;
-      return harPrefiks(tittel) ? [{ sti, krav: (r) => harPrefiks(r.title) }] : [];
-    }
+    case 'topicendring':
+      // Catenda kan lese kroppen annerledes enn vi (dupliserte nøkler, store bokstaver, escapes,
+      // tegnsett), så ethvert spor av prefikset krever at topicen har det fra før.
+      return kanGiPrefiks(kropp) ? [{ sti, krav: (r) => harPrefiks(r.title) }] : [];
   }
 }
 
@@ -277,8 +288,9 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
     // Kroppen skiller brokerens avvisning fra Catendas 401 og 403.
     if (!(await sammeNokkel(bearer, miljoe.BROKERNOKKEL))) return svar(401, { feil: 'brokernoekkel' });
     const regel = regelFor(miljoe, foresp.method, adresse.pathname);
-    // Oppslaget kontrollerer bare stien, så et kall med query slipper ikke gjennom.
-    if (!regel || (regel.foersjekk && adresse.search)) return svar(403, { feil: 'broker_avviste' });
+    // Oppslaget kontrollerer bare stien, så et kall med query eller Bimsync-Params slipper ikke gjennom.
+    if (!regel || (regel.foersjekk && (adresse.search || foresp.headers.has('bimsync-params'))))
+      return svar(403, { feil: 'broker_avviste' });
 
     let token: string;
     try {

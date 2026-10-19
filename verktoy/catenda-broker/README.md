@@ -26,10 +26,12 @@ Før en sletting slår brokeren opp ressursen med Catenda-tokenet og sletter bar
   med prefikset
 
 Ellers svarer brokeren 403 uten å slette. Gir oppslaget noe annet enn 200, får økta
-Catendas svar, og ingenting slettes. Et kall med query avvises.
+Catendas svar, og ingenting slettes. Et kall med query eller `Bimsync-Params` avvises.
 
-En PUT som gir en topic en tittel med prefikset, sendes bare når topicen har prefikset
-fra før. Ellers kunne en økt gi en annens topic prefikset og så slette den.
+En PUT på en topic sendes uten oppslag bare når kroppen er gyldig UTF-8 uten `\u`-escapes
+og kontrolltegn, og ikke har prefikset noe sted, uansett store og små bokstaver. Ellers
+må topicen ha prefikset fra før. Det hindrer at en økt gir en annens topic prefikset og
+så sletter den.
 
 Mappen `CATENDA_MAPPE_ID` skal bare brukes av live-testene. En undermappe med prefiks
 rett under den kan slettes, og Catenda sletter da innholdet med.
