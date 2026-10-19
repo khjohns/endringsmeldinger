@@ -4,6 +4,10 @@
  * (varselet uten dager og fritekst), KA-U33 (fristkravet må begrunnes), GR-U22 og
  * VS-U26 (ny grunnlagsversjon med samme hjemmel og dato), KA-U22 (trekk uten
  * fritekst), LV-U2 (den låste teksten) og #881 (feltet ligger i skallet).
+ *
+ * S-2a.2: aksept (KA-U10), TEs innsigelse etter § 5 tredje ledd (VS-U1, VS-U9, VS-U14,
+ * uten protest og påberopt passivitet etter OV-U7) og registrering av et varsel etter
+ * § 33.4 sendt utenfor appen (MM-U1, OV-U4, MM-U17).
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -43,7 +47,12 @@ const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
 const medHandlinger = (k: Kjernesakkontekst, handlinger: string[]): Kjernesakkontekst =>
   new Proxy(k, { get: (t, p) => (p === 'handlinger' ? handlinger : Reflect.get(t, p)) });
 
-async function vis(journal: Journalrad[], track: SporKey, handlinger?: string[]) {
+async function vis(
+  journal: Journalrad[],
+  track: SporKey,
+  handlinger?: string[],
+  lastOppVedlegg?: (fil: File) => Promise<unknown>
+) {
   const send = vi.fn().mockResolvedValue({ event_id: 'e-9', leveringsoppdrag: 'l-9', versjon: 9 });
   const ekte = lagKjernesak({
     sakId: SAK,
@@ -52,7 +61,12 @@ async function vis(journal: Journalrad[], track: SporKey, handlinger?: string[])
     send,
   });
   await ekte.last();
-  const kjernesak = handlinger ? medHandlinger(ekte, handlinger) : ekte;
+  const medHandlingene = handlinger ? medHandlinger(ekte, handlinger) : ekte;
+  const kjernesak = lastOppVedlegg
+    ? new Proxy(medHandlingene, {
+        get: (t, p) => (p === 'lastOppVedlegg' ? lastOppVedlegg : Reflect.get(t, p)),
+      })
+    : medHandlingene;
   render(Kjernesakrom, {
     kjernesak,
     projectId: 'p-1',
@@ -118,9 +132,7 @@ describe('fristsporet fra TE-skjemaet', () => {
     await fireEvent.click(screen.getByRole('radio', { name: 'Spesifisert krav' }));
     await fireEvent.input(screen.getByLabelText('Antall dager'), { target: { value: '12' } });
 
-    expect(
-      screen.getByText('Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1).')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Begrunnelsen for antallet dager mangler.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeDisabled();
     expect(send).not.toHaveBeenCalled();
   });
@@ -156,8 +168,12 @@ describe('fristsporet fra TE-skjemaet', () => {
   });
 
   it.each([
-    ['et varsel med fritekst', fristdata('varsel', '<p>Tekst</p>'), 'VS-U15'],
-    ['et krav uten begrunnelse', fristdata('spesifisert', '', 3), 'KA-U33'],
+    ['et varsel med fritekst', fristdata('varsel', '<p>Tekst</p>'), 'ingen fritekst'],
+    [
+      'et krav uten begrunnelse',
+      fristdata('spesifisert', '', 3),
+      'Begrunnelsen for antallet dager mangler',
+    ],
     ['begrunnelse utsatt', fristdata('begrunnelse_utsatt', '<p>Tekst</p>'), 'ennå'],
     ['vedlegg', { ...fristdata('spesifisert', '<p>T</p>', 3), vedlegg_ids: ['v-1'] }, 'ennå'],
   ])('adapteren avviser %s i stedet for å forenkle det', (_navn, data, melding) => {
@@ -297,4 +313,146 @@ describe('Kontrollrommet i skjermhøyden (#881)', () => {
     const knapp = await screen.findByRole('button', { name: 'Last saken på nytt' });
     expect(knapp.closest('.shell')).not.toBeNull();
   });
+});
+
+const avslaattGrunnlag = () => {
+  const gjelder = utledJournal(medGrunnlag, KJERNE).spor.grunnlag.gjeldendeKrav!.id;
+  return skrevet(medGrunnlag, 'BH', {
+    type: 'brev',
+    svar: [
+      {
+        spor: 'grunnlag',
+        gjelder,
+        regelversjon: KJERNE.regler.versjon,
+        vurderinger: { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
+        resultat: {},
+        utdypning: 'Avslått.',
+      },
+    ],
+  } as Kommando);
+};
+
+describe('aksept og innsigelse (S-2a.2)', () => {
+  it('TE godtar byggherrens gjeldende svar med svaret og regelversjonen brevet er vist med (KA-U10)', async () => {
+    const journal = avslaattGrunnlag();
+    const svarId = utledJournal(journal, KJERNE).spor.grunnlag.gjeldendeSvar!.id;
+    const { send } = await vis(journal, 'ansvar');
+    await fireEvent.click(screen.getByRole('button', { name: 'Godta svaret' }));
+    expect(await screen.findByText('Du godtar svaret')).toBeInTheDocument();
+    const tekst = await bekreftBrevet();
+    await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
+    const { brevtekst, ...kommando } = sendt(send);
+    expect(kommando).toEqual({
+      type: 'aksept',
+      spor: 'grunnlag',
+      svar: svarId,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    expect(brevtekst.join('')).toBe(tekst);
+  });
+
+  it('uten svar fra byggherren tilbys verken aksept eller innsigelse (KA-U10, VS-U14)', async () => {
+    await vis(medGrunnlag, 'ansvar');
+    expect(screen.queryByRole('button', { name: 'Godta svaret' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Gjør innsigelse' })).toBeNull();
+  });
+
+  it('TE gjør innsigelse etter § 5 tredje ledd mot byggherrens svar, uten fritekst (VS-U1, VS-U14)', async () => {
+    const journal = avslaattGrunnlag();
+    const svarId = utledJournal(journal, KJERNE).spor.grunnlag.gjeldendeSvar!.id;
+    const { send } = await vis(journal, 'ansvar');
+    await fireEvent.click(screen.getByRole('button', { name: 'Gjør innsigelse' }));
+    const dialog = within(screen.getByRole('dialog', { name: 'Innsigelse etter § 5' }));
+    expect(dialog.queryByRole('textbox')).toBeNull();
+    await fireEvent.click(dialog.getByRole('button', { name: 'Se brevet' }));
+    expect(await screen.findByText('Du gjør innsigelse')).toBeInTheDocument();
+    await bekreftBrevet();
+    await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
+    const { brevtekst, ...kommando } = sendt(send);
+    expect(kommando).toEqual({ type: 'innsigelse', gjelder: svarId });
+    expect(brevtekst.length).toBeGreaterThan(0);
+  });
+
+  it('protest og påberopt passivitet tilbys ikke, selv om kjernen tilbyr dem (OV-U7)', async () => {
+    const journal = avslaattGrunnlag();
+    const krav = utledJournal(journal, KJERNE).spor.grunnlag.gjeldendeKrav!.id;
+    await vis(journal, 'ansvar', [`passivitet:${krav}`, `protest:${krav}`]);
+    expect(screen.queryByRole('button', { name: /[Pp]rotest|[Pp]assivitet/ })).toBeNull();
+  });
+
+  it('en avvist aksept vises for TE og sendes ikke (#943)', async () => {
+    const kontroll = lagKravkontroll({
+      utledning: utledJournal(avslaattGrunnlag(), KJERNE),
+      regelversjon: KJERNE.regler.versjon,
+      brev: () => ({ avvisning: { regel: 'ENIGHET_I_SPORET', melding: 'Partene er enige.' } }),
+      send: vi.fn(),
+    } as unknown as Kjernesakkontekst);
+    await kontroll.aksept('grunnlag', 'S-1');
+    expect(kontroll.feil).toBe('Brevet ble ikke sendt. Partene er enige.');
+  });
+});
+
+describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
+  const vedlegg = { vedlegg_id: 'V-1', filnavn: 'varsel.pdf', innhold_sha256: 'a'.repeat(64) };
+
+  it('TE registrerer varselet med datoen og brevet som vedlegg, uten brevkontroll og uten tekst fra appen (MM-U1, OV-U4, MM-U17)', async () => {
+    const lastOpp = vi.fn().mockResolvedValue({ ...vedlegg, stoerrelse: 10 });
+    const { send } = await vis(medGrunnlag, 'frist', undefined, lastOpp);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varsel sendt utenfor appen' }));
+    const knapp = screen.getByRole('button', { name: /Registrer varselet/ });
+    expect(knapp).toBeDisabled();
+    await fireEvent.input(screen.getByLabelText('Datoen varselet ble sendt'), {
+      target: { value: '2026-10-10' },
+    });
+    const fil = new File(['%PDF'], 'varsel.pdf', { type: 'application/pdf' });
+    await fireEvent.change(screen.getByLabelText('Brevet med varselet'), {
+      target: { files: [fil] },
+    });
+    await screen.findByText('varsel.pdf');
+    expect(lastOpp).toHaveBeenCalledWith(fil);
+    await fireEvent.click(knapp);
+    await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
+    expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
+    expect(sendt(send)).toEqual({
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-10-10',
+      dokumentasjon: ['V-1'],
+    });
+  });
+
+  it('tilbyr kjernen bare registreringen etter et fristkrav, åpner skjemaet med den (VS-U16)', async () => {
+    const medFristkrav = skrevet(medGrunnlag, 'TE', {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { dager: 12 },
+      utdypning: 'Peling på kritisk linje.',
+    });
+    await vis(medFristkrav, 'frist', ['varsle:frist']);
+    await fireEvent.click(screen.getByRole('button', { name: 'Registrer varsel' }));
+    expect(screen.getByLabelText('Datoen varselet ble sendt')).toBeInTheDocument();
+    expect(screen.getByText(/datoen kan ikke endres etterpå/)).toBeInTheDocument();
+    expect(screen.queryByLabelText('Antall dager')).toBeNull();
+  });
+
+  it.each([
+    ['uten vedlegg', { sendt: '2026-10-10', vedlegg: [] }, '', 'Legg ved brevet'],
+    ['uten dato', { sendt: '', vedlegg: [vedlegg] }, '', 'Oppgi datoen'],
+    [
+      'med en dato etter i dag',
+      { sendt: '2026-10-20', vedlegg: [vedlegg] },
+      '',
+      'etter dagens dato',
+    ],
+    ['med tekst fra appen', { sendt: '2026-10-10', vedlegg: [vedlegg] }, '<p>T</p>', 'ingen tekst'],
+  ])(
+    'adapteren avviser registreringen %s i stedet for å forenkle den',
+    (_n, registrert, tekst, melding) => {
+      expect(() =>
+        fristkommandoFraSkjema({ ...fristdata('varsel', tekst), registrert }, '2026-10-19')
+      ).toThrow(melding);
+    }
+  );
 });
