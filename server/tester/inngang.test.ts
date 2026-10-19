@@ -123,6 +123,28 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     for (const l of linjer) expect(l).not.toContain('Kari');
   });
 
+  it('en ramme fra eval og en sti med mellomrom kommer med (#890 punkt 2)', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const feil = new Error('x');
+    feil.stack = [
+      'Error: x',
+      '    at eval (eval at lag (file:///srv/app.ts:3:9), <anonymous>:1:7)',
+      '    at kjoer (/srv/mappe med mellomrom/app.ts:12:3)',
+      '    at /srv/mappe med mellomrom/start.ts:4:1',
+    ].join('\n');
+    loggFeil('Eval', feil);
+    const [linje] = logg.mock.calls[0] as [string];
+    expect(linje.split('\n')).toEqual(['Eval (Error)', ...feil.stack.split('\n').slice(1)]);
+  });
+
+  it('nivået warn logger med console.warn', () => {
+    const advarsel = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    loggFeil('Navneoppslaget feilet', Object.assign(new Error('Kari'), { number: 229 }), 'warn');
+    const [linje] = advarsel.mock.calls[0] as [string];
+    expect(linje).toMatch(/^Navneoppslaget feilet \(Error, feilnummer 229\)/);
+    expect(linje).not.toContain('Kari');
+  });
+
   it('et tomt navn gir rammene, som hodet V8 skriver', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     const feil = Object.assign(new Error('m'), {

@@ -143,7 +143,7 @@ export async function synkroniserKobling(
   const hentet = await basensKlokke(pool);
   const medlemmer = await hentMedlemmer(kobling.catendaProsjekt);
   return {
-    ...(await skrivMedlemsliste(pool, { ...kobling, hentet, medlemmer })),
+    ...(await synkroniserMedlemskap(pool, { ...kobling, hentet, medlemmer })),
     medlemmer: medlemmer.length,
     hentet,
   };
@@ -171,8 +171,9 @@ export async function kobledeProsjekter(
 
 /**
  * Skriver en fullstendig medlemsliste for prosjektet. Medlemmer som ikke står i
- * listen, blir inaktive. Returnerer `false` uten å endre noe når en liste hentet
- * samtidig eller senere alt er skrevet (DL-U7). En bruker uten medlemskap, som
+ * listen, blir inaktive. Returnerer om listen ble skrevet, og hvor mange
+ * medlemskap den gjorde inaktive. Er en liste hentet samtidig eller senere alt
+ * skrevet, endres ingenting, og svaret er `skrevet: false` og 0 (DL-U7). En bruker uten medlemskap, som
  * en innlogging med en liste hentet samtidig eller senere viste ikke er med i
  * prosjektet, får ikke noe medlemskap (DL-U9). `catendaProsjekt` kommer fra
  * koblingen, og `hentet` fra `basensKlokke()`.
@@ -180,13 +181,6 @@ export async function kobledeProsjekter(
  * @throws UgyldigMedlemsliste, UgyldigProsjekt, FeilCatendaProsjekt, MedlemskapetLaast
  */
 export async function synkroniserMedlemskap(
-  pool: Pool,
-  liste: { prosjekt: string; catendaProsjekt: string; hentet: Date; medlemmer: Medlem[] }
-): Promise<boolean> {
-  return (await skrivMedlemsliste(pool, liste)).skrevet;
-}
-
-async function skrivMedlemsliste(
   pool: Pool,
   liste: { prosjekt: string; catendaProsjekt: string; hentet: Date; medlemmer: Medlem[] }
 ): Promise<{ skrevet: boolean; deaktivert: number }> {
