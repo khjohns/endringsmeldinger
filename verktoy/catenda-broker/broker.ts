@@ -27,10 +27,14 @@ const SIKKERHETSMARGIN_MS = 300_000;
 const VIDERESENDTE_HODER = ['accept', 'content-type', 'bimsync-params'];
 
 /**
- * En del er `=literal`, `prosjekt`, `board`, `bibliotek` eller `id`. Med `iMappen` slettes
- * et item bare når Catenda sier at det ligger rett under `CATENDA_MAPPE_ID`.
+ * En del er `=literal`, `prosjekt`, `board`, `bibliotek` eller `id`. En regel med `foersjekk`
+ * slår opp ressursen i Catenda før kallet sendes, og sender det bare når `godkjent` sier ja.
  */
-type Regel = { metoder: string[]; deler: string[]; iMappen: boolean };
+type Foersjekk = 'item' | 'topic' | 'dokumentreferanse';
+type Regel = { metoder: string[]; deler: string[]; foersjekk: Foersjekk | null };
+
+/** Live-testene navngir alt de oppretter med prefikset, og sletter bare det. */
+export const LIVETESTPREFIKS = 'koe-livetest-';
 
 const ID = /^[0-9A-Za-z-]{1,64}$/;
 const KANONISK_ID = /^(?:[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
@@ -46,21 +50,22 @@ const TILLATT: Regel[] = [
   ['GET', 'v2/projects/:prosjekt/teams/:id/members'],
   ['GET POST', 'v2/projects/:prosjekt/libraries/:id/items'],
   ['GET', 'v2/projects/:prosjekt/libraries/:id/items/:id'],
-  ['DELETE', 'v2/projects/:prosjekt/libraries/:bibliotek/items/:id', 'iMappen'],
+  ['DELETE', 'v2/projects/:prosjekt/libraries/:bibliotek/items/:id', 'item'],
   ['GET', 'v2/projects/:prosjekt/ifc/products/ifctypes'],
   ['GET', 'v2/projects/:prosjekt/ifc/products/:id/relations'],
   ['GET', 'opencde/bcf/3.0/projects/:board'],
   ['GET POST', 'opencde/bcf/3.0/projects/:board/topics'],
-  ['GET PUT DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id'],
+  ['GET PUT', 'opencde/bcf/3.0/projects/:board/topics/:id'],
+  ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id', 'topic'],
   ['POST', 'opencde/bcf/3.0/projects/:board/topics/:id/comments'],
   ['GET PUT', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics'],
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics/:id'],
   ['GET POST', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references'],
-  ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references/:id'],
+  ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references/:id', 'dokumentreferanse'],
 ].map(([metoder, sti, krav]) => ({
   metoder: metoder.split(' '),
   deler: sti.split('/').map((d) => (d.startsWith(':') ? d.slice(1) : `=${d}`)),
-  iMappen: krav === 'iMappen',
+  foersjekk: (krav as Foersjekk | undefined) ?? null,
 }));
 
 /** Kopi av `catendaId` i `server/autorisasjon.ts`, som drar med seg datalaget ved import. */
@@ -79,19 +84,23 @@ function stiId(verdi: string): string | null {
   return KANONISK_ID.test(verdi) ? verdi.toLowerCase().replaceAll('-', '') : null;
 }
 
+function mappeId(miljoe: Miljoe): string | null {
+  return catendaId(miljoe.CATENDA_MAPPE_ID ?? '');
+}
+
 export function regelFor(miljoe: Miljoe, metode: string, sti: string): Regel | undefined {
   // Hver del må treffe et literal eller en ID uten `%`, så en kodet skråstrek slipper ikke gjennom.
   const deler = sti.slice(1).split('/');
   const prosjekt = catendaId(miljoe.CATENDA_PROSJEKT_ID);
   const board = catendaId(miljoe.CATENDA_TOPIC_BOARD_ID);
   const bibliotek = catendaId(miljoe.CATENDA_BIBLIOTEK_ID ?? '');
-  const mappe = catendaId(miljoe.CATENDA_MAPPE_ID ?? '');
+  const mappe = mappeId(miljoe);
   if (!prosjekt || !board) return undefined;
   return TILLATT.find(
     (regel) =>
       regel.metoder.includes(metode) &&
       regel.deler.length === deler.length &&
-      (!regel.iMappen || mappe !== null) &&
+      (regel.foersjekk !== 'item' || mappe !== null) &&
       regel.deler.every((del, i) => {
         const verdi = deler[i];
         if (del.startsWith('=')) return verdi === del.slice(1);
@@ -100,6 +109,21 @@ export function regelFor(miljoe: Miljoe, metode: string, sti: string): Regel | u
         if (del === 'bibliotek') return bibliotek !== null && stiId(verdi) === bibliotek;
         return ID.test(verdi);
       })
+  );
+}
+
+/** Hvor foroppslaget går: ressursen selv, eller topicen en dokumentreferanse hører til. */
+function oppslagssti(foersjekk: Foersjekk, sti: string): string {
+  return foersjekk === 'dokumentreferanse' ? sti.split('/').slice(0, 8).join('/') : sti;
+}
+
+function godkjent(foersjekk: Foersjekk, ressurs: unknown, miljoe: Miljoe): boolean {
+  const r = (typeof ressurs === 'object' && ressurs !== null ? ressurs : {}) as Record<string, unknown>;
+  const harPrefiks = (v: unknown) => typeof v === 'string' && v.startsWith(LIVETESTPREFIKS);
+  if (foersjekk !== 'item') return harPrefiks(r.title);
+  const mappe = mappeId(miljoe);
+  return (
+    harPrefiks(r.name) && mappe !== null && typeof r.parentId === 'string' && catendaId(r.parentId) === mappe
   );
 }
 
@@ -218,7 +242,8 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
     // Kroppen skiller brokerens avvisning fra Catendas 401 og 403.
     if (!(await sammeNokkel(bearer, miljoe.BROKERNOKKEL))) return svar(401, { feil: 'brokernoekkel' });
     const regel = regelFor(miljoe, foresp.method, adresse.pathname);
-    if (!regel) return svar(403, { feil: 'broker_avviste' });
+    // Oppslaget kontrollerer bare stien, så en sletting med query slipper ikke gjennom.
+    if (!regel || (regel.foersjekk && adresse.search)) return svar(403, { feil: 'broker_avviste' });
 
     let token: string;
     try {
@@ -227,10 +252,10 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       // Bare steget og Catendas statuskode, så en 502 kan feilsøkes fra økta (#806).
       return svar(502, { feil: 'tokenkall', status: feil instanceof Tokenfeil ? feil.status : 0 });
     }
-    if (regel.iMappen) {
+    if (regel.foersjekk) {
       let oppslag: Response;
       try {
-        oppslag = await hent(CATENDA + adresse.pathname, {
+        oppslag = await hent(CATENDA + oppslagssti(regel.foersjekk, adresse.pathname), {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
           redirect: 'manual',
@@ -240,9 +265,7 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       }
       if (oppslag.status === 401) tokenlager.forkast(token);
       if (oppslag.status !== 200) return tilbake(oppslag);
-      const item = (await oppslag.json().catch(() => null)) as { parentId?: unknown } | null;
-      const forelder = typeof item?.parentId === 'string' ? catendaId(item.parentId) : null;
-      if (forelder === null || forelder !== catendaId(miljoe.CATENDA_MAPPE_ID ?? ''))
+      if (!godkjent(regel.foersjekk, await oppslag.json().catch(() => null), miljoe))
         return svar(403, { feil: 'broker_avviste' });
     }
     const hoder = new Headers({ Authorization: `Bearer ${token}` });

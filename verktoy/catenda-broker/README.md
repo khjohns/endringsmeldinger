@@ -4,10 +4,7 @@ Brokeren lar skyøkta bruke Catenda-integrasjonen uten at Catendas klienthemmeli
 eller tokenet fra Catenda kommer inn i økta (#806). Den holder integrasjonens
 klient-ID og hemmelighet og henter tokenet selv. Den videresender bare kall
 som står i tillatelseslisten i `broker.ts`, avgrenset til ett Catenda-prosjekt og
-ett topic board. Sletting er avgrenset til topics og dokumentreferanser på boardet,
-koblinger mellom topics, og items som ligger rett under én mappe i ett bibliotek.
-Før et item slettes, slår brokeren det opp i Catenda og sletter bare når `parentId`
-er `CATENDA_MAPPE_ID`. Mappen selv og items i undermapper slettes ikke. Økta får en brokernøkkel, som kan byttes uten å røre Catenda.
+ett topic board. Økta får en brokernøkkel, som kan byttes uten å røre Catenda.
 
 Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 
@@ -16,6 +13,23 @@ Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 `TILLATT` og i `broker.test.ts`. Slettingen av topics, dokumentreferanser og items
 er bare for live-testene, som rydder etter seg. Appen sletter ingen av dem, så de
 står ikke i `dataflyt.toml`.
+
+## Slettingen
+
+Testprosjektet er delt, så sletting skal aldri treffe andres filer eller topics. Live-testene
+navngir alt de oppretter med prefikset `koe-livetest-` (`LIVETESTPREFIKS` i `broker.ts`).
+Før en sletting slår brokeren opp ressursen med Catenda-tokenet og sletter bare når:
+
+- et item har `name` som begynner med prefikset, og `parentId` er `CATENDA_MAPPE_ID`
+- en topic har `title` som begynner med prefikset
+- en dokumentreferanse hører til en topic der `title` begynner med prefikset
+
+Ellers svarer brokeren 403 uten å slette. Gir oppslaget noe annet enn 200, får økta
+Catendas svar, og ingenting slettes. En sletting med query avvises. Koblinger mellom
+topics (`related_topics`) slettes uten oppslag, som før.
+
+Mappen `CATENDA_MAPPE_ID` skal bare brukes av live-testene. En undermappe med prefiks
+rett under den kan slettes, og Catenda sletter da innholdet med.
 
 ## Hemmelighetene
 
@@ -29,7 +43,7 @@ står ikke i `dataflyt.toml`.
 | `CATENDA_MAPPE_ID` | Mappen i biblioteket der live-testene sletter items, samme verdi som `CATENDA_FOLDER_ID` i skymiljøet |
 
 Mangler `CATENDA_BIBLIOTEK_ID` eller `CATENDA_MAPPE_ID`, avvises sletting av items,
-og ingenting annet endres.
+og ingenting annet endres. Prefikset er en konstant i koden, ikke en hemmelighet.
 
 Settes fra egen maskin, aldri fra en skyøkt. Verdiene skrives ikke i issues,
 PR-er eller chat.
@@ -88,8 +102,7 @@ fra skyøkta. Det prøves fra skyøkta etter utrullingen.
 Brokerens egne avvisninger har en kropp, så de skilles fra Catendas 401 og 403:
 `{"feil": "brokernoekkel"}` (401) betyr at brokernøkkelen mangler eller er feil, og
 `{"feil": "broker_avviste"}` (403) at kallet ikke står i tillatelseslisten, eller at
-itemet som skulle slettes, ikke ligger i testmappen. Gir oppslaget før en sletting noe
-annet enn 200, får økta Catendas svar, og ingenting slettes.
+ressursen som skulle slettes, ikke oppfyller kravene under «Slettingen».
 
 En 502 fra brokeren har en kropp som sier hvilket steg som feilet:
 `{"feil": "tokenkall", "status": 401}` betyr at Catenda avviste brokerens
