@@ -372,6 +372,30 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await sakerForTopic(topic)).toEqual([]);
   });
 
+  it('#963: forsøk der Catenda var nede, teller ikke mot FORSOEK_UTEN_TOPIC; den første 404 etterpå gir ikke ugyldig_hendelse', async () => {
+    const topic = randomUUID();
+    const k = kropp(topic);
+    const funnet = iCatenda.get(noekkel(board, topic))!;
+    iCatenda.delete(noekkel(board, topic));
+    const id = await motta(k);
+    const nede = (timer: number) => ({
+      ...senere(timer),
+      innboks: {
+        ...innboks,
+        topic: async () => {
+          throw new CatendaUtilgjengelig('nede');
+        },
+      },
+    });
+    for (let i = 1; i < FORSOEK_UTEN_TOPIC; i++)
+      expect(await behandleEnHendelse(nede(i))).toBe(true);
+    expect(await behandleEnHendelse(senere(FORSOEK_UTEN_TOPIC))).toBe(true);
+    expect(await utfallFor(id)).toEqual([]);
+    iCatenda.set(noekkel(board, topic), funnet);
+    expect(await behandleEnHendelse(senere(FORSOEK_UTEN_TOPIC + 1))).toBe(true);
+    expect((await utfallFor(id))[0]?.utfall).toBe('sak_opprettet');
+  });
+
   it('#963: en topic Catenda finner ved et senere forsøk, gir saken', async () => {
     const topic = randomUUID();
     const k = kropp(topic);

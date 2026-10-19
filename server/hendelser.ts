@@ -83,8 +83,8 @@ export interface Innkommende {
   hendelse_id: string;
   hendelsestype: string;
   kropp: string;
-  /** Forsøk uten utfall så langt. */
-  forsoek: number;
+  /** Forsøkene der Catenda ikke fant topicen; teller mot `FORSOEK_UTEN_TOPIC`. */
+  forsoek_uten_topic: number;
 }
 
 export interface Behandlingsavhengigheter {
@@ -125,12 +125,14 @@ export async function registrerForsoek(
   datalag: Pool,
   id: string,
   steg: 'behandling' | 'kommentar',
-  melding: string
+  melding: string,
+  topicIkkeFunnet: boolean
 ): Promise<void> {
   await utenKontekst(datalag)
     .input('innkommende_hendelse_id', sql.BigInt, id)
     .input('steg', sql.NVarChar(20), steg)
     .input('melding', sql.NVarChar(400), melding.slice(0, 400))
+    .input('topic_ikke_funnet', sql.Bit, topicIkkeFunnet)
     .execute('koe_api.registrer_innkommende_forsoek');
 }
 

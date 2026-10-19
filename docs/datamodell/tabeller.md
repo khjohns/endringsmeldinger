@@ -979,7 +979,7 @@ Utfallet for hver hendelse i innboksen, én rad når behandlingen er ferdig (W-1
 
 ### `koe.innkommende_forsoek`
 
-Forsøkene uten utfall for en hendelse i innboksen (W-1b.2, #819), med steget: `behandling` eller `kommentar`. Et forsøk lagres når Catenda eller basen ikke svarte. Hendelsen venter da før neste forsøk, lenger for hvert forsøk (30 s, dobbelt for hvert, høyst en time), og løkka går videre, så én hendelse ikke stenger innboksen (#963). `koe_api.neste_innkommende` og `koe_api.neste_kommentar` hopper over en hendelse som venter. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.registrer_innkommende_forsoek`. Raden kan ikke endres eller slettes.
+Forsøkene uten utfall for en hendelse i innboksen (W-1b.2, #819), med steget: `behandling` eller `kommentar`. Et forsøk lagres når Catenda eller basen ikke svarte. Hendelsen venter da før neste forsøk, lenger for hvert forsøk (30 s, dobbelt for hvert, høyst en time), og løkka går videre, så én hendelse ikke stenger innboksen (#963). `topic_ikke_funnet` merker forsøkene der Catenda ikke fant topicen; bare de teller mot grensen for `ugyldig_hendelse`. `koe_api.neste_innkommende` og `koe_api.neste_kommentar` hopper over en hendelse som venter. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.registrer_innkommende_forsoek`. Raden kan ikke endres eller slettes.
 
 | Felt | Innhold |
 | --- | --- |

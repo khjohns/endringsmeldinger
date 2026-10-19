@@ -17,10 +17,13 @@ CREATE TABLE koe.innkommende_forsoek (
   steg nvarchar(20) NOT NULL
     CONSTRAINT innkommende_forsoek_steg CHECK (steg IN (N'behandling', N'kommentar')),
   melding nvarchar(400) NULL,
+  topic_ikke_funnet bit NOT NULL CONSTRAINT innkommende_forsoek_topic_ikke_funnet DEFAULT 0,
   forsoekt datetime2(3) NOT NULL
     CONSTRAINT innkommende_forsoek_forsoekt DEFAULT DATETRUNC(millisecond, SYSUTCDATETIME()),
   CONSTRAINT innkommende_forsoek_steg_form
-    CHECK (NOT steg COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^a-z_]%')
+    CHECK (NOT steg COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^a-z_]%'),
+  CONSTRAINT innkommende_forsoek_topic_ikke_funnet_steg
+    CHECK (steg = N'behandling' OR topic_ikke_funnet = 0)
 );
 CREATE INDEX innkommende_forsoek_hendelse_steg
   ON koe.innkommende_forsoek (innkommende_hendelse_id, steg, forsoekt);
@@ -71,8 +74,8 @@ ALTER TABLE koe.innkommende_behandling ADD CONSTRAINT innkommende_behandling_boa
 GO
 
 -- Den eldste hendelsen uten utfall som ikke venter etter et forsøk, med ID-en og typen fra
--- kolonnene, som dedupen brukte, og antall forsøk så langt. `@naa` er basens klokke når
--- den mangler; testene flytter den fram.
+-- kolonnene, som dedupen brukte, og hvor mange forsøk Catenda ikke fant topicen i.
+-- Alle forsøkene teller for ventetiden. `@naa` er basens klokke når den mangler; testene flytter den fram.
 CREATE OR ALTER PROCEDURE koe_api.neste_innkommende
   @naa datetime2(3) = NULL
 WITH EXECUTE AS N'koe_jobbkjoerer'
@@ -80,9 +83,11 @@ AS
 BEGIN
   SET NOCOUNT ON;
   SET @naa = ISNULL(@naa, SYSUTCDATETIME());
-  SELECT TOP (1) i.id, i.hendelse_id, i.hendelsestype, i.kropp, f.antall AS forsoek
+  SELECT TOP (1) i.id, i.hendelse_id, i.hendelsestype, i.kropp,
+         f.uten_topic AS forsoek_uten_topic
     FROM koe.innkommende_hendelse i
-   CROSS APPLY (SELECT COUNT(*) AS antall, MAX(forsoekt) AS siste
+   CROSS APPLY (SELECT COUNT(*) AS antall, MAX(forsoekt) AS siste,
+                       ISNULL(SUM(CAST(topic_ikke_funnet AS int)), 0) AS uten_topic
                   FROM koe.innkommende_forsoek
                  WHERE innkommende_hendelse_id = i.id AND steg = N'behandling') f
    WHERE NOT EXISTS (SELECT 1 FROM koe.innkommende_behandling b WHERE b.innkommende_hendelse_id = i.id)
@@ -118,13 +123,14 @@ GO
 CREATE PROCEDURE koe_api.registrer_innkommende_forsoek
   @innkommende_hendelse_id bigint,
   @steg nvarchar(20),
-  @melding nvarchar(400)
+  @melding nvarchar(400),
+  @topic_ikke_funnet bit
 WITH EXECUTE AS N'koe_jobbkjoerer'
 AS
 BEGIN
   SET NOCOUNT ON;
-  INSERT koe.innkommende_forsoek (innkommende_hendelse_id, steg, melding)
-  VALUES (@innkommende_hendelse_id, @steg, @melding);
+  INSERT koe.innkommende_forsoek (innkommende_hendelse_id, steg, melding, topic_ikke_funnet)
+  VALUES (@innkommende_hendelse_id, @steg, @melding, @topic_ikke_funnet);
 END
 GO
 

@@ -276,7 +276,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   return true;
 }
 
-/** Så mange forsøk, om lag fire timer, før en topic Catenda ikke finner, gir et utfall. */
+/**
+ * Så mange forsøk der Catenda ikke fant topicen, minst om lag tre timer, før det gir et utfall.
+ * Forsøk som feilet av en annen grunn, teller ikke.
+ */
 export const FORSOEK_UTEN_TOPIC = 10;
 
 /**
@@ -285,7 +288,7 @@ export const FORSOEK_UTEN_TOPIC = 10;
  * svarer, utfallet av skrivingen er usikkert, låsen på kommandoen eller medlemskapet ikke
  * ble tatt, eller Catenda ikke finner topicen, lagres forsøket. Hendelsen venter da før
  * neste forsøk, og løkka går videre til neste hendelse, så én hendelse ikke stenger
- * innboksen (#963). En topic Catenda ikke har funnet etter `FORSOEK_UTEN_TOPIC` forsøk, gir
+ * innboksen (#963). En topic Catenda ikke har funnet i `FORSOEK_UTEN_TOPIC` forsøk, gir
  * `ugyldig_hendelse`. En annen feil gir utfallet `feilet`, som blir stående.
  */
 export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolean> {
@@ -299,7 +302,7 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
   } catch (feil) {
     // Etter et usikkert utfall kan saken være lagret; et nytt forsøk med samme kommando-ID
     // finner den i kvitteringen.
-    if (feil instanceof TopicenFinnesIkke && rad.forsoek + 1 >= FORSOEK_UTEN_TOPIC) {
+    if (feil instanceof TopicenFinnesIkke && rad.forsoek_uten_topic + 1 >= FORSOEK_UTEN_TOPIC) {
       behandling = feil.behandling;
     } else if (
       feil instanceof TopicenFinnesIkke ||
@@ -310,7 +313,13 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
       feil instanceof MedlemskapetLaast
     ) {
       logg.warn(`Hendelsen ${rad.id} i innboksen prøves igjen senere:`, feil);
-      await registrerForsoek(avh.datalag, rad.id, 'behandling', feilmelding(feil));
+      await registrerForsoek(
+        avh.datalag,
+        rad.id,
+        'behandling',
+        feilmelding(feil),
+        feil instanceof TopicenFinnesIkke
+      );
       return true;
     } else {
       logg.error(`Hendelsen ${rad.id} i innboksen kunne ikke behandles:`, feil);
@@ -350,7 +359,7 @@ export async function skrivEnKommentar(avh: Jobbavhengigheter): Promise<boolean>
     logg.info(`Kommentaren for hendelsen ${rad.id} i innboksen er skrevet.`);
   } catch (feil) {
     logg.warn(`Kommentaren for hendelsen ${rad.id} i innboksen prøves igjen senere:`, feil);
-    await registrerForsoek(avh.datalag, rad.id, 'kommentar', feilmelding(feil));
+    await registrerForsoek(avh.datalag, rad.id, 'kommentar', feilmelding(feil), false);
   }
   return true;
 }

@@ -1017,6 +1017,7 @@
      ["innkommende_hendelse_id", "bigint", "NOT NULL"],
      ["steg", "nvarchar(20)", "NOT NULL"],
      ["melding", "nvarchar(400)", "NULL"],
+     ["topic_ikke_funnet", "bit", "NOT NULL"],
      ["forsoekt", "datetime2(3)", "NOT NULL"]
     ],
     "primærnøkkel": ["id"],
