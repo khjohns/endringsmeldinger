@@ -975,7 +975,7 @@ Tidspunktet basen ga for skrivingen i en transaksjon, med økt-ID-en som nøkkel
 
 ### `koe.toemmingsvern`
 
-Vernet mot TRUNCATE for de uforanderlige tabellene ingen annen fremmednøkkel viser til (#582). TRUNCATE avfyrer ingen trigger, men avvises for en tabell en fremmednøkkel viser til. Tabellen kan ikke ha rader (`toemmingsvern_tom`), og kjøretiden har ingen rett på den.
+Vernet mot TRUNCATE for de uforanderlige tabellene ingen annen fremmednøkkel viser til (#582). TRUNCATE avfyrer ingen trigger, men avvises for en tabell en fremmednøkkel viser til. En nøkkel en tabell har til seg selv, hindrer ikke TRUNCATE. Tabellen kan ikke ha rader (`toemmingsvern_tom`), og kjøretiden har ingen rett på den.
 
 | Felt | Innhold |
 | --- | --- |
@@ -988,7 +988,7 @@ Vernet mot TRUNCATE for de uforanderlige tabellene ingen annen fremmednøkkel vi
 | Personopplysninger | Nei. |
 | Skrives av | database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad); database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene) |
 | Funn | — |
-| Belegg | L 18.10: `database/migrasjoner/20261020011000_toemmingsvern.sql`. K 18.10: `server/tester/journal.test.ts`. |
+| Belegg | L 18.10: `database/migrasjoner/20261020011000_toemmingsvern.sql`. L 19.10: `database/migrasjoner/20261020021000_vedleggskvittering_vern.sql`. K 18.10: `server/tester/journal.test.ts`. |
 
 ### `koe.kjernebuffer`
 
