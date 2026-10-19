@@ -36,7 +36,7 @@
   const kjernesak = store.erKjernesak ? store : null;
   import { letterText } from '$lib/approval/letter';
   import type { Kjernevedlegg } from '$lib/api/kjerne';
-  const kanRegistrere = kjernesak?.tilbyrTe('varsle:frist') ?? false;
+  const kanRegistrere = $derived(kjernesak?.tilbyrTe('varsle:frist') ?? false);
   const idag = new Date().toLocaleDateString('sv-SE');
   let varselSendt = $state('');
   let registrerteVedlegg = $state<Kjernevedlegg[]>([]);
@@ -111,7 +111,14 @@
       : undefined,
   });
 
-  let varselType = $state<FristVarselType | 'registrert' | undefined>(defaults.varselType);
+  // Tilbyr kjernen bare registreringen, er den valgt (VS-U16).
+  let varselType = $state<FristVarselType | 'registrert' | undefined>(
+    kjernesak?.tilbyrTe('varsle:frist') &&
+      !kjernesak.tilbyrTe('krav:frist') &&
+      !kjernesak.tilbyrTe('sende_varsel:frist')
+      ? 'registrert'
+      : defaults.varselType
+  );
   const registrerer = $derived(varselType === 'registrert');
   let antallDager = $state<number | undefined>(defaults.antallDager || undefined);
   let begrunnelse = $state(defaults.begrunnelse);
@@ -296,7 +303,7 @@
       <span class="font-mono standpunkt-ref">§ 33.1</span>
     </div>
 
-    {#if scenario !== 'edit' || segmentOptions.length > 1}
+    {#if scenario !== 'edit' || segmentOptions.length > 1 || registrerer}
       <FormSection title="Kravstype" paragrafRef="§ 33.4 / § 33.6">
         <SegmentedControl
           label="Kravstype"

@@ -144,6 +144,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     confirm: kontroll.confirm,
     cancel: kontroll.cancel,
     async submit(spor: SporType, type: EventType, data: object): Promise<void> {
+      feil = null;
       sender = true;
       try {
         const { kommando, vedlegg } = kommandoFraSkjema(kjernesak, spor, type, data);
@@ -161,16 +162,16 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     /** Trekket i sporet, uten fritekst (KA-U22). */
     trekk: (spor: Spor) => utsagn({ type: 'trekk', spor }, spor),
     /**
-     * Aksepten av byggherrens gjeldende svar i sporet, med regelversjonen brevet er
-     * forhåndsvist med (KA-U10). Ingen fritekst: kommandoen har ingen.
+     * Aksepten av byggherrens svar `svar`, det gjeldende svaret knappen er vist for, med
+     * regelversjonen brevet er forhåndsvist med (KA-U10). Ingen fritekst: kommandoen har ingen.
      */
-    aksept: (spor: Spor) =>
+    aksept: (spor: Spor, svar: string) =>
       sendUtsagn(() =>
         utsagn(
           {
             type: 'aksept',
             spor,
-            svar: kjernesak.utledning?.spor[spor].gjeldendeSvar?.id ?? '',
+            svar,
             regelversjon: kjernesak.regelversjon,
           },
           spor

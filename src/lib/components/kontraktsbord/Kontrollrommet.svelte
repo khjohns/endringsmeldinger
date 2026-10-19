@@ -508,8 +508,15 @@
                   : role === 'BH' && !bhSvarerPaaFristvarsel
                     ? 'Ferdigstill vurdering'
                     : 'Se brev og send'}
-                onwithdraw={() => (showWithdrawModal = true)}
-                ongodta={() => void kravkontroll?.aksept(SPOR_FOR[sel])}
+                onwithdraw={() => {
+                  kjernesak?.kjernesak.fjernFeil();
+                  showWithdrawModal = true;
+                }}
+                ongodta={() => {
+                  const svar = kjernesak?.godtar(sel);
+                  kjernesak?.kjernesak.fjernFeil();
+                  if (svar) void kravkontroll?.aksept(SPOR_FOR[sel], svar);
+                }}
                 oninnsigelse={() => {
                   kjernesak?.kjernesak.fjernFeil();
                   innsigelseApen = true;

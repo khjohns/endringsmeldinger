@@ -387,7 +387,7 @@ describe('aksept og innsigelse (S-2a.2)', () => {
       brev: () => ({ avvisning: { regel: 'ENIGHET_I_SPORET', melding: 'Partene er enige.' } }),
       send: vi.fn(),
     } as unknown as Kjernesakkontekst);
-    await kontroll.aksept('grunnlag');
+    await kontroll.aksept('grunnlag', 'S-1');
     expect(kontroll.feil).toBe('Brevet ble ikke sendt. Partene er enige.');
   });
 });
@@ -421,6 +421,20 @@ describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
       sendt: '2026-10-10',
       dokumentasjon: ['V-1'],
     });
+  });
+
+  it('tilbyr kjernen bare registreringen etter et fristkrav, åpner skjemaet med den (VS-U16)', async () => {
+    const medFristkrav = skrevet(medGrunnlag, 'TE', {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { dager: 12 },
+      utdypning: 'Peling på kritisk linje.',
+    });
+    await vis(medFristkrav, 'frist', ['varsle:frist']);
+    await fireEvent.click(screen.getByRole('button', { name: 'Registrer varsel' }));
+    expect(screen.getByLabelText('Datoen varselet ble sendt')).toBeInTheDocument();
+    expect(screen.getByText(/datoen kan ikke endres etterpå/)).toBeInTheDocument();
+    expect(screen.queryByLabelText('Antall dager')).toBeNull();
   });
 
   it.each([
