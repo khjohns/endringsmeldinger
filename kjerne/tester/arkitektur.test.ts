@@ -513,7 +513,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/skjema.ts:feilI(s)',
     'skjema',
-    `$ref anyOf type const enum minLength minItems minimum exclusiveMinimum items properties
+    `$ref anyOf type const enum minLength pattern minItems minimum exclusiveMinimum items properties
      required additionalProperties`,
   ],
   ['format/skjema.ts:feilI(s).properties', 'skjema', '*'],

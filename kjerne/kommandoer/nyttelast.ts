@@ -58,8 +58,6 @@ function kontrollerSvar(
   const utenfor = utenforOmfanget(s.spor, s.vurderinger as Record<string, unknown>);
   if (utenfor)
     return avvis('VURDERING_UTENFOR_KJERNEN', `Kjernen kan ikke lagre vurderingen: ${utenfor}.`);
-  // #766: et ugyldig beløp i det lagrede kravet er ikke byggherrens vurdering.
-  if (s.spor === 'vederlag') krevdBeloep(krav);
   let server: Record<string, unknown>;
   try {
     server = regnUtSvar(

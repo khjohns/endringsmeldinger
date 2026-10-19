@@ -3219,14 +3219,14 @@
   "koder_uten_rad": {
     "ALLEREDE_SVART": "Kontrollen av kommandoen: et svar på en kravversjon som allerede har et svar, avvises, og svaret revideres i stedet. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "VEDLEGG_FINNES_IKKE": "Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts` og `server/tester/vedlegg.test.ts`.",
-    "ANNET_RESULTAT": "Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, ingen rad sier den, og ingen bevis-sak prøver den.",
+    "ANNET_RESULTAT": "Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, og ingen rad sier den; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "DATO_ETTER_BREVET": "Kontrollen av kommandoen: datoen TE oppgir etter VS-U26, kan ikke være etter brevets dato (VS-U8). Avvisningen er arbeidsvalg 1 i #664, ikke et vedtak, så ingen rad sier den; den prøves i `kjerne/tester/brevtekst.test.ts` og `sprakprove/skrivesti/grunnlagskrav.test.ts`.",
-    "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den, og ingen bevis-sak prøver den ennå: kjøreren i `kjerne/tester/kjoerer.ts` sender kommandoen uten tekst bare når forhåndsvisningen avviser den (#877). Den prøves i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
-    "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
-    "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
+    "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
+    "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
+    "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen.",
     "INGEN_KRAV": "Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
-    "INGEN_SVAR": "Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen, og ingen bevis-sak prøver den.",
+    "INGEN_SVAR": "Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet.",
     "VURDERING_UTENFOR_KJERNEN": "Avvisningen av en vurdering kjernen ennå ikke kan lagre (`utenforOmfanget`). Raden VS-03 viste til den til sperren etter en innsigelse mot vederlagskravet ble fjernet (VS-U24, #517); ingen rad sier avvisningen nå."
   }

@@ -416,21 +416,30 @@ export interface Svarvurdering {
 }
 
 /**
- * Serverens utregning av svaret, med navnene i formatet (`UTREGNING` i
- * `format.ts`). Grunnlaget har ingen utregning, bare kontrollen av
- * vurderingene. Kaster `UgyldigVurdering`.
- */
-/**
  * Det krevde beløpet i vederlagskravet, i øre, slik utregningen, kontrollen av
  * begrunnelsen og brevet leser det (#508). Et beløp som mangler eller ikke er et tall,
- * kaster `UgyldigBeloep`: det står i kravet og er ikke byggherrens vurdering (#766).
+ * kaster `Error` og ikke `UgyldigBeloep`: det står i kravet, så det er en feil på
+ * serveren og ikke byggherrens ugyldige vurdering (#766).
  */
 export function krevdBeloep(krav: Krav): Oere {
-  const krevd = beloep(krav.innhold.beloep as number | undefined);
-  if (krevd === null) throw new UgyldigBeloep('det krevde beløpet mangler i kravet');
+  let krevd: Oere | null;
+  try {
+    krevd = beloep(krav.innhold.beloep as number | undefined);
+  } catch (feil) {
+    if (!(feil instanceof UgyldigBeloep)) throw feil;
+    throw new Error(`Det krevde beløpet i kravet ${krav.id} kan ikke leses: ${feil.message}.`);
+  }
+  if (krevd === null) throw new Error(`Det krevde beløpet mangler i kravet ${krav.id}.`);
   return krevd;
 }
 
+/**
+ * Serverens utregning av svaret, med navnene i formatet (`UTREGNING` i
+ * `format.ts`). Grunnlaget har ingen utregning, bare kontrollen av
+ * vurderingene. Kaster `UgyldigVurdering`, og `UgyldigBeloep` for et beløp i
+ * vurderingene som ikke er et tall. Et krevd beløp som ikke kan leses, kaster
+ * `Error` (`krevdBeloep`).
+ */
 export function regnUtSvar(
   spor: Spor,
   v: Svarvurdering,

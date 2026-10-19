@@ -10863,7 +10863,8 @@
           ],
           "forventet": {
             "forstaatt": true,
-            "registrert.S-g1": true
+            "registrert.S-g1": true,
+            "standpunkt.S-g1.rettidighet.iTide": true
           }
         },
         {
@@ -11657,6 +11658,26 @@
           "etter": 1,
           "rolle": "kontroll",
           "kilde": [
+            "GR-U12"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "avslaatt",
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
             "GR-U12",
             "GR-U13"
           ],
@@ -11731,6 +11752,125 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "LV-U2"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "ANNEN_BREVTEKST",
+            "nye_hendelser": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-LV-U2-uten-tekst",
+      "rader": [
+        "KA-51"
+      ],
+      "start": null,
+      "forslag": "LV-U2: et krav uten den låste teksten avsenderen har sett, avvises med BREVTEKST_MANGLER og lagres ikke. Kontrollsaken er samme krav med teksten serveren lager",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "underkategori": "samordning",
+          "brevtekst": false,
+          "navn": "K-g1"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "LV-U2"
+          ],
+          "prov": {
+            "handling": "krav",
+            "spor": "grunnlag",
+            "underkategori": "samordning"
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "LV-U2"
+          ],
+          "forventet": {
+            "avvist": true,
+            "regel": "BREVTEKST_MANGLER",
+            "nye_hendelser": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-MM-LV-U2-registrert-med-tekst",
+      "rader": [
+        "KA-43",
+        "KA-51"
+      ],
+      "start": "krav_irreg",
+      "forslag": "MM-U17 og LV-U2: en begrunnelse byggherren registrerer fra et brev sendt utenfor appen, med en brevtekst fra appen, avvises med ANNEN_BREVTEKST og lagres ikke. Kontrollsaken er samme registrerte begrunnelse uten tekst (KA-U35)",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "avslaatt",
+              "varslet_i_tide": true
+            }
+          ]
+        },
+        {
+          "handling": "begrunnelse",
+          "part": "BH",
+          "gjelder": "S-g1",
+          "sendt": "2026-09-25",
+          "dokumentasjon": [
+            "brev 25.09"
+          ],
+          "brevtekst": [
+            "Byggherren begrunner svaret."
+          ],
+          "navn": "D6"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U35",
+            "MM-U17"
+          ],
+          "prov": {
+            "handling": "begrunnelse",
+            "part": "BH",
+            "gjelder": "S-g1",
+            "sendt": "2026-09-25",
+            "dokumentasjon": [
+              "brev 25.09"
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "MM-U17",
             "LV-U2"
           ],
           "forventet": {

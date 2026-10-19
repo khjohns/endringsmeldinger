@@ -20,12 +20,16 @@ import { visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
+import type { Handling } from './klient.ts';
 import type { Kjoering } from './kjoerer.ts';
 
 type Data = Record<string, unknown>;
 
 const forstaatt = (rader: Journalrad[]) =>
   utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt;
+
+const grunner = (rader: Journalrad[]) =>
+  utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).begrensninger.map((b) => b.grunn);
 
 /** Raden med hendelsen eller elementet etiketten viser til. */
 function radMed(rader: Journalrad[], k: Kjoering, navn: string): Journalrad {
@@ -503,6 +507,30 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     const journal = await bane.journal();
     expect(forstaatt(journal.slice(0, -1)), 'kontrollsak: saken før avklaringen').toBe(true);
     expect(forstaatt(journal)).toBe(false);
+  });
+
+  // #877 p12: et dokument med bare avklaringen avvises før OV-U13-kontrollen, fordi det
+  // verken har krav, svar eller utsagn. Med et svar i samme dokument nås kontrollen.
+  it('en senere avklaring av § 31.3 i et dokument med et svar gir grunnen etter OV-U13, ikke grunnen for et tomt dokument', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30' })]);
+    const brev = await k.prov({
+      handling: 'brev',
+      svar: [{ spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000 }],
+    });
+    if (!brev.godtatt) throw new Error(`Forutsetning: brevet ble avvist: ${brev.avvisning.regel}`);
+    const rad = brev.hendelser[0];
+    const medAvklaring = structuredClone(rad);
+    medAvklaring.data.opplysninger = [
+      ...((rad.data.opplysninger ?? []) as Data[]),
+      { id: randomUUID(), hva: 'endringsordre', oppfylt: true, gjelder: k.navn.id('D4') },
+    ];
+    const journal = await bane.journal();
+    expect(grunner([...journal, rad]), 'kontrollsak: dokumentet uten avklaringen').toEqual([]);
+    const g = grunner([...journal, medAvklaring]);
+    expect(g).toEqual([expect.stringContaining('en senere avklaring')]);
+    expect(g[0]).toContain('(OV-U13)');
+    expect(g[0]).not.toContain('verken krav, svar eller utsagn');
   });
 
   it.each<[string, Data]>([
@@ -1270,5 +1298,81 @@ describe('revisjonen av et svar uten dager', () => {
   it('kontrollsak: med dagene sammenliknes revisjonen', () => {
     expect(senketInnroemmelse(svar(10), revisjon(10))).toBeNull();
     expect(senketInnroemmelse(svar(10), revisjon(5))).toMatch(/senker dagene/);
+  });
+});
+
+/**
+ * #877 p30: kontrollen av kommandoen avviser et svar eller en revisjon som viser til noe
+ * annet enn det som gjelder nå, eller som har et annet resultat enn serveren regner ut
+ * (`kommandoer/nyttelast.ts`, `kommandoer/forutsetninger.ts`). Ingen vedtak eller rad
+ * sier avvisningene (`koder_uten_rad` i `regler.json`), så testene fastholder dagens atferd.
+ */
+describe('kontrollen av referansene og resultatet i svaret', () => {
+  const brevGrunnlag = (resultat: string, navn: string) => ({
+    handling: 'brev',
+    svar: [{ spor: 'grunnlag', resultat, varslet_i_tide: true, navn }],
+  });
+
+  /** Regelen kjernen avviser kommandoen med, eller «godtatt», gjennom `prov` i kjøreren. */
+  async function skrivMed(k: Kjoering, h: Handling, endre: (kommando: Data) => void) {
+    const u = await k.prov(h, endre);
+    return u.godtatt ? 'godtatt' : u.avvisning.regel;
+  }
+
+  const uendret = () => {};
+
+  it('FEIL_KRAVREFERANSE: et svar på grunnlaget som viser til vederlagskravet, avvises', async () => {
+    const k = await bygg(minnebane(), ['krav_irreg']);
+    const h = brevGrunnlag('godkjent', 'S-g1');
+    expect(await skrivMed(k, h, uendret), 'kontrollsak').toBe('godtatt');
+    const tilVederlaget = (kommando: Data) => {
+      (kommando.svar as Data[])[0].gjelder = k.navn.id('K-v1');
+    };
+    expect(await skrivMed(k, h, tilVederlaget)).toBe('FEIL_KRAVREFERANSE');
+  });
+
+  it('ANNET_RESULTAT: et svar på vederlaget med et annet godkjent beløp enn serveren regner ut, avvises', async () => {
+    const k = await bygg(minnebane(), ['krav_irreg']);
+    const h = {
+      handling: 'brev',
+      svar: [{ spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000 }],
+    };
+    expect(await skrivMed(k, h, uendret), 'kontrollsak').toBe('godtatt');
+    const annetBeloep = (kommando: Data) => {
+      const resultat = (kommando.svar as Data[])[0].resultat as Data;
+      resultat.godkjent_beloep = 70000;
+    };
+    expect(await skrivMed(k, h, annetBeloep)).toBe('ANNET_RESULTAT');
+  });
+
+  it('FEIL_SVARREFERANSE: en revisjon av et svar som allerede er revidert, avvises', async () => {
+    const k = await bygg(minnebane(), [
+      'krav_irreg',
+      brevGrunnlag('avslaatt', 'S-g1'),
+      { handling: 'revisjon', spor: 'grunnlag', resultat: 'avslaatt', varslet_i_tide: true },
+    ]);
+    const h = {
+      handling: 'revisjon',
+      spor: 'grunnlag',
+      resultat: 'godkjent',
+      varslet_i_tide: true,
+    };
+    expect(await skrivMed(k, h, uendret), 'kontrollsak: revisjonen av gjeldende svar').toBe(
+      'godtatt'
+    );
+    expect(await skrivMed(k, { ...h, erstatter: 'S-g1' }, uendret)).toBe('FEIL_SVARREFERANSE');
+  });
+
+  it('INGEN_SVAR: en revisjon før byggherren har svart på grunnlaget, avvises', async () => {
+    const h = {
+      handling: 'revisjon',
+      spor: 'grunnlag',
+      resultat: 'godkjent',
+      varslet_i_tide: true,
+    };
+    const svart = await bygg(minnebane(), ['krav_irreg', brevGrunnlag('avslaatt', 'S-g1')]);
+    expect(await skrivMed(svart, h, uendret), 'kontrollsak: etter svaret').toBe('godtatt');
+    const usvart = await bygg(minnebane(), ['krav_irreg']);
+    expect(await skrivMed(usvart, h, uendret)).toBe('INGEN_SVAR');
   });
 });

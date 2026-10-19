@@ -128,16 +128,19 @@ export class Kjoering {
 
   /**
    * Vurder handlingen uten å lagre. Klienten regner med `klientregler`, ellers
-   * kjernens regler. Skriver kjernen en rad den selv ikke forstår, er det et brudd
-   * på 7.1.2 i designnotatet og meldes som en assertion, ikke som et oppsett som
+   * kjernens regler. Klienten sender den låste teksten forhåndsvisningen viste; med
+   * `brevtekst: false` sender den ingen, og med en liste sender den den. `endre` endrer
+   * kommandoen før forhåndsvisningen. Skriver kjernen en rad den selv ikke forstår, er det
+   * et brudd på 7.1.2 i designnotatet og meldes som en assertion, ikke som et oppsett som
    * feilet.
    */
-  async prov(h: Handling): Promise<Utfall> {
+  async prov(h: Handling, endre?: (kommando: Record<string, unknown>) => void): Promise<Utfall> {
     const journal = await this.bane.journal();
     const klientregler =
       typeof h.klientregler === 'string' ? REGELSETT[h.klientregler] : this.kjerne.regler;
     const klient = utledJournal(journal, medRegler(klientregler, this.kjerne));
     const k = kommandoFor(h, klient, klientregler, this.navn);
+    endre?.(k as unknown as Record<string, unknown>);
     // A1: klienten sender den låste teksten den viste, laget med sine regler. Avviser
     // forhåndsvisningen kommandoen, sendes den uten tekst, og serveren avviser den.
     try {
@@ -149,7 +152,8 @@ export class Kjoering {
         mellomlager(k)
       );
       const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
-      if (tekst) k.brevtekst = tekst;
+      if (Array.isArray(h.brevtekst)) k.brevtekst = h.brevtekst as string[];
+      else if (tekst && h.brevtekst !== false) k.brevtekst = tekst;
       return vurder(structuredClone(k), this.kontekst(h), journal, this.kjerne, mellomlager(k));
     } catch (feil) {
       if (feil instanceof Skrivefeil)
@@ -169,12 +173,13 @@ export class Kjoering {
     const versjon = journal.at(-1)!.versjon;
     if (h.handling === 'rad') {
       const u = utledJournal(journal, this.kjerne);
+      const { aktoerId, teamId } = this.kontekst(h, h.part === 'TE' ? 'TE' : 'BH');
       const rad = radFor(h, u, this.navn, {
         sak_id: this.bane.sakId,
         versjon: versjon + 1,
         tidsstempel: new Date((this.klokke += 60_000)).toISOString(),
-        aktor_id: this.bane.aktor('BH'),
-        aktor_team_id: 'team-bh',
+        aktor_id: aktoerId,
+        aktor_team_id: teamId,
       });
       // Registrert korrespondanse får brevet frosset som et svar fra kjernen (merknaden til
       // MM-U9), også når relasjonene ikke henger sammen, så forløp E prøver relasjonene.
@@ -241,6 +246,16 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     if (!s) throw new Forutsetning(`${sti}: svaret ${hale[0]} finnes ikke`);
     return s;
   };
+  // OV-U4: et svar i et registrert brev har ingen virkning og står bare i journalen.
+  const svaretSomSendt = () => {
+    const s =
+      u.svar[id(hale[0])]?.svar ??
+      u.journal
+        .flatMap((h) => (h.art === 'dokument' ? h.dokument.svar : []))
+        .find((x) => x.id === id(hale[0]));
+    if (!s) throw new Forutsetning(`${sti}: svaret ${hale[0]} finnes ikke`);
+    return s;
+  };
   switch (hode) {
     case 'forstaatt':
       return u.forstaatt;
@@ -249,9 +264,9 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     case 'gjeldende_svar':
       return u.spor[hale[0] as 'grunnlag'].gjeldendeSvar?.id ?? null;
     case 'svar':
-      return svar().svar[hale[1] as 'gjelder' | 'erstatter' | 'dokument'];
+      return svaretSomSendt()[hale[1] as 'gjelder' | 'erstatter' | 'dokument'];
     case 'standpunkt': {
-      const s = svar().svar.standpunkter.find((x) => x.art === hale[1]);
+      const s = svaretSomSendt().standpunkter.find((x) => x.art === hale[1]);
       return s ? (s as Record<string, unknown>)[hale[2]] : null;
     }
     case 'virkning':
