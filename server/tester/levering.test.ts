@@ -963,13 +963,19 @@ describe('kjøreren og en jobbtype den ikke kjenner (#778)', () => {
 // Kilde: #795 punkt 1 og #783 punkt 2: en varig feil fra basen prøves ikke igjen i det
 // uendelige, mens en vranglås eller en tapt forbindelse går over.
 describe('kjøreren og feil fra basen (#795)', () => {
-  // Kilde: #877 p14 for feilene uten nummer: bare en feil i forbindelsen går over.
-  it.each<[string, string, { number?: number; code?: string }]>([
+  // Kilde: #877 p14 for feilene uten nummer: bare en feil i forbindelsen går over. En feil
+  // fra tedious uten `info` får koden som `number` når mssql pakker den inn.
+  it.each<[string, string, { number?: number | string; code?: string }]>([
     ['brudd på en CHECK (547)', 'avvist', { number: 547 }],
     ['en rett som mangler (229)', 'avvist', { number: 229 }],
     ['en vranglås (1205)', 'feilet', { number: 1205 }],
     ['en feil uten nummer, i forbindelsen (ESOCKET)', 'feilet', { code: 'ESOCKET' }],
     ['et tidsavbrudd uten nummer (ETIMEOUT)', 'feilet', { code: 'ETIMEOUT' }],
+    [
+      'et tidsavbrudd i forespørselen, pakket av mssql (ETIMEOUT)',
+      'feilet',
+      { number: 'ETIMEOUT', code: 'ETIMEOUT' },
+    ],
     ['en parameter tedious avviser (EPARAM)', 'avvist', { code: 'EPARAM' }],
   ])('%s før Catenda er bedt om noe, gir utfallet %s', async (_n, utfall, egenskaper) => {
     const registrert: Record<string, unknown>[] = [];
@@ -1034,7 +1040,7 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     jobbtype: string,
     feiler: {
       prosedyre: string;
-      feil: { number?: number; code?: string };
+      feil: { number?: number | string; code?: string };
       ganger?: number;
     } | null,
     tillegg: {
@@ -1127,9 +1133,14 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
   // Kilde: #876 r3. Leveringen avstemmes mot Catenda ved neste forsøk, så en forbigående
   // feil i kvitteringen prøves igjen. En annen feil parkeres som usikker når leasen går ut.
   // Kilde: #877 p14 for EPARAM: en parameter tedious avviser, går ikke over.
-  it.each<[string, string | null, { number?: number; code?: string }]>([
+  it.each<[string, string | null, { number?: number | string; code?: string }]>([
     ['en vranglås (1205)', 'feilet', { number: 1205 }],
     ['Azure SQL som flytter basen (40613)', 'feilet', { number: 40613 }],
+    [
+      'et tidsavbrudd i forespørselen, pakket av mssql (ETIMEOUT)',
+      'feilet',
+      { number: 'ETIMEOUT', code: 'ETIMEOUT' },
+    ],
     ['en avvisning fra basen (51422)', null, { number: 51422 }],
     ['en parameter tedious avviser (EPARAM)', null, { code: 'EPARAM' }],
   ])('%s i kvitteringen av et vedlegg gir utfallet %s', async (_n, utfall, feil) => {
@@ -1153,8 +1164,8 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     expect(base.registrert).toEqual([]);
   });
 
-  // Kilde: #877 p15 og svaret fra orkestratoren 19.10 (B): registreringen prøves én gang
-  // til, så leasen ikke går ut og parkerer en levering som kunne vært avstemt.
+  // Arbeidsvalg i #877 p15 (alternativ B), ikke vedtatt av oppdragsgiver: registreringen
+  // prøves én gang til, så leasen ikke går ut og parkerer en levering som kunne vært avstemt.
   it.each<[string, string, number]>([
     ['én vranglås', 'registreres ved andre forsøk', 1],
     ['to vranglåser', 'kastes etter andre forsøk, og leasen går ut', 2],

@@ -31,9 +31,10 @@ import { feilnummer, sql, utenKontekst, type Pool } from './datalag.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
 /**
- * Lengre enn tre fornyelser av leasen: leveringen fornyer den hvert tredjedel av leasetiden
- * så lenge den pågår, fordi et oppslag i biblioteket blar side for side og ikke har noen
- * øvre tid (#877 p16). Topicen er ett kall med tidsavbrudd (15 s) og kvitteringen.
+ * Leveringen fornyer leasen hver tredjedel av leasetiden så lenge den pågår, fordi et oppslag
+ * i biblioteket blar side for side og ikke har noen øvre tid (#877 p16). Leasen holder da
+ * om én fornyelse på rad feiler, ikke to. Topicen er ett kall med tidsavbrudd (15 s) og
+ * kvitteringen.
  */
 export const LEASETID_S = 120;
 const FORNYELSE_MS = (LEASETID_S * 1000) / 3;
@@ -95,8 +96,9 @@ const FORBIGAAENDE_KODER = new Set([
 
 function forbigaaendeISql(feil: unknown): boolean {
   if (!(feil instanceof sql.MSSQLError)) return false;
+  // mssql setter `number` til koden fra tedious, som 'ETIMEOUT', når basen ikke ga et nummer.
   const nummer = feilnummer(feil);
-  if (nummer !== undefined) return FORBIGAAENDE_SQL.has(nummer);
+  if (typeof nummer === 'number') return FORBIGAAENDE_SQL.has(nummer);
   return feil instanceof sql.ConnectionError || FORBIGAAENDE_KODER.has(feil.code);
 }
 
