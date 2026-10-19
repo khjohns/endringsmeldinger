@@ -14,6 +14,11 @@
  *   `Request` som verdi, også gjennom et annet navn enn `pool`, med hakeparentes og
  *   i en destrukturering. Den ser ikke en forespørsel gjennom en variabel
  *   med et annet navn eller en dynamisk nøkkel, og typen `sql.Request` er lov.
+ *   I tillegg leser typekontrolløren i TypeScript hvert kall på en pool, en
+ *   transaksjon eller en forberedt spørring fra `mssql` og hver `new` av dem, så
+ *   `pool.query`, `pool.batch`, `pool.transaction()` og
+ *   `new sql.PreparedStatement(pool)` også er synlige (#877, #894-2). Den ser ikke
+ *   en verdi med typen `any` eller `unknown`.
  * - `pdf-lib` og `@pdf-lib/fontkit` importeres bare i `brevpdf.ts`, som lager PDF-en
  *   av brevet med skriften bygd inn (#371, #799).
  *
@@ -104,6 +109,66 @@ export function forespoersler(kilde: string): string[] {
   return funn;
 }
 
+/** Typene i `mssql` som kan sende en spørring, og metodene på dem som gjør det. */
+const MSSQL_TYPER = new Set(['ConnectionPool', 'Transaction', 'PreparedStatement', 'Request']);
+const MSSQL_METODER = new Set([
+  'request',
+  'query',
+  'batch',
+  'bulk',
+  'transaction',
+  'prepare',
+  'execute',
+]);
+
+/**
+ * Stedene i filene i `sjekk` som lager en pool, en transaksjon, en forberedt
+ * spørring eller en forespørsel fra `mssql`, eller kaller en metode som sender en
+ * spørring på en pool, en transaksjon eller en forberedt spørring (#894-2).
+ * `kilder` erstatter teksten i filene det gjelder.
+ */
+export function mssqlKall(sjekk: string[], kilder = new Map<string, string>()): string[] {
+  const valg = ts.parseJsonConfigFileContent(
+    ts.readConfigFile(join(SERVER, 'tsconfig.json'), ts.sys.readFile).config,
+    ts.sys,
+    SERVER
+  ).options;
+  const vert = ts.createCompilerHost(valg);
+  const les = vert.getSourceFile.bind(vert);
+  vert.getSourceFile = (navn, ...resten) =>
+    kilder.has(navn)
+      ? ts.createSourceFile(navn, kilder.get(navn)!, ts.ScriptTarget.Latest, true)
+      : les(navn, ...resten);
+  const program = ts.createProgram(sjekk, valg, vert);
+  const kontroll = program.getTypeChecker();
+  const fraMssql = (type: ts.Type | undefined) => {
+    const symbol = type?.getSymbol();
+    return (
+      !!symbol &&
+      MSSQL_TYPER.has(symbol.getName()) &&
+      !!symbol.declarations?.some((d) => d.getSourceFile().fileName.includes('/mssql/'))
+    );
+  };
+  const funn: string[] = [];
+  for (const navn of sjekk) {
+    const fil = program.getSourceFile(navn)!;
+    const besok = (node: ts.Node) => {
+      if (ts.isNewExpression(node) && fraMssql(kontroll.getTypeAtLocation(node)))
+        funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
+      if (
+        ts.isPropertyAccessExpression(node) &&
+        MSSQL_METODER.has(node.name.text) &&
+        fraMssql(kontroll.getTypeAtLocation(node.expression)) &&
+        kontroll.getTypeAtLocation(node.expression).getSymbol()?.getName() !== 'Request'
+      )
+        funn.push(`${relative(SERVER, navn)}: ${node.getText(fil)}`);
+      ts.forEachChild(node, besok);
+    };
+    besok(fil);
+  }
+  return funn;
+}
+
 /** Filene som kan lese alderen på medlemslisten (#638 punkt 2). */
 const ALDEREN = new Set(['autorisasjon.ts']);
 
@@ -163,6 +228,35 @@ describe('grensene rundt TS-serveren', () => {
   )('%s lager ingen forespørsel utenom transaksjon og utenKontekst', (_navn, fil) => {
     expect(forespoersler(readFileSync(fil, 'utf8'))).toEqual([]);
   });
+
+  const utenForespoersel = filer.filter(
+    (f) => !f.startsWith(TESTER + sep) && !FORESPOERSEL.has(relative(SERVER, f))
+  );
+
+  it('utenom datalaget, migreringen og testene kaller ingen fil mssql forbi transaksjon og utenKontekst', () => {
+    expect(mssqlKall(utenForespoersel)).toEqual([]);
+  }, 60_000);
+
+  it.each([
+    ["(p: Pool) => p.query('SELECT 1');"],
+    ["(p: Pool) => p.batch('SELECT 1');"],
+    ['(p: Pool) => p.transaction();'],
+    ['(p: Pool) => new sql.Transaction(p);'],
+    ['(p: Pool) => new sql.PreparedStatement(p);'],
+    ['(p: Pool) => new sql.Request(p);'],
+    ['(t: sql.Transaction) => t.request();'],
+  ])(
+    'typekontrolløren oppdager %s i sesjon.ts',
+    (linje) => {
+      const fil = join(SERVER, 'sesjon.ts');
+      const kilde = readFileSync(fil, 'utf8');
+      expect(mssqlKall([fil])).toEqual([]);
+      expect(
+        mssqlKall([fil], new Map([[fil, `${kilde}\nexport const proeve = ${linje}\n`]]))
+      ).toHaveLength(1);
+    },
+    60_000
+  );
 
   it.each([
     ["await pool.request().query('SELECT 1');"],
