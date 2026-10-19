@@ -4,19 +4,28 @@
 # begge for kjerne/frosset/ (#330, #309).
 # Kontrollen står i .github/scripts/regelversjon.sh, som også kan kjøres
 # lokalt med BASE=<sha>.
+#
+# På en PR er BASE tuppen av basegrenen når jobben kjører, ikke basen fra
+# hendelsen (#870): to PR-er som øker samme versjon, blir hver for seg grønne
+# mot basen de ble laget fra, men den som kjøres etter at den første er merget,
+# blir rød. GitHub kjører ikke PR-en på nytt når basen flytter seg, så vakten
+# kjøres også ved hver push til main, mot tuppen før pushen.
 name: Regelversjon
 
 # Ikke på utkast (#390), som ci.yml.
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
   group: regelversjon-${{ github.ref }}
-  cancel-in-progress: true
+  # En kjøring på main avbrytes ikke av den neste, så hver merge kontrolleres.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   regelversjon:
@@ -30,5 +39,13 @@ jobs:
 
       - name: Kontroller regelversjonen
         env:
-          BASE: ${{ github.event.pull_request.base.sha }}
-        run: .github/scripts/regelversjon.sh
+          BASEGREN: ${{ github.base_ref }}
+          FOER_PUSH: ${{ github.event.before }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            BASE=$FOER_PUSH
+          else
+            BASE=$(git rev-parse "origin/$BASEGREN")
+          fi
+          echo "BASE=$BASE"
+          BASE=$BASE .github/scripts/regelversjon.sh
