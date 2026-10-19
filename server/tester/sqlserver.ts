@@ -175,11 +175,13 @@ export async function somTestbase(database: string, maks: number): Promise<Testb
  * En innlogging som er medlem av `rolle` (standard `koe_runtime`) i basen, og en pool som logger inn
  * med den, så rollen prøves med sine egne rettigheter gjennom `transaksjon()`
  * (#53, del 3a). Innloggingen hører til serveren og slettes med `slett()`, før basen.
+ * `tilkobling` er strengen fra `KOE_SQLSERVER_TILKOBLING` med basen og innloggingen,
+ * for en prosess som skal logge inn som kjøretiden (#962).
  */
 export async function opprettKjoeretid(
   base: Testbase,
   { maks = 4, rolle = 'koe_runtime' } = {}
-): Promise<{ pool: Pool; slett(): Promise<void> }> {
+): Promise<{ pool: Pool; tilkobling: string; slett(): Promise<void> }> {
   const navn = `koe_kjoeretid_${randomBytes(4).toString('hex')}`;
   const passord = `${randomBytes(24).toString('base64url')}aA1!`;
   const master = await kobleTilServer(SLETTEFRIST);
@@ -217,6 +219,8 @@ export async function opprettKjoeretid(
   }
   return {
     pool,
+    // Det siste av et nøkkelord i strengen gjelder.
+    tilkobling: `${SQLSERVER_TILKOBLING};Database=${base.navn};User Id=${navn};Password=${passord}`,
     async slett() {
       try {
         await pool.close();
