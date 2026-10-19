@@ -407,6 +407,11 @@ describe('skrivevakten for mekanisk-pr', () => {
       ["echo $((1<<'EOF'))\necho '\nGIT_DIR=x\n'\nEOF", 2, 2],
       ["ls #<<A\ncat > /tmp/b <<'B'\nA\n'\nB\n\\git push --force origin HEAD:main\n'", 2, 2],
       ["g\\it commit -m x #<<'A'", 2, 2],
+      ["ls #<<'A'\nA\necho '\nx y'; g\\it push --force origin HEAD:main", 2, 2],
+      ["echo $((1<<'A'))\nA\necho '\nx y'; g\\it push --force origin HEAD:main", 2, 2],
+      ['ls #<<\'A\'\nA\necho "\nx y"; g\\h pr merge 1', 2, 2],
+      ["ls #<<'A'\nA\nnice gi\\\nt push --force origin HEAD:main", 2, 2],
+      ["ls #<<'A'\nA\necho '\nx y'; GIT_DIR=/tmp/x g\\it status", 2, 2],
     ];
     for (const [kommando, main, ny] of korpus) {
       if (main === 2) expect(ny, kommando).toBe(2);

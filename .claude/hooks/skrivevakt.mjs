@@ -283,7 +283,8 @@ const ESCAPE_I_ANFORSEL = '$`"\\';
  * lese den, direkte eller gjennom et rør. Kroppslinjene står i `liste.kroppslinjer` som
  * [start, slutt). Den er null når en kropp ikke er bokstavelig, kan kjøres eller ikke avsluttes,
  * eller når heredoc-linja har ukjent syntaks (#970). `<<` etter en `#` som begynner et ord, og i
- * aritmetikk åpner ingen heredoc, så resten av teksten leses som kommandoer, linje for linje. `iKropp` er satt når `tekst` er en
+ * aritmetikk åpner ingen heredoc. Linjene etter leses da som kommandoer, både slik skallet
+ * leser dem og hver for seg. `iKropp` er satt når `tekst` er en
  * kroppslinje.
  */
 function lekser(tekst, iKropp = false) {
@@ -301,6 +302,7 @@ function lekser(tekst, iKropp = false) {
   let kommentar = false;
   let aritmetikk = 0;
   let linjestart = 0;
+  let linjevis = false;
   // Avgrenserne til heredocene som er åpnet på linja, og dem kroppslinjene ennå venter på.
   let aapnede = [];
   const kropper = [];
@@ -392,10 +394,11 @@ function lekser(tekst, iKropp = false) {
     } else if (tegn === '<' && tekst[i + 1] === '<' && !iKropp) {
       // Heredoc. Avgrenseren leses som målet til omdirigeringen; anførselstegn og
       // escape i den gjør kroppen bokstavelig. Etter `#` og i aritmetikk åpner `<<` ingen
-      // heredoc, men resten av teksten lekses likevel linje for linje, slik at en anførsel
-      // ikke kan skjule en linje (#970).
+      // heredoc, men teksten lekses i tillegg linje for linje, slik at en anførsel ikke kan
+      // skjule en linje som main leste for seg (#970).
       avsluttOrd();
       const undertrykt = kommentar || aritmetikk > 0;
+      linjevis ||= undertrykt;
       const fjernTab = tekst[i + 2] === '-';
       i += fjernTab ? 2 : 1;
       const raa = /^[ \t]*([^\s;&|<>()]*)/.exec(tekst.slice(i + 1))[1];
@@ -408,7 +411,7 @@ function lekser(tekst, iKropp = false) {
         if (!bokstavelig) merkUkjent();
         mottar = true;
       }
-      if (avgrenser) aapnede.push({ avgrenser, fjernTab, bokstavelig, undertrykt });
+      if (avgrenser && !undertrykt) aapnede.push({ avgrenser, fjernTab, bokstavelig });
     } else if (tegn === '<') {
       avsluttOrd();
       merkOmdirigering();
@@ -427,12 +430,7 @@ function lekser(tekst, iKropp = false) {
         const slutt = tekst.indexOf('\n', start);
         const linje = tekst.slice(start, slutt === -1 ? tekst.length : slutt);
         i = slutt === -1 ? tekst.length : slutt;
-        const { avgrenser, fjernTab, bokstavelig, kjoeres, undertrykt } = kropper[0];
-        if (undertrykt) {
-          liste.kroppslinjer = null;
-          liste.push(...lekser(linje));
-          continue;
-        }
+        const { avgrenser, fjernTab, bokstavelig, kjoeres } = kropper[0];
         if ((fjernTab ? linje.replace(/^\t+/, '') : linje) === avgrenser) {
           kropper.shift();
           continue;
@@ -474,6 +472,10 @@ function lekser(tekst, iKropp = false) {
     }
   }
   avsluttLedd();
+  if (linjevis && tekst.includes('\n')) {
+    liste.kroppslinjer = null;
+    for (const linje of tekst.split('\n')) liste.push(...lekser(linje));
+  }
   return liste;
 }
 
