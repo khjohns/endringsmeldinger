@@ -136,22 +136,37 @@ function tolketKropp(kropp: ArrayBuffer | undefined): { verdi: object; tekst: st
   }
 }
 
-/** Kjernen av prefikset, slik `kanGiPrefiks` sammenligner. */
-const PREFIKSKJERNE = 'livetest';
+/** Prefikset slik `kanGiPrefiks` sammenligner: bare bokstaver og sifre. */
+const PREFIKSKJERNE = LIVETESTPREFIKS.replace(/[^a-z0-9]/g, '');
 
-/** Prosentkoding og tallentiteter (`%6B`, `&#107;`, `&#x6b;`), dekodet til tegnet. */
+/**
+ * Prosentkoding (som UTF-8), tallentiteter og tagger, fjernet til strengen står stille, så en
+ * koding inni en annen heller ikke skjuler prefikset.
+ */
 function dekodet(tekst: string): string {
   const tegn = (kode: number) => (kode <= 0x10ffff ? String.fromCodePoint(kode) : '');
-  return tekst
-    .replace(/%([0-9a-f]{2})/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
-    .replace(/&#x([0-9a-f]+);?/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
-    .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)));
+  for (let runde = 0; runde < 10; runde++) {
+    const neste = tekst
+      .replace(/(?:%[0-9a-f]{2})+/gi, (t) => {
+        try {
+          return decodeURIComponent(t);
+        } catch {
+          return t.replace(/%([0-9a-f]{2})/gi, (_t, hex: string) => tegn(parseInt(hex, 16)));
+        }
+      })
+      .replace(/&#x([0-9a-f]+);?/gi, (_t, hex: string) => tegn(parseInt(hex, 16)))
+      .replace(/&#([0-9]+);?/g, (_t, des: string) => tegn(parseInt(des, 10)))
+      .replace(/<[^>]*>/g, '');
+    if (neste === tekst) break;
+    tekst = neste;
+  }
+  return tekst;
 }
 
 /**
  * Om en nøkkel eller streng i verdien kan bli prefikset når Catenda lagrer den. Strengen
- * sammenlignes bare på bokstaver og sifre, etter dekoding, NFKC og små bokstaver, så ingen
- * tegn mellom bokstavene, ingen bokstavform og ingen koding (`%6B`, `&#107;`) skjuler `livetest`.
+ * dekodes, normaliseres med NFKC og små bokstaver og sammenlignes bare på bokstaver og sifre,
+ * så tegn mellom bokstavene og andre bokstavformer skjuler ikke prefikset.
  */
 function kanGiPrefiks(verdi: unknown): boolean {
   const stabel: unknown[] = [verdi];

@@ -327,6 +327,10 @@ describe('endringen av en topic', () => {
     ['prefikset med İ', '{"title":"koe-l\\u0130vetest-x"}'],
     ['prefikset som HTML-entitet', JSON.stringify({ title: '&#107;oe-livetest-x' })],
     ['prefikset prosentkodet', JSON.stringify({ title: '%6Boe-%6Civetest-x' })],
+    ['prefikset prosentkodet to ganger', JSON.stringify({ title: 'koe-li%2576etest-x' })],
+    ['prefikset som entitet rundt prosentkoding', JSON.stringify({ title: 'koe-li&#37;76etest-x' })],
+    ['fullbreddes l prosentkodet som UTF-8', JSON.stringify({ title: 'koe-%EF%BD%8Civetest-x' })],
+    ['prefikset delt av tagger', JSON.stringify({ title: 'koe-live<b></b>test-x' })],
   ])('slår opp og gir 403 uten PUT for %s når topicen er uten prefiks', async (_navn, kropp) => {
     catendasvar = topicUtenPrefiks;
     const s = await behandle(put(kropp), miljoe);
@@ -348,6 +352,7 @@ describe('endringen av en topic', () => {
     ['æøå skrevet med escape, som Python sender', '{"title": "Grunnforhold p\\u00e5 tomta"}', '{"title":"Grunnforhold på tomta"}'],
     ['æøå i UTF-8', JSON.stringify({ title: 'Grunnforhold på tomta' }), '{"title":"Grunnforhold på tomta"}'],
     ['ingen tittel', JSON.stringify({ topic_status: 'Closed' }), '{"topic_status":"Closed"}'],
+    ['live test i beskrivelsen', JSON.stringify({ description: 'Live test av varsling, olivetesting' }), '{"description":"Live test av varsling, olivetesting"}'],
     ['dupliserte titler, der den siste er uten prefiks', `{"title":"${P}x","title":"Ekte sak"}`, '{"title":"Ekte sak"}'],
   ])('sender PUT med %s uten oppslag, i kanonisk form', async (_navn, kropp, kanonisk) => {
     const s = await behandle(put(kropp, 'application/json; charset=utf-7'), miljoe);
@@ -372,13 +377,19 @@ describe('endringen av en topic', () => {
     expect(kall).toEqual([]);
   });
 
-  it('slår opp og gir 403 uten å krasje for en dypt nøstet kropp med prefikset', async () => {
-    catendasvar = topicUtenPrefiks;
+  it('gir 403 uten kall for en kropp som er for dypt nøstet til å skrives kanonisk', async () => {
     const dybde = 20_000;
-    const kropp = '{"a":'.repeat(dybde) + `"${P}x"` + '}'.repeat(dybde);
+    const kropp = '{"a":'.repeat(dybde) + '"x"' + '}'.repeat(dybde);
     const s = await behandle(put(kropp), miljoe);
-    expect([403, 400]).toContain(s.status);
-    expect(metoder()).not.toContain('PUT');
+    expect(s.status).toBe(403);
+    expect(kall).toEqual([]);
+  });
+
+  it('slår opp og gir 403 for prefikset i et objekt 200 nivåer ned', async () => {
+    catendasvar = topicUtenPrefiks;
+    const kropp = '{"a":'.repeat(200) + `"${P}x"` + '}'.repeat(200);
+    expect((await behandle(put(kropp), miljoe)).status).toBe(403);
+    expect(metoder()).toEqual(['GET']);
   });
 
   it('gir 403 uten kall for PUT med Bimsync-Params', async () => {
