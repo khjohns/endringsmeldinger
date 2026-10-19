@@ -491,6 +491,7 @@
               onletterclick={(ev) => {
                 letterEvent = ev;
               }}
+              harBrev={(ev) => buildLetterContent(ev, store.sak) !== null}
             />
           </div>
         </div>

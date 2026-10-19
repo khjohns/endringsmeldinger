@@ -18,6 +18,7 @@
     onclose,
     oneventclick,
     onletterclick,
+    harBrev,
   }: {
     sel: SporKey;
     mode: Mode;
@@ -27,6 +28,7 @@
     onclose?: () => void;
     oneventclick?: (ev: TimelineEvent) => void;
     onletterclick?: (ev: TimelineEvent) => void;
+    harBrev?: (ev: TimelineEvent) => boolean;
   } = $props();
 
   const ui = $derived(store.getUI(sel));
@@ -103,7 +105,14 @@
     {#if tab === 'historikk' && store.erKjernesak}
       {#if store.saksbilde}<Kjernejournal bilde={store.saksbilde} />{/if}
     {:else if tab === 'historikk'}
-      <CaseHistory events={store.timeline} {sel} {activeEvent} {oneventclick} {onletterclick} />
+      <CaseHistory
+        events={store.timeline}
+        {sel}
+        {activeEvent}
+        {oneventclick}
+        {onletterclick}
+        {harBrev}
+      />
     {/if}
 
     {#if tab === 'vedlegg' && !store.erKjernesak}

@@ -209,7 +209,10 @@ describe('TS-saken i Kontrollrommet', () => {
     expect(screen.getByText(kjernesak.visning!.status.tekst)).toBeInTheDocument();
     expect(screen.queryByText('Ingen krav')).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Historikk' }));
-    expect(within(screen.getByTestId('journal-3')).getByText('Ikke tolket')).toBeInTheDocument();
+    const rad = within(screen.getByTestId('journal-3'));
+    expect(rad.getByText('Ikke tolket')).toBeInTheDocument();
+    expect(rad.getByText('3. Hendelse appen ikke forstår, fra TE')).toBeInTheDocument();
+    expect(rad.getByText('ukjent_hendelse')).toBeInTheDocument();
     for (const m of kjernesak.saksbilde!.merknader)
       expect(screen.getByText(m.tekst)).toBeInTheDocument();
   });

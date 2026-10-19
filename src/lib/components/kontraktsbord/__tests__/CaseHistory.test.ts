@@ -67,7 +67,13 @@ it('supports keyboard selection and separate letter actions', async () => {
   const select = vi.fn();
   const letter = vi.fn();
   render(CaseHistory, {
-    props: { events, sel: 'frist', oneventclick: select, onletterclick: letter },
+    props: {
+      events,
+      sel: 'frist',
+      oneventclick: select,
+      onletterclick: letter,
+      harBrev: () => true,
+    },
   });
   const title = screen.getByRole('button', { name: 'Fristkrav oppdatert' });
   title.focus();
@@ -76,4 +82,21 @@ it('supports keyboard selection and separate letter actions', async () => {
   await user.click(screen.getByRole('button', { name: 'Vis brev: Fristkrav oppdatert' }));
   expect(letter).toHaveBeenCalledWith(events[1]);
   expect(select).toHaveBeenCalledTimes(1);
+});
+// #864: `buildLetterContent` gir `null` for en hendelse uten spor og uten lagret brev,
+// og da åpner Kontrollrommet ingen modal. Knappen vises bare der det finnes et brev.
+it('viser «Vis brev» bare for hendelser som har brev', async () => {
+  const user = userEvent.setup();
+  render(CaseHistory, {
+    props: {
+      events,
+      sel: 'frist',
+      onletterclick: vi.fn(),
+      harBrev: (e: TimelineEvent) => e.spor !== undefined,
+    },
+  });
+  await user.click(screen.getByRole('button', { name: 'Hele saken' }));
+  expect(
+    screen.getAllByRole('button', { name: /^Vis brev: / }).map((b) => b.getAttribute('aria-label'))
+  ).toEqual(['Vis brev: Fristkrav oppdatert', 'Vis brev: Vederlagskrav sendt']);
 });
