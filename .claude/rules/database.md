@@ -67,8 +67,23 @@ utrullingen, ikke migrasjonene (A8 og A9 i #78).
 som kaster 51001), utenom den lukkede listen `UTEN_TRIGGER` i
 `server/tester/journal.test.ts`, der hver tabell står med begrunnelsen
 (arbeidsvalg 3 i #53). En ny tabell i `koe` får triggeren eller en linje i
-listen; ellers er testen rød. TRUNCATE avfyrer ingen trigger, så en tabell uten
-fremmednøkkel mot seg kan tømmes av den som har ALTER.
+listen; ellers er testen rød. TRUNCATE avfyrer ingen trigger, men avvises (4712)
+for en tabell som en fremmednøkkel fra en annen tabell viser til; en nøkkel
+tabellen har til seg selv, hindrer det ikke (#582). Har en ny uforanderlig tabell
+ingen slik nøkkel mot seg, får `koe.toemmingsvern` en kolonne med fremmednøkkel
+mot den, i en ny migrasjon
+(`database/migrasjoner/20261020011000_toemmingsvern.sql`). Testen av TRUNCATE i
+`server/tester/journal.test.ts` prøver hver tabell med triggeren og er rød for en
+tabell uten vern.
+
+**Runneren kjøres som `dbo`, databaseeieren** (#564). Da eies skjemaene filene
+lager, av `dbo`, og eierskapskjeden fra `koe_api` og `koe_drift` til tabellene og
+predikatene holder (#567). Gi aldri et skjema eieren `dbo` i ettertid med
+`ALTER AUTHORIZATION ON SCHEMA`: eierbyttet fjerner rettighetene på objektene i
+skjemaet. `kontrollerIdentitet` i `server/migrering.ts` avviser en annen
+identitet før applåsen, og runneren leser identiteten igjen etter hver sats, så
+en fil som slutter i `EXECUTE AS` uten `REVERT`, stoppes (#866). Testene står i
+`server/tester/migrering.test.ts`.
 
 **Radsikkerheten i SQL Server er én policy, `koe_sikkerhet.tilgang`, med
 `SCHEMABINDING`** (DL-U5, `database/migrasjoner/20261016110000_tilgang.sql`;

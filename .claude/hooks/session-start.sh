@@ -124,6 +124,28 @@ fi
 # trenger den, ikke venter på oppstarten. Tilkoblingen skrives ut med en gang,
 # også før containeren finnes (#527). Testhjelperen venter på serveren.
 sqllogg=/tmp/koe-sqlserver.log
+# Bakgrunnsjobben: steget, så `vent`, innenfor fristen. Fristen dekker hentingen
+# (hent_bilde.sh gir opp etter om lag ti minutter med én kilde) og `vent`.
+# `timeout` dreper sin egen prosessgruppe, også `docker pull` i hent_bilde.sh,
+# som kjører med `--foreground` og blir i gruppen. Jobben selv står utenfor
+# gruppen, så den overlever fristen og fjerner stempelet: en utløpt frist er en
+# feil, og neste kjøring lager containeren på nytt (#761). Startlåsen (fd 9)
+# slippes når jobben er ferdig.
+sqlserver_bakgrunn() {
+  local status=0
+  timeout --kill-after 10 "$FRIST" bash -c '"$@" > /dev/null && "$SKRIPT" vent' _ "$@" \
+    || status=$?
+  if [ "$status" = 0 ]; then
+    echo "$CONTAINER" > "$STEMPEL"
+    return
+  fi
+  rm -f "$STEMPEL"
+  if [ "$status" = 124 ] || [ "$status" = 137 ]; then
+    echo "Fristen på $FRIST s for oppstarten av SQL Server gikk ut. Stempelet er fjernet, så neste kjøring av hooken lager containeren på nytt."
+  fi
+  return "$status"
+}
+export -f sqlserver_bakgrunn
 start_sqlserver() {
   docker info > /dev/null 2>&1 || return 1
   local skript="$rot/scripts/testbase/docker_sqlserver.sh" port="${KOE_SQLSERVER_PORT:-14331}"
@@ -152,7 +174,7 @@ start_sqlserver() {
   # Stempelet skrives først når serveren har svart, så en container som aldri
   # kom opp, lages på nytt ved neste kjøring i stedet for å startes igjen (#525).
   # En container med stempel har svart før; den beholder stempelet mens den
-  # startes, og mister det bare når starten eller `vent` feiler.
+  # startes, og mister det når starten eller `vent` feiler eller fristen går ut.
   if ! docker container inspect "$navn" > /dev/null 2>&1 \
     || [ "$(cat "$stempel" 2> /dev/null)" != "$container" ]; then
     rm -f "$stempel"
@@ -174,13 +196,8 @@ start_sqlserver() {
   else
     steg=(docker start "$navn")
   fi
-  # Fristen dekker hentingen (hent_bilde.sh gir opp etter om lag ti minutter med
-  # én kilde) og `vent`. `timeout` dreper hele prosessgruppen. Unntaket er
-  # `timeout 180 docker pull` i hent_bilde.sh, som lager sin egen gruppe og kan
-  # holde startlåsen i opptil 180 s etter fristen.
-  SKRIPT="$skript" STEMPEL="$stempel" CONTAINER="$container" \
-    setsid nohup timeout --kill-after 10 1800 bash -c \
-    '{ "$@" > /dev/null && "$SKRIPT" vent && echo "$CONTAINER" > "$STEMPEL"; } || rm -f "$STEMPEL"' \
+  SKRIPT="$skript" STEMPEL="$stempel" CONTAINER="$container" FRIST=1800 \
+    setsid nohup bash -c 'sqlserver_bakgrunn "$@"' \
     _ "${steg[@]}" >> "$sqllogg" 2>&1 < /dev/null 8>&- &
   exec 8>&- 9>&-
   "$skript" tilkobling
