@@ -283,7 +283,7 @@ const ESCAPE_I_ANFORSEL = '$`"\\';
  * lese den, direkte eller gjennom et rør. Kroppslinjene står i `liste.kroppslinjer` som
  * [start, slutt). Den er null når en kropp ikke er bokstavelig, kan kjøres eller ikke avsluttes,
  * eller når heredoc-linja har ukjent syntaks (#970). `<<` etter en `#` som begynner et ord, og i
- * aritmetikk åpner ingen heredoc, så linjene etter leses som kommandoer. `iKropp` er satt når `tekst` er en
+ * aritmetikk åpner ingen heredoc, så resten av teksten leses som kommandoer, linje for linje. `iKropp` er satt når `tekst` er en
  * kroppslinje.
  */
 function lekser(tekst, iKropp = false) {
@@ -392,8 +392,8 @@ function lekser(tekst, iKropp = false) {
     } else if (tegn === '<' && tekst[i + 1] === '<' && !iKropp) {
       // Heredoc. Avgrenseren leses som målet til omdirigeringen; anførselstegn og
       // escape i den gjør kroppen bokstavelig. Etter `#` og i aritmetikk åpner `<<` ingen
-      // heredoc, men linjene fram til avgrenseren lekses likevel hver for seg, slik at en
-      // anførsel ikke kan skjule en linje (#970).
+      // heredoc, men resten av teksten lekses likevel linje for linje, slik at en anførsel
+      // ikke kan skjule en linje (#970).
       avsluttOrd();
       const undertrykt = kommentar || aritmetikk > 0;
       const fjernTab = tekst[i + 2] === '-';
@@ -403,9 +403,9 @@ function lekser(tekst, iKropp = false) {
       // Bare enkle former, slik at vakten og skallet finner samme avgrenserlinje.
       const bokstavelig = /^(['"])[\w.-]+\1$|^\\[\w.-]+$/.test(raa);
       merkOmdirigering();
+      heredoc = true;
       if (!undertrykt) {
         if (!bokstavelig) merkUkjent();
-        heredoc = true;
         mottar = true;
       }
       if (avgrenser) aapnede.push({ avgrenser, fjernTab, bokstavelig, undertrykt });
@@ -428,14 +428,12 @@ function lekser(tekst, iKropp = false) {
         const linje = tekst.slice(start, slutt === -1 ? tekst.length : slutt);
         i = slutt === -1 ? tekst.length : slutt;
         const { avgrenser, fjernTab, bokstavelig, kjoeres, undertrykt } = kropper[0];
-        const avslutter = (fjernTab ? linje.replace(/^\t+/, '') : linje) === avgrenser;
         if (undertrykt) {
           liste.kroppslinjer = null;
-          liste.push(...lekser(linje, true));
-          if (avslutter) kropper.shift();
+          liste.push(...lekser(linje));
           continue;
         }
-        if (avslutter) {
+        if ((fjernTab ? linje.replace(/^\t+/, '') : linje) === avgrenser) {
           kropper.shift();
           continue;
         }
