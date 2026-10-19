@@ -18,7 +18,7 @@
 
 import type { Avhengigheter, Innlogget, Prosjektforespoersel, Rute, Svar } from './app.ts';
 import { ferskeProsjekter } from './autorisasjon.ts';
-import { sql, UUID, type Pool } from './datalag.ts';
+import { sql, utenKontekst, UUID, type Pool } from './datalag.ts';
 import { fast, loggFeil } from './inngang.ts';
 import { erLaast, synkroniserProsjekt } from './medlemskap.ts';
 
@@ -44,8 +44,7 @@ const prosjektet = (r: Prosjektrad) => ({
 });
 
 async function lesBrukerensProsjekter(db: Pool, aktor: string): Promise<Prosjektrad[]> {
-  const svar = await db
-    .request()
+  const svar = await utenKontekst(db)
     .input('aktor', sql.UniqueIdentifier, aktor)
     .execute<Prosjektrad>('koe_api.brukerens_prosjekter');
   return svar.recordset;
@@ -84,8 +83,7 @@ async function visProsjektet(
   { bruker, prosjekt }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const svar = await avh.datalag
-    .request()
+  const svar = await utenKontekst(avh.datalag)
     .input('aktor', sql.UniqueIdentifier, bruker.id)
     .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
     .execute<Prosjektrad>('koe_api.prosjekt');
@@ -123,8 +121,7 @@ const medlemmet = (m: Medlemsrad) => ({
 });
 
 async function lesMedlemmer(db: Pool, aktor: string, prosjekt: string): Promise<Medlemsrad[]> {
-  const svar = await db
-    .request()
+  const svar = await utenKontekst(db)
     .input('aktor', sql.UniqueIdentifier, aktor)
     .input('prosjekt', sql.NVarChar(4000), prosjekt)
     .execute<Medlemsrad>('koe_api.medlemmer');
@@ -194,8 +191,7 @@ async function begrensMedlem(
   const medlem = ressurs?.toLowerCase();
   if (!medlem || !UUID.test(medlem)) return nekt;
   try {
-    const svar = await avh.datalag
-      .request()
+    const svar = await utenKontekst(avh.datalag)
       .input('aktor', sql.UniqueIdentifier, bruker.id)
       .input('prosjekt', sql.NVarChar(4000), prosjekt.prosjektId)
       .input('medlem', sql.UniqueIdentifier, medlem)

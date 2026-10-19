@@ -206,6 +206,27 @@ export async function opprettKjoeretid(
 }
 
 /**
+ * Sletter testressursene i rekkefølgen de er gitt, typisk kjøretiden før basen,
+ * og prøver hver av dem også når en tidligere sletting feiler (#874 punkt 1). En
+ * ressurs som ikke ble opprettet, hoppes over. Feiler én, kastes feilen; feiler
+ * flere, kastes de samlet.
+ */
+export async function slettAlle(
+  ...ressurser: ({ slett(): Promise<void> } | undefined)[]
+): Promise<void> {
+  const feil: unknown[] = [];
+  for (const r of ressurser) {
+    try {
+      await r?.slett();
+    } catch (f) {
+      feil.push(f);
+    }
+  }
+  if (feil.length === 1) throw feil[0];
+  if (feil.length > 1) throw new AggregateError(feil, 'Flere testressurser kunne ikke slettes.');
+}
+
+/**
  * Sletter innloggingen `navn` fra serveren. `pool.close()` venter ikke på at
  * serveren har lukket øktene, så `DROP LOGIN` kan komme mens en av dem ennå
  * står i `sys.dm_exec_sessions` (#727). Øktene til innloggingen avsluttes derfor

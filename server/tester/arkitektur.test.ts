@@ -7,9 +7,13 @@
  * - `mssql` importeres bare i datalaget (`datalag.ts`, #419), i migreringen
  *   (`migrering.ts`, #53), i testen av datalaget (`tester/datalag.test.ts`) og
  *   i testbasen (`tester/sqlserver*.ts`, #532). De andre testene, også
- *   `tester/migrering.test.ts`, får `sql` fra testbasen (#567). Testen ser bare
- *   de statiske importene av `mssql`, ikke et lager som bruker `sql` fra
- *   `datalag.ts` eller en pool fra `opprettPool` utenom `transaksjon` (#542).
+ *   `tester/migrering.test.ts`, får `sql` fra testbasen (#567).
+ * - En forespørsel mot SQL Server lages bare i datalaget, i migreringen og i
+ *   testene (#542). Ellers går et kall gjennom `transaksjon`, med konteksten satt,
+ *   eller `utenKontekst`, uten den. Testen ser hver bruk av egenskapen `request` eller
+ *   `Request` som verdi, også gjennom et annet navn enn `pool`, med hakeparentes og
+ *   i en destrukturering. Den ser ikke en forespørsel gjennom en variabel
+ *   med et annet navn eller en dynamisk nøkkel, og typen `sql.Request` er lov.
  * - `pdf-lib` og `@pdf-lib/fontkit` importeres bare i `brevpdf.ts`, som lager PDF-en
  *   av brevet med skriften bygd inn (#371, #799).
  *
@@ -71,6 +75,35 @@ export function forbudteImporter(fil: string, kilde: string): string[] {
   });
 }
 
+/** Filene utenom testene som kan lage en forespørsel selv (#542). */
+const FORESPOERSEL = new Set(['datalag.ts', 'migrering.ts']);
+
+const FORESPOERSELSNAVN = new Set(['request', 'Request']);
+
+/** Stedene i `kilde` som bruker `request` eller `Request` som verdi (#542). */
+export function forespoersler(kilde: string): string[] {
+  const fil = ts.createSourceFile('kilde.ts', kilde, ts.ScriptTarget.Latest, true);
+  const funn: string[] = [];
+  const besok = (node: ts.Node) => {
+    const navn = ts.isPropertyAccessExpression(node)
+      ? node.name
+      : ts.isBindingElement(node)
+        ? (node.propertyName ?? node.name)
+        : ts.isElementAccessExpression(node)
+          ? node.argumentExpression
+          : undefined;
+    if (
+      navn &&
+      (ts.isIdentifier(navn) || ts.isStringLiteralLike(navn)) &&
+      FORESPOERSELSNAVN.has(navn.text)
+    )
+      funn.push(node.getText(fil));
+    ts.forEachChild(node, besok);
+  };
+  besok(fil);
+  return funn;
+}
+
 /** Filene som kan lese alderen på medlemslisten (#638 punkt 2). */
 const ALDEREN = new Set(['autorisasjon.ts']);
 
@@ -121,6 +154,27 @@ describe('grensene rundt TS-serveren', () => {
       .filter((f) => viserTilAlderen(readFileSync(f, 'utf8')))
       .map((f) => relative(SERVER, f));
     expect(lesere.sort()).toEqual([...ALDEREN].sort());
+  });
+
+  it.each(
+    filer
+      .filter((f) => !f.startsWith(TESTER + sep) && !FORESPOERSEL.has(relative(SERVER, f)))
+      .map((f) => [relative(SERVER, f), f] as const)
+  )('%s lager ingen forespørsel utenom transaksjon og utenKontekst', (_navn, fil) => {
+    expect(forespoersler(readFileSync(fil, 'utf8'))).toEqual([]);
+  });
+
+  it.each([
+    ["await pool.request().query('SELECT 1');"],
+    ["await avh.datalag.request().execute('koe_api.migrasjonshistorikk');"],
+    ['const r = new sql.Request(pool);'],
+    ["await pool['request']().query('SELECT 1');"],
+    ['const { request } = pool;'],
+    ['const f = db.request.bind(db);'],
+  ])('oppdager forespørselen %s i sesjon.ts', (linje) => {
+    const kilde = readFileSync(join(SERVER, 'sesjon.ts'), 'utf8');
+    expect(forespoersler(kilde)).toEqual([]);
+    expect(forespoersler(`${linje}\n${kilde}`)).not.toEqual([]);
   });
 
   it.each([

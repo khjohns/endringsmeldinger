@@ -51,6 +51,8 @@ export interface Journalpost {
   tittel: string;
   /** `false` når kjernen ikke har tolket hendelsen (MM-U2). */
   tolket: boolean;
+  /** Hendelseskoden for en rad kjernen ikke har tolket, så den kan meldes. */
+  hendelseskode: string | null;
   /**
    * Brevteksten slik den ble frosset, med det låste avsnittet og partens utdypning
    * hver for seg (B-15, LV-U2). `null` for et registrert brev.
@@ -136,10 +138,12 @@ function brevtekst(rad: Journalrad, tolket: boolean): Avsnitt[] | null {
 }
 
 function journaltittel(rad: Journalrad, tolket: boolean, tekst: Avsnitt[] | null): string {
+  const ukjent = `Hendelse appen ikke forstår, fra ${rad.aktor_rolle}`;
+  if (!tolket) return ukjent;
   if (rad.event_type === 'sak_opprettet') return `Saken er opprettet av ${rad.aktor_rolle}`;
-  if (tolket && rad.event_type === 'dokument_registrert')
+  if (rad.event_type === 'dokument_registrert')
     return tekst ? `Brev fra ${rad.aktor_rolle}` : `Registrert brev fra ${rad.aktor_rolle}`;
-  return `${rad.event_type} fra ${rad.aktor_rolle}`;
+  return ukjent;
 }
 
 function postTekst(p: Omit<Sporpost, 'tekst'>): string {
@@ -209,6 +213,7 @@ export function lagSaksbilde(
         tidsstempel: r.tidsstempel,
         tittel: journaltittel(r, erTolket, tekst),
         tolket: erTolket,
+        hendelseskode: erTolket ? null : r.event_type,
         tekst,
         opplysninger: opplysningerI(r.event_id),
         oppdrag: oppdrag.filter((o) => o.event_id === r.event_id),

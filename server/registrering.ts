@@ -24,7 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { catendaId } from './autorisasjon.ts';
 import { catendaFraMiljoe, type CatendaOAuth } from './catenda.ts';
-import { opprettPool, sql, type Pool } from './datalag.ts';
+import { opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
 import type { Part } from '../kjerne/typer.ts';
 
 export interface Kontraktsteam {
@@ -98,8 +98,7 @@ interface Registrert {
 }
 
 async function registrer(pool: Pool, r: Registrering): Promise<Registrert> {
-  const svar = await pool
-    .request()
+  const svar = await utenKontekst(pool)
     .input('prosjekt', sql.NVarChar(4000), r.prosjekt)
     .input('navn', sql.NVarChar(4000), r.navn)
     .input('beskrivelse', sql.NVarChar(sql.MAX), r.beskrivelse)
@@ -118,8 +117,7 @@ async function settKontraktsteam(
   prosjekt: string,
   team: Kontraktsteam[]
 ): Promise<void> {
-  await pool
-    .request()
+  await utenKontekst(pool)
     .input('prosjekt', sql.NVarChar(4000), prosjekt)
     .input('team', sql.NVarChar(sql.MAX), JSON.stringify(team))
     .execute('koe_drift.sett_kontraktsteam');
@@ -134,8 +132,7 @@ export interface Prosjektteam {
 
 /** Koblingen og kontraktsteamene, eller `null` når prosjektet ikke er koblet. */
 export async function lesKontraktsteam(pool: Pool, prosjekt: string): Promise<Prosjektteam | null> {
-  const svar = await pool
-    .request()
+  const svar = await utenKontekst(pool)
     .input('prosjekt', sql.NVarChar(4000), prosjekt)
     .execute('koe_drift.kontraktsteam');
   const [kobling, team] = svar.recordsets as unknown as [

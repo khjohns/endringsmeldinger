@@ -148,14 +148,11 @@ const OGSAA_KONTROLL: Record<string, string> = {
  * - `verdiene_fyller_kolonnen`: kontrollen godtar bare verdier som fyller hele
  *   kolonnen, så det er ikke plass til mellomrom etter;
  * - `fremmednoekkel`: kolonnen peker på en kolonne med fast lengde og er ikke
- *   lengre enn den, så en verdi med mellomrom etter svarer ikke til noen rad;
- * - `fast_bredde`: `char` og `nchar` fylles ut med mellomrom, så verdien har
- *   bare én form.
+ *   lengre enn den, så en verdi med mellomrom etter svarer ikke til noen rad.
  */
 type Grunn =
   | { grunn: 'verdiene_fyller_kolonnen'; kontroll: string }
-  | { grunn: 'fremmednoekkel'; til: string }
-  | { grunn: 'fast_bredde' };
+  | { grunn: 'fremmednoekkel'; til: string };
 
 /**
  * Tekstkolonnene med krav uten kontrollen. Listen er lukket: en ny kolonne får
@@ -192,7 +189,6 @@ const UTEN_KONTROLL: Record<string, Grunn> = {
   },
   'koe.vedlegg.sak_id': { grunn: 'fremmednoekkel', til: 'koe.sak_metadata.sak_id' },
   'koe.vedlegg.bundet_av_event_id': { grunn: 'fremmednoekkel', til: 'koe.hendelse.event_id' },
-  'koe_migrering.historikk.versjon': { grunn: 'fast_bredde' },
 };
 
 /**
@@ -312,7 +308,6 @@ function uholdbareGrunner(k: Katalog, grunner: Record<string, Grunn> = UTEN_KONT
     .filter(([kolonne, g]) => {
       const c = k.kolonner.find((c) => c.kolonne === kolonne);
       if (!c) return true;
-      if (g.grunn === 'fast_bredde') return c.type !== 'char' && c.type !== 'nchar';
       if (g.grunn === 'fremmednoekkel') {
         const lengde = fastLengde(k, g.til);
         return (
@@ -580,12 +575,6 @@ describe('katalogvakten for mellomrom (#608, #643), på en katalog i minnet', ()
     const k = katalog();
     k.kolonner[0].sortering = 'SQL_Latin1_General_CP1_CI_AS';
     expect(utenBinaerSortering(k)).toEqual(['koe.projects.id']);
-  });
-
-  it('fast_bredde holder ikke for nvarchar', () => {
-    expect(uholdbareGrunner(katalog(), { 'koe.projects.name': { grunn: 'fast_bredde' } })).toEqual([
-      'koe.projects.name',
-    ]);
   });
 });
 

@@ -15,6 +15,8 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
+  CommitIkkeSendt,
+  feilnummer,
   KONTEKSTNOEKLER,
   opprettPool,
   sql,
@@ -27,7 +29,7 @@ import {
   type Pool,
 } from '../datalag.ts';
 import { enGang, tidsavbrudd, vedNesteLaan, type Kall } from './forbindelse.ts';
-import { feilnummer, opprettTestbase, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
+import { opprettTestbase, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const KONTEKST: Kontekst = {
   aktor: randomUUID(),
@@ -303,8 +305,29 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
         'rollbackTransaction'
       );
     }).catch((e: unknown) => e);
-    expect(feil).toBeInstanceOf(Error);
-    expect(feil).not.toBeInstanceOf(UsikkertUtfall);
+    expect(feil).toBeInstanceOf(CommitIkkeSendt);
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
+    expect(etter.forbindelse).not.toBe(inne!.forbindelse);
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  // Kilde: #543 punkt 3. Med en forespørsel som pågår, avviser `mssql` COMMIT
+  // (EREQINPROG), så utfallet ville blitt meldt som usikkert.
+  it('arbeidet returnerer mens en forespørsel pågår: CommitIkkeSendt, ingenting lagres, og forbindelsen forkastes', async () => {
+    loggen();
+    const id = randomUUID();
+    let inne: Sesjon | undefined;
+    let pagaaende: Promise<unknown> | undefined;
+    const feil = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+      pagaaende = f()
+        .batch("WAITFOR DELAY '00:00:00.200'")
+        .catch((e: unknown) => e);
+    }).catch((e: unknown) => e);
+    await pagaaende;
+    expect(feil).toBeInstanceOf(CommitIkkeSendt);
     const etter = await sesjonen(() => pool.request());
     expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
     expect(etter.forbindelse).not.toBe(inne!.forbindelse);
@@ -389,16 +412,6 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     expect(await lagret(pool, id)).toBe(false);
   });
 
-  it('opprettPool avviser min over maks før den kobler til', async () => {
-    const konfig = sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING!);
-    await expect(opprettPool({ ...konfig, pool: { min: 3 } }, { maks: 2 })).rejects.toBeInstanceOf(
-      RangeError
-    );
-    await expect(opprettPool({ ...konfig, pool: { min: 3, max: 2 } })).rejects.toBeInstanceOf(
-      RangeError
-    );
-  });
-
   it('opprettPool bruker konfig.pool.max når maks ikke er oppgitt, og maks foran den', async () => {
     const konfig = {
       ...sql.ConnectionPool.parseConnectionString(SQLSERVER_TILKOBLING!),
@@ -411,7 +424,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     };
     expect(await fra(opprettPool({ ...konfig, pool: { max: 3 } }))).toBe(3);
     expect(await fra(opprettPool({ ...konfig, pool: { max: 3 } }, { maks: 2 }))).toBe(2);
-    expect(await fra(opprettPool(konfig))).toBe(10);
+    // Tilkoblingsstrengen kan ha en egen grense, så standarden prøves uten den (#544 punkt 2).
+    expect(await fra(opprettPool({ ...konfig, pool: undefined }))).toBe(10);
   });
 
   it.each<[string, Partial<Record<keyof Kontekst, unknown>>]>([
@@ -433,5 +447,35 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     ).rejects.toBeInstanceOf(UgyldigKontekst);
     expect(laant).toBe(false);
     delete (pool as unknown as { acquire?: unknown }).acquire;
+  });
+});
+
+describe('datalaget uten SQL Server', () => {
+  // Kilde: #704 punkt 1. `mssql` pakker en feil fra `tedious` i `originalError`
+  // uten å kopiere nummeret, som i `TransactionError`.
+  it('feilnummer leser nummeret på feilen og i originalError.info', () => {
+    const fraTedious = Object.assign(new Error('Transaksjonen er avbrutt.'), {
+      info: { number: 3903 },
+    });
+    expect(feilnummer(new sql.TransactionError(fraTedious))).toBe(3903);
+    expect(feilnummer(new sql.RequestError(fraTedious))).toBe(3903);
+    expect(feilnummer(new Error('uten nummer'))).toBeUndefined();
+    expect(feilnummer(undefined)).toBeUndefined();
+  });
+
+  // Kilde: #544 punkt 1. Grensene kontrolleres før tilkoblingen, så serveren
+  // nedenfor blir aldri kontaktet.
+  it.each<[string, sql.config['pool'], number | undefined]>([
+    ['min over maks', { min: 3 }, 2],
+    ['min over max i konfigurasjonen', { min: 3, max: 2 }, undefined],
+    ['maks 0', {}, 0],
+    ['maks negativ', {}, -1],
+    ['maks er ikke et heltall', {}, 1.5],
+    ['max er NaN', { max: Number.NaN }, undefined],
+    ['min negativ', { min: -1 }, 2],
+    ['min er ikke et heltall', { min: 0.5 }, 2],
+  ])('opprettPool avviser grensene før den kobler til: %s', async (_navn, grenser, maks) => {
+    const konfig: sql.config = { server: 'ingen.invalid', pool: grenser };
+    await expect(opprettPool(konfig, { maks })).rejects.toBeInstanceOf(RangeError);
   });
 });
