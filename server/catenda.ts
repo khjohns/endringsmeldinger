@@ -428,7 +428,7 @@ export class CatendaOAuth {
         return [{ id: lestId(rad.guid), dokumentId: sammenlignbarDokumentId(rad.document_guid) }];
       if (erObjekt(rad) && rad.document_guid == null && erTekst(rad.url)) return [];
       const guid = erObjekt(rad) ? rad.guid : undefined;
-      const navn = erLestId(guid) ? `med GUID ${guid}` : `nr. ${nr + 1}`;
+      const navn = erLestId(guid) && TRYGG_GUID.test(guid) ? `med GUID ${guid}` : `nr. ${nr + 1}`;
       throw new VarigCatendaavvik(
         `Referansen ${navn} på topicen viser verken til et dokument eller en lenke`
       );
@@ -478,6 +478,9 @@ function lestId(id: unknown): string {
 function erLestId(id: unknown): id is string {
   return erKvitterbarId(id) && id.trim() === id;
 }
+
+/** En GUID som kan stå i meldingen; den lagres og logges, så den bærer ikke annen tekst fra svaret. */
+const TRYGG_GUID = /^[\w-]+$/;
 
 function erTekst(verdi: unknown): verdi is string {
   return typeof verdi === 'string' && verdi !== '';

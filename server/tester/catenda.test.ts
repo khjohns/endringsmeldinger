@@ -596,6 +596,18 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
       [{ guid: 'r1', document_guid: 'dok-1' }, { guid: ' r2' }],
       'nr. 2',
     ],
+    [
+      'en referanse uten dokument og med en GUID i form av en UUID',
+      [{ guid: '0f8fad5b-d9cb-469f-a165-70867728950e' }],
+      'med GUID 0f8fad5b-d9cb-469f-a165-70867728950e',
+    ],
+    // Arbeidsvalg (#895): meldingen lagres og logges, så en GUID med andre tegn enn
+    // bokstaver, sifre, _ og - nevnes ved nummeret.
+    [
+      'en referanse uten dokument og med linjeskift i GUID-en',
+      [{ guid: 'r2\nJobben er levert' }],
+      'nr. 1',
+    ],
   ])(
     '%s fra Catenda gir VarigCatendaavvik som nevner referansen (#876, #877)',
     async (_n, json, navn) => {
