@@ -280,9 +280,10 @@ const ESCAPE_I_ANFORSEL = '$`"\\';
  * ikke sluker avgrenserlinja, og leddene merkes `kropp`. Uten anførselstegn eller escape i
  * avgrenseren kan skallet ekspandere kroppen, så da er både heredocen og kroppsleddene ukjente
  * (#753). Kroppen er også ukjent når et skall eller et annet program enn `TEKSTMOTTAKERE` kan
- * lese den, direkte eller gjennom et rør. Kroppslinjene i en heredoc som avsluttes, står i
- * `liste.kroppslinjer` som [start, slutt) (#970). `<<` etter `#` og i aritmetikk åpner ingen
- * heredoc, så linjene etter leses som kommandoer. `iKropp` er satt når `tekst` er en
+ * lese den, direkte eller gjennom et rør. Kroppslinjene står i `liste.kroppslinjer` som
+ * [start, slutt), og den er null når en kropp kan kjøres eller ikke avsluttes (#970). `<<` etter
+ * en `#` som begynner et ord, og i aritmetikk åpner ingen heredoc, så linjene etter leses som
+ * kommandoer. `iKropp` er satt når `tekst` er en
  * kroppslinje.
  */
 function lekser(tekst, iKropp = false) {
@@ -414,7 +415,6 @@ function lekser(tekst, iKropp = false) {
       const kjoeres = mottar || linja.some((del) => del.mottar && !leserSomTekst(del));
       kropper.push(...aapnede.map((h) => ({ ...h, kjoeres })));
       aapnede = [];
-      const kroppslinjerFoer = liste.kroppslinjer.length;
       while (kropper.length && i < tekst.length) {
         const start = i + 1;
         const slutt = tekst.indexOf('\n', start);
@@ -425,14 +425,15 @@ function lekser(tekst, iKropp = false) {
           kropper.shift();
           continue;
         }
-        liste.kroppslinjer.push([start, i]);
+        if (bokstavelig && !kjoeres) liste.kroppslinjer?.push([start, i]);
+        else liste.kroppslinjer = null;
         for (const del of lekser(linje, true)) {
           const ukjentKropp = bokstavelig && !kjoeres ? {} : { ukjent: true, ukjentSyntaks: true };
           liste.push({ ...del, ...ukjentKropp, kropp: true });
         }
       }
       // En heredoc uten avgrenserlinje kan bety at vakten og skallet leser avgrenseren ulikt.
-      if (kropper.length) liste.kroppslinjer.length = kroppslinjerFoer;
+      if (kropper.length) liste.kroppslinjer = null;
       linjestart = liste.length;
     } else if (tegn === '|' && tekst[i + 1] !== '|' && tekst[i - 1] !== '|') {
       const videre = mottar;
@@ -445,7 +446,7 @@ function lekser(tekst, iKropp = false) {
     } else if ('$`(){*?[#'.includes(tegn)) {
       // `#` er kommentar i ett skall og et vanlig ord i et annet, så leddet er ukjent.
       merkUkjent();
-      if (tegn === '#') kommentar = true;
+      if (tegn === '#' && !harOrd) kommentar = true;
       // `$((` og `((` åpner aritmetikk, der `<<` er et skift. Den varer til parentesene er lukket.
       if (
         tegn === '(' &&
@@ -648,6 +649,8 @@ const TEKSTKOMMANDOER = new Set([
 ]);
 // Kommandoer som leser stdin som tekst og aldri kjører den.
 const TEKSTMOTTAKERE = new Set([...TEKSTKOMMANDOER, 'tee']);
+// Et kall med bare disse kommandoene kan ikke kjøre en heredoc-kropp det har skrevet til en fil.
+const KJOERER_IKKE_FIL = new Set([...TEKSTMOTTAKERE, 'cd', 'mkdir']);
 
 function leserSomTekst(del) {
   if (del.ukjentKommando) return false;
@@ -668,7 +671,7 @@ function skallPayload(argumenter) {
 
 /**
  * Kommandoene skallet faktisk kjører: prefiks er fjernet, og innholdet i `sh -c`
- * og `eval` er lest på nytt. Ledd med ukjent kommandoord beholdes som de er. `heredoc`,
+ * og `eval` er lest på nytt. Ledd med ukjent kommandoord beholdes som de er. `heredoc` og
  * `kropp` følger med, og det som leses på nytt, arver `kropp`.
  */
 function effektiveKommandoer(leddene) {
@@ -1080,19 +1083,26 @@ function vurderKall(input) {
 }
 
 /**
- * Kroppen i en heredoc leses som kommandoer. Stopper kallet bare på grunn av kroppen, sier
- * begrunnelsen det (#970).
+ * Kroppen i en heredoc leses som kommandoer. Er kroppen bare tekst, og slipper kallet uten den,
+ * sier begrunnelsen at det er kroppen som stopper kallet (#970).
  */
 function vurder(input) {
   const begrunnelse = vurderKall(input);
-  const kroppslinjer =
-    begrunnelse && input.tool_name === 'Bash'
-      ? lekser(String(input.tool_input?.command ?? '')).kroppslinjer
-      : [];
-  if (!kroppslinjer.length) return begrunnelse;
-  const command = utenLinjer(String(input.tool_input.command), kroppslinjer);
-  if (vurderKall({ ...input, tool_input: { ...input.tool_input, command } })) return begrunnelse;
-  return `Kroppen i heredocen leses som kommandoer, og det er den som stopper kallet: ${begrunnelse}${begrunnelse.includes('Write') ? '' : ' Skriv teksten til en fil i /tmp med Write og vis til filen, for eksempel med -F body=@/tmp/<fil>.'}`;
+  if (!begrunnelse || input.tool_name !== 'Bash') return begrunnelse;
+  const rakKommando = String(input.tool_input?.command ?? '');
+  const { kroppslinjer } = lekser(rakKommando);
+  if (!kroppslinjer?.length) return begrunnelse;
+  const command = utenLinjer(rakKommando, kroppslinjer);
+  const eff = effektiveKommandoer(lekser(command));
+  if (eff.some((del) => del.ukjentKommando || !KJOERER_IKKE_FIL.has(del.ord[0]))) {
+    return begrunnelse;
+  }
+  const utenKropp = vurderKall({ ...input, tool_input: { ...input.tool_input, command } });
+  if (utenKropp) return utenKropp;
+  const raad = begrunnelse.includes('Write')
+    ? ''
+    : ' Skriv teksten til en fil i /tmp med Write og vis til filen, for eksempel med -F body=@/tmp/<fil>.';
+  return `Kroppen i heredocen leses som kommandoer, og der finner vakten dette: ${begrunnelse} Kallet slipper uten kroppen.${raad}`;
 }
 
 // Hooks i frontmatter til prosjektagenter kjører bare i en mappe som er klarert

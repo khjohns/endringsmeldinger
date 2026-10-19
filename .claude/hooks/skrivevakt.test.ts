@@ -290,7 +290,7 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
-  it('stopper kroppstekst med git som kommando og sier at det er kroppen som stopper (#970)', () => {
+  it('stopper en kropp som leses som kommandoer, og sier at det er kroppen som stopper kallet (#970)', () => {
     for (const kommando of [
       "cat > /tmp/pr.md <<'EOF'\ngit commit -F fil\nEOF",
       "cat > /tmp/pr.md <<'EOF'\nkjør git push først\nEOF",
@@ -303,6 +303,20 @@ describe('skrivevakten for mekanisk-pr', () => {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
       expect(resultat.stderr, kommando).toContain('Kroppen i heredocen leses som kommandoer');
+    }
+  });
+
+  it('sier ikke at kroppen stopper kallet når den kan kjøres eller resten av kallet stoppes (#970)', () => {
+    for (const kommando of [
+      "cat > /tmp/x.sh <<'EOF'\ngit push --force origin HEAD:main\nEOF\nbash /tmp/x.sh",
+      "sh <<'EOF'\ngit status\nEOF",
+      "cat <<'EOF' | bash\ngit push\nEOF",
+      "cat > /tmp/a <<'EOF'\ngit push\n",
+      "cat > /tmp/a <<'EOF'\nSett GIT_DIR=x\nEOF\ngit push --force origin HEAD:main",
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).not.toContain('Kroppen i heredocen');
     }
   });
 
@@ -380,6 +394,8 @@ describe('skrivevakten for mekanisk-pr', () => {
       ["cat <<'EOF'\n$(git push)\nEOF", 2, 2],
       ["cat <<'EOF'\nx (sh)\nEOF", 2, 2],
       ["cat > /tmp/a <<'EOF'\nGIT_SSH_COMMAND=x\nEOF", 2, 2],
+      ["ls a#b <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls x$# <<'EOF'\n'x\ny'\nEOF", 2, 2],
     ];
     for (const [kommando, main, ny] of korpus) {
       if (main === 2) expect(ny, kommando).toBe(2);
