@@ -17,8 +17,10 @@ import {
   CatendaUtilgjengelig,
   dokumentleverandoer,
   Integrasjonsnokkel,
+  medEndringsflagg,
   TOPICTYPE,
   UsikkertCatendautfall,
+  VarigCatendaavvik,
   catendaFraMiljoe,
   type CatendaOppsett,
 } from '../catenda.ts';
@@ -547,12 +549,18 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     );
   });
 
-  it('leser referansene med dokument-ID-en normalisert som catendaId, og setter en ny (#783 punkt 4)', async () => {
+  it('leser referansene med dokument-ID-en normalisert som catendaId, ellers som den er, og setter en ny (#783 punkt 4, #876)', async () => {
     const sti = `/opencde/bcf/3.0/projects/${BOARD}/topics/topic-1/document_references`;
-    svar = () => ({ json: [{ guid: 'r1', document_guid: `{${BRUKER}}` }] });
+    svar = () => ({
+      json: [
+        { guid: 'r1', document_guid: `{${BRUKER}}` },
+        { guid: 'r2', document_guid: 'dok-1' },
+      ],
+    });
     const oauth = new CatendaOAuth(oppsett());
     expect(await oauth.dokumentreferanser(BOARD, 'topic-1', 'i')).toEqual([
       { id: 'r1', dokumentId: hex(BRUKER) },
+      { id: 'r2', dokumentId: 'dok-1' },
     ]);
     svar = () => ({ status: 201, json: { guid: 'r3' } });
     expect(await oauth.opprettDokumentreferanse(BOARD, 'topic-1', 'abcd1234', 'i')).toBe('r3');
@@ -560,9 +568,40 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(JSON.parse(mottatt[1].raa)).toEqual({ document_guid: 'abcd1234' });
   });
 
-  // Kilde: #783 punkt 3: en rad med feil form droppes ikke, så referansen lages ikke to ganger.
+  // Kilde: oppdragsgiver 19.10 (#764): raden hoppes ikke over, og avviket er varig.
   it.each<[string, unknown]>([
     ['en referanse uten dokument', [{ guid: 'r2' }]],
+    ['en referanse med et tomt dokument', [{ guid: 'r2', document_guid: '' }]],
+    ['en referanse med et dokument som ikke er tekst', [{ guid: 'r2', document_guid: 7 }]],
+  ])('%s fra Catenda gir VarigCatendaavvik (#876)', async (_n, json) => {
+    svar = () => ({ json });
+    await expect(
+      new CatendaOAuth(oppsett()).dokumentreferanser(BOARD, 'topic-1', 'i')
+    ).rejects.toBeInstanceOf(VarigCatendaavvik);
+  });
+
+  it('flagget for endring settes før en opplasting eller en ny referanse, ikke ved en lesing (#876)', async () => {
+    const oauth = new CatendaOAuth(oppsett());
+    const etter = async (kall: () => Promise<unknown>) => {
+      const flagg = { endringBedt: false };
+      await medEndringsflagg(flagg, kall).catch(() => {});
+      return flagg.endringBedt;
+    };
+    svar = () => ({ json: [] });
+    expect(await etter(() => oauth.dokumentreferanser(BOARD, 'topic-1', 'i'))).toBe(false);
+    expect(await etter(() => oauth.finnDokument(maal, dokument.navn, 'i'))).toBe(false);
+    svar = () => ({ status: 500, json: {} });
+    expect(await etter(() => oauth.lastOppDokument(maal, dokument, 'i'))).toBe(true);
+    expect(await etter(() => oauth.opprettDokumentreferanse(BOARD, 'topic-1', 'd', 'i'))).toBe(
+      true
+    );
+    expect(
+      await etter(() => oauth.opprettTopic(BOARD, { tittel: 't', beskrivelse: 'b' }, 'i'))
+    ).toBe(true);
+  });
+
+  // Kilde: #783 punkt 3: en rad med feil form droppes ikke, så referansen lages ikke to ganger.
+  it.each<[string, unknown]>([
     ['en referanse uten GUID', [{ document_guid: BRUKER }]],
     ['en referanse med en GUID over 100 tegn', [{ guid: 'r'.repeat(101), document_guid: BRUKER }]],
   ])('%s fra Catenda gir CatendaUtilgjengelig', async (_n, json) => {
