@@ -129,6 +129,9 @@ interface Prosjektoppsett {
   catendaProsjekt: string;
 }
 
+/** Synkroniseringen uten tidspunktet for hentingen, som blir her (#638 punkt 2). */
+export type Synkroniseringsutfall = Omit<Synkronisering, 'hentet'>;
+
 export interface Prosjekttilgang {
   prosjektId: string;
   /** `app_users.id` for brukeren tilgangen er avgjort for. */
@@ -142,7 +145,7 @@ export interface Prosjekttilgang {
    * Fraværende når listen var fersk, eller når forespørselen ventet på en
    * henting en annen hadde startet.
    */
-  synkronisert?: Omit<Synkronisering, 'hentet'>;
+  synkronisert?: Synkroniseringsutfall;
 }
 
 const ENKELTREFERANSER = new Set(['sak_id', 'sakId', 'koe_sak_id', 'relatert_sak_id']);
@@ -240,7 +243,7 @@ async function oppdaterMedlemslisten(
   catenda: Catenda,
   prosjekt: string,
   catendaProsjekt: string
-): Promise<Omit<Synkronisering, 'hentet'> | null> {
+): Promise<Synkroniseringsutfall | null> {
   const sist = await medlemslistensAlder(db, prosjekt);
   if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;
   let iBasen = hentinger.get(db);

@@ -82,6 +82,25 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     expect(logg).toHaveBeenCalledWith('Endret (Error)');
   });
 
+  it('en feil fra Node med kode har rammene', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let feil: unknown;
+    try {
+      Buffer.alloc(-1);
+    } catch (f) {
+      feil = f;
+    }
+    expect((feil as { code?: string }).code).toBe('ERR_OUT_OF_RANGE');
+    loggFeil('Kode', feil);
+    expect(logg.mock.calls[0][0]).toMatch(/^Kode \(RangeError\)\n\s+at /);
+  });
+
+  it('et navn som ikke kan bli tekst, gir ingen rammer og ingen ny feil', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loggFeil('Symbol', Object.assign(new Error('m'), { name: Symbol('n') }));
+    expect(logg).toHaveBeenCalledWith('Symbol (Error)');
+  });
+
   it('null og undefined gir typen', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     loggFeil('Ingen årsak', undefined);

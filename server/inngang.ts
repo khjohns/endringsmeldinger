@@ -36,18 +36,32 @@ export function svarhoder(
 export function loggFeil(hvor: string, feil: unknown): void {
   const klasse = (feil as Error)?.constructor?.name ?? typeof feil;
   const nummer = feilnummer(feil);
-  const stakk = typeof (feil as Error)?.stack === 'string' ? (feil as Error).stack! : '';
-  // Stakken begynner med navnet og meldingen, og en linje i dem kan også begynne med
-  // «at». Begynner den ikke med dem slik de er nå, logges ingen rammer.
-  const hode = stakk ? Error.prototype.toString.call(feil) : '';
-  const rammer = stakk.startsWith(hode)
-    ? stakk
-        .slice(hode.length)
-        .split('\n')
-        .filter((l) => /^\s+at /.test(l))
-        .join('\n')
-    : '';
+  const rammer = rammene(feil);
   console.error(
     `${hvor} (${klasse}${nummer === undefined ? '' : `, feilnummer ${nummer}`})${rammer ? `\n${rammer}` : ''}`
   );
+}
+
+/**
+ * Rammene i kallstakken, uten hodet med navnet og meldingen, der en linje også kan
+ * begynne med «at». Hodet er `navn: melding`, eller `navn [kode]: melding` for
+ * Nodes egne feil. Begynner stakken ikke med et av dem, gis ingen rammer.
+ */
+function rammene(feil: unknown): string {
+  try {
+    const { stack, name, message, code } = feil as Error & { code?: unknown };
+    if (typeof stack !== 'string') return '';
+    const hode = (navn: string) => (message ? `${navn}: ${String(message)}` : navn);
+    const hoder = [hode(String(name))];
+    if (typeof code === 'string') hoder.push(hode(`${String(name)} [${code}]`));
+    const funnet = hoder.find((h) => stack.startsWith(h));
+    if (funnet === undefined) return '';
+    return stack
+      .slice(funnet.length)
+      .split('\n')
+      .filter((l) => /^\s+at /.test(l))
+      .join('\n');
+  } catch {
+    return '';
+  }
 }
