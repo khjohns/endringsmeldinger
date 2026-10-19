@@ -8,7 +8,7 @@
 import { createLetterConfirmation } from '$lib/approval/claimReview.svelte';
 import type { VederlagSubmissionEventData } from '$lib/domain/vederlagSubmissionDomain';
 import type { EventType, SporType } from '$lib/types/timeline';
-import type { Kjernesakkontekst } from './kontekst.svelte';
+import { brevhindring, type Kjernesakkontekst } from './kontekst.svelte';
 import { vederlagskravFraSkjema } from './vederlagskrav';
 
 export interface Kjernebrev {
@@ -36,11 +36,12 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
       sender = true;
       try {
         const kommando = vederlagskravFraSkjema(data as VederlagSubmissionEventData);
-        const tekst = kjernesak.brevtekst(kommando);
+        const brev = kjernesak.brev(kommando);
         // #719: uten låst tekst sendes ikke kravet, så TE ser aldri et krav uten brevet.
+        const tekst = brev && 'tekst' in brev ? brev.tekst : null;
         if (!tekst)
           throw new Error(
-            'Appen kunne ikke lage brevet for kravet. Kontroller beløpet. Kravet er ikke sendt.'
+            (brev && brevhindring(brev)) ?? 'Appen kunne ikke lage brevet. Kravet er ikke sendt.'
           );
         await kontroll.show({
           tittel: `Vederlag – ${kjernesak.saksbilde?.tittel ?? 'Sak'}`,

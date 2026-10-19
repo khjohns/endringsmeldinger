@@ -7,7 +7,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '$lib/api/client';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { brevhindring, lagKjernesak, PROGRAMFEIL } from '$lib/kjernesak/kontekst.svelte';
 import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
 import { handlinger } from '$kjerne/kommandoer/handlinger';
 import { visning, type Visning } from '$kjerne/utledning/visning';
@@ -151,7 +151,7 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.last();
     expect(sak.visning).not.toBeNull();
     expect(sak.handlinger).toEqual([]);
-    expect(sak.brevtekst(grunnlagskrav)).toBeNull();
+    expect(sak.brev(grunnlagskrav)).toBeNull();
   });
 
   it('sender den låste teksten kjernen lager, med versjonen som er lastet (LV-U2)', async () => {
@@ -417,6 +417,52 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(await sak.send(grunnlagskrav)).toBe(false);
     expect(send).not.toHaveBeenCalled();
     expect(sak.feil).toMatch(/^Brevet ble ikke sendt\. ./);
+  });
+
+  // Kilde: #865 p2. Kalleren får avvisningen fra kjernen, ikke `null`.
+  it('gir avvisningen fra kjernen som brev, med meldingen kalleren viser', async () => {
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'BH',
+      hent: async () => svar([opprettet]),
+    });
+    await sak.last();
+    const brev = sak.brev(grunnlagskrav);
+    expect(brev).toMatchObject({ avvisning: { melding: expect.any(String) } });
+    expect(brevhindring(brev!)).toBe(
+      `Brevet ble ikke sendt. ${(brev as { avvisning: { melding: string } }).avvisning.melding}`
+    );
+  });
+
+  // Kilde: #865 p1. En programfeil i kjernen blir en melding om feil i appen, ikke en
+  // avvisning, og visningen som leser brevet, velter ikke.
+  it('gjør en programfeil i kjernen til en melding om feil i appen, og sender ikke', async () => {
+    let kast = false;
+    const kjerne = {
+      ...KJERNE,
+      get regler() {
+        if (kast) throw new Error('programfeil');
+        return KJERNE.regler;
+      },
+    };
+    const send = vi.fn();
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => svar([opprettet]),
+      send,
+      kjerne,
+    });
+    await sak.last();
+    kast = true;
+    const feil = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(sak.brev(grunnlagskrav)).toEqual({ programfeil: PROGRAMFEIL });
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(sak.feil).toBe(PROGRAMFEIL);
+    expect(send).not.toHaveBeenCalled();
+    feil.mockRestore();
   });
 
   // Kilde: #737 p2. Kalleren skal ikke vise en gammel melding.

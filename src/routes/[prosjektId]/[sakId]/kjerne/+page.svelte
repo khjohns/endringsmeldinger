@@ -8,7 +8,7 @@
   import { page } from '$app/state';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
   import { DATOEN_GJELDER, type OppgittDato } from '$kjerne/format/format';
-  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+  import { brevhindring, lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
   import { leveringstekst } from '$lib/kjernesak/saksbilde';
   import {
     datofelt,
@@ -54,17 +54,26 @@
     spor: 'vederlag',
     innhold: { metode: 'tilbud', beloep },
   });
-  const grunnlagstekst = $derived(under ? kjernesak.brevtekst(grunnlagskrav) : null);
-  const vederlagstekst = $derived(beloep ? kjernesak.brevtekst(vederlagskrav) : null);
+  const grunnlagsbrev = $derived(under ? kjernesak.brev(grunnlagskrav) : null);
+  const vederlagsbrev = $derived(beloep ? kjernesak.brev(vederlagskrav) : null);
+  const grunnlagstekst = $derived(
+    grunnlagsbrev && 'tekst' in grunnlagsbrev ? grunnlagsbrev.tekst : null
+  );
+  const vederlagstekst = $derived(
+    vederlagsbrev && 'tekst' in vederlagsbrev ? vederlagsbrev.tekst : null
+  );
 
   // Teksten som vises, er teksten som sendes (LV-U2, #737).
   function sendGrunnlag(e: SubmitEvent) {
     e.preventDefault();
+    // En avvisning eller en programfeil står alt under brevet og sendes ikke (#865).
+    if (grunnlagsbrev && !('tekst' in grunnlagsbrev)) return;
     void kjernesak.send(grunnlagskrav, grunnlagstekst ?? undefined);
   }
 
   function sendVederlag(e: SubmitEvent) {
     e.preventDefault();
+    if (vederlagsbrev && !('tekst' in vederlagsbrev)) return;
     void kjernesak.send(vederlagskrav, vederlagstekst ?? undefined);
   }
 
@@ -151,6 +160,8 @@
         <div class="text-sm" data-testid="brevtekst-grunnlag">
           {#each grunnlagstekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
         </div>
+      {:else if grunnlagsbrev && brevhindring(grunnlagsbrev)}
+        <p class="text-sm" data-testid="brevhindring-grunnlag">{brevhindring(grunnlagsbrev)}</p>
       {/if}
       <button class="rounded border px-3 py-1" disabled={kjernesak.sender || !under}
         >Send grunnlag</button
@@ -174,6 +185,8 @@
         <div class="text-sm" data-testid="brevtekst-vederlag">
           {#each vederlagstekst as avsnitt, i (i)}<p>{avsnitt}</p>{/each}
         </div>
+      {:else if vederlagsbrev && brevhindring(vederlagsbrev)}
+        <p class="text-sm" data-testid="brevhindring-vederlag">{brevhindring(vederlagsbrev)}</p>
       {/if}
       <button class="rounded border px-3 py-1" disabled={kjernesak.sender || !beloep}
         >Send krav om vederlag</button
