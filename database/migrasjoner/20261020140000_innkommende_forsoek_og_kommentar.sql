@@ -40,8 +40,9 @@ CREATE TABLE koe.topic_kommentar (
   kommentar_id nvarchar(100) NOT NULL,
   skrevet datetime2(3) NOT NULL
     CONSTRAINT topic_kommentar_skrevet DEFAULT DATETRUNC(millisecond, SYSUTCDATETIME()),
+  CONSTRAINT topic_kommentar_id_tom CHECK (kommentar_id <> N''),
   CONSTRAINT topic_kommentar_id_tegnklasse
-    CHECK (kommentar_id <> N'' AND NOT kommentar_id COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^!-~]%')
+    CHECK (NOT kommentar_id COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^!-~]%')
 );
 GO
 
