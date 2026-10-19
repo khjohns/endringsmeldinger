@@ -12,5 +12,5 @@
 		"skipLibCheck": true,
 		"types": ["node"]
 	},
-	"include": ["kjerne/**/*.ts", "kjernelagring/**/*.ts", "server/**/*.ts", "tester/**/*.ts"]
+	"include": ["kjerne/**/*.ts", "kjernelagring/**/*.ts", "tester/**/*.ts"]
 }

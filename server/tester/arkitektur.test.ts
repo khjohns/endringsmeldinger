@@ -2,8 +2,11 @@
  * Grensene rundt TS-serveren (B-18, B-17):
  * - Serveren importerer kjernen fra `kjerne/`, ikke kjernens tester og ikke
  *   språkprøven (`sprakprove/` er prøvekode, AGENTS.md) eller frontenden.
- * - Ut over det bruker serveren bare Node. `pg` er ute av serveren (#661); den
- *   brukes bare av språkprøven. Testene kan i tillegg bruke Vitest.
+ * - Ut over det bruker serveren bare Node. Testene kan i tillegg bruke Vitest.
+ * - Ingen fil i `kjerne/`, `server/` eller `sprakprove/` importerer `pg` eller
+ *   leser `KOE_TESTBASE_URL` (#661, #932). Testen ser navnet som identifikator,
+ *   egenskap, destrukturering og streng i hakeparentes, ikke et navn som settes
+ *   sammen under kjøringen.
  * - `mssql` importeres bare i datalaget (`datalag.ts`, #419), i migreringen
  *   (`migrering.ts`, #53), i testen av datalaget (`tester/datalag.test.ts`) og
  *   i testbasen (`tester/sqlserver*.ts`, #532). De andre testene, også
@@ -187,6 +190,28 @@ export function viserTilAlderen(kilde: string): boolean {
   return funnet;
 }
 
+const TESTBASE_URL = 'KOE_TESTBASE_URL';
+
+/** Stedene i `kilde` som importerer `pg` eller leser `KOE_TESTBASE_URL` (#932). */
+export function postgresql(kilde: string): string[] {
+  const funn = ts
+    .preProcessFile(kilde, true, true)
+    .importedFiles.map((f) => f.fileName)
+    .filter((i) => i === 'pg' || i.startsWith('pg/'));
+  const fil = ts.createSourceFile('kilde.ts', kilde, ts.ScriptTarget.Latest, true);
+  const besok = (node: ts.Node) => {
+    const navn = ts.isElementAccessExpression(node) ? node.argumentExpression : node;
+    if (
+      (ts.isIdentifier(navn) || (navn !== node && ts.isStringLiteralLike(navn))) &&
+      navn.text === TESTBASE_URL
+    )
+      funn.push(node.getText(fil));
+    ts.forEachChild(node, besok);
+  };
+  besok(fil);
+  return funn;
+}
+
 function alleFiler(mappe: string): string[] {
   return readdirSync(mappe, { withFileTypes: true }).flatMap((d) =>
     d.isDirectory()
@@ -302,5 +327,41 @@ describe('grensene rundt TS-serveren', () => {
   ])('oppdager %s i %s', (linje, navn) => {
     const fil = join(SERVER, navn);
     expect(forbudteImporter(fil, `${linje}\n${readFileSync(fil, 'utf8')}`)).not.toEqual([]);
+  });
+});
+
+describe('PostgreSQL er ute av kjernen, serveren og språkprøven (#932)', () => {
+  const uten = ['kjerne', 'server', 'sprakprove'].flatMap((m) => alleFiler(join(ROT, m)));
+
+  it('finner filene i de tre mappene', () => {
+    expect(uten.map((f) => relative(ROT, f))).toEqual(
+      expect.arrayContaining([
+        'kjerne/versjon.ts',
+        'server/lager.ts',
+        'sprakprove/kjernelagring/bane.ts',
+      ])
+    );
+  });
+
+  it.each(uten.map((f) => [relative(ROT, f), f] as const))(
+    '%s importerer ikke pg og leser ikke KOE_TESTBASE_URL',
+    (_navn, fil) => {
+      expect(postgresql(readFileSync(fil, 'utf8'))).toEqual([]);
+    }
+  );
+
+  it.each([
+    ["import pg from 'pg';"],
+    ["import type { ClientBase } from 'pg';"],
+    ["const { Pool } = require('pg');"],
+    ["const p = await import('pg/lib/client');"],
+    ["export { Pool } from 'pg';"],
+    ['const url = process.env.KOE_TESTBASE_URL;'],
+    ["const url = process.env['KOE_TESTBASE_URL'];"],
+    ['const { KOE_TESTBASE_URL: url } = process.env;'],
+  ])('oppdager %s i sprakprove/kjernelagring/bane.ts', (linje) => {
+    const kilde = readFileSync(join(ROT, 'sprakprove/kjernelagring/bane.ts'), 'utf8');
+    expect(postgresql(kilde)).toEqual([]);
+    expect(postgresql(`${linje}\n${kilde}`)).not.toEqual([]);
   });
 });

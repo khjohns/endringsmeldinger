@@ -91,7 +91,7 @@ i `data`
 
 - **Ett brev blir én rad per svar.** Svarene bindes sammen med `dokument_id` i
   `data`. Atomisiteten kommer av at `leggTil` i
-  [`lager.ts`](../sprakprove/server/lager.ts) skriver alle radene i én
+  [`lager.ts`](https://github.com/khjohns/endringsmeldinger/blob/fc19484/sprakprove/server/lager.ts) skriver alle radene i én
   transaksjon. Det følger av én kommando og én `leggTil`, ikke av formatet.
 - **Referanser.** Svaret på vederlag og frist viser til kravet i både
   `refererer_til_event_id` (kolonnen `referstoid`) og `vederlag_krav_id` eller

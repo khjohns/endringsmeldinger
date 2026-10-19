@@ -1,22 +1,24 @@
 /**
- * Forløp A–E fra kjernen mot testbasen (#304, #308, #273): hver kommando lagres i
- * `hendelse` med lageret fra språkprøven, og journalen leses fra basen før hver
- * utledning. Prøvene 7.1–7.3 i designnotatet for #273 mot basen. Krever
- * `KOE_TESTBASE_URL`.
+ * Forløp A–E fra kjernen mot testbasen i SQL Server (#304, #308, #273, #932): hver
+ * kommando lagres i `koe.hendelse` med testskriveren i `bane.ts`, og journalen
+ * leses med serverens `lesJournal` før hver utledning. Prøvene 7.1–7.3 i
+ * designnotatet for #273 mot basen. Krever `KOE_SQLSERVER_TILKOBLING`.
  */
 
 import { randomUUID } from 'node:crypto';
-import type { ClientBase } from 'pg';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { utledJournal } from '../../kjerne/kommandoer/skriving.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { bygg } from '../../kjerne/tester/baner.ts';
 import { avvikFraFormatet, utenAvsnitt } from '../../kjerne/tester/formatprove.ts';
 import { Kjoering, kjoer, MAALMODELL } from '../../kjerne/tester/kjoerer.ts';
-import { Versjonskonflikt } from '../server/lager.ts';
-import { lagOppsett, rydd, TESTBASE_URL, type Oppsett } from '../tester/testbase.ts';
-import { basebane, journalen, skrivRader } from './bane.ts';
+import { Versjonskonflikt } from '../../server/lager.ts';
+import type { Foresp } from '../../server/tester/sqlserver_migrert.ts';
+import { lagOppsett, rydd, type Oppsett } from '../../server/tester/testbase.ts';
+import { basebane, GRENSER, journalen, skrivRader, somEier, TESTBASE_URL } from './bane.ts';
+
+vi.setConfig(GRENSER);
 
 describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
   let o: Oppsett;
@@ -49,8 +51,11 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     ['en krok som kaster', async () => Promise.reject(new Error('avbrutt før COMMIT'))],
     [
       'en avbrutt forbindelse',
-      async (klient: ClientBase) =>
-        void (await klient.query('SELECT pg_terminate_backend(pg_backend_pid())')),
+      // En sesjon kan ikke avslutte seg selv, så eieren gjør det fra en annen forbindelse.
+      async (r: Foresp) => {
+        const { spid } = (await r().query<{ spid: number }>('SELECT @@SPID AS spid')).recordset[0];
+        await o.datalag.base.pool.request().batch(`KILL ${Number(spid)}`);
+      },
     ],
   ] as const)(
     'et brev med tre svar lagres samlet eller ikke: %s (7.3)',
@@ -70,10 +75,12 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
         skrivRader(o, utfall.hendelser, journal.at(-1)!.versjon, { foerCommit })
       ).rejects.toThrow();
       expect(await bane.journal()).toEqual(journal);
-      const lagret = await o.pool.query('SELECT 1 FROM hendelse WHERE event_id = $1', [
-        rad.event_id,
-      ]);
-      expect(lagret.rowCount).toBe(0);
+      const lagret = await somEier(o, (r) =>
+        r()
+          .input('event_id', rad.event_id)
+          .query('SELECT 1 FROM koe.hendelse WHERE event_id = @event_id')
+      );
+      expect(lagret.recordset).toHaveLength(0);
 
       // Samme kommando igjen gir ett dokument med tre svar, hvert med sitt beslutningsgrunnlag.
       expect((await k.send(brev))?.godtatt).toBe(true);
