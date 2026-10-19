@@ -694,6 +694,62 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     ]);
   });
 
+  /**
+   * Skriver ID-en i vedleggslista til oppdraget om som eier. Kjernen lager ikke et slikt
+   * oppdrag, så vernene mot endring og radsikkerheten slås av i transaksjonen.
+   */
+  async function skrivOmVedleggIOppdraget(sakId: string, fra: string, til: string) {
+    const { oppdrag } = (await leveringen(sakId)).find((j) => j.tilstand === 'venter')!;
+    await o.datalag.base.pool
+      .request()
+      .input('oppdrag', sql.UniqueIdentifier, oppdrag)
+      .input('fra', sql.NVarChar(100), fra)
+      .input('til', sql.NVarChar(100), til).query(`
+        SET XACT_ABORT ON;
+        BEGIN TRANSACTION;
+        ALTER SECURITY POLICY koe_sikkerhet.tilgang WITH (STATE = OFF);
+        DISABLE TRIGGER koe.leveringsoppdrag_uforanderlig ON koe.leveringsoppdrag;
+        UPDATE koe.leveringsoppdrag SET innhold = REPLACE(innhold, @fra, @til) WHERE id = @oppdrag;
+        IF @@ROWCOUNT <> 1 THROW 50000, N'Oppdraget ble ikke skrevet om', 1;
+        ENABLE TRIGGER koe.leveringsoppdrag_uforanderlig ON koe.leveringsoppdrag;
+        ALTER SECURITY POLICY koe_sikkerhet.tilgang WITH (STATE = ON);
+        COMMIT;`);
+  }
+
+  // Kilde: kommentaren i #876. Leveringen kvitteres bare når hvert vedlegg i brevet er
+  // bundet i jobbens sak og prosjekt, ikke bare kvittert på topicen et annet sted.
+  it('L9: basen kvitterer ikke leveringen når brevet viser til et vedlegg som er levert fra en annen sak', async () => {
+    const fremmed = await sakMedRegistrertVarsel();
+    expect(await kjoer()).toBe(true);
+    expect(
+      (await vedleggskvitteringene(fremmed.vedleggId)).map((k) => k.operasjon),
+      'kontrollsaken: vedlegget er levert og kvittert i sin egen sak'
+    ).toEqual(['dokument', 'dokumentreferanse']);
+    const { sakId, vedleggId } = await sakMedRegistrertVarsel();
+    await skrivOmVedleggIOppdraget(sakId, vedleggId, fremmed.vedleggId);
+    const lease = await hentLease();
+    await expect(
+      o.datalag.kjoeretid.pool
+        .request()
+        .input('lease', sql.UniqueIdentifier, lease)
+        .input('referanse_id', sql.NVarChar(100), null)
+        .execute('koe_api.kvitter_levering')
+    ).rejects.toMatchObject({ number: 51422, message: 'Et vedlegg i brevet står ikke på topicen' });
+  });
+
+  // Kilde: #886, reviewet. Kjøreren sender ID-en som `uniqueidentifier`, så lista gir ID-en
+  // til det bundne vedlegget, også når brevet skriver den i en annen form.
+  it('L9: et vedlegg som brevet skriver med klammer og store bokstaver, leveres med ID-en til vedlegget', async () => {
+    const { sakId, vedleggId } = await sakMedRegistrertVarsel();
+    await skrivOmVedleggIOppdraget(sakId, vedleggId, `{${vedleggId.toUpperCase()}}`);
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId)).map((j) => j.tilstand)).not.toContain('parkert');
+    expect((await vedleggskvitteringene(vedleggId)).map((k) => k.operasjon)).toEqual([
+      'dokument',
+      'dokumentreferanse',
+    ]);
+  });
+
   // Kilde: #876 r2. Leasetiden gjelder ett steg, ikke hele leveringen med alle vedleggene.
   it('L11: forny_lease forlenger en gyldig lease fra nå, og en utløpt lease fornyes ikke', async () => {
     const sakId = await sakMedBrev();

@@ -1,12 +1,12 @@
 -- Oppfølgingen av vedleggsleveringen (#876, `20261020020000_vedleggslevering.sql`).
 --
--- Vedleggslista i brevet leses ett sted: `koe.brevets_vedlegg` gir stien
--- `$.brev.dokument.dokumentasjon` og castingen av `vedlegg_id` for triggeren og de fire
--- prosedyrene som leste den hver for seg. En ID som ikke er en UUID, gir `vedlegg_id`
--- NULL og finnes da aldri.
+-- `koe.brevets_vedlegg` leser vedleggslista i brevet, `$.brev.dokument.dokumentasjon`,
+-- for triggeren og de fire prosedyrene. En ID som SQL Server ikke kan lese som en UUID,
+-- gir `vedlegg_id` NULL og finnes da aldri. `koe_api.vedlegg_i_levering` gir ID-en til
+-- det bundne vedlegget, ikke teksten i brevet.
 --
 -- `koe_api.kvitter_levering` krever at hvert vedlegg i brevet er bundet i jobbens sak og
--- prosjekt, ikke bare at det har en kvittert referanse.
+-- prosjekt og har en kvittert dokumentreferanse.
 --
 -- `koe_api.forny_lease` forlenger leasen til et forsøk som pågår. Leveringen fornyer den
 -- før hvert vedlegg og før brevet, så leasetiden gjelder ett steg og ikke hele
@@ -48,7 +48,7 @@ BEGIN
 
   BEGIN TRANSACTION;
   EXEC koe_api.laas_lease @lease, N'levering', @naa, @jobb OUTPUT, @startet OUTPUT;
-  SELECT LOWER(b.vedlegg_tekst) AS vedlegg_id, b.filnavn,
+  SELECT COALESCE(LOWER(CONVERT(nvarchar(36), v.vedlegg_id)), LOWER(b.vedlegg_tekst)) AS vedlegg_id, b.filnavn,
          CAST(IIF(v.vedlegg_id IS NULL, 0, 1) AS bit) AS finnes,
          kd.catenda_id AS dokument_id, kr.catenda_id AS referanse_id
     FROM koe.jobb j
