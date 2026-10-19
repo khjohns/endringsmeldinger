@@ -12,6 +12,7 @@
  * Feilmeldingene har aldri med svarkropp, kode eller token fra Catenda.
  */
 
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { erObjekt } from '../kjerne/format/skjema.ts';
 import { catendaId, type Catenda } from './autorisasjon.ts';
 import type { Medlem } from './medlemskap.ts';
@@ -56,6 +57,39 @@ export class CatendaUautorisert extends CatendaUtilgjengelig {}
  * oppsettet (#783 punkt 5).
  */
 export class CatendaOppsettfeil extends CatendaUtilgjengelig {}
+
+/**
+ * Catenda gir data kjøreren ikke kan lese, og gir dem igjen ved neste forsøk, som en
+ * dokumentreferanse uten dokument. Jobben parkeres som avvist og prøves ikke igjen
+ * (#876, oppdragsgiver 19.10).
+ */
+export class VarigCatendaavvik extends CatendaUtilgjengelig {}
+
+const endringsvakt = new AsyncLocalStorage<{ endringBedt: boolean }>();
+
+/**
+ * Kjører `kall` og setter `flagg.endringBedt` før hver endring `forespoersel` sender
+ * til Catenda i kallet. En falsk `Dokumentleverandoer` kaller `merkEndring` selv.
+ */
+export function medEndringsflagg<T>(
+  flagg: { endringBedt: boolean },
+  kall: () => Promise<T>
+): Promise<T> {
+  return endringsvakt.run(flagg, kall);
+}
+
+export function merkEndring(): void {
+  const flagg = endringsvakt.getStore();
+  if (flagg) flagg.endringBedt = true;
+}
+
+/**
+ * Formen to dokument-ID-er fra Catenda sammenlignes i: `catendaId` for en UUID, ellers
+ * råverdien. Catenda lover ikke at ID-en er en UUID (#876).
+ */
+export function sammenlignbarDokumentId(id: string): string {
+  return catendaId(id) ?? id;
+}
 
 /**
  * Statusene vi regner som en avvisning uten endring: en 4xx utenom tidsavbruddene 408
@@ -154,6 +188,7 @@ async function forespoersel(
     kropp = new URLSearchParams(valg.skjema);
   }
   const endring = valg.json !== undefined || valg.fil !== undefined;
+  if (endring) merkEndring();
   let svar: Response;
   try {
     svar = await fetch(adresse, {
@@ -375,16 +410,20 @@ export class CatendaOAuth {
     return idFraSvar(rad, 'id', 'Catenda svarte uten dokument');
   }
 
-  /** Dokumentene topicen viser til, med `document_guid` normalisert som `catendaId`. */
+  /**
+   * Dokumentene topicen viser til, med `document_guid` som `sammenlignbarDokumentId`.
+   *
+   * @throws VarigCatendaavvik når en referanse ikke viser til noe dokument
+   */
   async dokumentreferanser(boardId: string, topicId: string, token: string): Promise<Referanse[]> {
     const svar = await forespoersel(this.#oppsett, 'GET', referansesti(boardId, topicId), {
       token,
     });
     if (!Array.isArray(svar)) throw new CatendaUtilgjengelig('Ugyldige dokumentreferanser');
     return svar.map((rad) => {
-      const dokumentId = erObjekt(rad) && catendaId(rad.document_guid);
-      if (!dokumentId) throw new CatendaUtilgjengelig('Ugyldig dokumentreferanse fra Catenda');
-      return { id: lestId(rad.guid), dokumentId };
+      if (!erObjekt(rad) || typeof rad.document_guid !== 'string' || rad.document_guid === '')
+        throw new VarigCatendaavvik('En referanse på topicen viser ikke til noe dokument');
+      return { id: lestId(rad.guid), dokumentId: sammenlignbarDokumentId(rad.document_guid) };
     });
   }
 
@@ -442,6 +481,7 @@ export interface Brevdokument {
 
 export interface Referanse {
   id: string;
+  /** I formen fra `sammenlignbarDokumentId`. */
   dokumentId: string;
 }
 
@@ -642,7 +682,11 @@ export interface Topicoppretter {
   opprettTopic(boardId: string, topic: NyTopic): Promise<string>;
 }
 
-/** Brevet og vedleggene som dokumenter i biblioteket, med referansene på topicen (B-03, #371, #790). */
+/**
+ * Brevet og vedleggene som dokumenter i biblioteket, med referansene på topicen (B-03, #371,
+ * #790). `lastOppDokument` og `opprettDokumentreferanse` endrer noe i Catenda og kaller
+ * `merkEndring` før forespørselen sendes; i klienten gjør `forespoersel` det.
+ */
 export interface Dokumentleverandoer {
   finnDokument(maal: Dokumentmaal, navn: string): Promise<string | null>;
   lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument): Promise<string | null>;
