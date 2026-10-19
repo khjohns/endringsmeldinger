@@ -20,6 +20,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   basensKlokke,
   deaktiverVedInnlogging,
+  erLaast,
   FeilCatendaProsjekt,
   MedlemskapetLaast,
   synkroniserMedlemskap,
@@ -129,7 +130,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
 
   async function synkrad(prosjektId: string) {
     const svar = await base.pool.request().input('p', sql.NVarChar(100), prosjektId).query<{
-      catenda_project_id: string;
+      catenda_project_id: string | null;
       synced_at: Date;
     }>(`SELECT catenda_project_id, synced_at FROM koe.app_membership_sync WHERE project_id = @p`);
     return svar.recordset[0];
@@ -159,7 +160,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       ].sort((x, y) => String(x[0]).localeCompare(String(y[0])))
     );
     const rad = await synkrad(p.id);
-    expect(rad.catenda_project_id.toLowerCase()).toBe(p.catenda);
+    expect(rad.catenda_project_id?.toLowerCase()).toBe(p.catenda);
     expect(rad.synced_at.getTime()).toBe(hentet.getTime());
   });
 
@@ -705,20 +706,31 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       expect(await aktive(p.id)).toEqual([]);
     });
 
-    it('en applås som ikke blir ledig innen 10 s, gir MedlemskapetLaast for både innloggingen og synkroniseringen (#615, #617)', async () => {
+    it('en applås som ikke blir ledig innen 10 s, gir MedlemskapetLaast for innloggingen og synkroniseringen og 52044 for leserollen (#615, #617, #867)', async () => {
       const p = await prosjekt();
       const a = medlem();
       await synk(p, [a], sekunder(-60));
       const laas = await holdLaasen(p.id);
       try {
-        const [innlogging, synkronisering] = await Promise.allSettled([
+        const [innlogging, synkronisering, leserolle] = await Promise.allSettled([
           logginn(a.subjekt, [], sekunder(-30)),
           synk(p, [], sekunder(-30)),
+          kjoeretid.pool
+            .request()
+            .input('aktor', sql.UniqueIdentifier, randomUUID())
+            .input('prosjekt', sql.NVarChar(4000), p.id)
+            .input('medlem', sql.UniqueIdentifier, randomUUID())
+            .input('leserolle', sql.Bit, true)
+            .output('endret', sql.Bit)
+            .execute('koe_api.sett_leserolle'),
         ]);
         expect(innlogging).toMatchObject({ status: 'rejected' });
         expect(synkronisering).toMatchObject({ status: 'rejected' });
         for (const svar of [innlogging, synkronisering])
           expect((svar as PromiseRejectedResult).reason).toBeInstanceOf(MedlemskapetLaast);
+        expect(leserolle).toMatchObject({ status: 'rejected' });
+        expect(feilnummer((leserolle as PromiseRejectedResult).reason)).toBe(52044);
+        expect(erLaast((leserolle as PromiseRejectedResult).reason)).toBe(true);
       } finally {
         await laas.slipp();
       }
@@ -926,6 +938,26 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       expect(await medlemslistensAlder(kjoeretid.pool, p.id)).not.toBeNull();
     });
 
+    it('endres koblingen, har synkroniseringsraden ingen Catenda-ID, ikke den tomme, og den tomme avvises (DL-U10, #726)', async () => {
+      const p = await prosjekt();
+      await synk(p, [medlem()], sekunder(-10));
+      const foer = await basensKlokke(base.pool);
+      await endreKobling(
+        p.id,
+        'UPDATE koe.catenda_project_configs SET catenda_project_id = @c WHERE internal_project_id = @p'
+      );
+      const rad = await synkrad(p.id);
+      expect(rad.catenda_project_id).toBeNull();
+      expect(rad.synced_at.getTime()).toBeGreaterThanOrEqual(foer.getTime());
+      const feil = await base.pool
+        .request()
+        .input('p', sql.NVarChar(100), p.id)
+        .input('c', sql.UniqueIdentifier, '00000000-0000-0000-0000-000000000000')
+        .query('UPDATE koe.app_membership_sync SET catenda_project_id = @c WHERE project_id = @p')
+        .then(() => null, feilnummer);
+      expect(feil).toBe(CHECK_BRUDD);
+    });
+
     it('ingen kobling kan ha den tomme Catenda-ID-en (547)', async () => {
       const p = await prosjekt();
       const feil = await endreKobling(
@@ -942,12 +974,36 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
       const p = await prosjekt();
       const a = medlem();
       const hentetFra: string[] = [];
-      const skrevet = await synkroniserProsjekt(kjoeretid.pool, p.id, async (c) => {
+      const utfall = await synkroniserProsjekt(kjoeretid.pool, p.id, async (c) => {
         hentetFra.push(c);
         return [a];
       });
-      expect(skrevet).toBe(true);
+      expect(utfall).toEqual({ skrevet: true, medlemmer: 1, deaktivert: 0 });
       expect(hentetFra).toEqual([p.catenda]);
+      expect(await aktive(p.id)).toEqual([a.subjekt]);
+    });
+
+    it('synkroniseringen teller medlemskapene den gjør inaktive, og 0 når listen ikke skrives (#825)', async () => {
+      const p = await prosjekt();
+      const [a, b, c] = [medlem(), medlem(), medlem()];
+      await synk(p, [a, b, c], sekunder(-60));
+      await deaktiverVedInnlogging(kjoeretid.pool, {
+        subjekt: c.subjekt,
+        catendaProsjekter: [],
+        hentet: sekunder(-50),
+      });
+      expect(await aktive(p.id)).toEqual([a.subjekt, b.subjekt].sort());
+      expect(await synkroniserProsjekt(kjoeretid.pool, p.id, async () => [a])).toEqual({
+        skrevet: true,
+        medlemmer: 1,
+        deaktivert: 1,
+      });
+      // En liste hentet etter at denne hentingen begynte, skrives først (DL-U7).
+      const senere = await synkroniserProsjekt(kjoeretid.pool, p.id, async () => {
+        expect(await synk(p, [a], await basensKlokke(base.pool))).toBe(true);
+        return [];
+      });
+      expect(senere).toEqual({ skrevet: false, medlemmer: 0, deaktivert: 0 });
       expect(await aktive(p.id)).toEqual([a.subjekt]);
     });
 
