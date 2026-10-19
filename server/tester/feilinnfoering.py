@@ -180,7 +180,7 @@ FORVENTET_OVERLEVER = {"S8"}
 MIGRASJONER = "database/migrasjoner"
 # Bare objekter som defineres som helhet. En tabell eller sikkerhetspolicy endres
 # ledd for ledd med ALTER, så for dem fanger kontrollen ikke en død mutasjon.
-DEFINISJON = re.compile(r"^\s*(?:CREATE|ALTER)(?: OR ALTER)? (PROCEDURE|FUNCTION|TRIGGER|VIEW) ([\w.]+)", re.M)
+DEFINISJON = re.compile(r"^\s*(?:CREATE|ALTER)(?: OR ALTER)? (PROCEDURE|FUNCTION|TRIGGER|VIEW) ([\w.]+)", re.MULTILINE)
 
 
 def ankerfeil(rot: Path, fil: str, fra: str) -> str | None:
@@ -199,7 +199,7 @@ def ankerfeil(rot: Path, fil: str, fra: str) -> str | None:
     if not definisjoner:
         return None
     art, navn = definisjoner[-1].groups()
-    ny = re.compile(rf"^\s*(?:CREATE|ALTER|DROP)(?: OR ALTER)? {art} {re.escape(navn)}\b", re.M)
+    ny = re.compile(rf"^\s*(?:CREATE|ALTER|DROP)(?: OR ALTER)? {art} {re.escape(navn)}\b", re.MULTILINE)
     senere = [
         f.name
         for f in sorted((rot / MIGRASJONER).glob("*.sql"))
