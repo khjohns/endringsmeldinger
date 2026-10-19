@@ -798,6 +798,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'godkjenningssteg',
         'hendelse',
         'historikk',
+        'innkommende_behandling',
         'innkommende_hendelse',
         'jobb',
         'jobbforsoek',

@@ -13,6 +13,7 @@ import { getPartsNavn } from '$lib/utils/partsNavn';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Kjernesakkontekst } from './kontekst.svelte';
 import {
+  SPOR_FOR,
   kravversjon,
   sporetsStatustekst,
   sporvisning,
@@ -33,6 +34,8 @@ const TOM_UI: SporUIState = { draft: null, att: [], note: null };
 export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: string) {
   const { sakId } = kjernesak;
   const teNavn = getPartsNavn('TE');
+  const tilbyrTe = (handling: string) =>
+    kjernesak.part === 'TE' && kjernesak.handlinger.includes(handling);
   const bhNavn = getPartsNavn('BH');
   // Etter en ny lasting som feiler, står saken slik den sist ble lest.
   let forrige: Projeksjon | null = null;
@@ -91,8 +94,45 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
      * Kjernen tilbyr TE handlingen, som `krav:frist` (krav G i #718). TE-skjemaene tilbys
      * bare TE, og uten side tilbys ingenting (#737 p3).
      */
-    tilbyrTe: (handling: string) =>
-      kjernesak.part === 'TE' && kjernesak.handlinger.includes(handling),
+    tilbyrTe,
+    /**
+     * Skjemaet TE får i sporet, med teksten på knappen, eller `null` når kjernen ikke
+     * tilbyr TE et krav eller et varsel i det. Knappen og skjemaet leser det samme (#943).
+     */
+    teSkjema(nokkel: SporKey): string | null {
+      const spor = SPOR_FOR[nokkel];
+      const krav = tilbyrTe(`krav:${spor}`);
+      const varsel =
+        spor === 'frist' && (tilbyrTe('sende_varsel:frist') || tilbyrTe('varsle:frist'));
+      if (!krav && !varsel) return null;
+      if (krav && kravversjon(projeksjon.utledning, nokkel) > 0)
+        return spor === 'grunnlag' ? 'Send ny versjon av grunnlaget' : 'Send ny versjon av kravet';
+      if (spor === 'vederlag') return 'Send krav om vederlagsjustering';
+      if (spor === 'frist')
+        return varsel && krav
+          ? 'Send varsel eller krav'
+          : krav
+            ? 'Send krav om fristforlengelse'
+            : 'Registrer varsel';
+      return null;
+    },
+    /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */
+    godtar(nokkel: SporKey): string | null {
+      const spor = SPOR_FOR[nokkel];
+      return tilbyrTe(`godta:${spor}`)
+        ? (projeksjon.utledning.spor[spor].gjeldendeSvar?.id ?? null)
+        : null;
+    },
+    /**
+     * Byggherrens svar i sporet kjernen tilbyr TE innsigelse mot etter § 5 tredje ledd,
+     * det nyeste først (VS-U1, VS-U14).
+     */
+    innsigelser(nokkel: SporKey): string[] {
+      return projeksjon.utledning.spor[SPOR_FOR[nokkel]].svar
+        .map((s) => s.id)
+        .filter((id) => tilbyrTe(`innsigelse:${id}`))
+        .reverse();
+    },
     /** Kravversjonen i saken slik den sist ble lest (krav E i #718). */
     kravversjon: (spor: SporKey) => kravversjon(projeksjon.utledning, spor),
     teNavn,

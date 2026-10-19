@@ -982,6 +982,34 @@
      }
     ]
    },
+   "koe.innkommende_behandling": {
+    "kolonner": [
+     ["innkommende_hendelse_id", "bigint", "NOT NULL"],
+     ["utfall", "nvarchar(40)", "NOT NULL"],
+     ["prosjekt_id", "nvarchar(100)", "NULL"],
+     ["sak_id", "nvarchar(36)", "NULL"],
+     ["catenda_topic_id", "nvarchar(100)", "NULL"],
+     ["melding", "nvarchar(400)", "NULL"],
+     ["behandlet", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["innkommende_hendelse_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["innkommende_hendelse_id"],
+      "til": "koe.innkommende_hendelse",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["sak_id", "prosjekt_id"],
+      "til": "koe.sak_metadata",
+      "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.innkommende_hendelse": {
     "kolonner": [
      ["id", "bigint", "NOT NULL"],
@@ -1305,7 +1333,8 @@
      ["vedlegg_id", "uniqueidentifier", "NULL"],
      ["vedleggskvittering_vedlegg_id", "uniqueidentifier", "NULL"],
      ["vedleggskvittering_operasjon", "nvarchar(20)", "NULL"],
-     ["innkommende_hendelse_id", "bigint", "NULL"]
+     ["innkommende_hendelse_id", "bigint", "NULL"],
+     ["innkommende_behandling_id", "bigint", "NULL"]
     ],
     "primærnøkkel": [],
     "unike": [],
@@ -1327,6 +1356,12 @@
       "kolonner": ["godkjenningshandling_pakke_id", "godkjenningshandling_loepenr"],
       "til": "koe.godkjenningshandling",
       "til_kolonner": ["pakke_id", "loepenr"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["innkommende_behandling_id"],
+      "til": "koe.innkommende_behandling",
+      "til_kolonner": ["innkommende_hendelse_id"],
       "ved_sletting": "NO ACTION"
      },
      {

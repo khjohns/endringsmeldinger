@@ -572,18 +572,26 @@ _SETNINGSSLUTT = re.compile(
     + r"\.(?=\s+[«\"]?[A-ZÆØÅ]|\s*$)|[!?]|\n"
 )
 # Det en senere setning kan ta forbehold om: et punkt, anbefalingen, et alternativ.
+# Et alternativ nevnes med navnet sitt, så det leses av postens egne navn (#925).
 _GJELDER_ANBEFALINGEN = re.compile(
-    r"(?<!\w)(?:(?i:punkt\w*|anbefaling\w*|alternativ\w*|del(?:en|ene)?)|[A-H])(?!\w)"
+    r"(?<!\w)(?:punkt\w*|anbefaling\w*|alternativ\w*|del(?:en|ene)?)(?!\w)", re.IGNORECASE
 )
 
 
-def _forbeholdet(svar: str) -> str | None:
+def _forbeholdet(svar: str, alternativer: list[str]) -> str | None:
     """Ordet som hindrer at svaret slutter seg til anbefalingen, eller None (#604, #759).
 
     Ordet leses i setningen med «Ja til anbefalingen» og foran den. I en senere setning
     leses det når setningen begynner med ordet, som «Men ikke for punkt 3», eller når
-    setningen gjelder et punkt, anbefalingen eller et alternativ, som «Punkt 3 skal ikke
-    med» (#861). «Det er ikke nødvendig å vente» er ikke et forbehold.
+    setningen gjelder et punkt, anbefalingen eller et av `alternativer`, som «Punkt 3
+    skal ikke med» (#861). «Det er ikke nødvendig å vente» er ikke et forbehold, og
+    heller ikke «Vedlegg B er ikke oppdatert» når B ikke er et alternativ (#925).
+
+    Regelen leser ordet, ikke meningen, så en senere setning om et punkt eller
+    anbefalingen med et forbeholdsord gir forbehold også når ordet ikke er et
+    forbehold, som «Punkt 3 er ikke kontroversielt». Det er med vilje: feilen gir
+    rød kontroll, og da må svaret nevne alternativet. En snevrere regel kunne
+    sluppet gjennom et ekte forbehold som tilslutning (#925 punkt 2).
     """
     treff = _TIL_ANBEFALINGEN.search(svar)
     if not treff:
@@ -596,19 +604,22 @@ def _forbeholdet(svar: str) -> str | None:
     for setning in _SETNINGSSLUTT.split(svar[grense:]):
         if ord_ := _FORBEHOLD_FOERST.match(setning):
             return ord_.group(1)
-        if _GJELDER_ANBEFALINGEN.search(setning) and (ord_ := _FORBEHOLD.search(setning)):
+        gjelder = _GJELDER_ANBEFALINGEN.search(setning) or any(
+            _nevner(navn, setning) for navn in alternativer
+        )
+        if gjelder and (ord_ := _FORBEHOLD.search(setning)):
             return ord_.group(0)
     return None
 
 
-def _slutter_seg_til_anbefalingen(svar: str) -> bool:
+def _slutter_seg_til_anbefalingen(svar: str, alternativer: list[str]) -> bool:
     """Et svar som begynner en setning med «Ja til anbefalingen» eller «Ja til alle anbefalingene» (#486).
 
     En setning kan også begynne etter et kolon eller et anførselstegn. Et ord som avviser
     eller tar forbehold, som «ikke», «men» eller «dersom», gjør at det ikke regnes som
     tilslutning (#604, `_forbeholdet`). Da må svaret nevne alternativet.
     """
-    return bool(_TIL_ANBEFALINGEN.search(svar)) and _forbeholdet(svar) is None
+    return bool(_TIL_ANBEFALINGEN.search(svar)) and _forbeholdet(svar, alternativer) is None
 
 
 def _delfeil(p: dict, navn: str, deler: dict) -> list[str]:
@@ -679,10 +690,10 @@ def valider(register: dict) -> list[str]:
                 for a in p["alternativ"]
                 if a.get("anbefalt") and a.get("forkastet")
             ]
-            slutter_seg = _slutter_seg_til_anbefalingen(p["svar"])
+            slutter_seg = _slutter_seg_til_anbefalingen(p["svar"], navnene)
             if not _nevner(p["valgt"], p["svar"]) and not (anbefalte == [p["valgt"]] and slutter_seg):
                 grunn = ""
-                if forbehold := _forbeholdet(p["svar"]):
+                if forbehold := _forbeholdet(p["svar"], navnene):
                     grunn = f", og «{forbehold}» gjør at svaret ikke slutter seg til anbefalingen"
                 elif slutter_seg:
                     if not anbefalte:

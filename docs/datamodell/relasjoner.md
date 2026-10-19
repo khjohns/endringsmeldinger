@@ -318,6 +318,11 @@ erDiagram
         nvarchar_32 aktor_team_id "uten fremmednøkkel"
         nvarchar_36 refererer_til_event_id "uten fremmednøkkel"
     }
+    koe_innkommende_behandling {
+        bigint innkommende_hendelse_id PK, FK
+        nvarchar_100 prosjekt_id FK
+        nvarchar_36 sak_id FK
+    }
     koe_innkommende_hendelse {
         bigint id PK
     }
@@ -400,6 +405,7 @@ erDiagram
         uniqueidentifier vedleggskvittering_vedlegg_id FK
         nvarchar_20 vedleggskvittering_operasjon FK
         bigint innkommende_hendelse_id FK
+        bigint innkommende_behandling_id FK
     }
     koe_vedlegg {
         uniqueidentifier vedlegg_id PK
@@ -454,11 +460,14 @@ erDiagram
     koe_kvittering |o--o{ koe_toemmingsvern : "(kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id)"
     koe_leveringskvittering |o--o{ koe_toemmingsvern : "(leveringskvittering_oppdrag_id, leveringskvittering_operasjon)"
     koe_innkommende_hendelse |o--o{ koe_toemmingsvern : "innkommende_hendelse_id"
+    koe_innkommende_behandling |o--o{ koe_toemmingsvern : "innkommende_behandling_id"
     koe_prosjekt_med_saker |o--o{ koe_toemmingsvern : "prosjekt_med_saker_id"
     koe_sak_catenda_topic |o--o{ koe_toemmingsvern : "sak_catenda_topic_sak_id"
     koe_vedlegg |o--o{ koe_toemmingsvern : "vedlegg_id"
     koe_vedleggskvittering |o--o{ koe_toemmingsvern : "(vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon)"
     koe_sak_metadata ||--o| koe_sak_catenda_topic : "(sak_id, prosjekt_id)"
+    koe_innkommende_hendelse ||--o| koe_innkommende_behandling : "innkommende_hendelse_id"
+    koe_sak_metadata |o--o{ koe_innkommende_behandling : "(sak_id, prosjekt_id)"
     koe_projects ||--o| koe_prosjekt_med_saker : "prosjekt_id"
     koe_sak_metadata ||--o| koe_kjernebuffer : "(sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_hendelse : "aktor_team_id"
@@ -581,11 +590,14 @@ erDiagram
 | `koe.toemmingsvern.(kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id)` | `koe.kvittering.(prosjekt_id, aktor_id, kommando_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.(leveringskvittering_oppdrag_id, leveringskvittering_operasjon)` | `koe.leveringskvittering.(leveringsoppdrag_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.innkommende_hendelse_id` | `koe.innkommende_hendelse.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 19.10: katalogen. |
+| `koe.toemmingsvern.innkommende_behandling_id` | `koe.innkommende_behandling.innkommende_hendelse_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`. K 19.10: katalogen. |
 | `koe.toemmingsvern.prosjekt_med_saker_id` | `koe.prosjekt_med_saker.prosjekt_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.sak_catenda_topic_sak_id` | `koe.sak_catenda_topic.sak_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.vedlegg_id` | `koe.vedlegg.vedlegg_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.(vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon)` | `koe.vedleggskvittering.(vedlegg_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | L 19.10: `database/migrasjoner/20261020021000_vedleggskvittering_vern.sql`. K 19.10: katalogen. |
 | `koe.sak_catenda_topic.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken topicen hører til. `sak_id` er primærnøkkelen, så hver sak har høyst én topic. Sammensatt med `prosjekt_id`, så raden står i sakens prosjekt. | — | K 17.10: katalogen. |
+| `koe.innkommende_behandling.innkommende_hendelse_id` | `koe.innkommende_hendelse.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Hendelsen i innboksen utfallet gjelder (W-1b.1, #819). Nøkkelen er primærnøkkelen, så hver hendelse har høyst ett utfall, og en hendelse uten rad er ikke behandlet. | — | L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`. K 19.10: katalogen. |
+| `koe.innkommende_behandling.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken hendelsen ga, bare med utfallet `sak_opprettet` (KT-U6). Med et annet utfall er `sak_id` tom, så nøkkelen gjelder ikke, og `prosjekt_id` er prosjektet koblingen ga, eller tom når prosjektet er ukjent. | — | L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`. K 19.10: katalogen. |
 | `koe.prosjekt_med_saker.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Prosjektet som har saker. `prosjekt_id` er primærnøkkelen, så hvert prosjekt står høyst én gang (F-1, #820). | — | K 18.10: katalogen. |
 | `koe.kjernebuffer.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Saken bufferen er regnet for. `sak_id` er primærnøkkel, så én buffer per sak. Sammensatt med `prosjekt_id`. | — | K 16.10: katalogen. |
 | `koe.hendelse.aktor_team_id` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet avsenderen satt i, i `catenda_id()`-formen. Tom når teamet ikke var entydig (DL-U4). | — | L 16.10: migrasjonen. |
@@ -641,6 +653,7 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.catenda_project_configs.library_id` | Dokumentbiblioteket i Catenda for brevene. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.catenda_project_configs.folder_id` | Mappen i biblioteket. Samme som `library_id`. |
 | `koe.innkommende_hendelse.hendelse_id` | `event.id` fra Catenda, unik per kilde. Ingen tabell har Catendas hendelser. |
+| `koe.innkommende_behandling.catenda_topic_id` | Topicen hendelsen gjelder, i Catenda, normalisert som i `koe.sak_catenda_topic`. Står også når hendelsen ikke ga noen sak, så den har ingen fremmednøkkel dit. |
 | `koe.sak_catenda_topic.catenda_board_id` | Boardet topicen står i, i Catenda. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.sak_catenda_topic.catenda_topic_id` | ID-en til sakens topic i Catenda. Fryses i leveringsoppdraget (F0b-7, #661). |
 | `koe.catenda_project_configs.topic_board_id` | Boardet for saker som opprettes i appen, i Catenda (KT-U4). |
@@ -690,7 +703,11 @@ flowchart LR
         t_vedlegg["vedlegg"]
     end
     subgraph g3["SQL Server"]
+        t_koe_hendelse["koe.hendelse"]
+        t_koe_innkommende_behandling["koe.innkommende_behandling"]
         t_koe_innkommende_hendelse["koe.innkommende_hendelse"]
+        t_koe_sak_catenda_topic["koe.sak_catenda_topic"]
+        t_koe_sak_metadata["koe.sak_metadata"]
     end
     subgraph g4["Utenfor databasene"]
         t_Webhook_reservasjon["Webhook-reservasjon"]
@@ -734,6 +751,14 @@ flowchart LR
     c_ifc -->|"C16.3 get_related_bim_objects"| t_appen
     c_prosjekt -->|"C17.1 catenda_health_check"| t_appen
     c_webhook -->|"C21.1 mottaHendelse"| t_koe_innkommende_hendelse
+    c_bruker -->|"C22.1 CatendaOAuth"| t_appen
+    c_topic -->|"C22.2 CatendaOAuth"| t_appen
+    c_medlemmer -->|"C22.3 CatendaOAuth"| t_appen
+    c_team -->|"C22.4 CatendaOAuth"| t_appen
+    c_webhook -->|"C22.5 opprettSak"| t_koe_sak_metadata
+    c_webhook -->|"C22.5 opprettSak"| t_koe_hendelse
+    c_webhook -->|"C22.5 opprettSak"| t_koe_sak_catenda_topic
+    c_webhook -->|"C22.6 registrerBehandling"| t_koe_innkommende_behandling
 ```
 
 ### Ut til Catenda
@@ -839,8 +864,8 @@ flowchart LR
 | `koe.catenda_project_configs` | — | — | — |
 | `koe.app_membership_absences` | — | — | — |
 | `koe.app_membership_sync` | — | — | — |
-| `koe.sak_metadata` | — | — | — |
-| `koe.hendelse` | — | — | — |
+| `koe.sak_metadata` | C22 | — | — |
+| `koe.hendelse` | C22 | — | — |
 | `koe.notat` | — | — | — |
 | `koe.jobb` | — | — | — |
 | `koe.jobbforsoek` | — | — | — |
@@ -855,8 +880,9 @@ flowchart LR
 | `koe.godkjenningshandling` | — | — | — |
 | `koe.leveringskvittering` | — | — | — |
 | `koe.vedleggskvittering` | — | — | — |
-| `koe.sak_catenda_topic` | — | — | — |
+| `koe.sak_catenda_topic` | C22 | — | — |
 | `koe.innkommende_hendelse` | C21 | — | — |
+| `koe.innkommende_behandling` | C22 | — | — |
 | `koe.prosjekt_med_saker` | — | — | — |
 | `koe.skrivetidspunkt` | — | — | — |
 | `koe.toemmingsvern` | — | — | — |
@@ -1145,13 +1171,30 @@ Oppdaterer `projects.name` direkte, utenom `koe_register_project`. Skriptet bruk
 
 **Retning:** inn. **Utløses av:** Webhook fra Catenda til `POST /webhook/catenda/<hemmelig sti>` i TS-serveren (W-1a, #819). Alle hendelsestyper tas imot, også `bcf.*`.
 
-Stien sammenlignes med hemmeligheten i konstant tid, og en feil sti gir 404 som en ukjent rute (INT-01). Kroppen lagres rå i `koe.innkommende_hendelse` før svaret 200, og samme `event.id` lagres én gang. Feiler lagringen, er svaret 500, så Catenda prøver igjen (INT-02). Behandlingen av innboksen kommer i W-1b; til da skrives ingen sak og ingen kommentar.
+Stien sammenlignes med hemmeligheten i konstant tid, og en feil sti gir 404 som en ukjent rute (INT-01). Kroppen lagres rå i `koe.innkommende_hendelse` før svaret 200, og samme `event.id` lagres én gang. Feiler lagringen, er svaret 500, så Catenda prøver igjen (INT-02). Behandlingen av innboksen er C22 (W-1b.1); kommentaren tilbake til topicen kommer i W-1b.2.
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
 | C21.1 | Catenda: webhook-varsel | koe.innkommende_hendelse | Innkommende POST fra Catenda | [`taImot`](../../server/webhook.ts) → [`mottaHendelse`](../../server/webhook.ts) | Hele kroppen, med `event.id` og `event.type` i egne kolonner. |
 
 **Funn:** INT-01, INT-02. **Belegg:** L 19.10: `server/webhook.ts`. K 19.10: `server/tester/webhook.test.ts`.
+
+### C22 Behandlingen av innboksen i TS-serveren
+
+**Retning:** inn. **Utløses av:** Løkka i jobbkjøreren, etter jobbene: `behandleEnHendelse` i `server/jobber.ts` tar den eldste hendelsen i `koe.innkommende_hendelse` uten utfall (W-1b.1, #819).
+
+Bare en ny topic gir en sak. Catenda signerer ikke kroppen, så av den brukes bare topic-ID-en, boardet og Catenda-prosjektet, og prosjektet tas fra koblingen mellom de to. Forfatteren, typen og tittelen leses fra topicen i Catenda, og en topic Catenda ikke finner på boardet, gir ingen sak. En topic laget av integrasjonen selv gir ingen sak (#741 punkt 17). Identiteten løses først når forfatteren står i medlemslisten fra Catenda, med navnet og e-posten derfra, og siden avgjøres med kontraktsteamene i Catenda. En topic fra TE gir en sak med bare topicens tittel (KT-U6), og saken kobles til topicen i samme transaksjon, uten jobb for en ny topic. En topic fra BH gir ingen sak (KT-U7). Hver hendelse får ett utfall i `koe.innkommende_behandling`. Kommentaren tilbake til topicen kommer i W-1b.2.
+
+| Pil | Fra | Til | Endepunkt | Kode | Data |
+| --- | --- | --- | --- | --- | --- |
+| C22.1 | Catenda: innlogget bruker | Appen, lagres ikke | GET /v2/user | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Integrasjonens egen Catenda-ID (`egenId`), som skiller topics integrasjonen laget. Lagres ikke. |
+| C22.2 | Catenda: topics | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{topic_board_id}/topics/{topic_guid} | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Topicens tittel, type og forfatter (`bimsync_creation_author.user.ref`), med integrasjonens token. Kroppen fra webhooken leses ikke for dem. 404 gir utfallet `ugyldig_hendelse` uten sak. |
+| C22.3 | Catenda: prosjektmedlemmer | Appen, lagres ikke | GET /v2/projects/{catenda_project_id}/members?userType=user (sidevis) | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Om forfatteren er medlem av prosjektet, og navnet og e-posten som sendes til `koe_api.catenda_identitet`. Uten medlemskap løses ingen identitet. |
+| C22.4 | Catenda: team og teammedlemmer | Appen, lagres ikke | GET /v2/projects/{catenda_project_id}/teams/{team_id}/members (sidevis), for hvert kontraktsteam | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`kontraktssideUtenSesjon`](../../server/autorisasjon.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Forfatterens side og team. Blir `aktor_rolle` og `aktor_team_id` i `sak_opprettet`. |
+| C22.5 | Catenda: webhook-varsel | koe.sak_metadata, koe.hendelse, koe.sak_catenda_topic | Hendelsen i innboksen | [`behandleEnHendelse`](../../server/jobber.ts) → [`behandle`](../../server/hendelser.ts) → [`opprettSak`](../../server/kommandoer.ts) | Topicens tittel blir sakstittelen i `sak_opprettet`, og topicen og boardet blir koblingen i `koe.sak_catenda_topic`, skrevet av `koe_api.koble_topic` fra `koe_api.opprett_sak`. Kvitteringen i `koe.kvittering` har en kommando-ID avledet av hendelsen i innboksen. Forfatteren løses til en brukerrad med navnet og e-posten fra medlemslisten, som ved medlemssynkroniseringen, og bare for et medlem. |
+| C22.6 | Catenda: webhook-varsel | koe.innkommende_behandling | Hendelsen i innboksen | [`behandleEnHendelse`](../../server/jobber.ts) → [`registrerBehandling`](../../server/hendelser.ts) | Utfallet, med prosjektet, saken og topicen når de er kjent. |
+
+**Funn:** —. **Belegg:** L 19.10: `server/hendelser.ts`, `server/jobber.ts` og `database/migrasjoner/20261020130000_innkommende_behandling.sql`.
 
 ## Kall til Catenda utenfor dataflyten
 

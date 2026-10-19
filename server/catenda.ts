@@ -14,7 +14,7 @@
 
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { erObjekt } from '../kjerne/format/skjema.ts';
-import { catendaId, type Catenda } from './autorisasjon.ts';
+import { catendaId, uuidMedBindestreker, type Catenda } from './autorisasjon.ts';
 import type { Medlem } from './medlemskap.ts';
 import { UUID } from './datalag.ts';
 
@@ -141,7 +141,7 @@ export interface CatendaBruker {
 type Rad = Record<string, unknown>;
 
 /** Subjektet når brukeren er en individuell Catenda-bruker, ellers `null`. */
-function individueltSubjekt(bruker: unknown): string | null {
+export function individueltSubjekt(bruker: unknown): string | null {
   return erObjekt(bruker) && bruker.type === 'user' ? catendaId(bruker.id) : null;
 }
 
@@ -265,6 +265,17 @@ export class CatendaOAuth {
   }
 
   /**
+   * ID-en til brukeren tokenet tilhører, i `catendaId()`-formen, også når det ikke er en
+   * individuell bruker. For integrasjonen er det forfatteren av topicene den lager.
+   */
+  async egenId(token: string): Promise<string> {
+    const bruker = await forespoersel(this.#oppsett, 'GET', '/v2/user', { token });
+    const id = erObjekt(bruker) ? catendaId(bruker.id) : null;
+    if (!id) throw new CatendaUtilgjengelig('Forventet en brukeridentitet');
+    return id;
+  }
+
+  /**
    * Hele samlingen, side for side. Et tak på antall sider og kravet om unike ID-er
    * gjør at en ignorert sideparameter gir feil, aldri en avkortet liste.
    */
@@ -345,6 +356,32 @@ export class CatendaOAuth {
     if (!erObjekt(svar) || catendaId(svar.project_id) !== catendaId(boardId) || !prosjekt)
       throw new CatendaUtilgjengelig('Ugyldig board');
     return prosjekt;
+  }
+
+  /**
+   * Topicen slik Catenda har den på boardet, for behandlingen av innboksen (#819). Forfatteren
+   * er `bimsync_creation_author.user.ref` i `catendaId()`-formen, som i Python, og en tittel
+   * eller type som mangler, er tom. Gir null når Catenda ikke finner topicen på boardet (404).
+   */
+  async topic(boardId: string, topicId: string, token: string): Promise<Topic | null> {
+    let svar: unknown;
+    try {
+      svar = await forespoersel(this.#oppsett, 'GET', topicsti(boardId, topicId), { token });
+    } catch (feil) {
+      if (feil instanceof CatendaAvvisning && feil.status === 404) return null;
+      throw feil;
+    }
+    // Et svar som aldri blir gyldig, er varig, så hendelsen ikke stenger innboksen.
+    if (!erObjekt(svar) || catendaId(svar.guid) !== catendaId(topicId))
+      throw new VarigCatendaavvik('Ugyldig topic');
+    const forfatter = erObjekt(svar.bimsync_creation_author)
+      ? svar.bimsync_creation_author.user
+      : undefined;
+    return {
+      tittel: tekst(svar.title),
+      type: tekst(svar.topic_type),
+      forfatter: erObjekt(forfatter) ? catendaId(forfatter.ref) : null,
+    };
   }
 
   /**
@@ -536,7 +573,7 @@ function dokumentsti(maal: Dokumentmaal): string {
  * bindestreker, og den formen gir 404 (#902). En ID som ikke er en UUID, sendes som den er.
  */
 function bcfDokumentId(id: string): string {
-  return catendaId(id)?.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5') ?? id;
+  return uuidMedBindestreker(id) ?? id;
 }
 
 function boardsti(boardId: string): string {
@@ -544,10 +581,21 @@ function boardsti(boardId: string): string {
   return `/opencde/bcf/3.0/projects/${boardId}`;
 }
 
-function referansesti(boardId: string, topicId: string): string {
+function topicsti(boardId: string, topicId: string): string {
   const board = boardsti(boardId);
   if (!/^[0-9a-zA-Z-]{1,100}$/.test(topicId)) throw new RangeError('Ugyldig topic-ID');
-  return `${board}/topics/${topicId}/document_references`;
+  return `${board}/topics/${topicId}`;
+}
+
+function referansesti(boardId: string, topicId: string): string {
+  return `${topicsti(boardId, topicId)}/document_references`;
+}
+
+/** En topic lest fra Catenda. `forfatter` er null når topicen ikke har en. */
+export interface Topic {
+  tittel: string;
+  type: string;
+  forfatter: string | null;
 }
 
 /** Typen topicen for en sak fra appen får (#741 punkt 15). */
@@ -558,7 +606,7 @@ export interface NyTopic {
   beskrivelse: string;
 }
 
-function tekst(verdi: unknown): string {
+export function tekst(verdi: unknown): string {
   return typeof verdi === 'string' ? verdi : '';
 }
 
@@ -774,6 +822,24 @@ export function dokumentleverandoer(catenda: Integrasjon): Dokumentleverandoer {
       medToken(catenda, (t) => catenda.oauth.dokumentreferanser(board, topic, t)),
     opprettDokumentreferanse: (board, topic, dokument) =>
       medToken(catenda, (t) => catenda.oauth.opprettDokumentreferanse(board, topic, dokument, t)),
+  };
+}
+
+/** Det behandlingen av innboksen slår opp i Catenda, med integrasjonens eget token (#819). */
+export interface Innboksoppslag extends Catenda {
+  /** Forfatteren av topicene integrasjonen lager, i `catendaId()`-formen (#741 punkt 17). */
+  integrasjonensBruker(): Promise<string>;
+  /** Topicen på boardet, eller null når Catenda ikke finner den der. */
+  topic(boardId: string, topicId: string): Promise<Topic | null>;
+}
+
+export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
+  let egen: string | null = null;
+  return {
+    ...integrasjonen(catenda),
+    integrasjonensBruker: async () =>
+      (egen ??= await medToken(catenda, (t) => catenda.oauth.egenId(t))),
+    topic: (board, topic) => medToken(catenda, (t) => catenda.oauth.topic(board, topic, t)),
   };
 }
 

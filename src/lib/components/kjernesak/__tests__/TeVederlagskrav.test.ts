@@ -403,7 +403,7 @@ describe('kontrollen før en TS-sak sender kravet', () => {
     const kjernesak = { brev: () => null, send } as unknown as Kjernesakkontekst;
     const kontroll = lagKravkontroll(kjernesak);
     await expect(kontroll.submit('vederlag', 'vederlag_krav_sendt', data)).rejects.toThrow(
-      'Kravet er ikke sendt.'
+      'Brevet er ikke sendt.'
     );
     expect(kontroll.letter).toBeNull();
     expect(send).not.toHaveBeenCalled();

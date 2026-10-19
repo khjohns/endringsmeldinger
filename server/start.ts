@@ -41,6 +41,7 @@ import {
   CatendaUtilgjengelig,
   integrasjonen,
   dokumentleverandoer,
+  innboksintegrasjon,
   topicoppretter,
 } from './catenda.ts';
 import { opprettPool, sql } from './datalag.ts';
@@ -105,6 +106,7 @@ if (klient && innlogging) {
     datalag,
     catenda: topicoppretter(klient),
     dokumenter: dokumentleverandoer(klient),
+    innboks: innboksintegrasjon(klient),
     saksadresse: (prosjektId, sakId) =>
       `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}/kjerne`,
   });

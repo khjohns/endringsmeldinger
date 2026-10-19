@@ -12,6 +12,7 @@ parenteser, og referansedefinisjoner ([x]: mål "tittel"), men ikke fotnoter
 """
 
 import functools
+import os
 import pathlib
 import re
 import subprocess
@@ -58,11 +59,18 @@ def ankre(sti: pathlib.Path) -> frozenset[str]:
 
 
 def standardfiler() -> list[pathlib.Path]:
+    """Stiene er relative til arbeidsmappa, men utvalget gjøres fra roten av
+    repoet, så skriptet kontrollerer det samme uansett hvor det kjøres fra (#925)."""
+    rot = pathlib.Path(
+        subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True
+        ).stdout.strip()
+    )
     sporet = subprocess.run(
-        ["git", "ls-files", "-z", "--", "*.md"], capture_output=True, text=True, check=True
+        ["git", "ls-files", "-z", "--", "*.md"], cwd=rot, capture_output=True, text=True, check=True
     ).stdout.split("\0")
     stier = [
-        pathlib.Path(f)
+        pathlib.Path(os.path.relpath(rot / f))
         for f in sorted(sporet)
         if f.startswith(("docs/", ".claude/")) or f in ROTFILER
     ]

@@ -36,7 +36,7 @@ describe('vederlagskravet fra saksbildet', () => {
     (metode) => {
       expect(metodeKanSendesTilKjernen(metode)).toBe(false);
       expect(() => vederlagskrav({ metode, beloep: 1000, utdypning: '' })).toThrow(
-        'kan ikke sendes i TS-stien'
+        'kan ikke sendes for denne saken'
       );
     }
   );

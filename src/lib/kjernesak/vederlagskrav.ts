@@ -9,6 +9,7 @@
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
 import { letterText } from '$lib/approval/letter';
 import type { VederlagSubmissionEventData } from '$lib/domain/vederlagSubmissionDomain';
+import { utenVedlegg } from './skjemadata';
 
 export interface Vederlagsvalg {
   /** Katalogens kode, som `FASTPRIS_TILBUD`. */
@@ -32,7 +33,9 @@ export const metodeKanSendesTilKjernen = (metode: string) =>
 /** Vederlagskravet. En metode kjernen ikke kan ta imot, avvises her og sendes ikke. */
 export function vederlagskrav(valg: Vederlagsvalg): Vederlagskrav {
   if (!metodeKanSendesTilKjernen(valg.metode))
-    throw new Error(`Metoden ${valg.metode} kan ikke sendes i TS-stien ennå. Bare tilbud kan det.`);
+    throw new Error(
+      `Metoden ${valg.metode || 'som er valgt'} kan ikke sendes for denne saken ennå. Velg tilbud.`
+    );
   const utdypning = valg.utdypning.trim();
   return {
     type: 'krav',
@@ -51,8 +54,8 @@ export function vederlagskravFraSkjema(
   data: VederlagSubmissionEventData & { vedlegg_ids?: string[] }
 ): Vederlagskrav {
   if (data.saerskilt_krav)
-    throw new Error('Særskilte krav etter § 34.1.3 kan ikke sendes i TS-stien ennå.');
-  if (data.vedlegg_ids?.length) throw new Error('Vedlegg kan ikke sendes i TS-stien ennå.');
+    throw new Error('Særskilte krav etter § 34.1.3 kan ikke sendes for denne saken ennå.');
+  utenVedlegg(data);
   return vederlagskrav({
     metode: data.metode,
     beloep: data.belop_direkte ?? 0,
