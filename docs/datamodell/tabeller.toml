@@ -831,7 +831,7 @@ lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `oppre
 fra_catenda = "Nei"
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` peker på en bruker."
-skrivere = ["database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
 
@@ -850,7 +850,7 @@ personopplysninger = """
 `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde
 personopplysninger."""
 skrivere = [
-    "database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`)",
+    "database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`)",
     "database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`)",
     "server/kommandoer.ts",
 ]
@@ -891,7 +891,7 @@ lagres_fra = "`koe_api.opprett_sak` og triggeren `koe.leveringsoppdrag_levering`
 fra_catenda = "Delvis. ID-ene til Catenda-prosjektet og boardet."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Sakstittelen kan inneholde personopplysninger."
-skrivere = ["database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen)", "database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.forny_lease`, kalt fra `server/jobber.ts`)"]
+skrivere = ["database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (driftsverktøyet `koe_api.start_jobb_paa_nytt`, innført i `20261018100000_jobber.sql`)", "database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen)", "database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.forny_lease`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`."
 
@@ -910,7 +910,7 @@ lagres_fra = "Prosedyrene for jobbkjøreren og driftsverktøyet i `database/migr
 fra_catenda = "Nei. Meldingen er fra klienten i `server/catenda.ts`, uten svarkropp."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Innloggingen til den i driften som startet en jobb på nytt."
-skrivere = ["database/migrasjoner/20261018120000_levering.sql (`koe_api.hent_jobb` og `koe_api.start_jobb_paa_nytt`)", "database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_topic` og `koe_api.registrer_jobbfeil`, gjennom `koe_api.avslutt_forsoek`)", "database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, som avslutter forsøket)"]
+skrivere = ["database/migrasjoner/20261018120000_levering.sql (`koe_api.hent_jobb`)", "database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (driftsverktøyet `koe_api.start_jobb_paa_nytt`, innført i `20261018100000_jobber.sql`)", "database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_topic` og `koe_api.registrer_jobbfeil`, gjennom `koe_api.avslutt_forsoek`)", "database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, som avslutter forsøket)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`."
 
@@ -945,7 +945,7 @@ lagres_fra = "`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `ko
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Aktørens `app_users.id`."
-skrivere = ["database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
+skrivere = ["database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`)", "database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`."
 

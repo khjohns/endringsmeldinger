@@ -267,6 +267,7 @@ erDiagram
     }
     koe_brevdokument {
         uniqueidentifier leveringsoppdrag_id PK, FK
+        nvarchar_100 prosjekt_id FK
         uniqueidentifier forsoek_id "uten fremmednøkkel"
     }
     koe_catenda_contract_teams {
@@ -342,12 +343,13 @@ erDiagram
     koe_leveringskvittering {
         uniqueidentifier leveringsoppdrag_id PK, FK
         nvarchar_20 operasjon PK
+        nvarchar_100 prosjekt_id FK
         uniqueidentifier forsoek_id "uten fremmednøkkel"
         nvarchar_20 forutsetning FK
     }
     koe_leveringsoppdrag {
-        uniqueidentifier id PK
-        nvarchar_100 prosjekt_id FK
+        uniqueidentifier id PK, UK
+        nvarchar_100 prosjekt_id FK, UK
         nvarchar_36 sak_id FK
         nvarchar_36 event_id FK, UK
         nvarchar_100 dokumentnoekkel UK
@@ -406,6 +408,7 @@ erDiagram
     koe_vedleggskvittering {
         uniqueidentifier vedlegg_id PK, FK
         nvarchar_20 operasjon PK
+        nvarchar_100 prosjekt_id FK
         uniqueidentifier leveringsoppdrag_id FK
         uniqueidentifier forsoek_id "uten fremmednøkkel"
         nvarchar_20 forutsetning FK
@@ -431,15 +434,15 @@ erDiagram
     koe_sak_metadata ||--o{ koe_jobb : "(sak_id, prosjekt_id)"
     koe_jobb ||--o{ koe_jobbforsoek : "jobb_id"
     koe_jobbforsoek |o--o| koe_jobb : "siste_forsoek"
-    koe_leveringsoppdrag |o--o| koe_jobb : "leveringsoppdrag_id"
-    koe_leveringsoppdrag ||--o| koe_brevdokument : "leveringsoppdrag_id"
+    koe_leveringsoppdrag |o--o| koe_jobb : "(leveringsoppdrag_id, prosjekt_id)"
+    koe_leveringsoppdrag ||--o| koe_brevdokument : "(leveringsoppdrag_id, prosjekt_id)"
     koe_jobbforsoek |o..o{ koe_brevdokument : "forsoek_id"
-    koe_leveringsoppdrag ||--o{ koe_leveringskvittering : "leveringsoppdrag_id"
+    koe_leveringsoppdrag ||--o{ koe_leveringskvittering : "(leveringsoppdrag_id, prosjekt_id)"
     koe_leveringskvittering |o--o| koe_leveringskvittering : "(leveringsoppdrag_id, forutsetning)"
     koe_jobbforsoek |o..o{ koe_leveringskvittering : "forsoek_id"
     koe_vedlegg ||--o{ koe_vedleggskvittering : "vedlegg_id"
     koe_vedleggskvittering |o--o| koe_vedleggskvittering : "(vedlegg_id, forutsetning)"
-    koe_leveringsoppdrag ||--o{ koe_vedleggskvittering : "leveringsoppdrag_id"
+    koe_leveringsoppdrag ||--o{ koe_vedleggskvittering : "(leveringsoppdrag_id, prosjekt_id)"
     koe_jobbforsoek |o..o{ koe_vedleggskvittering : "forsoek_id"
     koe_app_identities |o--o{ koe_toemmingsvern : "app_identities_id"
     koe_brevdokument |o--o{ koe_toemmingsvern : "brevdokument_id"
@@ -557,15 +560,15 @@ erDiagram
 | `koe.jobb.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken jobben gjelder. Sammensatt med `prosjekt_id`, så jobben står i sakens prosjekt. En sak har høyst én jobb `catenda_topic` (#741). | — | K 18.10: katalogen. |
 | `koe.jobbforsoek.jobb_id` | `koe.jobb.jobb_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Jobben forsøket gjelder. Fremmednøkkelen hindrer også TRUNCATE av jobbene (#582). | — | K 18.10: katalogen. |
 | `koe.jobb.siste_forsoek` | `koe.jobbforsoek.forsoek_id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Det siste forsøket på jobben. Fremmednøkkelen hindrer også TRUNCATE av forsøkene (#582). | — | K 18.10: katalogen. |
-| `koe.jobb.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Oppdraget en jobb `levering` leverer (#371). Hvert oppdrag har høyst én jobb. | — | K 18.10: katalogen. |
-| `koe.brevdokument.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Oppdraget PDF-en gjengir. Det er én PDF per oppdrag (#371 del 2). | — | K 18.10: katalogen. |
+| `koe.jobb.(leveringsoppdrag_id, prosjekt_id)` | `koe.leveringsoppdrag.(id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Oppdraget en jobb `levering` leverer (#371). Hvert oppdrag har høyst én jobb. Sammensatt med `prosjekt_id`, så jobben står i oppdragets prosjekt (#783). | — | K 19.10: katalogen. |
+| `koe.brevdokument.(leveringsoppdrag_id, prosjekt_id)` | `koe.leveringsoppdrag.(id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Oppdraget PDF-en gjengir. Det er én PDF per oppdrag (#371 del 2). Sammensatt med `prosjekt_id`, så PDF-en står i oppdragets prosjekt (#783). | — | K 19.10: katalogen. |
 | `koe.brevdokument.forsoek_id` | `koe.jobbforsoek.forsoek_id` | uten fremmednøkkel | mange til én | Leasen PDF-en ble lagret med. Forsøket med samme ID lagres når forsøket er over, så det er ingen fremmednøkkel. | — | L 18.10: `database/migrasjoner/20261018140000_brevdokument.sql`. |
-| `koe.leveringskvittering.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Oppdraget kvitteringen gjelder: én rad for dokumentet og én for referansen på topicen (B-03, #371). | — | K 18.10: katalogen. |
+| `koe.leveringskvittering.(leveringsoppdrag_id, prosjekt_id)` | `koe.leveringsoppdrag.(id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Oppdraget kvitteringen gjelder: én rad for dokumentet og én for referansen på topicen (B-03, #371). Sammensatt med `prosjekt_id`, så kvitteringen står i oppdragets prosjekt (#783). | — | K 19.10: katalogen. |
 | `koe.leveringskvittering.(leveringsoppdrag_id, forutsetning)` | `koe.leveringskvittering.(leveringsoppdrag_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Referansen på topicen forutsetter at dokumentet er kvittert for samme oppdrag. | — | K 18.10: katalogen. |
 | `koe.leveringskvittering.forsoek_id` | `koe.jobbforsoek.forsoek_id` | uten fremmednøkkel | mange til én | Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er over, etter kvitteringen for dokumentet, så det er ingen fremmednøkkel. | — | L 18.10: `database/migrasjoner/20261018120000_levering.sql`. |
 | `koe.vedleggskvittering.vedlegg_id` | `koe.vedlegg.vedlegg_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vedlegget kvitteringen gjelder: én rad for dokumentet og én for referansen på topicen (V-3, #790). | — | K 18.10: katalogen. |
 | `koe.vedleggskvittering.(vedlegg_id, forutsetning)` | `koe.vedleggskvittering.(vedlegg_id, operasjon)` | fremmednøkkel, ON DELETE NO ACTION | én til én | Referansen på topicen forutsetter at dokumentet er kvittert for samme vedlegg. | — | K 18.10: katalogen. |
-| `koe.vedleggskvittering.leveringsoppdrag_id` | `koe.leveringsoppdrag.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Oppdraget som leverte vedlegget. Et senere oppdrag som viser til samme vedlegg, får ingen ny rad. | — | K 18.10: katalogen. |
+| `koe.vedleggskvittering.(leveringsoppdrag_id, prosjekt_id)` | `koe.leveringsoppdrag.(id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Oppdraget som leverte vedlegget. Et senere oppdrag som viser til samme vedlegg, får ingen ny rad. Sammensatt med `prosjekt_id`, så kvitteringen står i oppdragets prosjekt (#783). | — | K 19.10: katalogen. |
 | `koe.vedleggskvittering.forsoek_id` | `koe.jobbforsoek.forsoek_id` | uten fremmednøkkel | mange til én | Leasen kvitteringen ble skrevet med. Forsøket med samme ID lagres når forsøket er over, etter kvitteringen, så det er ingen fremmednøkkel. | — | L 18.10: `database/migrasjoner/20261020020000_vedleggslevering.sql`. |
 | `koe.toemmingsvern.app_identities_id` | `koe.app_identities.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
 | `koe.toemmingsvern.brevdokument_id` | `koe.brevdokument.leveringsoppdrag_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad. | — | K 18.10: katalogen. |
@@ -638,11 +641,8 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.jobb.catenda_board_id` | Boardet frosset da jobben ble lagt inn. Sammenliknes med koblingen når jobben hentes (invariant 6). |
 | `koe.jobb.lease` | Leasen for forsøket som pågår. Blir forsøkets ID når utfallet lagres (invariant 7). |
 | `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
-| `koe.brevdokument.prosjekt_id` | Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5). |
 | `koe.leveringskvittering.catenda_id` | ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda. |
-| `koe.leveringskvittering.prosjekt_id` | Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5). |
 | `koe.vedleggskvittering.catenda_id` | ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda. |
-| `koe.vedleggskvittering.prosjekt_id` | Prosjektet til oppdraget, kopiert fra jobben, for radsikkerheten (DL-U5). |
 
 ## Dataflyt mot Catenda
 

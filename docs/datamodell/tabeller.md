@@ -663,7 +663,7 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 | Relasjoner | Nøkler: primærnøkkel (sak_id); unik (sak_id, prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); created_by → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.kjernebuffer.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.sak_catenda_topic.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | `created_by` peker på en bruker. |
-| Skrives av | database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -680,7 +680,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | Relasjoner | Nøkler: primærnøkkel (event_id); unik (event_id, sak_id, prosjekt_id); unik (sak_id, versjon). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel); refererer_til_event_id → koe.hendelse.event_id (uten fremmednøkkel). Vises til fra: koe.kvittering.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.leveringsoppdrag.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.notat.refererer_til_event_id (uten fremmednøkkel); koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Journalen er kilden alt annet regnes fra. |
 | Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`); database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
+| Skrives av | database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`); database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
 | Funn | — |
 | Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
 
@@ -711,10 +711,10 @@ Jobbene jobbkjøreren gjør etter commit (B-07, arbeidsvalget 18.10 i #741). En 
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.opprett_sak` og triggeren `koe.leveringsoppdrag_levering`, og endres av `koe_api.hent_jobb`, `koe_api.kvitter_topic`, `koe_api.kvitter_levering`, `koe_api.registrer_jobbfeil` og driftsverktøyet `koe_api.start_jobb_paa_nytt`. |
 | Data fra Catenda | Delvis. ID-ene til Catenda-prosjektet og boardet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (jobb_id); unik indeks (lease) WHERE ([lease] IS NOT NULL); unik indeks (leveringsoppdrag_id) WHERE ([leveringsoppdrag_id] IS NOT NULL); unik indeks (sak_id) WHERE ([jobbtype]=N'catenda_topic'). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); siste_forsoek → koe.jobbforsoek.forsoek_id (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.jobbforsoek.jobb_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Sakstittelen kan inneholde personopplysninger. |
-| Skrives av | database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.forny_lease`, kalt fra `server/jobber.ts`) |
+| Skrives av | database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261018120000_levering.sql (prosedyrene for jobbkjøreren, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`); database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (driftsverktøyet `koe_api.start_jobb_paa_nytt`, innført i `20261018100000_jobber.sql`); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (triggeren `koe.leveringsoppdrag_levering`, innført i `20261018120000_levering.sql`, ved skrivingen av hendelsen); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.forny_lease`, kalt fra `server/jobber.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`. |
 
@@ -731,7 +731,7 @@ Hvert forsøk, hver feil, hver kvittering og hver omstart av en jobb for seg (LV
 | Relasjoner | Nøkler: primærnøkkel (forsoek_id). Viser til: jobb_id → koe.jobb.jobb_id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.forsoek_id (uten fremmednøkkel); koe.jobb.siste_forsoek (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.forsoek_id (uten fremmednøkkel); koe.vedleggskvittering.forsoek_id (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innloggingen til den i driften som startet en jobb på nytt. |
-| Skrives av | database/migrasjoner/20261018120000_levering.sql (`koe_api.hent_jobb` og `koe_api.start_jobb_paa_nytt`); database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_topic` og `koe_api.registrer_jobbfeil`, gjennom `koe_api.avslutt_forsoek`); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, som avslutter forsøket) |
+| Skrives av | database/migrasjoner/20261018120000_levering.sql (`koe_api.hent_jobb`); database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (driftsverktøyet `koe_api.start_jobb_paa_nytt`, innført i `20261018100000_jobber.sql`); database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.kvitter_topic` og `koe_api.registrer_jobbfeil`, gjennom `koe_api.avslutt_forsoek`); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, som avslutter forsøket) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/jobber.test.ts`. |
 
@@ -745,7 +745,7 @@ Leveringsoppdraget for et brev (LV-U1, B-03), frosset i samme transaksjon som br
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse`, med brevet `dokument_registrert` i samme transaksjon, kalt fra `skrivHendelse` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661). |
 | Data fra Catenda | Nei, men oppdraget gjelder en levering til Catenda. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedleggskvittering.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik (dokumentnoekkel); unik (event_id); unik (id, prosjekt_id). Viser til: (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.brevdokument.(leveringsoppdrag_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.jobb.(leveringsoppdrag_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.leveringskvittering.(leveringsoppdrag_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); koe.vedleggskvittering.(leveringsoppdrag_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Innholdet er brevet og kan inneholde personopplysninger. |
 | Skrives av | database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
@@ -765,7 +765,7 @@ Kvitteringen per kommando (invariant 4, #418): kommando-ID-en klienten gir, summ
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id, aktor_id, kommando_id); unik (event_id). Viser til: aktor_id → koe.app_users.id (uten fremmednøkkel); (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.(kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Aktørens `app_users.id`. |
-| Skrives av | database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
+| Skrives av | database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql (`koe_api.opprett_sak`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen og `server/kommandoer.ts`. K 18.10: `server/tester/kommandoer.test.ts`. |
 
@@ -779,7 +779,7 @@ PDF-en av brevet i et leveringsoppdrag (#371 del 2, merknaden 12.10): bytene og 
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.lagre_brevdokument`, kalt av jobbkjøreren i `server/jobber.ts` med PDF-en når samme prosedyre uten PDF ikke gir noen lagret for oppdraget (#795 punkt 4, #805 punkt 5). |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id). Viser til: leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.brevdokument_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id). Viser til: (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.brevdokument_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Det er PDF-en som ble levert. |
 | Personopplysninger | Brevteksten kan ha navn på personer i prosjektet. |
 | Skrives av | database/migrasjoner/20261020020000_vedleggslevering.sql (`koe_api.lagre_brevdokument`, innført i `20261018140000_brevdokument.sql`, kalt fra `server/jobber.ts`) |
@@ -898,7 +898,7 @@ Kvitteringen for hver obligatoriske operasjon i leveringen av et brev (#371 del 
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt av jobbkjøreren i `server/jobber.ts`. |
 | Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id, operasjon). Viser til: leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, forutsetning) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.(leveringskvittering_oppdrag_id, leveringskvittering_operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id, operasjon). Viser til: (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, forutsetning) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.(leveringskvittering_oppdrag_id, leveringskvittering_operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |
 | Skrives av | database/migrasjoner/20261018120000_levering.sql (`koe_api.kvitter_dokument`, kalt fra `server/jobber.ts`); database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, kalt fra `server/jobber.ts`) |
@@ -915,7 +915,7 @@ Kvitteringen for hver operasjon i leveringen av et vedlegg (V-3, del av #790, in
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.kvitter_vedlegg`, kalt av jobbkjøreren i `server/jobber.ts`. |
 | Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (vedlegg_id, operasjon). Viser til: vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedlegg_id, forutsetning) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); leveringsoppdrag_id → koe.leveringsoppdrag.id (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.(vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (vedlegg_id, operasjon). Viser til: vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedlegg_id, forutsetning) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.(vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |
 | Skrives av | database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql (`koe_api.kvitter_vedlegg`, innført i `20261020020000_vedleggslevering.sql`, kalt fra `server/jobber.ts`) |
