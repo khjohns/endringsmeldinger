@@ -17,18 +17,23 @@ export interface Miljoe {
   CATENDA_CLIENT_SECRET: string;
   CATENDA_PROSJEKT_ID: string;
   CATENDA_TOPIC_BOARD_ID: string;
+  /** Biblioteket live-testene sletter i. Uten den avvises sletting av items. */
+  CATENDA_BIBLIOTEK_ID?: string;
 }
 
 const CATENDA = 'https://api.catenda.com';
 const SIKKERHETSMARGIN_MS = 300_000;
 const VIDERESENDTE_HODER = ['accept', 'content-type', 'bimsync-params'];
 
-/** En del er `=literal`, `prosjekt`, `board` eller `id`. */
+/** En del er `=literal`, `prosjekt`, `board`, `bibliotek` eller `id`. */
 type Regel = { metoder: string[]; deler: string[] };
 
 const ID = /^[0-9A-Za-z-]{1,64}$/;
 
-/** Kallene i `docs/datamodell/dataflyt.toml` og `server/catenda.ts` som integrasjonen gjør. */
+/**
+ * Kallene i `docs/datamodell/dataflyt.toml` og `server/catenda.ts` som integrasjonen gjør,
+ * og slettingene live-testene rydder etter seg med. Appen sletter ingen av dem.
+ */
 const TILLATT: Regel[] = [
   ['GET', 'v2/projects/:prosjekt'],
   ['GET', 'v2/projects/:prosjekt/members'],
@@ -36,15 +41,17 @@ const TILLATT: Regel[] = [
   ['GET', 'v2/projects/:prosjekt/teams/:id/members'],
   ['GET POST', 'v2/projects/:prosjekt/libraries/:id/items'],
   ['GET', 'v2/projects/:prosjekt/libraries/:id/items/:id'],
+  ['DELETE', 'v2/projects/:prosjekt/libraries/:bibliotek/items/:id'],
   ['GET', 'v2/projects/:prosjekt/ifc/products/ifctypes'],
   ['GET', 'v2/projects/:prosjekt/ifc/products/:id/relations'],
   ['GET', 'opencde/bcf/3.0/projects/:board'],
   ['GET POST', 'opencde/bcf/3.0/projects/:board/topics'],
-  ['GET PUT', 'opencde/bcf/3.0/projects/:board/topics/:id'],
+  ['GET PUT DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id'],
   ['POST', 'opencde/bcf/3.0/projects/:board/topics/:id/comments'],
   ['GET PUT', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics'],
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics/:id'],
   ['GET POST', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references'],
+  ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references/:id'],
 ].map(([metoder, sti]) => ({
   metoder: metoder.split(' '),
   deler: sti.split('/').map((d) => (d.startsWith(':') ? d.slice(1) : `=${d}`)),
@@ -66,6 +73,7 @@ export function tillatt(miljoe: Miljoe, metode: string, sti: string): boolean {
   const deler = sti.slice(1).split('/');
   const prosjekt = catendaId(miljoe.CATENDA_PROSJEKT_ID);
   const board = catendaId(miljoe.CATENDA_TOPIC_BOARD_ID);
+  const bibliotek = catendaId(miljoe.CATENDA_BIBLIOTEK_ID ?? '');
   if (!prosjekt || !board) return false;
   return TILLATT.some(
     (regel) =>
@@ -76,6 +84,7 @@ export function tillatt(miljoe: Miljoe, metode: string, sti: string): boolean {
         if (del.startsWith('=')) return verdi === del.slice(1);
         if (del === 'prosjekt') return catendaId(verdi) === prosjekt;
         if (del === 'board') return catendaId(verdi) === board;
+        if (del === 'bibliotek') return bibliotek !== null && catendaId(verdi) === bibliotek;
         return ID.test(verdi);
       })
   );
@@ -94,10 +103,8 @@ export async function sammeNokkel(oppgitt: string, nokkel: string): Promise<bool
   return forskjell === 0;
 }
 
-function svar(status: number, kropp?: unknown): Response {
-  return kropp === undefined
-    ? new Response(null, { status })
-    : Response.json(kropp, { status, headers: { 'Cache-Control': 'no-store' } });
+function svar(status: number, kropp: unknown): Response {
+  return Response.json(kropp, { status, headers: { 'Cache-Control': 'no-store' } });
 }
 
 /** Tokenkallet til Catenda feilet. `status` er Catendas statuskode, 0 uten svar eller med ugyldig kropp. */
@@ -191,8 +198,9 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       return tokenkall(foresp, miljoe);
 
     const bearer = /^Bearer (.+)$/.exec(foresp.headers.get('Authorization') ?? '')?.[1] ?? '';
-    if (!(await sammeNokkel(bearer, miljoe.BROKERNOKKEL))) return svar(401);
-    if (!tillatt(miljoe, foresp.method, adresse.pathname)) return svar(403);
+    // Kroppen skiller brokerens avvisning fra Catendas 401 og 403.
+    if (!(await sammeNokkel(bearer, miljoe.BROKERNOKKEL))) return svar(401, { feil: 'brokernoekkel' });
+    if (!tillatt(miljoe, foresp.method, adresse.pathname)) return svar(403, { feil: 'broker_avviste' });
 
     let token: string;
     try {

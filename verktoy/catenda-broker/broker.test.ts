@@ -10,6 +10,8 @@ import { lagBroker, sammeNokkel, tillatt, Tokenlager, type Miljoe } from './brok
 const PROSJEKT = '0123456789abcdef0123456789abcdef';
 const BOARD = 'fedcba9876543210fedcba9876543210';
 const ANNET = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const BIBLIOTEK = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+const TOPIC = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
 const NOKKEL = 'brokernokkel-for-testen';
 
 const miljoe: Miljoe = {
@@ -18,6 +20,7 @@ const miljoe: Miljoe = {
   CATENDA_CLIENT_SECRET: 'catenda-hemmelighet',
   CATENDA_PROSJEKT_ID: PROSJEKT,
   CATENDA_TOPIC_BOARD_ID: BOARD,
+  CATENDA_BIBLIOTEK_ID: BIBLIOTEK,
 };
 
 type Kall = { adresse: string; init: RequestInit };
@@ -140,6 +143,40 @@ describe('videresendingen', () => {
   });
 });
 
+describe('slettingen live-testene rydder med', () => {
+  it.each([
+    ['en topic på boardet', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}`],
+    ['en dokumentreferanse på boardet', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}/document_references/${ANNET}`],
+    ['et item i testbiblioteket', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items/${ANNET}`],
+  ])('sender DELETE på %s til Catenda med Catenda-tokenet', async (_navn, sti) => {
+    catendasvar = () => new Response(null, { status: 204 });
+    const s = await behandle(medNokkel('DELETE', sti), miljoe);
+    expect(s.status).toBe(204);
+    expect(ut()).toHaveLength(1);
+    const [{ adresse, init }] = ut();
+    expect(adresse).toBe(`https://api.catenda.com${sti}`);
+    expect(init.method).toBe('DELETE');
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer catenda-token');
+  });
+
+  it('godtar bibliotek-ID-en med bindestreker og store bokstaver, som catendaId', () => {
+    const medStreker = 'BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB';
+    expect(tillatt(miljoe, 'DELETE', `/v2/projects/${PROSJEKT}/libraries/${medStreker}/items/${ANNET}`)).toBe(true);
+  });
+
+  it('gir 403 uten kall når CATENDA_BIBLIOTEK_ID mangler i miljøet, og lar resten være', async () => {
+    const utenBibliotek: Miljoe = { ...miljoe };
+    delete utenBibliotek.CATENDA_BIBLIOTEK_ID;
+    for (const m of [utenBibliotek, { ...miljoe, CATENDA_BIBLIOTEK_ID: '' }]) {
+      const s = await behandle(medNokkel('DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items/${ANNET}`), m);
+      expect(s.status).toBe(403);
+      expect(kall).toEqual([]);
+      expect(tillatt(m, 'GET', `/v2/projects/${PROSJEKT}/libraries/${ANNET}/items/${ANNET}`)).toBe(true);
+      expect(tillatt(m, 'DELETE', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}`)).toBe(true);
+    }
+  });
+});
+
 describe('avvisningen', () => {
   it.each([
     ['uten Authorization', {}],
@@ -149,6 +186,8 @@ describe('avvisningen', () => {
   ])('gir 401 %s, uten kall til Catenda', async (_navn, hoder) => {
     const s = await behandle(foresp('GET', `/v2/projects/${PROSJEKT}/teams`, hoder), miljoe);
     expect(s.status).toBe(401);
+    expect(s.headers.get('cache-control')).toBe('no-store');
+    expect(await s.json()).toEqual({ feil: 'brokernoekkel' });
     expect(kall).toEqual([]);
   });
 
@@ -163,9 +202,25 @@ describe('avvisningen', () => {
     ['DELETE', `/v2/projects/${PROSJEKT}/teams`],
     ['POST', `/v2/projects/${PROSJEKT}`],
     ['GET', `/v2/projects/${PROSJEKT}/webhooks`],
+    ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${ANNET}/items/${ANNET}`],
+    ['DELETE', `/v2/projects/${ANNET}/libraries/${BIBLIOTEK}/items/${ANNET}`],
+    ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items`],
+    ['DELETE', `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}`],
+    ['DELETE', `/v2/projects/${PROSJEKT}/libraries`],
+    ['DELETE', `/v2/projects/${PROSJEKT}/webhooks/${ANNET}`],
+    ['DELETE', `/v2/projects/${PROSJEKT}`],
+    ['DELETE', `/opencde/bcf/3.0/projects/${ANNET}/topics/${TOPIC}`],
+    ['DELETE', `/opencde/bcf/3.0/projects/${ANNET}/topics/${TOPIC}/document_references/${ANNET}`],
+    ['DELETE', `/opencde/bcf/3.0/projects/${BOARD}/topics`],
+    ['DELETE', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}/document_references`],
+    ['DELETE', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}/related_topics`],
+    ['DELETE', `/opencde/bcf/3.0/projects/${ANNET}/topics/${TOPIC}/related_topics/${ANNET}`],
+    ['DELETE', `/opencde/bcf/3.0/projects/${BOARD}`],
   ])('gir 403 for %s %s, uten kall til Catenda', async (metode, sti) => {
     const s = await behandle(medNokkel(metode, sti), miljoe);
     expect(s.status).toBe(403);
+    expect(s.headers.get('cache-control')).toBe('no-store');
+    expect(await s.json()).toEqual({ feil: 'broker_avviste' });
     expect(kall).toEqual([]);
   });
 

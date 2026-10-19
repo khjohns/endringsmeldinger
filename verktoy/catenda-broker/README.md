@@ -4,13 +4,16 @@ Brokeren lar skyøkta bruke Catenda-integrasjonen uten at Catendas klienthemmeli
 eller tokenet fra Catenda kommer inn i økta (#806). Den holder integrasjonens
 klient-ID og hemmelighet og henter tokenet selv. Den videresender bare kall
 som står i tillatelseslisten i `broker.ts`, avgrenset til ett Catenda-prosjekt og
-ett topic board. Økta får en brokernøkkel, som kan byttes uten å røre Catenda.
+ett topic board. Sletting er avgrenset til topics og dokumentreferanser på boardet,
+koblinger mellom topics, og items i ett bibliotek. Økta får en brokernøkkel, som kan byttes uten å røre Catenda.
 
 Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 
 **Ansvarlig:** repoeieren (khjohns). Tillatelseslisten følger Catenda-kallene i
 `docs/datamodell/dataflyt.toml`. Får integrasjonen et nytt kall, må det inn i
-`TILLATT` og i `broker.test.ts`.
+`TILLATT` og i `broker.test.ts`. Slettingen av topics, dokumentreferanser og items
+er bare for live-testene, som rydder etter seg. Appen sletter ingen av dem, så de
+står ikke i `dataflyt.toml`.
 
 ## Hemmelighetene
 
@@ -20,6 +23,7 @@ Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 | `CATENDA_CLIENT_ID`, `CATENDA_CLIENT_SECRET` | Integrasjonens nøkkel i Catenda |
 | `CATENDA_PROSJEKT_ID` | Testprosjektets ID i `/v2/projects/…` |
 | `CATENDA_TOPIC_BOARD_ID` | Testprosjektets topic board i `/opencde/bcf/3.0/projects/…` |
+| `CATENDA_BIBLIOTEK_ID` | Biblioteket live-testene sletter items i, samme verdi som `CATENDA_LIBRARY_ID` i skymiljøet. Uten den avvises sletting av items, og ingenting annet endres |
 
 Settes fra egen maskin, aldri fra en skyøkt. Verdiene skrives ikke i issues,
 PR-er eller chat.
@@ -74,6 +78,10 @@ Cloudflare-kontoen. Repoet ruller ikke ut noe av seg selv.
 tillatelseslisten og videresendingen mot en fetch-dobbel. Det testene ikke
 prøver: at Catenda godtar de videresendte kallene, og at verten er tillatt
 fra skyøkta. Det prøves fra skyøkta etter utrullingen.
+
+Brokerens egne avvisninger har en kropp, så de skilles fra Catendas 401 og 403:
+`{"feil": "brokernoekkel"}` (401) betyr at brokernøkkelen mangler eller er feil, og
+`{"feil": "broker_avviste"}` (403) at kallet ikke står i tillatelseslisten.
 
 En 502 fra brokeren har en kropp som sier hvilket steg som feilet:
 `{"feil": "tokenkall", "status": 401}` betyr at Catenda avviste brokerens
