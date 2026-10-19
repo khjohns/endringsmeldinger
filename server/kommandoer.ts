@@ -21,7 +21,25 @@
 
 import type { Vedleggsoppslag } from '../kjerne/kommandoer/skriving.ts';
 import type { Journalrad, Vedlegg } from '../kjerne/typer.ts';
-import { feilnummer, sql, transaksjon, UUID, type Kontekst, type Pool } from './datalag.ts';
+import {
+  BLOKKERT,
+  feilnummer,
+  FOR_GAMMELT,
+  ID_BRUKT,
+  INGEN_BOARD,
+  KONFLIKT,
+  LAAS_FEILET,
+  LAAS_IKKE_GITT,
+  NEKTET,
+  sql,
+  Tilbakerulling,
+  transaksjon,
+  UGYLDIG,
+  UUID,
+  type Foresp,
+  type Kontekst,
+  type Pool,
+} from './datalag.ts';
 import { sjekksum } from './sjekksum.ts';
 import {
   IngenLeveringsmaal,
@@ -74,16 +92,6 @@ export class LaasIkkeGitt extends Error {}
  */
 export class LaasFeilet extends Error {}
 
-const UKJENT_SAK = 51403;
-const INGEN_BOARD = 51412;
-const KONFLIKT = 51409;
-const ID_BRUKT = 51410;
-const UGYLDIG = 51422;
-const LAAS_IKKE_GITT = 51408;
-const LAAS_FEILET = 51407;
-const FOR_GAMMELT = 51419;
-const BLOKKERT = 33504;
-
 /** Meldingen `koe_api.skriv_hendelse` gir med 51409; formen er en kontrakt (`20261016230000_skranker.sql`). */
 const KONFLIKTMELDING = /^Versjonskonflikt: journalen har versjon (\d+)$/;
 
@@ -97,7 +105,7 @@ function oversett(feil: unknown, forventet: number | null): unknown {
     return new SkrivingAvvist(melding, { cause: feil });
   }
   switch (feilnummer(feil)) {
-    case UKJENT_SAK:
+    case NEKTET:
       return forventet === null
         ? new SkrivingAvvist(melding, { cause: feil })
         : new SakFinnesIkke(melding, { cause: feil });
@@ -133,8 +141,6 @@ export interface Kommando {
 
 /** Summen av innholdet, uavhengig av rekkefølgen på nøklene: samme sum som oppdragene (#792 punkt 4). */
 export const kommandosum = sjekksum;
-
-type Foresp = () => sql.Request;
 
 /** Innholdet i `sak_opprettet` som kjernen har godtatt. */
 export interface Innhold {
@@ -296,7 +302,7 @@ export async function skrivHendelse<A>(
   lag: (grunnlag: Skrivegrunnlag) => Skriveutfall<A>
 ): Promise<Skriveutfall<A> | Gjentatt> {
   const forsoek = () =>
-    transaksjon(pool, kontekst, async (foresp): Promise<Skriveutfall<A> | Gjentatt> => {
+    transaksjon<Skriveutfall<A> | Gjentatt>(pool, kontekst, async (foresp) => {
       // Etter at transaksjon() har prøvd konteksten, så en ugyldig kontekst gir UgyldigKontekst (#596).
       if (!kontekst.side) throw new SkrivingAvvist('Konteksten har ingen kontraktsside.');
       // En annen form kan ikke være en sak (#566).
@@ -324,7 +330,7 @@ export async function skrivHendelse<A>(
       const vedlegg = await lesVedlegg(foresp, kontekst, sakId);
       const utfall = lag({ journal, tidspunkt, maal, vedlegg });
       // Rulles tilbake, så tidspunktet skrivetidspunkt førte, ikke blir stående.
-      if (!utfall.skriv) throw new IkkeSkrevet(utfall);
+      if (!utfall.skriv) return new Tilbakerulling(utfall);
       const { rad, oppdrag } = utfall;
       kontrollerRad(rad, oppdrag, kontekst, sakId, forventet, tidspunkt);
       await foresp()
@@ -356,7 +362,6 @@ export async function skrivHendelse<A>(
       return await forsoek();
     }
   } catch (feil) {
-    if (feil instanceof IkkeSkrevet) return feil.utfall as Skriveutfall<A>;
     throw oversett(feil, forventet);
   }
 }
@@ -382,14 +387,6 @@ async function lesVedlegg(
           AND (bundet_av_event_id IS NOT NULL OR lastet_opp_team = @team)`
     );
   return new Map(svar.recordset.map((v) => [v.vedlegg_id, v]));
-}
-
-/** `lag` avviste; kastes for at transaksjonen skal rulles tilbake. */
-class IkkeSkrevet {
-  readonly utfall: Skriveutfall<unknown>;
-  constructor(utfall: Skriveutfall<unknown>) {
-    this.utfall = utfall;
-  }
 }
 
 /**
