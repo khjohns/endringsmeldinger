@@ -179,7 +179,7 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * Avviser `innhold`, er svaret avvisningen, i samme form som fra `skrivHendelse`,
  * og ingenting skrives.
  *
- * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UsikkertUtfall, og det `innhold` kaster
+ * @throws SkrivingAvvist, UgyldigKommando, IngenTopicBoard, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall, og det `innhold` kaster
  */
 export function opprettSak(
   pool: Pool,
@@ -285,7 +285,7 @@ export type Gjentatt = { skriv: 'gjentatt'; rad: Journalrad };
  * prøves skrivingen én gang til med et nytt tidspunkt (#599). Avvises også den,
  * kastes basens feil.
  *
- * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UsikkertUtfall
+ * @throws Versjonskonflikt, SakFinnesIkke, SkrivingAvvist, UgyldigKommando, KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst, UsikkertUtfall
  */
 export async function skrivHendelse<A>(
   pool: Pool,

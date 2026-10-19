@@ -275,7 +275,10 @@ function skriveavvisning(feil: unknown): Svar {
     return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
   // Låsen ble aldri tatt (51407), eller ingen forbindelse ble lånt: ingenting er skrevet.
   if (feil instanceof LaasFeilet || feil instanceof UgyldigKontekst) {
-    loggFeil('Kommandoen feilet før skrivingen', feil);
+    loggFeil(
+      feil instanceof LaasFeilet ? 'Låsen på kommando-ID-en feilet' : 'Konteksten er ugyldig',
+      feil
+    );
     return uventet();
   }
   return usikkert(feil);
