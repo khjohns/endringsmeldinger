@@ -51,6 +51,7 @@ export default defineConfig({
       'sprakprove/**/*.test.ts',
       'server/**/*.test.ts',
       '.claude/hooks/*.test.ts',
+      'verktoy/**/*.test.ts',
     ],
     environmentMatchGlobs: [['src/lib/components/**/*.test.ts', 'jsdom']],
     setupFiles: ['src/test-setup.ts'],

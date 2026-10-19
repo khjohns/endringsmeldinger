@@ -24,8 +24,8 @@
  *   `CATENDA_CLIENT_SECRET`, `CATENDA_LOGIN_REDIRECT_URI` og `CATENDA_ACCESS_TOKEN`,
  *   som Python. Medlemslistene og teamene hentes med integrasjonens eget token.
  *   Mangler oppsettet for innloggingen eller er det ugyldig, svarer innloggingen
- *   503; mangler Catenda-oppsettet, gir også en medlemsliste som må hentes, 503. `CATENDA_GRUNNADRESSE` peker Catenda mot en
- *   testleverandør på localhost, bare i utvikling.
+ *   503; mangler Catenda-oppsettet, gir også en medlemsliste som må hentes, 503. `CATENDA_GRUNNADRESSE` peker Catenda mot
+ *   token-brokeren (#806) eller en testleverandør på localhost i utvikling.
  * - Med både innloggingen og Catenda satt opp starter jobbkjøreren (`jobber.ts`, #741), som lager
  *   topicen for en ny sak med integrasjonens token. Lenken i topicen peker til
  *   `AUTH_FRONTEND_URL`. Uten Catenda venter jobbene i basen.

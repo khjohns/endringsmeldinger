@@ -826,6 +826,32 @@ describe('oppsettet fra miljøet', () => {
     );
   });
 
+  // #806: brokeren nås over https også utenfor utvikling; ellers ingen stille fallback.
+  it.each([
+    ['https-origin i produksjon', 'https://broker.example', undefined, 'https://broker.example'],
+    ['https med port', 'https://broker.example:8443/', 'production', 'https://broker.example:8443'],
+    ['localhost i utvikling', 'http://localhost:9000', 'development', 'http://localhost:9000'],
+  ])('godtar CATENDA_GRUNNADRESSE som %s', (_navn, verdi, appEnv, origin) => {
+    const { oauth } = catendaFraMiljoe({ ...miljoe, CATENDA_GRUNNADRESSE: verdi, APP_ENV: appEnv });
+    expect(new URL(oauth.autorisasjonsadresse('s')).origin).toBe(origin);
+  });
+
+  it.each([
+    ['http utenfor localhost', 'http://broker.example', 'development'],
+    ['localhost utenfor utvikling', 'http://localhost:9000', 'production'],
+    ['en sti', 'https://broker.example/catenda', 'production'],
+    ['en query', 'https://broker.example/?a=1', 'production'],
+    ['et fragment', 'https://broker.example/#a', 'production'],
+    ['et brukernavn', 'https://bruker@broker.example', 'production'],
+    ['et passord', 'https://:hemmelig@broker.example', 'production'],
+    ['en annen protokoll', 'ftp://broker.example', 'production'],
+    ['noe som ikke er en adresse', 'broker.example', 'production'],
+  ])('avviser CATENDA_GRUNNADRESSE med %s', (_navn, verdi, appEnv) => {
+    expect(() =>
+      catendaFraMiljoe({ ...miljoe, CATENDA_GRUNNADRESSE: verdi, APP_ENV: appEnv })
+    ).toThrow(/CATENDA_GRUNNADRESSE/);
+  });
+
   it.each(['CATENDA_CLIENT_ID', 'CATENDA_CLIENT_SECRET', 'CATENDA_LOGIN_REDIRECT_URI'])(
     'avvises uten %s',
     (navn) => {
