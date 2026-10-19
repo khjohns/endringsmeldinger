@@ -36,7 +36,8 @@ lenger enn til den biten som går over grensen.
 Kan en nøkkel eller streng i kroppen bli prefikset, må topicen ha prefikset fra før.
 Strengen sammenlignes med `koelivetest` bare på bokstaver og sifre, etter at prosentkoding,
 tallentiteter og tagger er dekodet eller fjernet, med NFKC og små bokstaver. Hver form
-underveis sammenlignes. Det
+underveis sammenlignes, i den rekkefølgen brokeren dekoder: NFKC, prosentkoding,
+tallentiteter, så tagger fra en «<» til neste «>». Det
 hindrer at en økt gir en annens topic prefikset og så sletter den.
 
 Mappen `CATENDA_MAPPE_ID` skal bare brukes av live-testene. En undermappe med prefiks
@@ -50,8 +51,9 @@ rett under den kan slettes, og Catenda sletter da innholdet med.
 - Kontrollen av PUT på en topic forutsetter at Catenda lagrer tittelen slik den ble sendt,
   bortsett fra det kontrollen selv dekoder og normaliserer. Fjerner Catenda andre tegn eller
   dekoder andre former, kan en økt likevel gi en annens topic prefikset. Eksempler som ikke
-  fanges: navngitte entiteter (`&kopf;`) og ugyldige UTF-8-bytes blandet med gyldige i
-  prosentkoding.
+  fanges: navngitte entiteter (`&kopf;`), ugyldige UTF-8-bytes blandet med gyldige i
+  prosentkoding, en tagg med «>» i et attributt (`koe-<a title="x>y">livetest`), og former
+  som bare oppstår når tagger fjernes før entiteter dekodes (`koe-&#60;live<b>test>`).
 - Oppslaget og slettingen er to kall. Flyttes et item ut av testmappen eller får en
   topic ny tittel mellom dem, slettes ressursen likevel.
 
