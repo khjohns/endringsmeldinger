@@ -176,6 +176,10 @@ def kjoer(rot: Path) -> subprocess.CompletedProcess:
 
 
 def main(rot: Path) -> int:
+    valgt = set(sys.argv[2:])
+    if ukjent := valgt - {f[0] for f in FEILINNFOERINGER}:
+        print("ukjente feilinnføringer:", " ".join(sorted(ukjent)))
+        return 1
     # Kontrollen først: uten feilinnføring skal testene være grønne, og ingen
     # databasetest hoppet over (uten KOE_SQLSERVER_TILKOBLING kjører de ikke).
     kontroll = kjoer(rot)
@@ -183,7 +187,6 @@ def main(rot: Path) -> int:
         print("kontrollkjøringen feilet eller hoppet over tester; feilinnføringene sier ingenting")
         return 1
     mislykket = []
-    valgt = set(sys.argv[2:])
     for id_, hva, fil, fra, til, forventet in FEILINNFOERINGER:
         if valgt and id_ not in valgt:
             continue

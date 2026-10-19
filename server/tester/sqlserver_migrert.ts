@@ -59,14 +59,22 @@ export async function byggMal({ frist = 180_000 } = {}): Promise<string> {
   } finally {
     await master.close();
   }
-  // BACKUP går ikke i en transaksjon, så låsen eies av sesjonen, på en pool med én forbindelse.
-  const laas = await koble('master', 1);
+  // BACKUP går ikke i en transaksjon, så låsen eies av sesjonen, på en pool med én
+  // forbindelse som poolen ikke lukker mens den er ledig under migreringen.
+  const laas = await koble('master', 1, {
+    requestTimeout: frist + 120_000,
+    pool: { idleTimeoutMillis: 2 ** 31 - 1 },
+  });
   try {
-    await laas
-      .request()
-      .query(
-        `EXEC sp_getapplock @Resource = N'koe_testmal_${sum}', @LockMode = 'Exclusive', @LockOwner = 'Session', @LockTimeout = ${frist}`
-      );
+    await laas.request().batch(
+      `DECLARE @svar int;
+       EXEC @svar = sp_getapplock @Resource = N'koe_testmal_${sum}', @LockMode = 'Exclusive', @LockOwner = 'Session', @LockTimeout = ${frist};
+       IF @svar < 0
+       BEGIN
+         DECLARE @melding nvarchar(200) = CONCAT(N'sp_getapplock ga ', @svar, N' for låsen koe_testmal_${sum}; malen bygges ikke uten den.');
+         THROW 50000, @melding, 1;
+       END`
+    );
     const finnes = await laas
       .request()
       .batch(`RESTORE VERIFYONLY FROM DISK = N'${fil}' WITH CHECKSUM`)
@@ -77,11 +85,11 @@ export async function byggMal({ frist = 180_000 } = {}): Promise<string> {
     if (!finnes) {
       const mal = await opprettMigrertTestbase('mal', { maks: 1, frist });
       try {
-        await laas
-          .request()
-          .batch(
-            `BACKUP DATABASE [${mal.navn}] TO DISK = N'${fil}' WITH INIT, FORMAT, COPY_ONLY, CHECKSUM`
-          );
+        await laas.request().batch(
+          `IF APPLOCK_MODE('public', N'koe_testmal_${sum}', 'Session') <> 'Exclusive'
+               THROW 50000, N'Sesjonen har mistet låsen for malen; kopien skrives ikke.', 1;
+             BACKUP DATABASE [${mal.navn}] TO DISK = N'${fil}' WITH INIT, FORMAT, COPY_ONLY, CHECKSUM`
+        );
       } finally {
         await mal.slett();
       }
