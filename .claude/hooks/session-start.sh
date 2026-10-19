@@ -170,7 +170,7 @@ if [ "$sqlstatus" = 0 ]; then
   fi
   echo "SQL Server: starter i bakgrunnen (koe-sqlserver-${KOE_SQLSERVER_PORT:-14331}), KOE_SQLSERVER_TILKOBLING er satt. Testene mot SQL Server i server/ og sprakprove/kjernelagring/ venter på den; logg i $sqllogg."
 elif [ "$sqlstatus" = 3 ]; then
-  echo "ADVARSEL: en annen kjøring av hooken starter SQL Server og ble ikke ferdig med forgrunnen på 120 s; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene mot SQL Server i server/ og sprakprove/kjernelagring/ hoppes over. Kjør hooken på nytt når den andre kjøringen er ferdig."
+  echo "ADVARSEL: en annen kjøring av hooken starter SQL Server og ble ikke ferdig med forgrunnen på 120 s; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene mot SQL Server i server/ og sprakprove/kjernelagring/ hoppes over, og en grønn npm test sier ingenting om lagringen. Kjør hooken på nytt når den andre kjøringen er ferdig."
 elif ! docker info > /dev/null 2>&1; then
   echo "ADVARSEL: SQL Server startet ikke fordi Docker ikke svarer; se $logg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene mot SQL Server i server/ og sprakprove/kjernelagring/ hoppes over, og en grønn npm test sier ingenting om lagringen."
 else

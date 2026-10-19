@@ -26,13 +26,14 @@ headeren til `server/start.ts`. Vite-proxyen sender det `tilTsServeren()` i
 I skyøktene lager `.claude/hooks/session-start.sh` venv-en og starter Docker og testbasen i SQL Server.
 
 PostgreSQL-basen for katalogen og `docs/verktoy/katalog.py` (se «Miljø» i
-`AGENTS.md`) bygges fra tom med `stopp` og `start`. Variabelen gjelder bare i
-Bash-kallet den settes i, så hent URL-en på nytt i hvert kall som trenger den:
+`AGENTS.md`) bygges fra tom med `stopp` og `start`. Henting av bildet og
+migrasjonene kan ta mer enn 120 s, så gi kallet `timeout` på 600000. Variabelen
+gjelder bare i Bash-kallet den settes i, så hent URL-en i hvert kall som bruker
+basen:
 
 ```bash
-scripts/testbase/docker_testbase.sh stopp
-scripts/testbase/docker_testbase.sh start >&2
-export KOE_TESTBASE_URL="$(scripts/testbase/docker_testbase.sh url)"
+scripts/testbase/docker_testbase.sh stopp && scripts/testbase/docker_testbase.sh start >&2
+KOE_TESTBASE_URL="$(scripts/testbase/docker_testbase.sh url)" /tmp/venv/bin/python docs/verktoy/katalog.py
 ```
 
 SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med

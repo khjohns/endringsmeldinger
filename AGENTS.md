@@ -117,10 +117,11 @@ Kommandoene for testene, typesjekkene og verktøykjeden står i
 Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
 Skyøkta har en testbase for SQL Server
 ([DL-U1](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)); kommandoene står i miljø-skillen.
-Oppstartshooken starter ikke PostgreSQL (#931). Katalogen i en base bygget fra
-`supabase/migrations/`, som resonneringsreglene og `docs/verktoy/katalog.py`
-trenger, bygger du derfor selv fra tom hver gang du skal bruke den, så en
-container fra et eldre øyeblikksbilde ikke svarer; kommandoene står i skillen.
+Oppstartshooken starter ikke PostgreSQL (#931). Resonneringsreglene og
+`docs/verktoy/katalog.py` trenger katalogen i en PostgreSQL-base bygget fra
+`supabase/migrations/`. Den basen bygger du selv fra tom før første bruk i økta
+og etter hver endring i migrasjonene, også fra en annen branch, så en eldre base
+ikke svarer.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.

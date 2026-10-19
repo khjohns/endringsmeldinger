@@ -42,8 +42,7 @@ virker bare fordi Supabase deler ut rettigheter. Testbasen, stubben av
 plattformen, katalogsummene og fallgruvene i PostgreSQL 18 står i
 `docs/migrasjoner-og-testbase.md`.
 
-Bygg basen fra tom før du spør katalogen; hvorfor står i «Miljø» i `AGENTS.md`,
-og kommandoene i miljø-skillen.
+Når PostgreSQL-basen må bygges fra tom, står i «Miljø» i `AGENTS.md`.
 
 **SQL Server: migrasjonene i T-SQL ligger i `database/migrasjoner/`, aldri i
 `supabase/migrations/`, og anvendes bare av runneren i `server/migrering.ts`**
