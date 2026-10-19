@@ -13,7 +13,6 @@
  * og den andre fullføres eller avvises.
  */
 import { randomUUID } from 'node:crypto';
-import sql from 'mssql';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import { catendaId } from '../autorisasjon.ts';
@@ -60,10 +59,12 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
       .input('data', JSON.stringify(data))
       .input('kommando_id', randomUUID())
       .input('kommando_sha256', kommandosum(data))
-      .output('sak_id', sql.NVarChar(36))
-      .output('event_id', sql.NVarChar(36))
-      .output('tidsstempel', sql.DateTime2(3))
-      .execute('koe_api.opprett_sak');
+      .batch(
+        `DECLARE @sak_id nvarchar(36), @event_id nvarchar(36), @tidsstempel datetime2(3);
+         EXEC koe_api.opprett_sak @format = @format, @data = @data, @kommando_id = @kommando_id,
+           @kommando_sha256 = @kommando_sha256, @sak_id = @sak_id OUTPUT,
+           @event_id = @event_id OUTPUT, @tidsstempel = @tidsstempel OUTPUT;`
+      );
   };
   const team = (teTeam: string, bhTeam: string) =>
     JSON.stringify([
