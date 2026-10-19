@@ -8,16 +8,21 @@ egen base fra `database/migrasjoner/`. Kjør aldri mot arbeidstreet du committer
     KOE_SQLSERVER_TILKOBLING=... python3 server/tester/feilinnfoering.py /tmp/kopi [S39 S40 ...]
 
 Med ID-er etter stien kjøres bare de feilinnføringene, etter kontrollkjøringen.
+Med `--ankre` i stedet for stien kontrolleres bare ankrene i arbeidstreet, uten base:
+
+    python3 server/tester/feilinnfoering.py --ankre
 
 Krever KOE_SQLSERVER_TILKOBLING (#658, #661). Lagringsgarantiene i basen har egne
 tester i journal.test.ts og kommandoer.test.ts. Først
 kjøres testene uten feilinnføring og må være grønne. En feilinnføring er
 oppdaget når en test med det forventede navnet feiler. Skriptet feiler når en
 feilinnføring overlever og ikke står i FORVENTET_OVERLEVER, eller når stedet
-ikke finnes lenger.
+ikke finnes lenger, eller når en senere migrasjon definerer prosedyren,
+funksjonen, triggeren eller visningen med ankeret på nytt (#937).
 """
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -64,8 +69,8 @@ FEILINNFOERINGER = [
     ("S13", "en sak uten leveringsmål gir 500, ikke en avvisning", "server/kommandoer.ts",
      "    if (feil instanceof IngenLeveringsmaal) {", "    if (false) {",
      "uten leveringsmål"),
-    ("S14", "en sak opprettes uten topic-board (KT-U4)", "database/migrasjoner/20261018100000_jobber.sql",
-     "  IF @board IS NULL\n    THROW 51412", "  IF 1 = 0\n    THROW 51412",
+    ("S14", "en sak opprettes uten topic-board (KT-U4)", "database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql",
+     "  IF @aktiv IS DISTINCT FROM 1 OR @board IS NULL\n    THROW 51412", "  IF @aktiv IS DISTINCT FROM 1\n    THROW 51412",
      "uten topic-board"),
     ("S15", "en utløpt lease kvitterer (invariant 7)", "database/migrasjoner/20261018120000_levering.sql",
      "WHERE lease = @lease AND lease_utloeper > @naa AND", "WHERE lease = @lease AND",
@@ -93,10 +98,10 @@ FEILINNFOERINGER = [
      "               AND c.library_id = TRY_CAST(JSON_VALUE(o.innhold, '$.maal.library_id') AS uniqueidentifier)\n",
      "",
      "bibliotek som er byttet"),
-    ("S22", "en varig avvisning prøves igjen i stedet for å parkeres (#778)", "database/migrasjoner/20261018120000_levering.sql",
-     "IIF(@utfall = N'feilet', N'venter', N'parkert')", "IIF(@utfall = N'usikkert', N'parkert', N'venter')",
+    ("S22", "en varig avvisning prøves igjen i stedet for å parkeres (#778)", "database/migrasjoner/20261020020000_vedleggslevering.sql",
+     "WHEN N'feilet' THEN N'venter' ELSE N'parkert' END", "WHEN N'usikkert' THEN N'parkert' ELSE N'venter' END",
      "varig avvisning"),
-    ("S23", "omstarten beholder antall forsøk, så backoffen ikke begynner forfra (#778)", "database/migrasjoner/20261018120000_levering.sql",
+    ("S23", "omstarten beholder antall forsøk, så backoffen ikke begynner forfra (#778)", "database/migrasjoner/20261020121000_oppretter_tid_og_oppdragsnoekkel.sql",
      "neste_forsoek = @naa, antall_forsoek = 0,", "neste_forsoek = @naa,",
      "driften starter jobben på nytt"),
     ("S24", "et kvittert dokument lastes opp på nytt (#371)", "server/jobber.ts",
@@ -114,13 +119,15 @@ FEILINNFOERINGER = [
     ("S28", "et nytt forsøk med samme kommando oppretter en ny sak (#418)", "server/kommandoer.ts",
      "      if (kvittering)\n        return kvittertRad(", "      if (false)\n        return kvittertRad(",
      "for opprettelsen: et nytt forsøk med samme kommando gir samme sak"),
-    ("S29", "samme kommando-ID med et annet innhold godtas (#418)", "database/migrasjoner/20261018123000_kvittering.sql",
+    ("S29", "samme kommando-ID med et annet innhold godtas (#418)", "database/migrasjoner/20261020110000_laasfeil.sql",
      "  IF @sum IS NOT NULL AND @sum <> @kommando_sha256", "  IF 1 = 0",
      "samme kommando-ID med et annet innhold avvises"),
-    ("S30", "kvitteringen leses uten lås, så to samtidige forsøk skriver begge (#418)", "database/migrasjoner/20261018123000_kvittering.sql",
-     "    FROM koe.kvittering k WITH (UPDLOCK, HOLDLOCK)", "    FROM koe.kvittering k",
+    ("S30", "kvitteringen leses uten lås, så to samtidige forsøk skriver begge (#418)", "database/migrasjoner/20261020110000_laasfeil.sql",
+     ("  EXEC @laas = sp_getapplock @Resource = @ressurs, @LockMode = 'Exclusive', "
+      "@LockOwner = 'Transaction', @LockTimeout = 10000;"),
+     "  SET @laas = 0;",
      "to samtidige forsøk med samme kommando"),
-    ("S31", "kvitteringen gjelder alle aktørene i prosjektet (#418)", "database/migrasjoner/20261018123000_kvittering.sql",
+    ("S31", "kvitteringen gjelder alle aktørene i prosjektet (#418)", "database/migrasjoner/20261020110000_laasfeil.sql",
      "WHERE k.prosjekt_id = @prosjekt AND k.aktor_id = @aktor AND", "WHERE k.prosjekt_id = @prosjekt AND",
      "kvitteringen gjelder aktøren"),
     ("S32", "tilbakerulling under COMMIT uten feil gir svaret (#543)", "server/datalag.ts",
@@ -133,12 +140,12 @@ FEILINNFOERINGER = [
     ("S34", "basen godtar en PDF med feil sum (#371)", "database/migrasjoner/20261018140000_brevdokument.sql",
      "CONSTRAINT brevdokument_sum CHECK (pdf_sha256 =", "CONSTRAINT brevdokument_sum CHECK (1 = 1 OR pdf_sha256 =",
      "basen avviser en PDF med feil sum"),
-    ("S35", "et nytt forsøk lagrer en ny PDF for oppdraget (#371)", "database/migrasjoner/20261018140000_brevdokument.sql",
-     "  IF NOT EXISTS (SELECT 1 FROM koe.brevdokument WITH (UPDLOCK, HOLDLOCK) WHERE leveringsoppdrag_id = @oppdrag)",
-     "  IF 1 = 1",
+    ("S35", "et nytt forsøk lagrer en ny PDF for oppdraget (#371)", "database/migrasjoner/20261020020000_vedleggslevering.sql",
+     "     AND NOT EXISTS (SELECT 1 FROM koe.brevdokument WITH (UPDLOCK, HOLDLOCK) WHERE leveringsoppdrag_id = @oppdrag)\n",
+     "",
      "bare én gang per oppdrag"),
-    ("S36", "et registrert brev får en leveringsjobb (LV-U11)", "database/migrasjoner/20261018140000_brevdokument.sql",
-     "   WHERE JSON_QUERY(i.innhold, '$.dokument') IS NOT NULL;", "   WHERE JSON_QUERY(i.innhold, '$.brev') IS NOT NULL;",
+    ("S36", "et registrert brev får en leveringsjobb (LV-U11)", "database/migrasjoner/20261020060000_vedleggslevering_innstramming.sql",
+     "   WHERE JSON_QUERY(i.innhold, '$.dokument') IS NOT NULL\n", "   WHERE JSON_QUERY(i.innhold, '$.brev') IS NOT NULL\n",
      "et registrert brev får oppdraget uten dokument"),
     ("S37", "en uventet lokal feil prøves igjen i det uendelige (#783 punkt 2)", "server/jobber.ts",
      "\n  return { utfall: 'usikkert', melding };", "\n  return { utfall: 'feilet', melding };",
@@ -170,6 +177,47 @@ FEILINNFOERINGER = [
 # basen stempler aktøren fra sesjonen i skrivekonteksten (#750).
 FORVENTET_OVERLEVER = {"S8"}
 
+MIGRASJONER = "database/migrasjoner"
+# Bare objekter som defineres som helhet. En tabell eller sikkerhetspolicy endres
+# ledd for ledd med ALTER, så for dem fanger kontrollen ikke en død mutasjon.
+DEFINISJON = re.compile(r"^\s*(?:CREATE|ALTER)(?: OR ALTER)? (PROCEDURE|FUNCTION|TRIGGER|VIEW) ([\w.]+)", re.M)
+
+
+def ankerfeil(rot: Path, fil: str, fra: str) -> str | None:
+    """Hvorfor feilinnføringen ikke kan virke, eller None.
+
+    En mutasjon i en migrasjon er død når en senere migrasjon definerer objektet
+    på nytt, fordi testbasen bygges med alle migrasjonene.
+    """
+    kilde = (rot / fil).read_text()
+    if kilde.count(fra) != 1:
+        return "finner ikke stedet"
+    if not fil.startswith(MIGRASJONER + "/"):
+        return None
+    foer = kilde[: kilde.index(fra)]
+    definisjoner = list(DEFINISJON.finditer(foer))
+    if not definisjoner:
+        return None
+    art, navn = definisjoner[-1].groups()
+    ny = re.compile(rf"^\s*(?:CREATE|ALTER|DROP)(?: OR ALTER)? {art} {re.escape(navn)}\b", re.M)
+    senere = [
+        f.name
+        for f in sorted((rot / MIGRASJONER).glob("*.sql"))
+        if f.name > Path(fil).name and ny.search(f.read_text())
+    ]
+    return f"{navn} defineres på nytt i {senere[-1]}" if senere else None
+
+
+def kontroller_ankre(rot: Path, valgt: set[str]) -> list[str]:
+    mislykket = []
+    for id_, _, fil, fra, *_ in FEILINNFOERINGER:
+        if valgt and id_ not in valgt:
+            continue
+        if feil := ankerfeil(rot, fil, fra):
+            print(id_, feil)
+            mislykket.append(id_)
+    return mislykket
+
 
 def kjoer(rot: Path, mutert: bool = False) -> subprocess.CompletedProcess:
     return subprocess.run(
@@ -189,6 +237,10 @@ def main(rot: Path) -> int:
     if ukjent := valgt - {f[0] for f in FEILINNFOERINGER}:
         print("ukjente feilinnføringer:", " ".join(sorted(ukjent)))
         return 1
+    if sys.argv[1] == "--ankre":
+        return 1 if kontroller_ankre(Path.cwd(), valgt) else 0
+    if kontroller_ankre(rot, valgt):
+        return 1
     if not os.environ.get("KOE_SQLSERVER_TILKOBLING"):
         print("KOE_SQLSERVER_TILKOBLING er ikke satt; databasetestene ville hoppet over seg selv")
         return 1
@@ -204,10 +256,6 @@ def main(rot: Path) -> int:
             continue
         sti = rot / fil
         kilde = sti.read_text()
-        if kilde.count(fra) != 1:
-            print(id_, "finner ikke stedet")
-            mislykket.append(id_)
-            continue
         sti.write_text(kilde.replace(fra, til))
         try:
             r = kjoer(rot, mutert=True)
