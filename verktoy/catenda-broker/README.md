@@ -22,14 +22,25 @@ Før en sletting slår brokeren opp ressursen med Catenda-tokenet og sletter bar
 
 - et item har `name` som begynner med prefikset, og `parentId` er `CATENDA_MAPPE_ID`
 - en topic har `title` som begynner med prefikset
-- en dokumentreferanse hører til en topic der `title` begynner med prefikset
+- en dokumentreferanse står i lista over referanser på en topic der `title` begynner
+  med prefikset
 
 Ellers svarer brokeren 403 uten å slette. Gir oppslaget noe annet enn 200, får økta
-Catendas svar, og ingenting slettes. En sletting med query avvises. Koblinger mellom
-topics (`related_topics`) slettes uten oppslag.
+Catendas svar, og ingenting slettes. Et kall med query avvises.
+
+En PUT som gir en topic en tittel med prefikset, sendes bare når topicen har prefikset
+fra før. Ellers kunne en økt gi en annens topic prefikset og så slette den.
 
 Mappen `CATENDA_MAPPE_ID` skal bare brukes av live-testene. En undermappe med prefiks
 rett under den kan slettes, og Catenda sletter da innholdet med.
+
+### Hva brokeren ikke hindrer
+
+- PUT og DELETE på `related_topics` kontrolleres ikke mot prefiks. En økt kan endre
+  koblinger på andres topics på testboardet. Koblinger kan settes tilbake, men ingenting
+  varsler om endringen. Vurderes på nytt når relasjonene flyttes til TS (FK, #902).
+- Oppslaget og slettingen er to kall. Flyttes et item ut av testmappen eller får en
+  topic ny tittel mellom dem, slettes ressursen likevel.
 
 ## Hemmelighetene
 

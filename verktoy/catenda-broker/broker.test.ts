@@ -27,13 +27,13 @@ const miljoe: Miljoe = {
 
 type Kall = { adresse: string; init: RequestInit };
 let kall: Kall[];
-let catendasvar: (init: RequestInit) => Response;
+let catendasvar: (init: RequestInit, adresse: string) => Response;
 
 const hent = (async (adresse: string | URL | Request, init: RequestInit = {}) => {
   kall.push({ adresse: String(adresse), init });
   if (String(adresse).endsWith('/oauth2/token'))
     return Response.json({ access_token: 'catenda-token', expires_in: 3600 });
-  return catendasvar(init);
+  return catendasvar(init, String(adresse));
 }) as typeof fetch;
 
 const ut = () => kall.filter((k) => !k.adresse.endsWith('/oauth2/token'));
@@ -150,14 +150,17 @@ describe('slettingen live-testene rydder med', () => {
   const ITEM = `/v2/projects/${PROSJEKT}/libraries/${BIBLIOTEK}/items/${ANNET}`;
   const TOPICSTI = `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}`;
   const DOKREF = `${TOPICSTI}/document_references/${ANNET}`;
-  const svarPaa = (oppslag: () => Response) => (init: RequestInit) =>
-    init.method === 'GET' ? oppslag() : new Response(null, { status: 204 });
+  const svarPaa = (oppslag: () => Response, liste: unknown[] = [{ guid: ANNET }]) => (init: RequestInit, adresse: string) =>
+    init.method !== 'GET'
+      ? new Response(null, { status: 204 })
+      : adresse.endsWith('/document_references')
+        ? Response.json(liste)
+        : oppslag();
   const metoder = () => ut().map((k) => [k.init.method, k.adresse.replace('https://api.catenda.com', '')]);
 
   it.each([
     ['et item med prefiks i testmappen', ITEM, ITEM, { name: `${P}dokument.pdf`, parentId: MAPPE }],
     ['en topic med prefiks', TOPICSTI, TOPICSTI, { title: `${P}sak` }],
-    ['en dokumentreferanse på en topic med prefiks', DOKREF, TOPICSTI, { title: `${P}sak` }],
   ])('slår opp og sletter %s, i den rekkefølgen og med Catenda-tokenet', async (_navn, sti, oppslag, ressurs) => {
     catendasvar = svarPaa(() => Response.json(ressurs));
     const s = await behandle(medNokkel('DELETE', sti), miljoe);
@@ -168,6 +171,25 @@ describe('slettingen live-testene rydder med', () => {
     ]);
     for (const { init } of ut()) expect(new Headers(init.headers).get('authorization')).toBe('Bearer catenda-token');
     expect(new Headers(ut()[0].init.headers).get('accept')).toBe('application/json');
+  });
+
+  it('slår opp topicen og referanselista før en dokumentreferanse slettes', async () => {
+    catendasvar = svarPaa(() => Response.json({ title: `${P}sak` }), [{ guid: 'x' }, { guid: ANNET.toUpperCase() }]);
+    const s = await behandle(medNokkel('DELETE', DOKREF), miljoe);
+    expect(s.status).toBe(204);
+    expect(metoder()).toEqual([
+      ['GET', TOPICSTI],
+      ['GET', `${TOPICSTI}/document_references`],
+      ['DELETE', DOKREF],
+    ]);
+  });
+
+  it('gir 403 og ingen DELETE når dokumentreferansen ikke hører til topicen med prefiks', async () => {
+    catendasvar = svarPaa(() => Response.json({ title: `${P}sak` }), [{ guid: 'en-annen' }]);
+    const s = await behandle(medNokkel('DELETE', DOKREF), miljoe);
+    expect(s.status).toBe(403);
+    expect(await s.json()).toEqual({ feil: 'broker_avviste' });
+    expect(ut().map((k) => k.init.method)).toEqual(['GET', 'GET']);
   });
 
   it('sletter når parentId og CATENDA_MAPPE_ID står i ulik form', async () => {
@@ -239,6 +261,40 @@ describe('slettingen live-testene rydder med', () => {
   it('tillater sletting når CATENDA_BIBLIOTEK_ID står med store bokstaver og streker', () => {
     const m = { ...miljoe, CATENDA_BIBLIOTEK_ID: 'BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB' };
     expect(tillatt(m, 'DELETE', ITEM)).toBe(true);
+  });
+});
+
+describe('endringen av en topic', () => {
+  const P = LIVETESTPREFIKS;
+  const TOPICSTI = `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}`;
+  const put = (kropp: string) => medNokkel('PUT', TOPICSTI, { 'Content-Type': 'application/json' }, kropp);
+  const metoder = () => ut().map((k) => k.init.method);
+
+  it('gir 403 og ingen PUT når en topic uten prefiks skal få prefikset', async () => {
+    catendasvar = (init) => (init.method === 'GET' ? Response.json({ title: 'Ekte sak' }) : Response.json({}));
+    const s = await behandle(put(JSON.stringify({ title: `${P}x` })), miljoe);
+    expect(s.status).toBe(403);
+    expect(await s.json()).toEqual({ feil: 'broker_avviste' });
+    expect(metoder()).toEqual(['GET']);
+  });
+
+  it('slår opp og sender PUT når topicen har prefikset fra før', async () => {
+    catendasvar = (init) => (init.method === 'GET' ? Response.json({ title: `${P}gammel` }) : Response.json({}));
+    const kropp = JSON.stringify({ title: `${P}ny` });
+    expect((await behandle(put(kropp), miljoe)).status).toBe(200);
+    expect(metoder()).toEqual(['GET', 'PUT']);
+    expect(new TextDecoder().decode(ut()[1].init.body as ArrayBuffer)).toBe(kropp);
+  });
+
+  it.each([
+    ['en tittel uten prefiks', JSON.stringify({ title: 'Ny tittel', topic_status: 'Closed' })],
+    ['ingen tittel', JSON.stringify({ topic_status: 'Closed' })],
+    ['en kropp som ikke er JSON', 'ikke json'],
+  ])('sender PUT med %s uten oppslag', async (_navn, kropp) => {
+    const s = await behandle(put(kropp), miljoe);
+    expect(s.status).toBe(200);
+    expect(metoder()).toEqual(['PUT']);
+    expect(new TextDecoder().decode(ut()[0].init.body as ArrayBuffer)).toBe(kropp);
   });
 });
 

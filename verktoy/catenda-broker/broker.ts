@@ -30,7 +30,7 @@ const VIDERESENDTE_HODER = ['accept', 'content-type', 'bimsync-params'];
  * En del er `=literal`, `prosjekt`, `board`, `bibliotek` eller `id`. En regel med `foersjekk`
  * slår opp ressursen i Catenda før kallet sendes, og sender det bare når `godkjent` sier ja.
  */
-type Foersjekk = 'item' | 'topic' | 'dokumentreferanse';
+type Foersjekk = 'item' | 'topic' | 'dokumentreferanse' | 'topicendring';
 type Regel = { metoder: string[]; deler: string[]; foersjekk: Foersjekk | null };
 
 /** Live-testene navngir alt de oppretter med prefikset, og sletter bare det. */
@@ -55,7 +55,8 @@ const REGLER: [string, string, Foersjekk?][] = [
   ['GET', 'v2/projects/:prosjekt/ifc/products/:id/relations'],
   ['GET', 'opencde/bcf/3.0/projects/:board'],
   ['GET POST', 'opencde/bcf/3.0/projects/:board/topics'],
-  ['GET PUT', 'opencde/bcf/3.0/projects/:board/topics/:id'],
+  ['GET', 'opencde/bcf/3.0/projects/:board/topics/:id'],
+  ['PUT', 'opencde/bcf/3.0/projects/:board/topics/:id', 'topicendring'],
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id', 'topic'],
   ['POST', 'opencde/bcf/3.0/projects/:board/topics/:id/comments'],
   ['GET PUT', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics'],
@@ -114,19 +115,51 @@ export function regelFor(miljoe: Miljoe, metode: string, sti: string): Regel | u
   );
 }
 
-/** Hvor foroppslaget går: ressursen selv, eller topicen en dokumentreferanse hører til. */
-function oppslagssti(foersjekk: Foersjekk, sti: string): string {
-  return foersjekk === 'dokumentreferanse' ? sti.split('/').slice(0, -2).join('/') : sti;
-}
+type Oppslag = { sti: string; krav: (ressurs: Record<string, unknown>) => boolean };
 
-function godkjent(foersjekk: Foersjekk, ressurs: unknown, miljoe: Miljoe): boolean {
-  const r = (typeof ressurs === 'object' && ressurs !== null ? ressurs : {}) as Record<string, unknown>;
-  const harPrefiks = (v: unknown) => typeof v === 'string' && v.startsWith(LIVETESTPREFIKS);
-  if (foersjekk !== 'item') return harPrefiks(r.title);
+const harPrefiks = (v: unknown) => typeof v === 'string' && v.startsWith(LIVETESTPREFIKS);
+const sammeId = (a: unknown, b: string) =>
+  typeof a === 'string' && (a.toLowerCase() === b.toLowerCase() || (catendaId(a) ?? 0) === catendaId(b));
+
+/**
+ * Oppslagene i Catenda som alle må gi 200 og oppfylle kravet før kallet sendes. En PUT som
+ * gir en topic prefikset, krever at den har det fra før, så prefikssperren ikke kan omgås.
+ */
+function oppslagene(foersjekk: Foersjekk, sti: string, miljoe: Miljoe, kropp: ArrayBuffer | undefined): Oppslag[] {
   const mappe = mappeId(miljoe);
-  return (
-    harPrefiks(r.name) && mappe !== null && typeof r.parentId === 'string' && catendaId(r.parentId) === mappe
-  );
+  switch (foersjekk) {
+    case 'item':
+      return [
+        {
+          sti,
+          krav: (r) => harPrefiks(r.name) && mappe !== null && typeof r.parentId === 'string' && catendaId(r.parentId) === mappe,
+        },
+      ];
+    case 'topic':
+      return [{ sti, krav: (r) => harPrefiks(r.title) }];
+    case 'dokumentreferanse': {
+      const deler = sti.split('/');
+      const referanse = deler.at(-1)!;
+      const topic = deler.slice(0, -2).join('/');
+      return [
+        { sti: topic, krav: (r) => harPrefiks(r.title) },
+        {
+          sti: `${topic}/document_references`,
+          krav: (r) => Array.isArray(r.liste) && r.liste.some((d) => sammeId((d as { guid?: unknown })?.guid, referanse)),
+        },
+      ];
+    }
+    case 'topicendring': {
+      let ny: unknown;
+      try {
+        ny = JSON.parse(new TextDecoder().decode(kropp));
+      } catch {
+        return [];
+      }
+      const tittel = typeof ny === 'object' && ny !== null ? (ny as { title?: unknown }).title : undefined;
+      return harPrefiks(tittel) ? [{ sti, krav: (r) => harPrefiks(r.title) }] : [];
+    }
+  }
 }
 
 export function tillatt(miljoe: Miljoe, metode: string, sti: string): boolean {
@@ -244,7 +277,7 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
     // Kroppen skiller brokerens avvisning fra Catendas 401 og 403.
     if (!(await sammeNokkel(bearer, miljoe.BROKERNOKKEL))) return svar(401, { feil: 'brokernoekkel' });
     const regel = regelFor(miljoe, foresp.method, adresse.pathname);
-    // Oppslaget kontrollerer bare stien, så en sletting med query slipper ikke gjennom.
+    // Oppslaget kontrollerer bare stien, så et kall med query slipper ikke gjennom.
     if (!regel || (regel.foersjekk && adresse.search)) return svar(403, { feil: 'broker_avviste' });
 
     let token: string;
@@ -254,10 +287,12 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       // Bare steget og Catendas statuskode, så en 502 kan feilsøkes fra økta (#806).
       return svar(502, { feil: 'tokenkall', status: feil instanceof Tokenfeil ? feil.status : 0 });
     }
-    if (regel.foersjekk) {
+    const harKropp = !['GET', 'HEAD'].includes(foresp.method);
+    const kropp = harKropp ? await foresp.arrayBuffer() : undefined;
+    for (const { sti, krav } of regel.foersjekk ? oppslagene(regel.foersjekk, adresse.pathname, miljoe, kropp) : []) {
       let oppslag: Response;
       try {
-        oppslag = await hent(CATENDA + oppslagssti(regel.foersjekk, adresse.pathname), {
+        oppslag = await hent(CATENDA + sti, {
           method: 'GET',
           headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
           redirect: 'manual',
@@ -267,21 +302,21 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
       }
       if (oppslag.status === 401) tokenlager.forkast(token);
       if (oppslag.status !== 200) return tilbake(oppslag);
-      if (!godkjent(regel.foersjekk, await oppslag.json().catch(() => null), miljoe))
-        return svar(403, { feil: 'broker_avviste' });
+      const ressurs: unknown = await oppslag.json().catch(() => null);
+      const r = Array.isArray(ressurs) ? { liste: ressurs } : typeof ressurs === 'object' && ressurs ? ressurs : {};
+      if (!krav(r as Record<string, unknown>)) return svar(403, { feil: 'broker_avviste' });
     }
     const hoder = new Headers({ Authorization: `Bearer ${token}` });
     for (const navn of VIDERESENDTE_HODER) {
       const verdi = foresp.headers.get(navn);
       if (verdi !== null) hoder.set(navn, verdi);
     }
-    const harKropp = !['GET', 'HEAD'].includes(foresp.method);
     let ut: Response;
     try {
       ut = await hent(CATENDA + adresse.pathname + adresse.search, {
         method: foresp.method,
         headers: hoder,
-        body: harKropp ? await foresp.arrayBuffer() : undefined,
+        body: kropp,
         redirect: 'manual',
       });
     } catch {
