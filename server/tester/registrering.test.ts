@@ -165,7 +165,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     throw new Error('Kallet ble ikke avvist');
   }
 
-  it('driftsrollen har bare EXECUTE på de tre prosedyrene, og kjøretiden har ingen rett i koe_drift', async () => {
+  it('driftsrollen har bare EXECUTE på de fire prosedyrene, og kjøretiden har ingen rett i koe_drift', async () => {
     const svar = await o.datalag.base.pool.request().query<{ rolle: string; rett: string }>(
       `SELECT USER_NAME(p.grantee_principal_id) AS rolle,
               CONCAT(p.permission_name, N' ', OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS rett
@@ -176,6 +176,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     );
     expect(svar.recordset.map((r) => `${r.rolle} ${r.rett}`).sort()).toEqual([
       'koe_driftsrolle EXECUTE koe_drift.kontraktsteam',
+      'koe_driftsrolle EXECUTE koe_drift.kontroller_bytte',
       'koe_driftsrolle EXECUTE koe_drift.registrer_prosjekt',
       'koe_driftsrolle EXECUTE koe_drift.sett_kontraktsteam',
     ]);
@@ -239,6 +240,17 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       'Virksomheten er uendret: org-1. En ny registrering endrer den ikke (KR-01).'
     );
   });
+
+  async function bibliotek(prosjekt: string): Promise<string | undefined> {
+    const svar = await o.datalag.base.pool
+      .request()
+      .input('p', prosjekt)
+      .query<{ bibliotek: string }>(
+        `SELECT LOWER(CONVERT(nvarchar(36), library_id)) AS bibliotek
+           FROM koe.catenda_project_configs WHERE internal_project_id = @p`
+      );
+    return svar.recordset[0]?.bibliotek;
+  }
 
   async function kobling(prosjekt: string) {
     const svar = await o.datalag.base.pool
@@ -562,6 +574,53 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
         .execute('koe_drift.registrer_prosjekt');
       expect(await avvisning(kall)).toBe(52066);
       expect(await kobling(o.prosjekt.id)).toEqual(foer);
+    });
+
+    it('bytte av bibliotek avvises før Catenda-kallet når prosjektet har saker (#868 punkt 3, svar 4 19.10 i #764)', async () => {
+      const foer = await kobling(o.prosjekt.id);
+      const bibliotekFoer = await bibliotek(o.prosjekt.id);
+      catendaKall = 0;
+      linjer.length = 0;
+      const kall = skript(
+        'registrer',
+        '--prosjekt',
+        o.prosjekt.id,
+        '--navn',
+        'Byttet',
+        '--organisasjon',
+        'org-1',
+        '--catenda-prosjekt',
+        foer.catenda!,
+        '--bibliotek',
+        randomUUID()
+      );
+      expect(await avvisning(kall)).toMatch(
+        /har saker: Catenda-biblioteket kan ikke byttes \(52066\)/
+      );
+      expect(catendaKall).toBe(0);
+      expect(linjer).toEqual([]);
+      expect(await kobling(o.prosjekt.id)).toEqual(foer);
+      expect(await bibliotek(o.prosjekt.id)).toBe(bibliotekFoer);
+    });
+
+    it('prosedyren avviser bytte av bibliotek med 52066 også uten skriptets kontroll (#868 punkt 3)', async () => {
+      const foer = await kobling(o.prosjekt.id);
+      const bibliotekFoer = await bibliotek(o.prosjekt.id);
+      const kall = drift.pool
+        .request()
+        .input('prosjekt', o.prosjekt.id)
+        .input('navn', 'Byttet')
+        .input('beskrivelse', null)
+        .input('organisasjon', 'org-1')
+        .input('catenda_prosjekt', foer.catenda)
+        .input('bibliotek', randomUUID())
+        .input('mappe', null)
+        .input('board', null)
+        .input('team', null)
+        .execute('koe_drift.registrer_prosjekt');
+      expect(await avvisning(kall)).toBe(52066);
+      expect(await kobling(o.prosjekt.id)).toEqual(foer);
+      expect(await bibliotek(o.prosjekt.id)).toBe(bibliotekFoer);
     });
 
     it('et team som fjernes, avvises med 52064, og teamene står', async () => {

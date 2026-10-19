@@ -31,11 +31,19 @@ import sys
 
 import tomllib
 
-_spesifikasjon = importlib.util.spec_from_file_location(
-    "vedtakshenvisninger", pathlib.Path(__file__).resolve().parent / "vedtakshenvisninger.py"
-)
-vh = importlib.util.module_from_spec(_spesifikasjon)
-_spesifikasjon.loader.exec_module(vh)
+
+def _laster():
+    """Den felles lasteren i laster.py, som ikke kan laste seg selv (#861)."""
+    if "verktoy.laster" not in sys.modules:
+        sti = pathlib.Path(__file__).resolve().parent / "laster.py"
+        spesifikasjon = importlib.util.spec_from_file_location("verktoy.laster", sti)
+        modul = importlib.util.module_from_spec(spesifikasjon)
+        spesifikasjon.loader.exec_module(modul)
+        sys.modules["verktoy.laster"] = modul
+    return sys.modules["verktoy.laster"]
+
+
+vh = _laster().last("vedtakshenvisninger")
 vr = vh.vr
 
 ROT = vr.ROT

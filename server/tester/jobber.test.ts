@@ -18,7 +18,7 @@ import {
 import { transaksjon } from '../datalag.ts';
 import { kjoerEnJobb, LEASETID_S, startJobbkjoerer } from '../jobber.ts';
 import { lesLeveringsmaal } from '../lager.ts';
-import { sql } from './sqlserver.ts';
+import { opprettKjoeretid, sql } from './sqlserver.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
   kall,
@@ -361,9 +361,41 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     await nyeForsoek();
     expect(rekkefoelge).toEqual([
       ['usikkert', 'Catenda svarte ikke'],
-      ['startet_paa_nytt', 'sa'],
+      ['startet_paa_nytt', 'sid:0x01'],
       ['utfoert', null],
     ]);
+  });
+
+  it('8: omstarten lagrer SID-en til innloggingen, ikke innloggingsnavnet (#778)', async () => {
+    const sakId = await opprettKjernesak(o);
+    svar = async () => {
+      throw new UsikkertCatendautfall('Catenda svarte ikke');
+    };
+    expect(await kjoer()).toBe(true);
+    const { jobb_id } = (await jobben(sakId))[0];
+    const drift = await opprettKjoeretid(o.datalag.base, { maks: 1, rolle: 'koe_driftsrolle' });
+    try {
+      // Rettigheten er testens egen: i miljøet kjører driften prosedyren som eier.
+      await o.datalag.base.pool
+        .request()
+        .batch(`GRANT EXECUTE ON koe_api.start_jobb_paa_nytt TO koe_driftsrolle;`);
+      const sporring =
+        'SELECT ORIGINAL_LOGIN() AS navn, CONVERT(nvarchar(200), SUSER_SID(), 1) AS sid';
+      const svaret = await drift.pool.request().query<{ navn: string; sid: string }>(sporring);
+      const innlogging = svaret.recordset[0];
+      await drift.pool
+        .request()
+        .input('jobb_id', sql.UniqueIdentifier, jobb_id)
+        .execute('koe_api.start_jobb_paa_nytt');
+      const omstart = (await forsoekene(sakId)).find((f) => f.utfall === 'startet_paa_nytt');
+      expect(omstart?.melding).toBe(`sid:${innlogging.sid}`);
+      expect(omstart?.melding).not.toContain(innlogging.navn);
+    } finally {
+      await o.datalag.base.pool
+        .request()
+        .batch(`REVOKE EXECUTE ON koe_api.start_jobb_paa_nytt FROM koe_driftsrolle;`);
+      await drift.slett();
+    }
   });
 
   it('4: en varig avvisning fra Catenda parkeres som avvist i stedet for å prøves hver time (#778)', async () => {

@@ -15,7 +15,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { lesSaken } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
@@ -466,6 +466,9 @@ describe.skipIf(!TESTBASE_URL)('koblingen slås av under skrivingen (#739 punkt 
   afterAll(async () => {
     if (o) await rydd(o);
   });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   /**
    * Serveren der eieren slår av koblingen når kontraktsrollen spør Catenda, etter
@@ -511,9 +514,15 @@ describe.skipIf(!TESTBASE_URL)('koblingen slås av under skrivingen (#739 punkt 
     // Kontrollsak: med koblingen på når kommandoen kjernen, som avviser den.
     const kontroll = await kommandoMedKobling(true, sakId);
     expect(kontroll.status).toBe(400);
+    // Tilgangskontrollen gir samme 403. Bare skrivingen logger at målet manglet, så
+    // loggen viser at avvisningen kom etter tilgangskontrollen (#763 punkt 5).
+    const advarsel = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const svar = await kommandoMedKobling(false, sakId);
     expect(svar.status).toBe(403);
     expect(svar.kropp.error).toBe('FORBIDDEN');
+    expect(advarsel).toHaveBeenCalledWith(
+      `Skrivingen ble avvist: Saken ${sakId} har ingen aktiv kobling til Catenda.`
+    );
     const lest = await lesSaken(
       o.datalag.kjoeretid.pool,
       { aktor: o.te.id, prosjekt: o.prosjekt.id },

@@ -11,7 +11,7 @@
  */
 
 import { createHash, randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { feilnummer, sql } from '../datalag.ts';
 import { innholdsfeil, rensetFilnavn, STOERSTE_VEDLEGG } from '../vedlegg.ts';
@@ -173,7 +173,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     const ned = await lastNed(o.te, id.toUpperCase());
     expect(ned.status).toBe(200);
     expect(ned.headers.get('content-disposition')).toBe(
-      "attachment; filename*=UTF-8''rapport%20%281%29.pdf"
+      `attachment; filename="rapport (1).pdf"; filename*=UTF-8''rapport%20%281%29.pdf`
     );
     expect((await slett(o.te, id.toUpperCase())).status).toBe(200);
   });
@@ -224,6 +224,46 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     expect(svar.status).toBe(status);
     expect(svar.kropp.error).toBe(feil);
     expect((await liste(o.te)).length).toBe(foer);
+  });
+
+  // Kilde: RFC 6266, 4.3: `filename` som reserve for en klient som ikke leser `filename*` (#815 punkt 4).
+  it('nedlastingen gir et filnavn i ASCII ved siden av filename*', async () => {
+    const id = (await lastOpp(o.te, PDF, 'Søknad – å.pdf')).kropp.vedlegg.vedlegg_id;
+    const ned = await lastNed(o.te, id);
+    expect(ned.headers.get('content-disposition')).toMatch(
+      /^attachment; filename="S_knad _ a\.pdf"; filename\*=UTF-8''S%C3%B8knad/
+    );
+  });
+
+  it('uten filnavn avvises en fil over 15 MiB før kroppen leses, med 400 og ikke 413 (#815 punkt 1)', async () => {
+    const svar = await lastOpp(o.te, Buffer.alloc(STOERSTE_VEDLEGG + 1, 0x41), undefined);
+    expect(svar.status).toBe(400);
+    expect(svar.kropp.error).toBe('MANGLER_FILNAVN');
+  });
+
+  // Kilde: oppdragsgiver 19.10, svar 3 i #764: 500 med en feilkode er en kjent feil. Et vedlegg
+  // som er lagret, sier svaret at det er lagret, også når det ikke kan skrives (#877 #893-4).
+  it('kan ikke svaret på en lagret opplasting skrives, sier reservesvaret at vedlegget er lagret', async () => {
+    const foer = (await liste(o.te)).length;
+    const ekte = JSON.stringify;
+    let kastet = false;
+    const spion = vi.spyOn(JSON, 'stringify').mockImplementation((verdi, ...resten) => {
+      if (!kastet && verdi && typeof verdi === 'object' && 'vedlegg' in verdi) {
+        kastet = true;
+        throw new TypeError('Svaret kan ikke serialiseres');
+      }
+      return ekte(verdi, ...resten);
+    });
+    let svar;
+    try {
+      svar = await lastOpp(o.te, PDF, 'lagret.pdf');
+    } finally {
+      spion.mockRestore();
+    }
+    expect(kastet).toBe(true);
+    expect(svar.status).toBe(500);
+    expect(svar.kropp.message).toMatch(/lagret/);
+    expect((await liste(o.te)).length).toBe(foer + 1);
   });
 
   it('en fil på nøyaktig 15 MiB lagres', async () => {
