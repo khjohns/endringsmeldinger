@@ -195,12 +195,26 @@ describe('nøkkelsammenligningen', () => {
 });
 
 describe('feil mot Catenda', () => {
-  it('gir 502 når Catenda ikke svarer', async () => {
+  it('gir 502 med steget når Catenda ikke svarer', async () => {
     catendasvar = () => {
       throw new TypeError('fetch failed');
     };
     const s = await behandle(medNokkel('GET', `/v2/projects/${PROSJEKT}/teams`), miljoe);
     expect(s.status).toBe(502);
+    expect(await s.json()).toEqual({ feil: 'catenda_svarte_ikke' });
+  });
+
+  it.each([
+    ['avvist med 401', () => Response.json({ error: 'invalid_client', hemmelig: 'x' }, { status: 401 }), 401],
+    ['uten svar', () => Promise.reject(new TypeError('fetch failed')), 0],
+    ['med ugyldig kropp', () => new Response('ikke json'), 0],
+  ])('gir 502 med bare Catendas statuskode når tokenkallet blir %s', async (_navn, tokensvar, status) => {
+    const h = (async (adresse: string | URL | Request) =>
+      String(adresse).endsWith('/oauth2/token') ? tokensvar() : Response.json({})) as typeof fetch;
+    const b = lagBroker(h, new Tokenlager(h));
+    const s = await b(medNokkel('GET', `/v2/projects/${PROSJEKT}/teams`), miljoe);
+    expect(s.status).toBe(502);
+    expect(await s.json()).toEqual({ feil: 'tokenkall', status });
   });
 
   it('kaller fetch uten å binde den til tokenlageret, som Workers krever', async () => {

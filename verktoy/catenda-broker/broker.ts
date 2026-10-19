@@ -100,6 +100,13 @@ function svar(status: number, kropp?: unknown): Response {
     : Response.json(kropp, { status, headers: { 'Cache-Control': 'no-store' } });
 }
 
+/** Tokenkallet til Catenda feilet. `status` er Catendas statuskode, 0 uten svar eller med ugyldig kropp. */
+export class Tokenfeil extends Error {
+  constructor(readonly status: number) {
+    super(`Catenda svarte ${status} på tokenkallet`);
+  }
+}
+
 /** Catenda-tokenet. Lever i isolatet og hentes på nytt ved utløp eller en 401. */
 export class Tokenlager {
   #token: string | null = null;
@@ -129,7 +136,9 @@ export class Tokenlager {
   }
 
   async #hentNytt(miljoe: Miljoe): Promise<string> {
-    const s = await this.#hent(`${CATENDA}/oauth2/token`, {
+    let s: Response;
+    try {
+      s = await this.#hent(`${CATENDA}/oauth2/token`, {
       method: 'POST',
       body: new URLSearchParams({
         grant_type: 'client_credentials',
@@ -137,11 +146,19 @@ export class Tokenlager {
         client_secret: miljoe.CATENDA_CLIENT_SECRET,
       }),
       redirect: 'manual',
-    });
-    if (s.status !== 200) throw new Error(`Catenda svarte ${s.status} på tokenkallet`);
-    const data = (await s.json()) as { access_token?: unknown; expires_in?: unknown };
-    if (typeof data.access_token !== 'string' || !data.access_token)
-      throw new Error('Ugyldig tokensvar fra Catenda');
+      });
+    } catch {
+      throw new Tokenfeil(0);
+    }
+    if (s.status !== 200) {
+      await s.body?.cancel();
+      throw new Tokenfeil(s.status);
+    }
+    const data = (await s.json().catch(() => ({}))) as {
+      access_token?: unknown;
+      expires_in?: unknown;
+    };
+    if (typeof data.access_token !== 'string' || !data.access_token) throw new Tokenfeil(0);
     const varighet = typeof data.expires_in === 'number' ? data.expires_in : 3600;
     this.#token = data.access_token;
     this.#utloeper = this.naa() + varighet * 1000 - SIKKERHETSMARGIN_MS;
@@ -180,8 +197,9 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
     let token: string;
     try {
       token = await tokenlager.token(miljoe);
-    } catch {
-      return svar(502);
+    } catch (feil) {
+      // Bare steget og Catendas statuskode, så en 502 kan feilsøkes fra økta (#806).
+      return svar(502, { feil: 'tokenkall', status: feil instanceof Tokenfeil ? feil.status : 0 });
     }
     const hoder = new Headers({ Authorization: `Bearer ${token}` });
     for (const navn of VIDERESENDTE_HODER) {
@@ -198,7 +216,7 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
         redirect: 'manual',
       });
     } catch {
-      return svar(502);
+      return svar(502, { feil: 'catenda_svarte_ikke' });
     }
     if (ut.status === 401) tokenlager.forkast(token);
     const svarhoder = new Headers(ut.headers);

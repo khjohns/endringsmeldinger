@@ -48,5 +48,11 @@ fjernes fra miljøet og roteres i Catenda.
 `npx vitest run verktoy` prøver tokenkallet, nøkkelkontrollen,
 tillatelseslisten og videresendingen mot en fetch-dobbel. Det testene ikke
 prøver: at Catenda godtar de videresendte kallene, og at verten er tillatt
-fra skyøkta. Det prøves fra skyøkta etter utrullingen. Bare statuskodene
+fra skyøkta. Det prøves fra skyøkta etter utrullingen.
+
+En 502 fra brokeren har en kropp som sier hvilket steg som feilet:
+`{"feil": "tokenkall", "status": 401}` betyr at Catenda avviste brokerens
+tokenkall, oftest feil `CATENDA_CLIENT_ID` eller `CATENDA_CLIENT_SECRET` i
+brokeren. Statusen er 0 når Catenda ikke svarte. `{"feil": "catenda_svarte_ikke"}`
+gjelder selve kallet. Kroppen har aldri med hemmeligheter eller Catendas svar. Bare statuskodene
 skrives ut.
