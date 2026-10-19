@@ -11,8 +11,9 @@
  *
  * For TS-sakene er lesepunktet `src/lib/kjernesak/` (#665). Bare der hentes
  * saken (`hentKjernesak`) og kalles utledningen, visningen, handlingene og
- * forhåndsvisningen i kjernen. Typeimporter er tillatt. Vakten kjenner igjen
- * en import, en re-eksport og en dynamisk import fra `$kjerne/utledning/` og
+ * forhåndsvisningen i kjernen. Typeimporter er tillatt, også `{ type X }` når hvert
+ * navn er en type. Vakten kjenner igjen en import, en re-eksport, en import bare for
+ * sideeffekten og en dynamisk import fra `$kjerne/utledning/` og
  * `$kjerne/kommandoer/`, og navnet `hentKjernesak`. Den kjenner ikke igjen en
  * relativ sti inn i kjernen; den fanger `src/lib/kjernegrense.test.ts`.
  */
@@ -96,20 +97,37 @@ describe('lesepunktene for statusene', () => {
   });
 });
 
-const KJERNELESING: [string, RegExp][] = [
+/** Importklausulen bærer bare typer: `type { … }`, `type X` eller `{ type A, type B }`. */
+const bareTyper = (klausul: string) => {
+  const k = klausul.trim();
+  if (/^type\b/.test(k)) return true;
+  const navn = /^\{([^}]*)\}$/
+    .exec(k)?.[1]
+    .split(',')
+    .map((n) => n.trim())
+    .filter(Boolean);
+  return navn !== undefined && navn.length > 0 && navn.every((n) => /^type\s/.test(n));
+};
+
+const KJERNE = String.raw`['"\x60]\$kjerne\/(?:utledning|kommandoer)\/`;
+
+const KJERNELESING: [string, RegExp, ((klausul: string) => boolean)?][] = [
   [
     'kjernekall',
-    /\b(?:import|export)\s+(?!type\b)[^;'"]*?from\s+['"]\$kjerne\/(utledning|kommandoer)\//g,
+    new RegExp(String.raw`\b(?:import|export)\s+([^;'"\x60]*?)\s*from\s+${KJERNE}`, 'g'),
+    (klausul) => !bareTyper(klausul),
   ],
-  ['kjernekall', /\bimport\s*\(\s*['"`]\$kjerne\/(utledning|kommandoer)\//g],
+  ['kjernekall', new RegExp(String.raw`\bimport\s*\(?\s*${KJERNE}`, 'g')],
   ['kjernehenting', /\bhentKjernesak\b/g],
 ];
 
 /** Lesingene av en TS-sak utenom lesepunktet, med linjenummer. En import over flere linjer telles på første. */
 export function kjernelesing(kilde: string): string[] {
   const linje = (i: number) => kilde.slice(0, i).split('\n').length;
-  return KJERNELESING.flatMap(([navn, m]) =>
-    [...kilde.matchAll(m)].map((t) => [linje(t.index), navn] as const)
+  return KJERNELESING.flatMap(([navn, m, kall]) =>
+    [...kilde.matchAll(m)]
+      .filter((t) => !kall || kall(t[1]))
+      .map((t) => [linje(t.index), navn] as const)
   )
     .sort((x, y) => x[0] - y[0])
     .map(([l, navn]) => `${l}: ${navn}`);
@@ -146,6 +164,10 @@ describe('lesepunktet for TS-sakene', () => {
           `  export type { Visning } from '$kjerne/utledning/visning';`,
           `  export * from '$kjerne/kommandoer/skriving';`,
           `  const skriving = await import('$kjerne/kommandoer/skriving');`,
+          `  import { type Visning } from '$kjerne/utledning/visning';`,
+          `  export { type Visning, type Status } from '$kjerne/utledning/visning';`,
+          `  import { type Visning, visning } from '$kjerne/utledning/visning';`,
+          `  import '$kjerne/kommandoer/skriving';`,
           `</script>`,
         ].join('\n')
       )
@@ -156,6 +178,8 @@ describe('lesepunktet for TS-sakene', () => {
       '10: kjernekall',
       '12: kjernekall',
       '13: kjernekall',
+      '16: kjernekall',
+      '17: kjernekall',
     ]);
   });
 });

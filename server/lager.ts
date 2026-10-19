@@ -130,24 +130,62 @@ async function lesOppdrag(
   }));
 }
 
+/** Journalen og oppdragene i saken, og navnet bak aktørene når det er bedt om. */
+export interface LestSak {
+  journal: Journalrad[];
+  oppdrag: LagretOppdrag[];
+  /** Navnet bak hver aktør med navn; tomt uten `navn`, og når oppslaget feilet. */
+  navn: Map<string, string>;
+  /** Feilen fra navneoppslaget, når det feilet. */
+  navnefeil?: unknown;
+}
+
 /**
  * Journalen og oppdragene i en sak TS-kjernen har skrevet, i prosjektet i
- * konteksten.
+ * konteksten. Med `navn` leses navnet bak aktørene etter journalen, i samme
+ * transaksjon, så navnene gjelder de samme hendelsene (#835 punkt 2). Navnet er
+ * en visningsdetalj: et oppslag som feiler, gir ingen navn og `navnefeil`, og
+ * velter ikke lesingen (AGENTS.md).
  *
  * @throws SakFinnesIkke
  */
 export async function lesSaken(
   pool: Pool,
   kontekst: Kontekst,
-  sakId: string
-): Promise<{ journal: Journalrad[]; oppdrag: LagretOppdrag[] }> {
-  return transaksjon(pool, kontekst, async (foresp) => {
-    const journal = await lesJournal(foresp, sakId, false);
-    if (!skrevetAvKjernen(journal))
-      throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
-    const oppdrag = await lesOppdrag(foresp, sakId, journal.at(-1)!.versjon);
-    return { journal, oppdrag };
-  });
+  sakId: string,
+  { navn = false } = {}
+): Promise<LestSak> {
+  // Det transaksjonen har lest, også når basen har rullet den tilbake.
+  const underveis: { lest?: LestSak; navnefeil?: unknown; feilet?: true } = {};
+  try {
+    return await transaksjon(pool, kontekst, async (foresp) => {
+      const journal = await lesJournal(foresp, sakId, false);
+      if (!skrevetAvKjernen(journal))
+        throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
+      const oppdrag = await lesOppdrag(foresp, sakId, journal.at(-1)!.versjon);
+      const lest = (underveis.lest = { journal, oppdrag, navn: new Map<string, string>() });
+      if (!navn) return lest;
+      try {
+        return { ...lest, navn: await aktornavn(foresp, sakId) };
+      } catch (navnefeil) {
+        Object.assign(underveis, { navnefeil, feilet: true });
+        return { ...lest, navnefeil };
+      }
+    });
+  } catch (feil) {
+    // Med XACT_ABORT ruller basen tilbake når oppslaget feiler, og transaksjon()
+    // kaster. Det som er lest før, er lest i transaksjonen og gjelder.
+    if (underveis.lest && underveis.feilet)
+      return { ...underveis.lest, navnefeil: underveis.navnefeil };
+    throw feil;
+  }
+}
+
+async function aktornavn(foresp: Foresp, sakId: string): Promise<Map<string, string>> {
+  const svar = await foresp()
+    .input('sak_id', sql.NVarChar(36), sakId)
+    .execute<{ aktor_id: string; navn: string }>('koe_api.aktornavn');
+  return new Map(svar.recordset.filter((r) => r.navn).map((r) => [r.aktor_id, r.navn]));
 }
 
 /**
@@ -160,12 +198,7 @@ export async function lesAktornavn(
   kontekst: Kontekst,
   sakId: string
 ): Promise<Map<string, string>> {
-  return transaksjon(pool, kontekst, async (foresp) => {
-    const svar = await foresp()
-      .input('sak_id', sql.NVarChar(36), sakId)
-      .execute<{ aktor_id: string; navn: string }>('koe_api.aktornavn');
-    return new Map(svar.recordset.filter((r) => r.navn).map((r) => [r.aktor_id, r.navn]));
-  });
+  return transaksjon(pool, kontekst, (foresp) => aktornavn(foresp, sakId));
 }
 
 /**

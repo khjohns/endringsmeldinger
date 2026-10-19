@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { ChevronLeft, RotateCcw, SlidersHorizontal, Plus } from 'lucide-svelte';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
@@ -15,6 +16,7 @@
     onnewcase,
     ondarkchange,
     overviewHref = store.isDemo ? '/mockup/oversikt' : undefined,
+    varsel,
   }: {
     role: Role | null;
     mode: Mode;
@@ -26,6 +28,8 @@
     onnewcase?: () => void;
     ondarkchange?: (dark: boolean) => void;
     overviewHref?: string;
+    /** Under topplinjen, med samme forskyvning som den. */
+    varsel?: Snippet;
   } = $props();
   let demoTools: HTMLDetailsElement | undefined = $state();
 </script>
@@ -103,6 +107,7 @@
       {/if}
     {/snippet}
   </AppTopbar>
+  {@render varsel?.()}
 </div>
 
 <style>
