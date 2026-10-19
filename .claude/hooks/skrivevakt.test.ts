@@ -297,6 +297,8 @@ describe('skrivevakten for mekanisk-pr', () => {
       "cat <<'EOF'\ngit push origin HEAD:main\nEOF",
       "cat > /tmp/a <<-'EOF'\n\tgit push --force origin HEAD:main\n\tEOF",
       "gh api repos/khjohns/endringsmeldinger/pulls/1 -X PATCH -F body=@- <<'EOF'\ngit push --force\nEOF",
+      "cat > /tmp/pr.md <<'EOF'\nSett GIT_DIR=x først\nEOF",
+      "cat > /tmp/pr.md <<'EOF'\nkjør bash først\nEOF",
     ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);

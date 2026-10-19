@@ -280,14 +280,14 @@ const ESCAPE_I_ANFORSEL = '$`"\\';
  * ikke sluker avgrenserlinja, og leddene merkes `kropp`. Uten anførselstegn eller escape i
  * avgrenseren kan skallet ekspandere kroppen, så da er både heredocen og kroppsleddene ukjente
  * (#753). Kroppen er også ukjent når et skall eller et annet program enn `TEKSTMOTTAKERE` kan
- * lese den, direkte eller gjennom et rør. Ellers er et kroppsledd uten ukjent syntaks
- * `bareTekst`, og linja står i `liste.tekstlinjer` som [start, slutt) (#970). `<<` etter `#`
- * og i aritmetikk åpner ingen heredoc, så linjene etter leses som kommandoer. `iKropp` er
- * satt når `tekst` er en kroppslinje.
+ * lese den, direkte eller gjennom et rør. Kroppslinjene i en heredoc som avsluttes, står i
+ * `liste.kroppslinjer` som [start, slutt) (#970). `<<` etter `#` og i aritmetikk åpner ingen
+ * heredoc, så linjene etter leses som kommandoer. `iKropp` er satt når `tekst` er en
+ * kroppslinje.
  */
 function lekser(tekst, iKropp = false) {
   const liste = [];
-  liste.tekstlinjer = [];
+  liste.kroppslinjer = [];
   let ord = [];
   let innhold = '';
   let harOrd = false;
@@ -412,35 +412,27 @@ function lekser(tekst, iKropp = false) {
       const linja = liste.slice(linjestart);
       // `mottar` som står igjen, er et rør som fortsetter etter kroppen.
       const kjoeres = mottar || linja.some((del) => del.mottar && !leserSomTekst(del));
-      const tekstlinja = !kjoeres && !linja.some((del) => del.ukjentSyntaks);
-      kropper.push(...aapnede.map((h) => ({ ...h, kjoeres, tekstlinja })));
+      kropper.push(...aapnede.map((h) => ({ ...h, kjoeres })));
       aapnede = [];
-      const foer = liste.length;
-      const tekstFoer = liste.tekstlinjer.length;
+      const kroppslinjerFoer = liste.kroppslinjer.length;
       while (kropper.length && i < tekst.length) {
         const start = i + 1;
         const slutt = tekst.indexOf('\n', start);
         const linje = tekst.slice(start, slutt === -1 ? tekst.length : slutt);
         i = slutt === -1 ? tekst.length : slutt;
-        const { avgrenser, fjernTab, bokstavelig, kjoeres, tekstlinja } = kropper[0];
+        const { avgrenser, fjernTab, bokstavelig, kjoeres } = kropper[0];
         if ((fjernTab ? linje.replace(/^\t+/, '') : linje) === avgrenser) {
           kropper.shift();
           continue;
         }
-        const delene = lekser(linje, true);
-        const bareTekst = bokstavelig && tekstlinja && delene.every((del) => !del.ukjent);
-        if (bareTekst) liste.tekstlinjer.push([start, i]);
-        for (const del of delene) {
+        liste.kroppslinjer.push([start, i]);
+        for (const del of lekser(linje, true)) {
           const ukjentKropp = bokstavelig && !kjoeres ? {} : { ukjent: true, ukjentSyntaks: true };
-          liste.push({ ...del, ...ukjentKropp, kropp: true, bareTekst });
+          liste.push({ ...del, ...ukjentKropp, kropp: true });
         }
       }
-      // En heredoc uten avgrenserlinje kan bety at vakten og skallet leser avgrenseren ulikt,
-      // så kroppen leses da også som kommandoer.
-      if (kropper.length) {
-        for (const del of liste.slice(foer)) del.bareTekst = false;
-        liste.tekstlinjer.length = tekstFoer;
-      }
+      // En heredoc uten avgrenserlinje kan bety at vakten og skallet leser avgrenseren ulikt.
+      if (kropper.length) liste.kroppslinjer.length = kroppslinjerFoer;
       linjestart = liste.length;
     } else if (tegn === '|' && tekst[i + 1] !== '|' && tekst[i - 1] !== '|') {
       const videre = mottar;
@@ -656,9 +648,6 @@ const TEKSTKOMMANDOER = new Set([
 ]);
 // Kommandoer som leser stdin som tekst og aldri kjører den.
 const TEKSTMOTTAKERE = new Set([...TEKSTKOMMANDOER, 'tee']);
-// Et kall der hver annen kommando står her, kan ikke kjøre en heredoc-kropp den har skrevet
-// til en fil. Da kan kroppen leses som tekst (#970).
-const UTEN_SKRIPT = new Set([...TEKSTMOTTAKERE, 'cd', 'mkdir']);
 
 function leserSomTekst(del) {
   if (del.ukjentKommando) return false;
@@ -680,17 +669,13 @@ function skallPayload(argumenter) {
 /**
  * Kommandoene skallet faktisk kjører: prefiks er fjernet, og innholdet i `sh -c`
  * og `eval` er lest på nytt. Ledd med ukjent kommandoord beholdes som de er. `heredoc`,
- * `kropp` og `bareTekst` følger med, og det som leses på nytt, arver `kropp` og `bareTekst`.
+ * `kropp` følger med, og det som leses på nytt, arver `kropp`.
  */
 function effektiveKommandoer(leddene) {
   const ut = [];
   for (const del of leddene) {
-    const { heredoc = false, kropp = false, bareTekst = false } = del;
-    const arv = (indre) => ({
-      ...indre,
-      kropp: kropp || indre.kropp,
-      bareTekst: bareTekst || indre.bareTekst,
-    });
+    const { heredoc = false, kropp = false } = del;
+    const arv = (indre) => ({ ...indre, kropp: kropp || indre.kropp });
     if (del.ukjentKommando) {
       ut.push(del);
       continue;
@@ -706,7 +691,7 @@ function effektiveKommandoer(leddene) {
     }
     const k = kommandoordet(ord);
     if (k === null) {
-      ut.push({ ord, ukjentKommando: true, ukjentPrefiks: true, heredoc, kropp, bareTekst });
+      ut.push({ ord, ukjentKommando: true, ukjentPrefiks: true, heredoc, kropp });
       continue;
     }
     if (k >= ord.length) continue;
@@ -724,7 +709,6 @@ function effektiveKommandoer(leddene) {
         forran: ord.slice(0, k),
         heredoc,
         kropp,
-        bareTekst,
       });
     }
   }
@@ -909,12 +893,8 @@ function utenforTreet(leddene, cwd, rot) {
   return null;
 }
 
-// Linjeskift blir ledd, og omdirigering som ikke skriver, fjernes.
-function tekstrensket(tekst) {
-  return tekst.replace(/[\r\n]+/g, ' ; ').replace(/\d*>&\d|\d*>\s*\/dev\/null/g, '');
-}
-
-function utenTekstlinjer(tekst, linjer) {
+// Teksten uten linjene i `linjer`, som er [start, slutt).
+function utenLinjer(tekst, linjer) {
   let ut = '';
   let fra = 0;
   for (const [start, slutt] of linjer) {
@@ -924,11 +904,8 @@ function utenTekstlinjer(tekst, linjer) {
   return ut + tekst.slice(fra);
 }
 
-/**
- * Returnerer en begrunnelse når kallet skal stoppes, ellers null. Med `kroppSomTekst` leses en
- * heredoc-kropp som bare er tekst, ikke som kommandoer.
- */
-function vurderKall(input, kroppSomTekst) {
+/** Returnerer en begrunnelse når kallet skal stoppes, ellers null. */
+function vurderKall(input) {
   const verktoy = input.tool_name ?? '';
   const parametre = input.tool_input ?? {};
   const cwd = input.cwd ?? process.cwd();
@@ -959,7 +936,9 @@ function vurderKall(input, kroppSomTekst) {
   // ligner en skrivende kommando (`grep "ruff format"`).
   if (leddene.length && leddene.every((del) => lesingsBegrunnelse(del) === null)) return null;
 
-  const kommando = tekstrensket(rakKommando);
+  const kommando = rakKommando
+    .replace(/[\r\n]+/g, ' ; ')
+    .replace(/\d*>&\d|\d*>\s*\/dev\/null/g, '');
   // Anførselstegn og escape kan skjule et mappenavn for tekstreglene (`kj""erne`).
   // Reglene kjøres derfor også på teksten uten dem.
   const varianter = [kommando, kommando.replace(/['"\\]/g, '')];
@@ -982,21 +961,12 @@ function vurderKall(input, kroppSomTekst) {
   if (eff.some((del) => del.ukjentKommando)) {
     return 'Kommandoen starter med skallsyntaks som ikke kan leses statisk.';
   }
-  // Med `kroppSomTekst` er en heredoc-kropp som bare er tekst, ikke kommandoer så lenge ingen
-  // annen kommando i kallet kan kjøre den fra en fil (#970). Tekstreglene over leser den fortsatt.
-  const tekstkropp = kroppSomTekst && eff.every((del) => del.kropp || UTEN_SKRIPT.has(del.ord[0]));
-  const kommandoer = tekstkropp ? eff.filter((del) => !del.bareTekst) : eff;
-  const kommandoledd = tekstkropp ? leddene.filter((del) => !del.bareTekst) : leddene;
-  const tekstlinjer = tekstkropp ? leddene.tekstlinjer : [];
-  if (
-    nevnerSperret &&
-    kommandoer.some((del) => del.ord[0] === 'sed' && sedSkriver(del.ord.slice(1)))
-  ) {
+  if (nevnerSperret && eff.some((del) => del.ord[0] === 'sed' && sedSkriver(del.ord.slice(1)))) {
     return 'sed-skriptet kan skrive med w eller W, og kommandoen nevner en sperret mappe.';
   }
   if (
     nevnerSperret &&
-    kommandoer.some((del) => del.ord.slice(1).some((o) => o.split('/').pop() === 'sed'))
+    eff.some((del) => del.ord.slice(1).some((o) => o.split('/').pop() === 'sed'))
   ) {
     return 'sed kjøres gjennom et annet program, og kommandoen nevner en sperret mappe.';
   }
@@ -1004,10 +974,8 @@ function vurderKall(input, kroppSomTekst) {
     ...leddene.flatMap((del) => del.ord),
     ...eff.flatMap((del) => [...del.ord, ...(del.forran ?? [])]),
   ];
-  const deler = ledd(tekstrensket(utenTekstlinjer(rakKommando, tekstlinjer)));
-  const gitene = kommandoer
-    .filter((del) => del.ord[0] === 'git')
-    .map((del) => gitKommando(del.ord));
+  const deler = ledd(kommando);
+  const gitene = eff.filter((del) => del.ord[0] === 'git').map((del) => gitKommando(del.ord));
   // Det kallet committer og pusher. Både meldingen og reglene under leser disse.
   const pushArgumenter = [
     ...deler
@@ -1023,9 +991,7 @@ function vurderKall(input, kroppSomTekst) {
   const miljoe = alleOrd.find((o) => !UFARLIG_MILJOE.test(o) && FARLIG_MILJOE.test(o));
   if (miljoe) return `mekanisk-pr setter ikke miljøvariabelen i ${miljoe}.`;
   if (
-    kommandoer.some(
-      (del) => del.ord[0] === 'rg' && del.ord.some((o) => /^--(pre|hostname-bin)/.test(o))
-    )
+    eff.some((del) => del.ord[0] === 'rg' && del.ord.some((o) => /^--(pre|hostname-bin)/.test(o)))
   ) {
     return 'rg med --pre eller --hostname-bin kjører et program.';
   }
@@ -1035,12 +1001,12 @@ function vurderKall(input, kroppSomTekst) {
   ) {
     const blandet =
       (pushArgumenter.length > 0 || commiter) &&
-      kommandoer.some((del) => !del.kropp && !['git', 'cd'].includes(del.ord[0]));
+      eff.some((del) => !del.kropp && !['git', 'cd'].includes(del.ord[0]));
     return `Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.${blandet ? ` ${ALENE}` : ''}`;
   }
 
   if (
-    kommandoer.some(
+    eff.some(
       (del) =>
         !TEKSTKOMMANDOER.has(del.ord[0]) && del.ord.slice(1).some((o) => NEVNER_KJOERBAR.test(o))
     )
@@ -1050,7 +1016,7 @@ function vurderKall(input, kroppSomTekst) {
 
   if (
     deler.some((del) => /^gh\b/.test(del) && GH_MERGE.test(del)) ||
-    kommandoer.some((del) => del.ord[0] === 'gh' && GH_MERGE.test(del.ord.join(' ')))
+    eff.some((del) => del.ord[0] === 'gh' && GH_MERGE.test(del.ord.join(' ')))
   ) {
     return 'mekanisk-pr merger ikke og oppdaterer ikke PR-en mot main.';
   }
@@ -1086,7 +1052,7 @@ function vurderKall(input, kroppSomTekst) {
   }
   if (pushArgumenter.length && commiter) return 'Kjør commit og push i hver sin kommando.';
   if (pushArgumenter.length || commiter) {
-    const utenfor = utenforTreet(kommandoledd, cwd, rot);
+    const utenfor = utenforTreet(leddene, cwd, rot);
     if (utenfor) return utenfor;
   }
   if (gitene.some((g) => TREENDRENDE.has(g.underkommando)) && (pushArgumenter.length || commiter)) {
@@ -1114,14 +1080,19 @@ function vurderKall(input, kroppSomTekst) {
 }
 
 /**
- * Kroppen i en heredoc leses som kommandoer, som på main, så en kropp med `git push` som tekst
- * stoppes fortsatt. Når bare kroppen stopper kallet, sier begrunnelsen det (#970).
+ * Kroppen i en heredoc leses som kommandoer. Stopper kallet bare på grunn av kroppen, sier
+ * begrunnelsen det (#970).
  */
 function vurder(input) {
-  const somKommandoer = vurderKall(input, false);
-  const somTekst = vurderKall(input, true);
-  if (somTekst || !somKommandoer) return somTekst;
-  return `Kroppen i heredocen leses som kommandoer, og da gjelder dette: ${somKommandoer} Skriv teksten til en fil i /tmp med Write og vis til filen, for eksempel med -F body=@/tmp/<fil>.`;
+  const begrunnelse = vurderKall(input);
+  const kroppslinjer =
+    begrunnelse && input.tool_name === 'Bash'
+      ? lekser(String(input.tool_input?.command ?? '')).kroppslinjer
+      : [];
+  if (!kroppslinjer.length) return begrunnelse;
+  const command = utenLinjer(String(input.tool_input.command), kroppslinjer);
+  if (vurderKall({ ...input, tool_input: { ...input.tool_input, command } })) return begrunnelse;
+  return `Kroppen i heredocen leses som kommandoer, og det er den som stopper kallet: ${begrunnelse}${begrunnelse.includes('Write') ? '' : ' Skriv teksten til en fil i /tmp med Write og vis til filen, for eksempel med -F body=@/tmp/<fil>.'}`;
 }
 
 // Hooks i frontmatter til prosjektagenter kjører bare i en mappe som er klarert
