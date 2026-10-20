@@ -239,7 +239,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     ]);
     const [hendelse] = await transaksjon(
       avh.datalag,
-      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
       (foresp) => lesJournal(foresp, utfall.sak_id!, false)
     );
     expect(hendelse).toMatchObject({
@@ -345,7 +345,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(utfall.utfall).toBe('sak_opprettet');
     const [hendelse] = await transaksjon(
       avh.datalag,
-      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
       (foresp) => lesJournal(foresp, utfall.sak_id!, false)
     );
     expect(hendelse.data).toMatchObject({ sakstittel: 'Tittelen i Catenda' });

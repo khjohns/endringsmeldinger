@@ -9,6 +9,7 @@
  */
 
 import type { Avhengigheter, Forespoersel, Saksrute, Svar } from './app.ts';
+import { lesekontekst } from './autorisasjon.ts';
 import { feilsvar } from './inngang.ts';
 import { lesSaken, SakFinnesIkke } from './lager.ts';
 import { brevdokument, filnavn, UgjengivbartBrev } from './levering.ts';
@@ -17,14 +18,14 @@ import { asciiReserve, attrTegn } from './vedlegg.ts';
 const brevFinnesIkke = () => feilsvar(404, 'BREV_FINNES_IKKE', 'Brevet finnes ikke i saken.');
 
 async function lastNedBrev(
-  { bruker, prosjekt, sakId, ressurs }: Forespoersel,
+  { bruker, prosjekt, side, sakId, ressurs }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
   let oppdrag;
   try {
     ({ oppdrag } = await lesSaken(
       avh.datalag,
-      { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
+      lesekontekst(bruker, prosjekt.prosjektId, side),
       sakId
     ));
   } catch (feil) {

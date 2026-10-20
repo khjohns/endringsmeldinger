@@ -76,7 +76,7 @@ describe.skipIf(!TESTBASE_URL)(
     let o: Oppsett;
     let server: KjorendeServer;
     /** Prosjektet i konteksten for lesingen under radsikkerheten. */
-    const leser = () => ({ aktor: o.te.id, prosjekt: o.prosjekt.id });
+    const leser = () => ({ aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const });
     const journalen = async (sakId: string) =>
       (await lesSaken(o.datalag.kjoeretid.pool, leser(), sakId)).journal;
     /**
@@ -525,7 +525,7 @@ describe.skipIf(!TESTBASE_URL)('koblingen slås av under skrivingen (#739 punkt 
     );
     const lest = await lesSaken(
       o.datalag.kjoeretid.pool,
-      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
       sakId
     );
     expect(lest.journal).toHaveLength(1);

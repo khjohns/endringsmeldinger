@@ -28,6 +28,7 @@ import {
   UTEN_STI,
   Nektet,
   type Bruker,
+  type Kontraktstilgang,
   type Catenda,
 } from '../autorisasjon.ts';
 import type { Medlem as Medlemsrad } from '../medlemskap.ts';
@@ -214,6 +215,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       nyttelast = {} as unknown,
       fraSti = UTEN_STI as FraSti,
       pool = kjoeretid.pool,
+      side = { rolle: 'TE', teamId: null } as Kontraktstilgang | null,
     } = {}
   ) =>
     krevProsjekttilgang(
@@ -223,7 +225,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       m.bruker,
       minsteRolle,
       nyttelast,
-      fraSti
+      fraSti,
+      async () => side
     );
 
   describe('prosjekttilgangen', () => {
@@ -336,6 +339,17 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       const m = await medlem(p);
       expect(await tilgang(m, p.id, { nyttelast: { prosjekt_id: p.id } })).toBeTruthy();
       expect(await nektet(tilgang(m, p.id, { nyttelast: { prosjekt_id: `${p.id} ` } }))).toEqual({
+        status: 403,
+        error: 'FORBIDDEN',
+      });
+    });
+
+    it('uten side ses ikke saken i eget prosjekt, og den gir 403 (lesefilteret, #1056)', async () => {
+      const p = await prosjekt();
+      const m = await medlem(p);
+      const egen = await sak(p, m);
+      expect(await tilgang(m, p.id, { fraSti: { sakId: egen } })).toBeTruthy();
+      expect(await nektet(tilgang(m, p.id, { fraSti: { sakId: egen }, side: null }))).toEqual({
         status: 403,
         error: 'FORBIDDEN',
       });

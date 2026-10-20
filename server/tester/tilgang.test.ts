@@ -46,7 +46,12 @@ const KJOERETID = 'koe_runtime_prove';
 const SAKSTABELLER = ['sak_metadata', 'hendelse', 'notat', 'leveringsoppdrag', 'kjernebuffer'];
 
 /** Konteksten med valgfrie felt; `iKontekst` fyller inn P1, TE og TE1 for det som mangler. */
-type Kontekstvalg = { aktor: string; prosjekt?: string; side?: string; team?: string | null };
+type Kontekstvalg = {
+  aktor: string;
+  prosjekt?: string;
+  side?: string | null;
+  team?: string | null;
+};
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
   let base: Testbase;
@@ -102,7 +107,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
     const kontekst = k && {
       aktor: k.aktor,
       prosjekt: k.prosjekt ?? P1,
-      side: k.side ?? 'TE',
+      side: k.side === undefined ? 'TE' : k.side,
       team: k.team === undefined ? TE1 : k.team,
     };
     return iTransaksjon(som === 'kjoeretid' ? kjoeretid.pool : base.pool, kontekst, arbeid);
@@ -274,16 +279,18 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       ['motparten', () => ({ aktor: b.bh, side: 'BH', team: BH1 }), UTEN_NOTAT],
       ['leserollen i teamet', () => ({ aktor: b.leser }), UTEN_NOTAT],
       ['forfatteren uten team', () => ({ aktor: b.te, team: null }), UTEN_NOTAT],
-      ['forfatteren på feil side', () => ({ aktor: b.te, side: 'BH' }), UTEN_NOTAT],
-      ['forfatteren med en hale på teamet', () => ({ aktor: b.te, team: `${TE1}0` }), UTEN_NOTAT],
+      ['forfatteren på feil side', () => ({ aktor: b.te, side: 'BH' }), INGEN],
+      ['forfatteren med en hale på teamet', () => ({ aktor: b.te, team: `${TE1}0` }), INGEN],
       [
         'forfatteren med mellomrom etter teamet (#581)',
         () => ({ aktor: b.te, team: `${TE1} ` }),
-        UTEN_NOTAT,
+        INGEN,
       ],
+      ['forfatteren med mellomrom etter siden (#581)', () => ({ aktor: b.te, side: 'TE ' }), INGEN],
+      ['et medlem uten side (#1056)', () => ({ aktor: b.kollega, side: null, team: null }), INGEN],
       [
-        'forfatteren med mellomrom etter siden (#581)',
-        () => ({ aktor: b.te, side: 'TE ' }),
+        'leserollen uten side (DL-U15)',
+        () => ({ aktor: b.leser, side: null, team: null }),
         UTEN_NOTAT,
       ],
     ])('%s ser notatet bare når teamet er forfatterens', async (_, k, forventet) => {

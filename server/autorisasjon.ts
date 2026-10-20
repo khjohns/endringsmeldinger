@@ -20,7 +20,7 @@ import { timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Part as Rolle } from '../kjerne/typer.ts';
 import type { Bruker } from './bruker.ts';
-import { sql, transaksjon, utenKontekst, type Pool } from './datalag.ts';
+import { sql, transaksjon, utenKontekst, type Kontekst, type Pool } from './datalag.ts';
 import { loggFeil } from './inngang.ts';
 import {
   oversett,
@@ -294,15 +294,31 @@ export async function ferskeProsjekter(
 /** Prosjekt-ID-en slik basen har den: SQL Server ser bort fra mellomrom til slutt. */
 const gyldigProsjektId = (id: string) => id.trim() === id && id.length <= 100;
 
-/** Sakene blant `saker` som er i prosjektet, lest under radsikkerheten med aktøren og prosjektet i konteksten. */
+/**
+ * Konteksten for en lesing: aktøren, prosjektet og siden med teamet når det er entydig
+ * (DL-U4). Uten side leser bare leserollen (DL-U15); lesefilteret i basen krever det (#1056).
+ */
+export const lesekontekst = (
+  bruker: Bruker,
+  prosjektId: string,
+  side: Kontraktstilgang | null
+): Kontekst => ({
+  aktor: bruker.id,
+  prosjekt: prosjektId,
+  ...(side ? { side: side.rolle } : {}),
+  ...(side?.teamId ? { team: side.teamId } : {}),
+});
+
+/** Sakene blant `saker` som er i prosjektet, lest under radsikkerheten med aktøren, prosjektet og siden i konteksten. */
 async function sakerIProsjektet(
   db: Pool,
   bruker: Bruker,
   prosjektId: string,
+  side: Kontraktstilgang | null,
   saker: Set<string>
 ): Promise<Set<string>> {
   if (!saker.size) return new Set();
-  const rader = await transaksjon(db, { aktor: bruker.id, prosjekt: prosjektId }, (foresp) =>
+  const rader = await transaksjon(db, lesekontekst(bruker, prosjektId, side), (foresp) =>
     foresp()
       .input('saker', sql.NVarChar(sql.MAX), JSON.stringify([...saker]))
       .query<{ sak_id: string; prosjekt_id: string }>(
@@ -339,8 +355,9 @@ export async function krevProsjekttilgang(
   bruker: Bruker,
   minsteRolle: 'viewer' | 'member' | 'admin',
   nyttelast: unknown,
-  fraSti: FraSti
-): Promise<Prosjekttilgang> {
+  fraSti: FraSti,
+  kontraktsside: (tilgang: Prosjekttilgang) => Promise<Kontraktstilgang | null> = async () => null
+): Promise<Prosjekttilgang & { side: Kontraktstilgang | null }> {
   const nekt = () => new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
   const hode = foresporsel.headers['x-project-id'];
   const prosjektId = typeof hode === 'string' && hode ? hode : null;
@@ -372,10 +389,7 @@ export async function krevProsjekttilgang(
     const saker = sakerDetVisesTil(kropp);
     const hovedsak = ('sakId' in fraSti ? fraSti.sakId : null) ?? kropp.sak_id ?? kropp.sakId;
     if (typeof hovedsak === 'string' && hovedsak) saker.add(hovedsak);
-    // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
-    const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, saker);
-    for (const sakId of saker) if (!iProsjektet.has(sakId)) throw nekt();
-    return {
+    const tilgang: Prosjekttilgang = {
       prosjektId,
       aktor: bruker.id,
       rolle,
@@ -383,6 +397,12 @@ export async function krevProsjekttilgang(
       medlemskap: medlemskap!,
       ...(synkronisert ? { synkronisert } : {}),
     };
+    // Siden før sakene: lesefilteret i basen slipper bare siden eller leserollen (#1056).
+    const side = await kontraktsside(tilgang);
+    // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
+    const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, side, saker);
+    for (const sakId of saker) if (!iProsjektet.has(sakId)) throw nekt();
+    return { ...tilgang, side };
   } catch (feil) {
     if (feil instanceof Nektet) throw feil;
     // Som ruteren i `app.ts`: årsaken logges, svaret sier bare at tilgangen ikke kunne bekreftes (#867 punkt 1).

@@ -27,6 +27,7 @@ import {
   krevKontraktsrolle,
   krevLesing,
   krevProsjekttilgang,
+  lesekontekst,
   krevSesjon,
   Nektet,
   UTEN_STI,
@@ -331,7 +332,7 @@ async function visSaken(
   { bruker, prosjekt, side, sakId }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const kontekst = { aktor: bruker.id, prosjekt: prosjekt.prosjektId };
+  const kontekst = lesekontekst(bruker, prosjekt.prosjektId, side);
   let saken;
   try {
     saken = await lesSaken(avh.datalag, kontekst, sakId, { navn: true });
@@ -460,7 +461,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
   try {
     const { journal, oppdrag } = await lesSaken(
       avh.datalag,
-      { aktor: bruker.id, prosjekt: prosjekt.prosjektId },
+      lesekontekst(bruker, prosjekt.prosjektId, side),
       sakId
     );
     const tilBrevet = journal.filter((r) => r.versjon <= utfall.rad.versjon);
@@ -599,22 +600,22 @@ export function lagServer(avh: Avhengigheter) {
     // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
     const bruker = await krevInnlogging(full.datalag, foresporsel);
     const innhold = metode === 'GET' || fil ? { verdi: {} } : await lesKropp(foresporsel);
-    const prosjekt = await krevProsjekttilgang(
+    const krav = 'kontraktsrolle' in tilgang ? tilgang.kontraktsrolle : undefined;
+    const { side, ...prosjekt } = await krevProsjekttilgang(
       full.datalag,
       full.catenda,
       foresporsel,
       bruker,
       tilgang.prosjektrolle,
       'feil' in innhold ? {} : innhold.verdi,
-      fraSti
+      fraSti,
+      async (t) =>
+        krav === 'kreves'
+          ? krevKontraktsrolle(full.datalag, full.catenda, t)
+          : krav === 'lesing'
+            ? krevLesing(full.datalag, full.catenda, t)
+            : null
     );
-    const krav = 'kontraktsrolle' in tilgang ? tilgang.kontraktsrolle : undefined;
-    const side =
-      krav === 'kreves'
-        ? await krevKontraktsrolle(full.datalag, full.catenda, prosjekt)
-        : krav === 'lesing'
-          ? await krevLesing(full.datalag, full.catenda, prosjekt)
-          : null;
     if ('feil' in innhold) throw innhold.feil;
     // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
     const kropp = innhold.verdi as Record<string, unknown>;

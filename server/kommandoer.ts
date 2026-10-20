@@ -178,13 +178,14 @@ async function lesKvittering(
 /**
  * Saken fra kvitteringen for kommandoen, eller `null` når kommandoen ikke er skrevet.
  * Kvitteringen gjelder aktøren og prosjektet, ikke siden eller teamet, så et nytt forsøk
- * får saken selv om forfatterens side eller team er endret siden (#963).
+ * får saken selv om forfatterens side eller team er endret siden (#963). Siden står i
+ * konteksten bare fordi lesefilteret krever den (#1056).
  *
  * @throws KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst
  */
 export async function kvittertSak(
   pool: Pool,
-  kontekst: Pick<Kontekst, 'aktor' | 'prosjekt'>,
+  kontekst: Pick<Kontekst, 'aktor' | 'prosjekt' | 'side'>,
   kommando: Kommando
 ): Promise<string | null> {
   try {

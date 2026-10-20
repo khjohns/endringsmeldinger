@@ -73,8 +73,13 @@ describe.skipIf(!TESTBASE_URL)('lesingen av vedleggene i skrivingen', () => {
   });
 
   const journal = async (sakId: string) =>
-    (await lesSaken(o.datalag.kjoeretid.pool, { aktor: o.te.id, prosjekt: o.prosjekt.id }, sakId))
-      .journal;
+    (
+      await lesSaken(
+        o.datalag.kjoeretid.pool,
+        { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
+        sakId
+      )
+    ).journal;
 
   async function lastOpp(bruker: Testbruker, sakId: string, filnavn: string): Promise<string> {
     const svar = await fetch(`${server.url}/api/kjerne/saker/${sakId}/vedlegg`, {
