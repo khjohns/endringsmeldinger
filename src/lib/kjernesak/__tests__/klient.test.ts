@@ -1,10 +1,9 @@
-/** Klienten mot TS-serveren (#663) og bryteren for TS-stien. */
+/** Klienten mot TS-serveren (#663). */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { opprettSak, sendKommando } from '$lib/api/kjerne';
 
 import { setActiveProjectId } from '$lib/api/client';
-import { sakskilde, tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
 
 const ID = '0b9c4c64-3f0e-4a8e-9a43-2a4b8f7f6a10';
 
@@ -67,35 +66,5 @@ describe('klienten mot TS-serveren', () => {
       kommando_id: ID,
       kommando: { type: 'krav' },
     });
-  });
-});
-
-describe('bryteren for TS-stien i nye KOE-saker', () => {
-  it('er av uten verdi', () => {
-    expect(tsStienForNyeKoeSaker(undefined)).toBe(false);
-  });
-
-  it.each(['false', '1', 'TRUE', ''])('er av med verdien %j', (verdi) => {
-    expect(tsStienForNyeKoeSaker(verdi)).toBe(false);
-  });
-
-  it('er på med verdien "true"', () => {
-    expect(tsStienForNyeKoeSaker('true')).toBe(true);
-  });
-});
-
-describe('kilden saksruta leser saken fra (#665)', () => {
-  it('er Python når bryteren er av, uansett hva TS-serveren har sagt', () => {
-    expect(sakskilde(false, null)).toBe('python');
-    expect(sakskilde(false, true)).toBe('python');
-  });
-
-  it('venter på TS-serveren når bryteren er på, så Python ikke kalles for en TS-sak', () => {
-    expect(sakskilde(true, null)).toBe('venter');
-    expect(sakskilde(true, true)).toBe('ts');
-  });
-
-  it('er Python når bryteren er på og TS-serveren sier at saken ikke finnes der', () => {
-    expect(sakskilde(true, false)).toBe('python');
   });
 });

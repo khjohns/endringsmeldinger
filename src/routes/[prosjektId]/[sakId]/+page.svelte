@@ -2,11 +2,8 @@
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import { createCaseContextQuery } from '$lib/queries/caseContext';
-  import CaseWorkspace from '$lib/kontraktsbord/CaseWorkspace.svelte';
   import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-  import { sakskilde, tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
   import {
     readWorkspaceView,
     workspaceViewUrl,
@@ -15,18 +12,11 @@
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');
-  const bryterPaa = tsStienForNyeKoeSaker();
   // Leserens side kommer fra serveren (#705). Uten side viser Kontrollrommet ingen handling.
-  const kjernesak = $derived(bryterPaa ? lagKjernesak({ sakId, prosjektId }) : null);
-  const kilde = $derived(sakskilde(bryterPaa, kjernesak?.finnes ?? null));
-  // Uten saks-ID er Python-spørringen av, så den venter til TS-serveren har svart.
-  const query = createCaseContextQuery(
-    () => (kilde === 'python' ? sakId : ''),
-    () => prosjektId
-  );
+  const kjernesak = $derived(lagKjernesak({ sakId, prosjektId }));
 
   $effect(() => {
-    if (kjernesak && sakId) void kjernesak.last();
+    if (sakId) void kjernesak.last();
   });
   const storedRole =
     typeof localStorage !== 'undefined' && localStorage.getItem('koe-user-role') === 'TE'
@@ -45,22 +35,11 @@
       // eslint-disable-next-line svelte/no-navigation-without-resolve
       void goto(href, { noScroll: true, keepFocus: true });
   }
-
-  async function refetch() {
-    const result = await query.refetch();
-    if (result.error) throw result.error;
-    if (!result.data) throw new Error('Saken kunne ikke lastes.');
-    return result.data;
-  }
 </script>
 
-<svelte:head
-  ><title
-    >{(kilde === 'ts' ? kjernesak?.saksbilde?.tittel : query.data?.state.sakstittel) ?? 'Sak'} — Kontraktsbordet</title
-  ></svelte:head
->
+<svelte:head><title>{kjernesak.saksbilde?.tittel ?? 'Sak'} — Kontraktsbordet</title></svelte:head>
 
-{#if kilde === 'ts' && kjernesak?.saksbilde}
+{#if kjernesak.saksbilde}
   {#key prosjektId + ':' + sakId}
     <Kjernesakrom
       {kjernesak}
@@ -70,36 +49,17 @@
       onnewcase={() => goto(resolve('/[prosjektId]/ny', { prosjektId }))}
     />
   {/key}
-{:else if kilde === 'venter' && kjernesak?.feil}
+{:else if kjernesak.finnes === false}
+  <div class="case-message" role="alert">
+    <h1>Fant ikke saken</h1>
+    <p>Saken finnes ikke i prosjektet.</p>
+    <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
+  </div>
+{:else if kjernesak.feil}
   <div class="case-message" role="alert">
     <h1>Kunne ikke laste saken</h1>
     <p>{kjernesak.feil}</p>
-    <button onclick={() => kjernesak?.last()}>Prøv igjen</button>
-    <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
-  </div>
-{:else if kilde === 'python' && query.data}
-  {#key prosjektId + ':' + sakId}
-    {#if query.data.state.sakstype && query.data.state.sakstype !== 'standard'}
-      <div class="case-message" role="alert">
-        <h1>Endringsordre og forsering støttes ikke i denne versjonen</h1>
-        <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
-      </div>
-    {:else}
-      <CaseWorkspace
-        response={query.data}
-        projectId={prosjektId}
-        {refetch}
-        {view}
-        onviewchange={changeView}
-        onnewcase={() => goto(resolve('/[prosjektId]/ny', { prosjektId }))}
-      />
-    {/if}
-  {/key}
-{:else if kilde === 'python' && query.isError}
-  <div class="case-message" role="alert">
-    <h1>Kunne ikke laste saken</h1>
-    <p>{query.error?.message}</p>
-    <button onclick={() => query.refetch()}>Prøv igjen</button>
+    <button onclick={() => kjernesak.last()}>Prøv igjen</button>
     <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
   </div>
 {:else}

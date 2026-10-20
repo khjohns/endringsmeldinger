@@ -4,9 +4,9 @@
  * GET svarer med `part: "TE"`. Det prøver altså frontenden, ikke TS-serveren;
  * serveren prøves i `sprakprove/skrivesti/vederlagskrav.test.ts`.
  *
- * Med `vite dev` kjørende og bryteren på:
+ * Med `vite dev` kjørende:
  *
- *   VITE_KOE_TS_STIEN=true npx vite dev --port 5174 --strictPort
+ *   npx vite dev --port 5174 --strictPort
  *   node scripts/test_kjernesak_vederlag.ts [--url http://localhost:5174] [--utdata /tmp/kjernesak-skjermbilder]
  *
  * Feiler ved JavaScript-feil i siden, eller når knappen står igjen etter sendingen.

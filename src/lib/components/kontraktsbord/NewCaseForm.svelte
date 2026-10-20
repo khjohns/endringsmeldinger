@@ -12,8 +12,6 @@
   import { getKontraktsregel } from '$lib/constants/kontraktsregler.js';
   import type { ValgtHjemmel } from '$lib/types/hjemmel.js';
   import { onMount } from 'svelte';
-  import { submitEvent } from '$lib/api/events';
-  import { lastOppVedlegg, MAKS_VEDLEGG_BYTES } from '$lib/api/vedlegg';
   import { draftKey, loadDraft, saveDraft, clearDraft } from '$lib/utils/draft';
   import { createSubmission } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission();
@@ -24,7 +22,6 @@
   import ClaimLetterView from './ClaimLetterView.svelte';
   import { nyKommandoId, opprettSak } from '$lib/api/kjerne';
   import { sendForsoek, usikkertUtfall } from '$lib/kjernesak/forsoek';
-  import { tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
   import { brevhindring, lagKjernesak, type Ventende } from '$lib/kjernesak/kontekst.svelte';
   import {
     datofelt,
@@ -69,13 +66,11 @@
   let begrunnelseHtml = $state('');
   let charCount = $state(0);
   let draftReady = $state(false);
-  type Filvalg = { navn: string; storrelse: number; id?: string; fil?: File };
-  let filer = $state<Filvalg[]>([]);
-  let filfeil = $state('');
-  // TS-stien (B-17, #666): kjernens kategorier, datoen etter VS-U26 og endringsordren (GR-U16).
-  // Vedlegg og varslene etter § 34.1.2 og § 34.1.3 bygges før aktiveringen (arbeidsvalg i #655).
-  const tsStien = tsStienForNyeKoeSaker();
-  const kategorier = tsStien ? KJERNEKATEGORIER : KRAV_STRUKTUR_NS8407;
+  // Med prosjekt opprettes saken i TS (B-17, #666): kjernens kategorier, datoen etter VS-U26
+  // og endringsordren (GR-U16). Uten prosjekt er skjemaet demoen i /mockup, som viser
+  // kategoriene, varslene og brevet uten å skrive noe (#1025). Varslene i samme brev er #1036.
+  const demo = $derived(!prosjektId);
+  const kategorier = $derived(demo ? KRAV_STRUKTUR_NS8407 : KJERNEKATEGORIER);
   // Datoen står under feltet den er oppgitt for, så den følger ikke med til en annen betydning.
   let datoer = $state<Partial<Record<OppgittDato, string>>>({});
   let endringsordre = $state('');
@@ -83,31 +78,14 @@
     paalegg_mottatt: 'Når ble pålegget mottatt?',
     klar_over_forholdet: 'Når ble TE klar over forholdet?',
   };
-  const filutkast = () => filer.map(({ navn, storrelse, id }) => ({ navn, storrelse, id }));
-  function velgFiler(valgte: FileList | null) {
-    filfeil = '';
-    for (const fil of Array.from(valgte ?? [])) {
-      if (!fil.size || fil.size > MAKS_VEDLEGG_BYTES) {
-        filfeil = 'Hver fil må inneholde data og være høyst 15 MB.';
-        continue;
-      }
-      const mangler = filer.findIndex(
-        (v) => !v.id && !v.fil && v.navn === fil.name && v.storrelse === fil.size
-      );
-      if (mangler >= 0) filer[mangler] = { ...filer[mangler], fil };
-      else filer = [...filer, { navn: fil.name, storrelse: fil.size, fil }];
-    }
-  }
-  // Keep the case identity between retries if creating the basis fails after case creation.
   let createdCase = $state<{ id: string; version: number } | null>(null);
   // Opprettelsen og kravet med ID-en til svaret er sikkert, så et nytt forsøk, også
   // etter at siden er lastet på nytt, sender samme kommando med samme ID (#418).
   let ventendeOpprettelse = $state<{ kommandoId: string; kommando: unknown } | null>(null);
   let ventendeKrav = $state<Ventende | null>(null);
-  const dk = draftKey(tsStien ? 'kontraktsbord-ny-kjerne' : 'kontraktsbord-ny', prosjektId);
+  const dk = draftKey('kontraktsbord-ny-kjerne', prosjektId);
   const utkast = () => ({
     tittel,
-    datoOppdaget,
     datoer,
     endringsordre,
     valgtHjemmel,
@@ -115,15 +93,11 @@
     createdCase,
     ventendeOpprettelse,
     ventendeKrav,
-    varsler,
-    filer: filutkast(),
   });
   onMount(() => {
     if (prosjektId) {
       const draft = loadDraft<{
-        varsler?: VarselValg;
         tittel: string;
-        datoOppdaget: string;
         datoer?: Partial<Record<OppgittDato, string>>;
         endringsordre?: string;
         valgtHjemmel: ValgtHjemmel | null;
@@ -131,12 +105,9 @@
         createdCase: { id: string; version: number } | null;
         ventendeOpprettelse?: { kommandoId: string; kommando: unknown } | null;
         ventendeKrav?: Ventende | null;
-        filer?: Filvalg[];
       }>(dk);
       if (draft) {
-        varsler = draft.varsler ?? {};
         tittel = draft.tittel ?? '';
-        datoOppdaget = draft.datoOppdaget ?? '';
         datoer = draft.datoer ?? {};
         endringsordre = draft.endringsordre ?? '';
         valgtHjemmel = draft.valgtHjemmel ?? null;
@@ -145,7 +116,6 @@
         createdCase = draft.createdCase ?? null;
         ventendeOpprettelse = draft.ventendeOpprettelse ?? null;
         ventendeKrav = draft.ventendeKrav ?? null;
-        filer = draft.filer ?? [];
         hjemmelvelgerApen = !valgtHjemmel;
       }
     }
@@ -161,7 +131,7 @@
       ? 'Send varsel'
       : 'Send grunnlag'
   );
-  const kjernehjemmel = $derived(tsStien ? (valgtHjemmel?.hjemmel ?? null) : null);
+  const kjernehjemmel = $derived(demo ? null : (valgtHjemmel?.hjemmel ?? null));
   const kjernedato = $derived(
     kjernehjemmel && valgtHjemmel
       ? datofelt(valgtHjemmel.kontraktsforhold.kode, kjernehjemmel.kode)
@@ -169,21 +139,17 @@
   );
   const kjerneEo = $derived(!!kjernehjemmel && gjelderEndringsordre(kjernehjemmel.kode));
   const datoOppgitt = $derived(
-    tsStien
-      ? !!kjernehjemmel &&
+    demo
+      ? datoOppdaget.length > 0
+      : !!kjernehjemmel &&
           (!kjernedato || !!datoer[kjernedato]) &&
           (!kjerneEo || endringsordre.trim().length > 0)
-      : datoOppdaget.length > 0
   );
   // #816: med et forsøk med usikkert utfall låses skjemaet, så «Prøv igjen» sender det TE så.
-  const venter = $derived(tsStien && Boolean(ventendeOpprettelse || ventendeKrav));
+  const venter = $derived(!demo && Boolean(ventendeOpprettelse || ventendeKrav));
   const iKontroll = $derived(Boolean(letterConfirmation.letter) || Boolean(brevkontroll.letter));
   const canSend = $derived(
-    tittel.trim().length >= 5 &&
-      datoOppgitt &&
-      valgtHjemmel !== null &&
-      charCount >= 10 &&
-      filer.every((v) => v.id || v.fil)
+    tittel.trim().length >= 5 && datoOppgitt && valgtHjemmel !== null && charCount >= 10
   );
 
   function groupMatches(group: Kontraktsforhold): boolean {
@@ -222,8 +188,6 @@
    * (oppdragsgiver 16.10, avgjørelse 1 i #666).
    */
   async function sendTilKjernen(hovedkategori: string, underkategori: string) {
-    // Uten prosjekt, som i demoen i /mockup, opprettes ingen sak. Brevet har saksnummeret,
-    // så det kan heller ikke vises.
     if (!prosjektId) throw new Error('Saken kan ikke opprettes uten prosjekt.');
     const kommando = grunnlagskrav({
       hovedkategori,
@@ -291,7 +255,7 @@
       sendLabel: ventendeOpprettelse || ventendeKrav ? 'Prøv igjen' : 'Se brev og send',
       send: () => {
         if (!canSend || !valgtHjemmel) return;
-        if (tsStien) {
+        if (!demo) {
           const { kontraktsforhold, hjemmel } = valgtHjemmel;
           if (!hjemmel) return;
           void submission.run(
@@ -303,95 +267,45 @@
           );
           return;
         }
-        const project = prosjektId;
+        // Demoen viser brevet og skriver ingenting.
         const selection = valgtHjemmel;
         const basisData = {
           tittel: tittel.trim(),
-          hovedkategori: selection.kontraktsforhold.kode,
-          underkategori: selection.hjemmel?.kode ?? null,
-          dato_oppdaget: datoOppdaget,
           beskrivelse: begrunnelseHtml.trim(),
           varsler: buildKonsekvensVarsler(varsler, selection.kontraktsforhold.kode, tittel),
         };
-        void submission.run(
-          async () => {
-            const section = (tittel: string, tekst: string) => ({
-              tittel,
-              originalTekst: tekst,
-              redigertTekst: tekst,
-            });
-            const sender =
-              projectStore.current?.settings.contract?.totalentreprenor_navn ?? 'Totalentreprenør';
-            const recipient =
-              projectStore.current?.settings.contract?.byggherre_navn ?? 'Byggherre';
-            const id = createdCase?.id ?? crypto.randomUUID();
-            const brev = await letterConfirmation.show({
-              tittel: `${sendLabel === 'Send varsel' ? 'Varsel om endring' : 'Grunnlag'} – ${basisData.tittel}`,
-              avsender: { navn: sender, rolle: 'TE' },
-              mottaker: { navn: recipient, rolle: 'BH' },
-              referanser: {
-                sakId: id,
-                sakstittel: basisData.tittel,
-                eventId: 'utkast',
-                sporType: 'grunnlag',
-                dato: formatDateNorwegian(new Date().toISOString()),
-              },
-              seksjoner: {
-                innledning: section('Innledning', `Vi varsler med dette om ${basisData.tittel}.`),
-                begrunnelse: section(
-                  'Begrunnelse',
-                  [letterText(basisData.beskrivelse), ...Object.values(basisData.varsler)].join(
-                    '\n\n'
-                  ) + (filer.length ? `\n\nVedlegg\n${filer.map((v) => v.navn).join('\n')}` : '')
-                ),
-                avslutning: section('Avslutning', `Med vennlig hilsen\n${sender}`),
-              },
-            });
-            if (!project) return;
-            if (!createdCase) {
-              const result = await submitEvent(
-                id,
-                'sak_opprettet',
-                {
-                  prosjekt_id: project,
-                  sakstype: 'standard',
-                  sakstittel: basisData.tittel,
-                },
-                { projectId: project, expectedVersion: 0 }
-              );
-              if (!result.success) throw new Error(result.message ?? 'Kunne ikke opprette saken.');
-              createdCase = { id, version: result.new_version ?? 1 };
-              saveDraft(dk, utkast());
-            }
-            // Upload only after creation, before the basis event. Keep each receipt
-            // immediately so a later failed upload or submission can reuse it.
-            for (let i = 0; i < filer.length; i++) {
-              const valgt = filer[i];
-              if (valgt.id) continue;
-              if (!valgt.fil)
-                throw new Error(`Velg ${valgt.navn} på nytt eller fjern den fra innsendingen.`);
-              const uploaded = await lastOppVedlegg(createdCase.id, valgt.fil, project);
-              filer[i] = { navn: uploaded.navn, storrelse: uploaded.storrelse, id: uploaded.id };
-              saveDraft(dk, utkast());
-            }
-            const result = await submitEvent(
-              createdCase.id,
-              'grunnlag_opprettet',
-              { ...basisData, brev, vedlegg_ids: filer.map((v) => v.id!) },
-              {
-                projectId: project,
-                expectedVersion: createdCase.version,
-              }
-            );
-            if (!result.success) throw new Error(result.message ?? 'Kunne ikke lagre grunnlaget.');
-            draftReady = false;
-            clearDraft(dk);
-          },
-          () => {
-            if (createdCase) oncreated?.(createdCase.id);
-            onsend();
-          }
-        );
+        void submission.run(async () => {
+          const section = (tittel: string, tekst: string) => ({
+            tittel,
+            originalTekst: tekst,
+            redigertTekst: tekst,
+          });
+          const sender =
+            projectStore.current?.settings.contract?.totalentreprenor_navn ?? 'Totalentreprenør';
+          const recipient = projectStore.current?.settings.contract?.byggherre_navn ?? 'Byggherre';
+          await letterConfirmation.show({
+            tittel: `${sendLabel === 'Send varsel' ? 'Varsel om endring' : 'Grunnlag'} – ${basisData.tittel}`,
+            avsender: { navn: sender, rolle: 'TE' },
+            mottaker: { navn: recipient, rolle: 'BH' },
+            referanser: {
+              sakId: crypto.randomUUID(),
+              sakstittel: basisData.tittel,
+              eventId: 'utkast',
+              sporType: 'grunnlag',
+              dato: formatDateNorwegian(new Date().toISOString()),
+            },
+            seksjoner: {
+              innledning: section('Innledning', `Vi varsler med dette om ${basisData.tittel}.`),
+              begrunnelse: section(
+                'Begrunnelse',
+                [letterText(basisData.beskrivelse), ...Object.values(basisData.varsler)].join(
+                  '\n\n'
+                )
+              ),
+              avslutning: section('Avslutning', `Med vennlig hilsen\n${sender}`),
+            },
+          });
+        }, onsend);
       },
     });
   });
@@ -436,39 +350,6 @@
       </p>
     </header>
 
-    {#if prosjektId && !tsStien}
-      <FormSection title="Vedlegg (valgfritt)">
-        <label for="new-case-files"
-          >Velg filer som skal følge innsendingen (maks 15 MB per fil)</label
-        >
-        <input
-          id="new-case-files"
-          type="file"
-          multiple
-          disabled={submission.pending}
-          onchange={(e) => {
-            velgFiler(e.currentTarget.files);
-            e.currentTarget.value = '';
-          }}
-        />
-        {#each filer as fil, i (fil)}
-          <p>
-            {fil.navn}
-            {#if !fil.id && !fil.fil}<span role="alert">
-                – velg filen på nytt eller fjern den.</span
-              >{/if}
-            <button
-              class="change-button"
-              disabled={submission.pending}
-              onclick={() => (filer = filer.filter((_, index) => index !== i))}
-              >Fjern {fil.navn}</button
-            >
-          </p>
-        {/each}
-        {#if filfeil}<p role="alert">{filfeil}</p>{/if}
-      </FormSection>
-    {/if}
-
     {#if venter}
       <p role="status" class="venter">
         Et forsøk venter på svar. Skjemaet er låst, og «Prøv igjen» sender det som ble sendt.
@@ -488,7 +369,7 @@
           <span class="field-help">Bruk en tittel som gjør saken lett å kjenne igjen.</span>
         </div>
 
-        {#if tsStien}
+        {#if !demo}
           {#if kjernedato}
             {@const felt = kjernedato}
             {@render datofeltet(
@@ -624,7 +505,7 @@
       </FormSection>
     </div>
 
-    {#if !tsStien}
+    {#if demo}
       <KonsekvensVarsler
         bind:value={varsler}
         hovedkategori={valgtHjemmel?.kontraktsforhold.kode ?? ''}

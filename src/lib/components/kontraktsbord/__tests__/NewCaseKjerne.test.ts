@@ -14,7 +14,6 @@ import { ApiError } from '$lib/api/client';
 import { hentKjernesak, opprettSak, sendKommando } from '$lib/api/kjerne';
 import { setDraftOwner } from '$lib/utils/draftOwner';
 
-vi.mock('$lib/kjernesak/bryter', () => ({ tsStienForNyeKoeSaker: () => true }));
 vi.mock('$lib/api/kjerne', async (original) => ({
   ...(await original<typeof import('$lib/api/kjerne')>()),
   opprettSak: vi.fn(),
@@ -239,7 +238,7 @@ describe('skjemaet for ny sak på TS-stien', () => {
     expect(opprettSak).toHaveBeenCalledOnce();
   });
 
-  it('uten prosjekt, som i demoen i /mockup, opprettes ingen sak, og TE får vite hvorfor', async () => {
+  it('uten prosjekt, som i demoen i /mockup, vises brevet og ingen sak opprettes (#1025, punkt 3)', async () => {
     let actions: { canSend: boolean; send: () => void } | undefined;
     const complete = vi.fn();
     const user = userEvent.setup();
@@ -252,7 +251,7 @@ describe('skjemaet for ny sak på TS-stien', () => {
     await user.type(screen.getByLabelText('Kort tittel på forholdet'), 'Endret fundament');
     await user.type(screen.getByPlaceholderText('Søk etter forhold eller paragraf'), 'irregulær');
     await user.click(screen.getByRole('button', { name: /Irregulær endring/ }));
-    await fireEvent.input(await screen.findByLabelText('Når ble pålegget mottatt?'), {
+    await fireEvent.input(await screen.findByLabelText('Når ble forholdet oppdaget?'), {
       target: { value: '2026-09-01' },
     });
     (screen.container.querySelector('.tiptap') as HTMLElement).focus();
@@ -260,10 +259,9 @@ describe('skjemaet for ny sak på TS-stien', () => {
     await waitFor(() => expect(actions?.canSend).toBe(true));
 
     actions!.send();
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Saken kan ikke opprettes uten prosjekt.'
-    );
-    expect(complete).not.toHaveBeenCalled();
+    await user.click(await screen.findByRole('checkbox', { name: /kontrollert brevet/ }));
+    await user.click(screen.getByRole('button', { name: 'Send til byggherren' }));
+    await waitFor(() => expect(complete).toHaveBeenCalledOnce());
     expect(opprettSak).not.toHaveBeenCalled();
     expect(sendKommando).not.toHaveBeenCalled();
   });
