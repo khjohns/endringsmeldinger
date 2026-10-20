@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `d829e7ad671c1d2de72769a1ce867b0358a3a6e45a80eeb080589cdf182a0417`
+Kontrollsum (SHA-256 over utdraget visningen leser): `ce9044daf5a3785a7b3d7a767289b589487aea4d07e9ed5e60a23afc6810853b`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -128,7 +128,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 11.10, oppdragsgiver (#369, #410)
 
-**Følge:** Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V4 b, «Hva endringen går ut på, når TEs varsel ikke beskriver pålegget»). Utvider [GR-U13](#gr-u13): beskrivelsen er det endringsordren i [GR-U14](#gr-u14) viser til som hva endringen går ut på (§ 31.3). Varselet etter § 32.2 står i TEs grunnlagskrav ([LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4), punkt 1). Et registrert varsel kan stå uten beskrivelse; det følger av alternativet selv («må varsle utenfor appen og registrere varselet»), og [GR-U14](#gr-u14) har ordlyden for et registrert krav. Ikke bygget
+**Følge:** Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V4 b, «Hva endringen går ut på, når TEs varsel ikke beskriver pålegget»). Utvider [GR-U13](#gr-u13): beskrivelsen er det endringsordren i [GR-U14](#gr-u14) viser til som hva endringen går ut på (§ 31.3). Varselet etter § 32.2 står i TEs grunnlagskrav ([LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4), punkt 1). Et registrert varsel kan stå uten beskrivelse; det følger av alternativet selv («må varsle utenfor appen og registrere varselet»), og [GR-U14](#gr-u14) har ordlyden for et registrert krav. Ikke bygget Bygget, kontrollert 20.10 (#417): et varsel fra TE etter § 32.2 uten beskrivelse, eller med bare mellomrom, avvises med BESKRIVELSE_MANGLER (`kravetsUtdypning` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts`, og TE-skjemaet sender beskrivelsen (`src/lib/kjernesak/grunnlagskrav.ts`). Unntaket for et registrert varsel er ikke kontrollert.
 
 **Regelrader:** [GR-34](#rad-gr-34), [GR-35](#rad-gr-35)
 
