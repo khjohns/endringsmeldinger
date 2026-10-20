@@ -284,6 +284,15 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       expect(lest).toMatchObject({ guid: topic, title: tittel, topic_type: TOPICTYPE });
     });
 
+    // topic-api-openapi.yaml, GET …/topics/{guid}: `bimsync_creation_author.user` er en
+    // `user-ref`. Behandlingen av innboksen kjenner topicene integrasjonen har laget, på at
+    // forfatteren er lik `egenId()` (#741 punkt 17, #963).
+    it('B1: topic gir topicen opprettTopic laget, med integrasjonen som forfatter i egenId-formen', async () => {
+      const paa = krev(topic, 'topicen fra B1');
+      const lest = await oauth.topic(board, paa, token);
+      expect(lest).toMatchObject({ type: TOPICTYPE, forfatter: await oauth.egenId(token) });
+    });
+
     // topic-api-openapi.yaml tillater `guid` i POST …/topics. Om en topic kan lages
     // idempotent med en GUID klienten velger (#778). Svaret på en gjentatt GUID står ikke
     // i øyeblikksbildet; testen fastholder det Catenda svarer i dag (400).
