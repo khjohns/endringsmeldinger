@@ -34,11 +34,14 @@ nærmer seg grensene for orkestratoren i «Kontekst i arbeidsøktene». Da gjør
    i et nytt issue med sporets milepæl eller etikett: hva som er merget, de
    åpne PR-ene med økt-ID, de neste issuene i rekkefølge, avgjørelsene fra
    oppdragsgiver ordrett eller med lenke, og filene det parallelle sporet
-   arbeider i.
+   arbeider i. Har bølgeissuet en rekkefølge i beskrivelsen, begynner
+   overleveringen med trinnet runden står på, og den sier hvorfor et issue
+   eventuelt er tatt fra et senere trinn. Rekkefølgen endres bare av
+   oppdragsgiver, og da i beskrivelsen (oppdragsgiver 20.10, #1065).
 3. Sletter sjekkene sine.
 4. Starter neste orkestrator med `create_session`. Oppdraget er kort: les
    `AGENTS.md`, denne skillen og overleveringen, og hva sporet omfatter. Det
-   gjengir ikke historikken.
+   gjengir ikke historikken. Har bølgeissuet en prompt, brukes den ordrett.
 5. Sier til oppdragsgiver hva som er merget, og gir lenken til overleveringen
    og ID-en til den nye økta.
 
