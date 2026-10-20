@@ -2408,7 +2408,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       ['i_tide: v.hovedkrav_varslet_i_tide,', 'i_tide: v.hovedkrav_varslet_i_tide === true,'],
     ],
-    mal: ['kontrollsak: grunnlaget godkjent gir ingen prinsipal grunn fra grunnlaget', 'F-MM-B1'],
+    mal: ['kontrollsak: grunnlaget godkjent gir ingen prinsipal grunn fra grunnlaget'],
   },
   {
     id: 'F284',
