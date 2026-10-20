@@ -31,7 +31,7 @@ MAPPER = ("database/migrasjoner", "supabase/migrations")
 FILNAVN = re.compile(r"^(\d{14})_[a-z0-9_]+\.sql$")
 SQLSERVER = "database/migrasjoner"
 # Den siste versjonen i database/migrasjoner/ før første ekte sak. None til den
-# er satt; da kontrolleres bare filene som er markert …_tillegg.sql.
+# er satt; da kontrolleres bare filene som er markert …_tillegg.sql (#1091).
 FOERSTE_EKTE_SAK: str | None = None
 
 

@@ -63,6 +63,8 @@ describe('migrasjonsavvik', () => {
     };
     const fjerning = { ...tillegg, filnavn: '20260103000000_ny_fjerning.sql' };
     expect(migrasjonsavvik([anvendt(a), anvendt(b), tillegg], [a, b])).toEqual([]);
+    const bareMarkering = { ...tillegg, filnavn: '20260103000000_tillegg.sql' };
+    expect(migrasjonsavvik([anvendt(a), anvendt(b), bareMarkering], [a, b])).toEqual([]);
     expect(migrasjonsavvik([anvendt(a), anvendt(b), fjerning], [a, b])).toEqual([
       `${fjerning.filnavn} er anvendt, men finnes ikke i mappa.`,
     ]);

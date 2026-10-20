@@ -40,7 +40,7 @@ const FILNAVN = /^(\d{14})_[a-z0-9_]+\.sql$/;
  * starte mot en base der den er anvendt; at fila bare legger til, kontrollerer
  * `.github/scripts/tilleggsregel.py` i CI.
  */
-export const BARE_TILLEGG = /^\d{14}_[a-z0-9_]*_tillegg\.sql$/;
+export const BARE_TILLEGG = /^\d{14}_(?:[a-z0-9_]*_)?tillegg\.sql$/;
 // `\r` er med for en `GO`-linje som slutter på en enslig CR (#577).
 const GO = /^[ \t\r]*GO[ \t\r]*(?:--[^\n]*)?$/i;
 /** `GO` fulgt av noe annet enn et navn, som `GO 5`, `GO;` og `GO` med en blokkommentar. */

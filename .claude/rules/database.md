@@ -65,10 +65,13 @@ utgivelsen etter, i en fil som heter `…_fjerning.sql`. Forrige utgivelse start
 mot en base med en nyere `_tillegg`-fil den ikke har (`vurder` i
 `server/migrering.ts`), så en tilbakerulling ett trinn trenger ingen
 gjenoppretting av basen. En nyere `_fjerning`-fil eller en umarkert fil stopper
-oppstarten, som før. Migrasjonsvakten kontrollerer at en ny `_tillegg`-fil bare
+oppstarten, som før. En utgivelse med en `_fjerning`-fil kan derfor bare rulles
+tilbake ved å gjenopprette basen, så fjerningene legges i egne utgivelser uten
+annen endring ([oppdragsgiver 20.10](https://github.com/khjohns/endringsmeldinger/issues/1057#issuecomment-6297925264)). Migrasjonsvakten kontrollerer at en ny `_tillegg`-fil bare
 legger til, etter formene i `.github/scripts/tilleggsregel.py`, og avviser det
 den ikke kan avgjøre; fra versjonen i `FOERSTE_EKTE_SAK` i
-`.github/scripts/migrasjonsvakt.py` krever den at hver ny fil er markert. At den
+`.github/scripts/migrasjonsvakt.py` krever den at hver ny fil er markert.
+Konstanten settes i PR-en som tar basen i bruk for første ekte sak (#1091). At den
 forrige utgivelsen ikke lenger bruker det en `_fjerning`-fil fjerner, ser ikke
 vakten; det må reviewet kontrollere. Markeringen står i historikken, så den
 endres ikke for en anvendt fil. De eksisterende migrasjonene er ikke markert og

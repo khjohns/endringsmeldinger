@@ -46,7 +46,7 @@ GRANT EXECUTE ON koe_api.ny TO koe_runtime;
 ALTER TABLE koe.hendelse ADD merknad nvarchar(200) NULL;
 ALTER TABLE koe.hendelse ADD
   teller int NOT NULL CONSTRAINT hendelse_teller DEFAULT 0,
-  kilde nvarchar(20) NULL CONSTRAINT hendelse_kilde CHECK (kilde <> N'');
+  kilde nvarchar(20) NULL;
 """,
     "fremmednøkkel fra en kolonne fila legger til": """
 CREATE TABLE koe.nytt_vern (id int NOT NULL PRIMARY KEY);
@@ -55,6 +55,7 @@ GO
 ALTER TABLE koe.toemmingsvern ADD CONSTRAINT vern_ny FOREIGN KEY (nytt_vern) REFERENCES koe.nytt_vern (id);
 """,
     "tekst med forbudte ord": "INSERT INTO koe.ny (id) VALUES (N'DROP TABLE koe.hendelse');\n",
+    "kolonner med navn som er nøkkelord": "CREATE TABLE koe.ny (a int, [close] int, [state] int);\n",
 }
 
 AVVIST = {
@@ -85,6 +86,32 @@ AVVIST = {
         "ALTER TABLE koe.hendelse ADD FOREIGN KEY (sak_id) REFERENCES koe.sak_metadata (sak_id);",
         "en fremmednøkkel på koe.hendelse"),
     "ukjent setning": ("IF 1 = 1 SELECT 1;", "setningen som begynner med «IF"),
+    "DROP etter GRANT uten ;": (
+        "GRANT SELECT ON koe.ny TO koe_runtime\nDROP TABLE koe.hendelse;", "GRANT i en form"),
+    "DELETE etter et alias som heter AFTER": (
+        "INSERT INTO koe.ny (x) SELECT 1 AS AFTER DELETE FROM koe.hendelse;", "DELETE"),
+    "ny setning uten ; som ikke er en av formene": (
+        "INSERT INTO koe.ny VALUES (1)\nENABLE TRIGGER koe.t ON koe.hendelse;", "ENABLE etter starten"),
+    "unik kolonne på en eksisterende tabell": (
+        "ALTER TABLE koe.hendelse ADD c int NULL CONSTRAINT u UNIQUE;", "en kolonne på koe.hendelse med en skranke"),
+    "CHECK på en ny kolonne i en eksisterende tabell": (
+        "ALTER TABLE koe.hendelse WITH NOCHECK ADD c int NULL CONSTRAINT k CHECK (ISNULL(c, 0) > 5);",
+        "en kolonne på koe.hendelse med en skranke"),
+    "fremmednøkkel fra en kolonne med DEFAULT": (
+        "ALTER TABLE koe.hendelse ADD c int NULL DEFAULT 0;\n"
+        "ALTER TABLE koe.hendelse ADD CONSTRAINT fk FOREIGN KEY (c) REFERENCES koe.x (id);",
+        "en fremmednøkkel på koe.hendelse fra en kolonne med DEFAULT"),
+    "beregnet kolonne på en eksisterende tabell": (
+        "ALTER TABLE koe.hendelse ADD d AS (1 / 0) PERSISTED;", "en beregnet kolonne"),
+    "DENY etter GRANT uten ;": (
+        "GRANT CONNECT TO a DENY SELECT ON koe.hendelse TO koe_runtime;", "GRANT i en form"),
+    "REVOKE etter GRANT uten ;": (
+        "GRANT CONNECT TO a REVOKE SELECT ON SCHEMA::koe TO koe_runtime;", "GRANT i en form"),
+    "unik indeks på en eksisterende tabell med navn i tre deler": (
+        "CREATE TABLE db.koe.x (a int);\nCREATE UNIQUE INDEX u ON db.koe.hendelse (event_id);",
+        "en unik indeks på db.koe.hendelse"),
+    "indeks som erstatter en eksisterende": (
+        "CREATE INDEX hendelse_idx ON koe.hendelse (sak_id) WITH (DROP_EXISTING = ON);", "DROP_EXISTING"),
 }
 
 
