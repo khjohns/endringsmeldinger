@@ -106,9 +106,16 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       datalag: o.datalag.kjoeretid.pool,
       catenda: {
         async opprettTopic(boardId, topic) {
-          merkEndring();
           kall_.push({ boardId, topic });
-          return svar();
+          try {
+            const id = await svar();
+            merkEndring();
+            return id;
+          } catch (feil) {
+            // Som `forespoersel`: en endring Catenda avviser, setter ikke flagget (#921).
+            if (!(feil instanceof CatendaAvvisning)) merkEndring();
+            throw feil;
+          }
         },
       },
       dokumenter: utenDokumenter,
