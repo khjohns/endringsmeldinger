@@ -1,12 +1,11 @@
-# #1057 del 1: en migrasjon som er merget, endres ikke, og en ny migrasjon kommer
-# etter alle som er merget. Kontrollen står i .github/scripts/migrasjonsvakt.py,
-# som også kan kjøres lokalt med en BASE.
+# #1057 del 1. Hva vakten kontrollerer, står i .github/scripts/migrasjonsvakt.py.
 #
 # Basen velges som i regelversjon.yml (#870): på en PR er BASE tuppen av
-# basegrenen når jobben kjører, med PR-en flettet inn, så en ny kjøring ser en
-# migrasjon en annen PR har merget i mellomtiden. Ved hver push til main
-# kontrolleres pushen mot tuppen før den, fordi GitHub ikke kjører PR-en på nytt
-# når basen flytter seg.
+# basegrenen når jobben kjører, og HEAD er PR-en flettet inn i den, så en ny
+# kjøring ser en migrasjon en annen PR har merget i mellomtiden. Ved hver push
+# til main er BASE tuppen før pushen, fordi GitHub ikke kjører PR-en på nytt når
+# basen flytter seg.
+
 name: Migrasjoner
 
 # Ikke på utkast (#390), som ci.yml.

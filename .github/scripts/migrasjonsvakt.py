@@ -11,9 +11,9 @@ Vakten sammenlikner derfor HEAD med BASE i git, for hver mappe i MAPPER:
   anvende den på en base som har den høyeste;
 - ingen to filer i HEAD har samme versjon.
 
-Lokalt: python3 .github/scripts/migrasjonsvakt.py <BASE>. I CI er BASE tuppen
-av basegrenen med PR-en flettet inn, eller tuppen før pushen til main, som i
-regelversjon.yml (#870).
+Lokalt: python3 .github/scripts/migrasjonsvakt.py <BASE>, der BASE er tuppen
+av basegrenen uten endringene som skal prøves. Hvordan CI velger BASE, står i
+.github/workflows/migrasjoner.yml.
 """
 
 import re
@@ -28,7 +28,7 @@ FILNAVN = re.compile(r"^(\d{14})_[a-z0-9_]+\.sql$")
 def filer(ref: str, mappe: str) -> dict[str, str]:
     """Filnavn til blob-sum for filene rett under `mappe` i `ref`."""
     ut = subprocess.run(
-        ["git", "ls-tree", "-z", ref, "--", f"{mappe}/"],
+        ["git", "ls-tree", "-z", "--full-tree", ref, "--", f"{mappe}/"],
         check=True, capture_output=True, text=True,
     ).stdout
     resultat = {}

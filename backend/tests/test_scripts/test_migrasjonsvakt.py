@@ -48,10 +48,10 @@ def repo(tmp_path: Path) -> tuple[Path, str]:
     return tmp_path, _git(tmp_path, "rev-parse", "HEAD")
 
 
-def _kjor(repo: Path, base: str) -> subprocess.CompletedProcess:
+def _kjor(repo: Path, base: str, fra_mappe: str = ".") -> subprocess.CompletedProcess:
     miljo = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     return subprocess.run(
-        [sys.executable, str(SKRIPT), base], cwd=repo, env=miljo,
+        [sys.executable, str(SKRIPT), base], cwd=repo / fra_mappe, env=miljo,
         capture_output=True, text=True,
     )
 
@@ -81,6 +81,12 @@ def test_endret_kommentar_i_merget_migrasjon_feiler(repo):
     sti, base = repo
     _skriv(sti, {f"{MSSQL}/20261020110000_b.sql": "-- kommentar rettet\nCREATE TABLE b (x int);\n"})
     _feiler_med(_kjor(sti, base), f"{MSSQL}/20261020110000_b.sql er merget, men er endret")
+
+
+def test_endret_merget_migrasjon_feiler_ogsaa_kjoert_fra_en_undermappe(repo):
+    sti, base = repo
+    _skriv(sti, {f"{MSSQL}/20261020110000_b.sql": "-- kommentar rettet\nCREATE TABLE b (x int);\n"})
+    _feiler_med(_kjor(sti, base, PG), f"{MSSQL}/20261020110000_b.sql er merget, men er endret")
 
 
 def test_endret_merget_migrasjon_i_supabase_feiler(repo):
