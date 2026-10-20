@@ -19,7 +19,8 @@
  * fristkravet (OV-U5, #828) og datoen for varselet (#968), og F301–F303
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
- * kravene er avgjort (OV-U7, #994). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
+ * og etter et frafall (#1050). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -1983,8 +1984,11 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'utledningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (GR-U24, #510, #580)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [[' && !s.trukket && !varAvgjort(u, spor);', ' && !s.trukket;']],
-    mal: ['svaret på versjon 2 avvises (GR-U24'],
+    endringer: [[' && !s.trukket && !sporetErLukket(u, spor)\n', ' && !s.trukket\n']],
+    mal: [
+      'svaret på versjon 2 avvises (GR-U24',
+      'SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav',
+    ],
   },
   {
     id: 'F236',
@@ -2669,7 +2673,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'visningen sier ikke at saken har brev sendt utenfor appen (OV-U10, #493)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
-      ["kode === 'alle_krav_avgjort' && registrertBrev", "kode === 'alle_krav_avgjort' && false"],
+      [
+        "kode === 'alle_krav_avgjort' && harRegistrertBrev(u)",
+        "kode === 'alle_krav_avgjort' && false",
+      ],
     ],
     mal: ['med et registrert brev sier visningen også'],
   },
@@ -2682,6 +2689,42 @@ const MUTASJONER: Mutasjon[] = [
       ['    KRAVSPOR.every((n) => u.spor[n].krav.length > 0 || u.spor[n].ingenKrav) &&\n', ''],
     ],
     mal: ['et spor uten krav hindrer ikke'],
+  },
+  {
+    id: 'F312',
+    feilklasse:
+      'et krav venter på svar og et svar står som ikke godtatt etter at avslaget av grunnlaget er godtatt (SK-01, #1050, #1067)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['  u.grunnlagAvvist || varAvgjort(u, spor);', '  varAvgjort(u, spor);']],
+    mal: [
+      'SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav',
+      'SK-01: når TE godtar avslaget av grunnlaget i forløp A',
+    ],
+  },
+  {
+    id: 'F313',
+    feilklasse: 'svarIkkeGodtatt leser ikke at sporet er lukket (SK-01, OV-U3, #1050)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ["    !sporetErLukket(u, spor) &&\n    !(spor === 'grunnlag'", "    !(spor === 'grunnlag'"],
+    ],
+    mal: ['SK-01: når TE godtar avslaget av grunnlaget i forløp A'],
+  },
+  {
+    id: 'F314',
+    feilklasse:
+      'et frafall står som et svar TE ikke har godtatt (GR-U9, arbeidsvalget 20.10 i #1050)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["    !(spor === 'grunnlag' && u.frafalt)\n", '    true\n']],
+    mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
+  },
+  {
+    id: 'F315',
+    feilklasse:
+      'tallet i svaret er ikke subsidiært når svaret på grunnlaget avviser ansvaret (MM-U9, MM-U28, #1050)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    s.subsidiaer.length > 0 ||\n    (s.gjeldendeSvar', '    (s.gjeldendeSvar']],
+    mal: ['SK-01: når TE godtar avslaget av grunnlaget i forløp A'],
   },
 ];
 
