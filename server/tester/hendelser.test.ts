@@ -564,7 +564,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     const { teller, avh: medNye } = medNyeMedlemmer([iTeamet, utenTeam], [iTeamet]);
     await somEier(
       `UPDATE koe.app_membership_sync
-          SET synced_at = CAST(DATETRUNC(millisecond, SYSUTCDATETIME()) AS datetime2(3))
+          SET synced_at = DATEADD(second, -5, CAST(DATETRUNC(millisecond, SYSUTCDATETIME()) AS datetime2(3)))
         WHERE project_id = @p`,
       { p: o.prosjekt.id }
     );
