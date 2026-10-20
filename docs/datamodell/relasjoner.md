@@ -281,6 +281,9 @@ erDiagram
     koe_dagmulktssats {
         nvarchar_100 prosjekt_id PK, FK
     }
+    koe_entra_tenant {
+        uniqueidentifier tenant_id PK
+    }
     koe_fullmakt {
         nvarchar_100 prosjekt_id PK, FK, UK
         uniqueidentifier bruker_id PK, FK
@@ -888,6 +891,7 @@ flowchart LR
 | `catenda_delivery_status` | — | — | C06 |
 | `koe.app_users` | — | — | — |
 | `koe.app_identities` | — | — | — |
+| `koe.entra_tenant` | — | — | — |
 | `koe.projects` | — | — | — |
 | `koe.app_project_memberships` | — | — | — |
 | `koe.catenda_contract_teams` | — | — | — |
