@@ -1484,3 +1484,53 @@ begrunnelse = "ID-en Catenda ga dokumentet eller referansen. Den finnes bare i C
 [[uten_relasjon]]
 kolonne = "koe.vedleggskvittering.catenda_id"
 begrunnelse = "ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda."
+
+[[relasjon]]
+fra = "koe.stillingstittel.rolle"
+til = "koe.rolle.rolle"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Rollen stillingstittelen gir (S3 i #831)."""
+funn = []
+belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`."
+
+[[relasjon]]
+fra = "koe.hr_kopi.bruker_id"
+til = "koe.app_users.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Brukeren HR-kopien gjelder. Synkroniseringen registrerer Entra-identiteten når den
+mangler (svaret 20.10 i #831)."""
+funn = []
+belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`."
+
+[[relasjon]]
+fra = "koe.hr_kopi.rolle"
+til = "koe.rolle.rolle"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Rollen personen har etter siste synkronisering, eller ingen."""
+funn = []
+belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`."
+
+[[uten_relasjon]]
+kolonne = "koe.hr_kopi.tenant_id"
+begrunnelse = """
+Tenanten i Entra ID bildet er hentet fra. Synkroniseringen krever at den står i
+`koe.entra_tenant`, men raden blir stående når driften fjerner tenanten, og blir
+da for gammel (GFK-U10)."""
+
+[[uten_relasjon]]
+kolonne = "koe.hr_kopi.oid"
+begrunnelse = """
+Personens `oid` i Entra ID, det samme som subjektet i `koe.app_identities` for
+Entra-identiteten til `bruker_id`."""
+
+[[uten_relasjon]]
+kolonne = "koe.hr_kopi.leder_oid"
+begrunnelse = """
+Lederens `oid` i Entra ID, fra `manager` i Graph. Lederen trenger ikke ha en rolle
+og har da ingen rad i HR-kopien."""

@@ -165,7 +165,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     throw new Error('Kallet ble ikke avvist');
   }
 
-  it('driftsrollen har bare EXECUTE på de fem prosedyrene, og kjøretiden har ingen rett i koe_drift', async () => {
+  it('driftsrollen har bare EXECUTE på de ti prosedyrene, og kjøretiden har ingen rett i koe_drift', async () => {
     const svar = await o.datalag.base.pool.request().query<{ rolle: string; rett: string }>(
       `SELECT USER_NAME(p.grantee_principal_id) AS rolle,
               CONCAT(p.permission_name, N' ', OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS rett
@@ -175,11 +175,16 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
            OR (p.class = 3 AND SCHEMA_NAME(p.major_id) = N'koe_drift')`
     );
     expect(svar.recordset.map((r) => `${r.rolle} ${r.rett}`).sort()).toEqual([
+      'koe_driftsrolle EXECUTE koe_drift.fjern_rolle',
+      'koe_driftsrolle EXECUTE koe_drift.fjern_stillingstittel',
+      'koe_driftsrolle EXECUTE koe_drift.koble_catenda_identitet',
       'koe_driftsrolle EXECUTE koe_drift.kontraktsteam',
       'koe_driftsrolle EXECUTE koe_drift.kontroller_bytte',
       'koe_driftsrolle EXECUTE koe_drift.registrer_entra_identitet',
       'koe_driftsrolle EXECUTE koe_drift.registrer_prosjekt',
       'koe_driftsrolle EXECUTE koe_drift.sett_kontraktsteam',
+      'koe_driftsrolle EXECUTE koe_drift.sett_rolle',
+      'koe_driftsrolle EXECUTE koe_drift.sett_stillingstittel',
     ]);
     // 229: EXECUTE er nektet.
     expect(
