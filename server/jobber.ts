@@ -7,7 +7,8 @@
  *
  * Jobbene er topicen for en ny sak og leveringen av et brev med vedleggene (L-1b, #371;
  * V-3, #790). Etter jobbene behandler løkka hendelsene i innboksen fra webhooken
- * (`server/hendelser.ts`, #819).
+ * (`server/hendelser.ts`, #819). Med en kilde for HR-dataene synkroniserer løkka også
+ * HR-kopien, høyst én gang per `HR_INTERVALL_MS` (`server/hrdata.ts`, #831).
  * Bare en gyldig lease kvitterer (invariant 7). Et usikkert eller varig avvist
  * utfall parkeres og logges, og driften starter jobben på nytt med `koe_api.start_jobb_paa_nytt`
  * (svaret «Driften» 18.10, #371). Prosedyrene for løkka kjører som
@@ -43,6 +44,7 @@ import {
   TopicenFinnesIkke,
   type Behandling,
 } from './hendelser.ts';
+import { HR_INTERVALL_MS, synkroniserHr, type HrKilde } from './hrdata.ts';
 import { LaasFeilet, LaasIkkeGitt } from './kommandoer.ts';
 import { MedlemskapetLaast } from './medlemskap.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
@@ -78,6 +80,8 @@ export interface Jobbavhengigheter {
   dokumenter: Dokumentleverandoer;
   /** Oppslagene for behandlingen av innboksen (W-1b.1, #819). Uten dem behandles den ikke. */
   innboks?: Innboksoppslag;
+  /** Kilden for HR-kopien (S-1c del 2, #831). Uten den synkroniseres den ikke. */
+  hr?: HrKilde;
   /** Adressen til saken i appen, for beskrivelsen i topicen (#741 punkt 15). */
   saksadresse: (prosjektId: string, sakId: string) => string;
   /** Tiden ventetiden i innboksen regnes fra; basens klokke når den mangler. */
@@ -479,6 +483,7 @@ export function startJobbkjoerer(
   let stoppet = false;
   let vekker: (() => void) | null = null;
   let vekket = false;
+  let nesteHr = 0;
   const vent = () =>
     new Promise<void>((ok) => {
       if (vekket || stoppet) return ok();
@@ -499,6 +504,15 @@ export function startJobbkjoerer(
         while (!stoppet && (await skrivEnKommentar(avh)));
       } catch (feil) {
         logg.error('Jobbkjøreren feilet:', feil);
+      }
+      if (!stoppet && avh.hr && Date.now() >= nesteHr) {
+        nesteHr = Date.now() + HR_INTERVALL_MS;
+        try {
+          const antall = await synkroniserHr(avh.datalag, avh.hr);
+          logg.info(`HR-kopien er synkronisert med ${antall} personer fra Graph.`);
+        } catch (feil) {
+          logg.error('HR-kopien ble ikke synkronisert:', feil);
+        }
       }
       await vent();
     }

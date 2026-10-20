@@ -66,6 +66,11 @@ const UTEN_TRIGGER: Record<string, string> = {
     'Driften setter opp og endrer fullmaktene (GFK-U1); en godkjenning fryser fullmakten den ble gitt med (#818).',
   dagmulktssats: 'Driften setter opp og endrer satsen, som fullmaktene (#818).',
   entra_tenant: 'Driften godkjenner og fjerner tenantene for innloggingen med Entra ID (#831).',
+  rolle: 'Driften registrerer og endrer grensen per rolle (GFK-U6, GFK-U11).',
+  stillingstittel:
+    'Driften registrerer og fjerner hvilken stillingstittel som gir hvilken rolle (S3 i #831).',
+  hr_kopi:
+    'Hver HR-synkronisering skriver over rollen, lederen og tidspunktet; bare det siste bildet gjelder (#831).',
   jobb: 'Leasen, tilstanden og neste forsøk endres av jobbkjøreren; hvert forsøk står i jobbforsoek (#741).',
   toemmingsvern:
     'Tabellen kan ikke ha rader (toemmingsvern_tom). Fremmednøklene fra den stopper TRUNCATE av tabellene de viser til (#582).',
