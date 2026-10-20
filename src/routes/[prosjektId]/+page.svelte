@@ -13,7 +13,9 @@
 <svelte:head><title>Krav og endringer — {projectMeta.name}</title></svelte:head>
 
 <ProjectOverview
-  cases={query.data?.cases ?? []}
+  saker={query.data?.saker ?? []}
+  noekkeltall={query.data?.noekkeltall ?? null}
+  part={query.data?.part ?? null}
   {prosjektId}
   prosjektNavn={projectMeta.name}
   entreprise={projectMeta.entreprise}

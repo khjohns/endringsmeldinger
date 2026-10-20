@@ -1,4 +1,4 @@
-import type { CaseListItem } from '$lib/types/api';
+import type { CaseListItem, Sakslinje } from '$lib/types/api';
 import type { Role, SporKey } from '$lib/components/kontraktsbord/types';
 
 export interface FollowUpTrack {
@@ -30,6 +30,53 @@ export interface FollowUpTask {
   mode: 'read' | 'form';
 }
 
+const SPORA = [
+  ['ansvar', 'grunnlag', 'Ansvar'],
+  ['vederlag', 'vederlag', 'Vederlag'],
+  ['frist', 'frist', 'Frist'],
+] as const;
+
+/**
+ * Det som foreligger i saken, per spor (MM-U29): for byggherren krav som venter på
+ * byggherrens svar, og for TE svar som TE ikke har godtatt. Teksten sier hva som
+ * foreligger, ikke at parten har plikt eller neste trekk. Lenken åpner sporet
+ * uten skjema.
+ */
+export function foreliggerISaken(linje: Sakslinje): FollowUpTask[] {
+  const tittel = linje.sakstittel ?? 'Uten tittel';
+  return SPORA.flatMap(([track, spor, navn]) => {
+    const oppgave = (role: Role, title: string, detail: string): FollowUpTask => ({
+      id: `${linje.sak_id}:${track}:${role}`,
+      caseId: linje.sak_id,
+      caseTitle: tittel,
+      track,
+      role,
+      title,
+      detail,
+      mode: 'read',
+    });
+    return [
+      ...(linje[spor].venter_paa_svar
+        ? [oppgave('BH', 'Kravet venter på byggherrens svar', `${navn}: kravet står uten svar.`)]
+        : []),
+      ...(linje[spor].svar_ikke_godtatt
+        ? [
+            oppgave(
+              'TE',
+              'Byggherrens svar er ikke godtatt',
+              `${navn}: byggherren har svart, og partene er ikke enige.`
+            ),
+          ]
+        : []),
+    ];
+  });
+}
+
+/**
+ * Speilet av Python-reglene. Bare reproduksjonene i
+ * `kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts` og `followUp.test.ts`
+ * bruker det; det fjernes med dem (#1051).
+ */
 export function caseFollowUp(item: CaseListItem): FollowUpTask[] {
   const state = item.oppfolging;
   if (

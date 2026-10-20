@@ -1,16 +1,15 @@
 import { expect, it } from 'vitest';
 import { projectActivity, activityHref, activityDate } from '../activity';
-import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
 
 it('orders across cases by timestamp and puts undated events last', () => {
   const cases = [
     {
-      ...mockSaksoversikt[0],
+      sakstittel: 'Endrede grunnforhold',
       sak_id: 'A',
       hendelser: [{ type: 'K' as const, dato: '2026-09-09T12:00:00Z', label: 'Først' }],
     },
     {
-      ...mockSaksoversikt[0],
+      sakstittel: 'Endrede grunnforhold',
       sak_id: 'B',
       hendelser: [
         { type: 'F' as const, dato: '2026-09-10T08:00:00Z', label: 'Sist' },

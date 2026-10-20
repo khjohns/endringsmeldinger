@@ -1,19 +1,20 @@
 <script lang="ts">
   import ProjectOverview from '$lib/components/saksoversikt/ProjectOverview.svelte';
-  import { demoOverviewCases, demoScenarioIds } from '$lib/mocks/projectOverview';
-  import { onMount } from 'svelte';
-  import { loadDemoOrders, demoOrderToCaseList } from '$lib/mocks/endringsordre';
-  let cases = $state(demoOverviewCases);
-  onMount(() => {
-    cases = [...demoOverviewCases, ...loadDemoOrders().map(demoOrderToCaseList)];
-  });
+  import {
+    demoAktivitet,
+    demoOversiktNoekkeltall,
+    demoSakslinjer,
+    demoScenarioIds,
+  } from '$lib/mocks/projectOverview';
 </script>
 
 <svelte:head><title>Forhåndsvisning — Aktivitetslogg</title></svelte:head>
 <div class="preview">
   <ProjectOverview
     activePage="activity"
-    {cases}
+    saker={demoSakslinjer}
+    noekkeltall={demoOversiktNoekkeltall}
+    aktivitet={demoAktivitet}
     demoScenarios={demoScenarioIds}
     prosjektId="P001"
     prosjektNavn="Operatunnelen — Parsell 3"

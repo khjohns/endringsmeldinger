@@ -1,16 +1,23 @@
-import type { CaseListItem } from '$lib/types/api';
+import type { CaseListHendelse } from '$lib/types/api';
 import type { Role, SporKey } from '$lib/components/kontraktsbord/types';
 
+/** Hendelsene i én sak. Bare demoen har dem; prosjektinngangen for aktiviteten er #1041. */
+export interface Aktivitetssak {
+  sak_id: string;
+  sakstittel: string | null;
+  hendelser: CaseListHendelse[];
+}
+
 const tracks: Record<string, SporKey> = { K: 'ansvar', V: 'vederlag', F: 'frist' };
-export function projectActivity(cases: CaseListItem[], query = '', track = '') {
+export function projectActivity(cases: Aktivitetssak[], query = '', track = '') {
   const needle = query.trim().toLocaleLowerCase('nb-NO');
   return cases
     .flatMap((item) =>
-      (item.hendelser ?? []).map((event, index) => ({
+      item.hendelser.map((event, index) => ({
         ...event,
         key: `${item.sak_id}:${event.id ?? index}`,
         caseId: item.sak_id,
-        caseTitle: item.cached_title || 'Uten tittel',
+        caseTitle: item.sakstittel || 'Uten tittel',
         timestamp: Number.isFinite(Date.parse(event.dato)) ? Date.parse(event.dato) : null,
       }))
     )

@@ -1,71 +1,34 @@
 <script lang="ts">
   import { ArrowRight } from 'lucide-svelte';
-  import type { CaseListItem } from '$lib/types/api';
+  import type { Sakslinje } from '$lib/types/api';
   import type { Role } from '$lib/components/kontraktsbord/types';
-  import { caseFollowUp, endringsordreVenterPaa, formalizedClaims, taskHref } from './overview';
+  import { foreliggerISaken } from '$lib/domain/followUp';
+  import { taskHref } from './overview';
   let {
-    cases,
+    saker,
     role,
     projectId,
     scenarios = {},
-    demo = false,
   }: {
-    cases: CaseListItem[];
+    saker: Sakslinje[];
     role: Role;
     projectId: string;
     scenarios?: Record<string, string>;
-    demo?: boolean;
   } = $props();
   let showAll = $state(false);
-  const formalized = $derived(formalizedClaims(cases));
-  const claimCases = $derived(
-    cases.filter((item) => item.sakstype === 'standard' && !formalized.has(item.sak_id))
-  );
-  const orderTasks = $derived(
-    cases
-      .filter((item) => item.sakstype === 'endringsordre')
-      .flatMap((item) => {
-        const venterPaa = endringsordreVenterPaa(item);
-        if (!venterPaa) return [];
-        const needsResponse = venterPaa === 'TE';
-        return [
-          {
-            id: `${item.sak_id}:endringsordre`,
-            caseId: item.sak_id,
-            caseTitle: item.cached_title ?? 'Uten tittel',
-            track: 'endringsordre' as const,
-            role: venterPaa,
-            title: needsResponse ? 'Les endringsordren' : 'Følg opp bestridt endringsordre',
-            detail: needsResponse
-              ? item.endringsordre_data?.relaterte_koe_saker.length
-                ? 'Åpne endringsordren for å se enigheten som er formalisert, vederlaget og fristen.'
-                : 'Åpne endringsordren for å se pålegget, vederlaget og fristen.'
-              : 'Entreprenøren har bestridt endringsordren. Les merknadene og vurder videre oppfølging.',
-          },
-        ];
-      })
-  );
-  const tasks = $derived(
-    [...claimCases.flatMap(caseFollowUp), ...orderTasks].filter((task) => task.role === role)
-  );
-  const missing = $derived(claimCases.filter((item) => !item.oppfolging).length);
+  const tasks = $derived(saker.flatMap(foreliggerISaken).filter((task) => task.role === role));
   const caseCount = $derived(new Set(tasks.map((task) => task.caseId)).size);
-  const labels = {
-    ansvar: 'Grunnlag',
-    vederlag: 'Vederlag',
-    frist: 'Frist',
-    endringsordre: 'Endringsordre',
-  };
+  const labels = { ansvar: 'Ansvar', vederlag: 'Vederlag', frist: 'Frist' };
 </script>
 
 <section class="work-queue" aria-labelledby="queue-title">
   <header>
     <div>
       <p class="eyebrow">{role === 'BH' ? 'Byggherrens' : 'Entreprenørens'} arbeidsliste</p>
-      <h2 id="queue-title">Dette trenger din oppfølging</h2>
+      <h2 id="queue-title">Det som foreligger i sakene</h2>
       <p class="queue-count" role="status">
         {tasks.length}
-        {tasks.length === 1 ? 'handling' : 'handlinger'} i {caseCount}
+        krav i {caseCount}
         {caseCount === 1 ? 'sak' : 'saker'}
       </p>
     </div>
@@ -76,10 +39,6 @@
         >{showAll ? 'Vis færre' : `Se alle ${tasks.length}`}<ArrowRight size={14} /></button
       >{/if}
   </header>
-  {#if missing}<p class="incomplete" role="status">
-      Oppfølgingsgrunnlaget mangler for {missing}
-      {missing === 1 ? 'sak' : 'saker'}. Listen kan være ufullstendig.
-    </p>{/if}
   {#each showAll ? tasks : tasks.slice(0, 3) as task (task.id)}
     <div class="task-row">
       <div class="task-copy">
@@ -90,17 +49,16 @@
       <div class="task-actions">
         <span class="track-label">{labels[task.track]}</span
         ><!-- taskHref bygger stien i domenelaget, som holdes fritt for $app-avhengigheter. --><!-- eslint-disable-next-line svelte/no-navigation-without-resolve --><a
-          href={task.track === 'endringsordre'
-            ? `${demo ? '/mockup/endringsordre' : `/${encodeURIComponent(projectId)}`}/${encodeURIComponent(task.caseId)}?rolle=${role}`
-            : taskHref(task, projectId, scenarios[task.caseId])}
-          aria-label={`${task.title} – ${task.caseId}`}>Følg opp <ArrowRight size={15} /></a
+          href={taskHref(task, projectId, scenarios[task.caseId])}
+          aria-label={`${task.title} – ${labels[task.track]} – ${task.caseId}`}
+          >Åpne kravet <ArrowRight size={15} /></a
         >
       </div>
     </div>
   {:else}<p class="empty">
-      {missing
-        ? 'Ingen handlinger funnet i sakene som kunne leses.'
-        : 'Ingen registrerte oppfølgingsbehov for denne rollen.'}
+      {role === 'BH'
+        ? 'Ingen krav venter på byggherrens svar.'
+        : 'Ingen svar fra byggherren står uten enighet.'}
     </p>{/each}
 </section>
 
@@ -211,16 +169,12 @@
     outline: 2px solid var(--color-wire-focus);
     outline-offset: 3px;
   }
-  .empty,
-  .incomplete {
+  .empty {
     padding: 16px 24px;
     margin: 0;
     color: var(--color-ink-muted);
     font-size: 12px;
     line-height: 1.6;
-  }
-  .incomplete {
-    background: var(--color-canvas);
   }
   @media (max-width: 700px) {
     header {

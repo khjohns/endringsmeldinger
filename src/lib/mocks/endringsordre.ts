@@ -1,7 +1,6 @@
 import type { CreateEORequest, EOCandidate } from '$lib/api/endringsordre';
-import { eoAmount, newEODraft, validateEODraft } from '$lib/domain/endringsordre';
+import { newEODraft, validateEODraft } from '$lib/domain/endringsordre';
 import { SCENARIOS } from '$lib/mockup/scenarios';
-import type { CaseListItem } from '$lib/types/api';
 import type { EndringsordreData } from '$lib/types/timeline';
 
 export interface DemoOrder {
@@ -137,34 +136,4 @@ export function issueDemoOrder(payload: CreateEORequest): {
     );
   }
   return { success: true, sak_id: order.sakId, catenda_synced: false };
-}
-
-export function demoOrderToCaseList({ sakId, data }: DemoOrder): CaseListItem {
-  const amount = eoAmount(data);
-  const days = data.frist_dager ?? (data.konsekvenser.fremdrift ? null : 0);
-  return {
-    sak_id: sakId,
-    sakstype: 'endringsordre',
-    cached_title: data.beskrivelse,
-    cached_status: data.status,
-    created_at: data.dato_utstedt ?? null,
-    created_by: data.utstedt_av ?? 'BH',
-    last_event_at: data.dato_utstedt ?? null,
-    cached_sum_krevd: amount,
-    cached_sum_godkjent: amount,
-    cached_dager_krevd: days,
-    cached_dager_godkjent: days,
-    cached_hovedkategori: 'ENDRING',
-    cached_underkategori: null,
-    cached_forsering_paalopt: null,
-    cached_forsering_maks: null,
-    endringsordre_data: {
-      status: data.status,
-      eo_nummer: data.eo_nummer,
-      relaterte_koe_saker: data.relaterte_koe_saker,
-      netto_belop: amount,
-      frist_dager: days,
-      er_estimat: data.er_estimat,
-    },
-  };
 }

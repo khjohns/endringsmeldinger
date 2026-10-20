@@ -1,58 +1,38 @@
 <script lang="ts">
-  import type { CaseListItem } from '$lib/types/api';
+  import type { Sakslinje } from '$lib/types/api';
   import Badge from '$lib/components/primitives/Badge.svelte';
-  import { formatCurrencyCompact, formatDaysCompact, formatDateShort } from '$lib/utils/formatters';
-  import { getKontraktsforholdLabel } from '$lib/constants/categories';
+  import { formatDateShort } from '$lib/utils/formatters';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import { caseAmount, caseDays, statusmerke } from './presentation';
+  import {
+    betegnelsesmerke,
+    fristtall,
+    kategoritekst,
+    sporetiketter,
+    vederlagstall,
+  } from './presentation';
 
   interface Props {
-    case_item: CaseListItem;
+    linje: Sakslinje;
     prosjektId: string;
     href?: string;
   }
 
-  let { case_item, prosjektId, href }: Props = $props();
+  let { linje, prosjektId, href }: Props = $props();
 
   const path = $derived(
     href ??
       resolve('/[prosjektId]/[sakId]', {
         prosjektId: encodeURIComponent(prosjektId),
-        sakId: encodeURIComponent(case_item.sak_id),
+        sakId: encodeURIComponent(linje.sak_id),
       })
   );
-  const tittel = $derived(case_item.cached_title ?? 'Uten tittel');
-  const isOrder = $derived(case_item.sakstype === 'endringsordre');
-  const merke = $derived(statusmerke(case_item));
-  const linkedCount = $derived(case_item.endringsordre_data?.relaterte_koe_saker.length ?? 0);
-  const kategoriLabel = $derived(
-    isOrder
-      ? case_item.endringsordre_data
-        ? linkedCount
-          ? `${linkedCount} KOE · enighet`
-          : 'Direkte pålegg'
-        : '—'
-      : getKontraktsforholdLabel(case_item.cached_hovedkategori)
-  );
-  const belopKrevd = $derived(
-    isOrder && case_item.endringsordre_data && caseAmount(case_item) === null
-      ? 'Uavklart'
-      : formatCurrencyCompact(caseAmount(case_item))
-  );
-  const dagerKrevd = $derived(
-    isOrder && case_item.endringsordre_data && caseDays(case_item) === null
-      ? 'Uavklart'
-      : formatDaysCompact(caseDays(case_item))
-  );
-  const amountLabel = $derived(
-    isOrder
-      ? case_item.endringsordre_data?.er_estimat
-        ? 'Estimat i EO'
-        : 'Vederlag i EO'
-      : 'Krevd'
-  );
-  const sisteAktivitet = $derived(formatDateShort(case_item.last_event_at));
+  const tittel = $derived(linje.sakstittel ?? 'Uten tittel');
+  const merke = $derived(betegnelsesmerke(linje));
+  const etiketter = $derived(merke ? [] : sporetiketter(linje));
+  const vederlag = $derived(vederlagstall(linje));
+  const frist = $derived(fristtall(linje));
+  const sisteAktivitet = $derived(formatDateShort(linje.siste_hendelse));
 
   function handleRowClick(event: MouseEvent) {
     // Let native links handle keyboard activation and opening a new tab.
@@ -70,36 +50,37 @@
   <td class="cell cell-id">
     <!-- Allerede resolvet der verdien bygges. -->
     <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-    <a href={path} class="row-link" aria-label="Åpne sak {case_item.sak_id}">
-      <span class="sak-id">{case_item.endringsordre_data?.eo_nummer || case_item.sak_id}</span>
+    <a href={path} class="row-link" aria-label="Åpne sak {linje.sak_id}">
+      <span class="sak-id">{linje.sak_id}</span>
     </a>
   </td>
   <td class="cell cell-tittel">
     <span class="cell-text">{tittel}</span>
-    <span class="case-type" class:order={isOrder}>
-      {isOrder ? 'Endringsordre' : case_item.sakstype === 'forsering' ? 'Forsering' : 'KOE-krav'}
-    </span>
+    <span class="case-type">KOE-krav</span>
   </td>
   <td class="cell cell-status">
     <div class="cell-inner">
-      <Badge variant={merke.variant}>{merke.label}</Badge>
+      {#if merke}<Badge variant={merke.variant}>{merke.label}</Badge>
+      {:else if etiketter.length}<ul class="spor-etiketter">
+          {#each etiketter as e (e.spor)}<li><strong>{e.spor}:</strong> {e.tekst}</li>{/each}
+        </ul>
+      {:else}<span class="cell-text cell-text-muted">—</span>{/if}
     </div>
   </td>
   <td class="cell cell-kategori">
-    <span class="cell-text cell-text-muted">{kategoriLabel || '—'}</span>
+    <span class="cell-text cell-text-muted">{kategoritekst(linje) || '—'}</span>
   </td>
   <td class="cell cell-num cell-belop">
-    <span class="cell-text cell-text-num" aria-label={`${amountLabel}: ${belopKrevd}`}
-      >{belopKrevd}</span
+    <span class="cell-text cell-text-num" aria-label={`Krevd vederlag: ${vederlag.kravtekst}`}
+      >{vederlag.kravtekst}</span
     >
-    {#if isOrder}<span class="value-label">{amountLabel}</span>{/if}
+    {#if vederlag.under}<span class="value-label">{vederlag.under}</span>{/if}
   </td>
   <td class="cell cell-num cell-dager">
-    <span
-      class="cell-text cell-text-num"
-      aria-label={`${isOrder ? 'Fristjustering i EO' : 'Krevd frist'}: ${dagerKrevd}`}
-      >{dagerKrevd}</span
+    <span class="cell-text cell-text-num" aria-label={`Krevd frist: ${frist.kravtekst}`}
+      >{frist.kravtekst}</span
     >
+    {#if frist.under}<span class="value-label">{frist.under}</span>{/if}
   </td>
   <td class="cell cell-date">
     <span class="cell-text cell-text-date">{sisteAktivitet}</span>
@@ -155,8 +136,18 @@
     font-weight: 550;
   }
 
-  .case-type.order {
-    color: var(--color-vekt);
+  .spor-etiketter {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--color-ink-secondary);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .spor-etiketter strong {
+    color: var(--color-ink);
+    font-weight: 600;
   }
 
   .value-label {

@@ -16,22 +16,19 @@
   } from 'lucide-svelte';
   import CaseListTable from '$lib/components/case-list/CaseListTable.svelte';
   import WorkQueue from './WorkQueue.svelte';
-  import { activityHref as caseLink } from './activity';
+  import { activityHref as caseLink, type Aktivitetssak } from './activity';
   import ProjectActivity from './ProjectActivity.svelte';
   import ProjectSummary from './ProjectSummary.svelte';
   import type { ContractSettings } from '$lib/types/project';
-  import {
-    filterCases,
-    overviewStats,
-    isTimeClaim,
-    type CaseFilter,
-    type CaseTypeFilter,
-  } from './overview';
-  import type { CaseListItem } from '$lib/types/api';
+  import { SAKSUTVALG, velgSaker, type Saksutvalg } from './overview';
+  import type { Noekkeltall, Sakslinje } from '$lib/types/api';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
 
   let {
-    cases,
+    saker,
+    noekkeltall = null,
+    part = null,
+    aktivitet,
     prosjektId,
     prosjektNavn,
     entreprise = 'Totalentreprise NS 8407',
@@ -45,7 +42,12 @@
     demoScenarios = {},
     activePage = 'overview',
   }: {
-    cases: CaseListItem[];
+    saker: Sakslinje[];
+    noekkeltall?: Noekkeltall | null;
+    /** Leserens kontraktsside fra serveren; rollevalget starter her (arbeidsvalg 4.2). */
+    part?: Role | null;
+    /** Hendelsene per sak. Bare demoen har dem til prosjektinngangen finnes (#1041). */
+    aktivitet?: Aktivitetssak[];
     prosjektId: string;
     prosjektNavn: string;
     entreprise?: string;
@@ -72,35 +74,30 @@
   );
 
   let role = $state<Role>(readPreferredRole());
+  let rolleFraPart = false;
+  $effect(() => {
+    if (part && !rolleFraPart) {
+      rolleFraPart = true;
+      role = part;
+    }
+  });
   function changeRole(next: Role) {
     role = next;
     savePreferredRole(next);
   }
 
   let query = $state('');
-  let filter = $state<CaseFilter>('all');
-  let caseType = $state<CaseTypeFilter>('all');
+  let filter = $state<Saksutvalg>('alle');
   let timeClaimsOnly = $state(false);
   let registerElement: HTMLElement | undefined = $state();
   function showTimeClaims() {
     timeClaimsOnly = true;
-    filter = 'all';
-    caseType = 'standard';
+    filter = 'alle';
     query = '';
     registerElement?.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
-  const filtered = $derived(
-    filterCases(cases, query, filter, caseType).filter(
-      (item) => !timeClaimsOnly || isTimeClaim(item)
-    )
-  );
-  const stats = $derived(overviewStats(cases));
-  const filters: { id: CaseFilter; label: string }[] = [
-    { id: 'all', label: 'Alle saker' },
-    { id: 'active', label: 'Aktive' },
-    { id: 'closed', label: 'Avklarte og lukkede' },
-    { id: 'draft', label: 'Kladder' },
-  ];
+  const filtered = $derived(velgSaker(saker, query, filter, timeClaimsOnly));
+  const filterBetydning = $derived(SAKSUTVALG.find((u) => u.id === filter)?.betydning);
   const fmt = (value: number) => value.toLocaleString('nb-NO');
 </script>
 
@@ -116,12 +113,14 @@
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a href={overviewHref} aria-current={activePage === 'overview' ? 'page' : undefined}
         ><FolderOpen size={18} /> Krav og endringer
-        <span class="count">{loading || error ? '—' : stats.total}</span></a
+        <span class="count">{loading || error ? '—' : saker.length}</span></a
       >
-      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-      <a href={activityHref} aria-current={activePage === 'activity' ? 'page' : undefined}
-        ><History size={18} /> Aktivitetslogg</a
-      >
+      {#if aktivitet}
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+        <a href={activityHref} aria-current={activePage === 'activity' ? 'page' : undefined}
+          ><History size={18} /> Aktivitetslogg</a
+        >
+      {/if}
     </nav>
     <div class="rail-summary">
       <ProjectSummary
@@ -146,10 +145,12 @@
         <a href={overviewHref} aria-current={activePage === 'overview' ? 'page' : undefined}
           >Krav og endringer</a
         >
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-        <a href={activityHref} aria-current={activePage === 'activity' ? 'page' : undefined}
-          >Aktivitetslogg</a
-        >
+        {#if aktivitet}
+          <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+          <a href={activityHref} aria-current={activePage === 'activity' ? 'page' : undefined}
+            >Aktivitetslogg</a
+          >
+        {/if}
       </nav>
       <header class="page-heading">
         <div>
@@ -200,57 +201,61 @@
       {:else if error}
         <div class="state-message" role="alert">Kunne ikke laste saker. {error}</div>
       {:else if activePage === 'activity'}
-        <ProjectActivity {cases} {role} projectId={prosjektId} scenarios={demoScenarios} />
+        {#if aktivitet}
+          <ProjectActivity
+            cases={aktivitet}
+            {role}
+            projectId={prosjektId}
+            scenarios={demoScenarios}
+          />
+        {:else}
+          <div class="state-message" role="status">
+            Aktiviteten i prosjektet er ikke tilgjengelig ennå.
+          </div>
+        {/if}
       {:else}
-        <div class="stats" aria-label="Nøkkeltall for hele prosjektet">
-          <section class="stat">
-            <div class="stat-label">Saker i prosjektet <FolderOpen size={17} /></div>
-            <strong class="stat-value">{stats.total}</strong>
-            <p>{stats.active} aktive · {stats.drafts} kladder</p>
-            <p>{stats.claims} KOE · {stats.orders} endringsordrer</p>
-          </section>
-          <button
-            type="button"
-            class="stat time-stat"
-            class:accent={timeClaimsOnly}
-            aria-pressed={timeClaimsOnly}
-            aria-controls="case-register"
-            onclick={showTimeClaims}
-          >
-            <span class="stat-label">Fristkrav <Clock3 size={17} /></span>
-            <strong class="stat-value"
-              >{stats.timeClaims}<small>{stats.timeClaims === 1 ? 'sak' : 'saker'}</small></strong
+        {#if noekkeltall}
+          {@const v = noekkeltall.vederlag}
+          <div class="stats" aria-label="Nøkkeltall for hele prosjektet">
+            <section class="stat">
+              <div class="stat-label">Saker i prosjektet <FolderOpen size={17} /></div>
+              <strong class="stat-value">{noekkeltall.saker}</strong>
+              {#if noekkeltall.ikke_forstaatt}<p>
+                  {noekkeltall.ikke_forstaatt} ikke forstått · telles ikke i tallene
+                </p>{/if}
+            </section>
+            <button
+              type="button"
+              class="stat time-stat"
+              class:accent={timeClaimsOnly}
+              aria-pressed={timeClaimsOnly}
+              aria-controls="case-register"
+              onclick={showTimeClaims}
             >
-            <span class="stat-foot"
-              >{stats.unassessedTimeClaims} ikke vurdert · spesifiserte krav</span
-            >
-            <span class="stat-action">Vis fristkrav <ArrowRight size={13} /></span>
-          </button>
-          <section class="stat">
-            <div class="stat-label">Fremsatt vederlag · KOE <Coins size={17} /></div>
-            <strong class="stat-value amount"
-              >{stats.claimed === null ? '—' : fmt(stats.claimed)}{#if stats.claimed !== null}<small
-                  >kr</small
-                >{/if}</strong
-            >
-            <p>Registrerte KOE-krav · kladder og trukne saker utelatt</p>
-          </section>
-          <section class="stat">
-            <div class="stat-label">Prinsipalt godkjent · KOE <Check size={17} /></div>
-            <strong class="stat-value amount"
-              >{stats.approved === null
-                ? '—'
-                : fmt(stats.approved)}{#if stats.approved !== null}<small>kr</small>{/if}</strong
-            >
-            <p>
-              {stats.assessed
-                ? `Vurdert beløp registrert i ${stats.assessed} saker`
-                : 'Ingen beløpsvurderinger registrert'}
-            </p>
-          </section>
-        </div>
+              <span class="stat-label">Fristkrav <Clock3 size={17} /></span>
+              <strong class="stat-value">{noekkeltall.frist.krav_antall}<small>krav</small></strong>
+              <span class="stat-foot">{noekkeltall.frist.venter_paa_svar} venter på svar</span>
+              <span class="stat-action">Vis fristkrav <ArrowRight size={13} /></span>
+            </button>
+            <section class="stat">
+              <div class="stat-label">Krevd vederlag <Coins size={17} /></div>
+              <strong class="stat-value amount">{fmt(v.krav_sum)}<small>kr</small></strong>
+              <p>{v.krav_antall} krav · {v.venter_paa_svar} venter på svar</p>
+            </section>
+            <section class="stat">
+              <div class="stat-label">Enighet om vederlag <Check size={17} /></div>
+              <strong class="stat-value amount"
+                >{fmt(v.enighet_virksom_sum)}<small>kr</small></strong
+              >
+              <p>Virksom enighet, etter appens lesing</p>
+              <p>Betinget: {fmt(v.enighet_betinget_sum)} kr</p>
+              <p>Subsidiært svar fra BH: {fmt(v.svar_subsidiaert_sum)} kr</p>
+              {#if v.enighet_uten_beloep}<p>{v.enighet_uten_beloep} uten beløp</p>{/if}
+            </section>
+          </div>
+        {/if}
 
-        <WorkQueue {cases} {role} projectId={prosjektId} scenarios={demoScenarios} {demo} />
+        <WorkQueue {saker} {role} projectId={prosjektId} scenarios={demoScenarios} />
         <div class="overview-content">
           <section
             class="register"
@@ -265,20 +270,17 @@
               </div>
             </div>
             <div class="filters" role="group" aria-label="Saksutvalg">
-              {#each filters as option (option.id)}<button
+              {#each SAKSUTVALG as option (option.id)}<button
                   class:active={filter === option.id}
                   aria-pressed={filter === option.id}
+                  title={option.betydning}
                   onclick={() => (filter = option.id)}
                   >{option.label}<span
-                    >{filterCases(
-                      timeClaimsOnly ? cases.filter(isTimeClaim) : cases,
-                      '',
-                      option.id,
-                      caseType
-                    ).length}</span
+                    >{velgSaker(saker, '', option.id, timeClaimsOnly).length}</span
                   ></button
                 >{/each}
             </div>
+            <p class="filter-meaning">{filterBetydning}</p>
             <div class="toolbar">
               <label class="search"
                 ><Search size={17} /><input
@@ -288,34 +290,20 @@
                   placeholder="Søk etter saksnummer eller tittel"
                 /></label
               >
-              <label class="type-filter"
-                >Sakstype
-                <select bind:value={caseType} onchange={() => (timeClaimsOnly = false)}>
-                  <option value="all">Alle typer</option>
-                  <option value="standard">KOE-krav</option>
-                  <option value="endringsordre">Endringsordrer</option>
-                  {#if cases.some((item) => item.sakstype === 'forsering')}
-                    <option value="forsering">Forsering</option>
-                  {/if}
-                </select>
-              </label>
               <span class="result-count" role="status"
-                >{filtered.length} av {cases.length} saker</span
+                >{filtered.length} av {saker.length} saker</span
               >
             </div>
             {#if timeClaimsOnly}
               <div class="active-filter">
-                <span>Viser spesifiserte fristkrav</span><button
+                <span>Viser fristkravene</span><button
                   type="button"
-                  onclick={() => {
-                    timeClaimsOnly = false;
-                    caseType = 'all';
-                  }}
+                  onclick={() => (timeClaimsOnly = false)}
                   aria-label="Fjern fristfilter"><X size={13} />Fjern filter</button
                 >
               </div>
             {/if}
-            {#if !cases.length}<div class="state-message">
+            {#if !saker.length}<div class="state-message">
                 Ingen saker ennå. {role !== 'BH'
                   ? 'Opprett det første KOE-kravet med «Ny sak».'
                   : demo
@@ -327,25 +315,22 @@
                   class="reset"
                   onclick={() => {
                     query = '';
-                    filter = 'all';
-                    caseType = 'all';
+                    filter = 'alle';
                     timeClaimsOnly = false;
                   }}>Vis alle saker</button
                 >
               </div>
             {:else}<div class="table-area">
                 <CaseListTable
-                  cases={filtered}
+                  saker={filtered}
                   {prosjektId}
-                  caseHref={(item) =>
-                    item.sakstype === 'endringsordre'
-                      ? `${demo ? '/mockup/endringsordre' : `/${encodeURIComponent(prosjektId)}`}/${encodeURIComponent(item.sak_id)}?rolle=${role}`
-                      : caseLink(
-                          { caseId: item.sak_id, type: 'K' },
-                          prosjektId,
-                          role,
-                          demoScenarios[item.sak_id]
-                        )}
+                  caseHref={(linje) =>
+                    caseLink(
+                      { caseId: linje.sak_id, type: 'K' },
+                      prosjektId,
+                      role,
+                      demoScenarios[linje.sak_id]
+                    )}
                 />
               </div>{/if}
           </section>
@@ -682,24 +667,11 @@
     padding: 18px 24px;
     flex-wrap: wrap;
   }
-  .type-filter {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .filter-meaning {
+    margin: 0;
+    padding: 10px 24px 0;
     color: var(--color-ink-muted);
     font-size: 12px;
-  }
-  .type-filter select {
-    padding: 8px 10px;
-    border: 1px solid var(--color-wire);
-    border-radius: 7px;
-    background: var(--color-felt);
-    color: var(--color-ink-secondary);
-    font: inherit;
-  }
-  .type-filter select:focus-visible {
-    outline: 2px solid var(--color-wire-focus);
-    outline-offset: 3px;
   }
   .search {
     display: flex;

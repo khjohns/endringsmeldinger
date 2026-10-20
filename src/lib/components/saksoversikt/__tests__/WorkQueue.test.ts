@@ -2,81 +2,58 @@ import { expect, it } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import WorkQueue from '../WorkQueue.svelte';
-import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
-import type { CaseListItem } from '$lib/types/api';
+import { lagSakslinje } from '$lib/mocks/sakslinje';
 
-it('limits the list, expands it and updates tasks when the role changes', async () => {
-  const track = { status: 'sendt', antall_versjoner: 1 };
-  const cases: CaseListItem[] = [0, 1].map((i) => ({
-    ...mockSaksoversikt[0],
-    sak_id: `CASE-${i}`,
-    oppfolging: {
-      overordnet_status: 'SENDT',
-      grunnlag: track,
-      vederlag: { ...track, metode: 'enhetspriser' },
-      frist: { ...track, varsel_type: 'spesifisert', krevd_dager: 45 },
+const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
+
+/** To saker der alle tre kravene venter på svar, og én der vederlagssvaret står uten enighet. */
+const saker = [
+  ...[0, 1].map((i) =>
+    lagSakslinje({
+      sak_id: `CASE-${i}`,
+      grunnlag: { ...ingenting, venter_paa_svar: true, svar: null },
+      vederlag: { ...ingenting, venter_paa_svar: true, krav: null, svar: null, enighet: null },
+      frist: { ...ingenting, venter_paa_svar: true, krav: null, svar: null, enighet: null },
+    })
+  ),
+  lagSakslinje({
+    sak_id: 'CASE-2',
+    vederlag: {
+      ...ingenting,
+      svar_ikke_godtatt: true,
+      krav: { beloep: 100, metode: 'tilbud' },
+      svar: { resultat: 'avslaatt', beloep: 0, subsidiaert: false },
+      enighet: null,
     },
-  }));
-  const result = render(WorkQueue, {
-    cases,
-    role: 'BH',
-    projectId: 'P001',
-    scenarios: { 'CASE-0': 'scenario1' },
-  });
+  }),
+];
+
+it('BH ser kravene som venter på byggherrens svar, og lenken åpner sporet uten skjema (MM-U29)', async () => {
+  render(WorkQueue, { saker, role: 'BH', projectId: 'P001', scenarios: { 'CASE-0': 'scenario1' } });
+  expect(screen.getByText('6 krav i 2 saker')).toBeInTheDocument();
   expect(screen.getAllByRole('link')).toHaveLength(3);
-  expect(screen.getByRole('link', { name: 'Vurder frist – CASE-0' })).toHaveAttribute(
-    'href',
-    '/mockup?spor=frist&rolle=BH&mode=form&scenario=scenario1'
-  );
+  expect(
+    screen.getByRole('link', { name: 'Kravet venter på byggherrens svar – Ansvar – CASE-0' })
+  ).toHaveAttribute('href', '/mockup?spor=ansvar&rolle=BH&scenario=scenario1');
   await userEvent.click(screen.getByRole('button', { name: 'Se alle 6' }));
   expect(screen.getAllByRole('link')).toHaveLength(6);
-  await result.rerender({ role: 'TE' });
-  expect(screen.queryAllByRole('link')).toHaveLength(0);
+});
+
+it('TE ser svarene som står uten enighet, og ingen krav som venter på svar (MM-U29)', () => {
+  render(WorkQueue, { saker, role: 'TE', projectId: 'P001' });
+  expect(screen.getAllByRole('link')).toHaveLength(1);
   expect(
-    screen.getByText('Ingen registrerte oppfølgingsbehov for denne rollen.')
+    screen.getByRole('link', { name: 'Byggherrens svar er ikke godtatt – Vederlag – CASE-2' })
+  ).toHaveAttribute('href', '/P001/CASE-2?spor=vederlag&rolle=TE');
+  expect(
+    screen.getByText('Vederlag: byggherren har svart, og partene er ikke enige.')
   ).toBeInTheDocument();
 });
 
-it('distinguishes unavailable context from no follow-up', () => {
-  render(WorkQueue, { cases: [mockSaksoversikt[0]], role: 'BH', projectId: 'P001' });
-  expect(screen.getByText(/Listen kan være ufullstendig/)).toBeInTheDocument();
-  expect(
-    screen.queryByText('Ingen registrerte oppfølgingsbehov for denne rollen.')
-  ).not.toBeInTheDocument();
-});
-
-it('follows up issued orders without duplicating formalized KOE tasks or reporting missing tracks', async () => {
-  const track = { status: 'sendt', antall_versjoner: 1 };
-  const claim: CaseListItem = {
-    ...mockSaksoversikt[0],
-    oppfolging: {
-      overordnet_status: 'SENDT',
-      grunnlag: track,
-      vederlag: { ...track, metode: 'enhetspriser' },
-      frist: { ...track, varsel_type: 'spesifisert', krevd_dager: 10 },
-    },
-  };
-  const order: CaseListItem = {
-    ...mockSaksoversikt[0],
-    sak_id: 'EO-1',
-    sakstype: 'endringsordre',
-    oppfolging: null,
-    endringsordre_data: {
-      status: 'utstedt',
-      eo_nummer: 'EO-001',
-      relaterte_koe_saker: [claim.sak_id],
-      netto_belop: 100,
-      frist_dager: 10,
-      er_estimat: false,
-    },
-  };
-  const result = render(WorkQueue, { cases: [claim, order], role: 'BH', projectId: 'P001' });
-  expect(screen.queryAllByRole('link')).toHaveLength(0);
-  expect(screen.queryByText(/Listen kan være ufullstendig/)).not.toBeInTheDocument();
+it('teksten sier hva som foreligger, ikke at parten har plikt eller neste trekk (MM-U29)', async () => {
+  const result = render(WorkQueue, { saker: [], role: 'BH', projectId: 'P001' });
+  expect(screen.getByText('Ingen krav venter på byggherrens svar.')).toBeInTheDocument();
   await result.rerender({ role: 'TE' });
-  expect(screen.getByRole('link', { name: 'Les endringsordren – EO-1' })).toHaveAttribute(
-    'href',
-    '/P001/EO-1?rolle=TE'
-  );
-  expect(screen.getByText('1 handling i 1 sak')).toBeInTheDocument();
+  expect(screen.getByText('Ingen svar fra byggherren står uten enighet.')).toBeInTheDocument();
+  expect(screen.queryByText(/oppfølging|handling/i)).not.toBeInTheDocument();
 });

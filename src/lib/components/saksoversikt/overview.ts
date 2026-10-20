@@ -1,30 +1,88 @@
 /**
- * Lesepunktet for prosjektoversikten (#313). Arbeidslisten og oversikten leser
- * `cached_status`, statusen til endringsordren og oppfølgingen bare herfra, så
- * byttet til kjernens predikater og handlinger skjer her.
+ * Utvalgene i prosjektoversikten (#1023). De er grupper i visningen med en skrevet
+ * betydning, ikke en status: de leser det som foreligger per spor (MM-U29) og
+ * saksbetegnelsen (MM-U22) i linja fra serveren.
  */
-import type { CaseListItem } from '$lib/types/api';
+import type { CaseListItem, Sakslinje } from '$lib/types/api';
 
-export { caseFollowUp, taskHref } from '$lib/domain/followUp';
+export { taskHref } from '$lib/domain/followUp';
 
-export type CaseFilter = 'all' | 'active' | 'closed' | 'draft';
-export type CaseTypeFilter = 'all' | CaseListItem['sakstype'];
-const closed = new Set(['OMFORENT', 'LUKKET', 'LUKKET_TRUKKET', 'akseptert']);
+export type Saksutvalg =
+  | 'alle'
+  | 'venter_paa_svar'
+  | 'svar_ikke_godtatt'
+  | 'med_saksbetegnelse'
+  | 'ikke_forstaatt';
 
-export function caseStatus(item: CaseListItem): string | null {
-  return item.endringsordre_data?.status ?? item.cached_status;
+const SPOR = ['grunnlag', 'vederlag', 'frist'] as const;
+
+export const SAKSUTVALG: { id: Saksutvalg; label: string; betydning: string }[] = [
+  { id: 'alle', label: 'Alle saker', betydning: 'Alle sakene i prosjektet.' },
+  {
+    id: 'venter_paa_svar',
+    label: 'Venter på byggherrens svar',
+    betydning: 'Minst ett krav i saken venter på byggherrens svar.',
+  },
+  {
+    id: 'svar_ikke_godtatt',
+    label: 'Svar ikke godtatt',
+    betydning: 'Byggherren har svart på minst ett krav uten at partene er enige.',
+  },
+  {
+    id: 'med_saksbetegnelse',
+    label: 'Med saksbetegnelse',
+    betydning: 'Kravene er avgjort, avslaget på ansvaret er godtatt, eller kravet er trukket.',
+  },
+  {
+    id: 'ikke_forstaatt',
+    label: 'Ikke forstått',
+    betydning: 'Appen forstår ikke hele saken og viser ingen krav eller tall for den.',
+  },
+];
+
+export function iUtvalg(linje: Sakslinje, utvalg: Saksutvalg): boolean {
+  switch (utvalg) {
+    case 'alle':
+      return true;
+    case 'venter_paa_svar':
+      return SPOR.some((spor) => linje[spor].venter_paa_svar);
+    case 'svar_ikke_godtatt':
+      return SPOR.some((spor) => linje[spor].svar_ikke_godtatt);
+    case 'med_saksbetegnelse':
+      return linje.forstaatt && linje.saksbetegnelse !== null;
+    case 'ikke_forstaatt':
+      return !linje.forstaatt;
+  }
 }
 
-export function filterCases(
-  cases: CaseListItem[],
-  query: string,
-  filter: CaseFilter,
-  caseType: CaseTypeFilter = 'all'
-) {
+export function velgSaker(
+  saker: readonly Sakslinje[],
+  sok: string,
+  utvalg: Saksutvalg,
+  bareFristkrav = false
+): Sakslinje[] {
+  const needle = sok.trim().toLocaleLowerCase('nb-NO');
+  return saker.filter(
+    (linje) =>
+      iUtvalg(linje, utvalg) &&
+      (!bareFristkrav || linje.frist.krav !== null) &&
+      `${linje.sak_id} ${linje.sakstittel ?? ''}`.toLocaleLowerCase('nb-NO').includes(needle)
+  );
+}
+
+/**
+ * Python-statusene. Bare reproduksjonene i
+ * `kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts` leser dem; de fjernes
+ * med den testen (#1051).
+ */
+const closed = new Set(['OMFORENT', 'LUKKET', 'LUKKET_TRUKKET', 'akseptert']);
+export type CaseFilter = 'all' | 'active' | 'closed' | 'draft';
+
+export function filterCases(cases: CaseListItem[], query: string, filter: CaseFilter) {
   const needle = query.trim().toLocaleLowerCase('nb-NO');
   return cases.filter((item) => {
-    const status = caseStatus(item);
-    const draft = status === 'UTKAST' || status === 'utkast';
+    const status = item.cached_status;
+    const draft = status === 'UTKAST';
     const matches =
       filter === 'all' ||
       (filter === 'draft' && draft) ||
@@ -32,65 +90,7 @@ export function filterCases(
       (filter === 'active' && status !== null && !draft && !closed.has(status));
     return (
       matches &&
-      (caseType === 'all' || item.sakstype === caseType) &&
-      `${item.sak_id} ${item.endringsordre_data?.eo_nummer ?? ''} ${item.cached_title ?? ''}`
-        .toLocaleLowerCase('nb-NO')
-        .includes(needle)
+      `${item.sak_id} ${item.cached_title ?? ''}`.toLocaleLowerCase('nb-NO').includes(needle)
     );
   });
-}
-
-export function overviewStats(cases: CaseListItem[]) {
-  const submitted = cases.filter(
-    (item) =>
-      item.sakstype === 'standard' &&
-      item.cached_status !== 'UTKAST' &&
-      item.cached_status !== 'LUKKET_TRUKKET'
-  );
-  const amounts = submitted.filter((item) => item.cached_sum_krevd !== null);
-  const assessed = submitted.filter((item) => item.cached_sum_godkjent !== null);
-  return {
-    total: cases.length,
-    claims: cases.filter((item) => item.sakstype === 'standard').length,
-    orders: cases.filter((item) => item.sakstype === 'endringsordre').length,
-    timeClaims: cases.filter(isTimeClaim).length,
-    unassessedTimeClaims: cases.filter(
-      (item) => isTimeClaim(item) && item.cached_dager_godkjent == null
-    ).length,
-    active: filterCases(cases, '', 'active').length,
-    drafts: filterCases(cases, '', 'draft').length,
-    claimed: amounts.length ? amounts.reduce((sum, item) => sum + item.cached_sum_krevd!, 0) : null,
-    approved: assessed.length
-      ? assessed.reduce((sum, item) => sum + item.cached_sum_godkjent!, 0)
-      : null,
-    assessed: assessed.length,
-  };
-}
-
-/** Count specified, submitted time claims; a recorded zero is still an assessment. */
-export function isTimeClaim(item: CaseListItem): boolean {
-  return (
-    item.sakstype === 'standard' &&
-    item.cached_status !== 'UTKAST' &&
-    item.cached_status !== 'LUKKET_TRUKKET' &&
-    item.cached_dager_krevd != null
-  );
-}
-
-/** EO records formalize these claims; their old track tasks must not reappear. */
-export function formalizedClaims(cases: CaseListItem[]): Set<string> {
-  return new Set(
-    cases.flatMap((item) =>
-      item.sakstype === 'endringsordre' && caseStatus(item) !== 'utkast'
-        ? (item.endringsordre_data?.relaterte_koe_saker ?? [])
-        : []
-    )
-  );
-}
-
-/** Hvem en endringsordre venter på: TE skal svare på en utstedt eller revidert, BH følger opp en bestridt. */
-export function endringsordreVenterPaa(item: CaseListItem): 'TE' | 'BH' | null {
-  const status = caseStatus(item);
-  if (status === 'utstedt' || status === 'revidert') return 'TE';
-  return status === 'bestridt' ? 'BH' : null;
 }

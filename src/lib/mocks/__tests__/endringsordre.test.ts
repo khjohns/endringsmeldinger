@@ -4,7 +4,6 @@ import type { CreateEORequest } from '$lib/api/endringsordre';
 import {
   availableDemoEOCandidates,
   demoEOCandidates,
-  demoOrderToCaseList,
   issueDemoOrder,
   loadDemoOrders,
   nextDemoEONumber,
@@ -33,24 +32,7 @@ describe('demo endringsordre', () => {
       sakId: result.sak_id,
       data: { status: 'utstedt', eo_nummer: 'EO-001', relaterte_koe_saker: [] },
     });
-    expect(demoOrderToCaseList(saved)).toMatchObject({
-      sak_id: result.sak_id,
-      cached_sum_godkjent: null,
-      cached_dager_godkjent: null,
-      endringsordre_data: { netto_belop: null, frist_dager: null },
-    });
     expect(nextDemoEONumber()).toBe('EO-002');
-  });
-
-  it('keeps explicit absence of consequences at zero in the register', () => {
-    const payload = directOrder();
-    payload.konsekvenser.pris = false;
-    payload.konsekvenser.fremdrift = false;
-    issueDemoOrder(payload);
-    expect(demoOrderToCaseList(loadDemoOrders()[0])).toMatchObject({
-      cached_sum_godkjent: 0,
-      cached_dager_godkjent: 0,
-    });
   });
 
   it('prevents duplicate numbers and reuse of KOE agreements from another open form', () => {
