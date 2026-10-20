@@ -91,3 +91,15 @@ og forsering avvises til de er bygget, etter #310. Alternativene ble ikke prøvd
 mot vedtakene før spørsmålene ble stilt. Svarene på spørsmål 3 og 5 føres derfor
 ikke som vedtak. Spørsmålet om hva som må være bygget før appen tas i bruk med
 ekte saker, stilles på nytt etter prøving mot vedtakene.
+
+## 8. Endringsordre før ekte saker (stilt på nytt)
+
+Prøvd mot vedtakene i 3.1 av en subagent før spørsmålet ble stilt. Prøvingen fant
+at et alternativ med endringsordre som egen sak før ekte saker endrer OV-U1, og at
+OV-U2, OV-U7, OV-U14, merknaden 10.10 til B-01 og vedtaket 17.09 om
+produksjonsporten må nevnes. Lagret før kallet.
+
+**Spørsmål:** Rettelse: spørsmålene om B-17 og EO bygde på et feil premiss. OV-U1 (10.10) avgjorde allerede at første versjon av TS-stien, den som skriver den første reelle hendelsen (#310), dekker KOE-saken. Forsering (§ 33.8), endringsordre som egen sak og justering av enhetspriser avvises til de er bygget, etter #310, og OV-U2 sier at de føres utenfor appen til da. OV-U1 forkastet uttrykkelig «endringsordre som egen sak i første versjon, som ville krevd at B-01 ble avgjort nå». Ditt svar «EO med, forsering etter» betyr derfor å endre OV-U1. Skal OV-U1 endres?
+
+- **Behold OV-U1 (Recommended):** Appen kan tidligst brukes i ekte saker når første versjon etter OV-U1, OV-U7 og OV-U14 er bygget og produksjonsporten (F5) er passert. Endringsordre som egen sak og forsering føres utenfor appen til de er bygget (OV-U2). Presiserer OV-U1.
+- **Endre: EO før ekte saker:** Før appen brukes i ekte saker, skal også endringsordre som egen sak (EO-U1–EO-U9) være bygget i TS. Forsering bygges etter at appen er tatt i bruk. B-01 må da avgjøres før #310. Endrer OV-U1, som forkastet dette alternativet, og merknaden 10.10 til B-01.
