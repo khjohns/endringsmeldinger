@@ -50,11 +50,13 @@ import {
   ugyldig,
 } from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
+import { SAKSLISTERUTER } from './saksliste.ts';
 import { lesSaken } from './lager.ts';
 import {
   IngenTopicBoard,
   KommandoIdBrukt,
   kommandosum,
+  KvittertBrevMangler,
   LaasIkkeGitt,
   opprettSak,
   SakFinnesIkke,
@@ -282,6 +284,14 @@ function skriveavvisning(feil: unknown): Svar {
   if (feil instanceof KommandoIdBrukt)
     return feilsvar(422, 'KOMMANDO_ID_BRUKT', 'Kommando-ID-en er brukt for en annen kommando.');
   if (feil instanceof UsikkertUtfall || feil instanceof LaasIkkeGitt) return utfallUsikkert();
+  if (feil instanceof KvittertBrevMangler) {
+    loggFeil('Brevet i kvitteringen ble ikke lest tilbake', feil);
+    return feilsvar(
+      500,
+      'KVITTERT_BREV_MANGLER',
+      'Kommandoen er kvittert som lagret, men brevet kunne ikke leses tilbake.'
+    );
+  }
   loggFeil('Kommandoen ble ikke lagret', feil);
   return feilsvar(500, 'INTERNAL_ERROR', 'Kommandoen ble ikke lagret på grunn av en feil.');
 }
@@ -552,6 +562,7 @@ export const RUTER: readonly Rute[] = [
   OPPRETTELSE,
   ...INNLOGGINGSRUTER,
   ...PROSJEKTRUTER,
+  ...SAKSLISTERUTER,
   ...WEBHOOKRUTER,
 ];
 

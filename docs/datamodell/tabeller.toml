@@ -906,14 +906,15 @@ type = ["transaksjon"]
 status = "i bruk"
 beskrivelse = """
 Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og
-sletting."""
+sletting. Sakslisten leser sakene i prosjektet med journalen gjennom
+`koe_api.saksliste`, under radsikkerheten, fra `server/saksliste.ts` (#1022)."""
 lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`, som `POST /api/kjerne/saker` kaller (#370), og som `server/hendelser.ts` kaller for en ny topic fra TE i innboksen (KT-U6, #819)."
 fra_catenda = "Delvis. Saken kan være opprettet fra en topic i Catenda (KT-U6, C22)."
 kan_gjenoppbygges = "nei"
 personopplysninger = "`created_by` peker på en bruker."
 skrivere = ["database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`)"]
 funn = []
-belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
+belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. L 20.10: `20261020180000_saksliste.sql`. K 20.10: `server/tester/saksliste.test.ts` mot testbasen."
 
 [[tabell]]
 navn = "koe.hendelse"
@@ -922,7 +923,9 @@ type = ["transaksjon"]
 status = "i bruk"
 beskrivelse = """
 Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger
-avviser endring og sletting. Teamet står bare når det er entydig (DL-U4)."""
+avviser endring og sletting. Teamet står bare når det er entydig (DL-U4).
+Sakslisten leser hendelsene i prosjektet gjennom `koe_api.saksliste` og regner
+statusen og tallene i kjernen ved lesing; ingen oppsummering lagres (#1022)."""
 lagres_fra = "`koe_api.opprett_sak` skriver `sak_opprettet` og `koe_api.skriv_hendelse` de andre brevene, kalt fra `server/kommandoer.ts`. `koe_api.skriv_hendelse` kalles fra `POST /api/kjerne/saker/<sak_id>/kommandoer` (#661), og `koe_api.opprett_sak` fra `POST /api/kjerne/saker` (#370)."
 fra_catenda = "Delvis. Sakstittelen i `sak_opprettet` kan være tittelen på en topic i Catenda (KT-U6, C22)."
 kan_gjenoppbygges = "nei. Journalen er kilden alt annet regnes fra."
@@ -935,7 +938,7 @@ skrivere = [
     "server/kommandoer.ts",
 ]
 funn = []
-belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`."
+belegg = "L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. L 20.10: `20261020180000_saksliste.sql`. K 20.10: `server/tester/saksliste.test.ts` mot testbasen."
 
 [[tabell]]
 navn = "koe.notat"
