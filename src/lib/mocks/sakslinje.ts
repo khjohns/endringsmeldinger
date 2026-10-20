@@ -1,4 +1,5 @@
 import type { Noekkeltall, Sakslinje } from '$lib/types/api';
+import { kravetStaar } from '$lib/components/saksoversikt/overview';
 
 const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
 
@@ -30,22 +31,25 @@ export function demoNoekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
   const sum = (tall: (number | null | undefined)[]) =>
     tall.reduce<number>((s, t) => s + (t ?? 0), 0);
   const enighet = forstaatt.map((l) => l.vederlag.enighet);
+  const staar = (spor: 'vederlag' | 'frist') => linjer.filter((l) => kravetStaar(l, spor));
   return {
     saker: linjer.length,
     ikke_forstaatt: linjer.length - forstaatt.length,
     vederlag: {
-      krav_antall: forstaatt.filter((l) => l.vederlag.krav).length,
-      krav_sum: sum(forstaatt.map((l) => l.vederlag.krav?.beloep)),
+      krav_antall: staar('vederlag').length,
+      krav_sum: sum(staar('vederlag').map((l) => l.vederlag.krav?.beloep)),
       venter_paa_svar: forstaatt.filter((l) => l.vederlag.venter_paa_svar).length,
       svar_subsidiaert_sum: sum(
         forstaatt.map((l) => (l.vederlag.svar?.subsidiaert ? l.vederlag.svar.beloep : null))
       ),
       enighet_virksom_sum: sum(enighet.map((e) => (e?.virkning === 'virksom' ? e.beloep : null))),
       enighet_betinget_sum: sum(enighet.map((e) => (e?.virkning === 'betinget' ? e.beloep : null))),
-      enighet_uten_beloep: enighet.filter((e) => e && e.beloep === null).length,
+      enighet_uten_beloep: enighet.filter(
+        (e) => e && e.virkning !== 'uten_virkning' && e.beloep === null
+      ).length,
     },
     frist: {
-      krav_antall: forstaatt.filter((l) => l.frist.krav).length,
+      krav_antall: staar('frist').length,
       venter_paa_svar: forstaatt.filter((l) => l.frist.venter_paa_svar).length,
     },
   };
