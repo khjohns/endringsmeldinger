@@ -193,7 +193,7 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git commit -qm x | tail -3',
       'git push -u origin claude/test-1; echo $?',
       'npm test && git commit -qm x',
-      'command git commit -m "$(printf x)" && npm test',
+      'command git commit -m "$x" && npm test',
     ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
@@ -219,8 +219,8 @@ describe('skrivevakten for mekanisk-pr', () => {
 
   it('ber om eget kall for git add og git send-pack, som reglene regner som commit og push (#753)', () => {
     for (const kommando of [
-      'printf "$(date)" && git add docs/a.md',
-      'npm test; git send-pack origin "$(printf x)"',
+      'printf "$x" && git add docs/a.md',
+      'npm test; git send-pack origin "$x"',
     ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
@@ -389,6 +389,26 @@ describe('skrivevakten for mekanisk-pr', () => {
       "echo $'\\''; g${x}it push --force origin HEAD:main #'",
       "echo $'\\'' ; r${x}m -rf kj${x}erne #'",
       'bash -c "ls # \'\ng\\\\it push --force origin HEAD:main\n\'"',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper en kommando som skallet kjører gjennom substitusjon, et tilslørt kommandonavn eller trap (#978)', () => {
+    for (const kommando of [
+      'echo $(g${x}it push --force origin HEAD:main)',
+      'echo "$(g${x}it push --force origin HEAD:main)"',
+      'cat <(g${x}it push --force origin HEAD:main)',
+      'echo >(g${x}it push --force origin HEAD:main)',
+      'if true; then g${x}it push --force origin HEAD:main; fi',
+      'for f in a; do g${x}it push --force origin HEAD:main; done',
+      'time g${x}it push --force origin HEAD:main',
+      '! g${x}it push --force origin HEAD:main',
+      'nice g${x}it push --force origin HEAD:main',
+      "echo `'`; g${x}it push --force origin HEAD:main #'`",
+      "echo $$'\\'; g${x}it push --force origin HEAD:main #'",
+      "trap 'g${x}it push --force origin HEAD:main' EXIT",
+      "x='$(g${y}it push --force origin HEAD:main)'; echo ${x@P}",
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }

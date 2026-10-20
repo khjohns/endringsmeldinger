@@ -338,18 +338,14 @@ function lekser(tekst, iKropp = false) {
 
   for (let i = 0; i < tekst.length; i++) {
     const tegn = tekst[i];
-    if (tegn === '$' && tekst[i + 1] === "'") {
-      // ANSI-C-anførsel, der `\'` ikke avslutter teksten.
-      merkUkjent();
-      harOrd = true;
-      let j = i + 2;
-      for (; j < tekst.length && tekst[j] !== "'"; j++) if (tekst[j] === '\\') j++;
-      innhold += tekst.slice(i, j + 1);
-      if (j >= tekst.length) break;
-      i = j;
-    } else if (tegn === "'") {
+    if (tegn === "'") {
       harOrd = true;
       const slutt = tekst.indexOf("'", i + 1);
+      // Står `\` før `'` i `$'…'`, avslutter `'` teksten i dash, men ikke i bash.
+      if (innhold.endsWith('$') && tekst[slutt - 1] === '\\') {
+        merkUkjent();
+        ukjentKommando = true;
+      }
       if (slutt === -1) {
         merkUkjent();
         innhold += tekst.slice(i + 1);
@@ -371,6 +367,10 @@ function lekser(tekst, iKropp = false) {
           j++;
         } else {
           if (inni === '$' || inni === '`') merkUkjent();
+          // En kommandosubstitusjon kjører kommandoer vakten ikke ser.
+          if (inni === '`' || (inni === '$' && neste === '(' && tekst[j + 2] !== '(')) {
+            ukjentKommando = true;
+          }
           innhold += inni;
         }
       }
@@ -382,6 +382,7 @@ function lekser(tekst, iKropp = false) {
       else innhold += tekst[i + 1];
       i++;
     } else if (tegn === '>') {
+      if (tekst[i + 1] === '(') ukjentKommando = true;
       const ufarlig = UFARLIG_OMDIRIGERING.exec(tekst.slice(i));
       if (ufarlig) {
         if (harOrd && /^\d+$/.test(innhold)) {
@@ -418,6 +419,8 @@ function lekser(tekst, iKropp = false) {
     } else if (tegn === '<') {
       avsluttOrd();
       merkOmdirigering();
+      // Prosessubstitusjon kjører kommandoer vakten ikke ser.
+      if (tekst[i + 1] === '(') ukjentKommando = true;
     } else if (tegn === '\n') {
       avsluttLedd();
       const linja = liste.slice(linjestart);
@@ -458,6 +461,10 @@ function lekser(tekst, iKropp = false) {
     } else if ('$`(){*?[#'.includes(tegn)) {
       // `#` er kommentar i ett skall og et vanlig ord i et annet, så leddet er ukjent.
       merkUkjent();
+      // En kommandosubstitusjon kjører kommandoer vakten ikke ser.
+      if (tegn === '`' || (tegn === '$' && tekst[i + 1] === '(' && tekst[i + 2] !== '(')) {
+        ukjentKommando = true;
+      }
       // Skallet hopper over resten av linja etter en `#` som begynner et ord. Et skall som leser
       // `#` som et ord, leser den, så den lekses også for seg.
       if (tegn === '#' && (!harOrd || /[(`]$/.test(innhold))) {
@@ -720,6 +727,12 @@ function effektiveKommandoer(leddene) {
       continue;
     }
     if (k >= ord.length) continue;
+    // Et kommandonavn med ekspansjon eller glob kan ikke leses uten å kjøre skallet, og `trap`
+    // kjører argumentet sitt som kommando.
+    if (/[$`(){}*?[]/.test(ord[k]) || ord[k] === 'trap') {
+      ut.push({ ord, ukjentKommando: true, heredoc, kropp });
+      continue;
+    }
     const kommando = ord[k].split('/').pop();
     const resten = ord.slice(k + 1);
     const payload = SKALL.has(kommando) ? skallPayload(resten) : undefined;
@@ -979,6 +992,10 @@ function vurderKall(input) {
     if (utenSti) return `Kommandoen kan skrive filer den ikke nevner (${utenSti}).`;
   }
 
+  // `${x@P}` kjører kommandosubstitusjonene i verdien.
+  if (/\$\{[^}]*@P/.test(rakKommando)) {
+    return 'Kommandoen starter med skallsyntaks som ikke kan leses statisk.';
+  }
   const eff = effektiveKommandoer(leddene);
   if (eff.some((del) => del.ukjentPrefiks)) {
     return 'Kommandoen har et prefiks med flagg som vakten ikke kan tolke sikkert.';
