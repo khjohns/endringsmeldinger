@@ -1,9 +1,11 @@
 /**
  * Datalaget for godkjenningspakkene (S-1a, #818) og kjeden fra hierarkiet i HR-kopien
  * (S-1c, #831), i `database/migrasjoner/20261019110000_godkjenning.sql` og
- * `20261020171000_hierarki_kjede.sql`. Funksjonene kalles inne i `transaksjon` med
- * byggherresiden og teamet i konteksten; uten team finnes ingen pakke (invarianten om
- * utkast).
+ * `20261020171000_hierarki_kjede.sql`, med tilgangen for godkjenneren i
+ * `20261020190000_godkjenner_tilgang.sql`. Funksjonene kalles inne i `transaksjon`.
+ * Saksbehandleren og teamet har byggherresiden og teamet i konteksten; uten team finnes
+ * ingen pakke for dem (invarianten om utkast). Godkjenneren i kjeden har aktøren og
+ * prosjektet, og når saken og pakken mens pakken er åpen, uten team (GFK-U9).
  */
 import {
   BLOKKERT,
@@ -33,7 +35,7 @@ export class PakkeNektet extends Error {}
  */
 export class PakkeAvsluttet extends Error {}
 export class UgyldigPakke extends Error {}
-/** Driften har ikke registrert noen roller (GFK-U2). */
+/** Driften har ikke registrert noen roller (GFK-U2). Driften varsles i loggen. */
 export class IngenRoller extends Error {}
 /**
  * Kjeden kan ikke avledes av en fersk HR-kopi: saksbehandleren eller en leder mangler
@@ -44,7 +46,23 @@ export class PakkeKanIkkeLages extends Error {}
 /** Godkjenneren har mistet rollen, eller som siste i kjeden grensen; pakken lages på nytt (GFK-U10). */
 export class RollenMistet extends Error {}
 
-async function kall<T>(arbeid: Promise<T>): Promise<T> {
+/**
+ * Meldingen fra basen er setningen, og etter ` | ` prosjektet, brukeren og tenanten
+ * driften trenger for å rette HR-kopien eller rollene (GFK-U10). Feilen får setningen,
+ * og loggen får begge.
+ */
+function varsleDriften(hva: string, melding: string): string {
+  const skille = melding.indexOf(' | ');
+  if (skille < 0) {
+    console.warn(`${hva}: ${melding}`);
+    return melding;
+  }
+  const setning = melding.slice(0, skille);
+  console.warn(`${hva}: ${setning} (${melding.slice(skille + 3)})`);
+  return setning;
+}
+
+async function kall<T>(arbeid: Promise<T>, hva = 'Godkjenningspakken kan ikke lages'): Promise<T> {
   try {
     return await arbeid;
   } catch (feil) {
@@ -57,11 +75,9 @@ async function kall<T>(arbeid: Promise<T>): Promise<T> {
         cause: feil,
       });
     if (nr === UGYLDIG) throw new UgyldigPakke(melding, { cause: feil });
-    if (nr === INGEN_ROLLER) throw new IngenRoller(melding, { cause: feil });
-    if (nr === KJEDEN_MANGLER) {
-      console.warn(`Godkjenningspakken kan ikke lages: ${melding}`);
-      throw new PakkeKanIkkeLages(melding, { cause: feil });
-    }
+    if (nr === INGEN_ROLLER) throw new IngenRoller(varsleDriften(hva, melding), { cause: feil });
+    if (nr === KJEDEN_MANGLER)
+      throw new PakkeKanIkkeLages(varsleDriften(hva, melding), { cause: feil });
     if (nr === ROLLEN_MISTET) throw new RollenMistet(melding, { cause: feil });
     throw feil;
   }
@@ -92,7 +108,10 @@ const verdi = (v: Brevverdi) => (f: Foresp) =>
  * rekkefølge (GFK-U8). Tom liste når saksbehandlerens egen rolle dekker verdien (GFK-U4).
  */
 export async function lesGodkjenningskjede(foresp: Foresp, v: Brevverdi): Promise<Godkjenner[]> {
-  const r = await kall(verdi(v)(foresp).execute('koe_api.godkjenningskjede'));
+  const r = await kall(
+    verdi(v)(foresp).execute('koe_api.godkjenningskjede'),
+    'Godkjenningskjeden kan ikke avledes'
+  );
   return (
     r.recordset as unknown as { godkjenner_id: string; rolle: string; grense: unknown }[]
   ).map((g) => ({ brukerId: g.godkjenner_id, rolle: g.rolle, grense: tall(g.grense) }));
@@ -160,7 +179,10 @@ export interface LagretPakke {
   handlinger: LagretHandling[];
 }
 
-/** Pakken, eller `null` når den ikke finnes eller er skjult for teamet i konteksten. */
+/**
+ * Pakken, eller `null` når den ikke finnes eller er skjult for aktøren: teamet som laget
+ * den ser den, og godkjenneren i kjeden mens den er åpen (GFK-U9).
+ */
 export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretPakke | null> {
   const r = await foresp()
     .input('pakke_id', sql.UniqueIdentifier, pakkeId)
