@@ -8,7 +8,6 @@
 
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
 import { letterText } from '$lib/approval/letter';
-import type { VederlagSubmissionEventData } from '$lib/domain/vederlagSubmissionDomain';
 import { utenVedlegg } from './skjemadata';
 
 export interface Vederlagsvalg {
@@ -45,19 +44,27 @@ export function vederlagskrav(valg: Vederlagsvalg): Vederlagskrav {
   };
 }
 
+/** Det `TeVederlagForm` sender på TS-stien. Begrunnelsen er HTML fra editoren. */
+export interface Vederlagsskjemadata {
+  /** Katalogens kode, som `FASTPRIS_TILBUD`. */
+  metode?: string;
+  belop_direkte?: number;
+  begrunnelse?: string;
+  saerskilt_krav?: unknown;
+  vedlegg_ids?: string[];
+}
+
 /**
  * Kravet fra dataene `TeVederlagForm` bygger (#718). Begrunnelsen er HTML fra
  * editoren og blir utdypningen som ren tekst. Særskilte krav og vedlegg kan ikke
  * sendes ennå (OV-U1), så de avvises her og sendes ikke.
  */
-export function vederlagskravFraSkjema(
-  data: VederlagSubmissionEventData & { vedlegg_ids?: string[] }
-): Vederlagskrav {
+export function vederlagskravFraSkjema(data: Vederlagsskjemadata): Vederlagskrav {
   if (data.saerskilt_krav)
     throw new Error('Særskilte krav etter § 34.1.3 kan ikke sendes for denne saken ennå.');
   utenVedlegg(data);
   return vederlagskrav({
-    metode: data.metode,
+    metode: data.metode ?? '',
     beloep: data.belop_direkte ?? 0,
     utdypning: letterText(data.begrunnelse),
   });

@@ -28,7 +28,12 @@
   const kjernesak = store.erKjernesak ? store : null;
   import { letterText } from '$lib/approval/letter';
   import type { Kjernevedlegg } from '$lib/api/kjerne';
-  import { dagensDato, varselhindring } from '$lib/kjernesak/fristkrav';
+  import {
+    dagensDato,
+    fristoppsummering,
+    varselhindring,
+    type Fristskjemadata,
+  } from '$lib/kjernesak/fristkrav';
   // Kjernen tilbyr registreringen så lenge sporet ikke har et varsel (VARSEL_REGISTRERT).
   const kanRegistrere = $derived(kjernesak?.tilbyrTe('varsle:frist') ?? false);
   let varselSendt = $state('');
@@ -87,24 +92,31 @@
   const existingVarselType =
     scenario === 'edit' && kjernesak ? 'spesifisert' : existing.varsel_type;
   const existingVarselDato = $derived(store.sak.frist.frist_varsel?.dato_sendt);
-  const defaults = getDefaults({
-    scenario,
-    existingVarselDato: existing.frist_varsel?.dato_sendt,
-    existing: existingVarselType
-      ? {
-          varsel_type: existingVarselType,
-          antall_dager: existing.krevd_dager,
-          begrunnelse: existing.begrunnelse,
-          frist_varsel: existing.frist_varsel?.dato_sendt
-            ? {
-                dato_sendt: existing.frist_varsel.dato_sendt,
-                metode: existing.frist_varsel.metode ?? [],
-              }
-            : undefined,
-          ny_sluttdato: existing.ny_sluttdato,
-        }
-      : undefined,
-  });
+  // TS-saken leser dagene og begrunnelsen fra kravversjonen kjernen har utledet.
+  const defaults = kjernesak
+    ? {
+        varselType: scenario === 'new' ? undefined : ('spesifisert' as const),
+        antallDager: scenario === 'edit' ? (existing.krevd_dager ?? 0) : 0,
+        begrunnelse: scenario === 'edit' ? (existing.begrunnelse ?? '') : '',
+      }
+    : getDefaults({
+        scenario,
+        existingVarselDato: existing.frist_varsel?.dato_sendt,
+        existing: existingVarselType
+          ? {
+              varsel_type: existingVarselType,
+              antall_dager: existing.krevd_dager,
+              begrunnelse: existing.begrunnelse,
+              frist_varsel: existing.frist_varsel?.dato_sendt
+                ? {
+                    dato_sendt: existing.frist_varsel.dato_sendt,
+                    metode: existing.frist_varsel.metode ?? [],
+                  }
+                : undefined,
+              ny_sluttdato: existing.ny_sluttdato,
+            }
+          : undefined,
+      });
 
   // Startvalget er standardvalget når kjernen tilbyr det, ellers det første valget kjernen
   // tilbyr. Uten standardvalg er ingenting valgt, med mindre kjernen tilbyr bare ett valg.
@@ -138,10 +150,15 @@
   let charCount = $state(defaults.begrunnelse.replace(/<[^>]*>/g, '').trim().length);
 
   const visibility = $derived(
-    beregnVisibility(
-      { varselType: registrerer ? 'varsel' : (varselType as FristVarselType) },
-      { scenario }
-    )
+    kjernesak
+      ? null
+      : beregnVisibility(
+          { varselType: registrerer ? 'varsel' : (varselType as FristVarselType) },
+          { scenario }
+        )
+  );
+  const visKravet = $derived(
+    !registrerer && (kjernesak ? varselType === 'spesifisert' : visibility!.showKravSection)
   );
   // Kjernen tilbyr valgene. Utsatt beregning etter § 33.6.2 har ingen kommando ennå.
   const VALGNAVN = {
@@ -152,7 +169,7 @@
   const segmentOptions = $derived(
     kjernevalg
       ? kjernevalg.map((value) => ({ value, label: VALGNAVN[value] }))
-      : visibility.segmentOptions
+      : visibility!.segmentOptions
   );
   // KA-U33: kjernen avviser et fristkrav uten begrunnelse (BEGRUNNELSE_MANGLER). Blanke
   // tegn teller ikke, som i adapteren (#943).
@@ -183,7 +200,18 @@
             hindring === null)
       : beregnCanSubmit(mappedState, { scenario }) && (varselType === 'varsel' || charCount >= 10)
   );
-  const statusSummary = $derived(beregnTeStatusSummary(mappedState, { scenario }));
+  const statusSummary = $derived(
+    kjernesak
+      ? fristoppsummering(registrerer ? 'registrert' : varselType, antallDager, scenario)
+      : beregnTeStatusSummary(mappedState, { scenario })
+  );
+  const kjernedata = (): Fristskjemadata => ({
+    varsel_type: registrerer ? 'varsel' : varselType,
+    antall_dager: varselType === 'spesifisert' ? antallDager : undefined,
+    // Varselet fra appen og det registrerte varselet har ingen fritekst (VS-U15, MM-U17).
+    begrunnelse: varselType === 'spesifisert' ? begrunnelse : '',
+    ...(registrerer ? { registrert: varselet } : visVarselet ? { tidligereVarsel: varselet } : {}),
+  });
 
   $effect(() => {
     onactions?.({
@@ -205,25 +233,24 @@
             if (claimReview) {
               await claimReview.submit(
                 'frist',
-                getEventType({ scenario }) as EventType,
-                {
-                  ...(registrerer
-                    ? { registrert: varselet }
-                    : visVarselet
-                      ? { tidligereVarsel: varselet }
-                      : {}),
-                  ...buildEventData(mappedState, {
-                    scenario,
-                    grunnlagEventId:
-                      submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
-                    originalEventId:
-                      scenario !== 'new'
-                        ? (submissionRefs(store.timeline, 'frist').claimId ??
-                          existing.varsler?.find((v) => v.type === 'frist')?.event_id)
-                        : undefined,
-                    erSvarPaForesporsel: scenario === 'foresporsel',
-                  }),
-                },
+                kjernesak
+                  ? scenario === 'edit'
+                    ? 'frist_krav_oppdatert'
+                    : 'frist_krav_sendt'
+                  : (getEventType({ scenario }) as EventType),
+                kjernesak
+                  ? kjernedata()
+                  : buildEventData(mappedState, {
+                      scenario,
+                      grunnlagEventId:
+                        submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
+                      originalEventId:
+                        scenario !== 'new'
+                          ? (submissionRefs(store.timeline, 'frist').claimId ??
+                            existing.varsler?.find((v) => v.type === 'frist')?.event_id)
+                          : undefined,
+                      erSvarPaForesporsel: scenario === 'foresporsel',
+                    }),
                 (demo) => demo.sendTeFrist(antallDager, varselType as FristVarselType, begrunnelse)
               );
               return;
@@ -358,7 +385,7 @@
       {/if}
     </FormSection>
   {/if}
-  {#if !registrerer && visibility.showKravSection}
+  {#if visKravet}
     {#if varselType === 'spesifisert'}
       <FormSection title="Utmåling" paragrafRef="§ 33.5">
         <p class="helptext">
@@ -384,7 +411,9 @@
         ? 'Forklar hvorfor kravet ikke kan beregnes nå, og når et spesifisert krav kan forventes.'
         : 'Beskriv fremdriftshindringen, sammenhengen med kontraktsforholdet og hvordan antall dager er beregnet. Oppgi om virkningen ligger på kritisk linje.'}
       body={begrunnelse}
-      placeholder={getDynamicPlaceholder(mappedState.varselType)}
+      placeholder={kjernesak
+        ? 'Begrunn antall dager krevd og den virkning kontraktsforholdet har hatt på fremdriften (§ 33.5)...'
+        : getDynamicPlaceholder(mappedState.varselType)}
       onchange={(html) => (begrunnelse = html)}
       oncharcount={(count) => (charCount = count)}
     />
