@@ -18,7 +18,8 @@
  * opprettelsen og datoen etter VS-U26 (#664), og F296–F300 varselet med vedlegg i
  * fristkravet (OV-U5, #828) og datoen for varselet (#968), og F301–F303
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
- * OV-U7 (#587). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
+ * kravene er avgjort (OV-U7, #994). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -1393,6 +1394,18 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['når byggherren har frafalt pålegget, sier meldingen det'],
   },
   {
+    id: 'F170',
+    feilklasse: 'en lest senere begrunnelse kan endre utfallet (KA-U34, OV-U7)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "['aksept', 'trekk', 'ingen_krav', 'varsel']",
+        "['aksept', 'trekk', 'ingen_krav', 'varsel', 'begrunnelse']",
+      ],
+    ],
+    mal: ['en lest senere begrunnelse etter at kravene er avgjort'],
+  },
+  {
     id: 'F173',
     feilklasse: 'datoen for et svar fra appen er i UTC, ikke i norsk tid (KA-U37)',
     fil: `${K}/format/leser.ts`,
@@ -2587,6 +2600,18 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, og ingen hendelse skrives',
     ],
+  },
+  {
+    id: 'F304',
+    feilklasse: 'en lest påberopt passivitet kan endre utfallet (VS-U12, OV-U7)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "['aksept', 'trekk', 'ingen_krav', 'varsel']",
+        "['aksept', 'trekk', 'ingen_krav', 'varsel', 'passivitet']",
+      ],
+    ],
+    mal: ['en lest påberopt passivitet etter at kravene er avgjort'],
   },
 ];
 

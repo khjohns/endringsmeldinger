@@ -2144,6 +2144,43 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     });
   });
 
+  /** Kravene avgjort: grunnlaget og vederlaget godkjent, fristkravet trukket (KA-U11). */
+  const avgjort = () => {
+    const s = utenFrist();
+    s.send('TE', FRISTKRAV);
+    s.send('TE', { type: 'trekk', spor: 'frist' });
+    const foer = s.u();
+    expect(kraveneErAvgjort(foer), 'forutsetning: kravene er avgjort').toBe(true);
+    return { s, foer };
+  };
+  const utsagn = (id: string, art: string, gjelder: string) => ({
+    utsagn: [{ id, art, gjelder }],
+  });
+
+  it('en lest senere begrunnelse etter at kravene er avgjort, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, KA-U34)', () => {
+    const { s, foer } = avgjort();
+    const svarId = foer.spor.vederlag.gjeldendeSvar?.id;
+    expect(svarId, 'forutsetning: svaret på vederlaget').toBeDefined();
+    const id = randomUUID();
+    s.rad('BH', utsagn(id, 'begrunnelse', svarId as string));
+    const u = s.u();
+    expect(u.forstaatt).toBe(true);
+    expect(u.elementer[id]?.art).toBe('begrunnelse');
+    expect(u.utenVirkning).toEqual([]);
+    expect(u.spor).toEqual(foer.spor);
+  });
+
+  it('en lest påberopt passivitet etter at kravene er avgjort, gjør saken fortsatt forstått og endrer ikke sporene (OV-U7, KA-U11, VS-U12)', () => {
+    const { s, foer } = avgjort();
+    const grunnlagskrav = s.krav('grunnlag');
+    s.rad('TE', utsagn(randomUUID(), 'passivitet', grunnlagskrav));
+    const u = s.u();
+    expect(u.forstaatt).toBe(true);
+    expect(u.passivitet.map((p) => [p.part, p.gjelder])).toEqual([['TE', grunnlagskrav]]);
+    expect(u.utenVirkning).toEqual([]);
+    expect(u.spor).toEqual(foer.spor);
+  });
+
   it('et trukket krav står som trukket i meldingen', () => {
     const s = utenFrist();
     s.send('TE', FRISTKRAV);
