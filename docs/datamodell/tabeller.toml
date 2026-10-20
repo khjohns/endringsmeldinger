@@ -628,11 +628,13 @@ kaller den fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659). En
 Entra-identitet oppretter aldri en bruker ved innloggingen: driften registrerer
 den med `koe_drift.registrer_entra_identitet`, som ny bruker eller koblet til en
 eksisterende (S-1c del 1, #831). `koe_api.entra_identitet` oppdaterer navn og
-e-post ved innloggingen."""
+e-post ved innloggingen. `koe_drift.koble_catenda_identitet` kobler en
+Catenda-identitet til en bruker med Entra-identitet og sletter brukeren
+identiteten stod på, når den bare har medlemskap, fravær og sesjoner (#1002)."""
 fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
 kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
-skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post)", "database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`. L 18.10: `20261019160000_aktornavn.sql`. K 18.10: `server/tester/aktornavn.test.ts` mot testbasen."
 
@@ -646,11 +648,11 @@ Identitetene til en bruker, unike på leverandør, issuer og subjekt. En
 Catenda-identitet og en Entra-identitet har issueren og subjektformen basen
 kontrollerer, så samme person ikke får to brukerrader (AGENTS.md). For Entra er
 issueren v2-formen for tenanten og subjektet `oid`, begge i små bokstaver (#831)."""
-lagres_fra = "`koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api.catenda_identitet` fra tilbakekallet i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet registreres av driften med `koe_drift.registrer_entra_identitet` og slås bare opp av `koe_api.entra_identitet` ved innloggingen (S-1c del 1, #831)."
+lagres_fra = "`koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api.catenda_identitet` fra tilbakekallet i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet registreres av driften med `koe_drift.registrer_entra_identitet` og slås bare opp av `koe_api.entra_identitet` ved innloggingen (S-1c del 1, #831). Driften kobler en Catenda-identitet til en bruker med Entra-identitet med `koe_drift.koble_catenda_identitet`, som flytter identiteten bare når brukeren den stod på, ikke er brukt utover medlemskap, fravær og sesjoner; det er den eneste slettingen triggeren slipper gjennom (#1002)."
 fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en. For `entra` kommer subjektet fra ID-tokenet fra Entra ID."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Subjektet identifiserer en person."
-skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post)", "database/migrasjoner/20261020170000_catenda_kobling.sql (`koe_drift.koble_catenda_identitet`, som sletter én Catenda-identitet når den flyttes)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
 
