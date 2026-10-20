@@ -21,8 +21,12 @@ og 30 dager.
 - `--varsel i-tide|for-sent`: «Ja, i tide», eller «Nei, for sent» (og «Nei,
   prekludert» på svar til forespørsel) i alle varselspørsmål.
 - `--hindring ja|nei`: «Ja, hindring», eller «Nei, ingen hindring» (§ 33.1).
-- `--dager <n>`: godkjent fristforlengelse i kalenderdager, et helt tall fra 0.
-- `--tekst`: skriver ut brevteksten og sporstatusene etter at svaret er sendt.
+- `--dager <n>`: godkjent fristforlengelse i kalenderdager, et helt tall fra 0 til
+  de krevde dagene i saken (45 i `scenario1`). Feltet klipper til kravet, så
+  skriptet sjekker verdien etter utfyllingen og avbryter med exit 1 hvis den er
+  større.
+- `--tekst`: skriver ut brevteksten og sporstatusene («Navn: status» for hver rad
+  i venstrekolonnen) etter at svaret er sendt.
 
 Ugyldig verdi gir en melding om hva som er feil, og exit 1 før nettleseren startes.
 

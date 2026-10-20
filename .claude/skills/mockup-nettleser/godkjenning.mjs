@@ -108,7 +108,13 @@ try {
   for (const svar of await page.getByRole('radio', { name: varselSvar[arg.varsel] }).all())
     await svar.click();
   await page.getByRole('radio', { name: hindringSvar[arg.hindring], exact: true }).click();
-  await page.locator('#bh-frist-godkjent-dager').fill(arg.dager);
+  const dagfelt = page.locator('#bh-frist-godkjent-dager');
+  await dagfelt.fill(arg.dager);
+  const satt = Number(await dagfelt.inputValue());
+  if (satt !== Number(arg.dager))
+    throw new Error(
+      `--dager ${arg.dager} overstiger de krevde dagene: feltet tok bare ${satt}. Velg et tall som ikke er større enn kravet.`
+    );
   await steg('vurdering');
 
   await knapp('Ferdigstill vurdering').click();
@@ -147,10 +153,19 @@ try {
   await steg('sendt');
   if (arg.tekst) {
     console.log(`\nBrevtekst:\n${await page.locator('article.letter-paper').innerText()}`);
-    console.log(`\nSpor:\n${(await page.locator('.row-status').allInnerTexts()).join('\n')}`);
+    const spor = await page.locator('nav .m-row').evaluateAll((rader) =>
+      rader.map((r) => {
+        const tekst = (sel) => r.querySelector(sel)?.textContent.replace(/\s+/g, ' ').trim();
+        return `${tekst('.row-name')}: ${tekst('.row-status')}`;
+      })
+    );
+    console.log(`\nSpor:\n${spor.join('\n')}`);
   }
   if (feil.length) throw new Error(`JavaScript-feil i siden:\n${feil.join('\n')}`);
   console.log('OK: svaret er sendt.');
+} catch (e) {
+  console.error(e.message);
+  process.exitCode = 1;
 } finally {
   await browser?.close();
   stopp(vite);
