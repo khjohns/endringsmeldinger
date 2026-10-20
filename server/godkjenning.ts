@@ -1,8 +1,9 @@
 /**
- * Datalaget for fullmaktene og godkjenningspakkene (S-1a, #818), i
- * `database/migrasjoner/20261019110000_godkjenning.sql`. Funksjonene kalles inne i
- * `transaksjon` med byggherresiden og teamet i konteksten; uten team finnes ingen
- * pakke (invarianten om utkast).
+ * Datalaget for godkjenningspakkene (S-1a, #818) og kjeden fra hierarkiet i HR-kopien
+ * (S-1c, #831), i `database/migrasjoner/20261019110000_godkjenning.sql` og
+ * `20261020171000_hierarki_kjede.sql`. Funksjonene kalles inne i `transaksjon` med
+ * byggherresiden og teamet i konteksten; uten team finnes ingen pakke (invarianten om
+ * utkast).
  */
 import {
   BLOKKERT,
@@ -15,7 +16,11 @@ import {
   UNIK_NOEKKEL,
   type Foresp,
 } from './datalag.ts';
-import type { Fullmakt } from './fullmakt.ts';
+import type { Brevverdi } from './fullmakt.ts';
+
+const INGEN_ROLLER = 52070;
+const KJEDEN_MANGLER = 52071;
+const ROLLEN_MISTET = 52072;
 
 export type Godkjenningshandling = 'godkjent' | 'returnert' | 'trukket';
 
@@ -28,6 +33,16 @@ export class PakkeNektet extends Error {}
  */
 export class PakkeAvsluttet extends Error {}
 export class UgyldigPakke extends Error {}
+/** Driften har ikke registrert noen roller (GFK-U2). */
+export class IngenRoller extends Error {}
+/**
+ * Kjeden kan ikke avledes av en fersk HR-kopi: saksbehandleren eller en leder mangler
+ * rolle, kopien er eldre enn 24 timer, eller ingen leder har en grense som dekker
+ * verdien. Pakken kan ikke lages, og driften varsles (GFK-U10).
+ */
+export class PakkeKanIkkeLages extends Error {}
+/** Godkjenneren har mistet rollen, eller som siste i kjeden grensen; pakken lages på nytt (GFK-U10). */
+export class RollenMistet extends Error {}
 
 async function kall<T>(arbeid: Promise<T>): Promise<T> {
   try {
@@ -42,30 +57,45 @@ async function kall<T>(arbeid: Promise<T>): Promise<T> {
         cause: feil,
       });
     if (nr === UGYLDIG) throw new UgyldigPakke(melding, { cause: feil });
+    if (nr === INGEN_ROLLER) throw new IngenRoller(melding, { cause: feil });
+    if (nr === KJEDEN_MANGLER) {
+      console.warn(`Godkjenningspakken kan ikke lages: ${melding}`);
+      throw new PakkeKanIkkeLages(melding, { cause: feil });
+    }
+    if (nr === ROLLEN_MISTET) throw new RollenMistet(melding, { cause: feil });
     throw feil;
   }
 }
 
 const tall = (v: unknown): number | null => (v === null ? null : Number(v));
 
-/** Fullmaktene og dagmulktssatsen i prosjektet i konteksten. Bare byggherren ser dem. */
-export async function lesFullmakter(
-  foresp: Foresp
-): Promise<{ fullmakter: Fullmakt[]; dagmulktssats: number | null }> {
-  const r = await foresp().execute('koe_api.fullmakter');
-  const [fullmakter, satser] = r.recordsets as unknown as [
-    { bruker_id: string; tittel: string; grense: unknown; plass: number }[],
-    { sats: unknown }[],
-  ];
-  return {
-    fullmakter: fullmakter.map((f) => ({
-      brukerId: f.bruker_id,
-      tittel: f.tittel,
-      grense: tall(f.grense),
-      plass: f.plass,
-    })),
-    dagmulktssats: satser.length ? tall(satser[0].sats) : null,
-  };
+/** Dagmulktssatsen i prosjektet i konteksten. Bare byggherren ser den. */
+export async function lesDagmulktssats(foresp: Foresp): Promise<number | null> {
+  const r = await foresp().execute('koe_api.dagmulktssats');
+  const satser = r.recordset as unknown as { sats: unknown }[];
+  return satser.length ? tall(satser[0].sats) : null;
+}
+
+export interface Godkjenner {
+  brukerId: string;
+  /** Rollen i HR-kopien (GFK-U6). */
+  rolle: string;
+  /** Kroner. `null` er ubegrenset. */
+  grense: number | null;
+}
+
+const verdi = (v: Brevverdi) => (f: Foresp) =>
+  f().input('beloep', sql.Decimal(15, 2), v.beloep).input('gulv', sql.Decimal(15, 2), v.gulv);
+
+/**
+ * Godkjennerne svaret fra saksbehandleren i konteksten må gjennom, i kjedens
+ * rekkefølge (GFK-U8). Tom liste når saksbehandlerens egen rolle dekker verdien (GFK-U4).
+ */
+export async function lesGodkjenningskjede(foresp: Foresp, v: Brevverdi): Promise<Godkjenner[]> {
+  const r = await kall(verdi(v)(foresp).execute('koe_api.godkjenningskjede'));
+  return (
+    r.recordset as unknown as { godkjenner_id: string; rolle: string; grense: unknown }[]
+  ).map((g) => ({ brukerId: g.godkjenner_id, rolle: g.rolle, grense: tall(g.grense) }));
 }
 
 export interface NyPakke {
@@ -76,19 +106,18 @@ export interface NyPakke {
   brev: unknown;
   /** Det fullmakten ble regnet av: kravversjonene, verdien og satsen. */
   fullmaktsgrunnlag: unknown;
-  /** Bruker-ID-ene i kjedens rekkefølge, fra `godkjenningskjede`. */
-  godkjennere: readonly string[];
+  /** Verdien kjeden avledes av; kjeden fryses i pakken (GFK-U10). */
+  verdi: Brevverdi;
 }
 
 export async function lagPakke(foresp: Foresp, p: NyPakke): Promise<void> {
   await kall(
-    foresp()
+    verdi(p.verdi)(foresp)
       .input('pakke_id', sql.UniqueIdentifier, p.pakkeId)
       .input('sak_id', sql.NVarChar(36), p.sakId)
       .input('forrige_pakke_id', sql.UniqueIdentifier, p.forrigePakkeId)
       .input('brev', sql.NVarChar(sql.MAX), JSON.stringify(p.brev))
       .input('fullmaktsgrunnlag', sql.NVarChar(sql.MAX), JSON.stringify(p.fullmaktsgrunnlag))
-      .input('godkjennere', sql.NVarChar(sql.MAX), JSON.stringify(p.godkjennere))
       .execute('koe_api.lag_godkjenningspakke')
   );
 }
@@ -112,7 +141,7 @@ export interface LagretHandling {
   handling: Godkjenningshandling;
   steg: number | null;
   aktorId: string;
-  /** Fullmakten som var gitt da godkjenningen ble gitt (B-04 punkt 2). */
+  /** Rollen og grensen godkjenneren hadde da godkjenningen ble gitt (B-04 punkt 2). */
   fullmakt: { tittel: string; grense: number | null } | null;
   begrunnelse: string | null;
   tidspunkt: Date;

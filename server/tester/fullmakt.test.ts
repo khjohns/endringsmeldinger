@@ -1,7 +1,7 @@
 /**
- * Fullmakten byggherrens svar krever (S-1a, #818). Forventningene er GFK-06 med
- * presiseringen 24.09, vedtaket 23.09 om ubegrenset fullmakt og GFK-U2, GFK-U3 og
- * GFK-U4.
+ * Verdien fullmakten for byggherrens svar regnes av (S-1a, #818). Forventningene er
+ * GFK-06 med presiseringen 24.09 og GFK-U3. Kjeden prøves mot hierarkiet i
+ * `godkjenning.test.ts` (GFK-U8).
  * Kravene skrives gjennom kjernens `vurder`, så de er kjernens kravversjoner (KA-U2),
  * og beløpene og dagene i svaret er kjernens utregning (B-13).
  */
@@ -17,13 +17,7 @@ import {
 import type { Journalrad, Spor } from '../../kjerne/typer.ts';
 import type { Utledning } from '../../kjerne/utledning/utled.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import {
-  brevverdi,
-  godkjenningskjede,
-  IngenFullmakter,
-  UtilstrekkeligFullmakt,
-  type Fullmakt,
-} from '../fullmakt.ts';
+import { brevverdi } from '../fullmakt.ts';
 
 const UTDYPNING = 'Byggherren har pålagt en annen fundamentering.';
 const KRAV_GRUNNLAG = {
@@ -231,54 +225,5 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
         SATS
       )
     ).toEqual({ beloep: 15 * SATS, gulv: 15 * SATS });
-  });
-});
-
-const fullmakt = (brukerId: string, grense: number | null, plass: number): Fullmakt => ({
-  brukerId,
-  tittel: brukerId,
-  grense,
-  plass,
-});
-const KJEDE = [fullmakt('pl', 200000, 1), fullmakt('sl', 1500000, 2), fullmakt('dir', null, 3)];
-
-describe('godkjenningskjeden', () => {
-  it('GFK-U2: uten registrerte fullmakter kan svaret ikke sendes', () => {
-    expect(() => godkjenningskjede({ beloep: 0, gulv: 0 }, 'sb', [])).toThrow(IngenFullmakter);
-  });
-
-  it('avsenderens egen fullmakt dekker verdien: ingen godkjenning', () => {
-    expect(godkjenningskjede({ beloep: 200000, gulv: 200000 }, 'pl', KJEDE)).toEqual([]);
-  });
-
-  it('kjeden går fram til den første som dekker verdien', () => {
-    expect(
-      godkjenningskjede({ beloep: 200001, gulv: 200001 }, 'sb', KJEDE).map((f) => f.brukerId)
-    ).toEqual(['pl', 'sl']);
-  });
-
-  it('avsenderen står ikke i sin egen kjede', () => {
-    expect(
-      godkjenningskjede({ beloep: 1000000, gulv: 1000000 }, 'pl', KJEDE).map((f) => f.brukerId)
-    ).toEqual(['sl']);
-  });
-
-  it('det som ikke kan verdsettes, krever hele kjeden', () => {
-    expect(
-      godkjenningskjede({ beloep: null, gulv: 0 }, 'pl', KJEDE).map((f) => f.brukerId)
-    ).toEqual(['sl', 'dir']);
-  });
-
-  it('ubegrenset fullmakt sender alene også når beløpet ikke kan verdsettes (23.09, GFK-U4)', () => {
-    expect(godkjenningskjede({ beloep: null, gulv: 5000000 }, 'dir', KJEDE)).toEqual([]);
-  });
-
-  it('kjeden må dekke det som lar seg verdsette', () => {
-    expect(() =>
-      godkjenningskjede({ beloep: null, gulv: 2000000 }, 'sb', KJEDE.slice(0, 2))
-    ).toThrow(UtilstrekkeligFullmakt);
-    expect(() =>
-      godkjenningskjede({ beloep: 2000000, gulv: 2000000 }, 'sb', KJEDE.slice(0, 2))
-    ).toThrow(UtilstrekkeligFullmakt);
   });
 });

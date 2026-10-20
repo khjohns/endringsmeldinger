@@ -62,9 +62,7 @@ const UTEN_TRIGGER: Record<string, string> = {
   app_sessions: 'Sesjonen slettes ved utlogging og når den er utløpt (B-19, #656).',
   app_oauth_attempts:
     'Innloggingsforsøket slettes når det brukes, og når det er utløpt (B-19, #656).',
-  fullmakt:
-    'Driften setter opp og endrer fullmaktene (GFK-U1); en godkjenning fryser fullmakten den ble gitt med (#818).',
-  dagmulktssats: 'Driften setter opp og endrer satsen, som fullmaktene (#818).',
+  dagmulktssats: 'Driften setter opp og endrer satsen (#818).',
   entra_tenant: 'Driften godkjenner og fjerner tenantene for innloggingen med Entra ID (#831).',
   rolle: 'Driften registrerer og endrer grensen per rolle (GFK-U6, GFK-U11).',
   stillingstittel:

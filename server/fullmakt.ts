@@ -1,24 +1,15 @@
 /**
- * Fullmakten byggherrens svar krever (GFK-06 med presiseringen 24.09, GFK-U2, GFK-U3
- * og GFK-U4). Kravene er kjernens kravversjoner (KA-U2, DT-02), og svarets beløp og dager
- * er kjernens utregning (B-13). Fullmaktene og dagmulktssatsen leses i
- * `server/godkjenning.ts`.
+ * Verdien fullmakten for byggherrens svar regnes av (GFK-06 med presiseringen 24.09 og
+ * GFK-U3). Kravene er kjernens kravversjoner (KA-U2, DT-02), og svarets beløp og dager
+ * er kjernens utregning (B-13). Dagmulktssatsen leses, og kjeden avledes av hierarkiet
+ * (GFK-U8), i `server/godkjenning.ts`.
  */
-import { kroner, regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
+import { regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
 import { KRAVSPOR, type Kravspor } from '../kjerne/typer.ts';
 import type { Sporutledning, Utledning } from '../kjerne/utledning/utled.ts';
-
-export interface Fullmakt {
-  brukerId: string;
-  tittel: string;
-  /** Kroner. `null` er ubegrenset fullmakt. */
-  grense: number | null;
-  /** Plassen i godkjenningskjeden, fra 1. */
-  plass: number;
-}
 
 /**
  * Verdien brevet gir byggherren ansvar for, i kroner. `beloep` er `null` når noe i
@@ -29,12 +20,6 @@ export interface Brevverdi {
   beloep: number | null;
   gulv: number;
 }
-
-/** Prosjektet har ingen registrerte fullmakter (GFK-U2). */
-export class IngenFullmakter extends Error {}
-
-/** Ingen i kjeden har fullmakt til det brevet gir ansvar for. */
-export class UtilstrekkeligFullmakt extends Error {}
 
 /** Hele øre, rundet som reglene runder beløp (`beloep`), ikke som flyttallet. */
 const oere = (kr: number) => tilTall(beloep(kr)!);
@@ -115,37 +100,4 @@ function kravverdi(
   if (sp.trukket || sp.ingenKrav) return 0;
   if (!sp.gjeldendeKrav) return null;
   return verdi(sp.gjeldendeKrav.innhold);
-}
-
-const dekker = (f: Fullmakt | undefined, beloep: number | null): boolean =>
-  f !== undefined && (f.grense === null || (beloep !== null && beloep <= f.grense));
-
-/**
- * Godkjennerne svaret må gjennom, i kjedens rekkefølge. Tom liste når avsenderens
- * egen fullmakt dekker verdien; ubegrenset fullmakt dekker også det som ikke kan
- * verdsettes. Ellers går kjeden fram til den første som dekker verdien, og når
- * verdien ikke kan verdsettes, hele kjeden. Avsenderen står ikke i sin egen kjede.
- */
-export function godkjenningskjede(
-  verdi: Brevverdi,
-  avsenderId: string,
-  fullmakter: readonly Fullmakt[]
-): Fullmakt[] {
-  if (fullmakter.length === 0)
-    throw new IngenFullmakter('Byggherren har ikke registrert fullmakter i prosjektet');
-  if (
-    dekker(
-      fullmakter.find((f) => f.brukerId === avsenderId),
-      verdi.beloep
-    )
-  )
-    return [];
-  const kjede = fullmakter
-    .filter((f) => f.brukerId !== avsenderId)
-    .sort((a, b) => a.plass - b.plass);
-  const maal = verdi.beloep ?? verdi.gulv;
-  const siste = kjede.findIndex((f) => dekker(f, maal));
-  if (siste < 0)
-    throw new UtilstrekkeligFullmakt(`Ingen i kjeden har fullmakt til ${kroner(maal)}`);
-  return verdi.beloep === null ? kjede : kjede.slice(0, siste + 1);
 }
