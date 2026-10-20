@@ -127,7 +127,7 @@ const GRAPHQL = /(^|\/)graphql\/?$/;
 // Miljøvariabler som får git, gh, skallet eller et program til å kjøre noe annet eller bruke et
 // annet tre. De leses som tilordning (`NAVN=…`) eller som navn alene (`export NAVN`).
 const FARLIG_MILJOE =
-  /^(GIT_\w+|GH_\w+|XDG_\w+|LD_\w+|NPM_CONFIG_\w+|npm_config_\w+|HOME|PATH|ZDOTDIR|EDITOR|VISUAL|PAGER|BROWSER|LESSOPEN|LESSCLOSE|BASH_ENV|ENV|SHELL|NODE_OPTIONS|PYTHONPATH|PYTHONSTARTUP|PERL5OPT|RUBYOPT|RIPGREP_CONFIG_PATH)(=|$)/;
+  /^(GIT_\w+|GH_\w+|XDG_\w+|LD_\w+|NPM_CONFIG_\w+|npm_config_\w+|HOME|PATH|ZDOTDIR|EDITOR|VISUAL|PAGER|BROWSER|LESSOPEN|LESSCLOSE|BASH_ENV|ENV|SHELL|NODE_OPTIONS|PYTHONPATH|PYTHONSTARTUP|PERL5OPT|RUBYOPT|RIPGREP_CONFIG_PATH|PS\d|PROMPT_COMMAND)(=|$)/;
 const UFARLIG_MILJOE = /^(GIT_PAGER=(cat)?|PAGER=(cat)?|GIT_TERMINAL_PROMPT=0)$/;
 
 // Hookoppsettet, som mekanisk-pr ikke endrer.
@@ -271,6 +271,23 @@ function ledd(kommando) {
 const UFARLIG_OMDIRIGERING = /^>(&\d+(?=$|[\s;&|)])|\s*\/dev\/null(?=$|[\s;&|)]))/;
 const ESCAPE_I_ANFORSEL = '$`"\\';
 
+// Om parentesen ved `i` åpner aritmetikk (`((…))`): den neste parentesen lukkes rett før
+// denne. Ellers er `$((…) )` en kommandosubstitusjon med et subskall.
+function aapnerAritmetikk(tekst, i) {
+  if (tekst[i + 1] !== '(') return false;
+  let dybde = 0;
+  let indre = -1;
+  for (let j = i; j < tekst.length; j++) {
+    if (tekst[j] === '(') dybde++;
+    else if (tekst[j] === ')') {
+      dybde--;
+      if (dybde === 1 && indre === -1) indre = j;
+      if (dybde === 0) return indre === j - 1;
+    }
+  }
+  return false;
+}
+
 /**
  * Deler en kommando i ledd og ord med skallets regler for anførselstegn og escape.
  * `ukjent` settes når leddet ikke kan leses uten å kjøre skallet: substitusjon, variabler,
@@ -368,7 +385,7 @@ function lekser(tekst, iKropp = false) {
         } else {
           if (inni === '$' || inni === '`') merkUkjent();
           // En kommandosubstitusjon kjører kommandoer vakten ikke ser.
-          if (inni === '`' || (inni === '$' && neste === '(' && tekst[j + 2] !== '(')) {
+          if (inni === '`' || (inni === '$' && neste === '(' && !aapnerAritmetikk(tekst, j + 1))) {
             ukjentKommando = true;
           }
           innhold += inni;
@@ -382,7 +399,7 @@ function lekser(tekst, iKropp = false) {
       else innhold += tekst[i + 1];
       i++;
     } else if (tegn === '>') {
-      if (tekst[i + 1] === '(') ukjentKommando = true;
+      if (tekst[i + 1] === '(' && !aritmetikk) ukjentKommando = true;
       const ufarlig = UFARLIG_OMDIRIGERING.exec(tekst.slice(i));
       if (ufarlig) {
         if (harOrd && /^\d+$/.test(innhold)) {
@@ -420,7 +437,7 @@ function lekser(tekst, iKropp = false) {
       avsluttOrd();
       merkOmdirigering();
       // Prosessubstitusjon kjører kommandoer vakten ikke ser.
-      if (tekst[i + 1] === '(') ukjentKommando = true;
+      if (tekst[i + 1] === '(' && !aritmetikk) ukjentKommando = true;
     } else if (tegn === '\n') {
       avsluttLedd();
       const linja = liste.slice(linjestart);
@@ -462,7 +479,10 @@ function lekser(tekst, iKropp = false) {
       // `#` er kommentar i ett skall og et vanlig ord i et annet, så leddet er ukjent.
       merkUkjent();
       // En kommandosubstitusjon kjører kommandoer vakten ikke ser.
-      if (tegn === '`' || (tegn === '$' && tekst[i + 1] === '(' && tekst[i + 2] !== '(')) {
+      if (
+        tegn === '`' ||
+        (tegn === '$' && tekst[i + 1] === '(' && !aapnerAritmetikk(tekst, i + 1))
+      ) {
         ukjentKommando = true;
       }
       // Skallet hopper over resten av linja etter en `#` som begynner et ord. Et skall som leser
@@ -727,9 +747,13 @@ function effektiveKommandoer(leddene) {
       continue;
     }
     if (k >= ord.length) continue;
-    // Et kommandonavn med ekspansjon eller glob kan ikke leses uten å kjøre skallet, og `trap`
-    // kjører argumentet sitt som kommando.
-    if (/[$`(){}*?[]/.test(ord[k]) || ord[k] === 'trap') {
+    // Et kommandonavn med ekspansjon eller glob kan ikke leses uten å kjøre skallet, og disse
+    // ordene har kommandoer etter andre ord.
+    if (
+      /[$`*?{}]/.test(ord[k]) ||
+      (/[[()]/.test(ord[k]) && !/^(\[\[?|\(\()$/.test(ord[k])) ||
+      ['function', 'case', 'coproc', 'select'].includes(ord[k])
+    ) {
       ut.push({ ord, ukjentKommando: true, heredoc, kropp });
       continue;
     }
@@ -738,6 +762,9 @@ function effektiveKommandoer(leddene) {
     const payload = SKALL.has(kommando) ? skallPayload(resten) : undefined;
     if (payload !== undefined) {
       ut.push(...effektiveKommandoer(lekser(payload)).map(arv));
+    } else if (kommando === 'trap') {
+      const argument = resten.find((o) => !o.startsWith('-')) ?? '';
+      ut.push(...effektiveKommandoer(lekser(argument)).map(arv));
     } else if (kommando === 'eval') {
       ut.push(...effektiveKommandoer(lekser(resten.join(' '))).map(arv));
     } else {
@@ -994,7 +1021,7 @@ function vurderKall(input) {
 
   // `${x@P}` kjører kommandosubstitusjonene i verdien.
   if (/\$\{[^}]*@P/.test(rakKommando)) {
-    return 'Kommandoen starter med skallsyntaks som ikke kan leses statisk.';
+    return 'Kommandoen har ${…@P}, som kjører kommandosubstitusjonene i verdien.';
   }
   const eff = effektiveKommandoer(leddene);
   if (eff.some((del) => del.ukjentPrefiks)) {

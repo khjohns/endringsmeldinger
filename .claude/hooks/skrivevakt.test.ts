@@ -394,7 +394,7 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
-  it('stopper en kommando som skallet kjører gjennom substitusjon, et tilslørt kommandonavn eller trap (#978)', () => {
+  it('stopper en kommando som skallet kjører gjennom substitusjon, et tilslørt kommandonavn, trap eller PS4 (#970)', () => {
     for (const kommando of [
       'echo $(g${x}it push --force origin HEAD:main)',
       'echo "$(g${x}it push --force origin HEAD:main)"',
@@ -409,6 +409,11 @@ describe('skrivevakten for mekanisk-pr', () => {
       "echo $$'\\'; g${x}it push --force origin HEAD:main #'",
       "trap 'g${x}it push --force origin HEAD:main' EXIT",
       "x='$(g${y}it push --force origin HEAD:main)'; echo ${x@P}",
+      'echo $((g${x}it push --force origin HEAD:main) )',
+      'function f { g${x}it push --force origin HEAD:main; }; f',
+      'case a in a) g${x}it push --force origin HEAD:main;; esac',
+      'coproc g${x}it push --force origin HEAD:main',
+      "PS4='$(g${y}it push --force origin HEAD:main)' ; set -x; true",
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
@@ -423,6 +428,11 @@ describe('skrivevakten for mekanisk-pr', () => {
       ["cat > /tmp/a <<'A' <<'B'\ngit push\nA\ngit commit\nB", 2, 2],
       ["cat > /tmp/pr.md <<'EOF'\nlegg til lenke\nEOF", 0, 0],
       ['ls docs/*.md\nwc -l AGENTS.md', 0, 0],
+      ['if [ -d node_modules ]; then npm test; else npm ci; fi', 0, 0],
+      ['if [[ -n x ]]; then npx vitest run; fi', 0, 0],
+      ['if (( 1 )); then npm test; fi', 0, 0],
+      ["trap 'rm -f /tmp/x.json' EXIT; npm test", 0, 0],
+      ['echo $((1+2)) && ls', 0, 0],
       ["cat > /tmp/a <<-'EOF'\n\ttekst\n\tEOF", 0, 0],
       ["cat > /tmp/a <<'EOF'\nx\nEOF\nmkdir -p /tmp/b && cat /tmp/a", 0, 0],
       ["cat <<'EOF'\nkjerne/x\nEOF\nls", 0, 0],
