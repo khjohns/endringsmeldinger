@@ -5667,6 +5667,150 @@ tekst = '''
 Grensen per rolle registreres per prosjekt.'''
 forkastet = true
 
+
+[[gruppe.vedtak]]
+id = "GFK-U12"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#831"]
+sporsmal = '''
+1 (etikett «HR-alder»)
+Spørsmål: S-1c del 3, GFK-U10: når er HR-kopien «for gammel», så pakken ikke kan lages? HR-synkroniseringen går høyst én gang i timen, og etter en feil kommer neste forsøk først etter én time (#1003 p4). Feltet `hentet` er tidspunktet for siste vellykkede synkronisering.
+- «24 timer (Recommended)»: Et brudd i Graph sperrer ikke pakker samme dag. Risikoen som står igjen, er en rolleendring i HR i opptil ett døgn uten at personen slutter. En deaktivert Entra-konto kan uansett ikke logge inn.
+- «2 timer»: Tåler akkurat én feilet kjøring.
+- «1 time pluss slingring»: Hver feil i Graph sperrer pakkene.
+- «Driften setter grensen»: Konfigurerbar innenfor et fast intervall, for eksempel 1–24 timer.'''
+valgt = "24 timer"
+svar = '''
+«24 timer (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "gfk-u10" }]
+folge = '''
+Ikke bygget (#831).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "24 timer"
+tekst = '''
+Et brudd i Graph sperrer ikke pakker samme dag. Risikoen som står igjen, er en rolleendring i HR i opptil ett døgn uten at personen slutter. En deaktivert Entra-konto kan uansett ikke logge inn.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 timer"
+tekst = '''
+Tåler akkurat én feilet kjøring.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 time pluss slingring"
+tekst = '''
+Hver feil i Graph sperrer pakkene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Driften setter grensen"
+tekst = '''
+Konfigurerbar innenfor et fast intervall, for eksempel 1–24 timer.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GFK-U13"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#831"]
+sporsmal = '''
+2 (etikett «Uten rolle»)
+Spørsmål: Hva skjer hvis saksbehandleren, eller en leder i kjeden, ikke står i HR-kopien med rolle? Synkroniseringen lagrer bare personer med en stilling som driften har koblet til en rolle. En ekstern rådgiver på BH-siden er ikke i tenanten.
+- «Alle må ha rolle (Recommended)»: Saksbehandleren og hver leder i kjeden må ha en rolle som driften har registrert, eventuelt med grense 0. Mangler en av dem, kan pakken ikke lages (GFK-U10). En ekstern rådgiver kan da ikke sende et svar som krever godkjenning.
+- «Hent hele hierarkiet»: Synkroniseringen henter alle ansatte og lederne deres, også de uten rolle. Da får alle i hierarkiet en aktor_id, ikke bare de med fullmakt.
+- «Startleder fra driften»: For dem som ikke er i HR, registrerer driften en startleder per saksbehandler eller per prosjekt.'''
+valgt = "Alle må ha rolle"
+svar = '''
+«Alle må ha rolle (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "gfk-u10" }]
+folge = '''
+Ikke bygget (#831).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alle må ha rolle"
+tekst = '''
+Saksbehandleren og hver leder i kjeden må ha en rolle som driften har registrert, eventuelt med grense 0. Mangler en av dem, kan pakken ikke lages (GFK-U10). En ekstern rådgiver kan da ikke sende et svar som krever godkjenning.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hent hele hierarkiet"
+tekst = '''
+Synkroniseringen henter alle ansatte og lederne deres, også de uten rolle. Da får alle i hierarkiet en aktor_id, ikke bare de med fullmakt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Startleder fra driften"
+tekst = '''
+For dem som ikke er i HR, registrerer driften en startleder per saksbehandler eller per prosjekt.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GFK-U14"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#831"]
+sporsmal = '''
+3 (etikett «GFK-U2»)
+Spørsmål: GFK-U2 gjelder når «ikke registrert fullmakter i prosjektet». Grensene er nå globale per rolle (GFK-U11). Hva skal GFK-U2 bety da?
+- «Ingen roller registrert (Recommended)»: GFK-U2 slår inn når driften ikke har registrert noen roller. Ellers gjelder GFK-U10 for en kjede som mangler.
+- «På per prosjekt»: Driften slår godkjenningen på for hvert prosjekt.
+- «GFK-U2 faller bort»: Bare GFK-U10 gjelder.'''
+valgt = "Ingen roller registrert"
+svar = '''
+«Ingen roller registrert (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "gfk-u2" }]
+folge = '''
+Ikke bygget (#831).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen roller registrert"
+tekst = '''
+GFK-U2 slår inn når driften ikke har registrert noen roller. Ellers gjelder GFK-U10 for en kjede som mangler.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "På per prosjekt"
+tekst = '''
+Driften slår godkjenningen på for hvert prosjekt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "GFK-U2 faller bort"
+tekst = '''
+Bare GFK-U10 gjelder.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "GFK-U15"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#831"]
+sporsmal = '''
+4 (etikett «Lavere grense»)
+Spørsmål: Når en godkjenner handler: regnes det som «mistet rollen» hvis rollen nå har lavere grense enn da kjeden ble frosset?
+- «Ja, for siste i kjeden (Recommended)»: Handlingen avvises når rollen mangler eller kopien er for gammel. Bare den siste i kjeden må fortsatt ha en grense som dekker verdien. Ellers lages pakken på nytt.
+- «Nei, bare manglende rolle»: Bare en rolle som mangler, avvises. En lavere grense godtas.'''
+valgt = "Ja, for siste i kjeden"
+svar = '''
+«Ja, for siste i kjeden (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "gfk-u10" }]
+folge = '''
+Ikke bygget (#831).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, for siste i kjeden"
+tekst = '''
+Handlingen avvises når rollen mangler eller kopien er for gammel. Bare den siste i kjeden må fortsatt ha en grense som dekker verdien. Ellers lages pakken på nytt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, bare manglende rolle"
+tekst = '''
+Bare en rolle som mangler, avvises. En lavere grense godtas.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
 
