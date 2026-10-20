@@ -148,3 +148,17 @@ def test_mappene_vurderes_hver_for_seg(repo):
     sti, base = repo
     _skriv(sti, {f"{PG}/20261012090000_e.sql": "select 1;\n"})
     assert _kjor(sti, base).returncode == 0
+
+
+def test_ny_tilleggsmigrasjon_som_bare_legger_til_passerer(repo):
+    sti, base = repo
+    _skriv(sti, {f"{MSSQL}/20261020120000_d_tillegg.sql": "CREATE TABLE d (x int);\n"})
+    svar = _kjor(sti, base)
+    assert svar.returncode == 0, svar.stdout + svar.stderr
+
+
+def test_ny_tilleggsmigrasjon_som_fjerner_feiler(repo):
+    """DL-U16: en fil markert …_tillegg.sql kan være anvendt når forrige utgivelse starter."""
+    sti, base = repo
+    _skriv(sti, {f"{MSSQL}/20261020120000_d_tillegg.sql": "DROP TABLE b;\n"})
+    _feiler_med(_kjor(sti, base), f"{MSSQL}/20261020120000_d_tillegg.sql er markert som bare tillegg, men har DROP")

@@ -7,6 +7,8 @@
  *   prøvd med (`tester/tilgang.test.ts`), og med `sa` uten database er basen
  *   `master`.
  * - Historikken skal være filene i `database/migrasjoner/`, og hver fil anvendt.
+ *   En nyere utgivelse kan ha anvendt migrasjoner som bare legger til; dem kan
+ *   serveren starte mot (DL-U16, `vurder` i `migrering.ts`).
  */
 
 import { utenKontekst, type Pool } from './datalag.ts';

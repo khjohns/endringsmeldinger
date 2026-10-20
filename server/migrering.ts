@@ -10,6 +10,8 @@
  *
  * Runneren nekter å anvende noe når en anvendt fil er endret (også bare i en
  * kommentar), mangler, eller når en ny fil har lavere versjon enn en anvendt.
+ * En anvendt fil som mangler, er likevel godtatt når den bare legger til og
+ * kommer etter hver fil i mappa (DL-U16, `vurder`).
  * Én applås i basen, eid av runnerens sesjon, gjør at to runnere ikke anvender
  * samme fil.
  *
@@ -33,6 +35,12 @@ import { reservasjon, type Forbindelse } from './datalag.ts';
 export const MIGRASJONSMAPPE = fileURLToPath(new URL('../database/migrasjoner/', import.meta.url));
 
 const FILNAVN = /^(\d{14})_[a-z0-9_]+\.sql$/;
+/**
+ * Markeringen for en migrasjon som bare legger til (DL-U16). En eldre server kan
+ * starte mot en base der den er anvendt; at fila bare legger til, kontrollerer
+ * `.github/scripts/tilleggsregel.py` i CI.
+ */
+export const BARE_TILLEGG = /^\d{14}_(?:[a-z0-9_]*_)?tillegg\.sql$/;
 // `\r` er med for en `GO`-linje som slutter på en enslig CR (#577).
 const GO = /^[ \t\r]*GO[ \t\r]*(?:--[^\n]*)?$/i;
 /** `GO` fulgt av noe annet enn et navn, som `GO 5`, `GO;` og `GO` med en blokkommentar. */
@@ -185,6 +193,10 @@ export function lesMigrasjoner(mappe = MIGRASJONSMAPPE): Migrasjon[] {
  * ikke er anvendt og kommer etter den høyeste anvendte versjonen, i rekkefølge.
  * Tom `funn` betyr at de anvendte filene er uendret og at de nye kommer etter dem.
  * En fil som ikke er anvendt, står enten i `funn` eller i `nye`.
+ *
+ * En anvendt migrasjon som ikke finnes i mappa, er ikke et funn når den er
+ * markert med `BARE_TILLEGG` og kommer etter hver fil i mappa: da har basen
+ * bare fått noe lagt til siden filene, og forrige utgivelse kan bruke den (DL-U16).
  */
 export function vurder(
   anvendt: Anvendt[],
@@ -192,10 +204,17 @@ export function vurder(
 ): { funn: string[]; nye: Migrasjon[] } {
   const perVersjon = new Map(filer.map((f) => [f.versjon, f]));
   const funn: string[] = [];
+  const sisteFil = filer.reduce((m, f) => (f.versjon > m ? f.versjon : m), '');
   for (const a of anvendt) {
     const fil = perVersjon.get(a.versjon);
-    if (!fil) funn.push(`${a.filnavn} er anvendt, men finnes ikke i mappa.`);
-    else if (fil.sha256 !== a.sha256 || fil.filnavn !== a.filnavn)
+    if (!fil) {
+      if (!BARE_TILLEGG.test(a.filnavn))
+        funn.push(`${a.filnavn} er anvendt, men finnes ikke i mappa.`);
+      else if (a.versjon < sisteFil)
+        funn.push(
+          `${a.filnavn} er anvendt og bare legger til, men finnes ikke i mappa og kommer foran ${sisteFil}.`
+        );
+    } else if (fil.sha256 !== a.sha256 || fil.filnavn !== a.filnavn)
       funn.push(`${a.filnavn} er endret etter at den ble anvendt.`);
   }
   const hoeyeste = anvendt.reduce((m, a) => (a.versjon > m ? a.versjon : m), '');

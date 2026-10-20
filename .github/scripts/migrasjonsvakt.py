@@ -9,7 +9,11 @@ Vakten sammenlikner derfor HEAD med BASE i git, for hver mappe i MAPPER:
 - en ny fil skal ha formen ÅÅÅÅMMDDTTMMSS_navn.sql, et gyldig tidspunkt og en
   versjon som er høyere enn hver versjon i BASE, ellers ville runneren nekte å
   anvende den på en base som har den høyeste;
-- ingen to filer i HEAD har samme versjon.
+- ingen to filer i HEAD har samme versjon;
+- en ny fil i database/migrasjoner/ som heter …_tillegg.sql, bare legger til
+  (DL-U16, formene står i tilleggsregel.py);
+- fra FOERSTE_EKTE_SAK heter hver ny fil i database/migrasjoner/ …_tillegg.sql
+  eller …_fjerning.sql (DL-U16, `.claude/rules/database.md`).
 
 Lokalt: python3 .github/scripts/migrasjonsvakt.py <BASE>, der BASE er tuppen
 av basegrenen uten endringene som skal prøves. Hvordan CI velger BASE, står i
@@ -21,8 +25,14 @@ import subprocess
 import sys
 from datetime import datetime
 
+import tilleggsregel
+
 MAPPER = ("database/migrasjoner", "supabase/migrations")
 FILNAVN = re.compile(r"^(\d{14})_[a-z0-9_]+\.sql$")
+SQLSERVER = "database/migrasjoner"
+# Den siste versjonen i database/migrasjoner/ før første ekte sak. None til den
+# er satt; da kontrolleres bare filene som er markert …_tillegg.sql (#1091).
+FOERSTE_EKTE_SAK: str | None = None
 
 
 def filer(ref: str, mappe: str) -> dict[str, str]:
@@ -44,6 +54,26 @@ def gyldig_tidspunkt(versjon: str) -> bool:
     except ValueError:
         return False
     return True
+
+
+def to_trinn(mappe: str, navn: str, versjon: str) -> list[str]:
+    """Det i den nye fila `navn` som bryter regelen om to trinn (DL-U16)."""
+    if mappe != SQLSERVER:
+        return []
+    if navn.endswith("_tillegg.sql"):
+        tekst = subprocess.run(
+            ["git", "show", f"HEAD:{mappe}/{navn}"], check=True, capture_output=True, text=True,
+        ).stdout
+        return [
+            f"{mappe}/{navn} er markert som bare tillegg, men har {grunn}."
+            for grunn in tilleggsregel.kontroller(tekst)
+        ]
+    if FOERSTE_EKTE_SAK and versjon > FOERSTE_EKTE_SAK and not navn.endswith("_fjerning.sql"):
+        return [(
+            f"{mappe}/{navn} kommer etter første ekte sak og skal hete …_tillegg.sql eller "
+            "…_fjerning.sql (DL-U16)."
+        )]
+    return []
 
 
 def kontroller(base: str, mappe: str) -> list[str]:
@@ -70,6 +100,7 @@ def kontroller(base: str, mappe: str) -> list[str]:
         versjoner.setdefault(versjon, []).append(navn)
         if not gyldig_tidspunkt(versjon):
             funn.append(f"{mappe}/{navn}: {versjon} er ikke et gyldig tidspunkt.")
+        funn.extend(to_trinn(mappe, navn, versjon))
         if versjon <= hoyeste:
             funn.append(
                 f"{mappe}/{navn} er ny, men versjonen {versjon} er ikke høyere enn "
