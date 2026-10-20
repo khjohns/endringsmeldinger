@@ -73,6 +73,12 @@ try {
     .fill('Den avtalte endringen formaliseres i demoen.');
   await demo.getByLabel('Oppgjørsform').selectOption('FASTPRIS_TILBUD');
   await demo.getByLabel('Samlet fristforlengelse (dager)').fill('15');
+  await demo.setViewportSize({ width: 390, height: 1000 });
+  assert.ok(
+    await demo.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    'horisontal scroll ved 390 px i skjemaet'
+  );
+  await demo.setViewportSize({ width: 1440, height: 1000 });
   await demo.screenshot({ path: join(tmpdir(), 'endringsordre-demo-andre.png'), fullPage: true });
   await demo.getByRole('button', { name: 'Kontroller endringsordre', exact: true }).click();
   assert.match(
@@ -81,7 +87,12 @@ try {
   );
   await demo.getByRole('checkbox').check();
   await utstedDemoordreGjennomKjeden(demo);
-  await demo.getByRole('article', { name: 'Utstedt endringsordre' }).waitFor();
+  const utstedt = demo.getByRole('article', { name: 'Utstedt endringsordre' });
+  await utstedt.waitFor();
+  assert.equal(await utstedt.getByRole('link', { name: /KOE-2024-019/ }).count(), 1);
+  const dokument = await utstedt.innerText();
+  assert.match(dokument, /15 dager/);
+  assert.match(dokument, /1\s100\s000/);
   await demo.screenshot({
     path: join(tmpdir(), 'endringsordre-demo-andre-utstedt.png'),
     fullPage: true,
@@ -90,7 +101,7 @@ try {
   assert.deepEqual(errors, []);
   await demoContext.close();
   console.log(
-    'PASS: mockup overview entry, direct order, approval chain, reload, agreed KOE order, discarded draft; zero API calls.'
+    'Bestått: inngang fra oversikten, direkte ordre, godkjenningskjeden, gjenåpning, formalisert KOE-ordre med frist, beløp og mobilvisning, forkastet utkast. Ingen API-kall.'
   );
 } finally {
   await browser.close();
