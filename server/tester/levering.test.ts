@@ -70,9 +70,19 @@ class FalskCatenda implements Dokumentleverandoer {
     this.foer.finnDokument?.();
     return this.bibliotek.get(navn)?.id ?? null;
   }
-  async lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
+  /** Som `forespoersel`: en endring Catenda avviser (`CatendaAvvisning`), setter ikke flagget. */
+  private endring(foer?: () => void) {
+    try {
+      foer?.();
+    } catch (feil) {
+      if (!(feil instanceof CatendaAvvisning)) merkEndring();
+      throw feil;
+    }
     merkEndring();
-    this.foer.lastOppDokument?.();
+  }
+
+  async lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
+    this.endring(this.foer.lastOppDokument);
     if (this.bibliotek.has(dokument.navn)) return null;
     this.opplastinger++;
     const id = this.nyDokumentId();
@@ -92,8 +102,7 @@ class FalskCatenda implements Dokumentleverandoer {
     }));
   }
   async opprettDokumentreferanse(_board: string, topic: string, dokumentId: string) {
-    merkEndring();
-    this.foer.opprettDokumentreferanse?.();
+    this.endring(this.foer.opprettDokumentreferanse);
     this.nyeReferanser++;
     const id = randomUUID();
     this.referanser.set(topic, [...(this.referanser.get(topic) ?? []), { id, dokumentId }]);
@@ -393,7 +402,8 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect((await kvitteringene(sakId))[0]).toMatchObject({ catenda_id: 'finnes1234' });
   });
 
-  it('L5: en varig avvisning fra Catenda parkerer leveringen som avvist (#778)', async () => {
+  // Kilde: oppdragsgiver 19.10 og 20.10 (#764, #921): avvist når Catenda ikke er endret.
+  it('L5: en varig avvisning fra Catenda av den første endringen parkerer leveringen som avvist (#778)', async () => {
     const sakId = await sakMedBrev();
     catenda.foer.lastOppDokument = () => {
       throw new CatendaAvvisning(404);
@@ -405,9 +415,35 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     ]);
   });
 
-  // Kilde: oppdragsgiver 19.10 (#764): en referanse uten dokument er et varig avvik, og
-  // jobben parkeres som avvist uten nytt forsøk.
-  it('L5: en referanse på topicen uten dokument parkerer leveringen som avvist (#876)', async () => {
+  // Kilde: oppdragsgiver 20.10 (#921): en avvisning etter at brevet er lastet opp, parkeres
+  // som usikker, fordi Catenda er endret.
+  it('L5: en varig avvisning av referansen etter opplastingen parkerer leveringen som usikker (#921)', async () => {
+    const sakId = await sakMedBrev();
+    catenda.foer.opprettDokumentreferanse = () => {
+      throw new CatendaAvvisning(404);
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+    expect(await forsoekene(sakId)).toEqual([
+      ['usikkert', 'Catenda avviste forespørselen med status 404'],
+    ]);
+  });
+
+  // Kilde: oppdragsgiver 19.10 (#764): et varig avvik før noe er sendt, parkeres som avvist
+  // uten nytt forsøk. To dokumenter med samme navn er et varig avvik (#895-6).
+  it('L5: et varig avvik i biblioteket før opplastingen parkerer leveringen som avvist (#876)', async () => {
+    const sakId = await sakMedBrev();
+    catenda.foer.finnDokument = () => {
+      throw new VarigCatendaavvik('Flere dokumenter har samme navn');
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+    expect(await forsoekene(sakId)).toEqual([['avvist', 'Flere dokumenter har samme navn']]);
+  });
+
+  // Kilde: oppdragsgiver 20.10 (#921), som leser svaret 19.10 (#764) for tilfellet før noe er
+  // sendt: en referanse uten dokument etter at brevet er lastet opp, parkeres som usikker.
+  it('L5: en referanse på topicen uten dokument etter opplastingen parkerer leveringen som usikker (#876, #921)', async () => {
     const sakId = await sakMedBrev();
     catenda.foer.dokumentreferanser = () => {
       throw new VarigCatendaavvik(
@@ -417,7 +453,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(await kjoer()).toBe(true);
     expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
     expect(await forsoekene(sakId)).toEqual([
-      ['avvist', 'Referansen nr. 1 på topicen viser verken til et dokument eller en lenke'],
+      ['usikkert', 'Referansen nr. 1 på topicen viser verken til et dokument eller en lenke'],
     ]);
   });
 

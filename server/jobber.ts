@@ -89,7 +89,7 @@ export interface Jobbavhengigheter {
   logg?: Pick<Console, 'info' | 'warn' | 'error'>;
 }
 
-/** Jobben kan ikke gjøres av denne kjøreren, uten at noe er prøvd i Catenda. */
+/** Jobben kan ikke gjøres av denne kjøreren. Forsøket kan ha bedt Catenda om endringer før. */
 class UgjennomfoerbarJobb extends Error {}
 
 /** En kvittering som ble avvist etter at endringen i Catenda er gjort. */
@@ -146,8 +146,9 @@ function forbigaaendeISql(feil: unknown): boolean {
  * forsøk som `avstemmes`: der finner neste forsøk det som ble laget, og jobben prøves igjen
  * (#876 punkt 4). En annen feil går ikke over av seg selv og parkeres (#783 punkt 2): som
  * avvist når forsøket ikke har bedt Catenda om noen endring, ellers som usikker, fordi den
- * kan komme etter en endring i Catenda (#813 punkt 5). Et varig avvik i Catenda parkeres
- * som avvist (#876).
+ * kan komme etter en endring i Catenda (#813 punkt 5). Det samme gjelder et varig avvik
+ * eller en avvisning fra Catenda og en jobb som ikke kan gjøres (#876, #921): avvist bare
+ * når Catenda ikke er endret (oppdragsgiver 19.10 og 20.10).
  */
 function utfallAv(
   feil: unknown,
@@ -161,13 +162,6 @@ function utfallAv(
   const melding = kjent ? feil.message : 'Uventet feil i jobben';
   if (feil instanceof UsikkertCatendautfall)
     return { utfall: avstemmes ? 'feilet' : 'usikkert', melding };
-  if (
-    feil instanceof CatendaAvvisning ||
-    feil instanceof VarigCatendaavvik ||
-    feil instanceof UgjennomfoerbarJobb ||
-    feil instanceof UgjengivbartBrev
-  )
-    return { utfall: 'avvist', melding };
   if (forbigaaende(feil)) return { utfall: 'feilet', melding };
   return { utfall: endringBedt ? 'usikkert' : 'avvist', melding };
 }

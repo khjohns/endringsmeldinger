@@ -60,8 +60,9 @@ export class CatendaOppsettfeil extends CatendaUtilgjengelig {}
 
 /**
  * Catenda gir data kjøreren ikke kan lese, og gir dem igjen ved neste forsøk, som en
- * dokumentreferanse uten dokument eller en ID av feil form. Jobben parkeres som avvist
- * og prøves ikke igjen (#876, #891, oppdragsgiver 19.10).
+ * dokumentreferanse uten dokument eller en ID av feil form. Jobben parkeres og prøves ikke
+ * igjen (#876, #891, oppdragsgiver 19.10): som avvist når forsøket ikke har bedt Catenda
+ * om en endring, ellers som usikker (oppdragsgiver 20.10, #921).
  */
 export class VarigCatendaavvik extends CatendaUtilgjengelig {}
 
@@ -69,8 +70,9 @@ const endringsvakt = new AsyncLocalStorage<{ endringBedt: boolean }>();
 
 /**
  * Kjører `kall` og setter `flagg.endringBedt` før hver endring `forespoersel` sender
- * til Catenda i kallet. En falsk `Topicoppretter` eller `Dokumentleverandoer` kaller
- * `merkEndring` selv. Flagget følger den asynkrone konteksten, så forespørselen må
+ * til Catenda i kallet. Avviser Catenda endringen uten å endre noe (`avvistUtenEndring`),
+ * er flagget som før forespørselen (#921). En falsk `Topicoppretter` eller
+ * `Dokumentleverandoer` kaller `merkEndring` selv, og ikke for en `CatendaAvvisning`. Flagget følger den asynkrone konteksten, så forespørselen må
  * startes fra `kall`, ikke fra en kø eller tilbakekalling utenfor.
  */
 export function medEndringsflagg<T>(
@@ -190,6 +192,8 @@ async function forespoersel(
     kropp = new URLSearchParams(valg.skjema);
   }
   const endring = valg.json !== undefined || valg.fil !== undefined;
+  const flagg = endringsvakt.getStore();
+  const endretFoer = flagg?.endringBedt ?? false;
   if (endring) merkEndring();
   let svar: Response;
   try {
@@ -210,6 +214,7 @@ async function forespoersel(
     await svar.body?.cancel().catch(() => {});
     const melding = `Catenda svarte med status ${svar.status}`;
     if (endring && !avvistUtenEndring(svar.status)) throw new UsikkertCatendautfall(melding);
+    if (endring && flagg) flagg.endringBedt = endretFoer;
     if (varigAvvist(svar.status)) throw new CatendaAvvisning(svar.status);
     if (svar.status === 401) throw new CatendaUautorisert(melding);
     throw new CatendaUtilgjengelig(melding);

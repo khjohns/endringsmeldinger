@@ -728,6 +728,22 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     ]);
   });
 
+  // Kilde: oppdragsgiver 20.10 (#921): avvist bare når Catenda ikke er endret, så en
+  // endring Catenda avviser, setter ikke flagget, og et flagg fra før står.
+  it.each<[string, boolean, boolean]>([
+    ['den eneste endringen i forsøket', false, false],
+    ['en endring etter en tidligere endring i forsøket', true, true],
+  ])('en avvisning (400) av %s gir flagget %s etter forespørselen', async (_n, foer, etter) => {
+    svar = () => ({ status: 400, json: {} });
+    const flagg = { endringBedt: foer };
+    await expect(
+      medEndringsflagg(flagg, () =>
+        new CatendaOAuth(oppsett()).lastOppDokument(maal, dokument, 'i')
+      )
+    ).rejects.toBeInstanceOf(CatendaAvvisning);
+    expect(flagg.endringBedt).toBe(etter);
+  });
+
   it('flagget for endring settes før en opplasting eller en ny referanse, ikke ved en lesing (#876)', async () => {
     const oauth = new CatendaOAuth(oppsett());
     const etter = async (kall: () => Promise<unknown>) => {
