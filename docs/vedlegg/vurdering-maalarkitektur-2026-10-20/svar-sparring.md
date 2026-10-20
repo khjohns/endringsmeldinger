@@ -3,7 +3,8 @@
 Svaret på [prompten](prompt-sparring.md), limt inn i økta av oppdragsgiver 20.10 og
 lagret ordrett under streken. Det gjelder først når oppdragsgiver slutter seg til
 det, og det er ikke prøvd mot vedtakene i 3.1 eller mot koden. Lenkene er
-sparringens egne og er ikke kontrollert.
+sparringens egne og er ikke kontrollert. Eneste avvik fra ordrett: fire lenker
+til en offentlig kopi av NS 8407 er fjernet etter valg fra oppdragsgiver 20.10 (#424).
 
 ---
 
@@ -104,7 +105,7 @@ Dette endrer ingen vedtatte prinsipper. Forbeholdet er konkret: Jeg kjenner ikke
 
 Når det gjelder NS 8407-forløpene, ville jeg utfordret modellen med følgende. Henvisningene gjelder standardens punkter; avtalte avvik må vurderes særskilt.
 
-- **Varsling, mottakere og møtereferater – punkt 5, 9 og 4.2.** Varsler er ikke begrenset til brev produsert av appen. Standarden omfatter bestemte mottakere/adresser og varsler i byggherremøtereferater. [NS 8407:2011, punkt 5](https://innsyn.lofoten.nu/Vagan/innsyn/wfdocument.ashx?dokid=1871449&journalpostid=2021143270&variant=A&versjon=1).
+- **Varsling, mottakere og møtereferater – punkt 5, 9 og 4.2.** Varsler er ikke begrenset til brev produsert av appen. Standarden omfatter bestemte mottakere/adresser og varsler i byggherremøtereferater. NS 8407:2011, punkt 5 [lenke til kopi av NS 8407 fjernet, #424].
 
   Modellen trenger derfor plass til originalkilde, mottaksgrunnlag og usikker tolkning. Innlogging og teammedlemskap dokumenterer heller ikke alene fullmakt til å binde parten.
 
@@ -116,7 +117,7 @@ Når det gjelder NS 8407-forløpene, ville jeg utfordret modellen med følgende.
 
   Modellen må derfor skille «ikke tallfestet ennå» fra null dager, fra intet krav og fra manglende svar. Ellers blir versjoneringsmodellen misvisende.
 
-- **Innsigelse mot sen varsling har et eget forløp – punkt 5.** Også innsigelsen om at motparten varslet eller svarte for sent, må fremmes uten ugrunnet opphold; bestemmelsen har særregler ved sluttoppgjøret. [NS 8407:2011, punkt 5](https://innsyn.lofoten.nu/Vagan/innsyn/wfdocument.ashx?dokid=1871449&journalpostid=2021143270&variant=A&versjon=1).
+- **Innsigelse mot sen varsling har et eget forløp – punkt 5.** Også innsigelsen om at motparten varslet eller svarte for sent, må fremmes uten ugrunnet opphold; bestemmelsen har særregler ved sluttoppgjøret. NS 8407:2011, punkt 5 [lenke til kopi av NS 8407 fjernet, #424].
 
   En generell boolsk «rettidig»-verdi blir for fattig. Appen må bevare partenes posisjoner og grunnlaget for fristvurderingen. Fravær av registrert svar må samtidig ikke forveksles med dokumentert fravær av svar.
 
@@ -126,11 +127,11 @@ Når det gjelder NS 8407-forløpene, ville jeg utfordret modellen med følgende.
 
 - **Forsering kobler tid og penger – punkt 33.8.** Avslag på et berettiget fristkrav kan utløse et valg om defensiv forsering, innenfor en økonomisk begrensning. Forseringskostnader kan også omfatte ineffektiv drift som skyldes forseringen. [Wiersholm om HR-2023-534-A og tilsvarende bestemmelse i NS 8407](https://wiersholm.no/nyhetsbrev/ny-hoyesterettsdom-om-defensiv-forsering-i-entreprisekontrakter/).
 
-  Varsel før iverksettelse skal angi forventet kostnad. [NS 8407:2011, punkt 33.8](https://innsyn.lofoten.nu/Vagan/innsyn/wfdocument.ashx?dokid=1871449&journalpostid=2021143270&variant=A&versjon=1).
+  Varsel før iverksettelse skal angi forventet kostnad. NS 8407:2011, punkt 33.8 [lenke til kopi av NS 8407 fjernet, #424].
 
   Arkitekturen må kunne knytte forseringen til bestemte avslag, tidskrav og kostnadsanslag. Tre spor kan vises parallelt, men kan ikke behandles som uavhengige.
 
-- **Sluttoppgjør er en ny meddelelse på tvers av sakene – punkt 39.1–39.2.** Sluttoppstillingen skal omfatte krav som opprettholdes, også tidligere avviste krav. BH må som utgangspunkt gjenta tidligere innsigelser og krav som opprettholdes. [NS 8407:2011, punkt 39](https://innsyn.lofoten.nu/Vagan/innsyn/wfdocument.ashx?dokid=1871449&journalpostid=2021143270&variant=A&versjon=1).
+- **Sluttoppgjør er en ny meddelelse på tvers av sakene – punkt 39.1–39.2.** Sluttoppstillingen skal omfatte krav som opprettholdes, også tidligere avviste krav. BH må som utgangspunkt gjenta tidligere innsigelser og krav som opprettholdes. NS 8407:2011, punkt 39 [lenke til kopi av NS 8407 fjernet, #424].
 
   En rapport over «åpne saker» er derfor ikke nok. Dere trenger en frosset angivelse av hvilke krav og innsigelser sluttoppgjørsbrevet omfatter. Rettspraksis viser også at en samlet henvisning til tidligere avslag kan ha betydning; én eksplisitt kravversjonsreferanse per svar er ikke hele virkeligheten. [Ryger om innsigelser til sluttoppstillingen](https://ryger.no/sluttoppgjor-i-entreprisekontrakter-saerlig-om-byggherrens-innsigelser-til-sluttoppstillingen/).
 
