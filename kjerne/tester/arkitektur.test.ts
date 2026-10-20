@@ -783,7 +783,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av
   // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
-  ['Sporutledning', 'predikat', 'subsidiaer', ['kommandoer/skriving.ts:brevtekstFor']],
+  // MM-U9, MM-U28: om tallet i gjeldende svar er subsidiært, som sakslisten leser (#1050).
+  [
+    'Sporutledning',
+    'predikat',
+    'subsidiaer',
+    ['kommandoer/skriving.ts:brevtekstFor', 'utledning/utled.ts:standpunktetErSubsidiaert'],
+  ],
   ['Saken', 'brevtekst', 'saksnummer tittel grunnlagssvar subsidiaer', ['frosset/brevtekst.ts']],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst ordnes', ['frosset/brevtekst.ts']],
