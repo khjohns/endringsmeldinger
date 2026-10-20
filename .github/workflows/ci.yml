@@ -176,6 +176,10 @@ jobs:
       - name: Lenker i Markdown
         run: python3 docs/verktoy/lenkekontroll.py
 
+      # #950: ankrene for serveren kontrolleres uten base, som for kjernen over.
+      - name: Ankrene i feilinnføringene for serveren
+        run: python3 server/tester/feilinnfoering.py --ankre
+
       - name: Lint
         run: npm run lint
 
