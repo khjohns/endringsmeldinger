@@ -113,6 +113,19 @@ describe('CaseListRow', () => {
     expect(screen.getByText('Enige, virksom')).toBeInTheDocument();
   });
 
+  it('kravene avgjort med registrert brev får tillegget fra visningen av saken (OV-U10)', () => {
+    vis(lagSakslinje({ saksbetegnelse: 'kravene_avgjort', brev_utenfor_appen: true }));
+    expect(screen.getByText('Alle krav sendt i appen er avgjort')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.')
+    ).toBeInTheDocument();
+  });
+
+  it('tillegget står bare ved «kravene avgjort», som i visningen av saken (OV-U10)', () => {
+    vis(lagSakslinje({ saksbetegnelse: 'grunnlaget_trukket', brev_utenfor_appen: true }));
+    expect(screen.queryByText(/brev sendt utenfor appen/)).not.toBeInTheDocument();
+  });
+
   it('et krav som ikke finnes, vises som strek og ikke som 0', () => {
     vis(lagSakslinje());
     expect(screen.getByLabelText('Krevd vederlag: —')).toBeInTheDocument();

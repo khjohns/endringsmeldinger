@@ -60,7 +60,10 @@
   </td>
   <td class="cell cell-status">
     <div class="cell-inner">
-      {#if merke}<Badge variant={merke.variant}>{merke.label}</Badge>
+      {#if merke}<div>
+          <Badge variant={merke.variant}>{merke.label}</Badge>
+          {#if merke.tillegg}<p class="tillegg">{merke.tillegg}</p>{/if}
+        </div>
       {:else if etiketter.length}<ul class="spor-etiketter">
           {#each etiketter as e (e.spor)}<li><strong>{e.spor}:</strong> {e.tekst}</li>{/each}
         </ul>
@@ -134,6 +137,13 @@
     color: var(--color-ink-muted);
     font-size: 10px;
     font-weight: 550;
+  }
+
+  .tillegg {
+    margin: 4px 0 0;
+    color: var(--color-ink-secondary);
+    font-size: 11px;
+    line-height: 1.4;
   }
 
   .spor-etiketter {

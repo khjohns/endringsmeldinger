@@ -21,8 +21,16 @@ const BETEGNELSE: Record<Saksbetegnelse, { label: string; variant: Merkevariant 
   kravene_avgjort: { label: 'Alle krav sendt i appen er avgjort', variant: 'godkjent' },
 };
 
+/** Tillegget i visningen av saken (`BREV_UTENFOR_APPEN` i `kjerne/utledning/visning.ts`, OV-U10). */
+const BREV_UTENFOR_APPEN = 'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
+
 export function betegnelsesmerke(linje: Sakslinje) {
-  return linje.saksbetegnelse ? BETEGNELSE[linje.saksbetegnelse] : null;
+  if (!linje.saksbetegnelse) return null;
+  const tillegg =
+    linje.saksbetegnelse === 'kravene_avgjort' && linje.brev_utenfor_appen
+      ? BREV_UTENFOR_APPEN
+      : null;
+  return { ...BETEGNELSE[linje.saksbetegnelse], tillegg };
 }
 
 const SPORNAVN = { grunnlag: 'Ansvar', vederlag: 'Vederlag', frist: 'Frist' } as const;

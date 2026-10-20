@@ -265,6 +265,8 @@ export interface Sakslinje {
   hovedkategori: string | null;
   forstaatt: boolean;
   saksbetegnelse: Saksbetegnelse | null;
+  /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */
+  brev_utenfor_appen: boolean;
   grunnlag: Grunnlagslinje;
   vederlag: Vederlagslinje;
   frist: Fristlinje;

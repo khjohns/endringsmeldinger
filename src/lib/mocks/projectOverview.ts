@@ -62,6 +62,7 @@ function demolinje(sak: SakState): Sakslinje {
           : harKrav(grunnlag) && avgjort
             ? 'kravene_avgjort'
             : null,
+    brev_utenfor_appen: false,
     grunnlag: {
       ...foreligger(grunnlag, false),
       svar:
