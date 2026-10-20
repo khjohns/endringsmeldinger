@@ -9,15 +9,17 @@
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts registrer \
  *     --prosjekt oslobygg --navn "Oslobygg" --organisasjon org-1 \
  *     --catenda-prosjekt <uuid> --bibliotek <uuid> [--mappe <uuid>] [--board <uuid>] \
- *     [--beskrivelse …] [--bh <team> … --te <team> …]
- *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsteam oslobygg [--bh … --te …]
+ *     [--beskrivelse …] [--bh <team> … --te <team> … --en-totalentreprenoer]
+ *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsteam oslobygg \
+ *     [--bh … --te … --en-totalentreprenoer]
  *
  * `KOE_DRIFT_TILKOBLING` er tilkoblingsstrengen for en bruker med
  * `koe_driftsrolle`. Med `--bh` og `--te` kontrolleres teamene mot Catenda-
  * prosjektet med integrasjonens token (`catendaFraMiljoe`), som i Python, og med
  * `--board` boardet (#836).
  * Uten dem viser `kontraktsteam` teamene som står. Som i Python kan én `--bh` eller
- * `--te` ha flere team (`--bh a b`).
+ * `--te` ha flere team (`--bh a b`). Med `--en-totalentreprenoer` bekrefter drift at
+ * alle TE-teamene hører til samme totalentreprenør, og uten den avvises teamene (DL-U14).
  */
 
 import { fileURLToPath } from 'node:url';
@@ -187,9 +189,10 @@ const VALG = {
   board: { type: 'string' },
   bh: { type: 'string', multiple: true },
   te: { type: 'string', multiple: true },
+  'en-totalentreprenoer': { type: 'boolean' },
 } as const;
 
-const FELLES = ['prosjekt', 'bh', 'te'];
+const FELLES = ['prosjekt', 'bh', 'te', 'en-totalentreprenoer'];
 const BARE_REGISTRER = (Object.keys(VALG) as (keyof typeof VALG)[]).filter(
   (navn) => !FELLES.includes(navn)
 );
@@ -231,6 +234,13 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   const [kommando, prosjektArgument, ...resten] = positionals;
   if (resten.length) throw new Registreringsfeil(`Ukjente argumenter: ${resten.join(' ')}`);
   const oppgittTeam = v.bh || v.te ? kontraktsteamFra(v.bh ?? [], v.te ?? []) : null;
+  // Et prosjekt gjelder én entreprisekontrakt, og drift bekrefter det ved registreringen (DL-U14).
+  if (oppgittTeam && !v['en-totalentreprenoer'])
+    throw new Registreringsfeil(
+      'Bekreft med --en-totalentreprenoer at alle TE-teamene hører til samme totalentreprenør (DL-U14).'
+    );
+  if (!oppgittTeam && v['en-totalentreprenoer'])
+    throw new Registreringsfeil('--en-totalentreprenoer gjelder bare sammen med --bh og --te.');
 
   // Én klient og ett token for alle kontrollene i kjøringen (#879 punkt 1).
   let catenda: Promise<{ oauth: CatendaOAuth; token: string }> | undefined;

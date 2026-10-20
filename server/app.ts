@@ -25,9 +25,9 @@ import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 import {
   krevInnlogging,
   krevKontraktsrolle,
+  krevLesing,
   krevProsjekttilgang,
   krevSesjon,
-  lesKontraktsside,
   Nektet,
   UTEN_STI,
   type Bruker,
@@ -96,14 +96,17 @@ export type Svar = [
 /** Tilgangen en saksinngang krever. */
 export interface Tilgang {
   prosjektrolle: 'viewer' | 'member';
-  /** Kontraktsrolle, eller begrunnelsen for at inngangen ikke krever den. */
-  kontraktsrolle: 'kreves' | { ikke: string };
+  /**
+   * Kontraktsrolle; `lesing` er kontraktsrolle eller leserolle (DL-U15). Ellers
+   * begrunnelsen for at inngangen ikke krever den.
+   */
+  kontraktsrolle: 'kreves' | 'lesing' | { ikke: string };
 }
 
 export interface Forespoersel {
   bruker: Bruker;
   prosjekt: Prosjekttilgang;
-  /** Satt når inngangen krever kontraktsrolle. */
+  /** Satt når inngangen krever kontraktsrolle, og ved `lesing` uten leserolle. */
   side: Kontraktstilgang | null;
   sakId: string;
   /** Andre gruppe i stien, som vedlegget, eller `null`. */
@@ -125,6 +128,8 @@ interface Opprettelsesforespoersel {
 export interface Prosjektforespoersel {
   bruker: Bruker;
   prosjekt: Prosjekttilgang;
+  /** Satt ved `kontraktsrolle: 'lesing'` uten leserolle, ellers `null`. */
+  side: Kontraktstilgang | null;
   /** Andre gruppe i stien, som medlemmet, eller `null`. */
   ressurs: string | null;
   /** `{}` for `GET`. */
@@ -164,7 +169,12 @@ export interface Saksrute extends Felles {
  */
 export interface Prosjektrute extends Felles {
   metode: 'GET' | 'POST' | 'PATCH';
-  tilgang: { prosjektrolle: 'viewer' | 'member' | 'admin'; utenSak: string };
+  tilgang: {
+    prosjektrolle: 'viewer' | 'member' | 'admin';
+    utenSak: string;
+    /** Lister saker: kontraktsrolle eller leserolle (DL-U15). */
+    kontraktsrolle?: 'lesing';
+  };
   behandle: Behandler<Prosjektforespoersel>;
 }
 
@@ -317,17 +327,13 @@ function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
 }
 
 async function visSaken(
-  { bruker, prosjekt, sakId }: Forespoersel,
+  { bruker, prosjekt, side, sakId }: Forespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
   const kontekst = { aktor: bruker.id, prosjekt: prosjekt.prosjektId };
-  // Leserens side er for visningen; lesingen krever den ikke (#705).
-  let saken, side;
+  let saken;
   try {
-    [saken, side] = await Promise.all([
-      lesSaken(avh.datalag, kontekst, sakId, { navn: true }),
-      lesKontraktsside(avh.datalag, avh.catenda, prosjekt),
-    ]);
+    saken = await lesSaken(avh.datalag, kontekst, sakId, { navn: true });
   } catch (feil) {
     if (feil instanceof SakFinnesIkke) return finnesIkke();
     throw feil;
@@ -528,9 +534,7 @@ const KJERNERUTER: readonly Saksrute[] = [
     eksempel: (s) => `/api/kjerne/saker/${s}`,
     tilgang: {
       prosjektrolle: 'viewer',
-      kontraktsrolle: {
-        ikke: 'Lesing: et prosjektmedlem uten kontraktsside ser saken, som `GET /api/cases/<sak_id>/state` i Python. Svaret har leserens side i `part`, eller `null` (#705).',
-      },
+      kontraktsrolle: 'lesing',
     },
     behandle: visSaken,
   },
@@ -602,10 +606,13 @@ export function lagServer(avh: Avhengigheter) {
       'feil' in innhold ? {} : innhold.verdi,
       fraSti
     );
+    const krav = 'kontraktsrolle' in tilgang ? tilgang.kontraktsrolle : undefined;
     const side =
-      'kontraktsrolle' in tilgang && tilgang.kontraktsrolle === 'kreves'
+      krav === 'kreves'
         ? await krevKontraktsrolle(full.datalag, full.catenda, prosjekt)
-        : null;
+        : krav === 'lesing'
+          ? await krevLesing(full.datalag, full.catenda, prosjekt)
+          : null;
     if ('feil' in innhold) throw innhold.feil;
     // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
     const kropp = innhold.verdi as Record<string, unknown>;
@@ -656,10 +663,13 @@ export function lagServer(avh: Avhengigheter) {
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i prosjektet.');
     }
-    const { bruker, prosjekt, kropp } = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, {
-      prosjektId,
-    });
-    return r.behandle({ bruker, prosjekt, ressurs, kropp }, full);
+    const { bruker, prosjekt, side, kropp } = await tilgangOgKropp(
+      r.tilgang,
+      r.metode,
+      foresporsel,
+      { prosjektId }
+    );
+    return r.behandle({ bruker, prosjekt, side, ressurs, kropp }, full);
   }
 
   async function kjoer(

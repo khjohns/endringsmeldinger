@@ -57,7 +57,7 @@ describe.skipIf(!TESTBASE_URL)('navnet bak hendelsen i visningen av saken (#104)
 
   it.each([
     ['BH, den andre siden', () => o.bh],
-    ['et medlem uten kontraktsside', () => o.utenTeam],
+    ['et medlem med leserolle', () => o.leser],
   ])('navnet til TE vises for %s, som kan lese saken', async (_, leser) => {
     await settNavn(o.te, 'Kari Testesen');
     expect((await journalen(leser())).map((r) => [r.versjon, r.aktor_navn])).toEqual([
