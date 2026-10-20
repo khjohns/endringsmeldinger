@@ -543,7 +543,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     await transaksjon(pool, KONTEKST, async () => undefined);
     const etter = await innlogging();
     expect(etter).toMatchObject({ oekt: foer.oekt, forbindelse: foer.forbindelse });
-    expect(etter.innlogget > foer.innlogget).toBe(true);
+    // Verdiene i meldingen skiller et uendret fra et tidligere tidspunkt (#960).
+    expect(
+      etter.innlogget > foer.innlogget,
+      `login_time før ${foer.innlogget}, etter ${etter.innlogget}`
+    ).toBe(true);
   });
 
   it('opprettPool bruker konfig.pool.max når maks ikke er oppgitt, og maks foran den', async () => {
