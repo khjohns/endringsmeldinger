@@ -62,8 +62,17 @@ describe('argumentene til kontraktsteam, før basen og Catenda brukes', () => {
   });
 
   it('flere team etter én --bh blir team, ikke prosjektet (#836)', async () => {
-    await expect(skript('kontraktsteam', '--bh', team(), team(), '--te', team())).rejects.toThrow(
-      /Prosjektet må oppgis/
+    await expect(
+      skript('kontraktsteam', '--bh', team(), team(), '--te', team(), '--en-totalentreprenoer')
+    ).rejects.toThrow(/Prosjektet må oppgis/);
+  });
+
+  it('teamene avvises uten bekreftelsen av én totalentreprenør, før basen brukes (DL-U14)', async () => {
+    await expect(skript('kontraktsteam', 'p-1', '--bh', team(), '--te', team())).rejects.toThrow(
+      /--en-totalentreprenoer/
+    );
+    await expect(skript('kontraktsteam', 'p-1', '--en-totalentreprenoer')).rejects.toThrow(
+      /bare sammen med --bh og --te/
     );
   });
 
@@ -123,8 +132,10 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     });
   }
 
-  const teamArgumenter = (t: Kontraktsteam[]) =>
-    t.flatMap((x) => [`--${x.contract_role.toLowerCase()}`, x.team_id]);
+  const teamArgumenter = (t: Kontraktsteam[]) => [
+    ...t.flatMap((x) => [`--${x.contract_role.toLowerCase()}`, x.team_id]),
+    ...(t.length ? ['--en-totalentreprenoer'] : []),
+  ];
 
   async function nyttProsjekt(t: Kontraktsteam[]) {
     const prosjekt = `p-reg-${randomUUID().slice(0, 8)}`;
@@ -408,7 +419,8 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
         '--bh',
         team(),
         '--te',
-        team()
+        team(),
+        '--en-totalentreprenoer'
       )
     );
     expect(feil).toMatch(/finnes ikke i Catenda-prosjektet/);
@@ -465,7 +477,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     const { prosjekt } = await nyttProsjekt(naaFor());
     const [b1, b2, t1] = [team(), team(), team()];
     iCatenda = new Map([b1, b2, t1].map((x) => [x, 'Team']));
-    await skript('kontraktsteam', prosjekt, '--bh', b1, b2, '--te', t1);
+    await skript('kontraktsteam', prosjekt, '--bh', b1, b2, '--te', t1, '--en-totalentreprenoer');
     expect((await lesKontraktsteam(drift.pool, prosjekt))?.team).toEqual(
       [
         { team_id: b1, contract_role: 'BH' },
