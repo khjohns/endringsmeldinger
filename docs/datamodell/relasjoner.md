@@ -866,9 +866,9 @@ flowchart LR
     end
     t_appen(["Appen, lagres ikke"])
     c_prosjekt -->|"C18.1 koe_register_project"| t_projects
-    c_team -->|"C18.2 koe_set_contract_teams"| t_catenda_contract_teams
+    c_team -->|"C18.2 registrer"| t_catenda_contract_teams
     c_board -->|"C18.3 CatendaOAuth"| t_appen
-    c_team -->|"C19.1 koe_set_contract_teams"| t_catenda_contract_teams
+    c_team -->|"C19.1 settKontraktsteam"| t_catenda_contract_teams
     c_prosjekt -->|"C20.1 cmd_sync_name"| t_projects
 ```
 
@@ -1184,27 +1184,27 @@ Leser fra Catenda og svarer; ingenting lagres.
 
 **Retning:** inn. **Utløses av:** `scripts/catenda_admin.py register`.
 
-Drift oppgir Catenda-prosjekt, bibliotek, mappe, board og kontraktsteam. Navnet hentes fra Catenda om det ikke er oppgitt, og teamene kontrolleres mot Catenda. Én databasefunksjon skriver alt atomisk; triggeren på `projects` legger i tillegg inn en rad i `project_memberships`. I TS registrerer driftsskriptet `server/registrering.ts registrer` prosjektet mot `koe_drift.registrer_prosjekt` i SQL Server (F-1, #820). Det henter ikke navnet fra Catenda, men kontrollerer også et oppgitt board mot Catenda-prosjektet (#836). Hva en ny registrering gjør med mappen, boardet og et bytte av Catenda-prosjekt, står ved `catenda_project_configs` i `tabeller.toml`; `koe_register_project` i Python følger ikke de reglene (DL-U2, #868).
+Drift oppgir Catenda-prosjekt, bibliotek, mappe og board. Navnet hentes fra Catenda om det ikke er oppgitt. Én databasefunksjon skriver alt atomisk; triggeren på `projects` legger i tillegg inn en rad i `project_memberships`. Kontraktsteamene registreres bare med TS-skriptet, som kontrollerer dem mot Catenda og krever `--en-totalentreprenoer` (DL-U14); Python-skriptet avviser `--bh` og `--te` (#1072). I TS registrerer driftsskriptet `server/registrering.ts registrer` prosjektet mot `koe_drift.registrer_prosjekt` i SQL Server (F-1, #820). Det henter ikke navnet fra Catenda, men kontrollerer også et oppgitt board mot Catenda-prosjektet (#836). Hva en ny registrering gjør med mappen, boardet og et bytte av Catenda-prosjekt, står ved `catenda_project_configs` i `tabeller.toml`; `koe_register_project` i Python følger ikke de reglene (DL-U2, #868).
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
 | C18.1 | Catenda: prosjekter | projects | GET /v2/projects/{catenda_project_id} | [`cmd_register`](../../backend/scripts/catenda_admin.py) → [`fetch_catenda_project_name`](../../backend/scripts/catenda_admin.py) → [`AuthRepository.register_project`](../../backend/repositories/auth_repository.py) → databasefunksjonen `koe_register_project` | Prosjektnavnet, når drift ikke har oppgitt det. |
-| C18.2 | Catenda: team og teammedlemmer | catenda_contract_teams | GET /v2/projects/{catenda_project_id}/teams | [`cmd_register`](../../backend/scripts/catenda_admin.py) → [`AuthRepository.register_project`](../../backend/repositories/auth_repository.py) → databasefunksjonen `koe_register_project` → databasefunksjonen `koe_set_contract_teams` | Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene kommer fra drift. |
+| C18.2 | Catenda: team og teammedlemmer | catenda_contract_teams | GET /v2/projects/{catenda_project_id}/teams | [`kjoer`](../../server/registrering.ts) → [`catendaTeam`](../../server/registrering.ts) → [`registrer`](../../server/registrering.ts) | Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene kommer fra drift. |
 | C18.3 | Catenda: topic board | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{topic_board_id} | [`kjoer`](../../server/registrering.ts) → [`CatendaOAuth`](../../server/catenda.ts) | `bimsync_project_id` for boardet drift oppgir, kontrollert mot Catenda-prosjektet. Bare TS-skriptet kontrollerer det (#836). |
 
 **Funn:** MS-12. **Belegg:** L 29.09: `cmd_register`, `koe_register_project` i migrasjonene, og at den kaller `koe_set_contract_teams`. K 29.09: triggeren i katalogen.
 
 ### C19 Kontraktsteam endres av drift
 
-**Retning:** inn. **Utløses av:** `scripts/catenda_admin.py contract-teams` med `--bh` og `--te`.
+**Retning:** inn. **Utløses av:** `server/registrering.ts kontraktsteam` med `--bh`, `--te` og `--en-totalentreprenoer`.
 
-Samme kontroll som i C18, og funksjonen erstatter prosjektets team i én transaksjon. I TS gjør driftsskriptet `server/registrering.ts kontraktsteam` samme kontroll mot Catenda og kaller `koe_drift.sett_kontraktsteam`; har prosjektet saker, kan teamene bare få nye team (F-1, #820).
+Driftsskriptet kontrollerer teamene mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`; har prosjektet saker, kan teamene bare få nye team (F-1, #820). Uten `--en-totalentreprenoer` avvises teamene (DL-U14). `scripts/catenda_admin.py contract-teams` er stoppet og viser til TS-skriptet (#1072).
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
-| C19.1 | Catenda: team og teammedlemmer | catenda_contract_teams | GET /v2/projects/{catenda_project_id}/teams | [`cmd_contract_teams`](../../backend/scripts/catenda_admin.py) → [`AuthRepository.set_contract_teams`](../../backend/repositories/auth_repository.py) → databasefunksjonen `koe_set_contract_teams` | Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. |
+| C19.1 | Catenda: team og teammedlemmer | catenda_contract_teams | GET /v2/projects/{catenda_project_id}/teams | [`kjoer`](../../server/registrering.ts) → [`catendaTeam`](../../server/registrering.ts) → [`settKontraktsteam`](../../server/registrering.ts) | Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. |
 
-**Funn:** —. **Belegg:** L 29.09: `cmd_contract_teams` og `koe_set_contract_teams`.
+**Funn:** —. **Belegg:** L 20.10: `kjoer` og `settKontraktsteam` i `server/registrering.ts`.
 
 ### C20 Prosjektnavn hentes på nytt av drift
 

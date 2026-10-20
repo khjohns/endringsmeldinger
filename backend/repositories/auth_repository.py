@@ -161,25 +161,6 @@ class AuthRepository:
                 result[role].add(catenda_id(str(row["team_id"])))
         return result
 
-    def set_contract_teams(self, project_id, teams):
-        """Atomisk erstatning av kontraktsteams via RPC-funksjon.
-
-        Args:
-            project_id: Internt prosjekt-ID
-            teams: Liste av {"team_id": "<UUID>", "contract_role": "BH"|"TE"}
-        """
-        return (
-            self.client.rpc(
-                "koe_set_contract_teams",
-                {
-                    "p_project": project_id,
-                    "p_teams": teams,
-                },
-            )
-            .execute()
-            .data
-        )
-
     def register_project(
         self,
         project_id: str,

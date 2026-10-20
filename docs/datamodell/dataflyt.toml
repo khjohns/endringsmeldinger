@@ -834,10 +834,12 @@ navn = "Prosjekt registreres av drift"
 retning = "inn"
 utloses_av = "`scripts/catenda_admin.py register`."
 beskrivelse = """
-Drift oppgir Catenda-prosjekt, bibliotek, mappe, board og kontraktsteam.
-Navnet hentes fra Catenda om det ikke er oppgitt, og teamene kontrolleres mot
-Catenda. Én databasefunksjon skriver alt atomisk; triggeren på `projects`
-legger i tillegg inn en rad i `project_memberships`. I TS registrerer
+Drift oppgir Catenda-prosjekt, bibliotek, mappe og board. Navnet hentes fra
+Catenda om det ikke er oppgitt. Én databasefunksjon skriver alt atomisk;
+triggeren på `projects` legger i tillegg inn en rad i `project_memberships`.
+Kontraktsteamene registreres bare med TS-skriptet, som kontrollerer dem mot
+Catenda og krever `--en-totalentreprenoer` (DL-U14); Python-skriptet avviser
+`--bh` og `--te` (#1072). I TS registrerer
 driftsskriptet `server/registrering.ts registrer` prosjektet mot
 `koe_drift.registrer_prosjekt` i SQL Server (F-1, #820). Det henter ikke navnet
 fra Catenda, men kontrollerer også et oppgitt board mot Catenda-prosjektet
@@ -866,10 +868,9 @@ fra = "catenda:team"
 til = ["catenda_contract_teams"]
 endepunkt = "GET /v2/projects/{catenda_project_id}/teams"
 kode = [
-    "backend/scripts/catenda_admin.py:cmd_register",
-    "backend/repositories/auth_repository.py:AuthRepository.register_project",
-    "databasefunksjon:koe_register_project",
-    "databasefunksjon:koe_set_contract_teams",
+    "server/registrering.ts:kjoer",
+    "server/registrering.ts:catendaTeam",
+    "server/registrering.ts:registrer",
 ]
 data = "Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene kommer fra drift."
 
@@ -885,23 +886,24 @@ id = "C19"
 drift = true
 navn = "Kontraktsteam endres av drift"
 retning = "inn"
-utloses_av = "`scripts/catenda_admin.py contract-teams` med `--bh` og `--te`."
+utloses_av = "`server/registrering.ts kontraktsteam` med `--bh`, `--te` og `--en-totalentreprenoer`."
 beskrivelse = """
-Samme kontroll som i C18, og funksjonen erstatter prosjektets team i én
-transaksjon. I TS gjør driftsskriptet `server/registrering.ts kontraktsteam`
-samme kontroll mot Catenda og kaller `koe_drift.sett_kontraktsteam`; har
-prosjektet saker, kan teamene bare få nye team (F-1, #820)."""
+Driftsskriptet kontrollerer teamene mot Catenda-prosjektet og kaller
+`koe_drift.sett_kontraktsteam`; har prosjektet saker, kan teamene bare få nye
+team (F-1, #820). Uten `--en-totalentreprenoer` avvises teamene (DL-U14).
+`scripts/catenda_admin.py contract-teams` er stoppet og viser til TS-skriptet
+(#1072)."""
 funn = []
-belegg = "L 29.09: `cmd_contract_teams` og `koe_set_contract_teams`."
+belegg = "L 20.10: `kjoer` og `settKontraktsteam` i `server/registrering.ts`."
 
 [[flyt.steg]]
 fra = "catenda:team"
 til = ["catenda_contract_teams"]
 endepunkt = "GET /v2/projects/{catenda_project_id}/teams"
 kode = [
-    "backend/scripts/catenda_admin.py:cmd_contract_teams",
-    "backend/repositories/auth_repository.py:AuthRepository.set_contract_teams",
-    "databasefunksjon:koe_set_contract_teams",
+    "server/registrering.ts:kjoer",
+    "server/registrering.ts:catendaTeam",
+    "server/registrering.ts:settKontraktsteam",
 ]
 data = "Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet."
 

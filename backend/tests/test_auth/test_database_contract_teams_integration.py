@@ -49,26 +49,6 @@ BH_TEAM_2 = "bbbb2222-0000-0000-0000-000000000002"
 # Unit tests for AuthRepository RPC calling contract (using mocks)
 # ---------------------------------------------------------------------------
 
-def test_auth_repo_set_contract_teams_calls_rpc():
-    client = Mock()
-    rpc_mock = Mock()
-    client.rpc.return_value = rpc_mock
-    rpc_mock.execute.return_value = SimpleNamespace(data=True)
-
-    repo = AuthRepository(client=client)
-    teams = [
-        {"team_id": BH_TEAM_1, "contract_role": "BH"},
-        {"team_id": TE_TEAM_1, "contract_role": "TE"},
-    ]
-    result = repo.set_contract_teams("test-proj", teams)
-
-    client.rpc.assert_called_once_with(
-        "koe_set_contract_teams",
-        {"p_project": "test-proj", "p_teams": teams},
-    )
-    assert result is True
-
-
 def test_auth_repo_register_project_calls_rpc():
     client = Mock()
     rpc_mock = Mock()
@@ -332,7 +312,7 @@ def test_live_atomic_project_registration_and_contract_teams(clean_test_project)
         {"team_id": BH_TEAM_2, "contract_role": "BH"},
         {"team_id": TE_TEAM_1, "contract_role": "TE"},
     ]
-    repo.set_contract_teams(TEST_PROJ_ID, updated_teams)
+    admin_client.rpc("koe_set_contract_teams", {"p_project": TEST_PROJ_ID, "p_teams": updated_teams}).execute()
 
     teams_after = repo.contract_teams(TEST_PROJ_ID)
     assert teams_after["BH"] == {catenda_id(BH_TEAM_2)}
@@ -343,7 +323,7 @@ def test_live_atomic_project_registration_and_contract_teams(clean_test_project)
         {"team_id": BH_TEAM_1, "contract_role": "BH"},
     ]
     with pytest.raises(Exception) as exc_info:
-        repo.set_contract_teams(TEST_PROJ_ID, invalid_teams)
+        admin_client.rpc("koe_set_contract_teams", {"p_project": TEST_PROJ_ID, "p_teams": invalid_teams}).execute()
     assert "Både BH og TE" in str(exc_info.value)
 
     # Verify rollback: existing teams are preserved completely intact!
@@ -353,7 +333,7 @@ def test_live_atomic_project_registration_and_contract_teams(clean_test_project)
 
     # 4. Rollback on empty array update
     with pytest.raises(Exception):
-        repo.set_contract_teams(TEST_PROJ_ID, [])
+        admin_client.rpc("koe_set_contract_teams", {"p_project": TEST_PROJ_ID, "p_teams": []}).execute()
 
     # Previous teams still intact
     teams_after_empty = repo.contract_teams(TEST_PROJ_ID)
