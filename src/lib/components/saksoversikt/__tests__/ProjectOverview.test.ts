@@ -154,9 +154,10 @@ it('filters the register by time claims and clears it', async () => {
 });
 
 it('viser BH uten saker ingen henvisning til «Ny endringsordre» utenfor demoen (OV-U1)', () => {
+  localStorage.setItem('koe-user-role', 'BH');
   const props = { cases: [], prosjektId: 'P001', prosjektNavn: 'Testprosjekt' };
   const ekte = render(ProjectOverview, props);
-  expect(screen.getByText(/Ingen saker ennå/)).not.toHaveTextContent('Ny endringsordre');
+  expect(screen.getByText(/Ingen saker ennå/)).toHaveTextContent(/^\s*Ingen saker ennå\.\s*$/);
   ekte.unmount();
   render(ProjectOverview, { ...props, demo: true });
   expect(screen.getByText(/Ingen saker ennå/)).toHaveTextContent(
