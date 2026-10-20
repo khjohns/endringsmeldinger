@@ -283,11 +283,13 @@ const ESCAPE_I_ANFORSEL = '$`"\\';
  * lese den, direkte eller gjennom et rør. Kroppslinjene står i `liste.kroppslinjer` som
  * [start, slutt). Den er null når en kropp ikke er bokstavelig, kan kjøres eller ikke avsluttes,
  * eller når heredoc-linja har ukjent syntaks (#970). `<<` etter en `#` som begynner et ord, og i
- * aritmetikk åpner ingen heredoc. Linjene etter leses da som kommandoer, både slik skallet
- * leser dem og hver for seg. `iKropp` er satt når `tekst` er en
- * kroppslinje.
+ * aritmetikk åpner ingen heredoc. Er det tvil om skallet åpner en heredoc eller leser en
+ * anførsel (kommentar, aritmetikk eller ukjent syntaks på heredoc-linja), står også leddene fra
+ * tre andre lesinger i lista: med hver `<<` som heredoc, uten noen heredoc og hver linje for
+ * seg. `iKropp` er satt når `tekst` er en kroppslinje. `heredocer` er `'alle'` eller `'ingen'`
+ * i de andre lesingene.
  */
-function lekser(tekst, iKropp = false) {
+function lekser(tekst, iKropp = false, heredocer = undefined) {
   const liste = [];
   liste.kroppslinjer = [];
   let ord = [];
@@ -302,7 +304,7 @@ function lekser(tekst, iKropp = false) {
   let kommentar = false;
   let aritmetikk = 0;
   let linjestart = 0;
-  let linjevis = false;
+  let tvil = false;
   // Avgrenserne til heredocene som er åpnet på linja, og dem kroppslinjene ennå venter på.
   let aapnede = [];
   const kropper = [];
@@ -393,12 +395,11 @@ function lekser(tekst, iKropp = false) {
       i += 2;
     } else if (tegn === '<' && tekst[i + 1] === '<' && !iKropp) {
       // Heredoc. Avgrenseren leses som målet til omdirigeringen; anførselstegn og
-      // escape i den gjør kroppen bokstavelig. Etter `#` og i aritmetikk åpner `<<` ingen
-      // heredoc, men teksten lekses i tillegg linje for linje, slik at en anførsel ikke kan
-      // skjule en linje som main leste for seg (#970).
+      // escape i den gjør kroppen bokstavelig.
       avsluttOrd();
-      const undertrykt = kommentar || aritmetikk > 0;
-      linjevis ||= undertrykt;
+      const undertrykt =
+        heredocer === 'ingen' || (heredocer !== 'alle' && (kommentar || aritmetikk > 0));
+      tvil ||= undertrykt;
       const fjernTab = tekst[i + 2] === '-';
       i += fjernTab ? 2 : 1;
       const raa = /^[ \t]*([^\s;&|<>()]*)/.exec(tekst.slice(i + 1))[1];
@@ -423,6 +424,7 @@ function lekser(tekst, iKropp = false) {
       const kjoeres = mottar || linja.some((del) => del.mottar && !leserSomTekst(del));
       // Har heredoc-linja ukjent syntaks, kan vakten ha åpnet en heredoc som skallet ikke åpner.
       const aapnetIUkjent = linja.some((del) => del.ukjentSyntaks);
+      tvil ||= aapnede.length > 0 && aapnetIUkjent;
       kropper.push(...aapnede.map((h) => ({ ...h, kjoeres })));
       aapnede = [];
       while (kropper.length && i < tekst.length) {
@@ -456,7 +458,10 @@ function lekser(tekst, iKropp = false) {
     } else if ('$`(){*?[#'.includes(tegn)) {
       // `#` er kommentar i ett skall og et vanlig ord i et annet, så leddet er ukjent.
       merkUkjent();
-      if (tegn === '#' && !harOrd) kommentar = true;
+      if (tegn === '#' && !harOrd) {
+        kommentar = true;
+        tvil = true;
+      }
       // `$((` og `((` åpner aritmetikk, der `<<` er et skift. Den varer til parentesene er lukket.
       if (
         tegn === '(' &&
@@ -472,9 +477,10 @@ function lekser(tekst, iKropp = false) {
     }
   }
   avsluttLedd();
-  if (linjevis && tekst.includes('\n')) {
+  if (tvil && !heredocer && tekst.includes('\n')) {
     liste.kroppslinjer = null;
-    for (const linje of tekst.split('\n')) liste.push(...lekser(linje));
+    liste.push(...lekser(tekst, iKropp, 'alle'), ...lekser(tekst, iKropp, 'ingen'));
+    for (const linje of tekst.split('\n')) liste.push(...lekser(linje, iKropp, 'ingen'));
   }
   return liste;
 }

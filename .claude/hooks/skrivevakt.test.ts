@@ -372,6 +372,17 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
+  it('leser en kommentar, aritmetikk og ukjent syntaks før << både med og uten heredoc og linje for linje (#970)', () => {
+    for (const kommando of [
+      "ls # '\ng\\it push --force origin HEAD:main\n'",
+      "echo $[1<<A]\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
+      "echo ${x:-<<A}\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
+      "echo ${x[1<<A]}\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
   // Avgjørelsene på origin/main bd250d4 er kjørt med samme tre og lagt inn for hånd.
   it('nekter alt main nektet (#970)', () => {
     const korpus: [string, 0 | 2, 0 | 2][] = [
@@ -407,6 +418,12 @@ describe('skrivevakten for mekanisk-pr', () => {
       ["echo $((1<<'EOF'))\necho '\nGIT_DIR=x\n'\nEOF", 2, 2],
       ["ls #<<A\ncat > /tmp/b <<'B'\nA\n'\nB\n\\git push --force origin HEAD:main\n'", 2, 2],
       ["g\\it commit -m x #<<'A'", 2, 2],
+      ["ls #<<'A'\necho \"\nA\necho '\nx ' ; g\\it push --force origin HEAD:main\ny \"", 2, 2],
+      [
+        "echo $((1<<'A'))\necho \"\nA\necho '\nx ' ; g\\it push --force origin HEAD:main\ny \"",
+        2,
+        2,
+      ],
       ["ls #<<'A'\nA\necho '\nx y'; g\\it push --force origin HEAD:main", 2, 2],
       ["echo $((1<<'A'))\nA\necho '\nx y'; g\\it push --force origin HEAD:main", 2, 2],
       ['ls #<<\'A\'\nA\necho "\nx y"; g\\h pr merge 1', 2, 2],
