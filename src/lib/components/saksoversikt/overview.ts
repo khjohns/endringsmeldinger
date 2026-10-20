@@ -3,7 +3,7 @@
  * betydning, ikke en status: de leser det som foreligger per spor (MM-U29) og
  * saksbetegnelsen (MM-U22) i linja fra serveren.
  */
-import type { CaseListItem, Sakslinje } from '$lib/types/api';
+import type { Sakslinje } from '$lib/types/api';
 import { SPOR } from '$kjerne/typer';
 
 export { taskHref } from '$lib/domain/followUp';
@@ -81,29 +81,4 @@ export function velgSaker(
       (!bareFristkrav || kravetStaar(linje, 'frist')) &&
       `${linje.sak_id} ${linje.sakstittel ?? ''}`.toLocaleLowerCase('nb-NO').includes(needle)
   );
-}
-
-/**
- * Python-statusene. Bare reproduksjonene i
- * `kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts` leser dem; de fjernes
- * med den testen (#1051).
- */
-const closed = new Set(['OMFORENT', 'LUKKET', 'LUKKET_TRUKKET', 'akseptert']);
-export type CaseFilter = 'all' | 'active' | 'closed' | 'draft';
-
-export function filterCases(cases: CaseListItem[], query: string, filter: CaseFilter) {
-  const needle = query.trim().toLocaleLowerCase('nb-NO');
-  return cases.filter((item) => {
-    const status = item.cached_status;
-    const draft = status === 'UTKAST';
-    const matches =
-      filter === 'all' ||
-      (filter === 'draft' && draft) ||
-      (filter === 'closed' && status !== null && closed.has(status)) ||
-      (filter === 'active' && status !== null && !draft && !closed.has(status));
-    return (
-      matches &&
-      `${item.sak_id} ${item.cached_title ?? ''}`.toLocaleLowerCase('nb-NO').includes(needle)
-    );
-  });
 }

@@ -46,13 +46,10 @@ export function statuslesing(kilde: string): string[] {
 /** Modulene som kan lese statusene, med grunnen. */
 const TILLATT: Record<string, string> = {
   'src/lib/components/kontraktsbord/derive.ts': 'lesepunktet for saksvisningen',
-  'src/lib/components/saksoversikt/overview.ts':
-    'Python-statusene for reproduksjonene i #229, til #1051',
   'src/lib/constants/statusLabels.ts': 'etikettene lesepunktene bruker',
   'src/lib/constants/statusStyles.ts': 'stilene lesepunktene bruker',
   'src/lib/types/timeline.ts': 'typene fra Python',
   'src/lib/types/index.ts': 'typene fra Python',
-  'src/lib/domain/followUp.ts': 'speilet av Python-reglene, utenfor denne delen av #313',
   'src/lib/approval/authority.ts': 'fullmakten, som speiler `krav_fra_tilstand` i Python',
   'src/lib/mockup/store.svelte.ts': 'demolageret, som har sin egen statusregel',
 };
