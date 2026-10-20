@@ -316,9 +316,11 @@
               </div>
             {/if}
             {#if !cases.length}<div class="state-message">
-                Ingen saker ennå. {role === 'BH'
-                  ? 'Opprett den første endringsordren med «Ny endringsordre».'
-                  : 'Opprett det første KOE-kravet med «Ny sak».'}
+                Ingen saker ennå. {role !== 'BH'
+                  ? 'Opprett det første KOE-kravet med «Ny sak».'
+                  : demo
+                    ? 'Opprett den første endringsordren med «Ny endringsordre».'
+                    : ''}
               </div>
             {:else if !filtered.length}<div class="state-message">
                 Ingen saker passer søket og utvalget.<button

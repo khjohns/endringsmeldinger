@@ -152,3 +152,14 @@ it('filters the register by time claims and clears it', async () => {
   await user.click(screen.getByRole('button', { name: 'Fjern fristfilter' }));
   expect(screen.getByText('2 av 2 saker')).toBeInTheDocument();
 });
+
+it('viser BH uten saker ingen henvisning til «Ny endringsordre» utenfor demoen (OV-U1)', () => {
+  const props = { cases: [], prosjektId: 'P001', prosjektNavn: 'Testprosjekt' };
+  const ekte = render(ProjectOverview, props);
+  expect(screen.getByText(/Ingen saker ennå/)).not.toHaveTextContent('Ny endringsordre');
+  ekte.unmount();
+  render(ProjectOverview, { ...props, demo: true });
+  expect(screen.getByText(/Ingen saker ennå/)).toHaveTextContent(
+    'Opprett den første endringsordren med «Ny endringsordre».'
+  );
+});
