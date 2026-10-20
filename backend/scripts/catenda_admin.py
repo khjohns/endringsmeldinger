@@ -148,7 +148,7 @@ def cmd_register(args):
             name = args.id
             print(f"  Advarsel: Kunne ikke hente navn fra Catenda, bruker '{name}'.")
 
-    # 3. Utfør samlet atomisk registrering i databasen via RPC
+    # 2. Utfør samlet atomisk registrering i databasen via RPC
     print(f"Registrerer prosjekt '{args.id}' atomisk i databasen...")
     try:
         repo.register_project(
@@ -269,8 +269,8 @@ KONTRAKTSTEAM_I_TS = (
     "--bh <team> … --te <team> … --en-totalentreprenoer\n"
     "  KOE_DRIFT_TILKOBLING=… node server/registrering.ts registrer --prosjekt … "
     "--bh <team> … --te <team> … --en-totalentreprenoer\n"
-    "Teamene Python-stien leser i PostgreSQL, vises med "
-    "'python scripts/catenda_admin.py teams <prosjekt>'."
+    "TS-verktøyet skriver teamene i SQL Server. Teamene Python-stien leser i PostgreSQL, "
+    "kan ikke settes herfra; de vises med 'python scripts/catenda_admin.py teams <prosjekt>'."
 )
 
 

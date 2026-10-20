@@ -4,7 +4,7 @@
  * 18.10: registreringen er et driftsskript mot prosedyrer bare driften kan kjøre
  * (#820), og kontraktsteamene kan bare få nye team når prosjektet har saker
  * (#764, «Runde 8: avgjort 18.10»). Kravet om begge sider og om ett team per side
- * følger `koe_set_contract_teams` og `catenda_admin.py` i Python (RV-07).
+ * følger `koe_set_contract_teams` i `supabase/migrations/` (RV-07).
  */
 
 import { randomUUID } from 'node:crypto';

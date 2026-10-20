@@ -338,7 +338,7 @@ Hvilke Catenda-team som representerer TE og BH i et prosjekt. Appen utleder en b
 | --- | --- |
 | Type | grunndata |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Av `koe_set_contract_teams` og `koe_register_project`. Ingen driftskommando kaller dem med team lenger: `scripts/catenda_admin.py` avviser `--bh` og `--te` og viser til `server/registrering.ts`, som skriver kontraktsteamene i SQL Server (#1072). Bare de levende testene gir `koe_register_project` team. Etter B-02 punkt 4 er det bare drift som skal gjøre dette. |
+| Hvor fra appen lagres og redigeres | Av `koe_set_contract_teams` og `koe_register_project`. Bare de levende testene gir dem team: `scripts/catenda_admin.py` avviser `--bh` og `--te` og viser til `server/registrering.ts`, som skriver kontraktsteamene i SQL Server (#1072). Etter B-02 punkt 4 er det bare drift som skal gjøre dette. |
 | Data fra Catenda | Ja. `team_id` er en Catenda-ID. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE CASCADE). Vises til fra: hendelse.actorteam (uten fremmednøkkel); notat.aktor_team_id (uten fremmednøkkel); utkast.team (uten fremmednøkkel); vedlegg.lastet_opp_team (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Hvilket team som er hvilken side, er et valg drift gjør. |

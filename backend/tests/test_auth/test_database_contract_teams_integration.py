@@ -46,7 +46,7 @@ BH_TEAM_2 = "bbbb2222-0000-0000-0000-000000000002"
 
 
 def _registrer_med_team(client, project_id, name, description, teams):
-    """Kaller `koe_register_project` med team direkte; appen gjør det ikke lenger (#1072)."""
+    """Kaller `koe_register_project` med team direkte, utenom `AuthRepository` (#1072)."""
     return (
         client.rpc(
             "koe_register_project",
