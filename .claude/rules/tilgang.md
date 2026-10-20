@@ -58,8 +58,12 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
   registeret: et team for TE eller BH, som `kreves`, eller leserolle
   (`krevLesing` i `server/autorisasjon.ts`). Uten bekreftet team gir den 403,
   og svarer ikke Catenda, 503. Det gjelder saken, sakslisten og brevet som PDF (#1054).
-  Lesefilteret i basen krever ennå bare medlemskap (`koe_sikkerhet.medlem`, #1056),
-  eller at aktøren er godkjenner i en åpen pakke i saken (GFK-U9).
+  Lesefilteret i basen (`koe_sikkerhet.medlem`) krever det samme: siden i konteksten,
+  med et av prosjektets kontraktsteam på den siden, eller leserollen (#1056). Ellers
+  slipper bare godkjenneren i en åpen pakke i saken gjennom (GFK-U9). Hver lesing
+  får siden i konteksten med `lesekontekst` i `server/autorisasjon.ts`, også kontrollen
+  av sakene det vises til, så siden avgjøres før den. Skrivingen og vedleggene krever
+  siden uten leserollen (`koe_sikkerhet.kontraktsmedlem`).
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.
