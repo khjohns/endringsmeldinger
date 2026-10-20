@@ -825,6 +825,15 @@ Tilsluttet av oppdragsgiver 21.09. Føringer for design, ikke implementert.
 > [#757](https://github.com/khjohns/endringsmeldinger/pull/757) og vaktene i
 > [#758](https://github.com/khjohns/endringsmeldinger/pull/758).
 
+> **Merknad 2026-10-20 til AF-06 (forsering):** oppdragsgiver avgjorde 20.10 at
+> forsering trekkes ut av [#310](https://github.com/khjohns/endringsmeldinger/issues/310):
+> «Den har lav prioritering og bygges først når KOE, EO, godkjenning samt mye
+> annet i appen er ferdig og optimalisert mtp ux og design.» Byggedel 4 tar derfor
+> endringsordren først. Forsering kommer etter at KOE, endringsordre og godkjenning
+> er ferdige og arbeidet på brukeropplevelsen og designet er gjort. Til da føres
+> forsering utenfor appen, slik [OV-U2](#ov-u2) sier. Beslutningsstatus for B-17
+> er ellers uendret.
+
 ### 3.3 Anbefalinger som ikke er vedtatt
 
 | Anbefaling | Kilde | Status |
