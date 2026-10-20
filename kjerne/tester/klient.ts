@@ -7,7 +7,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Journalrad } from '../typer.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
-import type { Kommando, Svarutkast } from '../kommandoer/kommando.ts';
+import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
@@ -190,6 +190,19 @@ const INNHOLD = {
   frist: (h: Handling) => ({ dager: h.dager }),
 };
 
+/**
+ * Varselet TE oppgir i fristkravet. Registrerer kravet varselet, ligger brevet med det
+ * ved (OV-U5, arbeidsvalget i #909); ellers kreves bare datoen (SK-12).
+ */
+const varselIKravet = (
+  sendt: string,
+  u: Utledning
+): Extract<Kommando, { type: 'krav' }>['varsel'] =>
+  u.spor.frist.varsel ? { sendt } : { sendt, dokumentasjon: [VARSELBREVET] };
+
+/** Vedlegget med varselet i et fristkrav; `mellomlager` gir det som alle andre. */
+const VARSELBREVET = '00000000-0000-4000-8000-0000000033a4';
+
 /** Kommandoen klienten sender for handlingen, regnet av klientens utledning `u`. */
 export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: Navn): Kommando {
   const spor = h.spor as Spor;
@@ -199,7 +212,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         type: 'krav',
         spor,
         innhold: INNHOLD[spor](h),
-        ...(typeof h.varsel_sendt === 'string' ? { varsel: { sendt: h.varsel_sendt } } : {}),
+        ...(typeof h.varsel_sendt === 'string' ? { varsel: varselIKravet(h.varsel_sendt, u) } : {}),
         ...(spor === 'vederlag' ? {} : utdypning(h)),
       };
     case 'brev':
@@ -438,7 +451,8 @@ export function radFor(
  * dem finnes, med filnavnet av ID-en. Et vedlegg som ikke finnes, prøves for seg.
  */
 export function mellomlager(kommando: unknown): Vedleggsoppslag {
-  const ider = (kommando as { dokumentasjon?: unknown }).dokumentasjon;
+  const ider: unknown =
+    typeof kommando === 'object' && kommando !== null ? vedleggI(kommando as Kommando) : [];
   const vedlegg = (Array.isArray(ider) ? ider : []).filter((id) => typeof id === 'string');
   return new Map(
     vedlegg.map((id: string) => [

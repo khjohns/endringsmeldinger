@@ -11,7 +11,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 import { fristkommandoFraSkjema } from '$lib/kjernesak/fristkrav';
@@ -111,6 +111,16 @@ describe('fristsporet fra TE-skjemaet', () => {
       brevtekst: expect.any(Array),
     });
     expect(tekst).toContain('TE varsler etter NS 8407 § 33.4 at TE vil kreve fristforlengelse');
+  });
+
+  // Fastholder atferden i Python-skjemaet (scenario `new`) og i `main` før #982: TE velger selv
+  // mellom varsel og krav. Ingen vedtak sier noe om startvalget.
+  it('uten standardvalg og med flere valg fra kjernen åpner skjemaet uten valgt kravstype (#968 p7)', async () => {
+    await vis(medGrunnlag, 'frist');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+    const valg = screen.getAllByRole('radio');
+    expect(valg.length, 'kjernen tilbyr flere valg').toBeGreaterThan(1);
+    for (const v of valg) expect(v).not.toBeChecked();
   });
 
   it('når varselet er sendt, tilbys bare det spesifiserte kravet, ikke et nytt varsel (VS-U15)', async () => {
@@ -421,6 +431,69 @@ describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
       sendt: '2026-10-10',
       dokumentasjon: ['V-1'],
     });
+  });
+
+  // OV-U5 og arbeidsvalget i #909: kravet registrerer varselet, så brevet med det ligger ved.
+  it('et spesifisert krav oppgir et varsel sendt utenfor appen med datoen og brevet, som står i brevteksten (OV-U5)', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-9', leveringsoppdrag: 'l-9', versjon: 9 });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(medGrunnlag, 'TE'),
+      send,
+    });
+    await kjernesak.last();
+    const kontroll = lagKravkontroll(kjernesak);
+    const sending = kontroll.submit('frist', 'frist_krav_sendt', {
+      ...fristdata('spesifisert', '<p>Peling på kritisk linje.</p>', 12),
+      tidligereVarsel: { sendt: '2026-10-01', vedlegg: [vedlegg] },
+    });
+    await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
+    expect(kontroll.letter!.tekst).toContain('Brevet har vedlegg: «varsel.pdf».');
+    kontroll.confirm();
+    await sending;
+    expect(sendt(send)).toMatchObject({
+      type: 'krav',
+      innhold: { dager: 12 },
+      varsel: { sendt: '2026-10-01', dokumentasjon: ['V-1'] },
+    });
+  });
+
+  it('skjemaet tilbyr varselet i det spesifiserte kravet bare når kjernen kan registrere det, og krever brevet (OV-U5)', async () => {
+    await vis(medGrunnlag, 'frist');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Spesifisert krav' }));
+    expect(screen.queryByLabelText('Datoen varselet ble sendt')).toBeNull();
+    await fireEvent.click(
+      screen.getByRole('checkbox', { name: /Varselet etter § 33.4 er sendt tidligere/ })
+    );
+    await fireEvent.input(screen.getByLabelText('Datoen varselet ble sendt'), {
+      target: { value: '2026-10-10' },
+    });
+    expect(screen.getByText('Legg ved brevet med varselet.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeDisabled();
+    cleanup();
+    const varslet = skrevet(medGrunnlag, 'TE', {
+      type: 'send_varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+    });
+    await vis(varslet, 'frist');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om fristforlengelse' }));
+    expect(
+      screen.queryByRole('checkbox', { name: /Varselet etter § 33.4/ }),
+      'kontrollsak'
+    ).toBeNull();
+  });
+
+  it.each([
+    ['uten vedlegg', { sendt: '2026-10-10', vedlegg: [] }, 'Legg ved brevet'],
+    ['med en dato etter i dag', { sendt: '2026-10-20', vedlegg: [vedlegg] }, 'etter dagens dato'],
+  ])('adapteren avviser varselet i kravet %s (OV-U5)', (_n, tidligereVarsel, melding) => {
+    const data = { ...fristdata('spesifisert', '<p>T</p>', 3), tidligereVarsel };
+    expect(() => fristkommandoFraSkjema(data, '2026-10-19')).toThrow(melding);
   });
 
   it('tilbyr kjernen bare registreringen etter et fristkrav, åpner skjemaet med den (VS-U16)', async () => {

@@ -99,6 +99,13 @@ describe('formen på kravet', () => {
       })
     ).toEqual([]);
   });
+
+  it('en ugyldig dato for varselet i fristkravet meldes på feltet i varselet', () => {
+    const fristkrav = { type: 'krav', spor: 'frist', innhold: { dager: 20 } };
+    expect(formfeil({ ...fristkrav, varsel: { sendt: '2026-13-40' } })).toEqual([
+      '$.varsel.sendt: "2026-13-40" er ikke en dato på formen ÅÅÅÅ-MM-DD',
+    ]);
+  });
 });
 
 /**

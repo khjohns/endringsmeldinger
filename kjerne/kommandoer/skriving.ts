@@ -7,7 +7,7 @@
  */
 
 import { avvisning } from './avvisning.ts';
-import { formfeil, type Kommando, type Svarutkast } from './kommando.ts';
+import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
@@ -150,6 +150,8 @@ function dokument(
         data.utsagn = [{ id: varsel, art: 'varsel', hjemmel: '33.4' }];
         data.opplysninger = [{ id: nyId(), hva: 'sendt', dato: k.varsel.sendt, gjelder: varsel }];
       }
+      // OV-U5: brevet med varselet ligger ved kravet.
+      if (bundne.length) data.dokumentasjon = bundne;
       return data;
     }
     case 'brev':
@@ -217,9 +219,9 @@ export function vurder(
  * Det klienten viser avsenderen før brevet sendes: raden kommandoen ville gitt,
  * med brevteksten, uten kontrollen av teksten kommandoen bærer og uten kravet til
  * begrunnelse og beskrivelse, som ikke endrer den låste teksten. Klienten sender
- * den låste teksten herfra med kommandoen (A1). Et brev med vedlegg er registrert og
- * har ingen tekst fra appen, så forhåndsvisningen trenger vedleggene bare for å
- * godta det.
+ * den låste teksten herfra med kommandoen (A1). Forhåndsvisningen trenger vedleggene
+ * kommandoen viser til: et registrert brev godtas med dem, og et brev fra appen har
+ * filnavnene i teksten (A4), som fristkravet med varselet (OV-U5).
  */
 export function forhaandsvis(
   kommando: unknown,
@@ -278,7 +280,7 @@ function skriv(
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
   const bundne: Vedlegg[] = [];
-  for (const id of (k as { dokumentasjon?: string[] }).dokumentasjon ?? []) {
+  for (const id of vedleggI(k)) {
     const funnet = vedlegg.get(id.toLowerCase());
     if (!funnet)
       return {

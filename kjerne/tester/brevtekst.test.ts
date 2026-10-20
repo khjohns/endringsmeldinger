@@ -92,7 +92,13 @@ function sak() {
     const k = structuredClone(kommando);
     try {
       if (!('brevtekst' in k)) {
-        const vist = forhaandsvis(structuredClone(k), kontekst(part), journal, kjerne);
+        const vist = forhaandsvis(
+          structuredClone(k),
+          kontekst(part),
+          journal,
+          kjerne,
+          mellomlager(k)
+        );
         const t = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
         if (t) k.brevtekst = t;
       }
@@ -114,7 +120,13 @@ function sak() {
   /** Den låste teksten forhåndsvisningen gir, eller `null` når den avvises (A1). */
   const vis = (part: Part, kommando: Data, kjerne = KJERNE): string[] | null => {
     try {
-      const vist = forhaandsvis(structuredClone(kommando), kontekst(part), journal, kjerne);
+      const vist = forhaandsvis(
+        structuredClone(kommando),
+        kontekst(part),
+        journal,
+        kjerne,
+        mellomlager(kommando)
+      );
       return vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
     } catch (feil) {
       if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
@@ -188,11 +200,14 @@ const GRUNNLAGSKRAV = {
   utdypning: BESKRIVELSE,
 };
 
+/** OV-U5: kravet registrerer varselet, så brevet med det ligger ved (arbeidsvalget i #909). */
+const VARSELBREVET = '7f1c2d3e-0000-4000-8000-000000003304';
+
 const FRISTKRAV = {
   type: 'krav',
   spor: 'frist',
   innhold: { dager: 20 },
-  varsel: { sendt: '2026-09-28' },
+  varsel: { sendt: '2026-09-28', dokumentasjon: [VARSELBREVET] },
   utdypning: 'Pelingen tar fire uker lenger.',
 };
 
@@ -380,7 +395,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     ]);
   });
 
-  it('vederlaget er et tilbud uten merverdiavgift, og fristkravet har datoen for varselet', () => {
+  it('vederlaget er et tilbud uten merverdiavgift, og fristkravet har datoen for varselet og brevet med det (OV-U5)', () => {
     const s = sakMedKrav();
     const [, , v, f] = s.journal;
     expect(laast(v)).toEqual([
@@ -396,7 +411,9 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
         laast:
           'TE opplyser at varsel om fristforlengelse etter NS 8407 § 33.4 ble sendt 28. september 2026.',
       }),
+      { gjelder: f.event_id, laast: `Brevet har vedlegg: «${VARSELBREVET}.pdf».` },
     ]);
+    expect(f.data.dokumentasjon).toEqual([expect.objectContaining({ vedlegg_id: VARSELBREVET })]);
     expect(s.journal.flatMap(utenAvsnitt)).toEqual([]);
   });
 
@@ -441,6 +458,29 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
     expect(s.avvisning('TE', svikt)?.melding).toBe(
       'TE har oppgitt at TE ble klar over forholdet 3. oktober 2026, etter brevets dato 2. oktober 2026.'
     );
+  });
+
+  it('en dato for varselet etter § 33.4 etter brevets dato avvises, i registreringen og i fristkravet; samme dag godtas (#968, arbeidsvalg 1 i #664)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    // Brevet er datert 3. oktober 2026.
+    const varsel = (sendt: string) => ({
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt,
+      dokumentasjon: [VARSELBREVET],
+    });
+    const krav = (sendt: string) => ({ ...FRISTKRAV, varsel: { ...FRISTKRAV.varsel, sendt } });
+    const melding =
+      'TE har oppgitt at varselet etter § 33.4 ble sendt 4. oktober 2026, etter brevets dato 3. oktober 2026.';
+    expect(s.avvisning('TE', varsel('2026-10-04'))).toEqual({
+      regel: 'DATO_ETTER_BREVET',
+      melding,
+    });
+    expect(s.avvisning('TE', krav('2026-10-04'))).toEqual({ regel: 'DATO_ETTER_BREVET', melding });
+    expect(s.avvist('TE', varsel('2026-10-03')), 'kontrollsak').toBeNull();
+    expect(s.avvist('TE', krav('2026-10-03')), 'kontrollsak').toBeNull();
   });
 
   it('en oppgitt dato med klokkeslett samme dag som brevet godtas, og dagen etter avvises (#474)', () => {
@@ -2413,6 +2453,53 @@ describe('teksten avsenderen godkjenner, er den som fryses (LV-U2, A1)', () => {
   });
 });
 
+/**
+ * OV-U5: TE oppgir datoen for et varsel sendt utenfor appen med varselet som vedlegg.
+ * Vedlegget kreves når kravet registrerer varselet; er det registrert, kreves bare samme
+ * dato (SK-12, rad KA-19; arbeidsvalget i #909).
+ */
+describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
+  const utenBrevet = { ...FRISTKRAV, varsel: { sendt: FRISTKRAV.varsel.sendt } };
+
+  it('et fristkrav som registrerer varselet uten brevet med det, avvises (OV-U5)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    expect(s.avvisning('TE', utenBrevet)).toEqual({
+      regel: 'VEDLEGG_MANGLER',
+      melding:
+        'Kravet oppgir datoen varselet etter § 33.4 ble sendt, men brevet med varselet ligger ikke ved (OV-U5).',
+    });
+    expect(s.avvist('TE', FRISTKRAV), 'kontrollsak').toBeNull();
+  });
+
+  it('er varselet registrert med brevet, kreves bare samme dato i kravet (SK-12, arbeidsvalget i #909)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: FRISTKRAV.varsel.sendt,
+      dokumentasjon: [VARSELBREVET],
+    });
+    const rad = s.send('TE', utenBrevet);
+    expect(rad.data.dokumentasjon).toBeUndefined();
+    expect(rad.data.utsagn).toBeUndefined();
+  });
+
+  it('samme vedlegg to ganger i varselet avvises i formen', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    const dobbelt = {
+      ...FRISTKRAV,
+      varsel: { sendt: '2026-09-28', dokumentasjon: [VARSELBREVET, VARSELBREVET.toUpperCase()] },
+    };
+    expect(s.avvisning('TE', dobbelt)?.melding).toBe(
+      '$.varsel.dokumentasjon: samme vedlegg står to ganger'
+    );
+  });
+});
+
 describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
   const sendVarsel = { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
   const medVarsel = () => {
@@ -2549,7 +2636,9 @@ describe('leseren kontrollerer brevteksten (HF-U1, MM-U17)', () => {
   const medTekst = (endre: (data: Data, rad: Journalrad) => void) => {
     const s = sakMedKrav();
     const rad = structuredClone(s.journal.at(-1)!);
-    tekst(rad);
+    // Fristkravet uten brevet med varselet (OV-U5), så avsnittene er kravet og varselet.
+    delete rad.data.dokumentasjon;
+    rad.data.brevtekst = tekst(rad).filter((a) => a.gjelder !== rad.event_id);
     endre(rad.data, rad);
     return lest([...s.journal.slice(0, -1), rad]);
   };

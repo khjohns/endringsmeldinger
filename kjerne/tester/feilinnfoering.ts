@@ -15,7 +15,8 @@
  * F217–F220 et «i tide» som binder byggherren (HF-U4, HF-U8, #498), F221–F222 og F224
  * innsigelsen etter VS-U24 (#498, #517), F223 et registrert brev (HF-U4, OV-U4), og
  * F246–F247 registrerte brev som dokumentasjon (OV-U4, OV-U6, #574), og F248–F255
- * opprettelsen og datoen etter VS-U26 (#664). Én mutasjon
+ * opprettelsen og datoen etter VS-U26 (#664), og F296–F300 varselet med vedlegg i
+ * fristkravet (OV-U5, #828) og datoen for varselet (#968). Én mutasjon
  * om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
@@ -2586,6 +2587,52 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['avviser endringsordrens dato eller nummer i en annen underkategori'],
+  },
+  // Runde 13, S-2a.3a: varselet i fristkravet med vedlegg (OV-U5, #828) og datoen (#968).
+  {
+    id: 'F296',
+    feilklasse: 'fristkravet registrerer varselet uten brevet med det (OV-U5, #828)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['        return k.varsel.dokumentasjon\n', '        return true\n']],
+    mal: ['et fristkrav som registrerer varselet uten brevet med det, avvises'],
+  },
+  {
+    id: 'F297',
+    feilklasse: 'brevet med varselet bindes ikke til fristkravet (OV-U5, #828)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['      if (bundne.length) data.dokumentasjon = bundne;', '']],
+    mal: ['fristkravet har datoen for varselet og brevet med det'],
+  },
+  {
+    id: 'F298',
+    feilklasse: 'datoen i registreringen av varselet kontrolleres ikke mot brevets dato (#968)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ["  if (k.type === 'varsel') return { dato: k.sendt, gjelder: VARSELET_SENDT };", ''],
+    ],
+    mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],
+  },
+  {
+    id: 'F299',
+    feilklasse: 'datoen for varselet i fristkravet kontrolleres ikke mot brevets dato (#968)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '    return k.varsel ? { dato: k.varsel.sendt, gjelder: VARSELET_SENDT } : null;',
+        '    return null;',
+      ],
+    ],
+    mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],
+  },
+  {
+    id: 'F300',
+    feilklasse: 'vedleggene i varselet i fristkravet slås ikke opp (OV-U5, LV-U14)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [["k.type === 'krav' ? k.varsel?.dokumentasjon : []", '[]']],
+    mal: [
+      'fristkravet har datoen for varselet og brevet med det',
+      'samme vedlegg to ganger i varselet',
+    ],
   },
 ];
 

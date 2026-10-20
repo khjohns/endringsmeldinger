@@ -55,7 +55,11 @@ export type Kommando = (
       type: 'krav';
       spor: Spor;
       innhold: Record<string, unknown>;
-      varsel?: { sendt: string };
+      /**
+       * Varselet etter § 33.4 TE sendte utenfor appen, med datoen og brevet som vedlegg
+       * (OV-U5). Vedlegget kreves når kravet registrerer varselet (`nyttelast.ts`).
+       */
+      varsel?: { sendt: string; dokumentasjon?: string[] };
       /**
        * TEs utdypning under den låste teksten: beskrivelsen av forholdet i
        * grunnlaget (GR-U15), begrunnelsen i fristkravet (KA-U33). Appen tolker den
@@ -130,7 +134,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       type: { const: 'krav' },
       spor: SPOR,
       innhold: { type: 'object' },
-      varsel: objekt({ sendt: DATO }, ['sendt']),
+      varsel: objekt({ sendt: DATO, dokumentasjon: liste(ID) }, ['sendt']),
       utdypning: TEKST,
       ...BREVTEKST,
     },
@@ -211,6 +215,10 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 
 type Innhold = Record<string, unknown>;
 
+/** Vedleggene kommandoen viser til: brevets, eller varselets i et fristkrav (OV-U5). */
+export const vedleggI = (k: Kommando): string[] =>
+  ('dokumentasjon' in k ? k.dokumentasjon : k.type === 'krav' ? k.varsel?.dokumentasjon : []) ?? [];
+
 /**
  * VS-U26: et grunnlagskrav fra appen har datoen kategorien har, som en dato.
  * Formatet binder feltet til kategorien; her kreves det.
@@ -241,25 +249,23 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }
+  // Fristkravet har datoen og brevet med varselet under `varsel` (OV-U5).
+  const sti = type === 'krav' ? '$.varsel.' : '$.';
   // Datoen står i brevteksten og må være en dato (LV-U4 punkt 3).
   const sendt =
     (kommando as { varsel?: { sendt?: unknown }; sendt?: unknown }).varsel?.sendt ??
     (kommando as { sendt?: unknown }).sendt;
   if (!feil.length && sendt !== undefined && !erKalenderdato(sendt))
-    feil.push(`$.sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
+    feil.push(`${sti}sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
   if (type === 'brev' && !feil.length) {
     const spor = (kommando as { svar: Svarutkast[] }).svar.map((s) => s.spor);
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');
     if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
   }
-  const vedlegg = (kommando as { dokumentasjon?: unknown[] }).dokumentasjon;
+  const vedlegg = feil.length ? [] : vedleggI(kommando as unknown as Kommando);
   // En UUID er den samme med store og små bokstaver.
-  if (
-    !feil.length &&
-    vedlegg &&
-    new Set(vedlegg.map((v) => (v as string).toLowerCase())).size !== vedlegg.length
-  )
-    feil.push('$.dokumentasjon: samme vedlegg står to ganger');
+  if (new Set(vedlegg.map((v) => v.toLowerCase())).size !== vedlegg.length)
+    feil.push(`${sti}dokumentasjon: samme vedlegg står to ganger`);
   if (type === 'begrunnelse' && !feil.length) {
     const k = kommando as { utdypning?: unknown; dokumentasjon?: unknown[] };
     if ('sendt' in kommando) {
