@@ -48,6 +48,8 @@ export interface Oppsett {
   bh: Testbruker;
   /** Medlem i prosjektet, men i ingen av kontraktsteamene. */
   utenTeam: Testbruker;
+  /** Medlem i prosjektet med leserolle (`viewer_override`), i ingen av kontraktsteamene. */
+  leser: Testbruker;
   /** Medlem bare i det andre prosjektet. */
   utenfor: Testbruker;
   /** Catendas team-API, slik serverne får det i miljøet (`TESTMILJO_TEAMMEDLEMMER`). */
@@ -82,11 +84,17 @@ export async function lagOppsett(kobling?: Catendakobling): Promise<Oppsett> {
   });
   const [p, annet] = [prosjektFor('a'), prosjektFor('b')];
   if (kobling) p.catendaProsjekt = kobling.catendaProsjekt;
-  const [te, bh, utenTeam, utenfor] = [brukerFor(), brukerFor(), brukerFor(), brukerFor()];
+  const [te, bh, utenTeam, leser, utenfor] = [
+    brukerFor(),
+    brukerFor(),
+    brukerFor(),
+    brukerFor(),
+    brukerFor(),
+  ];
   const base = await kopierMigrertTestbase('serveren', { maks: 4 });
   const r = () => base.pool.request();
   const prosjekter: [Testprosjekt, Testbruker[]][] = [
-    [p, [te, bh, utenTeam]],
+    [p, [te, bh, utenTeam, leser]],
     [annet, [utenfor]],
   ];
   try {
@@ -133,7 +141,7 @@ export async function lagOppsett(kobling?: Catendakobling): Promise<Oppsett> {
           user_email: `${b.id}@test.example`,
           display_name: 'Testbruker',
           role: 'member',
-          viewer_override: false,
+          viewer_override: b === leser,
           active: true,
         });
         await settInn(r, 'app_sessions', {
@@ -151,6 +159,7 @@ export async function lagOppsett(kobling?: Catendakobling): Promise<Oppsett> {
       te,
       bh,
       utenTeam,
+      leser,
       utenfor,
       teammedlemmer: {
         [p.teTeam]: [te.subjekt],
