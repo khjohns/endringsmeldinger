@@ -128,7 +128,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     } catch (e) {
       if (nr !== lastinger) return gjeldende;
       // Serveren svarer 404 for en sak TS-kjernen ikke har skrevet (#705). En sak som
-      // alt er lastet, er en TS-sak, så ruta går ikke til Python-stien (#719).
+      // alt er lastet, finnes, så en senere 404 er en lastefeil (#719).
       if (e instanceof ApiError && e.status === 404 && finnes !== true) {
         finnes = false;
         sak = null;
