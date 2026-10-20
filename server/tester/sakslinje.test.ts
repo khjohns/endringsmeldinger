@@ -15,6 +15,7 @@ import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
   forhaandsvis,
+  frysBrev,
   laastTekst,
   utledJournal,
   vurder,
@@ -83,6 +84,21 @@ class Sak {
       ),
       utdypning: 'Byggherrens begrunnelse.',
     };
+  }
+
+  /** Et brev TE sendte utenfor appen, registrert som korrespondanse (OV-U4). */
+  registrer(data: Record<string, unknown>): void {
+    const rad: Journalrad = {
+      ...this.journal[0]!,
+      event_id: randomUUID(),
+      event_type: 'dokument_registrert',
+      versjon: this.journal.at(-1)!.versjon + 1,
+      tidsstempel: new Date((this.klokke += 60_000)).toISOString(),
+      format: 1,
+      data,
+    };
+    frysBrev(rad, this.journal, KJERNE);
+    this.journal.push(rad);
   }
 
   gjeldendeSvar(spor: Spor): string {
@@ -243,6 +259,58 @@ describe('linja i sakslisten (#1022)', () => {
     ['grunnlaget_trukket', [krav, trekk('grunnlag')]],
   ])('saken har betegnelsen %s (MM-U22)', (betegnelse, steg) => {
     expect(linje(...steg).saksbetegnelse).toBe(betegnelse);
+  });
+
+  it('trukne krav og krav i en avsluttet sak står på linja, men telles ikke i nøkkeltallene (svar 2 fra oppdragsgiver 20.10 i #1029)', () => {
+    const staar = linje(krav);
+    const vederlagTrukket = linje(krav, trekk('vederlag'));
+    const grunnlagTrukket = linje(krav, trekk('grunnlag'));
+    const avslagGodtatt = linje(forloepA, aksept('grunnlag'));
+    for (const l of [vederlagTrukket, grunnlagTrukket, avslagGodtatt])
+      expect(l.vederlag.krav).toEqual({ beloep: 100000, metode: 'tilbud' });
+    expect(vederlagTrukket.vederlag.etiketter).toContain('trukket');
+    expect(noekkeltall([staar, vederlagTrukket, grunnlagTrukket, avslagGodtatt])).toMatchObject({
+      vederlag: { krav_antall: 1, krav_sum: 100000 },
+      frist: { krav_antall: 2 },
+    });
+  });
+
+  it('en enighet uten virkning telles ikke, heller ikke uten beløp (svar 3 fra oppdragsgiver 20.10 i #1029)', () => {
+    const l = linje(forloepA, aksept('vederlag'), trekk('grunnlag'));
+    expect(l.vederlag.enighet).toEqual({ beloep: 60000, virkning: 'uten_virkning' });
+    const utenBeloep: Sakslinje = {
+      ...l,
+      vederlag: { ...l.vederlag, enighet: { beloep: null, virkning: 'uten_virkning' } },
+    };
+    const betingetUtenBeloep: Sakslinje = {
+      ...l,
+      vederlag: { ...l.vederlag, enighet: { beloep: null, virkning: 'betinget' } },
+    };
+    expect(noekkeltall([l, utenBeloep]).vederlag).toMatchObject({
+      enighet_uten_beloep: 0,
+      enighet_virksom_sum: 0,
+      enighet_betinget_sum: 0,
+    });
+    expect(noekkeltall([betingetUtenBeloep]).vederlag.enighet_uten_beloep).toBe(1);
+  });
+
+  it('en sak med et registrert brev har brev utenfor appen, som tillegget i OV-U10', () => {
+    expect(linje(fullGodkjenning).brev_utenfor_appen).toBe(false);
+    const l = linje((sak) =>
+      sak.registrer({
+        krav: [
+          {
+            id: randomUUID(),
+            spor: 'grunnlag',
+            hovedkategori: 'endring',
+            underkategori: 'irregulaer_endring',
+          },
+        ],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+      })
+    );
+    expect(l.forstaatt).toBe(true);
+    expect(l.brev_utenfor_appen).toBe(true);
   });
 
   it('en sak kjernen ikke forstår, står i lista med betegnelsen og telles ikke i summene (MM-U2, MM-U22)', () => {

@@ -14,6 +14,7 @@ import type {
 import type { Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
+import { erRegistrert } from '../kjerne/format/leser.ts';
 import { visning } from '../kjerne/utledning/visning.ts';
 import {
   enighetensVirkning,
@@ -136,6 +137,8 @@ export interface Sakslinje {
   hovedkategori: string | null;
   forstaatt: boolean;
   saksbetegnelse: Saksbetegnelse | null;
+  /** Saken har registrert korrespondanse, som tillegget til «kravene avgjort» i OV-U10. */
+  brev_utenfor_appen: boolean;
   grunnlag: Grunnlagslinje;
   vederlag: Vederlagslinje;
   frist: Fristlinje;
@@ -230,6 +233,9 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
     siste_hendelse: sak.journal.at(-1)!.tidsstempel,
     forstaatt: u.forstaatt,
     saksbetegnelse: saksbetegnelse(u),
+    brev_utenfor_appen:
+      u.forstaatt &&
+      u.journal.some((h) => h.art === 'dokument' && erRegistrert(h.dokument.opplysninger)),
   };
   if (!u.forstaatt)
     return {
@@ -254,9 +260,11 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
 
 /**
  * Nøkkeltallene over lista, regnet i serveren. Krav og virksom enighet summeres hver
- * for seg, og betingede og subsidiære tall står for seg (MM-U28). En sak kjernen ikke
- * forstår, og en enighet uten beløp, telles og summeres ikke: ukjent er ikke 0.
- * Fristdagene summeres ikke på tvers av saker.
+ * for seg, og betingede og subsidiære tall står for seg (MM-U28). Kravene telles bare
+ * når de står: ikke trukket og ikke i en avsluttet sak. En sak kjernen ikke forstår,
+ * og en enighet uten beløp, telles og summeres ikke: ukjent er ikke 0. En enighet uten
+ * virkning telles ikke (svar 2 og 3 fra oppdragsgiver 20.10 i #1029). Fristdagene
+ * summeres ikke på tvers av saker.
  */
 export interface Noekkeltall {
   saker: number;
@@ -293,18 +301,24 @@ export function noekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
       n.ikke_forstaatt += 1;
       continue;
     }
+    const avsluttet =
+      l.saksbetegnelse === 'avslaget_paa_grunnlaget_godtatt' ||
+      l.saksbetegnelse === 'grunnlaget_trukket';
+    const staar = (s: Foreligger) => !avsluttet && !s.etiketter.includes('trukket');
     const v = l.vederlag;
-    if (v.krav) {
+    if (v.krav && staar(v)) {
       n.vederlag.krav_antall += 1;
       n.vederlag.krav_sum += v.krav.beloep;
     }
     if (v.venter_paa_svar) n.vederlag.venter_paa_svar += 1;
     if (v.svar?.subsidiaert) n.vederlag.svar_subsidiaert_sum += v.svar.beloep;
-    if (v.enighet && v.enighet.beloep === null) n.vederlag.enighet_uten_beloep += 1;
-    else if (v.enighet?.virkning === 'virksom') n.vederlag.enighet_virksom_sum += v.enighet.beloep!;
-    else if (v.enighet?.virkning === 'betinget')
-      n.vederlag.enighet_betinget_sum += v.enighet.beloep!;
-    if (l.frist.krav) n.frist.krav_antall += 1;
+    const e = v.enighet;
+    if (e && e.virkning !== 'uten_virkning') {
+      if (e.beloep === null) n.vederlag.enighet_uten_beloep += 1;
+      else if (e.virkning === 'virksom') n.vederlag.enighet_virksom_sum += e.beloep;
+      else n.vederlag.enighet_betinget_sum += e.beloep;
+    }
+    if (l.frist.krav && staar(l.frist)) n.frist.krav_antall += 1;
     if (l.frist.venter_paa_svar) n.frist.venter_paa_svar += 1;
   }
   return n;
