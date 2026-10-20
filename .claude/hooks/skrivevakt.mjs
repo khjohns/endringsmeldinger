@@ -399,7 +399,7 @@ function lekser(tekst, iKropp = false, heredocer = undefined) {
       avsluttOrd();
       const undertrykt =
         heredocer === 'ingen' || (heredocer !== 'alle' && (kommentar || aritmetikk > 0));
-      tvil ||= undertrykt;
+      tvil ||= aritmetikk > 0;
       const fjernTab = tekst[i + 2] === '-';
       i += fjernTab ? 2 : 1;
       const raa = /^[ \t]*([^\s;&|<>()]*)/.exec(tekst.slice(i + 1))[1];
@@ -1020,7 +1020,9 @@ function vurderKall(input) {
   }
   if (
     leddene.some((del) => del.ukjentSyntaks) &&
-    [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) => m.test(kommando))
+    [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) =>
+      [...tekster].some((t) => m.test(t))
+    )
   ) {
     const blandet =
       (pushArgumenter.length > 0 || commiter) &&

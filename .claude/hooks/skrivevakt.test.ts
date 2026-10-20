@@ -372,12 +372,15 @@ describe('skrivevakten for mekanisk-pr', () => {
     }
   });
 
-  it('leser en kommentar, aritmetikk og ukjent syntaks før << både med og uten heredoc og linje for linje (#970)', () => {
+  it('stopper en kommando bak en anførsel eller heredoc som vakten og bash kan lese ulikt (#970)', () => {
     for (const kommando of [
       "ls # '\ng\\it push --force origin HEAD:main\n'",
       "echo $[1<<A]\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
       "echo ${x:-<<A}\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
       "echo ${x[1<<A]}\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
+      'echo # \'\necho "\nx \' y " ; g\\it push --force origin HEAD:main ; echo "\nx "',
+      "echo $(#'\ng\\it push --force origin HEAD:main\n)",
+      "echo $'\\''\ng\\it push --force origin HEAD:main\necho '",
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
