@@ -4,7 +4,7 @@ import {
   deriveFristDomainConfig,
 } from '$lib/components/kontraktsbord/derive';
 import { getContext, setContext } from 'svelte';
-import type { CaseWorkspace } from '$lib/kontraktsbord/context.svelte';
+import type { DemoCaseWorkspace } from '$lib/mockup/store.svelte';
 import { submissionRefs } from '$lib/kontraktsbord/submission.svelte';
 import type { EventType, SporType } from '$lib/types/timeline';
 import { forsteUnderkategori } from '$lib/domain/grunnlagDomain';
@@ -19,14 +19,13 @@ import {
 } from './types';
 
 const KEY = Symbol('approval-workspace');
-// Byggherrens interne godkjenning finnes bare i demoen til den er bygget i TS (#818).
-const IKKE_BYGGET = 'Byggherrens interne godkjenning er ikke tilgjengelig for denne saken ennå.';
-export function createApprovalWorkspace(store: CaseWorkspace) {
+/** Byggherrens interne godkjenning finnes bare i demoen til den er bygget i TS (#818). */
+export function createApprovalWorkspace(store: DemoCaseWorkspace) {
   let state = $state<ApprovalState>(emptyApprovalState());
-  let actor = $state(store.isDemo ? demoUsers[0].id : '');
-  const chain: ApprovalUser[] = store.isDemo ? demoUsers.slice(1) : [];
-  const sender: ApprovalUser | null = store.isDemo ? demoUsers[0] : null;
-  let canPrepare = $state(store.isDemo);
+  let actor = $state(demoUsers[0].id);
+  const chain: ApprovalUser[] = demoUsers.slice(1);
+  const sender: ApprovalUser = demoUsers[0];
+  let canPrepare = $state(true);
   let error = $state('');
   let busy = $state(false);
   let idle: Promise<void> = Promise.resolve();
@@ -60,7 +59,6 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
       grunnlag_varslet_i_tide: ready.data.grunnlag_varslet_i_tide as boolean | undefined,
     };
   });
-  // Uten et ferdig grunnlag i godkjenningen leses saken selv, med getterne som kaster for en TS-sak (#732).
   const effectiveCase = $derived(
     effectiveGrunnlag === store.sak.grunnlag
       ? store.sak
@@ -77,7 +75,6 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     busy = true;
     error = '';
     try {
-      if (!store.isDemo) throw new Error(IKKE_BYGGET);
       state = transition($state.snapshot(state), command, actor, chain, claims(), undefined, {
         sender: demoUsers[0],
         dailyRate: demoDailyRate(),
@@ -105,7 +102,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     get chain() {
       return chain;
     },
-    /** Saksbehandlerens identitet og rolle i matrisen i demoen; `null` ellers */
+    /** Saksbehandlerens identitet og rolle i matrisen i demoen */
     get sender() {
       return sender;
     },
@@ -113,7 +110,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
       return canPrepare;
     },
     get dailyRate() {
-      return store.isDemo ? demoDailyRate() : null;
+      return demoDailyRate();
     },
     get error() {
       return error;
@@ -152,10 +149,8 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
       );
     },
     setActor(id: string) {
-      if (store.isDemo) {
-        actor = id;
-        canPrepare = id === demoUsers[0].id;
-      }
+      actor = id;
+      canPrepare = id === demoUsers[0].id;
     },
     restored(track: SporType) {
       return restoreItem?.track === track

@@ -74,13 +74,11 @@
             'frist',
             eventTypeFor(valgt),
             data,
-            () => {
-              if (store.isDemo)
-                store.sendFristVarselHandling(valgt, {
-                  begrunnelse: String(data.begrunnelse),
-                  svarfrist: svarfrist || undefined,
-                });
-            },
+            (demo) =>
+              demo.sendFristVarselHandling(valgt, {
+                begrunnelse: String(data.begrunnelse),
+                svarfrist: svarfrist || undefined,
+              }),
             'BH'
           );
         }, onsend);
@@ -99,7 +97,7 @@
     behold={() => {}}
     hentInn={() => {}}
     sakId={store.sak.sak_id}
-    visVedlegg={!store.isDemo}
+    visVedlegg={false}
     bind:vedleggIds
     bind:vedleggOpptatt
   />

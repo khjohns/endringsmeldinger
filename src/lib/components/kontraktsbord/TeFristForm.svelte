@@ -23,7 +23,6 @@
     createSubmission,
     createFormDraft,
     submissionRefs,
-    requireEventId,
   } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission(() => draft.clear());
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
@@ -194,7 +193,7 @@
   );
   const statusSummary = $derived(beregnTeStatusSummary(mappedState, { scenario }));
   const draft = createFormDraft(
-    !store.isDemo && !kjernesak,
+    false,
     {
       sakId: store.sak.sak_id,
       spor: 'frist',
@@ -248,32 +247,11 @@
                     erSvarPaForesporsel: scenario === 'foresporsel',
                   }),
                 },
-                () => {
-                  if (store.isDemo)
-                    store.sendTeFrist(antallDager, varselType as FristVarselType, begrunnelse);
-                }
+                (demo) => demo.sendTeFrist(antallDager, varselType as FristVarselType, begrunnelse)
               );
               return;
             }
-            if (store.isDemo)
-              store.sendTeFrist(antallDager, varselType as FristVarselType, begrunnelse);
-            else
-              await store.submit(getEventType({ scenario }) as EventType, {
-                ...buildEventData(mappedState, {
-                  scenario,
-                  grunnlagEventId: requireEventId(
-                    submissionRefs(store.timeline, 'grunnlag').claimId
-                  ),
-                  originalEventId:
-                    scenario !== 'new'
-                      ? requireEventId(
-                          submissionRefs(store.timeline, 'frist').claimId ??
-                            existing.varsler?.find((v) => v.type === 'frist')?.event_id
-                        )
-                      : undefined,
-                  erSvarPaForesporsel: scenario === 'foresporsel',
-                }),
-              });
+            throw new Error('Skjemaet har ingen brevkontroll, så kravet kan ikke sendes.');
           }, onsend);
       },
     });
@@ -291,7 +269,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo && !kjernesak}
+      visVedlegg={false}
       bind:vedleggIds
       bind:vedleggOpptatt
     />
