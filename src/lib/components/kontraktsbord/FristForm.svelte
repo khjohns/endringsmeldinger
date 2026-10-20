@@ -18,12 +18,10 @@
     buildEventData as buildDomainData,
     getDefaults,
   } from '$lib/domain/fristDomain';
-  import type { ResponsFristEventData } from '$lib/types/timeline';
   import {
     createSubmission,
     createFormDraft,
     submissionRefs,
-    requireEventId,
   } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission(() => draft.clear());
   import type { FristDomainConfig, FristFormState } from '$lib/domain/fristDomain';
@@ -53,18 +51,11 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const previous = store.isDemo
-    ? undefined
-    : (submissionRefs(store.timeline, 'frist').response?.data as ResponsFristEventData | undefined);
   const startConfig = untrack(() => domainConfig);
   const initialDefaults = getDefaults({
     krevdDager: startConfig.krevdDager,
-    isUpdateMode: Boolean(previous),
+    isUpdateMode: false,
     harInnsigelseMotVarsel: startConfig.harInnsigelseMotVarsel,
-    lastResponseEvent: previous
-      ? { godkjent_dager: previous.subsidiaer_godkjent_dager ?? previous.godkjent_dager }
-      : undefined,
-    fristTilstand: previous,
   });
   let fristVarselOk = $state<boolean | undefined>(initialDefaults.fristVarselOk);
   let spesifisertKravOk = $state<boolean | undefined>(initialDefaults.spesifisertKravOk);
@@ -74,10 +65,8 @@
 
   // The generator consumes formState, so assigning its result avoids a derived dependency cycle.
   // eslint-disable-next-line svelte/prefer-writable-derived
-  let begrunnelseHtml = $state(previous?.begrunnelse ?? '');
-  let tilleggHtml = $state(
-    String((previous as unknown as Record<string, unknown> | undefined)?.tilleggs_begrunnelse ?? '')
-  );
+  let begrunnelseHtml = $state('');
+  let tilleggHtml = $state('');
 
   const formState: FristFormState = $derived({
     fristVarselOk,
@@ -91,7 +80,7 @@
 
   const computed = $derived(beregnAlt(formState, domainConfig));
   const draft = createFormDraft(
-    !store.isDemo,
+    false,
     { sakId: store.sak.sak_id, spor: 'frist', revisjon: store.sak.frist.antall_versjoner },
     () => ({
       vedleggIds,
@@ -250,36 +239,7 @@
               );
               return;
             }
-            if (store.isDemo) {
-              store.sendFristSvar(computed.prinsipaltResultat, prinsipaltGodkjent, {
-                fristVarselOk,
-                spesifisertKravOk,
-                foresporselSvarOk,
-                vilkarOppfylt,
-                subsidiaerTriggers: computed.subsidiaerTriggers,
-                subsidiaerResultat: computed.visSubsidiaertResultat
-                  ? computed.subsidiaertResultat
-                  : undefined,
-                subsidiaerGodkjentDager: computed.visSubsidiaertResultat
-                  ? subsidiaertGodkjent
-                  : undefined,
-                begrunnelse: begrunnelseHtml,
-              });
-            } else {
-              const refs = submissionRefs(store.timeline, 'frist');
-              const data = buildEventData(
-                formState,
-                domainConfig,
-                computed,
-                requireEventId(refs.claimId),
-                autoBegrunnelseHtml
-              );
-              if (refs.responseId) data.original_respons_id = refs.responseId;
-              await store.submit(
-                refs.responseId ? 'respons_frist_oppdatert' : 'respons_frist',
-                data
-              );
-            }
+            throw new Error('Skjemaet har ingen intern godkjenning, så svaret kan ikke sendes.');
           }, onsend);
       },
     });
@@ -307,7 +267,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo}
+      visVedlegg={false}
       bind:vedleggIds
       bind:vedleggOpptatt
     />

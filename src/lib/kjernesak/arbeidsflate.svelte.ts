@@ -142,7 +142,6 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     get submitting() {
       return kjernesak.sender;
     },
-    catendaSyncStatus: 'clear' as const,
     get submissionError() {
       return kjernesak.feil;
     },
@@ -151,12 +150,6 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     statustekst: (spor: SporKey) => projeksjon.statustekst[spor],
     getUI: (): SporUIState => TOM_UI,
     setDraft() {},
-    beginEdit() {},
-    endEdit() {},
-    refresh: () => kjernesak.last(),
-    submit(): Promise<void> {
-      throw new Error('En TS-sak sendes med kommandoene til kjernen, ikke som hendelse.');
-    },
   };
 }
 

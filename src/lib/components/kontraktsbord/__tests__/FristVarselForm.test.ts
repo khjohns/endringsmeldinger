@@ -6,11 +6,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/svelte';
 import WorkspaceHarness from './WorkspaceHarness.svelte';
-import { createCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import { createDemoStore } from '$lib/mockup/store.svelte';
 import { DEFAULT_SCENARIO } from '$lib/mockup/scenarios';
 import { setDraftOwner } from '$lib/utils/draftOwner';
-import type { CaseContextResponse } from '$lib/types/api';
+import { demoUsers } from '$lib/approval/types';
 import type { TimelineEvent } from '$lib/types/timeline';
 import type { BrevInnhold } from '../letterTypes';
 
@@ -80,20 +79,24 @@ describe('BH på et fristvarsel uten dager', () => {
 
   it('vises uten godkjenningsrett, fordi handlingene går utenom godkjenningen', async () => {
     // Oppdragsgiver 2026-10-04: innsigelse og forespørsel sendes uten intern godkjenning.
-    // Utenfor demoen har godkjenningen ingen som kan ferdigstille (#818).
-    const demo = arbeidsflate();
-    const response: CaseContextResponse = {
-      state: JSON.parse(JSON.stringify(demo.sak)),
-      timeline: JSON.parse(JSON.stringify(demo.timeline)),
-      version: 4,
-      historikk: { grunnlag: [], vederlag: [], frist: [] },
-    };
     const screen = render(WorkspaceHarness, {
-      workspace: createCaseWorkspace(response, { projectId: 'p' }),
-      view: { track: 'frist', role: 'BH', mode: 'form' },
+      workspace: arbeidsflate(),
+      view: { track: 'frist', role: 'BH', mode: 'read' },
     });
+    await fireEvent.click(await screen.findByRole('button', { name: 'Åpne brev' }));
+    await fireEvent.change(await screen.findByRole('combobox', { name: 'Demo · vis som' }), {
+      target: { value: demoUsers[1].id },
+    });
+    await fireEvent.click(screen.getByRole('button', { name: 'Til saken' }));
 
+    await screen.rerender({ view: { track: 'frist', role: 'BH', mode: 'form' } });
     expect(await screen.findByRole('radio', { name: 'Be om spesifisert krav' })).toBeTruthy();
     expect(screen.queryByText('Åpne brev for å behandle godkjenningspakken.')).toBeNull();
+
+    // Kontrollsak: et svar som går gjennom godkjenningen, kan ikke ferdigstilles av samme aktør.
+    await screen.rerender({ view: { track: 'vederlag', role: 'BH', mode: 'form' } });
+    expect(
+      await screen.findByText('Åpne brev for å behandle godkjenningspakken.')
+    ).toBeInTheDocument();
   });
 });

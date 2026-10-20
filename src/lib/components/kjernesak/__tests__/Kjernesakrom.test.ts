@@ -98,6 +98,9 @@ describe('TS-saken i Kontrollrommet', () => {
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
     expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent('Ikke vurdert');
     expect(spor.getByRole('button', { name: /Vederlag/ })).toBeInTheDocument();
+    // Scenariovalget og nullstillingen hører bare til demoen.
+    expect(screen.queryByRole('combobox', { name: 'Scenario' })).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Nullstill mockup')).not.toBeInTheDocument();
   });
 
   // Kilde: #719 p5 og #865 p3: etter et lagret brev og en mislykket lasting har saksbildet

@@ -6,11 +6,12 @@
   const store = getCaseWorkspace();
   // TS-saken (#718): det kjernen ennå ikke kan, vises ikke (OV-U1).
   const kjernesak = store.erKjernesak ? store : null;
-  const pythonsak = store.erKjernesak ? null : store;
+  const demosak = store.erKjernesak ? null : store;
   import { createApprovalWorkspace, setApprovalWorkspace } from '$lib/approval/context.svelte';
   import ClaimApprovalView from './ClaimApprovalView.svelte';
   import { untrack } from 'svelte';
-  const approval = setApprovalWorkspace(createApprovalWorkspace(store));
+  // BHs interne godkjenning finnes bare i demoen til den er bygget i TS (#818, #732 p9).
+  const approval = demosak ? setApprovalWorkspace(createApprovalWorkspace(demosak)) : null;
   import { createClaimReview, setClaimReview } from '$lib/approval/claimReview.svelte';
   import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
   import ClaimLetterView from './ClaimLetterView.svelte';
@@ -18,11 +19,11 @@
   import InnsigelseModal from '$lib/components/kjernesak/InnsigelseModal.svelte';
   import { SPOR_FOR } from '$lib/kjernesak/sakstilstand';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
-  const claimReview = createClaimReview(store);
+  const claimReview = demosak ? createClaimReview(demosak) : null;
   // TS-saken sendes med kommandoen til kjernen og den låste teksten (#718, LV-U2).
   const kravkontroll = kjernesak ? lagKravkontroll(kjernesak.kjernesak) : null;
-  setClaimReview(kravkontroll ?? claimReview);
-  const brevApent = $derived(Boolean(kravkontroll?.letter ?? claimReview.letter));
+  setClaimReview(kravkontroll ?? claimReview!);
+  const brevApent = $derived(Boolean(kravkontroll?.letter ?? claimReview?.letter));
   let showApproval = $state(false);
   import Header from './Header.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
@@ -120,11 +121,14 @@
   const kjerneskjema = $derived(Boolean(kjernesak?.teSkjema(sel)));
   // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
   // ikke kjernen nødvendigvis det samme, men skjemaet skal fullføre sendingen (#737 p4).
-  // Mens brevet kontrolleres og sendes, står det også når visningen bytter spor (#872).
+  // Mens brevet kontrolleres eller sendes, står skjemaet også når visningen bytter spor
+  // (#872), og venstrekolonnen kan ikke bytte, så innholdet ikke går tapt (#877).
+  // `goRead` og `selectTrack` lukker skjemaet med det samme, uten etterslep fra effekten.
   let kjerneskjemaSpor = $state<SporKey | null>(null);
+  const brevetSendes = $derived(Boolean(kravkontroll?.letter || kravkontroll?.sender));
   $effect(() => {
     if (mode === 'form' && kjerneskjema) kjerneskjemaSpor = sel;
-    else if ((mode !== 'form' || sel !== kjerneskjemaSpor) && !kravkontroll?.sender)
+    else if ((mode !== 'form' || sel !== kjerneskjemaSpor) && !brevetSendes)
       kjerneskjemaSpor = null;
   });
   const visKjerneskjema = $derived.by(
@@ -173,9 +177,9 @@
       currentRole = role,
       track = sel;
     untrack(() => {
-      if (!kjernesak && currentMode === 'form' && currentRole === 'BH')
-        approval.beginEdit(track === 'ansvar' ? 'grunnlag' : track);
-      else approval.endEdit();
+      if (currentMode === 'form' && currentRole === 'BH')
+        approval?.beginEdit(track === 'ansvar' ? 'grunnlag' : track);
+      else approval?.endEdit();
     });
   });
 
@@ -208,7 +212,7 @@
 
   async function goForm(key: SporKey) {
     const track = key === 'ansvar' ? 'grunnlag' : key;
-    if (role === 'BH' && !kjernesak) {
+    if (role === 'BH' && approval) {
       const items = approval.state.items.filter((i) => i.track === track);
       if (items.some((i) => i.status === 'til_godkjenning')) {
         showApproval = true;
@@ -239,11 +243,13 @@
   }
 
   function tilbake() {
+    if (brevetSendes) return;
     if (mode === 'form') kjernesak?.kjernesak.fjernFeil();
     goMatrix();
   }
 
   function goRead() {
+    if (!brevetSendes) kjerneskjemaSpor = null;
     mode = 'read';
     rTab = 'bestemmelser';
     formActions = null;
@@ -252,11 +258,13 @@
   }
 
   function handleSend() {
-    if (role === 'BH') showApproval = true;
+    if (role === 'BH' && approval) showApproval = true;
     goMatrix();
   }
 
   function selectTrack(key: SporKey) {
+    if (brevetSendes) return;
+    kjerneskjemaSpor = null;
     if (mode === 'form') kjernesak?.kjernesak.fjernFeil();
     kravkontroll?.fjernFeil();
     sel = key;
@@ -322,7 +330,8 @@
     {#snippet innsendingsvarsel()}
       <div class="approval-entry" use:maalVarsel>
         {#if kjernestatus === 'ventende'}
-          <p role="alert">{kjernesak?.submissionError}</p>
+          <!-- I skjemaet varsler SkjemaStatus den samme feilen (#877). -->
+          <p role={mode === 'form' ? 'status' : 'alert'}>{kjernesak?.submissionError}</p>
           <button
             type="button"
             class="btn btn-secondary"
@@ -365,7 +374,7 @@
             mode === 'read' &&
             mobileView === 'matrix'}
         >
-          {#if role === 'BH' && !kjernesak && !creatingCase && !showApproval}
+          {#if role === 'BH' && approval && !creatingCase && !showApproval}
             <div class="approval-entry">
               <div>
                 <strong>Brev og intern godkjenning</strong><span
@@ -388,10 +397,10 @@
               onavbryt={kravkontroll.cancel}
             />
           {/if}
-          <ClaimLetterView review={claimReview} />
+          {#if claimReview}<ClaimLetterView review={claimReview} />{/if}
           <!-- Hidden, not unmounted, while the letter is checked: the form's submission resumes on confirm. -->
           <div class="work" hidden={brevApent}>
-            {#if showApproval && role === 'BH' && !creatingCase}
+            {#if showApproval && role === 'BH' && approval && !creatingCase}
               <ClaimApprovalView
                 onclose={() => (showApproval = false)}
                 onrevise={async (item) => {
@@ -423,7 +432,8 @@
                 onform={goForm}
                 onbacktonow={() => (activeEvent = null)}
               />
-            {:else if kjernesak}
+            {:else if !approval}
+              <!-- TS-saken har ingen BH-skjemaer eller godkjenning ennå (#818). -->
               <div class="approval-entry">
                 <p role="status">Dette skjemaet finnes ikke for saken ennå.</p>
                 <button class="btn btn-secondary" onclick={goRead}>Tilbake</button>
@@ -452,9 +462,9 @@
               />
             {:else if sel === 'vederlag' && role === 'TE'}
               <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
-            {:else if sel === 'ansvar' && role === 'BH' && pythonsak}
+            {:else if sel === 'ansvar' && role === 'BH' && demosak}
               <GrunnlagForm
-                domainConfig={pythonsak.grunnlagDomainConfig}
+                domainConfig={demosak.grunnlagDomainConfig}
                 onsend={handleSend}
                 onactions={(a) => (formActions = a)}
               />
@@ -493,10 +503,9 @@
                   kjernesak?.kjernesak.fjernFeil();
                   showWithdrawModal = true;
                 }}
-                ongodta={() => {
-                  const svar = kjernesak?.godtar(sel);
+                ongodta={(svar) => {
                   kjernesak?.kjernesak.fjernFeil();
-                  if (svar) void kravkontroll?.aksept(SPOR_FOR[sel], svar);
+                  void kravkontroll?.aksept(SPOR_FOR[sel], svar);
                 }}
                 oninnsigelse={() => {
                   kjernesak?.kjernesak.fjernFeil();
@@ -536,7 +545,7 @@
         />
       {/if}
 
-      {#if !creatingCase && !(showApproval && role === 'BH') && !claimReview.letter}
+      {#if !creatingCase && !(showApproval && role === 'BH') && !claimReview?.letter}
         <div class="right-panel" class:right-panel-open={rightPanelOpen}>
           {#if rightPanelOpen}
             <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
