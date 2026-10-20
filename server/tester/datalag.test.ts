@@ -634,6 +634,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
       { frist: 500 }
     ).catch((e: unknown) => e);
     expect(feil).toBeInstanceOf(FristUtloept);
+    // Kilde: utfallet er kjent, og ingenting er committet (#50). Innboksen prøver en
+    // forbigående feil i basen igjen (#957), og før fristen ga samme treghet et
+    // tidsavbrudd med koden 'ETIMEOUT'.
+    expect(feil).toBeInstanceOf(sql.MSSQLError);
+    expect((feil as sql.MSSQLError).code).toBe('ETIMEOUT');
     expect((feil as Error).cause).toBeInstanceOf(sql.RequestError);
     expect(Date.now() - start).toBeLessThan(5_000);
     expect(await lagret(pool, id)).toBe(false);
