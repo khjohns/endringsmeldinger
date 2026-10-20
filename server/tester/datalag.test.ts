@@ -17,11 +17,13 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import {
   CommitIkkeSendt,
   feilnummer,
+  FristUtloept,
   KONTEKSTNOEKLER,
   opprettPool,
   sql,
   Tilbakerulling,
   transaksjon,
+  TRANSAKSJONSFRIST_MS,
   TransaksjonAvbrutt,
   UgyldigKontekst,
   UsikkertUtfall,
@@ -520,6 +522,38 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     expect(await lagret(pool, id)).toBe(false);
   });
 
+  // Kilde: #923. Som før COMMIT kan tilbakerullingen fra serveren komme én runde etter
+  // at arbeidet har returnert, og ROLLBACK ville da feilet og forbindelsen blitt forkastet.
+  it('tilbakerulling fra serveren etter at arbeidet har returnert en Tilbakerulling: svaret gis, ingenting lagret, og forbindelsen gjenbrukes', async () => {
+    const id = randomUUID();
+    let laant: Forbindelse | undefined;
+    vedNesteLaan(pool, (f) => (laant = f));
+    let inne: Sesjon | undefined;
+    let holdtIgjen = false;
+    const svar = await transaksjon(pool, KONTEKST, async (f) => {
+      await skriv(f, id);
+      inne = await sesjonen(f);
+      const utsender = laant as unknown as { emit: (h: string, ...a: unknown[]) => boolean };
+      const ekte = utsender.emit;
+      utsender.emit = function (h, ...a) {
+        if (h !== 'rollbackTransaction') return ekte.call(this, h, ...a);
+        holdtIgjen = true;
+        return true;
+      };
+      await f()
+        .batch(`THROW 51409, N'Versjonskonflikt', 1`)
+        .catch(() => undefined);
+      utsender.emit = ekte;
+      setImmediate(() => utsender.emit('rollbackTransaction'));
+      return new Tilbakerulling('avvist');
+    });
+    expect(holdtIgjen).toBe(true);
+    expect(svar).toBe('avvist');
+    const etter = await sesjonen(() => pool.request());
+    expect(etter).toMatchObject({ forbindelse: inne!.forbindelse, trancount: 0, ...ingenKontekst });
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
   // Kilde: #597 og `koe.skrivetidspunkt` (20261016120000_kommandoer.sql): raden
   // gjelder når økta logget inn, og `sp_reset_connection` gir økta et nytt
   // `login_time` på samme forbindelse og samme økt-ID. Uten nullstilling er
@@ -566,6 +600,93 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     expect(await fra(opprettPool({ ...konfig, pool: undefined }))).toBe(10);
   });
 
+  // Kilde: «Ferdig når» i #50 (RK-05): en transaksjon som varer lenger enn grensen,
+  // avbrytes og etterlater ingen delvis skriving.
+  it('arbeidet venter forbi fristen etter en skriving: FristUtloept, ingenting lagret, og forbindelsen forkastes', async () => {
+    const id = randomUUID();
+    let inne: Sesjon | undefined;
+    const feil = await transaksjon(
+      pool,
+      KONTEKST,
+      async (f) => {
+        await skriv(f, id);
+        inne = await sesjonen(f);
+        await new Promise((ok) => setTimeout(ok, 800));
+      },
+      { frist: 300 }
+    ).catch((e: unknown) => e);
+    expect(feil).toBeInstanceOf(FristUtloept);
+    expect(await borte(pool, inne!.forbindelse)).toBe(true);
+    expect(await sesjonen(() => pool.request())).toMatchObject({ trancount: 0, ...ingenKontekst });
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  it('en forespørsel pågår ved fristen: den avbrytes straks, FristUtloept, og ingenting er lagret', async () => {
+    const id = randomUUID();
+    const start = Date.now();
+    const feil = await transaksjon(
+      pool,
+      KONTEKST,
+      async (f) => {
+        await skriv(f, id);
+        await f().batch(`WAITFOR DELAY '00:00:20'`);
+      },
+      { frist: 500 }
+    ).catch((e: unknown) => e);
+    expect(feil).toBeInstanceOf(FristUtloept);
+    expect((feil as Error).cause).toBeInstanceOf(sql.RequestError);
+    expect(Date.now() - start).toBeLessThan(5_000);
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  it('Tilbakerulling etter fristen: FristUtloept, ikke svaret, og ingenting lagret', async () => {
+    const id = randomUUID();
+    const feil = await transaksjon(
+      pool,
+      KONTEKST,
+      async (f) => {
+        await skriv(f, id);
+        await new Promise((ok) => setTimeout(ok, 600));
+        return new Tilbakerulling('avvist');
+      },
+      { frist: 200 }
+    ).catch((e: unknown) => e);
+    expect(feil).toBeInstanceOf(FristUtloept);
+    expect(await lagret(pool, id)).toBe(false);
+  });
+
+  // Kontrollsaken: fristen avbryter ikke COMMIT som er sendt, så utfallet forblir kjent.
+  it('COMMIT som er sendt før fristen og svarer etter den: svaret gis, og skrivingen er lagret', async () => {
+    const id = randomUUID();
+    vedNesteLaan(pool, (f) =>
+      enGang(
+        f,
+        'commitTransaction',
+        (ekte) =>
+          (...a) =>
+            setTimeout(() => ekte(...a), 700)
+      )
+    );
+    const svar = await transaksjon(pool, KONTEKST, async (f) => (await skriv(f, id), 'ok'), {
+      frist: 300,
+    });
+    expect(svar).toBe('ok');
+    expect(await lagret(pool, id)).toBe(true);
+  });
+
+  it.each([0, -1, Number.NaN, TRANSAKSJONSFRIST_MS + 1])(
+    'fristen %s ms avvises før forbindelsen lånes',
+    async (frist) => {
+      let laant = false;
+      vedNesteLaan(pool, () => (laant = true));
+      await expect(
+        transaksjon(pool, KONTEKST, async () => undefined, { frist })
+      ).rejects.toBeInstanceOf(RangeError);
+      expect(laant).toBe(false);
+      delete (pool as unknown as { acquire?: unknown }).acquire;
+    }
+  );
+
   it.each<[string, Partial<Record<keyof Kontekst, unknown>>]>([
     ['aktøren er et navn', { aktor: 'Kari Nordmann' }],
     ['aktøren mangler', { aktor: undefined }],
@@ -598,6 +719,12 @@ describe('datalaget uten SQL Server', () => {
     expect(feilnummer(new sql.TransactionError(fraTedious))).toBe(3903);
     expect(feilnummer(new sql.RequestError(fraTedious))).toBe(3903);
     expect(feilnummer(new Error('uten nummer'))).toBeUndefined();
+    // #926: uten `info` har `mssql` koden fra `tedious` i `number`, og den er ikke et nummer.
+    const utenInfo = new sql.RequestError(
+      Object.assign(new Error('Tidsavbrudd.'), { code: 'ETIMEOUT' })
+    );
+    expect(utenInfo.number).toBe('ETIMEOUT');
+    expect(feilnummer(utenInfo)).toBeUndefined();
     expect(feilnummer(undefined)).toBeUndefined();
   });
 

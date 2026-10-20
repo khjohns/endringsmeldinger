@@ -62,8 +62,10 @@ export const KONTEKSTNOEKLER = [
  * har det i `originalError.info`.
  */
 export function feilnummer(feil: unknown): number | undefined {
-  const f = feil as { number?: number; originalError?: { info?: { number?: number } } };
-  return f?.number ?? f?.originalError?.info?.number;
+  const f = feil as { number?: unknown; originalError?: { info?: { number?: unknown } } };
+  // En `RequestError` uten `info` har koden fra `tedious` ('ETIMEOUT') i `number` (#926).
+  for (const n of [f?.number, f?.originalError?.info?.number]) if (typeof n === 'number') return n;
+  return undefined;
 }
 
 /**
@@ -120,6 +122,20 @@ export class TransaksjonAvbrutt extends Error {}
  * kjent: transaksjonen er ikke committet.
  */
 export class CommitIkkeSendt extends Error {}
+
+/**
+ * Transaksjonen nådde fristen før COMMIT ble sendt, og forbindelsen er lukket, så
+ * serveren ruller tilbake (RK-05, #50). Utfallet er kjent: transaksjonen er ikke
+ * committet. Feilen fra arbeidet står i `cause` når den finnes.
+ */
+export class FristUtloept extends Error {}
+
+/**
+ * Den øvre levetiden for en transaksjon i millisekunder, fra BEGIN til COMMIT
+ * sendes (RK-05, #50). Den rommer en ventetid på applåsen (10 s i
+ * `database/migrasjoner/`) og en forespørsel med standardgrensen i `mssql` (15 s).
+ */
+export const TRANSAKSJONSFRIST_MS = 30_000;
 
 /** Forbindelsen fra `tedious`, med det `transaksjon` bruker. */
 export interface Forbindelse {
@@ -281,6 +297,12 @@ async function nullstillOgKontroller(
   }
 }
 
+/** Fristen for én transaksjon: om den er utløpt, og om COMMIT er sendt. */
+interface Frist {
+  utloept: boolean;
+  commitSendt: boolean;
+}
+
 /**
  * Én transaksjon med konteksten satt først, skrivebeskyttet for sesjonen og
  * bundet til transaksjonen med `koe_tx`. Kaster `arbeid`, rulles transaksjonen
@@ -291,23 +313,48 @@ async function nullstillOgKontroller(
  * det, kastes `UsikkertUtfall`. Sendes ikke COMMIT, kastes `CommitIkkeSendt`.
  * Forbindelsen går tilbake i poolen bare når transaksjonen er avsluttet og
  * forbindelsen er nullstilt og kontrollert; ellers forkastes den.
+ *
+ * Er COMMIT ikke sendt innen `frist` millisekunder fra lånet, lukkes forbindelsen:
+ * en pågående forespørsel avbrytes, serveren ruller tilbake, og `FristUtloept`
+ * kastes, også når arbeidet returnerer en `Tilbakerulling`. COMMIT som er sendt,
+ * avbrytes ikke, for da ville et kjent utfall blitt usikkert; den har grensen til
+ * forespørselen. `frist` kan bare settes lavere enn `TRANSAKSJONSFRIST_MS`.
  */
 export async function transaksjon<T>(
   pool: Pool,
   kontekst: Kontekst,
-  arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>
+  arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>,
+  { frist = TRANSAKSJONSFRIST_MS }: { frist?: number } = {}
 ): Promise<T> {
   kontroller(kontekst);
+  if (!(frist > 0 && frist <= TRANSAKSJONSFRIST_MS))
+    throw new RangeError(`Fristen ${frist} ms er ikke over 0 og høyst ${TRANSAKSJONSFRIST_MS} ms.`);
   const utlaan = pool as unknown as Utlaan;
   const forbindelse = await utlaan.acquire(pool);
   const forelder = reservasjon(pool, forbindelse);
+  const tilstand: Frist = { utloept: false, commitSendt: false };
+  const tidtaker = setTimeout(() => {
+    if (tilstand.commitSendt) return;
+    tilstand.utloept = true;
+    try {
+      forbindelse.close();
+    } catch (feil) {
+      console.error('Datalaget: lukkingen ved fristen feilet:', feil);
+    }
+  }, frist);
   let gjenbrukbar = false;
   try {
-    const utfall = await iTransaksjon(forelder, forbindelse, kontekst, arbeid);
+    const utfall = await iTransaksjon(forelder, forbindelse, kontekst, arbeid, tilstand);
+    if (tilstand.utloept)
+      throw new FristUtloept(
+        `Transaksjonen nådde fristen på ${frist} ms før COMMIT; forbindelsen er lukket.`,
+        { cause: 'feil' in utfall ? utfall.feil : undefined }
+      );
     if (utfall.avsluttet) gjenbrukbar = await nullstillOgKontroller(forbindelse, forelder);
     if ('feil' in utfall) throw utfall.feil;
     return 'tilbakerullet' in utfall ? utfall.tilbakerullet : utfall.svar;
   } finally {
+    clearTimeout(tidtaker);
     if (gjenbrukbar) utlaan.release(forbindelse);
     else forkast(pool, forbindelse);
   }
@@ -327,7 +374,8 @@ async function iTransaksjon<T>(
   forelder: sql.ConnectionPool,
   forbindelse: Forbindelse,
   kontekst: Kontekst,
-  arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>
+  arbeid: (foresp: Foresp) => Promise<T | Tilbakerulling<T>>,
+  frist: Frist
 ): Promise<Utfall<T>> {
   const tx = new sql.Transaction(forelder);
   // Forespørslene har transaksjonen som forelder, og `mssql` validerer tegnparametrene
@@ -367,8 +415,10 @@ async function iTransaksjon<T>(
       return { feil, avsluttet: false };
     }
   }
-  // Har serveren alt rullet tilbake, er det utfallet arbeidet ba om.
+  // Har serveren alt rullet tilbake, er det utfallet arbeidet ba om. Tilbakerullingen
+  // fra serveren kan komme i neste runde, som før COMMIT (#923).
   if (svar instanceof Tilbakerulling) {
+    await new Promise((ok) => setImmediate(ok));
     if (avbruttAvServeren) return { tilbakerullet: svar.svar, avsluttet: true };
     try {
       await tx.rollback();
@@ -386,7 +436,7 @@ async function iTransaksjon<T>(
           avsluttet: true,
         }
       : null;
-  return avbrutt() ?? committ(tx, forbindelse, svar, avbrutt);
+  return avbrutt() ?? committ(tx, forbindelse, svar, avbrutt, frist);
 }
 
 /**
@@ -399,7 +449,8 @@ async function committ<T>(
   tx: sql.Transaction,
   forbindelse: Forbindelse,
   svar: T,
-  avbrutt: () => Utfall<T> | null
+  avbrutt: () => Utfall<T> | null,
+  frist: Frist
 ): Promise<Utfall<T>> {
   // En forespørsel arbeidet ikke ventet på, låner forbindelsen først i neste runde
   // av hendelsesløkka. Pågår den, ville COMMIT gått før den eller blitt avvist med
@@ -408,6 +459,7 @@ async function committ<T>(
   // Serveren kan ha rullet tilbake i samme runde (#894-1).
   const iVentingen = avbrutt();
   if (iVentingen) return iVentingen;
+  if (frist.utloept) return { feil: undefined, avsluttet: false };
   const { _abort: avbryt, _activeRequest: aktiv } = tx as unknown as {
     _abort: () => void;
     _activeRequest: unknown;
@@ -430,6 +482,7 @@ async function committ<T>(
   const merk = () => (rulletTilbake = true);
   forbindelse.removeListener('rollbackTransaction', avbryt);
   forbindelse.on('rollbackTransaction', merk);
+  frist.commitSendt = true;
   try {
     await tx.commit();
     // Rullet serveren tilbake uten at COMMIT feilet, er utfallet likevel kjent (#543).
