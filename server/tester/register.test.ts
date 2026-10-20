@@ -44,6 +44,7 @@ import type { EntraLeverandoer, Innloggingsleverandoer } from '../innlogging.ts'
 import { fast } from '../inngang.ts';
 import { opprettSesjon } from '../sesjon.ts';
 import { settInn } from './sqlserver_migrert.ts';
+import { sql } from './sqlserver.ts';
 import {
   kall,
   lagOppsett,
@@ -162,15 +163,24 @@ const ENTRA: EntraLeverandoer = {
   valider: () => Promise.reject(new Error('Ikke noe ID-token i registertesten.')),
 };
 
-/** En innlogget bruker med en Entra-identitet fra en godkjent tenant, uten medlemskap (#831). */
+/** En innlogget bruker med en Entra-identitet driften har registrert, uten medlemskap (#831). */
 async function entraBruker(o: Oppsett): Promise<Testbruker> {
   const tenant = randomUUID();
   await settInn(() => o.datalag.base.pool.request(), 'entra_tenant', { tenant_id: tenant });
+  const oid = randomUUID();
+  await o.datalag.base.pool
+    .request()
+    .input('tenant', tenant)
+    .input('oid', oid)
+    .output('bruker', sql.UniqueIdentifier)
+    .query(
+      "EXEC koe_drift.registrer_entra_identitet @tenant, @oid, N'leder@test.example', N'Leder', @bruker OUTPUT"
+    );
   const id = await entraIdentitet(o.datalag.kjoeretid.pool, {
     issuer: entraIssuer(tenant),
-    subjekt: randomUUID(),
-    epost: 'leder@test.example',
-    navn: 'Leder',
+    subjekt: oid,
+    epost: '',
+    navn: '',
   });
   const ny = await opprettSesjon(o.datalag.kjoeretid.pool, id);
   return { id, subjekt: '', token: ny.token, csrf: ny.csrfToken };

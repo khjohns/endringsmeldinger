@@ -527,12 +527,12 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet` eller `koe_api.entra_identitet`, oppretter brukeren første gang en identitet sees. Tilbakekallet fra innloggingen kaller den fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659) og `entraIdentitet` i `server/entra.ts` (S-1c del 1, #831). |
+| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en Catenda-identitet sees. Tilbakekallet fra innloggingen kaller den fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet oppretter aldri en bruker ved innloggingen: driften registrerer den med `koe_drift.registrer_entra_identitet`, som ny bruker eller koblet til en eksisterende (S-1c del 1, #831). `koe_api.entra_identitet` oppdaterer navn og e-post ved innloggingen. |
 | Data fra Catenda | Delvis. Navn og e-post kommer fra Catenda-identiteten. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.fullmakt.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
-| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over) |
+| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. L 18.10: `20261019160000_aktornavn.sql`. K 18.10: `server/tester/aktornavn.test.ts` mot testbasen. |
 
@@ -544,18 +544,18 @@ Identitetene til en bruker, unike på leverandør, issuer og subjekt. En Catenda
 | --- | --- |
 | Type | grunndata |
 | Status | uavklart |
-| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api.catenda_identitet` fra tilbakekallet i `server/innlogging.ts` (F0b-5a, #659) og gjennom `koe_api.entra_identitet` fra tilbakekallet for Entra ID (S-1c del 1, #831). |
+| Hvor fra appen lagres og redigeres | `koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api.catenda_identitet` fra tilbakekallet i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet registreres av driften med `koe_drift.registrer_entra_identitet` og slås bare opp av `koe_api.entra_identitet` ved innloggingen (S-1c del 1, #831). |
 | Data fra Catenda | Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en. For `entra` kommer subjektet fra ID-tokenet fra Entra ID. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (id); unik (provider, issuer, subject). Viser til: user_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.app_identities_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Subjektet identifiserer en person. |
-| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over) |
+| Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post) |
 | Funn | — |
 | Belegg | L 16.10: migrasjonen og søk i `server/`. |
 
 ### `koe.entra_tenant`
 
-Tenantene i Entra ID driften har godkjent for innloggingen (S-1c del 1, #831). `koe_api.entra_identitet` avviser en issuer for en tenant som ikke står her. Kjøretiden har ingen rett på tabellen.
+Tenantene i Entra ID driften har godkjent for innloggingen (S-1c del 1, #831). `koe_api.entra_identitet` og `koe_drift.registrer_entra_identitet` avviser en tenant som ikke står her. Kjøretiden har ingen rett på tabellen.
 
 | Felt | Innhold |
 | --- | --- |

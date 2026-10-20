@@ -49,6 +49,8 @@ const TESTER = join(SERVER, 'tester');
 const PAKKER = new Set<string>();
 const TESTPAKKER = new Set(['vitest', 'typescript']);
 const PDF = new Set(['pdf-lib', '@pdf-lib/fontkit']);
+/** JWKS og JWT for innloggingen med Entra ID, bare i `entra.ts` og testen av den (#831). */
+const OIDC = new Set(['jose']);
 
 /** Filene som kan importere `mssql`. */
 function datalaget(fil: string): boolean {
@@ -73,6 +75,10 @@ export function forbudteImporter(fil: string, kilde: string): string[] {
         PAKKER.has(i) ||
         (i === 'mssql' && datalaget(fil)) ||
         (PDF.has(i) && relative(SERVER, fil) === 'brevpdf.ts') ||
+        (OIDC.has(i) &&
+          ['entra.ts', 'tester/entra.test.ts'].includes(
+            relative(SERVER, fil).split(sep).join('/')
+          )) ||
         (test && TESTPAKKER.has(i))
         ? []
         : [i];

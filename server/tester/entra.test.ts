@@ -29,7 +29,7 @@ import { sesjonsnavn } from '../autorisasjon.ts';
 import { catendaFraMiljoe } from '../catenda.ts';
 import { EntraOIDC, entraIdentitet, entraIssuer, UgyldigIdToken } from '../entra.ts';
 import { innloggingFraMiljoe, type Innloggingsleverandoer } from '../innlogging.ts';
-import { feilnummer, sql } from './sqlserver.ts';
+import { feilnummer, opprettKjoeretid, sql, type Pool } from './sqlserver.ts';
 import { settInn } from './sqlserver_migrert.ts';
 import {
   kall,
@@ -154,6 +154,7 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
   let tenant: string;
   let ukjentTenant: string;
   let annenTenant: string;
+  let drift: { pool: Pool; slett(): Promise<void> };
 
   const catenda: Innloggingsleverandoer = {
     autorisasjonsadresse: (state) => `https://catenda.test/oauth2/authorize?state=${state}`,
@@ -171,6 +172,7 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
     annenTenant = randomUUID();
     for (const t of [tenant, annenTenant])
       await settInn(() => o.datalag.base.pool.request(), 'entra_tenant', { tenant_id: t });
+    drift = await opprettKjoeretid(o.datalag.base, { maks: 2, rolle: 'koe_driftsrolle' });
     const entra = new EntraOIDC({
       klientId: KLIENT,
       klienthemmelighet: HEMMELIGHET,
@@ -183,10 +185,31 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
   afterAll(async () => {
     await server?.stopp();
     await utsteder?.stopp();
+    await drift?.slett();
     if (o) await rydd(o);
   }, 60_000);
 
   const eier = () => o.datalag.base.pool;
+
+  /** `koe_drift.registrer_entra_identitet` som driften: ny bruker når `bruker` er `null`. */
+  async function registrer(oid: string, bruker: string | null, t = tenant): Promise<string> {
+    const svar = await drift.pool
+      .request()
+      .input('tenant', sql.UniqueIdentifier, t)
+      .input('oid', sql.UniqueIdentifier, oid)
+      .input('epost', sql.NVarChar(320), 'leder@test.example')
+      .input('navn', sql.NVarChar(400), 'Leder')
+      .output('bruker', sql.UniqueIdentifier, bruker)
+      .execute('koe_drift.registrer_entra_identitet');
+    return String(svar.output.bruker).toLowerCase();
+  }
+
+  /** En `oid` driften har registrert som ny bruker. */
+  async function registrert(): Promise<string> {
+    const oid = randomUUID();
+    await registrer(oid, null);
+    return oid;
+  }
   const kapselverdi = (svar: Response, navn: string) =>
     svar.headers
       .getSetCookie()
@@ -276,26 +299,45 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
     expect(svar.headers.get('cache-control')).toBe('no-store');
   });
 
-  it('et gyldig ID-token gir én sesjon med app_users.id fra koe_api.entra_identitet, og samme oid gir samme id (kriterium 1)', async () => {
+  it('et gyldig ID-token for en registrert identitet gir én sesjon med app_users.id fra koe_api.entra_identitet, og samme oid gir samme id (kriterium 1)', async () => {
     const oid = randomUUID();
+    const id = await registrer(oid, null);
+    const foer = await antall();
     const foerste = await loggInn((n) => signer(gyldig(n, oid), utsteder.noekkel));
     expect(foerste.svar.status).toBe(302);
     expect(foerste.svar.headers.get('location')).toBe(`${FRONTEND}/saker/1`);
     expect(foerste.sesjon).toMatch(/^[\w-]{43}$/);
+    expect((await sesjonsbruker(foerste.sesjon!)).kropp.user).toMatchObject({ id });
+
+    const andre = await loggInn((n) => signer(gyldig(n, oid), utsteder.noekkel));
+    expect((await sesjonsbruker(andre.sesjon!)).kropp.user).toMatchObject({ id });
+    expect(await antall()).toEqual(foer);
 
     const lagret = await eier().request().input('s', sql.NVarChar(400), oid).query<{
       user_id: string;
       issuer: string;
       provider: string;
     }>('SELECT user_id, issuer, provider FROM koe.app_identities WHERE subject = @s');
-    expect(lagret.recordset).toHaveLength(1);
-    expect(lagret.recordset[0].provider).toBe('entra');
-    expect(lagret.recordset[0].issuer).toBe(`https://login.microsoftonline.com/${tenant}/v2.0`);
-    const id = lagret.recordset[0].user_id.toLowerCase();
-    expect((await sesjonsbruker(foerste.sesjon!)).kropp.user).toMatchObject({ id });
+    expect(lagret.recordset).toEqual([
+      { user_id: id.toUpperCase(), issuer: entraIssuer(tenant), provider: 'entra' },
+    ]);
+  });
 
-    const andre = await loggInn((n) => signer(gyldig(n, oid), utsteder.noekkel));
-    expect((await sesjonsbruker(andre.sesjon!)).kropp.user).toMatchObject({ id });
+  it('en identitet driften har koblet til en eksisterende bruker, gir den brukerens id (S5 i #831)', async () => {
+    const oid = randomUUID();
+    expect(await registrer(oid, o.te.id)).toBe(o.te.id);
+    const { sesjon } = await loggInn((n) => signer(gyldig(n, oid), utsteder.noekkel));
+    expect((await sesjonsbruker(sesjon!)).kropp.user).toMatchObject({ id: o.te.id });
+  });
+
+  it('innloggingen oppretter ingen bruker for en identitet driften ikke har registrert (svaret 20.10 i #831)', async () => {
+    const foer = await antall();
+    const { svar, sesjon } = await loggInn((n) =>
+      signer(gyldig(n, randomUUID()), utsteder.noekkel)
+    );
+    expect(svar.headers.get('location')).toBe(MISLYKTES);
+    expect(sesjon).toBeUndefined();
+    expect(await antall()).toEqual(foer);
   });
 
   it.each<[string, (nonce: string, oid: string) => Promise<string>]>([
@@ -342,8 +384,9 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
     ['oid i store bokstaver', (n, oid) => signer(gyldig(n, oid.toUpperCase()), utsteder.noekkel)],
     ['uten oid', (n, oid) => signer({ ...gyldig(n, oid), oid: undefined }, utsteder.noekkel)],
   ])('%s: ingen sesjon, ingen bruker og ingen identitet (kriterium 2)', async (_n, lagToken) => {
+    const oid = await registrert();
     const foer = await antall();
-    const { svar, sesjon } = await loggInn((n) => lagToken(n, randomUUID()));
+    const { svar, sesjon } = await loggInn((n) => lagToken(n, oid));
     expect(svar.status).toBe(302);
     expect(svar.headers.get('location')).toBe(MISLYKTES);
     expect(sesjon).toBeUndefined();
@@ -351,12 +394,12 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
   });
 
   it('en nonce fra et forsøk som er brukt, godtas ikke i et nytt forsøk (kriterium 2)', async () => {
-    const oid = randomUUID();
+    const oid = await registrert();
     const foerste = await loggInn((n) => signer(gyldig(n, oid), utsteder.noekkel));
     expect(foerste.sesjon).toBeDefined();
     const foer = await antall();
     const gjenbrukt = await loggInn(() =>
-      signer(gyldig(foerste.forsoek.nonce, randomUUID()), utsteder.noekkel)
+      signer(gyldig(foerste.forsoek.nonce, oid), utsteder.noekkel)
     );
     expect(gjenbrukt.svar.headers.get('location')).toBe(MISLYKTES);
     expect(gjenbrukt.sesjon).toBeUndefined();
@@ -368,22 +411,18 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
     ['en annen nettleser', { kapsel: randomBytes(32).toString('base64url') }],
     ['en kode utstedt for et annet forsøks PKCE-utfordring', { utfordring: 'annen-utfordring' }],
   ])('%s: ingen sesjon (kriterium 2)', async (_n, endre) => {
+    const oid = await registrert();
     const foer = await antall();
-    const { svar, sesjon } = await loggInn(
-      (n) => signer(gyldig(n, randomUUID()), utsteder.noekkel),
-      endre
-    );
+    const { svar, sesjon } = await loggInn((n) => signer(gyldig(n, oid), utsteder.noekkel), endre);
     expect(svar.headers.get('location')).toBe(MISLYKTES);
     expect(sesjon).toBeUndefined();
     expect(await antall()).toEqual(foer);
   });
 
   it('roller og grupper i ID-tokenet gir ingen prosjekttilgang (kriterium 4, GFK-U5)', async () => {
+    const oid = await registrert();
     const { sesjon } = await loggInn((n) =>
-      signer(
-        { ...gyldig(n, randomUUID()), roles: ['admin'], groups: [randomUUID()] },
-        utsteder.noekkel
-      )
+      signer({ ...gyldig(n, oid), roles: ['admin'], groups: [randomUUID()] }, utsteder.noekkel)
     );
     const { kropp } = await sesjonsbruker(sesjon!);
     const bruker = { id: '', subjekt: '', token: sesjon!, csrf: String(kropp.csrfToken) };
@@ -398,7 +437,8 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
   });
 
   it('utloggingen krever CSRF-token og sletter Entra-sesjonen, som for Catenda (kriterium 5)', async () => {
-    const { sesjon } = await loggInn((n) => signer(gyldig(n, randomUUID()), utsteder.noekkel));
+    const oid = await registrert();
+    const { sesjon } = await loggInn((n) => signer(gyldig(n, oid), utsteder.noekkel));
     const { kropp } = await sesjonsbruker(sesjon!);
     const bruker = { id: '', subjekt: '', token: sesjon!, csrf: String(kropp.csrfToken) };
     for (const csrf of [null, 'feil']) {
@@ -419,6 +459,7 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
   describe('koe_api.entra_identitet (kriterium 3)', () => {
     const IKKE_NORMALISERT = 52022;
     const IKKE_GODKJENT = 52024;
+    const IKKE_REGISTRERT = 52025;
     const INGEN_RETT = 229;
     const CHECK_BRUDD = 547;
 
@@ -436,8 +477,16 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
     const identitet = (issuer: string, subjekt: string) =>
       entraIdentitet(kjoeretid(), { issuer, subjekt, epost: '', navn: '' });
 
-    it('godtar v2-formen for en godkjent tenant', async () => {
-      expect(await identitet(entraIssuer(tenant), randomUUID())).toMatch(/^[0-9a-f-]{36}$/);
+    it('gir brukeren driften har registrert, for v2-formen og en godkjent tenant', async () => {
+      const oid = randomUUID();
+      const id = await registrer(oid, null);
+      expect(await identitet(entraIssuer(tenant), oid)).toBe(id);
+    });
+
+    it('avviser en identitet driften ikke har registrert, og skriver ingenting', async () => {
+      const foer = await antall();
+      expect(await feil(identitet(entraIssuer(tenant), randomUUID()))).toBe(IKKE_REGISTRERT);
+      expect(await antall()).toEqual(foer);
     });
 
     it.each([
@@ -496,6 +545,59 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
           ),
           `${issuer} ${subjekt}`
         ).toBe(CHECK_BRUDD);
+    });
+  });
+
+  describe('koe_drift.registrer_entra_identitet (svaret 20.10 i #831)', () => {
+    async function feil(arbeid: Promise<unknown>): Promise<number | undefined> {
+      try {
+        await arbeid;
+      } catch (f) {
+        return feilnummer(f);
+      }
+      return undefined;
+    }
+
+    it('lager én ny bruker med identiteten i v2-formen og oid i små bokstaver', async () => {
+      const oid = randomUUID();
+      const foer = await antall();
+      const id = await registrer(oid.toUpperCase(), null);
+      expect(await antall()).toEqual({
+        brukere: foer.brukere + 1,
+        identiteter: foer.identiteter + 1,
+      });
+      const lagret = await eier()
+        .request()
+        .input('s', sql.NVarChar(400), oid)
+        .query<{ issuer: string }>('SELECT issuer FROM koe.app_identities WHERE subject = @s');
+      expect(lagret.recordset).toEqual([{ issuer: entraIssuer(tenant) }]);
+      expect(await registrer(oid, null)).toBe(id);
+      expect(await antall()).toEqual({
+        brukere: foer.brukere + 1,
+        identiteter: foer.identiteter + 1,
+      });
+    });
+
+    it('flytter ikke en registrert identitet til en annen bruker (52026)', async () => {
+      const oid = await registrert();
+      expect(await feil(registrer(oid, o.bh.id))).toBe(52026);
+    });
+
+    it('avviser en tenant som ikke er godkjent (52024) og en bruker som ikke finnes (52051), og skriver ingenting', async () => {
+      const foer = await antall();
+      expect(await feil(registrer(randomUUID(), null, ukjentTenant))).toBe(52024);
+      expect(await feil(registrer(randomUUID(), randomUUID()))).toBe(52051);
+      expect(await antall()).toEqual(foer);
+    });
+
+    it('kjøretiden har ikke EXECUTE på registreringen', async () => {
+      const svar = o.datalag.kjoeretid.pool
+        .request()
+        .input('tenant', sql.UniqueIdentifier, tenant)
+        .input('oid', sql.UniqueIdentifier, randomUUID())
+        .output('bruker', sql.UniqueIdentifier, null)
+        .query("EXEC koe_drift.registrer_entra_identitet @tenant, @oid, N'', N'', @bruker OUTPUT");
+      expect(await feil(svar)).toBe(229);
     });
   });
 });
