@@ -33,7 +33,7 @@ function demolinje(sak: SakState): Sakslinje {
     return {
       etiketter: [
         ...(venter ? ['venter_paa_svar'] : []),
-        ...(subsidiaert && spor.bh_resultat && spor !== grunnlag ? ['subsidiaert'] : []),
+        ...(subsidiaert && spor.bh_resultat ? ['subsidiaert'] : []),
         ...(enige(spor) ? [virkning === 'virksom' ? 'oppgjort' : 'enige_betinget'] : []),
         ...(spor.status === 'trukket' ? ['trukket'] : []),
       ],

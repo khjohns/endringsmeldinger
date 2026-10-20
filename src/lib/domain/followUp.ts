@@ -1,5 +1,6 @@
 import type { CaseListItem, Sakslinje } from '$lib/types/api';
 import type { Role, SporKey } from '$lib/components/kontraktsbord/types';
+import type { Spor } from '$kjerne/typer';
 
 export interface FollowUpTrack {
   status: string;
@@ -30,10 +31,18 @@ export interface FollowUpTask {
   mode: 'read' | 'form';
 }
 
+/** Sporenes navn i oversikten, med nøkkelen fra kjernen og fra saksvisningen. */
+export const SPORNAVN: Record<Spor | SporKey, string> = {
+  grunnlag: 'Ansvar',
+  ansvar: 'Ansvar',
+  vederlag: 'Vederlag',
+  frist: 'Frist',
+};
+
 const SPORA = [
-  ['ansvar', 'grunnlag', 'Ansvar'],
-  ['vederlag', 'vederlag', 'Vederlag'],
-  ['frist', 'frist', 'Frist'],
+  ['ansvar', 'grunnlag'],
+  ['vederlag', 'vederlag'],
+  ['frist', 'frist'],
 ] as const;
 
 /**
@@ -44,7 +53,8 @@ const SPORA = [
  */
 export function foreliggerISaken(linje: Sakslinje): FollowUpTask[] {
   const tittel = linje.sakstittel ?? 'Uten tittel';
-  return SPORA.flatMap(([track, spor, navn]) => {
+  return SPORA.flatMap(([track, spor]) => {
+    const navn = SPORNAVN[spor];
     const oppgave = (role: Role, title: string, detail: string): FollowUpTask => ({
       id: `${linje.sak_id}:${track}:${role}`,
       caseId: linje.sak_id,

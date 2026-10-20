@@ -5,29 +5,7 @@
  * Brukes i UI for å vise brukervennlige statustekster.
  */
 
-import type { OverordnetStatus, SporStatus } from '../types/timeline';
-
-/**
- * Overordnet saks-status til lesbar label
- */
-export const OVERORDNET_STATUS_LABELS: Record<OverordnetStatus, string> = {
-  UTKAST: 'Utkast',
-  SENDT: 'Sendt',
-  VENTER_PAA_SVAR: 'Venter på svar',
-  UNDER_BEHANDLING: 'Under behandling',
-  UNDER_FORHANDLING: 'Under forhandling',
-  OMFORENT: 'Omforent',
-  LUKKET: 'Lukket',
-  LUKKET_TRUKKET: 'Trukket',
-  LUKKET_AVSLATT: 'Avsluttet – avslag godtatt',
-};
-
-/**
- * Hent lesbar label for overordnet status
- */
-export function getOverordnetStatusLabel(status: OverordnetStatus): string {
-  return OVERORDNET_STATUS_LABELS[status] || status;
-}
+import type { SporStatus } from '../types/timeline';
 
 /**
  * Spor-status til lesbar label

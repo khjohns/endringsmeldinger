@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fristtall, kategoritekst, vederlagstall } from './presentation';
+  import { kategoritekst } from './presentation';
   import type { Sakslinje } from '$lib/types/api';
   import CaseListRow from './CaseListRow.svelte';
 
@@ -51,9 +51,9 @@
     [...saker].sort((a, b) => {
       const value = (linje: Sakslinje) =>
         sortKey === 'vederlag'
-          ? vederlagstall(linje).krav
+          ? (linje.vederlag.krav?.beloep ?? null)
           : sortKey === 'frist'
-            ? fristtall(linje).krav
+            ? (linje.frist.krav?.dager ?? null)
             : sortKey === 'hovedkategori'
               ? kategoritekst(linje) || null
               : linje[sortKey];

@@ -4,6 +4,7 @@
  * saksbetegnelsen (MM-U22) i linja fra serveren.
  */
 import type { CaseListItem, Sakslinje } from '$lib/types/api';
+import { SPOR } from '$kjerne/typer';
 
 export { taskHref } from '$lib/domain/followUp';
 
@@ -13,8 +14,6 @@ export type Saksutvalg =
   | 'svar_ikke_godtatt'
   | 'med_saksbetegnelse'
   | 'ikke_forstaatt';
-
-const SPOR = ['grunnlag', 'vederlag', 'frist'] as const;
 
 export const SAKSUTVALG: { id: Saksutvalg; label: string; betydning: string }[] = [
   { id: 'alle', label: 'Alle saker', betydning: 'Alle sakene i prosjektet.' },

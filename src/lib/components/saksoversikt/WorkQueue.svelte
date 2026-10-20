@@ -2,7 +2,7 @@
   import { ArrowRight } from 'lucide-svelte';
   import type { Sakslinje } from '$lib/types/api';
   import type { Role } from '$lib/components/kontraktsbord/types';
-  import { foreliggerISaken } from '$lib/domain/followUp';
+  import { foreliggerISaken, SPORNAVN } from '$lib/domain/followUp';
   import { taskHref } from './overview';
   let {
     saker,
@@ -18,7 +18,6 @@
   let showAll = $state(false);
   const tasks = $derived(saker.flatMap(foreliggerISaken).filter((task) => task.role === role));
   const caseCount = $derived(new Set(tasks.map((task) => task.caseId)).size);
-  const labels = { ansvar: 'Ansvar', vederlag: 'Vederlag', frist: 'Frist' };
 </script>
 
 <section class="work-queue" aria-labelledby="queue-title">
@@ -47,10 +46,10 @@
         <p class="detail">{task.detail}</p>
       </div>
       <div class="task-actions">
-        <span class="track-label">{labels[task.track]}</span
+        <span class="track-label">{SPORNAVN[task.track]}</span
         ><!-- taskHref bygger stien i domenelaget, som holdes fritt for $app-avhengigheter. --><!-- eslint-disable-next-line svelte/no-navigation-without-resolve --><a
           href={taskHref(task, projectId, scenarios[task.caseId])}
-          aria-label={`${task.title} – ${labels[task.track]} – ${task.caseId}`}
+          aria-label={`${task.title} – ${SPORNAVN[task.track]} – ${task.caseId}`}
           >Åpne kravet <ArrowRight size={15} /></a
         >
       </div>
