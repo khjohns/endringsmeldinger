@@ -1499,6 +1499,8 @@ RK-05, en samlet øvre grense for en transaksjon, står åpen før F1 (#50).
 Løp c og d og TS2-02 ble avhengige av B-12 29.09 og av B-18 09.10, og bygges
 ikke i Python etter B-19.
 
+> **Merknad 2026-10-20 til RK-05:** Levert med PR #1005, merget 20.10: en samlet frist på 30 s for transaksjonen. Lukker [#50](https://github.com/khjohns/endringsmeldinger/issues/50).
+
 ### F1 — Sikkerhetsgrenser i datalaget og private lagre
 
 **Avhenger av:** F0-jobben og F0b; B-02 før rolle- og policymigrasjoner; B-04
