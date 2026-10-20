@@ -1089,12 +1089,60 @@ export function grunnlagskravFor(
 }
 
 /**
- * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og sporet
- * var ikke avgjort, så et svar ville blitt avvist (GR-U24, OV-U3).
+ * SK-01, OV-U3: TE har godtatt avslaget av grunnlaget, eller sporet var avgjort, så et svar
+ * eller en aksept i sporet avvises (`strid`). Et trukket grunnlag lukker hvert spor
+ * gjennom `trukket` (GR-U5).
+ */
+const sporetErLukket = (u: Utledning, spor: Spor): boolean =>
+  u.grunnlagAvvist || varAvgjort(u, spor);
+
+/**
+ * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og sporet er
+ * ikke lukket, så et svar ville blitt godtatt (GR-U24, OV-U3, SK-01). En ny
+ * grunnlagsversjon etter et frafall venter på svar (GR-U23).
  */
 export function venterPaaSvar(u: Utledning, spor: Spor): boolean {
   const s = u.spor[spor];
-  return s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket && !varAvgjort(u, spor);
+  return (
+    s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket && !sporetErLukket(u, spor)
+  );
+}
+
+/**
+ * MM-U29: byggherrens gjeldende svar i sporet står uten enighet, kravet er ikke trukket,
+ * og sporet er ikke lukket, så TE kan fortsatt godta det. Et frafall av pålegget kan TE
+ * ikke godta (GR-U9), så det står ikke som et svar som ikke er godtatt. Unntaket gjelder
+ * bare grunnlaget (arbeidsvalget 20.10 i #1050).
+ */
+export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
+  const s = u.spor[spor];
+  return (
+    s.gjeldendeSvar !== null &&
+    s.enighet === null &&
+    !s.trukket &&
+    !sporetErLukket(u, spor) &&
+    !(spor === 'grunnlag' && u.frafalt)
+  );
+}
+
+/**
+ * MM-U9, MM-U28: standpunktet i sporets gjeldende svar er subsidiært, fordi svaret på
+ * grunnlaget avviser ansvaret (`subsidiaer`), eller fordi brevet selv ga standpunktet
+ * subsidiær virkning. Virkningen leses slik brevet sa den.
+ */
+export function standpunktetErSubsidiaert(
+  u: Utledning,
+  spor: Kravspor,
+  standpunkt: string
+): boolean {
+  const s = u.spor[spor];
+  return (
+    s.subsidiaer.length > 0 ||
+    (s.gjeldendeSvar !== null &&
+      s.gjeldendeSvar.beslutningsgrunnlag.virkninger.some(
+        (v) => v.standpunkt === standpunkt && v.virkning === 'subsidiaert'
+      ))
+  );
 }
 
 /**
