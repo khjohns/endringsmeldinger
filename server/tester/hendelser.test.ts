@@ -12,7 +12,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { catendaId } from '../autorisasjon.ts';
+import { catendaId, medlemslistensAlder } from '../autorisasjon.ts';
 import {
   CatendaUtilgjengelig,
   TOPICTYPE,
@@ -513,6 +513,93 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     const kontroll = await motta(kropp(randomUUID()));
     expect(await behandleEnHendelse(senere(2, utenTeam))).toBe(true);
     expect(await utfallFor(kontroll)).toEqual([expect.objectContaining({ utfall: 'ukjent_side' })]);
+  });
+
+  /**
+   * Innboksoppslagene med `nye` lagt til i Catenda etter siste synkronisering, og
+   * `iTeTeamet` av dem i TE-teamet. `hentinger` teller kallene på medlemslisten.
+   */
+  const medNyeMedlemmer = (nye: string[], iTeTeamet: string[]) => {
+    const teller = { hentinger: 0 };
+    const oppslag: Innboksoppslag = {
+      ...innboks,
+      medlemmer: async (c) => {
+        teller.hentinger++;
+        return [
+          ...(await innboks.medlemmer(c)),
+          ...nye.map((s) => ({
+            subjekt: s,
+            epost: `${s}@test.example`,
+            navn: 'Testbruker',
+            rolle: 'member' as const,
+          })),
+        ];
+      },
+      teammedlemmer: async (c, team) => {
+        const medlemmer = await innboks.teammedlemmer(c, team);
+        return team === catendaId(o.prosjekt.teTeam)
+          ? new Set([...medlemmer, ...iTeTeamet])
+          : medlemmer;
+      },
+    };
+    return { teller, avh: { ...avh, innboks: oppslag } };
+  };
+  /** Alderen tilgangskontrollen selv leser, så en liste fra en annen kobling ikke teller som fersk. */
+  const listensAlder = async () => {
+    const alder = await medlemslistensAlder(avh.datalag, o.prosjekt.id);
+    if (!alder) throw new Error('Prosjektet har ingen medlemsliste fra den aktive koblingen');
+    return alder.alderSekunder;
+  };
+  const harMedlemskap = async (subjekt: string) =>
+    (
+      await somEier<{ antall: number }>(
+        `SELECT COUNT(*) AS antall FROM koe.app_project_memberships
+          WHERE project_id = @p AND catenda_subject = @s AND active = 1`,
+        { p: o.prosjekt.id, s: subjekt }
+      )
+    ).recordset[0].antall > 0;
+
+  it('#963: en TE-forfatter som er lagt til i Catenda etter siste synkronisering mens listen er fersk, får saken, og listen hentes én gang', async () => {
+    const [iTeamet, utenTeam] = [randomUUID(), randomUUID()].map((u) => u.replaceAll('-', ''));
+    const { teller, avh: medNye } = medNyeMedlemmer([iTeamet, utenTeam], [iTeamet]);
+    await somEier(
+      `UPDATE koe.app_membership_sync
+          SET synced_at = DATEADD(second, -5, CAST(DATETRUNC(millisecond, SYSUTCDATETIME()) AS datetime2(3)))
+        WHERE project_id = @p`,
+      { p: o.prosjekt.id }
+    );
+    expect(await listensAlder()).toBeLessThan(60);
+    expect(await harMedlemskap(iTeamet)).toBe(false);
+
+    const topic = randomUUID();
+    const id = await motta(kropp(topic, { forfatter: iTeamet }));
+    expect(await behandleEnHendelse(medNye)).toBe(true);
+    const [utfall] = await utfallFor(id);
+    expect(utfall).toEqual(expect.objectContaining({ utfall: 'sak_opprettet' }));
+    expect(await sakerForTopic(topic)).toEqual([
+      { sak_id: utfall.sak_id, catenda_board_id: board },
+    ]);
+    expect(teller.hentinger).toBe(1);
+
+    // Kontrollsak: et nytt medlem uten kontraktsteam får medlemskapet, men ingen side.
+    const kontroll = await motta(kropp(randomUUID(), { forfatter: utenTeam }));
+    expect(await behandleEnHendelse(medNye)).toBe(true);
+    expect(await utfallFor(kontroll)).toEqual([expect.objectContaining({ utfall: 'ukjent_side' })]);
+    expect(await harMedlemskap(utenTeam)).toBe(true);
+  });
+
+  it('#963: når den lagrede listen er for gammel, skrives listen behandlingen alt har hentet, og Catenda kalles én gang', async () => {
+    await somEier(
+      `UPDATE koe.app_membership_sync SET synced_at = DATEADD(hour, -2, SYSUTCDATETIME())
+        WHERE project_id = @p`,
+      { p: o.prosjekt.id }
+    );
+    const { teller, avh: gammel } = medNyeMedlemmer([], []);
+    const id = await motta(kropp(randomUUID()));
+    expect(await behandleEnHendelse(gammel)).toBe(true);
+    expect(await utfallFor(id)).toEqual([expect.objectContaining({ utfall: 'sak_opprettet' })]);
+    expect(teller.hentinger).toBe(1);
+    expect(await listensAlder()).toBeLessThan(60);
   });
 
   it('når Catenda ikke svarer, lagres ikke noe utfall, og et senere forsøk behandler hendelsen', async () => {

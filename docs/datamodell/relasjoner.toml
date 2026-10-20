@@ -1196,26 +1196,6 @@ funn = []
 belegg = "L 18.10: migrasjonen."
 
 [[relasjon]]
-fra = "koe.fullmakt.prosjekt_id"
-til = "koe.projects.id"
-art = "fremmednøkkel"
-antall = "mange til én"
-beskrivelse = """
-Prosjektet fullmakten gjelder i. Driften setter den opp (GFK-U1)."""
-funn = []
-belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
-
-[[relasjon]]
-fra = "koe.fullmakt.bruker_id"
-til = "koe.app_users.id"
-art = "fremmednøkkel"
-antall = "mange til én"
-beskrivelse = """
-Personen som har fullmakten."""
-funn = []
-belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
-
-[[relasjon]]
 fra = "koe.dagmulktssats.prosjekt_id"
 til = "koe.projects.id"
 art = "fremmednøkkel"

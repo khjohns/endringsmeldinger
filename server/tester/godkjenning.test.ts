@@ -1,12 +1,18 @@
 /**
- * Fullmaktene og godkjenningspakkene (S-1a, #818) mot en base bygget fra
- * migrasjonene. Forventningene har kilde i:
+ * Kjeden fra hierarkiet og godkjenningspakkene (S-1a, #818, og S-1c, #831) mot en base
+ * bygget fra migrasjonene. Forventningene har kilde i:
  * - invarianten om utkast i AGENTS.md: pakken finnes bare for teamet som laget den,
  *   og uten entydig team finnes den ikke;
- * - GFK-U1: fullmaktene settes opp av driften, ikke av appen, og er byggherrens;
- * - B-04 punkt 1 og 2: en godkjenning gitt med fullmakt står når fullmakten endres
- *   senere, og uten fullmakt gis ingen ny godkjenning;
- * - arbeidsvalget i #818: fullmakten fryses i godkjenningen når den gis;
+ * - GFK-U8: kjeden starter hos lederen til saksbehandleren og går til og med den første
+ *   med en grense som dekker verdien; GFK-U4: saksbehandlerens egen rolle kan være nok;
+ *   vedtaket 23.09: en verdi som ikke er tallfestet, krever hele kjeden;
+ * - GFK-U2 og GFK-U10 med svarene 20.10 i #831: uten registrerte roller, med en rolle
+ *   som mangler i kjeden eller en kopi eldre enn 24 timer lages ingen pakke; kjeden
+ *   fryses; en godkjenner som har mistet rollen, avvises, og bare den siste i kjeden må
+ *   fortsatt ha en grense som dekker verdien;
+ * - B-04 punkt 1 og 2: en gitt godkjenning står når rollen endres senere, og uten rolle
+ *   gis ingen ny godkjenning;
+ * - arbeidsvalget i #818: rollen og grensen fryses i godkjenningen når den gis;
  * - B-04 punkt 3 og svaret 18.10 i #818: alle i teamet kan trekke pakken, også når alle
  *   steg er godkjent;
  * - det tekniske valget 18.10 i #818: en pakke erstattes bare én gang, og teamet har
@@ -18,33 +24,44 @@
  *   lagres mens prosedyren venter.
  */
 import { randomBytes, randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { feilnummer, transaksjon, type Kontekst } from '../datalag.ts';
+import type { Brevverdi } from '../fullmakt.ts';
 import {
   erGodkjent,
+  IngenRoller,
   type LagretHandling,
   type LagretPakke,
   lagPakke,
-  lesFullmakter,
+  lesDagmulktssats,
+  lesGodkjenningskjede,
   lesPakke,
   PakkeAvsluttet,
+  PakkeKanIkkeLages,
   PakkeNektet,
   registrerHandling,
+  RollenMistet,
   UgyldigPakke,
   type NyPakke,
 } from '../godkjenning.ts';
 import { lagOppsett, opprettKjernesak, rydd, TESTBASE_URL, type Oppsett } from './testbase.ts';
 import { iTransaksjon, settInn, type Foresp } from './sqlserver_migrert.ts';
 
-describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server', () => {
+describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () => {
   let o: Oppsett;
   let sakId: string;
-  // To godkjennere i byggherrens team, og en rådgiver på byggherresiden i et annet team.
+  // Hierarkiet i HR-kopien: saksbehandleren `bh` har lederen `leder`, som har
+  // `direktoer`. Rådgiveren er på byggherresiden i et annet team og står ikke i kopien.
   const leder = randomUUID();
   const direktoer = randomUUID();
   const raadgiver = randomUUID();
   const raadgiverteam = randomBytes(16).toString('hex');
+  const tenant = randomUUID();
+  const oid = { bh: randomUUID(), leder: randomUUID(), direktoer: randomUUID() };
+  // Verdier kjeden dekker hos lederen og hos direktøren.
+  const EN: Brevverdi = { beloep: 300000, gulv: 300000 };
+  const TO: Brevverdi = { beloep: 2000000, gulv: 2000000 };
 
   const som = (aktor: string, k: Partial<Kontekst> = {}): Kontekst => ({
     aktor,
@@ -57,14 +74,46 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     transaksjon(o.datalag.kjoeretid.pool, k, arbeid);
   const eier = <T>(arbeid: Parameters<typeof iTransaksjon<T>>[2]) =>
     iTransaksjon(o.datalag.base.pool, null, arbeid);
-  const pakke = (godkjennere: string[], forrige: string | null = null): NyPakke => ({
+  const pakke = (verdi: Brevverdi, forrige: string | null = null): NyPakke => ({
     pakkeId: randomUUID(),
     sakId,
     forrigePakkeId: forrige,
     brev: { svar: [] },
-    fullmaktsgrunnlag: { beloep: 300000 },
-    godkjennere,
+    fullmaktsgrunnlag: { beloep: verdi.beloep },
+    verdi,
   });
+  const kjede = (verdi: Brevverdi, aktor = o.bh.id) =>
+    i(som(aktor), (f) => lesGodkjenningskjede(f, verdi));
+  const endre = (sql: string) => eier((r) => r().query(sql));
+
+  // Driften registrerer rollene (GFK-U6, GFK-U11), og synkroniseringen skriver kopien.
+  // Kalles også etter en test som har endret dem.
+  const registrerHierarki = () =>
+    eier(async (r) => {
+      await r().input('tenant', tenant).query(`DELETE koe.hr_kopi; DELETE koe.rolle;
+                IF NOT EXISTS (SELECT 1 FROM koe.entra_tenant WHERE tenant_id = @tenant)
+                  INSERT koe.entra_tenant (tenant_id) VALUES (@tenant);`);
+      for (const [rolle, grense] of [
+        ['saksbehandler', 200000],
+        ['seksjonsleder', 1500000],
+        ['direktoer', null],
+      ] as const)
+        await settInn(r, 'rolle', { rolle, grense });
+      const naa = new Date();
+      for (const [bruker_id, egen, rolle, leder_oid] of [
+        [o.bh.id, oid.bh, 'saksbehandler', oid.leder],
+        [leder, oid.leder, 'seksjonsleder', oid.direktoer],
+        [direktoer, oid.direktoer, 'direktoer', null],
+      ] as const)
+        await settInn(r, 'hr_kopi', {
+          bruker_id,
+          tenant_id: tenant,
+          oid: egen,
+          rolle,
+          leder_oid,
+          hentet: naa,
+        });
+    });
 
   beforeAll(async () => {
     o = await lagOppsett();
@@ -87,23 +136,9 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
           active: true,
         });
       }
-      // Driften setter opp fullmaktene (GFK-U1). Saksbehandleren `bh` har ingen.
-      await settInn(r, 'fullmakt', {
-        prosjekt_id: o.prosjekt.id,
-        bruker_id: leder,
-        tittel: 'Seksjonsleder',
-        grense: 1500000,
-        plass: 1,
-      });
-      await settInn(r, 'fullmakt', {
-        prosjekt_id: o.prosjekt.id,
-        bruker_id: direktoer,
-        tittel: 'Adm.dir.',
-        grense: null,
-        plass: 2,
-      });
       await settInn(r, 'dagmulktssats', { prosjekt_id: o.prosjekt.id, sats: 5000 });
     });
+    await registrerHierarki();
   }, 240_000);
   // Hver test har sin egen sak, fordi teamet bare kan ha én åpen pakke i saken.
   beforeEach(async () => {
@@ -113,23 +148,134 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     if (o) await rydd(o);
   }, 60_000);
 
-  it('byggherren leser fullmaktene i kjedens rekkefølge og dagmulktssatsen', async () => {
-    expect(await i(som(o.bh.id), (f) => lesFullmakter(f))).toEqual({
-      fullmakter: [
-        { brukerId: leder, tittel: 'Seksjonsleder', grense: 1500000, plass: 1 },
-        { brukerId: direktoer, tittel: 'Adm.dir.', grense: null, plass: 2 },
-      ],
-      dagmulktssats: 5000,
+  it('byggherren leser dagmulktssatsen; entreprenøren og en leser ser den ikke', async () => {
+    expect(await i(som(o.bh.id), (f) => lesDagmulktssats(f))).toBe(5000);
+    const te = som(o.te.id, { side: 'TE', team: catendaId(o.prosjekt.teTeam)! });
+    expect(await i(te, (f) => lesDagmulktssats(f))).toBe(null);
+    const leser = randomUUID();
+    await eier(async (r) => {
+      await settInn(r, 'app_users', {
+        id: leser,
+        email: `${leser}@test.example`,
+        name: 'Testbruker',
+      });
+      await settInn(r, 'app_project_memberships', {
+        project_id: o.prosjekt.id,
+        user_id: leser,
+        catenda_subject: randomBytes(16).toString('hex'),
+        user_email: `${leser}@test.example`,
+        display_name: 'Testbruker',
+        role: 'member',
+        viewer_override: true,
+        active: true,
+      });
     });
+    expect(await i(som(leser), (f) => lesDagmulktssats(f))).toBe(null);
+    await expect(i(som(leser), (f) => lesGodkjenningskjede(f, EN))).rejects.toThrow(PakkeNektet);
   });
 
-  it('totalentreprenøren ser ingen fullmakter eller sats', async () => {
-    const k = som(o.te.id, { side: 'TE', team: catendaId(o.prosjekt.teTeam)! });
-    expect(await i(k, (f) => lesFullmakter(f))).toEqual({ fullmakter: [], dagmulktssats: null });
+  it('GFK-U8: kjeden starter hos lederen og går til og med den første med en grense som dekker verdien', async () => {
+    expect(await kjede(EN)).toEqual([{ brukerId: leder, rolle: 'seksjonsleder', grense: 1500000 }]);
+    expect(await kjede({ beloep: 1500000, gulv: 1500000 })).toEqual([
+      { brukerId: leder, rolle: 'seksjonsleder', grense: 1500000 },
+    ]);
+    expect(await kjede(TO)).toEqual([
+      { brukerId: leder, rolle: 'seksjonsleder', grense: 1500000 },
+      { brukerId: direktoer, rolle: 'direktoer', grense: null },
+    ]);
+    // Kjeden er hierarkiet over saksbehandleren, ikke over den med lavest grense.
+    expect((await kjede(TO, leder)).map((g) => g.brukerId)).toEqual([direktoer]);
+  });
+
+  it('GFK-U4: dekker saksbehandlerens egen rolle verdien, trengs ingen kjede og ingen pakke', async () => {
+    expect(await kjede({ beloep: 200000, gulv: 200000 })).toEqual([]);
+    expect(await kjede({ beloep: null, gulv: 9000000 }, direktoer)).toEqual([]);
+    await expect(
+      i(som(o.bh.id), (f) => lagPakke(f, pakke({ beloep: 200000, gulv: 200000 })))
+    ).rejects.toThrow(UgyldigPakke);
+  });
+
+  it('en verdi som ikke er tallfestet, går gjennom hele kjeden, og den siste må dekke gulvet (23.09)', async () => {
+    expect((await kjede({ beloep: null, gulv: 0 })).map((g) => g.brukerId)).toEqual([
+      leder,
+      direktoer,
+    ]);
+    try {
+      await endre(`UPDATE koe.rolle SET grense = 1000000 WHERE rolle = N'direktoer'`);
+      expect((await kjede({ beloep: null, gulv: 1000000 })).map((g) => g.brukerId)).toEqual([
+        leder,
+        direktoer,
+      ]);
+      await expect(kjede({ beloep: null, gulv: 1000001 })).rejects.toThrow(PakkeKanIkkeLages);
+      await expect(kjede(TO)).rejects.toThrow(PakkeKanIkkeLages);
+    } finally {
+      await registrerHierarki();
+    }
+  });
+
+  it('GFK-U10 og svaret 20.10: mangler en rolle i kjeden, eller er kopien eldre enn 24 timer, lages ingen pakke, og det logges', async () => {
+    const logg = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const avvist = async (oppsett: string, verdi = TO) => {
+      try {
+        await endre(oppsett);
+        logg.mockClear();
+        await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(verdi)))).rejects.toThrow(
+          PakkeKanIkkeLages
+        );
+        expect(logg).toHaveBeenCalledWith(
+          expect.stringMatching(/^Godkjenningspakken kan ikke lages: /)
+        );
+      } finally {
+        await registrerHierarki();
+      }
+    };
+    try {
+      // Kontrollsaken: 23 timer gammel kopi er fersk.
+      await endre(`UPDATE koe.hr_kopi SET hentet = DATEADD(hour, -23, SYSUTCDATETIME())`);
+      expect(await kjede(TO)).toHaveLength(2);
+      await avvist(`UPDATE koe.hr_kopi SET hentet = DATEADD(hour, -25, SYSUTCDATETIME())
+                     WHERE bruker_id = '${direktoer}'`);
+      await avvist(`UPDATE koe.hr_kopi SET hentet = DATEADD(hour, -25, SYSUTCDATETIME())
+                     WHERE bruker_id = '${o.bh.id}'`);
+      await avvist(
+        `UPDATE koe.hr_kopi SET rolle = NULL, leder_oid = NULL WHERE bruker_id = '${leder}'`
+      );
+      await avvist(
+        `UPDATE koe.hr_kopi SET rolle = NULL, leder_oid = NULL WHERE bruker_id = '${o.bh.id}'`
+      );
+      await avvist(`DELETE koe.hr_kopi WHERE bruker_id = '${direktoer}'`);
+      // Lederen er i en annen tenant enn saksbehandleren.
+      await avvist(`UPDATE koe.hr_kopi SET tenant_id = NEWID() WHERE bruker_id = '${leder}'`);
+      await avvist(`DELETE koe.entra_tenant WHERE tenant_id = '${tenant}'`);
+      // Kjeden går i ring, og verdien er ikke tallfestet, så den går til toppen.
+      await avvist(
+        `UPDATE koe.hr_kopi SET leder_oid = '${oid.bh}' WHERE bruker_id = '${direktoer}'`,
+        {
+          beloep: null,
+          gulv: 0,
+        }
+      );
+      // Rådgiveren står ikke i kopien.
+      await expect(
+        i(som(raadgiver, { team: raadgiverteam }), (f) => lesGodkjenningskjede(f, EN))
+      ).rejects.toThrow(PakkeKanIkkeLages);
+    } finally {
+      logg.mockRestore();
+    }
+  });
+
+  it('GFK-U2: har driften ikke registrert roller, lages ingen pakke', async () => {
+    try {
+      await endre('DELETE koe.hr_kopi; DELETE koe.rolle;');
+      await expect(kjede(EN)).rejects.toThrow(IngenRoller);
+      await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(EN)))).rejects.toThrow(IngenRoller);
+    } finally {
+      await registrerHierarki();
+    }
   });
 
   it('pakken finnes bare for teamet som laget den', async () => {
-    const p = pakke([leder]);
+    const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     const lest = await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId));
     expect(lest).toMatchObject({
@@ -149,55 +295,19 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
 
   it('uten entydig team, eller på entreprenørsiden, lagres ingen pakke', async () => {
     await expect(
-      i(som(o.bh.id, { team: undefined }), (f) => lagPakke(f, pakke([leder])))
+      i(som(o.bh.id, { team: undefined }), (f) => lagPakke(f, pakke(EN)))
     ).rejects.toThrow(PakkeNektet);
     const te = som(o.te.id, { side: 'TE', team: catendaId(o.prosjekt.teTeam)! });
-    await expect(i(te, (f) => lagPakke(f, pakke([leder])))).rejects.toThrow(PakkeNektet);
-  });
-
-  it('en godkjenner uten fullmakt i prosjektet avvises', async () => {
-    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([raadgiver])))).rejects.toThrow(
-      UgyldigPakke
-    );
-    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([])))).rejects.toThrow(UgyldigPakke);
-  });
-
-  it('en godkjenner to ganger, eller godkjennerne som et JSON-objekt, er en ugyldig pakke', async () => {
-    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder, leder])))).rejects.toThrow(
-      UgyldigPakke
-    );
-    const objekt = { ...pakke([]), godkjennere: { a: leder } as unknown as string[] };
-    await expect(i(som(o.bh.id), (f) => lagPakke(f, objekt))).rejects.toThrow(UgyldigPakke);
-  });
-
-  it('en leser på byggherresiden ser ingen fullmakter eller sats', async () => {
-    const leser = randomUUID();
-    await eier(async (r) => {
-      await settInn(r, 'app_users', {
-        id: leser,
-        email: `${leser}@test.example`,
-        name: 'Testbruker',
-      });
-      await settInn(r, 'app_project_memberships', {
-        project_id: o.prosjekt.id,
-        user_id: leser,
-        catenda_subject: randomBytes(16).toString('hex'),
-        user_email: `${leser}@test.example`,
-        display_name: 'Testbruker',
-        role: 'member',
-        viewer_override: true,
-        active: true,
-      });
-    });
-    expect(await i(som(leser), (f) => lesFullmakter(f))).toEqual({
-      fullmakter: [],
-      dagmulktssats: null,
-    });
+    await expect(i(te, (f) => lagPakke(f, pakke(EN)))).rejects.toThrow(PakkeNektet);
   });
 
   it('stegene godkjennes i rekkefølge, og pakken er godkjent når alle er det', async () => {
-    const p = pakke([leder, direktoer]);
+    const p = pakke(TO);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
+    expect((await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId)))!.godkjennere).toEqual([
+      leder,
+      direktoer,
+    ]);
     await expect(
       i(som(direktoer), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))
     ).rejects.toThrow(PakkeNektet);
@@ -209,94 +319,122 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     const lest = (await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId)))!;
     expect(erGodkjent(lest)).toBe(true);
     expect(lest.handlinger.map((h) => [h.handling, h.steg, h.aktorId, h.fullmakt])).toEqual([
-      ['godkjent', 1, leder, { tittel: 'Seksjonsleder', grense: 1500000 }],
-      ['godkjent', 2, direktoer, { tittel: 'Adm.dir.', grense: null }],
+      ['godkjent', 1, leder, { tittel: 'seksjonsleder', grense: 1500000 }],
+      ['godkjent', 2, direktoer, { tittel: 'direktoer', grense: null }],
     ]);
     await expect(
       i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert'))
     ).rejects.toThrow(PakkeAvsluttet);
   });
 
-  it('B-04: en gitt godkjenning står når fullmakten endres, og uten fullmakt gis ingen ny', async () => {
-    const p = pakke([leder, direktoer]);
+  it('GFK-U10: kjeden er fryst når pakken er laget, også når hierarkiet endres', async () => {
+    const p = pakke(EN);
+    await i(som(o.bh.id), (f) => lagPakke(f, p));
+    try {
+      await endre(
+        `UPDATE koe.hr_kopi SET leder_oid = '${oid.direktoer}' WHERE bruker_id = '${o.bh.id}'`
+      );
+      expect((await kjede(EN)).map((g) => g.brukerId)).toEqual([direktoer]);
+      expect((await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId)))!.godkjennere).toEqual([leder]);
+      await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'godkjent'));
+    } finally {
+      await registrerHierarki();
+    }
+  });
+
+  it('B-04 og GFK-U10: en gitt godkjenning står når rollen endres; uten rolle eller med for gammel kopi avvises godkjenningen', async () => {
+    const p = pakke(TO);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'godkjent'));
+    const avvist = async (oppsett: string) => {
+      try {
+        await endre(oppsett);
+        await expect(
+          i(som(direktoer), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))
+        ).rejects.toThrow(RollenMistet);
+      } finally {
+        await registrerHierarki();
+      }
+    };
+    await avvist(`UPDATE koe.rolle SET grense = 100000 WHERE rolle = N'seksjonsleder';
+                  UPDATE koe.hr_kopi SET rolle = NULL, leder_oid = NULL WHERE bruker_id = '${direktoer}'`);
+    await avvist(`UPDATE koe.hr_kopi SET hentet = DATEADD(hour, -25, SYSUTCDATETIME())
+                   WHERE bruker_id = '${direktoer}'`);
+    const lest = (await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId)))!;
+    expect(lest.handlinger.map((h) => h.fullmakt)).toEqual([
+      { tittel: 'seksjonsleder', grense: 1500000 },
+    ]);
+    expect(erGodkjent(lest)).toBe(false);
+    // Returen krever ingen rolle.
     try {
-      await eier((r) =>
-        r()
-          .input('p', o.prosjekt.id)
-          .query(
-            `UPDATE koe.fullmakt SET grense = 100000 WHERE prosjekt_id = @p AND plass = 1;
-             UPDATE koe.fullmakt SET plass = 3 WHERE prosjekt_id = @p AND plass = 2;`
-          )
-      );
-      await eier((r) =>
-        r()
-          .input('p', o.prosjekt.id)
-          .query(`DELETE koe.fullmakt WHERE prosjekt_id = @p AND plass = 3`)
-      );
+      await endre(`DELETE koe.hr_kopi WHERE bruker_id = '${direktoer}'`);
+      await i(som(direktoer), (f) => registrerHandling(f, p.pakkeId, 'returnert'));
+    } finally {
+      await registrerHierarki();
+    }
+  });
+
+  it('svaret 20.10: bare den siste i kjeden må fortsatt ha en grense som dekker verdien', async () => {
+    const p = pakke(TO);
+    await i(som(o.bh.id), (f) => lagPakke(f, p));
+    try {
+      await endre(`UPDATE koe.rolle SET grense = 100000 WHERE rolle = N'seksjonsleder';
+                   UPDATE koe.rolle SET grense = 1999999 WHERE rolle = N'direktoer';`);
+      await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'godkjent'));
       await expect(
         i(som(direktoer), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))
-      ).rejects.toThrow(PakkeNektet);
+      ).rejects.toThrow(RollenMistet);
+      await endre(`UPDATE koe.rolle SET grense = 2000000 WHERE rolle = N'direktoer'`);
+      await i(som(direktoer), (f) => registrerHandling(f, p.pakkeId, 'godkjent'));
       const lest = (await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId)))!;
-      expect(lest.handlinger[0].fullmakt).toEqual({ tittel: 'Seksjonsleder', grense: 1500000 });
-      expect(erGodkjent(lest)).toBe(false);
+      expect(lest.handlinger.map((h) => h.fullmakt)).toEqual([
+        { tittel: 'seksjonsleder', grense: 100000 },
+        { tittel: 'direktoer', grense: 2000000 },
+      ]);
+      expect(erGodkjent(lest)).toBe(true);
     } finally {
-      await eier(async (r) => {
-        await r()
-          .input('p', o.prosjekt.id)
-          .query(`UPDATE koe.fullmakt SET grense = 1500000 WHERE prosjekt_id = @p AND plass = 1`);
-        await settInn(r, 'fullmakt', {
-          prosjekt_id: o.prosjekt.id,
-          bruker_id: direktoer,
-          tittel: 'Adm.dir.',
-          grense: null,
-          plass: 2,
-        });
-      });
+      await registrerHierarki();
     }
   });
 
   it('en returnert pakke er avsluttet og kan erstattes; en åpen pakke kan ikke', async () => {
-    const p = pakke([leder]);
+    const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
-    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder], p.pakkeId)))).rejects.toThrow(
+    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(EN, p.pakkeId)))).rejects.toThrow(
       PakkeAvsluttet
     );
     await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert', 'Beløpet må ned'));
     await expect(i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))).rejects.toThrow(
       PakkeAvsluttet
     );
-    const ny = pakke([leder], p.pakkeId);
+    const ny = pakke(EN, p.pakkeId);
     await i(som(o.bh.id), (f) => lagPakke(f, ny));
     expect((await i(som(o.bh.id), (f) => lesPakke(f, ny.pakkeId)))!.forrigePakkeId).toBe(p.pakkeId);
   });
 
   it('en pakke erstattes bare én gang, og teamet har høyst én åpen pakke i saken', async () => {
-    const p = pakke([leder]);
+    const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
-    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder])))).rejects.toThrow(
+    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(EN)))).rejects.toThrow(
       /åpen pakke i saken/
     );
     await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert'));
-    const ny = pakke([leder], p.pakkeId);
+    const ny = pakke(EN, p.pakkeId);
     await i(som(o.bh.id), (f) => lagPakke(f, ny));
     await i(som(o.bh.id), (f) => registrerHandling(f, ny.pakkeId, 'trukket'));
-    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke([leder], p.pakkeId)))).rejects.toThrow(
+    await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(EN, p.pakkeId)))).rejects.toThrow(
       /alt erstattet/
     );
     // En pakke som er godkjent i alle steg, er ikke åpen.
-    const godkjent = pakke([leder], ny.pakkeId);
+    const godkjent = pakke(EN, ny.pakkeId);
     await i(som(o.bh.id), (f) => lagPakke(f, godkjent));
     await i(som(leder), (f) => registrerHandling(f, godkjent.pakkeId, 'godkjent'));
-    await i(som(o.bh.id), (f) => lagPakke(f, pakke([leder])));
+    await i(som(o.bh.id), (f) => lagPakke(f, pakke(EN)));
   });
 
   it('to pakker som lages samtidig i samme sak, gir én åpen pakke', async () => {
     const utfall = await Promise.allSettled(
-      [pakke([leder]), pakke([leder]), pakke([leder])].map((p) =>
-        i(som(o.bh.id), (f) => lagPakke(f, p))
-      )
+      [pakke(EN), pakke(EN), pakke(EN)].map((p) => i(som(o.bh.id), (f) => lagPakke(f, p)))
     );
     expect(utfall.filter((u) => u.status === 'fulfilled')).toHaveLength(1);
     for (const u of utfall.filter((u) => u.status === 'rejected'))
@@ -304,7 +442,7 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
   });
 
   it('alle i teamet kan trekke pakken, også når alle steg er godkjent (B-04 punkt 3)', async () => {
-    const p = pakke([leder]);
+    const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     await expect(
       i(som(raadgiver, { team: raadgiverteam }), (f) => registrerHandling(f, p.pakkeId, 'trukket'))
@@ -314,7 +452,7 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
       { handling: 'trukket', steg: null, aktorId: leder, fullmakt: null },
     ]);
 
-    const godkjent = pakke([leder], p.pakkeId);
+    const godkjent = pakke(EN, p.pakkeId);
     await i(som(o.bh.id), (f) => lagPakke(f, godkjent));
     await i(som(leder), (f) => registrerHandling(f, godkjent.pakkeId, 'godkjent'));
     await i(som(o.bh.id), (f) => registrerHandling(f, godkjent.pakkeId, 'trukket'));
@@ -324,7 +462,7 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
   });
 
   it('en pakke i et annet team kan ikke godkjennes', async () => {
-    const p = pakke([leder]);
+    const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     await expect(
       i(som(leder, { team: raadgiverteam }), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))
@@ -350,8 +488,8 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
   it('en side som bare begynner med BH, avvises av prosedyrene og ikke først av radsikkerheten (#829 punkt 1)', async () => {
     // Lest som `nvarchar(2)` blir `BHX` til `BH` og slipper forbi kontrollen i
     // prosedyren, så blokkpredikatet stopper skrivingen med 33504 i stedet for 51403.
-    expect(await nummer(medSide(o.bh.id, 'BHX', (f) => lagPakke(f, pakke([leder]))))).toBe(51403);
-    const p = pakke([leder]);
+    expect(await nummer(medSide(o.bh.id, 'BHX', (f) => lagPakke(f, pakke(EN))))).toBe(51403);
+    const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     expect(
       await nummer(medSide(leder, 'BHX', (f) => registrerHandling(f, p.pakkeId, 'godkjent')))
@@ -361,7 +499,7 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
   });
 
   it('et brudd på en unik nøkkel gir PakkeAvsluttet, ikke en rå databasefeil (#829 punkt 3)', async () => {
-    const p = pakke([leder]);
+    const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     const annenSak = await opprettKjernesak(o);
     const feil = await i(som(o.bh.id), (f) => lagPakke(f, { ...p, sakId: annenSak })).then(
@@ -417,7 +555,7 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
     // Raden lagres i en sak som sorterer før saken prosedyren låser, så låsen på
     // saken i indeksen ikke venter på den.
     const [foer, etter] = [sakId, await opprettKjernesak(o)].sort();
-    const p = { ...pakke([leder]), sakId: etter };
+    const p = { ...pakke(EN), sakId: etter };
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     await i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert'));
     const feil = await underSamtidigLagring(
@@ -433,14 +571,15 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
           aktor_team_id: catendaId(o.prosjekt.bhTeam),
           brev: '{}',
           fullmaktsgrunnlag: '{}',
+          verdi_gulv: 0,
         }),
-      () => i(som(o.bh.id), (f) => lagPakke(f, { ...pakke([leder], p.pakkeId), sakId: etter }))
+      () => i(som(o.bh.id), (f) => lagPakke(f, { ...pakke(EN, p.pakkeId), sakId: etter }))
     );
     avsluttetMed2601(feil);
   });
 
   it('et samtidig godkjent steg gir PakkeAvsluttet fra godkjenningshandling_godkjent (#860 punkt 2)', async () => {
-    const p = pakke([leder, direktoer]);
+    const p = pakke(TO);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     const feil = await underSamtidigLagring(
       leder,
@@ -448,7 +587,7 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
         handling: 'godkjent',
         steg: 1,
         aktor_id: leder,
-        fullmakt_tittel: 'Seksjonsleder',
+        fullmakt_tittel: 'seksjonsleder',
         fullmakt_grense: 1500000,
         fullmakt_ubegrenset: false,
       }),
@@ -458,7 +597,7 @@ describe.skipIf(!TESTBASE_URL)('fullmaktene og godkjenningspakkene i SQL Server'
   });
 
   it('en samtidig returnert pakke gir PakkeAvsluttet fra godkjenningshandling_avsluttet (#860 punkt 2)', async () => {
-    const p = pakke([leder]);
+    const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     const feil = await underSamtidigLagring(
       leder,

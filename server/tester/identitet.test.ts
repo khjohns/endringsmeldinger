@@ -205,7 +205,6 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.catenda_contract_teams.internal_project_id',
         'koe.catenda_project_configs.internal_project_id',
         'koe.dagmulktssats.prosjekt_id',
-        'koe.fullmakt.prosjekt_id',
         'koe.godkjenningshandling.prosjekt_id',
         'koe.godkjenningspakke.prosjekt_id',
         'koe.godkjenningssteg.prosjekt_id',
