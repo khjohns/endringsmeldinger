@@ -264,7 +264,7 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     }
   } catch (feil) {
     if (feil instanceof AvvistKvittering) throw feil.cause;
-    if (feil instanceof TaptLease) {
+    if (feil instanceof TaptLease || feilnummer(feil) === LEASEN_GJELDER_IKKE) {
       // Uten lease kan ikke forsøket registreres; `hent_jobb` avgjør jobben når leasen er ute.
       logg.error(`Jobben ${jobb.jobb_id} mistet leasen og stoppet før neste endring i Catenda.`);
       return true;
@@ -434,7 +434,7 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
     return catenda.opprettDokumentreferanse(board, topic, dokumentId);
   };
   const dokument = async (navn: string, innhold: () => Promise<Uint8Array>) => {
-    // Innholdet leses med leasen, så basen avviser det når leasen er tapt etter kontrollen.
+    // Innholdet leses med leasen, så basen gir 54001 når leasen er tapt etter kontrollen.
     const lastOpp = async () => {
       lager.foerEndring();
       return catenda.lastOppDokument(maal, { navn, innhold: await innhold() });

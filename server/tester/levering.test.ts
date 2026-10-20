@@ -1085,11 +1085,11 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
               };
             if (prosedyre === 'koe_api.vedlegg_i_levering')
               return { recordset: tillegg.vedlegg ?? [vedlegg('v1'), vedlegg('v2')] };
-            if (prosedyre === 'koe_api.vedleggsinnhold')
-              return { recordset: [{ innhold: Buffer.from('vedlegg') }] };
             if (prosedyre === 'koe_api.registrer_jobbfeil') registrert.push(parametre);
             if (prosedyre === feiler?.prosedyre && (feiler.ganger ?? Infinity) > feilet++)
               throw Object.assign(new sql.RequestError('fra basen'), feiler.feil);
+            if (prosedyre === 'koe_api.vedleggsinnhold')
+              return { recordset: [{ innhold: Buffer.from('vedlegg') }] };
             return { recordset: [] };
           },
         };
@@ -1349,6 +1349,28 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+  // Kilde: #926. Basen avviser lesingen med leasen (54001) når leasen er tapt etter
+  // kontrollen, og da stopper forsøket uten registrering, som ved en tapt lease i fornyelsen.
+  it('en tapt lease når innholdet til vedlegget leses (54001), stopper leveringen før opplastingen', async () => {
+    const opplastet: string[] = [];
+    const base = falskBase(
+      'levering',
+      { prosedyre: 'koe_api.vedleggsinnhold', feil: { number: 54001 } },
+      {
+        vedlegg: [{ ...vedlegg('v1'), dokument_id: null }],
+        dokumenter: {
+          lastOppDokument: async (_m, dokument) => {
+            opplastet.push(dokument.navn);
+            return 'dokument-v1';
+          },
+        },
+      }
+    );
+    expect(await base.kjoer()).toBe(true);
+    expect(opplastet).toEqual([]);
+    expect(prosedyrene(base)).toEqual(['hent_jobb', 'vedlegg_i_levering', 'vedleggsinnhold']);
+    expect(base.registrert).toEqual([]);
   });
 });
 
