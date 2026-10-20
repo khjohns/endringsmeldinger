@@ -175,6 +175,30 @@ async function lesKvittering(
   return sak_id && event_id ? { sak_id, event_id } : null;
 }
 
+/**
+ * Saken fra kvitteringen for kommandoen, eller `null` når kommandoen ikke er skrevet.
+ * Kvitteringen gjelder aktøren og prosjektet, ikke siden eller teamet, så et nytt forsøk
+ * får saken selv om forfatterens side eller team er endret siden (#963).
+ *
+ * @throws KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst
+ */
+export async function kvittertSak(
+  pool: Pool,
+  kontekst: Pick<Kontekst, 'aktor' | 'prosjekt'>,
+  kommando: Kommando
+): Promise<string | null> {
+  try {
+    // Bare lesing: rulles tilbake, så utfallet aldri blir usikkert av en COMMIT.
+    return await transaksjon<string | null>(
+      pool,
+      kontekst,
+      async (foresp) => new Tilbakerulling((await lesKvittering(foresp, kommando))?.sak_id ?? null)
+    );
+  } catch (feil) {
+    throw oversett(feil, null);
+  }
+}
+
 /** Brevet kvitteringen viser til, lest i transaksjonen. */
 function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
   const rad = journal.find((r) => r.event_id === eventId);
