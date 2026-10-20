@@ -8,8 +8,13 @@
  * heller ikke en topic av typen endringsordre, forsering eller ukjent type
  * (arbeidsvalget i #819), en topic som alt hører til en sak eller er laget av
  * integrasjonen (#741 punkt 17), eller en forfatter uten entydig identitet eller side
- * (INT-04). Hendelsen blir da liggende i innboksen med utfallet. Kommentaren tilbake til
- * topicen kommer i W-1b.2 og leser utfallet.
+ * (INT-04). Hendelsen blir da liggende i innboksen med utfallet.
+ *
+ * Etter at utfallet er lagret, skriver løkka en kommentar på topicen for tre av utfallene:
+ * lenken og saksnummeret når saken er opprettet, og hvorfor ingen sak er opprettet for en
+ * topic fra BH (KT-U7) og en type appen ikke behandler (arbeidsvalget under OV-U1 i #819).
+ * Teksten er fast for utfallet og saken, så et nytt forsøk finner kommentaren på topicen
+ * og skriver ingen til (W-1b.2).
  *
  * ID-en og typen leses fra kolonnene dedupen brukte, ikke fra kroppen (#819). Catenda
  * signerer ikke kroppen, så av den brukes bare topic-ID-en, boardet og Catenda-prosjektet,
@@ -54,7 +59,22 @@ export interface Behandling {
   sakId?: string;
   /** I formen 8-4-4-4-12, som `koe.sak_catenda_topic`. */
   topicId?: string;
+  /** Boardet topicen ble slått opp på, i samme form; kommentaren skrives der. */
+  boardId?: string;
   melding?: string;
+}
+
+/**
+ * Catenda finner ikke topicen på boardet. Det kan være forbigående, eller lesetilgangen
+ * mangler en stund, så løkka prøver igjen før `behandling` lagres (#963).
+ */
+export class TopicenFinnesIkke extends Error {
+  readonly behandling: Behandling;
+
+  constructor(behandling: Behandling) {
+    super(behandling.melding);
+    this.behandling = behandling;
+  }
 }
 
 export interface Innkommende {
@@ -63,6 +83,8 @@ export interface Innkommende {
   hendelse_id: string;
   hendelsestype: string;
   kropp: string;
+  /** Forsøkene der Catenda ikke fant topicen; teller mot `FORSOEK_UTEN_TOPIC`. */
+  forsoek_uten_topic: number;
 }
 
 export interface Behandlingsavhengigheter {
@@ -73,8 +95,11 @@ export interface Behandlingsavhengigheter {
 /** Typene for en ny topic; de andre typene behandles ikke i W-1b.1. */
 const NY_TOPIC = new Set(['issue.created', 'bcf.issue.created']);
 
-export async function nesteInnkommende(datalag: Pool): Promise<Innkommende | null> {
-  const svar = await utenKontekst(datalag).execute<Innkommende>('koe_api.neste_innkommende');
+/** `naa` er tiden ventetiden etter et forsøk regnes fra; basens klokke når den mangler. */
+export async function nesteInnkommende(datalag: Pool, naa?: Date): Promise<Innkommende | null> {
+  const svar = await utenKontekst(datalag)
+    .input('naa', sql.DateTime2(3), naa ?? null)
+    .execute<Innkommende>('koe_api.neste_innkommende');
   const rad = svar.recordset[0];
   return rad ? { ...rad, id: String(rad.id) } : null;
 }
@@ -82,7 +107,7 @@ export async function nesteInnkommende(datalag: Pool): Promise<Innkommende | nul
 export async function registrerBehandling(
   datalag: Pool,
   rad: Innkommende,
-  { utfall, prosjektId, sakId, topicId, melding }: Behandling
+  { utfall, prosjektId, sakId, topicId, boardId, melding }: Behandling
 ): Promise<void> {
   await utenKontekst(datalag)
     .input('innkommende_hendelse_id', sql.BigInt, rad.id)
@@ -90,9 +115,83 @@ export async function registrerBehandling(
     .input('prosjekt_id', sql.NVarChar(100), prosjektId ?? null)
     .input('sak_id', sql.NVarChar(36), sakId ?? null)
     .input('catenda_topic_id', sql.NVarChar(100), topicId ?? null)
+    .input('catenda_board_id', sql.NVarChar(100), boardId ?? null)
     .input('melding', sql.NVarChar(400), melding?.slice(0, 400) ?? null)
     .execute('koe_api.registrer_behandling');
 }
+
+/** Et forsøk uten utfall. Hendelsen venter da før neste forsøk, og løkka går videre. */
+export async function registrerForsoek(
+  datalag: Pool,
+  id: string,
+  steg: 'behandling' | 'kommentar',
+  melding: string,
+  topicIkkeFunnet: boolean
+): Promise<void> {
+  await utenKontekst(datalag)
+    .input('innkommende_hendelse_id', sql.BigInt, id)
+    .input('steg', sql.NVarChar(20), steg)
+    .input('melding', sql.NVarChar(400), melding.slice(0, 400))
+    .input('topic_ikke_funnet', sql.Bit, topicIkkeFunnet)
+    .execute('koe_api.registrer_innkommende_forsoek');
+}
+
+export interface Kommentarrad {
+  /** Hendelsen i innboksen, `bigint` som tekst. */
+  id: string;
+  utfall: Behandlingsutfall;
+  prosjekt_id: string | null;
+  sak_id: string | null;
+  catenda_board_id: string;
+  catenda_topic_id: string;
+}
+
+export async function nesteKommentar(datalag: Pool, naa?: Date): Promise<Kommentarrad | null> {
+  const svar = await utenKontekst(datalag)
+    .input('naa', sql.DateTime2(3), naa ?? null)
+    .execute<Kommentarrad>('koe_api.neste_kommentar');
+  const rad = svar.recordset[0];
+  return rad ? { ...rad, id: String(rad.id) } : null;
+}
+
+export async function kvitterKommentar(
+  datalag: Pool,
+  id: string,
+  kommentarId: string
+): Promise<void> {
+  await utenKontekst(datalag)
+    .input('innkommende_hendelse_id', sql.BigInt, id)
+    .input('kommentar_id', sql.NVarChar(100), kommentarId)
+    .execute('koe_api.kvitter_kommentar');
+}
+
+/**
+ * Kommentaren for utfallet, eller null når utfallet ikke skal ha en. `saksadresse` gir
+ * lenken til saken i appen.
+ */
+export function kommentartekst(
+  rad: Pick<Kommentarrad, 'utfall' | 'prosjekt_id' | 'sak_id'>,
+  saksadresse: (prosjektId: string, sakId: string) => string
+): string | null {
+  switch (rad.utfall) {
+    case 'sak_opprettet':
+      if (!rad.prosjekt_id || !rad.sak_id) return null;
+      return (
+        `KOE-saken ${rad.sak_id} er opprettet i appen: ${saksadresse(rad.prosjekt_id, rad.sak_id)}. ` +
+        'Topicen er ikke et varsel eller krav i appen. Varsel og krav sendes fra saken i appen.'
+      );
+    case 'topic_fra_bh':
+      return 'Saken er ikke opprettet i appen. Bare TE kan opprette en KOE-sak der.';
+    case 'sakstype_ikke_stoettet':
+      return 'Saken er ikke opprettet i appen. Topicer av denne typen kan ikke behandles i appen ennå.';
+    default:
+      return null;
+  }
+}
+
+/** Catenda kan endre mellomrom i teksten; sammenligningen ser bort fra dem. */
+export const sammeKommentar = (a: string, b: string) =>
+  a.replace(/\s+/g, ' ').trim() === b.replace(/\s+/g, ' ').trim();
 
 /**
  * Kommando-ID-en for opprettelsen er avledet av raden i innboksen, så et nytt forsøk
@@ -141,11 +240,13 @@ export async function behandle(
     utfall,
     prosjektId,
     topicId,
+    boardId: board,
     ...(melding ? { melding } : {}),
   });
 
   const topic = await avh.catenda.topic(board, topicId);
-  if (!topic) return ut('ugyldig_hendelse', 'Catenda finner ikke topicen på boardet.');
+  if (!topic)
+    throw new TopicenFinnesIkke(ut('ugyldig_hendelse', 'Catenda finner ikke topicen på boardet.'));
   if (topic.forfatter && topic.forfatter === (await avh.catenda.integrasjonensBruker()))
     return ut('laget_av_integrasjonen');
   if (topic.type !== TOPICTYPE) return ut('sakstype_ikke_stoettet');

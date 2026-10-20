@@ -987,6 +987,24 @@ funn = []
 belegg = "L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`. K 19.10: katalogen."
 
 [[relasjon]]
+fra = "koe.toemmingsvern.innkommende_forsoek_id"
+til = "koe.innkommende_forsoek.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "L 19.10: `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. K 19.10: katalogen."
+
+[[relasjon]]
+fra = "koe.toemmingsvern.topic_kommentar_id"
+til = "koe.topic_kommentar.innkommende_hendelse_id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = "Vernet mot TRUNCATE (#582). `koe.toemmingsvern` har ingen rader, så nøkkelen viser aldri til en rad."
+funn = []
+belegg = "L 19.10: `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. K 19.10: katalogen."
+
+[[relasjon]]
 fra = "koe.toemmingsvern.prosjekt_med_saker_id"
 til = "koe.prosjekt_med_saker.prosjekt_id"
 art = "fremmednøkkel"
@@ -1055,6 +1073,28 @@ Saken hendelsen ga, bare med utfallet `sak_opprettet` (KT-U6). Med et annet utfa
 eller tom når prosjektet er ukjent."""
 funn = []
 belegg = "L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`. K 19.10: katalogen."
+
+[[relasjon]]
+fra = "koe.innkommende_forsoek.innkommende_hendelse_id"
+til = "koe.innkommende_hendelse.id"
+art = "fremmednøkkel"
+antall = "mange til én"
+beskrivelse = """
+Hendelsen i innboksen forsøket gjelder (W-1b.2, #819). En hendelse kan ha mange
+forsøk, for behandlingen og for kommentaren."""
+funn = []
+belegg = "L 19.10: `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. K 19.10: katalogen."
+
+[[relasjon]]
+fra = "koe.topic_kommentar.innkommende_hendelse_id"
+til = "koe.innkommende_behandling.innkommende_hendelse_id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Utfallet kommentaren hører til (W-1b.2, #819). Nøkkelen er primærnøkkelen, så hvert
+utfall har høyst én kvittering."""
+funn = []
+belegg = "L 19.10: `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`. K 19.10: katalogen."
 
 [[relasjon]]
 fra = "koe.prosjekt_med_saker.prosjekt_id"
@@ -1395,6 +1435,16 @@ kolonne = "koe.innkommende_behandling.catenda_topic_id"
 begrunnelse = """
 Topicen hendelsen gjelder, i Catenda, normalisert som i `koe.sak_catenda_topic`. Står
 også når hendelsen ikke ga noen sak, så den har ingen fremmednøkkel dit."""
+
+[[uten_relasjon]]
+kolonne = "koe.innkommende_behandling.catenda_board_id"
+begrunnelse = """
+Boardet topicen ble slått opp på, i Catenda. Kommentaren skrives på det boardet
+(W-1b.2). Står også når hendelsen ikke ga noen sak, så den har ingen fremmednøkkel."""
+
+[[uten_relasjon]]
+kolonne = "koe.topic_kommentar.kommentar_id"
+begrunnelse = "ID-en til kommentaren i Catenda. Ingen tabell har Catendas kommentarer."
 
 [[uten_relasjon]]
 kolonne = "koe.sak_catenda_topic.catenda_board_id"

@@ -990,7 +990,8 @@
      ["sak_id", "nvarchar(36)", "NULL"],
      ["catenda_topic_id", "nvarchar(100)", "NULL"],
      ["melding", "nvarchar(400)", "NULL"],
-     ["behandlet", "datetime2(3)", "NOT NULL"]
+     ["behandlet", "datetime2(3)", "NOT NULL"],
+     ["catenda_board_id", "nvarchar(100)", "NULL"]
     ],
     "primærnøkkel": ["innkommende_hendelse_id"],
     "unike": [],
@@ -1006,6 +1007,27 @@
       "kolonner": ["sak_id", "prosjekt_id"],
       "til": "koe.sak_metadata",
       "til_kolonner": ["sak_id", "prosjekt_id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.innkommende_forsoek": {
+    "kolonner": [
+     ["id", "bigint", "NOT NULL"],
+     ["innkommende_hendelse_id", "bigint", "NOT NULL"],
+     ["steg", "nvarchar(20)", "NOT NULL"],
+     ["melding", "nvarchar(400)", "NULL"],
+     ["topic_ikke_funnet", "bit", "NOT NULL"],
+     ["forsoekt", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["innkommende_hendelse_id"],
+      "til": "koe.innkommende_hendelse",
+      "til_kolonner": ["id"],
       "ved_sletting": "NO ACTION"
      }
     ]
@@ -1334,7 +1356,9 @@
      ["vedleggskvittering_vedlegg_id", "uniqueidentifier", "NULL"],
      ["vedleggskvittering_operasjon", "nvarchar(20)", "NULL"],
      ["innkommende_hendelse_id", "bigint", "NULL"],
-     ["innkommende_behandling_id", "bigint", "NULL"]
+     ["innkommende_behandling_id", "bigint", "NULL"],
+     ["innkommende_forsoek_id", "bigint", "NULL"],
+     ["topic_kommentar_id", "bigint", "NULL"]
     ],
     "primærnøkkel": [],
     "unike": [],
@@ -1362,6 +1386,12 @@
       "kolonner": ["innkommende_behandling_id"],
       "til": "koe.innkommende_behandling",
       "til_kolonner": ["innkommende_hendelse_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["innkommende_forsoek_id"],
+      "til": "koe.innkommende_forsoek",
+      "til_kolonner": ["id"],
       "ved_sletting": "NO ACTION"
      },
      {
@@ -1395,6 +1425,12 @@
       "ved_sletting": "NO ACTION"
      },
      {
+      "kolonner": ["topic_kommentar_id"],
+      "til": "koe.topic_kommentar",
+      "til_kolonner": ["innkommende_hendelse_id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
       "kolonner": ["vedlegg_id"],
       "til": "koe.vedlegg",
       "til_kolonner": ["vedlegg_id"],
@@ -1404,6 +1440,24 @@
       "kolonner": ["vedleggskvittering_vedlegg_id", "vedleggskvittering_operasjon"],
       "til": "koe.vedleggskvittering",
       "til_kolonner": ["vedlegg_id", "operasjon"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.topic_kommentar": {
+    "kolonner": [
+     ["innkommende_hendelse_id", "bigint", "NOT NULL"],
+     ["kommentar_id", "nvarchar(100)", "NOT NULL"],
+     ["skrevet", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["innkommende_hendelse_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["innkommende_hendelse_id"],
+      "til": "koe.innkommende_behandling",
+      "til_kolonner": ["innkommende_hendelse_id"],
       "ved_sletting": "NO ACTION"
      }
     ]

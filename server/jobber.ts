@@ -31,7 +31,18 @@ import {
 } from './catenda.ts';
 import { uuidMedBindestreker } from './autorisasjon.ts';
 import { feilnummer, sql, utenKontekst, UsikkertUtfall, type Pool } from './datalag.ts';
-import { behandle, nesteInnkommende, registrerBehandling, type Behandling } from './hendelser.ts';
+import {
+  behandle,
+  kommentartekst,
+  kvitterKommentar,
+  nesteInnkommende,
+  nesteKommentar,
+  registrerBehandling,
+  registrerForsoek,
+  sammeKommentar,
+  TopicenFinnesIkke,
+  type Behandling,
+} from './hendelser.ts';
 import { LaasFeilet, LaasIkkeGitt } from './kommandoer.ts';
 import { MedlemskapetLaast } from './medlemskap.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
@@ -69,6 +80,8 @@ export interface Jobbavhengigheter {
   innboks?: Innboksoppslag;
   /** Adressen til saken i appen, for beskrivelsen i topicen (#741 punkt 15). */
   saksadresse: (prosjektId: string, sakId: string) => string;
+  /** Tiden ventetiden i innboksen regnes fra; basens klokke når den mangler. */
+  klokke?: () => Date;
   logg?: Pick<Console, 'info' | 'warn' | 'error'>;
 }
 
@@ -264,16 +277,24 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
 }
 
 /**
- * Behandler den eldste hendelsen i innboksen og lagrer utfallet. Sann når en hendelse ble
- * behandlet. Kan utfallet ikke avgjøres nå, fordi Catenda eller basen ikke svarer, utfallet
- * av skrivingen er usikkert, eller låsen på kommandoen eller medlemskapet ikke ble tatt,
- * kastes feilen, og løkka prøver igjen ved neste runde. En annen feil gir utfallet
- * `feilet`, som blir stående, så én hendelse ikke stopper resten.
+ * Så mange forsøk der Catenda ikke fant topicen, minst om lag tre timer, før det gir et utfall.
+ * Forsøk som feilet av en annen grunn, teller ikke.
+ */
+export const FORSOEK_UTEN_TOPIC = 10;
+
+/**
+ * Behandler den eldste hendelsen i innboksen som ikke venter, og lagrer utfallet. Sann når
+ * en hendelse ble prøvd. Kan utfallet ikke avgjøres nå, fordi Catenda eller basen ikke
+ * svarer, utfallet av skrivingen er usikkert, låsen på kommandoen eller medlemskapet ikke
+ * ble tatt, eller Catenda ikke finner topicen, lagres forsøket. Hendelsen venter da før
+ * neste forsøk, og løkka går videre til neste hendelse, så én hendelse ikke stenger
+ * innboksen (#963). En topic Catenda ikke har funnet i `FORSOEK_UTEN_TOPIC` forsøk, gir
+ * `ugyldig_hendelse`. En annen feil gir utfallet `feilet`, som blir stående.
  */
 export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolean> {
   const logg = avh.logg ?? console;
   if (!avh.innboks) return false;
-  const rad = await nesteInnkommende(avh.datalag);
+  const rad = await nesteInnkommende(avh.datalag, avh.klokke?.());
   if (!rad) return false;
   let behandling: Behandling;
   try {
@@ -281,19 +302,65 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
   } catch (feil) {
     // Etter et usikkert utfall kan saken være lagret; et nytt forsøk med samme kommando-ID
     // finner den i kvitteringen.
-    if (
+    if (feil instanceof TopicenFinnesIkke && rad.forsoek_uten_topic + 1 >= FORSOEK_UTEN_TOPIC) {
+      behandling = feil.behandling;
+    } else if (
+      feil instanceof TopicenFinnesIkke ||
       forbigaaende(feil) ||
       feil instanceof UsikkertUtfall ||
       feil instanceof LaasIkkeGitt ||
       feil instanceof LaasFeilet ||
       feil instanceof MedlemskapetLaast
-    )
-      throw feil;
-    logg.error(`Hendelsen ${rad.id} i innboksen kunne ikke behandles:`, feil);
-    behandling = { utfall: 'feilet', melding: 'Uventet feil i behandlingen' };
+    ) {
+      logg.warn(`Hendelsen ${rad.id} i innboksen prøves igjen senere:`, feil);
+      await registrerForsoek(
+        avh.datalag,
+        rad.id,
+        'behandling',
+        feilmelding(feil),
+        feil instanceof TopicenFinnesIkke
+      );
+      return true;
+    } else {
+      logg.error(`Hendelsen ${rad.id} i innboksen kunne ikke behandles:`, feil);
+      behandling = { utfall: 'feilet', melding: 'Uventet feil i behandlingen' };
+    }
   }
   await registrerBehandling(avh.datalag, rad, behandling);
   logg.info(`Hendelsen ${rad.id} i innboksen er behandlet: ${behandling.utfall}.`);
+  return true;
+}
+
+/** Klassen og meldingen, uten stakken; meldingene fra Catenda og basen har ikke saksdata. */
+const feilmelding = (feil: unknown) =>
+  feil instanceof Error ? `${feil.constructor.name}: ${feil.message}` : 'Ukjent feil';
+
+/**
+ * Skriver kommentaren for det eldste utfallet som skal ha en, og kvitterer den (W-1b.2,
+ * #819). Sann når et utfall ble prøvd. Kommentarene på topicen leses først, og står teksten
+ * der alt, kvitteres den kommentaren. Da gir et nytt forsøk etter et tapt svar, eller to
+ * hendelser for samme topic og utfall, én kommentar. Feiler et steg, lagres forsøket, og
+ * utfallet venter før neste forsøk, som i `behandleEnHendelse`.
+ */
+export async function skrivEnKommentar(avh: Jobbavhengigheter): Promise<boolean> {
+  const logg = avh.logg ?? console;
+  if (!avh.innboks) return false;
+  const rad = await nesteKommentar(avh.datalag, avh.klokke?.());
+  if (!rad) return false;
+  const tekst = kommentartekst(rad, avh.saksadresse);
+  try {
+    if (!tekst) throw new Error(`Utfallet ${rad.utfall} har ingen kommentar`);
+    const { catenda_board_id: board, catenda_topic_id: topic } = rad;
+    const funnet = (await avh.innboks.kommentarer(board, topic)).find((k) =>
+      sammeKommentar(k.tekst, tekst)
+    );
+    const id = funnet?.id ?? (await avh.innboks.opprettKommentar(board, topic, tekst));
+    await kvitterKommentar(avh.datalag, rad.id, id);
+    logg.info(`Kommentaren for hendelsen ${rad.id} i innboksen er skrevet.`);
+  } catch (feil) {
+    logg.warn(`Kommentaren for hendelsen ${rad.id} i innboksen prøves igjen senere:`, feil);
+    await registrerForsoek(avh.datalag, rad.id, 'kommentar', feilmelding(feil), false);
+  }
   return true;
 }
 
@@ -429,6 +496,7 @@ export function startJobbkjoerer(
       try {
         while (!stoppet && (await kjoerEnJobb(avh)));
         while (!stoppet && (await behandleEnHendelse(avh)));
+        while (!stoppet && (await skrivEnKommentar(avh)));
       } catch (feil) {
         logg.error('Jobbkjøreren feilet:', feil);
       }

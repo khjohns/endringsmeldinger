@@ -1,5 +1,6 @@
 /**
- * Behandlingen av innboksen fra webhooken mot testbasen i SQL Server (W-1b.1, #819).
+ * Behandlingen av innboksen fra webhooken mot testbasen i SQL Server (W-1b.1 og W-1b.2, #819),
+ * med forsøkene som venter (#963) og kommentarene tilbake til topicen.
  * Forventningene har kilde i KT-U6 (en topic fra TE gir bare opprettelsen, med topicens
  * tittel), KT-U7 (en topic fra BH gir ingen sak), arbeidsvalget i #819 (endringsordre,
  * forsering og ukjent type gir ingen sak), #741 punkt 17 (ingen ny sak av en topic som
@@ -12,8 +13,20 @@
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
-import { CatendaUtilgjengelig, TOPICTYPE, type Innboksoppslag, type Topic } from '../catenda.ts';
-import { behandleEnHendelse, type Jobbavhengigheter } from '../jobber.ts';
+import {
+  CatendaUtilgjengelig,
+  TOPICTYPE,
+  UsikkertCatendautfall,
+  type Innboksoppslag,
+  type Kommentar,
+  type Topic,
+} from '../catenda.ts';
+import {
+  behandleEnHendelse,
+  FORSOEK_UTEN_TOPIC,
+  skrivEnKommentar,
+  type Jobbavhengigheter,
+} from '../jobber.ts';
 import { transaksjon, UsikkertUtfall } from '../datalag.ts';
 import { behandle, nesteInnkommende } from '../hendelser.ts';
 import { lesJournal } from '../lager.ts';
@@ -45,6 +58,9 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
   /** Topicene slik Catenda har dem, med boardet og topicen i `catendaId()`-formen. */
   const iCatenda = new Map<string, Topic>();
   const noekkel = (board: string, topic: string) => `${catendaId(board)}/${catendaId(topic)}`;
+  /** Kommentarene på topicene i Catenda, med samme nøkkel. */
+  const kommentarer = new Map<string, Kommentar[]>();
+  const kommentarerPaa = (topic: string) => kommentarer.get(noekkel(board, topic)) ?? [];
 
   beforeAll(async () => {
     o = await lagOppsett();
@@ -60,13 +76,19 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
         })),
       integrasjonensBruker: async () => INTEGRASJONEN,
       topic: async (b, t) => iCatenda.get(noekkel(b, t)) ?? null,
+      kommentarer: async (b, t) => kommentarer.get(noekkel(b, t)) ?? [],
+      opprettKommentar: async (b, t, tekst) => {
+        const id = randomUUID();
+        kommentarer.set(noekkel(b, t), [...(kommentarer.get(noekkel(b, t)) ?? []), { id, tekst }]);
+        return id;
+      },
     };
     avh = {
       datalag: o.datalag.kjoeretid.pool,
       catenda: { opprettTopic: async () => 'ingen' },
       dokumenter: {} as Jobbavhengigheter['dokumenter'],
       innboks,
-      saksadresse: () => '',
+      saksadresse: (p, sak) => `https://app.example.no/${p}/${sak}/kjerne`,
       logg,
     };
     board = (
@@ -154,6 +176,39 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(rad).toHaveLength(1);
     return rad[0];
   };
+
+  /** Mottar hendelsen som webhooken og gir ID-en i innboksen. */
+  const motta = async (k: ReturnType<typeof kropp>) => {
+    const hendelseId = randomUUID();
+    await mottaHendelse(avh.datalag, { id: hendelseId, type: 'issue.created' }, JSON.stringify(k));
+    return (
+      await somEier<{ id: string }>(
+        'SELECT CONVERT(nvarchar(20), id) AS id FROM koe.innkommende_hendelse WHERE hendelse_id = @h',
+        { h: hendelseId }
+      )
+    ).recordset[0].id;
+  };
+  const utfallFor = async (id: string) =>
+    (
+      await somEier<Utfall>(
+        `SELECT utfall, prosjekt_id, sak_id, catenda_topic_id FROM koe.innkommende_behandling
+          WHERE innkommende_hendelse_id = @id`,
+        { id }
+      )
+    ).recordset;
+  const forsoekFor = async (id: string, steg = 'behandling') =>
+    (
+      await somEier<{ antall: number }>(
+        `SELECT COUNT(*) AS antall FROM koe.innkommende_forsoek
+          WHERE innkommende_hendelse_id = @id AND steg = @steg`,
+        { id, steg }
+      )
+    ).recordset[0].antall;
+  /** Løkka `timer` timer fram, forbi ventetiden etter forsøkene så langt. */
+  const senere = (timer: number, fra = avh): Jobbavhengigheter => ({
+    ...fra,
+    klokke: () => new Date(Date.now() + timer * 3_600_000),
+  });
 
   const somEier = <T>(setning: string, parametre: Record<string, unknown>) => {
     const r = o.datalag.base.pool.request();
@@ -296,25 +351,66 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await brukerrader()).toEqual(foer);
   });
 
-  it('en topic Catenda ikke finner på boardet, gir ingen sak', async () => {
+  it('#963: en topic Catenda ikke finner på boardet, prøves igjen og gir ugyldig_hendelse først etter FORSOEK_UTEN_TOPIC forsøk', async () => {
     const topic = randomUUID();
     const k = kropp(topic);
     iCatenda.delete(noekkel(board, topic));
-    expect(await behandleKropp(k)).toMatchObject({
-      utfall: 'ugyldig_hendelse',
-      sak_id: null,
-      catenda_topic_id: topic,
-    });
+    const id = await motta(k);
+    for (let i = 1; i < FORSOEK_UTEN_TOPIC; i++) {
+      expect(await behandleEnHendelse(senere(i))).toBe(true);
+      expect(await utfallFor(id)).toEqual([]);
+    }
+    expect(await forsoekFor(id)).toBe(FORSOEK_UTEN_TOPIC - 1);
+    expect(await behandleEnHendelse(senere(FORSOEK_UTEN_TOPIC))).toBe(true);
+    expect(await utfallFor(id)).toEqual([
+      expect.objectContaining({
+        utfall: 'ugyldig_hendelse',
+        sak_id: null,
+        catenda_topic_id: topic,
+      }),
+    ]);
     expect(await sakerForTopic(topic)).toEqual([]);
   });
 
-  it('når topicoppslaget i Catenda feiler, lagres ikke noe utfall, og neste runde behandler hendelsen', async () => {
+  it('#963: forsøk der Catenda var nede, teller ikke mot FORSOEK_UTEN_TOPIC; den første 404 etterpå gir ikke ugyldig_hendelse', async () => {
     const topic = randomUUID();
-    await mottaHendelse(
-      avh.datalag,
-      { id: randomUUID(), type: 'issue.created' },
-      JSON.stringify(kropp(topic))
-    );
+    const k = kropp(topic);
+    const funnet = iCatenda.get(noekkel(board, topic))!;
+    iCatenda.delete(noekkel(board, topic));
+    const id = await motta(k);
+    const nede = (timer: number) => ({
+      ...senere(timer),
+      innboks: {
+        ...innboks,
+        topic: async () => {
+          throw new CatendaUtilgjengelig('nede');
+        },
+      },
+    });
+    for (let i = 1; i < FORSOEK_UTEN_TOPIC; i++)
+      expect(await behandleEnHendelse(nede(i))).toBe(true);
+    expect(await behandleEnHendelse(senere(FORSOEK_UTEN_TOPIC))).toBe(true);
+    expect(await utfallFor(id)).toEqual([]);
+    iCatenda.set(noekkel(board, topic), funnet);
+    expect(await behandleEnHendelse(senere(FORSOEK_UTEN_TOPIC + 1))).toBe(true);
+    expect((await utfallFor(id))[0]?.utfall).toBe('sak_opprettet');
+  });
+
+  it('#963: en topic Catenda finner ved et senere forsøk, gir saken', async () => {
+    const topic = randomUUID();
+    const k = kropp(topic);
+    const funnet = iCatenda.get(noekkel(board, topic))!;
+    iCatenda.delete(noekkel(board, topic));
+    const id = await motta(k);
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    iCatenda.set(noekkel(board, topic), funnet);
+    expect(await behandleEnHendelse(senere(1))).toBe(true);
+    expect((await utfallFor(id))[0]?.utfall).toBe('sak_opprettet');
+  });
+
+  it('#963: når topicoppslaget i Catenda feiler, lagres forsøket, hendelsen venter, og et senere forsøk behandler den', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
     const nede = {
       ...avh,
       innboks: {
@@ -324,10 +420,33 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
         },
       },
     };
-    await expect(behandleEnHendelse(nede)).rejects.toBeInstanceOf(CatendaUtilgjengelig);
-    expect((await nesteInnkommende(avh.datalag))?.kropp).toContain(topic);
-    expect(await behandleEnHendelse(avh)).toBe(true);
+    expect(await behandleEnHendelse(nede)).toBe(true);
+    expect(await utfallFor(id)).toEqual([]);
+    expect(await forsoekFor(id)).toBe(1);
+    expect(await nesteInnkommende(avh.datalag)).toBeNull();
+    expect(await behandleEnHendelse(senere(1))).toBe(true);
     expect(await sakerForTopic(topic)).toHaveLength(1);
+  });
+
+  it('#963: én hendelse som feiler forbigående, stenger ikke innboksen; neste hendelse behandles i samme runde', async () => {
+    const [feiler, virker] = [randomUUID(), randomUUID()];
+    const forste = await motta(kropp(feiler));
+    const andre = await motta(kropp(virker));
+    const delvisNede = {
+      ...avh,
+      innboks: {
+        ...innboks,
+        topic: async (b: string, t: string) => {
+          if (catendaId(t) === catendaId(feiler)) throw new CatendaUtilgjengelig('nede');
+          return innboks.topic(b, t);
+        },
+      },
+    };
+    while (await behandleEnHendelse(delvisNede));
+    expect(await utfallFor(forste)).toEqual([]);
+    expect((await utfallFor(andre))[0]?.utfall).toBe('sak_opprettet');
+    expect(await behandleEnHendelse(senere(1))).toBe(true);
+    expect((await utfallFor(forste))[0]?.utfall).toBe('sak_opprettet');
   });
 
   it('en topic på et annet board enn prosjektets gir ingen sak', async () => {
@@ -368,7 +487,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     ]);
   });
 
-  it('når Catenda ikke svarer, lagres ikke noe utfall, og neste runde behandler hendelsen', async () => {
+  it('når Catenda ikke svarer, lagres ikke noe utfall, og et senere forsøk behandler hendelsen', async () => {
     const topic = randomUUID();
     await mottaHendelse(
       avh.datalag,
@@ -384,14 +503,14 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
         },
       },
     };
-    await expect(behandleEnHendelse(nede)).rejects.toBeInstanceOf(CatendaUtilgjengelig);
-    expect((await nesteInnkommende(avh.datalag))?.kropp).toContain(topic);
-    expect(await behandleEnHendelse(avh)).toBe(true);
+    expect(await behandleEnHendelse(nede)).toBe(true);
+    expect(await sakerForTopic(topic)).toEqual([]);
+    expect(await behandleEnHendelse(senere(1))).toBe(true);
     expect(await sakerForTopic(topic)).toHaveLength(1);
-    expect(await behandleEnHendelse(avh)).toBe(false);
+    expect(await behandleEnHendelse(senere(2))).toBe(false);
   });
 
-  it('etter et usikkert utfall lagres ikke noe utfall, og neste runde får saken (code-review av #957)', async () => {
+  it('etter et usikkert utfall lagres ikke noe utfall, og et senere forsøk får saken (code-review av #957)', async () => {
     const topic = randomUUID();
     await mottaHendelse(
       avh.datalag,
@@ -407,10 +526,102 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
         },
       },
     };
-    await expect(behandleEnHendelse(usikker)).rejects.toBeInstanceOf(UsikkertUtfall);
-    expect((await nesteInnkommende(avh.datalag))?.kropp).toContain(topic);
-    expect(await behandleEnHendelse(avh)).toBe(true);
+    expect(await behandleEnHendelse(usikker)).toBe(true);
+    expect(await sakerForTopic(topic)).toEqual([]);
+    expect(await behandleEnHendelse(senere(1))).toBe(true);
     expect(await sakerForTopic(topic)).toHaveLength(1);
+  });
+
+  /** Skriver kommentarene for alle utfallene som venter på en, som løkka. */
+  const skrivKommentarene = async (fra = avh) => {
+    while (await skrivEnKommentar(fra));
+  };
+  const kvitteringFor = async (id: string) =>
+    (
+      await somEier<{ kommentar_id: string }>(
+        'SELECT kommentar_id FROM koe.topic_kommentar WHERE innkommende_hendelse_id = @id',
+        { id }
+      )
+    ).recordset;
+  const BH_KOMMENTAR = 'Saken er ikke opprettet i appen. Bare TE kan opprette en KOE-sak der.';
+
+  it('arbeidsvalget under OV-U1 i #819: når saken er lagret, får topicen én kommentar med saksnummeret og lenken (KT-U6)', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic)).toEqual([]);
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    const [{ sak_id }] = await utfallFor(id);
+    await skrivKommentarene();
+    const [kommentar, ...flere] = kommentarerPaa(topic);
+    expect(flere).toEqual([]);
+    expect(kommentar.tekst).toBe(
+      `KOE-saken ${sak_id} er opprettet i appen: https://app.example.no/${o.prosjekt.id}/${sak_id}/kjerne. ` +
+        'Topicen er ikke et varsel eller krav i appen. Varsel og krav sendes fra saken i appen.'
+    );
+    expect(await kvitteringFor(id)).toEqual([{ kommentar_id: kommentar.id }]);
+    await skrivKommentarene(senere(1));
+    expect(kommentarerPaa(topic)).toHaveLength(1);
+  });
+
+  it('KT-U7: en topic fra BH får én kommentar om at bare TE kan opprette en KOE-sak, også når hendelsen kommer to ganger', async () => {
+    const topic = randomUUID();
+    const k = kropp(topic, { forfatter: catendaId(o.bh.subjekt) });
+    const ider = [await motta(k), await motta(k)];
+    while (await behandleEnHendelse(avh));
+    for (const id of ider) expect((await utfallFor(id))[0]?.utfall).toBe('topic_fra_bh');
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([BH_KOMMENTAR]);
+    const [id] = kommentarerPaa(topic).map((k) => k.id);
+    for (const h of ider) expect(await kvitteringFor(h)).toEqual([{ kommentar_id: id }]);
+  });
+
+  it('arbeidsvalget under OV-U1 i #819: en topic av typen forsering får kommentaren om at typen ikke kan behandles ennå', async () => {
+    const topic = randomUUID();
+    expect((await behandleKropp(kropp(topic, { type: 'Forsering' }))).utfall).toBe(
+      'sakstype_ikke_stoettet'
+    );
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([
+      'Saken er ikke opprettet i appen. Topicer av denne typen kan ikke behandles i appen ennå.',
+    ]);
+  });
+
+  it.each<[string, () => string | null]>([
+    ['laget av integrasjonen', () => INTEGRASJONEN],
+    ['uten forfatter', () => null],
+    ['fra et medlem uten kontraktsteam', () => catendaId(o.utenTeam.subjekt)],
+  ])(
+    'en topic %s får ingen kommentar; ingen vedtak sier at den skal ha en',
+    async (_, forfatter) => {
+      const topic = randomUUID();
+      await behandleKropp(kropp(topic, { forfatter: forfatter() }));
+      await skrivKommentarene();
+      expect(kommentarerPaa(topic)).toEqual([]);
+    }
+  );
+
+  it('et tapt svar etter at kommentaren er skrevet, gir ingen kommentar til ved neste forsøk', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic, { forfatter: catendaId(o.bh.subjekt) }));
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    const tapt = {
+      ...avh,
+      innboks: {
+        ...innboks,
+        opprettKommentar: async (b: string, t: string, tekst: string) => {
+          await innboks.opprettKommentar(b, t, tekst);
+          throw new UsikkertCatendautfall('tapt svar');
+        },
+      },
+    };
+    await skrivKommentarene(tapt);
+    expect(kommentarerPaa(topic)).toHaveLength(1);
+    expect(await kvitteringFor(id)).toEqual([]);
+    expect(await forsoekFor(id, 'kommentar')).toBe(1);
+    await skrivKommentarene(senere(1));
+    expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([BH_KOMMENTAR]);
+    expect(await kvitteringFor(id)).toEqual([{ kommentar_id: kommentarerPaa(topic)[0].id }]);
   });
 
   it('uten oppslagene for innboksen behandler løkka den ikke', async () => {
