@@ -1323,6 +1323,19 @@ det står.
 > **Merknad 2026-10-09 til avsnitt 5:** FK er ny og står etter F2. Den følger
 > av B-17 og merknaden 09.10 der. Pakkene er heller ikke nå omnummerert.
 
+> **Merknad 2026-10-20 til avsnitt 5:** Oppdragsgiver svarte 20.10 på spørsmålene
+> etter [vurderingen av målbildet](../vurdering-maalbilde-og-ts-overgang-2026-10-20.md).
+> Spørsmålene og svarene står ordrett i
+> [spørsmålsfila](../vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md).
+>
+> - Python skal ut først, og TS overtar alt frontenden kaller (spørsmål 1 og 2).
+> - Tilgangene i Azure og B-12 hosting avklares med IKT parallelt (spørsmål 6).
+> - OV-U1 står (spørsmål 8).
+>
+> Den kritiske stien fram til første ekte sak samles i milepælen
+> [Første ekte sak](https://github.com/khjohns/endringsmeldinger/milestone/7),
+> på tvers av F0b, F1, FK og F5 (spørsmål 4).
+
 ### F0 — Verifikasjonsgrunnlag
 
 **Avhenger av:** ingenting. **Status:** delvis. CI kjører backend, frontend,

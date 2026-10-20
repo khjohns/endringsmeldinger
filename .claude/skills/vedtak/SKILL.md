@@ -8,6 +8,9 @@ description: Spørsmålene til oppdragsgiver om domenet og vedtakene som føres 
 Domenespørsmålene fra øktene går gjennom orkestratoren, ikke rett til
 oppdragsgiver.
 
+- **Vedtak ved behov.** Nye domenevedtak stilles bare når et issue i den
+  kritiske stien trenger dem (oppdragsgiver 20.10, [spørsmål 4](../../../docs/vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md)).
+  Den kritiske stien er milepælen «Første ekte sak».
 - **Det prinsipielle først.** Still først spørsmålene som avgjør retningen. Et
   eksempel er om appen skal vurdere selv eller bare registrere, eller hva et
   sendt brev binder. Detaljene venter til retningen er avgjort: for
