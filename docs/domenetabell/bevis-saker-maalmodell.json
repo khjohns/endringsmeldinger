@@ -298,7 +298,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5", "KA-U34"],
+          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5", "OV-U7", "AV-587"],
           "forventet": {
             "avvist": false,
             "grunnlag_avvist": true,
@@ -307,8 +307,8 @@
             "enighet.frist.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_avslaatt",
-            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2", "passivitet:K-g1"],
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1", "begrunne:S-g1", "begrunne:S-v1", "begrunne:S-f1", "begrunne:S-v2"],
+            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
         },
@@ -498,14 +498,14 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "KA-U34"],
+          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "OV-U7", "AV-587"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_oppgjort",
-            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "passivitet:K-g1"],
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1", "begrunne:S-g1", "begrunne:S-v1", "begrunne:S-f1"],
+            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }
         }
@@ -565,7 +565,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "EO-U5", "KA-U34"],
+          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "EO-U5", "OV-U7", "AV-587"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,
@@ -578,8 +578,8 @@
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_trukket",
             "visning.etiketter.grunnlag": { "inneholder": ["trukket"], "mangler": ["paalegg_frafalt"] },
-            "handlinger.TE": ["innsigelse:S-v1", "passivitet:K-g1"],
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1", "begrunne:S-v1"],
+            "handlinger.TE": ["innsigelse:S-v1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
         },
@@ -1740,7 +1740,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "KA-U34"],
+          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "OV-U7", "AV-587"],
           "forventet": {
             "avvist": false,
             "trukket.vederlag": true,
@@ -1748,8 +1748,8 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
             "visning.status": "avsluttet_oppgjort",
-            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-f1", "passivitet:K-g1"],
-            "handlinger.BH": ["innsigelse:K-g1", "begrunne:S-g1", "innsigelse:K-v1", "innsigelse:K-f1", "begrunne:S-f1"]
+            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-f1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         }
       ]
@@ -1820,13 +1820,13 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U5", "KA-U11", "KA-U34"],
+          "kilde": ["EO-U5", "KA-U11", "OV-U7", "AV-587"],
           "forventet": {
             "avvist": false,
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": false,
-            "handlinger.TE": ["innsigelse:S-g1", "passivitet:K-g1"],
-            "handlinger.BH": ["innsigelse:K-g1", "begrunne:S-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
+            "handlinger.TE": ["innsigelse:S-g1"],
+            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         },
         {
@@ -3408,7 +3408,7 @@
         "VS-01"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U1, VS-U9, MP-U6: innsigelse og protest registreres og vises uten virkning på utfallet",
+      "forslag": "VS-U1 og VS-U14: innsigelsen registreres og vises uten virkning på utfallet. Protesten mot innsigelsen avvises etter OV-U7",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3430,22 +3430,10 @@
           ]
         },
         {
-          "handling": "protest",
-          "part": "TE",
-          "gjelder": "D3#innsigelse",
-          "navn": "D5"
-        },
-        {
-          "handling": "protest",
-          "part": "TE",
-          "gjelder": "D4",
-          "navn": "D6"
-        },
-        {
           "handling": "innsigelse",
           "part": "TE",
           "gjelder": "S-g1",
-          "navn": "D7"
+          "navn": "D5"
         }
       ],
       "kontroller": [
@@ -3491,48 +3479,21 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "VS-U1"
+            "OV-U7"
           ],
           "forventet": {
             "avvist": true,
-            "regel": "INGEN_INNSIGELSE"
+            "regel": "IKKE_I_FOERSTE_VERSJON",
+            "nye_hendelser": 0
           },
           "prov": {
             "handling": "protest",
-            "part": "BH",
+            "part": "TE",
             "gjelder": "D3#innsigelse"
           }
         },
         {
           "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U1",
-            "VS-U9"
-          ],
-          "forventet": {
-            "protester": [
-              "TE:D3#innsigelse"
-            ],
-            "grunnlag_avklart": false,
-            "endringsordre": "nei"
-          }
-        },
-        {
-          "etter": 4,
-          "rolle": "mal",
-          "kilde": [
-            "MP-U6"
-          ],
-          "forventet": {
-            "protester": [
-              "TE:D3#innsigelse",
-              "TE:D4"
-            ]
-          }
-        },
-        {
-          "etter": 5,
           "rolle": "mal",
           "kilde": [
             "VS-U1",
@@ -3684,147 +3645,6 @@
             "enighet.grunnlag.kilde": "sammenfall",
             "endringsordre": "ja"
           }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V4",
-      "rader": [
-        "VS-04"
-      ],
-      "start": "krav_irreg",
-      "forslag": "VS-U12: TE påberoper passiviteten før og etter svaret, uten virkning og uten å sperre svaret",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "passivitet",
-          "gjelder": "K-g1",
-          "navn": "D3"
-        },
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
-            }
-          ]
-        },
-        {
-          "handling": "passivitet",
-          "gjelder": "K-g1",
-          "navn": "D5"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U12"
-          ],
-          "forventet": {
-            "passivitet": [
-              "K-g1"
-            ],
-            "handlinger.BH": {
-              "inneholder": [
-                "svare:grunnlag"
-              ]
-            },
-            "visning.etiketter.grunnlag": {
-              "inneholder": [
-                "passivitet_paaberopt"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U12"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "passivitet": [
-              "K-g1",
-              "K-g1"
-            ],
-            "grunnlag_avklart": false
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V4b",
-      "rader": [
-        "VS-04"
-      ],
-      "start": "krav_eo",
-      "forslag": "GR-U11 og VS-U12: passivitetsregelen gjelder ikke der § 32.2 ikke gjelder",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "passivitet",
-          "gjelder": "K-g1",
-          "navn": "D3"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 0,
-          "rolle": "mal",
-          "kilde": [
-            "GR-U11",
-            "VS-U12"
-          ],
-          "forventet": {
-            "avvist": true,
-            "regel": "VARSLINGSPLIKT_GJELDER_IKKE"
-          },
-          "prov": {
-            "handling": "passivitet",
-            "gjelder": "K-g1"
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "GR-U11"
-          ],
-          "forventet": {
-            "avvist": true,
-            "regel": "VARSLINGSPLIKT_GJELDER_IKKE",
-            "nye_hendelser": 0
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-V4c",
-      "rader": ["VS-04"],
-      "start": "krav_irreg",
-      "forslag": "VS-U12: TEs varsel etter § 32.2 er kravet i grunnlagssporet, så en påberopelse av passiviteten som viser til vederlagskravet, avvises",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [{ "handling": "passivitet", "gjelder": "K-v1", "navn": "D3" }],
-      "kontroller": [
-        {
-          "etter": 0,
-          "rolle": "kontroll",
-          "kilde": ["VS-U12"],
-          "prov": { "handling": "passivitet", "gjelder": "K-g1" },
-          "forventet": { "avvist": false }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": ["VS-U12"],
-          "forventet": { "avvist": true, "regel": "INGEN_VARSEL_ETTER_32_2", "nye_hendelser": 0 }
         }
       ]
     },
@@ -8436,345 +8256,6 @@
       ]
     },
     {
-      "id": "F-MM-BG1",
-      "rader": [
-        "KA-42",
-        "KA-43"
-      ],
-      "start": "krav_irreg",
-      "forslag": "KA-U34 og KA-U35: byggherren begrunner avslaget av grunnlaget senere, først fra appen og så i et registrert brev, som godtas også med en sendt-dato før svaret fordi datokontrollene er utsatt (OV-U7, KA-U36). Kontrollsakene er samme begrunnelse av svaret, fra byggherren, med tekst og med vedlegg",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
-            }
-          ]
-        },
-        {
-          "handling": "begrunnelse",
-          "part": "BH",
-          "gjelder": "S-g1",
-          "navn": "D5"
-        },
-        {
-          "handling": "begrunnelse",
-          "part": "BH",
-          "gjelder": "S-g1",
-          "sendt": "2026-09-25",
-          "dokumentasjon": [
-            "brev 25.09"
-          ],
-          "navn": "D6"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U34"
-          ],
-          "forventet": {
-            "handlinger.BH": {
-              "inneholder": [
-                "begrunne:S-g1"
-              ],
-              "mangler": [
-                "begrunne:K-g1"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "kontroll",
-          "kilde": [
-            "KA-U34"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "BH",
-            "gjelder": "S-g1"
-          },
-          "forventet": {
-            "avvist": false
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U34"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "TE",
-            "gjelder": "S-g1"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "FEIL_PART"
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U34"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "BH",
-            "gjelder": "K-g1"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "INGEN_SVAR_AA_BEGRUNNE"
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U34"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "BH",
-            "gjelder": "S-g1",
-            "utdypning": false
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "BEGRUNNELSE_MANGLER"
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U34"
-          ],
-          "forventet": {
-            "avvist": false,
-            "forstaatt": true,
-            "gjeldende_svar.grunnlag": "S-g1",
-            "enighet.grunnlag": null,
-            "handlinger.TE": {
-              "inneholder": [
-                "godta:grunnlag"
-              ]
-            },
-            "handlinger.BH": {
-              "inneholder": [
-                "begrunne:S-g1",
-                "revidere:grunnlag"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "kontroll",
-          "kilde": [
-            "KA-U35"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "BH",
-            "gjelder": "S-g1",
-            "sendt": "2026-09-25",
-            "dokumentasjon": [
-              "brev 25.09"
-            ]
-          },
-          "forventet": {
-            "avvist": false
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U35"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "BH",
-            "gjelder": "S-g1",
-            "sendt": "2026-09-25"
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "UGYLDIG_FORM"
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "OV-U7",
-            "KA-U36"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "BH",
-            "gjelder": "S-g1",
-            "sendt": "2026-09-19",
-            "dokumentasjon": [
-              "brev 19.09"
-            ]
-          },
-          "forventet": {
-            "avvist": false
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U35",
-            "MM-U17"
-          ],
-          "forventet": {
-            "avvist": false,
-            "forstaatt": true,
-            "registrert.D6": true,
-            "registrert.D5": false,
-            "opplysning.D6#sendt.dato": "2026-09-25",
-            "opplysning.D6#sendt.oppgitt_av": "BH",
-            "gjeldende_svar.grunnlag": "S-g1",
-            "enighet.grunnlag": null,
-            "handlinger.TE": {
-              "inneholder": [
-                "godta:grunnlag"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-BG2",
-      "rader": [
-        "KA-44"
-      ],
-      "start": "krav_irreg",
-      "forslag": "KA-U34 og KA-U11: når kravene er avgjort, godtas byggherrens begrunnelse, men ikke en revisjon. Kontrollsaken er revisjonen, som avvises",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "godkjent",
-              "varslet_i_tide": true
-            },
-            {
-              "spor": "vederlag",
-              "navn": "S-v1",
-              "vurdering": "avslaatt"
-            },
-            {
-              "spor": "frist",
-              "navn": "S-f1",
-              "varsel_i_tide": true,
-              "spesifisering_i_tide": true,
-              "hindring": true,
-              "dager": 0
-            }
-          ]
-        },
-        {
-          "handling": "aksept",
-          "spor": "vederlag",
-          "navn": "D5"
-        },
-        {
-          "handling": "aksept",
-          "spor": "frist",
-          "navn": "D6"
-        },
-        {
-          "handling": "begrunnelse",
-          "part": "BH",
-          "gjelder": "S-v1",
-          "navn": "D7"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 3,
-          "rolle": "forutsetning",
-          "kilde": [
-            "KA-U11"
-          ],
-          "forventet": {
-            "kravene_avgjort": true
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U34"
-          ],
-          "forventet": {
-            "handlinger.BH": {
-              "inneholder": [
-                "begrunne:S-g1",
-                "begrunne:S-v1",
-                "begrunne:S-f1"
-              ],
-              "mangler": [
-                "revidere:vederlag"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "kontroll",
-          "kilde": [
-            "KA-U11"
-          ],
-          "prov": {
-            "handling": "revisjon",
-            "spor": "vederlag",
-            "vurdering": "godkjent",
-            "godkjent_belop": 100000
-          },
-          "forventet": {
-            "avvist": true,
-            "regel": "KRAVENE_AVGJORT"
-          }
-        },
-        {
-          "etter": 4,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U34"
-          ],
-          "forventet": {
-            "avvist": false,
-            "kravene_avgjort": true,
-            "enighet.vederlag.virkning": "virksom",
-            "gjeldende_svar.vederlag": "S-v1"
-          }
-        }
-      ]
-    },
-    {
       "id": "F-MM-V-34-1-2-nei",
       "forslag": "#479, #341: byggherren gjør gjeldende at varselet etter § 34.1.2 kom for sent",
       "rader": ["KA-46"],
@@ -11804,78 +11285,6 @@
           "forventet": {
             "avvist": true,
             "regel": "BREVTEKST_MANGLER",
-            "nye_hendelser": 0
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-LV-U2-registrert-med-tekst",
-      "rader": [
-        "KA-43",
-        "KA-51"
-      ],
-      "start": "krav_irreg",
-      "forslag": "MM-U17 og LV-U2: en begrunnelse byggherren registrerer fra et brev sendt utenfor appen, med en brevtekst fra appen, avvises med ANNEN_BREVTEKST og lagres ikke. Kontrollsaken er samme registrerte begrunnelse uten tekst (KA-U35)",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "brev",
-          "navn": "D4",
-          "svar": [
-            {
-              "spor": "grunnlag",
-              "navn": "S-g1",
-              "resultat": "avslaatt",
-              "varslet_i_tide": true
-            }
-          ]
-        },
-        {
-          "handling": "begrunnelse",
-          "part": "BH",
-          "gjelder": "S-g1",
-          "sendt": "2026-09-25",
-          "dokumentasjon": [
-            "brev 25.09"
-          ],
-          "brevtekst": [
-            "Byggherren begrunner svaret."
-          ],
-          "navn": "D6"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 1,
-          "rolle": "kontroll",
-          "kilde": [
-            "KA-U35",
-            "MM-U17"
-          ],
-          "prov": {
-            "handling": "begrunnelse",
-            "part": "BH",
-            "gjelder": "S-g1",
-            "sendt": "2026-09-25",
-            "dokumentasjon": [
-              "brev 25.09"
-            ]
-          },
-          "forventet": {
-            "avvist": false
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "MM-U17",
-            "LV-U2"
-          ],
-          "forventet": {
-            "avvist": true,
-            "regel": "ANNEN_BREVTEKST",
             "nye_hendelser": 0
           }
         }

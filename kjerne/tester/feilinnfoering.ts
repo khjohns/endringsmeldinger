@@ -16,8 +16,9 @@
  * innsigelsen etter VS-U24 (#498, #517), F223 et registrert brev (HF-U4, OV-U4), og
  * F246–F247 registrerte brev som dokumentasjon (OV-U4, OV-U6, #574), og F248–F255
  * opprettelsen og datoen etter VS-U26 (#664), og F296–F300 varselet med vedlegg i
- * fristkravet (OV-U5, #828) og datoen for varselet (#968). Én mutasjon
- * om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * fristkravet (OV-U5, #828) og datoen for varselet (#968), og F301–F303
+ * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
+ * OV-U7 (#587). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -805,18 +806,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-V1', 'en innsigelse fra TE mot eget krav'],
   },
   {
-    id: 'F79',
-    feilklasse: 'passiviteten kan påberopes der § 32.2 ikke gjelder (VS-U12, GR-U11)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        '      return gjelderVarslingsplikten(krav, regler)',
-        '      return krav || gjelderVarslingsplikten(krav, regler)',
-      ],
-    ],
-    mal: ['F-MM-V4b'],
-  },
-  {
     id: 'F80',
     feilklasse: '«ingen krav» godtas i et spor med krav (KA-U12)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
@@ -1351,56 +1340,11 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F157',
-    feilklasse: 'en senere begrunnelse avvises når kravene er avgjort (KA-U34, KA-U11)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        "    case 'begrunne':\n",
-        "    case 'begrunne':\n      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', '');\n",
-      ],
-    ],
-    mal: ['godtas når kravene er avgjort, mens en revisjon avvises', 'F-MM-BG2'],
-  },
-  {
-    id: 'F158',
-    feilklasse: 'TE kan sende en senere begrunnelse (KA-U34)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["  begrunne: 'BH',", '  begrunne: null,']],
-    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
-  },
-  {
-    id: 'F159',
-    feilklasse: 'en senere begrunnelse kan gjelde noe annet enn et svar (KA-U34)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["return maal?.art === 'svar'\n", 'return maal !== undefined\n']],
-    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
-  },
-  {
     id: 'F160',
     feilklasse: 'leseren godtar en begrunnelse som gjelder noe annet enn et svar (KA-U34, MM-U2)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [["return maal.art === 'svar';", "return maal.art !== 'opplysning';"]],
     mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
-  },
-  {
-    id: 'F161',
-    feilklasse: 'brevteksten for den senere begrunnelsen avviker fra KA-U34',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        'Byggherren begrunner sitt svar på ${SVARET_GJELDER[svar.spor]}',
-        'Byggherren begrunner sitt svar på ${SPORNAVN[svar.spor]}',
-      ],
-    ],
-    mal: ['brevet begrunner svaret på'],
-  },
-  {
-    id: 'F162',
-    feilklasse: 'en senere begrunnelse uten tekst godtas (KA-U34)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['return k.sendt === undefined && !k.utdypning?.trim()', 'return false']],
-    mal: ['avvises fra TE, når den ikke gjelder et svar, og uten tekst', 'F-MM-BG1'],
   },
   {
     id: 'F163',
@@ -1412,13 +1356,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['når TE ikke krever fristforlengelse, er kravene avgjort, og meldingen sier hvorfor'],
   },
   {
-    id: 'F164',
-    feilklasse: 'en registrert begrunnelse godtas uten brevet som vedlegg (KA-U35)',
-    fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [['if (!k.dokumentasjon?.length)', 'if (false)']],
-    mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises', 'F-MM-BG1'],
-  },
-  {
     id: 'F165',
     feilklasse: 'leseren godtar en begrunnelse fra TE (KA-U34, MM-U2)',
     fil: `${K}/format/leser.ts`,
@@ -1426,25 +1363,27 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en begrunnelse fra TE eller av noe annet enn et svar gjør saken ikke forstått'],
   },
   {
-    id: 'F166',
-    feilklasse: 'en registrert begrunnelse kan ha tekst (KA-U35)',
-    fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [["if ('utdypning' in k) feil.push", 'if (false) feil.push']],
-    mal: ['en registrert begrunnelse uten brevet som vedlegg eller med tekst avvises'],
-  },
-  {
-    id: 'F167',
-    feilklasse: 'en registrert begrunnelse skrives som et brev fra appen (KA-U35, MM-U17)',
-    fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [["          opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],\n", '']],
-    mal: ['en begrunnelse sendt utenfor appen registreres uten tekst', 'F-MM-BG1'],
-  },
-  {
     id: 'F168',
-    feilklasse: 'byggherren får ikke tilbud om å begrunne et svar (KA-U34, INV-MM-1)',
+    feilklasse:
+      'protest, påberopt passivitet og senere begrunnelse tilbys uten forutsetningene (OV-U7, INV-MM-1)',
     fil: `${K}/kommandoer/handlinger.ts`,
-    endringer: [["    ut.push({ type: 'begrunne', gjelder: id });\n", '']],
-    mal: ['F-MM-BG1', 'F-MM-BG2', 'F-MM-B1'],
+    endringer: [
+      [
+        "    if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });\n",
+        "    if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });\n    if (e.innsigelse || e.art === 'dokument') ut.push({ type: 'protest', gjelder: id });\n    if (e.art === 'svar') ut.push({ type: 'begrunne', gjelder: id });\n",
+      ],
+      [
+        '  return ut;\n',
+        "  for (const k of u.spor.grunnlag.krav) ut.push({ type: 'passivitet', gjelder: k.id });\n  return ut;\n",
+      ],
+      [
+        '.filter((h) => forutsetninger(h, part, u) === null)',
+        ".filter((h) => ['protest', 'passivitet', 'begrunne'].includes(h.type) || forutsetninger(h, part, u) === null)",
+      ],
+    ],
+    mal: [
+      'protest, påberopt passivitet og senere begrunnelse tilbys ingen av partene, også med en innsigelse, et dokument, et grunnlagskrav og et svar',
+    ],
   },
   {
     id: 'F169',
@@ -1452,18 +1391,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [['  const grunnlag = u.frafalt\n', '  const grunnlag = false\n']],
     mal: ['når byggherren har frafalt pålegget, sier meldingen det'],
-  },
-  {
-    id: 'F170',
-    feilklasse: 'en senere begrunnelse kan endre utfallet (KA-U34)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "['aksept', 'trekk', 'ingen_krav', 'varsel']",
-        "['aksept', 'trekk', 'ingen_krav', 'varsel', 'begrunnelse']",
-      ],
-    ],
-    mal: ['godtas når kravene er avgjort, mens en revisjon avvises', 'F-MM-BG2'],
   },
   {
     id: 'F173',
@@ -2632,6 +2559,33 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'fristkravet har datoen for varselet og brevet med det',
       'samme vedlegg to ganger i varselet',
+    ],
+  },
+  {
+    id: 'F301',
+    feilklasse: 'protesten godtas i første versjon (OV-U7)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["    case 'avklare':\n    case 'protest':\n", "    case 'avklare':\n"]],
+    mal: [
+      'protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, og ingen hendelse skrives',
+    ],
+  },
+  {
+    id: 'F302',
+    feilklasse: 'påberopt passivitet godtas i første versjon (OV-U7)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["    case 'protest':\n    case 'passivitet':\n", "    case 'protest':\n"]],
+    mal: [
+      'protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, og ingen hendelse skrives',
+    ],
+  },
+  {
+    id: 'F303',
+    feilklasse: 'den senere begrunnelsen godtas i første versjon (OV-U7)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["    case 'passivitet':\n    case 'begrunne':\n", "    case 'passivitet':\n"]],
+    mal: [
+      'protest, påberopt passivitet og senere begrunnelse avvises fra begge parter, og ingen hendelse skrives',
     ],
   },
 ];

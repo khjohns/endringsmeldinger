@@ -962,6 +962,13 @@
       "merknad": "Et «i tide» etter § 32.2 fra byggherren på en ny grunnlagsversjon gir opp en innsigelse mot en tidligere versjon. Varselet etter § 32.2 er det samme varselet i begge versjonene. Presiserer VS-U24 og HF-U4."
     },
     {
+      "id": "AV-587",
+      "type": "arbeidsvalg",
+      "issue": 587,
+      "dato": "2026-10-16",
+      "merknad": "Oppdragsgivers svar 16.10 på #587 («Ja, som foreslått»), punkt 2: utsagn uten virkning på utfallet (bestridelse, protest mot en innsigelse, påberopt passivitet, senere begrunnelse) tas ut av det appen kan skrive; finnes de, vises de ved siden av, som innsigelsen. Bevis-sakene som bygger på disse utsagnene, settes til side til utsagnene bygges. Presiserer OV-U7."
+    },
+    {
       "id": "GR-U14",
       "type": "vedtak",
       "dato": "2026-10-11",
@@ -1443,7 +1450,10 @@
       "kilder": [
         "KA-U8"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "regelkoder": [
+        "UGYLDIG_FORM"
+      ]
     },
     {
       "id": "KA-29",
@@ -2855,8 +2865,8 @@
     },
     {
       "id": "VS-01",
-      "tilfelle": "En part gjør innsigelse etter § 5 mot motpartens varsel, krav eller svar, og motparten protesterer.",
-      "forventet": "Innsigelsen og protesten registreres og vises uten virkning på utfallet, og innsigelsen sperrer ikke svaret. Den kan gjelde et krav eller varsel fra TE og et svar fra byggherren, også et element uten virkning. En innsigelse mot egne utsagn og en protest mot egen innsigelse avvises, og en lagret rad med en slik er ikke forstått, også når målet er uten virkning. En protest kan gjelde innsigelsen, påberopelsen i et svar eller et dokument, og da gjelder den alle innsigelsene i det.",
+      "tilfelle": "En part gjør innsigelse etter § 5 mot motpartens varsel, krav eller svar.",
+      "forventet": "Innsigelsen registreres og vises uten virkning på utfallet, og innsigelsen sperrer ikke svaret. Den kan gjelde et krav eller varsel fra TE og et svar fra byggherren, også et element uten virkning. En innsigelse mot egne utsagn avvises, og en lagret rad med en slik er ikke forstått, også når målet er uten virkning. Protesten bygges ikke i første versjon (OV-U7), og kommandoen for den avvises. En lagret protest leses: en protest mot egen innsigelse er ikke forstått, og en protest kan gjelde innsigelsen, påberopelsen i et svar eller et dokument, og da gjelder den alle innsigelsene i det.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Appen avgjør ikke om innsigelsen kom i tide.",
       "rettidighet": "—",
@@ -2865,7 +2875,8 @@
         "VS-U1",
         "VS-U9",
         "VS-U14",
-        "MP-U6"
+        "MP-U6",
+        "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2874,8 +2885,7 @@
         "kjerne/kommandoer/forutsetninger.ts#henvisning"
       ],
       "regelkoder": [
-        "UGYLDIG_INNSIGELSE",
-        "INGEN_INNSIGELSE"
+        "UGYLDIG_INNSIGELSE"
       ]
     },
     {
@@ -2937,18 +2947,11 @@
       "tidsakse": "registrering",
       "kilder": [
         "VS-U12",
-        "GR-U11"
+        "GR-U11",
+        "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll",
-        "kjerne/frosset/standpunkt.ts#gjelderVarslingsplikten",
-        "kjerne/kommandoer/forutsetninger.ts#henvisning"
-      ],
-      "regelkoder": [
-        "VARSLINGSPLIKT_GJELDER_IKKE",
-        "INGEN_VARSEL_ETTER_32_2"
-      ]
+      "utsatt": "OV-U7"
     },
     {
       "id": "VS-05",
@@ -3013,19 +3016,11 @@
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "KA-U34"
+        "KA-U34",
+        "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#henvisning",
-        "kjerne/kommandoer/nyttelast.ts#begrunnelsensTekst",
-        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
-      ],
-      "regelkoder": [
-        "FEIL_PART",
-        "INGEN_SVAR_AA_BEGRUNNE",
-        "BEGRUNNELSE_MANGLER"
-      ]
+      "utsatt": "OV-U7"
     },
     {
       "id": "KA-43",
@@ -3037,15 +3032,12 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U35",
-        "MM-U17"
+        "MM-U17",
+        "OV-U7",
+        "AV-587"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/kommando.ts#formfeil"
-      ],
-      "regelkoder": [
-        "UGYLDIG_FORM"
-      ]
+      "utsatt": "OV-U7"
     },
     {
       "id": "KA-44",
@@ -3057,16 +3049,11 @@
       "tidsakse": "registrering",
       "kilder": [
         "KA-U34",
-        "KA-U11"
+        "KA-U11",
+        "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
-        "kjerne/utledning/utled.ts#kraveneErAvgjort"
-      ],
-      "regelkoder": [
-        "KRAVENE_AVGJORT"
-      ]
+      "utsatt": "OV-U7"
     },
     {
       "id": "KA-45",
@@ -3224,11 +3211,14 @@
     "BREVTEKST_MANGLER": "Avvisningen av en kommando uten den låste teksten avsenderen har sett (LV-U2). Ingen rad sier den; bevis-saken `F-MM-LV-U2-uten-tekst` står ved KA-51, som har LV-U2 som kilde, og prøver den med opsjonen `brevtekst: false` i kjøreren (#877). Den prøves også i `kjerne/tester/brevtekst.test.ts` og `kjerne/tester/opprettelse.test.ts`.",
     "FEIL_KRAVREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "FEIL_SVARREFERANSE": "Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
-    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen.",
+    "IKKE_I_FOERSTE_VERSJON": "Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev, protest, påberopt passivitet og senere begrunnelse (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. F-MM-V1 prøver at protesten avvises.",
     "INGEN_KRAV": "Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "INGEN_SVAR": "Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`.",
     "TEKST_KAN_IKKE_LAGRES": "Formkontroll av teksten i kommandoen (#373), ikke en regel i domenet.",
     "VURDERING_UTENFOR_KJERNEN": "Avvisningen av en vurdering kjernen ennå ikke kan lagre (`utenforOmfanget`). Raden VS-03 viste til den til sperren etter en innsigelse mot vederlagskravet ble fjernet (VS-U24, #517); ingen rad sier avvisningen nå.",
-    "VEDLEGG_MANGLER": "Kontrollen av kommandoen: et fristkrav som registrerer varselet etter § 33.4, må ha brevet med varselet som vedlegg (OV-U5; at vedlegget bare kreves første gang, er arbeidsvalget i #909). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`."
+    "VEDLEGG_MANGLER": "Kontrollen av kommandoen: et fristkrav som registrerer varselet etter § 33.4, må ha brevet med varselet som vedlegg (OV-U5; at vedlegget bare kreves første gang, er arbeidsvalget i #909). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "FEIL_PART": "Kontrollen av kommandoen: en handling som bare én part kan gjøre, avvises for den andre, og bare TE kan opprette saken (#664). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/opprettelse.test.ts`.",
+    "BEGRUNNELSE_MANGLER": "Kontrollen av teksten i svaret og fristkravet (KA-U24, KA-U31, KA-U33). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "VARSLINGSPLIKT_GJELDER_IKKE": "Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges."
   }
 }
