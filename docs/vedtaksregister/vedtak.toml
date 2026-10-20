@@ -7693,6 +7693,37 @@ tekst = '''
 Alle aktive medlemmer av Catenda-prosjektet kan lese sakene og brevene, men ikke vedleggene, som i dag. Hvem som er med i Catenda-prosjektet, styres i Catenda. B-02 og vedtaket 18.09 står.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "DL-U16"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1057"]
+sporsmal = '''
+Skal det gå an å rulle tilbake til forrige utgivelse uten å gjenopprette databasen, også når den nye utgivelsen hadde en migrasjon? I dag nekter en eldre server å starte når basen har en migrasjon den ikke kjenner (server/migrering.ts `vurder`, stoppet i server/start.ts). Da er gjenoppretting fra sikkerhetskopi eneste vei tilbake, og hendelser skrevet etter utrullingen går tapt. Tre eksisterende migrasjoner fjerner eller endrer noe en eldre server bruker (hierarki_kjede, vedleggslevering, levering). B-10 holder versjonene for sak, format og regler atskilt, men utrulling mellom TS-versjoner står åpen (#316). Valget styrer hvordan migrasjoner skrives fra første ekte sak, og hva oppstarten og CI kontrollerer.'''
+valgt = "To trinn for skjemaet"
+svar = '''
+«To trinn for skjemaet (Recommended)»'''
+folge = '''
+Ikke bygget (#1057).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "To trinn for skjemaet"
+tekst = '''
+Fra første ekte sak legger en migrasjon bare til. Det som fjernes eller endres, fjernes først i utgivelsen etter. Forrige utgivelse kan derfor starte mot en base som er ett trinn nyere, og en tilbakerulling taper ingen hendelser. CI kontrollerer regelen. De eksisterende migrasjonene berøres ikke.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare framover"
+tekst = '''
+Dagens atferd beholdes og dokumenteres. En feil i en utgivelse rettes med en ny utgivelse. Tilbakerulling krever gjenoppretting av basen, og hendelser skrevet etter utrullingen kan gå tapt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nedgraderingsfiler"
+tekst = '''
+Hver migrasjon får en fil som reverserer den. Det er dyrt, kan miste data og passer dårlig med en journal som bare legges til.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Premissene P1–P7"
 

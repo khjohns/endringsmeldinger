@@ -2,12 +2,37 @@
   /**
    * Historikken for en TS-sak i Kontrollrommet (#665, #718): merknadene fra
    * `visning` (blant dem «kan ikke utledes», MM-U2) og journalen med den låste
-   * brevteksten og leveringsoppdragene (LV-U2).
+   * brevteksten og leveringsoppdragene (LV-U2). Et sendt brev med dokument fra appen
+   * kan lastes ned som PDF (#1054); sak og prosjekt er de i ruta (#743).
    */
+  import { Download } from 'lucide-svelte';
+  import { page } from '$app/state';
+  import type { Leveringsoppdrag } from '$lib/api/kjerne';
+  import { lastNedBrevPdf } from '$lib/kjernesak/brevpdf';
   import { formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
   import { leveringstekst, type Saksbilde } from '$lib/kjernesak/saksbilde';
 
   let { bilde }: { bilde: Saksbilde } = $props();
+
+  let lasterNed = $state<string | null>(null);
+  let feil = $state<{ oppdrag: string; melding: string } | null>(null);
+
+  async function lastNed(o: Leveringsoppdrag) {
+    lasterNed = o.id;
+    feil = null;
+    try {
+      await lastNedBrevPdf(
+        page.params.sakId!,
+        o.event_id,
+        page.params.prosjektId!,
+        o.filnavn ?? `${o.dokumentnoekkel}.pdf`
+      );
+    } catch (e) {
+      feil = { oppdrag: o.id, melding: e instanceof Error ? e.message : 'Nedlasting feilet.' };
+    } finally {
+      lasterNed = null;
+    }
+  }
 </script>
 
 <section class="kjernejournal" aria-label="Journal">
@@ -40,6 +65,15 @@
           <p class="dempet">
             Leveringsoppdrag {leveringstekst(o)}
           </p>
+          {#if o.filnavn !== null}
+            <button
+              class="btn btn-secondary"
+              onclick={() => lastNed(o)}
+              disabled={lasterNed !== null}
+              ><Download size={14} />{lasterNed === o.id ? 'Laster ned …' : 'Last ned PDF'}</button
+            >
+            {#if feil?.oppdrag === o.id}<p role="alert">{feil.melding}</p>{/if}
+          {/if}
         {/each}
       </li>
     {/each}

@@ -129,14 +129,23 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('stoppen (#813 punkt 3)', () => {
   }, 240_000);
   afterAll(() => slettAlle(kjoeretid, base));
 
-  async function startServer(): Promise<Prosess & { port: number }> {
+  async function startServer(
+    tillegg: Record<string, string> = {},
+    adresse = '127.0.0.1'
+  ): Promise<Prosess & { port: number }> {
     const p = start(
       join(ROT, 'server', 'start.ts'),
-      rentMiljoe({ KOE_DATALAG_TILKOBLING: kjoeretid!.tilkobling, APP_ENV: 'development' })
+      rentMiljoe({
+        KOE_DATALAG_TILKOBLING: kjoeretid!.tilkobling,
+        APP_ENV: 'development',
+        ...tillegg,
+      })
     );
     const port = await new Promise<number>((klar, feil) => {
       const se = () => {
-        const treff = p.utdata().match(/lytter på http:\/\/127\.0\.0\.1:(\d+)/);
+        const treff = p
+          .utdata()
+          .match(new RegExp(`lytter på http://${adresse.replaceAll('.', '\\.')}:(\\d+)`));
         if (treff) klar(Number(treff[1]));
       };
       p.barn.stdout!.on('data', se);
@@ -149,6 +158,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('stoppen (#813 punkt 3)', () => {
 
   it('ett SIGTERM uten åpne forespørsler stopper prosessen av seg selv', async () => {
     const p = await startServer();
+    p.barn.kill('SIGTERM');
+    expect(await innen(p.avsluttet, 10_000)).toEqual({ kode: 0, signal: null });
+  }, 30_000);
+
+  it('med KOE_LYTTEADRESSE=0.0.0.0 lytter serveren på alle grensesnitt, svarer 401 uten sesjon og stopper på SIGTERM', async () => {
+    const p = await startServer({ KOE_LYTTEADRESSE: '0.0.0.0' }, '0.0.0.0');
+    const svar = await fetch(`http://127.0.0.1:${p.port}/api/auth/session`);
+    expect(svar.status).toBe(401);
     p.barn.kill('SIGTERM');
     expect(await innen(p.avsluttet, 10_000)).toEqual({ kode: 0, signal: null });
   }, 30_000);
