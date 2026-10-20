@@ -24,7 +24,6 @@
     createSubmission,
     createFormDraft,
     submissionRefs,
-    requireEventId,
   } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission(() => draft.clear());
 
@@ -66,7 +65,7 @@
   let charCount = $state(0);
   let bhContextExpanded = $state(false);
   const draft = createFormDraft(
-    !store.isDemo && !kjernesak,
+    false,
     {
       sakId: store.sak.sak_id,
       spor: 'grunnlag',
@@ -106,24 +105,11 @@
                   begrunnelseHtml,
                   grunnlag: store.sak.grunnlag,
                 }),
-                () => {
-                  if (store.isDemo) store.sendTeGrunnlag(begrunnelseHtml);
-                }
+                (demo) => demo.sendTeGrunnlag(begrunnelseHtml)
               );
               return;
             }
-            if (store.isDemo) store.sendTeGrunnlag(begrunnelseHtml);
-            else
-              await store.submit(
-                'grunnlag_oppdatert',
-                buildTeRevisionEventData({
-                  originalEventId: requireEventId(
-                    submissionRefs(store.timeline, 'grunnlag').claimId
-                  ),
-                  begrunnelseHtml,
-                  grunnlag: store.sak.grunnlag,
-                })
-              );
+            throw new Error('Skjemaet har ingen brevkontroll, så kravet kan ikke sendes.');
           }, onsend);
       },
     });
@@ -141,7 +127,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo && !kjernesak}
+      visVedlegg={false}
       bind:vedleggIds
       bind:vedleggOpptatt
     />
