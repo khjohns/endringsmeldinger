@@ -396,11 +396,8 @@ export interface Kontraktstilgang {
   teamId: string | null;
 }
 
-/**
- * Siden og teamet med samme oppslag som `krevKontraktsrolle`, eller `null` uten
- * entydig side. For lesing, som ikke krever kontraktsrolle (#705).
- */
-export async function lesKontraktsside(
+/** Siden og teamet, eller `null` uten entydig side. Oppslaget som feiler, gir 503. */
+async function lesKontraktsside(
   db: Pool,
   catenda: Catenda,
   tilgang: Prosjekttilgang
@@ -425,6 +422,19 @@ export async function krevKontraktsrolle(
     throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', 'Du har ikke nødvendig TE/BH-teamtilknytning.');
   }
   return side;
+}
+
+/**
+ * Lesing av saker og brev (DL-U15): et medlem med leserolle leser uten side (`null`),
+ * ellers kreves siden som for `krevKontraktsrolle`.
+ */
+export async function krevLesing(
+  db: Pool,
+  catenda: Catenda,
+  tilgang: Prosjekttilgang
+): Promise<Kontraktstilgang | null> {
+  if (tilgang.medlemskap.leserolle) return null;
+  return krevKontraktsrolle(db, catenda, tilgang);
 }
 
 /** Medlemslisten fra Catenda slik kalleren alt har hentet den, med `hentet` fra `basensKlokke()` lest før hentingen. */
