@@ -5250,6 +5250,75 @@ tekst = "LV-U2: i et brev appen sender, godkjenner avsenderen brevteksten appen 
 kilde = "hovedplanen"
 tekst = "GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt: endringsordren «skal være skriftlig og gi beskjed om at det kreves en endring, samt hva endringen går ut på», og den «må være gitt av byggherrens representant, jf. punkt 9, eller av en person med skriftlig fullmakt til å utstede slike»."
 
+[[gruppe.vedtak]]
+id = "LV-U16"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1030"]
+sporsmal = '''
+Et brev er sendt når det er lagret, og appen regner bindingen og akseptfristen fra sendingen, uten å avgjøre når brevet er kommet fram (LV-U7). Leveringen til Catenda kan stanse fordi utfallet er usikkert eller Catenda avviser den. Usikkert utfall skal parkeres og varsles (invariant 7), men varslingen er ikke bygget, og den som leser saken, ser i dag «ikke levert ennå», som for en levering som er underveis. Leveringene i en sak venter ikke på hverandre utover ventingen på topicen (LV-U9), så et senere brev kan ligge i Catenda før et tidligere. Om å holde igjen handlinger har oppdragsgiver tidligere lagt vekt på at en tapt frist ikke kan repareres (merknaden til B-04, punkt 4). Hva skal gjelde når en levering stanser? Anbefaling: A.'''
+valgt = "Vises, med veiledning"
+svar = '''
+«A. Vises, med veiledning (anbefalt)»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u7" }]
+folge = '''
+Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Vises, med veiledning"
+tekst = '''
+Når leveringen av et brev til Catenda er stanset fordi utfallet er usikkert eller Catenda har avvist den, ser den som leser saken, at leveringen er stanset, og drift varsles. Er brevet et varsel med frist, sier visningen at varselet bør sendes utenfor appen og registreres, uten at noe sperres. Appen avgjør ikke hva stansen betyr for når brevet er kommet fram (LV-U7). Leveringene i en sak venter ikke på hverandre utover ventingen på topicen (LV-U9), så et brev kan ligge i Catenda før et brev som ble sendt tidligere, og hvert brev viser når det ble sendt. Presiserer LV-U7 og invariant 7.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Vises, uten veiledning"
+tekst = '''
+Som A, men uten veiledningen om å sende varselet utenfor appen. Presiserer LV-U7 og invariant 7.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "I rekkefølge"
+tekst = '''
+Som B, men et brev leveres ikke til Catenda før de tidligere brevene i saken er levert. Et stanset brev holder igjen de senere til drift har løst det, også et varsel med frist. Bindingen og fristene regnes fortsatt fra sendingen (LV-U7). Utvider LV-U9.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen nye brev"
+tekst = '''
+Som B, men så lenge en levering i saken er stanset, godtar appen ingen nye brev fra avsenderen i saken. Registrering etter OV-U4 godtas fortsatt. En ny sperre; utvider MM-U2 til en feil i leveringen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U17"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1030"]
+sporsmal = '''
+Brevene, teksten og PDF-ene bevares i appens egen base, men vedleggene bare i Catenda: når Catenda har kvittert, sletter appen filen og beholder hash og frosset grunnlag, og brevet viser ID, filnavn og hash (P4, LV-U12, LV-U14). LV-U12 forkastet 18.10 å beholde filen til bevaringstiden er avgjort i B-05. Etter invariant 10 og AF-04 er hash alene ikke bevis, og etter akseptkriteriet i F4 skal en sak kunne legges fram uten at appen kjører. Hva Catenda garanterer av bevaring, er ikke kontrollert. Sparringen mener en sak må kunne leses uten appen og Catenda, med vedleggene. Hva skal eksporten av en sak omfatte? Anbefaling: A.'''
+valgt = "Vedleggene med"
+svar = '''
+«A. Vedleggene med (anbefalt)»'''
+folge = '''
+Ikke bygget.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Vedleggene med"
+tekst = '''
+Eksporten av en sak (F4) omfatter vedleggene, ikke bare hashen. B-05 avgjør hvor de bevares fram til eksporten, og til da gjelder LV-U12. Presiserer AF-04 og invariant 10.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Egen kopi nå"
+tekst = '''
+Appen beholder en uforanderlig kopi av hvert vedlegg i egen lagring også etter at Catenda har kvittert, til bevaringstiden er avgjort i B-05. Endrer LV-U12 ved å godta det LV-U12 forkastet, og presiserer P4.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Henvisning i eksporten"
+tekst = '''
+Eksporten viser til vedleggene i Catenda med ID, filnavn og hash, uten filene. P4 og LV-U12 står.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -6147,6 +6216,35 @@ forkastet = true
 navn = "Venter på TE"
 tekst = '''
 Topicen holdes i innboksen til TE tar den over i appen og oppretter saken.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "KT-U8"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1030"]
+sporsmal = '''
+Appen fører én journal per endringssak. Sparringen peker på meddelelser som gjelder hele kontrakten: sluttoppstillingen og innsigelsene mot den (§ 39), overtakelsen som fristen i § 35.2 regnes fra, og tvisteløsningsskritt. Ingen vedtak gjelder § 39; VS-U9 nevner unntaket for sluttoppgjøret i § 5 tredje ledd. VS-U3 viser fristen i § 35.2 uten dato. Skal målbildet dekke det som gjelder hele kontrakten? Anbefaling: A.'''
+valgt = "Utenfor appen"
+svar = '''
+«A. Utenfor appen (anbefalt)»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Utenfor appen"
+tekst = '''
+Appen dekker endringssakene. Sluttoppgjøret, overtakelsen og tvisteløsningen føres utenfor appen, og fristen i § 35.2 vises uten dato. I tråd med VS-U3 og VS-U9.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Overtakelsen registreres"
+tekst = '''
+En part kan registrere overtakelsen én gang for kontrakten, og den vises ved § 35.2 som dokumentasjon, uten dato for fristen og uten at appen utleder noe av den. Sluttoppgjøret og tvisteløsningen føres utenfor appen. Presiserer VS-U3.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hele kontrakten i målbildet"
+tekst = '''
+Målbildet dekker meddelelser for hele kontrakten: en part kan registrere overtakelsen, og sluttoppstillingen og innsigelsene mot den viser til kravene i sakene de gjelder. Fristen i § 35.2 vises fortsatt uten dato. Det bygges ikke i første versjon, og formen avgjøres sammen med B-01. Utvider målbildet; presiserer VS-U3.'''
 forkastet = true
 
 [[gruppe]]
