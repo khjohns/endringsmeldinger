@@ -7642,6 +7642,57 @@ navn = "Ingen endring etter første sak"
 tekst = '''
 Teamene ligger fast når første sak er opprettet.'''
 
+[[gruppe.vedtak]]
+id = "DL-U14"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1056"]
+sporsmal = '''
+Et prosjekt i appen er koblet til ett Catenda-prosjekt. Drift registrerer hvilke Catenda-team som er TE og hvilke som er BH (B-02 punkt 4), og en side kan ha flere team, for eksempel totalentreprenøren og rådgiverne hens. Ingen vedtak sier om ett prosjekt kan omfatte mer enn én entreprisekontrakt. Har byggherren to kontrakter med hver sin totalentreprenør i samme Catenda-prosjekt, og begge registreres som TE, kan hver av dem i dag lese den andres saker, krav og beløp, og sende brev i dem. Kan ett prosjekt i appen omfatte mer enn én entreprisekontrakt? Anbefaling: A.'''
+valgt = "Én kontrakt per prosjekt"
+svar = '''
+«A. Én kontrakt per prosjekt (anbefalt)»'''
+folge = '''
+Ikke bygget (#1056).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Én kontrakt per prosjekt"
+tekst = '''
+Et prosjekt i appen gjelder én entreprisekontrakt mellom byggherren og én totalentreprenør. Teamene som drift registrerer for TE, hører alle til denne totalentreprenøren, og drift bekrefter det når teamene registreres. Har et Catenda-prosjekt flere entreprisekontrakter, kan appen brukes for bare én av dem. Presiserer B-02 punkt 4. DL-U13 står: et team som er registrert feil, kan ikke fjernes eller flyttes når prosjektet har saker.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Flere kontrakter, skjermet"
+tekst = '''
+Et prosjekt kan omfatte flere entreprisekontrakter. Hver sak hører til én kontrakt, og bare partene i den kontrakten kan lese og sende brev i saken. Kontrakten blir et eget begrep i appen og bygges før første ekte sak. Drift registrerer kontraktene og teamene for hver kontrakt. Endrer B-02 for lesing av saker og brev, og utvider B-02 punkt 4. Gjelder lesing i appen; i Catenda styrer mappen (LV-U13).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "DL-U15"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1056"]
+sporsmal = '''
+I dag kan alle aktive medlemmer av Catenda-prosjektet lese sakene og brevene i appen, men ikke vedleggene, også de som ikke er med i et team for TE eller BH, for eksempel andre entreprenører eller rådgivere i samme Catenda-prosjekt. Å sende brev og lese vedlegg krever at man er med i et team for TE eller BH. At alle medlemmer leser, følger B-02 (alternativ C, 23.09). Brevene i en endringssak går mellom kontraktspartene og kan ha priser og forretningsforhold. Velges B i spørsmål 1, gjelder svaret lesing innen kontrakten. Hvem skal kunne lese sakene? Anbefaling: A.'''
+valgt = "Bare kontraktspartene"
+svar = '''
+«A. Bare kontraktspartene (anbefalt)»'''
+forhold = [{ art = "presiserer", vedtak = "dl-u11" }, { art = "presiserer", vedtak = "dl-u12" }]
+folge = '''
+Ikke bygget (#1056).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare kontraktspartene"
+tekst = '''
+Sakene og brevene kan leses i appen av dem som er med i et team som drift har registrert for TE eller BH i prosjektet, og av medlemmer som har fått leserolle i appen. Godkjennere leser etter GFK-U9. Andre medlemmer av Catenda-prosjektet ser ikke sakene i appen. I Catenda styrer mappen hvem som leser brevene (LV-U13). Kan appen ikke bekrefte teamet, vises ingenting. Ved utdatert medlemsliste gjelder B-04. Endrer B-02 for lesing av saker og brev, utvider vedtaket 18.09 om vedlegg til saker og brev, endrer DB-05 ved at leserollen gir lesing uten team, og presiserer DL-U11 og DL-U12.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alle i Catenda-prosjektet"
+tekst = '''
+Alle aktive medlemmer av Catenda-prosjektet kan lese sakene og brevene, men ikke vedleggene, som i dag. Hvem som er med i Catenda-prosjektet, styres i Catenda. B-02 og vedtaket 18.09 står.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Premissene P1–P7"
 
