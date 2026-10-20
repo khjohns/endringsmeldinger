@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `b20605e55385ef4ecb287ca65ccf39343f79b64022a7368bc677f96eba52775a`
+Kontrollsum (SHA-256 over utdraget visningen leser): `bfc53f461be666f3a1bcd91cfed1528ed4301368b4ac61705ad0b7c63873c9c7`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -507,7 +507,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 > GFK-U14: GFK-U2 slår inn når driften ikke har registrert noen roller. Ellers gjelder GFK-U10 for en kjede som mangler.
 
-**Forkastet:** «Driften slår godkjenningen på for hvert prosjekt.»; «Bare GFK-U10 gjelder.»
+**Forkastet:** «Driften slår godkjenningen på for hvert prosjekt.»; «GFK-U2 faller bort, og bare GFK-U10 gjelder.»
 
 **Vedtatt:** 20.10, oppdragsgiver (#831)
 
