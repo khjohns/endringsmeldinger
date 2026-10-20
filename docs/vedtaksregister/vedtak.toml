@@ -170,7 +170,7 @@ den er byggherrens svar på grunnlaget, er avgjort 10.10 av [EO-U6](#eo-u6). Mer
 11.10 (oppdragsgiver): «på samme måte som et trekk» gjelder at sporet lukkes
 ([KA-U11](#ka-u11), [EO-U5](#eo-u5)). Hvor langt avkallet rekker, står i
 [KA-U17](#ka-u17) og [KA-U25](#ka-u25) for «ingen krav» og i [KA-U14](#ka-u14) og
-[KA-U22](#ka-u22) for et trekk. Bygges ikke i første versjon (OV-U7).'''
+[KA-U22](#ka-u22) for et trekk. Bygges ikke i første versjon (OV-U7). Kontrollert 20.10 (#417): kjernen har kommandoen «ingen krav» med sperrene etter KA-U15, og utledningen og brevteksten leser den (`forutsetninger` i `kjerne/kommandoer/forutsetninger.ts`, `kjerne/utledning/utled.ts`, `kjerne/frosset/brevtekst.ts`), med test i `kjerne/tester/kjerne.test.ts` og bevis-sakene F-MM-IK1–IK6. Grensesnittet tilbyr ikke kommandoen. Avvisningen etter OV-U7 er ikke bygget, som Følge hos [OV-U7](#ov-u7) sier.'''
 
 [[gruppe.vedtak]]
 anker = "ka-u15"
@@ -244,7 +244,7 @@ byggedel 3. Sperren bygges før trekk tas i bruk (#310). Om enigheten gir bygghe
 rettighet som trekket ikke rører, avklares i byggedel 3. Presisert 11.10 av
 [KA-U25](#ka-u25) for «ingen krav» i vederlagssporet. Presisert 11.10 av
 [KA-U27](#ka-u27). Presisert 11.10 av [LV-U4](#lv-u4), punkt 13: kravversjonen i trekket
-og «<tittel>». Ikke bygget. Den faste teksten hører til #309. Teksten for «ingen krav» bygges ikke i første versjon (OV-U7). Endret 16.10 i PR #588 (#587): sperren mot trekket etter en merking av et registrert brev er tatt ut (OV-U4, OV-U7). Sperren for et avtalt fradrag bygges med fradraget (KA-U9).'''
+og «<tittel>». Ikke bygget. Den faste teksten hører til #309. Teksten for «ingen krav» bygges ikke i første versjon (OV-U7). Endret 16.10 i PR #588 (#587): sperren mot trekket etter en merking av et registrert brev er tatt ut (OV-U4, OV-U7). Sperren for et avtalt fradrag bygges med fradraget (KA-U9). Delvis bygget, kontrollert 20.10 (#417): de faste tekstene for trekk og «ingen krav» står ordrett i `kjerne/frosset/brevtekst.ts`, og trekket har ingen fritekst (`trekk` i `src/lib/kjernesak/kravkontroll.svelte.ts`), med test i `kjerne/tester/brevtekst.test.ts` («de faste tekstene står ordrett») og `src/lib/components/kjernesak/__tests__/TeSkjema.test.ts`. Sperren for et avtalt fradrag er ikke bygget; til fradraget (KA-U9) bygges, avviser formatet negative beløp (`kjerne/tester/byggedel1.test.ts`).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u23"
@@ -431,7 +431,7 @@ kategorier. Presiserer [VS-U5](#vs-u5): kravet om å begrunne avgrensningen ette
 At teksten lagres, følger B-13 om begrunnelsestekst (T-a). Snevret inn 11.10 av
 [KA-U31](#ka-u31): en felles begrunnelse dekker standpunktene i samme svar. Presisert
 11.10 av [KA-U32](#ka-u32) for frafall. Ikke bygget. Kravet til brevet hører til #309,
-skjemaet til #313'''
+skjemaet til #313 Delvis bygget, kontrollert 20.10 (#417): et svar fra appen med en avgrensning uten begrunnelse avvises med BEGRUNNELSE_MANGLER, også når kravet godkjennes subsidiært (`avgrensninger` og `kontrollerSvar` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts` og feilinnføringer i `kjerne/tester/feilinnfoering.ts`. Ikke bygget: avgrensningen etter § 34.1.3, fordi særskilte krav ennå ikke er i kjernen, og skjemaet (#313).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u31"
@@ -447,7 +447,7 @@ Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V1). 
 [KA-U24](#ka-u24), som tillot begge: «En felles begrunnelse kan dekke flere
 standpunkter» gjelder standpunktene i samme svar. I tråd med B-13 om begrunnelsestekst
 («Den låste delen og utdypningen lagres hver for seg i alle inngangene»). Ikke bygget
-(#369)'''
+(#369) Bygget i kjernen og brevteksten, kontrollert 20.10 (#417): begrunnelsen står per svar, og brevteksten setter den under svaret den gjelder, med den låste delen og utdypningen hver for seg (`kontrollerSvar` i `kjerne/kommandoer/nyttelast.ts`, `kjerne/frosset/brevtekst.ts`), med test i `kjerne/tester/brevtekst.test.ts`. Skjemaet er ikke bygget (#313).'''
 
 [[gruppe.vedtak]]
 anker = "ka-u32"
@@ -463,7 +463,7 @@ forhold = [{ art = "presiserer", vedtak = "ka-u24" }]
 folge = '''
 Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V2). Presiserer
 [KA-U24](#ka-u24) for frafall. Kontrollen bygges sammen med kravet etter KA-U24.
-Brevteksten for frafallet står i [LV-U4](#lv-u4), punkt 5. Ikke bygget (#369)'''
+Brevteksten for frafallet står i [LV-U4](#lv-u4), punkt 5. Ikke bygget (#369) Bygget i kjernen, kontrollert 20.10 (#417): frafall etter § 32.3 c krever begrunnelse (`avgrensninger` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts` og en feilinnføring i `kjerne/tester/feilinnfoering.ts`. Brevteksten for frafallet er ikke kontrollert. Skjemaet er ikke bygget (#313).'''
 
 [[gruppe.vedtak]]
 vedtak = '''
@@ -1177,7 +1177,7 @@ Utvider det som godtas etter [KA-U11](#ka-u11) og [MM-U7](#mm-u7) til et godtatt
 av grunnlaget ([GR-U7](#gr-u7), SK-01). Innsigelsen følger [VS-U9](#vs-u9) og
 [VS-U14](#vs-u14), passiviteten [VS-U12](#vs-u12). At innsigelse, protest og påberopt
 passivitet godtas når kravene er avgjort, er et arbeidsvalg etter KA-U11 og MM-U7
-(paragrafmatrisen). Ikke bygget. Delene om bestridelse, protest, påberopt passivitet og merking bygges ikke i første versjon (OV-U7).'''
+(paragrafmatrisen). Ikke bygget. Delene om bestridelse, protest, påberopt passivitet og merking bygges ikke i første versjon (OV-U7). Delvis bygget, kontrollert 20.10 (#417): etter et godtatt avslag av grunnlaget avvises de bindende handlingene med GRUNNLAG_AVVIST, og innsigelsen etter § 5 godtas (`forutsetninger` i `kjerne/kommandoer/forutsetninger.ts`, `grunnlagAvvist` i `kjerne/utledning/utled.ts`), med bevis-saken F-MM-A5a. Bestridelse og merking avvises med IKKE_I_FOERSTE_VERSJON. Protest og påberopt passivitet godtas fortsatt; avvisningen etter OV-U7 er ikke bygget, som Følge hos [OV-U7](#ov-u7) sier.'''
 
 [[gruppe.vedtak]]
 anker = "ka-u13"
@@ -1206,7 +1206,7 @@ GR-U13 og gjelder til det er avklart om brevet oppfyller § 31.3. Forskjellen fr
 underkategorien EO er begrunnet i hvordan appen håndterer trekket, ikke i at
 endringsordrene har ulik rettslig bindende kraft. Snevret inn 10.10 av [KA-U22](#ka-u22)
 til byggedel 3: trekket avvises når appen ikke kan bevare byggherrens avtalte
-rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7).'''
+rettigheter. Ikke bygget. Det vedtaket sier om «ingen krav», gjelder ikke i første versjon; et spor som ikke er sendt, følger OV-U3 (OV-U7). Bygget, kontrollert 20.10 (#417): trekket av grunnlaget avvises med GRUNNLAG_ER_ENDRINGSORDRE når byggherrens godkjenning, sendt fra appen, er en endringsordre (`trekkAvGrunnlagetErSperret` i `kjerne/utledning/utled.ts`), med bevis-sakene F-MM-G10 og F-MM-G13–G20 og feilinnføringene fra F23 i `kjerne/tester/feilinnfoering.ts`. Delen om «ingen krav» er utsatt etter OV-U7.'''
 
 [[gruppe.vedtak]]
 anker = "ka-u14"
@@ -1459,7 +1459,7 @@ beskrivelsen er det endringsordren i [GR-U14](#gr-u14) viser til som hva endring
 ut på (§ 31.3). Varselet etter § 32.2 står i TEs grunnlagskrav ([LV-U4](#lv-u4), punkt
 1). Et registrert varsel kan stå uten beskrivelse; det følger av alternativet selv («må
 varsle utenfor appen og registrere varselet»), og [GR-U14](#gr-u14) har ordlyden for et
-registrert krav. Ikke bygget'''
+registrert krav. Ikke bygget Bygget, kontrollert 20.10 (#417): et varsel fra TE etter § 32.2 uten beskrivelse, eller med bare mellomrom, avvises med BESKRIVELSE_MANGLER (`kravetsUtdypning` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts`, og TE-skjemaet sender beskrivelsen (`src/lib/kjernesak/grunnlagskrav.ts`). Unntaket for et registrert varsel er ikke kontrollert.'''
 
 [[gruppe.vedtak]]
 anker = "gr-u16"
@@ -1481,7 +1481,7 @@ oppdragsgivers svar 11.10 i oppfølgingen på #369 (spørsmål 2). Dato eller nu
 registratorens opplysning ([MM-U12](#mm-u12), som opplysningen om § 31.3 i
 [GR-U13](#gr-u13)), ikke brevets innhold, så [MM-U17](#mm-u17) og [KA-U16](#ka-u16)
 står. I tråd med [HF-U1](#hf-u1): et utsagn viser uttrykkelig til det det gjelder.
-Brevteksten gjengir opplysningen ([LV-U4](#lv-u4), punkt 1). Ikke bygget'''
+Brevteksten gjengir opplysningen ([LV-U4](#lv-u4), punkt 1). Ikke bygget Bygget, kontrollert 20.10 (#417): formkontrollen krever endringsordrens dato eller nummer i underkategorien endringsordre og avviser feltet i andre underkategorier (`kategorisperre` i `kjerne/kommandoer/nyttelast.ts`), et registrert krav uten feltet er ikke forstått, og brevteksten gjengir opplysningen (`kjerne/frosset/brevtekst.ts`), med test i `kjerne/tester/koder.test.ts`, `kjerne/tester/brevtekst.test.ts` og `src/lib/components/kontraktsbord/__tests__/NewCaseKjerne.test.ts`.'''
 
 [[gruppe.vedtak]]
 vedtak = '''
@@ -4061,7 +4061,7 @@ folge = '''
 Utvider [MM-U2](#mm-u2) og presiserer [HF-U1](#hf-u1): saken er heller ikke forstått når
 kjernen kan tolke hendelsen, men den strider mot vedtakene om enighet og lukking. Avgjør
 #326. Utvidet 11.10 av [MM-U19](#mm-u19) til andre registrerte brev. Presisert 12.10 av
-[MM-U20](#mm-u20): svar og aksept etter trekk. Ikke bygget (#309). Delvis bygget 18.10 i PR #796 (#770, #776 p1): et nytt regelsett gjør ikke en innsigelse som kommandoen godtok, uforstått, fordi om § 32.2 gjelder, leses av det frosne svaret som sa «i tide» etter § 32.2 på en versjon i samme kategori (`innsigelsenEtterITide`).'''
+[MM-U20](#mm-u20): svar og aksept etter trekk. Ikke bygget (#309). Delvis bygget 18.10 i PR #796 (#770, #776 p1): et nytt regelsett gjør ikke en innsigelse som kommandoen godtok, uforstått, fordi om § 32.2 gjelder, leses av det frosne svaret som sa «i tide» etter § 32.2 på en versjon i samme kategori (`innsigelsenEtterITide`). Bygget 11.10 i PR #394 (#326), kontrollert 20.10 (#417): en hendelse som strider mot vedtakene om enighet og lukking, gjør saken ikke forstått når den ikke er et registrert brev, og i et registrert brev får elementet ingen virkning (`strid` og `utled` i `kjerne/utledning/utled.ts`), med test i `kjerne/tester/byggedel1.test.ts` og `kjerne/tester/brevtekst.test.ts`.'''
 
 [[gruppe.vedtak]]
 anker = "mm-u19"
@@ -4087,7 +4087,7 @@ forhold = [
 folge = '''
 Utvider [MM-U18](#mm-u18) til andre registrerte brev i samme klasse. Presiserer
 [KA-U7](#ka-u7) og [KA-U11](#ka-u11): et registrert brev avvises ikke, men får ingen
-virkning. I tråd med [KA-U16](#ka-u16): brevet bevares og forkastes ikke. Ikke bygget'''
+virkning. I tråd med [KA-U16](#ka-u16): brevet bevares og forkastes ikke. Ikke bygget Bygget 11.10 i PR #394 (#326), kontrollert 20.10 (#417): elementet i et registrert brev som strider mot enigheten eller lukkingen, får ingen virkning (`utenVirkning`), og saken er forstått (`utled` i `kjerne/utledning/utled.ts`), med test i `kjerne/tester/brevtekst.test.ts`. Etter OV-U4 (PR #654) gjelder det elementene som ikke er dokumentasjon.'''
 
 [[gruppe.vedtak]]
 anker = "mm-u20"
@@ -4109,7 +4109,7 @@ etter trekk faller inn under vilkårene der, avgjøres etter MM-U19. Kjernen dek
 alternativet viser «som i dag» til atferden 12.10: raden leses uten virkning på
 utfallet, fordi sporet regnes som trukket. Om det samme gjelder et spor lukket med
 «ingen krav» ([KA-U12](#ka-u12)), er ikke spurt. Spørsmålet og svaret står på #405. Ikke
-bygget. Bygges med bevis-sak og feilinnføring i #405'''
+bygget. Bygges med bevis-sak og feilinnføring i #405 Bygget 12.10 i PR #421 (#405), kontrollert 20.10 (#417): et svar eller en aksept i et trukket spor gir strid etter MM-U18 (`strid` i `kjerne/utledning/utled.ts`), med bevis-sakene F-MM-U20a–d i `docs/domenetabell/bevis-saker-maalmodell.json` og feilinnføringer i `kjerne/tester/feilinnfoering.ts`.'''
 
 [[gruppe.vedtak]]
 anker = "hf-u1"
