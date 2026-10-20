@@ -303,7 +303,7 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.frist.svar_ikke_godtatt).toBe(false);
   });
 
-  it('#1050: et frafall står ikke som svar ikke godtatt, mens vederlag og frist venter på svar som før (GR-U9, arbeidsvalget 20.10)', () => {
+  it('#1050: et frafall står ikke som svar ikke godtatt, mens ubesvarte krav i vederlag og frist venter på svar (GR-U9, arbeidsvalget 20.10)', () => {
     const frafall: Steg = (sak) =>
       sak.send('BH', {
         type: 'brev',

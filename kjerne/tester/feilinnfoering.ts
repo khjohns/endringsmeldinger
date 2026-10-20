@@ -2726,6 +2726,14 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['    s.subsidiaer.length > 0 ||\n    (s.gjeldendeSvar', '    (s.gjeldendeSvar']],
     mal: ['SK-01: når TE godtar avslaget av grunnlaget i forløp A'],
   },
+  {
+    id: 'F316',
+    feilklasse:
+      'frafallet skjuler et svar TE ikke har godtatt i vederlag og frist (arbeidsvalget 20.10 i #1050)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["    !(spor === 'grunnlag' && u.frafalt)\n", '    !u.frafalt\n']],
+    mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
+  },
 ];
 
 interface Testresultat {

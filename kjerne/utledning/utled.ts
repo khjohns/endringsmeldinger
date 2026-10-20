@@ -1111,8 +1111,8 @@ export function venterPaaSvar(u: Utledning, spor: Spor): boolean {
 /**
  * MM-U29: byggherrens gjeldende svar i sporet står uten enighet, kravet er ikke trukket,
  * og sporet er ikke lukket, så TE kan fortsatt godta det. Et frafall av pålegget kan TE
- * ikke godta (GR-U9), så det står ikke som et svar som ikke er godtatt. I vederlag og
- * frist gjelder det som før (arbeidsvalget 20.10 i #1050).
+ * ikke godta (GR-U9), så det står ikke som et svar som ikke er godtatt. Unntaket gjelder
+ * bare grunnlaget (arbeidsvalget 20.10 i #1050).
  */
 export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
   const s = u.spor[spor];

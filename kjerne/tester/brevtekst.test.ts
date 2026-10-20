@@ -3975,8 +3975,8 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
  * MM-U29 med lukkingen i SK-01 og OV-U3 (#1050, #1067): et krav venter ikke på svar, og
  * et svar står ikke som ikke godtatt, når et svar eller en aksept i sporet ville blitt
  * avvist. Frafallet etter arbeidsvalget 20.10 i #1050: TE kan ikke godta et frafall
- * (GR-U9), og en ny grunnlagsversjon etter det venter på svar (GR-U23). Vederlag og
- * frist vises som før.
+ * (GR-U9), og en ny grunnlagsversjon etter det venter på svar (GR-U23). I vederlag og
+ * frist venter et ubesvart krav på svar, og et svar TE ikke har godtatt, står som det.
  */
 describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)', () => {
   type Sak = ReturnType<typeof sak>;
@@ -4023,7 +4023,7 @@ describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)
     expect(svarIkkeGodtatt(s.u(), 'vederlag')).toBe(false);
   });
 
-  it('GR-U9: et frafall står ikke som et svar TE ikke har godtatt, mens vederlag og frist venter på svar som før', () => {
+  it('GR-U9: et frafall står ikke som et svar TE ikke har godtatt, mens ubesvarte krav i vederlag og frist venter på svar (arbeidsvalget 20.10)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [utregnet(s, 'grunnlag', frafall)] });
     expect(s.u().frafalt, 'forutsetning: pålegget er frafalt').toBe(true);
