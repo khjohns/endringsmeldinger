@@ -2318,6 +2318,39 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
       '$.varsel.dokumentasjon: samme vedlegg står to ganger'
     );
   });
+
+  it('et vedlegg serveren ikke fant i saken, avvises, og ID-en lagres med små bokstaver (LV-U14, arbeidsvalg 3 i #790)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    const vedlegg = randomUUID();
+    const kommando = {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-09-28',
+      dokumentasjon: [vedlegg.toUpperCase()],
+    };
+    const kontekst = {
+      sakId: SAK,
+      aktoerId: 'te',
+      part: 'TE' as const,
+      teamId: null,
+      tidspunkt: () => new Date('2026-10-07T08:00:00Z'),
+      nyId: randomUUID,
+    };
+    const godtatt = vurder(
+      kommando,
+      kontekst,
+      s.journal,
+      KJERNE,
+      mellomlager({ dokumentasjon: [vedlegg] })
+    );
+    expect(godtatt.godtatt && godtatt.hendelser[0].data.dokumentasjon, 'kontrollsak').toEqual([
+      { vedlegg_id: vedlegg, filnavn: `${vedlegg}.pdf`, innhold_sha256: '0'.repeat(64) },
+    ]);
+    const u = vurder(kommando, kontekst, s.journal, KJERNE, new Map());
+    expect(u.godtatt ? null : u.avvisning.regel).toBe('VEDLEGG_FINNES_IKKE');
+  });
 });
 
 describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
