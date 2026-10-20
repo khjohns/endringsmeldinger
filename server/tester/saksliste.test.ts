@@ -1,17 +1,16 @@
 /**
  * Sakslisten i prosjektet (#1022), mot testbasen. Krever `KOE_SQLSERVER_TILKOBLING`.
  *
- * Kildene for forventningene: arbeidsvalget 20.10 i #375 («Som i dag, ny form»:
- * samme informasjon som dagens liste, status som etikett regnet ved lesing),
- * prosjektgrensen i sikkerhetsinvariantene i AGENTS.md, og dagens liste i
- * `list_cases` (`backend/routes/event_routes.py`) for hvilke opplysninger linja har.
- * At statusen er den samme som i visningen av saken, er kravet at den er kjernens
- * etikett og ikke en egen oppsummering.
+ * Kildene for forventningene: arbeidsvalget 20.10 i #375 («Som i dag, ny form»),
+ * arbeidsvalgene 20.10 i #1022 (leserens part fra serveren, summene i serveren),
+ * og prosjektgrensen i sikkerhetsinvariantene i AGENTS.md. Krav, svar og enighet per
+ * spor prøves i `sakslinje.test.ts`. At etikettene er de samme som i visningen av
+ * saken, er kravet at de er kjernens etiketter og ikke en egen oppsummering.
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { transaksjon } from '../datalag.ts';
-import type { Sakslinje } from '../saksliste.ts';
+import type { Noekkeltall, Sakslinje } from '../saksliste.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
   GRUNNLAGSKRAV,
@@ -44,14 +43,15 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
   let ikkeKjernen: string;
   let iAnnet: string;
 
-  const lista = async (leser: Testbruker = o.bh) => {
+  const svaret = async (leser: Testbruker = o.bh) => {
     const svar = await kall(server.url, `/api/projects/${o.prosjekt.id}/saker`, {
       bruker: leser,
       prosjektId: o.prosjekt.id,
     });
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
-    return svar.kropp.saker as Sakslinje[];
+    return svar.kropp as { part: unknown; saker: Sakslinje[]; noekkeltall: Noekkeltall };
   };
+  const lista = async (leser: Testbruker = o.bh) => (await svaret(leser)).saker;
 
   beforeAll(async () => {
     o = await lagOppsett();
@@ -83,10 +83,10 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
       sakstype: 'standard',
       sakstittel: 'Skiva',
       hovedkategori: 'endring',
-      krevd_beloep: 100000,
-      krevd_dager: 20,
-      godkjent_beloep: null,
-      godkjent_dager: null,
+      forstaatt: true,
+      saksbetegnelse: null,
+      vederlag: { krav: { beloep: 100000, metode: 'tilbud' }, svar: null, venter_paa_svar: true },
+      frist: { krav: { dager: 20 }, svar: null, venter_paa_svar: true },
     });
     expect(Date.parse(linje.siste_hendelse)).toBeGreaterThanOrEqual(Date.parse(linje.opprettet));
   });
@@ -94,25 +94,50 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
   it('en sak uten krav har ingen tall og ingen kategori', async () => {
     expect((await lista()).find((s) => s.sak_id === tom)).toMatchObject({
       hovedkategori: null,
-      krevd_beloep: null,
-      krevd_dager: null,
+      vederlag: { krav: null, venter_paa_svar: false },
+      frist: { krav: null, venter_paa_svar: false },
     });
+  });
+
+  it('nøkkeltallene regnes av linjene i serveren, og fristdagene summeres ikke', async () => {
+    expect((await svaret()).noekkeltall).toEqual({
+      saker: 2,
+      ikke_forstaatt: 0,
+      vederlag: {
+        krav_antall: 1,
+        krav_sum: 100000,
+        venter_paa_svar: 1,
+        svar_subsidiaert_sum: 0,
+        enighet_virksom_sum: 0,
+        enighet_betinget_sum: 0,
+        enighet_uten_beloep: 0,
+      },
+      frist: { krav_antall: 1, venter_paa_svar: 1 },
+    });
+  });
+
+  it.each([
+    ['BH', () => o.bh, 'BH'],
+    ['TE', () => o.te, 'TE'],
+    ['et medlem uten kontraktsside', () => o.utenTeam, null],
+  ])('svaret har leserens part fra serveren, for %s', async (_, leser, part) => {
+    expect((await svaret(leser())).part).toBe(part);
   });
 
   it.each([
     ['BH', () => o.bh],
     ['TE', () => o.te],
     ['et medlem uten kontraktsside', () => o.utenTeam],
-  ])('statusen er etiketten i visningen av saken, for %s', async (_, leser) => {
+  ])('etikettene per spor er etikettene i visningen av saken, for %s', async (_, leser) => {
     for (const sakId of [medKrav, tom]) {
       const vist = await kall(server.url, `/api/kjerne/saker/${sakId}`, {
         bruker: leser(),
         prosjektId: o.prosjekt.id,
       });
       const linje = (await lista(leser())).find((s) => s.sak_id === sakId)!;
-      const visning = vist.kropp.visning as { status: unknown; spor: unknown };
-      expect(linje.status).toEqual(visning.status);
-      expect(linje.spor).toEqual(visning.spor);
+      const visning = vist.kropp.visning as { spor: Record<string, { etiketter: string[] }> };
+      for (const spor of ['grunnlag', 'vederlag', 'frist'] as const)
+        expect(linje[spor].etiketter, spor).toEqual(visning.spor[spor]!.etiketter);
     }
   });
 
