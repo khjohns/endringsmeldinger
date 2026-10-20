@@ -60,7 +60,12 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
       grunnlag_varslet_i_tide: ready.data.grunnlag_varslet_i_tide as boolean | undefined,
     };
   });
-  const effectiveCase = $derived({ ...store.sak, grunnlag: effectiveGrunnlag });
+  // En spredning ville mistet getterne som kaster for en TS-sak (#732).
+  const effectiveCase = $derived(
+    effectiveGrunnlag === store.sak.grunnlag
+      ? store.sak
+      : { ...store.sak, grunnlag: effectiveGrunnlag }
+  );
   let editClaim: { track: SporType; id: string } | null = null;
   async function command(command: ApprovalCommand) {
     const previous = idle;
@@ -100,7 +105,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     get chain() {
       return chain;
     },
-    /** The handler's own identity and matrix role, when the server policy defines it */
+    /** The handler's own identity and matrix role in the demo; `null` outside it */
     get sender() {
       return sender;
     },
@@ -115,9 +120,6 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     },
     get busy() {
       return busy;
-    },
-    get loaded() {
-      return store.isDemo;
     },
     command,
     claimId,
