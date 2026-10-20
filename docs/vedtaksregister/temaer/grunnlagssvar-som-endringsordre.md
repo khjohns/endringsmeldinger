@@ -4,7 +4,7 @@
 
 **Avsnitt [3.1 i hovedplanen](../../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) er autoritativ.** Denne visningen er generert fra [vedtaksregisteret](../README.md) og er ikke et eget vedtaksgrunnlag. Den samler vedtakene ordrett, med forholdene mellom dem, og lager ingen sammenslått gjeldende ordlyd: hva som gjelder, leses av vedtakene sammen, etter forholdene.
 
-Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [LV-U15](#lv-u15), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13). Vedtak som temaet viser til, står som lenke til 3.1.
+Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13). Vedtak som temaet viser til, står som lenke til 3.1.
 
 ## Kildegrunnlaget
 
@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `6b2b1031d1877000d5fdc929dd51d735dd652913e2b7b3a8c358e252fc565edb`
+Kontrollsum (SHA-256 over utdraget visningen leser): `eaa9ec879de6fcbcd71c92b335255c492ab3bde33cf447dc3613b1a24cd54a7f`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -52,7 +52,8 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [HF-U22](#hf-u22) | Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2); Presiserer [HF-U17](#hf-u17) | — |
 | [VS-U28](#vs-u28) | Presiserer [VS-U3](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3); Utvider [OV-U5](#ov-u5) | — |
 | [MM-U17](#mm-u17) | Endrer [GR-U12](#gr-u12); Endrer [GR-U13](#gr-u13); Endrer [KA-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10); Endrer [MM-U9](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9); Endrer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11); Endrer [MM-U12](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12) | Presisert av [HF-U13](#hf-u13); Endret av [OV-U4](#ov-u4) |
-| [MM-U24](#mm-u24) | Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2); Presiserer [VS-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10); Presiserer [HF-U5](#hf-u5); Presiserer [LV-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u7); Presiserer [OV-U4](#ov-u4) | — |
+| [MM-U24](#mm-u24) | Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2); Presiserer [VS-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10); Presiserer [HF-U5](#hf-u5); Presiserer [LV-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u7); Presiserer [OV-U4](#ov-u4) | Presisert av [MM-U29](#mm-u29) |
+| [MM-U29](#mm-u29) | Presiserer [MM-U24](#mm-u24) | — |
 | [LV-U15](#lv-u15) | Presiserer [LV-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u2); Presiserer [GR-U13](#gr-u13) | — |
 | [GFK-U2](#gfk-u2) | Presiserer [GR-U13](#gr-u13); Presiserer [EO-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u6); Presiserer [FO-U6](../../plans/2026-09-16-godkjenning-og-varig-levering.md#fo-u6) | Presisert av [GFK-U14](#gfk-u14) |
 | [GFK-U14](#gfk-u14) | Presiserer [GFK-U2](#gfk-u2) | — |
@@ -469,7 +470,21 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 17.10, oppdragsgiver (FK runde 4 (#655), #718)
 
-**Følge:** Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2). Presiserer [VS-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10). Presiserer [HF-U5](#hf-u5). Presiserer [LV-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u7). Presiserer [OV-U4](#ov-u4). Ikke bygget.
+**Følge:** Presiserer [VS-U2](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u2). Presiserer [VS-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u10). Presiserer [HF-U5](#hf-u5). Presiserer [LV-U7](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u7). Presiserer [OV-U4](#ov-u4). Presisert 20.10 av [MM-U29](#mm-u29). Ikke bygget.
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="mm-u29"></a>MM-U29
+
+> MM-U29: Arbeidslista viser kravene der noe foreligger etter MM-U24: for byggherren krav som venter på byggherrens svar, og for TE svar som TE ikke har godtatt. Teksten sier hva som foreligger, for eksempel «Kravet venter på byggherrens svar». Den sier ikke at parten har plikt eller neste trekk, og utvalget er en gruppe i visningen. Akseptfristen kommer når den bygges, og med den en aksept etter fristen.
+
+**Forkastet:** «Arbeidslista gir oppgaver per side som i dag, for eksempel «Vurder fristkravet» og «Ta stilling til byggherrens svar». Endrer MM-U24, der det å vise hvem som har neste trekk ble forkastet.»; «Arbeidslista vises ikke etter overgangen til TS før den leveres i et eget issue, og overgangen sier uttrykkelig at den er tatt ut. Følger OV-U1 («avvises og forenkles ikke»).»
+
+**Vedtatt:** 20.10, oppdragsgiver (#1022)
+
+**Følge:** Presiserer [MM-U24](#mm-u24). Ikke bygget (#1029).
 
 **Regelrader:** —
 
