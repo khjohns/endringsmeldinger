@@ -103,3 +103,7 @@ produksjonsporten må nevnes. Lagret før kallet.
 
 - **Behold OV-U1 (Recommended):** Appen kan tidligst brukes i ekte saker når første versjon etter OV-U1, OV-U7 og OV-U14 er bygget og produksjonsporten (F5) er passert. Endringsordre som egen sak og forsering føres utenfor appen til de er bygget (OV-U2). Presiserer OV-U1.
 - **Endre: EO før ekte saker:** Før appen brukes i ekte saker, skal også endringsordre som egen sak (EO-U1–EO-U9) være bygget i TS. Forsering bygges etter at appen er tatt i bruk. B-01 må da avgjøres før #310. Endrer OV-U1, som forkastet dette alternativet, og merknaden 10.10 til B-01.
+
+**Svar:** «Behold OV-U1 (Recommended)»
+
+Svaret følger av OV-U1 og vedtaket 17.09 om produksjonsporten, og føres derfor ikke som eget vedtak (vedtaksskillen, «Prinsipp før enkeltvedtak»).
