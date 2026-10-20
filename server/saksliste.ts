@@ -14,11 +14,16 @@ import type {
 import type { Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { erRegistrert } from '../kjerne/format/leser.ts';
-import { visning } from '../kjerne/utledning/visning.ts';
+import {
+  harRegistrertBrev,
+  saksbetegnelse,
+  visning,
+  type Saksbetegnelse,
+} from '../kjerne/utledning/visning.ts';
 import {
   enighetensVirkning,
-  kraveneErAvgjort,
+  standpunktetErSubsidiaert,
+  svarIkkeGodtatt,
   venterPaaSvar,
   type Utledning,
 } from '../kjerne/utledning/utled.ts';
@@ -91,13 +96,6 @@ export async function lesSakslisten(pool: Pool, kontekst: Kontekst): Promise<Les
 const tall = (v: unknown): number | null => (typeof v === 'number' ? v : null);
 const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 
-/** De fire tilfellene der saken har en samlet betegnelse (MM-U22). */
-export type Saksbetegnelse =
-  | 'ikke_forstaatt'
-  | 'avslaget_paa_grunnlaget_godtatt'
-  | 'grunnlaget_trukket'
-  | 'kravene_avgjort';
-
 type Virkning = 'betinget' | 'virksom' | 'uten_virkning';
 
 interface Foreligger {
@@ -105,7 +103,7 @@ interface Foreligger {
   etiketter: string[];
   /** Kravet venter på byggherrens svar (`venterPaaSvar`, MM-U29). */
   venter_paa_svar: boolean;
-  /** Byggherrens gjeldende svar står uten enighet, og kravet er ikke trukket (MM-U29). */
+  /** Byggherrens gjeldende svar står, og TE kan fortsatt godta det (`svarIkkeGodtatt`, MM-U29). */
   svar_ikke_godtatt: boolean;
 }
 
@@ -143,44 +141,25 @@ export interface Sakslinje {
   frist: Fristlinje;
 }
 
-/** I samme rekkefølge som statusen i visningen av saken. */
-function saksbetegnelse(u: Utledning): Saksbetegnelse | null {
-  if (!u.forstaatt) return 'ikke_forstaatt';
-  if (u.grunnlagAvvist) return 'avslaget_paa_grunnlaget_godtatt';
-  if (u.spor.grunnlag.trukket) return 'grunnlaget_trukket';
-  if (kraveneErAvgjort(u)) return 'kravene_avgjort';
-  return null;
-}
-
 const INGENTING: Foreligger = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
 
 function foreligger(u: Utledning, spor: Spor, etiketter: string[]): Foreligger {
-  const s = u.spor[spor];
   return {
     etiketter,
     venter_paa_svar: venterPaaSvar(u, spor),
-    svar_ikke_godtatt: s.gjeldendeSvar !== null && s.enighet === null && !s.trukket,
+    svar_ikke_godtatt: svarIkkeGodtatt(u, spor),
   };
 }
 
 /**
- * Standpunktet om tallet i sporets gjeldende svar. Tallet er subsidiært når svaret
- * på grunnlaget avviser ansvaret (`subsidiaer`, som etiketten i visningen), eller når
- * brevet selv ga standpunktet subsidiær virkning; leseren fyller da tallet med det
- * subsidiære (MM-U9, MM-U28).
+ * Standpunktet om tallet i sporets gjeldende svar, og om det er subsidiært
+ * (`standpunktetErSubsidiaert`); leseren fyller da tallet med det subsidiære (MM-U28).
  */
 function svaret(u: Utledning, spor: Kravspor) {
-  const s = u.spor[spor];
-  const g = s.gjeldendeSvar;
   const art = spor === 'vederlag' ? 'beloep' : 'dager';
-  const st = g?.standpunkter.find((p) => p.art === art);
-  if (!g || !st) return null;
-  const subsidiaert =
-    s.subsidiaer.length > 0 ||
-    g.beslutningsgrunnlag.virkninger.some(
-      (v) => v.standpunkt === st.id && v.virkning === 'subsidiaert'
-    );
-  return { st, subsidiaert };
+  const st = u.spor[spor].gjeldendeSvar?.standpunkter.find((p) => p.art === art);
+  if (!st) return null;
+  return { st, subsidiaert: standpunktetErSubsidiaert(u, spor, st.id) };
 }
 
 function vederlag(u: Utledning, etiketter: string[]): Vederlagslinje {
@@ -232,9 +211,7 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
     siste_hendelse: sak.journal.at(-1)!.tidsstempel,
     forstaatt: u.forstaatt,
     saksbetegnelse: saksbetegnelse(u),
-    brev_utenfor_appen:
-      u.forstaatt &&
-      u.journal.some((h) => h.art === 'dokument' && erRegistrert(h.dokument.opplysninger)),
+    brev_utenfor_appen: u.forstaatt && harRegistrertBrev(u),
   };
   if (!u.forstaatt)
     return {
