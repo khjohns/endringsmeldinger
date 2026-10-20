@@ -26,6 +26,7 @@ import {
   oversett,
   prosjektkobling,
   synkroniserKobling,
+  synkroniserMedlemskap,
   type Medlem,
   type Synkronisering,
 } from './medlemskap.ts';
@@ -426,22 +427,40 @@ export async function krevKontraktsrolle(
   return side;
 }
 
+/** Medlemslisten fra Catenda slik kalleren alt har hentet den, med `hentet` fra `basensKlokke()` lest før hentingen. */
+export interface HentetMedlemsliste {
+  catendaProsjekt: string;
+  hentet: Date;
+  medlemmer: Medlem[];
+}
+
 /**
  * Siden og teamet for en aktør uten sesjon, som forfatteren av en topic (#819), med samme
  * oppslag som `lesKontraktsside` og en medlemsliste som er like fersk som i
  * `krevProsjekttilgang` (B-04). `null` uten aktivt medlemskap i prosjektet eller uten
  * entydig side.
+ *
+ * `liste` skrives når den lagrede listen mangler eller er for gammel, og når aktøren
+ * ikke har medlemskap etter den lagrede listen, så et medlem som er lagt til i Catenda
+ * etter siste synkronisering, får siden sin (#963). Catenda kalles ikke her for listen.
  */
 export async function kontraktssideUtenSesjon(
   db: Pool,
   catenda: Catenda,
   prosjektId: string,
-  aktor: string
+  aktor: string,
+  liste: HentetMedlemsliste
 ): Promise<Kontraktstilgang | null> {
   const oppsett = await prosjektoppsett(db, prosjektId);
   if (!oppsett) return null;
-  await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
-  const medlemskap = await prosjektmedlemskap(db, aktor, prosjektId);
+  const sist = await medlemslistensAlder(db, prosjektId);
+  const fersk = sist !== null && sist.alderSekunder < medlemskapsalder();
+  let medlemskap = fersk ? await prosjektmedlemskap(db, aktor, prosjektId) : undefined;
+  if (!medlemskap) {
+    const { catendaProsjekt, hentet, medlemmer } = liste;
+    await synkroniserMedlemskap(db, { prosjekt: prosjektId, catendaProsjekt, hentet, medlemmer });
+    medlemskap = await prosjektmedlemskap(db, aktor, prosjektId);
+  }
   if (!medlemskap) return null;
   return somKontraktstilgang(
     await kontraktsside(db, catenda, {

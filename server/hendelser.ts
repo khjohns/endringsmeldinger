@@ -39,6 +39,7 @@ import {
   TopicHarSak,
   UgyldigKommando,
 } from './kommandoer.ts';
+import { basensKlokke } from './medlemskap.ts';
 
 export type Behandlingsutfall =
   | 'sak_opprettet'
@@ -252,9 +253,9 @@ export async function behandle(
     return ut('laget_av_integrasjonen');
   if (topic.type !== TOPICTYPE) return ut('sakstype_ikke_stoettet');
   if (!topic.forfatter) return ut('ukjent_forfatter');
-  const medlem = (await avh.catenda.medlemmer(catendaProsjekt)).find(
-    (m) => m.subjekt === topic.forfatter
-  );
+  const hentet = await basensKlokke(avh.datalag);
+  const medlemmer = await avh.catenda.medlemmer(catendaProsjekt);
+  const medlem = medlemmer.find((m) => m.subjekt === topic.forfatter);
   if (!medlem) return ut('ukjent_side');
 
   const aktor = await catendaIdentitet(avh.datalag, medlem);
@@ -266,7 +267,11 @@ export async function behandle(
   // Før siden: et nytt forsøk etter en lagret sak får saken, også om siden er endret (#963).
   const kvittert = await kvittertSak(avh.datalag, { aktor, prosjekt: prosjektId }, kommando);
   if (kvittert) return { ...ut('sak_opprettet'), sakId: kvittert };
-  const side = await kontraktssideUtenSesjon(avh.datalag, avh.catenda, prosjektId, aktor);
+  const side = await kontraktssideUtenSesjon(avh.datalag, avh.catenda, prosjektId, aktor, {
+    catendaProsjekt,
+    hentet,
+    medlemmer,
+  });
   if (!side) return ut('ukjent_side');
   if (side.rolle === 'BH') return ut('topic_fra_bh');
 
