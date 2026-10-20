@@ -1,5 +1,4 @@
 <script lang="ts">
-  import CatendaSyncNotice from './CatendaSyncNotice.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
   import { readDarkMode, saveDarkMode } from '$lib/utils/theme';
   import { assessedGap, fristErSendt } from './derive';
@@ -10,7 +9,7 @@
   const pythonsak = store.erKjernesak ? null : store;
   import { createApprovalWorkspace, setApprovalWorkspace } from '$lib/approval/context.svelte';
   import ClaimApprovalView from './ClaimApprovalView.svelte';
-  import { onMount, untrack } from 'svelte';
+  import { untrack } from 'svelte';
   const approval = setApprovalWorkspace(createApprovalWorkspace(store));
   import { createClaimReview, setClaimReview } from '$lib/approval/claimReview.svelte';
   import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
@@ -25,9 +24,6 @@
   setClaimReview(kravkontroll ?? claimReview);
   const brevApent = $derived(Boolean(kravkontroll?.letter ?? claimReview.letter));
   let showApproval = $state(false);
-  onMount(() => {
-    if (role === 'BH' && !kjernesak) void approval.load();
-  });
   import Header from './Header.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
@@ -194,7 +190,6 @@
     savePreferredRole(next);
     mode = 'read';
     formActions = null;
-    if (next === 'BH') void approval.load();
     notifyView();
   }
 
@@ -351,10 +346,6 @@
       </div>
     {/snippet}
 
-    {#if !store.isDemo && !kjernesak && !creatingCase}
-      <CatendaSyncNotice status={store.catendaSyncStatus} />
-    {/if}
-
     <div class="body">
       {#if !creatingCase}
         <div
@@ -439,17 +430,11 @@
               </div>
             {:else if bhSvarerPaaFristvarsel}
               <FristVarselForm onsend={goMatrix} onactions={(a) => (formActions = a)} />
-            {:else if role === 'BH' && (!approval.loaded || !approval.canPrepare)}
+            {:else if role === 'BH' && !approval.canPrepare}
               <div class="approval-entry">
                 <p role={approval.error ? 'alert' : 'status'}>
-                  {approval.error ||
-                    (approval.loaded
-                      ? 'Åpne brev for å behandle godkjenningspakken.'
-                      : 'Henter intern behandling …')}
+                  {approval.error || 'Åpne brev for å behandle godkjenningspakken.'}
                 </p>
-                <button class="btn btn-secondary" onclick={() => void approval.load()}
-                  >Prøv igjen</button
-                >
               </div>
             {:else if sel === 'frist' && role === 'BH'}
               <FristForm
@@ -534,15 +519,6 @@
           onconfirm={async (begr) => {
             if (kjernesak) trekkKjernesporet();
             else if (store.isDemo) store.withdrawTrack(sel, begr || undefined);
-            else
-              await store.submit(
-                sel === 'ansvar'
-                  ? 'grunnlag_trukket'
-                  : sel === 'vederlag'
-                    ? 'vederlag_krav_trukket'
-                    : 'frist_krav_trukket',
-                { begrunnelse: begr || undefined }
-              );
             showWithdrawModal = false;
           }}
           oncancel={() => (showWithdrawModal = false)}

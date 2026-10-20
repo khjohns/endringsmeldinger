@@ -4,7 +4,6 @@ import {
   deriveFristDomainConfig,
 } from '$lib/components/kontraktsbord/derive';
 import { getContext, setContext } from 'svelte';
-import { apiFetch, ApiError } from '$lib/api/client';
 import type { CaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import { submissionRefs } from '$lib/kontraktsbord/submission.svelte';
 import type { EventType, SporType } from '$lib/types/timeline';
@@ -20,21 +19,19 @@ import {
 } from './types';
 
 const KEY = Symbol('approval-workspace');
+// Byggherrens interne godkjenning finnes bare i demoen til den er bygget i TS (#818).
+const IKKE_BYGGET = 'Byggherrens interne godkjenning er ikke tilgjengelig for denne saken ennå.';
 export function createApprovalWorkspace(store: CaseWorkspace) {
   let state = $state<ApprovalState>(emptyApprovalState());
   let actor = $state(store.isDemo ? demoUsers[0].id : '');
-  let chain = $state<ApprovalUser[]>(store.isDemo ? demoUsers.slice(1) : []);
-  let sender = $state<ApprovalUser | null>(store.isDemo ? demoUsers[0] : null);
+  const chain: ApprovalUser[] = store.isDemo ? demoUsers.slice(1) : [];
+  const sender: ApprovalUser | null = store.isDemo ? demoUsers[0] : null;
   let canPrepare = $state(store.isDemo);
-  let dailyRate = $state<number | null>(null);
   let error = $state('');
   let busy = $state(false);
-  let loaded = $state(store.isDemo);
   let idle: Promise<void> = Promise.resolve();
   let restoreItem = $state<ReviewItem | null>(null);
   const demoDailyRate = () => store.sak.dagmulktsats || null;
-  const endpoint = `/api/cases/${encodeURIComponent(store.sak.sak_id)}/approvals`;
-  const headers: Record<string, string> = store.isDemo ? {} : { 'X-Project-ID': store.projectId };
   const claims = () =>
     Object.fromEntries(
       (['grunnlag', 'vederlag', 'frist'] as SporType[]).map((track) => [track, claimId(track)])
@@ -65,31 +62,6 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
   });
   const effectiveCase = $derived({ ...store.sak, grunnlag: effectiveGrunnlag });
   let editClaim: { track: SporType; id: string } | null = null;
-  function accept(result: {
-    state: ApprovalState;
-    actor: string;
-    chain: ApprovalUser[];
-    sender?: ApprovalUser | null;
-    canPrepare: boolean;
-    dailyRate?: number | null;
-  }) {
-    state = result.state;
-    actor = result.actor;
-    chain = result.chain;
-    sender = result.sender ?? null;
-    canPrepare = result.canPrepare;
-    dailyRate = result.dailyRate ?? null;
-    loaded = true;
-  }
-  async function load() {
-    if (store.isDemo) return;
-    try {
-      accept(await apiFetch(endpoint, { headers }));
-      error = '';
-    } catch (cause) {
-      error = cause instanceof Error ? cause.message : 'Kunne ikke hente godkjenninger.';
-    }
-  }
   async function command(command: ApprovalCommand) {
     const previous = idle;
     let finish!: () => void;
@@ -100,33 +72,17 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     busy = true;
     error = '';
     try {
-      if (store.isDemo)
-        state = transition($state.snapshot(state), command, actor, chain, claims(), undefined, {
-          sender: demoUsers[0],
-          dailyRate: demoDailyRate(),
-          krav: kravFraSak(store.sak),
-        });
-      else
-        accept(
-          await apiFetch(endpoint, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({
-              ...command,
-              expectedVersion: state.version,
-              commandId: crypto.randomUUID(),
-            }),
-          })
-        );
+      if (!store.isDemo) throw new Error(IKKE_BYGGET);
+      state = transition($state.snapshot(state), command, actor, chain, claims(), undefined, {
+        sender: demoUsers[0],
+        dailyRate: demoDailyRate(),
+        krav: kravFraSak(store.sak),
+      });
       if (command.action === 'publish') {
         const p = state.packages.find((p) => p.id === command.packageId);
-        if (p?.status === 'sendt') {
-          if (store.isDemo) store.applyApprovedItems(p.letter.items, p.id, p.letter);
-          else await store.refresh();
-        }
+        if (p?.status === 'sendt') store.applyApprovedItems(p.letter.items, p.id, p.letter);
       }
     } catch (cause) {
-      if (cause instanceof ApiError && cause.status === 409) await load();
       error = cause instanceof Error ? cause.message : 'Handlingen kunne ikke fullføres.';
       throw cause;
     } finally {
@@ -152,7 +108,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
       return canPrepare;
     },
     get dailyRate() {
-      return store.isDemo ? demoDailyRate() : dailyRate;
+      return store.isDemo ? demoDailyRate() : null;
     },
     get error() {
       return error;
@@ -161,9 +117,8 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
       return busy;
     },
     get loaded() {
-      return loaded;
+      return store.isDemo;
     },
-    load,
     command,
     claimId,
     get vederlagConfig() {
@@ -223,7 +178,6 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
       data: Record<string, unknown>,
       form: Record<string, unknown>
     ) {
-      if (!loaded) await load();
       if (!canPrepare)
         throw new Error(error || 'Du har ikke tilgang til å ferdigstille vurderinger.');
       const source =
