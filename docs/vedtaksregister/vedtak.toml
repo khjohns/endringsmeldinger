@@ -5109,6 +5109,70 @@ Kontrollen av HF-U4 og HF-U5 står bare i kommandoene. En hendelse utenfor komma
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "MM-U28"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1022"]
+sporsmal = '''
+Tallene. I dag viser lista «krevd» og «godkjent». «Godkjent» blander byggherrens svar med partenes enighet, og tallet fra byggherren kan være subsidiært. En enighet kan være betinget av ansvaret, virksom eller uten virkning. Eksempel: TE krever 1 000 000. BH avslår ansvaret, men godtar 600 000 subsidiært, og TE godtar beløpet. Hva skal lista vise for vederlag og frist?'''
+valgt = "Krav, svar og enighet"
+svar = '''
+«Krav, svar og enighet»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u23" }]
+folge = '''
+Ikke bygget (#1029).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Krav, svar og enighet"
+tekst = '''
+Lista viser TEs krav (beløp eller dager og kravets art, for eksempel tilbud), byggherrens svar (resultat og tall, merket når det er subsidiært) og enigheten (tallet, og om den er betinget, virksom eller uten virkning, merket som appens lesing). Eksempelet: «TE: 1 000 000 · BH: 600 000 subsidiært · Enige om beløpet. Etter appens lesing betinget av ansvaret». Nøkkeltallene summerer krav og virksom enighet hver for seg. Ukjent er ikke 0.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Krav og enighet"
+tekst = '''
+Lista viser TEs krav og det partene er enige om, med virkningen merket som appens lesing. Et svar fra byggherren som TE ikke har godtatt, står bare i saken. Presiserer MM-U23.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Krevd og godkjent som i dag"
+tekst = '''
+Lista viser TEs krav og byggherrens tall som «godkjent», også når tallet er subsidiært eller ikke godtatt. Strider mot MM-U23, fordi et subsidiært standpunkt er et avslag.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "MM-U29"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1022"]
+sporsmal = '''
+Arbeidslista. «Dette trenger din oppfølging» lager i dag oppgaver per side ut fra Pythons status, som «Vurder fristkravet» og «Ta stilling til BHs svar». MM-U24 (17.10): ved kravet står det som foreligger, altså et krav som venter på byggherrens svar, et svar TE ikke har godtatt (med akseptfristen) eller en aksept etter fristen som venter på byggherren. Appen sier ikke at en part har plikt, og å vise hvem som har neste trekk er forkastet. Kjernen kan i dag si at et krav venter på svar. Akseptfristen er ikke bygget. Hva skjer med arbeidslista ved overgangen til TS?'''
+valgt = "Det som foreligger"
+svar = '''
+«Det som foreligger»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u24" }]
+folge = '''
+Ikke bygget (#1029).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Det som foreligger"
+tekst = '''
+Arbeidslista viser kravene der noe foreligger etter MM-U24: for byggherren krav som venter på byggherrens svar, og for TE svar som TE ikke har godtatt. Teksten sier hva som foreligger, for eksempel «Kravet venter på byggherrens svar». Den sier ikke at parten har plikt eller neste trekk, og utvalget er en gruppe i visningen. Akseptfristen kommer når den bygges, og med den en aksept etter fristen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Oppgaver som i dag"
+tekst = '''
+Arbeidslista gir oppgaver per side som i dag, for eksempel «Vurder fristkravet» og «Ta stilling til byggherrens svar». Endrer MM-U24, der det å vise hvem som har neste trekk ble forkastet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ute av omfanget nå"
+tekst = '''
+Arbeidslista vises ikke etter overgangen til TS før den leveres i et eget issue, og overgangen sier uttrykkelig at den er tatt ut. Følger OV-U1 («avvises og forenkles ikke»).'''
+forkastet = true
+
+[[gruppe.vedtak]]
 id = "LV-U15"
 dato = 2026-10-18
 hvem = "oppdragsgiver"
