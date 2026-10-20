@@ -37,7 +37,9 @@ import {
   erUtenSak,
   RUTER,
   type Rute,
+  type Saksrute,
 } from '../app.ts';
+import { BREVRUTER } from '../brev.ts';
 import { catendaId, sha256 } from '../autorisasjon.ts';
 import { entraIdentitet, entraIssuer } from '../entra.ts';
 import type { EntraLeverandoer, Innloggingsleverandoer } from '../innlogging.ts';
@@ -219,6 +221,8 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   }, 60_000);
 
   const hver = RUTER.filter(erSaksrute).map((r) => [navn(r), r] as const);
+  /** Saken i testen har ikke noe brev, så PDF-en i eksempelstien gir 404 etter tilgangen. */
+  const lest = (r: Rute) => (BREVRUTER.includes(r as Saksrute) ? 404 : 200);
   const utenProsjekt = RUTER.filter(erUtenProsjekt).map((r) => [navn(r), r] as const);
 
   it.each(utenProsjekt)('%s: uten sesjon gir 401', async (_n, r) => {
@@ -504,7 +508,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
         expect(svar.status).toBe(403);
         expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
       } else {
-        expect(svar.status).toBe(200);
+        expect(svar.status).toBe(lest(r));
       }
     }
   );
@@ -516,8 +520,9 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       kropp: kropp(r),
       metode: r.metode,
     });
-    // Vedlegget i eksempelstien finnes ikke; 404 kommer etter tilgangen.
+    // Vedlegget og brevet i eksempelstien finnes ikke; 404 kommer etter tilgangen.
     if (svar.kropp.error === 'VEDLEGG_FINNES_IKKE') expect(svar.status).toBe(404);
+    else if (lest(r) === 404) expect(svar.kropp.error).toBe('BREV_FINNES_IKKE');
     else expect([200, 400]).toContain(svar.status);
     expect(svar.kropp.error ?? 'ingen').not.toMatch(/FORBIDDEN|CSRF|UNAUTHORIZED|CONTRACT/);
   });
@@ -645,7 +650,7 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
             prosjektId: o.prosjekt.id,
           }
         );
-        expect([n, svar.status]).toEqual([n, 200]);
+        expect([n, svar.status]).toEqual([n, lest(r)]);
       }
     } finally {
       await utenTeamoppslag.stopp();

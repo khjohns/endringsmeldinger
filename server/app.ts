@@ -68,6 +68,7 @@ import {
 import { filnavn, lagOppdrag } from './levering.ts';
 import type { Sesjon } from './sesjon.ts';
 import { lesFil, VEDLEGGSRUTER, type Fil } from './vedlegg.ts';
+import { BREVRUTER } from './brev.ts';
 import { WEBHOOKRUTER, type Webhook } from './webhook.ts';
 
 export interface Avhengigheter {
@@ -563,6 +564,7 @@ const OPPRETTELSE: Opprettelsesrute = {
 export const RUTER: readonly Rute[] = [
   ...KJERNERUTER,
   ...VEDLEGGSRUTER,
+  ...BREVRUTER,
   OPPRETTELSE,
   ...INNLOGGINGSRUTER,
   ...PROSJEKTRUTER,
