@@ -1109,7 +1109,7 @@ lagres_fra = "`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`.
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei."
 personopplysninger = "Saksbehandleren (`aktor_id`) og innholdet i svaret."
-skrivere = ["database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
+skrivere = ["database/migrasjoner/20261020190000_godkjenner_tilgang.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
@@ -1125,7 +1125,7 @@ lagres_fra = "`koe_api.lag_godkjenningspakke`, kalt fra `server/godkjenning.ts`.
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei."
 personopplysninger = "Godkjennerne (`godkjenner_id`)."
-skrivere = ["database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
+skrivere = ["database/migrasjoner/20261020190000_godkjenner_tilgang.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
@@ -1142,7 +1142,7 @@ lagres_fra = "`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjen
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei."
 personopplysninger = "Den som handlet (`aktor_id`) og begrunnelsen for en retur."
-skrivere = ["database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
+skrivere = ["database/migrasjoner/20261020190000_godkjenner_tilgang.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
 funn = []
 belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
 
