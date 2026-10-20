@@ -1,14 +1,14 @@
 # Endringsordre i Kontraktsbordet
 
-Byggherren kan opprette en endringsordre fra «Krav og endringer» eller fra en omforent KOE-sak. Endringsordren er en egen sak med dokumentvisning, historikk og lenker til KOE-sakene som inngår. Skjemaet bruker dagens komponenter og designtokens.
+Endringsordren er en egen sak med dokumentvisning, historikk og lenker til KOE-sakene som inngår. Skjemaet bruker dagens komponenter og designtokens.
 
 Endringsordre hører ikke til første versjon (OV-U1). Den ekte appen har derfor ingen inngang til EO lenger (#1024): rutene for ny endringsordre og godkjenning er tatt ut, KOE-saken viser ikke EO-lenken, og saksruta viser at sakstypen ikke støttes. Mockupen i `/mockup/endringsordre` beholdes som forbilde for brukergrensesnittet, og komponentene, domenekoden og API-klienten står til TS-stien er sammenlignet med dem.
 
-I `/mockup/oversikt` vises også «Ny endringsordre» når «Byggherre BH» er valgt. Demoflyten bruker samme skjema med lokale eksempelsaker, uten API-kall. Utstedte demoordrer lagres i nettleseren, vises i mockup-registeret og kan gjenåpnes. Demoen bruker en egen lagringsnøkkel for utkast og ordresamling; den oppretter ingen reelle prosjektsaker.
+I `/mockup/oversikt` vises også «Ny endringsordre» når «Byggherre BH» er valgt. Demoflyten bruker samme skjema med lokale eksempelsaker, uten API-kall. Utstedte demoordrer lagres i nettleseren og kan gjenåpnes på `/mockup/endringsordre/<sak-ID>`; de vises ikke i `/mockup/oversikt`. Demoen bruker en egen lagringsnøkkel for utkast og ordresamling; den oppretter ingen reelle prosjektsaker.
 
 ## Brukerflyt
 
-1. Velg «Ny endringsordre» i byggherrevisningen, eller «Utsted endringsordre» fra en avklart KOE-sak.
+1. Velg «Ny endringsordre» i byggherrevisningen i `/mockup/oversikt`.
 2. Velg grunnlag: direkte pålegg eller formalisering av avtalte KOE-krav.
 3. Fyll ut nummer, beskrivelse, konsekvenser, vederlag og frist. Ved formalisering velges ett eller flere tilgjengelige KOE-krav.
 4. Kontroller dokumentet og bekreft utstedelse. Før dette skjer, er skjemaet kun et lokalt utkast, lagret per bruker og prosjekt i nettleseren.
@@ -27,7 +27,7 @@ Direkte pålegg kan utstedes med uavklart pris og frist. Ved KOE-formalisering m
 
 KOE-kandidater tilhører samme prosjekt, har godkjent grunnlag og avklarte aktive spor, og inneholder minst ett godkjent vederlags- eller fristkrav. Krav som allerede inngår i en EO, kan ikke velges igjen. Eksisterende KOE-historikk beholdes. Utstedte ordres relasjoner kan ikke endres gjennom de gamle legg-til/fjern-endepunktene.
 
-Saksregisteret har et sakstypefilter og viser EO-nummer, status, grunnlag, nettobeløp og frist. Vederlags- og friststatistikken er eksplisitt KOE-statistikk; EO-beløp legges ikke til en gang til. Formaliserte KOE-saker tas ut av arbeidslisten.
+Saksregisteret viser bare KOE-rader. EO-nummer og nettobeløp vises ikke der. Vederlags- og friststatistikken er eksplisitt KOE-statistikk; EO-beløp legges ikke til en gang til. Formaliserte KOE-saker tas ut av arbeidslisten.
 
 ## Implementering
 
@@ -50,7 +50,7 @@ Kontrollsteget bruker samme godkjenningspanel som svar på krav (`EOApprovalPane
 - **Dagmulktssats** følger samme regel som BH-svar: eksplisitt `daily_rate` i policyen vinner, inkludert `null`; ellers brukes prosjektets `settings.contract.dagmulkt_sats`.
 - Pakker lagres privat i `eo_approvals` i `BH_APPROVAL_DB`, per prosjekt. Den frosne forespørselen utstedes med eksisterende `EndringsordreService`. Et nummer kan bare ha én åpen pakke. Endret policy eller rute returnerer åpne pakker.
 - Kontroll av endret fullmakt gjelder også godkjente pakker som ennå ikke er utstedt, ved nytt forsøk og direkte utstedelse. Allerede utstedte ordre gjenkjennes. Policykontroll og offentlig lagring er fortsatt separate steg; full transaksjonsgaranti er beskrevet i [implementeringsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md).
-- Godkjennere behandler ordrer på `/[prosjektId]/endringsordre/godkjenning` (lenke «Til godkjenning» i byggherrens saksoversikt). Demo: `/mockup/endringsordre/godkjenning`, med «Demo · vis som».
+- Godkjennere behandler ordrer på `/mockup/endringsordre/godkjenning`, med «Demo · vis som».
 - Utstedelse etter godkjenning følger samme mønster som publisering av svar: sak-ID-en reserveres og lagres i pakken i samme transaksjon som godkjenningen, før selve utstedelsen. Ordren opprettes under den ID-en med hendelser fra versjon 0. Hendelsene er commit-punktet (saksopprettelsen bruker kompenserende tilbakerulling, så metadata alene beviser ingenting). Ved nytt forsøk eller neste lesing gjenkjennes en allerede opprettet ordre, og kvitteringen registreres uten ny opprettelse. Et utstedelsesforsøk holder en lease i fem minutter, slik levering av svar gjør. Leasen koordinerer, men garanterer ikke: en utløpt lease stopper ikke en gammel prosess, så to forsøk kan fortsatt overlappe (AP-04, se [implementeringsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md)). Metadata uten hendelser etter et avbrutt forsøk erstattes. Feiler utstedelsen av andre grunner, vises «Prøv utstedelse igjen».
 - Catenda-synk skjer etter opprettelsen, som ved direkte utstedelse. En ordre som gjenopprettes etter krasj, blir ikke synket på nytt automatisk; svar på krav har her en egen outbox som endringsordrer ikke har fått.
 
@@ -68,4 +68,4 @@ Dokumentet viser gjeldende EO-revisjon. Egen UI for entreprenørens aksept/bestr
 
 - `npm run check:error`, `npm run build` og `npm run test -- --maxWorkers=2`.
 - Backendtester: `test_endringsordre_service.py`, `test_endringsordre_routes.py`, `test_case_list_endringsordre.py`, `test_catenda_metadata_mapping.py`.
-- `scripts/test_endringsordre.mjs` kjører begge opprettelsesflytene i Chrome med avskjærte API-kall: forhåndsvalg, flere KOE-krav, eksplisitt samlet frist, dokumentkontroll, lagret utkast, gjenåpning og mobilvisning. Ingen reelle saker opprettes av testen.
+- `scripts/test_endringsordre.mjs` kjører demoflyten i `/mockup/oversikt` og `/mockup/endringsordre/*` i Chrome med avskjærte API-kall: inngang fra byggherrevisningen, direkte ordre med uavklart pris og frist, godkjenningskjeden, gjenåpning etter reload, formalisering av et avtalt KOE-krav og at utkastet er forkastet etter utstedelse (#445). Testen kontrollerer at det ikke går API-kall, og oppretter ingen reelle saker.
