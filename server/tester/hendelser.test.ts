@@ -27,7 +27,8 @@ import {
   skrivEnKommentar,
   type Jobbavhengigheter,
 } from '../jobber.ts';
-import { transaksjon, UsikkertUtfall } from '../datalag.ts';
+import { transaksjon, type Forbindelse, type Pool } from '../datalag.ts';
+import { enGang, tidsavbrudd } from './forbindelse.ts';
 import { behandle, nesteInnkommende } from '../hendelser.ts';
 import { lesJournal } from '../lager.ts';
 import { mottaHendelse } from '../webhook.ts';
@@ -510,26 +511,49 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await behandleEnHendelse(senere(2))).toBe(false);
   });
 
-  it('etter et usikkert utfall lagres ikke noe utfall, og et senere forsøk får saken (code-review av #957)', async () => {
-    const topic = randomUUID();
-    await mottaHendelse(
-      avh.datalag,
-      { id: randomUUID(), type: 'issue.created' },
-      JSON.stringify(kropp(topic))
-    );
-    const usikker = {
-      ...avh,
-      innboks: {
-        ...innboks,
-        teammedlemmer: async () => {
-          throw new UsikkertUtfall('usikkert');
-        },
-      },
+  /**
+   * Svaret på første COMMIT i poolen går tapt etter at serveren har committet, som ved et
+   * tidsavbrudd (`UsikkertUtfall`). Lånene etter det får forbindelsen urørt.
+   */
+  const tapSvaretPaaFoersteCommit = (pool: Pool) => {
+    const utlaan = pool as unknown as { acquire: (...a: unknown[]) => Promise<Forbindelse> };
+    const ekte = utlaan.acquire;
+    let tapt = false;
+    utlaan.acquire = (...a) => {
+      // Et lån med tilbakekall er en forespørsel utenfor en transaksjon.
+      if (typeof a.at(-1) === 'function') return ekte.apply(pool, a);
+      return ekte.apply(pool, a).then((f) => {
+        enGang(f, 'commitTransaction', (commit) => (cb, ...rest) => {
+          if (tapt) return commit(cb, ...rest);
+          tapt = true;
+          utlaan.acquire = ekte;
+          return commit(() => cb(tidsavbrudd()), ...rest);
+        });
+        return f;
+      });
     };
-    expect(await behandleEnHendelse(usikker)).toBe(true);
-    expect(await sakerForTopic(topic)).toEqual([]);
+    return () => (utlaan.acquire = ekte);
+  };
+
+  it('etter et usikkert utfall av COMMIT for saken lagres ikke noe utfall, og et senere forsøk får saken fra kvitteringen (code-review av #957)', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
+    const tilbake = tapSvaretPaaFoersteCommit(avh.datalag);
+    try {
+      expect(await behandleEnHendelse(avh)).toBe(true);
+    } finally {
+      tilbake();
+    }
+    // Saken er lagret, men utfallet er ikke det.
+    const lagret = await sakerForTopic(topic);
+    expect(lagret).toHaveLength(1);
+    expect(await utfallFor(id)).toEqual([]);
+    expect(await forsoekFor(id)).toBe(1);
     expect(await behandleEnHendelse(senere(1))).toBe(true);
-    expect(await sakerForTopic(topic)).toHaveLength(1);
+    expect(await utfallFor(id)).toEqual([
+      expect.objectContaining({ utfall: 'sak_opprettet', sak_id: lagret[0].sak_id }),
+    ]);
+    expect(await sakerForTopic(topic)).toEqual(lagret);
   });
 
   /** Skriver kommentarene for alle utfallene som venter på en, som løkka. */
