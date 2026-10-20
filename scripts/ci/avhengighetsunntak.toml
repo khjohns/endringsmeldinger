@@ -9,13 +9,6 @@
 # og ble ikke gjort her.
 
 [[unntak]]
-advisory = "GHSA-22p9-wv53-3rq4"
-pakke = "linkify-it"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: LinkifyIt#match scan loop has quadratic algorithmic complexity"
-
-[[unntak]]
 advisory = "GHSA-28wg-ghj8-5hjv"
 pakke = "nanoid"
 dato = "2026-10-18"
@@ -126,13 +119,6 @@ pakke = "devalue"
 dato = "2026-10-18"
 issue = 268
 begrunnelse = "Fantes da skanningen ble innført. high: devalue: Custom ArrayBuffer revivers can bypass typed-array allocation validation"
-
-[[unntak]]
-advisory = "GHSA-v245-v573-v5vm"
-pakke = "linkify-it"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: linkify-it: Quadratic-complexity DoS via the `mailto:` validator scan-loop on attacker text"
 
 [[unntak]]
 advisory = "GHSA-v2wj-q39q-566r"
