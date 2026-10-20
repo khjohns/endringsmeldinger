@@ -763,8 +763,19 @@ function effektiveKommandoer(leddene) {
     if (payload !== undefined) {
       ut.push(...effektiveKommandoer(lekser(payload)).map(arv));
     } else if (kommando === 'trap') {
-      const argument = resten.find((o) => !o.startsWith('-')) ?? '';
-      ut.push(...effektiveKommandoer(lekser(argument)).map(arv));
+      // Handlingen er det første argumentet etter valgene og `--`. Leddet selv blir stående, så
+      // reglene som ser `trap` og argumentene, gjelder som på `main`.
+      let a = 0;
+      while (a < resten.length && /^-[lpP]+$/.test(resten[a])) a++;
+      if (resten[a] === '--') a++;
+      ut.push({
+        ord: [kommando, ...resten],
+        ukjentKommando: false,
+        forran: ord.slice(0, k),
+        heredoc,
+        kropp,
+      });
+      ut.push(...effektiveKommandoer(lekser(resten[a] ?? '')).map(arv));
     } else if (kommando === 'eval') {
       ut.push(...effektiveKommandoer(lekser(resten.join(' '))).map(arv));
     } else {

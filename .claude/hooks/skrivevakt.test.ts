@@ -414,6 +414,9 @@ describe('skrivevakten for mekanisk-pr', () => {
       'case a in a) g${x}it push --force origin HEAD:main;; esac',
       'coproc g${x}it push --force origin HEAD:main',
       "PS4='$(g${y}it push --force origin HEAD:main)' ; set -x; true",
+      "trap -- '-;g${x}it push --force origin HEAD:main' EXIT",
+      'trap -- \'-;eval "$(cat /tmp/x)"\' EXIT',
+      "trap 'bash /tmp/x.sh' EXIT",
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
