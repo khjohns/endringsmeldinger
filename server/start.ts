@@ -5,8 +5,9 @@
  *     AUTH_FRONTEND_URL=http://localhost:5173 CATENDA_CLIENT_ID=… \
  *     CATENDA_CLIENT_SECRET=… CATENDA_LOGIN_REDIRECT_URI=… npm run server -- 8090
  *
- * Serveren lytter på 127.0.0.1 og skriver «lytter på http://127.0.0.1:<port>»
- * når den er klar. Port 0 gir en ledig port.
+ * Serveren lytter på `KOE_LYTTEADRESSE`, eller 127.0.0.1 når den ikke er satt, og
+ * skriver «lytter på http://<adresse>:<port>» når den er klar. Port 0 gir en ledig
+ * port. Bildet setter 0.0.0.0, så ruteren i en annen container når serveren (#376).
  *
  * - `KOE_DATALAG_TILKOBLING` er tilkoblingsstrengen til en migrert base i
  *   SQL Server, med sesjonen, medlemskapet, kontraktsteamene, journalen og
@@ -123,10 +124,11 @@ if (klient && innlogging) {
 const server = createServer(
   lagServer({ datalag, catenda, innlogging, webhook, vekkJobbkjoereren: () => jobber?.vekk() })
 );
-server.listen(Number(process.argv[2] ?? 0), '127.0.0.1', () => {
+const lytteadresse = process.env.KOE_LYTTEADRESSE || '127.0.0.1';
+server.listen(Number(process.argv[2] ?? 0), lytteadresse, () => {
   const adresse = server.address();
   const port = typeof adresse === 'object' && adresse ? adresse.port : 0;
-  console.log(`lytter på http://127.0.0.1:${port}`);
+  console.log(`lytter på http://${lytteadresse}:${port}`);
 });
 
 // Poolen lukkes først når løkka har kvittert (#778). Et nytt signal mens stoppen
