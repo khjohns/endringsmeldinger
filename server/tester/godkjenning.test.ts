@@ -465,7 +465,16 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
         expect(await egneHandlinger(k, p.pakkeId)).toEqual(['godkjent']);
       }
       expect(await egneHandlinger(godkjenner(o.utenfor.id), p.pakkeId)).toEqual([]);
+      expect(
+        await egneHandlinger(
+          godkjenner(leder, { side: 'TE', team: catendaId(o.prosjekt.teTeam)! }),
+          p.pakkeId
+        )
+      ).toEqual([]);
+      await endre(`UPDATE koe.projects SET is_active = 0 WHERE id = '${o.prosjekt.id}'`);
+      expect(await egneHandlinger(godkjenner(leder), p.pakkeId)).toEqual([]);
     } finally {
+      await endre(`UPDATE koe.projects SET is_active = 1 WHERE id = '${o.prosjekt.id}'`);
       await medMedlemskap();
     }
   });

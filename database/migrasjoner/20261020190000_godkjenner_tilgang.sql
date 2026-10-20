@@ -53,7 +53,8 @@ UNION ALL
 SELECT tilgang FROM koe_sikkerhet.godkjenner(@prosjekt_id, @pakke_id);
 GO
 
--- Handlingene: som pakken, og godkjennerens egen handling også etter at pakken er lukket.
+-- Handlingene: som pakken, og godkjennerens egen handling også etter at pakken er lukket,
+-- i et aktivt prosjekt og ikke på entreprenørsiden.
 CREATE FUNCTION koe_sikkerhet.handling_synlig(
   @prosjekt_id nvarchar(100), @aktor_team_id nvarchar(32), @pakke_id uniqueidentifier,
   @aktor_id uniqueidentifier)
@@ -61,10 +62,16 @@ RETURNS TABLE WITH SCHEMABINDING AS RETURN
 SELECT tilgang FROM koe_sikkerhet.pakke_synlig(@prosjekt_id, @aktor_team_id, @pakke_id)
 UNION ALL
 SELECT 1 AS tilgang
- WHERE @aktor_id = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier)
+  FROM koe.projects p
+ WHERE p.id = @prosjekt_id
+   AND p.is_active = 1
+   AND @aktor_id = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier)
    AND @prosjekt_id = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(4000))
    AND DATALENGTH(@prosjekt_id) = DATALENGTH(TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(4000)))
-   AND TRY_CAST(SESSION_CONTEXT(N'koe_tx') AS bigint) = CURRENT_TRANSACTION_ID();
+   AND TRY_CAST(SESSION_CONTEXT(N'koe_tx') AS bigint) = CURRENT_TRANSACTION_ID()
+   AND (SESSION_CONTEXT(N'koe_side') IS NULL
+        OR (TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(4000)) = N'BH'
+            AND DATALENGTH(TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(4000))) = 4));
 GO
 
 -- En godkjenning eller retur fra godkjenneren i steget. Trekkingen er teamets: den har

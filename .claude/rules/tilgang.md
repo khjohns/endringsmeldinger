@@ -58,7 +58,8 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
   registeret: et team for TE eller BH, som `kreves`, eller leserolle
   (`krevLesing` i `server/autorisasjon.ts`). Uten bekreftet team gir den 403,
   og svarer ikke Catenda, 503. Det gjelder saken og sakslisten. Lesefilteret
-  `koe_sikkerhet.medlem` i basen krever ennå bare medlemskap (#1056).
+  i basen krever ennå bare medlemskap (`koe_sikkerhet.medlem`, #1056), eller at
+  aktøren er godkjenner i en åpen pakke i saken (GFK-U9).
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.
@@ -72,8 +73,9 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
 - **Prosjektgrensen** holdes også ved lesing og skriving av journalen. Lesingen
   i `server/lager.ts` og skrivingen i `server/kommandoer.ts` går hver i sin
   transaksjon med aktøren og prosjektet i konteksten. Filterpredikatet
-  `koe_sikkerhet.medlem` slipper bare gjennom saker og hendelser i prosjektet i
-  konteksten, så en sak utenfor finnes ikke, og blokkpredikatet
+  `koe_sikkerhet.sak_synlig` slipper bare gjennom saker og hendelser i prosjektet i
+  konteksten, for medlemmene (`medlem`) og for godkjenneren i en åpen pakke i saken
+  (GFK-U9), så en sak utenfor finnes ikke, og blokkpredikatet
   `koe_sikkerhet.skriver` stopper en rad i et annet prosjekt.
   `koe_api.skriv_hendelse` kontrollerer og stempler prosjektet fra konteksten i
   tillegg.
