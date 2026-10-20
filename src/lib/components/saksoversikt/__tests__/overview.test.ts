@@ -49,4 +49,30 @@ describe('utvalgene i prosjektoversikten leser det som foreligger, ikke en statu
     expect(velgSaker(saker, '', 'alle', true)).toEqual([venter]);
     expect(velgSaker(saker, 'ingen treff', 'alle')).toEqual([]);
   });
+
+  it('fristkravene er de samme som flisen teller: ikke trukket, ikke i en avsluttet sak', () => {
+    const krav = { krav: { dager: 5 }, svar: null, enighet: null };
+    const trukket = lagSakslinje({
+      sak_id: 'KOE-5',
+      frist: { ...ingenting, etiketter: ['trukket'], ...krav },
+    });
+    const avsluttet = lagSakslinje({
+      sak_id: 'KOE-6',
+      saksbetegnelse: 'avslaget_paa_grunnlaget_godtatt',
+      frist: { ...ingenting, ...krav },
+    });
+    const grunnlagetTrukket = lagSakslinje({
+      sak_id: 'KOE-7',
+      saksbetegnelse: 'grunnlaget_trukket',
+      frist: { ...ingenting, ...krav },
+    });
+    const ikkeForstaatt = lagSakslinje({
+      sak_id: 'KOE-8',
+      forstaatt: false,
+      frist: { ...ingenting, ...krav },
+    });
+    expect(
+      velgSaker([venter, trukket, avsluttet, grunnlagetTrukket, ikkeForstaatt], '', 'alle', true)
+    ).toEqual([venter]);
+  });
 });

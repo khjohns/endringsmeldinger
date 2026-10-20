@@ -54,6 +54,20 @@ export function iUtvalg(linje: Sakslinje, utvalg: Saksutvalg): boolean {
   }
 }
 
+/**
+ * Fristkravet står slik flisen teller det (`noekkeltall` i `server/saksliste.ts`):
+ * saken er forstått og ikke avsluttet, og kravet er ikke trukket.
+ */
+function fristkravetStaar(linje: Sakslinje): boolean {
+  return (
+    linje.forstaatt &&
+    linje.frist.krav !== null &&
+    linje.saksbetegnelse !== 'avslaget_paa_grunnlaget_godtatt' &&
+    linje.saksbetegnelse !== 'grunnlaget_trukket' &&
+    !linje.frist.etiketter.includes('trukket')
+  );
+}
+
 export function velgSaker(
   saker: readonly Sakslinje[],
   sok: string,
@@ -64,7 +78,7 @@ export function velgSaker(
   return saker.filter(
     (linje) =>
       iUtvalg(linje, utvalg) &&
-      (!bareFristkrav || linje.frist.krav !== null) &&
+      (!bareFristkrav || fristkravetStaar(linje)) &&
       `${linje.sak_id} ${linje.sakstittel ?? ''}`.toLocaleLowerCase('nb-NO').includes(needle)
   );
 }
