@@ -266,7 +266,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     if (feil instanceof AvvistKvittering) throw feil.cause;
     if (feil instanceof TaptLease || feilnummer(feil) === LEASEN_GJELDER_IKKE) {
       // Uten lease kan ikke forsøket registreres; `hent_jobb` avgjør jobben når leasen er ute.
-      logg.error(`Jobben ${jobb.jobb_id} mistet leasen og stoppet før neste endring i Catenda.`);
+      logg.error(
+        `Jobben ${jobb.jobb_id} mistet leasen og stoppet før neste endring i Catenda:`,
+        feil
+      );
       return true;
     }
     const { utfall, melding } = utfallAv(feil, flagg.endringBedt, avstemmes);
