@@ -804,6 +804,16 @@
      }
     ]
    },
+   "koe.entra_tenant": {
+    "kolonner": [
+     ["tenant_id", "uniqueidentifier", "NOT NULL"],
+     ["created_at", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["tenant_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": []
+   },
    "koe.fullmakt": {
     "kolonner": [
      ["prosjekt_id", "nvarchar(100)", "NOT NULL"],

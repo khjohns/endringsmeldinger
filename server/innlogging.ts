@@ -24,6 +24,7 @@ import type { Avhengigheter, Innlogget, Rute, Svar } from './app.ts';
 import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';
+import { entraFraMiljoe, entraIdentitet, type EntraOIDC } from './entra.ts';
 import { fast, loggFeil, svarhoder } from './inngang.ts';
 import {
   basensKlokke,
@@ -44,10 +45,15 @@ export type Innloggingsleverandoer = Pick<
   'autorisasjonsadresse' | 'byttKode' | 'bruker' | 'prosjekter' | 'medlemmer'
 >;
 
+/** Det inngangene trenger av `EntraOIDC`, så testene kan bytte ut deler av den. */
+export type EntraLeverandoer = Pick<EntraOIDC, 'autorisasjonsadresse' | 'byttKode' | 'valider'>;
+
 export interface Innlogging {
   /** Opprinnelsen til frontenden, uten `/` til slutt (`AUTH_FRONTEND_URL`). */
   frontend: string;
   oauth: Innloggingsleverandoer;
+  /** Entra-innloggingen (#831). Uten den svarer Entra-inngangene 503. */
+  entra?: EntraLeverandoer | null;
 }
 
 const SESJONENS_LEVETID = 8 * 3600;
@@ -99,8 +105,13 @@ export function innloggingFraMiljoe(
     'redirect_uri'
   );
   kontrollerAdresse(tilbakekallsadresse ?? '', miljoe);
+  const entra = entraFraMiljoe(miljoe);
+  if (entra) {
+    kontrollerAdresse(miljoe.ENTRA_REDIRECT_URI ?? '', miljoe);
+    kontrollerAdresse(miljoe.ENTRA_AUTHORITY ?? '', miljoe);
+  }
   // Opprinnelsen har verten i punycode, så adressen kan stå i `Location` (#763 punkt 8).
-  return { frontend: frontend.origin, oauth };
+  return { frontend: frontend.origin, oauth, entra };
 }
 
 /**
@@ -208,15 +219,50 @@ async function medlemskapVedInnlogging(
   return bruker;
 }
 
-async function loggInn(foresporsel: IncomingMessage, avh: Required<Avhengigheter>): Promise<Svar> {
-  if (!avh.innlogging) return utilgjengelig();
+/** Det som skiller innloggingen med Catenda fra innloggingen med Entra ID. */
+interface Leverandoer {
+  sattOpp(innlogging: Innlogging): boolean;
+  /** Lenken til leverandøren for forsøket. */
+  adresse(innlogging: Innlogging, forsoek: { state: string; nettleser: string }): string;
+  /** Kontoen bak koden, som `app_users.id`. Kaster når identiteten ikke kan avgjøres. */
+  konto(
+    innlogging: Innlogging,
+    kode: string,
+    nettleser: string,
+    avh: Required<Avhengigheter>
+  ): Promise<string>;
+}
+
+const CATENDA: Leverandoer = {
+  sattOpp: () => true,
+  adresse: ({ oauth }, { state }) => oauth.autorisasjonsadresse(state),
+  konto: async ({ oauth }, kode, _nettleser, avh) =>
+    medlemskapVedInnlogging(avh.datalag, oauth, await oauth.byttKode(kode)),
+};
+
+/** Bare identiteten: Entra-sesjonen gir ingen prosjekttilgang og synkroniserer ikke medlemskap (GFK-U5). */
+const ENTRA: Leverandoer = {
+  sattOpp: ({ entra }) => Boolean(entra),
+  adresse: ({ entra }, { state, nettleser }) => entra!.autorisasjonsadresse(state, nettleser),
+  konto: async ({ entra }, kode, nettleser, avh) => {
+    const idToken = await entra!.byttKode(kode, nettleser);
+    return entraIdentitet(avh.datalag, await entra!.valider(idToken, nettleser, avh.tidspunkt()));
+  },
+};
+
+async function loggInn(
+  foresporsel: IncomingMessage,
+  avh: Required<Avhengigheter>,
+  leverandoer: Leverandoer
+): Promise<Svar> {
+  if (!avh.innlogging || !leverandoer.sattOpp(avh.innlogging)) return utilgjengelig();
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
   try {
     const forsoek = await opprettInnloggingsforsoek(
       avh.datalag,
       tryggRetursti(url.searchParams.get('return_to'))
     );
-    return omdiriger(avh.innlogging.oauth.autorisasjonsadresse(forsoek.state), [
+    return omdiriger(leverandoer.adresse(avh.innlogging, forsoek), [
       kapsel(`${sesjonsnavn()}_login`, forsoek.nettleser, FORSOEKETS_LEVETID, avh.tidspunkt()),
     ]);
   } catch (feil) {
@@ -227,10 +273,12 @@ async function loggInn(foresporsel: IncomingMessage, avh: Required<Avhengigheter
 
 async function tilbakekall(
   foresporsel: IncomingMessage,
-  avh: Required<Avhengigheter>
+  avh: Required<Avhengigheter>,
+  rute: Rute,
+  leverandoer: Leverandoer
 ): Promise<Svar> {
   const innlogging = avh.innlogging;
-  if (!innlogging) return [503, { error: 'AUTH_UNAVAILABLE' }];
+  if (!innlogging || !leverandoer.sattOpp(innlogging)) return [503, { error: 'AUTH_UNAVAILABLE' }];
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
   const navn = sesjonsnavn();
   const naa = avh.tidspunkt();
@@ -252,9 +300,8 @@ async function tilbakekall(
       ]);
     // Hodene prøves før sesjonen endres, så et hode Node avviser, ikke etterlater en
     // sesjon klienten aldri fikk (#763 punkt 8). Tokenet er base64url.
-    kontrollerHoder(innlogget(''), TILBAKEKALLET);
-    const token = await innlogging.oauth.byttKode(kode[0]);
-    const bruker = await medlemskapVedInnlogging(avh.datalag, innlogging.oauth, token);
+    kontrollerHoder(innlogget(''), rute);
+    const bruker = await leverandoer.konto(innlogging, kode[0], nettleser, avh);
     const sesjon = await opprettSesjon(avh.datalag, bruker);
     const gammel = informasjonskapsel(foresporsel, navn);
     // Den nye sesjonen slettes når den gamle ikke kan slettes, så klienten beholder én (#854 punkt 1).
@@ -297,7 +344,20 @@ const TILBAKEKALLET: Rute = {
       'Tilbakekallet fra Catenda, som oppretter sesjonen. Staten og innloggingskapselen binder det til forsøket.',
   },
   hoder: PRIVAT,
-  behandle: tilbakekall,
+  behandle: (f: IncomingMessage, avh: Required<Avhengigheter>) =>
+    tilbakekall(f, avh, TILBAKEKALLET, CATENDA),
+};
+
+const ENTRA_TILBAKEKALLET: Rute = {
+  metode: 'GET',
+  ...fast('/api/auth/entra/callback'),
+  tilgang: {
+    utenSesjon:
+      'Tilbakekallet fra Entra ID, som oppretter sesjonen. Staten og innloggingskapselen binder det til forsøket, og nonce og PKCE binder ID-tokenet til kapselen.',
+  },
+  hoder: PRIVAT,
+  behandle: (f: IncomingMessage, avh: Required<Avhengigheter>) =>
+    tilbakekall(f, avh, ENTRA_TILBAKEKALLET, ENTRA),
 };
 
 export const INNLOGGINGSRUTER: readonly Rute[] = [
@@ -306,9 +366,17 @@ export const INNLOGGINGSRUTER: readonly Rute[] = [
     ...fast('/api/auth/catenda/login'),
     tilgang: { utenSesjon: 'Starter innloggingen; brukeren har ingen sesjon ennå.' },
     hoder: PRIVAT,
-    behandle: loggInn,
+    behandle: (f: IncomingMessage, avh: Required<Avhengigheter>) => loggInn(f, avh, CATENDA),
   },
   TILBAKEKALLET,
+  {
+    metode: 'GET',
+    ...fast('/api/auth/entra/login'),
+    tilgang: { utenSesjon: 'Starter innloggingen med Entra ID; brukeren har ingen sesjon ennå.' },
+    hoder: PRIVAT,
+    behandle: (f: IncomingMessage, avh: Required<Avhengigheter>) => loggInn(f, avh, ENTRA),
+  },
+  ENTRA_TILBAKEKALLET,
   {
     metode: 'GET',
     ...fast('/api/auth/session'),
