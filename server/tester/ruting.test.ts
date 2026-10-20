@@ -36,6 +36,7 @@ describe('den lokale rutingen til TS-serveren', () => {
     ['PATCH', '/api/projects/p1/deactivate'],
     ['GET', '/api/projects/p1/membersx'],
     ['GET', '/api/projects/p1/sakerx'],
+    ['GET', '/api/projects/p1/saker/'],
     ['GET', '/api/projects/p1/saker/1'],
     ['GET', '/api/cases/1/state'],
     ['GET', '/api/authx'],

@@ -15,7 +15,7 @@ export function tilTsServeren(metode: string, url: string): boolean {
     sti === '/api/csrf-token' ||
     (metode === 'GET' && /^\/api\/projects(\/[^/]+)?\/?$/.test(sti)) ||
     /^\/api\/projects\/[^/]+\/members(\/|$)/.test(sti) ||
-    /^\/api\/projects\/[^/]+\/saker\/?$/.test(sti) ||
+    /^\/api\/projects\/[^/]+\/saker$/.test(sti) ||
     /^\/webhook\/catenda(\/|$)/.test(sti)
   );
 }
