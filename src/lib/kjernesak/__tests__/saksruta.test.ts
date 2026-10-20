@@ -14,6 +14,7 @@ const t = vi.hoisted(() => ({
   bryterPaa: true,
   kontekst: null as ReturnType<typeof falskKjernesak> | null,
   sakIdTilPython: null as (() => string) | null,
+  pythonSak: undefined as { state: { sakstype: string; sakstittel: string } } | undefined,
 }));
 
 vi.mock('$app/state', () => ({
@@ -24,7 +25,7 @@ vi.mock('$app/paths', () => ({ resolve: () => '/' }));
 vi.mock('$lib/queries/caseContext', () => ({
   createCaseContextQuery: (sakId: () => string) => {
     t.sakIdTilPython = sakId;
-    return { data: undefined, isError: false, error: null, refetch: vi.fn() };
+    return { data: t.pythonSak, isError: false, error: null, refetch: vi.fn() };
   },
 }));
 vi.mock('$lib/kjernesak/kontekst.svelte', () => ({ lagKjernesak: () => t.kontekst }));
@@ -34,7 +35,6 @@ vi.mock('$lib/kjernesak/bryter', async (original) => ({
 }));
 vi.mock('$lib/components/kjernesak/Kjernesakrom.svelte', () => import('./Tom.svelte'));
 vi.mock('$lib/kontraktsbord/CaseWorkspace.svelte', () => import('./Tom.svelte'));
-vi.mock('$lib/components/endringsordre/EndringsordrePage.svelte', () => import('./Tom.svelte'));
 
 const Saksruta = (await import('../../../routes/[prosjektId]/[sakId]/+page.svelte')).default;
 
@@ -42,6 +42,7 @@ beforeEach(() => {
   t.bryterPaa = true;
   t.kontekst = falskKjernesak();
   t.sakIdTilPython = null;
+  t.pythonSak = undefined;
 });
 afterEach(cleanup);
 
@@ -80,5 +81,27 @@ describe('kilden i saksruta', () => {
     t.bryterPaa = false;
     render(Saksruta);
     expect(tilPython()).toBe('sak-1');
+  });
+});
+
+describe('sakstypene som ikke hører til første versjon (OV-U1)', () => {
+  it.each(['endringsordre', 'forsering'])(
+    'en sak med sakstype %s fra Python viser at sakstypen ikke støttes',
+    (sakstype) => {
+      t.bryterPaa = false;
+      t.pythonSak = { state: { sakstype, sakstittel: 'Sak' } };
+      const screen = render(Saksruta);
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Endringsordre og forsering støttes ikke i denne versjonen'
+      );
+      expect(screen.getByRole('link', { name: 'Til saksoversikten' })).toBeInTheDocument();
+    }
+  );
+
+  it('en standardsak fra Python viser ingen melding', () => {
+    t.bryterPaa = false;
+    t.pythonSak = { state: { sakstype: 'standard', sakstittel: 'Sak' } };
+    const screen = render(Saksruta);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

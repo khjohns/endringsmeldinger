@@ -29,7 +29,6 @@
     if (role === 'BH' && !kjernesak) void approval.load();
   });
   import Header from './Header.svelte';
-  import EndringsordreLink from '$lib/components/endringsordre/EndringsordreLink.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
   import CenterRead from './CenterRead.svelte';
   import FristForm from './FristForm.svelte';
@@ -356,9 +355,6 @@
       <CatendaSyncNotice status={store.catendaSyncStatus} />
     {/if}
 
-    {#if !store.isDemo && !kjernesak && !creatingCase && mode === 'read'}
-      <EndringsordreLink state={store.sak} projectId={store.projectId} role={valgtRolle} />
-    {/if}
     <div class="body">
       {#if !creatingCase}
         <div

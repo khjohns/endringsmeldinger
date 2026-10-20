@@ -179,21 +179,6 @@
             href={resolve('/[prosjektId]/ny', { prosjektId: encodeURIComponent(prosjektId) })}
             ><Plus size={17} /> Ny sak</a
           >
-        {:else if role === 'BH' && activePage === 'overview'}
-          <div class="heading-actions">
-            <a
-              class="primary secondary-action"
-              href={resolve('/[prosjektId]/endringsordre/godkjenning', {
-                prosjektId: encodeURIComponent(prosjektId),
-              })}>Til godkjenning</a
-            >
-            <a
-              class="primary"
-              href={resolve('/[prosjektId]/endringsordre/ny', {
-                prosjektId: encodeURIComponent(prosjektId),
-              })}><Plus size={17} /> Ny endringsordre</a
-            >
-          </div>
         {/if}
       </header>
       <details class="mobile-project-info">
@@ -331,9 +316,11 @@
               </div>
             {/if}
             {#if !cases.length}<div class="state-message">
-                Ingen saker ennå. {role === 'BH'
-                  ? 'Opprett den første endringsordren med «Ny endringsordre».'
-                  : 'Opprett det første KOE-kravet med «Ny sak».'}
+                Ingen saker ennå. {role !== 'BH'
+                  ? 'Opprett det første KOE-kravet med «Ny sak».'
+                  : demo
+                    ? 'Opprett den første endringsordren med «Ny endringsordre».'
+                    : ''}
               </div>
             {:else if !filtered.length}<div class="state-message">
                 Ingen saker passer søket og utvalget.<button
