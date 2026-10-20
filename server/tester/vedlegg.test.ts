@@ -521,12 +521,13 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     expect(feilnummer(feil)).toBe(547);
   });
 
-  // Kilde: #846. Konteksten leses i full lengde, som radsikkerheten gjør. Lest som
-  // `nvarchar(32)` og `nvarchar(2)` ble `<team>x` til teamet og `BHX` til `BH`, så
-  // blokkpredikatet stoppet skrivingen med 33504 i stedet for prosedyren med 51403.
+  // Kilde: #846. Prosedyren leser konteksten i full lengde og avviser et team eller en
+  // side som avkuttet eller uten mellomrom til slutt ville fått den lagrede formen.
   it.each([
     ['et team med ett tegn for mye', 'TE', (team: string) => `${team}x`],
-    ['en side som bare begynner med BH', 'BHX', (team: string) => team],
+    ['en side som bare begynner med TE', 'TEX', (team: string) => team],
+    ['en side med mellomrom til slutt', 'TE ', (team: string) => team],
+    ['et team med mellomrom til slutt', 'TE', (team: string) => `${team} `],
   ])(
     '%s i konteksten avvises av lagre_vedlegg, og ingenting lagres (51403, #846)',
     async (_, side, teamFra) => {

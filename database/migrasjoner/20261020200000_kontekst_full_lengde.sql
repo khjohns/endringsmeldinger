@@ -1,8 +1,8 @@
--- Konteksten leses i full lengde (#846), som i `koe_api.skriv_hendelse` og radsikkerheten.
--- `TRY_CAST(… AS nvarchar(n))` kutter en lengre verdi uten feil: et team på 33 tegn ble
--- et team på 32, og siden `BHX` ble `BH`. Prosedyrene her leste konteksten avkuttet og
--- lot det være radsikkerheten som stoppet skrivingen; nå avvises den av prosedyren.
--- Definisjonene er de som gjaldt fra før, bare med konteksten lest som `nvarchar(4000)`.
+-- Konteksten leses i full lengde (#846), som i `koe_api.skriv_hendelse`.
+-- `TRY_CAST(… AS nvarchar(n))` kutter en lengre verdi uten feil, så et team på 33 tegn
+-- blir et team på 32 og siden `BHX` blir `BH`. `lagre_vedlegg` avviser et team eller en
+-- side som ikke har formen kolonnene lagrer, med samme byte-lengde som radsikkerheten
+-- sammenlikner, fordi `=` og `LEN` ser bort fra mellomrom til slutt.
 
 CREATE OR ALTER PROCEDURE koe_api.leveringsmaal
   @sak_id nvarchar(4000)
@@ -36,7 +36,8 @@ BEGIN
   DECLARE @side nvarchar(4000) = TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(4000));
   IF @team IS NULL
     THROW 51403, N'Uten entydig team lagres ikke noe vedlegg', 1;
-  IF LEN(@team) > 32 OR LEN(@side) > 2
+  IF DATALENGTH(@team) <> 64 OR @team COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^0-9a-f]%'
+     OR @side IS NULL OR DATALENGTH(@side) <> 4 OR @side NOT IN (N'TE', N'BH')
     THROW 51403, N'Teamet eller siden i konteksten har ikke den lagrede formen', 1;
   IF NOT EXISTS (SELECT 1 FROM koe.sak_metadata WHERE sak_id = @sak_id AND prosjekt_id = @prosjekt)
     THROW 51403, N'Ukjent sak', 1;
