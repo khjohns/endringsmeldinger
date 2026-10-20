@@ -570,15 +570,17 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(m.raa).toBe('Brevet æøå');
   });
 
-  it('et navn med tegn over U+007F sendes som \\uXXXX i Bimsync-Params og leses tilbake uendret (#903)', async () => {
+  // Kilde: #903, og #921 for DEL (U+007F), som `fetch` avviser i et hode.
+  it('et navn med tegn fra U+007F sendes som \\uXXXX i Bimsync-Params og leses tilbake uendret (#903)', async () => {
     svar = () => ({ status: 201, json: [{ id: 'abc123' }] });
-    const navn = 'vedlegg-Łódź-æøå-😀.pdf';
+    const navn = 'vedlegg-Łódź-æøå-😀-\x7f.pdf';
     expect(
       await new CatendaOAuth(oppsett()).lastOppDokument(maal, { ...dokument, navn }, 'i')
     ).toBe('abc123');
     const hode = String(mottatt[0].hoder['bimsync-params']);
     expect(hode).toMatch(/^[\x20-\x7e]+$/);
     expect(hode).toContain('\\u0141\\u00f3d\\u017a');
+    expect(hode).toContain('\\u007f');
     expect(JSON.parse(hode)).toMatchObject({ name: navn, document: { filename: navn } });
   });
 

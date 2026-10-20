@@ -534,12 +534,12 @@ export class CatendaOAuth {
 }
 
 /**
- * JSON med hvert tegn over U+007F som `\uXXXX`. En hodeverdi kan bare bære tegn til
- * U+00FF, og Catenda leser ikke tegnene over U+007F som UTF-8 (#903).
+ * JSON med hvert tegn fra U+007F som `\uXXXX`. En hodeverdi kan bare bære tegn til
+ * U+00FF utenom DEL (U+007F), og Catenda leser ikke tegnene over U+007F som UTF-8 (#903).
  */
 function asciiJson(verdi: unknown): string {
   return JSON.stringify(verdi).replace(
-    /[\u0080-￿]/g,
+    /[\u007f-\uffff]/g,
     (tegn) => `\\u${tegn.charCodeAt(0).toString(16).padStart(4, '0')}`
   );
 }

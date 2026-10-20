@@ -1224,6 +1224,56 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
       vi.useRealTimers();
     }
   });
+  // Kilde: #926. Fornyelsen gir 54001 når leasen ikke gjelder, og da gjør forsøket ingen
+  // endring i Catenda etter det. En annen feil i fornyelsen stopper ikke leveringen.
+  it.each<[string, number, string[]]>([
+    [
+      'en tapt lease (54001) stopper leveringen før referansen opprettes',
+      54001,
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease'],
+    ],
+    [
+      'en vranglås i fornyelsen (1205) stopper ikke leveringen',
+      1205,
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'kvitter_vedlegg', 'kvitter_levering'],
+    ],
+  ])('%s', async (_n, nummer, kallene) => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    try {
+      let slipp!: () => void;
+      let venter!: () => void;
+      const steget = new Promise<void>((ok) => (venter = ok));
+      const opprettet: string[] = [];
+      const base = falskBase(
+        'levering',
+        { prosedyre: 'koe_api.forny_lease', feil: { number: nummer } },
+        {
+          vedlegg: [vedlegg('v1')],
+          dokumenter: {
+            dokumentreferanser: () => {
+              venter();
+              return new Promise((ok) => (slipp = () => ok([])));
+            },
+            opprettDokumentreferanse: async (_b, _t, dokumentId) => {
+              opprettet.push(dokumentId);
+              return 'referanse';
+            },
+          },
+        }
+      );
+      const kjoering = base.kjoer();
+      await steget;
+      vi.advanceTimersByTime((LEASETID_S * 1000) / 3);
+      await new Promise((ok) => setImmediate(ok));
+      slipp();
+      expect(await kjoering).toBe(true);
+      expect(prosedyrene(base)).toEqual(kallene);
+      expect(opprettet).toEqual(nummer === 54001 ? [] : ['dokument-v1']);
+      expect(base.registrert).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe('navnet vedlegget får i Catenda (#876)', () => {
