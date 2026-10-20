@@ -227,7 +227,7 @@ const MUTASJONER: Mutasjon[] = [
         '',
       ],
     ],
-    mal: ['F-MM-K1', 'F-MM-K2', 'F-MM-K3', 'F-MM-G10'],
+    mal: ['F-MM-A', 'F-MM-G10', 'F-MM-G30'],
   },
   {
     id: 'F13',
