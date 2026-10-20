@@ -33,6 +33,7 @@ import { catendaIdentitet } from './innlogging.ts';
 import {
   IngenTopicBoard,
   kommandosum,
+  kvittertSak,
   opprettSak,
   SkrivingAvvist,
   TopicHarSak,
@@ -257,22 +258,26 @@ export async function behandle(
   if (!medlem) return ut('ukjent_side');
 
   const aktor = await catendaIdentitet(avh.datalag, medlem);
+  const kommando = {
+    id: kommandoId(rad),
+    // Uten tittelen: den leses fra Catenda og kan endres mellom to forsøk.
+    sha256: kommandosum({ rute: 'innboks', hendelse: rad.hendelse_id, topic: topicId }),
+  };
+  // Før siden: et nytt forsøk etter en lagret sak får saken, også om siden er endret (#963).
+  const kvittert = await kvittertSak(avh.datalag, { aktor, prosjekt: prosjektId }, kommando);
+  if (kvittert) return { ...ut('sak_opprettet'), sakId: kvittert };
   const side = await kontraktssideUtenSesjon(avh.datalag, avh.catenda, prosjektId, aktor);
   if (!side) return ut('ukjent_side');
   if (side.rolle === 'BH') return ut('topic_fra_bh');
 
-  const kommando = { type: 'opprett_sak', sakstittel: topic.tittel };
+  const opprett = { type: 'opprett_sak', sakstittel: topic.tittel };
   try {
     const utfall = await opprettSak(
       avh.datalag,
       { aktor, prosjekt: prosjektId, side: 'TE', ...(side.teamId ? { team: side.teamId } : {}) },
-      {
-        id: kommandoId(rad),
-        // Uten tittelen: den leses fra Catenda og kan endres mellom to forsøk.
-        sha256: kommandosum({ rute: 'innboks', hendelse: rad.hendelse_id, topic: topicId }),
-      },
+      kommando,
       () => {
-        const vurdert = opprettelse(kommando, side.rolle);
+        const vurdert = opprettelse(opprett, side.rolle);
         if (!vurdert.godtatt) return { skriv: false as const, avvisning: vurdert.avvisning };
         return { format: vurdert.format, data: vurdert.data };
       },
