@@ -10,10 +10,9 @@ import { KAN_FAA_INNSIGELSE, type Utledning } from '../utledning/utled.ts';
 import { KRAVSPOR, SPOR, type Part } from '../typer.ts';
 
 /**
- * Handlingene som kan gjelde saken: hver handling i hvert spor, en innsigelse per
- * varsel, krav og svar, en protest per innsigelse og dokument, påberopt passivitet per
- * grunnlagskrav og en begrunnelse per element, som forutsetningen snevrer inn til
- * svarene. Bestridelse, merking og avklaring tilbys ikke (OV-U7).
+ * Handlingene som kan gjelde saken: hver handling i hvert spor og en innsigelse per
+ * varsel, krav og svar. Bestridelse, merking, avklaring, protest, påberopt passivitet
+ * og senere begrunnelse tilbys ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const ut: Handlingsnoekkel[] = [];
@@ -24,10 +23,7 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
   for (const spor of KRAVSPOR) ut.push({ type: 'ingen_krav', spor });
   for (const [id, e] of Object.entries(u.elementer)) {
     if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
-    if (e.innsigelse || e.art === 'dokument') ut.push({ type: 'protest', gjelder: id });
-    ut.push({ type: 'begrunne', gjelder: id });
   }
-  for (const k of u.spor.grunnlag.krav) ut.push({ type: 'passivitet', gjelder: k.id });
   return ut;
 }
 

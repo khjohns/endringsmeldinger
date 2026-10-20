@@ -376,47 +376,57 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     expect(u.utenVirkning).toEqual([]);
   });
 
-  it('en registrert begrunnelse av et registrert svar, oppgitt sendt før svaret, godtas, fordi datokontrollene er utsatt (OV-U7, KA-U36)', async () => {
+  it('en lest begrunnelse av et registrert svar, oppgitt sendt før svaret, er forstått, mens kommandoen avvises i første versjon (OV-U7, KA-U34, KA-U36)', async () => {
+    const svaret = {
+      handling: 'rad',
+      spor: 'vederlag',
+      navn: 'S-v1',
+      dokument: 'D5',
+      gjelder: 'K-v1',
+      grunnlagskrav: 'K-g2',
+      vurdering: 'godkjent',
+      godkjent_belop: 100000,
+      sendt: '2026-10-02',
+    };
     const bane = minnebane();
-    const k = await bygg(bane, [
+    const k = await bygg(bane, [...foer, svaret]);
+    const journal = await bane.journal();
+    const kommando = {
+      type: 'begrunnelse',
+      gjelder: k.navn.id('S-v1'),
+      sendt: '2026-10-01',
+      dokumentasjon: [randomUUID()],
+    };
+    const u = vurder(
+      kommando,
+      {
+        sakId: journal[0].sak_id,
+        aktoerId: 'bh',
+        part: 'BH',
+        teamId: null,
+        tidspunkt: () => new Date('2026-10-11T08:00:00Z'),
+        nyId: () => randomUUID(),
+      },
+      journal,
+      KJERNE,
+      mellomlager(kommando)
+    );
+    expect(u.godtatt ? null : u.avvisning.regel).toBe('IKKE_I_FOERSTE_VERSJON');
+
+    const lest = minnebane();
+    await bygg(lest, [
       ...foer,
+      svaret,
       {
         handling: 'rad',
-        spor: 'vederlag',
-        navn: 'S-v1',
-        dokument: 'D5',
-        gjelder: 'K-v1',
-        grunnlagskrav: 'K-g2',
-        vurdering: 'godkjent',
-        godkjent_belop: 100000,
-        sendt: '2026-10-02',
+        art: 'begrunnelse',
+        gjelder: 'S-v1',
+        part: 'BH',
+        navn: 'D6',
+        sendt: '2026-10-01',
       },
     ]);
-    const journal = await bane.journal();
-    const begrunnelse = (sendt: string) => {
-      const kommando = {
-        type: 'begrunnelse',
-        gjelder: k.navn.id('S-v1'),
-        sendt,
-        dokumentasjon: [randomUUID()],
-      };
-      const u = vurder(
-        kommando,
-        {
-          sakId: journal[0].sak_id,
-          aktoerId: 'bh',
-          part: 'BH',
-          teamId: null,
-          tidspunkt: () => new Date('2026-10-11T08:00:00Z'),
-          nyId: () => randomUUID(),
-        },
-        journal,
-        KJERNE,
-        mellomlager(kommando)
-      );
-      return u.godtatt ? null : u.avvisning.regel;
-    };
-    expect(begrunnelse('2026-10-01')).toBeNull();
+    expect(forstaatt(await lest.journal())).toBe(true);
   });
 
   it('en påberopt passivitet mot den er forstått', async () => {

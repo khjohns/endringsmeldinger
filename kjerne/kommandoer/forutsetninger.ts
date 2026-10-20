@@ -11,7 +11,6 @@
 
 import {
   kanFaaInnsigelse,
-  kanFaaProtest,
   kraveneErAvgjort,
   trekkAvGrunnlagetErSperret,
   type Utledning,
@@ -37,7 +36,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   varsle: 'TE',
   sende_varsel: 'TE',
   ingen_krav: 'TE',
-  passivitet: 'TE',
+  passivitet: null,
   svare: 'BH',
   revidere: 'BH',
   bestride: null,
@@ -45,13 +44,14 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   protest: null,
   merke: null,
   avklare: null,
-  begrunne: 'BH',
+  begrunne: null,
 };
 
 /**
- * Utsagnene uten virkning på utfallet som viser til et annet element: § 5, VS-U12
- * og KA-U34. De godtas også når kravene er avgjort eller avslaget av grunnlaget er
- * godtatt (KA-U11, KA-U28, KA-U29, KA-U34).
+ * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
+ * etter § 5 godtas også når kravene er avgjort eller avslaget av grunnlaget er
+ * godtatt (KA-U11, KA-U29). De andre er utsatt etter OV-U7 og avvises for begge
+ * parter.
  */
 function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Part, u: Utledning) {
   const maal = u.elementer[h.gjelder];
@@ -64,32 +64,19 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
             'UGYLDIG_INNSIGELSE',
             'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
           );
-    case 'protest': {
-      // VS-U1, MP-U6: en innsigelse fra motparten, påberopelsen i et svar, eller et
-      // dokument fra motparten med innsigelser, som protesten da gjelder alle.
-      return kanFaaProtest(h.gjelder, part, u.elementer)
-        ? null
-        : avvis('INGEN_INNSIGELSE', 'Det finnes ingen innsigelse fra motparten å protestere mot.');
-    }
-    case 'passivitet':
-      // VS-U12: TEs varsel etter § 32.2 er kravet i grunnlagssporet.
-      return u.spor.grunnlag.krav.some((k) => k.id === h.gjelder)
-        ? null
-        : avvis('INGEN_VARSEL_ETTER_32_2', 'Påberopelsen må vise til TEs varsel etter § 32.2.');
     case 'bestride':
     case 'merke':
     case 'avklare':
+    case 'protest':
+    case 'passivitet':
+    case 'begrunne':
       // OV-U7: bestridelsen (MM-U7, MM-U14), merkingen etter KA-U20 og avklaringen av
-      // den bygges ikke i første versjon.
+      // den, protesten mot en innsigelse (VS-U1, VS-U9), påberopt passivitet (VS-U12)
+      // og den senere begrunnelsen (KA-U34) bygges ikke i første versjon.
       return avvis(
         'IKKE_I_FOERSTE_VERSJON',
-        'Bestridelse, merking og avklaring er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
+        'Bestridelse, merking, avklaring, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
       );
-    case 'begrunne':
-      // KA-U34: et svar, sendt eller registrert. Et svar er alltid fra BH (format/leser.ts).
-      return maal?.art === 'svar'
-        ? null
-        : avvis('INGEN_SVAR_AA_BEGRUNNE', 'Begrunnelsen må gjelde et svar fra byggherren.');
   }
 }
 
