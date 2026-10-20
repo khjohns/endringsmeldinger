@@ -43,8 +43,8 @@
     canSend?: boolean;
     sendLabel: string;
     onwithdraw?: () => void;
-    /** TS-saken: TE godtar byggherrens gjeldende svar i sporet. */
-    ongodta?: () => void;
+    /** TS-saken: TE godtar byggherrens gjeldende svar i sporet, med svarets ID. */
+    ongodta?: (svar: string) => void;
     /** TS-saken: TE gjør innsigelse etter § 5 tredje ledd mot byggherrens svar i sporet. */
     oninnsigelse?: () => void;
   } = $props();
@@ -84,7 +84,7 @@
   );
   // TS-saken (#718, #909): bare handlingene kjernen tilbyr TE, i sporet som vises.
   const kjernekrav = $derived(kjernesak?.teSkjema(sel) ?? null);
-  const tilbyrAksept = $derived(Boolean(kjernesak?.godtar(sel)));
+  const svarSomKanGodtas = $derived(kjernesak?.godtar(sel) ?? null);
   const tilbyrInnsigelse = $derived(Boolean(kjernesak?.innsigelser(sel).length));
   const tilbyrKjernetrekk = $derived(kjernesak?.tilbyrTe(`trekke:${SPOR_FOR[sel]}`) === true);
   const kjernesakStatus = $derived(kjernesak ? kjernesak.statustekst(sel) : '');
@@ -179,8 +179,9 @@
             ><ShieldAlert size={14} /> Gjør innsigelse</button
           >
         {/if}
-        {#if tilbyrAksept}
-          <button class="btn btn-secondary" onclick={ongodta}
+        {#if svarSomKanGodtas}
+          {@const svar = svarSomKanGodtas}
+          <button class="btn btn-secondary" onclick={() => ongodta?.(svar)}
             ><Check size={14} /> Godta svaret</button
           >
         {/if}

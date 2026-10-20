@@ -27,15 +27,6 @@ export type {
   FristVarselType,
 } from './timeline';
 
-// API types (requests and responses)
-export type {
-  StateResponse,
-  EventSubmitResponse,
-  TimelineResponse,
-  EventSubmitRequest,
-  ApiClientConfig,
-} from './api';
-
 // Bestemmelser (contract provisions for context panel)
 export interface Bestemmelse {
   /** §-referanse, f.eks. "§ 34.1" */

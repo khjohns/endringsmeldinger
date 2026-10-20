@@ -46,12 +46,11 @@
   import { fmt } from './utils.js';
   import { sporResultatLabel } from './derive.js';
   import Stamp from './Stamp.svelte';
-  import type { EventType, ResponsVederlagEventData } from '$lib/types/timeline';
+  import type { EventType } from '$lib/types/timeline';
   import {
     createSubmission,
     createFormDraft,
     submissionRefs,
-    requireEventId,
   } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission(() => draft.clear());
 
@@ -65,30 +64,7 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const previousEvent = store.isDemo
-    ? undefined
-    : submissionRefs(store.timeline, 'vederlag').response;
-  const previous = previousEvent?.data as ResponsVederlagEventData | undefined;
-  const initialDefaults = getDefaults({
-    isUpdateMode: Boolean(previous),
-    lastResponseEvent:
-      previous && previousEvent
-        ? {
-            eventId: previousEvent.id,
-            hovedkravVarsletITide: previous.hovedkrav_varslet_i_tide,
-            riggVarsletITide: previous.rigg_varslet_i_tide,
-            produktivitetVarsletITide: previous.produktivitet_varslet_i_tide,
-            akseptererMetode: previous.aksepterer_metode,
-            oensketMetode: previous.oensket_metode,
-            hovedkravVurdering: previous.hovedkrav_vurdering,
-            hovedkravGodkjentBelop: previous.hovedkrav_godkjent_belop,
-            riggVurdering: previous.rigg_vurdering,
-            riggGodkjentBelop: previous.rigg_godkjent_belop,
-            produktivitetVurdering: previous.produktivitet_vurdering,
-            produktivitetGodkjentBelop: previous.produktivitet_godkjent_belop,
-          }
-        : undefined,
-  });
+  const initialDefaults = getDefaults({ isUpdateMode: false });
 
   // Port 1: Preklusjon
   let hovedkravVarsletITide = $state<boolean | undefined>(initialDefaults.hovedkravVarsletITide);
@@ -116,10 +92,8 @@
   // Begrunnelse state (declared before formState which references it)
   // The generator consumes formState, so assigning its result avoids a derived dependency cycle.
   // eslint-disable-next-line svelte/prefer-writable-derived
-  let begrunnelseHtml = $state(previous?.begrunnelse ?? '');
-  let tilleggHtml = $state(
-    String((previous as unknown as Record<string, unknown> | undefined)?.tilleggs_begrunnelse ?? '')
-  );
+  let begrunnelseHtml = $state('');
+  let tilleggHtml = $state('');
 
   const formState: VederlagFormState = $derived({
     hovedkravVarsletITide,
@@ -139,7 +113,7 @@
 
   const computed = $derived(beregnAlt(formState, domainConfig));
   const draft = createFormDraft(
-    !store.isDemo,
+    false,
     {
       sakId: store.sak.sak_id,
       spor: 'vederlag',
@@ -536,21 +510,6 @@
                   : undefined,
                 begrunnelse: begrunnelseHtml,
               });
-            } else {
-              const refs = submissionRefs(store.timeline, 'vederlag');
-              const { eventType, data } = buildEventData(
-                formState,
-                domainConfig,
-                computed,
-                {
-                  vederlagKravId: requireEventId(refs.claimId),
-                  lastResponseEventId: refs.responseId,
-                  isUpdateMode: Boolean(refs.responseId),
-                },
-                '',
-                computed.subsidiaerTriggers
-              );
-              await store.submit(eventType as EventType, data);
             }
           }, onsend);
       },
@@ -600,7 +559,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo}
+      visVedlegg={false}
       bind:vedleggIds
       bind:vedleggOpptatt
     />

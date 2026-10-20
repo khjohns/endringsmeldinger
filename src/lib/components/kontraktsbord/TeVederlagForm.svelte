@@ -18,7 +18,6 @@
     createSubmission,
     createFormDraft,
     submissionRefs,
-    requireEventId,
   } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission(() => draft.clear());
   import type { VederlagSubmissionFormState } from '$lib/domain/vederlagSubmissionDomain';
@@ -120,7 +119,7 @@
         : beregnCanSubmit(mappedState) && charCount >= 10
   );
   const draft = createFormDraft(
-    !store.isDemo && !kjernesak,
+    false,
     {
       sakId: store.sak.sak_id,
       spor: 'vederlag',
@@ -182,40 +181,16 @@
                   ? 'vederlag_krav_sendt'
                   : (getEventType({ scenario }) as EventType),
                 data,
-                () => {
-                  if (store.isDemo) {
-                    if (mode === 'varsel') store.sendTeVederlagVarsel(noticeData);
-                    else store.sendTeVederlag(hovedkravValue ?? 0, metode);
-                  }
+                (demo) => {
+                  if (mode === 'varsel') demo.sendTeVederlagVarsel(noticeData);
+                  else demo.sendTeVederlag(hovedkravValue ?? 0, metode);
                 }
               );
               return;
             }
-            if (mode === 'varsel') {
-              if (store.isDemo) store.sendTeVederlagVarsel(noticeData);
-              else
-                await store.submit('vederlag_krav_sendt', {
-                  vedlegg_ids: [...vedleggIds],
-                  varsel_type: 'varsel',
-                  varsler: noticeData,
-                  begrunnelse: Object.values(noticeData).join('\n\n'),
-                });
-              return;
-            }
-            if (store.isDemo) store.sendTeVederlag(hovedkravValue ?? 0, metode);
-            else
-              await store.submit(getEventType({ scenario }) as EventType, {
-                ...buildEventData(mappedState, {
-                  scenario,
-                  grunnlagEventId: requireEventId(
-                    submissionRefs(store.timeline, 'grunnlag').claimId
-                  ),
-                  originalEventId:
-                    scenario === 'edit'
-                      ? requireEventId(submissionRefs(store.timeline, 'vederlag').claimId)
-                      : undefined,
-                }),
-              });
+            if (!store.isDemo) return;
+            if (mode === 'varsel') store.sendTeVederlagVarsel(noticeData);
+            else store.sendTeVederlag(hovedkravValue ?? 0, metode);
           }, onsend);
       },
     });
@@ -242,7 +217,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo && !kjernesak}
+      visVedlegg={false}
       bind:vedleggIds
       bind:vedleggOpptatt
     />
