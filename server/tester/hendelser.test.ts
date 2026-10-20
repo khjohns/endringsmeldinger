@@ -12,7 +12,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { catendaId } from '../autorisasjon.ts';
+import { catendaId, medlemslistensAlder } from '../autorisasjon.ts';
 import {
   CatendaUtilgjengelig,
   TOPICTYPE,
@@ -544,14 +544,12 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     };
     return { teller, avh: { ...avh, innboks: oppslag } };
   };
-  const listensAlder = async () =>
-    (
-      await somEier<{ alder: number }>(
-        `SELECT DATEDIFF(second, synced_at, SYSUTCDATETIME()) AS alder
-           FROM koe.app_membership_sync WHERE project_id = @p`,
-        { p: o.prosjekt.id }
-      )
-    ).recordset[0].alder;
+  /** Alderen tilgangskontrollen selv leser, så en liste fra en annen kobling ikke teller som fersk. */
+  const listensAlder = async () => {
+    const alder = await medlemslistensAlder(avh.datalag, o.prosjekt.id);
+    if (!alder) throw new Error('Prosjektet har ingen medlemsliste fra den aktive koblingen');
+    return alder.alderSekunder;
+  };
   const harMedlemskap = async (subjekt: string) =>
     (
       await somEier<{ antall: number }>(
@@ -564,6 +562,12 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
   it('#963: en TE-forfatter som er lagt til i Catenda etter siste synkronisering mens listen er fersk, får saken, og listen hentes én gang', async () => {
     const [iTeamet, utenTeam] = [randomUUID(), randomUUID()].map((u) => u.replaceAll('-', ''));
     const { teller, avh: medNye } = medNyeMedlemmer([iTeamet, utenTeam], [iTeamet]);
+    await somEier(
+      `UPDATE koe.app_membership_sync
+          SET synced_at = CAST(DATETRUNC(millisecond, SYSUTCDATETIME()) AS datetime2(3))
+        WHERE project_id = @p`,
+      { p: o.prosjekt.id }
+    );
     expect(await listensAlder()).toBeLessThan(60);
     expect(await harMedlemskap(iTeamet)).toBe(false);
 

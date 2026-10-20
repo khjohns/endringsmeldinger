@@ -457,7 +457,8 @@ export async function kontraktssideUtenSesjon(
   const fersk = sist !== null && sist.alderSekunder < medlemskapsalder();
   let medlemskap = fersk ? await prosjektmedlemskap(db, aktor, prosjektId) : undefined;
   if (!medlemskap) {
-    await synkroniserMedlemskap(db, { prosjekt: prosjektId, ...liste });
+    const { catendaProsjekt, hentet, medlemmer } = liste;
+    await synkroniserMedlemskap(db, { prosjekt: prosjektId, catendaProsjekt, hentet, medlemmer });
     medlemskap = await prosjektmedlemskap(db, aktor, prosjektId);
   }
   if (!medlemskap) return null;
