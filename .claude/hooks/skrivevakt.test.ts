@@ -381,6 +381,9 @@ describe('skrivevakten for mekanisk-pr', () => {
       'echo # \'\necho "\nx \' y " ; g\\it push --force origin HEAD:main ; echo "\nx "',
       "echo $(#'\ng\\it push --force origin HEAD:main\n)",
       "echo $'\\''\ng\\it push --force origin HEAD:main\necho '",
+      "echo $'\\''\ng${x}it push --force origin HEAD:main\necho '",
+      "echo `#'`\ng${x}it push --force origin HEAD:main\necho '",
+      "echo $'\\''\nr${x}m -rf kj${x}erne\necho '",
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
