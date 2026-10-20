@@ -72,8 +72,9 @@ const endringsvakt = new AsyncLocalStorage<{ endringBedt: boolean }>();
  * Kjører `kall` og setter `flagg.endringBedt` før hver endring `forespoersel` sender
  * til Catenda i kallet. Avviser Catenda endringen uten å endre noe (`avvistUtenEndring`),
  * er flagget som før forespørselen (#921). En falsk `Topicoppretter` eller
- * `Dokumentleverandoer` kaller `merkEndring` selv, og ikke for en `CatendaAvvisning`. Flagget følger den asynkrone konteksten, så forespørselen må
- * startes fra `kall`, ikke fra en kø eller tilbakekalling utenfor.
+ * `Dokumentleverandoer` kaller `merkEndring` selv, og ikke for en `CatendaAvvisning`.
+ * Flagget følger den asynkrone konteksten, så forespørselen må startes fra `kall`, ikke
+ * fra en kø eller tilbakekalling utenfor.
  */
 export function medEndringsflagg<T>(
   flagg: { endringBedt: boolean },

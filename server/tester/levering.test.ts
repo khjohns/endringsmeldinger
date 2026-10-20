@@ -70,20 +70,24 @@ class FalskCatenda implements Dokumentleverandoer {
     this.foer.finnDokument?.();
     return this.bibliotek.get(navn)?.id ?? null;
   }
-  /** Som `forespoersel`: en endring Catenda avviser (`CatendaAvvisning`), setter ikke flagget. */
-  private endring(foer?: () => void) {
+  /**
+   * Som `forespoersel`: en endring Catenda avviser (`CatendaAvvisning`, også 409 for et navn
+   * som finnes), setter ikke flagget.
+   */
+  private endring(foer?: () => void, avvist = false) {
     try {
       foer?.();
     } catch (feil) {
       if (!(feil instanceof CatendaAvvisning)) merkEndring();
       throw feil;
     }
-    merkEndring();
+    if (!avvist) merkEndring();
   }
 
   async lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
-    this.endring(this.foer.lastOppDokument);
-    if (this.bibliotek.has(dokument.navn)) return null;
+    const finnes = this.bibliotek.has(dokument.navn);
+    this.endring(this.foer.lastOppDokument, finnes);
+    if (finnes) return null;
     this.opplastinger++;
     const id = this.nyDokumentId();
     this.bibliotek.set(dokument.navn, {
@@ -1024,7 +1028,7 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     vedlegg_id: id,
     filnavn: 'a.pdf',
     finnes: true,
-    dokument_id: `dokument-${id}`,
+    dokument_id: `dokument-${id}` as string | null,
     referanse_id: null,
   });
 
@@ -1081,6 +1085,8 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
               };
             if (prosedyre === 'koe_api.vedlegg_i_levering')
               return { recordset: tillegg.vedlegg ?? [vedlegg('v1'), vedlegg('v2')] };
+            if (prosedyre === 'koe_api.vedleggsinnhold')
+              return { recordset: [{ innhold: Buffer.from('vedlegg') }] };
             if (prosedyre === 'koe_api.registrer_jobbfeil') registrert.push(parametre);
             if (prosedyre === feiler?.prosedyre && (feiler.ganger ?? Infinity) > feilet++)
               throw Object.assign(new sql.RequestError('fra basen'), feiler.feil);
@@ -1262,18 +1268,26 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
   });
   // Kilde: #926. Fornyelsen gir 54001 når leasen ikke gjelder, og da gjør forsøket ingen
   // endring i Catenda etter det. En annen feil i fornyelsen stopper ikke leveringen.
-  it.each<[string, number, string[]]>([
+  it.each<[string, number, 'dokumentreferanser' | 'finnDokument', string[]]>([
     [
       'en tapt lease (54001) stopper leveringen før referansen opprettes',
       54001,
+      'dokumentreferanser',
       ['hent_jobb', 'vedlegg_i_levering', 'forny_lease'],
+    ],
+    [
+      'en tapt lease (54001) stopper leveringen før vedlegget lastes opp',
+      54001,
+      'finnDokument',
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'vedleggsinnhold'],
     ],
     [
       'en vranglås i fornyelsen (1205) stopper ikke leveringen',
       1205,
+      'dokumentreferanser',
       ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'kvitter_vedlegg', 'kvitter_levering'],
     ],
-  ])('%s', async (_n, nummer, kallene) => {
+  ])('%s', async (_n, nummer, venterI, kallene) => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
     try {
       let slipp!: () => void;
@@ -1284,11 +1298,19 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
         'levering',
         { prosedyre: 'koe_api.forny_lease', feil: { number: nummer } },
         {
-          vedlegg: [vedlegg('v1')],
+          vedlegg: [
+            venterI === 'finnDokument' ? { ...vedlegg('v1'), dokument_id: null } : vedlegg('v1'),
+          ],
           dokumenter: {
-            dokumentreferanser: () => {
+            [venterI]: () => {
               venter();
-              return new Promise((ok) => (slipp = () => ok([])));
+              return new Promise(
+                (ok) => (slipp = () => ok(venterI === 'finnDokument' ? null : []))
+              );
+            },
+            lastOppDokument: async () => {
+              opprettet.push('opplasting');
+              return 'dokument-v1';
             },
             opprettDokumentreferanse: async (_b, _t, dokumentId) => {
               opprettet.push(dokumentId);
