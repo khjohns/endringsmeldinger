@@ -1,10 +1,5 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
-  let vedleggIds = $state<string[]>([]);
-  let vedleggOpptatt = $state(false);
-  function buildEventData(...args: Parameters<typeof buildDomainData>) {
-    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
-  }
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
   import { BookOpen, Check, ChevronUp, X, Undo2 } from 'lucide-svelte';
@@ -13,7 +8,7 @@
     erPrekludert,
     getVerdictOptions,
     getDefaults,
-    buildEventData as buildDomainData,
+    buildEventData,
   } from '$lib/domain/grunnlagDomain';
   import type { GrunnlagFormState, GrunnlagDomainConfig } from '$lib/domain/grunnlagDomain';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
@@ -30,7 +25,7 @@
     submissionRefs,
   } from '$lib/kontraktsbord/submission.svelte';
   import { ENDRINGSORDREVARSEL, erEndringsordre } from '$lib/kontraktsbord/endringsordre';
-  const submission = createSubmission(() => draft.clear());
+  const submission = createSubmission();
 
   let {
     domainConfig,
@@ -60,15 +55,8 @@
 
   const visVarsling = $derived(erEndringMed32_2(domainConfig.grunnlagEvent));
   const draft = createFormDraft(
-    false,
-    {
-      sakId: store.sak.sak_id,
-      spor: 'grunnlag',
-      revisjon: store.sak.grunnlag.antall_versjoner,
-    },
-    () => ({ vedleggIds, varsletITide, resultat, begrunnelseHtml }),
+    () => ({ varsletITide, resultat, begrunnelseHtml }),
     (saved) => {
-      vedleggIds = saved.vedleggIds ?? [];
       varsletITide = saved.varsletITide;
       resultat = saved.resultat;
       begrunnelseHtml = saved.begrunnelseHtml ?? '';
@@ -102,9 +90,8 @@
 
   $effect(() => {
     onactions?.({
-      canSend: allAnswered && !submission.pending && !vedleggOpptatt,
+      canSend: allAnswered && !submission.pending,
       send: () => {
-        if (vedleggOpptatt) return;
         if (allAnswered)
           void submission.run(async () => {
             if (review) {
@@ -148,148 +135,130 @@
   </div>
 {/snippet}
 
-{#if draft.ready}
-  <div class="form-content">
-    <SkjemaStatus
-      sender={submission.pending}
-      feil={submission.error}
-      utkastStatus={draft.status}
-      konflikt={draft.konflikt}
-      sistEndretAv={draft.sistEndretAv}
-      behold={draft.behold}
-      hentInn={draft.hentInn}
-      sakId={store.sak.sak_id}
-      visVedlegg={false}
-      bind:vedleggIds
-      bind:vedleggOpptatt
-    />
+<div class="form-content">
+  <SkjemaStatus sender={submission.pending} feil={submission.error} />
 
-    <div class="form-title-row">
-      <h1>Svar på grunnlaget</h1>
-    </div>
-    <p class="form-intro">Ta stilling til kontraktsforholdet og begrunn byggherrens vurdering.</p>
+  <div class="form-title-row">
+    <h1>Svar på grunnlaget</h1>
+  </div>
+  <p class="form-intro">Ta stilling til kontraktsforholdet og begrunn byggherrens vurdering.</p>
 
-    <section class="te-context">
-      <div class="context-header">
-        <div class="context-party">
-          <div class="context-label-row">
-            <TRACK_ICONS.ansvar size={14} />
-            <span class="context-label">Totalentreprenørens standpunkt</span>
-          </div>
-          <h2>{store.teNavn}</h2>
-          <div class="submission-meta">
-            {#if teDate}<span>Sendt {teDate}</span>{/if}
-            {#if teRevision > 0}<span>Rev. {teRevision}</span>{/if}
-          </div>
+  <section class="te-context">
+    <div class="context-header">
+      <div class="context-party">
+        <div class="context-label-row">
+          <TRACK_ICONS.ansvar size={14} />
+          <span class="context-label">Totalentreprenørens standpunkt</span>
         </div>
-        <span class="font-mono context-ref">{teDisplay.teRef}</span>
+        <h2>{store.teNavn}</h2>
+        <div class="submission-meta">
+          {#if teDate}<span>Sendt {teDate}</span>{/if}
+          {#if teRevision > 0}<span>Rev. {teRevision}</span>{/if}
+        </div>
       </div>
-      <div class="context-body">
-        <h3>{teDisplay.tePosition}</h3>
-        <p class:clamped={!teContextExpanded && teDisplay.teText.length > 420} class="context-text">
-          {teDisplay.teText}
-        </p>
-        {#if teDisplay.teText.length > 420}
-          <button
-            class="read-context-button"
-            onclick={() => (teContextExpanded = !teContextExpanded)}
-          >
-            {#if teContextExpanded}<ChevronUp size={13} /> Vis mindre
-            {:else}<BookOpen size={13} /> Les hele redegjørelsen{/if}
-          </button>
-        {/if}
-      </div>
-    </section>
-
-    <div class="bh-heading">Byggherrens vurdering</div>
-
-    {#if visVarsling}
-      {@render yesNoPill(
-        'Varsling',
-        '§ 32.2',
-        'Ble varselet sendt uten ugrunnet opphold?',
-        varsletITide,
-        'Ja, i tide',
-        'Nei, prekludert',
-        (v) => (varsletITide = v)
-      )}
-      <div class="divider"></div>
-    {/if}
-
-    <div class="question-block">
-      <div class="question-header">
-        <span class="question-label">Kontraktsmessig grunnlag</span>
-        <span class="font-mono question-ref">{teDisplay.teRef}</span>
-      </div>
-      <p class="question-text">Vurder om kontraktsforholdet gir grunnlag for krav.</p>
-      {#if prekludert}
-        <span class="subsidiaer-chip">Subsidiært</span>
+      <span class="font-mono context-ref">{teDisplay.teRef}</span>
+    </div>
+    <div class="context-body">
+      <h3>{teDisplay.tePosition}</h3>
+      <p class:clamped={!teContextExpanded && teDisplay.teText.length > 420} class="context-text">
+        {teDisplay.teText}
+      </p>
+      {#if teDisplay.teText.length > 420}
+        <button
+          class="read-context-button"
+          onclick={() => (teContextExpanded = !teContextExpanded)}
+        >
+          {#if teContextExpanded}<ChevronUp size={13} /> Vis mindre
+          {:else}<BookOpen size={13} /> Les hele redegjørelsen{/if}
+        </button>
       {/if}
-      <SegmentedControl
-        variant="mockup"
-        label="Kontraktsmessig grunnlag"
-        value={resultat}
-        options={verdictOptions.map((opt) => ({
-          id: opt.value,
-          label:
-            opt.value === 'godkjent'
-              ? 'Anerkjent'
-              : opt.value === 'avslatt'
-                ? 'Bestridt'
-                : opt.label,
-          icon: opt.icon === 'check' ? Check : opt.icon === 'cross' ? X : Undo2,
-          tone:
-            opt.colorScheme === 'green'
-              ? 'success'
-              : opt.colorScheme === 'red'
-                ? 'danger'
-                : 'neutral',
-        }))}
-        onchange={(value) => (resultat = value)}
-        onclear={() => (resultat = undefined)}
+    </div>
+  </section>
+
+  <div class="bh-heading">Byggherrens vurdering</div>
+
+  {#if visVarsling}
+    {@render yesNoPill(
+      'Varsling',
+      '§ 32.2',
+      'Ble varselet sendt uten ugrunnet opphold?',
+      varsletITide,
+      'Ja, i tide',
+      'Nei, prekludert',
+      (v) => (varsletITide = v)
+    )}
+    <div class="divider"></div>
+  {/if}
+
+  <div class="question-block">
+    <div class="question-header">
+      <span class="question-label">Kontraktsmessig grunnlag</span>
+      <span class="font-mono question-ref">{teDisplay.teRef}</span>
+    </div>
+    <p class="question-text">Vurder om kontraktsforholdet gir grunnlag for krav.</p>
+    {#if prekludert}
+      <span class="subsidiaer-chip">Subsidiært</span>
+    {/if}
+    <SegmentedControl
+      variant="mockup"
+      label="Kontraktsmessig grunnlag"
+      value={resultat}
+      options={verdictOptions.map((opt) => ({
+        id: opt.value,
+        label:
+          opt.value === 'godkjent' ? 'Anerkjent' : opt.value === 'avslatt' ? 'Bestridt' : opt.label,
+        icon: opt.icon === 'check' ? Check : opt.icon === 'cross' ? X : Undo2,
+        tone:
+          opt.colorScheme === 'green'
+            ? 'success'
+            : opt.colorScheme === 'red'
+              ? 'danger'
+              : 'neutral',
+      }))}
+      onchange={(value) => (resultat = value)}
+      onclear={() => (resultat = undefined)}
+    />
+  </div>
+
+  {#if allAnswered}
+    {#if prekludert || resultat === 'avslatt'}
+      <div class="consequence-notice">
+        <span class="notice-mark" aria-hidden="true"></span>
+        <p>
+          {prekludert
+            ? 'Varselet er vurdert som for sent. Vurderingen av grunnlaget gjelder subsidiært.'
+            : 'Vederlags- og fristkravet behandles subsidiært.'}
+        </p>
+      </div>
+    {/if}
+    {#if endringsordre}
+      <div class="consequence-notice" role="note">
+        <span class="notice-mark" aria-hidden="true"></span>
+        <p>{ENDRINGSORDREVARSEL}</p>
+      </div>
+    {/if}
+  {/if}
+
+  <div class="begrunnelse-section">
+    <div class="question-header begrunnelse-header">
+      <span class="question-label">Begrunnelse</span>
+      <span class="font-mono char-count">{charCount} tegn</span>
+    </div>
+    <p class="helptext begrunnelse-help">
+      Redegjør for den kontraktsmessige vurderingen og eventuelle forbehold.
+    </p>
+    <div class="editor-wrapper">
+      <RichTextEditor
+        body={begrunnelseHtml}
+        onchange={(html) => (begrunnelseHtml = html)}
+        extensions={[LockedValueNode]}
+        placeholder="Begrunn byggherrens vurdering..."
+        maxHeight="none"
+        oncharcount={(c) => (charCount = c)}
       />
     </div>
-
-    {#if allAnswered}
-      {#if prekludert || resultat === 'avslatt'}
-        <div class="consequence-notice">
-          <span class="notice-mark" aria-hidden="true"></span>
-          <p>
-            {prekludert
-              ? 'Varselet er vurdert som for sent. Vurderingen av grunnlaget gjelder subsidiært.'
-              : 'Vederlags- og fristkravet behandles subsidiært.'}
-          </p>
-        </div>
-      {/if}
-      {#if endringsordre}
-        <div class="consequence-notice" role="note">
-          <span class="notice-mark" aria-hidden="true"></span>
-          <p>{ENDRINGSORDREVARSEL}</p>
-        </div>
-      {/if}
-    {/if}
-
-    <div class="begrunnelse-section">
-      <div class="question-header begrunnelse-header">
-        <span class="question-label">Begrunnelse</span>
-        <span class="font-mono char-count">{charCount} tegn</span>
-      </div>
-      <p class="helptext begrunnelse-help">
-        Redegjør for den kontraktsmessige vurderingen og eventuelle forbehold.
-      </p>
-      <div class="editor-wrapper">
-        <RichTextEditor
-          body={begrunnelseHtml}
-          onchange={(html) => (begrunnelseHtml = html)}
-          extensions={[LockedValueNode]}
-          placeholder="Begrunn byggherrens vurdering..."
-          maxHeight="none"
-          oncharcount={(c) => (charCount = c)}
-        />
-      </div>
-    </div>
   </div>
-{/if}
+</div>
 
 <style>
   /* Form-specific styles (shared styles in theme.css) */

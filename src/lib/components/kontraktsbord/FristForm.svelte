@@ -1,29 +1,18 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import SkjemaStatus from './SkjemaStatus.svelte';
-  let vedleggIds = $state<string[]>([]);
-  let vedleggOpptatt = $state(false);
-  function buildEventData(
-    ...args: Parameters<typeof buildDomainData>
-  ): ReturnType<typeof buildDomainData> & { vedlegg_ids: string[] } {
-    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
-  }
   import PositionExplanation from './PositionExplanation.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
   import { AlertTriangle, Check, CircleMinus, Clock3, X } from 'lucide-svelte';
   import ExpandableReasoning from '$lib/components/patterns/ExpandableReasoning.svelte';
   import StatementCard from '$lib/components/patterns/StatementCard.svelte';
-  import {
-    beregnAlt,
-    buildEventData as buildDomainData,
-    getDefaults,
-  } from '$lib/domain/fristDomain';
+  import { beregnAlt, buildEventData, getDefaults } from '$lib/domain/fristDomain';
   import {
     createSubmission,
     createFormDraft,
     submissionRefs,
   } from '$lib/kontraktsbord/submission.svelte';
-  const submission = createSubmission(() => draft.clear());
+  const submission = createSubmission();
   import type { FristDomainConfig, FristFormState } from '$lib/domain/fristDomain';
   import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
   import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
@@ -80,10 +69,7 @@
 
   const computed = $derived(beregnAlt(formState, domainConfig));
   const draft = createFormDraft(
-    false,
-    { sakId: store.sak.sak_id, spor: 'frist', revisjon: store.sak.frist.antall_versjoner },
     () => ({
-      vedleggIds,
       fristVarselOk,
       spesifisertKravOk,
       foresporselSvarOk,
@@ -93,7 +79,6 @@
       tilleggHtml,
     }),
     (saved) => {
-      vedleggIds = saved.vedleggIds ?? [];
       fristVarselOk = saved.fristVarselOk;
       spesifisertKravOk = saved.spesifisertKravOk;
       foresporselSvarOk = saved.foresporselSvarOk;
@@ -216,9 +201,8 @@
 
   $effect(() => {
     onactions?.({
-      canSend: allAnswered && !submission.pending && !vedleggOpptatt,
+      canSend: allAnswered && !submission.pending,
       send: () => {
-        if (vedleggOpptatt) return;
         if (allAnswered)
           void submission.run(async () => {
             if (review) {
@@ -256,261 +240,247 @@
   <YesNoControl value={answer} {yesText} {noText} {label} onchange={onset} />
 {/snippet}
 
-{#if draft.ready}
-  <div class="form-content">
-    <SkjemaStatus
-      sender={submission.pending}
-      feil={submission.error}
-      utkastStatus={draft.status}
-      konflikt={draft.konflikt}
-      sistEndretAv={draft.sistEndretAv}
-      behold={draft.behold}
-      hentInn={draft.hentInn}
-      sakId={store.sak.sak_id}
-      visVedlegg={false}
-      bind:vedleggIds
-      bind:vedleggOpptatt
-    />
+<div class="form-content">
+  <SkjemaStatus sender={submission.pending} feil={submission.error} />
 
-    <FormPageHeader
-      title="Svar på krav om fristforlengelse"
-      intro="Vurder varsling, årsakssammenheng og hvor mange dager byggherren godkjenner."
-    />
+  <FormPageHeader
+    title="Svar på krav om fristforlengelse"
+    intro="Vurder varsling, årsakssammenheng og hvor mange dager byggherren godkjenner."
+  />
 
-    <div class="claim-overview">
-      <StatementCard
-        eyebrow="Totalentreprenørens krav"
-        partyName={store.teNavn}
-        reference="§ 33.4 / § 33.6.1"
-      >
-        {#snippet icon()}<Clock3 size={14} />{/snippet}
-
-        <div class="claim-summary">
-          {#if domainConfig.varselType === 'spesifisert'}
-            <div class="primary-days">
-              <span class="sammendrag-label">Krevd fristforlengelse</span>
-              <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
-            </div>
-          {:else if domainConfig.varselType === 'begrunnelse_utsatt'}
-            <div class="notice-hero">
-              <span class="sammendrag-label">Foreløpig krav om fristforlengelse</span>
-              <strong>Fristvirkningen beregnes senere</strong>
-              <p>Entreprenøren har begrunnet hvorfor antall dager ennå ikke kan spesifiseres.</p>
-            </div>
-          {:else}
-            <div class="notice-hero">
-              <span class="sammendrag-label">Varsel om fristforlengelse</span>
-              <strong>Foreløpig varsel</strong>
-              <p>Antall dager er ikke spesifisert ennå.</p>
-            </div>
-          {/if}
-        </div>
-
-        {#if submissionMeta.forelopig || submissionMeta.spesifisert || submissionMeta.latest}
-          <div class="sammendrag-datoer">
-            {#if submissionMeta.forelopig}
-              <span><strong>Foreløpig varsel</strong>{submissionMeta.forelopig}</span>
-            {/if}
-            {#if submissionMeta.spesifisert}
-              <span><strong>Spesifisert krav</strong>{submissionMeta.spesifisert}</span>
-            {/if}
-            {#if submissionMeta.latest}
-              <span><strong>Gjeldende versjon</strong>{submissionMeta.latest}</span>
-            {/if}
-          </div>
-        {/if}
-
-        <ExpandableReasoning
-          label="Entreprenørens begrunnelse"
-          html={store.display('frist').teText}
-        />
-      </StatementCard>
-    </div>
-
-    {#if isHelSubsidiaer && subsidiærNotice}
-      <div class="subsidiaer-notice">
-        <span class="subsidiaer-notice-mark" aria-hidden="true"></span>
-        <p>{subsidiærNotice}</p>
-      </div>
-    {/if}
-
-    <StandpointHeading subsidiary={isSubsidiaer} />
-
-    {#if computed.visibility.showFristVarselOk || computed.visibility.showSpesifisertKravOk || computed.visibility.showForesporselSvarOk}
-      <QuestionCard
-        title="Varsling og frister"
-        paragrafRef="§ 33.4 / § 33.6"
-        description="Vurder om entreprenørens varsler og krav er fremsatt i tide."
-      >
-        {#if computed.visibility.showFristVarselOk}
-          <div class="preklusjons-rad">
-            <span class="preklusjons-copy">
-              <span class="preklusjons-label">Foreløpig varsel (§ 33.4)</span>
-              {#if submissionMeta.forelopig}
-                <span class="preklusjons-meta">{submissionMeta.forelopig}</span>
-              {/if}
-            </span>
-            {@render answerButtons(
-              'Foreløpig varsel (§ 33.4)',
-              fristVarselOk,
-              'Ja, i tide',
-              'Nei, for sent',
-              (value) => (fristVarselOk = value)
-            )}
-          </div>
-        {/if}
-
-        {#if computed.visibility.showSpesifisertKravOk}
-          <div class="preklusjons-rad">
-            <span class="preklusjons-copy">
-              <span class="preklusjons-label">Spesifisert krav (§ 33.6.1)</span>
-              {#if submissionMeta.spesifisert}
-                <span class="preklusjons-meta">{submissionMeta.spesifisert}</span>
-              {/if}
-            </span>
-            {@render answerButtons(
-              'Spesifisert krav (§ 33.6.1)',
-              spesifisertKravOk,
-              'Ja, i tide',
-              'Nei, for sent',
-              (value) => (spesifisertKravOk = value)
-            )}
-          </div>
-        {/if}
-
-        {#if computed.visibility.showForesporselSvarOk}
-          <div class="preklusjons-rad">
-            <span class="preklusjons-copy">
-              <span class="preklusjons-label">Svar på forespørsel (§ 33.6.2)</span>
-              {#if submissionMeta.latest}
-                <span class="preklusjons-meta">{submissionMeta.latest}</span>
-              {/if}
-            </span>
-            {@render answerButtons(
-              'Svar på forespørsel (§ 33.6.2)',
-              foresporselSvarOk,
-              'Ja, i tide',
-              'Nei, prekludert',
-              (value) => (foresporselSvarOk = value)
-            )}
-          </div>
-        {/if}
-      </QuestionCard>
-    {/if}
-
-    {#if (hasPartialSubsidiaer || hasForesporselSubsidiaer) && subsidiærNotice}
-      <div class="subsidiaer-notice">
-        <span class="subsidiaer-notice-mark" aria-hidden="true"></span>
-        <p>{subsidiærNotice}</p>
-      </div>
-    {/if}
-
-    <QuestionCard
-      title="Årsakssammenheng"
-      paragrafRef="§ 33.1"
-      description="Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?"
-      subsidiary={isSubsidiaer}
+  <div class="claim-overview">
+    <StatementCard
+      eyebrow="Totalentreprenørens krav"
+      partyName={store.teNavn}
+      reference="§ 33.4 / § 33.6.1"
     >
-      {@render answerButtons(
-        'Årsakssammenheng (§ 33.1)',
-        vilkarOppfylt,
-        'Ja, hindring',
-        'Nei, ingen hindring',
-        (value) => (vilkarOppfylt = value)
-      )}
-    </QuestionCard>
+      {#snippet icon()}<Clock3 size={14} />{/snippet}
 
-    <QuestionCard
-      title="Utmåling"
-      paragrafRef="§ 33.5"
-      description="Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften."
-      subsidiary={isSubsidiaer}
-    >
-      <NumberField
-        id="bh-frist-godkjent-dager"
-        label={isSubsidiaer || computed.port3ErSubsidiaer
-          ? 'Subsidiært vurdert fristforlengelse'
-          : 'Godkjent fristforlengelse'}
-        suffix="kalenderdager"
-        value={godkjentDager}
-        max={domainConfig.krevdDager}
-        hint={`Av ${domainConfig.krevdDager} dager krevd`}
-        onchange={(value) => (godkjentDager = value)}
-      />
-    </QuestionCard>
-
-    {#if allAnswered}
-      <section class="result-box konsekvens-{resultat.variant}">
-        <div class="result-header">
-          <resultat.ikon size={18} />
-          <span>{resultat.konklusjon}</span>
-        </div>
-
-        <PositionExplanation
-          subsidiary={computed.visSubsidiaertResultat}
-          value={`fristforlengelsen til ${subsidiaertGodkjent} kalenderdager`}
-          rejected={computed.prinsipaltResultat === 'avslatt'}
-          triggers={[
-            ...computed.subsidiaerTriggers,
-            ...(domainConfig.erHelFristSubsidiaerPgaGrunnlag
-              ? ['grunnlag_prekludert_32_2' as const]
-              : []),
-          ]}
-        />
-        <div class="result-tabell">
-          <div class="result-cell">
-            <span>Krevd</span>
+      <div class="claim-summary">
+        {#if domainConfig.varselType === 'spesifisert'}
+          <div class="primary-days">
+            <span class="sammendrag-label">Krevd fristforlengelse</span>
             <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
           </div>
-          <div class="result-cell">
-            <span>Prinsipalt godkjent</span>
-            <strong class="font-mono">{prinsipaltGodkjent} dager</strong>
+        {:else if domainConfig.varselType === 'begrunnelse_utsatt'}
+          <div class="notice-hero">
+            <span class="sammendrag-label">Foreløpig krav om fristforlengelse</span>
+            <strong>Fristvirkningen beregnes senere</strong>
+            <p>Entreprenøren har begrunnet hvorfor antall dager ennå ikke kan spesifiseres.</p>
           </div>
-          {#if computed.visSubsidiaertResultat}
-            <div class="result-cell">
-              <span>Subsidiært vurdert</span>
-              <strong class="font-mono">{subsidiaertGodkjent} dager</strong>
-            </div>
-          {/if}
-        </div>
-        {#if computed.erRedusert}
-          <p class="result-help">
-            {computed.erPrekludert
-              ? 'Subsidiært begrenses kravet til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'
-              : 'Kravet begrenses til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'}
-          </p>
+        {:else}
+          <div class="notice-hero">
+            <span class="sammendrag-label">Varsel om fristforlengelse</span>
+            <strong>Foreløpig varsel</strong>
+            <p>Antall dager er ikke spesifisert ennå.</p>
+          </div>
         {/if}
-      </section>
+      </div>
 
-      {#if computed.prinsipaltResultat === 'avslatt'}
-        <div class="risk-notice">
-          <AlertTriangle size={16} />
-          <p>
-            <strong>Forseringsrisiko etter § 33.8.</strong> Dersom avslaget er uberettiget, kan TE velge
-            å anse det som et pålegg om forsering.
-          </p>
+      {#if submissionMeta.forelopig || submissionMeta.spesifisert || submissionMeta.latest}
+        <div class="sammendrag-datoer">
+          {#if submissionMeta.forelopig}
+            <span><strong>Foreløpig varsel</strong>{submissionMeta.forelopig}</span>
+          {/if}
+          {#if submissionMeta.spesifisert}
+            <span><strong>Spesifisert krav</strong>{submissionMeta.spesifisert}</span>
+          {/if}
+          {#if submissionMeta.latest}
+            <span><strong>Gjeldende versjon</strong>{submissionMeta.latest}</span>
+          {/if}
         </div>
       {/if}
 
-      <section class="begrunnelse-section">
-        <div class="begrunnelse-heading">
-          <span class="begrunnelse-title">Begrunnelse</span>
-          <div class="begrunnelse-actions"></div>
-        </div>
-        <p class="begrunnelse-help">
-          Begrunnelsen kan utdypes og redigeres. Automatiske konklusjoner beholdes som låste felt.
-        </p>
-        <div class="reasoning-content">
-          <GeneratedReasoning
-            generated={autoBegrunnelseHtml}
-            additional={tilleggHtml}
-            onchange={(html) => (tilleggHtml = html)}
-          />
-        </div>
-      </section>
-    {/if}
+      <ExpandableReasoning
+        label="Entreprenørens begrunnelse"
+        html={store.display('frist').teText}
+      />
+    </StatementCard>
   </div>
-{/if}
+
+  {#if isHelSubsidiaer && subsidiærNotice}
+    <div class="subsidiaer-notice">
+      <span class="subsidiaer-notice-mark" aria-hidden="true"></span>
+      <p>{subsidiærNotice}</p>
+    </div>
+  {/if}
+
+  <StandpointHeading subsidiary={isSubsidiaer} />
+
+  {#if computed.visibility.showFristVarselOk || computed.visibility.showSpesifisertKravOk || computed.visibility.showForesporselSvarOk}
+    <QuestionCard
+      title="Varsling og frister"
+      paragrafRef="§ 33.4 / § 33.6"
+      description="Vurder om entreprenørens varsler og krav er fremsatt i tide."
+    >
+      {#if computed.visibility.showFristVarselOk}
+        <div class="preklusjons-rad">
+          <span class="preklusjons-copy">
+            <span class="preklusjons-label">Foreløpig varsel (§ 33.4)</span>
+            {#if submissionMeta.forelopig}
+              <span class="preklusjons-meta">{submissionMeta.forelopig}</span>
+            {/if}
+          </span>
+          {@render answerButtons(
+            'Foreløpig varsel (§ 33.4)',
+            fristVarselOk,
+            'Ja, i tide',
+            'Nei, for sent',
+            (value) => (fristVarselOk = value)
+          )}
+        </div>
+      {/if}
+
+      {#if computed.visibility.showSpesifisertKravOk}
+        <div class="preklusjons-rad">
+          <span class="preklusjons-copy">
+            <span class="preklusjons-label">Spesifisert krav (§ 33.6.1)</span>
+            {#if submissionMeta.spesifisert}
+              <span class="preklusjons-meta">{submissionMeta.spesifisert}</span>
+            {/if}
+          </span>
+          {@render answerButtons(
+            'Spesifisert krav (§ 33.6.1)',
+            spesifisertKravOk,
+            'Ja, i tide',
+            'Nei, for sent',
+            (value) => (spesifisertKravOk = value)
+          )}
+        </div>
+      {/if}
+
+      {#if computed.visibility.showForesporselSvarOk}
+        <div class="preklusjons-rad">
+          <span class="preklusjons-copy">
+            <span class="preklusjons-label">Svar på forespørsel (§ 33.6.2)</span>
+            {#if submissionMeta.latest}
+              <span class="preklusjons-meta">{submissionMeta.latest}</span>
+            {/if}
+          </span>
+          {@render answerButtons(
+            'Svar på forespørsel (§ 33.6.2)',
+            foresporselSvarOk,
+            'Ja, i tide',
+            'Nei, prekludert',
+            (value) => (foresporselSvarOk = value)
+          )}
+        </div>
+      {/if}
+    </QuestionCard>
+  {/if}
+
+  {#if (hasPartialSubsidiaer || hasForesporselSubsidiaer) && subsidiærNotice}
+    <div class="subsidiaer-notice">
+      <span class="subsidiaer-notice-mark" aria-hidden="true"></span>
+      <p>{subsidiærNotice}</p>
+    </div>
+  {/if}
+
+  <QuestionCard
+    title="Årsakssammenheng"
+    paragrafRef="§ 33.1"
+    description="Foreligger det en hindring på fremdriften som følge av det påberopte kontraktsforholdet?"
+    subsidiary={isSubsidiaer}
+  >
+    {@render answerButtons(
+      'Årsakssammenheng (§ 33.1)',
+      vilkarOppfylt,
+      'Ja, hindring',
+      'Nei, ingen hindring',
+      (value) => (vilkarOppfylt = value)
+    )}
+  </QuestionCard>
+
+  <QuestionCard
+    title="Utmåling"
+    paragrafRef="§ 33.5"
+    description="Fristforlengelsen skal svare til virkningen kontraktsforholdet har hatt på fremdriften."
+    subsidiary={isSubsidiaer}
+  >
+    <NumberField
+      id="bh-frist-godkjent-dager"
+      label={isSubsidiaer || computed.port3ErSubsidiaer
+        ? 'Subsidiært vurdert fristforlengelse'
+        : 'Godkjent fristforlengelse'}
+      suffix="kalenderdager"
+      value={godkjentDager}
+      max={domainConfig.krevdDager}
+      hint={`Av ${domainConfig.krevdDager} dager krevd`}
+      onchange={(value) => (godkjentDager = value)}
+    />
+  </QuestionCard>
+
+  {#if allAnswered}
+    <section class="result-box konsekvens-{resultat.variant}">
+      <div class="result-header">
+        <resultat.ikon size={18} />
+        <span>{resultat.konklusjon}</span>
+      </div>
+
+      <PositionExplanation
+        subsidiary={computed.visSubsidiaertResultat}
+        value={`fristforlengelsen til ${subsidiaertGodkjent} kalenderdager`}
+        rejected={computed.prinsipaltResultat === 'avslatt'}
+        triggers={[
+          ...computed.subsidiaerTriggers,
+          ...(domainConfig.erHelFristSubsidiaerPgaGrunnlag
+            ? ['grunnlag_prekludert_32_2' as const]
+            : []),
+        ]}
+      />
+      <div class="result-tabell">
+        <div class="result-cell">
+          <span>Krevd</span>
+          <strong class="font-mono">{domainConfig.krevdDager} dager</strong>
+        </div>
+        <div class="result-cell">
+          <span>Prinsipalt godkjent</span>
+          <strong class="font-mono">{prinsipaltGodkjent} dager</strong>
+        </div>
+        {#if computed.visSubsidiaertResultat}
+          <div class="result-cell">
+            <span>Subsidiært vurdert</span>
+            <strong class="font-mono">{subsidiaertGodkjent} dager</strong>
+          </div>
+        {/if}
+      </div>
+      {#if computed.erRedusert}
+        <p class="result-help">
+          {computed.erPrekludert
+            ? 'Subsidiært begrenses kravet til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'
+            : 'Kravet begrenses til den fristforlengelsen byggherren måtte forstå (§ 33.6.1).'}
+        </p>
+      {/if}
+    </section>
+
+    {#if computed.prinsipaltResultat === 'avslatt'}
+      <div class="risk-notice">
+        <AlertTriangle size={16} />
+        <p>
+          <strong>Forseringsrisiko etter § 33.8.</strong> Dersom avslaget er uberettiget, kan TE velge
+          å anse det som et pålegg om forsering.
+        </p>
+      </div>
+    {/if}
+
+    <section class="begrunnelse-section">
+      <div class="begrunnelse-heading">
+        <span class="begrunnelse-title">Begrunnelse</span>
+        <div class="begrunnelse-actions"></div>
+      </div>
+      <p class="begrunnelse-help">
+        Begrunnelsen kan utdypes og redigeres. Automatiske konklusjoner beholdes som låste felt.
+      </p>
+      <div class="reasoning-content">
+        <GeneratedReasoning
+          generated={autoBegrunnelseHtml}
+          additional={tilleggHtml}
+          onchange={(html) => (tilleggHtml = html)}
+        />
+      </div>
+    </section>
+  {/if}
+</div>
 
 <style>
   .claim-overview {
