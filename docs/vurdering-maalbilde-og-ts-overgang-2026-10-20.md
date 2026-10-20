@@ -35,9 +35,10 @@ kjørt i denne vurderingen.
    bro mellom dem (VM-02).
 3. **Sluttilstanden er skrevet, men den kritiske stien er ikke samlet.** Det er TS
    og Azure SQL, med Python ute av databasen. Før ekte saker gjenstår skrivestien
-   (#310), EO og forsering i kjernen (byggedel 4 av #309, som venter på B-01),
-   godkjenningsflyten (#818), flyttingen fra Python (#375, #49), leveringen og
-   hostingen. EO-flyten, som AF-06 satte først, kommer nå sist (VM-03).
+   (#310), godkjenningsflyten (#818), flyttingen fra Python (#375, #49), leveringen
+   og hostingen. OV-U1 lar #310 komme før EO og forsering, men ingen vedtak sier
+   hva som må være bygget før appen tas i bruk med ekte saker. EO-flyten, som
+   AF-06 satte først, kommer nå sist (VM-03).
 4. **Produksjonsporten er ikke påbegynt.** F3, F4 og F5 har ingen milepæl og ingen
    issues. B-05, B-09 og B-11 har ingen ansvarlig. ROS, DPIA og skriftlig svar fra
    Catenda har lengre ledetid enn koden (VM-04).
@@ -170,16 +171,22 @@ Det som gjenstår før en ekte sak, er spredt over to milepæler og flere tråde
 | Ledd | Issue | Venter på |
 | --- | --- | --- |
 | Skrivestien i TS, ingen Python-skriving i journalen | #310 | #309, #375 |
-| EO og forsering i kjernen. `kjerne/kommandoer/kommando.ts` har ingen EO- eller forseringskommando (L) | #309, byggedel 4 | B-01 |
+| EO og forsering i kjernen, etter #310 (OV-U1). `kjerne/kommandoer/kommando.ts` har ingen EO- eller forseringskommando (L). På den kritiske stien bare hvis de må være med før ekte saker | #309, byggedel 4 | B-01 |
 | Byggherrens svar og godkjenningsflyten | #818, #831 | Funksjonssporet, rekkefølgen i #764 |
 | Python ut av databasen: sakslisten, prosjektene og EO-rutene | #375, #49 | VM-02 |
 | Levering: jobbkjøreren og feilklassene. LV-U1 står som «Ikke bygget» | #1016, #555, #921, #926 | B-07 |
 | Notater og utkast i TS (`koe.notat` finnes, men ingen inngang) | Ikke funnet | – |
 | Bilde, ruting, hosting | #376, #52 | B-12 hosting |
 
-B-17 sier at skrivestien aktiveres samlet for de tre sakstypene. Det gjør EO og
-forsering, som ikke er påbegynt i kjernen, til en forutsetning for den første ekte
-KOE-saken. [AF-06](arkitekturforinger-2026-09-21.md) satte «én komplett EO-flyt»
+B-17 sier at skrivestien aktiveres samlet.
+[OV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1) (10.10) avgrenser
+første versjon av TS-stien, den som skriver den første reelle hendelsen (#310),
+til KOE-saken. Endringsordre som egen sak og forsering avvises til de er bygget,
+etter #310. Den første KOE-saken venter derfor ikke på byggedel 4. OV-U1 sier ikke
+hva som må være bygget før appen tas i bruk med ekte saker. Det er spørsmålet som
+avgjør om B-01 og byggedel 4 står på den kritiske stien.
+
+[AF-06](arkitekturforinger-2026-09-21.md) satte «én komplett EO-flyt»
 foran bredde og opprydding. F2 er nå erstattet av FK, og FK har bygget bredde i
 KOE-sporene først. Det er en forsvarlig omprioritering, men den er ikke ført som
 endring av AF-06, og den skyver den første gjennomgående flyten ut.
@@ -336,7 +343,7 @@ på én time.
 | 1 | **Gjennomgående skive i Azure staging.** Ta B-12 hosting. Lag ett bilde med SPA og TS-server bak én vert. Rett verten i `start.ts` og avhengighetene, og legg til en helseinngang, managed identity og strukturert logging med korrelasjons-ID. Kjør én KOE-sak fra innlogging til levert brev i et testprosjekt i Catenda. Løser VM-01 og prøver VM-09 | 3–5 runder, og beslutningen om hosting | Høy. Plattformfeil oppdages før mer domene bygges på dem |
 | 2 | **Avgjør overgangen for innloggingen (VM-02).** Anbefalt: TS overtar alt frontenden kaller, med sakslisten, prosjektene og lesingen av saken først (#375). Python går ut av forespørselsveien og beholder bare leveringen til den flyttes | 2–4 runder | Høy. Fjerner en mellomtilstand som ikke kan kjøres |
 | 3 | **Samle den kritiske stien i én milepæl**, «Første ekte sak». Den får issuene i VM-03-tabellen, F5-punktene som issues med en ansvarlig rolle og B-01, B-05, B-09 og B-11 med en eier | Under én runde | Middels. Gjør gjenstående arbeid synlig og målbart |
-| 4 | **Ta opp B-17 om samlet aktivering**: vurder KOE i produksjon først, med EO og forsering etterpå, og Python-EO bak en lukket bryter til da. Krever vedtak | Ett spørsmål | Høy hvis det vedtas. Første ekte sak blir uavhengig av byggedel 4 og B-01 |
+| 4 | **Avgjør hva som må være bygget før ekte saker.** OV-U1 avgjør rekkefølgen etter #310, men ikke omfanget ved produksjon. Krever vedtak | Ett spørsmål | Høy. Avgjør om B-01 og byggedel 4 står på den kritiske stien |
 | 5 | **Vedtak når en leveranse trenger dem.** Nye domenevedtak stilles når et issue i den kritiske stien trenger dem. Byggestatusen i `folge` genereres av treff i koden og lukkede issues, ikke for hånd | 1 runde for verktøyet | Middels. Stopper veksten i VM-05 og fjerner de manuelle PR-ene |
 | 6 | **Del hovedplanen.** Flytt 3.1 til en generert fil ved siden av planen, og flytt de historiske funnene og merknadene til et arkiv. Planen beholder målarkitekturen, invariantene, arbeidspakkene og de åpne beslutningene, og rett 3.4 og 6. Autoriteten flyttes uttrykkelig, slik `dokumentasjon.md` krever | 1–2 runder | Middels. Planen kan leses igjen |
 | 7 | **Rydd i etterslepet fra review.** Gå gjennom de 40 issuene etter stoppregelen 20.10, lukk det som er pirk, og samle resten i ett. Kjør feilinnføringene om natten og ved regelendring, ikke på hver PR som rører kjernen | 1 runde | Lav til middels. Lavere kostnad og mindre støy |

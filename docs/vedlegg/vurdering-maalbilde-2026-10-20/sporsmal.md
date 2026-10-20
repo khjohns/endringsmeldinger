@@ -80,3 +80,14 @@ ordrett fra kallet og svaret.
 - **Neste orkestrator:** Jeg gjør ikke mer nå. Spørsmålene og svarene står i PR #1018, og neste orkestrator fører dem.
 
 **Svar:** «Alt nå (Recommended)»
+
+## Feil premiss i spørsmål 3 og 5
+
+Spørsmål 3 og 5 bygde på at B-17 gjør endringsordre og forsering til en
+forutsetning for den første KOE-saken. Det er feil:
+[OV-U1](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1) (10.10)
+avgrenser første versjon av TS-stien til KOE-saken, og endringsordre som egen sak
+og forsering avvises til de er bygget, etter #310. Alternativene ble ikke prøvd
+mot vedtakene før spørsmålene ble stilt. Svarene på spørsmål 3 og 5 føres derfor
+ikke som vedtak. Spørsmålet om hva som må være bygget før appen tas i bruk med
+ekte saker, stilles på nytt etter prøving mot vedtakene.
