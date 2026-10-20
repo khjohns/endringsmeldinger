@@ -30,6 +30,15 @@ dokument, **T** telt 20.10. Ingen tester eller servere er kjørt.
 
 ## Sammendrag
 
+> **Merknad 20.10, etter prøvingen av sparringen:** konklusjonen står. Ingen av
+> innvendingene gir belegg for å bytte en byggekloss, og sparringens ene
+> forenkling (MD-05) holder ikke mot SQ-02 og SQ-03. Prøvingen legger til to
+> funn: reserveveien vedtakene viser til for brev appen ikke kan sende, er ikke
+> bygget (MD-10), og målbildet har ikke tatt stilling til det som gjelder hele
+> kontrakten (MD-11). Hva en stanset levering betyr, er snevret inn av LV-U7
+> (MD-06). Se [sparringen prøvd](#sparringen-prøvd-mot-vedtakene-og-koden).
+> Svaret fra sparringen gjelder ikke før oppdragsgiver har sluttet seg til det.
+
 **Målbildet passer domenet, og ingen byggekloss bør byttes.** For hver av de seks
 er det beste alternativet enten det som er valgt, eller et som koster mer enn det
 gir nå. Svakhetene ligger ikke i valgene, men i tre forhold:
@@ -300,9 +309,97 @@ til det.
 ## Sparring
 
 Prompten til ChatGPT står i
-[`vedlegg/vurdering-maalarkitektur-2026-10-20/prompt-sparring.md`](vedlegg/vurdering-maalarkitektur-2026-10-20/prompt-sparring.md).
-Svaret lagres ordrett ved siden av, og sammenlikningen føres inn her når det er
-prøvd mot vedtakene og koden.
+[`vedlegg/vurdering-maalarkitektur-2026-10-20/prompt-sparring.md`](vedlegg/vurdering-maalarkitektur-2026-10-20/prompt-sparring.md),
+og svaret ordrett i
+[`svar-sparring.md`](vedlegg/vurdering-maalarkitektur-2026-10-20/svar-sparring.md).
+Spørsmålene til oppdragsgiver som fulgte av prøvingen, og svarene, står i
+[`sporsmal.md`](vedlegg/vurdering-maalarkitektur-2026-10-20/sporsmal.md).
+
+## Sparringen prøvd mot vedtakene og koden
+
+Prøvd 20.10 på `b08ce76` av fire subagenter, hver mot én del av svaret, med
+vedtakene i 3.1 og koden. **K** betyr kjørt og observert 20.10 mot testbasen i
+SQL Server.
+
+**Prompten gjenga to prinsipper for grovt.** Prinsipp 5 slo MM-U2 sammen med
+setningen i OV-U1 om det appen ennå ikke kan, og prinsipp 8 utelot at OV-U1 tar
+med registrering av brev sendt utenfor appen. Innvending 2 bygger på dette. Etter
+vedtakene stopper bare en hendelse i journalen som kjernen ikke kan tolke, saken
+(MM-U2). Et brev med innhold appen ikke kan sende, sendes utenfor appen og
+registreres som dokumentasjon (OV-U4, OV-U7), og registreringen gjør ikke saken
+ikke forstått (MM-U18).
+
+| Innvending | Dom | Belegg |
+| --- | --- | --- |
+| 1. Lagret mot kommet fram: foldingen bruker utsagn som ikke er levert | Avgjort av vedtak. Restpunkt: rekkefølgen i Catenda (MD-06) | LV-U7 regner fra sendingen og forkastet å la kvitteringen avgjøre fremkomsten. Kjernen leser ikke leveringen (`kjerne/utledning/utled.ts`). Et registrert brev har egne datoer for sendt og mottatt, atskilt fra `tidsstempel` (`kjerne/format/format.ts:OPPLYSNING`), og gir ingen virkning (OV-U4). L, P |
+| 2. Ukjent innhold sperrer handlinger, og prinsipp 5 bør endres | Bygger på feil premiss (over). Sparringens reservevei er vedtatt, men ikke bygget (MD-10). Forslaget om manuell utsendelse endrer MM-U2 | `forutsetninger` i `kjerne/kommandoer/forutsetninger.ts` avviser alt med `SAK_IKKE_FORSTAATT` bare når utledningen ikke er forstått. MM-U2 forkastet å la TE sende i en slik sak. L, P |
+| 3. Lokal uforanderlighet støtter K1 og K6 for sterkt | Holder delvis. Ingen eksport av en sak finnes; det er kjent (AF-04, B-05, B-11). At eieren kan slå av triggerne, er ikke ført som en akseptert grense | Runtime avvises ved `DISABLE TRIGGER` og `TRUNCATE` (SQ-05 i [prøven 11.10](prove-azuresql-2026-10-11.md)). L, P |
+| MD-01: tilstandsmodell er en falsk motsetning; et svar kan gjelde en eldre kravversjon | Svarmålet er avgjort: KA-U40 forkastet at byggherren kan godta en tidligere kravversjon. Tilstandsmodellen endrer ikke vurderingen | `kontrollerSvar` i `kjerne/kommandoer/nyttelast.ts` avviser med `FEIL_KRAVREFERANSE`. L, P |
+| MD-02: original og tolkning bør skilles | Allerede vedtatt (HF-U2, MM-U12, MM-U17). I første versjon registrerer hver side bare egne brev (OV-U4), uten virkning. Retting av en feilregistrering er åpen under B-16 | P |
+| MD-02: manglende utledning blir en sperre for første bruker | Avgjort av OV-U7: handlingen avvises, saken går videre, og brevet sendes utenfor appen. Men registreringen etterpå finnes ikke (MD-10) | `IKKE_I_FOERSTE_VERSJON` i `forutsetninger.ts`. L, P |
+| MD-03: unik `(sak, versjon)` gir ikke idempotent innsending | Løst i koden (#418) | `kommando_id` med kvittering per kommando; 13 tester i `server/tester/kommandoer.test.ts` («kvitteringen per kommando (#418)») grønne. K |
+| MD-04: blandede regelversjoner; godkjent innhold ved innsending | Regelversjonene er avgjort (MM-U9, MM-U11, MM-U17) og prøvd. Ved innsending kontrolleres sakens versjon, regelversjonen og de låste avsnittene. Ingen hash av hele beslutningsgrunnlaget, men uten påvist avvik | `kjerne/tester/regelendring.ts` (5 grønne), `tekstavvik` i `kjerne/kommandoer/skriving.ts`. K, L |
+| MD-05: bruk det offentlige `Transaction`-API-et | Holder ikke. `mssql` nullstiller ikke forbindelsen (SQ-02), og bindingen til transaksjonen finnes (SQ-03). Gjenbruk mellom to ulike team er bare prøvd indirekte | `server/datalag.ts:iTransaksjon`, `server/tester/datalag.test.ts`. L, P |
+| MD-05: Fabric speiler private data | Avgjort av RP-U1: notater, utkast og godkjenningspakker holdes utenfor Fabric eller skjermes der. Ikke bygget | P |
+| MD-06: `READPAST` under `READ_COMMITTED_SNAPSHOT` | Løst. Testbasen har RCSI, og koden bruker `UPDLOCK, READPAST, ROWLOCK` | `server/tester/sqlserver.ts:opprettTestbase`; `sqlserver.test.ts` og `jobber.test.ts` grønne. K |
+| MD-06: en arbeider kan miste leasen midt i et kall | Håndtert: en utløpt lease parkerer jobben som usikker, og bare drift starter den igjen. Restpunkt: en manuell omstart mens et kall henger kan gi en dobbel referanse på topicen. B-07 er åpen | `koe_api.hent_jobb`; `server/jobber.ts:lever` med `failOnDocumentExists`. L |
+| MD-07: webhook bare for nye topics | Stemmer, men journalen er ikke en speiling av Catenda: brev utenfor appen registreres (OV-U4) | `NY_TOPIC` i `server/hendelser.ts`. L, P |
+| MD-07: bevaringspakke med vedlegg | Holder. Krever å se LV-U12 på nytt, som forkastet å beholde kopien 18.10. Spørsmål 3 | P |
+| NS 8407-punktene | Det meste er vedtatt, og noe er utsatt (OV-U1, OV-U7). Nytt: MD-11 | Under |
+
+Om NS 8407-punktene. Allerede dekket av vedtak: skillet mellom nøytralt varsel,
+0 dager, «ingen krav» og manglende svar (VS-U15, KA-U8, KA-U12), innsigelsen mot
+sen varsling som partens posisjon (VS-U1, VS-U9, VS-U11), og endringsordre, frafall
+og senere begrunnelse i KOE-saken (GR-U12, GR-U13, KA-U18). Forespørselen etter
+§ 33.6.2 og særskilte krav etter § 34.1.3 hører til første versjon etter matrisen,
+men er ikke bygget (`utenforOmfanget` i `kjerne/frosset/standpunkt.ts`). Forseringen
+er utsatt (OV-U1, OV-U2), og koblingen til avslaget venter på B-01.
+
+### MD-10 — reserveveien for brev appen ikke kan sende, er ikke bygget
+
+**Alvorlighet: middels. Belegg: L, P.** MM-U2 og OV-U7 lar appen avvise det den
+ikke kan, fordi brevet kan sendes utenfor appen og registreres etter OV-U4. OV-U1
+tar registreringen med i første versjon. Kjernen har ingen kommando som
+registrerer et brev sendt utenfor appen (`kjerne/kommandoer/kommando.ts`), og
+følgekolonnen til OV-U4 sier det samme. Avvisningen ved `IKKE_I_FOERSTE_VERSJON`
+sier likevel at brevet kan registreres. Før registreringen finnes, har en part
+som må sende et brev appen avviser, ingen vei tilbake inn i saken. Det er
+sparringens innvending 2, men som et hull i leveringen av OV-U1, ikke i
+prinsippet.
+
+**Vurdering:** registreringen hører til første versjon (OV-U1) og bør være
+bygget før første ekte sak.
+
+### MD-11 — målbildet har ikke tatt stilling til det som gjelder hele kontrakten
+
+**Alvorlighet: lav. Belegg: L, P.** Journalen er per sak. Sparringen peker på
+meddelelser som gjelder flere saker eller hele kontrakten: sluttoppstillingen og
+innsigelsene mot den (§ 39), overtakelsen som fristen i § 35.2 regnes fra, og
+tvisteløsningsskritt. Ingen vedtak dekker § 39, og VS-U3 viser fristen i § 35.2
+uten dato. Det finnes heller ikke felt for mottaker eller adresse, ingenting om
+varsler i møtereferater (§ 4.2), og ingen vedtak om fullmakt på TEs side
+(§ 9); `aktor_id` er den innloggede. Vederlagskravet er ett beløp, uten delkrav
+med egen varslingshistorikk (§ 34.1.3).
+
+Ingenting av dette taler for å bytte journalen: en journal for kontrakten kan
+stå ved siden av sakene med samme form. Men det er beslutninger målbildet ikke
+har tatt, og § 34.1.3 påvirker formatet allerede i første versjon.
+
+**Vurdering:** omfanget av kontraktsnivået er spørsmål 4. Delkravene etter
+§ 34.1.3 avgjøres når § 34 bygges i første versjon.
+
+### Restpunkter uten eget funn
+
+- Leveringene i en sak venter ikke på hverandre (`koe_api.hent_jobb`), så et senere
+  brev kan ligge i Catenda før et tidligere. Ingen vedtak sier noe om rekkefølgen
+  (spørsmål 1).
+- At eieren eller en annen privilegert operatør kan slå av triggerne og
+  sikkerhetspolicyen, er ikke ført som en akseptert grense ved siden av AF-02.
+- Gjenbruk av en forbindelse mellom to ulike team er ikke prøvd uttrykkelig.
+- En manuell omstart av en jobb mens et kall henger, kan gi en dobbel referanse
+  på topicen.
+- Sparringens forslag om å prøve modellen mot avsluttede, anonymiserte
+  prosjektforløp er forenlig med vedtakene og ikke gjort.
 
 ## Verifikasjon og grenser
 
@@ -326,4 +423,17 @@ påstander i et utkast av MD-02 og MD-06.
 - datalaget mot Azure SQL, managed identity og Fabric-speiling (VM-01);
 - NS 8407-teksten. Kravene K1–K6 bygger på vedtakene, ikke på kontraktsteksten.
 
-Ingen tester er kjørt, og ingen påstand om kjøretidsatferd bygger på kjøring.
+Ingen tester er kjørt for MD-01–MD-09, og ingen påstand der om kjøretidsatferd
+bygger på kjøring.
+
+**Kjørt og observert 20.10 (K), for prøvingen av sparringen:** mot testbasen i
+SQL Server `server/tester/kommandoer.test.ts` med filteret «kvitteringen per
+kommando (#418)» (13 grønne), `server/tester/sqlserver.test.ts` («testbasen har
+RCSI, ADR …») og test 6 i `server/tester/jobber.test.ts` (grønne), og
+`kjerne/tester/regelendring.ts` (5 grønne). Prøvingen leste i tillegg
+`kjerne/kommandoer/`, `kjerne/utledning/`, `kjerne/typer.ts`,
+`server/hendelser.ts`, migrasjonene for levering og kvittering,
+[paragrafmatrisen](paragrafmatrise-koe-eo-forsering.md) og
+[prøven 11.10](prove-azuresql-2026-10-11.md). Den søkte i vedtakene på ID-er og
+nøkkelord og leste ikke alle postene. Python-stien, Microsofts dokumentasjon og
+kildene sparringen lenker til er ikke kontrollert.
