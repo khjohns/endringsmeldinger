@@ -42,9 +42,16 @@ import {
 import { mellomlager } from './klient.ts';
 import type { Kommando } from '../kommandoer/kommando.ts';
 import { oppgittDatoEtterBrevet } from '../kommandoer/nyttelast.ts';
-import type { Avsnitt, Dokument, Journalrad, Part } from '../typer.ts';
+import { KRAVSPOR, type Avsnitt, type Dokument, type Journalrad, type Part } from '../typer.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
-import { enighetensVirkning, kanInngaaIEo, kraveneErAvgjort } from '../utledning/utled.ts';
+import {
+  enighetensVirkning,
+  kanInngaaIEo,
+  kraveneErAvgjort,
+  standpunktetErSubsidiaert,
+  svarIkkeGodtatt,
+  venterPaaSvar,
+} from '../utledning/utled.ts';
 import { visning } from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
@@ -3961,5 +3968,83 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       s.rad('BH', { svar: [kopi(s, () => {})] });
       expect(s.u().forstaatt).toBe(true);
     });
+  });
+});
+
+/**
+ * MM-U29 med lukkingen i SK-01 og OV-U3 (#1050, #1067): et krav venter ikke på svar, og
+ * et svar står ikke som ikke godtatt, når et svar eller en aksept i sporet ville blitt
+ * avvist. Frafallet etter arbeidsvalget 20.10 i #1050: TE kan ikke godta et frafall
+ * (GR-U9), og en ny grunnlagsversjon etter det venter på svar (GR-U23). I vederlag og
+ * frist venter et ubesvart krav på svar, og et svar TE ikke har godtatt, står som det.
+ */
+describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)', () => {
+  type Sak = ReturnType<typeof sak>;
+  const avslag = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+  const frafall = { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true };
+  const utregnet = (s: Sak, spor: 'grunnlag' | 'vederlag', v: Data) => {
+    const u = s.u();
+    const krav = u.spor[spor].gjeldendeKrav!;
+    const grunnlagskrav = u.spor.grunnlag.gjeldendeKrav;
+    return svar(spor, krav.id, v, regnUtSvar(spor, v, { krav, grunnlagskrav }, KJERNE.regler));
+  };
+  const godtar = (s: Sak, spor: 'grunnlag' | 'vederlag') =>
+    s.send('TE', {
+      type: 'aksept',
+      spor,
+      svar: s.u().spor[spor].gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+  const etiketter = (s: Sak, spor: 'grunnlag' | 'vederlag' | 'frist') =>
+    visning(s.u(), GJELDENDE_REGLER).spor[spor].etiketter;
+
+  it('SK-01: når TE godtar avslaget av grunnlaget, venter ubesvarte krav i vederlag og frist ikke på svar', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [utregnet(s, 'grunnlag', avslag)] });
+    for (const spor of KRAVSPOR) expect(venterPaaSvar(s.u(), spor), `kontroll: ${spor}`).toBe(true);
+    godtar(s, 'grunnlag');
+    expect(s.u().grunnlagAvvist, 'forutsetning: avslaget er godtatt').toBe(true);
+    for (const spor of KRAVSPOR) {
+      expect(venterPaaSvar(s.u(), spor), spor).toBe(false);
+      expect(etiketter(s, spor), spor).not.toContain('venter_paa_svar');
+    }
+  });
+
+  it('SK-01: når TE godtar avslaget av grunnlaget i forløp A, står det subsidiære svaret i vederlaget ikke som ikke godtatt', () => {
+    const s = sakMedKrav();
+    s.send('BH', {
+      type: 'brev',
+      svar: [utregnet(s, 'grunnlag', avslag), utregnet(s, 'vederlag', VEDERLAG_DELVIS[0])],
+    });
+    const st = s.u().spor.vederlag.gjeldendeSvar!.standpunkter.find((p) => p.art === 'beloep')!;
+    expect(standpunktetErSubsidiaert(s.u(), 'vederlag', st.id), 'MM-U9, MM-U28').toBe(true);
+    expect(svarIkkeGodtatt(s.u(), 'vederlag'), 'kontroll: før aksepten').toBe(true);
+    godtar(s, 'grunnlag');
+    expect(svarIkkeGodtatt(s.u(), 'vederlag')).toBe(false);
+  });
+
+  it('GR-U9: et frafall står ikke som et svar TE ikke har godtatt, mens ubesvarte krav i vederlag og frist venter på svar (arbeidsvalget 20.10)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [utregnet(s, 'grunnlag', frafall)] });
+    expect(s.u().frafalt, 'forutsetning: pålegget er frafalt').toBe(true);
+    expect(svarIkkeGodtatt(s.u(), 'grunnlag')).toBe(false);
+    for (const spor of KRAVSPOR) expect(venterPaaSvar(s.u(), spor), spor).toBe(true);
+    s.send('BH', { type: 'brev', svar: [utregnet(s, 'vederlag', VEDERLAG_DELVIS[0])] });
+    expect(svarIkkeGodtatt(s.u(), 'vederlag'), 'et svar i vederlaget TE ikke har godtatt').toBe(
+      true
+    );
+  });
+
+  it('GR-U23: en ny grunnlagsversjon etter frafallet venter på svar', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [utregnet(s, 'grunnlag', frafall)] });
+    s.send('TE', {
+      ...GRUNNLAGSKRAV,
+      innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Ny peling 2' },
+    });
+    expect(s.u().frafalt, 'forutsetning: frafallet står (GR-U23)').toBe(true);
+    expect(venterPaaSvar(s.u(), 'grunnlag')).toBe(true);
+    expect(svarIkkeGodtatt(s.u(), 'grunnlag')).toBe(false);
+    expect(etiketter(s, 'grunnlag')).toContain('venter_paa_svar');
   });
 });

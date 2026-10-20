@@ -150,37 +150,6 @@ export interface CaseListHendelse {
   besvart?: boolean;
 }
 
-export interface CaseListItem {
-  oppfolging?: import('$lib/domain/followUp').FollowUpContext | null;
-  endringsordre_data?: {
-    status: import('$lib/types/timeline').EOStatus;
-    eo_nummer: string;
-    relaterte_koe_saker: string[];
-    netto_belop: number | null;
-    frist_dager: number | null;
-    er_estimat: boolean;
-  } | null;
-  sak_id: string;
-  sakstype: 'standard' | 'forsering' | 'endringsordre';
-  cached_title: string | null;
-  cached_status: string | null;
-  created_at: string | null;
-  created_by: string;
-  last_event_at: string | null;
-  // Reporting fields
-  cached_sum_krevd: number | null;
-  cached_sum_godkjent: number | null;
-  cached_dager_krevd: number | null;
-  cached_dager_godkjent: number | null;
-  cached_hovedkategori: string | null;
-  cached_underkategori: string | null;
-  // Forsering-specific cached fields
-  cached_forsering_paalopt: number | null;
-  cached_forsering_maks: number | null;
-  // Timeline hendelser for saksoversikt
-  hendelser?: CaseListHendelse[];
-}
-
 /**
  * Sakslisten fra `GET /api/projects/<p>/saker` (#1022, #1029). Feltnavnene er
  * kontrakter (B-17); betydningen står i domenetabellen, raden «Linja i sakslisten».
