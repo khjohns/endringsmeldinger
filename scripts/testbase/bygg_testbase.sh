@@ -5,7 +5,8 @@
 # Bruk: KOE_TESTBASE_URL=postgresql://postgres@localhost:5432/koe_test \
 #         scripts/testbase/bygg_testbase.sh
 #
-# Samme variabel styrer kjernens lagringstester i sprakprove/kjernelagring/.
+# CI-jobben `database` og docs/verktoy/katalog.py bruker basen. Ingen test gjør
+# det lenger (#931).
 set -euo pipefail
 export LC_ALL=C
 export PGOPTIONS="${PGOPTIONS:-} -c client_min_messages=warning"
@@ -38,38 +39,10 @@ if (( ${#migrasjoner[@]} == 0 )); then
   exit 1
 fi
 
-# Regnet før migrasjonene kjøres, så den beskriver filene basen ble bygget av.
-sum="$("$rot/scripts/testbase/migrasjonssum.sh")"
-
 # Globben sorterer etter filnavn i C-lokalet; det er apply-rekkefølgen.
 for fil in "${migrasjoner[@]}"; do
   echo "Migrasjon $(basename "$fil")"
   "${psql_kjor[@]}" -f "$fil"
 done
-
-# Radene migrasjonene la inn, tatt vare på mens basen er ren. Den skrivbare
-# testfixturen setter `public` tilbake til dem etter hver test, også når en
-# avbrutt kjøring har etterlatt rader (#697).
-"${psql_kjor[@]}" <<'SQL'
-CREATE SCHEMA koe_testbase;
-REVOKE ALL ON SCHEMA koe_testbase FROM PUBLIC;
-CREATE TABLE koe_testbase.frodata (tabell text PRIMARY KEY, rader jsonb[] NOT NULL);
-DO $$
-DECLARE
-  tabell text;
-BEGIN
-  FOR tabell IN SELECT oid::regclass::text FROM pg_class
-                 WHERE relnamespace = 'public'::regnamespace AND relkind IN ('r', 'p') LOOP
-    EXECUTE format('INSERT INTO koe_testbase.frodata
-                    SELECT %L, coalesce(array_agg(to_jsonb(t)), ''{}'') FROM %s t', tabell, tabell);
-  END LOOP;
-END $$;
-SQL
-
-# Den skrivbare testfixturen skriver bare til en base med dette merket.
-"${psql_kjor[@]}" -c "DO \$\$ BEGIN
-  EXECUTE format('COMMENT ON DATABASE %I IS %L', current_database(), 'koe-kastbar-testbase');
-  EXECUTE format('ALTER DATABASE %I SET koe.migrasjonssum = %L', current_database(), '$sum');
-END \$\$"
 
 echo "Bygget ${#migrasjoner[@]} migrasjoner."

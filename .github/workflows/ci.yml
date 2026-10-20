@@ -52,6 +52,9 @@ jobs:
       - name: Lint
         run: ruff check backend/
 
+  # Bygger migrasjonene i supabase/migrations/ fra tom mot PostgreSQL 17. Ingen
+  # test i TS eller Python bruker basen lenger (#931, #935); jobben står til
+  # migrasjonene går ut, og navnet er påkrevd i regelsettet på main.
   database:
     name: Database (PostgreSQL 17 + migrasjoner)
     if: ${{ !github.event.pull_request.draft }}
@@ -60,16 +63,6 @@ jobs:
       KOE_TESTBASE_URL: postgresql://postgres:postgres@localhost:5432/koe_test
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-
-      - name: Installer Node-avhengigheter
-        run: npm ci
-        env:
-          HUSKY: 0
 
       # Ikke `services:`: den henter bildet fra én kilde før noe steg kjører,
       # og gir opp etter tre forsøk (#327).
@@ -85,17 +78,11 @@ jobs:
       - name: Bygg basen fra tom
         run: scripts/testbase/bygg_testbase.sh
 
-      # Kjernens lagringstester i sprakprove/kjernelagring/ leser journalen fra
-      # PostgreSQL til de prøves gjennom server/ mot SQL Server (#932). Hele
-      # sprakprove/, så en ny databasetest kommer med. Uten KOE_TESTBASE_URL
-      # hoppes de over i frontend-jobben.
-      - name: Kjør kjernen og språkprøven mot basen
-        run: npx vitest run kjerne/ sprakprove/
-
   # Testbasen for datalaget i F0b (#488): SQL Server 2025 Developer Edition i
   # Docker, med basene i innstillingene fra Azure SQL Database. Hele server/, så
   # nye tester mot SQL Server kommer med, og skrivestien i sprakprove/skrivesti/
-  # (#666), som går mot server/. Ingen av dem bruker PostgreSQL.
+  # (#666), og kjernens lagringstester i sprakprove/kjernelagring/ (#932), som
+  # går mot server/.
   sqlserver:
     name: SQL Server (testbasen for datalaget)
     if: ${{ !github.event.pull_request.draft }}

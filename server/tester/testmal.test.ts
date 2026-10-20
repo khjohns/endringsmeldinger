@@ -9,9 +9,12 @@ import { describe, expect, it } from 'vitest';
 import { avvikFraAzure, kobleTilServer, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 import { feilnummer } from '../datalag.ts';
 import {
+  fullfoert,
   katalog,
   kopierMigrertTestbase,
+  LEDIG_FORBINDELSE,
   opprettMigrertTestbase,
+  slettMalByggetEtter,
   underLaas,
 } from './sqlserver_migrert.ts';
 
@@ -77,15 +80,59 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('malen for testbasene', () => {
       }
     });
 
-    it('låsen holder mens forbindelsen er ledig lenger enn 30 s, standarden for ledige forbindelser i poolen', async () => {
+    it('låsen følger forbindelsen: med en kortere grense for ledige forbindelser enn ventetiden mister sesjonen den', async () => {
+      const r = ressurs();
+      const svar = await underLaas(
+        r,
+        1_000,
+        async () => {
+          await new Promise((ok) => setTimeout(ok, 3_000));
+          return laasmodus(r);
+        },
+        { ledig: 200 }
+      );
+      // 1: en annen sesjon får låsen.
+      expect(svar).toBe(1);
+    });
+
+    it('med standardgrensen holder låsen mens forbindelsen er ledig, og grensen er lenger enn 30 s, standarden i poolen', async () => {
+      expect(LEDIG_FORBINDELSE).toBeGreaterThan(30_000);
       const r = ressurs();
       const svar = await underLaas(r, 1_000, async () => {
-        await new Promise((ok) => setTimeout(ok, 35_000));
+        await new Promise((ok) => setTimeout(ok, 3_000));
         return laasmodus(r);
       });
       // 0: en annen sesjon får ikke låsen.
       expect(svar).toBe(0);
       expect(await laasmodus(r)).toBe(1);
-    }, 60_000);
+    });
   });
+
+  // #969: bare en kopi som mangler eller ikke kan leses som kopi, gir `false`.
+  describe('fullfoert', () => {
+    it('en fil som ikke finnes, er ikke en fullført kopi', async () => {
+      const m = await kobleTilServer(0);
+      try {
+        expect(
+          await fullfoert(
+            m,
+            `/var/opt/mssql/data/koe_finnes_ikke_${randomBytes(4).toString('hex')}.bak`
+          )
+        ).toBe(false);
+      } finally {
+        await m.close();
+      }
+    });
+
+    it('en brutt forbindelse når fram som feil, ikke som en kopi som mangler', async () => {
+      const m = await kobleTilServer(0);
+      await m.close();
+      await expect(fullfoert(m, '/var/opt/mssql/data/koe_finnes_ikke.bak')).rejects.toThrow();
+    });
+  });
+
+  it('en mal som var skrevet før kjøringen startet, slettes ikke etter kjøringen (#945)', async () => {
+    await kopierMigrertTestbase('mal_foer').then((b) => b.slett());
+    expect(await slettMalByggetEtter(Date.now())).toBe(false);
+  }, 300_000);
 });

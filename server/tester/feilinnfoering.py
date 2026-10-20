@@ -17,8 +17,10 @@ tester i journal.test.ts og kommandoer.test.ts. Først
 kjøres testene uten feilinnføring og må være grønne. En feilinnføring er
 oppdaget når en test med det forventede navnet feiler. Skriptet feiler når en
 feilinnføring overlever og ikke står i FORVENTET_OVERLEVER, eller når stedet
-ikke finnes lenger, eller når en senere migrasjon definerer prosedyren,
-funksjonen, triggeren eller visningen med ankeret på nytt (#937).
+ikke finnes lenger, eller når prosedyren, funksjonen, triggeren eller visningen
+i GO-satsen med ankeret defineres på nytt eller slettes senere i samme fil
+eller i en senere migrasjon, eller tabellen triggeren står på, forsvinner
+(#937, #967).
 """
 
 import os
@@ -178,34 +180,76 @@ FEILINNFOERINGER = [
 FORVENTET_OVERLEVER = {"S8"}
 
 MIGRASJONER = "database/migrasjoner"
+NAVN = r"((?:\[[^\]]+\]|\w+)(?:\.(?:\[[^\]]+\]|\w+))*)"
 # Bare objekter som defineres som helhet. En tabell eller sikkerhetspolicy endres
 # ledd for ledd med ALTER, så for dem fanger kontrollen ikke en død mutasjon.
-DEFINISJON = re.compile(r"^\s*(?:CREATE|ALTER)(?: OR ALTER)? (PROCEDURE|FUNCTION|TRIGGER|VIEW) ([\w.]+)", re.MULTILINE)
+OBJEKT = re.compile(
+    rf"^\s*(CREATE|ALTER|DROP)(?:\s+OR\s+ALTER)?\s+(PROC(?:EDURE)?|FUNCTION|TRIGGER|VIEW)\s+(?:IF\s+EXISTS\s+)?{NAVN}",
+    re.MULTILINE | re.IGNORECASE,
+)
+TRIGGERTABELL = re.compile(rf"\bON\s+{NAVN}", re.IGNORECASE)
+TABELL_SLETTES = re.compile(r"^\s*DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?([^;\n]+)", re.MULTILINE | re.IGNORECASE)
+NYTT_NAVN = re.compile(r"\bsp_rename\s+(?:@objname\s*=\s*)?N?'([^']+)'", re.IGNORECASE)
+GO = re.compile(r"^[ \t]*GO[ \t]*$", re.MULTILINE | re.IGNORECASE)
+
+
+def objektnavn(navn: str) -> str:
+    return navn.replace("[", "").replace("]", "").strip().lower()
+
+
+def objektart(art: str) -> str:
+    art = art.upper()
+    return "PROCEDURE" if art == "PROC" else art
+
+
+def satsen(kilde: str, pos: int) -> tuple[int, int]:
+    """Start og slutt på GO-satsen som tegnet på `pos` står i."""
+    start = max((m.end() for m in GO.finditer(kilde, 0, pos)), default=0)
+    slutt = GO.search(kilde, pos)
+    return start, slutt.start() if slutt else len(kilde)
 
 
 def ankerfeil(rot: Path, fil: str, fra: str) -> str | None:
     """Hvorfor feilinnføringen ikke kan virke, eller None.
 
-    En mutasjon i en migrasjon er død når en senere migrasjon definerer objektet
-    på nytt, fordi testbasen bygges med alle migrasjonene.
+    En mutasjon i en migrasjon er død når objektet i GO-satsen der ankeret
+    begynner, defineres på nytt eller slettes senere i samme fil eller i en
+    senere migrasjon, fordi testbasen bygges med alle migrasjonene. En trigger
+    er også død når tabellen den står på, slettes eller får nytt navn.
     """
     kilde = (rot / fil).read_text()
     if kilde.count(fra) != 1:
         return "finner ikke stedet"
     if not fil.startswith(MIGRASJONER + "/"):
         return None
-    foer = kilde[: kilde.index(fra)]
-    definisjoner = list(DEFINISJON.finditer(foer))
-    if not definisjoner:
+    start, slutt = satsen(kilde, kilde.index(fra))
+    definisjon = next(
+        (m for m in OBJEKT.finditer(kilde, start, slutt) if m.group(1).upper() != "DROP"), None
+    )
+    if not definisjon:
         return None
-    art, navn = definisjoner[-1].groups()
-    ny = re.compile(rf"^\s*(?:CREATE|ALTER|DROP)(?: OR ALTER)? {art} {re.escape(navn)}\b", re.MULTILINE)
-    senere = [
-        f.name
+    art, navn = objektart(definisjon.group(2)), objektnavn(definisjon.group(3))
+    tabell = None
+    if art == "TRIGGER" and (paa := TRIGGERTABELL.search(kilde, definisjon.end(), slutt)):
+        tabell = objektnavn(paa.group(1))
+    resten = [(Path(fil).name, kilde[slutt:])] + [
+        (f.name, f.read_text())
         for f in sorted((rot / MIGRASJONER).glob("*.sql"))
-        if f.name > Path(fil).name and ny.search(f.read_text())
+        if f.name > Path(fil).name
     ]
-    return f"{navn} defineres på nytt i {senere[-1]}" if senere else None
+    for filnavn, tekst in resten:
+        for m in OBJEKT.finditer(tekst):
+            if objektart(m.group(2)) == art and objektnavn(m.group(3)) == navn:
+                hva = "slettes" if m.group(1).upper() == "DROP" else "defineres på nytt"
+                return f"{navn} {hva} i {filnavn}"
+        for m in NYTT_NAVN.finditer(tekst):
+            if objektnavn(m.group(1)) in {navn, tabell}:
+                return f"{objektnavn(m.group(1))} får nytt navn i {filnavn}"
+        if tabell:
+            for m in TABELL_SLETTES.finditer(tekst):
+                if tabell in {objektnavn(t) for t in m.group(1).split(",")}:
+                    return f"tabellen {tabell} for {navn} slettes i {filnavn}"
+    return None
 
 
 def kontroller_ankre(rot: Path, valgt: set[str]) -> list[str]:
@@ -238,7 +282,7 @@ def main(rot: Path) -> int:
         print("ukjente feilinnføringer:", " ".join(sorted(ukjent)))
         return 1
     if sys.argv[1] == "--ankre":
-        return 1 if kontroller_ankre(Path.cwd(), valgt) else 0
+        return 1 if kontroller_ankre(Path(__file__).resolve().parents[2], valgt) else 0
     if kontroller_ankre(rot, valgt):
         return 1
     if not os.environ.get("KOE_SQLSERVER_TILKOBLING"):

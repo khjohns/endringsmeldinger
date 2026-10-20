@@ -193,7 +193,7 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git commit -qm x | tail -3',
       'git push -u origin claude/test-1; echo $?',
       'npm test && git commit -qm x',
-      'command git commit -m "$(printf x)" && npm test',
+      'command git commit -m "$x" && npm test',
     ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
@@ -219,8 +219,8 @@ describe('skrivevakten for mekanisk-pr', () => {
 
   it('ber om eget kall for git add og git send-pack, som reglene regner som commit og push (#753)', () => {
     for (const kommando of [
-      'printf "$(date)" && git add docs/a.md',
-      'npm test; git send-pack origin "$(printf x)"',
+      'printf "$x" && git add docs/a.md',
+      'npm test; git send-pack origin "$x"',
     ]) {
       const resultat = bash(kommando);
       expect(resultat.status, kommando).toBe(2);
@@ -287,6 +287,197 @@ describe('skrivevakten for mekanisk-pr', () => {
       'git commit -F - <<EOF\nmelding',
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper en kropp som leses som kommandoer, og sier at det er kroppen som stopper kallet (#970)', () => {
+    for (const kommando of [
+      "cat > /tmp/pr.md <<'EOF'\ngit commit -F fil\nEOF",
+      "cat > /tmp/pr.md <<'EOF'\nkjør git push først\nEOF",
+      "cat <<'EOF'\ngit push origin HEAD:main\nEOF",
+      "cat > /tmp/a <<-'EOF'\n\tgit push --force origin HEAD:main\n\tEOF",
+      "gh api repos/khjohns/endringsmeldinger/pulls/1 -X PATCH -F body=@- <<'EOF'\ngit push --force\nEOF",
+      "cat > /tmp/pr.md <<'EOF'\nSett GIT_DIR=x først\nEOF",
+      "cat > /tmp/pr.md <<'EOF'\nkjør bash først\nEOF",
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).toContain('Kroppen i heredocen leses som kommandoer');
+    }
+  });
+
+  it('sier ikke at kroppen stopper kallet når den kan kjøres eller resten av kallet stoppes (#970)', () => {
+    for (const kommando of [
+      "cat > /tmp/x.sh <<'EOF'\ngit push --force origin HEAD:main\nEOF\nbash /tmp/x.sh",
+      "sh <<'EOF'\ngit status\nEOF",
+      "cat <<'EOF' | bash\ngit push\nEOF",
+      "cat > /tmp/a <<'EOF'\ngit push\n",
+      "cat > /tmp/a <<'EOF'\nSett GIT_DIR=x\nEOF\ngit push --force origin HEAD:main",
+      "echo $(#x <<'EOF'\ngit push --force origin HEAD:main\nEOF\n echo x)",
+      "echo ${x#<<'EOF' }\ngit push --force origin HEAD:main\nEOF",
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).not.toContain('Kroppen i heredocen');
+    }
+  });
+
+  it('leser kroppen som kommandoer når kallet også kan kjøre en fil eller heredocen ikke avsluttes (#970)', () => {
+    for (const kommando of [
+      "cat > /tmp/x.sh <<'EOF'\ngit push --force origin HEAD:main\nEOF\nbash /tmp/x.sh",
+      "cat > /tmp/x.sh <<'EOF'\ngit push --force origin HEAD:main\nEOF\nsource /tmp/x.sh",
+      "cat > /tmp/a <<'EOF'\ntekst\ngit push --force origin HEAD:main",
+      "cat > /tmp/a <<-'EOF'\n\tEOF\ngit push --force origin HEAD:main",
+      "cat > /tmp/a <<'EOF'\n tekst\nEOF \ngit push --force origin HEAD:main",
+      "cat <<'EOF' > /tmp/a; git push --force origin HEAD:main\nx\nEOF",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('gjør kroppen ukjent når et skall eller et annet program leser den, også gjennom et rør (#970)', () => {
+    for (const kommando of [
+      "sh <<'EOF'\ngit status\nEOF",
+      "cat <<'EOF' | bash\ngit status\nEOF",
+      "cat <<'EOF' |& bash\ngit status\nEOF",
+      "cat <<'EOF' | tee /tmp/a | sh\ngit status\nEOF",
+      "cat <<'EOF' |\ngit status\nEOF\nbash",
+      "exec <<'EOF'\ngit status\nEOF",
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).toContain('skallsyntaks som ikke kan leses statisk');
+    }
+  });
+
+  it('ser en heredoc i bash -c og eval i samme kall som git commit (#970)', () => {
+    for (const kommando of [
+      'bash -c "cat > /tmp/m <<\'EOF\'\nx\nEOF\ngit commit -F /tmp/m"',
+      'eval "cat > /tmp/m <<\'EOF\'\nx\nEOF\ngit commit -F /tmp/m"',
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).toContain('heredoc i samme kall som git commit');
+    }
+  });
+
+  it('åpner ingen heredoc med << etter # eller i aritmetikk, så linjene etter er kommandoer (#970)', () => {
+    for (const kommando of [
+      'git commit -m x # <<EOF\nnpm test',
+      'git commit -m $((1<<2))\nnpm test',
+    ]) {
+      const resultat = bash(kommando);
+      expect(resultat.status, kommando).toBe(2);
+      expect(resultat.stderr, kommando).toContain('hver i sitt eget kall');
+    }
+  });
+
+  it('stopper en kommando bak en anførsel eller heredoc som vakten og bash kan lese ulikt (#970)', () => {
+    for (const kommando of [
+      "ls # '\ng\\it push --force origin HEAD:main\n'",
+      "echo $[1<<A]\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
+      "echo ${x:-<<A}\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
+      "echo ${x[1<<A]}\necho '\nx ' ; g\\it push --force origin HEAD:main\ny '",
+      'echo # \'\necho "\nx \' y " ; g\\it push --force origin HEAD:main ; echo "\nx "',
+      "echo $(#'\ng\\it push --force origin HEAD:main\n)",
+      "echo $'\\''\ng\\it push --force origin HEAD:main\necho '",
+      "echo $'\\''\ng${x}it push --force origin HEAD:main\necho '",
+      "echo `#'`\ng${x}it push --force origin HEAD:main\necho '",
+      "echo $'\\''\nr${x}m -rf kj${x}erne\necho '",
+      "bash -c \"echo \\$'\\\\''\ng\\${x}it push --force origin HEAD:main\necho '\"",
+      'bash -c "echo \\$(#\'\ng\\\\it push --force origin HEAD:main\n)"',
+      "echo $'\\''; g${x}it push --force origin HEAD:main #'",
+      "echo $'\\'' ; r${x}m -rf kj${x}erne #'",
+      'bash -c "ls # \'\ng\\\\it push --force origin HEAD:main\n\'"',
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  it('stopper en kommando som skallet kjører gjennom substitusjon, et tilslørt kommandonavn, trap eller PS4 (#970)', () => {
+    for (const kommando of [
+      'echo $(g${x}it push --force origin HEAD:main)',
+      'echo "$(g${x}it push --force origin HEAD:main)"',
+      'cat <(g${x}it push --force origin HEAD:main)',
+      'echo >(g${x}it push --force origin HEAD:main)',
+      'if true; then g${x}it push --force origin HEAD:main; fi',
+      'for f in a; do g${x}it push --force origin HEAD:main; done',
+      'time g${x}it push --force origin HEAD:main',
+      '! g${x}it push --force origin HEAD:main',
+      'nice g${x}it push --force origin HEAD:main',
+      "echo `'`; g${x}it push --force origin HEAD:main #'`",
+      "echo $$'\\'; g${x}it push --force origin HEAD:main #'",
+      "trap 'g${x}it push --force origin HEAD:main' EXIT",
+      "x='$(g${y}it push --force origin HEAD:main)'; echo ${x@P}",
+      'echo $((g${x}it push --force origin HEAD:main) )',
+      'function f { g${x}it push --force origin HEAD:main; }; f',
+      'case a in a) g${x}it push --force origin HEAD:main;; esac',
+      'coproc g${x}it push --force origin HEAD:main',
+      "PS4='$(g${y}it push --force origin HEAD:main)' ; set -x; true",
+      "trap -- '-;g${x}it push --force origin HEAD:main' EXIT",
+      'trap -- \'-;eval "$(cat /tmp/x)"\' EXIT',
+      "trap 'bash /tmp/x.sh' EXIT",
+    ]) {
+      expect(bash(kommando).status, kommando).toBe(2);
+    }
+  });
+
+  // Avgjørelsene på origin/main bd250d4 er kjørt med samme tre og lagt inn for hånd.
+  it('nekter alt main nektet (#970)', () => {
+    const korpus: [string, 0 | 2, 0 | 2][] = [
+      ["cat > /tmp/pr.md <<'EOF'\ngit commit -F fil\nEOF", 2, 2],
+      ["cat > /tmp/pr.md <<'EOF'\nkjør git push først\nEOF", 2, 2],
+      ["cat <<'EOF'\ngit push origin HEAD:main\nEOF", 2, 2],
+      ["cat > /tmp/a <<'A' <<'B'\ngit push\nA\ngit commit\nB", 2, 2],
+      ["cat > /tmp/pr.md <<'EOF'\nlegg til lenke\nEOF", 0, 0],
+      ['ls docs/*.md\nwc -l AGENTS.md', 0, 0],
+      ['if [ -d node_modules ]; then npm test; else npm ci; fi', 0, 0],
+      ['if [[ -n x ]]; then npx vitest run; fi', 0, 0],
+      ['if (( 1 )); then npm test; fi', 0, 0],
+      ["trap 'rm -f /tmp/x.json' EXIT; npm test", 0, 0],
+      ['echo $((1+2)) && ls', 0, 0],
+      ["cat > /tmp/a <<-'EOF'\n\ttekst\n\tEOF", 0, 0],
+      ["cat > /tmp/a <<'EOF'\nx\nEOF\nmkdir -p /tmp/b && cat /tmp/a", 0, 0],
+      ["cat <<'EOF'\nkjerne/x\nEOF\nls", 0, 0],
+      ["cat > /tmp/m <<'EOF'\nx\nEOF\ngit commit -F /tmp/m", 2, 2],
+      ["bash <<'EOF'\ngit push --force origin HEAD:main\nEOF", 2, 2],
+      ["python3 <<'EOF'\nimport os; os.system('git push')\nEOF", 2, 2],
+      ["sh <<'EOF'\ngit status\nEOF", 0, 2],
+      ["cat <<'EOF' | bash\ngit status\nEOF", 0, 2],
+      ['echo $((1<<2))\ngit status', 2, 2],
+      ["git status # <<'EOF'\ngit push --force origin HEAD:main\nEOF", 2, 2],
+      ["cat > /tmp/pr.md <<'EOF'\nCloses #753 (RV-07)\nEOF", 2, 2],
+      ["cat > /tmp/pr.md <<'EOF'\nTE's krav\nEOF", 2, 2],
+      ["cat > /tmp/pr.md <<'EOF'\n* punkt\nEOF", 2, 2],
+      ["cat <<'EOF'\n$(git push)\nEOF", 2, 2],
+      ["cat <<'EOF'\nx (sh)\nEOF", 2, 2],
+      ["cat > /tmp/a <<'EOF'\nGIT_SSH_COMMAND=x\nEOF", 2, 2],
+      ["ls a#b <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls x$# <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls ${#x} <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls \"\"# <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls 'a'# <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["ls x=# <<'EOF'\n'x\ny'\nEOF", 2, 2],
+      ["echo x # <<'EOF'\necho '\nGIT_DIR=x\n'\nEOF", 2, 2],
+      ["echo x #<<'EOF'\necho '\n$(x)\n'\nEOF", 2, 2],
+      ["echo $((1<<'EOF'))\necho '\nGIT_DIR=x\n'\nEOF", 2, 2],
+      ["ls #<<A\ncat > /tmp/b <<'B'\nA\n'\nB\n\\git push --force origin HEAD:main\n'", 2, 2],
+      ["g\\it commit -m x #<<'A'", 2, 2],
+      ["ls #<<'A'\necho \"\nA\necho '\nx ' ; g\\it push --force origin HEAD:main\ny \"", 2, 2],
+      [
+        "echo $((1<<'A'))\necho \"\nA\necho '\nx ' ; g\\it push --force origin HEAD:main\ny \"",
+        2,
+        2,
+      ],
+      ["ls #<<'A'\nA\necho '\nx y'; g\\it push --force origin HEAD:main", 2, 2],
+      ["echo $((1<<'A'))\nA\necho '\nx y'; g\\it push --force origin HEAD:main", 2, 2],
+      ['ls #<<\'A\'\nA\necho "\nx y"; g\\h pr merge 1', 2, 2],
+      ["ls #<<'A'\nA\nnice gi\\\nt push --force origin HEAD:main", 2, 2],
+      ["ls #<<'A'\nA\necho '\nx y'; GIT_DIR=/tmp/x g\\it status", 2, 2],
+    ];
+    for (const [kommando, main, ny] of korpus) {
+      if (main === 2) expect(ny, kommando).toBe(2);
+      expect(bash(kommando).status, kommando).toBe(ny);
     }
   });
 

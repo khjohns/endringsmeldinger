@@ -127,7 +127,7 @@ const GRAPHQL = /(^|\/)graphql\/?$/;
 // Miljøvariabler som får git, gh, skallet eller et program til å kjøre noe annet eller bruke et
 // annet tre. De leses som tilordning (`NAVN=…`) eller som navn alene (`export NAVN`).
 const FARLIG_MILJOE =
-  /^(GIT_\w+|GH_\w+|XDG_\w+|LD_\w+|NPM_CONFIG_\w+|npm_config_\w+|HOME|PATH|ZDOTDIR|EDITOR|VISUAL|PAGER|BROWSER|LESSOPEN|LESSCLOSE|BASH_ENV|ENV|SHELL|NODE_OPTIONS|PYTHONPATH|PYTHONSTARTUP|PERL5OPT|RUBYOPT|RIPGREP_CONFIG_PATH)(=|$)/;
+  /^(GIT_\w+|GH_\w+|XDG_\w+|LD_\w+|NPM_CONFIG_\w+|npm_config_\w+|HOME|PATH|ZDOTDIR|EDITOR|VISUAL|PAGER|BROWSER|LESSOPEN|LESSCLOSE|BASH_ENV|ENV|SHELL|NODE_OPTIONS|PYTHONPATH|PYTHONSTARTUP|PERL5OPT|RUBYOPT|RIPGREP_CONFIG_PATH|PS\d|PROMPT_COMMAND)(=|$)/;
 const UFARLIG_MILJOE = /^(GIT_PAGER=(cat)?|PAGER=(cat)?|GIT_TERMINAL_PROMPT=0)$/;
 
 // Hookoppsettet, som mekanisk-pr ikke endrer.
@@ -271,18 +271,41 @@ function ledd(kommando) {
 const UFARLIG_OMDIRIGERING = /^>(&\d+(?=$|[\s;&|)])|\s*\/dev\/null(?=$|[\s;&|)]))/;
 const ESCAPE_I_ANFORSEL = '$`"\\';
 
+// Om parentesen ved `i` åpner aritmetikk (`((…))`): den neste parentesen lukkes rett før
+// denne. Ellers er `$((…) )` en kommandosubstitusjon med et subskall.
+function aapnerAritmetikk(tekst, i) {
+  if (tekst[i + 1] !== '(') return false;
+  let dybde = 0;
+  let indre = -1;
+  for (let j = i; j < tekst.length; j++) {
+    if (tekst[j] === '(') dybde++;
+    else if (tekst[j] === ')') {
+      dybde--;
+      if (dybde === 1 && indre === -1) indre = j;
+      if (dybde === 0) return indre === j - 1;
+    }
+  }
+  return false;
+}
+
 /**
  * Deler en kommando i ledd og ord med skallets regler for anførselstegn og escape.
  * `ukjent` settes når leddet ikke kan leses uten å kjøre skallet: substitusjon, variabler,
  * globber, klammer, `#`, subshell, heredoc eller omdirigering til fil. `ukjentSyntaks` er
  * den delen som ikke er omdirigering, og `ukjentKommando` er satt når kommandoordet selv
  * ikke kan leses. Hver linje i en heredoc-kropp lekses for seg, slik at en anførsel i kroppen
- * ikke sluker avgrenserlinja, og leddene merkes `kropp`, siden de ikke er kommandoer. Uten
- * anførselstegn eller escape i avgrenseren kan skallet ekspandere kroppen, så da er både
- * heredocen og kroppsleddene ukjente (#753). `iKropp` er satt når `tekst` er en kroppslinje.
+ * ikke sluker avgrenserlinja, og leddene merkes `kropp`. Uten anførselstegn eller escape i
+ * avgrenseren kan skallet ekspandere kroppen, så da er både heredocen og kroppsleddene ukjente
+ * (#753). Kroppen er også ukjent når et skall eller et annet program enn `TEKSTMOTTAKERE` kan
+ * lese den, direkte eller gjennom et rør. Kroppslinjene står i `liste.kroppslinjer` som
+ * [start, slutt). Den er null når en kropp ikke er bokstavelig, kan kjøres eller ikke avsluttes,
+ * eller når heredoc-linja har ukjent syntaks (#970). En kommentar lekses for seg, og `<<` i
+ * aritmetikk åpner ingen heredoc, så linjene etter leses som kommandoer. `iKropp` er satt når
+ * `tekst` er en kroppslinje.
  */
 function lekser(tekst, iKropp = false) {
   const liste = [];
+  liste.kroppslinjer = [];
   let ord = [];
   let innhold = '';
   let harOrd = false;
@@ -290,6 +313,10 @@ function lekser(tekst, iKropp = false) {
   let ukjentSyntaks = false;
   let ukjentKommando = false;
   let heredoc = false;
+  // Leddet får data fra en heredoc, selv eller gjennom et rør fra et ledd som får det.
+  let mottar = false;
+  let aritmetikk = 0;
+  let linjestart = 0;
   // Avgrenserne til heredocene som er åpnet på linja, og dem kroppslinjene ennå venter på.
   let aapnede = [];
   const kropper = [];
@@ -311,9 +338,13 @@ function lekser(tekst, iKropp = false) {
     innhold = '';
     harOrd = false;
   };
+  // Et tomt ledd, som det andre tegnet i `|&`, beholder `mottar` til neste ledd.
   const avsluttLedd = () => {
     avsluttOrd();
-    if (ord.length || ukjent) liste.push({ ord, ukjent, ukjentSyntaks, ukjentKommando, heredoc });
+    if (ord.length || ukjent) {
+      liste.push({ ord, ukjent, ukjentSyntaks, ukjentKommando, heredoc, mottar });
+      mottar = false;
+    }
     ord = [];
     heredoc = false;
     ukjent = false;
@@ -327,6 +358,11 @@ function lekser(tekst, iKropp = false) {
     if (tegn === "'") {
       harOrd = true;
       const slutt = tekst.indexOf("'", i + 1);
+      // Står `\` før `'` i `$'…'`, avslutter `'` teksten i dash, men ikke i bash.
+      if (innhold.endsWith('$') && tekst[slutt - 1] === '\\') {
+        merkUkjent();
+        ukjentKommando = true;
+      }
       if (slutt === -1) {
         merkUkjent();
         innhold += tekst.slice(i + 1);
@@ -348,6 +384,10 @@ function lekser(tekst, iKropp = false) {
           j++;
         } else {
           if (inni === '$' || inni === '`') merkUkjent();
+          // En kommandosubstitusjon kjører kommandoer vakten ikke ser.
+          if (inni === '`' || (inni === '$' && neste === '(' && !aapnerAritmetikk(tekst, j + 1))) {
+            ukjentKommando = true;
+          }
           innhold += inni;
         }
       }
@@ -359,6 +399,7 @@ function lekser(tekst, iKropp = false) {
       else innhold += tekst[i + 1];
       i++;
     } else if (tegn === '>') {
+      if (tekst[i + 1] === '(' && !aritmetikk) ukjentKommando = true;
       const ufarlig = UFARLIG_OMDIRIGERING.exec(tekst.slice(i));
       if (ufarlig) {
         if (harOrd && /^\d+$/.test(innhold)) {
@@ -378,37 +419,58 @@ function lekser(tekst, iKropp = false) {
       // Heredoc. Avgrenseren leses som målet til omdirigeringen; anførselstegn og
       // escape i den gjør kroppen bokstavelig.
       avsluttOrd();
+      const undertrykt = aritmetikk > 0;
       const fjernTab = tekst[i + 2] === '-';
       i += fjernTab ? 2 : 1;
       const raa = /^[ \t]*([^\s;&|<>()]*)/.exec(tekst.slice(i + 1))[1];
       const avgrenser = raa.replace(/['"\\]/g, '');
       // Bare enkle former, slik at vakten og skallet finner samme avgrenserlinje.
       const bokstavelig = /^(['"])[\w.-]+\1$|^\\[\w.-]+$/.test(raa);
-      if (!bokstavelig) merkUkjent();
       merkOmdirigering();
       heredoc = true;
-      if (avgrenser) aapnede.push({ avgrenser, fjernTab, bokstavelig });
+      if (!undertrykt) {
+        if (!bokstavelig) merkUkjent();
+        mottar = true;
+      }
+      if (avgrenser && !undertrykt) aapnede.push({ avgrenser, fjernTab, bokstavelig });
     } else if (tegn === '<') {
       avsluttOrd();
       merkOmdirigering();
+      // Prosessubstitusjon kjører kommandoer vakten ikke ser.
+      if (tekst[i + 1] === '(' && !aritmetikk) ukjentKommando = true;
     } else if (tegn === '\n') {
       avsluttLedd();
-      kropper.push(...aapnede);
+      const linja = liste.slice(linjestart);
+      // `mottar` som står igjen, er et rør som fortsetter etter kroppen.
+      const kjoeres = mottar || linja.some((del) => del.mottar && !leserSomTekst(del));
+      // Har heredoc-linja ukjent syntaks, kan vakten ha åpnet en heredoc som skallet ikke åpner.
+      const aapnetIUkjent = linja.some((del) => del.ukjentSyntaks);
+      kropper.push(...aapnede.map((h) => ({ ...h, kjoeres })));
       aapnede = [];
       while (kropper.length && i < tekst.length) {
-        const slutt = tekst.indexOf('\n', i + 1);
-        const linje = tekst.slice(i + 1, slutt === -1 ? tekst.length : slutt);
+        const start = i + 1;
+        const slutt = tekst.indexOf('\n', start);
+        const linje = tekst.slice(start, slutt === -1 ? tekst.length : slutt);
         i = slutt === -1 ? tekst.length : slutt;
-        const { avgrenser, fjernTab, bokstavelig } = kropper[0];
+        const { avgrenser, fjernTab, bokstavelig, kjoeres } = kropper[0];
         if ((fjernTab ? linje.replace(/^\t+/, '') : linje) === avgrenser) {
           kropper.shift();
           continue;
         }
+        if (bokstavelig && !kjoeres && !aapnetIUkjent) liste.kroppslinjer?.push([start, i]);
+        else liste.kroppslinjer = null;
         for (const del of lekser(linje, true)) {
-          const ukjentKropp = bokstavelig ? {} : { ukjent: true, ukjentSyntaks: true };
+          const ukjentKropp = bokstavelig && !kjoeres ? {} : { ukjent: true, ukjentSyntaks: true };
           liste.push({ ...del, ...ukjentKropp, kropp: true });
         }
       }
+      // En heredoc uten avgrenserlinje kan bety at vakten og skallet leser avgrenseren ulikt.
+      if (kropper.length) liste.kroppslinjer = null;
+      linjestart = liste.length;
+    } else if (tegn === '|' && tekst[i + 1] !== '|' && tekst[i - 1] !== '|') {
+      const videre = mottar;
+      avsluttLedd();
+      mottar = videre;
     } else if (tegn === ';' || tegn === '&' || tegn === '|') {
       avsluttLedd();
     } else if (tegn === ' ' || tegn === '\t') {
@@ -416,6 +478,31 @@ function lekser(tekst, iKropp = false) {
     } else if ('$`(){*?[#'.includes(tegn)) {
       // `#` er kommentar i ett skall og et vanlig ord i et annet, så leddet er ukjent.
       merkUkjent();
+      // En kommandosubstitusjon kjører kommandoer vakten ikke ser.
+      if (
+        tegn === '`' ||
+        (tegn === '$' && tekst[i + 1] === '(' && !aapnerAritmetikk(tekst, i + 1))
+      ) {
+        ukjentKommando = true;
+      }
+      // Skallet hopper over resten av linja etter en `#` som begynner et ord. Et skall som leser
+      // `#` som et ord, leser den, så den lekses også for seg.
+      if (tegn === '#' && (!harOrd || /[(`]$/.test(innhold))) {
+        const nl = tekst.indexOf('\n', i);
+        const slutt = nl === -1 ? tekst.length : nl;
+        for (const del of lekser(tekst.slice(i + 1, slutt), true)) {
+          liste.push({ ...del, ukjent: true, ukjentSyntaks: true });
+        }
+        i = slutt - 1;
+        continue;
+      }
+      // `$((` og `((` åpner aritmetikk, der `<<` er et skift. Den varer til parentesene er lukket.
+      if (
+        tegn === '(' &&
+        (aritmetikk || (tekst[i + 1] === '(' && (!harOrd || innhold.endsWith('$'))))
+      )
+        aritmetikk++;
+      else if (tegn === ')' && aritmetikk) aritmetikk--;
       harOrd = true;
       innhold += tegn;
     } else {
@@ -609,6 +696,16 @@ const TEKSTKOMMANDOER = new Set([
   'git',
   'gh',
 ]);
+// Kommandoer som leser stdin som tekst og aldri kjører den.
+const TEKSTMOTTAKERE = new Set([...TEKSTKOMMANDOER, 'tee']);
+// Et kall med bare disse kommandoene kan ikke kjøre en heredoc-kropp det har skrevet til en fil.
+const KJOERER_IKKE_FIL = new Set([...TEKSTMOTTAKERE, 'cd', 'mkdir']);
+
+function leserSomTekst(del) {
+  if (del.ukjentKommando) return false;
+  const k = kommandoordet(del.ord);
+  return k !== null && k < del.ord.length && TEKSTMOTTAKERE.has(del.ord[k].split('/').pop());
+}
 
 // Innholdet i `-c` for et skall, etter eventuelle valg som `-o pipefail`.
 function skallPayload(argumenter) {
@@ -623,11 +720,14 @@ function skallPayload(argumenter) {
 
 /**
  * Kommandoene skallet faktisk kjører: prefiks er fjernet, og innholdet i `sh -c`
- * og `eval` er lest på nytt. Ledd med ukjent kommandoord beholdes som de er.
+ * og `eval` er lest på nytt. Ledd med ukjent kommandoord beholdes som de er. `heredoc` og
+ * `kropp` følger med, og det som leses på nytt, arver `kropp`.
  */
 function effektiveKommandoer(leddene) {
   const ut = [];
   for (const del of leddene) {
+    const { heredoc = false, kropp = false } = del;
+    const arv = (indre) => ({ ...indre, kropp: kropp || indre.kropp });
     if (del.ukjentKommando) {
       ut.push(del);
       continue;
@@ -638,24 +738,54 @@ function effektiveKommandoer(leddene) {
         .slice(1)
         .join(' ')
         .replace(/(^|\s)(-S|--split-string)\s*/g, '$1');
-      ut.push(...effektiveKommandoer(lekser(tekst)));
+      ut.push(...effektiveKommandoer(lekser(tekst)).map(arv));
       continue;
     }
     const k = kommandoordet(ord);
     if (k === null) {
-      ut.push({ ord, ukjentKommando: true, ukjentPrefiks: true });
+      ut.push({ ord, ukjentKommando: true, ukjentPrefiks: true, heredoc, kropp });
       continue;
     }
     if (k >= ord.length) continue;
+    // Et kommandonavn med ekspansjon eller glob kan ikke leses uten å kjøre skallet, og disse
+    // ordene har kommandoer etter andre ord.
+    if (
+      /[$`*?{}]/.test(ord[k]) ||
+      (/[[()]/.test(ord[k]) && !/^(\[\[?|\(\()$/.test(ord[k])) ||
+      ['function', 'case', 'coproc', 'select'].includes(ord[k])
+    ) {
+      ut.push({ ord, ukjentKommando: true, heredoc, kropp });
+      continue;
+    }
     const kommando = ord[k].split('/').pop();
     const resten = ord.slice(k + 1);
     const payload = SKALL.has(kommando) ? skallPayload(resten) : undefined;
     if (payload !== undefined) {
-      ut.push(...effektiveKommandoer(lekser(payload)));
+      ut.push(...effektiveKommandoer(lekser(payload)).map(arv));
+    } else if (kommando === 'trap') {
+      // Handlingen er det første argumentet etter valgene og `--`. Reglene leser både trap-leddet
+      // med argumentene og kommandoene i handlingen.
+      let a = 0;
+      while (a < resten.length && /^-[lpP]+$/.test(resten[a])) a++;
+      if (resten[a] === '--') a++;
+      ut.push({
+        ord: [kommando, ...resten],
+        ukjentKommando: false,
+        forran: ord.slice(0, k),
+        heredoc,
+        kropp,
+      });
+      ut.push(...effektiveKommandoer(lekser(resten[a] ?? '')).map(arv));
     } else if (kommando === 'eval') {
-      ut.push(...effektiveKommandoer(lekser(resten.join(' '))));
+      ut.push(...effektiveKommandoer(lekser(resten.join(' '))).map(arv));
     } else {
-      ut.push({ ord: [kommando, ...resten], ukjentKommando: false, forran: ord.slice(0, k) });
+      ut.push({
+        ord: [kommando, ...resten],
+        ukjentKommando: false,
+        forran: ord.slice(0, k),
+        heredoc,
+        kropp,
+      });
     }
   }
   return ut;
@@ -839,8 +969,19 @@ function utenforTreet(leddene, cwd, rot) {
   return null;
 }
 
+// Teksten uten linjene i `linjer`, som er [start, slutt).
+function utenLinjer(tekst, linjer) {
+  let ut = '';
+  let fra = 0;
+  for (const [start, slutt] of linjer) {
+    ut += tekst.slice(fra, start);
+    fra = slutt;
+  }
+  return ut + tekst.slice(fra);
+}
+
 /** Returnerer en begrunnelse når kallet skal stoppes, ellers null. */
-function vurder(input) {
+function vurderKall(input) {
   const verktoy = input.tool_name ?? '';
   const parametre = input.tool_input ?? {};
   const cwd = input.cwd ?? process.cwd();
@@ -889,6 +1030,10 @@ function vurder(input) {
     if (utenSti) return `Kommandoen kan skrive filer den ikke nevner (${utenSti}).`;
   }
 
+  // `${x@P}` kjører kommandosubstitusjonene i verdien.
+  if (/\$\{[^}]*@P/.test(rakKommando)) {
+    return 'Kommandoen har ${…@P}, som kjører kommandosubstitusjonene i verdien.';
+  }
   const eff = effektiveKommandoer(leddene);
   if (eff.some((del) => del.ukjentPrefiks)) {
     return 'Kommandoen har et prefiks med flagg som vakten ikke kan tolke sikkert.';
@@ -932,14 +1077,23 @@ function vurder(input) {
   }
   if (
     leddene.some((del) => del.ukjentSyntaks) &&
-    [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) => m.test(kommando))
+    [...SKRIVENDE, ...SKRIVENDE_UTEN_STI, /\b(git|gh)\b/].some((m) =>
+      [...tekster].some((t) => m.test(t))
+    )
   ) {
     const blandet =
       (pushArgumenter.length > 0 || commiter) &&
-      effektiveKommandoer(leddene.filter((del) => !del.kropp)).some(
-        (del) => !['git', 'cd'].includes(del.ord[0])
-      );
+      eff.some((del) => !del.kropp && !['git', 'cd'].includes(del.ord[0]));
     return `Kommandoen har skallsyntaks som ikke kan leses statisk, og kan skrive.${blandet ? ` ${ALENE}` : ''}`;
+  }
+  // Med flere linjer kan vakten og skallet lese en anførsel eller en heredoc ulikt når teksten
+  // har syntaks vakten ikke kan lese, og da kan en linje skjules (#970).
+  if (
+    rakKommando.includes('\n') &&
+    /['"`#]|<</.test(rakKommando) &&
+    leddene.some((del) => del.ukjentSyntaks)
+  ) {
+    return 'Kommandoen har flere linjer og skallsyntaks som ikke kan leses statisk. Skriv den på én linje, eller skriv teksten til en fil med Write.';
   }
 
   if (
@@ -984,7 +1138,7 @@ function vurder(input) {
   }
 
   // Siste vern: det som committes eller pushes, kontrolleres i git.
-  if ((pushArgumenter.length || commiter) && leddene.some((del) => del.heredoc)) {
+  if ((pushArgumenter.length || commiter) && [...leddene, ...eff].some((del) => del.heredoc)) {
     return 'Kommandoen har en heredoc i samme kall som git commit eller git push. Skriv teksten til en fil i /tmp med Write og vis til filen, for eksempel med git commit -F.';
   }
   if (pushArgumenter.length && commiter) return 'Kjør commit og push i hver sin kommando.';
@@ -1014,6 +1168,29 @@ function vurder(input) {
     if (begrunnelse) return begrunnelse;
   }
   return null;
+}
+
+/**
+ * Kroppen i en heredoc leses som kommandoer. Er kroppen bare tekst, og slipper kallet uten den,
+ * sier begrunnelsen at det er kroppen som stopper kallet (#970).
+ */
+function vurder(input) {
+  const begrunnelse = vurderKall(input);
+  if (!begrunnelse || input.tool_name !== 'Bash') return begrunnelse;
+  const rakKommando = String(input.tool_input?.command ?? '');
+  const { kroppslinjer } = lekser(rakKommando);
+  if (!kroppslinjer?.length) return begrunnelse;
+  const command = utenLinjer(rakKommando, kroppslinjer);
+  const eff = effektiveKommandoer(lekser(command));
+  if (eff.some((del) => del.ukjentKommando || !KJOERER_IKKE_FIL.has(del.ord[0]))) {
+    return begrunnelse;
+  }
+  const utenKropp = vurderKall({ ...input, tool_input: { ...input.tool_input, command } });
+  if (utenKropp) return utenKropp;
+  const raad = begrunnelse.includes('Write')
+    ? ''
+    : ' Skriv teksten til en fil i /tmp med Write og vis til filen, for eksempel med -F body=@/tmp/<fil>.';
+  return `Kroppen i heredocen leses som kommandoer, og der finner vakten dette: ${begrunnelse} Kallet slipper uten kroppen.${raad}`;
 }
 
 // Hooks i frontmatter til prosjektagenter kjører bare i en mappe som er klarert
