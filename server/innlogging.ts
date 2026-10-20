@@ -221,6 +221,11 @@ async function medlemskapVedInnlogging(
 
 /** Det som skiller innloggingen med Catenda fra innloggingen med Entra ID. */
 interface Leverandoer {
+  /**
+   * Det som følger sesjonsnavnet i navnet på innloggingskapselen. Hver leverandør har sin, så et
+   * forsøk startet for den ene ikke kan fullføres på tilbakekallet til den andre.
+   */
+  kapselsuffiks: string;
   sattOpp(innlogging: Innlogging): boolean;
   /** Lenken til leverandøren for forsøket. */
   adresse(innlogging: Innlogging, forsoek: { state: string; nettleser: string }): string;
@@ -234,14 +239,19 @@ interface Leverandoer {
 }
 
 const CATENDA: Leverandoer = {
+  kapselsuffiks: '_login',
   sattOpp: () => true,
   adresse: ({ oauth }, { state }) => oauth.autorisasjonsadresse(state),
   konto: async ({ oauth }, kode, _nettleser, avh) =>
     medlemskapVedInnlogging(avh.datalag, oauth, await oauth.byttKode(kode)),
 };
 
-/** Bare identiteten: Entra-sesjonen gir ingen prosjekttilgang og synkroniserer ikke medlemskap (GFK-U5). */
+/**
+ * Bare identiteten: tokenet gir ingen prosjekttilgang, og medlemskapet synkroniseres ikke.
+ * En identitet driften har koblet til en eksisterende bruker, har den brukerens medlemskap (S5 i #831).
+ */
 const ENTRA: Leverandoer = {
+  kapselsuffiks: '_entra_login',
   sattOpp: ({ entra }) => Boolean(entra),
   adresse: ({ entra }, { state, nettleser }) => entra!.autorisasjonsadresse(state, nettleser),
   konto: async ({ entra }, kode, nettleser, avh) => {
@@ -263,7 +273,12 @@ async function loggInn(
       tryggRetursti(url.searchParams.get('return_to'))
     );
     return omdiriger(leverandoer.adresse(avh.innlogging, forsoek), [
-      kapsel(`${sesjonsnavn()}_login`, forsoek.nettleser, FORSOEKETS_LEVETID, avh.tidspunkt()),
+      kapsel(
+        `${sesjonsnavn()}${leverandoer.kapselsuffiks}`,
+        forsoek.nettleser,
+        FORSOEKETS_LEVETID,
+        avh.tidspunkt()
+      ),
     ]);
   } catch (feil) {
     loggFeil('Innloggingen kunne ikke startes', feil);
@@ -282,12 +297,12 @@ async function tilbakekall(
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
   const navn = sesjonsnavn();
   const naa = avh.tidspunkt();
-  const ryddForsoek = kapsel(`${navn}_login`, '', 0, naa);
+  const ryddForsoek = kapsel(`${navn}${leverandoer.kapselsuffiks}`, '', 0, naa);
   const mislyktes = omdiriger(`${innlogging.frontend}/login?error=login_failed`, [ryddForsoek]);
   try {
     const state = url.searchParams.getAll('state');
     const kode = url.searchParams.getAll('code');
-    const nettleser = informasjonskapsel(foresporsel, `${navn}_login`);
+    const nettleser = informasjonskapsel(foresporsel, `${navn}${leverandoer.kapselsuffiks}`);
     if (state.length !== 1 || !state[0] || !nettleser) return mislyktes;
     const retursti = await brukInnloggingsforsoek(avh.datalag, state[0], nettleser);
     if (retursti === null || url.searchParams.get('error') || kode.length !== 1 || !kode[0])

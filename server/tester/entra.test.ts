@@ -147,7 +147,7 @@ describe('Entra-innloggingen fra miljøet', () => {
 
 describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => {
   const SESJON = sesjonsnavn();
-  const FORSOEK = `${SESJON}_login`;
+  const FORSOEK = `${SESJON}_entra_login`;
   let o: Oppsett;
   let utsteder: Utsteder;
   let server: KjorendeServer;
@@ -417,6 +417,26 @@ describe.skipIf(!TESTBASE_URL)('innloggingen med Entra ID mot testbasen', () => 
     expect(svar.headers.get('location')).toBe(MISLYKTES);
     expect(sesjon).toBeUndefined();
     expect(await antall()).toEqual(foer);
+  });
+
+  it('et forsøk startet for Entra kan ikke fullføres på tilbakekallet til Catenda, og består for Entra (RFC 9700 § 4.4)', async () => {
+    const oid = await registrert();
+    const forsoek = await start();
+    const catendaTilbakekall = await fetch(
+      `${server.url}/api/auth/catenda/callback?state=${forsoek.state}&code=angriperens-kode`,
+      { redirect: 'manual', headers: { Cookie: `${FORSOEK}=${forsoek.nettleser}` } }
+    );
+    expect(catendaTilbakekall.headers.get('location')).toBe(MISLYKTES);
+    const kode = randomBytes(16).toString('hex');
+    utsteder.koder.set(kode, {
+      utfordring: forsoek.utfordring,
+      idToken: await signer(gyldig(forsoek.nonce, oid), utsteder.noekkel),
+    });
+    const svar = await fetch(
+      `${server.url}/api/auth/entra/callback?state=${forsoek.state}&code=${kode}`,
+      { redirect: 'manual', headers: { Cookie: `${FORSOEK}=${forsoek.nettleser}` } }
+    );
+    expect(kapselverdi(svar, SESJON)).toBeDefined();
   });
 
   it('roller og grupper i ID-tokenet gir ingen prosjekttilgang (kriterium 4, GFK-U5)', async () => {
