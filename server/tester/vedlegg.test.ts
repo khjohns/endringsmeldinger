@@ -521,6 +521,44 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     expect(feilnummer(feil)).toBe(547);
   });
 
+  // Kilde: #846. Prosedyren leser konteksten i full lengde og avviser et team eller en
+  // side som avkuttet eller uten mellomrom til slutt ville fått den lagrede formen.
+  it.each([
+    ['et team med ett tegn for mye', 'TE', (team: string) => `${team}x`],
+    ['en side som bare begynner med TE', 'TEX', (team: string) => team],
+    ['en side med mellomrom til slutt', 'TE ', (team: string) => team],
+    ['et team med mellomrom til slutt', 'TE', (team: string) => `${team} `],
+  ])(
+    '%s i konteksten avvises av lagre_vedlegg, og ingenting lagres (51403, #846)',
+    async (_, side, teamFra) => {
+      const teamet = catendaId(o.prosjekt.teTeam)!;
+      const lagre = (k: { side: string; team: string }) =>
+        iTransaksjon(
+          o.datalag.kjoeretid.pool,
+          { aktor: o.te.id, prosjekt: o.prosjekt.id, ...k },
+          (r) =>
+            r()
+              .input('vedlegg_id', sql.UniqueIdentifier, randomUUID())
+              .input('sak_id', sql.NVarChar(36), sak)
+              .input('filnavn', sql.NVarChar(200), 'kuttet.pdf')
+              .input('innhold', sql.VarBinary(sql.MAX), PDF)
+              .input(
+                'innhold_sha256',
+                sql.NVarChar(64),
+                createHash('sha256').update(PDF).digest('hex')
+              )
+              .execute('koe_api.lagre_vedlegg')
+        ).catch((f: unknown) => f);
+      expect(
+        await lagre({ side: 'TE', team: teamet }),
+        'kontrollsak: riktig kontekst lagrer'
+      ).not.toBeInstanceOf(Error);
+      const foer = (await liste(o.te)).length;
+      expect(feilnummer(await lagre({ side, team: teamFra(teamet) }))).toBe(51403);
+      expect((await liste(o.te)).length).toBe(foer);
+    }
+  );
+
   it('uten team i konteksten lagrer basen ikke noe vedlegg (51403)', async () => {
     const feil = await iTransaksjon(
       o.datalag.kjoeretid.pool,
