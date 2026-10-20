@@ -37,7 +37,12 @@ dokument, **T** telt 20.10. Ingen tester eller servere er kjørt.
 > bygget (MD-10), og målbildet har ikke tatt stilling til det som gjelder hele
 > kontrakten (MD-11). Hva en stanset levering betyr, er snevret inn av LV-U7
 > (MD-06). Se [sparringen prøvd](#sparringen-prøvd-mot-vedtakene-og-koden).
-> Svaret fra sparringen gjelder ikke før oppdragsgiver har sluttet seg til det.
+> Svaret fra sparringen gjelder bare der oppdragsgiver har sluttet seg til det.
+> Oppdragsgiver svarte 20.10 på fire spørsmål
+> ([spørsmålene](vedlegg/vurdering-maalarkitektur-2026-10-20/sporsmal.md)):
+> en stanset levering vises med veiledning, uten sperre; MM-U2 står; eksporten
+> omfatter vedleggene; og det som gjelder hele kontrakten, føres utenfor appen.
+> Svarene er ikke ført som vedtak ennå.
 
 **Målbildet passer domenet, og ingen byggekloss bør byttes.** For hver av de seks
 er det beste alternativet enten det som er valgt, eller et som koster mer enn det

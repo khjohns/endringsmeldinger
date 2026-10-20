@@ -8,6 +8,9 @@ spørsmålene ble stilt. Den fant tre feil i premissene, som er rettet. Spørsm�
 hvilte på et skille mellom «før første ekte sak» og «ved produksjonsporten» som
 ikke finnes, fordi ingen utrulling skjer før produksjonsporten (vedtaket 17.09).
 
+Svarene er ikke ført i vedtaksregisteret. Det gjør orkestratoren i en egen
+vedtaks-PR, med alternativene her ordrett, slik vedtaksskillen sier.
+
 ## 1. Leveringen som stanser (MD-06, innvending 1)
 
 **Overskrift:** Levering
@@ -42,7 +45,7 @@ når en levering stanser? Anbefaling: A.
   godtar appen ingen nye brev fra avsenderen i saken. Registrering etter OV-U4
   godtas fortsatt. En ny sperre; utvider MM-U2 til en feil i leveringen.
 
-**Svar:** …
+**Svar (oppdragsgiver 20.10, med spørsmålsverktøyet):** «A. Vises, med veiledning (anbefalt)»
 
 ## 2. Brev appen ikke kan sende (innvending 2, prinsipp 5)
 
@@ -70,7 +73,7 @@ stå? Anbefaling: A.
   Endrer MM-U2 ved å godta en variant av det MM-U2 forkastet, og endrer LV-U2 og
   LV-U3 for slike brev.
 
-**Svar:** …
+**Svar (oppdragsgiver 20.10, med spørsmålsverktøyet):** «A. MM-U2 står (anbefalt)»
 
 ## 3. Vedleggene i eksporten (MD-07, innvending 3)
 
@@ -95,7 +98,7 @@ omfatte? Anbefaling: A.
 - **C. Henvisning i eksporten** — Eksporten viser til vedleggene i Catenda med
   ID, filnavn og hash, uten filene. P4 og LV-U12 står.
 
-**Svar:** …
+**Svar (oppdragsgiver 20.10, med spørsmålsverktøyet):** «A. Vedleggene med (anbefalt)»
 
 ## 4. Det som gjelder hele kontrakten (NS 8407-punktene, MD-11)
 
@@ -121,4 +124,4 @@ målbildet dekke det som gjelder hele kontrakten? Anbefaling: A.
   vises fortsatt uten dato. Det bygges ikke i første versjon, og formen avgjøres
   sammen med B-01. Utvider målbildet; presiserer VS-U3.
 
-**Svar:** …
+**Svar (oppdragsgiver 20.10, med spørsmålsverktøyet):** «A. Utenfor appen (anbefalt)»
