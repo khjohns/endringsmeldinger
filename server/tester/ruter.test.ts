@@ -9,7 +9,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { createServer, type Server } from 'node:http';
+import { createServer, request, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -79,6 +79,7 @@ async function startRuter(tsServeren: string, flask: string): Promise<Ruter> {
   const url = `http://127.0.0.1:${port}`;
   const logg = () => {
     const ut = spawnSync('docker', ['logs', navn], { encoding: 'utf8' });
+    if (ut.status !== 0) throw new Error(`docker logs feilet: ${ut.stderr}`);
     return ut.stdout + ut.stderr;
   };
   const stopp = () => {
@@ -197,6 +198,7 @@ describe.skipIf(!DOCKER)('ruteren foran TS-serveren og Flask (#376)', () => {
   it.each([
     ['/api/kjerne/saker/s1', 'ts'],
     ['/api/saker/s1', 'flask'],
+    ['/webhook/catenda/x', 'ts'],
   ])(
     'klientens X-Forwarded-For og X-Real-IP overskrives med adressen nginx ser (%s)',
     async (sti, tjener) => {
@@ -211,14 +213,31 @@ describe.skipIf(!DOCKER)('ruteren foran TS-serveren og Flask (#376)', () => {
     }
   );
 
+  /** Statusen nginx gir et kall som melder en kropp på 17 MB, før kroppen sendes. */
+  function forStorKropp(sti: string): Promise<number> {
+    return new Promise((ok, feil) => {
+      const kall = request(`${ruter.url}${sti}`, {
+        method: 'POST',
+        headers: { 'Content-Length': 17 * 1024 * 1024, Expect: '100-continue' },
+      });
+      kall.on('response', (svar) => {
+        ok(svar.statusCode!);
+        kall.destroy();
+      });
+      kall.on('error', feil);
+      kall.flushHeaders();
+    });
+  }
+
   it('en webhook over 16 MB får 413, og hemmeligheten i stien står ikke i loggen (INT-01)', async () => {
-    const svar = await fetch(`${ruter.url}/webhook/catenda/hemmelig-sti-413`, {
-      method: 'POST',
-      body: new Uint8Array(17 * 1024 * 1024),
-    }).catch(() => null);
-    if (svar) expect(svar.status).toBe(413);
-    await new Promise((ok) => setTimeout(ok, 200));
-    expect(ruter.logg()).not.toContain('hemmelig-sti-413');
+    expect(await forStorKropp('/api/kjerne/saker/s1/kontroll-413')).toBe(413);
+    expect(await forStorKropp('/webhook/catenda/hemmelig-sti-413')).toBe(413);
+    for (let forsoek = 0; forsoek < 50 && !ruter.logg().includes('kontroll-413'); forsoek++) {
+      await new Promise((ok) => setTimeout(ok, 100));
+    }
+    const logg = ruter.logg();
+    expect(logg).toContain('kontroll-413');
+    expect(logg).not.toContain('hemmelig-sti-413');
   });
 
   it('andre stier enn /api og webhooken får SPA-en, ikke en av serverne', async () => {

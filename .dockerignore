@@ -8,7 +8,6 @@ e2e
 .playwright-mcp
 .superpowers
 # Lokale hemmeligheter og data skal ikke inn i bildene; app.py leser backend/.env.
-.env
 **/.env
 **/.env.*
 backend/venv
@@ -16,3 +15,7 @@ backend/.venv
 backend/koe_data
 koe_data
 **/__pycache__
+**/*.log
+**/*.local
+**/.coverage
+**/local.settings.json
