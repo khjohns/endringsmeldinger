@@ -1,10 +1,5 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
-  let vedleggIds = $state<string[]>([]);
-  let vedleggOpptatt = $state(false);
-  function buildTeRevisionEventData(...args: Parameters<typeof buildDomainData>) {
-    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
-  }
   import { BookOpen, ChevronUp, LockKeyhole } from 'lucide-svelte';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
@@ -19,13 +14,9 @@
   import { letterText } from '$lib/approval/letter';
   const claimReview = getClaimReview();
   import { TRACK_ICONS } from './data.js';
-  import { buildTeRevisionEventData as buildDomainData } from '$lib/domain/grunnlagDomain';
-  import {
-    createSubmission,
-    createFormDraft,
-    submissionRefs,
-  } from '$lib/kontraktsbord/submission.svelte';
-  const submission = createSubmission(() => draft.clear());
+  import { buildTeRevisionEventData } from '$lib/domain/grunnlagDomain';
+  import { createSubmission, submissionRefs } from '$lib/kontraktsbord/submission.svelte';
+  const submission = createSubmission();
 
   let {
     onsend,
@@ -64,23 +55,8 @@
   let begrunnelseHtml = $state(originalBegrunnelse);
   let charCount = $state(0);
   let bhContextExpanded = $state(false);
-  const draft = createFormDraft(
-    false,
-    {
-      sakId: store.sak.sak_id,
-      spor: 'grunnlag',
-      revisjon: kjernesak ? kjernesak.kravversjon('ansvar') : store.sak.grunnlag.antall_versjoner,
-    },
-    () => ({ vedleggIds, begrunnelseHtml }),
-    (saved) => {
-      vedleggIds = saved.vedleggIds ?? [];
-      begrunnelseHtml = saved.begrunnelseHtml ?? originalBegrunnelse;
-    }
-  );
 
-  const erEndret = $derived(
-    begrunnelseHtml.trim() !== originalBegrunnelse.trim() || vedleggIds.length > 0
-  );
+  const erEndret = $derived(begrunnelseHtml.trim() !== originalBegrunnelse.trim());
   // Kjernen vurderer ikke om beskrivelsen er nok (KA-U19), så TS-saken krever ikke 10 tegn.
   // TS-saken: blanke tegn teller ikke, som i adapteren (#943).
   const kanSende = $derived(
@@ -89,10 +65,9 @@
 
   $effect(() => {
     onactions?.({
-      canSend: kanSende && !submission.pending && !vedleggOpptatt,
+      canSend: kanSende && !submission.pending,
       sendLabel: 'Send oppdatering',
       send: () => {
-        if (vedleggOpptatt) return;
         if (kanSende)
           void submission.run(async () => {
             if (claimReview) {
@@ -116,123 +91,109 @@
   });
 </script>
 
-{#if draft.ready}
-  <div class="form-content">
-    <SkjemaStatus
-      sender={submission.pending}
-      feil={submission.error}
-      utkastStatus={draft.status}
-      konflikt={draft.konflikt}
-      sistEndretAv={draft.sistEndretAv}
-      behold={draft.behold}
-      hentInn={draft.hentInn}
-      sakId={store.sak.sak_id}
-      visVedlegg={false}
-      bind:vedleggIds
-      bind:vedleggOpptatt
-    />
+<div class="form-content">
+  <SkjemaStatus sender={submission.pending} feil={submission.error} />
 
-    <div class="form-title-row">
-      <h1>Oppdater grunnlaget</h1>
+  <div class="form-title-row">
+    <h1>Oppdater grunnlaget</h1>
+  </div>
+  <p class="form-intro">
+    Oppdater totalentreprenørens redegjørelse. Kontraktsforhold, hjemmel og dato kan ikke endres.
+  </p>
+
+  <section class="locked-context">
+    <div class="locked-header">
+      <div>
+        <span class="eyebrow">Kontraktsforhold</span>
+        <h2>{hjemmel?.label ?? d.tePosition}</h2>
+      </div>
+      <div class="locked-mark"><LockKeyhole size={13} /> Låst</div>
     </div>
-    <p class="form-intro">
-      Oppdater totalentreprenørens redegjørelse. Kontraktsforhold, hjemmel og dato kan ikke endres.
-    </p>
 
-    <section class="locked-context">
-      <div class="locked-header">
-        <div>
-          <span class="eyebrow">Kontraktsforhold</span>
-          <h2>{hjemmel?.label ?? d.tePosition}</h2>
-        </div>
-        <div class="locked-mark"><LockKeyhole size={13} /> Låst</div>
-      </div>
-
-      <div class="contract-details">
-        {#if kontraktsforhold?.label}
-          <span>{kontraktsforhold.label}</span>
-        {/if}
-        <span class="font-mono contract-ref">{d.teRef}</span>
-      </div>
-
-      <div class="submission-meta">
-        {#if oppdagetDato}<span>Oppdaget {oppdagetDato}</span>{/if}
-        {#if teDate}<span>Sist sendt {teDate}</span>{/if}
-        {#if teRevision > 0}<span>Rev. {teRevision}</span>{/if}
-      </div>
-    </section>
-
-    {#if hasBhResponse}
-      <!-- TS-saken har ikke byggherrens tekst i visningen (#718), så boksen ville stått tom. -->
-      {#if !kjernesak}
-        <section class="bh-context">
-          <div class="bh-context-header">
-            <div class="bh-party">
-              <div class="context-label-row">
-                <TRACK_ICONS.ansvar size={14} />
-                <span class="eyebrow">Byggherrens standpunkt</span>
-              </div>
-              <h2>{store.bhNavn}</h2>
-              <div class="response-meta">
-                {#if bhDate}<span>Svart {bhDate}</span>{/if}
-                {#if bhAnsweredRevision != null}
-                  <span>
-                    {bhAnsweredRevision === 0
-                      ? 'Svar på opprinnelig innsending'
-                      : `Svar på rev. ${bhAnsweredRevision}`}
-                  </span>
-                {/if}
-              </div>
-            </div>
-            <span class="font-mono context-ref">{d.teRef}</span>
-          </div>
-          <div class="bh-context-body">
-            <p class:clamped={!bhContextExpanded && d.bhText.length > 420} class="bh-text">
-              {d.bhText}
-            </p>
-            {#if d.bhText.length > 420}
-              <button
-                class="read-context-button"
-                onclick={() => (bhContextExpanded = !bhContextExpanded)}
-              >
-                {#if bhContextExpanded}<ChevronUp size={13} /> Vis mindre
-                {:else}<BookOpen size={13} /> Les hele vurderingen{/if}
-              </button>
-            {/if}
-          </div>
-        </section>
+    <div class="contract-details">
+      {#if kontraktsforhold?.label}
+        <span>{kontraktsforhold.label}</span>
       {/if}
+      <span class="font-mono contract-ref">{d.teRef}</span>
+    </div>
 
-      <div class="revision-notice">
-        <span class="notice-mark" aria-hidden="true"></span>
-        <p>Oppdateringen sendes som en ny revisjon etter byggherrens svar.</p>
-      </div>
+    <div class="submission-meta">
+      {#if oppdagetDato}<span>Oppdaget {oppdagetDato}</span>{/if}
+      {#if teDate}<span>Sist sendt {teDate}</span>{/if}
+      {#if teRevision > 0}<span>Rev. {teRevision}</span>{/if}
+    </div>
+  </section>
+
+  {#if hasBhResponse}
+    <!-- TS-saken har ikke byggherrens tekst i visningen (#718), så boksen ville stått tom. -->
+    {#if !kjernesak}
+      <section class="bh-context">
+        <div class="bh-context-header">
+          <div class="bh-party">
+            <div class="context-label-row">
+              <TRACK_ICONS.ansvar size={14} />
+              <span class="eyebrow">Byggherrens standpunkt</span>
+            </div>
+            <h2>{store.bhNavn}</h2>
+            <div class="response-meta">
+              {#if bhDate}<span>Svart {bhDate}</span>{/if}
+              {#if bhAnsweredRevision != null}
+                <span>
+                  {bhAnsweredRevision === 0
+                    ? 'Svar på opprinnelig innsending'
+                    : `Svar på rev. ${bhAnsweredRevision}`}
+                </span>
+              {/if}
+            </div>
+          </div>
+          <span class="font-mono context-ref">{d.teRef}</span>
+        </div>
+        <div class="bh-context-body">
+          <p class:clamped={!bhContextExpanded && d.bhText.length > 420} class="bh-text">
+            {d.bhText}
+          </p>
+          {#if d.bhText.length > 420}
+            <button
+              class="read-context-button"
+              onclick={() => (bhContextExpanded = !bhContextExpanded)}
+            >
+              {#if bhContextExpanded}<ChevronUp size={13} /> Vis mindre
+              {:else}<BookOpen size={13} /> Les hele vurderingen{/if}
+            </button>
+          {/if}
+        </div>
+      </section>
     {/if}
 
-    <section class="begrunnelse-section">
-      <div class="question-header begrunnelse-header">
-        <span class="question-label">Oppdatert begrunnelse</span>
-        <span class="font-mono char-count">{charCount} tegn</span>
-      </div>
-      <p class="helptext begrunnelse-help">
-        Endre eller suppler redegjørelsen. Forrige versjon beholdes i historikken.
-      </p>
-      <div class="editor-wrapper">
-        <RichTextEditor
-          body={begrunnelseHtml}
-          onchange={(html) => (begrunnelseHtml = html)}
-          extensions={[LockedValueNode]}
-          placeholder="Oppdater begrunnelsen for grunnlaget..."
-          maxHeight="none"
-          oncharcount={(count) => (charCount = count)}
-        />
-      </div>
-      {#if charCount >= 10 && !erEndret}
-        <p class="unchanged-hint">Gjør en endring i begrunnelsen for å sende en ny revisjon.</p>
-      {/if}
-    </section>
-  </div>
-{/if}
+    <div class="revision-notice">
+      <span class="notice-mark" aria-hidden="true"></span>
+      <p>Oppdateringen sendes som en ny revisjon etter byggherrens svar.</p>
+    </div>
+  {/if}
+
+  <section class="begrunnelse-section">
+    <div class="question-header begrunnelse-header">
+      <span class="question-label">Oppdatert begrunnelse</span>
+      <span class="font-mono char-count">{charCount} tegn</span>
+    </div>
+    <p class="helptext begrunnelse-help">
+      Endre eller suppler redegjørelsen. Forrige versjon beholdes i historikken.
+    </p>
+    <div class="editor-wrapper">
+      <RichTextEditor
+        body={begrunnelseHtml}
+        onchange={(html) => (begrunnelseHtml = html)}
+        extensions={[LockedValueNode]}
+        placeholder="Oppdater begrunnelsen for grunnlaget..."
+        maxHeight="none"
+        oncharcount={(count) => (charCount = count)}
+      />
+    </div>
+    {#if charCount >= 10 && !erEndret}
+      <p class="unchanged-hint">Gjør en endring i begrunnelsen for å sende en ny revisjon.</p>
+    {/if}
+  </section>
+</div>
 
 <style>
   .form-title-row {
