@@ -6,23 +6,16 @@
 import { afterEach, expect, it } from 'vitest';
 import { cleanup, render } from '@testing-library/svelte';
 import WorkspaceHarness from './WorkspaceHarness.svelte';
-import { createCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import { createDemoStore } from '$lib/mockup/store.svelte';
-import type { CaseContextResponse } from '$lib/types/api';
+import { DEFAULT_SCENARIO } from '$lib/mockup/scenarios';
 import type { TimelineEvent } from '$lib/types/timeline';
 
 afterEach(cleanup);
 
 function arbeidsflate(vurderinger: Record<string, boolean | null>) {
-  const demo = createDemoStore();
-  const response: CaseContextResponse = {
-    state: JSON.parse(JSON.stringify(demo.sak)),
-    timeline: JSON.parse(JSON.stringify(demo.timeline)),
-    version: 4,
-    historikk: { grunnlag: [], vederlag: [], frist: [] },
-  };
-  response.state.frist = {
-    ...response.state.frist,
+  const scenario = structuredClone(DEFAULT_SCENARIO);
+  scenario.sak.frist = {
+    ...scenario.sak.frist,
     status: 'godkjent',
     antall_versjoner: 1,
     varsel_type: 'spesifisert',
@@ -31,10 +24,10 @@ function arbeidsflate(vurderinger: Record<string, boolean | null>) {
     bh_resultat: 'godkjent',
     bh_respondert_versjon: 0,
     ...vurderinger,
-  } as CaseContextResponse['state']['frist'];
+  } as typeof scenario.sak.frist;
   const lagret = Object.fromEntries(Object.entries(vurderinger).filter(([, v]) => v !== null));
-  response.timeline = response.timeline.filter((event) => event.spor !== 'frist');
-  response.timeline.push({
+  scenario.timeline = scenario.timeline.filter((event) => event.spor !== 'frist');
+  scenario.timeline.push({
     specversion: '1.0',
     id: 'fristsvar-1',
     source: '/test',
@@ -44,7 +37,7 @@ function arbeidsflate(vurderinger: Record<string, boolean | null>) {
     spor: 'frist',
     data: { beregnings_resultat: 'godkjent', godkjent_dager: 20, ...lagret },
   } as unknown as TimelineEvent);
-  return createCaseWorkspace(response, { projectId: 'p' });
+  return createDemoStore(scenario);
 }
 
 function vis(vurderinger: Record<string, boolean | null>) {
