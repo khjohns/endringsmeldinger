@@ -405,10 +405,10 @@ beskrivelse = """
 Hvilke Catenda-team som representerer TE og BH i et prosjekt. Appen utleder
 en brukers kontraktsside og team herfra og fra medlemskapet i Catenda."""
 lagres_fra = """
-Av `koe_set_contract_teams` og `koe_register_project`. Ingen kode i repoet
+Av `koe_set_contract_teams` og `koe_register_project`. Ingen driftskommando
 kaller dem med team lenger: `scripts/catenda_admin.py` avviser `--bh` og `--te`
 og viser til `server/registrering.ts`, som skriver kontraktsteamene i SQL Server
-(#1072). Etter B-02 punkt 4 er det bare drift som skal gjøre dette."""
+(#1072). Bare de levende testene gir `koe_register_project` team. Etter B-02 punkt 4 er det bare drift som skal gjøre dette."""
 fra_catenda = "Ja. `team_id` er en Catenda-ID."
 kan_gjenoppbygges = "nei. Hvilket team som er hvilken side, er et valg drift gjør."
 personopplysninger = "Ingen kjente."

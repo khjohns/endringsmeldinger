@@ -264,9 +264,13 @@ def cmd_teams(args):
 
 KONTRAKTSTEAM_I_TS = (
     "Kontraktsteamene registreres bare med TS-verktøyet, som krever bekreftelsen "
-    "--en-totalentreprenoer (DL-U14, #1072):\n"
-    "  node server/registrering.ts kontraktsteam <prosjekt> --bh <team> … --te <team> … --en-totalentreprenoer\n"
-    "  node server/registrering.ts registrer … --bh <team> … --te <team> … --en-totalentreprenoer"
+    "--en-totalentreprenoer (DL-U14, #1072). Kommandoene står i headeren i server/registrering.ts:\n"
+    "  KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsteam <prosjekt> "
+    "--bh <team> … --te <team> … --en-totalentreprenoer\n"
+    "  KOE_DRIFT_TILKOBLING=… node server/registrering.ts registrer --prosjekt … "
+    "--bh <team> … --te <team> … --en-totalentreprenoer\n"
+    "Teamene Python-stien leser i PostgreSQL, vises med "
+    "'python scripts/catenda_admin.py teams <prosjekt>'."
 )
 
 
@@ -320,10 +324,11 @@ def main():
 
     # contract-teams
     p_ct = subparsers.add_parser("contract-teams", help="Stoppet: bruk server/registrering.ts (#1072)")
-    p_ct.add_argument("resten", nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
     p_ct.set_defaults(func=cmd_contract_teams)
 
-    args = parser.parse_args()
+    args, resten = parser.parse_known_args()
+    if resten and args.func is not cmd_contract_teams:
+        parser.error(f"ukjente argumenter: {' '.join(resten)}")
     args.func(args)
 
 

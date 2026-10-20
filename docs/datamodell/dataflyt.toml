@@ -832,7 +832,7 @@ id = "C18"
 drift = true
 navn = "Prosjekt registreres av drift"
 retning = "inn"
-utloses_av = "`scripts/catenda_admin.py register`."
+utloses_av = "`scripts/catenda_admin.py register`; teamene bare `server/registrering.ts registrer` med `--bh` og `--te`."
 beskrivelse = """
 Drift oppgir Catenda-prosjekt, bibliotek, mappe og board. Navnet hentes fra
 Catenda om det ikke er oppgitt. Én databasefunksjon skriver alt atomisk;
@@ -865,7 +865,7 @@ data = "Prosjektnavnet, når drift ikke har oppgitt det."
 
 [[flyt.steg]]
 fra = "catenda:team"
-til = ["catenda_contract_teams"]
+til = ["koe.catenda_contract_teams"]
 endepunkt = "GET /v2/projects/{catenda_project_id}/teams"
 kode = [
     "server/registrering.ts:kjoer",
@@ -898,7 +898,7 @@ belegg = "L 20.10: `kjoer` og `settKontraktsteam` i `server/registrering.ts`."
 
 [[flyt.steg]]
 fra = "catenda:team"
-til = ["catenda_contract_teams"]
+til = ["koe.catenda_contract_teams"]
 endepunkt = "GET /v2/projects/{catenda_project_id}/teams"
 kode = [
     "server/registrering.ts:kjoer",
