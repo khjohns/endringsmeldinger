@@ -259,6 +259,11 @@ LV-U12, og hører derfor til avgjørelsen av B-05.
 **Vurdering:** behold Catenda som kanal. Avgjør B-05 med vedleggene som eget
 punkt før første ekte sak, ikke ved produksjonsporten.
 
+> **Merknad 20.10:** skillet holder ikke. Ingen utrulling skjer før
+> produksjonsporten (vedtaket 17.09 i 3.1), og milepælen «Første ekte sak»
+> omfatter porten. Det åpne er hva eksporten av en sak skal omfatte
+> (spørsmål 3 i [spørsmålene](vedlegg/vurdering-maalarkitektur-2026-10-20/sporsmal.md)).
+
 ## MD-08 — målet er moderat stort, overgangen gjør det stort
 
 **Belegg: T, L.** Målet er om lag 6 500 linjer kjerne, 8 300 linjer server og
