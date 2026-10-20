@@ -408,7 +408,7 @@ lagres_fra = """
 Av `koe_set_contract_teams` og `koe_register_project`. Bare de levende testene
 gir dem team: `scripts/catenda_admin.py` avviser `--bh` og `--te` og viser til
 `server/registrering.ts`, som skriver kontraktsteamene i SQL Server (#1072).
-Etter B-02 punkt 4 er det bare drift som skal gjøre dette."""
+Etter B-02 punkt 4 skal bare drift skrive tabellen, og drift har ingen vei hit."""
 fra_catenda = "Ja. `team_id` er en Catenda-ID."
 kan_gjenoppbygges = "nei. Hvilket team som er hvilken side, er et valg drift gjør."
 personopplysninger = "Ingen kjente."
