@@ -4,7 +4,7 @@
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { ArrowLeft, Check, LockKeyhole, Pencil, RefreshCw, Send } from 'lucide-svelte';
+  import { ArrowLeft, Check, LockKeyhole, Pencil, Send } from 'lucide-svelte';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import {
@@ -43,7 +43,7 @@
   let confirmed = $state(false);
   let showReturn = $state(false);
   let returnComment = $state('');
-  let showPdf = $state(false);
+  let visBrev = $state(false);
   let showChanges = $state(false);
   let localError = $state('');
   let draftSaved = $state(false);
@@ -224,14 +224,12 @@
   });
 
   onMount(() => {
-    void review.load().then(() => {
-      const saved = review.state.drafts?.[review.actor];
-      if (saved) {
-        introduction = saved.introduction;
-        closing = saved.closing;
-      }
-      initialized = true;
-    });
+    const saved = review.state.drafts?.[review.actor];
+    if (saved) {
+      introduction = saved.introduction;
+      closing = saved.closing;
+    }
+    initialized = true;
   });
 
   async function run(action: () => Promise<void>) {
@@ -289,7 +287,7 @@
     content?: boolean;
     figures?: boolean;
   };
-  const pdf = { label: 'Se PDF', action: () => (showPdf = true) };
+  const seBrevet = { label: 'Se brevet', action: () => (visBrev = true) };
   const panel = $derived.by((): PanelState => {
     if (isDraft) {
       if (!review.canPrepare)
@@ -310,7 +308,7 @@
         confirm: 'Jeg har kontrollert brevet og vedleggene.',
         content: true,
         figures: true,
-        secondary: pdf,
+        secondary: seBrevet,
       };
       if (assessment.amount === null && !assessment.ukjent)
         return {
@@ -368,7 +366,7 @@
             content: true,
             primary: { label: lastStep ? 'Godkjenn og send' : 'Godkjenn', action: approve },
             secondary: { label: 'Returner', action: () => (showReturn = !showReturn) },
-            tertiary: pdf,
+            tertiary: seBrevet,
             footnote: lastStep
               ? 'Entreprenøren får svaret når du godkjenner. Brevet kan ikke endres etter dette.'
               : 'Entreprenøren får tilgang først etter siste godkjenning.',
@@ -379,7 +377,7 @@
           description: `Samlet standpunkt ${amountLabel}. Brevet går sekvensielt gjennom kjeden.`,
           figures: true,
           content: true,
-          secondary: pdf,
+          secondary: seBrevet,
           tertiary: canWithdraw
             ? {
                 label: 'Trekk fra godkjenning',
@@ -402,7 +400,7 @@
             label: 'Prøv sending igjen',
             action: () => review.command({ action: 'publish', packageId: p.id }),
           },
-          secondary: pdf,
+          secondary: seBrevet,
           footnote: 'Entreprenøren får svaret når sendingen er bekreftet.',
         };
       case 'sendt':
@@ -411,7 +409,7 @@
           title: 'Svaret er sendt',
           description: `${tracks} er publisert i saken.`,
           content: true,
-          secondary: pdf,
+          secondary: seBrevet,
           footnote: 'Entreprenøren har fått svaret. Brev og vurderinger er låst.',
         };
       default:
@@ -423,7 +421,7 @@
               ? 'Brevet er returnert. Revider vurderingene i saken og send et nytt brev.'
               : 'Brevet er trukket fra godkjenning. Revider vurderingene i saken og send et nytt brev.',
           content: true,
-          secondary: pdf,
+          secondary: seBrevet,
         };
     }
   });
@@ -474,15 +472,6 @@
           </select>
         </label>
       {/if}
-      <button
-        class="text-button"
-        disabled={review.busy}
-        onclick={() =>
-          run(async () => {
-            await review.load();
-            if (!store.isDemo) await store.refresh();
-          })}><RefreshCw size={15} />Oppdater status</button
-      >
     </div>
   </div>
 
@@ -682,10 +671,10 @@
     </div>
   </div>
 
-  {#if showPdf}<LetterPreviewModal
+  {#if visBrev}<LetterPreviewModal
       brevInnhold={documentToBrev(letter, selected?.id ?? 'utkast')}
       draft={!selected || selected.status !== 'sendt'}
-      onclose={() => (showPdf = false)}
+      onclose={() => (visBrev = false)}
     />{/if}
 </div>
 

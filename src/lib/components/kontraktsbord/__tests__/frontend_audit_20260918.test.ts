@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
+import { cleanup, render } from '@testing-library/svelte';
+import LetterPreviewModal from '../LetterPreviewModal.svelte';
 import { eoExposureFloor } from '$lib/domain/endringsordre';
 import type { CreateEORequest } from '$lib/api/endringsordre';
 import { readWorkspaceView } from '$lib/kontraktsbord/viewState';
@@ -7,34 +9,40 @@ import { getDefaults as getFristDefaults } from '$lib/domain/fristDomain';
 
 describe('Pass 6: Frontend audit (Svelte 5 runes, reaktivitet, CSRF, skjerming)', () => {
   // =========================================================================
-  // FE-01: LetterPreviewModal omgår API-klienten (mangler CSRF og auth-headers)
+  // FE-01: LetterPreviewModal kalte /api/letter/generate. Kallet er fjernet (#1025),
+  // og modalen viser bare brevet.
   // =========================================================================
-  it.fails(
-    'FE-01: LetterPreviewModal kaller fetch direkte uten CSRF-token og prosjekt-ID',
-    async () => {
-      // LetterPreviewModal.svelte:19-22 kaller direkte:
-      // fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/letter/generate`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(...)
-      // })
-      // Den bruker IKKE apiFetch og mangler credentials: 'include', X-CSRF-Token og X-Project-ID.
-      const fetchSpy = vi.fn().mockResolvedValue({
-        ok: true,
-        blob: async () => new Blob(['pdf']),
-      });
-      vi.stubGlobal('fetch', fetchSpy);
+  it('FE-01: brevforhåndsvisningen sender ikke brevet til serveren', async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal('fetch', fetchSpy);
+    const seksjon = (tekst: string) => ({ tittel: '', originalTekst: tekst, redigertTekst: tekst });
+    const screen = render(LetterPreviewModal, {
+      brevInnhold: {
+        tittel: 'Svar på krav',
+        mottaker: { navn: 'Entreprenør AS', rolle: 'TE' },
+        avsender: { navn: 'Byggherre AS', rolle: 'BH' },
+        referanser: {
+          sakId: 'sak-1',
+          sakstittel: 'Fundament',
+          eventId: 'e-1',
+          sporType: 'grunnlag',
+          dato: '2026-10-20',
+        },
+        seksjoner: {
+          innledning: seksjon('Innledning.'),
+          begrunnelse: seksjon('Begrunnelse.'),
+          avslutning: seksjon('Avslutning.'),
+        },
+      },
+      onclose: () => {},
+    });
 
-      // Simuler headers slik LetterPreviewModal konstruerer dem
-      const requestHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-
-      // Forvent at forespørselen inkluderer nødvendige sikkerhetsheadere for et muterende kall
-      expect(requestHeaders['X-CSRF-Token']).toBeDefined();
-      expect(requestHeaders['X-Project-ID']).toBeDefined();
-
-      vi.unstubAllGlobals();
-    }
-  );
+    expect(await screen.findByText('Begrunnelse.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Last ned/ })).toBeNull();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    cleanup();
+    vi.unstubAllGlobals();
+  });
 
   // =========================================================================
   // FE-02: Klientstyrt rollevalg og manglende autoritativ rollestyring
