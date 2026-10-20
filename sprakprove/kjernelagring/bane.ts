@@ -51,21 +51,13 @@ export const GRENSER = { testTimeout: 60_000, hookTimeout: 240_000 };
  * til `arbeid` er ferdig. Policyen er en del av transaksjonen, så en feil eller en
  * brutt forbindelse ruller den tilbake sammen med resten.
  */
-export async function somEier<T>(o: Oppsett, arbeid: (r: Foresp) => Promise<T>): Promise<T> {
-  const tx = new sql.Transaction(o.datalag.base.pool);
-  await tx.begin();
-  const r = () => new sql.Request(tx);
-  try {
+export const somEier = <T>(o: Oppsett, arbeid: (r: Foresp) => Promise<T>): Promise<T> =>
+  iTransaksjon(o.datalag.base.pool, null, async (r) => {
     await r().batch('ALTER SECURITY POLICY koe_sikkerhet.tilgang WITH (STATE = OFF);');
     const svar = await arbeid(r);
     await r().batch('ALTER SECURITY POLICY koe_sikkerhet.tilgang WITH (STATE = ON);');
-    await tx.commit();
     return svar;
-  } catch (feil) {
-    await tx.rollback().catch(() => {});
-    throw feil;
-  }
-}
+  });
 
 /**
  * Kjøreren skriver teamene som `team-te` og `team-bh`. Journalen tar bare imot
