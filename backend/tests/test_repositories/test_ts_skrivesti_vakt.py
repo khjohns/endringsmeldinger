@@ -55,12 +55,6 @@ BH = "bh-saksbehandler"
 TE = "te-saksbehandler"
 
 
-@pytest.fixture(autouse=True)
-def ts_skrivesti_av(monkeypatch):
-    """Kontrollsakene kjører med bryteren uttrykkelig av, uansett miljøet."""
-    monkeypatch.setattr(settings, "ts_skrivesti", False)
-
-
 @pytest.fixture
 def slaa_paa_ts_skrivesti(monkeypatch):
     """Slår på bryteren når testen kaller den, etter at saken er sådd."""

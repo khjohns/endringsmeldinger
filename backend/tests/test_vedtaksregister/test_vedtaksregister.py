@@ -760,6 +760,21 @@ def test_et_forbeholdsord_i_en_senere_setning_om_et_punkt_gir_forbehold_med_vilj
     ) in vr.valider(med(grunnregister, _med_anbefalt("A", svar=svar)))
 
 
+@pytest.mark.parametrize("svar", [
+    "Ja til anbefalingen. Vent med tilpasset bestilling, den skal ikke med.",
+    "Ja til anbefalingen. TILPASSET BESTILLING skal ikke med.",
+])
+def test_et_alternativ_med_flere_ord_kjennes_igjen_uten_hensyn_til_store_bokstaver(svar):
+    """#958: setningen gjelder alternativet «Tilpasset bestilling» også med liten forbokstav."""
+    assert vr._forbeholdet(svar, ["Standard bestilling", "Tilpasset bestilling"]) == "ikke"
+
+
+def test_en_enkelt_liten_bokstav_er_ikke_et_alternativ_med_stor_bokstav():
+    """#958: «i» er en preposisjon, ikke alternativ I."""
+    svar = "Ja til anbefalingen. Det er ikke behov for mer i dag."
+    assert vr._forbeholdet(svar, ["H", "I"]) is None
+
+
 @pytest.mark.parametrize("svar, ordet", [
     ("Nei. Ja til anbefalingen bare om B faller bort", "bare"),
     ("Ja til anbefalingen, med forbehold om punkt 2", "forbehold"),
