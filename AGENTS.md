@@ -186,9 +186,6 @@ ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
   et kontraktsvarsel, det flytter ikke sakens versjon, og det kan slettes.
   Tidslinjen fletter de to kildene ved lesing, så skjermingsfilteret gjelder
   fortsatt begge.
-- **Saker og brev leses bare av kontraktspartene** (DL-U15): et team drift har
-  registrert for TE eller BH, eller leserolle i appen. Et annet medlem av
-  Catenda-prosjektet ser ingenting, og kan teamet ikke bekreftes, vises ingenting.
 - **Prosjektgrensen må håndheves ved hvert lesepunkt**, også for saker det refereres
   til. Klientoppgitte relasjoner skal ikke utvide tilgangen. Dette er brutt flere
   ganger; se RV-07 og AUT-01/02 i hovedplanens funnregister.
