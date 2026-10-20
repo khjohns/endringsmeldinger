@@ -2209,7 +2209,10 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag', 'frist']);
     expect(s.avvist('TE', varseldato())).toBeNull();
     s.send('TE', varseldato());
-    expect(kraveneErAvgjort(s.u()), 'varselet endrer ikke at kravene er avgjort').toBe(true);
+    const etter = s.u();
+    expect(etter.spor.frist.varsel, 'varselet har virkning (OV-U5)').not.toBeNull();
+    expect(etter.utenVirkning).toEqual([]);
+    expect(kraveneErAvgjort(etter), 'varselet endrer ikke at kravene er avgjort').toBe(true);
   });
 
   it('det første kravet i sporet gjør at kravene ikke lenger er avgjort, men sperren for det som var avgjort står (OV-U3)', () => {

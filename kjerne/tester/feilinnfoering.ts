@@ -760,8 +760,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n      : (spor ? varAvgjort(u, spor) : kraveneErAvgjort(u))",
-        "      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n      : false",
+        "    u.grunnlagAvvist\n      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n      : (spor ? varAvgjort(u, spor) : kraveneErAvgjort(u))",
+        "    false\n      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n      : false",
       ],
     ],
     mal: ['F-MM-U326h'],
