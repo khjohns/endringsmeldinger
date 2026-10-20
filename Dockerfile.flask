@@ -1,0 +1,14 @@
+# Flask (#376, B18-02). Bygges fra rota, fordi brev-PDF-en leser logoene i public/logos/.
+FROM python:3.11-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app/backend
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/ ./
+COPY public/logos/ /app/public/logos/
+# Revisjonsloggen skrives til audit.log i arbeidsmappa (lib/monitoring/audit.py).
+RUN rm -rf tests && useradd --system --create-home flask && chown flask /app/backend
+USER flask
+ENV PORT=8080
+EXPOSE 8080
+CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT} app:app"]

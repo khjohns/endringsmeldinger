@@ -1,0 +1,15 @@
+# TS-serveren (#376, B18-02). Node kjører TypeScript-kildene direkte, så bildet
+# har ingen byggesteg. Serveren trenger kjernen, migrasjonene den kontrollerer
+# basen mot ved oppstart, og skriftene i server/skrift/.
+FROM node:22-slim
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY kjerne/ kjerne/
+COPY server/ server/
+COPY database/migrasjoner/ database/migrasjoner/
+RUN rm -rf server/tester kjerne/tester
+USER node
+EXPOSE 8090
+CMD ["node", "server/start.ts", "8090"]
