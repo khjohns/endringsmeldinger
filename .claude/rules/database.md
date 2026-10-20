@@ -58,6 +58,22 @@ for PostgreSQL. Tidspunkter er `datetime2(3)` i UTC med `SYSUTCDATETIME()`
 Brukerne til rollene (`CREATE USER … FROM EXTERNAL PROVIDER`) hører til
 utrullingen, ikke migrasjonene (A8 og A9 i #78).
 
+**Fra første ekte sak har skjemaet to trinn** ([DL-U16](../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u16)).
+En SQL Server-migrasjon legger da bare til og heter `ÅÅÅÅMMDDTTMMSS_navn_tillegg.sql`.
+Det som fjernes eller endres, slutter én utgivelse å bruke, og fjernes først i
+utgivelsen etter, i en fil som heter `…_fjerning.sql`. Forrige utgivelse starter
+mot en base med en nyere `_tillegg`-fil den ikke har (`vurder` i
+`server/migrering.ts`), så en tilbakerulling ett trinn trenger ingen
+gjenoppretting av basen. En nyere `_fjerning`-fil eller en umarkert fil stopper
+oppstarten, som før. Migrasjonsvakten kontrollerer at en ny `_tillegg`-fil bare
+legger til, etter formene i `.github/scripts/tilleggsregel.py`, og avviser det
+den ikke kan avgjøre; fra versjonen i `FOERSTE_EKTE_SAK` i
+`.github/scripts/migrasjonsvakt.py` krever den at hver ny fil er markert. At den
+forrige utgivelsen ikke lenger bruker det en `_fjerning`-fil fjerner, ser ikke
+vakten; det må reviewet kontrollere. Markeringen står i historikken, så den
+endres ikke for en anvendt fil. De eksisterende migrasjonene er ikke markert og
+berøres ikke.
+
 **Hver tabell i `koe` har en trigger mot endring** (`INSTEAD OF UPDATE, DELETE`
 som kaster 51001), utenom den lukkede listen `UTEN_TRIGGER` i
 `server/tester/journal.test.ts`, der hver tabell står med begrunnelsen

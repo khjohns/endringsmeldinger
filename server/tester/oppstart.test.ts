@@ -2,7 +2,8 @@
  * Kontrollene før TS-serveren tar i bruk basen (`server/oppstart.ts`). Kildene er
  * #707 punkt 3 og #858 punkt 2 (forbindelsen skal være kjøretidens, uten en fast
  * rolle eller `CONTROL` i basen og ikke `sa`) og
- * #726 punkt 5 (en fil som ikke er anvendt, meldes én gang). Databasedelen krever
+ * #726 punkt 5 (en fil som ikke er anvendt, meldes én gang) og DL-U16 (forrige
+ * utgivelse starter mot en base med nyere migrasjoner som bare legger til). Databasedelen krever
  * `KOE_SQLSERVER_TILKOBLING`.
  */
 
@@ -50,6 +51,44 @@ describe('migrasjonsavvik', () => {
     const funn = migrasjonsavvik([anvendt(a), anvendt(c)], [a, b, c]);
     expect(funn).toEqual([
       `${b.filnavn} er ikke anvendt og kommer foran ${c.versjon}, som er anvendt.`,
+    ]);
+  });
+
+  it('en nyere anvendt migrasjon som bare legger til, er ingen hindring; en som ikke er markert, er det (DL-U16)', () => {
+    const [a, b] = ['20260101000000', '20260102000000'].map(fil);
+    const tillegg = {
+      versjon: '20260103000000',
+      filnavn: '20260103000000_ny_tillegg.sql',
+      sha256: 'b'.repeat(64),
+    };
+    const fjerning = { ...tillegg, filnavn: '20260103000000_ny_fjerning.sql' };
+    expect(migrasjonsavvik([anvendt(a), anvendt(b), tillegg], [a, b])).toEqual([]);
+    expect(migrasjonsavvik([anvendt(a), anvendt(b), fjerning], [a, b])).toEqual([
+      `${fjerning.filnavn} er anvendt, men finnes ikke i mappa.`,
+    ]);
+  });
+
+  it('en anvendt migrasjon med bare tillegg som mappa ikke har, stopper når den kommer foran en fil i mappa (DL-U16)', () => {
+    const [a, c] = ['20260101000000', '20260103000000'].map(fil);
+    const tillegg = {
+      versjon: '20260102000000',
+      filnavn: '20260102000000_ny_tillegg.sql',
+      sha256: 'b'.repeat(64),
+    };
+    expect(migrasjonsavvik([anvendt(a), tillegg, anvendt(c)], [a, c])).toEqual([
+      `${tillegg.filnavn} er anvendt og bare legger til, men finnes ikke i mappa og kommer foran ${c.versjon}.`,
+    ]);
+  });
+
+  it('en fil som ikke er anvendt og kommer foran en anvendt migrasjon med bare tillegg, stopper (DL-U16)', () => {
+    const [a, b] = ['20260101000000', '20260102000000'].map(fil);
+    const tillegg = {
+      versjon: '20260103000000',
+      filnavn: '20260103000000_ny_tillegg.sql',
+      sha256: 'b'.repeat(64),
+    };
+    expect(migrasjonsavvik([anvendt(a), tillegg], [a, b])).toEqual([
+      `${b.filnavn} er ikke anvendt og kommer foran ${tillegg.versjon}, som er anvendt.`,
     ]);
   });
 
@@ -126,6 +165,26 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
       }
     }
   );
+
+  it.each([
+    ['bare legger til, kan forrige utgivelse starte', '29991231235958_ny_tillegg.sql', []],
+    [
+      'ikke er markert som tillegg, stopper oppstarten',
+      '29991231235958_ny.sql',
+      ['29991231235958_ny.sql er anvendt, men finnes ikke i mappa.'],
+    ],
+  ])('når basen har en nyere migrasjon som %s (DL-U16)', async (_, filnavn, forventet) => {
+    const rad = `INSERT koe_migrering.historikk (versjon, filnavn, sha256)
+        VALUES (N'29991231235958', N'${filnavn}', REPLICATE(N'a', 64));`;
+    await base.pool.request().batch(rad);
+    try {
+      expect(await hindringer(kjoeretid.pool, lesMigrasjoner())).toEqual(forventet);
+    } finally {
+      await base.pool
+        .request()
+        .batch(`DELETE koe_migrering.historikk WHERE versjon = N'29991231235958';`);
+    }
+  });
 
   it('en fil som ikke er anvendt, er en hindring for kjøretiden', async () => {
     const filer = lesMigrasjoner();
