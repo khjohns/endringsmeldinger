@@ -346,7 +346,9 @@ export type FraSti = { sakId: string } | { prosjektId: string } | typeof UTEN_ST
 /**
  * `require_project_access(min_role)`. `fraSti` er saken eller prosjektet i URL-en;
  * prosjektet må være prosjektet i `X-Project-ID`. `nyttelast` er JSON-kroppen,
- * eller `{}` uten kropp.
+ * eller `{}` uten kropp. `kontraktsside` avgjør siden før sakene det vises til leses,
+ * fordi lesefilteret krever den (#1056); uten side ses saken bare av leserollen og
+ * godkjenneren (GFK-U9).
  */
 export async function krevProsjekttilgang(
   db: Pool,
