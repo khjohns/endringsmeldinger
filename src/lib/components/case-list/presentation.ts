@@ -10,7 +10,7 @@ import { HOVEDKATEGORI_FRA_KATALOGEN, tilKatalogen } from '$kjerne/format/koder'
 import { SPOR } from '$kjerne/typer';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
 import { etikett } from '$lib/kjernesak/saksbilde';
-import { SPORNAVN } from '$lib/domain/followUp';
+import { SPORNAVN } from '$lib/components/saksoversikt/foreligger';
 import { formatCurrencyCompact, formatDaysCompact } from '$lib/utils/formatters';
 
 type Merkevariant = ComponentProps<typeof Badge>['variant'];

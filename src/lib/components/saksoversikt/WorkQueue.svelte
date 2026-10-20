@@ -2,7 +2,7 @@
   import { ArrowRight } from 'lucide-svelte';
   import type { Sakslinje } from '$lib/types/api';
   import type { Role } from '$lib/components/kontraktsbord/types';
-  import { foreliggerISaken, SPORNAVN } from '$lib/domain/followUp';
+  import { foreliggerISaken, SPORNAVN } from './foreligger';
   import { taskHref } from './overview';
   let {
     saker,
