@@ -20,17 +20,14 @@ describe('project-scoped case reads', () => {
     });
   });
 
-  it('keeps concurrent project list requests separately scoped', async () => {
-    await Promise.all([
-      fetchCaseList(undefined, 'project-a'),
-      fetchCaseList('endring', 'project-b'),
-    ]);
+  it('sakslisten leses fra prosjektinngangen i TS, med prosjektet i stien og headeren (#1022)', async () => {
+    await Promise.all([fetchCaseList('project-a'), fetchCaseList('prosjekt/b')]);
 
-    expect(apiFetch).toHaveBeenNthCalledWith(1, '/api/cases', {
+    expect(apiFetch).toHaveBeenNthCalledWith(1, '/api/projects/project-a/saker', {
       headers: { 'X-Project-ID': 'project-a' },
     });
-    expect(apiFetch).toHaveBeenNthCalledWith(2, '/api/cases?sakstype=endring', {
-      headers: { 'X-Project-ID': 'project-b' },
+    expect(apiFetch).toHaveBeenNthCalledWith(2, '/api/projects/prosjekt%2Fb/saker', {
+      headers: { 'X-Project-ID': 'prosjekt/b' },
     });
   });
 

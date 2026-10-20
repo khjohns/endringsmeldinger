@@ -4,14 +4,33 @@ import { userEvent } from '@testing-library/user-event';
 import ProjectOverview from '../ProjectOverview.svelte';
 import WorkspaceHarness from '$lib/components/kontraktsbord/__tests__/WorkspaceHarness.svelte';
 import { createDemoStore } from '$lib/mockup/store.svelte';
-import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
+import { demoNoekkeltall, lagSakslinje } from '$lib/mocks/sakslinje';
+
+const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
+const fristkrav = lagSakslinje({
+  sak_id: 'KOE-2024-047',
+  sakstittel: 'Endrede grunnforhold ved akse C5–C8',
+  frist: { ...ingenting, venter_paa_svar: true, krav: { dager: 45 }, svar: null, enighet: null },
+});
+const svart = lagSakslinje({
+  sak_id: 'VEDERLAG-1',
+  sakstittel: 'Fasade',
+  vederlag: {
+    ...ingenting,
+    svar_ikke_godtatt: true,
+    krav: { beloep: 1_000_000, metode: 'tilbud' },
+    svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
+    enighet: null,
+  },
+});
+const saker = [fristkrav, svart];
 
 it('searches the table and links directly to the matching demo case despite a saved timeline preference', async () => {
   localStorage.setItem('koe-saksoversikt-visning', 'tidslinje');
   localStorage.setItem('koe-user-role', 'BH');
   const user = userEvent.setup();
   render(ProjectOverview, {
-    cases: mockSaksoversikt,
+    saker,
     prosjektId: 'P001',
     prosjektNavn: 'Operatunnelen',
     demo: true,
@@ -24,7 +43,7 @@ it('searches the table and links directly to the matching demo case despite a sa
   );
   expect(screen.getByRole('link', { name: 'Åpne eksempelsak' })).toBeInTheDocument();
   await user.type(screen.getByRole('searchbox', { name: 'Søk i saker' }), 'KOE-2024-047');
-  expect(screen.getByText(`1 av ${mockSaksoversikt.length} saker`)).toBeInTheDocument();
+  expect(screen.getByText(`1 av ${saker.length} saker`)).toBeInTheDocument();
   expect(screen.getByRole('link', { name: 'Åpne sak KOE-2024-047' })).toHaveAttribute(
     'href',
     '/mockup?spor=ansvar&rolle=BH&scenario=scenario1'
@@ -41,7 +60,7 @@ it('searches the table and links directly to the matching demo case despite a sa
 it('carries the selected role from the overview into a case and back', async () => {
   localStorage.setItem('koe-user-role', 'BH');
   const user = userEvent.setup();
-  const props = { cases: mockSaksoversikt, prosjektId: 'P001', prosjektNavn: 'Operatunnelen' };
+  const props = { saker, prosjektId: 'P001', prosjektNavn: 'Operatunnelen' };
   const overview = render(ProjectOverview, props);
   expect(screen.queryByRole('link', { name: 'Ny sak' })).not.toBeInTheDocument();
   // Endringsordre hører ikke til første versjon (OV-U1); bare demoen har knappene.
@@ -83,40 +102,71 @@ it('carries the selected role from the overview into a case and back', async () 
   expect(screen.queryByRole('link', { name: 'Ny sak' })).not.toBeInTheDocument();
 });
 
-it('filters endringsordrer in the shared register and preserves the viewer role', async () => {
+it('rollevalget starter på leserens side fra serveren og kan byttes som visning (arbeidsvalg 4.2)', async () => {
   localStorage.setItem('koe-user-role', 'BH');
   const user = userEvent.setup();
+  render(ProjectOverview, { saker, part: 'TE', prosjektId: 'P001', prosjektNavn: 'Testprosjekt' });
+  expect(screen.getByRole('button', { name: 'Entreprenør TE' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
+  expect(screen.getByText('Byggherrens svar er ikke godtatt')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Byggherre BH' }));
+  expect(screen.getByText('Kravet venter på byggherrens svar')).toBeInTheDocument();
+});
+
+it('utvalgene viser betydningen og velger sakene etter det som foreligger (MM-U29)', async () => {
+  const user = userEvent.setup();
+  render(ProjectOverview, { saker, prosjektId: 'P001', prosjektNavn: 'Testprosjekt' });
+  expect(screen.queryByRole('button', { name: /Kladder/ })).not.toBeInTheDocument();
+  expect(screen.queryByRole('combobox', { name: 'Sakstype' })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /Svar ikke godtatt/ }));
+  expect(screen.getByText('1 av 2 saker')).toBeInTheDocument();
+  expect(
+    screen.getByText('Byggherren har svart på minst ett krav uten at partene er enige.')
+  ).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Åpne sak VEDERLAG-1' })).toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Åpne sak KOE-2024-047' })).not.toBeInTheDocument();
+});
+
+it('nøkkeltallene er serverens: krav og virksom enighet hver for seg, betinget og subsidiært under (MM-U28)', () => {
   render(ProjectOverview, {
-    cases: [
-      mockSaksoversikt[0],
-      {
-        ...mockSaksoversikt[0],
-        sak_id: 'EO-1',
-        sakstype: 'endringsordre',
-        cached_title: 'Ekstra belysning',
-        cached_status: 'utstedt',
-        endringsordre_data: {
-          status: 'utstedt',
-          eo_nummer: 'EO-001',
-          relaterte_koe_saker: [],
-          netto_belop: 25000,
-          frist_dager: null,
-          er_estimat: true,
-        },
+    saker,
+    noekkeltall: {
+      ...demoNoekkeltall(saker),
+      ikke_forstaatt: 1,
+      vederlag: {
+        krav_antall: 3,
+        krav_sum: 1_500_000,
+        venter_paa_svar: 1,
+        svar_subsidiaert_sum: 600_000,
+        enighet_virksom_sum: 200_000,
+        enighet_betinget_sum: 50_000,
+        enighet_uten_beloep: 2,
       },
-    ],
+    },
     prosjektId: 'P001',
     prosjektNavn: 'Testprosjekt',
   });
-  await user.selectOptions(screen.getByRole('combobox', { name: 'Sakstype' }), 'endringsordre');
-  expect(screen.getByText('1 av 2 saker')).toBeInTheDocument();
-  expect(screen.queryByRole('link', { name: 'Åpne sak KOE-2024-047' })).not.toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Åpne sak EO-1' })).toHaveAttribute(
-    'href',
-    '/P001/EO-1?rolle=BH'
-  );
-  expect(screen.getByText('Utstedt')).toBeInTheDocument();
-  expect(screen.getByText('Estimat i EO')).toBeInTheDocument();
+  const tall = within(screen.getByLabelText('Nøkkeltall for hele prosjektet'));
+  expect(tall.getByText('1 ikke forstått · telles ikke i tallene')).toBeInTheDocument();
+  expect(tall.getByText('3 krav · 1 venter på svar')).toBeInTheDocument();
+  expect(tall.getByText(/1\s500\s000/)).toBeInTheDocument();
+  expect(tall.getByText(/^200\s000/)).toBeInTheDocument();
+  expect(tall.getByText(/Betinget: 50\s000 kr/)).toBeInTheDocument();
+  expect(tall.getByText(/Subsidiært svar fra BH: 600\s000 kr/)).toBeInTheDocument();
+  expect(tall.getByText('2 uten beløp')).toBeInTheDocument();
+});
+
+it('uten aktiviteten fra serveren er fanen skjult, og aktivitetssiden sier at den ikke finnes ennå (#1041)', () => {
+  const props = { saker, prosjektId: 'P001', prosjektNavn: 'Testprosjekt' };
+  const oversikt = render(ProjectOverview, props);
+  expect(screen.queryByRole('link', { name: /Aktivitetslogg/ })).not.toBeInTheDocument();
+  oversikt.unmount();
+  render(ProjectOverview, { ...props, activePage: 'activity' });
+  expect(
+    screen.getByText('Aktiviteten i prosjektet er ikke tilgjengelig ennå.')
+  ).toBeInTheDocument();
 });
 
 it('filters the register by time claims and clears it', async () => {
@@ -124,28 +174,19 @@ it('filters the register by time claims and clears it', async () => {
   const scroll = vi.fn();
   HTMLElement.prototype.scrollIntoView = scroll;
   const user = userEvent.setup();
-  const cases = [
-    {
-      ...mockSaksoversikt[0],
-      sak_id: 'FRIST-1',
-      cached_status: 'SENDT',
-      cached_dager_krevd: 45,
-      cached_dager_godkjent: null,
-    },
-    {
-      ...mockSaksoversikt[0],
-      sak_id: 'VEDERLAG-1',
-      cached_status: 'SENDT',
-      cached_dager_krevd: null,
-    },
-  ];
-  render(ProjectOverview, { cases, prosjektId: 'P001', prosjektNavn: 'Testprosjekt', demo: true });
+  render(ProjectOverview, {
+    saker,
+    noekkeltall: demoNoekkeltall(saker),
+    prosjektId: 'P001',
+    prosjektNavn: 'Testprosjekt',
+    demo: true,
+  });
   const projectMenu = within(screen.getByRole('complementary', { name: 'Prosjektmeny' }));
   expect(
     projectMenu.getByRole('complementary', { name: 'Prosjektet i korte trekk' })
   ).toHaveTextContent('Kontraktsfrist Ikke oppgitt');
   expect(projectMenu.getByRole('link', { name: 'Bytt prosjekt' })).toHaveAttribute('href', '/');
-  await user.click(screen.getByRole('button', { name: /Fristkrav.*1 ikke vurdert/ }));
+  await user.click(screen.getByRole('button', { name: /Fristkrav.*1 venter på svar/ }));
   expect(screen.getByText('1 av 2 saker')).toBeInTheDocument();
   expect(screen.queryByText('VEDERLAG-1')).not.toBeInTheDocument();
   expect(scroll).toHaveBeenCalledOnce();
@@ -155,7 +196,7 @@ it('filters the register by time claims and clears it', async () => {
 
 it('viser BH uten saker ingen henvisning til «Ny endringsordre» utenfor demoen (OV-U1)', () => {
   localStorage.setItem('koe-user-role', 'BH');
-  const props = { cases: [], prosjektId: 'P001', prosjektNavn: 'Testprosjekt' };
+  const props = { saker: [], prosjektId: 'P001', prosjektNavn: 'Testprosjekt' };
   const ekte = render(ProjectOverview, props);
   expect(screen.getByText(/Ingen saker ennå/)).toHaveTextContent(/^\s*Ingen saker ennå\.\s*$/);
   ekte.unmount();

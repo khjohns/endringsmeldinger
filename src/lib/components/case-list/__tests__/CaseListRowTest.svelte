@@ -1,17 +1,17 @@
 <script lang="ts">
-  import type { CaseListItem } from '$lib/types/api';
+  import type { Sakslinje } from '$lib/types/api';
   import CaseListRow from '../CaseListRow.svelte';
 
   interface Props {
-    case_item: CaseListItem;
+    linje: Sakslinje;
     prosjektId: string;
   }
 
-  let { case_item, prosjektId }: Props = $props();
+  let { linje, prosjektId }: Props = $props();
 </script>
 
 <table>
   <tbody>
-    <CaseListRow {case_item} {prosjektId} />
+    <CaseListRow {linje} {prosjektId} />
   </tbody>
 </table>

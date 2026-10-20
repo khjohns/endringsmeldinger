@@ -1,68 +1,94 @@
 /**
- * Lesepunktet for sakslisten (#313). Radene leser statusmerket og sorteringen
- * statusen herfra. Statusen selv og filtrene leses i `saksoversikt/overview.ts`,
- * så byttet til kjernen skjer i de to modulene.
+ * Visningen av linja i sakslisten fra TS (#1023). Saken har ingen samlet status:
+ * raden viser saksbetegnelsen i de fire tilfellene i MM-U22, ellers etikettene per
+ * spor, og tallene som krav, svar og enighet hver for seg (MM-U28).
  */
 import type { ComponentProps } from 'svelte';
 import type Badge from '$lib/components/primitives/Badge.svelte';
-import type { CaseListItem } from '$lib/types/api';
-import type { OverordnetStatus } from '$lib/types/timeline';
-import { getOverordnetStatusLabel } from '$lib/constants/statusLabels';
-import { caseStatus } from '$lib/components/saksoversikt/overview';
-
-export { caseStatus };
-
-export function caseAmount(item: CaseListItem): number | null {
-  return item.sakstype === 'endringsordre'
-    ? (item.endringsordre_data?.netto_belop ?? null)
-    : item.cached_sum_krevd;
-}
-
-export function caseDays(item: CaseListItem): number | null {
-  return item.sakstype === 'endringsordre'
-    ? (item.endringsordre_data?.frist_dager ?? null)
-    : item.cached_dager_krevd;
-}
+import type { Enighetsvirkning, Saksbetegnelse, Sakslinje } from '$lib/types/api';
+import { HOVEDKATEGORI_FRA_KATALOGEN, tilKatalogen } from '$kjerne/format/koder';
+import { SPOR } from '$kjerne/typer';
+import { getKontraktsforholdLabel } from '$lib/constants/categories';
+import { etikett } from '$lib/kjernesak/saksbilde';
+import { SPORNAVN } from '$lib/components/saksoversikt/foreligger';
+import { formatCurrencyCompact, formatDaysCompact } from '$lib/utils/formatters';
 
 type Merkevariant = ComponentProps<typeof Badge>['variant'];
 
-function merkevariant(status: string | null): Merkevariant {
-  switch (status) {
-    case 'OMFORENT':
-    case 'LUKKET':
-    case 'akseptert':
-      return 'godkjent';
-    case 'LUKKET_TRUKKET':
-    case 'bestridt':
-      return 'avslatt';
-    case 'SENDT':
-    case 'VENTER_PAA_SVAR':
-    case 'UNDER_BEHANDLING':
-    case 'UNDER_FORHANDLING':
-    case 'utstedt':
-    case 'revidert':
-      return 'delvis';
-    case 'UTKAST':
-    default:
-      return 'uavklart';
-  }
-}
-
-const EO_STATUS_LABELS: Record<string, string> = {
-  utkast: 'Utkast',
-  utstedt: 'Utstedt',
-  akseptert: 'Akseptert',
-  bestridt: 'Bestridt',
-  revidert: 'Revidert',
+/** Tekstene følger statustekstene i visningen av saken (OV-U10). */
+const BETEGNELSE: Record<Saksbetegnelse, { label: string; variant: Merkevariant }> = {
+  ikke_forstaatt: { label: 'Ikke forstått', variant: 'uavklart' },
+  avslaget_paa_grunnlaget_godtatt: { label: 'Avsluttet: avslått', variant: 'avslatt' },
+  grunnlaget_trukket: { label: 'Avsluttet: trukket', variant: 'avslatt' },
+  kravene_avgjort: { label: 'Alle krav sendt i appen er avgjort', variant: 'godkjent' },
 };
 
-/** Statusmerket i raden: etiketten og varianten. */
-export function statusmerke(item: CaseListItem): { label: string; variant: Merkevariant } {
-  const status = caseStatus(item);
-  return {
-    label: status
-      ? (EO_STATUS_LABELS[status] ?? getOverordnetStatusLabel(status as OverordnetStatus))
-      : '—',
-    variant: merkevariant(status),
-  };
+/** Tillegget i visningen av saken (`BREV_UTENFOR_APPEN` i `kjerne/utledning/visning.ts`, OV-U10). */
+const BREV_UTENFOR_APPEN = 'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
+
+export function betegnelsesmerke(linje: Sakslinje) {
+  if (!linje.saksbetegnelse) return null;
+  const tillegg =
+    linje.saksbetegnelse === 'kravene_avgjort' && linje.brev_utenfor_appen
+      ? BREV_UTENFOR_APPEN
+      : null;
+  return { ...BETEGNELSE[linje.saksbetegnelse], tillegg };
+}
+
+/** Etikettene per spor, for sporene som har noen. */
+export function sporetiketter(linje: Sakslinje): { spor: string; tekst: string }[] {
+  return SPOR.filter((spor) => linje[spor].etiketter.length).map((spor) => ({
+    spor: SPORNAVN[spor],
+    tekst: linje[spor].etiketter.map((kode) => etikett(kode).tekst).join(', '),
+  }));
+}
+
+export function kategoritekst(linje: Sakslinje): string {
+  const kode = linje.hovedkategori;
+  return kode
+    ? getKontraktsforholdLabel(String(tilKatalogen(HOVEDKATEGORI_FRA_KATALOGEN, kode)))
+    : '';
+}
+
+/** Appens lesing av enighetens virkning (MM-U28). */
+const VIRKNING: Record<Enighetsvirkning, string> = {
+  betinget: 'betinget',
+  virksom: 'virksom',
+  uten_virkning: 'uten virkning',
+};
+
+/**
+ * Kravet, og byggherrens svar eller enigheten under kravet. Enigheten står foran
+ * svaret når den finnes; et subsidiært tall merkes, fordi et subsidiært standpunkt
+ * er et avslag.
+ */
+function kravtall(
+  krav: number | null,
+  svar: { tall: number; subsidiaert: boolean } | null,
+  enighet: { tall: number | null; virkning: Enighetsvirkning } | null,
+  fmt: (n: number | null) => string
+) {
+  let under: string | null = null;
+  if (enighet)
+    under = `Enige${enighet.tall === null ? '' : ` ${fmt(enighet.tall)}`}, ${VIRKNING[enighet.virkning]}`;
+  else if (svar) under = `BH ${fmt(svar.tall)}${svar.subsidiaert ? ' subsidiært' : ''}`;
+  return { krav, kravtekst: fmt(krav), under };
+}
+
+export function vederlagstall({ vederlag: v }: Sakslinje) {
+  return kravtall(
+    v.krav?.beloep ?? null,
+    v.svar && { tall: v.svar.beloep, subsidiaert: v.svar.subsidiaert },
+    v.enighet && { tall: v.enighet.beloep, virkning: v.enighet.virkning },
+    formatCurrencyCompact
+  );
+}
+
+export function fristtall({ frist: f }: Sakslinje) {
+  return kravtall(
+    f.krav?.dager ?? null,
+    f.svar && { tall: f.svar.dager, subsidiaert: f.svar.subsidiaert },
+    f.enighet && { tall: f.enighet.dager, virkning: f.enighet.virkning },
+    formatDaysCompact
+  );
 }

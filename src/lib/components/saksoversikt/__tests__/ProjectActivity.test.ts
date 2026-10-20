@@ -2,13 +2,12 @@ import { expect, it } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import ProjectActivity from '../ProjectActivity.svelte';
-import { mockSaksoversikt } from '$lib/mocks/saksoversikt';
 
 it('paginates, filters and searches historical events without changing viewer role', async () => {
   const user = userEvent.setup();
   const cases = [
     {
-      ...mockSaksoversikt[0],
+      sakstittel: 'Endrede grunnforhold',
       sak_id: 'CASE-1',
       hendelser: Array.from({ length: 21 }, (_, i) => ({
         id: String(i),

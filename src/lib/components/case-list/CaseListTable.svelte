@@ -1,27 +1,27 @@
 <script lang="ts">
-  import { caseAmount, caseDays, caseStatus } from './presentation';
-  import type { CaseListItem } from '$lib/types/api';
+  import { kategoritekst } from './presentation';
+  import type { Sakslinje } from '$lib/types/api';
   import CaseListRow from './CaseListRow.svelte';
 
   interface Props {
-    cases: CaseListItem[];
+    saker: Sakslinje[];
     prosjektId: string;
-    caseHref?: (item: CaseListItem) => string;
+    caseHref?: (linje: Sakslinje) => string;
   }
 
-  let { cases, prosjektId, caseHref }: Props = $props();
+  let { saker, prosjektId, caseHref }: Props = $props();
 
   type SortKey =
     | 'sak_id'
-    | 'cached_title'
-    | 'cached_status'
-    | 'cached_hovedkategori'
-    | 'cached_sum_krevd'
-    | 'cached_dager_krevd'
-    | 'last_event_at';
+    | 'sakstittel'
+    | 'saksbetegnelse'
+    | 'hovedkategori'
+    | 'vederlag'
+    | 'frist'
+    | 'siste_hendelse';
   type SortDir = 'asc' | 'desc';
 
-  let sortKey = $state<SortKey>('last_event_at');
+  let sortKey = $state<SortKey>('siste_hendelse');
   let sortDir = $state<SortDir>('desc');
 
   function toggleSort(key: SortKey) {
@@ -29,7 +29,7 @@
       sortDir = sortDir === 'asc' ? 'desc' : 'asc';
     } else {
       sortKey = key;
-      sortDir = key === 'last_event_at' ? 'desc' : 'asc';
+      sortDir = key === 'siste_hendelse' ? 'desc' : 'asc';
     }
   }
 
@@ -48,29 +48,27 @@
   }
 
   const sortedCases = $derived(
-    [...cases].sort((a, b) => {
-      const value = (item: CaseListItem) =>
-        sortKey === 'cached_sum_krevd'
-          ? caseAmount(item)
-          : sortKey === 'cached_dager_krevd'
-            ? caseDays(item)
-            : sortKey === 'cached_status'
-              ? caseStatus(item)
-              : sortKey === 'sak_id'
-                ? item.endringsordre_data?.eo_nummer || item.sak_id
-                : item[sortKey];
+    [...saker].sort((a, b) => {
+      const value = (linje: Sakslinje) =>
+        sortKey === 'vederlag'
+          ? (linje.vederlag.krav?.beloep ?? null)
+          : sortKey === 'frist'
+            ? (linje.frist.krav?.dager ?? null)
+            : sortKey === 'hovedkategori'
+              ? kategoritekst(linje) || null
+              : linje[sortKey];
       return compareValues(value(a), value(b), sortDir);
     })
   );
 
   const columns: { key: SortKey; label: string; numeric?: boolean }[] = [
     { key: 'sak_id', label: 'Sak-ID' },
-    { key: 'cached_title', label: 'Tittel' },
-    { key: 'cached_status', label: 'Status' },
-    { key: 'cached_hovedkategori', label: 'Kategori' },
-    { key: 'cached_sum_krevd', label: 'Beløp', numeric: true },
-    { key: 'cached_dager_krevd', label: 'Dager', numeric: true },
-    { key: 'last_event_at', label: 'Siste aktivitet' },
+    { key: 'sakstittel', label: 'Tittel' },
+    { key: 'saksbetegnelse', label: 'Krav og svar' },
+    { key: 'hovedkategori', label: 'Kategori' },
+    { key: 'vederlag', label: 'Beløp', numeric: true },
+    { key: 'frist', label: 'Dager', numeric: true },
+    { key: 'siste_hendelse', label: 'Siste aktivitet' },
   ];
 </script>
 
@@ -109,8 +107,8 @@
       </tr>
     </thead>
     <tbody>
-      {#each sortedCases as case_item (case_item.sak_id)}
-        <CaseListRow {case_item} {prosjektId} href={caseHref?.(case_item)} />
+      {#each sortedCases as linje (linje.sak_id)}
+        <CaseListRow {linje} {prosjektId} href={caseHref?.(linje)} />
       {/each}
     </tbody>
   </table>

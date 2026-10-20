@@ -7,8 +7,8 @@ export function createCaseListQuery(getProsjektId: () => string | null = getActi
   return createQuery<CaseListResponse>(() => {
     const prosjektId = getProsjektId();
     return {
-      queryKey: ['cases', prosjektId],
-      queryFn: () => fetchCaseList(undefined, prosjektId ?? undefined),
+      queryKey: ['saker', prosjektId],
+      queryFn: () => fetchCaseList(prosjektId!),
       enabled: !!prosjektId,
     };
   });

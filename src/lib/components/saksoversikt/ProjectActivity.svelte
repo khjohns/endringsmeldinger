@@ -1,15 +1,14 @@
 <script lang="ts">
   import { Search, History, ArrowRight } from 'lucide-svelte';
-  import type { CaseListItem } from '$lib/types/api';
   import type { Role } from '$lib/components/kontraktsbord/types';
-  import { projectActivity, activityHref, activityDate } from './activity';
+  import { projectActivity, activityHref, activityDate, type Aktivitetssak } from './activity';
   let {
     cases,
     role,
     projectId,
     scenarios = {},
   }: {
-    cases: CaseListItem[];
+    cases: Aktivitetssak[];
     role: Role;
     projectId: string;
     scenarios?: Record<string, string>;

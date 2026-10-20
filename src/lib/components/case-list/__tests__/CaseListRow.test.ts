@@ -1,146 +1,134 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import CaseListRowTest from './CaseListRowTest.svelte';
-import type { CaseListItem } from '$lib/types/api';
+import { lagSakslinje } from '$lib/mocks/sakslinje';
+import type { Sakslinje } from '$lib/types/api';
 
-const baseCaseItem: CaseListItem = {
-  sak_id: 'SAK-001',
-  sakstype: 'standard',
-  cached_title: 'Endring i grunnarbeider',
-  cached_status: 'UNDER_BEHANDLING',
-  created_at: '2025-11-01T10:00:00Z',
-  created_by: 'TE',
-  last_event_at: '2025-12-22T14:30:00Z',
-  cached_sum_krevd: 450000,
-  cached_sum_godkjent: null,
-  cached_dager_krevd: 30,
-  cached_dager_godkjent: null,
-  cached_hovedkategori: 'BH_ENDRING',
-  cached_underkategori: null,
-  cached_forsering_paalopt: null,
-  cached_forsering_maks: null,
-};
+const vis = (linje: Sakslinje) =>
+  render(CaseListRowTest, { props: { linje, prosjektId: 'PRJ-01' } });
+
+const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
 
 describe('CaseListRow', () => {
-  it('shows EO numbers, status and order values without reusing stale KOE claim amounts', () => {
-    const item: CaseListItem = {
-      ...baseCaseItem,
-      sakstype: 'endringsordre',
-      endringsordre_data: {
-        status: 'bestridt',
-        eo_nummer: 'EO-042',
-        relaterte_koe_saker: ['KOE-1', 'KOE-2'],
-        netto_belop: -20000,
-        frist_dager: 0,
-        er_estimat: false,
-      },
-    };
-    render(CaseListRowTest, { props: { case_item: item, prosjektId: 'PRJ-01' } });
-    expect(screen.getByText('EO-042')).toBeInTheDocument();
-    expect(screen.getByText('Endringsordre')).toBeInTheDocument();
-    expect(screen.getByText('Bestridt')).toBeInTheDocument();
-    expect(screen.getByText('2 KOE · enighet')).toBeInTheDocument();
-    expect(screen.queryByText('450k')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Vederlag i EO: -20k')).toBeInTheDocument();
-    expect(screen.getByLabelText('Fristjustering i EO: 0d')).toBeInTheDocument();
-  });
-
-  it('keeps unspecified EO price and time unknown', () => {
-    render(CaseListRowTest, {
-      props: { case_item: { ...baseCaseItem, sakstype: 'endringsordre' }, prosjektId: 'PRJ-01' },
-    });
-    expect(screen.getByLabelText('Vederlag i EO: —')).toBeInTheDocument();
-    expect(screen.getByLabelText('Fristjustering i EO: —')).toBeInTheDocument();
-  });
-
-  it('labels affected but unspecified EO price and time as unresolved', () => {
-    render(CaseListRowTest, {
-      props: {
-        case_item: {
-          ...baseCaseItem,
-          sakstype: 'endringsordre',
-          endringsordre_data: {
-            status: 'utstedt',
-            eo_nummer: 'EO-1',
-            relaterte_koe_saker: [],
-            netto_belop: null,
-            frist_dager: null,
-            er_estimat: false,
-          },
-        },
-        prosjektId: 'PRJ-01',
-      },
-    });
-    expect(screen.getByLabelText('Vederlag i EO: Uavklart')).toBeInTheDocument();
-    expect(screen.getByLabelText('Fristjustering i EO: Uavklart')).toBeInTheDocument();
-  });
-
-  it('renders sak-ID', () => {
-    render(CaseListRowTest, { props: { case_item: baseCaseItem, prosjektId: 'PRJ-01' } });
+  it('viser sak-ID, tittel, kategori og lenken til saken', () => {
+    vis(lagSakslinje());
     expect(screen.getByText('SAK-001')).toBeInTheDocument();
-  });
-
-  it('renders tittel', () => {
-    render(CaseListRowTest, { props: { case_item: baseCaseItem, prosjektId: 'PRJ-01' } });
     expect(screen.getByText('Endring i grunnarbeider')).toBeInTheDocument();
+    expect(screen.getByText('Endringer')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Åpne sak SAK-001' })).toHaveAttribute(
+      'href',
+      '/PRJ-01/SAK-001'
+    );
   });
 
-  it('shows fallback tittel "Uten tittel" when cached_title is null', () => {
-    const item = { ...baseCaseItem, cached_title: null };
-    render(CaseListRowTest, { props: { case_item: item, prosjektId: 'PRJ-01' } });
+  it('viser «Uten tittel» når saken ikke har sakstittel', () => {
+    vis(lagSakslinje({ sakstittel: null }));
     expect(screen.getByText('Uten tittel')).toBeInTheDocument();
   });
 
-  it('shows formatted beløp', () => {
-    render(CaseListRowTest, { props: { case_item: baseCaseItem, prosjektId: 'PRJ-01' } });
-    // 450000 → '450k'
-    expect(screen.getByText('450k')).toBeInTheDocument();
+  it('saken har ingen samlet status: raden viser etikettene per spor (MM-U22)', () => {
+    vis(
+      lagSakslinje({
+        grunnlag: {
+          ...ingenting,
+          etiketter: ['venter_paa_svar'],
+          venter_paa_svar: true,
+          svar: null,
+        },
+        vederlag: {
+          ...ingenting,
+          etiketter: ['subsidiaert'],
+          krav: { beloep: 1_000_000, metode: 'tilbud' },
+          svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
+          enighet: null,
+        },
+      })
+    );
+    expect(screen.getByText('Venter på svar')).toBeInTheDocument();
+    expect(screen.getByText('Subsidiært standpunkt')).toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
-  it('shows formatted dager', () => {
-    render(CaseListRowTest, { props: { case_item: baseCaseItem, prosjektId: 'PRJ-01' } });
-    expect(screen.getByText('30d')).toBeInTheDocument();
+  it.each([
+    ['ikke_forstaatt', 'Ikke forstått', 'badge-uavklart'],
+    ['avslaget_paa_grunnlaget_godtatt', 'Avsluttet: avslått', 'badge-avslatt'],
+    ['grunnlaget_trukket', 'Avsluttet: trukket', 'badge-avslatt'],
+    ['kravene_avgjort', 'Alle krav sendt i appen er avgjort', 'badge-godkjent'],
+  ] as const)(
+    'saksbetegnelsen %s vises som merket «%s» i stedet for etikettene (MM-U22)',
+    (saksbetegnelse, tekst, klasse) => {
+      vis(
+        lagSakslinje({
+          saksbetegnelse,
+          grunnlag: { ...ingenting, etiketter: ['avklart'], svar: null },
+        })
+      );
+      expect(screen.getByText(tekst)).toHaveClass(klasse);
+      expect(screen.queryByText('Avklart')).not.toBeInTheDocument();
+    }
+  );
+
+  it('TEs krav og byggherrens subsidiære svar står hver for seg, med svaret merket (MM-U28)', () => {
+    vis(
+      lagSakslinje({
+        vederlag: {
+          ...ingenting,
+          krav: { beloep: 1_000_000, metode: 'tilbud' },
+          svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
+          enighet: null,
+        },
+        frist: {
+          ...ingenting,
+          krav: { dager: 30 },
+          svar: { resultat: 'delvis_godkjent', dager: 20, subsidiaert: false },
+          enighet: null,
+        },
+      })
+    );
+    expect(screen.getByLabelText('Krevd vederlag: 1M')).toBeInTheDocument();
+    expect(screen.getByText('BH 600k subsidiært')).toBeInTheDocument();
+    expect(screen.getByLabelText('Krevd frist: 30d')).toBeInTheDocument();
+    expect(screen.getByText('BH 20d')).toBeInTheDocument();
   });
 
-  it('links to correct URL', () => {
-    render(CaseListRowTest, { props: { case_item: baseCaseItem, prosjektId: 'PRJ-01' } });
-    const link = screen.getByRole('link', { name: /åpne sak SAK-001/i });
-    expect(link).toHaveAttribute('href', '/PRJ-01/SAK-001');
+  it('enigheten står foran svaret, med virkningen som appens lesing (MM-U28)', () => {
+    vis(
+      lagSakslinje({
+        vederlag: {
+          ...ingenting,
+          krav: { beloep: 1_000_000, metode: 'tilbud' },
+          svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
+          enighet: { beloep: 600_000, virkning: 'betinget' },
+        },
+        frist: {
+          ...ingenting,
+          krav: { dager: 30 },
+          svar: null,
+          enighet: { dager: null, virkning: 'virksom' },
+        },
+      })
+    );
+    expect(screen.getByText('Enige 600k, betinget')).toBeInTheDocument();
+    expect(screen.queryByText('BH 600k subsidiært')).not.toBeInTheDocument();
+    expect(screen.getByText('Enige, virksom')).toBeInTheDocument();
   });
 
-  it('shows Badge with status label for UNDER_BEHANDLING', () => {
-    render(CaseListRowTest, { props: { case_item: baseCaseItem, prosjektId: 'PRJ-01' } });
-    const badge = screen.getByRole('status');
-    expect(badge).toHaveTextContent('Under behandling');
+  it('kravene avgjort med registrert brev får tillegget fra visningen av saken (OV-U10)', () => {
+    vis(lagSakslinje({ saksbetegnelse: 'kravene_avgjort', brev_utenfor_appen: true }));
+    expect(screen.getByText('Alle krav sendt i appen er avgjort')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.')
+    ).toBeInTheDocument();
   });
 
-  it('shows godkjent badge for OMFORENT status', () => {
-    const item = { ...baseCaseItem, cached_status: 'OMFORENT' };
-    render(CaseListRowTest, { props: { case_item: item, prosjektId: 'PRJ-01' } });
-    const badge = screen.getByRole('status');
-    expect(badge).toHaveClass('badge-godkjent');
-    expect(badge).toHaveTextContent('Omforent');
+  it('tillegget står bare ved «kravene avgjort», som i visningen av saken (OV-U10)', () => {
+    vis(lagSakslinje({ saksbetegnelse: 'grunnlaget_trukket', brev_utenfor_appen: true }));
+    expect(screen.queryByText(/brev sendt utenfor appen/)).not.toBeInTheDocument();
   });
 
-  it('shows avslatt badge for LUKKET_TRUKKET status', () => {
-    const item = { ...baseCaseItem, cached_status: 'LUKKET_TRUKKET' };
-    render(CaseListRowTest, { props: { case_item: item, prosjektId: 'PRJ-01' } });
-    const badge = screen.getByRole('status');
-    expect(badge).toHaveClass('badge-avslatt');
-    expect(badge).toHaveTextContent('Trukket');
-  });
-
-  it('shows uavklart badge for UTKAST status', () => {
-    const item = { ...baseCaseItem, cached_status: 'UTKAST' };
-    render(CaseListRowTest, { props: { case_item: item, prosjektId: 'PRJ-01' } });
-    const badge = screen.getByRole('status');
-    expect(badge).toHaveClass('badge-uavklart');
-  });
-
-  it('shows em-dash when beløp is null', () => {
-    const item = { ...baseCaseItem, cached_sum_krevd: null };
-    render(CaseListRowTest, { props: { case_item: item, prosjektId: 'PRJ-01' } });
-    // formatCurrencyCompact(null) → '—'
-    expect(screen.getAllByText('—').length).toBeGreaterThan(0);
+  it('et krav som ikke finnes, vises som strek og ikke som 0', () => {
+    vis(lagSakslinje());
+    expect(screen.getByLabelText('Krevd vederlag: —')).toBeInTheDocument();
+    expect(screen.getByLabelText('Krevd frist: —')).toBeInTheDocument();
   });
 });

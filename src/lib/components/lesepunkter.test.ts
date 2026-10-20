@@ -46,8 +46,8 @@ export function statuslesing(kilde: string): string[] {
 /** Modulene som kan lese statusene, med grunnen. */
 const TILLATT: Record<string, string> = {
   'src/lib/components/kontraktsbord/derive.ts': 'lesepunktet for saksvisningen',
-  'src/lib/components/saksoversikt/overview.ts': 'lesepunktet for prosjektoversikten',
-  'src/lib/components/case-list/presentation.ts': 'lesepunktet for sakslisten',
+  'src/lib/components/saksoversikt/overview.ts':
+    'Python-statusene for reproduksjonene i #229, til #1051',
   'src/lib/constants/statusLabels.ts': 'etikettene lesepunktene bruker',
   'src/lib/constants/statusStyles.ts': 'stilene lesepunktene bruker',
   'src/lib/types/timeline.ts': 'typene fra Python',
