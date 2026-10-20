@@ -6,13 +6,29 @@ description: Kjører /mockup i Chromium i skyøkta og driver byggherrens svar gj
 # /mockup i nettleseren
 
 ```bash
-node .claude/skills/mockup-nettleser/godkjenning.mjs [--utdata <mappe>] [--url http://localhost:5173] [--scenario scenario1]
+node .claude/skills/mockup-nettleser/godkjenning.mjs [--utdata <mappe>] [--url http://localhost:5173] [--scenario scenario1] \
+  [--varsel i-tide|for-sent] [--hindring ja|nei] [--dager <n>] [--tekst]
 ```
 
 Skriptet starter `vite dev` hvis ingen svarer på `--url`, og stopper den igjen
 etterpå. Skjermbildene havner i `--utdata` (standard `/tmp/mockup-skjermbilder`):
 vurderingen, brevet og det sendte svaret. Det feiler ved JavaScript-feil i siden.
 `/mockup` bruker demolageret og trenger verken backend eller innlogging.
+
+Svarene velges med flagg. Uten flagg svarer skriptet «Ja, i tide», «Ja, hindring»
+og 30 dager.
+
+- `--varsel i-tide|for-sent`: «Ja, i tide», eller «Nei, for sent» (og «Nei,
+  prekludert» på svar til forespørsel) i alle varselspørsmål.
+- `--hindring ja|nei`: «Ja, hindring», eller «Nei, ingen hindring» (§ 33.1).
+- `--dager <n>`: godkjent fristforlengelse i kalenderdager, et helt tall fra 0 til
+  de krevde dagene i saken (45 i `scenario1`). Feltet klipper til kravet, så
+  skriptet sjekker verdien etter utfyllingen og avbryter med exit 1 hvis den er
+  større.
+- `--tekst`: skriver ut brevteksten og sporstatusene («Navn: status» for hver rad
+  i venstrekolonnen) etter at svaret er sendt.
+
+Ugyldig verdi gir en melding om hva som er feil, og exit 1 før nettleseren startes.
 
 ## I en git-worktree
 

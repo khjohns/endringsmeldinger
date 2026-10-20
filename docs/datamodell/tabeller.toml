@@ -623,12 +623,16 @@ til `app_users` i PostgreSQL. Navnet leses for visningen av saken gjennom
 fra `lesAktornavn` i `server/lager.ts`."""
 lagres_fra = """
 `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter
-brukeren første gang en identitet sees. Tilbakekallet fra innloggingen kaller den
-fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659)."""
+brukeren første gang en Catenda-identitet sees. Tilbakekallet fra innloggingen
+kaller den fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659). En
+Entra-identitet oppretter aldri en bruker ved innloggingen: driften registrerer
+den med `koe_drift.registrer_entra_identitet`, som ny bruker eller koblet til en
+eksisterende (S-1c del 1, #831). `koe_api.entra_identitet` oppdaterer navn og
+e-post ved innloggingen."""
 fra_catenda = "Delvis. Navn og e-post kommer fra Catenda-identiteten."
 kan_gjenoppbygges = "nei. `id` er aktøren i journalen."
 personopplysninger = "Navn og e-post."
-skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`. L 18.10: `20261019160000_aktornavn.sql`. K 18.10: `server/tester/aktornavn.test.ts` mot testbasen."
 
@@ -639,15 +643,34 @@ type = ["grunndata"]
 status = "uavklart"
 beskrivelse = """
 Identitetene til en bruker, unike på leverandør, issuer og subjekt. En
-Catenda-identitet har issueren og subjektformen basen kontrollerer, så samme
-person ikke får to brukerrader (AGENTS.md)."""
-lagres_fra = "`koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api.catenda_identitet` fra tilbakekallet i `server/innlogging.ts` (F0b-5a, #659)."
-fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en."
+Catenda-identitet og en Entra-identitet har issueren og subjektformen basen
+kontrollerer, så samme person ikke får to brukerrader (AGENTS.md). For Entra er
+issueren v2-formen for tenanten og subjektet `oid`, begge i små bokstaver (#831)."""
+lagres_fra = "`koe.resolve_identity`, sammen med brukeren, kalt gjennom `koe_api.catenda_identitet` fra tilbakekallet i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet registreres av driften med `koe_drift.registrer_entra_identitet` og slås bare opp av `koe_api.entra_identitet` ved innloggingen (S-1c del 1, #831)."
+fra_catenda = "Ja, for leverandøren `catenda`: subjektet er Catenda-ID-en. For `entra` kommer subjektet fra ID-tokenet fra Entra ID."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Subjektet identifiserer en person."
-skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)"]
+skrivere = ["database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`)", "database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over)", "database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post)"]
 funn = []
 belegg = "L 16.10: migrasjonen og søk i `server/`."
+
+[[tabell]]
+navn = "koe.entra_tenant"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Tenantene i Entra ID driften har godkjent for innloggingen (S-1c del 1, #831).
+`koe_api.entra_identitet` og `koe_drift.registrer_entra_identitet` avviser en
+tenant som ikke står her.
+Kjøretiden har ingen rett på tabellen."""
+lagres_fra = "Driften, som eier. Lest av `koe_api.entra_identitet` fra `server/entra.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Driftens godkjenning er kilden."
+personopplysninger = "Nei."
+skrivere = ["database/migrasjoner/20261020150000_entra_identitet.sql (tabellen); radene skrives av driften som eier"]
+funn = []
+belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/entra.test.ts` mot testbasen."
 
 [[tabell]]
 navn = "koe.projects"

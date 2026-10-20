@@ -39,10 +39,12 @@ import {
   type Rute,
 } from '../app.ts';
 import { catendaId, sha256 } from '../autorisasjon.ts';
-import type { Innloggingsleverandoer } from '../innlogging.ts';
+import { entraIdentitet, entraIssuer } from '../entra.ts';
+import type { EntraLeverandoer, Innloggingsleverandoer } from '../innlogging.ts';
 import { fast } from '../inngang.ts';
 import { opprettSesjon } from '../sesjon.ts';
 import { settInn } from './sqlserver_migrert.ts';
+import { sql } from './sqlserver.ts';
 import {
   kall,
   lagOppsett,
@@ -61,6 +63,8 @@ const kropp = (r: Rute) => (r.metode === 'GET' ? undefined : {});
 const UTEN_SESJON = [
   'GET /api/auth/catenda/login',
   'GET /api/auth/catenda/callback',
+  'GET /api/auth/entra/login',
+  'GET /api/auth/entra/callback',
   'POST /webhook/catenda/<hemmelighet>',
 ];
 const UTEN_PROSJEKT = [
@@ -153,6 +157,35 @@ const CATENDA: Innloggingsleverandoer = {
   medlemmer: () => Promise.reject(new Error('Ingen medlemmer i registertesten.')),
 };
 
+const ENTRA: EntraLeverandoer = {
+  autorisasjonsadresse: (state) => `https://entra.test/authorize?state=${state}`,
+  byttKode: () => Promise.reject(new Error('Ingen kode i registertesten.')),
+  valider: () => Promise.reject(new Error('Ikke noe ID-token i registertesten.')),
+};
+
+/** En innlogget bruker med en Entra-identitet driften har registrert, uten medlemskap (#831). */
+async function entraBruker(o: Oppsett): Promise<Testbruker> {
+  const tenant = randomUUID();
+  await settInn(() => o.datalag.base.pool.request(), 'entra_tenant', { tenant_id: tenant });
+  const oid = randomUUID();
+  await o.datalag.base.pool
+    .request()
+    .input('tenant', tenant)
+    .input('oid', oid)
+    .output('bruker', sql.UniqueIdentifier)
+    .query(
+      "EXEC koe_drift.registrer_entra_identitet @tenant, @oid, N'leder@test.example', N'Leder', @bruker OUTPUT"
+    );
+  const id = await entraIdentitet(o.datalag.kjoeretid.pool, {
+    issuer: entraIssuer(tenant),
+    subjekt: oid,
+    epost: '',
+    navn: '',
+  });
+  const ny = await opprettSesjon(o.datalag.kjoeretid.pool, id);
+  return { id, subjekt: '', token: ny.token, csrf: ny.csrfToken };
+}
+
 describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () => {
   let o: Oppsett;
   let server: KjorendeServer;
@@ -164,13 +197,15 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   // Admin i prosjektet, med og uten leserolle, for inngangene som krever admin.
   let admin: Testbruker;
   let leserAdmin: Testbruker;
+  let entra: Testbruker;
 
   beforeAll(async () => {
     o = await lagOppsett();
     [admin, leserAdmin] = [await adminI(o, false), await adminI(o, true)];
+    entra = await entraBruker(o);
     server = await startServer(o);
     medInnlogging = await startServer(o, {
-      innlogging: { frontend: 'https://app.example.no', oauth: CATENDA },
+      innlogging: { frontend: 'https://app.example.no', oauth: CATENDA, entra: ENTRA },
     });
     sak = await opprettKjernesak(o);
     annenSak = await opprettKjernesak(o, o.annetProsjekt);
@@ -226,6 +261,16 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   });
 
   const utenSak = RUTER.filter(erUtenSak).map((r) => [navn(r), r] as const);
+
+  it.each(utenSak)('%s: en Entra-sesjon uten medlemskap gir 403', async (_n, r) => {
+    const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
+      bruker: entra,
+      prosjektId: o.prosjekt.id,
+      kropp: kropp(r),
+      metode: r.metode,
+    });
+    expect(svar.status).toBe(403);
+  });
 
   it.each(utenSak)('%s: uten sesjon gir 401', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
@@ -330,6 +375,8 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   const OMDIRIGERING: Record<string, string> = {
     'GET /api/auth/catenda/login': 'https://catenda.test/oauth2/authorize?state=',
     'GET /api/auth/catenda/callback': 'https://app.example.no/login?error=login_failed',
+    'GET /api/auth/entra/login': 'https://entra.test/authorize?state=',
+    'GET /api/auth/entra/callback': 'https://app.example.no/login?error=login_failed',
   };
   // Åpne ruter som prøves over HTTP i en annen fil, med fila (#942).
   const PROEVD_I_ANDRE_FILER: Record<string, string> = {
@@ -400,6 +447,18 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       }
     }
   );
+
+  // Entra-sesjonen gir ingen prosjekttilgang før unntaket for godkjenneren (GFK-U5, del 4 i #831).
+  it.each(hver)('%s: en Entra-sesjon uten medlemskap gir 403', async (_n, r) => {
+    const svar = await kall(server.url, r.eksempel(sak), {
+      bruker: entra,
+      prosjektId: o.prosjekt.id,
+      kropp: kropp(r),
+      metode: r.metode,
+    });
+    expect(svar.status).toBe(403);
+    expect(svar.kropp.error).toBe('FORBIDDEN');
+  });
 
   it.each(hver)('%s: kontraktsrollen', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(sak), {

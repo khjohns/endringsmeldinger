@@ -1425,6 +1425,8 @@ historikk og mappa stemmer.
 
 > **Merknad 2026-10-17 til F0b:** levert: journalen og leveringsoppdraget for kommandoinngangene i [`server/`](../../server/) leses og skrives i SQL Server, og `pg` er ute av `server/` ([#661](https://github.com/khjohns/endringsmeldinger/issues/661), PR #738, merge 395a5be). Migrasjonen `20261017233000_leveringsmaal.sql` gir koblingen til Catenda-prosjektet kolonnene `library_id` og `folder_id`, og tabellen `koe.sak_catenda_topic` for topicen per sak. Leveringsmålet leses med `koe_api.leveringsmaal`, og kjøretiden får ingen ny tabellrett. Ikke levert: skrivingen av topicen i Catenda, som er skilt ut i [#741](https://github.com/khjohns/endringsmeldinger/issues/741), og leveringen ([#371](https://github.com/khjohns/endringsmeldinger/issues/371)).
 
+> **Merknad 2026-10-20 til F0b:** levert: W-1b.2, kommentarene tilbake til topicen, grensen på webhooken og forsøk som venter ([PR #971](https://github.com/khjohns/endringsmeldinger/pull/971), merge c6977e6, del av [W-1, #819](https://github.com/khjohns/endringsmeldinger/issues/819)).
+
 **Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
 alternativ C prøves tidlig i T-SQL ([B-12, databasen](#b-12-databasen), #395). Lagringsformen avgjøres senest før
 KOE-byttet skriver den første reelle hendelsen
@@ -1778,6 +1780,8 @@ følges i [milepælen FK](https://github.com/khjohns/endringsmeldinger/milestone
 >   (`review-oppfølging`), og fire er avvist i PR-en. Samspillsreviewet med bl.a.
 >   LV-U14, KT-U5, OV-U4 og MM-U9 ga ingen brudd. Feilinnføringene F125, F126,
 >   F164, F167 og F287–F291 ble oppdaget, og `feilinnfoering.ts --ankre` er grønn.
+
+> **Merknad 2026-10-20 til FK:** levert: S-2a.3a, brevet med varselet som vedlegg i fristkravet, og datoen for varselet kontrollert i kjernen ([PR #982](https://github.com/khjohns/endringsmeldinger/pull/982), merge 6f7276c, del av [S-2, #909](https://github.com/khjohns/endringsmeldinger/issues/909) og [#828](https://github.com/khjohns/endringsmeldinger/issues/828)).
 
 ### F3 — Øvrige adaptere og drift
 

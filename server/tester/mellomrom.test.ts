@@ -24,6 +24,8 @@ import { sql, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const CHECK_BRUDD = 547;
 const IKKE_NORMALISERT = 52022;
+/** En issuer i formen basen krever for Entra (#831). */
+const ENTRA_ISSUER = 'https://login.microsoftonline.com/00000000-0000-4000-8000-000000000001/v2.0';
 
 const P1 = 'mellomrom-p1';
 const team = () => randomBytes(16).toString('hex');
@@ -1055,16 +1057,16 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
     }
 
     it('kontrollsak: tabellen godtar en Entra-identitet i den eksakte formen', async () => {
-      await identitet('entra', 'https://login.example/tenant', randomUUID());
+      await identitet('entra', ENTRA_ISSUER + '', randomUUID());
     });
 
     it.each<[string, string, string, string]>([
-      ['provider', 'entra ', 'https://login.example/tenant', randomUUID()],
-      ['issuer', 'entra', 'https://login.example/tenant ', randomUUID()],
-      ['subject', 'entra', 'https://login.example/tenant', `${randomUUID()} `],
-      ['provider', 'entra\t', 'https://login.example/tenant', randomUUID()],
-      ['issuer', 'entra', 'https://login.example/tenant\u00a0', randomUUID()],
-      ['subject', 'entra', 'https://login.example/tenant', `${randomUUID()}\u200b`],
+      ['provider', 'entra ', ENTRA_ISSUER + '', randomUUID()],
+      ['issuer', 'entra', ENTRA_ISSUER + ' ', randomUUID()],
+      ['subject', 'entra', ENTRA_ISSUER + '', `${randomUUID()} `],
+      ['provider', 'entra\t', ENTRA_ISSUER + '', randomUUID()],
+      ['issuer', 'entra', ENTRA_ISSUER + '\u00a0', randomUUID()],
+      ['subject', 'entra', ENTRA_ISSUER + '', `${randomUUID()}\u200b`],
     ])(
       'app_identities.%s avviser mellomrom og usynlige tegn, også fra eieren (547, #609): %o %o %o',
       async (kolonne, p, i, s) => {
@@ -1087,14 +1089,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
     }
 
     it.each<[string, (s: string) => [string, string, string]]>([
-      ['provideren', (s) => ['entra ', 'https://login.example/tenant', s]],
-      ['issueren', (s) => ['entra', 'https://login.example/tenant ', s]],
-      ['subjektet', (s) => ['entra', 'https://login.example/tenant', `${s} `]],
+      ['provideren', (s) => ['entra ', ENTRA_ISSUER + '', s]],
+      ['issueren', (s) => ['entra', ENTRA_ISSUER + ' ', s]],
+      ['subjektet', (s) => ['entra', ENTRA_ISSUER + '', `${s} `]],
     ])(
       'koe.resolve_identity avviser mellomrom etter %s og gir ikke brukeren til den eksakte formen',
       async (_, med) => {
         const s = randomUUID();
-        const eksakt = await resolve('entra', 'https://login.example/tenant', s);
+        const eksakt = await resolve('entra', ENTRA_ISSUER + '', s);
         expect(eksakt.output.user_id).toBeTruthy();
         const feil = await avvisningMedMelding(resolve(...med(s)));
         expect(feil?.nummer).toBe(IKKE_NORMALISERT);
@@ -1102,14 +1104,14 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
     );
 
     it.each<[string, (s: string) => [string, string, string]]>([
-      ['provideren', (s) => ['entra\t', 'https://login.example/tenant', s]],
-      ['issueren', (s) => ['entra', 'https://login.example/tenant\u00a0', s]],
-      ['subjektet', (s) => ['entra', 'https://login.example/tenant', `${s}\u3000`]],
+      ['provideren', (s) => ['entra\t', ENTRA_ISSUER + '', s]],
+      ['issueren', (s) => ['entra', ENTRA_ISSUER + '\u00a0', s]],
+      ['subjektet', (s) => ['entra', ENTRA_ISSUER + '', `${s}\u3000`]],
     ])(
       'koe.resolve_identity gir ingen bruker for et usynlig tegn etter %s, fordi tabellen avviser identiteten (547, #609)',
       async (_, med) => {
         const s = randomUUID();
-        await resolve('entra', 'https://login.example/tenant', s);
+        await resolve('entra', ENTRA_ISSUER + '', s);
         const feil = await avvisningMedMelding(resolve(...med(s)));
         expect(feil?.nummer).toBe(CHECK_BRUDD);
         expect(feil?.melding).toContain('app_identities_');

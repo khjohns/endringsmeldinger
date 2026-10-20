@@ -792,6 +792,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('migrasjonene i database/migrasjoner', ()
         'catenda_contract_teams',
         'catenda_project_configs',
         'dagmulktssats',
+        'entra_tenant',
         'fullmakt',
         'godkjenningshandling',
         'godkjenningspakke',
