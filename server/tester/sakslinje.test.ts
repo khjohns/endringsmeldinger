@@ -275,6 +275,62 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
+  it('#1050, #1067: når TE godtar avslaget av grunnlaget alene, venter vederlag og frist ikke på svar og telles ikke (SK-01)', () => {
+    const avslag: Steg = (sak) =>
+      sak.send('BH', {
+        type: 'brev',
+        svar: [sak.svar('grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
+      });
+    expect(linje(krav, avslag).vederlag.venter_paa_svar, 'kontroll: før aksepten').toBe(true);
+    const l = linje(krav, avslag, aksept('grunnlag'));
+    expect(l.saksbetegnelse).toBe('avslaget_paa_grunnlaget_godtatt');
+    for (const spor of ['vederlag', 'frist'] as const) {
+      expect(l[spor].venter_paa_svar, spor).toBe(false);
+      expect(l[spor].etiketter, spor).not.toContain('venter_paa_svar');
+    }
+    expect(noekkeltall([l])).toMatchObject({
+      vederlag: { venter_paa_svar: 0 },
+      frist: { venter_paa_svar: 0 },
+    });
+  });
+
+  it('#1050: når TE godtar avslaget av grunnlaget i forløp A, står det subsidiære svaret i vederlaget ikke som ikke godtatt (SK-01)', () => {
+    const l = linje(forloepA, aksept('grunnlag'));
+    expect(l.vederlag).toMatchObject({
+      svar: { beloep: 60000, subsidiaert: true },
+      svar_ikke_godtatt: false,
+    });
+    expect(l.frist.svar_ikke_godtatt).toBe(false);
+  });
+
+  it('#1050: et frafall står ikke som svar ikke godtatt, mens ubesvarte krav i vederlag og frist venter på svar (GR-U9, arbeidsvalget 20.10)', () => {
+    const frafall: Steg = (sak) =>
+      sak.send('BH', {
+        type: 'brev',
+        svar: [
+          sak.svar('grunnlag', { resultat: 'paalegg_frafalt', grunnlag_varslet_i_tide: true }),
+        ],
+      });
+    const l = linje(krav, frafall);
+    expect(l.grunnlag).toMatchObject({
+      svar: { resultat: 'paalegg_frafalt' },
+      venter_paa_svar: false,
+      svar_ikke_godtatt: false,
+    });
+    expect(l.vederlag.venter_paa_svar).toBe(true);
+    expect(l.frist.venter_paa_svar).toBe(true);
+    const nyVersjon = linje(krav, frafall, (sak) =>
+      sak.send('TE', {
+        ...GRUNNLAGSKRAV,
+        innhold: { ...GRUNNLAGSKRAV.innhold, tittel: 'Endret fundamentering 2' },
+      })
+    );
+    expect(nyVersjon.grunnlag, 'GR-U23').toMatchObject({
+      venter_paa_svar: true,
+      svar_ikke_godtatt: false,
+    });
+  });
+
   it('en enighet uten virkning telles ikke, heller ikke uten beløp (svar 3 fra oppdragsgiver 20.10 i #1029)', () => {
     const l = linje(forloepA, aksept('vederlag'), trekk('grunnlag'));
     expect(l.vederlag.enighet).toEqual({ beloep: 60000, virkning: 'uten_virkning' });

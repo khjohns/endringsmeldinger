@@ -47,11 +47,32 @@ export interface Visning {
   merknader: string[];
 }
 
+/** Betegnelsen saken har i de fire tilfellene i MM-U22; ellers har den ingen. */
+export type Saksbetegnelse =
+  | 'ikke_forstaatt'
+  | 'avslaget_paa_grunnlaget_godtatt'
+  | 'grunnlaget_trukket'
+  | 'kravene_avgjort';
+
+/** Betegnelsen i MM-U22, som sakslisten og statusen i visningen leser (#1050). */
+export function saksbetegnelse(u: Utledning): Saksbetegnelse | null {
+  if (!u.forstaatt) return 'ikke_forstaatt';
+  if (u.grunnlagAvvist) return 'avslaget_paa_grunnlaget_godtatt';
+  if (u.spor.grunnlag.trukket) return 'grunnlaget_trukket';
+  if (kraveneErAvgjort(u)) return 'kravene_avgjort';
+  return null;
+}
+
+const STATUS_FOR: Record<Saksbetegnelse, Statuskode> = {
+  ikke_forstaatt: 'kan_ikke_utledes',
+  avslaget_paa_grunnlaget_godtatt: 'avsluttet_avslaatt',
+  grunnlaget_trukket: 'avsluttet_trukket',
+  kravene_avgjort: 'alle_krav_avgjort',
+};
+
 function status(u: Utledning): Statuskode {
-  if (!u.forstaatt) return 'kan_ikke_utledes';
-  if (u.grunnlagAvvist) return 'avsluttet_avslaatt';
-  if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
-  if (kraveneErAvgjort(u)) return 'alle_krav_avgjort';
+  const betegnelse = saksbetegnelse(u);
+  if (betegnelse) return STATUS_FOR[betegnelse];
   if (SPOR.some((s) => venterPaaSvar(u, s))) return 'venter_paa_svar';
   return 'under_forhandling';
 }
@@ -116,11 +137,12 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
 /** OV-U10: et registrert brev kan ha krav appen ikke kjenner. */
 const BREV_UTENFOR_APPEN = 'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
 
+/** OV-U10: saken har registrert korrespondanse, som sakslisten og statusteksten leser. */
+export const harRegistrertBrev = (u: Utledning): boolean =>
+  u.journal.some((h) => h.art === 'dokument' && erRegistrert(h.dokument.opplysninger));
+
 function statustekst(u: Utledning, kode: Statuskode): string {
-  const registrertBrev = u.journal.some(
-    (h) => h.art === 'dokument' && erRegistrert(h.dokument.opplysninger)
-  );
-  return kode === 'alle_krav_avgjort' && registrertBrev
+  return kode === 'alle_krav_avgjort' && harRegistrertBrev(u)
     ? `${STATUSTEKST[kode]}. ${BREV_UTENFOR_APPEN}`
     : STATUSTEKST[kode];
 }
