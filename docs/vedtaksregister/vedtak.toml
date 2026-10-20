@@ -5524,6 +5524,149 @@ navn = "Siste godkjenner trykker Send"
 tekst = '''
 Den siste godkjenneren godkjenner og sender i to steg.'''
 
+[[gruppe.vedtak]]
+id = "GFK-U8"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#764", "#831"]
+sporsmal = '''
+S4 (header «Kjeden»)
+Spørsmål: Spørsmål 4 (S-1c, GFK-06): Hvordan avledes godkjenningskjeden fra hierarkiet?
+- «Alle oppover (anbefalt)»: a) (anbefalt) Starter hos lederen til byggherrens saksbehandler og følger manager oppover; alle i kjeden godkjenner, til og med den første med dekkende grense.
+- «Bare første med grense»: b) Bare den første lederen oppover med dekkende grense godkjenner.
+- «Fast rollerekkefølge»: c) Fast rekkefølge av roller som i dag, uten hierarkiet.'''
+valgt = "Alle oppover"
+svar = '''
+«Alle oppover (anbefalt)»'''
+folge = '''
+Ikke bygget (#831).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alle oppover"
+tekst = '''
+Starter hos lederen til byggherrens saksbehandler og følger manager oppover; alle i kjeden godkjenner, til og med den første med dekkende grense.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare første med grense"
+tekst = '''
+Bare den første lederen oppover med dekkende grense godkjenner.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fast rollerekkefølge"
+tekst = '''
+Fast rekkefølge av roller som i dag, uten hierarkiet.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U9"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#764", "#831"]
+sporsmal = '''
+S6 (header «Innsyn»)
+Spørsmål: Spørsmål 6 (S-1c): Hva ser en godkjenner som ikke er prosjektmedlem?
+- «Bare egen pakke (anbefalt)»: a) (anbefalt) Bare saken og pakken der godkjenneren står i kjeden, mens pakken er åpen; etterpå bare egen handling; ingen interne notater.
+- «Alle saker med fullmakt»: b) Alle sakene i prosjekter der rollen har fullmakt.
+- «Lesende medlem»: c) Automatisk registrert som lesende prosjektmedlem.'''
+valgt = "Bare egen pakke"
+svar = '''
+«Bare egen pakke (anbefalt)»'''
+folge = '''
+Ikke bygget (#831).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare egen pakke"
+tekst = '''
+Bare saken og pakken der godkjenneren står i kjeden, mens pakken er åpen; etterpå bare egen handling; ingen interne notater.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alle saker med fullmakt"
+tekst = '''
+Alle sakene i prosjekter der rollen har fullmakt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Lesende medlem"
+tekst = '''
+Automatisk registrert som lesende prosjektmedlem.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U10"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#764", "#831"]
+sporsmal = '''
+S7 (header «Fravær»)
+Spørsmål: Spørsmål 7 (S-1c, GFK-U2): Fravær, tom stilling, manglende leder eller HR-endring mens pakken er åpen?
+- «Fail-closed (anbefalt)»: a) (anbefalt) Fail-closed: kjeden fryses når pakken lages; mangler leder eller er HR-kopien for gammel, kan pakken ikke lages og driften varsles; har godkjenneren mistet rollen, avvises handlingen og pakken lages på nytt.
+- «Hopp over leddet»: b) Et ledd som mangler, hoppes over.
+- «Stedfortreder per rolle»: c) Stedfortreder per rolle registrert av driften.'''
+valgt = "Fail-closed"
+svar = '''
+«Fail-closed (anbefalt)»'''
+folge = '''
+Ikke bygget (#831).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fail-closed"
+tekst = '''
+Fail-closed: kjeden fryses når pakken lages; mangler leder eller er HR-kopien for gammel, kan pakken ikke lages og driften varsles; har godkjenneren mistet rollen, avvises handlingen og pakken lages på nytt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hopp over leddet"
+tekst = '''
+Et ledd som mangler, hoppes over.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Stedfortreder per rolle"
+tekst = '''
+Stedfortreder per rolle registrert av driften.'''
+forkastet = true
+
+
+[[gruppe.vedtak]]
+id = "GFK-U11"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#764", "#831"]
+sporsmal = '''
+S8 (header «Fullmakt»)
+Spørsmål: Spørsmål 8 (S-1c, GFK-U5): Hva skjer med koe.fullmakt?
+- «Global grense (anbefalt)»: a) (anbefalt) Erstattes av grensen per rolle, globalt for byggherren; tabellen fases ut.
+- «Global, overstyrbar»: b) Global grense per rolle, overstyrbar per prosjekt.
+- «Per prosjekt»: c) Grensen per rolle registreres per prosjekt.'''
+valgt = "Global grense"
+svar = '''
+«Global grense (anbefalt)»'''
+folge = '''
+Ikke bygget (#831).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Global grense"
+tekst = '''
+Erstattes av grensen per rolle, globalt for byggherren; tabellen fases ut.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Global, overstyrbar"
+tekst = '''
+Global grense per rolle, overstyrbar per prosjekt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Per prosjekt"
+tekst = '''
+Grensen per rolle registreres per prosjekt.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
 
@@ -6374,6 +6517,34 @@ forkastet = true
 navn = "Gir virkning som registrering"
 tekst = '''
 En senere avklaring av at byggherrens registrerte svar på grunnlaget var en endringsordre, gir fra avklaringen samme virkning som en registrering etter OV-U6, når vilkårene i OV-U6 ellers er oppfylt. Forkastet: at opplysningen bare kan gis i registreringen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U14"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#764", "#909"]
+sporsmal = '''
+S10 (header «Enhetspris»)
+Spørsmål: Spørsmål 10 (S-2a.3e): Enhetspriser i første versjon?
+- «Bare § 34.3.1 (anbefalt)»: A bare § 34.3.1, § 34.3.2 og § 34.3.3 avvises.
+- «§ 34.3.1 og § 34.3.2»: B § 34.3.1 og § 34.3.2, bare § 34.3.3 avvises (OV-U1 nevner bare § 34.3.3).'''
+valgt = "Bare § 34.3.1"
+svar = '''
+«Bare § 34.3.1 (anbefalt)»'''
+folge = '''
+Ikke bygget (#909).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare § 34.3.1"
+tekst = '''
+bare § 34.3.1, § 34.3.2 og § 34.3.3 avvises.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "§ 34.3.1 og § 34.3.2"
+tekst = '''
+§ 34.3.1 og § 34.3.2, bare § 34.3.3 avvises (OV-U1 nevner bare § 34.3.3).'''
 forkastet = true
 
 [[gruppe.vedtak]]
