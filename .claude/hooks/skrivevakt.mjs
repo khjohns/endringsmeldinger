@@ -763,8 +763,8 @@ function effektiveKommandoer(leddene) {
     if (payload !== undefined) {
       ut.push(...effektiveKommandoer(lekser(payload)).map(arv));
     } else if (kommando === 'trap') {
-      // Handlingen er det første argumentet etter valgene og `--`. Leddet selv blir stående, så
-      // reglene som ser `trap` og argumentene, gjelder som på `main`.
+      // Handlingen er det første argumentet etter valgene og `--`. Reglene leser både trap-leddet
+      // med argumentene og kommandoene i handlingen.
       let a = 0;
       while (a < resten.length && /^-[lpP]+$/.test(resten[a])) a++;
       if (resten[a] === '--') a++;
