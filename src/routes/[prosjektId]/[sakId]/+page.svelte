@@ -4,8 +4,6 @@
   import { resolve } from '$app/paths';
   import { createCaseContextQuery } from '$lib/queries/caseContext';
   import CaseWorkspace from '$lib/kontraktsbord/CaseWorkspace.svelte';
-  import EndringsordrePage from '$lib/components/endringsordre/EndringsordrePage.svelte';
-  import { projectStore } from '$lib/stores/project.svelte';
   import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
   import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
   import { sakskilde, tsStienForNyeKoeSaker } from '$lib/kjernesak/bryter';
@@ -81,14 +79,11 @@
   </div>
 {:else if kilde === 'python' && query.data}
   {#key prosjektId + ':' + sakId}
-    {#if query.data.state.sakstype === 'endringsordre'}
-      <EndringsordrePage
-        response={query.data}
-        projectId={prosjektId}
-        projectName={projectStore.current?.name ?? prosjektId}
-        role={view.role}
-        onrolechange={(role) => changeView({ ...view, role })}
-      />
+    {#if query.data.state.sakstype && query.data.state.sakstype !== 'standard'}
+      <div class="case-message" role="alert">
+        <h1>Endringsordre og forsering støttes ikke i denne versjonen</h1>
+        <a href={resolve('/[prosjektId]', { prosjektId })}>Til saksoversikten</a>
+      </div>
     {:else}
       <CaseWorkspace
         response={query.data}

@@ -179,21 +179,6 @@
             href={resolve('/[prosjektId]/ny', { prosjektId: encodeURIComponent(prosjektId) })}
             ><Plus size={17} /> Ny sak</a
           >
-        {:else if role === 'BH' && activePage === 'overview'}
-          <div class="heading-actions">
-            <a
-              class="primary secondary-action"
-              href={resolve('/[prosjektId]/endringsordre/godkjenning', {
-                prosjektId: encodeURIComponent(prosjektId),
-              })}>Til godkjenning</a
-            >
-            <a
-              class="primary"
-              href={resolve('/[prosjektId]/endringsordre/ny', {
-                prosjektId: encodeURIComponent(prosjektId),
-              })}><Plus size={17} /> Ny endringsordre</a
-            >
-          </div>
         {/if}
       </header>
       <details class="mobile-project-info">

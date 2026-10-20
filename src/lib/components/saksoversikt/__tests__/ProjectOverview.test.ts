@@ -44,10 +44,9 @@ it('carries the selected role from the overview into a case and back', async () 
   const props = { cases: mockSaksoversikt, prosjektId: 'P001', prosjektNavn: 'Operatunnelen' };
   const overview = render(ProjectOverview, props);
   expect(screen.queryByRole('link', { name: 'Ny sak' })).not.toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Ny endringsordre' })).toHaveAttribute(
-    'href',
-    '/P001/endringsordre/ny'
-  );
+  // Endringsordre hører ikke til første versjon (OV-U1); bare demoen har knappene.
+  expect(screen.queryByRole('link', { name: 'Ny endringsordre' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: 'Til godkjenning' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Entreprenør TE' }));
   expect(screen.getByRole('link', { name: 'Ny sak' })).toHaveAttribute('href', '/P001/ny');
   expect(screen.queryByRole('link', { name: 'Ny endringsordre' })).not.toBeInTheDocument();
