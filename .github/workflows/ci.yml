@@ -176,7 +176,8 @@ jobs:
       - name: Lenker i Markdown
         run: python3 docs/verktoy/lenkekontroll.py
 
-      # #950: ankrene for serveren kontrolleres uten base, som for kjernen over.
+      # #950: kontrollerer uten base at hvert anker for serveren finnes én gang og ikke er dødt
+      # i en senere migrasjon, men ikke testnavnene.
       - name: Ankrene i feilinnføringene for serveren
         run: python3 server/tester/feilinnfoering.py --ankre
 
