@@ -237,7 +237,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     // når medlemslisten ble hentet, som kalleren oppgir (DL-U7), når et
     // medlemskap ble gjort inaktivt, som er tomt for et aktivt medlemskap (DL-U8),
     // når innloggingens liste ble hentet, som kalleren oppgir (DL-U9), og når en
-    // sesjon eller et innloggingsforsøk utløper, som prosedyren regner ut (#656).
+    // sesjon eller et innloggingsforsøk utløper, som prosedyren regner ut (#656),
+    // og når HR-bildet ble hentet, som `koe_api.synkroniser_hr` setter for hele bildet (#831).
     const UTEN_STANDARD = [
       'koe.app_membership_absences.observed_at',
       'koe.app_membership_sync.synced_at',
@@ -245,6 +246,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
       'koe.app_project_memberships.deactivated_at',
       'koe.app_sessions.expires_at',
       'koe.hendelse.tidsstempel',
+      'koe.hr_kopi.hentet',
       'koe.jobb.lease_startet',
       'koe.jobb.lease_utloeper',
       'koe.jobbforsoek.avsluttet',

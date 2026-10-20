@@ -612,6 +612,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.skrivetidspunkt',
         'GRANT EXECUTE koe_api.slett_sesjon',
         'GRANT EXECUTE koe_api.slett_vedlegg',
+        'GRANT EXECUTE koe_api.stillingstitler',
+        'GRANT EXECUTE koe_api.synkroniser_hr',
         'GRANT EXECUTE koe_api.synkroniser_medlemskap',
         'GRANT EXECUTE koe_api.topicens_prosjekt',
         'GRANT EXECUTE koe_api.vedlegg_i_levering',
