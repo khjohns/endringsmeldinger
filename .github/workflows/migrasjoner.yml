@@ -1,0 +1,50 @@
+# #1057 del 1. Hva vakten kontrollerer, står i .github/scripts/migrasjonsvakt.py.
+#
+# Basen velges som i regelversjon.yml (#870): på en PR er BASE tuppen av
+# basegrenen når jobben kjører, og HEAD er PR-en flettet inn i den, så en ny
+# kjøring ser en migrasjon en annen PR har merget i mellomtiden. Ved hver push
+# til main er BASE tuppen før pushen, fordi GitHub ikke kjører PR-en på nytt når
+# basen flytter seg.
+
+name: Migrasjoner
+
+# Ikke på utkast (#390), som ci.yml.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migrasjoner-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  migrasjoner:
+    name: Merget migrasjon uendret og ny migrasjon sist
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Kontroller migrasjonene mot basen
+        env:
+          BASEGREN: ${{ github.base_ref }}
+          FOER_PUSH: ${{ github.event.before }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            BASE=$FOER_PUSH
+          else
+            BASE=$(git rev-parse "origin/$BASEGREN")
+            PR=$(git rev-parse HEAD^2)
+            git checkout -q --detach "$BASE"
+            git -c user.name=migrasjoner -c user.email=migrasjoner@localhost \
+              merge -q --no-edit "$PR" || { echo "::error::PR-en kan ikke flettes inn i $BASEGREN. Oppdater den mot $BASEGREN; feilen gjelder ikke migrasjonene."; exit 1; }
+          fi
+          echo "BASE=$BASE"
+          python3 .github/scripts/migrasjonsvakt.py "$BASE"
