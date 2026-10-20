@@ -7,13 +7,35 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 
-const { values: arg } = parseArgs({
-  options: {
-    url: { type: 'string', default: 'http://localhost:5173' },
-    utdata: { type: 'string', default: join(tmpdir(), 'mockup-skjermbilder') },
-    scenario: { type: 'string', default: 'scenario1' },
-  },
-});
+function ugyldig(melding) {
+  console.error(melding);
+  process.exit(1);
+}
+
+let arg;
+try {
+  ({ values: arg } = parseArgs({
+    options: {
+      url: { type: 'string', default: 'http://localhost:5173' },
+      utdata: { type: 'string', default: join(tmpdir(), 'mockup-skjermbilder') },
+      scenario: { type: 'string', default: 'scenario1' },
+      varsel: { type: 'string', default: 'i-tide' },
+      hindring: { type: 'string', default: 'ja' },
+      dager: { type: 'string', default: '30' },
+      tekst: { type: 'boolean', default: false },
+    },
+  }));
+} catch (e) {
+  ugyldig(`Flaggene kan ikke leses: ${e.message}`);
+}
+
+const varselSvar = { 'i-tide': /^Ja, i tide$/, 'for-sent': /^Nei, (for sent|prekludert)$/ };
+const hindringSvar = { ja: 'Ja, hindring', nei: 'Nei, ingen hindring' };
+if (!Object.hasOwn(varselSvar, arg.varsel))
+  ugyldig(`--varsel kan bare være i-tide eller for-sent, fikk «${arg.varsel}».`);
+if (!Object.hasOwn(hindringSvar, arg.hindring))
+  ugyldig(`--hindring kan bare være ja eller nei, fikk «${arg.hindring}».`);
+if (!/^\d+$/.test(arg.dager)) ugyldig(`--dager må være et helt tall fra 0, fikk «${arg.dager}».`);
 
 function globalPlaywright() {
   const rot = execFileSync('npm', ['root', '-g']).toString().trim();
@@ -83,10 +105,10 @@ try {
   await knapp('Byggherre BH').click();
   await page.getByRole('button', { name: /^Fristforlengelse/ }).click();
   await knapp('Svar på kravet').click();
-  for (const ja of await page.getByRole('radio', { name: 'Ja, i tide', exact: true }).all())
-    await ja.click();
-  await page.getByRole('radio', { name: 'Ja, hindring', exact: true }).click();
-  await page.locator('#bh-frist-godkjent-dager').fill('30');
+  for (const svar of await page.getByRole('radio', { name: varselSvar[arg.varsel] }).all())
+    await svar.click();
+  await page.getByRole('radio', { name: hindringSvar[arg.hindring], exact: true }).click();
+  await page.locator('#bh-frist-godkjent-dager').fill(arg.dager);
   await steg('vurdering');
 
   await knapp('Ferdigstill vurdering').click();
@@ -123,6 +145,10 @@ try {
     if (!fant) throw new Error('Ingen i «Demo · vis som» kan godkjenne, og svaret er ikke sendt');
   }
   await steg('sendt');
+  if (arg.tekst) {
+    console.log(`\nBrevtekst:\n${await page.locator('article.letter-paper').innerText()}`);
+    console.log(`\nSpor:\n${(await page.locator('.row-status').allInnerTexts()).join('\n')}`);
+  }
   if (feil.length) throw new Error(`JavaScript-feil i siden:\n${feil.join('\n')}`);
   console.log('OK: svaret er sendt.');
 } finally {
