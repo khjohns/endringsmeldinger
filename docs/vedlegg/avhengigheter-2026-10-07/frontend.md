@@ -266,7 +266,7 @@ statiske ruter og produksjonsbygg før majorbyttet godkjennes.
 
 ### TanStack Query: behold nå, sammenlikn én eier av data i prototypen
 
-Bruken er liten og konkret: [caseContext](../../../src/lib/queries/caseContext.ts),
+Bruken er liten og konkret: [caseContext](https://github.com/khjohns/endringsmeldinger/blob/797c4bcc4fd0fa1d6ad6bfb1b8a88a77875bc7d0/src/lib/queries/caseContext.ts),
 [caseList](../../../src/lib/queries/caseList.ts), QueryClientProvider i
 prosjektlayout og invalidateQueries etter ny EO. Sakskonteksten keys på sak og
 prosjekt. `createCaseWorkspace` har egne regler for versjonsmonotoni og «lagret,
