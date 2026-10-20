@@ -60,7 +60,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
       grunnlag_varslet_i_tide: ready.data.grunnlag_varslet_i_tide as boolean | undefined,
     };
   });
-  // En spredning ville mistet getterne som kaster for en TS-sak (#732).
+  // Uten et ferdig grunnlag i godkjenningen leses saken selv, med getterne som kaster for en TS-sak (#732).
   const effectiveCase = $derived(
     effectiveGrunnlag === store.sak.grunnlag
       ? store.sak
@@ -105,7 +105,7 @@ export function createApprovalWorkspace(store: CaseWorkspace) {
     get chain() {
       return chain;
     },
-    /** The handler's own identity and matrix role in the demo; `null` outside it */
+    /** Saksbehandlerens identitet og rolle i matrisen i demoen; `null` ellers */
     get sender() {
       return sender;
     },
