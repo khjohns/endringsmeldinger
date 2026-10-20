@@ -125,7 +125,11 @@ prøver igjen, og kalleren får `TransientError` framfor det ruta oversetter til
 `supabase_migrations.schema_migrations.statements` lagrer rågteksten, kommentarer
 og alt, og summen i `koe_migrering.historikk` gjelder hele fila. Retter du et ord i en fil som er kjørt, er fila ikke lenger det basen
 gjorde. Har innholdet blitt feil, skriv en ny migrasjon eller en datert merknad i
-`docs/` — ikke rediger historikken.
+`docs/` — ikke rediger historikken. CI-jobben `Migrasjoner`
+(`.github/scripts/migrasjonsvakt.py`) feiler når en PR eller en push til `main`
+endrer, fjerner eller omdøper en merget fil i en av de to mappene, eller legger
+en ny fil foran en merget (#1057). En migrasjon som endrer rader som alt finnes,
+prøves med data i `server/tester/oppgradering.test.ts`.
 
 **Repoet og en delt base skal ikke drive fra hverandre.** Anvendes en migrasjon
 mot en delt base, sier fila hvor og som hvilken versjon. Det har skjedd i begge
