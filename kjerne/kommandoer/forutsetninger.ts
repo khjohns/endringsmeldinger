@@ -101,7 +101,7 @@ function hvorforAvgjort(u: Utledning): string {
         : `partene er enige om svaret på kravet om ${KRAVET[n]}`
   );
   const hva = kraveneErAvgjort(u)
-    ? 'Kravene i saken er avgjort'
+    ? 'Alle krav sendt i appen er avgjort'
     : 'Kravene som var sendt, ble avgjort';
   return `${hva}: ${[grunnlag, krav.join(' og ')].filter(Boolean).join(', ')}.`;
 }

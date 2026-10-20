@@ -2292,7 +2292,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
       regel: 'KRAVENE_AVGJORT',
       melding:
-        'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og TE krever ikke fristforlengelse.',
+        'Alle krav sendt i appen er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og TE krever ikke fristforlengelse.',
     });
   });
 
@@ -2338,7 +2338,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     s.send('TE', FRISTKRAV);
     s.send('TE', { type: 'trekk', spor: 'frist' });
     expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })?.melding).toBe(
-      'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
+      'Alle krav sendt i appen er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
     );
   });
 
@@ -2362,7 +2362,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(s.avvisning('TE', FRISTKRAV)).toEqual({
       regel: 'KRAVENE_AVGJORT',
       melding:
-        'Kravene i saken er avgjort: byggherren har frafalt pålegget, TE krever ikke justering av vederlaget og TE krever ikke fristforlengelse.',
+        'Alle krav sendt i appen er avgjort: byggherren har frafalt pålegget, TE krever ikke justering av vederlaget og TE krever ikke fristforlengelse.',
     });
   });
 });
