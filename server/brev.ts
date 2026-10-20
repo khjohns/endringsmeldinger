@@ -65,12 +65,8 @@ export const BREVRUTER: readonly Saksrute[] = [
     metode: 'GET',
     sti: new RegExp('^/api/kjerne/saker/([^/]+)/brev/([^/]+)$'),
     eksempel: (s) => `/api/kjerne/saker/${s}/brev/00000000-0000-4000-8000-000000000000`,
-    tilgang: {
-      prosjektrolle: 'viewer',
-      kontraktsrolle: {
-        ikke: 'Lesing: brevet er en del av saken, og den som kan lese saken med `GET /api/kjerne/saker/<sak>`, kan laste ned brevet som PDF.',
-      },
-    },
+    // Lesing som saken (DL-U15): et team for TE eller BH, eller leserolle.
+    tilgang: { prosjektrolle: 'viewer', kontraktsrolle: 'lesing' },
     behandle: lastNedBrev,
   },
 ];

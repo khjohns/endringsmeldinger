@@ -1,9 +1,7 @@
 /**
  * Nedlastingen av et sendt brev som PDF (#1054) mot testbasen. Krever
  * `KOE_SQLSERVER_TILKOBLING`. Tilgangen for hver inngang (sesjon, prosjekt, saken i et
- * annet prosjekt, kontraktsrollen) prøves i `register.test.ts`. Lesingen går under
- * radsikkerheten med prosjektet i konteksten, så et brev i en annen sak eller et annet
- * prosjekt finnes ikke her.
+ * annet prosjekt, kontraktsrollen) prøves i `register.test.ts`.
  *
  * Kildene: bare et sendt brev kan lastes ned (oppdragsgiver 20.10, #1054), PDF-en
  * gjengir den låste brevteksten tro (LV-U2), og et registrert brev har ikke noe
@@ -14,8 +12,6 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
-import type { Avhengigheter, Forespoersel } from '../app.ts';
-import { BREVRUTER } from '../brev.ts';
 import { lesBrevPdf } from '../brevpdf.ts';
 import { lesSaken } from '../lager.ts';
 import { dokumentnavn } from '../levering.ts';
@@ -83,21 +79,16 @@ describe.skipIf(!TESTBASE_URL)('nedlasting av et sendt brev som PDF', () => {
 
   const lest = () =>
     lesSaken(o.datalag.kjoeretid.pool, { aktor: o.te.id, prosjekt: o.prosjekt.id }, sak);
-  /**
-   * Behandleren med aktøren og prosjektet fra sesjonen. Ruta står ikke i `RUTER` før
-   * #1070 er merget, så tilgangen foran behandleren prøves der, i `register.test.ts`.
-   */
   const lastNed = async (bruker: Testbruker, eventId: string, sakId = sak) => {
-    const [status, kropp, hoder = {}] = await BREVRUTER[0]!.behandle(
-      {
-        bruker: { id: bruker.id },
-        prosjekt: { prosjektId: o.prosjekt.id },
-        sakId,
-        ressurs: eventId,
-      } as Forespoersel,
-      { datalag: o.datalag.kjoeretid.pool } as Required<Avhengigheter>
-    );
-    return { status, kropp, hoder: hoder as Record<string, string> };
+    const svar = await fetch(`${server.url}/api/kjerne/saker/${sakId}/brev/${eventId}`, {
+      headers: { Cookie: `__Host-koe_session=${bruker.token}`, 'X-Project-ID': o.prosjekt.id },
+    });
+    const pdf = svar.headers.get('content-type') === 'application/pdf';
+    return {
+      status: svar.status,
+      kropp: pdf ? Buffer.from(await svar.arrayBuffer()) : await svar.json(),
+      hoder: Object.fromEntries(svar.headers),
+    };
   };
 
   it('TE og BH laster ned det sendte kravet som PDF med den låste brevteksten og navnet fra Catenda', async () => {
@@ -144,10 +135,10 @@ describe.skipIf(!TESTBASE_URL)('nedlasting av et sendt brev som PDF', () => {
     }
   });
 
-  it('en sak i et annet prosjekt finnes ikke under radsikkerheten og gir 404', async () => {
+  it('et brev i en sak i et annet prosjekt gir 403 før PDF-en lages', async () => {
     const utenfor = await opprettKjernesak(o, o.annetProsjekt);
     const svar = await lastNed(o.te, randomUUID(), utenfor);
-    expect(svar.status).toBe(404);
-    expect((svar.kropp as { error: string }).error).toBe('SAK_FINNES_IKKE');
+    expect(svar.status).toBe(403);
+    expect((svar.kropp as { error: string }).error).toBe('FORBIDDEN');
   });
 });
