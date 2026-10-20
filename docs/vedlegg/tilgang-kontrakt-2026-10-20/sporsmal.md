@@ -54,7 +54,7 @@ entreprisekontrakt? Anbefaling: A.
   for hver kontrakt. Endrer B-02 for lesing av saker og brev, og utvider B-02
   punkt 4. Gjelder lesing i appen; i Catenda styrer mappen (LV-U13).
 
-**Svar:** ikke stilt.
+**Svar (oppdragsgiver 20.10, med spørsmålsverktøyet):** «A. Én kontrakt per prosjekt (anbefalt)»
 
 ## 2. Hvem som leser sakene
 
@@ -82,4 +82,4 @@ lese sakene? Anbefaling: A.
   kan lese sakene og brevene, men ikke vedleggene, som i dag. Hvem som er med i
   Catenda-prosjektet, styres i Catenda. B-02 og vedtaket 18.09 står.
 
-**Svar:** ikke stilt.
+**Svar (oppdragsgiver 20.10, med spørsmålsverktøyet):** «A. Bare kontraktspartene (anbefalt)»
