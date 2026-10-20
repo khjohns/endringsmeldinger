@@ -992,6 +992,35 @@
      }
     ]
    },
+   "koe.hr_kopi": {
+    "kolonner": [
+     ["bruker_id", "uniqueidentifier", "NOT NULL"],
+     ["tenant_id", "uniqueidentifier", "NOT NULL"],
+     ["oid", "uniqueidentifier", "NOT NULL"],
+     ["rolle", "nvarchar(100)", "NULL"],
+     ["leder_oid", "uniqueidentifier", "NULL"],
+     ["hentet", "datetime2(3)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["bruker_id"],
+    "unike": [
+     ["tenant_id", "oid"]
+    ],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["bruker_id"],
+      "til": "koe.app_users",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     },
+     {
+      "kolonner": ["rolle"],
+      "til": "koe.rolle",
+      "til_kolonner": ["rolle"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.innkommende_behandling": {
     "kolonner": [
      ["innkommende_hendelse_id", "bigint", "NOT NULL"],
@@ -1288,6 +1317,16 @@
      }
     ]
    },
+   "koe.rolle": {
+    "kolonner": [
+     ["rolle", "nvarchar(100)", "NOT NULL"],
+     ["grense", "decimal(15,2)", "NULL"]
+    ],
+    "primærnøkkel": ["rolle"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": []
+   },
    "koe.sak_catenda_topic": {
     "kolonner": [
      ["sak_id", "nvarchar(36)", "NOT NULL"],
@@ -1348,6 +1387,24 @@
     "unike": [],
     "unike_indekser": [],
     "fremmednøkler": []
+   },
+   "koe.stillingstittel": {
+    "kolonner": [
+     ["stillingstittel", "nvarchar(200)", "NOT NULL"],
+     ["noekkel", "binary(32)", "NOT NULL"],
+     ["rolle", "nvarchar(100)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["noekkel"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["rolle"],
+      "til": "koe.rolle",
+      "til_kolonner": ["rolle"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
    },
    "koe.toemmingsvern": {
     "kolonner": [
