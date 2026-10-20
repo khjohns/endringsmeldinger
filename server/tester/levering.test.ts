@@ -70,10 +70,24 @@ class FalskCatenda implements Dokumentleverandoer {
     this.foer.finnDokument?.();
     return this.bibliotek.get(navn)?.id ?? null;
   }
+  /**
+   * Som `forespoersel`: en endring Catenda avviser (`CatendaAvvisning`, også 409 for et navn
+   * som finnes), setter ikke flagget.
+   */
+  private endring(foer?: () => void, avvist = false) {
+    try {
+      foer?.();
+    } catch (feil) {
+      if (!(feil instanceof CatendaAvvisning)) merkEndring();
+      throw feil;
+    }
+    if (!avvist) merkEndring();
+  }
+
   async lastOppDokument(maal: Dokumentmaal, dokument: Brevdokument) {
-    merkEndring();
-    this.foer.lastOppDokument?.();
-    if (this.bibliotek.has(dokument.navn)) return null;
+    const finnes = this.bibliotek.has(dokument.navn);
+    this.endring(this.foer.lastOppDokument, finnes);
+    if (finnes) return null;
     this.opplastinger++;
     const id = this.nyDokumentId();
     this.bibliotek.set(dokument.navn, {
@@ -92,8 +106,7 @@ class FalskCatenda implements Dokumentleverandoer {
     }));
   }
   async opprettDokumentreferanse(_board: string, topic: string, dokumentId: string) {
-    merkEndring();
-    this.foer.opprettDokumentreferanse?.();
+    this.endring(this.foer.opprettDokumentreferanse);
     this.nyeReferanser++;
     const id = randomUUID();
     this.referanser.set(topic, [...(this.referanser.get(topic) ?? []), { id, dokumentId }]);
@@ -393,7 +406,8 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect((await kvitteringene(sakId))[0]).toMatchObject({ catenda_id: 'finnes1234' });
   });
 
-  it('L5: en varig avvisning fra Catenda parkerer leveringen som avvist (#778)', async () => {
+  // Kilde: oppdragsgiver 19.10 og 20.10 (#764, #921): avvist når Catenda ikke er endret.
+  it('L5: en varig avvisning fra Catenda av den første endringen parkerer leveringen som avvist (#778)', async () => {
     const sakId = await sakMedBrev();
     catenda.foer.lastOppDokument = () => {
       throw new CatendaAvvisning(404);
@@ -405,9 +419,35 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     ]);
   });
 
-  // Kilde: oppdragsgiver 19.10 (#764): en referanse uten dokument er et varig avvik, og
-  // jobben parkeres som avvist uten nytt forsøk.
-  it('L5: en referanse på topicen uten dokument parkerer leveringen som avvist (#876)', async () => {
+  // Kilde: oppdragsgiver 20.10 (#921): en avvisning etter at brevet er lastet opp, parkeres
+  // som usikker, fordi Catenda er endret.
+  it('L5: en varig avvisning av referansen etter opplastingen parkerer leveringen som usikker (#921)', async () => {
+    const sakId = await sakMedBrev();
+    catenda.foer.opprettDokumentreferanse = () => {
+      throw new CatendaAvvisning(404);
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+    expect(await forsoekene(sakId)).toEqual([
+      ['usikkert', 'Catenda avviste forespørselen med status 404'],
+    ]);
+  });
+
+  // Kilde: oppdragsgiver 19.10 (#764): et varig avvik før noe er sendt, parkeres som avvist
+  // uten nytt forsøk. To dokumenter med samme navn er et varig avvik (#895-6).
+  it('L5: et varig avvik i biblioteket før opplastingen parkerer leveringen som avvist (#876)', async () => {
+    const sakId = await sakMedBrev();
+    catenda.foer.finnDokument = () => {
+      throw new VarigCatendaavvik('Flere dokumenter har samme navn');
+    };
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+    expect(await forsoekene(sakId)).toEqual([['avvist', 'Flere dokumenter har samme navn']]);
+  });
+
+  // Kilde: oppdragsgiver 20.10 (#921), som leser svaret 19.10 (#764) for tilfellet før noe er
+  // sendt: en referanse uten dokument etter at brevet er lastet opp, parkeres som usikker.
+  it('L5: en referanse på topicen uten dokument etter opplastingen parkerer leveringen som usikker (#876, #921)', async () => {
     const sakId = await sakMedBrev();
     catenda.foer.dokumentreferanser = () => {
       throw new VarigCatendaavvik(
@@ -417,7 +457,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect(await kjoer()).toBe(true);
     expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
     expect(await forsoekene(sakId)).toEqual([
-      ['avvist', 'Referansen nr. 1 på topicen viser verken til et dokument eller en lenke'],
+      ['usikkert', 'Referansen nr. 1 på topicen viser verken til et dokument eller en lenke'],
     ]);
   });
 
@@ -988,7 +1028,7 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     vedlegg_id: id,
     filnavn: 'a.pdf',
     finnes: true,
-    dokument_id: `dokument-${id}`,
+    dokument_id: `dokument-${id}` as string | null,
     referanse_id: null,
   });
 
@@ -1048,6 +1088,8 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
             if (prosedyre === 'koe_api.registrer_jobbfeil') registrert.push(parametre);
             if (prosedyre === feiler?.prosedyre && (feiler.ganger ?? Infinity) > feilet++)
               throw Object.assign(new sql.RequestError('fra basen'), feiler.feil);
+            if (prosedyre === 'koe_api.vedleggsinnhold')
+              return { recordset: [{ innhold: Buffer.from('vedlegg') }] };
             return { recordset: [] };
           },
         };
@@ -1223,6 +1265,112 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+  // Kilde: #926. Fornyelsen gir 54001 når leasen ikke gjelder, og da gjør forsøket ingen
+  // endring i Catenda etter det. En annen feil i fornyelsen stopper ikke leveringen.
+  it.each<[string, number, 'dokumentreferanser' | 'finnDokument', string[], string[]]>([
+    [
+      'en tapt lease (54001) stopper leveringen før referansen opprettes',
+      54001,
+      'dokumentreferanser',
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease'],
+      [],
+    ],
+    [
+      'en tapt lease (54001) stopper leveringen før innholdet leses og vedlegget lastes opp',
+      54001,
+      'finnDokument',
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease'],
+      [],
+    ],
+    [
+      'en vranglås i fornyelsen (1205) stopper ikke leveringen',
+      1205,
+      'dokumentreferanser',
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'kvitter_vedlegg', 'kvitter_levering'],
+      ['dokument-v1'],
+    ],
+    [
+      'en vranglås i fornyelsen (1205) stopper ikke opplastingen av vedlegget',
+      1205,
+      'finnDokument',
+      [
+        'hent_jobb',
+        'vedlegg_i_levering',
+        'forny_lease',
+        'vedleggsinnhold',
+        'kvitter_vedlegg',
+        'kvitter_vedlegg',
+        'kvitter_levering',
+      ],
+      ['opplasting', 'dokument-v1'],
+    ],
+  ])('%s', async (_n, nummer, venterI, kallene, endret) => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    try {
+      let slipp!: () => void;
+      let venter!: () => void;
+      const steget = new Promise<void>((ok) => (venter = ok));
+      const opprettet: string[] = [];
+      const base = falskBase(
+        'levering',
+        { prosedyre: 'koe_api.forny_lease', feil: { number: nummer } },
+        {
+          vedlegg: [
+            venterI === 'finnDokument' ? { ...vedlegg('v1'), dokument_id: null } : vedlegg('v1'),
+          ],
+          dokumenter: {
+            [venterI]: () => {
+              venter();
+              return new Promise(
+                (ok) => (slipp = () => ok(venterI === 'finnDokument' ? null : []))
+              );
+            },
+            lastOppDokument: async () => {
+              opprettet.push('opplasting');
+              return 'dokument-v1';
+            },
+            opprettDokumentreferanse: async (_b, _t, dokumentId) => {
+              opprettet.push(dokumentId);
+              return 'referanse';
+            },
+          },
+        }
+      );
+      const kjoering = base.kjoer();
+      await steget;
+      vi.advanceTimersByTime((LEASETID_S * 1000) / 3);
+      await new Promise((ok) => setImmediate(ok));
+      slipp();
+      expect(await kjoering).toBe(true);
+      expect(prosedyrene(base)).toEqual(kallene);
+      expect(opprettet).toEqual(endret);
+      expect(base.registrert).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  // Kilde: #926. Basen avviser lesingen med leasen (54001) når leasen er tapt etter
+  // kontrollen, og da stopper forsøket uten registrering, som ved en tapt lease i fornyelsen.
+  it('en tapt lease når innholdet til vedlegget leses (54001), stopper leveringen før opplastingen', async () => {
+    const opplastet: string[] = [];
+    const base = falskBase(
+      'levering',
+      { prosedyre: 'koe_api.vedleggsinnhold', feil: { number: 54001 } },
+      {
+        vedlegg: [{ ...vedlegg('v1'), dokument_id: null }],
+        dokumenter: {
+          lastOppDokument: async (_m, dokument) => {
+            opplastet.push(dokument.navn);
+            return 'dokument-v1';
+          },
+        },
+      }
+    );
+    expect(await base.kjoer()).toBe(true);
+    expect(opplastet).toEqual([]);
+    expect(prosedyrene(base)).toEqual(['hent_jobb', 'vedlegg_i_levering', 'vedleggsinnhold']);
+    expect(base.registrert).toEqual([]);
   });
 });
 

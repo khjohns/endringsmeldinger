@@ -111,7 +111,7 @@ FEILINNFOERINGER = [
      "let dokumentId = jobb.dokument_id;", "let dokumentId: string | null = null;",
      "laster ikke opp dokumentet på nytt"),
     ("S25", "referansen lages uten avstemming mot topicen (B-03)", "server/jobber.ts",
-     "funnet?.id ?? (await catenda.opprettDokumentreferanse", "(await catenda.opprettDokumentreferanse",
+     "if (funnet) return funnet.id;", "if (false) return funnet!.id;",
      "lager ingen referanse til"),
     ("S26", "opplastingen tillater et dokument som finnes (B-03)", "server/catenda.ts",
      "failOnDocumentExists: true,", "failOnDocumentExists: false,",

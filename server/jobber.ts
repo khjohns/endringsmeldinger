@@ -89,11 +89,16 @@ export interface Jobbavhengigheter {
   logg?: Pick<Console, 'info' | 'warn' | 'error'>;
 }
 
-/** Jobben kan ikke gjøres av denne kjøreren, uten at noe er prøvd i Catenda. */
+/** Jobben kan ikke gjøres av denne kjøreren. Forsøket kan ha bedt Catenda om endringer før. */
 class UgjennomfoerbarJobb extends Error {}
 
 /** En kvittering som ble avvist etter at endringen i Catenda er gjort. */
 class AvvistKvittering extends Error {}
+
+/** Fornyelsen fant at leasen ikke gjelder lenger (54001), så forsøket skriver ikke mer (#926). */
+class TaptLease extends Error {}
+
+const LEASEN_GJELDER_IKKE = 54001;
 
 type Utfall = 'feilet' | 'usikkert' | 'avvist';
 
@@ -141,8 +146,9 @@ function forbigaaendeISql(feil: unknown): boolean {
  * forsøk som `avstemmes`: der finner neste forsøk det som ble laget, og jobben prøves igjen
  * (#876 punkt 4). En annen feil går ikke over av seg selv og parkeres (#783 punkt 2): som
  * avvist når forsøket ikke har bedt Catenda om noen endring, ellers som usikker, fordi den
- * kan komme etter en endring i Catenda (#813 punkt 5). Et varig avvik i Catenda parkeres
- * som avvist (#876).
+ * kan komme etter en endring i Catenda (#813 punkt 5). Det samme gjelder et varig avvik
+ * eller en avvisning fra Catenda og en jobb som ikke kan gjøres (#876, #921): avvist bare
+ * når Catenda ikke er endret (oppdragsgiver 19.10 og 20.10).
  */
 function utfallAv(
   feil: unknown,
@@ -156,13 +162,6 @@ function utfallAv(
   const melding = kjent ? feil.message : 'Uventet feil i jobben';
   if (feil instanceof UsikkertCatendautfall)
     return { utfall: avstemmes ? 'feilet' : 'usikkert', melding };
-  if (
-    feil instanceof CatendaAvvisning ||
-    feil instanceof VarigCatendaavvik ||
-    feil instanceof UgjennomfoerbarJobb ||
-    feil instanceof UgjengivbartBrev
-  )
-    return { utfall: 'avvist', melding };
   if (forbigaaende(feil)) return { utfall: 'feilet', melding };
   return { utfall: endringBedt ? 'usikkert' : 'avvist', melding };
 }
@@ -180,26 +179,28 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   if (!jobb) return false;
 
   const lease = () => utenKontekst(avh.datalag).input('lease', sql.UniqueIdentifier, jobb.lease);
-  // Grenen for jobbtypen setter den når neste forsøk avstemmes mot Catenda (`lever`).
-  let avstemmes = false;
-  const kvitter: Kvitter = async (prosedyre, parametre) => {
-    try {
-      const foresp = lease();
-      for (const [navn, [type, verdi]] of Object.entries(parametre))
-        foresp.input(navn, type, verdi);
-      await foresp.execute(prosedyre);
-    } catch (feil) {
-      // Et forsøk som avstemmes, prøves igjen som `feilet`.
-      if (avstemmes && forbigaaendeISql(feil)) throw feil;
-      // Endringen finnes i Catenda uten kvittering; neste henting parkerer jobben som usikker.
-      const verdier = Object.entries(parametre).map(([navn, [, verdi]]) => `${navn}=${verdi}`);
-      logg.error(
-        `Jobben ${jobb.jobb_id} fikk ${verdier.join(', ')} fra Catenda, men kvitteringen ble avvist:`,
-        feil
-      );
-      throw new AvvistKvittering('Kvitteringen ble avvist', { cause: feil });
-    }
-  };
+  // Neste forsøk av en levering avstemmes mot Catenda (`lever`); en topic gjør ikke det.
+  const avstemmes = jobb.jobbtype === 'levering';
+  /** Kalleren sier om steget avstemmes, og da prøves en forbigående feil igjen som `feilet`. */
+  const kvittering =
+    (stegetAvstemmes: boolean): Kvitter =>
+    async (prosedyre, parametre) => {
+      try {
+        const foresp = lease();
+        for (const [navn, [type, verdi]] of Object.entries(parametre))
+          foresp.input(navn, type, verdi);
+        await foresp.execute(prosedyre);
+      } catch (feil) {
+        if (stegetAvstemmes && forbigaaendeISql(feil)) throw feil;
+        // Endringen finnes i Catenda uten kvittering; neste henting parkerer jobben som usikker.
+        const verdier = Object.entries(parametre).map(([navn, [, verdi]]) => `${navn}=${verdi}`);
+        logg.error(
+          `Jobben ${jobb.jobb_id} fikk ${verdier.join(', ')} fra Catenda, men kvitteringen ble avvist:`,
+          feil
+        );
+        throw new AvvistKvittering('Kvitteringen ble avvist', { cause: feil });
+      }
+    };
   const flagg = { endringBedt: false };
 
   try {
@@ -212,10 +213,12 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       );
       // Samme form som topicene fra webhooken, så den unike begrensningen gjelder begge (#819).
       const topicId = uuidMedBindestreker(topic) ?? topic;
-      await kvitter('koe_api.kvitter_topic', { topic_id: [sql.NVarChar(100), topicId] });
+      await kvittering(false)('koe_api.kvitter_topic', {
+        topic_id: [sql.NVarChar(100), topicId],
+      });
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topicId} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
-      avstemmes = true;
+      let leasenTapt = false;
       const brevPdf = async (pdf: Uint8Array | null) => {
         const lagret = await lease()
           .input('pdf', sql.VarBinary(sql.MAX), pdf && Buffer.from(pdf))
@@ -236,13 +239,19 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
           const rad = svar.recordset[0];
           return rad ? new Uint8Array(rad.innhold) : null;
         },
-        kvitter,
+        kvitter: kvittering(true),
+        foerEndring() {
+          if (leasenTapt) throw new TaptLease('Leasen gjelder ikke lenger');
+        },
       };
       const fornyelse = setInterval(() => {
         lease()
           .input('leasetid_sekunder', sql.Int, LEASETID_S)
           .execute('koe_api.forny_lease')
-          .catch((feil) => logg.warn(`Jobben ${jobb.jobb_id} fikk ikke fornyet leasen:`, feil));
+          .catch((feil) => {
+            if (feilnummer(feil) === LEASEN_GJELDER_IKKE) leasenTapt = true;
+            logg.warn(`Jobben ${jobb.jobb_id} fikk ikke fornyet leasen:`, feil);
+          });
       }, FORNYELSE_MS);
       try {
         await medEndringsflagg(flagg, () => lever(avh.dokumenter, jobb, lager));
@@ -255,6 +264,14 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     }
   } catch (feil) {
     if (feil instanceof AvvistKvittering) throw feil.cause;
+    if (feil instanceof TaptLease || feilnummer(feil) === LEASEN_GJELDER_IKKE) {
+      // Uten lease kan ikke forsøket registreres; `hent_jobb` avgjør jobben når leasen er ute.
+      logg.error(
+        `Jobben ${jobb.jobb_id} mistet leasen og stoppet før neste endring i Catenda:`,
+        feil
+      );
+      return true;
+    }
     const { utfall, melding } = utfallAv(feil, flagg.endringBedt, avstemmes);
     if (feil instanceof CatendaOppsettfeil)
       logg.error(`Jobben ${jobb.jobb_id} venter på at driften retter oppsettet mot Catenda:`, feil);
@@ -389,6 +406,8 @@ interface Leveringslager {
   /** `null` når innholdet er slettet etter kvitteringen (LV-U12). */
   vedleggsinnhold: (vedleggId: string) => Promise<Uint8Array | null>;
   kvitter: Kvitter;
+  /** Kaster når leasen ikke gjelder lenger, før hver endring i Catenda. */
+  foerEndring: () => void;
 }
 
 /**
@@ -413,12 +432,19 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
     referanser ??= await catenda.dokumentreferanser(board, topic);
     const id = sammenlignbarDokumentId(dokumentId);
     const funnet = referanser.find((r) => r.dokumentId === id);
-    return funnet?.id ?? (await catenda.opprettDokumentreferanse(board, topic, dokumentId));
+    if (funnet) return funnet.id;
+    lager.foerEndring();
+    return catenda.opprettDokumentreferanse(board, topic, dokumentId);
   };
   const dokument = async (navn: string, innhold: () => Promise<Uint8Array>) => {
+    // Innholdet leses med leasen, så basen gir 54001 når leasen er tapt etter kontrollen.
+    const lastOpp = async () => {
+      lager.foerEndring();
+      return catenda.lastOppDokument(maal, { navn, innhold: await innhold() });
+    };
     const id =
       (await catenda.finnDokument(maal, navn)) ??
-      (await catenda.lastOppDokument(maal, { navn, innhold: await innhold() })) ??
+      (await lastOpp()) ??
       (await catenda.finnDokument(maal, navn));
     if (!id) throw new CatendaUtilgjengelig('Dokumentet finnes, men ble ikke funnet');
     return id;

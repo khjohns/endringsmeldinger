@@ -570,15 +570,17 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(m.raa).toBe('Brevet æøå');
   });
 
-  it('et navn med tegn over U+007F sendes som \\uXXXX i Bimsync-Params og leses tilbake uendret (#903)', async () => {
+  // Kilde: #903, og #921 for DEL (U+007F), som `fetch` avviser i et hode.
+  it('et navn med tegn fra U+007F sendes som \\uXXXX i Bimsync-Params og leses tilbake uendret (#903)', async () => {
     svar = () => ({ status: 201, json: [{ id: 'abc123' }] });
-    const navn = 'vedlegg-Łódź-æøå-😀.pdf';
+    const navn = 'vedlegg-Łódź-æøå-😀-\x7f.pdf';
     expect(
       await new CatendaOAuth(oppsett()).lastOppDokument(maal, { ...dokument, navn }, 'i')
     ).toBe('abc123');
     const hode = String(mottatt[0].hoder['bimsync-params']);
     expect(hode).toMatch(/^[\x20-\x7e]+$/);
     expect(hode).toContain('\\u0141\\u00f3d\\u017a');
+    expect(hode).toContain('\\u007f');
     expect(JSON.parse(hode)).toMatchObject({ name: navn, document: { filename: navn } });
   });
 
@@ -724,6 +726,22 @@ describe('brevet som dokument med referansen på topicen (#371)', () => {
     expect(await new CatendaOAuth(oppsett()).dokumentreferanser(BOARD, 'topic-1', 'i')).toEqual([
       { id: 'r2', dokumentId: 'dok-1' },
     ]);
+  });
+
+  // Kilde: oppdragsgiver 20.10 (#921): avvist bare når Catenda ikke er endret, så en
+  // endring Catenda avviser, setter ikke flagget, og et flagg fra før står.
+  it.each<[string, boolean, boolean]>([
+    ['den eneste endringen i forsøket', false, false],
+    ['en endring etter en tidligere endring i forsøket', true, true],
+  ])('en avvisning (400) av %s gir flagget %s etter forespørselen', async (_n, foer, etter) => {
+    svar = () => ({ status: 400, json: {} });
+    const flagg = { endringBedt: foer };
+    await expect(
+      medEndringsflagg(flagg, () =>
+        new CatendaOAuth(oppsett()).lastOppDokument(maal, dokument, 'i')
+      )
+    ).rejects.toBeInstanceOf(CatendaAvvisning);
+    expect(flagg.endringBedt).toBe(etter);
   });
 
   it('flagget for endring settes før en opplasting eller en ny referanse, ikke ved en lesing (#876)', async () => {
