@@ -121,13 +121,16 @@
   const kjerneskjema = $derived(Boolean(kjernesak?.teSkjema(sel)));
   // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
   // ikke kjernen nødvendigvis det samme, men skjemaet skal fullføre sendingen (#737 p4).
-  // Mens brevet kontrolleres eller sendes, kan visningen ikke bytte spor, så innholdet
-  // ikke går tapt og ActionBar hører til skjemaet (#877).
+  // Mens brevet kontrolleres eller sendes, står skjemaet også når visningen bytter spor
+  // (#872), og venstrekolonnen kan ikke bytte, så innholdet ikke går tapt (#877).
+  // `goRead` og `selectTrack` lukker skjemaet med det samme, uten etterslep fra effekten.
   let kjerneskjemaSpor = $state<SporKey | null>(null);
+  const brevetSendes = $derived(Boolean(kravkontroll?.letter || kravkontroll?.sender));
   $effect(() => {
     if (mode === 'form' && kjerneskjema) kjerneskjemaSpor = sel;
+    else if ((mode !== 'form' || sel !== kjerneskjemaSpor) && !brevetSendes)
+      kjerneskjemaSpor = null;
   });
-  const brevetSendes = $derived(Boolean(kravkontroll?.letter || kravkontroll?.sender));
   const visKjerneskjema = $derived.by(
     () => (mode === 'form' && kjerneskjema) || kjerneskjemaSpor !== null
   );
