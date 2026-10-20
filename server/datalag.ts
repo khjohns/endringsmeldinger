@@ -132,7 +132,7 @@ export interface Forbindelse {
   hasError?: boolean;
 }
 
-interface Utlaan {
+export interface Utlaan {
   acquire(requester: unknown): Promise<Forbindelse>;
   release(forbindelse: Forbindelse): void;
 }
@@ -249,7 +249,7 @@ async function kontrollerRen(forelder: sql.ConnectionPool): Promise<void> {
  * Lukker forbindelsen og gir den til poolen, som forkaster den ved valideringen.
  * En feil her erstatter ikke svaret eller feilen fra transaksjonen; den logges.
  */
-function forkast(pool: Pool, forbindelse: Forbindelse): void {
+export function forkast(pool: Pool, forbindelse: Forbindelse): void {
   forbindelse.hasError = true;
   for (const steg of [
     () => forbindelse.close(),

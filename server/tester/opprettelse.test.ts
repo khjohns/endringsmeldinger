@@ -12,37 +12,26 @@
 
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
-import { KJERNE } from '../../kjerne/versjon.ts';
 import { catendaId } from '../autorisasjon.ts';
 import { UgyldigKontekst } from '../datalag.ts';
-import { lesSaken } from '../lager.ts';
 import { sql } from './sqlserver.ts';
 import { avvisning, iTransaksjon, settInn } from './sqlserver_migrert.ts';
 import {
+  GRUNNLAGSKRAV,
   kall,
+  type KjorendeServer,
   lagOppsett,
+  medLaastTekst,
+  type Oppsett,
   rydd,
+  sendKommando,
   startServer,
   TESTBASE_URL,
-  type KjorendeServer,
-  type Oppsett,
   type Testbruker,
 } from './testbase.ts';
 
 const SAKER = '/api/kjerne/saker';
 const OPPRETT = { type: 'opprett_sak', sakstittel: 'Endret fundamentering' };
-const GRUNNLAGSKRAV = {
-  type: 'krav',
-  spor: 'grunnlag',
-  innhold: {
-    hovedkategori: 'endring',
-    underkategori: 'irregulaer_endring',
-    tittel: 'Endret fundamentering',
-    paalegg_mottatt: '2026-10-01',
-  },
-  utdypning: 'Byggherren har pålagt en annen fundamentering.',
-};
 
 const VEDERLAGSKRAV = {
   type: 'krav',
@@ -132,33 +121,8 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
     });
     expect(lest.status).toBe(200);
     expect(lest.kropp.versjon).toBe(1);
-    const { journal } = await lesSaken(
-      o.datalag.kjoeretid.pool,
-      { aktor: o.te.id, prosjekt: o.prosjekt.id },
-      sakId
-    );
-    const vist = forhaandsvis(
-      GRUNNLAGSKRAV,
-      {
-        sakId,
-        aktoerId: o.te.id,
-        part: 'TE',
-        teamId: null,
-        tidspunkt: () => new Date(),
-        nyId: randomUUID,
-      },
-      journal,
-      KJERNE
-    );
-    if (!vist.godtatt) throw new Error(JSON.stringify(vist));
-    const krav = await kall(server.url, `${SAKER}/${sakId}/kommandoer`, {
-      bruker: o.te,
-      prosjektId: o.prosjekt.id,
-      kropp: {
-        expected_version: svar.kropp.versjon,
-        kommando_id: randomUUID(),
-        kommando: { ...GRUNNLAGSKRAV, brevtekst: laastTekst(vist.hendelser[0]) },
-      },
+    const krav = await sendKommando(server.url, o, sakId, {
+      versjon: svar.kropp.versjon as number,
     });
     expect(krav.status, JSON.stringify(krav.kropp)).toBe(201);
     expect(krav.kropp.versjon).toBe(2);
@@ -179,30 +143,6 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
     expect(await antall()).toEqual({ saker: foer.saker + 1, hendelser: foer.hendelser + 1 });
   });
 
-  /** Kommandoen med den låste teksten for saken slik den er lagret nå (LV-U2). */
-  async function medTekst(sakId: string, kommando: Record<string, unknown>) {
-    const { journal } = await lesSaken(
-      o.datalag.kjoeretid.pool,
-      { aktor: o.te.id, prosjekt: o.prosjekt.id },
-      sakId
-    );
-    const vist = forhaandsvis(
-      kommando,
-      {
-        sakId,
-        aktoerId: o.te.id,
-        part: 'TE',
-        teamId: null,
-        tidspunkt: () => new Date(),
-        nyId: randomUUID,
-      },
-      journal,
-      KJERNE
-    );
-    if (!vist.godtatt) throw new Error(JSON.stringify(vist));
-    return { ...kommando, brevtekst: laastTekst(vist.hendelser[0]) };
-  }
-
   // Kilde: avgjørelse 2 i #764 (invariant 4: samme kvittering).
   it('et gjentak av et krav får det første svaret, også når saken har fått en ny hendelse siden (#792 punkt 2)', async () => {
     const sakId = (await opprett({ kommando: OPPRETT })).kropp.sak_id as string;
@@ -213,10 +153,10 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
         kropp: { expected_version, kommando_id, kommando },
       });
     const grunnlagId = randomUUID();
-    const grunnlag = await medTekst(sakId, GRUNNLAGSKRAV);
+    const grunnlag = await medLaastTekst(o, sakId);
     const foerste = await send(1, grunnlagId, grunnlag);
     expect(foerste.status, JSON.stringify(foerste.kropp)).toBe(201);
-    const vederlag = await send(2, randomUUID(), await medTekst(sakId, VEDERLAGSKRAV));
+    const vederlag = await send(2, randomUUID(), await medLaastTekst(o, sakId, VEDERLAGSKRAV));
     expect(vederlag.status, JSON.stringify(vederlag.kropp)).toBe(201);
     expect(vederlag.kropp.versjon).toBe(3);
 
@@ -420,7 +360,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
       const kropp = {
         expected_version: 1,
         kommando_id: randomUUID(),
-        kommando: await medTekst(sakId, GRUNNLAGSKRAV),
+        kommando: await medLaastTekst(o, sakId),
       };
       const send = () =>
         kall(feilende.url, `${SAKER}/${sakId}/kommandoer`, {
@@ -458,7 +398,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
               {
                 expected_version: 1,
                 kommando_id: randomUUID(),
-                kommando: await medTekst(sakId, GRUNNLAGSKRAV),
+                kommando: await medLaastTekst(o, sakId),
               },
             ];
       const send = () => kall(server.url, sti, { bruker: o.te, prosjektId: o.prosjekt.id, kropp });
@@ -502,7 +442,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
               {
                 expected_version: 1,
                 kommando_id: randomUUID(),
-                kommando: await medTekst(sakId, GRUNNLAGSKRAV),
+                kommando: await medLaastTekst(o, sakId),
               },
             ];
       const ekte = sql.Request.prototype.execute;
@@ -552,7 +492,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
         kropp: {
           expected_version: 1,
           kommando_id: randomUUID(),
-          kommando: await medTekst(sakId, GRUNNLAGSKRAV),
+          kommando: await medLaastTekst(o, sakId),
         },
       });
       expect(svar.status, JSON.stringify(svar.kropp)).toBe(500);
