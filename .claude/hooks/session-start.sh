@@ -1,7 +1,6 @@
 #!/bin/bash
 # Oppsett for skyøkter (Claude Code on the web): Python-miljø, npm-pakker og
-# en PostgreSQL 17-testbase i Docker. Maskinen har bare PostgreSQL 16, og
-# Docker-daemonen starter ikke av seg selv.
+# testbasen i SQL Server i Docker.
 set -euo pipefail
 
 if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
@@ -54,71 +53,24 @@ if ! installer_npm >> "$logg" 2>&1; then
   echo "ADVARSEL: npm-installasjonen feilet, så npm test og typesjekken kan mangle pakker; se $logg."
 fi
 
-start_testbase() {
-  if ! docker info > /dev/null 2>&1; then
-    # En gjenopptatt økt arver pid-filer fra øyeblikksbildet, og dockerd venter
-    # da på en containerd som ikke finnes.
-    if command -v pgrep > /dev/null; then
-      pgrep -x containerd > /dev/null || rm -f /var/run/docker/containerd/containerd.pid
-      pgrep -x dockerd > /dev/null || rm -f /var/run/docker.pid
-    fi
-    setsid nohup dockerd > /tmp/dockerd.log 2>&1 < /dev/null &
-    for _ in $(seq 1 30); do
-      docker info > /dev/null 2>&1 && break
-      sleep 1
-    done
+# Docker-daemonen starter ikke av seg selv, heller ikke når en økt gjenopptas
+# (#966).
+start_docker() {
+  docker info > /dev/null 2>&1 && return 0
+  # En gjenopptatt økt arver pid-filer fra øyeblikksbildet, og dockerd venter
+  # da på en containerd som ikke finnes.
+  if command -v pgrep > /dev/null; then
+    pgrep -x containerd > /dev/null || rm -f /var/run/docker/containerd/containerd.pid
+    pgrep -x dockerd > /dev/null || rm -f /var/run/docker.pid
   fi
-  # Kalt som vilkår i if gjelder ikke set -e her; hvert steg sjekkes selv.
-  docker info > /dev/null 2>&1 || return 1
-
-  local port="${KOE_TESTBASE_PORT:-54317}" testbase="$rot/scripts/testbase"
-  local navn="koe-testbase-$port" stempel="/tmp/koe-testbase-$port.container"
-  local container url sum bygget_av
-  # Containeren lages på nytt når oppsettet av den (skriptet, bildet) er
-  # endret siden den ble laget; basen i den følger summen under.
-  # shellcheck source=scripts/ci/postgres_kilder.sh
-  source "$rot/scripts/ci/postgres_kilder.sh" || return 1
-  container="$({ cat "$testbase/docker_testbase.sh"; echo "$postgres_bilde"; } \
-    | sha256sum | cut -d' ' -f1)" || return 1
-  if ! docker container inspect "$navn" > /dev/null 2>&1 \
-    || [ "$(cat "$stempel" 2> /dev/null)" != "$container" ]; then
-    "$testbase/docker_testbase.sh" stopp
-    "$testbase/docker_testbase.sh" start || return 1
-    echo "$container" > "$stempel"
-    return
-  fi
-  docker start "$navn" > /dev/null || return 1
+  setsid nohup dockerd > /tmp/dockerd.log 2>&1 < /dev/null &
   for _ in $(seq 1 30); do
-    docker exec "$navn" pg_isready --quiet --host 127.0.0.1 && break
+    docker info > /dev/null 2>&1 && return 0
     sleep 1
   done
-  docker exec "$navn" pg_isready --quiet --host 127.0.0.1 || return 1
-  # Basen er eldre enn arbeidstreet når den bærer en annen sum, for eksempel
-  # fra et eldre øyeblikksbilde eller før en migrasjon ble slått inn. Byggingen
-  # på nytt beholder URL-en. En base uten merket lages på nytt i en ny container.
-  url="$("$testbase/docker_testbase.sh" url)" || return 1
-  sum="$("$testbase/migrasjonssum.sh")" || return 1
-  bygget_av="$(psql "$url" --no-psqlrc -tA -c "SELECT CASE
-      WHEN shobj_description(oid, 'pg_database') = 'koe-kastbar-testbase'
-      THEN coalesce(current_setting('koe.migrasjonssum', true), '') ELSE 'umerket' END
-    FROM pg_database WHERE datname = current_database()")" || return 1
-  if [ "$bygget_av" = umerket ]; then
-    "$testbase/docker_testbase.sh" stopp
-    "$testbase/docker_testbase.sh" start
-  elif [ "$bygget_av" != "$sum" ]; then
-    KOE_TESTBASE_URL="$url" "$testbase/bygg_paa_nytt.sh"
-  fi
+  return 1
 }
-
-if (start_testbase) >> "$logg" 2>&1 \
-  && url="$("$rot/scripts/testbase/docker_testbase.sh" url 2>> "$logg")"; then
-  if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    echo "export KOE_TESTBASE_URL='$url'" >> "$CLAUDE_ENV_FILE"
-  fi
-  echo "Testbase: PostgreSQL 17 i Docker (koe-testbase-${KOE_TESTBASE_PORT:-54317}), KOE_TESTBASE_URL er satt. npm test kjører også kjernens lagringstester i sprakprove/kjernelagring/ mot den. server/ bruker SQL Server, ikke denne basen."
-else
-  echo "ADVARSEL: testbasen i PostgreSQL 17 kom ikke opp; se $logg. KOE_TESTBASE_URL er ikke satt, så kjernens lagringstester i sprakprove/kjernelagring/ hoppes over, og grønn suite sier ingenting om lagringen av kjernens forløp. Maskinen har bare PostgreSQL 16. Kjør hooken på nytt med CLAUDE_CODE_REMOTE=true."
-fi
+start_docker >> "$logg" 2>&1 || true
 
 # SQL Server for datalaget i F0b (#488) starter i bakgrunnen, så økter som ikke
 # trenger den, ikke venter på oppstarten. Tilkoblingen skrives ut med en gang,
@@ -216,11 +168,11 @@ if [ "$sqlstatus" = 0 ]; then
   if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     echo "export KOE_SQLSERVER_TILKOBLING='$tilkobling'" >> "$CLAUDE_ENV_FILE"
   fi
-  echo "SQL Server: starter i bakgrunnen (koe-sqlserver-${KOE_SQLSERVER_PORT:-14331}), KOE_SQLSERVER_TILKOBLING er satt. Testene i server/tester/sqlserver.test.ts venter på den; logg i $sqllogg."
+  echo "SQL Server: starter i bakgrunnen (koe-sqlserver-${KOE_SQLSERVER_PORT:-14331}), KOE_SQLSERVER_TILKOBLING er satt. Testene mot SQL Server i server/ og sprakprove/kjernelagring/ venter på den; logg i $sqllogg."
 elif [ "$sqlstatus" = 3 ]; then
-  echo "ADVARSEL: en annen kjøring av hooken starter SQL Server og ble ikke ferdig med forgrunnen på 120 s; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt. Kjør hooken på nytt når den andre kjøringen er ferdig."
+  echo "ADVARSEL: en annen kjøring av hooken starter SQL Server og ble ikke ferdig med forgrunnen på 120 s; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene mot SQL Server i server/ og sprakprove/kjernelagring/ hoppes over, og en grønn npm test sier ingenting om lagringen. Kjør hooken på nytt når den andre kjøringen er ferdig."
 elif ! docker info > /dev/null 2>&1; then
-  echo "ADVARSEL: SQL Server startet ikke fordi Docker ikke svarer; se $logg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/tester/sqlserver.test.ts hoppes over."
+  echo "ADVARSEL: SQL Server startet ikke fordi Docker ikke svarer; se $logg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene mot SQL Server i server/ og sprakprove/kjernelagring/ hoppes over, og en grønn npm test sier ingenting om lagringen."
 else
-  echo "ADVARSEL: SQL Server startet ikke; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene i server/tester/sqlserver.test.ts hoppes over."
+  echo "ADVARSEL: SQL Server startet ikke; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene mot SQL Server i server/ og sprakprove/kjernelagring/ hoppes over, og en grønn npm test sier ingenting om lagringen."
 fi

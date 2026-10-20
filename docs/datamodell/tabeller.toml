@@ -48,13 +48,11 @@ skrivere = [
     "backend/services/endringsordre_service.py",
     "backend/services/approval_service.py",
     "backend/services/catenda_webhook_service.py (via sak_creation_service)",
-    "sprakprove/server/lager.ts (`sprakprove/kjernelagring/bane.ts`, mot testbasen)",
 ]
 funn = ["MS-01", "MS-02", "MS-03", "AR-02", "DM-06"]
 belegg = """
 K 29.09: kolonnene i testbasen og prosjektet, og skrankene (også CASCADE) i
-testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`. L 17.10:
-`SETT_INN` i `sprakprove/server/lager.ts`."""
+testbasen. L 29.09: kallerne av `append`/`append_batch` og `create_sak`."""
 
 [[tabell]]
 navn = "leveringsoppdrag"
@@ -128,8 +126,7 @@ Opprettes når en sak lages, gjennom `SakCreationService`: fra hendelsesrutene,
 for endringsordrer, og fra en ny topic i Catenda via webhook. Hvordan en
 forseringssak får sin rad, er ikke kontrollert. `cached_*` oppdateres etter
 lagrede hendelser (hendelsesrutene, forsering og godkjenning). `kjerne_*` skrives
-bare av bufferen i TS-kjernen (`kjerne/utledning/buffer.ts`, lageret i
-`sprakprove/kjernelagring/bane.ts` til skrivestien i #310)."""
+ikke lenger: bufferen i TS-kjernen lagres i SQL Server (#932)."""
 fra_catenda = """
 Delvis. `catenda_topic_id`, `catenda_board_id` og `catenda_project_id` er ID-er
 fra Catenda."""
@@ -143,7 +140,6 @@ skrivere = [
     "backend/routes/event_routes.py (update_cache)",
     "backend/routes/forsering_routes.py (update_cache)",
     "backend/routes/approval_routes.py (update_cache)",
-    "sprakprove/kjernelagring/bane.ts (pgBuffer, bufferen i kjernen)",
 ]
 funn = ["MS-06", "MS-07", "DA-14", "MG-04", "DM-01"]
 belegg = """
