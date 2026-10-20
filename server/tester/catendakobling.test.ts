@@ -102,13 +102,19 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('koe_drift.koble_catenda_identitet (#1002
     expect((await identiteter(bruker)).map((i) => i.provider)).toEqual(['catenda', 'entra']);
   });
 
-  it('en identitet på en bruker som bare har medlemskap og sesjon, flyttes, og den brukeren slettes', async () => {
+  it('en identitet på en bruker som bare har medlemskap, fravær og sesjon, flyttes, og den brukeren slettes', async () => {
     const bruker = await hrBruker();
     const s = await medCatenda(o.utenTeam);
+    await settInn(eier, 'app_membership_absences', {
+      project_id: o.annetProsjekt.id,
+      user_id: o.utenTeam.id,
+      observed_at: new Date(),
+    });
     await koble(s, bruker);
     expect(await catendaBruker(o.datalag.base.pool, s)).toBe(bruker);
     expect(await antall('app_users', o.utenTeam.id)).toBe(0);
     expect(await antall('app_sessions', o.utenTeam.id)).toBe(0);
+    expect(await antall('app_membership_absences', bruker)).toBe(1);
     const medlemskap = await eier().input('b', sql.UniqueIdentifier, bruker).query<{
       project_id: string;
       catenda_subject: string;
@@ -159,22 +165,45 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('koe_drift.koble_catenda_identitet (#1002
     );
   });
 
-  it('eieren kan fortsatt ikke slette eller endre en identitet, heller ikke en Entra-identitet med konteksten satt', async () => {
+  it('eieren kan ikke slette eller endre en identitet, og konteksten slipper bare gjennom slettingen av én Catenda-identitet i transaksjonen', async () => {
     const bruker = await hrBruker();
-    const s = subjekt();
-    await koble(s, bruker);
-    const sett = (provider: string) =>
+    await koble(subjekt(), bruker);
+    const iKontekst = (
+      provider: string,
+      setning: string,
+      transaksjon = 'CURRENT_TRANSACTION_ID()'
+    ) =>
       eier()
         .input('b', sql.UniqueIdentifier, bruker)
         .input('p', sql.NVarChar(16), provider)
         .query(
           `DECLARE @id uniqueidentifier = (SELECT id FROM koe.app_identities WHERE user_id = @b AND provider = @p);
+           BEGIN TRANSACTION;
+           DECLARE @t bigint = ${transaksjon};
            EXEC sp_set_session_context N'koe_flytt_identitet', @id;
-           BEGIN TRY DELETE koe.app_identities WHERE user_id = @b AND provider = @p; END TRY
-           BEGIN CATCH EXEC sp_set_session_context N'koe_flytt_identitet', NULL; THROW; END CATCH;
-           EXEC sp_set_session_context N'koe_flytt_identitet', NULL;`
+           EXEC sp_set_session_context N'koe_flytt_transaksjon', @t;
+           BEGIN TRY ${setning}; END TRY
+           BEGIN CATCH
+             IF XACT_STATE() <> 0 ROLLBACK;
+             EXEC sp_set_session_context N'koe_flytt_identitet', NULL;
+             EXEC sp_set_session_context N'koe_flytt_transaksjon', NULL;
+             THROW;
+           END CATCH;
+           COMMIT;
+           EXEC sp_set_session_context N'koe_flytt_identitet', NULL;
+           EXEC sp_set_session_context N'koe_flytt_transaksjon', NULL;`
         );
-    expect(await avvisning(sett('entra'))).toBe(ENDRES_IKKE);
+    const slettEn = 'DELETE koe.app_identities WHERE id = @id';
+    expect(await avvisning(iKontekst('entra', slettEn))).toBe(ENDRES_IKKE);
+    expect(
+      await avvisning(
+        iKontekst('catenda', 'UPDATE koe.app_identities SET subject = subject WHERE id = @id')
+      )
+    ).toBe(ENDRES_IKKE);
+    expect(
+      await avvisning(iKontekst('catenda', 'DELETE koe.app_identities WHERE user_id = @b'))
+    ).toBe(ENDRES_IKKE);
+    expect(await avvisning(iKontekst('catenda', slettEn, '0'))).toBe(ENDRES_IKKE);
     expect(
       await avvisning(
         eier()
@@ -192,5 +221,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('koe_drift.koble_catenda_identitet (#1002
       )
     ).toBe(ENDRES_IKKE);
     expect((await identiteter(bruker)).map((i) => i.provider)).toEqual(['catenda', 'entra']);
+    await iKontekst('catenda', slettEn);
+    expect((await identiteter(bruker)).map((i) => i.provider)).toEqual(['entra']);
   });
 });

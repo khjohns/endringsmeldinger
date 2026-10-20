@@ -12,7 +12,10 @@
 
 -- En identitet endres fortsatt ikke. Det eneste unntaket er at
 -- `koe_drift.koble_catenda_identitet` sletter én Catenda-identitet, den som står
--- i sesjonskonteksten `koe_flytt_identitet`. Bare eieren har rett på tabellen.
+-- i sesjonskonteksten `koe_flytt_identitet`, i transaksjonen som står i
+-- `koe_flytt_transaksjon`. Konteksten følger tilkoblingen og ikke transaksjonen,
+-- så en verdi et avbrutt kall etterlater, slipper ingenting gjennom. Bare eieren
+-- har rett på tabellen.
 CREATE OR ALTER TRIGGER koe.app_identities_uforanderlig ON koe.app_identities INSTEAD OF UPDATE, DELETE AS
 BEGIN
   SET NOCOUNT ON;
@@ -21,6 +24,7 @@ BEGIN
      OR NOT EXISTS (SELECT 1 FROM deleted
                      WHERE provider = N'catenda'
                        AND id = TRY_CAST(SESSION_CONTEXT(N'koe_flytt_identitet') AS uniqueidentifier))
+     OR TRY_CAST(SESSION_CONTEXT(N'koe_flytt_transaksjon') AS bigint) IS DISTINCT FROM CURRENT_TRANSACTION_ID()
     THROW 51001, N'En identitet endres ikke', 1;
   DELETE koe.app_identities WHERE id = (SELECT id FROM deleted);
 END
@@ -63,15 +67,18 @@ BEGIN
   END
   IF EXISTS (SELECT 1 FROM koe.app_identities WHERE user_id = @annen AND id <> @identitet)
     THROW 52030, N'Catenda-identiteten står på en bruker med en annen identitet', 1;
-  -- `koe.kvittering.aktor_id` har ingen fremmednøkkel.
-  IF EXISTS (SELECT 1 FROM koe.kvittering WHERE aktor_id = @annen)
-    THROW 52029, N'Catenda-identiteten står på en annen bruker som er brukt utover medlemskap og sesjon', 1;
+  -- `koe.kvittering.aktor_id` har ingen fremmednøkkel, men en kvittering skrives
+  -- bare med en hendelse fra samme aktør (`koe.kvittering_samme_transaksjon`),
+  -- og nøkkelen fra hendelsen hindrer slettingen under.
   UPDATE koe.app_project_memberships SET user_id = @bruker WHERE user_id = @annen;
   UPDATE koe.app_membership_absences SET user_id = @bruker WHERE user_id = @annen;
   DELETE koe.app_sessions WHERE user_id = @annen;
+  DECLARE @transaksjon bigint = CURRENT_TRANSACTION_ID();
   EXEC sp_set_session_context N'koe_flytt_identitet', @identitet;
+  EXEC sp_set_session_context N'koe_flytt_transaksjon', @transaksjon;
   DELETE koe.app_identities WHERE id = @identitet;
   EXEC sp_set_session_context N'koe_flytt_identitet', NULL;
+  EXEC sp_set_session_context N'koe_flytt_transaksjon', NULL;
   INSERT koe.app_identities (id, user_id, provider, issuer, subject)
   VALUES (NEWID(), @bruker, N'catenda', N'https://api.catenda.com', @subjekt);
   BEGIN TRY
@@ -80,7 +87,7 @@ BEGIN
   BEGIN CATCH
     IF ERROR_NUMBER() <> 547 THROW;
     ROLLBACK;
-    THROW 52029, N'Catenda-identiteten står på en annen bruker som er brukt utover medlemskap og sesjon', 1;
+    THROW 52029, N'Catenda-identiteten står på en annen bruker som er brukt utover medlemskap, fravær og sesjoner', 1;
   END CATCH
   COMMIT;
 END
