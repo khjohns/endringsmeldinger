@@ -489,28 +489,7 @@
               );
               return;
             }
-            if (store.isDemo) {
-              store.sendVederlagSvar(computed.prinsipaltResultat, computed.totalGodkjent, {
-                hovedkravVarsletITide,
-                riggVarsletITide,
-                produktivitetVarsletITide,
-                akseptererMetode,
-                oensketMetode,
-                hovedkravVurdering,
-                hovedkravGodkjentBelop,
-                riggVurdering,
-                riggGodkjentBelop,
-                produktivitetVurdering,
-                produktivitetGodkjentBelop,
-                subsidiaerResultat: computed.visSubsidiaertResultat
-                  ? computed.subsidiaertResultat
-                  : undefined,
-                subsidiaerGodkjentBelop: computed.visSubsidiaertResultat
-                  ? computed.totalGodkjentInklPrekludert
-                  : undefined,
-                begrunnelse: begrunnelseHtml,
-              });
-            }
+            throw new Error('Skjemaet har ingen intern godkjenning, så svaret kan ikke sendes.');
           }, onsend);
       },
     });

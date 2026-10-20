@@ -71,3 +71,16 @@ describe('applyApprovedItems', () => {
     expect(store.sak.vederlag.har_subsidiaert_standpunkt).toBe(false);
   });
 });
+
+describe('createDemoStore', () => {
+  it('holder endringer og utkast i én demosak utenfor en annen demosak', () => {
+    const first = createDemoStore();
+    const second = createDemoStore();
+    const previousResult = second.sak.grunnlag.bh_resultat;
+    const previousDraft = second.getUI('frist').draft;
+    first.sendGrunnlagSvar(previousResult === 'avslatt' ? 'godkjent' : 'avslatt');
+    first.setDraft('frist', { text: 'draft' });
+    expect(second.sak.grunnlag.bh_resultat).toBe(previousResult);
+    expect(second.getUI('frist').draft).toBe(previousDraft);
+  });
+});

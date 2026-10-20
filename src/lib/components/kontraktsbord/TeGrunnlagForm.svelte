@@ -109,7 +109,7 @@
               );
               return;
             }
-            if (store.isDemo) store.sendTeGrunnlag(begrunnelseHtml);
+            throw new Error('Skjemaet har ingen brevkontroll, så kravet kan ikke sendes.');
           }, onsend);
       },
     });

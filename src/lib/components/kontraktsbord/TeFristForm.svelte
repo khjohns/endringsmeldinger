@@ -251,8 +251,7 @@
               );
               return;
             }
-            if (store.isDemo)
-              store.sendTeFrist(antallDager, varselType as FristVarselType, begrunnelse);
+            throw new Error('Skjemaet har ingen brevkontroll, så kravet kan ikke sendes.');
           }, onsend);
       },
     });

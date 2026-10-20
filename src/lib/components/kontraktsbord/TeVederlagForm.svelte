@@ -188,9 +188,7 @@
               );
               return;
             }
-            if (!store.isDemo) return;
-            if (mode === 'varsel') store.sendTeVederlagVarsel(noticeData);
-            else store.sendTeVederlag(hovedkravValue ?? 0, metode);
+            throw new Error('Skjemaet har ingen brevkontroll, så kravet kan ikke sendes.');
           }, onsend);
       },
     });

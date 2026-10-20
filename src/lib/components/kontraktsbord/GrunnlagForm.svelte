@@ -122,8 +122,7 @@
               );
               return;
             }
-            if (store.isDemo)
-              store.sendGrunnlagSvar(resultat as 'godkjent' | 'avslatt' | 'frafalt');
+            throw new Error('Skjemaet har ingen intern godkjenning, så svaret kan ikke sendes.');
           }, onsend);
       },
     });

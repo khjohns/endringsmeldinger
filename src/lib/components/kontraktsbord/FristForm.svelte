@@ -239,22 +239,7 @@
               );
               return;
             }
-            if (store.isDemo) {
-              store.sendFristSvar(computed.prinsipaltResultat, prinsipaltGodkjent, {
-                fristVarselOk,
-                spesifisertKravOk,
-                foresporselSvarOk,
-                vilkarOppfylt,
-                subsidiaerTriggers: computed.subsidiaerTriggers,
-                subsidiaerResultat: computed.visSubsidiaertResultat
-                  ? computed.subsidiaertResultat
-                  : undefined,
-                subsidiaerGodkjentDager: computed.visSubsidiaertResultat
-                  ? subsidiaertGodkjent
-                  : undefined,
-                begrunnelse: begrunnelseHtml,
-              });
-            }
+            throw new Error('Skjemaet har ingen intern godkjenning, så svaret kan ikke sendes.');
           }, onsend);
       },
     });
