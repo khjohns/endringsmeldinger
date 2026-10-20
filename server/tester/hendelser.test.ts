@@ -488,6 +488,33 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     ]);
   });
 
+  it('#963: et nytt forsøk etter en lagret sak gir saken fra kvitteringen, også når forfatteren ikke lenger er i et kontraktsteam', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
+    const rad = (await nesteInnkommende(avh.datalag))!;
+    // Saken lagres, men utfallet gjør det ikke, som når registrerBehandling feiler.
+    const foerste = await behandle({ datalag: avh.datalag, catenda: innboks }, rad);
+    expect(foerste.utfall).toBe('sak_opprettet');
+    const utenTeam = {
+      ...avh,
+      innboks: { ...innboks, teammedlemmer: async () => new Set<string>() },
+    };
+    expect(await behandle({ datalag: avh.datalag, catenda: utenTeam.innboks }, rad)).toEqual(
+      foerste
+    );
+    expect(await behandleEnHendelse(senere(1, utenTeam))).toBe(true);
+    expect(await utfallFor(id)).toEqual([
+      expect.objectContaining({ utfall: 'sak_opprettet', sak_id: foerste.sakId }),
+    ]);
+    expect(await sakerForTopic(topic)).toEqual([
+      { sak_id: foerste.sakId, catenda_board_id: board },
+    ]);
+    // Kontrollsak: uten kvittering gir samme forfatter nå ingen side.
+    const kontroll = await motta(kropp(randomUUID()));
+    expect(await behandleEnHendelse(senere(2, utenTeam))).toBe(true);
+    expect(await utfallFor(kontroll)).toEqual([expect.objectContaining({ utfall: 'ukjent_side' })]);
+  });
+
   it('når Catenda ikke svarer, lagres ikke noe utfall, og et senere forsøk behandler hendelsen', async () => {
     const topic = randomUUID();
     await mottaHendelse(
