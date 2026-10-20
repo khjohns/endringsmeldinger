@@ -119,7 +119,7 @@ describe('registeret over inngangene', () => {
     (_navn, r) => {
       expect(['viewer', 'member']).toContain(r.tilgang.prosjektrolle);
       const k = r.tilgang.kontraktsrolle;
-      if (k !== 'kreves') expect(k.ikke.trim().length).toBeGreaterThan(20);
+      if (k !== 'kreves' && k !== 'lesing') expect(k.ikke.trim().length).toBeGreaterThan(20);
       if (r.metode !== 'GET') expect(k).toBe('kreves');
       expect(r.eksempel('x')).toMatch(r.sti);
     }
@@ -343,11 +343,28 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   it.each(utenSak.filter(([, r]) => r.tilgang.prosjektrolle !== 'admin'))(
     '%s: kontrollsaken i eget prosjekt gir 200',
     async (_n, r) => {
-      for (const bruker of [o.te, o.utenTeam]) {
+      for (const bruker of [o.te, o.leser]) {
         const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
           bruker,
           prosjektId: o.prosjekt.id,
         });
+        expect(svar.status).toBe(200);
+      }
+    }
+  );
+
+  // DL-U15: sakene leses av et team for TE eller BH, eller med leserolle.
+  it.each(utenSak.filter(([, r]) => r.tilgang.prosjektrolle !== 'admin'))(
+    '%s: et medlem uten kontraktsteam og uten leserolle',
+    async (_n, r) => {
+      const svar = await kall(server.url, r.eksempel(o.prosjekt.id), {
+        bruker: o.utenTeam,
+        prosjektId: o.prosjekt.id,
+      });
+      if (r.tilgang.kontraktsrolle === 'lesing') {
+        expect(svar.status).toBe(403);
+        expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
+      } else {
         expect(svar.status).toBe(200);
       }
     }
@@ -468,13 +485,29 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       kropp: kropp(r),
       metode: r.metode,
     });
-    if (r.tilgang.kontraktsrolle === 'kreves') {
+    if (r.tilgang.kontraktsrolle === 'kreves' || r.tilgang.kontraktsrolle === 'lesing') {
       expect(svar.status).toBe(403);
       expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
     } else {
       expect(svar.status).toBe(200);
     }
   });
+
+  it.each(hver.filter(([, r]) => r.metode === 'GET'))(
+    '%s: leserollen leser uten kontraktsteam bare ved lesing (DL-U15)',
+    async (_n, r) => {
+      const svar = await kall(server.url, r.eksempel(sak), {
+        bruker: o.leser,
+        prosjektId: o.prosjekt.id,
+      });
+      if (r.tilgang.kontraktsrolle === 'kreves') {
+        expect(svar.status).toBe(403);
+        expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
+      } else {
+        expect(svar.status).toBe(200);
+      }
+    }
+  );
 
   it.each(hver)('%s: kontrollsaken kommer forbi tilgangen', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(sak), {
@@ -556,11 +589,11 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     expect(svar.kropp.error).toBe('UGYLDIG_FORESPOERSEL');
   });
 
-  it('lesingen av saken gir leserens side i part, og null uten kontraktsteam (#705)', async () => {
+  it('lesingen av saken gir leserens side i part, og null med leserolle (#705, DL-U15)', async () => {
     for (const [bruker, part] of [
       [o.te, 'TE'],
       [o.bh, 'BH'],
-      [o.utenTeam, null],
+      [o.leser, null],
     ] as const) {
       const svar = await kall(server.url, `/api/kjerne/saker/${sak}`, {
         bruker,
@@ -568,6 +601,54 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       });
       expect(svar.status).toBe(200);
       expect(svar.kropp.part).toBe(part);
+    }
+  });
+
+  it('svarer ikke Catenda om teamet, gir lesingen og kontraktsrollen 503, og leserollen leser (DL-U15)', async () => {
+    const utenTeamoppslag = await startServer(o, {
+      catenda: {
+        async medlemmer() {
+          throw new Error('Synkronisering er ikke forventet i testene.');
+        },
+        async teammedlemmer() {
+          throw new Error('Catenda svarer ikke.');
+        },
+      },
+    });
+    try {
+      const lesing = [
+        ...hver.filter(([, r]) => r.tilgang.kontraktsrolle === 'lesing'),
+        ...utenSak.filter(([, r]) => r.tilgang.kontraktsrolle === 'lesing'),
+      ];
+      const kreves = hver.filter(([, r]) => r.tilgang.kontraktsrolle === 'kreves');
+      expect(lesing.length).toBeGreaterThanOrEqual(2);
+      expect(kreves.length).toBeGreaterThan(0);
+      for (const [n, r] of [...lesing, ...kreves]) {
+        const svar = await kall(
+          utenTeamoppslag.url,
+          r.eksempel(erSaksrute(r) ? sak : o.prosjekt.id),
+          {
+            bruker: o.te,
+            prosjektId: o.prosjekt.id,
+            kropp: kropp(r),
+            metode: r.metode,
+          }
+        );
+        expect([n, svar.status, svar.kropp.error]).toEqual([n, 503, 'CONTRACT_ACCESS_UNAVAILABLE']);
+      }
+      for (const [n, r] of lesing) {
+        const svar = await kall(
+          utenTeamoppslag.url,
+          r.eksempel(erSaksrute(r) ? sak : o.prosjekt.id),
+          {
+            bruker: o.leser,
+            prosjektId: o.prosjekt.id,
+          }
+        );
+        expect([n, svar.status]).toEqual([n, 200]);
+      }
+    } finally {
+      await utenTeamoppslag.stopp();
     }
   });
 

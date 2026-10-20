@@ -23,7 +23,6 @@ import {
   type Utledning,
 } from '../kjerne/utledning/utled.ts';
 import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './app.ts';
-import { lesKontraktsside } from './autorisasjon.ts';
 import { transaksjon, type Kontekst, type Pool } from './datalag.ts';
 import { skrevetAvKjernen } from './lager.ts';
 
@@ -325,13 +324,13 @@ export function noekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
 }
 
 async function sakslisten(
-  { bruker, prosjekt }: Prosjektforespoersel,
+  { bruker, prosjekt, side }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const [saker, side] = await Promise.all([
-    lesSakslisten(avh.datalag, { aktor: bruker.id, prosjekt: prosjekt.prosjektId }),
-    lesKontraktsside(avh.datalag, avh.catenda, prosjekt),
-  ]);
+  const saker = await lesSakslisten(avh.datalag, {
+    aktor: bruker.id,
+    prosjekt: prosjekt.prosjektId,
+  });
   const linjer = saker.map((s) => sakslinje(s, avh.kjerne));
   return [
     200,
@@ -352,6 +351,7 @@ export const SAKSLISTERUTER: readonly Rute[] = [
     tilgang: {
       prosjektrolle: 'viewer',
       utenSak: 'Lista over sakene i prosjektet; den gjelder prosjektet, ikke én sak.',
+      kontraktsrolle: 'lesing',
     },
     behandle: sakslisten,
   },
