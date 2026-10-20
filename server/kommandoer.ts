@@ -199,10 +199,13 @@ export async function kvittertSak(
   }
 }
 
+/** Kommandoen har en kvittering, men brevet den viser til, ble ikke lest tilbake (#924). */
+export class KvittertBrevMangler extends Error {}
+
 /** Brevet kvitteringen viser til, lest i transaksjonen. */
 function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
   const rad = journal.find((r) => r.event_id === eventId);
-  if (!rad) throw new Error('Brevet i kvitteringen ble ikke lest tilbake.');
+  if (!rad) throw new KvittertBrevMangler('Brevet i kvitteringen ble ikke lest tilbake.');
   return rad;
 }
 

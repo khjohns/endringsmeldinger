@@ -42,6 +42,12 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   skal bevares. Ved begrepsendring: følg språkregelen i `AGENTS.md`. Les
   `.claude/rules/dokumentasjon.md` for å avgjøre hva som trenger varig
   dokumentasjon.
+- Bygger oppgaven frontend mot TS-kjernen, er den gamle frontenden for samme
+  flyt utgangspunktet (oppdragsgiver 20.10). Kartlegg hva den viser og lar
+  brukeren gjøre, og skriv i akseptkriteriene hva som skal med, hva som gjøres
+  annerledes og hva som utelates, med vedtaket eller issuet som grunn. Reglene
+  hentes fra kjernen og prøves mot vedtakene og bevis-sakene, ikke mot den gamle
+  koden.
 - Avklar bare uavklart tiltenkt atferd med oppdragsgiver. Tekniske valg innenfor
   oppgaven avgjør du selv. En uløst domenebeslutning blokkerer bare den
   implementeringen den gjelder.
@@ -107,6 +113,11 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   frontendkode, frontendavhengigheter eller byggoppsettet endres. Andre berørte
   artefakter bygges med sine dokumenterte kommandoer. Dokumentendringer alene
   krever ikke applikasjonsbygg eller full testsuite.
+- En PR som bygger frontend mot TS-kjernen, sammenlikner med den gamle
+  frontenden for samme flyt: hva den nye mangler, gjør annerledes eller
+  utelater, og hvorfor (oppdragsgiver 20.10). En mangel som ikke løses i
+  PR-en, får et issue. Det som står i egne issues som forbedringer av den
+  gamle frontenden, er ikke mangler.
 - Fører PR-en et vedtak, er det en ny post i
   [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i 3.1
   er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd. CI har ikke

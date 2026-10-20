@@ -78,6 +78,7 @@ const UTEN_SAK = [
   'GET /api/projects/<prosjekt>/members',
   'POST /api/projects/<prosjekt>/members/sync',
   'PATCH /api/projects/<prosjekt>/members/00000000-0000-0000-0000-000000000000',
+  'GET /api/projects/<prosjekt>/saker',
 ];
 const NY_SAK = ['POST /api/kjerne/saker'];
 
