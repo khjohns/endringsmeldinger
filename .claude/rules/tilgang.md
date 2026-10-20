@@ -53,7 +53,12 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
   tilgangen fra registeret før behandleren kalles, og en sti som ikke står der,
   gir 404. `server/tester/register.test.ts` prøver hver inngang over HTTP:
   uten sesjon, uten og med feil CSRF-token, uten prosjekt, i feil prosjekt,
-  mot en sak i et annet prosjekt og uten kontraktsteam.
+  mot en sak i et annet prosjekt, uten kontraktsteam og med leserolle.
+- **Lesingen av saker og brev** (DL-U15) har `kontraktsrolle: 'lesing'` i
+  registeret: et team for TE eller BH, som `kreves`, eller leserolle
+  (`krevLesing` i `server/autorisasjon.ts`). Uten bekreftet team gir den 403,
+  og svarer ikke Catenda, 503. Det gjelder saken og sakslisten. Lesefilteret
+  `koe_sikkerhet.medlem` i basen krever ennå bare medlemskap (#1056).
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.
