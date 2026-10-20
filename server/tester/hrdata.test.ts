@@ -2,7 +2,8 @@
  * Rollene og HR-kopien (S-1c del 2, #831) mot testbasen, med en falsk Graph:
  * tokenendepunktet krever client credentials, og brukerlista svarer side for side
  * og sammenlikner `jobTitle` uten hensyn til store og små bokstaver, som Graph.
- * Ekte Graph prøves ikke (S9 i #831: levende prøve når miljøet finnes).
+ * Ekte Graph prøves ikke (S9 i #831: levende prøve når miljøet finnes). Krever
+ * `KOE_SQLSERVER_TILKOBLING`.
  *
  * Kildene er GFK-U6 og GFK-U11 (driften registrerer grensen per rolle, globalt),
  * S3 (a) (driften registrerer hvilken stillingstittel som gir hvilken rolle),
@@ -21,7 +22,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { entraIdentitet, entraIssuer } from '../entra.ts';
 import { Graph, GraphUtilgjengelig, synkroniserHr, type HrKilde } from '../hrdata.ts';
 import { startJobbkjoerer } from '../jobber.ts';
-import { feilnummer, opprettKjoeretid, sql, type Pool } from './sqlserver.ts';
+import { feilnummer, opprettKjoeretid, sql, SQLSERVER_TILKOBLING, type Pool } from './sqlserver.ts';
 import { settInn } from './sqlserver_migrert.ts';
 import { lagOppsett, rydd, type Oppsett } from './testbase.ts';
 
@@ -115,7 +116,7 @@ interface Kopirad {
   hentet: Date;
 }
 
-describe('rollene og HR-kopien fra Graph (S-1c del 2, #831)', () => {
+describe.skipIf(!SQLSERVER_TILKOBLING)('rollene og HR-kopien fra Graph (S-1c del 2, #831)', () => {
   let o: Oppsett;
   let drift: Awaited<ReturnType<typeof opprettKjoeretid>>;
   let graph: FalskGraph;
