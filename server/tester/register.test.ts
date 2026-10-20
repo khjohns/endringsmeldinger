@@ -604,6 +604,54 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     }
   });
 
+  it('svarer ikke Catenda om teamet, gir lesingen og kontraktsrollen 503, og leserollen leser (DL-U15)', async () => {
+    const utenTeamoppslag = await startServer(o, {
+      catenda: {
+        async medlemmer() {
+          throw new Error('Synkronisering er ikke forventet i testene.');
+        },
+        async teammedlemmer() {
+          throw new Error('Catenda svarer ikke.');
+        },
+      },
+    });
+    try {
+      const lesing = [
+        ...hver.filter(([, r]) => r.tilgang.kontraktsrolle === 'lesing'),
+        ...utenSak.filter(([, r]) => r.tilgang.kontraktsrolle === 'lesing'),
+      ];
+      const kreves = hver.filter(([, r]) => r.tilgang.kontraktsrolle === 'kreves');
+      expect(lesing.length).toBeGreaterThanOrEqual(2);
+      expect(kreves.length).toBeGreaterThan(0);
+      for (const [n, r] of [...lesing, ...kreves]) {
+        const svar = await kall(
+          utenTeamoppslag.url,
+          r.eksempel(erSaksrute(r) ? sak : o.prosjekt.id),
+          {
+            bruker: o.te,
+            prosjektId: o.prosjekt.id,
+            kropp: kropp(r),
+            metode: r.metode,
+          }
+        );
+        expect([n, svar.status, svar.kropp.error]).toEqual([n, 503, 'CONTRACT_ACCESS_UNAVAILABLE']);
+      }
+      for (const [n, r] of lesing) {
+        const svar = await kall(
+          utenTeamoppslag.url,
+          r.eksempel(erSaksrute(r) ? sak : o.prosjekt.id),
+          {
+            bruker: o.leser,
+            prosjektId: o.prosjekt.id,
+          }
+        );
+        expect([n, svar.status]).toEqual([n, 200]);
+      }
+    } finally {
+      await utenTeamoppslag.stopp();
+    }
+  });
+
   it('en sak TS-kjernen ikke har skrevet, gir 404 (#705)', async () => {
     const pythonsak = await opprettKjernesak(o, o.prosjekt, null);
     const svar = await kall(server.url, `/api/kjerne/saker/${pythonsak}`, {
