@@ -211,8 +211,87 @@ export interface CaseListItem {
   hendelser?: CaseListHendelse[];
 }
 
+/**
+ * Sakslisten fra `GET /api/projects/<p>/saker` (#1022, #1029). Feltnavnene er
+ * kontrakter (B-17); betydningen står i domenetabellen, raden «Linja i sakslisten».
+ * Saken har ingen samlet status, bare en betegnelse i de fire tilfellene i MM-U22.
+ */
+export type Saksbetegnelse =
+  | 'ikke_forstaatt'
+  | 'avslaget_paa_grunnlaget_godtatt'
+  | 'grunnlaget_trukket'
+  | 'kravene_avgjort';
+
+/** Appens lesing av enighetens virkning (MM-U28). */
+export type Enighetsvirkning = 'betinget' | 'virksom' | 'uten_virkning';
+
+interface Foreligger {
+  etiketter: string[];
+  venter_paa_svar: boolean;
+  svar_ikke_godtatt: boolean;
+}
+
+export interface Grunnlagslinje extends Foreligger {
+  svar: { resultat: 'godkjent' | 'avslaatt' | 'paalegg_frafalt' } | null;
+}
+
+export interface Vederlagslinje extends Foreligger {
+  krav: { beloep: number; metode: string } | null;
+  svar: {
+    resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt' | 'tilbakeholdelse';
+    beloep: number;
+    subsidiaert: boolean;
+  } | null;
+  enighet: { beloep: number | null; virkning: Enighetsvirkning } | null;
+}
+
+export interface Fristlinje extends Foreligger {
+  krav: { dager: number } | null;
+  svar: {
+    resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt';
+    dager: number;
+    subsidiaert: boolean;
+  } | null;
+  enighet: { dager: number | null; virkning: Enighetsvirkning } | null;
+}
+
+export interface Sakslinje {
+  sak_id: string;
+  sakstype: string;
+  sakstittel: string | null;
+  opprettet: string;
+  /** Tidsstempelet på den siste hendelsen i journalen, ikke brevets dato. */
+  siste_hendelse: string;
+  hovedkategori: string | null;
+  forstaatt: boolean;
+  saksbetegnelse: Saksbetegnelse | null;
+  grunnlag: Grunnlagslinje;
+  vederlag: Vederlagslinje;
+  frist: Fristlinje;
+}
+
+/** Regnet i serveren. Ukjent er ikke 0, og fristdagene summeres ikke (MM-U28). */
+export interface Noekkeltall {
+  saker: number;
+  ikke_forstaatt: number;
+  vederlag: {
+    krav_antall: number;
+    krav_sum: number;
+    venter_paa_svar: number;
+    svar_subsidiaert_sum: number;
+    enighet_virksom_sum: number;
+    enighet_betinget_sum: number;
+    enighet_uten_beloep: number;
+  };
+  frist: { krav_antall: number; venter_paa_svar: number };
+}
+
 export interface CaseListResponse {
-  cases: CaseListItem[];
+  success: boolean;
+  /** Leserens kontraktsside fra serveren. Rollevalget i klienten gjelder bare visningen. */
+  part: 'TE' | 'BH' | null;
+  saker: Sakslinje[];
+  noekkeltall: Noekkeltall;
 }
 
 // ========== API REQUESTS ==========
