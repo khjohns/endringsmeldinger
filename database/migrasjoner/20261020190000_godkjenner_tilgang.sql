@@ -16,6 +16,11 @@
 -- stoppet, så driften kan rette kopien eller rollene. `server/godkjenning.ts` deler
 -- meldingen.
 
+-- `godkjenner` leser handlingen, så den får tegnklassekontrollen (#609).
+ALTER TABLE koe.godkjenningshandling ADD CONSTRAINT godkjenningshandling_handling_tegnklasse
+  CHECK (NOT handling COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^!-~]%');
+GO
+
 -- Aktøren i konteksten er godkjenner i et steg i den åpne pakken i prosjektet.
 CREATE FUNCTION koe_sikkerhet.godkjenner(@prosjekt_id nvarchar(100), @pakke_id uniqueidentifier)
 RETURNS TABLE WITH SCHEMABINDING AS RETURN
@@ -62,9 +67,10 @@ SELECT 1 AS tilgang
    AND TRY_CAST(SESSION_CONTEXT(N'koe_tx') AS bigint) = CURRENT_TRANSACTION_ID();
 GO
 
--- En godkjenning eller retur fra godkjenneren i steget. Trekkingen er teamets.
+-- En godkjenning eller retur fra godkjenneren i steget. Trekkingen er teamets: den har
+-- ikke noe steg, så den slipper bare gjennom `skriver`.
 CREATE FUNCTION koe_sikkerhet.handling_skriver(
-  @prosjekt_id nvarchar(100), @pakke_id uniqueidentifier, @steg tinyint, @handling nvarchar(20),
+  @prosjekt_id nvarchar(100), @pakke_id uniqueidentifier, @steg tinyint,
   @aktor_id uniqueidentifier, @aktor_rolle nvarchar(2), @aktor_team_id nvarchar(32))
 RETURNS TABLE WITH SCHEMABINDING AS RETURN
 SELECT tilgang FROM koe_sikkerhet.skriver(@prosjekt_id, @aktor_id, @aktor_rolle, @aktor_team_id, 1)
@@ -81,7 +87,6 @@ SELECT 1 AS tilgang
    AND DATALENGTH(s.prosjekt_id) = DATALENGTH(TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(4000)))
    AND @aktor_id = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier)
    AND @aktor_rolle = N'BH'
-   AND @handling IN (N'godkjent', N'returnert')
    AND TRY_CAST(SESSION_CONTEXT(N'koe_tx') AS bigint) = CURRENT_TRANSACTION_ID()
    AND (SESSION_CONTEXT(N'koe_side') IS NULL
         OR (TRY_CAST(SESSION_CONTEXT(N'koe_side') AS nvarchar(4000)) = N'BH'
@@ -117,8 +122,7 @@ ALTER SECURITY POLICY koe_sikkerhet.tilgang
   ADD FILTER PREDICATE koe_sikkerhet.pakke_synlig(prosjekt_id, aktor_team_id, pakke_id) ON koe.godkjenningssteg,
   ADD FILTER PREDICATE koe_sikkerhet.handling_synlig(prosjekt_id, aktor_team_id, pakke_id, aktor_id)
     ON koe.godkjenningshandling,
-  ADD BLOCK PREDICATE koe_sikkerhet.handling_skriver(prosjekt_id, pakke_id, steg, handling, aktor_id, aktor_rolle,
-                                                     aktor_team_id) ON koe.godkjenningshandling AFTER INSERT;
+  ADD BLOCK PREDICATE koe_sikkerhet.handling_skriver(prosjekt_id, pakke_id, steg, aktor_id, aktor_rolle, aktor_team_id) ON koe.godkjenningshandling AFTER INSERT;
 GO
 
 -- Som i `20261020171000_hierarki_kjede.sql`, med prosjektet, brukeren og tenanten der

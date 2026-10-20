@@ -908,7 +908,7 @@ Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget f
 | Relasjoner | Nøkler: primærnøkkel (pakke_id); unik (pakke_id, prosjekt_id, aktor_team_id); unik indeks (forrige_pakke_id) WHERE ([forrige_pakke_id] IS NOT NULL). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); forrige_pakke_id → koe.godkjenningspakke.pakke_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel). Vises til fra: koe.godkjenningshandling.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Saksbehandleren (`aktor_id`) og innholdet i svaret. |
-| Skrives av | database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261020190000_godkjenner_tilgang.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
@@ -925,7 +925,7 @@ Godkjennerne i en pakke i kjedens rekkefølge, avledet av hierarkiet i `koe.hr_k
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, steg); unik (pakke_id, godkjenner_id). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); godkjenner_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningshandling.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Godkjennerne (`godkjenner_id`). |
-| Skrives av | database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261020190000_godkjenner_tilgang.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
@@ -942,7 +942,7 @@ Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning f
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, loepenr); unik indeks (pakke_id) WHERE ([handling]<>N'godkjent'); unik indeks (pakke_id, steg) WHERE ([handling]=N'godkjent'). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); (pakke_id, steg) → koe.godkjenningssteg.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.(godkjenningshandling_pakke_id, godkjenningshandling_loepenr) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Den som handlet (`aktor_id`) og begrunnelsen for en retur. |
-| Skrives av | database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261020190000_godkjenner_tilgang.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
