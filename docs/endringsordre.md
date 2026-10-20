@@ -4,7 +4,7 @@ Byggherren kan opprette en endringsordre fra «Krav og endringer» eller fra en 
 
 Endringsordre hører ikke til første versjon (OV-U1). Den ekte appen har derfor ingen inngang til EO lenger (#1024): rutene for ny endringsordre og godkjenning er tatt ut, KOE-saken viser ikke EO-lenken, og saksruta viser at sakstypen ikke støttes. Mockupen i `/mockup/endringsordre` beholdes som forbilde for brukergrensesnittet, og komponentene, domenekoden og API-klienten står til TS-stien er sammenlignet med dem.
 
-I `/mockup/oversikt` vises også «Ny endringsordre» når «Byggherre BH» er valgt. Demoflyten bruker samme skjema med lokale eksempelsaker, uten API-kall. Utstedte demoordrer lagres i nettleseren, vises i mockup-registeret og kan gjenåpnes. Demoen bruker en egen lagringsnøkkel for utkast og ordresamling; den oppretter ingen reelle prosjektsaker.
+I `/mockup/oversikt` vises også «Ny endringsordre» når «Byggherre BH» er valgt. Demoflyten bruker samme skjema med lokale eksempelsaker, uten API-kall. Utstedte demoordrer lagres i nettleseren og kan gjenåpnes på `/mockup/endringsordre/<sak-ID>`; de vises ikke i `/mockup/oversikt`. Demoen bruker en egen lagringsnøkkel for utkast og ordresamling; den oppretter ingen reelle prosjektsaker.
 
 ## Brukerflyt
 
@@ -27,7 +27,7 @@ Direkte pålegg kan utstedes med uavklart pris og frist. Ved KOE-formalisering m
 
 KOE-kandidater tilhører samme prosjekt, har godkjent grunnlag og avklarte aktive spor, og inneholder minst ett godkjent vederlags- eller fristkrav. Krav som allerede inngår i en EO, kan ikke velges igjen. Eksisterende KOE-historikk beholdes. Utstedte ordres relasjoner kan ikke endres gjennom de gamle legg-til/fjern-endepunktene.
 
-Saksregisteret har et sakstypefilter og viser EO-nummer, status, grunnlag, nettobeløp og frist. Vederlags- og friststatistikken er eksplisitt KOE-statistikk; EO-beløp legges ikke til en gang til. Formaliserte KOE-saker tas ut av arbeidslisten.
+Saksregisteret viser EO-nummer, status, grunnlag, nettobeløp og frist. Vederlags- og friststatistikken er eksplisitt KOE-statistikk; EO-beløp legges ikke til en gang til. Formaliserte KOE-saker tas ut av arbeidslisten.
 
 ## Implementering
 
@@ -68,4 +68,4 @@ Dokumentet viser gjeldende EO-revisjon. Egen UI for entreprenørens aksept/bestr
 
 - `npm run check:error`, `npm run build` og `npm run test -- --maxWorkers=2`.
 - Backendtester: `test_endringsordre_service.py`, `test_endringsordre_routes.py`, `test_case_list_endringsordre.py`, `test_catenda_metadata_mapping.py`.
-- `scripts/test_endringsordre.mjs` kjører begge opprettelsesflytene i Chrome med avskjærte API-kall: forhåndsvalg, flere KOE-krav, eksplisitt samlet frist, dokumentkontroll, lagret utkast, gjenåpning og mobilvisning. Ingen reelle saker opprettes av testen.
+- `scripts/test_endringsordre.mjs` kjører demoflyten i `/mockup/oversikt` og `/mockup/endringsordre/*` i Chrome med avskjærte API-kall: inngang fra byggherrevisningen, direkte ordre med uavklart pris og frist, godkjenningskjeden, gjenåpning etter reload, formalisering av et avtalt KOE-krav og at utkastet er forkastet etter utstedelse (#445). Testen kontrollerer at det ikke går API-kall, og oppretter ingen reelle saker.
