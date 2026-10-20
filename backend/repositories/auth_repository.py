@@ -171,9 +171,11 @@ class AuthRepository:
         folder_id: str | None = None,
         topic_board_id: str | None = None,
         description: str | None = None,
-        teams: list[dict] | None = None,
     ):
-        """Atomisk registrering av prosjekt, integrasjonskonfigurasjon og eventuelle teams."""
+        """Atomisk registrering av prosjekt og integrasjonskonfigurasjon.
+
+        Kontraktsteamene registreres bare med `server/registrering.ts` (#1072).
+        """
         return (
             self.client.rpc(
                 "koe_register_project",
@@ -186,7 +188,7 @@ class AuthRepository:
                     "p_library_id": library_id,
                     "p_folder_id": folder_id,
                     "p_topic_board_id": topic_board_id,
-                    "p_teams": teams,
+                    "p_teams": None,
                 },
             )
             .execute()

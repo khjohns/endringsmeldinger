@@ -835,7 +835,7 @@ retning = "inn"
 utloses_av = "`scripts/catenda_admin.py register`; teamene bare `server/registrering.ts registrer` med `--bh` og `--te`."
 beskrivelse = """
 Drift oppgir Catenda-prosjekt, bibliotek, mappe og board. Navnet hentes fra
-Catenda om det ikke er oppgitt. Én databasefunksjon skriver alt atomisk;
+Catenda om det ikke er oppgitt. Én databasefunksjon skriver alt atomisk i PostgreSQL;
 triggeren på `projects` legger i tillegg inn en rad i `project_memberships`.
 Kontraktsteamene registreres bare med TS-skriptet, som kontrollerer dem mot
 Catenda og krever `--en-totalentreprenoer` (DL-U14); Python-skriptet avviser
@@ -849,7 +849,8 @@ Catenda-prosjekt, står ved `catenda_project_configs` i `tabeller.toml`;
 funn = ["MS-12"]
 belegg = """
 L 29.09: `cmd_register`, `koe_register_project` i migrasjonene, og at den kaller
-`koe_set_contract_teams`. K 29.09: triggeren i katalogen."""
+`koe_set_contract_teams`. K 29.09: triggeren i katalogen. L 20.10: teamene bare
+gjennom `kjoer` og `registrer` i `server/registrering.ts` (#1072)."""
 
 [[flyt.steg]]
 fra = "catenda:prosjekt"

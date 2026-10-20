@@ -1186,7 +1186,7 @@ Leser fra Catenda og svarer; ingenting lagres.
 
 **Retning:** inn. **Utløses av:** `scripts/catenda_admin.py register`; teamene bare `server/registrering.ts registrer` med `--bh` og `--te`.
 
-Drift oppgir Catenda-prosjekt, bibliotek, mappe og board. Navnet hentes fra Catenda om det ikke er oppgitt. Én databasefunksjon skriver alt atomisk; triggeren på `projects` legger i tillegg inn en rad i `project_memberships`. Kontraktsteamene registreres bare med TS-skriptet, som kontrollerer dem mot Catenda og krever `--en-totalentreprenoer` (DL-U14); Python-skriptet avviser `--bh` og `--te` (#1072). I TS registrerer driftsskriptet `server/registrering.ts registrer` prosjektet mot `koe_drift.registrer_prosjekt` i SQL Server (F-1, #820). Det henter ikke navnet fra Catenda, men kontrollerer også et oppgitt board mot Catenda-prosjektet (#836). Hva en ny registrering gjør med mappen, boardet og et bytte av Catenda-prosjekt, står ved `catenda_project_configs` i `tabeller.toml`; `koe_register_project` i Python følger ikke de reglene (DL-U2, #868).
+Drift oppgir Catenda-prosjekt, bibliotek, mappe og board. Navnet hentes fra Catenda om det ikke er oppgitt. Én databasefunksjon skriver alt atomisk i PostgreSQL; triggeren på `projects` legger i tillegg inn en rad i `project_memberships`. Kontraktsteamene registreres bare med TS-skriptet, som kontrollerer dem mot Catenda og krever `--en-totalentreprenoer` (DL-U14); Python-skriptet avviser `--bh` og `--te` (#1072). I TS registrerer driftsskriptet `server/registrering.ts registrer` prosjektet mot `koe_drift.registrer_prosjekt` i SQL Server (F-1, #820). Det henter ikke navnet fra Catenda, men kontrollerer også et oppgitt board mot Catenda-prosjektet (#836). Hva en ny registrering gjør med mappen, boardet og et bytte av Catenda-prosjekt, står ved `catenda_project_configs` i `tabeller.toml`; `koe_register_project` i Python følger ikke de reglene (DL-U2, #868).
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
@@ -1194,7 +1194,7 @@ Drift oppgir Catenda-prosjekt, bibliotek, mappe og board. Navnet hentes fra Cate
 | C18.2 | Catenda: team og teammedlemmer | koe.catenda_contract_teams | GET /v2/projects/{catenda_project_id}/teams | [`kjoer`](../../server/registrering.ts) → [`catendaTeam`](../../server/registrering.ts) → [`registrer`](../../server/registrering.ts) | Kontroll av at teamene drift oppgir, finnes i Catenda-prosjektet. ID-ene kommer fra drift. |
 | C18.3 | Catenda: topic board | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{topic_board_id} | [`kjoer`](../../server/registrering.ts) → [`CatendaOAuth`](../../server/catenda.ts) | `bimsync_project_id` for boardet drift oppgir, kontrollert mot Catenda-prosjektet. Bare TS-skriptet kontrollerer det (#836). |
 
-**Funn:** MS-12. **Belegg:** L 29.09: `cmd_register`, `koe_register_project` i migrasjonene, og at den kaller `koe_set_contract_teams`. K 29.09: triggeren i katalogen.
+**Funn:** MS-12. **Belegg:** L 29.09: `cmd_register`, `koe_register_project` i migrasjonene, og at den kaller `koe_set_contract_teams`. K 29.09: triggeren i katalogen. L 20.10: teamene bare gjennom `kjoer` og `registrer` i `server/registrering.ts` (#1072).
 
 ### C19 Kontraktsteam endres av drift
 
