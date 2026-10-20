@@ -35,8 +35,6 @@
 		"husky": "^9.1.7",
 		"jsdom": "^28.1.0",
 		"lint-staged": "^16.3.3",
-		"mssql": "12.7.1",
-		"pdf-lib": "1.17.1",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.5.1",
 		"svelte": "^5.49.0",
@@ -60,6 +58,8 @@
 		"formsnap": "^2.0.1",
 		"jose": "6.2.12",
 		"lucide-svelte": "^0.475.0",
+		"mssql": "12.7.1",
+		"pdf-lib": "1.17.1",
 		"sveltekit-superforms": "^2.30.0",
 		"zod": "^3.25.76"
 	},

@@ -33,9 +33,6 @@
   const claimReview = getClaimReview();
   const submission = createSubmission();
 
-  let vedleggIds = $state<string[]>([]);
-  let vedleggOpptatt = $state(false);
-
   const tilgjengelig = $derived(tilgjengeligeHandlinger(store.sak.frist));
   let handling = $state<FristVarselHandling | undefined>(undefined);
   let tillegg = $state('');
@@ -50,7 +47,7 @@
         : ''
   );
   const kanSende = $derived(
-    handling !== undefined && tilgjengelig[handling] && !submission.pending && !vedleggOpptatt
+    handling !== undefined && tilgjengelig[handling] && !submission.pending
   );
 
   $effect(() => {
@@ -60,16 +57,13 @@
         if (!kanSende || !handling) return;
         const valgt = handling;
         void submission.run(async () => {
-          const data = {
-            ...buildEventData(valgt, {
-              fristKravId: requireEventId(submissionRefs(store.timeline, 'frist').claimId),
-              tillegg,
-              varselDato: varselDato ? formatDateNorwegian(varselDato) : undefined,
-              svarfrist: svarfrist || undefined,
-              svarfristVist: svarfrist ? formatDateNorwegian(svarfrist) : undefined,
-            }),
-            vedlegg_ids: [...vedleggIds],
-          };
+          const data = buildEventData(valgt, {
+            fristKravId: requireEventId(submissionRefs(store.timeline, 'frist').claimId),
+            tillegg,
+            varselDato: varselDato ? formatDateNorwegian(varselDato) : undefined,
+            svarfrist: svarfrist || undefined,
+            svarfristVist: svarfrist ? formatDateNorwegian(svarfrist) : undefined,
+          });
           await claimReview!.submit(
             'frist',
             eventTypeFor(valgt),
@@ -88,19 +82,7 @@
 </script>
 
 <div class="form-content">
-  <SkjemaStatus
-    sender={submission.pending}
-    feil={submission.error}
-    utkastStatus="uendret"
-    konflikt={null}
-    sistEndretAv={null}
-    behold={() => {}}
-    hentInn={() => {}}
-    sakId={store.sak.sak_id}
-    visVedlegg={false}
-    bind:vedleggIds
-    bind:vedleggOpptatt
-  />
+  <SkjemaStatus sender={submission.pending} feil={submission.error} />
 
   <FormPageHeader
     title="Varsel om fristforlengelse"

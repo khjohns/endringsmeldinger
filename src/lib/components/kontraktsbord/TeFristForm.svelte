@@ -1,17 +1,13 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
-  let vedleggIds = $state<string[]>([]);
   let vedleggOpptatt = $state(false);
-  function buildEventData(...args: Parameters<typeof buildDomainData>) {
-    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
-  }
   import {
     beregnVisibility,
     beregnCanSubmit,
     beregnTeStatusSummary,
     getDynamicPlaceholder,
     getDefaults,
-    buildEventData as buildDomainData,
+    buildEventData,
     getEventType,
   } from '$lib/domain/fristSubmissionDomain';
   import type {
@@ -19,12 +15,8 @@
     SubmissionScenario,
   } from '$lib/domain/fristSubmissionDomain';
   import type { FristVarselType, EventType } from '$lib/types/timeline';
-  import {
-    createSubmission,
-    createFormDraft,
-    submissionRefs,
-  } from '$lib/kontraktsbord/submission.svelte';
-  const submission = createSubmission(() => draft.clear());
+  import { createSubmission, submissionRefs } from '$lib/kontraktsbord/submission.svelte';
+  const submission = createSubmission();
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
@@ -192,21 +184,6 @@
       : beregnCanSubmit(mappedState, { scenario }) && (varselType === 'varsel' || charCount >= 10)
   );
   const statusSummary = $derived(beregnTeStatusSummary(mappedState, { scenario }));
-  const draft = createFormDraft(
-    false,
-    {
-      sakId: store.sak.sak_id,
-      spor: 'frist',
-      revisjon: kjernesak ? kjernesak.kravversjon('frist') : store.sak.frist.antall_versjoner,
-    },
-    () => ({ vedleggIds, varselType, antallDager, begrunnelse }),
-    (saved) => {
-      vedleggIds = saved.vedleggIds ?? [];
-      varselType = saved.varselType as FristVarselType | undefined;
-      antallDager = saved.antallDager;
-      begrunnelse = saved.begrunnelse ?? '';
-    }
-  );
 
   $effect(() => {
     onactions?.({
@@ -258,185 +235,171 @@
   });
 </script>
 
-{#if draft.ready}
-  <div class="form-content">
-    <SkjemaStatus
-      sender={submission.pending}
-      feil={submission.error}
-      utkastStatus={draft.status}
-      konflikt={draft.konflikt}
-      sistEndretAv={draft.sistEndretAv}
-      behold={draft.behold}
-      hentInn={draft.hentInn}
-      sakId={store.sak.sak_id}
-      visVedlegg={false}
-      bind:vedleggIds
-      bind:vedleggOpptatt
-    />
+<div class="form-content">
+  <SkjemaStatus sender={submission.pending} feil={submission.error} />
 
-    <FormPageHeader
-      title="Krav om fristforlengelse"
-      intro={registrerer
-        ? 'Registrer et varsel etter § 33.4 som er sendt utenfor appen.'
-        : scenario === 'edit'
-          ? 'Oppdater antall dager eller begrunnelsen for det innsendte fristkravet.'
-          : 'Angi kravstype, antall dager og hvordan kontraktsforholdet påvirker fremdriften.'}
-    />
+  <FormPageHeader
+    title="Krav om fristforlengelse"
+    intro={registrerer
+      ? 'Registrer et varsel etter § 33.4 som er sendt utenfor appen.'
+      : scenario === 'edit'
+        ? 'Oppdater antall dager eller begrunnelsen for det innsendte fristkravet.'
+        : 'Angi kravstype, antall dager og hvordan kontraktsforholdet påvirker fremdriften.'}
+  />
 
-    {#if existingVarselDato && scenario !== 'edit'}
-      <section class="prior-notice">
-        <div class="prior-notice-header">
-          <div>
-            <span class="eyebrow">Tidligere innsending</span>
-            <h2>Foreløpig varsel</h2>
-          </div>
-          <span class="font-mono prior-notice-ref">§ 33.4</span>
+  {#if existingVarselDato && scenario !== 'edit'}
+    <section class="prior-notice">
+      <div class="prior-notice-header">
+        <div>
+          <span class="eyebrow">Tidligere innsending</span>
+          <h2>Foreløpig varsel</h2>
         </div>
-        <div class="prior-notice-meta">Sendt {varselDatoLabel}</div>
-        <p>Kravet kan nå spesifiseres med antall dager og begrunnelse etter § 33.6.</p>
-      </section>
-    {/if}
-
-    <div class="standpunkt-heading">
-      <span class="standpunkt-title">Entreprenørens krav</span>
-      <span class="font-mono standpunkt-ref">§ 33.1</span>
-    </div>
-
-    {#if scenario !== 'edit' || segmentOptions.length > 1 || registrerer}
-      <FormSection title="Kravstype" paragrafRef="§ 33.4 / § 33.6">
-        <SegmentedControl
-          label="Kravstype"
-          options={segmentOptions}
-          value={varselType ?? ''}
-          onchange={(value) => (varselType = value as FristVarselType)}
-        />
-        {#if registrerer}
-          <p class="helptext">
-            Registrer et varsel etter § 33.4 som er sendt utenfor appen, med datoen det ble sendt og
-            brevet som vedlegg. Appen lager ikke noe brev, og datoen kan ikke endres etterpå.
-          </p>
-        {:else if varselType === 'varsel' && kjernesak}
-          <p class="helptext">
-            Varselet etter § 33.4 sendes med dagens dato, uten dager og uten fritekst. Antall dager
-            kreves senere i et spesifisert krav.
-          </p>
-        {:else if varselType === 'varsel'}
-          <p class="helptext">
-            Varselet registreres med dagens dato. Antall dager kan spesifiseres når grunnlaget for å
-            beregne omfanget foreligger.
-          </p>
-        {:else if varselType === 'spesifisert'}
-          <p class="helptext">
-            Angi det antall dager som kreves, og dokumenter virkningen på fremdriften.
-          </p>
-          {#if kanRegistrere}
-            <label class="field-check">
-              <input type="checkbox" bind:checked={oppgirVarsel} />
-              Varselet etter § 33.4 er sendt tidligere, utenfor appen
-            </label>
-          {/if}
-        {:else if varselType === 'begrunnelse_utsatt'}
-          <p class="helptext">
-            Begrunn hvorfor grunnlaget for å beregne kravet ennå ikke foreligger.
-          </p>
-        {/if}
-      </FormSection>
-    {/if}
-
-    {#if visVarselet}
-      <FormSection title="Varselet som er sendt" paragrafRef="§ 33.4">
-        {#if !registrerer}
-          <p class="helptext">
-            Kravet oppgir datoen varselet ble sendt, og brevet med varselet legges ved. Datoen kan
-            ikke endres etterpå.
-          </p>
-        {/if}
-        <label class="field-label" for="te-frist-varsel-sendt">Datoen varselet ble sendt</label>
-        <input
-          id="te-frist-varsel-sendt"
-          class="field-input"
-          type="date"
-          max={dagensDato()}
-          bind:value={varselSendt}
-        />
-        {#if varselSendt && hindring}
-          <p class="helptext" role="status">{hindring}</p>
-        {/if}
-        <label class="field-label" for="te-frist-varsel-brev">Brevet med varselet</label>
-        <input
-          id="te-frist-varsel-brev"
-          type="file"
-          multiple
-          disabled={vedleggOpptatt}
-          onchange={(e) => {
-            const felt = e.currentTarget;
-            void lastOppTilKjernen(felt.files).then(() => (felt.value = ''));
-          }}
-        />
-        {#if vedleggOpptatt}<p class="helptext" role="status">Laster opp …</p>{/if}
-        {#if opplastingsfeil}<p role="alert">{opplastingsfeil}</p>{/if}
-        {#if registrerteVedlegg.length}
-          <ul class="vedleggsliste">
-            {#each registrerteVedlegg as v (v.vedlegg_id)}
-              <li>
-                {v.filnavn}
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  onclick={() => (registrerteVedlegg = registrerteVedlegg.filter((x) => x !== v))}
-                  >Fjern</button
-                >
-              </li>
-            {/each}
-          </ul>
-        {:else if !varselSendt}
-          <p class="helptext">Brevet som ble sendt, må ligge ved.</p>
-        {/if}
-      </FormSection>
-    {/if}
-    {#if !registrerer && visibility.showKravSection}
-      {#if varselType === 'spesifisert'}
-        <FormSection title="Utmåling" paragrafRef="§ 33.5">
-          <p class="helptext">
-            Fristforlengelsen skal svare til den virkningen kontraktsforholdet har hatt eller vil få
-            på fremdriften.
-          </p>
-          <NumberField
-            id="te-frist-antall-dager"
-            label="Antall dager"
-            suffix="dager"
-            value={antallDager}
-            onchange={(value) => (antallDager = value)}
-          />
-        </FormSection>
-      {/if}
-
-      <ReasoningEditor
-        title={varselType === 'begrunnelse_utsatt'
-          ? 'Begrunnelse for utsatt beregning'
-          : 'Begrunnelse og årsakssammenheng'}
-        paragrafRef={varselType === 'begrunnelse_utsatt' ? '§ 33.6.2' : '§ 33.1 / § 33.5'}
-        helptext={varselType === 'begrunnelse_utsatt'
-          ? 'Forklar hvorfor kravet ikke kan beregnes nå, og når et spesifisert krav kan forventes.'
-          : 'Beskriv fremdriftshindringen, sammenhengen med kontraktsforholdet og hvordan antall dager er beregnet. Oppgi om virkningen ligger på kritisk linje.'}
-        body={begrunnelse}
-        placeholder={getDynamicPlaceholder(mappedState.varselType)}
-        onchange={(html) => (begrunnelse = html)}
-        oncharcount={(count) => (charCount = count)}
-      />
-      {#if begrunnelseMangler}
-        <p class="helptext" role="status">Begrunnelsen for antallet dager mangler.</p>
-      {/if}
-    {/if}
-
-    {#if kanSende && statusSummary}
-      <div class="status-box">
-        <span class="status-label">Klar til sending</span>
-        <div class="font-mono status-text">{statusSummary}</div>
+        <span class="font-mono prior-notice-ref">§ 33.4</span>
       </div>
-    {/if}
+      <div class="prior-notice-meta">Sendt {varselDatoLabel}</div>
+      <p>Kravet kan nå spesifiseres med antall dager og begrunnelse etter § 33.6.</p>
+    </section>
+  {/if}
+
+  <div class="standpunkt-heading">
+    <span class="standpunkt-title">Entreprenørens krav</span>
+    <span class="font-mono standpunkt-ref">§ 33.1</span>
   </div>
-{/if}
+
+  {#if scenario !== 'edit' || segmentOptions.length > 1 || registrerer}
+    <FormSection title="Kravstype" paragrafRef="§ 33.4 / § 33.6">
+      <SegmentedControl
+        label="Kravstype"
+        options={segmentOptions}
+        value={varselType ?? ''}
+        onchange={(value) => (varselType = value as FristVarselType)}
+      />
+      {#if registrerer}
+        <p class="helptext">
+          Registrer et varsel etter § 33.4 som er sendt utenfor appen, med datoen det ble sendt og
+          brevet som vedlegg. Appen lager ikke noe brev, og datoen kan ikke endres etterpå.
+        </p>
+      {:else if varselType === 'varsel' && kjernesak}
+        <p class="helptext">
+          Varselet etter § 33.4 sendes med dagens dato, uten dager og uten fritekst. Antall dager
+          kreves senere i et spesifisert krav.
+        </p>
+      {:else if varselType === 'varsel'}
+        <p class="helptext">
+          Varselet registreres med dagens dato. Antall dager kan spesifiseres når grunnlaget for å
+          beregne omfanget foreligger.
+        </p>
+      {:else if varselType === 'spesifisert'}
+        <p class="helptext">
+          Angi det antall dager som kreves, og dokumenter virkningen på fremdriften.
+        </p>
+        {#if kanRegistrere}
+          <label class="field-check">
+            <input type="checkbox" bind:checked={oppgirVarsel} />
+            Varselet etter § 33.4 er sendt tidligere, utenfor appen
+          </label>
+        {/if}
+      {:else if varselType === 'begrunnelse_utsatt'}
+        <p class="helptext">
+          Begrunn hvorfor grunnlaget for å beregne kravet ennå ikke foreligger.
+        </p>
+      {/if}
+    </FormSection>
+  {/if}
+
+  {#if visVarselet}
+    <FormSection title="Varselet som er sendt" paragrafRef="§ 33.4">
+      {#if !registrerer}
+        <p class="helptext">
+          Kravet oppgir datoen varselet ble sendt, og brevet med varselet legges ved. Datoen kan
+          ikke endres etterpå.
+        </p>
+      {/if}
+      <label class="field-label" for="te-frist-varsel-sendt">Datoen varselet ble sendt</label>
+      <input
+        id="te-frist-varsel-sendt"
+        class="field-input"
+        type="date"
+        max={dagensDato()}
+        bind:value={varselSendt}
+      />
+      {#if varselSendt && hindring}
+        <p class="helptext" role="status">{hindring}</p>
+      {/if}
+      <label class="field-label" for="te-frist-varsel-brev">Brevet med varselet</label>
+      <input
+        id="te-frist-varsel-brev"
+        type="file"
+        multiple
+        disabled={vedleggOpptatt}
+        onchange={(e) => {
+          const felt = e.currentTarget;
+          void lastOppTilKjernen(felt.files).then(() => (felt.value = ''));
+        }}
+      />
+      {#if vedleggOpptatt}<p class="helptext" role="status">Laster opp …</p>{/if}
+      {#if opplastingsfeil}<p role="alert">{opplastingsfeil}</p>{/if}
+      {#if registrerteVedlegg.length}
+        <ul class="vedleggsliste">
+          {#each registrerteVedlegg as v (v.vedlegg_id)}
+            <li>
+              {v.filnavn}
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick={() => (registrerteVedlegg = registrerteVedlegg.filter((x) => x !== v))}
+                >Fjern</button
+              >
+            </li>
+          {/each}
+        </ul>
+      {:else if !varselSendt}
+        <p class="helptext">Brevet som ble sendt, må ligge ved.</p>
+      {/if}
+    </FormSection>
+  {/if}
+  {#if !registrerer && visibility.showKravSection}
+    {#if varselType === 'spesifisert'}
+      <FormSection title="Utmåling" paragrafRef="§ 33.5">
+        <p class="helptext">
+          Fristforlengelsen skal svare til den virkningen kontraktsforholdet har hatt eller vil få
+          på fremdriften.
+        </p>
+        <NumberField
+          id="te-frist-antall-dager"
+          label="Antall dager"
+          suffix="dager"
+          value={antallDager}
+          onchange={(value) => (antallDager = value)}
+        />
+      </FormSection>
+    {/if}
+
+    <ReasoningEditor
+      title={varselType === 'begrunnelse_utsatt'
+        ? 'Begrunnelse for utsatt beregning'
+        : 'Begrunnelse og årsakssammenheng'}
+      paragrafRef={varselType === 'begrunnelse_utsatt' ? '§ 33.6.2' : '§ 33.1 / § 33.5'}
+      helptext={varselType === 'begrunnelse_utsatt'
+        ? 'Forklar hvorfor kravet ikke kan beregnes nå, og når et spesifisert krav kan forventes.'
+        : 'Beskriv fremdriftshindringen, sammenhengen med kontraktsforholdet og hvordan antall dager er beregnet. Oppgi om virkningen ligger på kritisk linje.'}
+      body={begrunnelse}
+      placeholder={getDynamicPlaceholder(mappedState.varselType)}
+      onchange={(html) => (begrunnelse = html)}
+      oncharcount={(count) => (charCount = count)}
+    />
+    {#if begrunnelseMangler}
+      <p class="helptext" role="status">Begrunnelsen for antallet dager mangler.</p>
+    {/if}
+  {/if}
+
+  {#if kanSende && statusSummary}
+    <div class="status-box">
+      <span class="status-label">Klar til sending</span>
+      <div class="font-mono status-text">{statusSummary}</div>
+    </div>
+  {/if}
+</div>
 
 <style>
   .field-check {

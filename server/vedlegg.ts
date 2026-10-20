@@ -209,14 +209,14 @@ async function listVedlegg(f: Forespoersel, avh: Required<Avhengigheter>): Promi
  * `filename` som ASCII-reserve etter RFC 6266, 4.3, for en klient som ikke leser
  * `filename*`: aksentene tas bort, og andre tegn utenfor ASCII blir `_` (#815 punkt 4).
  */
-const asciiReserve = (navn: string) =>
+export const asciiReserve = (navn: string) =>
   navn
     .normalize('NFKD')
     .replace(/\p{M}/gu, '')
     .replace(/[^\x20-\x7e]|["\\]/g, '_');
 
 /** `filename*` etter RFC 8187: `encodeURIComponent` lar `'()*` stå, men de er ikke attr-char. */
-const attrTegn = (navn: string) =>
+export const attrTegn = (navn: string) =>
   encodeURIComponent(navn).replace(
     /['()*]/g,
     (t) => `%${t.charCodeAt(0).toString(16).toUpperCase()}`

@@ -1,25 +1,16 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
-  let vedleggIds = $state<string[]>([]);
-  let vedleggOpptatt = $state(false);
-  function buildEventData(...args: Parameters<typeof buildDomainData>) {
-    return { ...buildDomainData(...args), vedlegg_ids: [...vedleggIds] };
-  }
   import KonsekvensVarsler from './KonsekvensVarsler.svelte';
   import { buildKonsekvensVarsler, type VarselValg } from '$lib/domain/konsekvensVarsler';
   import {
     getDefaults,
     beregnCanSubmit,
-    buildEventData as buildDomainData,
+    buildEventData,
     getEventType,
   } from '$lib/domain/vederlagSubmissionDomain';
   import type { EventType } from '$lib/types/timeline';
-  import {
-    createSubmission,
-    createFormDraft,
-    submissionRefs,
-  } from '$lib/kontraktsbord/submission.svelte';
-  const submission = createSubmission(() => draft.clear());
+  import { createSubmission, submissionRefs } from '$lib/kontraktsbord/submission.svelte';
+  const submission = createSubmission();
   import type { VederlagSubmissionFormState } from '$lib/domain/vederlagSubmissionDomain';
   import type { VederlagsMetode } from '$lib/constants/paymentMethods';
   import {
@@ -118,50 +109,18 @@
         ? metodeKanSendesTilKjernen(metode) && (belopDirekte ?? 0) > 0
         : beregnCanSubmit(mappedState) && charCount >= 10
   );
-  const draft = createFormDraft(
-    false,
-    {
-      sakId: store.sak.sak_id,
-      spor: 'vederlag',
-      revisjon: kjernesak ? kjernesak.kravversjon('vederlag') : store.sak.vederlag.antall_versjoner,
-    },
-    () => ({
-      vedleggIds,
-      mode,
-      varsler,
-      metode,
-      belopDirekte,
-      kostnadsOverslag,
-      belopRigg,
-      belopProduktivitet,
-      begrunnelse,
-    }),
-    (saved) => {
-      vedleggIds = saved.vedleggIds ?? [];
-      mode = saved.mode ?? mode;
-      varsler = saved.varsler ?? {};
-      metode = saved.metode ?? defaults.metode ?? 'REGNINGSARBEID';
-      belopDirekte = saved.belopDirekte;
-      kostnadsOverslag = saved.kostnadsOverslag;
-      belopRigg = saved.belopRigg;
-      belopProduktivitet = saved.belopProduktivitet;
-      begrunnelse = saved.begrunnelse ?? '';
-    }
-  );
 
   $effect(() => {
     onactions?.({
-      canSend: kanSende && !submission.pending && !vedleggOpptatt,
+      canSend: kanSende && !submission.pending,
       sendLabel: mode === 'varsel' ? 'Send varsel' : 'Send spesifisert krav',
       send: () => {
-        if (vedleggOpptatt) return;
         if (kanSende)
           void submission.run(async () => {
             if (claimReview) {
               const data =
                 mode === 'varsel'
                   ? {
-                      vedlegg_ids: [...vedleggIds],
                       varsel_type: 'varsel',
                       varsler: noticeData,
                       begrunnelse: Object.values(noticeData).join('\n\n'),
@@ -204,129 +163,115 @@
       .filter((o) => !kjernesak || metodeKanSendesTilKjernen(o.value));
 </script>
 
-{#if draft.ready}
-  <div class="form-content">
-    <SkjemaStatus
-      sender={submission.pending}
-      feil={submission.error}
-      utkastStatus={draft.status}
-      konflikt={draft.konflikt}
-      sistEndretAv={draft.sistEndretAv}
-      behold={draft.behold}
-      hentInn={draft.hentInn}
-      sakId={store.sak.sak_id}
-      visVedlegg={false}
-      bind:vedleggIds
-      bind:vedleggOpptatt
-    />
+<div class="form-content">
+  <SkjemaStatus sender={submission.pending} feil={submission.error} />
 
-    <FormPageHeader
-      title="Krav om vederlagsjustering"
-      intro={kjernesak
-        ? 'Oppgi den faste prisen du tilbyr for endringen.'
-        : 'Varsle kravet nå, eller spesifiser det når beregningsgrunnlaget foreligger.'}
+  <FormPageHeader
+    title="Krav om vederlagsjustering"
+    intro={kjernesak
+      ? 'Oppgi den faste prisen du tilbyr for endringen.'
+      : 'Varsle kravet nå, eller spesifiser det når beregningsgrunnlaget foreligger.'}
+  />
+
+  {#if !kjernesak}
+    <FormSection title="Innsending">
+      <p class="submission-question">Hva vil du sende?</p>
+      <SegmentedControl
+        label="Hva vil du sende?"
+        value={mode}
+        options={[
+          { value: 'varsel', label: 'Varsel' },
+          { value: 'spesifisert', label: 'Spesifisert krav' },
+        ]}
+        onchange={(value) => (mode = value as typeof mode)}
+      />
+      <p class="helptext">
+        {mode === 'varsel' ? 'Varsle uten å oppgi beløp.' : 'Oppgi beregningsmetode og beløp.'}
+      </p>
+    </FormSection>
+  {/if}
+  {#if mode === 'varsel'}
+    <KonsekvensVarsler
+      bind:value={varsler}
+      hovedkategori={store.sak.grunnlag.hovedkategori ?? ''}
+      tittel={store.sak.grunnlag.tittel ?? ''}
+      includeFrist={false}
+      disabled={submission.pending}
     />
+  {:else}
+    <FormSection title="Beregningsmetode" paragrafRef="§ 34.2">
+      <SegmentedControl
+        label="Beregningsmetode"
+        options={METODE_OPTIONS}
+        value={metode}
+        onchange={(value) => (metode = value as VederlagsMetode)}
+      />
+      {#if metodeDescription}
+        <p class="helptext">{metodeDescription}</p>
+      {/if}
+    </FormSection>
+
+    <FormSection title="Hovedkrav" paragrafRef="§ 34.1.1–34.1.2">
+      <NumberField
+        id="te-hovedkrav"
+        label={hovedkravLabel}
+        suffix="kr"
+        value={hovedkravValue}
+        onchange={handleHovedkravChange}
+      />
+    </FormSection>
 
     {#if !kjernesak}
-      <FormSection title="Innsending">
-        <p class="submission-question">Hva vil du sende?</p>
-        <SegmentedControl
-          label="Hva vil du sende?"
-          value={mode}
-          options={[
-            { value: 'varsel', label: 'Varsel' },
-            { value: 'spesifisert', label: 'Spesifisert krav' },
-          ]}
-          onchange={(value) => (mode = value as typeof mode)}
-        />
+      <FormSection title="Særskilte krav" paragrafRef="§ 34.1.3">
         <p class="helptext">
-          {mode === 'varsel' ? 'Varsle uten å oppgi beløp.' : 'Oppgi beregningsmetode og beløp.'}
+          Eventuelle tilleggskrav for rigg- og driftskostnader eller produktivitetstap.
         </p>
-      </FormSection>
-    {/if}
-    {#if mode === 'varsel'}
-      <KonsekvensVarsler
-        bind:value={varsler}
-        hovedkategori={store.sak.grunnlag.hovedkategori ?? ''}
-        tittel={store.sak.grunnlag.tittel ?? ''}
-        includeFrist={false}
-        disabled={submission.pending}
-      />
-    {:else}
-      <FormSection title="Beregningsmetode" paragrafRef="§ 34.2">
-        <SegmentedControl
-          label="Beregningsmetode"
-          options={METODE_OPTIONS}
-          value={metode}
-          onchange={(value) => (metode = value as VederlagsMetode)}
-        />
-        {#if metodeDescription}
-          <p class="helptext">{metodeDescription}</p>
-        {/if}
-      </FormSection>
-
-      <FormSection title="Hovedkrav" paragrafRef="§ 34.1.1–34.1.2">
-        <NumberField
-          id="te-hovedkrav"
-          label={hovedkravLabel}
-          suffix="kr"
-          value={hovedkravValue}
-          onchange={handleHovedkravChange}
-        />
-      </FormSection>
-
-      {#if !kjernesak}
-        <FormSection title="Særskilte krav" paragrafRef="§ 34.1.3">
-          <p class="helptext">
-            Eventuelle tilleggskrav for rigg- og driftskostnader eller produktivitetstap.
-          </p>
-          <div class="saerskilt-grid">
-            <NumberField
-              id="te-rigg"
-              label="Rigg og drift"
-              suffix="kr"
-              value={belopRigg}
-              onchange={(value) => (belopRigg = value)}
-            />
-            <NumberField
-              id="te-produktivitet"
-              label="Produktivitetstap"
-              suffix="kr"
-              value={belopProduktivitet}
-              onchange={(value) => (belopProduktivitet = value)}
-            />
-          </div>
-        </FormSection>
-      {/if}
-
-      <ReasoningEditor
-        paragrafRef="§ 34.2"
-        helptext={kjernesak
-          ? 'Valgfri. Begrunnelsen følger kravet som utdypning under den låste teksten.'
-          : 'Beskriv grunnlaget for kravet, omfanget og hvorfor den valgte beregningsmetoden passer.'}
-        body={begrunnelse}
-        placeholder={kjernesak
-          ? 'Utdyp kravet om du vil...'
-          : 'Begrunn kravets omfang og den valgte beregningsmetoden...'}
-        onchange={(html) => (begrunnelse = html)}
-        oncharcount={(count) => (charCount = count)}
-      />
-
-      {#if kanSende}
-        <div class="status-box">
-          <span class="status-label">Klar til sending</span>
-          <div class="font-mono status-text">
-            {#if hovedkravValue && hovedkravValue > 0}
-              Krav om {fmt(hovedkravValue)},-
-            {:else}
-              Sender vederlagskrav
-            {/if}
-          </div>
+        <div class="saerskilt-grid">
+          <NumberField
+            id="te-rigg"
+            label="Rigg og drift"
+            suffix="kr"
+            value={belopRigg}
+            onchange={(value) => (belopRigg = value)}
+          />
+          <NumberField
+            id="te-produktivitet"
+            label="Produktivitetstap"
+            suffix="kr"
+            value={belopProduktivitet}
+            onchange={(value) => (belopProduktivitet = value)}
+          />
         </div>
-      {/if}
+      </FormSection>
     {/if}
-  </div>
-{/if}
+
+    <ReasoningEditor
+      paragrafRef="§ 34.2"
+      helptext={kjernesak
+        ? 'Valgfri. Begrunnelsen følger kravet som utdypning under den låste teksten.'
+        : 'Beskriv grunnlaget for kravet, omfanget og hvorfor den valgte beregningsmetoden passer.'}
+      body={begrunnelse}
+      placeholder={kjernesak
+        ? 'Utdyp kravet om du vil...'
+        : 'Begrunn kravets omfang og den valgte beregningsmetoden...'}
+      onchange={(html) => (begrunnelse = html)}
+      oncharcount={(count) => (charCount = count)}
+    />
+
+    {#if kanSende}
+      <div class="status-box">
+        <span class="status-label">Klar til sending</span>
+        <div class="font-mono status-text">
+          {#if hovedkravValue && hovedkravValue > 0}
+            Krav om {fmt(hovedkravValue)},-
+          {:else}
+            Sender vederlagskrav
+          {/if}
+        </div>
+      </div>
+    {/if}
+  {/if}
+</div>
 
 <style>
   .submission-question {
