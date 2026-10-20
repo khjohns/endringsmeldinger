@@ -31,6 +31,7 @@ const BILDE = /^FROM (nginx:\S+)$/m.exec(readFileSync(new URL('Dockerfile', ROT)
 
 interface Ruter {
   url: string;
+  logg(): string;
   stopp(): void;
 }
 
@@ -76,21 +77,25 @@ async function startRuter(tsServeren: string, flask: string): Promise<Ruter> {
   );
   if (start.status !== 0) throw new Error(`nginx startet ikke: ${start.stderr}`);
   const url = `http://127.0.0.1:${port}`;
+  const logg = () => {
+    const ut = spawnSync('docker', ['logs', navn], { encoding: 'utf8' });
+    return ut.stdout + ut.stderr;
+  };
   const stopp = () => {
     spawnSync('docker', ['rm', '-f', navn], { stdio: 'ignore' });
     rmSync(mappe, { recursive: true, force: true });
   };
   for (let forsoek = 0; forsoek < 100; forsoek++) {
     const svar = await fetch(`${url}/health`).catch(() => null);
-    if (svar?.ok) return { url, stopp };
+    if (svar?.ok) return { url, logg, stopp };
     await new Promise((ok) => setTimeout(ok, 100));
   }
-  const logg = spawnSync('docker', ['logs', navn], { encoding: 'utf8' });
+  const utdata = logg();
   stopp();
-  throw new Error(`nginx svarte ikke:\n${logg.stdout}${logg.stderr}`);
+  throw new Error(`nginx svarte ikke:\n${utdata}`);
 }
 
-/** En tjener som svarer med navnet sitt, stien og det den fikk av kapsel og kropp. */
+/** En tjener som svarer med navnet sitt, stien og det den fikk av kapsel, adresseheadere og kropp. */
 async function stedfortreder(navn: string): Promise<{ server: Server; adresse: string }> {
   const server = createServer((foresporsel, svar) => {
     let lengde = 0;
@@ -102,6 +107,8 @@ async function stedfortreder(navn: string): Promise<{ server: Server; adresse: s
           tjener: navn,
           sti: foresporsel.url,
           kapsel: foresporsel.headers.cookie ?? null,
+          videresendtFor: foresporsel.headers['x-forwarded-for'] ?? null,
+          ekteIp: foresporsel.headers['x-real-ip'] ?? null,
           lengde,
         })
       );
@@ -185,6 +192,33 @@ describe.skipIf(!DOCKER)('ruteren foran TS-serveren og Flask (#376)', () => {
       body: kropp,
     });
     expect(await svar.json()).toMatchObject({ tjener: 'ts', lengde: kropp.length });
+  });
+
+  it.each([
+    ['/api/kjerne/saker/s1', 'ts'],
+    ['/api/saker/s1', 'flask'],
+  ])(
+    'klientens X-Forwarded-For og X-Real-IP overskrives med adressen nginx ser (%s)',
+    async (sti, tjener) => {
+      const svar = await fetch(`${ruter.url}${sti}`, {
+        headers: { 'X-Forwarded-For': '10.9.8.7', 'X-Real-IP': '10.9.8.7' },
+      });
+      expect(await svar.json()).toMatchObject({
+        tjener,
+        videresendtFor: '127.0.0.1',
+        ekteIp: '127.0.0.1',
+      });
+    }
+  );
+
+  it('en webhook over 16 MB får 413, og hemmeligheten i stien står ikke i loggen (INT-01)', async () => {
+    const svar = await fetch(`${ruter.url}/webhook/catenda/hemmelig-sti-413`, {
+      method: 'POST',
+      body: new Uint8Array(17 * 1024 * 1024),
+    }).catch(() => null);
+    if (svar) expect(svar.status).toBe(413);
+    await new Promise((ok) => setTimeout(ok, 200));
+    expect(ruter.logg()).not.toContain('hemmelig-sti-413');
   });
 
   it('andre stier enn /api og webhooken får SPA-en, ikke en av serverne', async () => {
