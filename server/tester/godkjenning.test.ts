@@ -3,6 +3,10 @@
  * bygget fra migrasjonene. Forventningene har kilde i:
  * - invarianten om utkast i AGENTS.md: pakken finnes bare for teamet som laget den,
  *   og uten entydig team finnes den ikke;
+ * - GFK-U9: godkjenneren i kjeden når saken og pakken mens pakken er åpen, også uten
+ *   medlemskap og team; etterpå bare sin egen handling; ingen interne notater;
+ * - GFK-U10 og kravet fra reviewet av #1013 i #831: driften varsles med prosjektet,
+ *   brukeren og tenanten der kjeden stoppet, også når driften ikke har roller;
  * - GFK-U8: kjeden starter hos lederen til saksbehandleren og går til og med den første
  *   med en grense som dekker verdien; GFK-U4: saksbehandlerens egen rolle kan være nok;
  *   vedtaket 23.09: en verdi som ikke er tallfestet, krever hele kjeden;
@@ -223,7 +227,11 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
           PakkeKanIkkeLages
         );
         expect(logg).toHaveBeenCalledWith(
-          expect.stringMatching(/^Godkjenningspakken kan ikke lages: /)
+          expect.stringMatching(
+            new RegExp(
+              `^Godkjenningspakken kan ikke lages: [^|]+ \\(prosjekt=${o.prosjekt.id}; bruker=[0-9a-f-]{36}; tenant=`
+            )
+          )
         );
       } finally {
         await registrerHierarki();
@@ -255,21 +263,48 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
           gulv: 0,
         }
       );
-      // Rådgiveren står ikke i kopien.
+      // Meldingen sier hvor kjeden stoppet, og feilen har bare setningen.
+      await endre(
+        `UPDATE koe.hr_kopi SET rolle = NULL, leder_oid = NULL WHERE bruker_id = '${leder}'`
+      );
+      logg.mockClear();
+      const feil = await i(som(o.bh.id), (f) => lagPakke(f, pakke(TO))).catch((e: unknown) => e);
+      expect(feil).toBeInstanceOf(PakkeKanIkkeLages);
+      expect((feil as Error).message).toBe('En leder i kjeden har ingen rolle i en fersk HR-kopi');
+      expect(logg).toHaveBeenCalledWith(
+        `Godkjenningspakken kan ikke lages: En leder i kjeden har ingen rolle i en fersk HR-kopi ` +
+          `(prosjekt=${o.prosjekt.id}; bruker=${o.bh.id}; tenant=${tenant}; leder_oid=${oid.leder})`
+      );
+      await registrerHierarki();
+      // Rådgiveren står ikke i kopien, og når kjeden bare leses, sier loggen det.
+      logg.mockClear();
       await expect(
         i(som(raadgiver, { team: raadgiverteam }), (f) => lesGodkjenningskjede(f, EN))
       ).rejects.toThrow(PakkeKanIkkeLages);
+      expect(logg).toHaveBeenCalledWith(
+        `Godkjenningskjeden kan ikke avledes: Saksbehandleren har ingen rolle i en fersk HR-kopi ` +
+          `(prosjekt=${o.prosjekt.id}; bruker=${raadgiver}; tenant=)`
+      );
     } finally {
       logg.mockRestore();
     }
   });
 
-  it('GFK-U2: har driften ikke registrert roller, lages ingen pakke', async () => {
+  it('GFK-U2 og GFK-U10: har driften ikke registrert roller, lages ingen pakke, og driften varsles', async () => {
+    const logg = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {
       await endre('DELETE koe.hr_kopi; DELETE koe.rolle;');
       await expect(kjede(EN)).rejects.toThrow(IngenRoller);
-      await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(EN)))).rejects.toThrow(IngenRoller);
+      logg.mockClear();
+      await expect(i(som(o.bh.id), (f) => lagPakke(f, pakke(EN)))).rejects.toThrow(
+        'Driften har ikke registrert roller'
+      );
+      expect(logg).toHaveBeenCalledWith(
+        `Godkjenningspakken kan ikke lages: Driften har ikke registrert roller ` +
+          `(prosjekt=${o.prosjekt.id}; bruker=${o.bh.id})`
+      );
     } finally {
+      logg.mockRestore();
       await registrerHierarki();
     }
   });
@@ -325,6 +360,141 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
     await expect(
       i(som(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert'))
     ).rejects.toThrow(PakkeAvsluttet);
+  });
+
+  // Godkjenneren har aktøren og prosjektet i konteksten, uten side og team (GFK-U9).
+  const godkjenner = (aktor: string, k: Partial<Kontekst> = {}): Kontekst => ({
+    aktor,
+    prosjekt: o.prosjekt.id,
+    ...k,
+  });
+  /** Radene i saken i `sak_metadata`, `hendelse` og `notat`, slik konteksten ser dem. */
+  const synlig = (k: Kontekst) =>
+    i(k, async (f) => {
+      const r = await f().input('sak_id', sakId)
+        .query(`SELECT COUNT(*) AS n FROM koe.sak_metadata WHERE sak_id = @sak_id;
+                SELECT COUNT(*) AS n FROM koe.hendelse WHERE sak_id = @sak_id;
+                SELECT COUNT(*) AS n FROM koe.notat WHERE sak_id = @sak_id;`);
+      return (r.recordsets as unknown as { n: number }[][]).map((rader) => rader[0].n);
+    });
+  const egneHandlinger = (k: Kontekst, pakkeId: string) =>
+    i(k, async (f) => {
+      const r = await f()
+        .input('pakke_id', pakkeId)
+        .query(`SELECT handling FROM koe.godkjenningshandling WHERE pakke_id = @pakke_id`);
+      return r.recordset.map((h: { handling: string }) => h.handling);
+    });
+  const utenMedlemskap = () =>
+    endre(`UPDATE koe.app_project_memberships SET active = 0
+            WHERE user_id IN ('${leder}', '${direktoer}')`);
+  const medMedlemskap = () =>
+    endre(`UPDATE koe.app_project_memberships SET active = 1
+            WHERE user_id IN ('${leder}', '${direktoer}')`);
+
+  it('GFK-U9: godkjenneren i kjeden når saken og pakken mens pakken er åpen, uten medlemskap og team, og ser ingen interne notater', async () => {
+    const p = pakke(TO);
+    await iTransaksjon(
+      o.datalag.base.pool,
+      { aktor: o.bh.id, prosjekt: o.prosjekt.id, side: 'BH', team: catendaId(o.prosjekt.bhTeam)! },
+      (r) =>
+        settInn(r, 'notat', {
+          notat_id: randomUUID(),
+          sak_id: sakId,
+          prosjekt_id: o.prosjekt.id,
+          aktor_id: o.bh.id,
+          aktor_rolle: 'BH',
+          aktor_team_id: catendaId(o.prosjekt.bhTeam)!,
+          tekst: 'Internt notat',
+        })
+    );
+    try {
+      await utenMedlemskap();
+      const [saker, hendelser, notater] = await synlig(som(o.bh.id));
+      expect([saker, notater]).toEqual([1, 1]);
+      expect(hendelser).toBeGreaterThan(0);
+      // Kontrollsaken: uten pakke når lederen ikke saken.
+      expect(await synlig(godkjenner(leder))).toEqual([0, 0, 0]);
+
+      await i(som(o.bh.id), (f) => lagPakke(f, p));
+      for (const k of [
+        godkjenner(leder),
+        godkjenner(direktoer),
+        godkjenner(leder, { side: 'BH', team: raadgiverteam }),
+      ]) {
+        expect(await synlig(k)).toEqual([1, hendelser, 0]);
+        expect((await i(k, (f) => lesPakke(f, p.pakkeId)))?.godkjennere).toEqual([
+          leder,
+          direktoer,
+        ]);
+      }
+      // Entreprenørsiden, et annet prosjekt og en som ikke står i kjeden, når ingenting.
+      const ingen = [
+        godkjenner(leder, { side: 'TE', team: catendaId(o.prosjekt.teTeam)! }),
+        godkjenner(leder, { prosjekt: o.annetProsjekt.id }),
+        godkjenner(o.utenfor.id),
+      ];
+      for (const k of ingen) {
+        expect(await synlig(k)).toEqual([0, 0, 0]);
+        expect(await i(k, (f) => lesPakke(f, p.pakkeId))).toBe(null);
+      }
+      await expect(
+        i(godkjenner(leder, { side: 'TE', team: catendaId(o.prosjekt.teTeam)! }), (f) =>
+          registrerHandling(f, p.pakkeId, 'godkjent')
+        )
+      ).rejects.toThrow(PakkeNektet);
+
+      // Trekkingen er teamets (B-04 punkt 3).
+      await expect(
+        i(godkjenner(leder), (f) => registrerHandling(f, p.pakkeId, 'trukket'))
+      ).rejects.toThrow(PakkeNektet);
+      await i(godkjenner(leder), (f) => registrerHandling(f, p.pakkeId, 'godkjent'));
+      await i(godkjenner(direktoer, { side: 'BH', team: raadgiverteam }), (f) =>
+        registrerHandling(f, p.pakkeId, 'godkjent')
+      );
+      const lest = (await i(som(o.bh.id), (f) => lesPakke(f, p.pakkeId)))!;
+      expect(erGodkjent(lest)).toBe(true);
+      expect(lest.handlinger.map((h) => [h.steg, h.aktorId])).toEqual([
+        [1, leder],
+        [2, direktoer],
+      ]);
+
+      // Pakken er lukket: godkjenneren ser bare sin egen handling.
+      for (const k of [godkjenner(leder), godkjenner(direktoer)]) {
+        expect(await synlig(k)).toEqual([0, 0, 0]);
+        expect(await i(k, (f) => lesPakke(f, p.pakkeId))).toBe(null);
+        expect(await egneHandlinger(k, p.pakkeId)).toEqual(['godkjent']);
+      }
+      expect(await egneHandlinger(godkjenner(o.utenfor.id), p.pakkeId)).toEqual([]);
+    } finally {
+      await medMedlemskap();
+    }
+  });
+
+  it('GFK-U9: en returnert pakke lukker tilgangen, og en pakke i en annen sak gir ingen tilgang til denne', async () => {
+    const annenSak = await opprettKjernesak(o);
+    const p = pakke(TO);
+    try {
+      await utenMedlemskap();
+      await i(som(o.bh.id), (f) => lagPakke(f, { ...p, sakId: annenSak }));
+      expect(await synlig(godkjenner(leder))).toEqual([0, 0, 0]);
+      await i(godkjenner(leder), (f) => registrerHandling(f, p.pakkeId, 'returnert'));
+      expect(await i(godkjenner(leder), (f) => lesPakke(f, p.pakkeId))).toBe(null);
+      expect(await i(godkjenner(direktoer), (f) => lesPakke(f, p.pakkeId))).toBe(null);
+      expect(await egneHandlinger(godkjenner(leder), p.pakkeId)).toEqual(['returnert']);
+      expect(await egneHandlinger(godkjenner(direktoer), p.pakkeId)).toEqual([]);
+    } finally {
+      await medMedlemskap();
+    }
+  });
+
+  it('GFK-U9: en saksbehandler som er godkjenner i et annet teams åpne pakke, kan lage sin egen pakke i saken', async () => {
+    await i(som(o.bh.id), (f) => lagPakke(f, pakke(TO)));
+    // Lederen står i kjeden til pakken over og ser den, men den er ikke teamets.
+    const egen = pakke(TO);
+    await i(som(leder, { team: raadgiverteam }), (f) => lagPakke(f, egen));
+    expect(
+      (await i(som(leder, { team: raadgiverteam }), (f) => lesPakke(f, egen.pakkeId)))?.godkjennere
+    ).toEqual([direktoer]);
   });
 
   it('GFK-U10: kjeden er fryst når pakken er laget, også når hierarkiet endres', async () => {
@@ -461,12 +631,15 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
     expect(erGodkjent(lest)).toBe(false);
   });
 
-  it('en pakke i et annet team kan ikke godkjennes', async () => {
+  it('GFK-U9: en i et annet team som ikke står i kjeden, kan ikke godkjenne pakken; godkjenneren kan', async () => {
     const p = pakke(EN);
     await i(som(o.bh.id), (f) => lagPakke(f, p));
     await expect(
-      i(som(leder, { team: raadgiverteam }), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))
+      i(som(raadgiver, { team: raadgiverteam }), (f) => registrerHandling(f, p.pakkeId, 'godkjent'))
     ).rejects.toThrow(PakkeNektet);
+    await i(som(leder, { team: raadgiverteam }), (f) =>
+      registrerHandling(f, p.pakkeId, 'godkjent')
+    );
   });
 
   // Konteksten settes uten kontrollen i `transaksjon`, som bare godtar TE og BH.
