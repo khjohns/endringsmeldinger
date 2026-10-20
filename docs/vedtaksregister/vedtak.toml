@@ -5126,11 +5126,12 @@ Ikke bygget (#1029).'''
 navn = "Krav, svar og enighet"
 tekst = '''
 Lista viser TEs krav (beløp eller dager og kravets art, for eksempel tilbud), byggherrens svar (resultat og tall, merket når det er subsidiært) og enigheten (tallet, og om den er betinget, virksom eller uten virkning, merket som appens lesing). Eksempelet: «TE: 1 000 000 · BH: 600 000 subsidiært · Enige om beløpet. Etter appens lesing betinget av ansvaret». Nøkkeltallene summerer krav og virksom enighet hver for seg. Ukjent er ikke 0.'''
+anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "Krav og enighet"
 tekst = '''
-Lista viser TEs krav og det partene er enige om, med virkningen merket som appens lesing. Et svar fra byggherren som TE ikke har godtatt, står bare i saken.'''
+Lista viser TEs krav og det partene er enige om, med virkningen merket som appens lesing. Et svar fra byggherren som TE ikke har godtatt, står bare i saken. Presiserer MM-U23.'''
 forkastet = true
 
 [[gruppe.vedtak.alternativ]]
@@ -5157,6 +5158,7 @@ Ikke bygget (#1029).'''
 navn = "Det som foreligger"
 tekst = '''
 Arbeidslista viser kravene der noe foreligger etter MM-U24: for byggherren krav som venter på byggherrens svar, og for TE svar som TE ikke har godtatt. Teksten sier hva som foreligger, for eksempel «Kravet venter på byggherrens svar». Den sier ikke at parten har plikt eller neste trekk, og utvalget er en gruppe i visningen. Akseptfristen kommer når den bygges, og med den en aksept etter fristen.'''
+anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "Oppgaver som i dag"
