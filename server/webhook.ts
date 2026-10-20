@@ -1,7 +1,7 @@
 /**
  * Mottaket for webhooken fra Catenda (W-1a, #819): hendelsen lagres i
  * `koe.innkommende_hendelse` før svaret 200, og samme `event.id` lagres én gang
- * (INT-02). Behandlingen kommer i W-1b.
+ * (INT-02). Jobbløkka behandler den (`server/hendelser.ts`).
  *
  * Catenda signerer ikke kallet. Kontrollen er den hemmelige stien
  * `/webhook/catenda/{hemmelighet}`, som Python-stien bruker
@@ -13,10 +13,38 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { AapenRute, Svar } from './app.ts';
 import { feilnummer, sql, utenKontekst, type Pool as Datalag } from './datalag.ts';
-import { lesInntil } from './inngang.ts';
+import { feilsvar, FOR_STOR, lesInntil, ugyldig } from './inngang.ts';
 
 export interface Webhook {
   hemmelighet: string;
+  grense: Kallgrense;
+}
+
+export interface Kallgrense {
+  /** Sann når kallet er innenfor grensen, og telles da. */
+  tillat(naa?: number): boolean;
+}
+
+/**
+ * Høyst `perMinutt` kall i hvert minutt, som `limit_webhook` i Python (fast vindu, #819).
+ * Python teller per adresse. Her telles alle kall med rett hemmelighet samlet, fordi
+ * avsenderens adresse bak en mellomtjener ikke kan prøves.
+ */
+export function kallgrense(perMinutt: number): Kallgrense {
+  let vindu = -1;
+  let antall = 0;
+  return {
+    tillat(naa = Date.now()) {
+      const dette = Math.floor(naa / 60_000);
+      if (dette !== vindu) {
+        vindu = dette;
+        antall = 0;
+      }
+      if (antall >= perMinutt) return false;
+      antall += 1;
+      return true;
+    },
+  };
 }
 
 /** Kortere enn dette kan gjettes; da er mottaket ikke satt opp. */
@@ -31,7 +59,10 @@ export function webhookFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Webho
     );
   if (!/^[A-Za-z0-9_-]+$/.test(hemmelighet))
     throw new Error('WEBHOOK_SECRET_PATH kan bare ha bokstavene a–z, sifre, - og _');
-  return { hemmelighet };
+  const perMinutt = Number(miljoe.RATE_LIMIT_WEBHOOK ?? '100');
+  if (!Number.isInteger(perMinutt) || perMinutt < 1)
+    throw new Error('RATE_LIMIT_WEBHOOK må være et heltall ≥ 1');
+  return { hemmelighet, grense: kallgrense(perMinutt) };
 }
 
 const sum = (tekst: string) => createHash('sha256').update(tekst, 'utf8').digest();
@@ -45,13 +76,8 @@ export const STOERSTE_HENDELSE = 256 * 1024;
 
 const STI = /^\/webhook\/catenda\/([^/]+)$/;
 
-const svar = (status: number, error: string, message: string): Svar => [
-  status,
-  { success: false, error, message },
-];
 /** Samme svar som for en sti som ikke finnes, så en feil hemmelighet ikke skiller seg ut. */
-const ukjent = () => svar(404, 'NOT_FOUND', 'Ukjent rute.');
-const ugyldig = (melding: string) => svar(400, 'UGYLDIG_FORESPOERSEL', melding);
+const ukjent = () => feilsvar(404, 'NOT_FOUND', 'Ukjent rute.');
 
 /** Basen avviste raden i en kontroll (547), for eksempel kroppen som ikke er JSON etter `ISJSON`. */
 const KONTROLL = 547;
@@ -97,12 +123,15 @@ export async function mottaHendelse(
 async function taImot(
   foresporsel: IncomingMessage,
   datalag: Datalag,
-  webhook: Webhook | null
+  webhook: Webhook | null,
+  mottatt: string
 ): Promise<Svar> {
-  const mottatt = (foresporsel.url ?? '').split('?')[0].match(STI)?.[1] ?? '';
   if (!webhook || !rettHemmelighet(mottatt, webhook.hemmelighet)) return ukjent();
+  // Etter hemmeligheten, så kall med feil sti ikke kan stenge ute leveringene fra Catenda.
+  if (!webhook.grense.tillat())
+    return feilsvar(429, 'RATE_LIMITED', 'For mange kall. Prøv igjen om et minutt.');
   const bytes = await lesInntil(foresporsel, STOERSTE_HENDELSE);
-  if (!bytes) return svar(413, 'PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.');
+  if (!bytes) return feilsvar(413, ...FOR_STOR);
   let tekst: string;
   try {
     tekst = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
@@ -127,8 +156,8 @@ export const WEBHOOKRUTER: readonly AapenRute[] = [
     eksempel: () => '/webhook/catenda/<hemmelighet>',
     tilgang: {
       utenSesjon:
-        'Catenda kaller uten sesjon. Den hemmelige stien er kontrollen (INT-01), og hendelsen lagres bare i innboksen.',
+        'Catenda kaller uten sesjon. Den hemmelige stien er kontrollen (INT-01), kallene er begrenset per minutt, og hendelsen lagres bare i innboksen.',
     },
-    behandle: (foresporsel, avh) => taImot(foresporsel, avh.datalag, avh.webhook),
+    behandle: (foresporsel, avh, treff) => taImot(foresporsel, avh.datalag, avh.webhook, treff[1]),
   },
 ];

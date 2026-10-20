@@ -327,11 +327,20 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
   );
 
   // Innloggingen sender til Catenda, og tilbakekallet uten forsøk til `login_failed`.
-  // Webhooken uten sesjon prøves med og uten hemmeligheten i `webhook.test.ts`.
   const OMDIRIGERING: Record<string, string> = {
     'GET /api/auth/catenda/login': 'https://catenda.test/oauth2/authorize?state=',
     'GET /api/auth/catenda/callback': 'https://app.example.no/login?error=login_failed',
   };
+  // Åpne ruter som prøves over HTTP i en annen fil, med fila (#942).
+  const PROEVD_I_ANDRE_FILER: Record<string, string> = {
+    'POST /webhook/catenda/<hemmelighet>': 'webhook.test.ts',
+  };
+  it('hver åpen rute prøves over HTTP her eller i fila i PROEVD_I_ANDRE_FILER', () => {
+    const uproevd = RUTER.filter(erAapen)
+      .map(navn)
+      .filter((n) => !(n in OMDIRIGERING) && !(n in PROEVD_I_ANDRE_FILER));
+    expect(uproevd).toEqual([]);
+  });
   it.each(
     RUTER.filter(erAapen)
       .map((r) => [navn(r), r] as const)

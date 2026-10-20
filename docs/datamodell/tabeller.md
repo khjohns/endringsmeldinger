@@ -61,6 +61,8 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.sak_catenda_topic`](#koesak_catenda_topic) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.innkommende_hendelse`](#koeinnkommende_hendelse) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.innkommende_behandling`](#koeinnkommende_behandling) | SQL Server | teknisk | i bruk | Nei | Nei |
+| [`koe.innkommende_forsoek`](#koeinnkommende_forsoek) | SQL Server | teknisk | i bruk | Nei | Nei |
+| [`koe.topic_kommentar`](#koetopic_kommentar) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.prosjekt_med_saker`](#koeprosjekt_med_saker) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.skrivetidspunkt`](#koeskrivetidspunkt) | SQL Server | teknisk | i bruk | Nei | Nei |
 | [`koe.toemmingsvern`](#koetoemmingsvern) | SQL Server | teknisk | i bruk | Nei | Nei |
@@ -951,7 +953,7 @@ Innboksen for webhooken fra Catenda (W-1a, #819). Hver hendelse lagres rå, med 
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.motta_hendelse`, kalt av webhooken i `server/webhook.ts`. |
 | Data fra Catenda | Ja, hele kroppen er Catendas. Dataflyt: fra Catenda i C21 (arket Dataflyt). |
-| Relasjoner | Nøkler: primærnøkkel (id); unik indeks (kilde, hendelse_id). Vises til fra: koe.innkommende_behandling.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); koe.toemmingsvern.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id); unik indeks (kilde, hendelse_id). Vises til fra: koe.innkommende_behandling.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); koe.innkommende_forsoek.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); koe.toemmingsvern.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ja: kroppen har navnet og e-postadressen til den som laget topicen i Catenda. |
 | Skrives av | database/migrasjoner/20261020124000_innkommende_hendelse.sql (`koe_api.motta_hendelse`, kalt fra `server/webhook.ts`) |
@@ -960,20 +962,54 @@ Innboksen for webhooken fra Catenda (W-1a, #819). Hver hendelse lagres rå, med 
 
 ### `koe.innkommende_behandling`
 
-Utfallet for hver hendelse i innboksen, én rad når behandlingen er ferdig (W-1b.1, #819). En hendelse uten rad er ikke behandlet. Bare en ny topic laget av TE gir en sak, med topicens tittel (KT-U6); en topic fra BH gir ingen sak (KT-U7), og heller ikke en topic som alt hører til en sak eller er laget av integrasjonen (#741 punkt 17). Saken og prosjektet står bare når utfallet er `sak_opprettet`, og prosjektet når koblingen til Catenda-prosjektet og boardet ga det. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.registrer_behandling`. Raden kan ikke endres eller slettes; en kommentar tilbake til topicen (W-1b.2) endrer ikke utfallet.
+Utfallet for hver hendelse i innboksen, én rad når behandlingen er ferdig (W-1b.1, #819). En hendelse uten rad er ikke behandlet. Bare en ny topic laget av TE gir en sak, med topicens tittel (KT-U6); en topic fra BH gir ingen sak (KT-U7), og heller ikke en topic som alt hører til en sak eller er laget av integrasjonen (#741 punkt 17). Saken og prosjektet står bare når utfallet er `sak_opprettet`, og prosjektet når koblingen til Catenda-prosjektet og boardet ga det. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.registrer_behandling`. Boardet topicen ble slått opp på, står med utfallet, så kommentaren skrives på samme board. Raden kan ikke endres eller slettes; kommentaren tilbake til topicen (W-1b.2) står i `koe.topic_kommentar` og endrer ikke utfallet.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | teknisk |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.registrer_behandling`, kalt av `behandleEnHendelse` i `server/jobber.ts` med utfallet fra `server/hendelser.ts`. |
-| Data fra Catenda | Delvis. ID-en til topicen er Catendas. Dataflyt: fra Catenda i C22 (arket Dataflyt). |
-| Relasjoner | Nøkler: primærnøkkel (innkommende_hendelse_id). Viser til: innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION); (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.innkommende_behandling_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Data fra Catenda | Delvis. ID-en til topicen er Catendas. Dataflyt: fra Catenda i C22; til Catenda i C23 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (innkommende_hendelse_id). Viser til: innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION); (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.innkommende_behandling_id (fremmednøkkel, ON DELETE NO ACTION); koe.topic_kommentar.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. `melding` er en fast feiltekst fra serveren. |
-| Skrives av | database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.registrer_behandling`, kalt fra `server/jobber.ts`) |
+| Skrives av | database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.registrer_behandling`, innført i `20261020130000_innkommende_behandling.sql`, kalt fra `server/jobber.ts`) |
 | Funn | — |
-| Belegg | L 19.10: migrasjonen og `server/hendelser.ts`. |
+| Belegg | L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`, `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql` og `server/hendelser.ts`. |
+
+### `koe.innkommende_forsoek`
+
+Forsøkene uten utfall for en hendelse i innboksen (W-1b.2, #819), med steget: `behandling` eller `kommentar`. Et forsøk lagres når Catenda eller basen ikke svarte. Hendelsen venter da før neste forsøk, lenger for hvert forsøk (30 s, dobbelt for hvert, høyst en time), og løkka går videre, så én hendelse ikke stenger innboksen (#963). `topic_ikke_funnet` merker forsøkene der Catenda ikke fant topicen; bare de teller mot grensen for `ugyldig_hendelse`. `koe_api.neste_innkommende` og `koe_api.neste_kommentar` hopper over en hendelse som venter. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.registrer_innkommende_forsoek`. Raden kan ikke endres eller slettes.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | teknisk |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.registrer_innkommende_forsoek`, kalt av `behandleEnHendelse` og `skrivEnKommentar` i `server/jobber.ts`. |
+| Data fra Catenda | Delvis. `melding` kan være feilmeldingen fra Catenda. Dataflyt: fra Catenda i C22, C23 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (id). Viser til: innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.innkommende_forsoek_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Nei. `melding` er feilklassen og meldingen fra Catenda eller basen, uten saksdata. |
+| Skrives av | database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.registrer_innkommende_forsoek`, kalt fra `server/jobber.ts`) |
+| Funn | — |
+| Belegg | L 19.10: migrasjonen, `server/hendelser.ts` og `server/jobber.ts`. |
+
+### `koe.topic_kommentar`
+
+Kvitteringen for kommentaren løkka skrev tilbake på topicen i Catenda (W-1b.2, #819), én rad per utfall. Utfallet `sak_opprettet` gir en kommentar med lenke og saksnummer (KT-U6), `topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet` (arbeidsvalget under OV-U1 i #819) en kommentar om hvorfor ingen sak er opprettet. Kommentarene på topicen leses først, og står teksten der alt, kvitteres den, så samme tekst skrives én gang. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.kvitter_kommentar`. Raden kan ikke endres eller slettes.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | teknisk |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.kvitter_kommentar`, kalt av `skrivEnKommentar` i `server/jobber.ts` etter at kommentaren er funnet eller skrevet i Catenda. |
+| Data fra Catenda | Ja, ID-en til kommentaren er Catendas. Dataflyt: fra Catenda i C23 (arket Dataflyt). |
+| Relasjoner | Nøkler: primærnøkkel (innkommende_hendelse_id). Viser til: innkommende_hendelse_id → koe.innkommende_behandling.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.topic_kommentar_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei |
+| Personopplysninger | Nei. |
+| Skrives av | database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.kvitter_kommentar`, kalt fra `server/jobber.ts`) |
+| Funn | — |
+| Belegg | L 19.10: migrasjonen, `server/hendelser.ts` og `server/jobber.ts`. |
 
 ### `koe.prosjekt_med_saker`
 
@@ -1019,10 +1055,10 @@ Vernet mot TRUNCATE for de uforanderlige tabellene ingen annen fremmednøkkel vi
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Ingen. Migrasjonen lager tabellen, og skranken avviser hver rad. |
 | Data fra Catenda | Nei Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: ingen. Viser til: app_identities_id → koe.app_identities.id (fremmednøkkel, ON DELETE NO ACTION); brevdokument_id → koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); (godkjenningshandling_pakke_id, godkjenningshandling_loepenr) → koe.godkjenningshandling.(pakke_id, loepenr) (fremmednøkkel, ON DELETE NO ACTION); (kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id) → koe.kvittering.(prosjekt_id, aktor_id, kommando_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringskvittering_oppdrag_id, leveringskvittering_operasjon) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION); innkommende_behandling_id → koe.innkommende_behandling.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_med_saker_id → koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); sak_catenda_topic_sak_id → koe.sak_catenda_topic.sak_id (fremmednøkkel, ON DELETE NO ACTION); vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: ingen. Viser til: app_identities_id → koe.app_identities.id (fremmednøkkel, ON DELETE NO ACTION); brevdokument_id → koe.brevdokument.leveringsoppdrag_id (fremmednøkkel, ON DELETE NO ACTION); (godkjenningshandling_pakke_id, godkjenningshandling_loepenr) → koe.godkjenningshandling.(pakke_id, loepenr) (fremmednøkkel, ON DELETE NO ACTION); (kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id) → koe.kvittering.(prosjekt_id, aktor_id, kommando_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringskvittering_oppdrag_id, leveringskvittering_operasjon) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION); innkommende_behandling_id → koe.innkommende_behandling.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); innkommende_forsoek_id → koe.innkommende_forsoek.id (fremmednøkkel, ON DELETE NO ACTION); topic_kommentar_id → koe.topic_kommentar.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION); prosjekt_med_saker_id → koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); sak_catenda_topic_sak_id → koe.sak_catenda_topic.sak_id (fremmednøkkel, ON DELETE NO ACTION); vedlegg_id → koe.vedlegg.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); (vedleggskvittering_vedlegg_id, vedleggskvittering_operasjon) → koe.vedleggskvittering.(vedlegg_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | ja. Tabellen har ingen rader. |
 | Personopplysninger | Nei. |
-| Skrives av | database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad); database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene); database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen) |
+| Skrives av | database/migrasjoner/20261020011000_toemmingsvern.sql (lager tabellen; `toemmingsvern_tom` avviser hver rad); database/migrasjoner/20261020021000_vedleggskvittering_vern.sql (legger til fremmednøkkelen til vedleggskvitteringene); database/migrasjoner/20261020130000_innkommende_behandling.sql (legger til fremmednøkkelen til utfallene i innboksen); database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (legger til fremmednøklene til forsøkene i innboksen og kommentarkvitteringene) |
 | Funn | — |
 | Belegg | L 18.10: `database/migrasjoner/20261020011000_toemmingsvern.sql`. L 19.10: `database/migrasjoner/20261020021000_vedleggskvittering_vern.sql`. K 18.10: `server/tester/journal.test.ts`. |
 

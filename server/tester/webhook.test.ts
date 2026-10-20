@@ -13,7 +13,7 @@ import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { lagServer } from '../app.ts';
 import type { Catenda } from '../autorisasjon.ts';
-import { hendelsen, STOERSTE_HENDELSE, webhookFraMiljoe } from '../webhook.ts';
+import { hendelsen, kallgrense, STOERSTE_HENDELSE, webhookFraMiljoe } from '../webhook.ts';
 import { avvisning, opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   opprettKjoeretid,
@@ -44,9 +44,29 @@ describe('oppsettet av webhooken', () => {
     }
     expect(melding).toMatch(/kortere enn 32/);
     expect(melding).not.toContain('kort-hemmelighet');
-    expect(webhookFraMiljoe({ WEBHOOK_SECRET_PATH: HEMMELIGHET })).toEqual({
-      hemmelighet: HEMMELIGHET,
-    });
+    expect(webhookFraMiljoe({ WEBHOOK_SECRET_PATH: HEMMELIGHET }).hemmelighet).toBe(HEMMELIGHET);
+  });
+
+  it('RATE_LIMIT_WEBHOOK er antall kall per minutt, 100 som i Python når den mangler, og må være et heltall ≥ 1', () => {
+    const grense = (verdi?: string) => {
+      const { grense } = webhookFraMiljoe({
+        WEBHOOK_SECRET_PATH: HEMMELIGHET,
+        ...(verdi === undefined ? {} : { RATE_LIMIT_WEBHOOK: verdi }),
+      });
+      return Array.from({ length: 101 }, () => grense.tillat(0)).filter(Boolean).length;
+    };
+    expect(grense()).toBe(100);
+    expect(grense('3')).toBe(3);
+    for (const ugyldig of ['0', '-1', '2.5', 'mange', ''])
+      expect(() => grense(ugyldig)).toThrow(/RATE_LIMIT_WEBHOOK/);
+  });
+});
+
+describe('grensen for kall på webhooken (#819)', () => {
+  it('slipper gjennom høyst grensen i hvert minutt, og teller på nytt i neste minutt', () => {
+    const grense = kallgrense(2);
+    expect([0, 1_000, 59_999].map((t) => grense.tillat(t))).toEqual([true, true, false]);
+    expect([60_000, 60_001, 60_002].map((t) => grense.tillat(t))).toEqual([true, true, false]);
   });
 
   it('kallet fra Catenda gir event.id og event.type (catenda_issue_created_contract.md)', () => {
@@ -85,12 +105,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('webhooken fra Catenda i SQL Server', () 
   let lukket: { pool: Pool; slett(): Promise<void> };
   const servere: { stopp(): Promise<void> }[] = [];
 
-  async function start(pool: Pool, hemmelighet: string | null) {
+  async function start(pool: Pool, hemmelighet: string | null, grense = kallgrense(10_000)) {
     const server = createServer(
       lagServer({
         datalag: pool,
         catenda: {} as Catenda,
-        webhook: hemmelighet === null ? null : { hemmelighet },
+        webhook: hemmelighet === null ? null : { hemmelighet, grense },
       })
     );
     await new Promise<void>((ok) => server.listen(0, '127.0.0.1', ok));
@@ -161,6 +181,24 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('webhooken fra Catenda i SQL Server', () 
     const status = await Promise.all(svar.map(async (s) => (await s.json()).status));
     expect(status.filter((s) => s === 'mottatt')).toHaveLength(1);
     expect(await rader(id)).toHaveLength(1);
+  });
+
+  it('over grensen gir 429 og ingen rad; kall med feil hemmelighet telles ikke (#819)', async () => {
+    // Klokka står stille, så alle kallene er i samme minutt.
+    const toPerMinutt = kallgrense(2);
+    const adresse = await start(kjoeretid.pool, HEMMELIGHET, {
+      tillat: () => toPerMinutt.tillat(0),
+    });
+    for (let i = 0; i < 3; i++) expect((await send('{}', 'feil', adresse)).status).toBe(404);
+    const [a, b] = [nyId(), nyId()];
+    expect((await send(kallMed(a), HEMMELIGHET, adresse)).status).toBe(200);
+    expect((await send(kallMed(b), HEMMELIGHET, adresse)).status).toBe(200);
+    const over = nyId();
+    const svar = await send(kallMed(over), HEMMELIGHET, adresse);
+    expect(svar.status).toBe(429);
+    expect(await svar.json()).toMatchObject({ success: false, error: 'RATE_LIMITED' });
+    expect(await rader(over)).toEqual([]);
+    expect(await rader(a)).toHaveLength(1);
   });
 
   it('en feil hemmelighet gir samme 404 som en ukjent sti, og ingen rad (INT-01)', async () => {
