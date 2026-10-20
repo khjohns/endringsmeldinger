@@ -25,8 +25,8 @@ Grunnen er kostnad: en økt som lever over natta, blir dyrere for hver sjekk
 hver orkestrator starter den neste (oppdragsgiver 19.10). Bestillingen sier hva
 sporet omfatter, med en etikett, en milepæl eller en liste med issues, og hvilke
 spor som går parallelt. Orkestratoren starter neste runde når sin egen er over,
-eller når den nærmer seg grensene for orkestratoren i «Kontekst i
-arbeidsøktene». Da gjør den dette:
+når timen er gått («Orkestratoren overleverer etter en time»), eller når den
+nærmer seg grensene for orkestratoren i «Kontekst i arbeidsøktene». Da gjør den dette:
 
 1. Merger det som er nær merge og avslutter etter punkt 5. En åpen PR som ikke
    er nær merge, går videre med økta som eier den.
@@ -295,6 +295,15 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   med aktivt arbeid, sikkerhetssjekkene settes innen 55 minutter mens noe pågår,
   og etter mer enn en time uten aktivitet avsluttes runden heller enn å vekkes
   (oppdragsgiver 12.10, #425).
+- **Orkestratoren overleverer etter en time.** Når orkestratoren starter, setter
+  den en påminnelse med `send_later` om 55 minutter, og den kommer i tillegg
+  til sjekkene. Når påminnelsen kommer, er runden over. Orkestratoren gjør
+  overgangen i «Bølger», punkt 1–5, også med PR-er som er åpne. Hver av dem går
+  videre med økta som eier den, og neste orkestrator overtar sjekkene. I et spor
+  som ikke går i bølger, skriver orkestratoren overleveringen og stopper. Den
+  utsetter ikke overleveringen for å vente på CI, et review eller oppdragsgiver.
+  I runde 13 ventet begge orkestratorene i 3 og 6,7 timer med sjekker, og hver
+  sjekk leste hele konteksten på nytt (oppdragsgiver 20.10).
 - **Følg med i hver sjekk.** Orkestratoren leser brukt kontekst
   (`external_metadata.context_usage.used_tokens`) og kostnad
   (`external_metadata.usage.cost_usd`) for hver økt med `get_session` i hver
@@ -357,7 +366,12 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   som skal leses på nytt. Orkestratoren ser ikke pauser, så den regner grensen
   slik: om lag 300 000 tokens, eller om lag 150 000 tokens når mer enn en time er
   gått siden økta ble opprettet. Gjenstår mer enn rettinger og CI, overtar en
-  ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Den nye økta
+  ny økt fra PR-en og issuene. Den gamle pusher det den har, og avsluttes. Er
+  økta fortsatt over grensen ved neste sjekk, avbryter orkestratoren den med
+  `interrupt_session` og sender ingen ny melding. Hver melding leser hele den
+  store konteksten på nytt. Reviewøkta for #978 i runde 13 vokste slik til
+  321 000 tokens og kostet mer enn de andre øktene i det tekniske sporet til
+  sammen (oppdragsgiver 20.10). Den nye økta
   får en avgrenset bestilling: sjekklisten, PR-nummeret og de konkrete kildene,
   og arbeider under de samme grensene. Passerer orkestratoren selv om lag
   300 000 tokens,
