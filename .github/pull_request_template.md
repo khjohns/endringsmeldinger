@@ -35,6 +35,8 @@ Kritiske regelendringer: representative feilinnføringer, målassertion, kjørin
 etter at mutasjonene er fjernet og vurdering av eventuelle overlevende mutasjoner.
 Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,
 lagring/gjenlesing, historikk og utrulling/tilbakerulling der dette berøres.
+Frontend mot TS-kjernen: sammenlikningen med den gamle frontenden for samme
+flyt (leveranseskillen).
 En manglende påkrevd sjekk eller review betyr fortsatt utkast. -->
 
 <!-- Dokumentasjon: lenk til oppdaterte referanser/kilderegistre, eller begrunn

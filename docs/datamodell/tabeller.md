@@ -727,7 +727,7 @@ Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosje
 
 ### `koe.sak_metadata`
 
-Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sletting.
+Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sletting. Sakslisten leser sakene i prosjektet med journalen gjennom `koe_api.saksliste`, under radsikkerheten, fra `server/saksliste.ts` (#1022).
 
 | Felt | Innhold |
 | --- | --- |
@@ -740,11 +740,11 @@ Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sl
 | Personopplysninger | `created_by` peker på en bruker. |
 | Skrives av | database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`, kalt fra `server/kommandoer.ts`) |
 | Funn | — |
-| Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
+| Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. L 20.10: `20261020180000_saksliste.sql`. K 20.10: `server/tester/saksliste.test.ts` mot testbasen. |
 
 ### `koe.hendelse`
 
-Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avviser endring og sletting. Teamet står bare når det er entydig (DL-U4).
+Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avviser endring og sletting. Teamet står bare når det er entydig (DL-U4). Sakslisten leser hendelsene i prosjektet gjennom `koe_api.saksliste` og regner statusen og tallene i kjernen ved lesing; ingen oppsummering lagres (#1022).
 
 | Felt | Innhold |
 | --- | --- |
@@ -757,7 +757,7 @@ Journalen: ett dokument per brev, med teksten slik den ble sendt. En trigger avv
 | Personopplysninger | `aktor_id` peker på en bruker. Fritekst i `data` kan inneholde personopplysninger. |
 | Skrives av | database/migrasjoner/20261020130000_innkommende_behandling.sql (`koe_api.opprett_sak`, innført i `20261016120000_kommandoer.sql`); database/migrasjoner/20261020080000_skriveprosedyrer.sql (`koe_api.skriv_hendelse`, innført i `20261016120000_kommandoer.sql`); server/kommandoer.ts |
 | Funn | — |
-| Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. |
+| Belegg | L 16.10: migrasjonene og `server/kommandoer.ts`. K 16.10: `server/tester/kommandoer.test.ts`. L 20.10: `20261020180000_saksliste.sql`. K 20.10: `server/tester/saksliste.test.ts` mot testbasen. |
 
 ### `koe.notat`
 
