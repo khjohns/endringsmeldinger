@@ -88,8 +88,8 @@ const MUTASJONER: Mutasjon[] = [
         "} from '../utledning/utled.ts';\nimport { visning } from '../utledning/visning.ts';",
       ],
       [
-        '  if (kraveneErAvgjort(u))',
-        "  if (visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status.kode === 'avsluttet_oppgjort' || kraveneErAvgjort(u))",
+        "  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor))",
+        "  if (visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status.kode === 'alle_krav_avgjort' || (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor)))",
       ],
     ],
     mal: [
@@ -454,10 +454,10 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F35',
-    feilklasse: '«ingen krav» teller ikke som avgjort i sporet (KA-U12, KA-U11)',
+    feilklasse: '«ingen krav» i begge sporene avgjør ikke kravene (KA-U12, #493)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['u.spor[n].trukket || u.spor[n].ingenKrav ||', 'u.spor[n].trukket ||']],
-    mal: ['F-MM-IK1'],
+    endringer: [[' || KRAVSPOR.every((n) => u.spor[n].ingenKrav)', '']],
+    mal: ['når byggherren har frafalt pålegget, sier meldingen det'],
   },
   {
     id: 'F36',
@@ -760,8 +760,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  const lukket = u.grunnlagAvvist\n    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n    : kraveneErAvgjort(u)",
-        "  const lukket = !u\n    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n    : !u",
+        "      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n      : (spor ? varAvgjort(u, spor) : kraveneErAvgjort(u))",
+        "      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'\n      : false",
       ],
     ],
     mal: ['F-MM-U326h'],
@@ -1983,7 +1983,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'utledningen sier at en grunnlagsversjon venter på svar når kravene er avgjort (GR-U24, #510, #580)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [[' && !s.trukket && !kraveneErAvgjort(u);', ' && !s.trukket;']],
+    endringer: [[' && !s.trukket && !varAvgjort(u, spor);', ' && !s.trukket;']],
     mal: ['svaret på versjon 2 avvises (GR-U24'],
   },
   {
@@ -2612,6 +2612,76 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en lest påberopt passivitet etter at kravene er avgjort'],
+  },
+  {
+    id: 'F305',
+    feilklasse:
+      'sperren for det som var avgjort, faller når et første krav i et annet spor gjør at kravene ikke lenger er avgjort (OV-U3, #493)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '): boolean => u.avgjorteSpor.includes(spor);',
+        '): boolean => kraveneErAvgjort(u) && u.avgjorteSpor.includes(spor);',
+      ],
+    ],
+    mal: [
+      'det første kravet i sporet gjør at kravene ikke lenger er avgjort',
+      'en rad som trekker et krav som var avgjort',
+    ],
+  },
+  {
+    id: 'F306',
+    feilklasse: 'et spor uten krav hindrer at kravene er avgjort (OV-U3, #493)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['(n) => !sendt(n) || u.spor[n].trukket ||', '(n) => u.spor[n].trukket ||']],
+    mal: ['et spor uten krav hindrer ikke', 'F-MM-K1'],
+  },
+  {
+    id: 'F307',
+    feilklasse: 'kravene er avgjort uten et sendt vederlags- eller fristkrav (OV-U3, #493)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['(KRAVSPOR.some(sendt) || ', '(true || ']],
+    mal: ['uten et sendt vederlags- eller fristkrav er kravene ikke avgjort'],
+  },
+  {
+    id: 'F308',
+    feilklasse:
+      'varselet og TEs opplysning om varseldato avvises når kravene er avgjort (OV-U3, OV-U5, #493)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort", 'varAvgjort']],
+    mal: ['TEs opplysning om varseldato godtas i et spor som var avgjort', 'F-MM-B1', 'F-MM-EO1'],
+  },
+  {
+    id: 'F309',
+    feilklasse:
+      'et varsel etter at kravene er avgjort, gjør saken ikke forstått (OV-U3, OV-U5, MM-U18, #493)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "      x.art === 'varsel'\n        ? u.grunnlagAvvist",
+        '      false\n        ? u.grunnlagAvvist',
+      ],
+    ],
+    mal: ['TEs opplysning om varseldato godtas i et spor som var avgjort'],
+  },
+  {
+    id: 'F310',
+    feilklasse: 'visningen sier ikke at saken har brev sendt utenfor appen (OV-U10, #493)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      ["kode === 'alle_krav_avgjort' && registrertBrev", "kode === 'alle_krav_avgjort' && false"],
+    ],
+    mal: ['med et registrert brev sier visningen også'],
+  },
+  {
+    id: 'F311',
+    feilklasse:
+      'saken kan inngå i en endringsordre med et spor TE fortsatt kan sende (EO-U5, arbeidsvalget i #493)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['    KRAVSPOR.every((n) => u.spor[n].krav.length > 0 || u.spor[n].ingenKrav) &&\n', ''],
+    ],
+    mal: ['et spor uten krav hindrer ikke'],
   },
 ];
 

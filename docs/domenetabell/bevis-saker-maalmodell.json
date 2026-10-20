@@ -414,7 +414,7 @@
             "enighet.frist.utfall.dager": 20,
             "enighet.frist.holder": "S-f1",
             "kan_inngaa_i_eo": true,
-            "visning.status": "avsluttet_oppgjort",
+            "visning.status": "alle_krav_avgjort",
             "kravene_avgjort": true,
             "enighet.grunnlag.kilde": "sammenfall",
             "enighet.grunnlag.holder": "S-g2"
@@ -498,13 +498,13 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "OV-U7", "AV-587"],
+          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
-            "visning.status": "avsluttet_oppgjort",
-            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
+            "visning.status": "alle_krav_avgjort",
+            "handlinger.TE": ["varsle:frist", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
             "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }
@@ -1540,19 +1540,19 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U7", "KA-U7", "KA-U6"],
+          "kilde": ["GR-U7", "KA-U7", "KA-U6", "OV-U3"],
           "forventet": {
             "enighet.vederlag.kilde": "sammenfall",
             "enighet.vederlag.virkning": "virksom",
-            "handlinger.TE": { "inneholder": ["trekke:vederlag", "krav:frist"], "mangler": ["krav:vederlag"] }
+            "handlinger.TE": { "inneholder": ["krav:frist"], "mangler": ["krav:vederlag", "trekke:vederlag"] }
           }
         },
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["KA-U7"],
+          "kilde": ["KA-U7", "OV-U3"],
           "prov": { "handling": "krav", "spor": "vederlag", "belop": 250000 },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "forventet": { "avvist": true, "regel": "KRAVENE_AVGJORT" }
         }
       ]
     },
@@ -1594,9 +1594,9 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U7"],
+          "kilde": ["KA-U7", "OV-U3"],
           "prov": { "handling": "krav", "spor": "vederlag", "belop": 80000 },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "forventet": { "avvist": true, "regel": "KRAVENE_AVGJORT" }
         }
       ]
     },
@@ -1628,15 +1628,22 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["KA-U7"],
+          "kilde": ["KA-U7", "OV-U3"],
           "prov": { "handling": "krav", "spor": "vederlag", "belop": 90000 },
-          "forventet": { "avvist": true, "regel": "ENIGHET_I_SPORET" }
+          "forventet": { "avvist": true, "regel": "KRAVENE_AVGJORT" }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": ["KA-U6", "OV-U3"],
+          "prov": { "handling": "trekk", "spor": "vederlag" },
+          "forventet": { "avvist": true, "regel": "KRAVENE_AVGJORT" }
         },
         {
           "etter": 3,
           "rolle": "kontroll",
-          "kilde": ["KA-U6", "KA-U7"],
-          "prov": { "handling": "trekk", "spor": "vederlag" },
+          "kilde": ["OV-U3"],
+          "prov": { "handling": "krav", "spor": "frist", "dager": 10 },
           "forventet": { "avvist": false }
         }
       ]
@@ -1740,15 +1747,15 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "OV-U7", "AV-587"],
+          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5"],
           "forventet": {
             "avvist": false,
             "trukket.vederlag": true,
             "trukket.frist": false,
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
-            "visning.status": "avsluttet_oppgjort",
-            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-f1"],
+            "visning.status": "alle_krav_avgjort",
+            "handlinger.TE": ["varsle:frist", "innsigelse:S-g1", "innsigelse:S-f1"],
             "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         }
@@ -1793,7 +1800,7 @@
             "enighet.frist.virkning": "virksom",
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
-            "visning.status": "avsluttet_oppgjort"
+            "visning.status": "alle_krav_avgjort"
           }
         }
       ]
@@ -3088,7 +3095,7 @@
           "forventet": {
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
-            "visning.status": "avsluttet_oppgjort",
+            "visning.status": "alle_krav_avgjort",
             "visning.etiketter.vederlag": { "inneholder": ["ingen_krav"] }
           }
         }
@@ -7125,7 +7132,7 @@
           "forventet": {
             "kravene_avgjort": true,
             "enighet.frist.virkning": "virksom",
-            "visning.status": "avsluttet_oppgjort"
+            "visning.status": "alle_krav_avgjort"
           }
         },
         {
@@ -7492,7 +7499,7 @@
             "enighet.frist.virkning": "virksom",
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
-            "visning.status": "avsluttet_oppgjort"
+            "visning.status": "alle_krav_avgjort"
           }
         }
       ]
@@ -7831,7 +7838,7 @@
             "enighet.frist.virkning": "virksom",
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": false,
-            "visning.status": "avsluttet_oppgjort"
+            "visning.status": "alle_krav_avgjort"
           }
         }
       ]
@@ -8250,7 +8257,7 @@
             "enighet.vederlag.utfall.beloep": 60000,
             "enighet.frist.virkning": "virksom",
             "kravene_avgjort": true,
-            "visning.status": "avsluttet_oppgjort"
+            "visning.status": "alle_krav_avgjort"
           }
         }
       ]

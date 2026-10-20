@@ -42,6 +42,7 @@ import {
   type Enighetsgrunnlag,
   type Hjemmel,
   type Krav,
+  type Kravspor,
   type LestOpplysning,
   type LestUtsagn,
   type Opplysningsslag,
@@ -187,6 +188,13 @@ export interface Utledning {
    * vises, men gir ingen egen virkning i appen.
    */
   endringsordre: 'ja' | 'nei';
+  /**
+   * OV-U3: grunnlaget og sporene med krav, eller med «ingen krav» (#493), i et prefiks av
+   * journalen der kravene var avgjort.
+   * Sperren for dem står også når TE senere sender det første kravet i et annet spor, så
+   * kravene ikke lenger er avgjort. Tom når kravene aldri har vært avgjort.
+   */
+  avgjorteSpor: Spor[];
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -230,6 +238,7 @@ function tom(
     grunnlagAvvist: false,
     frafalt: false,
     endringsordre: 'nei',
+    avgjorteSpor: [],
   };
 }
 
@@ -305,8 +314,8 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
  * (MM-U20), et avslag av grunnlaget eller en påberopelse etter § 32.2 når frafallet
  * binder (GR-U17, GR-U20), en aksept av et frafall (GR-U9) eller av et svar
  * partene alt er enige om (GR-U8, KA-U7), noe som endrer
- * utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt
- * (KA-U11, SK-01), og det som viser til et element uten virkning. Kontrollen
+ * utfallet for det som var avgjort (OV-U3) eller etter at avslaget av grunnlaget er godtatt
+ * (SK-01), og det som viser til et element uten virkning. Kontrollen
  * gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
  * forutsetning senere gjør ikke et eldre brev uforstått. Bindingen etter frafallet er
  * et slikt vedtak og gjelder også et avslag fra appen før PROJEKSJONSVERSJON 20, som
@@ -314,26 +323,31 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
  */
 function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
   const ut: Strid[] = [];
-  const lukket = u.grunnlagAvvist
-    ? 'TE har godtatt avslaget av grunnlaget (SK-01)'
-    : kraveneErAvgjort(u)
-      ? 'kravene er avgjort (KA-U11)'
-      : null;
+  /** Hvorfor det som kan endre utfallet i sporet avvises; uten spor gjelder det saken. */
+  const lukket = (spor?: Spor): string | null =>
+    u.grunnlagAvvist
+      ? 'TE har godtatt avslaget av grunnlaget (SK-01)'
+      : (spor ? varAvgjort(u, spor) : kraveneErAvgjort(u))
+        ? 'kravene er avgjort (OV-U3)'
+        : null;
   // Et krav havner aldri i `uten`: kravene i et registrert brev er dokumentasjon (OV-U4),
   // og en strid utenfor et registrert brev stopper utledningen. Bare svar og utsagn
   // kontrolleres derfor mot `uten` (#669).
   const utenVirkning = (id: string | null) => id !== null && uten.has(id);
   const bundet = frafalletBinder(u);
-  for (const k of d.krav)
-    if (lukket) ut.push({ element: k.id, grunn: `en kravversjon etter at ${lukket}` });
+  for (const k of d.krav) {
+    const l = lukket(k.spor);
+    if (l) ut.push({ element: k.id, grunn: `en kravversjon etter at ${l}` });
     else if (u.spor[k.spor].trukket)
       ut.push({ element: k.id, grunn: 'en kravversjon etter at kravet er trukket (GR-U5)' });
     else if (u.spor[k.spor].ingenKrav)
       ut.push({ element: k.id, grunn: 'en kravversjon i et spor med «ingen krav» (KA-U12)' });
     else if (u.spor[k.spor].enighet)
       ut.push({ element: k.id, grunn: 'en ny kravversjon i et spor med enighet (KA-U7)' });
-  for (const s of d.svar)
-    if (lukket) ut.push({ element: s.id, grunn: `et svar etter at ${lukket}` });
+  }
+  for (const s of d.svar) {
+    const l = lukket(s.spor);
+    if (l) ut.push({ element: s.id, grunn: `et svar etter at ${l}` });
     else if (s.erstatter !== null && u.spor[s.spor].enighet)
       ut.push({
         element: s.id,
@@ -361,6 +375,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
         grunn:
           'en påberopelse etter § 32.2 etter at byggherren har frafalt pålegget (GR-U17, GR-U20)',
       });
+  }
   for (const x of d.utsagn) {
     if (!ENDRER_UTFALLET.has(x.art)) continue;
     const gjelder = 'gjelder' in x ? x.gjelder : null;
@@ -369,7 +384,20 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
       x.art === 'aksept'
         ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))
         : undefined;
-    if (lukket) ut.push({ element: x.id, grunn: `${x.art} etter at ${lukket}` });
+    // OV-U3, OV-U5: et varsel og TEs opplysning om varseldato godtas også når kravene er avgjort.
+    const l =
+      x.art === 'varsel'
+        ? u.grunnlagAvvist
+          ? lukket()
+          : null
+        : lukket(
+            x.art === 'trekk'
+              ? SPOR.find((n) => u.spor[n].krav.some((k) => k.id === x.gjelder))
+              : x.art === 'ingen_krav'
+                ? x.spor
+                : sporet
+          );
+    if (l) ut.push({ element: x.id, grunn: `${x.art} etter at ${l}` });
     else if (utenVirkning(gjelder))
       ut.push({ element: x.id, grunn: `${x.art} viser til et element uten virkning` });
     else if (sporet && u.spor[sporet].trukket)
@@ -429,6 +457,15 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const uten = new Map<string, { hendelse: string; grunn: string }>();
   const konflikter: Utledning['begrensninger'] = [];
   const dokumenter: Dokument[] = [];
+  // OV-U3: bare et dokument som kan stride, kan endre om kravene er avgjort, så
+  // prefiksene under og hele journalen ser hver tilstand der de var det.
+  const avgjort = new Set<Spor>();
+  const merkAvgjort = (x: Utledning) => {
+    // Et spor med «ingen krav» er avgjort til det tas ut (#493).
+    if (kraveneErAvgjort(x))
+      for (const n of SPOR) if (x.spor[n].krav.length || x.spor[n].ingenKrav) avgjort.add(n);
+    x.avgjorteSpor = SPOR.filter((n) => avgjort.has(n));
+  };
   for (const [i, h] of journal.entries()) {
     if (h.art !== 'dokument') continue;
     const kan = kanStride(h.dokument, dokumenter);
@@ -438,6 +475,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     // hvert dokument som kan endre utfallet. Kostnaden er målt i #400.
     const foer = utledSporene(journal.slice(0, i), regler, uten);
     if (!foer.forstaatt) break;
+    merkAvgjort(foer);
     const registrert = erRegistrert(h.dokument.opplysninger);
     const dokumentasjon = dokumentasjonIBrevet(h.dokument);
     const stridene = strid(h.dokument, foer, uten);
@@ -454,6 +492,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (konflikter.length) break;
   }
   const u = utledSporene(journal, regler, uten);
+  merkAvgjort(u);
   return konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
 }
 
@@ -881,30 +920,40 @@ export function enighetensVirkning(
 }
 
 /**
- * KA-U11: kravene er avgjort når grunnlaget er avklart, og hvert vederlags- og
- * fristkrav er trukket, har «ingen krav» (KA-U12) eller har en virksom enighet.
- * Et spor TE ikke har sendt, er ikke avgjort (EO-U2, GR-U3). Predikatet leses av
- * utsagnene og relasjonene, ikke av en status: `enighetensVirkning` er selv et
- * predikat av enigheten, grunnlaget og trekkene.
+ * OV-U3: kravene er avgjort når grunnlaget er avklart etter GR-U7, TE har sendt minst
+ * ett vederlags- eller fristkrav, og hvert vederlags- og fristkrav TE har sendt, er
+ * trukket eller har en virksom enighet. Et spor uten krav hindrer ikke; et varsel er
+ * ikke et krav (KA-U2). «Ingen krav» i begge sporene (KA-U12) avgjør kravene til det
+ * tas ut (#493). Predikatet leses av utsagnene og relasjonene, ikke av en status:
+ * `enighetensVirkning` er selv et predikat av enigheten, grunnlaget og trekkene.
  */
 export function kraveneErAvgjort(u: Utledning): boolean {
+  const sendt = (n: Kravspor) => u.spor[n].krav.length > 0;
   return (
     u.grunnlagAvklart &&
-    KRAVSPOR.every(
-      (n) => u.spor[n].trukket || u.spor[n].ingenKrav || enighetensVirkning(u, n) === 'virksom'
-    )
+    (KRAVSPOR.some(sendt) || KRAVSPOR.every((n) => u.spor[n].ingenKrav)) &&
+    KRAVSPOR.every((n) => !sendt(n) || u.spor[n].trukket || enighetensVirkning(u, n) === 'virksom')
   );
 }
 
 /**
- * EO-U5, EO-U2: saken kan inngå i en endringsordre når kravene er avgjort,
- * grunnlaget er godkjent og ikke frafalt (GR-U3), og minst ett av vederlag og
- * frist har enighet, også et godtatt avslag. Et trukket spor og et spor med
- * «ingen krav» teller som avgjort, men gir ikke alene grunnlag for endringsordre.
+ * OV-U3: sporet hadde krav, eller er grunnlaget, da kravene var avgjort, så det som kan
+ * endre utfallet i sporet avvises, også når kravene ikke lenger er avgjort fordi TE har
+ * sendt det første kravet i et annet spor.
+ */
+export const varAvgjort = (u: Utledning, spor: Spor): boolean => u.avgjorteSpor.includes(spor);
+
+/**
+ * EO-U5, EO-U2: saken kan inngå i en endringsordre når kravene er avgjort, ingen av
+ * vederlag og frist er et spor TE fortsatt kan sende (EO-U5, arbeidsvalget i #493),
+ * grunnlaget er godkjent og ikke frafalt (GR-U3), og minst ett av vederlag og frist
+ * har enighet, også et godtatt avslag. Et trukket spor og et spor med «ingen krav»
+ * teller som avgjort, men gir ikke alene grunnlag for endringsordre.
  */
 export function kanInngaaIEo(u: Utledning): boolean {
   return (
     kraveneErAvgjort(u) &&
+    KRAVSPOR.every((n) => u.spor[n].krav.length > 0 || u.spor[n].ingenKrav) &&
     !u.frafalt &&
     KRAVSPOR.some((n) => !u.spor[n].trukket && u.spor[n].enighet !== null)
   );
@@ -1040,12 +1089,12 @@ export function grunnlagskravFor(
 }
 
 /**
- * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og kravene
- * er ikke avgjort, så et svar ville blitt avvist (GR-U24, OV-U3).
+ * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og sporet
+ * var ikke avgjort, så et svar ville blitt avvist (GR-U24, OV-U3).
  */
 export function venterPaaSvar(u: Utledning, spor: Spor): boolean {
   const s = u.spor[spor];
-  return s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket && !kraveneErAvgjort(u);
+  return s.gjeldendeKrav !== null && s.gjeldendeSvar === null && !s.trukket && !varAvgjort(u, spor);
 }
 
 /**

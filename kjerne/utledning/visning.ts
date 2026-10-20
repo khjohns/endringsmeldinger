@@ -25,7 +25,7 @@ export type Statuskode =
   | 'kan_ikke_utledes'
   | 'avsluttet_avslaatt'
   | 'avsluttet_trukket'
-  | 'avsluttet_oppgjort'
+  | 'alle_krav_avgjort'
   | 'venter_paa_svar'
   | 'under_forhandling';
 
@@ -33,7 +33,7 @@ const STATUSTEKST: Record<Statuskode, string> = {
   kan_ikke_utledes: 'Kan ikke utledes',
   avsluttet_avslaatt: 'Avsluttet: avslått',
   avsluttet_trukket: 'Avsluttet: trukket',
-  avsluttet_oppgjort: 'Avsluttet: oppgjort',
+  alle_krav_avgjort: 'Alle krav sendt i appen er avgjort',
   venter_paa_svar: 'Venter på svar',
   under_forhandling: 'Under forhandling',
 };
@@ -51,7 +51,7 @@ function status(u: Utledning): Statuskode {
   if (!u.forstaatt) return 'kan_ikke_utledes';
   if (u.grunnlagAvvist) return 'avsluttet_avslaatt';
   if (u.spor.grunnlag.trukket) return 'avsluttet_trukket';
-  if (kraveneErAvgjort(u)) return 'avsluttet_oppgjort';
+  if (kraveneErAvgjort(u)) return 'alle_krav_avgjort';
   if (SPOR.some((s) => venterPaaSvar(u, s))) return 'venter_paa_svar';
   return 'under_forhandling';
 }
@@ -113,6 +113,18 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   return ut;
 }
 
+/** OV-U10: et registrert brev kan ha krav appen ikke kjenner. */
+const BREV_UTENFOR_APPEN = 'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
+
+function statustekst(u: Utledning, kode: Statuskode): string {
+  const registrertBrev = u.journal.some(
+    (h) => h.art === 'dokument' && erRegistrert(h.dokument.opplysninger)
+  );
+  return kode === 'alle_krav_avgjort' && registrertBrev
+    ? `${STATUSTEKST[kode]}. ${BREV_UTENFOR_APPEN}`
+    : STATUSTEKST[kode];
+}
+
 export function visning(u: Utledning, regler: Regelsett): Visning {
   const kode = status(u);
   const ikkeTolket = new Set(u.begrensninger.map((b) => b.hendelse));
@@ -144,7 +156,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     opplysninger[o.id] = e;
   }
   return {
-    status: { kode, tekst: STATUSTEKST[kode] },
+    status: { kode, tekst: statustekst(u, kode) },
     spor: Object.fromEntries(
       SPOR.map((s) => [s, { etiketter: u.forstaatt ? etiketter(u, s, regler) : [] }])
     ) as Visning['spor'],
