@@ -1,9 +1,8 @@
 // @vitest-environment jsdom
 /**
- * Valget av kilde i saksruta (#665, #712). `sakskilde` og konteksten er prøvd hver for
- * seg; her prøves at ruta holder Python-spørringen av mens TS-serveren ikke har svart,
- * og bare spør Python når konteksten sier at saken ikke er en TS-sak. Forventningen
- * står i `sakskilde` (#665): Python kalles ikke for en TS-sak.
+ * Saksruta leser saken bare fra TS-serveren (#1025, svaret fra oppdragsgiver 20.10, punkt 1).
+ * En sak serveren ikke kjenner, gir «Fant ikke saken» (B-17: Python-sakene tas ikke vare på),
+ * og en annen feil kan prøves på nytt.
  */
 import { cleanup, render } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
@@ -11,10 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { falskKjernesak } from './saksrutefake.svelte';
 
 const t = vi.hoisted(() => ({
-  bryterPaa: true,
   kontekst: null as ReturnType<typeof falskKjernesak> | null,
-  sakIdTilPython: null as (() => string) | null,
-  pythonSak: undefined as { state: { sakstype: string; sakstittel: string } } | undefined,
 }));
 
 vi.mock('$app/state', () => ({
@@ -22,86 +18,37 @@ vi.mock('$app/state', () => ({
 }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/paths', () => ({ resolve: () => '/' }));
-vi.mock('$lib/queries/caseContext', () => ({
-  createCaseContextQuery: (sakId: () => string) => {
-    t.sakIdTilPython = sakId;
-    return { data: t.pythonSak, isError: false, error: null, refetch: vi.fn() };
-  },
-}));
 vi.mock('$lib/kjernesak/kontekst.svelte', () => ({ lagKjernesak: () => t.kontekst }));
-vi.mock('$lib/kjernesak/bryter', async (original) => ({
-  ...(await original<typeof import('$lib/kjernesak/bryter')>()),
-  tsStienForNyeKoeSaker: () => t.bryterPaa,
-}));
 vi.mock('$lib/components/kjernesak/Kjernesakrom.svelte', () => import('./Tom.svelte'));
-vi.mock('$lib/kontraktsbord/CaseWorkspace.svelte', () => import('./Tom.svelte'));
 
 const Saksruta = (await import('../../../routes/[prosjektId]/[sakId]/+page.svelte')).default;
 
 beforeEach(() => {
-  t.bryterPaa = true;
   t.kontekst = falskKjernesak();
-  t.sakIdTilPython = null;
-  t.pythonSak = undefined;
 });
 afterEach(cleanup);
 
-/** Saks-ID-en ruta gir Python-spørringen nå. Tom streng holder spørringen av. */
-const tilPython = () => t.sakIdTilPython!();
-
-describe('kilden i saksruta', () => {
-  it('holder Python-spørringen av mens TS-serveren ikke har svart', () => {
-    render(Saksruta);
-    expect(tilPython()).toBe('');
+describe('saksruta mot TS-serveren', () => {
+  it('viser at saken lastes mens TS-serveren ikke har svart', () => {
+    const screen = render(Saksruta);
+    expect(screen.getByRole('status')).toHaveTextContent('Laster sak');
   });
 
-  it('holder Python-spørringen av for en TS-sak', () => {
-    render(Saksruta);
-    t.kontekst!.finnes = true;
+  it('en sak TS-serveren ikke kjenner, gir «Fant ikke saken» uten «Prøv igjen»', () => {
+    const screen = render(Saksruta);
+    t.kontekst!.finnes = false;
+    t.kontekst!.feil = 'Saken finnes ikke.';
     flushSync();
-    expect(tilPython()).toBe('');
+    expect(screen.getByRole('alert')).toHaveTextContent('Fant ikke saken');
+    expect(screen.queryByRole('button', { name: 'Prøv igjen' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Til saksoversikten' })).toBeInTheDocument();
   });
 
-  it('holder Python-spørringen av når TS-serveren svarer med en feil', () => {
+  it('en annen feil fra TS-serveren vises med «Prøv igjen»', () => {
     const screen = render(Saksruta);
     t.kontekst!.feil = 'Saken kunne ikke hentes.';
     flushSync();
-    expect(tilPython()).toBe('');
     expect(screen.getByRole('alert')).toHaveTextContent('Saken kunne ikke hentes.');
-  });
-
-  it('spør Python når konteksten sier at saken ikke er en TS-sak', () => {
-    render(Saksruta);
-    t.kontekst!.finnes = false;
-    flushSync();
-    expect(tilPython()).toBe('sak-1');
-  });
-
-  it('spør bare Python med bryteren av', () => {
-    t.bryterPaa = false;
-    render(Saksruta);
-    expect(tilPython()).toBe('sak-1');
-  });
-});
-
-describe('sakstypene som ikke hører til første versjon (OV-U1)', () => {
-  it.each(['endringsordre', 'forsering'])(
-    'en sak med sakstype %s fra Python viser at sakstypen ikke støttes',
-    (sakstype) => {
-      t.bryterPaa = false;
-      t.pythonSak = { state: { sakstype, sakstittel: 'Sak' } };
-      const screen = render(Saksruta);
-      expect(screen.getByRole('alert')).toHaveTextContent(
-        'Endringsordre og forsering støttes ikke i denne versjonen'
-      );
-      expect(screen.getByRole('link', { name: 'Til saksoversikten' })).toBeInTheDocument();
-    }
-  );
-
-  it('en standardsak fra Python viser ingen melding', () => {
-    t.bryterPaa = false;
-    t.pythonSak = { state: { sakstype: 'standard', sakstittel: 'Sak' } };
-    const screen = render(Saksruta);
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Prøv igjen' })).toBeInTheDocument();
   });
 });

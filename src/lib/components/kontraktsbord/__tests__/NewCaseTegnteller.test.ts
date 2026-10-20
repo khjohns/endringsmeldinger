@@ -5,7 +5,6 @@ import NewCaseForm from '../NewCaseForm.svelte';
 import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { setDraftOwner } from '$lib/utils/draftOwner';
 
-vi.mock('$lib/api/events', () => ({ submitEvent: vi.fn() }));
 vi.mock('$app/environment', () => ({ browser: true }));
 
 const EIER = 'saksbehandler-1';
@@ -15,11 +14,14 @@ beforeEach(() => {
   setDraftOwner(EIER);
   const kontraktsforhold = KRAV_STRUKTUR_NS8407.find((k) => k.kode === 'ENDRING')!;
   localStorage.setItem(
-    `koe-draft-kontraktsbord-ny-project::${EIER}`,
+    `koe-draft-kontraktsbord-ny-kjerne-project::${EIER}`,
     JSON.stringify({
       tittel: 'Endret fundament',
-      datoOppdaget: '2026-09-01',
-      valgtHjemmel: { kontraktsforhold, hjemmel: kontraktsforhold.hjemler[0] },
+      datoer: { paalegg_mottatt: '2026-09-01' },
+      valgtHjemmel: {
+        kontraktsforhold,
+        hjemmel: kontraktsforhold.hjemler.find((h) => h.kode === 'IRREG'),
+      },
       begrunnelseHtml: '',
     })
   );

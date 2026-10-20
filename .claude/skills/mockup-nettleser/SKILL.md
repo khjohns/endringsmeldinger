@@ -87,9 +87,9 @@ TEST_BASE_URL=http://localhost:5173 node scripts/test_brev_godkjenning.mjs
 
 `scripts/test_kjernesak_vederlag.ts` driver vederlagskravet fra Kontrollrommet for en
 TS-sak og tar skjermbilder. Skriptet svarer selv for API-et, med journalen skrevet
-av kjernen, så det trenger bare vite med bryteren på:
+av kjernen, så det trenger bare vite:
 
 ```bash
-VITE_KOE_TS_STIEN=true npx vite dev --port 5174 --strictPort
+npx vite dev --port 5174 --strictPort
 node scripts/test_kjernesak_vederlag.ts --utdata /tmp/kjernesak-skjermbilder
 ```
