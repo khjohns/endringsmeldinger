@@ -434,10 +434,10 @@ async function lever(catenda: Dokumentleverandoer, jobb: Jobbrad, lager: Leverin
     return catenda.opprettDokumentreferanse(board, topic, dokumentId);
   };
   const dokument = async (navn: string, innhold: () => Promise<Uint8Array>) => {
+    // Innholdet leses med leasen, så basen avviser det når leasen er tapt etter kontrollen.
     const lastOpp = async () => {
-      const fil = { navn, innhold: await innhold() };
       lager.foerEndring();
-      return catenda.lastOppDokument(maal, fil);
+      return catenda.lastOppDokument(maal, { navn, innhold: await innhold() });
     };
     const id =
       (await catenda.finnDokument(maal, navn)) ??

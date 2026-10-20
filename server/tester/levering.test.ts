@@ -1268,26 +1268,44 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
   });
   // Kilde: #926. Fornyelsen gir 54001 når leasen ikke gjelder, og da gjør forsøket ingen
   // endring i Catenda etter det. En annen feil i fornyelsen stopper ikke leveringen.
-  it.each<[string, number, 'dokumentreferanser' | 'finnDokument', string[]]>([
+  it.each<[string, number, 'dokumentreferanser' | 'finnDokument', string[], string[]]>([
     [
       'en tapt lease (54001) stopper leveringen før referansen opprettes',
       54001,
       'dokumentreferanser',
       ['hent_jobb', 'vedlegg_i_levering', 'forny_lease'],
+      [],
     ],
     [
-      'en tapt lease (54001) stopper leveringen før vedlegget lastes opp',
+      'en tapt lease (54001) stopper leveringen før innholdet leses og vedlegget lastes opp',
       54001,
       'finnDokument',
-      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'vedleggsinnhold'],
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease'],
+      [],
     ],
     [
       'en vranglås i fornyelsen (1205) stopper ikke leveringen',
       1205,
       'dokumentreferanser',
       ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'kvitter_vedlegg', 'kvitter_levering'],
+      ['dokument-v1'],
     ],
-  ])('%s', async (_n, nummer, venterI, kallene) => {
+    [
+      'en vranglås i fornyelsen (1205) stopper ikke opplastingen av vedlegget',
+      1205,
+      'finnDokument',
+      [
+        'hent_jobb',
+        'vedlegg_i_levering',
+        'forny_lease',
+        'vedleggsinnhold',
+        'kvitter_vedlegg',
+        'kvitter_vedlegg',
+        'kvitter_levering',
+      ],
+      ['opplasting', 'dokument-v1'],
+    ],
+  ])('%s', async (_n, nummer, venterI, kallene, endret) => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
     try {
       let slipp!: () => void;
@@ -1326,7 +1344,7 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
       slipp();
       expect(await kjoering).toBe(true);
       expect(prosedyrene(base)).toEqual(kallene);
-      expect(opprettet).toEqual(nummer === 54001 ? [] : ['dokument-v1']);
+      expect(opprettet).toEqual(endret);
       expect(base.registrert).toEqual([]);
     } finally {
       vi.useRealTimers();
