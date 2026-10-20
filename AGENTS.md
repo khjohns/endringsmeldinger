@@ -106,7 +106,7 @@ liste med issuet som fjerner dem. Regelsettet står i `kjerne/regler/`; endres d
 `kjerne/versjon.ts`. `kjerne/frosset/` bestemmer hva beslutningsgrunnlaget fryser, så
 endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke for en
 flytting som bare endrer importstiene. Lagringstestene mot
-testbasen står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
+testbasen i SQL Server står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-koden for de tre sakstypene er overgangskode, og feil i Python rettes
 etter [DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2).
 
@@ -115,8 +115,13 @@ etter [DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2).
 Kommandoene for testene, typesjekkene og verktøykjeden står i
 [miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen `miljo`.
 Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
-Skyøkta har også en testbase for SQL Server
+Skyøkta har en testbase for SQL Server
 ([DL-U1](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)); kommandoene står i miljø-skillen.
+Oppstartshooken starter ikke PostgreSQL (#931). Resonneringsreglene og
+`docs/verktoy/katalog.py` trenger katalogen i en PostgreSQL-base bygget fra
+`supabase/migrations/`. Den basen bygger du selv fra tom før første bruk i økta
+og etter hver endring i migrasjonene, også fra en annen branch, så en eldre base
+ikke svarer.
 
 `svelte-check` ser ikke `kjerne/`, `sprakprove/` og `server/`, så de har hver sin
 `tsc -p`-kommando.
@@ -125,8 +130,9 @@ I skyøkta kan hele `npx vitest run` ta over 120 s, standardgrensen for Bash. Gi
 `timeout` på 300000 eller mer, eller kjør det med `run_in_background`.
 
 Testene er raske. Kjør dem ofte.
-Med `KOE_TESTBASE_URL` kjører `npm test` også kjernens lagringstester i
-`sprakprove/kjernelagring/` mot PostgreSQL. `server/` bruker bare SQL Server.
+Med `KOE_SQLSERVER_TILKOBLING` kjører `npm test` også testene mot SQL Server i
+`server/` og kjernens lagringstester i `sprakprove/kjernelagring/`. Ingen test
+bruker PostgreSQL (#931).
 Sett etiketten `feilinnfoering` på en PR som rører kjernen, før merge. Hva den kjører,
 står i miljø-skillen.
 
@@ -217,7 +223,7 @@ og kjør det uten `DISABLE_AUTH`.
 `koe_resolve_identity`, `koe_reconcile_memberships`,
 `auto_create_project_membership` og flere. De er en del av applikasjonen, og et
 søk i Python- og TS-koden finner dem ikke. Søk også i `supabase/migrations/`, og
-spør katalogen i testbasen — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver
+spør katalogen i en PostgreSQL-base bygget fra dem (se «Miljø») — `pg_proc`, `pg_trigger`, `pg_policy` — før du skriver
 at noe ikke er i bruk. En trigger kan også være den egentlige skriveren.
 
 **Og spør hvem *andre* som kaller funksjonen, ikke bare om den kalles.**

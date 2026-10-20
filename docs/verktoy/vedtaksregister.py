@@ -551,8 +551,9 @@ def _liste(o: dict, felt: str) -> list:
     return o[felt] if isinstance(o.get(felt), list) else []
 
 
-def _nevner(navn: str, tekst: str) -> bool:
-    return bool(re.search(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst))
+def _nevner(navn: str, tekst: str, *, uten_store_bokstaver: bool = False) -> bool:
+    flagg = re.IGNORECASE if uten_store_bokstaver else 0
+    return bool(re.search(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst, flagg))
 
 
 _TIL_ANBEFALINGEN = re.compile(
@@ -586,6 +587,9 @@ def _forbeholdet(svar: str, alternativer: list[str]) -> str | None:
     setningen gjelder et punkt, anbefalingen eller et av `alternativer`, som «Punkt 3
     skal ikke med» (#861). «Det er ikke nødvendig å vente» er ikke et forbehold, og
     heller ikke «Vedlegg B er ikke oppdatert» når B ikke er et alternativ (#925).
+    Et alternativ med mer enn ett tegn kjennes igjen uten hensyn til store og små
+    bokstaver; en enkelt bokstav må ha samme form, så «i» og «a» ikke regnes som
+    alternativ I og A (#958).
 
     Regelen leser ordet, ikke meningen, så en senere setning om et punkt eller
     anbefalingen med et forbeholdsord gir forbehold også når ordet ikke er et
@@ -605,7 +609,7 @@ def _forbeholdet(svar: str, alternativer: list[str]) -> str | None:
         if ord_ := _FORBEHOLD_FOERST.match(setning):
             return ord_.group(1)
         gjelder = _GJELDER_ANBEFALINGEN.search(setning) or any(
-            _nevner(navn, setning) for navn in alternativer
+            _nevner(navn, setning, uten_store_bokstaver=len(navn) > 1) for navn in alternativer
         )
         if gjelder and (ord_ := _FORBEHOLD.search(setning)):
             return ord_.group(0)

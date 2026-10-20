@@ -35,7 +35,10 @@ export async function opprettMigrertTestbase(
   return base;
 }
 
-const RUNNER = fileURLToPath(new URL('../migrering.ts', import.meta.url));
+/** Filene utenom migrasjonene som former malen: runneren, poolen og `CREATE DATABASE` (#945). */
+const MALFILER = ['../migrering.ts', '../datalag.ts', './sqlserver.ts'].map((f) =>
+  fileURLToPath(new URL(f, import.meta.url))
+);
 
 const medSkilletegn = (mappe: string) => mappe.replace(/\/?$/, '/');
 
@@ -48,19 +51,23 @@ const medGrense = (pool: Pool, requestTimeout: number) =>
 /** Hvor lenge en kopi av malen kan ta å skrive, og en annen fil venter på låsen. */
 const BYGGETID = 600_000;
 
+/** Grensen for en ledig forbindelse i `underLaas`, ms; lenger enn 30 s, standarden i poolen. */
+export const LEDIG_FORBINDELSE = 2 ** 31 - 1;
+
 /**
  * Sesjonslåsen `ressurs` på en egen forbindelse til `master`, mens `arbeid` kjører
  * med forbindelsen. Venter i opptil `laasfrist` ms og feiler med svarkoden fra
  * `sp_getapplock` uten låsen. Låsen eies av sesjonen fordi `BACKUP` ikke går i en
- * transaksjon, så poolen har én forbindelse og lukker den ikke mens den er ledig.
- * Grensen for hver forespørsel settes på forespørselen.
+ * transaksjon, så poolen har én forbindelse og lukker den ikke før den har vært
+ * ledig i `ledig` ms. Grensen for hver forespørsel settes på forespørselen.
  */
 export async function underLaas<T>(
   ressurs: string,
   laasfrist: number,
-  arbeid: (laas: Pool) => Promise<T>
+  arbeid: (laas: Pool) => Promise<T>,
+  { ledig = LEDIG_FORBINDELSE } = {}
 ): Promise<T> {
-  const laas = await koble('master', 1, { pool: { idleTimeoutMillis: 2 ** 31 - 1 } });
+  const laas = await koble('master', 1, { pool: { idleTimeoutMillis: ledig } });
   try {
     await medGrense(laas, laasfrist + 60_000).batch(
       `DECLARE @svar int;
@@ -80,23 +87,39 @@ export async function underLaas<T>(
 /**
  * Om `fil` er en fullført kopi: hodet i fila har ID-en til en kopi som `msdb` har
  * ført. `msdb` fører kopien når den er skrevet ferdig, så en kopi som ble avbrutt,
- * eller som skrives nå, er ikke ført. Leser bare hodet, ikke hele fila.
+ * eller som skrives nå, er ikke ført. Leser bare hodet, ikke hele fila. Fila som
+ * mangler (3201 med feil 2 fra operativsystemet), som en annen skriver (3201 med
+ * 32) eller som er tom (3254), er ikke fullført. Andre feil, som en brutt
+ * forbindelse eller en vranglås i `msdb`, kastes, så en fullført kopi ikke
+ * skrives over mens andre gjenoppretter fra den (#969).
  */
-async function fullfoert(pool: Pool, fil: string): Promise<boolean> {
+export async function fullfoert(pool: Pool, fil: string): Promise<boolean> {
+  let hode;
   try {
-    const hode = await pool
+    hode = await pool
       .request()
       .query<{ BackupSetGUID: string }>(`RESTORE HEADERONLY FROM DISK = N'${fil}'`);
-    const foert = await pool
-      .request()
-      .input('id', sql.UniqueIdentifier, hode.recordset[0].BackupSetGUID)
-      .query<{
-        n: number;
-      }>('SELECT COUNT(*) AS n FROM msdb.dbo.backupset WHERE backup_set_uuid = @id');
-    return foert.recordset[0].n > 0;
-  } catch {
-    return false;
+  } catch (feil) {
+    if (ikkeEnKopi(feil)) return false;
+    throw feil;
   }
+  const foert = await pool
+    .request()
+    .input('id', sql.UniqueIdentifier, hode.recordset[0].BackupSetGUID)
+    .query<{
+      n: number;
+    }>('SELECT COUNT(*) AS n FROM msdb.dbo.backupset WHERE backup_set_uuid = @id');
+  return foert.recordset[0].n > 0;
+}
+
+function ikkeEnKopi(feil: unknown): boolean {
+  const { precedingErrors = [] } = feil as { precedingErrors?: unknown[] };
+  return [feil, ...precedingErrors].some((f) => {
+    const { number, message } = f as { number?: number; message?: string };
+    return (
+      number === 3254 || (number === 3201 && /Operating system error (2|32)\(/.test(message ?? ''))
+    );
+  });
 }
 
 let malen: Promise<{ fil: string; bygget: boolean }> | undefined;
@@ -118,25 +141,32 @@ export function byggMal({ frist = 180_000 } = {}): Promise<{ fil: string; bygget
   return malen;
 }
 
-async function byggMalNaa(frist: number): Promise<{ fil: string; bygget: boolean }> {
-  const sum = createHash('sha256')
+const malsum = () =>
+  createHash('sha256')
     .update(
       JSON.stringify([
         lesMigrasjoner().map((m) => m.sha256),
-        createHash('sha256').update(readFileSync(RUNNER)).digest('hex'),
+        MALFILER.map((f) => createHash('sha256').update(readFileSync(f)).digest('hex')),
         AZURE_INNSTILLINGER,
       ])
     )
     .digest('hex')
     .slice(0, 16);
+
+async function malfil(master: Pool, sum: string): Promise<string> {
+  const sti = await master.request().query<{
+    kopier: string;
+  }>(`SELECT CAST(SERVERPROPERTY('InstanceDefaultBackupPath') AS nvarchar(400)) AS kopier`);
+  return `${medSkilletegn(sti.recordset[0].kopier)}koe_testmal_${sum}.bak`;
+}
+
+async function byggMalNaa(frist: number): Promise<{ fil: string; bygget: boolean }> {
+  const sum = malsum();
   const master = await kobleTilServer(frist);
   let fil: string;
   try {
     await krevDeveloperEdition(master);
-    const sti = await master.request().query<{
-      kopier: string;
-    }>(`SELECT CAST(SERVERPROPERTY('InstanceDefaultBackupPath') AS nvarchar(400)) AS kopier`);
-    fil = `${medSkilletegn(sti.recordset[0].kopier)}koe_testmal_${sum}.bak`;
+    fil = await malfil(master, sum);
     if (await fullfoert(master, fil)) return { fil, bygget: false };
   } finally {
     await master.close();
@@ -157,14 +187,34 @@ async function byggMalNaa(frist: number): Promise<{ fil: string; bygget: boolean
   });
 }
 
-/** Sletter kopien `fil` på serveren. */
-export async function slettMal(fil: string): Promise<void> {
+/**
+ * Sletter malen for filene i treet når `msdb` har ført den som skrevet ferdig
+ * etter `startet` (ms fra `Date.now()`), uansett hvem i kjøringen som bygget den
+ * (#945). Alderen regnes på serverens klokke og sammenliknes med tiden som er
+ * gått her, så klokkene trenger ikke gå likt. Gir om malen ble slettet.
+ */
+export async function slettMalByggetEtter(startet: number): Promise<boolean> {
+  const sum = malsum();
   const master = await kobleTilServer(0);
   try {
+    const fil = await malfil(master, sum);
+    if (!(await fullfoert(master, fil))) return false;
+    const svar = await master
+      .request()
+      .input('fil', sql.NVarChar(400), fil)
+      .query<{ alder: number | null }>(
+        `SELECT DATEDIFF_BIG(millisecond, MAX(b.backup_finish_date), GETDATE()) AS alder
+           FROM msdb.dbo.backupset b
+           JOIN msdb.dbo.backupmediafamily f ON f.media_set_id = b.media_set_id
+          WHERE f.physical_device_name = @fil`
+      );
+    const alder = svar.recordset[0].alder;
+    if (alder === null || Number(alder) > Date.now() - startet) return false;
     await master
       .request()
       .input('fil', sql.NVarChar(400), fil)
       .batch('EXEC sys.xp_delete_files @fil');
+    return true;
   } finally {
     await master.close();
   }

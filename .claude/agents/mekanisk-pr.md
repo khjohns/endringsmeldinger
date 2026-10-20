@@ -82,6 +82,12 @@ annet arbeidstre eller på `origin`, stopp og si det i rapporten.
 - Kjør sjekkene oppdraget nevner, og alltid `npm run lint`. Finner ikke
   arbeidstreet pakkene, kjør `npm ci` der først.
 - Skriv PR-beskrivelsen og andre kladder i `/tmp`, ikke i arbeidstreet.
+  Skriv dem med Write, ikke med en heredoc. Hooken stopper en heredoc i et
+  kall som committer eller pusher. Den leser også kroppen som kommandoer, så
+  en kropp som nevner `git`, `gh`, et skall eller en miljøvariabel som `PATH`,
+  eller har et av tegnene `# ( ) * ? [ { $`, backtick eller en enkelt `'`
+  eller `"`, kan stoppe kallet, også med `<<'EOF'`. Vis til fila med `git commit -F /tmp/<fil>` eller
+  `-F body=@/tmp/<fil>`.
 - Commit-meldinger på norsk, med liten forbokstav og et verb i imperativ.
 
 ## PR

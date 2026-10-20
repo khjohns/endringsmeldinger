@@ -15,38 +15,27 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { feilnummer, sql } from '../datalag.ts';
 import { innholdsfeil, rensetFilnavn, STOERSTE_VEDLEGG } from '../vedlegg.ts';
-import { forhaandsvis, laastTekst, vurder } from '../../kjerne/kommandoer/skriving.ts';
+import { vurder } from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { skrivHendelse, UgyldigKommando } from '../kommandoer.ts';
 import { lesSaken } from '../lager.ts';
 import { OPPDRAGSFORMAT } from '../levering.ts';
 import {
   kall,
+  type KjorendeServer,
   lagOppsett,
+  medLaastTekst,
   opprettKjernesak,
+  type Oppsett,
   rydd,
   startServer,
-  TESTBASE_URL,
-  type KjorendeServer,
-  type Oppsett,
   type Svar,
+  TESTBASE_URL,
   type Testbruker,
 } from './testbase.ts';
 import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
 
 const PDF = Buffer.from('%PDF-1.7\nInnhold\n');
-
-const GRUNNLAGSKRAV = {
-  type: 'krav',
-  spor: 'grunnlag',
-  innhold: {
-    hovedkategori: 'endring',
-    underkategori: 'irregulaer_endring',
-    tittel: 'Endret fundamentering',
-    paalegg_mottatt: '2026-10-01',
-  },
-  utdypning: 'Byggherren har pålagt en annen fundamentering.',
-};
 
 describe('filnavnet og innholdet', () => {
   it.each([
@@ -353,24 +342,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     /** Saken med TEs grunnlagskrav, så et varsel kan registreres (versjon 2). */
     async function sakMedGrunnlag(): Promise<string> {
       const sakId = await opprettKjernesak(o);
-      const vist = forhaandsvis(
-        GRUNNLAGSKRAV,
-        {
-          sakId,
-          aktoerId: o.te.id,
-          part: 'TE',
-          teamId: null,
-          tidspunkt: () => new Date(),
-          nyId: randomUUID,
-        },
-        await journal(sakId),
-        KJERNE
-      );
-      if (!vist.godtatt) throw new Error('Kravet ble ikke godtatt i forhåndsvisningen');
-      const svar = await send(sakId, 1, {
-        ...GRUNNLAGSKRAV,
-        brevtekst: laastTekst(vist.hendelser[0]),
-      });
+      const svar = await send(sakId, 1, await medLaastTekst(o, sakId));
       if (svar.status !== 201) throw new Error(`Kravet ble avvist: ${svar.status}`);
       return sakId;
     }

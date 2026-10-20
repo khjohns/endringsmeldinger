@@ -11,9 +11,13 @@ import copy
 import functools
 import pathlib
 import re
+import sys
 
 import tomllib
-from laster import last
+
+if "verktoy.laster" not in sys.modules:
+    sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
+from verktoy.laster import last
 
 ROT = pathlib.Path(__file__).resolve().parents[2]
 BACKEND = ROT / "backend"
