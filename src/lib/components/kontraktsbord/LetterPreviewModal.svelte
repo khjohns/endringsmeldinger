@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { Download, X } from 'lucide-svelte';
+  import { X } from 'lucide-svelte';
   import { onMount } from 'svelte';
   import LetterHtmlPreview from './LetterHtmlPreview.svelte';
-  import { getCsrfToken, projectHeaders } from '$lib/api/client';
   import type { BrevInnhold } from './letterTypes';
   let {
     brevInnhold,
@@ -10,56 +9,7 @@
     draft = false,
   }: { brevInnhold: BrevInnhold; onclose: () => void; draft?: boolean } = $props();
   let dialog: HTMLDialogElement;
-  let isDownloading = $state(false);
-  let error = $state('');
   onMount(() => dialog.showModal());
-  async function downloadPdf() {
-    isDownloading = true;
-    error = '';
-    try {
-      // PDF-blob, så kallet kan ikke gå gjennom apiFetch, som parser JSON.
-      const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/letter/generate`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          ...projectHeaders(),
-          'X-CSRF-Token': await getCsrfToken(),
-        },
-        body: JSON.stringify({
-          brev_innhold: {
-            tittel: `${draft ? 'UTKAST – ' : ''}${brevInnhold.tittel}`,
-            mottaker: brevInnhold.mottaker,
-            avsender: brevInnhold.avsender,
-            referanser: {
-              sak_id: brevInnhold.referanser.sakId,
-              sakstittel: brevInnhold.referanser.sakstittel,
-              event_id: brevInnhold.referanser.eventId,
-              spor_type: brevInnhold.referanser.sporType,
-              dato: brevInnhold.referanser.dato,
-            },
-            seksjoner: Object.fromEntries(
-              Object.entries(brevInnhold.seksjoner).map(([key, value]) => [
-                key,
-                value.redigertTekst,
-              ])
-            ),
-          },
-        }),
-      });
-      if (!resp.ok) throw new Error('PDF-en kunne ikke genereres. Prøv igjen.');
-      const url = URL.createObjectURL(await resp.blob());
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${draft ? 'utkast-' : ''}brev-${brevInnhold.referanser.sakId}.pdf`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (cause) {
-      error = cause instanceof Error ? cause.message : 'Nedlasting feilet.';
-    } finally {
-      isDownloading = false;
-    }
-  }
 </script>
 
 <dialog bind:this={dialog} class="letter-modal" {onclose} aria-labelledby="letter-title">
@@ -72,15 +22,7 @@
   </header>
   <div class="preview-scroll"><LetterHtmlPreview {brevInnhold} /></div>
   <footer>
-    {#if error}<p role="alert">{error}</p>{/if}<button class="btn btn-secondary" onclick={onclose}
-      >Lukk</button
-    ><button class="btn btn-primary" onclick={downloadPdf} disabled={isDownloading}
-      ><Download size={14} />{isDownloading
-        ? 'Laster ned …'
-        : draft
-          ? 'Last ned utkast'
-          : 'Last ned PDF'}</button
-    >
+    <button class="btn btn-secondary" onclick={onclose}>Lukk</button>
   </footer>
 </dialog>
 
@@ -138,11 +80,6 @@
     align-items: center;
     padding: 16px 24px;
     border-top: var(--rule);
-  }
-  footer p {
-    color: var(--danger);
-    font-size: 12px;
-    margin-right: auto;
   }
   @media (max-width: 768px) {
     .preview-scroll {

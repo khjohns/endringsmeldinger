@@ -3,51 +3,34 @@
  * nøytralt fristvarsel i hovedplanen 3.1 (23.09): forespørselen er en egen
  * handling uten resultat, og den sendes per brev (NS 8407 § 33.6.2 første ledd).
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/svelte';
 import WorkspaceHarness from './WorkspaceHarness.svelte';
 import { createCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import { createDemoStore } from '$lib/mockup/store.svelte';
-import { apiFetch } from '$lib/api/client';
+import { DEFAULT_SCENARIO } from '$lib/mockup/scenarios';
 import { setDraftOwner } from '$lib/utils/draftOwner';
 import type { CaseContextResponse } from '$lib/types/api';
 import type { TimelineEvent } from '$lib/types/timeline';
-
-vi.mock('$lib/api/client', async (original) => ({
-  ...(await original<typeof import('$lib/api/client')>()),
-  apiFetch: vi.fn(),
-}));
+import type { BrevInnhold } from '../letterTypes';
 
 beforeEach(() => {
-  vi.clearAllMocks();
   localStorage.clear();
   sessionStorage.clear();
   setDraftOwner('user');
-  vi.mocked(apiFetch).mockResolvedValue({
-    state: { version: 0, items: [], packages: [] },
-    actor: 'handler@test',
-    chain: [],
-    canPrepare: true,
-  } as never);
 });
 afterEach(cleanup);
 
-function arbeidsflate(sendEvent: ReturnType<typeof vi.fn>) {
-  const demo = createDemoStore();
-  const response: CaseContextResponse = {
-    state: JSON.parse(JSON.stringify(demo.sak)),
-    timeline: JSON.parse(JSON.stringify(demo.timeline)),
-    version: 4,
-    historikk: { grunnlag: [], vederlag: [], frist: [] },
-  };
-  response.state.frist = {
+function arbeidsflate() {
+  const scenario = structuredClone(DEFAULT_SCENARIO);
+  scenario.sak.frist = {
     status: 'sendt',
     antall_versjoner: 1,
     varsel_type: 'varsel',
     krav_event_id: 'varsel-1',
     frist_varsel: { dato_sendt: '2026-09-02', metode: ['digital_oversendelse'] },
-  } as CaseContextResponse['state']['frist'];
-  response.timeline.push({
+  } as typeof scenario.sak.frist;
+  scenario.timeline.push({
     specversion: '1.0',
     id: 'varsel-1',
     source: '/test',
@@ -57,14 +40,14 @@ function arbeidsflate(sendEvent: ReturnType<typeof vi.fn>) {
     spor: 'frist',
     data: { varsel_type: 'varsel' },
   } as unknown as TimelineEvent);
-  return createCaseWorkspace(response, { projectId: 'p', sendEvent });
+  return createDemoStore(scenario);
 }
 
 describe('BH på et fristvarsel uten dager', () => {
   it('sender forespørselen som egen hendelse med brev, uten resultat', async () => {
-    const sendEvent = vi.fn().mockRejectedValue(new Error('Stopp etter kontrollert innsending'));
+    const workspace = arbeidsflate();
     const screen = render(WorkspaceHarness, {
-      workspace: arbeidsflate(sendEvent),
+      workspace,
       view: { track: 'frist', role: 'BH', mode: 'form' },
     });
 
@@ -79,9 +62,13 @@ describe('BH på et fristvarsel uten dager', () => {
     );
     await fireEvent.click(screen.getByRole('button', { name: 'Send til entreprenøren' }));
 
-    await waitFor(() => expect(sendEvent).toHaveBeenCalledOnce());
-    const [, type, data] = sendEvent.mock.calls[0];
-    expect(type).toBe('frist_foresporsel_sendt');
+    await waitFor(() =>
+      expect(workspace.timeline.some((e) => e.type === 'no.oslo.koe.frist_foresporsel_sendt')).toBe(
+        true
+      )
+    );
+    const sendt = workspace.timeline.find((e) => e.type === 'no.oslo.koe.frist_foresporsel_sendt')!;
+    const data = sendt.data as unknown as Record<string, unknown> & { brev: BrevInnhold };
     expect(data.frist_krav_id).toBe('varsel-1');
     expect(data).not.toHaveProperty('beregnings_resultat');
     expect(data.brev.tittel).toContain('Forespørsel om spesifisert krav');
@@ -93,14 +80,16 @@ describe('BH på et fristvarsel uten dager', () => {
 
   it('vises uten godkjenningsrett, fordi handlingene går utenom godkjenningen', async () => {
     // Oppdragsgiver 2026-10-04: innsigelse og forespørsel sendes uten intern godkjenning.
-    vi.mocked(apiFetch).mockResolvedValue({
-      state: { version: 0, items: [], packages: [] },
-      actor: 'leser@test',
-      chain: [],
-      canPrepare: false,
-    } as never);
+    // Utenfor demoen har godkjenningen ingen som kan ferdigstille (#818).
+    const demo = arbeidsflate();
+    const response: CaseContextResponse = {
+      state: JSON.parse(JSON.stringify(demo.sak)),
+      timeline: JSON.parse(JSON.stringify(demo.timeline)),
+      version: 4,
+      historikk: { grunnlag: [], vederlag: [], frist: [] },
+    };
     const screen = render(WorkspaceHarness, {
-      workspace: arbeidsflate(vi.fn()),
+      workspace: createCaseWorkspace(response, { projectId: 'p' }),
       view: { track: 'frist', role: 'BH', mode: 'form' },
     });
 

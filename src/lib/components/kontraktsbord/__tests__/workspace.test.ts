@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/svelte';
-import { userEvent } from '@testing-library/user-event';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/svelte';
 import WorkspaceHarness from './WorkspaceHarness.svelte';
 import PositionExplanation from '../PositionExplanation.svelte';
 import { scenario1_3AktiveSpor } from '$lib/mocks/caseState';
@@ -8,30 +7,8 @@ import { createDemoStore } from '$lib/mockup/store.svelte';
 import { createCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import type { CaseContextResponse } from '$lib/types/api';
 
-import { apiFetch } from '$lib/api/client';
-vi.mock('$lib/api/vedlegg', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('$lib/api/vedlegg')>()),
-  hentVedlegg: vi.fn().mockResolvedValue({ vedlegg: [], minRolle: 'BH' }),
-}));
-// Partiell mock: behold ekte eksporter (bl.a. ApiError, som approval/context bruker
-// i instanceof-sjekk) og stub bare nettverkskallet.
-vi.mock('$lib/api/client', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('$lib/api/client')>()),
-  apiFetch: vi.fn(),
-}));
-beforeEach(() => {
-  vi.mocked(apiFetch).mockImplementation(async (_url, options) => {
-    if (options?.method === 'POST') throw new Error('Saken er endret av en annen bruker');
-    return {
-      state: { version: 0, items: [], packages: [] },
-      actor: 'handler@test',
-      chain: [],
-      canPrepare: true,
-    } as never;
-  });
-});
 describe('shared case workspace UI', () => {
-  it('uses case identity and keeps scenario selection exclusive to the demo', async () => {
+  it('uses case identity and keeps scenario selection exclusive to the demo', () => {
     const demo = createDemoStore();
     const response: CaseContextResponse = {
       state: JSON.parse(JSON.stringify(demo.sak)),
@@ -45,38 +22,6 @@ describe('shared case workspace UI', () => {
     expect(screen.getByText('En annen sak fra API')).toBeInTheDocument();
     expect(screen.queryByRole('combobox', { name: 'Scenario' })).not.toBeInTheDocument();
     expect(screen.queryByTitle('Nullstill mockup')).not.toBeInTheDocument();
-  });
-
-  it('keeps a failed response open and reports the error', async () => {
-    const demo = createDemoStore();
-    const response: CaseContextResponse = {
-      state: JSON.parse(JSON.stringify(demo.sak)),
-      timeline: JSON.parse(JSON.stringify(demo.timeline)),
-      version: 4,
-      historikk: { grunnlag: [], vederlag: [], frist: [] },
-    };
-    const sendEvent = vi.fn().mockRejectedValue(new Error('Saken er endret av en annen bruker'));
-    const live = createCaseWorkspace(response, { projectId: 'p', sendEvent });
-    const user = userEvent.setup();
-    render(WorkspaceHarness, {
-      workspace: live,
-      view: { track: 'ansvar', mode: 'form', role: 'BH' },
-    });
-    const verdict = await screen.findByRole('radio', { name: 'Anerkjent' });
-    const yes = screen.queryByRole('radio', { name: 'Ja, i tide' });
-    if (yes) await user.click(yes);
-    await user.click(verdict);
-    const send = screen.getByRole('button', { name: 'Ferdigstill vurdering' });
-    await waitFor(() => expect(send).toBeEnabled());
-    await user.click(send);
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Saken er endret av en annen bruker'
-    );
-    expect(screen.getByRole('radio', { name: 'Anerkjent' })).toHaveAttribute(
-      'aria-checked',
-      'true'
-    );
-    expect(sendEvent).not.toHaveBeenCalled();
   });
 });
 

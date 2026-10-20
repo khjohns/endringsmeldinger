@@ -4,7 +4,6 @@ import type { BrevInnhold } from '$lib/components/kontraktsbord/letterTypes';
 import { buildLetterContent } from '$lib/components/kontraktsbord/letterContentBuilder';
 import type { CaseWorkspace } from '$lib/kontraktsbord/context.svelte';
 import type { EventType, SporType, TimelineEvent } from '$lib/types/timeline';
-import { hentVedlegg } from '$lib/api/vedlegg';
 const KEY = Symbol('claim-letter');
 export class LetterCancelled extends Error {
   constructor() {
@@ -59,6 +58,8 @@ export function createClaimReview(store: CaseWorkspace) {
       demoSend: () => void,
       actorrole: 'TE' | 'BH' = 'TE'
     ) {
+      if (!store.isDemo)
+        throw new Error('En TS-sak sendes gjennom kravkontrollen, ikke denne brevkontrollen.');
       const snapshot = JSON.parse(JSON.stringify(data));
       const letter = buildLetterContent(
         {
@@ -73,24 +74,10 @@ export function createClaimReview(store: CaseWorkspace) {
         } as TimelineEvent & { spor: SporType },
         store.sak
       );
-      if (!store.isDemo && snapshot.vedlegg_ids?.length) {
-        const { vedlegg } = await hentVedlegg(store.sak.sak_id);
-        const names = snapshot.vedlegg_ids.map((id: string) => {
-          const entry = vedlegg.find((v) => v.id === id);
-          if (!entry)
-            throw new Error('Et valgt vedlegg er ikke tilgjengelig. Kontroller vedleggsvalget.');
-          return entry.navn;
-        });
-        const text = `\n\nVedlegg\n${names.join('\n')}`;
-        letter.seksjoner.begrunnelse.originalTekst += text;
-        letter.seksjoner.begrunnelse.redigertTekst += text;
-      }
       const approved = await confirmation.show(letter);
-      if (store.isDemo) {
-        const previousCount = store.timeline.length;
-        demoSend();
-        store.recordClaimLetter(track, type, snapshot, approved, previousCount, actorrole);
-      } else await store.submit(type, { ...snapshot, brev: approved });
+      const previousCount = store.timeline.length;
+      demoSend();
+      store.recordClaimLetter(track, type, snapshot, approved, previousCount, actorrole);
     },
   };
 }
