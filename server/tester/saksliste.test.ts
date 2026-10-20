@@ -119,7 +119,7 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
   it.each([
     ['BH', () => o.bh, 'BH'],
     ['TE', () => o.te, 'TE'],
-    ['et medlem uten kontraktsside', () => o.utenTeam, null],
+    ['et medlem med leserolle', () => o.leser, null],
   ])('svaret har leserens part fra serveren, for %s', async (_, leser, part) => {
     expect((await svaret(leser())).part).toBe(part);
   });
@@ -127,7 +127,7 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
   it.each([
     ['BH', () => o.bh],
     ['TE', () => o.te],
-    ['et medlem uten kontraktsside', () => o.utenTeam],
+    ['et medlem med leserolle', () => o.leser],
   ])('etikettene per spor er etikettene i visningen av saken, for %s', async (_, leser) => {
     for (const sakId of [medKrav, tom]) {
       const vist = await kall(server.url, `/api/kjerne/saker/${sakId}`, {
