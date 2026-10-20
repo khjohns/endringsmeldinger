@@ -45,6 +45,7 @@ import {
   topicoppretter,
 } from './catenda.ts';
 import { opprettPool, sql } from './datalag.ts';
+import { graphFraMiljoe, type Graph } from './hrdata.ts';
 import { innloggingFraMiljoe, type Innlogging } from './innlogging.ts';
 import { webhookFraMiljoe, type Webhook } from './webhook.ts';
 import { startJobbkjoerer, type Jobbkjoerer } from './jobber.ts';
@@ -99,6 +100,12 @@ try {
 } catch (feil) {
   console.warn(`Webhooken fra Catenda er ikke satt opp: ${(feil as Error).message}`);
 }
+let hr: Graph | null = null;
+try {
+  hr = graphFraMiljoe(process.env);
+} catch (feil) {
+  console.warn(`HR-synkroniseringen er ikke satt opp: ${(feil as Error).message}`);
+}
 let jobber: Jobbkjoerer | null = null;
 if (klient && innlogging) {
   const { frontend } = innlogging;
@@ -107,6 +114,7 @@ if (klient && innlogging) {
     catenda: topicoppretter(klient),
     dokumenter: dokumentleverandoer(klient),
     innboks: innboksintegrasjon(klient),
+    hr: hr ?? undefined,
     saksadresse: (prosjektId, sakId) =>
       `${frontend}/${encodeURIComponent(prosjektId)}/${encodeURIComponent(sakId)}/kjerne`,
   });

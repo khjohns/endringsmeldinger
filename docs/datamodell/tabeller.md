@@ -37,6 +37,9 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.app_users`](#koeapp_users) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.app_identities`](#koeapp_identities) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.entra_tenant`](#koeentra_tenant) | SQL Server | grunndata | i bruk | Nei | Ja |
+| [`koe.rolle`](#koerolle) | SQL Server | grunndata | i bruk | Nei | Ja |
+| [`koe.stillingstittel`](#koestillingstittel) | SQL Server | grunndata | i bruk | Nei | Ja |
+| [`koe.hr_kopi`](#koehr_kopi) | SQL Server | kopi | i bruk | Nei | Nei |
 | [`koe.projects`](#koeprojects) | SQL Server | grunndata | uavklart | Nei | Ja |
 | [`koe.app_project_memberships`](#koeapp_project_memberships) | SQL Server | grunndata, kopi | i bruk | Nei | Delvis |
 | [`koe.catenda_contract_teams`](#koecatenda_contract_teams) | SQL Server | grunndata | uavklart | Nei | Ja |
@@ -529,7 +532,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en Catenda-identitet sees. Tilbakekallet fra innloggingen kaller den fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet oppretter aldri en bruker ved innloggingen: driften registrerer den med `koe_drift.registrer_entra_identitet`, som ny bruker eller koblet til en eksisterende (S-1c del 1, #831). `koe_api.entra_identitet` oppdaterer navn og e-post ved innloggingen. |
 | Data fra Catenda | Delvis. Navn og e-post kommer fra Catenda-identiteten. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.fullmakt.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.fullmakt.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.hr_kopi.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
 | Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post) |
@@ -569,6 +572,57 @@ Tenantene i Entra ID driften har godkjent for innloggingen (S-1c del 1, #831). `
 | Skrives av | database/migrasjoner/20261020150000_entra_identitet.sql (tabellen); radene skrives av driften som eier |
 | Funn | — |
 | Belegg | L 20.10: migrasjonen. K 20.10: `server/tester/entra.test.ts` mot testbasen. |
+
+### `koe.rolle`
+
+Rollene byggherren gir fullmakt etter, med beløpsgrensen i kroner, globalt for byggherren (GFK-U6, GFK-U11; S-1c del 2, #831). Ingen grense er ubegrenset (GFK-U4). Rollen er en kode med a–z og `_`. Kjøretiden har ingen rett på tabellen.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | Driften, med `koe_drift.sett_rolle` og `koe_drift.fjern_rolle`. |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (rolle). Vises til fra: koe.hr_kopi.rolle (fremmednøkkel, ON DELETE NO ACTION); koe.stillingstittel.rolle (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei. Driftens registrering er kilden. |
+| Personopplysninger | Nei. |
+| Skrives av | database/migrasjoner/20261020160000_hr_roller.sql (tabellen og driftsprosedyrene) |
+| Funn | — |
+| Belegg | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts` mot testbasen. |
+
+### `koe.stillingstittel`
+
+Hvilken stillingstittel (`jobTitle` i Graph) som gir hvilken rolle (S3 i #831). Tittelen må stemme tegn for tegn; nøkkelen er SHA-256 av tittelen, fordi `=` ser bort fra mellomrom til slutt. Kjøretiden leser titlene bare gjennom `koe_api.stillingstitler`.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | Driften, med `koe_drift.sett_stillingstittel` og `koe_drift.fjern_stillingstittel`. Lest av `koe_api.stillingstitler` og `koe_api.synkroniser_hr` fra `server/hrdata.ts`. |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (noekkel). Viser til: rolle → koe.rolle.rolle (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei. Driftens registrering er kilden. |
+| Personopplysninger | Nei. |
+| Skrives av | database/migrasjoner/20261020160000_hr_roller.sql (tabellen og driftsprosedyrene) |
+| Funn | — |
+| Belegg | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts` mot testbasen. |
+
+### `koe.hr_kopi`
+
+HR-kopien per bruker fra Graph (S-1c del 2, #831): tenanten, `oid`, rollen, lederens `oid` og når bildet ble hentet. Hver synkronisering skriver hele bildet for tenanten; en person uten en stilling som gir rolle, eller med deaktivert konto, beholder raden uten rolle og leder (GFK-U10). Kjøretiden skriver bare gjennom `koe_api.synkroniser_hr` og har ingen rett på tabellen.
+
+| Felt | Innhold |
+| --- | --- |
+| Type | kopi |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | `koe_api.synkroniser_hr`, kalt av jobbkjøreren gjennom `synkroniserHr` i `server/hrdata.ts`. |
+| Data fra Catenda | Nei. Fra Microsoft Graph. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (bruker_id); unik (tenant_id, oid). Viser til: bruker_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); rolle → koe.rolle.rolle (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | ja. Neste synkronisering skriver bildet på nytt. |
+| Personopplysninger | Hvem som har en rolle med fullmakt, og hvem som er lederen. |
+| Skrives av | server/hrdata.ts → koe_api.synkroniser_hr |
+| Funn | — |
+| Belegg | L 20.10: migrasjonen og `server/hrdata.ts`. K 20.10: `server/tester/hrdata.test.ts` mot testbasen og en falsk Graph. |
 
 ### `koe.projects`
 

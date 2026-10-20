@@ -673,6 +673,61 @@ funn = []
 belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/entra.test.ts` mot testbasen."
 
 [[tabell]]
+navn = "koe.rolle"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Rollene byggherren gir fullmakt etter, med beløpsgrensen i kroner, globalt for
+byggherren (GFK-U6, GFK-U11; S-1c del 2, #831). Ingen grense er ubegrenset
+(GFK-U4). Rollen er en kode med a–z og `_`.
+Kjøretiden har ingen rett på tabellen."""
+lagres_fra = "Driften, med `koe_drift.sett_rolle` og `koe_drift.fjern_rolle`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Driftens registrering er kilden."
+personopplysninger = "Nei."
+skrivere = ["database/migrasjoner/20261020160000_hr_roller.sql (tabellen og driftsprosedyrene)"]
+funn = []
+belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts` mot testbasen."
+
+[[tabell]]
+navn = "koe.stillingstittel"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Hvilken stillingstittel (`jobTitle` i Graph) som gir hvilken rolle (S3 i #831).
+Tittelen må stemme tegn for tegn; nøkkelen er SHA-256 av tittelen, fordi `=` ser
+bort fra mellomrom til slutt. Kjøretiden leser titlene bare gjennom
+`koe_api.stillingstitler`."""
+lagres_fra = "Driften, med `koe_drift.sett_stillingstittel` og `koe_drift.fjern_stillingstittel`. Lest av `koe_api.stillingstitler` og `koe_api.synkroniser_hr` fra `server/hrdata.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Driftens registrering er kilden."
+personopplysninger = "Nei."
+skrivere = ["database/migrasjoner/20261020160000_hr_roller.sql (tabellen og driftsprosedyrene)"]
+funn = []
+belegg = "L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts` mot testbasen."
+
+[[tabell]]
+navn = "koe.hr_kopi"
+lagring = "SQL Server"
+type = ["kopi"]
+status = "i bruk"
+beskrivelse = """
+HR-kopien per bruker fra Graph (S-1c del 2, #831): tenanten, `oid`, rollen,
+lederens `oid` og når bildet ble hentet. Hver synkronisering skriver hele bildet
+for tenanten; en person uten en stilling som gir rolle, eller med deaktivert
+konto, beholder raden uten rolle og leder (GFK-U10). Kjøretiden skriver bare
+gjennom `koe_api.synkroniser_hr` og har ingen rett på tabellen."""
+lagres_fra = "`koe_api.synkroniser_hr`, kalt av jobbkjøreren gjennom `synkroniserHr` i `server/hrdata.ts`."
+fra_catenda = "Nei. Fra Microsoft Graph."
+kan_gjenoppbygges = "ja. Neste synkronisering skriver bildet på nytt."
+personopplysninger = "Hvem som har en rolle med fullmakt, og hvem som er lederen."
+skrivere = ["server/hrdata.ts → koe_api.synkroniser_hr"]
+funn = []
+belegg = "L 20.10: migrasjonen og `server/hrdata.ts`. K 20.10: `server/tester/hrdata.test.ts` mot testbasen og en falsk Graph."
+
+[[tabell]]
 navn = "koe.projects"
 lagring = "SQL Server"
 type = ["grunndata"]

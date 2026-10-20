@@ -321,6 +321,12 @@ erDiagram
         nvarchar_32 aktor_team_id "uten fremmednøkkel"
         nvarchar_36 refererer_til_event_id "uten fremmednøkkel"
     }
+    koe_hr_kopi {
+        uniqueidentifier bruker_id PK, FK
+        uniqueidentifier tenant_id UK
+        uniqueidentifier oid UK
+        nvarchar_100 rolle FK
+    }
     koe_innkommende_behandling {
         bigint innkommende_hendelse_id PK, FK
         nvarchar_100 prosjekt_id FK
@@ -383,6 +389,9 @@ erDiagram
     koe_prosjekt_med_saker {
         nvarchar_100 prosjekt_id PK, FK
     }
+    koe_rolle {
+        nvarchar_100 rolle PK
+    }
     koe_sak_catenda_topic {
         nvarchar_36 sak_id PK, FK
         nvarchar_100 prosjekt_id FK
@@ -395,6 +404,10 @@ erDiagram
     }
     koe_skrivetidspunkt {
         smallint oekt PK
+    }
+    koe_stillingstittel {
+        binary_32 noekkel PK
+        nvarchar_100 rolle FK
     }
     koe_toemmingsvern {
         uniqueidentifier app_identities_id FK
@@ -506,6 +519,9 @@ erDiagram
     koe_godkjenningspakke ||--o{ koe_godkjenningshandling : "(pakke_id, prosjekt_id, aktor_team_id)"
     koe_godkjenningssteg |o--o{ koe_godkjenningshandling : "(pakke_id, steg)"
     koe_app_users ||--o{ koe_godkjenningshandling : "aktor_id"
+    koe_rolle ||--o{ koe_stillingstittel : "rolle"
+    koe_app_users ||--o| koe_hr_kopi : "bruker_id"
+    koe_rolle |o--o{ koe_hr_kopi : "rolle"
 ```
 
 ## Relasjonene
@@ -640,6 +656,9 @@ erDiagram
 | `koe.godkjenningshandling.(pakke_id, prosjekt_id, aktor_team_id)` | `koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Pakken handlingen gjelder, med samme prosjekt og team. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.godkjenningshandling.(pakke_id, steg)` | `koe.godkjenningssteg.(pakke_id, steg)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Steget som er godkjent eller returnert. En trekking har ikke steg. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.godkjenningshandling.aktor_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som godkjente, returnerte eller trakk pakken. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.stillingstittel.rolle` | `koe.rolle.rolle` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Rollen stillingstittelen gir (S3 i #831). | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
+| `koe.hr_kopi.bruker_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Brukeren HR-kopien gjelder. Synkroniseringen registrerer Entra-identiteten når den mangler (svaret 20.10 i #831). | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
+| `koe.hr_kopi.rolle` | `koe.rolle.rolle` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Rollen personen har etter siste synkronisering, eller ingen. | — | L 20.10: migrasjonen. K 20.10: `server/tester/hrdata.test.ts`. |
 
 ## Nøkkelkolonner uten relasjon
 
@@ -685,6 +704,9 @@ Kolonner som ser ut som en nøkkel eller en personreferanse, men som ikke viser 
 | `koe.app_membership_sync.catenda_project_id` | Catenda-prosjektet listen ble hentet fra (DL-U7). Sammenliknes med koblingen i `koe.catenda_project_configs` når alderen leses, men er ikke en fremmednøkkel: koblingen kan endres etter at listen er skrevet. |
 | `koe.leveringskvittering.catenda_id` | ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda. |
 | `koe.vedleggskvittering.catenda_id` | ID-en Catenda ga dokumentet eller referansen. Den finnes bare i Catenda. |
+| `koe.hr_kopi.tenant_id` | Tenanten i Entra ID bildet er hentet fra. Synkroniseringen krever at den står i `koe.entra_tenant`, men raden blir stående når driften fjerner tenanten, og blir da for gammel (GFK-U10). |
+| `koe.hr_kopi.oid` | Personens `oid` i Entra ID, det samme som subjektet i `koe.app_identities` for Entra-identiteten til `bruker_id`. |
+| `koe.hr_kopi.leder_oid` | Lederens `oid` i Entra ID, fra `manager` i Graph. Lederen trenger ikke ha en rolle og har da ingen rad i HR-kopien. |
 
 ## Dataflyt mot Catenda
 
@@ -892,6 +914,9 @@ flowchart LR
 | `koe.app_users` | — | — | — |
 | `koe.app_identities` | — | — | — |
 | `koe.entra_tenant` | — | — | — |
+| `koe.rolle` | — | — | — |
+| `koe.stillingstittel` | — | — | — |
+| `koe.hr_kopi` | — | — | — |
 | `koe.projects` | — | — | — |
 | `koe.app_project_memberships` | — | — | — |
 | `koe.catenda_contract_teams` | — | — | — |
