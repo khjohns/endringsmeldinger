@@ -672,6 +672,29 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       ]);
     });
 
+    // Kilde: #846 og #829 punkt 1. `TRY_CAST(… AS nvarchar(n))` kutter en lengre verdi uten
+    // feil, så en prosedyre eller et predikat kan godta en kontekst radsikkerheten avviser.
+    it('ingen definisjon i basen leser tekst fra SESSION_CONTEXT kortere enn nvarchar(4000) (#846)', async () => {
+      const svar = await base.pool.request().query<{ navn: string; definisjon: string }>(
+        `SELECT CONCAT(OBJECT_SCHEMA_NAME(object_id), N'.', OBJECT_NAME(object_id)) AS navn, definition AS definisjon
+             FROM sys.sql_modules WHERE definition LIKE N'%SESSION_CONTEXT%'`
+      );
+      expect(
+        svar.recordset.length,
+        'forutsetning: basen har definisjoner som leser konteksten'
+      ).toBeGreaterThan(10);
+      const kuttende = svar.recordset.flatMap((r) =>
+        [
+          ...r.definisjon.matchAll(
+            /SESSION_CONTEXT\s*\([^)]*\)\s+AS\s+n?var?char\s*\((\d+|max)\)/gi
+          ),
+        ]
+          .filter((m) => m[1].toLowerCase() !== 'max' && Number(m[1]) < 4000)
+          .map((m) => `${r.navn}: ${m[0]}`)
+      );
+      expect(kuttende).toEqual([]);
+    });
+
     it('hver tabell kjøretiden kan lese, har et filterpredikat i policyen', async () => {
       const kjoeretid = await base.pool.request().query<{ tabell: string; filter: number }>(
         `SELECT DISTINCT CONCAT(OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS tabell,
