@@ -125,7 +125,14 @@ prøver igjen, og kalleren får `TransientError` framfor det ruta oversetter til
 `supabase_migrations.schema_migrations.statements` lagrer rågteksten, kommentarer
 og alt, og summen i `koe_migrering.historikk` gjelder hele fila. Retter du et ord i en fil som er kjørt, er fila ikke lenger det basen
 gjorde. Har innholdet blitt feil, skriv en ny migrasjon eller en datert merknad i
-`docs/` — ikke rediger historikken.
+`docs/` — ikke rediger historikken. CI-jobben `Migrasjoner` håndhever det for
+begge mappene; hva den kontrollerer, står i `.github/scripts/migrasjonsvakt.py`
+(#1057). `server/tester/oppgradering.test.ts` setter inn rader i
+`koe.projects` og `koe.app_membership_sync` før
+`20261020000000_synkroniseringsgrense.sql` og kjører alle SQL Server-migrasjonene
+fra og med den over radene. En senere SQL Server-migrasjon som endrer rader i
+andre tabeller, trenger egne rader der. For `supabase/migrations/` finnes ingen
+slik test (#931).
 
 **Repoet og en delt base skal ikke drive fra hverandre.** Anvendes en migrasjon
 mot en delt base, sier fila hvor og som hvilken versjon. Det har skjedd i begge

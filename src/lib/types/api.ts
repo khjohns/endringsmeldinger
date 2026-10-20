@@ -5,32 +5,9 @@
  * These types define the contract between frontend and backend.
  */
 
-import type { SakState, EventType, TimelineEvent } from './timeline';
+import type { SakState, TimelineEvent } from './timeline';
 
 // ========== API RESPONSES ==========
-
-export interface StateResponse {
-  version: number;
-  state: SakState;
-}
-
-export interface EventSubmitResponse {
-  success: boolean;
-  event_id?: string;
-  new_version?: number;
-  state?: SakState;
-  error?: string;
-  message?: string;
-}
-
-/**
- * Timeline API response.
- * Now uses CloudEvents v1.0 format (TimelineEvent from timeline.ts).
- */
-export interface TimelineResponse {
-  events: TimelineEvent[];
-  version: number;
-}
 
 /**
  * Combined context response from /api/cases/{sak_id}/context.
@@ -162,13 +139,6 @@ export interface FristHistorikkEntry {
   subsidiaer_godkjent_dager?: number | null;
 }
 
-export interface HistorikkResponse {
-  version: number;
-  grunnlag: GrunnlagHistorikkEntry[];
-  vederlag: VederlagHistorikkEntry[];
-  frist: FristHistorikkEntry[];
-}
-
 // ========== CASE LIST ==========
 
 export interface CaseListHendelse {
@@ -294,24 +264,4 @@ export interface CaseListResponse {
   part: 'TE' | 'BH' | null;
   saker: Sakslinje[];
   noekkeltall: Noekkeltall;
-}
-
-// ========== API REQUESTS ==========
-
-export interface EventSubmitRequest {
-  event_type: EventType;
-  data: Record<string, unknown>;
-  actor?: string;
-  role?: 'TE' | 'BH';
-}
-
-// ========== API ERROR ==========
-// Note: ApiError class is defined in api/client.ts to avoid circular dependencies
-
-// ========== API CLIENT CONFIGURATION ==========
-
-export interface ApiClientConfig {
-  baseUrl: string;
-  timeout?: number;
-  headers?: Record<string, string>;
 }

@@ -28,9 +28,7 @@
     createSubmission,
     createFormDraft,
     submissionRefs,
-    requireEventId,
   } from '$lib/kontraktsbord/submission.svelte';
-  import type { ResponsGrunnlagEventData } from '$lib/types/timeline';
   import { ENDRINGSORDREVARSEL, erEndringsordre } from '$lib/kontraktsbord/endringsordre';
   const submission = createSubmission(() => draft.clear());
 
@@ -44,21 +42,11 @@
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
   } = $props();
 
-  const previous = store.isDemo
-    ? undefined
-    : (submissionRefs(store.timeline, 'grunnlag').response?.data as
-        | ResponsGrunnlagEventData
-        | undefined);
-  const initialDefaults = getDefaults({
-    isUpdateMode: Boolean(previous),
-    lastResponseEvent: previous,
-  });
+  const initialDefaults = getDefaults({ isUpdateMode: false });
 
-  let varsletITide = $state<boolean | undefined>(
-    previous?.grunnlag_varslet_i_tide ?? initialDefaults.varsletITide
-  );
+  let varsletITide = $state<boolean | undefined>(initialDefaults.varsletITide);
   let resultat = $state<string | undefined>(initialDefaults.resultat);
-  let begrunnelseHtml = $state(previous?.begrunnelse ?? '');
+  let begrunnelseHtml = $state('');
   let charCount = $state(0);
   let teContextExpanded = $state(false);
 
@@ -72,7 +60,7 @@
 
   const visVarsling = $derived(erEndringMed32_2(domainConfig.grunnlagEvent));
   const draft = createFormDraft(
-    !store.isDemo,
+    false,
     {
       sakId: store.sak.sak_id,
       spor: 'grunnlag',
@@ -134,20 +122,7 @@
               );
               return;
             }
-            if (store.isDemo) {
-              store.sendGrunnlagSvar(resultat as 'godkjent' | 'avslatt' | 'frafalt');
-            } else {
-              const refs = submissionRefs(store.timeline, 'grunnlag');
-              await store.submit(
-                refs.responseId ? 'respons_grunnlag_oppdatert' : 'respons_grunnlag',
-                buildEventData(formState, {
-                  ...domainConfig,
-                  isUpdateMode: Boolean(refs.responseId),
-                  grunnlagEventId: requireEventId(refs.claimId),
-                  lastResponseEventId: refs.responseId,
-                })
-              );
-            }
+            throw new Error('Skjemaet har ingen intern godkjenning, så svaret kan ikke sendes.');
           }, onsend);
       },
     });
@@ -184,7 +159,7 @@
       behold={draft.behold}
       hentInn={draft.hentInn}
       sakId={store.sak.sak_id}
-      visVedlegg={!store.isDemo}
+      visVedlegg={false}
       bind:vedleggIds
       bind:vedleggOpptatt
     />

@@ -2,7 +2,7 @@ import { SvelteDate } from 'svelte/reactivity';
 import { getContext, setContext } from 'svelte';
 import type { BrevInnhold } from '$lib/components/kontraktsbord/letterTypes';
 import { buildLetterContent } from '$lib/components/kontraktsbord/letterContentBuilder';
-import type { CaseWorkspace } from '$lib/kontraktsbord/context.svelte';
+import type { DemoCaseWorkspace } from '$lib/mockup/store.svelte';
 import type { EventType, SporType, TimelineEvent } from '$lib/types/timeline';
 const KEY = Symbol('claim-letter');
 export class LetterCancelled extends Error {
@@ -43,7 +43,7 @@ export function createLetterConfirmation<T = BrevInnhold>() {
   };
 }
 export type LetterConfirmation<T = BrevInnhold> = ReturnType<typeof createLetterConfirmation<T>>;
-export function createClaimReview(store: CaseWorkspace) {
+export function createClaimReview(store: DemoCaseWorkspace) {
   const confirmation = createLetterConfirmation();
   return {
     get letter() {
@@ -55,11 +55,9 @@ export function createClaimReview(store: CaseWorkspace) {
       track: SporType,
       type: EventType,
       data: object,
-      demoSend: () => void,
+      demoSend: (demo: DemoCaseWorkspace) => void,
       actorrole: 'TE' | 'BH' = 'TE'
     ) {
-      if (!store.isDemo)
-        throw new Error('En TS-sak sendes gjennom kravkontrollen, ikke denne brevkontrollen.');
       const snapshot = JSON.parse(JSON.stringify(data));
       const letter = buildLetterContent(
         {
@@ -76,7 +74,7 @@ export function createClaimReview(store: CaseWorkspace) {
       );
       const approved = await confirmation.show(letter);
       const previousCount = store.timeline.length;
-      demoSend();
+      demoSend(store);
       store.recordClaimLetter(track, type, snapshot, approved, previousCount, actorrole);
     },
   };

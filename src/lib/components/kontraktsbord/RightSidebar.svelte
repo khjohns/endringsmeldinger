@@ -4,7 +4,6 @@
   const store = getCaseWorkspace();
   import { S, sporBestemmelser } from './data.js';
   import CaseHistory from './CaseHistory.svelte';
-  import VedleggPanel from './VedleggPanel.svelte';
   import Kjernejournal from '$lib/components/kjernesak/Kjernejournal.svelte';
   import type { SporKey, Mode, RightTab } from './types.js';
   import type { TimelineEvent } from '$lib/types/timeline';
@@ -122,11 +121,7 @@
     {/if}
 
     {#if tab === 'vedlegg' && !store.erKjernesak}
-      {#if store.isDemo}
-        {@render attList(true)}
-      {:else}
-        <VedleggPanel sakId={store.sakId} kanLasteOpp={false} />
-      {/if}
+      {@render attList(true)}
 
       {#if ui.note}
         <div class="note-sep"></div>
@@ -142,11 +137,7 @@
     {/if}
 
     {#if tab === 'filer' && !store.erKjernesak}
-      {#if store.isDemo}
-        {@render attList(false)}
-      {:else}
-        <VedleggPanel sakId={store.sakId} />
-      {/if}
+      {@render attList(false)}
     {/if}
   </div>
 </aside>
