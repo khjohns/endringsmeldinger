@@ -814,34 +814,6 @@
     "unike_indekser": [],
     "fremmednøkler": []
    },
-   "koe.fullmakt": {
-    "kolonner": [
-     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
-     ["bruker_id", "uniqueidentifier", "NOT NULL"],
-     ["tittel", "nvarchar(200)", "NOT NULL"],
-     ["grense", "decimal(15,2)", "NULL"],
-     ["plass", "smallint", "NOT NULL"]
-    ],
-    "primærnøkkel": ["prosjekt_id", "bruker_id"],
-    "unike": [
-     ["prosjekt_id", "plass"]
-    ],
-    "unike_indekser": [],
-    "fremmednøkler": [
-     {
-      "kolonner": ["bruker_id"],
-      "til": "koe.app_users",
-      "til_kolonner": ["id"],
-      "ved_sletting": "NO ACTION"
-     },
-     {
-      "kolonner": ["prosjekt_id"],
-      "til": "koe.projects",
-      "til_kolonner": ["id"],
-      "ved_sletting": "NO ACTION"
-     }
-    ]
-   },
    "koe.godkjenningshandling": {
     "kolonner": [
      ["pakke_id", "uniqueidentifier", "NOT NULL"],
@@ -896,7 +868,9 @@
      ["aktor_team_id", "nvarchar(32)", "NOT NULL"],
      ["brev", "nvarchar(max)", "NOT NULL"],
      ["fullmaktsgrunnlag", "nvarchar(max)", "NOT NULL"],
-     ["opprettet", "datetime2(3)", "NOT NULL"]
+     ["opprettet", "datetime2(3)", "NOT NULL"],
+     ["verdi_beloep", "decimal(15,2)", "NULL"],
+     ["verdi_gulv", "decimal(15,2)", "NOT NULL"]
     ],
     "primærnøkkel": ["pakke_id"],
     "unike": [

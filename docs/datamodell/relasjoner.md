@@ -284,11 +284,6 @@ erDiagram
     koe_entra_tenant {
         uniqueidentifier tenant_id PK
     }
-    koe_fullmakt {
-        nvarchar_100 prosjekt_id PK, FK, UK
-        uniqueidentifier bruker_id PK, FK
-        smallint plass UK
-    }
     koe_godkjenningshandling {
         uniqueidentifier pakke_id PK, FK
         int loepenr PK
@@ -507,8 +502,6 @@ erDiagram
     koe_app_users ||--o{ koe_vedlegg : "lastet_opp_av"
     koe_hendelse |o--o{ koe_vedlegg : "(bundet_av_event_id, sak_id, prosjekt_id)"
     koe_catenda_contract_teams |o..o{ koe_vedlegg : "lastet_opp_team"
-    koe_projects ||--o{ koe_fullmakt : "prosjekt_id"
-    koe_app_users ||--o{ koe_fullmakt : "bruker_id"
     koe_projects ||--o{ koe_dagmulktssats : "prosjekt_id"
     koe_sak_metadata ||--o{ koe_godkjenningspakke : "(sak_id, prosjekt_id)"
     koe_godkjenningspakke |o--o{ koe_godkjenningspakke : "forrige_pakke_id"
@@ -644,8 +637,6 @@ erDiagram
 | `koe.vedlegg.lastet_opp_av` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som lastet opp vedlegget, `app_users.id` (AGENTS.md). | — | K 18.10: katalogen. |
 | `koe.vedlegg.(bundet_av_event_id, sak_id, prosjekt_id)` | `koe.hendelse.(event_id, sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den første hendelsen som viser til vedlegget (arbeidsvalg 4 i #790), i samme sak og prosjekt. Tom for et ubundet vedlegg. | — | K 18.10: katalogen. |
 | `koe.vedlegg.lastet_opp_team` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser og sletter vedlegget før det er bundet. Basen avviser et vedlegg uten team (AGENTS.md). | — | L 18.10: migrasjonen. |
-| `koe.fullmakt.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet fullmakten gjelder i. Driften setter den opp (GFK-U1). | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
-| `koe.fullmakt.bruker_id` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Personen som har fullmakten. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.dagmulktssats.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet satsen gjelder i. Uten rad mangler satsen (B-06). | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.godkjenningspakke.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken svaret i pakken gjelder, i samme prosjekt. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.godkjenningspakke.forrige_pakke_id` | `koe.godkjenningspakke.pakke_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Pakken som ble returnert eller trukket, og som denne erstatter. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
@@ -932,7 +923,6 @@ flowchart LR
 | `koe.kvittering` | — | — | — |
 | `koe.brevdokument` | — | — | — |
 | `koe.vedlegg` | — | — | — |
-| `koe.fullmakt` | — | — | — |
 | `koe.dagmulktssats` | — | — | — |
 | `koe.godkjenningspakke` | — | — | — |
 | `koe.godkjenningssteg` | — | — | — |

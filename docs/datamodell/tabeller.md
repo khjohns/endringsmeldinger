@@ -55,7 +55,6 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.kvittering`](#koekvittering) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.brevdokument`](#koebrevdokument) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.vedlegg`](#koevedlegg) | SQL Server | transaksjon | i bruk | Ja | Nei |
-| [`koe.fullmakt`](#koefullmakt) | SQL Server | grunndata | i bruk | Nei | Ja |
 | [`koe.dagmulktssats`](#koedagmulktssats) | SQL Server | grunndata | i bruk | Nei | Ja |
 | [`koe.godkjenningspakke`](#koegodkjenningspakke) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.godkjenningssteg`](#koegodkjenningssteg) | SQL Server | transaksjon | i bruk | Ja | Nei |
@@ -532,7 +531,7 @@ Kvittering per hendelse for levering til Catenda (`pending`, `failed`, `delivere
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | `koe.resolve_identity`, kalt gjennom `koe_api.catenda_identitet`, oppretter brukeren første gang en Catenda-identitet sees. Tilbakekallet fra innloggingen kaller den fra `catendaIdentitet` i `server/innlogging.ts` (F0b-5a, #659). En Entra-identitet oppretter aldri en bruker ved innloggingen: driften registrerer den med `koe_drift.registrer_entra_identitet`, som ny bruker eller koblet til en eksisterende (S-1c del 1, #831). `koe_api.entra_identitet` oppdaterer navn og e-post ved innloggingen. |
 | Data fra Catenda | Delvis. Navn og e-post kommer fra Catenda-identiteten. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.fullmakt.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.hr_kopi.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_identities.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_absences.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_sessions.user_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningshandling.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningspakke.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.godkjenner_id (fremmednøkkel, ON DELETE NO ACTION); koe.hendelse.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.hr_kopi.bruker_id (fremmednøkkel, ON DELETE NO ACTION); koe.kvittering.aktor_id (uten fremmednøkkel); koe.notat.aktor_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.created_by (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg.lastet_opp_av (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. `id` er aktøren i journalen. |
 | Personopplysninger | Navn og e-post. |
 | Skrives av | database/migrasjoner/20261016130000_mellomrom.sql (`koe.resolve_identity`, innført i `20261016090100_identitet.sql`); database/migrasjoner/20261020040000_deaktiverte_medlemmer.sql (`koe_api.synkroniser_medlemskap`, innført i `20261016140000_medlemskap.sql`, som skriver gjennom prosedyren over); database/migrasjoner/20261020150000_entra_identitet.sql (`koe_drift.registrer_entra_identitet`, og `koe_api.entra_identitet`, som oppdaterer navn og e-post) |
@@ -575,7 +574,7 @@ Tenantene i Entra ID driften har godkjent for innloggingen (S-1c del 1, #831). `
 
 ### `koe.rolle`
 
-Rollene byggherren gir fullmakt etter, med beløpsgrensen i kroner, globalt for byggherren (GFK-U6, GFK-U11; S-1c del 2, #831). Ingen grense er ubegrenset (GFK-U4). Rollen er en kode med a–z og `_`. Kjøretiden har ingen rett på tabellen.
+Rollene byggherren gir fullmakt etter, med beløpsgrensen i kroner, globalt for byggherren (GFK-U6, GFK-U11; S-1c del 2, #831). Ingen grense er ubegrenset (GFK-U4). Rollen er en kode med a–z og `_`. Kjøretiden har ingen rett på tabellen. `koe_api.godkjenningskjede` leser grensen når kjeden avledes, og `koe_api.registrer_godkjenningshandling` fryser rollen og grensen i godkjenningen (S-1c del 3).
 
 | Felt | Innhold |
 | --- | --- |
@@ -609,7 +608,7 @@ Hvilken stillingstittel (`jobTitle` i Graph) som gir hvilken rolle (S3 i #831). 
 
 ### `koe.hr_kopi`
 
-HR-kopien per bruker fra Graph (S-1c del 2, #831): tenanten, `oid`, rollen, lederens `oid` og når bildet ble hentet. Hver synkronisering skriver hele bildet for tenanten; en person uten en stilling som gir rolle, eller med deaktivert konto, beholder raden uten rolle og leder (GFK-U10). Kjøretiden skriver bare gjennom `koe_api.synkroniser_hr` og har ingen rett på tabellen.
+HR-kopien per bruker fra Graph (S-1c del 2, #831): tenanten, `oid`, rollen, lederens `oid` og når bildet ble hentet. Hver synkronisering skriver hele bildet for tenanten; en person uten en stilling som gir rolle, eller med deaktivert konto, beholder raden uten rolle og leder (GFK-U10). Kjøretiden skriver bare gjennom `koe_api.synkroniser_hr` og har ingen rett på tabellen. Godkjenningskjeden avledes av lederne i kopien (GFK-U8) i `koe_api.godkjenningskjede`, og en rad leses bare når den er hentet for under 24 timer siden og tenanten er godkjent (S-1c del 3).
 
 | Felt | Innhold |
 | --- | --- |
@@ -634,7 +633,7 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820). En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt, men endrer ikke virksomheten; skriptet sier fra når `--organisasjon` er en annen (#836). |
 | Data fra Catenda | Delvis. Navnet oppgis av driften; i Python kan det hentes fra Catenda-prosjektet. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.dagmulktssats.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.fullmakt.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.dagmulktssats.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
@@ -879,32 +878,15 @@ Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og S
 | Funn | — |
 | Belegg | L 18.10: migrasjonene. K 18.10: `server/tester/vedlegg.test.ts`. |
 
-### `koe.fullmakt`
-
-Byggherrens fullmakter i prosjektet (S-1a, #818): personen, tittelen, grensen i kroner (ingen grense er ubegrenset) og plassen i godkjenningskjeden. Driften setter dem opp etter skriftlig bestilling fra byggherren, og appen viser ikke hvem som har endret dem (GFK-U1). Kjøretiden leser dem bare gjennom `koe_api.fullmakter`, som byggherren.
-
-| Felt | Innhold |
-| --- | --- |
-| Type | grunndata |
-| Status | i bruk |
-| Hvor fra appen lagres og redigeres | Driften, som eier. Lest av `koe_api.fullmakter` fra `server/godkjenning.ts`. |
-| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (prosjekt_id, bruker_id); unik (prosjekt_id, plass). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION); bruker_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). |
-| Kan bygges opp igjen | nei. Bestillingen fra byggherren er kilden. |
-| Personopplysninger | Hvem som har fullmakt, med tittel og beløpsgrense. |
-| Skrives av | database/migrasjoner/20261019110000_godkjenning.sql (tabellen); radene skrives av driften som eier |
-| Funn | — |
-| Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
-
 ### `koe.dagmulktssats`
 
-Dagmulktssatsen i prosjektet, som fristdagene verdsettes med i fullmakten (GFK-06). Uten rad mangler satsen, og fristdagene kan ikke verdsettes (B-06). Driften setter den opp som fullmaktene.
+Dagmulktssatsen i prosjektet, som fristdagene verdsettes med i fullmakten (GFK-06). Uten rad mangler satsen, og fristdagene kan ikke verdsettes (B-06). Driften setter den opp.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | grunndata |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Driften, som eier. Lest av `koe_api.fullmakter` fra `server/godkjenning.ts`. |
+| Hvor fra appen lagres og redigeres | Driften, som eier. Lest av `koe_api.dagmulktssats` fra `server/godkjenning.ts`. |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Kontrakten er kilden. |
@@ -915,7 +897,7 @@ Dagmulktssatsen i prosjektet, som fristdagene verdsettes med i fullmakten (GFK-0
 
 ### `koe.godkjenningspakke`
 
-Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget fullmakten ble regnet av, saksbehandleren og teamet. Pakken er et utkast som bare teamet som laget den, ser, og uten team finnes den ikke (AGENTS.md). Den endres ikke; en ny pakke kan erstatte en returnert eller trukket.
+Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget fullmakten ble regnet av, verdien kjeden ble avledet av, saksbehandleren og teamet. Pakken er et utkast som bare teamet som laget den, ser, og uten team finnes den ikke (AGENTS.md). Den endres ikke; en ny pakke kan erstatte en returnert eller trukket.
 
 | Felt | Innhold |
 | --- | --- |
@@ -926,13 +908,13 @@ Et svar fra byggherren til intern godkjenning (S-1a, #818): brevet, grunnlaget f
 | Relasjoner | Nøkler: primærnøkkel (pakke_id); unik (pakke_id, prosjekt_id, aktor_team_id); unik indeks (forrige_pakke_id) WHERE ([forrige_pakke_id] IS NOT NULL). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); forrige_pakke_id → koe.godkjenningspakke.pakke_id (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); aktor_team_id → koe.catenda_contract_teams.team_id (uten fremmednøkkel). Vises til fra: koe.godkjenningshandling.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); koe.godkjenningssteg.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Saksbehandleren (`aktor_id`) og innholdet i svaret. |
-| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
 ### `koe.godkjenningssteg`
 
-Godkjennerne i en pakke i kjedens rekkefølge, regnet av `server/fullmakt.ts` da pakken ble laget. Endres ikke.
+Godkjennerne i en pakke i kjedens rekkefølge, avledet av hierarkiet i `koe.hr_kopi` da pakken ble laget (GFK-U8, GFK-U10). Endres ikke.
 
 | Felt | Innhold |
 | --- | --- |
@@ -943,13 +925,13 @@ Godkjennerne i en pakke i kjedens rekkefølge, regnet av `server/fullmakt.ts` da
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, steg); unik (pakke_id, godkjenner_id). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); godkjenner_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningshandling.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Godkjennerne (`godkjenner_id`). |
-| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.lag_godkjenningspakke`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 
 ### `koe.godkjenningshandling`
 
-Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning fryser tittelen og grensen godkjenneren hadde da den ble gitt, så den står om fullmakten endres senere (B-04 punkt 2). Endres ikke.
+Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning fryser rollen (`fullmakt_tittel`) og grensen godkjenneren hadde i `koe.rolle` da den ble gitt, så den står om rollen endres senere (B-04 punkt 2). Endres ikke.
 
 | Felt | Innhold |
 | --- | --- |
@@ -960,7 +942,7 @@ Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning f
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, loepenr); unik indeks (pakke_id) WHERE ([handling]<>N'godkjent'); unik indeks (pakke_id, steg) WHERE ([handling]=N'godkjent'). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); (pakke_id, steg) → koe.godkjenningssteg.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.(godkjenningshandling_pakke_id, godkjenningshandling_loepenr) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Den som handlet (`aktor_id`) og begrunnelsen for en retur. |
-| Skrives av | database/migrasjoner/20261019240000_kommandoform_og_side.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
+| Skrives av | database/migrasjoner/20261020171000_hierarki_kjede.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 

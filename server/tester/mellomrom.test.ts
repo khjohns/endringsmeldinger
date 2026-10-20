@@ -333,7 +333,6 @@ function uholdbareGrunner(k: Katalog, grunner: Record<string, Grunn> = UTEN_KONT
  */
 const FRITEKST_MED_LEN: Record<string, string> = {
   'koe.notat.tekst': 'Notatet er fritekst.',
-  'koe.fullmakt.tittel': 'Tittelen er fritekst.',
   'koe.jobb.tittel': 'Tittelen på topicen er fritekst.',
   'koe.vedlegg.filnavn': 'Filnavnet er fritekst fra brukeren.',
 };
