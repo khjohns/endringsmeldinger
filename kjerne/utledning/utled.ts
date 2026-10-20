@@ -461,7 +461,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   // prefiksene under og hele journalen ser hver tilstand der de var det.
   const avgjort = new Set<Spor>();
   const merkAvgjort = (x: Utledning) => {
-    // Et spor med «ingen krav» regnes som avgjort til «ingen krav» tas ut i b2b (#493).
+    // Et spor med «ingen krav» regnes som avgjort til «ingen krav» er tatt ut (#493).
     if (kraveneErAvgjort(x))
       for (const n of SPOR) if (x.spor[n].krav.length || x.spor[n].ingenKrav) avgjort.add(n);
     x.avgjorteSpor = SPOR.filter((n) => avgjort.has(n));
