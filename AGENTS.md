@@ -338,9 +338,19 @@ som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre 
 
 (oppdragsgiver 16.10, #649)
 
-*Arbeidsvalg, ikke vedtatt av oppdragsgiver:* Skjørhet eller duplisering som kan
-gi feil resultat ved en senere endring, regnes som «kan gi feil resultat senere» og
-går til oppfølgingsissuet, ikke til avvisning. Oppfølgingsissuet får samme milepæl
+**Hva som føres i oppfølgingsissuet** (oppdragsgiver 20.10, etter en gjennomgang
+der 60 % av de åpne punktene var pirk):
+
+- **Testkode, verktøy, hooks og dokumentasjon.** Et funn her føres bare når det
+  kan gjøre en test grønn for feil atferd i produktkoden, eller skjule en feil der.
+  Ellers avvises det med én linje.
+- **Feil ved en senere endring.** Et funn regnes som «kan gi feil resultat
+  senere» bare når endringen er planlagt i et issue eller et vedtak.
+- **Avvises alltid:** duplisering, docstringer og ytelse uten måling.
+- **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står
+  punktet der alt, skriver du en kommentar der i stedet for et nytt punkt.
+
+Oppfølgingsissuet får samme milepæl
 eller sporetikett som PR-en det kommer fra. En PR som løser punkter, skriver
 «Del av #n». Orkestratoren krysser av punktene når PR-en er merget, og lukker
 issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
