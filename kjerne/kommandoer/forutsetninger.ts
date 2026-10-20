@@ -13,6 +13,7 @@ import {
   kanFaaInnsigelse,
   kraveneErAvgjort,
   trekkAvGrunnlagetErSperret,
+  varAvgjort,
   type Utledning,
 } from '../utledning/utled.ts';
 import { KRAVSPOR, type Avvisning, type Kravspor, type Part, type Spor } from '../typer.ts';
@@ -87,19 +88,22 @@ const KRAVET: Record<Kravspor, string> = {
   frist: 'fristforlengelse',
 };
 
-/** Hvordan grunnlaget og hvert krav ble avgjort i denne saken (KA-U11). */
+/** Hvordan grunnlaget og hvert krav som var sendt, ble avgjort i denne saken (OV-U3). */
 function hvorforAvgjort(u: Utledning): string {
   const grunnlag = u.frafalt
     ? 'byggherren har frafalt pålegget'
     : 'byggherren har godkjent grunnlaget';
-  const krav = KRAVSPOR.map((n) =>
+  const krav = KRAVSPOR.filter((n) => varAvgjort(u, n)).map((n) =>
     u.spor[n].trukket
       ? `kravet om ${KRAVET[n]} er trukket`
       : u.spor[n].ingenKrav
         ? `TE krever ikke ${KRAVET[n]}`
         : `partene er enige om svaret på kravet om ${KRAVET[n]}`
   );
-  return `Kravene i saken er avgjort: ${grunnlag}, ${krav.join(' og ')}.`;
+  const hva = kraveneErAvgjort(u)
+    ? 'Alle krav sendt i appen er avgjort'
+    : 'Kravene som var sendt, ble avgjort';
+  return `${hva}: ${[grunnlag, krav.join(' og ')].filter(Boolean).join(', ')}.`;
 }
 
 export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): Avvisning | null {
@@ -112,8 +116,11 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
   // SK-01, #213: når partene er enige om at grunnlaget er avvist, faller kravene.
   if (u.grunnlagAvvist)
     return avvis('GRUNNLAG_AVVIST', 'Partene er enige om at grunnlaget er avvist (SK-01).');
-  // KA-U11: når kravene er avgjort, avvises det som kan endre utfallet.
-  if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', hvorforAvgjort(u));
+  // OV-U3: det som kan endre utfallet for grunnlaget og kravene som var sendt da kravene
+  // var avgjort, avvises. I et spor uten krav godtas varselet og det første kravet, og TEs
+  // opplysning om varseldato godtas alltid (OV-U5).
+  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor))
+    return avvis('KRAVENE_AVGJORT', hvorforAvgjort(u));
 
   const s = u.spor[h.spor];
   const grunnlagSendt = u.spor.grunnlag.gjeldendeKrav !== null;

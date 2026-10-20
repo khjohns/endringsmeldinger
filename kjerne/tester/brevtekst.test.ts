@@ -2129,9 +2129,161 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     return s;
   };
 
-  it('et spor TE fortsatt kan sende, gjør at kravene ikke er avgjort', () => {
+  const vederlagskrav = {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: { metode: 'tilbud', beloep: 90000 },
+  };
+  const revisjonAvVederlaget = (s: ReturnType<typeof sak>) => ({
+    type: 'revisjon',
+    erstatter: s.u().spor.vederlag.gjeldendeSvar!.id,
+    svar: svar('vederlag', s.krav('vederlag'), heltVederlag[0], heltVederlag[1]),
+  });
+  /** Fristkravet uten varselet sendt utenfor appen, så TE kan oppgi varseldatoen senere (OV-U5). */
+  const fristkravUtenVarsel = {
+    type: 'krav',
+    spor: 'frist',
+    innhold: { dager: 20 },
+    utdypning: 'Pelingen tar fire uker lenger.',
+  };
+  const varseldato = () => ({
+    type: 'varsel',
+    spor: 'frist',
+    hjemmel: '33.4',
+    sendt: '2026-09-28',
+    dokumentasjon: [randomUUID()],
+  });
+
+  it('et spor uten krav hindrer ikke: med ett sendt krav avgjort er kravene avgjort, og visningen sier det med OV-U10 (OV-U3)', () => {
+    const u = utenFrist().u();
+    expect(kraveneErAvgjort(u)).toBe(true);
+    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag']);
+    expect(visning(u, GJELDENDE_REGLER).status).toEqual({
+      kode: 'alle_krav_avgjort',
+      tekst: 'Alle krav sendt i appen er avgjort',
+    });
+    expect(
+      kanInngaaIEo(u),
+      'et spor TE fortsatt kan sende, hindrer endringsordren (EO-U5, arbeidsvalget i #493)'
+    ).toBe(false);
+  });
+
+  it('uten et sendt vederlags- eller fristkrav er kravene ikke avgjort, også når grunnlaget er godkjent (OV-U3)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('BH', {
+      type: 'brev',
+      svar: [svar('grunnlag', s.krav('grunnlag'), godkjentGrunnlag)],
+    });
+    const u = s.u();
+    expect(u.grunnlagAvklart, 'forutsetning: grunnlaget er avklart').toBe(true);
+    expect(kraveneErAvgjort(u)).toBe(false);
+    expect(u.avgjorteSpor).toEqual([]);
+    expect(visning(u, GJELDENDE_REGLER).status.kode).not.toBe('alle_krav_avgjort');
+  });
+
+  it('når kravene er avgjort, avvises trekk, ny kravversjon og byggherrens revisjon for det som er sendt (OV-U3)', () => {
     const s = utenFrist();
+    expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBe('KRAVENE_AVGJORT');
+    expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
+    expect(s.avvist('TE', vederlagskrav)).toBe('KRAVENE_AVGJORT');
+    expect(s.avvist('BH', revisjonAvVederlaget(s))).toBe('KRAVENE_AVGJORT');
+  });
+
+  it('i et spor uten krav godtas varselet, varseldatoen og det første kravet når kravene er avgjort (OV-U3, OV-U5)', () => {
+    const s = utenFrist();
+    expect(s.avvist('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' })).toBeNull();
+    expect(s.avvist('TE', varseldato())).toBeNull();
     expect(s.avvist('TE', FRISTKRAV)).toBeNull();
+  });
+
+  it('TEs opplysning om varseldato godtas i et spor som var avgjort (OV-U3, OV-U5)', () => {
+    const s = utenFrist();
+    s.send('TE', fristkravUtenVarsel);
+    s.send('BH', {
+      type: 'brev',
+      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+    });
+    const u = s.u();
+    expect(kraveneErAvgjort(u), 'forutsetning: kravene er avgjort').toBe(true);
+    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag', 'frist']);
+    expect(s.avvist('TE', varseldato())).toBeNull();
+    s.send('TE', varseldato());
+    const etter = s.u();
+    expect(etter.spor.frist.varsel, 'varselet har virkning (OV-U5)').not.toBeNull();
+    expect(etter.utenVirkning).toEqual([]);
+    expect(kraveneErAvgjort(etter), 'varselet endrer ikke at kravene er avgjort').toBe(true);
+  });
+
+  it('det første kravet i sporet gjør at kravene ikke lenger er avgjort, men sperren for det som var avgjort står (OV-U3)', () => {
+    const s = utenFrist();
+    s.send('TE', FRISTKRAV);
+    const u = s.u();
+    expect(kraveneErAvgjort(u)).toBe(false);
+    expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag']);
+    expect(visning(u, GJELDENDE_REGLER).status.kode).toBe('venter_paa_svar');
+    expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
+      regel: 'KRAVENE_AVGJORT',
+      melding:
+        'Kravene som var sendt, ble avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget.',
+    });
+    expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
+    expect(s.avvist('TE', vederlagskrav)).toBe('KRAVENE_AVGJORT');
+    expect(s.avvist('BH', revisjonAvVederlaget(s))).toBe('KRAVENE_AVGJORT');
+    // Kontrollsak: det nye kravet er ikke avgjort, så TE kan trekke det.
+    expect(s.avvist('TE', { type: 'trekk', spor: 'frist' })).toBeNull();
+
+    s.send('BH', {
+      type: 'brev',
+      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+    });
+    const etter = s.u();
+    expect(kraveneErAvgjort(etter), 'det nye kravet er avgjort ved sammenfall').toBe(true);
+    expect(etter.avgjorteSpor).toEqual(['grunnlag', 'vederlag', 'frist']);
+    expect(kanInngaaIEo(etter)).toBe(true);
+  });
+
+  it('en rad som trekker et krav som var avgjort, gjør saken ikke forstått, også etter et nytt første krav (OV-U3, MM-U18)', () => {
+    const s = utenFrist();
+    s.send('TE', FRISTKRAV);
+    const vederlagskravId = s.krav('vederlag');
+    s.rad('TE', utsagn(randomUUID(), 'trekk', vederlagskravId));
+    const u = s.u();
+    expect(u.forstaatt).toBe(false);
+    expect(u.begrensninger.map((b) => b.grunn)).toContain(
+      'trekk etter at kravene er avgjort (OV-U3)'
+    );
+  });
+
+  it('en rad som trekker det nye første kravet, strider ikke (OV-U3)', () => {
+    const s = utenFrist();
+    s.send('TE', FRISTKRAV);
+    s.rad('TE', utsagn(randomUUID(), 'trekk', s.krav('frist')));
+    const u = s.u();
+    expect(u.forstaatt).toBe(true);
+    expect(u.spor.frist.trukket).toBe(true);
+  });
+
+  it('med et registrert brev sier visningen også at saken har brev sendt utenfor appen (OV-U10)', () => {
+    const s = utenFrist();
+    s.rad('TE', {
+      krav: [
+        {
+          id: randomUUID(),
+          spor: 'grunnlag',
+          hovedkategori: 'endring',
+          underkategori: 'irregulaer_endring',
+        },
+      ],
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+    });
+    const u = s.u();
+    expect(u.forstaatt, 'forutsetning: saken er forstått').toBe(true);
+    expect(visning(u, GJELDENDE_REGLER).status).toEqual({
+      kode: 'alle_krav_avgjort',
+      tekst:
+        'Alle krav sendt i appen er avgjort. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.',
+    });
   });
 
   it('når TE ikke krever fristforlengelse, er kravene avgjort, og meldingen sier hvorfor', () => {
@@ -2140,7 +2292,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
       regel: 'KRAVENE_AVGJORT',
       melding:
-        'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og TE krever ikke fristforlengelse.',
+        'Alle krav sendt i appen er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og TE krever ikke fristforlengelse.',
     });
   });
 
@@ -2186,7 +2338,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     s.send('TE', FRISTKRAV);
     s.send('TE', { type: 'trekk', spor: 'frist' });
     expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })?.melding).toBe(
-      'Kravene i saken er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
+      'Alle krav sendt i appen er avgjort: byggherren har godkjent grunnlaget, partene er enige om svaret på kravet om justering av vederlaget og kravet om fristforlengelse er trukket.'
     );
   });
 
@@ -2210,7 +2362,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(s.avvisning('TE', FRISTKRAV)).toEqual({
       regel: 'KRAVENE_AVGJORT',
       melding:
-        'Kravene i saken er avgjort: byggherren har frafalt pålegget, TE krever ikke justering av vederlaget og TE krever ikke fristforlengelse.',
+        'Alle krav sendt i appen er avgjort: byggherren har frafalt pålegget, TE krever ikke justering av vederlaget og TE krever ikke fristforlengelse.',
     });
   });
 });
@@ -3202,7 +3354,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
         visning(u, GJELDENDE_REGLER).spor.grunnlag.etiketter,
         'versjon 2 vises ikke som ventende (GR-U24)'
       ).not.toContain('venter_paa_svar');
-      expect(visning(u, GJELDENDE_REGLER).status.kode).toBe('avsluttet_oppgjort');
+      expect(visning(u, GJELDENDE_REGLER).status.kode).toBe('alle_krav_avgjort');
     });
   });
 

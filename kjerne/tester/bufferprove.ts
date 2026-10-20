@@ -46,7 +46,7 @@ export function bufferen(lagBaner: () => Baner): void {
       // Kontrollsak: et resultat med kjernens egne versjoner brukes.
       const merket = {
         ...egen.visning,
-        status: { kode: 'avsluttet_oppgjort' as const, tekst: 'Fra bufferen' },
+        status: { kode: 'alle_krav_avgjort' as const, tekst: 'Fra bufferen' },
       };
       const versjon = bufferversjon(KJERNE, journal.at(-1)!.versjon);
       await baner.buffer().skriv(bane.sakId, { versjon, visning: merket });
