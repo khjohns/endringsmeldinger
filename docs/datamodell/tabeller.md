@@ -338,8 +338,8 @@ Hvilke Catenda-team som representerer TE og BH i et prosjekt. Appen utleder en b
 | --- | --- |
 | Type | grunndata |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Av `koe_set_contract_teams` og `koe_register_project`, som drift kaller gjennom `scripts/catenda_admin.py`. Etter B-02 punkt 4 er det bare drift som skal gjøre dette. |
-| Data fra Catenda | Ja. `team_id` er en Catenda-ID. Dataflyt: fra Catenda i C18, C19 (arket Dataflyt). |
+| Hvor fra appen lagres og redigeres | Av `koe_set_contract_teams` og `koe_register_project`. Bare de levende testene gir dem team: `scripts/catenda_admin.py` avviser `--bh` og `--te` og viser til `server/registrering.ts`, som skriver kontraktsteamene i SQL Server (#1072). Etter B-02 punkt 4 skal bare drift skrive tabellen, og drift har ingen vei hit. |
+| Data fra Catenda | Ja. `team_id` er en Catenda-ID. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE CASCADE). Vises til fra: hendelse.actorteam (uten fremmednøkkel); notat.aktor_team_id (uten fremmednøkkel); utkast.team (uten fremmednøkkel); vedlegg.lastet_opp_team (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei. Hvilket team som er hvilken side, er et valg drift gjør. |
 | Personopplysninger | Ingen kjente. |
@@ -666,7 +666,7 @@ Kontraktssiden (TE eller BH) for hvert Catenda-team i et prosjekt. Teamet har `c
 | Type | grunndata |
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Driften setter teamene med skriptet `server/registrering.ts`, som kontrollerer dem mot Catenda-prosjektet og kaller `koe_drift.sett_kontraktsteam`, direkte eller gjennom `koe_drift.registrer_prosjekt` (F-1, #820). Begge sider må ha minst ett team. Skriptet krever `--en-totalentreprenoer`, driftens bekreftelse på at alle TE-teamene hører til samme totalentreprenør (DL-U14). Uten saker erstatter listen teamene; står prosjektet i `koe.prosjekt_med_saker`, kan de bare få nye team (svaret 18.10 i #764). Byttes Catenda-prosjektet, må teamene oppgis på nytt (#836). |
-| Data fra Catenda | Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes av driften. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Data fra Catenda | Delvis. Team-ID-en kommer fra Catenda; kontraktssiden settes av driften. Dataflyt: fra Catenda i C18, C19 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (internal_project_id, team_id). Viser til: internal_project_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.godkjenningspakke.aktor_team_id (uten fremmednøkkel); koe.hendelse.aktor_team_id (uten fremmednøkkel); koe.notat.aktor_team_id (uten fremmednøkkel); koe.vedlegg.lastet_opp_team (uten fremmednøkkel). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
@@ -874,7 +874,7 @@ Mellomlageret for vedlegg (V-1, del av #790): filen, filnavnet, størrelsen og S
 | Relasjoner | Nøkler: primærnøkkel (vedlegg_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_av → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION); (bundet_av_event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); lastet_opp_team → koe.catenda_contract_teams.team_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedleggskvittering.vedlegg_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Før levering finnes filen bare her. |
 | Personopplysninger | Filen og filnavnet kan ha navn på personer i prosjektet. |
-| Skrives av | database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.lagre_vedlegg` og `koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261019170000_vedleggsbinding.sql (`koe_api.bind_vedlegg`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_vedlegg`, innført i `20261020020000_vedleggslevering.sql`, kalt fra `server/jobber.ts`) |
+| Skrives av | database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.lagre_vedlegg`, innført i `20261018193000_vedlegg.sql`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261018193000_vedlegg.sql (`koe_api.slett_vedlegg`, kalt fra `server/vedlegg.ts`); database/migrasjoner/20261020200000_kontekst_full_lengde.sql (`koe_api.bind_vedlegg`, innført i `20261019170000_vedleggsbinding.sql`, kalt fra `server/kommandoer.ts`); database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_vedlegg`, innført i `20261020020000_vedleggslevering.sql`, kalt fra `server/jobber.ts`) |
 | Funn | — |
 | Belegg | L 18.10: migrasjonene. K 18.10: `server/tester/vedlegg.test.ts`. |
 

@@ -9,7 +9,6 @@
  */
 
 import { createLetterConfirmation, LetterCancelled } from '$lib/approval/claimReview.svelte';
-import type { VederlagSubmissionEventData } from '$lib/domain/vederlagSubmissionDomain';
 import type { EventType, SporType } from '$lib/types/timeline';
 import type { Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import type { Spor } from '$kjerne/typer';
@@ -17,7 +16,7 @@ import { brevhindring, type Kjernesakkontekst } from './kontekst.svelte';
 import { fristkommandoFraSkjema, type Fristskjemadata } from './fristkrav';
 import { grunnlagsversjonFraSkjema } from './grunnlagskrav';
 import { vedleggsoppslag } from './skjemadata';
-import { vederlagskravFraSkjema } from './vederlagskrav';
+import { vederlagskravFraSkjema, type Vederlagsskjemadata } from './vederlagskrav';
 
 export interface Kjernebrev {
   tittel: string;
@@ -50,7 +49,7 @@ function kommandoFraSkjema(
   data: object
 ): { kommando: Kommando; vedlegg?: Vedleggsoppslag } {
   if (spor === 'vederlag' && (type === 'vederlag_krav_sendt' || type === 'vederlag_krav_oppdatert'))
-    return { kommando: vederlagskravFraSkjema(data as VederlagSubmissionEventData) };
+    return { kommando: vederlagskravFraSkjema(data as Vederlagsskjemadata) };
   if (spor === 'frist' && type.startsWith('frist_krav_')) {
     const d = data as Fristskjemadata;
     return {

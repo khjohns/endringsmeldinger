@@ -126,8 +126,11 @@ def cmd_sync_name(args):
 
 def cmd_register(args):
     """Registrer nytt eller oppdater eksisterende prosjekt atomisk."""
+    if args.bh or args.te:
+        print(KONTRAKTSTEAM_I_TS, file=sys.stderr)
+        sys.exit(2)
+
     repo = AuthRepository()
-    catenda_client = get_container().catenda_client
 
     cat_proj_uuid = to_uuid_str(args.catenda_project_id)
     lib_uuid = to_uuid_str(args.library_id)
@@ -145,55 +148,7 @@ def cmd_register(args):
             name = args.id
             print(f"  Advarsel: Kunne ikke hente navn fra Catenda, bruker '{name}'.")
 
-    # 2. Valider kontraktsteams dersom oppgitt
-    db_teams = None
-    if getattr(args, "bh", None) or getattr(args, "te", None):
-        if not (args.bh and args.te):
-            print("Feil: Både --bh og --te må oppgis dersom kontraktsteams skal registreres.", file=sys.stderr)
-            return
-
-        bh_ids = [to_uuid_str(x) for x in args.bh]
-        te_ids = [to_uuid_str(x) for x in args.te]
-
-        overlap = set(bh_ids) & set(te_ids)
-        if overlap:
-            print(f"Feil: Samme team kan ikke representere både BH og TE: {overlap}", file=sys.stderr)
-            return
-
-        if not catenda_client.ensure_authenticated():
-            print("Feil: Kunne ikke autentisere mot Catenda for teamvalidering.", file=sys.stderr)
-            return
-
-        print(f"Validerer teams mot Catenda-prosjekt {cat_proj_uuid}...")
-        url = f"{catenda_client.base_url}/v2/projects/{cat_proj_uuid}/teams"
-        resp = catenda_client._safe_request("GET", url)
-        if not resp:
-            print("Feil: Kunne ikke hente teamliste fra Catenda.", file=sys.stderr)
-            return
-        available_teams = {
-            catenda_id(item["user"]["id"]): item["user"].get("name")
-            for item in resp.json()
-            if item.get("user", {}).get("type") == "team"
-        }
-
-        db_teams = []
-        for tid in bh_ids:
-            norm_id = catenda_id(tid)
-            if norm_id not in available_teams:
-                print(f"Feil: Team {tid} finnes ikke i Catenda-prosjektet!", file=sys.stderr)
-                return
-            db_teams.append({"team_id": tid, "contract_role": "BH"})
-            print(f"  ✓ BH: '{available_teams[norm_id]}' ({tid})")
-
-        for tid in te_ids:
-            norm_id = catenda_id(tid)
-            if norm_id not in available_teams:
-                print(f"Feil: Team {tid} finnes ikke i Catenda-prosjektet!", file=sys.stderr)
-                return
-            db_teams.append({"team_id": tid, "contract_role": "TE"})
-            print(f"  ✓ TE: '{available_teams[norm_id]}' ({tid})")
-
-    # 3. Utfør samlet atomisk registrering i databasen via RPC
+    # 2. Utfør samlet atomisk registrering i databasen via RPC
     print(f"Registrerer prosjekt '{args.id}' atomisk i databasen...")
     try:
         repo.register_project(
@@ -205,11 +160,8 @@ def cmd_register(args):
             folder_id=folder_uuid,
             topic_board_id=board_uuid,
             description=args.description,
-            teams=db_teams,
         )
         print(f"\n✓ Prosjekt '{args.id}' ('{name}') er fullt og atomisk registrert!")
-        if db_teams:
-            print(f"✓ Kontraktsteams er registrert for '{args.id}'.")
         print(f"Kjør 'python scripts/catenda_admin.py sync-members {args.id}' for å synke medlemmer.")
     except Exception as e:
         print(f"Feil under atomisk registrering i databasen: {e}", file=sys.stderr)
@@ -310,77 +262,22 @@ def cmd_teams(args):
     print(f"{'='*80}\n")
 
 
+KONTRAKTSTEAM_I_TS = (
+    "Kontraktsteamene registreres bare med TS-verktøyet, som krever bekreftelsen "
+    "--en-totalentreprenoer (DL-U14, #1072). Kommandoene står i headeren i server/registrering.ts:\n"
+    "  KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsteam <prosjekt> "
+    "--bh <team> … --te <team> … --en-totalentreprenoer\n"
+    "  KOE_DRIFT_TILKOBLING=… node server/registrering.ts registrer --prosjekt … "
+    "--bh <team> … --te <team> … --en-totalentreprenoer\n"
+    "TS-verktøyet skriver teamene i SQL Server. Teamene Python-stien leser i PostgreSQL, "
+    "kan ikke settes herfra; de vises med 'python scripts/catenda_admin.py teams <prosjekt>'."
+)
+
+
 def cmd_contract_teams(args):
-    """Konfigurer eller vis CATENDA_CONTRACT_TEAMS for prosjekt i databasen."""
-    repo = AuthRepository()
-    target = args.project_id
-    config = repo.project_config(target)
-    if not config:
-        print(f"Feil: Aktivt prosjekt '{target}' finnes ikke i databasen.", file=sys.stderr)
-        return
-
-    cat_pid = config["catenda_project_id"]
-    client = get_container().catenda_client
-
-    if args.bh or args.te:
-        if not (args.bh and args.te):
-            print("Feil: Både --bh og --te må oppgis for å sette kontraktsteams.", file=sys.stderr)
-            return
-
-        bh_ids = [to_uuid_str(x) for x in args.bh]
-        te_ids = [to_uuid_str(x) for x in args.te]
-
-        # 1. Sjekk overlap
-        overlap = set(bh_ids) & set(te_ids)
-        if overlap:
-            print(f"Feil: Samme team kan ikke representere både BH og TE: {overlap}", file=sys.stderr)
-            return
-
-        # 2. Valider mot Catenda API at teamene faktisk eksisterer i dette prosjektet
-        if not client.ensure_authenticated():
-            print("Feil: Kunne ikke autentisere mot Catenda for teamvalidering.", file=sys.stderr)
-            return
-
-        print(f"Validerer teams mot Catenda-prosjekt {cat_pid}...")
-        url = f"{client.base_url}/v2/projects/{cat_pid}/teams"
-        resp = client._safe_request("GET", url)
-        if not resp:
-            print("Feil: Kunne ikke hente teamliste fra Catenda.", file=sys.stderr)
-            return
-        available_teams = {
-            catenda_id(item["user"]["id"]): item["user"].get("name")
-            for item in resp.json()
-            if item.get("user", {}).get("type") == "team"
-        }
-
-        db_teams = []
-        for tid in bh_ids:
-            norm_id = catenda_id(tid)
-            if norm_id not in available_teams:
-                print(f"Feil: Team {tid} finnes ikke i Catenda-prosjektet!", file=sys.stderr)
-                return
-            db_teams.append({"team_id": tid, "contract_role": "BH"})
-            print(f"  ✓ BH: '{available_teams[norm_id]}' ({tid})")
-
-        for tid in te_ids:
-            norm_id = catenda_id(tid)
-            if norm_id not in available_teams:
-                print(f"Feil: Team {tid} finnes ikke i Catenda-prosjektet!", file=sys.stderr)
-                return
-            db_teams.append({"team_id": tid, "contract_role": "TE"})
-            print(f"  ✓ TE: '{available_teams[norm_id]}' ({tid})")
-
-        # 3. Utfør atomisk lagring i databasen via RPC
-        try:
-            repo.set_contract_teams(target, db_teams)
-            print(f"\n✓ Kontraktsteams lagret atomisk i databasen for prosjekt '{target}'!")
-        except Exception as e:
-            print(f"Feil under lagring i databasen: {e}", file=sys.stderr)
-    else:
-        teams = repo.contract_teams(target)
-        print(f"\nNåværende kontraktsteams i databasen for '{target}':")
-        print(f"  BH: {list(teams['BH']) or '(ingen)'}")
-        print(f"  TE: {list(teams['TE']) or '(ingen)'}\n")
+    """Stoppet: kontraktsteamene registreres bare med `server/registrering.ts` (#1072)."""
+    print(KONTRAKTSTEAM_I_TS, file=sys.stderr)
+    sys.exit(2)
 
 
 def main():
@@ -410,8 +307,8 @@ def main():
     p_reg.add_argument("--topic-board-id", help="Catenda topic board UUID (valgfri)")
     p_reg.add_argument("--name", help="Valgfritt navn (hentes fra Catenda om utelatt)")
     p_reg.add_argument("--description", help="Valgfri beskrivelse")
-    p_reg.add_argument("--bh", nargs="+", help="Team ID-er for Byggherre (valgfri)")
-    p_reg.add_argument("--te", nargs="+", help="Team ID-er for Totalentreprenør (valgfri)")
+    p_reg.add_argument("--bh", nargs="+", help="Stoppet: bruk server/registrering.ts (#1072)")
+    p_reg.add_argument("--te", nargs="+", help="Stoppet: bruk server/registrering.ts (#1072)")
     p_reg.set_defaults(func=cmd_register)
 
     # sync-members
@@ -426,13 +323,12 @@ def main():
     p_teams.set_defaults(func=cmd_teams)
 
     # contract-teams
-    p_ct = subparsers.add_parser("contract-teams", help="Vis eller sett BH/TE-teams i .env")
-    p_ct.add_argument("project_id", default="oslobygg", nargs="?", help="Intern prosjekt-ID")
-    p_ct.add_argument("--bh", nargs="+", help="Team ID-er for Byggherre")
-    p_ct.add_argument("--te", nargs="+", help="Team ID-er for Totalentreprenør")
+    p_ct = subparsers.add_parser("contract-teams", help="Stoppet: bruk server/registrering.ts (#1072)")
     p_ct.set_defaults(func=cmd_contract_teams)
 
-    args = parser.parse_args()
+    args, resten = parser.parse_known_args()
+    if resten and args.func is not cmd_contract_teams:
+        parser.error(f"ukjente argumenter: {' '.join(resten)}")
     args.func(args)
 
 

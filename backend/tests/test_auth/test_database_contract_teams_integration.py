@@ -45,29 +45,31 @@ TE_TEAM_1 = "eeee1111-0000-0000-0000-000000000001"
 BH_TEAM_2 = "bbbb2222-0000-0000-0000-000000000002"
 
 
+def _registrer_med_team(client, project_id, name, description, teams):
+    """Kaller `koe_register_project` med team direkte, utenom `AuthRepository` (#1072)."""
+    return (
+        client.rpc(
+            "koe_register_project",
+            {
+                "p_project_id": project_id,
+                "p_name": name,
+                "p_description": description,
+                "p_organisasjon_id": "test-virksomhet",
+                "p_catenda_project_id": CAT_PROJ_UUID,
+                "p_library_id": LIB_UUID,
+                "p_folder_id": FOLDER_UUID,
+                "p_topic_board_id": BOARD_UUID,
+                "p_teams": teams,
+            },
+        )
+        .execute()
+        .data
+    )
+
+
 # ---------------------------------------------------------------------------
 # Unit tests for AuthRepository RPC calling contract (using mocks)
 # ---------------------------------------------------------------------------
-
-def test_auth_repo_set_contract_teams_calls_rpc():
-    client = Mock()
-    rpc_mock = Mock()
-    client.rpc.return_value = rpc_mock
-    rpc_mock.execute.return_value = SimpleNamespace(data=True)
-
-    repo = AuthRepository(client=client)
-    teams = [
-        {"team_id": BH_TEAM_1, "contract_role": "BH"},
-        {"team_id": TE_TEAM_1, "contract_role": "TE"},
-    ]
-    result = repo.set_contract_teams("test-proj", teams)
-
-    client.rpc.assert_called_once_with(
-        "koe_set_contract_teams",
-        {"p_project": "test-proj", "p_teams": teams},
-    )
-    assert result is True
-
 
 def test_auth_repo_register_project_calls_rpc():
     client = Mock()
@@ -76,10 +78,6 @@ def test_auth_repo_register_project_calls_rpc():
     rpc_mock.execute.return_value = SimpleNamespace(data=True)
 
     repo = AuthRepository(client=client)
-    teams = [
-        {"team_id": BH_TEAM_1, "contract_role": "BH"},
-        {"team_id": TE_TEAM_1, "contract_role": "TE"},
-    ]
     result = repo.register_project(
         project_id="test-proj",
         name="Test Prosjekt",
@@ -89,7 +87,6 @@ def test_auth_repo_register_project_calls_rpc():
         folder_id=FOLDER_UUID,
         topic_board_id=BOARD_UUID,
         description="Beskrivelse",
-        teams=teams,
     )
 
     client.rpc.assert_called_once_with(
@@ -103,7 +100,7 @@ def test_auth_repo_register_project_calls_rpc():
             "p_library_id": LIB_UUID,
             "p_folder_id": FOLDER_UUID,
             "p_topic_board_id": BOARD_UUID,
-            "p_teams": teams,
+            "p_teams": None,
         },
     )
     assert result is True
@@ -301,16 +298,7 @@ def test_live_atomic_project_registration_and_contract_teams(clean_test_project)
 
     # 1. Atomic project registration including contract teams
     try:
-        repo.register_project(
-            project_id=TEST_PROJ_ID,
-            name="Integration Test Project",
-            catenda_project_id=CAT_PROJ_UUID,
-            library_id=LIB_UUID,
-            folder_id=FOLDER_UUID,
-            topic_board_id=BOARD_UUID,
-            description="Opprettet under automatisert test",
-            teams=initial_teams,
-        )
+        _registrer_med_team(admin_client, TEST_PROJ_ID, "Integration Test Project", "Opprettet under automatisert test", initial_teams)
     except Exception as e:
         if "PGRST202" in str(e) or "not find the function" in str(e).lower():
             pytest.skip("koe_register_project not yet deployed on Supabase")
@@ -332,7 +320,7 @@ def test_live_atomic_project_registration_and_contract_teams(clean_test_project)
         {"team_id": BH_TEAM_2, "contract_role": "BH"},
         {"team_id": TE_TEAM_1, "contract_role": "TE"},
     ]
-    repo.set_contract_teams(TEST_PROJ_ID, updated_teams)
+    admin_client.rpc("koe_set_contract_teams", {"p_project": TEST_PROJ_ID, "p_teams": updated_teams}).execute()
 
     teams_after = repo.contract_teams(TEST_PROJ_ID)
     assert teams_after["BH"] == {catenda_id(BH_TEAM_2)}
@@ -343,7 +331,7 @@ def test_live_atomic_project_registration_and_contract_teams(clean_test_project)
         {"team_id": BH_TEAM_1, "contract_role": "BH"},
     ]
     with pytest.raises(Exception) as exc_info:
-        repo.set_contract_teams(TEST_PROJ_ID, invalid_teams)
+        admin_client.rpc("koe_set_contract_teams", {"p_project": TEST_PROJ_ID, "p_teams": invalid_teams}).execute()
     assert "Både BH og TE" in str(exc_info.value)
 
     # Verify rollback: existing teams are preserved completely intact!
@@ -353,7 +341,7 @@ def test_live_atomic_project_registration_and_contract_teams(clean_test_project)
 
     # 4. Rollback on empty array update
     with pytest.raises(Exception):
-        repo.set_contract_teams(TEST_PROJ_ID, [])
+        admin_client.rpc("koe_set_contract_teams", {"p_project": TEST_PROJ_ID, "p_teams": []}).execute()
 
     # Previous teams still intact
     teams_after_empty = repo.contract_teams(TEST_PROJ_ID)
@@ -374,16 +362,7 @@ def test_live_registration_rollback_on_invalid_teams(clean_test_project):
 
     try:
         with pytest.raises(Exception) as exc_info:
-            repo.register_project(
-                project_id=FAILED_REG_PROJ_ID,
-                name="Should Rollback",
-                catenda_project_id=CAT_PROJ_UUID,
-                library_id=LIB_UUID,
-                folder_id=FOLDER_UUID,
-                topic_board_id=BOARD_UUID,
-                description="Test rollback",
-                teams=invalid_teams,
-            )
+            _registrer_med_team(admin_client, FAILED_REG_PROJ_ID, "Should Rollback", "Test rollback", invalid_teams)
         assert "Både BH og TE" in str(exc_info.value)
     except pytest.skip.Exception:
         raise
@@ -412,16 +391,7 @@ def test_live_registration_rollback_on_empty_teams(clean_test_project):
 
     try:
         with pytest.raises(Exception) as exc_info:
-            repo.register_project(
-                project_id=FAILED_REG_PROJ_ID,
-                name="Empty Teams Rollback",
-                catenda_project_id=CAT_PROJ_UUID,
-                library_id=LIB_UUID,
-                folder_id=FOLDER_UUID,
-                topic_board_id=BOARD_UUID,
-                description="Should fail and rollback on []",
-                teams=[],
-            )
+            _registrer_med_team(admin_client, FAILED_REG_PROJ_ID, "Empty Teams Rollback", "Should fail and rollback on []", [])
         assert "Både BH og TE" in str(exc_info.value)
     except pytest.skip.Exception:
         raise
@@ -449,10 +419,10 @@ def test_live_registration_with_null_teams_leaves_teams_empty(clean_test_project
             name="No Teams Project",
             catenda_project_id=CAT_PROJ_UUID,
             library_id=LIB_UUID,
+            organisasjon_id="test-virksomhet",
             folder_id=FOLDER_UUID,
             topic_board_id=BOARD_UUID,
             description="Null teams registration",
-            teams=None,
         )
     except Exception as e:
         if "PGRST202" in str(e) or "not find the function" in str(e).lower():

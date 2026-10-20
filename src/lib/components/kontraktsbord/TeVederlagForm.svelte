@@ -23,7 +23,10 @@
   // TS-saken (#718): bare tilbud, uten varsler, særskilte krav, vedlegg og utkast (OV-U1),
   // og begrunnelsen er valgfri (#667). Kravversjonen kommer fra utledningen (krav E).
   const kjernesak = store.erKjernesak ? store : null;
-  import { metodeKanSendesTilKjernen } from '$lib/kjernesak/vederlagskrav';
+  import {
+    metodeKanSendesTilKjernen,
+    type Vederlagsskjemadata,
+  } from '$lib/kjernesak/vederlagskrav';
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import { fmt } from './utils.js';
@@ -47,28 +50,38 @@
       : 'varsel'
   );
   let varsler = $state<VarselValg>({});
+  // Varsel om vederlag uten beløp har ingen kommando i kjernen ennå.
   const noticeData = $derived(
-    buildKonsekvensVarsler(
-      varsler,
-      store.sak.grunnlag.hovedkategori ?? '',
-      store.sak.grunnlag.tittel ?? store.sak.sakstittel ?? '',
-      false
-    )
+    kjernesak
+      ? {}
+      : buildKonsekvensVarsler(
+          varsler,
+          store.sak.grunnlag.hovedkategori ?? '',
+          store.sak.grunnlag.tittel ?? store.sak.sakstittel ?? '',
+          false
+        )
   );
   const scenario = (kjernesak ? kjernesak.kravversjon('vederlag') : store.sak.vederlag.metode)
     ? 'edit'
     : 'new';
-  const defaults = getDefaults({ scenario, existing: store.sak.vederlag });
+  const defaults = kjernesak ? null : getDefaults({ scenario, existing: store.sak.vederlag });
+  // TS-saken leser metoden, beløpet og begrunnelsen fra kravversjonen kjernen har utledet.
+  const gjeldende = kjernesak && scenario === 'edit' ? store.sak.vederlag : undefined;
 
   let metode = $state<VederlagsMetode>(
-    defaults.metode ?? (kjernesak ? 'FASTPRIS_TILBUD' : 'REGNINGSARBEID')
+    kjernesak ? (gjeldende?.metode ?? 'FASTPRIS_TILBUD') : (defaults?.metode ?? 'REGNINGSARBEID')
   );
-  let belopDirekte = $state<number | undefined>(defaults.belopDirekte);
-  let kostnadsOverslag = $state<number | undefined>(defaults.kostnadsOverslag);
-  let belopRigg = $state<number | undefined>(defaults.belopRigg);
-  let belopProduktivitet = $state<number | undefined>(defaults.belopProduktivitet);
-  let begrunnelse = $state(defaults.begrunnelse);
-  let charCount = $state(defaults.begrunnelse.replace(/<[^>]*>/g, '').trim().length);
+  let belopDirekte = $state<number | undefined>(
+    kjernesak ? gjeldende?.belop_direkte : defaults?.belopDirekte
+  );
+  let kostnadsOverslag = $state<number | undefined>(defaults?.kostnadsOverslag);
+  let belopRigg = $state<number | undefined>(defaults?.belopRigg);
+  let belopProduktivitet = $state<number | undefined>(defaults?.belopProduktivitet);
+  const startbegrunnelse = kjernesak
+    ? (gjeldende?.begrunnelse ?? '')
+    : (defaults?.begrunnelse ?? '');
+  let begrunnelse = $state(startbegrunnelse);
+  let charCount = $state(startbegrunnelse.replace(/<[^>]*>/g, '').trim().length);
 
   const harRiggKrav = $derived((belopRigg ?? 0) > 0);
   const harProduktivitetKrav = $derived((belopProduktivitet ?? 0) > 0);
@@ -86,28 +99,30 @@
     else belopDirekte = v;
   }
 
-  const mappedState: VederlagSubmissionFormState = $derived({
-    metode,
-    belopDirekte,
-    kostnadsOverslag,
-    kreverJustertEp: defaults.kreverJustertEp,
-    varsletForOppstart: defaults.varsletForOppstart,
-    harRiggKrav,
-    belopRigg,
-    datoKlarOverRigg: defaults.datoKlarOverRigg,
-    harProduktivitetKrav,
-    belopProduktivitet,
-    datoKlarOverProduktivitet: defaults.datoKlarOverProduktivitet,
-    begrunnelse,
-    begrunnelseValidationError: undefined,
-  });
+  const mappedState: VederlagSubmissionFormState | null = $derived(
+    defaults && {
+      metode,
+      belopDirekte,
+      kostnadsOverslag,
+      kreverJustertEp: defaults.kreverJustertEp,
+      varsletForOppstart: defaults.varsletForOppstart,
+      harRiggKrav,
+      belopRigg,
+      datoKlarOverRigg: defaults.datoKlarOverRigg,
+      harProduktivitetKrav,
+      belopProduktivitet,
+      datoKlarOverProduktivitet: defaults.datoKlarOverProduktivitet,
+      begrunnelse,
+      begrunnelseValidationError: undefined,
+    }
+  );
 
   const kanSende = $derived(
     mode === 'varsel'
       ? Object.keys(noticeData).length > 0
       : kjernesak
         ? metodeKanSendesTilKjernen(metode) && (belopDirekte ?? 0) > 0
-        : beregnCanSubmit(mappedState) && charCount >= 10
+        : mappedState !== null && beregnCanSubmit(mappedState) && charCount >= 10
   );
 
   $effect(() => {
@@ -125,20 +140,28 @@
                       varsler: noticeData,
                       begrunnelse: Object.values(noticeData).join('\n\n'),
                     }
-                  : buildEventData(mappedState, {
-                      scenario,
-                      grunnlagEventId:
-                        submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
-                      originalEventId:
-                        scenario === 'edit'
-                          ? submissionRefs(store.timeline, 'vederlag').claimId
-                          : undefined,
-                    });
+                  : kjernesak
+                    ? ({
+                        metode,
+                        belop_direkte: belopDirekte,
+                        begrunnelse,
+                      } satisfies Vederlagsskjemadata)
+                    : buildEventData(mappedState!, {
+                        scenario,
+                        grunnlagEventId:
+                          submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
+                        originalEventId:
+                          scenario === 'edit'
+                            ? submissionRefs(store.timeline, 'vederlag').claimId
+                            : undefined,
+                      });
               await claimReview.submit(
                 'vederlag',
-                mode === 'varsel'
+                mode === 'varsel' || (kjernesak && scenario === 'new')
                   ? 'vederlag_krav_sendt'
-                  : (getEventType({ scenario }) as EventType),
+                  : kjernesak
+                    ? 'vederlag_krav_oppdatert'
+                    : (getEventType({ scenario }) as EventType),
                 data,
                 (demo) => {
                   if (mode === 'varsel') demo.sendTeVederlagVarsel(noticeData);

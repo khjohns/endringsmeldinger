@@ -3480,6 +3480,40 @@ tekst = '''
 I første versjon avvises krav om vederlag etter regning (§ 34.4 og § 30), som justering av enhetspriser etter OV-U1. Totalentreprenøren kan kreve vederlag fra appen etter et tilbud (§ 34.2.1) eller etter kontraktens enhetspriser (§ 34.3.1). Et krav etter regning, varselet før regningsarbeidet, kostnadsoverslaget og varselet om at det vil bli overskredet (§ 30.2), og oppgavene (§ 30.3) sendes utenfor appen og registreres etter OV-U4. Byggherren kan fortsatt mene at vederlaget skal justeres etter regning når hen ikke aksepterer tilbudet. Vedtaket står og bygges senere; avgrensningen gjelder rekkefølgen, som i OV-U1. Forhold: utvider OV-U1 (legger § 34.4 og § 30 til det som avvises); presiserer VS-U3.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U29"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1095"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1095 (Q1, påberopelse mot begrunnelsen etter § 33.6.2 b):
+
+§ 33.6.2: Når TE svarer på BHs forespørsel med en begrunnelse for at grunnlaget for å beregne fristkravet ikke foreligger (annet ledd b), er det ikke et krav, så det finnes ikke noe svar på krav å ta standpunkt i. Hvor gjør BH gjeldende at begrunnelsen kom for sent, eller at den ikke er et svar etter annet ledd? § 5 tredje ledd krever at det skjer uten ugrunnet opphold etter at svaret er mottatt.
+
+Alternativene slik de står i kommentaren:
+
+Egen innsigelse (Recommended): Byggherren gjør gjeldende at TEs begrunnelse etter § 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i en egen innsigelse etter § 5 tredje ledd mot begrunnelsen, sendt fra appen. Fordi begrunnelsen bare kan komme for sent etter § 33.6.2, er innsigelsen en påberopelse etter den bestemmelsen. Påberoper byggherren at begrunnelsen kom for sent, utledes virkningen som etter § 33.6.2 tredje ledd (VS-U17). Standpunktet om at begrunnelsen ikke er et svar etter annet ledd, registreres og vises uten utledet virkning (VS-U17). Byggherrens svar på et senere fristkrav gjentar påberopelsen eller gir den opp (VS-U9, VS-U11), og HF-U4 gjelder for den. Appen avgjør ikke om innsigelsen kom uten ugrunnet opphold. Forhold: utvider VS-U24, presiserer VS-U17.
+
+Bare i svaret på kravet: Byggherren gjør gjeldende at begrunnelsen etter § 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i svaret på TEs første krav med dager etter begrunnelsen, med ett standpunkt etter § 33.6.2. En egen innsigelse etter § 5 tredje ledd mot begrunnelsen registreres og vises, men leses ikke som en påberopelse etter § 33.6.2. Appen avgjør ikke om påberopelsen kom uten ugrunnet opphold. Forhold: presiserer VS-U17 og VS-U24.'''
+valgt = "Egen innsigelse"
+svar = '''
+«Egen innsigelse (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "vs-u24" }, { art = "presiserer", vedtak = "vs-u17" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1095 (kommentaren 6299502700). Ikke bygget (#1095).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Egen innsigelse"
+tekst = '''
+Byggherren gjør gjeldende at TEs begrunnelse etter § 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i en egen innsigelse etter § 5 tredje ledd mot begrunnelsen, sendt fra appen. Fordi begrunnelsen bare kan komme for sent etter § 33.6.2, er innsigelsen en påberopelse etter den bestemmelsen. Påberoper byggherren at begrunnelsen kom for sent, utledes virkningen som etter § 33.6.2 tredje ledd (VS-U17). Standpunktet om at begrunnelsen ikke er et svar etter annet ledd, registreres og vises uten utledet virkning (VS-U17). Byggherrens svar på et senere fristkrav gjentar påberopelsen eller gir den opp (VS-U9, VS-U11), og HF-U4 gjelder for den. Appen avgjør ikke om innsigelsen kom uten ugrunnet opphold.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare i svaret på kravet"
+tekst = '''
+Byggherren gjør gjeldende at begrunnelsen etter § 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i svaret på TEs første krav med dager etter begrunnelsen, med ett standpunkt etter § 33.6.2. En egen innsigelse etter § 5 tredje ledd mot begrunnelsen registreres og vises, men leses ikke som en påberopelse etter § 33.6.2. Appen avgjør ikke om påberopelsen kom uten ugrunnet opphold.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -5319,6 +5353,70 @@ tekst = '''
 Eksporten viser til vedleggene i Catenda med ID, filnavn og hash, uten filene. P4 og LV-U12 står.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "LV-U18"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1095"]
+sporsmal = '''
+Overskriften slik den står i kommentaren på #1095 (Q2, brevtekstene etter § 33.6.2). Kommentaren har overskriften og alternativene, ingen spørsmålstekst. Det valgte alternativet står i kommentaren som «Ordlyd som § 33.4 (Recommended)», og etiketten i verktøyet var «Alle fire setningene (Recommended)».
+
+Alternativene slik de står i kommentaren:
+
+Ordlyd som § 33.4 (Recommended): Brevtekstene etter § 33.6.2 har denne ordlyden. Endret tekst gjelder bare nye brev (MM-U9). (1) Forespørselen: «Byggherren ber etter NS 8407 § 33.6.2 TE angi og begrunne det antall dager TE krever som fristforlengelse som følge av forholdet i sak <saksnummer> («<sakstittel>»). Svarer ikke TE, tapes kravet på fristforlengelse. Har TE ikke grunnlag for å beregne kravet, skal TE i stedet begrunne hvorfor grunnlaget ikke foreligger.» (2) Begrunnelsen: «TE svarer på byggherrens forespørsel etter NS 8407 § 33.6.2 i brev <n> av <dato> at grunnlaget for å beregne kravet ikke foreligger (§ 33.6.2 annet ledd b).», fulgt av TEs begrunnelse. (3) Et fristkrav som svarer på forespørselen: «Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i brev <n> av <dato>.» (4) Påberopelsen: «TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev <n> av <dato> kom for sent», i formen i LV-U4 punkt 5 og 7. Forhold: utvider LV-U4, presiserer VS-U19.
+
+Uten setning (3): Som over, men uten setning (3); kravet nevner ikke forespørselen, og appen kobler dem. Strider mot LV-U3 («Det som ikke står i teksten, regnes ikke som meddelt») og ville endre LV-U3.'''
+valgt = "Alle fire setningene"
+svar = '''
+«Alle fire setningene (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "vs-u19" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1095 (kommentaren 6299502700). Ikke bygget (#1095).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alle fire setningene"
+tekst = '''
+Brevtekstene etter § 33.6.2 har denne ordlyden. Endret tekst gjelder bare nye brev (MM-U9). (1) Forespørselen: «Byggherren ber etter NS 8407 § 33.6.2 TE angi og begrunne det antall dager TE krever som fristforlengelse som følge av forholdet i sak <saksnummer> («<sakstittel>»). Svarer ikke TE, tapes kravet på fristforlengelse. Har TE ikke grunnlag for å beregne kravet, skal TE i stedet begrunne hvorfor grunnlaget ikke foreligger.» (2) Begrunnelsen: «TE svarer på byggherrens forespørsel etter NS 8407 § 33.6.2 i brev <n> av <dato> at grunnlaget for å beregne kravet ikke foreligger (§ 33.6.2 annet ledd b).», fulgt av TEs begrunnelse. (3) Et fristkrav som svarer på forespørselen: «Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i brev <n> av <dato>.» (4) Påberopelsen: «TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev <n> av <dato> kom for sent», i formen i LV-U4 punkt 5 og 7.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Uten setning (3)"
+tekst = '''
+Som over, men uten setning (3); kravet nevner ikke forespørselen, og appen kobler dem. Strider mot LV-U3 («Det som ikke står i teksten, regnes ikke som meddelt») og ville endre LV-U3.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U19"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1096"]
+sporsmal = '''
+Overskriften slik den står i kommentaren på #1095 (Q4, brevteksten for varselet etter § 34.1.2). Kommentaren har overskriften og alternativene, ingen spørsmålstekst.
+
+Alternativene slik de står i kommentaren:
+
+Som § 33.4 (Recommended): Brevteksten for TEs varsel etter § 34.1.2: «TE varsler etter NS 8407 § 34.1.2 at TE vil kreve justering av vederlaget som følge av forholdet i sak <saksnummer> («<sakstittel>»).» Endret tekst gjelder bare nye brev (MM-U9). Forhold: presiserer OV-U5.
+
+Med kategorien: Brevteksten for TEs varsel etter § 34.1.2: «TE varsler etter NS 8407 § 34.1.2 at TE vil kreve justering av vederlaget som følge av <underkategori> (NS 8407 § <hjemmel>) for forholdet i sak <saksnummer> («<sakstittel>»).» Endret tekst gjelder bare nye brev (MM-U9). Forhold: presiserer OV-U5.'''
+valgt = "Som § 33.4"
+svar = '''
+«Som § 33.4 (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u5" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1095 (kommentaren 6299502700). Ikke bygget (#1096).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Som § 33.4"
+tekst = '''
+Brevteksten for TEs varsel etter § 34.1.2: «TE varsler etter NS 8407 § 34.1.2 at TE vil kreve justering av vederlaget som følge av forholdet i sak <saksnummer> («<sakstittel>»).» Endret tekst gjelder bare nye brev (MM-U9).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Med kategorien"
+tekst = '''
+Brevteksten for TEs varsel etter § 34.1.2: «TE varsler etter NS 8407 § 34.1.2 at TE vil kreve justering av vederlaget som følge av <underkategori> (NS 8407 § <hjemmel>) for forholdet i sak <saksnummer> («<sakstittel>»).» Endret tekst gjelder bare nye brev (MM-U9).'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -6867,6 +6965,38 @@ anbefalt = true
 navn = "§ 34.3.1 og § 34.3.2"
 tekst = '''
 § 34.3.1 og § 34.3.2, bare § 34.3.3 avvises (OV-U1 nevner bare § 34.3.3).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U15"
+dato = 2026-10-20
+hvem = "oppdragsgiver"
+kilde = ["#1096"]
+sporsmal = '''
+Overskriften slik den står i kommentaren på #1095 (Q3, varsel etter § 34.1.2 der TE krever endring). Kommentaren har overskriften og alternativene, ingen spørsmålstekst.
+
+Alternativene slik de står i kommentaren:
+
+Godtas, uten virkning (Recommended): TE kan sende varsel etter § 34.1.2 fra appen i alle kategorier. Der TE krever endring (§ 33.1 a), er det ikke krav om varsel (§ 34.1.1). Skjemaet sier det, og varselet registreres og vises uten at appen utleder noen virkning av det. Byggherren tar ikke stilling til rettidigheten etter § 34.1.2 i en slik sak. Forhold: presiserer OV-U5.
+
+Bare svikt og andre forhold: Varsel etter § 34.1.2 kan bare sendes og oppgis i svikt og andre forhold (§ 33.1 b–c). Der TE krever endring, avvises det, fordi TE har krav på justering uten varsel (§ 34.1.1). Forhold: snevrer inn OV-U5.'''
+valgt = "Godtas, uten virkning"
+svar = '''
+«Godtas, uten virkning (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u5" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1095 (kommentaren 6299502700). Ikke bygget (#1096).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Godtas, uten virkning"
+tekst = '''
+TE kan sende varsel etter § 34.1.2 fra appen i alle kategorier. Der TE krever endring (§ 33.1 a), er det ikke krav om varsel (§ 34.1.1). Skjemaet sier det, og varselet registreres og vises uten at appen utleder noen virkning av det. Byggherren tar ikke stilling til rettidigheten etter § 34.1.2 i en slik sak.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare svikt og andre forhold"
+tekst = '''
+Varsel etter § 34.1.2 kan bare sendes og oppgis i svikt og andre forhold (§ 33.1 b–c). Der TE krever endring, avvises det, fordi TE har krav på justering uten varsel (§ 34.1.1).'''
 forkastet = true
 
 [[gruppe.vedtak]]

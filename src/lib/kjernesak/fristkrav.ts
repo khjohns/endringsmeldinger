@@ -9,7 +9,6 @@
  */
 
 import { letterText } from '$lib/approval/letter';
-import type { FristSubmissionEventData } from '$lib/domain/fristSubmissionDomain';
 import type { Vedlegg } from '$kjerne/typer';
 import { utenVedlegg } from './skjemadata';
 
@@ -30,13 +29,17 @@ export interface RegistrertVarsel {
   vedlegg: Vedlegg[];
 }
 
-export type Fristskjemadata = FristSubmissionEventData & {
+/** Det `TeFristForm` sender på TS-stien. Begrunnelsen er HTML fra editoren. */
+export interface Fristskjemadata {
+  varsel_type?: string;
+  antall_dager?: number;
+  begrunnelse?: string;
   vedlegg_ids?: string[];
   /** Varselet registreres for seg. */
   registrert?: RegistrertVarsel;
   /** Varselet TE oppgir i det spesifiserte kravet. */
   tidligereVarsel?: RegistrertVarsel;
-};
+}
 
 const ISO_DATO = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -91,4 +94,24 @@ export function fristkommandoFraSkjema(data: Fristskjemadata, idag = dagensDato(
     utdypning,
     ...(data.tidligereVarsel ? { varsel: oppgittVarsel(data.tidligereVarsel, idag) } : {}),
   };
+}
+
+/**
+ * Teksten «Klar til sending» i `TeFristForm`. `scenario` er `edit` når sporet har et
+ * fristkrav, og `spesifisering` når det har et varsel uten krav.
+ */
+export function fristoppsummering(
+  valg: string | undefined,
+  dager: number | undefined,
+  scenario: string
+): string | null {
+  const antall = dager && dager > 0 ? dager : 0;
+  if (valg === 'registrert') return 'Registrerer varselet sendt utenfor appen';
+  if (valg === 'varsel') return 'Sender foreløpig varsel om fristforlengelse';
+  if (valg !== 'spesifisert') return null;
+  if (scenario === 'edit')
+    return antall ? `Oppdaterer krav om ${antall} dager` : 'Oppdaterer fristkrav';
+  if (scenario === 'spesifisering')
+    return antall ? `Spesifiserer krav: ${antall} dager` : 'Spesifiserer fristkrav';
+  return antall ? `Krav om ${antall} dagers fristforlengelse` : 'Sender krav om fristforlengelse';
 }

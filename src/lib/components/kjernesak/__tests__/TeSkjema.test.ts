@@ -421,6 +421,8 @@ describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
     });
     await screen.findByText('varsel.pdf');
     expect(lastOpp).toHaveBeenCalledWith(fil);
+    // MM-U17: registreringen sender ikke noe brev fra appen, så teksten sier ikke «Sender».
+    expect(screen.getByText('Registrerer varselet sendt utenfor appen')).toBeInTheDocument();
     await fireEvent.click(knapp);
     await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
     expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
@@ -528,4 +530,45 @@ describe('registrering av et varsel sendt utenfor appen (S-2a.2)', () => {
       ).toThrow(melding);
     }
   );
+});
+
+// #1062: skjemaene på TS-stien starter fra kravversjonen kjernen har utledet og sender
+// kommandoen adapteren bygger, uten regelfunksjonene i `$lib/domain`.
+describe('TE-skjemaene leser kjernen (#1062)', () => {
+  const medFristkrav = skrevet(medGrunnlag, 'TE', {
+    type: 'krav',
+    spor: 'frist',
+    innhold: { dager: 12 },
+    utdypning: 'Peling på kritisk linje.',
+  });
+
+  it('en ny versjon av fristkravet starter med dagene i gjeldende krav (#909)', async () => {
+    await vis(medFristkrav, 'frist');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
+    expect(screen.getByLabelText('Antall dager')).toHaveValue('12');
+    expect(screen.getByText('Oppdaterer krav om 12 dager')).toBeInTheDocument();
+  });
+
+  it('TE sender vederlagskravet som tilbud med beløpet fra skjemaet, og kjernen godtar det (OV-U1)', async () => {
+    const { send } = await vis(medGrunnlag, 'vederlag');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '180000' } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
+    await bekreftBrevet();
+
+    await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
+    const kommando = {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { metode: 'tilbud', beloep: 180000 },
+    } as const;
+    expect(sendt(send)).toEqual({ ...kommando, brevtekst: expect.any(Array) });
+    expect(() => skrevet(medGrunnlag, 'TE', kommando)).not.toThrow();
+  });
+
+  it('en ny versjon av vederlagskravet starter med beløpet i gjeldende krav (#718)', async () => {
+    await vis(medVederlag, 'vederlag');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
+    expect(screen.getByLabelText('Fast pris')).toHaveValue('250000');
+  });
 });

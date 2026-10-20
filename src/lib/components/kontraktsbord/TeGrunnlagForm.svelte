@@ -74,12 +74,15 @@
               await claimReview.submit(
                 'grunnlag',
                 'grunnlag_oppdatert',
-                buildTeRevisionEventData({
-                  originalEventId:
-                    submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
-                  begrunnelseHtml,
-                  grunnlag: store.sak.grunnlag,
-                }),
+                // TS-saken: kjernen lager versjonen av gjeldende krav og beskrivelsen (GR-U22).
+                kjernesak
+                  ? { begrunnelse: begrunnelseHtml }
+                  : buildTeRevisionEventData({
+                      originalEventId:
+                        submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
+                      begrunnelseHtml,
+                      grunnlag: store.sak.grunnlag,
+                    }),
                 (demo) => demo.sendTeGrunnlag(begrunnelseHtml)
               );
               return;
