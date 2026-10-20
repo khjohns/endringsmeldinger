@@ -384,6 +384,11 @@ describe('skrivevakten for mekanisk-pr', () => {
       "echo $'\\''\ng${x}it push --force origin HEAD:main\necho '",
       "echo `#'`\ng${x}it push --force origin HEAD:main\necho '",
       "echo $'\\''\nr${x}m -rf kj${x}erne\necho '",
+      "bash -c \"echo \\$'\\\\''\ng\\${x}it push --force origin HEAD:main\necho '\"",
+      'bash -c "echo \\$(#\'\ng\\\\it push --force origin HEAD:main\n)"',
+      "echo $'\\''; g${x}it push --force origin HEAD:main #'",
+      "echo $'\\'' ; r${x}m -rf kj${x}erne #'",
+      'bash -c "ls # \'\ng\\\\it push --force origin HEAD:main\n\'"',
     ]) {
       expect(bash(kommando).status, kommando).toBe(2);
     }
@@ -397,6 +402,7 @@ describe('skrivevakten for mekanisk-pr', () => {
       ["cat <<'EOF'\ngit push origin HEAD:main\nEOF", 2, 2],
       ["cat > /tmp/a <<'A' <<'B'\ngit push\nA\ngit commit\nB", 2, 2],
       ["cat > /tmp/pr.md <<'EOF'\nlegg til lenke\nEOF", 0, 0],
+      ['ls docs/*.md\nwc -l AGENTS.md', 0, 0],
       ["cat > /tmp/a <<-'EOF'\n\ttekst\n\tEOF", 0, 0],
       ["cat > /tmp/a <<'EOF'\nx\nEOF\nmkdir -p /tmp/b && cat /tmp/a", 0, 0],
       ["cat <<'EOF'\nkjerne/x\nEOF\nls", 0, 0],
