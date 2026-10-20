@@ -96,7 +96,7 @@ describe.skipIf(!TESTBASE_URL)('navnet bak hendelsen i visningen av saken (#104)
         foresp().input('sak_id', sakId).execute('koe_api.aktornavn')
       );
     // Kontrollsak: i sakens prosjekt gir den navnet, som lesingen av saken.
-    const kontekst = { aktor: o.bh.id, prosjekt: o.prosjekt.id };
+    const kontekst = { aktor: o.bh.id, prosjekt: o.prosjekt.id, side: 'BH' as const };
     expect((await prosedyren(kontekst)).recordset).toEqual([
       { aktor_id: o.te.id, navn: 'Kari Testesen' },
     ]);

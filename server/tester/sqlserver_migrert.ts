@@ -345,7 +345,7 @@ export type Foresp = () => sql.Request;
 export interface Kontekst {
   aktor: string;
   prosjekt: string;
-  side: string;
+  side: string | null;
   team: string | null;
 }
 

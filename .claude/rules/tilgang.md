@@ -45,7 +45,10 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
 ## TS-stien
 
 `server/autorisasjon.ts` speiler `require_auth`, `require_project_access` og
-`require_contract_role`, i samme rekkefølge og med samme svar.
+`require_contract_role`, i samme rekkefølge og med samme svar, utenom at
+kontraktsrollen avgjøres før prosjektgrensen (se «Lesingen av saker og brev»). En
+sak i et annet prosjekt gir da `CONTRACT_ROLE_REQUIRED` for et medlem uten team,
+og 503 når Catenda ikke svarer.
 
 - **Registeret.** Hver inngang i TS-serveren står i `RUTER` i `server/app.ts`
   med prosjektrollen og kontraktsrollen den krever, eller en skriftlig
@@ -58,8 +61,12 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
   registeret: et team for TE eller BH, som `kreves`, eller leserolle
   (`krevLesing` i `server/autorisasjon.ts`). Uten bekreftet team gir den 403,
   og svarer ikke Catenda, 503. Det gjelder saken, sakslisten og brevet som PDF (#1054).
-  Lesefilteret i basen krever ennå bare medlemskap (`koe_sikkerhet.medlem`, #1056),
-  eller at aktøren er godkjenner i en åpen pakke i saken (GFK-U9).
+  Lesefilteret i basen (`koe_sikkerhet.medlem`) krever det samme: siden i konteksten,
+  med et av prosjektets kontraktsteam på den siden, eller leserollen (#1056). Ellers
+  slipper bare godkjenneren i en åpen pakke i saken gjennom (GFK-U9). Hver lesing
+  får siden i konteksten med `lesekontekst` i `server/autorisasjon.ts`, også kontrollen
+  av sakene det vises til, så siden avgjøres før den. Skrivingen og vedleggene krever
+  siden uten leserollen (`koe_sikkerhet.kontraktsmedlem`).
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.
@@ -67,15 +74,15 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
   medlemskapet eller kontraktsteamene, og leser dem med `koe_api.prosjektkobling`,
   `koe_api.prosjektmedlemskap` og `koe_api.kontraktsteam`. De to siste gir bare
   rader for aktøren som spør. Om sakene det vises til er i prosjektet, leses i
-  `koe.sak_metadata` under radsikkerheten, med aktøren og prosjektet i
-  konteksten. Alderen på medlemslisten leses bare i `server/autorisasjon.ts`
-  (#638 punkt 2, `server/tester/arkitektur.test.ts`).
+  `koe.sak_metadata` under radsikkerheten, med `lesekontekst`. Alderen på
+  medlemslisten leses bare i `server/autorisasjon.ts` (#638 punkt 2, `server/tester/arkitektur.test.ts`).
 - **Prosjektgrensen** holdes også ved lesing og skriving av journalen. Lesingen
   i `server/lager.ts` og skrivingen i `server/kommandoer.ts` går hver i sin
-  transaksjon med aktøren og prosjektet i konteksten. Filterpredikatet
+  transaksjon med aktøren og prosjektet i konteksten, og med siden og teamet
+  når de er avgjort. Filterpredikatet
   `koe_sikkerhet.sak_synlig` slipper bare gjennom saker og hendelser i prosjektet i
-  konteksten, for medlemmene (`medlem`) og for godkjenneren i en åpen pakke i saken
-  (GFK-U9), så en sak utenfor finnes ikke, og blokkpredikatet
+  konteksten, for medlemmene med siden eller leserollen (`medlem`) og for
+  godkjenneren i en åpen pakke i saken (GFK-U9), så en sak utenfor finnes ikke, og blokkpredikatet
   `koe_sikkerhet.skriver` stopper en rad i et annet prosjekt.
   `koe_api.skriv_hendelse` kontrollerer og stempler prosjektet fra konteksten i
   tillegg.

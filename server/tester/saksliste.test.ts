@@ -143,7 +143,7 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
 
   it('prosedyren gir bare hendelsene i prosjektet i konteksten', async () => {
     const sakene = (prosjekt: string, aktor: string) =>
-      transaksjon(o.datalag.kjoeretid.pool, { aktor, prosjekt }, async (f) => [
+      transaksjon(o.datalag.kjoeretid.pool, { aktor, prosjekt, side: 'TE' as const }, async (f) => [
         ...new Set(
           (await f().execute<{ sak_id: string }>('koe_api.saksliste')).recordset.map(
             (r) => r.sak_id

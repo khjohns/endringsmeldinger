@@ -265,7 +265,12 @@ export async function behandle(
     sha256: kommandosum({ rute: 'innboks', hendelse: rad.hendelse_id, topic: topicId }),
   };
   // Før siden: et nytt forsøk etter en lagret sak får saken, også om siden er endret (#963).
-  const kvittert = await kvittertSak(avh.datalag, { aktor, prosjekt: prosjektId }, kommando);
+  // Innboksen oppretter bare saker for TE, så kvitteringen leses med siden TE (#1056).
+  const kvittert = await kvittertSak(
+    avh.datalag,
+    { aktor, prosjekt: prosjektId, side: 'TE' },
+    kommando
+  );
   if (kvittert) return { ...ut('sak_opprettet'), sakId: kvittert };
   const side = await kontraktssideUtenSesjon(avh.datalag, avh.catenda, prosjektId, aktor, {
     catendaProsjekt,

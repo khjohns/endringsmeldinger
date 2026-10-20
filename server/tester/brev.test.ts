@@ -78,7 +78,11 @@ describe.skipIf(!TESTBASE_URL)('nedlasting av et sendt brev som PDF', () => {
   });
 
   const lest = () =>
-    lesSaken(o.datalag.kjoeretid.pool, { aktor: o.te.id, prosjekt: o.prosjekt.id }, sak);
+    lesSaken(
+      o.datalag.kjoeretid.pool,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
+      sak
+    );
   const lastNed = async (bruker: Testbruker, eventId: string, sakId = sak) => {
     const svar = await fetch(`${server.url}/api/kjerne/saker/${sakId}/brev/${eventId}`, {
       headers: { Cookie: `__Host-koe_session=${bruker.token}`, 'X-Project-ID': o.prosjekt.id },

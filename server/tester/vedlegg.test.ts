@@ -336,8 +336,13 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       dokumentasjon,
     });
     const journal = async (sakId: string) =>
-      (await lesSaken(o.datalag.kjoeretid.pool, { aktor: o.te.id, prosjekt: o.prosjekt.id }, sakId))
-        .journal;
+      (
+        await lesSaken(
+          o.datalag.kjoeretid.pool,
+          { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
+          sakId
+        )
+      ).journal;
 
     /** Saken med TEs grunnlagskrav, så et varsel kan registreres (versjon 2). */
     async function sakMedGrunnlag(): Promise<string> {
@@ -393,7 +398,7 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       ).toBe(foerste);
       const { oppdrag } = await lesSaken(
         o.datalag.kjoeretid.pool,
-        { aktor: o.te.id, prosjekt: o.prosjekt.id },
+        { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
         sakId
       );
       const innhold = oppdrag.find((d) => d.event_id === brevet)!.innhold;

@@ -28,6 +28,7 @@ import {
   type Utledning,
 } from '../kjerne/utledning/utled.ts';
 import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './app.ts';
+import { lesekontekst } from './autorisasjon.ts';
 import { transaksjon, type Kontekst, type Pool } from './datalag.ts';
 import { skrevetAvKjernen } from './lager.ts';
 
@@ -304,10 +305,7 @@ async function sakslisten(
   { bruker, prosjekt, side }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const saker = await lesSakslisten(avh.datalag, {
-    aktor: bruker.id,
-    prosjekt: prosjekt.prosjektId,
-  });
+  const saker = await lesSakslisten(avh.datalag, lesekontekst(bruker, prosjekt.prosjektId, side));
   const linjer = saker.map((s) => sakslinje(s, avh.kjerne));
   return [
     200,

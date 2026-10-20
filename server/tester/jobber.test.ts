@@ -98,8 +98,10 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       )
     ).recordset;
   const topicen = (sakId: string) =>
-    transaksjon(o.datalag.kjoeretid.pool, { aktor: o.te.id, prosjekt: o.prosjekt.id }, (foresp) =>
-      lesLeveringsmaal(foresp, sakId)
+    transaksjon(
+      o.datalag.kjoeretid.pool,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
+      (foresp) => lesLeveringsmaal(foresp, sakId)
     );
   const kjoer = () =>
     kjoerEnJobb({
@@ -137,7 +139,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     (
       await transaksjon(
         o.datalag.kjoeretid.pool,
-        { aktor: o.te.id, prosjekt: o.prosjekt.id },
+        { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
         (foresp) =>
           foresp()
             .input('t', tittel)

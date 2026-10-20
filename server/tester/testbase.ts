@@ -359,7 +359,7 @@ export async function medLaastTekst(
 ): Promise<Record<string, unknown>> {
   const { journal } = await lesSaken(
     o.datalag.kjoeretid.pool,
-    { aktor: o.te.id, prosjekt: o.prosjekt.id },
+    { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
     sakId
   );
   const vist = forhaandsvis(

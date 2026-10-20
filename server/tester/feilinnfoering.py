@@ -31,7 +31,7 @@ from pathlib import Path
 
 FEILINNFOERINGER = [
     ("S1", "kontraktsrollen kontrolleres ikke for en inngang som krever den", "server/app.ts",
-     "krav === 'kreves'\n        ? await", "false\n        ? await",
+     "krav === 'kreves'\n          ? krevKontraktsrolle", "false\n          ? krevKontraktsrolle",
      "kontraktsrollen"),
     ("S2", "CSRF kontrolleres ikke på en endring", "server/autorisasjon.ts",
      "!['GET', 'HEAD', 'OPTIONS'].includes(metode) &&", "false &&",
@@ -175,7 +175,7 @@ FEILINNFOERINGER = [
      "\n  WHILE USER_NAME() <> N'dbo' AND @n < 32 BEGIN REVERT; SET @n += 1; END;", "",
      "en setning som avbrytes av et tidsavbrudd"),
     ("S44", "ruteren kontrollerer ikke lesingen for en inngang som krever den (DL-U15)", "server/app.ts",
-     "krav === 'lesing'\n          ? await", "false\n          ? await",
+     "krav === 'lesing'\n            ? krevLesing", "false\n            ? krevLesing",
      "et medlem uten kontraktsteam og uten leserolle"),
     ("S45", "et teamoppslag som feiler, gir ingen side i stedet for 503 (DL-U15)", "server/autorisasjon.ts",
      "  } catch {\n    throw new Nektet(503, 'CONTRACT_ACCESS_UNAVAILABLE'",

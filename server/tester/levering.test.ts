@@ -275,14 +275,14 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
 
   it('L2: kjøreren laster opp brevet med dokumentnøkkelen i navnet, setter referansen og kvitterer hver operasjon (B-03)', async () => {
     const sakId = await sakMedBrev();
-    const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id };
+    const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const };
     expect((await lesSaken(o.datalag.kjoeretid.pool, leser, sakId)).oppdrag[0].levert).toBeNull();
     expect(await kjoer()).toBe(true);
 
     const [[navn, dokument]] = [...catenda.bibliotek];
     const { journal, oppdrag: oppdragene } = await lesSaken(
       o.datalag.kjoeretid.pool,
-      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
       sakId
     );
     const brev = journal.at(-1)!;
@@ -632,7 +632,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     const { sakId, vedleggId } = await sakMedRegistrertVarsel();
     const { journal, oppdrag } = await lesSaken(
       o.datalag.kjoeretid.pool,
-      { aktor: o.te.id, prosjekt: o.prosjekt.id },
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
       sakId
     );
     const registrert = oppdrag.find((x) => x.event_id === journal.at(-1)!.event_id)!;
