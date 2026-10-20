@@ -335,8 +335,46 @@ describe('rollene og HR-kopien fra Graph (S-1c del 2, #831)', () => {
       navn: '',
     };
     const dobbel: HrKilde = { tenant, personerMedTittel: async () => [p, p] };
-    expect(await avvisning(synkroniserHr(kjoeretid(), dobbel))).toBe(UNIK_BRUDD);
+    expect(await avvisning(synkroniserHr(kjoeretid(), dobbel))).toBe(52068);
+    const deaktivertOgAktiv: HrKilde = {
+      tenant,
+      personerMedTittel: async () => [{ ...p, aktiv: false }, p],
+    };
+    expect(await avvisning(synkroniserHr(kjoeretid(), deaktivertOgAktiv))).toBe(52068);
     expect(await brukerFor(oid)).toBeNull();
+  });
+
+  it('to identiteter med rolle som driften har koblet til samme bruker, gir brukeren ingen rolle, og resten av tenanten synkroniseres (S5 (a), GFK-U10)', async () => {
+    const vanlig = person('Prosjektleder');
+    const admin = person('Direktør');
+    const annen = person('Prosjektleder');
+    const registrer = async (oid: string, bruker: string | null) => {
+      const svar = await drift.pool
+        .request()
+        .input('tenant', sql.UniqueIdentifier, tenant)
+        .input('oid', sql.UniqueIdentifier, oid)
+        .input('epost', sql.NVarChar(320), '')
+        .input('navn', sql.NVarChar(400), '')
+        .output('bruker', sql.UniqueIdentifier, bruker)
+        .execute('koe_drift.registrer_entra_identitet');
+      return String(svar.output.bruker).toLowerCase();
+    };
+    const bruker = await registrer(vanlig.id, null);
+
+    // Kontrollsak: med én identitet får brukeren rollen.
+    graph.personer = [vanlig, annen];
+    await synkroniserHr(kjoeretid(), kilde);
+    expect(await kopi(bruker)).toMatchObject({ rolle: 'prosjektleder' });
+    const foer = (await kopi(bruker))!.hentet;
+
+    await registrer(admin.id, bruker);
+    graph.personer = [vanlig, admin, annen];
+    await synkroniserHr(kjoeretid(), kilde);
+    const etter = await kopi(bruker);
+    expect(etter).toMatchObject({ rolle: null, leder_oid: null });
+    expect(etter!.hentet.getTime()).toBeGreaterThanOrEqual(foer.getTime());
+    expect(await kopi((await brukerFor(annen.id))!)).toMatchObject({ rolle: 'prosjektleder' });
+    expect(await brukerFor(admin.id)).toBe(bruker);
   });
 
   it('kjøretiden har ingen rett på rollene, titlene eller HR-kopien, og ingen på driftsprosedyrene', async () => {

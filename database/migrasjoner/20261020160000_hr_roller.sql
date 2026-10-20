@@ -59,7 +59,10 @@ GO
 -- rolle; en ukjent identitet for en slik person registreres som ny bruker, slik
 -- `koe_drift.registrer_entra_identitet` gjør. Hver annen rad i tenanten mister
 -- rollen og lederen. Alt skjer i én transaksjon, så en lesning ser enten det
--- forrige eller det nye bildet. Samme `oid` to ganger avvises.
+-- forrige eller det nye bildet. Samme `oid` to ganger avvises (52068). Har
+-- driften koblet to identiteter med rolle til samme bruker, får brukeren ingen
+-- rolle: kopien har én rad per bruker, hvilken rolle som gjelder, avgjøres ikke
+-- her, og koblingen kan ikke tas tilbake, så resten av tenanten synkroniseres.
 CREATE PROCEDURE koe_api.synkroniser_hr
   @tenant uniqueidentifier, @personer nvarchar(max)
 AS
@@ -70,6 +73,9 @@ BEGIN
     THROW 52024, N'Tenanten er ikke godkjent', 1;
   IF @personer IS NULL OR ISJSON(@personer, ARRAY) = 0
     THROW 52060, N'Personene fra Graph er ikke en JSON-liste', 1;
+  IF EXISTS (SELECT 1 FROM OPENJSON(@personer) WITH (oid uniqueidentifier '$.oid')
+              WHERE oid IS NOT NULL GROUP BY oid HAVING COUNT(*) > 1)
+    THROW 52068, N'Samme oid står to ganger i bildet fra Graph', 1;
   DECLARE @issuer nvarchar(400) =
     N'https://login.microsoftonline.com/' + LOWER(CONVERT(nvarchar(36), @tenant)) + N'/v2.0';
   DECLARE @hentet datetime2(3) = DATETRUNC(millisecond, SYSUTCDATETIME());
@@ -99,6 +105,8 @@ BEGIN
     FROM @person p
     JOIN koe.app_identities i WITH (UPDLOCK, HOLDLOCK)
       ON i.provider = N'entra' AND i.issuer = @issuer AND i.subject = LOWER(CONVERT(nvarchar(36), p.oid));
+  DELETE @person WHERE bruker IN
+    (SELECT bruker FROM @person WHERE bruker IS NOT NULL GROUP BY bruker HAVING COUNT(*) > 1);
   UPDATE @person SET bruker = NEWID(), ny = 1 WHERE bruker IS NULL;
   INSERT koe.app_users (id, email, name)
   SELECT bruker, ISNULL(epost, N''), ISNULL(navn, N'') FROM @person WHERE ny = 1;
