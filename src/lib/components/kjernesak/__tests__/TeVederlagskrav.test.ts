@@ -105,6 +105,10 @@ async function vis(part: Part | null) {
 
 const leseflate = () => document.querySelector('.read-content');
 
+/** Knappene som åpner TEs vederlagsskjema før kravet er sendt (#1096). */
+const TE_SKJEMAKNAPP =
+  /^(Send varsel eller krav|Send krav om vederlagsjustering|Registrer varsel)$/;
+
 describe('vederlagskravet fra Kontrollrommet', () => {
   it('TE sender tilbudet med den låste teksten og uten utdypning når begrunnelsen er tom', async () => {
     const { send } = await vis('TE');
@@ -265,7 +269,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await kjernesak.last();
     expect(kjernesak.handlinger).toContain('krav:vederlag');
     visRom(kjernesak);
-    expect(screen.queryByRole('button', { name: 'Send varsel eller krav' })).toBeNull();
+    expect(screen.queryByRole('button', { name: TE_SKJEMAKNAPP })).toBeNull();
     expect(screen.getByRole('button', { name: 'Send ny versjon av kravet' })).toBeInTheDocument();
   });
 
@@ -273,7 +277,8 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     'en leser med siden %s fra serveren får ikke tilbud om vederlagskravet (#705)',
     async (part) => {
       await vis(part);
-      expect(screen.queryByRole('button', { name: 'Send varsel eller krav' })).toBeNull();
+      expect(screen.queryByRole('button', { name: TE_SKJEMAKNAPP })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Send ny versjon av kravet' })).toBeNull();
     }
   );
 

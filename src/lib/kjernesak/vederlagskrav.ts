@@ -9,7 +9,6 @@
  */
 
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
-import { GJELDENDE_REGLER } from '$kjerne/regler/regelsett';
 import { letterText } from '$lib/approval/letter';
 import { dagensDato, registrering, utenVedlegg, type RegistrertVarsel } from './skjemadata';
 
@@ -94,10 +93,7 @@ export function vederlagskommandoFraSkjema(
 }
 
 /**
- * Varslingsplikten etter § 34.1.2 gjelder ikke der TE krever endring (§ 34.1.1). Varselet
- * kan likevel sendes, og skjemaet sier at det ikke kreves (OV-U15). Uten hovedkategori
- * sies ingenting.
+ * Der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1). Varselet kan
+ * likevel sendes, og skjemaet sier at det ikke kreves (OV-U15). Kjernens hovedkategori.
  */
-export const varseletKrevesIkke = (hovedkategori: string | null | undefined) =>
-  Boolean(hovedkategori) &&
-  !GJELDENDE_REGLER.gjelderVarslingspliktenForVederlag(hovedkategori ?? null);
+export const varseletKrevesIkke = (hovedkategori: unknown) => hovedkategori === 'endring';

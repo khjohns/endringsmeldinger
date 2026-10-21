@@ -182,7 +182,10 @@ await side.screenshot({ path: join(UT, '5-sendt.png'), fullPage: true });
 await side.getByRole('button', { name: 'Historikk' }).click();
 await side.getByTestId(`journal-${values.varsel ? 4 : 3}`).waitFor();
 await side.screenshot({ path: join(UT, '6-historikk.png'), fullPage: true });
-if (await knapp.count()) feil.push('Knappen for vederlagskravet står igjen etter sendingen.');
+const kravknapp = side.getByRole('button', {
+  name: /^Send (varsel eller krav|krav om vederlagsjustering)$/,
+});
+if (await kravknapp.count()) feil.push('Knappen for vederlagskravet står igjen etter sendingen.');
 await nettleser.close();
 
 if (feil.length) {

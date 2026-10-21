@@ -85,9 +85,7 @@
   const krevesIkke = $derived(
     kjernesak
       ? varseletKrevesIkke(
-          kjernesak.kjernesak.utledning?.spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori as
-            | string
-            | undefined
+          kjernesak.kjernesak.utledning?.spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori
         )
       : false
   );
@@ -165,10 +163,13 @@
   );
 
   const kanSende = $derived(
-    kjernesak
-      ? mode === 'varsel' ||
-          (registrerer && varselhindring(varselet, dagensDato()) === null) ||
-          (mode === 'spesifisert' && metodeKanSendesTilKjernen(metode) && (belopDirekte ?? 0) > 0)
+    kjernevalg
+      ? kjernevalg.includes(mode) &&
+          (mode === 'varsel' ||
+            (registrerer && varselhindring(varselet, dagensDato()) === null) ||
+            (mode === 'spesifisert' &&
+              metodeKanSendesTilKjernen(metode) &&
+              (belopDirekte ?? 0) > 0))
       : mode === 'varsel'
         ? Object.keys(noticeData).length > 0
         : mappedState !== null && beregnCanSubmit(mappedState) && charCount >= 10
