@@ -7,9 +7,14 @@
  *
  * Skrivingen i `server/kommandoer.ts` godtar ikke radene kjøreren skriver, så
  * testskriveren skriver dem som eieren. Skriveren, bufferlageret og spørringene
- * er testkode (oppdragsgiver 19.10, #932). De bruker eierens forbindelse med
- * policyen slått av i sin egen transaksjon, fordi radsikkerheten også gjelder
- * eieren og ellers ville skjult en spørring som ikke avgrenser til prosjektet.
+ * er testkode (oppdragsgiver 19.10, #932). Bufferlageret og spørringene bruker
+ * eierens forbindelse med policyen slått av i sin egen transaksjon, fordi
+ * radsikkerheten også gjelder eieren og ellers ville skjult en spørring som ikke
+ * avgrenser til prosjektet. Skriveren lar policyen stå på og setter aktøren i hver
+ * rad i sesjonskonteksten, så blokkpredikatene prøves også, unntatt i det andre
+ * prosjektet (`iAnnetProsjekt`). En `ALTER SECURITY POLICY` får basen til å kompilere
+ * planene mot journalen på nytt, og i hver skriving ga det om lag 0,7 s per rad
+ * (oppdragsgiver 21.10, #1112).
  */
 
 import { randomUUID } from 'node:crypto';
@@ -74,10 +79,58 @@ function teamene(prosjekt: Testprosjekt): Map<string, string> {
 const omTeam = (team: string | null, teamene: Map<string, string>) =>
   team === null ? null : (teamene.get(team) ?? team);
 
+/**
+ * I det andre prosjektet er aktørene kjøreren skriver, ikke medlemmer, og
+ * blokkpredikatet ville avvist radene. Der skriver testskriveren som eieren med
+ * policyen av, som `somEier`.
+ */
+const iAnnetProsjekt = (o: Oppsett) => o.prosjekt.id === o.annetProsjekt.id;
+
+type Aktoer = Pick<Journalrad, 'aktor_id' | 'aktor_rolle' | 'aktor_team_id'>;
+
+/**
+ * `arbeid` i én transaksjon med `rad`s aktør i sesjonskonteksten, eller som eieren i
+ * det andre prosjektet. `aktoer` setter konteksten for neste rad i samme transaksjon,
+ * når aktøren er en annen enn i konteksten.
+ */
+function somAktoer<T>(
+  o: Oppsett,
+  rad: Aktoer,
+  arbeid: (r: Foresp, aktoer: (rad: Aktoer) => Promise<void>) => Promise<T>
+): Promise<T> {
+  if (iAnnetProsjekt(o)) return somEier(o, (r) => arbeid(r, async () => {}));
+  const lagret = teamene(o.prosjekt);
+  let gjeldende = rad;
+  const samme = (a: Aktoer, b: Aktoer) =>
+    a.aktor_id === b.aktor_id &&
+    a.aktor_rolle === b.aktor_rolle &&
+    a.aktor_team_id === b.aktor_team_id;
+  return iTransaksjon(
+    o.datalag.base.pool,
+    {
+      aktor: rad.aktor_id,
+      prosjekt: o.prosjekt.id,
+      side: rad.aktor_rolle,
+      team: omTeam(rad.aktor_team_id, lagret),
+    },
+    (r) =>
+      arbeid(r, async (neste) => {
+        if (samme(neste, gjeldende)) return;
+        gjeldende = neste;
+        await r()
+          .input('aktor', sql.NVarChar(4000), neste.aktor_id)
+          .input('side', sql.NVarChar(4000), neste.aktor_rolle)
+          .input('team', sql.NVarChar(4000), omTeam(neste.aktor_team_id, lagret)).batch(`
+            EXEC sp_set_session_context N'koe_aktor', @aktor;
+            EXEC sp_set_session_context N'koe_side', @side;
+            EXEC sp_set_session_context N'koe_team', @team;`);
+      })
+  );
+}
+
 /** Journalen i saken slik kjøretiden leser den, med et medlem av prosjektet i konteksten. */
 export async function journalen(o: Oppsett, sakId: string): Promise<Journalrad[]> {
-  const [medlem, prosjekt] =
-    o.prosjekt.id === o.annetProsjekt.id ? [o.utenfor, o.annetProsjekt] : [o.te, o.prosjekt];
+  const [medlem, prosjekt] = iAnnetProsjekt(o) ? [o.utenfor, o.annetProsjekt] : [o.te, o.prosjekt];
   const kontekst = {
     aktor: medlem.id,
     prosjekt: prosjekt.id,
@@ -113,7 +166,7 @@ export async function skrivRader(
   const sakId = rader[0].sak_id;
   if (rader.some((h) => h.sak_id !== sakId)) throw new Error('Alle radene må gjelde samme sak');
   try {
-    await somEier(o, async (r) => {
+    await somAktoer(o, rader[0], async (r, aktoer) => {
       const sak = await r()
         .input('sak_id', sql.NVarChar(36), sakId)
         .query<{ prosjekt_id: string; versjon: number }>(
@@ -128,7 +181,8 @@ export async function skrivRader(
       if (funnet.versjon !== forventet) throw new Versjonskonflikt(forventet, funnet.versjon);
       const skriving = randomUUID();
       const lagret = teamene(o.prosjekt);
-      for (const [i, h] of rader.entries())
+      for (const [i, h] of rader.entries()) {
+        await aktoer(h);
         await r()
           .input('event_id', sql.NVarChar(36), h.event_id)
           .input('sak_id', sql.NVarChar(36), sakId)
@@ -151,6 +205,7 @@ export async function skrivRader(
                      @aktor_id, @aktor_rolle, @aktor_team_id, @refererer_til_event_id,
                      @format, @data, CURRENT_TRANSACTION_ID(), @skriving)`
           );
+      }
       await kroker.foerCommit?.(r);
     });
   } catch (feil) {
@@ -168,7 +223,7 @@ export async function skrivRader(
 /** En ny sak i prosjektet i `o`, uten rader. */
 export async function nySak(o: Oppsett): Promise<string> {
   const sakId = randomUUID();
-  await somEier(o, (r) =>
+  await somAktoer(o, { aktor_id: o.te.id, aktor_rolle: 'TE', aktor_team_id: 'team-te' }, (r) =>
     r()
       .input('sak_id', sql.NVarChar(36), sakId)
       .input('prosjekt_id', sql.NVarChar(100), o.prosjekt.id)
