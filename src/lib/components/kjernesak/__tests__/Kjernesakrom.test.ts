@@ -274,7 +274,7 @@ describe('TS-saken i Kontrollrommet', () => {
         ansvar: ['Trekk', 'Send ny versjon av grunnlaget'],
         vederlag: [
           'Trekk',
-          harVederlagskrav ? 'Send ny versjon av kravet' : 'Send krav om vederlagsjustering',
+          harVederlagskrav ? 'Send ny versjon av kravet' : 'Send varsel eller krav',
         ],
         frist: ['Trekk', 'Send varsel eller krav'],
       };

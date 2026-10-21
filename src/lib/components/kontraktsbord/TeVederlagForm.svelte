@@ -20,13 +20,18 @@
   } from '$lib/constants/paymentMethods';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
-  // TS-saken (#718): bare tilbud, uten varsler, særskilte krav, vedlegg og utkast (OV-U1),
-  // og begrunnelsen er valgfri (#667). Kravversjonen kommer fra utledningen (krav E).
+  // TS-saken (#718): bare tilbud, uten særskilte krav, vedlegg og utkast (OV-U1), og
+  // begrunnelsen er valgfri (#667). Varselet etter § 34.1.2 sendes uten beløp og fritekst,
+  // eller registreres med datoen og brevet når det er sendt utenfor appen (OV-U5, #1096).
+  // Kravversjonen kommer fra utledningen (krav E).
   const kjernesak = store.erKjernesak ? store : null;
   import {
     metodeKanSendesTilKjernen,
+    varseletKrevesIkke,
     type Vederlagsskjemadata,
   } from '$lib/kjernesak/vederlagskrav';
+  import type { Kjernevedlegg } from '$lib/api/kjerne';
+  import { dagensDato, varselhindring } from '$lib/kjernesak/skjemadata';
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import { fmt } from './utils.js';
@@ -35,20 +40,62 @@
   import NumberField from './components/NumberField.svelte';
   import ReasoningEditor from './components/ReasoningEditor.svelte';
   import SegmentedControl from './components/SegmentedControl.svelte';
+  import SendtVarsel from './components/SendtVarsel.svelte';
 
   let {
     onsend,
     onactions,
   }: {
     onsend: () => void;
-    onactions?: (a: { canSend: boolean; sendLabel?: string; send: () => void }) => void;
+    onactions?: (a: {
+      canSend: boolean;
+      sendLabel?: string;
+      send: () => void;
+      utenBrev?: boolean;
+    }) => void;
   } = $props();
 
-  let mode = $state<'varsel' | 'spesifisert'>(
-    kjernesak || store.sak.vederlag.varsler?.length || store.sak.vederlag.metode
-      ? 'spesifisert'
-      : 'varsel'
+  // Kjernen tilbyr valgene. Kravet er startvalget når kjernen tilbyr det, som før varselet
+  // fantes på TS-stien.
+  const tilbudteValg = () =>
+    kjernesak
+      ? [
+          ...(kjernesak.tilbyrTe('sende_varsel:vederlag') ? (['varsel'] as const) : []),
+          ...(kjernesak.tilbyrTe('krav:vederlag') ? (['spesifisert'] as const) : []),
+          ...(kjernesak.tilbyrTe('varsle:vederlag') ? (['registrert'] as const) : []),
+        ]
+      : null;
+  const kjernevalg = $derived(tilbudteValg());
+  const startvalg = tilbudteValg();
+  let mode = $state<'varsel' | 'spesifisert' | 'registrert'>(
+    startvalg
+      ? startvalg.includes('spesifisert')
+        ? 'spesifisert'
+        : (startvalg[0] ?? 'spesifisert')
+      : store.sak.vederlag.varsler?.length || store.sak.vederlag.metode
+        ? 'spesifisert'
+        : 'varsel'
   );
+  const registrerer = $derived(mode === 'registrert');
+  let varselSendt = $state('');
+  let registrerteVedlegg = $state<Kjernevedlegg[]>([]);
+  let vedleggOpptatt = $state(false);
+  const varselet = $derived({ sendt: varselSendt, vedlegg: registrerteVedlegg });
+  // OV-U15: der TE krever endring, kreves det ikke noe varsel, men det kan sendes.
+  const krevesIkke = $derived(
+    kjernesak
+      ? varseletKrevesIkke(
+          kjernesak.kjernesak.utledning?.spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori as
+            | string
+            | undefined
+        )
+      : false
+  );
+  const VALGNAVN = {
+    varsel: 'Varsel',
+    spesifisert: 'Spesifisert krav',
+    registrert: 'Varsel sendt utenfor appen',
+  };
   let varsler = $state<VarselValg>({});
   // Varsel om vederlag uten beløp har ingen kommando i kjernen ennå.
   const noticeData = $derived(
@@ -118,49 +165,60 @@
   );
 
   const kanSende = $derived(
-    mode === 'varsel'
-      ? Object.keys(noticeData).length > 0
-      : kjernesak
-        ? metodeKanSendesTilKjernen(metode) && (belopDirekte ?? 0) > 0
+    kjernesak
+      ? mode === 'varsel' ||
+          (registrerer && varselhindring(varselet, dagensDato()) === null) ||
+          (mode === 'spesifisert' && metodeKanSendesTilKjernen(metode) && (belopDirekte ?? 0) > 0)
+      : mode === 'varsel'
+        ? Object.keys(noticeData).length > 0
         : mappedState !== null && beregnCanSubmit(mappedState) && charCount >= 10
   );
+  const kjernedata = (): Vederlagsskjemadata =>
+    registrerer
+      ? { registrert: varselet }
+      : mode === 'varsel'
+        ? { varsel_type: 'varsel' }
+        : { metode, belop_direkte: belopDirekte, begrunnelse };
 
   $effect(() => {
     onactions?.({
-      canSend: kanSende && !submission.pending,
-      sendLabel: mode === 'varsel' ? 'Send varsel' : 'Send spesifisert krav',
+      canSend: kanSende && !submission.pending && !vedleggOpptatt,
+      utenBrev: registrerer,
+      sendLabel: registrerer
+        ? 'Registrer varselet'
+        : mode === 'varsel'
+          ? 'Send varsel'
+          : 'Send spesifisert krav',
       send: () => {
+        if (vedleggOpptatt) return;
         if (kanSende)
           void submission.run(async () => {
             if (claimReview) {
-              const data =
-                mode === 'varsel'
+              const data = kjernesak
+                ? kjernedata()
+                : mode === 'varsel'
                   ? {
                       varsel_type: 'varsel',
                       varsler: noticeData,
                       begrunnelse: Object.values(noticeData).join('\n\n'),
                     }
-                  : kjernesak
-                    ? ({
-                        metode,
-                        belop_direkte: belopDirekte,
-                        begrunnelse,
-                      } satisfies Vederlagsskjemadata)
-                    : buildEventData(mappedState!, {
-                        scenario,
-                        grunnlagEventId:
-                          submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
-                        originalEventId:
-                          scenario === 'edit'
-                            ? submissionRefs(store.timeline, 'vederlag').claimId
-                            : undefined,
-                      });
+                  : buildEventData(mappedState!, {
+                      scenario,
+                      grunnlagEventId:
+                        submissionRefs(store.timeline, 'grunnlag').claimId ?? 'demo-grunnlag',
+                      originalEventId:
+                        scenario === 'edit'
+                          ? submissionRefs(store.timeline, 'vederlag').claimId
+                          : undefined,
+                    });
               await claimReview.submit(
                 'vederlag',
-                mode === 'varsel' || (kjernesak && scenario === 'new')
-                  ? 'vederlag_krav_sendt'
-                  : kjernesak
-                    ? 'vederlag_krav_oppdatert'
+                kjernesak
+                  ? scenario === 'new'
+                    ? 'vederlag_krav_sendt'
+                    : 'vederlag_krav_oppdatert'
+                  : mode === 'varsel'
+                    ? 'vederlag_krav_sendt'
                     : (getEventType({ scenario }) as EventType),
                 data,
                 (demo) => {
@@ -191,12 +249,24 @@
 
   <FormPageHeader
     title="Krav om vederlagsjustering"
-    intro={kjernesak
-      ? 'Oppgi den faste prisen du tilbyr for endringen.'
-      : 'Varsle kravet nå, eller spesifiser det når beregningsgrunnlaget foreligger.'}
+    intro={registrerer
+      ? 'Registrer et varsel etter § 34.1.2 som er sendt utenfor appen.'
+      : kjernesak && mode === 'spesifisert'
+        ? 'Oppgi den faste prisen du tilbyr for endringen.'
+        : 'Varsle kravet nå, eller spesifiser det når beregningsgrunnlaget foreligger.'}
   />
 
-  {#if !kjernesak}
+  {#if kjernevalg && kjernevalg.length > 1}
+    <FormSection title="Innsending" paragrafRef="§ 34.1.2">
+      <p class="submission-question">Hva vil du sende?</p>
+      <SegmentedControl
+        label="Hva vil du sende?"
+        value={mode}
+        options={kjernevalg.map((value) => ({ value, label: VALGNAVN[value] }))}
+        onchange={(value) => (mode = value as typeof mode)}
+      />
+    </FormSection>
+  {:else if !kjernesak}
     <FormSection title="Innsending">
       <p class="submission-question">Hva vil du sende?</p>
       <SegmentedControl
@@ -213,7 +283,42 @@
       </p>
     </FormSection>
   {/if}
-  {#if mode === 'varsel'}
+  {#if kjernesak && mode !== 'spesifisert'}
+    {#if mode === 'varsel'}
+      <FormSection title="Varsel om vederlagsjustering" paragrafRef="§ 34.1.2">
+        <p class="helptext">
+          Varselet etter § 34.1.2 sendes med dagens dato, uten beløp og uten fritekst. Beløpet
+          kreves senere i et spesifisert krav.
+        </p>
+      </FormSection>
+    {:else}
+      <SendtVarsel
+        id="te-vederlag-varsel"
+        paragrafRef="§ 34.1.2"
+        hjelpetekst="Registrer et varsel etter § 34.1.2 som er sendt utenfor appen, med datoen det ble sendt og brevet som vedlegg. Appen lager ikke noe brev, og datoen kan ikke endres etterpå."
+        lastOpp={kjernesak.kjernesak.lastOppVedlegg}
+        bind:sendt={varselSendt}
+        bind:vedlegg={registrerteVedlegg}
+        bind:opptatt={vedleggOpptatt}
+      />
+    {/if}
+    {#if krevesIkke}
+      <p class="helptext" role="note">
+        TE krever endring, og da kreves det ikke varsel etter § 34.1.2 (§ 34.1.1). Varselet
+        registreres og vises, men appen utleder ingen virkning av det.
+      </p>
+    {/if}
+    {#if kanSende}
+      <div class="status-box">
+        <span class="status-label">Klar til sending</span>
+        <div class="font-mono status-text">
+          {registrerer
+            ? 'Registrerer varselet sendt utenfor appen'
+            : 'Sender varsel om vederlagsjustering'}
+        </div>
+      </div>
+    {/if}
+  {:else if mode === 'varsel'}
     <KonsekvensVarsler
       bind:value={varsler}
       hovedkategori={store.sak.grunnlag.hovedkategori ?? ''}

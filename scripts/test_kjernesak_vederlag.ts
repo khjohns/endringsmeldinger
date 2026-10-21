@@ -1,5 +1,6 @@
 /**
  * Vederlagskravet fra Kontrollrommet for en TS-sak i Chromium (#667, #718), med skjermbilder.
+ * Med `--varsel` sender TE først varselet etter § 34.1.2 fra appen (#1096).
  * API-et svares av skriptet: journalen skrives med kjernen (`forhaandsvis`), og
  * GET svarer med `part: "TE"`. Det prøver altså frontenden, ikke TS-serveren;
  * serveren prøves i `sprakprove/skrivesti/vederlagskrav.test.ts`.
@@ -7,10 +8,10 @@
  * Med `vite dev` kjørende:
  *
  *   npx vite dev --port 5174 --strictPort
- *   node scripts/test_kjernesak_vederlag.ts [--url http://localhost:5174] [--utdata /tmp/kjernesak-skjermbilder]
+ *   node scripts/test_kjernesak_vederlag.ts [--url http://localhost:5174] [--utdata /tmp/kjernesak-skjermbilder] [--varsel]
  *
  * Feiler ved JavaScript-feil i siden, eller når knappen står igjen etter sendingen.
- * Kommandoen nettleseren sendte, skrives til `kommando.json` i utdatamappa.
+ * Kommandoen nettleseren sendte sist, skrives til `kommando.json` i utdatamappa.
  */
 
 import { createRequire } from 'node:module';
@@ -26,6 +27,7 @@ const { values } = parseArgs({
   options: {
     url: { type: 'string', default: 'http://localhost:5174' },
     utdata: { type: 'string', default: '/tmp/kjernesak-skjermbilder' },
+    varsel: { type: 'boolean', default: false },
   },
 });
 const UT = values.utdata!;
@@ -144,7 +146,9 @@ await side.route(
   }
 );
 
-const knapp = side.getByRole('button', { name: 'Send krav om vederlagsjustering' });
+const knapp = side.getByRole('button', {
+  name: values.varsel ? 'Send varsel eller krav' : /^Send (varsel eller krav|krav om vederlagsjustering)$/,
+});
 await side.goto(`${values.url}/p-1/${SAK}`);
 const sporene = side.getByRole('navigation', { name: 'Sakens spor' });
 await sporene.waitFor({ timeout: 60_000 });
@@ -152,7 +156,18 @@ await side.screenshot({ path: join(UT, '1-grunnlag.png'), fullPage: true });
 await sporene.getByRole('button', { name: /Vederlag/ }).click();
 await knapp.waitFor();
 await side.screenshot({ path: join(UT, '2-vederlag.png'), fullPage: true });
-await knapp.click();
+if (values.varsel) {
+  await knapp.click();
+  await side.getByRole('radio', { name: 'Varsel', exact: true }).click();
+  await side.screenshot({ path: join(UT, '2a-varsel.png'), fullPage: true });
+  await side.getByRole('button', { name: 'Se brev og send' }).click();
+  await side.getByRole('region', { name: 'Brevkontroll' }).waitFor();
+  await side.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }).check();
+  await side.screenshot({ path: join(UT, '2b-varselbrev.png'), fullPage: true });
+  await side.getByRole('button', { name: 'Send til byggherren' }).click();
+  await side.getByRole('button', { name: 'Send krav om vederlagsjustering' }).waitFor();
+  await side.getByRole('button', { name: 'Send krav om vederlagsjustering' }).click();
+} else await knapp.click();
 await side.getByLabel('Fast pris').fill('250000');
 await side.locator('.tiptap').click();
 await side.keyboard.type('Tilbudet omfatter peling, rigging og nedrigging av pelemaskin.');
@@ -165,7 +180,7 @@ await side.getByRole('button', { name: 'Send til byggherren' }).click();
 await sporene.getByRole('button', { name: /Krevd: 250/ }).waitFor();
 await side.screenshot({ path: join(UT, '5-sendt.png'), fullPage: true });
 await side.getByRole('button', { name: 'Historikk' }).click();
-await side.getByTestId('journal-3').waitFor();
+await side.getByTestId(`journal-${values.varsel ? 4 : 3}`).waitFor();
 await side.screenshot({ path: join(UT, '6-historikk.png'), fullPage: true });
 if (await knapp.count()) feil.push('Knappen for vederlagskravet står igjen etter sendingen.');
 await nettleser.close();

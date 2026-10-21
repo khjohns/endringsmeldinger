@@ -2,7 +2,7 @@
  * Grunnlagskravet og vederlagskravet fra skjemaene mot dagens TS-server (#667).
  * Kommandoene bygges av `grunnlagskrav` og `vederlagskrav` i klienten, og den
  * låste teksten er den `brevFor` gir, slik skjemaene gjør. Vederlagskravet fra
- * `TeVederlagForm` bygges av `buildEventData` og `vederlagskravFraSkjema` (#718). Saken er en prøvesak fra
+ * `TeVederlagForm` bygges av `buildEventData` og `vederlagskommandoFraSkjema` (#718). Saken er en prøvesak fra
  * testverktøyet. Kildene til forventningene er formatet i kjernen (bare tilbud i
  * prøven, OV-U1), avgjørelsen om valgfri utdypning (oppdragsgiver 17.10, #667)
  * og LV-U2.
@@ -21,7 +21,10 @@ import {
   type Oppsett,
 } from '../../server/tester/testbase.ts';
 import { grunnlagskrav } from '../../src/lib/kjernesak/grunnlagskrav.ts';
-import { vederlagskrav, vederlagskravFraSkjema } from '../../src/lib/kjernesak/vederlagskrav.ts';
+import {
+  vederlagskrav,
+  vederlagskommandoFraSkjema,
+} from '../../src/lib/kjernesak/vederlagskrav.ts';
 import { brevFor } from '../../src/lib/kjernesak/brevtekst.ts';
 import { somJournal } from '../../src/lib/kjernesak/journal.ts';
 import { buildEventData, getDefaults } from '../../src/lib/domain/vederlagSubmissionDomain.ts';
@@ -137,7 +140,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet fra saksbildet mot TS-serveren',
       ),
       vedlegg_ids: [],
     };
-    const kommando = vederlagskravFraSkjema(data);
+    const kommando = vederlagskommandoFraSkjema(data);
     expect(kommando).toEqual({
       type: 'krav',
       spor: 'vederlag',

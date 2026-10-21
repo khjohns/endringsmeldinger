@@ -28,37 +28,20 @@
   const kjernesak = store.erKjernesak ? store : null;
   import { letterText } from '$lib/approval/letter';
   import type { Kjernevedlegg } from '$lib/api/kjerne';
-  import {
-    dagensDato,
-    fristoppsummering,
-    varselhindring,
-    type Fristskjemadata,
-  } from '$lib/kjernesak/fristkrav';
+  import { fristoppsummering, type Fristskjemadata } from '$lib/kjernesak/fristkrav';
+  import { dagensDato, varselhindring } from '$lib/kjernesak/skjemadata';
   // Kjernen tilbyr registreringen så lenge sporet ikke har et varsel (VARSEL_REGISTRERT).
   const kanRegistrere = $derived(kjernesak?.tilbyrTe('varsle:frist') ?? false);
   let varselSendt = $state('');
   // Det spesifiserte kravet oppgir varselet TE sendte utenfor appen (OV-U5).
   let oppgirVarsel = $state(false);
   let registrerteVedlegg = $state<Kjernevedlegg[]>([]);
-  let opplastingsfeil = $state<string | null>(null);
-  async function lastOppTilKjernen(filer: FileList | null) {
-    if (!filer?.length || !kjernesak) return;
-    vedleggOpptatt = true;
-    opplastingsfeil = null;
-    try {
-      for (const fil of Array.from(filer))
-        registrerteVedlegg = [...registrerteVedlegg, await kjernesak.kjernesak.lastOppVedlegg(fil)];
-    } catch (e) {
-      opplastingsfeil = e instanceof Error ? e.message : 'Filen ble ikke lastet opp.';
-    } finally {
-      vedleggOpptatt = false;
-    }
-  }
   import { getClaimReview } from '$lib/approval/claimReview.svelte';
   const claimReview = getClaimReview();
   import FormPageHeader from './components/FormPageHeader.svelte';
   import FormSection from './components/FormSection.svelte';
   import NumberField from './components/NumberField.svelte';
+  import SendtVarsel from './components/SendtVarsel.svelte';
   import ReasoningEditor from './components/ReasoningEditor.svelte';
   import SegmentedControl from './components/SegmentedControl.svelte';
 
@@ -334,56 +317,18 @@
     </FormSection>
   {/if}
 
-  {#if visVarselet}
-    <FormSection title="Varselet som er sendt" paragrafRef="§ 33.4">
-      {#if !registrerer}
-        <p class="helptext">
-          Kravet oppgir datoen varselet ble sendt, og brevet med varselet legges ved. Datoen kan
-          ikke endres etterpå.
-        </p>
-      {/if}
-      <label class="field-label" for="te-frist-varsel-sendt">Datoen varselet ble sendt</label>
-      <input
-        id="te-frist-varsel-sendt"
-        class="field-input"
-        type="date"
-        max={dagensDato()}
-        bind:value={varselSendt}
-      />
-      {#if varselSendt && hindring}
-        <p class="helptext" role="status">{hindring}</p>
-      {/if}
-      <label class="field-label" for="te-frist-varsel-brev">Brevet med varselet</label>
-      <input
-        id="te-frist-varsel-brev"
-        type="file"
-        multiple
-        disabled={vedleggOpptatt}
-        onchange={(e) => {
-          const felt = e.currentTarget;
-          void lastOppTilKjernen(felt.files).then(() => (felt.value = ''));
-        }}
-      />
-      {#if vedleggOpptatt}<p class="helptext" role="status">Laster opp …</p>{/if}
-      {#if opplastingsfeil}<p role="alert">{opplastingsfeil}</p>{/if}
-      {#if registrerteVedlegg.length}
-        <ul class="vedleggsliste">
-          {#each registrerteVedlegg as v (v.vedlegg_id)}
-            <li>
-              {v.filnavn}
-              <button
-                type="button"
-                class="btn btn-secondary"
-                onclick={() => (registrerteVedlegg = registrerteVedlegg.filter((x) => x !== v))}
-                >Fjern</button
-              >
-            </li>
-          {/each}
-        </ul>
-      {:else if !varselSendt}
-        <p class="helptext">Brevet som ble sendt, må ligge ved.</p>
-      {/if}
-    </FormSection>
+  {#if visVarselet && kjernesak}
+    <SendtVarsel
+      id="te-frist-varsel"
+      paragrafRef="§ 33.4"
+      hjelpetekst={registrerer
+        ? undefined
+        : 'Kravet oppgir datoen varselet ble sendt, og brevet med varselet legges ved. Datoen kan ikke endres etterpå.'}
+      lastOpp={kjernesak.kjernesak.lastOppVedlegg}
+      bind:sendt={varselSendt}
+      bind:vedlegg={registrerteVedlegg}
+      bind:opptatt={vedleggOpptatt}
+    />
   {/if}
   {#if visKravet}
     {#if varselType === 'spesifisert'}
@@ -437,33 +382,6 @@
     align-items: center;
     font-size: 13px;
     margin-top: 8px;
-  }
-  .field-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    margin: 12px 0 6px;
-  }
-  .field-input {
-    padding: 6px 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--surface);
-    color: var(--ink);
-  }
-  .vedleggsliste {
-    list-style: none;
-    padding: 0;
-    margin: 8px 0 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .vedleggsliste li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
   }
   .prior-notice {
     margin-bottom: 24px;

@@ -16,7 +16,7 @@ import { brevhindring, type Kjernesakkontekst } from './kontekst.svelte';
 import { fristkommandoFraSkjema, type Fristskjemadata } from './fristkrav';
 import { grunnlagsversjonFraSkjema } from './grunnlagskrav';
 import { vedleggsoppslag } from './skjemadata';
-import { vederlagskravFraSkjema, type Vederlagsskjemadata } from './vederlagskrav';
+import { vederlagskommandoFraSkjema, type Vederlagsskjemadata } from './vederlagskrav';
 
 export interface Kjernebrev {
   tittel: string;
@@ -48,8 +48,16 @@ function kommandoFraSkjema(
   type: EventType,
   data: object
 ): { kommando: Kommando; vedlegg?: Vedleggsoppslag } {
-  if (spor === 'vederlag' && (type === 'vederlag_krav_sendt' || type === 'vederlag_krav_oppdatert'))
-    return { kommando: vederlagskravFraSkjema(data as Vederlagsskjemadata) };
+  if (
+    spor === 'vederlag' &&
+    (type === 'vederlag_krav_sendt' || type === 'vederlag_krav_oppdatert')
+  ) {
+    const d = data as Vederlagsskjemadata;
+    return {
+      kommando: vederlagskommandoFraSkjema(d),
+      vedlegg: vedleggsoppslag(d.registrert?.vedlegg ?? []),
+    };
+  }
   if (spor === 'frist' && type.startsWith('frist_krav_')) {
     const d = data as Fristskjemadata;
     return {

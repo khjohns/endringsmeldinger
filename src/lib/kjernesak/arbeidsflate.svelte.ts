@@ -103,18 +103,18 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
       const spor = SPOR_FOR[nokkel];
       const krav = tilbyrTe(`krav:${spor}`);
       const varsel =
-        spor === 'frist' && (tilbyrTe('sende_varsel:frist') || tilbyrTe('varsle:frist'));
+        spor !== 'grunnlag' && (tilbyrTe(`sende_varsel:${spor}`) || tilbyrTe(`varsle:${spor}`));
       if (!krav && !varsel) return null;
       if (krav && kravversjon(projeksjon.utledning, nokkel) > 0)
         return spor === 'grunnlag' ? 'Send ny versjon av grunnlaget' : 'Send ny versjon av kravet';
-      if (spor === 'vederlag') return 'Send krav om vederlagsjustering';
-      if (spor === 'frist')
-        return varsel && krav
-          ? 'Send varsel eller krav'
-          : krav
+      if (spor === 'grunnlag') return null;
+      return varsel && krav
+        ? 'Send varsel eller krav'
+        : krav
+          ? spor === 'frist'
             ? 'Send krav om fristforlengelse'
-            : 'Registrer varsel';
-      return null;
+            : 'Send krav om vederlagsjustering'
+          : 'Registrer varsel';
     },
     /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */
     godtar(nokkel: SporKey): string | null {
