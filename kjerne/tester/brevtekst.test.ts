@@ -2744,6 +2744,18 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     ).toBe('UGYLDIG_VURDERING');
   });
 
+  it('VS-U29, HF-U4: et standpunkt om kravet som svarer på en annen forespørsel, gir ikke opp innsigelsen mot begrunnelsen', () => {
+    // VS-U30 stanser en ny forespørsel etter begrunnelsen, men to kan være sendt før den.
+    const { s, f } = medForesporsel();
+    s.send('BH', foresporsel);
+    const b = id(s.send('TE', { type: 'foresporselssvar', gjelder: f, utdypning: begrunnelseB }));
+    s.send('BH', { type: 'innsigelse', gjelder: b });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(s, { ...FRIST_FULLT[0], foresporsel_svar_ok: true }, FRIST_FULLT[1]);
+    expect(laast(rad)[0]).not.toContain('gir opp innsigelsen');
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBeNull();
+  });
+
   it('VS-U30: etter TEs begrunnelse avvises en ny forespørsel fra appen', () => {
     const { s } = medForesporsel();
     expect(s.avvist('BH', foresporsel), 'kontrollsak: før begrunnelsen').toBeNull();

@@ -2811,6 +2811,15 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['VS-U29, VS-U11: etter en innsigelse mot begrunnelsen må svaret'],
   },
   {
+    id: 'F326',
+    feilklasse: 'innsigelsen etter § 33.6.2 gis opp av et standpunkt om noe annet (HF-U4)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ["(p.hjemmel !== '33.6.2' || i.gjelder === p.gjelder)", "(p.hjemmel !== '33.6.2' || true)"],
+    ],
+    mal: ['VS-U29, HF-U4: et standpunkt om kravet som svarer på en annen forespørsel'],
+  },
+  {
     id: 'F327',
     feilklasse: 'beslutningslinjen viser bare den første preklusjonen i fristsvaret',
     fil: `${K}/frosset/standpunkt.ts`,
