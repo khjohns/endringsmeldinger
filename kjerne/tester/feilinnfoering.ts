@@ -2771,7 +2771,15 @@ function testnavn(): Test[] {
     const ut = join(mappe, 'navn.json');
     const r = spawnSync(
       'npx',
-      ['vitest', 'list', 'kjerne/', 'sprakprove/kjernelagring/', `--json=${ut}`],
+      [
+        'vitest',
+        'list',
+        'kjerne/',
+        'sprakprove/kjernelagring/',
+        // vitest 5 leser filene statisk og ser ikke testene hjelpefunksjonene registrerer.
+        '--staticParse=false',
+        `--json=${ut}`,
+      ],
       {
         encoding: 'utf8',
         maxBuffer: 64 * 1024 * 1024,
