@@ -777,16 +777,22 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
 
   // Kilde: #886, reviewet. Kjøreren sender ID-en som `uniqueidentifier`, så lista gir ID-en
   // til det bundne vedlegget, også når brevet skriver den i en annen form.
-  it('L9: et vedlegg som brevet skriver med klammer og store bokstaver, leveres med ID-en til vedlegget', async () => {
-    const { sakId, vedleggId } = await sakMedRegistrertVarsel();
-    await skrivOmVedleggIOppdraget(sakId, vedleggId, `{${vedleggId.toUpperCase()}}`);
-    expect(await kjoer()).toBe(true);
-    expect((await leveringen(sakId)).map((j) => j.tilstand)).not.toContain('parkert');
-    expect((await vedleggskvitteringene(vedleggId)).map((k) => k.operasjon)).toEqual([
-      'dokument',
-      'dokumentreferanse',
-    ]);
-  });
+  // Omskrivingen slår av policyen, og basen kompilerer planene for leveringen på nytt
+  // etterpå. Alene tar testen om lag 4 s, så standardgrensen på 5 s holder ikke under last (#1112).
+  it(
+    'L9: et vedlegg som brevet skriver med klammer og store bokstaver, leveres med ID-en til vedlegget',
+    { timeout: 30_000 },
+    async () => {
+      const { sakId, vedleggId } = await sakMedRegistrertVarsel();
+      await skrivOmVedleggIOppdraget(sakId, vedleggId, `{${vedleggId.toUpperCase()}}`);
+      expect(await kjoer()).toBe(true);
+      expect((await leveringen(sakId)).map((j) => j.tilstand)).not.toContain('parkert');
+      expect((await vedleggskvitteringene(vedleggId)).map((k) => k.operasjon)).toEqual([
+        'dokument',
+        'dokumentreferanse',
+      ]);
+    }
+  );
 
   // Kilde: #876 r2. Leasetiden gjelder ett steg, ikke hele leveringen med alle vedleggene.
   it('L11: forny_lease forlenger en gyldig lease fra nå, og en utløpt lease fornyes ikke', async () => {
