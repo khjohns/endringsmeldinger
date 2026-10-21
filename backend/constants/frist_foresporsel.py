@@ -1,6 +1,7 @@
 """Den faste teksten i BHs forespørsel om spesifisert fristkrav (§ 33.6.2 første ledd).
 
-Teksten ligger i `frist_foresporsel.json`, som også `fristVarselDomain.ts` leser.
+Teksten ligger i `src/lib/domain/frist_foresporsel.json`, ved siden av `fristVarselDomain.ts`,
+som også leser den (VM-10, #1026).
 """
 
 import html
@@ -8,9 +9,9 @@ import json
 import re
 from pathlib import Path
 
-FAST_TEKST: str = json.loads(
-    (Path(__file__).with_name("frist_foresporsel.json")).read_text(encoding="utf-8")
-)["fast_tekst"]
+_KILDE = Path(__file__).resolve().parents[2] / "src" / "lib" / "domain" / "frist_foresporsel.json"
+
+FAST_TEKST: str = json.loads(_KILDE.read_text(encoding="utf-8"))["fast_tekst"]
 
 
 def _normalisert(tekst: str) -> str:

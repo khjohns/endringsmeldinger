@@ -426,7 +426,7 @@ Feltene i `data`:
 
 ### `frist_foresporsel_sendt`
 
-BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager eller begrunne hvorfor grunnlaget mangler, ellers tapes kravet. En egen handling: den setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering. Forespørselen sendes per brev, så `brev` er påkrevd. Den faste teksten i `backend/constants/frist_foresporsel.json` må stå uendret i både `begrunnelse` og brevets begrunnelse (#173).
+BH ber TE spesifisere fristkravet. TE må da uten ugrunnet opphold angi dager eller begrunne hvorfor grunnlaget mangler, ellers tapes kravet. En egen handling: den setter ikke resultat, gjør ikke sporet avslått og åpner ikke forsering. Forespørselen sendes per brev, så `brev` er påkrevd. Den faste teksten i `src/lib/domain/frist_foresporsel.json` må stå uendret i både `begrunnelse` og brevets begrunnelse (#173).
 
 | | |
 | --- | --- |

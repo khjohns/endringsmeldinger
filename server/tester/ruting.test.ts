@@ -1,9 +1,6 @@
 /**
- * Den lokale rutingen (F0b-8, #662): TS-serveren svarer på innloggingen og
- * `/api/csrf-token` (F0b-5a, #659), kjernen, `GET` av prosjektene (F0b-6, #660) og
- * medlemmene (F-1a, #820). Opprettelsen, endringen og deaktiveringen av
- * prosjektene ligger fortsatt i Python (`backend/routes/project_routes.py`), og
- * ville fått 404 fra TS.
+ * Den lokale rutingen (F0b-8, #662): hele `/api` og webhooken går til TS-serveren
+ * (#1026). TS-serveren gir 404 for en sti den ikke har.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -11,38 +8,28 @@ import { tilTsServeren } from '../ruting.ts';
 
 describe('den lokale rutingen til TS-serveren', () => {
   it.each([
-    ['GET', '/api/auth/catenda/login?return_to=/saker'],
-    ['GET', '/api/auth/catenda/callback?state=x&code=y'],
-    ['GET', '/api/auth/session'],
-    ['POST', '/api/auth/logout'],
-    ['GET', '/api/csrf-token'],
-    ['GET', '/api/projects'],
-    ['GET', '/api/projects?aktive=1'],
-    ['GET', '/api/projects/p1'],
-    ['GET', '/api/kjerne/saker/1'],
-    ['POST', '/api/kjerne/saker/1/kommandoer'],
-    ['GET', '/api/projects/p1/members'],
-    ['PATCH', '/api/projects/p1/members/m1'],
-    ['POST', '/api/projects/p1/members/sync'],
-    ['GET', '/api/projects/p1/saker'],
-    ['POST', '/webhook/catenda/hemmelig'],
-  ])('%s %s går til TS', (metode, url) => {
-    expect(tilTsServeren(metode, url)).toBe(true);
+    '/api/auth/catenda/callback?state=x&code=y',
+    '/api/csrf-token',
+    '/api/projects?aktive=1',
+    '/api/kjerne/saker/1/kommandoer',
+    '/api/projects/p1/members/m1',
+    '/api/projects/p1/saker',
+    '/api/projects/p1/deactivate',
+    '/api/cases/1/state',
+    '/api/forsering/1',
+    '/api/health',
+    '/api/',
+    '/api',
+    '/webhook/catenda',
+    '/webhook/catenda/hemmelig',
+  ])('%s går til TS', (url) => {
+    expect(tilTsServeren(url)).toBe(true);
   });
 
-  it.each([
-    ['POST', '/api/projects'],
-    ['PATCH', '/api/projects/p1'],
-    ['PATCH', '/api/projects/p1/deactivate'],
-    ['GET', '/api/projects/p1/membersx'],
-    ['GET', '/api/projects/p1/sakerx'],
-    ['GET', '/api/projects/p1/saker/'],
-    ['GET', '/api/projects/p1/saker/1'],
-    ['GET', '/api/cases/1/state'],
-    ['GET', '/api/authx'],
-    ['GET', '/api/csrf-token/x'],
-    ['POST', '/webhook/catendax/hemmelig'],
-  ])('%s %s blir i Python', (metode, url) => {
-    expect(tilTsServeren(metode, url)).toBe(false);
-  });
+  it.each(['/apix/saker', '/saker/1?x=/api/', '/webhook/catendax/hemmelig', '/'])(
+    '%s er SPA-en',
+    (url) => {
+      expect(tilTsServeren(url)).toBe(false);
+    }
+  );
 });
