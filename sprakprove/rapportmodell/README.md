@@ -15,7 +15,9 @@ npx vitest run --project=server server/tester/sakslinje.test.ts --reporter=dot
 node sprakprove/rapportmodell/feilproeve.ts
 ```
 
-Kjøringen skriver de syntetiske resultatfilene på nytt; dette er gjentakbare
+Git inneholder prøvekoden, denne rapporten og en lesbar resultatoversikt.
+Fullstendige JSON/CSV-filer, journalgrunnlag og manifester genereres lokalt i
+`resultat/`, som er ignorert av Git. Kjøringen skriver disse filene på nytt; dette er gjentakbare
 prøveutgivelser med faste ID-er og datoer. Innen én kjøring fryses R1 **før F**,
 og alle R1-filene leses og hashkontrolleres igjen etter I.
 Brukt verktøykjede: Node 24.19.0, TypeScript 5.9.3, Vitest 3.2.4 (faktisk
@@ -25,9 +27,9 @@ Prøveprojektor og måleregler heter `prove-1`.
 
 ## Resultat og kilder
 
-[Lesbare tabeller](resultat/tabeller.md) viser samtlige 10 saksversjoner i
+[Lesbare tabeller](tabeller.md) viser samtlige 10 saksversjoner i
 hovedsaken, kontrollsakens 3 versjoner, kilde-ID-er, brevtekst, målinger og
-porteføljeutvikling. [Trinnoversikten](resultat/trinn.json) inneholder de faktiske
+porteføljeutvikling. Trinnoversikten (`resultat/trinn.json`, genereres lokalt) inneholder de faktiske
 kommandoene og event-ID-ene; CSV finnes ved siden av. Alle 13 kommandoer i de to
 sakene og alle 10 i kontrollvarianten ble godtatt. Ingen dokumentrad er
 håndskrevet. Saksopprettelsen bruker `opprettelse`, og prøvebanen stempler
@@ -72,7 +74,7 @@ BHs subsidiære vurdering er atskilt fra enighetens utledede 0 dager.
 Dette følger særlig HF-U9s setning om aksept av preklusjon sammenholdt med
 OV-U5 og KA-U10; det følger ikke av en ny regel i prøveprojektoren.
 
-[Kontrollvarianten](resultat/alternativ.json) kjører hele A–I med ett endret
+Kontrollvarianten (`resultat/alternativ.json`, genereres lokalt) kjører hele A–I med ett endret
 partsvalg ved D: `varsel_i_tide=true` om det første appkjente fristvarselet.
 Alle andre valg, også F, G og H, er de samme. Forventningen etter GR-U7 og
 HF-U9 er da enighet om 10 dager, betinget ved G og virksom ved H. Dette er
@@ -127,28 +129,29 @@ Vi måler ikke vederlagsvarsling med fristvarselet.
 datagrunnlag eller tilstand gir ny rad. Et oppslag ved versjon 6 viser
 fortsatt 7 dager etter at versjon 7 finnes. En tidligere frosset rapport
 beholder også sin daværende åpne kjent-til-grense.
-[Moteksemplet til én enkel rad](resultat/enkel-modell-moteksempel.json)
+Moteksemplet til én enkel rad (`resultat/enkel-modell-moteksempel.json`, genereres lokalt)
 viser at en oppdatert rad med bare start-/sluttversjon enten lekker de
 senere 3 dagene inn ved E, eller utelater hele målingen ved E. Formen har
 ikke bevart det tidligere grunnlaget på 7 dager.
 
 ## Filer, frysing og avstemming
 
-- [R1](resultat/R1/rapport.json), [manifest](resultat/R1/manifest.json) og
-  [grunnlag](resultat/R1/grunnlag.json): hovedsak 6, kontrollsak 3, måledato 26.09.
-- [R2](resultat/R2/rapport.json), [manifest](resultat/R2/manifest.json) og
-  [grunnlag](resultat/R2/grunnlag.json): hovedsak 10, uendret kontrollsak 3, måledato 02.10.
-- Hver rapport har egne CSV-er for `sak`, `brev`, `element`, typede `krav`,
-  `svar`, `standpunkt`, `utsagn`, `opplysning`, `brevavsnitt`,
-  `vedleggsbinding`, `sporhistorikk`, `maalt_forloep`, `maaleregel` og `portefolje`.
-  Eksempel: [krav.csv](resultat/R2/krav.csv), [sporhistorikk.csv](resultat/R2/sporhistorikk.csv).
-- [Utgitt rapport](resultat/utgitt_rapport.json) samler manifestene med
-  filtre, versjoner, kodehasher, måleregler, begrensninger og hasher av resultat
-  og grunnlag. Vedleggets syntetiske UTF-8-innhold og hash er med i R2s grunnlag.
-- [Kontroller](resultat/kontroller.json) viser uendret R1-mappe ved E/I,
-  lik rekonstruksjon av R1 fra samme prefiks og identisk R2/aktuell rekonstruksjon.
-  [Porteføljehistorikk](resultat/portefoljehistorikk.json) bruker historikken,
-  med kontrollsakens faktisk kjente prefiks ved hvert tidspunkt.
+Etter kjøring finnes følgende lokalt i den ignorerte `resultat/`-mappen:
+
+- `R1/`: frosset resultat, manifest og grunnlag for hovedsak 6/kontrollsak 3.
+- `R2/`: tilsvarende for hovedsak 10/uendret kontrollsak 3.
+- Hver rapport har JSON og egne CSV-er for `sak`, `brev`, `element`, `krav`,
+  `svar`, `standpunkt`, `utsagn`, `opplysning`, `brevavsnitt`, `vedleggsbinding`,
+  `sporhistorikk`, `maalt_forloep`, `maaleregel` og `portefolje`.
+- `utgitt_rapport.json`: manifestene med filtre, versjoner, kodehasher,
+  måleregler, begrensninger og hasher av resultat og grunnlag.
+- `kontroller.json`: uendret R1 ved E/I, lik rekonstruksjon fra samme prefiks
+  og identisk R2/aktuell rekonstruksjon.
+- `portefoljehistorikk.json`: utvikling med faktisk kjente prefikser ved hvert tidspunkt.
+
+[Den innsjekkede tabelloversikten](tabeller.md) bevarer lesbare resultater fra
+prøven mot den oppgitte kjernecommiten. Store maskinlesbare eksportfiler og
+rå testlogger inngår ikke i PR-en.
 
 JSON/CSV viser forslag til analytiske felter; sammensatte referanser og
 frosne grunnlag beholdes som JSON-celler i CSV. Nullpolitikken er et uttrykkelig
@@ -158,7 +161,7 @@ Dette er samsvar med samme kjerne, ikke uavhengig juridisk verifikasjon.
 
 Kjørte kontroller: 10 egne tester og 362 tester i de to kjernetestfilene,
 samt 13 eksisterende tester for sakslinje/nøkkeltall: **385 bestått**.
-Typesjekken av prøven er grønn. [To isolerte feilinnføringer](resultat/feilproever.json)
+Typesjekken av prøven er grønn. To isolerte feilinnføringer (`resultat/feilproever.json`, genereres lokalt)
 ble oppdaget ved målassertionene: 450 000 mot forventet 350 000 ved
 dobbelttelling, og 3 mot forventet 7 dager ved historisk datolekkasje.
 Den uendrede kontrollkopiens 10 tester passerer. Domenekoden ble aldri mutert.
