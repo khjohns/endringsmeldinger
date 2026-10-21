@@ -31,12 +31,13 @@ describe('ts-serveren i vite.config.ts', () => {
     for (const krok of [tsServeren?.configureServer, tsServeren?.configurePreviewServer]) {
       expect(krok).toBeTypeOf('function');
       expect(urlEtter(krok, 'GET', '/api/csrf-token')).toBe('/__ts-serveren/api/csrf-token');
-      expect(urlEtter(krok, 'POST', '/api/projects')).toBe('/api/projects');
+      expect(urlEtter(krok, 'POST', '/api/projects')).toBe('/__ts-serveren/api/projects');
+      expect(urlEtter(krok, 'GET', '/P001/saker/1')).toBe('/P001/saker/1');
     }
   });
 
   it('preview har ingen egen proxy, så den bruker server.proxy med prefiksregelen', () => {
     expect(konfig.preview?.proxy).toBeUndefined();
-    expect(Object.keys(konfig.server?.proxy ?? {})).toContain('/__ts-serveren');
+    expect(Object.keys(konfig.server?.proxy ?? {})).toEqual(['/__ts-serveren']);
   });
 });
