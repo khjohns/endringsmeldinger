@@ -1,6 +1,6 @@
 /**
- * Den lokale rutingen (F0b-8, #662): hele `/api` og webhooken går til TS-serveren,
- * også stiene Python hadde (#1026). TS-serveren gir 404 for en sti den ikke har.
+ * Den lokale rutingen (F0b-8, #662): hele `/api` og webhooken går til TS-serveren
+ * (#1026). TS-serveren gir 404 for en sti den ikke har.
  */
 
 import { describe, expect, it } from 'vitest';

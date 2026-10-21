@@ -6,7 +6,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve with nginx, som også ruter /api til TS-serveren (#376, #1026).
+# Trinn 2: nginx serverer SPA-en og ruter /api til TS-serveren (#376, #1026).
 # Bildet setter inn KOE_TS_SERVEREN (vert:port) og navnetjenerne fra
 # /etc/resolv.conf (NGINX_LOCAL_RESOLVERS) i malen ved oppstart.
 FROM nginx:1.27-alpine

@@ -124,7 +124,7 @@ async function stedfortreder(navn: string): Promise<{ server: Server; adresse: s
   return { server, adresse: `127.0.0.1:${(server.address() as AddressInfo).port}` };
 }
 
-/** Stier under `/api` og webhooken, også de TS-serveren ikke har, som før gikk til Flask. */
+/** Stier under `/api` og webhooken, også de TS-serveren ikke har. */
 const STIER: [string, string][] = [
   ['GET', '/api/kjerne/saker/s1'],
   ['POST', '/api/kjerne/saker/s1/kommandoer'],
@@ -242,18 +242,17 @@ describe.skipIf(!DOCKER)('ruteren foran TS-serveren (#376)', () => {
     }
   );
 
-  it('tilgangsloggen har stien uten spørrestrengen, så koden fra OAuth ikke står der (#1082)', async () => {
+  it('tilgangsloggen har stien klienten sendte, uten spørrestrengen, så koden fra OAuth ikke står der (#1082)', async () => {
     await fetch(`${ruter.url}/api/auth/catenda/callback?code=hemmelig-kode&state=s`);
-    for (
-      let forsoek = 0;
-      forsoek < 50 && !ruter.logg().includes('/api/auth/catenda/callback');
-      forsoek++
-    ) {
+    await fetch(`${ruter.url}/P001/saker/123?code=hemmelig-spa`);
+    for (let forsoek = 0; forsoek < 50 && !ruter.logg().includes('/P001/saker/123'); forsoek++) {
       await new Promise((ok) => setTimeout(ok, 100));
     }
     const logg = ruter.logg();
     expect(logg).toContain('"GET /api/auth/catenda/callback HTTP/1.1" 200');
+    expect(logg).toContain('"GET /P001/saker/123 HTTP/1.1" 200');
     expect(logg).not.toContain('hemmelig-kode');
+    expect(logg).not.toContain('hemmelig-spa');
   });
 });
 
