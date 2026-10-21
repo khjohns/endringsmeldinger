@@ -1,12 +1,15 @@
 import { cleanup, fireEvent, render } from '@testing-library/svelte';
 import { afterEach, expect, it } from 'vitest';
-import KonsekvensVarsler from '../KonsekvensVarsler.svelte';
+import KonsekvensVarslerMedBinding from './KonsekvensVarslerMedBinding.svelte';
 import { VARSEL_LABELS } from '$lib/domain/konsekvensVarsler';
 
 afterEach(cleanup);
 
-it('keeps selected compensation notices and explanations visible when changing to force majeure', async () => {
-  const screen = render(KonsekvensVarsler, { hovedkategori: 'ENDRING', tittel: 'Hindring' });
+it('valgte varsler og forklaringer står når hovedkategorien endres til force majeure', async () => {
+  const screen = render(KonsekvensVarslerMedBinding, {
+    hovedkategori: 'ENDRING',
+    tittel: 'Hindring',
+  });
   for (const label of Object.values(VARSEL_LABELS)) {
     await fireEvent.click(screen.getByRole('checkbox', { name: label }));
   }
