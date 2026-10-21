@@ -1,12 +1,11 @@
 /**
  * Projects API
  *
- * Handles CRUD operations for project management.
- * Supports listing, creating, updating, and deactivating projects.
+ * Leser prosjektene brukeren har tilgang til.
  */
 
 import { apiFetch } from './client';
-import type { Project, CreateProjectPayload, UpdateProjectPayload } from '../types/project';
+import type { Project } from '../types/project';
 
 /**
  * List all projects accessible to the current user.
@@ -26,54 +25,6 @@ export async function listProjects(): Promise<Project[]> {
  */
 export async function getProject(projectId: string): Promise<Project> {
   return apiFetch<Project>(`/api/projects/${encodeURIComponent(projectId)}`, {
-    headers: { 'X-Project-ID': projectId },
-  });
-}
-
-/**
- * Create a new project.
- *
- * @param payload - Project creation data (name, optional description)
- * @returns The created project
- */
-export async function createProject(payload: CreateProjectPayload): Promise<Project> {
-  const data = await apiFetch<{ success: boolean; project: Project }>('/api/projects', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-  return data.project;
-}
-
-/**
- * Update an existing project.
- *
- * @param projectId - The project to update
- * @param payload - Fields to update (name, description)
- * @returns The updated project
- */
-export async function updateProject(
-  projectId: string,
-  payload: UpdateProjectPayload
-): Promise<Project> {
-  const data = await apiFetch<{ success: boolean; project: Project }>(
-    `/api/projects/${encodeURIComponent(projectId)}`,
-    {
-      method: 'PATCH',
-      headers: { 'X-Project-ID': projectId },
-      body: JSON.stringify(payload),
-    }
-  );
-  return data.project;
-}
-
-/**
- * Deactivate a project (soft delete).
- *
- * @param projectId - The project to deactivate
- */
-export async function deactivateProject(projectId: string): Promise<void> {
-  await apiFetch(`/api/projects/${encodeURIComponent(projectId)}/deactivate`, {
-    method: 'PATCH',
     headers: { 'X-Project-ID': projectId },
   });
 }

@@ -1,6 +1,5 @@
-import { apiFetch } from './client';
 import type { ApprovalUser } from '$lib/approval/types';
-import type { EOKonsekvenser, SakState, VederlagsMetode } from '$lib/types/timeline';
+import type { EOKonsekvenser, VederlagsMetode } from '$lib/types/timeline';
 
 export interface EOCandidate {
   sak_id: string;
@@ -24,32 +23,6 @@ export interface CreateEORequest {
   er_estimat: boolean;
   frist_dager?: number;
   ny_sluttdato?: string;
-}
-
-export function fetchEOCandidates(projectId: string) {
-  return apiFetch<{ kandidat_saker: EOCandidate[] }>('/api/endringsordre/kandidater', {
-    headers: { 'X-Project-ID': projectId },
-  });
-}
-
-export function fetchNextEONumber(projectId: string) {
-  return apiFetch<{ neste_nummer: string }>('/api/endringsordre/neste-nummer', {
-    headers: { 'X-Project-ID': projectId },
-  });
-}
-
-export function createEndringsordre(projectId: string, payload: CreateEORequest) {
-  return apiFetch<{ success: boolean; sak_id: string; catenda_synced: boolean }>(
-    '/api/endringsordre/opprett',
-    { method: 'POST', headers: { 'X-Project-ID': projectId }, body: JSON.stringify(payload) }
-  );
-}
-
-export function fetchEOContext(projectId: string, sakId: string) {
-  return apiFetch<{ sak_states: Record<string, SakState> }>(
-    `/api/endringsordre/${encodeURIComponent(sakId)}/kontekst`,
-    { headers: { 'X-Project-ID': projectId } }
-  );
 }
 
 export type EOApprovalStatus =
@@ -89,20 +62,3 @@ export type EOApprovalCommand =
   | { action: 'submit'; request: CreateEORequest; previousId?: string }
   | { action: 'approve' | 'withdraw' | 'retry'; packageId: string }
   | { action: 'return'; packageId: string; comment: string };
-
-export function fetchEOApprovals(projectId: string) {
-  return apiFetch<EOApprovalResponse>('/api/endringsordre/godkjenninger', {
-    headers: { 'X-Project-ID': projectId },
-  });
-}
-
-export function sendEOApprovalCommand(
-  projectId: string,
-  command: EOApprovalCommand & { expectedVersion: number; commandId: string }
-) {
-  return apiFetch<EOApprovalResponse>('/api/endringsordre/godkjenninger', {
-    method: 'POST',
-    headers: { 'X-Project-ID': projectId },
-    body: JSON.stringify(command),
-  });
-}

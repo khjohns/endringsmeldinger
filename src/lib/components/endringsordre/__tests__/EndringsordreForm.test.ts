@@ -1,69 +1,58 @@
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import EndringsordreForm from '../EndringsordreForm.svelte';
-import {
-  createEndringsordre,
-  fetchEOApprovals,
-  fetchEOCandidates,
-  fetchNextEONumber,
-  type EOApprovalPackage,
-} from '$lib/api/endringsordre';
+import type { EOApprovalPackage, EOApprovalResponse, EOCandidate } from '$lib/api/endringsordre';
+import { ApiError } from '$lib/api/client';
 import { newEODraft } from '$lib/domain/endringsordre';
 import { setDraftOwner } from '$lib/utils/draftOwner';
 
-vi.mock('$lib/api/endringsordre', async () => {
-  const { ApiError } = await import('$lib/api/client');
-  return {
-    createEndringsordre: vi.fn(),
-    fetchEOCandidates: vi.fn(),
-    fetchNextEONumber: vi.fn(),
-    // Prosjektet har ingen godkjenningspolicy: ordren utstedes direkte.
-    fetchEOApprovals: vi.fn(() =>
-      Promise.reject(new ApiError(403, 'Intern godkjenning er ikke konfigurert for prosjektet.'))
-    ),
-    sendEOApprovalCommand: vi.fn(),
-  };
-});
+const getCandidates = vi.fn<() => EOCandidate[]>();
+const getNextNumber = vi.fn<() => string>();
+const issue = vi.fn();
+// Prosjektet har ingen godkjenningspolicy: ordren utstedes direkte.
+const loadApprovals = vi.fn<() => Promise<EOApprovalResponse>>(() =>
+  Promise.reject(new ApiError(403, 'Intern godkjenning er ikke konfigurert for prosjektet.'))
+);
 vi.mock('$app/environment', () => ({ browser: true }));
 const props = {
   projectId: 'project',
   projectName: 'Skoleprosjekt',
   userId: 'user',
   oncreated: vi.fn(),
+  demo: { getCandidates, getNextNumber, issue },
+  approvalSource: { load: loadApprovals, command: vi.fn() },
 };
 // Lokale utkast er bundet til den innloggede. I appen setter rot-layouten
 // eieren via getSession() før noen side rendres; her rendres komponenten
 // direkte, så eieren må settes for hånd.
-const key = `koe-draft-endringsordre-project:user::${props.userId}`;
+const key = `koe-draft-endringsordre-demo-project:user::${props.userId}`;
 
 beforeEach(() => {
   localStorage.clear();
   setDraftOwner(props.userId);
   vi.clearAllMocks();
-  vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-001' });
-  vi.mocked(fetchEOCandidates).mockResolvedValue({
-    kandidat_saker: [
-      {
-        sak_id: 'KOE-1',
-        tittel: 'Fundament',
-        sum_godkjent: 120000,
-        godkjent_dager: 7,
-        overordnet_status: 'OMFORENT',
-        har_vederlagskrav: true,
-        har_fristkrav: true,
-      },
-      {
-        sak_id: 'KOE-2',
-        tittel: 'Fasade',
-        sum_godkjent: 30000,
-        godkjent_dager: 5,
-        overordnet_status: 'OMFORENT',
-        har_vederlagskrav: true,
-        har_fristkrav: true,
-      },
-    ],
-  });
-  vi.mocked(createEndringsordre).mockResolvedValue({
+  getNextNumber.mockReturnValue('EO-001');
+  getCandidates.mockReturnValue([
+    {
+      sak_id: 'KOE-1',
+      tittel: 'Fundament',
+      sum_godkjent: 120000,
+      godkjent_dager: 7,
+      overordnet_status: 'OMFORENT',
+      har_vederlagskrav: true,
+      har_fristkrav: true,
+    },
+    {
+      sak_id: 'KOE-2',
+      tittel: 'Fasade',
+      sum_godkjent: 30000,
+      godkjent_dager: 5,
+      overordnet_status: 'OMFORENT',
+      har_vederlagskrav: true,
+      har_fristkrav: true,
+    },
+  ]);
+  issue.mockReturnValue({
     success: true,
     sak_id: 'EO-created',
     catenda_synced: false,
@@ -72,15 +61,11 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('utsted endringsordre', () => {
-  it('uses only local demo operations and keeps navigation inside the mockup', async () => {
-    const issue = vi.fn(() => ({ success: true, sak_id: 'demo-order', catenda_synced: false }));
-    const screen = render(EndringsordreForm, {
-      ...props,
-      demo: { getCandidates: () => [], getNextNumber: () => 'EO-demo', issue },
-    });
-    await waitFor(() =>
-      expect(screen.getByLabelText('Endringsordrenummer')).toHaveValue('EO-demo')
-    );
+  it('utsteder uten godkjenningskilde direkte og lenker innenfor mockupen', async () => {
+    getCandidates.mockReturnValue([]);
+    issue.mockReturnValue({ success: true, sak_id: 'demo-order', catenda_synced: false });
+    const screen = render(EndringsordreForm, { ...props, approvalSource: undefined });
+    await waitFor(() => expect(screen.getByLabelText('Endringsordrenummer')).toHaveValue('EO-001'));
     expect(screen.getByRole('link', { name: 'Til saksoversikten' })).toHaveAttribute(
       'href',
       '/mockup/oversikt'
@@ -92,9 +77,6 @@ describe('utsted endringsordre', () => {
     await fireEvent.click(screen.getByRole('checkbox'));
     await fireEvent.click(screen.getByRole('button', { name: 'Utsted endringsordre' }));
     await waitFor(() => expect(issue).toHaveBeenCalledOnce());
-    expect(createEndringsordre).not.toHaveBeenCalled();
-    expect(fetchEOCandidates).not.toHaveBeenCalled();
-    expect(fetchNextEONumber).not.toHaveBeenCalled();
     expect(screen.getByRole('link', { name: 'Åpne utstedt endringsordre' })).toHaveAttribute(
       'href',
       '/mockup/endringsordre/demo-order'
@@ -118,18 +100,16 @@ describe('utsted endringsordre', () => {
     expect(screen.getByLabelText('Tillegg (kr ekskl. mva.)')).toHaveValue(45000);
   });
   it('places a negative KOE agreement in the deduction field', async () => {
-    vi.mocked(fetchEOCandidates).mockResolvedValue({
-      kandidat_saker: [
-        {
-          sak_id: 'KOE-1',
-          tittel: 'Redusert omfang',
-          sum_godkjent: -10000,
-          godkjent_dager: null,
-          overordnet_status: 'OMFORENT',
-          har_vederlagskrav: true,
-        },
-      ],
-    });
+    getCandidates.mockReturnValue([
+      {
+        sak_id: 'KOE-1',
+        tittel: 'Redusert omfang',
+        sum_godkjent: -10000,
+        godkjent_dager: null,
+        overordnet_status: 'OMFORENT',
+        har_vederlagskrav: true,
+      },
+    ]);
     const screen = render(EndringsordreForm, { ...props, initialKoe: 'KOE-1' });
     await screen.findByRole('checkbox', { name: /KOE-1/ });
     expect(screen.getByLabelText('Tillegg (kr ekskl. mva.)')).toHaveValue(0);
@@ -143,18 +123,18 @@ describe('utsted endringsordre', () => {
     });
     await fireEvent.click(screen.getByRole('button', { name: 'Kontroller endringsordre' }));
     expect(screen.getAllByText('Uavklart')).toHaveLength(2);
-    const issue = screen.getByRole('button', { name: 'Utsted endringsordre' });
-    expect(issue).toBeDisabled();
-    expect(createEndringsordre).not.toHaveBeenCalled();
+    const utsted = screen.getByRole('button', { name: 'Utsted endringsordre' });
+    expect(utsted).toBeDisabled();
+    expect(issue).not.toHaveBeenCalled();
     await fireEvent.click(screen.getByRole('checkbox'));
-    await fireEvent.click(issue);
+    await fireEvent.click(utsted);
     await waitFor(() => expect(props.oncreated).toHaveBeenCalledWith('EO-created'));
-    expect(createEndringsordre).toHaveBeenCalledOnce();
-    expect(vi.mocked(createEndringsordre).mock.calls[0]).toMatchObject([
-      'project',
-      { koe_sak_ids: [], konsekvenser: { pris: true, fremdrift: true } },
-    ]);
-    expect(vi.mocked(createEndringsordre).mock.calls[0][1].kompensasjon_belop).toBeUndefined();
+    expect(issue).toHaveBeenCalledOnce();
+    expect(issue.mock.calls[0][0]).toMatchObject({
+      koe_sak_ids: [],
+      konsekvenser: { pris: true, fremdrift: true },
+    });
+    expect(issue.mock.calls[0][0].kompensasjon_belop).toBeUndefined();
     expect(localStorage.getItem(key)).toBeNull();
   });
   it('prefills one KOE, adds another, and requires a separately entered combined deadline', async () => {
@@ -179,15 +159,17 @@ describe('utsted endringsordre', () => {
     expect(screen.getByText('8 dager')).toBeInTheDocument();
     await fireEvent.click(screen.getByRole('checkbox'));
     await fireEvent.click(screen.getByRole('button', { name: 'Utsted endringsordre' }));
-    await waitFor(() => expect(createEndringsordre).toHaveBeenCalledOnce());
-    expect(vi.mocked(createEndringsordre).mock.calls[0][1]).toMatchObject({
+    await waitFor(() => expect(issue).toHaveBeenCalledOnce());
+    expect(issue.mock.calls[0][0]).toMatchObject({
       koe_sak_ids: ['KOE-1', 'KOE-2'],
       kompensasjon_belop: 150000,
       frist_dager: 8,
     });
   });
   it('retains text and source selection after a failure and restores them after remount', async () => {
-    vi.mocked(createEndringsordre).mockRejectedValue(new Error('KOE-saken har blitt endret.'));
+    issue.mockImplementation(() => {
+      throw new Error('KOE-saken har blitt endret.');
+    });
     const screen = render(EndringsordreForm, { ...props, initialKoe: 'KOE-1' });
     await screen.findByRole('checkbox', { name: /KOE-1/ });
     await fireEvent.input(screen.getByLabelText('Beskriv avtalen som formaliseres'), {
@@ -229,7 +211,7 @@ describe('lagret utkast med nummer fra en utstedt endringsordre (#445)', () => {
     );
   }
   function approvalsWith(status: EOApprovalPackage['status']) {
-    vi.mocked(fetchEOApprovals).mockResolvedValueOnce(approvalResponse(status));
+    loadApprovals.mockResolvedValueOnce(approvalResponse(status));
   }
   function approvalResponse(status: EOApprovalPackage['status']) {
     return {
@@ -270,7 +252,7 @@ describe('lagret utkast med nummer fra en utstedt endringsordre (#445)', () => {
   it('forkaster utkastet og starter et tomt utkast med neste nummer og KOE-en fra lenken', async () => {
     storeDraft();
     approvalsWith('utstedt');
-    vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-002' });
+    getNextNumber.mockReturnValue('EO-002');
     const screen = render(EndringsordreForm, { ...props, initialKoe: 'KOE-1' });
     await waitFor(() => expect(screen.getByLabelText('Endringsordrenummer')).toHaveValue('EO-002'));
     expect(await screen.findByRole('checkbox', { name: /KOE-1/ })).toBeChecked();
@@ -282,9 +264,9 @@ describe('lagret utkast med nummer fra en utstedt endringsordre (#445)', () => {
   it('beholder utkastet når ordren med nummeret fortsatt er til godkjenning', async () => {
     storeDraft();
     approvalsWith('til_godkjenning');
-    vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-002' });
+    getNextNumber.mockReturnValue('EO-002');
     const screen = render(EndringsordreForm, props);
-    await waitFor(() => expect(fetchNextEONumber).toHaveBeenCalled());
+    await waitFor(() => expect(getCandidates).toHaveBeenCalled());
     expect(screen.getByLabelText('Endringsordrenummer')).toHaveValue('EO-001');
     expect(screen.getByLabelText('Beskriv endringen som pålegges')).toHaveValue(
       'Ordren som ble utstedt.'
@@ -294,8 +276,8 @@ describe('lagret utkast med nummer fra en utstedt endringsordre (#445)', () => {
   it('viser ikke skjemaet før kontrollen av det lagrede utkastet er ferdig', async () => {
     storeDraft();
     let svar!: (value: ReturnType<typeof approvalResponse>) => void;
-    vi.mocked(fetchEOApprovals).mockReturnValueOnce(new Promise((resolve) => (svar = resolve)));
-    vi.mocked(fetchNextEONumber).mockResolvedValue({ neste_nummer: 'EO-002' });
+    loadApprovals.mockReturnValueOnce(new Promise((resolve) => (svar = resolve)));
+    getNextNumber.mockReturnValue('EO-002');
     const screen = render(EndringsordreForm, props);
     expect(await screen.findByRole('status')).toHaveTextContent(
       'Kontrollerer det lagrede utkastet'

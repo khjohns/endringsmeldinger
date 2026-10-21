@@ -1103,7 +1103,7 @@ Bare relasjonene i Catenda endres. Verken `sak_relations` eller journalen endres
 
 ### C12 Relaterte saker hentes fra Catenda
 
-**Retning:** inn. **Utløses av:** `GET /api/forsering/<sak_id>/relaterte` og `/kontekst`, og `GET /api/endringsordre/<sak_id>/relaterte` og `/kontekst`.
+**Retning:** inn. **Utløses av:** `GET /api/forsering/<sak_id>/relaterte` og `/kontekst`, og `GET /api/endringsordre/<sak_id>/relaterte` og `/kontekst`. Frontenden kaller ikke rutene.
 
 Relasjonene leses fra Catenda, ikke fra `sak_relations`. Hver relatert topic slås opp mot journalen, og topics uten sak i det autoriserte prosjektet faller ut (AUT-01, AUT-02).
 
@@ -1142,7 +1142,7 @@ Kommentar og status, uten PDF og uten kvittering. Topicen leses fra `sak_metadat
 
 ### C15 Endringsordre opprettes eller endres
 
-**Retning:** inn og ut. **Utløses av:** `POST /api/endringsordre/opprett`, utstedelse etter godkjenning, og `POST /api/endringsordre/<sak_id>/koe` og `DELETE …/koe/<koe_sak_id>`.
+**Retning:** inn og ut. **Utløses av:** `POST /api/endringsordre/opprett`, utstedelse etter godkjenning, og `POST /api/endringsordre/<sak_id>/koe` og `DELETE …/koe/<koe_sak_id>`. Frontenden kaller ikke rutene.
 
 Saken, hendelsene og `sak_relations` skrives først; Catenda er valgfritt. Topicen opprettes bare når prosjektet er `oslobygg`, registeret er `legacy` og alle KOE-sakene ligger på det globale boardet; ellers blir resultatet `not_configured` (auditen av godkjenningspanelet 16.09).
 
