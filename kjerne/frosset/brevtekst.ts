@@ -650,9 +650,10 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
         ? `TE krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`
         : `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`;
     case 'innsigelse':
-      // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd.
+      // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd, uten
+      // henvisningen til § 5 (arbeidsvalget 21.10 i #1095).
       if (u.grunn === 'ikke_svar')
-        return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} ikke er et svar etter NS 8407 § 33.6.2 annet ledd (NS 8407 § 5 tredje ledd).`;
+        return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} ikke er et svar etter NS 8407 § 33.6.2 annet ledd.`;
       return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} kom for sent (NS 8407 § 5 tredje ledd).`;
     case 'foresporsel':
       // LV-U18 setning 1, ordrett med saken satt inn.

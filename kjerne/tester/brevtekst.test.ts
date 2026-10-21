@@ -2758,7 +2758,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s, b } = medBegrunnelse();
     const rad = s.send('BH', { type: 'innsigelse', gjelder: b, grunn: 'ikke_svar' });
     expect(laast(rad)).toEqual([
-      'Byggherren gjør gjeldende at TEs svar i brev 4 av 4. oktober 2026 på forespørselen etter NS 8407 § 33.6.2 ikke er et svar etter NS 8407 § 33.6.2 annet ledd (NS 8407 § 5 tredje ledd).',
+      'Byggherren gjør gjeldende at TEs svar i brev 4 av 4. oktober 2026 på forespørselen etter NS 8407 § 33.6.2 ikke er et svar etter NS 8407 § 33.6.2 annet ledd.',
     ]);
     // Ingen påberopelse etter § 33.6.2 å gjenta i svaret på kravet.
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
