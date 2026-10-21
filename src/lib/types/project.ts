@@ -35,15 +35,3 @@ export interface Project {
   created_by?: string | null;
   is_active: boolean;
 }
-
-export interface CreateProjectPayload {
-  name: string;
-  organisasjon_id: string;
-  description?: string;
-}
-
-export interface UpdateProjectPayload {
-  name?: string;
-  description?: string | null;
-  settings?: ProjectSettings;
-}
