@@ -1,6 +1,7 @@
 /**
- * Ruteren foran TS-serveren og Flask (#376, B18-01): `nginx.conf` kjøres i
- * nginx-bildet fra `Dockerfile`, med de samme miljøvariablene som bildet får.
+ * Ruteren foran TS-serveren (#376, B18-01): `nginx.conf` kjøres i nginx-bildet fra
+ * `Dockerfile`, med de samme miljøvariablene som bildet får. Hele `/api` går til
+ * TS-serveren (#1026).
  * Krever Docker; sesjonsdelen krever i tillegg `KOE_SQLSERVER_TILKOBLING`.
  *
  * Containeren bruker vertens nettverk, så den når serverne i testprosessen på
@@ -27,7 +28,12 @@ import {
 
 const ROT = new URL('../../', import.meta.url);
 const DOCKER = spawnSync('docker', ['info'], { stdio: 'ignore' }).status === 0;
-const BILDE = /^FROM (nginx:\S+)$/m.exec(readFileSync(new URL('Dockerfile', ROT), 'utf8'))![1];
+const DOCKERFILE = readFileSync(new URL('Dockerfile', ROT), 'utf8');
+const BILDE = /^FROM (nginx:\S+)$/m.exec(DOCKERFILE)![1];
+/** `ENV` i nginx-trinnet, som bildet får. */
+const MILJOE = [
+  ...DOCKERFILE.slice(DOCKERFILE.indexOf(`FROM ${BILDE}`)).matchAll(/^ENV (\S+=\S+)$/gm),
+].map((t) => t[1]);
 
 interface Ruter {
   url: string;
@@ -45,7 +51,7 @@ function ledigPort(): Promise<number> {
   );
 }
 
-async function startRuter(tsServeren: string, flask: string): Promise<Ruter> {
+async function startRuter(tsServeren: string): Promise<Ruter> {
   const port = await ledigPort();
   const mal = readFileSync(new URL('nginx.conf', ROT), 'utf8');
   expect(mal).toContain('listen 8080;');
@@ -69,8 +75,7 @@ async function startRuter(tsServeren: string, flask: string): Promise<Ruter> {
       `${mappe}:/etc/nginx/templates:ro`,
       '-e',
       `KOE_TS_SERVEREN=${tsServeren}`,
-      '-e',
-      `KOE_FLASK=${flask}`,
+      ...MILJOE.flatMap((m) => ['-e', m]),
       BILDE,
     ],
     { encoding: 'utf8' }
@@ -119,59 +124,47 @@ async function stedfortreder(navn: string): Promise<{ server: Server; adresse: s
   return { server, adresse: `127.0.0.1:${(server.address() as AddressInfo).port}` };
 }
 
-/** Stiene i `tilTsServeren`, med naboene som skal til Flask. */
+/** Stier under `/api` og webhooken, også de TS-serveren ikke har, som før gikk til Flask. */
 const STIER: [string, string][] = [
   ['GET', '/api/kjerne/saker/s1'],
-  ['POST', '/api/kjerne/saker'],
   ['POST', '/api/kjerne/saker/s1/kommandoer'],
-  ['GET', '/api/kjerne/saker/s1/vedlegg/v1.pdf'],
   ['GET', '/api/kjernen'],
-  ['GET', '/api/auth/session'],
-  ['POST', '/api/auth/logout'],
   ['GET', '/api/auth/catenda/callback?code=k&state=s'],
   ['GET', '/api/csrf-token'],
-  ['GET', '/api/csrf-token/x'],
-  ['GET', '/api/projects'],
-  ['GET', '/api/projects/'],
   ['GET', '/api/projects?aktive=1'],
   ['POST', '/api/projects'],
-  ['GET', '/api/projects/p1'],
-  ['PUT', '/api/projects/p1'],
+  ['PATCH', '/api/projects/p1'],
   ['DELETE', '/api/projects/p1'],
   ['HEAD', '/api/projects/p1'],
-  ['GET', '/api/projects/p1/members'],
   ['POST', '/api/projects/p1/members/sync'],
-  ['DELETE', '/api/projects/p1/members/m1'],
-  ['GET', '/api/projects/p1/membership'],
   ['GET', '/api/projects/p1/saker'],
   ['GET', '/api/projects/p1/saker/s1'],
-  ['GET', '/api/saker/s1'],
+  ['GET', '/api/cases/s1/state'],
+  ['POST', '/api/forsering/s1'],
   ['GET', '/api/health'],
   ['GET', '/api/logo.png'],
   ['POST', '/webhook/catenda/hemmelig'],
   ['POST', '/webhook/catenda'],
 ];
 
-describe.skipIf(!DOCKER)('ruteren foran TS-serveren og Flask (#376)', () => {
+describe.skipIf(!DOCKER)('ruteren foran TS-serveren (#376)', () => {
   let ts: Awaited<ReturnType<typeof stedfortreder>>;
-  let flask: Awaited<ReturnType<typeof stedfortreder>>;
   let ruter: Ruter;
 
   beforeAll(async () => {
     ts = await stedfortreder('ts');
-    flask = await stedfortreder('flask');
-    ruter = await startRuter(ts.adresse, flask.adresse);
+    ruter = await startRuter(ts.adresse);
   }, 120_000);
 
   afterAll(() => {
     ruter?.stopp();
     ts?.server.close();
-    flask?.server.close();
   });
 
   it.each(STIER)(
-    '%s %s går dit tilTsServeren sier, med uendret sti og kapsel',
+    '%s %s går til TS-serveren, som tilTsServeren, med uendret sti og kapsel',
     async (metode, sti) => {
+      expect(tilTsServeren(sti)).toBe(true);
       const svar = await fetch(`${ruter.url}${sti}`, {
         method: metode,
         headers: { Cookie: '__Host-koe_session=abc' },
@@ -179,7 +172,7 @@ describe.skipIf(!DOCKER)('ruteren foran TS-serveren og Flask (#376)', () => {
       expect(svar.headers.get('content-type')).toBe('application/json');
       if (metode === 'HEAD') return;
       expect(await svar.json()).toMatchObject({
-        tjener: tilTsServeren(metode, sti) ? 'ts' : 'flask',
+        tjener: 'ts',
         sti,
         kapsel: '__Host-koe_session=abc',
       });
@@ -197,7 +190,7 @@ describe.skipIf(!DOCKER)('ruteren foran TS-serveren og Flask (#376)', () => {
 
   it.each([
     ['/api/kjerne/saker/s1', 'ts'],
-    ['/api/saker/s1', 'flask'],
+    ['/api/saker/s1', 'ts'],
     ['/webhook/catenda/x', 'ts'],
   ])(
     'klientens X-Forwarded-For og X-Real-IP overskrives med adressen nginx ser (%s)',
@@ -240,28 +233,54 @@ describe.skipIf(!DOCKER)('ruteren foran TS-serveren og Flask (#376)', () => {
     expect(logg).not.toContain('hemmelig-sti-413');
   });
 
-  it('andre stier enn /api og webhooken får SPA-en, ikke en av serverne', async () => {
-    const svar = await fetch(`${ruter.url}/webhook/catendaen`);
-    expect(svar.headers.get('content-type')).not.toBe('application/json');
+  it.each(['/apix/saker', '/webhook/catendaen'])(
+    '%s får SPA-en, ikke TS-serveren, som tilTsServeren',
+    async (sti) => {
+      expect(tilTsServeren(sti)).toBe(false);
+      const svar = await fetch(`${ruter.url}${sti}`);
+      expect(svar.headers.get('content-type')).not.toBe('application/json');
+    }
+  );
+
+  it('tilgangsloggen har stien uten spørrestrengen, så koden fra OAuth ikke står der (#1082)', async () => {
+    await fetch(`${ruter.url}/api/auth/catenda/callback?code=hemmelig-kode&state=s`);
+    for (
+      let forsoek = 0;
+      forsoek < 50 && !ruter.logg().includes('/api/auth/catenda/callback');
+      forsoek++
+    ) {
+      await new Promise((ok) => setTimeout(ok, 100));
+    }
+    const logg = ruter.logg();
+    expect(logg).toContain('"GET /api/auth/catenda/callback HTTP/1.1" 200');
+    expect(logg).not.toContain('hemmelig-kode');
   });
+});
+
+describe.skipIf(!DOCKER)('ruteren med et navn for TS-serveren (#1082)', () => {
+  it('starter når navnet ikke kan løses, og svarer 502 for /api', async () => {
+    const ruter = await startRuter('ts-serveren.invalid:8090');
+    try {
+      expect((await fetch(`${ruter.url}/api/auth/session`)).status).toBe(502);
+    } finally {
+      ruter.stopp();
+    }
+  }, 30_000);
 });
 
 describe.skipIf(!DOCKER || !TESTBASE_URL)('sesjonskapselen gjennom ruteren (#376)', () => {
   let o: Oppsett;
   let server: KjorendeServer;
-  let flask: Awaited<ReturnType<typeof stedfortreder>>;
   let ruter: Ruter;
 
   beforeAll(async () => {
     o = await lagOppsett();
     server = await startServer(o);
-    flask = await stedfortreder('flask');
-    ruter = await startRuter(new URL(server.url).host, flask.adresse);
+    ruter = await startRuter(new URL(server.url).host);
   }, 120_000);
 
   afterAll(async () => {
     ruter?.stopp();
-    flask?.server.close();
     await server?.stopp();
     if (o) await rydd(o);
   });
@@ -274,6 +293,14 @@ describe.skipIf(!DOCKER || !TESTBASE_URL)('sesjonskapselen gjennom ruteren (#376
     expect(innlogget).toMatchObject({ status: 200, kropp: { csrfToken: o.te.csrf } });
     const uten = await kall(ruter.url, '/api/auth/session', { bruker: null, prosjektId: null });
     expect(uten.status).toBe(401);
+  });
+
+  it('en sti TS-serveren ikke har, får 404 fra den bak ruteren (#1026)', async () => {
+    const svar = await kall(ruter.url, '/api/cases/s1/state', {
+      bruker: null,
+      prosjektId: null,
+    });
+    expect(svar).toMatchObject({ status: 404, kropp: { error: 'NOT_FOUND' } });
   });
 
   it('prosjekttilgangen håndheves bak ruteren', async () => {

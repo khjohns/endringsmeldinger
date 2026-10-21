@@ -20,8 +20,8 @@ ruff check backend/                  # porten, skal være 0
 ```
 
 `npm run server` starter TS-serveren i `server/` (B-18), med miljøvariablene i
-headeren til `server/start.ts`. Vite-proxyen sender det `tilTsServeren()` i
-`server/ruting.ts` velger, dit (F0b-8), og resten av `/api` til Python.
+headeren til `server/start.ts`. Vite-proxyen sender hele `/api` og webhooken dit,
+som `tilTsServeren()` i `server/ruting.ts` velger (#1026); ingenting går til Python.
 
 I skyøktene lager `.claude/hooks/session-start.sh` venv-en og starter Docker og testbasen i SQL Server.
 

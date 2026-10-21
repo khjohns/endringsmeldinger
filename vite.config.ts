@@ -7,13 +7,13 @@ import { tilTsServeren } from './server/ruting.ts';
 const TS_PREFIKS = '/__ts-serveren';
 
 /**
- * Vite-proxyen velger regel etter stien alene, så metoden avgjøres her, før
- * proxyen, med et prefiks som regelen for TS-serveren fjerner igjen.
+ * Stiene til TS-serveren får et prefiks før proxyen, som regelen for TS-serveren
+ * fjerner igjen. Resten er SPA-en; ingenting går til Python (#1026).
  */
 function tsServeren(): Plugin {
   const prefiks = (server: { middlewares: Connect.Server }): void => {
     server.middlewares.use((req, _res, next) => {
-      if (req.url && tilTsServeren(req.method ?? 'GET', req.url)) req.url = TS_PREFIKS + req.url;
+      if (req.url && tilTsServeren(req.url)) req.url = TS_PREFIKS + req.url;
       next();
     });
   };
@@ -37,10 +37,6 @@ export default defineConfig({
         target: 'http://127.0.0.1:8090',
         changeOrigin: true,
         rewrite: (url) => url.slice(TS_PREFIKS.length),
-      },
-      '/api': {
-        target: 'http://127.0.0.1:8080',
-        changeOrigin: true,
       },
     },
   },
