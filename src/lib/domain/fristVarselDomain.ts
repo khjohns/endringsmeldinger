@@ -8,7 +8,7 @@
  */
 
 import type { FristTilstand } from '../types/timeline';
-import foresporsel from '../../../backend/constants/frist_foresporsel.json';
+import foresporsel from './frist_foresporsel.json';
 
 export type FristVarselHandling = 'innsigelse' | 'foresporsel';
 
