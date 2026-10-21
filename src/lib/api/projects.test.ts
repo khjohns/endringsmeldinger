@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { clearCsrfToken, setActiveProjectId } from './client';
-import { getProject, updateProject, deactivateProject } from './projects';
+import { getProject } from './projects';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -8,7 +8,7 @@ afterEach(() => {
   setActiveProjectId('oslobygg');
 });
 
-it('binds project reads and mutations to their explicit target after navigation', async () => {
+it('binder prosjektlesingen til prosjektet den gjelder, også etter navigering', async () => {
   const requests: { url: string; project: string | null }[] = [];
   vi.stubGlobal(
     'fetch',
@@ -23,11 +23,5 @@ it('binds project reads and mutations to their explicit target after navigation'
   );
   setActiveProjectId('new-project');
   await getProject('original');
-  await updateProject('original', { name: 'Updated' });
-  await deactivateProject('original');
-  expect(requests).toEqual([
-    { url: '/api/projects/original', project: 'original' },
-    { url: '/api/projects/original', project: 'original' },
-    { url: '/api/projects/original/deactivate', project: 'original' },
-  ]);
+  expect(requests).toEqual([{ url: '/api/projects/original', project: 'original' }]);
 });

@@ -7,17 +7,10 @@
   import EOApprovalPanel from './EOApprovalPanel.svelte';
   import { ApiError } from '$lib/api/client';
   import {
-    apiEOApprovals,
     createEOApprovalWorkspace,
     type EOApprovalSource,
   } from '$lib/approval/eoApproval.svelte';
-  import {
-    createEndringsordre,
-    fetchEOCandidates,
-    fetchNextEONumber,
-    type EOCandidate,
-    type CreateEORequest,
-  } from '$lib/api/endringsordre';
+  import type { EOCandidate, CreateEORequest } from '$lib/api/endringsordre';
   import {
     newEODraft,
     validateEODraft,
@@ -48,7 +41,8 @@
     userId?: string;
     initialKoe?: string;
     oncreated: (sakId: string) => Promise<void> | void;
-    demo?: {
+    /** EO-flyten finnes bare i demoen; EO i TS bygges fra kjernen (#1026) */
+    demo: {
       getCandidates: () => EOCandidate[];
       getNextNumber: () => string;
       issue: (payload: CreateEORequest) => {
@@ -64,19 +58,15 @@
     approvalsHref?: string;
   } = $props();
 
-  // A demo without an approval source issues directly, like projects without a policy.
+  // Uten godkjenningskilde utstedes ordren direkte, som i prosjekter uten policy.
   // The route keys the form by project, so the source is fixed for its lifetime.
   const approvals = createEOApprovalWorkspace(
     untrack(
       () =>
-        approvalSource ??
-        (demo
-          ? {
-              load: () =>
-                Promise.reject(new ApiError(403, 'Intern godkjenning er ikke konfigurert.')),
-              command: () => Promise.reject(new Error('Ikke tilgjengelig.')),
-            }
-          : apiEOApprovals(projectId))
+        approvalSource ?? {
+          load: () => Promise.reject(new ApiError(403, 'Intern godkjenning er ikke konfigurert.')),
+          command: () => Promise.reject(new Error('Ikke tilgjengelig.')),
+        }
     )
   );
 
@@ -90,9 +80,7 @@
   let reviewing = $state(false);
   let sending = $state(false);
   let createdId = $state('');
-  const storageKey = $derived(
-    draftKey(demo ? 'endringsordre-demo' : 'endringsordre', `${projectId}:${userId}`)
-  );
+  const storageKey = $derived(draftKey('endringsordre-demo', `${projectId}:${userId}`));
   const selected = $derived(selectedEOCandidates(draft, candidates));
   const unavailable = $derived(
     draft.selectedIds.filter((id) => !candidates.some((c) => c.sak_id === id))
@@ -137,9 +125,7 @@
     }
   });
   const issuedHref = (sakId: string) =>
-    resolve(
-      `/${demo ? 'mockup/endringsordre' : encodeURIComponent(projectId)}/${encodeURIComponent(sakId)}`
-    );
+    resolve(`/mockup/endringsordre/${encodeURIComponent(sakId)}`);
 
   onMount(() => void open());
 
@@ -181,33 +167,15 @@
   async function load(prefill = false) {
     loading = true;
     loadError = '';
-    if (demo) {
-      try {
-        candidates = demo.getCandidates();
-        if (!draft.number) draft.number = demo.getNextNumber();
-        if (prefill) updateAmounts();
-      } catch (e) {
-        loadError = e instanceof Error ? e.message : 'Kunne ikke hente eksempelsakene.';
-      } finally {
-        loading = false;
-      }
-      return;
-    }
-    const results = await Promise.allSettled([
-      fetchEOCandidates(projectId),
-      fetchNextEONumber(projectId),
-    ]);
-    if (results[0].status === 'fulfilled') {
-      candidates = results[0].value.kandidat_saker;
+    try {
+      candidates = demo.getCandidates();
+      if (!draft.number) draft.number = demo.getNextNumber();
       if (prefill) updateAmounts();
-    } else
-      loadError =
-        results[0].reason instanceof Error
-          ? results[0].reason.message
-          : 'Kunne ikke hente avtalte KOE-krav.';
-    if (results[1].status === 'fulfilled' && !draft.number)
-      draft.number = results[1].value.neste_nummer;
-    loading = false;
+    } catch (e) {
+      loadError = e instanceof Error ? e.message : 'Kunne ikke hente eksempelsakene.';
+    } finally {
+      loading = false;
+    }
   }
 
   function updateAmounts() {
@@ -259,7 +227,7 @@
     error = '';
     try {
       const payload = buildEORequest($state.snapshot(draft));
-      const result = demo ? demo.issue(payload) : await createEndringsordre(projectId, payload);
+      const result = demo.issue(payload);
       if (!result.success || !result.sak_id)
         throw new Error('Utstedelsen kunne ikke bekreftes. Kontroller saksoversikten.');
       createdId = result.sak_id;
@@ -567,11 +535,7 @@
         </aside>
       </div>
       <footer class="form-footer">
-        <a
-          class="secondary"
-          href={resolve(demo ? '/mockup/oversikt' : `/${encodeURIComponent(projectId)}`)}
-          >Til saksoversikten</a
-        ><button
+        <a class="secondary" href={resolve('/mockup/oversikt')}>Til saksoversikten</a><button
           type="submit"
           class="primary"
           disabled={!ready ||
