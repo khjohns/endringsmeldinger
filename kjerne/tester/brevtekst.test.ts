@@ -2549,6 +2549,189 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
   });
 });
 
+describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U29, LV-U18)', () => {
+  const foresporsel = { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' };
+  const begrunnelseB = 'Omfanget av omprosjekteringen er ikke kjent ennå.';
+  const id = (rad: Journalrad) => (rad.data.utsagn as Data[])[0].id as string;
+  const medForesporsel = () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    const f = s.send('BH', foresporsel);
+    return { s, f: id(f), rad: f };
+  };
+  const medBegrunnelse = () => {
+    const { s, f } = medForesporsel();
+    const b = s.send('TE', { type: 'foresporselssvar', gjelder: f, utdypning: begrunnelseB });
+    return { s, f, b: id(b), rad: b };
+  };
+  const fristsvar = (s: ReturnType<typeof sak>, vurderinger: Data, resultat: Data) =>
+    s.send('BH', { type: 'brev', svar: [svar('frist', s.krav('frist'), vurderinger, resultat)] });
+
+  it('forespørselen har setning 1 i LV-U18, uten dager og uten oppgitt dato', () => {
+    const { rad } = medForesporsel();
+    expect(laast(rad)).toEqual([
+      `Byggherren ber etter NS 8407 § 33.6.2 TE angi og begrunne det antall dager TE krever som fristforlengelse som følge av forholdet ${I_SAKEN}. Svarer ikke TE, tapes kravet på fristforlengelse. Har TE ikke grunnlag for å beregne kravet, skal TE i stedet begrunne hvorfor grunnlaget ikke foreligger.`,
+    ]);
+    expect(rad.data.opplysninger).toBeUndefined();
+  });
+
+  it('VS-U19: forespørselen avvises når TE har krevd dager, og bare BH kan sende den', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    expect(s.avvist('TE', foresporsel)).toBe('FEIL_PART');
+    s.send('TE', FRISTKRAV);
+    expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
+  });
+
+  it('kravet som svarer på forespørselen, sier det (LV-U18 setning 3), og § 33.6.1 kan ikke påberopes (fjerde ledd)', () => {
+    const { s } = medForesporsel();
+    const krav = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(laast(krav)).toEqual([
+      'TE krever fristforlengelse på 20 dager (NS 8407 § 33.6.1). Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i brev 3 av 3. oktober 2026.',
+    ]);
+    const kravId = s.krav('frist');
+    expect(
+      s.avvist('BH', {
+        type: 'brev',
+        svar: [
+          svar(
+            'frist',
+            kravId,
+            {
+              ...FRIST_FULLT[0],
+              foresporsel_svar_ok: true,
+              spesifisert_krav_ok: false,
+              dager_maatte_forstaa: 0,
+            },
+            { resultat: 'godkjent', godkjent_dager: 20 }
+          ),
+        ],
+      })
+    ).toBe('UGYLDIG_VURDERING');
+  });
+
+  it('VS-U17: «svaret kom for sent» etter § 33.6.2 tredje ledd avslår kravet prinsipalt, med teksten i setning 4', () => {
+    const { s } = medForesporsel();
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const kravId = s.krav('frist');
+    const rad = fristsvar(
+      s,
+      { ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'), foresporsel_svar_ok: false },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    const standpunkter = (rad.data.svar as Data[])[0].standpunkter as Data[];
+    expect(standpunkter.find((p) => p.hjemmel === '33.6.2')).toMatchObject({
+      art: 'rettidighet',
+      gjelder: kravId,
+      i_tide: false,
+    });
+    expect(laast(rad)[0]).toContain(
+      'byggherren gjør gjeldende at TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev 3 av 3. oktober 2026 kom for sent.'
+    );
+    expect((rad.data.svar as Data[])[0].utregning).toMatchObject({ resultat: 'avslaatt' });
+  });
+
+  it('begrunnelsen etter annet ledd b har setning 2 i LV-U18 og TEs tekst som utdypning', () => {
+    const { rad, b } = medBegrunnelse();
+    expect(tekst(rad)).toEqual([
+      {
+        gjelder: b,
+        laast:
+          'TE svarer på byggherrens forespørsel etter NS 8407 § 33.6.2 i brev 3 av 3. oktober 2026 at grunnlaget for å beregne kravet ikke foreligger (§ 33.6.2 annet ledd b).',
+        utdypning: begrunnelseB,
+      },
+    ]);
+  });
+
+  it('KA-U1, VS-U27: én begrunnelse per forespørsel fra appen, bare fra TE', () => {
+    const { s, f } = medForesporsel();
+    const kommando = { type: 'foresporselssvar', gjelder: f, utdypning: begrunnelseB };
+    expect(s.avvist('BH', kommando)).toBe('FEIL_PART');
+    s.send('TE', kommando);
+    expect(s.avvist('TE', kommando)).toBe('FORESPORSEL_BESVART');
+    expect(s.avvist('TE', { ...kommando, gjelder: randomUUID() })).toBe('INGEN_FORESPORSEL');
+  });
+
+  it('et krav etter begrunnelsen svarer ikke på forespørselen, og § 33.6.1 gjelder (femte ledd)', () => {
+    const { s } = medBegrunnelse();
+    const krav = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(laast(krav)).toEqual(['TE krever fristforlengelse på 20 dager (NS 8407 § 33.6.1).']);
+    // Uten innsigelse mot begrunnelsen er det ingen påberopelse etter § 33.6.2 å gjenta (VS-U29).
+    expect(
+      s.avvist('BH', {
+        type: 'brev',
+        svar: [
+          svar(
+            'frist',
+            s.krav('frist'),
+            { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+            FRIST_FULLT[1]
+          ),
+        ],
+      })
+    ).toBe('UGYLDIG_VURDERING');
+  });
+
+  it('VS-U29: innsigelsen mot begrunnelsen er en påberopelse etter § 33.6.2, som svaret på kravet gjentar', () => {
+    const { s, b } = medBegrunnelse();
+    const innsigelse = s.send('BH', { type: 'innsigelse', gjelder: b });
+    expect(laast(innsigelse)).toEqual([
+      'Byggherren gjør gjeldende at TEs svar i brev 4 av 4. oktober 2026 på forespørselen etter NS 8407 § 33.6.2 kom for sent (NS 8407 § 5 tredje ledd).',
+    ]);
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(
+      s,
+      { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    const p = ((rad.data.svar as Data[])[0].standpunkter as Data[]).find(
+      (x) => x.hjemmel === '33.6.2'
+    );
+    expect(p).toMatchObject({ gjelder: b, i_tide: false });
+    expect(laast(rad)[0]).toContain(
+      'byggherren gjør gjeldende at TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev 3 av 3. oktober 2026 kom for sent, jf. innsigelsen i brev 5 av 5. oktober 2026.'
+    );
+  });
+
+  it('HF-U4: etter «i tide» etter § 33.6.2 avvises en senere innsigelse mot begrunnelsen', () => {
+    const { s, b } = medBegrunnelse();
+    s.send('BH', { type: 'innsigelse', gjelder: b });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(s, { ...FRIST_FULLT[0], foresporsel_svar_ok: true }, FRIST_FULLT[1]);
+    expect(laast(rad)[0]).toContain(
+      'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev 3 av 3. oktober 2026 kom for sent.'
+    );
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBe('SAGT_I_TIDE');
+  });
+
+  it('VS-U29: «ikke et svar etter annet ledd» registreres uten virkning, og gjelder bare begrunnelsen', () => {
+    const { s, b } = medBegrunnelse();
+    const rad = s.send('BH', { type: 'innsigelse', gjelder: b, grunn: 'ikke_svar' });
+    expect(laast(rad)).toEqual([
+      'Byggherren gjør gjeldende at TEs svar i brev 4 av 4. oktober 2026 på forespørselen etter NS 8407 § 33.6.2 ikke er et svar etter NS 8407 § 33.6.2 annet ledd (NS 8407 § 5 tredje ledd).',
+    ]);
+    // Ingen påberopelse etter § 33.6.2 å gjenta i svaret på kravet.
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(
+      s.avvist('BH', {
+        type: 'brev',
+        svar: [
+          svar(
+            'frist',
+            s.krav('frist'),
+            { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
+            FRIST_FULLT[1]
+          ),
+        ],
+      })
+    ).toBe('UGYLDIG_VURDERING');
+    const grunnlag = s.krav('grunnlag');
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: grunnlag, grunn: 'ikke_svar' })).toBe(
+      'UGYLDIG_INNSIGELSE'
+    );
+  });
+});
+
 describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
   const sendVarsel = { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
   const medVarsel = () => {
@@ -2824,12 +3007,6 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
 
   it.each([
     [
-      'frist',
-      'svar på forespørsel etter § 33.6.2',
-      { ...FRIST_FULLT[0], foresporsel_svar_ok: false },
-      FRIST_FULLT[1],
-    ],
-    [
       'vederlag',
       'tilbakeholdelse etter § 30.2',
       { ...VEDERLAG_DELVIS[0], hold_tilbake: true },
@@ -2841,9 +3018,7 @@ describe('en vurdering kjernen ikke har et standpunkt for, avvises', () => {
       'VURDERING_UTENFOR_KJERNEN'
     );
     const uten = Object.fromEntries(
-      Object.entries(vurderinger).filter(
-        ([k]) => k !== 'foresporsel_svar_ok' && k !== 'hold_tilbake'
-      )
+      Object.entries(vurderinger).filter(([k]) => k !== 'hold_tilbake')
     );
     expect(s.avvist('BH', brev(svar(spor, s.krav(spor as 'frist'), uten, resultat)))).toBeNull();
   });

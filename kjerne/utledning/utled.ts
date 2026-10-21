@@ -27,6 +27,10 @@ import {
   grunnerFraGrunnlaget,
   grunnlagetErAvklart,
   innsigelsenPaaberoper,
+  foresporselsrelasjon,
+  svarPaaForesporsler,
+  type Foresporselsrelasjon,
+  type Foresporselssvar,
   kravetErDokumentasjon,
   prinsipalt,
   sammeKategori,
@@ -83,6 +87,8 @@ export interface Sporutledning {
   ingenKrav: boolean;
   /** Det registrerte varselet etter § 33.4; bare fristen. */
   varsel: Extract<LestUtsagn, { art: 'varsel' }> | null;
+  /** § 33.6.2: forespørslene og det som svarte på dem; bare fristen. */
+  foresporsler: Foresporselssvar[];
   /** Hvorfor hele svaret i sporet er subsidiært til grunnlaget; tomt for grunnlaget. */
   subsidiaer: Subsidiaergrunn[];
 }
@@ -102,7 +108,12 @@ export interface Element {
 }
 
 /** Det en innsigelse kan gjelde (VS-U1). */
-export const KAN_FAA_INNSIGELSE: ReadonlySet<Element['art']> = new Set(['krav', 'svar', 'varsel']);
+export const KAN_FAA_INNSIGELSE: ReadonlySet<Element['art']> = new Set([
+  'krav',
+  'svar',
+  'varsel',
+  'foresporselssvar',
+]);
 
 /** VS-U1, VS-U14: en innsigelse gjelder et varsel, krav eller svar fra motparten. */
 export const kanFaaInnsigelse = (maal: Element | undefined, part: Part): boolean =>
@@ -206,6 +217,7 @@ const tomtSpor = (): Sporutledning => ({
   trukket: false,
   ingenKrav: false,
   varsel: null,
+  foresporsler: [],
   subsidiaer: [],
 });
 
@@ -267,6 +279,7 @@ const kanStride = (d: Dokument, foer: readonly Dokument[]): boolean =>
     (x) =>
       ENDRER_UTFALLET.has(x.art) ||
       (x.art === 'innsigelse' &&
+        x.grunn === undefined &&
         innsigelsenPaaberoper(x.gjelder, foer, () =>
           foer.some((f) =>
             f.svar.some(
@@ -443,7 +456,11 @@ function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
       });
   }
   for (const x of d.utsagn)
-    if (x.art === 'innsigelse' && innsigelsenEtterITide(x.gjelder, d.avsender, u))
+    if (
+      x.art === 'innsigelse' &&
+      x.grunn === undefined &&
+      innsigelsenEtterITide(x.gjelder, d.avsender, u)
+    )
       ut.push({ element: x.id, grunn: `en innsigelse som ${sagtITide}` });
   return ut;
 }
@@ -517,8 +534,9 @@ function utledSporene(
   const varsler: Extract<LestUtsagn, { art: 'varsel' }>[] = [];
   const henvisninger: Extract<
     LestUtsagn,
-    { art: 'innsigelse' | 'protest' | 'passivitet' | 'begrunnelse' }
+    { art: 'innsigelse' | 'protest' | 'passivitet' | 'begrunnelse' | 'foresporselssvar' }
   >[] = [];
+  const foresporsler: Extract<LestUtsagn, { art: 'foresporsel' }>[] = [];
   const opplysninger: LestOpplysning[] = [];
   /** Hvert krav i saken, også de uten virkning (MM-U18). */
   const kravMedUten = new Map<string, Krav>();
@@ -569,6 +587,7 @@ function utledSporene(
       else if (u.art === 'bestridelse') bestridelser.push(u);
       else if (u.art === 'ingen_krav') ingenKrav.push(u);
       else if (u.art === 'varsel') varsler.push(u);
+      else if (u.art === 'foresporsel') foresporsler.push(u);
       else henvisninger.push(u);
     }
     for (const o of d.opplysninger) {
@@ -592,6 +611,8 @@ function utledSporene(
   const dokumenter = new Map(
     journal.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
   );
+  // VS-U17, VS-U19: hver forespørsel og det som svarte på den.
+  const besvart = svarPaaForesporsler(dokumenter.values());
   /** Avsenderen av dokumentet elementet står i. */
   const avsenderAv = (id: string): Part | undefined =>
     dokumenter.get(plass.get(id)?.hendelse ?? '')?.avsender;
@@ -633,6 +654,15 @@ function utledSporene(
       if (p.hjemmel === '34.1.2') {
         if (p.gjelder !== spor.vederlag.krav[0]?.id)
           ugyldig(s.id, 'påberopelsen etter § 34.1.2 viser ikke til det første vederlagskravet');
+        continue;
+      }
+      // VS-U17, VS-U29: rettidigheten av svaret på en forespørsel gjelder kravet eller begrunnelsen som svarte.
+      if (p.hjemmel === '33.6.2') {
+        if (!besvart.some((f) => f.svar === p.gjelder) || !bakover(s.id, p.gjelder))
+          ugyldig(
+            s.id,
+            'påberopelsen etter § 33.6.2 viser ikke til et svar på en forespørsel før svaret'
+          );
         continue;
       }
       if (p.hjemmel === '33.4') {
@@ -710,7 +740,20 @@ function utledSporene(
       !kanGjelde(x.art, maal, elementer[x.id].part, x.gjelder)
     )
       ugyldig(x.id, `${x.art} viser ikke til noe den kan gjelde før den`);
+    // VS-U29: standpunktet om at et svar ikke er et svar etter § 33.6.2 annet ledd gjelder begrunnelsen.
+    else if (x.art === 'innsigelse' && x.grunn !== undefined && maal.art !== 'foresporselssvar')
+      ugyldig(
+        x.id,
+        'innsigelsen om at noe ikke er et svar etter § 33.6.2, gjelder ikke en begrunnelse'
+      );
+    // KA-U1: én begrunnelse per forespørsel, og ikke etter at et krav har svart.
+    else if (x.art === 'foresporselssvar' && !besvart.some((f) => f.svar === x.id))
+      ugyldig(x.id, 'begrunnelsen svarer på en forespørsel som alt er besvart');
   }
+  // VS-U19: forespørselen sendes før TE har krevd dager i saken.
+  for (const f of foresporsler)
+    if ([...kravMedUten.values()].some((k) => k.spor === 'frist' && bakover(f.id, k.id)))
+      ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter et fristkrav (VS-U19)');
   /** Det utsagnet kan gjelde, etter arten. */
   function kanGjelde(
     art: (typeof henvisninger)[number]['art'],
@@ -728,6 +771,9 @@ function utledSporene(
       case 'begrunnelse':
         // KA-U34: et svar. Begrunnelsen og svaret er begge fra BH (format/leser.ts).
         return maal.art === 'svar';
+      case 'foresporselssvar':
+        // VS-U27: en forespørsel fra appen. Forespørselen er fra BH og svaret fra TE (format/leser.ts).
+        return maal.art === 'foresporsel';
     }
   }
   for (const b of bestridelser) {
@@ -761,6 +807,7 @@ function utledSporene(
   if (begrensninger.length) return tom(journal, regler, begrensninger);
 
   spor.frist.varsel = varsler[0] ?? null;
+  spor.frist.foresporsler = besvart;
   for (const n of SPOR) {
     const sp = spor[n];
     sp.gjeldendeKrav = sp.krav.at(-1) ?? null;
@@ -974,7 +1021,7 @@ export function innsigelsenEtterITide(
   gjelder: string,
   part: Part,
   u: Utledning
-): Extract<Hjemmel, '32.2' | '33.4'> | null {
+): Extract<Hjemmel, '32.2' | '33.4' | '33.6.2'> | null {
   if (part !== 'BH') return null;
   const hjemmel = innsigelsenPaaberoper(gjelder, dokumenterI(u.journal), (krav) =>
     u.spor.grunnlag.svar.some((s) => {
@@ -986,9 +1033,30 @@ export function innsigelsenEtterITide(
       );
     })
   );
+  if (hjemmel === '33.6.2') return harSagtITide(u, 'frist', { hjemmel, gjelder }) ? hjemmel : null;
   return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })
     ? hjemmel
     : null;
+}
+
+/**
+ * Hvordan gjeldende fristkrav står til en forespørsel etter § 33.6.2, slik svaret leser det.
+ * Etter TEs begrunnelse etter annet ledd b har svaret et standpunkt etter § 33.6.2 bare når
+ * byggherren har gjort gjeldende i en egen innsigelse at begrunnelsen kom for sent: svaret
+ * gjentar påberopelsen eller gir den opp (VS-U29, VS-U9, VS-U11).
+ */
+export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | null {
+  const f = foresporselsrelasjon(u.spor.frist.foresporsler);
+  if (f?.art !== 'begrunnelse') return f;
+  for (const d of dokumenterI(u.journal))
+    if (
+      d.avsender === 'BH' &&
+      d.utsagn.some(
+        (x) => x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined
+      )
+    )
+      return f;
+  return null;
 }
 
 /** Dokumentene i journalen, i rekkefølge, uten å kopiere dem til en liste (#787). */
@@ -997,7 +1065,9 @@ function* dokumenterI(journal: readonly Domenehendelse[]): Generator<Dokument> {
 }
 
 /** En påberopelse av at varselet kom for sent, eller at kravet ble spesifisert for sent. */
-export type Rettidighet = { hjemmel: Hjemmel } | { hjemmel: '33.6.1'; gjelder: string };
+export type Rettidighet =
+  | { hjemmel: Exclude<Hjemmel, '33.6.2'> }
+  | { hjemmel: '33.6.1' | '33.6.2'; gjelder: string };
 
 /**
  * HF-U4, HF-U8: påberopelsen i standpunktene av at varselet kom for sent, eller at
@@ -1013,7 +1083,11 @@ export const paaberoptEtterITide = (
   standpunkter
     .flatMap((p): Rettidighet[] =>
       p.art === 'rettidighet' && !p.iTide
-        ? [{ hjemmel: p.hjemmel }]
+        ? [
+            p.hjemmel === '33.6.2'
+              ? { hjemmel: p.hjemmel, gjelder: p.gjelder }
+              : { hjemmel: p.hjemmel },
+          ]
         : p.art === 'spesifisering' && !p.iTide
           ? [{ hjemmel: '33.6.1', gjelder: p.gjelder }]
           : []
@@ -1036,7 +1110,10 @@ export function harSagtITide(u: Utledning, spor: Spor, r: Rettidighet): boolean 
       binder(u, s) &&
       s.standpunkter.some((p) =>
         'gjelder' in r
-          ? p.art === 'spesifisering' && p.gjelder === r.gjelder && p.iTide
+          ? (p.art === 'spesifisering' || p.art === 'rettidighet') &&
+            p.hjemmel === r.hjemmel &&
+            p.gjelder === r.gjelder &&
+            p.iTide
           : p.art === 'rettidighet' && p.hjemmel === r.hjemmel && p.iTide
       )
   );

@@ -33,6 +33,10 @@ export function handlingsnoekler(k: Kommando): Handlingsnoekkel[] {
       return [{ type: 'varsle', spor: 'frist' }];
     case 'send_varsel':
       return [{ type: 'sende_varsel', spor: 'frist' }];
+    case 'foresporsel':
+      return [{ type: 'sende_foresporsel', spor: 'frist' }];
+    case 'foresporselssvar':
+      return [{ type: 'svare_paa_foresporsel', gjelder: k.gjelder }];
     case 'bestridelse':
       return [{ type: 'bestride', gjelder: k.gjelder }];
     case 'ingen_krav':

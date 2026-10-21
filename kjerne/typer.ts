@@ -13,7 +13,7 @@ export const SPOR: readonly Spor[] = ['grunnlag', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
 
-export type Hjemmel = '32.2' | '33.4' | '34.1.2';
+export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2';
 
 /**
  * En opplysning en part oppgir om et dokument (2.4): når det ble sendt eller
@@ -116,7 +116,20 @@ export type Utsagn =
    * § 5 tredje ledd (VS-U1, VS-U9, VS-U14): parten gjør gjeldende at motpartens
    * varsel, krav eller svar kom for sent. `gjelder` er det.
    */
-  | { id: string; art: 'innsigelse'; gjelder: string }
+  | {
+      id: string;
+      art: 'innsigelse';
+      gjelder: string;
+      /** VS-U29: byggherren mener at TEs begrunnelse etter § 33.6.2 annet ledd b ikke er et svar etter annet ledd. Uten feltet kom det for sent. */
+      grunn?: 'ikke_svar';
+    }
+  /** § 33.6.2 første ledd (VS-U19): byggherren ber TE angi og begrunne antall dager. */
+  | { id: string; art: 'foresporsel'; hjemmel: '33.6.2' }
+  /**
+   * § 33.6.2 annet ledd b (VS-U17, VS-U27): TE begrunner hvorfor grunnlaget for å beregne
+   * kravet ikke foreligger. `gjelder` er forespørselen. Ikke en kravversjon; teksten står i brevteksten.
+   */
+  | { id: string; art: 'foresporselssvar'; gjelder: string }
   /**
    * VS-U1, MP-U6: protest mot en innsigelse: innsigelsen, påberopelsen i et svar
    * (standpunktet om rettidighet), eller et dokument, som da gjelder alle

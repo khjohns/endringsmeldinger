@@ -1699,12 +1699,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en innsigelse mot varselet etter § 33.4 leses ikke som en påberopelse (VS-U24, VS-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        "    if (utsagn) return utsagn.art === 'varsel' ? '33.4' : null;",
-        '    if (utsagn) return null;',
-      ],
-    ],
+    endringer: [["      return utsagn.art === 'varsel' ? '33.4'", "      return false ? '33.4'"]],
     mal: [
       'gir byggherren opp innsigelsen mot fristvarselet',
       'gir et «i tide» opp bare den mot varselet',
@@ -1718,8 +1713,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) => gjelderVarslingsplikten(k, regler)) ===',
-        "(svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) && innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) => gjelderVarslingsplikten(k, regler)) ===",
+        '    const gjelder =\n      hjemmel === HJEMMEL[svar.spor]',
+        "    const gjelder =\n      ((svar.spor !== 'grunnlag' || i.gjelder === svar.gjelder) && hjemmel === HJEMMEL[svar.spor])",
       ],
     ],
     mal: [
@@ -1814,12 +1809,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F220',
     feilklasse: 'et «i tide» etter § 33.6.1 binder også senere kravversjoner (HF-U1, HF-U4, #498)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "p.art === 'spesifisering' && p.gjelder === r.gjelder && p.iTide",
-        "p.art === 'spesifisering' && p.iTide",
-      ],
-    ],
+    endringer: [['            p.gjelder === r.gjelder &&\n', '']],
     mal: ['som gjelder kravversjonen (HF-U4, HF-U1)'],
   },
   {
@@ -2225,8 +2215,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    if (x.art === 'innsigelse' && innsigelsenEtterITide(x.gjelder, d.avsender, u))",
-        '    if (false)',
+        '      x.grunn === undefined &&\n      innsigelsenEtterITide(x.gjelder, d.avsender, u)',
+        '      false',
       ],
     ],
     mal: ['etter at BH har sagt at varselet kom i tide (MM-U27, HF-U4)'],
@@ -2431,7 +2421,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevteksten leser ikke regelsettet for om en innsigelse er en påberopelse etter § 32.2 (VS-U24, #798)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['(k) => gjelderVarslingsplikten(k, regler)) ===', '() => false) ===']],
+    endringer: [['(k) =>\n      gjelderVarslingsplikten(k, regler)\n    );', '() => false);']],
     mal: ['ikke av et nyere regelsett'],
   },
   {
@@ -2733,6 +2723,68 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [["    !(spor === 'grunnlag' && u.frafalt)\n", '    !u.frafalt\n']],
     mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
+  },
+  {
+    id: 'F317',
+    feilklasse: 'forespørselen etter § 33.6.2 godtas etter et fristkrav (VS-U19)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['      if (s.krav.length > 0)', '      if (false)']],
+    mal: ['VS-U19: forespørselen avvises når TE har krevd dager'],
+  },
+  {
+    id: 'F318',
+    feilklasse:
+      'at TE svarte for sent på forespørselen, prekluderer ikke kravet (§ 33.6.2 tredje ledd, VS-U17)',
+    fil: `${K}/regler/frist.ts`,
+    endringer: [
+      [
+        '    (krav.er_svar_paa_foresporsel || krav.har_begrunnelse_etter_b) &&\n    v.foresporsel_svar_ok === false',
+        '    false',
+      ],
+    ],
+    mal: ['VS-U17: «svaret kom for sent»', 'VS-U29: innsigelsen mot begrunnelsen'],
+  },
+  {
+    id: 'F319',
+    feilklasse:
+      'det første fristkravet etter forespørselen leses ikke som svar på den (LV-U18 setning 3)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['    if (krav && !kravetErDokumentasjon(d))', '    if (false)']],
+    mal: ['kravet som svarer på forespørselen, sier det'],
+  },
+  {
+    id: 'F320',
+    feilklasse:
+      'innsigelsen mot begrunnelsen etter § 33.6.2 annet ledd b er ingen påberopelse (VS-U29)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["utsagn.art === 'foresporselssvar' ? '33.6.2'", "false ? '33.6.2'"]],
+    mal: ['VS-U29: innsigelsen mot begrunnelsen', 'HF-U4: etter «i tide» etter § 33.6.2'],
+  },
+  {
+    id: 'F321',
+    feilklasse: 'svaret kan påberope § 33.6.2 mot begrunnelsen uten en egen innsigelse (VS-U29)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["  if (f?.art !== 'begrunnelse') return f;", '  return f;']],
+    mal: ['et krav etter begrunnelsen svarer ikke på forespørselen'],
+  },
+  {
+    id: 'F322',
+    feilklasse: '«ikke et svar etter annet ledd» leses som en påberopelse etter § 33.6.2 (VS-U29)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined",
+        "x.art === 'innsigelse' && x.gjelder === f.gjelder",
+      ],
+    ],
+    mal: ['«ikke et svar etter annet ledd» registreres uten virkning'],
+  },
+  {
+    id: 'F323',
+    feilklasse: 'to begrunnelser godtas mot samme forespørsel (KA-U1)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['      if (f.svar !== null)', '      if (false)']],
+    mal: ['KA-U1, VS-U27: én begrunnelse per forespørsel'],
   },
 ];
 

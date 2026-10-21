@@ -29,6 +29,7 @@ import {
   innsigelsenPaaberoper,
   krevdBeloep,
   kroner,
+  svarPaaForesporsler,
 } from './standpunkt.ts';
 import type {
   Avsnitt,
@@ -337,12 +338,18 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
     }
   } else if (k.spor === 'vederlag') {
     deler.push(
-      `TE krever justering av vederlaget med ${eksMva(k.innhold.beloep as number)} Kravet er et tilbud etter NS 8407 § 34.2.1.`
+      `TE krever justering av vederlaget med ${eksMva(tilTall(krevdBeloep(k)))} Kravet er et tilbud etter NS 8407 § 34.2.1.`
     );
   } else {
     deler.push(
       `TE krever fristforlengelse på ${dager(k.innhold.dager as number)} (NS 8407 § 33.6.1).`
     );
+    // LV-U18 setning 3: kravet som svarer på forespørselen, sier det.
+    const f = svarPaaForesporsler(j.dokumenter).find((x) => x.svar === k.id);
+    if (f)
+      deler.push(
+        `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(f.foresporsel))}.`
+      );
   }
   if (k.erstatter)
     deler.push(`Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`);
@@ -353,6 +360,7 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
 interface Innsigelse {
   gjelder: string;
   dokument: string;
+  hjemmel?: Hjemmel | null;
 }
 
 /**
@@ -374,14 +382,21 @@ function aapneInnsigelser(
     // HF-U4, OV-U4: et registrert brev gir ikke opp innsigelsen.
     if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar);
     for (const u of d.utsagn)
-      if (u.art === 'innsigelse')
+      // VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen påberopelse.
+      if (u.art === 'innsigelse' && u.grunn === undefined)
         innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length });
   }
-  return innsigelser.filter(
-    (i) =>
-      innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) => gjelderVarslingsplikten(k, regler)) ===
-        HJEMMEL[svar.spor] && !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra))
-  );
+  return innsigelser.flatMap((i) => {
+    const hjemmel = innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) =>
+      gjelderVarslingsplikten(k, regler)
+    );
+    // VS-U29: i fristen også påberopelsen etter § 33.6.2 mot begrunnelsen.
+    const gjelder =
+      hjemmel === HJEMMEL[svar.spor] || (svar.spor === 'frist' && hjemmel === '33.6.2');
+    return gjelder && !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra), hjemmel)
+      ? [{ gjelder: i.gjelder, dokument: i.dokument, hjemmel }]
+      : [];
+  });
 }
 
 /** Metoden byggherren mener vederlaget skal justeres etter, når tilbudet ikke er akseptert. */
@@ -394,6 +409,7 @@ const METODEN = {
 const VARSELET: Record<Hjemmel, string> = {
   '32.2': 'TEs varsel etter NS 8407 § 32.2',
   '33.4': 'varselet om fristforlengelse etter NS 8407 § 33.4',
+  '33.6.2': 'TEs svar på forespørselen etter NS 8407 § 33.6.2',
   '34.1.2': 'varselet om vederlagsjustering etter NS 8407 § 34.1.2',
 };
 
@@ -480,18 +496,20 @@ function standpunkttekst(
     s.spor === 'grunnlag' ? krav : s.grunnlagskrav ? j.krav(s.grunnlagskrav) : null;
   switch (p.art) {
     case 'rettidighet': {
+      const aapne = innsigelser.filter((i) => i.hjemmel === p.hjemmel);
       // HF-U1: brevet varselet står i, unntatt TEs varsel etter § 32.2 (oppdragsgiver 17.10, #497).
+      // LV-U18 setning 4: svaret på forespørselen med brevet forespørselen står i.
       const varselet =
         p.hjemmel === '32.2'
           ? VARSELET[p.hjemmel]
-          : `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`;
+          : `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.hjemmel === '33.6.2' ? foresporselenTil(p.gjelder, j) : p.gjelder))}`;
       // Et «for sent» gjentar de åpne innsigelsene, og et «i tide» gir dem opp (VS-U11, VS-U24).
       // Saken har ett varsel etter § 33.4 (oppdragsgiver 15.10, #498).
-      const brevene = liste([...new Set(innsigelser.map((i) => j.brevet(i.dokument)))]);
-      const henvisning = innsigelser.length > 1 ? 'innsigelsene' : 'innsigelsen';
+      const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
+      const henvisning = aapne.length > 1 ? 'innsigelsene' : 'innsigelsen';
       if (!p.iTide)
-        return `byggherren gjør gjeldende at ${varselet} kom for sent${innsigelser.length ? `, jf. ${henvisning} i ${brevene}` : ''}.`;
-      return innsigelser.length
+        return `byggherren gjør gjeldende at ${varselet} kom for sent${aapne.length ? `, jf. ${henvisning} i ${brevene}` : ''}.`;
+      return aapne.length
         ? `byggherren gir opp ${henvisning} etter NS 8407 § 5 i ${brevene} og gjør ikke gjeldende at ${varselet} kom for sent.`
         : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;
     }
@@ -561,6 +579,13 @@ function verdi(resultat: string, godkjent: string, krevd: string): string {
   throw new KanIkkeUttrykkes(`standpunktet ${resultat} har ingen brevtekst`);
 }
 
+/** Forespørselen et standpunkt etter § 33.6.2 gjelder svaret på: kravet eller begrunnelsen. */
+function foresporselenTil(gjelder: string, j: Journalen): string {
+  const f = svarPaaForesporsler(j.dokumenter).find((x) => x.svar === gjelder);
+  if (!f) throw new KanIkkeUttrykkes(`${gjelder} er ikke et svar på en forespørsel`);
+  return f.foresporsel;
+}
+
 /** Det en innsigelse eller en protest viser til, med brevet det står i (LV-U4 punkt 7 og 8). */
 function beskriv(id: string, j: Journalen): string {
   const e = j.element(id);
@@ -575,6 +600,8 @@ function beskriv(id: string, j: Journalen): string {
       if (e.utsagn.art === 'varsel')
         return `TEs varsel om fristforlengelse etter NS 8407 § 33.4 i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'innsigelse') return `innsigelsen i ${j.brevet(e.dokument)}`;
+      if (e.utsagn.art === 'foresporselssvar')
+        return `TEs svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 § 33.6.2`;
       break;
     case 'dokument':
       return `innsigelsene i ${j.brevet(e.dokument.id)}`;
@@ -619,7 +646,16 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
         ? `TE krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`
         : `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`;
     case 'innsigelse':
+      // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd.
+      if (u.grunn === 'ikke_svar')
+        return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} ikke er et svar etter NS 8407 § 33.6.2 annet ledd (NS 8407 § 5 tredje ledd).`;
       return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} kom for sent (NS 8407 § 5 tredje ledd).`;
+    case 'foresporsel':
+      // LV-U18 setning 1, ordrett med saken satt inn.
+      return `Byggherren ber etter NS 8407 § 33.6.2 TE angi og begrunne det antall dager TE krever som fristforlengelse som følge av forholdet i ${sak}. Svarer ikke TE, tapes kravet på fristforlengelse. Har TE ikke grunnlag for å beregne kravet, skal TE i stedet begrunne hvorfor grunnlaget ikke foreligger.`;
+    case 'foresporselssvar':
+      // LV-U18 setning 2. TEs begrunnelse følger som utdypningen.
+      return `TE svarer på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(u.gjelder))} at grunnlaget for å beregne kravet ikke foreligger (§ 33.6.2 annet ledd b).`;
     case 'protest':
       return `${part} protesterer mot ${beskriv(u.gjelder, j)}.`;
     case 'passivitet': {

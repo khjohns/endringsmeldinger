@@ -63,6 +63,8 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
     { art: 'beloep', paakrevd: true },
   ],
   frist: [
+    // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`leser.ts`).
+    { art: 'rettidighet', paakrevd: false },
     { art: 'rettidighet', paakrevd: false },
     { art: 'hindring', paakrevd: false },
     { art: 'spesifisering', paakrevd: false },
@@ -209,7 +211,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     {
       ...artfelt('rettidighet'),
       gjelder: ID,
-      hjemmel: { enum: ['32.2', '33.4', '34.1.2'] },
+      hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2'] },
       i_tide: { type: 'boolean' },
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
@@ -340,7 +342,21 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     'art',
     'spor',
   ]),
-  innsigelse: objekt({ ...artfelt('innsigelse'), gjelder: ID }, ['id', 'art', 'gjelder']),
+  innsigelse: objekt({ ...artfelt('innsigelse'), gjelder: ID, grunn: { const: 'ikke_svar' } }, [
+    'id',
+    'art',
+    'gjelder',
+  ]),
+  foresporsel: objekt({ ...artfelt('foresporsel'), hjemmel: { const: '33.6.2' } }, [
+    'id',
+    'art',
+    'hjemmel',
+  ]),
+  foresporselssvar: objekt({ ...artfelt('foresporselssvar'), gjelder: ID }, [
+    'id',
+    'art',
+    'gjelder',
+  ]),
   protest: objekt({ ...artfelt('protest'), gjelder: ID }, ['id', 'art', 'gjelder']),
   passivitet: objekt({ ...artfelt('passivitet'), gjelder: ID }, ['id', 'art', 'gjelder']),
   begrunnelse: objekt({ ...artfelt('begrunnelse'), gjelder: ID }, ['id', 'art', 'gjelder']),

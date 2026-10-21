@@ -254,6 +254,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svar.utregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
+  // VS-U29: at TEs begrunnelse etter § 33.6.2 annet ledd b ikke er et svar etter annet ledd.
+  ['Utsagn', 'utsagn', 'grunn'],
   ['Standpunkt', 'relasjon', 'id art gjelder'],
   [
     'Standpunkt',
@@ -306,13 +308,25 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'predikat',
     'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel',
   ],
+  // § 33.6.2 (VS-U17, VS-U19, VS-U27): hver forespørsel og kravet eller begrunnelsen som
+  // svarte, utledet av rekkefølgen i journalen, og hvordan fristkravene står til den.
+  ['Sporutledning', 'relasjon', 'foresporsler'],
+  ['Foresporselssvar', 'relasjon', 'foresporsel svar medKrav'],
+  ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
+  ['frosset/standpunkt.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon'],
+  ['utledning/utled.ts', 'relasjon', 'foresporselForFristsvar'],
   // HF-U4, HF-U8: en påberopelse i svaret etter et «i tide» i et svar sendt fra appen,
   // kontrollert likt i kommandoene og utledningen (#776).
   ['utledning/utled.ts', 'predikat', 'paaberoptEtterITide', ['kommandoer/nyttelast.ts']],
   // HF-U4, VS-U24: en innsigelse etter et «i tide», kontrollert likt i kommandoene og
   // utledningen (#776). Det innsigelsen gjelder, leses av dokumentene i journalen (#536).
   ['utledning/utled.ts', 'predikat', 'innsigelsenEtterITide', ['kommandoer/nyttelast.ts']],
-  ['Utledning', 'utsagn', 'journal', ['utledning/utled.ts:innsigelsenEtterITide']],
+  [
+    'Utledning',
+    'utsagn',
+    'journal',
+    ['utledning/utled.ts:innsigelsenEtterITide', 'utledning/utled.ts:foresporselForFristsvar'],
+  ],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
   ['utledning/utled.ts', 'predikat', 'frafalletBinder', ['kommandoer/nyttelast.ts']],
   // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 i et nytt svar gjelder (#496, #766).
@@ -381,6 +395,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // MM-U18: sammenfallet stemmer med standpunktene i samme frosne brev.
   ['frosset/standpunkt.ts', 'frosset', 'sammenfallStemmer', ['utledning/utled.ts:utledSporene']],
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
+  ['frosset/standpunkt.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
   [
     'frosset/standpunkt.ts',
@@ -395,13 +410,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Svarvurdering',
     'utsagn',
     `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide aksepterer_metode oensket_metode
-     frist_varsel_ok spesifisert_krav_ok dager_maatte_forstaa vilkar_oppfylt dager`,
+     frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok dager_maatte_forstaa vilkar_oppfylt
+     dager`,
   ],
   [
     'frosset/standpunkt.ts:utenforOmfanget(v)',
     'utsagn',
-    `foresporsel_svar_ok hold_tilbake rigg_vurdering
-     produktivitet_vurdering *`,
+    `hold_tilbake rigg_vurdering produktivitet_vurdering *`,
   ],
 
   // Regelsettet (regler/).
@@ -435,7 +450,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Fristkrav',
     'regelsett',
     `krevd_dager varsel_type er_svar_paa_foresporsel har_innsigelse_mot_varsel
-     har_tidligere_varsel_i_tide`,
+     har_tidligere_varsel_i_tide har_begrunnelse_etter_b`,
   ],
   [
     'Fristvurdering',
@@ -476,7 +491,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Kommando',
     'kommando',
-    'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder',
+    'type spor svar innhold varsel erstatter regelversjon sendt hjemmel dokumentasjon gjelder grunn',
   ],
   // OV-U5: varselet i fristkravet har datoen og brevet som vedlegg.
   ['Kommando.varsel', 'kommando', 'sendt dokumentasjon'],
@@ -825,7 +840,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['UNDERKATEGORI', 'brevtekst', 'navn hjemmel', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
-  ['Innsigelse', 'relasjon', 'dokument gjelder', ['frosset/brevtekst.ts']],
+  ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],
   // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
   // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).
   [

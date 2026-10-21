@@ -25,6 +25,7 @@ import {
 } from '../frosset/standpunkt.ts';
 import {
   frafalletBinder,
+  foresporselForFristsvar,
   innsigelsenEtterITide,
   paaberoptEtterITide,
   type Utledning,
@@ -63,7 +64,11 @@ function kontrollerSvar(
     server = regnUtSvar(
       s.spor,
       s.vurderinger,
-      { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+      {
+        krav,
+        grunnlagskrav: u.spor.grunnlag.gjeldendeKrav,
+        foresporsel: foresporselForFristsvar(u),
+      },
       regler
     );
   } catch (feil) {
@@ -334,6 +339,8 @@ export function nyttelastkontroll(
     case 'trekk':
     case 'varsel':
     case 'send_varsel':
+    case 'foresporsel':
+    case 'foresporselssvar':
     case 'ingen_krav':
     case 'protest':
     case 'bestridelse':
@@ -341,6 +348,14 @@ export function nyttelastkontroll(
     case 'avklaring':
       return null;
     case 'innsigelse': {
+      // VS-U29: at noe ikke er et svar etter § 33.6.2 annet ledd, gjelder bare TEs begrunnelse.
+      if (k.grunn !== undefined)
+        return u.elementer[k.gjelder]?.art === 'foresporselssvar'
+          ? null
+          : avvis(
+              'UGYLDIG_INNSIGELSE',
+              'Bare TEs begrunnelse etter § 33.6.2 annet ledd b kan påstås ikke å være et svar etter annet ledd.'
+            );
       // VS-U24, HF-U4: en innsigelse mot varselet etter § 33.4 eller TEs varsel etter § 32.2
       // er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at
       // varselet kom i tide, avvises den (del 2 av #498).
