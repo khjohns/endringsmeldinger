@@ -926,9 +926,14 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F101',
-    feilklasse: 'et standpunkt i et annet spor gir opp innsigelsen (VS-U9, VS-U11)',
+    feilklasse:
+      'et standpunkt i et annet spor eller etter en annen bestemmelse gir opp innsigelsen (VS-U9, VS-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['    .filter((x) => x.spor === spor)', '    .filter((x) => x.spor === x.spor)']],
+    // Hjemmelen skiller også sporene, så begge filtrene muteres.
+    endringer: [
+      ['    .filter((x) => x.spor === spor)', '    .filter((x) => x.spor === x.spor)'],
+      ['        p.hjemmel === hjemmel &&', '        true &&'],
+    ],
     mal: ['et «i tide» i grunnlaget gir ikke opp innsigelsen mot fristvarselet'],
   },
   {
@@ -2806,15 +2811,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['VS-U29, VS-U11: etter en innsigelse mot begrunnelsen må svaret'],
   },
   {
-    id: 'F326',
-    feilklasse: 'innsigelsen etter § 33.6.2 gis opp av et standpunkt om noe annet (HF-U4)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      ["(p.hjemmel !== '33.6.2' || i.gjelder === p.gjelder)", "(p.hjemmel !== '33.6.2' || true)"],
-    ],
-    mal: ['VS-U29, HF-U4: et standpunkt om kravet som svarer på en ny forespørsel'],
-  },
-  {
     id: 'F327',
     feilklasse: 'beslutningslinjen viser bare den første preklusjonen i fristsvaret',
     fil: `${K}/frosset/standpunkt.ts`,
@@ -2825,6 +2821,23 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['beslutningslinjen nevner begge bestemmelsene'],
+  },
+  {
+    id: 'F328',
+    feilklasse: 'en ny forespørsel godtas etter TEs begrunnelse (VS-U30)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      ['      if (s.foresporsler.some((f) => f.svar !== null && !f.medKrav))', '      if (false)'],
+    ],
+    mal: ['VS-U30: etter TEs begrunnelse avvises en ny forespørsel'],
+  },
+  {
+    id: 'F329',
+    feilklasse:
+      'protesten mot påberopelsen etter § 33.6.2 omtaler den som for sen varsling (LV-U20)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['erPaaberopelseEtter3362(id, e.svar)', 'false']],
+    mal: ['LV-U20: protesten mot påberopelsen etter § 33.6.2'],
   },
 ];
 

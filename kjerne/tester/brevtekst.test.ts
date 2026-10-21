@@ -2744,14 +2744,48 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     ).toBe('UGYLDIG_VURDERING');
   });
 
-  it('VS-U29, HF-U4: et standpunkt om kravet som svarer på en ny forespørsel, gir ikke opp innsigelsen mot en tidligere begrunnelse', () => {
-    const { s, b } = medBegrunnelse();
-    s.send('BH', { type: 'innsigelse', gjelder: b });
-    s.send('BH', foresporsel);
+  it('VS-U30: etter TEs begrunnelse avvises en ny forespørsel fra appen', () => {
+    const { s } = medForesporsel();
+    expect(s.avvist('BH', foresporsel), 'kontrollsak: før begrunnelsen').toBeNull();
+    const { s: medB } = medBegrunnelse();
+    expect(medB.avvist('BH', foresporsel)).toBe('FORESPORSEL_BEGRUNNET');
+  });
+
+  it('LV-U20: protesten mot påberopelsen etter § 33.6.2 sier at den gjelder TEs svar på forespørselen', () => {
+    const { s } = medForesporsel();
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    const rad = fristsvar(s, { ...FRIST_FULLT[0], foresporsel_svar_ok: true }, FRIST_FULLT[1]);
-    expect(laast(rad)[0]).not.toContain('gir opp innsigelsen');
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBeNull();
+    const rad = fristsvar(
+      s,
+      { ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'), foresporsel_svar_ok: false },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    const standpunkter = (rad.data.svar as Data[])[0].standpunkter as Data[];
+    const id = (hjemmel: string) => standpunkter.find((p) => p.hjemmel === hjemmel)!.id as string;
+    const protest = (gjelder: string): Dokument => ({
+      id: 'protesten',
+      avsender: 'TE',
+      registrert: '2026-10-07T10:00:00Z',
+      opplysninger: [],
+      dokumentasjon: [],
+      krav: [],
+      svar: [],
+      utsagn: [{ id: 'p', art: 'protest', gjelder }],
+      brevtekst: null,
+    });
+    const saken = {
+      saksnummer: SAK,
+      tittel: TITTEL,
+      grunnlagssvar: null,
+      subsidiaer: { vederlag: [], frist: [] },
+    };
+    const tekst = (gjelder: string) =>
+      lagBrevtekst(protest(gjelder), s.u().journal, saken, KJERNE.regler)[0].laast;
+    expect(tekst(id('33.6.2'))).toBe(
+      'TE protesterer mot påberopelsen av at TEs svar på forespørselen etter NS 8407 § 33.6.2 kom for sent i svaret i brev 5 av 5. oktober 2026.'
+    );
+    expect(tekst(id('33.4')), 'kontrollsak: § 33.4 har dagens tekst').toBe(
+      'TE protesterer mot påberopelsen av for sen varsling i svaret i brev 5 av 5. oktober 2026.'
+    );
   });
 
   it('VS-U29: «ikke et svar etter annet ledd» registreres uten virkning, og gjelder bare begrunnelsen', () => {

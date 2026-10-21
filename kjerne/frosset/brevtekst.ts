@@ -590,6 +590,9 @@ function foresporselenTil(gjelder: string, j: Journalen): string {
   return f.foresporsel;
 }
 
+const erPaaberopelseEtter3362 = (id: string, svar: Svar) =>
+  svar.standpunkter.some((p) => p.id === id && p.art === 'rettidighet' && p.hjemmel === '33.6.2');
+
 /** Det en innsigelse eller en protest viser til, med brevet det står i (LV-U4 punkt 7 og 8). */
 function beskriv(id: string, j: Journalen): string {
   const e = j.element(id);
@@ -599,7 +602,10 @@ function beskriv(id: string, j: Journalen): string {
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
     case 'standpunkt':
-      return `påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`;
+      // LV-U20: påberopelsen etter § 33.6.2 gjelder TEs svar på forespørselen, ikke et varsel.
+      return erPaaberopelseEtter3362(id, e.svar)
+        ? `påberopelsen av at TEs svar på forespørselen etter NS 8407 § 33.6.2 kom for sent i svaret i ${j.brevet(e.svar.dokument)}`
+        : `påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`;
     case 'utsagn':
       if (e.utsagn.art === 'varsel')
         return `TEs varsel om fristforlengelse etter NS 8407 § 33.4 i ${j.brevet(e.dokument)}`;

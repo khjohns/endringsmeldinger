@@ -229,6 +229,12 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           'FRISTKRAV_SENDT',
           'TE har krevd dager, så forespørselen etter § 33.6.2 kan ikke sendes.'
         );
+      // VS-U30: ingen ny forespørsel fra appen etter TEs begrunnelse etter annet ledd b.
+      if (s.foresporsler.some((f) => f.svar !== null && !f.medKrav))
+        return avvis(
+          'FORESPORSEL_BEGRUNNET',
+          'TE har svart på en forespørsel med en begrunnelse etter § 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes fra appen.'
+        );
       return null;
     case 'svare':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);
