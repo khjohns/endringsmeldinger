@@ -22,13 +22,12 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
   if (s.spor === 'grunnlag') {
     ut.push(...grunnlagsstandpunkter(v, krav, nyId));
   } else if (s.spor === 'vederlag') {
-    // HF-U1: varselet etter § 34.1.2 er ikke et eget element ennå (OV-U5). Det første
-    // vederlagskravet er det første varselet appen kjenner (arbeidsvalget i #479).
+    // VS-U20, OV-U5, HF-U1: varselet før svaret, som i fristen.
     if (typeof v.hovedkrav_varslet_i_tide === 'boolean')
       ut.push({
         id: nyId(),
         art: 'rettidighet',
-        gjelder: u.spor.vederlag.krav[0]!.id,
+        gjelder: varseletForNyttSvar(u, 'vederlag'),
         hjemmel: HJEMMEL.vederlag,
         i_tide: v.hovedkrav_varslet_i_tide,
       });
@@ -47,7 +46,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
       ut.push({
         id: nyId(),
         art: 'rettidighet',
-        gjelder: varseletForNyttSvar(u),
+        gjelder: varseletForNyttSvar(u, 'frist'),
         hjemmel: HJEMMEL.frist,
         i_tide: v.frist_varsel_ok,
       });

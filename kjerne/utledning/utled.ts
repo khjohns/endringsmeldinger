@@ -41,6 +41,7 @@ import { senketInnroemmelse } from './innroemmelse.ts';
 import {
   KRAVSPOR,
   SPOR,
+  VARSELSPOR,
   type Dokument,
   type Domenehendelse,
   type Enighetsgrunnlag,
@@ -62,7 +63,8 @@ export interface Svarberegning {
   /** Virkningen standpunktene hadde slik brevet uttrykte dem (MM-U9). */
   virkninger: Standpunktsvirkning[];
   /**
-   * Standpunktene etter § 33.4 som gjelder et annet varsel enn det som er registrert nå.
+   * Standpunktene etter § 33.4 og § 34.1.2 som gjelder et annet varsel enn det som er
+   * registrert nå.
    * Svaret står med sin virkning (OV-U5), og bare visningen leser dette.
    */
   gjaldtEtAnnetVarsel: string[];
@@ -85,7 +87,7 @@ export interface Sporutledning {
   trukket: boolean;
   /** TE har sagt at det ikke kreves noe i sporet (KA-U12). */
   ingenKrav: boolean;
-  /** Det registrerte varselet etter § 33.4; bare fristen. */
+  /** Det registrerte varselet etter § 33.4 i fristen og § 34.1.2 i vederlaget (OV-U5). */
   varsel: Extract<LestUtsagn, { art: 'varsel' }> | null;
   /** § 33.6.2: forespørslene og det som svarte på dem; bare fristen. */
   foresporsler: ForesporselOgSvar[];
@@ -649,13 +651,6 @@ function utledSporene(
       if (p.art === 'spesifisering' && p.gjelder !== s.gjelder)
         ugyldig(s.id, 'spesifiseringen viser ikke til kravet svaret gjelder');
       if (p.art !== 'rettidighet') continue;
-      // Arbeidsvalget i #479: påberopelsen etter § 34.1.2 gjelder det første vederlagskravet,
-      // det første varselet appen kjenner (OV-U5).
-      if (p.hjemmel === '34.1.2') {
-        if (p.gjelder !== spor.vederlag.krav[0]?.id)
-          ugyldig(s.id, 'påberopelsen etter § 34.1.2 viser ikke til det første vederlagskravet');
-        continue;
-      }
       // VS-U17, VS-U29: rettidigheten av svaret på en forespørsel gjelder kravet eller begrunnelsen som svarte.
       if (p.hjemmel === '33.6.2') {
         if (!besvart.some((f) => f.svar === p.gjelder) || !bakover(s.id, p.gjelder))
@@ -665,11 +660,13 @@ function utledSporene(
           );
         continue;
       }
-      if (p.hjemmel === '33.4') {
-        if (p.gjelder !== varseletFoerSvaret(varsler, spor.frist.krav, (v) => bakover(s.id, v)))
+      if (p.hjemmel === '33.4' || p.hjemmel === '34.1.2') {
+        const n = VARSELSPOR[p.hjemmel];
+        const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
+        if (p.gjelder !== varseletFoerSvaret(varslene, spor[n].krav, (v) => bakover(s.id, v)))
           ugyldig(
             s.id,
-            'påberopelsen etter § 33.4 viser ikke til varselet før svaret eller, uten varsel, det første fristkravet'
+            `påberopelsen etter § ${p.hjemmel} viser ikke til varselet før svaret eller, uten varsel, det første kravet i sporet`
           );
         continue;
       }
@@ -804,11 +801,14 @@ function utledSporene(
         i.id,
         '«ingen krav» står i et spor med en kravversjon eller et annet «ingen krav», eller før grunnlaget er sendt'
       );
-  if (varsler.length > 1) ugyldig(varsler[1].id, 'saken har to varsler etter § 33.4 (SK-12)');
+  for (const hjemmel of ['33.4', '34.1.2'] as const) {
+    const andre = varsler.filter((v) => v.hjemmel === hjemmel)[1];
+    if (andre) ugyldig(andre.id, `saken har to varsler etter § ${hjemmel} (SK-12)`);
+  }
 
   if (begrensninger.length) return tom(journal, regler, begrensninger);
 
-  spor.frist.varsel = varsler[0] ?? null;
+  for (const v of varsler) spor[VARSELSPOR[v.hjemmel]].varsel = v;
   spor.frist.foresporsler = besvart;
   for (const n of SPOR) {
     const sp = spor[n];
@@ -822,17 +822,18 @@ function utledSporene(
   for (const n of KRAVSPOR) spor[n].trukket ||= spor.grunnlag.trukket;
 
   // OV-U5, HF-U1: et svar står med virkningen det hadde, også når TE senere har registrert
-  // et annet varsel enn det påberopelsen etter § 33.4 gjaldt. Visningen sier det.
-  const annetVarsel = (gjelder: string) =>
-    spor.frist.varsel !== null && gjelder !== spor.frist.varsel.id;
+  // et annet varsel enn det påberopelsen etter § 33.4 eller § 34.1.2 gjaldt. Visningen sier det.
+  const annetVarsel = (p: Standpunkt) => {
+    if (p.art !== 'rettidighet' || (p.hjemmel !== '33.4' && p.hjemmel !== '34.1.2')) return false;
+    const varsel = spor[VARSELSPOR[p.hjemmel]].varsel;
+    return varsel !== null && p.gjelder !== varsel.id;
+  };
   const svar: Record<string, Svarberegning> = {};
   for (const s of alleSvar.values()) {
     svar[s.id] = {
       svar: s,
       virkninger: s.beslutningsgrunnlag.virkninger,
-      gjaldtEtAnnetVarsel: s.standpunkter
-        .filter((p) => p.art === 'rettidighet' && p.hjemmel === '33.4' && annetVarsel(p.gjelder))
-        .map((p) => p.id),
+      gjaldtEtAnnetVarsel: s.standpunkter.filter(annetVarsel).map((p) => p.id),
     };
   }
 
@@ -1023,7 +1024,7 @@ export function innsigelsenEtterITide(
   gjelder: string,
   part: Part,
   u: Utledning
-): Extract<Hjemmel, '32.2' | '33.4' | '33.6.2'> | null {
+): Extract<Hjemmel, '32.2' | '33.4' | '33.6.2' | '34.1.2'> | null {
   if (part !== 'BH') return null;
   const hjemmel = innsigelsenPaaberoper(gjelder, dokumenterI(u.journal), (krav) =>
     u.spor.grunnlag.svar.some((s) => {
@@ -1036,7 +1037,8 @@ export function innsigelsenEtterITide(
     })
   );
   if (hjemmel === '33.6.2') return harSagtITide(u, 'frist', { hjemmel, gjelder }) ? hjemmel : null;
-  return hjemmel && harSagtITide(u, hjemmel === '33.4' ? 'frist' : 'grunnlag', { hjemmel })
+  return hjemmel &&
+    harSagtITide(u, hjemmel === '32.2' ? 'grunnlag' : VARSELSPOR[hjemmel], { hjemmel })
     ? hjemmel
     : null;
 }
@@ -1234,25 +1236,26 @@ export function standpunktetErSubsidiaert(
 }
 
 /**
- * VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 gjelder, er varselet som var
- * registrert da svaret ble sendt, ellers det første fristkravet, som er det første
- * varselet appen kjenner (arbeidsvalget i #309). `foerSvaret` sier om et varsel står før
- * svaret. Skriveren og valideringen leser det herfra (#496).
+ * VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 eller § 34.1.2 gjelder, er
+ * varselet i sporet som var registrert da svaret ble sendt, ellers det første kravet i
+ * sporet, som er det første varselet appen kjenner (arbeidsvalgene i #309 og #479).
+ * `foerSvaret` sier om et varsel står før svaret. Skriveren og valideringen leser det
+ * herfra (#496).
  */
 export const varseletFoerSvaret = (
   varsler: readonly Pick<Extract<LestUtsagn, { art: 'varsel' }>, 'id'>[],
-  fristkrav: readonly Pick<Krav, 'id'>[],
+  krav: readonly Pick<Krav, 'id'>[],
   foerSvaret: (varsel: string) => boolean
-): string | undefined => varsler.find((v) => foerSvaret(v.id))?.id ?? fristkrav[0]?.id;
+): string | undefined => varsler.find((v) => foerSvaret(v.id))?.id ?? krav[0]?.id;
 
 /**
- * Varselet en påberopelse etter § 33.4 gjelder i et svar som skrives nå: hvert varsel i
- * saken står før svaret, og saken har høyst ett (SK-12). Skriveren leser det herfra, så
- * regelen står ett sted (#766).
+ * Varselet en påberopelse etter § 33.4 eller § 34.1.2 gjelder i et svar som skrives nå:
+ * hvert varsel i sporet står før svaret, og sporet har høyst ett (SK-12). Skriveren leser
+ * det herfra, så regelen står ett sted (#766).
  */
-export function varseletForNyttSvar(u: Pick<Utledning, 'spor'>): string {
-  const frist = u.spor.frist;
-  const varsel = varseletFoerSvaret(frist.varsel ? [frist.varsel] : [], frist.krav, () => true);
-  if (varsel === undefined) throw new Error('Et svar i fristen kan ikke skrives uten fristkrav.');
+export function varseletForNyttSvar(u: Pick<Utledning, 'spor'>, spor: Kravspor): string {
+  const s = u.spor[spor];
+  const varsel = varseletFoerSvaret(s.varsel ? [s.varsel] : [], s.krav, () => true);
+  if (varsel === undefined) throw new Error(`Et svar i sporet ${spor} kan ikke skrives uten krav.`);
   return varsel;
 }

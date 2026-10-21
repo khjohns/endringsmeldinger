@@ -158,8 +158,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "p.hjemmel === '33.4' && annetVarsel(p.gjelder)",
-        "p.hjemmel === '32.2' && annetVarsel(p.gjelder)",
+        "(p.hjemmel !== '33.4' && p.hjemmel !== '34.1.2')) return false;",
+        "p.hjemmel !== '34.1.2') return false;",
       ],
     ],
     mal: ['F-MM-D', 'F-MM-D-godtatt', 'visningen sier at svaret gjaldt et annet varsel'],
@@ -312,7 +312,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'visningen sier ikke at svaret gjaldt et annet varsel enn det som er registrert nå (OV-U5)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['gjelder !== spor.frist.varsel.id;', 'gjelder === spor.frist.varsel.id;']],
+    endringer: [['p.gjelder !== varsel.id;', 'p.gjelder === varsel.id;']],
     mal: ['F-MM-D-itide', 'visningen sier at svaret gjaldt et annet varsel'],
   },
   {
@@ -422,7 +422,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [['        gjelder: varseletForNyttSvar(u),\n', '']],
+    endringer: [["        gjelder: varseletForNyttSvar(u, 'frist'),\n", '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -904,8 +904,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'frist.varsel ? [frist.varsel] : [], frist.krav, () => true',
-        'frist.varsel ? [frist.varsel] : [], frist.krav.slice(-1), () => true',
+        's.varsel ? [s.varsel] : [], s.krav, () => true',
+        's.varsel ? [s.varsel] : [], s.krav.slice(-1), () => true',
       ],
     ],
     mal: [
@@ -1258,11 +1258,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'at TE vil kreve fristforlengelse som følge av forholdet i ${sak}.`',
-        'at TE vil kreve fristforlengelse.`',
+        'at TE vil kreve ${VIL_KREVE[u.hjemmel]} som følge av forholdet i ${sak}.`',
+        'at TE vil kreve ${VIL_KREVE[u.hjemmel]}.`',
       ],
     ],
-    mal: ['med teksten i VS-U15'],
+    mal: ['med teksten i VS-U15', 'med teksten i LV-U19'],
   },
   {
     id: 'F140',
@@ -1283,7 +1283,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/avvisning.ts`,
     endringer: [
       [
-        "      return [{ type: 'sende_varsel', spor: 'frist' }];",
+        "      return [{ type: 'sende_varsel', spor: k.spor }];",
         "      return [{ type: 'krav', spor: 'frist' }];",
       ],
     ],
@@ -1500,7 +1500,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [['gjelder: u.spor.vederlag.krav[0]!.id,', 'gjelder: krav.id,']],
+    endringer: [["gjelder: varseletForNyttSvar(u, 'vederlag'),", 'gjelder: krav.id,']],
     mal: ['F-MM-V-34-1-2-ny-kravversjon'],
   },
   {
@@ -1509,7 +1509,7 @@ const MUTASJONER: Mutasjon[] = [
       'en lagret påberopelse etter § 34.1.2 som viser til en senere kravversjon, forstås (HF-U1)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['if (p.gjelder !== spor.vederlag.krav[0]?.id)', "if (p.gjelder === ('' as string))"],
+      ["if (p.hjemmel === '33.4' || p.hjemmel === '34.1.2') {", "if (p.hjemmel === '33.4') {"],
     ],
     mal: ['påberopelsen etter § 34.1.2 viser til kravversjonen svaret gjelder'],
   },
@@ -1693,8 +1693,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== varseletFoerSvaret(varsler, spor.frist.krav, (v) => bakover(s.id, v)))',
-        'if (p.gjelder !== varseletFoerSvaret(varsler, spor.frist.krav, (v) => bakover(s.id, v)) && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== varseletFoerSvaret(varslene, spor[n].krav, (v) => bakover(s.id, v)))',
+        'if (p.gjelder !== varseletFoerSvaret(varslene, spor[n].krav, (v) => bakover(s.id, v)) && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -1704,7 +1704,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en innsigelse mot varselet etter § 33.4 leses ikke som en påberopelse (VS-U24, VS-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["      return utsagn.art === 'varsel' ? '33.4'", "      return false ? '33.4'"]],
+    endringer: [
+      [
+        "      return utsagn.art === 'varsel'\n        ? utsagn.hjemmel",
+        '      return false\n        ? utsagn.hjemmel',
+      ],
+    ],
     mal: [
       'gir byggherren opp innsigelsen mot fristvarselet',
       'gir et «i tide» opp bare den mot varselet',
@@ -2547,7 +2552,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'datoen i registreringen av varselet kontrolleres ikke mot brevets dato (#968)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ["  if (k.type === 'varsel') return { dato: k.sendt, gjelder: VARSELET_SENDT };", ''],
+      [
+        "  if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel) };",
+        '',
+      ],
     ],
     mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],
   },
@@ -2557,7 +2565,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '    return k.varsel ? { dato: k.varsel.sendt, gjelder: VARSELET_SENDT } : null;',
+        "    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4') } : null;",
         '    return null;',
       ],
     ],
@@ -2567,7 +2575,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F300',
     feilklasse: 'vedleggene i varselet i fristkravet slås ikke opp (OV-U5, LV-U14)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [["k.type === 'krav' ? k.varsel?.dokumentasjon : []", '[]']],
+    endringer: [["? { sti: '$.varsel.', ...k.varsel }", "? { sti: '$.varsel.' }"]],
     mal: [
       'fristkravet har datoen for varselet og brevet med det',
       'samme vedlegg to ganger i varselet',
@@ -2762,7 +2770,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'innsigelsen mot begrunnelsen etter § 33.6.2 annet ledd b er ingen påberopelse (VS-U29)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["utsagn.art === 'foresporselssvar' ? '33.6.2'", "false ? '33.6.2'"]],
+    endringer: [
+      [
+        ": utsagn.art === 'foresporselssvar'\n          ? '33.6.2'",
+        ": false\n          ? '33.6.2'",
+      ],
+    ],
     mal: ['VS-U29: innsigelsen mot begrunnelsen', 'HF-U4: etter «i tide» etter § 33.6.2'],
   },
   {

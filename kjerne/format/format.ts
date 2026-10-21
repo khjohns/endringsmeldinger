@@ -321,7 +321,11 @@ export const OPPLYSNINGSSLAG = [
 ] as const satisfies readonly Opplysningsslag[];
 
 export const UTSAGN: Record<Utsagnsart, Skjema> = {
-  varsel: objekt({ ...artfelt('varsel'), hjemmel: { const: '33.4' } }, ['id', 'art', 'hjemmel']),
+  varsel: objekt({ ...artfelt('varsel'), hjemmel: { enum: ['33.4', '34.1.2'] } }, [
+    'id',
+    'art',
+    'hjemmel',
+  ]),
   trekk: objekt({ ...artfelt('trekk'), gjelder: ID }, ['id', 'art', 'gjelder']),
   aksept: objekt({ ...artfelt('aksept'), gjelder: ID, regelversjon: { type: 'integer' } }, [
     'id',

@@ -120,11 +120,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].gjaldtEtAnnetVarsel.length)
     ut.push('svaret_gjaldt_et_annet_varsel');
   // § 5 og VS-U12: påberopelsene registreres og vises uten virkning på utfallet.
-  const iSporet = [
-    s.gjeldendeKrav?.id,
-    s.gjeldendeSvar?.id,
-    spor === 'frist' ? s.varsel?.id : null,
-  ];
+  const iSporet = [s.gjeldendeKrav?.id, s.gjeldendeSvar?.id, s.varsel?.id];
   for (const i of u.innsigelser)
     if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))
       ut.push(`innsigelse_fra_${i.part}`);

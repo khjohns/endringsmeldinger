@@ -21,7 +21,8 @@ import { KRAVSPOR, type Avvisning, type Kravspor, type Part, type Spor } from '.
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
-  | { type: 'varsle' | 'sende_varsel' | 'sende_foresporsel'; spor: 'frist' }
+  | { type: 'varsle' | 'sende_varsel'; spor: Kravspor }
+  | { type: 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | {
       type:
@@ -202,17 +203,22 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis('GRUNNLAG_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.ingenKrav)
-        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
+        return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET[h.spor]}.`);
       // SK-12 og MM-U1: et registrert varsel kan ikke flyttes. Et utledet varsel er ikke registrert.
       if (s.varsel)
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
-      // VS-U16: etter et fristkrav kan varselet fra appen bare få en senere dato enn
-      // kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
+      // VS-U16, OV-U5: etter kravet i sporet kan varselet fra appen bare få en senere dato
+      // enn kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
       if (h.type === 'sende_varsel' && s.krav.length)
-        return avvis(
-          'FRISTKRAV_SENDT',
-          'Fristkravet er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.'
-        );
+        return h.spor === 'frist'
+          ? avvis(
+              'FRISTKRAV_SENDT',
+              'Fristkravet er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.'
+            )
+          : avvis(
+              'VEDERLAGSKRAV_SENDT',
+              'Vederlagskravet er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.'
+            );
       return null;
     case 'sende_foresporsel':
       if (!grunnlagSendt)

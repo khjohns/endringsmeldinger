@@ -5493,6 +5493,53 @@ tekst = '''
 Protesten lyder «mot påberopelsen av for sen varsling i svaret i brev n av dato» også for § 33.6.2. Vår tolkning av LV-U4 punkt 8.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "LV-U21"
+dato = 2026-10-21
+hvem = "oppdragsgiver"
+kilde = ["#1096", "#497"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1096 (Q1 Brevtekst, #497 punkt 2):
+
+§ 33.4 og § 34.1.2: Når byggherren i svaret gjør gjeldende at TEs varsel kom for sent, og TE ikke har sendt eller oppgitt et eget varsel, gjelder påberopelsen TEs første krav i sporet. Det er det første varselet appen kjenner (OV-U5: «Er ikke noe varsel etter § 33.4 registrert, viser skjemaet byggherren at det første fristkravet i sporet, i brev <n> av <dato>, er det første varselet appen kjenner.»). Påberopelsen står mot hver senere kravversjon, «også når varselet var selve kravet» (VS-U20). Brevteksten sier i dag «Byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev <n> av <dato> kom for sent.», der brev <n> er brevet med det første kravet. Den sier ikke at kravet er det første varselet appen kjenner. Det står bare i skjemaet. LV-U3 sier: «Det som ikke står i teksten, regnes ikke som meddelt.» Skal brevet også si at varselet er TEs første krav, og at det er det første varselet TE har sendt eller oppgitt i appen?
+
+Alternativene slik de står i kommentaren:
+
+Brevet nevner brevet (Recommended): Når byggherren gjør gjeldende at varselet etter § 33.4 eller § 34.1.2 kom for sent, og TE ikke har sendt eller oppgitt et eget varsel, nevner brevteksten brevet med TEs første krav i sporet som brevet varselet står i: «Byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 [varselet om fristforlengelse etter NS 8407 § 33.4] i brev <n> av <dato> kom for sent.» Det samme gjelder «i tide» og setningen etter en innsigelse. Brevet sier ikke at kravet er det første varselet appen kjenner; det står i skjemaet byggherren fyller ut (OV-U5). Endret tekst gjelder bare nye brev (MM-U9). Forhold: presiserer LV-U4, presiserer LV-U5, presiserer OV-U5.
+
+Brevet sier forbeholdet: Når byggherren gjør gjeldende at varselet etter § 33.4 eller § 34.1.2 kom for sent, eller ikke gjør det gjeldende, og TE ikke har sendt eller oppgitt et eget varsel, nevner brevteksten brevet med TEs første krav i sporet, og legger til: «Varselet er TEs krav i brev <n> av <dato>, som er det første varselet om dette TE har sendt eller oppgitt i appen.» Brevet sier ikke om TE har varslet på annen måte. Endret tekst gjelder bare nye brev (MM-U9). Forhold: utvider LV-U4 punkt 5, utvider LV-U5, presiserer OV-U5.'''
+valgt = "Brevet nevner brevet"
+svar = '''
+«Brevet nevner brevet (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "lv-u5" }, { art = "presiserer", vedtak = "ov-u5" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1096 (kommentaren 6320864521). Svarer på #497 punkt 2. Ikke bygget (#1096).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Brevet nevner brevet"
+tekst = '''
+Når byggherren gjør gjeldende at varselet etter § 33.4 eller § 34.1.2 kom for sent, og TE ikke har sendt eller oppgitt et eget varsel, nevner brevteksten brevet med TEs første krav i sporet som brevet varselet står i: «Byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 [varselet om fristforlengelse etter NS 8407 § 33.4] i brev <n> av <dato> kom for sent.» Det samme gjelder «i tide» og setningen etter en innsigelse. Brevet sier ikke at kravet er det første varselet appen kjenner; det står i skjemaet byggherren fyller ut (OV-U5). Endret tekst gjelder bare nye brev (MM-U9).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Brevet sier forbeholdet"
+tekst = '''
+Når byggherren gjør gjeldende at varselet etter § 33.4 eller § 34.1.2 kom for sent, eller ikke gjør det gjeldende, og TE ikke har sendt eller oppgitt et eget varsel, nevner brevteksten brevet med TEs første krav i sporet, og legger til: «Varselet er TEs krav i brev <n> av <dato>, som er det første varselet om dette TE har sendt eller oppgitt i appen.» Brevet sier ikke om TE har varslet på annen måte. Endret tekst gjelder bare nye brev (MM-U9).'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Er ikke noe varsel etter § 33.4 registrert, viser skjemaet byggherren at det første fristkravet i sporet, i brev <n> av <dato>, er det første varselet appen kjenner."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+utdrag = true
+tekst = "også når varselet var selve kravet"
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 

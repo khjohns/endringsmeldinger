@@ -23,9 +23,11 @@ import type { Svarvurdering } from '../frosset/standpunkt.ts';
 import {
   KRAVSPOR,
   SPOR as SPORENE,
+  VARSELSPOR,
   type Kravspor,
   type Opplysningsslag,
   type Spor,
+  type Varselhjemmel,
 } from '../typer.ts';
 
 export interface Svarutkast {
@@ -49,6 +51,8 @@ export interface Svarutkast {
 interface Brevtekst {
   brevtekst?: string[];
 }
+
+type Varselet = { spor: 'frist'; hjemmel: '33.4' } | { spor: 'vederlag'; hjemmel: '34.1.2' };
 
 export type Kommando = (
   | {
@@ -77,12 +81,13 @@ export type Kommando = (
     }
   | { type: 'trekk'; spor: Spor }
   /**
-   * Registrerer et varsel etter § 33.4 sendt utenfor appen (MM-U1, SK-12), med brevet
-   * som vedlegg (OV-U4). `dokumentasjon` er ID-ene i mellomlageret (LV-U14).
+   * Registrerer et varsel etter § 33.4 eller § 34.1.2 sendt utenfor appen (MM-U1, SK-12,
+   * OV-U5), med brevet som vedlegg (OV-U4). `dokumentasjon` er ID-ene i mellomlageret
+   * (LV-U14). Hjemmelen følger sporet.
    */
-  | { type: 'varsel'; spor: 'frist'; hjemmel: '33.4'; sendt: string; dokumentasjon: string[] }
-  /** VS-U15: TE sender et eget varsel etter § 33.4 fra appen, uten dager. */
-  | { type: 'send_varsel'; spor: 'frist'; hjemmel: '33.4' }
+  | ({ type: 'varsel'; sendt: string; dokumentasjon: string[] } & Varselet)
+  /** VS-U15, OV-U5: TE sender et eget varsel fra appen, uten dager eller beløp. */
+  | ({ type: 'send_varsel' } & Varselet)
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** KA-U12, KA-U15, KA-U17: TE krever ikke noe i et spor som ikke er sendt. Ingen fritekst (KA-U22). */
   | { type: 'ingen_krav'; spor: Kravspor }
@@ -135,6 +140,10 @@ const SVARUTKAST = objekt(
 );
 
 const BREVTEKST = { brevtekst: liste(TEKST) };
+const VARSELET = {
+  spor: { enum: Object.values(VARSELSPOR) },
+  hjemmel: { enum: Object.keys(VARSELSPOR) },
+};
 
 const henvisning = (type: string) =>
   objekt({ type: { const: type }, gjelder: ID, ...BREVTEKST }, ['type', 'gjelder']);
@@ -174,8 +183,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   varsel: objekt(
     {
       type: { const: 'varsel' },
-      spor: { const: 'frist' },
-      hjemmel: { const: '33.4' },
+      ...VARSELET,
       sendt: DATO,
       dokumentasjon: liste(ID),
     },
@@ -184,8 +192,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   send_varsel: objekt(
     {
       type: { const: 'send_varsel' },
-      spor: { const: 'frist' },
-      hjemmel: { const: '33.4' },
+      ...VARSELET,
       ...BREVTEKST,
     },
     ['type', 'spor', 'hjemmel']
@@ -242,9 +249,21 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 
 type Innhold = Record<string, unknown>;
 
+/**
+ * Feltet med datoen og vedleggene kommandoen viser til: brevets, eller varselets i et
+ * fristkrav (OV-U5). Feilmeldingene har stien herfra (#984).
+ */
+const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: string[] } =>
+  k.type === 'krav'
+    ? { sti: '$.varsel.', ...k.varsel }
+    : {
+        sti: '$.',
+        ...('sendt' in k ? { sendt: k.sendt } : {}),
+        ...('dokumentasjon' in k ? { dokumentasjon: k.dokumentasjon } : {}),
+      };
+
 /** Vedleggene kommandoen viser til: brevets, eller varselets i et fristkrav (OV-U5). */
-export const vedleggI = (k: Kommando): string[] =>
-  ('dokumentasjon' in k ? k.dokumentasjon : k.type === 'krav' ? k.varsel?.dokumentasjon : []) ?? [];
+export const vedleggI = (k: Kommando): string[] => brevfelt(k).dokumentasjon ?? [];
 
 /**
  * VS-U26: et grunnlagskrav fra appen har datoen kategorien har, som en dato.
@@ -276,12 +295,14 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }
-  // Fristkravet har datoen og brevet med varselet under `varsel` (OV-U5).
-  const sti = type === 'krav' ? '$.varsel.' : '$.';
+  // OV-U5: varselet etter § 33.4 står i fristen, varselet etter § 34.1.2 i vederlaget.
+  if ((type === 'varsel' || type === 'send_varsel') && !feil.length) {
+    const k = kommando as { spor: Kravspor; hjemmel: Varselhjemmel };
+    if (VARSELSPOR[k.hjemmel] !== k.spor)
+      feil.push(`$.hjemmel: et varsel etter § ${k.hjemmel} står ikke i sporet ${k.spor}`);
+  }
+  const { sti, sendt } = feil.length ? { sti: '$.' } : brevfelt(kommando as unknown as Kommando);
   // Datoen står i brevteksten og må være en dato (LV-U4 punkt 3).
-  const sendt =
-    (kommando as { varsel?: { sendt?: unknown }; sendt?: unknown }).varsel?.sendt ??
-    (kommando as { sendt?: unknown }).sendt;
   if (!feil.length && sendt !== undefined && !erKalenderdato(sendt))
     feil.push(`${sti}sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
   if (type === 'brev' && !feil.length) {

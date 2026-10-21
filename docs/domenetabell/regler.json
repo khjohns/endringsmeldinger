@@ -844,6 +844,20 @@
       "radetikett": "OV-U5: TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen"
     },
     {
+      "id": "OV-U15",
+      "type": "vedtak",
+      "dato": "2026-10-20",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u15",
+      "radetikett": "OV-U15: TE kan sende varsel etter § 34.1.2 fra appen i alle kategorier"
+    },
+    {
+      "id": "LV-U19",
+      "type": "vedtak",
+      "dato": "2026-10-20",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u19",
+      "radetikett": "LV-U19: Brevteksten for TEs varsel etter § 34.1.2"
+    },
+    {
       "id": "VS-U22",
       "type": "vedtak",
       "dato": "2026-10-13",
@@ -3008,6 +3022,35 @@
       ]
     },
     {
+      "id": "VS-07",
+      "tilfelle": "TE sender et eget varsel etter § 34.1.2 fra appen, uten beløp, eller registrerer et varsel sendt utenfor appen.",
+      "forventet": "Varselet etter § 34.1.2 står i vederlagssporet og er et eget brev med serverens dato og teksten i LV-U19, eller en registrering med datoen og brevet som vedlegg. Det er sporets registrerte varsel: påberopelsen etter § 34.1.2 i svaret på vederlagskravet gjelder det, og byggherren kan gjøre innsigelse mot det, som er en påberopelse etter § 34.1.2 (VS-U24). Et nytt varsel, sendt eller registrert, avvises (VARSEL_REGISTRERT). Når vederlagskravet er sendt, avvises et varsel fra appen (VEDERLAGSKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres. Der TE krever endring, godtas varselet uten virkning, og innsigelsen mot det avvises som vurderingen (VARSLINGSPLIKT_GJELDER_IKKE, OV-U15, KA-46).",
+      "bh_standpunkt": "Byggherrens vurdering av varselet: for sent.",
+      "rettslig_virkning": "Appen avgjør ikke om varselet kom i tide.",
+      "rettidighet": "Byggherrens vurdering av varselet etter § 34.1.2.",
+      "tidsakse": "registrering",
+      "kilder": [
+        "OV-U5",
+        "VS-U15",
+        "VS-U16",
+        "VS-U20",
+        "VS-U24",
+        "V-SK12",
+        "KA-U2",
+        "OV-U15",
+        "LV-U19"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
+        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll"
+      ],
+      "regelkoder": [
+        "VARSEL_REGISTRERT",
+        "VEDERLAGSKRAV_SENDT"
+      ]
+    },
+    {
       "id": "KA-42",
       "tilfelle": "Byggherren sender fra appen en senere begrunnelse av sitt svar.",
       "forventet": "Begrunnelsen godtas når den gjelder et svar fra byggherren og har tekst. Den endrer ingen standpunkter: svaret gjelder fortsatt, og TE kan godta det.",
@@ -3076,7 +3119,7 @@
     {
       "id": "KA-46",
       "tilfelle": "Byggherren svarer på et vederlagskrav for svikt eller andre forhold og vurderer om varselet om hovedkravet kom i tide (§ 34.1.2).",
-      "forventet": "Vurderingen lagres som standpunktet `rettidighet` med hjemmel `34.1.2`. Det gjelder det første vederlagskravet i sporet, også etter en ny kravversjon. «Nei» gir preklusjon prinsipalt og beløpet subsidiært, og aldri sammenfall. Ved aksept er utfallet 0 kr. For en endring avvises vurderingen.",
+      "forventet": "Vurderingen lagres som standpunktet `rettidighet` med hjemmel `34.1.2`. Det gjelder TEs registrerte varsel etter § 34.1.2 som står før svaret, ellers det første vederlagskravet i sporet, også etter en ny kravversjon (OV-U5, VS-U20). «Nei» gir preklusjon prinsipalt og beløpet subsidiært, og aldri sammenfall. Ved aksept er utfallet 0 kr. For en endring avvises vurderingen.",
       "bh_standpunkt": "Preklusjon etter § 34.1.2, med beløpet subsidiært.",
       "rettslig_virkning": "Kravet tapes ved for sent varsel (§ 34.1.2 annet ledd). Forutsetter at innsigelsen er fremsatt i tide; det avgjør ikke produktet.",
       "rettidighet": "Byggherrens vurdering av varselet om hovedkravet.",
@@ -3089,7 +3132,8 @@
         "GR-U7",
         "GR-U10",
         "AV-479",
-        "NS-34.1.2-2"
+        "NS-34.1.2-2",
+        "OV-U5"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
