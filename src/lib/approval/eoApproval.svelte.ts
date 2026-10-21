@@ -12,7 +12,7 @@ import { demoUsers, type ApprovalUser } from './types';
 
 type Command = EOApprovalCommand & { expectedVersion: number; commandId: string };
 
-/** Where change-order approvals live; only the demo in the browser exists (#1026). */
+/** Hvor godkjenningene av endringsordrer ligger; bare demoen i nettleseren finnes (#1026). */
 export interface EOApprovalSource {
   load(): Promise<EOApprovalResponse>;
   command(command: Command): Promise<EOApprovalResponse>;
@@ -23,7 +23,7 @@ export interface EOApprovalSource {
 const DEMO_KEY = 'endringsmeldinger.demo.eo-godkjenning.v1';
 export const DEMO_DAILY_RATE = 50000;
 
-/** Demo adapter in the browser; enforces nothing on a server. */
+/** Demokilden i nettleseren; ingen server håndhever noe. */
 export function demoEOApprovals(
   issue: (payload: CreateEORequest) => { sak_id: string }
 ): EOApprovalSource {

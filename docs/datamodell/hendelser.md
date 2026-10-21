@@ -1044,7 +1044,7 @@ BH oppretter en endringsordresak med nummer, beskrivelse og KOE-saker som inngå
 | Kilde for bestemmelsen | kode: overskriften over EO-verdiene i EventType, og kategoritabellen (EO) |
 | Modell | `EOOpprettetEvent`, data `EOOpprettetData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/endringsordre/opprett, når prosjektet ikke har godkjenningspolicy; Utstedelse fra EO-godkjenningen (eo_approval_service.issue); POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; Frontend: EndringsordreForm og EO-godkjenningspanelet |
+| Sendes fra | POST /api/endringsordre/opprett, når prosjektet ikke har godkjenningspolicy; Utstedelse fra EO-godkjenningen (eo_approval_service.issue); POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy; Frontenden sender ikke hendelsen; EO-skjemaet og godkjenningspanelet finnes bare i demoen (#1026) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, IS_EO_CASE |
 | Virkning på status | Saken blir en endringsordresak, og endringsordren får status `utkast`. Skrives i samme transaksjon som `sak_opprettet` og `eo_utstedt`. I en KOE-sak avvises hendelsen av `IS_EO_CASE` (DM-07, rettet 05.10). |
 | Behandler | `TimelineService._handle_eo_opprettet` |
@@ -1129,7 +1129,7 @@ BH utsteder endringsordren formelt: beskrivelse, konsekvenser, vederlag og frist
 | Kilde for bestemmelsen | kode: backend/models/events.py (EOUtstedtData, VederlagKompensasjon) |
 | Modell | `EOUtstedtEvent`, data `EOUtstedtData` |
 | Lagres i | `hendelse` |
-| Sendes fra | POST /api/endringsordre/opprett og utstedelse fra EO-godkjenningen (proaktiv); POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy (også reaktiv); Frontend: EndringsordreForm og EO-godkjenningspanelet |
+| Sendes fra | POST /api/endringsordre/opprett og utstedelse fra EO-godkjenningen (proaktiv); POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy (også reaktiv); Frontenden sender ikke hendelsen; EO-skjemaet og godkjenningspanelet finnes bare i demoen (#1026) |
 | Forretningsregler | ROLE_CHECK, CASE_NOT_CLOSED, CREATE_ONCE, RESPONSE_REFERENCE, EO_CAN_BE_ISSUED |
 | Virkning på status | I en endringsordresak bygges endringsordren fra hendelsen, med status `utstedt`. I en KOE-sak (reaktiv) blir grunnlaget `laast`, og vederlag og frist blir `godkjent` med beløp og dager fra endringsordren; spor som er `ikke_relevant` eller `trukket`, står. De utgåtte toppnivåfeltene `endelig_vederlag` og `endelig_frist_dager` leses av projeksjonen, men lagres ikke (DM-06). |
 | Behandler | `TimelineService._handle_eo_utstedt` |

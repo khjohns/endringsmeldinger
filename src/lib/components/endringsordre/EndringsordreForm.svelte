@@ -58,7 +58,7 @@
     approvalsHref?: string;
   } = $props();
 
-  // Without an approval source the order is issued directly, like projects without a policy.
+  // Uten godkjenningskilde utstedes ordren direkte, som i prosjekter uten policy.
   // The route keys the form by project, so the source is fixed for its lifetime.
   const approvals = createEOApprovalWorkspace(
     untrack(

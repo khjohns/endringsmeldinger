@@ -1,7 +1,7 @@
 /**
  * Projects API
  *
- * Leser prosjekter. Å opprette, endre og deaktivere prosjekt er fjernet (#1026).
+ * Leser prosjektene brukeren har tilgang til.
  */
 
 import { apiFetch } from './client';

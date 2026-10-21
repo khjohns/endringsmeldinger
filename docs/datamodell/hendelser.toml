@@ -832,7 +832,7 @@ innsending = [
     "POST /api/endringsordre/opprett, når prosjektet ikke har godkjenningspolicy",
     "Utstedelse fra EO-godkjenningen (eo_approval_service.issue)",
     "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy",
-    "Frontend: EndringsordreForm og EO-godkjenningspanelet",
+    "Frontenden sender ikke hendelsen; EO-skjemaet og godkjenningspanelet finnes bare i demoen (#1026)",
 ]
 tilstand = """
 Saken blir en endringsordresak, og endringsordren får status `utkast`.
@@ -901,7 +901,7 @@ lagres_i = "hendelse"
 innsending = [
     "POST /api/endringsordre/opprett og utstedelse fra EO-godkjenningen (proaktiv)",
     "POST /api/events og /api/events/batch, når prosjektet ikke har godkjenningspolicy (også reaktiv)",
-    "Frontend: EndringsordreForm og EO-godkjenningspanelet",
+    "Frontenden sender ikke hendelsen; EO-skjemaet og godkjenningspanelet finnes bare i demoen (#1026)",
 ]
 tilstand = """
 I en endringsordresak bygges endringsordren fra hendelsen, med status

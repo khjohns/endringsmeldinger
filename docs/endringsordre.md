@@ -2,7 +2,7 @@
 
 Endringsordren er en egen sak med dokumentvisning, historikk og lenker til KOE-sakene som inngår. Skjemaet bruker dagens komponenter og designtokens.
 
-Endringsordre hører ikke til første versjon (OV-U1). Den ekte appen har derfor ingen inngang til EO lenger (#1024): rutene for ny endringsordre og godkjenning er tatt ut, KOE-saken viser ikke EO-lenken, og saksruta viser at sakstypen ikke støttes. Mockupen i `/mockup/endringsordre` beholdes som forbilde for brukergrensesnittet, og komponentene, domenekoden og API-klienten står til TS-stien er sammenlignet med dem.
+Endringsordre hører ikke til første versjon (OV-U1). Den ekte appen har derfor ingen inngang til EO lenger (#1024): rutene for ny endringsordre og godkjenning er tatt ut, KOE-saken viser ikke EO-lenken, og saksruta viser at sakstypen ikke støttes. Mockupen i `/mockup/endringsordre` beholdes som forbilde for brukergrensesnittet, og komponentene, domenekoden og typene står til TS-stien er sammenlignet med dem.
 
 I `/mockup/oversikt` vises også «Ny endringsordre» når «Byggherre BH» er valgt. Demoflyten bruker samme skjema med lokale eksempelsaker, uten API-kall. Utstedte demoordrer lagres i nettleseren og kan gjenåpnes på `/mockup/endringsordre/<sak-ID>`; de vises ikke i `/mockup/oversikt`. Demoen bruker en egen lagringsnøkkel for utkast og ordresamling; den oppretter ingen reelle prosjektsaker.
 
@@ -34,7 +34,7 @@ Saksregisteret viser bare KOE-rader. EO-nummer og nettobeløp vises ikke der. Ve
 - Opprettelse og godkjenning: bare i mockupen, `src/routes/mockup/endringsordre/`.
 - Skjema, dokument og KOE-banner: `src/lib/components/endringsordre/`.
 - Validering og payload: `src/lib/domain/endringsordre.ts`.
-- API-klient: `src/lib/api/endringsordre.ts`, med eksplisitt prosjekt-header.
+- Typene: `src/lib/api/endringsordre.ts`. Frontenden kaller ikke EO-rutene i Python (#1026).
 - Backend gjenbruker eksisterende EO-hendelser, metadata og tidslinje. Ingen nye tabeller eller migrasjoner.
 - Metadata og de tre opprettelseshendelsene lagres via eksisterende `SakCreationService`. Beløp, fradrag, estimat, nullverdier og sluttdato overlever hendelsesreplay, også for eldre payload-format.
 - KOE-kandidater, relasjoner og tilbakekoblinger leses fra prosjektets lokale hendelser. En feil i relasjonsindeksen kan derfor ikke skjule en allerede utstedt ordre.
