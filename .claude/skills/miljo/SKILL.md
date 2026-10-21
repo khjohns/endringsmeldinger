@@ -72,9 +72,12 @@ Timeouten for en hel vitest-kjøring står i «Miljø» i `AGENTS.md`.
 Hvert verktøysvar blir værende i konteksten og leses på nytt i hvert kall etter
 det, så svarene holdes små:
 
-- Testutdata leses i kortform: `npx vitest run --reporter=dot | tail -30`, og
-  pytest med `-q` som i blokken over, også `| tail -30`. Skal hele utdataene
-  leses, gjør en subagent det og rapporterer bare feilene.
+- Testutdata leses i kortform: `npx vitest run --reporter=agent`, uten `tail`.
+  Reporteren skriver bare oppsummeringen når alt er grønt, og ellers de
+  feilende testene med diff og sted. Den skjuler også advarslene fra
+  vite-plugin-svelte. Et `tail` kan kutte bort den første feilen. Pytest kjøres
+  med `-q` som i blokken over, med `| tail -30`. Skal hele utdataene leses, gjør
+  en subagent det og rapporterer bare feilene.
 - Tell før du leser: `grep -c` eller `grep -l` først, deretter `grep -n` på
   de filene som gjelder. Et søk med mange alternativer over hele treet gir
   fort over 10 000 tegn.
