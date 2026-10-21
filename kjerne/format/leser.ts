@@ -166,7 +166,8 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
     const id = e.id as string;
     switch (art) {
       case 'rettidighet':
-        if (e.hjemmel !== HJEMMEL[spor])
+        // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen.
+        if (e.hjemmel !== HJEMMEL[spor] && !(spor === 'frist' && e.hjemmel === '33.6.2'))
           throw new Uforstaatt(`${sti}: rettidighet etter § ${String(e.hjemmel)} i ${spor}`);
         return {
           id,
@@ -222,6 +223,12 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         };
     }
   });
+  // VS-U24: ett standpunkt for hver bestemmelse, § 33.4 før § 33.6.2.
+  const hjemler = ut.flatMap((s) => (s.art === 'rettidighet' ? [s.hjemmel] : []));
+  if (hjemler.length > 1 && (hjemler[0] !== '33.4' || hjemler[1] !== '33.6.2'))
+    throw new Uforstaatt(
+      `${sti}: rettidigheten står ${hjemler.map((h) => `etter § ${h}`).join(', ')}, men bare § 33.4 og deretter § 33.6.2 er lov`
+    );
   for (const t of tillatt)
     if (t.paakrevd && !ut.some((s) => s.art === t.art))
       throw new Uforstaatt(`${sti}: svaret på ${spor} mangler standpunktet ${t.art}`);
@@ -297,8 +304,9 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
 }
 
 /**
- * Hvem som kan si hva: TE krever, varsler, godtar, trekker, sier «ingen krav» og
- * påberoper passivitet; BH svarer og begrunner svaret senere (KA-U34). Innsigelse,
+ * Hvem som kan si hva: TE krever, varsler, godtar, trekker, sier «ingen krav», påberoper
+ * passivitet og svarer på forespørselen etter § 33.6.2; BH svarer, begrunner svaret
+ * senere (KA-U34) og sender forespørselen. Innsigelse,
  * protest og bestridelse kan komme fra begge; utledningen kontrollerer hvem de gjelder.
  */
 const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
@@ -309,6 +317,8 @@ const PART_FOR_UTSAGN: Record<Utsagnsart, Part | null> = {
   passivitet: 'TE',
   bestridelse: null,
   innsigelse: null,
+  foresporsel: 'BH',
+  foresporselssvar: 'TE',
   protest: null,
   begrunnelse: 'BH',
 };
@@ -413,6 +423,15 @@ function lesDokument(h: Journalrad): Dokument {
         : (e as unknown as LestUtsagn);
     }),
   };
+  // VS-U23, VS-U27: en forespørsel eller begrunnelse etter § 33.6.2 utenfor appen er
+  // dokumentasjon, og registreringen av den er ikke med ennå.
+  if (
+    erRegistrert(dokument.opplysninger) &&
+    dokument.utsagn.some((u) => u.art === 'foresporsel' || u.art === 'foresporselssvar')
+  )
+    throw new Uforstaatt(
+      'et registrert brev har en forespørsel etter § 33.6.2 eller svaret på den'
+    );
   // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.
   for (const o of dokument.opplysninger)
     if (

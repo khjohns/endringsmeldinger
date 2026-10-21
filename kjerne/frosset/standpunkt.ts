@@ -71,7 +71,7 @@ function hjemmelenGjelder(
   grunnlagskrav: Krav | null | undefined,
   regler: Regelsett
 ): boolean {
-  if (hjemmel === '33.4') return true;
+  if (hjemmel === '33.4' || hjemmel === '33.6.2') return true;
   if (hjemmel === '34.1.2')
     return regler.gjelderVarslingspliktenForVederlag(kategori(grunnlagskrav).hovedkategori);
   return gjelderVarslingsplikten(grunnlagskrav, regler);
@@ -137,10 +137,12 @@ export function innsigelsenPaaberoper(
   gjelder: string,
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,
   varslingsplikt: (krav: Krav) => boolean
-): Extract<Hjemmel, '32.2' | '33.4'> | null {
+): Extract<Hjemmel, '32.2' | '33.4' | '33.6.2'> | null {
   for (const d of dokumenter) {
     const utsagn = d.utsagn.find((x) => x.id === gjelder);
-    if (utsagn) return utsagn.art === 'varsel' ? '33.4' : null;
+    // VS-U29: begrunnelsen etter § 33.6.2 annet ledd b kan bare komme for sent etter § 33.6.2.
+    if (utsagn)
+      return utsagn.art === 'varsel' ? '33.4' : utsagn.art === 'foresporselssvar' ? '33.6.2' : null;
     const krav = d.krav.find((k) => k.id === gjelder);
     if (krav)
       return krav.spor === 'grunnlag' && !kravetErDokumentasjon(d) && varslingsplikt(krav)
@@ -156,18 +158,79 @@ export function innsigelsenPaaberoper(
  * etter § 33.4 den opp, fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309).
  * I grunnlaget teller partens siste standpunkt etter § 32.2, også om en annen
  * grunnlagsversjon (arbeidsvalget 15.10 i #500). `etter` er partens svar etter
- * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp.
+ * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp. Etter § 33.6.2 gir
+ * bare et standpunkt om begrunnelsen innsigelsen gjelder, den opp (VS-U29, HF-U4).
  */
 export function innsigelsenErOppgitt(
   spor: Spor,
-  etter: Pick<Svar, 'spor' | 'standpunkter'>[]
+  etter: Pick<Svar, 'spor' | 'standpunkter'>[],
+  hjemmel: Hjemmel = HJEMMEL[spor],
+  gjelder?: string
 ): boolean {
   const standpunkter = etter
     .filter((x) => x.spor === spor)
     .flatMap((x) => x.standpunkter)
-    .filter((p) => p.art === 'rettidighet');
+    .filter(
+      (p): p is Extract<Standpunkt, { art: 'rettidighet' }> =>
+        p.art === 'rettidighet' &&
+        p.hjemmel === hjemmel &&
+        (hjemmel !== '33.6.2' || p.gjelder === gjelder)
+    );
   if (spor === 'frist') return standpunkter.some((p) => p.iTide);
   return standpunkter.at(-1)?.iTide === true;
+}
+
+export interface ForesporselOgSvar {
+  foresporsel: string;
+  /** Elementet som svarte: et fristkrav (`medKrav`) eller TEs begrunnelse etter annet ledd b. */
+  svar: string | null;
+  medKrav: boolean;
+}
+
+/**
+ * § 33.6.2 (VS-U17, VS-U19, VS-U27): svaret på hver forespørsel, i rekkefølgen i journalen.
+ * TEs begrunnelse etter annet ledd b svarer på forespørselen den gjelder. Ellers svarer det
+ * første fristkravet etter forespørselen, som da er svar på den (LV-U18 setning 3). Et krav i
+ * et registrert brev er dokumentasjon og svarer ikke (OV-U4). Gir forespørselen og elementet
+ * som svarte, eller `null`.
+ */
+export function svarPaaForesporsler(
+  dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>
+): ForesporselOgSvar[] {
+  const ut: ForesporselOgSvar[] = [];
+  for (const d of dokumenter) {
+    for (const u of d.utsagn) {
+      if (u.art === 'foresporsel') ut.push({ foresporsel: u.id, svar: null, medKrav: false });
+      if (u.art === 'foresporselssvar') {
+        const f = ut.find((x) => x.foresporsel === u.gjelder && x.svar === null);
+        if (f) f.svar = u.id;
+      }
+    }
+    const krav = d.krav.find((k) => k.spor === 'frist');
+    if (krav && !kravetErDokumentasjon(d))
+      for (const f of ut) if (f.svar === null) Object.assign(f, { svar: krav.id, medKrav: true });
+  }
+  return ut;
+}
+
+/**
+ * Hvordan fristkravene står til en forespørsel etter § 33.6.2: kravet svarer på den
+ * (fjerde ledd), eller TE har begrunnet etter annet ledd b før kravet, og § 33.6.1 gjelder
+ * (femte ledd). `gjelder` er det rettidigheten etter § 33.6.2 gjelder: kravet eller begrunnelsen.
+ */
+export type Foresporselsrelasjon =
+  | { art: 'svar'; gjelder: string }
+  | { art: 'begrunnelse'; gjelder: string };
+
+export function foresporselsrelasjon(
+  svar: readonly ForesporselOgSvar[]
+): Foresporselsrelasjon | null {
+  // Forespørselen kan bare sendes før det første fristkravet (VS-U19), så det er kravet som
+  // svarer. Senere kravversjoner står i samme forhold til forespørselen (VS-U20).
+  const krav = svar.find((s) => s.medKrav)?.svar;
+  if (krav) return { art: 'svar', gjelder: krav };
+  const begrunnelse = svar.filter((s) => s.svar !== null).at(-1)?.svar;
+  return begrunnelse ? { art: 'begrunnelse', gjelder: begrunnelse } : null;
 }
 
 export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 'prinsipalt');
@@ -313,10 +376,17 @@ function beslutningslinje(
   v: Standpunktsvirkning[],
   grunnlagskrav: Krav | null | undefined
 ): string {
-  const hjemmel = standpunktet(svar, 'rettidighet')?.hjemmel ?? HJEMMEL[svar.spor];
   const spesifisert = standpunktet(svar, 'spesifisering');
+  // Fristsvaret kan prekludere etter både § 33.4 og § 33.6.2 tredje ledd (VS-U17). Begge er
+  // prinsipale, så de er ett ledd med den prinsipale grunnen (vedtaket 05.10).
+  const prekluderende = v
+    .filter((p) => p.art === 'rettidighet' && p.virkning !== 'uten_virkning')
+    .map((p) => p.standpunkt);
+  const hjemler = svar.standpunkter
+    .filter((s): s is Extract<Standpunkt, { art: 'rettidighet' }> => prekluderende.includes(s.id))
+    .map((s) => `§ ${s.hjemmel}`);
   const grunntekst: Record<string, string> = {
-    rettidighet: `prekludert (§ ${hjemmel})`,
+    rettidighet: `prekludert (${hjemler.join(' og ')})`,
     // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
     hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
       kategori(grunnlagskrav).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
@@ -325,7 +395,12 @@ function beslutningslinje(
       ? `godkjent med ${spesifisert.dager} dager (§ 33.6.1)`
       : 'avslått (§ 33.6.1)',
   };
-  const grunner = v.filter((p) => p.art in grunntekst && p.virkning !== 'uten_virkning');
+  const grunner = v.filter(
+    (p) =>
+      p.art in grunntekst &&
+      p.virkning !== 'uten_virkning' &&
+      (p.art !== 'rettidighet' || p.standpunkt === prekluderende[0])
+  );
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
     standpunkt = GRUNNLAGSSVARET[standpunktet(svar, 'grunnlag')!.resultat];
@@ -386,8 +461,6 @@ export function ulikeVirkninger(a: Standpunktsvirkning[], b: Standpunktsvirkning
  * PR #306).
  */
 export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
-  if (spor === 'frist' && v.foresporsel_svar_ok === false)
-    return 'svar på forespørsel etter § 33.6.2 er ikke i kjernen ennå';
   if (spor === 'vederlag') {
     if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
     for (const felt of ['rigg_varslet_i_tide', 'produktivitet_varslet_i_tide'])
@@ -410,6 +483,7 @@ export interface Svarvurdering {
   oensket_metode?: unknown;
   frist_varsel_ok?: unknown;
   spesifisert_krav_ok?: unknown;
+  foresporsel_svar_ok?: unknown;
   dager_maatte_forstaa?: unknown;
   vilkar_oppfylt?: unknown;
   dager?: unknown;
@@ -443,7 +517,11 @@ export function krevdBeloep(krav: Krav): Oere {
 export function regnUtSvar(
   spor: Spor,
   v: Svarvurdering,
-  { krav, grunnlagskrav }: { krav: Krav; grunnlagskrav: Krav | null },
+  {
+    krav,
+    grunnlagskrav,
+    foresporsel = null,
+  }: { krav: Krav; grunnlagskrav: Krav | null; foresporsel?: Foresporselsrelasjon | null },
   regler: Regelsett
 ): Record<string, unknown> {
   if (spor === 'grunnlag') {
@@ -510,8 +588,10 @@ export function regnUtSvar(
   const fkrav: Fristkrav = {
     krevd_dager: (krav.innhold.dager as number | undefined) ?? 0,
     varsel_type: 'spesifisert',
-    er_svar_paa_foresporsel: false,
-    har_innsigelse_mot_varsel: false,
+    er_svar_paa_foresporsel: foresporsel?.art === 'svar',
+    har_begrunnelse_etter_b: foresporsel?.art === 'begrunnelse',
+    // § 33.4 vurderes også når kravet svarer på forespørselen, som uten den.
+    har_innsigelse_mot_varsel: true,
     har_tidligere_varsel_i_tide: false,
     er_grunnlag_subsidiaert: false,
     er_hele_fristen_subsidiaer_pga_grunnlag: false,
@@ -519,6 +599,7 @@ export function regnUtSvar(
   const r = beregnFrist(fkrav, {
     frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
     spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
+    foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
     vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
     godkjent_dager: v.dager,
   });

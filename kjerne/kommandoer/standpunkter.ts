@@ -6,7 +6,11 @@
 import { HJEMMEL } from '../format/format.ts';
 import { grunnlagsstandpunkter } from '../frosset/frysing.ts';
 import type { Svarutkast } from './kommando.ts';
-import { varseletForNyttSvar, type Utledning } from '../utledning/utled.ts';
+import {
+  foresporselForFristsvar,
+  varseletForNyttSvar,
+  type Utledning,
+} from '../utledning/utled.ts';
 import type { Krav } from '../typer.ts';
 
 type Data = Record<string, unknown>;
@@ -46,6 +50,16 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
         gjelder: varseletForNyttSvar(u),
         hjemmel: HJEMMEL.frist,
         i_tide: v.frist_varsel_ok,
+      });
+    // VS-U17, VS-U29: svaret på forespørselen etter § 33.6.2, som kravet eller begrunnelsen.
+    const f = foresporselForFristsvar(u);
+    if (typeof v.foresporsel_svar_ok === 'boolean' && f)
+      ut.push({
+        id: nyId(),
+        art: 'rettidighet',
+        gjelder: f.gjelder,
+        hjemmel: '33.6.2',
+        i_tide: v.foresporsel_svar_ok,
       });
     if (typeof v.vilkar_oppfylt === 'boolean')
       ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });

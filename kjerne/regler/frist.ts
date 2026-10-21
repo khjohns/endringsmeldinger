@@ -7,6 +7,12 @@ export interface Fristkrav {
   krevd_dager: number;
   varsel_type: Fristvarseltype | null;
   er_svar_paa_foresporsel: boolean;
+  /**
+   * § 33.6.2 femte ledd: TE har begrunnet etter annet ledd b før kravet, så § 33.6.1 gjelder,
+   * og byggherren har gjort gjeldende i en egen innsigelse at begrunnelsen kom for sent. Svaret
+   * gjentar påberopelsen eller gir den opp (VS-U29).
+   */
+  har_begrunnelse_etter_b?: boolean;
   har_innsigelse_mot_varsel: boolean;
   har_tidligere_varsel_i_tide: boolean;
   er_grunnlag_subsidiaert: boolean;
@@ -47,13 +53,18 @@ export function beregnSynlighet(krav: Fristkrav) {
   return {
     frist_varsel_ok: fristVarselOk,
     spesifisert_krav_ok: krav.varsel_type === 'spesifisert' && !krav.er_svar_paa_foresporsel,
-    foresporsel_svar_ok: krav.er_svar_paa_foresporsel,
+    // VS-U29: etter en innsigelse mot begrunnelsen gjentar svaret den eller gir den opp.
+    foresporsel_svar_ok: krav.er_svar_paa_foresporsel || krav.har_begrunnelse_etter_b === true,
   };
 }
 
 /** § 33.4 og § 33.6.2 tredje ledd. */
 export function beregnPreklusjon(v: Fristvurdering, krav: Fristkrav): boolean {
-  if (krav.er_svar_paa_foresporsel && v.foresporsel_svar_ok === false) return true;
+  if (
+    (krav.er_svar_paa_foresporsel || krav.har_begrunnelse_etter_b) &&
+    v.foresporsel_svar_ok === false
+  )
+    return true;
   if (krav.varsel_type === 'varsel') return v.frist_varsel_ok === false;
   if (krav.varsel_type === 'spesifisert') {
     if (krav.har_tidligere_varsel_i_tide) return false;
@@ -92,6 +103,14 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   for (const [gjelder, felt, hjemmel] of spoersmaal) {
     if (gjelder && mangler(v[felt])) feil[felt] = `mangler (${hjemmel})`;
   }
+  // VS-U29: etter begrunnelsen gjentar svaret byggherrens innsigelse mot den, eller gir den opp.
+  if (
+    !krav.er_svar_paa_foresporsel &&
+    !krav.har_begrunnelse_etter_b &&
+    !mangler(v.foresporsel_svar_ok)
+  )
+    feil.foresporsel_svar_ok =
+      'kravet svarer ikke på en forespørsel, og byggherren har ikke gjort gjeldende i en egen innsigelse at TEs siste begrunnelse etter § 33.6.2 annet ledd b kom for sent';
   if (krav.er_svar_paa_foresporsel && v.spesifisert_krav_ok === false) {
     feil.spesifisert_krav_ok =
       '§ 33.6.1 kan ikke påberopes når TE har svart på forespørselen (§ 33.6.2 fjerde ledd)';

@@ -86,8 +86,19 @@ export type Kommando = (
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
   /** KA-U12, KA-U15, KA-U17: TE krever ikke noe i et spor som ikke er sendt. Ingen fritekst (KA-U22). */
   | { type: 'ingen_krav'; spor: Kravspor }
-  /** § 5 tredje ledd (VS-U1, VS-U9, VS-U14): mot motpartens varsel, krav eller svar. */
-  | { type: 'innsigelse'; gjelder: string }
+  /**
+   * § 5 tredje ledd (VS-U1, VS-U9, VS-U14): mot motpartens varsel, krav eller svar. Mot TEs
+   * begrunnelse etter § 33.6.2 annet ledd b kan byggherren i stedet gjøre gjeldende at den
+   * ikke er et svar etter annet ledd (`grunn`, VS-U29).
+   */
+  | { type: 'innsigelse'; gjelder: string; grunn?: 'ikke_svar' }
+  /** § 33.6.2 første ledd (VS-U19): byggherren ber TE angi og begrunne antall dager. */
+  | { type: 'foresporsel'; spor: 'frist'; hjemmel: '33.6.2' }
+  /**
+   * § 33.6.2 annet ledd b (VS-U17, VS-U27): TE begrunner hvorfor grunnlaget for å beregne
+   * kravet ikke foreligger. `gjelder` er forespørselen, og begrunnelsen er utdypningen.
+   */
+  | { type: 'foresporselssvar'; gjelder: string; utdypning: string }
   /** VS-U1, MP-U6: mot en innsigelse, en påberopelse i et svar eller alle innsigelsene i et dokument. */
   | { type: 'protest'; gjelder: string }
   /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. */
@@ -192,7 +203,23 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     { type: { const: 'ingen_krav' }, spor: { enum: [...KRAVSPOR] }, ...BREVTEKST },
     ['type', 'spor']
   ),
-  innsigelse: henvisning('innsigelse'),
+  innsigelse: objekt(
+    { type: { const: 'innsigelse' }, gjelder: ID, grunn: { const: 'ikke_svar' }, ...BREVTEKST },
+    ['type', 'gjelder']
+  ),
+  foresporsel: objekt(
+    {
+      type: { const: 'foresporsel' },
+      spor: { const: 'frist' },
+      hjemmel: { const: '33.6.2' },
+      ...BREVTEKST,
+    },
+    ['type', 'spor', 'hjemmel']
+  ),
+  foresporselssvar: objekt(
+    { type: { const: 'foresporselssvar' }, gjelder: ID, utdypning: TEKST, ...BREVTEKST },
+    ['type', 'gjelder', 'utdypning']
+  ),
   protest: henvisning('protest'),
   passivitet: henvisning('passivitet'),
   merking: objekt(

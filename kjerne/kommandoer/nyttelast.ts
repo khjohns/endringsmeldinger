@@ -25,18 +25,28 @@ import {
 } from '../frosset/standpunkt.ts';
 import {
   frafalletBinder,
+  foresporselForFristsvar,
   innsigelsenEtterITide,
   paaberoptEtterITide,
   type Utledning,
 } from '../utledning/utled.ts';
 import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import type { Avvisning, Krav, Part, Standpunkt, Svar } from '../typer.ts';
+import type { Avvisning, Hjemmel, Krav, Part, Standpunkt, Svar } from '../typer.ts';
 
 /**
  * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.
  * Skrivingen bygger dem én gang per svar, og brevet lagrer de samme (#804).
  */
 export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown>) => Standpunkt[];
+
+/** Det et «i tide» etter bestemmelsen gjaldt, i feilmeldingen for `SAGT_I_TIDE`. */
+const SAGT_I_TIDE_OM: Record<Hjemmel | '33.6.1', string> = {
+  '32.2': 'varselet kom',
+  '33.4': 'varselet kom',
+  '33.6.1': 'kravet ble spesifisert',
+  '33.6.2': 'TEs svar på forespørselen kom',
+  '34.1.2': 'varselet kom',
+};
 
 /** `forrige` er svaret en revisjon erstatter, så bindingen kontrolleres (HF-U5). */
 function kontrollerSvar(
@@ -63,7 +73,11 @@ function kontrollerSvar(
     server = regnUtSvar(
       s.spor,
       s.vurderinger,
-      { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+      {
+        krav,
+        grunnlagskrav: u.spor.grunnlag.gjeldendeKrav,
+        foresporsel: foresporselForFristsvar(u),
+      },
       regler
     );
   } catch (feil) {
@@ -78,9 +92,7 @@ function kontrollerSvar(
   if (bundet)
     return avvis(
       'SAGT_I_TIDE',
-      'gjelder' in bundet
-        ? 'Byggherren har i et svar sendt fra appen sagt at kravet ble spesifisert i tide etter § 33.6.1, og kan ikke nå påberope at det kom for sent (HF-U4).'
-        : `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
+      `Byggherren har i et svar sendt fra appen sagt at ${SAGT_I_TIDE_OM[bundet.hjemmel]} i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
     );
   if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u))
     return avvis(
@@ -334,6 +346,8 @@ export function nyttelastkontroll(
     case 'trekk':
     case 'varsel':
     case 'send_varsel':
+    case 'foresporsel':
+    case 'foresporselssvar':
     case 'ingen_krav':
     case 'protest':
     case 'bestridelse':
@@ -341,6 +355,14 @@ export function nyttelastkontroll(
     case 'avklaring':
       return null;
     case 'innsigelse': {
+      // VS-U29: at noe ikke er et svar etter § 33.6.2 annet ledd, gjelder bare TEs begrunnelse.
+      if (k.grunn !== undefined)
+        return u.elementer[k.gjelder]?.art === 'foresporselssvar'
+          ? null
+          : avvis(
+              'UGYLDIG_INNSIGELSE',
+              'Bare TEs begrunnelse etter § 33.6.2 annet ledd b kan påstås ikke å være et svar etter annet ledd.'
+            );
       // VS-U24, HF-U4: en innsigelse mot varselet etter § 33.4 eller TEs varsel etter § 32.2
       // er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at
       // varselet kom i tide, avvises den (del 2 av #498).
@@ -348,7 +370,7 @@ export function nyttelastkontroll(
       return hjemmel
         ? avvis(
             'SAGT_I_TIDE',
-            `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, VS-U24).`
+            `Byggherren har i et svar sendt fra appen sagt at ${SAGT_I_TIDE_OM[hjemmel]} i tide etter § ${hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, VS-U24).`
           )
         : null;
     }

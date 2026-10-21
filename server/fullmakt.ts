@@ -9,7 +9,11 @@ import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
 import { KRAVSPOR, type Kravspor } from '../kjerne/typer.ts';
-import type { Sporutledning, Utledning } from '../kjerne/utledning/utled.ts';
+import {
+  foresporselForFristsvar,
+  type Sporutledning,
+  type Utledning,
+} from '../kjerne/utledning/utled.ts';
 
 /**
  * Verdien brevet gir byggherren ansvar for, i kroner. `beloep` er `null` når noe i
@@ -33,7 +37,8 @@ const oere = (kr: number) => tilTall(beloep(kr)!);
  * summeres hver for seg, og det største gjelder; alternativene legges ikke sammen.
  *
  * Svarene må være kontrollert av kjernen først. Kaster det kjernens utregning
- * kaster (`regnUtSvar`): `UgyldigVurdering` og `UgyldigBeloep`.
+ * kaster (`regnUtSvar`): `UgyldigVurdering` og `UgyldigBeloep`, og `Error` for et krevd
+ * beløp som ikke kan leses (`krevdBeloep`).
  */
 export function brevverdi(
   svar: readonly Svarutkast[],
@@ -62,7 +67,11 @@ export function brevverdi(
     const r = regnUtSvar(
       s.spor,
       s.vurderinger,
-      { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+      {
+        krav,
+        grunnlagskrav: u.spor.grunnlag.gjeldendeKrav,
+        foresporsel: foresporselForFristsvar(u),
+      },
       regler
     );
     hoved += sporverdi(s.spor, r.godkjent_beloep, r.godkjent_dager);

@@ -177,9 +177,23 @@ function dokument(
     case 'ingen_krav':
       return { utsagn: [{ id: nyId(), art: 'ingen_krav', spor: k.spor }] };
     case 'innsigelse':
+      return {
+        utsagn: [
+          { id: nyId(), art: k.type, gjelder: k.gjelder, ...(k.grunn ? { grunn: k.grunn } : {}) },
+        ],
+      };
     case 'protest':
     case 'passivitet':
       return { utsagn: [{ id: nyId(), art: k.type, gjelder: k.gjelder }] };
+    case 'foresporsel':
+      // VS-U19: brevet er forespørselen, og datoen er serverens.
+      return { utsagn: [{ id: nyId(), art: 'foresporsel', hjemmel: k.hjemmel }] };
+    case 'foresporselssvar': {
+      // LV-U18 setning 2: TEs begrunnelse følger som utdypningen.
+      const id = nyId();
+      utdypninger.set(id, k.utdypning);
+      return { utsagn: [{ id, art: 'foresporselssvar', gjelder: k.gjelder }] };
+    }
     case 'begrunnelse': {
       const id = nyId();
       const utsagn = [{ id, art: 'begrunnelse', gjelder: k.gjelder }];

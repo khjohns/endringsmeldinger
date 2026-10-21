@@ -3514,6 +3514,48 @@ tekst = '''
 Byggherren gjør gjeldende at begrunnelsen etter § 33.6.2 annet ledd bokstav b kom for sent, eller at den ikke er et svar etter annet ledd, i svaret på TEs første krav med dager etter begrunnelsen, med ett standpunkt etter § 33.6.2. En egen innsigelse etter § 5 tredje ledd mot begrunnelsen registreres og vises, men leses ikke som en påberopelse etter § 33.6.2. Appen avgjør ikke om påberopelsen kom uten ugrunnet opphold.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U30"
+dato = 2026-10-21
+hvem = "oppdragsgiver"
+kilde = ["#1095", "#1120"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1095 (S2, ny forespørsel etter TEs begrunnelse når innsigelsen mot begrunnelsen står åpen):
+
+Byggherren sender en forespørsel etter § 33.6.2. TE svarer med en begrunnelse etter annet ledd b, og byggherren gjør innsigelse mot den. Etter VS-U19 kan byggherren så sende en ny forespørsel, fordi TE ennå ikke har krevd dager. Når TE svarer med et fristkrav, skal byggherrens svar etter VS-U29 gjenta innsigelsen mot begrunnelsen eller gi den opp. Etter VS-U24 har svaret bare ett standpunkt per bestemmelse, så det kan ikke samtidig ta stilling til om kravet kom i tide etter den nye forespørselen. Hva skal gjelde?
+
+Alternativene slik de står i kommentaren:
+
+Ingen ny forespørsel etter begrunnelse (Recommended): Etter TEs begrunnelse etter § 33.6.2 annet ledd b kan byggherren ikke sende en ny forespørsel etter § 33.6.2 fra appen, men kan registrere en som er sendt utenfor appen. Snevrer inn VS-U19. Bevarer innsigelsen etter VS-U29.
+
+Ett standpunkt per forespørsel: Byggherrens svar har ett standpunkt etter § 33.6.2 for hver forespørsel det gjelder. Endrer VS-U24 og krever ny brevtekst etter LV-U18 og LV-U4.
+
+Svaret gjelder bare siste forespørsel: Byggherrens svar på fristkravet tar bare stilling etter den nye forespørselen. Innsigelsen mot begrunnelsen står åpen uten å bli gjentatt eller gitt opp. Snevrer inn VS-U29.'''
+valgt = "Ingen ny forespørsel etter begrunnelse"
+svar = '''
+«Ingen ny forespørsel etter begrunnelse»'''
+forhold = [{ art = "snevrer inn", vedtak = "vs-u19" }]
+folge = '''
+Spørsmålet og alternativene står på #1095 (kommentaren 6319228702). Svaret er gitt med spørsmålsverktøyet og videresendt fra orkestratoren 21.10.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen ny forespørsel etter begrunnelse"
+tekst = '''
+Etter TEs begrunnelse etter § 33.6.2 annet ledd b kan byggherren ikke sende en ny forespørsel etter § 33.6.2 fra appen, men kan registrere en som er sendt utenfor appen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ett standpunkt per forespørsel"
+tekst = '''
+Byggherrens svar har ett standpunkt etter § 33.6.2 for hver forespørsel det gjelder. Endrer VS-U24 og krever ny brevtekst etter LV-U18 og LV-U4.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Svaret gjelder bare siste forespørsel"
+tekst = '''
+Byggherrens svar på fristkravet tar bare stilling etter den nye forespørselen. Innsigelsen mot begrunnelsen står åpen uten å bli gjentatt eller gitt opp. Snevrer inn VS-U29.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -5415,6 +5457,40 @@ anbefalt = true
 navn = "Med kategorien"
 tekst = '''
 Brevteksten for TEs varsel etter § 34.1.2: «TE varsler etter NS 8407 § 34.1.2 at TE vil kreve justering av vederlaget som følge av <underkategori> (NS 8407 § <hjemmel>) for forholdet i sak <saksnummer> («<sakstittel>»).» Endret tekst gjelder bare nye brev (MM-U9).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U20"
+dato = 2026-10-21
+hvem = "oppdragsgiver"
+kilde = ["#1095", "#1120"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1095 (S3, teksten i protesten mot byggherrens påberopelse etter § 33.6.2):
+
+Når TE protesterer mot byggherrens påberopelse (LV-U4 punkt 8), skriver brevet «mot påberopelsen av for sen varsling i svaret i brev n av dato». For en påberopelse etter § 33.6.2 gjelder den TEs svar på forespørselen, ikke et varsel. LV-U18 bruker ellers ordene «TEs svar på forespørselen etter NS 8407 § 33.6.2 … kom for sent». Hvilken tekst skal protesten ha for § 33.6.2?
+
+Alternativene slik de står i kommentaren:
+
+Egen tekst for § 33.6.2 (Recommended): Protesten mot en påberopelse etter § 33.6.2 lyder «mot påberopelsen av at TEs svar på forespørselen etter NS 8407 § 33.6.2 kom for sent i svaret i brev n av dato». For § 33.4 gjelder dagens tekst. Utvider LV-U4 punkt 8 og LV-U18.
+
+Samme tekst for begge: Protesten lyder «mot påberopelsen av for sen varsling i svaret i brev n av dato» også for § 33.6.2. Vår tolkning av LV-U4 punkt 8.'''
+valgt = "Egen tekst for § 33.6.2"
+svar = '''
+«Egen tekst for § 33.6.2 (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "lv-u4" }, { art = "utvider", vedtak = "lv-u18" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1095 (kommentaren 6319228702).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Egen tekst for § 33.6.2"
+tekst = '''
+Protesten mot en påberopelse etter § 33.6.2 lyder «mot påberopelsen av at TEs svar på forespørselen etter NS 8407 § 33.6.2 kom for sent i svaret i brev n av dato». For § 33.4 gjelder dagens tekst.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samme tekst for begge"
+tekst = '''
+Protesten lyder «mot påberopelsen av for sen varsling i svaret i brev n av dato» også for § 33.6.2. Vår tolkning av LV-U4 punkt 8.'''
 forkastet = true
 
 [[gruppe]]

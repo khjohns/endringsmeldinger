@@ -3204,6 +3204,9 @@
     }
   ],
   "koder_uten_rad": {
+    "FORESPORSEL_BEGRUNNET": "Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "INGEN_FORESPORSEL": "Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "FORESPORSEL_BESVART": "Kontrollen av kommandoen: én begrunnelse etter § 33.6.2 annet ledd b per forespørsel, og ingen etter at et fristkrav har svart (KA-U1, VS-U17). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "ALLEREDE_SVART": "Kontrollen av kommandoen: et svar på en kravversjon som allerede har et svar, avvises, og svaret revideres i stedet. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "VEDLEGG_FINNES_IKKE": "Kontrollen av at vedleggene kommandoen viser til, finnes i saken og prosjektet (LV-U14, arbeidsvalg 3 i #790). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts` og `server/tester/vedlegg.test.ts`.",
     "ANNET_RESULTAT": "Kontrollen av kommandoen: resultatet klienten sender, må være det serveren regner ut av vurderingene. Ingen vedtak sier avvisningen, og ingen rad sier den; den prøves i `kjerne/tester/kjerne.test.ts`.",

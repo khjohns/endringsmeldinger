@@ -10,6 +10,7 @@
  */
 
 import {
+  fristkravErFremmet,
   kanFaaInnsigelse,
   kraveneErAvgjort,
   trekkAvGrunnlagetErSperret,
@@ -20,10 +21,18 @@ import { KRAVSPOR, type Avvisning, type Kravspor, type Part, type Spor } from '.
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
-  | { type: 'varsle' | 'sende_varsel'; spor: 'frist' }
+  | { type: 'varsle' | 'sende_varsel' | 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | {
-      type: 'bestride' | 'innsigelse' | 'protest' | 'passivitet' | 'merke' | 'avklare' | 'begrunne';
+      type:
+        | 'bestride'
+        | 'innsigelse'
+        | 'protest'
+        | 'passivitet'
+        | 'merke'
+        | 'avklare'
+        | 'begrunne'
+        | 'svare_paa_foresporsel';
       gjelder: string;
     };
 
@@ -36,6 +45,8 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   godta: 'TE',
   varsle: 'TE',
   sende_varsel: 'TE',
+  sende_foresporsel: 'BH',
+  svare_paa_foresporsel: 'TE',
   ingen_krav: 'TE',
   passivitet: null,
   svare: 'BH',
@@ -65,6 +76,18 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
             'UGYLDIG_INNSIGELSE',
             'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
           );
+    case 'svare_paa_foresporsel': {
+      // VS-U27: en forespørsel fra appen. KA-U1: én begrunnelse, og ikke etter at et krav har svart.
+      const f = u.spor.frist.foresporsler.find((x) => x.foresporsel === h.gjelder);
+      if (!f)
+        return avvis(
+          'INGEN_FORESPORSEL',
+          'Begrunnelsen må gjelde en forespørsel etter § 33.6.2 fra byggherren.'
+        );
+      if (f.svar !== null)
+        return avvis('FORESPORSEL_BESVART', 'Forespørselen er allerede besvart.');
+      return fristenErLukket(u);
+    }
     case 'bestride':
     case 'merke':
     case 'avklare':
@@ -79,6 +102,17 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
         'Bestridelse, merking, avklaring, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
       );
   }
+}
+
+/** Et utsagn i fristen som ikke er et krav, når sporet er lukket (SK-01, OV-U3, GR-U5, KA-U12). */
+function fristenErLukket(u: Utledning): Avvisning | null {
+  if (u.grunnlagAvvist)
+    return avvis('GRUNNLAG_AVVIST', 'Partene er enige om at grunnlaget er avvist (SK-01).');
+  if (varAvgjort(u, 'frist')) return avvis('KRAVENE_AVGJORT', hvorforAvgjort(u));
+  if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+  if (u.spor.frist.ingenKrav)
+    return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
+  return null;
 }
 
 export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
@@ -178,6 +212,28 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis(
           'FRISTKRAV_SENDT',
           'Fristkravet er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.'
+        );
+      return null;
+    case 'sende_foresporsel':
+      if (!grunnlagSendt)
+        return avvis(
+          'GRUNNLAG_IKKE_SENDT',
+          'Grunnlaget må være sendt før du kan sende forespørselen.'
+        );
+      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
+      if (s.ingenKrav)
+        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
+      // VS-U19: fra appen så lenge TE ikke har krevd dager i saken.
+      if (fristkravErFremmet(u))
+        return avvis(
+          'FRISTKRAV_SENDT',
+          'TE har krevd dager, så forespørselen etter § 33.6.2 kan ikke sendes.'
+        );
+      // VS-U30: ingen ny forespørsel fra appen etter TEs begrunnelse etter annet ledd b.
+      if (s.foresporsler.some((f) => f.svar !== null && !f.medKrav))
+        return avvis(
+          'FORESPORSEL_BEGRUNNET',
+          'TE har svart på en forespørsel med en begrunnelse etter § 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes fra appen.'
         );
       return null;
     case 'svare':
