@@ -55,7 +55,16 @@ export default defineConfig({
         test: {
           name: 'frontend',
           include: ['src/**/*.test.ts'],
-          environmentMatchGlobs: [['src/lib/components/**/*.test.ts', 'jsdom']],
+          exclude: ['src/lib/components/**/*.test.ts'],
+          setupFiles: ['src/test-setup.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'frontend-komponenter',
+          include: ['src/lib/components/**/*.test.ts'],
+          environment: 'jsdom',
           setupFiles: ['src/test-setup.ts'],
         },
       },
