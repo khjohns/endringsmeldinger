@@ -32,7 +32,7 @@ Ugyldig verdi gir en melding om hva som er feil, og exit 1 før nettleseren star
 
 ## I en git-worktree
 
-`vite.config.ts` gir `vite dev` tilgang til `backend/constants/`. Er
+`vite.config.ts` gir `vite dev` tilgang til `kjerne/`. Er
 `node_modules` en symbolsk lenke, som i en worktree, må også lenkens mål stå i
 `server.fs.allow`. Legg det inn lokalt for kjøringen, og commit det ikke.
 

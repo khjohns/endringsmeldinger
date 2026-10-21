@@ -28,9 +28,8 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // Legges til SvelteKits liste: frontend importerer delte regler fra backend/constants
-    // og TS-kjernen fra kjerne/ ($kjerne).
-    fs: { allow: ['backend/constants', 'kjerne'] },
+    // Legges til SvelteKits liste: TS-kjernen importeres fra kjerne/ ($kjerne).
+    fs: { allow: ['kjerne'] },
     proxy: {
       // TS-serveren (B-18, F0b-8): `npm run server -- 8090` mot testbasen.
       [TS_PREFIKS]: {
