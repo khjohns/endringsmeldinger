@@ -2728,7 +2728,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F317',
     feilklasse: 'forespørselen etter § 33.6.2 godtas etter et fristkrav (VS-U19)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['      if (s.krav.length > 0)', '      if (false)']],
+    endringer: [['      if (fristkravErFremmet(u))', '      if (false)']],
     mal: ['VS-U19: forespørselen avvises når TE har krevd dager'],
   },
   {
@@ -2785,6 +2785,46 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [['      if (f.svar !== null)', '      if (false)']],
     mal: ['KA-U1, VS-U27: én begrunnelse per forespørsel'],
+  },
+  {
+    id: 'F324',
+    feilklasse: 'et fristkrav i et registrert brev sperrer ikke forespørselen (VS-U19)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['      if (fristkravErFremmet(u))', '      if (s.krav.length > 0)']],
+    mal: ['VS-U19: et fristkrav i et registrert brev er også fremmet'],
+  },
+  {
+    id: 'F325',
+    feilklasse: 'svaret kan tie om innsigelsen mot begrunnelsen (VS-U29, VS-U11)',
+    fil: `${K}/regler/frist.ts`,
+    endringer: [
+      [
+        'foresporsel_svar_ok: krav.er_svar_paa_foresporsel || krav.har_begrunnelse_etter_b === true,',
+        'foresporsel_svar_ok: krav.er_svar_paa_foresporsel,',
+      ],
+    ],
+    mal: ['VS-U29, VS-U11: etter en innsigelse mot begrunnelsen må svaret'],
+  },
+  {
+    id: 'F326',
+    feilklasse: 'innsigelsen etter § 33.6.2 gis opp av et standpunkt om noe annet (HF-U4)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      ["(p.hjemmel !== '33.6.2' || i.gjelder === p.gjelder)", "(p.hjemmel !== '33.6.2' || true)"],
+    ],
+    mal: ['VS-U29, HF-U4: et standpunkt om kravet som svarer på en ny forespørsel'],
+  },
+  {
+    id: 'F327',
+    feilklasse: 'beslutningslinjen viser bare den første preklusjonen i fristsvaret',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "rettidighet: `prekludert (${hjemler.join(' og ')})`",
+        'rettidighet: `prekludert (${hjemler[0]})`',
+      ],
+    ],
+    mal: ['beslutningslinjen nevner begge bestemmelsene'],
   },
 ];
 

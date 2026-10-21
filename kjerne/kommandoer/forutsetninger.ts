@@ -10,6 +10,7 @@
  */
 
 import {
+  fristkravErFremmet,
   kanFaaInnsigelse,
   kraveneErAvgjort,
   trekkAvGrunnlagetErSperret,
@@ -223,7 +224,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
       // VS-U19: fra appen så lenge TE ikke har krevd dager i saken.
-      if (s.krav.length > 0)
+      if (fristkravErFremmet(u))
         return avvis(
           'FRISTKRAV_SENDT',
           'TE har krevd dager, så forespørselen etter § 33.6.2 kan ikke sendes.'

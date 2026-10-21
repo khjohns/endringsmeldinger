@@ -393,7 +393,8 @@ function aapneInnsigelser(
     // VS-U29: i fristen også påberopelsen etter § 33.6.2 mot begrunnelsen.
     const gjelder =
       hjemmel === HJEMMEL[svar.spor] || (svar.spor === 'frist' && hjemmel === '33.6.2');
-    return gjelder && !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra), hjemmel)
+    return gjelder &&
+      !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra), hjemmel, i.gjelder)
       ? [{ gjelder: i.gjelder, dokument: i.dokument, hjemmel }]
       : [];
   });
@@ -496,7 +497,10 @@ function standpunkttekst(
     s.spor === 'grunnlag' ? krav : s.grunnlagskrav ? j.krav(s.grunnlagskrav) : null;
   switch (p.art) {
     case 'rettidighet': {
-      const aapne = innsigelser.filter((i) => i.hjemmel === p.hjemmel);
+      // VS-U29, HF-U4: innsigelsen etter § 33.6.2 gjelder én begrunnelse, så standpunktet må gjelde den.
+      const aapne = innsigelser.filter(
+        (i) => i.hjemmel === p.hjemmel && (p.hjemmel !== '33.6.2' || i.gjelder === p.gjelder)
+      );
       // HF-U1: brevet varselet står i, unntatt TEs varsel etter § 32.2 (oppdragsgiver 17.10, #497).
       // LV-U18 setning 4: svaret på forespørselen med brevet forespørselen står i.
       const varselet =

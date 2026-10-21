@@ -226,7 +226,9 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
   // VS-U24: ett standpunkt for hver bestemmelse, § 33.4 før § 33.6.2.
   const hjemler = ut.flatMap((s) => (s.art === 'rettidighet' ? [s.hjemmel] : []));
   if (hjemler.length > 1 && (hjemler[0] !== '33.4' || hjemler[1] !== '33.6.2'))
-    throw new Uforstaatt(`${sti}: rettidigheten står to ganger etter samme bestemmelse`);
+    throw new Uforstaatt(
+      `${sti}: rettidigheten står ${hjemler.map((h) => `etter § ${h}`).join(', ')}, men bare § 33.4 og deretter § 33.6.2 er lov`
+    );
   for (const t of tillatt)
     if (t.paakrevd && !ut.some((s) => s.art === t.art))
       throw new Uforstaatt(`${sti}: svaret på ${spor} mangler standpunktet ${t.art}`);

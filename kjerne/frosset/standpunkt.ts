@@ -158,25 +158,29 @@ export function innsigelsenPaaberoper(
  * etter § 33.4 den opp, fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309).
  * I grunnlaget teller partens siste standpunkt etter § 32.2, også om en annen
  * grunnlagsversjon (arbeidsvalget 15.10 i #500). `etter` er partens svar etter
- * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp.
+ * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp. Etter § 33.6.2 gir
+ * bare et standpunkt om begrunnelsen innsigelsen gjelder, den opp (VS-U29, HF-U4).
  */
 export function innsigelsenErOppgitt(
   spor: Spor,
   etter: Pick<Svar, 'spor' | 'standpunkter'>[],
-  hjemmel: Hjemmel = HJEMMEL[spor]
+  hjemmel: Hjemmel = HJEMMEL[spor],
+  gjelder?: string
 ): boolean {
   const standpunkter = etter
     .filter((x) => x.spor === spor)
     .flatMap((x) => x.standpunkter)
     .filter(
       (p): p is Extract<Standpunkt, { art: 'rettidighet' }> =>
-        p.art === 'rettidighet' && p.hjemmel === hjemmel
+        p.art === 'rettidighet' &&
+        p.hjemmel === hjemmel &&
+        (hjemmel !== '33.6.2' || p.gjelder === gjelder)
     );
   if (spor === 'frist') return standpunkter.some((p) => p.iTide);
   return standpunkter.at(-1)?.iTide === true;
 }
 
-export interface Foresporselssvar {
+export interface ForesporselOgSvar {
   foresporsel: string;
   /** Elementet som svarte: et fristkrav (`medKrav`) eller TEs begrunnelse etter annet ledd b. */
   svar: string | null;
@@ -192,8 +196,8 @@ export interface Foresporselssvar {
  */
 export function svarPaaForesporsler(
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>
-): Foresporselssvar[] {
-  const ut: Foresporselssvar[] = [];
+): ForesporselOgSvar[] {
+  const ut: ForesporselOgSvar[] = [];
   for (const d of dokumenter) {
     for (const u of d.utsagn) {
       if (u.art === 'foresporsel') ut.push({ foresporsel: u.id, svar: null, medKrav: false });
@@ -219,7 +223,7 @@ export type Foresporselsrelasjon =
   | { art: 'begrunnelse'; gjelder: string };
 
 export function foresporselsrelasjon(
-  svar: readonly Foresporselssvar[]
+  svar: readonly ForesporselOgSvar[]
 ): Foresporselsrelasjon | null {
   // Forespørselen kan bare sendes før det første fristkravet (VS-U19), så det er kravet som
   // svarer. Senere kravversjoner står i samme forhold til forespørselen (VS-U20).
@@ -372,10 +376,17 @@ function beslutningslinje(
   v: Standpunktsvirkning[],
   grunnlagskrav: Krav | null | undefined
 ): string {
-  const hjemmel = standpunktet(svar, 'rettidighet')?.hjemmel ?? HJEMMEL[svar.spor];
   const spesifisert = standpunktet(svar, 'spesifisering');
+  // Fristsvaret kan prekludere etter både § 33.4 og § 33.6.2 tredje ledd (VS-U17). Begge er
+  // prinsipale, så de er ett ledd med den prinsipale grunnen (vedtaket 05.10).
+  const prekluderende = v
+    .filter((p) => p.art === 'rettidighet' && p.virkning !== 'uten_virkning')
+    .map((p) => p.standpunkt);
+  const hjemler = svar.standpunkter
+    .filter((s): s is Extract<Standpunkt, { art: 'rettidighet' }> => prekluderende.includes(s.id))
+    .map((s) => `§ ${s.hjemmel}`);
   const grunntekst: Record<string, string> = {
-    rettidighet: `prekludert (§ ${hjemmel})`,
+    rettidighet: `prekludert (${hjemler.join(' og ')})`,
     // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
     hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
       kategori(grunnlagskrav).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
@@ -384,7 +395,12 @@ function beslutningslinje(
       ? `godkjent med ${spesifisert.dager} dager (§ 33.6.1)`
       : 'avslått (§ 33.6.1)',
   };
-  const grunner = v.filter((p) => p.art in grunntekst && p.virkning !== 'uten_virkning');
+  const grunner = v.filter(
+    (p) =>
+      p.art in grunntekst &&
+      p.virkning !== 'uten_virkning' &&
+      (p.art !== 'rettidighet' || p.standpunkt === prekluderende[0])
+  );
   let standpunkt: string;
   if (svar.spor === 'grunnlag') {
     standpunkt = GRUNNLAGSSVARET[standpunktet(svar, 'grunnlag')!.resultat];

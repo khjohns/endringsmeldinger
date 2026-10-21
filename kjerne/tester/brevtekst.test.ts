@@ -2583,6 +2583,34 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
+  it('VS-U19: et fristkrav i et registrert brev er også fremmet, så forespørselen avvises', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.rad('TE', {
+      krav: [{ id: randomUUID(), spor: 'frist', dager: 20 }],
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-01' }],
+    });
+    expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
+  });
+
+  it('beslutningslinjen nevner begge bestemmelsene når svaret prekluderer etter § 33.4 og § 33.6.2 tredje ledd (VS-U17, vedtaket 05.10)', () => {
+    const { s } = medForesporsel();
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(
+      s,
+      {
+        ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'),
+        frist_varsel_ok: false,
+        foresporsel_svar_ok: false,
+      },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    expect(b.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4 og § 33.6.2), subsidiært godkjent med 20 dager.'
+    );
+  });
+
   it('kravet som svarer på forespørselen, sier det (LV-U18 setning 3), og § 33.6.1 kan ikke påberopes (fjerde ledd)', () => {
     const { s } = medForesporsel();
     const krav = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
@@ -2702,6 +2730,28 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       'Byggherren gir opp innsigelsen etter NS 8407 § 5 i brev 5 av 5. oktober 2026 og gjør ikke gjeldende at TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev 3 av 3. oktober 2026 kom for sent.'
     );
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBe('SAGT_I_TIDE');
+  });
+
+  it('VS-U29, VS-U11: etter en innsigelse mot begrunnelsen må svaret på kravet gjenta den eller gi den opp', () => {
+    const { s, b } = medBegrunnelse();
+    s.send('BH', { type: 'innsigelse', gjelder: b });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(
+      s.avvist('BH', {
+        type: 'brev',
+        svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+      })
+    ).toBe('UGYLDIG_VURDERING');
+  });
+
+  it('VS-U29, HF-U4: et standpunkt om kravet som svarer på en ny forespørsel, gir ikke opp innsigelsen mot en tidligere begrunnelse', () => {
+    const { s, b } = medBegrunnelse();
+    s.send('BH', { type: 'innsigelse', gjelder: b });
+    s.send('BH', foresporsel);
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(s, { ...FRIST_FULLT[0], foresporsel_svar_ok: true }, FRIST_FULLT[1]);
+    expect(laast(rad)[0]).not.toContain('gir opp innsigelsen');
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBeNull();
   });
 
   it('VS-U29: «ikke et svar etter annet ledd» registreres uten virkning, og gjelder bare begrunnelsen', () => {

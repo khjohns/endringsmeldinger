@@ -311,7 +311,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // § 33.6.2 (VS-U17, VS-U19, VS-U27): hver forespørsel og kravet eller begrunnelsen som
   // svarte, utledet av rekkefølgen i journalen, og hvordan fristkravene står til den.
   ['Sporutledning', 'relasjon', 'foresporsler'],
-  ['Foresporselssvar', 'relasjon', 'foresporsel svar medKrav'],
+  ['ForesporselOgSvar', 'relasjon', 'foresporsel svar medKrav'],
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
   ['frosset/standpunkt.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon'],
   ['utledning/utled.ts', 'relasjon', 'foresporselForFristsvar'],
@@ -325,8 +325,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Utledning',
     'utsagn',
     'journal',
-    ['utledning/utled.ts:innsigelsenEtterITide', 'utledning/utled.ts:foresporselForFristsvar'],
+    [
+      'utledning/utled.ts:innsigelsenEtterITide',
+      'utledning/utled.ts:foresporselForFristsvar',
+      'utledning/utled.ts:fristkravErFremmet',
+    ],
   ],
+  // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
+  ['utledning/utled.ts', 'predikat', 'fristkravErFremmet', ['kommandoer/forutsetninger.ts']],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
   ['utledning/utled.ts', 'predikat', 'frafalletBinder', ['kommandoer/nyttelast.ts']],
   // VS-U20, OV-U5, HF-U1: varselet en påberopelse etter § 33.4 i et nytt svar gjelder (#496, #766).

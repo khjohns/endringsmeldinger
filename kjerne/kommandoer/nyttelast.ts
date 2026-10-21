@@ -31,13 +31,22 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import type { Avvisning, Krav, Part, Standpunkt, Svar } from '../typer.ts';
+import type { Avvisning, Hjemmel, Krav, Part, Standpunkt, Svar } from '../typer.ts';
 
 /**
  * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.
  * Skrivingen bygger dem én gang per svar, og brevet lagrer de samme (#804).
  */
 export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown>) => Standpunkt[];
+
+/** Det et «i tide» etter bestemmelsen gjaldt, i feilmeldingen for `SAGT_I_TIDE`. */
+const SAGT_I_TIDE_OM: Record<Hjemmel | '33.6.1', string> = {
+  '32.2': 'varselet kom',
+  '33.4': 'varselet kom',
+  '33.6.1': 'kravet ble spesifisert',
+  '33.6.2': 'TEs svar på forespørselen kom',
+  '34.1.2': 'varselet kom',
+};
 
 /** `forrige` er svaret en revisjon erstatter, så bindingen kontrolleres (HF-U5). */
 function kontrollerSvar(
@@ -83,9 +92,7 @@ function kontrollerSvar(
   if (bundet)
     return avvis(
       'SAGT_I_TIDE',
-      'gjelder' in bundet
-        ? 'Byggherren har i et svar sendt fra appen sagt at kravet ble spesifisert i tide etter § 33.6.1, og kan ikke nå påberope at det kom for sent (HF-U4).'
-        : `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
+      `Byggherren har i et svar sendt fra appen sagt at ${SAGT_I_TIDE_OM[bundet.hjemmel]} i tide etter § ${bundet.hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, HF-U8).`
     );
   if (s.spor === 'grunnlag' && s.vurderinger.resultat === 'avslaatt' && frafalletBinder(u))
     return avvis(
@@ -363,7 +370,7 @@ export function nyttelastkontroll(
       return hjemmel
         ? avvis(
             'SAGT_I_TIDE',
-            `Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § ${hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, VS-U24).`
+            `Byggherren har i et svar sendt fra appen sagt at ${SAGT_I_TIDE_OM[hjemmel]} i tide etter § ${hjemmel}, og kan ikke nå påberope at det kom for sent (HF-U4, VS-U24).`
           )
         : null;
     }

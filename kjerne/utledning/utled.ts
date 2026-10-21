@@ -30,7 +30,7 @@ import {
   foresporselsrelasjon,
   svarPaaForesporsler,
   type Foresporselsrelasjon,
-  type Foresporselssvar,
+  type ForesporselOgSvar,
   kravetErDokumentasjon,
   prinsipalt,
   sammeKategori,
@@ -88,7 +88,7 @@ export interface Sporutledning {
   /** Det registrerte varselet etter § 33.4; bare fristen. */
   varsel: Extract<LestUtsagn, { art: 'varsel' }> | null;
   /** § 33.6.2: forespørslene og det som svarte på dem; bare fristen. */
-  foresporsler: Foresporselssvar[];
+  foresporsler: ForesporselOgSvar[];
   /** Hvorfor hele svaret i sporet er subsidiært til grunnlaget; tomt for grunnlaget. */
   subsidiaer: Subsidiaergrunn[];
 }
@@ -1057,6 +1057,15 @@ export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | nu
     )
       return f;
   return null;
+}
+
+/**
+ * VS-U19: TE har fremmet et krav om dager i saken, også i et registrert brev eller uten
+ * virkning, som kontrollen av forespørselen i utledningen.
+ */
+export function fristkravErFremmet(u: Utledning): boolean {
+  for (const d of dokumenterI(u.journal)) if (d.krav.some((k) => k.spor === 'frist')) return true;
+  return false;
 }
 
 /** Dokumentene i journalen, i rekkefølge, uten å kopiere dem til en liste (#787). */
