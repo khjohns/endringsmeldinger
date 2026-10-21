@@ -8,13 +8,13 @@
     type VarselKind,
   } from '$lib/domain/konsekvensVarsler';
   let {
-    value = $bindable({}),
+    value = $bindable(),
     hovedkategori = '',
     tittel = '',
     includeFrist = true,
     disabled = false,
   }: {
-    value?: VarselValg;
+    value: VarselValg;
     hovedkategori?: string;
     tittel?: string;
     includeFrist?: boolean;
