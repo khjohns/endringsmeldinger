@@ -1,0 +1,61 @@
+{
+  "metode": "Midlertidige isolerte kopier av prøveprojektoren; samme testforventninger. Ingen mutasjon av kjernen.",
+  "projektor_sha256": "f58582d7374e1a79374f2ad94e730ebc80c9e8c53bfb8ef571cccca95502251f",
+  "resultater": [
+    {
+      "navn": "Uendret kontrollkopi",
+      "testfilter": "avgrenset rapportprøve",
+      "utfall": "grønn kontroll",
+      "antall_feil": 0,
+      "forventet_feil": null,
+      "faktisk_feil": [],
+      "produksjonskode_endret": false
+    },
+    {
+      "navn": "Dobbelttell erstattet krav på 100 000",
+      "testfilter": "teller revidert krav",
+      "utfall": "oppdaget ved forventet målassertion",
+      "antall_feil": 1,
+      "forventet_feil": "expected 450000 to be 350000",
+      "faktisk_feil": [
+        {
+          "ancestorTitles": [
+            "avgrenset rapportprøve for #554"
+          ],
+          "fullName": "avgrenset rapportprøve for #554 teller revidert krav én gang med uendret kontrollsak, fordelt på eksisterende ansvarsgrunnlag (bestillingen, MM-U28)",
+          "status": "failed",
+          "title": "teller revidert krav én gang med uendret kontrollsak, fordelt på eksisterende ansvarsgrunnlag (bestillingen, MM-U28)",
+          "duration": 10.979917999999998,
+          "failureMessages": [
+            "AssertionError: expected 450000 to be 350000 // Object.is equality\n    at /workspace/endringsmeldinger/sprakprove/rapportmodell-feil-sMnW4X/projektor.test.ts:64:24\n    at file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+          ],
+          "meta": {}
+        }
+      ],
+      "produksjonskode_endret": false
+    },
+    {
+      "navn": "Bruk siste målegrunnlag i historisk visning ved E",
+      "testfilter": "F blir kjent ved versjon 7",
+      "utfall": "oppdaget ved forventet målassertion",
+      "antall_feil": 1,
+      "forventet_feil": "expected 3 to be 7",
+      "faktisk_feil": [
+        {
+          "ancestorTitles": [
+            "avgrenset rapportprøve for #554"
+          ],
+          "fullName": "avgrenset rapportprøve for #554 F blir kjent ved versjon 7; historisk utvalg gir 7 dager ved E og 3 dager etter F uten lekkasje (bestillingen, B-10)",
+          "status": "failed",
+          "title": "F blir kjent ved versjon 7; historisk utvalg gir 7 dager ved E og 3 dager etter F uten lekkasje (bestillingen, B-10)",
+          "duration": 9.429546999999957,
+          "failureMessages": [
+            "AssertionError: expected 3 to be 7 // Object.is equality\n    at /workspace/endringsmeldinger/sprakprove/rapportmodell-feil-e3WOK9/projektor.test.ts:94:24\n    at file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at runSuite (file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///workspace/endringsmeldinger/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+          ],
+          "meta": {}
+        }
+      ],
+      "produksjonskode_endret": false
+    }
+  ]
+}

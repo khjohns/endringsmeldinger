@@ -1,0 +1,2550 @@
+{
+  "premiss": "Ved D sier BH uttrykkelig varsel_i_tide=true om det første fristkravet appen kjenner; øvrige valg er like. Dette er et annet syntetisk partsstandpunkt, ingen konklusjon om faktisk rettidighet.",
+  "steg": [
+    {
+      "trinn": "A/opprett",
+      "tidspunkt": "2026-09-20T08:00:00.000Z",
+      "kommando": {
+        "type": "opprett_sak",
+        "sakstittel": "Kontroll av annet varslingstandpunkt"
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030001",
+      "saksversjon": 1
+    },
+    {
+      "trinn": "A/grunnlag",
+      "tidspunkt": "2026-09-20T09:00:00.000Z",
+      "kommando": {
+        "type": "krav",
+        "spor": "grunnlag",
+        "innhold": {
+          "hovedkategori": "svikt",
+          "underkategori": "grunnforhold",
+          "klar_over_forholdet": "2026-09-15"
+        },
+        "utdypning": "Utdypning i bevis-saken.",
+        "brevtekst": [
+          "TE gjør gjeldende krav som følge av uforutsette grunnforhold (NS 8407 § 23.1, jf. § 33.1 b og § 34.1.2) for forholdet i sak 55400000-0000-4000-9000-000000000003 («Kontroll av annet varslingstandpunkt»). TE opplyser at TE ble klar over forholdet 15. september 2026."
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030004",
+      "saksversjon": 2
+    },
+    {
+      "trinn": "B/vederlag",
+      "tidspunkt": "2026-09-21T09:00:00.000Z",
+      "kommando": {
+        "type": "krav",
+        "spor": "vederlag",
+        "innhold": {
+          "metode": "tilbud",
+          "beloep": 100000
+        },
+        "brevtekst": [
+          "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030008",
+      "saksversjon": 3
+    },
+    {
+      "trinn": "B/frist",
+      "tidspunkt": "2026-09-22T09:00:00.000Z",
+      "kommando": {
+        "type": "krav",
+        "spor": "frist",
+        "innhold": {
+          "dager": 20
+        },
+        "utdypning": "Utdypning i bevis-saken.",
+        "brevtekst": [
+          "TE krever fristforlengelse på 20 dager (NS 8407 § 33.6.1)."
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030012",
+      "saksversjon": 4
+    },
+    {
+      "trinn": "C",
+      "tidspunkt": "2026-09-23T09:00:00.000Z",
+      "kommando": {
+        "type": "krav",
+        "spor": "vederlag",
+        "innhold": {
+          "metode": "tilbud",
+          "beloep": 150000
+        },
+        "brevtekst": [
+          "TE krever justering av vederlaget med 150 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1. Kravet erstatter TEs krav i brev 3 av 21. september 2026."
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030016",
+      "saksversjon": 5
+    },
+    {
+      "trinn": "D",
+      "tidspunkt": "2026-09-26T09:00:00.000Z",
+      "kommando": {
+        "type": "brev",
+        "svar": [
+          {
+            "spor": "grunnlag",
+            "gjelder": "55400000-0000-4000-8000-000000030005",
+            "regelversjon": 24,
+            "vurderinger": {
+              "resultat": "avslaatt"
+            },
+            "resultat": {},
+            "utdypning": "Utdypning i bevis-saken."
+          },
+          {
+            "spor": "vederlag",
+            "gjelder": "55400000-0000-4000-8000-000000030017",
+            "regelversjon": 24,
+            "vurderinger": {
+              "hovedkrav_vurdering": "delvis",
+              "hovedkrav_godkjent_belop": 120000,
+              "hovedkrav_varslet_i_tide": true,
+              "aksepterer_metode": true
+            },
+            "resultat": {
+              "resultat": "delvis_godkjent",
+              "godkjent_beloep": 120000
+            },
+            "utdypning": "Utdypning i bevis-saken."
+          },
+          {
+            "spor": "frist",
+            "gjelder": "55400000-0000-4000-8000-000000030013",
+            "regelversjon": 24,
+            "vurderinger": {
+              "frist_varsel_ok": true,
+              "spesifisert_krav_ok": true,
+              "vilkar_oppfylt": true,
+              "dager": 10
+            },
+            "resultat": {
+              "resultat": "delvis_godkjent",
+              "godkjent_dager": 10
+            },
+            "utdypning": "Utdypning i bevis-saken."
+          }
+        ],
+        "brevtekst": [
+          "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 20. september 2026: Byggherren avslår grunnlaget.",
+          "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 5 av 23. september 2026: Prinsipalt: byggherren avslår grunnlaget (se svaret på grunnlaget). Byggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 3 av 21. september 2026 kom for sent. Byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2). Subsidiært: byggherren godkjenner 120 000 kr eks. mva. av de krevde 150 000 kr eks. mva.",
+          "Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 22. september 2026: Prinsipalt: byggherren avslår grunnlaget (se svaret på grunnlaget). Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 22. september 2026 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1). Subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager."
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030038",
+      "saksversjon": 6
+    },
+    {
+      "trinn": "F",
+      "tidspunkt": "2026-09-28T09:00:00.000Z",
+      "kommando": {
+        "type": "varsel",
+        "spor": "frist",
+        "hjemmel": "33.4",
+        "sendt": "2026-09-18",
+        "dokumentasjon": [
+          "00000000-0000-4000-8000-000000000554"
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030045",
+      "saksversjon": 7
+    },
+    {
+      "trinn": "G/vederlag",
+      "tidspunkt": "2026-09-29T09:00:00.000Z",
+      "kommando": {
+        "type": "aksept",
+        "spor": "vederlag",
+        "svar": "55400000-0000-4000-8000-000000030040",
+        "regelversjon": 24,
+        "brevtekst": [
+          "TE godtar byggherrens svar på kravet om justering av vederlaget i brev 6 av 26. september 2026. TE er enig i beløpet, men ikke i byggherrens standpunkt til grunnlaget."
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030050",
+      "saksversjon": 8
+    },
+    {
+      "trinn": "G/frist",
+      "tidspunkt": "2026-09-30T09:00:00.000Z",
+      "kommando": {
+        "type": "aksept",
+        "spor": "frist",
+        "svar": "55400000-0000-4000-8000-000000030041",
+        "regelversjon": 24,
+        "brevtekst": [
+          "TE godtar byggherrens svar på kravet om fristforlengelse i brev 6 av 26. september 2026. TE er enig i antallet dager, men ikke i byggherrens standpunkt til grunnlaget."
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030054",
+      "saksversjon": 9
+    },
+    {
+      "trinn": "H",
+      "tidspunkt": "2026-10-02T09:00:00.000Z",
+      "kommando": {
+        "type": "revisjon",
+        "erstatter": "55400000-0000-4000-8000-000000030039",
+        "svar": {
+          "spor": "grunnlag",
+          "gjelder": "55400000-0000-4000-8000-000000030005",
+          "regelversjon": 24,
+          "vurderinger": {
+            "resultat": "godkjent"
+          },
+          "resultat": {},
+          "utdypning": "Utdypning i bevis-saken."
+        },
+        "brevtekst": [
+          "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 20. september 2026: Byggherren godkjenner grunnlaget. Svaret erstatter byggherrens svar i brev 6 av 26. september 2026."
+        ]
+      },
+      "godtatt": true,
+      "avvisning": null,
+      "event_id": "55400000-0000-4000-8000-000000030060",
+      "saksversjon": 10
+    }
+  ],
+  "journal": [
+    {
+      "event_id": "55400000-0000-4000-8000-000000030001",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "sak_opprettet",
+      "versjon": 1,
+      "tidsstempel": "2026-09-20T08:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000001",
+      "aktor_rolle": "TE",
+      "aktor_team_id": "syntetisk-te",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "sakstittel": "Kontroll av annet varslingstandpunkt",
+        "sakstype": "standard"
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030004",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 2,
+      "tidsstempel": "2026-09-20T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000001",
+      "aktor_rolle": "TE",
+      "aktor_team_id": "syntetisk-te",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "krav": [
+          {
+            "id": "55400000-0000-4000-8000-000000030005",
+            "spor": "grunnlag",
+            "hovedkategori": "svikt",
+            "underkategori": "grunnforhold",
+            "klar_over_forholdet": "2026-09-15"
+          }
+        ],
+        "brevtekst": [
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030005",
+            "laast": "TE gjør gjeldende krav som følge av uforutsette grunnforhold (NS 8407 § 23.1, jf. § 33.1 b og § 34.1.2) for forholdet i sak 55400000-0000-4000-9000-000000000003 («Kontroll av annet varslingstandpunkt»). TE opplyser at TE ble klar over forholdet 15. september 2026.",
+            "utdypning": "Utdypning i bevis-saken."
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030008",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 3,
+      "tidsstempel": "2026-09-21T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000001",
+      "aktor_rolle": "TE",
+      "aktor_team_id": "syntetisk-te",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "krav": [
+          {
+            "id": "55400000-0000-4000-8000-000000030009",
+            "spor": "vederlag",
+            "metode": "tilbud",
+            "beloep": 100000
+          }
+        ],
+        "brevtekst": [
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030009",
+            "laast": "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030012",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 4,
+      "tidsstempel": "2026-09-22T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000001",
+      "aktor_rolle": "TE",
+      "aktor_team_id": "syntetisk-te",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "krav": [
+          {
+            "id": "55400000-0000-4000-8000-000000030013",
+            "spor": "frist",
+            "dager": 20
+          }
+        ],
+        "brevtekst": [
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030013",
+            "laast": "TE krever fristforlengelse på 20 dager (NS 8407 § 33.6.1).",
+            "utdypning": "Utdypning i bevis-saken."
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030016",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 5,
+      "tidsstempel": "2026-09-23T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000001",
+      "aktor_rolle": "TE",
+      "aktor_team_id": "syntetisk-te",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "krav": [
+          {
+            "id": "55400000-0000-4000-8000-000000030017",
+            "spor": "vederlag",
+            "erstatter": "55400000-0000-4000-8000-000000030009",
+            "metode": "tilbud",
+            "beloep": 150000
+          }
+        ],
+        "brevtekst": [
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030017",
+            "laast": "TE krever justering av vederlaget med 150 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1. Kravet erstatter TEs krav i brev 3 av 21. september 2026."
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030038",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 6,
+      "tidsstempel": "2026-09-26T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000002",
+      "aktor_rolle": "BH",
+      "aktor_team_id": "syntetisk-bh",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "svar": [
+          {
+            "id": "55400000-0000-4000-8000-000000030039",
+            "spor": "grunnlag",
+            "gjelder": "55400000-0000-4000-8000-000000030005",
+            "standpunkter": [
+              {
+                "id": "55400000-0000-4000-8000-000000030030",
+                "art": "grunnlag",
+                "resultat": "avslaatt"
+              }
+            ],
+            "beslutningsgrunnlag": {
+              "regelversjon": 24,
+              "linje": "Byggherrens standpunkt: avslått.",
+              "sammenfall": false,
+              "varslingsplikt": false,
+              "virkninger": [
+                {
+                  "standpunkt": "55400000-0000-4000-8000-000000030030",
+                  "virkning": "prinsipalt"
+                }
+              ]
+            }
+          },
+          {
+            "id": "55400000-0000-4000-8000-000000030040",
+            "spor": "vederlag",
+            "gjelder": "55400000-0000-4000-8000-000000030017",
+            "grunnlagskrav": "55400000-0000-4000-8000-000000030005",
+            "standpunkter": [
+              {
+                "id": "55400000-0000-4000-8000-000000030031",
+                "art": "rettidighet",
+                "gjelder": "55400000-0000-4000-8000-000000030009",
+                "hjemmel": "34.1.2",
+                "i_tide": true
+              },
+              {
+                "id": "55400000-0000-4000-8000-000000030032",
+                "art": "metode",
+                "hjemmel": "34.2.2",
+                "aksepterer": true
+              },
+              {
+                "id": "55400000-0000-4000-8000-000000030033",
+                "art": "beloep"
+              }
+            ],
+            "utregning": {
+              "resultat": "delvis_godkjent",
+              "godkjent_beloep": 120000
+            },
+            "beslutningsgrunnlag": {
+              "regelversjon": 24,
+              "linje": "Byggherrens standpunkt: godkjent med 120 000 kr.",
+              "sammenfall": false,
+              "virkninger": [
+                {
+                  "standpunkt": "55400000-0000-4000-8000-000000030033",
+                  "virkning": "prinsipalt"
+                }
+              ],
+              "uten_virkning": [
+                "55400000-0000-4000-8000-000000030031",
+                "55400000-0000-4000-8000-000000030032"
+              ]
+            }
+          },
+          {
+            "id": "55400000-0000-4000-8000-000000030041",
+            "spor": "frist",
+            "gjelder": "55400000-0000-4000-8000-000000030013",
+            "grunnlagskrav": "55400000-0000-4000-8000-000000030005",
+            "standpunkter": [
+              {
+                "id": "55400000-0000-4000-8000-000000030034",
+                "art": "rettidighet",
+                "gjelder": "55400000-0000-4000-8000-000000030013",
+                "hjemmel": "33.4",
+                "i_tide": true
+              },
+              {
+                "id": "55400000-0000-4000-8000-000000030035",
+                "art": "hindring",
+                "oppfylt": true
+              },
+              {
+                "id": "55400000-0000-4000-8000-000000030036",
+                "art": "spesifisering",
+                "gjelder": "55400000-0000-4000-8000-000000030013",
+                "hjemmel": "33.6.1",
+                "i_tide": true
+              },
+              {
+                "id": "55400000-0000-4000-8000-000000030037",
+                "art": "dager"
+              }
+            ],
+            "utregning": {
+              "resultat": "delvis_godkjent",
+              "godkjent_dager": 10
+            },
+            "beslutningsgrunnlag": {
+              "regelversjon": 24,
+              "linje": "Byggherrens standpunkt: godkjent med 10 dager.",
+              "sammenfall": false,
+              "virkninger": [
+                {
+                  "standpunkt": "55400000-0000-4000-8000-000000030037",
+                  "virkning": "prinsipalt"
+                }
+              ],
+              "uten_virkning": [
+                "55400000-0000-4000-8000-000000030034",
+                "55400000-0000-4000-8000-000000030035",
+                "55400000-0000-4000-8000-000000030036"
+              ]
+            }
+          }
+        ],
+        "brevtekst": [
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030039",
+            "laast": "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 20. september 2026: Byggherren avslår grunnlaget.",
+            "utdypning": "Utdypning i bevis-saken."
+          },
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030040",
+            "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 5 av 23. september 2026: Prinsipalt: byggherren avslår grunnlaget (se svaret på grunnlaget). Byggherren gjør ikke gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 3 av 21. september 2026 kom for sent. Byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2). Subsidiært: byggherren godkjenner 120 000 kr eks. mva. av de krevde 150 000 kr eks. mva.",
+            "utdypning": "Utdypning i bevis-saken."
+          },
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030041",
+            "laast": "Byggherrens svar på kravet om fristforlengelse i TEs krav i brev 4 av 22. september 2026: Prinsipalt: byggherren avslår grunnlaget (se svaret på grunnlaget). Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 22. september 2026 kom for sent. Byggherren legger til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1). Byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1). Subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager.",
+            "utdypning": "Utdypning i bevis-saken."
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030045",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 7,
+      "tidsstempel": "2026-09-28T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000001",
+      "aktor_rolle": "TE",
+      "aktor_team_id": "syntetisk-te",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "utsagn": [
+          {
+            "id": "55400000-0000-4000-8000-000000030046",
+            "art": "varsel",
+            "hjemmel": "33.4"
+          }
+        ],
+        "opplysninger": [
+          {
+            "id": "55400000-0000-4000-8000-000000030047",
+            "hva": "sendt",
+            "dato": "2026-09-18"
+          }
+        ],
+        "dokumentasjon": [
+          {
+            "vedlegg_id": "00000000-0000-4000-8000-000000000554",
+            "filnavn": "syntetisk-fristvarsel.txt",
+            "innhold_sha256": "e1891245722a3c255f36eb635f5f7e0cffdd2a4a01ad8c2caef18fd61b658a7f"
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030050",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 8,
+      "tidsstempel": "2026-09-29T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000001",
+      "aktor_rolle": "TE",
+      "aktor_team_id": "syntetisk-te",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "utsagn": [
+          {
+            "id": "55400000-0000-4000-8000-000000030051",
+            "art": "aksept",
+            "gjelder": "55400000-0000-4000-8000-000000030040",
+            "regelversjon": 24
+          }
+        ],
+        "brevtekst": [
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030051",
+            "laast": "TE godtar byggherrens svar på kravet om justering av vederlaget i brev 6 av 26. september 2026. TE er enig i beløpet, men ikke i byggherrens standpunkt til grunnlaget."
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030054",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 9,
+      "tidsstempel": "2026-09-30T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000001",
+      "aktor_rolle": "TE",
+      "aktor_team_id": "syntetisk-te",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "utsagn": [
+          {
+            "id": "55400000-0000-4000-8000-000000030055",
+            "art": "aksept",
+            "gjelder": "55400000-0000-4000-8000-000000030041",
+            "regelversjon": 24
+          }
+        ],
+        "brevtekst": [
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030055",
+            "laast": "TE godtar byggherrens svar på kravet om fristforlengelse i brev 6 av 26. september 2026. TE er enig i antallet dager, men ikke i byggherrens standpunkt til grunnlaget."
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "55400000-0000-4000-8000-000000030060",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "event_type": "dokument_registrert",
+      "versjon": 10,
+      "tidsstempel": "2026-10-02T09:00:00.000Z",
+      "aktor_id": "55400000-0000-4000-a000-000000000002",
+      "aktor_rolle": "BH",
+      "aktor_team_id": "syntetisk-bh",
+      "refererer_til_event_id": null,
+      "format": 1,
+      "data": {
+        "svar": [
+          {
+            "id": "55400000-0000-4000-8000-000000030061",
+            "spor": "grunnlag",
+            "gjelder": "55400000-0000-4000-8000-000000030005",
+            "erstatter": "55400000-0000-4000-8000-000000030039",
+            "standpunkter": [
+              {
+                "id": "55400000-0000-4000-8000-000000030059",
+                "art": "grunnlag",
+                "resultat": "godkjent"
+              }
+            ],
+            "beslutningsgrunnlag": {
+              "regelversjon": 24,
+              "linje": "Byggherrens standpunkt: godkjent.",
+              "sammenfall": true,
+              "varslingsplikt": false,
+              "virkninger": [
+                {
+                  "standpunkt": "55400000-0000-4000-8000-000000030059",
+                  "virkning": "prinsipalt"
+                }
+              ]
+            }
+          }
+        ],
+        "brevtekst": [
+          {
+            "gjelder": "55400000-0000-4000-8000-000000030061",
+            "laast": "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 20. september 2026: Byggherren godkjenner grunnlaget. Svaret erstatter byggherrens svar i brev 6 av 26. september 2026.",
+            "utdypning": "Utdypning i bevis-saken."
+          }
+        ]
+      }
+    }
+  ],
+  "sporhistorikk": [
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 1,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030001",
+      "tidsstempel": "2026-09-20T08:00:00.000Z",
+      "hovedkategori": null,
+      "underkategori": null,
+      "krav_id": null,
+      "te_krav": null,
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [],
+      "kilde_brev": []
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 1,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030001",
+      "tidsstempel": "2026-09-20T08:00:00.000Z",
+      "hovedkategori": null,
+      "underkategori": null,
+      "krav_id": null,
+      "te_krav": null,
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [],
+      "kilde_brev": []
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 1,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030001",
+      "tidsstempel": "2026-09-20T08:00:00.000Z",
+      "hovedkategori": null,
+      "underkategori": null,
+      "krav_id": null,
+      "te_krav": null,
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [],
+      "kilde_brev": []
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 2,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030004",
+      "tidsstempel": "2026-09-20T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 2,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030004",
+      "tidsstempel": "2026-09-20T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": null,
+      "te_krav": null,
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 2,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030004",
+      "tidsstempel": "2026-09-20T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": null,
+      "te_krav": null,
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 3,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030008",
+      "tidsstempel": "2026-09-21T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 3,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030008",
+      "tidsstempel": "2026-09-21T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030009",
+      "te_krav": {
+        "metode": "tilbud",
+        "beloep": 100000
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030009",
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030008",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 3,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030008",
+      "tidsstempel": "2026-09-21T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": null,
+      "te_krav": null,
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 4,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030012",
+      "tidsstempel": "2026-09-22T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 4,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030012",
+      "tidsstempel": "2026-09-22T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030009",
+      "te_krav": {
+        "metode": "tilbud",
+        "beloep": 100000
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030009",
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030008",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 4,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030012",
+      "tidsstempel": "2026-09-22T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030013",
+      "te_krav": {
+        "dager": 20
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030013",
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030012",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 5,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030016",
+      "tidsstempel": "2026-09-23T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 5,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030016",
+      "tidsstempel": "2026-09-23T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030017",
+      "te_krav": {
+        "metode": "tilbud",
+        "beloep": 150000
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030017",
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030016",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 5,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030016",
+      "tidsstempel": "2026-09-23T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030013",
+      "te_krav": {
+        "dager": 20
+      },
+      "svar_id": null,
+      "bh_standpunkt": [],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": true,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030013",
+        "55400000-0000-4000-8000-000000030005"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030012",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 6,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030038",
+      "tidsstempel": "2026-09-26T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030039",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030030",
+          "art": "grunnlag",
+          "resultat": "avslaatt"
+        }
+      ],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030030",
+          "art": "grunnlag",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030038"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 6,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030038",
+      "tidsstempel": "2026-09-26T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030017",
+      "te_krav": {
+        "metode": "tilbud",
+        "beloep": 150000
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030040",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030009",
+          "hjemmel": "34.1.2",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "hjemmel": "34.2.2",
+          "aksepterer": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "resultat": "delvis_godkjent",
+          "godkjent": 120000
+        }
+      ],
+      "bh_tall": 120000,
+      "tall_subsidiaert": true,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030017",
+        "55400000-0000-4000-8000-000000030040",
+        "55400000-0000-4000-8000-000000030031",
+        "55400000-0000-4000-8000-000000030032",
+        "55400000-0000-4000-8000-000000030033",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030016",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 6,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030038",
+      "tidsstempel": "2026-09-26T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030013",
+      "te_krav": {
+        "dager": 20
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030041",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.4",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "oppfylt": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.6.1",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "resultat": "delvis_godkjent",
+          "vurdert": 10
+        }
+      ],
+      "bh_tall": 10,
+      "tall_subsidiaert": true,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030013",
+        "55400000-0000-4000-8000-000000030041",
+        "55400000-0000-4000-8000-000000030034",
+        "55400000-0000-4000-8000-000000030035",
+        "55400000-0000-4000-8000-000000030036",
+        "55400000-0000-4000-8000-000000030037",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030012",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 7,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030045",
+      "tidsstempel": "2026-09-28T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030039",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030030",
+          "art": "grunnlag",
+          "resultat": "avslaatt"
+        }
+      ],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030030",
+          "art": "grunnlag",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030038"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 7,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030045",
+      "tidsstempel": "2026-09-28T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030017",
+      "te_krav": {
+        "metode": "tilbud",
+        "beloep": 150000
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030040",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030009",
+          "hjemmel": "34.1.2",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "hjemmel": "34.2.2",
+          "aksepterer": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "resultat": "delvis_godkjent",
+          "godkjent": 120000
+        }
+      ],
+      "bh_tall": 120000,
+      "tall_subsidiaert": true,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030017",
+        "55400000-0000-4000-8000-000000030040",
+        "55400000-0000-4000-8000-000000030031",
+        "55400000-0000-4000-8000-000000030032",
+        "55400000-0000-4000-8000-000000030033",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030016",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 7,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030045",
+      "tidsstempel": "2026-09-28T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030013",
+      "te_krav": {
+        "dager": 20
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030041",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.4",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "oppfylt": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.6.1",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "resultat": "delvis_godkjent",
+          "vurdert": 10
+        }
+      ],
+      "bh_tall": 10,
+      "tall_subsidiaert": true,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [
+        "55400000-0000-4000-8000-000000030034"
+      ],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030013",
+        "55400000-0000-4000-8000-000000030041",
+        "55400000-0000-4000-8000-000000030034",
+        "55400000-0000-4000-8000-000000030035",
+        "55400000-0000-4000-8000-000000030036",
+        "55400000-0000-4000-8000-000000030037",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030",
+        "55400000-0000-4000-8000-000000030046",
+        "55400000-0000-4000-8000-000000030047"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030012",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030045"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 8,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030050",
+      "tidsstempel": "2026-09-29T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030039",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030030",
+          "art": "grunnlag",
+          "resultat": "avslaatt"
+        }
+      ],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030030",
+          "art": "grunnlag",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030038"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 8,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030050",
+      "tidsstempel": "2026-09-29T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030017",
+      "te_krav": {
+        "metode": "tilbud",
+        "beloep": 150000
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030040",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030009",
+          "hjemmel": "34.1.2",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "hjemmel": "34.2.2",
+          "aksepterer": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "resultat": "delvis_godkjent",
+          "godkjent": 120000
+        }
+      ],
+      "bh_tall": 120000,
+      "tall_subsidiaert": true,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": {
+        "spor": "vederlag",
+        "svar": "55400000-0000-4000-8000-000000030040",
+        "kilde": "aksept",
+        "regelversjon": 24,
+        "virkninger": [
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030031",
+            "art": "rettidighet",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030032",
+            "art": "metode",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030033",
+            "art": "beloep",
+            "virkning": "prinsipalt"
+          }
+        ],
+        "utfall": {
+          "beloep": 120000
+        },
+        "vilkaar": "grunnlag_avklart"
+      },
+      "enighet_holder": "55400000-0000-4000-8000-000000030050",
+      "enighet_virkning": "betinget",
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030017",
+        "55400000-0000-4000-8000-000000030040",
+        "55400000-0000-4000-8000-000000030031",
+        "55400000-0000-4000-8000-000000030032",
+        "55400000-0000-4000-8000-000000030033",
+        "55400000-0000-4000-8000-000000030050",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030016",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030050",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 8,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030050",
+      "tidsstempel": "2026-09-29T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030013",
+      "te_krav": {
+        "dager": 20
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030041",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.4",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "oppfylt": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.6.1",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "resultat": "delvis_godkjent",
+          "vurdert": 10
+        }
+      ],
+      "bh_tall": 10,
+      "tall_subsidiaert": true,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [
+        "55400000-0000-4000-8000-000000030034"
+      ],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030013",
+        "55400000-0000-4000-8000-000000030041",
+        "55400000-0000-4000-8000-000000030034",
+        "55400000-0000-4000-8000-000000030035",
+        "55400000-0000-4000-8000-000000030036",
+        "55400000-0000-4000-8000-000000030037",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030",
+        "55400000-0000-4000-8000-000000030046",
+        "55400000-0000-4000-8000-000000030047"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030012",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030045"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 9,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030054",
+      "tidsstempel": "2026-09-30T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030039",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030030",
+          "art": "grunnlag",
+          "resultat": "avslaatt"
+        }
+      ],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030030",
+          "art": "grunnlag",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": null,
+      "enighet_holder": null,
+      "enighet_virkning": null,
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": true,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030038"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 9,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030054",
+      "tidsstempel": "2026-09-30T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030017",
+      "te_krav": {
+        "metode": "tilbud",
+        "beloep": 150000
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030040",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030009",
+          "hjemmel": "34.1.2",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "hjemmel": "34.2.2",
+          "aksepterer": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "resultat": "delvis_godkjent",
+          "godkjent": 120000
+        }
+      ],
+      "bh_tall": 120000,
+      "tall_subsidiaert": true,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": {
+        "spor": "vederlag",
+        "svar": "55400000-0000-4000-8000-000000030040",
+        "kilde": "aksept",
+        "regelversjon": 24,
+        "virkninger": [
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030031",
+            "art": "rettidighet",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030032",
+            "art": "metode",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030033",
+            "art": "beloep",
+            "virkning": "prinsipalt"
+          }
+        ],
+        "utfall": {
+          "beloep": 120000
+        },
+        "vilkaar": "grunnlag_avklart"
+      },
+      "enighet_holder": "55400000-0000-4000-8000-000000030050",
+      "enighet_virkning": "betinget",
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030017",
+        "55400000-0000-4000-8000-000000030040",
+        "55400000-0000-4000-8000-000000030031",
+        "55400000-0000-4000-8000-000000030032",
+        "55400000-0000-4000-8000-000000030033",
+        "55400000-0000-4000-8000-000000030050",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030016",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030050",
+        "55400000-0000-4000-8000-000000030004"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 9,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030054",
+      "tidsstempel": "2026-09-30T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030013",
+      "te_krav": {
+        "dager": 20
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030041",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.4",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "oppfylt": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.6.1",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "resultat": "delvis_godkjent",
+          "vurdert": 10
+        }
+      ],
+      "bh_tall": 10,
+      "tall_subsidiaert": true,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": false,
+      "grunnlag_avvist": false,
+      "enighet": {
+        "spor": "frist",
+        "svar": "55400000-0000-4000-8000-000000030041",
+        "kilde": "aksept",
+        "regelversjon": 24,
+        "virkninger": [
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030034",
+            "art": "rettidighet",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030035",
+            "art": "hindring",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030036",
+            "art": "spesifisering",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030037",
+            "art": "dager",
+            "virkning": "prinsipalt"
+          }
+        ],
+        "utfall": {
+          "dager": 10
+        },
+        "vilkaar": "grunnlag_avklart"
+      },
+      "enighet_holder": "55400000-0000-4000-8000-000000030054",
+      "enighet_virkning": "betinget",
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [
+        "55400000-0000-4000-8000-000000030034"
+      ],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030013",
+        "55400000-0000-4000-8000-000000030041",
+        "55400000-0000-4000-8000-000000030034",
+        "55400000-0000-4000-8000-000000030035",
+        "55400000-0000-4000-8000-000000030036",
+        "55400000-0000-4000-8000-000000030037",
+        "55400000-0000-4000-8000-000000030054",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030039",
+        "55400000-0000-4000-8000-000000030030",
+        "55400000-0000-4000-8000-000000030046",
+        "55400000-0000-4000-8000-000000030047"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030012",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030054",
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030045"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 10,
+      "spor": "grunnlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030060",
+      "tidsstempel": "2026-10-02T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030005",
+      "te_krav": {
+        "hovedkategori": "svikt",
+        "underkategori": "grunnforhold",
+        "klar_over_forholdet": "2026-09-15"
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030061",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030059",
+          "art": "grunnlag",
+          "resultat": "godkjent"
+        }
+      ],
+      "bh_tall": null,
+      "tall_subsidiaert": null,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030059",
+          "art": "grunnlag",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": true,
+      "grunnlag_avvist": false,
+      "enighet": {
+        "spor": "grunnlag",
+        "svar": "55400000-0000-4000-8000-000000030061",
+        "kilde": "sammenfall",
+        "regelversjon": 24,
+        "virkninger": [
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030059",
+            "art": "grunnlag",
+            "virkning": "prinsipalt"
+          }
+        ],
+        "utfall": {},
+        "vilkaar": null
+      },
+      "enighet_holder": "55400000-0000-4000-8000-000000030061",
+      "enighet_virkning": "virksom",
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030061",
+        "55400000-0000-4000-8000-000000030059"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030060"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 10,
+      "spor": "vederlag",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030060",
+      "tidsstempel": "2026-10-02T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030017",
+      "te_krav": {
+        "metode": "tilbud",
+        "beloep": 150000
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030040",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030009",
+          "hjemmel": "34.1.2",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "hjemmel": "34.2.2",
+          "aksepterer": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "resultat": "delvis_godkjent",
+          "godkjent": 120000
+        }
+      ],
+      "bh_tall": 120000,
+      "tall_subsidiaert": false,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030031",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030032",
+          "art": "metode",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030033",
+          "art": "beloep",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": true,
+      "grunnlag_avvist": false,
+      "enighet": {
+        "spor": "vederlag",
+        "svar": "55400000-0000-4000-8000-000000030040",
+        "kilde": "aksept",
+        "regelversjon": 24,
+        "virkninger": [
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030031",
+            "art": "rettidighet",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030032",
+            "art": "metode",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030033",
+            "art": "beloep",
+            "virkning": "prinsipalt"
+          }
+        ],
+        "utfall": {
+          "beloep": 120000
+        },
+        "vilkaar": "grunnlag_avklart"
+      },
+      "enighet_holder": "55400000-0000-4000-8000-000000030050",
+      "enighet_virkning": "virksom",
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030017",
+        "55400000-0000-4000-8000-000000030040",
+        "55400000-0000-4000-8000-000000030031",
+        "55400000-0000-4000-8000-000000030032",
+        "55400000-0000-4000-8000-000000030033",
+        "55400000-0000-4000-8000-000000030050",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030061",
+        "55400000-0000-4000-8000-000000030059"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030016",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030050",
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030060"
+      ]
+    },
+    {
+      "beregningssett": "kjerne-24-39-rapport-prove-1",
+      "regelversjon": 24,
+      "kjerneprojeksjon": 39,
+      "leserformat": 1,
+      "rapportprojeksjon": "prove-1",
+      "sak_id": "55400000-0000-4000-9000-000000000003",
+      "saksversjon": 10,
+      "spor": "frist",
+      "observasjon_event_id": "55400000-0000-4000-8000-000000030060",
+      "tidsstempel": "2026-10-02T09:00:00.000Z",
+      "hovedkategori": "svikt",
+      "underkategori": "grunnforhold",
+      "krav_id": "55400000-0000-4000-8000-000000030013",
+      "te_krav": {
+        "dager": 20
+      },
+      "svar_id": "55400000-0000-4000-8000-000000030041",
+      "bh_standpunkt": [
+        {
+          "id": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.4",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "oppfylt": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "gjelder": "55400000-0000-4000-8000-000000030013",
+          "hjemmel": "33.6.1",
+          "iTide": true
+        },
+        {
+          "id": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "resultat": "delvis_godkjent",
+          "vurdert": 10
+        }
+      ],
+      "bh_tall": 10,
+      "tall_subsidiaert": false,
+      "frosne_virkninger": [
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030034",
+          "art": "rettidighet",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030035",
+          "art": "hindring",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030036",
+          "art": "spesifisering",
+          "virkning": "uten_virkning"
+        },
+        {
+          "standpunkt": "55400000-0000-4000-8000-000000030037",
+          "art": "dager",
+          "virkning": "prinsipalt"
+        }
+      ],
+      "grunnlag_avklart": true,
+      "grunnlag_avvist": false,
+      "enighet": {
+        "spor": "frist",
+        "svar": "55400000-0000-4000-8000-000000030041",
+        "kilde": "aksept",
+        "regelversjon": 24,
+        "virkninger": [
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030034",
+            "art": "rettidighet",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030035",
+            "art": "hindring",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030036",
+            "art": "spesifisering",
+            "virkning": "uten_virkning"
+          },
+          {
+            "standpunkt": "55400000-0000-4000-8000-000000030037",
+            "art": "dager",
+            "virkning": "prinsipalt"
+          }
+        ],
+        "utfall": {
+          "dager": 10
+        },
+        "vilkaar": "grunnlag_avklart"
+      },
+      "enighet_holder": "55400000-0000-4000-8000-000000030054",
+      "enighet_virkning": "virksom",
+      "venter_paa_svar": false,
+      "svar_ikke_godtatt": false,
+      "annet_varsel": [
+        "55400000-0000-4000-8000-000000030034"
+      ],
+      "kilde_ider": [
+        "55400000-0000-4000-8000-000000030013",
+        "55400000-0000-4000-8000-000000030041",
+        "55400000-0000-4000-8000-000000030034",
+        "55400000-0000-4000-8000-000000030035",
+        "55400000-0000-4000-8000-000000030036",
+        "55400000-0000-4000-8000-000000030037",
+        "55400000-0000-4000-8000-000000030054",
+        "55400000-0000-4000-8000-000000030005",
+        "55400000-0000-4000-8000-000000030061",
+        "55400000-0000-4000-8000-000000030059",
+        "55400000-0000-4000-8000-000000030046",
+        "55400000-0000-4000-8000-000000030047"
+      ],
+      "kilde_brev": [
+        "55400000-0000-4000-8000-000000030012",
+        "55400000-0000-4000-8000-000000030038",
+        "55400000-0000-4000-8000-000000030054",
+        "55400000-0000-4000-8000-000000030004",
+        "55400000-0000-4000-8000-000000030060",
+        "55400000-0000-4000-8000-000000030045"
+      ]
+    }
+  ]
+}

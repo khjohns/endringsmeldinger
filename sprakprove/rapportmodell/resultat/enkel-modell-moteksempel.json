@@ -1,0 +1,161 @@
+{
+  "enkel_rad": {
+    "forloep_id": "55400000-0000-4000-9000-000000000001/frist/kjennskap_til_relevant_fristvarsel/55400000-0000-4000-8000-000000010005",
+    "startversjon": 4,
+    "sluttversjon": 7,
+    "start": {
+      "element_id": "55400000-0000-4000-8000-000000010005",
+      "event_id": "55400000-0000-4000-8000-000000010004",
+      "felt": "krav.innhold.klar_over_forholdet",
+      "verdi": "2026-09-15",
+      "betydning": "TEs oppgitte dato for kjennskap til forholdet",
+      "presisjon": "dato",
+      "oppgitt_av": "TE",
+      "kjent_fra_versjon": 2
+    },
+    "slutt": {
+      "element_id": "55400000-0000-4000-8000-000000010047",
+      "event_id": "55400000-0000-4000-8000-000000010045",
+      "felt": "opplysning.dato",
+      "verdi": "2026-09-18",
+      "betydning": "TE oppgir at eksternt § 33.4-varsel ble sendt denne datoen; ikke verifisert levering",
+      "presisjon": "dato",
+      "oppgitt_av": "TE",
+      "kjent_fra_versjon": 7
+    },
+    "dager": 3
+  },
+  "ved_E_med_bare_startfilter": {
+    "forloep_id": "55400000-0000-4000-9000-000000000001/frist/kjennskap_til_relevant_fristvarsel/55400000-0000-4000-8000-000000010005",
+    "startversjon": 4,
+    "sluttversjon": 7,
+    "start": {
+      "element_id": "55400000-0000-4000-8000-000000010005",
+      "event_id": "55400000-0000-4000-8000-000000010004",
+      "felt": "krav.innhold.klar_over_forholdet",
+      "verdi": "2026-09-15",
+      "betydning": "TEs oppgitte dato for kjennskap til forholdet",
+      "presisjon": "dato",
+      "oppgitt_av": "TE",
+      "kjent_fra_versjon": 2
+    },
+    "slutt": {
+      "element_id": "55400000-0000-4000-8000-000000010047",
+      "event_id": "55400000-0000-4000-8000-000000010045",
+      "felt": "opplysning.dato",
+      "verdi": "2026-09-18",
+      "betydning": "TE oppgir at eksternt § 33.4-varsel ble sendt denne datoen; ikke verifisert levering",
+      "presisjon": "dato",
+      "oppgitt_av": "TE",
+      "kjent_fra_versjon": 7
+    },
+    "dager": 3
+  },
+  "ved_E_med_begge_grenser": null,
+  "historisk_rad_ved_E": {
+    "beregningssett": "kjerne-24-39-rapport-prove-1",
+    "regelversjon": 24,
+    "kjerneprojeksjon": 39,
+    "leserformat": 1,
+    "rapportprojeksjon": "prove-1",
+    "forloep_id": "55400000-0000-4000-9000-000000000001/frist/kjennskap_til_relevant_fristvarsel/55400000-0000-4000-8000-000000010005",
+    "sak_id": "55400000-0000-4000-9000-000000000001",
+    "spor": "frist",
+    "maal": "kjennskap_til_relevant_fristvarsel",
+    "maaleregelversjon": "prove-1",
+    "kjent_fra_versjon": 6,
+    "kjent_til_versjon": 7,
+    "start": {
+      "element_id": "55400000-0000-4000-8000-000000010005",
+      "event_id": "55400000-0000-4000-8000-000000010004",
+      "felt": "krav.innhold.klar_over_forholdet",
+      "verdi": "2026-09-15",
+      "betydning": "TEs oppgitte dato for kjennskap til forholdet",
+      "presisjon": "dato",
+      "oppgitt_av": "TE",
+      "kjent_fra_versjon": 2
+    },
+    "slutt": {
+      "element_id": "55400000-0000-4000-8000-000000010013",
+      "event_id": "55400000-0000-4000-8000-000000010012",
+      "felt": "journal.tidsstempel",
+      "verdi": "2026-09-22T09:00:00.000Z",
+      "betydning": "Første fristkrav er det første varselet appen kjenner (OV-U5); dato til apphandling er en uttrykkelig prøvekonvensjon",
+      "presisjon": "millisekund",
+      "oppgitt_av": "syntetisk_apphandling:TE",
+      "kjent_fra_versjon": 4
+    },
+    "observert_ved": {
+      "element_id": "55400000-0000-4000-8000-000000010038",
+      "event_id": "55400000-0000-4000-8000-000000010038",
+      "felt": "journal.tidsstempel",
+      "verdi": "2026-09-26T09:00:00.000Z",
+      "betydning": "Målingens observasjonstid; syntetisk appregistrering, ikke levering",
+      "presisjon": "millisekund",
+      "oppgitt_av": "syntetisk_apphandling:BH",
+      "kjent_fra_versjon": 6
+    },
+    "tilstand": "foerste_appkjente_varsel",
+    "dager": 7,
+    "observerte_dager": 7,
+    "kilde_ider": [
+      "55400000-0000-4000-8000-000000010005",
+      "55400000-0000-4000-8000-000000010013",
+      "55400000-0000-4000-8000-000000010038"
+    ]
+  },
+  "historisk_rad_etter_F": {
+    "beregningssett": "kjerne-24-39-rapport-prove-1",
+    "regelversjon": 24,
+    "kjerneprojeksjon": 39,
+    "leserformat": 1,
+    "rapportprojeksjon": "prove-1",
+    "forloep_id": "55400000-0000-4000-9000-000000000001/frist/kjennskap_til_relevant_fristvarsel/55400000-0000-4000-8000-000000010005",
+    "sak_id": "55400000-0000-4000-9000-000000000001",
+    "spor": "frist",
+    "maal": "kjennskap_til_relevant_fristvarsel",
+    "maaleregelversjon": "prove-1",
+    "kjent_fra_versjon": 7,
+    "kjent_til_versjon": 8,
+    "start": {
+      "element_id": "55400000-0000-4000-8000-000000010005",
+      "event_id": "55400000-0000-4000-8000-000000010004",
+      "felt": "krav.innhold.klar_over_forholdet",
+      "verdi": "2026-09-15",
+      "betydning": "TEs oppgitte dato for kjennskap til forholdet",
+      "presisjon": "dato",
+      "oppgitt_av": "TE",
+      "kjent_fra_versjon": 2
+    },
+    "slutt": {
+      "element_id": "55400000-0000-4000-8000-000000010047",
+      "event_id": "55400000-0000-4000-8000-000000010045",
+      "felt": "opplysning.dato",
+      "verdi": "2026-09-18",
+      "betydning": "TE oppgir at eksternt § 33.4-varsel ble sendt denne datoen; ikke verifisert levering",
+      "presisjon": "dato",
+      "oppgitt_av": "TE",
+      "kjent_fra_versjon": 7
+    },
+    "observert_ved": {
+      "element_id": "55400000-0000-4000-8000-000000010045",
+      "event_id": "55400000-0000-4000-8000-000000010045",
+      "felt": "journal.tidsstempel",
+      "verdi": "2026-09-28T09:00:00.000Z",
+      "betydning": "Målingens observasjonstid; syntetisk appregistrering, ikke levering",
+      "presisjon": "millisekund",
+      "oppgitt_av": "syntetisk_apphandling:TE",
+      "kjent_fra_versjon": 7
+    },
+    "tilstand": "partsoppgitt_eksternt_varsel",
+    "dager": 3,
+    "observerte_dager": 3,
+    "kilde_ider": [
+      "55400000-0000-4000-8000-000000010005",
+      "55400000-0000-4000-8000-000000010047",
+      "55400000-0000-4000-8000-000000010045",
+      "55400000-0000-4000-8000-000000010046"
+    ]
+  },
+  "konklusjon": "Bare startfilter lekker 3 dager og datoen fra F inn ved E. Begge grenser utelater raden helt; heller ikke da kan de tidligere 7 dagene gjenskapes fra denne ene raden."
+}
