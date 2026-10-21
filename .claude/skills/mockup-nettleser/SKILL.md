@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder. Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR eller kontrollere godkjenningsflyten.
+description: Kjører /mockup i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, og kontrollerer editoren (innliming, angre, låste verdier). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte.
 ---
 
 # /mockup i nettleseren
@@ -71,6 +71,37 @@ Rekkefølgen skriptet følger, og som trengs om du driver flyten selv:
    ved å klikke på teksten. Hver godkjenner krysser av «Jeg har kontrollert
    brevet.» før «Godkjenn» eller «Godkjenn og send» blir aktiv.
 6. Ferdig når panelet viser «Svaret er sendt».
+
+## Editoren
+
+```bash
+node .claude/skills/mockup-nettleser/editor.mjs [--utdata <mappe>] [--url http://localhost:5173]
+```
+
+Kontrollerer `RichTextEditor` (Tiptap): skriving, fet, innliming av HTML med
+skriptkode, angre og gjør om, låste verdier og at tilleggsteksten står når den
+genererte teksten endres. Det skriver `OK` eller `AVVIK` per kontroll og gir
+exit 1 ved avvik. Kjør det når Tiptap, ProseMirror eller Svelte oppgraderes
+(#268).
+
+Det er nyttig å vite når du driver editoren selv:
+
+- I BH-ens fristsvar står editoren i vurderingssteget, under den genererte
+  teksten (`.generated-reasoning .reasoning-text`), ikke i brevet.
+  `.reasoning-text` alene treffer også TE-ens kravtekst.
+- Låste verdier (`LockedValueNode`) finnes bare i grunnlagsskjemaene. Har
+  grunnlaget et utkast, heter knappen «Fortsett til utfylling», ikke «Svar på
+  kravet».
+- Innliming prøves med en `ClipboardEvent('paste')` med `DataTransfer` mot
+  `.ProseMirror`. Utklippstavlen i den hodeløse nettleseren trengs ikke.
+- ProseMirror slår sammen endringer innen 500 ms til ett angre-steg. Vent før
+  innlimingen hvis angre skal gi teksten fra før.
+
+## Det statiske bygget
+
+`npm run build` og `npx vite preview --port <port>` viser SPA-fallbacken: en dyp
+rute som `/P001/SAK-1` skal svare med appen. En sti uten rute gir 404 i
+`vite preview`. I produksjon står fallbacken i `try_files` i `nginx.conf`.
 
 ## Andre nettleserskript i repoet
 
