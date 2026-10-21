@@ -599,7 +599,11 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
     expect(screen.queryByLabelText('Fast pris')).toBeNull();
     expect(screen.queryByRole('textbox', { name: /Begrunnelse/ })).toBeNull();
     expect(screen.queryByRole('note'), 'svikt: varslingsplikten gjelder').toBeNull();
+    expect(screen.getByRole('button', { name: 'Bestemmelser' })).toBeInTheDocument();
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
+    // Høyrepanelet viker for brevet, som i /mockup, så brevet får hele bredden.
+    await screen.findByRole('region', { name: 'Brevkontroll' });
+    expect(screen.queryByRole('button', { name: 'Bestemmelser' })).toBeNull();
     const tekst = await bekreftBrevet();
 
     await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
