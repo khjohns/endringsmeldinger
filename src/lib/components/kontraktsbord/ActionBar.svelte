@@ -289,6 +289,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
   }
   .status-section {
     display: flex;
@@ -316,11 +317,10 @@
     gap: 8px;
     margin-left: auto;
   }
-  .te-grunnlag-actions {
-    width: 100%;
-  }
+  /* Knappene fyller resten av raden, så statusfeltet i TS-saken beholder bredden (#1146). */
+  .te-grunnlag-actions,
   .te-track-actions {
-    width: 100%;
+    flex: 1;
   }
   .te-grunnlag-actions .btn-danger,
   .te-track-actions .btn-danger {

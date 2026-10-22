@@ -200,8 +200,8 @@ issue. Oppdraget skal inneholde:
   arbeidsøktene»);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det, med skillen `mockup-nettleser`. `/mockup` har demodata og en egen
-  statusregel, så den viser ikke at den ekte saksruta virker, og det finnes
-  ingen oppskrift for den ekte ruta i skyøkta. Det kontrollen ikke dekker, står
+  statusregel, så den viser ikke at den ekte saksruta virker; den ekte ruta
+  kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
 - at byggeøkta ikke kjører `/code-review`, og at reviewet og rettingene gjøres i
   en ny økt (se «Kontekst i arbeidsøktene»);
