@@ -1249,8 +1249,9 @@ opp på, står med utfallet, så kommentaren skrives på samme board. Raden kan 
 endres eller slettes; kommentaren tilbake til topicen (W-1b.2) står i
 `koe.topic_kommentar` og endrer ikke utfallet. En topic fra TE med et tegn i
 tittelen som PDF-en av brevet ikke kan vise, får `tittel_kan_ikke_vises` med tegnene i
-`melding`, og en senere endring av topicen er da et nytt forsøk på opprettelsen
-(`koe_api.tittel_avvist_for_topic`, arbeidsvalgene 22.10 i #1138)."""
+`melding`, og en senere endring av topicen er da et nytt forsøk på opprettelsen,
+til topicen har fått en sak (`koe_api.tittel_avvist_for_topic`, arbeidsvalgene 22.10
+i #1138)."""
 lagres_fra = "`koe_api.registrer_behandling`, kalt av `behandleEnHendelse` i `server/jobber.ts` med utfallet fra `server/hendelser.ts`."
 fra_catenda = "Delvis. ID-en til topicen er Catendas."
 kan_gjenoppbygges = "nei"

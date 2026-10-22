@@ -829,7 +829,25 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       (foresp) => lesJournal(foresp, rettet.sak_id!, false)
     );
     expect(JSON.stringify(hendelse)).toContain('Rapport fra leverandøren');
-    expect((await behandleKropp(kropp(topic), 'issue.modified')).utfall).toBe('topic_har_sak');
+    // Etter saken behandles en endring ikke, heller ikke en ny tittel med slike tegn.
+    expect(
+      (await behandleKropp(kropp(topic, { tittel: 'Rapport 报告' }), 'issue.modified')).utfall
+    ).toBe('ikke_behandlet_type');
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic).filter((k) => k.tekst === TEGNKOMMENTAR)).toHaveLength(1);
+  });
+
+  it('#1138: er tittelen rettet og saken opprettet før kommentaren om tegnene er skrevet, skrives bare kommentaren om saken', async () => {
+    const topic = randomUUID();
+    expect((await behandleKropp(kropp(topic, { tittel: 'Rapport 报告' }))).utfall).toBe(
+      'tittel_kan_ikke_vises'
+    );
+    const rettet = await behandleKropp(kropp(topic, { tittel: 'Rapport' }), 'issue.modified');
+    expect(rettet.utfall).toBe('sak_opprettet');
+    await skrivKommentarene();
+    const tekster = kommentarerPaa(topic).map((k) => k.tekst);
+    expect(tekster).toHaveLength(1);
+    expect(tekster[0]).not.toContain('ikke opprettet');
   });
 
   it('#1138: en topic fra BH med tegn i tittelen gir topic_fra_bh, så siden avgjøres før tittelen', async () => {
