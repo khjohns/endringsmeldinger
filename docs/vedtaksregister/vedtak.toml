@@ -7329,6 +7329,146 @@ Varsel etter § 34.1.2 kan bare sendes og oppgis i svikt og andre forhold (§ 33
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "OV-U16"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1045"]
+sporsmal = '''
+Spørsmålet «Hva oppgis», ordrett slik det ble vist i spørsmålsverktøyet:
+
+#1045, spørsmål 1 av 3: hva oppgis når et brev sendt utenfor appen registreres? Et slikt brev registreres i første versjon som dokumentasjon (OV-U4). OV-U4 sier: «Det vises ved sporene eller saken den som registrerer, velger, med datoen avsenderen oppgir, brevet som vedlegg og merknaden «Appen vurderer ikke innholdet».» og «Appen utleder ingenting av det: ingen standpunkt, enighet, sperre eller uavklart utfall, og den fryser ingen vurdering av det.» VS-U27 sier om en forespørsel etter § 33.6.2 sendt utenfor appen: «Appen viser at forespørselen er registrert, og avgjør ikke om svaret kom i tide.» Da må appen kunne vise hva slags brev det er. I dag kan appen bare registrere et varsel etter § 33.4 eller § 34.1.2 med dato. Svaret avgjør hva motparten og tidslinjen ser, og om VS-U27 kan oppfylles. Det endrer ikke virkningen: appen utleder ingenting av brevet i noen av alternativene. Anbefaling: «Kort beskrivelse», fordi VS-U27 da oppfylles med avsenderens egne ord, uten en struktur som reglene kan lese.
+
+Alternativene slik de ble vist:
+
+Kort beskrivelse (Recommended): Den som registrerer et brev sendt utenfor appen, oppgir sporene eller saken brevet hører til, datoen det ble sendt, og en kort beskrivelse av brevet med egne ord, for eksempel «Forespørsel etter § 33.6.2», og legger brevet ved. Appen viser beskrivelsen med brevet og tolker den ikke. Appen utleder ingenting av brevet (OV-U4). Forhold: utvider OV-U4 med beskrivelsen, og presiserer VS-U27: at forespørselen er registrert, vises med beskrivelsen den som registrerte, har gitt.
+
+Bare spor, dato, vedlegg: Den som registrerer et brev sendt utenfor appen, oppgir sporene eller saken brevet hører til og datoen det ble sendt, og legger brevet ved. Appen spør ikke hva slags brev det er, og viser det som et brev sendt utenfor appen, med datoen og vedlegget. Forhold: presiserer OV-U4. Snevrer inn VS-U27: appen viser at et brev er registrert i fristsporet, ikke at det er en forespørsel.
+
+Art fra fast liste: Den som registrerer et brev sendt utenfor appen, oppgir sporene eller saken brevet hører til og datoen det ble sendt, velger hva brevet er fra en fast liste (varsel, krav, svar, forespørsel, begrunnelse, innsigelse, bestridelse, forsering, endringsordre eller annet) med bestemmelsen, og legger brevet ved. Appen viser valget med brevet og utleder ingenting av det (OV-U4). Forhold: utvider OV-U4, og presiserer VS-U27. Nærmer seg det OV-U4 forkastet, å strukturere innholdet i registrerte brev, fordi valget blir en opplysning appen kjenner.'''
+valgt = "Kort beskrivelse"
+svar = '''
+«Kort beskrivelse (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "ov-u4" }, { art = "presiserer", vedtak = "vs-u27" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408). Ikke bygget (#1045).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Kort beskrivelse"
+tekst = '''
+Den som registrerer et brev sendt utenfor appen, oppgir sporene eller saken brevet hører til, datoen det ble sendt, og en kort beskrivelse av brevet med egne ord, for eksempel «Forespørsel etter § 33.6.2», og legger brevet ved. Appen viser beskrivelsen med brevet og tolker den ikke. Appen utleder ingenting av brevet (OV-U4). Forhold: utvider OV-U4 med beskrivelsen, og presiserer VS-U27: at forespørselen er registrert, vises med beskrivelsen den som registrerte, har gitt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare spor, dato, vedlegg"
+tekst = '''
+Den som registrerer et brev sendt utenfor appen, oppgir sporene eller saken brevet hører til og datoen det ble sendt, og legger brevet ved. Appen spør ikke hva slags brev det er, og viser det som et brev sendt utenfor appen, med datoen og vedlegget. Forhold: presiserer OV-U4. Snevrer inn VS-U27: appen viser at et brev er registrert i fristsporet, ikke at det er en forespørsel.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Art fra fast liste"
+tekst = '''
+Den som registrerer et brev sendt utenfor appen, oppgir sporene eller saken brevet hører til og datoen det ble sendt, velger hva brevet er fra en fast liste (varsel, krav, svar, forespørsel, begrunnelse, innsigelse, bestridelse, forsering, endringsordre eller annet) med bestemmelsen, og legger brevet ved. Appen viser valget med brevet og utleder ingenting av det (OV-U4). Forhold: utvider OV-U4, og presiserer VS-U27. Nærmer seg det OV-U4 forkastet, å strukturere innholdet i registrerte brev, fordi valget blir en opplysning appen kjenner.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det vises ved sporene eller saken den som registrerer, velger, med datoen avsenderen oppgir, brevet som vedlegg og merknaden «Appen vurderer ikke innholdet»."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen utleder ingenting av det: ingen standpunkt, enighet, sperre eller uavklart utfall, og den fryser ingen vurdering av det."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen viser at forespørselen er registrert, og avgjør ikke om svaret kom i tide."
+
+[[gruppe.vedtak]]
+id = "OV-U17"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1045"]
+sporsmal = '''
+Spørsmålet «Hvem retter», ordrett slik det ble vist i spørsmålsverktøyet:
+
+#1045, spørsmål 2 av 3: hvem retter en feil registrering? Du sluttet deg 17.10 til at et registrert brev som er dokumentasjon, med feil dato, spor eller sak, «rettes ved at den som registrerte, registrerer det på nytt med henvisning til den feilaktige registreringen. Det trengs ingen godkjenning.» (#276, punkt 12). OV-U4 sier: «Hver side registrerer bare sine egne brev, som etter KA-U20.» En kontraktsside kan ha flere team, for eksempel byggherren og en ekstern rådgiver, og en person kan slutte i prosjektet. Er «den som registrerte» personen, teamet eller siden? Svaret avgjør hvem som får tilbud om å rette. Anbefaling: «Samme side», fordi registreringen er sidens brev (OV-U4), og fordi en feil ellers blir stående når personen er borte.
+
+Alternativene slik de ble vist:
+
+Samme side (Recommended): En registrering av et brev sendt utenfor appen, som er dokumentasjon, rettes av samme side som registrerte den: hvem som helst på den siden kan registrere brevet på nytt med henvisning til den feilaktige registreringen, uten godkjenning. Forhold: presiserer avgjørelsen 17.10 (#276, punkt 12) og følger OV-U4 om at hver side registrerer sine egne brev.
+
+Samme person: En registrering av et brev sendt utenfor appen, som er dokumentasjon, rettes bare av personen som registrerte den, uten godkjenning. Kan personen ikke rette den, står registreringen. Forhold: følger ordlyden i avgjørelsen 17.10 (#276, punkt 12).
+
+Samme team: En registrering av et brev sendt utenfor appen, som er dokumentasjon, rettes av teamet som registrerte den: hvem som helst i teamet kan registrere brevet på nytt med henvisning til den feilaktige registreringen, uten godkjenning. Forhold: presiserer avgjørelsen 17.10 (#276, punkt 12), snevrere enn OV-U4s «hver side».'''
+valgt = "Samme side"
+svar = '''
+«Samme side (Recommended)»'''
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408). Ikke bygget (#1045).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samme side"
+tekst = '''
+En registrering av et brev sendt utenfor appen, som er dokumentasjon, rettes av samme side som registrerte den: hvem som helst på den siden kan registrere brevet på nytt med henvisning til den feilaktige registreringen, uten godkjenning. Forhold: presiserer avgjørelsen 17.10 (#276, punkt 12) og følger OV-U4 om at hver side registrerer sine egne brev.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samme person"
+tekst = '''
+En registrering av et brev sendt utenfor appen, som er dokumentasjon, rettes bare av personen som registrerte den, uten godkjenning. Kan personen ikke rette den, står registreringen. Forhold: følger ordlyden i avgjørelsen 17.10 (#276, punkt 12).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samme team"
+tekst = '''
+En registrering av et brev sendt utenfor appen, som er dokumentasjon, rettes av teamet som registrerte den: hvem som helst i teamet kan registrere brevet på nytt med henvisning til den feilaktige registreringen, uten godkjenning. Forhold: presiserer avgjørelsen 17.10 (#276, punkt 12), snevrere enn OV-U4s «hver side».'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Hver side registrerer bare sine egne brev, som etter KA-U20."
+
+[[gruppe.vedtak]]
+id = "OV-U18"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1045"]
+sporsmal = '''
+Spørsmålet «Feil sak», ordrett slik det ble vist i spørsmålsverktøyet:
+
+#1045, spørsmål 3 av 3: hvordan rettes en registrering som står i feil sak? Avgjørelsen 17.10 (#276, punkt 12) sier at et registrert brev med feil sak rettes ved at brevet registreres på nytt med henvisning til den feilaktige registreringen. Hver sak har sin egen hendelsesstrøm, og en henvisning fra én sak til en annen må kontrolleres mot prosjektgrensen hver gang den leses. Svaret avgjør om appen trenger en henvisning mellom saker, og hva den feilaktige saken viser etterpå. Anbefaling: «Retting i begge saker», fordi hver sak da forklarer seg selv uten en henvisning mellom saker, og originalen står (#276).
+
+Alternativene slik de ble vist:
+
+Retting i begge saker (Recommended): Står en registrering av et brev sendt utenfor appen i feil sak, registrerer samme side i den saken en retting med henvisning til den feilaktige registreringen, som sier at brevet ikke hører til saken. Registreringen står i historikken og vises som rettet, og appen viser den ikke lenger ved sporene eller saken. Brevet registreres i riktig sak som en ny registrering, uten henvisning til den andre saken. Forhold: presiserer avgjørelsen 17.10 (#276, punkt 12) for feil sak.
+
+Henvisning mellom saker: Står en registrering av et brev sendt utenfor appen i feil sak, registreres brevet i riktig sak med henvisning til den feilaktige registreringen i den andre saken. Begge sakene viser henvisningen, og den feilaktige registreringen vises som flyttet. Forhold: følger ordlyden i avgjørelsen 17.10 (#276, punkt 12). Krever en henvisning mellom saker som prosjektgrensen må kontrollere.
+
+Feil sak rettes ikke: En registrering av et brev sendt utenfor appen i feil sak rettes ikke i appen. Brevet registreres i riktig sak, og den feilaktige registreringen står. Forhold: endrer avgjørelsen 17.10 (#276, punkt 12), som tar med feil sak.'''
+valgt = "Retting i begge saker"
+svar = '''
+«Retting i begge saker (Recommended)»'''
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6343380408). Ikke bygget (#1045).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Retting i begge saker"
+tekst = '''
+Står en registrering av et brev sendt utenfor appen i feil sak, registrerer samme side i den saken en retting med henvisning til den feilaktige registreringen, som sier at brevet ikke hører til saken. Registreringen står i historikken og vises som rettet, og appen viser den ikke lenger ved sporene eller saken. Brevet registreres i riktig sak som en ny registrering, uten henvisning til den andre saken. Forhold: presiserer avgjørelsen 17.10 (#276, punkt 12) for feil sak.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Henvisning mellom saker"
+tekst = '''
+Står en registrering av et brev sendt utenfor appen i feil sak, registreres brevet i riktig sak med henvisning til den feilaktige registreringen i den andre saken. Begge sakene viser henvisningen, og den feilaktige registreringen vises som flyttet. Forhold: følger ordlyden i avgjørelsen 17.10 (#276, punkt 12). Krever en henvisning mellom saker som prosjektgrensen må kontrollere.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Feil sak rettes ikke"
+tekst = '''
+En registrering av et brev sendt utenfor appen i feil sak rettes ikke i appen. Brevet registreres i riktig sak, og den feilaktige registreringen står. Forhold: endrer avgjørelsen 17.10 (#276, punkt 12), som tar med feil sak.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
