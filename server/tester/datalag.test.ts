@@ -557,7 +557,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
   // Kilde: #597 og `koe.skrivetidspunkt` (20261016120000_kommandoer.sql): raden
   // gjelder når økta logget inn, og `sp_reset_connection` gir økta et nytt
   // `login_time` på samme forbindelse og samme økt-ID. Uten nullstilling er
-  // tidspunktet det samme (kontrollsaken).
+  // tidspunktet det samme (kontrollsaken). Under last kan basens klokke stå på
+  // samme verdi i flere rundturer, så kontrollsaken og nullstillingen venter til
+  // klokka har passert `login_time` (#960).
   it('nullstillingen etter en transaksjon gir samme forbindelse og økt-ID et senere login_time, og uten nullstilling er det uendret', async () => {
     const innlogging = async () =>
       (
@@ -568,19 +570,29 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
             WHERE s.session_id = @@SPID`
         )
       ).recordset[0];
-    const pause = () => new Promise((ok) => setTimeout(ok, 20));
+    /** Basens klokke med oppløsningen til `login_time`, som er `datetime`. */
+    const klokka = async () =>
+      (
+        await pool.request().query<{
+          naa: string;
+        }>(`SELECT CONVERT(varchar(23), CAST(SYSDATETIME() AS datetime), 121) AS naa`)
+      ).recordset[0].naa;
     const foer = await innlogging();
-    await pause();
-    const uendret = await innlogging();
-    expect(uendret).toEqual(foer);
-    await pause();
+    const frist = Date.now() + 2_000;
+    let passert = await klokka();
+    while (passert <= foer.innlogget && Date.now() < frist) {
+      await new Promise((ok) => setTimeout(ok, 1));
+      passert = await klokka();
+    }
+    expect(passert > foer.innlogget, `klokka ${passert}, login_time ${foer.innlogget}`).toBe(true);
+    expect(await innlogging()).toEqual(foer);
     await transaksjon(pool, KONTEKST, async () => undefined);
     const etter = await innlogging();
     expect(etter).toMatchObject({ oekt: foer.oekt, forbindelse: foer.forbindelse });
     // Verdiene i meldingen skiller et uendret fra et tidligere tidspunkt (#960).
     expect(
       etter.innlogget > foer.innlogget,
-      `login_time før ${foer.innlogget}, etter ${etter.innlogget}`
+      `login_time før ${foer.innlogget}, klokka før nullstillingen ${passert}, etter ${etter.innlogget}`
     ).toBe(true);
   });
 

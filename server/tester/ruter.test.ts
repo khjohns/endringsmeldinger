@@ -29,10 +29,12 @@ import {
 const ROT = new URL('../../', import.meta.url);
 const DOCKER = spawnSync('docker', ['info'], { stdio: 'ignore' }).status === 0;
 const DOCKERFILE = readFileSync(new URL('Dockerfile', ROT), 'utf8');
-const BILDE = /^FROM (nginx:\S+)$/m.exec(DOCKERFILE)![1];
+const DOCKERFILE_BILDE = /^FROM (nginx:\S+)$/m.exec(DOCKERFILE)![1];
+/** Docker Hub gir 429 i skyøkta (#1092), så testen henter samme tagg fra Googles speil av Docker Hub. */
+const BILDE = `mirror.gcr.io/library/${DOCKERFILE_BILDE}`;
 /** `ENV` i nginx-trinnet, som bildet får. */
 const MILJOE = [
-  ...DOCKERFILE.slice(DOCKERFILE.indexOf(`FROM ${BILDE}`)).matchAll(/^ENV (\S+=\S+)$/gm),
+  ...DOCKERFILE.slice(DOCKERFILE.indexOf(`FROM ${DOCKERFILE_BILDE}`)).matchAll(/^ENV (\S+=\S+)$/gm),
 ].map((t) => t[1]);
 
 interface Ruter {
