@@ -53,6 +53,12 @@ if ! installer_npm >> "$logg" 2>&1; then
   echo "ADVARSEL: npm-installasjonen feilet, så npm test og typesjekken kan mangle pakker; se $logg."
 fi
 
+# Et arbeidstre under rot har ingen node_modules, så vite og vitest der laster pakkene
+# fra rot, og med dem tsconfig.json i rot, som utvider .svelte-kit/tsconfig.json (#1114).
+if ! (cd "$rot" && npx svelte-kit sync) >> "$logg" 2>&1; then
+  echo "ADVARSEL: svelte-kit sync feilet, så vitest og vite build i et arbeidstre kan gi «Tsconfig not found»; se $logg."
+fi
+
 # Docker-daemonen starter ikke av seg selv, heller ikke når en økt gjenopptas
 # (#966).
 start_docker() {

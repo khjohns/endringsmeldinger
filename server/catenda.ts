@@ -275,10 +275,19 @@ export class CatendaOAuth {
    * individuell bruker. For integrasjonen er det forfatteren av topicene den lager.
    */
   async egenId(token: string): Promise<string> {
+    return (await this.egenBruker(token)).id;
+  }
+
+  /**
+   * Brukeren tokenet tilhører: ID-en som i `egenId`, og `username`, som er forfatteren
+   * av kommentarene brukeren skriver (`author` i BCF, #972). Brukernavnet er null når
+   * Catenda ikke har et, som for en organisasjon eller en applikasjon.
+   */
+  async egenBruker(token: string): Promise<EgenBruker> {
     const bruker = await forespoersel(this.#oppsett, 'GET', '/v2/user', { token });
     const id = erObjekt(bruker) ? catendaId(bruker.id) : null;
-    if (!id) throw new CatendaUtilgjengelig('Forventet en brukeridentitet');
-    return id;
+    if (!erObjekt(bruker) || !id) throw new CatendaUtilgjengelig('Forventet en brukeridentitet');
+    return { id, brukernavn: tekst(bruker.username) || null };
   }
 
   /**
@@ -382,7 +391,10 @@ export class CatendaOAuth {
     };
   }
 
-  /** Kommentarene på topicen (BCF 3.0), med ID-en og teksten. */
+  /**
+   * Kommentarene på topicen (BCF 3.0), med ID-en, teksten og forfatteren. Forfatteren er
+   * `author`, brukernavnet til den som skrev kommentaren, og null når det mangler.
+   */
   async kommentarer(boardId: string, topicId: string, token: string): Promise<Kommentar[]> {
     const svar = await forespoersel(
       this.#oppsett,
@@ -394,7 +406,7 @@ export class CatendaOAuth {
     return svar.map((rad) => {
       if (!erObjekt(rad) || typeof rad.guid !== 'string' || !rad.guid)
         throw new CatendaUtilgjengelig('Kommentar uten ID');
-      return { id: rad.guid, tekst: tekst(rad.comment) };
+      return { id: rad.guid, tekst: tekst(rad.comment), forfatter: tekst(rad.author) || null };
     });
   }
 
@@ -648,6 +660,14 @@ export const TOPICTYPE = 'Krav om endringsordre';
 export interface Kommentar {
   id: string;
   tekst: string;
+  /** Brukernavnet til forfatteren (`author`), eller null når Catenda ikke oppgir det. */
+  forfatter: string | null;
+}
+
+/** Brukeren et token tilhører (`egenBruker`). */
+export interface EgenBruker {
+  id: string;
+  brukernavn: string | null;
 }
 
 export interface NyTopic {
@@ -878,6 +898,8 @@ export function dokumentleverandoer(catenda: Integrasjon): Dokumentleverandoer {
 export interface Innboksoppslag extends Catenda {
   /** Forfatteren av topicene integrasjonen lager, i `catendaId()`-formen (#741 punkt 17). */
   integrasjonensBruker(): Promise<string>;
+  /** Forfatteren av kommentarene integrasjonen skriver, eller null når den ikke har et brukernavn (#972). */
+  integrasjonensBrukernavn(): Promise<string | null>;
   /** Topicen på boardet, eller null når Catenda ikke finner den der. */
   topic(boardId: string, topicId: string): Promise<Topic | null>;
   kommentarer(boardId: string, topicId: string): Promise<Kommentar[]>;
@@ -886,11 +908,13 @@ export interface Innboksoppslag extends Catenda {
 }
 
 export function innboksintegrasjon(catenda: Integrasjon): Innboksoppslag {
-  let egen: string | null = null;
+  let egen: EgenBruker | null = null;
+  const egenBruker = async () =>
+    (egen ??= await medToken(catenda, (t) => catenda.oauth.egenBruker(t)));
   return {
     ...integrasjonen(catenda),
-    integrasjonensBruker: async () =>
-      (egen ??= await medToken(catenda, (t) => catenda.oauth.egenId(t))),
+    integrasjonensBruker: async () => (await egenBruker()).id,
+    integrasjonensBrukernavn: async () => (await egenBruker()).brukernavn,
     topic: (board, topic) => medToken(catenda, (t) => catenda.oauth.topic(board, topic, t)),
     kommentarer: (board, topic) =>
       medToken(catenda, (t) => catenda.oauth.kommentarer(board, topic, t)),

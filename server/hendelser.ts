@@ -27,7 +27,7 @@ import { createHash } from 'node:crypto';
 import { erObjekt } from '../kjerne/format/skjema.ts';
 import { opprettelse } from '../kjerne/kommandoer/opprettelse.ts';
 import { kontraktssideUtenSesjon, uuidMedBindestreker } from './autorisasjon.ts';
-import { TOPICTYPE, type Innboksoppslag } from './catenda.ts';
+import { TOPICTYPE, type Innboksoppslag, type Kommentar } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { catendaIdentitet } from './innlogging.ts';
 import {
@@ -191,9 +191,16 @@ export function kommentartekst(
   }
 }
 
-/** Catenda kan endre mellomrom i teksten; sammenligningen ser bort fra dem. */
-export const sammeKommentar = (a: string, b: string) =>
-  a.replace(/\s+/g, ' ').trim() === b.replace(/\s+/g, ' ').trim();
+/**
+ * Kommentaren er skrevet av integrasjonen og har teksten, uten hensyn til mellomrom, som
+ * Catenda kan endre. Forfatteren må være integrasjonens brukernavn, så en annen som kan
+ * kommentere på topicen, ikke hindrer appens kommentar ved å skrive teksten først (#972).
+ * Uten brukernavn er ingen kommentar integrasjonens.
+ */
+export const appensKommentar = (kommentar: Kommentar, tekst: string, brukernavn: string | null) =>
+  brukernavn !== null &&
+  kommentar.forfatter === brukernavn &&
+  kommentar.tekst.replace(/\s+/g, ' ').trim() === tekst.replace(/\s+/g, ' ').trim();
 
 /**
  * Kommando-ID-en for opprettelsen er avledet av raden i innboksen, så et nytt forsøk
