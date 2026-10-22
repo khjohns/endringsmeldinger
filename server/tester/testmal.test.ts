@@ -5,6 +5,9 @@
  */
 
 import { randomBytes } from 'node:crypto';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { avvikFraAzure, kobleTilServer, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 import { feilnummer } from '../datalag.ts';
@@ -13,6 +16,7 @@ import {
   katalog,
   kopierMigrertTestbase,
   LEDIG_FORBINDELSE,
+  malsum,
   opprettMigrertTestbase,
   slettMalByggetEtter,
   underLaas,
@@ -135,4 +139,31 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('malen for testbasene', () => {
     await kopierMigrertTestbase('mal_foer').then((b) => b.slett());
     expect(await slettMalByggetEtter(Date.now())).toBe(false);
   }, 300_000);
+});
+
+describe('summen malen navngis etter', () => {
+  /** En mappe med én migrasjon, med samme innhold under hvert filnavn. */
+  const sumFor = (filnavn: string, innhold = 'SELECT 1;\n') => {
+    const mappe = mkdtempSync(join(tmpdir(), 'koe-malsum-'));
+    try {
+      writeFileSync(join(mappe, filnavn), innhold);
+      return malsum(mappe);
+    } finally {
+      rmSync(mappe, { recursive: true, force: true });
+    }
+  };
+
+  it('kontrollsak: samme filnavn og samme innhold gir samme sum', () => {
+    expect(sumFor('20261020200000_flyttet.sql')).toBe(sumFor('20261020200000_flyttet.sql'));
+  });
+
+  it('en migrasjon med samme innhold og ny versjon i filnavnet gir en ny sum (#1103)', () => {
+    expect(sumFor('20261020201000_flyttet.sql')).not.toBe(sumFor('20261020200000_flyttet.sql'));
+  });
+
+  it('nytt innhold under samme filnavn gir en ny sum', () => {
+    expect(sumFor('20261020200000_flyttet.sql', 'SELECT 2;\n')).not.toBe(
+      sumFor('20261020200000_flyttet.sql')
+    );
+  });
 });

@@ -141,11 +141,15 @@ export function byggMal({ frist = 180_000 } = {}): Promise<{ fil: string; bygget
   return malen;
 }
 
-const malsum = () =>
+/**
+ * Summen malen navngis etter. Filnavnet er med, så en migrasjon som bare får ny
+ * versjon, gir en ny mal med den nye versjonen i historikken (#1103).
+ */
+export const malsum = (mappe?: string) =>
   createHash('sha256')
     .update(
       JSON.stringify([
-        lesMigrasjoner().map((m) => m.sha256),
+        lesMigrasjoner(mappe).map((m) => [m.filnavn, m.sha256]),
         MALFILER.map((f) => createHash('sha256').update(readFileSync(f)).digest('hex')),
         AZURE_INNSTILLINGER,
       ])
