@@ -251,6 +251,31 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
     expect(linjer.length, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
   }, 120000);
 
+  it('svake og nøytrale tegn fra høyre-mot-venstre-skrift ved siden av hverandre og av tall kommer tilbake i samme rekkefølge (#1138 punkt 4)', async () => {
+    // Kilden er LV-U2: PDF-en skal gjengi brevteksten tro. Arabisk komma (U+060C) er et
+    // skilletegn i tall etter Unicode-bidi, og en leser som ordner om etter bidi, kunne
+    // flytte det. De andre tegnene med arabisk skrift kjernen godtar, er U+204F og U+2E41.
+    const linjer = [
+      '1،2',
+      '1،2،3',
+      '1 ، 2',
+      'a،b',
+      '،،،',
+      '(،)',
+      '«،» og [،]',
+      '-1،+2',
+      '§ 33.8، 12 000،50 kr',
+      'a ، ⁏ ⹁ b',
+      '1⁏2⹁3',
+      '، 1',
+      '1 ،',
+    ];
+    for (const linje of linjer) expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
+    const tekst = linjer.join('\n');
+    const tilbake = lesBrevPdf(await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL))).split('\n');
+    expect(tilbake).toEqual(linjer);
+  });
+
   it('arabisk skrift, U+2028 og en matematisk bokstav som deler glyf med en lavere, avvises', () => {
     // `abc اب def` kommer tilbake som `abc با def`, og 𝗔 (U+1D5D4) som 𝐀 (U+1D400).
     for (const tegn of ['ب', '\u2028', '𝗔'])

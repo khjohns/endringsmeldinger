@@ -14,7 +14,12 @@ import { createHash, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { feilnummer, sql } from '../datalag.ts';
-import { innholdsfeil, rensetFilnavn, STOERSTE_VEDLEGG } from '../vedlegg.ts';
+import {
+  filnavnSomIkkeKanVises,
+  innholdsfeil,
+  rensetFilnavn,
+  STOERSTE_VEDLEGG,
+} from '../vedlegg.ts';
 import { vurder } from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { skrivHendelse, UgyldigKommando } from '../kommandoer.ts';
@@ -44,7 +49,6 @@ describe('filnavnet og innholdet', () => {
     ['C%3A%5Cmappe%5Cbrev%20 1.docx', 'brev 1.docx'],
     [encodeURIComponent('Måling æøå.xlsx'), 'Måling æøå.xlsx'],
     ['a%3Cb%3E.txt', 'a_b_.txt'],
-    [encodeURIComponent('हिंदी रिपोर्ट.pdf'), 'हिंदी रिपोर्ट.pdf'],
     ['rapport.pdf%CD%8F', 'rapport.pdf_'],
     ['rapport.p%EF%B8%8Fdf', 'rapport.p_df'],
     ['rapport.%CC%81pdf', 'rapport._pdf'],
@@ -58,6 +62,29 @@ describe('filnavnet og innholdet', () => {
     '%s er ikke et filnavn',
     (kodet) => {
       expect(rensetFilnavn(kodet)).toBeNull();
+    }
+  );
+
+  // Kilde: oppdragsgiver 22.10 i #1138, «Avvis ved opplasting»: navnet står i brevet, og
+  // et tegn PDF-en av brevet ikke kan vise (#801) avvises med tegnet og at navnet må endres.
+  it.each([
+    ['报告.pdf', '«报» (U+62A5)'],
+    ['हिंदी रिपोर्ट.pdf', '«ह» (U+0939)'],
+    ['تقرير.pdf', '«ت» (U+062A)'],
+  ])('filnavnet %s avvises, og meldingen nevner tegnet %s', (navn, tegn) => {
+    expect(rensetFilnavn(encodeURIComponent(navn)), 'kontroll: rensingen beholder tegnet').toBe(
+      navn
+    );
+    const melding = filnavnSomIkkeKanVises(navn);
+    expect(melding).toContain(`Filnavnet har tegnet ${tegn}, som PDF-en av brevet ikke kan vise.`);
+    expect(melding).toContain('Gi filen et nytt navn');
+  });
+
+  it.each([['Måling æøå.xlsx'], ['Отчёт - α og β.pdf'], ['Nguyễn (rev. 2).docx']])(
+    'filnavnet %s godtas',
+    (navn) => {
+      expect(rensetFilnavn(encodeURIComponent(navn))).toBe(navn);
+      expect(filnavnSomIkkeKanVises(navn)).toBeNull();
     }
   );
 
@@ -201,6 +228,13 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     ['uten filnavn', PDF, undefined, 400, 'MANGLER_FILNAVN'],
     ['et filnavn uten tegn igjen', PDF, '..', 400, 'UGYLDIG_FILNAVN'],
     [
+      'et filnavn med et tegn PDF-en av brevet ikke kan vise',
+      PDF,
+      '报告.pdf',
+      400,
+      'UGYLDIG_FILNAVN',
+    ],
+    [
       'en fil over 15 MiB',
       Buffer.alloc(STOERSTE_VEDLEGG + 1, 0x41),
       'stor.txt',
@@ -213,6 +247,16 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     expect(svar.status).toBe(status);
     expect(svar.kropp.error).toBe(feil);
     expect((await liste(o.te)).length).toBe(foer);
+  });
+
+  // Kilde: oppdragsgiver 22.10 i #1138: meldingen nevner tegnet og at navnet må endres. Skiller
+  // avvisningen fra «Filnavnet kan ikke brukes.», som har samme feilkode.
+  it('et filnavn med et tegn PDF-en av brevet ikke kan vise, gir meldingen med tegnet over HTTP', async () => {
+    const svar = await lastOpp(o.te, PDF, '报告.pdf');
+    expect(svar.status).toBe(400);
+    expect(svar.kropp.message).toBe(
+      'Filnavnet har tegnet «报» (U+62A5), som PDF-en av brevet ikke kan vise. Gi filen et nytt navn og last den opp igjen.'
+    );
   });
 
   // Kilde: RFC 6266, 4.3: `filename` som reserve for en klient som ikke leser `filename*` (#815 punkt 4).
