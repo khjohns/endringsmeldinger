@@ -20,7 +20,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -2859,6 +2859,36 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['erPaaberopelseEtter3362(id, e.svar)', 'false']],
     mal: ['LV-U20: protesten mot påberopelsen etter § 33.6.2'],
+  },
+  {
+    id: 'F330',
+    feilklasse: 'et brev med et tegn PDF-en ikke kan vise, godtas (#801)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['kommandoenHarTegnSomIkkeKanVises(kommando) ??', 'null ??']],
+    mal: ['en emoji i utdypningen avvises med tegnet, kodepunktet og feltet'],
+  },
+  {
+    id: 'F331',
+    feilklasse: 'den låste teksten kontrolleres ikke for tegn PDF-en ikke kan vise (#801)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ['funnet ?? tegnSomIkkeKanVises(a.laast,', 'funnet ?? void tegnSomIkkeKanVises(a.laast,'],
+    ],
+    mal: ['en sakstittel med et slikt tegn fra før stopper brevet i den låste teksten'],
+  },
+  {
+    id: 'F332',
+    feilklasse: 'opprettelsen godtar en sakstittel med et tegn PDF-en ikke kan vise (#801)',
+    fil: `${K}/kommandoer/opprettelse.ts`,
+    endringer: [['if (tegn) return ugyldig(tegn);', 'void tegn;']],
+    mal: ['en sakstittel med et tegn PDF-en av brevet ikke kan vise, avvises'],
+  },
+  {
+    id: 'F333',
+    feilklasse: 'linjeskift og tab avvises som tegn PDF-en ikke kan vise (#801)',
+    fil: `${K}/format/skjema.ts`,
+    endringer: [['  if (SOM_MELLOMROM.test(tegn)) return true;\n', '']],
+    mal: ['et usynlig tegn avvises, mens myk bindestrek, → og linjeskift godtas'],
   },
 ];
 

@@ -181,6 +181,15 @@ FEILINNFOERINGER = [
      "  } catch {\n    throw new Nektet(503, 'CONTRACT_ACCESS_UNAVAILABLE'",
      "  } catch {\n    return null;\n    throw new Nektet(503, 'CONTRACT_ACCESS_UNAVAILABLE'",
      "svarer ikke Catenda om teamet"),
+    ("S46", "søket i tegntabellen går glipp av det siste intervallet (#801)", "kjerne/format/skjema.ts",
+     "let til = SETTBARE_TEGN.length / 2 - 1;", "let til = SETTBARE_TEGN.length / 2 - 2;",
+     "kjernen og `skriftFor` er enige om hvert kodepunkt"),
+    ("S47", "tegntabellen i kjernen har glidd fra skriftene (#801)", "kjerne/format/tegnsett.ts",
+     "  0x2190, 0x2300,", "  0x2191, 0x2300,",
+     "tabellen i kjernen er den `node server/tegnsett.ts` lager"),
+    ("S48", "søket i tegntabellen avviser det siste kodepunktet i hvert intervall (#801)", "kjerne/format/skjema.ts",
+     "else if (kode > SETTBARE_TEGN[2 * midt + 1])", "else if (kode >= SETTBARE_TEGN[2 * midt + 1])",
+     "kjernen og `skriftFor` er enige om hvert kodepunkt"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
