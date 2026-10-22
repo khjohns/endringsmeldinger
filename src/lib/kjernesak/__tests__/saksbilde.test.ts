@@ -50,13 +50,13 @@ const vedlegg = new Map([
   [VEDLEGG, { vedlegg_id: VEDLEGG, filnavn: 'varsel.pdf', innhold_sha256: '0'.repeat(64) }],
 ]);
 
-function skrevet(kommando: unknown, journal: Journalrad[]): Journalrad {
+function skrevet(kommando: unknown, journal: Journalrad[], part: 'TE' | 'BH' = 'TE'): Journalrad {
   const utfall = forhaandsvis(
     kommando,
     {
       sakId: SAK,
       aktoerId: '',
-      part: 'TE',
+      part,
       teamId: null,
       tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
       nyId: () => crypto.randomUUID(),
@@ -257,6 +257,65 @@ describe('saksbildet for en TS-sak', () => {
 // Kilde: oppdragsgiver 18.10 (#764): «levert» er tidspunktet i kvitteringen for
 // dokumentreferansen, ellers «ikke levert ennå»; et registrert brev er sendt utenfor
 // appen (LV-U11).
+describe('et brev registrert som dokumentasjon i saksbildet (OV-U16, #1045)', () => {
+  const g = skrevet(grunnlagskrav, [opprettet]);
+  const brev = skrevet(
+    {
+      type: 'registrert_brev',
+      sendt: '2026-10-15',
+      beskrivelse: 'Svar på kravet sendt på e-post',
+      dokumentasjon: [VEDLEGG],
+    },
+    [opprettet, g],
+    'BH'
+  );
+  const journal = [opprettet, g, brev];
+
+  it('viser beskrivelsen, sporene, datoen og merknaden ved brevet (OV-U16)', () => {
+    const { bilde } = bildeAv(journal);
+    expect(bilde.journal[2].registrertBrev).toEqual([
+      'Svar på kravet sendt på e-post',
+      'Hele saken. Sendt 15. oktober 2026 ifølge BH.',
+      'Appen vurderer ikke innholdet.',
+    ]);
+    expect(bilde.journal[1].registrertBrev).toBeNull();
+  });
+
+  it('viser motpartens brev ved kravet som venter på svar (svar 2 22.10), og merknaden for saken (svar 1)', () => {
+    const { bilde } = bildeAv(journal);
+    expect(bilde.spor.find((s) => s.spor === 'grunnlag')!.registrerteBrev).toEqual([
+      'Registrert brev fra BH, sendt 15. oktober 2026: Svar på kravet sendt på e-post',
+    ]);
+    expect(bilde.merknader.map((m) => m.tekst)).toEqual([
+      'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.',
+    ]);
+  });
+
+  it('viser datoen også når saken ikke er forstått (OV-U4, MM-U2)', () => {
+    const ukjent: Journalrad = {
+      ...opprettet,
+      event_id: 'e-x',
+      event_type: 'ukjent_type',
+      versjon: 4,
+      data: {},
+    };
+    const { bilde } = bildeAv([...journal, ukjent]);
+    expect(bilde.status?.kode).toBe('kan_ikke_utledes');
+    expect(bilde.journal[2].registrertBrev?.[1]).toBe(
+      'Hele saken. Sendt 15. oktober 2026 ifølge BH.'
+    );
+  });
+
+  it('viser rettingen om feil sak med tittelen, og brevet som rettet (OV-U18)', () => {
+    const retting = skrevet({ type: 'ikke_i_saken', retter: brev.event_id }, journal, 'BH');
+    const { bilde } = bildeAv([...journal, retting]);
+    expect(bilde.journal[3].tittel).toBe('Retting fra BH: brevet hører ikke til saken');
+    expect(bilde.journal[2].registrertBrev?.at(-1)).toBe('Rettet i hendelse 4.');
+    expect(bilde.spor.find((s) => s.spor === 'grunnlag')!.registrerteBrev).toEqual([]);
+    expect(bilde.merknader).toEqual([]);
+  });
+});
+
 describe('leveringen av et oppdrag', () => {
   it('er ikke levert ennå uten kvittering for dokumentreferansen', () => {
     expect(leveringstekst(oppdrag('e-2'))).toMatch(/^e-2\.pdf: frosset .*, ikke levert ennå$/);
