@@ -1016,7 +1016,7 @@ Innboksen for webhooken fra Catenda (W-1a, #819). Hver hendelse lagres rå, med 
 
 ### `koe.innkommende_behandling`
 
-Utfallet for hver hendelse i innboksen, én rad når behandlingen er ferdig (W-1b.1, #819). En hendelse uten rad er ikke behandlet. Bare en ny topic laget av TE gir en sak, med topicens tittel (KT-U6); en topic fra BH gir ingen sak (KT-U7), og heller ikke en topic som alt hører til en sak eller er laget av integrasjonen (#741 punkt 17). Saken og prosjektet står bare når utfallet er `sak_opprettet`, og prosjektet når koblingen til Catenda-prosjektet og boardet ga det. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.registrer_behandling`. Boardet topicen ble slått opp på, står med utfallet, så kommentaren skrives på samme board. Raden kan ikke endres eller slettes; kommentaren tilbake til topicen (W-1b.2) står i `koe.topic_kommentar` og endrer ikke utfallet.
+Utfallet for hver hendelse i innboksen, én rad når behandlingen er ferdig (W-1b.1, #819). En hendelse uten rad er ikke behandlet. Bare en ny topic laget av TE gir en sak, med topicens tittel (KT-U6); en topic fra BH gir ingen sak (KT-U7), og heller ikke en topic som alt hører til en sak eller er laget av integrasjonen (#741 punkt 17). Saken og prosjektet står bare når utfallet er `sak_opprettet`, og prosjektet når koblingen til Catenda-prosjektet og boardet ga det. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.registrer_behandling`. Boardet topicen ble slått opp på, står med utfallet, så kommentaren skrives på samme board. Raden kan ikke endres eller slettes; kommentaren tilbake til topicen (W-1b.2) står i `koe.topic_kommentar` og endrer ikke utfallet. En topic fra TE med et tegn i tittelen som PDF-en av brevet ikke kan vise, får `tittel_kan_ikke_vises` med tegnene i `melding`, og en senere endring av topicen er da et nytt forsøk på opprettelsen, til topicen har fått en sak (`koe_api.tittel_avvist_for_topic`, arbeidsvalgene 22.10 i #1138).
 
 | Felt | Innhold |
 | --- | --- |
@@ -1026,7 +1026,7 @@ Utfallet for hver hendelse i innboksen, én rad når behandlingen er ferdig (W-1
 | Data fra Catenda | Delvis. ID-en til topicen er Catendas. Dataflyt: fra Catenda i C22; til Catenda i C23 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (innkommende_hendelse_id). Viser til: innkommende_hendelse_id → koe.innkommende_hendelse.id (fremmednøkkel, ON DELETE NO ACTION); (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.innkommende_behandling_id (fremmednøkkel, ON DELETE NO ACTION); koe.topic_kommentar.innkommende_hendelse_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
-| Personopplysninger | Nei. `melding` er en fast feiltekst fra serveren. |
+| Personopplysninger | Nei. `melding` er en fast feiltekst fra serveren, for `tittel_kan_ikke_vises` med tegnene fra topicens tittel. |
 | Skrives av | database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.registrer_behandling`, innført i `20261020130000_innkommende_behandling.sql`, kalt fra `server/jobber.ts`) |
 | Funn | — |
 | Belegg | L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`, `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql` og `server/hendelser.ts`. |
@@ -1050,7 +1050,7 @@ Forsøkene uten utfall for en hendelse i innboksen (W-1b.2, #819), med steget: `
 
 ### `koe.topic_kommentar`
 
-Kvitteringen for kommentaren løkka skrev tilbake på topicen i Catenda (W-1b.2, #819), én rad per utfall. Utfallet `sak_opprettet` gir en kommentar med lenke og saksnummer (KT-U6), `topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet` (arbeidsvalget under OV-U1 i #819) en kommentar om hvorfor ingen sak er opprettet. Kommentarene på topicen leses først, og står teksten der alt, kvitteres den, så samme tekst skrives én gang. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.kvitter_kommentar`. Raden kan ikke endres eller slettes.
+Kvitteringen for kommentaren løkka skrev tilbake på topicen i Catenda (W-1b.2, #819), én rad per utfall. Utfallet `sak_opprettet` gir en kommentar med lenke og saksnummer (KT-U6), `topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet` (arbeidsvalget under OV-U1 i #819) og `tittel_kan_ikke_vises` (arbeidsvalgene 22.10 i #1138) en kommentar om hvorfor ingen sak er opprettet. Kommentarene på topicen leses først, og står teksten der alt, kvitteres den, så samme tekst skrives én gang. Kjøretiden har ingen rett på tabellen og skriver med `koe_api.kvitter_kommentar`. Raden kan ikke endres eller slettes.
 
 | Felt | Innhold |
 | --- | --- |
