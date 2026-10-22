@@ -372,7 +372,7 @@ const erRegistrertEndringsordre = (s: Svar, d: Dokument): boolean =>
  * og får ingen virkning. Unntaket er OV-U6. Et varsel med datoen TE oppgir, har
  * virkning (OV-U5).
  */
-function dokumentasjonIBrevet(d: Dokument): Set<string> {
+export function dokumentasjonIBrevet(d: Dokument): Set<string> {
   const krav = kravetErDokumentasjon(d) ? d.krav.map((k) => k.id) : [];
   if (!erRegistrert(d.opplysninger)) return new Set(krav);
   return new Set([

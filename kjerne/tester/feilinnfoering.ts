@@ -2947,8 +2947,13 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et varsel registrert med virkning gir merknaden og statusen for saken (OV-U19, HF-U13)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [['      !erVarselMedVirkning(h.dokument) &&', '      true &&']],
-    mal: ['OV-U19: et varsel registrert med virkning gir ikke merknaden'],
+    endringer: [
+      [
+        '      (h.dokument.beskrivelse !== null || dokumentasjonIBrevet(h.dokument).size > 0) &&',
+        '      true &&',
+      ],
+    ],
+    mal: ['OV-U19: et varsel registrert med virkning teller ikke'],
   },
   {
     id: 'F366',

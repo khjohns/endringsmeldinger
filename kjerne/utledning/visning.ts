@@ -13,6 +13,7 @@ import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { hjemmelenGjelder, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import {
+  dokumentasjonIBrevet,
   enighetensVirkning,
   grunnlagskravFor,
   kraveneErAvgjort,
@@ -22,7 +23,7 @@ import {
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Dokument, type Spor } from '../typer.ts';
+import { SPOR, type Spor } from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -191,23 +192,19 @@ export const BREV_UTENFOR_APPEN =
 
 /**
  * OV-U10, OV-U19: saken har et registrert brev appen ikke vurderer innholdet i, som merknaden,
- * statusteksten og sakslisten leser. Et varsel registrert med virkning teller ikke (OV-U5,
- * HF-U13), og en rettet registrering teller ikke (OV-U17, OV-U18).
+ * statusteksten og sakslisten leser: et brev registrert som dokumentasjon, eller et brev med
+ * krav, svar, aksept eller trekk som er dokumentasjon etter OV-U4. Et varsel med virkning
+ * (OV-U5) og en endringsordre (OV-U6) teller ikke (HF-U13), og heller ikke en rettet
+ * registrering (OV-U17, OV-U18).
  */
 export const harRegistrertBrev = (u: Utledning): boolean =>
   u.journal.some(
     (h) =>
       h.art === 'dokument' &&
       erRegistrert(h.dokument.opplysninger) &&
-      !erVarselMedVirkning(h.dokument) &&
+      (h.dokument.beskrivelse !== null || dokumentasjonIBrevet(h.dokument).size > 0) &&
       !u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)
   );
-
-const erVarselMedVirkning = (d: Dokument): boolean =>
-  d.krav.length === 0 &&
-  d.svar.length === 0 &&
-  d.utsagn.length > 0 &&
-  d.utsagn.every((x) => x.art === 'varsel');
 
 /**
  * OV-U20, OV-U4: når kravet venter på svar, motpartens registrerte brev for
@@ -224,8 +221,8 @@ function brevVedKravet(u: Utledning, spor: Spor): string[] {
 }
 
 /**
- * Merknadene for saken. OV-U19: så lenge et brev registrert som dokumentasjon står og ikke er
- * rettet bort, har saken merknaden etter OV-U10; når kravene er avgjort, står setningen i
+ * Merknadene for saken. OV-U19: så lenge et registrert brev appen ikke vurderer, står og ikke
+ * er rettet bort, har saken merknaden etter OV-U10; når kravene er avgjort, står setningen i
  * statusen i stedet.
  */
 function merknader(u: Utledning, kode: Statuskode | null): string[] {

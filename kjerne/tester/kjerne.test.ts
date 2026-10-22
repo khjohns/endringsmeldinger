@@ -563,6 +563,13 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(forstaatt(await bane.journal())).toBe(true);
   });
 
+  it('OV-U19: en endringsordre registrert med virkning teller ikke som brev utenfor appen (OV-U6, HF-U13)', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
+    const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(harRegistrertBrev(u)).toBe(false);
+  });
+
   // OV-U12: et krav i et registrert brev er dokumentasjon uten virkning (OV-U4), så
   // referansekontrollen i utledningen finner ikke kravet endringsordren viser til.
   it('en endringsordre registrert som svar på et krav som bare er dokumentasjon, er ikke forstått (OV-U12)', async () => {
@@ -1655,7 +1662,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(harRegistrertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
   });
 
-  it('OV-U19: et varsel registrert med virkning gir ikke merknaden eller statusen for saken, et brev som dokumentasjon gir dem', async () => {
+  it('OV-U19: et varsel registrert med virkning teller ikke som brev utenfor appen i merknaden, statusen og sakslisten; et brev som dokumentasjon gjør det', async () => {
     const bane = minnebane();
     await bygg(bane, [
       { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
