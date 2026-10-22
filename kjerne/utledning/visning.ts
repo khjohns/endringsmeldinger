@@ -190,7 +190,7 @@ export const BREV_UTENFOR_APPEN =
   'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
 
 /**
- * OV-U10, OV-U19: saken har et registrert brev appen ikke vurderer innholdet i, etter
+ * OV-U10, OV-U19, OV-U21: saken har et registrert brev appen ikke vurderer innholdet i, etter
  * utledningen. Merknaden, statusteksten og sakslisten leser det.
  */
 export const harIkkeVurdertBrev = (u: Utledning): boolean => u.ikkeVurderteBrev.length > 0;

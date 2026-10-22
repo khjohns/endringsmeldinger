@@ -230,7 +230,7 @@ export interface Utledning {
    * Ingen regel leser dem; visningen viser dem.
    */
   registrerteBrev: RegistrertBrev[];
-  /** OV-U19: de registrerte brevene appen ikke vurderer innholdet i. Leses av visningen. */
+  /** OV-U19, OV-U21: de registrerte brevene appen ikke vurderer innholdet i. Leses av visningen. */
   ikkeVurderteBrev: string[];
 }
 

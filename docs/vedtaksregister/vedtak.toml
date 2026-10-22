@@ -7602,7 +7602,7 @@ svar = '''
 «Ja, alle teller (Recommended)»'''
 forhold = [{ art = "presiserer", vedtak = "ov-u19" }]
 folge = '''
-Svaret er gitt med spørsmålsverktøyet 22.10, med overskriften «MM-U2». Spørsmålet og alternativene står ordrett på #1163 (kommentaren 6349474406).'''
+Svaret er gitt med spørsmålsverktøyet 22.10, med overskriften «MM-U2». Spørsmålet og alternativene står ordrett på #1163 (kommentaren 6349474406). Bygget 22.10 i PR #1163: `ikkeVurderte` i `kjerne/utledning/utled.ts`, som merknaden, statusteksten og sakslisten leser.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja, alle teller"

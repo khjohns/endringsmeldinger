@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `d87b355d1253ba43856f8148ed76bd354eaa97754e6228e10715f5af32a2fbdb`
+Kontrollsum (SHA-256 over utdraget visningen leser): `3a3115909890fd756543af57d639f73913c79a60fd228a0890cf045912a0d14c`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -784,7 +784,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 22.10, oppdragsgiver (#1163)
 
-**Følge:** Presiserer [OV-U19](#ov-u19). Svaret er gitt med spørsmålsverktøyet 22.10, med overskriften «MM-U2». Spørsmålet og alternativene står ordrett på #1163 (kommentaren 6349474406).
+**Følge:** Presiserer [OV-U19](#ov-u19). Svaret er gitt med spørsmålsverktøyet 22.10, med overskriften «MM-U2». Spørsmålet og alternativene står ordrett på #1163 (kommentaren 6349474406). Bygget 22.10 i PR #1163: `ikkeVurderte` i `kjerne/utledning/utled.ts`, som merknaden, statusteksten og sakslisten leser.
 
 **Regelrader:** —
 
