@@ -108,6 +108,19 @@ const ENDRET_TOPIC = new Set(['issue.modified', 'bcf.issue.modified']);
 const NEVNTE_TEGN = 10;
 
 /**
+ * Navnet på et tegn som ikke skal stå ordrett i kommentaren, eller null for et tegn som kan.
+ * Catenda kan normalisere eller avvise slike tegn, og da finner `appensKommentar` ikke
+ * teksten igjen (#1162 punkt 2).
+ */
+function tegnetsNavn(t: string): string | null {
+  if (/\p{Default_Ignorable_Code_Point}/u.test(t)) return 'et usynlig tegn';
+  if (/\p{Cc}/u.test(t)) return 'et kontrolltegn';
+  if (/\p{Cs}/u.test(t)) return 'en enslig surrogat';
+  if (/\p{Noncharacter_Code_Point}/u.test(t)) return 'et ikke-tegn';
+  return null;
+}
+
+/**
  * Tegnene i tittelen som PDF-en av brevet ikke kan vise, som en setning til kommentaren,
  * eller null når tittelen kan vises. Hvert tegn nevnes én gang.
  */
@@ -116,9 +129,7 @@ export function tegnITittelen(tittel: string): string | null {
   if (!tegn.length) return null;
   const nevnt = tegn.slice(0, NEVNTE_TEGN).map((t) => {
     const kode = `U+${t.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')}`;
-    return /\p{Default_Ignorable_Code_Point}/u.test(t)
-      ? `et usynlig tegn (${kode})`
-      : `«${t}» (${kode})`;
+    return `${tegnetsNavn(t) ?? `«${t}»`} (${kode})`;
   });
   const til = tegn.length - nevnt.length;
   const liste = til

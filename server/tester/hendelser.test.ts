@@ -897,6 +897,44 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await kvitteringFor(id)).toEqual([{ kommentar_id: kommentarerPaa(topic)[0].id }]);
   });
 
+  it.each([
+    ['et kontrolltegn', '\u0001', 'U+0001'],
+    ['en enslig surrogat', '\uD800', 'U+D800'],
+    ['et ikke-tegn', '\uFFFE', 'U+FFFE'],
+  ])(
+    '#1162: med %s i tittelen gir et tapt svar ingen kommentar til, også når Catenda fjerner tegnet fra teksten',
+    async (_, tegn, kode) => {
+      const topic = randomUUID();
+      const id = await motta(kropp(topic, { tittel: `Rapport${tegn}fra leverandøren` }));
+      expect(await behandleEnHendelse(avh)).toBe(true);
+      expect((await utfallFor(id))[0]?.utfall).toBe('tittel_kan_ikke_vises');
+      const fjernet = (tekst: string) =>
+        tekst.replace(/\p{Cc}|\p{Cs}|\p{Noncharacter_Code_Point}/gu, '');
+      const normaliserende = {
+        ...innboks,
+        opprettKommentar: (b: string, t: string, tekst: string) =>
+          innboks.opprettKommentar(b, t, fjernet(tekst)),
+      };
+      const tapt = {
+        ...avh,
+        innboks: {
+          ...normaliserende,
+          opprettKommentar: async (b: string, t: string, tekst: string) => {
+            await normaliserende.opprettKommentar(b, t, tekst);
+            throw new UsikkertCatendautfall('tapt svar');
+          },
+        },
+      };
+      await skrivKommentarene(tapt);
+      expect(await kvitteringFor(id)).toEqual([]);
+      await skrivKommentarene({ ...senere(1), innboks: normaliserende });
+      const [kommentar, ...flere] = kommentarerPaa(topic);
+      expect(flere).toEqual([]);
+      expect(kommentar.tekst).toContain(`(${kode})`);
+      expect(await kvitteringFor(id)).toEqual([{ kommentar_id: kommentar.id }]);
+    }
+  );
+
   it('#972: en kommentar med samme tekst fra en annen forfatter kvitteres ikke, og topicen får appens kommentar', async () => {
     const topic = randomUUID();
     const id = await motta(kropp(topic, { forfatter: catendaId(o.bh.subjekt) }));
@@ -949,6 +987,18 @@ describe('tegnITittelen (#1138)', () => {
     expect(tegnITittelen('Rystelser\u200Bfra')).toBe(
       'Tittelen har tegn som PDF-en av brevet ikke kan vise: et usynlig tegn (U+200B).'
     );
+  });
+
+  it.each([
+    ['et kontrolltegn (C0)', 'Rystelser\u0001fra', 'et kontrolltegn (U+0001)'],
+    ['et kontrolltegn (C1)', 'Rystelser\u009Ffra', 'et kontrolltegn (U+009F)'],
+    ['en enslig surrogat', 'Rystelser\uD800fra', 'en enslig surrogat (U+D800)'],
+    ['et ikke-tegn', 'Rystelser\uFFFEfra', 'et ikke-tegn (U+FFFE)'],
+    ['et ikke-tegn i blokken U+FDD0–U+FDEF', 'Rystelser\uFDD0fra', 'et ikke-tegn (U+FDD0)'],
+  ])('#1162: %s nevnes med kodepunktet, ikke selve tegnet', (_, tittel, nevnt) => {
+    const melding = tegnITittelen(tittel)!;
+    expect(melding).toBe(`Tittelen har tegn som PDF-en av brevet ikke kan vise: ${nevnt}.`);
+    expect(melding).not.toMatch(/\p{Cc}|\p{Cs}|\p{Noncharacter_Code_Point}/u);
   });
 
   it('høyst ti tegn nevnes, resten telles, så meldingen får plass i 400 tegn', () => {
