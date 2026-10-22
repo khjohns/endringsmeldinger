@@ -3685,6 +3685,40 @@ tekst = '''
 Innsigelsen kan også være en påberopelse etter § 33.6.1, som svaret på kravet gjentar eller gir opp. Endrer VS-U24 og VS-U29, og kommer før virkningen etter § 33.6.1 rammer kravet.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U33"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1045"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1045 (header «VS-U19», fra samspillsreviewet av PR #1148):
+
+VS-U19 sier at BH kan sende en forespørsel etter § 33.6.2 fra appen «så lenge TE ikke har fremmet et krav om antall dager i saken». OV-U4 sier at appen ikke utleder noe av et brev sendt utenfor appen og registrert i den, og at det ikke gir noen sperre. Hvis TE registrerer et brev der det står at TE krever 10 dager: skal BH fortsatt kunne sende forespørselen fra appen?
+
+Alternativene slik de står i kommentaren:
+
+«Ja, bare krav appen kjenner, stopper (Recommended)»: Bare et krav om dager som er fremmet i appen, stopper forespørselen. Et registrert brev gjør det aldri, hva beskrivelsen enn sier. VS-U19 presiseres slik med en merknad i vedtaksregisteret. Virkningen av forespørselen utledes uansett bare når BH påberoper den (VS-U3), og TE kan svare med dager fra appen (VS-U27).
+
+«Nei, et registrert krav stopper også»: TE må kunne merke at et registrert brev inneholder et krav om dager, og da stopper forespørselen. Det krever et nytt felt og endrer OV-U4.'''
+valgt = "Ja, bare krav appen kjenner, stopper"
+svar = '''
+«Ja, bare krav appen kjenner, stopper (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "vs-u19" }]
+folge = '''
+Spørsmålet, alternativene og svaret står på #1045 (kommentaren 6345421494).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, bare krav appen kjenner, stopper"
+tekst = '''
+Bare et krav om dager som er fremmet i appen, stopper forespørselen. Et registrert brev gjør det aldri, hva beskrivelsen enn sier. VS-U19 presiseres slik med en merknad i vedtaksregisteret. Virkningen av forespørselen utledes uansett bare når BH påberoper den (VS-U3), og TE kan svare med dager fra appen (VS-U27).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, et registrert krav stopper også"
+tekst = '''
+TE må kunne merke at et registrert brev inneholder et krav om dager, og da stopper forespørselen. Det krever et nytt felt og endrer OV-U4.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
