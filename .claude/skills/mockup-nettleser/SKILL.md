@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, og kontrollerer editoren (innliming, angre, låste verdier). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte.
+description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, og kontrollerer editoren (innliming, angre, låste verdier). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts.
 ---
 
 # /mockup i nettleseren
@@ -29,6 +29,58 @@ og 30 dager.
   i venstrekolonnen) etter at svaret er sendt.
 
 Ugyldig verdi gir en melding om hva som er feil, og exit 1 før nettleseren startes.
+
+## Den ekte saksruta
+
+`/mockup` har demodata og en egen statusregel. Den ekte saksruta `/{prosjekt}/{sak}`
+mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)) kjøres med:
+
+```bash
+node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] [--behold]
+```
+
+Skriptet trenger `KOE_SQLSERVER_TILKOBLING`, som oppstartshooken setter, og port 5173
+og 8090 ledige. Det tar 1–2 minutter, og rydder basen, innloggingen og prosessene
+etterpå. Det skriver hvert kall med status og svar og stopper med exit 1 når et svar
+ikke er det forventede:
+
+1. Lager en migrert testbase og registrerer ett prosjekt med Catenda-kobling,
+   board og kontraktsteam for TE og BH, med `settInn` som `lagOppsett` i
+   `server/tester/testbase.ts`. Det er det `server/registrering.ts` gjør i drift.
+   Brukere, medlemskap og sesjoner lages ikke: innloggingen lager dem.
+2. Starter en falsk Catenda på 127.0.0.1 med en TE- og en BH-bruker, hver i sitt
+   team. Den svarer på OAuth (`/oauth2/authorize`, `/oauth2/token`), `/v2/user`,
+   `/v2/projects`, medlemslisten, teammedlemmene og topicen jobbkjøreren lager.
+   Et annet kall skrives som «falsk Catenda: ukjent kall» og får 404.
+3. Starter TS-serveren (`server/start.ts`) med en egen innlogging i rollen
+   `koe_runtime`, som oppstartskontrollen krever, og `APP_ENV=development`.
+   Innloggingen er ekte: ingen `DISABLE_AUTH`, og sesjonen, CSRF-tokenet,
+   prosjekttilgangen og kontraktsrollen avgjøres av serveren. De ekte `CATENDA_*`-
+   og `ENTRA_*`-variablene i skyøkta fjernes fra miljøet, så ingenting når Catenda.
+   Så starter `vite dev` på 5173, som `AUTH_FRONTEND_URL` og proxyen forutsetter.
+4. Logger inn TE og BH i hver sin nettleserkontekst gjennom
+   `/api/auth/catenda/login`. Den falske Catenda velger brukeren etter cookien
+   `bruker=te|bh` på sin egen adresse.
+5. Oppretter saken som TE med `POST /api/kjerne/saker` fra siden (201), prøver
+   kallet uten CSRF-token (403) og som BH (400 `FEIL_PART` fra kjernen: registeret
+   slipper begge sider gjennom, og kjernen avviser), og leser saken med `GET` som
+   begge (200, med `part` fra sesjonen).
+6. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta.
+
+Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
+med et eget Playwright-skript (kopier `loggInn` fra `saksrute.ts`). Skal
+skjermbildet vise mer enn en ny sak, send kommandoene fra siden med
+`POST /api/kjerne/saker/{sak}/kommandoer` eller gjennom skjemaene, ikke rett i
+tabellene.
+
+Det skriptet ikke dekker:
+
+- Ekte Catenda: OAuth-flyten, medlemslistene og teamene er den falske leverandørens
+  svar, så de prøver serverens tolkning, ikke Catendas. Kontraktstestene mot ekte
+  Catenda står i [miljø-skillen](../miljo/SKILL.md).
+- Webhooken, levering av brev og vedlegg til Catenda, og Entra-innloggingen.
+- Leserollen, godkjennere og en bruker uten team.
+- Den gamle frontenden for samme flyt.
 
 ## I en git-worktree
 
