@@ -37,7 +37,7 @@ import {
   type Pool,
 } from '../datalag.ts';
 import { enGang, tidsavbrudd } from './forbindelse.ts';
-import { behandle, nesteInnkommende } from '../hendelser.ts';
+import { behandle, nesteInnkommende, tegnITittelen } from '../hendelser.ts';
 import { lesJournal } from '../lager.ts';
 import { mottaHendelse } from '../webhook.ts';
 import {
@@ -60,6 +60,7 @@ interface Utfall {
   prosjekt_id: string | null;
   sak_id: string | null;
   catenda_topic_id: string | null;
+  melding?: string | null;
 }
 
 describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)', () => {
@@ -478,7 +479,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await sakerForTopic(topic)).toEqual([]);
   });
 
-  it('en annen hendelsestype enn en ny topic behandles ikke i W-1b.1', async () => {
+  it('en annen hendelsestype enn en ny topic, også en endret topic uten avvist tittel, behandles ikke (W-1b.1, #1138)', async () => {
     expect((await behandleKropp(kropp(randomUUID()), 'issue.modified')).utfall).toBe(
       'ikke_behandlet_type'
     );
@@ -785,6 +786,59 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     ]);
   });
 
+  const TEGNKOMMENTAR =
+    'Saken er ikke opprettet i appen. Tittelen har tegn som PDF-en av brevet ikke kan vise: ' +
+    '«报» (U+62A5) og «告» (U+544A). Endre tittelen i topicen, så opprettes saken.';
+
+  it('arbeidsvalgene 22.10 i #1138: en tittel med tegn PDF-en ikke kan vise, gir ingen sak og én kommentar med tegnene; endringen av tittelen gir saken', async () => {
+    const topic = randomUUID();
+    const avvist = await behandleKropp(kropp(topic, { tittel: 'Rapport 报告 fra 报' }));
+    expect(avvist).toMatchObject({
+      utfall: 'tittel_kan_ikke_vises',
+      prosjekt_id: o.prosjekt.id,
+      sak_id: null,
+      catenda_topic_id: topic,
+    });
+    expect(await sakerForTopic(topic)).toEqual([]);
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([TEGNKOMMENTAR]);
+
+    // En endring som ikke retter tittelen, gir samme utfall og ingen kommentar til.
+    expect(
+      (
+        await behandleKropp(
+          kropp(topic, { tittel: 'Rapport 报告 fra 报 (oppdatert)' }),
+          'issue.modified'
+        )
+      ).utfall
+    ).toBe('tittel_kan_ikke_vises');
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic)).toHaveLength(1);
+
+    const rettet = await behandleKropp(
+      kropp(topic, { tittel: 'Rapport fra leverandøren' }),
+      'issue.modified'
+    );
+    expect(rettet).toMatchObject({ utfall: 'sak_opprettet', catenda_topic_id: topic });
+    expect(await sakerForTopic(topic)).toEqual([
+      { sak_id: rettet.sak_id, catenda_board_id: board },
+    ]);
+    const [hendelse] = await transaksjon(
+      avh.datalag,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
+      (foresp) => lesJournal(foresp, rettet.sak_id!, false)
+    );
+    expect(JSON.stringify(hendelse)).toContain('Rapport fra leverandøren');
+    expect((await behandleKropp(kropp(topic), 'issue.modified')).utfall).toBe('topic_har_sak');
+  });
+
+  it('#1138: en topic fra BH med tegn i tittelen gir topic_fra_bh, så siden avgjøres før tittelen', async () => {
+    const topic = randomUUID();
+    const k = kropp(topic, { forfatter: catendaId(o.bh.subjekt), tittel: 'Rapport 报告' });
+    expect((await behandleKropp(k)).utfall).toBe('topic_fra_bh');
+    expect((await behandleKropp(k, 'issue.modified')).utfall).toBe('ikke_behandlet_type');
+  });
+
   it.each<[string, () => string | null]>([
     ['laget av integrasjonen', () => INTEGRASJONEN],
     ['uten forfatter', () => null],
@@ -862,5 +916,25 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     );
     expect(await behandleEnHendelse({ ...avh, innboks: undefined })).toBe(false);
     expect(await behandleEnHendelse(avh)).toBe(true);
+  });
+});
+
+describe('tegnITittelen (#1138)', () => {
+  it('en tittel som kan vises, gir ingen melding', () => {
+    expect(tegnITittelen('Rystelser fra spuntingen – § 33.8')).toBeNull();
+  });
+
+  it('et usynlig tegn nevnes med kodepunktet, ikke selve tegnet', () => {
+    expect(tegnITittelen('Rystelser\u200Bfra')).toBe(
+      'Tittelen har tegn som PDF-en av brevet ikke kan vise: et usynlig tegn (U+200B).'
+    );
+  });
+
+  it('høyst ti tegn nevnes, resten telles, så meldingen får plass i 400 tegn', () => {
+    const tittel = '一二三四五六七八九十百千';
+    const melding = tegnITittelen(tittel)!;
+    expect(melding).toMatch(/«十» \(U\+5341\) og 2 til\.$/);
+    expect(melding).not.toContain('百');
+    expect(melding.length).toBeLessThan(400);
   });
 });
