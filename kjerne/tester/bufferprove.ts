@@ -112,7 +112,11 @@ export function bufferen(lagBaner: () => Baner): void {
     });
     it('viser siste kjente status i oversikten, merket «Oppdateres» til saken er regnet ut (MM-U15)', async () => {
       const bane = await baner.bane();
-      const k = await bygg(bane, ['krav_eo']);
+      // F-MM-A5a: TE godtar avslaget på grunnlaget, så saken har en status (MM-U22).
+      const k = await bygg(bane, [
+        'forlop_a',
+        { handling: 'aksept', spor: 'grunnlag', navn: 'D7' },
+      ]);
       const lager = baner.buffer();
       const oversikt = async (kjerne: Kjerne) => {
         const journal = await bane.journal();
@@ -122,19 +126,22 @@ export function bufferen(lagBaner: () => Baner): void {
       expect(await oversikt(KJERNE)).toEqual({ status: null, oppdateres: true });
       await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
       const kjent = await oversikt(KJERNE);
-      // MM-U22: saken har ingen samlet status mens kravet venter på svar.
-      expect(kjent).toEqual({ status: null, oppdateres: false });
+      expect(kjent).toEqual({
+        status: { kode: 'avsluttet_avslaatt', tekst: expect.any(String) },
+        oppdateres: false,
+      });
 
       // Nye regler: samme status, merket.
       expect(await oversikt(medRegler(NESTE_REGLER))).toEqual({
         status: kjent.status,
         oppdateres: true,
       });
-      // En ny hendelse: siste kjente status, ikke den nye, til saken er regnet ut.
-      expect((await k.send({ handling: 'trekk', spor: 'grunnlag' }))?.godtatt).toBe(true);
+      // En ny hendelse: siste kjente status til saken er regnet ut.
+      expect((await k.send({ handling: 'innsigelse', part: 'TE', gjelder: 'S-g1' }))?.godtatt).toBe(
+        true
+      );
       expect(await oversikt(KJERNE)).toEqual({ status: kjent.status, oppdateres: true });
       const lest = await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
-      expect(lest.visning.status?.kode).toBe('avsluttet_trukket');
       expect(await oversikt(KJERNE)).toEqual({ status: lest.visning.status, oppdateres: false });
     });
   });

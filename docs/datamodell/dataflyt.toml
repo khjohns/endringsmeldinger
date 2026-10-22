@@ -1084,12 +1084,25 @@ beskrivelse = """
 Utfallet `sak_opprettet` gir en kommentar med lenke til saken og saksnummeret (KT-U6).
 `topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet` (arbeidsvalget under OV-U1 i #819)
 gir en kommentar om hvorfor ingen sak er opprettet. Kommentarene på topicen leses
-først, og står samme tekst der alt, skrives ingen ny; da gir et nytt forsøk etter et
-tapt svar én kommentar. Kommentaren skrives på boardet topicen ble slått opp på, med
+først, og har integrasjonen skrevet samme tekst der alt, skrives ingen ny; da gir et
+nytt forsøk etter et tapt svar én kommentar. Forfatteren må være integrasjonens
+brukernavn, så en annen kan ikke hindre kommentaren ved å skrive teksten først. Uten
+brukernavn kvitteres ingen kommentar, og kommentaren skrives på nytt (#972). Kommentaren skrives på boardet topicen ble slått opp på, med
 integrasjonens token. Kvitteringen står i `koe.topic_kommentar`. Feiler et steg,
 lagres forsøket i `koe.innkommende_forsoek`, og utfallet venter før neste forsøk."""
 funn = []
 belegg = "L 19.10: `server/jobber.ts`, `server/hendelser.ts`, `server/catenda.ts` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`."
+
+[[flyt.steg]]
+fra = "catenda:bruker"
+til = ["appen"]
+endepunkt = "GET /v2/user"
+kode = [
+    "server/jobber.ts:skrivEnKommentar",
+    "server/catenda.ts:innboksintegrasjon",
+    "server/catenda.ts:CatendaOAuth",
+]
+data = "Integrasjonens brukernavn (`username`), som skiller kommentarer integrasjonen skrev. Lagres ikke."
 
 [[flyt.steg]]
 fra = "catenda:kommentar"
@@ -1100,7 +1113,9 @@ kode = [
     "server/catenda.ts:innboksintegrasjon",
     "server/catenda.ts:CatendaOAuth",
 ]
-data = "Kommentarene på topicen, med ID og tekst. Står samme tekst der, brukes den kommentarens ID. Lagres ikke."
+data = """
+Kommentarene på topicen, med ID, tekst og forfatter (`author`). Har integrasjonens
+brukernavn skrevet samme tekst der, brukes den kommentarens ID. Lagres ikke."""
 
 [[flyt.steg]]
 fra = "koe.innkommende_behandling"
@@ -1111,7 +1126,7 @@ kode = [
     "server/catenda.ts:innboksintegrasjon",
     "server/catenda.ts:CatendaOAuth",
 ]
-data = "Kommentaren for utfallet (`comment`), bare når samme tekst ikke står på topicen."
+data = "Kommentaren for utfallet (`comment`), bare når integrasjonen ikke har skrevet samme tekst på topicen."
 
 [[flyt.steg]]
 fra = "catenda:kommentar"

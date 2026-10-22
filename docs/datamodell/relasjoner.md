@@ -798,9 +798,10 @@ flowchart LR
     c_webhook -->|"C22.5 opprettSak"| t_koe_sak_catenda_topic
     c_webhook -->|"C22.6 registrerBehandling"| t_koe_innkommende_behandling
     c_webhook -->|"C22.7 registrerForsoek"| t_koe_innkommende_forsoek
-    c_kommentar -->|"C23.1 CatendaOAuth"| t_appen
-    c_kommentar -->|"C23.3 kvitterKommentar"| t_koe_topic_kommentar
-    c_kommentar -->|"C23.4 registrerForsoek"| t_koe_innkommende_forsoek
+    c_bruker -->|"C23.1 CatendaOAuth"| t_appen
+    c_kommentar -->|"C23.2 CatendaOAuth"| t_appen
+    c_kommentar -->|"C23.4 kvitterKommentar"| t_koe_topic_kommentar
+    c_kommentar -->|"C23.5 registrerForsoek"| t_koe_innkommende_forsoek
 ```
 
 ### Ut til Catenda
@@ -846,7 +847,7 @@ flowchart LR
     t_sak_metadata -->|"C15.3 EndringsordreService._sync_to_catenda"| c_relasjon
     t_hendelse -->|"C15.4 EndringsordreService.legg_til_koe"| c_relasjon
     t_hendelse -->|"C15.5 EndringsordreService.fjern_koe"| c_relasjon
-    t_koe_innkommende_behandling -->|"C23.2 CatendaOAuth"| c_kommentar
+    t_koe_innkommende_behandling -->|"C23.3 CatendaOAuth"| c_kommentar
 ```
 
 ### Drift
@@ -1254,14 +1255,15 @@ Bare en ny topic gir en sak. Catenda signerer ikke kroppen, så av den brukes ba
 
 **Retning:** ut. **Utløses av:** Løkka i jobbkjøreren, etter behandlingen av innboksen: `skrivEnKommentar` i `server/jobber.ts` tar det eldste utfallet i `koe.innkommende_behandling` som skal ha en kommentar, ikke har en kvittering og ikke venter etter et forsøk (W-1b.2, #819).
 
-Utfallet `sak_opprettet` gir en kommentar med lenke til saken og saksnummeret (KT-U6). `topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet` (arbeidsvalget under OV-U1 i #819) gir en kommentar om hvorfor ingen sak er opprettet. Kommentarene på topicen leses først, og står samme tekst der alt, skrives ingen ny; da gir et nytt forsøk etter et tapt svar én kommentar. Kommentaren skrives på boardet topicen ble slått opp på, med integrasjonens token. Kvitteringen står i `koe.topic_kommentar`. Feiler et steg, lagres forsøket i `koe.innkommende_forsoek`, og utfallet venter før neste forsøk.
+Utfallet `sak_opprettet` gir en kommentar med lenke til saken og saksnummeret (KT-U6). `topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet` (arbeidsvalget under OV-U1 i #819) gir en kommentar om hvorfor ingen sak er opprettet. Kommentarene på topicen leses først, og har integrasjonen skrevet samme tekst der alt, skrives ingen ny; da gir et nytt forsøk etter et tapt svar én kommentar. Forfatteren må være integrasjonens brukernavn, så en annen kan ikke hindre kommentaren ved å skrive teksten først. Uten brukernavn kvitteres ingen kommentar, og kommentaren skrives på nytt (#972). Kommentaren skrives på boardet topicen ble slått opp på, med integrasjonens token. Kvitteringen står i `koe.topic_kommentar`. Feiler et steg, lagres forsøket i `koe.innkommende_forsoek`, og utfallet venter før neste forsøk.
 
 | Pil | Fra | Til | Endepunkt | Kode | Data |
 | --- | --- | --- | --- | --- | --- |
-| C23.1 | Catenda: kommentarer | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{catenda_board_id}/topics/{catenda_topic_id}/comments | [`skrivEnKommentar`](../../server/jobber.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Kommentarene på topicen, med ID og tekst. Står samme tekst der, brukes den kommentarens ID. Lagres ikke. |
-| C23.2 | koe.innkommende_behandling | Catenda: kommentarer | POST /opencde/bcf/3.0/projects/{catenda_board_id}/topics/{catenda_topic_id}/comments | [`skrivEnKommentar`](../../server/jobber.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Kommentaren for utfallet (`comment`), bare når samme tekst ikke står på topicen. |
-| C23.3 | Catenda: kommentarer | koe.topic_kommentar | Svaret fra Catenda | [`skrivEnKommentar`](../../server/jobber.ts) → [`kvitterKommentar`](../../server/hendelser.ts) | ID-en til kommentaren i Catenda, funnet eller skrevet. |
-| C23.4 | Catenda: kommentarer | koe.innkommende_forsoek | Svaret fra Catenda, eller at det mangler | [`skrivEnKommentar`](../../server/jobber.ts) → [`registrerForsoek`](../../server/hendelser.ts) | Steget `kommentar` og feilklassen med meldingen, når Catenda eller basen ikke svarte. |
+| C23.1 | Catenda: innlogget bruker | Appen, lagres ikke | GET /v2/user | [`skrivEnKommentar`](../../server/jobber.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Integrasjonens brukernavn (`username`), som skiller kommentarer integrasjonen skrev. Lagres ikke. |
+| C23.2 | Catenda: kommentarer | Appen, lagres ikke | GET /opencde/bcf/3.0/projects/{catenda_board_id}/topics/{catenda_topic_id}/comments | [`skrivEnKommentar`](../../server/jobber.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Kommentarene på topicen, med ID, tekst og forfatter (`author`). Har integrasjonens brukernavn skrevet samme tekst der, brukes den kommentarens ID. Lagres ikke. |
+| C23.3 | koe.innkommende_behandling | Catenda: kommentarer | POST /opencde/bcf/3.0/projects/{catenda_board_id}/topics/{catenda_topic_id}/comments | [`skrivEnKommentar`](../../server/jobber.ts) → [`innboksintegrasjon`](../../server/catenda.ts) → [`CatendaOAuth`](../../server/catenda.ts) | Kommentaren for utfallet (`comment`), bare når integrasjonen ikke har skrevet samme tekst på topicen. |
+| C23.4 | Catenda: kommentarer | koe.topic_kommentar | Svaret fra Catenda | [`skrivEnKommentar`](../../server/jobber.ts) → [`kvitterKommentar`](../../server/hendelser.ts) | ID-en til kommentaren i Catenda, funnet eller skrevet. |
+| C23.5 | Catenda: kommentarer | koe.innkommende_forsoek | Svaret fra Catenda, eller at det mangler | [`skrivEnKommentar`](../../server/jobber.ts) → [`registrerForsoek`](../../server/hendelser.ts) | Steget `kommentar` og feilklassen med meldingen, når Catenda eller basen ikke svarte. |
 
 **Funn:** —. **Belegg:** L 19.10: `server/jobber.ts`, `server/hendelser.ts`, `server/catenda.ts` og `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql`.
 

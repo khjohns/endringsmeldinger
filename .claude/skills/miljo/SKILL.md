@@ -118,10 +118,10 @@ Side for side i repo-listen, uten `search/issues`:
 
 Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `AGENTS.md`.
 
-Et nytt arbeidstre under `.claude/worktrees/` har ingen `.svelte-kit/`. Da feiler
-`npx vitest run` og `npx vite build` med «Tsconfig not found» (#1114). Feilen peker
-på `/home/user/endringsmeldinger/.svelte-kit/tsconfig.json` i hovedrepoet, ikke i
-arbeidstreet. Kontrollert 22.10: `npx svelte-kit sync` i arbeidstreet gir
-`.svelte-kit/tsconfig.json`, men feilen står fortsatt. Til #1114 er løst, kjør
-vitest og vite build utenfor arbeidstreet, for eksempel i hovedcheckouten eller i
-en skyøkt. Der er det ikke kontrollert at de virker.
+Et arbeidstre under `.claude/worktrees/` har ingen `node_modules`, så vite og vitest
+der laster pakkene fra hovedcheckouten, og med dem `tsconfig.json` der. Den utvider
+`.svelte-kit/tsconfig.json` i hovedcheckouten, ikke i arbeidstreet. Mangler den fila,
+feiler `npx vitest run` og `npx vite build` i arbeidstreet med «Tsconfig not found»
+(#1114). Oppstartshooken kjører derfor `npx svelte-kit sync` i hovedcheckouten. Står
+feilen likevel, kjør `npx svelte-kit sync` i hovedcheckouten; i arbeidstreet hjelper
+den ikke, og arbeidstreet trenger ingen `.svelte-kit/` selv (kontrollert 22.10).

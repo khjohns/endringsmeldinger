@@ -127,8 +127,8 @@ export class CommitIkkeSendt extends Error {}
  * Transaksjonen nådde fristen før COMMIT ble sendt, og forbindelsen er lukket, så
  * serveren ruller tilbake (RK-05, #50). Utfallet er kjent: transaksjonen er ikke
  * committet. Feilen fra arbeidet står i `cause` når den finnes. Den er en
- * `TransactionError` med koden `'ETIMEOUT'`, som et tidsavbrudd i en forespørsel, så
- * innboksen prøver hendelsen igjen (`forbigaaendeISql` i `jobber.ts`).
+ * `TransactionError` med koden `'ETIMEOUT'`, som et tidsavbrudd i en forespørsel.
+ * Innboksen prøver hendelsen igjen (`ikkeCommittet` i `jobber.ts`).
  */
 export class FristUtloept extends sql.TransactionError {
   constructor(melding: string, { cause }: { cause?: unknown } = {}) {

@@ -467,6 +467,42 @@ describe('topicen på boardet for innboksen (#819)', () => {
   });
 });
 
+describe('kommentarene og forfatteren av dem (#972)', () => {
+  const board = uuid(7);
+  const topic = uuid(9);
+
+  // topic-api-openapi.yaml, schema `comment`: `author` er brukernavnet til forfatteren.
+  it('leser ID-en, teksten og forfatteren, og en kommentar uten forfatter gir null', async () => {
+    svar = () => ({
+      json: [
+        { guid: uuid(1), comment: 'Første', author: 'kari@example.no' },
+        { guid: uuid(2), comment: 'Andre', author: '' },
+        { guid: uuid(3), comment: 'Tredje' },
+      ],
+    });
+    expect(await new CatendaOAuth(oppsett()).kommentarer(board, topic, 't')).toEqual([
+      { id: uuid(1), tekst: 'Første', forfatter: 'kari@example.no' },
+      { id: uuid(2), tekst: 'Andre', forfatter: null },
+      { id: uuid(3), tekst: 'Tredje', forfatter: null },
+    ]);
+    expect(mottatt[0].sti).toBe(`/opencde/bcf/3.0/projects/${board}/topics/${topic}/comments`);
+  });
+
+  // project-api-openapi.yaml, schema `user`: `username` er null for en organisasjon eller et team.
+  it('egen bruker gir ID-en normalisert og brukernavnet, og null uten brukernavn', async () => {
+    svar = () => ({ json: { id: BRUKER, username: 'integrasjonen@example.no' } });
+    expect(await new CatendaOAuth(oppsett()).egenBruker('t')).toEqual({
+      id: hex(BRUKER),
+      brukernavn: 'integrasjonen@example.no',
+    });
+    svar = () => ({ json: { id: BRUKER, username: null } });
+    expect(await new CatendaOAuth(oppsett()).egenBruker('t')).toEqual({
+      id: hex(BRUKER),
+      brukernavn: null,
+    });
+  });
+});
+
 describe('topicen for en sak fra appen (#741)', () => {
   const BOARD = '6f1c2d3e-4a5b-4c6d-8e7f-901a2b3c4d5e';
   const topic = {
