@@ -123,11 +123,6 @@ const KRAVET: Record<Kravspor, string> = {
   frist: 'fristforlengelse',
 };
 
-const KRAVET_SENDT: Record<Kravspor, readonly [string, string]> = {
-  vederlag: ['VEDERLAGSKRAV_SENDT', 'Vederlagskravet'],
-  frist: ['FRISTKRAV_SENDT', 'Fristkravet'],
-};
-
 /** Hvordan grunnlaget og hvert krav som var sendt, ble avgjort i denne saken (OV-U3). */
 function hvorforAvgjort(u: Utledning): string {
   const grunnlag = u.frafalt
@@ -215,11 +210,11 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       // VS-U16, OV-U5: etter kravet i sporet kan varselet fra appen bare få en senere dato
       // enn kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
       if (h.type === 'sende_varsel' && s.krav.length) {
-        const [regel, kravet] = KRAVET_SENDT[h.spor];
-        return avvis(
-          regel,
-          `${kravet} er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.`
-        );
+        const sendt =
+          'er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.';
+        return h.spor === 'vederlag'
+          ? avvis('VEDERLAGSKRAV_SENDT', `Vederlagskravet ${sendt}`)
+          : avvis('FRISTKRAV_SENDT', `Fristkravet ${sendt}`);
       }
       return null;
     case 'sende_foresporsel':
