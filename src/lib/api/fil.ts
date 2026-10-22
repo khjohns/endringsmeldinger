@@ -3,7 +3,7 @@
  * ikke gjennom `apiFetch`, men har samme håndtering av en utløpt sesjon og et brutt nett.
  */
 
-import { API_BASE_URL, ApiError, projectHeaders, redirectToLogin } from './client';
+import { API_BASE_URL, ApiError, redirectToLogin } from './client';
 
 export const NETTFEIL = 'Fila kunne ikke hentes. Kontroller nettforbindelsen og prøv igjen.';
 
@@ -23,7 +23,8 @@ export async function hentFil(
   try {
     svar = await fetch(`${API_BASE_URL}${endpoint}`, {
       credentials: 'include',
-      headers: projectHeaders(prosjektId),
+      // Prosjektet fra ruta, aldri det aktive som reserve (#743). Uten det er prosjektet ukjent.
+      headers: prosjektId ? { 'X-Project-ID': prosjektId } : {},
     });
   } catch {
     throw new ApiError(0, NETTFEIL);

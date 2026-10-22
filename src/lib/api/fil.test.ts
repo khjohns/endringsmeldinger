@@ -1,4 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
+import { setActiveProjectId } from './client';
 import { hentFil, NETTFEIL } from './fil';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -14,6 +15,14 @@ it('henter fila med sesjonen og prosjektet fra ruta', async () => {
     credentials: 'include',
     headers: { 'X-Project-ID': 'p1' },
   });
+});
+
+it('et manglende prosjekt i ruta erstattes ikke av det aktive prosjektet (#743)', async () => {
+  setActiveProjectId('aktivt');
+  const fetch = vi.fn().mockResolvedValue(new Response('pdf'));
+  vi.stubGlobal('fetch', fetch);
+  await hentFil('/api/fil', undefined as unknown as string, 'Feil');
+  expect(fetch.mock.calls[0][1].headers).not.toHaveProperty('X-Project-ID');
 });
 
 it('en utløpt sesjon sender brukeren til innloggingen, som apiFetch (#1083)', async () => {
