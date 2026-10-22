@@ -28,7 +28,7 @@ import {
   UUID,
   type Kontekst,
 } from './datalag.ts';
-import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
+import { tegnSomIkkeKanVises, ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 
 /** Under grensen i Python (arbeidsvalg 5 i #790); `stoerrelse` i tabellen har samme grense. */
 export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;
@@ -79,6 +79,16 @@ export function rensetFilnavn(kodet: string): string | null {
     .replace(/^[ ._]+|[ .]+$/g, '');
   if (!renset || !/[\p{L}\p{N}]/u.test(renset) || renset.length > STOERSTE_FILNAVN) return null;
   return renset;
+}
+
+/**
+ * Meldingen når filnavnet har et tegn PDF-en av brevet ikke kan vise, eller `null`. Navnet
+ * står i brevet som binder vedlegget, så det avvises ved opplastingen (#1138 punkt 2,
+ * oppdragsgiver 22.10), med samme kontroll som kjernen (#801).
+ */
+export function filnavnSomIkkeKanVises(filnavn: string): string | null {
+  const avvist = tegnSomIkkeKanVises(filnavn, 'Filnavnet');
+  return avvist && `${avvist.melding} Gi filen et nytt navn og last den opp igjen.`;
 }
 
 const KJOERBARE: readonly [Buffer, string][] = [
@@ -166,6 +176,8 @@ async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
   const fil = f.fil!;
   const filnavn = rensetFilnavn(fil.filnavn);
   if (filnavn === null) return feilsvar(400, 'UGYLDIG_FILNAVN', 'Filnavnet kan ikke brukes.');
+  const ikkeVist = filnavnSomIkkeKanVises(filnavn);
+  if (ikkeVist) return feilsvar(400, 'UGYLDIG_FILNAVN', ikkeVist);
   if (!fil.innhold.length) return feilsvar(400, 'TOM_FIL', 'Filen er tom.');
   const galt = innholdsfeil(filnavn, fil.innhold);
   if (galt) return feilsvar(400, 'UGYLDIG_INNHOLD', galt);
