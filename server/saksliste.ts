@@ -15,9 +15,10 @@ import type { Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import {
+  betegnelse,
   harRegistrertBrev,
   saksbetegnelse,
-  visning,
+  type Betegnelse,
   type Saksbetegnelse,
 } from '../kjerne/utledning/visning.ts';
 import {
@@ -100,8 +101,8 @@ const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 type Virkning = 'betinget' | 'virksom' | 'uten_virkning';
 
 interface Foreligger {
-  /** Kjernens etiketter for sporet i visningen; erstattes av den faste lista i MM-U22 (#1043). */
-  etiketter: string[];
+  /** Sporets betegnelse fra den faste lista (`betegnelse`, MM-U30). */
+  betegnelse: Betegnelse | null;
   /** Kravet venter på byggherrens svar (`venterPaaSvar`, MM-U29). */
   venter_paa_svar: boolean;
   /** Byggherrens gjeldende svar står, og TE kan fortsatt godta det (`svarIkkeGodtatt`, MM-U29). */
@@ -112,13 +113,21 @@ export interface Grunnlagslinje extends Foreligger {
   svar: { resultat: Grunnlagsresultat } | null;
 }
 
-export interface Vederlagslinje extends Foreligger {
+/**
+ * Kravet står: saken er forstått og ikke avsluttet, og kravet er ikke trukket (svar 2 fra
+ * oppdragsgiver 20.10 i #1029). Nøkkeltallene og frontenden leser flagget (#1068).
+ */
+interface Staaende {
+  kravet_staar: boolean;
+}
+
+export interface Vederlagslinje extends Foreligger, Staaende {
   krav: { beloep: number; metode: string } | null;
   svar: { resultat: Vederlagsresultat; beloep: number; subsidiaert: boolean } | null;
   enighet: { beloep: number | null; virkning: Virkning } | null;
 }
 
-export interface Fristlinje extends Foreligger {
+export interface Fristlinje extends Foreligger, Staaende {
   krav: { dager: number } | null;
   svar: { resultat: Fristresultat; dager: number; subsidiaert: boolean } | null;
   enighet: { dager: number | null; virkning: Virkning } | null;
@@ -142,11 +151,15 @@ export interface Sakslinje {
   frist: Fristlinje;
 }
 
-const INGENTING: Foreligger = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
+const INGENTING: Foreligger = {
+  betegnelse: null,
+  venter_paa_svar: false,
+  svar_ikke_godtatt: false,
+};
 
-function foreligger(u: Utledning, spor: Spor, etiketter: string[]): Foreligger {
+function foreligger(u: Utledning, spor: Spor): Foreligger {
   return {
-    etiketter,
+    betegnelse: betegnelse(u, spor),
     venter_paa_svar: venterPaaSvar(u, spor),
     svar_ikke_godtatt: svarIkkeGodtatt(u, spor),
   };
@@ -163,13 +176,22 @@ function svaret(u: Utledning, spor: Kravspor) {
   return { st, subsidiaert: standpunktetErSubsidiaert(u, spor, st.id) };
 }
 
-function vederlag(u: Utledning, etiketter: string[]): Vederlagslinje {
+const avsluttet = (u: Utledning): boolean => {
+  const b = saksbetegnelse(u);
+  return b === 'avslaget_paa_grunnlaget_godtatt' || b === 'grunnlaget_trukket';
+};
+
+const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
+  u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttet(u);
+
+function vederlag(u: Utledning): Vederlagslinje {
   const s = u.spor.vederlag;
   const innhold = s.gjeldendeKrav?.innhold;
   const sv = svaret(u, 'vederlag');
   const virkning = enighetensVirkning(u, 'vederlag');
   return {
-    ...foreligger(u, 'vederlag', etiketter),
+    ...foreligger(u, 'vederlag'),
+    kravet_staar: kravetStaar(u, 'vederlag'),
     krav: innhold ? { beloep: tall(innhold.beloep)!, metode: tekst(innhold.metode)! } : null,
     svar:
       sv?.st.art === 'beloep'
@@ -180,13 +202,14 @@ function vederlag(u: Utledning, etiketter: string[]): Vederlagslinje {
   };
 }
 
-function frist(u: Utledning, etiketter: string[]): Fristlinje {
+function frist(u: Utledning): Fristlinje {
   const s = u.spor.frist;
   const innhold = s.gjeldendeKrav?.innhold;
   const sv = svaret(u, 'frist');
   const virkning = enighetensVirkning(u, 'frist');
   return {
-    ...foreligger(u, 'frist', etiketter),
+    ...foreligger(u, 'frist'),
+    kravet_staar: kravetStaar(u, 'frist'),
     krav: innhold ? { dager: tall(innhold.dager)! } : null,
     svar:
       sv?.st.art === 'dager'
@@ -203,7 +226,6 @@ function frist(u: Utledning, etiketter: string[]): Fristlinje {
  */
 export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   const u = utledJournal(sak.journal, kjerne);
-  const v = visning(u, kjerne.regler);
   const felles = {
     sak_id: sak.sakId,
     sakstype: sak.sakstype,
@@ -219,26 +241,28 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
       ...felles,
       hovedkategori: null,
       grunnlag: { ...INGENTING, svar: null },
-      vederlag: { ...INGENTING, krav: null, svar: null, enighet: null },
-      frist: { ...INGENTING, krav: null, svar: null, enighet: null },
+      vederlag: { ...INGENTING, kravet_staar: false, krav: null, svar: null, enighet: null },
+      frist: { ...INGENTING, kravet_staar: false, krav: null, svar: null, enighet: null },
     };
   const g = u.spor.grunnlag.gjeldendeSvar?.standpunkter.find((p) => p.art === 'grunnlag');
   return {
     ...felles,
     hovedkategori: tekst(u.spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori),
     grunnlag: {
-      ...foreligger(u, 'grunnlag', v.spor.grunnlag.etiketter),
+      ...foreligger(u, 'grunnlag'),
       svar: g?.art === 'grunnlag' ? { resultat: g.resultat } : null,
     },
-    vederlag: vederlag(u, v.spor.vederlag.etiketter),
-    frist: frist(u, v.spor.frist.etiketter),
+    vederlag: vederlag(u),
+    frist: frist(u),
   };
 }
 
 /**
  * Nøkkeltallene over lista, regnet i serveren. Krav og virksom enighet summeres hver
- * for seg, og betingede og subsidiære tall står for seg (MM-U28). Kravene telles bare
- * når de står: ikke trukket og ikke i en avsluttet sak. En sak kjernen ikke forstår,
+ * for seg, og betingede og subsidiære tall står for seg (MM-U28). Kravene og de subsidiære
+ * beløpene telles bare når kravet står (`kravet_staar`; svar 2 fra oppdragsgiver 20.10 i
+ * #1029, svar 3 22.10 i #1052). Et subsidiært beløp TE har godtatt, telles bare som
+ * betinget enighet («Subsidiært» 22.10 i #1052). En sak kjernen ikke forstår,
  * og en enighet uten beløp, telles og summeres ikke: ukjent er ikke 0. En enighet uten
  * virkning telles ikke (svar 2 og 3 fra oppdragsgiver 20.10 i #1029). Fristdagene
  * summeres ikke på tvers av saker.
@@ -278,24 +302,21 @@ export function noekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
       n.ikke_forstaatt += 1;
       continue;
     }
-    const avsluttet =
-      l.saksbetegnelse === 'avslaget_paa_grunnlaget_godtatt' ||
-      l.saksbetegnelse === 'grunnlaget_trukket';
-    const staar = (s: Foreligger) => !avsluttet && !s.etiketter.includes('trukket');
     const v = l.vederlag;
-    if (v.krav && staar(v)) {
+    if (v.krav && v.kravet_staar) {
       n.vederlag.krav_antall += 1;
       n.vederlag.krav_sum += v.krav.beloep;
     }
     if (v.venter_paa_svar) n.vederlag.venter_paa_svar += 1;
-    if (v.svar?.subsidiaert) n.vederlag.svar_subsidiaert_sum += v.svar.beloep;
+    if (v.svar?.subsidiaert && v.kravet_staar && !v.enighet)
+      n.vederlag.svar_subsidiaert_sum += v.svar.beloep;
     const e = v.enighet;
     if (e && e.virkning !== 'uten_virkning') {
       if (e.beloep === null) n.vederlag.enighet_uten_beloep += 1;
       else if (e.virkning === 'virksom') n.vederlag.enighet_virksom_sum += e.beloep;
       else n.vederlag.enighet_betinget_sum += e.beloep;
     }
-    if (l.frist.krav && staar(l.frist)) n.frist.krav_antall += 1;
+    if (l.frist.krav && l.frist.kravet_staar) n.frist.krav_antall += 1;
     if (l.frist.venter_paa_svar) n.frist.venter_paa_svar += 1;
   }
   return n;

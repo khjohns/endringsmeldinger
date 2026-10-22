@@ -54,19 +54,9 @@ export function iUtvalg(linje: Sakslinje, utvalg: Saksutvalg): boolean {
   }
 }
 
-/**
- * Kravet står slik nøkkeltallene teller det (`noekkeltall` i `server/saksliste.ts`,
- * feltene i #1029): saken er forstått og ikke avsluttet, og kravet er ikke trukket.
- */
-export function kravetStaar(linje: Sakslinje, spor: 'vederlag' | 'frist'): boolean {
-  return (
-    linje.forstaatt &&
-    linje[spor].krav !== null &&
-    linje.saksbetegnelse !== 'avslaget_paa_grunnlaget_godtatt' &&
-    linje.saksbetegnelse !== 'grunnlaget_trukket' &&
-    !linje[spor].etiketter.includes('trukket')
-  );
-}
+/** Kravet står slik nøkkeltallene teller det; serveren avgjør det (`kravet_staar`, #1068). */
+export const kravetStaar = (linje: Sakslinje, spor: 'vederlag' | 'frist'): boolean =>
+  linje[spor].kravet_staar;
 
 export function velgSaker(
   saker: readonly Sakslinje[],

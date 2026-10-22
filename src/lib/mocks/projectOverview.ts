@@ -27,16 +27,24 @@ function demolinje(sak: SakState): Sakslinje {
   const { grunnlag, vederlag, frist } = sak;
   const avslaatt = grunnlag.bh_resultat === 'avslatt';
   const virkning = grunnlag.bh_resultat === 'godkjent' ? 'virksom' : 'betinget';
-  const foreligger = (spor: Demospor, subsidiaert: boolean) => {
+  const foreligger = (spor: Demospor) => {
     const venter = harKrav(spor) && !spor.bh_resultat;
     const ikkeGodtatt = harKrav(spor) && !!spor.bh_resultat && !enige(spor);
+    // Rekkefølgen i MM-U30, for det demoen har.
+    const betegnelse =
+      spor.status === 'trukket' && spor.antall_versjoner > 0
+        ? ('trukket' as const)
+        : venter
+          ? ('venter_paa_svar' as const)
+          : enige(spor)
+            ? ('enige' as const)
+            : ikkeGodtatt
+              ? ('svar_ikke_godtatt' as const)
+              : harKrav(spor)
+                ? ('krav_sendt' as const)
+                : null;
     return {
-      etiketter: [
-        ...(venter ? ['venter_paa_svar'] : []),
-        ...(subsidiaert && spor.bh_resultat ? ['subsidiaert'] : []),
-        ...(enige(spor) ? [virkning === 'virksom' ? 'oppgjort' : 'enige_betinget'] : []),
-        ...(spor.status === 'trukket' ? ['trukket'] : []),
-      ],
+      betegnelse,
       venter_paa_svar: venter,
       svar_ikke_godtatt: ikkeGodtatt,
     };
@@ -45,6 +53,7 @@ function demolinje(sak: SakState): Sakslinje {
     (r === 'avslatt' ? 'avslaatt' : r === 'hold_tilbake' ? 'tilbakeholdelse' : r) as T;
   const vederlagSvar = harKrav(vederlag) && vederlag.bh_resultat;
   const fristSvar = harKrav(frist) && frist.bh_resultat;
+  const avsluttet = grunnlag.status === 'trukket' || (avslaatt && grunnlag.te_akseptert);
   const avgjort = [grunnlag, vederlag, frist].every((s) => !harKrav(s) || enige(s));
   return {
     sak_id: sak.sak_id,
@@ -64,14 +73,15 @@ function demolinje(sak: SakState): Sakslinje {
             : null,
     brev_utenfor_appen: false,
     grunnlag: {
-      ...foreligger(grunnlag, false),
+      ...foreligger(grunnlag),
       svar:
         harKrav(grunnlag) && grunnlag.bh_resultat
           ? { resultat: resultat(grunnlag.bh_resultat) }
           : null,
     },
     vederlag: {
-      ...foreligger(vederlag, avslaatt),
+      ...foreligger(vederlag),
+      kravet_staar: harKrav(vederlag) && vederlag.krevd_belop != null && !avsluttet,
       krav:
         harKrav(vederlag) && vederlag.krevd_belop != null
           ? { beloep: vederlag.krevd_belop, metode: 'tilbud' }
@@ -89,7 +99,8 @@ function demolinje(sak: SakState): Sakslinje {
       enighet: enige(vederlag) ? { beloep: vederlag.godkjent_belop ?? null, virkning } : null,
     },
     frist: {
-      ...foreligger(frist, avslaatt),
+      ...foreligger(frist),
+      kravet_staar: harKrav(frist) && frist.krevd_dager != null && !avsluttet,
       krav: harKrav(frist) && frist.krevd_dager != null ? { dager: frist.krevd_dager } : null,
       svar: fristSvar
         ? {

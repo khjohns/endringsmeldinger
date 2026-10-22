@@ -6,11 +6,23 @@ import WorkspaceHarness from '$lib/components/kontraktsbord/__tests__/WorkspaceH
 import { createDemoStore } from '$lib/mockup/store.svelte';
 import { demoNoekkeltall, lagSakslinje } from '$lib/mocks/sakslinje';
 
-const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
+const ingenting = {
+  betegnelse: null,
+  venter_paa_svar: false,
+  svar_ikke_godtatt: false,
+  kravet_staar: false,
+};
 const fristkrav = lagSakslinje({
   sak_id: 'KOE-2024-047',
   sakstittel: 'Endrede grunnforhold ved akse C5–C8',
-  frist: { ...ingenting, venter_paa_svar: true, krav: { dager: 45 }, svar: null, enighet: null },
+  frist: {
+    ...ingenting,
+    venter_paa_svar: true,
+    kravet_staar: true,
+    krav: { dager: 45 },
+    svar: null,
+    enighet: null,
+  },
 });
 const svart = lagSakslinje({
   sak_id: 'VEDERLAG-1',
@@ -18,6 +30,7 @@ const svart = lagSakslinje({
   vederlag: {
     ...ingenting,
     svar_ikke_godtatt: true,
+    kravet_staar: true,
     krav: { beloep: 1_000_000, metode: 'tilbud' },
     svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
     enighet: null,

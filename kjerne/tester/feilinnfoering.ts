@@ -2704,6 +2704,56 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F340',
+    feilklasse: '«Krav sendt» går foran «Enige» i rekkefølgen for betegnelsen (MM-U30, #1043)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  'enige',\n  'svar_ikke_godtatt',\n  'krav_sendt',\n",
+        "  'krav_sendt',\n  'enige',\n  'svar_ikke_godtatt',\n",
+      ],
+    ],
+    mal: ['en enighet i sporet går foran «Krav sendt»'],
+  },
+  {
+    id: 'F341',
+    feilklasse: 'en ubesvart forespørsel etter § 33.6.2 gir ikke betegnelsen (MM-U30, #1043)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['u.spor.frist.foresporsler.some((f) => f.svar === null)', 'false']],
+    mal: ['en ubesvart forespørsel etter § 33.6.2 går foran varselet'],
+  },
+  {
+    id: 'F342',
+    feilklasse:
+      'et trukket grunnlag gir «Trukket» i et spor der ingenting er sendt (GR-U25, #1137)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['u.spor[spor].trukket && sendt(u, spor)', 'u.spor[spor].trukket']],
+    mal: ['et trukket grunnlag gir ingen betegnelse i et spor der ingenting er sendt'],
+  },
+  {
+    id: 'F343',
+    feilklasse:
+      'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen også når sporet er lukket (MM-U31, #1137)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        '    !sporetErLukket(u, spor) &&\n    u.spor.frist.foresporsler',
+        '    u.spor.frist.foresporsler',
+      ],
+    ],
+    mal: ['en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget'],
+  },
+  {
+    id: 'F344',
+    feilklasse:
+      'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen etter at grunnlaget er trukket (MM-U31, #1137)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['    !u.spor.grunnlag.trukket &&\n', '']],
+    mal: [
+      'en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at grunnlaget er trukket',
+    ],
+  },
+  {
     id: 'F313',
     feilklasse: 'svarIkkeGodtatt leser ikke at sporet er lukket (SK-01, OV-U3, #1050)',
     fil: `${K}/utledning/utled.ts`,

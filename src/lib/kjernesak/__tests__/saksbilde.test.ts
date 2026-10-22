@@ -124,6 +124,17 @@ describe('saksbildet for en TS-sak', () => {
     });
   });
 
+  it('tar betegnelsen per spor fra visningen, med teksten i MM-U30', () => {
+    const { bilde, vist } = bildeAv(journal);
+    for (const s of bilde.spor)
+      expect(s.betegnelse?.kode ?? null).toBe(vist.spor[s.spor].betegnelse);
+    expect(bilde.spor.map((s) => s.betegnelse)).toEqual([
+      { kode: 'venter_paa_svar', tekst: 'Kravet venter på byggherrens svar' },
+      { kode: 'venter_paa_svar', tekst: 'Kravet venter på byggherrens svar' },
+      null,
+    ]);
+  });
+
   it('viser den frosne teksten i hvert brev, med utdypningen, og leveringsoppdragene koblet på hendelsen', () => {
     const { bilde } = bildeAv(journal, [oppdrag(v.event_id), oppdrag(g.event_id)]);
     const [rad1, rad2, rad3] = bilde.journal;
