@@ -190,6 +190,9 @@ FEILINNFOERINGER = [
     ("S48", "søket i tegntabellen avviser det siste kodepunktet i hvert intervall (#801)", "kjerne/format/skjema.ts",
      "else if (kode > SETTBARE_TEGN[2 * midt + 1])", "else if (kode >= SETTBARE_TEGN[2 * midt + 1])",
      "kjernen og `skriftFor` er enige om hvert kodepunkt"),
+    ("S49", "tegntabellen tar med skrift fra høyre mot venstre, som PDF-en setter baklengs (#801)", "server/tegnsett.ts",
+     "if (HOEYRE_MOT_VENSTRE.test(tegn) || SKILLETEGN.test(tegn))", "if (SKILLETEGN.test(tegn))",
+     "tabellen i kjernen er den `node server/tegnsett.ts` lager"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

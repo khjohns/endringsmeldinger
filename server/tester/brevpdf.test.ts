@@ -9,7 +9,7 @@ import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
 import { lesBrevPdf, skriftFor, skrivBrevPdf, TegnUtenforSkriften } from '../brevpdf.ts';
-import { TEGNSETTFIL, tegnsettfil } from '../tegnsett.ts';
+import { TEGNSETTFIL, tegnsettfil, utelatteTegn } from '../tegnsett.ts';
 import { brevdokument, gjengiOppdrag, UgjengivbartBrev } from '../levering.ts';
 
 const TIDSSTEMPEL = '2026-10-01T10:00:00.000Z';
@@ -199,11 +199,14 @@ function latin1(b: Uint8Array): string {
  * `kjerne/format/tegnsett.ts`. Tabellen og skriftene skal ikke gli fra hverandre.
  */
 describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
-  it('tabellen i kjernen er den `node server/tegnsett.ts` lager av skriftene', () => {
-    expect(readFileSync(TEGNSETTFIL, 'utf8'), 'kjør `node server/tegnsett.ts`').toBe(tegnsettfil());
-  });
+  it('tabellen i kjernen er den `node server/tegnsett.ts` lager av skriftene', async () => {
+    expect(readFileSync(TEGNSETTFIL, 'utf8'), 'kjør `node server/tegnsett.ts`').toBe(
+      await tegnsettfil()
+    );
+  }, 120000);
 
-  it('kjernen og `skriftFor` er enige om hvert kodepunkt', () => {
+  it('kjernen og `skriftFor` er enige om hvert kodepunkt, utenom tegnene PDF-en ikke gjengir tro', async () => {
+    const utelatt = await utelatteTegn();
     const settes = (tegn: string) => {
       try {
         skriftFor(tegn);
@@ -222,9 +225,26 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
       const tegn = String.fromCodePoint(kode);
       const kjernen = tegnSomIkkeKanVises(tegn, 'x') === null;
       if (kjernen) godtatt++;
-      if (kjernen !== settes(tegn)) uenige.push(kode.toString(16));
+      if (kjernen !== (settes(tegn) && !utelatt.has(kode))) uenige.push(kode.toString(16));
     }
     expect(uenige).toEqual([]);
     expect(godtatt, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
+  }, 120000);
+
+  it('arabisk skrift, U+2028 og en bokstav med prikk under, som PDF-en ikke gjengir tro, avvises', async () => {
+    // Kilden er rundturen: `abc اب def` kommer tilbake som `abc با def`, og «ọ» gir en glyf
+    // uten `ToUnicode`, så PDF-en kan ikke lages.
+    for (const tegn of ['ب', '\u2028', 'ọ']) {
+      const tekst = `abc ${tegn}${tegn === 'ب' ? 'ا' : ''} def`;
+      let tro: boolean;
+      try {
+        tro = lesBrevPdf(await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL))) === tekst;
+      } catch {
+        tro = false;
+      }
+      expect(tro, tegn).toBe(false);
+      expect(tegnSomIkkeKanVises(tekst, 'x'), tegn).not.toBeNull();
+    }
+    expect(tegnSomIkkeKanVises('Nguyễn, ø, æ, å, → og ∑', 'x')).toBeNull();
   }, 30000);
 });
