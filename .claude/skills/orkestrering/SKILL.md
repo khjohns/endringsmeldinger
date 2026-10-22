@@ -341,6 +341,10 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   PR-en. Stopper økta, av hvilken grunn som helst (ferdig, stoppgrensen eller
   venting på oppdragsgiver), sletter den påminnelsen med `delete_trigger`, så
   den ikke vekker en økt som har stoppet (oppdragsgiver 18.10, #777).
+  Avvises `send_later` (i byggeøkter med «lineage depth 8», #1031), skriver økta i
+  PR-en at påminnelsen ble avvist. Økta holder da selv øye med tiden og brukt
+  kontekst etter de samme grensene. Orkestratorens sjekk med `get_session` er
+  sikkerhetsnettet.
   Tilstanden skal gjøre det mulig å lese seg inn på nytt: vedtakene i
   hovedplanen, arbeidsvalgene i issuet, kravene i PR-beskrivelsen og hva som
   gjenstår (oppdragsgiver 14.10, #484).
