@@ -2732,6 +2732,21 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBe('SAGT_I_TIDE');
   });
 
+  it('HF-U4, VS-U29: etter «i tide» etter § 33.6.2 gir svaret på en senere kravversjon ikke opp innsigelsen mot begrunnelsen på nytt', () => {
+    const { s, b } = medBegrunnelse();
+    s.send('BH', { type: 'innsigelse', gjelder: b });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    // Delvis godkjent, så svaret ikke gir enighet og kravet kan endres (GR-U10).
+    const delvis = [
+      { ...FRIST_FULLT[0], dager: 10, foresporsel_svar_ok: true },
+      { resultat: 'delvis_godkjent', godkjent_dager: 10 },
+    ] as const;
+    const foerste = fristsvar(s, ...delvis);
+    expect(laast(foerste)[0], 'kontrollsak: det første svaret').toContain('gir opp innsigelsen');
+    s.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 25 }, utdypning: 'Mer.' });
+    expect(laast(fristsvar(s, ...delvis))[0]).not.toContain('innsigelsen');
+  });
+
   it('VS-U29, VS-U11: etter en innsigelse mot begrunnelsen må svaret på kravet gjenta den eller gi den opp', () => {
     const { s, b } = medBegrunnelse();
     s.send('BH', { type: 'innsigelse', gjelder: b });
@@ -2744,21 +2759,32 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     ).toBe('UGYLDIG_VURDERING');
   });
 
-  it('VS-U29, HF-U4: et standpunkt om kravet som svarer på en annen forespørsel, gir ikke opp innsigelsen mot begrunnelsen', () => {
-    // VS-U30 stanser en ny forespørsel etter begrunnelsen, men to kan være sendt før den.
-    const { s, f } = medForesporsel();
-    s.send('BH', foresporsel);
-    const b = id(s.send('TE', { type: 'foresporselssvar', gjelder: f, utdypning: begrunnelseB }));
-    s.send('BH', { type: 'innsigelse', gjelder: b });
-    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
-    const rad = fristsvar(s, { ...FRIST_FULLT[0], foresporsel_svar_ok: true }, FRIST_FULLT[1]);
-    expect(laast(rad)[0]).not.toContain('gir opp innsigelsen');
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: b })).toBeNull();
+  it('VS-U31: en ny forespørsel fra appen avvises når saken alt har en, også før TE har svart', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    expect(s.avvist('BH', foresporsel), 'kontrollsak: ingen forespørsel').toBeNull();
+    const { s: medF } = medForesporsel();
+    expect(medF.avvist('BH', foresporsel)).toBe('FORESPORSEL_SENDT');
+  });
+
+  it('VS-U31: en lest rad med en andre forespørsel gjør saken ikke forstått', () => {
+    const andre = { utsagn: [{ id: randomUUID(), art: 'foresporsel', hjemmel: '33.6.2' }] };
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.rad('BH', andre);
+    expect(s.u().forstaatt, 'kontrollsak: én forespørsel').toBe(true);
+    const { s: medF } = medForesporsel();
+    medF.rad('BH', andre);
+    const u = medF.u();
+    expect(u.forstaatt).toBe(false);
+    expect(u.begrensninger.map((b) => b.grunn)).toContain(
+      'saken har alt en forespørsel etter § 33.6.2 fra appen (VS-U31)'
+    );
   });
 
   it('VS-U30: etter TEs begrunnelse avvises en ny forespørsel fra appen', () => {
     const { s } = medForesporsel();
-    expect(s.avvist('BH', foresporsel), 'kontrollsak: før begrunnelsen').toBeNull();
+    expect(s.avvist('BH', foresporsel), 'kontrollsak: før begrunnelsen').toBe('FORESPORSEL_SENDT');
     const { s: medB } = medBegrunnelse();
     expect(medB.avvist('BH', foresporsel)).toBe('FORESPORSEL_BEGRUNNET');
   });
