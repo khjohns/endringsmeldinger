@@ -727,7 +727,7 @@ Når medlemslisten for prosjektet sist ble hentet, og fra hvilket Catenda-prosje
 
 ### `koe.sak_metadata`
 
-Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sletting. Sakslisten leser sakene i prosjektet med journalen gjennom `koe_api.saksliste`, under radsikkerheten, fra `server/saksliste.ts` (#1022).
+Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og sletting. Sakslisten leser sakene i prosjektet med journalen gjennom `koe_api.saksliste`, under radsikkerheten, fra `server/saksliste.ts` (#1022). Tilgangskontrollen leser om sakene det vises til er i prosjektet, uavhengig av siden, med `koe_api.saker_i_prosjektet` fra `server/autorisasjon.ts` (#1106).
 
 | Felt | Innhold |
 | --- | --- |
@@ -835,7 +835,7 @@ Kvitteringen per kommando (invariant 4, #418): kommando-ID-en klienten gir, summ
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `koe_api.kvittering`, kalt fra `skrivHendelse` og `opprettSak` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker` og `POST /api/kjerne/saker/<sak_id>/kommandoer`. |
+| Hvor fra appen lagres og redigeres | `koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `koe_api.kvittering`, kalt fra `skrivHendelse` og `opprettSak` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker` og `POST /api/kjerne/saker/<sak_id>/kommandoer`. Innboksen leser saken i kvitteringen uavhengig av siden med `koe_api.kvittert_sak`, fra `kvittertSak` i `server/kommandoer.ts` (#1106). |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id, aktor_id, kommando_id); unik (event_id). Viser til: aktor_id → koe.app_users.id (uten fremmednøkkel); (event_id, sak_id, prosjekt_id) → koe.hendelse.(event_id, sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.(kvittering_prosjekt_id, kvittering_aktor_id, kvittering_kommando_id) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |

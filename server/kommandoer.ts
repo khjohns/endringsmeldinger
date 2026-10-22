@@ -177,24 +177,28 @@ async function lesKvittering(
 
 /**
  * Saken fra kvitteringen for kommandoen, eller `null` når kommandoen ikke er skrevet.
- * Kvitteringen gjelder aktøren og prosjektet, ikke teamet, så et nytt forsøk får saken
- * selv om forfatterens team er endret siden (#963). Lesefilteret krever en side med et
- * kontraktsteam i prosjektet, eller leserollen (#1056); uten det gir oppslaget `null`.
+ * Kvitteringen gjelder aktøren og prosjektet, ikke siden eller teamet, så et nytt forsøk
+ * får saken selv om forfatterens team er endret siden, eller prosjektet har mistet
+ * kontraktsteamet (#963, #1106). `koe_api.kvittert_sak` leser den med bare aktøren og
+ * prosjektet i konteksten.
  *
  * @throws KommandoIdBrukt, LaasIkkeGitt, LaasFeilet, UgyldigKontekst
  */
 export async function kvittertSak(
   pool: Pool,
-  kontekst: Pick<Kontekst, 'aktor' | 'prosjekt'> & Required<Pick<Kontekst, 'side'>>,
+  kontekst: Pick<Kontekst, 'aktor' | 'prosjekt'>,
   kommando: Kommando
 ): Promise<string | null> {
   try {
     // Bare lesing: rulles tilbake, så utfallet aldri blir usikkert av en COMMIT.
-    return await transaksjon<string | null>(
-      pool,
-      kontekst,
-      async (foresp) => new Tilbakerulling((await lesKvittering(foresp, kommando))?.sak_id ?? null)
-    );
+    return await transaksjon<string | null>(pool, kontekst, async (foresp) => {
+      const svar = await foresp()
+        .input('kommando_id', sql.NVarChar(4000), kommando.id)
+        .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
+        .output('sak_id', sql.NVarChar(36))
+        .execute('koe_api.kvittert_sak');
+      return new Tilbakerulling((svar.output as { sak_id: string | null }).sak_id);
+    });
   } catch (feil) {
     throw oversett(feil, null);
   }

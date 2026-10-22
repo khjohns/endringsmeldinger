@@ -530,6 +530,46 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await utfallFor(kontroll)).toEqual([expect.objectContaining({ utfall: 'ukjent_side' })]);
   });
 
+  it('#1106: et nytt forsøk etter en lagret sak gir saken fra kvitteringen, også når prosjektet har mistet TE-teamet', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
+    const rad = (await nesteInnkommende(avh.datalag))!;
+    const foerste = await behandle({ datalag: avh.datalag, catenda: innboks }, rad);
+    expect(foerste.utfall).toBe('sak_opprettet');
+    const teamene = (
+      await somEier<{ team_id: string; contract_role: string }>(
+        `SELECT team_id, contract_role FROM koe.catenda_contract_teams
+          WHERE internal_project_id = @p AND contract_role = N'TE'`,
+        { p: o.prosjekt.id }
+      )
+    ).recordset;
+    expect(teamene.length, 'forutsetning: prosjektet har et TE-team').toBeGreaterThan(0);
+    await somEier(
+      `DELETE koe.catenda_contract_teams WHERE internal_project_id = @p AND contract_role = N'TE'`,
+      { p: o.prosjekt.id }
+    );
+    try {
+      expect(await behandle({ datalag: avh.datalag, catenda: innboks }, rad)).toEqual(foerste);
+      expect(await behandleEnHendelse(senere(1))).toBe(true);
+      expect(await utfallFor(id)).toEqual([
+        expect.objectContaining({ utfall: 'sak_opprettet', sak_id: foerste.sakId }),
+      ]);
+      // Kontrollsak: uten kvittering gir samme forfatter nå ingen side.
+      const kontroll = await motta(kropp(randomUUID()));
+      expect(await behandleEnHendelse(senere(2))).toBe(true);
+      expect(await utfallFor(kontroll)).toEqual([
+        expect.objectContaining({ utfall: 'ukjent_side' }),
+      ]);
+    } finally {
+      for (const t of teamene)
+        await somEier(
+          `INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role)
+           VALUES (@p, @t, @r)`,
+          { p: o.prosjekt.id, t: t.team_id, r: t.contract_role }
+        );
+    }
+  });
+
   /**
    * Innboksoppslagene med `nye` lagt til i Catenda etter siste synkronisering, og
    * `iTeTeamet` av dem i TE-teamet. `hentinger` teller kallene på medlemslisten.
