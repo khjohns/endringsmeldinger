@@ -6,7 +6,13 @@
  */
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { lesBrevPdf, settesMedGlyfen, skriftenesKodepunkter, skrivBrevPdf } from './brevpdf.ts';
+import {
+  kodepunkterMedDeltGlyf,
+  lesBrevPdf,
+  settesMedGlyfen,
+  skriftenesKodepunkter,
+  skrivBrevPdf,
+} from './brevpdf.ts';
 
 export const TEGNSETTFIL = new URL('../kjerne/format/tegnsett.ts', import.meta.url);
 
@@ -30,7 +36,7 @@ async function ikkeTro(koder: number[]): Promise<number[]> {
   try {
     if (lesBrevPdf(await skrivBrevPdf(tekst, 'tegnsett', new Date(0))) === tekst) return [];
   } catch {
-    // En glyf uten `ToUnicode` gjør at PDF-en ikke kan lages; tegnet finnes ved delingen under.
+    // `lesBrevPdf` kaster for en glyf uten `ToUnicode`; tegnet finnes ved delingen under.
   }
   if (koder.length === 1) return koder;
   const midt = koder.length >> 1;
@@ -41,12 +47,12 @@ let utelatte: Promise<Set<number>> | undefined;
 
 /**
  * Tegnene skriftene har, men som PDF-en ikke gjengir tro, så brevet ikke kan leveres (#801):
- * skrift fra høyre mot venstre, U+2028 og U+2029, og tegnene som ikke kommer tilbake fra
- * `lesBrevPdf` som de ble skrevet med `skrivBrevPdf`.
+ * skrift fra høyre mot venstre, U+2028 og U+2029, kodepunkter som deler glyf, og tegnene som
+ * ikke kommer tilbake fra `lesBrevPdf` som de ble skrevet med `skrivBrevPdf`.
  */
 export function utelatteTegn(): Promise<Set<number>> {
   return (utelatte ??= (async () => {
-    const ut = new Set<number>();
+    const ut = kodepunkterMedDeltGlyf();
     const proeves: number[] = [];
     for (const kode of [...skriftenesKodepunkter()].sort((a, b) => a - b)) {
       const tegn = String.fromCodePoint(kode);

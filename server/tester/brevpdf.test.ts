@@ -231,20 +231,28 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
     expect(godtatt, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
   }, 120000);
 
-  it('arabisk skrift, U+2028 og en bokstav med prikk under, som PDF-en ikke gjengir tro, avvises', async () => {
-    // Kilden er rundturen: `abc اب def` kommer tilbake som `abc با def`, og «ọ» gir en glyf
-    // uten `ToUnicode`, så PDF-en kan ikke lages.
-    for (const tegn of ['ب', '\u2028', 'ọ']) {
-      const tekst = `abc ${tegn}${tegn === 'ب' ? 'ا' : ''} def`;
-      let tro: boolean;
-      try {
-        tro = lesBrevPdf(await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL))) === tekst;
-      } catch {
-        tro = false;
-      }
-      expect(tro, tegn).toBe(false);
-      expect(tegnSomIkkeKanVises(tekst, 'x'), tegn).not.toBeNull();
+  it('hvert tegn kjernen godtar, kommer tilbake fra PDF-en som det ble skrevet, også sammen med de andre', async () => {
+    // Kilden er LV-U2: PDF-en skal gjengi brevteksten tro. Ett brev med alle tegnene, så et
+    // tegn som deler glyf med et annet eller endres av en substitusjon, også blir funnet.
+    const linjer = ['ﬁ og fi', 'i\u0301 og ı', 'Thị, ọ og ẹ', 'a\u0328 og ą', 'ö og o\u0308'];
+    for (let kode = 0x21; kode <= 0x2ffff; kode++) {
+      if (kode >= 0xd800 && kode <= 0xdfff) continue;
+      const tegn = String.fromCodePoint(kode);
+      if (tegnSomIkkeKanVises(tegn, 'x') !== null || /\p{Default_Ignorable_Code_Point}/u.test(tegn))
+        continue;
+      linjer.push(/\p{M}/u.test(tegn) ? `a a${tegn} b` : `a ${tegn} b`);
     }
-    expect(tegnSomIkkeKanVises('Nguyễn, ø, æ, å, → og ∑', 'x')).toBeNull();
-  }, 30000);
+    for (const linje of linjer.slice(0, 5))
+      expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
+    const tekst = linjer.join('\n');
+    const tilbake = lesBrevPdf(await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL))).split('\n');
+    expect(tilbake.filter((l, i) => l !== linjer[i])).toEqual([]);
+    expect(linjer.length, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
+  }, 120000);
+
+  it('arabisk skrift, U+2028 og en matematisk bokstav som deler glyf med en annen, avvises', () => {
+    // `abc اب def` kommer tilbake som `abc با def`, og 𝗔 (U+1D5D4) som 𝐀 (U+1D400).
+    for (const tegn of ['ب', '\u2028', '𝗔', '𝐀'])
+      expect(tegnSomIkkeKanVises(`abc ${tegn} def`, 'x'), tegn).not.toBeNull();
+  });
 });

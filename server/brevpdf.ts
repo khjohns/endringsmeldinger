@@ -51,6 +51,31 @@ export function skriftenesKodepunkter(): Set<number> {
 }
 
 /**
+ * Kodepunktene som deler glyf med et annet kodepunkt i skriften `skriftFor` velger. PDF-en
+ * gir glyfen tilbake som det første av dem brevet bruker, så de utelates i kjernen (#801).
+ */
+export function kodepunkterMedDeltGlyf(): Set<number> {
+  const perGlyf = new Map<string, number[]>();
+  for (const kode of skriftenesKodepunkter()) {
+    let skrift: number;
+    try {
+      skrift = skriftFor(String.fromCodePoint(kode));
+    } catch {
+      continue;
+    }
+    const glyf = `${skrift}:${skrifter()[skrift].tegnsett.glyphForCodePoint(kode).id}`;
+    perGlyf.set(glyf, [...(perGlyf.get(glyf) ?? []), kode]);
+  }
+  return new Set([...perGlyf.values()].filter((k) => k.length > 1).flat());
+}
+
+/**
+ * Uten substitusjonene i GSUB: en ligatur som «ﬁ» og en oppdeling i `ccmp` gir glyfer uten
+ * `ToUnicode` eller med `ToUnicode` for et annet tegn, så PDF-en ikke gjengir brevet tro (#801).
+ */
+const UTEN_SUBSTITUSJON = { ccmp: false, liga: false, clig: false, calt: false, rlig: false };
+
+/**
  * fontkit der mykt bindestrek settes med glyfen skriften har for det, så `ToUnicode` gir
  * U+00AD tilbake (orkestratoren 18.10, #802). fontkit selv setter det som mellomrom.
  * Endringen går gjennom en privat del av fontkit, så `create` kaster hvis den ikke virker.
@@ -180,7 +205,9 @@ export async function skrivBrevPdf(
   const brukt = new Set(loep(normalisert.replace(/\n/g, '')).map((l) => l.skrift));
   // En skrift som ikke brukes, bygges ikke inn, så brev uten reservetegn er uendret.
   const innbygd = await Promise.all(
-    skrifter().map((s, i) => (brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true }) : null))
+    skrifter().map((s, i) =>
+      brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true, features: UTEN_SUBSTITUSJON }) : null
+    )
   );
   const settes = (t: string) =>
     loep(t).map((l) => {

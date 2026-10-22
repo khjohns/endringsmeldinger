@@ -193,6 +193,12 @@ FEILINNFOERINGER = [
     ("S49", "tegntabellen tar med skrift fra høyre mot venstre, som PDF-en setter baklengs (#801)", "server/tegnsett.ts",
      "if (HOEYRE_MOT_VENSTRE.test(tegn) || SKILLETEGN.test(tegn))", "if (SKILLETEGN.test(tegn))",
      "tabellen i kjernen er den `node server/tegnsett.ts` lager"),
+    ("S50", "PDF-en setter ligaturer og oppdelinger fra GSUB, som ikke leses tilbake tro (#801)", "server/brevpdf.ts",
+     "{ subset: true, features: UTEN_SUBSTITUSJON }", "{ subset: true }",
+     "hvert tegn kjernen godtar, kommer tilbake fra PDF-en"),
+    ("S51", "tegntabellen tar med kodepunkter som deler glyf med et annet (#801)", "server/tegnsett.ts",
+     "const ut = kodepunkterMedDeltGlyf();", "const ut = new Set<number>();",
+     "tabellen i kjernen er den `node server/tegnsett.ts` lager"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
