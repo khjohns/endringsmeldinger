@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { apiFetch, clearCsrfToken, setActiveProjectId } from './client';
+import { apiFetch, clearCsrfToken, NETTFEIL, setActiveProjectId } from './client';
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -145,4 +145,18 @@ it('does not let a delayed token response repopulate the cache after it was clea
   await apiFetch('/api/events', { method: 'POST' });
   expect(tokens.at(-1)).toBe('current-session');
   expect(tokenRequests).toBe(2);
+});
+
+// Kilde: AGENTS.md, «Språk»: grensesnittet er på bokmål, og en feilmelding sier hva som hindrer (#1151).
+it('et brutt nett gir meldingen på bokmål, ikke den engelske «Network error» (#1151)', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+  await expect(apiFetch('/api/saker')).rejects.toMatchObject({ status: 0, message: NETTFEIL });
+});
+
+it('et brutt nett under hentingen av CSRF-tokenet gir samme melding (#1151)', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+  await expect(apiFetch('/api/events', { method: 'POST' })).rejects.toMatchObject({
+    status: 0,
+    message: NETTFEIL,
+  });
 });

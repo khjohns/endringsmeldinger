@@ -77,6 +77,9 @@ export function clearCsrfToken() {
   csrfTokenPromise = null;
 }
 
+/** Meldingen når serveren ikke svarer fordi nettet er brutt (#1151). */
+export const NETTFEIL = 'Serveren kunne ikke nås. Kontroller nettforbindelsen og prøv igjen.';
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -176,8 +179,7 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     throw new ApiError(403, 'Kunne ikke bekrefte sesjonen.');
   } catch (error) {
     if (error instanceof ApiError) throw error;
-    if (error instanceof TypeError)
-      throw new ApiError(0, 'Network error: Could not connect to server');
+    if (error instanceof TypeError) throw new ApiError(0, NETTFEIL);
     throw new ApiError(500, error instanceof Error ? error.message : 'Unknown error');
   }
 }
