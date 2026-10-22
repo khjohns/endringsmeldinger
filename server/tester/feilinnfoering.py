@@ -292,8 +292,9 @@ def main(rot: Path) -> int:
         return 1
     if sys.argv[1] == "--ankre":
         return 1 if kontroller_ankre(Path(__file__).resolve().parents[2], valgt) else 0
-    if kontroller_ankre(rot, valgt):
-        return 1
+    # Som kjernedriveren (#967 punkt 1): en feilinnføring med ankerfeil hoppes over og
+    # meldes på slutten, så de andre kjøres. Kjøringen er rød likevel.
+    uten_anker = kontroller_ankre(rot, valgt)
     if not os.environ.get("KOE_SQLSERVER_TILKOBLING"):
         print("KOE_SQLSERVER_TILKOBLING er ikke satt; databasetestene ville hoppet over seg selv")
         return 1
@@ -305,7 +306,7 @@ def main(rot: Path) -> int:
         return 1
     mislykket = []
     for id_, hva, fil, fra, til, forventet in FEILINNFOERINGER:
-        if valgt and id_ not in valgt:
+        if (valgt and id_ not in valgt) or id_ in uten_anker:
             continue
         sti = rot / fil
         kilde = sti.read_text()
@@ -326,7 +327,9 @@ def main(rot: Path) -> int:
             print("   ", linje[:160])
         if not oppdaget and id_ not in FORVENTET_OVERLEVER:
             mislykket.append(id_)
-    return 1 if mislykket else 0
+    if uten_anker:
+        print("hoppet over fordi ankeret ikke virker:", " ".join(uten_anker))
+    return 1 if mislykket or uten_anker else 0
 
 
 if __name__ == "__main__":

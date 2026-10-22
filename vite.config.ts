@@ -42,8 +42,12 @@ export default defineConfig({
   // Ett prosjekt per del, så oppsettet kjøres bare når en fil i delen er med: Testing
   // Library bare for frontenden, og malen for SQL Server-basene bare for serveren (#930, #934).
   test: {
+    // Hele kjøringen deler prosessorene med SQL Server, og tester på 2–5 s alene gikk over
+    // standardgrensene på 5 og 10 s under last (#1015, #1102). Et tidsavbrudd er ingen
+    // assertion, så en høyere grense gjør ingen test grønn; en test som henger, feiler senere.
+    testTimeout: 20_000,
     // Prosjektene arver grensen herfra; `--hookTimeout` når dem ikke (feilinnfoering.ts).
-    ...(process.env.KOE_HOOKGRENSE && { hookTimeout: Number(process.env.KOE_HOOKGRENSE) }),
+    hookTimeout: Number(process.env.KOE_HOOKGRENSE) || 30_000,
     projects: [
       {
         extends: true,

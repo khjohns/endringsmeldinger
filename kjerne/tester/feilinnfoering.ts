@@ -2952,8 +2952,8 @@ function kjoerVitest(
         // Filene deler modulene i en arbeider. Kontrollkjøringen viser at hele samlingen er
         // grønn slik; et utvalg grupperer filene annerledes (#934).
         '--no-isolate',
-        // Kopiene deler prosessorene. Et tidsavbrudd er ikke en assertion og kan bare
-        // gi «IKKE OPPDAGET» eller rød kontroll, så grensen heves over standarden på 5 s.
+        // Kopiene deler prosessorene. Et tidsavbrudd er ikke en assertion og gir en ny
+        // kjøring (#1015), så grensen heves over den i `vite.config.ts`.
         '--testTimeout=60000',
         // Prosessorene deles mellom kopiene, ikke ganges med dem.
         `--maxWorkers=${arbeiderePerKopi}`,
@@ -3019,8 +3019,20 @@ function lagArbeidskopier(antall: number): Arbeidskopi[] {
   });
 }
 
-/** Utfallet av én mutasjon: om den ble oppdaget, og linjene som forklarer det. */
-function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): [boolean, string[]] {
+/** Meldingen Vitest gir når en test eller en hook går over grensen sin. */
+const TIDSAVBRUDD = /\b(Test|Hook) timed out in \d+ms/;
+
+/**
+ * Utfallet av én mutasjon. `tidsavbrudd` er satt når den ikke ble oppdaget og en test eller
+ * en hook gikk over grensen: da er utfallet uavgjort, ikke en overlevende mutasjon (#1122).
+ */
+interface Utfall {
+  oppdaget: boolean;
+  tidsavbrudd: boolean;
+  linjer: string[];
+}
+
+function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
   const feilet = rapport.testResults
     .flatMap((f) => f.assertionResults)
     .filter((t) => t.status === 'failed');
@@ -3032,45 +3044,69 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): [boolean, string
   );
   const manglerMal = m.mal.filter((mal) => !feilet.some((t) => treffer(t.fullName, mal)));
   const oppdaget = !suitefeil.length && !ikkeAssertion.length && !manglerMal.length;
-  return [
+  const tidsavbrudd =
+    !oppdaget &&
+    [...ikkeAssertion.flatMap((t) => t.failureMessages), ...suitefeil.map((f) => f.message)].some(
+      (melding) => TIDSAVBRUDD.test(melding)
+    );
+  return {
     oppdaget,
-    [
-      `\n${m.id} ${m.feilklasse}: ${oppdaget ? 'oppdaget' : 'IKKE OPPDAGET'}`,
+    tidsavbrudd,
+    linjer: [
+      `\n${m.id} ${m.feilklasse}: ${oppdaget ? 'oppdaget' : tidsavbrudd ? 'IKKE AVGJORT (tidsavbrudd)' : 'IKKE OPPDAGET'}`,
       ...m.endringer.map(([fra, til]) => `  ${m.fil}: ${fra.trim()} → ${til.trim()}`),
       ...feilet.map((t) => `  feilet: ${t.fullName}\n    ${t.failureMessages[0]?.split('\n')[0]}`),
       ...suitefeil.map(
         (f) => `  suitefeil: ${relative(k.rot, f.name)}: ${f.message.split('\n')[0]}`
       ),
-      ...ikkeAssertion.map((t) => `  ikke en assertion: ${t.fullName}`),
+      ...ikkeAssertion.map(
+        (t) =>
+          `  ${TIDSAVBRUDD.test(t.failureMessages.join('\n')) ? 'tidsavbrudd' : 'ikke en assertion'}: ${t.fullName}`
+      ),
       ...manglerMal.map((mal) => `  målet feilet ikke: ${mal}`),
     ],
-  ];
+  };
 }
 
-/** Kjører mutasjonene i `koe` etter hverandre i `k`, til køen er tom. Feiler én, tømmes køen. */
+/** Kjører `m` i `k` og fjerner mutasjonen igjen. */
+async function kjoerMutasjon(m: Mutasjon, k: Arbeidskopi): Promise<Utfall> {
+  const fil = join(k.rot, m.fil);
+  const original = readFileSync(fil, 'utf8');
+  try {
+    writeFileSync(
+      fil,
+      m.endringer.reduce((t, [fra, til]) => t.replace(fra, til), original)
+    );
+    return vurder(m, await kjoerVitest(k, filerFor(m)), k);
+  } finally {
+    writeFileSync(fil, original);
+  }
+}
+
+/**
+ * Kjører mutasjonene i `koe` etter hverandre i `k`, til køen er tom. Feiler én, tømmes køen.
+ * Et tidsavbrudd gir én kjøring til, og den andre kjøringen avgjør utfallet (#1015).
+ */
 async function arbeider(
   k: Arbeidskopi,
   koe: Mutasjon[],
-  utfall: Map<string, [boolean, string[]]>,
+  utfall: Map<string, Utfall>,
   antall: number
 ) {
   for (let m = koe.shift(); m; m = koe.shift()) {
-    const fil = join(k.rot, m.fil);
-    const original = readFileSync(fil, 'utf8');
-    let rapport: Rapport;
+    let u: Utfall;
     try {
-      writeFileSync(
-        fil,
-        m.endringer.reduce((t, [fra, til]) => t.replace(fra, til), original)
-      );
-      rapport = await kjoerVitest(k, filerFor(m));
+      u = await kjoerMutasjon(m, k);
+      if (u.tidsavbrudd) {
+        console.error(`${m.id} fikk tidsavbrudd og kjøres én gang til`);
+        const andre = await kjoerMutasjon(m, k);
+        u = { ...andre, linjer: [...andre.linjer, '  første kjøring fikk tidsavbrudd'] };
+      }
     } catch (e) {
       koe.length = 0;
       throw e;
-    } finally {
-      writeFileSync(fil, original);
     }
-    utfall.set(m.id, vurder(m, rapport, k));
+    utfall.set(m.id, u);
     console.error(`${m.id} kjørt (${utfall.size}/${antall})`);
   }
 }
@@ -3086,16 +3122,18 @@ if (doble.length) throw new Error(`Feilinnføringene har samme ID: ${doble.join(
 const valgte = MUTASJONER.filter((m) => !valgt.length || valgt.includes(m.id));
 // Endringene i én feilinnføring gjøres etter hverandre, så hvert anker slås opp i teksten
 // slik den er etter de foregående.
-const ankerfeil = valgte.flatMap((m) => {
-  let tekst = readFileSync(m.fil, 'utf8');
-  return m.endringer.flatMap(([fra, til]) => {
-    if (tekst.split(fra).length !== 2)
-      return [`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`];
-    tekst = tekst.replace(fra, til);
-    return [];
-  });
-});
-if (ankerfeil.length) throw new Error(ankerfeil.join('\n'));
+const ankerfeil = new Map(
+  valgte.flatMap((m) => {
+    let tekst = readFileSync(m.fil, 'utf8');
+    const feil = m.endringer.flatMap(([fra, til]) => {
+      if (tekst.split(fra).length !== 2)
+        return [`${m.id}: «${fra}» finnes ikke nøyaktig én gang i ${m.fil}`];
+      tekst = tekst.replace(fra, til);
+      return [];
+    });
+    return feil.length ? [[m.id, feil] as const] : [];
+  })
+);
 const delform = /^(\d+)\/(\d+)$/.exec(process.env.FEILINNFOERING_DEL ?? '1/1');
 const [del, deler] = [Number(delform?.[1]), Number(delform?.[2])];
 if (!delform || del < 1 || del > deler)
@@ -3115,7 +3153,11 @@ const malfeil = valgte.flatMap((m) => [
     ),
 ]);
 if (malfeil.length) throw new Error(malfeil.join('\n'));
-const mutasjoner = valgte.filter((_, i) => i % deler === del - 1);
+const delen = valgte.filter((_, i) => i % deler === del - 1);
+// #967 punkt 1: en feilinnføring med ankerfeil hoppes over og meldes på slutten, så de andre
+// kjøres. Kjøringen er rød likevel.
+const mutasjoner = delen.filter((m) => !ankerfeil.has(m.id));
+const ankerfeilIDelen = delen.flatMap((m) => ankerfeil.get(m.id) ?? []);
 // Avgjort av oppdragsgiver 19.10 (#934): på en PR kjører hver mutasjon bare filene med
 // målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele.
 const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
@@ -3138,11 +3180,15 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
     process.exit(128 + constants.signals[signal]);
   });
 
-if (bareAnkre)
-  console.log(
-    `Ankrene i ${valgte.length} feilinnføringer finnes nøyaktig én gang, og målene er deler av navnene på ${navn.length} tester.`
-  );
-else
+if (bareAnkre) {
+  if (ankerfeil.size) {
+    console.log([...ankerfeil.values()].flat().join('\n'));
+    process.exitCode = 1;
+  } else
+    console.log(
+      `Ankrene i ${valgte.length} feilinnføringer finnes nøyaktig én gang, og målene er deler av navnene på ${navn.length} tester.`
+    );
+} else
   try {
     // Ikke `process.exit`: den venter ikke på at stdout er tømt når den går i et rør,
     // og i CI ble slutten av utfallene borte.
@@ -3155,15 +3201,12 @@ async function kjoer(): Promise<number> {
   const kopier = lagArbeidskopier(antallKopier);
   // Kontrollen kjøres i hver kopi, så en kopi som avviker, stopper
   // kjøringen før noen mutasjon.
-  const kontroller = await Promise.all(kopier.map((k) => kjoerVitest(k)));
+  const kontroller = await Promise.all(kopier.map((k) => kontrollkjoering(k)));
   const antallTester = new Set<number>();
-  for (const kontroll of kontroller) {
+  for (const [i, kontroll] of kontroller.entries()) {
     const kontrolltester = kontroll.testResults.flatMap((f) => f.assertionResults);
-    const kontrollfeil = kontrolltester.filter((t) => t.status === 'failed');
-    if (kontrollfeil.length || kontroll.testResults.some((f) => f.status === 'failed'))
-      throw new Error(
-        `Kontrollkjøringen er ikke grønn: ${kontrollfeil.map((t) => `${t.fullName}: ${t.failureMessages[0]?.split('\n')[0]}`).join('; ')}`
-      );
+    const feil = kontrollfeil(kontroll, kopier[i]);
+    if (feil.length) throw new Error(`Kontrollkjøringen er ikke grønn: ${feil.join('; ')}`);
     // #353: en hoppet test er ikke grønn. Uten testbasen hoppes lagringstestene over, og en
     // mutasjon med mål der ville ellers ikke kunne oppdages.
     const hoppet = kontrolltester.filter((t) => t.status !== 'passed');
@@ -3182,20 +3225,45 @@ async function kjoer(): Promise<number> {
   );
 
   const koe = [...mutasjoner];
-  const utfall = new Map<string, [boolean, string[]]>();
+  const utfall = new Map<string, Utfall>();
   const arbeidere = await Promise.allSettled(
     kopier.map((k) => arbeider(k, koe, utfall, mutasjoner.length))
   );
   for (const a of arbeidere) if (a.status === 'rejected') throw a.reason;
 
-  let alleOppdaget = true;
-  for (const m of mutasjoner) {
-    const [oppdaget, linjer] = utfall.get(m.id)!;
-    alleOppdaget &&= oppdaget;
-    console.log(linjer.join('\n'));
-  }
+  const ikkeOppdaget = mutasjoner.filter((m) => !utfall.get(m.id)!.oppdaget);
+  const uavgjort = ikkeOppdaget.filter((m) => utfall.get(m.id)!.tidsavbrudd);
+  for (const m of mutasjoner) console.log(utfall.get(m.id)!.linjer.join('\n'));
+  if (ankerfeilIDelen.length)
+    console.log(`\nHoppet over fordi ankeret ikke finnes:\n${ankerfeilIDelen.join('\n')}`);
   console.log(
-    `\n${alleOppdaget ? 'Alle mutasjonene ble oppdaget.' : 'Ikke alle mutasjonene ble oppdaget.'}`
+    ikkeOppdaget.length
+      ? `\nIkke alle mutasjonene ble oppdaget: ${ikkeOppdaget.length - uavgjort.length} overlevde, ${uavgjort.length} fikk tidsavbrudd to ganger.`
+      : `\nAlle mutasjonene${ankerfeilIDelen.length ? ' som ble kjørt,' : ''} ble oppdaget.`
   );
-  return alleOppdaget ? 0 : 1;
+  return ikkeOppdaget.length || ankerfeilIDelen.length ? 1 : 0;
+}
+
+/** Hver test eller fil som feilet, med den første linjen i feilen. */
+function kontrollfeil(kontroll: Rapport, k: Arbeidskopi): string[] {
+  return kontroll.testResults.flatMap((f) => {
+    const feilet = f.assertionResults.filter((t) => t.status === 'failed');
+    if (feilet.length)
+      return feilet.map((t) => `${t.fullName}: ${t.failureMessages[0]?.split('\n')[0]}`);
+    return f.status === 'failed' ? [`${relative(k.rot, f.name)}: ${f.message.split('\n')[0]}`] : [];
+  });
+}
+
+/**
+ * Kontrollkjøringen i `k`. Feiler den bare på tidsavbrudd, kjøres den én gang til, og den
+ * andre kjøringen gjelder (#1122, E2-2 i del 4).
+ */
+async function kontrollkjoering(k: Arbeidskopi): Promise<Rapport> {
+  const forste = await kjoerVitest(k);
+  const feil = kontrollfeil(forste, k);
+  if (!feil.length || !feil.every((f) => TIDSAVBRUDD.test(f))) return forste;
+  console.error(
+    `Kontrollkjøringen i ${k.rot} fikk tidsavbrudd og kjøres én gang til: ${feil.join('; ')}`
+  );
+  return kjoerVitest(k);
 }
