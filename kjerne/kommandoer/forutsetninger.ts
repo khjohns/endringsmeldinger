@@ -238,6 +238,12 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           'FORESPORSEL_BEGRUNNET',
           'TE har svart på en forespørsel med en begrunnelse etter § 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes fra appen.'
         );
+      // VS-U31: høyst én forespørsel fra appen i saken. En registrert gjør saken uforstått (format/leser.ts).
+      if (s.foresporsler.length)
+        return avvis(
+          'FORESPORSEL_SENDT',
+          'Forespørselen etter § 33.6.2 er alt sendt fra appen. En ny forespørsel sendes utenfor appen.'
+        );
       return null;
     case 'svare':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `Det er ikke sendt noe krav om ${h.spor}.`);

@@ -373,6 +373,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `FEIL_SVARREFERANSE` | — | Kontrollen av referansen i kommandoen: svaret må vise til elementet som gjelder nå. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
 | `FORESPORSEL_BEGRUNNET` | — | Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `FORESPORSEL_BESVART` | — | Kontrollen av kommandoen: én begrunnelse etter § 33.6.2 annet ledd b per forespørsel, og ingen etter at et fristkrav har svart (KA-U1, VS-U17). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
+| `FORESPORSEL_SENDT` | — | Kontrollen av kommandoen: høyst én forespørsel etter § 33.6.2 fra appen i saken; en senere sendes utenfor appen (VS-U31). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `FRAFALL_KAN_IKKE_GODTAS` | GR-26 | — |
 | `FRAFALT` | GR-31, GR-32 | — |
 | `FRISTKRAV_SENDT` | VS-06 | — |

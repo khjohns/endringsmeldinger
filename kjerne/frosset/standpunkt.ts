@@ -163,23 +163,21 @@ export function innsigelsenPaaberoper(
  * etter § 33.4 den opp, fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309).
  * I grunnlaget teller partens siste standpunkt etter § 32.2, også om en annen
  * grunnlagsversjon (arbeidsvalget 15.10 i #500). `etter` er partens svar etter
- * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp. Etter § 33.6.2 gir
- * bare et standpunkt om begrunnelsen innsigelsen gjelder, den opp (VS-U29, HF-U4).
+ * innsigelsen, i rekkefølgen de ble sendt. Taushet gir den ikke opp. Etter § 33.6.2 har
+ * saken én forespørsel (VS-U31), så standpunktet gjelder begrunnelsen innsigelsen gjelder
+ * (VS-U29, HF-U4).
  */
 export function innsigelsenErOppgitt(
   spor: Spor,
   etter: Pick<Svar, 'spor' | 'standpunkter'>[],
-  hjemmel: Hjemmel = HJEMMEL[spor],
-  gjelder?: string
+  hjemmel: Hjemmel = HJEMMEL[spor]
 ): boolean {
   const standpunkter = etter
     .filter((x) => x.spor === spor)
     .flatMap((x) => x.standpunkter)
     .filter(
       (p): p is Extract<Standpunkt, { art: 'rettidighet' }> =>
-        p.art === 'rettidighet' &&
-        p.hjemmel === hjemmel &&
-        (hjemmel !== '33.6.2' || p.gjelder === gjelder)
+        p.art === 'rettidighet' && p.hjemmel === hjemmel
     );
   if (spor === 'frist') return standpunkter.some((p) => p.iTide);
   return standpunkter.at(-1)?.iTide === true;
