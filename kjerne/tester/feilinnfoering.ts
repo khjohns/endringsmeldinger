@@ -933,7 +933,7 @@ const MUTASJONER: Mutasjon[] = [
     // Hjemmelen skiller også sporene, så begge filtrene muteres.
     endringer: [
       ['    .filter((x) => x.spor === spor)', '    .filter((x) => x.spor === x.spor)'],
-      ['        p.hjemmel === hjemmel &&', '        true &&'],
+      ["p.art === 'rettidighet' && p.hjemmel === hjemmel", "p.art === 'rettidighet' && true"],
     ],
     mal: ['et «i tide» i grunnlaget gir ikke opp innsigelsen mot fristvarselet'],
   },
@@ -2873,15 +2873,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['VS-U29, VS-U11: etter en innsigelse mot begrunnelsen må svaret'],
   },
   {
-    id: 'F326',
-    feilklasse: 'innsigelsen etter § 33.6.2 gis opp av et standpunkt om noe annet (HF-U4)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      ["(p.hjemmel !== '33.6.2' || i.gjelder === p.gjelder)", "(p.hjemmel !== '33.6.2' || true)"],
-    ],
-    mal: ['VS-U29, HF-U4: et standpunkt om kravet som svarer på en annen forespørsel'],
-  },
-  {
     id: 'F327',
     feilklasse: 'beslutningslinjen viser bare den første preklusjonen i fristsvaret',
     fil: `${K}/frosset/standpunkt.ts`,
@@ -2939,6 +2930,44 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/skjema.ts`,
     endringer: [['  if (SOM_MELLOMROM.test(tegn)) return true;\n', '']],
     mal: ['et usynlig tegn avvises, mens myk bindestrek, → og linjeskift godtas'],
+  },
+  {
+    id: 'F345',
+    feilklasse: 'en ny forespørsel godtas når saken alt har en fra appen (VS-U31)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['      if (s.foresporsler.length)', '      if (false)']],
+    mal: ['VS-U31: en ny forespørsel fra appen avvises'],
+  },
+  {
+    id: 'F346',
+    feilklasse: 'utledningen godtar en andre forespørsel i saken (VS-U31)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    else if (f !== foresporsler[0])', '    else if (false)']],
+    mal: ['VS-U31: en lest rad med en andre forespørsel'],
+  },
+  {
+    id: 'F347',
+    feilklasse: '«i tide» etter § 33.6.2 gir ikke opp innsigelsen mot begrunnelsen (HF-U4)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "p.art === 'rettidighet' && p.hjemmel === hjemmel",
+        "p.art === 'rettidighet' && p.hjemmel === hjemmel && p.hjemmel !== '33.6.2'",
+      ],
+    ],
+    mal: ['HF-U4, VS-U29: etter «i tide» etter § 33.6.2 gir svaret på en senere kravversjon'],
+  },
+  {
+    id: 'F348',
+    feilklasse: 'svaret om § 33.6.2 omtaler ikke innsigelsen mot begrunnelsen (VS-U29)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'innsigelser.filter((i) => i.hjemmel === p.hjemmel)',
+        "innsigelser.filter((i) => i.hjemmel === p.hjemmel && i.hjemmel !== '33.6.2')",
+      ],
+    ],
+    mal: ['VS-U29: innsigelsen mot begrunnelsen er en påberopelse etter § 33.6.2'],
   },
 ];
 
