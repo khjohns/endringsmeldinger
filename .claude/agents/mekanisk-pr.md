@@ -81,6 +81,9 @@ annet arbeidstre eller på `origin`, stopp og si det i rapporten.
   du lager ikke issues.
 - Kjør sjekkene oppdraget nevner, og alltid `npm run lint`. Finner ikke
   arbeidstreet pakkene, kjør `npm ci` der først.
+- I et nytt arbeidstre feiler `npx vitest run` og `npx vite build` med «Tsconfig
+  not found» (#1114). `npx svelte-kit sync` i arbeidstreet hjelper ikke. Omveien
+  står i miljø-skillen.
 - Skriv PR-beskrivelsen og andre kladder i `/tmp`, ikke i arbeidstreet.
   Skriv dem med Write, ikke med en heredoc. Hooken stopper en heredoc i et
   kall som committer eller pusher. Den leser også kroppen som kommandoer, så
