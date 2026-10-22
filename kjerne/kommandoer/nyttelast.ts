@@ -17,6 +17,7 @@ import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
+  hjemmelenGjelder,
   krevdBeloep,
   likeResultatfelt,
   regnUtSvar,
@@ -367,13 +368,11 @@ export function nyttelastkontroll(
       // til rettidigheten etter § 34.1.2, så innsigelsen mot varselet avvises som vurderingen.
       if (
         k.gjelder === u.spor.vederlag.varsel?.id &&
-        !regler.gjelderVarslingspliktenForVederlag(
-          tekst(u.spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori)
-        )
+        !hjemmelenGjelder('34.1.2', u.spor.grunnlag.gjeldendeKrav, regler)
       )
         return avvis(
           'VARSLINGSPLIKT_GJELDER_IKKE',
-          'TE krever endring, og § 34.1.2 gjelder bare svikt og andre forhold, så byggherren tar ikke stilling til om varselet kom i tide (KA-46).'
+          '§ 34.1.2 gjelder bare svikt og andre forhold, ikke kategorien i grunnlaget, så byggherren tar ikke stilling til om varselet kom i tide (KA-46).'
         );
       // VS-U24, HF-U4: en innsigelse mot TEs varsel etter § 33.4 eller § 34.1.2, eller TEs
       // varsel etter § 32.2, er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at

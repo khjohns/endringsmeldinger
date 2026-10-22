@@ -33,7 +33,7 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Art | Innhold | Spor | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
-| `rettidighet` | Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 i vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller et registrert varsel etter § 33.4. | grunnlag, vederlag, frist | `id`, `art`, `gjelder`, `hjemmel`, `i_tide` | KA-U4, MM-U1, MM-U8, VS-U3 |
+| `rettidighet` | Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 i vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller TEs varsel etter § 33.4 eller § 34.1.2. | grunnlag, vederlag, frist | `id`, `art`, `gjelder`, `hjemmel`, `i_tide` | KA-U4, MM-U1, MM-U8, VS-U3 |
 | `metode` | § 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept står metoden byggherren mener vederlaget skal justeres etter (`oensket_metode`). Appen avgjør ikke om § 34.3 eller § 34.4 gjelder. | vederlag | `id`, `art`, `hjemmel`, `aksepterer`, `oensket_metode` | VS-U3, KA-U4, arbeidsvalget i #479 |
 | `spesifisering` | § 33.6.1: om TE spesifiserte kravet i tide. `gjelder` er kravversjonen. Ved «nei» er `dager` det byggherren mener at byggherren måtte forstå at TE hadde krav på, og det står prinsipalt. | frist | `id`, `art`, `gjelder`, `hjemmel`, `i_tide`, `dager` | VS-U3, VS-U4, KA-U4, arbeidsvalget i #479 |
 | `grunnlag` | Byggherrens standpunkt til grunnlaget: `godkjent`, `avslaatt` eller `paalegg_frafalt`. Frafallet gjelder pålegget (§ 32.3 c), ikke TEs krav, og er ikke en vurdering av ansvaret. | grunnlag | `id`, `art`, `resultat` | § 32.3 a–c, GR-U9, GR-U10 |
@@ -45,7 +45,7 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Art | Innhold | Avsender | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
-| `varsel` | Varsel etter § 33.4. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. | TE | `id`, `art`, `hjemmel` | MM-U1, SK-12, VS-U15 |
+| `varsel` | Varsel etter § 33.4 i fristen eller § 34.1.2 i vederlaget. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. | TE | `id`, `art`, `hjemmel` | MM-U1, SK-12, VS-U15 |
 | `trekk` | TE trekker kravet. `gjelder` er gjeldende kravversjon i sporet. | TE | `id`, `art`, `gjelder` | KA-U6, GR-U5 |
 | `aksept` | TE godtar ett svar. `regelversjon` er den TE fikk se. Innholdet står i brevet. | TE | `id`, `art`, `gjelder`, `regelversjon` | KA-U1, KA-U10 |
 | `bestridelse` | En part bestrider en opplysning fra motparten: at dokumentet ble sendt eller mottatt, eller at det var en endringsordre etter § 31.3. Uten virkning på utfallet. | TE eller BH | `id`, `art`, `gjelder`, `hva` | MM-U1, MM-U7 |

@@ -407,12 +407,18 @@ const METODEN = {
   regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)',
 } as const satisfies Record<NonNullable<Extract<Standpunkt, { art: 'metode' }>['oensket']>, string>;
 
+/** TEs eget varsel, slik brevteksten nevner det (LV-U4 punkt 3, OV-U5). */
+const VARSEL_OM: Record<Varselhjemmel, string> = {
+  '33.4': 'om fristforlengelse etter NS 8407 § 33.4',
+  '34.1.2': 'om vederlagsjustering etter NS 8407 § 34.1.2',
+};
+
 /** Varselet et standpunkt om rettidighet gjelder (LV-U4 punkt 5, LV-U5). */
 const VARSELET: Record<Hjemmel, string> = {
   '32.2': 'TEs varsel etter NS 8407 § 32.2',
-  '33.4': 'varselet om fristforlengelse etter NS 8407 § 33.4',
+  '33.4': `varselet ${VARSEL_OM['33.4']}`,
   '33.6.2': 'TEs svar på forespørselen etter NS 8407 § 33.6.2',
-  '34.1.2': 'varselet om vederlagsjustering etter NS 8407 § 34.1.2',
+  '34.1.2': `varselet ${VARSEL_OM['34.1.2']}`,
 };
 
 const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;
@@ -609,7 +615,7 @@ function beskriv(id: string, j: Journalen): string {
         : `påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`;
     case 'utsagn':
       if (e.utsagn.art === 'varsel')
-        return `TEs ${VARSELET_OM[e.utsagn.hjemmel]} i ${j.brevet(e.dokument)}`;
+        return `TEs varsel ${VARSEL_OM[e.utsagn.hjemmel]} i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'innsigelse') return `innsigelsen i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'foresporselssvar')
         return `TEs svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 § 33.6.2`;
@@ -619,12 +625,6 @@ function beskriv(id: string, j: Journalen): string {
   }
   throw new KanIkkeUttrykkes(`${id} har ingen brevtekst som det et utsagn viser til`);
 }
-
-/** TEs eget varsel, slik brevteksten nevner det (LV-U4 punkt 3, OV-U5). */
-const VARSELET_OM: Record<Varselhjemmel, string> = {
-  '33.4': 'varsel om fristforlengelse etter NS 8407 § 33.4',
-  '34.1.2': 'varsel om vederlagsjustering etter NS 8407 § 34.1.2',
-};
 
 /** VS-U15 og LV-U19: det TE varsler at TE vil kreve. */
 const VIL_KREVE: Record<Varselhjemmel, string> = {
@@ -651,7 +651,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
         return `TE varsler etter NS 8407 § ${u.hjemmel} at TE vil kreve ${VIL_KREVE[u.hjemmel]} som følge av forholdet i ${sak}.`;
       if (dato?.hva !== 'sendt')
         throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');
-      return `TE opplyser at ${VARSELET_OM[u.hjemmel]} ble sendt ${norskDato(dato.dato)}.`;
+      return `TE opplyser at varsel ${VARSEL_OM[u.hjemmel]} ble sendt ${norskDato(dato.dato)}.`;
     }
     case 'aksept': {
       const svar = j.svar(u.gjelder);

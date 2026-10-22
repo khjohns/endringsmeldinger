@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import { kravversjon, sporvisning, tilSakState, tilTidslinje } from '$lib/kjernesak/sakstilstand';
-import { SAK, medFristvarsel, medSvar, medVederlag } from './provejournal';
+import { SAK, medFristvarsel, medSvar, medVederlag, medVederlagsvarsel } from './provejournal';
 
 describe('TS-saken som Kontrollrommet leser den', () => {
   it('kategorien og metoden står med katalogens koder, og TEs utdypning er begrunnelsen', () => {
@@ -80,6 +80,13 @@ describe('TS-saken som Kontrollrommet leser den', () => {
       hasNotice: true,
       unspecified: true,
     });
+  });
+
+  it('et registrert varsel etter § 34.1.2 gir vederlagssporet et varsel uten krevd beløp (OV-U5)', () => {
+    const u = utledJournal(medVederlagsvarsel, KJERNE);
+    expect(sporvisning(tilSakState(SAK, null, medVederlagsvarsel, u), u, 'vederlag')).toMatchObject(
+      { hasNotice: true, unspecified: true }
+    );
   });
 
   it('beløpet står i feltet metoden har i katalogen: belop_direkte for tilbud, kostnads_overslag for regningsarbeid (#732 p4)', () => {

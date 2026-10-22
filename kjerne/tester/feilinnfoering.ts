@@ -158,8 +158,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "(p.hjemmel !== '33.4' && p.hjemmel !== '34.1.2')) return false;",
-        "p.hjemmel !== '34.1.2') return false;",
+        "if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;",
+        "if (p.art !== 'rettidighet' || p.hjemmel !== '34.1.2') return false;",
       ],
     ],
     mal: ['F-MM-D', 'F-MM-D-godtatt', 'visningen sier at svaret gjaldt et annet varsel'],
@@ -1508,9 +1508,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en lagret påberopelse etter § 34.1.2 som viser til en senere kravversjon, forstås (HF-U1)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ["if (p.hjemmel === '33.4' || p.hjemmel === '34.1.2') {", "if (p.hjemmel === '33.4') {"],
-    ],
+    endringer: [['if (erVarselhjemmel(p.hjemmel)) {', "if (p.hjemmel === '33.4') {"]],
     mal: ['påberopelsen etter § 34.1.2 viser til kravversjonen svaret gjelder'],
   },
   {

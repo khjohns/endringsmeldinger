@@ -108,7 +108,7 @@ art = "rettidighet"
 spor = ["grunnlag", "vederlag", "frist"]
 beskrivelse = """
 Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 i vederlaget, § 33.4 i
-fristen. `gjelder` er kravversjonen, eller et registrert varsel etter § 33.4."""
+fristen. `gjelder` er kravversjonen, eller TEs varsel etter § 33.4 eller § 34.1.2."""
 felt = ["id", "art", "gjelder", "hjemmel", "i_tide"]
 grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3"
 
@@ -168,7 +168,7 @@ grunnlag = "B-13, designnotatet 4.3"
 [[utsagn]]
 art = "varsel"
 avsender = "TE"
-beskrivelse = "Varsel etter § 33.4. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren."
+beskrivelse = "Varsel etter § 33.4 i fristen eller § 34.1.2 i vederlaget. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren."
 felt = ["id", "art", "hjemmel"]
 grunnlag = "MM-U1, SK-12, VS-U15"
 

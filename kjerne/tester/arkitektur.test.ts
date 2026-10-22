@@ -363,8 +363,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     `beslutningsgrunnlag regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`,
   ],
   ['frosset/standpunkt.ts', 'frosset', 'prinsipalt'],
-  // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder.
-  ['frosset/standpunkt.ts', 'regelsett', 'gjelderVarslingsplikten', ['kommandoer/nyttelast.ts']],
+  // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
+  // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
+  [
+    'frosset/standpunkt.ts',
+    'regelsett',
+    'gjelderVarslingsplikten hjemmelenGjelder',
+    ['kommandoer/nyttelast.ts'],
+  ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
   [
     'frosset/standpunkt.ts',

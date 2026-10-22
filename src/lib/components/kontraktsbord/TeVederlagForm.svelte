@@ -54,8 +54,8 @@
     }) => void;
   } = $props();
 
-  // Kjernen tilbyr valgene. Kravet er startvalget når kjernen tilbyr det, som før varselet
-  // fantes på TS-stien.
+  // Kjernen tilbyr valgene. Kravet er startvalget når kjernen tilbyr det, ellers det første
+  // valget kjernen tilbyr.
   const kjernevalg = $derived(kjernesak?.teValg('vederlag') ?? null);
   const startvalg = kjernesak?.teValg('vederlag') ?? null;
   let mode = $state<'varsel' | 'spesifisert' | 'registrert'>(
