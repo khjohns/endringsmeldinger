@@ -6,7 +6,7 @@
  * - `require_project_access` (`lib/auth/project_access.py`): koblingen med
  *   `koe_api.prosjektkobling`, alderen på medlemslisten, ferskt medlemskap med
  *   `koe_api.prosjektmedlemskap`, `prosjekt_id` i nyttelasten og hver sak det
- *   vises til i `koe.sak_metadata`, lest under radsikkerheten;
+ *   vises til med `koe_api.saker_i_prosjektet`, uavhengig av siden (#1106);
  * - `require_contract_role` (`lib/auth/contract_role.py`) og
  *   `AuthService.contract_membership`: kontraktssiden fra
  *   `koe_api.kontraktsteam` og teammedlemskapet i Catenda.
@@ -309,22 +309,21 @@ export const lesekontekst = (
   ...(side?.teamId ? { team: side.teamId } : {}),
 });
 
-/** Sakene blant `saker` som er i prosjektet, lest under radsikkerheten med aktøren, prosjektet og siden i konteksten. */
+/**
+ * Sakene blant `saker` som er i prosjektet, uavhengig av siden (#1106): `koe_api.saker_i_prosjektet`
+ * med aktøren og prosjektet i konteksten, så grensen avgjøres før kontraktsrollen, som i Flask.
+ */
 async function sakerIProsjektet(
   db: Pool,
   bruker: Bruker,
   prosjektId: string,
-  side: Kontraktstilgang | null,
   saker: Set<string>
 ): Promise<Set<string>> {
   if (!saker.size) return new Set();
-  const rader = await transaksjon(db, lesekontekst(bruker, prosjektId, side), (foresp) =>
+  const rader = await transaksjon(db, lesekontekst(bruker, prosjektId, null), (foresp) =>
     foresp()
       .input('saker', sql.NVarChar(sql.MAX), JSON.stringify([...saker]))
-      .query<{ sak_id: string; prosjekt_id: string }>(
-        `SELECT s.sak_id, s.prosjekt_id FROM koe.sak_metadata s
-          WHERE s.sak_id IN (SELECT [value] FROM OPENJSON(@saker))`
-      )
+      .execute<{ sak_id: string; prosjekt_id: string }>('koe_api.saker_i_prosjektet')
   );
   return new Set(
     rader.recordset
@@ -346,9 +345,8 @@ export type FraSti = { sakId: string } | { prosjektId: string } | typeof UTEN_ST
 /**
  * `require_project_access(min_role)`. `fraSti` er saken eller prosjektet i URL-en;
  * prosjektet må være prosjektet i `X-Project-ID`. `nyttelast` er JSON-kroppen,
- * eller `{}` uten kropp. `kontraktsside` avgjør siden før sakene det vises til leses,
- * fordi lesefilteret krever den (#1056); uten side ses saken bare av leserollen og
- * godkjenneren (GFK-U9).
+ * eller `{}` uten kropp. `kontraktsside` avgjør siden etter prosjektgrensen, som i Flask
+ * (#1106).
  */
 export async function krevProsjekttilgang(
   db: Pool,
@@ -399,12 +397,10 @@ export async function krevProsjekttilgang(
       medlemskap: medlemskap!,
       ...(synkronisert ? { synkronisert } : {}),
     };
-    // Siden før sakene: lesefilteret i basen slipper bare siden eller leserollen (#1056).
-    const side = await kontraktsside(tilgang);
     // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
-    const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, side, saker);
+    const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, saker);
     for (const sakId of saker) if (!iProsjektet.has(sakId)) throw nekt();
-    return { ...tilgang, side };
+    return { ...tilgang, side: await kontraktsside(tilgang) };
   } catch (feil) {
     if (feil instanceof Nektet) throw feil;
     // Som ruteren i `app.ts`: årsaken logges, svaret sier bare at tilgangen ikke kunne bekreftes (#867 punkt 1).

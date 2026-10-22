@@ -344,12 +344,16 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       });
     });
 
-    it('uten side ses ikke saken i eget prosjekt, og den gir 403 (lesefilteret, #1056)', async () => {
+    // `.claude/rules/tilgang.md`: prosjektgrensen avgjøres uavhengig av siden, som i Flask (#1106).
+    // Lesefilteret på saken selv prøves i `tilgang.test.ts`.
+    it('uten side holder prosjektgrensen saken i eget prosjekt, og en sak i et annet prosjekt gir 403 (#1106)', async () => {
       const p = await prosjekt();
+      const annet = await prosjekt();
       const m = await medlem(p);
       const egen = await sak(p, m);
-      expect(await tilgang(m, p.id, { fraSti: { sakId: egen } })).toBeTruthy();
-      expect(await nektet(tilgang(m, p.id, { fraSti: { sakId: egen }, side: null }))).toEqual({
+      const fremmed = await sak(annet, await medlem(annet));
+      expect(await tilgang(m, p.id, { fraSti: { sakId: egen }, side: null })).toBeTruthy();
+      expect(await nektet(tilgang(m, p.id, { fraSti: { sakId: fremmed }, side: null }))).toEqual({
         status: 403,
         error: 'FORBIDDEN',
       });

@@ -910,7 +910,9 @@ status = "i bruk"
 beskrivelse = """
 Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og
 sletting. Sakslisten leser sakene i prosjektet med journalen gjennom
-`koe_api.saksliste`, under radsikkerheten, fra `server/saksliste.ts` (#1022)."""
+`koe_api.saksliste`, under radsikkerheten, fra `server/saksliste.ts` (#1022).
+Tilgangskontrollen leser om sakene det vises til er i prosjektet, uavhengig av
+siden, med `koe_api.saker_i_prosjektet` fra `server/autorisasjon.ts` (#1106)."""
 lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`, som `POST /api/kjerne/saker` kaller (#370), og som `server/hendelser.ts` kaller for en ny topic fra TE i innboksen (KT-U6, #819)."
 fra_catenda = "Delvis. Saken kan være opprettet fra en topic i Catenda (KT-U6, C22)."
 kan_gjenoppbygges = "nei"
@@ -1028,7 +1030,7 @@ av innholdet serveren regner ut, og saken og brevet kommandoen ga. Lagres i samm
 transaksjon som brevet. Nøkkelen er prosjektet, aktøren og kommando-ID-en, så
 kvitteringen gjelder aktøren. Samme ID med samme sum gir brevet fra kvitteringen,
 og samme ID med en annen sum avvises (51410)."""
-lagres_fra = "`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `koe_api.kvittering`, kalt fra `skrivHendelse` og `opprettSak` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker` og `POST /api/kjerne/saker/<sak_id>/kommandoer`."
+lagres_fra = "`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `koe_api.kvittering`, kalt fra `skrivHendelse` og `opprettSak` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker` og `POST /api/kjerne/saker/<sak_id>/kommandoer`. Innboksen leser saken i kvitteringen uavhengig av siden med `koe_api.kvittert_sak`, fra `kvittertSak` i `server/kommandoer.ts` (#1106)."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Aktørens `app_users.id`."
