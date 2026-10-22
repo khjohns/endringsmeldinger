@@ -1933,6 +1933,7 @@ navn = "Ingen krav står"
 tekst = '''
 Som det anbefalte alternativet, men et spor med «ingen krav» beholder «Ingen krav». Utvider GR-U5 til varsel.'''
 forkastet = true
+
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
 
@@ -5744,6 +5745,7 @@ navn = "Til den er besvart"
 tekst = '''
 Betegnelsen står til forespørselen er besvart, også i en lukket sak. Som MM-U30 etter ordlyden.'''
 forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 

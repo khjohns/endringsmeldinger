@@ -271,6 +271,13 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     ).toBe('varslet');
   });
 
+  it('en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at grunnlaget er trukket (MM-U31, GR-U25)', () => {
+    expect(betegnelser(grunnlagskrav, foresporsel).frist, 'kontroll').toBe(
+      'spesifisert_krav_etterspurt'
+    );
+    expect(betegnelser(grunnlagskrav, foresporsel, trekk('grunnlag')).frist).toBeNull();
+  });
+
   it('en sak kjernen ikke forstår, har ingen betegnelse i noe spor (MM-U2), og visningen bærer den samme', () => {
     const sak = new Sak();
     krav(sak);

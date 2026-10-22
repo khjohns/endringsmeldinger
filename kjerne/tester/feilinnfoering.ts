@@ -2744,6 +2744,16 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget'],
   },
   {
+    id: 'F344',
+    feilklasse:
+      'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen etter at grunnlaget er trukket (MM-U31, #1137)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['    !u.spor.grunnlag.trukket &&\n', '']],
+    mal: [
+      'en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at grunnlaget er trukket',
+    ],
+  },
+  {
     id: 'F313',
     feilklasse: 'svarIkkeGodtatt leser ikke at sporet er lukket (SK-01, OV-U3, #1050)',
     fil: `${K}/utledning/utled.ts`,
