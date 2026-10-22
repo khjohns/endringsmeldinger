@@ -393,6 +393,28 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     }
   );
 
+  // Uten kontraktsrolle avgjøres ingen side, så sakene leses uten (#1106).
+  it.each(utenSak.filter(([, r]) => r.tilgang.prosjektrolle === 'admin'))(
+    '%s: en sak i prosjektet i kroppen stopper ikke admin uten side, en sak i et annet prosjekt gir FORBIDDEN (#1106)',
+    async (n, r) => {
+      const iProsjektet = await kall(server.url, r.eksempel(o.prosjekt.id), {
+        bruker: admin,
+        prosjektId: o.prosjekt.id,
+        kropp: { sak_id: sak },
+        metode: r.metode,
+      });
+      expect(iProsjektet.status).toBe(ETTER_TILGANGEN[n]);
+      const utenfor = await kall(server.url, r.eksempel(o.prosjekt.id), {
+        bruker: admin,
+        prosjektId: o.prosjekt.id,
+        kropp: { sak_id: annenSak },
+        metode: r.metode,
+      });
+      expect(utenfor.status).toBe(403);
+      expect(utenfor.kropp.error).toBe('FORBIDDEN');
+    }
+  );
+
   // Innloggingen sender til Catenda, og tilbakekallet uten forsøk til `login_failed`.
   const OMDIRIGERING: Record<string, string> = {
     'GET /api/auth/catenda/login': 'https://catenda.test/oauth2/authorize?state=',
@@ -497,6 +519,21 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     }
   });
 
+  // `.claude/rules/tilgang.md`: prosjektgrensen avgjøres før kontraktsrollen, som i Flask (#1106).
+  it.each(hver)(
+    '%s: et medlem uten kontraktsteam mot en sak i et annet prosjekt gir FORBIDDEN, ikke kontraktsrollen (#1106)',
+    async (_n, r) => {
+      const svar = await kall(server.url, r.eksempel(annenSak), {
+        bruker: o.utenTeam,
+        prosjektId: o.prosjekt.id,
+        kropp: kropp(r),
+        metode: r.metode,
+      });
+      expect(svar.status).toBe(403);
+      expect(svar.kropp.error).toBe('FORBIDDEN');
+    }
+  );
+
   it.each(hver.filter(([, r]) => r.metode === 'GET'))(
     '%s: leserollen leser uten kontraktsteam bare ved lesing (DL-U15)',
     async (_n, r) => {
@@ -584,6 +621,19 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
     expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
   });
 
+  it.each(nySak)(
+    '%s: et medlem uten kontraktsteam med en sak i et annet prosjekt i kroppen gir FORBIDDEN (#1106)',
+    async (_n, r) => {
+      const svar = await kall(server.url, r.eksempel(''), {
+        bruker: o.utenTeam,
+        prosjektId: o.prosjekt.id,
+        kropp: { sak_id: annenSak },
+      });
+      expect(svar.status).toBe(403);
+      expect(svar.kropp.error).toBe('FORBIDDEN');
+    }
+  );
+
   it.each(nySak)('%s: kontrollsaken kommer forbi tilgangen', async (_n, r) => {
     const svar = await kall(server.url, r.eksempel(''), {
       bruker: o.te,
@@ -654,6 +704,47 @@ describe.skipIf(!TESTBASE_URL)('hver inngang i registeret mot testbasene', () =>
       }
     } finally {
       await utenTeamoppslag.stopp();
+    }
+  });
+
+  it('en sak i et annet prosjekt gir FORBIDDEN før Catenda spørres om teamet (#1106)', async () => {
+    let teamoppslag = 0;
+    const telleServer = await startServer(o, {
+      catenda: {
+        async medlemmer() {
+          throw new Error('Synkronisering er ikke forventet i testene.');
+        },
+        async teammedlemmer() {
+          teamoppslag++;
+          throw new Error('Catenda svarer ikke.');
+        },
+      },
+    });
+    try {
+      const medSide = hver.filter(([, r]) => typeof r.tilgang.kontraktsrolle === 'string');
+      expect(medSide.length).toBeGreaterThan(0);
+      for (const [n, r] of medSide) {
+        const svar = await kall(telleServer.url, r.eksempel(annenSak), {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp: kropp(r),
+          metode: r.metode,
+        });
+        expect([n, svar.status, svar.kropp.error]).toEqual([n, 403, 'FORBIDDEN']);
+      }
+      expect(teamoppslag).toBe(0);
+      // Kontrollsak: mot saken i prosjektet spørres Catenda, og svaret er 503.
+      const [n, r] = medSide[0];
+      const svar = await kall(telleServer.url, r.eksempel(sak), {
+        bruker: o.te,
+        prosjektId: o.prosjekt.id,
+        kropp: kropp(r),
+        metode: r.metode,
+      });
+      expect([n, svar.status]).toEqual([n, 503]);
+      expect(teamoppslag).toBeGreaterThan(0);
+    } finally {
+      await telleServer.stopp();
     }
   });
 

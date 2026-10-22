@@ -45,10 +45,9 @@ Her står hvordan Python håndhever dem, og hva TS-stien mangler.
 ## TS-stien
 
 `server/autorisasjon.ts` speiler `require_auth`, `require_project_access` og
-`require_contract_role`, i samme rekkefølge og med samme svar, utenom at
-kontraktsrollen avgjøres før prosjektgrensen (se «Lesingen av saker og brev»). En
-sak i et annet prosjekt gir da `CONTRACT_ROLE_REQUIRED` for et medlem uten team,
-og 503 når Catenda ikke svarer.
+`require_contract_role`, i samme rekkefølge og med samme svar: prosjektgrensen,
+også for sakene det vises til, avgjøres før kontraktsrollen, så en sak i et annet
+prosjekt gir `FORBIDDEN` uten at Catenda spørres om teamet (#1106).
 
 - **Registeret.** Hver inngang i TS-serveren står i `RUTER` i `server/app.ts`
   med prosjektrollen og kontraktsrollen den krever, eller en skriftlig
@@ -64,17 +63,19 @@ og 503 når Catenda ikke svarer.
   Lesefilteret i basen (`koe_sikkerhet.medlem`) krever det samme: siden i konteksten,
   med et av prosjektets kontraktsteam på den siden, eller leserollen (#1056). Ellers
   slipper bare godkjenneren i en åpen pakke i saken gjennom (GFK-U9). Hver lesing
-  får siden i konteksten med `lesekontekst` i `server/autorisasjon.ts`, også kontrollen
-  av sakene det vises til, så siden avgjøres før den. Skrivingen og vedleggene krever
-  siden uten leserollen (`koe_sikkerhet.kontraktsmedlem`).
+  får siden i konteksten med `lesekontekst` i `server/autorisasjon.ts`. Skrivingen og
+  vedleggene krever siden uten leserollen (`koe_sikkerhet.kontraktsmedlem`).
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.
 - **Oppslagene i SQL Server.** Kjøretiden har ingen rett på koblingen,
   medlemskapet eller kontraktsteamene, og leser dem med `koe_api.prosjektkobling`,
   `koe_api.prosjektmedlemskap` og `koe_api.kontraktsteam`. De to siste gir bare
-  rader for aktøren som spør. Om sakene det vises til er i prosjektet, leses i
-  `koe.sak_metadata` under radsikkerheten, med `lesekontekst`. Alderen på
+  rader for aktøren som spør. Om sakene det vises til er i prosjektet, og saken i
+  kvitteringen for en kommando, leses uavhengig av siden med
+  `koe_api.saker_i_prosjektet` og `koe_api.kvittert_sak`. De kjører som
+  `koe_grenseoppslag`, en bruker uten innlogging som predikatene slipper gjennom for
+  prosjektet og aktøren i konteksten når aktøren er et aktivt medlem (#1106). Alderen på
   medlemslisten leses bare i `server/autorisasjon.ts` (#638 punkt 2, `server/tester/arkitektur.test.ts`).
 - **Prosjektgrensen** holdes også ved lesing og skriving av journalen. Lesingen
   i `server/lager.ts` og skrivingen i `server/kommandoer.ts` går hver i sin

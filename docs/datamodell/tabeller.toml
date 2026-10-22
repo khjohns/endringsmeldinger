@@ -910,7 +910,9 @@ status = "i bruk"
 beskrivelse = """
 Saksregisteret: saken, prosjektet og sakstypen. En trigger avviser endring og
 sletting. Sakslisten leser sakene i prosjektet med journalen gjennom
-`koe_api.saksliste`, under radsikkerheten, fra `server/saksliste.ts` (#1022)."""
+`koe_api.saksliste`, under radsikkerheten, fra `server/saksliste.ts` (#1022).
+Tilgangskontrollen leser om sakene det vises til er i prosjektet, uavhengig av
+siden, med `koe_api.saker_i_prosjektet` fra `server/autorisasjon.ts` (#1106)."""
 lagres_fra = "`koe_api.opprett_sak`, sammen med `sak_opprettet`, kalt fra `opprettSak` i `server/kommandoer.ts`, som `POST /api/kjerne/saker` kaller (#370), og som `server/hendelser.ts` kaller for en ny topic fra TE i innboksen (KT-U6, #819)."
 fra_catenda = "Delvis. Saken kan være opprettet fra en topic i Catenda (KT-U6, C22)."
 kan_gjenoppbygges = "nei"
@@ -1028,7 +1030,7 @@ av innholdet serveren regner ut, og saken og brevet kommandoen ga. Lagres i samm
 transaksjon som brevet. Nøkkelen er prosjektet, aktøren og kommando-ID-en, så
 kvitteringen gjelder aktøren. Samme ID med samme sum gir brevet fra kvitteringen,
 og samme ID med en annen sum avvises (51410)."""
-lagres_fra = "`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `koe_api.kvittering`, kalt fra `skrivHendelse` og `opprettSak` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker` og `POST /api/kjerne/saker/<sak_id>/kommandoer`."
+lagres_fra = "`koe_api.skriv_hendelse` og `koe_api.opprett_sak`, og leses av `koe_api.kvittering`, kalt fra `skrivHendelse` og `opprettSak` i `server/kommandoer.ts`, fra `POST /api/kjerne/saker` og `POST /api/kjerne/saker/<sak_id>/kommandoer`. Innboksen leser saken i kvitteringen uavhengig av siden med `koe_api.kvittert_sak`, fra `kvittertSak` i `server/kommandoer.ts` (#1106)."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Aktørens `app_users.id`."
@@ -1247,11 +1249,15 @@ når koblingen til Catenda-prosjektet og boardet ga det. Kjøretiden har ingen r
 tabellen og skriver med `koe_api.registrer_behandling`. Boardet topicen ble slått
 opp på, står med utfallet, så kommentaren skrives på samme board. Raden kan ikke
 endres eller slettes; kommentaren tilbake til topicen (W-1b.2) står i
-`koe.topic_kommentar` og endrer ikke utfallet."""
+`koe.topic_kommentar` og endrer ikke utfallet. En topic fra TE med et tegn i
+tittelen som PDF-en av brevet ikke kan vise, får `tittel_kan_ikke_vises` med tegnene i
+`melding`, og en senere endring av topicen er da et nytt forsøk på opprettelsen,
+til topicen har fått en sak (`koe_api.tittel_avvist_for_topic`, arbeidsvalgene 22.10
+i #1138)."""
 lagres_fra = "`koe_api.registrer_behandling`, kalt av `behandleEnHendelse` i `server/jobber.ts` med utfallet fra `server/hendelser.ts`."
 fra_catenda = "Delvis. ID-en til topicen er Catendas."
 kan_gjenoppbygges = "nei"
-personopplysninger = "Nei. `melding` er en fast feiltekst fra serveren."
+personopplysninger = "Nei. `melding` er en fast feiltekst fra serveren, for `tittel_kan_ikke_vises` med tegnene fra topicens tittel."
 skrivere = ["database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.registrer_behandling`, innført i `20261020130000_innkommende_behandling.sql`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`, `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql` og `server/hendelser.ts`."
@@ -1287,7 +1293,8 @@ beskrivelse = """
 Kvitteringen for kommentaren løkka skrev tilbake på topicen i Catenda (W-1b.2,
 #819), én rad per utfall. Utfallet `sak_opprettet` gir en kommentar med lenke og
 saksnummer (KT-U6), `topic_fra_bh` (KT-U7) og `sakstype_ikke_stoettet`
-(arbeidsvalget under OV-U1 i #819) en kommentar om hvorfor ingen sak er opprettet.
+(arbeidsvalget under OV-U1 i #819) og `tittel_kan_ikke_vises` (arbeidsvalgene 22.10
+i #1138) en kommentar om hvorfor ingen sak er opprettet.
 Kommentarene på topicen leses først, og står teksten der alt, kvitteres den, så
 samme tekst skrives én gang. Kjøretiden har ingen rett på tabellen og skriver med
 `koe_api.kvitter_kommentar`. Raden kan ikke endres eller slettes."""

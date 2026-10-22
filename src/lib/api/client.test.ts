@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { apiFetch, clearCsrfToken, setActiveProjectId } from './client';
+import { apiFetch, clearCsrfToken, LESEFEIL, NETTFEIL, setActiveProjectId } from './client';
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -145,4 +145,75 @@ it('does not let a delayed token response repopulate the cache after it was clea
   await apiFetch('/api/events', { method: 'POST' });
   expect(tokens.at(-1)).toBe('current-session');
   expect(tokenRequests).toBe(2);
+});
+
+// Kilde: AGENTS.md, «Språk»: grensesnittet er på bokmål, og en feilmelding sier hva som hindrer (#1151).
+it('et brutt nett gir meldingen på bokmål, ikke den engelske «Network error» (#1151)', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+  await expect(apiFetch('/api/saker')).rejects.toMatchObject({ status: 0, message: NETTFEIL });
+});
+
+it('et brutt nett under hentingen av CSRF-tokenet gir samme melding (#1151)', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+  await expect(apiFetch('/api/events', { method: 'POST' })).rejects.toMatchObject({
+    status: 0,
+    message: NETTFEIL,
+  });
+});
+
+// Kilde: AGENTS.md, «Språk»: grensesnittet er på bokmål, og en feilmelding sier hva som hindrer (#1158).
+it('et svar merket JSON med ugyldig kropp gir meldingen på bokmål, ikke nettleserens SyntaxError (#1158)', async () => {
+  const ugyldig = new Response('<html>Bad Gateway</html>', {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(ugyldig));
+  await expect(apiFetch('/api/saker')).rejects.toMatchObject({ status: 500, message: LESEFEIL });
+});
+
+it('en kastet verdi som ikke er en Error, gir samme melding, ikke «Unknown error» (#1158)', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockRejectedValue('avbrutt'));
+  await expect(apiFetch('/api/saker')).rejects.toMatchObject({ status: 500, message: LESEFEIL });
+});
+
+it('et feilsvar uten melding gir statuskoden på bokmål, ikke «HTTP 502: Bad Gateway» (#1158)', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue(
+      new Response('{}', {
+        status: 502,
+        statusText: 'Bad Gateway',
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+  );
+  await expect(apiFetch('/api/saker')).rejects.toMatchObject({
+    status: 502,
+    message: 'Serveren svarte med feilkode 502 uten forklaring.',
+  });
+});
+
+it('et feilsvar med tom tekstkropp gir også statuskoden, ikke en tom melding (#1158)', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 503 })));
+  await expect(apiFetch('/api/saker')).rejects.toMatchObject({
+    status: 503,
+    message: 'Serveren svarte med feilkode 503 uten forklaring.',
+  });
+});
+
+it('et feilsvar med en HTML-side fra nginx gir statuskoden, ikke HTML-en (#1158)', async () => {
+  const side = '<html><head><title>502 Bad Gateway</title></head><body>nginx</body></html>';
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockResolvedValue(
+        new Response(side, { status: 502, headers: { 'Content-Type': 'text/html' } })
+      )
+  );
+  await expect(apiFetch('/api/saker')).rejects.toMatchObject({
+    status: 502,
+    message: 'Serveren svarte med feilkode 502 uten forklaring.',
+    data: side,
+  });
 });

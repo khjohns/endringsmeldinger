@@ -4,7 +4,9 @@ Leser utdataene fra `npm audit --omit=dev --json` på stdin. Feiler for en
 sårbarhet med alvorlighet høy eller kritisk når det finnes en rettet versjon,
 med mindre advisoryen står i unntakslisten. Om det finnes en rettet versjon,
 leses av advisoryens sårbare område (`range`), ikke av `fixAvailable`, som bare sier
-om `npm audit fix` når en retting gjennom dagens tre (#851). Utviklingsavhengigheter og Python
+om `npm audit fix` når en retting gjennom dagens tre (#851). Et unntak som ikke treffer en
+blokkerende sårbarhet, feiler, så ubrukte unntak ikke blir liggende (#1170), med mindre rapporten
+ser ufullstendig ut. Utviklingsavhengigheter og Python
 skannes i egne steg som bare rapporterer (DL-U2, avgjort 17.10 i #269).
 
 Bruk: npm audit --omit=dev --json | python3 scripts/ci/skann_avhengigheter.py [unntaksliste]
@@ -75,20 +77,36 @@ def funn(rapport: dict) -> list[tuple[str, str, str, str]]:
     return sorted(resultat)
 
 
+def ufullstendig(rapport: dict) -> bool:
+    """Om npm audit ga færre sårbare pakker enn sin egen oppsummering sier (#1170). Da kan en
+    advisory mangle i svaret, og et unntak som ikke treffer, er ikke bevis for at det kan fjernes."""
+    antall = (rapport.get("metadata") or {}).get("vulnerabilities", {}).get("total")
+    return antall is not None and antall > len(rapport["vulnerabilities"])
+
+
 def main(argumenter: list[str]) -> int:
     unntak = les_unntak(pathlib.Path(argumenter[0]) if argumenter else UNNTAKSLISTE)
-    treff = funn(json.load(sys.stdin))
+    rapport = json.load(sys.stdin)
+    treff = funn(rapport)
     brukt = [t for t in treff if t[:2] in unntak]
     blokkerende = [t for t in treff if t[:2] not in unntak]
+    ubrukt = sorted(set(unntak) - {t[:2] for t in treff})
     for advisory, pakke, alvorlighet, _ in brukt:
         post = unntak[(advisory, pakke)]
         print(f"UNNTAK ({post['dato']}, #{post['issue']}): {pakke} {advisory} {alvorlighet}")
     for advisory, pakke, alvorlighet, tittel in blokkerende:
         print(f"::error title=Sårbar kjøretidsavhengighet::{pakke} {advisory} ({alvorlighet}): {tittel}")
-    for advisory, pakke in sorted(set(unntak) - {t[:2] for t in treff}):
-        print(f"::warning title=Unntak uten treff::{advisory} i {pakke} treffer ikke lenger og kan fjernes fra listen.")
-    print(f"blokkerende: {len(blokkerende)}; unntak brukt: {len(brukt)}")
-    return 1 if blokkerende else 0
+    ufull = ufullstendig(rapport)
+    if ufull and ubrukt:
+        print(
+            "::warning title=Ufullstendig rapport::npm audit ga færre sårbare pakker enn oppsummeringen, "
+            "så ubrukte unntak feiler ikke denne gangen."
+        )
+    for advisory, pakke in ubrukt:
+        melding = f"{advisory} i {pakke} treffer ingen blokkerende sårbarhet. Fjern posten fra avhengighetsunntak.toml."
+        print(f"::{'warning' if ufull else 'error'} title=Unntak uten treff::{melding}")
+    print(f"blokkerende: {len(blokkerende)}; unntak brukt: {len(brukt)}; unntak uten treff: {len(ubrukt)}")
+    return 1 if blokkerende or (ubrukt and not ufull) else 0
 
 
 if __name__ == "__main__":

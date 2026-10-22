@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { setActiveProjectId } from './client';
-import { hentFil, NETTFEIL } from './fil';
+import { NETTFEIL, setActiveProjectId } from './client';
+import { hentFil } from './fil';
 
 afterEach(() => vi.unstubAllGlobals());
 

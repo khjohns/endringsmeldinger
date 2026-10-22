@@ -37,7 +37,7 @@ import {
   type Pool,
 } from '../datalag.ts';
 import { enGang, tidsavbrudd } from './forbindelse.ts';
-import { behandle, nesteInnkommende } from '../hendelser.ts';
+import { behandle, nesteInnkommende, tegnITittelen } from '../hendelser.ts';
 import { lesJournal } from '../lager.ts';
 import { mottaHendelse } from '../webhook.ts';
 import {
@@ -60,6 +60,7 @@ interface Utfall {
   prosjekt_id: string | null;
   sak_id: string | null;
   catenda_topic_id: string | null;
+  melding?: string | null;
 }
 
 describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)', () => {
@@ -478,7 +479,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await sakerForTopic(topic)).toEqual([]);
   });
 
-  it('en annen hendelsestype enn en ny topic behandles ikke i W-1b.1', async () => {
+  it('en annen hendelsestype enn en ny topic, også en endret topic uten avvist tittel, behandles ikke (W-1b.1, #1138)', async () => {
     expect((await behandleKropp(kropp(randomUUID()), 'issue.modified')).utfall).toBe(
       'ikke_behandlet_type'
     );
@@ -527,6 +528,46 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     const kontroll = await motta(kropp(randomUUID()));
     expect(await behandleEnHendelse(senere(2, utenTeam))).toBe(true);
     expect(await utfallFor(kontroll)).toEqual([expect.objectContaining({ utfall: 'ukjent_side' })]);
+  });
+
+  it('#1106: et nytt forsøk etter en lagret sak gir saken fra kvitteringen, også når prosjektet har mistet TE-teamet', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
+    const rad = (await nesteInnkommende(avh.datalag))!;
+    const foerste = await behandle({ datalag: avh.datalag, catenda: innboks }, rad);
+    expect(foerste.utfall).toBe('sak_opprettet');
+    const teamene = (
+      await somEier<{ team_id: string; contract_role: string }>(
+        `SELECT team_id, contract_role FROM koe.catenda_contract_teams
+          WHERE internal_project_id = @p AND contract_role = N'TE'`,
+        { p: o.prosjekt.id }
+      )
+    ).recordset;
+    expect(teamene.length, 'forutsetning: prosjektet har et TE-team').toBeGreaterThan(0);
+    await somEier(
+      `DELETE koe.catenda_contract_teams WHERE internal_project_id = @p AND contract_role = N'TE'`,
+      { p: o.prosjekt.id }
+    );
+    try {
+      expect(await behandle({ datalag: avh.datalag, catenda: innboks }, rad)).toEqual(foerste);
+      expect(await behandleEnHendelse(senere(1))).toBe(true);
+      expect(await utfallFor(id)).toEqual([
+        expect.objectContaining({ utfall: 'sak_opprettet', sak_id: foerste.sakId }),
+      ]);
+      // Kontrollsak: uten kvittering gir samme forfatter nå ingen side.
+      const kontroll = await motta(kropp(randomUUID()));
+      expect(await behandleEnHendelse(senere(2))).toBe(true);
+      expect(await utfallFor(kontroll)).toEqual([
+        expect.objectContaining({ utfall: 'ukjent_side' }),
+      ]);
+    } finally {
+      for (const t of teamene)
+        await somEier(
+          `INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role)
+           VALUES (@p, @t, @r)`,
+          { p: o.prosjekt.id, t: t.team_id, r: t.contract_role }
+        );
+    }
   });
 
   /**
@@ -785,6 +826,80 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     ]);
   });
 
+  const TEGNKOMMENTAR =
+    'Saken er ikke opprettet i appen. Tittelen har tegn som PDF-en av brevet ikke kan vise: ' +
+    '«报» (U+62A5) og «告» (U+544A). Endre tittelen i topicen, så opprettes saken.';
+
+  it('arbeidsvalgene 22.10 i #1138: en tittel med tegn PDF-en ikke kan vise, gir ingen sak og én kommentar med tegnene; endringen av tittelen gir saken', async () => {
+    const topic = randomUUID();
+    const avvist = await behandleKropp(kropp(topic, { tittel: 'Rapport 报告 fra 报' }));
+    expect(avvist).toMatchObject({
+      utfall: 'tittel_kan_ikke_vises',
+      prosjekt_id: o.prosjekt.id,
+      sak_id: null,
+      catenda_topic_id: topic,
+    });
+    expect(await sakerForTopic(topic)).toEqual([]);
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([TEGNKOMMENTAR]);
+
+    // En endring som ikke retter tittelen, gir samme utfall og ingen kommentar til.
+    expect(
+      (
+        await behandleKropp(
+          kropp(topic, { tittel: 'Rapport 报告 fra 报 (oppdatert)' }),
+          'issue.modified'
+        )
+      ).utfall
+    ).toBe('tittel_kan_ikke_vises');
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic)).toHaveLength(1);
+
+    const rettet = await behandleKropp(
+      kropp(topic, { tittel: 'Rapport fra leverandøren' }),
+      'issue.modified'
+    );
+    expect(rettet).toMatchObject({ utfall: 'sak_opprettet', catenda_topic_id: topic });
+    expect(await sakerForTopic(topic)).toEqual([
+      { sak_id: rettet.sak_id, catenda_board_id: board },
+    ]);
+    const [hendelse] = await transaksjon(
+      avh.datalag,
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
+      (foresp) => lesJournal(foresp, rettet.sak_id!, false)
+    );
+    expect(JSON.stringify(hendelse)).toContain('Rapport fra leverandøren');
+    // Etter saken behandles en endring ikke, heller ikke en ny tittel med slike tegn.
+    expect(
+      (await behandleKropp(kropp(topic, { tittel: 'Rapport 报告' }), 'issue.modified')).utfall
+    ).toBe('ikke_behandlet_type');
+    await skrivKommentarene();
+    expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([
+      TEGNKOMMENTAR,
+      expect.stringMatching(new RegExp(`^KOE-saken ${rettet.sak_id} er opprettet i appen`)),
+    ]);
+  });
+
+  it('#1138: er tittelen rettet og saken opprettet før kommentaren om tegnene er skrevet, skrives bare kommentaren om saken', async () => {
+    const topic = randomUUID();
+    expect((await behandleKropp(kropp(topic, { tittel: 'Rapport 报告' }))).utfall).toBe(
+      'tittel_kan_ikke_vises'
+    );
+    const rettet = await behandleKropp(kropp(topic, { tittel: 'Rapport' }), 'issue.modified');
+    expect(rettet.utfall).toBe('sak_opprettet');
+    await skrivKommentarene();
+    const tekster = kommentarerPaa(topic).map((k) => k.tekst);
+    expect(tekster).toHaveLength(1);
+    expect(tekster[0]).toMatch(new RegExp(`^KOE-saken ${rettet.sak_id} er opprettet i appen`));
+  });
+
+  it('#1138: en topic fra BH med tegn i tittelen gir topic_fra_bh, så siden avgjøres før tittelen', async () => {
+    const topic = randomUUID();
+    const k = kropp(topic, { forfatter: catendaId(o.bh.subjekt), tittel: 'Rapport 报告' });
+    expect((await behandleKropp(k)).utfall).toBe('topic_fra_bh');
+    expect((await behandleKropp(k, 'issue.modified')).utfall).toBe('ikke_behandlet_type');
+  });
+
   it.each<[string, () => string | null]>([
     ['laget av integrasjonen', () => INTEGRASJONEN],
     ['uten forfatter', () => null],
@@ -821,6 +936,46 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([BH_KOMMENTAR]);
     expect(await kvitteringFor(id)).toEqual([{ kommentar_id: kommentarerPaa(topic)[0].id }]);
   });
+
+  it.each([
+    ['et kontrolltegn', '\u0001', 'U+0001'],
+    ['en enslig surrogat', '\uD800', 'U+D800'],
+    ['et ikke-tegn', '\uFFFE', 'U+FFFE'],
+    ['et tegn for privat bruk', '\uE000', 'U+E000'],
+    ['et formattegn', '\u0600', 'U+0600'],
+    ['et ideogram som NFC endrer', '\uF900', 'U+F900'],
+  ])(
+    '#1162: med %s i tittelen gir et tapt svar ingen kommentar til, også når Catenda normaliserer teksten',
+    async (_, tegn, kode) => {
+      const topic = randomUUID();
+      const id = await motta(kropp(topic, { tittel: `Rapport${tegn}fra leverandøren` }));
+      expect(await behandleEnHendelse(avh)).toBe(true);
+      expect((await utfallFor(id))[0]?.utfall).toBe('tittel_kan_ikke_vises');
+      const fjernet = (tekst: string) => tekst.normalize('NFKC').replace(/\p{C}/gu, '');
+      const normaliserende = {
+        ...innboks,
+        opprettKommentar: (b: string, t: string, tekst: string) =>
+          innboks.opprettKommentar(b, t, fjernet(tekst)),
+      };
+      const tapt = {
+        ...avh,
+        innboks: {
+          ...normaliserende,
+          opprettKommentar: async (b: string, t: string, tekst: string) => {
+            await normaliserende.opprettKommentar(b, t, tekst);
+            throw new UsikkertCatendautfall('tapt svar');
+          },
+        },
+      };
+      await skrivKommentarene(tapt);
+      expect(await kvitteringFor(id)).toEqual([]);
+      await skrivKommentarene({ ...senere(1), innboks: normaliserende });
+      const [kommentar, ...flere] = kommentarerPaa(topic);
+      expect(flere).toEqual([]);
+      expect(kommentar.tekst).toContain(`(${kode})`);
+      expect(await kvitteringFor(id)).toEqual([{ kommentar_id: kommentar.id }]);
+    }
+  );
 
   it('#972: en kommentar med samme tekst fra en annen forfatter kvitteres ikke, og topicen får appens kommentar', async () => {
     const topic = randomUUID();
@@ -862,5 +1017,53 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     );
     expect(await behandleEnHendelse({ ...avh, innboks: undefined })).toBe(false);
     expect(await behandleEnHendelse(avh)).toBe(true);
+  });
+});
+
+describe('tegnITittelen (#1138)', () => {
+  it('en tittel som kan vises, gir ingen melding', () => {
+    expect(tegnITittelen('Rystelser fra spuntingen – § 33.8')).toBeNull();
+  });
+
+  it('et usynlig tegn nevnes med kodepunktet, ikke selve tegnet', () => {
+    expect(tegnITittelen('Rystelser\u200Bfra')).toBe(
+      'Tittelen har tegn som PDF-en av brevet ikke kan vise: et usynlig tegn (U+200B).'
+    );
+  });
+
+  it.each([
+    ['et kontrolltegn (C0)', 'Rystelser\u0001fra', 'et kontrolltegn (U+0001)'],
+    ['et kontrolltegn (C1)', 'Rystelser\u009Ffra', 'et kontrolltegn (U+009F)'],
+    ['en enslig surrogat', 'Rystelser\uD800fra', 'en enslig surrogat (U+D800)'],
+    ['et ikke-tegn', 'Rystelser\uFFFEfra', 'et ikke-tegn (U+FFFE)'],
+    ['et ikke-tegn i blokken U+FDD0–U+FDEF', 'Rystelser\uFDD0fra', 'et ikke-tegn (U+FDD0)'],
+    ['et tegn for privat bruk', 'Rystelser\uE000fra', 'et privat tegn (U+E000)'],
+    ['et ikke-tildelt tegn', 'Rystelser\u0378fra', 'et ikke-tildelt tegn (U+0378)'],
+    ['et formattegn', 'Rystelser\u0600fra', 'et spesialtegn (U+0600)'],
+    ['et ideogram som NFC endrer', 'Rystelser\uF900fra', 'et spesialtegn (U+F900)'],
+    ['et ideografisk mellomrom', 'Rystelser\u3000fra', 'et mellomrom (U+3000)'],
+    ['en linjeskiller', 'Rystelser\u2028fra', 'et linjeskift (U+2028)'],
+    ['en avsnittsskiller', 'Rystelser\u2029fra', 'et avsnittsskift (U+2029)'],
+    ['et romertall som NFKC endrer', 'Fase \u2161', 'et spesialtegn (U+2161)'],
+  ])('#1162: %s nevnes med kodepunktet, ikke selve tegnet', (_, tittel, nevnt) => {
+    const melding = tegnITittelen(tittel)!;
+    expect(melding).toBe(`Tittelen har tegn som PDF-en av brevet ikke kan vise: ${nevnt}.`);
+    expect(melding).toBe(melding.normalize('NFKC'));
+    expect(melding).not.toMatch(/\p{C}/u);
+  });
+
+  it('høyst ti tegn nevnes, resten telles, så meldingen får plass i 400 tegn', () => {
+    const tittel = '一二三四五六七八九十百千';
+    const melding = tegnITittelen(tittel)!;
+    expect(melding).toMatch(/«十» \(U\+5341\) og 2 til\.$/);
+    expect(melding).not.toContain('百');
+    expect(melding.length).toBeLessThan(400);
+  });
+
+  it('#1162: med de lengste navnene og kodepunktene får meldingen også plass i 400 tegn', () => {
+    const tittel = String.fromCodePoint(...Array.from({ length: 12 }, (_, i) => 0xe1000 + i));
+    const melding = tegnITittelen(tittel)!;
+    expect(melding).toMatch(/et ikke-tildelt tegn \(U\+E1009\) og 2 til\.$/);
+    expect(melding.length).toBeLessThan(400);
   });
 });

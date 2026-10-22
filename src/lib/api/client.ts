@@ -77,6 +77,19 @@ export function clearCsrfToken() {
   csrfTokenPromise = null;
 }
 
+/**
+ * Meldingen når `fetch` eller lesingen av svaret feiler (#1151). Den gjelder både et
+ * kall som aldri nådde serveren og et svar som gikk tapt etter at serveren lagret.
+ */
+export const NETTFEIL = 'Fikk ikke svar fra serveren. Kontroller nettforbindelsen.';
+
+/**
+ * Meldingen når svaret kom, men ikke kunne leses, for eksempel ugyldig JSON fra en
+ * mellomtjener (#1158). Status 500 gjør utfallet usikkert, så kjernekallene prøver
+ * igjen med samme kommando-ID (`erUsikkertUtfall`).
+ */
+export const LESEFEIL = 'Svaret fra serveren kunne ikke leses. Prøv igjen.';
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -165,20 +178,19 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
         headers.set('X-CSRF-Token', await getCsrfToken(true));
         continue;
       }
+      // Serverne svarer med JSON; en tekstkropp kommer fra en mellomtjener, som
+      // HTML-siden nginx gir ved 502, og vises ikke.
       const message =
         typeof detail?.message === 'string'
           ? detail.message
-          : typeof data === 'string'
-            ? data
-            : `HTTP ${response.status}: ${response.statusText}`;
+          : `Serveren svarte med feilkode ${response.status} uten forklaring.`;
       throw new ApiError(response.status, message, data);
     }
     throw new ApiError(403, 'Kunne ikke bekrefte sesjonen.');
   } catch (error) {
     if (error instanceof ApiError) throw error;
-    if (error instanceof TypeError)
-      throw new ApiError(0, 'Network error: Could not connect to server');
-    throw new ApiError(500, error instanceof Error ? error.message : 'Unknown error');
+    if (error instanceof TypeError) throw new ApiError(0, NETTFEIL);
+    throw new ApiError(500, LESEFEIL);
   }
 }
 
