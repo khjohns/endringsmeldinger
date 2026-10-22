@@ -178,12 +178,12 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
         headers.set('X-CSRF-Token', await getCsrfToken(true));
         continue;
       }
+      // Serverne svarer med JSON; en tekstkropp kommer fra en mellomtjener, som
+      // HTML-siden nginx gir ved 502, og vises ikke.
       const message =
         typeof detail?.message === 'string'
           ? detail.message
-          : typeof data === 'string' && data !== ''
-            ? data
-            : `Serveren svarte med feilkode ${response.status} uten forklaring.`;
+          : `Serveren svarte med feilkode ${response.status} uten forklaring.`;
       throw new ApiError(response.status, message, data);
     }
     throw new ApiError(403, 'Kunne ikke bekrefte sesjonen.');

@@ -200,3 +200,20 @@ it('et feilsvar med tom tekstkropp gir også statuskoden, ikke en tom melding (#
     message: 'Serveren svarte med feilkode 503 uten forklaring.',
   });
 });
+
+it('et feilsvar med en HTML-side fra nginx gir statuskoden, ikke HTML-en (#1158)', async () => {
+  const side = '<html><head><title>502 Bad Gateway</title></head><body>nginx</body></html>';
+  vi.stubGlobal(
+    'fetch',
+    vi
+      .fn()
+      .mockResolvedValue(
+        new Response(side, { status: 502, headers: { 'Content-Type': 'text/html' } })
+      )
+  );
+  await expect(apiFetch('/api/saker')).rejects.toMatchObject({
+    status: 502,
+    message: 'Serveren svarte med feilkode 502 uten forklaring.',
+    data: side,
+  });
+});
