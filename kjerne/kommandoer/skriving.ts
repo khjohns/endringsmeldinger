@@ -182,7 +182,12 @@ function dokument(
         ...(k.spor ? { spor: k.spor } : {}),
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         dokumentasjon: bundne,
+        // OV-U17: rettingen er en fullstendig ny registrering med henvisning til den feil.
+        ...(k.retter ? { retter: k.retter } : {}),
       };
+    case 'ikke_i_saken':
+      // OV-U18: rettingen har bare henvisningen.
+      return { retter: k.retter, ikke_i_saken: true };
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
       return { utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }] };
@@ -426,7 +431,8 @@ function brevtekstFor(
     throw new Skrivefeil(
       `Kjernen forstår ikke dokumentet den selv skriver: ${ny.art === 'ukjent' ? ny.grunn : ny.art}`
     );
-  if (erRegistrert(ny.dokument.opplysninger)) return null;
+  // OV-U18: rettingen om feil sak er heller ikke et brev fra appen.
+  if (erRegistrert(ny.dokument.opplysninger) || ny.dokument.ikkeISaken) return null;
   const sak = lest.find((h) => h.art === 'sak');
   if (sak?.art !== 'sak') throw new Skrivefeil('Saken har ingen tittel å sette i brevteksten.');
   try {

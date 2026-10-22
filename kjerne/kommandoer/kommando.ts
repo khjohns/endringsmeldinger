@@ -89,7 +89,7 @@ export type Kommando = (
   /**
    * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
    * beskrivelsen med egne ord, datoen det ble sendt og brevet som vedlegg. Uten `spor`
-   * hører det til saken.
+   * hører det til saken. Med `retter` er det en retting av den registreringen (OV-U17).
    */
   | {
       type: 'registrert_brev';
@@ -97,7 +97,10 @@ export type Kommando = (
       sendt: string;
       beskrivelse: string;
       dokumentasjon: string[];
+      retter?: string;
     }
+  /** OV-U18: registreringen `retter` står i feil sak; brevet hører ikke til saken. */
+  | { type: 'ikke_i_saken'; retter: string }
   /** VS-U15, OV-U5: TE sender et eget varsel fra appen, uten dager eller beløp. */
   | ({ type: 'send_varsel' } & Varselet)
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
@@ -208,9 +211,11 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       sendt: DATO,
       beskrivelse: TEKST,
       dokumentasjon: liste(ID),
+      retter: ID,
     },
     ['type', 'sendt', 'beskrivelse', 'dokumentasjon']
   ),
+  ikke_i_saken: objekt({ type: { const: 'ikke_i_saken' }, retter: ID }, ['type', 'retter']),
   send_varsel: objekt(
     {
       type: { const: 'send_varsel' },

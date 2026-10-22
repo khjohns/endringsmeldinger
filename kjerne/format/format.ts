@@ -418,6 +418,8 @@ export const VEDLEGG: Skjema = objekt(
  * `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`.
  * `beskrivelse` og `spor` hører til et brev registrert som dokumentasjon (OV-U4, OV-U16), som
  * ikke har noe annet enn dem, datoen det ble sendt og brevet som vedlegg (`leser.ts`).
+ * `retter` er registreringen en retting viser til (OV-U17, OV-U18), og `ikke_i_saken` sier at
+ * brevet ikke hører til saken (OV-U18); navnene er arbeidsvalget 22.10 i #1045.
  */
 export const DOKUMENT: Skjema = objekt(
   {
@@ -429,6 +431,8 @@ export const DOKUMENT: Skjema = objekt(
     brevtekst: BREVTEKST,
     beskrivelse: TEKST,
     spor: liste({ enum: [...SPOR] }),
+    retter: ID,
+    ikke_i_saken: { const: true },
   },
   []
 );

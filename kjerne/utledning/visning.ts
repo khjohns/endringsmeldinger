@@ -19,6 +19,7 @@ import {
   sporetErLukket,
   svarIkkeGodtatt,
   venterPaaSvar,
+  type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
 import { SPOR, type Spor } from '../typer.ts';
@@ -39,7 +40,17 @@ const STATUSTEKST: Record<Statuskode, string> = {
 export interface Visning {
   /** MM-U22: saken har ingen samlet status utenom de fire tilfellene, og da er den `null`. */
   status: { kode: Statuskode; tekst: string } | null;
-  spor: Record<Spor, { etiketter: string[]; betegnelse: Betegnelse | null }>;
+  spor: Record<
+    Spor,
+    {
+      etiketter: string[];
+      betegnelse: Betegnelse | null;
+      /** Svar 2 22.10 i #1045: motpartens brev registrert som dokumentasjon, vist ved kravet. */
+      registrerteBrev: string[];
+    }
+  >;
+  /** OV-U4, OV-U16: brevene registrert som dokumentasjon, også når saken ikke er forstått. */
+  registrerteBrev: RegistrertBrev[];
   /** Etikettene for hver opplysning, etter ID. */
   opplysninger: Record<string, string[]>;
   journal: { hendelse: string; type: string; tolket: boolean }[];
@@ -177,9 +188,47 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
 /** OV-U10: et registrert brev kan ha krav appen ikke kjenner. */
 const BREV_UTENFOR_APPEN = 'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
 
-/** OV-U10: saken har registrert korrespondanse, som sakslisten og statusteksten leser. */
+/**
+ * OV-U10: saken har registrert korrespondanse, som sakslisten og statusteksten leser. En
+ * registrering som er rettet, teller ikke; rettingen står i stedet for den (OV-U17, OV-U18).
+ */
 export const harRegistrertBrev = (u: Utledning): boolean =>
-  u.journal.some((h) => h.art === 'dokument' && erRegistrert(h.dokument.opplysninger));
+  u.journal.some(
+    (h) =>
+      h.art === 'dokument' &&
+      erRegistrert(h.dokument.opplysninger) &&
+      !u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)
+  );
+
+/**
+ * Svar 2 22.10 i #1045 (OV-U4): når kravet venter på svar, motpartens registrerte brev for
+ * sporet eller hele saken som ikke er rettet, uansett når de ble sendt. Kravet er TEs.
+ */
+function brevVedKravet(u: Utledning, spor: Spor): string[] {
+  if (!venterPaaSvar(u, spor)) return [];
+  return u.registrerteBrev
+    .filter(
+      (b) =>
+        b.avsender === 'BH' && b.rettetAv === null && (b.spor.length === 0 || b.spor.includes(spor))
+    )
+    .map((b) => b.dokument);
+}
+
+/**
+ * Merknadene for saken. Svar 1 22.10 i #1045: så lenge et registrert brev står og ikke er
+ * rettet bort, har saken merknaden etter OV-U10; når kravene er avgjort, står setningen i
+ * statusen i stedet.
+ */
+function merknader(u: Utledning, kode: Statuskode | null): string[] {
+  // MM-U2: mens saken stopper, må et varsel med frist sendes utenfor appen og registreres senere.
+  const ut = u.forstaatt
+    ? u.utenVirkning.length
+      ? ['registrert_brev_uten_virkning']
+      : []
+    : ['varsel_med_frist_utenfor_appen'];
+  if (kode !== 'alle_krav_avgjort' && harRegistrertBrev(u)) ut.push('brev_utenfor_appen');
+  return ut;
+}
 
 function statustekst(u: Utledning, kode: Statuskode): string {
   return kode === 'alle_krav_avgjort' && harRegistrertBrev(u)
@@ -223,7 +272,11 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     spor: Object.fromEntries(
       SPOR.map((s) => [
         s,
-        { etiketter: u.forstaatt ? etiketter(u, s, regler) : [], betegnelse: betegnelse(u, s) },
+        {
+          etiketter: u.forstaatt ? etiketter(u, s, regler) : [],
+          betegnelse: betegnelse(u, s),
+          registrerteBrev: u.forstaatt ? brevVedKravet(u, s) : [],
+        },
       ])
     ) as Visning['spor'],
     opplysninger,
@@ -232,11 +285,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
       type: h.type,
       tolket: h.art !== 'ukjent' && !ikkeTolket.has(h.id),
     })),
-    // MM-U2: mens saken stopper, må et varsel med frist sendes utenfor appen og registreres senere.
-    merknader: u.forstaatt
-      ? u.utenVirkning.length
-        ? ['registrert_brev_uten_virkning']
-        : []
-      : ['varsel_med_frist_utenfor_appen'],
+    registrerteBrev: u.registrerteBrev,
+    merknader: merknader(u, kode),
   };
 }

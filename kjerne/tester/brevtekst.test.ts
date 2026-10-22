@@ -2584,13 +2584,22 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
-  it('VS-U19: et fristkrav i et registrert brev er også fremmet, så forespørselen avvises', () => {
+  it('VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen fra appen', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);
     s.rad('TE', {
       krav: [{ id: randomUUID(), spor: 'frist', dager: 20 }],
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-01' }],
     });
+    expect(s.avvist('BH', foresporsel)).toBeNull();
+    // Kjernen forstår journalen med forespørselen etter det registrerte kravet (send kaster ellers).
+    s.send('BH', foresporsel);
+  });
+
+  it('VS-U33: et fristkrav fremmet i appen stopper forespørselen (kontrollsak)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
@@ -2812,6 +2821,8 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       brevtekst: null,
       beskrivelse: null,
       spor: [],
+      retter: null,
+      ikkeISaken: false,
     });
     const saken = {
       saksnummer: SAK,
@@ -2894,6 +2905,8 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       brevtekst: null,
       beskrivelse: null,
       spor: [],
+      retter: null,
+      ikkeISaken: false,
     };
     const saken = {
       saksnummer: SAK,
@@ -3141,6 +3154,8 @@ describe('vedleggene står i teksten (A4)', () => {
     brevtekst: null,
     beskrivelse: null,
     spor: [],
+    retter: null,
+    ikkeISaken: false,
   });
   const saken = {
     saksnummer: SAK,
