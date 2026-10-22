@@ -25,6 +25,7 @@ import {
   medUkjentHendelse,
   medVederlag,
   medVederlagssvar,
+  opprettet,
 } from '$lib/kjernesak/__tests__/provejournal';
 
 const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
@@ -42,17 +43,16 @@ const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
       data,
     })
   ),
-  leveringsoppdrag: [
-    {
-      id: 'l-1',
-      event_id: journal[1].event_id,
-      dokumentnoekkel: 'brev-2',
-      filnavn: 'krav.pdf',
-      innhold_sha256: '0'.repeat(64),
-      opprettet: '2026-10-16T09:00:01.000Z',
-      levert: null,
-    },
-  ],
+  // En sak med bare opprettelsen har ikke sendt noe brev.
+  leveringsoppdrag: journal.slice(1, 2).map((rad) => ({
+    id: 'l-1',
+    event_id: rad.event_id,
+    dokumentnoekkel: 'brev-2',
+    filnavn: 'krav.pdf',
+    innhold_sha256: '0'.repeat(64),
+    opprettet: '2026-10-16T09:00:01.000Z',
+    levert: null,
+  })),
 });
 
 /** Konteksten med handlingene i `handlinger` i stedet for dem kjernen regner ut. */
@@ -154,7 +154,29 @@ describe('TS-saken i Kontrollrommet', () => {
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
     expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent('Enige');
     expect(spor.getByRole('button', { name: /Grunnlag/ })).not.toHaveTextContent(/godkjent/i);
-    expect(screen.getAllByText('Byggherre har svart').length).toBeGreaterThan(0);
+    // Kortet i hovedfeltet har samme betegnelse som venstrekolonnen (#1146).
+    expect(screen.getByText('Status for grunnlaget').nextElementSibling).toHaveTextContent(
+      /^Enige$/
+    );
+  });
+
+  // MM-U30: ingen betegnelse når ingenting er sendt (#1146).
+  it.each(['TE', 'BH'] as const)(
+    'en ny sak uten krav har ikke noe statuskort for grunnlaget (%s)',
+    async (part) => {
+      await vis([opprettet], part);
+      const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
+      expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent(/^Grunnlag$/);
+      expect(screen.queryByText('Status for grunnlaget')).toBeNull();
+      expect(screen.queryByText(/Avventer/)).toBeNull();
+    }
+  );
+
+  it('et sendt grunnlagskrav står som ventende i kortet, som i venstrekolonnen (#1146, MM-U30)', async () => {
+    await vis(medGrunnlag, 'BH');
+    expect(screen.getByText('Status for grunnlaget').nextElementSibling).toHaveTextContent(
+      /^Kravet venter på byggherrens svar$/
+    );
   });
 
   it('et besvart vederlagskrav står som besvart og ikke som uavklart (oppdragsgiver 17.10)', async () => {

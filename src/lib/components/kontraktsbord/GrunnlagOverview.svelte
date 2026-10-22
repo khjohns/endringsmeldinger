@@ -1,6 +1,15 @@
 <script lang="ts">
   import { sanitizeRichText } from '$lib/utils/sanitizeRichText';
-  import { BookOpen, Check, ChevronLeft, CircleMinus, Clock3, Paperclip, X } from 'lucide-svelte';
+  import {
+    BookOpen,
+    Check,
+    ChevronLeft,
+    CircleMinus,
+    Clock3,
+    Info,
+    Paperclip,
+    X,
+  } from 'lucide-svelte';
   import InternalDraftCard from '$lib/components/patterns/InternalDraftCard.svelte';
   import { getHjemmelObj, getKontraktsforhold } from '$lib/constants/categories.js';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters.js';
@@ -19,15 +28,12 @@
 
   const harBhResultat = $derived(!store.erKjernesak && Boolean(grunnlag.bh_resultat));
   const status = $derived.by(() => {
-    // TS-saken viser bare at BH har svart (#718). Resultatet projiseres ikke.
-    if (store.erKjernesak)
-      return store.display('ansvar').bhHarSvart
-        ? { icon: Check, text: `${store.bhNavn} har svart`, variant: 'pending' as const }
-        : {
-            icon: Clock3,
-            text: `Avventer standpunkt fra ${store.bhNavn}`,
-            variant: 'pending' as const,
-          };
+    // MM-U30: TS-saken viser betegnelsen for sporet, som venstrekolonnen, og intet kort
+    // når ingenting er sendt. Byggherrens resultat projiseres ikke (#718).
+    if (store.erKjernesak) {
+      const text = store.statustekst('ansvar');
+      return text ? { icon: Info, text, variant: 'pending' as const } : null;
+    }
     if (grunnlag.bh_resultat !== 'frafalt' && grunnlagetErPrekludert(store.sak)) {
       return {
         icon: X,
@@ -134,13 +140,15 @@
     <div class="reading-text">{@html text}</div>
   </article>
 {:else}
-  <div class="status-card status-{status.variant}">
-    <div class="status-icon"><status.icon size={17} strokeWidth={2.25} /></div>
-    <div>
-      <span class="eyebrow">Status for grunnlaget</span>
-      <div class="status-title">{status.text}</div>
+  {#if status}
+    <div class="status-card status-{status.variant}">
+      <div class="status-icon"><status.icon size={17} strokeWidth={2.25} /></div>
+      <div>
+        <span class="eyebrow">Status for grunnlaget</span>
+        <div class="status-title">{status.text}</div>
+      </div>
     </div>
-  </div>
+  {/if}
 
   <section class="basis-card">
     <div class="basis-header">

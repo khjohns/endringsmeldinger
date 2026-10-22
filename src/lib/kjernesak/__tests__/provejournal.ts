@@ -6,7 +6,7 @@ import type { Journalrad, Part } from '$kjerne/typer';
 
 export const SAK = 'sak-1';
 
-const opprettet: Journalrad = {
+export const opprettet: Journalrad = {
   event_id: 'e-1',
   sak_id: SAK,
   event_type: 'sak_opprettet',

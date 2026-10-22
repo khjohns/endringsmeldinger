@@ -182,7 +182,8 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
   }
 }
 
-function redirectToLogin() {
+/** Sender brukeren til innloggingen og tilbake hit etterpå. */
+export function redirectToLogin() {
   if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
     window.location.replace(
       `/login?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`
