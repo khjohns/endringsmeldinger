@@ -66,7 +66,7 @@ export function gjelderVarslingsplikten(
  * alltid i fristen, § 32.2 der varslingsplikten gjelder kategorien, og § 34.1.2
  * for svikt og andre forhold byggherren har risikoen for.
  */
-function hjemmelenGjelder(
+export function hjemmelenGjelder(
   hjemmel: Hjemmel,
   grunnlagskrav: Krav | null | undefined,
   regler: Regelsett
@@ -122,7 +122,8 @@ export const kravetErDokumentasjon = (d: Pick<Dokument, 'opplysninger'>): boolea
 
 /**
  * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den
- * gjelder, bare kan komme for sent etter den: varselet etter § 33.4 i fristen, og TEs
+ * gjelder, bare kan komme for sent etter den: varselet etter § 33.4 i fristen, varselet
+ * etter § 34.1.2 i vederlaget (VS-U24, OV-U5), og TEs
  * varsel etter § 32.2 i grunnlaget, som er grunnlagskravet når § 32.2 gjelder kategorien
  * i det (GR-U11). Varselet etter § 32.2 er det samme i hver grunnlagsversjon
  * (arbeidsvalget 15.10 i #500). Svaret i sporet gjentar den eller gir den opp. Mot et
@@ -137,12 +138,16 @@ export function innsigelsenPaaberoper(
   gjelder: string,
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,
   varslingsplikt: (krav: Krav) => boolean
-): Extract<Hjemmel, '32.2' | '33.4' | '33.6.2'> | null {
+): Hjemmel | null {
   for (const d of dokumenter) {
     const utsagn = d.utsagn.find((x) => x.id === gjelder);
     // VS-U29: begrunnelsen etter § 33.6.2 annet ledd b kan bare komme for sent etter § 33.6.2.
     if (utsagn)
-      return utsagn.art === 'varsel' ? '33.4' : utsagn.art === 'foresporselssvar' ? '33.6.2' : null;
+      return utsagn.art === 'varsel'
+        ? utsagn.hjemmel
+        : utsagn.art === 'foresporselssvar'
+          ? '33.6.2'
+          : null;
     const krav = d.krav.find((k) => k.id === gjelder);
     if (krav)
       return krav.spor === 'grunnlag' && !kravetErDokumentasjon(d) && varslingsplikt(krav)

@@ -17,6 +17,7 @@ import type { Kommando, Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
+  hjemmelenGjelder,
   krevdBeloep,
   likeResultatfelt,
   regnUtSvar,
@@ -218,18 +219,18 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
     : null;
 }
 
-const VARSELET_SENDT = 'varselet etter § 33.4 ble sendt';
+const varseletSendt = (hjemmel: string) => `varselet etter § ${hjemmel} ble sendt`;
 
 /**
  * Datoen TE oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
- * fra i grunnlagskravet (VS-U26), og datoen et varsel etter § 33.4 ble sendt utenfor
- * appen, registrert for seg eller i fristkravet (OV-U5).
+ * fra i grunnlagskravet (VS-U26), og datoen et varsel etter § 33.4 eller § 34.1.2 ble
+ * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5).
  */
 function oppgittDatoI(k: Kommando): { dato: unknown; gjelder: string } | null {
-  if (k.type === 'varsel') return { dato: k.sendt, gjelder: VARSELET_SENDT };
+  if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel) };
   if (k.type !== 'krav') return null;
   if (k.spor === 'frist')
-    return k.varsel ? { dato: k.varsel.sendt, gjelder: VARSELET_SENDT } : null;
+    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4') } : null;
   if (k.spor !== 'grunnlag') return null;
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
   return felt === null ? null : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt] };
@@ -363,8 +364,18 @@ export function nyttelastkontroll(
               'UGYLDIG_INNSIGELSE',
               'Bare TEs begrunnelse etter § 33.6.2 annet ledd b kan påstås ikke å være et svar etter annet ledd.'
             );
-      // VS-U24, HF-U4: en innsigelse mot varselet etter § 33.4 eller TEs varsel etter § 32.2
-      // er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at
+      // OV-U15, KA-46: der TE krever endring, tar byggherren ikke stilling
+      // til rettidigheten etter § 34.1.2, så innsigelsen mot varselet avvises som vurderingen.
+      if (
+        k.gjelder === u.spor.vederlag.varsel?.id &&
+        !hjemmelenGjelder('34.1.2', u.spor.grunnlag.gjeldendeKrav, regler)
+      )
+        return avvis(
+          'VARSLINGSPLIKT_GJELDER_IKKE',
+          '§ 34.1.2 gjelder bare svikt og andre forhold, ikke kategorien i grunnlaget, så byggherren tar ikke stilling til om varselet kom i tide (KA-46).'
+        );
+      // VS-U24, HF-U4: en innsigelse mot TEs varsel etter § 33.4 eller § 34.1.2, eller TEs
+      // varsel etter § 32.2, er en påberopelse etter bestemmelsen. Har byggherren sagt i et svar fra appen at
       // varselet kom i tide, avvises den (del 2 av #498).
       const hjemmel = innsigelsenEtterITide(k.gjelder, part, u);
       return hjemmel

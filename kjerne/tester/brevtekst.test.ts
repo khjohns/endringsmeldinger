@@ -2922,6 +2922,177 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
   });
 });
 
+describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
+  const sendVarsel = { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' };
+  const vederlagskrav = {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: { metode: 'tilbud', beloep: 125000 },
+  };
+  /** Grunnlaget i brev 2; `hovedkategori` avgjør om § 34.1.2 gjelder (§ 34.1.1, KA-46). */
+  const medGrunnlag = (hovedkategori: 'svikt' | 'endring') => {
+    const s = sak();
+    s.send(
+      'TE',
+      hovedkategori === 'svikt'
+        ? {
+            ...GRUNNLAGSKRAV,
+            innhold: {
+              hovedkategori,
+              underkategori: 'medvirkning',
+              tittel: 'Sene tegninger',
+              ...KLAR_OVER,
+            },
+          }
+        : GRUNNLAGSKRAV
+    );
+    return s;
+  };
+  /** Varselet fra appen i brev 3. */
+  const medVarsel = (hovedkategori: 'svikt' | 'endring' = 'svikt') => {
+    const s = medGrunnlag(hovedkategori);
+    const varsel = s.send('TE', sendVarsel);
+    return { s, varsel, id: (varsel.data.utsagn as Data[])[0].id as string };
+  };
+  const svarMedPaaberopelse = (s: ReturnType<typeof sak>) =>
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), { resultat: 'godkjent' }),
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { ...VEDERLAG_DELVIS[0], hovedkrav_varslet_i_tide: false },
+          { resultat: 'avslaatt', godkjent_beloep: 0 }
+        ),
+      ],
+    });
+
+  it('brevet er varselet, uten beløp og uten en oppgitt dato, med teksten i LV-U19', () => {
+    const { varsel, id } = medVarsel();
+    expect(tekst(varsel)).toEqual([
+      {
+        gjelder: id,
+        laast: `TE varsler etter NS 8407 § 34.1.2 at TE vil kreve justering av vederlaget som følge av forholdet ${I_SAKEN}.`,
+      },
+    ]);
+    // VS-U8: datoen er serverens, så brevet har ingen opplysning om når det ble sendt.
+    expect(varsel.data.opplysninger).toBeUndefined();
+    expect(varsel.data.utsagn).toEqual([{ id, art: 'varsel', hjemmel: '34.1.2' }]);
+  });
+
+  it('der TE krever endring, godtas varselet uten virkning (OV-U15)', () => {
+    const { s } = medVarsel('endring');
+    expect(s.u().spor.vederlag.varsel?.hjemmel).toBe('34.1.2');
+  });
+
+  it('der TE krever endring, sier visningen at varselet ikke kreves, og ved svikt ikke (OV-U15, § 34.1.1)', () => {
+    const etiketter = (kategori: 'endring' | 'svikt') =>
+      visning(medGrunnlag(kategori).u(), GJELDENDE_REGLER).spor.vederlag.etiketter;
+    expect(etiketter('endring')).toContain('varsel_kreves_ikke');
+    expect(etiketter('svikt')).not.toContain('varsel_kreves_ikke');
+  });
+
+  it('et varsel sendt utenfor appen registreres med datoen og brevet, uten tekst fra appen (OV-U5, MM-U17)', () => {
+    const s = medGrunnlag('svikt');
+    const rad = s.send('TE', {
+      type: 'varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.2',
+      sendt: '2026-09-28',
+      dokumentasjon: [randomUUID()],
+    });
+    expect(rad.data.brevtekst).toBeUndefined();
+    expect(rad.data.opplysninger).toMatchObject([{ hva: 'sendt', dato: '2026-09-28' }]);
+    expect(s.u().spor.vederlag.varsel?.dokument).toBe(rad.event_id);
+  });
+
+  it('varselet etter § 34.1.2 står i vederlaget, og varselet etter § 33.4 i fristen (OV-U5)', () => {
+    const s = medGrunnlag('svikt');
+    expect(s.avvist('TE', { ...sendVarsel, spor: 'frist' })).toBe('UGYLDIG_FORM');
+    expect(s.avvist('TE', { ...sendVarsel, hjemmel: '33.4' })).toBe('UGYLDIG_FORM');
+  });
+
+  it('et nytt varsel fra appen etter vederlagskravet avvises, og et tidligere varsel kan registreres (OV-U5, VS-U16)', () => {
+    const s = medGrunnlag('svikt');
+    s.send('TE', vederlagskrav);
+    expect(s.avvist('TE', sendVarsel)).toBe('VEDERLAGSKRAV_SENDT');
+    const registrering = {
+      type: 'varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.2',
+      sendt: '2026-09-28',
+      dokumentasjon: [randomUUID()],
+    };
+    s.send('TE', registrering);
+    // SK-12: datoen settes én gang.
+    expect(s.avvist('TE', { ...registrering, dokumentasjon: [randomUUID()] })).toBe(
+      'VARSEL_REGISTRERT'
+    );
+  });
+
+  it('svaret påberoper at varselet før svaret kom for sent, og brevet nevner brevet varselet står i (VS-U20, LV-U21)', () => {
+    const { s, id } = medVarsel();
+    s.send('TE', vederlagskrav);
+    const rad = svarMedPaaberopelse(s);
+    const standpunkt = ((rad.data.svar as Data[])[1].standpunkter as Data[]).find(
+      (p) => p.art === 'rettidighet'
+    );
+    expect(standpunkt?.gjelder).toBe(id);
+    expect(laast(rad)[1]).toContain(
+      'byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 3 av 3. oktober 2026 kom for sent.'
+    );
+  });
+
+  it('uten eget varsel gjelder påberopelsen det første vederlagskravet, og brevet nevner brevet med kravet (OV-U5, LV-U21)', () => {
+    const s = medGrunnlag('svikt');
+    s.send('TE', vederlagskrav);
+    const rad = svarMedPaaberopelse(s);
+    const standpunkt = ((rad.data.svar as Data[])[1].standpunkter as Data[]).find(
+      (p) => p.art === 'rettidighet'
+    );
+    expect(standpunkt?.gjelder).toBe(s.krav('vederlag'));
+    expect(laast(rad)[1]).toContain(
+      'byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 3 av 3. oktober 2026 kom for sent.'
+    );
+  });
+
+  it('en innsigelse mot varselet er en påberopelse etter § 34.1.2, og svaret gjentar den (VS-U24, VS-U11)', () => {
+    const { s, id } = medVarsel();
+    const innsigelse = s.send('BH', { type: 'innsigelse', gjelder: id });
+    expect(laast(innsigelse)).toEqual([
+      'Byggherren gjør gjeldende at TEs varsel om vederlagsjustering etter NS 8407 § 34.1.2 i brev 3 av 3. oktober 2026 kom for sent (NS 8407 § 5 tredje ledd).',
+    ]);
+    s.send('TE', vederlagskrav);
+    expect(laast(svarMedPaaberopelse(s))[1]).toContain(
+      'kom for sent, jf. innsigelsen i brev 4 av 4. oktober 2026.'
+    );
+  });
+
+  it('der TE krever endring, avvises innsigelsen mot varselet som vurderingen (KA-46, OV-U15)', () => {
+    const { s, id } = medVarsel('endring');
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: id })).toBe('VARSLINGSPLIKT_GJELDER_IKKE');
+  });
+
+  it('etter «i tide» i et svar fra appen avvises en innsigelse mot varselet (HF-U4, VS-U24)', () => {
+    const { s, id } = medVarsel();
+    s.send('TE', vederlagskrav);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), { resultat: 'godkjent' }),
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { ...VEDERLAG_DELVIS[0], hovedkrav_varslet_i_tide: true },
+          VEDERLAG_DELVIS[1]
+        ),
+      ],
+    });
+    expect(s.avvist('BH', { type: 'innsigelse', gjelder: id })).toBe('SAGT_I_TIDE');
+  });
+});
+
 describe('vedleggene står i teksten (A4)', () => {
   const dokument = (filnavn: string[]): Dokument => ({
     id: 'brevet',

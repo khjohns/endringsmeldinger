@@ -118,6 +118,25 @@ export const medFristvarsel = skrevet(
   ])
 );
 
+/** Varselet etter § 34.1.2 sendt utenfor appen og registrert (OV-U5). */
+export const medVederlagsvarsel = skrevet(
+  medGrunnlag,
+  'TE',
+  {
+    type: 'varsel',
+    spor: 'vederlag',
+    hjemmel: '34.1.2',
+    sendt: '2026-10-10',
+    dokumentasjon: [VARSELBREVET],
+  },
+  new Map([
+    [
+      VARSELBREVET,
+      { vedlegg_id: VARSELBREVET, filnavn: 'varsel.pdf', innhold_sha256: '0'.repeat(64) },
+    ],
+  ])
+);
+
 export const medTrukketVederlag = skrevet(medVederlag, 'TE', { type: 'trekk', spor: 'vederlag' });
 
 /** En hendelse kjernen ikke kjenner, så saken ikke kan utledes (MM-U2). */

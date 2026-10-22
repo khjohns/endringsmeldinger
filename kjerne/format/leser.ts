@@ -41,6 +41,7 @@ import type {
   Standpunktsvirkning,
   Svar,
   Utsagnsart,
+  Varselhjemmel,
   Vedlegg,
   Virkning,
 } from '../typer.ts';
@@ -419,7 +420,7 @@ function lesDokument(h: Journalrad): Dokument {
       const art = e.art as Utsagnsart;
       kreverPart(PART_FOR_UTSAGN[art], `et utsagn med art ${art}`);
       return art === 'varsel'
-        ? { id: e.id as string, art, hjemmel: '33.4', dokument: id }
+        ? { id: e.id as string, art, hjemmel: e.hjemmel as Varselhjemmel, dokument: id }
         : (e as unknown as LestUtsagn);
     }),
   };

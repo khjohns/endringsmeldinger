@@ -239,20 +239,24 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
     }
     case 'trekk':
       return { type: 'trekk', spor };
-    case 'varsel':
+    case 'varsel': {
+      // OV-U5: varselet etter § 33.4 i fristen, etter § 34.1.2 i vederlaget.
+      const varselet =
+        spor === 'vederlag'
+          ? ({ spor, hjemmel: '34.1.2' } as const)
+          : ({ spor: 'frist', hjemmel: '33.4' } as const);
       // VS-U15: uten en dato sender appen varselet.
-      if (typeof h.sendt !== 'string')
-        return { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
+      if (typeof h.sendt !== 'string') return { type: 'send_varsel', ...varselet };
       return {
         type: 'varsel',
-        spor: 'frist',
-        hjemmel: '33.4',
+        ...varselet,
         sendt: h.sendt as string,
         // OV-U4: det registrerte varselet har brevet som vedlegg, også når forløpet ikke nevner det.
         dokumentasjon: Array.isArray(h.dokumentasjon)
           ? (h.dokumentasjon as string[])
           : [randomUUID()],
       };
+    }
     case 'bestridelse': {
       const varsel = u.spor.frist.varsel;
       const gjelder = h.gjelder as string;

@@ -8,6 +8,10 @@
  * S-2a.2: aksept (KA-U10), TEs innsigelse etter § 5 tredje ledd (VS-U1, VS-U9, VS-U14,
  * uten protest og påberopt passivitet etter OV-U7) og registrering av et varsel etter
  * § 33.4 sendt utenfor appen (MM-U1, OV-U4, MM-U17).
+ *
+ * #1096: varselet etter § 34.1.2 fra appen med teksten i LV-U19, registreringen av et
+ * varsel sendt utenfor appen, ingen nytt varsel fra appen etter vederlagskravet (OV-U5,
+ * VS-U16) og merknaden der TE krever endring (OV-U15).
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,6 +19,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/sve
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import { lagKjernesak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
 import { fristkommandoFraSkjema } from '$lib/kjernesak/fristkrav';
+import { vederlagskommandoFraSkjema } from '$lib/kjernesak/vederlagskrav';
 import { nyGrunnlagsversjon } from '$lib/kjernesak/grunnlagskrav';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { forhaandsvis, utledJournal } from '$kjerne/kommandoer/skriving';
@@ -551,7 +556,7 @@ describe('TE-skjemaene leser kjernen (#1062)', () => {
 
   it('TE sender vederlagskravet som tilbud med beløpet fra skjemaet, og kjernen godtar det (OV-U1)', async () => {
     const { send } = await vis(medGrunnlag, 'vederlag');
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '180000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     await bekreftBrevet();
@@ -570,5 +575,124 @@ describe('TE-skjemaene leser kjernen (#1062)', () => {
     await vis(medVederlag, 'vederlag');
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
     expect(screen.getByLabelText('Fast pris')).toHaveValue('250000');
+  });
+});
+
+describe('varselet etter § 34.1.2 (#1096)', () => {
+  const vedlegg = { vedlegg_id: 'V-1', filnavn: 'varsel.pdf', innhold_sha256: 'a'.repeat(64) };
+  const iSvikt = skrevet(medGrunnlag.slice(0, 1), 'TE', {
+    type: 'krav',
+    spor: 'grunnlag',
+    innhold: {
+      hovedkategori: 'svikt',
+      underkategori: 'grunnforhold',
+      klar_over_forholdet: '2026-10-01',
+    },
+    utdypning: 'Uventet fjell.',
+  });
+
+  it('TE sender varselet fra appen uten beløp og uten fritekst, med teksten i LV-U19 (OV-U5)', async () => {
+    const { send } = await vis(iSvikt, 'vederlag');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varsel' }));
+    expect(screen.getByRole('radio', { name: 'Varsel' })).toBeChecked();
+    expect(screen.queryByLabelText('Fast pris')).toBeNull();
+    expect(screen.queryByRole('textbox', { name: /Begrunnelse/ })).toBeNull();
+    expect(screen.queryByRole('note'), 'svikt: varslingsplikten gjelder').toBeNull();
+    expect(screen.getByRole('button', { name: 'Bestemmelser' })).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
+    // Høyrepanelet viker for brevet, som i /mockup, så brevet får hele bredden.
+    await screen.findByRole('region', { name: 'Brevkontroll' });
+    expect(screen.queryByRole('button', { name: 'Bestemmelser' })).toBeNull();
+    const tekst = await bekreftBrevet();
+
+    await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
+    expect(sendt(send)).toEqual({
+      type: 'send_varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.2',
+      brevtekst: expect.any(Array),
+    });
+    expect(tekst).toContain(
+      'TE varsler etter NS 8407 § 34.1.2 at TE vil kreve justering av vederlaget som følge av forholdet i sak'
+    );
+  });
+
+  it('der TE krever endring, sier skjemaet at varselet ikke kreves, men tilbyr det (OV-U15)', async () => {
+    await vis(medGrunnlag, 'vederlag');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varsel' }));
+    expect(screen.getByRole('note')).toHaveTextContent(
+      'TE krever endring, og da kreves det ikke varsel etter § 34.1.2'
+    );
+    expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeEnabled();
+  });
+
+  it('TE registrerer et varsel sendt utenfor appen med datoen og brevet, uten brevkontroll (MM-U1, MM-U17)', async () => {
+    const lastOpp = vi.fn().mockResolvedValue({ ...vedlegg, stoerrelse: 10 });
+    const { send } = await vis(iSvikt, 'vederlag', undefined, lastOpp);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Varsel sendt utenfor appen' }));
+    const knapp = screen.getByRole('button', { name: /Registrer varselet/ });
+    expect(knapp).toBeDisabled();
+    await fireEvent.input(screen.getByLabelText('Datoen varselet ble sendt'), {
+      target: { value: '2026-10-10' },
+    });
+    await fireEvent.change(screen.getByLabelText('Brevet med varselet'), {
+      target: { files: [new File(['%PDF'], 'varsel.pdf', { type: 'application/pdf' })] },
+    });
+    await screen.findByText('varsel.pdf');
+    expect(screen.getByText('Registrerer varselet sendt utenfor appen')).toBeInTheDocument();
+    await fireEvent.click(knapp);
+    await vi.waitFor(() => expect(send).toHaveBeenCalledOnce());
+    expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
+    expect(sendt(send)).toEqual({
+      type: 'varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.2',
+      sendt: '2026-10-10',
+      dokumentasjon: ['V-1'],
+    });
+  });
+
+  it('etter vederlagskravet tilbyr skjemaet registreringen, men ikke et varsel fra appen (OV-U5, VS-U16)', async () => {
+    await vis(medVederlag, 'vederlag');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
+    expect(screen.queryByRole('radio', { name: 'Varsel' })).toBeNull();
+    expect(screen.getByRole('radio', { name: 'Varsel sendt utenfor appen' })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Spesifisert krav' })).toBeChecked();
+  });
+
+  it('når varselet er registrert, tilbys det ikke igjen (SK-12)', async () => {
+    const varslet = skrevet(iSvikt, 'TE', {
+      type: 'send_varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.2',
+    });
+    await vis(varslet, 'vederlag');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    expect(screen.queryByRole('radio', { name: 'Varsel' })).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'Varsel sendt utenfor appen' })).toBeNull();
+    expect(screen.getByLabelText('Fast pris')).toBeInTheDocument();
+  });
+
+  it.each([
+    [
+      'varselet fra appen med fritekst',
+      { varsel_type: 'varsel', begrunnelse: '<p>T</p>' },
+      'ingen fritekst',
+    ],
+    [
+      'registreringen uten vedlegg',
+      { registrert: { sendt: '2026-10-10', vedlegg: [] } },
+      'Legg ved brevet',
+    ],
+    [
+      'registreringen med tekst fra appen',
+      { registrert: { sendt: '2026-10-10', vedlegg: [vedlegg] }, begrunnelse: '<p>T</p>' },
+      'ingen tekst',
+    ],
+  ])('adapteren avviser %s i stedet for å forenkle den', (_n, data, melding) => {
+    expect(() => vederlagskommandoFraSkjema(data, '2026-10-19')).toThrow(melding);
   });
 });

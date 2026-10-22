@@ -254,6 +254,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svar.utregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
+  // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
+  ['Utsagn', 'utsagn', 'hjemmel'],
   // VS-U29: at TEs begrunnelse etter § 33.6.2 annet ledd b ikke er et svar etter annet ledd.
   ['Utsagn', 'utsagn', 'grunn'],
   ['Standpunkt', 'relasjon', 'id art gjelder'],
@@ -361,8 +363,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     `beslutningsgrunnlag regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`,
   ],
   ['frosset/standpunkt.ts', 'frosset', 'prinsipalt'],
-  // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder.
-  ['frosset/standpunkt.ts', 'regelsett', 'gjelderVarslingsplikten', ['kommandoer/nyttelast.ts']],
+  // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
+  // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
+  [
+    'frosset/standpunkt.ts',
+    'regelsett',
+    'gjelderVarslingsplikten hjemmelenGjelder',
+    ['kommandoer/nyttelast.ts'],
+  ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
   [
     'frosset/standpunkt.ts',
@@ -515,16 +523,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
   // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
   ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
-  [
-    'kommandoer/kommando.ts:formfeil',
-    'kommando',
-    'type spor innhold svar varsel sendt dokumentasjon',
-  ],
-  ['kommandoer/kommando.ts:formfeil.varsel', 'kommando', 'sendt'],
+  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
+  // #984: datoen og vedleggene i kommandoen, med stien feilmeldingene viser til.
+  ['kommandoer/kommando.ts:brevfelt', 'kommando', 'sti sendt dokumentasjon'],
+  // OV-U5: sporet og bestemmelsen i TEs varsel.
+  ['Varselet', 'kommando', 'spor hjemmel'],
   ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
-  ['typer.ts', 'relasjon', 'SPOR KRAVSPOR'],
+  ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel'],
+  ['VARSELSPOR', 'relasjon', '33.4 34.1.2'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
   [
@@ -660,7 +668,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'krav svar utsagn opplysninger dokumentasjon',
     ['format/leser.ts'],
   ],
-  ['format/leser.ts:lesDokument(e)', 'rad', 'id art spor erstatter innhold', ['format/leser.ts']],
+  [
+    'format/leser.ts:lesDokument(e)',
+    'rad',
+    'id art spor erstatter innhold hjemmel',
+    ['format/leser.ts'],
+  ],
   ['format/leser.ts:lesDokument(o)', 'rad', 'id hva dato gjelder oppfylt', ['format/leser.ts']],
   ['format/leser.ts:lesDokument(s)', 'rad', 'spor', ['format/leser.ts']],
   [

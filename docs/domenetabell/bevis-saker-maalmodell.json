@@ -504,7 +504,7 @@
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["varsle:frist", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
+            "handlinger.TE": ["varsle:vederlag", "varsle:frist", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
             "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }
@@ -5476,6 +5476,235 @@
                 "innsigelse_fra_BH"
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-VS-07a",
+      "rader": [
+        "VS-07"
+      ],
+      "start": null,
+      "forslag": "OV-U5, LV-U19: TE sender et eget varsel etter § 34.1.2 fra appen uten beløp; påberopelsen i svaret og innsigelsen gjelder det",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "svikt",
+          "underkategori": "medvirkning",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "varsel",
+          "spor": "vederlag",
+          "navn": "D-v"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D5",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent"
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "varslet_i_tide": false
+            }
+          ]
+        },
+        {
+          "handling": "innsigelse",
+          "part": "BH",
+          "gjelder": "D-v#varsel",
+          "navn": "D6"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "forutsetning",
+          "kilde": [
+            "OV-U5"
+          ],
+          "forventet": {
+            "varsel.vederlag": null,
+            "handlinger.TE": {
+              "inneholder": [
+                "varsle:vederlag",
+                "sende_varsel:vederlag"
+              ]
+            }
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U5",
+            "VS-U15",
+            "V-SK12"
+          ],
+          "forventet": {
+            "avvist": false,
+            "varsel.vederlag": "D-v",
+            "varsel.frist": null,
+            "registrert.D-v": false,
+            "handlinger.TE": {
+              "inneholder": [
+                "krav:vederlag",
+                "varsle:frist"
+              ],
+              "mangler": [
+                "varsle:vederlag",
+                "sende_varsel:vederlag"
+              ]
+            }
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U5",
+            "V-SK12"
+          ],
+          "prov": {
+            "handling": "varsel",
+            "spor": "vederlag",
+            "sendt": "2026-09-02"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "VARSEL_REGISTRERT"
+          }
+        },
+        {
+          "etter": 4,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U5",
+            "VS-U20",
+            "HF-U1"
+          ],
+          "forventet": {
+            "standpunkt.S-v1.rettidighet.hjemmel": "34.1.2",
+            "standpunkt.S-v1.rettidighet.gjelder": "D-v#varsel",
+            "virkning.S-v1.rettidighet": "prinsipalt",
+            "annet_varsel.S-v1": []
+          }
+        },
+        {
+          "etter": 5,
+          "rolle": "mal",
+          "kilde": [
+            "VS-U24",
+            "VS-U1"
+          ],
+          "forventet": {
+            "avvist": false,
+            "innsigelser": [
+              "BH:D-v#varsel"
+            ],
+            "visning.etiketter.vederlag": {
+              "inneholder": [
+                "innsigelse_fra_BH"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "F-VS-07b",
+      "rader": [
+        "VS-07"
+      ],
+      "start": "krav_samord",
+      "forslag": "OV-U5, VS-U16, OV-U15: etter vederlagskravet avvises et varsel fra appen, et tidligere varsel registreres, og der TE krever endring avvises innsigelsen mot det",
+      "forventningsgrunnlag": "avklart_tolkning",
+      "steg": [
+        {
+          "handling": "varsel",
+          "spor": "vederlag",
+          "sendt": "2026-09-02",
+          "navn": "D-v"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U5",
+            "VS-U16"
+          ],
+          "forventet": {
+            "handlinger.TE": {
+              "inneholder": [
+                "varsle:vederlag"
+              ],
+              "mangler": [
+                "sende_varsel:vederlag"
+              ]
+            }
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U5",
+            "VS-U16"
+          ],
+          "prov": {
+            "handling": "varsel",
+            "spor": "vederlag"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "VEDERLAGSKRAV_SENDT"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U5",
+            "MM-U8"
+          ],
+          "forventet": {
+            "avvist": false,
+            "varsel.vederlag": "D-v",
+            "registrert.D-v": true
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U15"
+          ],
+          "prov": {
+            "handling": "innsigelse",
+            "part": "BH",
+            "gjelder": "D-v#varsel"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "VARSLINGSPLIKT_GJELDER_IKKE"
           }
         }
       ]

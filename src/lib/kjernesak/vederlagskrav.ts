@@ -2,13 +2,21 @@
  * Vederlagskravet TE sender på TS-stien (#667, #718, B-17). I prøven gjelder bare
  * tilbud (fast beløp): formatet har ingen annen metode ennå, så regningsarbeid og
  * enhetspriser avvises og tilbys ikke (OV-U1). Det samme gjelder rigg og drift,
- * produktivitet og varslene etter § 34.1.2 og § 34.1.3. TEs begrunnelse er
- * utdypningen under kravet og er valgfri (oppdragsgiver 17.10, #667).
+ * produktivitet og varselet etter § 34.1.3 (#1047). TEs begrunnelse er utdypningen
+ * under kravet og er valgfri (oppdragsgiver 17.10, #667). Varselet etter § 34.1.2 sendes
+ * fra appen uten beløp og uten fritekst, eller registreres med datoen og brevet som
+ * vedlegg når det er sendt utenfor appen (OV-U5, MM-U17).
  */
 
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
 import { letterText } from '$lib/approval/letter';
-import { utenVedlegg } from './skjemadata';
+import {
+  dagensDato,
+  registrering,
+  utenVedlegg,
+  varselFraAppen,
+  type RegistrertVarsel,
+} from './skjemadata';
 
 export interface Vederlagsvalg {
   /** Katalogens kode, som `FASTPRIS_TILBUD`. */
@@ -52,20 +60,36 @@ export interface Vederlagsskjemadata {
   begrunnelse?: string;
   saerskilt_krav?: unknown;
   vedlegg_ids?: string[];
+  /** `varsel` for varselet fra appen etter § 34.1.2. Uten: kravet. */
+  varsel_type?: string;
+  /** Varselet sendt utenfor appen, som registreres for seg. */
+  registrert?: RegistrertVarsel;
 }
 
+export type Vederlagskommando =
+  | Vederlagskrav
+  | { type: 'send_varsel'; spor: 'vederlag'; hjemmel: '34.1.2' }
+  | ReturnType<typeof registrering<'34.1.2'>>;
+
 /**
- * Kravet fra dataene `TeVederlagForm` bygger (#718). Begrunnelsen er HTML fra
- * editoren og blir utdypningen som ren tekst. Særskilte krav og vedlegg kan ikke
+ * Kommandoen fra dataene `TeVederlagForm` bygger (#718, #1096). Begrunnelsen er HTML fra
+ * editoren og blir utdypningen som ren tekst. Varselet fra appen og det registrerte
+ * varselet har ingen fritekst (OV-U5, MM-U17). Særskilte krav og vedlegg kan ikke
  * sendes ennå (OV-U1), så de avvises her og sendes ikke.
  */
-export function vederlagskravFraSkjema(data: Vederlagsskjemadata): Vederlagskrav {
+export function vederlagskommandoFraSkjema(
+  data: Vederlagsskjemadata,
+  idag = dagensDato()
+): Vederlagskommando {
   if (data.saerskilt_krav)
     throw new Error('Særskilte krav etter § 34.1.3 kan ikke sendes for denne saken ennå.');
   utenVedlegg(data);
+  const utdypning = letterText(data.begrunnelse ?? '').trim();
+  if (data.registrert) return registrering('34.1.2', data.registrert, utdypning, idag);
+  if (data.varsel_type === 'varsel') return varselFraAppen('34.1.2', utdypning);
   return vederlagskrav({
     metode: data.metode ?? '',
     beloep: data.belop_direkte ?? 0,
-    utdypning: letterText(data.begrunnelse),
+    utdypning,
   });
 }

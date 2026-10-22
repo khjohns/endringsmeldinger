@@ -15,6 +15,15 @@ export type Kravspor = (typeof KRAVSPOR)[number];
 
 export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2';
 
+/** TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2 (OV-U5). */
+export type Varselhjemmel = '33.4' | '34.1.2';
+export const VARSELSPOR = { '33.4': 'frist', '34.1.2': 'vederlag' } as const satisfies Record<
+  Varselhjemmel,
+  Kravspor
+>;
+export const erVarselhjemmel = (hjemmel: Hjemmel): hjemmel is Varselhjemmel =>
+  hjemmel in VARSELSPOR;
+
 /**
  * En opplysning en part oppgir om et dokument (2.4): når det ble sendt eller
  * mottatt, eller, for registrert korrespondanse, om brevet var en endringsordre
@@ -96,7 +105,7 @@ export type Standpunktsart = Standpunkt['art'];
 
 /** Utsagnene i et dokument som ikke er krav eller svar. */
 export type Utsagn =
-  | { id: string; art: 'varsel'; hjemmel: '33.4'; dokument: string }
+  | { id: string; art: 'varsel'; hjemmel: Varselhjemmel; dokument: string }
   | { id: string; art: 'trekk'; gjelder: string }
   | {
       id: string;

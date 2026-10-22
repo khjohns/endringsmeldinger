@@ -105,16 +105,27 @@ async function vis(part: Part | null) {
 
 const leseflate = () => document.querySelector('.read-content');
 
+/** Knappene som åpner TEs vederlagsskjema før kravet er sendt (#1096). */
+const TE_SKJEMAKNAPP =
+  /^(Send varsel eller krav|Send krav om vederlagsjustering|Registrer varsel)$/;
+
 describe('vederlagskravet fra Kontrollrommet', () => {
   it('TE sender tilbudet med den låste teksten og uten utdypning når begrunnelsen er tom', async () => {
     const { send } = await vis('TE');
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
 
-    // Bare tilbud kan sendes; de andre metodene, de særskilte kravene, varslene,
-    // vedleggene og utkastet vises ikke (OV-U1, oppdragsgiver 17.10).
+    // Bare tilbud kan sendes; de andre metodene, de særskilte kravene og varslene etter
+    // § 34.1.3, vedleggene og utkastet vises ikke (OV-U1, oppdragsgiver 17.10, #1047).
+    // Varselet etter § 34.1.2 er et eget valg (#1096).
     const skjema = within(document.querySelector('.form-content') as HTMLElement);
     expect(skjema.getByText('Fastpris')).toBeInTheDocument();
-    for (const ikke of [/Regningsarbeid/, /Enhetspris/, /Rigg og drift/, /Produktivitet/, /Varsel/])
+    for (const ikke of [
+      /Regningsarbeid/,
+      /Enhetspris/,
+      /Rigg og drift/,
+      /Produktivitet/,
+      /34\.1\.3/,
+    ])
       expect(skjema.queryByText(ikke)).toBeNull();
     expect(skjema.queryByText(/vedlegg/i)).toBeNull();
     expect(skjema.queryByText(/kladd|utkast|autolagret/i)).toBeNull();
@@ -153,7 +164,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
   it('TEs begrunnelse følger kravet som utdypning (oppdragsgiver 17.10)', async () => {
     const user = userEvent.setup();
     const { send } = await vis('TE');
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
     (document.querySelector('.tiptap') as HTMLElement).focus();
     await user.keyboard('Tilbudet gjelder ny peling');
@@ -177,7 +188,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     const kjernesak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', hent, send });
     await kjernesak.last();
     visRom(kjernesak);
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
@@ -214,7 +225,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
       if (document.body.textContent?.includes('Dette skjemaet finnes ikke')) uten.push('vist');
     });
     vakt.observe(document.body, { childList: true, subtree: true, characterData: true });
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
@@ -236,7 +247,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     });
     await kjernesak.last();
     const { rerender } = visRom(kjernesak);
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     expect(screen.getByLabelText('Fast pris')).toBeInTheDocument();
 
     await rerender({ view: { track: 'frist', mode: 'form', role: 'TE' } });
@@ -258,7 +269,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await kjernesak.last();
     expect(kjernesak.handlinger).toContain('krav:vederlag');
     visRom(kjernesak);
-    expect(screen.queryByRole('button', { name: 'Send krav om vederlagsjustering' })).toBeNull();
+    expect(screen.queryByRole('button', { name: TE_SKJEMAKNAPP })).toBeNull();
     expect(screen.getByRole('button', { name: 'Send ny versjon av kravet' })).toBeInTheDocument();
   });
 
@@ -266,7 +277,8 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     'en leser med siden %s fra serveren får ikke tilbud om vederlagskravet (#705)',
     async (part) => {
       await vis(part);
-      expect(screen.queryByRole('button', { name: 'Send krav om vederlagsjustering' })).toBeNull();
+      expect(screen.queryByRole('button', { name: TE_SKJEMAKNAPP })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Send ny versjon av kravet' })).toBeNull();
     }
   );
 
@@ -294,7 +306,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     });
     await kjernesak.last();
     visRom(kjernesak);
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
@@ -315,7 +327,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     });
     await kjernesak.last();
     const rom = visRom(kjernesak);
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
@@ -364,7 +376,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
 
   it('tilbake fra brevkontrollen går til skjemaet uten å sende, og avkrysningen gjelder ikke neste brev (#729)', async () => {
     const { send } = await vis('TE');
-    await fireEvent.click(screen.getByRole('button', { name: 'Send krav om vederlagsjustering' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     let kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
