@@ -290,14 +290,12 @@ function registreringer(journal: Domenehendelse[]): {
 } {
   const brev: RegistrertBrev[] = [];
   const feil: Utledning['begrensninger'] = [];
-  for (const h of journal) {
-    if (h.art !== 'dokument') continue;
-    const d = h.dokument;
+  for (const d of dokumenterI(journal)) {
     if (d.retter !== null) {
       const rettet = brev.find((b) => b.dokument === d.retter);
       if (!rettet || rettet.avsender !== d.avsender || rettet.rettetAv !== null) {
         feil.push({
-          hendelse: h.id,
+          hendelse: d.id,
           grunn: 'rettingen viser ikke til en gjeldende registrering fra samme side (OV-U17)',
         });
         continue;

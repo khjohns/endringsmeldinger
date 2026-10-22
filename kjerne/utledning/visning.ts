@@ -186,7 +186,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
 }
 
 /** OV-U10: et registrert brev kan ha krav appen ikke kjenner. */
-const BREV_UTENFOR_APPEN = 'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
+export const BREV_UTENFOR_APPEN =
+  'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
 
 /**
  * OV-U10: saken har registrert korrespondanse, som sakslisten og statusteksten leser. En

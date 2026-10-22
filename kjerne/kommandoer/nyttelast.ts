@@ -268,10 +268,6 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
 }
 
 /**
- * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
- * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1).
- */
-/**
  * OV-U17, OV-U18: en retting viser til en registrering av et brev som dokumentasjon
  * tidligere i saken, fra samme side. Er den rettet, rettes den siste i kjeden.
  */
@@ -292,6 +288,10 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
   return null;
 }
 
+/**
+ * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
+ * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1).
+ */
 export function nyttelastkontroll(
   k: Kommando,
   part: Part,

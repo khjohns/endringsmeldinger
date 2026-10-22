@@ -7,7 +7,7 @@
 import type { Leveringsoppdrag } from '$lib/api/kjerne';
 import { formatDateNorwegian, formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
 import type { RegistrertBrev, Utledning } from '$kjerne/utledning/utled';
-import type { Betegnelse, Visning } from '$kjerne/utledning/visning';
+import { BREV_UTENFOR_APPEN, type Betegnelse, type Visning } from '$kjerne/utledning/visning';
 import { brevtekstI } from '$kjerne/format/leser';
 import { SPOR, type Avsnitt, type Journalrad, type Spor } from '$kjerne/typer';
 
@@ -119,7 +119,7 @@ const TEKST: Record<string, string> = {
   mottak_bestridt: 'Mottaket er bestridt',
   endringsordre_bestridt: 'Endringsordren er bestridt',
   registrert_brev_uten_virkning: 'Et registrert brev står uten virkning',
-  brev_utenfor_appen: 'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.',
+  brev_utenfor_appen: BREV_UTENFOR_APPEN,
   varsel_med_frist_utenfor_appen:
     'Saken kan ikke utledes. Et varsel med frist må sendes utenfor appen og registreres senere.',
 };
@@ -260,6 +260,7 @@ export function lagSaksbilde(
     journal: journal.map((r) => {
       const erTolket = tolket.get(r.event_id) ?? false;
       const tekst = brevtekst(r, erTolket);
+      const registrert = vist.registrerteBrev.find((b) => b.dokument === r.event_id);
       return {
         hendelse: r.event_id,
         versjon: r.versjon,
@@ -270,9 +271,7 @@ export function lagSaksbilde(
         tekst,
         opplysninger: opplysningerI(r.event_id),
         oppdrag: oppdrag.filter((o) => o.event_id === r.event_id),
-        registrertBrev: ((b) => (b ? registrertBrevTekst(b, versjonFor) : null))(
-          vist.registrerteBrev.find((b) => b.dokument === r.event_id)
-        ),
+        registrertBrev: registrert ? registrertBrevTekst(registrert, versjonFor) : null,
       };
     }),
   };
