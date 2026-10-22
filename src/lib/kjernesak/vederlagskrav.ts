@@ -9,7 +9,6 @@
  */
 
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
-import { GJELDENDE_REGLER } from '$kjerne/regler/regelsett';
 import { letterText } from '$lib/approval/letter';
 import {
   dagensDato,
@@ -94,12 +93,3 @@ export function vederlagskommandoFraSkjema(
     utdypning,
   });
 }
-
-/**
- * Der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1). Varselet kan
- * likevel sendes, og skjemaet sier at det ikke kreves (OV-U15). Kjernens hovedkategori
- * og regel.
- */
-export const varseletKrevesIkke = (hovedkategori: unknown) =>
-  typeof hovedkategori === 'string' &&
-  !GJELDENDE_REGLER.gjelderVarslingspliktenForVederlag(hovedkategori);

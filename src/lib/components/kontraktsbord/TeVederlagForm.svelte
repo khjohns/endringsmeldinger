@@ -27,7 +27,6 @@
   const kjernesak = store.erKjernesak ? store : null;
   import {
     metodeKanSendesTilKjernen,
-    varseletKrevesIkke,
     type Vederlagsskjemadata,
   } from '$lib/kjernesak/vederlagskrav';
   import type { Kjernevedlegg } from '$lib/api/kjerne';
@@ -75,11 +74,7 @@
   const varselet = $derived({ sendt: varselSendt, vedlegg: registrerteVedlegg });
   // OV-U15: der TE krever endring, kreves det ikke noe varsel, men det kan sendes.
   const krevesIkke = $derived(
-    kjernesak
-      ? varseletKrevesIkke(
-          kjernesak.kjernesak.utledning?.spor.grunnlag.gjeldendeKrav?.innhold.hovedkategori
-        )
-      : false
+    kjernesak?.kjernesak.visning?.spor.vederlag.etiketter.includes('varsel_kreves_ikke') ?? false
   );
   const VALGNAVN = {
     varsel: 'Varsel',

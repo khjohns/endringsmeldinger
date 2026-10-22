@@ -2986,6 +2986,13 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     expect(s.u().spor.vederlag.varsel?.hjemmel).toBe('34.1.2');
   });
 
+  it('der TE krever endring, sier visningen at varselet ikke kreves, og ved svikt ikke (OV-U15, § 34.1.1)', () => {
+    const etiketter = (kategori: 'endring' | 'svikt') =>
+      visning(medGrunnlag(kategori).u(), GJELDENDE_REGLER).spor.vederlag.etiketter;
+    expect(etiketter('endring')).toContain('varsel_kreves_ikke');
+    expect(etiketter('svikt')).not.toContain('varsel_kreves_ikke');
+  });
+
   it('et varsel sendt utenfor appen registreres med datoen og brevet, uten tekst fra appen (OV-U5, MM-U17)', () => {
     const s = medGrunnlag('svikt');
     const rad = s.send('TE', {

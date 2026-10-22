@@ -66,7 +66,7 @@ export function gjelderVarslingsplikten(
  * alltid i fristen, § 32.2 der varslingsplikten gjelder kategorien, og § 34.1.2
  * for svikt og andre forhold byggherren har risikoen for.
  */
-function hjemmelenGjelder(
+export function hjemmelenGjelder(
   hjemmel: Hjemmel,
   grunnlagskrav: Krav | null | undefined,
   regler: Regelsett

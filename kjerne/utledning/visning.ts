@@ -11,7 +11,7 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { hjemmelenGjelder, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import {
   enighetensVirkning,
   grunnlagskravFor,
@@ -127,6 +127,13 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   if (spor === 'grunnlag' && u.passivitet.length) ut.push('passivitet_paaberopt');
   if (s.ingenKrav) ut.push('ingen_krav');
   else if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');
+  // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
+  else if (
+    spor === 'vederlag' &&
+    u.spor.grunnlag.gjeldendeKrav &&
+    !hjemmelenGjelder('34.1.2', u.spor.grunnlag.gjeldendeKrav, regler)
+  )
+    ut.push('varsel_kreves_ikke');
   return ut;
 }
 
