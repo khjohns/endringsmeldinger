@@ -2894,15 +2894,15 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F360',
-    feilklasse: 'en retting som ikke viser til en registrering i saken, forstås (OV-U17)',
+    feilklasse: 'en retting fra motparten forstås (OV-U17)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
         '      if (!rettet || rettet.avsender !== d.avsender || rettet.rettetAv !== null) {',
-        '      if (false) {',
+        '      if (!rettet || rettet.rettetAv !== null) {',
       ],
     ],
-    mal: ['en retting som viser til noe som ikke er i saken'],
+    mal: ['en retting som er fra motparten'],
   },
   {
     id: 'F361',

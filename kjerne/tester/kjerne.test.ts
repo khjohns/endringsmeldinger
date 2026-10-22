@@ -4,10 +4,11 @@
  * uavklart. Hver avvisning har en kontrollsak som bare skiller seg i det ene.
  */
 
+import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { Journalrad, Krav, Part, Standpunktsvirkning } from '../typer.ts';
-import { frysBrev, vurder, type Kontekst } from '../kommandoer/skriving.ts';
+import { frysBrev, Skrivefeil, vurder, type Kontekst } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
@@ -1560,8 +1561,15 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     tidspunkt: () => new Date('2026-10-21T10:00:00Z'),
     nyId: randomUUID,
   });
-  const prov = (journal: Journalrad[], kommando: Data, part: Part) =>
-    vurder(kommando, kontekst(part), journal, KJERNE, mellomlager(kommando));
+  const prov = (journal: Journalrad[], kommando: Data, part: Part) => {
+    try {
+      return vurder(kommando, kontekst(part), journal, KJERNE, mellomlager(kommando));
+    } catch (feil) {
+      // 7.1.2 i designnotatet: kjernen skal forstå det den selv skriver.
+      if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
+      throw feil;
+    }
+  };
   const regel = (journal: Journalrad[], kommando: Data, part: Part) => {
     const u = prov(journal, kommando, part);
     return u.godtatt ? 'godtatt' : u.avvisning.regel;
@@ -1657,13 +1665,18 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(regel(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH')).toBe('godtatt');
   });
 
-  it.each<[string, (data: Data) => void, string]>([
-    ['viser til noe som ikke er i saken', (d) => (d.retter = randomUUID()), 'rettingen viser ikke'],
+  it.each<[string, (rad: Journalrad) => void, string]>([
+    [
+      'viser til noe som ikke er i saken',
+      (r) => (r.data.retter = randomUUID()),
+      'rettingen viser ikke',
+    ],
+    ['er fra motparten (OV-U17)', (r) => (r.aktor_rolle = 'TE'), 'rettingen viser ikke'],
   ])('en retting som %s, gjør saken ikke forstått', async (_, endre, grunn) => {
     const { journal, rad } = await medBrevFraBH();
     const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH');
     expect(grunner(journal), 'kontrollsak').toEqual([]);
-    endre(retting.data);
+    endre(retting);
     expect(grunner(journal)).toEqual([expect.stringContaining(grunn)]);
   });
 
