@@ -52,7 +52,7 @@ import {
   svarIkkeGodtatt,
   venterPaaSvar,
 } from '../utledning/utled.ts';
-import { harRegistrertBrev, visning } from '../utledning/visning.ts';
+import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 
@@ -4062,7 +4062,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       const foer = visning(s.u(), GJELDENDE_REGLER);
       expect(foer.merknader).toContain('registrert_brev_uten_virkning');
       expect(foer.merknader).not.toContain('brev_utenfor_appen');
-      expect(harRegistrertBrev(s.u()), 'statusteksten og sakslisten').toBe(false);
+      expect(harIkkeVurdertBrev(s.u()), 'statusteksten og sakslisten').toBe(false);
       s.rad('BH', {
         beskrivelse: 'Brev om fremdriften',
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
@@ -4074,7 +4074,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       expect(visning(s.u(), GJELDENDE_REGLER).merknader, 'kontrollsak').toContain(
         'brev_utenfor_appen'
       );
-      expect(harRegistrertBrev(s.u()), 'kontrollsak').toBe(true);
+      expect(harIkkeVurdertBrev(s.u()), 'kontrollsak').toBe(true);
     });
 
     it('en revisjon av et svar uten virkning (MM-U18)', () => {

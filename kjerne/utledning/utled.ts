@@ -258,7 +258,6 @@ function tom(
   regler: Regelsett,
   begrensninger: Utledning['begrensninger']
 ): Utledning {
-  const brev = registreringer(journal).brev;
   return {
     versjon: journal.at(-1)?.versjon ?? 0,
     regelversjon: regler.versjon,
@@ -278,8 +277,8 @@ function tom(
     frafalt: false,
     endringsordre: 'nei',
     avgjorteSpor: [],
-    registrerteBrev: brev,
-    ikkeVurderteBrev: ikkeVurderte(journal, brev, false),
+    registrerteBrev: registreringer(journal).brev,
+    ikkeVurderteBrev: [],
   };
 }
 
@@ -602,7 +601,9 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   }
   const u = utledSporene(journal, regler, uten);
   merkAvgjort(u);
-  return konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
+  const ut = konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
+  ut.ikkeVurderteBrev = ikkeVurderte(journal, ut.registrerteBrev, ut.forstaatt);
+  return ut;
 }
 
 /**
@@ -1001,11 +1002,9 @@ function utledSporene(
     gSvar === null &&
     spor.grunnlag.gjeldendeKrav !== null &&
     frafalletBinder({ spor, elementer });
-  const utgangspunkt = tom(journal, regler, begrensninger);
   return {
-    ...utgangspunkt,
+    ...tom(journal, regler, begrensninger),
     forstaatt: true,
-    ikkeVurderteBrev: ikkeVurderte(journal, utgangspunkt.registrerteBrev, true),
     svar,
     elementer,
     innsigelser: paaberopelser('innsigelse'),

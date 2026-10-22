@@ -193,7 +193,7 @@ export const BREV_UTENFOR_APPEN =
  * OV-U10, OV-U19: saken har et registrert brev appen ikke vurderer innholdet i, etter
  * utledningen. Merknaden, statusteksten og sakslisten leser det.
  */
-export const harRegistrertBrev = (u: Utledning): boolean => u.ikkeVurderteBrev.length > 0;
+export const harIkkeVurdertBrev = (u: Utledning): boolean => u.ikkeVurderteBrev.length > 0;
 
 /**
  * OV-U20, OV-U4: når kravet venter på svar, motpartens registrerte brev for
@@ -221,12 +221,12 @@ function merknader(u: Utledning, kode: Statuskode | null): string[] {
       ? ['registrert_brev_uten_virkning']
       : []
     : ['varsel_med_frist_utenfor_appen'];
-  if (kode !== 'alle_krav_avgjort' && harRegistrertBrev(u)) ut.push('brev_utenfor_appen');
+  if (kode !== 'alle_krav_avgjort' && harIkkeVurdertBrev(u)) ut.push('brev_utenfor_appen');
   return ut;
 }
 
 function statustekst(u: Utledning, kode: Statuskode): string {
-  return kode === 'alle_krav_avgjort' && harRegistrertBrev(u)
+  return kode === 'alle_krav_avgjort' && harIkkeVurdertBrev(u)
     ? `${STATUSTEKST[kode]}. ${BREV_UTENFOR_APPEN}`
     : STATUSTEKST[kode];
 }

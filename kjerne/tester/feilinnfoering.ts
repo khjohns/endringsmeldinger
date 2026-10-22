@@ -2676,7 +2676,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
-        "kode === 'alle_krav_avgjort' && harRegistrertBrev(u)",
+        "kode === 'alle_krav_avgjort' && harIkkeVurdertBrev(u)",
         "kode === 'alle_krav_avgjort' && false",
       ],
     ],
@@ -2933,8 +2933,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
-        "  if (kode !== 'alle_krav_avgjort' && harRegistrertBrev(u))",
-        '  if (harRegistrertBrev(u))',
+        "  if (kode !== 'alle_krav_avgjort' && harIkkeVurdertBrev(u))",
+        '  if (harIkkeVurdertBrev(u))',
       ],
     ],
     mal: ['OV-U19: når kravene er avgjort'],

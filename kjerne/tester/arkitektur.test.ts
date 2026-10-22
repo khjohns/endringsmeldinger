@@ -552,7 +552,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Utledning',
     'relasjon',
     'registrerteBrev',
-    ['kommandoer/nyttelast.ts:retting', 'utledning/utled.ts:utledSporene'],
+    ['kommandoer/nyttelast.ts:retting', 'utledning/utled.ts:utled'],
   ],
   [
     'RegistrertBrev',

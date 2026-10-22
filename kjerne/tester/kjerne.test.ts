@@ -17,7 +17,7 @@ import { kanInngaaIEo, kraveneErAvgjort, utled } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import { harRegistrertBrev, visning } from '../utledning/visning.ts';
+import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
@@ -567,11 +567,11 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     const bane = minnebane();
     await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
     const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
-    expect(harRegistrertBrev(u)).toBe(false);
+    expect(harIkkeVurdertBrev(u)).toBe(false);
     const kontroll = minnebane();
     await bygg(kontroll, ['krav_irreg', registrert({ sendt: '2026-09-30' })]);
     const k = utled(lesJournal(await kontroll.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
-    expect(harRegistrertBrev(k), 'kontrollsak: et svar som er dokumentasjon (OV-U4)').toBe(true);
+    expect(harIkkeVurdertBrev(k), 'kontrollsak: et svar som er dokumentasjon (OV-U4)').toBe(true);
   });
 
   it('OV-U19, OV-U4: en registrert begrunnelse (KA-U35) er dokumentasjon og teller som brev utenfor appen', async () => {
@@ -588,11 +588,11 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     await bygg(bane, ['krav_irreg', eo, begrunnelse]);
     const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt, 'forutsetning').toBe(true);
-    expect(harRegistrertBrev(u)).toBe(true);
+    expect(harIkkeVurdertBrev(u)).toBe(true);
     const kontroll = minnebane();
     await bygg(kontroll, ['krav_irreg', eo]);
     const k = utled(lesJournal(await kontroll.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
-    expect(harRegistrertBrev(k), 'kontrollsak: bare endringsordren').toBe(false);
+    expect(harIkkeVurdertBrev(k), 'kontrollsak: bare endringsordren').toBe(false);
   });
 
   it('OV-U19, MM-U2: mens saken ikke er forstått, teller også en endringsordre registrert før saken stoppet (oppdragsgiver 22.10)', async () => {
@@ -600,7 +600,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
     const journal = await bane.journal();
     expect(
-      harRegistrertBrev(utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER)),
+      harIkkeVurdertBrev(utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER)),
       'kontrollsak: saken er forstått'
     ).toBe(false);
     journal.push({
@@ -611,7 +611,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     });
     const u = utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt, 'forutsetning').toBe(false);
-    expect(harRegistrertBrev(u)).toBe(true);
+    expect(harIkkeVurdertBrev(u)).toBe(true);
     expect(visning(u, GJELDENDE_REGLER).merknader).toContain('brev_utenfor_appen');
   });
 
@@ -1704,7 +1704,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(etter.spor.grunnlag.registrerteBrev).toEqual([]);
     expect(etter.merknader).not.toContain('brev_utenfor_appen');
     expect(etter.registrerteBrev.map((b) => b.rettetAv)).toEqual([retting.event_id]);
-    expect(harRegistrertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
+    expect(harIkkeVurdertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
   });
 
   it('OV-U19: et varsel registrert med virkning teller ikke som brev utenfor appen i merknaden, statusen og sakslisten; et brev som dokumentasjon gjør det', async () => {
@@ -1716,10 +1716,10 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     const journal = await bane.journal();
     expect(forstaatt(journal), 'forutsetning').toBe(true);
     expect(vist(journal).merknader).not.toContain('brev_utenfor_appen');
-    expect(harRegistrertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
+    expect(harIkkeVurdertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
     godtatt(journal, registrering(), 'TE');
     expect(vist(journal).merknader, 'kontrollsak').toContain('brev_utenfor_appen');
-    expect(harRegistrertBrev(utledet(journal)), 'kontrollsak').toBe(true);
+    expect(harIkkeVurdertBrev(utledet(journal)), 'kontrollsak').toBe(true);
   });
 
   it('OV-U4, OV-U18: rettingen godtas i en sak som ikke er forstått, og brevet vises med datoen', async () => {
