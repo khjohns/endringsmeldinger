@@ -2952,8 +2952,8 @@ function kjoerVitest(
         // Filene deler modulene i en arbeider. Kontrollkjøringen viser at hele samlingen er
         // grønn slik; et utvalg grupperer filene annerledes (#934).
         '--no-isolate',
-        // Kopiene deler prosessorene. Et tidsavbrudd er ikke en assertion og kan bare
-        // gi «IKKE OPPDAGET» eller rød kontroll, så grensen heves over standarden på 5 s.
+        // Kopiene deler prosessorene. Et tidsavbrudd er ikke en assertion og gir en ny
+        // kjøring (#1015), så grensen heves over den i `vite.config.ts`.
         '--testTimeout=60000',
         // Prosessorene deles mellom kopiene, ikke ganges med dem.
         `--maxWorkers=${arbeiderePerKopi}`,
