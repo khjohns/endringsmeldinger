@@ -243,7 +243,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           'FORESPORSEL_BEGRUNNET',
           'TE har svart på en forespørsel med en begrunnelse etter § 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes fra appen.'
         );
-      // VS-U31: høyst én forespørsel fra appen i saken. En registrert gjør saken uforstått (format/leser.ts).
+      // VS-U31: høyst én forespørsel fra appen i saken. En registrert forespørsel gjør saken
+      // uforstått (format/leser.ts); et brev registrert som dokumentasjon teller ikke (OV-U4).
       if (s.foresporsler.length)
         return avvis(
           'FORESPORSEL_SENDT',

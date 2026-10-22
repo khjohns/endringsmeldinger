@@ -372,9 +372,13 @@ function skriv(
   // for seg, så bare den nye leses; hele journalen utledes på nytt med den. I en sak som
   // ikke er forstått, godtas bare registreringen etter OV-U4, og den nye raden må forstås.
   const etter = utled([...lest, ...lesJournal([rad], kjerne.leserformat)], kjerne.regler);
-  if (u.forstaatt ? !etter.forstaatt : etter.begrensninger.some((b) => b.hendelse === rad.event_id))
+  // En begrensning raden gir, kan stå på en eldre hendelse, så den nye leses som differansen.
+  const hindrer = etter.begrensninger.filter(
+    (b) => !u.begrensninger.some((f) => f.hendelse === b.hendelse && f.grunn === b.grunn)
+  );
+  if (u.forstaatt ? !etter.forstaatt : hindrer.length > 0)
     throw new Skrivefeil(
-      `Kjernen forstår ikke dokumentet den selv skriver: ${etter.begrensninger.map((b) => b.grunn).join('; ')}`
+      `Kjernen forstår ikke dokumentet den selv skriver: ${hindrer.map((b) => b.grunn).join('; ')}`
     );
   return { godtatt: true, hendelser: [rad] };
 }
