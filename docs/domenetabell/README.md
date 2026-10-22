@@ -155,6 +155,7 @@ lagringsformatet står under.
 | `varsle:frist` (sende eller registrere varselet) | `varsle:frist` (registrere et varsel sendt utenfor appen) og `sende_varsel:frist` (sende varselet fra appen) | Handlingene i `pending_actions`. Et varsel fra appen avvises når et fristkrav er sendt, mens registreringen ikke gjør det ([#411](https://github.com/khjohns/endringsmeldinger/issues/411)), så de har hver sin nøkkel (INV-MM-1) |
 | Statusen `avsluttet_oppgjort` («Avsluttet: oppgjort») | `alle_krav_avgjort` («Alle krav sendt i appen er avgjort») | [OV-U10](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u10): visningen sier hva appen vet, og med et registrert brev også at saken har brev sendt utenfor appen. Lagres ikke (#493) |
 | Ny | `Utledning.avgjorteSpor` og `varAvgjort` | [OV-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3): grunnlaget og sporene med krav da kravene var avgjort. `KRAVENE_AVGJORT` gjelder dem, også etter at TE har sendt det første kravet i et annet spor (#493) |
+| Ny | Kommandoen `registrert_brev`, handlingen `registrere_brev` | [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4), [OV-U16](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u16): hver side registrerer sitt eget brev sendt utenfor appen som dokumentasjon, også når saken ikke er forstått. «Registrere», som `varsle` for et varsel sendt utenfor appen (#1045) |
 
 ### Navn i lagringsformatet
 
@@ -182,6 +183,7 @@ fra Python-epoken og målmodellen og navnene i format 1.
 | Finnes ikke | `endringsordre` i grunnlagskravet | GR-U16: endringsordrens dato eller nummer, bare i underkategorien endringsordre |
 | `dato_oppdaget` i grunnlagshendelsen | `paalegg_mottatt` og `klar_over_forholdet` i grunnlagskravet | [VS-U26](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u26): datoen varslingsplikten løper fra, med ordene i § 32.2 og § 34.1.2. Hvert felt bare i kategorien det gjelder, ingen i underkategorien endringsordre |
 | Finnes ikke | `brevtekst` i dokumentet, med `gjelder`, `laast` og `utdypning` | Teksten i et brev appen sender (LV-U2, LV-U3, LV-U4); et registrert brev har ingen (MM-U17) |
+| Finnes ikke | `beskrivelse` og `spor` i dokumentet | [OV-U16](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u16): beskrivelsen av et brev registrert som dokumentasjon, med ordene til den som registrerte, og sporene det hører til; uten `spor` hører det til saken. «Beskrivelse», som i vedtaket. Ikke beskrivelsen av forholdet, som er `utdypning` under grunnlagskravet (#1045) |
 | `standpunkter` med `utsagn`, `art` og `virkning` i beslutningsgrunnlaget | `virkninger` med `standpunkt` og `virkning` (`prinsipalt` eller `subsidiaert`), og `uten_virkning` med standpunktene uten virkning | Arten leses av standpunktet. Prinsipalt og subsidiært er slik brevet ordner standpunktene; uten virkning er appens vurdering og står for seg (HF-U2) |
 | `hovedgrunn`, `subsidiaer` | `prinsipalt`, `subsidiaert` | Brevets ord |
 | `enighetsgrunnlag` i svaret | `sammenfall` i beslutningsgrunnlaget | GR-U7, GR-U10, MM-U11 |

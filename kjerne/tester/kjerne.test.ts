@@ -6,8 +6,8 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import type { Journalrad, Krav, Standpunktsvirkning } from '../typer.ts';
-import { frysBrev } from '../kommandoer/skriving.ts';
+import type { Journalrad, Krav, Part, Standpunktsvirkning } from '../typer.ts';
+import { frysBrev, vurder, type Kontekst } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
@@ -20,7 +20,7 @@ import { visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
-import type { Handling } from './klient.ts';
+import { mellomlager, type Handling } from './klient.ts';
 import type { Kjoering } from './kjoerer.ts';
 
 type Data = Record<string, unknown>;
@@ -537,7 +537,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     const g = grunner([...journal, medAvklaring]);
     expect(g).toEqual([expect.stringContaining('en senere avklaring')]);
     expect(g[0]).toContain('(OV-U13)');
-    expect(g[0]).not.toContain('verken krav, svar eller utsagn');
+    expect(g[0]).not.toContain('verken krav, svar');
   });
 
   it.each<[string, Data]>([
@@ -1381,5 +1381,155 @@ describe('kontrollen av referansene og resultatet i svaret', () => {
     expect(await skrivMed(svart, h, uendret), 'kontrollsak: etter svaret').toBe('godtatt');
     const usvart = await bygg(minnebane(), ['krav_irreg']);
     expect(await skrivMed(usvart, h, uendret)).toBe('INGEN_SVAR');
+  });
+});
+
+describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U16)', () => {
+  const brevet = '00000000-0000-4000-8000-000000001045';
+  const registrering = (ekstra: Data = {}): Data => ({
+    type: 'registrert_brev',
+    spor: ['frist'],
+    sendt: '2026-10-20',
+    beskrivelse: 'Forespørsel etter § 33.6.2',
+    dokumentasjon: [brevet],
+    ...ekstra,
+  });
+  const kontekst = (part: Part, dag = '2026-10-21'): Kontekst => ({
+    sakId: 'SAK-1045',
+    aktoerId: part.toLowerCase(),
+    part,
+    teamId: null,
+    tidspunkt: () => new Date(`${dag}T10:00:00Z`),
+    nyId: randomUUID,
+  });
+  const prov = (journal: Journalrad[], kommando: Data, part: Part = 'TE', dag?: string) =>
+    vurder(kommando, kontekst(part, dag), journal, KJERNE, mellomlager(kommando));
+  const godtatt = (journal: Journalrad[], kommando: Data, part: Part = 'TE') => {
+    const u = prov(journal, kommando, part);
+    if (!u.godtatt)
+      throw new Error(`Forutsetning: avvist: ${u.avvisning.regel}: ${u.avvisning.melding}`);
+    return u.hendelser[0];
+  };
+  /** En rad uten format, som Python skrev (B-17): saken er ikke forstått (MM-U2). */
+  const utenFormat = (journal: Journalrad[]): Journalrad => ({
+    ...structuredClone(journal.at(-1)!),
+    event_id: randomUUID(),
+    versjon: journal.at(-1)!.versjon + 1,
+    format: null,
+  });
+
+  it.each<[string, Data]>([
+    ['uten vedlegg', { dokumentasjon: undefined }],
+    ['med en beskrivelse uten tegn', { beskrivelse: '  ' }],
+    ['med samme spor to ganger', { spor: ['frist', 'frist'] }],
+    ['med brevtekst fra appen (MM-U17)', { brevtekst: ['Brevet'] }],
+    ['med en dato som ikke er en dato', { sendt: '2026-10-32' }],
+  ])('avviser formen %s', (_, ekstra) => {
+    expect(formfeil(registrering({}))).toEqual([]);
+    expect(formfeil(JSON.parse(JSON.stringify(registrering(ekstra))))).not.toEqual([]);
+  });
+
+  it('godtar et brev uten spor, som da hører til saken (OV-U16)', () => {
+    expect(formfeil(JSON.parse(JSON.stringify(registrering({ spor: undefined }))))).toEqual([]);
+  });
+
+  it.each<Part>(['TE', 'BH'])(
+    'brevet fra %s lagres med beskrivelsen, sporene, datoen og vedlegget, uten brevtekst, og endrer ingenting i utledningen (OV-U4)',
+    async (part) => {
+      const bane = minnebane();
+      await bygg(bane, ['krav_irreg']);
+      const journal = await bane.journal();
+      const rad = godtatt(journal, registrering(), part);
+      expect(rad.aktor_rolle).toBe(part);
+      expect(rad.data).toEqual({
+        beskrivelse: 'Forespørsel etter § 33.6.2',
+        spor: ['frist'],
+        opplysninger: [{ id: expect.any(String), hva: 'sendt', dato: '2026-10-20' }],
+        dokumentasjon: [
+          { vedlegg_id: brevet, filnavn: `${brevet}.pdf`, innhold_sha256: '0'.repeat(64) },
+        ],
+      });
+      const [lest] = lesJournal([rad], KJERNE.leserformat);
+      if (lest.art !== 'dokument') throw new Error(`Forutsetning: raden er ${lest.art}`);
+      expect(lest.dokument.beskrivelse).toBe('Forespørsel etter § 33.6.2');
+      expect(lest.dokument.spor).toEqual(['frist']);
+      const foer = utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER);
+      const etter = utled(lesJournal([...journal, rad], KJERNE.leserformat), GJELDENDE_REGLER);
+      expect(etter.forstaatt).toBe(true);
+      expect(etter.spor).toEqual(foer.spor);
+      expect(handlinger(etter, 'TE')).toEqual(handlinger(foer, 'TE'));
+      expect(handlinger(etter, 'BH')).toEqual(handlinger(foer, 'BH'));
+    }
+  );
+
+  it.each<[string, (string | Handling)[], boolean]>([
+    ['når grunnlaget er trukket', ['krav_irreg', { handling: 'trekk', spor: 'grunnlag' }], false],
+    ['når saken ikke er forstått (MM-U2)', ['krav_irreg'], true],
+  ])('registreringen godtas %s, og et krav avvises (OV-U4)', async (_, steg, uforstaatt) => {
+    const bane = minnebane();
+    await bygg(bane, steg);
+    let journal = await bane.journal();
+    if (uforstaatt) journal = [...journal, utenFormat(journal)];
+    expect(forstaatt(journal)).toBe(!uforstaatt);
+    const krav = { type: 'ingen_krav', spor: 'vederlag' };
+    const avvist = prov(journal, krav);
+    expect(avvist.godtatt, 'kontrollsak: ingen krav avvises').toBe(false);
+    const registrert = prov(journal, registrering());
+    expect(registrert.godtatt ? null : registrert.avvisning.regel).toBeNull();
+    if (!registrert.godtatt) return;
+    const rad = registrert.hendelser[0];
+    expect(
+      handlinger(utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER), 'TE')
+    ).toContain('registrere_brev');
+    expect(grunner([...journal, rad]).length).toBe(grunner(journal).length);
+  });
+
+  it('avviser en dato etter dagen brevet registreres, og godtar samme dag', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg']);
+    const journal = await bane.journal();
+    const etter = prov(journal, registrering({ sendt: '2026-10-22' }), 'TE', '2026-10-21');
+    expect(etter.godtatt ? null : etter.avvisning.regel).toBe('DATO_ETTER_BREVET');
+    expect(prov(journal, registrering({ sendt: '2026-10-21' }), 'TE', '2026-10-21').godtatt).toBe(
+      true
+    );
+  });
+
+  it.each<[string, (data: Data) => void, string]>([
+    [
+      'med et utsagn',
+      (d) => (d.utsagn = [{ id: randomUUID(), art: 'varsel', hjemmel: '34.1.2' }]),
+      'har krav, svar eller utsagn',
+    ],
+    ['uten datoen det ble sendt', (d) => delete d.opplysninger, 'ikke bare datoen'],
+    [
+      'med en dato for et varsel i stedet',
+      (d) => ((d.opplysninger as Data[])[0].gjelder = randomUUID()),
+      'ikke bare datoen',
+    ],
+    ['uten vedlegg', (d) => delete d.dokumentasjon, 'ligger ikke ved'],
+    ['med samme spor to ganger', (d) => (d.spor = ['frist', 'frist']), 'samme spor'],
+    [
+      'med spor uten beskrivelse, i et registrert varsel',
+      (d) => {
+        delete d.beskrivelse;
+        d.utsagn = [{ id: randomUUID(), art: 'varsel', hjemmel: '34.1.2' }];
+      },
+      'spor uten beskrivelse',
+    ],
+    [
+      'med brevtekst (MM-U17)',
+      (d) => (d.brevtekst = [{ gjelder: randomUUID(), laast: 'x' }]),
+      'har brevtekst fra appen',
+    ],
+  ])('leseren forstår ikke et brev registrert som dokumentasjon %s', async (_, endre, grunn) => {
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg']);
+    const journal = await bane.journal();
+    const rad = godtatt(journal, registrering());
+    expect(grunner([...journal, rad]), 'kontrollsak: raden slik kjernen skrev den').toEqual([]);
+    const endret = structuredClone(rad);
+    endre(endret.data);
+    expect(grunner([...journal, endret])).toEqual([expect.stringContaining(grunn)]);
   });
 });

@@ -24,6 +24,7 @@ export type Handlingsnoekkel =
   | { type: 'varsle' | 'sende_varsel'; spor: Kravspor }
   | { type: 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
+  | { type: 'registrere_brev' }
   | {
       type:
         | 'bestride'
@@ -38,7 +39,7 @@ export type Handlingsnoekkel =
     };
 
 export const noekkel = (h: Handlingsnoekkel): string =>
-  'gjelder' in h ? `${h.type}:${h.gjelder}` : `${h.type}:${h.spor}`;
+  'gjelder' in h ? `${h.type}:${h.gjelder}` : 'spor' in h ? `${h.type}:${h.spor}` : h.type;
 
 const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   krav: 'TE',
@@ -49,6 +50,7 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   sende_foresporsel: 'BH',
   svare_paa_foresporsel: 'TE',
   ingen_krav: 'TE',
+  registrere_brev: null,
   passivitet: null,
   svare: 'BH',
   revidere: 'BH',
@@ -142,6 +144,9 @@ function hvorforAvgjort(u: Utledning): string {
 }
 
 export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): Avvisning | null {
+  // OV-U4: hver side registrerer sine egne brev som dokumentasjon, uten virkning, også når
+  // saken ikke er forstått, når kravene er avgjort, etter godtatt avslag og etter trekk.
+  if (h.type === 'registrere_brev') return null;
   // MM-U2: en sak kjernen ikke forstår, tar ikke imot bindende kommandoer fra noen part.
   if (!u.forstaatt)
     return avvis('SAK_IKKE_FORSTAATT', 'Saken har hendelser denne versjonen ikke kan tolke.');

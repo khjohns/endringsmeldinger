@@ -19,7 +19,7 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
   for (const spor of SPOR)
     for (const type of ['krav', 'trekke', 'godta', 'svare', 'revidere'] as const)
       ut.push({ type, spor });
-  ut.push({ type: 'sende_foresporsel', spor: 'frist' });
+  ut.push({ type: 'sende_foresporsel', spor: 'frist' }, { type: 'registrere_brev' });
   for (const spor of KRAVSPOR)
     for (const type of ['varsle', 'sende_varsel', 'ingen_krav'] as const) ut.push({ type, spor });
   for (const [id, e] of Object.entries(u.elementer)) {

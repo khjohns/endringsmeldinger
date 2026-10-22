@@ -246,6 +246,17 @@ function oppgittDatoI(k: Kommando): { dato: unknown; gjelder: string } | null {
 export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisning | null {
   if (!erKalenderdato(brevetsDato))
     throw new Error(`Brevets dato ${brevetsDato} er ikke en kalenderdag på formen ÅÅÅÅ-MM-DD.`);
+  // Kartleggingen i #1045: datoen et brev registrert som dokumentasjon ble sendt, er ikke
+  // etter dagen det registreres, etter mønsteret i VS-U26.
+  if (k.type === 'registrert_brev') {
+    const dag = kalenderdag(k.sendt);
+    return dag !== null && dag > brevetsDato
+      ? avvis(
+          'DATO_ETTER_BREVET',
+          `Brevet er oppgitt sendt ${norskDato(dag)}, etter dagen det registreres, ${norskDato(brevetsDato)}.`
+        )
+      : null;
+  }
   const oppgitt = oppgittDatoI(k);
   // #766: en dato som ikke kan tolkes, kontrolleres ikke her, som når den mangler (KA-U38).
   const dag = typeof oppgitt?.dato === 'string' ? kalenderdag(oppgitt.dato) : null;
@@ -346,6 +357,7 @@ export function nyttelastkontroll(
     }
     case 'trekk':
     case 'varsel':
+    case 'registrert_brev':
     case 'send_varsel':
     case 'foresporsel':
     case 'foresporselssvar':

@@ -298,7 +298,7 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5", "OV-U7", "AV-587"],
+          "kilde": ["GR-U7", "V-SK01", "KA-U1", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U4"],
           "forventet": {
             "avvist": false,
             "grunnlag_avvist": true,
@@ -307,8 +307,8 @@
             "enighet.frist.virkning": "uten_virkning",
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_avslaatt",
-            "handlinger.TE": ["innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2"],
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
+            "handlinger.TE": ["registrere_brev", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "innsigelse:S-v2"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
         },
@@ -498,14 +498,14 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5"],
+          "kilde": ["GR-U3", "V-TFR01", "KA-U1", "GR-U7", "EO-U2", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["varsle:vederlag", "varsle:frist", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
+            "handlinger.TE": ["registrere_brev", "varsle:vederlag", "varsle:frist", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }
         }
@@ -565,7 +565,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "EO-U5", "OV-U7", "AV-587"],
+          "kilde": ["GR-U5", "V-TRUKKET", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U4"],
           "forventet": {
             "avvist": false,
             "nye_hendelser": 1,
@@ -578,8 +578,8 @@
             "kan_inngaa_i_eo": false,
             "visning.status": "avsluttet_trukket",
             "visning.etiketter.grunnlag": { "inneholder": ["trukket"], "mangler": ["paalegg_frafalt"] },
-            "handlinger.TE": ["innsigelse:S-v1"],
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
+            "handlinger.TE": ["registrere_brev", "innsigelse:S-v1"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": false
           }
         },
@@ -1128,11 +1128,11 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U2", "#304"],
+          "kilde": ["MM-U2", "#304", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["registrere_brev"],
+            "handlinger.BH": ["registrere_brev"],
             "visning.status": "kan_ikke_utledes",
             "visning.journal.S-x": "ikke_tolket"
           }
@@ -1203,11 +1203,11 @@
         {
           "etter": 3,
           "rolle": "mal",
-          "kilde": ["MM-U2", "#304"],
+          "kilde": ["MM-U2", "#304", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["registrere_brev"],
+            "handlinger.BH": ["registrere_brev"],
             "visning.status": "kan_ikke_utledes"
           }
         },
@@ -1248,11 +1248,11 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U2"],
+          "kilde": ["MM-U2", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["registrere_brev"],
+            "handlinger.BH": ["registrere_brev"],
             "visning.status": "kan_ikke_utledes",
             "visning.journal.D4": "ikke_tolket",
             "visning.journal.K-v1": "tolket",
@@ -1404,11 +1404,11 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U2", "#304"],
+          "kilde": ["MM-U2", "#304", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["registrere_brev"],
+            "handlinger.BH": ["registrere_brev"],
             "visning.journal.S-v2": "ikke_tolket"
           }
         },
@@ -1458,11 +1458,11 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U2", "#304"],
+          "kilde": ["MM-U2", "#304", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["registrere_brev"],
+            "handlinger.BH": ["registrere_brev"],
             "visning.status": "kan_ikke_utledes"
           }
         },
@@ -1747,7 +1747,7 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5"],
+          "kilde": ["EO-U2", "KA-U6", "KA-U11", "EO-U5", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4"],
           "forventet": {
             "avvist": false,
             "trukket.vederlag": true,
@@ -1755,8 +1755,8 @@
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": true,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["varsle:frist", "innsigelse:S-g1", "innsigelse:S-f1"],
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
+            "handlinger.TE": ["registrere_brev", "varsle:frist", "innsigelse:S-g1", "innsigelse:S-f1"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         }
       ]
@@ -1827,13 +1827,13 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["EO-U5", "KA-U11", "OV-U7", "AV-587"],
+          "kilde": ["EO-U5", "KA-U11", "OV-U7", "AV-587", "OV-U4"],
           "forventet": {
             "avvist": false,
             "kravene_avgjort": true,
             "kan_inngaa_i_eo": false,
-            "handlinger.TE": ["innsigelse:S-g1"],
-            "handlinger.BH": ["innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
+            "handlinger.TE": ["registrere_brev", "innsigelse:S-g1"],
+            "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"]
           }
         },
         {
@@ -3029,11 +3029,11 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["MM-U2"],
+          "kilde": ["MM-U2", "OV-U4"],
           "forventet": {
             "forstaatt": false,
-            "handlinger.TE": [],
-            "handlinger.BH": [],
+            "handlinger.TE": ["registrere_brev"],
+            "handlinger.BH": ["registrere_brev"],
             "visning.status": "kan_ikke_utledes",
             "visning.journal.D4": "ikke_tolket",
             "visning.journal.K-v1": "tolket"
@@ -3119,8 +3119,8 @@
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["KA-U12", "MM-U2"],
-          "forventet": { "forstaatt": false, "visning.journal.D4": "ikke_tolket", "handlinger.TE": [] }
+          "kilde": ["KA-U12", "MM-U2", "OV-U4"],
+          "forventet": { "forstaatt": false, "visning.journal.D4": "ikke_tolket", "handlinger.TE": ["registrere_brev"] }
         },
         {
           "etter": 1,
@@ -5827,13 +5827,14 @@
           "kilde": [
             "MM-U20",
             "MM-U18",
-            "MM-U2"
+            "MM-U2",
+            "OV-U4"
           ],
           "forventet": {
             "forstaatt": false,
             "visning.journal.D5": "ikke_tolket",
-            "handlinger.TE": [],
-            "handlinger.BH": []
+            "handlinger.TE": ["registrere_brev"],
+            "handlinger.BH": ["registrere_brev"]
           }
         }
       ]
