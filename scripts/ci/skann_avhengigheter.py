@@ -81,7 +81,7 @@ def ufullstendig(rapport: dict) -> bool:
     """Om npm audit ga færre sårbare pakker enn sin egen oppsummering sier (#1170). Da kan en
     advisory mangle i svaret, og et unntak som ikke treffer, er ikke bevis for at det kan fjernes."""
     antall = (rapport.get("metadata") or {}).get("vulnerabilities", {}).get("total")
-    return antall is not None and antall != len(rapport["vulnerabilities"])
+    return antall is not None and antall > len(rapport["vulnerabilities"])
 
 
 def main(argumenter: list[str]) -> int:

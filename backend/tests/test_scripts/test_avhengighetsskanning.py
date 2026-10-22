@@ -123,6 +123,34 @@ def test_unntak_for_samme_advisory_i_en_annen_pakke_blokkerer_fortsatt(tmp_path)
     assert "Unntak uten treff::GHSA-aaaa-bbbb-cccc i pakke-c" in resultat.stdout
 
 
+def _med_total(rapport: dict, total: int) -> dict:
+    """Oppsummeringen `npm audit` gir i `metadata.vulnerabilities.total`."""
+    return {**rapport, "metadata": {"vulnerabilities": {"total": total}}}
+
+
+def test_ubrukt_unntak_mot_komplett_rapport_feiler(tmp_path):
+    """#1170: et unntak som ikke treffer en blokkerende sårbarhet, skal fjernes."""
+    resultat = _kjoer(tmp_path, _med_total(_rapport("moderate"), 1), UNNTAK)
+    assert resultat.returncode == 1, resultat.stdout + resultat.stderr
+    assert "::error title=Unntak uten treff::GHSA-aaaa-bbbb-cccc i pakke-a" in resultat.stdout
+    assert "unntak uten treff: 1" in resultat.stdout
+
+
+def test_ubrukt_unntak_mot_ufullstendig_rapport_bare_varsler(tmp_path):
+    """#1170: oppsummeringen teller flere sårbare pakker enn rapporten har, så advisoryen kan mangle."""
+    resultat = _kjoer(tmp_path, _med_total(_rapport("moderate"), 3), UNNTAK)
+    assert resultat.returncode == 0, resultat.stdout + resultat.stderr
+    assert "::warning title=Ufullstendig rapport::" in resultat.stdout
+    assert "::warning title=Unntak uten treff::GHSA-aaaa-bbbb-cccc i pakke-a" in resultat.stdout
+    assert "::error" not in resultat.stdout
+
+
+def test_blokkerende_funn_feiler_ogsaa_ved_ufullstendig_rapport(tmp_path):
+    resultat = _kjoer(tmp_path, _med_total(_rapport("high", advisory="GHSA-dddd-eeee-ffff"), 3), UNNTAK)
+    assert resultat.returncode == 1, resultat.stdout + resultat.stderr
+    assert "::error title=Sårbar kjøretidsavhengighet::pakke-a GHSA-dddd-eeee-ffff" in resultat.stdout
+
+
 def test_unntak_uten_dato_avvises(tmp_path):
     resultat = _kjoer(tmp_path, _rapport("high"), UNNTAK.replace('dato = "2026-10-18"\n', ""))
     assert resultat.returncode != 0
