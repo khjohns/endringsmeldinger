@@ -284,8 +284,8 @@ function tom(
 
 /**
  * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som appen
- * ikke vurderer innholdet i. Mens saken ikke er forstått, gjelder det alle (MM-U2, OV-U19
- * presisert 22.10). Ellers gjelder det et brev uten elementer (OV-U16), og et brev med et
+ * ikke vurderer innholdet i. Mens saken ikke er forstått, gjelder det alle (MM-U2, OV-U21).
+ * Ellers gjelder det et brev uten elementer (OV-U16), og et brev med et
  * element som ikke er et varsel etter OV-U5 eller en endringsordre etter OV-U6, som en
  * begrunnelse (KA-U35, OV-U4). Et varsel eller en endringsordre uten virkning vurderer
  * appen (MM-U19).

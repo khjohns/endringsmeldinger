@@ -7591,6 +7591,38 @@ kilde = "hovedplanen"
 tekst = "Ved «venter på svar» og fristveiledningen viser visningen at motparten har registrert brev i sporet."
 
 [[gruppe.vedtak]]
+id = "OV-U21"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1163"]
+sporsmal = '''
+#1163, OV-U19 når en sak ikke er forstått (MM-U2): Et varsel (OV-U5) eller en endringsordre (OV-U6) ble registrert før saken stoppet. Skal saken da vise merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.»? Belegg: OV-U4 sier at registreringer etter stoppen godtas som dokumentasjon, uten unntakene i OV-U5 og OV-U6. Ingen vedtak sier noe om brev registrert før stoppen.'''
+valgt = "Ja, alle teller"
+svar = '''
+«Ja, alle teller (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u19" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10, med overskriften «MM-U2». Spørsmålet og alternativene står ordrett på #1163 (kommentaren 6349474406).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, alle teller"
+tekst = '''
+Mens saken ikke er forstått, teller hvert registrert brev som ikke er rettet. Setningen stemmer, for appen vurderer ingenting da, og det samsvarer med OV-U4 for registreringer etter stoppen. Det presiserer OV-U19.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, som i forstått sak"
+tekst = '''
+Et varsel eller en endringsordre teller ikke, også når saken ikke er forstått.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen merknad"
+tekst = '''
+Bare merknaden etter MM-U2 vises mens saken ikke er forstått. Det strider mot OV-U19 for brev som er registrert som dokumentasjon.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til

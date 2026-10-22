@@ -410,7 +410,7 @@ describe('linja i sakslisten (#1022)', () => {
     expect(n.frist).toEqual({ krav_antall: 1, venter_paa_svar: 1 });
   });
 
-  it('en sak kjernen ikke forstår, har brev utenfor appen når et brev er registrert (OV-U19, MM-U2, oppdragsgiver 22.10)', () => {
+  it('en sak kjernen ikke forstår, har brev utenfor appen når et brev er registrert (OV-U21, MM-U2)', () => {
     const sak = new Sak();
     krav(sak);
     sak.registrer({

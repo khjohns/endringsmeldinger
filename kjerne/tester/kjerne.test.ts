@@ -595,7 +595,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(harIkkeVurdertBrev(k), 'kontrollsak: bare endringsordren').toBe(false);
   });
 
-  it('OV-U19, MM-U2: mens saken ikke er forstått, teller også en endringsordre registrert før saken stoppet (oppdragsgiver 22.10)', async () => {
+  it('OV-U21, MM-U2: mens saken ikke er forstått, teller også en endringsordre registrert før saken stoppet', async () => {
     const bane = minnebane();
     await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
     const journal = await bane.journal();

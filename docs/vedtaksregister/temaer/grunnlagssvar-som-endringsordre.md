@@ -4,7 +4,7 @@
 
 **Avsnitt [3.1 i hovedplanen](../../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) er autoritativ.** Denne visningen er generert fra [vedtaksregisteret](../README.md) og er ikke et eget vedtaksgrunnlag. Den samler vedtakene ordrett, med forholdene mellom dem, og lager ingen sammenslått gjeldende ordlyd: hva som gjelder, leses av vedtakene sammen, etter forholdene.
 
-Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [VS-U29](#vs-u29), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [LV-U19](#lv-u19), [LV-U21](#lv-u21), [MM-U30](#mm-u30), [MM-U31](#mm-u31), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13), [OV-U15](#ov-u15), [OV-U16](#ov-u16), [OV-U19](#ov-u19), [OV-U20](#ov-u20). Vedtak som temaet viser til, står som lenke til 3.1.
+Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [VS-U29](#vs-u29), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [LV-U19](#lv-u19), [LV-U21](#lv-u21), [MM-U30](#mm-u30), [MM-U31](#mm-u31), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13), [OV-U15](#ov-u15), [OV-U16](#ov-u16), [OV-U19](#ov-u19), [OV-U20](#ov-u20), [OV-U21](#ov-u21). Vedtak som temaet viser til, står som lenke til 3.1.
 
 ## Kildegrunnlaget
 
@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `3147b90d632fdc98f0011b7d3c015321f58388c85ab82e4e7cca884165be1aef`
+Kontrollsum (SHA-256 over utdraget visningen leser): `d87b355d1253ba43856f8148ed76bd354eaa97754e6228e10715f5af32a2fbdb`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -72,8 +72,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [OV-U13](#ov-u13) | Presiserer [OV-U6](#ov-u6); Presiserer [GR-U13](#gr-u13) | — |
 | [OV-U15](#ov-u15) | Presiserer [OV-U5](#ov-u5) | — |
 | [OV-U16](#ov-u16) | Utvider [OV-U4](#ov-u4); Presiserer [VS-U27](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u27) | — |
-| [OV-U19](#ov-u19) | Presiserer [OV-U4](#ov-u4); Utvider [OV-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u10) | — |
+| [OV-U19](#ov-u19) | Presiserer [OV-U4](#ov-u4); Utvider [OV-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u10) | Presisert av [OV-U21](#ov-u21) |
 | [OV-U20](#ov-u20) | Presiserer [OV-U4](#ov-u4) | — |
+| [OV-U21](#ov-u21) | Presiserer [OV-U19](#ov-u19) | — |
 
 ## Vedtakene
 
@@ -755,7 +756,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 22.10, oppdragsgiver (#1045)
 
-**Følge:** Presiserer [OV-U4](#ov-u4). Utvider [OV-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u10). Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6347120549). Det erstatter svaret 19.10 på #669 p20, som manglet spørsmålsteksten.
+**Følge:** Presiserer [OV-U4](#ov-u4). Utvider [OV-U10](../../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u10). Presisert 22.10 av [OV-U21](#ov-u21). Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6347120549). Det erstatter svaret 19.10 på #669 p20, som manglet spørsmålsteksten.
 
 **Regelrader:** [KA-53](#rad-ka-53)
 
@@ -772,6 +773,20 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 **Følge:** Presiserer [OV-U4](#ov-u4). Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6347120549).
 
 **Regelrader:** [KA-52](#rad-ka-52), [KA-53](#rad-ka-53)
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="ov-u21"></a>OV-U21
+
+> OV-U21: Mens saken ikke er forstått, teller hvert registrert brev som ikke er rettet. Setningen stemmer, for appen vurderer ingenting da, og det samsvarer med OV-U4 for registreringer etter stoppen. Det presiserer OV-U19.
+
+**Forkastet:** «Et varsel eller en endringsordre teller ikke, også når saken ikke er forstått.»; «Bare merknaden etter MM-U2 vises mens saken ikke er forstått. Det strider mot OV-U19 for brev som er registrert som dokumentasjon.»
+
+**Vedtatt:** 22.10, oppdragsgiver (#1163)
+
+**Følge:** Presiserer [OV-U19](#ov-u19). Svaret er gitt med spørsmålsverktøyet 22.10, med overskriften «MM-U2». Spørsmålet og alternativene står ordrett på #1163 (kommentaren 6349474406).
+
+**Regelrader:** —
 
 **Bevis-saker som viser til vedtaket:** —
 

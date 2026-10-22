@@ -2969,10 +2969,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F369',
     feilklasse:
-      'et varsel eller en endringsordre teller ikke mens saken ikke er forstått (OV-U19, MM-U2)',
+      'et varsel eller en endringsordre teller ikke mens saken ikke er forstått (OV-U21, MM-U2)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['.filter((d) => !forstaatt || !vurdert(d))', '.filter((d) => !vurdert(d))']],
-    mal: ['OV-U19, MM-U2: mens saken ikke er forstått'],
+    mal: ['OV-U21, MM-U2: mens saken ikke er forstått'],
   },
   {
     id: 'F370',
