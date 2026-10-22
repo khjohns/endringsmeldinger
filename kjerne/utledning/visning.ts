@@ -192,19 +192,23 @@ export const BREV_UTENFOR_APPEN =
 
 /**
  * OV-U10, OV-U19: saken har et registrert brev appen ikke vurderer innholdet i, som merknaden,
- * statusteksten og sakslisten leser: et brev registrert som dokumentasjon, eller et brev med
- * krav, svar, aksept eller trekk som er dokumentasjon etter OV-U4. Et varsel med virkning
- * (OV-U5) og en endringsordre (OV-U6) teller ikke (HF-U13), og heller ikke en rettet
+ * statusteksten og sakslisten leser. Et brev der alt har virkning i appen, som et varsel
+ * (OV-U5) eller en endringsordre (OV-U6), teller ikke (HF-U13), og heller ikke en rettet
  * registrering (OV-U17, OV-U18).
  */
-export const harRegistrertBrev = (u: Utledning): boolean =>
-  u.journal.some(
-    (h) =>
-      h.art === 'dokument' &&
-      erRegistrert(h.dokument.opplysninger) &&
-      (h.dokument.beskrivelse !== null || dokumentasjonIBrevet(h.dokument).size > 0) &&
-      !u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)
-  );
+export const harRegistrertBrev = (u: Utledning): boolean => {
+  const uten = new Set(u.utenVirkning.map((x) => x.element));
+  return u.journal.some((h) => {
+    if (h.art !== 'dokument' || !erRegistrert(h.dokument.opplysninger)) return false;
+    if (u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)) return false;
+    const d = h.dokument;
+    const dokumentasjon = dokumentasjonIBrevet(d);
+    const elementer = [...d.krav, ...d.svar, ...d.utsagn].map((x) => x.id);
+    const altHarVirkning =
+      elementer.length > 0 && elementer.every((id) => !dokumentasjon.has(id) && !uten.has(id));
+    return !altHarVirkning;
+  });
+};
 
 /**
  * OV-U20, OV-U4: når kravet venter på svar, motpartens registrerte brev for

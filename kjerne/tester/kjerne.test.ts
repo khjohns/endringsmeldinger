@@ -568,6 +568,10 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
     const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
     expect(harRegistrertBrev(u)).toBe(false);
+    const kontroll = minnebane();
+    await bygg(kontroll, ['krav_irreg', registrert({ sendt: '2026-09-30' })]);
+    const k = utled(lesJournal(await kontroll.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(harRegistrertBrev(k), 'kontrollsak: et svar som er dokumentasjon (OV-U4)').toBe(true);
   });
 
   // OV-U12: et krav i et registrert brev er dokumentasjon uten virkning (OV-U4), så

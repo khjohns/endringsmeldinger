@@ -2924,8 +2924,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
-        '      !u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)',
-        '      true',
+        '    if (u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)) return false;',
+        '    if (false) return false;',
       ],
     ],
     mal: ['OV-U18: brevet i feil sak rettes bort'],
@@ -2947,13 +2947,19 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et varsel registrert med virkning gir merknaden og statusen for saken (OV-U19, HF-U13)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [
-      [
-        '      (h.dokument.beskrivelse !== null || dokumentasjonIBrevet(h.dokument).size > 0) &&',
-        '      true &&',
-      ],
+    endringer: [['      elementer.length > 0 &&', '      false &&']],
+    mal: [
+      'OV-U19: et varsel registrert med virkning teller ikke',
+      'OV-U19: en endringsordre registrert med virkning teller ikke',
     ],
-    mal: ['OV-U19: et varsel registrert med virkning teller ikke'],
+  },
+  {
+    id: 'F367',
+    feilklasse:
+      'et svar registrert som dokumentasjon regnes som et brev med virkning (OV-U4, OV-U19)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['!dokumentasjon.has(id) && !uten.has(id)', '!uten.has(id)']],
+    mal: ['OV-U19: en endringsordre registrert med virkning teller ikke'],
   },
   {
     id: 'F366',
