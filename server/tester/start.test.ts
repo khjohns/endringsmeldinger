@@ -7,7 +7,8 @@
 
 import { spawn, type ChildProcess } from 'node:child_process';
 import { once } from 'node:events';
-import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -17,6 +18,14 @@ import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import { opprettKjoeretid, slettAlle, SQLSERVER_TILKOBLING, type Testbase } from './sqlserver.ts';
 
 const ROT = fileURLToPath(new URL('../../', import.meta.url));
+
+/**
+ * Den nærmeste `node_modules` oppover fra rot, som Node søker i. I et arbeidstre er
+ * den i hovedcheckouten (#1114).
+ */
+const PAKKEMAPPE = createRequire(join(ROT, 'package.json'))
+  .resolve.paths('pdf-lib')!
+  .find((mappe) => existsSync(join(mappe, 'pdf-lib')))!;
 
 /** Miljøet uten oppsettet for databasen og Catenda, så bare det testen setter, gjelder. */
 const rentMiljoe = (tillegg: Record<string, string> = {}): NodeJS.ProcessEnv => ({
@@ -97,7 +106,8 @@ describe('oppstarten når en skrift mangler (#813 punkt 4)', () => {
       filter: (kilde) => !kilde.startsWith(join(ROT, 'server', 'tester')),
     });
     cpSync(join(ROT, 'package.json'), join(mappe, 'package.json'));
-    for (const navn of ['kjerne', 'node_modules']) symlinkSync(join(ROT, navn), join(mappe, navn));
+    symlinkSync(join(ROT, 'kjerne'), join(mappe, 'kjerne'));
+    symlinkSync(PAKKEMAPPE, join(mappe, 'node_modules'));
   });
   afterEach(() => rmSync(mappe, { recursive: true, force: true }));
 

@@ -3,9 +3,7 @@
  * ikke gjennom `apiFetch`, men har samme håndtering av en utløpt sesjon og et brutt nett.
  */
 
-import { API_BASE_URL, ApiError, redirectToLogin } from './client';
-
-export const NETTFEIL = 'Fila kunne ikke hentes. Kontroller nettforbindelsen og prøv igjen.';
+import { API_BASE_URL, ApiError, NETTFEIL, redirectToLogin } from './client';
 
 /**
  * Henter fila på `endpoint` i prosjektet `prosjektId`. 401 sender brukeren til
