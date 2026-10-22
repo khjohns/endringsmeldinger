@@ -27,7 +27,15 @@ import {
   skrivEnKommentar,
   type Jobbavhengigheter,
 } from '../jobber.ts';
-import { transaksjon, type Forbindelse, type Pool } from '../datalag.ts';
+import {
+  CommitIkkeSendt,
+  FristUtloept,
+  sql,
+  TransaksjonAvbrutt,
+  transaksjon,
+  type Forbindelse,
+  type Pool,
+} from '../datalag.ts';
 import { enGang, tidsavbrudd } from './forbindelse.ts';
 import { behandle, nesteInnkommende } from '../hendelser.ts';
 import { lesJournal } from '../lager.ts';
@@ -42,6 +50,10 @@ import {
 } from './testbase.ts';
 
 const INTEGRASJONEN = randomUUID().replaceAll('-', '');
+/** En feil fra basen med nummeret, som `mssql` gir den. */
+const feilFraBasen = (nummer: number) =>
+  Object.assign(new sql.RequestError('feil fra basen', 'EREQUEST'), { number: nummer });
+const INTEGRASJONENS_BRUKERNAVN = 'integrasjonen@test.example';
 
 interface Utfall {
   utfall: string;
@@ -76,11 +88,13 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
           rolle: 'member' as const,
         })),
       integrasjonensBruker: async () => INTEGRASJONEN,
+      integrasjonensBrukernavn: async () => INTEGRASJONENS_BRUKERNAVN,
       topic: async (b, t) => iCatenda.get(noekkel(b, t)) ?? null,
       kommentarer: async (b, t) => kommentarer.get(noekkel(b, t)) ?? [],
       opprettKommentar: async (b, t, tekst) => {
         const id = randomUUID();
-        kommentarer.set(noekkel(b, t), [...(kommentarer.get(noekkel(b, t)) ?? []), { id, tekst }]);
+        const ny = { id, tekst, forfatter: INTEGRASJONENS_BRUKERNAVN };
+        kommentarer.set(noekkel(b, t), [...(kommentarer.get(noekkel(b, t)) ?? []), ny]);
         return id;
       },
     };
@@ -625,6 +639,52 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(await behandleEnHendelse(senere(2))).toBe(false);
   });
 
+  // #1009: datalaget vet at ingenting er committet, så et nytt forsøk med samme kommando-ID
+  // er trygt. Feilen kastes fra oppslaget i Catenda, som når den kommer fra transaksjonen.
+  it.each<[string, () => Error]>([
+    ['FristUtloept', () => new FristUtloept('fristen')],
+    ['CommitIkkeSendt', () => new CommitIkkeSendt('ikke sendt')],
+    ['TransaksjonAvbrutt uten feil fra basen', () => new TransaksjonAvbrutt('rullet tilbake')],
+    [
+      'TransaksjonAvbrutt etter en vranglås (1205)',
+      () => new TransaksjonAvbrutt('rullet tilbake', { cause: feilFraBasen(1205) }),
+    ],
+  ])('#1009: %s lagrer forsøket uten utfall, og et senere forsøk gir saken', async (_, feil) => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
+    const avbrutt = {
+      ...avh,
+      innboks: {
+        ...innboks,
+        teammedlemmer: async () => {
+          throw feil();
+        },
+      },
+    };
+    expect(await behandleEnHendelse(avbrutt)).toBe(true);
+    expect(await utfallFor(id)).toEqual([]);
+    expect(await forsoekFor(id)).toBe(1);
+    expect(await behandleEnHendelse(senere(1))).toBe(true);
+    expect(await utfallFor(id)).toEqual([expect.objectContaining({ utfall: 'sak_opprettet' })]);
+  });
+
+  it('#1009: TransaksjonAvbrutt etter en feil fra basen som ikke går over (547), gir utfallet feilet', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic));
+    const avbrutt = {
+      ...avh,
+      innboks: {
+        ...innboks,
+        teammedlemmer: async () => {
+          throw new TransaksjonAvbrutt('rullet tilbake', { cause: feilFraBasen(547) });
+        },
+      },
+    };
+    expect(await behandleEnHendelse(avbrutt)).toBe(true);
+    expect(await utfallFor(id)).toEqual([expect.objectContaining({ utfall: 'feilet' })]);
+    expect(await forsoekFor(id)).toBe(0);
+  });
+
   /**
    * Svaret på første COMMIT i poolen går tapt etter at serveren har committet, som ved et
    * tidsavbrudd (`UsikkertUtfall`). Lånene etter det får forbindelsen urørt.
@@ -760,6 +820,38 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     await skrivKommentarene(senere(1));
     expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([BH_KOMMENTAR]);
     expect(await kvitteringFor(id)).toEqual([{ kommentar_id: kommentarerPaa(topic)[0].id }]);
+  });
+
+  it('#972: en kommentar med samme tekst fra en annen forfatter kvitteres ikke, og topicen får appens kommentar', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic, { forfatter: catendaId(o.bh.subjekt) }));
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    const noekkelen = noekkel(board, topic);
+    const forut = { id: randomUUID(), tekst: BH_KOMMENTAR, forfatter: 'annen@test.example' };
+    kommentarer.set(noekkelen, [forut]);
+    await skrivKommentarene();
+    const [foerst, appens, ...flere] = kommentarerPaa(topic);
+    expect(foerst).toEqual(forut);
+    expect(flere).toEqual([]);
+    expect(appens).toMatchObject({ tekst: BH_KOMMENTAR, forfatter: INTEGRASJONENS_BRUKERNAVN });
+    expect(await kvitteringFor(id)).toEqual([{ kommentar_id: appens.id }]);
+  });
+
+  it('#972: uten brukernavn for integrasjonen kvitteres ingen kommentar som står der, heller ikke en uten forfatter, og topicen får en ny', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic, { forfatter: catendaId(o.bh.subjekt) }));
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    const egen = { id: randomUUID(), tekst: BH_KOMMENTAR, forfatter: INTEGRASJONENS_BRUKERNAVN };
+    const utenForfatter = { id: randomUUID(), tekst: BH_KOMMENTAR, forfatter: null };
+    kommentarer.set(noekkel(board, topic), [utenForfatter, egen]);
+    const utenNavn = {
+      ...avh,
+      innboks: { ...innboks, integrasjonensBrukernavn: async () => null },
+    };
+    await skrivKommentarene(utenNavn);
+    const [, , ny, ...flere] = kommentarerPaa(topic);
+    expect(flere).toEqual([]);
+    expect(await kvitteringFor(id)).toEqual([{ kommentar_id: ny.id }]);
   });
 
   it('uten oppslagene for innboksen behandler løkka den ikke', async () => {
