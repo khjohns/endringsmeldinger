@@ -83,6 +83,13 @@ export function clearCsrfToken() {
  */
 export const NETTFEIL = 'Fikk ikke svar fra serveren. Kontroller nettforbindelsen.';
 
+/**
+ * Meldingen når svaret kom, men ikke kunne leses, for eksempel ugyldig JSON fra en
+ * mellomtjener (#1158). Status 500 gjør utfallet usikkert, så kjernekallene prøver
+ * igjen med samme kommando-ID (`erUsikkertUtfall`).
+ */
+export const LESEFEIL = 'Svaret fra serveren kunne ikke leses. Prøv igjen.';
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -174,16 +181,16 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
       const message =
         typeof detail?.message === 'string'
           ? detail.message
-          : typeof data === 'string'
+          : typeof data === 'string' && data !== ''
             ? data
-            : `HTTP ${response.status}: ${response.statusText}`;
+            : `Serveren svarte med feilkode ${response.status} uten forklaring.`;
       throw new ApiError(response.status, message, data);
     }
     throw new ApiError(403, 'Kunne ikke bekrefte sesjonen.');
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof TypeError) throw new ApiError(0, NETTFEIL);
-    throw new ApiError(500, error instanceof Error ? error.message : 'Unknown error');
+    throw new ApiError(500, LESEFEIL);
   }
 }
 
