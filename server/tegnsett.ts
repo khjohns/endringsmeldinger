@@ -4,26 +4,20 @@
  * `node server/tegnsett.ts` når skriftene endres. Testen i `tester/brevpdf.test.ts`
  * feiler når fila ikke stemmer med skriftene.
  */
-import fontkit from '@pdf-lib/fontkit';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { SKRIFTFILER, settesMedGlyfen } from './brevpdf.ts';
+import { settesMedGlyfen, skriftenesKodepunkter } from './brevpdf.ts';
 
 export const TEGNSETTFIL = new URL('../kjerne/format/tegnsett.ts', import.meta.url);
 
 /** Kodepunktene PDF-en kan sette, som stigende, ikke-overlappende intervaller `[fra, til]`. */
 export function settbareIntervaller(): [number, number][] {
-  const koder = new Set<number>();
-  for (const fil of SKRIFTFILER)
-    for (const kode of fontkit.create(readFileSync(new URL(`./skrift/${fil}`, import.meta.url)))
-      .characterSet)
-      if (
-        settesMedGlyfen(kode) ||
-        !/\p{Default_Ignorable_Code_Point}/u.test(String.fromCodePoint(kode))
-      )
-        koder.add(kode);
+  const koder = [...skriftenesKodepunkter()].filter(
+    (kode) =>
+      settesMedGlyfen(kode) || !/\p{Default_Ignorable_Code_Point}/u.test(String.fromCodePoint(kode))
+  );
   const ut: [number, number][] = [];
-  for (const kode of [...koder].sort((a, b) => a - b))
+  for (const kode of koder.sort((a, b) => a - b))
     if (ut.at(-1)?.[1] === kode - 1) ut.at(-1)![1] = kode;
     else ut.push([kode, kode]);
   return ut;

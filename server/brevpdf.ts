@@ -35,7 +35,7 @@ type Skrift = { bytes: Uint8Array; tegnsett: ReturnType<typeof fontkit.create> }
 let lesteSkrifter: Skrift[] | undefined;
 
 /** Hovedskriften først; et tegn settes med den første som har det. */
-export const SKRIFTFILER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'] as const;
+const SKRIFTFILER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'] as const;
 
 /** Skriftene i `SKRIFTFILER`, lest når den første PDF-en lages. */
 function skrifter(): Skrift[] {
@@ -43,6 +43,11 @@ function skrifter(): Skrift[] {
     const bytes = readFileSync(new URL(`./skrift/${fil}`, import.meta.url));
     return { bytes, tegnsett: fontkit.create(bytes) };
   }));
+}
+
+/** Kodepunktene skriftene har, for tabellen i kjernen (`tegnsett.ts`, #801). */
+export function skriftenesKodepunkter(): Set<number> {
+  return new Set(skrifter().flatMap((s) => s.tegnsett.characterSet));
 }
 
 /**
