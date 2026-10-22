@@ -20,7 +20,11 @@ import {
   standpunkterISvaret,
   Uforstaatt,
 } from '../format/leser.ts';
-import { tekstSomIkkeKanLagres } from '../format/skjema.ts';
+import {
+  kommandoenHarTegnSomIkkeKanVises,
+  tegnSomIkkeKanVises,
+  tekstSomIkkeKanLagres,
+} from '../format/skjema.ts';
 import { grunnlagskravFor, utled, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
 import type {
@@ -341,7 +345,17 @@ function skriv(
       };
     throw feil;
   }
-  if (brevtekst) data.brevtekst = brevtekst;
+  if (brevtekst) {
+    // #801: brevet PDF-en lages av, har bare tegn den kan vise. Et registrert brev har ingen PDF.
+    const tegn =
+      kommandoenHarTegnSomIkkeKanVises(kommando) ??
+      brevtekst.reduce<Avvisning | null>(
+        (funnet, a, i) => funnet ?? tegnSomIkkeKanVises(a.laast, `Avsnitt ${i + 1} i brevteksten`),
+        null
+      );
+    if (tegn) return ugyldigForm(tegn);
+    data.brevtekst = brevtekst;
+  }
   if (sendes) {
     const avvik = tekstavvik(k.brevtekst, brevtekst);
     if (avvik) return { godtatt: false, feil: 'REGELBRUDD', avvisning: avvik };

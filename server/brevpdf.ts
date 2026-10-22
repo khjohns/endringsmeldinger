@@ -29,14 +29,17 @@ export class TegnUtenforSkriften extends Error {}
 const MYKT_BINDESTREK = 0xad;
 
 /** Et usynlig tegn som settes med glyfen skriften har for det, og ikke som mellomrom. */
-const settesMedGlyfen = (kode: number): boolean => kode === MYKT_BINDESTREK;
+export const settesMedGlyfen = (kode: number): boolean => kode === MYKT_BINDESTREK;
 
 type Skrift = { bytes: Uint8Array; tegnsett: ReturnType<typeof fontkit.create> };
 let lesteSkrifter: Skrift[] | undefined;
 
-/** Hovedskriften først; et tegn settes med den første som har det. Leses når den første PDF-en lages. */
+/** Hovedskriften først; et tegn settes med den første som har det. */
+export const SKRIFTFILER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'] as const;
+
+/** Skriftene i `SKRIFTFILER`, lest når den første PDF-en lages. */
 function skrifter(): Skrift[] {
-  return (lesteSkrifter ??= ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'].map((fil) => {
+  return (lesteSkrifter ??= SKRIFTFILER.map((fil) => {
     const bytes = readFileSync(new URL(`./skrift/${fil}`, import.meta.url));
     return { bytes, tegnsett: fontkit.create(bytes) };
   }));
@@ -71,8 +74,11 @@ export function kontrollerSkrifter(): void {
 
 const skriftPerKode = new Map<number, number>();
 
-/** Skriften for tegnet, som indeks i `skrifter()`. */
-function skriftFor(tegn: string): number {
+/**
+ * Skriften for tegnet, som indeks i `skrifter()`. Kjernen avviser tegnet før brevet skrives
+ * (`SETTBARE_TEGN` i `kjerne/format/tegnsett.ts`, #801), så dette er en sikring.
+ */
+export function skriftFor(tegn: string): number {
   const kode = tegn.codePointAt(0)!;
   const kjent = skriftPerKode.get(kode);
   if (kjent !== undefined) return kjent;

@@ -6,6 +6,7 @@
  */
 
 import type { Avvisning } from '../typer.ts';
+import { SETTBARE_TEGN } from './tegnsett.ts';
 
 export type Skjema = Record<string, unknown>;
 
@@ -51,6 +52,59 @@ export function tekstSomIkkeKanLagres(kommando: unknown): Avvisning | null {
         melding: 'Kommandoen har tegn som ikke kan lagres (NUL eller en enslig surrogat).',
       }
     : null;
+}
+
+/** Tab, LF, VT, FF og CR, som brev-PDF-en setter som mellomrom og linjeskift. */
+const SOM_MELLOMROM = /[\t\n\v\f\r]/;
+
+/** Brev-PDF-en kan sette tegnet med skriftene i `server/brevpdf.ts` (#801). */
+function kanSettes(tegn: string): boolean {
+  if (SOM_MELLOMROM.test(tegn)) return true;
+  const kode = tegn.codePointAt(0)!;
+  let fra = 0;
+  let til = SETTBARE_TEGN.length / 2 - 1;
+  while (fra <= til) {
+    const midt = (fra + til) >> 1;
+    if (kode < SETTBARE_TEGN[2 * midt]) til = midt - 1;
+    else if (kode > SETTBARE_TEGN[2 * midt + 1]) fra = midt + 1;
+    else return true;
+  }
+  return false;
+}
+
+/**
+ * Avvisningen av en tekst med et tegn brev-PDF-en ikke kan vise (#801, oppdragsgiver
+ * 20.10 og 22.10): et tegn skriftene mangler, som emoji, eller et usynlig tegn. `felt`
+ * er der teksten står, og meldingen nevner tegnet, kodepunktet og feltet.
+ */
+export function tegnSomIkkeKanVises(t: string, felt: string): Avvisning | null {
+  for (const tegn of t) {
+    if (kanSettes(tegn)) continue;
+    const kode = `U+${tegn.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')}`;
+    const hva = /\p{Default_Ignorable_Code_Point}/u.test(tegn)
+      ? `det usynlige tegnet ${kode}`
+      : `tegnet «${tegn}» (${kode})`;
+    return {
+      regel: 'UGYLDIG_FORM',
+      melding: `${felt} har ${hva}, som PDF-en av brevet ikke kan vise.`,
+    };
+  }
+  return null;
+}
+
+/** `tegnSomIkkeKanVises` for hver tekst i kommandoen, med stien til feltet. */
+export function kommandoenHarTegnSomIkkeKanVises(kommando: unknown): Avvisning | null {
+  const igjen: [unknown, string][] = [[kommando, '$']];
+  while (igjen.length) {
+    const [v, sti] = igjen.shift()!;
+    if (typeof v === 'string') {
+      const avvist = tegnSomIkkeKanVises(v, sti);
+      if (avvist) return avvist;
+    } else if (Array.isArray(v)) v.forEach((del, i) => igjen.push([del, `${sti}[${i}]`]));
+    else if (v !== null && typeof v === 'object')
+      for (const [k, del] of Object.entries(v)) igjen.push([del, `${sti}.${k}`]);
+  }
+  return null;
 }
 
 /** En dato på formen ÅÅÅÅ-MM-DD som finnes i kalenderen. */

@@ -6,7 +6,10 @@
 import { describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
-import { lesBrevPdf, skrivBrevPdf } from '../brevpdf.ts';
+import { readFileSync } from 'node:fs';
+import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
+import { lesBrevPdf, skriftFor, skrivBrevPdf, TegnUtenforSkriften } from '../brevpdf.ts';
+import { TEGNSETTFIL, tegnsettfil } from '../tegnsett.ts';
 import { brevdokument, gjengiOppdrag, UgjengivbartBrev } from '../levering.ts';
 
 const TIDSSTEMPEL = '2026-10-01T10:00:00.000Z';
@@ -190,3 +193,38 @@ describe('PDF-en av brevet (#371 del 2)', () => {
 function latin1(b: Uint8Array): string {
   return Buffer.from(b).toString('latin1');
 }
+
+/**
+ * #801: kjernen avviser et tegn PDF-en ikke kan vise, før brevet skrives, etter tabellen i
+ * `kjerne/format/tegnsett.ts`. Tabellen og skriftene skal ikke gli fra hverandre.
+ */
+describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
+  it('tabellen i kjernen er den `node server/tegnsett.ts` lager av skriftene', () => {
+    expect(readFileSync(TEGNSETTFIL, 'utf8'), 'kjør `node server/tegnsett.ts`').toBe(tegnsettfil());
+  });
+
+  it('kjernen og `skriftFor` er enige om hvert kodepunkt', () => {
+    const settes = (tegn: string) => {
+      try {
+        skriftFor(tegn);
+        return true;
+      } catch (feil) {
+        if (feil instanceof TegnUtenforSkriften) return false;
+        throw feil;
+      }
+    };
+    const uenige: string[] = [];
+    let godtatt = 0;
+    // Skriftene har ingen tegn over plan 1; at tabellen heller ikke har det, prøves over.
+    for (let kode = 0; kode <= 0x2ffff; kode++) {
+      // Surrogatene er ikke tegn, og tab, LF, VT, FF og CR settes om før `skriftFor`.
+      if ((kode >= 0xd800 && kode <= 0xdfff) || (kode >= 0x9 && kode <= 0xd)) continue;
+      const tegn = String.fromCodePoint(kode);
+      const kjernen = tegnSomIkkeKanVises(tegn, 'x') === null;
+      if (kjernen) godtatt++;
+      if (kjernen !== settes(tegn)) uenige.push(kode.toString(16));
+    }
+    expect(uenige).toEqual([]);
+    expect(godtatt, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
+  }, 30000);
+});
