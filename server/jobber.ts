@@ -31,8 +31,18 @@ import {
   type Topicoppretter,
 } from './catenda.ts';
 import { uuidMedBindestreker } from './autorisasjon.ts';
-import { feilnummer, sql, utenKontekst, UsikkertUtfall, type Pool } from './datalag.ts';
 import {
+  CommitIkkeSendt,
+  feilnummer,
+  FristUtloept,
+  sql,
+  TransaksjonAvbrutt,
+  utenKontekst,
+  UsikkertUtfall,
+  type Pool,
+} from './datalag.ts';
+import {
+  appensKommentar,
   behandle,
   kommentartekst,
   kvitterKommentar,
@@ -40,7 +50,6 @@ import {
   nesteKommentar,
   registrerBehandling,
   registrerForsoek,
-  sammeKommentar,
   TopicenFinnesIkke,
   type Behandling,
 } from './hendelser.ts';
@@ -124,10 +133,28 @@ const FORBIGAAENDE_KODER = new Set([
   'ENOTOPEN',
 ]);
 
-/** Catenda svarer ikke, uten et varig avvik eller en avvisning, eller basen har en forbigående feil. */
+/**
+ * Catenda svarer ikke, uten et varig avvik eller en avvisning, basen har en forbigående
+ * feil, eller transaksjonen er ikke committet av en grunn som kan gå over.
+ */
 function forbigaaende(feil: unknown): boolean {
   const varig = feil instanceof CatendaAvvisning || feil instanceof VarigCatendaavvik;
-  return (feil instanceof CatendaUtilgjengelig && !varig) || forbigaaendeISql(feil);
+  return (
+    (feil instanceof CatendaUtilgjengelig && !varig) ||
+    forbigaaendeISql(feil) ||
+    ikkeCommittet(feil)
+  );
+}
+
+/**
+ * Datalaget vet at transaksjonen ikke er committet, så et nytt forsøk med samme
+ * kommando-ID er trygt (#1009). Har serveren rullet tilbake etter en feil fra basen som
+ * ikke går over, gir et nytt forsøk samme feil, og det prøves ikke.
+ */
+function ikkeCommittet(feil: unknown): boolean {
+  if (feil instanceof FristUtloept || feil instanceof CommitIkkeSendt) return true;
+  if (!(feil instanceof TransaksjonAvbrutt)) return false;
+  return !(feil.cause instanceof sql.MSSQLError) || forbigaaendeISql(feil.cause);
 }
 
 function forbigaaendeISql(feil: unknown): boolean {
@@ -358,8 +385,8 @@ const feilmelding = (feil: unknown) =>
 
 /**
  * Skriver kommentaren for det eldste utfallet som skal ha en, og kvitterer den (W-1b.2,
- * #819). Sann når et utfall ble prøvd. Kommentarene på topicen leses først, og står teksten
- * der alt, kvitteres den kommentaren. Da gir et nytt forsøk etter et tapt svar, eller to
+ * #819). Sann når et utfall ble prøvd. Kommentarene på topicen leses først, og har
+ * integrasjonen skrevet teksten der alt, kvitteres den kommentaren (#972). Da gir et nytt forsøk etter et tapt svar, eller to
  * hendelser for samme topic og utfall, én kommentar. Feiler et steg, lagres forsøket, og
  * utfallet venter før neste forsøk, som i `behandleEnHendelse`.
  */
@@ -372,8 +399,9 @@ export async function skrivEnKommentar(avh: Jobbavhengigheter): Promise<boolean>
   try {
     if (!tekst) throw new Error(`Utfallet ${rad.utfall} har ingen kommentar`);
     const { catenda_board_id: board, catenda_topic_id: topic } = rad;
+    const brukernavn = await avh.innboks.integrasjonensBrukernavn();
     const funnet = (await avh.innboks.kommentarer(board, topic)).find((k) =>
-      sammeKommentar(k.tekst, tekst)
+      appensKommentar(k, tekst, brukernavn)
     );
     const id = funnet?.id ?? (await avh.innboks.opprettKommentar(board, topic, tekst));
     await kvitterKommentar(avh.datalag, rad.id, id);
