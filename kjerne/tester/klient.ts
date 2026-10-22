@@ -292,6 +292,18 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
           : {}),
         ...(Array.isArray(h.dokumentasjon) ? { dokumentasjon: h.dokumentasjon as string[] } : {}),
       };
+    case 'registrert_brev':
+      // OV-U4, OV-U16, OV-U17: brevet ligger ved, også når forløpet ikke nevner det.
+      return {
+        type: 'registrert_brev',
+        ...(Array.isArray(h.sporene) ? { spor: h.sporene as Spor[] } : {}),
+        sendt: h.sendt as string,
+        beskrivelse: h.beskrivelse as string,
+        dokumentasjon: [randomUUID()],
+        ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
+      };
+    case 'ikke_i_saken':
+      return { type: 'ikke_i_saken', retter: navn.id(h.retter as string) };
     default:
       throw new Error(`Handlingen ${h.handling} er ikke en kommando`);
   }

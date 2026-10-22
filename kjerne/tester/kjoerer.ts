@@ -341,6 +341,11 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       if (hale[0] === 'etiketter') return v.spor[hale[1] as 'grunnlag'].etiketter;
       if (hale[0] === 'opplysning') return v.opplysninger[id(hale[1])] ?? null;
       if (hale[0] === 'merknader') return v.merknader;
+      // Svar 2 22.10 i #1045: motpartens registrerte brev ved kravet i sporet.
+      if (hale[0] === 'registrerte_brev') return v.spor[hale[1] as 'grunnlag'].registrerteBrev;
+      // OV-U17, OV-U18: rettingen av registreringen, eller `null`.
+      if (hale[0] === 'rettet')
+        return v.registrerteBrev.find((b) => b.dokument === id(hale[1]))?.rettetAv ?? null;
       const rad = v.journal.find((j) => j.hendelse === hendelsenMed(id(hale[1]), u));
       return rad ? (rad.tolket ? 'tolket' : 'ikke_tolket') : null;
     }

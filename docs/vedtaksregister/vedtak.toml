@@ -7503,6 +7503,94 @@ En registrering av et brev sendt utenfor appen i feil sak rettes ikke i appen. B
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "OV-U19"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1045"]
+sporsmal = '''
+Spørsmålet «Merknad saken», ordrett slik det står i kommentaren 6347120549 på #1045:
+
+Et brev sendt utenfor appen og registrert som dokumentasjon vises med merknaden «Appen vurderer ikke innholdet» ved brevet (OV-U4). Når kravene er avgjort, sier visningen «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.» (OV-U10). 19.10 svarte du «Ja, gi merknaden» på at et slikt brev også gir en merknad for hele saken (#669 p20), men spørsmålsteksten ble ikke lagret, så svaret kan ikke føres som vedtak. HF-U13 sier at visningen ikke påstår mer enn appen vet. Skal saken ha en egen merknad mens kravene ikke er avgjort, og hva skal den si?
+
+Alternativene slik de står i kommentaren:
+
+«OV-U10s ord (Recommended)»: Så lenge et brev sendt utenfor appen står registrert som dokumentasjon i saken og ikke er rettet bort, har saken merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.», i tillegg til merknaden ved brevet. Når kravene er avgjort, står setningen i statusen (OV-U10) og ikke som egen merknad. Presiserer OV-U4 og utvider OV-U10.
+
+«Bare ved brevet»: Saken får ingen egen merknad for brev registrert som dokumentasjon. Merknaden «Appen vurderer ikke innholdet» står ved hvert brev (OV-U4), og setningen i OV-U10 står i statusen når kravene er avgjort. Presiserer OV-U4 og endrer svaret 19.10.
+
+«Uten virkning i appen»: Så lenge et slikt brev står og ikke er rettet bort, har saken merknaden «Et registrert brev står uten virkning i appen». Presiserer OV-U4. Nærmer seg det HF-U13 sier visningen ikke skal påstå.'''
+valgt = "OV-U10s ord"
+svar = '''
+«OV-U10s ord (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u4" }, { art = "utvider", vedtak = "ov-u10" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6347120549). Det erstatter svaret 19.10 på #669 p20, som manglet spørsmålsteksten.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "OV-U10s ord"
+tekst = '''
+Så lenge et brev sendt utenfor appen står registrert som dokumentasjon i saken og ikke er rettet bort, har saken merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.», i tillegg til merknaden ved brevet. Når kravene er avgjort, står setningen i statusen (OV-U10) og ikke som egen merknad. Presiserer OV-U4 og utvider OV-U10.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare ved brevet"
+tekst = '''
+Saken får ingen egen merknad for brev registrert som dokumentasjon. Merknaden «Appen vurderer ikke innholdet» står ved hvert brev (OV-U4), og setningen i OV-U10 står i statusen når kravene er avgjort. Presiserer OV-U4 og endrer svaret 19.10.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Uten virkning i appen"
+tekst = '''
+Så lenge et slikt brev står og ikke er rettet bort, har saken merknaden «Et registrert brev står uten virkning i appen». Presiserer OV-U4. Nærmer seg det HF-U13 sier visningen ikke skal påstå.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U20"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1045"]
+sporsmal = '''
+Spørsmålet «Ved kravet», ordrett slik det står i kommentaren 6347120549 på #1045:
+
+OV-U4 sier: «Ved «venter på svar» og fristveiledningen viser visningen at motparten har registrert brev i sporet.» Et registrert brev hører enten til bestemte spor eller til hele saken (OV-U16). Når et krav venter på svar, hvilke av motpartens registrerte brev skal vises ved kravet?
+
+Alternativene slik de står i kommentaren:
+
+«Spor og sak, alle (Recommended)»: Når et krav venter på svar, viser appen ved kravet motpartens registrerte brev som hører til sporet eller til hele saken, og som ikke er rettet, med beskrivelsen og datoen, uansett når de ble sendt. Et rettet brev vises bare i historikken (OV-U18). Presiserer OV-U4.
+
+«Bare sporet»: Ved kravet vises bare motpartens registrerte brev som hører til sporet og ikke er rettet. Et brev for hele saken vises ved saken. Presiserer OV-U4 etter ordlyden «i sporet».
+
+«Bare etter kravet»: Ved kravet vises motpartens registrerte brev for sporet eller saken som ikke er rettet, og som etter datoen den som registrerte oppga, er sendt etter kravet som venter på svar. Presiserer OV-U4 og snevrer det inn.'''
+valgt = "Spor og sak, alle"
+svar = '''
+«Spor og sak, alle (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u4" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet og står på #1045 (kommentaren 6347120549).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Spor og sak, alle"
+tekst = '''
+Når et krav venter på svar, viser appen ved kravet motpartens registrerte brev som hører til sporet eller til hele saken, og som ikke er rettet, med beskrivelsen og datoen, uansett når de ble sendt. Et rettet brev vises bare i historikken (OV-U18). Presiserer OV-U4.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare sporet"
+tekst = '''
+Ved kravet vises bare motpartens registrerte brev som hører til sporet og ikke er rettet. Et brev for hele saken vises ved saken. Presiserer OV-U4 etter ordlyden «i sporet».'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare etter kravet"
+tekst = '''
+Ved kravet vises motpartens registrerte brev for sporet eller saken som ikke er rettet, og som etter datoen den som registrerte oppga, er sendt etter kravet som venter på svar. Presiserer OV-U4 og snevrer det inn.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Ved «venter på svar» og fristveiledningen viser visningen at motparten har registrert brev i sporet."
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
