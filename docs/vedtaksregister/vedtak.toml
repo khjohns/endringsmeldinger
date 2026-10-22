@@ -3575,10 +3575,12 @@ Alternativene slik de står i kommentaren:
 «Avklares med jurist»: #1121 venter. Byggeøkta leverer #801 alene.'''
 valgt = "Én forespørsel fra appen"
 svar = '''
-«Kun 1 forespørsel (anbefalt valg). Og hvis svaret fra TE er 33.6.2 (b) - begrunnelse - er det da en naturlig overgang for BH å vurdere begrunnelsen i relasjon til 33.6.1, jf 33.6.2 siste ledd?»'''
+«Kun 1 forespørsel (anbefalt valg). Og hvis svaret fra TE er 33.6.2 (b) - begrunnelse - er det da en naturlig overgang for BH å vurdere begrunnelsen i relasjon til 33.6.1, jf 33.6.2 siste ledd?»
+
+Oppfølging 22.10: «Én forespørsel fra appen»'''
 forhold = [{ art = "snevrer inn", vedtak = "vs-u19" }]
 folge = '''
-Spørsmålet og alternativene står på #1121 (kommentaren 6339560335). Svaret er gitt med spørsmålsverktøyet 22.10.'''
+Spørsmålet og alternativene står på #1121 (kommentaren 6339560335). Svaret er gitt med spørsmålsverktøyet 22.10. Bekreftelsen av valget står på #1121 (kommentaren 6339847080).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Én forespørsel fra appen"
@@ -5623,6 +5625,48 @@ tekst = "også når varselet var selve kravet"
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
+
+[[gruppe.vedtak]]
+id = "MM-U30"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1043"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1043 (header «Betegnelse»):
+
+Sakslisten skal vise én kort betegnelse per krav fra en fast liste (MM-U22: betegnelsen sier bare hvilket utsagn eller hvilken relasjon som foreligger; resultat og virkning står i linja under). Lista er ikke vedtatt. Hvilken liste skal gjelde?
+
+Alternativene slik de står i kommentaren:
+
+«Bare relasjonen (Recommended)»: Hvert spor har høyst én betegnelse, i denne rekkefølgen: Trukket; Byggherren har bedt om spesifisert krav (§ 33.6.2) (bare frist, til forespørselen er besvart); Kravet venter på byggherrens svar; Byggherren har frafalt pålegget (bare grunnlaget); Enige; Svaret er ikke godtatt; Krav sendt (TE har godtatt avslaget på grunnlaget, og sporet har verken enighet eller trekk); Ingen krav; Varslet. Ingen betegnelse når ingenting er sendt. Byggherrens resultat, enighetens virkning, innsigelser, protester og passivitet står i linja under. Presiserer MM-U22, MM-U24 og MM-U29.
+
+«Med byggherrens resultat»: Som den anbefalte lista, men et svar TE ikke har godtatt, viser byggherrens resultat i betegnelsen: «BH: avslått», «BH: delvis godkjent», «BH: tilbakeholdt» (bare vederlag), med «subsidiært» der standpunktet er subsidiært, som «BH: godkjent subsidiært». Presiserer MM-U22 og MM-U28.
+
+«Med appens lesing av enigheten»: Som den anbefalte lista, men «Enige» får appens lesing av virkningen, merket som appens: «Enige. Etter appens lesing betinget av ansvaret», «… virksom» eller «… uten virkning». Endrer MM-U22.'''
+valgt = "Bare relasjonen"
+svar = '''
+«Bare relasjonen (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u22" }, { art = "presiserer", vedtak = "mm-u24" }, { art = "presiserer", vedtak = "mm-u29" }]
+folge = '''
+Spørsmålet og alternativene står på #1043 (kommentaren 6339847386). Svaret er gitt med spørsmålsverktøyet 22.10.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare relasjonen"
+tekst = '''
+Hvert spor har høyst én betegnelse, i denne rekkefølgen: Trukket; Byggherren har bedt om spesifisert krav (§ 33.6.2) (bare frist, til forespørselen er besvart); Kravet venter på byggherrens svar; Byggherren har frafalt pålegget (bare grunnlaget); Enige; Svaret er ikke godtatt; Krav sendt (TE har godtatt avslaget på grunnlaget, og sporet har verken enighet eller trekk); Ingen krav; Varslet. Ingen betegnelse når ingenting er sendt. Byggherrens resultat, enighetens virkning, innsigelser, protester og passivitet står i linja under. Presiserer MM-U22, MM-U24 og MM-U29.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Med byggherrens resultat"
+tekst = '''
+Som den anbefalte lista, men et svar TE ikke har godtatt, viser byggherrens resultat i betegnelsen: «BH: avslått», «BH: delvis godkjent», «BH: tilbakeholdt» (bare vederlag), med «subsidiært» der standpunktet er subsidiært, som «BH: godkjent subsidiært». Presiserer MM-U22 og MM-U28.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Med appens lesing av enigheten"
+tekst = '''
+Som den anbefalte lista, men «Enige» får appens lesing av virkningen, merket som appens: «Enige. Etter appens lesing betinget av ansvaret», «… virksom» eller «… uten virkning». Endrer MM-U22.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
