@@ -4,7 +4,12 @@ import { userEvent } from '@testing-library/user-event';
 import WorkQueue from '../WorkQueue.svelte';
 import { lagSakslinje } from '$lib/mocks/sakslinje';
 
-const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
+const ingenting = {
+  betegnelse: null,
+  venter_paa_svar: false,
+  svar_ikke_godtatt: false,
+  kravet_staar: false,
+};
 
 /** To saker der alle tre kravene venter på svar, og én der vederlagssvaret står uten enighet. */
 const saker = [
@@ -21,6 +26,7 @@ const saker = [
     vederlag: {
       ...ingenting,
       svar_ikke_godtatt: true,
+      kravet_staar: true,
       krav: { beloep: 100, metode: 'tilbud' },
       svar: { resultat: 'avslaatt', beloep: 0, subsidiaert: false },
       enighet: null,

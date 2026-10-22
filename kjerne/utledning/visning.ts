@@ -1,6 +1,6 @@
 /**
- * `visning(u, regler)`: etiketter, samlet status og merknader, avledet av
- * utledningen. Ingen regel leser visningen; arkitekturtesten håndhever det
+ * `visning(u, regler)`: etiketter, betegnelsen per spor (MM-U30), samlet status og
+ * merknader, avledet av utledningen. Ingen regel leser visningen; arkitekturtesten håndhever det
  * (INV-MM-9). En ny etikett, som `paalegg_frafalt`, endrer derfor ikke reglene.
  *
  * Visningen er det eneste stedet dagens regler vurderer et sendt brev på nytt.
@@ -16,6 +16,7 @@ import {
   enighetensVirkning,
   grunnlagskravFor,
   kraveneErAvgjort,
+  svarIkkeGodtatt,
   venterPaaSvar,
   type Utledning,
 } from './utled.ts';
@@ -40,11 +41,51 @@ const STATUSTEKST: Record<Statuskode, string> = {
 
 export interface Visning {
   status: { kode: Statuskode; tekst: string };
-  spor: Record<Spor, { etiketter: string[] }>;
+  spor: Record<Spor, { etiketter: string[]; betegnelse: Betegnelse | null }>;
   /** Etikettene for hver opplysning, etter ID. */
   opplysninger: Record<string, string[]>;
   journal: { hendelse: string; type: string; tolket: boolean }[];
   merknader: string[];
+}
+
+/**
+ * MM-U30: betegnelsene for et spor, i rekkefølgen de velges. Hvert spor har høyst én:
+ * den første som foreligger. Betegnelsen sier hvilket utsagn eller hvilken relasjon som
+ * foreligger; byggherrens resultat og enighetens virkning står i linja under (MM-U22).
+ */
+export const BETEGNELSER = [
+  'trukket',
+  'spesifisert_krav_etterspurt',
+  'venter_paa_svar',
+  'paalegg_frafalt',
+  'enige',
+  'svar_ikke_godtatt',
+  'krav_sendt',
+  'ingen_krav',
+  'varslet',
+] as const;
+
+export type Betegnelse = (typeof BETEGNELSER)[number];
+
+const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
+  trukket: (u, spor) => u.spor[spor].trukket,
+  // § 33.6.2: til forespørselen er besvart, med et fristkrav eller en begrunnelse.
+  spesifisert_krav_etterspurt: (u, spor) =>
+    spor === 'frist' && u.spor.frist.foresporsler.some((f) => f.svar === null),
+  venter_paa_svar: venterPaaSvar,
+  paalegg_frafalt: (u, spor) => spor === 'grunnlag' && u.frafalt,
+  enige: (u, spor) => u.spor[spor].enighet !== null,
+  svar_ikke_godtatt: svarIkkeGodtatt,
+  // Står igjen når sporet er lukket uten enighet, som når TE har godtatt avslaget på grunnlaget.
+  krav_sendt: (u, spor) => u.spor[spor].gjeldendeKrav !== null,
+  ingen_krav: (u, spor) => u.spor[spor].ingenKrav,
+  varslet: (u, spor) => u.spor[spor].varsel !== null,
+};
+
+/** MM-U30: sporets betegnelse, eller `null` når ingenting er sendt i sporet. */
+export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {
+  if (!u.forstaatt) return null;
+  return BETEGNELSER.find((b) => FORELIGGER[b](u, spor)) ?? null;
 }
 
 /** Betegnelsen saken har i de fire tilfellene i MM-U22; ellers har den ingen. */
@@ -183,7 +224,10 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
   return {
     status: { kode, tekst: statustekst(u, kode) },
     spor: Object.fromEntries(
-      SPOR.map((s) => [s, { etiketter: u.forstaatt ? etiketter(u, s, regler) : [] }])
+      SPOR.map((s) => [
+        s,
+        { etiketter: u.forstaatt ? etiketter(u, s, regler) : [], betegnelse: betegnelse(u, s) },
+      ])
     ) as Visning['spor'],
     opplysninger,
     journal: u.journal.map((h) => ({

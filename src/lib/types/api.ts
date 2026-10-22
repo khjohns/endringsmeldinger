@@ -164,8 +164,20 @@ export type Saksbetegnelse =
 /** Appens lesing av enighetens virkning (MM-U28). */
 export type Enighetsvirkning = 'betinget' | 'virksom' | 'uten_virkning';
 
+/** Betegnelsen per spor fra den faste lista i MM-U30 (`BETEGNELSER` i `kjerne/utledning/visning.ts`). */
+export type Betegnelse =
+  | 'trukket'
+  | 'spesifisert_krav_etterspurt'
+  | 'venter_paa_svar'
+  | 'paalegg_frafalt'
+  | 'enige'
+  | 'svar_ikke_godtatt'
+  | 'krav_sendt'
+  | 'ingen_krav'
+  | 'varslet';
+
 interface Foreligger {
-  etiketter: string[];
+  betegnelse: Betegnelse | null;
   venter_paa_svar: boolean;
   svar_ikke_godtatt: boolean;
 }
@@ -175,6 +187,8 @@ export interface Grunnlagslinje extends Foreligger {
 }
 
 export interface Vederlagslinje extends Foreligger {
+  /** Kravet står slik nøkkeltallene teller det; serveren avgjør det (#1068). */
+  kravet_staar: boolean;
   krav: { beloep: number; metode: string } | null;
   svar: {
     resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt' | 'tilbakeholdelse';
@@ -185,6 +199,7 @@ export interface Vederlagslinje extends Foreligger {
 }
 
 export interface Fristlinje extends Foreligger {
+  kravet_staar: boolean;
   krav: { dager: number } | null;
   svar: {
     resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt';

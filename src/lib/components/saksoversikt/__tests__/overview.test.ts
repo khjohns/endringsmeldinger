@@ -2,12 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { iUtvalg, velgSaker, type Saksutvalg } from '../overview';
 import { lagSakslinje } from '$lib/mocks/sakslinje';
 
-const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
+const ingenting = {
+  betegnelse: null,
+  venter_paa_svar: false,
+  svar_ikke_godtatt: false,
+  kravet_staar: false,
+};
 
 const venter = lagSakslinje({
   sak_id: 'KOE-1',
   sakstittel: 'Grunnforhold',
-  frist: { ...ingenting, venter_paa_svar: true, krav: { dager: 10 }, svar: null, enighet: null },
+  frist: {
+    ...ingenting,
+    venter_paa_svar: true,
+    kravet_staar: true,
+    krav: { dager: 10 },
+    svar: null,
+    enighet: null,
+  },
 });
 const svart = lagSakslinje({
   sak_id: 'KOE-2',
@@ -15,6 +27,7 @@ const svart = lagSakslinje({
   vederlag: {
     ...ingenting,
     svar_ikke_godtatt: true,
+    kravet_staar: true,
     krav: { beloep: 100, metode: 'tilbud' },
     svar: { resultat: 'avslaatt', beloep: 0, subsidiaert: false },
     enighet: null,
@@ -50,29 +63,18 @@ describe('utvalgene i prosjektoversikten leser det som foreligger, ikke en statu
     expect(velgSaker(saker, 'ingen treff', 'alle')).toEqual([]);
   });
 
-  it('fristkravene er de samme som flisen teller: ikke trukket, ikke i en avsluttet sak', () => {
-    const krav = { krav: { dager: 5 }, svar: null, enighet: null };
-    const trukket = lagSakslinje({
+  it('fristkravene er de serveren sier står (`kravet_staar`), som flisen teller (#1068)', () => {
+    const staarIkke = lagSakslinje({
       sak_id: 'KOE-5',
-      frist: { ...ingenting, etiketter: ['trukket'], ...krav },
+      frist: {
+        ...ingenting,
+        betegnelse: 'trukket',
+        kravet_staar: false,
+        krav: { dager: 5 },
+        svar: null,
+        enighet: null,
+      },
     });
-    const avsluttet = lagSakslinje({
-      sak_id: 'KOE-6',
-      saksbetegnelse: 'avslaget_paa_grunnlaget_godtatt',
-      frist: { ...ingenting, ...krav },
-    });
-    const grunnlagetTrukket = lagSakslinje({
-      sak_id: 'KOE-7',
-      saksbetegnelse: 'grunnlaget_trukket',
-      frist: { ...ingenting, ...krav },
-    });
-    const ikkeForstaatt = lagSakslinje({
-      sak_id: 'KOE-8',
-      forstaatt: false,
-      frist: { ...ingenting, ...krav },
-    });
-    expect(
-      velgSaker([venter, trukket, avsluttet, grunnlagetTrukket, ikkeForstaatt], '', 'alle', true)
-    ).toEqual([venter]);
+    expect(velgSaker([venter, staarIkke], '', 'alle', true)).toEqual([venter]);
   });
 });

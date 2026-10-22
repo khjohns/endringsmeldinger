@@ -2704,6 +2704,25 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F340',
+    feilklasse: '«Krav sendt» går foran «Enige» i rekkefølgen for betegnelsen (MM-U30, #1043)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  'enige',\n  'svar_ikke_godtatt',\n  'krav_sendt',\n",
+        "  'krav_sendt',\n  'enige',\n  'svar_ikke_godtatt',\n",
+      ],
+    ],
+    mal: ['en enighet i sporet går foran «Krav sendt»'],
+  },
+  {
+    id: 'F341',
+    feilklasse: 'en ubesvart forespørsel etter § 33.6.2 gir ikke betegnelsen (MM-U30, #1043)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['u.spor.frist.foresporsler.some((f) => f.svar === null)', 'false']],
+    mal: ['en ubesvart forespørsel etter § 33.6.2 går foran varselet'],
+  },
+  {
     id: 'F313',
     feilklasse: 'svarIkkeGodtatt leser ikke at sporet er lukket (SK-01, OV-U3, #1050)',
     fil: `${K}/utledning/utled.ts`,

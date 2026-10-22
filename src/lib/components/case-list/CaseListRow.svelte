@@ -8,7 +8,7 @@
     betegnelsesmerke,
     fristtall,
     kategoritekst,
-    sporetiketter,
+    sporbetegnelser,
     vederlagstall,
   } from './presentation';
 
@@ -29,7 +29,7 @@
   );
   const tittel = $derived(linje.sakstittel ?? 'Uten tittel');
   const merke = $derived(betegnelsesmerke(linje));
-  const etiketter = $derived(merke ? [] : sporetiketter(linje));
+  const betegnelser = $derived(merke ? [] : sporbetegnelser(linje));
   const vederlag = $derived(vederlagstall(linje));
   const frist = $derived(fristtall(linje));
   const sisteAktivitet = $derived(formatDateShort(linje.siste_hendelse));
@@ -64,8 +64,8 @@
           <Badge variant={merke.variant}>{merke.label}</Badge>
           {#if merke.tillegg}<p class="tillegg">{merke.tillegg}</p>{/if}
         </div>
-      {:else if etiketter.length}<ul class="spor-etiketter">
-          {#each etiketter as e (e.spor)}<li><strong>{e.spor}:</strong> {e.tekst}</li>{/each}
+      {:else if betegnelser.length}<ul class="spor-betegnelser">
+          {#each betegnelser as b (b.spor)}<li><strong>{b.spor}:</strong> {b.tekst}</li>{/each}
         </ul>
       {:else}<span class="cell-text cell-text-muted">—</span>{/if}
     </div>
@@ -146,7 +146,7 @@
     line-height: 1.4;
   }
 
-  .spor-etiketter {
+  .spor-betegnelser {
     margin: 0;
     padding: 0;
     list-style: none;
@@ -155,7 +155,7 @@
     line-height: 1.45;
   }
 
-  .spor-etiketter strong {
+  .spor-betegnelser strong {
     color: var(--color-ink);
     font-weight: 600;
   }

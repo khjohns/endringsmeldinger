@@ -1,7 +1,7 @@
 /**
  * Visningen av linja i sakslisten fra TS (#1023). Saken har ingen samlet status:
- * raden viser saksbetegnelsen i de fire tilfellene i MM-U22, ellers etikettene per
- * spor, og tallene som krav, svar og enighet hver for seg (MM-U28).
+ * raden viser saksbetegnelsen i de fire tilfellene i MM-U22, ellers betegnelsen per
+ * spor (MM-U30), og tallene som krav, svar og enighet hver for seg (MM-U28).
  */
 import type { ComponentProps } from 'svelte';
 import type Badge from '$lib/components/primitives/Badge.svelte';
@@ -9,7 +9,7 @@ import type { Enighetsvirkning, Saksbetegnelse, Sakslinje } from '$lib/types/api
 import { HOVEDKATEGORI_FRA_KATALOGEN, tilKatalogen } from '$kjerne/format/koder';
 import { SPOR } from '$kjerne/typer';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
-import { etikett } from '$lib/kjernesak/saksbilde';
+import { betegnelsestekst } from '$lib/kjernesak/saksbilde';
 import { SPORNAVN } from '$lib/components/saksoversikt/foreligger';
 import { formatCurrencyCompact, formatDaysCompact } from '$lib/utils/formatters';
 
@@ -35,12 +35,12 @@ export function betegnelsesmerke(linje: Sakslinje) {
   return { ...BETEGNELSE[linje.saksbetegnelse], tillegg };
 }
 
-/** Etikettene per spor, for sporene som har noen. */
-export function sporetiketter(linje: Sakslinje): { spor: string; tekst: string }[] {
-  return SPOR.filter((spor) => linje[spor].etiketter.length).map((spor) => ({
-    spor: SPORNAVN[spor],
-    tekst: linje[spor].etiketter.map((kode) => etikett(kode).tekst).join(', '),
-  }));
+/** Betegnelsen per spor, for sporene som har en (MM-U30). */
+export function sporbetegnelser(linje: Sakslinje): { spor: string; tekst: string }[] {
+  return SPOR.flatMap((spor) => {
+    const b = linje[spor].betegnelse;
+    return b ? [{ spor: SPORNAVN[spor], tekst: betegnelsestekst(b) }] : [];
+  });
 }
 
 export function kategoritekst(linje: Sakslinje): string {

@@ -7,7 +7,12 @@ import type { Sakslinje } from '$lib/types/api';
 const vis = (linje: Sakslinje) =>
   render(CaseListRowTest, { props: { linje, prosjektId: 'PRJ-01' } });
 
-const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
+const ingenting = {
+  betegnelse: null,
+  venter_paa_svar: false,
+  svar_ikke_godtatt: false,
+  kravet_staar: false,
+};
 
 describe('CaseListRow', () => {
   it('viser sak-ID, tittel, kategori og lenken til saken', () => {
@@ -26,26 +31,28 @@ describe('CaseListRow', () => {
     expect(screen.getByText('Uten tittel')).toBeInTheDocument();
   });
 
-  it('saken har ingen samlet status: raden viser etikettene per spor (MM-U22)', () => {
+  it('saken har ingen samlet status: raden viser betegnelsen per spor (MM-U22, MM-U30)', () => {
     vis(
       lagSakslinje({
         grunnlag: {
           ...ingenting,
-          etiketter: ['venter_paa_svar'],
+          betegnelse: 'venter_paa_svar',
           venter_paa_svar: true,
           svar: null,
         },
         vederlag: {
           ...ingenting,
-          etiketter: ['subsidiaert'],
+          betegnelse: 'svar_ikke_godtatt',
+          kravet_staar: true,
           krav: { beloep: 1_000_000, metode: 'tilbud' },
           svar: { resultat: 'delvis_godkjent', beloep: 600_000, subsidiaert: true },
           enighet: null,
         },
       })
     );
-    expect(screen.getByText('Venter på svar')).toBeInTheDocument();
-    expect(screen.getByText('Subsidiært standpunkt')).toBeInTheDocument();
+    expect(screen.getByText('Kravet venter på byggherrens svar')).toBeInTheDocument();
+    expect(screen.getByText('Svaret er ikke godtatt')).toBeInTheDocument();
+    expect(screen.queryByText('Frist:')).not.toBeInTheDocument();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
@@ -55,16 +62,16 @@ describe('CaseListRow', () => {
     ['grunnlaget_trukket', 'Avsluttet: trukket', 'badge-avslatt'],
     ['kravene_avgjort', 'Alle krav sendt i appen er avgjort', 'badge-godkjent'],
   ] as const)(
-    'saksbetegnelsen %s vises som merket «%s» i stedet for etikettene (MM-U22)',
+    'saksbetegnelsen %s vises som merket «%s» i stedet for betegnelsene per spor (MM-U22)',
     (saksbetegnelse, tekst, klasse) => {
       vis(
         lagSakslinje({
           saksbetegnelse,
-          grunnlag: { ...ingenting, etiketter: ['avklart'], svar: null },
+          grunnlag: { ...ingenting, betegnelse: 'enige', svar: null },
         })
       );
       expect(screen.getByText(tekst)).toHaveClass(klasse);
-      expect(screen.queryByText('Avklart')).not.toBeInTheDocument();
+      expect(screen.queryByText('Enige')).not.toBeInTheDocument();
     }
   );
 

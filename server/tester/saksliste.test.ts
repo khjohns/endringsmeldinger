@@ -4,8 +4,8 @@
  * Kildene for forventningene: arbeidsvalget 20.10 i #375 («Som i dag, ny form»),
  * arbeidsvalgene 20.10 i #1022 (leserens part fra serveren, summene i serveren),
  * og prosjektgrensen i sikkerhetsinvariantene i AGENTS.md. Krav, svar og enighet per
- * spor prøves i `sakslinje.test.ts`. At etikettene er de samme som i visningen av
- * saken, er kravet at de er kjernens etiketter og ikke en egen oppsummering.
+ * spor prøves i `sakslinje.test.ts`. At betegnelsene er de samme som i visningen av
+ * saken, er kravet at de er kjernens betegnelser (MM-U30) og ikke en egen oppsummering.
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -128,18 +128,26 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
     ['BH', () => o.bh],
     ['TE', () => o.te],
     ['et medlem med leserolle', () => o.leser],
-  ])('etikettene per spor er etikettene i visningen av saken, for %s', async (_, leser) => {
-    for (const sakId of [medKrav, tom]) {
-      const vist = await kall(server.url, `/api/kjerne/saker/${sakId}`, {
-        bruker: leser(),
-        prosjektId: o.prosjekt.id,
-      });
-      const linje = (await lista(leser())).find((s) => s.sak_id === sakId)!;
-      const visning = vist.kropp.visning as { spor: Record<string, { etiketter: string[] }> };
-      for (const spor of ['grunnlag', 'vederlag', 'frist'] as const)
-        expect(linje[spor].etiketter, spor).toEqual(visning.spor[spor]!.etiketter);
+  ])(
+    'betegnelsen per spor er betegnelsen i visningen av saken (MM-U30), for %s',
+    async (_, leser) => {
+      for (const sakId of [medKrav, tom]) {
+        const vist = await kall(server.url, `/api/kjerne/saker/${sakId}`, {
+          bruker: leser(),
+          prosjektId: o.prosjekt.id,
+        });
+        const linje = (await lista(leser())).find((s) => s.sak_id === sakId)!;
+        const visning = vist.kropp.visning as {
+          spor: Record<string, { betegnelse: string | null }>;
+        };
+        for (const spor of ['grunnlag', 'vederlag', 'frist'] as const)
+          expect(linje[spor].betegnelse, spor).toBe(visning.spor[spor]!.betegnelse);
+        expect(linje.grunnlag.betegnelse, 'kontroll').toBe(
+          sakId === medKrav ? 'venter_paa_svar' : null
+        );
+      }
     }
-  });
+  );
 
   it('prosedyren gir bare hendelsene i prosjektet i konteksten', async () => {
     const sakene = (prosjekt: string, aktor: string) =>
