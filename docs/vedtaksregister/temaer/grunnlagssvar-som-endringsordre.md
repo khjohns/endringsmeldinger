@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `89b2c09eee25a8401298acb47dff0c182dd515041bf4a115f64cc3d806f7098d`
+Kontrollsum (SHA-256 over utdraget visningen leser): `6e61651343e9e06f37299ab02b434860e18a5e9b30ace789fd1732e6468080f8`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -621,7 +621,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Regelrader:** [KA-30](#rad-ka-30), [GR-28](#rad-gr-28), [GR-29](#rad-gr-29), [GR-31](#rad-gr-31), [GR-32](#rad-gr-32), [GR-33](#rad-gr-33), [KA-32](#rad-ka-32), [KA-34](#rad-ka-34), [KA-36](#rad-ka-36), [KA-37](#rad-ka-37), [KA-38](#rad-ka-38), [KA-40](#rad-ka-40), [KA-41](#rad-ka-41), [VS-02](#rad-vs-02), [KA-48](#rad-ka-48), [KA-49](#rad-ka-49), [KA-50](#rad-ka-50)
 
-**Bevis-saker som viser til vedtaket:** F-MM-G18 (målmodellen), F-MM-G43 (målmodellen), F-MM-G44 (målmodellen), F-MM-G44-kontroll (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G46 (målmodellen), F-MM-U326n (målmodellen), F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G22 (målmodellen), F-MM-S342 (målmodellen), F-MM-V2 (målmodellen), F-MM-U326f (målmodellen), F-MM-U326g (målmodellen), F-MM-IK5 (målmodellen), F-MM-IK6 (målmodellen), F-MM-U326j (målmodellen), F-MM-U326k (målmodellen), F-MM-V9 (målmodellen), F-MM-V3c (målmodellen), F-MM-U326l (målmodellen), F-MM-U326m (målmodellen), F-MM-U20e (målmodellen), F-MM-U20f (målmodellen), F-MM-U20g (målmodellen), F-MM-U20i (målmodellen), F-MM-U20j (målmodellen), F-MM-U20k (målmodellen), F-MM-OV-U4-registrert-svar (målmodellen), F-MM-G37 (målmodellen), F-MM-G38 (målmodellen), F-MM-G41 (målmodellen), F-MM-G42x (målmodellen)
+**Bevis-saker som viser til vedtaket:** F-MM-A5a (målmodellen), F-MM-B1 (målmodellen), F-MM-B2 (målmodellen), F-MM-E3 (målmodellen), F-MM-E4 (målmodellen), F-MM-E5 (målmodellen), F-MM-E6 (målmodellen), F-MM-E7 (målmodellen), F-MM-EO1 (målmodellen), F-MM-EO3 (målmodellen), F-MM-G18 (målmodellen), F-MM-G43 (målmodellen), F-MM-G44 (målmodellen), F-MM-G44-kontroll (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G46 (målmodellen), F-MM-U326n (målmodellen), F-MM-R1 (målmodellen), F-MM-R1-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G22 (målmodellen), F-MM-E8 (målmodellen), F-MM-IK2 (målmodellen), F-MM-S342 (målmodellen), F-MM-V2 (målmodellen), F-MM-U326f (målmodellen), F-MM-U326g (målmodellen), F-MM-IK5 (målmodellen), F-MM-IK6 (målmodellen), F-MM-U326j (målmodellen), F-MM-U326k (målmodellen), F-MM-V9 (målmodellen), F-MM-V3c (målmodellen), F-MM-U326l (målmodellen), F-MM-U326m (målmodellen), F-MM-U20a (målmodellen), F-MM-U20e (målmodellen), F-MM-U20f (målmodellen), F-MM-U20g (målmodellen), F-MM-U20i (målmodellen), F-MM-U20j (målmodellen), F-MM-U20k (målmodellen), F-MM-OV-U4-registrert-svar (målmodellen), F-MM-G37 (målmodellen), F-MM-G38 (målmodellen), F-MM-G41 (målmodellen), F-MM-G42x (målmodellen)
 
 ### <a id="ov-u5"></a>OV-U5
 
