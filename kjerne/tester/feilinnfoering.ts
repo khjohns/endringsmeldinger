@@ -2855,10 +2855,92 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F324',
-    feilklasse: 'et fristkrav i et registrert brev sperrer ikke forespørselen (VS-U19)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['      if (fristkravErFremmet(u))', '      if (s.krav.length > 0)']],
-    mal: ['VS-U19: et fristkrav i et registrert brev er også fremmet'],
+    feilklasse: 'et fristkrav i et registrert brev sperrer forespørselen (VS-U33)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;",
+        "    if (d.krav.some((k) => k.spor === 'frist')) return true;",
+      ],
+    ],
+    mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
+  },
+  {
+    id: 'F357',
+    feilklasse:
+      'et fristkrav i et registrert brev gjør forespørselen ugyldig i utledningen (VS-U33)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "      if (k.spor === 'frist' && !kravetErDokumentasjon(d)) fristkravIAppen.push(k);",
+        "      if (k.spor === 'frist') fristkravIAppen.push(k);",
+      ],
+    ],
+    mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
+  },
+  {
+    id: 'F358',
+    feilklasse: 'motparten kan rette en registrering (OV-U17)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (brev.avsender !== part)', '  if (false)']],
+    mal: ['OV-U17: bare samme side retter'],
+  },
+  {
+    id: 'F359',
+    feilklasse: 'en rettet registrering kan rettes igjen (#1045)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (brev.rettetAv !== null)', '  if (false)']],
+    mal: ['en rettet registrering rettes ikke igjen'],
+  },
+  {
+    id: 'F360',
+    feilklasse: 'en retting som ikke viser til en registrering i saken, forstås (OV-U17)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      if (!rettet || rettet.avsender !== d.avsender || rettet.rettetAv !== null) {',
+        '      if (false) {',
+      ],
+    ],
+    mal: ['en retting som viser til noe som ikke er i saken'],
+  },
+  {
+    id: 'F361',
+    feilklasse: 'brev fra begge sider vises ved kravet (OV-U20)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["b.avsender === 'BH' && b.rettetAv", 'true && b.rettetAv']],
+    mal: ['svar 2: ved hvert krav som venter, vises motpartens brev'],
+  },
+  {
+    id: 'F362',
+    feilklasse: 'et rettet brev vises fortsatt ved kravet (OV-U18, OV-U20)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["b.avsender === 'BH' && b.rettetAv === null &&", "b.avsender === 'BH' &&"]],
+    mal: ['OV-U18: brevet i feil sak rettes bort'],
+  },
+  {
+    id: 'F363',
+    feilklasse: 'en registrering rettet bort gir fortsatt merknaden for saken (OV-U19)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        '      !u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)',
+        '      true',
+      ],
+    ],
+    mal: ['OV-U18: brevet i feil sak rettes bort'],
+  },
+  {
+    id: 'F364',
+    feilklasse: 'merknaden for saken står også når kravene er avgjort (OV-U19, OV-U10)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  if (kode !== 'alle_krav_avgjort' && harRegistrertBrev(u))",
+        '  if (harRegistrertBrev(u))',
+      ],
+    ],
+    mal: ['svar 1: når kravene er avgjort'],
   },
   {
     id: 'F325',
