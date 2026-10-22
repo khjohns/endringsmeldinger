@@ -33,6 +33,7 @@ const post = (versjon: number, o: Leveringsoppdrag[]): Journalpost => ({
   tekst: null,
   opplysninger: [],
   oppdrag: o,
+  registrertBrev: null,
 });
 
 const bilde = (journal: Journalpost[]): Saksbilde => ({

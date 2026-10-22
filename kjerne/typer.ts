@@ -230,6 +230,10 @@ export interface Dokument {
   beskrivelse: string | null;
   /** OV-U16: sporene brevet med beskrivelsen hører til. Tom når det hører til saken. */
   spor: Spor[];
+  /** OV-U17, OV-U18: registreringen av et brev som dokumentasjon som dette dokumentet retter. */
+  retter: string | null;
+  /** OV-U18: rettingen sier at brevet ikke hører til saken, og har ellers ingenting. */
+  ikkeISaken: boolean;
 }
 
 /**

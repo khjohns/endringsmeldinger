@@ -532,6 +532,34 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U16: beskrivelsen lagres slik avsenderen skrev den, og ingen regel leser den.
   ['Kommando', 'kommando', 'beskrivelse', ['kommandoer/skriving.ts:dokument']],
+  // OV-U17, OV-U18: registreringen en retting viser til, kontrollert mot utledningen.
+  [
+    'Kommando',
+    'kommando',
+    'retter',
+    ['kommandoer/nyttelast.ts:nyttelastkontroll', 'kommandoer/skriving.ts:dokument'],
+  ],
+  // OV-U4, OV-U16: brevene registrert som dokumentasjon og rettingene av dem. Bare
+  // kontrollen av rettingen leser dem; beskrivelsen og sporene går uendret til visningen.
+  ['Dokument', 'relasjon', 'id retter', ['utledning/utled.ts:registreringer']],
+  // OV-U19: brevene appen ikke vurderer, for visningen. Ingen regel leser dem.
+  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:ikkeVurderte']],
+  ['RegistrertBrev', 'relasjon', 'dokument rettetAv', ['utledning/utled.ts:ikkeVurderte']],
+  ['Dokument', 'relasjon', 'ikkeISaken', ['kommandoer/skriving.ts:brevtekstFor']],
+  ['Dokument', 'utsagn', 'beskrivelse spor dokumentasjon', ['utledning/utled.ts:registreringer']],
+  ['utledning/utled.ts:registreringer', 'relasjon', 'brev feil', ['utledning/utled.ts']],
+  [
+    'Utledning',
+    'relasjon',
+    'registrerteBrev',
+    ['kommandoer/nyttelast.ts:retting', 'utledning/utled.ts:utled'],
+  ],
+  [
+    'RegistrertBrev',
+    'relasjon',
+    'dokument avsender rettetAv',
+    ['utledning/utled.ts:registreringer', 'kommandoer/nyttelast.ts:retting'],
+  ],
   // #984: datoen og vedleggene i kommandoen, med stien feilmeldingene viser til.
   ['kommandoer/kommando.ts:brevfelt', 'kommando', 'sti sendt dokumentasjon'],
   // OV-U5: sporet og bestemmelsen i TEs varsel.
@@ -683,9 +711,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesDokument',
     'rad',
-    'krav svar utsagn opplysninger dokumentasjon beskrivelse spor',
+    'krav svar utsagn opplysninger dokumentasjon beskrivelse spor retter ikke_i_saken',
     ['format/leser.ts'],
   ],
+  ['format/leser.ts:ikkeISaken(data)', 'rad', 'retter', ['format/leser.ts']],
   [
     'format/leser.ts:lesDokument(e)',
     'rad',

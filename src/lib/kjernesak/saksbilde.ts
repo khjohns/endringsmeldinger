@@ -6,8 +6,8 @@
 
 import type { Leveringsoppdrag } from '$lib/api/kjerne';
 import { formatDateNorwegian, formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
-import type { Utledning } from '$kjerne/utledning/utled';
-import type { Betegnelse, Visning } from '$kjerne/utledning/visning';
+import type { RegistrertBrev, Utledning } from '$kjerne/utledning/utled';
+import { BREV_UTENFOR_APPEN, type Betegnelse, type Visning } from '$kjerne/utledning/visning';
 import { brevtekstI } from '$kjerne/format/leser';
 import { SPOR, type Avsnitt, type Journalrad, type Spor } from '$kjerne/typer';
 
@@ -35,6 +35,8 @@ export interface Sporbilde {
   betegnelse: Etikett | null;
   etiketter: Etikett[];
   poster: Sporpost[];
+  /** Motpartens registrerte brev, vist ved kravet som venter på svar (OV-U20). */
+  registrerteBrev: string[];
 }
 
 /** En opplysning i brevet, med etikettene fra `visning`: hvem som oppgir den, og bestridelsene. */
@@ -62,6 +64,11 @@ export interface Journalpost {
   tekst: Avsnitt[] | null;
   opplysninger: Opplysningspost[];
   oppdrag: Leveringsoppdrag[];
+  /**
+   * Et brev registrert som dokumentasjon (OV-U4, OV-U16): beskrivelsen, sporene og datoen
+   * den som registrerte oppga, og om registreringen er rettet (OV-U17, OV-U18). Ellers `null`.
+   */
+  registrertBrev: string[] | null;
 }
 
 export interface Saksbilde {
@@ -112,6 +119,7 @@ const TEKST: Record<string, string> = {
   mottak_bestridt: 'Mottaket er bestridt',
   endringsordre_bestridt: 'Endringsordren er bestridt',
   registrert_brev_uten_virkning: 'Et registrert brev står uten virkning',
+  brev_utenfor_appen: BREV_UTENFOR_APPEN,
   varsel_med_frist_utenfor_appen:
     'Saken kan ikke utledes. Et varsel med frist må sendes utenfor appen og registreres senere.',
 };
@@ -157,9 +165,28 @@ function journaltittel(rad: Journalrad, tolket: boolean, tekst: Avsnitt[] | null
   const ukjent = `Hendelse appen ikke forstår, fra ${rad.aktor_rolle}`;
   if (!tolket) return ukjent;
   if (rad.event_type === 'sak_opprettet') return `Saken er opprettet av ${rad.aktor_rolle}`;
-  if (rad.event_type === 'dokument_registrert')
+  if (rad.event_type === 'dokument_registrert') {
+    if (rad.data.ikke_i_saken === true)
+      return `Retting fra ${rad.aktor_rolle}: brevet hører ikke til saken`;
     return tekst ? `Brev fra ${rad.aktor_rolle}` : `Registrert brev fra ${rad.aktor_rolle}`;
+  }
   return ukjent;
+}
+
+const sporene = (b: RegistrertBrev): string =>
+  b.spor.length ? b.spor.map((s) => SPORNAVN[s]).join(', ') : 'Hele saken';
+
+/**
+ * Linjene ved et brev registrert som dokumentasjon: beskrivelsen med ordene til den som
+ * registrerte, sporene, datoen og merknaden (OV-U16), og rettingen (OV-U17, OV-U18).
+ */
+function registrertBrevTekst(b: RegistrertBrev, versjonFor: Map<string, number>): string[] {
+  return [
+    b.beskrivelse,
+    `${sporene(b)}. Sendt ${formatDateNorwegian(b.sendt)} ifølge ${b.avsender}.`,
+    'Appen vurderer ikke innholdet.',
+    ...(b.rettetAv === null ? [] : [`Rettet i hendelse ${versjonFor.get(b.rettetAv) ?? '?'}.`]),
+  ];
 }
 
 function postTekst(p: Omit<Sporpost, 'tekst'>): string {
@@ -195,6 +222,7 @@ export function lagSaksbilde(
     status: vist.status,
     merknader: vist.merknader.map(etikett),
     spor: SPOR.map((spor) => {
+      const ved = vist.spor[spor].registrerteBrev;
       const s = u.spor[spor];
       return {
         spor,
@@ -221,11 +249,18 @@ export function lagSaksbilde(
         ]
           .sort((a, b) => (a.brev ?? 0) - (b.brev ?? 0))
           .map((p) => ({ ...p, tekst: postTekst(p) })),
+        registrerteBrev: vist.registrerteBrev
+          .filter((b) => ved.includes(b.dokument))
+          .map(
+            (b) =>
+              `Registrert brev fra ${b.avsender}, sendt ${formatDateNorwegian(b.sendt)}: ${b.beskrivelse}`
+          ),
       };
     }),
     journal: journal.map((r) => {
       const erTolket = tolket.get(r.event_id) ?? false;
       const tekst = brevtekst(r, erTolket);
+      const registrert = vist.registrerteBrev.find((b) => b.dokument === r.event_id);
       return {
         hendelse: r.event_id,
         versjon: r.versjon,
@@ -236,6 +271,7 @@ export function lagSaksbilde(
         tekst,
         opplysninger: opplysningerI(r.event_id),
         oppdrag: oppdrag.filter((o) => o.event_id === r.event_id),
+        registrertBrev: registrert ? registrertBrevTekst(registrert, versjonFor) : null,
       };
     }),
   };

@@ -3,7 +3,9 @@
    * Historikken for en TS-sak i Kontrollrommet (#665, #718): merknadene fra
    * `visning` (blant dem «kan ikke utledes», MM-U2) og journalen med den låste
    * brevteksten og leveringsoppdragene (LV-U2). Et sendt brev med dokument fra appen
-   * kan lastes ned som PDF (#1054); sak og prosjekt er de i ruta (#743).
+   * kan lastes ned som PDF (#1054); sak og prosjekt er de i ruta (#743). Et brev
+   * registrert som dokumentasjon vises med beskrivelsen, sporene og datoen (OV-U16), og
+   * motpartens registrerte brev vises ved kravet som venter på svar (#1045).
    */
   import { Download } from 'lucide-svelte';
   import { page } from '$app/state';
@@ -39,6 +41,14 @@
   {#each bilde.merknader as m (m.kode)}
     <p class="merknad" role="note">{m.tekst}</p>
   {/each}
+  {#each bilde.spor.filter((s) => s.registrerteBrev.length) as s (s.spor)}
+    <div class="merknad" role="note" data-testid="brev-ved-kravet-{s.spor}">
+      <p>{s.navn}: kravet venter på svar, og motparten har registrert brev.</p>
+      <ul class="opplysninger">
+        {#each s.registrerteBrev as b, i (i)}<li>{b}</li>{/each}
+      </ul>
+    </div>
+  {/each}
   <ol class="journal">
     {#each [...bilde.journal].reverse() as j (j.hendelse)}
       <li data-testid="journal-{j.versjon}">
@@ -56,7 +66,11 @@
             {/each}
           </div>
         {/if}
-        {#if j.opplysninger.length}
+        {#if j.registrertBrev}
+          <div class="brevtekst" data-testid="registrert-brev-{j.versjon}">
+            {#each j.registrertBrev as linje, i (i)}<p>{linje}</p>{/each}
+          </div>
+        {:else if j.opplysninger.length}
           <ul class="opplysninger" aria-label="Opplysninger i brevet">
             {#each j.opplysninger as o (o.id)}<li>{o.tekst}</li>{/each}
           </ul>

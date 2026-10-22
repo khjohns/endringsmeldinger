@@ -4,10 +4,11 @@
  * uavklart. Hver avvisning har en kontrollsak som bare skiller seg i det ene.
  */
 
+import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { Journalrad, Krav, Part, Standpunktsvirkning } from '../typer.ts';
-import { frysBrev, vurder, type Kontekst } from '../kommandoer/skriving.ts';
+import { frysBrev, Skrivefeil, vurder, type Kontekst } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
@@ -16,7 +17,7 @@ import { kanInngaaIEo, kraveneErAvgjort, utled } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import { visning } from '../utledning/visning.ts';
+import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
@@ -560,6 +561,58 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     const bane = minnebane();
     await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
     expect(forstaatt(await bane.journal())).toBe(true);
+  });
+
+  it('OV-U19: en endringsordre registrert med virkning teller ikke som brev utenfor appen (OV-U6, HF-U13)', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
+    const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(harIkkeVurdertBrev(u)).toBe(false);
+    const kontroll = minnebane();
+    await bygg(kontroll, ['krav_irreg', registrert({ sendt: '2026-09-30' })]);
+    const k = utled(lesJournal(await kontroll.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(harIkkeVurdertBrev(k), 'kontrollsak: et svar som er dokumentasjon (OV-U4)').toBe(true);
+  });
+
+  it('OV-U19, OV-U4: en registrert begrunnelse (KA-U35) er dokumentasjon og teller som brev utenfor appen', async () => {
+    const eo = registrert({ sendt: '2026-09-30', endringsordre: true });
+    const begrunnelse = {
+      handling: 'rad',
+      art: 'begrunnelse',
+      gjelder: 'S-g1',
+      part: 'BH',
+      navn: 'D5',
+      sendt: '2026-09-30',
+    };
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg', eo, begrunnelse]);
+    const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.forstaatt, 'forutsetning').toBe(true);
+    expect(harIkkeVurdertBrev(u)).toBe(true);
+    const kontroll = minnebane();
+    await bygg(kontroll, ['krav_irreg', eo]);
+    const k = utled(lesJournal(await kontroll.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(harIkkeVurdertBrev(k), 'kontrollsak: bare endringsordren').toBe(false);
+  });
+
+  it('OV-U21, MM-U2: mens saken ikke er forstått, teller også en endringsordre registrert før saken stoppet', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
+    const journal = await bane.journal();
+    expect(
+      harIkkeVurdertBrev(utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER)),
+      'kontrollsak: saken er forstått'
+    ).toBe(false);
+    journal.push({
+      ...structuredClone(journal.at(-1)!),
+      event_id: randomUUID(),
+      versjon: journal.at(-1)!.versjon + 1,
+      format: null,
+    });
+    const u = utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.forstaatt, 'forutsetning').toBe(false);
+    expect(harIkkeVurdertBrev(u)).toBe(true);
+    expect(visning(u, GJELDENDE_REGLER).merknader).toContain('brev_utenfor_appen');
   });
 
   // OV-U12: et krav i et registrert brev er dokumentasjon uten virkning (OV-U4), så
@@ -1531,5 +1584,224 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
     const endret = structuredClone(rad);
     endre(endret.data);
     expect(grunner([...journal, endret])).toEqual([expect.stringContaining(grunn)]);
+  });
+});
+
+/**
+ * En registrering av et brev som dokumentasjon rettes av samme side (OV-U17), også når
+ * brevet står i feil sak (OV-U18). Visningen viser brevene ved kravet (OV-U20)
+ * og merknaden for saken (OV-U19).
+ */
+describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)', () => {
+  const brevet = '00000000-0000-4000-8000-000000001045';
+  const registrering = (ekstra: Data = {}): Data =>
+    JSON.parse(
+      JSON.stringify({
+        type: 'registrert_brev',
+        spor: ['grunnlag'],
+        sendt: '2026-10-20',
+        beskrivelse: 'Svar på varselet',
+        dokumentasjon: [brevet],
+        ...ekstra,
+      })
+    ) as Data;
+  const kontekst = (part: Part): Kontekst => ({
+    sakId: 'SAK-1045',
+    aktoerId: part.toLowerCase(),
+    part,
+    teamId: null,
+    tidspunkt: () => new Date('2026-10-21T10:00:00Z'),
+    nyId: randomUUID,
+  });
+  const prov = (journal: Journalrad[], kommando: Data, part: Part) => {
+    try {
+      return vurder(kommando, kontekst(part), journal, KJERNE, mellomlager(kommando));
+    } catch (feil) {
+      // 7.1.2 i designnotatet: kjernen skal forstå det den selv skriver.
+      if (feil instanceof Skrivefeil) throw new AssertionError({ message: feil.message });
+      throw feil;
+    }
+  };
+  const regel = (journal: Journalrad[], kommando: Data, part: Part) => {
+    const u = prov(journal, kommando, part);
+    return u.godtatt ? 'godtatt' : u.avvisning.regel;
+  };
+  const godtatt = (journal: Journalrad[], kommando: Data, part: Part) => {
+    const u = prov(journal, kommando, part);
+    if (!u.godtatt)
+      throw new Error(`Forutsetning: avvist: ${u.avvisning.regel}: ${u.avvisning.melding}`);
+    journal.push(u.hendelser[0]);
+    return u.hendelser[0];
+  };
+  const utledet = (journal: Journalrad[]) =>
+    utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER);
+  const vist = (journal: Journalrad[]) => visning(utledet(journal), GJELDENDE_REGLER);
+  /** Grunnlagskravet venter på svar, og BH har registrert ett brev. */
+  async function medBrevFraBH() {
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg']);
+    const journal = await bane.journal();
+    const rad = godtatt(journal, registrering(), 'BH');
+    return { journal, rad };
+  }
+
+  it('OV-U17: rettingen er en ny registrering med henvisning, og originalen står som rettet', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    const retting = godtatt(
+      journal,
+      registrering({ sendt: '2026-10-19', retter: rad.event_id }),
+      'BH'
+    );
+    expect(retting.data).toMatchObject({ retter: rad.event_id, beskrivelse: 'Svar på varselet' });
+    const u = utledet(journal);
+    expect(u.forstaatt).toBe(true);
+    expect(u.registrerteBrev.map((b) => [b.dokument, b.sendt, b.rettetAv])).toEqual([
+      [rad.event_id, '2026-10-20', retting.event_id],
+      [retting.event_id, '2026-10-19', null],
+    ]);
+    expect(vist(journal).spor.grunnlag.registrerteBrev).toEqual([retting.event_id]);
+  });
+
+  it('OV-U17: bare samme side retter; kontrollsak: BH retter sin egen', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    expect(regel(journal, registrering({ retter: rad.event_id }), 'TE')).toBe('FEIL_PART');
+    expect(regel(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'TE')).toBe('FEIL_PART');
+    expect(regel(journal, registrering({ retter: rad.event_id }), 'BH')).toBe('godtatt');
+  });
+
+  it('OV-U17: en retting må gjelde et brev registrert som dokumentasjon i saken', async () => {
+    const { journal } = await medBrevFraBH();
+    const kravet = journal.find((r) => Array.isArray(r.data.krav))!.event_id;
+    for (const retter of [kravet, randomUUID()])
+      expect(regel(journal, registrering({ retter }), 'TE')).toBe('RETTER_IKKE_EN_REGISTRERING');
+  });
+
+  it('en rettet registrering rettes ikke igjen; kontrollsak: den siste i kjeden rettes', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    const retting = godtatt(journal, registrering({ retter: rad.event_id }), 'BH');
+    expect(regel(journal, registrering({ retter: rad.event_id }), 'BH')).toBe(
+      'REGISTRERINGEN_ER_RETTET'
+    );
+    expect(regel(journal, registrering({ retter: retting.event_id }), 'BH')).toBe('godtatt');
+  });
+
+  it('OV-U18: etter en retting om feil sak viser avvisningen til en ny registrering, ikke til rettingen', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH');
+    const u = prov(journal, registrering({ retter: rad.event_id }), 'BH');
+    expect(u.godtatt ? null : u.avvisning.melding).toMatch(/registreres brevet på nytt/);
+    expect(regel(journal, registrering(), 'BH'), 'kontrollsak: en ny registrering').toBe('godtatt');
+  });
+
+  it('OV-U18: brevet i feil sak rettes bort, og visningen viser det ikke lenger ved kravet eller i merknaden', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    const foer = vist(journal);
+    expect(foer.spor.grunnlag.registrerteBrev, 'kontrollsak').toEqual([rad.event_id]);
+    expect(foer.merknader, 'kontrollsak').toContain('brev_utenfor_appen');
+    const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH');
+    expect(retting.data).toEqual({ retter: rad.event_id, ikke_i_saken: true });
+    const etter = vist(journal);
+    expect(etter.spor.grunnlag.registrerteBrev).toEqual([]);
+    expect(etter.merknader).not.toContain('brev_utenfor_appen');
+    expect(etter.registrerteBrev.map((b) => b.rettetAv)).toEqual([retting.event_id]);
+    expect(harIkkeVurdertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
+  });
+
+  it('OV-U19: et varsel registrert med virkning teller ikke som brev utenfor appen i merknaden, statusen og sakslisten; et brev som dokumentasjon gjør det', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
+    ]);
+    const journal = await bane.journal();
+    expect(forstaatt(journal), 'forutsetning').toBe(true);
+    expect(vist(journal).merknader).not.toContain('brev_utenfor_appen');
+    expect(harIkkeVurdertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
+    godtatt(journal, registrering(), 'TE');
+    expect(vist(journal).merknader, 'kontrollsak').toContain('brev_utenfor_appen');
+    expect(harIkkeVurdertBrev(utledet(journal)), 'kontrollsak').toBe(true);
+  });
+
+  it('OV-U4, OV-U18: rettingen godtas i en sak som ikke er forstått, og brevet vises med datoen', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    journal.push({
+      ...structuredClone(journal.at(-1)!),
+      event_id: randomUUID(),
+      versjon: journal.at(-1)!.versjon + 1,
+      format: null,
+    });
+    expect(forstaatt(journal)).toBe(false);
+    expect(vist(journal).registrerteBrev.map((b) => [b.sendt, b.beskrivelse])).toEqual([
+      ['2026-10-20', 'Svar på varselet'],
+    ]);
+    expect(vist(journal).merknader).toEqual([
+      'varsel_med_frist_utenfor_appen',
+      'brev_utenfor_appen',
+    ]);
+    expect(regel(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH')).toBe('godtatt');
+  });
+
+  it.each<[string, (rad: Journalrad) => void, string]>([
+    [
+      'viser til noe som ikke er i saken',
+      (r) => (r.data.retter = randomUUID()),
+      'rettingen viser ikke',
+    ],
+    ['er fra motparten (OV-U17)', (r) => (r.aktor_rolle = 'TE'), 'rettingen viser ikke'],
+  ])('en retting som %s, gjør saken ikke forstått', async (_, endre, grunn) => {
+    const { journal, rad } = await medBrevFraBH();
+    const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH');
+    expect(grunner(journal), 'kontrollsak').toEqual([]);
+    endre(retting);
+    expect(grunner(journal)).toEqual([expect.stringContaining(grunn)]);
+  });
+
+  it.each<[string, (data: Data) => void, string]>([
+    ['med en beskrivelse', (d) => (d.beskrivelse = 'x'), 'mer enn henvisningen'],
+    ['uten henvisning', (d) => delete d.retter, 'viser ikke til noe'],
+  ])('leseren forstår ikke en retting om feil sak %s', async (_, endre, grunn) => {
+    const { journal, rad } = await medBrevFraBH();
+    const retting = godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH');
+    endre(retting.data);
+    expect(grunner(journal)).toEqual([expect.stringContaining(grunn)]);
+  });
+
+  it('leseren forstår ikke en henvisning i et dokument som ikke er en registrering (OV-U17)', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    const kravet = structuredClone(journal.find((r) => Array.isArray(r.data.krav))!);
+    kravet.data.retter = rad.event_id;
+    const [lest] = lesJournal([kravet], KJERNE.leserformat);
+    expect(lest.art === 'ukjent' ? lest.grunn : lest.art).toContain('en retting er ikke');
+  });
+
+  it('OV-U20: ved hvert krav som venter, vises motpartens brev for sporet og saken, ikke TEs eller et annet spors', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    const saken = godtatt(journal, registrering({ spor: undefined }), 'BH');
+    const vederlag = godtatt(journal, registrering({ spor: ['vederlag'] }), 'BH');
+    godtatt(journal, registrering(), 'TE');
+    expect(vist(journal).spor.grunnlag.registrerteBrev).toEqual([rad.event_id, saken.event_id]);
+    expect(vist(journal).spor.vederlag.registrerteBrev).toEqual([
+      saken.event_id,
+      vederlag.event_id,
+    ]);
+  });
+
+  it('OV-U19: når kravene er avgjort, står setningen i statusen og ikke som merknad (OV-U10)', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      'godkjent_grunnlag',
+      { handling: 'ingen_krav', spor: 'vederlag' },
+      { handling: 'ingen_krav', spor: 'frist' },
+    ]);
+    const journal = await bane.journal();
+    expect(vist(journal).status?.tekst, 'kontrollsak: uten registrert brev').toBe(
+      'Alle krav sendt i appen er avgjort'
+    );
+    godtatt(journal, registrering(), 'TE');
+    const v = vist(journal);
+    expect(v.status?.tekst).toBe(
+      'Alle krav sendt i appen er avgjort. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.'
+    );
+    expect(v.merknader).not.toContain('brev_utenfor_appen');
   });
 });

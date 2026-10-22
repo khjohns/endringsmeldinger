@@ -40,9 +40,11 @@ dokumentasjon. Avsenderen er `actorrole`. Et brev appen sender, har brevteksten
 (`brevtekst`); et registrert brev har ingen. Et brev registrert som
 dokumentasjon har beskrivelsen med egne ord (`beskrivelse`), sporene det hører
 til (`spor`, uten dem saken), datoen det ble sendt og brevet som vedlegg, og
-ikke noe annet."""
-felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon", "brevtekst", "beskrivelse", "spor"]
-grunnlag = "MM-U10, LV-U2, OV-U4, OV-U16, designnotatet 4.1"
+ikke noe annet. En retting av en slik registrering fra samme side viser til den
+(`retter`): enten en fullstendig ny registrering, eller, når brevet ikke hører
+til saken, bare henvisningen og `ikke_i_saken`. Registreringen som rettes, står."""
+felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon", "brevtekst", "beskrivelse", "spor", "retter", "ikke_i_saken"]
+grunnlag = "MM-U10, LV-U2, OV-U4, OV-U16, OV-U17, OV-U18, designnotatet 4.1. Navnene `retter` og `ikke_i_saken` er arbeidsvalget 22.10 i #1045"
 
 # ---------------------------------------------------------------------------
 # Elementene i dokumentet. Hvert har en `id` (UUID) satt av serveren.

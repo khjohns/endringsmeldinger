@@ -58,6 +58,7 @@ import {
   type Standpunktsvirkning,
   type Svar,
   type Varselhjemmel,
+  type Vedlegg,
 } from '../typer.ts';
 
 export interface Svarberegning {
@@ -153,6 +154,20 @@ export interface Bestridelse {
   hendelse: string;
 }
 
+/**
+ * OV-U4, OV-U16: et brev registrert som dokumentasjon, slik den som registrerte oppga det.
+ * Appen utleder ingenting av det. `rettetAv` er rettingen etter OV-U17 eller OV-U18.
+ */
+export interface RegistrertBrev {
+  dokument: string;
+  avsender: Part;
+  sendt: string;
+  beskrivelse: string;
+  spor: Spor[];
+  dokumentasjon: Vedlegg[];
+  rettetAv: string | null;
+}
+
 export interface Utledning {
   versjon: number;
   regelversjon: number;
@@ -210,6 +225,13 @@ export interface Utledning {
    * kravene ikke lenger er avgjort. Tom når kravene aldri har vært avgjort.
    */
   avgjorteSpor: Spor[];
+  /**
+   * OV-U4, OV-U16: brevene registrert som dokumentasjon, også når saken ikke er forstått.
+   * Ingen regel leser dem; visningen viser dem.
+   */
+  registrerteBrev: RegistrertBrev[];
+  /** OV-U19, OV-U21: de registrerte brevene appen ikke vurderer innholdet i. Leses av visningen. */
+  ikkeVurderteBrev: string[];
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -255,7 +277,72 @@ function tom(
     frafalt: false,
     endringsordre: 'nei',
     avgjorteSpor: [],
+    registrerteBrev: registreringer(journal).brev,
+    ikkeVurderteBrev: [],
   };
+}
+
+/**
+ * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som appen
+ * ikke vurderer innholdet i. Mens saken ikke er forstått, gjelder det alle (MM-U2, OV-U21).
+ * Ellers gjelder det et brev uten elementer (OV-U16), og et brev med et
+ * element som ikke er et varsel etter OV-U5 eller en endringsordre etter OV-U6, som en
+ * begrunnelse (KA-U35, OV-U4). Et varsel eller en endringsordre uten virkning vurderer
+ * appen (MM-U19).
+ */
+function ikkeVurderte(
+  journal: Domenehendelse[],
+  brev: RegistrertBrev[],
+  forstaatt: boolean
+): string[] {
+  const rettet = new Set(brev.filter((b) => b.rettetAv !== null).map((b) => b.dokument));
+  const vurdert = (d: Dokument) =>
+    d.krav.length === 0 &&
+    d.svar.length + d.utsagn.length > 0 &&
+    d.svar.every((s) => erRegistrertEndringsordre(s, d)) &&
+    d.utsagn.every((x) => x.art === 'varsel');
+  return [...dokumenterI(journal)]
+    .filter((d) => erRegistrert(d.opplysninger) && !rettet.has(d.id))
+    .filter((d) => !forstaatt || !vurdert(d))
+    .map((d) => d.id);
+}
+
+/**
+ * OV-U17, OV-U18: brevene registrert som dokumentasjon, og rettingene av dem. En retting
+ * viser til en registrering tidligere i saken, fra samme side, som ikke alt er rettet;
+ * en retting av en retting retter den siste i kjeden. Originalen står (#276 punkt 12).
+ */
+function registreringer(journal: Domenehendelse[]): {
+  brev: RegistrertBrev[];
+  feil: Utledning['begrensninger'];
+} {
+  const brev: RegistrertBrev[] = [];
+  const feil: Utledning['begrensninger'] = [];
+  for (const d of dokumenterI(journal)) {
+    if (d.retter !== null) {
+      const rettet = brev.find((b) => b.dokument === d.retter);
+      if (!rettet || rettet.avsender !== d.avsender || rettet.rettetAv !== null) {
+        feil.push({
+          hendelse: d.id,
+          grunn: 'rettingen viser ikke til en gjeldende registrering fra samme side (OV-U17)',
+        });
+        continue;
+      }
+      rettet.rettetAv = d.id;
+    }
+    const sendt = d.opplysninger[0];
+    if (d.beskrivelse !== null && sendt?.hva === 'sendt')
+      brev.push({
+        dokument: d.id,
+        avsender: d.avsender,
+        sendt: sendt.dato,
+        beskrivelse: d.beskrivelse,
+        spor: d.spor,
+        dokumentasjon: d.dokumentasjon,
+        rettetAv: null,
+      });
+  }
+  return { brev, feil };
 }
 
 /** Svarene på kravet som ikke er erstattet. Flere enn ett er en tvetydig relasjon. */
@@ -514,7 +601,9 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   }
   const u = utledSporene(journal, regler, uten);
   merkAvgjort(u);
-  return konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
+  const ut = konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
+  ut.ikkeVurderteBrev = ikkeVurderte(journal, ut.registrerteBrev, ut.forstaatt);
+  return ut;
 }
 
 /**
@@ -544,6 +633,8 @@ function utledSporene(
   const opplysninger: LestOpplysning[] = [];
   /** Hvert krav i saken, også de uten virkning (MM-U18). */
   const kravMedUten = new Map<string, Krav>();
+  /** VS-U33: kravene om dager fremmet i appen, også de uten virkning. */
+  const fristkravIAppen: Krav[] = [];
   const dobbelt = new Set<string>();
   const plasser = (id: string, h: { id: string; versjon: number }) => {
     if (plass.has(id)) dobbelt.add(id);
@@ -569,6 +660,7 @@ function utledSporene(
       plasser(k.id, h);
       registrer(k.id, h, d.avsender, 'krav');
       kravMedUten.set(k.id, k);
+      if (k.spor === 'frist' && !kravetErDokumentasjon(d)) fristkravIAppen.push(k);
       if (harVirkning(k.id)) spor[k.spor].krav.push(k);
     }
     for (const s of d.svar) {
@@ -749,9 +841,9 @@ function utledSporene(
     else if (x.art === 'foresporselssvar' && !besvart.some((f) => f.svar === x.id))
       ugyldig(x.id, 'begrunnelsen svarer på en forespørsel som alt er besvart');
   }
-  // VS-U19: forespørselen sendes før TE har krevd dager i saken.
+  // VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen.
   for (const f of foresporsler)
-    if ([...kravMedUten.values()].some((k) => k.spor === 'frist' && bakover(f.id, k.id)))
+    if (fristkravIAppen.some((k) => bakover(f.id, k.id)))
       ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter et fristkrav (VS-U19)');
     else if (henvisninger.some((x) => x.art === 'foresporselssvar' && bakover(f.id, x.id)))
       ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter TEs begrunnelse (VS-U30)');
@@ -810,6 +902,7 @@ function utledSporene(
     if (andre) ugyldig(andre.id, `saken har to varsler etter § ${hjemmel} (SK-12)`);
   }
 
+  begrensninger.push(...registreringer(journal).feil);
   if (begrensninger.length) return tom(journal, regler, begrensninger);
 
   for (const v of varsler) spor[VARSELSPOR[v.hjemmel]].varsel = v;
@@ -1064,11 +1157,12 @@ export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | nu
 }
 
 /**
- * VS-U19: TE har fremmet et krav om dager i saken, også i et registrert brev eller uten
- * virkning, som kontrollen av forespørselen i utledningen.
+ * VS-U19, VS-U33: TE har fremmet et krav om dager i appen, også uten virkning, som
+ * kontrollen av forespørselen i utledningen. Et registrert brev stopper den aldri.
  */
 export function fristkravErFremmet(u: Utledning): boolean {
-  for (const d of dokumenterI(u.journal)) if (d.krav.some((k) => k.spor === 'frist')) return true;
+  for (const d of dokumenterI(u.journal))
+    if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;
   return false;
 }
 

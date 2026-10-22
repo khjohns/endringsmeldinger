@@ -11530,6 +11530,175 @@
           }
         }
       ]
+    },
+    {
+      "id": "F-MM-OV-U17-retting",
+      "forslag": "#276 punkt 13",
+      "rader": [
+        "KA-52"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "registrert_brev",
+          "part": "BH",
+          "navn": "D-r1",
+          "sendt": "2026-09-20",
+          "beskrivelse": "Svar på grunnlagskravet",
+          "sporene": [
+            "grunnlag"
+          ]
+        },
+        {
+          "handling": "registrert_brev",
+          "part": "BH",
+          "navn": "D-r2",
+          "sendt": "2026-09-19",
+          "beskrivelse": "Svar på grunnlagskravet",
+          "sporene": [
+            "grunnlag"
+          ],
+          "retter": "D-r1"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "forutsetning",
+          "kilde": [
+            "KA-52"
+          ],
+          "forventet": {
+            "visning.registrerte_brev.grunnlag": [
+              "D-r1"
+            ]
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U17"
+          ],
+          "prov": {
+            "handling": "registrert_brev",
+            "part": "TE",
+            "sendt": "2026-09-19",
+            "beskrivelse": "Svar på grunnlagskravet",
+            "retter": "D-r1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "FEIL_PART"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U17",
+            "KA-52"
+          ],
+          "forventet": {
+            "visning.rettet.D-r1": "D-r2",
+            "visning.rettet.D-r2": null,
+            "visning.registrerte_brev.grunnlag": [
+              "D-r2"
+            ]
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-52"
+          ],
+          "prov": {
+            "handling": "registrert_brev",
+            "part": "BH",
+            "sendt": "2026-09-19",
+            "beskrivelse": "Svar på grunnlagskravet",
+            "retter": "D-r1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "REGISTRERINGEN_ER_RETTET"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-52",
+            "OV-U18"
+          ],
+          "prov": {
+            "handling": "ikke_i_saken",
+            "part": "BH",
+            "retter": "K-g1"
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "RETTER_IKKE_EN_REGISTRERING"
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-OV-U18-feil-sak",
+      "forslag": "#276 punkt 13",
+      "rader": [
+        "KA-53"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "registrert_brev",
+          "part": "BH",
+          "navn": "D-r1",
+          "sendt": "2026-09-20",
+          "beskrivelse": "Svar på grunnlagskravet"
+        },
+        {
+          "handling": "ikke_i_saken",
+          "part": "BH",
+          "navn": "D-r2",
+          "retter": "D-r1"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "forutsetning",
+          "kilde": [
+            "KA-53"
+          ],
+          "forventet": {
+            "visning.registrerte_brev.grunnlag": [
+              "D-r1"
+            ],
+            "visning.merknader": [
+              "brev_utenfor_appen"
+            ]
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "OV-U18",
+            "KA-53"
+          ],
+          "forventet": {
+            "avvist": false,
+            "visning.rettet.D-r1": "D-r2",
+            "visning.registrerte_brev.grunnlag": [],
+            "visning.merknader": []
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "genererte": {

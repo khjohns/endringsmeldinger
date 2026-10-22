@@ -231,11 +231,11 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
-      // VS-U19: fra appen så lenge TE ikke har krevd dager i saken.
+      // VS-U19, VS-U33: fra appen så lenge TE ikke har krevd dager i appen.
       if (fristkravErFremmet(u))
         return avvis(
           'FRISTKRAV_SENDT',
-          'TE har krevd dager, så forespørselen etter § 33.6.2 kan ikke sendes.'
+          'TE har krevd dager i appen, så forespørselen etter § 33.6.2 kan ikke sendes.'
         );
       // VS-U30: ingen ny forespørsel fra appen etter TEs begrunnelse etter annet ledd b.
       if (s.foresporsler.some((f) => f.svar !== null && !f.medKrav))

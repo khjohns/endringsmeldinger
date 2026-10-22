@@ -268,6 +268,30 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
 }
 
 /**
+ * OV-U17, OV-U18: en retting viser til en registrering av et brev som dokumentasjon
+ * tidligere i saken, fra samme side. Er den rettet, rettes den siste i kjeden.
+ */
+function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
+  const brev = u.registrerteBrev.find((b) => b.dokument === retter);
+  if (!brev)
+    return avvis(
+      'RETTER_IKKE_EN_REGISTRERING',
+      'Rettingen må gjelde et brev registrert som dokumentasjon i saken.'
+    );
+  if (brev.avsender !== part)
+    return avvis('FEIL_PART', `Bare ${brev.avsender} kan rette sin egen registrering (OV-U17).`);
+  if (brev.rettetAv !== null)
+    return avvis(
+      'REGISTRERINGEN_ER_RETTET',
+      // En retting som ikke er en ny registrering, sier at brevet ikke hører til saken (OV-U18).
+      !u.registrerteBrev.some((b) => b.dokument === brev.rettetAv)
+        ? 'Registreringen er rettet bort fordi brevet ikke hører til saken. Hører det til saken likevel, registreres brevet på nytt (OV-U18).'
+        : 'Registreringen er alt rettet. Rett den siste registreringen.'
+    );
+  return null;
+}
+
+/**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
  * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1).
  */
@@ -355,9 +379,11 @@ export function nyttelastkontroll(
             '§ 32.2 gjelder ikke kategorien, så § 32.3 annet ledd gjelder heller ikke (GR-U11).'
           );
     }
+    case 'registrert_brev':
+    case 'ikke_i_saken':
+      return k.retter === undefined ? null : retting(k.retter, part, u);
     case 'trekk':
     case 'varsel':
-    case 'registrert_brev':
     case 'send_varsel':
     case 'foresporsel':
     case 'foresporselssvar':

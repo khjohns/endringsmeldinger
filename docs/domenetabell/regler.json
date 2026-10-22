@@ -969,6 +969,34 @@
       "radetikett": "OV-U13: Opplysningen om at et registrert brev er en endringsordre etter § 31.3, gis i første versjon bare når byggherren registrerer sin egen endringsordre som svar (OV-U6)"
     },
     {
+      "id": "OV-U17",
+      "type": "vedtak",
+      "dato": "2026-10-22",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u17",
+      "radetikett": "OV-U17: En registrering av et brev sendt utenfor appen, som er dokumentasjon, rettes av samme side som registrerte den: hvem som helst på den siden kan registrere brevet på nytt med henvisning til den feilaktige registreringen, uten godkjenning"
+    },
+    {
+      "id": "OV-U18",
+      "type": "vedtak",
+      "dato": "2026-10-22",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u18",
+      "radetikett": "OV-U18: Står en registrering av et brev sendt utenfor appen i feil sak, registrerer samme side i den saken en retting med henvisning til den feilaktige registreringen, som sier at brevet ikke hører til saken"
+    },
+    {
+      "id": "OV-U19",
+      "type": "vedtak",
+      "dato": "2026-10-22",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u19",
+      "radetikett": "OV-U19: Så lenge et brev sendt utenfor appen står registrert som dokumentasjon i saken og ikke er rettet bort, har saken merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.»"
+    },
+    {
+      "id": "OV-U20",
+      "type": "vedtak",
+      "dato": "2026-10-22",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u20",
+      "radetikett": "OV-U20: Når et krav venter på svar, viser appen ved kravet motpartens registrerte brev som hører til sporet eller til hele saken, og som ikke er rettet, med beskrivelsen og datoen, uansett når de ble sendt"
+    },
+    {
       "id": "VS-U24",
       "type": "vedtak",
       "dato": "2026-10-15",
@@ -3252,6 +3280,41 @@
       "regelkoder": [
         "ANNEN_BREVTEKST"
       ]
+    },
+    {
+      "id": "KA-52",
+      "tilfelle": "Byggherren har registrert et brev sendt utenfor appen som dokumentasjon, med feil dato, mens grunnlagskravet venter på svar. Byggherren registrerer brevet på nytt med henvisning til den feil registreringen. TE forsøker å rette byggherrens registrering.",
+      "forventet": "Rettingen lagres som en ny registrering, uten godkjenning, og den feil registreringen står i historikken som rettet ([OV-U17](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u17)). Ved kravet vises bare den nye registreringen ([OV-U20](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u20)). TE kan ikke rette byggherrens registrering, og en registrering som er rettet, rettes ikke igjen.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Appen vurderer ikke innholdet i brevet (OV-U4).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "OV-U17",
+        "OV-U4",
+        "OV-U20"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "regelkoder": [
+        "RETTER_IKKE_EN_REGISTRERING",
+        "REGISTRERINGEN_ER_RETTET"
+      ]
+    },
+    {
+      "id": "KA-53",
+      "tilfelle": "Byggherren har registrert et brev i feil sak, mens grunnlagskravet venter på svar. Byggherren registrerer en retting som sier at brevet ikke hører til saken.",
+      "forventet": "Før rettingen vises brevet ved kravet ([OV-U20](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u20)), og saken har merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.» ([OV-U19](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u19)). Etter rettingen vises brevet ikke ved kravet, merknaden er borte, og registreringen står i historikken som rettet ([OV-U18](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u18)).",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Appen vurderer ikke innholdet i brevet (OV-U4).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "OV-U18",
+        "OV-U19",
+        "OV-U20",
+        "OV-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
     }
   ],
   "koder_uten_rad": {

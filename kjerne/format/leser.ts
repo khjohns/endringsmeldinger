@@ -344,9 +344,15 @@ function lesDokument(h: Journalrad): Dokument {
     brevtekst?: Avsnitt[];
     beskrivelse?: string;
     spor?: Spor[];
+    retter?: string;
+    ikke_i_saken?: true;
   };
+  if (data.ikke_i_saken) return ikkeISaken(h, data);
   if (!data.krav && !data.svar && !data.utsagn && data.beskrivelse === undefined)
     throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller beskrivelse');
+  // OV-U17: en retting i saken er en fullstendig ny registrering av brevet som dokumentasjon.
+  if (data.retter !== undefined && data.beskrivelse === undefined)
+    throw new Uforstaatt('en retting er ikke et brev registrert som dokumentasjon (OV-U17)');
   const id = h.event_id;
   const avsender: Part = h.aktor_rolle;
   const kreverPart = (part: Part | null, hva: string) => {
@@ -419,6 +425,8 @@ function lesDokument(h: Journalrad): Dokument {
     brevtekst: data.brevtekst ?? null,
     beskrivelse: data.beskrivelse ?? null,
     spor: data.spor ?? [],
+    retter: data.retter ?? null,
+    ikkeISaken: false,
     utsagn: (data.utsagn ?? []).map((v, i): LestUtsagn => {
       const e = element(v, UTSAGN, 'art', `$.utsagn[${i}]`);
       const art = e.art as Utsagnsart;
@@ -467,6 +475,33 @@ function lesDokument(h: Journalrad): Dokument {
     }
   }
   return dokument;
+}
+
+/**
+ * OV-U18: rettingen som sier at brevet ikke hører til saken, har bare henvisningen til
+ * registreringen den retter: ingen beskrivelse, spor, dato eller vedlegg. At registreringen
+ * finnes i saken, kontrollerer utledningen, fordi skrivingen leser den nye raden alene.
+ */
+function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
+  if (Object.keys(data).some((k) => k !== 'retter' && k !== 'ikke_i_saken'))
+    throw new Uforstaatt('rettingen om at brevet ikke hører til saken, har mer enn henvisningen');
+  if (typeof data.retter !== 'string')
+    throw new Uforstaatt('rettingen om at brevet ikke hører til saken, viser ikke til noe');
+  return {
+    id: h.event_id,
+    avsender: h.aktor_rolle,
+    registrert: h.tidsstempel,
+    opplysninger: [],
+    dokumentasjon: [],
+    krav: [],
+    svar: [],
+    utsagn: [],
+    brevtekst: null,
+    beskrivelse: null,
+    spor: [],
+    retter: data.retter,
+    ikkeISaken: true,
+  };
 }
 
 /**

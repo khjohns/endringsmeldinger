@@ -52,7 +52,7 @@ import {
   svarIkkeGodtatt,
   venterPaaSvar,
 } from '../utledning/utled.ts';
-import { visning } from '../utledning/visning.ts';
+import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 
@@ -2584,13 +2584,22 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
-  it('VS-U19: et fristkrav i et registrert brev er også fremmet, så forespørselen avvises', () => {
+  it('VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen fra appen', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);
     s.rad('TE', {
       krav: [{ id: randomUUID(), spor: 'frist', dager: 20 }],
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-01' }],
     });
+    expect(s.avvist('BH', foresporsel)).toBeNull();
+    // Kjernen forstår journalen med forespørselen etter det registrerte kravet (send kaster ellers).
+    s.send('BH', foresporsel);
+  });
+
+  it('VS-U33: et fristkrav fremmet i appen stopper forespørselen (kontrollsak)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
@@ -2812,6 +2821,8 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       brevtekst: null,
       beskrivelse: null,
       spor: [],
+      retter: null,
+      ikkeISaken: false,
     });
     const saken = {
       saksnummer: SAK,
@@ -2894,6 +2905,8 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       brevtekst: null,
       beskrivelse: null,
       spor: [],
+      retter: null,
+      ikkeISaken: false,
     };
     const saken = {
       saksnummer: SAK,
@@ -3141,6 +3154,8 @@ describe('vedleggene står i teksten (A4)', () => {
     brevtekst: null,
     beskrivelse: null,
     spor: [],
+    retter: null,
+    ikkeISaken: false,
   });
   const saken = {
     saksnummer: SAK,
@@ -4041,6 +4056,26 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       ).toEqual([id]);
       return { s, id };
     };
+
+    it('OV-U19, MM-U19: en endringsordre uten virkning er vurdert av appen og gir ikke merknaden om brev utenfor appen; et brev registrert som dokumentasjon gir den', () => {
+      const { s } = endringsordreUtenVirkning();
+      const foer = visning(s.u(), GJELDENDE_REGLER);
+      expect(foer.merknader).toContain('registrert_brev_uten_virkning');
+      expect(foer.merknader).not.toContain('brev_utenfor_appen');
+      expect(harIkkeVurdertBrev(s.u()), 'statusteksten og sakslisten').toBe(false);
+      s.rad('BH', {
+        beskrivelse: 'Brev om fremdriften',
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
+        dokumentasjon: [
+          { vedlegg_id: randomUUID(), filnavn: 'brev.pdf', innhold_sha256: 'a'.repeat(64) },
+        ],
+      });
+      expect(s.u().forstaatt, 'forutsetning').toBe(true);
+      expect(visning(s.u(), GJELDENDE_REGLER).merknader, 'kontrollsak').toContain(
+        'brev_utenfor_appen'
+      );
+      expect(harIkkeVurdertBrev(s.u()), 'kontrollsak').toBe(true);
+    });
 
     it('en revisjon av et svar uten virkning (MM-U18)', () => {
       const { s, id } = endringsordreUtenVirkning();

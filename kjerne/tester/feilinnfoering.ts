@@ -2676,7 +2676,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
-        "kode === 'alle_krav_avgjort' && harRegistrertBrev(u)",
+        "kode === 'alle_krav_avgjort' && harIkkeVurdertBrev(u)",
         "kode === 'alle_krav_avgjort' && false",
       ],
     ],
@@ -2855,10 +2855,146 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F324',
-    feilklasse: 'et fristkrav i et registrert brev sperrer ikke forespørselen (VS-U19)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['      if (fristkravErFremmet(u))', '      if (s.krav.length > 0)']],
-    mal: ['VS-U19: et fristkrav i et registrert brev er også fremmet'],
+    feilklasse: 'et fristkrav i et registrert brev sperrer forespørselen (VS-U33)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;",
+        "    if (d.krav.some((k) => k.spor === 'frist')) return true;",
+      ],
+    ],
+    mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
+  },
+  {
+    id: 'F357',
+    feilklasse:
+      'et fristkrav i et registrert brev gjør forespørselen ugyldig i utledningen (VS-U33)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "      if (k.spor === 'frist' && !kravetErDokumentasjon(d)) fristkravIAppen.push(k);",
+        "      if (k.spor === 'frist') fristkravIAppen.push(k);",
+      ],
+    ],
+    mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
+  },
+  {
+    id: 'F358',
+    feilklasse: 'motparten kan rette en registrering (OV-U17)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (brev.avsender !== part)', '  if (false)']],
+    mal: ['OV-U17: bare samme side retter'],
+  },
+  {
+    id: 'F359',
+    feilklasse: 'en rettet registrering kan rettes igjen (#1045)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['  if (brev.rettetAv !== null)', '  if (false)']],
+    mal: ['en rettet registrering rettes ikke igjen'],
+  },
+  {
+    id: 'F360',
+    feilklasse: 'en retting fra motparten forstås (OV-U17)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      if (!rettet || rettet.avsender !== d.avsender || rettet.rettetAv !== null) {',
+        '      if (!rettet || rettet.rettetAv !== null) {',
+      ],
+    ],
+    mal: ['en retting som er fra motparten'],
+  },
+  {
+    id: 'F361',
+    feilklasse: 'brev fra begge sider vises ved kravet (OV-U20)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["b.avsender === 'BH' && b.rettetAv", 'true && b.rettetAv']],
+    mal: ['OV-U20: ved hvert krav som venter, vises motpartens brev'],
+  },
+  {
+    id: 'F362',
+    feilklasse: 'et rettet brev vises fortsatt ved kravet (OV-U18, OV-U20)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["b.avsender === 'BH' && b.rettetAv === null &&", "b.avsender === 'BH' &&"]],
+    mal: ['OV-U18: brevet i feil sak rettes bort'],
+  },
+  {
+    id: 'F363',
+    feilklasse: 'en registrering rettet bort gir fortsatt merknaden for saken (OV-U19)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['erRegistrert(d.opplysninger) && !rettet.has(d.id)', 'erRegistrert(d.opplysninger)'],
+    ],
+    mal: ['OV-U18: brevet i feil sak rettes bort'],
+  },
+  {
+    id: 'F364',
+    feilklasse: 'merknaden for saken står også når kravene er avgjort (OV-U19, OV-U10)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  if (kode !== 'alle_krav_avgjort' && harIkkeVurdertBrev(u))",
+        '  if (harIkkeVurdertBrev(u))',
+      ],
+    ],
+    mal: ['OV-U19: når kravene er avgjort'],
+  },
+  {
+    id: 'F365',
+    feilklasse:
+      'et varsel registrert med virkning gir merknaden og statusen for saken (OV-U19, HF-U13)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    d.svar.length + d.utsagn.length > 0 &&', '    false &&']],
+    mal: [
+      'OV-U19: et varsel registrert med virkning teller ikke',
+      'OV-U19: en endringsordre registrert med virkning teller ikke',
+    ],
+  },
+  {
+    id: 'F367',
+    feilklasse:
+      'et svar registrert som dokumentasjon regnes som et brev appen vurderer (OV-U4, OV-U19)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['d.svar.every((s) => erRegistrertEndringsordre(s, d))', 'true']],
+    mal: ['OV-U19: en endringsordre registrert med virkning teller ikke'],
+  },
+  {
+    id: 'F368',
+    feilklasse:
+      'en registrert begrunnelse regnes som et brev appen vurderer (OV-U19, OV-U4, KA-U35)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["d.utsagn.every((x) => x.art === 'varsel')", 'true']],
+    mal: ['OV-U19, OV-U4: en registrert begrunnelse'],
+  },
+  {
+    id: 'F369',
+    feilklasse:
+      'et varsel eller en endringsordre teller ikke mens saken ikke er forstått (OV-U21, MM-U2)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['.filter((d) => !forstaatt || !vurdert(d))', '.filter((d) => !vurdert(d))']],
+    mal: ['OV-U21, MM-U2: mens saken ikke er forstått'],
+  },
+  {
+    id: 'F370',
+    feilklasse:
+      'et varsel eller en endringsordre uten virkning teller som brev appen ikke vurderer (OV-U19, MM-U19)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        'u.ikkeVurderteBrev.length > 0;',
+        'u.ikkeVurderteBrev.length > 0 || u.utenVirkning.length > 0;',
+      ],
+    ],
+    mal: ['OV-U19, MM-U19: en endringsordre uten virkning'],
+  },
+  {
+    id: 'F366',
+    feilklasse: 'avvisningen etter en retting om feil sak ber om å rette rettingen (OV-U18)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['      !u.registrerteBrev.some((b) => b.dokument === brev.rettetAv)', '      false'],
+    ],
+    mal: ['OV-U18: etter en retting om feil sak viser avvisningen'],
   },
   {
     id: 'F325',
