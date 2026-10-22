@@ -12,4 +12,4 @@ id = "grunnlagssvar-som-endringsordre"
 tittel = "Grunnlagssvar som endringsordre"
 kilde = ["#451", "#454"]
 kjerne = ["GR-U10", "GR-U12", "GR-U13"]
-vedtak = ["GR-U10", "GR-U12", "GR-U13", "GR-U14", "GR-U15", "LV-U15", "GFK-U2", "MM-U17", "OV-U4", "OV-U5", "OV-U6", "OV-U8", "OV-U9", "HF-U4", "HF-U5", "GR-U17", "HF-U12", "HF-U13", "HF-U6", "HF-U9", "HF-U14", "VS-U24", "GR-U20", "HF-U15", "HF-U16", "HF-U17", "HF-U18", "HF-U19", "GR-U21", "GR-U22", "GR-U23", "HF-U20", "GR-U24", "HF-U21", "HF-U22", "MM-U24", "OV-U11", "OV-U12", "OV-U13", "VS-U28", "GFK-U14", "MM-U29", "VS-U29", "LV-U19", "OV-U15", "LV-U21", "MM-U30"]
+vedtak = ["GR-U10", "GR-U12", "GR-U13", "GR-U14", "GR-U15", "LV-U15", "GFK-U2", "MM-U17", "OV-U4", "OV-U5", "OV-U6", "OV-U8", "OV-U9", "HF-U4", "HF-U5", "GR-U17", "HF-U12", "HF-U13", "HF-U6", "HF-U9", "HF-U14", "VS-U24", "GR-U20", "HF-U15", "HF-U16", "HF-U17", "HF-U18", "HF-U19", "GR-U21", "GR-U22", "GR-U23", "HF-U20", "GR-U24", "HF-U21", "HF-U22", "MM-U24", "OV-U11", "OV-U12", "OV-U13", "VS-U28", "GFK-U14", "MM-U29", "VS-U29", "LV-U19", "OV-U15", "LV-U21", "MM-U30", "MM-U31"]

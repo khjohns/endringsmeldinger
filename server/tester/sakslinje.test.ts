@@ -220,7 +220,7 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
-  it('svar 2: enigheten om det subsidiære beløpet er betinget av ansvaret (MM-U28)', () => {
+  it('svar 2: enigheten om det subsidiære beløpet er betinget av ansvaret, og beløpet telles bare som betinget enighet (MM-U28, «Subsidiært» 22.10 i #1052)', () => {
     const l = linje(forloepA, aksept('vederlag'));
     expect(l.vederlag).toMatchObject({
       krav: { beloep: 100000 },
@@ -231,7 +231,7 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.saksbetegnelse).toBeNull();
     expect(noekkeltall([l]).vederlag).toMatchObject({
       krav_sum: 100000,
-      svar_subsidiaert_sum: 60000,
+      svar_subsidiaert_sum: 0,
       enighet_betinget_sum: 60000,
       enighet_virksom_sum: 0,
     });
@@ -268,7 +268,11 @@ describe('linja i sakslisten (#1022)', () => {
     const avslagGodtatt = linje(forloepA, aksept('grunnlag'));
     for (const l of [vederlagTrukket, grunnlagTrukket, avslagGodtatt])
       expect(l.vederlag.krav).toEqual({ beloep: 100000, metode: 'tilbud' });
-    expect(vederlagTrukket.vederlag.etiketter).toContain('trukket');
+    expect(vederlagTrukket.vederlag.betegnelse).toBe('trukket');
+    expect(staar.vederlag.kravet_staar).toBe(true);
+    for (const l of [vederlagTrukket, grunnlagTrukket, avslagGodtatt])
+      expect(l.vederlag.kravet_staar).toBe(false);
+    expect(vederlagTrukket.frist.kravet_staar).toBe(true);
     expect(noekkeltall([staar, vederlagTrukket, grunnlagTrukket, avslagGodtatt])).toMatchObject({
       vederlag: { krav_antall: 1, krav_sum: 100000 },
       frist: { krav_antall: 2 },
@@ -286,12 +290,25 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.saksbetegnelse).toBe('avslaget_paa_grunnlaget_godtatt');
     for (const spor of ['vederlag', 'frist'] as const) {
       expect(l[spor].venter_paa_svar, spor).toBe(false);
-      expect(l[spor].etiketter, spor).not.toContain('venter_paa_svar');
+      // MM-U30: «Krav sendt» når TE har godtatt avslaget på grunnlaget uten enighet eller trekk.
+      expect(l[spor].betegnelse, spor).toBe('krav_sendt');
     }
     expect(noekkeltall([l])).toMatchObject({
       vederlag: { venter_paa_svar: 0 },
       frist: { venter_paa_svar: 0 },
     });
+  });
+
+  it('#1052: det subsidiære beløpet summeres bare når kravet står, som kravene (svar 3 fra oppdragsgiver 22.10)', () => {
+    expect(noekkeltall([linje(forloepA)]).vederlag.svar_subsidiaert_sum, 'kontroll').toBe(60000);
+    for (const l of [
+      linje(forloepA, aksept('grunnlag')),
+      linje(forloepA, trekk('vederlag')),
+      linje(forloepA, trekk('grunnlag')),
+    ]) {
+      expect(l.vederlag.svar).toMatchObject({ beloep: 60000, subsidiaert: true });
+      expect(noekkeltall([l]).vederlag).toMatchObject({ krav_sum: 0, svar_subsidiaert_sum: 0 });
+    }
   });
 
   it('#1050: når TE godtar avslaget av grunnlaget i forløp A, står det subsidiære svaret i vederlaget ikke som ikke godtatt (SK-01)', () => {

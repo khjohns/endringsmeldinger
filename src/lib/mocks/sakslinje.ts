@@ -1,7 +1,7 @@
 import type { Noekkeltall, Sakslinje } from '$lib/types/api';
 import { kravetStaar } from '$lib/components/saksoversikt/overview';
 
-const ingenting = { etiketter: [], venter_paa_svar: false, svar_ikke_godtatt: false };
+const ingenting = { betegnelse: null, venter_paa_svar: false, svar_ikke_godtatt: false };
 
 /** En linje i sakslisten med krav i alle tre sporene og uten svar, til tester og demo. */
 export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
@@ -16,8 +16,8 @@ export function lagSakslinje(overstyr: Partial<Sakslinje> = {}): Sakslinje {
     saksbetegnelse: null,
     brev_utenfor_appen: false,
     grunnlag: { ...ingenting, svar: null },
-    vederlag: { ...ingenting, krav: null, svar: null, enighet: null },
-    frist: { ...ingenting, krav: null, svar: null, enighet: null },
+    vederlag: { ...ingenting, kravet_staar: false, krav: null, svar: null, enighet: null },
+    frist: { ...ingenting, kravet_staar: false, krav: null, svar: null, enighet: null },
     ...overstyr,
   };
 }
@@ -40,7 +40,9 @@ export function demoNoekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
       krav_sum: sum(staar('vederlag').map((l) => l.vederlag.krav?.beloep)),
       venter_paa_svar: forstaatt.filter((l) => l.vederlag.venter_paa_svar).length,
       svar_subsidiaert_sum: sum(
-        forstaatt.map((l) => (l.vederlag.svar?.subsidiaert ? l.vederlag.svar.beloep : null))
+        staar('vederlag').map((l) =>
+          l.vederlag.svar?.subsidiaert && !l.vederlag.enighet ? l.vederlag.svar.beloep : null
+        )
       ),
       enighet_virksom_sum: sum(enighet.map((e) => (e?.virkning === 'virksom' ? e.beloep : null))),
       enighet_betinget_sum: sum(enighet.map((e) => (e?.virkning === 'betinget' ? e.beloep : null))),

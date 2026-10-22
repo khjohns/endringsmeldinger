@@ -7,7 +7,7 @@
 import type { Leveringsoppdrag } from '$lib/api/kjerne';
 import { formatDateNorwegian, formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
 import type { Utledning } from '$kjerne/utledning/utled';
-import type { Statuskode, Visning } from '$kjerne/utledning/visning';
+import type { Betegnelse, Statuskode, Visning } from '$kjerne/utledning/visning';
 import { brevtekstI } from '$kjerne/format/leser';
 import { SPOR, type Avsnitt, type Journalrad, type Spor } from '$kjerne/typer';
 
@@ -31,6 +31,8 @@ export interface Sporpost {
 export interface Sporbilde {
   spor: Spor;
   navn: string;
+  /** Betegnelsen fra den faste lista (MM-U30), med teksten. */
+  betegnelse: Etikett | null;
   etiketter: Etikett[];
   poster: Sporpost[];
 }
@@ -118,6 +120,21 @@ const TEKST: Record<string, string> = {
 
 export const etikett = (kode: string): Etikett => ({ kode, tekst: TEKST[kode] ?? kode });
 
+/** Tekstene til betegnelsene i MM-U30, slik lista står i vedtaket. */
+const BETEGNELSESTEKST: Record<Betegnelse, string> = {
+  trukket: 'Trukket',
+  spesifisert_krav_etterspurt: 'Byggherren har bedt om spesifisert krav (§ 33.6.2)',
+  venter_paa_svar: 'Kravet venter på byggherrens svar',
+  paalegg_frafalt: 'Byggherren har frafalt pålegget',
+  enige: 'Enige',
+  svar_ikke_godtatt: 'Svaret er ikke godtatt',
+  krav_sendt: 'Krav sendt',
+  ingen_krav: 'Ingen krav',
+  varslet: 'Varslet',
+};
+
+export const betegnelsestekst = (kode: Betegnelse): string => BETEGNELSESTEKST[kode];
+
 /**
  * Leveringen av et oppdrag for TE og BH (#764): levert med tidspunktet i kvitteringen,
  * eller ikke levert ennå. Et registrert brev har ikke noe dokument fra appen og er
@@ -184,6 +201,9 @@ export function lagSaksbilde(
       return {
         spor,
         navn: SPORNAVN[spor],
+        betegnelse: ((b) => b && { kode: b, tekst: betegnelsestekst(b) })(
+          vist.spor[spor].betegnelse
+        ),
         etiketter: vist.spor[spor].etiketter.map(etikett),
         poster: [
           ...s.krav.map((k) => ({
