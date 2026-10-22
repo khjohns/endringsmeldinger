@@ -1655,7 +1655,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(harRegistrertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
   });
 
-  it('OV-U19: et varsel registrert med virkning gir ikke merknaden for saken, et brev som dokumentasjon gir den', async () => {
+  it('OV-U19: et varsel registrert med virkning gir ikke merknaden eller statusen for saken, et brev som dokumentasjon gir dem', async () => {
     const bane = minnebane();
     await bygg(bane, [
       { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
@@ -1664,8 +1664,10 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     const journal = await bane.journal();
     expect(forstaatt(journal), 'forutsetning').toBe(true);
     expect(vist(journal).merknader).not.toContain('brev_utenfor_appen');
+    expect(harRegistrertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
     godtatt(journal, registrering(), 'TE');
     expect(vist(journal).merknader, 'kontrollsak').toContain('brev_utenfor_appen');
+    expect(harRegistrertBrev(utledet(journal)), 'kontrollsak').toBe(true);
   });
 
   it('OV-U4, OV-U18: rettingen godtas i en sak som ikke er forstått, og brevet vises med datoen', async () => {

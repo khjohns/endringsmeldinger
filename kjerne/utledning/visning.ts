@@ -22,7 +22,7 @@ import {
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Spor } from '../typer.ts';
+import { SPOR, type Dokument, type Spor } from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -190,16 +190,24 @@ export const BREV_UTENFOR_APPEN =
   'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
 
 /**
- * OV-U10: saken har registrert korrespondanse, som sakslisten og statusteksten leser. En
- * registrering som er rettet, teller ikke; rettingen står i stedet for den (OV-U17, OV-U18).
+ * OV-U10, OV-U19: saken har et registrert brev appen ikke vurderer innholdet i, som merknaden,
+ * statusteksten og sakslisten leser. Et varsel registrert med virkning teller ikke (OV-U5,
+ * HF-U13), og en rettet registrering teller ikke (OV-U17, OV-U18).
  */
 export const harRegistrertBrev = (u: Utledning): boolean =>
   u.journal.some(
     (h) =>
       h.art === 'dokument' &&
       erRegistrert(h.dokument.opplysninger) &&
+      !erVarselMedVirkning(h.dokument) &&
       !u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)
   );
+
+const erVarselMedVirkning = (d: Dokument): boolean =>
+  d.krav.length === 0 &&
+  d.svar.length === 0 &&
+  d.utsagn.length > 0 &&
+  d.utsagn.every((x) => x.art === 'varsel');
 
 /**
  * OV-U20, OV-U4: når kravet venter på svar, motpartens registrerte brev for
@@ -227,8 +235,7 @@ function merknader(u: Utledning, kode: Statuskode | null): string[] {
       ? ['registrert_brev_uten_virkning']
       : []
     : ['varsel_med_frist_utenfor_appen'];
-  if (kode !== 'alle_krav_avgjort' && u.registrerteBrev.some((b) => b.rettetAv === null))
-    ut.push('brev_utenfor_appen');
+  if (kode !== 'alle_krav_avgjort' && harRegistrertBrev(u)) ut.push('brev_utenfor_appen');
   return ut;
 }
 
