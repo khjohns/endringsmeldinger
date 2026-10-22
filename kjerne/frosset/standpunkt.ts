@@ -138,7 +138,7 @@ export function innsigelsenPaaberoper(
   gjelder: string,
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,
   varslingsplikt: (krav: Krav) => boolean
-): Extract<Hjemmel, '32.2' | '33.4' | '33.6.2' | '34.1.2'> | null {
+): Hjemmel | null {
   for (const d of dokumenter) {
     const utsagn = d.utsagn.find((x) => x.id === gjelder);
     // VS-U29: begrunnelsen etter § 33.6.2 annet ledd b kan bare komme for sent etter § 33.6.2.

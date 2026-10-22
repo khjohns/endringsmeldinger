@@ -301,7 +301,11 @@ export function formfeil(kommando: unknown): string[] {
     if (VARSELSPOR[k.hjemmel] !== k.spor)
       feil.push(`$.hjemmel: et varsel etter § ${k.hjemmel} står ikke i sporet ${k.spor}`);
   }
-  const { sti, sendt } = feil.length ? { sti: '$.' } : brevfelt(kommando as unknown as Kommando);
+  const {
+    sti,
+    sendt,
+    dokumentasjon = [],
+  } = feil.length ? { sti: '$.' } : brevfelt(kommando as unknown as Kommando);
   // Datoen står i brevteksten og må være en dato (LV-U4 punkt 3).
   if (!feil.length && sendt !== undefined && !erKalenderdato(sendt))
     feil.push(`${sti}sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
@@ -310,7 +314,7 @@ export function formfeil(kommando: unknown): string[] {
     if (!spor.length) feil.push('$.svar: brevet har ingen svar');
     if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
   }
-  const vedlegg = feil.length ? [] : vedleggI(kommando as unknown as Kommando);
+  const vedlegg = feil.length ? [] : dokumentasjon;
   // En UUID er den samme med store og små bokstaver.
   if (new Set(vedlegg.map((v) => v.toLowerCase())).size !== vedlegg.length)
     feil.push(`${sti}dokumentasjon: samme vedlegg står to ganger`);

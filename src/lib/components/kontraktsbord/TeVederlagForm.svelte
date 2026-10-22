@@ -57,16 +57,8 @@
 
   // Kjernen tilbyr valgene. Kravet er startvalget når kjernen tilbyr det, som før varselet
   // fantes på TS-stien.
-  const tilbudteValg = () =>
-    kjernesak
-      ? [
-          ...(kjernesak.tilbyrTe('sende_varsel:vederlag') ? (['varsel'] as const) : []),
-          ...(kjernesak.tilbyrTe('krav:vederlag') ? (['spesifisert'] as const) : []),
-          ...(kjernesak.tilbyrTe('varsle:vederlag') ? (['registrert'] as const) : []),
-        ]
-      : null;
-  const kjernevalg = $derived(tilbudteValg());
-  const startvalg = tilbudteValg();
+  const kjernevalg = $derived(kjernesak?.teValg('vederlag') ?? null);
+  const startvalg = kjernesak?.teValg('vederlag') ?? null;
   let mode = $state<'varsel' | 'spesifisert' | 'registrert'>(
     startvalg
       ? startvalg.includes('spesifisert')
@@ -95,7 +87,8 @@
     registrert: 'Varsel sendt utenfor appen',
   };
   let varsler = $state<VarselValg>({});
-  // Varsel om vederlag uten beløp har ingen kommando i kjernen ennå.
+  // I TS-saken er varselet etter § 34.1.2 en egen kommando, og de særskilte varslene etter
+  // § 34.1.3 kan ikke sendes ennå (#1047).
   const noticeData = $derived(
     kjernesak
       ? {}

@@ -9,8 +9,15 @@
  */
 
 import { METODE_FRA_KATALOGEN } from '$kjerne/format/koder';
+import { GJELDENDE_REGLER } from '$kjerne/regler/regelsett';
 import { letterText } from '$lib/approval/letter';
-import { dagensDato, registrering, utenVedlegg, type RegistrertVarsel } from './skjemadata';
+import {
+  dagensDato,
+  registrering,
+  utenVedlegg,
+  varselFraAppen,
+  type RegistrertVarsel,
+} from './skjemadata';
 
 export interface Vederlagsvalg {
   /** Katalogens kode, som `FASTPRIS_TILBUD`. */
@@ -79,12 +86,8 @@ export function vederlagskommandoFraSkjema(
     throw new Error('Særskilte krav etter § 34.1.3 kan ikke sendes for denne saken ennå.');
   utenVedlegg(data);
   const utdypning = letterText(data.begrunnelse ?? '').trim();
-  if (data.registrert) return registrering('vederlag', '34.1.2', data.registrert, utdypning, idag);
-  if (data.varsel_type === 'varsel') {
-    if (utdypning)
-      throw new Error('Varselet fra appen har ingen fritekst. Fjern teksten i skjemaet.');
-    return { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' };
-  }
+  if (data.registrert) return registrering('34.1.2', data.registrert, utdypning, idag);
+  if (data.varsel_type === 'varsel') return varselFraAppen('34.1.2', utdypning);
   return vederlagskrav({
     metode: data.metode ?? '',
     beloep: data.belop_direkte ?? 0,
@@ -94,6 +97,9 @@ export function vederlagskommandoFraSkjema(
 
 /**
  * Der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1). Varselet kan
- * likevel sendes, og skjemaet sier at det ikke kreves (OV-U15). Kjernens hovedkategori.
+ * likevel sendes, og skjemaet sier at det ikke kreves (OV-U15). Kjernens hovedkategori
+ * og regel.
  */
-export const varseletKrevesIkke = (hovedkategori: unknown) => hovedkategori === 'endring';
+export const varseletKrevesIkke = (hovedkategori: unknown) =>
+  typeof hovedkategori === 'string' &&
+  !GJELDENDE_REGLER.gjelderVarslingspliktenForVederlag(hovedkategori);

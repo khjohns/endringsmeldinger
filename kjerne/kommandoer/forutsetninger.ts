@@ -123,6 +123,11 @@ const KRAVET: Record<Kravspor, string> = {
   frist: 'fristforlengelse',
 };
 
+const KRAVET_SENDT: Record<Kravspor, readonly [string, string]> = {
+  vederlag: ['VEDERLAGSKRAV_SENDT', 'Vederlagskravet'],
+  frist: ['FRISTKRAV_SENDT', 'Fristkravet'],
+};
+
 /** Hvordan grunnlaget og hvert krav som var sendt, ble avgjort i denne saken (OV-U3). */
 function hvorforAvgjort(u: Utledning): string {
   const grunnlag = u.frafalt
@@ -209,16 +214,13 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
       // VS-U16, OV-U5: etter kravet i sporet kan varselet fra appen bare få en senere dato
       // enn kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
-      if (h.type === 'sende_varsel' && s.krav.length)
-        return h.spor === 'frist'
-          ? avvis(
-              'FRISTKRAV_SENDT',
-              'Fristkravet er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.'
-            )
-          : avvis(
-              'VEDERLAGSKRAV_SENDT',
-              'Vederlagskravet er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.'
-            );
+      if (h.type === 'sende_varsel' && s.krav.length) {
+        const [regel, kravet] = KRAVET_SENDT[h.spor];
+        return avvis(
+          regel,
+          `${kravet} er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.`
+        );
+      }
       return null;
     case 'sende_foresporsel':
       if (!grunnlagSendt)

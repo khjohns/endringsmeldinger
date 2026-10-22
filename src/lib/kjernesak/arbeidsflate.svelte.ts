@@ -11,6 +11,7 @@ import type { TrackDisplay } from '$lib/components/kontraktsbord/derive';
 import type { SakState, TimelineEvent } from '$lib/types/timeline';
 import { getPartsNavn } from '$lib/utils/partsNavn';
 import type { Utledning } from '$kjerne/utledning/utled';
+import type { Kravspor } from '$kjerne/typer';
 import type { Kjernesakkontekst } from './kontekst.svelte';
 import {
   SPOR_FOR,
@@ -28,6 +29,9 @@ interface Projeksjon {
   timeline: TimelineEvent[];
   visning: Record<SporKey, TrackDisplay>;
 }
+
+/** Varselet fra appen, kravet eller registreringen av et varsel sendt utenfor appen. */
+export type Kravvalg = 'varsel' | 'spesifisert' | 'registrert';
 
 const TOM_UI: SporUIState = { draft: null, att: [], note: null };
 
@@ -95,6 +99,14 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
      * bare TE, og uten side tilbys ingenting (#737 p3).
      */
     tilbyrTe,
+    /** Valgene kjernen tilbyr TE i kravskjemaet, i rekkefølgen skjemaet viser dem (OV-U5). */
+    teValg(spor: Kravspor): Kravvalg[] {
+      return [
+        ...(tilbyrTe(`sende_varsel:${spor}`) ? (['varsel'] as const) : []),
+        ...(tilbyrTe(`krav:${spor}`) ? (['spesifisert'] as const) : []),
+        ...(tilbyrTe(`varsle:${spor}`) ? (['registrert'] as const) : []),
+      ];
+    },
     /**
      * Skjemaet TE får i sporet, med teksten på knappen, eller `null` når kjernen ikke
      * tilbyr TE et krav eller et varsel i det. Knappen og skjemaet leser det samme (#943).

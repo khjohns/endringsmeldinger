@@ -14,6 +14,7 @@ import {
   oppgittVarsel,
   registrering,
   utenVedlegg,
+  varselFraAppen,
   type RegistrertVarsel,
 } from './skjemadata';
 
@@ -43,12 +44,8 @@ export interface Fristskjemadata {
 export function fristkommandoFraSkjema(data: Fristskjemadata, idag = dagensDato()): Fristkommando {
   utenVedlegg(data);
   const utdypning = letterText(data.begrunnelse ?? '').trim();
-  if (data.registrert) return registrering('frist', '33.4', data.registrert, utdypning, idag);
-  if (data.varsel_type === 'varsel') {
-    if (utdypning)
-      throw new Error('Varselet fra appen har ingen fritekst. Fjern teksten i skjemaet.');
-    return { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
-  }
+  if (data.registrert) return registrering('33.4', data.registrert, utdypning, idag);
+  if (data.varsel_type === 'varsel') return varselFraAppen('33.4', utdypning);
   if (data.varsel_type !== 'spesifisert')
     throw new Error('Begrunnelse utsatt etter § 33.6.2 kan ikke sendes for denne saken ennå.');
   if (!utdypning) throw new Error('Begrunnelsen for antallet dager mangler.');

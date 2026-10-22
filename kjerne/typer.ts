@@ -21,6 +21,8 @@ export const VARSELSPOR = { '33.4': 'frist', '34.1.2': 'vederlag' } as const sat
   Varselhjemmel,
   Kravspor
 >;
+export const erVarselhjemmel = (hjemmel: Hjemmel): hjemmel is Varselhjemmel =>
+  hjemmel in VARSELSPOR;
 
 /**
  * En opplysning en part oppgir om et dokument (2.4): når det ble sendt eller

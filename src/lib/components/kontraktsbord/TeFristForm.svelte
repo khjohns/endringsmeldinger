@@ -103,16 +103,8 @@
 
   // Startvalget er standardvalget når kjernen tilbyr det, ellers det første valget kjernen
   // tilbyr. Uten standardvalg er ingenting valgt, med mindre kjernen tilbyr bare ett valg.
-  const tilbudteValg = () =>
-    kjernesak
-      ? [
-          ...(kjernesak.tilbyrTe('sende_varsel:frist') ? (['varsel'] as const) : []),
-          ...(kjernesak.tilbyrTe('krav:frist') ? (['spesifisert'] as const) : []),
-          ...(kjernesak.tilbyrTe('varsle:frist') ? (['registrert'] as const) : []),
-        ]
-      : null;
-  const kjernevalg = $derived(tilbudteValg());
-  const startvalg = tilbudteValg();
+  const kjernevalg = $derived(kjernesak?.teValg('frist') ?? null);
+  const startvalg = kjernesak?.teValg('frist') ?? null;
   let varselType = $state<FristVarselType | 'registrert' | undefined>(
     startvalg &&
       (defaults.varselType === undefined

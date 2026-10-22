@@ -42,6 +42,7 @@ import {
   KRAVSPOR,
   SPOR,
   VARSELSPOR,
+  erVarselhjemmel,
   type Dokument,
   type Domenehendelse,
   type Enighetsgrunnlag,
@@ -56,6 +57,7 @@ import {
   type Standpunkt,
   type Standpunktsvirkning,
   type Svar,
+  type Varselhjemmel,
 } from '../typer.ts';
 
 export interface Svarberegning {
@@ -660,7 +662,7 @@ function utledSporene(
           );
         continue;
       }
-      if (p.hjemmel === '33.4' || p.hjemmel === '34.1.2') {
+      if (erVarselhjemmel(p.hjemmel)) {
         const n = VARSELSPOR[p.hjemmel];
         const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
         if (p.gjelder !== varseletFoerSvaret(varslene, spor[n].krav, (v) => bakover(s.id, v)))
@@ -801,7 +803,7 @@ function utledSporene(
         i.id,
         '«ingen krav» står i et spor med en kravversjon eller et annet «ingen krav», eller før grunnlaget er sendt'
       );
-  for (const hjemmel of ['33.4', '34.1.2'] as const) {
+  for (const hjemmel of Object.keys(VARSELSPOR) as Varselhjemmel[]) {
     const andre = varsler.filter((v) => v.hjemmel === hjemmel)[1];
     if (andre) ugyldig(andre.id, `saken har to varsler etter § ${hjemmel} (SK-12)`);
   }
@@ -824,7 +826,7 @@ function utledSporene(
   // OV-U5, HF-U1: et svar står med virkningen det hadde, også når TE senere har registrert
   // et annet varsel enn det påberopelsen etter § 33.4 eller § 34.1.2 gjaldt. Visningen sier det.
   const annetVarsel = (p: Standpunkt) => {
-    if (p.art !== 'rettidighet' || (p.hjemmel !== '33.4' && p.hjemmel !== '34.1.2')) return false;
+    if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;
     const varsel = spor[VARSELSPOR[p.hjemmel]].varsel;
     return varsel !== null && p.gjelder !== varsel.id;
   };
@@ -1020,11 +1022,7 @@ export function kanInngaaIEo(u: Utledning): boolean {
  * så byggherrens «i tide» binder også en versjon i en annen underkategori (HF-U8,
  * arbeidsvalget i #798).
  */
-export function innsigelsenEtterITide(
-  gjelder: string,
-  part: Part,
-  u: Utledning
-): Extract<Hjemmel, '32.2' | '33.4' | '33.6.2' | '34.1.2'> | null {
+export function innsigelsenEtterITide(gjelder: string, part: Part, u: Utledning): Hjemmel | null {
   if (part !== 'BH') return null;
   const hjemmel = innsigelsenPaaberoper(gjelder, dokumenterI(u.journal), (krav) =>
     u.spor.grunnlag.svar.some((s) => {

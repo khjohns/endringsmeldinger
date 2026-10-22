@@ -4,7 +4,7 @@
  * avvises her og sendes ikke. Et registrert brev har vedleggene i kommandoen.
  */
 
-import type { VARSELSPOR, Varselhjemmel, Vedlegg } from '$kjerne/typer';
+import { VARSELSPOR, type Varselhjemmel, type Vedlegg } from '$kjerne/typer';
 import type { Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 
 export function utenVedlegg(data: { vedlegg_ids?: string[] }): void {
@@ -56,7 +56,6 @@ export function oppgittVarsel(varsel: RegistrertVarsel, idag: string) {
 
 /** Registreringen av et varsel sendt utenfor appen, uten tekst fra appen (MM-U17). */
 export function registrering<H extends Varselhjemmel>(
-  spor: (typeof VARSELSPOR)[H],
   hjemmel: H,
   varsel: RegistrertVarsel,
   utdypning: string,
@@ -64,5 +63,17 @@ export function registrering<H extends Varselhjemmel>(
 ) {
   if (utdypning)
     throw new Error('Et registrert varsel har ingen tekst fra appen. Fjern teksten i skjemaet.');
-  return { type: 'varsel' as const, spor, hjemmel, ...oppgittVarsel(varsel, idag) };
+  return {
+    type: 'varsel' as const,
+    spor: VARSELSPOR[hjemmel],
+    hjemmel,
+    ...oppgittVarsel(varsel, idag),
+  };
+}
+
+/** Varselet fra appen har serverens dato og ingen fritekst (VS-U15, OV-U5). */
+export function varselFraAppen<H extends Varselhjemmel>(hjemmel: H, utdypning: string) {
+  if (utdypning)
+    throw new Error('Varselet fra appen har ingen fritekst. Fjern teksten i skjemaet.');
+  return { type: 'send_varsel' as const, spor: VARSELSPOR[hjemmel], hjemmel };
 }
