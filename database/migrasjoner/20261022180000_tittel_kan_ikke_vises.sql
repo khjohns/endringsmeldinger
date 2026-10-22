@@ -2,9 +2,10 @@
 -- Utfallet `tittel_kan_ikke_vises` får en kommentar på topicen med tegnene, og når TE har
 -- rettet tittelen, behandles endringen av topicen som et nytt forsøk på opprettelsen
 -- (arbeidsvalgene 22.10 i #1138). Meldingen er kommentarens tegnliste, så
--- `neste_kommentar` gir den med, og et nytt forsøk skriver samme tekst. Har topicen fått en
--- sak (`koe.sak_catenda_topic`, skrevet i samme transaksjon som saken), skrives ingen
--- kommentar om avvisningen, og en endring av topicen behandles ikke.
+-- `neste_kommentar` gir den med, og et nytt forsøk skriver samme tekst. Er topicen koblet
+-- til en sak i prosjektet (`koe.sak_catenda_topic`, som innboksen skriver i samme
+-- transaksjon som saken), skrives ingen kommentar om avvisningen, og en endring av
+-- topicen behandles ikke.
 
 ALTER TABLE koe.innkommende_behandling DROP CONSTRAINT innkommende_behandling_utfall;
 GO
@@ -42,8 +43,8 @@ BEGIN
 END
 GO
 
--- Om en tidligere hendelse for topicen i prosjektet ble avvist for tittelen, og ingen ga en
--- sak. Da behandles en endring av topicen som et nytt forsøk på opprettelsen.
+-- Om en tidligere hendelse for topicen i prosjektet ble avvist for tittelen, og topicen ikke
+-- er koblet til en sak i prosjektet. Da behandles en endring av topicen som et nytt forsøk på opprettelsen.
 CREATE PROCEDURE koe_api.tittel_avvist_for_topic
   @prosjekt_id nvarchar(100),
   @catenda_topic_id nvarchar(100)

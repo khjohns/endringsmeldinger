@@ -129,7 +129,10 @@ export function tegnITittelen(tittel: string): string | null {
   return `Tittelen har tegn som PDF-en av brevet ikke kan vise: ${liste}.`;
 }
 
-/** Om en tidligere hendelse for topicen i prosjektet fikk `tittel_kan_ikke_vises`, og ingen ga en sak. */
+/**
+ * Om en tidligere hendelse for topicen i prosjektet fikk `tittel_kan_ikke_vises`, og topicen
+ * ikke er koblet til en sak i prosjektet.
+ */
 async function tittelAvvistFoer(datalag: Pool, prosjektId: string, topicId: string) {
   const svar = await utenKontekst(datalag)
     .input('prosjekt_id', sql.NVarChar(100), prosjektId)
