@@ -19,7 +19,7 @@ import {
 } from '$kjerne/format/koder';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Avsnitt, Journalrad, Krav, Spor } from '$kjerne/typer';
-import type { Visning } from '$kjerne/utledning/visning';
+import { betegnelse, type Visning } from '$kjerne/utledning/visning';
 import { betegnelsestekst } from './saksbilde';
 import type { SakState, SporType, TimelineEvent, VederlagsMetode } from '$lib/types/timeline';
 import type { Visningsrad } from './journal';
@@ -199,7 +199,8 @@ export function sporvisning(sak: SakState, u: Utledning, nokkel: SporKey): Track
     bhHarSvart: svar,
     isDisputed: false,
     isSubsidiary: false,
-    isWithdrawn: s.trukket,
+    // Samme predikat som betegnelsen: et spor der ingenting er sendt, er ikke trukket (GR-U25).
+    isWithdrawn: betegnelse(u, SPOR_FOR[nokkel]) === 'trukket',
     isRejectionAccepted: false,
     antallVersjoner: s.krav.length,
   };

@@ -96,7 +96,8 @@
   class:action-bar-te-grunnlag={isTeGrunnlagActions}
 >
   <div class="action-inner">
-    {#if !isTeTrackActions}
+    <!-- MM-U30: et spor der ingenting er sendt, har ingen statustekst i TS-saken. -->
+    {#if !isTeTrackActions && !(kjernesak && !kjernesakStatus)}
       <div class="status-section">
         <div class="status-dot"></div>
         <div>
@@ -313,6 +314,7 @@
   .action-buttons {
     display: flex;
     gap: 8px;
+    margin-left: auto;
   }
   .te-grunnlag-actions {
     width: 100%;

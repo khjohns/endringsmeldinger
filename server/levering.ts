@@ -33,7 +33,7 @@ import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
-export const OPPDRAGSFORMAT = 6;
+export const OPPDRAGSFORMAT = 7;
 
 /** Filnavnet dokumentet får i Catenda, fra innholdet i et lagret oppdrag. */
 export const filnavn = (innhold: Record<string, unknown>): string | null =>

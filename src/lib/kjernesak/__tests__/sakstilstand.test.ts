@@ -9,7 +9,14 @@ import { describe, expect, it } from 'vitest';
 import { utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import { kravversjon, sporvisning, tilSakState, tilTidslinje } from '$lib/kjernesak/sakstilstand';
-import { SAK, medFristvarsel, medSvar, medVederlag, medVederlagsvarsel } from './provejournal';
+import {
+  skrevet,
+  SAK,
+  medFristvarsel,
+  medSvar,
+  medVederlag,
+  medVederlagsvarsel,
+} from './provejournal';
 
 describe('TS-saken som Kontrollrommet leser den', () => {
   it('kategorien og metoden står med katalogens koder, og TEs utdypning er begrunnelsen', () => {
@@ -148,5 +155,14 @@ describe('TS-saken som Kontrollrommet leser den', () => {
       source: '/projects/p-1/cases/sak-1',
       summary: 'Saken er opprettet',
     });
+  });
+
+  it('et trukket grunnlag gir «Trukket» bare i spor der noe er sendt (GR-U25, #1140)', () => {
+    const journal = skrevet(medVederlag, 'TE', { type: 'trekk', spor: 'grunnlag' });
+    const u = utledJournal(journal, KJERNE);
+    const sak = tilSakState(SAK, null, journal, u);
+    expect(sporvisning(sak, u, 'ansvar').isWithdrawn).toBe(true);
+    expect(sporvisning(sak, u, 'vederlag').isWithdrawn).toBe(true);
+    expect(sporvisning(sak, u, 'frist').isWithdrawn).toBe(false);
   });
 });

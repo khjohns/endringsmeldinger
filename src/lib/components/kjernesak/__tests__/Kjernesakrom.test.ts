@@ -181,6 +181,16 @@ describe('TS-saken i Kontrollrommet', () => {
     expect(screen.queryByText('Ingen krav')).toBeNull();
   });
 
+  it('et spor der ingenting er sendt, har ingen statustekst i handlingslinjen (MM-U30)', async () => {
+    await vis(medGrunnlag, 'TE', 'vederlag');
+    expect(document.querySelector('.action-bar')).not.toBeNull();
+    expect(document.querySelector('.action-bar .status-section')).toBeNull();
+    cleanup();
+
+    await vis(medFristvarsel, 'TE', 'frist');
+    expect(document.querySelector('.action-bar .status-text')).toHaveTextContent('Varslet');
+  });
+
   it.each([['TE'], ['BH']] as const)(
     'det kjernen ennå ikke kan, vises ikke for %s (OV-U1)',
     async (part) => {
@@ -217,7 +227,7 @@ describe('TS-saken i Kontrollrommet', () => {
     expect(status.kode).toBe('kan_ikke_utledes');
     expect(screen.getByText(`Saksstatus: ${status.tekst}`)).toBeInTheDocument();
     // Handlingslinjen sier heller ikke «Ingen krav» for en sak som har krav.
-    expect(screen.getAllByText(status.tekst).length).toBeGreaterThan(0);
+    expect(document.querySelector('.action-bar .status-text')).toHaveTextContent(status.tekst);
     expect(screen.queryByText('Ingen krav')).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Historikk' }));
     const rad = within(screen.getByTestId('journal-3'));
