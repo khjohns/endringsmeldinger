@@ -293,6 +293,19 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       expect(lest).toMatchObject({ type: TOPICTYPE, forfatter: await oauth.egenId(token) });
     });
 
+    // topic-api-openapi.yaml, schema `comment`: `author` er brukernavnet til forfatteren, og
+    // project-api-openapi.yaml, schema `user`: `username`. Kommentaren kvitteres bare når
+    // forfatteren er integrasjonens brukernavn (#972). Kommentaren slettes med topicen.
+    it('B1: en kommentar integrasjonen skriver, har integrasjonens brukernavn som forfatter (#972)', async () => {
+      const paa = krev(topic, 'topicen fra B1');
+      const tekst = `koe-livetest-kommentar ${randomUUID()}`;
+      const id = await oauth.opprettKommentar(board, paa, tekst, token);
+      const { brukernavn } = await oauth.egenBruker(token);
+      const lest = (await oauth.kommentarer(board, paa, token)).find((k) => k.id === id);
+      expect(brukernavn).not.toBeNull();
+      expect(lest).toEqual({ id, tekst, forfatter: brukernavn });
+    });
+
     // topic-api-openapi.yaml tillater `guid` i POST …/topics. Om en topic kan lages
     // idempotent med en GUID klienten velger (#778). Svaret på en gjentatt GUID står ikke
     // i øyeblikksbildet; testen fastholder det Catenda svarer i dag (400).
