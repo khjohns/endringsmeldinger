@@ -1,33 +1,12 @@
 # Unntak fra skanningen av kjøretidsavhengighetene i TS (#269 punkt 3).
 #
 # Hver post gjelder én advisory i én pakke, med datoen unntaket ble ført, issuet
-# som skal fjerne det, og hvorfor det ikke er rettet nå. Skanningen varsler når
-# en advisory ikke lenger treffer, så posten kan fjernes.
+# som skal fjerne det, og hvorfor det ikke er rettet nå. Skanningen feiler når en
+# advisory ikke lenger treffer, så posten må fjernes (#1170).
 #
 # Postene fra 18.10 er sårbarhetene som fantes da skanningen ble innført. De har
 # rettede versjoner, men oppgraderingen av frontendavhengighetene hører til #268
 # og ble ikke gjort her.
-
-[[unntak]]
-advisory = "GHSA-28wg-ghj8-5hjv"
-pakke = "nanoid"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: nanoid: non-secure generators can loop indefinitely with negative size"
-
-[[unntak]]
-advisory = "GHSA-2crg-3p73-43xp"
-pakke = "@sveltejs/kit"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: @sveltejs/adapter-node has a BODY_SIZE_LIMIT bypass"
-
-[[unntak]]
-advisory = "GHSA-2v37-7h3g-55p8"
-pakke = "nanoid"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: nanoid: custom generators can loop indefinitely when size is zero"
 
 [[unntak]]
 advisory = "GHSA-38f7-945m-qr2g"
@@ -37,99 +16,8 @@ issue = 268
 begrunnelse = "Fantes da skanningen ble innført. high: Effect `AsyncLocalStorage` context lost/contaminated inside Effect fibers under concurrent load with RPC"
 
 [[unntak]]
-advisory = "GHSA-68fv-2mgg-jv7q"
-pakke = "source-map-js"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: source-map-js allows event-loop denial of service through indexed source-map section offsets"
-
-[[unntak]]
-advisory = "GHSA-6g55-p6wh-862q"
-pakke = "postcss"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments"
-
-[[unntak]]
 advisory = "GHSA-6h2x-m376-mqjq"
 pakke = "joi"
 dato = "2026-10-18"
 issue = 268
 begrunnelse = "Fantes da skanningen ble innført. high: joi: Quadratic regular-expression backtracking in `Joi.string().isoDate()`"
-
-[[unntak]]
-advisory = "GHSA-77vg-94rm-hx3p"
-pakke = "devalue"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: Svelte devalue: DoS via sparse array deserialization"
-
-[[unntak]]
-advisory = "GHSA-c2c7-rcm5-vvqj"
-pakke = "picomatch"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: Picomatch has a ReDoS vulnerability via extglob quantifiers"
-
-[[unntak]]
-advisory = "GHSA-c8x8-7fp4-3x9w"
-pakke = "prosemirror-view"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: ProseMirror has a XSS vulnerability in prosemirror-view's paste handling"
-
-[[unntak]]
-advisory = "GHSA-fx2h-pf6j-xcff"
-pakke = "vite"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: vite: `server.fs.deny` bypass on Windows alternate paths"
-
-[[unntak]]
-advisory = "GHSA-j22f-vq7h-c4qm"
-pakke = "devalue"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: devalue: `stringify`/`uneval` serialize shared memory"
-
-[[unntak]]
-advisory = "GHSA-mcm9-63f2-9j32"
-pakke = "devalue"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: devalue: Repeated primitive strings cause quadratic expansion in uneval"
-
-[[unntak]]
-advisory = "GHSA-p9ff-h696-f583"
-pakke = "vite"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: Vite Vulnerable to Arbitrary File Read via Vite Dev Server WebSocket"
-
-[[unntak]]
-advisory = "GHSA-r28c-9q8g-f849"
-pakke = "postcss"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure"
-
-[[unntak]]
-advisory = "GHSA-r9w8-h9r3-54w4"
-pakke = "devalue"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: devalue: Custom ArrayBuffer revivers can bypass typed-array allocation validation"
-
-[[unntak]]
-advisory = "GHSA-v2wj-q39q-566r"
-pakke = "vite"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: Vite: `server.fs.deny` bypassed with queries"
-
-[[unntak]]
-advisory = "GHSA-xwg4-73v4-xw9w"
-pakke = "nanoid"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: nanoid: Integer Overflow or Wraparound"
