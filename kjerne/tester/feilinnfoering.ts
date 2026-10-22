@@ -2909,7 +2909,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'brev fra begge sider vises ved kravet (OV-U20)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [["b.avsender === 'BH' && b.rettetAv", 'true && b.rettetAv']],
-    mal: ['svar 2: ved hvert krav som venter, vises motpartens brev'],
+    mal: ['OV-U20: ved hvert krav som venter, vises motpartens brev'],
   },
   {
     id: 'F362',
@@ -2940,7 +2940,7 @@ const MUTASJONER: Mutasjon[] = [
         '  if (u.registrerteBrev.some((b) => b.rettetAv === null))',
       ],
     ],
-    mal: ['svar 1: når kravene er avgjort'],
+    mal: ['OV-U19: når kravene er avgjort'],
   },
   {
     id: 'F365',
@@ -2953,6 +2953,15 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['OV-U19: et varsel registrert med virkning gir ikke merknaden'],
+  },
+  {
+    id: 'F366',
+    feilklasse: 'avvisningen etter en retting om feil sak ber om å rette rettingen (OV-U18)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['      !u.registrerteBrev.some((b) => b.dokument === brev.rettetAv)', '      false'],
+    ],
+    mal: ['OV-U18: etter en retting om feil sak viser avvisningen'],
   },
   {
     id: 'F325',

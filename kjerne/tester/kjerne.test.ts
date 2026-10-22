@@ -1720,7 +1720,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(lest.art === 'ukjent' ? lest.grunn : lest.art).toContain('en retting er ikke');
   });
 
-  it('svar 2: ved hvert krav som venter, vises motpartens brev for sporet og saken, ikke TEs eller et annet spors', async () => {
+  it('OV-U20: ved hvert krav som venter, vises motpartens brev for sporet og saken, ikke TEs eller et annet spors', async () => {
     const { journal, rad } = await medBrevFraBH();
     const saken = godtatt(journal, registrering({ spor: undefined }), 'BH');
     const vederlag = godtatt(journal, registrering({ spor: ['vederlag'] }), 'BH');
@@ -1732,7 +1732,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     ]);
   });
 
-  it('svar 1: når kravene er avgjort, står setningen i statusen og ikke som merknad (OV-U10)', async () => {
+  it('OV-U19: når kravene er avgjort, står setningen i statusen og ikke som merknad (OV-U10)', async () => {
     const bane = minnebane();
     await bygg(bane, [
       'godkjent_grunnlag',
