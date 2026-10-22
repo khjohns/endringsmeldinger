@@ -2186,7 +2186,8 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(u.grunnlagAvklart, 'forutsetning: grunnlaget er avklart').toBe(true);
     expect(kraveneErAvgjort(u)).toBe(false);
     expect(u.avgjorteSpor).toEqual([]);
-    expect(visning(u, GJELDENDE_REGLER).status.kode).not.toBe('alle_krav_avgjort');
+    // MM-U22: saken har ingen samlet status før kravene er avgjort.
+    expect(visning(u, GJELDENDE_REGLER).status).toBeNull();
   });
 
   it('når kravene er avgjort, avvises trekk, ny kravversjon og byggherrens revisjon for det som er sendt (OV-U3)', () => {
@@ -2228,7 +2229,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     const u = s.u();
     expect(kraveneErAvgjort(u)).toBe(false);
     expect(u.avgjorteSpor).toEqual(['grunnlag', 'vederlag']);
-    expect(visning(u, GJELDENDE_REGLER).status.kode).toBe('venter_paa_svar');
+    expect(visning(u, GJELDENDE_REGLER).status).toBeNull();
     expect(s.avvisning('TE', { type: 'trekk', spor: 'vederlag' })).toEqual({
       regel: 'KRAVENE_AVGJORT',
       melding:
@@ -3829,7 +3830,7 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
         visning(u, GJELDENDE_REGLER).spor.grunnlag.etiketter,
         'versjon 2 vises ikke som ventende (GR-U24)'
       ).not.toContain('venter_paa_svar');
-      expect(visning(u, GJELDENDE_REGLER).status.kode).toBe('alle_krav_avgjort');
+      expect(visning(u, GJELDENDE_REGLER).status?.kode).toBe('alle_krav_avgjort');
     });
   });
 

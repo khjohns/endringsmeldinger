@@ -91,7 +91,7 @@ const MUTASJONER: Mutasjon[] = [
       [
         "  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor))",
         // Statusen leses uten å endre utfallet, så bare arkitekturtestene skal feile (#1122).
-        "  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor) && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status.kode !== undefined)",
+        "  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor) && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status !== undefined)",
       ],
     ],
     mal: [
@@ -2968,6 +2968,55 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['VS-U29: innsigelsen mot begrunnelsen er en påberopelse etter § 33.6.2'],
+  },
+  {
+    id: 'F349',
+    feilklasse: 'visningen sier at en virksom enighet er «oppgjort» (MM-U23, #1136)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "    if (virkning === 'betinget') ut.push('enige_betinget');",
+        "    if (virkning === 'betinget') ut.push('enige_betinget');\n    if (virkning === 'virksom') ut.push('oppgjort');",
+      ],
+    ],
+    mal: ['en virksom enighet og et avklart grunnlag gir verken'],
+  },
+  {
+    id: 'F350',
+    feilklasse: 'visningen sier at grunnlaget er «avklart» (MM-U23, #1136)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "    if (virkning && !s.trukket) ut.push('enige');",
+        "    if (u.grunnlagAvklart) ut.push('avklart');\n    if (virkning && !s.trukket) ut.push('enige');",
+      ],
+    ],
+    mal: ['en virksom enighet og et avklart grunnlag gir verken'],
+  },
+  {
+    id: 'F351',
+    feilklasse:
+      'et trukket grunnlag gir etiketten «trukket» i et spor der ingenting er sendt (GR-U25, #1140)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  if (FORELIGGER.trukket(u, spor)) ut.push('trukket');",
+        "  if (s.trukket) ut.push('trukket');",
+      ],
+    ],
+    mal: ['et trukket grunnlag gir ikke etiketten «trukket» i et spor der ingenting er sendt'],
+  },
+  {
+    id: 'F352',
+    feilklasse: 'saken får en samlet status utenom de fire tilfellene i MM-U22 (#1136)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        '  const kode = sak && STATUS_FOR[sak];',
+        "  const kode = sak ? STATUS_FOR[sak] : ('alle_krav_avgjort' as const);",
+      ],
+    ],
+    mal: ['saken har ingen samlet status mens kravene venter på svar'],
   },
 ];
 

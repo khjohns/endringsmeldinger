@@ -38,7 +38,7 @@ const post = (versjon: number, o: Leveringsoppdrag[]): Journalpost => ({
 const bilde = (journal: Journalpost[]): Saksbilde => ({
   tittel: 'Sak',
   versjon: journal.length,
-  status: { kode: 'aapen' as Saksbilde['status']['kode'], tekst: 'Åpen' },
+  status: null,
   merknader: [],
   spor: [],
   journal,

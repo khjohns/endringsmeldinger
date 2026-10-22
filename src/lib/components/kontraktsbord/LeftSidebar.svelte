@@ -43,10 +43,13 @@
       : store.projectId
   );
 
-  // TS-saken viser kjernens statustekst (#718). Status er bare en etikett.
+  const kjernesak = store.erKjernesak ? store : null;
+  // TS-saken har bare status i de fire tilfellene i MM-U22, ellers skjules feltet.
   const statusStyle = $derived(
-    store.erKjernesak
-      ? { label: store.saksbilde?.status.tekst ?? '', variant: 'default', sendt: false }
+    kjernesak
+      ? kjernesak.saksbilde?.status
+        ? { label: kjernesak.saksbilde.status.tekst, variant: 'default', sendt: false }
+        : null
       : saksstatus(store.sak)
   );
   // For en TS-sak vises bare at BH har svart (#718), så et besvart krav står ikke som uavklart.
@@ -115,15 +118,15 @@
     <div class="case-identity">
       <div class="id-number">{store.sak.sak_id}</div>
       <h2 class="case-title">{store.sak.sakstittel}</h2>
-      <span
-        class="case-status"
-        class:variant-sent={statusStyle.sendt}
-        class:variant-default={statusStyle.variant === 'default'}
-        class:variant-info={statusStyle.variant === 'info'}
-        class:variant-success={statusStyle.variant === 'success'}
-        class:variant-danger={statusStyle.variant === 'danger'}
-        >Saksstatus: {statusStyle.label}</span
-      >
+      {#if statusStyle}<span
+          class="case-status"
+          class:variant-sent={statusStyle.sendt}
+          class:variant-default={statusStyle.variant === 'default'}
+          class:variant-info={statusStyle.variant === 'info'}
+          class:variant-success={statusStyle.variant === 'success'}
+          class:variant-danger={statusStyle.variant === 'danger'}
+          >Saksstatus: {statusStyle.label}</span
+        >{/if}
     </div>
   </div>
 
@@ -162,7 +165,10 @@
             <span class="font-mono claimed">Krevd: {fmt(display.krevdValue!)}{unit}</span>
           {/if}
           <span class="row-status">
-            {#if display.isWithdrawn}
+            {#if kjernesak}
+              <!-- MM-U30: betegnelsen for sporet, og ingen tekst når ingenting er sendt. -->
+              {kjernesak.statustekst(t.id)}
+            {:else if display.isWithdrawn}
               Kravet er trukket
             {:else if display.isRejectionAccepted}
               Avslaget er godtatt

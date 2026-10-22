@@ -1681,7 +1681,7 @@
             "enighet.grunnlag.holder": "S-g1",
             "grunnlag_avklart": true,
             "frafalt": false,
-            "visning.etiketter.grunnlag": { "inneholder": ["avklart", "enige"] },
+            "visning.etiketter.grunnlag": { "inneholder": ["enige"] },
             "handlinger.BH": { "inneholder": ["svare:vederlag", "svare:frist"], "mangler": ["revidere:grunnlag"] },
             "handlinger.TE": {
               "inneholder": ["trekke:vederlag"],
@@ -7137,6 +7137,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "MM-U22",
             "V-KRAVVERSJON",
             "V-SK02-SK03"
           ],
@@ -7152,7 +7153,7 @@
                 "svare:vederlag"
               ]
             },
-            "visning.status": "venter_paa_svar"
+            "visning.status": null
           }
         },
         {
@@ -7238,6 +7239,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
+            "MM-U22",
             "V-KRAVVERSJON",
             "V-SK02-SK03"
           ],
@@ -7253,7 +7255,7 @@
                 "svare:vederlag"
               ]
             },
-            "visning.status": "venter_paa_svar"
+            "visning.status": null
           }
         },
         {
@@ -7775,6 +7777,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U22",
             "GR-U1",
             "KA-U1"
           ],
@@ -7783,7 +7786,7 @@
             "regel": "IKKE_GJELDENDE_SVAR",
             "grunnlag_avvist": false,
             "gjeldende_krav.grunnlag": "K-g2",
-            "visning.status": "venter_paa_svar"
+            "visning.status": null
           }
         }
       ]
@@ -8105,6 +8108,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
+            "MM-U22",
             "GR-U7",
             "GR-U9",
             "KA-U11",
@@ -8114,7 +8118,7 @@
             "frafalt": true,
             "grunnlag_avklart": true,
             "kravene_avgjort": false,
-            "visning.status": "under_forhandling"
+            "visning.status": null
           }
         },
         {

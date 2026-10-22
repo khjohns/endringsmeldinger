@@ -50,8 +50,7 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
       const titler = Object.fromEntries(bilde.journal.map((j) => [j.hendelse, j.tittel]));
       const sak = tilSakState(sakId, bilde.tittel, kjernesak.journal, u);
       const vist = kjernesak.visning;
-      const statustekst = (spor: SporKey) =>
-        vist ? sporetsStatustekst(vist, u, spor, kjernesak.part, bhNavn) : '';
+      const statustekst = (spor: SporKey) => (vist ? sporetsStatustekst(vist, spor) : '');
       forrige = {
         sak,
         utledning: u,

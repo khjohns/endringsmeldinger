@@ -102,7 +102,7 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.last();
     expect(sak.versjon).toBe(2);
     expect(sak.visning).toEqual(visning(utledJournal(journal, KJERNE), KJERNE.regler));
-    expect(sak.visning?.status.tekst).not.toBe('Fra serveren');
+    expect(sak.visning?.status?.tekst).not.toBe('Fra serveren');
   });
 
   it('tilbyr parten det kjernen tilbyr for journalen, og svaret tilbys BH etter kravet (INV-MM-1)', async () => {
@@ -234,7 +234,7 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.last();
     expect(hent).toHaveBeenCalledWith(SAK, 'p-1');
     expect(sak.finnes).toBe(true);
-    expect(sak.saksbilde?.status.tekst).not.toBe('Fra serveren');
+    expect(sak.saksbilde?.status?.tekst).not.toBe('Fra serveren');
     expect(sak.saksbilde?.journal.map((j) => j.versjon)).toEqual([1]);
   });
 
