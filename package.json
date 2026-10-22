@@ -54,7 +54,7 @@
 		"@tiptap/starter-kit": "^2.27.2",
 		"bits-ui": "^2.16.2",
 		"date-fns": "^4.1.0",
-		"dompurify": "3.4.15",
+		"dompurify": "3.4.17",
 		"formsnap": "^2.0.1",
 		"jose": "6.2.12",
 		"lucide-svelte": "^0.475.0",
