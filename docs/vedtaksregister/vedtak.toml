@@ -3556,6 +3556,92 @@ tekst = '''
 Byggherrens svar på fristkravet tar bare stilling etter den nye forespørselen. Innsigelsen mot begrunnelsen står åpen uten å bli gjentatt eller gitt opp. Snevrer inn VS-U29.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "VS-U31"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1121"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1121 (Q4, antall forespørsler etter § 33.6.2 fra appen):
+
+Premisset: VS-U19 lar byggherren sende en forespørsel etter § 33.6.2 fra appen så lenge TE ikke har fremmet et krav om antall dager, og VS-U30 sperrer en ny etter TEs begrunnelse. Ingen av dem hindrer en ny forespørsel mens den første står ubesvart, så i dag kan BH sende to før TE svarer. Skal det være slik?
+
+Alternativene slik de står i kommentaren:
+
+«Én forespørsel fra appen (Recommended)»: Byggherren kan sende høyst én forespørsel etter § 33.6.2 fra appen i saken. En senere forespørsel sendes utenfor appen og registreres som dokumentasjon (VS-U23). Snevrer inn VS-U19, i samme retning som VS-U30. Forløpet i forrige spørsmål kan da ikke oppstå i appen, og spørsmålet om VS-U29 faller bort.
+
+«Flere er lov»: Byggherren kan sende en ny forespørsel fra appen mens den forrige står ubesvart, som i dag. Da må forrige spørsmål (om innsigelsen mot begrunnelsen står åpen) besvares.
+
+«Avklares med jurist»: #1121 venter. Byggeøkta leverer #801 alene.'''
+valgt = "Én forespørsel fra appen"
+svar = '''
+«Kun 1 forespørsel (anbefalt valg). Og hvis svaret fra TE er 33.6.2 (b) - begrunnelse - er det da en naturlig overgang for BH å vurdere begrunnelsen i relasjon til 33.6.1, jf 33.6.2 siste ledd?»
+
+Oppfølging 22.10: «Én forespørsel fra appen»'''
+forhold = [{ art = "snevrer inn", vedtak = "vs-u19" }]
+folge = '''
+Spørsmålet og alternativene står på #1121 (kommentaren 6339560335). Svaret er gitt med spørsmålsverktøyet 22.10. Bekreftelsen av valget står på #1121 (kommentaren 6339847080).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Én forespørsel fra appen"
+tekst = '''
+Byggherren kan sende høyst én forespørsel etter § 33.6.2 fra appen i saken. En senere forespørsel sendes utenfor appen og registreres som dokumentasjon (VS-U23). Snevrer inn VS-U19, i samme retning som VS-U30.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Flere er lov"
+tekst = '''
+Byggherren kan sende en ny forespørsel fra appen mens den forrige står ubesvart, som i dag. Da må forrige spørsmål (om innsigelsen mot begrunnelsen står åpen) besvares.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Avklares med jurist"
+tekst = '''
+#1121 venter. Byggeøkta leverer #801 alene.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "VS-U32"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1121"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1121 (Q5, oppfølging av tilleggsspørsmålet i Q4, § 33.6.2 siste ledd):
+
+Ja, etter TEs begrunnelse etter § 33.6.2 annet ledd b gjelder § 33.6.1 for kravet som kommer senere (VS-U17), og BH påberoper sen spesifisering i svaret på det kravet (VS-U3, VS-U4, VS-U24). Slik virker appen i dag. Én ting er ikke sagt uttrykkelig: hvor gjør BH gjeldende at TE allerede hadde grunnlag for å beregne kravet da TE begrunnet?
+
+Alternativene slik de står i kommentaren:
+
+«I svaret på kravet (Recommended)»: I svaret på det senere fristkravet, som en påberopelse av sen spesifisering etter § 33.6.1 (VS-U4, VS-U24). BHs begrunnelse kan vise til tidspunktet for TEs begrunnelse. Innsigelsen mot begrunnelsen står etter § 33.6.2 som i VS-U29. Presiserer VS-U17.
+
+«Også i innsigelsen»: Som over. I tillegg kan BH i innsigelsen mot begrunnelsen oppgi at grunnlaget foreligger etter § 33.6.1. Det registreres og vises uten virkning, og svaret på kravet gjentar det ikke. Utvider VS-U29.
+
+«Innsigelsen er påberopelse»: Innsigelsen kan også være en påberopelse etter § 33.6.1, som svaret på kravet gjentar eller gir opp. Endrer VS-U24 og VS-U29, og kommer før virkningen etter § 33.6.1 rammer kravet.'''
+valgt = "I svaret på kravet"
+svar = '''
+«I svaret på kravet (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "vs-u17" }]
+folge = '''
+Spørsmålet og alternativene står på #1121 (kommentaren 6339560335). Svaret er gitt med spørsmålsverktøyet 22.10.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "I svaret på kravet"
+tekst = '''
+I svaret på det senere fristkravet, som en påberopelse av sen spesifisering etter § 33.6.1 (VS-U4, VS-U24). BHs begrunnelse kan vise til tidspunktet for TEs begrunnelse. Innsigelsen mot begrunnelsen står etter § 33.6.2 som i VS-U29. Presiserer VS-U17.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Også i innsigelsen"
+tekst = '''
+Som over. I tillegg kan BH i innsigelsen mot begrunnelsen oppgi at grunnlaget foreligger etter § 33.6.1. Det registreres og vises uten virkning, og svaret på kravet gjentar det ikke. Utvider VS-U29.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Innsigelsen er påberopelse"
+tekst = '''
+Innsigelsen kan også være en påberopelse etter § 33.6.1, som svaret på kravet gjentar eller gir opp. Endrer VS-U24 og VS-U29, og kommer før virkningen etter § 33.6.1 rammer kravet.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Endringsordre og forsering"
 
@@ -5539,6 +5625,48 @@ tekst = "også når varselet var selve kravet"
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Det som ikke står i teksten, regnes ikke som meddelt."
+
+[[gruppe.vedtak]]
+id = "MM-U30"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1043"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1043 (header «Betegnelse»):
+
+Sakslisten skal vise én kort betegnelse per krav fra en fast liste (MM-U22: betegnelsen sier bare hvilket utsagn eller hvilken relasjon som foreligger; resultat og virkning står i linja under). Lista er ikke vedtatt. Hvilken liste skal gjelde?
+
+Alternativene slik de står i kommentaren:
+
+«Bare relasjonen (Recommended)»: Hvert spor har høyst én betegnelse, i denne rekkefølgen: Trukket; Byggherren har bedt om spesifisert krav (§ 33.6.2) (bare frist, til forespørselen er besvart); Kravet venter på byggherrens svar; Byggherren har frafalt pålegget (bare grunnlaget); Enige; Svaret er ikke godtatt; Krav sendt (TE har godtatt avslaget på grunnlaget, og sporet har verken enighet eller trekk); Ingen krav; Varslet. Ingen betegnelse når ingenting er sendt. Byggherrens resultat, enighetens virkning, innsigelser, protester og passivitet står i linja under. Presiserer MM-U22, MM-U24 og MM-U29.
+
+«Med byggherrens resultat»: Som den anbefalte lista, men et svar TE ikke har godtatt, viser byggherrens resultat i betegnelsen: «BH: avslått», «BH: delvis godkjent», «BH: tilbakeholdt» (bare vederlag), med «subsidiært» der standpunktet er subsidiært, som «BH: godkjent subsidiært». Presiserer MM-U22 og MM-U28.
+
+«Med appens lesing av enigheten»: Som den anbefalte lista, men «Enige» får appens lesing av virkningen, merket som appens: «Enige. Etter appens lesing betinget av ansvaret», «… virksom» eller «… uten virkning». Endrer MM-U22.'''
+valgt = "Bare relasjonen"
+svar = '''
+«Bare relasjonen (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u22" }, { art = "presiserer", vedtak = "mm-u24" }, { art = "presiserer", vedtak = "mm-u29" }]
+folge = '''
+Spørsmålet og alternativene står på #1043 (kommentaren 6339847386). Svaret er gitt med spørsmålsverktøyet 22.10.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare relasjonen"
+tekst = '''
+Hvert spor har høyst én betegnelse, i denne rekkefølgen: Trukket; Byggherren har bedt om spesifisert krav (§ 33.6.2) (bare frist, til forespørselen er besvart); Kravet venter på byggherrens svar; Byggherren har frafalt pålegget (bare grunnlaget); Enige; Svaret er ikke godtatt; Krav sendt (TE har godtatt avslaget på grunnlaget, og sporet har verken enighet eller trekk); Ingen krav; Varslet. Ingen betegnelse når ingenting er sendt. Byggherrens resultat, enighetens virkning, innsigelser, protester og passivitet står i linja under. Presiserer MM-U22, MM-U24 og MM-U29.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Med byggherrens resultat"
+tekst = '''
+Som den anbefalte lista, men et svar TE ikke har godtatt, viser byggherrens resultat i betegnelsen: «BH: avslått», «BH: delvis godkjent», «BH: tilbakeholdt» (bare vederlag), med «subsidiært» der standpunktet er subsidiært, som «BH: godkjent subsidiært». Presiserer MM-U22 og MM-U28.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Med appens lesing av enigheten"
+tekst = '''
+Som den anbefalte lista, men «Enige» får appens lesing av virkningen, merket som appens: «Enige. Etter appens lesing betinget av ansvaret», «… virksom» eller «… uten virkning». Endrer MM-U22.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
