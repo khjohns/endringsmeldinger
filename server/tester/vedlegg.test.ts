@@ -249,6 +249,16 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
     expect((await liste(o.te)).length).toBe(foer);
   });
 
+  // Kilde: oppdragsgiver 22.10 i #1138: meldingen nevner tegnet og at navnet må endres. Skiller
+  // avvisningen fra «Filnavnet kan ikke brukes.», som har samme feilkode.
+  it('et filnavn med et tegn PDF-en av brevet ikke kan vise, gir meldingen med tegnet over HTTP', async () => {
+    const svar = await lastOpp(o.te, PDF, '报告.pdf');
+    expect(svar.status).toBe(400);
+    expect(svar.kropp.message).toBe(
+      'Filnavnet har tegnet «报» (U+62A5), som PDF-en av brevet ikke kan vise. Gi filen et nytt navn og last den opp igjen.'
+    );
+  });
+
   // Kilde: RFC 6266, 4.3: `filename` som reserve for en klient som ikke leser `filename*` (#815 punkt 4).
   it('nedlastingen gir et filnavn i ASCII ved siden av filename*', async () => {
     const id = (await lastOpp(o.te, PDF, 'Søknad – å.pdf')).kropp.vedlegg.vedlegg_id;
