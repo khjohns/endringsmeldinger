@@ -23,6 +23,20 @@ describe('opprettelsen av en KOE-sak (#664)', () => {
     });
   });
 
+  it('en sakstittel med et tegn PDF-en av brevet ikke kan vise, avvises (#801, arbeidsvalg 1, 22.10)', () => {
+    expect(opprettelse({ type: 'opprett_sak', sakstittel: 'Ny peling 😀' }, 'TE')).toEqual({
+      godtatt: false,
+      feil: 'UGYLDIG_FORM',
+      avvisning: {
+        regel: 'UGYLDIG_FORM',
+        melding: '$.sakstittel har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.',
+      },
+    });
+    expect(opprettelse({ type: 'opprett_sak', sakstittel: 'Ny peling ⇒ x' }, 'TE').godtatt).toBe(
+      true
+    );
+  });
+
   it('byggherren kan ikke opprette en KOE-sak (OV-U1)', () => {
     expect(opprettelse({ type: 'opprett_sak', sakstittel: 'Ny peling' }, 'BH')).toEqual({
       godtatt: false,

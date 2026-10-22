@@ -29,18 +29,52 @@ export class TegnUtenforSkriften extends Error {}
 const MYKT_BINDESTREK = 0xad;
 
 /** Et usynlig tegn som settes med glyfen skriften har for det, og ikke som mellomrom. */
-const settesMedGlyfen = (kode: number): boolean => kode === MYKT_BINDESTREK;
+export const settesMedGlyfen = (kode: number): boolean => kode === MYKT_BINDESTREK;
 
 type Skrift = { bytes: Uint8Array; tegnsett: ReturnType<typeof fontkit.create> };
 let lesteSkrifter: Skrift[] | undefined;
 
-/** Hovedskriften først; et tegn settes med den første som har det. Leses når den første PDF-en lages. */
+/** Hovedskriften først; et tegn settes med den første som har det. */
+const SKRIFTFILER = ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'] as const;
+
+/** Skriftene i `SKRIFTFILER`, lest når den første PDF-en lages. */
 function skrifter(): Skrift[] {
-  return (lesteSkrifter ??= ['NotoSans-Regular.ttf', 'NotoSansMath-Regular.ttf'].map((fil) => {
+  return (lesteSkrifter ??= SKRIFTFILER.map((fil) => {
     const bytes = readFileSync(new URL(`./skrift/${fil}`, import.meta.url));
     return { bytes, tegnsett: fontkit.create(bytes) };
   }));
 }
+
+/** Kodepunktene skriftene har, for tabellen i kjernen (`tegnsett.ts`, #801). */
+export function skriftenesKodepunkter(): Set<number> {
+  return new Set(skrifter().flatMap((s) => s.tegnsett.characterSet));
+}
+
+/**
+ * Kodepunktene som deler glyf med et lavere kodepunkt i skriften `skriftFor` velger. PDF-en
+ * gir glyfen tilbake som det første av dem brevet bruker, så bare det laveste beholdes (#801).
+ */
+export function kodepunkterMedDeltGlyf(): Set<number> {
+  const perGlyf = new Map<string, number[]>();
+  for (const kode of [...skriftenesKodepunkter()].sort((a, b) => a - b)) {
+    let skrift: number;
+    try {
+      skrift = skriftFor(String.fromCodePoint(kode));
+    } catch (feil) {
+      if (feil instanceof TegnUtenforSkriften) continue;
+      throw feil;
+    }
+    const glyf = `${skrift}:${skrifter()[skrift].tegnsett.glyphForCodePoint(kode).id}`;
+    perGlyf.set(glyf, [...(perGlyf.get(glyf) ?? []), kode]);
+  }
+  return new Set([...perGlyf.values()].flatMap((k) => k.slice(1)));
+}
+
+/**
+ * Uten substitusjonene i GSUB: en ligatur som «ﬁ» og en oppdeling i `ccmp` gir glyfer uten
+ * `ToUnicode` eller med `ToUnicode` for et annet tegn, så PDF-en ikke gjengir brevet tro (#801).
+ */
+const UTEN_SUBSTITUSJON = { ccmp: false, liga: false, clig: false, calt: false, rlig: false };
 
 /**
  * fontkit der mykt bindestrek settes med glyfen skriften har for det, så `ToUnicode` gir
@@ -71,8 +105,11 @@ export function kontrollerSkrifter(): void {
 
 const skriftPerKode = new Map<number, number>();
 
-/** Skriften for tegnet, som indeks i `skrifter()`. */
-function skriftFor(tegn: string): number {
+/**
+ * Skriften for tegnet, som indeks i `skrifter()`. Kjernen avviser tegnet før brevet skrives
+ * (`SETTBARE_TEGN` i `kjerne/format/tegnsett.ts`, #801), så dette er en sikring.
+ */
+export function skriftFor(tegn: string): number {
   const kode = tegn.codePointAt(0)!;
   const kjent = skriftPerKode.get(kode);
   if (kjent !== undefined) return kjent;
@@ -169,7 +206,9 @@ export async function skrivBrevPdf(
   const brukt = new Set(loep(normalisert.replace(/\n/g, '')).map((l) => l.skrift));
   // En skrift som ikke brukes, bygges ikke inn, så brev uten reservetegn er uendret.
   const innbygd = await Promise.all(
-    skrifter().map((s, i) => (brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true }) : null))
+    skrifter().map((s, i) =>
+      brukt.has(i) ? pdf.embedFont(s.bytes, { subset: true, features: UTEN_SUBSTITUSJON }) : null
+    )
   );
   const settes = (t: string) =>
     loep(t).map((l) => {

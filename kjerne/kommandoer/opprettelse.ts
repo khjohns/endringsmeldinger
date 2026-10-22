@@ -7,7 +7,12 @@
  */
 
 import { FORMAT, SAK_OPPRETTET, objekt, TEKST } from '../format/format.ts';
-import { erObjekt, feilI, tekstSomIkkeKanLagres } from '../format/skjema.ts';
+import {
+  erObjekt,
+  feilI,
+  kommandoenHarTegnSomIkkeKanVises,
+  tekstSomIkkeKanLagres,
+} from '../format/skjema.ts';
 import { avvis } from './forutsetninger.ts';
 import type { Avvisning, Part } from '../typer.ts';
 
@@ -39,6 +44,9 @@ export function opprettelse(kommando: unknown, part: Part): Opprettelsesutfall {
   const k = kommando as Opprettelse;
   if (!feil.length && !k.sakstittel.trim()) feil.push('$.sakstittel: saken må ha en tittel');
   if (feil.length) return ugyldig({ regel: 'UGYLDIG_FORM', melding: feil.join('; ') });
+  // #801: sakstittelen står i den låste teksten i brevene, og PDF-en må kunne vise den.
+  const tegn = kommandoenHarTegnSomIkkeKanVises(kommando);
+  if (tegn) return ugyldig(tegn);
   // Byggherrens endring er EO-saken, som ikke er med i første versjon (OV-U1).
   if (part !== 'TE')
     return {

@@ -68,7 +68,7 @@ const KR = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr eks. mva.`;
  * Klienten sender den låste teksten fra forhåndsvisningen (A1), med mindre
  * kommandoen alt har en.
  */
-function sak() {
+function sak(sakstittel = TITTEL) {
   const journal: Journalrad[] = [
     {
       event_id: randomUUID(),
@@ -81,7 +81,7 @@ function sak() {
       aktor_team_id: null,
       refererer_til_event_id: null,
       format: 1,
-      data: { sakstittel: TITTEL, sakstype: 'standard' },
+      data: { sakstittel, sakstype: 'standard' },
     },
   ];
   let dag = 2;
@@ -4488,5 +4488,76 @@ describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)
     expect(venterPaaSvar(s.u(), 'grunnlag')).toBe(true);
     expect(svarIkkeGodtatt(s.u(), 'grunnlag')).toBe(false);
     expect(etiketter(s, 'grunnlag')).toContain('venter_paa_svar');
+  });
+});
+
+/**
+ * #801: et brev fra appen kan ikke ha et tegn PDF-en ikke kan vise (oppdragsgiver 20.10:
+ * «Avvis tegnet ved skriving»), med arbeidsvalgene 22.10: alle tekstfelt som havner i
+ * PDF-en, usynlige tegn unntatt myk bindestrek, ikke et registrert brev, og en melding
+ * med tegnet, kodepunktet og feltet. Ingen kommando for et registrert brev har fritekst
+ * (`begrunnelse` avvises etter OV-U7), så det tredje valget prøves ikke her. Tegnene PDF-en kan vise, prøves mot skriftene i
+ * `server/tester/brevpdf.test.ts`.
+ */
+describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801)', () => {
+  it('en emoji i utdypningen avvises med tegnet, kodepunktet og feltet, også i forhåndsvisningen', () => {
+    const s = sak();
+    const kommando = { ...GRUNNLAGSKRAV, utdypning: 'Pelingen er forsinket 😀' };
+    const avvisning = {
+      regel: 'UGYLDIG_FORM',
+      melding: '$.utdypning har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.',
+    };
+    expect(s.avvisning('TE', kommando)).toEqual(avvisning);
+    expect(s.vis('TE', kommando)).toBeNull();
+    expect(s.journal).toHaveLength(1);
+    expect(s.avvist('TE', GRUNNLAGSKRAV), 'kontrollsak').toBeNull();
+  });
+
+  it('kravtittelen og utdypningen i et svar kontrolleres også', () => {
+    const s = sak();
+    expect(
+      s.avvisning('TE', { ...GRUNNLAGSKRAV, innhold: { ...GRUNNLAGSKRAV.innhold, tittel: '☺' } })
+    ).toEqual({
+      regel: 'UGYLDIG_FORM',
+      melding: '$.innhold.tittel har tegnet «☺» (U+263A), som PDF-en av brevet ikke kan vise.',
+    });
+    s.send('TE', GRUNNLAGSKRAV);
+    const brev = (utdypning: string) => ({
+      type: 'brev',
+      svar: [
+        svar(
+          'grunnlag',
+          s.krav('grunnlag'),
+          { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
+          {},
+          utdypning
+        ),
+      ],
+    });
+    expect(s.avvisning('BH', brev('Avslått \u{1F44E}'))?.melding).toBe(
+      '$.svar[0].utdypning har tegnet «\u{1F44E}» (U+1F44E), som PDF-en av brevet ikke kan vise.'
+    );
+    expect(s.avvist('BH', brev('Avslått.')), 'kontrollsak').toBeNull();
+  });
+
+  it('et usynlig tegn avvises, mens myk bindestrek, → og linjeskift godtas', () => {
+    const s = sak();
+    const med = (utdypning: string) => ({ ...GRUNNLAGSKRAV, utdypning });
+    expect(s.avvisning('TE', med('fundament\u200bering'))?.melding).toBe(
+      '$.utdypning har det usynlige tegnet U+200B, som PDF-en av brevet ikke kan vise.'
+    );
+    expect(s.avvisning('TE', med('\ufeffFundamentering'))?.melding).toBe(
+      '$.utdypning har det usynlige tegnet U+FEFF, som PDF-en av brevet ikke kan vise.'
+    );
+    expect(s.avvist('TE', med('fundament\u00adering → peling\r\n\tny linje'))).toBeNull();
+  });
+
+  it('en sakstittel med et slikt tegn fra før stopper brevet i den låste teksten', () => {
+    const s = sak('Fundament 😀');
+    expect(s.avvisning('TE', GRUNNLAGSKRAV)).toEqual({
+      regel: 'UGYLDIG_FORM',
+      melding:
+        'Avsnitt 1 i brevteksten har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.',
+    });
   });
 });
