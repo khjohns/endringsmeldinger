@@ -2810,6 +2810,8 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       svar: [],
       utsagn: [{ id: 'p', art: 'protest', gjelder }],
       brevtekst: null,
+      beskrivelse: null,
+      spor: [],
     });
     const saken = {
       saksnummer: SAK,
@@ -2890,6 +2892,8 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       svar: [],
       utsagn: [{ id: 'v', art: 'varsel', hjemmel: '33.4', dokument: 'brevet' }],
       brevtekst: null,
+      beskrivelse: null,
+      spor: [],
     };
     const saken = {
       saksnummer: SAK,
@@ -3135,6 +3139,8 @@ describe('vedleggene står i teksten (A4)', () => {
     svar: [],
     utsagn: [{ id: 'u', art: 'ingen_krav', spor: 'frist' }],
     brevtekst: null,
+    beskrivelse: null,
+    spor: [],
   });
   const saken = {
     saksnummer: SAK,

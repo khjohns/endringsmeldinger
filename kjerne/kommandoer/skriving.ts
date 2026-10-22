@@ -175,6 +175,14 @@ function dokument(
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         dokumentasjon: bundne,
       };
+    case 'registrert_brev':
+      // OV-U4, OV-U16: dokumentasjon, med datoen avsenderen oppgir og brevet som vedlegg.
+      return {
+        beskrivelse: k.beskrivelse,
+        ...(k.spor ? { spor: k.spor } : {}),
+        opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+        dokumentasjon: bundne,
+      };
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
       return { utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }] };
@@ -361,11 +369,16 @@ function skriv(
     if (avvik) return { godtatt: false, feil: 'REGELBRUDD', avvisning: avvik };
   }
   // Kjernen må forstå det den selv skriver (MM-U2, 7.1.2 i designnotatet). Hver rad leses
-  // for seg, så bare den nye leses; hele journalen utledes på nytt med den.
+  // for seg, så bare den nye leses; hele journalen utledes på nytt med den. I en sak som
+  // ikke er forstått, godtas bare registreringen etter OV-U4, og den nye raden må forstås.
   const etter = utled([...lest, ...lesJournal([rad], kjerne.leserformat)], kjerne.regler);
-  if (!etter.forstaatt)
+  // En begrensning raden gir, kan stå på en eldre hendelse, så den nye leses som differansen.
+  const hindrer = etter.begrensninger.filter(
+    (b) => !u.begrensninger.some((f) => f.hendelse === b.hendelse && f.grunn === b.grunn)
+  );
+  if (u.forstaatt ? !etter.forstaatt : hindrer.length > 0)
     throw new Skrivefeil(
-      `Kjernen forstår ikke dokumentet den selv skriver: ${etter.begrensninger.map((b) => b.grunn).join('; ')}`
+      `Kjernen forstår ikke dokumentet den selv skriver: ${hindrer.map((b) => b.grunn).join('; ')}`
     );
   return { godtatt: true, hendelser: [rad] };
 }

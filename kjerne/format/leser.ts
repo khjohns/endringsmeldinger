@@ -342,9 +342,11 @@ function lesDokument(h: Journalrad): Dokument {
     opplysninger?: Data[];
     dokumentasjon?: Vedlegg[];
     brevtekst?: Avsnitt[];
+    beskrivelse?: string;
+    spor?: Spor[];
   };
-  if (!data.krav && !data.svar && !data.utsagn)
-    throw new Uforstaatt('dokumentet har verken krav, svar eller utsagn');
+  if (!data.krav && !data.svar && !data.utsagn && data.beskrivelse === undefined)
+    throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller beskrivelse');
   const id = h.event_id;
   const avsender: Part = h.aktor_rolle;
   const kreverPart = (part: Part | null, hva: string) => {
@@ -415,6 +417,8 @@ function lesDokument(h: Journalrad): Dokument {
     }),
     svar: (data.svar ?? []).map((v, i) => lesSvar(v, id, `$.svar[${i}]`)),
     brevtekst: data.brevtekst ?? null,
+    beskrivelse: data.beskrivelse ?? null,
+    spor: data.spor ?? [],
     utsagn: (data.utsagn ?? []).map((v, i): LestUtsagn => {
       const e = element(v, UTSAGN, 'art', `$.utsagn[${i}]`);
       const art = e.art as Utsagnsart;
@@ -433,6 +437,8 @@ function lesDokument(h: Journalrad): Dokument {
     throw new Uforstaatt(
       'et registrert brev har en forespørsel etter § 33.6.2 eller svaret på den'
     );
+  if (data.beskrivelse !== undefined) dokumentasjonsbrev(dokument);
+  else if (data.spor) throw new Uforstaatt('dokumentet har spor uten beskrivelse (OV-U16)');
   // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.
   for (const o of dokument.opplysninger)
     if (
@@ -461,6 +467,24 @@ function lesDokument(h: Journalrad): Dokument {
     }
   }
   return dokument;
+}
+
+/**
+ * OV-U4, OV-U16: et brev registrert som dokumentasjon har beskrivelsen, sporene det hører
+ * til, datoen avsenderen sendte det og brevet som vedlegg, og ingenting appen kan utlede noe av.
+ */
+function dokumentasjonsbrev(d: Dokument): void {
+  if (d.krav.length || d.svar.length || d.utsagn.length)
+    throw new Uforstaatt('et brev registrert som dokumentasjon har krav, svar eller utsagn');
+  const [o, ...flere] = d.opplysninger;
+  if (o?.hva !== 'sendt' || o.gjelder !== undefined || flere.length)
+    throw new Uforstaatt(
+      'et brev registrert som dokumentasjon har ikke bare datoen avsenderen sendte det'
+    );
+  if (!d.dokumentasjon.length)
+    throw new Uforstaatt('brevet registrert som dokumentasjon ligger ikke ved');
+  if (new Set(d.spor).size !== d.spor.length)
+    throw new Uforstaatt('samme spor står to ganger i brevet registrert som dokumentasjon');
 }
 
 /** Journalen i kjernens form. En rad leseren ikke forstår, blir `ukjent`, ikke hoppet over. */

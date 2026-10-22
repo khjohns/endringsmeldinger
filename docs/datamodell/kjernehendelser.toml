@@ -35,10 +35,14 @@ navn = "dokument_registrert"
 beskrivelse = """
 Ett dokument fra én part: kravene, svarene, utsagnene og opplysningene i det.
 Et brev med flere svar er én rad, og saksversjonen øker med én. Dokumentet har
-minst ett krav, ett svar eller ett utsagn. Avsenderen er `actorrole`. Et brev
-appen sender, har brevteksten (`brevtekst`); et registrert brev har ingen."""
-felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon", "brevtekst"]
-grunnlag = "MM-U10, LV-U2, designnotatet 4.1"
+minst ett krav, ett svar eller ett utsagn, eller er et brev registrert som
+dokumentasjon. Avsenderen er `actorrole`. Et brev appen sender, har brevteksten
+(`brevtekst`); et registrert brev har ingen. Et brev registrert som
+dokumentasjon har beskrivelsen med egne ord (`beskrivelse`), sporene det hører
+til (`spor`, uten dem saken), datoen det ble sendt og brevet som vedlegg, og
+ikke noe annet."""
+felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon", "brevtekst", "beskrivelse", "spor"]
+grunnlag = "MM-U10, LV-U2, OV-U4, OV-U16, designnotatet 4.1"
 
 # ---------------------------------------------------------------------------
 # Elementene i dokumentet. Hvert har en `id` (UUID) satt av serveren.

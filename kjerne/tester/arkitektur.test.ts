@@ -243,6 +243,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Dokumentene og utsagnene i dem (typer.ts).
   ['Dokument', 'relasjon', 'avsender'],
   ['Dokument', 'utsagn', 'krav svar utsagn opplysninger'],
+  // OV-U16: sporene et brev registrert som dokumentasjon hører til. Ingen regel leser dem (OV-U4).
+  ['Dokument', 'relasjon', 'spor', ['format/leser.ts:dokumentasjonsbrev']],
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
   ['Krav', 'relasjon', 'id spor erstatter'],
   ['Krav', 'utsagn', 'innhold'],
@@ -283,7 +285,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'begrensninger',
     ['kommandoer/skriving.ts:skriv', 'utledning/utled.ts:utled'],
   ],
-  ['Utledning.begrensninger', 'predikat', 'grunn', ['kommandoer/skriving.ts:skriv']],
+  ['Utledning.begrensninger', 'predikat', 'grunn hendelse', ['kommandoer/skriving.ts:skriv']],
   // «Avklart» etter GR-U7 brukes bare der vedtakene sier det (MM-U13): vilkåret for
   // enigheten (GR-U7) og at kravene er avgjort (KA-U11, som EO-U5 bygger på).
   [
@@ -523,7 +525,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
   // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
   ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
-  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
+  [
+    'kommandoer/kommando.ts:formfeil',
+    'kommando',
+    'type spor innhold svar dokumentasjon hjemmel beskrivelse',
+  ],
+  // OV-U16: beskrivelsen lagres slik avsenderen skrev den, og ingen regel leser den.
+  ['Kommando', 'kommando', 'beskrivelse', ['kommandoer/skriving.ts:dokument']],
   // #984: datoen og vedleggene i kommandoen, med stien feilmeldingene viser til.
   ['kommandoer/kommando.ts:brevfelt', 'kommando', 'sti sendt dokumentasjon'],
   // OV-U5: sporet og bestemmelsen i TEs varsel.
@@ -675,7 +683,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesDokument',
     'rad',
-    'krav svar utsagn opplysninger dokumentasjon',
+    'krav svar utsagn opplysninger dokumentasjon beskrivelse spor',
     ['format/leser.ts'],
   ],
   [

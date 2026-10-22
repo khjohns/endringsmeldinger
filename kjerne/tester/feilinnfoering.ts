@@ -20,7 +20,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -3017,6 +3017,47 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['saken har ingen samlet status mens kravene venter på svar'],
+  },
+  {
+    id: 'F353',
+    feilklasse: 'registreringen av et brev avvises når saken ikke er forstått (OV-U4, #1045)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "  if (h.type === 'registrere_brev') return null;",
+        "  if (h.type === 'registrere_brev' && u.forstaatt) return null;",
+      ],
+    ],
+    mal: ['registreringen godtas når saken ikke er forstått'],
+  },
+  {
+    id: 'F354',
+    feilklasse:
+      'leseren godtar et brev registrert som dokumentasjon med utsagn (OV-U4, OV-U16, #1045)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        '  if (d.krav.length || d.svar.length || d.utsagn.length)',
+        '  if (d.krav.length || d.svar.length)',
+      ],
+    ],
+    mal: ['leseren forstår ikke et brev registrert som dokumentasjon med et utsagn'],
+  },
+  {
+    id: 'F355',
+    feilklasse:
+      'et brev registrert som dokumentasjon kan ha en dato etter registreringsdagen (#1045)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['    return dag !== null && dag > brevetsDato', '    return dag === null']],
+    mal: ['avviser en dato etter dagen brevet registreres'],
+  },
+  {
+    id: 'F356',
+    feilklasse:
+      'sporene et brev registrert som dokumentasjon hører til, lagres ikke (OV-U16, #1045)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['        ...(k.spor ? { spor: k.spor } : {}),\n', '']],
+    mal: ['lagres med beskrivelsen, sporene, datoen og vedlegget'],
   },
 ];
 

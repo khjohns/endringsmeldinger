@@ -414,7 +414,11 @@ export const VEDLEGG: Skjema = objekt(
   ['vedlegg_id', 'filnavn', 'innhold_sha256']
 );
 
-/** `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`. */
+/**
+ * `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`.
+ * `beskrivelse` og `spor` hører til et brev registrert som dokumentasjon (OV-U4, OV-U16), som
+ * ikke har noe annet enn dem, datoen det ble sendt og brevet som vedlegg (`leser.ts`).
+ */
 export const DOKUMENT: Skjema = objekt(
   {
     krav: { type: 'array', minItems: 1 },
@@ -423,6 +427,8 @@ export const DOKUMENT: Skjema = objekt(
     opplysninger: { type: 'array', minItems: 1 },
     dokumentasjon: liste(VEDLEGG),
     brevtekst: BREVTEKST,
+    beskrivelse: TEKST,
+    spor: liste({ enum: [...SPOR] }),
   },
   []
 );

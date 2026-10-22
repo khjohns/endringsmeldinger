@@ -86,6 +86,18 @@ export type Kommando = (
    * (LV-U14). Hjemmelen følger sporet.
    */
   | ({ type: 'varsel'; sendt: string; dokumentasjon: string[] } & Varselet)
+  /**
+   * OV-U4, OV-U16: et eget brev sendt utenfor appen, registrert som dokumentasjon, med
+   * beskrivelsen med egne ord, datoen det ble sendt og brevet som vedlegg. Uten `spor`
+   * hører det til saken.
+   */
+  | {
+      type: 'registrert_brev';
+      spor?: Spor[];
+      sendt: string;
+      beskrivelse: string;
+      dokumentasjon: string[];
+    }
   /** VS-U15, OV-U5: TE sender et eget varsel fra appen, uten dager eller beløp. */
   | ({ type: 'send_varsel' } & Varselet)
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
@@ -188,6 +200,16 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       dokumentasjon: liste(ID),
     },
     ['type', 'spor', 'hjemmel', 'sendt', 'dokumentasjon']
+  ),
+  registrert_brev: objekt(
+    {
+      type: { const: 'registrert_brev' },
+      spor: liste(SPOR),
+      sendt: DATO,
+      beskrivelse: TEKST,
+      dokumentasjon: liste(ID),
+    },
+    ['type', 'sendt', 'beskrivelse', 'dokumentasjon']
   ),
   send_varsel: objekt(
     {
@@ -318,6 +340,12 @@ export function formfeil(kommando: unknown): string[] {
   // En UUID er den samme med store og små bokstaver.
   if (new Set(vedlegg.map((v) => v.toLowerCase())).size !== vedlegg.length)
     feil.push(`${sti}dokumentasjon: samme vedlegg står to ganger`);
+  if (type === 'registrert_brev' && !feil.length) {
+    const k = kommando as { spor?: Spor[]; beskrivelse: string };
+    if (!k.beskrivelse.trim()) feil.push('$.beskrivelse: brevet har ingen beskrivelse');
+    if (k.spor && new Set(k.spor).size !== k.spor.length)
+      feil.push('$.spor: samme spor står to ganger');
+  }
   if (type === 'begrunnelse' && !feil.length) {
     const k = kommando as { utdypning?: unknown; dokumentasjon?: unknown[] };
     if ('sendt' in kommando) {
