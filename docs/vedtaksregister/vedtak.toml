@@ -1891,6 +1891,48 @@ forkastet = true
 kilde = "hovedplanen"
 tekst = "også av et frafall"
 utdrag = true
+
+[[gruppe.vedtak]]
+id = "GR-U25"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1043", "#1137"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1043 (header «Trekk spor»):
+
+TE trekker kravet om endring (grunnlaget). Etter vedtaket trekkes da alle krav TE har sendt. I vederlag eller frist har TE bare varslet, eller sagt uttrykkelig at det ikke kreves noe. Hvilken betegnelse skal det kravet ha?
+
+Alternativene slik de står i kommentaren:
+
+«Trukket der noe er sendt (Recommended)»: Trekker TE grunnlaget, har hvert vederlags- og fristspor der TE har sendt et krav, et varsel eller «ingen krav», betegnelsen «Trukket». Et spor uten noe sendt har ingen betegnelse. Utvider GR-U5 til varsel og «ingen krav» (KA-U12).
+
+«Trukket bare for krav»: Bare et spor med et sendt krav får «Trukket». Et varsel står som «Varslet» og «ingen krav» som «Ingen krav». Trekket vises for saken. Følger GR-U5 og KA-U2 etter ordlyden.
+
+«Ingen krav står»: Som det anbefalte alternativet, men et spor med «ingen krav» beholder «Ingen krav». Utvider GR-U5 til varsel.'''
+valgt = "Trukket der noe er sendt"
+svar = '''
+«Trukket der noe er sendt (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "gr-u5" }]
+folge = '''
+Spørsmålet og alternativene står på #1043 (kommentaren 6340640340). Svaret er gitt med spørsmålsverktøyet 22.10 (runde 14).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Trukket der noe er sendt"
+tekst = '''
+Trekker TE grunnlaget, har hvert vederlags- og fristspor der TE har sendt et krav, et varsel eller «ingen krav», betegnelsen «Trukket». Et spor uten noe sendt har ingen betegnelse. Utvider GR-U5 til varsel og «ingen krav» (KA-U12).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Trukket bare for krav"
+tekst = '''
+Bare et spor med et sendt krav får «Trukket». Et varsel står som «Varslet» og «ingen krav» som «Ingen krav». Trekket vises for saken. Følger GR-U5 og KA-U2 etter ordlyden.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen krav står"
+tekst = '''
+Som det anbefalte alternativet, men et spor med «ingen krav» beholder «Ingen krav». Utvider GR-U5 til varsel.'''
+forkastet = true
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
 
@@ -5668,6 +5710,40 @@ tekst = '''
 Som den anbefalte lista, men «Enige» får appens lesing av virkningen, merket som appens: «Enige. Etter appens lesing betinget av ansvaret», «… virksom» eller «… uten virkning». Endrer MM-U22.'''
 forkastet = true
 
+
+[[gruppe.vedtak]]
+id = "MM-U31"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1043", "#1137"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i kommentaren på #1043 (header «Forespørsel»):
+
+Byggherren har bedt TE angi og begrunne fristkravet etter § 33.6.2, og TE har ikke svart. Så godtar TE byggherrens avslag av kravet om endring, og saken er lukket. Et fristkrav som svar på forespørselen avvises da. Skal fristen fortsatt ha betegnelsen «Byggherren har bedt om spesifisert krav»?
+
+Alternativene slik de står i kommentaren:
+
+«Bare mens den kan besvares (Recommended)»: Betegnelsen gjelder til forespørselen er besvart, og bare så lenge saken ikke er lukket. Etter et godtatt avslag viser fristen det som ellers foreligger, for eksempel «Varslet». Snevrer inn MM-U30, i samme retning som MM-U24, MM-U29 og SK-01.
+
+«Til den er besvart»: Betegnelsen står til forespørselen er besvart, også i en lukket sak. Som MM-U30 etter ordlyden.'''
+valgt = "Bare mens den kan besvares"
+svar = '''
+«Bare mens den kan besvares (Recommended)»'''
+forhold = [{ art = "snevrer inn", vedtak = "mm-u30" }]
+folge = '''
+Spørsmålet og alternativene står på #1043 (kommentaren 6340640340). Svaret er gitt med spørsmålsverktøyet 22.10 (runde 14).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare mens den kan besvares"
+tekst = '''
+Betegnelsen gjelder til forespørselen er besvart, og bare så lenge saken ikke er lukket. Etter et godtatt avslag viser fristen det som ellers foreligger, for eksempel «Varslet». Snevrer inn MM-U30, i samme retning som MM-U24, MM-U29 og SK-01.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Til den er besvart"
+tekst = '''
+Betegnelsen står til forespørselen er besvart, også i en lukket sak. Som MM-U30 etter ordlyden.'''
+forkastet = true
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 

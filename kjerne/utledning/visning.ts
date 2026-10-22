@@ -16,6 +16,7 @@ import {
   enighetensVirkning,
   grunnlagskravFor,
   kraveneErAvgjort,
+  sporetErLukket,
   svarIkkeGodtatt,
   venterPaaSvar,
   type Utledning,
@@ -67,11 +68,17 @@ export const BETEGNELSER = [
 
 export type Betegnelse = (typeof BETEGNELSER)[number];
 
+const sendt = (u: Utledning, spor: Spor): boolean =>
+  u.spor[spor].krav.length > 0 || u.spor[spor].ingenKrav || u.spor[spor].varsel !== null;
+
 const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
-  trukket: (u, spor) => u.spor[spor].trukket,
-  // § 33.6.2: til forespørselen er besvart, med et fristkrav eller en begrunnelse.
+  // Et trukket grunnlag gir «Trukket» bare der krav, varsel eller «ingen krav» er sendt (GR-U25).
+  trukket: (u, spor) => u.spor[spor].trukket && sendt(u, spor),
+  // § 33.6.2: til forespørselen er besvart, og bare mens sporet ikke er lukket (MM-U31).
   spesifisert_krav_etterspurt: (u, spor) =>
-    spor === 'frist' && u.spor.frist.foresporsler.some((f) => f.svar === null),
+    spor === 'frist' &&
+    !sporetErLukket(u, spor) &&
+    u.spor.frist.foresporsler.some((f) => f.svar === null),
   venter_paa_svar: venterPaaSvar,
   paalegg_frafalt: (u, spor) => spor === 'grunnlag' && u.frafalt,
   enige: (u, spor) => u.spor[spor].enighet !== null,

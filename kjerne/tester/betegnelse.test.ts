@@ -238,6 +238,39 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     });
   });
 
+  it('et trukket grunnlag gir ingen betegnelse i et spor der ingenting er sendt (GR-U25)', () => {
+    expect(betegnelser(grunnlagskrav, trekk('grunnlag'))).toEqual({
+      grunnlag: 'trukket',
+      vederlag: null,
+      frist: null,
+    });
+  });
+
+  it('et trukket grunnlag gir «Trukket» også i et spor med bare varsel eller «ingen krav» (GR-U25)', () => {
+    expect(
+      betegnelser(
+        grunnlagskrav,
+        varselIFristen,
+        (s) => s.send('TE', { type: 'ingen_krav', spor: 'vederlag' }),
+        trekk('grunnlag')
+      )
+    ).toEqual({ grunnlag: 'trukket', vederlag: 'trukket', frist: 'trukket' });
+  });
+
+  it('en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget på grunnlaget er godtatt (MM-U31)', () => {
+    const avslag: Steg = (sak) =>
+      sak.send('BH', {
+        type: 'brev',
+        svar: [sak.svar('grunnlag', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
+      });
+    expect(betegnelser(grunnlagskrav, varselIFristen, foresporsel, avslag).frist, 'kontroll').toBe(
+      'spesifisert_krav_etterspurt'
+    );
+    expect(
+      betegnelser(grunnlagskrav, varselIFristen, foresporsel, avslag, aksept('grunnlag')).frist
+    ).toBe('varslet');
+  });
+
   it('en sak kjernen ikke forstår, har ingen betegnelse i noe spor (MM-U2), og visningen bærer den samme', () => {
     const sak = new Sak();
     krav(sak);

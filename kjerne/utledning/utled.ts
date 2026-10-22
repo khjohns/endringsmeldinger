@@ -1181,7 +1181,7 @@ export function grunnlagskravFor(
  * eller en aksept i sporet avvises (`strid`). Et trukket grunnlag lukker hvert spor
  * gjennom `trukket` (GR-U5).
  */
-const sporetErLukket = (u: Utledning, spor: Spor): boolean =>
+export const sporetErLukket = (u: Utledning, spor: Spor): boolean =>
   u.grunnlagAvvist || varAvgjort(u, spor);
 
 /**
