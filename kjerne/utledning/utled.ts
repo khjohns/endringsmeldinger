@@ -230,6 +230,8 @@ export interface Utledning {
    * Ingen regel leser dem; visningen viser dem.
    */
   registrerteBrev: RegistrertBrev[];
+  /** OV-U19: de registrerte brevene appen ikke vurderer innholdet i. Leses av visningen. */
+  ikkeVurderteBrev: string[];
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -256,6 +258,7 @@ function tom(
   regler: Regelsett,
   begrensninger: Utledning['begrensninger']
 ): Utledning {
+  const brev = registreringer(journal).brev;
   return {
     versjon: journal.at(-1)?.versjon ?? 0,
     regelversjon: regler.versjon,
@@ -275,8 +278,34 @@ function tom(
     frafalt: false,
     endringsordre: 'nei',
     avgjorteSpor: [],
-    registrerteBrev: registreringer(journal).brev,
+    registrerteBrev: brev,
+    ikkeVurderteBrev: ikkeVurderte(journal, brev, false),
   };
+}
+
+/**
+ * OV-U19, HF-U13: de registrerte brevene som ikke er rettet (OV-U17, OV-U18), og som appen
+ * ikke vurderer innholdet i. Mens saken ikke er forstått, gjelder det alle (MM-U2, OV-U19
+ * presisert 22.10). Ellers gjelder det et brev uten elementer (OV-U16), og et brev med et
+ * element som ikke er et varsel etter OV-U5 eller en endringsordre etter OV-U6, som en
+ * begrunnelse (KA-U35, OV-U4). Et varsel eller en endringsordre uten virkning vurderer
+ * appen (MM-U19).
+ */
+function ikkeVurderte(
+  journal: Domenehendelse[],
+  brev: RegistrertBrev[],
+  forstaatt: boolean
+): string[] {
+  const rettet = new Set(brev.filter((b) => b.rettetAv !== null).map((b) => b.dokument));
+  const vurdert = (d: Dokument) =>
+    d.krav.length === 0 &&
+    d.svar.length + d.utsagn.length > 0 &&
+    d.svar.every((s) => erRegistrertEndringsordre(s, d)) &&
+    d.utsagn.every((x) => x.art === 'varsel');
+  return [...dokumenterI(journal)]
+    .filter((d) => erRegistrert(d.opplysninger) && !rettet.has(d.id))
+    .filter((d) => !forstaatt || !vurdert(d))
+    .map((d) => d.id);
 }
 
 /**
@@ -372,7 +401,7 @@ const erRegistrertEndringsordre = (s: Svar, d: Dokument): boolean =>
  * og får ingen virkning. Unntaket er OV-U6. Et varsel med datoen TE oppgir, har
  * virkning (OV-U5).
  */
-export function dokumentasjonIBrevet(d: Dokument): Set<string> {
+function dokumentasjonIBrevet(d: Dokument): Set<string> {
   const krav = kravetErDokumentasjon(d) ? d.krav.map((k) => k.id) : [];
   if (!erRegistrert(d.opplysninger)) return new Set(krav);
   return new Set([
@@ -972,9 +1001,11 @@ function utledSporene(
     gSvar === null &&
     spor.grunnlag.gjeldendeKrav !== null &&
     frafalletBinder({ spor, elementer });
+  const utgangspunkt = tom(journal, regler, begrensninger);
   return {
-    ...tom(journal, regler, begrensninger),
+    ...utgangspunkt,
     forstaatt: true,
+    ikkeVurderteBrev: ikkeVurderte(journal, utgangspunkt.registrerteBrev, true),
     svar,
     elementer,
     innsigelser: paaberopelser('innsigelse'),

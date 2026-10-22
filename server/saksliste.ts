@@ -234,7 +234,7 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
     siste_hendelse: sak.journal.at(-1)!.tidsstempel,
     forstaatt: u.forstaatt,
     saksbetegnelse: saksbetegnelse(u),
-    brev_utenfor_appen: u.forstaatt && harRegistrertBrev(u),
+    brev_utenfor_appen: harRegistrertBrev(u),
   };
   if (!u.forstaatt)
     return {

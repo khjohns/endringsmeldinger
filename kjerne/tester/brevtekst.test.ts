@@ -52,7 +52,7 @@ import {
   svarIkkeGodtatt,
   venterPaaSvar,
 } from '../utledning/utled.ts';
-import { visning } from '../utledning/visning.ts';
+import { harRegistrertBrev, visning } from '../utledning/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 
@@ -4056,6 +4056,26 @@ describe('et frafall fra appen kan ikke bli et avslag (GR-U17, GR-U20, #510)', (
       ).toEqual([id]);
       return { s, id };
     };
+
+    it('OV-U19, MM-U19: en endringsordre uten virkning er vurdert av appen og gir ikke merknaden om brev utenfor appen; et brev registrert som dokumentasjon gir den', () => {
+      const { s } = endringsordreUtenVirkning();
+      const foer = visning(s.u(), GJELDENDE_REGLER);
+      expect(foer.merknader).toContain('registrert_brev_uten_virkning');
+      expect(foer.merknader).not.toContain('brev_utenfor_appen');
+      expect(harRegistrertBrev(s.u()), 'statusteksten og sakslisten').toBe(false);
+      s.rad('BH', {
+        beskrivelse: 'Brev om fremdriften',
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
+        dokumentasjon: [
+          { vedlegg_id: randomUUID(), filnavn: 'brev.pdf', innhold_sha256: 'a'.repeat(64) },
+        ],
+      });
+      expect(s.u().forstaatt, 'forutsetning').toBe(true);
+      expect(visning(s.u(), GJELDENDE_REGLER).merknader, 'kontrollsak').toContain(
+        'brev_utenfor_appen'
+      );
+      expect(harRegistrertBrev(s.u()), 'kontrollsak').toBe(true);
+    });
 
     it('en revisjon av et svar uten virkning (MM-U18)', () => {
       const { s, id } = endringsordreUtenVirkning();

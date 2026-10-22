@@ -13,7 +13,6 @@ import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { hjemmelenGjelder, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import {
-  dokumentasjonIBrevet,
   enighetensVirkning,
   grunnlagskravFor,
   kraveneErAvgjort,
@@ -191,24 +190,10 @@ export const BREV_UTENFOR_APPEN =
   'Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.';
 
 /**
- * OV-U10, OV-U19: saken har et registrert brev appen ikke vurderer innholdet i, som merknaden,
- * statusteksten og sakslisten leser. Et brev der alt har virkning i appen, som et varsel
- * (OV-U5) eller en endringsordre (OV-U6), teller ikke (HF-U13), og heller ikke en rettet
- * registrering (OV-U17, OV-U18).
+ * OV-U10, OV-U19: saken har et registrert brev appen ikke vurderer innholdet i, etter
+ * utledningen. Merknaden, statusteksten og sakslisten leser det.
  */
-export const harRegistrertBrev = (u: Utledning): boolean => {
-  const uten = new Set(u.utenVirkning.map((x) => x.element));
-  return u.journal.some((h) => {
-    if (h.art !== 'dokument' || !erRegistrert(h.dokument.opplysninger)) return false;
-    if (u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)) return false;
-    const d = h.dokument;
-    const dokumentasjon = dokumentasjonIBrevet(d);
-    const elementer = [...d.krav, ...d.svar, ...d.utsagn].map((x) => x.id);
-    const altHarVirkning =
-      elementer.length > 0 && elementer.every((id) => !dokumentasjon.has(id) && !uten.has(id));
-    return !altHarVirkning;
-  });
-};
+export const harRegistrertBrev = (u: Utledning): boolean => u.ikkeVurderteBrev.length > 0;
 
 /**
  * OV-U20, OV-U4: når kravet venter på svar, motpartens registrerte brev for

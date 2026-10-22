@@ -574,6 +574,47 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(harRegistrertBrev(k), 'kontrollsak: et svar som er dokumentasjon (OV-U4)').toBe(true);
   });
 
+  it('OV-U19, OV-U4: en registrert begrunnelse (KA-U35) er dokumentasjon og teller som brev utenfor appen', async () => {
+    const eo = registrert({ sendt: '2026-09-30', endringsordre: true });
+    const begrunnelse = {
+      handling: 'rad',
+      art: 'begrunnelse',
+      gjelder: 'S-g1',
+      part: 'BH',
+      navn: 'D5',
+      sendt: '2026-09-30',
+    };
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg', eo, begrunnelse]);
+    const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.forstaatt, 'forutsetning').toBe(true);
+    expect(harRegistrertBrev(u)).toBe(true);
+    const kontroll = minnebane();
+    await bygg(kontroll, ['krav_irreg', eo]);
+    const k = utled(lesJournal(await kontroll.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(harRegistrertBrev(k), 'kontrollsak: bare endringsordren').toBe(false);
+  });
+
+  it('OV-U19, MM-U2: mens saken ikke er forstått, teller også en endringsordre registrert før saken stoppet (oppdragsgiver 22.10)', async () => {
+    const bane = minnebane();
+    await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
+    const journal = await bane.journal();
+    expect(
+      harRegistrertBrev(utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER)),
+      'kontrollsak: saken er forstått'
+    ).toBe(false);
+    journal.push({
+      ...structuredClone(journal.at(-1)!),
+      event_id: randomUUID(),
+      versjon: journal.at(-1)!.versjon + 1,
+      format: null,
+    });
+    const u = utled(lesJournal(journal, KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.forstaatt, 'forutsetning').toBe(false);
+    expect(harRegistrertBrev(u)).toBe(true);
+    expect(visning(u, GJELDENDE_REGLER).merknader).toContain('brev_utenfor_appen');
+  });
+
   // OV-U12: et krav i et registrert brev er dokumentasjon uten virkning (OV-U4), så
   // referansekontrollen i utledningen finner ikke kravet endringsordren viser til.
   it('en endringsordre registrert som svar på et krav som bare er dokumentasjon, er ikke forstått (OV-U12)', async () => {

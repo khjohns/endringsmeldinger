@@ -542,10 +542,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U4, OV-U16: brevene registrert som dokumentasjon og rettingene av dem. Bare
   // kontrollen av rettingen leser dem; beskrivelsen og sporene går uendret til visningen.
   ['Dokument', 'relasjon', 'id retter', ['utledning/utled.ts:registreringer']],
+  // OV-U19: brevene appen ikke vurderer, for visningen. Ingen regel leser dem.
+  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:ikkeVurderte']],
+  ['RegistrertBrev', 'relasjon', 'dokument rettetAv', ['utledning/utled.ts:ikkeVurderte']],
   ['Dokument', 'relasjon', 'ikkeISaken', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Dokument', 'utsagn', 'beskrivelse spor dokumentasjon', ['utledning/utled.ts:registreringer']],
   ['utledning/utled.ts:registreringer', 'relasjon', 'brev feil', ['utledning/utled.ts']],
-  ['Utledning', 'relasjon', 'registrerteBrev', ['kommandoer/nyttelast.ts:retting']],
+  [
+    'Utledning',
+    'relasjon',
+    'registrerteBrev',
+    ['kommandoer/nyttelast.ts:retting', 'utledning/utled.ts:utledSporene'],
+  ],
   [
     'RegistrertBrev',
     'relasjon',

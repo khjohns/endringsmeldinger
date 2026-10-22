@@ -2921,12 +2921,9 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F363',
     feilklasse: 'en registrering rettet bort gir fortsatt merknaden for saken (OV-U19)',
-    fil: `${K}/utledning/visning.ts`,
+    fil: `${K}/utledning/utled.ts`,
     endringer: [
-      [
-        '    if (u.registrerteBrev.some((b) => b.dokument === h.id && b.rettetAv !== null)) return false;',
-        '    if (false) return false;',
-      ],
+      ['erRegistrert(d.opplysninger) && !rettet.has(d.id)', 'erRegistrert(d.opplysninger)'],
     ],
     mal: ['OV-U18: brevet i feil sak rettes bort'],
   },
@@ -2946,8 +2943,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F365',
     feilklasse:
       'et varsel registrert med virkning gir merknaden og statusen for saken (OV-U19, HF-U13)',
-    fil: `${K}/utledning/visning.ts`,
-    endringer: [['      elementer.length > 0 &&', '      false &&']],
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    d.svar.length + d.utsagn.length > 0 &&', '    false &&']],
     mal: [
       'OV-U19: et varsel registrert med virkning teller ikke',
       'OV-U19: en endringsordre registrert med virkning teller ikke',
@@ -2956,10 +2953,39 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F367',
     feilklasse:
-      'et svar registrert som dokumentasjon regnes som et brev med virkning (OV-U4, OV-U19)',
-    fil: `${K}/utledning/visning.ts`,
-    endringer: [['!dokumentasjon.has(id) && !uten.has(id)', '!uten.has(id)']],
+      'et svar registrert som dokumentasjon regnes som et brev appen vurderer (OV-U4, OV-U19)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['d.svar.every((s) => erRegistrertEndringsordre(s, d))', 'true']],
     mal: ['OV-U19: en endringsordre registrert med virkning teller ikke'],
+  },
+  {
+    id: 'F368',
+    feilklasse:
+      'en registrert begrunnelse regnes som et brev appen vurderer (OV-U19, OV-U4, KA-U35)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["d.utsagn.every((x) => x.art === 'varsel')", 'true']],
+    mal: ['OV-U19, OV-U4: en registrert begrunnelse'],
+  },
+  {
+    id: 'F369',
+    feilklasse:
+      'et varsel eller en endringsordre teller ikke mens saken ikke er forstått (OV-U19, MM-U2)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['.filter((d) => !forstaatt || !vurdert(d))', '.filter((d) => !vurdert(d))']],
+    mal: ['OV-U19, MM-U2: mens saken ikke er forstått'],
+  },
+  {
+    id: 'F370',
+    feilklasse:
+      'et varsel eller en endringsordre uten virkning teller som brev appen ikke vurderer (OV-U19, MM-U19)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        'u.ikkeVurderteBrev.length > 0;',
+        'u.ikkeVurderteBrev.length > 0 || u.utenVirkning.length > 0;',
+      ],
+    ],
+    mal: ['OV-U19, MM-U19: en endringsordre uten virkning'],
   },
   {
     id: 'F366',

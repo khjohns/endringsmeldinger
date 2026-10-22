@@ -409,4 +409,25 @@ describe('linja i sakslisten (#1022)', () => {
     expect(n.vederlag).toMatchObject({ krav_antall: 1, krav_sum: 100000, venter_paa_svar: 1 });
     expect(n.frist).toEqual({ krav_antall: 1, venter_paa_svar: 1 });
   });
+
+  it('en sak kjernen ikke forstår, har brev utenfor appen når et brev er registrert (OV-U19, MM-U2, oppdragsgiver 22.10)', () => {
+    const sak = new Sak();
+    krav(sak);
+    sak.registrer({
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+      utsagn: [{ id: randomUUID(), art: 'varsel', hjemmel: '33.4' }],
+    });
+    expect(sak.linje().brev_utenfor_appen, 'kontrollsak: varselet i en forstått sak').toBe(false);
+    const siste = sak.journal.at(-1)!;
+    sak.journal.push({
+      ...siste,
+      event_id: randomUUID(),
+      versjon: siste.versjon + 1,
+      event_type: 'ukjent_hendelse',
+      data: {},
+    });
+    const l = sak.linje();
+    expect(l.forstaatt, 'forutsetning').toBe(false);
+    expect(l.brev_utenfor_appen).toBe(true);
+  });
 });
