@@ -77,6 +77,12 @@ export function clearCsrfToken() {
   csrfTokenPromise = null;
 }
 
+/**
+ * Meldingen når `fetch` eller lesingen av svaret feiler (#1151). Den gjelder både et
+ * kall som aldri nådde serveren og et svar som gikk tapt etter at serveren lagret.
+ */
+export const NETTFEIL = 'Fikk ikke svar fra serveren. Kontroller nettforbindelsen.';
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -176,8 +182,7 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     throw new ApiError(403, 'Kunne ikke bekrefte sesjonen.');
   } catch (error) {
     if (error instanceof ApiError) throw error;
-    if (error instanceof TypeError)
-      throw new ApiError(0, 'Network error: Could not connect to server');
+    if (error instanceof TypeError) throw new ApiError(0, NETTFEIL);
     throw new ApiError(500, error instanceof Error ? error.message : 'Unknown error');
   }
 }

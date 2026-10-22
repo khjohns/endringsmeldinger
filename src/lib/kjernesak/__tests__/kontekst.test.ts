@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError } from '$lib/api/client';
+import { ApiError, NETTFEIL } from '$lib/api/client';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import {
   brevaarsak,
@@ -242,7 +242,7 @@ describe('sakskonteksten for en TS-sak', () => {
   it('når svaret går tapt, sender «Prøv igjen» samme kommando med samme ID og versjon, og saken lastes etter kvitteringen (#418)', async () => {
     const send = vi
       .fn()
-      .mockRejectedValueOnce(new ApiError(0, 'Network error: Could not connect to server'))
+      .mockRejectedValueOnce(new ApiError(0, NETTFEIL))
       .mockResolvedValueOnce({ event_id: 'e-2', leveringsoppdrag: 'l-1', versjon: 2 });
     const hent = vi
       .fn()
