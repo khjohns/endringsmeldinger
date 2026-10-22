@@ -113,6 +113,8 @@ describe('saksbildet for en TS-sak', () => {
 
   it('tar status og etiketter fra visningen, med tekst for kodene', () => {
     const { bilde, vist } = bildeAv(journal);
+    // MM-U22: saken har ingen samlet status mens kravene venter på svar.
+    expect(bilde.status).toBeNull();
     expect(bilde.status).toEqual(vist.status);
     expect(bilde.versjon).toBe(3);
     expect(bilde.tittel).toBe('Ny peling');
@@ -160,7 +162,7 @@ describe('saksbildet for en TS-sak', () => {
       data: {},
     };
     const { bilde } = bildeAv([opprettet, ukjent]);
-    expect(bilde.status.kode).toBe('kan_ikke_utledes');
+    expect(bilde.status?.kode).toBe('kan_ikke_utledes');
     // Tittel og kode for en rad som ikke er tolket: oppdragsgiver 19.10 (#764, svar 4).
     expect(bilde.journal[1]).toMatchObject({
       tolket: false,

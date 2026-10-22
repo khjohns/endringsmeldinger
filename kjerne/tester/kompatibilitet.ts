@@ -74,7 +74,7 @@ export function kompatibiliteten(lagBaner: () => Baner): void {
       } else {
         // MM-U2: saken stopper, og ingen rad er skjult.
         expect(lest.kilde).toBe('stoppet');
-        expect(lest.visning.status.kode).toBe('kan_ikke_utledes');
+        expect(lest.visning.status?.kode).toBe('kan_ikke_utledes');
         expect(lest.visning.journal.map((j) => j.hendelse)).toEqual(journal.map((r) => r.event_id));
         expect(lest.visning.journal.filter((j) => !j.tolket).map((j) => j.hendelse)).toEqual(
           journal.filter((r) => r.format! > leser.leserformat).map((r) => r.event_id)

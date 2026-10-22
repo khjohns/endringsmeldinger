@@ -20,6 +20,7 @@ import {
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Avsnitt, Journalrad, Krav, Spor } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
+import { betegnelsestekst } from './saksbilde';
 import type { SakState, SporType, TimelineEvent, VederlagsMetode } from '$lib/types/timeline';
 import type { Visningsrad } from './journal';
 import { getHjemmelLabel, getHjemmelObj } from '$lib/constants/categories';
@@ -230,27 +231,12 @@ export function sporvisning(sak: SakState, u: Utledning, nokkel: SporKey): Track
 }
 
 /**
- * Statusteksten for sporet i handlingslinjen, fra kjernens visning. Kan saken ikke
- * utledes (MM-U2), er det sakens status. Ellers er det etikettene for sporet:
- * `trukket`, `venter_paa_svar` (GR-U24 er lest inn der) og `ingen_krav`, og
- * deretter om sporet har svar, krav eller et varsel etter § 33.4.
+ * Statusteksten for sporet, fra kjernens visning. Kan saken ikke utledes (MM-U2), er
+ * det sakens status. Ellers er det betegnelsen i MM-U30, og ingen tekst når ingenting
+ * er sendt i sporet.
  */
-export function sporetsStatustekst(
-  vist: Visning,
-  u: Utledning,
-  nokkel: SporKey,
-  part: 'TE' | 'BH' | null,
-  bhNavn: string
-): string {
-  if (vist.status.kode === 'kan_ikke_utledes') return vist.status.tekst;
-  const spor = SPOR_FOR[nokkel];
-  const etiketter = vist.spor[spor].etiketter;
-  if (etiketter.includes('trukket')) return 'Kravet er trukket';
-  if (etiketter.includes('venter_paa_svar'))
-    return part === 'BH' ? 'Kravet er ikke besvart' : `Avventer svar fra ${bhNavn}`;
-  if (etiketter.includes('ingen_krav')) return 'Ingen krav';
-  const s = u.spor[spor];
-  if (s.gjeldendeSvar) return `${bhNavn} har svart`;
-  if (s.krav.length) return vist.status.tekst;
-  return s.varsel ? 'Varslet – ikke spesifisert' : 'Ingen krav';
+export function sporetsStatustekst(vist: Visning, nokkel: SporKey): string {
+  if (vist.status?.kode === 'kan_ikke_utledes') return vist.status.tekst;
+  const b = vist.spor[SPOR_FOR[nokkel]].betegnelse;
+  return b ? betegnelsestekst(b) : '';
 }

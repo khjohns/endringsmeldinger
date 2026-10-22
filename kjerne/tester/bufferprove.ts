@@ -40,8 +40,9 @@ export function bufferen(lagBaner: () => Baner): void {
       await bygg(bane, ['krav_eo']);
       const journal = await bane.journal();
       const egen = await lesSak(bane.sakId, journal, baner.buffer(), KJERNE);
-      if (egen.kilde !== 'utledet' || egen.visning.status.kode !== 'venter_paa_svar')
-        throw new Error(`Forutsetning: ${egen.kilde} ${egen.visning.status.kode}`);
+      // MM-U22: en sak med et ubesvart krav har ingen samlet status.
+      if (egen.kilde !== 'utledet' || egen.visning.status !== null)
+        throw new Error(`Forutsetning: ${egen.kilde} ${egen.visning.status?.kode}`);
 
       // Kontrollsak: et resultat med kjernens egne versjoner brukes.
       const merket = {
@@ -62,7 +63,7 @@ export function bufferen(lagBaner: () => Baner): void {
       await baner.buffer().skriv(bane.sakId, { versjon: annen, visning: merket });
       const lest = await lesSak(bane.sakId, journal, baner.buffer(), KJERNE);
       expect(lest.kilde).toBe('utledet');
-      expect(lest.visning.status.kode).toBe('venter_paa_svar');
+      expect(lest.visning.status).toBeNull();
       expect((await baner.buffer().les(bane.sakId))?.versjon).toEqual(versjon);
     });
 
@@ -85,7 +86,7 @@ export function bufferen(lagBaner: () => Baner): void {
       a.kjerne = KJERNE;
       const lestA = await lesSak(baneA.sakId, journalA, baner.buffer(), KJERNE);
       expect(lestA.kilde).toBe('stoppet');
-      expect(lestA.visning.status.kode).toBe('kan_ikke_utledes');
+      expect(lestA.visning.status?.kode).toBe('kan_ikke_utledes');
       expect(lestA.visning.journal.filter((j) => !j.tolket)).toHaveLength(1);
       expect((await baner.buffer().les(baneA.sakId))?.versjon.leserformat).toBe(NYERE.leserformat);
       for (const h of [
@@ -121,8 +122,8 @@ export function bufferen(lagBaner: () => Baner): void {
       expect(await oversikt(KJERNE)).toEqual({ status: null, oppdateres: true });
       await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
       const kjent = await oversikt(KJERNE);
-      expect(kjent).toEqual({ status: expect.anything(), oppdateres: false });
-      expect(kjent.status?.kode).toBe('venter_paa_svar');
+      // MM-U22: saken har ingen samlet status mens kravet venter på svar.
+      expect(kjent).toEqual({ status: null, oppdateres: false });
 
       // Nye regler: samme status, merket.
       expect(await oversikt(medRegler(NESTE_REGLER))).toEqual({
@@ -133,7 +134,7 @@ export function bufferen(lagBaner: () => Baner): void {
       expect((await k.send({ handling: 'trekk', spor: 'grunnlag' }))?.godtatt).toBe(true);
       expect(await oversikt(KJERNE)).toEqual({ status: kjent.status, oppdateres: true });
       const lest = await lesSak(bane.sakId, await bane.journal(), lager, KJERNE);
-      expect(lest.visning.status.kode).toBe('avsluttet_trukket');
+      expect(lest.visning.status?.kode).toBe('avsluttet_trukket');
       expect(await oversikt(KJERNE)).toEqual({ status: lest.visning.status, oppdateres: false });
     });
   });
