@@ -51,22 +51,23 @@ export function skriftenesKodepunkter(): Set<number> {
 }
 
 /**
- * Kodepunktene som deler glyf med et annet kodepunkt i skriften `skriftFor` velger. PDF-en
- * gir glyfen tilbake som det første av dem brevet bruker, så de utelates i kjernen (#801).
+ * Kodepunktene som deler glyf med et lavere kodepunkt i skriften `skriftFor` velger. PDF-en
+ * gir glyfen tilbake som det første av dem brevet bruker, så bare det laveste beholdes (#801).
  */
 export function kodepunkterMedDeltGlyf(): Set<number> {
   const perGlyf = new Map<string, number[]>();
-  for (const kode of skriftenesKodepunkter()) {
+  for (const kode of [...skriftenesKodepunkter()].sort((a, b) => a - b)) {
     let skrift: number;
     try {
       skrift = skriftFor(String.fromCodePoint(kode));
-    } catch {
-      continue;
+    } catch (feil) {
+      if (feil instanceof TegnUtenforSkriften) continue;
+      throw feil;
     }
     const glyf = `${skrift}:${skrifter()[skrift].tegnsett.glyphForCodePoint(kode).id}`;
     perGlyf.set(glyf, [...(perGlyf.get(glyf) ?? []), kode]);
   }
-  return new Set([...perGlyf.values()].filter((k) => k.length > 1).flat());
+  return new Set([...perGlyf.values()].flatMap((k) => k.slice(1)));
 }
 
 /**

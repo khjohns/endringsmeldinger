@@ -246,13 +246,18 @@ describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
       expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
     const tekst = linjer.join('\n');
     const tilbake = lesBrevPdf(await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL))).split('\n');
+    expect(tilbake.length, 'like mange linjer tilbake').toBe(linjer.length);
     expect(tilbake.filter((l, i) => l !== linjer[i])).toEqual([]);
     expect(linjer.length, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
   }, 120000);
 
-  it('arabisk skrift, U+2028 og en matematisk bokstav som deler glyf med en annen, avvises', () => {
+  it('arabisk skrift, U+2028 og en matematisk bokstav som deler glyf med en lavere, avvises', () => {
     // `abc اب def` kommer tilbake som `abc با def`, og 𝗔 (U+1D5D4) som 𝐀 (U+1D400).
-    for (const tegn of ['ب', '\u2028', '𝗔', '𝐀'])
+    for (const tegn of ['ب', '\u2028', '𝗔'])
       expect(tegnSomIkkeKanVises(`abc ${tegn} def`, 'x'), tegn).not.toBeNull();
+    // Kilden er arbeidsvalg 2 og 22.10 i #801: norske bokstaver, pilen og myk bindestrek vises.
+    expect(
+      tegnSomIkkeKanVises('Nguyễn, ø, æ, å, Å, →, ∑, 𝐀 og myk\u00adbindestrek', 'x')
+    ).toBeNull();
   });
 });
