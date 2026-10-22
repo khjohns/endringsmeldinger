@@ -77,8 +77,11 @@ export function clearCsrfToken() {
   csrfTokenPromise = null;
 }
 
-/** Meldingen når serveren ikke svarer fordi nettet er brutt (#1151). */
-export const NETTFEIL = 'Serveren kunne ikke nås. Kontroller nettforbindelsen og prøv igjen.';
+/**
+ * Meldingen når `fetch` eller lesingen av svaret feiler (#1151). Den gjelder både et
+ * kall som aldri nådde serveren og et svar som gikk tapt etter at serveren lagret.
+ */
+export const NETTFEIL = 'Fikk ikke svar fra serveren. Kontroller nettforbindelsen.';
 
 export class ApiError extends Error {
   constructor(
