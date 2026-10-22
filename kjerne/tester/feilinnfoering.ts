@@ -90,7 +90,8 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         "  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor))",
-        "  if (visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status.kode === 'alle_krav_avgjort' || (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor)))",
+        // Statusen leses uten å endre utfallet, så bare arkitekturtestene skal feile (#1122).
+        "  if (h.type !== 'varsle' && h.type !== 'sende_varsel' && varAvgjort(u, h.spor) && visning(u, { versjon: 0, gjelderVarslingsplikten: () => true, gjelderVarslingspliktenForVederlag: () => true }).status.kode !== undefined)",
       ],
     ],
     mal: [
