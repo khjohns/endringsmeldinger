@@ -755,6 +755,8 @@ function utledSporene(
       ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter et fristkrav (VS-U19)');
     else if (henvisninger.some((x) => x.art === 'foresporselssvar' && bakover(f.id, x.id)))
       ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter TEs begrunnelse (VS-U30)');
+    else if (f !== foresporsler[0])
+      ugyldig(f.id, 'saken har alt en forespørsel etter § 33.6.2 fra appen (VS-U31)');
   /** Det utsagnet kan gjelde, etter arten. */
   function kanGjelde(
     art: (typeof henvisninger)[number]['art'],
