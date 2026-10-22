@@ -2936,11 +2936,23 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
-        "  if (kode !== 'alle_krav_avgjort' && harRegistrertBrev(u))",
-        '  if (harRegistrertBrev(u))',
+        "  if (kode !== 'alle_krav_avgjort' && u.registrerteBrev.some((b) => b.rettetAv === null))",
+        '  if (u.registrerteBrev.some((b) => b.rettetAv === null))',
       ],
     ],
     mal: ['svar 1: når kravene er avgjort'],
+  },
+  {
+    id: 'F365',
+    feilklasse: 'et varsel registrert med virkning gir merknaden for saken (OV-U19)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  if (kode !== 'alle_krav_avgjort' && u.registrerteBrev.some((b) => b.rettetAv === null))",
+        "  if (kode !== 'alle_krav_avgjort' && harRegistrertBrev(u))",
+      ],
+    ],
+    mal: ['OV-U19: et varsel registrert med virkning gir ikke merknaden'],
   },
   {
     id: 'F325',

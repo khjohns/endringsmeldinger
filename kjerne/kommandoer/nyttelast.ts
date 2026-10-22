@@ -283,7 +283,10 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
   if (brev.rettetAv !== null)
     return avvis(
       'REGISTRERINGEN_ER_RETTET',
-      'Registreringen er alt rettet. Rett den siste registreringen.'
+      // En retting som ikke er en ny registrering, sier at brevet ikke hører til saken (OV-U18).
+      !u.registrerteBrev.some((b) => b.dokument === brev.rettetAv)
+        ? 'Registreringen er rettet bort fordi brevet ikke hører til saken. Hører det til saken likevel, registreres brevet på nytt (OV-U18).'
+        : 'Registreringen er alt rettet. Rett den siste registreringen.'
     );
   return null;
 }

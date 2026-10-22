@@ -35,7 +35,7 @@ export interface Sporbilde {
   betegnelse: Etikett | null;
   etiketter: Etikett[];
   poster: Sporpost[];
-  /** Motpartens registrerte brev, vist ved kravet som venter på svar (svar 2 22.10 i #1045). */
+  /** Motpartens registrerte brev, vist ved kravet som venter på svar (OV-U20). */
   registrerteBrev: string[];
 }
 

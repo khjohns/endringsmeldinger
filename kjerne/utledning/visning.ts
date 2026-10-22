@@ -45,7 +45,7 @@ export interface Visning {
     {
       etiketter: string[];
       betegnelse: Betegnelse | null;
-      /** Svar 2 22.10 i #1045: motpartens brev registrert som dokumentasjon, vist ved kravet. */
+      /** OV-U20: motpartens brev registrert som dokumentasjon, vist ved kravet. */
       registrerteBrev: string[];
     }
   >;
@@ -202,7 +202,7 @@ export const harRegistrertBrev = (u: Utledning): boolean =>
   );
 
 /**
- * Svar 2 22.10 i #1045 (OV-U4): når kravet venter på svar, motpartens registrerte brev for
+ * OV-U20, OV-U4: når kravet venter på svar, motpartens registrerte brev for
  * sporet eller hele saken som ikke er rettet, uansett når de ble sendt. Kravet er TEs.
  */
 function brevVedKravet(u: Utledning, spor: Spor): string[] {
@@ -216,7 +216,7 @@ function brevVedKravet(u: Utledning, spor: Spor): string[] {
 }
 
 /**
- * Merknadene for saken. Svar 1 22.10 i #1045: så lenge et registrert brev står og ikke er
+ * Merknadene for saken. OV-U19: så lenge et brev registrert som dokumentasjon står og ikke er
  * rettet bort, har saken merknaden etter OV-U10; når kravene er avgjort, står setningen i
  * statusen i stedet.
  */
@@ -227,7 +227,8 @@ function merknader(u: Utledning, kode: Statuskode | null): string[] {
       ? ['registrert_brev_uten_virkning']
       : []
     : ['varsel_med_frist_utenfor_appen'];
-  if (kode !== 'alle_krav_avgjort' && harRegistrertBrev(u)) ut.push('brev_utenfor_appen');
+  if (kode !== 'alle_krav_avgjort' && u.registrerteBrev.some((b) => b.rettetAv === null))
+    ut.push('brev_utenfor_appen');
   return ut;
 }
 

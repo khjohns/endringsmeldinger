@@ -17,7 +17,7 @@ import { kanInngaaIEo, kraveneErAvgjort, utled } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
-import { visning } from '../utledning/visning.ts';
+import { harRegistrertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
@@ -1537,8 +1537,8 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
 
 /**
  * En registrering av et brev som dokumentasjon rettes av samme side (OV-U17), også når
- * brevet står i feil sak (OV-U18). Visningen viser brevene ved kravet (svar 2 22.10 i #1045)
- * og merknaden for saken (svar 1 22.10 i #1045).
+ * brevet står i feil sak (OV-U18). Visningen viser brevene ved kravet (OV-U20)
+ * og merknaden for saken (OV-U19).
  */
 describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)', () => {
   const brevet = '00000000-0000-4000-8000-000000001045';
@@ -1633,6 +1633,14 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(regel(journal, registrering({ retter: retting.event_id }), 'BH')).toBe('godtatt');
   });
 
+  it('OV-U18: etter en retting om feil sak viser avvisningen til en ny registrering, ikke til rettingen', async () => {
+    const { journal, rad } = await medBrevFraBH();
+    godtatt(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'BH');
+    const u = prov(journal, registrering({ retter: rad.event_id }), 'BH');
+    expect(u.godtatt ? null : u.avvisning.melding).toMatch(/registreres brevet på nytt/);
+    expect(regel(journal, registrering(), 'BH'), 'kontrollsak: en ny registrering').toBe('godtatt');
+  });
+
   it('OV-U18: brevet i feil sak rettes bort, og visningen viser det ikke lenger ved kravet eller i merknaden', async () => {
     const { journal, rad } = await medBrevFraBH();
     const foer = vist(journal);
@@ -1644,6 +1652,20 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(etter.spor.grunnlag.registrerteBrev).toEqual([]);
     expect(etter.merknader).not.toContain('brev_utenfor_appen');
     expect(etter.registrerteBrev.map((b) => b.rettetAv)).toEqual([retting.event_id]);
+    expect(harRegistrertBrev(utledet(journal)), 'statusteksten og sakslisten').toBe(false);
+  });
+
+  it('OV-U19: et varsel registrert med virkning gir ikke merknaden for saken, et brev som dokumentasjon gir den', async () => {
+    const bane = minnebane();
+    await bygg(bane, [
+      { handling: 'krav', spor: 'grunnlag', underkategori: 'endringsordre' },
+      { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
+    ]);
+    const journal = await bane.journal();
+    expect(forstaatt(journal), 'forutsetning').toBe(true);
+    expect(vist(journal).merknader).not.toContain('brev_utenfor_appen');
+    godtatt(journal, registrering(), 'TE');
+    expect(vist(journal).merknader, 'kontrollsak').toContain('brev_utenfor_appen');
   });
 
   it('OV-U4, OV-U18: rettingen godtas i en sak som ikke er forstått, og brevet vises med datoen', async () => {
