@@ -3,7 +3,8 @@
 -- rettet tittelen, behandles endringen av topicen som et nytt forsøk på opprettelsen
 -- (arbeidsvalgene 22.10 i #1138). Meldingen er kommentarens tegnliste, så
 -- `neste_kommentar` gir den med, og et nytt forsøk skriver samme tekst. Har topicen fått en
--- sak, skrives ingen kommentar om avvisningen, og en endring av topicen behandles ikke.
+-- sak (`koe.sak_catenda_topic`, skrevet i samme transaksjon som saken), skrives ingen
+-- kommentar om avvisningen, og en endring av topicen behandles ikke.
 
 ALTER TABLE koe.innkommende_behandling DROP CONSTRAINT innkommende_behandling_utfall;
 GO
@@ -33,9 +34,8 @@ BEGIN
      AND b.catenda_board_id IS NOT NULL AND b.catenda_topic_id IS NOT NULL
      AND NOT EXISTS (SELECT 1 FROM koe.topic_kommentar k WHERE k.innkommende_hendelse_id = b.innkommende_hendelse_id)
      AND NOT (b.utfall = N'tittel_kan_ikke_vises' AND EXISTS (
-           SELECT 1 FROM koe.innkommende_behandling s
-            WHERE s.utfall = N'sak_opprettet' AND s.prosjekt_id = b.prosjekt_id
-              AND s.catenda_topic_id = b.catenda_topic_id))
+           SELECT 1 FROM koe.sak_catenda_topic t
+            WHERE t.prosjekt_id = b.prosjekt_id AND t.catenda_topic_id = b.catenda_topic_id))
      AND (f.antall = 0
           OR f.siste <= DATEADD(second, -IIF(f.antall >= 8, 3600, 30 * POWER(2, f.antall - 1)), @naa))
    ORDER BY b.innkommende_hendelse_id;
@@ -56,9 +56,8 @@ BEGIN
      WHERE utfall = N'tittel_kan_ikke_vises' AND prosjekt_id = @prosjekt_id
        AND catenda_topic_id = @catenda_topic_id)
     AND NOT EXISTS (
-    SELECT 1 FROM koe.innkommende_behandling
-     WHERE utfall = N'sak_opprettet' AND prosjekt_id = @prosjekt_id
-       AND catenda_topic_id = @catenda_topic_id), 1, 0) AS bit) AS avvist;
+    SELECT 1 FROM koe.sak_catenda_topic
+     WHERE prosjekt_id = @prosjekt_id AND catenda_topic_id = @catenda_topic_id), 1, 0) AS bit) AS avvist;
 END
 GO
 

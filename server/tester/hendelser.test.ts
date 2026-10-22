@@ -834,7 +834,10 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       (await behandleKropp(kropp(topic, { tittel: 'Rapport 报告' }), 'issue.modified')).utfall
     ).toBe('ikke_behandlet_type');
     await skrivKommentarene();
-    expect(kommentarerPaa(topic).filter((k) => k.tekst === TEGNKOMMENTAR)).toHaveLength(1);
+    expect(kommentarerPaa(topic).map((k) => k.tekst)).toEqual([
+      TEGNKOMMENTAR,
+      expect.stringMatching(new RegExp(`^KOE-saken ${rettet.sak_id} er opprettet i appen`)),
+    ]);
   });
 
   it('#1138: er tittelen rettet og saken opprettet før kommentaren om tegnene er skrevet, skrives bare kommentaren om saken', async () => {
@@ -847,7 +850,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     await skrivKommentarene();
     const tekster = kommentarerPaa(topic).map((k) => k.tekst);
     expect(tekster).toHaveLength(1);
-    expect(tekster[0]).not.toContain('ikke opprettet');
+    expect(tekster[0]).toMatch(new RegExp(`^KOE-saken ${rettet.sak_id} er opprettet i appen`));
   });
 
   it('#1138: en topic fra BH med tegn i tittelen gir topic_fra_bh, så siden avgjøres før tittelen', async () => {
