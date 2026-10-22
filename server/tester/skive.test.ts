@@ -65,7 +65,7 @@ interface Oppdragsrad {
   innhold: Record<string, unknown> & {
     brev: Record<string, unknown> & { dokument: unknown; avsender: Record<string, unknown> };
     maal: Record<string, unknown>;
-    status: { kode: string };
+    status: { kode: string; tekst: string } | null;
   };
   innhold_sha256: string;
 }
@@ -285,13 +285,28 @@ describe.skipIf(!TESTBASE_URL)(
       expect(lest.status).toBe(200);
       expect(lest.kropp.versjon).toBe(3);
       expect(lest.kropp.visning).toEqual(vederlag.kropp.visning);
-      expect(oppdrag[1].innhold.status).toEqual((lest.kropp.visning as { status: unknown }).status);
+      // MM-U22: saken har ingen samlet status mens kravene venter på svar, og oppdraget fryser det.
+      expect((lest.kropp.visning as { status: unknown }).status).toBeNull();
+      expect(oppdrag.map((x) => x.innhold.status)).toEqual([null, null]);
       expect(
         (lest.kropp.leveringsoppdrag as { event_id: string; innhold_sha256: string }[]).map((x) => [
           x.event_id,
           x.innhold_sha256,
         ])
       ).toEqual(oppdrag.map((x) => [x.event_id, x.innhold_sha256]));
+
+      // MM-U15: oppdraget fryser statusen saken fikk med brevet, her et trukket grunnlag.
+      const trekk = await send(sakId, {
+        expected_version: 3,
+        kommando: { type: 'trekk', spor: 'grunnlag' },
+      });
+      expect(trekk.status, JSON.stringify(trekk.kropp)).toBe(201);
+      const status = (trekk.kropp.visning as { status: { kode: string } | null }).status;
+      expect(status?.kode).toBe('avsluttet_trukket');
+      const etterTrekk = await oppdragene(sakId);
+      expect(etterTrekk.map((x) => x.event_id).at(-1)).toBe(trekk.kropp.event_id);
+      expect(etterTrekk.at(-1)!.innhold.status).toEqual(status);
+      expect(etterTrekk.slice(0, 2).map((x) => x.innhold.status)).toEqual([null, null]);
     });
 
     it('oppdraget kan gjengis uten journalen, og gjengivelsen er tro mot teksten (LV-U1, LV-U2, B-17)', async () => {
