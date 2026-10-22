@@ -128,15 +128,18 @@ async function catenda(req: IncomingMessage, res: ServerResponse) {
     return svarJson(res, { guid: randomUUID() });
   }
   console.error(`falsk Catenda: ukjent kall ${req.method} ${sti}`);
+  ukjenteKall.push(`${req.method} ${sti}`);
   svarJson(res, { feil: 'ukjent' }, 404);
 }
 
 // --- Prosessene ------------------------------------------------------------------
 
 const prosesser: ChildProcess[] = [];
+const ukjenteKall: string[] = [];
 
 /** Starter `kommando` og venter til utdataene inneholder `klar`. */
 function startProsess(navn: string, kommando: string[], env: NodeJS.ProcessEnv, klar: RegExp) {
+  if (avbrutt) throw new Error('Avbrutt');
   const p = spawn(kommando[0], kommando.slice(1), {
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -193,13 +196,38 @@ const falsk = createServer((req, res) => {
 });
 let nettleser: { close(): Promise<void> } | undefined;
 
+function stoppProsessene() {
+  // Hele prosessgruppen, så `vite` under `npx` også stopper. En gruppe som alt har
+  // stoppet, gir ESRCH.
+  for (const p of prosesser)
+    try {
+      if (p.pid) process.kill(-p.pid, 'SIGTERM');
+    } catch {}
+}
+
 async function rydd() {
   await nettleser?.close().catch(() => undefined);
-  // Hele prosessgruppen, så `vite` under `npx` også stopper.
-  for (const p of prosesser) if (p.pid) process.kill(-p.pid, 'SIGTERM');
+  stoppProsessene();
   falsk.close();
   await slettAlle(kjoeretid, base);
 }
+
+// Barneprosessene har egne prosessgrupper og får ikke Ctrl+C. Signalet stopper dem og
+// uten handleSIGINT, som ellers avslutter med 130 før oppryddingen. Et andre signal
+// avslutter straks.
+// uten handleSIGINT, som ellers avslutter med 130 før oppryddingen.
+let avbrutt = false;
+let avbryt!: () => void;
+const avbrudd = new Promise<void>((ok) => (avbryt = ok));
+for (const signal of ['SIGINT', 'SIGTERM'] as const)
+  process.on(signal, () => {
+    if (avbrutt) process.exit(130);
+    avbrutt = true;
+    process.exitCode = 130;
+    avbryt();
+    void nettleser?.close().catch(() => undefined);
+    stoppProsessene();
+  });
 
 try {
   const r = () => base.pool.request();
@@ -250,12 +278,12 @@ try {
   await startProsess(
     'vite',
     ['npx', 'vite', 'dev', '--port', '5173', '--strictPort'],
-    rentMiljoe(),
+    { ...rentMiljoe(), NO_COLOR: '1' },
     /Local:/
   );
 
   const { chromium } = globalPlaywright();
-  const b = await chromium.launch();
+  const b = await chromium.launch({ handleSIGINT: false, handleSIGTERM: false });
   nettleser = b;
   const jsFeil: string[] = [];
 
@@ -312,7 +340,7 @@ try {
   if (utenCsrf.status !== 403) throw new Error('Kallet uten CSRF-token ble ikke avvist');
   const avvist = await opprettSak(bh, 'BH skal ikke kunne opprette');
   console.log(`BH  POST /api/kjerne/saker: ${avvist.status} ${JSON.stringify(avvist.kropp)}`);
-  if (avvist.kropp?.rule !== 'FEIL_PART') throw new Error('Kjernen avviste ikke BH ved opprettelsen');
+  if (avvist.status !== 400 || avvist.kropp?.rule !== 'FEIL_PART') throw new Error('Kjernen avviste ikke BH ved opprettelsen');
 
   for (const [navn, side] of [
     ['te', te],
@@ -330,21 +358,27 @@ try {
     console.log(
       `${navn.toUpperCase()}  GET /api/kjerne/saker/{sak}: ${lest.status}, part ${lest.kropp?.part}`
     );
+    if (lest.status !== 200 || lest.kropp?.part !== navn.toUpperCase())
+      throw new Error(`${navn.toUpperCase()} leste ikke saken med sin egen part`);
     await side.goto(`${FRONTEND}${saksrute}`);
     await side.getByText('Ny peling ved akse C').first().waitFor({ timeout: 30_000 });
     await side.waitForTimeout(500);
     await side.screenshot({ path: join(UT, `saksrute-${navn}.png`), fullPage: true });
   }
   console.log(`Skjermbilder i ${UT}. Saksruta: ${FRONTEND}${saksrute}`);
+  if (ukjenteKall.length) throw new Error(`Ukjente kall til falsk Catenda:\n${ukjenteKall.join('\n')}`);
   if (jsFeil.length) throw new Error(`JavaScript-feil i siden:\n${jsFeil.join('\n')}`);
 
   if (values.behold) {
     console.log(`Står og kjører. Falsk Catenda: ${catendaUrl}. Ctrl+C stopper og rydder.`);
-    await new Promise<void>((ok) => process.once('SIGINT', () => ok()));
+    await avbrudd;
+    process.exitCode = 0;
   }
 } catch (feil) {
-  console.error(feil);
-  process.exitCode = 1;
+  if (!avbrutt) {
+    console.error(feil);
+    process.exitCode = 1;
+  }
 } finally {
   await rydd();
 }

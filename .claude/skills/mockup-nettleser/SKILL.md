@@ -51,7 +51,8 @@ ikke er det forventede:
 2. Starter en falsk Catenda på 127.0.0.1 med en TE- og en BH-bruker, hver i sitt
    team. Den svarer på OAuth (`/oauth2/authorize`, `/oauth2/token`), `/v2/user`,
    `/v2/projects`, medlemslisten, teammedlemmene og topicen jobbkjøreren lager.
-   Et annet kall skrives som «falsk Catenda: ukjent kall» og får 404.
+   Et annet kall skrives som «falsk Catenda: ukjent kall» og får 404, og kjøringen
+   ender med exit 1.
 3. Starter TS-serveren (`server/start.ts`) med en egen innlogging i rollen
    `koe_runtime`, som oppstartskontrollen krever, og `APP_ENV=development`.
    Innloggingen er ekte: ingen `DISABLE_AUTH`, og sesjonen, CSRF-tokenet,
