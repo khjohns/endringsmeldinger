@@ -197,12 +197,13 @@ const falsk = createServer((req, res) => {
 let nettleser: { close(): Promise<void> } | undefined;
 
 function stoppProsessene() {
-  // Hele prosessgruppen, så `vite` under `npx` også stopper. En gruppe som alt har
-  // stoppet, gir ESRCH.
+  // Hele prosessgruppen, så `vite` under `npx` også stopper.
   for (const p of prosesser)
     try {
       if (p.pid) process.kill(-p.pid, 'SIGTERM');
-    } catch {}
+    } catch {
+      // Gruppen har alt stoppet.
+    }
 }
 
 async function rydd() {
@@ -302,7 +303,7 @@ try {
   }
 
   /** `POST /api/kjerne/saker` fra siden, med sesjonen, CSRF-tokenet og prosjektet. */
-  const opprettSak = (side: any, tittel: string, medCsrf = true) =>
+  const opprettSak = (side: Awaited<ReturnType<typeof loggInn>>, tittel: string, medCsrf = true) =>
     side.evaluate(
       async ({ prosjekt, tittel, medCsrf }: { prosjekt: string; tittel: string; medCsrf: boolean }) => {
         const { csrfToken } = medCsrf
