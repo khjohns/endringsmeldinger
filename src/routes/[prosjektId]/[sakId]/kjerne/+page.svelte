@@ -119,7 +119,7 @@
   {#if sak}
     <section aria-labelledby="status">
       <h2 id="status" class="font-semibold">Status</h2>
-      <p data-testid="status">{kjernesak.visning?.status.tekst}</p>
+      <p data-testid="status">{kjernesak.visning?.status?.tekst ?? '–'}</p>
       <p class="text-sm text-gray-600">Versjon {kjernesak.versjon}</p>
       <ul class="text-sm">
         {#each Object.entries(kjernesak.visning?.spor ?? {}) as [spor, { etiketter }] (spor)}

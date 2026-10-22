@@ -91,13 +91,19 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('TS-saken i Kontrollrommet', () => {
-  it('venstrekolonnen viser tittelen, kjernens statustekst og kravene per spor', async () => {
+  it('venstrekolonnen viser tittelen og betegnelsen per spor, uten samlet status (MM-U22, MM-U30)', async () => {
     const kjernesak = await vis(medGrunnlag, 'TE');
     expect(screen.getByRole('heading', { name: 'Ny peling' })).toBeInTheDocument();
-    expect(screen.getByText(`Saksstatus: ${kjernesak.visning!.status.tekst}`)).toBeInTheDocument();
+    expect(kjernesak.visning!.status).toBeNull();
+    expect(screen.queryByText(/Saksstatus/)).toBeNull();
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
-    expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent('Ikke vurdert');
-    expect(spor.getByRole('button', { name: /Vederlag/ })).toBeInTheDocument();
+    expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent(
+      'Kravet venter på byggherrens svar'
+    );
+    // Ingenting er sendt i vederlagssporet, og da står ingen betegnelse.
+    expect(spor.getByRole('button', { name: /Vederlag/ })).not.toHaveTextContent(
+      /Ingen krav|Ikke varslet|Ikke påbegynt/
+    );
     // Scenariovalget og nullstillingen hører bare til demoen.
     expect(screen.queryByRole('combobox', { name: 'Scenario' })).not.toBeInTheDocument();
     expect(screen.queryByTitle('Nullstill mockup')).not.toBeInTheDocument();
@@ -142,10 +148,11 @@ describe('TS-saken i Kontrollrommet', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('byggherrens svar vises bare som at svar finnes (oppdragsgiver 17.10)', async () => {
+  // Svaret godkjenner kravet fullt, så partene er enige ved sammenfall (MM-U30).
+  it('byggherrens svar vises med betegnelsen, ikke med resultatet (oppdragsgiver 17.10, MM-U30)', async () => {
     await vis(medSvar, 'TE');
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
-    expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent('BH har svart');
+    expect(spor.getByRole('button', { name: /Grunnlag/ })).toHaveTextContent('Enige');
     expect(spor.getByRole('button', { name: /Grunnlag/ })).not.toHaveTextContent(/godkjent/i);
     expect(screen.getAllByText('Byggherre har svart').length).toBeGreaterThan(0);
   });
@@ -157,21 +164,31 @@ describe('TS-saken i Kontrollrommet', () => {
 
     await vis(medVederlagssvar, 'TE', 'vederlag');
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
-    expect(spor.getByRole('button', { name: /Vederlag/ })).toHaveTextContent('BH har svart');
+    expect(spor.getByRole('button', { name: /Vederlag/ })).toHaveTextContent('Enige');
     expect(screen.queryByText('250 000 kr')).toBeNull();
     // Vederlagsoversikten i midtkolonnen sier ikke at byggherren ikke har vurdert kravet.
     expect(screen.queryByText(/ikke registrert noen beløpsvurdering/)).toBeNull();
     expect(screen.getAllByText('Byggherre har svart', { exact: false }).length).toBeGreaterThan(0);
   });
 
-  it('et registrert fristvarsel vises som varslet, ikke som «Ikke varslet» (§ 33.4)', async () => {
+  it('et registrert fristvarsel vises som «Varslet», ikke som «Ikke varslet» (§ 33.4, MM-U30)', async () => {
     await vis(medFristvarsel, 'TE', 'frist');
     const spor = within(screen.getByRole('navigation', { name: 'Sakens spor' }));
-    expect(spor.getByRole('button', { name: /Fristforlengelse/ })).toHaveTextContent(
-      'Varslet – ikke spesifisert'
-    );
+    const frist = spor.getByRole('button', { name: /Fristforlengelse/ });
+    expect(frist).toHaveTextContent('Varslet');
+    expect(frist).not.toHaveTextContent(/ikke spesifisert|Ikke varslet/);
     // Handlingslinjen sier det samme, ikke «Ingen krav».
     expect(screen.queryByText('Ingen krav')).toBeNull();
+  });
+
+  it('et spor der ingenting er sendt, har ingen statustekst i handlingslinjen (MM-U30)', async () => {
+    await vis(medGrunnlag, 'TE', 'vederlag');
+    expect(document.querySelector('.action-bar')).not.toBeNull();
+    expect(document.querySelector('.action-bar .status-section')).toBeNull();
+    cleanup();
+
+    await vis(medFristvarsel, 'TE', 'frist');
+    expect(document.querySelector('.action-bar .status-text')).toHaveTextContent('Varslet');
   });
 
   it.each([['TE'], ['BH']] as const)(
@@ -206,10 +223,11 @@ describe('TS-saken i Kontrollrommet', () => {
 
   it('en hendelse kjernen ikke forstår, merkes, og saken sier at den ikke kan utledes (MM-U2)', async () => {
     const kjernesak = await vis(medUkjentHendelse, 'TE');
-    expect(kjernesak.visning!.status.kode).toBe('kan_ikke_utledes');
-    expect(screen.getByText(`Saksstatus: ${kjernesak.visning!.status.tekst}`)).toBeInTheDocument();
+    const status = kjernesak.visning!.status!;
+    expect(status.kode).toBe('kan_ikke_utledes');
+    expect(screen.getByText(`Saksstatus: ${status.tekst}`)).toBeInTheDocument();
     // Handlingslinjen sier heller ikke «Ingen krav» for en sak som har krav.
-    expect(screen.getByText(kjernesak.visning!.status.tekst)).toBeInTheDocument();
+    expect(document.querySelector('.action-bar .status-text')).toHaveTextContent(status.tekst);
     expect(screen.queryByText('Ingen krav')).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Historikk' }));
     const rad = within(screen.getByTestId('journal-3'));

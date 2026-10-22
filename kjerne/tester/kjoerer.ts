@@ -337,7 +337,7 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return handlinger(u, hale[0] as 'TE');
     case 'visning': {
       const v = visning(u, k.kjerne.regler);
-      if (hale[0] === 'status') return v.status.kode;
+      if (hale[0] === 'status') return v.status?.kode ?? null;
       if (hale[0] === 'etiketter') return v.spor[hale[1] as 'grunnlag'].etiketter;
       if (hale[0] === 'opplysning') return v.opplysninger[id(hale[1])] ?? null;
       if (hale[0] === 'merknader') return v.merknader;

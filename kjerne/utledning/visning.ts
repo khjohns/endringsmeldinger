@@ -1,7 +1,7 @@
 /**
- * `visning(u, regler)`: etiketter, betegnelsen per spor (MM-U30), samlet status og
- * merknader, avledet av utledningen. Ingen regel leser visningen; arkitekturtesten håndhever det
- * (INV-MM-9). En ny etikett, som `paalegg_frafalt`, endrer derfor ikke reglene.
+ * `visning(u, regler)`: etiketter, betegnelsen per spor (MM-U30), sakens status i de fire
+ * tilfellene i MM-U22 og merknader, avledet av utledningen. Ingen regel leser visningen;
+ * arkitekturtesten håndhever det (INV-MM-9). En ny etikett, som `paalegg_frafalt`, endrer derfor ikke reglene.
  *
  * Visningen er det eneste stedet dagens regler vurderer et sendt brev på nytt.
  * Gir de et standpunkt en annen virkning enn brevet, vises det som en merknad
@@ -27,21 +27,18 @@ export type Statuskode =
   | 'kan_ikke_utledes'
   | 'avsluttet_avslaatt'
   | 'avsluttet_trukket'
-  | 'alle_krav_avgjort'
-  | 'venter_paa_svar'
-  | 'under_forhandling';
+  | 'alle_krav_avgjort';
 
 const STATUSTEKST: Record<Statuskode, string> = {
   kan_ikke_utledes: 'Kan ikke utledes',
   avsluttet_avslaatt: 'Avsluttet: avslått',
   avsluttet_trukket: 'Avsluttet: trukket',
   alle_krav_avgjort: 'Alle krav sendt i appen er avgjort',
-  venter_paa_svar: 'Venter på svar',
-  under_forhandling: 'Under forhandling',
 };
 
 export interface Visning {
-  status: { kode: Statuskode; tekst: string };
+  /** MM-U22: saken har ingen samlet status utenom de fire tilfellene, og da er den `null`. */
+  status: { kode: Statuskode; tekst: string } | null;
   spor: Record<Spor, { etiketter: string[]; betegnelse: Betegnelse | null }>;
   /** Etikettene for hver opplysning, etter ID. */
   opplysninger: Record<string, string[]>;
@@ -119,13 +116,6 @@ const STATUS_FOR: Record<Saksbetegnelse, Statuskode> = {
   kravene_avgjort: 'alle_krav_avgjort',
 };
 
-function status(u: Utledning): Statuskode {
-  const betegnelse = saksbetegnelse(u);
-  if (betegnelse) return STATUS_FOR[betegnelse];
-  if (SPOR.some((s) => venterPaaSvar(u, s))) return 'venter_paa_svar';
-  return 'under_forhandling';
-}
-
 /** Brevet vurdert med dagens regler gir et standpunkt en annen virkning (MM-U9). */
 function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
@@ -147,17 +137,15 @@ function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const s = u.spor[spor];
   const ut: string[] = [];
-  if (s.trukket) ut.push('trukket');
+  if (FORELIGGER.trukket(u, spor)) ut.push('trukket');
   if (venterPaaSvar(u, spor)) ut.push('venter_paa_svar');
   const virkning = enighetensVirkning(u, spor);
   if (spor === 'grunnlag') {
     if (u.frafalt) ut.push('paalegg_frafalt');
     if (u.grunnlagAvvist) ut.push('avslaatt');
-    if (u.grunnlagAvklart) ut.push('avklart');
     if (virkning && !s.trukket) ut.push('enige');
   } else {
     if (virkning === 'betinget') ut.push('enige_betinget');
-    if (virkning === 'virksom') ut.push('oppgjort');
     if (virkning === 'uten_virkning') ut.push('enighet_uten_virkning');
     if (s.gjeldendeKrav && s.subsidiaer.length) ut.push('subsidiaert');
   }
@@ -200,7 +188,8 @@ function statustekst(u: Utledning, kode: Statuskode): string {
 }
 
 export function visning(u: Utledning, regler: Regelsett): Visning {
-  const kode = status(u);
+  const sak = saksbetegnelse(u);
+  const kode = sak && STATUS_FOR[sak];
   const ikkeTolket = new Set(u.begrensninger.map((b) => b.hendelse));
   const opplysninger: Record<string, string[]> = {};
   for (const { opplysning: o, bestridelser } of u.opplysninger) {
@@ -230,7 +219,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
     opplysninger[o.id] = e;
   }
   return {
-    status: { kode, tekst: statustekst(u, kode) },
+    status: kode && { kode, tekst: statustekst(u, kode) },
     spor: Object.fromEntries(
       SPOR.map((s) => [
         s,

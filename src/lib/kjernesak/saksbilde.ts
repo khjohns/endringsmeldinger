@@ -7,7 +7,7 @@
 import type { Leveringsoppdrag } from '$lib/api/kjerne';
 import { formatDateNorwegian, formatDateTimeNorwegian } from '$lib/utils/dateFormatters';
 import type { Utledning } from '$kjerne/utledning/utled';
-import type { Betegnelse, Statuskode, Visning } from '$kjerne/utledning/visning';
+import type { Betegnelse, Visning } from '$kjerne/utledning/visning';
 import { brevtekstI } from '$kjerne/format/leser';
 import { SPOR, type Avsnitt, type Journalrad, type Spor } from '$kjerne/typer';
 
@@ -67,7 +67,7 @@ export interface Journalpost {
 export interface Saksbilde {
   tittel: string | null;
   versjon: number;
-  status: { kode: Statuskode; tekst: string };
+  status: Visning['status'];
   merknader: Etikett[];
   spor: Sporbilde[];
   journal: Journalpost[];
@@ -85,10 +85,8 @@ const TEKST: Record<string, string> = {
   venter_paa_svar: 'Venter på svar',
   paalegg_frafalt: 'Pålegget er frafalt',
   avslaatt: 'Avslått',
-  avklart: 'Avklart',
   enige: 'Enige',
   enige_betinget: 'Enige, betinget',
-  oppgjort: 'Oppgjort',
   enighet_uten_virkning: 'Enighet uten virkning',
   subsidiaert: 'Subsidiært standpunkt',
   regel_endret_etter_enighet: 'Regelen er endret etter enigheten',

@@ -948,6 +948,13 @@
       "radetikett": "OV-U7: i første versjon bygges ikke disse vedtakene og delene av dem"
     },
     {
+      "id": "MM-U22",
+      "type": "vedtak",
+      "dato": "2026-10-17",
+      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u22",
+      "radetikett": "MM-U22: Hvert krav har én kort betegnelse fra en fast liste som bare sier hvilket utsagn eller hvilken relasjon som foreligger"
+    },
+    {
       "id": "MM-U27",
       "type": "vedtak",
       "dato": "2026-10-17",

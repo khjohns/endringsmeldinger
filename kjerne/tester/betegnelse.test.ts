@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { forhaandsvis, laastTekst, utledJournal, vurder } from '../kommandoer/skriving.ts';
 import { regnUtSvar, type Svarvurdering } from '../frosset/standpunkt.ts';
+import { enighetensVirkning } from '../utledning/utled.ts';
 import { BETEGNELSER, betegnelse, visning } from '../utledning/visning.ts';
 import { SPOR, type Journalrad, type Part, type Spor } from '../typer.ts';
 import { KJERNE } from '../versjon.ts';
@@ -295,5 +296,63 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     krav(kontroll);
     const v = visning(utledJournal(kontroll.journal, KJERNE), KJERNE.regler);
     expect(v.spor.vederlag.betegnelse, 'kontroll').toBe('venter_paa_svar');
+  });
+});
+
+const alleGodkjent: Steg = (sak) => {
+  krav(sak);
+  sak.send('BH', {
+    type: 'brev',
+    svar: [
+      sak.svar('grunnlag', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      sak.svar('vederlag', {
+        hovedkrav_vurdering: 'godkjent',
+        hovedkrav_godkjent_belop: 100000,
+        aksepterer_metode: true,
+      }),
+      sak.svar('frist', {
+        frist_varsel_ok: true,
+        spesifisert_krav_ok: true,
+        vilkar_oppfylt: true,
+        dager: 20,
+      }),
+    ],
+  });
+};
+
+function vistEtter(...steg: Steg[]) {
+  const sak = new Sak();
+  for (const s of steg) s(sak);
+  const u = utledJournal(sak.journal, KJERNE);
+  return { u, v: visning(u, KJERNE.regler) };
+}
+
+describe('sakens status og etikettene (MM-U22, MM-U23, #1136)', () => {
+  it('saken har ingen samlet status mens kravene venter på svar eller svaret ikke er godtatt (MM-U22)', () => {
+    expect(vistEtter(grunnlagskrav).v.status).toBeNull();
+    expect(vistEtter(forloepA).v.status).toBeNull();
+    // Kontroll: et trukket grunnlag er ett av de fire tilfellene i MM-U22.
+    expect(vistEtter(grunnlagskrav, trekk('grunnlag')).v.status?.kode).toBe('avsluttet_trukket');
+  });
+
+  it('en virksom enighet og et avklart grunnlag gir verken «Oppgjort» eller «Avklart» (MM-U23)', () => {
+    const { u, v } = vistEtter(alleGodkjent);
+    expect(u.grunnlagAvklart, 'forutsetning').toBe(true);
+    expect(enighetensVirkning(u, 'vederlag'), 'forutsetning').toBe('virksom');
+    expect(v.spor.vederlag.betegnelse).toBe('enige');
+    for (const s of SPOR) expect(v.spor[s].etiketter).not.toContain('oppgjort');
+    expect(v.spor.grunnlag.etiketter).not.toContain('avklart');
+    expect(v.spor.grunnlag.etiketter).toContain('enige');
+  });
+
+  it('et trukket grunnlag gir ikke etiketten «trukket» i et spor der ingenting er sendt (GR-U25, #1140)', () => {
+    const { v } = vistEtter(grunnlagskrav, trekk('grunnlag'));
+    expect(v.spor.grunnlag.etiketter).toContain('trukket');
+    expect(v.spor.vederlag.etiketter).not.toContain('trukket');
+    expect(v.spor.frist.etiketter).not.toContain('trukket');
+    // Kontroll: med et varsel i fristsporet står etiketten der.
+    expect(
+      vistEtter(grunnlagskrav, varselIFristen, trekk('grunnlag')).v.spor.frist.etiketter
+    ).toContain('trukket');
   });
 });
