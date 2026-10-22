@@ -20,4 +20,5 @@
 /sprakprove/**/*.json
 /scripts/**/*.ts
 /prove/**/*.json
+/kjerne/format/tegnsett.ts
 **/tsconfig*.json

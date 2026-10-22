@@ -110,7 +110,8 @@ describe('tekst basen ikke kan lagre, avvises av kjernen (#373)', () => {
   });
 
   it('kontrollsak: et gyldig surrogatpar godtas', async () => {
-    expect((await utfall(krav({ tittel: 'Riving 😀' }))).godtatt).toBe(true);
+    // U+1D400, som PDF-en kan sette med reserveskriften (#801).
+    expect((await utfall(krav({ tittel: 'Riving \u{1D400}' }))).godtatt).toBe(true);
   });
 
   it('en lagret rad med NUL i teksten er ikke forstått', async () => {

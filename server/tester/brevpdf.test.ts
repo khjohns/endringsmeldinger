@@ -6,7 +6,10 @@
 import { describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
-import { lesBrevPdf, skrivBrevPdf } from '../brevpdf.ts';
+import { readFileSync } from 'node:fs';
+import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
+import { lesBrevPdf, skriftFor, skrivBrevPdf, TegnUtenforSkriften } from '../brevpdf.ts';
+import { TEGNSETTFIL, tegnsettfil, utelatteTegn } from '../tegnsett.ts';
 import { brevdokument, gjengiOppdrag, UgjengivbartBrev } from '../levering.ts';
 
 const TIDSSTEMPEL = '2026-10-01T10:00:00.000Z';
@@ -190,3 +193,71 @@ describe('PDF-en av brevet (#371 del 2)', () => {
 function latin1(b: Uint8Array): string {
   return Buffer.from(b).toString('latin1');
 }
+
+/**
+ * #801: kjernen avviser et tegn PDF-en ikke kan vise, før brevet skrives, etter tabellen i
+ * `kjerne/format/tegnsett.ts`. Tabellen og skriftene skal ikke gli fra hverandre.
+ */
+describe('tegnene kjernen godtar, er tegnene PDF-en kan sette (#801)', () => {
+  it('tabellen i kjernen er den `node server/tegnsett.ts` lager av skriftene', async () => {
+    expect(readFileSync(TEGNSETTFIL, 'utf8'), 'kjør `node server/tegnsett.ts`').toBe(
+      await tegnsettfil()
+    );
+  }, 120000);
+
+  it('kjernen og `skriftFor` er enige om hvert kodepunkt, utenom tegnene PDF-en ikke gjengir tro', async () => {
+    const utelatt = await utelatteTegn();
+    const settes = (tegn: string) => {
+      try {
+        skriftFor(tegn);
+        return true;
+      } catch (feil) {
+        if (feil instanceof TegnUtenforSkriften) return false;
+        throw feil;
+      }
+    };
+    const uenige: string[] = [];
+    let godtatt = 0;
+    // Skriftene har ingen tegn over plan 1; at tabellen heller ikke har det, prøves over.
+    for (let kode = 0; kode <= 0x2ffff; kode++) {
+      // Surrogatene er ikke tegn, og tab, LF, VT, FF og CR settes om før `skriftFor`.
+      if ((kode >= 0xd800 && kode <= 0xdfff) || (kode >= 0x9 && kode <= 0xd)) continue;
+      const tegn = String.fromCodePoint(kode);
+      const kjernen = tegnSomIkkeKanVises(tegn, 'x') === null;
+      if (kjernen) godtatt++;
+      if (kjernen !== (settes(tegn) && !utelatt.has(kode))) uenige.push(kode.toString(16));
+    }
+    expect(uenige).toEqual([]);
+    expect(godtatt, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
+  }, 120000);
+
+  it('hvert tegn kjernen godtar, kommer tilbake fra PDF-en som det ble skrevet, også sammen med de andre', async () => {
+    // Kilden er LV-U2: PDF-en skal gjengi brevteksten tro. Ett brev med alle tegnene, så et
+    // tegn som deler glyf med et annet eller endres av en substitusjon, også blir funnet.
+    const linjer = ['ﬁ og fi', 'i\u0301 og ı', 'Thị, ọ og ẹ', 'a\u0328 og ą', 'ö og o\u0308'];
+    for (let kode = 0x21; kode <= 0x2ffff; kode++) {
+      if (kode >= 0xd800 && kode <= 0xdfff) continue;
+      const tegn = String.fromCodePoint(kode);
+      if (tegnSomIkkeKanVises(tegn, 'x') !== null || /\p{Default_Ignorable_Code_Point}/u.test(tegn))
+        continue;
+      linjer.push(/\p{M}/u.test(tegn) ? `a a${tegn} b` : `a ${tegn} b`);
+    }
+    for (const linje of linjer.slice(0, 5))
+      expect(tegnSomIkkeKanVises(linje, 'x'), linje).toBeNull();
+    const tekst = linjer.join('\n');
+    const tilbake = lesBrevPdf(await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL))).split('\n');
+    expect(tilbake.length, 'like mange linjer tilbake').toBe(linjer.length);
+    expect(tilbake.filter((l, i) => l !== linjer[i])).toEqual([]);
+    expect(linjer.length, 'kontroll: skriftene har noen tusen tegn').toBeGreaterThan(4000);
+  }, 120000);
+
+  it('arabisk skrift, U+2028 og en matematisk bokstav som deler glyf med en lavere, avvises', () => {
+    // `abc اب def` kommer tilbake som `abc با def`, og 𝗔 (U+1D5D4) som 𝐀 (U+1D400).
+    for (const tegn of ['ب', '\u2028', '𝗔'])
+      expect(tegnSomIkkeKanVises(`abc ${tegn} def`, 'x'), tegn).not.toBeNull();
+    // Kilden er arbeidsvalg 2 og 22.10 i #801: norske bokstaver, pilen og myk bindestrek vises.
+    expect(
+      tegnSomIkkeKanVises('Nguyễn, ø, æ, å, Å, →, ∑, 𝐀 og myk\u00adbindestrek', 'x')
+    ).toBeNull();
+  });
+});

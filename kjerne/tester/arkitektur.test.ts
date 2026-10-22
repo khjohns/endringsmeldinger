@@ -541,6 +541,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'tekstSomIkkeKanLagres',
     ['kommandoer/skriving.ts:skriv', 'kommandoer/opprettelse.ts:opprettelse'],
   ],
+  // #801: et tegn PDF-en av brevet ikke kan vise, avvises før brevet skrives.
+  [
+    'format/skjema.ts',
+    'skjema',
+    'kommandoenHarTegnSomIkkeKanVises',
+    ['kommandoer/skriving.ts:skriv', 'kommandoer/opprettelse.ts:opprettelse'],
+  ],
+  ['format/skjema.ts', 'skjema', 'tegnSomIkkeKanVises', ['kommandoer/skriving.ts:skriv']],
+  ['format/tegnsett.ts', 'skjema', 'SETTBARE_TEGN', ['format/skjema.ts:kanSettes']],
+  ['Avsnitt', 'brevtekst', 'laast', ['kommandoer/skriving.ts:skriv']],
   // Opprettelsen av saken (#664): kommandoen og raden `sak_opprettet` den gir.
   ['Opprettelse', 'kommando', 'sakstittel', ['kommandoer/opprettelse.ts:opprettelse']],
   ['format/format.ts', 'skjema', 'objekt TEKST', ['kommandoer/opprettelse.ts']],
