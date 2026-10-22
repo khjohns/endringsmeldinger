@@ -901,15 +901,17 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     ['et kontrolltegn', '\u0001', 'U+0001'],
     ['en enslig surrogat', '\uD800', 'U+D800'],
     ['et ikke-tegn', '\uFFFE', 'U+FFFE'],
+    ['et tegn for privat bruk', '\uE000', 'U+E000'],
+    ['et formattegn', '\u0600', 'U+0600'],
+    ['et ideogram som NFC endrer', '\uF900', 'U+F900'],
   ])(
-    '#1162: med %s i tittelen gir et tapt svar ingen kommentar til, også når Catenda fjerner tegnet fra teksten',
+    '#1162: med %s i tittelen gir et tapt svar ingen kommentar til, også når Catenda normaliserer teksten',
     async (_, tegn, kode) => {
       const topic = randomUUID();
       const id = await motta(kropp(topic, { tittel: `Rapport${tegn}fra leverandøren` }));
       expect(await behandleEnHendelse(avh)).toBe(true);
       expect((await utfallFor(id))[0]?.utfall).toBe('tittel_kan_ikke_vises');
-      const fjernet = (tekst: string) =>
-        tekst.replace(/\p{Cc}|\p{Cs}|\p{Noncharacter_Code_Point}/gu, '');
+      const fjernet = (tekst: string) => tekst.normalize('NFKC').replace(/\p{C}/gu, '');
       const normaliserende = {
         ...innboks,
         opprettKommentar: (b: string, t: string, tekst: string) =>
@@ -995,10 +997,19 @@ describe('tegnITittelen (#1138)', () => {
     ['en enslig surrogat', 'Rystelser\uD800fra', 'en enslig surrogat (U+D800)'],
     ['et ikke-tegn', 'Rystelser\uFFFEfra', 'et ikke-tegn (U+FFFE)'],
     ['et ikke-tegn i blokken U+FDD0–U+FDEF', 'Rystelser\uFDD0fra', 'et ikke-tegn (U+FDD0)'],
+    ['et tegn for privat bruk', 'Rystelser\uE000fra', 'et privat tegn (U+E000)'],
+    ['et ikke-tildelt tegn', 'Rystelser\u0378fra', 'et ikke-tildelt tegn (U+0378)'],
+    ['et formattegn', 'Rystelser\u0600fra', 'et spesialtegn (U+0600)'],
+    ['et ideogram som NFC endrer', 'Rystelser\uF900fra', 'et spesialtegn (U+F900)'],
+    ['et ideografisk mellomrom', 'Rystelser\u3000fra', 'et mellomrom (U+3000)'],
+    ['en linjeskiller', 'Rystelser\u2028fra', 'et linjeskift (U+2028)'],
+    ['en avsnittsskiller', 'Rystelser\u2029fra', 'et avsnittsskift (U+2029)'],
+    ['et romertall som NFKC endrer', 'Fase \u2161', 'et spesialtegn (U+2161)'],
   ])('#1162: %s nevnes med kodepunktet, ikke selve tegnet', (_, tittel, nevnt) => {
     const melding = tegnITittelen(tittel)!;
     expect(melding).toBe(`Tittelen har tegn som PDF-en av brevet ikke kan vise: ${nevnt}.`);
-    expect(melding).not.toMatch(/\p{Cc}|\p{Cs}|\p{Noncharacter_Code_Point}/u);
+    expect(melding).toBe(melding.normalize('NFKC'));
+    expect(melding).not.toMatch(/\p{C}/u);
   });
 
   it('høyst ti tegn nevnes, resten telles, så meldingen får plass i 400 tegn', () => {
@@ -1006,6 +1017,13 @@ describe('tegnITittelen (#1138)', () => {
     const melding = tegnITittelen(tittel)!;
     expect(melding).toMatch(/«十» \(U\+5341\) og 2 til\.$/);
     expect(melding).not.toContain('百');
+    expect(melding.length).toBeLessThan(400);
+  });
+
+  it('#1162: med de lengste navnene og kodepunktene får meldingen også plass i 400 tegn', () => {
+    const tittel = String.fromCodePoint(...Array.from({ length: 12 }, (_, i) => 0xe1000 + i));
+    const melding = tegnITittelen(tittel)!;
+    expect(melding).toMatch(/et ikke-tildelt tegn \(U\+E1009\) og 2 til\.$/);
     expect(melding.length).toBeLessThan(400);
   });
 });

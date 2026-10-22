@@ -109,15 +109,22 @@ const NEVNTE_TEGN = 10;
 
 /**
  * Navnet på et tegn som ikke skal stå ordrett i kommentaren, eller null for et tegn som kan.
- * Catenda kan normalisere eller avvise slike tegn, og da finner `appensKommentar` ikke
- * teksten igjen (#1162 punkt 2).
+ * Bare en bokstav, et siffer, et skilletegn eller et symbol som NFKC ikke endrer, står ordrett.
+ * Catenda kan normalisere eller avvise de andre, og da finner `appensKommentar` ikke teksten
+ * igjen (#1162 punkt 2).
  */
 function tegnetsNavn(t: string): string | null {
   if (/\p{Default_Ignorable_Code_Point}/u.test(t)) return 'et usynlig tegn';
   if (/\p{Cc}/u.test(t)) return 'et kontrolltegn';
   if (/\p{Cs}/u.test(t)) return 'en enslig surrogat';
   if (/\p{Noncharacter_Code_Point}/u.test(t)) return 'et ikke-tegn';
-  return null;
+  if (/\p{Co}/u.test(t)) return 'et privat tegn';
+  if (/\p{Cn}/u.test(t)) return 'et ikke-tildelt tegn';
+  if (/\p{Zs}/u.test(t)) return 'et mellomrom';
+  if (/\p{Zl}/u.test(t)) return 'et linjeskift';
+  if (/\p{Zp}/u.test(t)) return 'et avsnittsskift';
+  if (/^[\p{L}\p{N}\p{P}\p{S}]$/u.test(t) && t.normalize('NFKC') === t) return null;
+  return 'et spesialtegn';
 }
 
 /**
