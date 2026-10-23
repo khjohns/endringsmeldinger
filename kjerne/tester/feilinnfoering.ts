@@ -2310,9 +2310,11 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F272',
-    feilklasse: 'et beløp som mangler i svaret, sammenliknes som null kroner (HF-U5, #627)',
+    feilklasse: 'en revisjon uten beløp slipper gjennom uten sammenlikning (HF-U5, #627, #787)',
     fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [['      if (nytt === null)', '      if (false)']],
+    endringer: [
+      ['      if (nytt === null)', '      if (nytt === null) continue;\n      if (false)'],
+    ],
     mal: ['sammenliknes ikke og avvises'],
   },
   {

@@ -33,11 +33,11 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 
 | Art | Innhold | Spor | Felt | Grunnlag |
 | --- | --- | --- | --- | --- |
-| `rettidighet` | Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 eller § 34.1.3 i vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller TEs varsel etter § 33.4, § 34.1.2 eller § 34.1.3. | grunnlag, vederlag, frist | `id`, `art`, `gjelder`, `hjemmel`, `i_tide` | KA-U4, MM-U1, MM-U8, VS-U3 |
+| `rettidighet` | Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 eller § 34.1.3 i vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller TEs varsel etter § 33.4, § 34.1.2 eller § 34.1.3. Når varselet etter § 34.1.3 kom for sent, er `beloep` det byggherren godtar for posten etter § 34.1.3 annet ledd etter begrensningen. | grunnlag, vederlag, frist | `id`, `art`, `gjelder`, `hjemmel`, `i_tide`, `beloep` | KA-U4, MM-U1, MM-U8, VS-U3, VS-U5, OV-U22 |
 | `metode` | § 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept står metoden byggherren mener vederlaget skal justeres etter (`oensket_metode`). Appen avgjør ikke om § 34.3 eller § 34.4 gjelder. | vederlag | `id`, `art`, `hjemmel`, `aksepterer`, `oensket_metode` | VS-U3, KA-U4, arbeidsvalget i #479 |
 | `spesifisering` | § 33.6.1: om TE spesifiserte kravet i tide. `gjelder` er kravversjonen. Ved «nei» er `dager` det byggherren mener at byggherren måtte forstå at TE hadde krav på, og det står prinsipalt. | frist | `id`, `art`, `gjelder`, `hjemmel`, `i_tide`, `dager` | VS-U3, VS-U4, KA-U4, arbeidsvalget i #479 |
 | `grunnlag` | Byggherrens standpunkt til grunnlaget: `godkjent`, `avslaatt` eller `paalegg_frafalt`. Frafallet gjelder pålegget (§ 32.3 c), ikke TEs krav, og er ikke en vurdering av ansvaret. | grunnlag | `id`, `art`, `resultat` | § 32.3 a–c, GR-U9, GR-U10 |
-| `beloep` | Beløpet. Resultatet og beløpet står i svarets utregning, så de har ett hjem. | vederlag | `id`, `art` | B-13, designnotatet 4.3 |
+| `beloep` | Beløpet byggherren godtar for én post uten begrensningen etter § 34.1.3, ett standpunkt for hver post. `saerskilt` er `produktivitet` for posten etter § 34.1.3 annet ledd; uten feltet gjelder det justeringen ellers. Resultatet og totalene står i svarets utregning. | vederlag | `id`, `art`, `beloep`, `saerskilt` | B-13, OV-U26, OV-U31, arbeidsvalget i #1047 (6362745637) |
 | `hindring` | Om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder (§ 33.1). | frist | `id`, `art`, `oppfylt` | § 33.1, vedtaket 05.10 (#211) |
 | `dager` | Dagene. Resultatet og dagene, også de subsidiære, står i svarets utregning. | frist | `id`, `art` | B-13, designnotatet 4.3 |
 
