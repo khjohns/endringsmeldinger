@@ -772,7 +772,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         INSERT koe.app_project_memberships
           (project_id, user_id, catenda_subject, user_email, display_name, role, viewer_override, active)
         VALUES (N'${P1}', '${g.deaktiveres}', N'${team()}', N'', N'', N'member', 0, 1),
-               (N'${GP}', '${g.gp}', N'${team()}', N'', N'', N'member', 0, 1);
+               (N'${GP}', '${g.gp}', N'${team()}', N'', N'', N'member', 0, 1),
+               (N'${GP}', '${b.te}', N'${team()}', N'', N'', N'member', 0, 1);
         INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role)
         VALUES (N'${GP}', N'${TE_GP}', N'TE');`);
     });
@@ -884,6 +885,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       ['et inaktivt medlemskap', () => ({ aktor: b.inaktiv, ...UTEN_SIDE })],
       ['medlemmet i P2, med P1 i konteksten', () => ({ aktor: b.p2, ...UTEN_SIDE })],
       ['en ukjent aktør', () => ({ aktor: randomUUID(), ...UTEN_SIDE })],
+      [
+        'P1 med mellomrom til slutt i konteksten (#581)',
+        () => ({ aktor: b.te, prosjekt: `${P1} `, ...UTEN_SIDE }),
+      ],
     ])('%s får ikke saken i P1 fra `koe_api.saker_i_prosjektet`', async (_, k) => {
       const { sakId } = await kvittertBrev(b.te);
       expect(await iKontekst(k(), (r) => sakerIProsjektet(r, [sakId]), 'kjoeretid')).toEqual([]);
@@ -911,9 +916,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
     });
 
     // Prosedyrene avviser en kontekst fra en annen transaksjon og leser bare prosjektet i
-    // konteksten, så predikatets krav om `koe_tx` og om prosjektet i konteksten prøves alene: eieren gir brukeren lesing i en transaksjon som rulles
-    // tilbake. TRY/CATCH gjør at `REVERT` kjøres også når lesingen feiler (#583).
-    it('predikatet slipper grenseoppslaget gjennom bare i transaksjonen og prosjektet i konteksten', async () => {
+    // konteksten. Kravene i predikatet om `koe_tx`, om prosjektet i konteksten og om prosjektet
+    // i raden prøves derfor direkte. Eieren gir brukeren lesing i en transaksjon som rulles
+    // tilbake. Aktøren er også medlem av GP, så GP i konteksten gir en rad bare hvis predikatet
+    // ikke binder medlemskapet til prosjektet i raden. TRY/CATCH gjør at `REVERT` kjøres også
+    // når lesingen feiler (#583).
+    it('predikatet slipper grenseoppslaget gjennom bare i transaksjonen og for saker i prosjektet i konteksten', async () => {
       const { sakId } = await kvittertBrev(b.te);
       const tilbakerulling = new Error('tilbakerulling');
       let svar:
@@ -939,7 +947,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
             EXEC sp_set_session_context N'koe_tx', @annen;
             SET @annen_tx = (SELECT COUNT(*) FROM koe.sak_metadata WHERE sak_id = @sak);
             EXEC sp_set_session_context N'koe_tx', @tx;
-            EXEC sp_set_session_context N'koe_prosjekt', N'${P2}';
+            EXEC sp_set_session_context N'koe_prosjekt', N'${GP}';
             SET @annet_prosjekt = (SELECT COUNT(*) FROM koe.sak_metadata WHERE sak_id = @sak);
             REVERT;
           END TRY
