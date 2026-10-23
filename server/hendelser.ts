@@ -259,13 +259,13 @@ export function kommentartekst(
 
 /**
  * Kommentaren er skrevet av integrasjonen og har teksten, uten hensyn til mellomrom, som
- * Catenda kan endre. Forfatteren må være integrasjonens brukernavn, så en annen som kan
+ * Catenda kan endre. Forfatteren må være integrasjonens e-post, så en annen som kan
  * kommentere på topicen, ikke hindrer appens kommentar ved å skrive teksten først (#972).
- * Uten brukernavn er ingen kommentar integrasjonens.
+ * Uten e-post er ingen kommentar integrasjonens.
  */
-export const appensKommentar = (kommentar: Kommentar, tekst: string, brukernavn: string | null) =>
-  brukernavn !== null &&
-  kommentar.forfatter === brukernavn &&
+export const appensKommentar = (kommentar: Kommentar, tekst: string, epost: string | null) =>
+  epost !== null &&
+  kommentar.forfatter === epost &&
   kommentar.tekst.replace(/\s+/g, ' ').trim() === tekst.replace(/\s+/g, ' ').trim();
 
 /**

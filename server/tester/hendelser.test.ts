@@ -37,7 +37,13 @@ import {
   type Pool,
 } from '../datalag.ts';
 import { enGang, tidsavbrudd } from './forbindelse.ts';
-import { behandle, nesteInnkommende, tegnITittelen } from '../hendelser.ts';
+import {
+  behandle,
+  nesteInnkommende,
+  registrerBehandling,
+  tegnITittelen,
+  type Innkommende,
+} from '../hendelser.ts';
 import { lesJournal } from '../lager.ts';
 import { mottaHendelse } from '../webhook.ts';
 import {
@@ -53,7 +59,7 @@ const INTEGRASJONEN = randomUUID().replaceAll('-', '');
 /** En feil fra basen med nummeret, som `mssql` gir den. */
 const feilFraBasen = (nummer: number) =>
   Object.assign(new sql.RequestError('feil fra basen', 'EREQUEST'), { number: nummer });
-const INTEGRASJONENS_BRUKERNAVN = 'integrasjonen@test.example';
+const INTEGRASJONENS_EPOST = 'integrasjonen@test.example';
 
 interface Utfall {
   utfall: string;
@@ -66,6 +72,7 @@ interface Utfall {
 describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)', () => {
   let o: Oppsett;
   let board: string;
+  let annetBoard: string;
   let innboks: Innboksoppslag;
   let avh: Jobbavhengigheter;
   const logg = { info() {}, warn() {}, error() {} };
@@ -89,12 +96,12 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
           rolle: 'member' as const,
         })),
       integrasjonensBruker: async () => INTEGRASJONEN,
-      integrasjonensBrukernavn: async () => INTEGRASJONENS_BRUKERNAVN,
+      integrasjonensEpost: async () => INTEGRASJONENS_EPOST,
       topic: async (b, t) => iCatenda.get(noekkel(b, t)) ?? null,
       kommentarer: async (b, t) => kommentarer.get(noekkel(b, t)) ?? [],
       opprettKommentar: async (b, t, tekst) => {
         const id = randomUUID();
-        const ny = { id, tekst, forfatter: INTEGRASJONENS_BRUKERNAVN };
+        const ny = { id, tekst, forfatter: INTEGRASJONENS_EPOST };
         kommentarer.set(noekkel(b, t), [...(kommentarer.get(noekkel(b, t)) ?? []), ny]);
         return id;
       },
@@ -107,15 +114,18 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       saksadresse: (p, sak) => `https://app.example.no/${p}/${sak}/kjerne`,
       logg,
     };
-    board = (
-      await o.datalag.base.pool
-        .request()
-        .input('p', o.prosjekt.id)
-        .query<{ board: string }>(
-          `SELECT LOWER(CONVERT(nvarchar(36), topic_board_id)) AS board
-             FROM koe.catenda_project_configs WHERE internal_project_id = @p`
-        )
-    ).recordset[0].board;
+    const boardFor = async (prosjekt: string) =>
+      (
+        await o.datalag.base.pool
+          .request()
+          .input('p', prosjekt)
+          .query<{ board: string }>(
+            `SELECT LOWER(CONVERT(nvarchar(36), topic_board_id)) AS board
+               FROM koe.catenda_project_configs WHERE internal_project_id = @p`
+          )
+      ).recordset[0].board;
+    board = await boardFor(o.prosjekt.id);
+    annetBoard = await boardFor(o.annetProsjekt.id);
     // Identiteten fra Catenda er brukeren i oppsettet, som etter innloggingen.
     for (const b of [o.te, o.bh, o.utenTeam])
       await o.datalag.base.pool
@@ -988,25 +998,131 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     const [foerst, appens, ...flere] = kommentarerPaa(topic);
     expect(foerst).toEqual(forut);
     expect(flere).toEqual([]);
-    expect(appens).toMatchObject({ tekst: BH_KOMMENTAR, forfatter: INTEGRASJONENS_BRUKERNAVN });
+    expect(appens).toMatchObject({ tekst: BH_KOMMENTAR, forfatter: INTEGRASJONENS_EPOST });
     expect(await kvitteringFor(id)).toEqual([{ kommentar_id: appens.id }]);
   });
 
-  it('#972: uten brukernavn for integrasjonen kvitteres ingen kommentar som står der, heller ikke en uten forfatter, og topicen får en ny', async () => {
+  it('#972: uten e-post for integrasjonen kvitteres ingen kommentar som står der, heller ikke en uten forfatter, og topicen får en ny', async () => {
     const topic = randomUUID();
     const id = await motta(kropp(topic, { forfatter: catendaId(o.bh.subjekt) }));
     expect(await behandleEnHendelse(avh)).toBe(true);
-    const egen = { id: randomUUID(), tekst: BH_KOMMENTAR, forfatter: INTEGRASJONENS_BRUKERNAVN };
+    const egen = { id: randomUUID(), tekst: BH_KOMMENTAR, forfatter: INTEGRASJONENS_EPOST };
     const utenForfatter = { id: randomUUID(), tekst: BH_KOMMENTAR, forfatter: null };
     kommentarer.set(noekkel(board, topic), [utenForfatter, egen]);
-    const utenNavn = {
+    const utenEpost = {
       ...avh,
-      innboks: { ...innboks, integrasjonensBrukernavn: async () => null },
+      innboks: { ...innboks, integrasjonensEpost: async () => null },
     };
-    await skrivKommentarene(utenNavn);
+    await skrivKommentarene(utenEpost);
     const [, , ny, ...flere] = kommentarerPaa(topic);
     expect(flere).toEqual([]);
     expect(await kvitteringFor(id)).toEqual([{ kommentar_id: ny.id }]);
+  });
+
+  // Kilde: punkt 8 i #972. Løkka skriver kommentaren på boardet med utfallet, så basen godtar
+  // bare topicboardet til prosjektet med utfallet.
+  it.each<[string, () => { prosjektId?: string; boardId: string }]>([
+    ['boardet til et annet prosjekt', () => ({ prosjektId: o.prosjekt.id, boardId: annetBoard })],
+    ['et board ingen kobling har', () => ({ prosjektId: o.prosjekt.id, boardId: randomUUID() })],
+    ['et board uten prosjekt', () => ({ boardId: board })],
+    ['et board som ikke er en UUID', () => ({ prosjektId: o.prosjekt.id, boardId: 'board' })],
+  ])('#972 punkt 8: registrer_behandling avviser %s, og utfallet lagres ikke', async (_, valg) => {
+    const id = await motta(kropp(randomUUID()));
+    const behandling = { utfall: 'topic_fra_bh' as const, topicId: randomUUID(), ...valg() };
+    await expect(
+      registrerBehandling(avh.datalag, { id } as Innkommende, behandling)
+    ).rejects.toMatchObject({
+      number: 54003,
+    });
+    expect(await utfallFor(id)).toEqual([]);
+    // Kontrollsaken skiller seg bare i boardet.
+    await registrerBehandling(avh.datalag, { id } as Innkommende, {
+      ...behandling,
+      prosjektId: o.prosjekt.id,
+      boardId: board,
+    });
+    expect(await utfallFor(id)).toEqual([expect.objectContaining({ utfall: 'topic_fra_bh' })]);
+  });
+
+  it('#972 punkt 8: er topicboardet byttet etter oppslaget, lagres et forsøk, og et senere forsøk gir ukjent_prosjekt', async () => {
+    const topic = randomUUID();
+    const id = await motta(kropp(topic, { forfatter: catendaId(o.bh.subjekt) }));
+    const settBoard = (b: string) =>
+      somEier(
+        'UPDATE koe.catenda_project_configs SET topic_board_id = @b WHERE internal_project_id = @p',
+        {
+          b,
+          p: o.prosjekt.id,
+        }
+      );
+    const byttet = {
+      ...avh,
+      innboks: {
+        ...innboks,
+        topic: async (b: string, t: string) => {
+          await settBoard(randomUUID());
+          return innboks.topic(b, t);
+        },
+      },
+    };
+    try {
+      expect(await behandleEnHendelse(byttet)).toBe(true);
+      expect(await utfallFor(id)).toEqual([]);
+      expect(await forsoekFor(id)).toBe(1);
+      expect(await behandleEnHendelse(senere(1))).toBe(true);
+      expect(await utfallFor(id)).toEqual([expect.objectContaining({ utfall: 'ukjent_prosjekt' })]);
+    } finally {
+      await settBoard(board);
+    }
+  });
+
+  // Kilde: punkt 8 i #972 og idempotensen i `registrer_behandling` (#963). En sak som alt er
+  // opprettet, har topicen på boardet i topickoblingen, også når topicboardet er byttet.
+  it('#972 punkt 8: etter et byttet topicboard godtas boardet i sakens topickobling, og en hendelse med utfall gir ingen feil', async () => {
+    const topic = randomUUID();
+    const foerst = await motta(kropp(topic));
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    const [{ sak_id: sakId }] = await utfallFor(foerst);
+    expect(sakId).toBeTruthy();
+    const settBoard = (b: string) =>
+      somEier(
+        'UPDATE koe.catenda_project_configs SET topic_board_id = @b WHERE internal_project_id = @p',
+        { b, p: o.prosjekt.id }
+      );
+    const sak = {
+      utfall: 'sak_opprettet' as const,
+      prosjektId: o.prosjekt.id,
+      sakId: sakId!,
+      topicId: topic,
+      boardId: board,
+    };
+    await settBoard(randomUUID());
+    try {
+      // Hendelsen har et utfall, så et board ingen kobling har, gir ingen feil og ingen rad.
+      await registrerBehandling(avh.datalag, { id: foerst } as Innkommende, {
+        ...sak,
+        boardId: randomUUID(),
+      });
+      expect(await utfallFor(foerst)).toHaveLength(1);
+      // Hvert avvik skiller seg fra den godtatte saken i ett felt.
+      const annen = await motta(kropp(randomUUID()));
+      for (const avvik of [
+        { topicId: randomUUID() },
+        { boardId: randomUUID() },
+        { sakId: randomUUID() },
+        { prosjektId: o.annetProsjekt.id },
+      ])
+        await expect(
+          registrerBehandling(avh.datalag, { id: annen } as Innkommende, { ...sak, ...avvik })
+        ).rejects.toMatchObject({ number: 54003 });
+      expect(await utfallFor(annen)).toEqual([]);
+      await registrerBehandling(avh.datalag, { id: annen } as Innkommende, sak);
+      expect(await utfallFor(annen)).toEqual([
+        expect.objectContaining({ utfall: 'sak_opprettet', sak_id: sakId }),
+      ]);
+    } finally {
+      await settBoard(board);
+    }
   });
 
   it('uten oppslagene for innboksen behandler løkka den ikke', async () => {

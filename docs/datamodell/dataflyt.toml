@@ -1089,8 +1089,8 @@ gir en kommentar om hvorfor ingen sak er opprettet. `tittel_kan_ikke_vises` gir 
 kommentar med tegnene som må endres, men ikke når topicen har fått en sak (#1138). Kommentarene på topicen leses
 først, og har integrasjonen skrevet samme tekst der alt, skrives ingen ny; da gir et
 nytt forsøk etter et tapt svar én kommentar. Forfatteren må være integrasjonens
-brukernavn, så en annen kan ikke hindre kommentaren ved å skrive teksten først. Uten
-brukernavn kvitteres ingen kommentar, og kommentaren skrives på nytt (#972). Kommentaren skrives på boardet topicen ble slått opp på, med
+e-post, så en annen kan ikke hindre kommentaren ved å skrive teksten først. Uten
+e-post kvitteres ingen kommentar, og kommentaren skrives på nytt (#972). Kommentaren skrives på boardet topicen ble slått opp på, med
 integrasjonens token. Kvitteringen står i `koe.topic_kommentar`. Feiler et steg,
 lagres forsøket i `koe.innkommende_forsoek`, og utfallet venter før neste forsøk."""
 funn = []
@@ -1105,7 +1105,7 @@ kode = [
     "server/catenda.ts:innboksintegrasjon",
     "server/catenda.ts:CatendaOAuth",
 ]
-data = "Integrasjonens brukernavn (`username`), som skiller kommentarer integrasjonen skrev. Lagres ikke."
+data = "Integrasjonens e-post (`email`), som er `author` på kommentarene integrasjonen skrev (#972). Lagres ikke."
 
 [[flyt.steg]]
 fra = "catenda:kommentar"
@@ -1118,7 +1118,7 @@ kode = [
 ]
 data = """
 Kommentarene på topicen, med ID, tekst og forfatter (`author`). Har integrasjonens
-brukernavn skrevet samme tekst der, brukes den kommentarens ID. Lagres ikke."""
+e-post skrevet samme tekst der, brukes den kommentarens ID. Lagres ikke."""
 
 [[flyt.steg]]
 fra = "koe.innkommende_behandling"
