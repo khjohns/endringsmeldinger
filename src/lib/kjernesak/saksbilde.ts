@@ -105,7 +105,8 @@ const TEKST: Record<string, string> = {
   passivitet_paaberopt: 'Passivitet påberopt',
   ingen_krav: 'Ingen krav',
   varsel_ikke_registrert: 'Varsel ikke registrert',
-  varsel_kreves_ikke: 'Varsel kreves ikke',
+  // Gjelder bare § 34.1.2; det særskilte varselet etter § 34.1.3 kreves likevel (OV-U25, MM-U23).
+  varsel_kreves_ikke: 'Varsel etter § 34.1.2 kreves ikke',
   sendt_ifolge_TE: 'Sendt ifølge TE',
   sendt_ifolge_BH: 'Sendt ifølge BH',
   mottatt_ifolge_TE: 'Mottatt ifølge TE',

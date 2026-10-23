@@ -21,6 +21,7 @@ import {
   tilSakState,
   tilTidslinje,
 } from './sakstilstand';
+import type { Vederlagsvarsel } from './vederlagskrav';
 
 interface Projeksjon {
   sak: SakState;
@@ -40,6 +41,10 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
   const teNavn = getPartsNavn('TE');
   const tilbyrTe = (handling: string) =>
     kjernesak.part === 'TE' && kjernesak.handlinger.includes(handling);
+  // I vederlagssporet er det særskilte varselet etter § 34.1.3 et varsel ved siden av
+  // varselet i sporet (OV-U25).
+  const tilbyrVarsel = (type: 'sende_varsel' | 'varsle', spor: Kravspor) =>
+    tilbyrTe(`${type}:${spor}`) || (spor === 'vederlag' && tilbyrTe(`${type}:34.1.3`));
   const bhNavn = getPartsNavn('BH');
   // Etter en ny lasting som feiler, står saken slik den sist ble lest.
   let forrige: Projeksjon | null = null;
@@ -101,9 +106,20 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     /** Valgene kjernen tilbyr TE i kravskjemaet, i rekkefølgen skjemaet viser dem (OV-U5). */
     teValg(spor: Kravspor): Kravvalg[] {
       return [
-        ...(tilbyrTe(`sende_varsel:${spor}`) ? (['varsel'] as const) : []),
+        ...(tilbyrVarsel('sende_varsel', spor) ? (['varsel'] as const) : []),
         ...(tilbyrTe(`krav:${spor}`) ? (['spesifisert'] as const) : []),
-        ...(tilbyrTe(`varsle:${spor}`) ? (['registrert'] as const) : []),
+        ...(tilbyrVarsel('varsle', spor) ? (['registrert'] as const) : []),
+      ];
+    },
+    /**
+     * Varslene i vederlagssporet kjernen tilbyr TE som varsel fra appen eller registrering:
+     * varselet etter § 34.1.2 og det særskilte etter § 34.1.3 (OV-U25, OV-U8).
+     */
+    teVarsler(valg: 'varsel' | 'registrert'): Vederlagsvarsel[] {
+      const type = valg === 'varsel' ? 'sende_varsel' : 'varsle';
+      return [
+        ...(tilbyrTe(`${type}:vederlag`) ? (['34.1.2'] as const) : []),
+        ...(tilbyrTe(`${type}:34.1.3`) ? (['34.1.3'] as const) : []),
       ];
     },
     /**
@@ -114,7 +130,7 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
       const spor = SPOR_FOR[nokkel];
       const krav = tilbyrTe(`krav:${spor}`);
       const varsel =
-        spor !== 'grunnlag' && (tilbyrTe(`sende_varsel:${spor}`) || tilbyrTe(`varsle:${spor}`));
+        spor !== 'grunnlag' && (tilbyrVarsel('sende_varsel', spor) || tilbyrVarsel('varsle', spor));
       if (!krav && !varsel) return null;
       if (krav && kravversjon(projeksjon.utledning, nokkel) > 0)
         return spor === 'grunnlag' ? 'Send ny versjon av grunnlaget' : 'Send ny versjon av kravet';
@@ -125,7 +141,9 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
           ? spor === 'frist'
             ? 'Send krav om fristforlengelse'
             : 'Send krav om vederlagsjustering'
-          : 'Registrer varsel';
+          : tilbyrVarsel('sende_varsel', spor)
+            ? 'Send varsel'
+            : 'Registrer varsel';
     },
     /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */
     godtar(nokkel: SporKey): string | null {
