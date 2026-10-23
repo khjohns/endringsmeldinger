@@ -1516,8 +1516,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "} else if (s.art === 'metode' && s.aksepterer) {",
-        "} else if (s.art === 'metode' && !s.aksepterer) {",
+        "if (s.art === 'metode' && s.aksepterer) return 'uten_virkning';",
+        "if (s.art === 'metode' && !s.aksepterer) return 'uten_virkning';",
       ],
     ],
     // Virkningen av «nei» leses ikke av noen regel, så den overlever der (#490).
