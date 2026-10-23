@@ -114,18 +114,13 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     const { send } = await vis('TE');
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
 
-    // Bare tilbud kan sendes; de andre metodene, de særskilte kravene og varslene etter
-    // § 34.1.3, vedleggene og utkastet vises ikke (OV-U1, oppdragsgiver 17.10, #1047).
-    // Varselet etter § 34.1.2 er et eget valg (#1096).
+    // Bare tilbud kan sendes; de andre metodene, rigg og drift, vedleggene og utkastet vises
+    // ikke (OV-U1, oppdragsgiver 17.10, #1171). Posten for produktivitetstap er et eget felt
+    // (OV-U23), og varslene er egne valg (#1096, OV-U25).
     const skjema = within(document.querySelector('.form-content') as HTMLElement);
     expect(skjema.getByText('Fastpris')).toBeInTheDocument();
-    for (const ikke of [
-      /Regningsarbeid/,
-      /Enhetspris/,
-      /Rigg og drift/,
-      /Produktivitet/,
-      /34\.1\.3/,
-    ])
+    expect(skjema.getByLabelText('Produktivitetstap')).toBeInTheDocument();
+    for (const ikke of [/Regningsarbeid/, /Enhetspris/, /Rigg og drift/])
       expect(skjema.queryByText(ikke)).toBeNull();
     expect(skjema.queryByText(/vedlegg/i)).toBeNull();
     expect(skjema.queryByText(/kladd|utkast|autolagret/i)).toBeNull();
