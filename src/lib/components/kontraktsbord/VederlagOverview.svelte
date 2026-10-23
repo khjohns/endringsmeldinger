@@ -204,7 +204,8 @@
     </div>
   </div>
 
-  {#if kravlinjer.length > 1}
+  <!-- Et krav med bare posten etter § 34.1.3 viser posten, ikke bare summen (OV-U23). -->
+  {#if kravlinjer.length > 1 || (kravlinjer.length === 1 && hovedkravBelop === undefined)}
     <div class="amount-breakdown">
       {#each kravlinjer as row (row.label)}
         <div class="amount-row">
