@@ -5,6 +5,8 @@
 
 import { HJEMMEL } from '../format/format.ts';
 import { grunnlagsstandpunkter } from '../frosset/frysing.ts';
+import { vederlagsposter } from '../frosset/standpunkt.ts';
+import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Svarutkast } from './kommando.ts';
 import {
   foresporselForFristsvar,
@@ -39,7 +41,27 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
         aksepterer: v.aksepterer_metode,
         ...(v.aksepterer_metode ? {} : { oensket_metode: v.oensket_metode }),
       });
-    ut.push({ id: nyId(), art: 'beloep' });
+    // OV-U26, OV-U28: justeringen ellers, begrensningen etter § 34.1.3 og posten etter annet
+    // ledd, hver for seg. Beløpet etter begrensningen er det byggherren oppgir (VS-U5).
+    for (const post of vederlagsposter(v, krav)) {
+      if (post.saerskilt && typeof v.produktivitet_varslet_i_tide === 'boolean')
+        ut.push({
+          id: nyId(),
+          art: 'rettidighet',
+          gjelder: varseletForNyttSvar(u, '34.1.3'),
+          hjemmel: '34.1.3',
+          i_tide: v.produktivitet_varslet_i_tide,
+          ...(v.produktivitet_varslet_i_tide
+            ? {}
+            : { beloep: tilTall(beloep(v.produktivitet_begrenset_belop as number)!) }),
+        });
+      ut.push({
+        id: nyId(),
+        art: 'beloep',
+        beloep: post.godkjent,
+        ...(post.saerskilt ? { saerskilt: post.saerskilt } : {}),
+      });
+    }
   } else {
     // VS-U20, OV-U5, HF-U1: varselet før svaret.
     if (typeof v.frist_varsel_ok === 'boolean')

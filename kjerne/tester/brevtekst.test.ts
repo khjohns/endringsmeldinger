@@ -4544,12 +4544,17 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
     };
     const registrert = { opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-20' }] };
     const grunner = (s: Sak) => s.u().begrensninger.map((b) => b.grunn);
+    /** Beløpet i posten og i utregningen, som har hvert sitt hjem (OV-U31). */
+    const beloepet = (kr: number) => (v: Data) => {
+      (v.utregning as Data).godkjent_beloep = kr;
+      (v.standpunkter as Data[]).find((p) => p.art === 'beloep')!.beloep = kr;
+    };
 
     it('en revisjon som senker det godkjente beløpet, gjør saken ikke forstått (HF-U5)', () => {
       const s = sakMedKrav();
       brev(s, 'vederlag', delvis);
       s.rad('BH', {
-        svar: [kopi(s, (v) => ((v.utregning as Data).godkjent_beloep = 80000))],
+        svar: [kopi(s, beloepet(80000))],
       });
       expect(s.u().forstaatt).toBe(false);
       expect(grunner(s)).toEqual([
@@ -4561,7 +4566,7 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       const s = sakMedKrav();
       brev(s, 'vederlag', delvis);
       s.rad('BH', {
-        svar: [kopi(s, (v) => ((v.utregning as Data).godkjent_beloep = 110000))],
+        svar: [kopi(s, beloepet(110000))],
       });
       expect(s.u().forstaatt).toBe(true);
     });
@@ -4570,7 +4575,7 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       const s = sakMedKrav();
       brev(s, 'vederlag', delvis);
       s.rad('BH', {
-        svar: [kopi(s, (v) => ((v.utregning as Data).godkjent_beloep = 80000))],
+        svar: [kopi(s, beloepet(80000))],
         ...registrert,
       });
       expect(s.u().forstaatt).toBe(true);

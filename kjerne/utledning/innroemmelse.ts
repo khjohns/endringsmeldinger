@@ -16,11 +16,12 @@ const RANG: Record<Grunnlagsresultat, number> = { avslaatt: 0, paalegg_frafalt: 
  * HF-U5, HF-U14: det revisjonen senker av det byggherren har innrømmet i svaret den
  * erstatter, standpunkt for standpunkt, som en setning til meldingen, eller `null`.
  * Hvert standpunkt sammenliknes med standpunktet av samme art på samme plass i
- * revisjonen (detalj 4 i HF-U5). Beløpet og dagene sammenliknes slik de står, prinsipalt
- * eller subsidiært, så en revisjon som senker ett standpunkt, avvises også når den hever
- * et annet. Grunnlaget, beløpet og dagene står i hvert svar (`STANDPUNKTER_I_SPORET`). Mangler
- * beløpet eller dagene i svaret eller i revisjonen, kan de ikke sammenliknes, og revisjonen
- * avvises (#627, #814).
+ * revisjonen (detalj 4 i HF-U5). Beløpet sammenliknes for hver post, og beløpet etter
+ * begrensningen etter § 34.1.3 når begge svar påberoper den (valg 4 i #1047). Beløpet og dagene
+ * sammenliknes slik de står, prinsipalt eller subsidiært, så en revisjon som senker ett
+ * standpunkt, avvises også når den hever et annet. Et beløp som mangler, er ikke 0 (#627):
+ * mangler det i svaret, har byggherren ikke innrømmet noe å senke, og mangler det bare i
+ * revisjonen, kan de ikke sammenliknes, og revisjonen avvises (#787, #814).
  * Rettidigheten sammenliknes ikke her: et «i tide» sperres av `SAGT_I_TIDE` (HF-U4).
  * Byggherrens ønskede metode sammenliknes ikke (MM-U12).
  * `forskyvning` er lagene svaret på grunnlaget opptok foran sporet da brevet ble sendt
@@ -31,11 +32,20 @@ export function senketInnroemmelse(
   nye: Standpunkt[],
   forskyvning: number
 ): string | null {
-  /** Standpunktet i revisjonen med samme art og plass som `f` i svaret. */
+  /**
+   * Standpunktet i revisjonen med samme art og plass som `f` i svaret. Beløpet gjelder samme
+   * post, og rettidigheten samme hjemmel.
+   */
+  const samme = (a: Standpunkt, b: Standpunkt) =>
+    a.art === b.art &&
+    (a.art !== 'beloep' || a.saerskilt === (b as typeof a).saerskilt) &&
+    (a.art !== 'rettidighet' || a.hjemmel === (b as typeof a).hjemmel);
   const ny = <A extends Standpunkt['art']>(f: Extract<Standpunkt, { art: A }>) =>
-    nye.filter((p): p is Extract<Standpunkt, { art: A }> => p.art === f.art)[
-      forrige.standpunkter.filter((p) => p.art === f.art).indexOf(f)
+    nye.filter((p): p is Extract<Standpunkt, { art: A }> => samme(p, f))[
+      forrige.standpunkter.filter((p) => samme(p, f)).indexOf(f)
     ];
+  const post = (f: Extract<Standpunkt, { art: 'beloep' }>) =>
+    f.saerskilt ? ' for særskilt justering (§ 34.1.3 annet ledd)' : '';
   // OV-U32: et standpunkt etter det første laget i brevet, med etiketten brevet ga det.
   const subsidiaert = (id: string) => {
     const v = forrige.beslutningsgrunnlag.virkninger.find((p) => p.standpunkt === id)?.virkning;
@@ -49,13 +59,18 @@ export function senketInnroemmelse(
       if (RANG[n.resultat] < RANG[f.resultat])
         return `I svaret er grunnlaget ${subsidiaert(f.id)}${GRUNNLAGSSVARET[f.resultat]}, og revisjonen endrer det til ${GRUNNLAGSSVARET[n.resultat]}`;
     } else if (f.art === 'beloep') {
-      const n = ny(f)!;
-      const [nytt, godkjent] = [beloep(n.godkjent), beloep(f.godkjent)];
-      // #627: et beløp som mangler, er ikke null kroner. Revisjonen kan da ikke sammenliknes.
-      if (nytt === null || godkjent === null)
-        return 'Beløpet mangler i svaret eller i revisjonen, så revisjonen kan ikke sammenliknes med svaret';
+      const n = ny(f);
+      const [nytt, godkjent] = [beloep(n?.godkjent), beloep(f.godkjent)];
+      if (godkjent === null) continue;
+      if (nytt === null)
+        return 'Beløpet mangler i revisjonen, så revisjonen kan ikke sammenliknes med svaret';
       if (nytt < godkjent)
-        return `Svaret godkjenner ${subsidiaert(f.id)}${kroner(f.godkjent)}, og revisjonen senker beløpet til ${kroner(n.godkjent)}`;
+        return `Svaret godkjenner ${subsidiaert(f.id)}${kroner(f.godkjent)}${post(f)}, og revisjonen senker beløpet til ${kroner(n!.godkjent)}`;
+    } else if (f.art === 'rettidighet' && f.begrenset !== undefined) {
+      // Valg 4 i #1047: beløpet etter begrensningen, når begge svar påberoper den.
+      const n = ny(f);
+      if (n?.begrenset !== undefined && beloep(n.begrenset)! < beloep(f.begrenset)!)
+        return `Svaret godkjenner ${subsidiaert(f.id)}${kroner(f.begrenset)} for særskilt justering etter begrensningen (§ 34.1.3), og revisjonen senker beløpet til ${kroner(n.begrenset)}`;
     } else if (f.art === 'dager') {
       const n = ny(f)!;
       if (!Number.isFinite(n.vurdert) || !Number.isFinite(f.vurdert))

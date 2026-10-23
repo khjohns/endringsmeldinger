@@ -949,7 +949,8 @@ function utledSporene(
   for (const n of KRAVSPOR) spor[n].trukket ||= spor.grunnlag.trukket;
 
   // OV-U5, HF-U1: et svar står med virkningen det hadde, også når TE senere har registrert
-  // et annet varsel enn det påberopelsen etter § 33.4 eller § 34.1.2 gjaldt. Visningen sier det.
+  // et annet varsel enn det påberopelsen etter § 33.4, § 34.1.2 eller § 34.1.3 gjaldt. Visningen
+  // sier det.
   const annetVarsel = (p: Standpunkt) => {
     if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;
     const varsel = spor[VARSELSPOR[p.hjemmel]].varsler[p.hjemmel];

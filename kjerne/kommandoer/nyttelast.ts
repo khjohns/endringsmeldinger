@@ -18,7 +18,7 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
   hjemmelenGjelder,
-  krevdBeloep,
+  krevdSamlet,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
@@ -137,9 +137,8 @@ function binding(forrige: Svar, nye: Standpunkt[], forskyvning: number): Avvisni
 
 /**
  * KA-U24, KA-U32: de selvstendige innsigelsene og avgrensningene i svaret som gjør
- * det mindre gunstig for TE enn kravet, og som krever en begrunnelse. Dagens
- * tilfeller står som liste; § 34.1.3 kommer med når den
- * bygges. At et svar bare er subsidiært fordi grunnlaget er avslått, krever ingen
+ * det mindre gunstig for TE enn kravet, og som krever en begrunnelse. Begrensningen etter
+ * § 34.1.3 krever begrunnelse også når beløpene er like (valg d i #1047). At et svar bare er subsidiært fordi grunnlaget er avslått, krever ingen
  * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten.
  */
 function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Krav): string[] {
@@ -152,6 +151,8 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
     if (v.resultat === 'paalegg_frafalt') ut.push('frafall etter § 32.3 c (KA-U32)');
   } else if (s.spor === 'vederlag') {
     if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');
+    if (v.produktivitet_varslet_i_tide === false)
+      ut.push('påberopt begrensning etter § 34.1.3 (VS-U5)');
     if (v.aksepterer_metode === false) ut.push('et tilbud som ikke er akseptert (§ 34.2.2)');
     // B-13: beløpet alene, også uten aksept av tilbudet; da gjelder grunnen over i tillegg.
     const godkjent = beloep(
@@ -159,7 +160,7 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
     );
     if (godkjent === null)
       throw new Error('Utregningen av vederlaget har ikke godkjent beløp (#508).');
-    if (!erBeloepetGodkjentFullt(krevdBeloep(krav), godkjent))
+    if (!erBeloepetGodkjentFullt(krevdSamlet(krav), godkjent))
       ut.push('et beløp som ikke er godkjent fullt');
   } else {
     if (v.frist_varsel_ok === false) ut.push('påberopt preklusjon etter § 33.4');

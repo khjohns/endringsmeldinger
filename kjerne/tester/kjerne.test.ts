@@ -1306,8 +1306,9 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
   });
 });
 
-// HF-U5: et beløp som mangler i et lagret svar, er ikke null kroner, så en revisjon med et
-// lavere beløp slipper ikke gjennom uten sammenlikning (#627 punkt 3).
+// HF-U5: et beløp som mangler, er ikke null kroner (#627 punkt 3, valg 4 i #1047). Mangler det
+// i svaret, har byggherren ikke innrømmet noe å senke (#787 punkt 1). Mangler det i revisjonen,
+// slipper den ikke gjennom uten sammenlikning.
 describe('revisjonen av et svar uten beløp', () => {
   const svar = (godkjent: number | undefined) =>
     ({
@@ -1319,9 +1320,14 @@ describe('revisjonen av et svar uten beløp', () => {
       typeof senketInnroemmelse
     >[1];
 
-  it('sammenliknes ikke og avvises', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toEqual(
-      expect.stringMatching(/Beløpet mangler/)
+  it('et svar uten beløp har ikke innrømmet noe, så revisjonen avvises ikke, heller ikke en som hever det (#787)', () => {
+    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toBeNull();
+    expect(senketInnroemmelse(svar(undefined), revisjon(100), 0)).toBeNull();
+  });
+
+  it('en revisjon uten beløp sammenliknes ikke og avvises', () => {
+    expect(senketInnroemmelse(svar(100), revisjon(undefined as unknown as number), 0)).toEqual(
+      expect.stringMatching(/Beløpet mangler i revisjonen/)
     );
   });
 
@@ -1969,7 +1975,7 @@ describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => 
       spor: 'vederlag',
       gjelder: k.navn.id('K-v1'),
       grunnlagskrav: k.navn.id('K-g1'),
-      standpunkter: [{ id: randomUUID(), art: 'beloep' }],
+      standpunkter: [{ id: randomUUID(), art: 'beloep', beloep: 60000 }],
       utregning: { resultat: 'delvis_godkjent', godkjent_beloep: 60000 },
     };
     frysBrev({ ...siste, event_id: randomUUID(), data: { svar: [svar] } }, journal, KJERNE);

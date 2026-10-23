@@ -4,11 +4,11 @@
  * er kjernens utregning (B-13). Dagmulktssatsen leses, og kjeden avledes av hierarkiet
  * (GFK-U8), i `server/godkjenning.ts`.
  */
-import { regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
+import { krevdSamlet, regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
-import { KRAVSPOR, type Kravspor } from '../kjerne/typer.ts';
+import { KRAVSPOR, type Krav, type Kravspor } from '../kjerne/typer.ts';
 import {
   foresporselForFristsvar,
   type Sporutledning,
@@ -87,8 +87,9 @@ export function brevverdi(
     const besvart = new Set(svar.map((s) => s.spor));
     for (const spor of KRAVSPOR) {
       if (besvart.has(spor)) continue;
-      const v = kravverdi(u.spor[spor], (innhold) =>
-        sporverdi(spor, innhold.beloep, innhold.dager)
+      // OV-U23: vederlagskravet er justeringen ellers og posten etter § 34.1.3 annet ledd.
+      const v = kravverdi(u.spor[spor], (k) =>
+        sporverdi(spor, spor === 'vederlag' ? tilTall(krevdSamlet(k)) : null, k.innhold.dager)
       );
       if (v === null) ukjent = true;
       else {
@@ -102,11 +103,8 @@ export function brevverdi(
   return { beloep: ukjent ? null : verdi, gulv: verdi };
 }
 
-function kravverdi(
-  sp: Sporutledning,
-  verdi: (innhold: Record<string, unknown>) => number
-): number | null {
+function kravverdi(sp: Sporutledning, verdi: (krav: Krav) => number): number | null {
   if (sp.trukket || sp.ingenKrav) return 0;
   if (!sp.gjeldendeKrav) return null;
-  return verdi(sp.gjeldendeKrav.innhold);
+  return verdi(sp.gjeldendeKrav);
 }
