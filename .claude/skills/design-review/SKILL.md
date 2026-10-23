@@ -35,7 +35,9 @@ et allment ideal. En tett sporoversikt feiler ikke fordi den er tett.
 ### 2. Se helheten først
 
 Se visningen med skillen `mockup-nettleser`, i lys og mørk modus og på smal skjerm,
-og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en. Spør:
+og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en.
+Kjør `uu.mjs` i samme skill (WCAG 2.1 A og AA med axe-core), og før resultatet i
+PR-en. Et brudd er en blocker. Spør:
 
 - Leder én ting, eller konkurrerer alt?
 - Ser du partenes siste krav og svar i hvert spor uten å lete?
@@ -65,7 +67,8 @@ og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en. Spør:
 **C · Flater og tokens.**
 - Bare tokens som systemfila nevner? Ingen rå hex, og ingen tokens som ikke er definert?
 - Kanter, ikke skygger, unntatt overlegg? Radius etter systemfila?
-- Fungerer mørk modus, og holder kontrasten WCAG AA for tekst som betyr noe?
+- Fungerer mørk modus, og holder kontrasten WCAG AA etter «Siste sjekk» i
+  [`uu-sjekk`](../uu-sjekk/SKILL.md)?
 
 **D · Komposisjon.**
 - Tett der parten sammenligner, luft rundt brevteksten?
@@ -75,6 +78,7 @@ og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en. Spør:
 - Standard, hover, aktiv, fokus og deaktivert? Lasting, tom, feil og konflikt?
 - Viser en handling som venter, at den venter, og beholder skjemaet ved feil?
 - Treffflate på minst 40 px? Animasjonen etter grensesnitt-skillen?
+- Tastatur, fokus, skjemaer og overlegg etter «Siste sjekk» i `uu-sjekk`.
 
 **F · Gjenbruk og innhold.**
 - Laget på nytt det som finnes: `<div onclick>`, egen dialog eller nedtrekksliste,
@@ -91,7 +95,8 @@ Alvorligheten følger stoppregelen for funn i `AGENTS.md`:
 
 - **Blocker:** feil resultat nå, eller brudd på et vedtak eller kontrakten. En
   utilgjengelig egen kontroll, et token som ikke er definert, og en tilstand som
-  mangler der brukeren kan havne i den, gir feil resultat nå. Rettes i PR-en.
+  mangler der brukeren kan havne i den, gir feil resultat nå. Det gjør også et brudd
+  på WCAG 2.1 A eller AA, fra `uu.mjs` eller funnet for hånd. Rettes i PR-en.
 - **Bør rettes:** et reelt håndverksavvik som ikke gir feil resultat. Føres i
   oppfølgingsissuet bare etter reglene for det i `AGENTS.md`, ellers avvises det med
   én linje.
@@ -121,7 +126,7 @@ Godkjenn ikke fordi visningen virker. For å godkjenne:
 - vedtakene om betegnelse, farge, frist og ord holder;
 - ett fokuspunkt, og hierarki som overlever skvisetesten;
 - bare tokens som systemfila nevner, og som er definert, og kontrast etter WCAG AA i begge
-  modi;
+  modi, og ingen brudd fra `uu.mjs`;
 - alle tilstander, og tilgjengelige kontroller fra bits-ui eller komponentene som
   finnes;
 - ingen strukturelle omveier, og tekst etter språkreglene i `AGENTS.md`.

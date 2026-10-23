@@ -45,6 +45,8 @@ Gjenbruk:   komponenten eller klassen som finnes, eller hvorfor den ikke passer
 
 Kan du ikke si hvorfor for hvert punkt, har du valgt en standard. Stopp og tenk.
 
+Mens du bygger, følg «Tidlig sjekk» i [`uu-sjekk`](../uu-sjekk/SKILL.md).
+
 ## Hierarki
 
 - **Ett fokuspunkt per visning.** Navngi det før du bygger, og gjør det tydeligst.

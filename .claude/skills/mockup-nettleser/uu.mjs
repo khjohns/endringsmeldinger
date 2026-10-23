@@ -123,7 +123,7 @@ try {
 
       const tittel = `${oppsett.navn} · ${tilstand.navn}`;
       console.log(
-        `\n${tittel}: ${resultat.violations.length} regler brutt, ${resultat.incomplete.length} til kontroll for hånd`
+        `\n${tittel}: regler brutt ${resultat.violations.length}, til kontroll for hånd ${resultat.incomplete.length}`
       );
       for (const v of resultat.violations) {
         brudd++;
