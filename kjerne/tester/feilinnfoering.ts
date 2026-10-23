@@ -3467,6 +3467,38 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['if (begrensningen(svar, v)) return false;', '']],
     mal: ['en begrensning i et lag gir ikke sammenfall'],
   },
+  {
+    id: 'F400',
+    feilklasse: 'linjen gjentar etiketten for hvert standpunkt i samme lag (OV-U32)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'if (!ordnet || lag === null || merket.has(lag)) return l.tekst;',
+        'if (!ordnet || lag === null) return l.tekst;',
+      ],
+    ],
+    mal: [
+      'begge påberopt: § 34.1.2 prinsipalt',
+      'med avslått grunnlag er justeringen ellers i sporets første lag',
+    ],
+  },
+  {
+    id: 'F401',
+    feilklasse: 'linjen setter etikett når svaret har ett lag og ingen påberopelse (OV-U33)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      ['const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);', 'const ordnet = ledd.length > 1;'],
+    ],
+    mal: ['uten påberopelse har svaret ett lag, og linjen har ingen etikett for postene'],
+  },
+  {
+    id: 'F402',
+    feilklasse:
+      'leseren godtar et beløp etter begrensningen over det byggherren godtar for posten (valg 2 i #1047, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['beloep(begrenset.begrenset)! > beloep(post.godkjent)!', 'false']],
+    mal: ['et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått'],
+  },
 ];
 
 interface Testresultat {

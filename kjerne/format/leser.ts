@@ -243,10 +243,10 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
     throw new Uforstaatt(
       `${sti}: rettidigheten står ${hjemler.map((h) => `etter § ${h}`).join(', ')}, men bare § 33.4 og deretter § 33.6.2 er lov`
     );
-  if (spor === 'vederlag') kontrollerVederlagsstandpunktene(ut, utregning, sti);
   for (const t of tillatt)
     if (t.paakrevd && !ut.some((s) => s.art === t.art))
       throw new Uforstaatt(`${sti}: svaret på ${spor} mangler standpunktet ${t.art}`);
+  if (spor === 'vederlag') kontrollerVederlagsstandpunktene(ut, utregning, sti);
   const subsidiaertVerdi =
     spor === 'vederlag' ? 'subsidiaert_godkjent_beloep' : 'subsidiaert_godkjent_dager';
   if ('subsidiaert_resultat' in utregning !== subsidiaertVerdi in utregning)
@@ -280,6 +280,20 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
   if (plasser.includes(3) && !plasser.includes(4))
     throw new Uforstaatt(`${sti}: rettidigheten etter § 34.1.3 står uten posten etter annet ledd`);
+  // Valg 2 i #1047: beløpet etter begrensningen er høyst det byggherren godtar for posten.
+  const begrenset = ut.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.3');
+  const post = ut.find((s) => s.art === 'beloep' && s.saerskilt);
+  if (
+    begrenset?.art === 'rettidighet' &&
+    begrenset.begrenset !== undefined &&
+    post?.art === 'beloep'
+  ) {
+    // Skjemaet har alt avvist et negativt beløp.
+    if (beloep(begrenset.begrenset)! > beloep(post.godkjent)!)
+      throw new Uforstaatt(
+        `${sti}: beløpet etter begrensningen er høyere enn det byggherren godtar for posten`
+      );
+  }
   const poster = ut.flatMap((s) => (s.art === 'beloep' ? [s.godkjent] : []));
   const samlet = poster.reduce((a, b) => a + (beloep(b) ?? 0n), 0n);
   const total = (utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep) as number;

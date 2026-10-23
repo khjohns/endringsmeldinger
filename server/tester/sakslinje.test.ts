@@ -299,6 +299,44 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
+  it('#1218: med posten etter § 34.1.3 annet ledd er kravet og svaret summen av postene, og svaret er subsidiært når posten er det (OV-U23, OV-U31, OV-U33)', () => {
+    const medPost: Steg = (sak) => {
+      sak.send('TE', GRUNNLAGSKRAV);
+      sak.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          metode: 'tilbud',
+          beloep: 100000,
+          saerskilt: { produktivitet: { beloep: 40000 } },
+        },
+        utdypning: UTDYPNING,
+      });
+      sak.send('BH', {
+        type: 'brev',
+        svar: [
+          sak.svar('grunnlag', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+          sak.svar('vederlag', {
+            hovedkrav_vurdering: 'godkjent',
+            hovedkrav_godkjent_belop: 100000,
+            produktivitet_vurdering: 'delvis',
+            produktivitet_godkjent_belop: 30000,
+            produktivitet_varslet_i_tide: false,
+            produktivitet_begrenset_belop: 10000,
+            aksepterer_metode: true,
+          }),
+        ],
+      });
+    };
+    const l = linje(medPost);
+    expect(l.vederlag.krav).toEqual({ beloep: 140000, metode: 'tilbud' });
+    expect(l.vederlag.svar).toEqual({
+      resultat: 'delvis_godkjent',
+      beloep: 130000,
+      subsidiaert: true,
+    });
+  });
+
   it('#1052: det subsidiære beløpet summeres bare når kravet står, som kravene (svar 3 fra oppdragsgiver 22.10)', () => {
     expect(noekkeltall([linje(forloepA)]).vederlag.svar_subsidiaert_sum, 'kontroll').toBe(60000);
     for (const l of [

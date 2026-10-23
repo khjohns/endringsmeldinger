@@ -2191,4 +2191,17 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
   it('poster som ikke summerer til det subsidiære beløpet, er ikke forstått (OV-U31)', () => {
     expect(les([justering, rettidighet, { ...posten, beloep: 29000 }])).toThrow(/summerer ikke/);
   });
+
+  it('et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått (valg 2 i #1047)', () => {
+    expect(les([justering, { ...rettidighet, beloep: 30000 }, posten]), 'kontroll').not.toThrow();
+    expect(les([justering, { ...rettidighet, beloep: 30001 }, posten])).toThrow(
+      /høyere enn det byggherren godtar for posten/
+    );
+  });
+
+  it('et svar uten beløpsstandpunkt sier at standpunktet mangler, ikke at postene ikke summerer (AGENTS.md: feilmeldingen sier hva som hindrer)', () => {
+    expect(les([{ id: 'm', art: 'metode', hjemmel: '34.2.2', aksepterer: true }])).toThrow(
+      /mangler standpunktet beloep/
+    );
+  });
 });

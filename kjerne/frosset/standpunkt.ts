@@ -389,7 +389,8 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;
-  // Som § 33.6.1: en begrensning etter § 34.1.3 i et lag gir ikke sammenfall (VS-U5).
+  // HF-U7: en begrensning etter § 34.1.3 i et lag er en påberopelse med subsidiært standpunkt
+  // og gir ikke sammenfall, også når beløpet etter den er likt det krevde (VS-U5).
   if (begrensningen(svar, v)) return false;
   return svar.utregning.resultat === 'godkjent';
 }
@@ -528,11 +529,19 @@ function beslutningslinje(
     ...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })),
     ...sine,
   ];
-  if (ledd.length === 1 && !forskyvning) return `Byggherrens standpunkt: ${ledd[0].tekst}.`;
-  // OV-U32: etiketten følger det fryste laget, og et upåvirket standpunkt står uten etikett.
-  const etikettert = ({ virkning, tekst }: (typeof ledd)[number]) => {
+  // OV-U32, OV-U33: etiketten følger det fryste laget, én gang for hvert lag og bare når svaret
+  // har mer enn ett lag. Et upåvirket standpunkt står uten etikett. Som i brevteksten.
+  const plass = ({ virkning }: (typeof ledd)[number]) => {
     const lag = laget(virkning);
-    return lag === null ? tekst : `${etikett(lag + forskyvning)} ${tekst}`;
+    return lag === null ? null : lag + forskyvning;
+  };
+  const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);
+  const merket = new Set<number>();
+  const etikettert = (l: (typeof ledd)[number]) => {
+    const lag = plass(l);
+    if (!ordnet || lag === null || merket.has(lag)) return l.tekst;
+    merket.add(lag);
+    return `${etikett(lag)} ${l.tekst}`;
   };
   return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
 }

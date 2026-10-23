@@ -5026,6 +5026,22 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     expect(tekstene).toMatch(
       /Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering/
     );
+    // OV-U32: standpunktene i samme lag står under én etikett, også i linjen.
+    expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
+      `Byggherrens standpunkt: prinsipalt prekludert (§ 34.1.2), subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter § 34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+    );
+  });
+
+  it('uten påberopelse har svaret ett lag, og linjen har ingen etikett for postene (OV-U33)', () => {
+    const s = sakMedPost();
+    brevet(
+      s,
+      { ...postene, produktivitet_varslet_i_tide: true },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 130000 }
+    );
+    expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
+      `Byggherrens standpunkt: godkjent med ${kroner(100000)} for justeringen ellers, godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+    );
   });
 
   it('med avslått grunnlag er justeringen ellers i sporets første lag og ikke upåvirket (OV-U33)', () => {
@@ -5054,6 +5070,10 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       ['rettidighet', 1],
       ['beloep', 2],
     ]);
+    // OV-U32, OV-U33: lagene flyttes ett ned, og laget med justeringen og begrensningen har én etikett.
+    expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
+      `Byggherrens standpunkt: subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter § 34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+    );
   });
 
   it('et krav med bare posten besvares uten justeringen ellers, og en vurdering av den avvises (OV-U23)', () => {
@@ -5155,7 +5175,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     ).toBeNull();
   });
 
-  it('en begrensning i et lag gir ikke sammenfall, også når posten er godkjent fullt etter den (VS-U5, som § 33.6.1 i #479)', () => {
+  it('en begrensning i et lag gir ikke sammenfall, også når posten er godkjent fullt etter den (HF-U7, VS-U5)', () => {
     const s = sakMedPost();
     brevet(
       s,
