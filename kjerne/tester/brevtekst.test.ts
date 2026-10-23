@@ -2197,6 +2197,19 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
     expect(s.avvist('TE', vederlagskrav)).toBe('KRAVENE_AVGJORT');
     expect(s.avvist('BH', revisjonAvVederlaget(s))).toBe('KRAVENE_AVGJORT');
+    // OV-U3 og OV-U5: det særskilte varselet sendes ikke fra appen, men datoen kan registreres.
+    expect(s.avvist('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' })).toBe(
+      'KRAVENE_AVGJORT'
+    );
+    expect(
+      s.avvist('TE', {
+        type: 'varsel',
+        spor: 'vederlag',
+        hjemmel: '34.1.3',
+        sendt: '2026-09-28',
+        dokumentasjon: [randomUUID()],
+      })
+    ).toBeNull();
   });
 
   it('i et spor uten krav godtas varselet, varseldatoen og det første kravet når kravene er avgjort (OV-U3, OV-U5)', () => {
