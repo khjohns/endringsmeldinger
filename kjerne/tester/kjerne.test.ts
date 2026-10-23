@@ -2055,15 +2055,23 @@ describe('upåvirket hos leserne (OV-U33)', () => {
       return r;
     });
 
+  /** Grunnene leseren ikke forstår radene. */
+  const uforstaatt = (rader: Journalrad[]) =>
+    lesJournal(rader, KJERNE.leserformat).flatMap((h) => (h.art === 'ukjent' ? [h.grunn] : []));
+  const utenPaaberopelse = /et standpunkt er upåvirket uten en påberopelse i vederlag eller frist/;
+
   it('upåvirket i svaret på grunnlaget er ikke forstått', async () => {
     const { k, rader } = await forloep();
-    expect(forstaatt(rader), 'kontrollsak').toBe(true);
-    expect(forstaatt(upaavirket(rader, k, 'S-g1', 'grunnlag', 'rettidighet'))).toBe(false);
+    expect(uforstaatt(rader), 'kontrollsak').toEqual([]);
+    const grunner = uforstaatt(upaavirket(rader, k, 'S-g1', 'grunnlag', 'rettidighet'));
+    expect(grunner).toEqual([expect.stringMatching(utenPaaberopelse)]);
   });
 
   it('upåvirket uten en påberopelse i sporet er ikke forstått', async () => {
     const { k, rader } = await forloep();
-    expect(forstaatt(upaavirket(rader, k, 'S-f1', 'dager'))).toBe(false);
+    expect(uforstaatt(upaavirket(rader, k, 'S-f1', 'spesifisering'))).toEqual([
+      expect.stringMatching(utenPaaberopelse),
+    ]);
   });
 
   it('kontrollsak: upåvirket ved siden av en påberopelse i første lag leses', async () => {
