@@ -5780,6 +5780,238 @@ tekst = '''
 Betegnelsen står til forespørselen er besvart, også i en lukket sak. Som MM-U30 etter ordlyden.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "LV-U22"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1166"]
+sporsmal = '''
+Spørsmål K1, «Kanalen»: Del II pkt. B.2.4 krever byggherrens formularer for varsler og krav. Formularet kan sendes som PDF på e-post til avtalt adresse, men e-post alene erstatter det ikke. Byggherrens prosjekthotell skal brukes der prosjektet har det, og varsler som kan påvirke pris, kvalitet eller framdrift skal sendes per post eller elektronisk der det er avtalt likestilt med post. Pkt. D.1.2.1 sier at korrespondanse sendes på e-post til prosjektleder og byggeleder, og at dokumenter som hovedregel distribueres fra prosjekthotellet. I dag lagres brevet i appen og legges i mappen prosjektet angir i prosjekthotellet, med en referanse på sakens topic. Fristene regnes fra lagringen (LV-U7). Appen sender ingen e-post og ingen beskjed; om prosjekthotellet selv varsler, er ikke kontrollert. Hva er kanalen? Anbefalt: A.'''
+valgt = "Prosjekthotellet"
+svar = '''
+«Prosjekthotellet (Recommended)»'''
+forhold = [
+  { art = "presiserer", vedtak = "lv-u7" },
+  { art = "presiserer", vedtak = "lv-u9" },
+  { art = "presiserer", vedtak = "lv-u13" },
+]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349346125). Spørsmålet kaller vedtaket K1. Hvordan motparten får beskjed fra prosjekthotellet, avklares i et eget issue (#1175).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Prosjekthotellet"
+tekst = '''
+Et brev appen lagrer og legger i byggherrens prosjekthotell, er sendt på avtalt kanal etter § 5 og Del II pkt. B.2.4. At prosjekthotellet er likestilt med post, og at e-post til prosjektleder og byggeleder etter pkt. D.1.2.1 ikke trengs, avtales i kontrakten for hvert prosjekt, ikke i appen. Appen sender ingen e-post. Hvordan motparten får beskjed fra prosjekthotellet, avklares i et eget issue. Presiserer LV-U7, LV-U9 og LV-U13.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Prosjekthotellet og e-post"
+tekst = '''
+Som A, og leveringen sender i tillegg samme PDF på e-post til adressene prosjektet angir for motparten, hos byggherren prosjektleder og byggeleder, slik pkt. D.1.2.1 sier. Hver sending, feil og kvittering for e-posten dokumenteres som leveringen til prosjekthotellet. Fristene regnes fortsatt fra lagringen (LV-U7). Utvider LV-U1 og LV-U13.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Utenfor appen"
+tekst = '''
+Partene sender brevet selv på avtalt kanal, og appen registrerer det som et brev sendt utenfor appen. Endrer LV-U7 og LV-U9 (fristene regnes fra sendingen i appen), KT-U6 (varselet sendes fra appen), LV-U2 og LV-U3 (teksten avsenderen godkjenner, er brevet) og B-03 om dokumentet.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U23"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1166"]
+sporsmal = '''
+Spørsmål K2, «Brevets form»: Del II pkt. B.2.4 krever byggherrens formularer og blanketter for varsler og krav, men kontraktsgrunnlaget har dem ikke og sier ikke hvilke det er. Pkt. D.1.2.1 krever at korrespondansen merkes med prosjektnavn og hva saken gjelder, og at det står hvor kopi er sendt. I dag har brevhodet sakens interne nummer, sakens versjon, avsenderens part (TE eller BH) og dato; sakens tittel står i teksten. Prosjektnavn, organisasjon, navn, mottaker, kopi og signatur mangler. Signaturene er vedtatt i LV-U15, men ikke bygget. Hva skal brevet være? Anbefalt: A.'''
+valgt = "Appens brev er formularet"
+svar = '''
+«Appens brev er formularet (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u2" }, { art = "presiserer", vedtak = "lv-u15" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349346125). Spørsmålet kaller vedtaket K2. Ikke bygget (#1173).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Appens brev er formularet"
+tekst = '''
+I prosjekter som bruker appen, er brevet appen lager byggherrens formular for varsler, krav og svar etter Del II pkt. B.2.4. Hodet følger pkt. D.1.2: prosjektnavn og kontrakt, dokumentkoden, emne med sakens tittel, avsender med part, organisasjon og navn, motpartens representant som mottaker, hvor kopi er sendt, og signaturene etter LV-U15. Hodet fryses med brevteksten når brevet sendes (LV-U1, LV-U2). Presiserer LV-U2 og LV-U15.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Byggherrens blanketter"
+tekst = '''
+Appen fyller ut byggherrens eksisterende blanketter for varsler og krav, og blanketten gjengir den frosne brevteksten tro (LV-U2, LV-U3). Blankettene må innhentes og gjøres om til maler i et eget issue før første ekte sak.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Som i dag"
+tekst = '''
+Brevet beholder dagens hode med part og dato, og signaturene etter LV-U15 gjelder. Formkravene i Del II håndteres i kontrakten for hvert prosjekt, ikke i appen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U24"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1166"]
+sporsmal = '''
+Spørsmål K3, «Dokumentkoden»: Del II pkt. D.1.2.5 krever at all korrespondanse merkes med kontraktsforkortelse, dokumentkode og løpenummer (XXX-ZZ-nn), med løpenummer fra 01 for hver kode. Kodene er blant annet BR for brev, KOE for varsel og krav fra totalentreprenøren og EO for endringsordre, og byggherren oppretter andre koder etter behov. I dag heter dokumentet i prosjekthotellet etter sakens interne nummer, sakens versjon og en teknisk nøkkel, uten kode. B-03 overlot navnestandarden til utviklerne; svaret presiserer B-03. Hvordan merkes brevene? Anbefalt: A.'''
+valgt = "Koden følger brevet"
+svar = '''
+«Koden følger brevet (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "b-03-dokument" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349346125). Spørsmålet kaller vedtaket K3. Ikke bygget (#1174).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Koden følger brevet"
+tekst = '''
+Hvert brev merkes etter pkt. D.1.2.5 med eget løpenummer for sin kode i kontrakten: totalentreprenørens varsler og krav KOE, byggherrens endringsordre EO, og byggherrens svar og andre brev BR. Brevet viser til saken med koden fra sakens første brev. Merkingen står i brevhodet og i dokumentnavnet i prosjekthotellet og fryses når brevet sendes. Kontraktsforkortelsen står i prosjektinnstillingene. Presiserer B-03.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Koden følger saken"
+tekst = '''
+Saken får koden fra sitt første brev, KOE-nn eller EO-nn, og hvert senere brev i saken, også byggherrens svar, merkes med sakens kode og brevets nummer i saken. Avviker fra formen i pkt. D.1.2.5 og fra tabellen for byggherrens svar. Presiserer B-03.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ikke før første ekte sak"
+tekst = '''
+Dokumentnavnet beholdes som i dag, og kodene legges på i et eget issue senere.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U25"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1166"]
+sporsmal = '''
+Spørsmål M1, «Malen og TE»: Brevmalen er byggherrens (Oslo kommunes), med logo og bunntekst for virksomheten. Appen lager brev fra begge parter, og etter K2 er appens brev byggherrens formular for varsler, krav og svar. Hvilket oppsett får totalentreprenørens brev? Anbefalt: A.'''
+valgt = "Samme oppsett, avsenderens profil"
+svar = '''
+«Samme oppsett, avsenderens profil (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u23" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349572568). Spørsmålet kaller vedtaket M1, og K2 er LV-U23. Ikke bygget (#1173, #1177).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samme oppsett, avsenderens profil"
+tekst = '''
+Alle brev følger malens oppsett: mottaker, referanselinje, tittel, tekst, hilsen med én underskriver eller to der brevet er godkjent med fullmakt (LV-U15), vedlegg og kopi. Byggherrens brev får Oslo kommunes logo og bunntekst med virksomhetens adresse. Totalentreprenørens brev får samme oppsett med totalentreprenørens navn og adresse fra prosjektinnstillingene, uten Oslo kommunes logo. Profilen, navnene og stillingene fryses med brevet når det sendes (LV-U1, LV-U2). Presiserer K2.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Byggherrens profil på alle"
+tekst = '''
+Alle brev, også totalentreprenørens, får Oslo kommunes logo og bunntekst, fordi formularet er byggherrens. Avsenderen står i hodet og i hilsenen. Et brev fra totalentreprenøren kan da se ut som om det er sendt av byggherren. Profilen fryses med brevet (LV-U1, LV-U2). Presiserer K2.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Malen bare for byggherren"
+tekst = '''
+Byggherrens brev følger malen. Totalentreprenørens brev får hodet etter Del II pkt. D.1.2 (K2), men ikke malens profil. Presiserer K2.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U26"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1166"]
+sporsmal = '''
+Spørsmål M2, «Logo og skrift»: Malen bruker skriften Oslo Sans Office og Oslo kommunes logo. Repoet er offentlig. PDF-en bruker i dag Noto Sans og Noto Sans Math, med åpen lisens, og appen avviser tegn skriftene ikke har (#801). En annen skrift endrer hvilke tegn appen godtar i brevteksten. Den nedlastede PDF-en lages på nytt av det som er frosset, så logo og skrift må fryses eller være faste for at den skal bli lik den leverte (LV-U2). Hvor kommer logo og skrift fra? Anbefalt: A.
+
+Alternativene til M2:
+
+«Noto Sans, logo i innstillingene (Recommended)»: «PDF-en beholder Noto Sans. Logoen legges i prosjektinnstillingene eller driftsmiljøet, ikke i det offentlige repoet, og fryses med brevet når det sendes. Oslo Sans vurderes i et eget issue, med lisensen for innbygging i PDF fra en server og hvilke tegn som da avvises. Presiserer LV-U2.»
+«Oslo Sans og logo i repoet»: «Skriften og logoen legges i repoet og bygges inn i PDF-en. Forutsetter at kommunen tillater det i et offentlig repo; oppdragsgiver avklarer lisensen. Tegn Oslo Sans ikke har, avvises i brevteksten. Presiserer LV-U2.»
+«Uten logo»: «PDF-en beholder Noto Sans og får ingen logo. Malens oppsett følges ellers.»
+
+Svaret på M2 passet ikke på et alternativ, og oppfølgingen er dette spørsmålet:
+
+Spørsmål M2b, «Oslo Sans»: Pakken @oslokommune/punkt-assets er MIT-lisensiert og har Oslo Sans og logoen. Lisensen inne i skriftfila er strengere: Oslo Sans er eksklusivt lisensiert til Oslo kommune, bare for materiell knyttet til kommunens virksomhet, og rettighetene kan ikke overdras til tredjeparter. Innbygging i PDF er tillatt. Byggherrens brev er kommunens materiell; totalentreprenørens brev er det ikke, og etter M1 får de avsenderens profil. Hvordan brukes skriften og logoen? Anbefalt: A.'''
+valgt = "Oslo Sans for byggherren"
+svar = '''
+M2: «Ser ut til å være MIT lisens? https://www.npmjs.com/package/@oslokommune/punkt-assets». M2b: «Oslo Sans for byggherren (Recommended)».'''
+forhold = [{ art = "presiserer", vedtak = "lv-u2" }, { art = "presiserer", vedtak = "lv-u25" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålene og alternativene står ordrett på #1166 (kommentaren 6349572568). Spørsmålet kaller vedtaket M2b, og M1 er LV-U25. Ikke bygget (#1177).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Oslo Sans for byggherren"
+tekst = '''
+Byggherrens brev bruker Oslo Sans og logoen fra @oslokommune/punkt-assets, som en avhengighet med fast versjon og ikke kopiert inn i repoet. Totalentreprenørens brev bruker Noto Sans. Tegn Oslo Sans ikke har, vises med Noto Sans og Noto Sans Math, så appen godtar de samme tegnene som i dag (#801). Skriften og logoen er faste for versjonen og fryses med brevet, så den nedlastede PDF-en blir lik den leverte (LV-U2). Presiserer LV-U2 og M1.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Oslo Sans for alle"
+tekst = '''
+Alle brev bruker Oslo Sans fra pakken, også totalentreprenørens, fordi brevene lages i kommunens app og formularet er byggherrens. Logoen bare på byggherrens brev (M1). Forutsetter at oppdragsgiver avklarer at skriftlisensen dekker totalentreprenørens brev. Presiserer LV-U2 og M1.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Noto Sans, logo fra pakken"
+tekst = '''
+Alle brev beholder Noto Sans. Byggherrens brev får logoen fra pakken. Presiserer LV-U2.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U27"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1166"]
+sporsmal = '''
+Spørsmål M3, «Referansene»: Malen har «Deres ref.», «Vår ref. (saksnr.)», «Saksbehandler» med navn og telefon, og et felt for unntatt offentlighet med hjemmel. Etter K3 får hvert brev en dokumentkode i brevhodet og dokumentnavnet, og brevet viser til saken med koden fra sakens første brev. Et svar kan gjelde krav fra flere brev. Arkiv og innsyn er spurt om i #1060, uten svar. Hva står i referansene? Anbefalt: A.'''
+valgt = "Dokumentkodene"
+svar = '''
+«Dokumentkodene (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "lv-u24" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349572568). Spørsmålet kaller vedtaket M3, og K3 er LV-U24. Ikke bygget (#1173).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Dokumentkodene"
+tekst = '''
+Vår ref. er brevets dokumentkode (K3). Deres ref. er kodene til brevene det svares på, når de finnes. Sakens kode står i brevtittelen. Saksbehandler er den som utarbeidet brevet (LV-U15), med navn, og telefon bare når appen har den; begge fryses med brevet. Arkivets saksnummer og feltet for unntatt offentlighet tas ikke med før #1060 er avklart. Presiserer K3.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Arkivets saksnummer"
+tekst = '''
+I byggherrens brev er Vår ref. byggherrens arkivsaksnummer fra prosjektinnstillingene, og dokumentkoden står ved siden av. Feltet for unntatt offentlighet tas med og fylles av byggherren som avsender. Avgjør delvis #1060. Presiserer K3.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "LV-U28"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1166"]
+sporsmal = '''
+Spørsmål M3b, «Websaksnummeret»: Referansen skal også ha websaksnummeret, i tillegg til dokumentkoden. Appen har ingen forbindelse til Websak og vet ikke hvilket journalpostnummer et brev får der, så nummeret må oppgis i appen. Hvor kommer det fra, og hvilke brev står det i? Endrer M3, der arkivets saksnummer ventet på #1060. Anbefalt: A.'''
+valgt = "Per prosjekt, i alle brev"
+svar = '''
+Om M3, i fritekst: «Endring angående ref: må også oppgi websaks-nr (i tillegg til dokumentkode). Som sagt tenker jeg malen kan tilpasses for at den passer best til formålet». M3b: «Per prosjekt, i alle brev (Recommended)».'''
+forhold = [{ art = "endrer", vedtak = "lv-u27" }]
+folge = '''
+Svaret på M3b er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349598767). Spørsmålet kaller vedtaket M3b, og M3 er LV-U27. Ikke bygget (#1173).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Per prosjekt, i alle brev"
+tekst = '''
+Byggherrens saksnummer i Websak står i prosjektinnstillingene og vises i referanselinjen i alle brev i prosjektet, sammen med dokumentkoden: i byggherrens brev under Vår ref., i totalentreprenørens under Deres ref. Det fryses med brevet når det sendes (LV-U1, LV-U2). Endrer M3.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Per sak, i alle brev"
+tekst = '''
+Byggherren oppgir saksnummeret i Websak for hver endringssak i appen, og det vises i alle brev i saken som i A. Før nummeret er oppgitt, sendes brevet uten. Det fryses med brevet. Endrer M3.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Per prosjekt, bare byggherrens brev"
+tekst = '''
+Saksnummeret i Websak står i prosjektinnstillingene og vises under Vår ref. bare i byggherrens brev. Totalentreprenørens brev har bare dokumentkodene. Endrer M3.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -7620,6 +7852,145 @@ forkastet = true
 navn = "Ingen merknad"
 tekst = '''
 Bare merknaden etter MM-U2 vises mens saken ikke er forstått. Det strider mot OV-U19 for brev som er registrert som dokumentasjon.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U22"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål 1, «Begrensning per særskilt krav»: Totalentreprenøren kan kreve to særskilte justeringer etter § 34.1.3: én for kapitalytelser, rigging, drift og nedrigging (første ledd) og én for nedsatt produktivitet og forstyrrelser på annet arbeid (annet ledd). Varselet er særskilt for hver av dem, og datoen settes én gang for hver (OV-U8, som presiserer SK-12: «Datoen for hvert av de to varslene settes én gang.»). VS-U5 sier hva byggherren gjør når hen påberoper at et særskilt varsel kom for sent: «VS-U5: påberoper byggherren at TEs særskilte varsel etter § 34.1.3 kom for sent, oppgir byggherren prinsipalt det beløpet hen godtar etter begrensningen hen påberoper, som kan være null, og subsidiært det beløpet hen godtar hvis innsigelsen ikke fører fram.» Vedtaket sier ikke om beløpene oppgis for hvert særskilte krav eller samlet. VS-U7 sier: «Etterregistreringen gjør preklusjonen uavklart bare når varselet gjelder det preklusjonen gjaldt.» Hvordan oppgir byggherren beløpene? Anbefalt: A, fordi varslene og tapet av retten gjelder hvert krav for seg, og fordi det da er mulig å se hvilken begrensning som blir uavklart.'''
+valgt = "For hvert særskilt krav"
+svar = '''
+«For hvert særskilt krav (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "vs-u5" }, { art = "presiserer", vedtak = "vs-u24" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "For hvert særskilt krav"
+tekst = '''
+Påberoper byggherren at et særskilt varsel etter § 34.1.3 kom for sent, oppgir byggherren det prinsipale og det subsidiære beløpet etter VS-U5 for det særskilte kravet varselet gjelder: kravet om økte utgifter til kapitalytelser, rigging, drift og nedrigging, eller kravet om økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid. Påberopelsen gjelder det ene kravet. Oppgir totalentreprenøren senere et varsel om det kravet, blir bare begrensningen for det kravet uavklart (VS-U7). Presiserer VS-U5. Presiserer VS-U24 for § 34.1.3: ett standpunkt for hvert særskilte krav.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samlet for begge"
+tekst = '''
+Påberoper byggherren at ett eller begge de særskilte varslene etter § 34.1.3 kom for sent, oppgir byggherren ett samlet prinsipalt og ett samlet subsidiært beløp etter VS-U5 for de særskilte kravene. Oppgir totalentreprenøren senere et varsel om ett av dem, blir hele den samlede begrensningen uavklart. Presiserer VS-U5 og VS-U7.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Datoen for hvert av de to varslene settes én gang."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "påberoper byggherren at TEs særskilte varsel etter § 34.1.3 kom for sent, oppgir byggherren prinsipalt det beløpet hen godtar etter begrensningen hen påberoper, som kan være null, og subsidiært det beløpet hen godtar hvis innsigelsen ikke fører fram."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Etterregistreringen gjør preklusjonen uavklart bare når varselet gjelder det preklusjonen gjaldt."
+
+[[gruppe.vedtak]]
+id = "OV-U23"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål 2, «Særskilt krav uten annen justering»: Etter § 34.1.3 første og annet ledd kan totalentreprenøren kreve særskilt justering av vederlaget for økte utgifter som følge av forhold etter § 34.1.1 og § 34.1.2. Bestemmelsen krever ikke at totalentreprenøren samtidig krever en annen justering av vederlaget. Formatet i kjernen krever i dag et beløp over null for justeringen ellers, og ingen vedtak sier noe om dette. Et eksempel er et forhold byggherren har risikoen for, som ikke gir annet tilleggsarbeid, men som forlenger riggtiden. Kan totalentreprenøren kreve bare et særskilt krav? Anbefalt: A, fordi bestemmelsen ikke binder det særskilte kravet til at det kreves noe annet.'''
+valgt = "Ja, alene"
+svar = '''
+«Ja, alene (Recommended)»'''
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, alene"
+tekst = '''
+Totalentreprenøren kan sende et vederlagskrav med bare ett eller begge de særskilte kravene etter § 34.1.3, uten et beløp for justeringen ellers. Byggherren tar stilling til de særskilte kravene som ellers. Appen avgjør ikke om utgiftene er en følge av forholdet saken gjelder.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Nei, bare sammen"
+tekst = '''
+Et særskilt krav etter § 34.1.3 kan bare sendes i et vederlagskrav som også har et beløp over null for justeringen ellers. Har totalentreprenøren bare et særskilt krav, sendes det utenfor appen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U24"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål 3, «Kravet som første særskilte varsel»: OV-U5 forutsetter at vederlagskravet kan være det første varselet appen kjenner etter § 34.1.2 og § 34.1.3, når ikke noe varsel er registrert. Byggherren tar da stilling til rettidigheten med kravet som varsel. Varselet etter § 34.1.3 skal være særskilt for hvert av de to kravene, og etter OV-U8 kan det sendes også etter vederlagskravet. Det er derfor ikke avgjort hvilken kravversjon som er det første kjente varselet om et særskilt krav, når den første versjonen av vederlagskravet ikke hadde med det særskilte kravet. Anbefalt: A, fordi et krav som ikke nevner et særskilt krav, ikke varsler om det.'''
+valgt = "Første versjon med kravet"
+svar = '''
+«Første versjon med kravet (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u5" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Første versjon med kravet"
+tekst = '''
+Er ikke noe særskilt varsel etter § 34.1.3 registrert for et særskilt krav, er det første varselet appen kjenner om det kravet den første versjonen av vederlagskravet som krever det. En tidligere versjon uten det særskilte kravet regnes ikke som varsel om det. Det utledede varselet låses ikke (MM-U1: «SK-12 låser et varsel som er registrert, ikke et varsel som bare er utledet.»), så totalentreprenøren kan fortsatt registrere eller sende et særskilt varsel etter OV-U8 og VS-U7. Presiserer OV-U5.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Første vederlagskrav"
+tekst = '''
+Er ikke noe særskilt varsel etter § 34.1.3 registrert, er det første varselet appen kjenner den første versjonen av vederlagskravet, også om et særskilt krav som først kom med i en senere versjon. Appen avgjør ikke om den første versjonen varslet om det særskilte kravet. Presiserer OV-U5.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "SK-12 låser et varsel som er registrert, ikke et varsel som bare er utledet."
+
+[[gruppe.vedtak]]
+id = "OV-U25"
+dato = 2026-10-22
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål R2-1, «Kontraktsgrunnlaget for § 34.1.3»: Kontraktsgrunnlaget (Del II pkt. B.2.16) erstatter første setning i § 34.1.3 tredje ledd: bare krav etter annet ledd (nedsatt produktivitet og forstyrrelser) krever særskilt varsel uten ugrunnet opphold, og bare der tapes retten ved for sent varsel. Krav om rigg og drift etter første ledd har da ingen særskilt varslingsplikt og ingen preklusjon etter § 34.1.3. OV-U8 og SK-12 forutsetter to særskilte varsler. Hvilken tekst følger appen? Anbefalt: A, fordi det er kontraktsgrunnlaget oppdragsgivers kontrakter bygger på.
+
+R2-1 ble stilt etter svaret på spørsmål 4 i første runde, som står ordrett slik:
+
+Spørsmål 4, «Teknisk anbefaling»: Godtar du den tekniske anbefalingen for #1047 samlet? (1) De to særskilte kravene står som egne poster med eget beløp i samme vederlagskrav og revideres med det, uten egne spor. (2) Lagrede navn: hjemmelen «34.1.3» med et felt «post» (rigg_drift eller produktivitet) på varselet og på byggherrens standpunkt om rettidigheten, og beløpene i «saerskilt.rigg_drift.beloep» og «saerskilt.produktivitet.beloep». (3) Justerte enhetspriser etter § 34.3.3, tilbakeholdelse etter § 30.2 og forsering er ikke med i #1047 og får egne issues.
+
+Alternativene til spørsmål 4:
+
+«Ja, samlet (Recommended)»: «Byggeøktene bygger etter punkt 1–3.»
+«Nei, jeg retter»: «Skriv hvilket punkt og hva i «Other».»'''
+valgt = "Del II som standard"
+svar = '''
+Spørsmål 4 (den tekniske anbefalingen), svar i «Other»: «Enig i anbefaling her og tidligere spørsmål, kontrakt lest isolert. Men dette må leses i tråd med kontraktsgrunnlaget i repo kontrakt». R2-1: «Del II som standard (Recommended)».'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u8" },
+  { art = "snevrer inn", vedtak = "ov-u22" },
+  { art = "snevrer inn", vedtak = "ov-u23" },
+  { art = "snevrer inn", vedtak = "ov-u24" },
+]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Spørsmål 1–3 er OV-U22, OV-U23 og OV-U24. Endrer også SK-12. Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Del II som standard"
+tekst = '''
+Appen følger § 34.1.3 slik kontraktsgrunnlaget (Del II pkt. B.2.16) endrer den: særskilt varsel og tap av retten ved for sent varsel gjelder bare kravet om økte utgifter på grunn av nedsatt produktivitet og forstyrrelser på annet arbeid. Kravet om økte utgifter til kapitalytelser, rigging, drift og nedrigging har ingen særskilt varslingsplikt etter § 34.1.3, og byggherren kan ikke påberope at det er varslet for sent. Endrer OV-U8 og SK-12 for første ledd; svarene på spørsmål 1–3 gjelder da bare annet ledd.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "NS 8407 uendret"
+tekst = '''
+Appen følger § 34.1.3 slik standarden lyder, med særskilt varsel for begge kravene. Avvik i kontraktsgrunnlaget må partene håndtere utenfor appen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Per kontrakt"
+tekst = '''
+Appen lar hver kontrakt angi om Del II pkt. B.2.16 gjelder, og reglene følger innstillingen. Krever en kontraktsinnstilling og eget issue før #1047 kan bygges ferdig.'''
 forkastet = true
 
 [[gruppe.vedtak]]
