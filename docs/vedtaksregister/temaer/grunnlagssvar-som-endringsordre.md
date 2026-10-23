@@ -4,7 +4,7 @@
 
 **Avsnitt [3.1 i hovedplanen](../../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger) er autoritativ.** Denne visningen er generert fra [vedtaksregisteret](../README.md) og er ikke et eget vedtaksgrunnlag. Den samler vedtakene ordrett, med forholdene mellom dem, og lager ingen sammenslått gjeldende ordlyd: hva som gjelder, leses av vedtakene sammen, etter forholdene.
 
-Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [VS-U29](#vs-u29), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [LV-U19](#lv-u19), [LV-U21](#lv-u21), [MM-U30](#mm-u30), [MM-U31](#mm-u31), [LV-U23](#lv-u23), [LV-U25](#lv-u25), [LV-U26](#lv-u26), [LV-U29](#lv-u29), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13), [OV-U15](#ov-u15), [OV-U16](#ov-u16), [OV-U19](#ov-u19), [OV-U20](#ov-u20), [OV-U21](#ov-u21), [OV-U22](#ov-u22), [OV-U23](#ov-u23), [OV-U24](#ov-u24), [OV-U25](#ov-u25), [OV-U26](#ov-u26), [OV-U28](#ov-u28), [OV-U29](#ov-u29), [OV-U30](#ov-u30). Vedtak som temaet viser til, står som lenke til 3.1.
+Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [VS-U29](#vs-u29), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [LV-U19](#lv-u19), [LV-U21](#lv-u21), [MM-U30](#mm-u30), [MM-U31](#mm-u31), [LV-U23](#lv-u23), [LV-U25](#lv-u25), [LV-U26](#lv-u26), [LV-U29](#lv-u29), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13), [OV-U15](#ov-u15), [OV-U16](#ov-u16), [OV-U19](#ov-u19), [OV-U20](#ov-u20), [OV-U21](#ov-u21), [OV-U22](#ov-u22), [OV-U23](#ov-u23), [OV-U24](#ov-u24), [OV-U25](#ov-u25), [OV-U26](#ov-u26), [OV-U28](#ov-u28), [OV-U29](#ov-u29), [OV-U30](#ov-u30), [OV-U32](#ov-u32). Vedtak som temaet viser til, står som lenke til 3.1.
 
 ## Kildegrunnlaget
 
@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `967e053b4e0e71c4529abdba16139d4d59b048b134146dad15ee7d3b26b0892d`
+Kontrollsum (SHA-256 over utdraget visningen leser): `abefd34a5fc661ba9534c007b97120a105c21f7e924d8539f01ce6c0b44a342c`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -84,9 +84,10 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [OV-U24](#ov-u24) | Presiserer [OV-U5](#ov-u5) | Snevret inn av [OV-U25](#ov-u25) |
 | [OV-U25](#ov-u25) | Endrer [OV-U8](#ov-u8); Snevrer inn [OV-U22](#ov-u22); Snevrer inn [OV-U23](#ov-u23); Snevrer inn [OV-U24](#ov-u24) | — |
 | [OV-U26](#ov-u26) | Presiserer [OV-U23](#ov-u23); Presiserer [VS-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u5); Presiserer [OV-U22](#ov-u22) | — |
-| [OV-U28](#ov-u28) | Utvider [LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4); Utvider [LV-U21](#lv-u21) | Presisert av [OV-U30](#ov-u30) |
+| [OV-U28](#ov-u28) | Utvider [LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4); Utvider [LV-U21](#lv-u21) | Presisert av [OV-U30](#ov-u30); Presisert av [OV-U32](#ov-u32) |
 | [OV-U29](#ov-u29) | Presiserer [OV-U5](#ov-u5); Presiserer [LV-U21](#lv-u21) | — |
-| [OV-U30](#ov-u30) | Presiserer [OV-U28](#ov-u28); Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11) | — |
+| [OV-U30](#ov-u30) | Presiserer [OV-U28](#ov-u28); Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11) | Endret av [OV-U32](#ov-u32) |
+| [OV-U32](#ov-u32) | Endrer [OV-U30](#ov-u30); Presiserer [OV-U28](#ov-u28); Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11); Presiserer [LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4) | — |
 
 ## Vedtakene
 
@@ -936,7 +937,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 23.10, oppdragsgiver (#1047)
 
-**Følge:** Utvider [LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4). Utvider [LV-U21](#lv-u21). Presisert 23.10 av [OV-U30](#ov-u30). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Spørsmålet forutsatte B1 = «For hver post» og B2 = «Hele kravet», som er OV-U26 og OV-U27. Ikke bygget (#1047).
+**Følge:** Utvider [LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4). Utvider [LV-U21](#lv-u21). Presisert 23.10 av [OV-U30](#ov-u30). Presisert 23.10 av [OV-U32](#ov-u32). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Spørsmålet forutsatte B1 = «For hver post» og B2 = «Hele kravet», som er OV-U26 og OV-U27. Ikke bygget (#1047).
 
 **Regelrader:** —
 
@@ -964,7 +965,21 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 23.10, oppdragsgiver (#1047)
 
-**Følge:** Presiserer [OV-U28](#ov-u28). Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 ([kommentaren 6359589947](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359589947)), og svaret i [kommentaren 6359610636](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359610636). Presiserer også B-13, som ikke har anker. Spørsmålet var stilt i tidligere former ([6359336816](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359336816), [6359476742](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359476742)), og svarene sendte det til sparring ([6359369109](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359369109), [6359502726](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359502726)). Svarene fra sparringen står i [6359421120](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359421120) og [6359558961](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359558961). Ikke bygget (#1047).
+**Følge:** Presiserer [OV-U28](#ov-u28). Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11). Endret 23.10 av [OV-U32](#ov-u32). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 ([kommentaren 6359589947](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359589947)), og svaret i [kommentaren 6359610636](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359610636). Presiserer også B-13, som ikke har anker. Spørsmålet var stilt i tidligere former ([6359336816](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359336816), [6359476742](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359476742)), og svarene sendte det til sparring ([6359369109](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359369109), [6359502726](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359502726)). Svarene fra sparringen står i [6359421120](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359421120) og [6359558961](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359558961). Ikke bygget (#1047).
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="ov-u32"></a>OV-U32
+
+> OV-U32: Når brevet sendes, fryser appen for hvert standpunkt i vederlag og frist hvilket lag det står i (første, andre, tredje og så videre), eller at ingen av byggherrens innsigelser rammer det (upåvirket). Laget angir rekkefølgen mellom standpunktene: et standpunkt i et senere lag gjelder bare hvis innsigelsene i de foregående lagene ikke fører fram, i den utstrekning de rammer standpunktet. Brevet skriver «Prinsipalt:» for det første laget, «Subsidiært:» for det andre og «Videre subsidiært:» for hvert lag etter det. Standpunktene i samme lag står under én etikett, og et upåvirket standpunkt står uten etikett. Lik etikett betyr ikke samme lag. Antallet lag har ingen øvre grense. Lagene i sporet regnes uten grunnlaget. Er grunnlaget avslått eller preklusjon etter § 32.2 påberopt, står disse standpunktene først i brevet med sin innbyrdes lagdeling. Lagene i sporet flyttes ned med antallet lag disse standpunktene opptar (B-13). Endret tekst gjelder bare nye brev (MM-U9).
+
+**Forkastet:** «Som 1, men uten de to setningene «Lagene i sporet regnes uten grunnlaget. Er grunnlaget avslått eller prekludert (§ 32.2), står det først i brevet, og etikettene i sporet flyttes ett lag ned (B-13).» Hvordan grunnlaget inngår, blir da et arbeidsvalg i #1047 etter B-13.»; «Alternativ 1 fra første spørsmål, med Astras presisering ordrett: «Lagnummeret angir rekkefølgen mellom de betingede standpunktene. Hvert nytt lag forutsetter at de foregående innsigelsene ikke fører frem i den utstrekning de rammer standpunktet. Lik etikett innebærer ikke at standpunktene tilhører samme lag.»»; «Grunnlaget er alltid ett lag. Avslaget står uten egen etikett under «Prinsipalt:» sammen med preklusjonen, og beløpet blir «Subsidiært:». Avslaget mister da sin plass som subsidiært til preklusjonen.»; «Brevet ordner byggherrens standpunkter i lagene «Prinsipalt:», «Subsidiært:», «Videre subsidiært:» og «Atter subsidiært:». Appen fryser hvilket av de fire lagene hvert standpunkt står i, eller at det er upåvirket. Det fjerde laget og hvert lag etter det får «Atter subsidiært:».»; «Påberoper byggherren at kravet om fristforlengelse ble spesifisert for sent etter § 33.6.1, står påberopelsen med det byggherren måtte forstå, i samme lag som dagene byggherren godtar hvis spesifiseringen kom i tide. Teksten i laget sier rekkefølgen etter VS-U4. Er grunnlaget avslått eller prekludert i samme brev, står det som før.»
+
+**Vedtatt:** 23.10, oppdragsgiver (#1047)
+
+**Følge:** Endrer [OV-U30](#ov-u30). Presiserer [OV-U28](#ov-u28). Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11). Presiserer [LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4). Svaret på oppfølgingen er gitt med spørsmålsverktøyet 23.10. Spørsmålene, alternativene, svaret fra sparringen og svarene står ordrett på #1047 ([kommentaren 6360471680](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6360471680)). Den andre oppfølgingen, B4-4b, rettet setningen om grunnlaget og står i [kommentaren 6360737155](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6360737155). Forholdet til LV-U4 gjelder punkt 4. Presiserer også B-13 (24.09 og § 32.2 05.10), som ikke har anker. Følger MM-U9, VS-U4, HF-U2 og B-13 (§ 33.1 05.10). Ikke bygget (#1047).
 
 **Regelrader:** —
 
