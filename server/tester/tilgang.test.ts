@@ -32,6 +32,7 @@ import {
 const IKKE_NULL = 515;
 const INGEN_RETT = 229;
 const BLOKKERT = 33504;
+const KAN_IKKE_BLI = 15517;
 
 const P1 = 'tilgang-p1';
 const P2 = 'tilgang-p2';
@@ -750,6 +751,222 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
           .map((t) => `koe.${t}`)
           .sort()
       );
+    });
+  });
+
+  // Kilde: #1106 og regelen «Oppslagene i SQL Server» i `.claude/rules/tilgang.md`: de to
+  // prosedyrene leser uavhengig av siden for prosjektet og aktøren i konteksten, når aktøren
+  // er et aktivt medlem av et aktivt prosjekt. Over HTTP stopper serveren et ikke-medlem før
+  // basen, så predikatet `koe_sikkerhet.grenseoppslag` prøves her (#1178).
+  describe('grenseoppslaget uten kontraktsside (#1106)', () => {
+    const GP = 'tilgang-p4';
+    const TE_GP = team();
+    const g: Record<'deaktiveres' | 'gp', string> = { deaktiveres: '', gp: '' };
+    const UTEN_SIDE = { side: null, team: null };
+
+    beforeAll(async () => {
+      g.deaktiveres = await catendaBruker(base.pool);
+      g.gp = await catendaBruker(base.pool);
+      await base.pool.request().batch(`
+        INSERT koe.projects (id, name, organisasjon_id, is_active) VALUES (N'${GP}', N'P4', N'org', 1);
+        INSERT koe.app_project_memberships
+          (project_id, user_id, catenda_subject, user_email, display_name, role, viewer_override, active)
+        VALUES (N'${P1}', '${g.deaktiveres}', N'${team()}', N'', N'', N'member', 0, 1),
+               (N'${GP}', '${g.gp}', N'${team()}', N'', N'', N'member', 0, 1);
+        INSERT koe.catenda_contract_teams (internal_project_id, team_id, contract_role)
+        VALUES (N'${GP}', N'${TE_GP}', N'TE');`);
+    });
+
+    /** En sak med det første brevet og kvitteringen for kommandoen som skrev det. */
+    async function kvittertBrev(aktor: string, prosjekt = P1, teamet = TE1) {
+      const s = sak(prosjekt, aktor);
+      const e = brev(s, { aktor_team_id: teamet });
+      const kommando = { id: randomUUID(), sum: randomBytes(32).toString('hex') };
+      await iKontekst({ aktor, prosjekt, team: teamet }, async (r) => {
+        await settInn(r, 'sak_metadata', s);
+        await settInn(r, 'hendelse', e);
+        await settInn(r, 'kvittering', {
+          prosjekt_id: prosjekt,
+          aktor_id: aktor,
+          kommando_id: kommando.id,
+          kommando_sha256: kommando.sum,
+          sak_id: s.sak_id,
+          event_id: e.event_id,
+        });
+      });
+      return { sakId: s.sak_id as string, kommando };
+    }
+
+    const sakerIProsjektet = (r: Foresp, saker: unknown[]) =>
+      r()
+        .input('saker', sql.NVarChar(sql.MAX), JSON.stringify(saker))
+        .execute<{ sak_id: string }>('koe_api.saker_i_prosjektet')
+        .then((svar) => svar.recordset.map((rad) => rad.sak_id));
+
+    const kvittertSak = (r: Foresp, kommando: { id: string; sum: string }) =>
+      r()
+        .input('kommando_id', sql.NVarChar(4000), kommando.id)
+        .input('kommando_sha256', sql.NVarChar(4000), kommando.sum)
+        .output('sak_id', sql.NVarChar(36))
+        .execute('koe_api.kvittert_sak')
+        .then((svar) => (svar.output as { sak_id: string | null }).sak_id);
+
+    /** Hva kjøretiden får fra de to prosedyrene og fra en direkte lesing av saken, i konteksten. */
+    const oppslag = (k: Kontekstvalg, sakId: string, kommando: { id: string; sum: string }) =>
+      iKontekst(
+        k,
+        async (r) => ({
+          saker_i_prosjektet: await sakerIProsjektet(r, [sakId]),
+          kvittert_sak: await kvittertSak(r, kommando),
+          direkte: (
+            await r().input('sak', sql.NVarChar(36), sakId).query<{
+              n: number;
+            }>('SELECT COUNT(*) AS n FROM koe.sak_metadata WHERE sak_id = @sak')
+          ).recordset[0].n,
+        }),
+        'kjoeretid'
+      );
+
+    const funnet = (sakId: string) => ({
+      saker_i_prosjektet: [sakId],
+      kvittert_sak: sakId,
+      direkte: 0,
+    });
+    const ingenting = { saker_i_prosjektet: [], kvittert_sak: null, direkte: 0 };
+
+    /** Endrer en rad i `koe.projects` eller medlemskapet mens `arbeid` kjører, og setter den tilbake. */
+    async function midlertidig<T>(endring: string, tilbake: string, arbeid: () => Promise<T>) {
+      await base.pool.request().query(endring);
+      try {
+        return await arbeid();
+      } finally {
+        await base.pool.request().query(tilbake);
+      }
+    }
+
+    it('et aktivt medlem uten side får saken fra begge prosedyrene, men ikke ved å lese den direkte', async () => {
+      const { sakId, kommando } = await kvittertBrev(b.te);
+      expect(await oppslag({ aktor: b.te, ...UTEN_SIDE }, sakId, kommando)).toEqual(funnet(sakId));
+    });
+
+    it('et medlem som blir inaktivt, får ingenting fra prosedyrene', async () => {
+      const { sakId, kommando } = await kvittertBrev(g.deaktiveres);
+      const k = { aktor: g.deaktiveres, ...UTEN_SIDE };
+      expect(await oppslag(k, sakId, kommando), 'kontrollsak: medlemskapet er aktivt').toEqual(
+        funnet(sakId)
+      );
+      const hvor = `WHERE project_id = N'${P1}' AND user_id = '${g.deaktiveres}'`;
+      expect(
+        await midlertidig(
+          `UPDATE koe.app_project_memberships SET active = 0 ${hvor}`,
+          `UPDATE koe.app_project_memberships SET active = 1 ${hvor}`,
+          () => oppslag(k, sakId, kommando)
+        )
+      ).toEqual(ingenting);
+    });
+
+    it('et medlem i et prosjekt som blir inaktivt, får ingenting fra prosedyrene', async () => {
+      const { sakId, kommando } = await kvittertBrev(g.gp, GP, TE_GP);
+      const k = { aktor: g.gp, prosjekt: GP, ...UTEN_SIDE };
+      expect(await oppslag(k, sakId, kommando), 'kontrollsak: prosjektet er aktivt').toEqual(
+        funnet(sakId)
+      );
+      expect(
+        await midlertidig(
+          `UPDATE koe.projects SET is_active = 0 WHERE id = N'${GP}'`,
+          `UPDATE koe.projects SET is_active = 1 WHERE id = N'${GP}'`,
+          () => oppslag(k, sakId, kommando)
+        )
+      ).toEqual(ingenting);
+    });
+
+    it.each<[string, () => Kontekstvalg]>([
+      ['et inaktivt medlemskap', () => ({ aktor: b.inaktiv, ...UTEN_SIDE })],
+      ['medlemmet i P2, med P1 i konteksten', () => ({ aktor: b.p2, ...UTEN_SIDE })],
+      ['en ukjent aktør', () => ({ aktor: randomUUID(), ...UTEN_SIDE })],
+    ])('%s får ikke saken i P1 fra `koe_api.saker_i_prosjektet`', async (_, k) => {
+      const { sakId } = await kvittertBrev(b.te);
+      expect(await iKontekst(k(), (r) => sakerIProsjektet(r, [sakId]), 'kjoeretid')).toEqual([]);
+    });
+
+    it('prosedyrene avviser en kontekst fra en annen transaksjon og et kall uten transaksjon', async () => {
+      const { sakId, kommando } = await kvittertBrev(b.te);
+      const k = { aktor: b.te, ...UTEN_SIDE };
+      const annenTx = (arbeid: (r: Foresp) => Promise<unknown>) =>
+        iKontekst(
+          k,
+          async (r) => {
+            await r().query(
+              "DECLARE @tx bigint = CURRENT_TRANSACTION_ID() + 1; EXEC sp_set_session_context N'koe_tx', @tx;"
+            );
+            return arbeid(r);
+          },
+          'kjoeretid'
+        );
+      expect(await avvisning(annenTx((r) => sakerIProsjektet(r, [sakId])))).toBe(51000);
+      expect(await avvisning(annenTx((r) => kvittertSak(r, kommando)))).toBe(51000);
+      const utenTx = () => kjoeretid.pool.request();
+      expect(await avvisning(sakerIProsjektet(utenTx, [sakId]))).toBe(51000);
+      expect(await avvisning(kvittertSak(utenTx, kommando))).toBe(51000);
+    });
+
+    // Prosedyrene avviser en kontekst fra en annen transaksjon og leser bare prosjektet i
+    // konteksten, så predikatets krav om `koe_tx` og om prosjektet i konteksten prøves alene: eieren gir brukeren lesing i en transaksjon som rulles
+    // tilbake. TRY/CATCH gjør at `REVERT` kjøres også når lesingen feiler (#583).
+    it('predikatet slipper grenseoppslaget gjennom bare i transaksjonen og prosjektet i konteksten', async () => {
+      const { sakId } = await kvittertBrev(b.te);
+      const tilbakerulling = new Error('tilbakerulling');
+      let svar:
+        | {
+            samme_tx: number;
+            annen_tx: number;
+            annet_prosjekt: number;
+            som_eier: number;
+            bruker: string;
+          }
+        | undefined;
+      const feil = await iKontekst({ aktor: b.te, ...UTEN_SIDE }, async (r) => {
+        const rad = await r().input('sak', sql.NVarChar(36), sakId).query<
+          NonNullable<typeof svar>
+        >(`
+          DECLARE @samme_tx int, @annen_tx int, @annet_prosjekt int, @som_eier int, @tx bigint = CURRENT_TRANSACTION_ID();
+          GRANT SELECT ON koe.sak_metadata TO koe_grenseoppslag;
+          SET @som_eier = (SELECT COUNT(*) FROM koe.sak_metadata WHERE sak_id = @sak);
+          EXECUTE AS USER = 'koe_grenseoppslag';
+          BEGIN TRY
+            SET @samme_tx = (SELECT COUNT(*) FROM koe.sak_metadata WHERE sak_id = @sak);
+            DECLARE @annen bigint = @tx + 1;
+            EXEC sp_set_session_context N'koe_tx', @annen;
+            SET @annen_tx = (SELECT COUNT(*) FROM koe.sak_metadata WHERE sak_id = @sak);
+            EXEC sp_set_session_context N'koe_tx', @tx;
+            EXEC sp_set_session_context N'koe_prosjekt', N'${P2}';
+            SET @annet_prosjekt = (SELECT COUNT(*) FROM koe.sak_metadata WHERE sak_id = @sak);
+            REVERT;
+          END TRY
+          BEGIN CATCH
+            REVERT;
+            THROW;
+          END CATCH
+          SELECT @samme_tx AS samme_tx, @annen_tx AS annen_tx, @annet_prosjekt AS annet_prosjekt,
+                 @som_eier AS som_eier,
+                 USER_NAME() AS bruker;`);
+        svar = rad.recordset[0];
+        throw tilbakerulling;
+      }).catch((f: unknown) => f);
+      expect(feil).toBe(tilbakerulling);
+      expect(svar).toEqual({
+        samme_tx: 1,
+        annen_tx: 0,
+        annet_prosjekt: 0,
+        som_eier: 0,
+        bruker: 'dbo',
+      });
+    });
+
+    it('kjøretiden kan ikke bli grenseoppslaget selv', async () => {
+      expect(
+        await avvisning(kjoeretid.pool.request().query("EXECUTE AS USER = 'koe_grenseoppslag'"))
+      ).toBe(KAN_IKKE_BLI);
     });
   });
 
