@@ -11,7 +11,9 @@
  * som sletter basen og innloggingen.
  *
  * Uten `--bh` og `--te` skrives teamene i Catenda-prosjektet ut, og prosjektet registreres
- * uten kontraktsteam. Uten `--board` har prosjektet ikke noe board, så jobbkjøreren lager
+ * uten kontraktsteam. Med dem kontrolleres teamene med `kontraktsteamFra` i
+ * `server/registrering.ts` og mot Catenda-prosjektet; kravet om én totalentreprenør
+ * (DL-U14) kontrolleres ikke. Uten `--board` har prosjektet ikke noe board, så jobbkjøreren lager
  * ingen topic i det ekte prosjektet når en sak opprettes.
  *
  * Bare variablene for Catenda-applikasjonen og innloggingen leses fra `backend/.env`, og en
@@ -28,6 +30,7 @@ import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { catendaId, uuidMedBindestreker } from '../../server/autorisasjon.ts';
 import { catendaFraMiljoe } from '../../server/catenda.ts';
+import { kontraktsteamFra } from '../../server/registrering.ts';
 import { kopierMigrertTestbase, settInn } from '../../server/tester/sqlserver_migrert.ts';
 import { opprettKjoeretid, slettAlle } from '../../server/tester/sqlserver.ts';
 
@@ -46,7 +49,7 @@ const SERVERPORT = 8090;
 function lesEnv(fil: string): Record<string, string> {
   const ut: Record<string, string> = {};
   for (const linje of readFileSync(fil, 'utf8').split('\n')) {
-    const m = linje.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
+    const m = linje.match(/^\s*(?:export\s+)?([A-Z_][A-Z0-9_]*)\s*=(.*)$/);
     if (m) ut[m[1]] = m[2].trim().replace(/^(['"])(.*)\1$/, '$2');
   }
   return ut;
@@ -72,11 +75,16 @@ const catendaMiljoe = {
   CATENDA_LOGIN_REDIRECT_URI: `${FRONTEND}/api/auth/catenda/callback`,
 };
 
-/** Miljøet uten Catenda-, Entra- og innloggingsvariabler fra skallet. */
+/**
+ * Miljøet uten Catenda-, Entra- og innloggingsvariabler fra skallet, og uten
+ * `KOE_LYTTEADRESSE` og `VITE_*`, så serveren med hemmeligheten bare lytter på 127.0.0.1
+ * og frontenden går gjennom proxyen.
+ */
 function rentMiljoe(): NodeJS.ProcessEnv {
   return Object.fromEntries(
     Object.entries(process.env).filter(
-      ([k]) => !/^(CATENDA_|ENTRA_|AUTH_|KOE_DATALAG|DISABLE_AUTH|APP_ENV)/.test(k)
+      ([k]) =>
+        !/^(CATENDA_|ENTRA_|AUTH_|KOE_DATALAG|KOE_LYTTEADRESSE|VITE_|DISABLE_AUTH|APP_ENV)/.test(k)
     )
   );
 }
@@ -88,17 +96,27 @@ function uuid(verdi: string, navn: string): string {
 }
 const catendaProsjekt = uuid(fil.CATENDA_PROJECT_ID, 'CATENDA_PROJECT_ID');
 
-if (!values.bh!.length && !values.te!.length) {
+const utenTeam = !values.bh!.length && !values.te!.length;
+const kontraktsteam = utenTeam ? [] : kontraktsteamFra(values.bh!, values.te!);
+{
   const { oauth, integrasjonsnokkel } = catendaFraMiljoe({ ...catendaMiljoe });
   const token = await integrasjonsnokkel.token();
   // Formen `catendaTeam` i `server/registrering.ts` leser.
   const rader = await oauth.samling(`/v2/projects/${catendaId(catendaProsjekt)}/teams`, token);
-  console.log('Teamene i Catenda-prosjektet (bruk ID-en med --bh og --te):');
+  const iCatenda = new Map<string, unknown>();
   for (const rad of rader) {
     const t = rad.user as { id?: unknown; type?: unknown; name?: unknown } | undefined;
-    if (t?.type === 'team') console.log(`  ${catendaId(t.id)}  ${t.name}`);
+    const id = t?.type === 'team' ? catendaId(t.id) : null;
+    if (id) iCatenda.set(id, t!.name);
   }
-  console.log('Registrerer prosjektet uten kontraktsteam.\n');
+  const ukjente = kontraktsteam.filter((t) => !iCatenda.has(t.team_id));
+  if (ukjente.length)
+    throw new Error(`Ikke i Catenda-prosjektet: ${ukjente.map((t) => t.team_id).join(', ')}`);
+  if (utenTeam) {
+    console.log('Teamene i Catenda-prosjektet (bruk ID-en med --bh og --te):');
+    for (const [id, navn] of iCatenda) console.log(`  ${id}  ${navn}`);
+    console.log('Registrerer prosjektet uten kontraktsteam.\n');
+  }
 }
 
 const prosesser: ChildProcess[] = [];
@@ -119,16 +137,23 @@ function startProsess(navn: string, kommando: string[], env: NodeJS.ProcessEnv, 
     };
     p.stdout!.on('data', les);
     p.stderr!.on('data', les);
-    p.on('exit', (kode) => feil(new Error(`${navn} stoppet (${kode})`)));
+    p.on('exit', (kode) => {
+      feil(new Error(`${navn} stoppet (${kode})`));
+      // Stopper en prosess etter at alt er klart, stopper resten også.
+      if (!rydder) {
+        console.error(`${navn} stoppet (${kode}); stopper og rydder.`);
+        void rydd(1);
+      }
+    });
     setTimeout(() => feil(new Error(`${navn} ble ikke klar`)), 120_000);
   });
 }
 
-const base = await kopierMigrertTestbase('lokal');
+let base: Awaited<ReturnType<typeof kopierMigrertTestbase>> | undefined;
 let kjoeretid: Awaited<ReturnType<typeof opprettKjoeretid>> | undefined;
 
 let rydder = false;
-async function rydd() {
+async function rydd(kode: number) {
   if (rydder) process.exit(130);
   rydder = true;
   for (const p of prosesser)
@@ -137,14 +162,22 @@ async function rydd() {
     } catch {
       // Gruppen har alt stoppet.
     }
-  await slettAlle(kjoeretid, base);
-  process.exit(0);
+  try {
+    if (base) await slettAlle(kjoeretid, base);
+  } catch (feil) {
+    console.error(feil);
+    kode ||= 1;
+  }
+  process.exit(kode);
 }
-process.on('SIGINT', () => void rydd());
-process.on('SIGTERM', () => void rydd());
+// Et avbrudd før basen eller innloggingen er laget, kan etterlate dem på serveren.
+process.on('SIGINT', () => void rydd(0));
+process.on('SIGTERM', () => void rydd(0));
 
 try {
-  const r = () => base.pool.request();
+  base = await kopierMigrertTestbase('lokal');
+  const pool = base.pool;
+  const r = () => pool.request();
   await settInn(r, 'projects', {
     id: values.prosjekt!,
     name: 'Lokal prøve av innloggingen',
@@ -158,14 +191,10 @@ try {
     topic_board_id: values.board ? uuid(values.board, '--board') : null,
     is_active: true,
   });
-  for (const [side, team] of [
-    ...values.bh!.map((t) => ['BH', t] as const),
-    ...values.te!.map((t) => ['TE', t] as const),
-  ])
+  for (const t of kontraktsteam)
     await settInn(r, 'catenda_contract_teams', {
       internal_project_id: values.prosjekt!,
-      team_id: catendaId(team) ?? uuid(team, 'Teamet'),
-      contract_role: side,
+      ...t,
     });
   kjoeretid = await opprettKjoeretid(base);
 
@@ -189,5 +218,5 @@ Prosjektet: ${values.prosjekt}
 Ctrl+C stopper og rydder.`);
 } catch (feil) {
   console.error(feil);
-  await rydd();
+  await rydd(1);
 }
