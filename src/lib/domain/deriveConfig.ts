@@ -30,8 +30,8 @@ export function deriveVederlagDomainConfig(sak: SakState): VederlagDomainConfig 
   const hovedbelop = v.metode === 'REGNINGSARBEID' ? v.kostnads_overslag : v.belop_direkte;
   const harSaerskilt = !!v.saerskilt_krav?.rigg_drift || !!v.saerskilt_krav?.produktivitet;
   // OV-U23: med særskilte krav er `krevd_belop` summen, så uten eget hovedbeløp har kravet ingen
-  // justering ellers.
-  const harHovedkrav = hovedbelop != null || !harSaerskilt;
+  // justering ellers. Regningsarbeid uten kostnadsoverslag har hovedkrav uten beløp (§ 30.2).
+  const harHovedkrav = hovedbelop != null || !harSaerskilt || v.metode === 'REGNINGSARBEID';
   return {
     metode: v.metode,
     harHovedkrav,

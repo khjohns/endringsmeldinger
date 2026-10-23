@@ -261,7 +261,24 @@ function generateRiggSection(
   const lines: string[] = [];
   const isPrekludert = input.riggVarsletITide === false;
 
-  if (isPrekludert) {
+  if (erHovedkravPrekludert(input)) {
+    lines.push(
+      `Påberopelsen etter §34.1.2 gjelder ${input.hovedkravBelop ? 'også ' : ''}kravet om dekning av økte rigg- og driftskostnader ` +
+        `på ${formatCurrency(input.riggBelop, useTokens)}.`
+    );
+    if (input.riggVurdering) {
+      lines.push(
+        generateSubsidiaerKravText(
+          'rigg- og driftskostnader',
+          input.riggBelop,
+          input.riggVurdering,
+          input.riggGodkjentBelop,
+          useTokens,
+          'varselet etter §34.1.2'
+        )
+      );
+    }
+  } else if (isPrekludert) {
     lines.push(
       `Kravet om dekning av økte rigg- og driftskostnader på ${formatCurrency(input.riggBelop, useTokens)} ` +
         `avvises prinsipalt fordi varselet etter §34.1.3 ikke ble fremsatt «uten ugrunnet opphold» ` +
@@ -306,7 +323,31 @@ function generateProduktivitetSection(
   const lines: string[] = [];
   const isPrekludert = input.produktivitetVarsletITide === false;
 
-  if (isPrekludert) {
+  // OV-U27: påberopelsen etter § 34.1.2 gjelder hele kravet, og posten står med det godkjente
+  // subsidiært, som i kjernen.
+  if (erHovedkravPrekludert(input)) {
+    lines.push(
+      `Påberopelsen etter §34.1.2 gjelder ${input.hovedkravBelop ? 'også ' : ''}kravet om dekning av produktivitetstap ` +
+        `på ${formatCurrency(input.produktivitetBelop, useTokens)}.`
+    );
+    if (isPrekludert) {
+      lines.push(
+        `For dette kravet påberopes det også at varselet etter §34.1.3 ikke ble fremsatt «uten ugrunnet opphold».`
+      );
+    }
+    if (input.produktivitetVurdering) {
+      lines.push(
+        generateSubsidiaerKravText(
+          'produktivitetstap',
+          input.produktivitetBelop,
+          input.produktivitetVurdering,
+          input.produktivitetGodkjentBelop,
+          useTokens,
+          'varselet etter §34.1.2'
+        )
+      );
+    }
+  } else if (isPrekludert) {
     // VS-U5: begrensningen gir posten et beløp prinsipalt. MM-U23: teksten sier ikke «prekludert».
     lines.push(
       `For kravet om dekning av produktivitetstap på ${formatCurrency(input.produktivitetBelop, useTokens)} ` +
@@ -370,9 +411,10 @@ function generateSubsidiaerKravText(
   krevdBelop: number,
   vurdering: BelopVurdering,
   godkjentBelop?: number,
-  useTokens = false
+  useTokens = false,
+  varsel = `varselet om ${kravType}`
 ): string {
-  const prefix = `Subsidiært, dersom varselet om ${kravType} anses gitt i tide,`;
+  const prefix = `Subsidiært, dersom ${varsel} anses gitt i tide,`;
 
   switch (vurdering) {
     case 'godkjent':

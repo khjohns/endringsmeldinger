@@ -125,7 +125,8 @@ export function getDefaults(config: VederlagDefaultsConfig): VederlagFormState {
     const prev = config.lastResponseEvent;
     return {
       hovedkravVarsletITide: prev.hovedkravVarsletITide ?? true,
-      riggVarsletITide: prev.riggVarsletITide ?? true,
+      // OV-U25: varslingen for rigg og drift kan ikke påberopes, heller ikke i et tidligere svar.
+      riggVarsletITide: true,
       produktivitetVarsletITide: prev.produktivitetVarsletITide ?? true,
       akseptererMetode: prev.akseptererMetode ?? true,
       oensketMetode: prev.oensketMetode,

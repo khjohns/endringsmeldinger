@@ -190,6 +190,17 @@ describe('deriveVederlagDomainConfig — krav uten hovedbeløp (OV-U23)', () => 
     });
   });
 
+  it('har hovedkrav ved regningsarbeid uten kostnadsoverslag ved siden av posten (§ 30.2)', () => {
+    const sak = medVederlag({
+      metode: 'REGNINGSARBEID',
+      belop_direkte: undefined,
+      kostnads_overslag: undefined,
+      krevd_belop: undefined,
+      saerskilt_krav: { produktivitet: { belop: 200_000 } },
+    });
+    expect(deriveVederlagDomainConfig(sak).harHovedkrav).toBe(true);
+  });
+
   it('har hovedkrav uten særskilte krav, også når bare det krevde beløpet er kjent', () => {
     const sak = medVederlag({
       metode: 'FASTPRIS_TILBUD',

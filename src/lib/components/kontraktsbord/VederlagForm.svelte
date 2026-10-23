@@ -301,7 +301,7 @@
     if (computed.har34_1_2_Preklusjon) {
       linjer.push({
         key: 'hovedkrav',
-        label: 'Varsling hovedkrav',
+        label: 'Varsling av kravet',
         ref: '§ 34.1.2',
         value: hovedkravVarsletITide,
         submissionMeta: submissionMeta.hovedkrav,
@@ -377,13 +377,29 @@
   function handleKravlinjeVurdering(key: string, v: BelopVurdering | undefined) {
     if (key === 'hovedkrav') hovedkravVurdering = v;
     else if (key === 'rigg') riggVurdering = v;
-    else produktivitetVurdering = v;
+    else {
+      produktivitetVurdering = v;
+      klippBegrensetBelop();
+    }
   }
 
   function handleKravlinjeBelop(key: string, v: number | undefined) {
     if (key === 'hovedkrav') hovedkravGodkjentBelop = v;
     else if (key === 'rigg') riggGodkjentBelop = v;
     else produktivitetGodkjentBelop = v;
+  }
+
+  // VS-U5: beløpet etter begrensningen kan ikke stå over det som godtas for posten. Klippes når
+  // vurderingen endres og når beløpsfeltet forlates, ikke under inntastingen.
+  function klippBegrensetBelop() {
+    if (produktivitetBegrensetBelop == null || !produktivitetVurdering) return;
+    if (produktivitetVurdering === 'delvis' && produktivitetGodkjentBelop == null) return;
+    const godtatt = beregnGodkjentBelop(
+      produktivitetVurdering,
+      domainConfig.produktivitetBelop ?? 0,
+      produktivitetGodkjentBelop
+    );
+    if (produktivitetBegrensetBelop > godtatt) produktivitetBegrensetBelop = godtatt;
   }
 
   // Alternative metode options (ekskluderer TEs metode)
@@ -426,7 +442,8 @@
       erGrunnlagPrekludert: domainConfig.grunnlagVarsletForSent,
       erGrunnlagAvslatt: domainConfig.grunnlagStatus === 'avslatt',
       hovedkravVarsletITide,
-      riggVarsletITide,
+      // OV-U25: varslingen for rigg og drift påberopes ikke, heller ikke fra en eldre kladd.
+      riggVarsletITide: true,
       produktivitetVarsletITide,
       akseptererMetode: akseptererMetode!,
       oensketMetode,
@@ -610,7 +627,8 @@
     navn: string,
     verdi: number | undefined,
     maks: number | undefined,
-    onset: (v: number | undefined) => void
+    onset: (v: number | undefined) => void,
+    etterpaa?: () => void
   )}
     <input
       type="text"
@@ -648,6 +666,7 @@
         if (verdi != null) {
           e.currentTarget.value = verdi.toLocaleString('nb-NO');
         }
+        etterpaa?.();
       }}
       placeholder="0"
       class="font-mono measurement-input"
@@ -719,8 +738,12 @@
                 {isSubsidiaer || linje.prekludert ? 'Subsidiært vurdert beløp' : 'Godkjent beløp'}
               </div>
               <div class="number-input-wrap">
-                {@render belopInput(linje.title, linje.godkjentBelop, linje.krevdBelop, (v) =>
-                  handleKravlinjeBelop(linje.key, v)
+                {@render belopInput(
+                  linje.title,
+                  linje.godkjentBelop,
+                  linje.krevdBelop,
+                  (v) => handleKravlinjeBelop(linje.key, v),
+                  linje.key === 'produktivitet' ? klippBegrensetBelop : undefined
                 )}
                 <span class="number-input-suffix">kr</span>
               </div>

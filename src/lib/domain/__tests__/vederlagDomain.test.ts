@@ -88,7 +88,8 @@ describe('getDefaults', () => {
     expect(defaults.oensketMetode).toBe('REGNINGSARBEID');
     expect(defaults.hovedkravVurdering).toBe('delvis');
     expect(defaults.hovedkravGodkjentBelop).toBe(50000);
-    expect(defaults.riggVarsletITide).toBe(false);
+    // OV-U25: et tidligere svar som påberopte sent varsel for rigg og drift, påberoper det ikke igjen.
+    expect(defaults.riggVarsletITide).toBe(true);
     expect(defaults.begrunnelse).toBe('');
   });
 

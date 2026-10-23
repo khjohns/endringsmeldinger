@@ -78,4 +78,30 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
       'true'
     );
   });
+
+  it('senker beløpet etter begrensningen når det godtatte for posten senkes etterpå (VS-U5)', async () => {
+    const screen = render(WorkspaceHarness, {
+      workspace: arbeidsflate(),
+      view: { track: 'vederlag', role: 'BH', mode: 'form' },
+    });
+    await velg('Varsling produktivitetstap', 'Nei, for sent');
+    await velg('Beregningsmetode', 'Ja');
+    await velg('Produktivitetstap', 'Fullt beløp');
+    const begrenset = await screen.findByRole('textbox', { name: 'Godtas etter begrensningen' });
+    await fireEvent.input(begrenset, { target: { value: '150000' } });
+
+    await velg('Produktivitetstap', 'Redusert beløp');
+    const godkjent = await screen.findByRole('textbox', { name: 'Produktivitetstap' });
+    for (const verdi of ['1', '10', '100', '1000', '10000', '100000']) {
+      await fireEvent.input(godkjent, { target: { value: verdi } });
+    }
+    // Under inntastingen står beløpet etter begrensningen urørt.
+    expect((begrenset as HTMLInputElement).value).toBe((150000).toLocaleString('nb-NO'));
+    await fireEvent.blur(godkjent);
+
+    await waitFor(() =>
+      expect((begrenset as HTMLInputElement).value).toBe((100000).toLocaleString('nb-NO'))
+    );
+    expect(screen.getByRole('button', { name: 'Ferdigstill vurdering' })).toBeEnabled();
+  });
 });
