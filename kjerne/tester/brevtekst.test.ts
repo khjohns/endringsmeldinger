@@ -4754,13 +4754,69 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
     expect(s.avvist('TE', med('fundament\u00adering → peling\r\n\tny linje'))).toBeNull();
   });
 
-  it('en sakstittel med et slikt tegn fra før stopper brevet i den låste teksten', () => {
+  // #1138: meldingen sier hva som hindrer (AGENTS.md, «Skriv etter hva teksten gjør»).
+  const iSakstittelen = {
+    regel: 'UGYLDIG_FORM',
+    melding: 'Sakstittelen har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.',
+  };
+
+  it('en sakstittel med et slikt tegn fra før stopper brevet i den låste teksten, og meldingen nevner sakstittelen', () => {
     const s = sak('Fundament 😀');
-    expect(s.avvisning('TE', GRUNNLAGSKRAV)).toEqual({
-      regel: 'UGYLDIG_FORM',
-      melding:
-        'Avsnitt 1 i brevteksten har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.',
+    expect(s.vis('TE', GRUNNLAGSKRAV)).toBeNull();
+    expect(s.avvisning('TE', GRUNNLAGSKRAV)).toEqual(iSakstittelen);
+  });
+
+  it('ved sending nevner meldingen sakstittelen, ikke den låste teksten klienten sendte med (#1138)', () => {
+    const s = sak('Fundament 😀');
+    const vist = [
+      `TE krever endringsordre for forholdet «Ny peling» i sak ${SAK} («Fundament 😀»).`,
+    ];
+    expect(s.avvisning('TE', { ...GRUNNLAGSKRAV, brevtekst: vist })).toEqual(iSakstittelen);
+  });
+
+  it('en sakstittel med et slikt tegn stopper ikke et brev der sakstittelen ikke står i teksten (#801, #1138)', () => {
+    const s = sak('Fundament 😀');
+    const krav = randomUUID();
+    s.rad('TE', {
+      krav: [
+        {
+          id: krav,
+          spor: 'grunnlag',
+          hovedkategori: 'endring',
+          underkategori: 'irregulaer_endring',
+        },
+      ],
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
     });
+    const innsigelse = { type: 'innsigelse', gjelder: krav };
+    expect(s.avvisning('BH', innsigelse)).toBeNull();
+    expect(s.vis('BH', innsigelse)?.join(' '), 'forutsetning').not.toContain('Fundament');
+  });
+
+  it('et filnavn med et slikt tegn fra før stopper brevet, og meldingen nevner vedlegget (#1138)', () => {
+    const s = sak();
+    s.send('TE', GRUNNLAGSKRAV);
+    const kontekst = {
+      sakId: SAK,
+      aktoerId: 'te',
+      part: 'TE' as const,
+      teamId: null,
+      tidspunkt: () => new Date('2026-10-07T08:00:00Z'),
+      nyId: randomUUID,
+    };
+    const lager = (filnavn: string) =>
+      new Map([
+        [VARSELBREVET, { vedlegg_id: VARSELBREVET, filnavn, innhold_sha256: '0'.repeat(64) }],
+      ]);
+    const kontroll = forhaandsvis(FRISTKRAV, kontekst, s.journal, KJERNE, lager('varsel.pdf'));
+    expect(kontroll.godtatt, 'kontrollsak').toBe(true);
+    const vist = kontroll.godtatt ? laastTekst(kontroll.hendelser[0])! : [];
+    const melding =
+      'Filnavnet til vedlegget «varsel 😀.pdf» har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.';
+    for (const kommando of [FRISTKRAV, { ...FRISTKRAV, brevtekst: vist }]) {
+      const u = vurder(kommando, kontekst, s.journal, KJERNE, lager('varsel 😀.pdf'));
+      expect(u.godtatt ? null : u.avvisning).toEqual({ regel: 'UGYLDIG_FORM', melding });
+    }
   });
 });
 
