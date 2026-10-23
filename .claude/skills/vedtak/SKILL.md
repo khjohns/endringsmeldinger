@@ -36,8 +36,9 @@ oppdragsgiver.
   fram som en nummerert liste i tekst, med bakgrunn, belegg i kontraktsteksten
   eller vedtaket, alternativene i vedtaksform, anbefalt svar og hva valget styrer,
   så oppdragsgiver kan svare «ja» eller rette enkeltpunkter. Still de juridiske i
-  kontraktens språk, uten kodenavn. De tekniske kan legges fram med en anbefaling
-  som kan godtas samlet. Spørsmålsverktøyet tar høyst fire spørsmål per kall. Er
+  kontraktens språk, uten kodenavn. Tekniske spørsmål og spørsmål om prioritering
+  kan fortsatt stilles med spørsmålsverktøyet, med en anbefaling som kan godtas
+  samlet. Spørsmålsverktøyet tar høyst fire spørsmål per kall. Er
   det flere tekniske spørsmål, eller vil oppdragsgiver det, legg dem fram som en
   nummerert liste i tekst med anbefalt svar.
 - **Hvert spørsmål står på egne bein i verktøyet.** Tekst du skriver før et
