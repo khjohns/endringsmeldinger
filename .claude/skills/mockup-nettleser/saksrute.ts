@@ -32,14 +32,31 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { kopierMigrertTestbase, settInn } from '../../../server/tester/sqlserver_migrert.ts';
 import { opprettKjoeretid, slettAlle } from '../../../server/tester/sqlserver.ts';
+import { forhaandsvis, laastTekst } from '../../../kjerne/kommandoer/skriving.ts';
+import type { Journalrad, Part } from '../../../kjerne/typer.ts';
+import { KJERNE } from '../../../kjerne/versjon.ts';
 
 const { values } = parseArgs({
   options: {
     utdata: { type: 'string', default: '/tmp/saksrute-skjermbilder' },
     behold: { type: 'boolean', default: false },
+    send: { type: 'string' },
   },
 });
 const UT = values.utdata!;
+
+/** Brevene TE sender etter opprettelsen (#1220). Grunnlaget går først, som i skjemaet. */
+const SENDBARE = ['grunnlag', 'vederlag', 'frist'] as const;
+type Sendbar = (typeof SENDBARE)[number];
+const SENDES = (values.send?.split(',').filter(Boolean) ?? []) as Sendbar[];
+if (
+  SENDES.some((s) => !SENDBARE.includes(s)) ||
+  new Set(SENDES).size !== SENDES.length ||
+  (SENDES.length && SENDES[0] !== 'grunnlag')
+) {
+  console.error(`--send tar grunnlag, eventuelt fulgt av vederlag og frist: ${values.send}`);
+  process.exit(1);
+}
 mkdirSync(UT, { recursive: true });
 
 const FRONTEND = 'http://localhost:5173';
@@ -52,6 +69,7 @@ const katalog = {
   teTeam: randomUUID(),
   bhTeam: randomUUID(),
   board: randomUUID(),
+  bibliotek: randomUUID(),
 };
 const BRUKERE = {
   te: { id: randomUUID(), type: 'user', email: 'te@saksrute.example', name: 'TE Testbruker' },
@@ -127,9 +145,59 @@ async function catenda(req: IncomingMessage, res: ServerResponse) {
     await lesKropp(req);
     return svarJson(res, { guid: randomUUID() });
   }
+  if (await levering(req, res, url)) return;
   console.error(`falsk Catenda: ukjent kall ${req.method} ${sti}`);
   ukjenteKall.push(`${req.method} ${sti}`);
   svarJson(res, { feil: 'ukjent' }, 404);
+}
+
+/** Dokumentene i biblioteket, med navnet som nøkkel, og dokumentreferansene per topic. */
+const dokumenter = new Map<string, string>();
+const referanser = new Map<string, { guid: string; document_guid: string }[]>();
+
+/**
+ * Kallene jobbkjøreren gjør når et brev leveres (#1221): biblioteket (`finnDokument`,
+ * `lastOppDokument`) og dokumentreferansene på topicen. `true` når kallet er besvart.
+ */
+async function levering(req: IncomingMessage, res: ServerResponse, url: URL): Promise<boolean> {
+  const sti = url.pathname;
+  const bibliotek = /^\/v2\/projects\/([^/]+)\/libraries\/([^/]+)\/items$/.exec(sti);
+  if (
+    bibliotek &&
+    hex(bibliotek[1]) === hex(katalog.catendaProsjekt) &&
+    hex(bibliotek[2]) === hex(katalog.bibliotek)
+  ) {
+    if (req.method === 'GET') {
+      const navn = url.searchParams.get('search') ?? '';
+      const treff = [...dokumenter].filter(([n]) => n === navn).map(([name, id]) => ({ id, name }));
+      svarJson(res, side(url, treff));
+      return true;
+    }
+    if (req.method === 'POST') {
+      await lesKropp(req);
+      const { name } = JSON.parse(String(req.headers['bimsync-params'] ?? '{}'));
+      if (dokumenter.has(name)) svarJson(res, { feil: 'finnes' }, 409);
+      else {
+        dokumenter.set(name, hex(randomUUID()));
+        svarJson(res, [{ id: dokumenter.get(name), name }]);
+      }
+      return true;
+    }
+  }
+  const topic = new RegExp(
+    `^/opencde/bcf/3.0/projects/${katalog.board}/topics/([^/]+)/document_references$`
+  ).exec(sti);
+  if (!topic) return false;
+  const liste = referanser.get(topic[1]) ?? referanser.set(topic[1], []).get(topic[1])!;
+  if (req.method === 'GET') {
+    svarJson(res, liste);
+    return true;
+  }
+  if (req.method !== 'POST') return false;
+  const guid = randomUUID();
+  liste.push({ guid, document_guid: JSON.parse(await lesKropp(req)).document_guid });
+  svarJson(res, { guid });
+  return true;
 }
 
 // --- Prosessene ------------------------------------------------------------------
@@ -241,7 +309,7 @@ try {
   await settInn(r, 'catenda_project_configs', {
     internal_project_id: katalog.prosjekt,
     catenda_project_id: katalog.catendaProsjekt,
-    library_id: randomUUID(),
+    library_id: katalog.bibliotek,
     topic_board_id: katalog.board,
     is_active: true,
   });
@@ -326,6 +394,88 @@ try {
       { prosjekt: katalog.prosjekt, tittel, medCsrf }
     );
 
+  /** Svaret fra `GET /api/kjerne/saker/{sak}`, med feltene skriptet leser. */
+  interface Saken {
+    journal: Journalrad[];
+    versjon: number;
+    part: Part | null;
+    leveringsoppdrag: { levert: string | null }[];
+  }
+
+  /** Et kall fra siden, med sesjonen, CSRF-tokenet og prosjektet, som skjemaene gjør. */
+  const kjerneKall = <T = unknown>(
+    side: Awaited<ReturnType<typeof loggInn>>,
+    metode: 'GET' | 'POST',
+    sti: string,
+    kropp?: unknown
+  ): Promise<{ status: number; kropp: T }> =>
+    side.evaluate(
+      async ({
+        prosjekt,
+        metode,
+        sti,
+        kropp,
+      }: {
+        prosjekt: string;
+        metode: string;
+        sti: string;
+        kropp: unknown;
+      }) => {
+        const hoder: Record<string, string> = { 'X-Project-ID': prosjekt };
+        if (metode === 'POST') {
+          hoder['Content-Type'] = 'application/json';
+          hoder['X-CSRF-Token'] = (await (await fetch('/api/csrf-token')).json()).csrfToken;
+        }
+        const svar = await fetch(sti, {
+          method: metode,
+          headers: hoder,
+          body: kropp === undefined ? undefined : JSON.stringify(kropp),
+        });
+        return { status: svar.status, kropp: await svar.json() };
+      },
+      { prosjekt: katalog.prosjekt, metode, sti, kropp }
+    );
+
+  /**
+   * Sender kommandoen med den låste teksten kjernen lager mot journalen fra `GET`, mot
+   * versjonen der, slik `sendMedBrev` i skjemaet gjør (LV-U2). Serveren avviser en annen tekst.
+   */
+  async function sendBrev(side: Awaited<ReturnType<typeof loggInn>>, sak: string, kommando: Record<string, unknown>) {
+    const lest = await kjerneKall<Saken>(side, 'GET', `/api/kjerne/saker/${sak}`);
+    if (lest.status !== 200) throw new Error(`GET før ${kommando.type} ga ${lest.status}`);
+    const journal: Journalrad[] = lest.kropp.journal.map((l) => ({
+      ...l,
+      sak_id: sak,
+      aktor_id: '',
+      aktor_team_id: null,
+      refererer_til_event_id: null,
+    }));
+    const vurdert = forhaandsvis(
+      kommando,
+      {
+        sakId: sak,
+        aktoerId: '',
+        part: lest.kropp.part as Part,
+        teamId: null,
+        tidspunkt: () => new Date(),
+        nyId: () => randomUUID(),
+      },
+      journal,
+      KJERNE
+    );
+    if (!vurdert.godtatt)
+      throw new Error(`Kjernen avviste ${kommando.type}: ${JSON.stringify(vurdert.avvisning)}`);
+    const tekst = laastTekst(vurdert.hendelser[0]);
+    const sendt = await kjerneKall(side, 'POST', `/api/kjerne/saker/${sak}/kommandoer`, {
+      expected_version: lest.kropp.versjon,
+      kommando_id: randomUUID(),
+      kommando: tekst ? { ...kommando, brevtekst: tekst } : kommando,
+    });
+    const hva = `${kommando.type}${kommando.spor ? ` ${kommando.spor}` : ''}`;
+    console.log(`TE  POST /api/kjerne/saker/{sak}/kommandoer (${hva}): ${sendt.status} ${JSON.stringify(sendt.kropp)}`);
+    if (sendt.status !== 201) throw new Error(`Serveren lagret ikke ${hva}`);
+  }
+
   const te = await loggInn('te', `/${katalog.prosjekt}`);
   const opprettet = await opprettSak(te, 'Ny peling ved akse C');
   console.log(`TE  POST /api/kjerne/saker: ${opprettet.status} ${JSON.stringify(opprettet.kropp)}`);
@@ -342,6 +492,52 @@ try {
   const avvist = await opprettSak(bh, 'BH skal ikke kunne opprette');
   console.log(`BH  POST /api/kjerne/saker: ${avvist.status} ${JSON.stringify(avvist.kropp)}`);
   if (avvist.status !== 400 || avvist.kropp?.rule !== 'FEIL_PART') throw new Error('Kjernen avviste ikke BH ved opprettelsen');
+
+  // Datoen TE oppgir, før serverens klokke (VS-U26).
+  const forTreDager = new Date(Date.now() - 3 * 86_400_000).toISOString().slice(0, 10);
+  const KOMMANDOER: Record<Sendbar, Record<string, unknown>[]> = {
+    grunnlag: [
+      {
+        type: 'krav',
+        spor: 'grunnlag',
+        innhold: {
+          hovedkategori: 'endring',
+          underkategori: 'irregulaer_endring',
+          paalegg_mottatt: forTreDager,
+        },
+        utdypning: 'Byggherren påla ny peling ved akse C på byggemøtet.',
+      },
+    ],
+    vederlag: [{ type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } }],
+    // Varselet etter § 33.4 sendes i appen først, så fristkravet trenger ikke brevet som vedlegg.
+    frist: [
+      { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' },
+      {
+        type: 'krav',
+        spor: 'frist',
+        innhold: { dager: 20 },
+        utdypning: 'Pelingen tar fire uker lenger enn planlagt.',
+      },
+    ],
+  };
+  for (const spor of SENDES) for (const kommando of KOMMANDOER[spor]) await sendBrev(te, sak, kommando);
+  if (SENDES.length) {
+    // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert.
+    for (let forsoek = 0; ; forsoek++) {
+      const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
+      if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
+      const oppdrag = lest.kropp.leveringsoppdrag;
+      if (oppdrag.length && oppdrag.every((o) => o.levert)) {
+        console.log(`Levert til falsk Catenda: ${oppdrag.length} brev`);
+        break;
+      }
+      if (forsoek === 60)
+        throw new Error(
+          `Brevene ble ikke levert: ${JSON.stringify(oppdrag)}. Ukjente kall: ${ukjenteKall.join(', ') || 'ingen'}`
+        );
+      await te.waitForTimeout(1000);
+    }
+  }
 
   for (const [navn, side] of [
     ['te', te],

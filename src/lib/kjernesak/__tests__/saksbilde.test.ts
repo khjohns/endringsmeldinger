@@ -246,6 +246,10 @@ describe('saksbildet for en TS-sak', () => {
     });
   });
 
+  it('merket «varsel_kreves_ikke» sier at det gjelder § 34.1.2, fordi det særskilte varselet etter § 34.1.3 kreves likevel (OV-U15, OV-U25, MM-U23)', () => {
+    expect(etikett('varsel_kreves_ikke').tekst).toBe('Varsel etter § 34.1.2 kreves ikke');
+  });
+
   it('viser en kode uten tekst som koden selv', () => {
     expect(etikett('ny_etikett_fra_kjernen')).toEqual({
       kode: 'ny_etikett_fra_kjernen',
