@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `ee1ef46838c8232cdc5b20c75d331d450379daa81e399256c86245c3f1291810`
+Kontrollsum (SHA-256 over utdraget visningen leser): `a02f63eb1c84885dc43eaa12dcbe05529dcd8b7b83c5bf753c90d850d7af749f`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -935,7 +935,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 23.10, oppdragsgiver (#1047)
 
-**Følge:** Utvider [LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4). Utvider [LV-U21](#lv-u21). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Spørsmålet forutsatte svarene på B1 og B2, som er OV-U26 og OV-U27. Ikke bygget (#1047).
+**Følge:** Utvider [LV-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u4). Utvider [LV-U21](#lv-u21). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Spørsmålet forutsatte B1 = «For hver post» og B2 = «Hele kravet», som er OV-U26 og OV-U27. Ikke bygget (#1047).
 
 **Regelrader:** —
 

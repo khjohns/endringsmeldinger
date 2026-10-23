@@ -8158,7 +8158,7 @@ svar = '''
 «Hver post for seg (Recommended)»'''
 forhold = [{ art = "utvider", vedtak = "lv-u4" }, { art = "utvider", vedtak = "lv-u21" }]
 folge = '''
-Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Spørsmålet forutsatte svarene på B1 og B2, som er OV-U26 og OV-U27. Ikke bygget (#1047).'''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Spørsmålet forutsatte B1 = «For hver post» og B2 = «Hele kravet», som er OV-U26 og OV-U27. Ikke bygget (#1047).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Hver post for seg"
