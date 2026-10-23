@@ -441,7 +441,7 @@
                 onbacktonow={() => (activeEvent = null)}
               />
             {:else if !approval}
-              <!-- TS-saken har ingen BH-skjemaer eller godkjenning ennå (#818). -->
+              <!-- TS-saken har bare BHs svar på vederlagskravet, og ingen godkjenning ennå (#818). -->
               <div class="approval-entry">
                 <p role="status">Dette skjemaet finnes ikke for saken ennå.</p>
                 <button class="btn btn-secondary" onclick={goRead}>Tilbake</button>

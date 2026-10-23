@@ -24,7 +24,7 @@ export interface Kjernebrev {
   tittel: string;
   tekst: string[];
   utdypning?: string;
-  /** Det TE gjør med brevet, som overskrift i panelet ved siden av brevet (#943). Uten den: kravet. */
+  /** Det parten gjør med brevet, som overskrift i panelet ved siden av brevet (#943). Uten den: kravet. */
   handling?: string;
   /** Teksten på knappen som sender brevet. Uten den: til byggherren. */
   sendes?: string;
