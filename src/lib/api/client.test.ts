@@ -1,5 +1,13 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { apiFetch, clearCsrfToken, LESEFEIL, NETTFEIL, setActiveProjectId } from './client';
+import {
+  ApiError,
+  apiFetch,
+  clearCsrfToken,
+  LESEFEIL,
+  NETTFEIL,
+  setActiveProjectId,
+  skalPrøveIgjen,
+} from './client';
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -216,4 +224,24 @@ it('et feilsvar med en HTML-side fra nginx gir statuskoden, ikke HTML-en (#1158)
     message: 'Serveren svarte med feilkode 502 uten forklaring.',
     data: side,
   });
+});
+
+it.each([401, 403, 404, 422])('viser en %i med en gang uten nytt forsøk', (status) => {
+  expect(skalPrøveIgjen(0, new ApiError(status, 'Feil'))).toBe(false);
+});
+
+it.each([408, 429, 500, 503])('prøver %i på nytt til tre mislykkede forsøk', (status) => {
+  const feil = new ApiError(status, 'Feil');
+  expect(skalPrøveIgjen(0, feil)).toBe(true);
+  expect(skalPrøveIgjen(2, feil)).toBe(true);
+  expect(skalPrøveIgjen(3, feil)).toBe(false);
+});
+
+it('prøver nettfeil på nytt, også etter at apiFetch har pakket den som status 0', () => {
+  expect(skalPrøveIgjen(0, new ApiError(0, NETTFEIL))).toBe(true);
+  expect(skalPrøveIgjen(3, new ApiError(0, NETTFEIL))).toBe(false);
+});
+
+it('viser ukjente feil med en gang', () => {
+  expect(skalPrøveIgjen(0, new Error('ukjent'))).toBe(false);
 });
