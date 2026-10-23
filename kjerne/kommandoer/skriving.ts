@@ -408,7 +408,19 @@ function skriv(
   }
   if (brevtekst) {
     // #801: brevet PDF-en lages av, har bare tegn den kan vise. Et registrert brev har ingen PDF.
+    // Sakstittelen og filnavnene er lagret, ikke i kommandoen, så de nevnes for seg (#1138).
+    // Bare noen brev nevner saken (KA-U22); filnavnene står i hvert brev som binder dem (A4).
+    const teksten = brevtekst.map((a) => a.laast).join('\n');
+    const sak = lest.find((h) => h.art === 'sak');
     const tegn =
+      (sak?.art === 'sak' && teksten.includes(`(«${sak.tittel}»)`)
+        ? tegnSomIkkeKanVises(sak.tittel, 'Sakstittelen')
+        : null) ??
+      bundne.reduce<Avvisning | null>(
+        (funnet, v) =>
+          funnet ?? tegnSomIkkeKanVises(v.filnavn, `Filnavnet til vedlegget «${v.filnavn}»`),
+        null
+      ) ??
       kommandoenHarTegnSomIkkeKanVises(kommando) ??
       brevtekst.reduce<Avvisning | null>(
         (funnet, a, i) => funnet ?? tegnSomIkkeKanVises(a.laast, `Avsnitt ${i + 1} i brevteksten`),
