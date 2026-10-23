@@ -15,7 +15,7 @@
     grunnlag_avslatt: 'bestridt grunnlag',
     grunnlag_prekludert_32_2: 'for sen varsling av grunnlaget',
     forseringsrett_avslatt: 'bestridt rett til forsering',
-    preklusjon_hovedkrav: 'for sen varsling av hovedkravet',
+    preklusjon_hovedkrav: 'for sen varsling av kravet (§ 34.1.2)',
     preklusjon_rigg: 'for sen varsling av rigg og drift',
     preklusjon_produktivitet: 'for sen varsling av produktivitetstap',
     reduksjon_ep_justering: 'for sen varsling av justerte enhetspriser',

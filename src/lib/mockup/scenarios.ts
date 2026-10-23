@@ -129,6 +129,26 @@ const timeline1_Subsidiaer: TimelineEvent[] = [
   },
 ];
 
+/**
+ * Variant av scenario 1 der kravet bare er produktivitetstapet etter § 34.1.3 annet ledd, uten
+ * beløp for justeringen ellers (OV-U23), slik TS-saken kan ha det. Grunnlaget er grunnforhold
+ * (SVIKT), så skjemaet spør også om varselet etter § 34.1.2.
+ */
+const scenario1_BareProduktivitet: SakState = {
+  ...scenario1_3AktiveSpor,
+  sak_id: 'KOE-2024-047-PROD',
+  vederlag: {
+    ...scenario1_3AktiveSpor.vederlag,
+    metode: 'FASTPRIS_TILBUD',
+    kostnads_overslag: undefined,
+    belop_direkte: undefined,
+    krevd_belop: 180000,
+    netto_belop: 180000,
+    rigg_drift_varsel: undefined,
+    saerskilt_krav: { produktivitet: { belop: 180000, dato_klar_over: '2026-02-08' } },
+  },
+};
+
 export const SCENARIOS: Scenario[] = [
   {
     id: 'scenario1',
@@ -158,6 +178,17 @@ export const SCENARIOS: Scenario[] = [
         note: null,
       },
       frist: { ...emptyUI, att: [{ n: 'Fremdriftsplan rev. 4', p: 8 }] },
+    },
+  },
+  {
+    id: 'scenario1prod',
+    label: 'KOE-047 — Bare produktivitetstap',
+    sak: scenario1_BareProduktivitet,
+    timeline: timeline1_3AktiveSpor,
+    ui: {
+      ansvar: { ...emptyUI },
+      vederlag: { ...emptyUI },
+      frist: { ...emptyUI },
     },
   },
   {

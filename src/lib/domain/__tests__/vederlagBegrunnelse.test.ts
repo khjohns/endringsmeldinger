@@ -42,7 +42,9 @@ describe('generateVederlagResponseBegrunnelse — §34.1.2 avgrensning', () => {
         harPrekludertKrav: true,
       })
     );
-    expect(tekst).toContain('prekludert iht. §34.1.2');
+    // MM-U23: teksten påberoper sent varsel og sier ikke at kravet er prekludert.
+    expect(tekst).toContain('fordi varselet etter §34.1.2');
+    expect(tekst).not.toContain('prekludert');
   });
 
   it('påberoper ikke §34.1.2 ved ENDRING, der regelen ikke gjelder (§34.1.1)', () => {
@@ -115,24 +117,28 @@ describe('generateVederlagResponseBegrunnelse — særskilte krav (§34.1.3)', (
         harPrekludertKrav: true,
       })
     );
-    expect(tekst).toContain('prekludert iht. §34.1.3');
+    expect(tekst).toContain('fordi varselet etter §34.1.3');
+    expect(tekst).not.toContain('prekludert');
     expect(tekst).toContain('rigg- og driftskostnader');
     expect(tekst).not.toContain('§34.1.2');
   });
 
-  it('prekluderer produktivitetstap uavhengig av hovedkategori', () => {
+  // VS-U5: begrensningen gir posten beløpet etter begrensningen prinsipalt. MM-U23: ikke «prekludert».
+  it('påberoper sent varsel for produktivitetstap med beløpet etter begrensningen, uavhengig av hovedkategori', () => {
     const tekst = gen(
       baseInput({
         hovedkategori: 'ENDRING',
         harProduktivitetKrav: true,
         produktivitetBelop: 25_000,
         produktivitetVarsletITide: false,
-        produktivitetVurdering: 'avslatt',
+        produktivitetVurdering: 'godkjent',
+        produktivitetBegrensetBelop: 5_000,
         harPrekludertKrav: true,
       })
     );
-    expect(tekst).toContain('prekludert iht. §34.1.3');
-    expect(tekst).toContain('produktivitetstap');
+    expect(tekst).toContain('varselet etter §34.1.3 ikke ble fremsatt');
+    expect(tekst).toMatch(/Prinsipalt aksepteres kr 5[\s\u00a0]000,- etter begrensningen/);
+    expect(tekst).not.toMatch(/produktivitetstap[^.]*prekludert iht/);
   });
 
   it('gir alminnelig vurderingstekst når særskilt krav er varslet i tide', () => {
@@ -252,5 +258,58 @@ describe('generateVederlagResponseBegrunnelse — konklusjon', () => {
       })
     );
     expect(tekst).not.toContain('subsidiært standpunkt');
+  });
+});
+
+describe('generateVederlagResponseBegrunnelse — § 34.1.2 gjelder hele kravet (OV-U27)', () => {
+  it('avviser postene etter § 34.1.3 prinsipalt og vurderer dem subsidiært', () => {
+    const tekst = gen(
+      baseInput({
+        hovedkategori: 'SVIKT',
+        hovedkravVarsletITide: false,
+        harRiggKrav: true,
+        riggBelop: 30_000,
+        riggVurdering: 'godkjent',
+        harProduktivitetKrav: true,
+        produktivitetBelop: 25_000,
+        produktivitetVarsletITide: false,
+        produktivitetVurdering: 'godkjent',
+        produktivitetBegrensetBelop: 5_000,
+        totalGodkjent: 0,
+        harPrekludertKrav: true,
+      })
+    );
+    expect(tekst).toContain(
+      'Påberopelsen etter §34.1.2 gjelder også kravet om dekning av økte rigg- og driftskostnader'
+    );
+    expect(tekst).toContain(
+      'Påberopelsen etter §34.1.2 gjelder også kravet om dekning av produktivitetstap'
+    );
+    expect(tekst).toContain(
+      'Subsidiært, dersom varselet etter §34.1.2 anses gitt i tide, aksepteres kr 25 000,-'
+    );
+    expect(tekst).not.toContain('Prinsipalt aksepteres');
+    // Påberopelsen etter § 34.1.3 lagres og står derfor også i begrunnelsen.
+    expect(tekst).toContain('påberopes det også at varselet etter §34.1.3');
+    expect(tekst).not.toMatch(/rigg- og driftskostnader på kr 30 000,- godkjennes/);
+  });
+
+  it('sier ikke «også» når kravet bare har posten etter § 34.1.3 (OV-U23)', () => {
+    const tekst = gen(
+      baseInput({
+        hovedkategori: 'SVIKT',
+        hovedkravBelop: 0,
+        hovedkravVurdering: undefined,
+        hovedkravVarsletITide: false,
+        harProduktivitetKrav: true,
+        produktivitetBelop: 25_000,
+        produktivitetVurdering: 'avslatt',
+        totalGodkjent: 0,
+        harPrekludertKrav: true,
+      })
+    );
+    expect(tekst).toContain(
+      'Påberopelsen etter §34.1.2 gjelder kravet om dekning av produktivitetstap'
+    );
   });
 });

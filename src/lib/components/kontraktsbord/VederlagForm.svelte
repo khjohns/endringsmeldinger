@@ -12,6 +12,7 @@
     erSubsidiaer as erSubsidiaerFn,
     erHelVederlagSubsidiaerPgaGrunnlag,
     erKravlinjeGyldig,
+    erBegrensetBelopGyldig,
   } from '$lib/domain/vederlagDomain';
   import type {
     VederlagFormState,
@@ -39,7 +40,6 @@
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
   import { fmt } from './utils.js';
   import { sporResultatLabel } from './derive.js';
-  import Stamp from './Stamp.svelte';
   import type { EventType } from '$lib/types/timeline';
   import {
     createSubmission,
@@ -82,6 +82,9 @@
   let produktivitetGodkjentBelop = $state<number | undefined>(
     initialDefaults.produktivitetGodkjentBelop
   );
+  let produktivitetBegrensetBelop = $state<number | undefined>(
+    initialDefaults.produktivitetBegrensetBelop
+  );
 
   // Begrunnelse state (declared before formState which references it)
   // The generator consumes formState, so assigning its result avoids a derived dependency cycle.
@@ -102,6 +105,7 @@
     riggGodkjentBelop,
     produktivitetVurdering,
     produktivitetGodkjentBelop,
+    produktivitetBegrensetBelop,
     begrunnelse: begrunnelseHtml,
   });
 
@@ -120,6 +124,7 @@
       riggGodkjentBelop = saved.riggGodkjentBelop;
       produktivitetVurdering = saved.produktivitetVurdering;
       produktivitetGodkjentBelop = saved.produktivitetGodkjentBelop;
+      produktivitetBegrensetBelop = saved.produktivitetBegrensetBelop;
       begrunnelseHtml = saved.begrunnelse ?? '';
       tilleggHtml =
         typeof saved.tilleggHtml === 'string'
@@ -157,7 +162,9 @@
   // TE's sammendrag data
   const sammendragKravlinjer = $derived.by(() => {
     const linjer: Array<{ label: string; belop: number }> = [];
-    linjer.push({ label: 'Hovedkrav', belop: domainConfig.hovedkravBelop });
+    if (domainConfig.harHovedkrav) {
+      linjer.push({ label: 'Hovedkrav', belop: domainConfig.hovedkravBelop });
+    }
     if (domainConfig.harRiggKrav && domainConfig.riggBelop) {
       linjer.push({ label: 'Rigg og drift', belop: domainConfig.riggBelop });
     }
@@ -191,10 +198,14 @@
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
+    // VS-U5: med begrensningen etter § 34.1.3 sier BH prinsipalt hva BH godtar, også 0 kr, og
+    // avslår ikke. Er § 34.1.2 påberopt, gjelder den hele kravet (OV-U27).
     const konklusjon =
-      r === 'avslatt'
-        ? 'BH avslår kravet prinsipalt'
-        : `BH ${r === 'godkjent' ? 'godkjenner' : 'godkjenner delvis'} kravet prinsipalt`;
+      computed.produktivitetPrekludert && !computed.hovedkravPrekludert
+        ? `BH godtar ${fmt(computed.totalGodkjent)} kr prinsipalt etter begrensningen (§ 34.1.3)`
+        : r === 'avslatt'
+          ? 'BH avslår kravet prinsipalt'
+          : `BH ${r === 'godkjent' ? 'godkjenner' : 'godkjenner delvis'} kravet prinsipalt`;
     if (r === 'godkjent') return { ikon: Check, konklusjon, variant: 'positive' as const };
     if (r === 'delvis_godkjent')
       return { ikon: CircleMinus, konklusjon, variant: 'mixed' as const };
@@ -229,15 +240,16 @@
         vurdering: BelopVurdering | undefined;
         godkjentBelop: number | undefined;
       }
-    > = {
-      hovedkrav: {
+    > = {};
+    if (domainConfig.harHovedkrav) {
+      kravMap.hovedkrav = {
         title: 'Hovedkrav',
         ref: '§34.1.1–34.1.2',
         belop: domainConfig.hovedkravBelop,
         vurdering: hovedkravVurdering,
         godkjentBelop: hovedkravGodkjentBelop,
-      },
-    };
+      };
+    }
     if (domainConfig.harRiggKrav) {
       kravMap.rigg = {
         title: 'Rigg og drift',
@@ -259,11 +271,14 @@
     for (const key of Object.keys(kravMap)) {
       const k = kravMap[key];
       if (k.belop == null) continue;
-      const prekl = preklusjon[key as keyof typeof preklusjon];
-      const prinsipalt = prekl
-        ? 0
-        : beregnGodkjentBelop(k.vurdering, k.belop, k.godkjentBelop, false);
+      // OV-U27: § 34.1.2 gjelder hele kravet. VS-U5: posten står med beløpet etter begrensningen.
+      const prekl = preklusjon.hovedkrav || preklusjon[key as keyof typeof preklusjon];
       const subsidiaert = beregnGodkjentBelop(k.vurdering, k.belop, k.godkjentBelop, false);
+      const prinsipalt = !prekl
+        ? subsidiaert
+        : key === 'produktivitet' && !preklusjon.hovedkrav
+          ? (produktivitetBegrensetBelop ?? 0)
+          : 0;
       rader.push({
         key,
         title: k.title,
@@ -290,19 +305,10 @@
     if (computed.har34_1_2_Preklusjon) {
       linjer.push({
         key: 'hovedkrav',
-        label: 'Varsling hovedkrav',
+        label: 'Varsling av kravet',
         ref: '§ 34.1.2',
         value: hovedkravVarsletITide,
         submissionMeta: submissionMeta.hovedkrav,
-      });
-    }
-    if (domainConfig.harRiggKrav) {
-      linjer.push({
-        key: 'rigg',
-        label: 'Varsling rigg og drift',
-        ref: '§ 34.1.3',
-        value: riggVarsletITide,
-        submissionMeta: submissionMeta.rigg,
       });
     }
     if (domainConfig.harProduktivitetKrav) {
@@ -335,8 +341,9 @@
   }
 
   const kravlinjer = $derived.by(() => {
-    const linjer: KravlinjeItem[] = [
-      {
+    const linjer: KravlinjeItem[] = [];
+    if (domainConfig.harHovedkrav) {
+      linjer.push({
         key: 'hovedkrav',
         title: 'Hovedkrav',
         paragrafRef: '§ 34.1.1–34.1.2',
@@ -344,15 +351,15 @@
         prekludert: computed.hovedkravPrekludert,
         vurdering: hovedkravVurdering,
         godkjentBelop: hovedkravGodkjentBelop,
-      },
-    ];
+      });
+    }
     if (domainConfig.harRiggKrav) {
       linjer.push({
         key: 'rigg',
         title: 'Rigg og drift',
         paragrafRef: '§ 34.1.3',
         krevdBelop: domainConfig.riggBelop,
-        prekludert: computed.riggPrekludert,
+        prekludert: computed.hovedkravPrekludert || computed.riggPrekludert,
         vurdering: riggVurdering,
         godkjentBelop: riggGodkjentBelop,
       });
@@ -363,7 +370,7 @@
         title: 'Produktivitetstap',
         paragrafRef: '§ 34.1.3',
         krevdBelop: domainConfig.produktivitetBelop,
-        prekludert: computed.produktivitetPrekludert,
+        prekludert: computed.hovedkravPrekludert || computed.produktivitetPrekludert,
         vurdering: produktivitetVurdering,
         godkjentBelop: produktivitetGodkjentBelop,
       });
@@ -374,13 +381,29 @@
   function handleKravlinjeVurdering(key: string, v: BelopVurdering | undefined) {
     if (key === 'hovedkrav') hovedkravVurdering = v;
     else if (key === 'rigg') riggVurdering = v;
-    else produktivitetVurdering = v;
+    else {
+      produktivitetVurdering = v;
+      klippBegrensetBelop();
+    }
   }
 
   function handleKravlinjeBelop(key: string, v: number | undefined) {
     if (key === 'hovedkrav') hovedkravGodkjentBelop = v;
     else if (key === 'rigg') riggGodkjentBelop = v;
     else produktivitetGodkjentBelop = v;
+  }
+
+  // VS-U5: beløpet etter begrensningen kan ikke stå over det som godtas for posten. Klippes når
+  // vurderingen endres og når beløpsfeltet forlates, ikke under inntastingen.
+  function klippBegrensetBelop() {
+    if (produktivitetBegrensetBelop == null || !produktivitetVurdering) return;
+    if (produktivitetVurdering === 'delvis' && produktivitetGodkjentBelop == null) return;
+    const godtatt = beregnGodkjentBelop(
+      produktivitetVurdering,
+      domainConfig.produktivitetBelop ?? 0,
+      produktivitetGodkjentBelop
+    );
+    if (produktivitetBegrensetBelop > godtatt) produktivitetBegrensetBelop = godtatt;
   }
 
   // Alternative metode options (ekskluderer TEs metode)
@@ -401,12 +424,17 @@
     if (akseptererMetode === undefined) return false;
     if (akseptererMetode === false && !oensketMetode) return false;
     if (kravlinjer.some((l) => !erKravlinjeGyldig(l.vurdering, l.godkjentBelop))) return false;
+    if (!erBegrensetBelopGyldig(formState, domainConfig)) return false;
     if (isHtmlEmpty(begrunnelseHtml)) return false;
     return true;
   });
 
+  const harVurdertHovedkrav = $derived(
+    !domainConfig.harHovedkrav || hovedkravVurdering !== undefined
+  );
+
   const autoBegrunnelseHtml = $derived.by(() => {
-    if (akseptererMetode === undefined || hovedkravVurdering === undefined) return '';
+    if (akseptererMetode === undefined || !harVurdertHovedkrav) return '';
     const input: VederlagResponseInput = {
       hovedkategori: domainConfig.hovedkategori,
       metode: domainConfig.metode,
@@ -418,18 +446,20 @@
       erGrunnlagPrekludert: domainConfig.grunnlagVarsletForSent,
       erGrunnlagAvslatt: domainConfig.grunnlagStatus === 'avslatt',
       hovedkravVarsletITide,
-      riggVarsletITide,
+      // OV-U25: varslingen for rigg og drift påberopes ikke, heller ikke fra en eldre kladd.
+      riggVarsletITide: true,
       produktivitetVarsletITide,
       akseptererMetode: akseptererMetode!,
       oensketMetode,
       kreverJustertEp: domainConfig.kreverJustertEp,
       holdTilbake: false,
-      hovedkravVurdering: hovedkravVurdering!,
+      hovedkravVurdering: hovedkravVurdering ?? 'avslatt',
       hovedkravGodkjentBelop,
       riggVurdering,
       riggGodkjentBelop,
       produktivitetVurdering,
       produktivitetGodkjentBelop,
+      produktivitetBegrensetBelop,
       totalKrevd: computed.totalKrevdInklPrekludert,
       totalGodkjent: computed.totalGodkjent,
       totalGodkjentSubsidiaer: computed.totalGodkjentInklPrekludert,
@@ -542,12 +572,14 @@
       {/if}
 
       <div class="sammendrag-kravlinjer">
-        <div class="sammendrag-kravlinje">
-          <span class="sammendrag-kravlinje-label">Hovedkrav</span>
-          <span class="font-mono sammendrag-kravlinje-belop"
-            >{fmt(domainConfig.hovedkravBelop)},-</span
-          >
-        </div>
+        {#if domainConfig.harHovedkrav}
+          <div class="sammendrag-kravlinje">
+            <span class="sammendrag-kravlinje-label">Hovedkrav</span>
+            <span class="font-mono sammendrag-kravlinje-belop"
+              >{fmt(domainConfig.hovedkravBelop)},-</span
+            >
+          </div>
+        {/if}
         {#if domainConfig.harRiggKrav && domainConfig.riggBelop}
           <div class="sammendrag-kravlinje">
             <span class="sammendrag-kravlinje-label">Rigg og drift</span>
@@ -594,6 +626,56 @@
       </div>
     {/if}
   </div>
+
+  {#snippet belopInput(
+    navn: string,
+    verdi: number | undefined,
+    maks: number | undefined,
+    onset: (v: number | undefined) => void,
+    etterpaa?: () => void
+  )}
+    <input
+      type="text"
+      aria-label={navn}
+      inputmode="numeric"
+      value={formatNumberInput(verdi)}
+      oninput={(e) => {
+        const input = e.currentTarget;
+        const raw = input.value.replace(/[^\d]/g, '');
+        if (raw === '') {
+          onset(undefined);
+          input.value = '';
+          return;
+        }
+        const num = parseInt(raw);
+        if (isNaN(num)) return;
+        const clamped = Math.min(num, maks ?? Infinity);
+        onset(clamped);
+
+        // Formater under inntasting med cursor-justering
+        const formatted = clamped.toLocaleString('nb-NO');
+        const oldLen = input.value.length;
+        const newLen = formatted.length;
+        const cursorFromEnd = oldLen - input.selectionStart!;
+        input.value = formatted;
+        const newPos = Math.max(0, newLen - cursorFromEnd);
+        input.setSelectionRange(newPos, newPos);
+      }}
+      onfocus={(e) => {
+        if (verdi != null) {
+          e.currentTarget.value = String(verdi);
+        }
+      }}
+      onblur={(e) => {
+        if (verdi != null) {
+          e.currentTarget.value = verdi.toLocaleString('nb-NO');
+        }
+        etterpaa?.();
+      }}
+      placeholder="0"
+      class="font-mono measurement-input"
+    />
+  {/snippet}
 
   {#snippet formBodyBelow()}
     <!-- Beregningsmetode -->
@@ -660,50 +742,41 @@
                 {isSubsidiaer || linje.prekludert ? 'Subsidiært vurdert beløp' : 'Godkjent beløp'}
               </div>
               <div class="number-input-wrap">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  value={formatNumberInput(linje.godkjentBelop)}
-                  oninput={(e) => {
-                    const input = e.currentTarget;
-                    const raw = input.value.replace(/[^\d]/g, '');
-                    if (raw === '') {
-                      handleKravlinjeBelop(linje.key, undefined);
-                      input.value = '';
-                      return;
-                    }
-                    const num = parseInt(raw);
-                    if (isNaN(num)) return;
-                    const clamped = Math.min(num, linje.krevdBelop ?? Infinity);
-                    handleKravlinjeBelop(linje.key, clamped);
-
-                    // Formater under inntasting med cursor-justering
-                    const formatted = clamped.toLocaleString('nb-NO');
-                    const oldLen = input.value.length;
-                    const newLen = formatted.length;
-                    const cursorFromEnd = oldLen - input.selectionStart!;
-                    input.value = formatted;
-                    const newPos = Math.max(0, newLen - cursorFromEnd);
-                    input.setSelectionRange(newPos, newPos);
-                  }}
-                  onfocus={(e) => {
-                    if (linje.godkjentBelop != null) {
-                      e.currentTarget.value = String(linje.godkjentBelop);
-                    }
-                  }}
-                  onblur={(e) => {
-                    if (linje.godkjentBelop != null) {
-                      e.currentTarget.value = linje.godkjentBelop.toLocaleString('nb-NO');
-                    }
-                  }}
-                  placeholder="0"
-                  class="font-mono measurement-input"
-                />
+                {@render belopInput(
+                  linje.title,
+                  linje.godkjentBelop,
+                  linje.krevdBelop,
+                  (v) => handleKravlinjeBelop(linje.key, v),
+                  linje.key === 'produktivitet' ? klippBegrensetBelop : undefined
+                )}
                 <span class="number-input-suffix">kr</span>
               </div>
               {#if linje.krevdBelop}
                 <div class="number-input-ref">Av {fmt(linje.krevdBelop)} kr krevd</div>
               {/if}
+            </div>
+          {/if}
+          {#if linje.key === 'produktivitet' && computed.produktivitetPrekludert && linje.vurdering}
+            {@const godtatt = beregnGodkjentBelop(
+              linje.vurdering,
+              linje.krevdBelop ?? 0,
+              linje.godkjentBelop
+            )}
+            <div class="number-field">
+              <div class="number-input-label">Godtas etter begrensningen</div>
+              <div class="number-input-wrap">
+                {@render belopInput(
+                  'Godtas etter begrensningen',
+                  produktivitetBegrensetBelop,
+                  godtatt,
+                  (v) => (produktivitetBegrensetBelop = v)
+                )}
+                <span class="number-input-suffix">kr</span>
+              </div>
+              <div class="number-input-ref">
+                Utgiftene som ikke er rammet av det sene varselet (§ 34.1.3), høyst {fmt(godtatt)} kr.
+                Kan være 0.
+              </div>
             </div>
           {/if}
         {/snippet}
@@ -715,7 +788,7 @@
       </div>
     {/each}
 
-    {#if allAnswered || (akseptererMetode !== undefined && hovedkravVurdering !== undefined)}
+    {#if allAnswered || (akseptererMetode !== undefined && harVurdertHovedkrav)}
       <div class="result-box konsekvens-{resultat.variant}">
         <div class="result-header">
           <resultat.ikon size={18} />
@@ -751,8 +824,10 @@
               </span>
               <span class="td td-tal font-mono">{fmt(rad.krevdBelop ?? 0)} kr</span>
               <span class="td td-tal font-mono">
-                {#if rad.prekludert}
-                  <Stamp variant="avslag" small flat>Prekludert</Stamp>
+                {#if rad.prekludert && rad.prinsipaltGodkjent === 0}
+                  <span class="td-avslag">{fmt(rad.prinsipaltGodkjent)} kr</span>
+                {:else if rad.prekludert}
+                  <span class="td-delvis">{fmt(rad.prinsipaltGodkjent)} kr</span>
                 {:else if rad.vurdering === 'avslatt'}
                   <span class="td-avslag">{fmt(rad.prinsipaltGodkjent)} kr</span>
                 {:else if rad.vurdering === 'delvis' && rad.prinsipaltGodkjent > 0}
@@ -810,7 +885,7 @@
     <!-- Preklusjon (data-drevet, segment buttons) -->
     {#if computed.harPreklusjonsSteg}
       <div class="preklusjon-section">
-        <SectionHeading title="Preklusjon" paragrafRef="§34.1.2 / §34.1.3" />
+        <SectionHeading title="Varsling" paragrafRef="§34.1.2 / §34.1.3" />
         <p class="question-text">Er kravene varslet innen kontraktens varslingsfrister?</p>
         {#each preklusjonsLinjer as linje (linje.key)}
           <div class="preklusjons-rad">
@@ -824,7 +899,7 @@
               value={linje.value}
               label={linje.label}
               yesText="Ja, i tide"
-              noText="Nei, prekludert"
+              noText="Nei, for sent"
               onchange={(value) => handlePreklusjon(linje.key, value)}
             />
           </div>
