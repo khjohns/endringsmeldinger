@@ -307,15 +307,6 @@
         submissionMeta: submissionMeta.hovedkrav,
       });
     }
-    if (domainConfig.harRiggKrav) {
-      linjer.push({
-        key: 'rigg',
-        label: 'Varsling rigg og drift',
-        ref: '§ 34.1.3',
-        value: riggVarsletITide,
-        submissionMeta: submissionMeta.rigg,
-      });
-    }
     if (domainConfig.harProduktivitetKrav) {
       linjer.push({
         key: 'produktivitet',

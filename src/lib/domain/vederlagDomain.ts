@@ -195,11 +195,12 @@ export function beregnHovedkravPrekludert(
   return har34_1_2Preklusjon(config) && state.hovedkravVarsletITide === false;
 }
 
-export function beregnRiggPrekludert(
-  state: Pick<VederlagFormState, 'riggVarsletITide'>,
-  config: Pick<VederlagDomainConfig, 'harRiggKrav'>
-): boolean {
-  return config.harRiggKrav && state.riggVarsletITide === false;
+/**
+ * OV-U25: kravet om rigg og drift har ingen særskilt varslingsplikt etter § 34.1.3, så byggherren
+ * kan ikke påberope at det er varslet for sent.
+ */
+export function beregnRiggPrekludert(): boolean {
+  return false;
 }
 
 export function beregnProduktivitetPrekludert(
@@ -209,9 +210,9 @@ export function beregnProduktivitetPrekludert(
   return config.harProduktivitetKrav && state.produktivitetVarsletITide === false;
 }
 
-/** Preklusjons-steget vises når: harSaerskiltKrav ELLER har §34.1.2-preklusjon */
+/** Varslingssteget vises for produktivitetstapet (§ 34.1.3, OV-U25) og for § 34.1.2. */
 export function harPreklusjonsSteg(config: VederlagDomainConfig): boolean {
-  return config.harRiggKrav || config.harProduktivitetKrav || har34_1_2Preklusjon(config);
+  return config.harProduktivitetKrav || har34_1_2Preklusjon(config);
 }
 
 /** §30.2: BH kan holde tilbake betaling for regningsarbeid uten kostnadsoverslag */
@@ -471,7 +472,8 @@ export function buildEventData(
     hovedkrav_varslet_i_tide: computed.har34_1_2_Preklusjon
       ? state.hovedkravVarsletITide
       : undefined,
-    rigg_varslet_i_tide: state.riggVarsletITide,
+    // OV-U25: ingen påberopelse for rigg og drift. Kjernen og Python krever svaret når posten finnes.
+    rigg_varslet_i_tide: config.harRiggKrav ? true : undefined,
     produktivitet_varslet_i_tide: state.produktivitetVarsletITide,
 
     // Port 2: Beregningsmetode
@@ -542,7 +544,7 @@ export function beregnAlt(
   const _erSubsidiaer = erSubsidiaer(config);
 
   const hovedkravPrekludert = beregnHovedkravPrekludert(state, config);
-  const riggPrekludert = beregnRiggPrekludert(state, config);
+  const riggPrekludert = beregnRiggPrekludert();
   const produktivitetPrekludert = beregnProduktivitetPrekludert(state, config);
   const preklusjon = {
     hovedkrav: hovedkravPrekludert,

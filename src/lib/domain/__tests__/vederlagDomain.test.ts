@@ -222,12 +222,8 @@ describe('beregnHovedkravPrekludert', () => {
 });
 
 describe('beregnRiggPrekludert', () => {
-  it('precluded when harRiggKrav and varslet for sent', () => {
-    expect(beregnRiggPrekludert({ riggVarsletITide: false }, { harRiggKrav: true })).toBe(true);
-  });
-
-  it('not precluded when no rigg krav', () => {
-    expect(beregnRiggPrekludert({ riggVarsletITide: false }, { harRiggKrav: false })).toBe(false);
+  it('OV-U25: rigg og drift kan ikke påberopes varslet for sent', () => {
+    expect(beregnRiggPrekludert()).toBe(false);
   });
 });
 
@@ -243,8 +239,8 @@ describe('beregnProduktivitetPrekludert', () => {
 });
 
 describe('harPreklusjonsSteg', () => {
-  it('true when harRiggKrav', () => {
-    expect(harPreklusjonsSteg(makeConfig({ harRiggKrav: true }))).toBe(true);
+  it('OV-U25: rigg og drift alene gir ikke varslingssteget', () => {
+    expect(harPreklusjonsSteg(makeConfig({ harRiggKrav: true }))).toBe(false);
   });
 
   it('true when SVIKT (§34.1.2 applies)', () => {
@@ -812,7 +808,8 @@ describe('beregnAlt', () => {
     expect(result.subsidiaerTriggers).toEqual([]);
   });
 
-  it('computes subsidiary for SVIKT with precluded rigg', () => {
+  // OV-U25: et svar om sent varsel for rigg og drift gir ingen begrensning, også i svikt.
+  it('gir rigg og drift fullt prinsipalt i svikt, uten påberopelse etter § 34.1.3', () => {
     const state = makeState({
       hovedkravVurdering: 'godkjent',
       riggVarsletITide: false,
@@ -827,19 +824,12 @@ describe('beregnAlt', () => {
     const result = beregnAlt(state, config);
 
     expect(result.har34_1_2_Preklusjon).toBe(true);
-    expect(result.riggPrekludert).toBe(true);
-    expect(result.harPrekludertKrav).toBe(true);
-    expect(result.visSubsidiaertResultat).toBe(true);
-
-    // Principal: rigg excluded → 100k godkjent
-    expect(result.totalGodkjent).toBe(100000);
-    expect(result.prinsipaltResultat).toBe('delvis_godkjent'); // 100k of 130k
-
-    // Subsidiary: rigg included → 130k godkjent
-    expect(result.totalGodkjentInklPrekludert).toBe(130000);
-    expect(result.subsidiaertResultat).toBe('godkjent');
-
-    expect(result.subsidiaerTriggers).toContain('preklusjon_rigg');
+    expect(result.riggPrekludert).toBe(false);
+    expect(result.harPrekludertKrav).toBe(false);
+    expect(result.visSubsidiaertResultat).toBe(false);
+    expect(result.totalGodkjent).toBe(130000);
+    expect(result.prinsipaltResultat).toBe('godkjent');
+    expect(result.subsidiaerTriggers).not.toContain('preklusjon_rigg');
   });
 
   it('computes hold_tilbake for REGNINGSARBEID without overslag', () => {
@@ -884,18 +874,17 @@ describe('beregnAlt', () => {
     // ENDRING → no §34.1.2, but rigg+produktivitet can still be precluded via §34.1.3
     expect(result.har34_1_2_Preklusjon).toBe(false);
     expect(result.hovedkravPrekludert).toBe(false);
-    expect(result.riggPrekludert).toBe(true);
+    // OV-U25: bare produktivitetstapet kan begrenses etter § 34.1.3.
+    expect(result.riggPrekludert).toBe(false);
     expect(result.produktivitetPrekludert).toBe(true);
 
-    // Principal: only hovedkrav (60k delvis)
-    expect(result.totalGodkjent).toBe(60000);
+    // Prinsipalt: hovedkrav 60k, rigg 30k og produktivitetstapet med 0 etter begrensningen (VS-U5)
+    expect(result.totalGodkjent).toBe(90000);
     expect(result.prinsipaltResultat).toBe('delvis_godkjent');
 
-    // Subsidiary includes rigg (30k) + produktivitet (10k)
     expect(result.totalGodkjentInklPrekludert).toBe(100000); // 60k + 30k + 10k
 
-    // Triggers
-    expect(result.subsidiaerTriggers).toContain('preklusjon_rigg');
+    expect(result.subsidiaerTriggers).not.toContain('preklusjon_rigg');
     expect(result.subsidiaerTriggers).toContain('preklusjon_produktivitet');
     expect(result.subsidiaerTriggers).toContain('metode_avslatt');
     expect(result.harMetodeendring).toBe(true);
@@ -954,17 +943,17 @@ describe('BH Svar-Vederlag UI Scenarios', () => {
     expect(computed.totalGodkjent).toBe(600_000 + 200_000 + 150_000);
   });
 
-  it('prekludert rigg — vises subsidiært', () => {
+  // OV-U25: byggherren kan ikke påberope sent varsel for rigg og drift.
+  it('sent varsel for rigg og drift gir ikke noe subsidiært standpunkt', () => {
     const state: VederlagFormState = {
       ...godkjentAlleState,
       riggVarsletITide: false,
     };
     const computed = beregnAlt(state, baseConfig);
-    expect(computed.riggPrekludert).toBe(true);
-    expect(computed.visSubsidiaertResultat).toBe(true);
-    expect(computed.subsidiaerTriggers).toContain('preklusjon_rigg');
-    expect(computed.totalGodkjent).toBe(1_000_000 + 150_000);
-    expect(computed.totalGodkjentInklPrekludert).toBe(1_350_000);
+    expect(computed.riggPrekludert).toBe(false);
+    expect(computed.visSubsidiaertResultat).toBe(false);
+    expect(computed.subsidiaerTriggers).not.toContain('preklusjon_rigg');
+    expect(computed.totalGodkjent).toBe(1_350_000);
   });
 
   it('metode avslått — trigger i subsidiært', () => {
@@ -1123,6 +1112,14 @@ describe('buildEventData — posten etter § 34.1.3 (VS-U5, OV-U23)', () => {
     // Kjernen avviser feltet uten påberopt begrensning (kjerne/regler/vederlag.ts, `kontroller`).
     const data = svar({ produktivitetVarsletITide: true, produktivitetBegrensetBelop: 50_000 });
     expect(data.produktivitet_begrenset_belop).toBeUndefined();
+  });
+
+  it('OV-U25: svarer at rigg og drift er varslet i tide, uansett skjemaets tilstand', () => {
+    const medRigg = { ...config, harRiggKrav: true, riggBelop: 30_000 };
+    expect(svar({ riggVarsletITide: false, riggVurdering: 'godkjent' }, medRigg)).toMatchObject({
+      rigg_varslet_i_tide: true,
+    });
+    expect(svar({ riggVarsletITide: false }).rigg_varslet_i_tide).toBeUndefined();
   });
 
   it('sender ingen vurdering av hovedkravet når kravet ikke har hovedbeløp', () => {
