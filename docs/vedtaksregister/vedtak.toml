@@ -6012,6 +6012,72 @@ tekst = '''
 Saksnummeret i Websak står i prosjektinnstillingene og vises under Vår ref. bare i byggherrens brev. Totalentreprenørens brev har bare dokumentkodene. Endrer M3.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "LV-U29"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål A1, «Varselet etter § 34.1.3»: Etter OV-U25 gjelder kravet om særskilt varsel i § 34.1.3 tredje ledd, slik Del II pkt. B.2.16 endrer det, bare kravet etter annet ledd: økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid. LV-U19 gir brevteksten for varselet etter § 34.1.2, og ingen vedtak gir teksten for varselet etter § 34.1.3. Hvilken brevtekst skal varselet ha? Anbefalt: A, fordi varselet etter tredje ledd skal være særskilt for kravet etter annet ledd, og ordlyden i annet ledd sier hvilket krav det er.'''
+valgt = "Med kravet etter annet ledd"
+svar = '''
+«Med kravet etter annet ledd (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u5" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6357614532), og svaret i kommentaren 6357708663. Spørsmålet kaller vedtaket A1. Bygges i #1185.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Med kravet etter annet ledd"
+tekst = '''
+Brevteksten for TEs varsel etter § 34.1.3: «TE varsler etter NS 8407 § 34.1.3 tredje ledd at TE vil kreve særskilt justering av vederlaget etter annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid som følge av forholdet i sak <saksnummer> («<sakstittel>»).» Opplysningen om et varsel sendt utenfor appen: «TE opplyser at varsel om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 § 34.1.3 tredje ledd ble sendt <dato>.» Endret tekst gjelder bare nye brev (MM-U9). Presiserer OV-U5.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare bestemmelsen"
+tekst = '''
+Brevteksten for TEs varsel etter § 34.1.3: «TE varsler etter NS 8407 § 34.1.3 tredje ledd at TE vil kreve særskilt justering av vederlaget etter annet ledd som følge av forholdet i sak <saksnummer> («<sakstittel>»).» Opplysningen om et varsel sendt utenfor appen: «TE opplyser at varsel om særskilt justering etter NS 8407 § 34.1.3 tredje ledd ble sendt <dato>.» Endret tekst gjelder bare nye brev (MM-U9). Presiserer OV-U5.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "LV-U30"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål A2, «Kravet etter annet ledd i brevet»: Etter OV-U23 kan vederlagskravet ha kravet etter § 34.1.3 annet ledd med eller uten et beløp for justeringen ellers. Brevet sier i dag: «TE krever justering av vederlaget med <beløp> kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1.» § 34.2.1 står under «34.2 Generelle regler for vederlagsjustering», og § 34.2.2 annet ledd tar inn det særskilte kravet etter § 34.1.3 annet ledd i de samme reglene. Ingen bestemmelse unntar det særskilte kravet fra tilbudet etter § 34.2.1, og kravet lagres med beregningsmåten «tilbud» for hele kravet (krav etter regning, som VS-U28 tillater, er ikke bygget ennå). Hvordan sier brevet det særskilte kravet? Anbefalt: A, fordi kravet da er et tilbud etter § 34.2.1 i sin helhet, slik det er lagret.'''
+valgt = "Hele kravet er et tilbud"
+svar = '''
+«Hele kravet er et tilbud (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "lv-u4" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6357614532), og svaret i kommentaren 6357708663. Spørsmålet kaller vedtaket A2. Bygges i #1185.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hele kravet er et tilbud"
+tekst = '''
+Brevteksten for vederlagskravet sier, etter beløpet for justeringen ellers: «TE krever i tillegg særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid med <beløp> kr eks. mva.» Uten beløp for justeringen ellers (OV-U23): «TE krever særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid med <beløp> kr eks. mva.» Brevet avslutter med «Kravet er et tilbud etter NS 8407 § 34.2.1.» også når kravet bare har det særskilte kravet. Endret tekst gjelder bare nye brev (MM-U9). Utvider LV-U4 punkt 2.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Tilbudet gjelder bare justeringen ellers"
+tekst = '''
+Som over, men setningen «Kravet er et tilbud etter NS 8407 § 34.2.1.» står bare når kravet har et beløp for justeringen ellers. Det særskilte kravet alene oppgis uten beregningsmåte i brevet, selv om det lagres med beregningsmåten «tilbud». Endret tekst gjelder bare nye brev (MM-U9). Utvider LV-U4 punkt 2.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "34.2 Generelle regler for vederlagsjustering"
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
