@@ -8,14 +8,14 @@
  * én eller flere linjer og `kode` på én eller flere linjer. Et endepunkt med en
  * sti under `/v2`, `/opencde` eller `/oauth2`, eller en forkortet sti med `…/`,
  * er et kall og må kunne tolkes. Et kall med spørrestreng eller sider regnes som
- * avvist på en regel med førsjekk, som i `lagBroker`.
+ * avvist på en regel med førsjekk (`regelForKall`).
  */
 
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { regelFor, type Miljoe } from './broker.ts';
+import { regelForKall, type Miljoe } from './broker.ts';
 
 const DATAFLYT = resolve(dirname(fileURLToPath(import.meta.url)), '../../docs/datamodell/dataflyt.toml');
 
@@ -48,17 +48,17 @@ const PLASSHOLDERE: Record<string, string> = {
 };
 
 /**
- * Stegene i `dataflyt.toml` brokeren bevisst ikke slipper gjennom, som flyt-ID og endepunktet
- * slik det står, med kallene i steget som skal avvises.
+ * Stegene i `dataflyt.toml` med kall brokeren bevisst ikke slipper gjennom, som flyt-ID og
+ * endepunktet slik det står. `avvist` og `tillatt` er alle kallene i steget.
  */
-const UNNTAK: Record<string, { grunn: string; avvist: string[] }> = {
+const UNNTAK: Record<string, { grunn: string; avvist: string[]; tillatt?: string[] }> = {
   'C03 POST /oauth2/token': {
     grunn: 'Tokenkallet svarer brokeren på selv, med brokernøkkelen.',
     avvist: ['POST /oauth2/token'],
   },
   'C03 GET /v2/projects (sidevis)': {
     grunn: 'Prosjektlisten ved innloggingen i Python. Brokeren er avgrenset til ett prosjekt.',
-    avvist: ['GET /v2/projects'],
+    avvist: ['GET /v2/projects (sidevis)'],
   },
   'C17 GET /v2/projects': {
     grunn: 'Prosjektlisten i Python. Brokeren er avgrenset til ett prosjekt.',
@@ -67,6 +67,7 @@ const UNNTAK: Record<string, { grunn: string; avvist: string[] }> = {
   'C16 GET /v2/projects/{catenda_project_id}/ifc/products, POST samme sti ved søk, og GET …/ifc/products/ifctypes': {
     grunn: 'IFC-søket i BIM-rutene i Python, som integrasjonen fra skyøkta ikke bruker. `ifctypes` er tillatt.',
     avvist: ['GET /v2/projects/{catenda_project_id}/ifc/products', 'POST /v2/projects/{catenda_project_id}/ifc/products'],
+    tillatt: ['GET /v2/projects/{catenda_project_id}/ifc/products/ifctypes'],
   },
 };
 
@@ -109,11 +110,8 @@ function kallI(s: Steg): Kall[] {
   return tolket[1].split(' og ').map((metode) => ({ flyt: s.flyt, metode, sti, endepunkt: s.endepunkt, medSoek }));
 }
 
-/** Som `lagBroker`: stien står i listen, og en regel med førsjekk tar ikke spørrestreng. */
-function slippesGjennom(k: Kall): boolean {
-  const regel = regelFor(miljoe, k.metode, k.sti);
-  return regel !== undefined && !(regel.foersjekk && k.medSoek);
-}
+const slippesGjennom = (k: Kall) => regelForKall(miljoe, k.metode, k.sti, k.medSoek) !== undefined;
+const somTekst = (k: Kall) => `${k.metode} ${k.sti}${k.medSoek ? ' med søk' : ''}`;
 
 const erKall = (s: Steg) => /\/(?:v2|opencde|oauth2)\b|…\//.test(s.endepunkt);
 
@@ -140,13 +138,22 @@ describe('tillatelseslisten i brokeren mot dataflyt.toml (#1200)', () => {
     expect(avvist).toEqual([]);
   });
 
-  it('har bare unntak som står i dataflyt.toml og fortsatt avvises', () => {
-    const noekler = new Set(kallsteg.map(noekkel));
-    for (const [unntak, { avvist }] of Object.entries(UNNTAK)) {
-      expect(noekler, unntak).toContain(unntak);
-      for (const endepunkt of avvist)
-        for (const k of kallI({ flyt: unntak, endepunkt, kode: [] }))
-          expect(slippesGjennom(k), `${unntak}: ${endepunkt}`).toBe(false);
+  it('har bare unntak som står i dataflyt.toml, dekker kallene i steget og fortsatt avvises', () => {
+    const etterNoekkel = new Map(kallsteg.map((s) => [noekkel(s), s]));
+    for (const [unntak, { grunn, avvist, tillatt = [] }] of Object.entries(UNNTAK)) {
+      const s = etterNoekkel.get(unntak);
+      expect(s, unntak).toBeDefined();
+      const kall = (liste: string[]) => liste.flatMap((endepunkt) => kallI({ flyt: unntak, endepunkt, kode: [] }));
+      let iSteget: Kall[] | null = null;
+      try {
+        iSteget = kallI(s!);
+      } catch {
+        // Et endepunkt i prosa, som IFC-søket, beskrives av `avvist` og `tillatt` alene.
+      }
+      if (iSteget)
+        expect(kall([...avvist, ...tillatt]).map(somTekst).sort(), unntak).toEqual(iSteget.map(somTekst).sort());
+      for (const k of kall(avvist)) expect(slippesGjennom(k), `${unntak}: ${grunn}`).toBe(false);
+      for (const k of kall(tillatt)) expect(slippesGjennom(k), `${unntak}: ${somTekst(k)}`).toBe(true);
     }
   });
 });
