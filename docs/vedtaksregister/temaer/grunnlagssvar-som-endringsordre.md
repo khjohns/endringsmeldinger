@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `9b781dd56a5798ea4135fd3cf05bb75da39b9fb78381faef61a17edcd0ebed7b`
+Kontrollsum (SHA-256 over utdraget visningen leser): `8d3ea7fc525d6432a6ace32eb882d73ec3bec21a8ccb2eb49b9939d8c91de2f1`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -868,7 +868,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 22.10, oppdragsgiver (#1047)
 
-**Følge:** Presiserer [VS-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u5). Presiserer [VS-U24](#vs-u24). Snevret inn 22.10 av [OV-U25](#ov-u25). Presisert 23.10 av [OV-U26](#ov-u26). Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047). Merknad 23.10: «blir bare begrensningen for det kravet uavklart (VS-U7)» leses etter [OV-U5](#ov-u5) (oppdragsgiver 23.10, «OV-U5 gjelder», #1047, kommentaren 6365944474). Svaret står med virkningen det hadde, og markeringen at standpunktet gjaldt et annet varsel, gjelder bare standpunktet for det ene særskilte kravet. Ingen sperre for aksept.
+**Følge:** Presiserer [VS-U5](../../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u5). Presiserer [VS-U24](#vs-u24). Snevret inn 22.10 av [OV-U25](#ov-u25). Presisert 23.10 av [OV-U26](#ov-u26). Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047). Merknad 23.10: «blir bare begrensningen for det kravet uavklart (VS-U7)» leses etter [OV-U5](#ov-u5) (oppdragsgiver 23.10, «OV-U5 gjelder», #1047, kommentaren 6365944474). Svaret står med virkningen det hadde, og TE kan godta det. Visningen viser at standpunktet for det ene særskilte kravet gjaldt et annet varsel.
 
 **Regelrader:** —
 

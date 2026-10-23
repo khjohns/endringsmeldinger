@@ -7973,7 +7973,7 @@ svar = '''
 «For hvert særskilt krav (Recommended)»'''
 forhold = [{ art = "presiserer", vedtak = "vs-u5" }, { art = "presiserer", vedtak = "vs-u24" }]
 folge = '''
-Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047). Merknad 23.10: «blir bare begrensningen for det kravet uavklart (VS-U7)» leses etter [OV-U5](#ov-u5) (oppdragsgiver 23.10, «OV-U5 gjelder», #1047, kommentaren 6365944474). Svaret står med virkningen det hadde, og markeringen at standpunktet gjaldt et annet varsel, gjelder bare standpunktet for det ene særskilte kravet. Ingen sperre for aksept.'''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047). Merknad 23.10: «blir bare begrensningen for det kravet uavklart (VS-U7)» leses etter [OV-U5](#ov-u5) (oppdragsgiver 23.10, «OV-U5 gjelder», #1047, kommentaren 6365944474). Svaret står med virkningen det hadde, og TE kan godta det. Visningen viser at standpunktet for det ene særskilte kravet gjaldt et annet varsel.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "For hvert særskilt krav"
