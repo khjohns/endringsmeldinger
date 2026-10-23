@@ -8237,6 +8237,69 @@ tekst = "TEs første krav i sporet"
 utdrag = true
 
 [[gruppe.vedtak]]
+id = "OV-U30"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål B4-1, «Laget»: B4-1. Når brevet sendes, fryser appen sin vurdering av hvilket lag hvert av byggherrens standpunkter står i (MM-U9, MM-U11). I dag finnes bare prinsipalt og subsidiært. Med både § 34.1.2 og § 34.1.3 trengs et tredje lag (OV-U28), og etter OV-U28 skal justeringen ellers stå uten etikett når bare § 34.1.3 påberopes, fordi ingen påberopelse rammer den. Brevteksten fryses alt, så en senere regelendring kan ikke endre et sendt brev. Spørsmålet gjelder det reglene leser. Astra foretrekker at også «ingen påberopelse rammer» fryses, snevert definert. Prøvingen støtter det. Den fryste verdien blir en kontrakt (B-17).'''
+valgt = "Tre lag og upåvirket"
+svar = '''
+«Tre lag og upåvirket (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u28" }, { art = "presiserer", vedtak = "mm-u11" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 ([kommentaren 6359589947](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359589947)), og svaret i [kommentaren 6359610636](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359610636). Presiserer også B-13, som ikke har anker. Spørsmålet var stilt i tidligere former, med svar som sendte det til juridisk sparring ([6359336816](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359336816), [6359369109](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359369109), [6359421120](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359421120), [6359476742](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359476742), [6359502726](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359502726), [6359558961](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359558961)). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Tre lag og upåvirket"
+tekst = '''
+Når brevet sendes, fryser appen for hvert standpunkt i vederlag og frist om det står prinsipalt, subsidiært eller videre subsidiært, eller om ingen av de aktuelle påberopelsene rammer det. Brevet setter etiketten etter den fryste verdien, én etikett per lag, og et upåvirket standpunkt står uten etikett. Presiserer OV-U28, MM-U11 og B-13 og følger MM-U9.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Tre lag fryses"
+tekst = '''
+Som over, men om et standpunkt ikke rammes av noen påberopelse, fryses ikke. Brevet avgjør det når det skrives, og reglene som setter sammen utfallet, utleder det med gjeldende regler. Presiserer OV-U28 og B-13, men er i spenning med MM-U9 og MM-U11.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Laget utledes ved lesing"
+tekst = '''
+Bare prinsipalt og subsidiært fryses som i dag, og det tredje laget regnes ut med gjeldende regler når brevet eller visningen leses. Strider mot MM-U9.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+id = "OV-U31"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål B4-2, «Totalene»: B4-2. Hvilke totaler skal byggherrens vederlagssvar lagre når både § 34.1.2 og § 34.1.3 påberopes? Astra anbefaler nå C (to totaler) i stedet for A. Prøvingen støtter det: mellomtotalen kan regnes entydig av postene, også ved like beløp og 0. Ingen leser og ingen kontroll trenger den, verken fullmakten (GFK-06) eller begrunnelseskontrollen (KA-U24), og OV-U28 forkastet at brevet skal si summen i hvert lag. Felles: beløpet for hver post og beløpet etter begrensningen lagres. Med C kontrolleres ordningen per post (valg 2), og valg b i B4-3 faller bort. Lagrede navn er en kontrakt (B-17).'''
+valgt = "To totaler"
+svar = '''
+«To totaler (Recommended)»'''
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 ([kommentaren 6359476742](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359476742)), og svaret i [kommentaren 6359502726](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359502726). Spørsmålet var stilt i tidligere former, med svar som sendte det til juridisk sparring ([6359336816](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359336816), [6359369109](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359369109), [6359421120](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359421120)). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "To totaler"
+tekst = '''
+Godkjent beløp (prinsipalt) og subsidiært godkjent beløp (om ingen påberopelse fører fram) lagres, sammen med beløpet for hver post og beløpet etter begrensningen. Mellomlaget er summen av postene i laget og lagres ikke. Følger OV-U28, GFK-06 og KA-U24 uendret.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Navn etter forutsetningen"
+tekst = '''
+Som «To totaler», og i tillegg lagres begrenset godkjent beløp når begge påberopes: totalen for hele kravet når § 34.1.2 ikke fører fram, men § 34.1.3 gjør det. Forenlig med vedtakene, men ingen leser bruker totalen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Navn etter rekkefølgen"
+tekst = '''
+Subsidiært godkjent beløp betyr mellomlaget når begge påberopes, og videre subsidiært godkjent beløp betyr beløpet om ingen påberopelse fører fram. Fullmakten og begrunnelseskontrollen må bytte felt, og betydningen skiller seg fra frist. Frarådes.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
