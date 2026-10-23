@@ -141,7 +141,9 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
           ? spor === 'frist'
             ? 'Send krav om fristforlengelse'
             : 'Send krav om vederlagsjustering'
-          : 'Registrer varsel';
+          : tilbyrVarsel('sende_varsel', spor)
+            ? 'Send varsel'
+            : 'Registrer varsel';
     },
     /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */
     godtar(nokkel: SporKey): string | null {

@@ -107,7 +107,7 @@ const leseflate = () => document.querySelector('.read-content');
 
 /** Knappene som åpner TEs vederlagsskjema før kravet er sendt (#1096). */
 const TE_SKJEMAKNAPP =
-  /^(Send varsel eller krav|Send krav om vederlagsjustering|Registrer varsel)$/;
+  /^(Send varsel eller krav|Send krav om vederlagsjustering|Send varsel|Registrer varsel)$/;
 
 describe('vederlagskravet fra Kontrollrommet', () => {
   it('TE sender tilbudet med den låste teksten og uten utdypning når begrunnelsen er tom', async () => {

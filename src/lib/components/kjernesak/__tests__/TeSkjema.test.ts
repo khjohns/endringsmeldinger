@@ -736,6 +736,13 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
     expect(() => skrevet(medGrunnlag, 'TE', kommando)).not.toThrow();
   });
 
+  it('tilbyr kjernen det særskilte varselet fra appen, men ikke kravet, heter knappen «Send varsel» og åpner varselet (#943, OV-U8)', async () => {
+    await vis(medPosten, 'vederlag', ['sende_varsel:34.1.3', 'varsle:34.1.3']);
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel' }));
+    expect(screen.getByRole('radio', { name: 'Varsel' })).toBeChecked();
+    expect(screen.getByText('Særskilt varsel om produktivitetstap')).toBeInTheDocument();
+  });
+
   it('etter kravet registrerer TE et særskilt varsel sendt utenfor appen, uten brevkontroll (OV-U8, MM-U17)', async () => {
     const lastOpp = vi.fn().mockResolvedValue({ ...vedlegg, stoerrelse: 10 });
     const { send } = await vis(medPosten, 'vederlag', undefined, lastOpp);
