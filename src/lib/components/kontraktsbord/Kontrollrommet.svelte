@@ -18,6 +18,7 @@
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
   import InnsigelseModal from '$lib/components/kjernesak/InnsigelseModal.svelte';
   import { SPOR_FOR } from '$lib/kjernesak/sakstilstand';
+  import { SVARET_SPERRET } from '$lib/kjernesak/arbeidsflate.svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   const claimReview = demosak ? createClaimReview(demosak) : null;
   // TS-saken sendes med kommandoen til kjernen og den låste teksten (#718, LV-U2).
@@ -118,7 +119,9 @@
       !kravetErSpesifisert(store.sak.frist)
   );
   // Skjemaene for en TS-sak følger bare handlingene kjernen tilbyr leseren (krav G i #718).
-  const kjerneskjema = $derived(Boolean(kjernesak?.teSkjema(sel)));
+  const kjerneskjema = $derived(
+    Boolean(kjernesak && (kjernesak.teSkjema(sel) ?? kjernesak.bhSkjema(sel)))
+  );
   // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
   // ikke kjernen nødvendigvis det samme, men skjemaet skal fullføre sendingen (#737 p4).
   // Mens brevet kontrolleres eller sendes, står skjemaet også når visningen bytter spor
@@ -422,6 +425,13 @@
                 <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
               {:else if (kjerneskjemaSpor ?? sel) === 'ansvar'}
                 <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+              {:else if kjernesak?.part === 'BH' && kjernesak.vederlagConfig}
+                <VederlagForm
+                  domainConfig={kjernesak.vederlagConfig}
+                  kjernesvar={{ brev: kjernesak.vederlagssvarbrev, sperret: SVARET_SPERRET }}
+                  onsend={handleSend}
+                  onactions={(a) => (formActions = a)}
+                />
               {:else}
                 <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
               {/if}

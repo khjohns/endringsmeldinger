@@ -9,7 +9,7 @@ import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import type { Journalrad, Part } from '$kjerne/typer';
 import { lagKjernesakflate } from '$lib/kjernesak/arbeidsflate.svelte';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { SAK, medVederlag } from './provejournal';
+import { SAK, medVederlag, medVederlagssvar } from './provejournal';
 
 const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
   versjon: journal.length,
@@ -68,5 +68,42 @@ describe('TS-saken i Kontrollrommet etter en ny lasting', () => {
       await kjernesak.last();
       expect(lagKjernesakflate(kjernesak, 'p-1').tilbyrTe('krav:vederlag')).toBe(tilbys);
     }
+  });
+});
+
+describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
+  const flate = async (journal: Journalrad[], part: Part) => {
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(journal, part),
+    });
+    await kjernesak.last();
+    return lagKjernesakflate(kjernesak, 'p-1');
+  };
+
+  it('BH får skjemaet når kjernen tilbyr svaret, og TE får det ikke', async () => {
+    expect((await flate(medVederlag, 'BH')).bhSkjema('vederlag')).toBe('Svar på kravet');
+    expect((await flate(medVederlag, 'BH')).bhSkjema('frist')).toBeNull();
+    expect((await flate(medVederlag, 'TE')).bhSkjema('vederlag')).toBeNull();
+  });
+
+  it('kjernen tilbyr ikke et nytt svar når kravet er besvart (ALLEREDE_SVART)', async () => {
+    expect((await flate(medVederlagssvar, 'BH')).bhSkjema('vederlag')).toBeNull();
+  });
+
+  it('brevet for svaret er kjernens låste tekst, og en avvisning blir det som hindrer', async () => {
+    const f = await flate(medVederlag, 'BH');
+    const data = {
+      hovedkrav_vurdering: 'godkjent',
+      aksepterer_metode: true,
+      beregnings_resultat: 'godkjent',
+      total_godkjent_belop: 250000,
+      begrunnelse: '<p>Godtatt.</p>',
+    };
+    const brev = f.vederlagssvarbrev(data);
+    expect('tekst' in brev && brev.tekst.join(' ')).toMatch(/Byggherren godkjenner 250\s000\skr/);
+    const avvist = f.vederlagssvarbrev({ ...data, total_godkjent_belop: 1 });
+    expect('hindring' in avvist && avvist.hindring).toMatch(/^Brevet kan ikke sendes\./);
   });
 });

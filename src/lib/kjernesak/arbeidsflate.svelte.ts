@@ -12,7 +12,7 @@ import type { SakState, TimelineEvent } from '$lib/types/timeline';
 import { getPartsNavn } from '$lib/utils/partsNavn';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Kravspor } from '$kjerne/typer';
-import type { Kjernesakkontekst } from './kontekst.svelte';
+import { brevaarsak, type Kjernesakkontekst } from './kontekst.svelte';
 import {
   SPOR_FOR,
   kravversjon,
@@ -22,6 +22,10 @@ import {
   tilTidslinje,
 } from './sakstilstand';
 import type { Vederlagsvarsel } from './vederlagskrav';
+import { vederlagConfigFraKjernen, vederlagssvarFraSkjema } from './vederlagssvar';
+
+/** BHs svar går gjennom fullmakten, og uten den kan det ikke sendes fra appen (GFK-U2, #818). */
+export const SVARET_SPERRET = 'Svaret må godkjennes etter fullmakten før det kan sendes (GFK-U2).';
 
 interface Projeksjon {
   sak: SakState;
@@ -145,6 +149,32 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
             ? 'Send varsel'
             : 'Registrer varsel';
     },
+    /**
+     * Skjemaet BH får i sporet, med teksten på knappen, når kjernen tilbyr BH å svare på
+     * vederlagskravet (#1047). Svar i de andre sporene er ikke bygget for TS-saken (#818).
+     */
+    bhSkjema(nokkel: SporKey): string | null {
+      return nokkel === 'vederlag' &&
+        kjernesak.part === 'BH' &&
+        kjernesak.handlinger.includes('svare:vederlag')
+        ? 'Svar på kravet'
+        : null;
+    },
+    /** Configen for `VederlagForm` fra kravet kjernen har i sporet, eller `null` uten krav. */
+    get vederlagConfig() {
+      return vederlagConfigFraKjernen(projeksjon.utledning);
+    },
+    /**
+     * Brevet kjernen lager for BHs svar fra dataene `VederlagForm` bygger, eller det som
+     * hindrer det. Svaret sendes ikke før godkjenningen finnes (`SVARET_SPERRET`).
+     */
+    vederlagssvarbrev(data: Record<string, unknown>): { tekst: string[] } | { hindring: string } {
+      const brev = kjernesak.brev(
+        vederlagssvarFraSkjema(data, projeksjon.utledning, kjernesak.regelversjon)
+      );
+      if (brev && 'tekst' in brev && brev.tekst) return { tekst: brev.tekst };
+      return { hindring: brevaarsak(brev) ?? 'Appen kunne ikke lage brevet.' };
+    },
     /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */
     godtar(nokkel: SporKey): string | null {
       const spor = SPOR_FOR[nokkel];
@@ -166,7 +196,6 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     kravversjon: (spor: SporKey) => kravversjon(projeksjon.utledning, spor),
     teNavn,
     bhNavn,
-    // Ingen `*DomainConfig`: de leser Python-projeksjonens statusfelt (krav E i #718).
     draftCount: 0,
     get submitting() {
       return kjernesak.sender;
