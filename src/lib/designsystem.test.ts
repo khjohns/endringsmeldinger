@@ -9,7 +9,7 @@
  * regnes som definert bare i en blokk for lys modus (`:root` eller `@theme`),
  * og en klasse bare i en selektor, ikke i en kommentar. Avgjørelsen går på
  * plassering: stilene har ingen nøstet CSS og ingen `:root` i `@media` eller `@layer`.
- * En sti i backticks fulgt av bindestrek («`.svelte`-filer») er ikke en klasse.
+ * En filtype i backticks («`.svelte`-filer», «`.css`») er ikke en klasse.
  * Vakten kontrollerer ikke at prosaen er riktig, og ikke at et token
  * komponentene bruker, er definert (#1184).
  */
@@ -29,6 +29,7 @@ const STILFILER = [
   join(ROT, 'src', 'app.css'),
 ];
 const KOMPONENTER = join(ROT, 'src', 'lib', 'components');
+const FILTYPER = new Set(['.svelte', '.css', '.ts', '.js', '.json', '.md', '.html', '.py']);
 
 /** Det en tekst nevner i backticks, sortert på art. */
 export function henvisninger(tekst: string): {
@@ -36,12 +37,10 @@ export function henvisninger(tekst: string): {
   klasser: string[];
   komponenter: string[];
 } {
-  const koder = [...tekst.matchAll(/`([^`\n]+)`(-?)/g)]
-    .filter((m) => m[2] === '')
-    .map((m) => m[1].trim());
+  const koder = [...tekst.matchAll(/`([^`\n]+)`/g)].map((m) => m[1].trim());
   return {
     tokens: koder.filter((k) => /^--[a-z0-9-]+$/.test(k)),
-    klasser: koder.filter((k) => /^\.[a-z][a-z0-9-]*$/.test(k)),
+    klasser: koder.filter((k) => /^\.[a-z][a-z0-9-]*$/.test(k) && !FILTYPER.has(k)),
     komponenter: koder.filter((k) => /^[\w/-]+\.svelte$/.test(k)),
   };
 }
@@ -118,12 +117,12 @@ describe('kontrollene i vakten', () => {
     ]);
   });
 
-  it('henvisningene leses bare fra backticks', () => {
+  it('henvisningene leses bare fra backticks, også foran bindestrek, og en filtype er ikke en klasse', () => {
     const h = henvisninger(
-      '`--ink` og --rule, `.btn`, `.svelte`-filer, `patterns/Kort.svelte` og `kontraktsbord/theme.css`'
+      '`--ink` og --rule, `--ink-2`-nivået, `.btn`, `.svelte`-filer, `.css`, `patterns/Kort.svelte` og `kontraktsbord/theme.css`'
     );
     expect(h).toEqual({
-      tokens: ['--ink'],
+      tokens: ['--ink', '--ink-2'],
       klasser: ['.btn'],
       komponenter: ['patterns/Kort.svelte'],
     });

@@ -19,15 +19,17 @@ viser til dem og gjengir dem ikke.
   `--surface` for innhold, `--surface-warm` for hover og `--surface-inset` for felt og
   innfelte områder. Valgt med `--surface-selected`.
 - **Fire nivåer blekk.** `--ink` for verdier og overskrifter, `--ink-2` for etiketter
-  og støttetekst, `--ink-3` for metadata. `--ink-ghost` er bare til pynt og bærer
-  aldri mening.
+  og støttetekst, `--ink-3` for metadata og `--ink-4` for dempet tekst. `--ink-ghost`
+  er bare til pynt og bærer aldri mening.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
   `--rule-strong`. Skygger (`--overlay-shadow-sm`, `--overlay-shadow-lg`) brukes bare
   på overlegg: dialog, popover og meny, på `--overlay-1`.
 - **Sidepanelet er alltid mørkegrønt** (`--sidebar-bg`), også i lys modus. Det
   skiller navigasjonen fra saken uten en ny fargetone.
 - **Mørk modus** har egne verdier for de samme tokenene, under `:root.dark` og
-  `.mockup.dark`. En komponent har aldri egne farger for mørk modus.
+  `.mockup.dark` i `theme.css`, og `.dark` i `app.css`. En komponent har aldri egne
+  farger for mørk modus. Noen verdier i mørk modus er ennå grå eller lilla, fra det
+  gamle temaet (#1184).
 
 ## Typografi
 

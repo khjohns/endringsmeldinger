@@ -57,13 +57,13 @@ og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en. Spør:
 
 **B · Hierarki og typografi.**
 - Navngi fokuselementet. Vinner det? Er resten dempet?
-- Holder blekknivåene (`--ink` til `--ink-3`) hierarkiet? Brukes `--ink-ghost` til noe
+- Holder blekknivåene (`--ink` til `--ink-4`) hierarkiet? Brukes `--ink-ghost` til noe
   som betyr noe?
 - Tall, beløp og datoer i `--font-mono` med `tabular-nums`? Kontraktstekst i
   `--font-legal`?
 
 **C · Flater og tokens.**
-- Bare tokens fra `theme.css`? Ingen rå hex, og ingen tokens som ikke er definert?
+- Bare tokens som systemfila nevner? Ingen rå hex, og ingen tokens som ikke er definert?
 - Kanter, ikke skygger, unntatt overlegg? Radius etter systemfila?
 - Fungerer mørk modus, og holder kontrasten WCAG AA for tekst som betyr noe?
 
@@ -89,9 +89,9 @@ og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en. Spør:
 
 Alvorligheten følger stoppregelen for funn i `AGENTS.md`:
 
-- **Blocker:** feil resultat nå, eller brudd på et vedtak, kontrakten eller
-  systemfila. Også en utilgjengelig egen kontroll, en tilstand som mangler i en
-  flyt, og et token som ikke er definert. Rettes i PR-en.
+- **Blocker:** feil resultat nå, eller brudd på et vedtak eller kontrakten. En
+  utilgjengelig egen kontroll, et token som ikke er definert, og en tilstand som
+  mangler der brukeren kan havne i den, gir feil resultat nå. Rettes i PR-en.
 - **Bør rettes:** et reelt håndverksavvik som ikke gir feil resultat. Føres i
   oppfølgingsissuet bare etter reglene for det i `AGENTS.md`, ellers avvises det med
   én linje.
@@ -120,7 +120,7 @@ Godkjenn ikke fordi visningen virker. For å godkjenne:
 
 - vedtakene om betegnelse, farge, frist og ord holder;
 - ett fokuspunkt, og hierarki som overlever skvisetesten;
-- bare tokens fra `theme.css`, som er definert, og kontrast etter WCAG AA i begge
+- bare tokens som systemfila nevner, og som er definert, og kontrast etter WCAG AA i begge
   modi;
 - alle tilstander, og tilgjengelige kontroller fra bits-ui eller komponentene som
   finnes;
