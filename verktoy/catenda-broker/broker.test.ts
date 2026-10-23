@@ -80,6 +80,16 @@ describe('tokenkallet', () => {
 });
 
 describe('videresendingen', () => {
+  // `GET /v2/user` og kommentarene på topicen leser `skrivEnKommentar` i `server/jobber.ts` (#972, #1149).
+  it.each([
+    ['/v2/user'],
+    [`/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}/comments`],
+  ])('sender GET %s til Catenda', async (sti) => {
+    const s = await behandle(medNokkel('GET', sti), miljoe);
+    expect(s.status).toBe(200);
+    expect(ut().map((k) => [k.init.method, k.adresse])).toEqual([['GET', `https://api.catenda.com${sti}`]]);
+  });
+
   it('sender et tillatt kall til Catenda med Catenda-tokenet, sti og query', async () => {
     const s = await behandle(
       medNokkel('GET', `/v2/projects/${PROSJEKT}/members?userType=user&page=2`, {
@@ -503,7 +513,11 @@ describe('avvisningen', () => {
 
   it.each([
     ['GET', '/v2/projects'],
-    ['GET', '/v2/user'],
+    ['GET', '/v2/user/projects'],
+    ['GET', '/v2/users'],
+    ['POST', '/v2/user'],
+    ['GET', `/opencde/bcf/3.0/projects/${ANNET}/topics/${TOPIC}/comments`],
+    ['GET', `/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}/comments/${ANNET}`],
     ['GET', '/oauth2/authorize'],
     ['GET', `/v2/projects/${ANNET}/teams`],
     ['GET', `/opencde/bcf/3.0/projects/${ANNET}/topics`],

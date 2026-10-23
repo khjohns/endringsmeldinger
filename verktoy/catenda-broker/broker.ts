@@ -44,6 +44,7 @@ const KANONISK_ID = /^(?:[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-
  * og slettingene live-testene rydder etter seg med. Appen sletter ingen av dem.
  */
 const REGLER: [string, string, Foersjekk?][] = [
+  ['GET', 'v2/user'],
   ['GET', 'v2/projects/:prosjekt'],
   ['GET', 'v2/projects/:prosjekt/members'],
   ['GET', 'v2/projects/:prosjekt/teams'],
@@ -58,7 +59,7 @@ const REGLER: [string, string, Foersjekk?][] = [
   ['GET', 'opencde/bcf/3.0/projects/:board/topics/:id'],
   ['PUT', 'opencde/bcf/3.0/projects/:board/topics/:id', 'topicendring'],
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id', 'topic'],
-  ['POST', 'opencde/bcf/3.0/projects/:board/topics/:id/comments'],
+  ['GET POST', 'opencde/bcf/3.0/projects/:board/topics/:id/comments'],
   ['GET PUT', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics'],
   ['DELETE', 'opencde/bcf/3.0/projects/:board/topics/:id/related_topics/:id'],
   ['GET POST', 'opencde/bcf/3.0/projects/:board/topics/:id/document_references'],
