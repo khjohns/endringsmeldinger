@@ -20,14 +20,17 @@
   } from '$lib/constants/paymentMethods';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
-  // TS-saken (#718): bare tilbud, uten særskilte krav, vedlegg og utkast (OV-U1), og
-  // begrunnelsen er valgfri (#667). Varselet etter § 34.1.2 sendes uten beløp og fritekst,
-  // eller registreres med datoen og brevet når det er sendt utenfor appen (OV-U5, #1096).
+  // TS-saken (#718): bare tilbud, uten vedlegg og utkast (OV-U1), og begrunnelsen er
+  // valgfri (#667). Kravet kan ha posten for produktivitetstap etter § 34.1.3 annet ledd,
+  // med eller uten hovedbeløp (OV-U23); rigg og drift er skjult til #1171. Varselet etter
+  // § 34.1.2 og det særskilte etter § 34.1.3 sendes uten beløp og fritekst, eller
+  // registreres med datoen og brevet når det er sendt utenfor appen (OV-U5, OV-U25, #1096).
   // Kravversjonen kommer fra utledningen (krav E).
   const kjernesak = store.erKjernesak ? store : null;
   import {
     metodeKanSendesTilKjernen,
     type Vederlagsskjemadata,
+    type Vederlagsvarsel,
   } from '$lib/kjernesak/vederlagskrav';
   import type { Kjernevedlegg } from '$lib/api/kjerne';
   import { dagensDato, varselhindring } from '$lib/kjernesak/skjemadata';
@@ -72,6 +75,19 @@
   let registrerteVedlegg = $state<Kjernevedlegg[]>([]);
   let vedleggOpptatt = $state(false);
   const varselet = $derived({ sendt: varselSendt, vedlegg: registrerteVedlegg });
+  // Varslene kjernen tilbyr i valget. Det særskilte varselet etter § 34.1.3 kan også sendes
+  // etter kravet (OV-U8).
+  const varselhjemler = $derived(
+    kjernesak && mode !== 'spesifisert' ? kjernesak.teVarsler(mode) : []
+  );
+  let hjemmel = $state<Vederlagsvarsel>('34.1.2');
+  const varselhjemmel = $derived(
+    varselhjemler.includes(hjemmel) ? hjemmel : (varselhjemler[0] ?? '34.1.2')
+  );
+  const HJEMMELNAVN: Record<Vederlagsvarsel, string> = {
+    '34.1.2': 'Vederlagsjustering, § 34.1.2',
+    '34.1.3': 'Produktivitetstap, § 34.1.3',
+  };
   // OV-U15: der TE krever endring, kreves det ikke noe varsel, men det kan sendes.
   const krevesIkke = $derived(
     kjernesak?.kjernesak.visning?.spor.vederlag.etiketter.includes('varsel_kreves_ikke') ?? false
@@ -109,7 +125,9 @@
   );
   let kostnadsOverslag = $state<number | undefined>(defaults?.kostnadsOverslag);
   let belopRigg = $state<number | undefined>(defaults?.belopRigg);
-  let belopProduktivitet = $state<number | undefined>(defaults?.belopProduktivitet);
+  let belopProduktivitet = $state<number | undefined>(
+    kjernesak ? gjeldende?.saerskilt_krav?.produktivitet?.belop : defaults?.belopProduktivitet
+  );
   const startbegrunnelse = kjernesak
     ? (gjeldende?.begrunnelse ?? '')
     : (defaults?.begrunnelse ?? '');
@@ -126,6 +144,12 @@
     if (metode === 'FASTPRIS_TILBUD') return 'Fast pris';
     return 'Beløp';
   });
+
+  const positivt = (v: number | undefined) => ((v ?? 0) > 0 ? v : undefined);
+  // OV-U23: det krevde i TS-saken er hovedbeløpet og posten.
+  const kravSum = $derived(
+    kjernesak ? (positivt(belopDirekte) ?? 0) + (positivt(belopProduktivitet) ?? 0) : hovedkravValue
+  );
 
   function handleHovedkravChange(v: number | undefined) {
     if (metode === 'REGNINGSARBEID') kostnadsOverslag = v;
@@ -155,19 +179,24 @@
       ? kjernevalg.includes(mode) &&
           (mode === 'varsel' ||
             (registrerer && varselhindring(varselet, dagensDato()) === null) ||
-            (mode === 'spesifisert' &&
-              metodeKanSendesTilKjernen(metode) &&
-              (belopDirekte ?? 0) > 0))
+            (mode === 'spesifisert' && metodeKanSendesTilKjernen(metode) && (kravSum ?? 0) > 0))
       : mode === 'varsel'
         ? Object.keys(noticeData).length > 0
         : mappedState !== null && beregnCanSubmit(mappedState) && charCount >= 10
   );
   const kjernedata = (): Vederlagsskjemadata =>
     registrerer
-      ? { registrert: varselet }
+      ? { registrert: varselet, hjemmel: varselhjemmel }
       : mode === 'varsel'
-        ? { varsel_type: 'varsel' }
-        : { metode, belop_direkte: belopDirekte, begrunnelse };
+        ? { varsel_type: 'varsel', hjemmel: varselhjemmel }
+        : {
+            metode,
+            belop_direkte: positivt(belopDirekte),
+            begrunnelse,
+            ...(positivt(belopProduktivitet)
+              ? { saerskilt_krav: { produktivitet: { belop: belopProduktivitet } } }
+              : {}),
+          };
 
   $effect(() => {
     onactions?.({
@@ -239,9 +268,9 @@
   <FormPageHeader
     title="Krav om vederlagsjustering"
     intro={registrerer
-      ? 'Registrer et varsel etter § 34.1.2 som er sendt utenfor appen.'
+      ? 'Registrer et varsel som er sendt utenfor appen.'
       : kjernesak && mode === 'spesifisert'
-        ? 'Oppgi den faste prisen du tilbyr for endringen.'
+        ? 'Oppgi den faste prisen du tilbyr for endringen, produktivitetstapet eller begge.'
         : 'Varsle kravet nå, eller spesifiser det når beregningsgrunnlaget foreligger.'}
   />
 
@@ -273,25 +302,45 @@
     </FormSection>
   {/if}
   {#if kjernesak && mode !== 'spesifisert'}
-    {#if mode === 'varsel'}
-      <FormSection title="Varsel om vederlagsjustering" paragrafRef="§ 34.1.2">
-        <p class="helptext">
-          Varselet etter § 34.1.2 sendes med dagens dato, uten beløp og uten fritekst. Beløpet
-          kreves senere i et spesifisert krav.
-        </p>
+    {#if varselhjemler.length > 1}
+      <FormSection title="Varselet" paragrafRef="§ 34.1.2–34.1.3">
+        <SegmentedControl
+          label="Hvilket varsel?"
+          value={varselhjemmel}
+          options={varselhjemler.map((value) => ({ value, label: HJEMMELNAVN[value] }))}
+          onchange={(value) => (hjemmel = value as Vederlagsvarsel)}
+        />
       </FormSection>
+    {/if}
+    {#if mode === 'varsel'}
+      {#if varselhjemmel === '34.1.3'}
+        <FormSection title="Særskilt varsel om produktivitetstap" paragrafRef="§ 34.1.3">
+          <p class="helptext">
+            Det særskilte varselet etter § 34.1.3 om nedsatt produktivitet eller forstyrrelser på
+            annet arbeid sendes med dagens dato, uten beløp og uten fritekst. Det kan sendes før og
+            etter kravet.
+          </p>
+        </FormSection>
+      {:else}
+        <FormSection title="Varsel om vederlagsjustering" paragrafRef="§ 34.1.2">
+          <p class="helptext">
+            Varselet etter § 34.1.2 sendes med dagens dato, uten beløp og uten fritekst. Beløpet
+            kreves senere i et spesifisert krav.
+          </p>
+        </FormSection>
+      {/if}
     {:else}
       <SendtVarsel
         id="te-vederlag-varsel"
-        paragrafRef="§ 34.1.2"
-        hjelpetekst="Registrer et varsel etter § 34.1.2 som er sendt utenfor appen, med datoen det ble sendt og brevet som vedlegg. Appen lager ikke noe brev, og datoen kan ikke endres etterpå."
+        paragrafRef={`§ ${varselhjemmel}`}
+        hjelpetekst={`Registrer et varsel etter § ${varselhjemmel} som er sendt utenfor appen, med datoen det ble sendt og brevet som vedlegg. Appen lager ikke noe brev, og datoen kan ikke endres etterpå.`}
         lastOpp={kjernesak.kjernesak.lastOppVedlegg}
         bind:sendt={varselSendt}
         bind:vedlegg={registrerteVedlegg}
         bind:opptatt={vedleggOpptatt}
       />
     {/if}
-    {#if krevesIkke}
+    {#if krevesIkke && varselhjemmel === '34.1.2'}
       <p class="helptext" role="note">
         TE krever endring, og da kreves det ikke varsel etter § 34.1.2 (§ 34.1.1). Varselet
         registreres og vises, men appen utleder ingen virkning av det.
@@ -303,7 +352,9 @@
         <div class="font-mono status-text">
           {registrerer
             ? 'Registrerer varselet sendt utenfor appen'
-            : 'Sender varsel om vederlagsjustering'}
+            : varselhjemmel === '34.1.3'
+              ? 'Sender særskilt varsel om produktivitetstap'
+              : 'Sender varsel om vederlagsjustering'}
         </div>
       </div>
     {/if}
@@ -329,6 +380,9 @@
     </FormSection>
 
     <FormSection title="Hovedkrav" paragrafRef="§ 34.1.1–34.1.2">
+      {#if kjernesak}
+        <p class="helptext">Kan stå tomt når kravet bare gjelder produktivitetstap.</p>
+      {/if}
       <NumberField
         id="te-hovedkrav"
         label={hovedkravLabel}
@@ -338,7 +392,21 @@
       />
     </FormSection>
 
-    {#if !kjernesak}
+    {#if kjernesak}
+      <FormSection title="Særskilt krav" paragrafRef="§ 34.1.3 annet ledd">
+        <p class="helptext">
+          Krav om justering for nedsatt produktivitet eller forstyrrelser på annet arbeid. Det
+          særskilte varselet etter § 34.1.3 sendes for seg, som varsel.
+        </p>
+        <NumberField
+          id="te-produktivitet"
+          label="Produktivitetstap"
+          suffix="kr"
+          value={belopProduktivitet}
+          onchange={(value) => (belopProduktivitet = value)}
+        />
+      </FormSection>
+    {:else}
       <FormSection title="Særskilte krav" paragrafRef="§ 34.1.3">
         <p class="helptext">
           Eventuelle tilleggskrav for rigg- og driftskostnader eller produktivitetstap.
@@ -379,8 +447,8 @@
       <div class="status-box">
         <span class="status-label">Klar til sending</span>
         <div class="font-mono status-text">
-          {#if hovedkravValue && hovedkravValue > 0}
-            Krav om {fmt(hovedkravValue)},-
+          {#if kravSum && kravSum > 0}
+            Krav om {fmt(kravSum)},-
           {:else}
             Sender vederlagskrav
           {/if}

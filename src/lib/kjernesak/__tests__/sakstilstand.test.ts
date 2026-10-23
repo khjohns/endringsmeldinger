@@ -13,6 +13,7 @@ import {
   skrevet,
   SAK,
   medFristvarsel,
+  medGrunnlag,
   medSvar,
   medVederlag,
   medVederlagsvarsel,
@@ -96,27 +97,48 @@ describe('TS-saken som Kontrollrommet leser den', () => {
     );
   });
 
-  it('beløpet står i feltet metoden har i katalogen: belop_direkte for tilbud, kostnads_overslag for regningsarbeid (#732 p4)', () => {
+  it('hovedbeløpet står i belop_direkte, som skjemaet sender, og ikke i kostnads_overslag (#872, OV-U1)', () => {
     const u = utledJournal(medVederlag, KJERNE);
     const tilbud = tilSakState(SAK, null, medVederlag, u).vederlag;
-    expect([tilbud.belop_direkte, tilbud.kostnads_overslag, tilbud.krevd_belop]).toEqual([
-      250000,
-      undefined,
-      250000,
-    ]);
-
-    // Kjernen tar bare imot tilbud ennå, så regningsarbeidet settes inn i utledningen.
-    const regning = structuredClone(u);
-    regning.spor.vederlag.gjeldendeKrav!.innhold.metode = 'regningsarbeid';
-    const v = tilSakState(SAK, null, medVederlag, regning).vederlag;
     // Feltene leses ett og ett: getterne for statusfeltene kaster (#718).
-    expect([v.metode, v.belop_direkte, v.kostnads_overslag, v.krevd_belop]).toEqual([
-      'REGNINGSARBEID',
-      undefined,
-      250000,
-      250000,
-    ]);
+    expect([
+      tilbud.belop_direkte,
+      tilbud.kostnads_overslag,
+      tilbud.saerskilt_krav,
+      tilbud.krevd_belop,
+    ]).toEqual([250000, undefined, undefined, 250000]);
   });
+
+  // OV-U23: kravet er justeringen ellers og posten etter § 34.1.3 annet ledd, og hovedbeløpet
+  // kan mangle. Det krevde er summen, som i sakslisten (#1218).
+  it.each([
+    ['bare posten', { produktivitet: 40000 }, undefined, 40000],
+    ['hovedbeløpet og posten', { beloep: 250000, produktivitet: 40000.5 }, 250000, 290000.5],
+  ] as const)(
+    'et krav med %s gir posten i saerskilt_krav og summen som det krevde (OV-U23)',
+    (_n, krav, hovedbeloep, sum) => {
+      const journal = skrevet(medGrunnlag, 'TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          metode: 'tilbud',
+          ...('beloep' in krav ? { beloep: krav.beloep } : {}),
+          saerskilt: { produktivitet: { beloep: krav.produktivitet } },
+        },
+      });
+      const u = utledJournal(journal, KJERNE);
+      const sak = tilSakState(SAK, null, journal, u);
+      expect([
+        sak.vederlag.belop_direkte,
+        sak.vederlag.saerskilt_krav,
+        sak.vederlag.krevd_belop,
+      ]).toEqual([hovedbeloep, { produktivitet: { belop: krav.produktivitet } }, sum]);
+      expect(sporvisning(sak, u, 'vederlag')).toMatchObject({
+        unspecified: false,
+        krevdValue: sum,
+      });
+    }
+  );
 
   it('kravversjonen telles langs erstatter, og en syklus i erstatter stopper tellingen (#737 p6)', () => {
     const u = utledJournal(medVederlag, KJERNE);
