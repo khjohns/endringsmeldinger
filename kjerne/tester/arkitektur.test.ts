@@ -270,6 +270,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'hjemmel iTide resultat godkjent oppfylt vurdert aksepterer oensket dager',
   ],
+  // OV-U26, OV-U31, VS-U5: posten beløpet gjelder, og beløpet etter begrensningen etter § 34.1.3.
+  ['Standpunkt', 'utsagn', 'saerskilt begrenset'],
   ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
   // KA-U20: sporene en merking gjelder, som partens vurdering.
   ['Opplysning', 'utsagn', 'spor'],
@@ -428,12 +430,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/standpunkt.ts:regnUtSvar', 'utsagn', 'krav grunnlagskrav'],
   ['frosset/standpunkt.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // #508: det krevde beløpet leses ett sted, av utregningen, kontrollen og brevet.
+  ['frosset/standpunkt.ts', 'regelsett', 'krevdBeloep', ['frosset/brevtekst.ts']],
+  // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   [
     'frosset/standpunkt.ts',
     'regelsett',
-    'krevdBeloep',
-    ['kommandoer/nyttelast.ts', 'frosset/brevtekst.ts'],
+    'krevdSamlet vederlagsposter',
+    ['kommandoer/nyttelast.ts', 'kommandoer/standpunkter.ts'],
   ],
+  ['frosset/standpunkt.ts:vederlagsposter', 'regelsett', 'godkjent saerskilt'],
   // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
   [
     'frosset/standpunkt.ts',
@@ -449,12 +454,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide aksepterer_metode oensket_metode
      frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok dager_maatte_forstaa vilkar_oppfylt
-     dager`,
+     dager hovedkrav_vurdering hovedkrav_godkjent_belop produktivitet_vurdering
+     produktivitet_godkjent_belop produktivitet_varslet_i_tide produktivitet_begrenset_belop`,
   ],
   [
     'frosset/standpunkt.ts:utenforOmfanget(v)',
     'utsagn',
-    `hold_tilbake rigg_vurdering produktivitet_vurdering *`,
+    `hold_tilbake rigg_vurdering rigg_varslet_i_tide`,
   ],
 
   // Regelsettet (regler/).
@@ -484,6 +490,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'beregnVederlag gjelderVarslingspliktenForVederlag erBeloepetGodkjentFullt',
   ],
+  ['regler/vederlag.ts', 'regelsett', 'beregnGodkjentBeloep', ['frosset/standpunkt.ts']],
   [
     'Fristkrav',
     'regelsett',
@@ -516,7 +523,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     `hovedkrav_vurdering hovedkrav_godkjent_belop hovedkrav_varslet_i_tide aksepterer_metode
      hold_tilbake varsel_justert_ep_ok rigg_vurdering rigg_godkjent_belop rigg_varslet_i_tide
-     produktivitet_vurdering produktivitet_godkjent_belop produktivitet_varslet_i_tide`,
+     produktivitet_vurdering produktivitet_godkjent_belop produktivitet_varslet_i_tide
+     produktivitet_begrenset_belop`,
   ],
   ['Preklusjon', 'regelsett', 'hovedkrav rigg produktivitet'],
   [
@@ -761,7 +769,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_metode dager',
+    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_metode dager beloep saerskilt',
+    ['format/leser.ts'],
+  ],
+  // OV-U31: postene summerer til det byggherren godtar om ingen påberopelse fører fram.
+  [
+    'format/leser.ts:kontrollerVederlagsstandpunktene(utregning)',
+    'rad',
+    'godkjent_beloep subsidiaert_godkjent_beloep',
     ['format/leser.ts'],
   ],
   // Beløpet og dagene i standpunktet leses av utregningen, som har ett hjem (4.3 i
@@ -775,8 +790,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(svar).utregning',
     'rad',
-    `resultat godkjent_beloep godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager
-     subsidiaert_godkjent_beloep`,
+    'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
     ['format/leser.ts'],
   ],
   [
@@ -801,8 +815,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'senketInnroemmelse',
     ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
   ],
-  // Detalj 4 i HF-U5: standpunktet med samme art og plass i revisjonen.
-  ['utledning/innroemmelse.ts:senketInnroemmelse.ny', 'relasjon', 'art'],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
     'kommandoer/skriving.ts:frysBrev(s)',

@@ -12,7 +12,7 @@ import { frysBrev, Skrivefeil, vurder, type Kontekst } from '../kommandoer/skriv
 import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
-import { lesJournal } from '../format/leser.ts';
+import { lesJournal, standpunkterISvaret, Uforstaatt } from '../format/leser.ts';
 import { BESLUTNINGSGRUNNLAG } from '../format/format.ts';
 import { feilI } from '../format/skjema.ts';
 import {
@@ -23,6 +23,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
+import { beregnVederlag } from '../regler/vederlag.ts';
 import {
   regnUtSvar,
   sammenfallStemmer,
@@ -1306,8 +1307,9 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
   });
 });
 
-// HF-U5: et beløp som mangler i et lagret svar, er ikke null kroner, så en revisjon med et
-// lavere beløp slipper ikke gjennom uten sammenlikning (#627 punkt 3).
+// HF-U5: et beløp som mangler, er ikke null kroner (#627 punkt 3, valg 4 i #1047). Mangler det
+// i svaret, har byggherren ikke innrømmet noe å senke (#787 punkt 1). Mangler det i revisjonen,
+// slipper den ikke gjennom uten sammenlikning.
 describe('revisjonen av et svar uten beløp', () => {
   const svar = (godkjent: number | undefined) =>
     ({
@@ -1319,9 +1321,14 @@ describe('revisjonen av et svar uten beløp', () => {
       typeof senketInnroemmelse
     >[1];
 
-  it('sammenliknes ikke og avvises', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toEqual(
-      expect.stringMatching(/Beløpet mangler/)
+  it('et svar uten beløp har ikke innrømmet noe, så revisjonen avvises ikke, heller ikke en som hever det (#787)', () => {
+    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toBeNull();
+    expect(senketInnroemmelse(svar(undefined), revisjon(100), 0)).toBeNull();
+  });
+
+  it('en revisjon uten beløp sammenliknes ikke og avvises', () => {
+    expect(senketInnroemmelse(svar(100), revisjon(undefined as unknown as number), 0)).toEqual(
+      expect.stringMatching(/Beløpet mangler i revisjonen/)
     );
   });
 
@@ -1969,7 +1976,7 @@ describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => 
       spor: 'vederlag',
       gjelder: k.navn.id('K-v1'),
       grunnlagskrav: k.navn.id('K-g1'),
-      standpunkter: [{ id: randomUUID(), art: 'beloep' }],
+      standpunkter: [{ id: randomUUID(), art: 'beloep', beloep: 60000 }],
       utregning: { resultat: 'delvis_godkjent', godkjent_beloep: 60000 },
     };
     frysBrev({ ...siste, event_id: randomUUID(), data: { svar: [svar] } }, journal, KJERNE);
@@ -2081,5 +2088,120 @@ describe('upåvirket hos leserne (OV-U33)', () => {
       KJERNE.leserformat
     );
     expect(lest.filter((h) => h.art === 'ukjent')).toEqual([]);
+  });
+});
+
+// Det særskilte kravet etter § 34.1.3 annet ledd i regelsettet og leseren (#1047 B2b).
+describe('regelsettet for det særskilte kravet (VS-U5, OV-U27)', () => {
+  const krav = {
+    hovedkrav_belop: 150000,
+    metode: 'tilbud' as const,
+    rigg_belop: null,
+    produktivitet_belop: 40000,
+    krever_justert_ep: false,
+    kostnads_overslag: null,
+    hovedkategori: 'svikt',
+    underkategori: 'grunnforhold',
+    grunnlag_varslet_i_tide: null,
+    grunnlag_resultat: null,
+  };
+  const vurdering = {
+    hovedkrav_vurdering: 'godkjent' as const,
+    produktivitet_vurdering: 'delvis' as const,
+    produktivitet_godkjent_belop: 30000,
+    hovedkrav_varslet_i_tide: true,
+    produktivitet_varslet_i_tide: false,
+    produktivitet_begrenset_belop: 10000,
+    aksepterer_metode: true,
+  };
+
+  it('begrensningen etter § 34.1.3 setter posten til beløpet etter begrensningen, ikke kravet til 0 (VS-U5)', () => {
+    const r = beregnVederlag(krav, vurdering, GJELDENDE_REGLER);
+    expect([r.total_godkjent_belop, r.subsidiaer_godkjent_belop]).toEqual([16000000n, 18000000n]);
+    expect(r.produktivitet_begrenset_belop).toBe(1000000n);
+  });
+
+  it('preklusjonen etter § 34.1.2 gjelder hele kravet, også posten (OV-U27)', () => {
+    const r = beregnVederlag(
+      krav,
+      { ...vurdering, hovedkrav_varslet_i_tide: false },
+      GJELDENDE_REGLER
+    );
+    expect([r.total_godkjent_belop, r.subsidiaer_godkjent_belop]).toEqual([0n, 18000000n]);
+  });
+
+  it('et krav uten hovedbeløp regnes av posten alene (OV-U23)', () => {
+    const r = beregnVederlag(
+      { ...krav, hovedkrav_belop: null },
+      { ...vurdering, hovedkrav_vurdering: undefined },
+      GJELDENDE_REGLER
+    );
+    expect([r.total_godkjent_belop, r.total_krevd_belop]).toEqual([1000000n, 4000000n]);
+    expect(r.hovedkrav_godkjent_belop).toBeNull();
+  });
+});
+
+describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', () => {
+  const utregning = {
+    resultat: 'delvis_godkjent',
+    godkjent_beloep: 110000,
+    subsidiaert_resultat: 'delvis_godkjent',
+    subsidiaert_godkjent_beloep: 130000,
+  };
+  const rettidighet = {
+    id: 'r',
+    art: 'rettidighet',
+    gjelder: 'k',
+    hjemmel: '34.1.3',
+    i_tide: false,
+    beloep: 10000,
+  };
+  const justering = { id: 'j', art: 'beloep', beloep: 100000 };
+  const posten = { id: 'p', art: 'beloep', beloep: 30000, saerskilt: 'produktivitet' };
+  const les =
+    (standpunkter: object[], u: object = utregning) =>
+    () =>
+      standpunkterISvaret('vederlag', { standpunkter, utregning: u });
+
+  it('kontrollsak: justeringen ellers, begrensningen og posten i rekkefølge leses', () => {
+    expect(les([justering, rettidighet, posten])().map((s) => s.art)).toEqual([
+      'beloep',
+      'rettidighet',
+      'beloep',
+    ]);
+  });
+
+  it.each([
+    ['posten før justeringen ellers', [posten, rettidighet, justering]],
+    ['begrensningen etter posten', [justering, posten, rettidighet]],
+    ['begrensningen uten posten', [justering, rettidighet]],
+    [
+      'begrensningen uten beløpet etter den',
+      [justering, { ...rettidighet, beloep: undefined }, posten],
+    ],
+    [
+      'et beløp etter begrensningen når varselet kom i tide',
+      [justering, { ...rettidighet, i_tide: true }, posten],
+    ],
+    ['to poster etter annet ledd', [justering, rettidighet, posten, { ...posten, id: 'p2' }]],
+  ])('%s er ikke forstått', (_, standpunkter) => {
+    expect(les(standpunkter)).toThrow(Uforstaatt);
+  });
+
+  it('poster som ikke summerer til det subsidiære beløpet, er ikke forstått (OV-U31)', () => {
+    expect(les([justering, rettidighet, { ...posten, beloep: 29000 }])).toThrow(/summerer ikke/);
+  });
+
+  it('et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått (valg 2 i #1047)', () => {
+    expect(les([justering, { ...rettidighet, beloep: 30000 }, posten]), 'kontroll').not.toThrow();
+    expect(les([justering, { ...rettidighet, beloep: 30001 }, posten])).toThrow(
+      /høyere enn det byggherren godtar for posten/
+    );
+  });
+
+  it('et svar uten beløpsstandpunkt sier at standpunktet mangler, ikke at postene ikke summerer (AGENTS.md: feilmeldingen sier hva som hindrer)', () => {
+    expect(les([{ id: 'm', art: 'metode', hjemmel: '34.2.2', aksepterer: true }])).toThrow(
+      /mangler standpunktet beloep/
+    );
   });
 });

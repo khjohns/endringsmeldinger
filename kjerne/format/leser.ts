@@ -23,6 +23,7 @@ import {
   SVAR,
   UTSAGN,
 } from './format.ts';
+import { beloep } from '../regler/beloep.ts';
 import { erKalenderdato, erObjekt, feilI, type Skjema } from './skjema.ts';
 import type {
   Avsnitt,
@@ -167,15 +168,26 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
     const id = e.id as string;
     switch (art) {
       case 'rettidighet':
-        // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen.
-        if (e.hjemmel !== HJEMMEL[spor] && !(spor === 'frist' && e.hjemmel === '33.6.2'))
+        // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen,
+        // og vederlaget rettidigheten etter § 34.1.3 (VS-U24, OV-U22).
+        if (
+          e.hjemmel !== HJEMMEL[spor] &&
+          !(spor === 'frist' && e.hjemmel === '33.6.2') &&
+          !(spor === 'vederlag' && e.hjemmel === '34.1.3')
+        )
           throw new Uforstaatt(`${sti}: rettidighet etter § ${String(e.hjemmel)} i ${spor}`);
+        // VS-U5: beløpet etter begrensningen står når varselet etter § 34.1.3 kom for sent.
+        if ((e.hjemmel === '34.1.3' && e.i_tide === false) !== 'beloep' in e)
+          throw new Uforstaatt(
+            `${sti}: beløpet etter begrensningen står bare når varselet etter § 34.1.3 kom for sent`
+          );
         return {
           id,
           art,
           gjelder: e.gjelder as string,
           hjemmel: e.hjemmel as Hjemmel,
           iTide: e.i_tide as boolean,
+          ...('beloep' in e ? { begrenset: e.beloep as number } : {}),
         };
       case 'grunnlag':
         return { id, art, resultat: e.resultat as never };
@@ -213,7 +225,8 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           id,
           art,
           resultat: (utregning.subsidiaert_resultat ?? utregning.resultat) as never,
-          godkjent: (utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep) as number,
+          godkjent: e.beloep as number,
+          ...(e.saerskilt ? { saerskilt: 'produktivitet' as const } : {}),
         };
       case 'dager':
         return {
@@ -226,18 +239,68 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
   });
   // VS-U24: ett standpunkt for hver bestemmelse, § 33.4 før § 33.6.2.
   const hjemler = ut.flatMap((s) => (s.art === 'rettidighet' ? [s.hjemmel] : []));
-  if (hjemler.length > 1 && (hjemler[0] !== '33.4' || hjemler[1] !== '33.6.2'))
+  if (spor === 'frist' && hjemler.length > 1 && (hjemler[0] !== '33.4' || hjemler[1] !== '33.6.2'))
     throw new Uforstaatt(
       `${sti}: rettidigheten står ${hjemler.map((h) => `etter § ${h}`).join(', ')}, men bare § 33.4 og deretter § 33.6.2 er lov`
     );
   for (const t of tillatt)
     if (t.paakrevd && !ut.some((s) => s.art === t.art))
       throw new Uforstaatt(`${sti}: svaret på ${spor} mangler standpunktet ${t.art}`);
+  if (spor === 'vederlag') kontrollerVederlagsstandpunktene(ut, utregning, sti);
   const subsidiaertVerdi =
     spor === 'vederlag' ? 'subsidiaert_godkjent_beloep' : 'subsidiaert_godkjent_dager';
   if ('subsidiaert_resultat' in utregning !== subsidiaertVerdi in utregning)
     throw new Uforstaatt(`${sti}: utregningen har bare halvparten av det subsidiære standpunktet`);
   return ut;
+}
+
+/**
+ * OV-U27, OV-U28: i vederlaget står § 34.1.2, metoden, justeringen ellers, § 34.1.3 og
+ * posten etter § 34.1.3 annet ledd i den rekkefølgen, hver høyst én gang. OV-U31: postene
+ * summerer til det byggherren godtar om ingen påberopelse fører fram.
+ */
+function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti: string): void {
+  const plass = (s: Standpunkt) =>
+    s.art === 'rettidighet'
+      ? s.hjemmel === '34.1.2'
+        ? 0
+        : 3
+      : s.art === 'metode'
+        ? 1
+        : s.art === 'beloep'
+          ? s.saerskilt
+            ? 4
+            : 2
+          : -1;
+  const plasser = ut.map(plass);
+  if (plasser.some((p, i) => i > 0 && p <= plasser[i - 1]))
+    throw new Uforstaatt(
+      `${sti}: standpunktene i vederlaget står ikke i rekkefølgen § 34.1.2, metode, justeringen ellers, § 34.1.3 og posten etter annet ledd`
+    );
+  // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
+  if (plasser.includes(3) && !plasser.includes(4))
+    throw new Uforstaatt(`${sti}: rettidigheten etter § 34.1.3 står uten posten etter annet ledd`);
+  // Valg 2 i #1047: beløpet etter begrensningen er høyst det byggherren godtar for posten.
+  const begrenset = ut.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.3');
+  const post = ut.find((s) => s.art === 'beloep' && s.saerskilt);
+  if (
+    begrenset?.art === 'rettidighet' &&
+    begrenset.begrenset !== undefined &&
+    post?.art === 'beloep'
+  ) {
+    // Skjemaet har alt avvist et negativt beløp.
+    if (beloep(begrenset.begrenset)! > beloep(post.godkjent)!)
+      throw new Uforstaatt(
+        `${sti}: beløpet etter begrensningen er høyere enn det byggherren godtar for posten`
+      );
+  }
+  const poster = ut.flatMap((s) => (s.art === 'beloep' ? [s.godkjent] : []));
+  const samlet = poster.reduce((a, b) => a + (beloep(b) ?? 0n), 0n);
+  const total = (utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep) as number;
+  if (samlet !== beloep(total))
+    throw new Uforstaatt(
+      `${sti}: postene summerer ikke til det byggherren godtar om ingen påberopelse fører fram`
+    );
 }
 
 /** Standpunktene som er byggherrens påberopelser i sporet. */

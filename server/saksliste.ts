@@ -14,6 +14,8 @@ import type {
 import type { Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
+import { krevdSamlet } from '../kjerne/frosset/standpunkt.ts';
+import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
   betegnelse,
   harIkkeVurdertBrev,
@@ -166,14 +168,29 @@ function foreligger(u: Utledning, spor: Spor): Foreligger {
 }
 
 /**
- * Standpunktet om tallet i sporets gjeldende svar, og om det er subsidiært
+ * Standpunktet om dagene i fristens gjeldende svar, og om det er subsidiært
  * (`standpunktetErSubsidiaert`); leseren fyller da tallet med det subsidiære (MM-U28).
  */
-function svaret(u: Utledning, spor: Kravspor) {
-  const art = spor === 'vederlag' ? 'beloep' : 'dager';
-  const st = u.spor[spor].gjeldendeSvar?.standpunkter.find((p) => p.art === art);
+function fristsvaret(u: Utledning) {
+  const st = u.spor.frist.gjeldendeSvar?.standpunkter.find((p) => p.art === 'dager');
   if (!st) return null;
-  return { st, subsidiaert: standpunktetErSubsidiaert(u, spor, st.id) };
+  return { st, subsidiaert: standpunktetErSubsidiaert(u, 'frist', st.id) };
+}
+
+/**
+ * Vederlaget som byggherren godtar om ingen påberopelse fører fram: summen av postene
+ * (OV-U31). Subsidiært når en av postene er det.
+ */
+function vederlagssvaret(u: Utledning) {
+  const poster = (u.spor.vederlag.gjeldendeSvar?.standpunkter ?? []).filter(
+    (p) => p.art === 'beloep'
+  );
+  if (!poster.length) return null;
+  return {
+    resultat: poster[0]!.resultat,
+    beloep: tilTall(poster.reduce((sum, p) => sum + beloep(p.godkjent)!, 0n)),
+    subsidiaert: poster.some((p) => standpunktetErSubsidiaert(u, 'vederlag', p.id)),
+  };
 }
 
 const avsluttet = (u: Utledning): boolean => {
@@ -186,17 +203,18 @@ const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
 
 function vederlag(u: Utledning): Vederlagslinje {
   const s = u.spor.vederlag;
-  const innhold = s.gjeldendeKrav?.innhold;
-  const sv = svaret(u, 'vederlag');
   const virkning = enighetensVirkning(u, 'vederlag');
   return {
     ...foreligger(u, 'vederlag'),
     kravet_staar: kravetStaar(u, 'vederlag'),
-    krav: innhold ? { beloep: tall(innhold.beloep)!, metode: tekst(innhold.metode)! } : null,
-    svar:
-      sv?.st.art === 'beloep'
-        ? { resultat: sv.st.resultat, beloep: sv.st.godkjent, subsidiaert: sv.subsidiaert }
-        : null,
+    // OV-U23: kravet er justeringen ellers og posten etter § 34.1.3 annet ledd.
+    krav: s.gjeldendeKrav
+      ? {
+          beloep: tilTall(krevdSamlet(s.gjeldendeKrav)),
+          metode: tekst(s.gjeldendeKrav.innhold.metode)!,
+        }
+      : null,
+    svar: vederlagssvaret(u),
     enighet:
       s.enighet && virkning ? { beloep: s.enighet.grunnlag.utfall.beloep ?? null, virkning } : null,
   };
@@ -205,7 +223,7 @@ function vederlag(u: Utledning): Vederlagslinje {
 function frist(u: Utledning): Fristlinje {
   const s = u.spor.frist;
   const innhold = s.gjeldendeKrav?.innhold;
-  const sv = svaret(u, 'frist');
+  const sv = fristsvaret(u);
   const virkning = enighetensVirkning(u, 'frist');
   return {
     ...foreligger(u, 'frist'),

@@ -17,9 +17,12 @@ import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
 
-/** TEs krav og grunnlagssporet. `rigg_belop` og `produktivitet_belop` er `null` når posten ikke er krevd. */
+/**
+ * TEs krav og grunnlagssporet. `rigg_belop` og `produktivitet_belop` er `null` når posten ikke er
+ * krevd, og `hovedkrav_belop` når kravet bare har de særskilte kravene (OV-U23).
+ */
 export interface Vederlagskrav {
-  hovedkrav_belop: Tall;
+  hovedkrav_belop: Tall | null;
   metode: Vederlagsmetode | null;
   rigg_belop: Tall | null;
   produktivitet_belop: Tall | null;
@@ -42,6 +45,8 @@ export interface Vederlagsvurdering {
   hovedkrav_varslet_i_tide?: boolean | null;
   rigg_varslet_i_tide?: boolean | null;
   produktivitet_varslet_i_tide?: boolean | null;
+  /** VS-U5, OV-U22: beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3. */
+  produktivitet_begrenset_belop?: Tall | null;
   aksepterer_metode?: boolean | null;
   varsel_justert_ep_ok?: boolean | null;
   hold_tilbake?: boolean;
@@ -57,9 +62,10 @@ export interface Vederlagsberegning {
   beregnings_resultat: Vederlagsresultat;
   total_godkjent_belop: Oere;
   total_krevd_belop: Oere;
-  hovedkrav_godkjent_belop: Oere;
+  hovedkrav_godkjent_belop: Oere | null;
   rigg_godkjent_belop: Oere | null;
   produktivitet_godkjent_belop: Oere | null;
+  produktivitet_begrenset_belop: Oere | null;
   subsidiaer_triggers: SubsidiaerUtloser[];
   subsidiaer_resultat: Vederlagsresultat | null;
   subsidiaer_godkjent_belop: Oere | null;
@@ -67,6 +73,7 @@ export interface Vederlagsberegning {
   hele_vederlaget_subsidiaert: boolean;
 }
 
+const harHovedkrav = (krav: Vederlagskrav) => krav.hovedkrav_belop !== null;
 const harRigg = (krav: Vederlagskrav) => krav.rigg_belop !== null;
 const harProduktivitet = (krav: Vederlagskrav) => krav.produktivitet_belop !== null;
 
@@ -115,32 +122,43 @@ export function erKravlinjeGyldig(
   return !(vurdering === 'delvis' && (godkjent === null || godkjent === undefined));
 }
 
-type Post = [krevd: Oere, godkjent: Oere, prekludert: boolean];
+/** En post i kravet: det krevde, det byggherren godtar uten begrensningen, og det prinsipale. */
+type Post = [krevd: Oere, godkjent: Oere, prinsipalt: Oere];
 
+/**
+ * Postene med det byggherren godtar prinsipalt. VS-U5, OV-U22: en påberopelse etter § 34.1.3
+ * avviser aldri hele kravet, bare utgiftsgrunnlaget for posten, som da står med beløpet etter
+ * begrensningen. OV-U27: påberopelsen etter § 34.1.2 gjelder hele kravet, også de særskilte.
+ * Rigg og drift (#1171) har ingen begrensning og settes til 0 ved preklusjon.
+ */
 function poster(v: Vederlagsvurdering, krav: Vederlagskrav, p: Preklusjon): Post[] {
-  const rader: [Oere, Beloepsvurdering | null | undefined, Oere | null, boolean][] = [
-    [
-      beloep(krav.hovedkrav_belop) ?? NULL_OERE,
+  const rader: [Oere, Beloepsvurdering | null | undefined, Oere | null, Oere | null][] = [];
+  if (harHovedkrav(krav))
+    rader.push([
+      beloep(krav.hovedkrav_belop)!,
       v.hovedkrav_vurdering,
       beloep(v.hovedkrav_godkjent_belop),
-      p.hovedkrav,
-    ],
-  ];
+      null,
+    ]);
   if (harRigg(krav))
-    rader.push([beloep(krav.rigg_belop)!, v.rigg_vurdering, beloep(v.rigg_godkjent_belop), p.rigg]);
+    rader.push([
+      beloep(krav.rigg_belop)!,
+      v.rigg_vurdering,
+      beloep(v.rigg_godkjent_belop),
+      p.rigg ? NULL_OERE : null,
+    ]);
   if (harProduktivitet(krav)) {
     rader.push([
       beloep(krav.produktivitet_belop)!,
       v.produktivitet_vurdering,
       beloep(v.produktivitet_godkjent_belop),
-      p.produktivitet,
+      p.produktivitet ? (beloep(v.produktivitet_begrenset_belop) ?? NULL_OERE) : null,
     ]);
   }
-  return rader.map(([krevd, vurd, delvis, prekl]) => [
-    krevd,
-    beregnGodkjentBeloep(vurd, krevd, delvis),
-    prekl,
-  ]);
+  return rader.map(([krevd, vurd, delvis, begrenset]) => {
+    const godkjent = beregnGodkjentBeloep(vurd, krevd, delvis);
+    return [krevd, godkjent, p.hovedkrav ? NULL_OERE : (begrenset ?? godkjent)];
+  });
 }
 
 const sum = (verdier: Oere[]) => verdier.reduce((a, b) => a + b, NULL_OERE);
@@ -204,7 +222,8 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
         feil[`${navn}_godkjent_belop`] = 'er høyere enn det krevde beløpet';
     }
   };
-  post('hovedkrav', v.hovedkrav_vurdering, v.hovedkrav_godkjent_belop, krav.hovedkrav_belop);
+  if (harHovedkrav(krav))
+    post('hovedkrav', v.hovedkrav_vurdering, v.hovedkrav_godkjent_belop, krav.hovedkrav_belop);
   if (harRigg(krav)) post('rigg', v.rigg_vurdering, v.rigg_godkjent_belop, krav.rigg_belop);
   if (harProduktivitet(krav)) {
     post(
@@ -227,6 +246,28 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
   for (const [gjelder, felt, hjemmel] of spoersmaal) {
     if (gjelder && (v[felt] === null || v[felt] === undefined)) feil[felt] = `mangler (${hjemmel})`;
   }
+  // Valg 2 i #1047: 0 ≤ beløpet etter begrensningen ≤ det byggherren godtar for posten.
+  const begrenset = v.produktivitet_begrenset_belop;
+  const begrenses = harProduktivitet(krav) && v.produktivitet_varslet_i_tide === false;
+  if (!begrenses) {
+    if (begrenset !== null && begrenset !== undefined)
+      feil.produktivitet_begrenset_belop = 'gjelder bare en påberopt begrensning (§ 34.1.3)';
+  } else if (begrenset === null || begrenset === undefined) {
+    feil.produktivitet_begrenset_belop = 'mangler (§ 34.1.3)';
+  } else if (!erEndelig(begrenset)) {
+    feil.produktivitet_begrenset_belop = 'er ikke et tall';
+  } else if (!feil.produktivitet_vurdering && !feil.produktivitet_godkjent_belop) {
+    const b = beloep(begrenset)!;
+    const krevd = beloep(krav.produktivitet_belop)!;
+    const godkjent = beregnGodkjentBeloep(
+      v.produktivitet_vurdering,
+      krevd,
+      beloep(v.produktivitet_godkjent_belop)
+    );
+    if (b < NULL_OERE) feil.produktivitet_begrenset_belop = 'kan ikke være negativt';
+    else if (b > godkjent)
+      feil.produktivitet_begrenset_belop = 'er høyere enn det byggherren godtar for posten';
+  }
   if (v.hold_tilbake && !kanHoldeTilbake(krav)) {
     feil.hold_tilbake = 'bare ved regningsarbeid uten kostnadsoverslag (§ 30.2)';
   }
@@ -243,12 +284,10 @@ export function beregnVederlag(
   const p = beregnPreklusjon(v, krav, regler);
   const alle = poster(v, krav, p);
   const totalKrevdInklPrekludert = sum(alle.map(([k]) => k));
-  const totalGodkjent = sum(alle.filter(([, , pr]) => !pr).map(([, g]) => g));
+  const totalGodkjent = sum(alle.map(([, , pr]) => pr));
   const totalGodkjentInklPrekludert = sum(alle.map(([, g]) => g));
   const metodeendring = v.aksepterer_metode === false;
-  const perPost = poster(v, krav, { hovedkrav: false, rigg: false, produktivitet: false }).map(
-    ([, g]) => g
-  );
+  const perPost = alle.map(([, g]) => g);
   const visSubsidiaert = p.hovedkrav || p.rigg || p.produktivitet;
   return {
     beregnings_resultat: v.hold_tilbake
@@ -256,9 +295,12 @@ export function beregnVederlag(
       : resultatAvBeloep(totalKrevdInklPrekludert, totalGodkjent, metodeendring),
     total_godkjent_belop: totalGodkjent,
     total_krevd_belop: totalKrevdInklPrekludert,
-    hovedkrav_godkjent_belop: perPost[0],
-    rigg_godkjent_belop: harRigg(krav) ? perPost[1] : null,
+    hovedkrav_godkjent_belop: harHovedkrav(krav) ? perPost[0] : null,
+    rigg_godkjent_belop: harRigg(krav) ? perPost[Number(harHovedkrav(krav))] : null,
     produktivitet_godkjent_belop: harProduktivitet(krav) ? perPost[perPost.length - 1] : null,
+    produktivitet_begrenset_belop: p.produktivitet
+      ? (beloep(v.produktivitet_begrenset_belop) ?? NULL_OERE)
+      : null,
     subsidiaer_triggers: subsidiaerTriggers(v, krav, p),
     subsidiaer_resultat: visSubsidiaert
       ? resultatAvBeloep(totalKrevdInklPrekludert, totalGodkjentInklPrekludert, metodeendring)

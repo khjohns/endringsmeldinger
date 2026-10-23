@@ -115,9 +115,11 @@ spor = ["grunnlag", "vederlag", "frist"]
 beskrivelse = """
 Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 eller § 34.1.3 i
 vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller TEs varsel etter
-§ 33.4, § 34.1.2 eller § 34.1.3."""
-felt = ["id", "art", "gjelder", "hjemmel", "i_tide"]
-grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3"
+§ 33.4, § 34.1.2 eller § 34.1.3. Når varselet etter § 34.1.3 kom for sent, er
+`beloep` det byggherren godtar for posten etter § 34.1.3 annet ledd etter
+begrensningen."""
+felt = ["id", "art", "gjelder", "hjemmel", "i_tide", "beloep"]
+grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3, VS-U5, OV-U22"
 
 [[standpunkt]]
 art = "metode"
@@ -152,9 +154,13 @@ grunnlag = "§ 32.3 a–c, GR-U9, GR-U10"
 [[standpunkt]]
 art = "beloep"
 spor = ["vederlag"]
-beskrivelse = "Beløpet. Resultatet og beløpet står i svarets utregning, så de har ett hjem."
-felt = ["id", "art"]
-grunnlag = "B-13, designnotatet 4.3"
+beskrivelse = """
+Beløpet byggherren godtar for én post uten begrensningen etter § 34.1.3, ett
+standpunkt for hver post. `saerskilt` er `produktivitet` for posten etter
+§ 34.1.3 annet ledd; uten feltet gjelder det justeringen ellers. Resultatet og
+totalene står i svarets utregning."""
+felt = ["id", "art", "beloep", "saerskilt"]
+grunnlag = "B-13, OV-U26, OV-U31, arbeidsvalget i #1047 (6362745637)"
 
 [[standpunkt]]
 art = "hindring"

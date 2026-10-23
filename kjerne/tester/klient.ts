@@ -11,7 +11,7 @@ import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
-import { regnUtSvar, type Svarvurdering } from '../frosset/standpunkt.ts';
+import { regnUtSvar, vederlagsposter, type Svarvurdering } from '../frosset/standpunkt.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Krav, Part, Spor } from '../typer.ts';
 
@@ -354,11 +354,17 @@ export function radFor(
         hjemmel: '32.2',
         i_tide: s.varslet_i_tide,
       });
-    standpunkter.push(
-      spor === 'grunnlag'
-        ? { id: randomUUID(), art: 'grunnlag', resultat: s.resultat }
-        : { id: randomUUID(), art: spor === 'vederlag' ? 'beloep' : 'dager' }
-    );
+    if (spor === 'grunnlag')
+      standpunkter.push({ id: randomUUID(), art: 'grunnlag', resultat: s.resultat });
+    else if (spor === 'frist') standpunkter.push({ id: randomUUID(), art: 'dager' });
+    else
+      for (const post of vederlagsposter(v, krav))
+        standpunkter.push({
+          id: randomUUID(),
+          art: 'beloep',
+          beloep: post.godkjent,
+          ...(post.saerskilt ? { saerskilt: post.saerskilt } : {}),
+        });
     const svar: Record<string, unknown> = {
       id: navn.ta(s.navn),
       spor,

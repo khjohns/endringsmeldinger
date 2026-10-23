@@ -31,6 +31,7 @@ import {
   innsigelsenPaaberoper,
   harHovedbeloep,
   krevdBeloep,
+  harProduktivitetspost,
   krevdProduktivitet,
   kroner,
   svarPaaForesporsler,
@@ -404,9 +405,12 @@ function aapneInnsigelser(
     const hjemmel = innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) =>
       gjelderVarslingsplikten(k, regler)
     );
-    // VS-U29: i fristen også påberopelsen etter § 33.6.2 mot begrunnelsen.
+    // VS-U29: i fristen også påberopelsen etter § 33.6.2 mot begrunnelsen, og i vederlaget
+    // den etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).
     const gjelder =
-      hjemmel === HJEMMEL[svar.spor] || (svar.spor === 'frist' && hjemmel === '33.6.2');
+      hjemmel === HJEMMEL[svar.spor] ||
+      (svar.spor === 'frist' && hjemmel === '33.6.2') ||
+      (svar.spor === 'vederlag' && hjemmel === '34.1.3');
     return gjelder && !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra), hjemmel)
       ? [{ gjelder: i.gjelder, dokument: i.dokument, hjemmel }]
       : [];
@@ -564,8 +568,11 @@ function standpunkttekst(
       // Saken har ett varsel etter § 33.4 (oppdragsgiver 15.10, #498).
       const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
       const henvisning = aapne.length > 1 ? 'innsigelsene' : 'innsigelsen';
-      if (!p.iTide)
-        return `byggherren gjør gjeldende at ${varselet} kom for sent${aapne.length ? `, jf. ${henvisning} i ${brevene}` : ''}.`;
+      const jf = aapne.length ? `, jf. ${henvisning} i ${brevene}` : '';
+      // OV-U28: begrensningen etter § 34.1.3 med beløpet byggherren godkjenner for kravet.
+      if (!p.iTide && p.hjemmel === '34.1.3')
+        return `byggherren gjør gjeldende at ${varselet} kom for sent${jf}, og at TE har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner ${eksMva(p.begrenset!)} for dette kravet.`;
+      if (!p.iTide) return `byggherren gjør gjeldende at ${varselet} kom for sent${jf}.`;
       return aapne.length
         ? `byggherren gir opp ${henvisning} etter NS 8407 § 5 i ${brevene} og gjør ikke gjeldende at ${varselet} kom for sent.`
         : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;
@@ -596,11 +603,21 @@ function standpunkttekst(
         : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, ${dager(p.dager!)} (NS 8407 § 33.6.1).`;
     case 'beloep': {
       // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
-      // kan være det, til nærmeste krone som i B-13.
-      const krevd = krevdBeloep(krav);
-      const heleBeloepet = erBeloepetGodkjentFullt(krevd, beloep(p.godkjent)!);
-      const resultat = p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat;
-      return verdi(resultat, eksMva(p.godkjent), eksMva(tilTall(krevd)));
+      // kan være det, til nærmeste krone som i B-13. OV-U28: med posten etter § 34.1.3 annet
+      // ledd sier brevet beløpet for hver post for seg.
+      const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdBeloep(krav);
+      const godkjent = beloep(p.godkjent)!;
+      const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
+        ? 'godkjent'
+        : godkjent === 0n
+          ? 'avslaatt'
+          : 'delvis_godkjent';
+      const post = !harProduktivitetspost(krav)
+        ? null
+        : p.saerskilt
+          ? SAERSKILT
+          : 'justeringen ellers';
+      return verdi(resultat, eksMva(p.godkjent), eksMva(tilTall(krevd)), post);
     }
     case 'dager':
       return verdi(p.resultat, dager(p.vurdert), dager(krav.innhold.dager as number));
@@ -628,11 +645,21 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
   return `${innledning} ${kravet}: «${beskrivelse}».`;
 }
 
-function verdi(resultat: string, godkjent: string, krevd: string): string {
-  if (resultat === 'godkjent') return punktum(`byggherren godkjenner ${godkjent}`);
+/** OV-U28: posten etter § 34.1.3 annet ledd i setningen om beløpet. */
+const SAERSKILT = 'særskilt justering etter NS 8407 § 34.1.3 annet ledd';
+
+function verdi(
+  resultat: string,
+  godkjent: string,
+  krevd: string,
+  post: string | null = null
+): string {
+  const om = post ? ` for ${post}` : '';
+  if (resultat === 'godkjent') return punktum(`byggherren godkjenner ${godkjent}${om}`);
   if (resultat === 'delvis_godkjent')
-    return punktum(`byggherren godkjenner ${godkjent} av de krevde ${krevd}`);
-  if (resultat === 'avslaatt') return 'byggherren avslår kravet.';
+    return punktum(`byggherren godkjenner ${godkjent} av de krevde ${krevd}${om}`);
+  if (resultat === 'avslaatt')
+    return post ? `byggherren avslår kravet om ${post}.` : 'byggherren avslår kravet.';
   throw new KanIkkeUttrykkes(`standpunktet ${resultat} har ingen brevtekst`);
 }
 

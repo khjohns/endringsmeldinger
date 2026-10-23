@@ -20,7 +20,8 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import type { Grunnlagsresultat } from '../regler/typer.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { tekst } from '../format/skjema.ts';
-import { beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
+import { beregnGodkjentBeloep, beregnVederlag, type Vederlagskrav } from '../regler/vederlag.ts';
+import type { Beloepsvurdering } from '../regler/typer.ts';
 import { HJEMMEL, METODER } from '../format/format.ts';
 import type {
   Beslutningsgrunnlag,
@@ -83,13 +84,17 @@ export function hjemmelenGjelder(
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
  * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. Laget er et nummer fra 1.
  * Hver grunn med virkning åpner et nytt lag for standpunktene etter den, og påberopelsene
- * av rettidighet står i det første (OV-U32, vedtaket 05.10).
+ * av rettidighet står i det første (OV-U32, vedtaket 05.10). `forskyvning` er lagene
+ * svaret på grunnlaget opptar foran sporet (`lagFraGrunnlaget`).
  */
 export function virkninger(
   svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
-  regler: Regelsett
+  regler: Regelsett,
+  forskyvning = 0
 ): Standpunktsvirkning[] {
+  if (svar.spor === 'vederlag')
+    return vederlagsvirkninger(svar, grunnlagskrav, regler, forskyvning);
   const ut: Standpunktsvirkning[] = [];
   let lag = 1;
   const iLaget = () => lag;
@@ -115,6 +120,48 @@ export function virkninger(
     }
   }
   return ut;
+}
+
+/**
+ * OV-U27, OV-U33: lagene i vederlaget. Påberopelsen etter § 34.1.2 gjelder hele kravet og
+ * står i det første laget. Begrensningen etter § 34.1.3 rammer bare posten etter annet ledd
+ * (OV-U22, VS-U5): den står i laget etter § 34.1.2 sammen med justeringen ellers og
+ * metoden, og posten i laget etter den. Rammer ingen påberopelse justeringen ellers, er den
+ * upåvirket, så sant grunnlaget verken er avslått eller prekludert (OV-U33).
+ */
+function vederlagsvirkninger(
+  svar: Svarinnhold,
+  grunnlagskrav: Krav | null | undefined,
+  regler: Regelsett,
+  forskyvning: number
+): Standpunktsvirkning[] {
+  const sent = (hjemmel: Hjemmel) =>
+    svar.standpunkter.some(
+      (s) =>
+        s.art === 'rettidighet' &&
+        s.hjemmel === hjemmel &&
+        !s.iTide &&
+        hjemmelenGjelder(hjemmel, grunnlagskrav, regler)
+    );
+  const [hele, posten] = [sent('34.1.2'), sent('34.1.3')];
+  const foerste = hele ? 2 : 1;
+  const ellers: Virkning = posten && !hele && forskyvning === 0 ? 'upaavirket' : foerste;
+  return svar.standpunkter.map((s): Standpunktsvirkning => {
+    const virkning = (): Virkning => {
+      if (s.art === 'rettidighet')
+        return s.hjemmel === '34.1.2'
+          ? hele
+            ? 1
+            : 'uten_virkning'
+          : posten
+            ? foerste
+            : 'uten_virkning';
+      if (s.art === 'metode' && s.aksepterer) return 'uten_virkning';
+      if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);
+      return ellers;
+    };
+    return { standpunkt: s.id, art: s.art, virkning: virkning() };
+  });
 }
 
 /**
@@ -241,9 +288,39 @@ export function foresporselsrelasjon(
 }
 
 export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 1);
-/** Et standpunkt som avviser kravet uavhengig av beløpet eller dagene. */
-const AVVISENDE = new Set(['rettidighet', 'hindring']);
-const avvisesPrinsipalt = (v: Standpunktsvirkning[]) => AVVISENDE.has(prinsipalt(v)?.art ?? '');
+/**
+ * Et standpunkt i første lag avviser kravet uavhengig av beløpet eller dagene: en preklusjon
+ * eller «ingen hindring». En begrensning etter § 34.1.3 avviser aldri hele kravet (VS-U5).
+ */
+function avvisesPrinsipalt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
+  return v.some((p) => {
+    if (p.virkning !== 1) return false;
+    const s = svar.standpunkter.find((x) => x.id === p.standpunkt);
+    return s?.art === 'hindring' || (s?.art === 'rettidighet' && s.hjemmel !== '34.1.3');
+  });
+}
+
+/** Begrensningen etter § 34.1.3 har virkning i svaret (VS-U5, OV-U22). */
+function begrensningen(svar: Svarinnhold, v: Standpunktsvirkning[]) {
+  return svar.standpunkter.find(
+    (s): s is Extract<Standpunkt, { art: 'rettidighet' }> =>
+      s.art === 'rettidighet' &&
+      s.hjemmel === '34.1.3' &&
+      v.some((p) => p.standpunkt === s.id && laget(p.virkning) !== null)
+  );
+}
+
+/**
+ * Det byggherren godtar prinsipalt i vederlaget, av postene og begrensningen i brevet
+ * (OV-U26, OV-U27): posten etter § 34.1.3 annet ledd med beløpet etter en virksom begrensning.
+ */
+function prinsipaltBeloep(svar: Svarinnhold, v: Standpunktsvirkning[]): number {
+  const begrenset = begrensningen(svar, v)?.begrenset;
+  const poster = svar.standpunkter.flatMap((s) =>
+    s.art !== 'beloep' ? [] : [s.saerskilt && begrenset !== undefined ? begrenset : s.godkjent]
+  );
+  return tilTall(poster.reduce((a, b) => a + beloep(b)!, 0n));
+}
 
 export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art: A) {
   return svar.standpunkter.find((s): s is Extract<Standpunkt, { art: A }> => s.art === art);
@@ -287,10 +364,9 @@ function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boole
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
 function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
-  const prekludert = avvisesPrinsipalt(v);
+  const prekludert = avvisesPrinsipalt(svar, v);
   if (svar.spor === 'grunnlag') return {};
-  if (svar.spor === 'vederlag')
-    return { beloep: prekludert ? 0 : standpunktet(svar, 'beloep')!.godkjent };
+  if (svar.spor === 'vederlag') return { beloep: prekludert ? 0 : prinsipaltBeloep(svar, v) };
   if (prekludert) return { dager: 0 };
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id)
@@ -305,7 +381,7 @@ function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
  * (GR-U10).
  */
 function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  if (avvisesPrinsipalt(v)) return false;
+  if (avvisesPrinsipalt(svar, v)) return false;
   if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';
   // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
   // påberopelse etter § 33.6.1 i et lag, gir aldri sammenfall. Leses av standpunktene.
@@ -313,6 +389,9 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;
+  // HF-U7: en begrensning etter § 34.1.3 i et lag er en påberopelse med subsidiært standpunkt
+  // og gir ikke sammenfall, også når beløpet etter den er likt det krevde (VS-U5).
+  if (begrensningen(svar, v)) return false;
   return svar.utregning.resultat === 'godkjent';
 }
 
@@ -384,8 +463,10 @@ function beslutningslinje(
   // Fristsvaret kan prekludere etter både § 33.4 og § 33.6.2 tredje ledd (VS-U17). Begge er
   // prinsipale, så de er ett ledd med den prinsipale grunnen (vedtaket 05.10).
   // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
+  // Begrensningen etter § 34.1.3 er ingen preklusjon, men et eget ledd (VS-U5).
+  const begrenset = begrensningen(svar, v);
   const prekluderende = v
-    .filter((p) => p.art === 'rettidighet' && laget(p.virkning))
+    .filter((p) => p.art === 'rettidighet' && laget(p.virkning) && p.standpunkt !== begrenset?.id)
     .map((p) => p.standpunkt);
   const hjemler = svar.standpunkter
     .filter((s): s is Extract<Standpunkt, { art: 'rettidighet' }> => prekluderende.includes(s.id))
@@ -406,33 +487,67 @@ function beslutningslinje(
       laget(p.virkning) &&
       (p.art !== 'rettidighet' || p.standpunkt === prekluderende[0])
   );
-  let standpunkt: string;
-  let sist: Standpunkt;
-  if (svar.spor === 'grunnlag') {
-    sist = standpunktet(svar, 'grunnlag')!;
-    standpunkt = GRUNNLAGSSVARET[sist.resultat];
-  } else if (svar.spor === 'vederlag') {
-    const b = (sist = standpunktet(svar, 'beloep')!);
-    standpunkt = b.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
-    if (standpunktet(svar, 'metode')?.aksepterer === false)
-      standpunkt += ', tilbudet ikke akseptert (§ 34.2.2)';
-  } else {
-    const d = (sist = standpunktet(svar, 'dager')!);
-    standpunkt = d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
-  }
   const virkning = (id: string) => v.find((p) => p.standpunkt === id)!.virkning;
+  const sine: { tekst: string; virkning: Virkning }[] = [];
+  if (svar.spor === 'grunnlag') {
+    const g = standpunktet(svar, 'grunnlag')!;
+    sine.push({ tekst: GRUNNLAGSSVARET[g.resultat], virkning: virkning(g.id) });
+  } else if (svar.spor === 'vederlag') {
+    // OV-U26: hver post for seg når kravet har posten etter § 34.1.3 annet ledd, med
+    // begrensningen som eget ledd foran posten.
+    const poster = svar.standpunkter.filter(
+      (s): s is Extract<Standpunkt, { art: 'beloep' }> => s.art === 'beloep'
+    );
+    const delt = poster.some((b) => b.saerskilt);
+    const ikkeAkseptert =
+      standpunktet(svar, 'metode')?.aksepterer === false
+        ? ', tilbudet ikke akseptert (§ 34.2.2)'
+        : '';
+    poster.forEach((b, i) => {
+      const hva = !delt
+        ? ''
+        : b.saerskilt
+          ? ` for ${SAERSKILT_I_LINJEN}`
+          : ' for justeringen ellers';
+      if (b.saerskilt && begrenset)
+        sine.push({
+          tekst: `begrenset etter § 34.1.3 til ${kroner(begrenset.begrenset!)}`,
+          virkning: virkning(begrenset.id),
+        });
+      const tekst =
+        beloep(b.godkjent) === 0n ? `avslått${hva}` : `godkjent med ${kroner(b.godkjent)}${hva}`;
+      sine.push({ tekst: tekst + (i === 0 ? ikkeAkseptert : ''), virkning: virkning(b.id) });
+    });
+  } else {
+    const d = standpunktet(svar, 'dager')!;
+    sine.push({
+      tekst: d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`,
+      virkning: virkning(d.id),
+    });
+  }
   const ledd = [
     ...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })),
-    { tekst: standpunkt, virkning: virkning(sist.id) },
+    ...sine,
   ];
-  if (ledd.length === 1 && !forskyvning) return `Byggherrens standpunkt: ${standpunkt}.`;
-  // OV-U32: etiketten følger det fryste laget, og et upåvirket standpunkt står uten etikett.
-  const etikettert = ({ virkning, tekst }: (typeof ledd)[number]) => {
+  // OV-U32, OV-U33: etiketten følger det fryste laget, én gang for hvert lag og bare når svaret
+  // har mer enn ett lag. Et upåvirket standpunkt står uten etikett. Som i brevteksten.
+  const plass = ({ virkning }: (typeof ledd)[number]) => {
     const lag = laget(virkning);
-    return lag === null ? tekst : `${etikett(lag + forskyvning)} ${tekst}`;
+    return lag === null ? null : lag + forskyvning;
+  };
+  const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);
+  const merket = new Set<number>();
+  const etikettert = (l: (typeof ledd)[number]) => {
+    const lag = plass(l);
+    if (!ordnet || lag === null || merket.has(lag)) return l.tekst;
+    merket.add(lag);
+    return `${etikett(lag)} ${l.tekst}`;
   };
   return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
 }
+
+/** Posten etter § 34.1.3 annet ledd i linjen. */
+const SAERSKILT_I_LINJEN = 'særskilt justering (§ 34.1.3 annet ledd)';
 
 /** Laget standpunktet står i, eller `null` når det er upåvirket eller uten virkning (OV-U32). */
 export const laget = (virkning: Virkning): number | null =>
@@ -465,7 +580,7 @@ export function beslutningsgrunnlag(
   regler: Regelsett,
   forskyvning: number
 ): Beslutningsgrunnlag {
-  const v = virkninger(svar, grunnlagskrav, regler);
+  const v = virkninger(svar, grunnlagskrav, regler, forskyvning);
   return {
     regelversjon: regler.versjon,
     virkninger: v,
@@ -507,10 +622,11 @@ export function ulikeVirkninger(a: Standpunktsvirkning[], b: Standpunktsvirkning
 export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
   if (spor === 'vederlag') {
     if (v.hold_tilbake === true) return 'tilbakeholdelse (§ 30.2) er ikke i kjernen ennå';
-    for (const felt of ['rigg_varslet_i_tide', 'produktivitet_varslet_i_tide'])
-      if (v[felt] === false) return `preklusjon etter § 34.1 (${felt}) er ikke i kjernen ennå`;
-    if ((v.rigg_vurdering ?? null) !== null || (v.produktivitet_vurdering ?? null) !== null)
-      return 'særskilte krav (§ 34.1.3) er ikke i kjernen ennå';
+    // Rigg og drift etter § 34.1.3 første ledd er ikke i kjernen (#1171).
+    if (v.rigg_varslet_i_tide === false)
+      return 'preklusjon etter § 34.1 (rigg_varslet_i_tide) er ikke i kjernen ennå';
+    if ((v.rigg_vurdering ?? null) !== null)
+      return 'kravet om rigg og drift (§ 34.1.3 første ledd) er ikke i kjernen ennå';
   }
   return null;
 }
@@ -523,6 +639,10 @@ export interface Svarvurdering {
   hovedkrav_vurdering?: unknown;
   hovedkrav_godkjent_belop?: unknown;
   hovedkrav_varslet_i_tide?: unknown;
+  produktivitet_vurdering?: unknown;
+  produktivitet_godkjent_belop?: unknown;
+  produktivitet_varslet_i_tide?: unknown;
+  produktivitet_begrenset_belop?: unknown;
   aksepterer_metode?: unknown;
   oensket_metode?: unknown;
   frist_varsel_ok?: unknown;
@@ -610,17 +730,30 @@ export function regnUtSvar(
     return {};
   }
   if (spor === 'vederlag') {
-    // Byggherrens standpunkt til posten etter § 34.1.3 bygges i økt B av #1047.
-    if (harProduktivitetspost(krav))
-      throw new UgyldigVurdering({
-        produktivitet_vurdering: 'særskilte krav (§ 34.1.3) er ikke i kjernen ennå',
-      });
     const { hovedkategori, underkategori } = kategori(grunnlagskrav);
+    const post = krevdProduktivitet(krav);
+    // OV-U23, OV-U26: byggherren tar stilling til postene kravet har, og bare dem (#520).
+    const utenPost: [boolean, (keyof Svarvurdering)[]][] = [
+      [harHovedbeloep(krav), ['hovedkrav_vurdering', 'hovedkrav_godkjent_belop']],
+      [
+        post !== null,
+        [
+          'produktivitet_vurdering',
+          'produktivitet_godkjent_belop',
+          'produktivitet_varslet_i_tide',
+          'produktivitet_begrenset_belop',
+        ],
+      ],
+    ];
+    for (const [harPosten, felter] of utenPost)
+      for (const felt of felter)
+        if (!harPosten && v[felt] != null)
+          throw new UgyldigVurdering({ [felt]: 'kravet har ikke denne posten (OV-U23)' });
     const vkrav: Vederlagskrav = {
-      hovedkrav_belop: tilTall(krevdBeloep(krav)),
+      hovedkrav_belop: harHovedbeloep(krav) ? tilTall(krevdBeloep(krav)) : null,
       metode: 'tilbud',
       rigg_belop: null,
-      produktivitet_belop: null,
+      produktivitet_belop: post === null ? null : tilTall(post),
       krever_justert_ep: false,
       kostnads_overslag: null,
       hovedkategori,
@@ -649,7 +782,8 @@ export function regnUtSvar(
       resultat: r.beregnings_resultat,
       godkjent_beloep: tilTall(r.total_godkjent_belop),
     };
-    // VS-U3, B-13: ved preklusjon etter § 34.1.2 står det vurderte beløpet subsidiært.
+    // VS-U3, B-13: ved preklusjon etter § 34.1.2 og ved begrensningen etter § 34.1.3 står det
+    // vurderte beløpet subsidiært (VS-U5).
     if (r.subsidiaer_resultat !== null) {
       ut.subsidiaert_resultat = r.subsidiaer_resultat;
       ut.subsidiaert_godkjent_beloep = tilTall(r.subsidiaer_godkjent_belop!);
@@ -716,6 +850,47 @@ function kontrollerSpesifiseringen(v: Svarvurdering): number | null {
     throw feil('er flere enn dagene byggherren godtar om kravet kom i tide');
   return d;
 }
+
+/**
+ * OV-U26, OV-U31: beløpet byggherren godtar for hver post i vederlagskravet uten
+ * begrensningen etter § 34.1.3, i rekkefølgen brevet lagrer dem: justeringen ellers og
+ * posten etter annet ledd (`saerskilt`). Regnet med regelsettet som utregningen.
+ */
+export function vederlagsposter(
+  v: Svarvurdering,
+  krav: Krav
+): { godkjent: number; saerskilt?: 'produktivitet' }[] {
+  const post = (vurdering: unknown, krevd: Oere, delvis: unknown) =>
+    tilTall(
+      beregnGodkjentBeloep(
+        vurdering as Beloepsvurdering,
+        krevd,
+        beloep(delvis as number | null | undefined)
+      )
+    );
+  const produktivitet = krevdProduktivitet(krav);
+  return [
+    ...(harHovedbeloep(krav)
+      ? [{ godkjent: post(v.hovedkrav_vurdering, krevdBeloep(krav), v.hovedkrav_godkjent_belop) }]
+      : []),
+    ...(produktivitet === null
+      ? []
+      : [
+          {
+            godkjent: post(
+              v.produktivitet_vurdering,
+              produktivitet,
+              v.produktivitet_godkjent_belop
+            ),
+            saerskilt: 'produktivitet' as const,
+          },
+        ]),
+  ];
+}
+
+/** Det samlede krevde beløpet i vederlagskravet: justeringen ellers og posten (OV-U23). */
+export const krevdSamlet = (krav: Krav): Oere =>
+  (harHovedbeloep(krav) ? krevdBeloep(krav) : 0n) + (krevdProduktivitet(krav) ?? 0n);
 
 /** Feltene klienten skal ha regnet likt med serveren. Beløp sammenliknes til hele øre. */
 export const SAMMENLIKNES: Record<Spor, string[]> = {

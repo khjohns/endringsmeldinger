@@ -57,10 +57,14 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
     { art: 'rettidighet', paakrevd: false },
     { art: 'grunnlag', paakrevd: true },
   ],
+  // § 34.1.2, metoden, justeringen ellers, § 34.1.3 og posten etter annet ledd (OV-U27,
+  // OV-U28). Hjemlene og postene står i rekkefølge (`leser.ts`).
   vederlag: [
     { art: 'rettidighet', paakrevd: false },
     { art: 'metode', paakrevd: false },
     { art: 'beloep', paakrevd: true },
+    { art: 'rettidighet', paakrevd: false },
+    { art: 'beloep', paakrevd: false },
   ],
   frist: [
     // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`leser.ts`).
@@ -220,6 +224,8 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
       gjelder: ID,
       hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2', '34.1.3'] },
       i_tide: { type: 'boolean' },
+      // VS-U5, OV-U22: beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3.
+      beloep: { type: 'number', minimum: 0 },
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
   ),
@@ -228,7 +234,16 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     'art',
     'resultat',
   ]),
-  beloep: objekt(artfelt('beloep'), ['id', 'art']),
+  // OV-U26, OV-U31: beløpet byggherren godtar for posten uten begrensningen etter § 34.1.3.
+  // `saerskilt` er posten etter § 34.1.3 annet ledd; uten feltet gjelder det justeringen ellers.
+  beloep: objekt(
+    {
+      ...artfelt('beloep'),
+      beloep: { type: 'number', minimum: 0 },
+      saerskilt: { const: 'produktivitet' },
+    },
+    ['id', 'art', 'beloep']
+  ),
   metode: objekt(
     {
       ...artfelt('metode'),

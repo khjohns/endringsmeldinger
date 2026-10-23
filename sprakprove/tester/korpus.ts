@@ -88,7 +88,7 @@ function vederlagssvar(h: Handling, sak: Sak, revidert: boolean) {
     beregnings_resultat: r.beregnings_resultat,
     total_godkjent_belop: tilTall(r.total_godkjent_belop),
     total_krevd_belop: tilTall(r.total_krevd_belop),
-    hovedkrav_godkjent_belop: tilTall(r.hovedkrav_godkjent_belop),
+    hovedkrav_godkjent_belop: tilTall(r.hovedkrav_godkjent_belop!),
   };
   if (r.subsidiaer_triggers.length) data.subsidiaer_triggers = r.subsidiaer_triggers;
   if (revidert) data.original_respons_id = sak.vederlag.svar?.eventId;

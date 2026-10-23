@@ -73,10 +73,32 @@ export type Opplysning =
  * svaret, så de har ett hjem (4.3 i designnotatet).
  */
 export type Standpunkt =
-  | { id: string; art: 'rettidighet'; gjelder: string; hjemmel: Hjemmel; iTide: boolean }
+  /**
+   * `begrenset` er beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3, og
+   * står bare når varselet etter § 34.1.3 kom for sent (VS-U5, OV-U22).
+   */
+  | {
+      id: string;
+      art: 'rettidighet';
+      gjelder: string;
+      hjemmel: Hjemmel;
+      iTide: boolean;
+      begrenset?: number;
+    }
   /** «Frafalt» gjelder pålegget (§ 32.3 c), ikke TEs krav. */
   | { id: string; art: 'grunnlag'; resultat: Grunnlagsresultat }
-  | { id: string; art: 'beloep'; resultat: Vederlagsresultat; godkjent: number }
+  /**
+   * OV-U26: `godkjent` er beløpet byggherren godtar for posten uten begrensningen etter
+   * § 34.1.3. `saerskilt` er posten etter § 34.1.3 annet ledd; uten den gjelder standpunktet
+   * justeringen ellers. `resultat` er svarets, som utregningen gir det.
+   */
+  | {
+      id: string;
+      art: 'beloep';
+      resultat: Vederlagsresultat;
+      godkjent: number;
+      saerskilt?: 'produktivitet';
+    }
   /**
    * § 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept oppgir byggherren metoden
    * byggherren mener vederlaget skal justeres etter (`oensket`); appen avgjør ikke om
