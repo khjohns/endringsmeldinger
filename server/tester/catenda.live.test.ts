@@ -123,7 +123,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
 
   // `egenId` og `egenBruker` leser integrasjonen i `GET /v2/user`. Brokeren avviser kallet med
   // `broker_avviste` til stien står på listen den slipper gjennom (#1149).
-  it('A1: brokeren slipper gjennom GET /v2/user, som egenId og egenBruker leser (#1149)', async () => {
+  it('A6: brokeren slipper gjennom GET /v2/user, som egenId og egenBruker leser (#1149)', async () => {
     await hent('/v2/user');
   });
 
@@ -321,10 +321,11 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     });
 
     // BCF 3.0, schema `comment` og `topic`: `author` og `creation_author`. Testen fastholder
-    // det Catenda svarer i dag: kommentaren og topicen integrasjonen skriver, har samme
-    // forfatter. Den prøver det kvitteringen bygger på (#972) uten `GET /v2/user` og
-    // `GET …/comments`, som brokeren avviser (#1149). At forfatteren er `username` fra
-    // `/v2/user`, prøves i testen over. Kommentaren slettes med topicen.
+    // det Catenda svarer i dag: 201 på POST …/comments, der øyeblikksbildet bare har 200, og
+    // samme forfatter på kommentaren og topicen integrasjonen skriver. Den bruker ikke
+    // `GET /v2/user` og `GET …/comments`, som brokeren avviser (#1149), og viser ikke at
+    // forfatteren er `username`, som kvitteringen sammenligner med (#972); det prøver
+    // testen over. Kommentaren slettes med topicen.
     it('B1: en kommentar integrasjonen skriver, har samme forfatter som topicen integrasjonen laget (#1149)', async () => {
       const paa = krev(topic, 'topicen fra B1');
       const topicsti = `/opencde/bcf/3.0/projects/${board}/topics/${paa}`;
