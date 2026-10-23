@@ -249,6 +249,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Krav', 'relasjon', 'id spor erstatter'],
   ['Krav', 'utsagn', 'innhold'],
   ['Krav.innhold', 'utsagn', 'hovedkategori underkategori beloep dager'],
+  // OV-U23: posten etter § 34.1.3 annet ledd i vederlagskravet.
+  ['Krav.innhold', 'utsagn', 'saerskilt', ['frosset/standpunkt.ts']],
+  ['frosset/standpunkt.ts:harProduktivitetspost', 'utsagn', 'produktivitet'],
+  ['frosset/standpunkt.ts:krevdProduktivitet', 'utsagn', 'produktivitet produktivitet.beloep'],
   ['Svar', 'relasjon', 'id spor gjelder erstatter dokument grunnlagskrav'],
   ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
@@ -310,7 +314,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporutledning',
     'predikat',
-    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsel',
+    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsler',
   ],
   // § 33.6.2 (VS-U17, VS-U19, VS-U27): hver forespørsel og kravet eller begrunnelsen som
   // svarte, utledet av rekkefølgen i journalen, og hvordan fristkravene står til den.
@@ -419,6 +423,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'krevdBeloep',
     ['kommandoer/nyttelast.ts', 'frosset/brevtekst.ts'],
   ],
+  // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
+  [
+    'frosset/standpunkt.ts',
+    'regelsett',
+    'harHovedbeloep krevdProduktivitet harProduktivitetspost',
+    ['frosset/brevtekst.ts', 'utledning/utled.ts'],
+  ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
   ['frosset/standpunkt.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
@@ -522,7 +533,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svarutkast', 'kommando', 'resultat', ['kommandoer/nyttelast.ts']],
   ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
   ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
-  ['Handlingsnoekkel', 'kommando', 'type spor gjelder'],
+  ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
   // LV-U14: ID-ene i kommandoen slås opp i vedleggene serveren leste (arbeidsvalg 3 i #790).
   ['kommandoer/kommando.ts', 'kommando', 'formfeil vedleggI'],
   [
@@ -568,7 +579,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel'],
-  ['VARSELSPOR', 'relasjon', '33.4 34.1.2'],
+  ['VARSELSPOR', 'relasjon', '33.4 34.1.2 34.1.3'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
   [

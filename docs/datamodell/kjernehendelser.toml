@@ -72,7 +72,7 @@ grunnlag = "KA-U2, GR-U16, VS-U26, designnotatet 4.2"
 [[krav]]
 spor = "vederlag"
 beskrivelse = "En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1)."
-felt = ["id", "spor", "erstatter", "metode", "beloep"]
+felt = ["id", "spor", "erstatter", "metode", "beloep", "saerskilt"]
 grunnlag = "KA-U2, KA-U8"
 
 [[krav]]

@@ -221,8 +221,8 @@ export function sporvisning(sak: SakState, u: Utledning, nokkel: SporKey): Track
     ...felles,
     isBinary: false,
     unspecified: krevd === undefined,
-    // Varselet etter § 33.4 og § 34.1.2 er et utsagn i kjernen (OV-U5).
-    hasNotice: s.varsel !== null,
+    // Varslene etter § 33.4, § 34.1.2 og § 34.1.3 er utsagn i kjernen (OV-U5).
+    hasNotice: Object.keys(s.varsler).length > 0,
     krevdValue: krevd ?? 0,
     krevdUnit: nokkel === 'vederlag' ? ',-' : ' dager',
     bhUnit: nokkel === 'vederlag' ? ',-' : ' dager',

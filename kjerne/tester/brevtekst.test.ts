@@ -50,6 +50,7 @@ import {
   kraveneErAvgjort,
   standpunktetErSubsidiaert,
   svarIkkeGodtatt,
+  varseletForNyttSvar,
   venterPaaSvar,
 } from '../utledning/utled.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
@@ -2218,7 +2219,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(s.avvist('TE', varseldato())).toBeNull();
     s.send('TE', varseldato());
     const etter = s.u();
-    expect(etter.spor.frist.varsel, 'varselet har virkning (OV-U5)').not.toBeNull();
+    expect(etter.spor.frist.varsler['33.4'], 'varselet har virkning (OV-U5)').toBeDefined();
     expect(etter.utenVirkning).toEqual([]);
     expect(kraveneErAvgjort(etter), 'varselet endrer ikke at kravene er avgjort').toBe(true);
   });
@@ -3027,7 +3028,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
 
   it('der TE krever endring, godtas varselet uten virkning (OV-U15)', () => {
     const { s } = medVarsel('endring');
-    expect(s.u().spor.vederlag.varsel?.hjemmel).toBe('34.1.2');
+    expect(s.u().spor.vederlag.varsler['34.1.2']?.hjemmel).toBe('34.1.2');
   });
 
   it('der TE krever endring, sier visningen at varselet ikke kreves, og ved svikt ikke (OV-U15, § 34.1.1)', () => {
@@ -3048,7 +3049,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     });
     expect(rad.data.brevtekst).toBeUndefined();
     expect(rad.data.opplysninger).toMatchObject([{ hva: 'sendt', dato: '2026-09-28' }]);
-    expect(s.u().spor.vederlag.varsel?.dokument).toBe(rad.event_id);
+    expect(s.u().spor.vederlag.varsler['34.1.2']?.dokument).toBe(rad.event_id);
   });
 
   it('varselet etter § 34.1.2 står i vederlaget, og varselet etter § 33.4 i fristen (OV-U5)', () => {
@@ -3423,7 +3424,10 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
         sendt: '2026-09-01',
         dokumentasjon: [randomUUID()],
       });
-      expect(s.u().spor.frist.varsel, 'forutsetning: varselet er registrert').not.toBeNull();
+      expect(
+        s.u().spor.frist.varsler['33.4'],
+        'forutsetning: varselet er registrert'
+      ).toBeDefined();
       expect(s.avvist('BH', revisjon(s, 'frist', forSent334))).toBe('SAGT_I_TIDE');
     });
 
@@ -3447,7 +3451,7 @@ describe('et «i tide» fra appen binder byggherren (HF-U4, HF-U8, #498)', () =>
               {
                 id: randomUUID(),
                 art: 'rettidighet',
-                gjelder: u.spor.frist.varsel!.id,
+                gjelder: u.spor.frist.varsler['33.4']!.id,
                 hjemmel: '33.4',
                 i_tide: true,
               },
@@ -4627,5 +4631,132 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
       melding:
         'Avsnitt 1 i brevteksten har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.',
     });
+  });
+});
+
+describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–OV-U25, #1047)', () => {
+  const sendVarsel = { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' };
+  const registrer = (hjemmel: '34.1.2' | '34.1.3') => ({
+    type: 'varsel',
+    spor: 'vederlag',
+    hjemmel,
+    sendt: '2026-09-28',
+    dokumentasjon: [randomUUID()],
+  });
+  const vederlagskrav = (innhold: Data) => ({ type: 'krav', spor: 'vederlag', innhold });
+  const post = { produktivitet: { beloep: 40000 } };
+  const produktivitet =
+    'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
+  const iTillegg = `TE krever i tillegg særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${produktivitet} med ${KR('40 000')}`;
+
+  it('brevet er varselet etter § 34.1.3 annet ledd, uten beløp og dato (OV-U5, OV-U25)', () => {
+    const s = sakMedKrav();
+    const varsel = s.send('TE', sendVarsel);
+    const id = (varsel.data.utsagn as Data[])[0].id as string;
+    // Teksten har formen i LV-U19; ordlyden venter på svaret fra orkestratoren (PR-en).
+    expect(tekst(varsel)).toEqual([
+      {
+        gjelder: id,
+        laast: `TE varsler etter NS 8407 § 34.1.3 annet ledd at TE vil kreve særskilt justering av vederlaget for ${produktivitet} som følge av forholdet ${I_SAKEN}.`,
+      },
+    ]);
+    expect(varsel.data.utsagn).toEqual([{ id, art: 'varsel', hjemmel: '34.1.3' }]);
+  });
+
+  it('det særskilte varselet kan sendes etter vederlagskravet, varselet etter § 34.1.2 ikke (OV-U8, VS-U16)', () => {
+    const s = sakMedKrav();
+    expect(s.avvist('TE', { ...sendVarsel, hjemmel: '34.1.2' })).toBe('VEDERLAGSKRAV_SENDT');
+    expect(s.avvist('TE', sendVarsel)).toBeNull();
+    expect(handlinger(s.u(), 'TE')).toEqual(
+      expect.arrayContaining(['sende_varsel:34.1.3', 'varsle:34.1.3'])
+    );
+  });
+
+  it('saken har ett registrert varsel per hjemmel, og det særskilte flytter ikke varselet etter § 34.1.2 (SK-12)', () => {
+    const s = sakMedKrav();
+    const saerskilt = s.send('TE', registrer('34.1.3'));
+    expect(s.avvist('TE', sendVarsel)).toBe('VARSEL_REGISTRERT');
+    expect(s.avvist('TE', registrer('34.1.3'))).toBe('VARSEL_REGISTRERT');
+    expect(s.avvist('TE', registrer('34.1.2'))).toBeNull();
+    const hoved = s.send('TE', registrer('34.1.2'));
+    const u = s.u();
+    expect(u.spor.vederlag.varsler['34.1.3']?.dokument).toBe(saerskilt.event_id);
+    expect(u.spor.vederlag.varsler['34.1.2']?.dokument).toBe(hoved.event_id);
+  });
+
+  it('et registrert brev med bare det særskilte varselet er et brev appen vurderer (#1167, OV-U19)', () => {
+    const s = sakMedKrav();
+    s.send('TE', registrer('34.1.3'));
+    expect(s.u().ikkeVurderteBrev).toEqual([]);
+  });
+
+  it('vederlagskravet kan ha bare posten, uten hovedbeløp, men ikke ingen av dem (OV-U23)', () => {
+    const s = sakMedKrav();
+    expect(s.avvist('TE', vederlagskrav({ metode: 'tilbud' }))).toBe('UGYLDIG_FORM');
+    expect(
+      s.avvist(
+        'TE',
+        vederlagskrav({ metode: 'tilbud', saerskilt: { produktivitet: { beloep: 0 } } })
+      )
+    ).toBe('UGYLDIG_FORM');
+    const rad = s.send('TE', vederlagskrav({ metode: 'tilbud', saerskilt: post }));
+    expect(
+      tekst(rad)
+        .map((a) => a.laast)
+        .join(' ')
+    ).toContain(
+      `TE krever særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${produktivitet} med ${KR('40 000')}`
+    );
+    expect(
+      tekst(rad)
+        .map((a) => a.laast)
+        .join(' ')
+    ).not.toContain('§ 34.2.1');
+  });
+
+  it('posten står etter hovedbeløpet i kravteksten, og trekket viser begge beløpene (OV-U23, KA-U22)', () => {
+    const s = sakMedKrav();
+    const krav = s.send('TE', vederlagskrav({ metode: 'tilbud', beloep: 150000, saerskilt: post }));
+    const laast = tekst(krav)
+      .map((a) => a.laast)
+      .join(' ');
+    expect(laast).toContain(
+      `TE krever justering av vederlaget med ${KR('150 000')} Kravet er et tilbud etter NS 8407 § 34.2.1.`
+    );
+    expect(laast).toContain(iTillegg);
+    const trekk = s.send('TE', { type: 'trekk', spor: 'vederlag' });
+    expect(tekst(trekk)[0].laast).toContain(
+      `(${KR('150 000')} og ${KR('40 000')} etter NS 8407 § 34.1.3 annet ledd)`
+    );
+  });
+
+  it('uten registrert varsel er det første kjente varselet den første kravversjonen med posten (OV-U24)', () => {
+    const s = sakMedKrav();
+    const uten = s.krav('vederlag');
+    s.send('TE', vederlagskrav({ metode: 'tilbud', beloep: 150000, saerskilt: post }));
+    const medPost = s.krav('vederlag');
+    s.send('TE', vederlagskrav({ metode: 'tilbud', beloep: 160000, saerskilt: post }));
+    expect(medPost).not.toBe(uten);
+    expect(varseletForNyttSvar(s.u(), '34.1.3')).toBe(medPost);
+    // Etter § 34.1.2 er det fortsatt det første vederlagskravet (OV-U5).
+    expect(varseletForNyttSvar(s.u(), '34.1.2')).toBe(uten);
+    // MM-U1: det utledede varselet låses ikke; et registrert varsel går foran (OV-U24).
+    const registrert = s.send('TE', registrer('34.1.3'));
+    expect(varseletForNyttSvar(s.u(), '34.1.3')).toBe((registrert.data.utsagn as Data[])[0].id);
+  });
+
+  it('uten krav med posten og uten varsel finnes det ikke noe varsel etter § 34.1.3 (OV-U24)', () => {
+    expect(() => varseletForNyttSvar(sakMedKrav().u(), '34.1.3')).toThrow('§ 34.1.3');
+  });
+
+  it('byggherrens svar på et krav med posten avvises til standpunktet er bygget (økt B av #1047)', () => {
+    const s = sakMedKrav();
+    s.send('TE', vederlagskrav({ metode: 'tilbud', beloep: 150000, saerskilt: post }));
+    expect(
+      s.avvist('BH', {
+        type: 'brev',
+        svar: [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
+      })
+    ).toBe('UGYLDIG_VURDERING');
   });
 });

@@ -63,15 +63,16 @@ export function gjelderVarslingsplikten(
 
 /**
  * VS-U3: påberopelsen etter hjemmelen kan ha virkning for kravet. § 33.4 gjelder
- * alltid i fristen, § 32.2 der varslingsplikten gjelder kategorien, og § 34.1.2
- * for svikt og andre forhold byggherren har risikoen for.
+ * alltid i fristen, § 32.2 der varslingsplikten gjelder kategorien, § 34.1.2
+ * for svikt og andre forhold byggherren har risikoen for, og § 34.1.3 for forhold
+ * etter både § 34.1.1 og § 34.1.2 (#1047, kommentaren 6348199156).
  */
 export function hjemmelenGjelder(
   hjemmel: Hjemmel,
   grunnlagskrav: Krav | null | undefined,
   regler: Regelsett
 ): boolean {
-  if (hjemmel === '33.4' || hjemmel === '33.6.2') return true;
+  if (hjemmel === '33.4' || hjemmel === '33.6.2' || hjemmel === '34.1.3') return true;
   if (hjemmel === '34.1.2')
     return regler.gjelderVarslingspliktenForVederlag(kategori(grunnlagskrav).hovedkategori);
   return gjelderVarslingsplikten(grunnlagskrav, regler);
@@ -493,22 +494,44 @@ export interface Svarvurdering {
 }
 
 /**
- * Det krevde beløpet i vederlagskravet, i øre, slik utregningen, kontrollen av
- * begrunnelsen og brevet leser det (#508). Et beløp som mangler eller ikke er et tall,
- * kaster `Error` og ikke `UgyldigBeloep`: det står i kravet, så det er en feil på
- * serveren og ikke byggherrens ugyldige vurdering (#766).
+ * Et krevd beløp i vederlagskravet, i øre, eller `null` når det ikke står i kravet. Et
+ * beløp som ikke er et tall, kaster `Error` og ikke `UgyldigBeloep`: det står i kravet,
+ * så det er en feil på serveren og ikke byggherrens ugyldige vurdering (#766).
  */
-export function krevdBeloep(krav: Krav): Oere {
-  let krevd: Oere | null;
+function lesKrevd(krav: Krav, verdi: unknown): Oere | null {
   try {
-    krevd = beloep(krav.innhold.beloep as number | undefined);
+    return beloep(verdi as number | undefined);
   } catch (feil) {
     if (!(feil instanceof UgyldigBeloep)) throw feil;
     throw new Error(`Det krevde beløpet i kravet ${krav.id} kan ikke leses: ${feil.message}.`);
   }
+}
+
+/** OV-U23: kravet krever posten etter § 34.1.3 annet ledd (`saerskilt.produktivitet`). */
+export const harProduktivitetspost = (krav: Krav): boolean =>
+  (krav.innhold.saerskilt as { produktivitet?: unknown } | undefined)?.produktivitet !== undefined;
+
+/** OV-U23: kravet har et beløp for justeringen ellers, i tillegg til eller uten posten. */
+export const harHovedbeloep = (krav: Krav): boolean => krav.innhold.beloep !== undefined;
+
+/**
+ * Det krevde hovedbeløpet i vederlagskravet, i øre, slik utregningen, kontrollen av
+ * begrunnelsen og brevet leser det (#508). Mangler det, kaster den `Error`; et krav
+ * med bare posten etter § 34.1.3 leses med `harHovedbeloep` først (OV-U23).
+ */
+export function krevdBeloep(krav: Krav): Oere {
+  const krevd = lesKrevd(krav, krav.innhold.beloep);
   if (krevd === null) throw new Error(`Det krevde beløpet mangler i kravet ${krav.id}.`);
   return krevd;
 }
+
+/** Det krevde beløpet i posten etter § 34.1.3 annet ledd, i øre, eller `null` uten posten. */
+export const krevdProduktivitet = (krav: Krav): Oere | null =>
+  lesKrevd(
+    krav,
+    (krav.innhold.saerskilt as { produktivitet?: { beloep?: unknown } } | undefined)?.produktivitet
+      ?.beloep
+  );
 
 /**
  * Serverens utregning av svaret, med navnene i formatet (`UTREGNING` i
@@ -547,6 +570,11 @@ export function regnUtSvar(
     return {};
   }
   if (spor === 'vederlag') {
+    // Byggherrens standpunkt til posten etter § 34.1.3 bygges i økt B av #1047.
+    if (harProduktivitetspost(krav))
+      throw new UgyldigVurdering({
+        produktivitet_vurdering: 'særskilte krav (§ 34.1.3) er ikke i kjernen ennå',
+      });
     const { hovedkategori, underkategori } = kategori(grunnlagskrav);
     const vkrav: Vederlagskrav = {
       hovedkrav_belop: tilTall(krevdBeloep(krav)),

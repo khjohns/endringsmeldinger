@@ -13,14 +13,19 @@ export const SPOR: readonly Spor[] = ['grunnlag', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
 
-export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2';
+export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3';
 
-/** TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2 (OV-U5). */
-export type Varselhjemmel = '33.4' | '34.1.2';
-export const VARSELSPOR = { '33.4': 'frist', '34.1.2': 'vederlag' } as const satisfies Record<
-  Varselhjemmel,
-  Kravspor
->;
+/**
+ * TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2
+ * (OV-U5), og det særskilte varselet etter § 34.1.3 annet ledd, som etter OV-U25 er det
+ * eneste særskilte varselet.
+ */
+export type Varselhjemmel = '33.4' | '34.1.2' | '34.1.3';
+export const VARSELSPOR = {
+  '33.4': 'frist',
+  '34.1.2': 'vederlag',
+  '34.1.3': 'vederlag',
+} as const satisfies Record<Varselhjemmel, Kravspor>;
 export const erVarselhjemmel = (hjemmel: Hjemmel): hjemmel is Varselhjemmel =>
   hjemmel in VARSELSPOR;
 

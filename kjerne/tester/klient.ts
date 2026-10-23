@@ -198,7 +198,7 @@ const varselIKravet = (
   sendt: string,
   u: Utledning
 ): Extract<Kommando, { type: 'krav' }>['varsel'] =>
-  u.spor.frist.varsel ? { sendt } : { sendt, dokumentasjon: [VARSELBREVET] };
+  u.spor.frist.varsler['33.4'] ? { sendt } : { sendt, dokumentasjon: [VARSELBREVET] };
 
 /** Vedlegget med varselet i et fristkrav; `mellomlager` gir det som alle andre. */
 const VARSELBREVET = '00000000-0000-4000-8000-0000000033a4';
@@ -258,7 +258,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       };
     }
     case 'bestridelse': {
-      const varsel = u.spor.frist.varsel;
+      const varsel = u.spor.frist.varsler['33.4'];
       const gjelder = h.gjelder as string;
       const sendt = u.opplysninger.find(
         (o) => o.opplysning.dokument === varsel?.dokument && o.opplysning.hva === 'sendt'

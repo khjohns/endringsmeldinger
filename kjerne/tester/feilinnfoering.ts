@@ -424,7 +424,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [["        gjelder: varseletForNyttSvar(u, 'frist'),\n", '']],
+    endringer: [["        gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -906,8 +906,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        's.varsel ? [s.varsel] : [], s.krav, () => true',
-        's.varsel ? [s.varsel] : [], s.krav.slice(-1), () => true',
+        'registrert ? [registrert] : [], krav, () => true',
+        'registrert ? [registrert] : [], krav.slice(-1), () => true',
       ],
     ],
     mal: [
@@ -1284,10 +1284,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'varselet fra appen har ikke forutsetningene for et varsel (SK-12, VS-U15)',
     fil: `${K}/kommandoer/avvisning.ts`,
     endringer: [
-      [
-        "      return [{ type: 'sende_varsel', spor: k.spor }];",
-        "      return [{ type: 'krav', spor: 'frist' }];",
-      ],
+      ['          : { type, spor: k.spor },', "          : { type: 'krav', spor: 'frist' },"],
     ],
     mal: ['F-VS-U15a'],
   },
@@ -1502,7 +1499,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [["gjelder: varseletForNyttSvar(u, 'vederlag'),", 'gjelder: krav.id,']],
+    endringer: [["gjelder: varseletForNyttSvar(u, '34.1.2'),", 'gjelder: krav.id,']],
     mal: ['F-MM-V-34-1-2-ny-kravversjon'],
   },
   {
@@ -1693,8 +1690,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== varseletFoerSvaret(varslene, spor[n].krav, (v) => bakover(s.id, v)))',
-        'if (p.gjelder !== varseletFoerSvaret(varslene, spor[n].krav, (v) => bakover(s.id, v)) && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)))',
+        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)) && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -3195,6 +3192,50 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['        ...(k.spor ? { spor: k.spor } : {}),\n', '']],
     mal: ['lagres med beskrivelsen, sporene, datoen og vedlegget'],
+  },
+  {
+    id: 'F371',
+    feilklasse:
+      'det første kjente varselet etter § 34.1.3 er det første vederlagskravet, også uten posten (OV-U24)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav", 'krav']],
+    mal: [
+      'uten registrert varsel er det første kjente varselet den første kravversjonen med posten',
+    ],
+  },
+  {
+    id: 'F372',
+    feilklasse:
+      'sporet har ett registrert varsel, så det særskilte varselet sperrer varselet etter § 34.1.2 (SK-12)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "s.varsler['hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor]]",
+        'Object.keys(s.varsler).length',
+      ],
+    ],
+    mal: ['saken har ett registrert varsel per hjemmel'],
+  },
+  {
+    id: 'F373',
+    feilklasse: 'det særskilte varselet etter § 34.1.3 avvises etter vederlagskravet (OV-U8)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [["if ('hjemmel' in h)\n", "if ('hjemmel' in h && !s.krav.length)\n"]],
+    mal: ['det særskilte varselet kan sendes etter vederlagskravet'],
+  },
+  {
+    id: 'F374',
+    feilklasse: 'vederlagskravet krever hovedbeløpet, også med posten etter § 34.1.3 (OV-U23)',
+    fil: `${K}/format/format.ts`,
+    endringer: [["    required: ['metode'],\n", "    required: ['metode', 'beloep'],\n"]],
+    mal: ['vederlagskravet kan ha bare posten'],
+  },
+  {
+    id: 'F375',
+    feilklasse: 'kravet uten hovedbeløp og uten posten godtas (OV-U23)',
+    fil: `${K}/format/format.ts`,
+    endringer: [["    anyOf: [{ required: ['beloep'] }, { required: ['saerskilt'] }],\n", '']],
+    mal: ['vederlagskravet kan ha bare posten'],
   },
 ];
 
