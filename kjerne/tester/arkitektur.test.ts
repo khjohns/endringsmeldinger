@@ -337,8 +337,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:innsigelsenEtterITide',
       'utledning/utled.ts:foresporselForFristsvar',
       'utledning/utled.ts:fristkravErFremmet',
+      'utledning/utled.ts:forskyvningIBrevet.plass',
     ],
   ],
+  // OV-U32, MM-U11: lagene grunnlaget opptok foran sporet da brevet ble sendt, i meldingen
+  // om en senket revisjon (svaret i #1199).
+  ['utledning/utled.ts', 'predikat', 'forskyvningIBrevet', ['kommandoer/nyttelast.ts']],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
   ['utledning/utled.ts', 'predikat', 'fristkravErFremmet', ['kommandoer/forutsetninger.ts']],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
@@ -393,6 +397,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'predikat',
     'grunnerFraGrunnlaget',
     ['utledning/utled.ts:utledSporene', 'frosset/brevtekst.ts:grunnlagetsStandpunkter'],
+  ],
+  // OV-U32, OV-U33: lagene grunnlaget opptar foran sporet, som linjen etiketteres med.
+  [
+    'frosset/standpunkt.ts',
+    'predikat',
+    'lagFraGrunnlaget',
+    ['kommandoer/skriving.ts:frysSvarene', 'utledning/utled.ts:forskyvningIBrevet'],
   ],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
   ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utledSporene']],
@@ -799,6 +810,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor gjelder grunnlagskrav',
     ['kommandoer/skriving.ts'],
   ],
+  ['kommandoer/skriving.ts:frysSvarene(s)', 'rad', 'spor', ['kommandoer/skriving.ts']],
+  ['kommandoer/skriving.ts:frosneSvar(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
   [

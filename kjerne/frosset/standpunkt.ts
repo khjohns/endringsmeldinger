@@ -308,13 +308,10 @@ function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): bool
   if (avvisesPrinsipalt(v)) return false;
   if (svar.spor === 'grunnlag') return standpunktet(svar, 'grunnlag')?.resultat === 'godkjent';
   // Arbeidsvalget i #479: et tilbud byggherren ikke aksepterer (§ 34.2.2), eller en
-  // påberopelse etter § 33.6.1 med virkning, gir aldri sammenfall. Leses av standpunktene.
+  // påberopelse etter § 33.6.1 i et lag, gir aldri sammenfall. Leses av standpunktene.
   if (standpunktet(svar, 'metode')?.aksepterer === false) return false;
   const spesifisering = standpunktet(svar, 'spesifisering');
-  if (
-    spesifisering &&
-    v.some((p) => p.standpunkt === spesifisering.id && p.virkning !== 'uten_virkning')
-  )
+  if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;
   return svar.utregning.resultat === 'godkjent';
 }
@@ -373,18 +370,22 @@ export const GRUNNLAGSSVARET: Record<Grunnlagsresultat, string> = {
 
 /**
  * Linjen i brevet for svaret: byggherrens standpunkt, med den prinsipale grunnen først
- * (vedtaket 05.10 om avslag sammen med § 32.2). Leddene ordnes som i brevteksten (HF-U2, VS-U3).
+ * (vedtaket 05.10 om avslag sammen med § 32.2). Leddene ordnes og etiketteres som i
+ * brevteksten (HF-U2, VS-U3), med lagene i sporet flyttet ned med `forskyvning`, lagene
+ * svaret på grunnlaget opptar foran sporet (OV-U32, OV-U33, svaret i #1199).
  */
 function beslutningslinje(
   svar: Svarinnhold,
   v: Standpunktsvirkning[],
-  grunnlagskrav: Krav | null | undefined
+  grunnlagskrav: Krav | null | undefined,
+  forskyvning: number
 ): string {
   const spesifisert = standpunktet(svar, 'spesifisering');
   // Fristsvaret kan prekludere etter både § 33.4 og § 33.6.2 tredje ledd (VS-U17). Begge er
   // prinsipale, så de er ett ledd med den prinsipale grunnen (vedtaket 05.10).
+  // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
   const prekluderende = v
-    .filter((p) => p.art === 'rettidighet' && p.virkning !== 'uten_virkning')
+    .filter((p) => p.art === 'rettidighet' && laget(p.virkning))
     .map((p) => p.standpunkt);
   const hjemler = svar.standpunkter
     .filter((s): s is Extract<Standpunkt, { art: 'rettidighet' }> => prekluderende.includes(s.id))
@@ -402,7 +403,7 @@ function beslutningslinje(
   const grunner = v.filter(
     (p) =>
       p.art in grunntekst &&
-      p.virkning !== 'uten_virkning' &&
+      laget(p.virkning) &&
       (p.art !== 'rettidighet' || p.standpunkt === prekluderende[0])
   );
   let standpunkt: string;
@@ -424,9 +425,13 @@ function beslutningslinje(
     ...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })),
     { tekst: standpunkt, virkning: virkning(sist.id) },
   ];
-  if (ledd.length === 1) return `Byggherrens standpunkt: ${standpunkt}.`;
+  if (ledd.length === 1 && !forskyvning) return `Byggherrens standpunkt: ${standpunkt}.`;
   // OV-U32: etiketten følger det fryste laget, og et upåvirket standpunkt står uten etikett.
-  return `Byggherrens standpunkt: ${ledd.map((l) => etikettert(l.virkning, l.tekst)).join(', ')}.`;
+  const etikettert = ({ virkning, tekst }: (typeof ledd)[number]) => {
+    const lag = laget(virkning);
+    return lag === null ? tekst : `${etikett(lag + forskyvning)} ${tekst}`;
+  };
+  return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
 }
 
 /** Laget standpunktet står i, eller `null` når det er upåvirket eller uten virkning (OV-U32). */
@@ -440,25 +445,31 @@ export const laget = (virkning: Virkning): number | null =>
 export const etikett = (lag: number): string =>
   lag === 1 ? 'prinsipalt' : lag === 2 ? 'subsidiært' : 'videre subsidiært';
 
-const etikettert = (virkning: Virkning, tekst: string) => {
-  const lag = laget(virkning);
-  return lag === null ? tekst : `${etikett(lag)} ${tekst}`;
-};
+/**
+ * OV-U32, OV-U33: lagene standpunktene i svaret på grunnlaget opptar foran vederlag og
+ * frist i brevet, ett for preklusjonen etter § 32.2 og ett for avslaget. Et frafall
+ * flytter ikke lagene (GR-U7). Linjen leser det herfra; brevteksten skriver ett ledd for
+ * hver av de samme grunnene (`grunnerFraGrunnlaget`).
+ */
+export const lagFraGrunnlaget = (g: Svarinnhold | undefined, v: Standpunktsvirkning[]): number =>
+  g ? grunnerFraGrunnlaget(g, v).length : 0;
 
 /**
  * Brevet frosset når det sendes (MM-U9, MM-U11). For grunnlaget fryses også om
- * § 32.2 gjaldt kategorien i kravversjonen (GR-U12).
+ * § 32.2 gjaldt kategorien i kravversjonen (GR-U12). `forskyvning` er `lagFraGrunnlaget`
+ * for svaret på grunnlaget brevteksten setter foran sporet, og 0 for grunnlaget selv.
  */
 export function beslutningsgrunnlag(
   svar: Svarinnhold,
   grunnlagskrav: Krav | null | undefined,
-  regler: Regelsett
+  regler: Regelsett,
+  forskyvning: number
 ): Beslutningsgrunnlag {
   const v = virkninger(svar, grunnlagskrav, regler);
   return {
     regelversjon: regler.versjon,
     virkninger: v,
-    linje: beslutningslinje(svar, v, grunnlagskrav),
+    linje: beslutningslinje(svar, v, grunnlagskrav, forskyvning),
     sammenfall: godkjennerHeleKravet(svar, v),
     ...(svar.spor === 'grunnlag'
       ? { varslingsplikt: gjelderVarslingsplikten(grunnlagskrav, regler) }
@@ -466,10 +477,18 @@ export function beslutningsgrunnlag(
   };
 }
 
-/** Virkningen hvert standpunkt har, utenom standpunkter uten virkning. Et standpunkt som mangler, er uten virkning. */
-function medVirkning(v: Standpunktsvirkning[]): Map<string, Standpunktsvirkning['virkning']> {
+/**
+ * Virkningen hvert standpunkt har, utenom standpunkter uten virkning. Et standpunkt som
+ * mangler, er uten virkning. Et upåvirket standpunkt har samme virkning som et i første lag:
+ * ingen innsigelse i sporet rammer det (OV-U32, OV-U33).
+ */
+function medVirkning(v: Standpunktsvirkning[]): Map<string, number> {
   return new Map(
-    v.filter((p) => p.virkning !== 'uten_virkning').map((p) => [p.standpunkt, p.virkning])
+    v.flatMap((p) =>
+      p.virkning === 'uten_virkning'
+        ? []
+        : [[p.standpunkt, p.virkning === 'upaavirket' ? 1 : p.virkning] as const]
+    )
   );
 }
 

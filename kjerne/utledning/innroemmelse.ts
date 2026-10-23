@@ -23,21 +23,24 @@ const RANG: Record<Grunnlagsresultat, number> = { avslaatt: 0, paalegg_frafalt: 
  * avvises (#627, #814).
  * Rettidigheten sammenliknes ikke her: et «i tide» sperres av `SAGT_I_TIDE` (HF-U4).
  * Byggherrens ønskede metode sammenliknes ikke (MM-U12).
+ * `forskyvning` er lagene svaret på grunnlaget opptok foran sporet da brevet ble sendt
+ * (`forskyvningIBrevet`), så etiketten er den brevet ga (OV-U32, MM-U11, svaret i #1199).
  */
 export function senketInnroemmelse(
   forrige: Pick<Svar, 'standpunkter' | 'beslutningsgrunnlag'>,
-  nye: Standpunkt[]
+  nye: Standpunkt[],
+  forskyvning: number
 ): string | null {
   /** Standpunktet i revisjonen med samme art og plass som `f` i svaret. */
   const ny = <A extends Standpunkt['art']>(f: Extract<Standpunkt, { art: A }>) =>
     nye.filter((p): p is Extract<Standpunkt, { art: A }> => p.art === f.art)[
       forrige.standpunkter.filter((p) => p.art === f.art).indexOf(f)
     ];
-  // OV-U32: et standpunkt etter det første laget, med etiketten brevet ga det.
+  // OV-U32: et standpunkt etter det første laget i brevet, med etiketten brevet ga det.
   const subsidiaert = (id: string) => {
     const v = forrige.beslutningsgrunnlag.virkninger.find((p) => p.standpunkt === id)?.virkning;
     const lag = v === undefined ? null : laget(v);
-    return lag !== null && lag > 1 ? `${etikett(lag)} ` : '';
+    return lag !== null && lag + forskyvning > 1 ? `${etikett(lag + forskyvning)} ` : '';
   };
   for (const f of forrige.standpunkter) {
     // Grunnlaget, beløpet og dagene står i hvert lest svar (`standpunkterISvaret`).

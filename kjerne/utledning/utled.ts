@@ -26,6 +26,7 @@ import {
   enighetsgrunnlag,
   grunnerFraGrunnlaget,
   grunnlagetErAvklart,
+  lagFraGrunnlaget,
   innsigelsenPaaberoper,
   foresporselsrelasjon,
   harProduktivitetspost,
@@ -527,6 +528,28 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
 }
 
 /**
+ * Lagene svaret på grunnlaget opptok foran sporet da brevet med `svar` ble sendt, som
+ * frysingen regnet dem: svaret på grunnlaget i samme dokument, ellers svaret på
+ * grunnlagsversjonen `svar` ble regnet mot som gjaldt før dokumentet (OV-U32, MM-U11,
+ * svaret i #1199). Et grunnlagssvar revidert etter brevet endrer ikke det brevet sa.
+ * 0 for grunnlaget selv.
+ */
+export function forskyvningIBrevet(svar: Svar, u: Utledning): number {
+  if (svar.spor === 'grunnlag') return 0;
+  const plass = (id: string) => u.journal.findIndex((h) => h.id === u.elementer[id].hendelse);
+  const grunnlag = u.spor.grunnlag.svar;
+  const kilde =
+    grunnlag.find((g) => g.dokument === svar.dokument) ??
+    (svar.grunnlagskrav === null
+      ? undefined
+      : ikkeErstattet(
+          grunnlag.filter((g) => plass(g.id) < plass(svar.id)),
+          svar.grunnlagskrav
+        )[0]);
+  return kilde ? lagFraGrunnlaget(kilde, kilde.beslutningsgrunnlag.virkninger) : 0;
+}
+
+/**
  * MM-U27: elementene i en hendelse som ikke er et registrert brev, og som byggherren ikke
  * kunne sendt fra appen fordi hen er bundet av et svar sendt fra appen: en påberopelse av
  * at et varsel eller krav kom for sent etter at hen har sagt at det kom i tide (HF-U4),
@@ -544,7 +567,7 @@ function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
     else if (
       s.erstatter !== null &&
       forrige?.id === s.erstatter &&
-      senketInnroemmelse(forrige, s.standpunkter)
+      senketInnroemmelse(forrige, s.standpunkter, forskyvningIBrevet(forrige, u))
     )
       ut.push({
         element: s.id,
@@ -1319,7 +1342,9 @@ export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
 /**
  * MM-U9, MM-U28: standpunktet i sporets gjeldende svar er subsidiært, fordi svaret på
  * grunnlaget avviser ansvaret (`subsidiaer`), eller fordi brevet selv ga standpunktet
- * et lag etter det første (OV-U32). Virkningen leses slik brevet sa den.
+ * et lag etter det første (OV-U32). Virkningen leses slik brevet sa den. Er grunnlaget
+ * avvist, er også et standpunkt ingen påberopelse i sporet rammer, betinget av ansvaret
+ * (OV-U33).
  */
 export function standpunktetErSubsidiaert(
   u: Utledning,

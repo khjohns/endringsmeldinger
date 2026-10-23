@@ -16,16 +16,22 @@ type Data = Record<string, unknown>;
 /**
  * Brevet frosset i et svar i formen det lagres i (MM-U9, MM-U11, GR-U12).
  * `grunnlagskrav` er kravet et grunnlagssvar gjelder, ellers gjeldende
- * grunnlagskrav. Kaster `Uforstaatt` når standpunktene ikke kan leses.
+ * grunnlagskrav. `forskyvning` er lagene svaret på grunnlaget opptar foran sporet
+ * (`lagFraGrunnlaget`). Kaster `Uforstaatt` når standpunktene ikke kan leses.
  */
-export function frys(svar: Data, grunnlagskrav: Krav | null | undefined, regler: Regelsett) {
+export function frys(
+  svar: Data,
+  grunnlagskrav: Krav | null | undefined,
+  regler: Regelsett,
+  forskyvning: number
+) {
   const spor = svar.spor as Spor;
   const innhold = {
     spor,
     standpunkter: standpunkterISvaret(spor, svar),
     utregning: (svar.utregning ?? {}) as Data,
   };
-  return beslutningsgrunnlag(innhold, grunnlagskrav, regler);
+  return beslutningsgrunnlag(innhold, grunnlagskrav, regler, forskyvning);
 }
 
 /** Standpunktene i et svar på grunnlaget (§ 32.2 og § 32.3). */
@@ -70,7 +76,7 @@ export function svaretBlirEndringsordre(
     standpunkter: grunnlagsstandpunkter(vurderinger, krav, () => `standpunkt-${++n}`),
   };
   try {
-    return blirEndringsordre(frys(svar, krav, regler));
+    return blirEndringsordre(frys(svar, krav, regler, 0));
   } catch (feil) {
     if (feil instanceof Uforstaatt) return false;
     throw feil;

@@ -27,6 +27,7 @@ import {
 import {
   frafalletBinder,
   foresporselForFristsvar,
+  forskyvningIBrevet,
   innsigelsenEtterITide,
   paaberoptEtterITide,
   type Utledning,
@@ -113,7 +114,7 @@ function kontrollerSvar(
       'BEGRUNNELSE_MANGLER',
       `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
     );
-  return forrige && binding(forrige, nye);
+  return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));
 }
 
 /**
@@ -124,8 +125,8 @@ function kontrollerSvar(
  * så revisjonen av det er avvist før dette (GR-U10, KA-U7). `nye` er standpunktene i
  * revisjonen slik brevet ville lagret dem, med serverens utregning.
  */
-function binding(forrige: Svar, nye: Standpunkt[]): Avvisning | null {
-  const senket = senketInnroemmelse(forrige, nye);
+function binding(forrige: Svar, nye: Standpunkt[], forskyvning: number): Avvisning | null {
+  const senket = senketInnroemmelse(forrige, nye, forskyvning);
   return senket
     ? avvis(
         'SENKER_INNROEMMELSE',
