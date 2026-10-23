@@ -579,14 +579,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel'],
-  // OV-U30: lagene virkningen fryses i, og om en fryst virkning er et lag.
+  // OV-U32: laget en fryst virkning står i.
   [
-    'typer.ts',
+    'frosset/standpunkt.ts',
     'frosset',
-    'LAGENE',
-    ['format/format.ts', 'frosset/standpunkt.ts', 'frosset/brevtekst.ts'],
+    'laget',
+    ['frosset/brevtekst.ts', 'utledning/innroemmelse.ts'],
   ],
-  ['frosset/standpunkt.ts', 'frosset', 'erLag', ['frosset/brevtekst.ts']],
   ['VARSELSPOR', 'relasjon', '33.4 34.1.2 34.1.3'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
@@ -772,10 +771,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',
     'rad',
-    'regelversjon virkninger uten_virkning linje sammenfall varslingsplikt',
+    'regelversjon virkninger upaavirket uten_virkning linje sammenfall varslingsplikt',
     ['format/leser.ts'],
   ],
-  ['format/leser.ts:lesBeslutningsgrunnlag(p)', 'rad', 'standpunkt virkning', ['format/leser.ts']],
+  ['format/leser.ts:lesBeslutningsgrunnlag(p)', 'rad', 'standpunkt lag', ['format/leser.ts']],
   ['format/leser.ts:erRegistrert', 'rad', 'hva gjelder', ['format/leser.ts']],
   ['format/leser.ts:datoFor', 'relasjon', 'id dokument', ['format/leser.ts']],
   // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
@@ -879,8 +878,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #628: meldingen om en senket revisjon sier grunnlagssvaret med ordene i brevet.
   ['frosset/standpunkt.ts', 'brevtekst', 'GRUNNLAGSSVARET', ['utledning/innroemmelse.ts']],
-  // OV-U30: laget med ordet brevet bruker, også i meldingen om en senket revisjon.
-  ['frosset/standpunkt.ts', 'brevtekst', 'LAGET', ['utledning/innroemmelse.ts']],
+  // OV-U32: etiketten brevet bruker for laget, også i meldingen om en senket revisjon.
+  [
+    'frosset/standpunkt.ts',
+    'brevtekst',
+    'etikett',
+    ['frosset/brevtekst.ts', 'utledning/innroemmelse.ts'],
+  ],
   [
     'frosset/standpunkt.ts:beslutningslinje',
     'brevtekst',

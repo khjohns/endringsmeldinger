@@ -35,7 +35,6 @@ import type {
   Utfall,
   Virkning,
 } from '../typer.ts';
-import { LAGENE, type Lag } from '../typer.ts';
 
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
 export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;
@@ -82,9 +81,9 @@ export function hjemmelenGjelder(
 
 /**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
- * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. Hver grunn med virkning
- * åpner et nytt lag for standpunktene etter den, og påberopelsene av rettidighet står i
- * samme lag (OV-U30, vedtaket 05.10).
+ * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. Laget er et nummer fra 1.
+ * Hver grunn med virkning åpner et nytt lag for standpunktene etter den, og påberopelsene
+ * av rettidighet står i det første (OV-U32, vedtaket 05.10).
  */
 export function virkninger(
   svar: Svarinnhold,
@@ -92,13 +91,13 @@ export function virkninger(
   regler: Regelsett
 ): Standpunktsvirkning[] {
   const ut: Standpunktsvirkning[] = [];
-  let lag = 0;
-  const iLaget = () => LAGENE[lag];
+  let lag = 1;
+  const iLaget = () => lag;
   for (const s of svar.standpunkter) {
     if (s.art === 'rettidighet') {
       const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, grunnlagskrav, regler);
-      if (virker) lag = 1;
-      ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 'prinsipalt' : 'uten_virkning' });
+      if (virker) lag = 2;
+      ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 1 : 'uten_virkning' });
     } else if (s.art === 'metode' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {
@@ -241,7 +240,7 @@ export function foresporselsrelasjon(
   return begrunnelse ? { art: 'begrunnelse', gjelder: begrunnelse } : null;
 }
 
-export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 'prinsipalt');
+export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 1);
 /** Et standpunkt som avviser kravet uavhengig av beløpet eller dagene. */
 const AVVISENDE = new Set(['rettidighet', 'hindring']);
 const avvisesPrinsipalt = (v: Standpunktsvirkning[]) => AVVISENDE.has(prinsipalt(v)?.art ?? '');
@@ -283,10 +282,7 @@ export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[])
  * Rettidigheten i grunnlaget er alltid etter § 32.2 (`HJEMMEL`).
  */
 function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  return (
-    svar.spor === 'grunnlag' &&
-    v.some((p) => p.art === 'rettidighet' && p.virkning === 'prinsipalt')
-  );
+  return svar.spor === 'grunnlag' && v.some((p) => p.art === 'rettidighet' && p.virkning === 1);
 }
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
@@ -429,22 +425,25 @@ function beslutningslinje(
     { tekst: standpunkt, virkning: virkning(sist.id) },
   ];
   if (ledd.length === 1) return `Byggherrens standpunkt: ${standpunkt}.`;
-  // OV-U30: etiketten følger det fryste laget, og et upåvirket standpunkt står uten etikett.
+  // OV-U32: etiketten følger det fryste laget, og et upåvirket standpunkt står uten etikett.
   return `Byggherrens standpunkt: ${ledd.map((l) => etikettert(l.virkning, l.tekst)).join(', ')}.`;
 }
 
-/** Laget med ordet brevet bruker for det (LV-U4 punkt 4, OV-U30). */
-export const LAGET: Record<Lag, string> = {
-  prinsipalt: 'prinsipalt',
-  subsidiaert: 'subsidiært',
-  videre_subsidiaert: 'videre subsidiært',
+/** Laget standpunktet står i, eller `null` når det er upåvirket eller uten virkning (OV-U32). */
+export const laget = (virkning: Virkning): number | null =>
+  typeof virkning === 'number' ? virkning : null;
+
+/**
+ * Etiketten for laget, med ordene i LV-U4 punkt 4: «videre subsidiært» for hvert lag fra det
+ * tredje. Lik etikett betyr ikke samme lag (OV-U32).
+ */
+export const etikett = (lag: number): string =>
+  lag === 1 ? 'prinsipalt' : lag === 2 ? 'subsidiært' : 'videre subsidiært';
+
+const etikettert = (virkning: Virkning, tekst: string) => {
+  const lag = laget(virkning);
+  return lag === null ? tekst : `${etikett(lag)} ${tekst}`;
 };
-
-export const erLag = (virkning: Virkning): virkning is Lag =>
-  (LAGENE as readonly string[]).includes(virkning);
-
-const etikettert = (virkning: Virkning, tekst: string) =>
-  erLag(virkning) ? `${LAGET[virkning]} ${tekst}` : tekst;
 
 /**
  * Brevet frosset når det sendes (MM-U9, MM-U11). For grunnlaget fryses også om

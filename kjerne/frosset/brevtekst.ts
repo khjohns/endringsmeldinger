@@ -23,7 +23,8 @@ import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
   blirEndringsordre,
   dager,
-  erLag,
+  etikett,
+  laget,
   gjelderVarslingsplikten,
   grunnerFraGrunnlaget,
   innsigelsenErOppgitt,
@@ -34,7 +35,6 @@ import {
   kroner,
   svarPaaForesporsler,
 } from './standpunkt.ts';
-import { LAGENE } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -498,26 +498,28 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
   const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);
+  // OV-U32: et avslått eller prekludert grunnlag står først, med lagene fra svaret på
+  // grunnlaget, og lagene i sporet flyttes ned etter dem (B-13, A2). Et standpunkt uten lag,
+  // og metoden, som står ved siden av beløpet (arbeidsvalget i #479), får ingen etikett.
+  // Standpunktene i samme lag står under én etikett.
   const grunnlaget = grunnlagetsStandpunkter(s, t);
-  // OV-U30: brevet ordner etter det fryste laget, etter leddene fra svaret på grunnlaget (A2).
-  // Et standpunkt uten lag, og metoden, som står ved siden av beløpet (arbeidsvalget i #479),
-  // får ingen etikett.
+  const forskyvning = grunnlaget.length;
   const ledd = [
-    ...grunnlaget.map((tekst, plass) => ({ tekst, plass })),
+    ...grunnlaget.map((tekst, i) => ({ tekst, plass: (i + 1) as number | null })),
     ...s.standpunkter.map((p) => {
-      const v = virkning.get(p.id)!;
+      const lag = laget(virkning.get(p.id)!);
       return {
         tekst: standpunkttekst(p, s, krav, j, innsigelser),
-        plass: erLag(v) && p.art !== 'metode' ? grunnlaget.length + LAGENE.indexOf(v) : null,
+        plass: lag !== null && p.art !== 'metode' ? lag + forskyvning : null,
       };
     }),
   ];
-  const ordnet = ledd.some(({ plass }) => plass !== null && plass > 0);
+  const ordnet = ledd.some(({ plass }) => plass !== null && plass > 1);
   const merket = new Set<number>();
   const setninger = ledd.map(({ tekst, plass }) => {
     if (!ordnet || plass === null || merket.has(plass)) return stor(tekst);
     merket.add(plass);
-    return `${plass === 0 ? 'Prinsipalt' : plass === 1 ? 'Subsidiært' : 'Videre subsidiært'}: ${tekst}`;
+    return `${stor(etikett(plass))}: ${tekst}`;
   });
   return [
     `Byggherrens svar på ${SVARET_GJELDER[s.spor]} i TEs krav i ${j.brevet(krav.dokument)}:`,

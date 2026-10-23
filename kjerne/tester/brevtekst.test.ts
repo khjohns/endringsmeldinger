@@ -1025,9 +1025,10 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  // OV-U30: appen fryser laget hvert standpunkt står i, og brevet setter én etikett per lag
-  // etter den fryste verdien. Brevet og beslutningsgrunnlaget sier det samme (#1047, B4-1b).
-  it('§ 33.4 for sent, ingen hindring og dagene står prinsipalt, subsidiært og videre subsidiært, i brevet og i beslutningsgrunnlaget (OV-U30)', () => {
+  // OV-U32: appen fryser laget hvert standpunkt står i som et nummer, og brevet setter én
+  // etikett per lag etter den fryste verdien. Brevet og beslutningsgrunnlaget sier det samme
+  // (#1047, B4-1b).
+  it('§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3, i brevet og i beslutningsgrunnlaget (OV-U32)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
       type: 'brev',
@@ -1041,11 +1042,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
-    expect((b.virkninger as Data[]).map((v) => v.virkning)).toEqual([
-      'prinsipalt',
-      'subsidiaert',
-      'videre_subsidiaert',
-    ]);
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3]);
     expect(b.uten_virkning).toHaveLength(1);
     expect(b.linje).toBe(
       'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4), subsidiært avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), videre subsidiært godkjent med 10 dager.'
@@ -1067,7 +1064,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(standpunktetErSubsidiaert(s.u(), 'frist', dagene.id), 'MM-U28').toBe(true);
   });
 
-  it('kontrollsak: med fremdriftshindring står dagene subsidiært, ikke videre subsidiært (OV-U30)', () => {
+  it('kontrollsak: med fremdriftshindring står dagene i lag 2, ikke 3 (OV-U32)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
       type: 'brev',
@@ -1081,7 +1078,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
-    expect((b.virkninger as Data[]).map((v) => v.virkning)).toEqual(['prinsipalt', 'subsidiaert']);
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2]);
     expect(laast(rad)[0]).toMatch(
       / Subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager\.$/
     );

@@ -773,14 +773,14 @@ describe('registrert korrespondanse fryses med kategorien', () => {
     { id: randomUUID(), art: 'rettidighet', gjelder: 'K', hjemmel: '32.2', i_tide: false },
     { id: randomUUID(), art: 'grunnlag', resultat: 'godkjent' },
   ];
-  const art = (b: Data) => (b.virkninger as Data[]).map((p) => p.virkning);
+  const art = (b: Data) => (b.virkninger as Data[]).map((p) => p.lag);
 
   it.each([
     ['med en ukjent rad før svaret', true],
     ['kontrollsak: uten den ukjente raden', false],
   ])('%s', async (_hva, ukjent) => {
     const b = await registrert('krav_irreg', preklusjon, ukjent);
-    expect(art(b)).toEqual(['prinsipalt', 'subsidiaert']);
+    expect(art(b)).toEqual([1, 2]);
     expect(b.sammenfall).toBe(false);
     expect(b.varslingsplikt).toBe(true);
   });
@@ -823,9 +823,9 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
     expect(s.svar.utregning.resultat).toBe('avslaatt');
     expect(s.virkninger.map((p) => [p.art, p.virkning])).toEqual([
       ['rettidighet', 'uten_virkning'],
-      ['hindring', 'prinsipalt'],
+      ['hindring', 1],
       ['spesifisering', 'uten_virkning'],
-      ['dager', 'subsidiaert'],
+      ['dager', 2],
     ]);
     expect(s.svar.beslutningsgrunnlag?.linje).toBe(
       'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
@@ -1124,7 +1124,7 @@ describe('et svar står når TE registrerer et varsel etter det (OV-U5, KA-20)',
     ]);
     const u = await k.utledning();
     const svar = u.svar[u.spor.frist.gjeldendeSvar!.id];
-    if (svar.virkninger.find((p) => p.art === 'rettidighet')?.virkning !== 'prinsipalt')
+    if (svar.virkninger.find((p) => p.art === 'rettidighet')?.virkning !== 1)
       throw new Error('Forutsetning: brevet påberoper preklusjon');
     return { k, u };
   }
@@ -1237,18 +1237,13 @@ describe('visningen sammenlikner bare standpunkter med virkning (MM-U9)', () => 
   });
 
   it('et standpunkt uten virkning som mangler på den ene siden, er ikke et avvik', () => {
-    expect(
-      ulikeVirkninger([p('a', 'uten_virkning'), p('b', 'prinsipalt')], [p('b', 'prinsipalt')])
-    ).toBe(false);
+    expect(ulikeVirkninger([p('a', 'uten_virkning'), p('b', 1)], [p('b', 1)])).toBe(false);
   });
 
   it('kontrollsak: en annen virkning er et avvik', () => {
-    expect(
-      ulikeVirkninger(
-        [p('a', 'prinsipalt'), p('b', 'subsidiaert')],
-        [p('a', 'uten_virkning'), p('b', 'prinsipalt')]
-      )
-    ).toBe(true);
+    expect(ulikeVirkninger([p('a', 1), p('b', 2)], [p('a', 'uten_virkning'), p('b', 1)])).toBe(
+      true
+    );
   });
 });
 
@@ -1289,10 +1284,7 @@ describe('§ 34.1.2 leses av regelsettet i standpunktet og i utregningen (#490)'
       ],
       utregning,
     };
-    expect(virkninger(svar, grunnlagskrav, regler).map((v) => v.virkning)).toEqual([
-      'prinsipalt',
-      'subsidiaert',
-    ]);
+    expect(virkninger(svar, grunnlagskrav, regler).map((v) => v.virkning)).toEqual([1, 2]);
   });
 
   it('kontrollsak: med gjeldende regler gjelder § 34.1.2 ikke en endring, og vurderingen avvises', () => {
@@ -1808,9 +1800,9 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   });
 });
 
-// OV-U30: videre subsidiært og upåvirket er virkninger i formatet og hos leserne. Upåvirket
-// er en virkning, ikke `uten_virkning` (HF-U2). Utregningen av upåvirket er B2 i #1047.
-describe('lagene og upåvirket hos leserne (OV-U30)', () => {
+// OV-U32: laget er et nummer fra 1 uten øvre grense, og upåvirket er en egen virkning, ikke
+// `uten_virkning` (HF-U2). Utregningen av upåvirket er B2 i #1047.
+describe('laget og upåvirket hos leserne (OV-U32)', () => {
   const v = (standpunkt: string, virkning: Standpunktsvirkning['virkning']) =>
     ({ standpunkt, art: 'dager', virkning }) as Standpunktsvirkning;
   const svar = (virkning: Standpunktsvirkning['virkning']) =>
@@ -1822,34 +1814,49 @@ describe('lagene og upåvirket hos leserne (OV-U30)', () => {
     { id: 'n', art: 'dager', resultat: 'delvis_godkjent', vurdert: 5 },
   ] as Parameters<typeof senketInnroemmelse>[1];
 
-  it('meldingen om en senket revisjon sier laget dagene sto i', () => {
-    expect(senketInnroemmelse(svar('videre_subsidiaert'), revisjon)).toBe(
-      'Svaret godkjenner videre subsidiært 10 dager, og revisjonen senker dagene til 5 dager'
+  it('meldingen om en senket revisjon sier etiketten for laget dagene sto i, også fra fjerde lag', () => {
+    expect(senketInnroemmelse(svar(2), revisjon)).toBe(
+      'Svaret godkjenner subsidiært 10 dager, og revisjonen senker dagene til 5 dager'
     );
-    expect(senketInnroemmelse(svar('subsidiaert'), revisjon)).toMatch(/godkjenner subsidiært 10/);
+    expect(senketInnroemmelse(svar(3), revisjon)).toMatch(/godkjenner videre subsidiært 10/);
+    expect(senketInnroemmelse(svar(4), revisjon)).toMatch(/godkjenner videre subsidiært 10/);
   });
 
-  it('kontrollsak: et upåvirket eller prinsipalt standpunkt får ikke noe lag i meldingen', () => {
+  it('kontrollsak: et upåvirket standpunkt eller et i første lag får ingen etikett i meldingen', () => {
     expect(senketInnroemmelse(svar('upaavirket'), revisjon)).toMatch(/^Svaret godkjenner 10 dager/);
-    expect(senketInnroemmelse(svar('prinsipalt'), revisjon)).toMatch(/^Svaret godkjenner 10 dager/);
+    expect(senketInnroemmelse(svar(1), revisjon)).toMatch(/^Svaret godkjenner 10 dager/);
   });
 
-  it('upåvirket er en annen virkning enn prinsipalt og enn uten virkning', () => {
-    expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 'prinsipalt')])).toBe(true);
+  it('upåvirket er en annen virkning enn første lag og enn uten virkning, og lag 3 er ikke lag 4', () => {
+    expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 1)])).toBe(true);
     expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 'uten_virkning')])).toBe(true);
+    expect(ulikeVirkninger([v('d', 3)], [v('d', 4)])).toBe(true);
     expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 'upaavirket')])).toBe(false);
   });
 
-  it('formatet tar videre subsidiært og upåvirket i virkningene, og ingen andre verdier', () => {
-    const grunnlag = (virkning: string) => ({
+  it('formatet lagrer laget som et heltall fra 1, og upåvirket for seg', () => {
+    const grunnlag = (ekstra: Data) => ({
       regelversjon: 1,
-      virkninger: [{ standpunkt: 'd', virkning }],
+      virkninger: [],
       linje: 'Byggherrens standpunkt: godkjent med 10 dager.',
       sammenfall: false,
+      ...ekstra,
     });
-    for (const virkning of ['prinsipalt', 'subsidiaert', 'videre_subsidiaert', 'upaavirket'])
-      expect(feilI(grunnlag(virkning), BESLUTNINGSGRUNNLAG), virkning).toEqual([]);
-    for (const virkning of ['uten_virkning', 'atter_subsidiaert'])
-      expect(feilI(grunnlag(virkning), BESLUTNINGSGRUNNLAG), virkning).not.toEqual([]);
+    for (const lag of [1, 2, 5])
+      expect(
+        feilI(grunnlag({ virkninger: [{ standpunkt: 'd', lag }] }), BESLUTNINGSGRUNNLAG),
+        `${lag}`
+      ).toEqual([]);
+    expect(
+      feilI(
+        grunnlag({ virkninger: [{ standpunkt: 'r', lag: 1 }], upaavirket: ['d'] }),
+        BESLUTNINGSGRUNNLAG
+      )
+    ).toEqual([]);
+    for (const lag of [0, 1.5, 'prinsipalt'])
+      expect(
+        feilI(grunnlag({ virkninger: [{ standpunkt: 'd', lag }] }), BESLUTNINGSGRUNNLAG),
+        `${lag}`
+      ).not.toEqual([]);
   });
 });

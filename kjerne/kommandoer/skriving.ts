@@ -75,17 +75,21 @@ export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
 
 /**
  * Beslutningsgrunnlaget i formatet. Virkningene viser til standpunktet, og arten
- * leses derfra. Standpunktene uten virkning står for seg, fordi det er appens
+ * leses derfra. Laget lagres som et nummer fra 1, og upåvirket står uttrykkelig for
+ * seg (OV-U32). Standpunktene uten virkning står for seg, fordi det er appens
  * vurdering og ikke noe byggherren har sagt (HF-U2).
  */
 function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
-  const uten = virkninger.filter((v) => v.virkning === 'uten_virkning');
+  const med = (virkning: 'upaavirket' | 'uten_virkning') =>
+    virkninger.filter((v) => v.virkning === virkning).map((v) => v.standpunkt);
+  const [upaavirket, uten] = [med('upaavirket'), med('uten_virkning')];
   return {
     ...resten,
-    virkninger: virkninger
-      .filter((v) => v.virkning !== 'uten_virkning')
-      .map(({ standpunkt, virkning }) => ({ standpunkt, virkning })),
-    ...(uten.length ? { uten_virkning: uten.map((v) => v.standpunkt) } : {}),
+    virkninger: virkninger.flatMap(({ standpunkt, virkning }) =>
+      typeof virkning === 'number' ? [{ standpunkt, lag: virkning }] : []
+    ),
+    ...(upaavirket.length ? { upaavirket } : {}),
+    ...(uten.length ? { uten_virkning: uten } : {}),
   };
 }
 

@@ -312,7 +312,7 @@ describe('et registrert svar leses ikke med en innsigelse (VS-U24, OV-U4)', () =
     const { k, journal } = await medInnsigelse();
     const med = endre(journal, k, 'S-g1', (e) => {
       const b = e.beslutningsgrunnlag as { virkninger: Data[] };
-      b.virkninger.unshift({ standpunkt: id(k), virkning: 'prinsipalt' });
+      b.virkninger.unshift({ standpunkt: id(k), lag: 1 });
     });
     expect(forstaatt(med)).toBe(false);
   });

@@ -279,15 +279,16 @@ grunnlag = "KA-U34, KA-U35, KA-U18, KA-U24, MM-U12"
 navn = "beslutningsgrunnlag"
 beskrivelse = """
 Appens vurdering da brevet ble sendt, atskilt fra det byggherren sa, og ikke
-en rettslig avgjørelse (MM-U9): regelversjonen, hvordan brevet ordner
-standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene
-uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet
-(`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og
-underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller
+en rettslig avgjørelse (MM-U9): regelversjonen, laget hvert standpunkt står i
+(`virkninger` med `lag`, et heltall fra 1, OV-U32), standpunktene ingen av
+byggherrens innsigelser rammer (`upaavirket`), standpunktene uten virkning
+(`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet (`sammenfall`)
+og, i grunnlaget, om § 32.2 gjaldt etter reglene og underkategorien da
+(`varslingsplikt`). Hvert standpunkt står i `virkninger`, `upaavirket` eller
 `uten_virkning`. Et registrert brev er dokumentasjon, og appen fryser ingen
 vurdering av det (OV-U4). Utfallet og vilkåret utledes og lagres ikke."""
-felt = ["regelversjon", "virkninger", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
-grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10, OV-U4"
+felt = ["regelversjon", "virkninger", "upaavirket", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
+grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10, OV-U4, OV-U32"
 
 [[del]]
 navn = "brevtekst"

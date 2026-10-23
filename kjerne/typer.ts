@@ -268,17 +268,13 @@ export type Domenehendelse =
   | { art: 'ukjent'; id: string; versjon: number; type: string; grunn: string };
 
 /**
- * Virkningen et standpunkt har i brevet: laget det står i (prinsipalt, subsidiært
- * eller videre subsidiært), eller upåvirket når ingen av de aktuelle påberopelsene
- * rammer det (OV-U30). Uten virkning er appens vurdering og ikke noe byggherren har
+ * Virkningen et standpunkt har i brevet: laget det står i, fra 1 og uten øvre grense,
+ * eller upåvirket når ingen av byggherrens innsigelser rammer det (OV-U32). Lagene
+ * regnes uten grunnlaget. Uten virkning er appens vurdering og ikke noe byggherren har
  * sagt (HF-U2). At svaret gjaldt et annet varsel enn det TE senere har registrert,
  * er ikke en virkning, men en relasjon som visningen leser (OV-U5).
  */
-export type Virkning = Lag | 'upaavirket' | 'uten_virkning';
-
-/** OV-U30: lagene brevet ordner standpunktene i, med én etikett per lag. */
-export const LAGENE = ['prinsipalt', 'subsidiaert', 'videre_subsidiaert'] as const;
-export type Lag = (typeof LAGENE)[number];
+export type Virkning = number | 'upaavirket' | 'uten_virkning';
 
 /** Virkningen ett standpunkt i et svar har etter regelsettet brevet ble regnet med. */
 export interface Standpunktsvirkning {
