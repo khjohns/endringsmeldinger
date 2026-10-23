@@ -499,9 +499,11 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
   const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);
   // OV-U32: et avslått eller prekludert grunnlag står først, med lagene fra svaret på
-  // grunnlaget, og lagene i sporet flyttes ned etter dem (B-13, A2). Et standpunkt uten lag,
-  // og metoden, som står ved siden av beløpet (arbeidsvalget i #479), får ingen etikett.
-  // Standpunktene i samme lag står under én etikett.
+  // grunnlaget, og lagene i sporet flyttes ned med antallet lag de opptar (B-13, A2). Hvert
+  // ledd fra grunnlaget er ett lag der: preklusjonen etter § 32.2 er det første, og avslaget
+  // står i laget etter. Et standpunkt uten lag, også et upåvirket, og metoden, som står ved
+  // siden av beløpet (arbeidsvalget i #479), får ingen etikett. Standpunktene i samme lag
+  // står under én etikett.
   const grunnlaget = grunnlagetsStandpunkter(s, t);
   const forskyvning = grunnlaget.length;
   const ledd = [
