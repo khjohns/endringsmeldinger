@@ -68,7 +68,8 @@ Er du i tvil, la det stå og noter det.
 - Små, avgrensede endringer. Blir det ombygging, noter det til `design-review`.
 - Følg stilen i fila: Tailwind-klasser der fila bruker dem, klasser og tokens i
   `theme.css` ellers.
-- Kjør `npm run lint` og `npx svelte-check` etterpå.
+- Kjør `npm run lint` og `npx svelte-check` etterpå, og «Sjekk igjen» i
+  [`uu-sjekk`](../uu-sjekk/SKILL.md) på det du har rettet.
 
 ## Rapporten
 

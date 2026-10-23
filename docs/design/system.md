@@ -63,6 +63,33 @@ sier, og står aldri alene.
   ingen farge for alvorlighet ved en frist. Vedtakene under avgjør hva visningen kan
   si.
 
+## Knapper, skjemaer og feilmeldinger
+
+Bygger på rådene i Punkt om [plassering av knapper](https://punkt.oslo.kommune.no/latest/god-praksis/plassering-av-knapper/),
+[gode feilmeldinger](https://punkt.oslo.kommune.no/latest/god-praksis/gode-feilmeldinger/),
+[skjemadesign](https://punkt.oslo.kommune.no/latest/god-praksis/skjemadesign/) og
+[deaktiverte knapper](https://punkt.oslo.kommune.no/latest/god-praksis/disabled-states/),
+med egne ord (#1187). Hvilke handlinger som vises, og når en knapp er inaktiv, står
+i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
+[`uu-sjekk`](../../.claude/skills/uu-sjekk/SKILL.md).
+
+- **Rekkefølgen er primær, sekundær, tertiær**, venstrestilt, også i dialoger og
+  på smal skjerm. Den visuelle rekkefølgen er den samme som i DOM-en, så tab-rekkefølgen
+  følger den. Handlinger av et annet slag, som «Slett utkastet», står ikke i samme
+  gruppe. Dagens handlingslinjer er høyrestilt (#1184).
+- **Knappeteksten sier hva som skjer**, med et verb i imperativ og helst høyst tre
+  ord: «Send svar», ikke «OK». «Avbryt» betyr at ingenting lagres eller endres.
+- **Feltene står under hverandre**, med label over feltet og hjelpeteksten under
+  labelen. Labelen har ikke kolon, og plassholdertekst bærer aldri mening. Ved to
+  til seks alternativer vises alle, ikke en nedtrekksliste.
+- **Valgfrie felt merkes «(valgfritt)»**, og obligatoriske felt har
+  `aria-required="true"` uten synlig merke. Appen bruker bare denne ene merkingen.
+- **Feilmeldingen står rett under feltet** og sier hva som hindrer (`AGENTS.md`,
+  «Skriv etter hva teksten gjør»), med forslag til retting der appen kan gi det. Den
+  forsvinner når feltet er rettet. Når kontrollen skjer, og hva som vises øverst i
+  skjemaet, står i MM-U32. En feil fra serveren beklager og sier hva parten kan gjøre;
+  en feil i utfyllingen går rett på sak. Ingen feilmelding i en egen dialog.
+
 ## Vedtak som styrer visningen
 
 Les vedtaket i [hovedplanen, 3.1](../plans/2026-09-16-godkjenning-og-varig-levering.md),
@@ -76,6 +103,7 @@ nye MM-U-vedtak.
 | MM-U23 | Partenes standpunkter med part, dato og brev, og appens lesing merket som appens |
 | MM-U24 | Frister og det som foreligger ved kravet, regnet fra sendingen |
 | MM-U25 | Bare handlingene parten kan gjøre nå, og én linje når et krav ikke kan endres |
+| MM-U32 | En handling som vises, er aktiv, og skjemaet kontrolleres når parten sender |
 | MM-U28 | Krav, svar og enighet i lista, med subsidiært og appens lesing merket |
 | MM-U29 | Hva arbeidslista viser for hver part |
 | MM-U30 | Høyst én betegnelse per spor, og rekkefølgen mellom dem |

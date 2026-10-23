@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, og kontrollerer editoren (innliming, angre, låste verdier). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts.
+description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts.
 ---
 
 # /mockup i nettleseren
@@ -149,6 +149,22 @@ Det er nyttig å vite når du driver editoren selv:
   `.ProseMirror`. Utklippstavlen i den hodeløse nettleseren trengs ikke.
 - ProseMirror slår sammen endringer innen 500 ms til ett angre-steg. Vent før
   innlimingen hvis angre skal gi teksten fra før.
+
+## Universell utforming med axe
+
+```bash
+node .claude/skills/mockup-nettleser/uu.mjs [--url http://localhost:5173] [--scenario scenario1] [--vis 5]
+```
+
+Legger `axe.min.js` fra devDependency-en `axe-core` inn i `/mockup` og kjører
+reglene for WCAG 2.1 A og AA i fire oppsett: lys og mørk modus (`colorScheme`, som
+`app.html` leser), på 1440 og 390 px. På bred skjerm kjøres også BHs svarskjema for
+fristen. Det skriver reglene som er brutt, med inntil `--vis` steder hver og
+forholdstallet for kontrast, og det axe ikke kan avgjøre («kontroller»). Et brudd
+gir exit 1. Kjøringen tar om lag ett minutt.
+
+axe finner bare en del av feilene. Resten kontrolleres for hånd etter skillen
+[`uu-sjekk`](../uu-sjekk/SKILL.md). Det er ingen CI-jobb for skriptet (#1187).
 
 ## Det statiske bygget
 
