@@ -1076,6 +1076,55 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     }
   });
 
+  // Kilde: punkt 8 i #972 og idempotensen i `registrer_behandling` (#963). En sak som alt er
+  // opprettet, har topicen på boardet i topickoblingen, også når topicboardet er byttet.
+  it('#972 punkt 8: etter et byttet topicboard godtas boardet i sakens topickobling, og en hendelse med utfall gir ingen feil', async () => {
+    const topic = randomUUID();
+    const foerst = await motta(kropp(topic));
+    expect(await behandleEnHendelse(avh)).toBe(true);
+    const [{ sak_id: sakId }] = await utfallFor(foerst);
+    expect(sakId).toBeTruthy();
+    const settBoard = (b: string) =>
+      somEier(
+        'UPDATE koe.catenda_project_configs SET topic_board_id = @b WHERE internal_project_id = @p',
+        { b, p: o.prosjekt.id }
+      );
+    const sak = {
+      utfall: 'sak_opprettet' as const,
+      prosjektId: o.prosjekt.id,
+      sakId: sakId!,
+      topicId: topic,
+      boardId: board,
+    };
+    await settBoard(randomUUID());
+    try {
+      // Hendelsen har et utfall, så et board ingen kobling har, gir ingen feil og ingen rad.
+      await registrerBehandling(avh.datalag, { id: foerst } as Innkommende, {
+        ...sak,
+        boardId: randomUUID(),
+      });
+      expect(await utfallFor(foerst)).toHaveLength(1);
+      // Hvert avvik skiller seg fra den godtatte saken i ett felt.
+      const annen = await motta(kropp(randomUUID()));
+      for (const avvik of [
+        { topicId: randomUUID() },
+        { boardId: randomUUID() },
+        { sakId: randomUUID() },
+        { prosjektId: o.annetProsjekt.id },
+      ])
+        await expect(
+          registrerBehandling(avh.datalag, { id: annen } as Innkommende, { ...sak, ...avvik })
+        ).rejects.toMatchObject({ number: 54003 });
+      expect(await utfallFor(annen)).toEqual([]);
+      await registrerBehandling(avh.datalag, { id: annen } as Innkommende, sak);
+      expect(await utfallFor(annen)).toEqual([
+        expect.objectContaining({ utfall: 'sak_opprettet', sak_id: sakId }),
+      ]);
+    } finally {
+      await settBoard(board);
+    }
+  });
+
   it('uten oppslagene for innboksen behandler løkka den ikke', async () => {
     await mottaHendelse(
       avh.datalag,

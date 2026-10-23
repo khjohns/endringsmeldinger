@@ -108,7 +108,7 @@ class AvvistKvittering extends Error {}
 class TaptLease extends Error {}
 
 const LEASEN_GJELDER_IKKE = 54001;
-/** Boardet med utfallet er ikke topicboardet til prosjektet (`registrer_behandling`, #972 punkt 8). */
+/** Boardet med utfallet er verken prosjektets topicboard eller boardet i sakens topickobling (`registrer_behandling`, #972 punkt 8). */
 const ANNET_BOARD = 54003;
 
 type Utfall = 'feilet' | 'usikkert' | 'avvist';
