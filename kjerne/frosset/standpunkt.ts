@@ -510,7 +510,7 @@ function beslutningslinje(
           : ' for justeringen ellers';
       if (b.saerskilt && begrenset)
         sine.push({
-          tekst: `begrenset til ${kroner(begrenset.begrenset!)} for ${SAERSKILT_I_LINJEN} (§ 34.1.3)`,
+          tekst: `begrenset etter § 34.1.3 til ${kroner(begrenset.begrenset!)}`,
           virkning: virkning(begrenset.id),
         });
       const tekst =

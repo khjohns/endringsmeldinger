@@ -227,3 +227,47 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
     ).toEqual({ beloep: 15 * SATS, gulv: 15 * SATS });
   });
 });
+
+// Det særskilte kravet etter § 34.1.3 annet ledd (OV-U23, #1047 B2b).
+describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', () => {
+  const medPost = (innhold: object) => ({
+    ...KRAV_VEDERLAG,
+    innhold: { metode: 'tilbud', ...innhold },
+  });
+  const post = { saerskilt: { produktivitet: { beloep: 40000 } } };
+
+  it('et ubesvart krav med bare posten har verdien i posten, og med begge beløpene summen (#1189 punkt 1)', async () => {
+    expect((await verdi([KRAV_GRUNNLAG, medPost(post)], [GRUNNLAG_GODKJENT], SATS)).gulv).toBe(
+      40000
+    );
+    expect(
+      (
+        await verdi(
+          [KRAV_GRUNNLAG, medPost({ beloep: 100000, ...post })],
+          [GRUNNLAG_GODKJENT],
+          SATS
+        )
+      ).gulv
+    ).toBe(140000);
+  });
+
+  it('med begrensningen etter § 34.1.3 gjelder det subsidiære beløpet, som er det høyeste (GFK-06, VS-U5)', async () => {
+    const u = utledning([KRAV_GRUNNLAG, medPost({ beloep: 100000, ...post })]);
+    const svar: Svarutkast = {
+      spor: 'vederlag',
+      gjelder: u.spor.vederlag.gjeldendeKrav!.id,
+      regelversjon: regler.versjon,
+      vurderinger: {
+        hovedkrav_vurdering: 'godkjent',
+        produktivitet_vurdering: 'delvis',
+        produktivitet_godkjent_belop: 30000,
+        produktivitet_varslet_i_tide: false,
+        produktivitet_begrenset_belop: 10000,
+        aksepterer_metode: true,
+      },
+      resultat: {},
+    };
+    // Prinsipalt 110 000 kr, subsidiært 130 000 kr (`subsidiaert_godkjent_beloep`).
+    expect(brevverdi([svar], u, SATS, regler)).toEqual({ beloep: 130000, gulv: 130000 });
+  });
+});

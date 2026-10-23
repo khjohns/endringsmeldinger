@@ -4874,15 +4874,381 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
   it('uten krav med posten og uten varsel finnes det ikke noe varsel etter § 34.1.3 (OV-U24)', () => {
     expect(() => varseletForNyttSvar(sakMedKrav().u(), '34.1.3')).toThrow('§ 34.1.3');
   });
+});
 
-  it('byggherrens svar på et krav med posten avvises til standpunktet er bygget (økt B av #1047)', () => {
-    const s = sakMedKrav();
-    s.send('TE', vederlagskrav({ metode: 'tilbud', beloep: 150000, saerskilt: post }));
+/**
+ * Byggherrens svar på det særskilte kravet etter § 34.1.3 annet ledd (#1047 B2b). Kravet i
+ * brev 5 er 150 000 kr for justeringen ellers og 40 000 kr for posten. Forventningene er
+ * vedtakene som står ved hvert tilfelle.
+ */
+describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV-U26–OV-U33, VS-U5, #1047)', () => {
+  const post = { produktivitet: { beloep: 40000 } };
+  const saerskiltPost = 'særskilt justering etter NS 8407 § 34.1.3 annet ledd';
+  const saerskiltVarsel =
+    'varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 § 34.1.3 tredje ledd';
+  /** Saken med vederlagskravet med posten i brev 5. `svikt` gir varslingsplikt etter § 34.1.2. */
+  const sakMedPost = (
+    innhold: Data = { metode: 'tilbud', beloep: 150000, saerskilt: post },
+    svikt = false
+  ) => {
+    const s = sak();
+    s.send(
+      'TE',
+      svikt
+        ? {
+            type: 'krav',
+            spor: 'grunnlag',
+            innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+          }
+        : GRUNNLAGSKRAV
+    );
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: { metode: 'tilbud', beloep: 125000 } });
+    s.send('TE', FRISTKRAV);
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold });
+    return s;
+  };
+  /** Justeringen ellers delvis 100 000 kr, posten delvis 30 000 kr. */
+  const postene = {
+    hovedkrav_vurdering: 'delvis',
+    hovedkrav_godkjent_belop: 100000,
+    produktivitet_vurdering: 'delvis',
+    produktivitet_godkjent_belop: 30000,
+    aksepterer_metode: true,
+  };
+  const begrenset = { produktivitet_varslet_i_tide: false, produktivitet_begrenset_belop: 10000 };
+  const brevet = (s: ReturnType<typeof sak>, vurderinger: Data, resultat: Data) =>
+    s.send('BH', {
+      type: 'brev',
+      svar: [svar('vederlag', s.krav('vederlag'), vurderinger, resultat)],
+    });
+  const lagret = (rad: Journalrad) => (rad.data.svar as Data[])[0];
+  const virkningene = (s: ReturnType<typeof sak>) =>
+    s
+      .u()
+      .spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.virkninger.map((v) => [v.art, v.virkning]);
+
+  it('beløpet for hver post og beløpet etter begrensningen står på standpunktene, og utregningen har bare totalene (OV-U26, OV-U31, valg e)', () => {
+    const s = sakMedPost();
+    const rad = brevet(
+      s,
+      { ...postene, ...begrenset },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+    );
+    const sv = lagret(rad);
+    expect((sv.standpunkter as Data[]).map((p) => utenFelt(p, 'id'))).toEqual([
+      { art: 'metode', hjemmel: '34.2.2', aksepterer: true },
+      { art: 'beloep', beloep: 100000 },
+      {
+        art: 'rettidighet',
+        gjelder: s.krav('vederlag'),
+        hjemmel: '34.1.3',
+        i_tide: false,
+        beloep: 10000,
+      },
+      { art: 'beloep', beloep: 30000, saerskilt: 'produktivitet' },
+    ]);
+    // VS-U5: begrensningen avviser ikke hele kravet; prinsipalt er justeringen ellers og
+    // beløpet etter begrensningen, subsidiært begge postene.
+    expect(sv.utregning).toEqual({
+      resultat: 'delvis_godkjent',
+      godkjent_beloep: 110000,
+      subsidiaert_resultat: 'delvis_godkjent',
+      subsidiaert_godkjent_beloep: 130000,
+    });
+  });
+
+  it('bare § 34.1.3 påberopt: justeringen ellers er upåvirket, begrensningen prinsipal og posten subsidiær (OV-U28, OV-U33)', () => {
+    const s = sakMedPost();
+    const rad = brevet(
+      s,
+      { ...postene, ...begrenset },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+    );
+    expect(virkningene(s)).toEqual([
+      ['metode', 'uten_virkning'],
+      ['beloep', 'upaavirket'],
+      ['rettidighet', 1],
+      ['beloep', 2],
+    ]);
+    // Ordlyden er OV-U28: hver post for seg, og etikettene følger innsigelsene.
+    expect(laast(rad).join(' ')).toContain(
+      `${METODE_JA} Byggherren godkjenner ${KR('100 000')} av de krevde ${KR('150 000')} for justeringen ellers. Prinsipalt: byggherren gjør gjeldende at ${saerskiltVarsel} i brev 5 av 5. oktober 2026 kom for sent, og at TE har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner ${KR('10 000')} for dette kravet. Subsidiært: byggherren godkjenner ${KR('30 000')} av de krevde ${KR('40 000')} for ${saerskiltPost}.`
+    );
+    // AK 4 i #1199: en upåvirket post er ingen grunn og får ingen etikett i linjen.
+    expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
+      `Byggherrens standpunkt: godkjent med ${kroner(100000)} for justeringen ellers, prinsipalt begrenset etter § 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+    );
+  });
+
+  it('en aksept av svaret gir prinsipalt beløp etter begrensningen, ikke 0 (VS-U5, valg e)', () => {
+    const s = sakMedPost();
+    brevet(
+      s,
+      { ...postene, ...begrenset },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+    );
+    s.send('TE', {
+      type: 'aksept',
+      spor: 'vederlag',
+      svar: s.u().spor.vederlag.gjeldendeSvar!.id,
+      regelversjon: KJERNE.regler.versjon,
+    });
+    expect(s.u().spor.vederlag.enighet?.grunnlag.utfall).toEqual({ beloep: 110000 });
+  });
+
+  it('begge påberopt: § 34.1.2 prinsipalt, justeringen ellers og begrensningen subsidiært, posten videre subsidiært (OV-U27, OV-U28)', () => {
+    const s = sakMedPost(undefined, true);
+    const rad = brevet(
+      s,
+      { ...postene, ...begrenset, hovedkrav_varslet_i_tide: false },
+      { resultat: 'avslaatt', godkjent_beloep: 0 }
+    );
+    expect(lagret(rad).utregning).toEqual({
+      resultat: 'avslaatt',
+      godkjent_beloep: 0,
+      subsidiaert_resultat: 'delvis_godkjent',
+      subsidiaert_godkjent_beloep: 130000,
+    });
+    expect(virkningene(s)).toEqual([
+      ['rettidighet', 1],
+      ['metode', 'uten_virkning'],
+      ['beloep', 2],
+      ['rettidighet', 2],
+      ['beloep', 3],
+    ]);
+    const tekstene = laast(rad).join(' ');
+    expect(tekstene).toContain(
+      `Subsidiært: byggherren godkjenner ${KR('100 000')} av de krevde ${KR('150 000')} for justeringen ellers. Byggherren gjør gjeldende at ${saerskiltVarsel}`
+    );
+    expect(tekstene).toContain(
+      `Videre subsidiært: byggherren godkjenner ${KR('30 000')} av de krevde ${KR('40 000')} for ${saerskiltPost}.`
+    );
+    expect(tekstene).toMatch(
+      /Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering/
+    );
+  });
+
+  it('med avslått grunnlag er justeringen ellers i sporets første lag og ikke upåvirket (OV-U33)', () => {
+    const s = sakMedPost();
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), {
+          grunnlag_varslet_i_tide: true,
+          resultat: 'avslaatt',
+        }),
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { ...postene, ...begrenset },
+          {
+            resultat: 'delvis_godkjent',
+            godkjent_beloep: 110000,
+          }
+        ),
+      ],
+    });
+    expect(virkningene(s)).toEqual([
+      ['metode', 'uten_virkning'],
+      ['beloep', 1],
+      ['rettidighet', 1],
+      ['beloep', 2],
+    ]);
+  });
+
+  it('et krav med bare posten besvares uten justeringen ellers, og en vurdering av den avvises (OV-U23)', () => {
+    const s = sakMedPost({ metode: 'tilbud', saerskilt: post });
+    const uten = {
+      produktivitet_vurdering: 'godkjent',
+      produktivitet_varslet_i_tide: true,
+      aksepterer_metode: true,
+    };
     expect(
       s.avvist('BH', {
         type: 'brev',
-        svar: [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
+        svar: [
+          svar(
+            'vederlag',
+            s.krav('vederlag'),
+            { ...uten, hovedkrav_vurdering: 'godkjent' },
+            {
+              resultat: 'godkjent',
+              godkjent_beloep: 40000,
+            }
+          ),
+        ],
       })
     ).toBe('UGYLDIG_VURDERING');
+    const rad = brevet(s, uten, { resultat: 'godkjent', godkjent_beloep: 40000 });
+    expect(laast(rad).join(' ')).toContain(
+      `Byggherren godkjenner ${KR('40 000')} for ${saerskiltPost}.`
+    );
+  });
+
+  it.each([
+    ['beløpet etter begrensningen mangler', { produktivitet_varslet_i_tide: false }],
+    [
+      'beløpet etter begrensningen er høyere enn det byggherren godtar for posten',
+      { produktivitet_varslet_i_tide: false, produktivitet_begrenset_belop: 30001 },
+    ],
+    [
+      'beløpet etter begrensningen står uten påberopt begrensning',
+      { produktivitet_varslet_i_tide: true, produktivitet_begrenset_belop: 10000 },
+    ],
+    ['rettidigheten etter § 34.1.3 mangler', {}],
+  ])('%s, og svaret avvises (valg 2 og 3 i #1047)', (_, rettidighet) => {
+    const s = sakMedPost();
+    expect(
+      s.avvist('BH', {
+        type: 'brev',
+        svar: [
+          svar(
+            'vederlag',
+            s.krav('vederlag'),
+            { ...postene, ...rettidighet },
+            {
+              resultat: 'delvis_godkjent',
+              godkjent_beloep: 110000,
+            }
+          ),
+        ],
+      })
+    ).toBe('UGYLDIG_VURDERING');
+  });
+
+  it('en begrensning krever begrunnelse, også når beløpet etter den er likt (KA-U24, valg d)', () => {
+    const s = sakMedPost();
+    const fullt = {
+      hovedkrav_vurdering: 'godkjent',
+      produktivitet_vurdering: 'godkjent',
+      aksepterer_metode: true,
+      produktivitet_varslet_i_tide: false,
+      produktivitet_begrenset_belop: 40000,
+    };
+    const uten = svar(
+      'vederlag',
+      s.krav('vederlag'),
+      fullt,
+      { resultat: 'godkjent', godkjent_beloep: 190000 },
+      null
+    );
+    expect(s.avvist('BH', { type: 'brev', svar: [uten] })).toBe('BEGRUNNELSE_MANGLER');
+    // Kontrollsak: uten påberopelse og med alt godkjent trengs ingen begrunnelse.
+    const iTide = {
+      ...fullt,
+      produktivitet_varslet_i_tide: true,
+      produktivitet_begrenset_belop: undefined,
+    };
+    expect(
+      s.avvist('BH', {
+        type: 'brev',
+        svar: [
+          svar(
+            'vederlag',
+            s.krav('vederlag'),
+            iTide,
+            { resultat: 'godkjent', godkjent_beloep: 190000 },
+            null
+          ),
+        ],
+      })
+    ).toBeNull();
+  });
+
+  it('en begrensning i et lag gir ikke sammenfall, også når posten er godkjent fullt etter den (VS-U5, som § 33.6.1 i #479)', () => {
+    const s = sakMedPost();
+    brevet(
+      s,
+      {
+        hovedkrav_vurdering: 'godkjent',
+        produktivitet_vurdering: 'godkjent',
+        aksepterer_metode: true,
+        produktivitet_varslet_i_tide: false,
+        produktivitet_begrenset_belop: 40000,
+      },
+      { resultat: 'godkjent', godkjent_beloep: 190000 }
+    );
+    expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.sammenfall).toBe(false);
+    expect(s.u().spor.vederlag.enighet).toBeNull();
+  });
+
+  it('en revisjon som senker posten eller beløpet etter begrensningen, avvises; en som hever, godtas (HF-U5, valg 4)', () => {
+    const s = sakMedPost();
+    brevet(
+      s,
+      { ...postene, ...begrenset },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+    );
+    const revisjon = (v: Data, godkjent: number) => ({
+      type: 'revisjon',
+      erstatter: s.u().spor.vederlag.gjeldendeSvar!.id,
+      svar: svar(
+        'vederlag',
+        s.krav('vederlag'),
+        { ...postene, ...begrenset, ...v },
+        {
+          resultat: 'delvis_godkjent',
+          godkjent_beloep: godkjent,
+        }
+      ),
+    });
+    // Posten senkes og justeringen heves, så totalen er den samme.
+    expect(
+      s.avvist(
+        'BH',
+        revisjon({ produktivitet_godkjent_belop: 20000, hovedkrav_godkjent_belop: 110000 }, 120000)
+      )
+    ).toBe('SENKER_INNROEMMELSE');
+    expect(s.avvist('BH', revisjon({ produktivitet_begrenset_belop: 5000 }, 105000))).toBe(
+      'SENKER_INNROEMMELSE'
+    );
+    expect(s.avvist('BH', revisjon({ produktivitet_begrenset_belop: 20000 }, 120000))).toBeNull();
+  });
+
+  it('et varsel TE registrerer etter svaret, markerer standpunktet etter § 34.1.3 og sperrer ikke aksept (OV-U5, svaret 23.10)', () => {
+    const s = sakMedPost();
+    brevet(
+      s,
+      { ...postene, ...begrenset },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+    );
+    const gjeldende = s.u().spor.vederlag.gjeldendeSvar!;
+    const rettidighet = gjeldende.standpunkter.find((p) => p.art === 'rettidighet')!;
+    s.send('TE', {
+      type: 'varsel',
+      spor: 'vederlag',
+      hjemmel: '34.1.3',
+      sendt: '2026-09-28',
+      dokumentasjon: [randomUUID()],
+    });
+    const u = s.u();
+    expect(u.svar[gjeldende.id].gjaldtEtAnnetVarsel).toEqual([rettidighet.id]);
+    // Svaret står med virkningen det hadde (OV-U5).
+    expect(u.svar[gjeldende.id].virkninger).toEqual(gjeldende.beslutningsgrunnlag.virkninger);
+    expect(
+      s.avvist('TE', {
+        type: 'aksept',
+        spor: 'vederlag',
+        svar: gjeldende.id,
+        regelversjon: KJERNE.regler.versjon,
+      })
+    ).toBeNull();
+  });
+
+  it('svaret gjentar byggherrens egen innsigelse mot det særskilte varselet (VS-U24)', () => {
+    const s = sakMedPost();
+    const varsel = s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' });
+    const innsigelse = s.send('BH', {
+      type: 'innsigelse',
+      gjelder: (varsel.data.utsagn as Data[])[0].id,
+    });
+    const rad = brevet(
+      s,
+      { ...postene, ...begrenset },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+    );
+    expect(laast(rad).join(' ')).toContain(
+      `kom for sent, jf. innsigelsen i ${`brev ${innsigelse.versjon}`}`
+    );
   });
 });

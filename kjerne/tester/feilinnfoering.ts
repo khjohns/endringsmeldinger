@@ -1447,10 +1447,7 @@ const MUTASJONER: Mutasjon[] = [
       'aksept av et svar med preklusjon etter § 34.1.2 gir det subsidiære beløpet (VS-U3)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
-      [
-        "beloep: prekludert ? 0 : standpunktet(svar, 'beloep')!.godkjent",
-        "beloep: standpunktet(svar, 'beloep')!.godkjent",
-      ],
+      ['beloep: prekludert ? 0 : prinsipaltBeloep(svar, v)', 'beloep: prinsipaltBeloep(svar, v)'],
     ],
     mal: ['F-MM-V-34-1-2-nei'],
   },
@@ -1664,7 +1661,10 @@ const MUTASJONER: Mutasjon[] = [
       'brevet sier at byggherren godkjenner hele beløpet «av de krevde» når tilbudet ikke er akseptert',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ["p.resultat === 'delvis_godkjent' && heleBeloepet ? 'godkjent' : p.resultat", 'p.resultat'],
+      [
+        'const resultat = erBeloepetGodkjentFullt(krevd, godkjent)',
+        "const resultat = p.resultat === 'godkjent'",
+      ],
     ],
     mal: [
       '§ 34.2.2 «nei» med hele beløpet godkjent',
@@ -1744,7 +1744,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        'if (!erBeloepetGodkjentFullt(krevdBeloep(krav), godkjent))',
+        'if (!erBeloepetGodkjentFullt(krevdSamlet(krav), godkjent))',
         "if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')",
       ],
     ],
@@ -2312,7 +2312,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F272',
     feilklasse: 'et beløp som mangler i svaret, sammenliknes som null kroner (HF-U5, #627)',
     fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [['      if (nytt === null || godkjent === null)', '      if (false)']],
+    endringer: [['      if (nytt === null)', '      if (false)']],
     mal: ['sammenliknes ikke og avvises'],
   },
   {
@@ -3388,6 +3388,82 @@ const MUTASJONER: Mutasjon[] = [
       'meldingen sier etiketten brevet ga, også når grunnlaget er godkjent etter brevet',
       'meldingen sier etiketten brevet ga, også når en ny grunnlagsversjon er avslått uten § 32.2 etter brevet',
     ],
+  },
+  {
+    id: 'F391',
+    feilklasse: 'en begrensning etter § 34.1.3 i første lag avviser hele vederlagskravet (VS-U5)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "s?.art === 'hindring' || (s?.art === 'rettidighet' && s.hjemmel !== '34.1.3')",
+        "s?.art === 'hindring' || s?.art === 'rettidighet'",
+      ],
+    ],
+    mal: ['en aksept av svaret gir prinsipalt beløp etter begrensningen, ikke 0'],
+  },
+  {
+    id: 'F392',
+    feilklasse: 'justeringen ellers er upåvirket også når grunnlaget er avslått (OV-U33)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['posten && !hele && forskyvning === 0', 'posten && !hele']],
+    mal: ['med avslått grunnlag er justeringen ellers i sporets første lag og ikke upåvirket'],
+  },
+  {
+    id: 'F393',
+    feilklasse: 'preklusjonen etter § 34.1.2 rammer ikke posten etter § 34.1.3 annet ledd (OV-U27)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['p.hovedkrav ? NULL_OERE : (begrenset ?? godkjent)', '(begrenset ?? godkjent)']],
+    mal: ['preklusjonen etter § 34.1.2 gjelder hele kravet, også posten'],
+  },
+  {
+    id: 'F394',
+    feilklasse:
+      'beløpet etter begrensningen kan være høyere enn det byggherren godtar for posten (valg 2 i #1047)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['else if (b > godkjent)', 'else if (b > beloep(krav.produktivitet_belop)!)']],
+    mal: ['beløpet etter begrensningen er høyere enn det byggherren godtar for posten'],
+  },
+  {
+    id: 'F395',
+    feilklasse:
+      'en begrensning etter § 34.1.3 krever ingen begrunnelse når beløpene er like (KA-U24, valg d)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'if (v.produktivitet_varslet_i_tide === false)',
+        'if (v.produktivitet_varslet_i_tide === null)',
+      ],
+    ],
+    mal: ['en begrensning krever begrunnelse, også når beløpet etter den er likt'],
+  },
+  {
+    id: 'F396',
+    feilklasse: 'en revisjon kan senke beløpet etter begrensningen etter § 34.1.3 (HF-U5, valg 4)',
+    fil: `${K}/utledning/innroemmelse.ts`,
+    endringer: [['beloep(n.begrenset)! < beloep(f.begrenset)!', 'beloep(n.begrenset)! < 0n']],
+    mal: ['en revisjon som senker posten eller beløpet etter begrensningen, avvises'],
+  },
+  {
+    id: 'F397',
+    feilklasse:
+      'leseren godtar poster som ikke summerer til det subsidiære beløpet (OV-U31, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['if (samlet !== beloep(total))', 'if (samlet < 0n)']],
+    mal: ['poster som ikke summerer til det subsidiære beløpet, er ikke forstått'],
+  },
+  {
+    id: 'F398',
+    feilklasse: 'svaret gjentar ikke byggherrens innsigelse mot det særskilte varselet (VS-U24)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["(svar.spor === 'vederlag' && hjemmel === '34.1.3')", 'false']],
+    mal: ['svaret gjentar byggherrens egen innsigelse mot det særskilte varselet'],
+  },
+  {
+    id: 'F399',
+    feilklasse: 'en begrensning etter § 34.1.3 i et lag gir sammenfall (VS-U5, #479)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['if (begrensningen(svar, v)) return false;', '']],
+    mal: ['en begrensning i et lag gir ikke sammenfall'],
   },
 ];
 
