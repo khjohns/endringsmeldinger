@@ -77,8 +77,8 @@ const catendaMiljoe = {
 
 /**
  * Miljøet uten Catenda-, Entra- og innloggingsvariabler fra skallet, og uten
- * `KOE_LYTTEADRESSE` og `VITE_*`, så serveren med hemmeligheten bare lytter på 127.0.0.1
- * og frontenden går gjennom proxyen.
+ * `KOE_LYTTEADRESSE` og `VITE_*`, så serveren med hemmeligheten bare lytter på 127.0.0.1.
+ * Vite leser fortsatt `VITE_*` fra `.env`-filene i roten.
  */
 function rentMiljoe(): NodeJS.ProcessEnv {
   return Object.fromEntries(
@@ -103,11 +103,11 @@ const kontraktsteam = utenTeam ? [] : kontraktsteamFra(values.bh!, values.te!);
   const token = await integrasjonsnokkel.token();
   // Formen `catendaTeam` i `server/registrering.ts` leser.
   const rader = await oauth.samling(`/v2/projects/${catendaId(catendaProsjekt)}/teams`, token);
-  const iCatenda = new Map<string, unknown>();
+  const iCatenda = new Map<string, string>();
   for (const rad of rader) {
     const t = rad.user as { id?: unknown; type?: unknown; name?: unknown } | undefined;
     const id = t?.type === 'team' ? catendaId(t.id) : null;
-    if (id) iCatenda.set(id, t!.name);
+    if (id) iCatenda.set(id, typeof t?.name === 'string' ? t.name : '');
   }
   const ukjente = kontraktsteam.filter((t) => !iCatenda.has(t.team_id));
   if (ukjente.length)
@@ -153,9 +153,13 @@ let base: Awaited<ReturnType<typeof kopierMigrertTestbase>> | undefined;
 let kjoeretid: Awaited<ReturnType<typeof opprettKjoeretid>> | undefined;
 
 let rydder = false;
-async function rydd(kode: number) {
-  if (rydder) process.exit(130);
+/** Rydder én gang; et nytt kall mens ryddingen pågår, venter på den. */
+let rydding: Promise<never> | undefined;
+function rydd(kode: number): Promise<never> {
   rydder = true;
+  return (rydding ??= ryddEn(kode));
+}
+async function ryddEn(kode: number): Promise<never> {
   for (const p of prosesser)
     try {
       if (p.pid) process.kill(-p.pid, 'SIGTERM');
@@ -171,8 +175,9 @@ async function rydd(kode: number) {
   process.exit(kode);
 }
 // Et avbrudd før basen eller innloggingen er laget, kan etterlate dem på serveren.
-process.on('SIGINT', () => void rydd(0));
-process.on('SIGTERM', () => void rydd(0));
+// Et andre signal avslutter straks.
+for (const signal of ['SIGINT', 'SIGTERM'] as const)
+  process.on(signal, () => (rydding ? process.exit(130) : void rydd(0)));
 
 try {
   base = await kopierMigrertTestbase('lokal');
