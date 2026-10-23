@@ -38,6 +38,8 @@
   const store = getCaseWorkspace();
   const review = getApprovalWorkspace();
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
+  import { getClaimReview } from '$lib/approval/claimReview.svelte';
+  const claimReview = getClaimReview();
   import { fmt } from './utils.js';
   import { sporResultatLabel } from './derive.js';
   import type { EventType } from '$lib/types/timeline';
@@ -503,6 +505,19 @@
                 { ...data, tilleggs_begrunnelse: tilleggHtml },
                 draft.snapshot()
               );
+              return;
+            }
+            // TS-saken: kjernen lager brevet og sender svaret på kravet den har i sporet (#1047).
+            if (claimReview && store.erKjernesak) {
+              const { eventType, data } = buildEventData(
+                formState,
+                domainConfig,
+                computed,
+                { vederlagKravId: '', isUpdateMode: false },
+                autoBegrunnelseHtml,
+                computed.subsidiaerTriggers
+              );
+              await claimReview.submit('vederlag', eventType as EventType, data, () => {});
               return;
             }
             throw new Error('Skjemaet har ingen intern godkjenning, så svaret kan ikke sendes.');

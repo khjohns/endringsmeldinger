@@ -118,7 +118,9 @@
       !kravetErSpesifisert(store.sak.frist)
   );
   // Skjemaene for en TS-sak følger bare handlingene kjernen tilbyr leseren (krav G i #718).
-  const kjerneskjema = $derived(Boolean(kjernesak?.teSkjema(sel)));
+  const kjerneskjema = $derived(
+    Boolean(kjernesak && (kjernesak.teSkjema(sel) ?? kjernesak.bhSkjema(sel)))
+  );
   // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
   // ikke kjernen nødvendigvis det samme, men skjemaet skal fullføre sendingen (#737 p4).
   // Mens brevet kontrolleres eller sendes, står skjemaet også når visningen bytter spor
@@ -422,6 +424,12 @@
                 <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
               {:else if (kjerneskjemaSpor ?? sel) === 'ansvar'}
                 <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
+              {:else if kjernesak?.part === 'BH' && kjernesak.vederlagConfig}
+                <VederlagForm
+                  domainConfig={kjernesak.vederlagConfig}
+                  onsend={handleSend}
+                  onactions={(a) => (formActions = a)}
+                />
               {:else}
                 <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
               {/if}
@@ -433,7 +441,7 @@
                 onbacktonow={() => (activeEvent = null)}
               />
             {:else if !approval}
-              <!-- TS-saken har ingen BH-skjemaer eller godkjenning ennå (#818). -->
+              <!-- TS-saken har bare BHs svar på vederlagskravet, og ingen godkjenning ennå (#818). -->
               <div class="approval-entry">
                 <p role="status">Dette skjemaet finnes ikke for saken ennå.</p>
                 <button class="btn btn-secondary" onclick={goRead}>Tilbake</button>
@@ -496,7 +504,7 @@
                 canSend={formActions?.canSend ?? false}
                 sendLabel={formActions?.utenBrev && formActions.sendLabel
                   ? formActions.sendLabel
-                  : role === 'BH' && !bhSvarerPaaFristvarsel
+                  : role === 'BH' && !bhSvarerPaaFristvarsel && !kjernesak
                     ? 'Ferdigstill vurdering'
                     : 'Se brev og send'}
                 onwithdraw={() => {

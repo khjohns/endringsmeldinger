@@ -29,7 +29,7 @@
     title: brev.handling ?? 'Du sender kravet',
     description: beskrivelse,
     confirmLabel: 'Jeg har kontrollert brevet.',
-    primaryLabel: 'Send til byggherren',
+    primaryLabel: brev.sendes ?? 'Send til byggherren',
     footnote: 'Innsendt brev kan ikke endres, bare følges opp med en ny versjon.',
   }}
   onsend={onbekreft}

@@ -22,6 +22,7 @@ import {
   tilTidslinje,
 } from './sakstilstand';
 import type { Vederlagsvarsel } from './vederlagskrav';
+import { vederlagConfigFraKjernen } from './vederlagssvar';
 
 interface Projeksjon {
   sak: SakState;
@@ -145,6 +146,22 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
             ? 'Send varsel'
             : 'Registrer varsel';
     },
+    /**
+     * Skjemaet BH får i sporet, med teksten på knappen, når kjernen tilbyr BH å svare på
+     * vederlagskravet (#1047). Svar i de andre sporene er ikke bygget for TS-saken (#818).
+     */
+    bhSkjema(nokkel: SporKey): string | null {
+      return nokkel === 'vederlag' &&
+        kjernesak.part === 'BH' &&
+        kjernesak.handlinger.includes('svare:vederlag') &&
+        projeksjon.utledning.spor.vederlag.gjeldendeKrav
+        ? 'Svar på kravet'
+        : null;
+    },
+    /** Configen for `VederlagForm` fra kravet kjernen har i sporet, eller `null` uten krav. */
+    get vederlagConfig() {
+      return vederlagConfigFraKjernen(projeksjon.utledning);
+    },
     /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */
     godtar(nokkel: SporKey): string | null {
       const spor = SPOR_FOR[nokkel];
@@ -166,7 +183,6 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     kravversjon: (spor: SporKey) => kravversjon(projeksjon.utledning, spor),
     teNavn,
     bhNavn,
-    // Ingen `*DomainConfig`: de leser Python-projeksjonens statusfelt (krav E i #718).
     draftCount: 0,
     get submitting() {
       return kjernesak.sender;

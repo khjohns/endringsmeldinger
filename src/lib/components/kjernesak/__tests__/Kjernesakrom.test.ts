@@ -286,7 +286,8 @@ describe('TS-saken i Kontrollrommet', () => {
 
   // Krav G i #718: knappene og skjemaene for en TS-sak følger bare `kjernesak.handlinger`.
   // Med alle kandidatene tilbys TE det som er bygget (#909): trekket, varselet etter
-  // § 33.4 og kravet eller en ny versjon av det i hvert spor. Uten handlinger tilbys ingenting.
+  // § 33.4 og kravet eller en ny versjon av det i hvert spor. BH tilbys svaret på
+  // vederlagskravet (#1047). Uten handlinger tilbys ingenting.
   it.each(
     (['TE', 'BH'] as const).flatMap((part) =>
       (['tom', 'full'] as const).flatMap((tabell) =>
@@ -308,8 +309,9 @@ describe('TS-saken i Kontrollrommet', () => {
       });
       await ekte.last();
       const handlinger = tabell === 'tom' ? [] : kandidater(ekte.utledning!).map(noekkel);
-      const tilbys = part === 'TE' && tabell === 'full';
       const harVederlagskrav = ekte.utledning!.spor.vederlag.gjeldendeKrav !== null;
+      const bhSvarer = (track: SporKey) =>
+        part === 'BH' && tabell === 'full' && track === 'vederlag' && harVederlagskrav;
       const KNAPPER = {
         ansvar: ['Trekk', 'Send ny versjon av grunnlaget'],
         vederlag: [
@@ -324,12 +326,15 @@ describe('TS-saken i Kontrollrommet', () => {
         const knapper = [...document.querySelectorAll('.action-buttons button')]
           .map((b) => b.textContent?.trim())
           .filter((t) => t !== 'Kontekst');
-        expect(knapper).toEqual(tilbys ? KNAPPER[track] : []);
+        const tilbys = part === 'TE' && tabell === 'full';
+        expect(knapper).toEqual(
+          tilbys ? KNAPPER[track] : bhSvarer(track) ? ['Svar på kravet'] : []
+        );
         cleanup();
 
         await vis(journal, part, track, 'form', handlinger);
         const skjema = document.querySelector('.form-content');
-        if (tilbys) {
+        if (tilbys || bhSvarer(track)) {
           expect(skjema).not.toBeNull();
           expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeInTheDocument();
         } else {
