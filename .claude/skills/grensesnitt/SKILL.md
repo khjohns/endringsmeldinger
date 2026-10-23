@@ -113,8 +113,8 @@ Animasjonen skal merkes, ikke sees.
 ## Etter oppgaven
 
 Har du laget et mønster som brukes to ganger, eller tatt et nytt valg for visningen,
-før det i systemfila: mønsteret med komponenten eller klassen det bor i, og valget med
-grunnen. Verdiene skrives ikke av; de står i `theme.css`. Et valg bare oppdragsgiver
+før det i systemfila: mønsteret i tabellen med komponenten eller klassen det bor i,
+og valget med grunnen i avsnittet det gjelder. Verdiene skrives ikke av; de står i `theme.css`. Et valg bare oppdragsgiver
 kan ta, føres der svarene hører hjemme (`AGENTS.md`, «Arbeidsform»).
 
 Diffen ryddes så med skillen `design-deslop`, og reviewes med `design-review`, i den

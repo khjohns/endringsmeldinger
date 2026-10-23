@@ -3,7 +3,7 @@
 Beslutningene for visningen, og hvorfor de er tatt. Metoden står i
 [grensesnitt-skillen](../../.claude/skills/grensesnitt/SKILL.md).
 
-**Verdiene står ikke her.** Farger, flater, kanter og skrifter er definert i
+**Verdiene står ikke her** (oppdragsgiver 23.10, #1080). Farger, flater, kanter og skrifter er definert i
 [`theme.css`](../../src/lib/components/kontraktsbord/theme.css), avstand og radius i
 `@theme` i [`app.css`](../../src/app.css). Fila nevner bare tokennavnene, og
 [`designsystem.test.ts`](../../src/lib/designsystem.test.ts) feiler når et token

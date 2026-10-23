@@ -1,15 +1,17 @@
 /**
  * Vakten for `docs/design/system.md` og skillene for visningen (#1080). De nevner
  * tokenene, klassene og komponentene visningen bruker, men verdiene står i
- * `theme.css` og `app.css`. Vakten feiler når en av dem nevner et token, en klasse
- * eller en komponent som ikke finnes, slik at de ikke glir fra koden.
+ * `theme.css` og `app.css`. Vakten feiler når en av dem nevner et token eller en
+ * klasse som ikke finnes, eller systemfila en komponent som ikke finnes.
  *
  * Den leser bare det som står i backticks: `--token`, `.klasse` og, i systemfila,
  * en sti som slutter på `.svelte`, relativ til `src/lib/components/`. Et token
  * regnes som definert bare i en blokk for lys modus (`:root` eller `@theme`),
- * og en klasse bare i en selektor, ikke i en kommentar. Vakten kontrollerer ikke
- * at prosaen er riktig, og ikke at et token komponentene bruker, er definert
- * (#1184).
+ * og en klasse bare i en selektor, ikke i en kommentar. Avgjørelsen går på
+ * plassering: stilene har ingen nøstet CSS og ingen `:root` i `@media` eller `@layer`.
+ * En sti i backticks fulgt av bindestrek («`.svelte`-filer») er ikke en klasse.
+ * Vakten kontrollerer ikke at prosaen er riktig, og ikke at et token
+ * komponentene bruker, er definert (#1184).
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -27,7 +29,6 @@ const STILFILER = [
   join(ROT, 'src', 'app.css'),
 ];
 const KOMPONENTER = join(ROT, 'src', 'lib', 'components');
-const FILENDELSER = new Set(['.svelte', '.css', '.ts', '.md', '.json']);
 
 /** Det en tekst nevner i backticks, sortert på art. */
 export function henvisninger(tekst: string): {
@@ -35,10 +36,12 @@ export function henvisninger(tekst: string): {
   klasser: string[];
   komponenter: string[];
 } {
-  const koder = [...tekst.matchAll(/`([^`\n]+)`/g)].map((m) => m[1].trim());
+  const koder = [...tekst.matchAll(/`([^`\n]+)`(-?)/g)]
+    .filter((m) => m[2] === '')
+    .map((m) => m[1].trim());
   return {
     tokens: koder.filter((k) => /^--[a-z0-9-]+$/.test(k)),
-    klasser: koder.filter((k) => /^\.[a-z][a-z0-9-]*$/.test(k) && !FILENDELSER.has(k)),
+    klasser: koder.filter((k) => /^\.[a-z][a-z0-9-]*$/.test(k)),
     komponenter: koder.filter((k) => /^[\w/-]+\.svelte$/.test(k)),
   };
 }
@@ -77,6 +80,7 @@ describe('systemfila og skillene for visningen', () => {
     expect(system.tokens.length).toBeGreaterThan(20);
     expect(system.klasser.length).toBeGreaterThan(0);
     expect(system.komponenter.length).toBeGreaterThan(5);
+    for (const h of skiller) expect(h.tokens.length).toBeGreaterThan(0);
   });
 
   it('hvert token de nevner, er definert for lys modus i theme.css eller app.css', () => {
