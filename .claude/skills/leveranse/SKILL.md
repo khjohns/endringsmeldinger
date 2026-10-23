@@ -48,6 +48,9 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   annerledes og hva som utelates, med vedtaket eller issuet som grunn. Reglene
   hentes fra kjernen og prøves mot vedtakene og bevis-sakene, ikke mot den gamle
   koden.
+- Endrer oppgaven visningen, følg [grensesnitt-skillen](../grensesnitt/SKILL.md) og
+  [systemfila](../../../docs/design/system.md). Ryddingen og reviewet av visningen
+  står i `AGENTS.md`, «Arbeidsform».
 - Avklar bare uavklart tiltenkt atferd med oppdragsgiver. Tekniske valg innenfor
   oppgaven avgjør du selv. En uløst domenebeslutning blokkerer bare den
   implementeringen den gjelder.

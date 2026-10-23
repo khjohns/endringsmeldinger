@@ -3,6 +3,10 @@
 **Dato:** 2026-03-11
 **Status:** Godkjent
 
+> **Erstattet (2026-10-23).** Retningen er Sage & Stone. Beslutningene står i
+> [designsystemet](../../design/system.md), og verdiene i
+> `src/lib/components/kontraktsbord/theme.css`.
+
 ## Bakgrunn
 
 KOE brukte zinc-baserte fargetokens som ga 29 (lys) og 24 (mørk) WCAG AA-feil i kontrastsjekk. Fargene var kalde og upersonlige. Brukeren ønsket et varmere, papir-inspirert tema med blekk-hierarki — "Dokumentbordet".
