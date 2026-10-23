@@ -340,16 +340,17 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
       throw new KanIkkeUttrykkes(`kategorien ${hoved}/${under} har ingen brevtekst`);
     }
   } else if (k.spor === 'vederlag') {
+    const krever: string[] = [];
     if (harHovedbeloep(k))
-      deler.push(
-        `TE krever justering av vederlaget med ${eksMva(tilTall(krevdBeloep(k)))} Kravet er et tilbud etter NS 8407 § 34.2.1.`
-      );
+      krever.push(`TE krever justering av vederlaget med ${eksMva(tilTall(krevdBeloep(k)))}`);
     // OV-U23: posten etter § 34.1.3 annet ledd, med eller uten hovedbeløpet.
     const post = krevdProduktivitet(k);
     if (post !== null)
-      deler.push(
+      krever.push(
         `TE krever ${harHovedbeloep(k) ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`
       );
+    // Hele kravet er et tilbud, også når det bare har posten.
+    deler.push(`${krever.join(' ')} Kravet er et tilbud etter NS 8407 § 34.2.1.`);
   } else {
     deler.push(
       `TE krever fristforlengelse på ${dager(k.innhold.dager as number)} (NS 8407 § 33.6.1).`
@@ -419,11 +420,11 @@ const METODEN = {
 const PRODUKTIVITET =
   'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
 
-/** Bestemmelsen varselet er gitt etter; etter OV-U25 har bare annet ledd i § 34.1.3 varsel. */
+/** Bestemmelsen varselet er gitt etter; etter OV-U25 gjelder varselet i § 34.1.3 tredje ledd bare annet ledd. */
 const VARSLET_ETTER: Record<Varselhjemmel, string> = {
   '33.4': 'NS 8407 § 33.4',
   '34.1.2': 'NS 8407 § 34.1.2',
-  '34.1.3': 'NS 8407 § 34.1.3 annet ledd',
+  '34.1.3': 'NS 8407 § 34.1.3 tredje ledd',
 };
 
 /** KA-U22: beløpene som identifiserer vederlagskravet i trekket, med posten etter § 34.1.3. */
@@ -438,7 +439,7 @@ function kravetsBeloep(krav: Krav): string {
 const VARSEL_OM: Record<Varselhjemmel, string> = {
   '33.4': `om fristforlengelse etter ${VARSLET_ETTER['33.4']}`,
   '34.1.2': `om vederlagsjustering etter ${VARSLET_ETTER['34.1.2']}`,
-  '34.1.3': `om særskilt justering for nedsatt produktivitet og forstyrrelser etter ${VARSLET_ETTER['34.1.3']}`,
+  '34.1.3': `om særskilt justering for nedsatt produktivitet eller forstyrrelser etter ${VARSLET_ETTER['34.1.3']}`,
 };
 
 /** Varselet et standpunkt om rettidighet gjelder (LV-U4 punkt 5, LV-U5). */
@@ -657,7 +658,7 @@ function beskriv(id: string, j: Journalen): string {
 const VIL_KREVE: Record<Varselhjemmel, string> = {
   '33.4': 'fristforlengelse',
   '34.1.2': 'justering av vederlaget',
-  '34.1.3': `særskilt justering av vederlaget for ${PRODUKTIVITET}`,
+  '34.1.3': `særskilt justering av vederlaget etter annet ledd for ${PRODUKTIVITET}`,
 };
 
 /** Hjemmelen for varselet en datoopplysning gjelder (HF-U1). */
