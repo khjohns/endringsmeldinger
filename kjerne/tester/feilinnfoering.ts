@@ -62,6 +62,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
+import { createRequire } from 'node:module';
 import { availableParallelism, constants, tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { treffer } from './maltreff.ts';
@@ -3217,6 +3218,13 @@ interface Arbeidskopi {
 }
 
 const ROT = process.cwd();
+/**
+ * Den nærmeste `node_modules` oppover fra roten som har Vitest, som Node søker i. I et
+ * arbeidstre er den i hovedcheckouten (#1114, #1160).
+ */
+const PAKKEMAPPE = createRequire(join(ROT, 'package.json'))
+  .resolve.paths('vitest')!
+  .find((mappe) => existsSync(join(mappe, 'vitest')));
 const TESTBASE = process.env.KOE_SQLSERVER_TILKOBLING;
 
 /** En test i samlingen, med fila relativt til roten. */
@@ -3265,19 +3273,39 @@ function testnavn(): Test[] {
 const harMal = (navn: string, mal: string) =>
   treffer(navn, mal) || treffer(navn.split(' > ').join(' '), mal);
 
-/** Kjører `filer`, eller hele samlingen, i `k`. */
-function kjoerVitest(
+/** Vitest avsluttet uten å skrive rapporten. */
+class IngenRapport extends Error {}
+
+/** Slutten av stderr fra Vitest som tas med i feilen. */
+const STDERR_SLUTT = 4000;
+
+/**
+ * Kjører `filer`, eller hele samlingen, i `k`. Skriver Vitest ingen rapport, kjøres den én
+ * gang til før feilen går videre (#1156).
+ */
+async function kjoerVitest(
   k: Arbeidskopi,
   filer = ['kjerne/', 'sprakprove/kjernelagring/']
 ): Promise<Rapport> {
+  try {
+    return await kjoerVitestEnGang(k, filer);
+  } catch (e) {
+    if (!(e instanceof IngenRapport)) throw e;
+    console.error(`${e.message}\nKjøres én gang til.`);
+    return kjoerVitestEnGang(k, filer);
+  }
+}
+
+function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
   const ut = `${k.rot}-rapport.json`;
   rmSync(ut, { force: true });
   // Vitest 3.2 gir ikke `--hookTimeout` videre til prosjektene, så grensen går gjennom
   // `vite.config.ts`. `vi.setConfig` i lagringstestene virker bare for den første filen i
   // en arbeider uten isolasjon, så grensen er den samme som `GRENSER` der.
   const env = { ...process.env, KOE_HOOKGRENSE: '240000' };
+  let stderr = '';
   return new Promise((ok, feil) => {
-    spawn(
+    const vitest = spawn(
       'npx',
       [
         'vitest',
@@ -3296,18 +3324,33 @@ function kjoerVitest(
         `--outputFile=${ut}`,
       ],
       // Egen prosessgruppe, så et avbrudd kan stoppe Vitest og arbeiderne den har startet.
-      { cwd: k.rot, env, stdio: 'ignore', detached: true }
-    )
+      { cwd: k.rot, env, stdio: ['ignore', 'ignore', 'pipe'], detached: true }
+    );
+    vitest.stderr!.setEncoding('utf8').on('data', (d: string) => {
+      stderr = (stderr + d).slice(-STDERR_SLUTT);
+    });
+    vitest
       .on('spawn', function (this: ChildProcess) {
         grupper.add(this.pid!);
       })
       .on('error', feil)
-      .on('close', function (this: ChildProcess) {
+      .on('close', function (this: ChildProcess, kode: number | null, signal: string | null) {
         grupper.delete(this.pid!);
         try {
           ok(JSON.parse(readFileSync(ut, 'utf8')) as Rapport);
         } catch (e) {
-          feil(new Error(`Vitest skrev ingen rapport i ${k.rot}`, { cause: e }));
+          // Arbeidere som overlevde Vitest, ville ellers delt base med det nye forsøket.
+          try {
+            process.kill(-this.pid!, 'SIGKILL');
+          } catch {
+            // Gruppen er alt borte.
+          }
+          feil(
+            new IngenRapport(
+              `Vitest skrev ingen rapport i ${k.rot} (exitkode ${kode}, signal ${signal}). Slutten av stderr:\n${stderr || '(tom)'}`,
+              { cause: e }
+            )
+          );
         }
       });
   });
@@ -3334,9 +3377,10 @@ function rydd() {
 
 /**
  * Kopierer arbeidstreet slik det står, med lokale endringer og nye filer som git
- * ikke ignorerer, og deler `node_modules`.
+ * ikke ignorerer, og deler `node_modules` som pakkene lastes fra.
  */
 function lagArbeidskopier(antall: number): Arbeidskopi[] {
+  if (!PAKKEMAPPE) throw new Error(`Fant ingen node_modules med Vitest oppover fra ${ROT}`);
   tempmappe = mkdtempSync(join(tmpdir(), 'feilinnfoering-'));
   const filer = spawnSync('git', ['ls-files', '-z', '-co', '--exclude-standard'], {
     encoding: 'utf8',
@@ -3349,7 +3393,7 @@ function lagArbeidskopier(antall: number): Arbeidskopi[] {
       mkdirSync(dirname(join(rot, f)), { recursive: true });
       cpSync(f, join(rot, f), { verbatimSymlinks: true });
     }
-    symlinkSync(join(ROT, 'node_modules'), join(rot, 'node_modules'));
+    symlinkSync(PAKKEMAPPE, join(rot, 'node_modules'));
     return { rot };
   });
 }
