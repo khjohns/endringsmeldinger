@@ -283,11 +283,9 @@ export const BESLUTNINGSGRUNNLAG: Skjema = objekt(
   {
     regelversjon: { type: 'integer' },
     virkninger: liste(
-      objekt({ standpunkt: ID, virkning: { enum: ['prinsipalt', 'subsidiaert'] } }, [
-        'standpunkt',
-        'virkning',
-      ])
+      objekt({ standpunkt: ID, lag: { type: 'integer', minimum: 1 } }, ['standpunkt', 'lag'])
     ),
+    upaavirket: liste(ID),
     uten_virkning: liste(ID),
     linje: TEKST,
     sammenfall: { type: 'boolean' },

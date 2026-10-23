@@ -1025,6 +1025,65 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
+  // OV-U32: appen fryser laget hvert standpunkt står i som et nummer, og brevet setter én
+  // etikett per lag etter den fryste verdien. Brevet og beslutningsgrunnlaget sier det samme
+  // (#1047, B4-1b).
+  it('§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3, i brevet og i beslutningsgrunnlaget (OV-U32)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          { frist_varsel_ok: false, spesifisert_krav_ok: true, vilkar_oppfylt: false, dager: 10 },
+          { resultat: 'avslaatt', godkjent_dager: 0 }
+        ),
+      ],
+    });
+    const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3]);
+    expect(b.uten_virkning).toHaveLength(1);
+    expect(b.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4), subsidiært avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), videre subsidiært godkjent med 10 dager.'
+    );
+    const tekst = laast(rad)[0];
+    expect(tekst).toContain(
+      'Prinsipalt: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev 4 av 4. oktober 2026 kom for sent. Subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1).'
+    );
+    expect(tekst).toMatch(
+      / Videre subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager\.$/
+    );
+    // Én etikett per lag: standpunktet uten virkning (§ 33.6.1 i tide) står uten etikett.
+    expect(tekst.match(/(Prinsipalt|Subsidiært|Videre subsidiært):/g)).toEqual([
+      'Prinsipalt:',
+      'Subsidiært:',
+      'Videre subsidiært:',
+    ]);
+    const dagene = s.u().spor.frist.gjeldendeSvar!.standpunkter.find((p) => p.art === 'dager')!;
+    expect(standpunktetErSubsidiaert(s.u(), 'frist', dagene.id), 'MM-U28').toBe(true);
+  });
+
+  it('kontrollsak: med fremdriftshindring står dagene i lag 2, ikke 3 (OV-U32)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          { frist_varsel_ok: false, spesifisert_krav_ok: true, vilkar_oppfylt: true, dager: 10 },
+          { resultat: 'avslaatt', godkjent_dager: 0 }
+        ),
+      ],
+    });
+    const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2]);
+    expect(laast(rad)[0]).toMatch(
+      / Subsidiært: byggherren godkjenner 10 dager av de krevde 20 dager\.$/
+    );
+  });
+
   it('innledningen nevner sporet, og standpunktene ordnes slik brevet ordner dem', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
@@ -2633,6 +2692,12 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(b.linje).toBe(
       'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4 og § 33.6.2), subsidiært godkjent med 20 dager.'
     );
+    // OV-U32: begge påberopelsene står i lag 1 og deler én etikett i brevet, og dagene står i lag 2.
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 1, 2]);
+    expect(laast(rad)[0].match(/(Prinsipalt|Subsidiært|Videre subsidiært):/g)).toEqual([
+      'Prinsipalt:',
+      'Subsidiært:',
+    ]);
   });
 
   it('kravet som svarer på forespørselen, sier det (LV-U18 setning 3), og § 33.6.1 kan ikke påberopes (fjerde ledd)', () => {

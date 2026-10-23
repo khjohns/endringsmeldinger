@@ -1319,7 +1319,7 @@ export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
 /**
  * MM-U9, MM-U28: standpunktet i sporets gjeldende svar er subsidiært, fordi svaret på
  * grunnlaget avviser ansvaret (`subsidiaer`), eller fordi brevet selv ga standpunktet
- * subsidiær virkning. Virkningen leses slik brevet sa den.
+ * et lag etter det første (OV-U32). Virkningen leses slik brevet sa den.
  */
 export function standpunktetErSubsidiaert(
   u: Utledning,
@@ -1331,7 +1331,7 @@ export function standpunktetErSubsidiaert(
     s.subsidiaer.length > 0 ||
     (s.gjeldendeSvar !== null &&
       s.gjeldendeSvar.beslutningsgrunnlag.virkninger.some(
-        (v) => v.standpunkt === standpunkt && v.virkning === 'subsidiaert'
+        (v) => v.standpunkt === standpunkt && typeof v.virkning === 'number' && v.virkning > 1
       ))
   );
 }

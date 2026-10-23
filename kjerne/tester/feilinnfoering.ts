@@ -255,7 +255,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         '      e.beslutningsgrunnlag,',
-        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, virkning: 'prinsipalt' })), linje: '-', sammenfall: false, ...(spor === 'grunnlag' ? { varslingsplikt: false } : {}) },",
+        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'grunnlag' ? { varslingsplikt: false } : {}) },",
       ],
     ],
     mal: ['et svar uten beslutningsgrunnlag'],
@@ -964,8 +964,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    ...s.standpunkter.map((p) => ({',
-        "    ...s.standpunkter.filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => ({",
+        '    ...s.standpunkter.map((p) => {',
+        "    ...s.standpunkter.filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => {",
       ],
     ],
     mal: ['et standpunkt appen regner som uten virkning', 'gir byggherren innsigelsen opp'],
@@ -1202,8 +1202,11 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'standpunktet om rettidighet nevner feil varsel (LV-U4 punkt 5, LV-U5)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ['          ? VARSELET[p.hjemmel]\n', "          ? VARSELET['33.4']\n"],
-      ['          : `${VARSELET[p.hjemmel]} i ', "          : `${VARSELET['32.2']} i "],
+      [
+        "  if (p.hjemmel === '32.2') return VARSELET[p.hjemmel];",
+        "  if (p.hjemmel === '32.2') return VARSELET['33.4'];",
+      ],
+      ['  return `${VARSELET[p.hjemmel]} i ', "  return `${VARSELET['32.2']} i "],
     ],
     mal: [
       'nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)',
@@ -1552,10 +1555,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'spesifisering i tide får virkning etter § 33.6.1',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
-      [
-        "const virkning = s.iTide ? 'uten_virkning' : etterGrunn();",
-        'const virkning = etterGrunn();',
-      ],
+      ["const virkning = s.iTide ? 'uten_virkning' : iLaget();", 'const virkning = iLaget();'],
     ],
     mal: ['F-MM-F-33-6-1-ja'],
   },
@@ -1564,7 +1564,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'de vurderte dagene står prinsipalt ved siden av påberopelsen etter § 33.6.1 (VS-U4)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['if (!s.iTide) harGrunn = true;', 'void 0;']],
+    endringer: [['if (!s.iTide) lag++;', 'void 0;']],
     mal: ['F-MM-F-33-6-1-nei'],
   },
   {
@@ -1760,7 +1760,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'linjen sier «subsidiært» også fra tredje ledd, ikke «videre subsidiært» (HF-U2, #492)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["i === 1 ? 'subsidiært' : 'videre subsidiært'", "'subsidiært'"]],
+    endringer: [["lag === 2 ? 'subsidiært' : 'videre subsidiært'", "'subsidiært'"]],
     mal: ['linjen ordner byggherrens standpunkter'],
   },
   {
@@ -3236,6 +3236,54 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/format.ts`,
     endringer: [["    anyOf: [{ required: ['beloep'] }, { required: ['saerskilt'] }],\n", '']],
     mal: ['vederlagskravet kan ha bare posten'],
+  },
+  {
+    id: 'F376',
+    feilklasse: 'en grunn etter den andre åpner ikke et nytt lag, så dagene står i lag 2 (OV-U32)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['      if (!s.oppfylt) lag++;', '      if (!s.oppfylt) lag = 2;']],
+    mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],
+  },
+  {
+    id: 'F377',
+    feilklasse: 'et standpunkt i lag 3 regnes ikke som subsidiært (OV-U32, MM-U28)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [["typeof v.virkning === 'number' && v.virkning > 1", 'v.virkning === 2']],
+    mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],
+  },
+  {
+    id: 'F378',
+    feilklasse: 'meldingen om en senket revisjon sier ikke etiketten fra lag 3 (OV-U32)',
+    fil: `${K}/utledning/innroemmelse.ts`,
+    endringer: [['lag !== null && lag > 1', 'lag === 2']],
+    mal: ['meldingen om en senket revisjon sier etiketten for laget dagene sto i'],
+  },
+  {
+    id: 'F379',
+    feilklasse: 'formatet tar ikke upåvirket som egen virkning (OV-U32, HF-U2)',
+    fil: `${K}/format/format.ts`,
+    endringer: [['    upaavirket: liste(ID),\n', '']],
+    mal: ['formatet lagrer laget som et heltall fra 1'],
+  },
+  {
+    id: 'F380',
+    feilklasse: 'formatet tar lag 0 (OV-U32)',
+    fil: `${K}/format/format.ts`,
+    endringer: [["lag: { type: 'integer', minimum: 1 }", "lag: { type: 'integer' }"]],
+    mal: ['formatet lagrer laget som et heltall fra 1'],
+  },
+  {
+    id: 'F381',
+    feilklasse:
+      'et grunnlag som er både prekludert og avslått, flytter lagene i sporet bare ett lag (OV-U32, A2)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '  const forskyvning = grunnlaget.length;',
+        '  const forskyvning = grunnlaget.length ? 1 : 0;',
+      ],
+    ],
+    mal: ['grunnlaget prekludert og avslått subsidiært i samme brev'],
   },
 ];
 

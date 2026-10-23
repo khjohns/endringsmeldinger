@@ -23,6 +23,8 @@ import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
   blirEndringsordre,
   dager,
+  etikett,
+  laget,
   gjelderVarslingsplikten,
   grunnerFraGrunnlaget,
   innsigelsenErOppgitt,
@@ -496,23 +498,30 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
   const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);
+  // OV-U32: et avslått eller prekludert grunnlag står først, med lagene fra svaret på
+  // grunnlaget, og lagene i sporet flyttes ned med antallet lag de opptar (B-13, A2). Hvert
+  // ledd fra grunnlaget er ett lag der: preklusjonen etter § 32.2 er det første, og avslaget
+  // står i laget etter. Et standpunkt uten lag, også et upåvirket, og metoden, som står ved
+  // siden av beløpet (arbeidsvalget i #479), får ingen etikett. Standpunktene i samme lag
+  // står under én etikett.
+  const grunnlaget = grunnlagetsStandpunkter(s, t);
+  const forskyvning = grunnlaget.length;
   const ledd = [
-    ...grunnlagetsStandpunkter(s, t).map((tekst) => ({ tekst, ordnes: true })),
-    ...s.standpunkter.map((p) => ({
-      tekst: standpunkttekst(p, s, krav, j, innsigelser),
-      // Metoden er ikke en egen grunn, men står ved siden av beløpet (arbeidsvalget i #479).
-      ordnes: virkning.get(p.id) !== 'uten_virkning' && p.art !== 'metode',
-    })),
+    ...grunnlaget.map((tekst, i) => ({ tekst, plass: (i + 1) as number | null })),
+    ...s.standpunkter.map((p) => {
+      const lag = laget(virkning.get(p.id)!);
+      return {
+        tekst: standpunkttekst(p, s, krav, j, innsigelser),
+        plass: lag !== null && p.art !== 'metode' ? lag + forskyvning : null,
+      };
+    }),
   ];
-  // «Prinsipalt» og «subsidiært» er slik brevet ordner standpunktene (HF-U2).
-  const ordnet =
-    ledd.length > s.standpunkter.length ||
-    s.standpunkter.some((p) => virkning.get(p.id) === 'subsidiaert');
-  let plass = 0;
-  const setninger = ledd.map(({ tekst, ordnes }) => {
-    if (!ordnet || !ordnes) return stor(tekst);
-    const n = plass++;
-    return `${n === 0 ? 'Prinsipalt' : n === 1 ? 'Subsidiært' : 'Videre subsidiært'}: ${tekst}`;
+  const ordnet = ledd.some(({ plass }) => plass !== null && plass > 1);
+  const merket = new Set<number>();
+  const setninger = ledd.map(({ tekst, plass }) => {
+    if (!ordnet || plass === null || merket.has(plass)) return stor(tekst);
+    merket.add(plass);
+    return `${stor(etikett(plass))}: ${tekst}`;
   });
   return [
     `Byggherrens svar på ${SVARET_GJELDER[s.spor]} i TEs krav i ${j.brevet(krav.dokument)}:`,
@@ -521,6 +530,19 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
       ? [`Svaret erstatter byggherrens svar i ${j.brevet(j.svar(s.erstatter).dokument)}.`]
       : []),
   ].join(' ');
+}
+
+/**
+ * Varselet et standpunkt om rettidighet gjelder, med brevet det står i (HF-U1, #497). Uten
+ * eget varsel er det brevet med TEs første krav i sporet, uten forbeholdet fra skjemaet
+ * (LV-U21, OV-U28, OV-U29). TEs varsel etter § 32.2 er grunnlagskravet og nevnes uten brev
+ * (oppdragsgiver 17.10). For § 33.6.2 er det svaret på forespørselen, med brevet
+ * forespørselen står i (LV-U18 setning 4).
+ */
+function varseletMedBrevet(p: Extract<Standpunkt, { art: 'rettidighet' }>, j: Journalen): string {
+  if (p.hjemmel === '32.2') return VARSELET[p.hjemmel];
+  const gjelder = p.hjemmel === '33.6.2' ? foresporselenTil(p.gjelder, j) : p.gjelder;
+  return `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
 }
 
 /** Ett standpunkt som en setning med liten forbokstav (LV-U4 punkt 5, LV-U5, GR-U14). */
@@ -537,12 +559,7 @@ function standpunkttekst(
     case 'rettidighet': {
       // VS-U29, VS-U31: saken har én forespørsel, så standpunktet etter § 33.6.2 gjelder begrunnelsen.
       const aapne = innsigelser.filter((i) => i.hjemmel === p.hjemmel);
-      // HF-U1: brevet varselet står i, unntatt TEs varsel etter § 32.2 (oppdragsgiver 17.10, #497).
-      // LV-U18 setning 4: svaret på forespørselen med brevet forespørselen står i.
-      const varselet =
-        p.hjemmel === '32.2'
-          ? VARSELET[p.hjemmel]
-          : `${VARSELET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.hjemmel === '33.6.2' ? foresporselenTil(p.gjelder, j) : p.gjelder))}`;
+      const varselet = varseletMedBrevet(p, j);
       // Et «for sent» gjentar de åpne innsigelsene, og et «i tide» gir dem opp (VS-U11, VS-U24).
       // Saken har ett varsel etter § 33.4 (oppdragsgiver 15.10, #498).
       const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);

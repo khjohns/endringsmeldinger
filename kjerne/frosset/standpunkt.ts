@@ -33,6 +33,7 @@ import type {
   Standpunktsvirkning,
   Svar,
   Utfall,
+  Virkning,
 } from '../typer.ts';
 
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
@@ -80,7 +81,9 @@ export function hjemmelenGjelder(
 
 /**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
- * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder.
+ * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. Laget er et nummer fra 1.
+ * Hver grunn med virkning åpner et nytt lag for standpunktene etter den, og påberopelsene
+ * av rettidighet står i det første (OV-U32, vedtaket 05.10).
  */
 export function virkninger(
   svar: Svarinnhold,
@@ -88,27 +91,27 @@ export function virkninger(
   regler: Regelsett
 ): Standpunktsvirkning[] {
   const ut: Standpunktsvirkning[] = [];
-  let harGrunn = false;
-  const etterGrunn = () => (harGrunn ? 'subsidiaert' : 'prinsipalt');
+  let lag = 1;
+  const iLaget = () => lag;
   for (const s of svar.standpunkter) {
     if (s.art === 'rettidighet') {
       const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, grunnlagskrav, regler);
-      if (virker) harGrunn = true;
-      ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 'prinsipalt' : 'uten_virkning' });
+      if (virker) lag = 2;
+      ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 1 : 'uten_virkning' });
     } else if (s.art === 'metode' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {
       // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
-      const virkning = s.iTide ? 'uten_virkning' : etterGrunn();
-      if (!s.iTide) harGrunn = true;
+      const virkning = s.iTide ? 'uten_virkning' : iLaget();
+      if (!s.iTide) lag++;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'hindring') {
       // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
-      const virkning = s.oppfylt ? 'uten_virkning' : etterGrunn();
-      if (!s.oppfylt) harGrunn = true;
+      const virkning = s.oppfylt ? 'uten_virkning' : iLaget();
+      if (!s.oppfylt) lag++;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else {
-      ut.push({ standpunkt: s.id, art: s.art, virkning: etterGrunn() });
+      ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });
     }
   }
   return ut;
@@ -237,7 +240,7 @@ export function foresporselsrelasjon(
   return begrunnelse ? { art: 'begrunnelse', gjelder: begrunnelse } : null;
 }
 
-export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 'prinsipalt');
+export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 1);
 /** Et standpunkt som avviser kravet uavhengig av beløpet eller dagene. */
 const AVVISENDE = new Set(['rettidighet', 'hindring']);
 const avvisesPrinsipalt = (v: Standpunktsvirkning[]) => AVVISENDE.has(prinsipalt(v)?.art ?? '');
@@ -279,10 +282,7 @@ export function grunnlagetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[])
  * Rettidigheten i grunnlaget er alltid etter § 32.2 (`HJEMMEL`).
  */
 function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  return (
-    svar.spor === 'grunnlag' &&
-    v.some((p) => p.art === 'rettidighet' && p.virkning === 'prinsipalt')
-  );
+  return svar.spor === 'grunnlag' && v.some((p) => p.art === 'rettidighet' && p.virkning === 1);
 }
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
@@ -406,23 +406,44 @@ function beslutningslinje(
       (p.art !== 'rettidighet' || p.standpunkt === prekluderende[0])
   );
   let standpunkt: string;
+  let sist: Standpunkt;
   if (svar.spor === 'grunnlag') {
-    standpunkt = GRUNNLAGSSVARET[standpunktet(svar, 'grunnlag')!.resultat];
+    sist = standpunktet(svar, 'grunnlag')!;
+    standpunkt = GRUNNLAGSSVARET[sist.resultat];
   } else if (svar.spor === 'vederlag') {
-    const b = standpunktet(svar, 'beloep')!;
+    const b = (sist = standpunktet(svar, 'beloep')!);
     standpunkt = b.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
     if (standpunktet(svar, 'metode')?.aksepterer === false)
       standpunkt += ', tilbudet ikke akseptert (§ 34.2.2)';
   } else {
-    const d = standpunktet(svar, 'dager')!;
+    const d = (sist = standpunktet(svar, 'dager')!);
     standpunkt = d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
   }
-  const ledd = [...grunner.map((p) => grunntekst[p.art]), standpunkt];
+  const virkning = (id: string) => v.find((p) => p.standpunkt === id)!.virkning;
+  const ledd = [
+    ...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })),
+    { tekst: standpunkt, virkning: virkning(sist.id) },
+  ];
   if (ledd.length === 1) return `Byggherrens standpunkt: ${standpunkt}.`;
-  const orden = (i: number) =>
-    i === 0 ? 'prinsipalt' : i === 1 ? 'subsidiært' : 'videre subsidiært';
-  return `Byggherrens standpunkt: ${ledd.map((t, i) => `${orden(i)} ${t}`).join(', ')}.`;
+  // OV-U32: etiketten følger det fryste laget, og et upåvirket standpunkt står uten etikett.
+  return `Byggherrens standpunkt: ${ledd.map((l) => etikettert(l.virkning, l.tekst)).join(', ')}.`;
 }
+
+/** Laget standpunktet står i, eller `null` når det er upåvirket eller uten virkning (OV-U32). */
+export const laget = (virkning: Virkning): number | null =>
+  typeof virkning === 'number' ? virkning : null;
+
+/**
+ * Etiketten for laget, med ordene i LV-U4 punkt 4: «videre subsidiært» for hvert lag fra det
+ * tredje. Lik etikett betyr ikke samme lag (OV-U32).
+ */
+export const etikett = (lag: number): string =>
+  lag === 1 ? 'prinsipalt' : lag === 2 ? 'subsidiært' : 'videre subsidiært';
+
+const etikettert = (virkning: Virkning, tekst: string) => {
+  const lag = laget(virkning);
+  return lag === null ? tekst : `${etikett(lag)} ${tekst}`;
+};
 
 /**
  * Brevet frosset når det sendes (MM-U9, MM-U11). For grunnlaget fryses også om
