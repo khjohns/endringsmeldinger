@@ -89,7 +89,14 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       redirect: 'manual',
       signal: AbortSignal.timeout(15_000),
     });
-    expect(svar.status, `GET ${sti.split('?')[0]}`).toBe(200);
+    if (svar.status !== 200) {
+      // Brokeren svarer selv med `{"feil": …}` når den avviser kallet (#1149).
+      const feil = await svar.json().then(
+        (data: { feil?: unknown }) => (typeof data?.feil === 'string' ? data.feil : null),
+        () => null
+      );
+      expect.fail(`GET ${sti.split('?')[0]} ga ${svar.status}${feil ? ` (${feil})` : ''}`);
+    }
     return svar.json();
   }
 
@@ -112,6 +119,12 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
 
   it('A1: integrasjonens token godtas', async () => {
     await hent(`/v2/projects/${prosjekt}`);
+  });
+
+  // `egenId` og `egenBruker` leser integrasjonen i `GET /v2/user`. Brokeren avviser kallet med
+  // `broker_avviste` til stien står på listen den slipper gjennom (#1149).
+  it('A1: brokeren slipper gjennom GET /v2/user, som egenId og egenBruker leser (#1149)', async () => {
+    await hent('/v2/user');
   });
 
   // `normaliserMedlemmer` kaster ved en rad som ikke er en individuell bruker med en kjent
@@ -296,6 +309,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     // topic-api-openapi.yaml, schema `comment`: `author` er brukernavnet til forfatteren, og
     // project-api-openapi.yaml, schema `user`: `username`. Kommentaren kvitteres bare når
     // forfatteren er integrasjonens brukernavn (#972). Kommentaren slettes med topicen.
+    // Brokeren må slippe gjennom `GET /v2/user` og `GET …/comments` (#1149).
     it('B1: en kommentar integrasjonen skriver, har integrasjonens brukernavn som forfatter (#972)', async () => {
       const paa = krev(topic, 'topicen fra B1');
       const tekst = `koe-livetest-kommentar ${randomUUID()}`;
@@ -304,6 +318,24 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       const lest = (await oauth.kommentarer(board, paa, token)).find((k) => k.id === id);
       expect(brukernavn).not.toBeNull();
       expect(lest).toEqual({ id, tekst, forfatter: brukernavn });
+    });
+
+    // BCF 3.0, schema `comment` og `topic`: `author` og `creation_author`. Testen fastholder
+    // det Catenda svarer i dag: kommentaren og topicen integrasjonen skriver, har samme
+    // forfatter. Den prøver det kvitteringen bygger på (#972) uten `GET /v2/user` og
+    // `GET …/comments`, som brokeren avviser (#1149). At forfatteren er `username` fra
+    // `/v2/user`, prøves i testen over. Kommentaren slettes med topicen.
+    it('B1: en kommentar integrasjonen skriver, har samme forfatter som topicen integrasjonen laget (#1149)', async () => {
+      const paa = krev(topic, 'topicen fra B1');
+      const topicsti = `/opencde/bcf/3.0/projects/${board}/topics/${paa}`;
+      const svar = await kall('POST', `${topicsti}/comments`, {
+        comment: `koe-livetest-kommentar ${randomUUID()}`,
+      });
+      expect(svar.status, 'POST …/comments').toBe(201);
+      const { author } = (await svar.json()) as { author?: unknown };
+      const { creation_author } = (await hent(topicsti)) as { creation_author?: unknown };
+      expect(typeof author === 'string' && author.length > 0).toBe(true);
+      expect(author).toBe(creation_author);
     });
 
     // topic-api-openapi.yaml tillater `guid` i POST …/topics. Om en topic kan lages
