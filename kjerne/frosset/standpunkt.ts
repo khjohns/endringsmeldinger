@@ -33,7 +33,9 @@ import type {
   Standpunktsvirkning,
   Svar,
   Utfall,
+  Virkning,
 } from '../typer.ts';
+import { LAGENE, type Lag } from '../typer.ts';
 
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
 export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;
@@ -80,7 +82,9 @@ export function hjemmelenGjelder(
 
 /**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
- * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder.
+ * skrives. `grunnlagskrav` er kravet et grunnlagssvar gjelder. Hver grunn med virkning
+ * åpner et nytt lag for standpunktene etter den, og påberopelsene av rettidighet står i
+ * samme lag (OV-U30, vedtaket 05.10).
  */
 export function virkninger(
   svar: Svarinnhold,
@@ -88,27 +92,27 @@ export function virkninger(
   regler: Regelsett
 ): Standpunktsvirkning[] {
   const ut: Standpunktsvirkning[] = [];
-  let harGrunn = false;
-  const etterGrunn = () => (harGrunn ? 'subsidiaert' : 'prinsipalt');
+  let lag = 0;
+  const iLaget = () => LAGENE[lag];
   for (const s of svar.standpunkter) {
     if (s.art === 'rettidighet') {
       const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, grunnlagskrav, regler);
-      if (virker) harGrunn = true;
+      if (virker) lag = 1;
       ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 'prinsipalt' : 'uten_virkning' });
     } else if (s.art === 'metode' && s.aksepterer) {
       ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
     } else if (s.art === 'spesifisering') {
       // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
-      const virkning = s.iTide ? 'uten_virkning' : etterGrunn();
-      if (!s.iTide) harGrunn = true;
+      const virkning = s.iTide ? 'uten_virkning' : iLaget();
+      if (!s.iTide) lag++;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else if (s.art === 'hindring') {
       // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
-      const virkning = s.oppfylt ? 'uten_virkning' : etterGrunn();
-      if (!s.oppfylt) harGrunn = true;
+      const virkning = s.oppfylt ? 'uten_virkning' : iLaget();
+      if (!s.oppfylt) lag++;
       ut.push({ standpunkt: s.id, art: s.art, virkning });
     } else {
-      ut.push({ standpunkt: s.id, art: s.art, virkning: etterGrunn() });
+      ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });
     }
   }
   return ut;
@@ -406,23 +410,41 @@ function beslutningslinje(
       (p.art !== 'rettidighet' || p.standpunkt === prekluderende[0])
   );
   let standpunkt: string;
+  let sist: Standpunkt;
   if (svar.spor === 'grunnlag') {
-    standpunkt = GRUNNLAGSSVARET[standpunktet(svar, 'grunnlag')!.resultat];
+    sist = standpunktet(svar, 'grunnlag')!;
+    standpunkt = GRUNNLAGSSVARET[sist.resultat];
   } else if (svar.spor === 'vederlag') {
-    const b = standpunktet(svar, 'beloep')!;
+    const b = (sist = standpunktet(svar, 'beloep')!);
     standpunkt = b.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${kroner(b.godkjent)}`;
     if (standpunktet(svar, 'metode')?.aksepterer === false)
       standpunkt += ', tilbudet ikke akseptert (§ 34.2.2)';
   } else {
-    const d = standpunktet(svar, 'dager')!;
+    const d = (sist = standpunktet(svar, 'dager')!);
     standpunkt = d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`;
   }
-  const ledd = [...grunner.map((p) => grunntekst[p.art]), standpunkt];
+  const virkning = (id: string) => v.find((p) => p.standpunkt === id)!.virkning;
+  const ledd = [
+    ...grunner.map((p) => ({ tekst: grunntekst[p.art], virkning: p.virkning })),
+    { tekst: standpunkt, virkning: virkning(sist.id) },
+  ];
   if (ledd.length === 1) return `Byggherrens standpunkt: ${standpunkt}.`;
-  const orden = (i: number) =>
-    i === 0 ? 'prinsipalt' : i === 1 ? 'subsidiært' : 'videre subsidiært';
-  return `Byggherrens standpunkt: ${ledd.map((t, i) => `${orden(i)} ${t}`).join(', ')}.`;
+  // OV-U30: etiketten følger det fryste laget, og et upåvirket standpunkt står uten etikett.
+  return `Byggherrens standpunkt: ${ledd.map((l) => etikettert(l.virkning, l.tekst)).join(', ')}.`;
 }
+
+/** Laget med ordet brevet bruker for det (LV-U4 punkt 4, OV-U30). */
+export const LAGET: Record<Lag, string> = {
+  prinsipalt: 'prinsipalt',
+  subsidiaert: 'subsidiært',
+  videre_subsidiaert: 'videre subsidiært',
+};
+
+export const erLag = (virkning: Virkning): virkning is Lag =>
+  (LAGENE as readonly string[]).includes(virkning);
+
+const etikettert = (virkning: Virkning, tekst: string) =>
+  erLag(virkning) ? `${LAGET[virkning]} ${tekst}` : tekst;
 
 /**
  * Brevet frosset når det sendes (MM-U9, MM-U11). For grunnlaget fryses også om

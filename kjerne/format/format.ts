@@ -19,6 +19,7 @@ import { FRISTRESULTATER, GRUNNLAGSRESULTATER, VEDERLAGSRESULTATER } from '../re
 import type { Skjema } from './skjema.ts';
 import {
   KRAVSPOR,
+  LAGENE,
   SPOR,
   type Hjemmel,
   type Opplysningsslag,
@@ -283,7 +284,7 @@ export const BESLUTNINGSGRUNNLAG: Skjema = objekt(
   {
     regelversjon: { type: 'integer' },
     virkninger: liste(
-      objekt({ standpunkt: ID, virkning: { enum: ['prinsipalt', 'subsidiaert'] } }, [
+      objekt({ standpunkt: ID, virkning: { enum: [...LAGENE, 'upaavirket'] } }, [
         'standpunkt',
         'virkning',
       ])

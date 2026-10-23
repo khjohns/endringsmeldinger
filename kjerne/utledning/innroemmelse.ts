@@ -5,7 +5,7 @@
  */
 
 import { beloep } from '../regler/beloep.ts';
-import { dager, GRUNNLAGSSVARET, kroner } from '../frosset/standpunkt.ts';
+import { dager, GRUNNLAGSSVARET, kroner, LAGET } from '../frosset/standpunkt.ts';
 import type { Grunnlagsresultat } from '../regler/typer.ts';
 import type { Standpunkt, Svar } from '../typer.ts';
 
@@ -33,12 +33,11 @@ export function senketInnroemmelse(
     nye.filter((p): p is Extract<Standpunkt, { art: A }> => p.art === f.art)[
       forrige.standpunkter.filter((p) => p.art === f.art).indexOf(f)
     ];
-  const subsidiaert = (id: string) =>
-    forrige.beslutningsgrunnlag.virkninger.some(
-      (p) => p.standpunkt === id && p.virkning === 'subsidiaert'
-    )
-      ? 'subsidiært '
-      : '';
+  // OV-U30: laget standpunktet sto i, slik brevet sa det.
+  const subsidiaert = (id: string) => {
+    const v = forrige.beslutningsgrunnlag.virkninger.find((p) => p.standpunkt === id)?.virkning;
+    return v === 'subsidiaert' || v === 'videre_subsidiaert' ? `${LAGET[v]} ` : '';
+  };
   for (const f of forrige.standpunkter) {
     // Grunnlaget, beløpet og dagene står i hvert lest svar (`standpunkterISvaret`).
     if (f.art === 'grunnlag') {

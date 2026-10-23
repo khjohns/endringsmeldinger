@@ -254,7 +254,7 @@ function lesBeslutningsgrunnlag(
     );
   const art = new Map<string, Standpunktsart>(standpunkter.map((s) => [s.id, s.art]));
   const sett = new Set<string>();
-  // Prinsipalt og subsidiært er slik brevet ordner standpunktene; uten virkning er
+  // Lagene og upåvirket er slik brevet ordner standpunktene (OV-U30); uten virkning er
   // appens vurdering og står for seg (HF-U2).
   const innslag = [
     ...(b.virkninger as Data[]).map((p) => [p.standpunkt, p.virkning] as const),

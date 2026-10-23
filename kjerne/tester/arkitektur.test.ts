@@ -579,6 +579,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/nyttelast.ts', 'predikat', 'nyttelastkontroll'],
   ['kommandoer/avvisning.ts', 'predikat', 'avvisning'],
   ['typer.ts', 'relasjon', 'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel'],
+  // OV-U30: lagene virkningen fryses i, og om en fryst virkning er et lag.
+  [
+    'typer.ts',
+    'frosset',
+    'LAGENE',
+    ['format/format.ts', 'frosset/standpunkt.ts', 'frosset/brevtekst.ts'],
+  ],
+  ['frosset/standpunkt.ts', 'frosset', 'erLag', ['frosset/brevtekst.ts']],
   ['VARSELSPOR', 'relasjon', '33.4 34.1.2 34.1.3'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
@@ -871,6 +879,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #628: meldingen om en senket revisjon sier grunnlagssvaret med ordene i brevet.
   ['frosset/standpunkt.ts', 'brevtekst', 'GRUNNLAGSSVARET', ['utledning/innroemmelse.ts']],
+  // OV-U30: laget med ordet brevet bruker, også i meldingen om en senket revisjon.
+  ['frosset/standpunkt.ts', 'brevtekst', 'LAGET', ['utledning/innroemmelse.ts']],
+  [
+    'frosset/standpunkt.ts:beslutningslinje',
+    'brevtekst',
+    'tekst virkning',
+    ['frosset/standpunkt.ts'],
+  ],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
   ['METODEN', 'brevtekst', 'enhetspriser regningsarbeid', ['frosset/brevtekst.ts']],
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av
@@ -884,7 +900,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Saken', 'brevtekst', 'saksnummer tittel grunnlagssvar subsidiaer', ['frosset/brevtekst.ts']],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
-  ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst ordnes', ['frosset/brevtekst.ts']],
+  ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst plass', ['frosset/brevtekst.ts']],
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts']],
   // Datoen appen registrerte brevet.
   ['Dokument', 'relasjon', 'registrert', ['format/leser.ts:registrertDato']],

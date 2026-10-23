@@ -13,6 +13,8 @@ import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
+import { BESLUTNINGSGRUNNLAG } from '../format/format.ts';
+import { feilI } from '../format/skjema.ts';
 import { kanInngaaIEo, kraveneErAvgjort, utled } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
@@ -1803,5 +1805,51 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
       'Alle krav sendt i appen er avgjort. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.'
     );
     expect(v.merknader).not.toContain('brev_utenfor_appen');
+  });
+});
+
+// OV-U30: videre subsidiært og upåvirket er virkninger i formatet og hos leserne. Upåvirket
+// er en virkning, ikke `uten_virkning` (HF-U2). Utregningen av upåvirket er B2 i #1047.
+describe('lagene og upåvirket hos leserne (OV-U30)', () => {
+  const v = (standpunkt: string, virkning: Standpunktsvirkning['virkning']) =>
+    ({ standpunkt, art: 'dager', virkning }) as Standpunktsvirkning;
+  const svar = (virkning: Standpunktsvirkning['virkning']) =>
+    ({
+      standpunkter: [{ id: 'd', art: 'dager', resultat: 'godkjent', vurdert: 10 }],
+      beslutningsgrunnlag: { virkninger: [v('d', virkning)] },
+    }) as unknown as Parameters<typeof senketInnroemmelse>[0];
+  const revisjon = [
+    { id: 'n', art: 'dager', resultat: 'delvis_godkjent', vurdert: 5 },
+  ] as Parameters<typeof senketInnroemmelse>[1];
+
+  it('meldingen om en senket revisjon sier laget dagene sto i', () => {
+    expect(senketInnroemmelse(svar('videre_subsidiaert'), revisjon)).toBe(
+      'Svaret godkjenner videre subsidiært 10 dager, og revisjonen senker dagene til 5 dager'
+    );
+    expect(senketInnroemmelse(svar('subsidiaert'), revisjon)).toMatch(/godkjenner subsidiært 10/);
+  });
+
+  it('kontrollsak: et upåvirket eller prinsipalt standpunkt får ikke noe lag i meldingen', () => {
+    expect(senketInnroemmelse(svar('upaavirket'), revisjon)).toMatch(/^Svaret godkjenner 10 dager/);
+    expect(senketInnroemmelse(svar('prinsipalt'), revisjon)).toMatch(/^Svaret godkjenner 10 dager/);
+  });
+
+  it('upåvirket er en annen virkning enn prinsipalt og enn uten virkning', () => {
+    expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 'prinsipalt')])).toBe(true);
+    expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 'uten_virkning')])).toBe(true);
+    expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 'upaavirket')])).toBe(false);
+  });
+
+  it('formatet tar videre subsidiært og upåvirket i virkningene, og ingen andre verdier', () => {
+    const grunnlag = (virkning: string) => ({
+      regelversjon: 1,
+      virkninger: [{ standpunkt: 'd', virkning }],
+      linje: 'Byggherrens standpunkt: godkjent med 10 dager.',
+      sammenfall: false,
+    });
+    for (const virkning of ['prinsipalt', 'subsidiaert', 'videre_subsidiaert', 'upaavirket'])
+      expect(feilI(grunnlag(virkning), BESLUTNINGSGRUNNLAG), virkning).toEqual([]);
+    for (const virkning of ['uten_virkning', 'atter_subsidiaert'])
+      expect(feilI(grunnlag(virkning), BESLUTNINGSGRUNNLAG), virkning).not.toEqual([]);
   });
 });
