@@ -8352,7 +8352,7 @@ Tell **lag, ikke standpunkter**: Flere standpunkter i samme lag gir bare én for
 **Sikkerhet:** Høy på lagdelingen og på at eksisterende brevstruktur bør beholdes. Moderat på betegnelsen «presisering uten nytt vedtak»: Det er rimelig siden dere bevarer eksisterende praksis og lagstruktur, men det må dokumenteres at den bokstavelige formuleringen «ett lag» blir korrigert.'''
 forhold = [{ art = "endrer", vedtak = "ov-u30" }, { art = "presiserer", vedtak = "ov-u28" }, { art = "presiserer", vedtak = "mm-u11" }, { art = "presiserer", vedtak = "lv-u4" }]
 folge = '''
-Svaret på oppfølgingen er gitt med spørsmålsverktøyet 23.10. Spørsmålene, alternativene, svaret fra sparringen og svarene står ordrett på #1047 ([kommentaren 6360471680](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6360471680)). Forholdet til LV-U4 gjelder punkt 4. Presiserer også B-13 (24.09 og § 32.2 05.10), som ikke har anker. Følger MM-U9, VS-U4, HF-U2 og B-13 (§ 33.1 05.10). Ikke bygget (#1047).'''
+Svaret på oppfølgingen er gitt med spørsmålsverktøyet 23.10. Spørsmålene, alternativene, svaret fra sparringen og svarene står ordrett på #1047 ([kommentaren 6360471680](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6360471680)). Den andre oppfølgingen, B4-4b, rettet setningen om grunnlaget og står i [kommentaren 6360737155](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6360737155). Forholdet til LV-U4 gjelder punkt 4. Presiserer også B-13 (24.09 og § 32.2 05.10), som ikke har anker. Følger MM-U9, VS-U4, HF-U2 og B-13 (§ 33.1 05.10). Ikke bygget (#1047).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja, samlet tekst"
@@ -8370,6 +8370,12 @@ forkastet = true
 navn = "Astras ordlyd uendret"
 tekst = '''
 Alternativ 1 fra første spørsmål, med Astras presisering ordrett: «Lagnummeret angir rekkefølgen mellom de betingede standpunktene. Hvert nytt lag forutsetter at de foregående innsigelsene ikke fører frem i den utstrekning de rammer standpunktet. Lik etikett innebærer ikke at standpunktene tilhører samme lag.»'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bokstavelig: ett lag"
+tekst = '''
+Grunnlaget er alltid ett lag. Avslaget står uten egen etikett under «Prinsipalt:» sammen med preklusjonen, og beløpet blir «Subsidiært:». Avslaget mister da sin plass som subsidiært til preklusjonen.'''
 forkastet = true
 
 [[gruppe.vedtak.alternativ]]
