@@ -134,13 +134,25 @@ export function isRetryableError(error: unknown): boolean {
     return true;
   }
 
-  // ApiError with retryable status code
+  // ApiError with retryable status code, or a network failure from apiFetch (status 0)
   if (error instanceof ApiError) {
-    return RETRYABLE_STATUS_CODES.includes(error.status);
+    return error.status === 0 || RETRYABLE_STATUS_CODES.includes(error.status);
   }
 
   // Unknown errors - don't retry to be safe
   return false;
+}
+
+/** Antall forsøk på nytt for forbigående feil, det samme som TanStack Query bruker som standard. */
+const MAKS_FORSØK_PÅ_NYTT = 3;
+
+/**
+ * `retry` for QueryClient. Prøver på nytt forbigående feil, til `MAKS_FORSØK_PÅ_NYTT`
+ * er brukt opp. 401, 403 og andre ikke-forbigående feil vises med en gang.
+ * `antallMislykkede` er antall forsøk som har feilet før dette.
+ */
+export function skalPrøveIgjen(antallMislykkede: number, error: unknown): boolean {
+  return antallMislykkede < MAKS_FORSØK_PÅ_NYTT && isRetryableError(error);
 }
 
 /**
