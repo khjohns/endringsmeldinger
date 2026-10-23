@@ -97,9 +97,11 @@ function lesSteg(tekst: string): Steg[] {
 
 type Kall = { flyt: string; metode: string; sti: string; endepunkt: string; medSoek: boolean };
 
+const ENDEPUNKT = /^([A-Z]+(?: og [A-Z]+)*) (\/[^\s?]+)(\?\S*)?( \(.*)?$/;
+
 /** Metodene og stien i endepunktet, med test-ID-er for plassholderne. Kaster når det ikke kan tolkes. */
 function kallI(s: Steg): Kall[] {
-  const tolket = /^([A-Z]+(?: og [A-Z]+)*) (\/[^\s?]+)(\?\S*)?( \(.*)?$/.exec(s.endepunkt);
+  const tolket = ENDEPUNKT.exec(s.endepunkt);
   if (!tolket) throw new Error(`${s.flyt}: endepunktet kan ikke tolkes: ${s.endepunkt}`);
   const sti = tolket[2].replace(/\{([a-z_]+)\}/g, (_t, navn: string) => {
     const verdi = PLASSHOLDERE[navn];
@@ -144,15 +146,11 @@ describe('tillatelseslisten i brokeren mot dataflyt.toml (#1200)', () => {
       const s = etterNoekkel.get(unntak);
       expect(s, unntak).toBeDefined();
       const kall = (liste: string[]) => liste.flatMap((endepunkt) => kallI({ flyt: unntak, endepunkt, kode: [] }));
-      let iSteget: Kall[] | null = null;
-      try {
-        iSteget = kallI(s!);
-      } catch {
-        // Et endepunkt i prosa, som IFC-søket, beskrives av `avvist` og `tillatt` alene.
-      }
+      // Et endepunkt i prosa, som IFC-søket, beskrives av `avvist` og `tillatt` alene.
+      const iSteget = ENDEPUNKT.test(s!.endepunkt) ? kallI(s!) : null;
       if (iSteget)
         expect(kall([...avvist, ...tillatt]).map(somTekst).sort(), unntak).toEqual(iSteget.map(somTekst).sort());
-      for (const k of kall(avvist)) expect(slippesGjennom(k), `${unntak}: ${grunn}`).toBe(false);
+      for (const k of kall(avvist)) expect(slippesGjennom(k), `${unntak}: ${somTekst(k)}. ${grunn}`).toBe(false);
       for (const k of kall(tillatt)) expect(slippesGjennom(k), `${unntak}: ${somTekst(k)}`).toBe(true);
     }
   });
