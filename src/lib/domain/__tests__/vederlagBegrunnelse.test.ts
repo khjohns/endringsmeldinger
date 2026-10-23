@@ -120,19 +120,22 @@ describe('generateVederlagResponseBegrunnelse — særskilte krav (§34.1.3)', (
     expect(tekst).not.toContain('§34.1.2');
   });
 
-  it('prekluderer produktivitetstap uavhengig av hovedkategori', () => {
+  // VS-U5: begrensningen gir posten beløpet etter begrensningen prinsipalt. MM-U23: ikke «prekludert».
+  it('påberoper sent varsel for produktivitetstap med beløpet etter begrensningen, uavhengig av hovedkategori', () => {
     const tekst = gen(
       baseInput({
         hovedkategori: 'ENDRING',
         harProduktivitetKrav: true,
         produktivitetBelop: 25_000,
         produktivitetVarsletITide: false,
-        produktivitetVurdering: 'avslatt',
+        produktivitetVurdering: 'godkjent',
+        produktivitetBegrensetBelop: 5_000,
         harPrekludertKrav: true,
       })
     );
-    expect(tekst).toContain('prekludert iht. §34.1.3');
-    expect(tekst).toContain('produktivitetstap');
+    expect(tekst).toContain('varselet etter §34.1.3 ikke ble fremsatt');
+    expect(tekst).toMatch(/Prinsipalt aksepteres kr 5[\s\u00a0]000,- etter begrensningen/);
+    expect(tekst).not.toMatch(/produktivitetstap[^.]*prekludert iht/);
   });
 
   it('gir alminnelig vurderingstekst når særskilt krav er varslet i tide', () => {

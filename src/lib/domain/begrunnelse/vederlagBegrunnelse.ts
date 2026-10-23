@@ -64,6 +64,7 @@ export interface VederlagResponseInput {
   riggGodkjentBelop?: number;
   produktivitetVurdering?: BelopVurdering;
   produktivitetGodkjentBelop?: number;
+  produktivitetBegrensetBelop?: number;
 
   // Computed totals
   totalKrevd: number;
@@ -306,10 +307,13 @@ function generateProduktivitetSection(
   const isPrekludert = input.produktivitetVarsletITide === false;
 
   if (isPrekludert) {
+    // VS-U5: begrensningen gir posten et beløp prinsipalt. MM-U23: teksten sier ikke «prekludert».
     lines.push(
-      `Kravet om dekning av produktivitetstap på ${formatCurrency(input.produktivitetBelop, useTokens)} ` +
-        `avvises prinsipalt som prekludert iht. §34.1.3, da varselet ikke ble fremsatt «uten ugrunnet opphold» ` +
-        `etter at entreprenøren burde ha innsett at forstyrrelsene medførte merkostnader.`
+      `For kravet om dekning av produktivitetstap på ${formatCurrency(input.produktivitetBelop, useTokens)} ` +
+        `påberopes det at varselet etter §34.1.3 ikke ble fremsatt «uten ugrunnet opphold» ` +
+        `etter at entreprenøren burde ha innsett at forstyrrelsene medførte merkostnader. ` +
+        `Prinsipalt aksepteres ${formatCurrency(input.produktivitetBegrensetBelop ?? 0, useTokens)} ` +
+        `etter begrensningen.`
     );
 
     if (input.produktivitetVurdering) {
@@ -368,7 +372,7 @@ function generateSubsidiaerKravText(
   godkjentBelop?: number,
   useTokens = false
 ): string {
-  const prefix = `Subsidiært, dersom ${kravType} ikke anses prekludert,`;
+  const prefix = `Subsidiært, dersom varselet om ${kravType} anses gitt i tide,`;
 
   switch (vurdering) {
     case 'godkjent':
@@ -399,9 +403,9 @@ function generateKonklusjonSection(
     const diff = input.totalGodkjentSubsidiaer - input.totalGodkjent;
     if (diff > 0) {
       const hovedkravPrekludert = erHovedkravPrekludert(input);
-      const kravType = hovedkravPrekludert ? 'kravene' : 'særskilte kravene';
+      const kravType = hovedkravPrekludert ? 'kravene' : 'de særskilte kravene';
       lines.push(
-        `Dersom de prekluderte ${kravType} hadde vært varslet i tide, ville samlet ${terminologi.belopLabel} ` +
+        `Dersom ${kravType} hadde vært varslet i tide, ville samlet ${terminologi.belopLabel} ` +
           `utgjort ${formatCurrency(input.totalGodkjentSubsidiaer, useTokens)} (subsidiært standpunkt).`
       );
     }

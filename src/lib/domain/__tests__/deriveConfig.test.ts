@@ -155,3 +155,51 @@ describe('deriveFristDomainConfig — § 32.2 (#186)', () => {
     }
   );
 });
+
+describe('deriveVederlagDomainConfig — krav uten hovedbeløp (OV-U23)', () => {
+  const medVederlag = (vederlag: Partial<SakState['vederlag']>): SakState => ({
+    ...scenario1_3AktiveSpor,
+    vederlag: { ...scenario1_3AktiveSpor.vederlag, ...vederlag },
+  });
+
+  it('gir ikke hovedkravet summen når kravet bare har posten etter § 34.1.3', () => {
+    // Formen TS-saken gir (`sakstilstand.ts`): ingen `belop_direkte`, og `krevd_belop` er summen.
+    const sak = medVederlag({
+      metode: 'FASTPRIS_TILBUD',
+      belop_direkte: undefined,
+      kostnads_overslag: undefined,
+      krevd_belop: 200_000,
+      saerskilt_krav: { produktivitet: { belop: 200_000 } },
+    });
+    const config = deriveVederlagDomainConfig(sak);
+    expect(config.harHovedkrav).toBe(false);
+    expect(config.hovedkravBelop).toBe(0);
+    expect(config.produktivitetBelop).toBe(200_000);
+  });
+
+  it('har hovedkrav når det faste beløpet står ved siden av posten', () => {
+    const sak = medVederlag({
+      metode: 'FASTPRIS_TILBUD',
+      belop_direkte: 500_000,
+      krevd_belop: 700_000,
+      saerskilt_krav: { produktivitet: { belop: 200_000 } },
+    });
+    expect(deriveVederlagDomainConfig(sak)).toMatchObject({
+      harHovedkrav: true,
+      hovedkravBelop: 500_000,
+    });
+  });
+
+  it('har hovedkrav uten særskilte krav, også når bare det krevde beløpet er kjent', () => {
+    const sak = medVederlag({
+      metode: 'FASTPRIS_TILBUD',
+      belop_direkte: undefined,
+      krevd_belop: 300_000,
+      saerskilt_krav: undefined,
+    });
+    expect(deriveVederlagDomainConfig(sak)).toMatchObject({
+      harHovedkrav: true,
+      hovedkravBelop: 300_000,
+    });
+  });
+});

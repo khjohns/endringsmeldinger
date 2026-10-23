@@ -35,6 +35,8 @@ export interface VederlagFormState {
   riggGodkjentBelop?: number;
   produktivitetVurdering?: BelopVurdering;
   produktivitetGodkjentBelop?: number;
+  /** VS-U5: det byggherren godtar for posten etter begrensningen etter § 34.1.3, som kan være 0. */
+  produktivitetBegrensetBelop?: number;
 
   // Port 4: Begrunnelse
   begrunnelse: string;
@@ -45,6 +47,8 @@ export interface VederlagFormState {
  */
 export interface VederlagDomainConfig {
   metode?: VederlagsMetode;
+  /** OV-U23: kravet kan bestå av de særskilte kravene alene, uten beløp for justeringen ellers. */
+  harHovedkrav: boolean;
   hovedkravBelop: number;
   riggBelop?: number;
   produktivitetBelop?: number;
@@ -107,6 +111,7 @@ export interface VederlagLastResponseData {
   riggGodkjentBelop?: number;
   produktivitetVurdering?: BelopVurdering;
   produktivitetGodkjentBelop?: number;
+  produktivitetBegrensetBelop?: number;
   godkjentBelop?: number;
 }
 
@@ -133,6 +138,7 @@ export function getDefaults(config: VederlagDefaultsConfig): VederlagFormState {
       riggGodkjentBelop: prev.riggGodkjentBelop,
       produktivitetVurdering: prev.produktivitetVurdering,
       produktivitetGodkjentBelop: prev.produktivitetGodkjentBelop,
+      produktivitetBegrensetBelop: prev.produktivitetBegrensetBelop,
       begrunnelse: '',
     };
   }
@@ -264,79 +270,75 @@ export function beregnTotaler(
   config: VederlagDomainConfig,
   preklusjon: { hovedkrav: boolean; rigg: boolean; produktivitet: boolean }
 ): VederlagTotaler {
-  const { harRiggKrav, harProduktivitetKrav } = config;
-  const riggBelop = tilOre(config.riggBelop ?? 0);
-  const produktivitetBelop = tilOre(config.produktivitetBelop ?? 0);
-  const hovedkravBelop = tilOre(config.hovedkravBelop || 0);
-  const godkjent = (vurdering: BelopVurdering | undefined, krevd: number, delvis?: number) =>
-    tilOre(beregnGodkjentBelop(vurdering, krevd, delvis));
-
-  // Total krevd (principal — respekterer preklusjon)
-  const totalKrevd =
-    hovedkravBelop +
-    (harRiggKrav && !preklusjon.rigg ? riggBelop : 0) +
-    (harProduktivitetKrav && !preklusjon.produktivitet ? produktivitetBelop : 0);
-
-  // Total krevd inkl. prekluderte (for subsidiary)
-  const totalKrevdInklPrekludert =
-    hovedkravBelop +
-    (harRiggKrav ? riggBelop : 0) +
-    (harProduktivitetKrav ? produktivitetBelop : 0);
-
-  // Principal godkjent (respekterer preklusjon)
-  let totalGodkjent = 0;
-
-  if (!preklusjon.hovedkrav) {
-    totalGodkjent += godkjent(
-      state.hovedkravVurdering,
-      hovedkravBelop,
-      state.hovedkravGodkjentBelop
+  // Postene som i kjernen (`poster` i kjerne/regler/vederlag.ts): det krevde, det godtatte uten
+  // begrensning, og det prinsipale. VS-U5, OV-U22: en begrensning etter § 34.1.3 gir posten
+  // beløpet etter begrensningen prinsipalt. OV-U27: § 34.1.2 gjelder hele kravet.
+  const poster: [krevd: number, godkjent: number, prinsipalt: number][] = [];
+  const post = (
+    krevdBelop: number | undefined,
+    vurdering: BelopVurdering | undefined,
+    delvis: number | undefined,
+    prinsipalt: (godkjent: number) => number
+  ) => {
+    const krevd = tilOre(krevdBelop ?? 0);
+    const godkjent = tilOre(beregnGodkjentBelop(vurdering, krevd, delvis));
+    poster.push([krevd, godkjent, preklusjon.hovedkrav ? 0 : tilOre(prinsipalt(godkjent))]);
+  };
+  if (config.harHovedkrav) {
+    post(config.hovedkravBelop, state.hovedkravVurdering, state.hovedkravGodkjentBelop, (g) => g);
+  }
+  if (config.harRiggKrav) {
+    post(config.riggBelop, state.riggVurdering, state.riggGodkjentBelop, (g) =>
+      preklusjon.rigg ? 0 : g
     );
   }
-  if (harRiggKrav && !preklusjon.rigg) {
-    totalGodkjent += godkjent(state.riggVurdering, riggBelop, state.riggGodkjentBelop);
-  }
-  if (harProduktivitetKrav && !preklusjon.produktivitet) {
-    totalGodkjent += godkjent(
+  if (config.harProduktivitetKrav) {
+    post(
+      config.produktivitetBelop,
       state.produktivitetVurdering,
-      produktivitetBelop,
-      state.produktivitetGodkjentBelop
+      state.produktivitetGodkjentBelop,
+      (g) => (preklusjon.produktivitet ? (state.produktivitetBegrensetBelop ?? 0) : g)
     );
   }
-
-  // Subsidiary godkjent (inkluderer prekluderte krav-evalueringer)
-  let totalGodkjentInklPrekludert = totalGodkjent;
-
-  if (preklusjon.hovedkrav) {
-    totalGodkjentInklPrekludert += godkjent(
-      state.hovedkravVurdering,
-      hovedkravBelop,
-      state.hovedkravGodkjentBelop
-    );
-  }
-  if (harRiggKrav && preklusjon.rigg) {
-    totalGodkjentInklPrekludert += godkjent(
-      state.riggVurdering,
-      riggBelop,
-      state.riggGodkjentBelop
-    );
-  }
-  if (harProduktivitetKrav && preklusjon.produktivitet) {
-    totalGodkjentInklPrekludert += godkjent(
-      state.produktivitetVurdering,
-      produktivitetBelop,
-      state.produktivitetGodkjentBelop
-    );
-  }
+  const sum = (i: 0 | 1 | 2) => tilOre(poster.reduce((a, p) => a + p[i], 0));
+  const totalKrevdInklPrekludert = sum(0);
+  // Det krevde uten postene som er rammet av en påberopelse etter § 34.1.3.
+  const rammet =
+    (config.harRiggKrav && preklusjon.rigg ? tilOre(config.riggBelop ?? 0) : 0) +
+    (config.harProduktivitetKrav && preklusjon.produktivitet
+      ? tilOre(config.produktivitetBelop ?? 0)
+      : 0);
 
   return {
-    totalKrevd: tilOre(totalKrevd),
-    totalKrevdInklPrekludert: tilOre(totalKrevdInklPrekludert),
-    totalGodkjent: tilOre(totalGodkjent),
-    totalGodkjentInklPrekludert: tilOre(totalGodkjentInklPrekludert),
+    totalKrevd: tilOre(totalKrevdInklPrekludert - rammet),
+    totalKrevdInklPrekludert,
+    totalGodkjent: sum(2),
+    totalGodkjentInklPrekludert: sum(1),
     harMetodeendring: state.akseptererMetode === false,
     harPrekludertKrav: preklusjon.hovedkrav || preklusjon.rigg || preklusjon.produktivitet,
   };
+}
+
+/** VS-U5 og kjernens kontroll: 0 ≤ beløpet etter begrensningen ≤ det byggherren godtar for posten. */
+export function erBegrensetBelopGyldig(
+  state: Pick<
+    VederlagFormState,
+    | 'produktivitetVarsletITide'
+    | 'produktivitetVurdering'
+    | 'produktivitetGodkjentBelop'
+    | 'produktivitetBegrensetBelop'
+  >,
+  config: Pick<VederlagDomainConfig, 'harProduktivitetKrav' | 'produktivitetBelop'>
+): boolean {
+  if (!beregnProduktivitetPrekludert(state, config)) return true;
+  const begrenset = state.produktivitetBegrensetBelop;
+  if (begrenset === undefined || begrenset === null || !Number.isFinite(begrenset)) return false;
+  const godkjent = beregnGodkjentBelop(
+    state.produktivitetVurdering,
+    config.produktivitetBelop ?? 0,
+    state.produktivitetGodkjentBelop
+  );
+  return begrenset >= 0 && tilOre(begrenset) <= tilOre(godkjent);
 }
 
 /**
@@ -441,8 +443,9 @@ export function buildEventData(
 ): { eventType: string; data: Record<string, unknown> } {
   const begrunnelseTekst = state.begrunnelse || autoBegrunnelse;
 
-  const hovedkravGodkjentBelop =
-    state.hovedkravVurdering === 'godkjent'
+  const hovedkravGodkjentBelop = !config.harHovedkrav
+    ? undefined
+    : state.hovedkravVurdering === 'godkjent'
       ? config.hovedkravBelop
       : state.hovedkravVurdering === 'delvis'
         ? state.hovedkravGodkjentBelop
@@ -479,12 +482,17 @@ export function buildEventData(
     hold_tilbake: state.holdTilbake,
 
     // Port 3: Beløp
-    hovedkrav_vurdering: state.hovedkravVurdering,
+    // OV-U23: kjernen avviser en vurdering av en post kravet ikke har.
+    hovedkrav_vurdering: config.harHovedkrav ? state.hovedkravVurdering : undefined,
     hovedkrav_godkjent_belop: hovedkravGodkjentBelop,
     rigg_vurdering: state.riggVurdering,
     rigg_godkjent_belop: riggGodkjentBelop,
     produktivitet_vurdering: state.produktivitetVurdering,
     produktivitet_godkjent_belop: produktivitetGodkjentBelop,
+    produktivitet_begrenset_belop:
+      config.harProduktivitetKrav && state.produktivitetVarsletITide === false
+        ? state.produktivitetBegrensetBelop
+        : undefined,
 
     // Begrunnelse
     begrunnelse: begrunnelseTekst,

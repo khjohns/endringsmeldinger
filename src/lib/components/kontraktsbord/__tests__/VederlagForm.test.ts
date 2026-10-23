@@ -1,0 +1,81 @@
+/**
+ * BHs svar på et vederlagskrav som bare har produktivitetstapet etter § 34.1.3 annet ledd.
+ * Forventningene: OV-U23 (ingen vurdering av justeringen ellers uten beløp for den), VS-U5 og
+ * OV-U22 (beløpet etter begrensningen prinsipalt, det godkjente subsidiært), MM-U23 (skjemaet sier
+ * ikke «prekludert»), og #1088 (et svar tatt tilbake fra godkjenningen åpnes med det som var fylt ut).
+ */
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen as dokument,
+  waitFor,
+  within,
+} from '@testing-library/svelte';
+import WorkspaceHarness from './WorkspaceHarness.svelte';
+import { createDemoStore } from '$lib/mockup/store.svelte';
+import { SCENARIOS } from '$lib/mockup/scenarios';
+import { setDraftOwner } from '$lib/utils/draftOwner';
+
+beforeEach(() => {
+  localStorage.clear();
+  sessionStorage.clear();
+  setDraftOwner('user');
+});
+afterEach(cleanup);
+
+const arbeidsflate = () =>
+  createDemoStore(structuredClone(SCENARIOS.find((s) => s.id === 'scenario1prod')!));
+
+async function velg(gruppe: string, valg: string) {
+  const radiogruppe = await dokument.findByRole('radiogroup', { name: gruppe });
+  await fireEvent.click(within(radiogruppe).getByRole('radio', { name: valg }));
+}
+
+describe('BHs svar på et krav som bare har produktivitetstapet', () => {
+  it('viser ingen vurdering av hovedkravet og sier ikke «prekludert»', async () => {
+    const screen = render(WorkspaceHarness, {
+      workspace: arbeidsflate(),
+      view: { track: 'vederlag', role: 'BH', mode: 'form' },
+    });
+    await screen.findByRole('radiogroup', { name: 'Varsling produktivitetstap' });
+    expect(screen.queryByRole('radiogroup', { name: 'Hovedkrav' })).toBeNull();
+    expect(screen.queryByText(/prekludert/i)).toBeNull();
+    expect(screen.getByRole('radio', { name: 'Nei, for sent' })).toBeTruthy();
+  });
+
+  it('krever beløpet etter begrensningen, og gjenoppretter skjemaet når vurderingen revideres', async () => {
+    const screen = render(WorkspaceHarness, {
+      workspace: arbeidsflate(),
+      view: { track: 'vederlag', role: 'BH', mode: 'form' },
+    });
+    await velg('Varsling produktivitetstap', 'Nei, for sent');
+    await velg('Beregningsmetode', 'Ja');
+    await velg('Produktivitetstap', 'Fullt beløp');
+
+    const send = screen.getByRole('button', { name: 'Ferdigstill vurdering' });
+    const begrenset = await screen.findByRole('textbox', { name: 'Godtas etter begrensningen' });
+    expect(send).toBeDisabled();
+    await fireEvent.input(begrenset, { target: { value: '200000' } });
+    // Feltet holdes innenfor det byggherren godtar for posten (VS-U5, kjernens kontroll).
+    expect((begrenset as HTMLInputElement).value).toBe((180000).toLocaleString('nb-NO'));
+    await fireEvent.input(begrenset, { target: { value: '45000' } });
+    await waitFor(() => expect(send).toBeEnabled());
+
+    await fireEvent.click(send);
+
+    const revider = await screen.findByRole('button', { name: 'Revider vurdering' });
+    await fireEvent.click(revider);
+
+    const gjenopprettet = await screen.findByRole('textbox', {
+      name: 'Godtas etter begrensningen',
+    });
+    expect((gjenopprettet as HTMLInputElement).value).toBe((45000).toLocaleString('nb-NO'));
+    const varsling = screen.getByRole('radiogroup', { name: 'Varsling produktivitetstap' });
+    expect(within(varsling).getByRole('radio', { name: 'Nei, for sent' })).toHaveAttribute(
+      'aria-checked',
+      'true'
+    );
+  });
+});

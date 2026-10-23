@@ -44,6 +44,7 @@ function makeState(overrides: Partial<VederlagFormState> = {}): VederlagFormStat
 function makeConfig(overrides: Partial<VederlagDomainConfig> = {}): VederlagDomainConfig {
   return {
     metode: 'ENHETSPRISER',
+    harHovedkrav: true,
     hovedkravBelop: 100000,
     harRiggKrav: false,
     harProduktivitetKrav: false,
@@ -909,6 +910,7 @@ describe('beregnAlt', () => {
 describe('BH Svar-Vederlag UI Scenarios', () => {
   const baseConfig: VederlagDomainConfig = {
     metode: 'REGNINGSARBEID',
+    harHovedkrav: true,
     hovedkravBelop: 1_000_000,
     riggBelop: 200_000,
     produktivitetBelop: 150_000,
@@ -995,7 +997,8 @@ describe('BH Svar-Vederlag UI Scenarios', () => {
     expect(computed.harPreklusjonsSteg).toBe(true);
   });
 
-  it('SVIKT + hovedkrav prekludert → prinsipalt delvis, subsidiært godkjent', () => {
+  // OV-U27: påberopelsen etter § 34.1.2 gjelder hele kravet, også de særskilte postene.
+  it('SVIKT + hovedkrav prekludert → prinsipalt avslått for hele kravet, subsidiært godkjent', () => {
     const config: VederlagDomainConfig = {
       ...baseConfig,
       hovedkategori: 'SVIKT',
@@ -1008,7 +1011,8 @@ describe('BH Svar-Vederlag UI Scenarios', () => {
     expect(computed.hovedkravPrekludert).toBe(true);
     expect(computed.visSubsidiaertResultat).toBe(true);
     expect(computed.subsidiaerTriggers).toContain('preklusjon_hovedkrav');
-    expect(computed.prinsipaltResultat).toBe('delvis_godkjent');
+    expect(computed.prinsipaltResultat).toBe('avslatt');
+    expect(computed.totalGodkjent).toBe(0);
     expect(computed.subsidiaertResultat).toBe('godkjent');
   });
 
@@ -1081,5 +1085,54 @@ describe('erKravlinjeGyldig', () => {
 
   it('returns true when delvis with zero beløp', () => {
     expect(erKravlinjeGyldig('delvis', 0)).toBe(true);
+  });
+});
+
+describe('buildEventData — posten etter § 34.1.3 (VS-U5, OV-U23)', () => {
+  const config = makeConfig({
+    metode: 'FASTPRIS_TILBUD',
+    harProduktivitetKrav: true,
+    produktivitetBelop: 200_000,
+  });
+  const svar = (s: Partial<VederlagFormState>, c: VederlagDomainConfig = config) => {
+    const state: VederlagFormState = {
+      ...makeState({ hovedkravVurdering: 'godkjent', akseptererMetode: true }),
+      produktivitetVurdering: 'godkjent',
+      ...s,
+    };
+    const computed = beregnAlt(state, c);
+    return buildEventData(
+      state,
+      c,
+      computed,
+      { vederlagKravId: 'evt-1', isUpdateMode: false },
+      '',
+      computed.subsidiaerTriggers
+    ).data;
+  };
+
+  it('sender beløpet etter begrensningen når for sent varsel er påberopt', () => {
+    const data = svar({ produktivitetVarsletITide: false, produktivitetBegrensetBelop: 50_000 });
+    expect(data.produktivitet_begrenset_belop).toBe(50_000);
+    expect(data.produktivitet_godkjent_belop).toBe(200_000);
+    expect(data.total_godkjent_belop).toBe(150_000);
+    expect(data.subsidiaer_godkjent_belop).toBe(300_000);
+  });
+
+  it('sender ikke beløpet etter begrensningen når posten er varslet i tide', () => {
+    // Kjernen avviser feltet uten påberopt begrensning (kjerne/regler/vederlag.ts, `kontroller`).
+    const data = svar({ produktivitetVarsletITide: true, produktivitetBegrensetBelop: 50_000 });
+    expect(data.produktivitet_begrenset_belop).toBeUndefined();
+  });
+
+  it('sender ingen vurdering av hovedkravet når kravet ikke har hovedbeløp', () => {
+    const data = svar(
+      { hovedkravVurdering: 'godkjent', produktivitetVarsletITide: true },
+      { ...config, harHovedkrav: false, hovedkravBelop: 0 }
+    );
+    expect(data.hovedkrav_vurdering).toBeUndefined();
+    expect(data.hovedkrav_godkjent_belop).toBeUndefined();
+    expect(data.total_godkjent_belop).toBe(200_000);
+    expect(data.beregnings_resultat).toBe('godkjent');
   });
 });
