@@ -350,7 +350,7 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
         `TE krever ${harHovedbeloep(k) ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`
       );
     if (!krever.length) throw new KanIkkeUttrykkes('vederlagskravet har ikke noe beløp');
-    // Hele kravet er et tilbud, også når det bare har posten.
+    // LV-U30: hele kravet er et tilbud, også når det bare har posten.
     deler.push(`${krever.join(' ')} Kravet er et tilbud etter NS 8407 § 34.2.1.`);
   } else {
     deler.push(
@@ -421,7 +421,7 @@ const METODEN = {
 const PRODUKTIVITET =
   'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
 
-/** Bestemmelsen varselet er gitt etter; etter OV-U25 gjelder varselet i § 34.1.3 tredje ledd bare annet ledd. */
+/** Bestemmelsen varselet er gitt etter; etter OV-U25 gjelder varselet i § 34.1.3 tredje ledd bare annet ledd (LV-U29). */
 const VARSLET_ETTER: Record<Varselhjemmel, string> = {
   '33.4': 'NS 8407 § 33.4',
   '34.1.2': 'NS 8407 § 34.1.2',

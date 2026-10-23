@@ -4662,11 +4662,11 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
     'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
   const iTillegg = `TE krever i tillegg særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${produktivitet} med ${KR('40 000')}`;
 
-  it('brevet er varselet etter § 34.1.3 tredje ledd for kravet etter annet ledd, uten beløp og dato (OV-U5, OV-U25)', () => {
+  it('brevet er varselet etter § 34.1.3 tredje ledd for kravet etter annet ledd, uten beløp og dato (OV-U5, OV-U25, LV-U29)', () => {
     const s = sakMedKrav();
     const varsel = s.send('TE', sendVarsel);
     const id = (varsel.data.utsagn as Data[])[0].id as string;
-    // Ordlyden er svaret A1 fra oppdragsgiver 23.10 (#1047, kommentaren 6357708663).
+    // Ordlyden er LV-U29.
     expect(tekst(varsel)).toEqual([
       {
         gjelder: id,
@@ -4713,8 +4713,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
       )
     ).toBe('UGYLDIG_FORM');
     const rad = s.send('TE', vederlagskrav({ metode: 'tilbud', saerskilt: post }));
-    // Ordlyden er svaret A2 fra oppdragsgiver 23.10 (#1047, kommentaren 6357708663):
-    // hele kravet er et tilbud, også når det bare har posten.
+    // Ordlyden er LV-U30: hele kravet er et tilbud, også når det bare har posten.
     expect(
       tekst(rad)
         .map((a) => a.laast)
@@ -4730,7 +4729,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
     const laast = tekst(krav)
       .map((a) => a.laast)
       .join(' ');
-    // Ordlyden er svaret A2 fra oppdragsgiver 23.10 (#1047, kommentaren 6357708663).
+    // Ordlyden er LV-U30.
     expect(laast).toContain(
       `TE krever justering av vederlaget med ${KR('150 000')} ${iTillegg} Kravet er et tilbud etter NS 8407 § 34.2.1.`
     );
