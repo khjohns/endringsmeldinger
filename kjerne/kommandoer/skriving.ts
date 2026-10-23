@@ -75,17 +75,21 @@ export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
 
 /**
  * Beslutningsgrunnlaget i formatet. Virkningene viser til standpunktet, og arten
- * leses derfra. Standpunktene uten virkning står for seg, fordi det er appens
+ * leses derfra. Laget lagres som et nummer fra 1, og upåvirket står uttrykkelig for
+ * seg (OV-U32). Standpunktene uten virkning står for seg, fordi det er appens
  * vurdering og ikke noe byggherren har sagt (HF-U2).
  */
 function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
-  const uten = virkninger.filter((v) => v.virkning === 'uten_virkning');
+  const med = (virkning: 'upaavirket' | 'uten_virkning') =>
+    virkninger.filter((v) => v.virkning === virkning).map((v) => v.standpunkt);
+  const [upaavirket, uten] = [med('upaavirket'), med('uten_virkning')];
   return {
     ...resten,
-    virkninger: virkninger
-      .filter((v) => v.virkning !== 'uten_virkning')
-      .map(({ standpunkt, virkning }) => ({ standpunkt, virkning })),
-    ...(uten.length ? { uten_virkning: uten.map((v) => v.standpunkt) } : {}),
+    virkninger: virkninger.flatMap(({ standpunkt, virkning }) =>
+      typeof virkning === 'number' ? [{ standpunkt, lag: virkning }] : []
+    ),
+    ...(upaavirket.length ? { upaavirket } : {}),
+    ...(uten.length ? { uten_virkning: uten } : {}),
   };
 }
 
@@ -149,7 +153,7 @@ function dokument(
       };
       // MM-U1: et varsel i kravet registreres første gang det kommer.
       // HF-U1: datoen gjelder varselet, ikke kravet, som er sendt i appen.
-      if (k.varsel && !u.spor.frist.varsel) {
+      if (k.varsel && !u.spor.frist.varsler['33.4']) {
         const varsel = nyId();
         data.utsagn = [{ id: varsel, art: 'varsel', hjemmel: '33.4' }];
         data.opplysninger = [{ id: nyId(), hva: 'sendt', dato: k.varsel.sendt, gjelder: varsel }];

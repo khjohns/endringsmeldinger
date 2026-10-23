@@ -13,14 +13,19 @@ export const SPOR: readonly Spor[] = ['grunnlag', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
 
-export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2';
+export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3';
 
-/** TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2 (OV-U5). */
-export type Varselhjemmel = '33.4' | '34.1.2';
-export const VARSELSPOR = { '33.4': 'frist', '34.1.2': 'vederlag' } as const satisfies Record<
-  Varselhjemmel,
-  Kravspor
->;
+/**
+ * TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2
+ * (OV-U5), og det særskilte varselet etter § 34.1.3 tredje ledd for kravet etter annet ledd,
+ * som etter OV-U25 er det eneste særskilte varselet.
+ */
+export type Varselhjemmel = '33.4' | '34.1.2' | '34.1.3';
+export const VARSELSPOR = {
+  '33.4': 'frist',
+  '34.1.2': 'vederlag',
+  '34.1.3': 'vederlag',
+} as const satisfies Record<Varselhjemmel, Kravspor>;
 export const erVarselhjemmel = (hjemmel: Hjemmel): hjemmel is Varselhjemmel =>
   hjemmel in VARSELSPOR;
 
@@ -263,13 +268,13 @@ export type Domenehendelse =
   | { art: 'ukjent'; id: string; versjon: number; type: string; grunn: string };
 
 /**
- * Virkningen et standpunkt har i brevet: prinsipalt eller subsidiært, slik brevet
- * ordner standpunktene, eller uten virkning, som er appens vurdering og ikke noe
- * byggherren har sagt. At svaret gjaldt et annet varsel enn
- * det TE senere har registrert, er ikke en virkning, men en relasjon som visningen
- * leser (OV-U5).
+ * Virkningen et standpunkt har i brevet: laget det står i, fra 1 og uten øvre grense,
+ * eller upåvirket når ingen av byggherrens innsigelser rammer det (OV-U32). Lagene
+ * regnes uten grunnlaget. Uten virkning er appens vurdering og ikke noe byggherren har
+ * sagt (HF-U2). At svaret gjaldt et annet varsel enn det TE senere har registrert,
+ * er ikke en virkning, men en relasjon som visningen leser (OV-U5).
  */
-export type Virkning = 'prinsipalt' | 'subsidiaert' | 'uten_virkning';
+export type Virkning = number | 'upaavirket' | 'uten_virkning';
 
 /** Virkningen ett standpunkt i et svar har etter regelsettet brevet ble regnet med. */
 export interface Standpunktsvirkning {

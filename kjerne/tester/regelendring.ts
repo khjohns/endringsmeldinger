@@ -91,10 +91,7 @@ export function regelendringen(lagBaner: () => Baner): void {
       const n = utledJournal(saker['ikke godtatt'].journal, KJERNE);
       const n1 = utledJournal(saker['ikke godtatt'].journal, N1);
       expect(n1.svar[svarId]).toEqual(n.svar[svarId]);
-      expect(n1.svar[svarId].virkninger.map((p) => p.virkning)).toEqual([
-        'prinsipalt',
-        'subsidiaert',
-      ]);
+      expect(n1.svar[svarId].virkninger.map((p) => p.virkning)).toEqual([1, 2]);
       expect(n1.spor.vederlag.subsidiaer).toEqual(['prekludert', 'avslaatt']);
       expect(visning(n, KJERNE.regler).spor.grunnlag.etiketter).not.toContain(
         'regel_endret_etter_brevet'

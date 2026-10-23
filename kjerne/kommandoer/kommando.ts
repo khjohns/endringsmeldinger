@@ -52,7 +52,10 @@ interface Brevtekst {
   brevtekst?: string[];
 }
 
-type Varselet = { spor: 'frist'; hjemmel: '33.4' } | { spor: 'vederlag'; hjemmel: '34.1.2' };
+type Varselet =
+  | { spor: 'frist'; hjemmel: '33.4' }
+  | { spor: 'vederlag'; hjemmel: '34.1.2' }
+  | { spor: 'vederlag'; hjemmel: '34.1.3' };
 
 export type Kommando = (
   | {

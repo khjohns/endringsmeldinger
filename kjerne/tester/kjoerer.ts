@@ -323,7 +323,10 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     case 'trukket':
       return u.spor[hale[0] as 'grunnlag'].trukket;
     case 'varsel':
-      return u.spor[hale[0] as 'frist' | 'vederlag'].varsel?.dokument ?? null;
+      // Varselet i sporet: § 33.4 i fristen, § 34.1.2 i vederlaget.
+      return hale[0] === 'frist'
+        ? (u.spor.frist.varsler['33.4']?.dokument ?? null)
+        : (u.spor.vederlag.varsler['34.1.2']?.dokument ?? null);
     case 'opplysning': {
       const o = u.opplysninger.find((x) => x.opplysning.id === id(hale[0]));
       if (hale.length === 1 || !o) return o ? 'finnes' : null;

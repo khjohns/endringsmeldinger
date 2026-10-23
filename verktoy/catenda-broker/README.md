@@ -4,7 +4,8 @@ Brokeren lar skyøkta bruke Catenda-integrasjonen uten at Catendas klienthemmeli
 eller tokenet fra Catenda kommer inn i økta (#806). Den holder integrasjonens
 klient-ID og hemmelighet og henter tokenet selv. Den videresender bare kall
 som står i tillatelseslisten i `broker.ts`, avgrenset til ett Catenda-prosjekt og
-ett topic board. Økta får en brokernøkkel, som kan byttes uten å røre Catenda.
+ett topic board. Unntaket er `GET /v2/user`, som bare gir brukeren tokenet tilhører,
+altså integrasjonen selv. Økta får en brokernøkkel, som kan byttes uten å røre Catenda.
 
 Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 
@@ -48,6 +49,11 @@ rett under den kan slettes, og Catenda sletter da innholdet med.
 - PUT og DELETE på `related_topics` kontrolleres ikke mot prefiks. En økt kan endre
   koblinger på andres topics på testboardet. Koblinger kan settes tilbake, men ingenting
   varsler om endringen. Vurderes på nytt når relasjonene flyttes til TS (FK, #902).
+- `GET /v2/user` gir integrasjonens egen identitet (ID, brukernavn, e-post), utenfor
+  avgrensningen til prosjektet.
+- Kommentarene kontrolleres ikke mot prefiks. En økt kan lese kommentarene på andres
+  topics på testboardet, og skrive kommentarer der. Brokeren har ingen sletting av
+  kommentarer, så en kommentar på en annens topic blir liggende.
 - Kontrollen av PUT på en topic forutsetter at Catenda lagrer tittelen slik den ble sendt,
   bortsett fra det kontrollen selv dekoder og normaliserer. Fjerner Catenda andre tegn eller
   dekoder andre former, kan en økt likevel gi en annens topic prefikset. Eksempler som ikke

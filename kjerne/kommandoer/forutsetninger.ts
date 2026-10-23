@@ -17,11 +17,20 @@ import {
   varAvgjort,
   type Utledning,
 } from '../utledning/utled.ts';
-import { KRAVSPOR, type Avvisning, type Kravspor, type Part, type Spor } from '../typer.ts';
+import {
+  KRAVSPOR,
+  type Avvisning,
+  type Kravspor,
+  type Part,
+  type Spor,
+  type Varselhjemmel,
+} from '../typer.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
   | { type: 'varsle' | 'sende_varsel'; spor: Kravspor }
+  /** Det særskilte varselet etter § 34.1.3 tredje ledd, ved siden av varselet i sporet (OV-U25). */
+  | { type: 'varsle' | 'sende_varsel'; spor: 'vederlag'; hjemmel: '34.1.3' }
   | { type: 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }
   | { type: 'registrere_brev' }
@@ -39,7 +48,16 @@ export type Handlingsnoekkel =
     };
 
 export const noekkel = (h: Handlingsnoekkel): string =>
-  'gjelder' in h ? `${h.type}:${h.gjelder}` : 'spor' in h ? `${h.type}:${h.spor}` : h.type;
+  'gjelder' in h
+    ? `${h.type}:${h.gjelder}`
+    : 'hjemmel' in h
+      ? `${h.type}:${h.hjemmel}`
+      : 'spor' in h
+        ? `${h.type}:${h.spor}`
+        : h.type;
+
+/** Varselet i sporet, som handlingsnøkkelen uten hjemmel gjelder (OV-U5). */
+const VARSEL_I_SPORET: Record<Kravspor, Varselhjemmel> = { frist: '33.4', vederlag: '34.1.2' };
 
 const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   krav: 'TE',
@@ -210,8 +228,15 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET[h.spor]}.`);
       // SK-12 og MM-U1: et registrert varsel kan ikke flyttes. Et utledet varsel er ikke registrert.
-      if (s.varsel)
+      if (s.varsler['hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor]])
         return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
+      // OV-U8: det særskilte varselet etter § 34.1.3 kan sendes også etter vederlagskravet,
+      // men ikke fra appen etter at kravene som var sendt, er avgjort (OV-U3). TEs opplysning
+      // om et varsel sendt utenfor appen godtas (OV-U5).
+      if ('hjemmel' in h)
+        return h.type === 'sende_varsel' && varAvgjort(u, h.spor)
+          ? avvis('KRAVENE_AVGJORT', hvorforAvgjort(u))
+          : null;
       // VS-U16, OV-U5: etter kravet i sporet kan varselet fra appen bare få en senere dato
       // enn kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8).
       if (h.type === 'sende_varsel' && s.krav.length) {

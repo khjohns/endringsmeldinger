@@ -69,6 +69,14 @@ export default ts.config(
     },
   },
   {
-    ignores: ['build/', '.svelte-kit/', 'dist/', '.worktrees/', '**/venv/', '**/.venv/'],
+    ignores: [
+      'build/',
+      '.svelte-kit/',
+      'dist/',
+      '.worktrees/',
+      '.claude/worktrees/',
+      '**/venv/',
+      '**/.venv/',
+    ],
   }
 );

@@ -27,7 +27,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
       ut.push({
         id: nyId(),
         art: 'rettidighet',
-        gjelder: varseletForNyttSvar(u, 'vederlag'),
+        gjelder: varseletForNyttSvar(u, '34.1.2'),
         hjemmel: HJEMMEL.vederlag,
         i_tide: v.hovedkrav_varslet_i_tide,
       });
@@ -46,7 +46,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
       ut.push({
         id: nyId(),
         art: 'rettidighet',
-        gjelder: varseletForNyttSvar(u, 'frist'),
+        gjelder: varseletForNyttSvar(u, '33.4'),
         hjemmel: HJEMMEL.frist,
         i_tide: v.frist_varsel_ok,
       });

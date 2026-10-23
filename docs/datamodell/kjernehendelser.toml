@@ -71,9 +71,9 @@ grunnlag = "KA-U2, GR-U16, VS-U26, designnotatet 4.2"
 
 [[krav]]
 spor = "vederlag"
-beskrivelse = "En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1)."
-felt = ["id", "spor", "erstatter", "metode", "beloep"]
-grunnlag = "KA-U2, KA-U8"
+beskrivelse = "En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1). `beloep` er justeringen ellers, og `saerskilt.produktivitet.beloep` er det særskilte kravet etter § 34.1.3 annet ledd. Minst ett av dem står."
+felt = ["id", "spor", "erstatter", "metode", "beloep", "saerskilt"]
+grunnlag = "KA-U2, KA-U8, OV-U23"
 
 [[krav]]
 spor = "frist"
@@ -113,8 +113,9 @@ grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
 art = "rettidighet"
 spor = ["grunnlag", "vederlag", "frist"]
 beskrivelse = """
-Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 i vederlaget, § 33.4 i
-fristen. `gjelder` er kravversjonen, eller TEs varsel etter § 33.4 eller § 34.1.2."""
+Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 eller § 34.1.3 i
+vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller TEs varsel etter
+§ 33.4, § 34.1.2 eller § 34.1.3."""
 felt = ["id", "art", "gjelder", "hjemmel", "i_tide"]
 grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3"
 
@@ -174,9 +175,9 @@ grunnlag = "B-13, designnotatet 4.3"
 [[utsagn]]
 art = "varsel"
 avsender = "TE"
-beskrivelse = "Varsel etter § 33.4 i fristen eller § 34.1.2 i vederlaget. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren."
+beskrivelse = "Varsel etter § 33.4 i fristen eller § 34.1.2 eller § 34.1.3 tredje ledd i vederlaget. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren."
 felt = ["id", "art", "hjemmel"]
-grunnlag = "MM-U1, SK-12, VS-U15"
+grunnlag = "MM-U1, SK-12, VS-U15, OV-U25"
 
 [[utsagn]]
 art = "trekk"
@@ -278,15 +279,16 @@ grunnlag = "KA-U34, KA-U35, KA-U18, KA-U24, MM-U12"
 navn = "beslutningsgrunnlag"
 beskrivelse = """
 Appens vurdering da brevet ble sendt, atskilt fra det byggherren sa, og ikke
-en rettslig avgjørelse (MM-U9): regelversjonen, hvordan brevet ordner
-standpunktene (`virkninger` med `prinsipalt` eller `subsidiaert`), standpunktene
-uten virkning (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet
-(`sammenfall`) og, i grunnlaget, om § 32.2 gjaldt etter reglene og
-underkategorien da (`varslingsplikt`). Hvert standpunkt står i `virkninger` eller
+en rettslig avgjørelse (MM-U9): regelversjonen, laget hvert standpunkt står i
+(`virkninger` med `lag`, et heltall fra 1, OV-U32), standpunktene ingen av
+byggherrens innsigelser rammer (`upaavirket`), standpunktene uten virkning
+(`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet (`sammenfall`)
+og, i grunnlaget, om § 32.2 gjaldt etter reglene og underkategorien da
+(`varslingsplikt`). Hvert standpunkt står i `virkninger`, `upaavirket` eller
 `uten_virkning`. Et registrert brev er dokumentasjon, og appen fryser ingen
 vurdering av det (OV-U4). Utfallet og vilkåret utledes og lagres ikke."""
-felt = ["regelversjon", "virkninger", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
-grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10, OV-U4"
+felt = ["regelversjon", "virkninger", "upaavirket", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
+grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10, OV-U4, OV-U32"
 
 [[del]]
 navn = "brevtekst"

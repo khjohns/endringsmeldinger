@@ -47,6 +47,7 @@ const SAGT_I_TIDE_OM: Record<Hjemmel | '33.6.1', string> = {
   '33.6.1': 'kravet ble spesifisert',
   '33.6.2': 'TEs svar på forespørselen kom',
   '34.1.2': 'varselet kom',
+  '34.1.3': 'varselet kom',
 };
 
 /** `forrige` er svaret en revisjon erstatter, så bindingen kontrolleres (HF-U5). */
@@ -223,7 +224,7 @@ const varseletSendt = (hjemmel: string) => `varselet etter § ${hjemmel} ble sen
 
 /**
  * Datoen TE oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
- * fra i grunnlagskravet (VS-U26), og datoen et varsel etter § 33.4 eller § 34.1.2 ble
+ * fra i grunnlagskravet (VS-U26), og datoen et varsel etter § 33.4, § 34.1.2 eller § 34.1.3 ble
  * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5).
  */
 function oppgittDatoI(k: Kommando): { dato: unknown; gjelder: string } | null {
@@ -310,7 +311,7 @@ export function nyttelastkontroll(
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;
       if (k.spor !== 'frist' || !k.varsel) return null;
-      const varsel = u.spor.frist.varsel;
+      const varsel = u.spor.frist.varsler['33.4'];
       // OV-U5: kravet registrerer varselet, og brevet med det ligger ved. Er varselet
       // registrert, kreves bare samme dato (SK-12; arbeidsvalget i #909).
       if (!varsel)
@@ -405,7 +406,7 @@ export function nyttelastkontroll(
       // OV-U15, KA-46: der TE krever endring, tar byggherren ikke stilling
       // til rettidigheten etter § 34.1.2, så innsigelsen mot varselet avvises som vurderingen.
       if (
-        k.gjelder === u.spor.vederlag.varsel?.id &&
+        k.gjelder === u.spor.vederlag.varsler['34.1.2']?.id &&
         !hjemmelenGjelder('34.1.2', u.spor.grunnlag.gjeldendeKrav, regler)
       )
         return avvis(

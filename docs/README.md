@@ -213,7 +213,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | [endringsordre](endringsordre.md) | EO-flyten i grensesnittet |
 | [Kontraktsbordet](frontend-kontraktsbord.md) | Hovedgrensesnittet |
 | [designsystemet](design/system.md) | Retningen for visningen, tokenene i bruk, mønstrene og vedtakene som styrer farge og ord. Verdiene står i `theme.css` |
-| [beslutningslogg](adr/README.md) | ADR-er. Én i dag: [varsling uavhengig av kontraktsforhold](adr/001-varsling-og-kontraktsforhold.md) |
+| [beslutningslogg](adr/README.md) | ADR-er og juridiske drøftelser: [varsling uavhengig av kontraktsforhold](adr/001-varsling-og-kontraktsforhold.md) og [varselet etter § 34.1.2 og det særskilte kravet](adr/002-saerskilt-krav-og-varsel-etter-34-1-2.md) |
 | [tredjepart-api/](tredjepart-api/) | Catendas OpenAPI-spesifikasjoner, uendret kopi |
 
 ## Historikk — bevart, ikke gjeldende

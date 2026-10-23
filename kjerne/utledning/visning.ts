@@ -76,8 +76,11 @@ export const BETEGNELSER = [
 
 export type Betegnelse = (typeof BETEGNELSER)[number];
 
+const harVarsel = (u: Utledning, spor: Spor): boolean =>
+  Object.keys(u.spor[spor].varsler).length > 0;
+
 const sendt = (u: Utledning, spor: Spor): boolean =>
-  u.spor[spor].krav.length > 0 || u.spor[spor].ingenKrav || u.spor[spor].varsel !== null;
+  u.spor[spor].krav.length > 0 || u.spor[spor].ingenKrav || harVarsel(u, spor);
 
 const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   // Et trukket grunnlag gir «Trukket» bare der krav, varsel eller «ingen krav» er sendt (GR-U25).
@@ -95,7 +98,7 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   // Står igjen når sporet er lukket uten enighet, som når TE har godtatt avslaget på grunnlaget.
   krav_sendt: (u, spor) => u.spor[spor].gjeldendeKrav !== null,
   ingen_krav: (u, spor) => u.spor[spor].ingenKrav,
-  varslet: (u, spor) => u.spor[spor].varsel !== null,
+  varslet: harVarsel,
 };
 
 /** MM-U30: sporets betegnelse, eller `null` når ingenting er sendt i sporet. */
@@ -168,13 +171,17 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   if (s.gjeldendeSvar && u.svar[s.gjeldendeSvar.id].gjaldtEtAnnetVarsel.length)
     ut.push('svaret_gjaldt_et_annet_varsel');
   // § 5 og VS-U12: påberopelsene registreres og vises uten virkning på utfallet.
-  const iSporet = [s.gjeldendeKrav?.id, s.gjeldendeSvar?.id, s.varsel?.id];
+  const iSporet = [
+    s.gjeldendeKrav?.id,
+    s.gjeldendeSvar?.id,
+    ...Object.values(s.varsler).map((v) => v.id),
+  ];
   for (const i of u.innsigelser)
     if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))
       ut.push(`innsigelse_fra_${i.part}`);
   if (spor === 'grunnlag' && u.passivitet.length) ut.push('passivitet_paaberopt');
   if (s.ingenKrav) ut.push('ingen_krav');
-  else if (spor === 'frist' && !s.varsel) ut.push('varsel_ikke_registrert');
+  else if (spor === 'frist' && !s.varsler['33.4']) ut.push('varsel_ikke_registrert');
   // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
   else if (
     spor === 'vederlag' &&
