@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `6119e618a05d355b64e66d9ea22f84e4b4a3f2c272060d6f9c520b951a4ce3dd`
+Kontrollsum (SHA-256 over utdraget visningen leser): `967e053b4e0e71c4529abdba16139d4d59b048b134146dad15ee7d3b26b0892d`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -964,7 +964,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 23.10, oppdragsgiver (#1047)
 
-**Følge:** Presiserer [OV-U28](#ov-u28). Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 ([kommentaren 6359589947](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359589947)), og svaret i [kommentaren 6359610636](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359610636). Presiserer også B-13, som ikke har anker. Spørsmålet var stilt i tidligere former, med svar som sendte det til juridisk sparring ([6359336816](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359336816), [6359369109](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359369109), [6359421120](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359421120), [6359476742](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359476742), [6359502726](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359502726), [6359558961](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359558961)). Ikke bygget (#1047).
+**Følge:** Presiserer [OV-U28](#ov-u28). Presiserer [MM-U11](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 ([kommentaren 6359589947](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359589947)), og svaret i [kommentaren 6359610636](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359610636). Presiserer også B-13, som ikke har anker. Spørsmålet var stilt i tidligere former ([6359336816](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359336816), [6359476742](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359476742)), og svarene sendte det til sparring ([6359369109](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359369109), [6359502726](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359502726)). Svarene fra sparringen står i [6359421120](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359421120) og [6359558961](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6359558961). Ikke bygget (#1047).
 
 **Regelrader:** —
 
