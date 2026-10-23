@@ -1247,7 +1247,8 @@ ikke en topic som alt hører til en sak eller er laget av integrasjonen (#741 pu
 17). Saken og prosjektet står bare når utfallet er `sak_opprettet`, og prosjektet
 når koblingen til Catenda-prosjektet og boardet ga det. Kjøretiden har ingen rett på
 tabellen og skriver med `koe_api.registrer_behandling`. Boardet topicen ble slått
-opp på, står med utfallet, så kommentaren skrives på samme board. Raden kan ikke
+opp på, står med utfallet, så kommentaren skrives på samme board; prosedyren godtar
+bare topicboardet til prosjektet med utfallet (punkt 8 i #972). Raden kan ikke
 endres eller slettes; kommentaren tilbake til topicen (W-1b.2) står i
 `koe.topic_kommentar` og endrer ikke utfallet. En topic fra TE med et tegn i
 tittelen som PDF-en av brevet ikke kan vise, får `tittel_kan_ikke_vises` med tegnene i
@@ -1258,7 +1259,7 @@ lagres_fra = "`koe_api.registrer_behandling`, kalt av `behandleEnHendelse` i `se
 fra_catenda = "Delvis. ID-en til topicen er Catendas."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Nei. `melding` er en fast feiltekst fra serveren, for `tittel_kan_ikke_vises` med tegnene fra topicens tittel."
-skrivere = ["database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql (`koe_api.registrer_behandling`, innført i `20261020130000_innkommende_behandling.sql`, kalt fra `server/jobber.ts`)"]
+skrivere = ["database/migrasjoner/20261023120000_behandlingens_board.sql (`koe_api.registrer_behandling`, innført i `20261020130000_innkommende_behandling.sql`, kalt fra `server/jobber.ts`)"]
 funn = []
 belegg = "L 19.10: `database/migrasjoner/20261020130000_innkommende_behandling.sql`, `database/migrasjoner/20261020140000_innkommende_forsoek_og_kommentar.sql` og `server/hendelser.ts`."
 

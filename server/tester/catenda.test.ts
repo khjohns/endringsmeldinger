@@ -471,7 +471,7 @@ describe('kommentarene og forfatteren av dem (#972)', () => {
   const board = uuid(7);
   const topic = uuid(9);
 
-  // topic-api-openapi.yaml, schema `comment`: `author` er brukernavnet til forfatteren.
+  // topic-api-openapi.yaml, schema `comment`: `author` er forfatteren.
   it('leser ID-en, teksten og forfatteren, og en kommentar uten forfatter gir null', async () => {
     svar = () => ({
       json: [
@@ -488,17 +488,20 @@ describe('kommentarene og forfatteren av dem (#972)', () => {
     expect(mottatt[0].sti).toBe(`/opencde/bcf/3.0/projects/${board}/topics/${topic}/comments`);
   });
 
-  // project-api-openapi.yaml, schema `user`: `username` er null for en organisasjon eller et team.
-  it('egen bruker gir ID-en normalisert og brukernavnet, og null uten brukernavn', async () => {
-    svar = () => ({ json: { id: BRUKER, username: 'integrasjonen@example.no' } });
-    expect(await new CatendaOAuth(oppsett()).egenBruker('t')).toEqual({
-      id: hex(BRUKER),
-      brukernavn: 'integrasjonen@example.no',
+  // Levende prøve 23.10 (#972): for integrasjonen er `username` null og `author` på en
+  // kommentar den skriver, lik `email`. Testen viser at e-posten leses, ikke brukernavnet.
+  it('egen bruker gir ID-en normalisert og e-posten, og null uten e-post', async () => {
+    svar = () => ({
+      json: { id: BRUKER, username: null, email: 'integrasjonen@example.no' },
     });
-    svar = () => ({ json: { id: BRUKER, username: null } });
     expect(await new CatendaOAuth(oppsett()).egenBruker('t')).toEqual({
       id: hex(BRUKER),
-      brukernavn: null,
+      epost: 'integrasjonen@example.no',
+    });
+    svar = () => ({ json: { id: BRUKER, username: 'navn', email: null } });
+    expect(await new CatendaOAuth(oppsett()).egenBruker('t')).toEqual({
+      id: hex(BRUKER),
+      epost: null,
     });
   });
 });

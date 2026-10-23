@@ -306,23 +306,23 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       expect(lest).toMatchObject({ type: TOPICTYPE, forfatter: await oauth.egenId(token) });
     });
 
-    // topic-api-openapi.yaml, schema `comment`: `author` er brukernavnet til forfatteren, og
-    // project-api-openapi.yaml, schema `user`: `username`. Kommentaren kvitteres bare når
-    // forfatteren er integrasjonens brukernavn (#972). Kommentaren slettes med topicen.
-    it('B1: en kommentar integrasjonen skriver, har integrasjonens brukernavn som forfatter (#972)', async () => {
+    // topic-api-openapi.yaml, schema `comment`: `author`. Catenda setter den til `email` fra
+    // `GET /v2/user`; `username` er null for integrasjonen (levende prøve 23.10). Kommentaren
+    // kvitteres bare når forfatteren er integrasjonens e-post (#972). Kommentaren slettes med topicen.
+    it('B1: en kommentar integrasjonen skriver, har integrasjonens e-post som forfatter (#972)', async () => {
       const paa = krev(topic, 'topicen fra B1');
       const tekst = `koe-livetest-kommentar ${randomUUID()}`;
       const id = await oauth.opprettKommentar(board, paa, tekst, token);
-      const { brukernavn } = await oauth.egenBruker(token);
+      const { epost } = await oauth.egenBruker(token);
       const lest = (await oauth.kommentarer(board, paa, token)).find((k) => k.id === id);
-      expect(brukernavn).not.toBeNull();
-      expect(lest).toEqual({ id, tekst, forfatter: brukernavn });
+      expect(epost).not.toBeNull();
+      expect(lest).toEqual({ id, tekst, forfatter: epost });
     });
 
     // BCF 3.0, schema `comment` og `topic`: `author` og `creation_author`. Testen fastholder
     // det Catenda svarer i dag: 201 på POST …/comments, der øyeblikksbildet bare har 200, og
     // samme forfatter på kommentaren og topicen integrasjonen skriver. Den bruker verken
-    // `GET /v2/user` eller `GET …/comments` (#1149), og viser ikke at forfatteren er `username`, som kvitteringen sammenligner med (#972); det prøver
+    // `GET /v2/user` eller `GET …/comments` (#1149), og viser ikke at forfatteren er e-posten, som kvitteringen sammenligner med (#972); det prøver
     // testen over. Kommentaren slettes med topicen.
     it('B1: en kommentar integrasjonen skriver, har samme forfatter som topicen integrasjonen laget (#1149)', async () => {
       const paa = krev(topic, 'topicen fra B1');

@@ -108,6 +108,8 @@ class AvvistKvittering extends Error {}
 class TaptLease extends Error {}
 
 const LEASEN_GJELDER_IKKE = 54001;
+/** Boardet med utfallet er ikke topicboardet til prosjektet (`registrer_behandling`, #972 punkt 8). */
+const ANNET_BOARD = 54003;
 
 type Utfall = 'feilet' | 'usikkert' | 'avvist';
 
@@ -374,7 +376,15 @@ export async function behandleEnHendelse(avh: Jobbavhengigheter): Promise<boolea
       behandling = { utfall: 'feilet', melding: 'Uventet feil i behandlingen' };
     }
   }
-  await registrerBehandling(avh.datalag, rad, behandling);
+  try {
+    await registrerBehandling(avh.datalag, rad, behandling);
+  } catch (feil) {
+    // Koblingen er endret etter oppslaget. Et nytt forsøk slår opp prosjektet på nytt.
+    if (feilnummer(feil) !== ANNET_BOARD) throw feil;
+    logg.warn(`Hendelsen ${rad.id} i innboksen prøves igjen senere:`, feil);
+    await registrerForsoek(avh.datalag, rad.id, 'behandling', feilmelding(feil), false);
+    return true;
+  }
   logg.info(`Hendelsen ${rad.id} i innboksen er behandlet: ${behandling.utfall}.`);
   return true;
 }
@@ -399,9 +409,9 @@ export async function skrivEnKommentar(avh: Jobbavhengigheter): Promise<boolean>
   try {
     if (!tekst) throw new Error(`Utfallet ${rad.utfall} har ingen kommentar`);
     const { catenda_board_id: board, catenda_topic_id: topic } = rad;
-    const brukernavn = await avh.innboks.integrasjonensBrukernavn();
+    const epost = await avh.innboks.integrasjonensEpost();
     const funnet = (await avh.innboks.kommentarer(board, topic)).find((k) =>
-      appensKommentar(k, tekst, brukernavn)
+      appensKommentar(k, tekst, epost)
     );
     const id = funnet?.id ?? (await avh.innboks.opprettKommentar(board, topic, tekst));
     await kvitterKommentar(avh.datalag, rad.id, id);
