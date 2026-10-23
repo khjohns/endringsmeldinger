@@ -38,6 +38,8 @@
   const store = getCaseWorkspace();
   const review = getApprovalWorkspace();
   import { getApprovalWorkspace } from '$lib/approval/context.svelte';
+  import { getClaimReview } from '$lib/approval/claimReview.svelte';
+  const claimReview = getClaimReview();
   import { fmt } from './utils.js';
   import { sporResultatLabel } from './derive.js';
   import type { EventType } from '$lib/types/timeline';
@@ -52,19 +54,10 @@
     domainConfig,
     onsend,
     onactions,
-    kjernesvar,
   }: {
     domainConfig: VederlagDomainConfig;
     onsend: () => void;
     onactions?: (a: { canSend: boolean; send: () => void }) => void;
-    /**
-     * TS-saken (#1047): kjernen lager brevet for svaret, og `sperret` sier hvorfor det ikke
-     * kan sendes ennå (GFK-U2, #818).
-     */
-    kjernesvar?: {
-      brev: (data: Record<string, unknown>) => { tekst: string[] } | { hindring: string };
-      sperret: string;
-    };
   } = $props();
 
   const initialDefaults = getDefaults({ isUpdateMode: false });
@@ -486,22 +479,9 @@
         : '');
   });
 
-  const kjernebrev = $derived.by(() => {
-    if (!kjernesvar || !allAnswered) return null;
-    const { data } = buildEventData(
-      formState,
-      domainConfig,
-      computed,
-      { vederlagKravId: '', isUpdateMode: false },
-      autoBegrunnelseHtml,
-      computed.subsidiaerTriggers
-    );
-    return kjernesvar.brev(data);
-  });
-
   $effect(() => {
     onactions?.({
-      canSend: allAnswered && !submission.pending && !kjernesvar,
+      canSend: allAnswered && !submission.pending,
       send: () => {
         if (allAnswered)
           void submission.run(async () => {
@@ -525,6 +505,19 @@
                 { ...data, tilleggs_begrunnelse: tilleggHtml },
                 draft.snapshot()
               );
+              return;
+            }
+            // TS-saken: kjernen lager brevet og sender svaret på kravet den har i sporet (#1047).
+            if (claimReview && store.erKjernesak) {
+              const { eventType, data } = buildEventData(
+                formState,
+                domainConfig,
+                computed,
+                { vederlagKravId: '', isUpdateMode: false },
+                autoBegrunnelseHtml,
+                computed.subsidiaerTriggers
+              );
+              await claimReview.submit('vederlag', eventType as EventType, data, () => {});
               return;
             }
             throw new Error('Skjemaet har ingen intern godkjenning, så svaret kan ikke sendes.');
@@ -939,21 +932,6 @@
     </div>
   {/if}
   {@render formBody()}
-  {#if kjernesvar}
-    <section class="begrunnelse-section" aria-labelledby="vederlag-brevet">
-      <div class="sh-heading">
-        <h2 class="sh-title" id="vederlag-brevet">Brevet</h2>
-      </div>
-      <p class="kjernesvar-sperret" role="status">{kjernesvar.sperret}</p>
-      {#if kjernebrev && 'hindring' in kjernebrev}
-        <p class="kjernesvar-hindring" role="alert">{kjernebrev.hindring}</p>
-      {:else if kjernebrev}
-        {#each kjernebrev.tekst as avsnitt, i (i)}<p class="kjernesvar-avsnitt">{avsnitt}</p>{/each}
-      {:else}
-        <p class="kjernesvar-avsnitt">Brevet vises når alle spørsmålene er besvart.</p>
-      {/if}
-    </section>
-  {/if}
 </div>
 
 <style>
@@ -1073,18 +1051,6 @@
 
   /* ── Byggherrens beslutningsseksjoner ── */
   .form-content .question-block,
-  .kjernesvar-sperret,
-  .kjernesvar-hindring,
-  .kjernesvar-avsnitt {
-    margin: 8px 0 0;
-    font-size: 14px;
-    line-height: 1.55;
-    color: var(--ink-2);
-  }
-  .kjernesvar-hindring {
-    color: var(--danger);
-  }
-
   .preklusjon-section {
     margin: 0 0 16px;
     padding: 18px;

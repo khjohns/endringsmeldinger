@@ -2,10 +2,11 @@
  * Brevkontrollen og sendingen for en TS-sak (#718, #909), med samme `submit` som
  * `createClaimReview`, så TE-skjemaene brukes i begge stier. Dataene fra skjemaet blir
  * kommandoen til kjernen, TE ser den låste teksten (LV-U2), og kommandoen sendes med
- * `kjernesak.send`. Trekket, aksepten og innsigelsen har ikke noe skjema og går
- * gjennom `trekk`, `aksept` og `innsigelse`. Et registrert varsel har ingen tekst fra
- * appen (MM-U17) og sendes uten brevkontroll. Vedleggene brevet viser til, står i
- * teksten, så kjernen får dem når brevet lages (OV-U5).
+ * `kjernesak.send`. BHs svar på vederlagskravet sendes på samme måte (#1047). Trekket,
+ * aksepten og innsigelsen har ikke noe skjema og går gjennom `trekk`, `aksept` og
+ * `innsigelse`. Et registrert varsel har ingen tekst fra appen (MM-U17) og sendes uten
+ * brevkontroll. Vedleggene brevet viser til, står i teksten, så kjernen får dem når brevet
+ * lages (OV-U5).
  */
 
 import { createLetterConfirmation, LetterCancelled } from '$lib/approval/claimReview.svelte';
@@ -17,6 +18,7 @@ import { fristkommandoFraSkjema, type Fristskjemadata } from './fristkrav';
 import { grunnlagsversjonFraSkjema } from './grunnlagskrav';
 import { vedleggsoppslag } from './skjemadata';
 import { vederlagskommandoFraSkjema, type Vederlagsskjemadata } from './vederlagskrav';
+import { vederlagssvarFraSkjema } from './vederlagssvar';
 
 export interface Kjernebrev {
   tittel: string;
@@ -58,6 +60,14 @@ function kommandoFraSkjema(
       vedlegg: vedleggsoppslag(d.registrert?.vedlegg ?? []),
     };
   }
+  if (spor === 'vederlag' && type === 'respons_vederlag' && kjernesak.utledning)
+    return {
+      kommando: vederlagssvarFraSkjema(
+        data as Record<string, unknown>,
+        kjernesak.utledning,
+        kjernesak.regelversjon
+      ),
+    };
   if (spor === 'frist' && type.startsWith('frist_krav_')) {
     const d = data as Fristskjemadata;
     return {
@@ -84,6 +94,8 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
   /** Brevet kjernen lager for kommandoen, eller avvisningen som feil (#719). */
   function brev(kommando: Kommando, spor: Spor, vedlegg?: Vedleggsoppslag): Kjernebrev {
     const b = kjernesak.brev(kommando, vedlegg);
+    // BHs svar har utdypningen i svaret, ikke i brevet (`vederlagssvarFraSkjema`).
+    const svar = Array.isArray(kommando.svar) ? (kommando.svar as { utdypning?: string }[]) : null;
     // #719: uten låst tekst sendes ikke kommandoen, så TE ser aldri et brev uten teksten.
     const tekst = b && 'tekst' in b ? b.tekst : null;
     if (!tekst)
@@ -93,8 +105,10 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     return {
       tittel: `${SPORNAVN[spor]} – ${kjernesak.saksbilde?.tittel ?? 'Sak'}`,
       tekst,
-      utdypning: kommando.utdypning,
-      handling: HANDLING[kommando.type as string] ?? 'Du sender brevet',
+      utdypning: kommando.utdypning ?? svar?.[0]?.utdypning,
+      handling: svar
+        ? 'Du svarer på kravet'
+        : (HANDLING[kommando.type as string] ?? 'Du sender brevet'),
     };
   }
 

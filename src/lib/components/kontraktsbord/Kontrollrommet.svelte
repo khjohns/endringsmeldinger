@@ -18,7 +18,6 @@
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
   import InnsigelseModal from '$lib/components/kjernesak/InnsigelseModal.svelte';
   import { SPOR_FOR } from '$lib/kjernesak/sakstilstand';
-  import { SVARET_SPERRET } from '$lib/kjernesak/arbeidsflate.svelte';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   const claimReview = demosak ? createClaimReview(demosak) : null;
   // TS-saken sendes med kommandoen til kjernen og den låste teksten (#718, LV-U2).
@@ -428,7 +427,6 @@
               {:else if kjernesak?.part === 'BH' && kjernesak.vederlagConfig}
                 <VederlagForm
                   domainConfig={kjernesak.vederlagConfig}
-                  kjernesvar={{ brev: kjernesak.vederlagssvarbrev, sperret: SVARET_SPERRET }}
                   onsend={handleSend}
                   onactions={(a) => (formActions = a)}
                 />
@@ -506,7 +504,7 @@
                 canSend={formActions?.canSend ?? false}
                 sendLabel={formActions?.utenBrev && formActions.sendLabel
                   ? formActions.sendLabel
-                  : role === 'BH' && !bhSvarerPaaFristvarsel
+                  : role === 'BH' && !bhSvarerPaaFristvarsel && !kjernesak
                     ? 'Ferdigstill vurdering'
                     : 'Se brev og send'}
                 onwithdraw={() => {

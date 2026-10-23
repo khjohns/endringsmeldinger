@@ -3,12 +3,13 @@
  * som feiler, viser hele Kontrollrommet saken slik den sist ble lest.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '$lib/api/client';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import type { Journalrad, Part } from '$kjerne/typer';
 import { lagKjernesakflate } from '$lib/kjernesak/arbeidsflate.svelte';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { SAK, medVederlag, medVederlagssvar } from './provejournal';
 
 const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
@@ -92,18 +93,57 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     expect((await flate(medVederlagssvar, 'BH')).bhSkjema('vederlag')).toBeNull();
   });
 
-  it('brevet for svaret er kjernens låste tekst, og en avvisning blir det som hindrer', async () => {
-    const f = await flate(medVederlag, 'BH');
-    const data = {
+  it('svaret sendes med kjernens låste tekst og utdypningen, uten rigg og drift (#1047, LV-U2, #1171)', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-ny', leveringsoppdrag: 'l-ny', versjon: 9 });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(medVederlag, 'BH'),
+      send,
+    });
+    await kjernesak.last();
+    const kontroll = lagKravkontroll(kjernesak);
+    const sending = kontroll.submit('vederlag', 'respons_vederlag', {
       hovedkrav_vurdering: 'godkjent',
       aksepterer_metode: true,
       beregnings_resultat: 'godkjent',
       total_godkjent_belop: 250000,
+      rigg_vurdering: 'godkjent',
+      rigg_godkjent_belop: 1000,
       begrunnelse: '<p>Godtatt.</p>',
-    };
-    const brev = f.vederlagssvarbrev(data);
-    expect('tekst' in brev && brev.tekst.join(' ')).toMatch(/Byggherren godkjenner 250\s000\skr/);
-    const avvist = f.vederlagssvarbrev({ ...data, total_godkjent_belop: 1 });
-    expect('hindring' in avvist && avvist.hindring).toMatch(/^Brevet kan ikke sendes\./);
+    });
+    await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
+    expect(kontroll.letter!.tekst.join(' ')).toMatch(/Byggherren godkjenner 250\s000\skr/);
+    expect(kontroll.letter!.utdypning).toBe('Godtatt.');
+    expect(kontroll.letter!.handling).toBe('Du svarer på kravet');
+    kontroll.confirm();
+    await sending;
+    const kommando = send.mock.calls[0][3] as { type: string; svar: Record<string, unknown>[] };
+    expect(kommando.type).toBe('brev');
+    expect(kommando.svar).toHaveLength(1);
+    expect(JSON.stringify(kommando)).not.toMatch(/rigg/);
+    expect(kommando.svar[0].utdypning).toBe('Godtatt.');
+  });
+
+  it('et svar med et annet beløp enn kjernen regner ut, sendes ikke, og feilen sier hva som hindrer (B-13)', async () => {
+    const send = vi.fn();
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(medVederlag, 'BH'),
+      send,
+    });
+    await kjernesak.last();
+    await expect(
+      lagKravkontroll(kjernesak).submit('vederlag', 'respons_vederlag', {
+        hovedkrav_vurdering: 'godkjent',
+        aksepterer_metode: true,
+        beregnings_resultat: 'godkjent',
+        total_godkjent_belop: 1,
+      })
+    ).rejects.toThrow(/godkjent_beloep=250000/);
+    expect(send).not.toHaveBeenCalled();
   });
 });
