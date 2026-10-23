@@ -49,7 +49,11 @@ const UT = values.utdata!;
 const SENDBARE = ['grunnlag', 'vederlag', 'frist'] as const;
 type Sendbar = (typeof SENDBARE)[number];
 const SENDES = (values.send?.split(',').filter(Boolean) ?? []) as Sendbar[];
-if (SENDES.some((s) => !SENDBARE.includes(s)) || (SENDES.length && SENDES[0] !== 'grunnlag')) {
+if (
+  SENDES.some((s) => !SENDBARE.includes(s)) ||
+  new Set(SENDES).size !== SENDES.length ||
+  (SENDES.length && SENDES[0] !== 'grunnlag')
+) {
   console.error(`--send tar grunnlag, eventuelt fulgt av vederlag og frist: ${values.send}`);
   process.exit(1);
 }
@@ -147,17 +151,13 @@ async function catenda(req: IncomingMessage, res: ServerResponse) {
   svarJson(res, { feil: 'ukjent' }, 404);
 }
 
-/** Dokumentene i biblioteket, med navnet som nøkkel, og referansene og kommentarene per topic. */
+/** Dokumentene i biblioteket, med navnet som nøkkel, og dokumentreferansene per topic. */
 const dokumenter = new Map<string, string>();
 const referanser = new Map<string, { guid: string; document_guid: string }[]>();
-const kommentarer = new Map<string, { guid: string; comment: string; author: string }[]>();
-const perTopic = <T>(kart: Map<string, T[]>, topic: string) =>
-  kart.get(topic) ?? kart.set(topic, []).get(topic)!;
 
 /**
  * Kallene jobbkjøreren gjør når et brev leveres (#1221): biblioteket (`finnDokument`,
- * `lastOppDokument`), dokumentreferansene og kommentarene på topicen. `true` når kallet
- * er besvart.
+ * `lastOppDokument`) og dokumentreferansene på topicen. `true` når kallet er besvart.
  */
 async function levering(req: IncomingMessage, res: ServerResponse, url: URL): Promise<boolean> {
   const sti = url.pathname;
@@ -185,22 +185,17 @@ async function levering(req: IncomingMessage, res: ServerResponse, url: URL): Pr
     }
   }
   const topic = new RegExp(
-    `^/opencde/bcf/3.0/projects/${katalog.board}/topics/([^/]+)/(document_references|comments)$`
+    `^/opencde/bcf/3.0/projects/${katalog.board}/topics/([^/]+)/document_references$`
   ).exec(sti);
   if (!topic) return false;
-  const [, topicId, hva] = topic;
-  const liste =
-    hva === 'comments' ? perTopic(kommentarer, topicId) : perTopic(referanser, topicId);
+  const liste = referanser.get(topic[1]) ?? referanser.set(topic[1], []).get(topic[1])!;
   if (req.method === 'GET') {
     svarJson(res, liste);
     return true;
   }
   if (req.method !== 'POST') return false;
-  const kropp = JSON.parse(await lesKropp(req));
   const guid = randomUUID();
-  if (hva === 'comments')
-    perTopic(kommentarer, topicId).push({ guid, comment: kropp.comment, author: 'integrasjon' });
-  else perTopic(referanser, topicId).push({ guid, document_guid: kropp.document_guid });
+  liste.push({ guid, document_guid: JSON.parse(await lesKropp(req)).document_guid });
   svarJson(res, { guid });
   return true;
 }
@@ -399,7 +394,6 @@ try {
       { prosjekt: katalog.prosjekt, tittel, medCsrf }
     );
 
-  /** Et kall fra siden, med sesjonen, CSRF-tokenet og prosjektet, som skjemaene gjør. */
   /** Svaret fra `GET /api/kjerne/saker/{sak}`, med feltene skriptet leser. */
   interface Saken {
     journal: Journalrad[];
@@ -408,6 +402,7 @@ try {
     leveringsoppdrag: { levert: string | null }[];
   }
 
+  /** Et kall fra siden, med sesjonen, CSRF-tokenet og prosjektet, som skjemaene gjør. */
   const kjerneKall = <T = unknown>(
     side: Awaited<ReturnType<typeof loggInn>>,
     metode: 'GET' | 'POST',
@@ -529,13 +524,17 @@ try {
   if (SENDES.length) {
     // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert.
     for (let forsoek = 0; ; forsoek++) {
-      const { kropp } = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
-      const oppdrag = kropp.leveringsoppdrag;
+      const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
+      if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
+      const oppdrag = lest.kropp.leveringsoppdrag;
       if (oppdrag.length && oppdrag.every((o) => o.levert)) {
         console.log(`Levert til falsk Catenda: ${oppdrag.length} brev`);
         break;
       }
-      if (forsoek === 60) throw new Error(`Brevene ble ikke levert: ${JSON.stringify(oppdrag)}`);
+      if (forsoek === 60)
+        throw new Error(
+          `Brevene ble ikke levert: ${JSON.stringify(oppdrag)}. Ukjente kall: ${ukjenteKall.join(', ') || 'ingen'}`
+        );
       await te.waitForTimeout(1000);
     }
   }

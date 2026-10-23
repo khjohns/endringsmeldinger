@@ -53,8 +53,8 @@ ikke er det forventede:
 2. Starter en falsk Catenda på 127.0.0.1 med en TE- og en BH-bruker, hver i sitt
    team. Den svarer på OAuth (`/oauth2/authorize`, `/oauth2/token`), `/v2/user`,
    `/v2/projects`, medlemslisten, teammedlemmene og topicen jobbkjøreren lager, og
-   på leveringen av brev: biblioteket (søk og opplasting), dokumentreferansene og
-   kommentarene på topicen, med alt i minnet (#1221).
+   på leveringen av brev: biblioteket (søk og opplasting) og dokumentreferansene på
+   topicen, med alt i minnet (#1221).
    Et annet kall skrives som «falsk Catenda: ukjent kall» og får 404, og kjøringen
    ender med exit 1.
 3. Starter TS-serveren (`server/start.ts`) med en egen innlogging i rollen
@@ -82,13 +82,14 @@ ikke er det forventede:
 Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
 med et eget Playwright-skript. Send aldri rett i tabellene. Slik drives skjemaene videre:
 
-1. Start med `--send` for det saken skal ha før skjemaet du vil vise, og `--behold`.
-   Skriptet skriver adressen til saksruta.
-2. Kopier `loggInn`, `kjerneKall` og `sendBrev` fra `saksrute.ts` til ditt eget skript.
-   Logg inn den parten som skal handle, og gå til saksruta.
+1. Start med `--send` for det saken skal ha før skjemaet du vil vise. Med `--behold`
+   skriver skriptet adressen til saksruta, og du kan se den selv.
+2. Kopier `saksrute.ts` til en fil ved siden av, så importstiene virker, og bygg videre
+   etter løkka som sender `KOMMANDOER`. Der finnes `loggInn`, `kjerneKall`, `sendBrev`,
+   sidene `te` og `bh` og saken. Commit ikke kopien.
 3. Det skjermbildet ikke skal vise, sendes med `sendBrev` og kommandoen som skjemaet
-   ville laget. Formen på hver kommando står i `kommandoFor` i `kjerne/tester/klient.ts`.
-   Kjernen avviser en kommando som ikke passer saken, og meldingen sier hvorfor.
+   ville laget, fra siden til parten som handler. Formen på hver kommando står i
+   `kommandoFor` i `kjerne/tester/klient.ts`. Kjernen avviser en kommando som ikke passer saken, og meldingen sier hvorfor.
 4. Det skjermbildet skal vise, drives i skjemaet: fyll ut, «Se brev og send»,
    avkrysningen og «Send til byggherren» (eller BHs knapp for svaret). Ta bildet før og
    etter sendingen. Vent på teksten i siden, ikke på en fast tid.

@@ -26,6 +26,8 @@ filer=()
 if ! $slett; then
   (($#)) || { echo "Oppgi minst én fil." >&2; exit 1; }
   for fil in "$@"; do [[ -f "$fil" ]] || { echo "Finnes ikke: $fil" >&2; exit 1; }; done
+  like=$(for fil in "$@"; do basename "$fil"; done | sort | uniq -d)
+  [[ -z "$like" ]] || { echo "Samme filnavn to ganger: $like" >&2; exit 1; }
 fi
 
 for fil in "$@"; do filer+=("$(realpath "$fil")"); done
@@ -40,11 +42,16 @@ git config remote.origin.partialclonefilter blob:none
 
 for forsoek in 1 2 3 4; do
   # Rotens oppføringer utenom mappen; `--missing` slipper å hente bildene.
-  if git ls-remote --exit-code -q origin "refs/heads/$GREN" >/dev/null; then
+  # `--exit-code` gir 2 når grenen ikke finnes; en annen feil stopper skriptet.
+  finnes=0
+  git ls-remote --exit-code -q origin "refs/heads/$GREN" >/dev/null || finnes=$?
+  ((finnes == 0 || finnes == 2)) || { echo "Fant ikke ut om $GREN finnes." >&2; exit 1; }
+  if ((finnes == 0)); then
     git fetch -q --depth=1 --filter=blob:none origin "$GREN"
     forelder=$(git rev-parse FETCH_HEAD)
     rot=$(git ls-tree "$forelder" | grep -v -P "\t\Q$mappe\E$" || true)
   else
+    $slett && { echo "$GREN finnes ikke; ingenting å slette."; exit 0; }
     forelder=
     rot=
   fi
