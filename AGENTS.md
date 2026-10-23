@@ -338,8 +338,9 @@ gjelder ikke en slik diff (oppdragsgiver 23.10).
 
 En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
 ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
-i PR-en ([mockup-nettleser](.claude/skills/mockup-nettleser/SKILL.md), oppdragsgiver
-23.10).
+i PR-en fra grenen `skjermbilder`, slik
+[mockup-nettleser](.claude/skills/mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier
+(oppdragsgiver 23.10, #1222).
 
 **Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
 som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
