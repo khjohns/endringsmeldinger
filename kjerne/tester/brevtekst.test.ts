@@ -2692,6 +2692,12 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(b.linje).toBe(
       'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4 og § 33.6.2), subsidiært godkjent med 20 dager.'
     );
+    // OV-U32: begge påberopelsene står i lag 1 og deler én etikett i brevet, og dagene står i lag 2.
+    expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 1, 2]);
+    expect(laast(rad)[0].match(/(Prinsipalt|Subsidiært|Videre subsidiært):/g)).toEqual([
+      'Prinsipalt:',
+      'Subsidiært:',
+    ]);
   });
 
   it('kravet som svarer på forespørselen, sier det (LV-U18 setning 3), og § 33.6.1 kan ikke påberopes (fjerde ledd)', () => {
