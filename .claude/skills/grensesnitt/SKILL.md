@@ -109,7 +109,8 @@ Animasjonen skal merkes, ikke sees.
 - **Vedtakstesten.** Hver betegnelse, farge og frist i visningen tåler vedtakene
   systemfila viser til.
 - **Nettleseren.** Se visningen i lys og mørk modus og på smal skjerm med skillen
-  `mockup-nettleser`, og den ekte saksruta når flyten krever det.
+  `mockup-nettleser`, og den ekte saksruta når diffen rører saksvisningen (`AGENTS.md`,
+  «Arbeidsform»).
 - `npm run lint`, `npx svelte-check` og `npm run build` etter miljø-skillen.
 
 ## Etter oppgaven
