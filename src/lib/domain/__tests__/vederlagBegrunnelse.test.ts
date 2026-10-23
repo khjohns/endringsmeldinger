@@ -42,7 +42,9 @@ describe('generateVederlagResponseBegrunnelse — §34.1.2 avgrensning', () => {
         harPrekludertKrav: true,
       })
     );
-    expect(tekst).toContain('prekludert iht. §34.1.2');
+    // MM-U23: teksten påberoper sent varsel og sier ikke at kravet er prekludert.
+    expect(tekst).toContain('fordi varselet etter §34.1.2');
+    expect(tekst).not.toContain('prekludert');
   });
 
   it('påberoper ikke §34.1.2 ved ENDRING, der regelen ikke gjelder (§34.1.1)', () => {
@@ -115,7 +117,8 @@ describe('generateVederlagResponseBegrunnelse — særskilte krav (§34.1.3)', (
         harPrekludertKrav: true,
       })
     );
-    expect(tekst).toContain('prekludert iht. §34.1.3');
+    expect(tekst).toContain('fordi varselet etter §34.1.3');
+    expect(tekst).not.toContain('prekludert');
     expect(tekst).toContain('rigg- og driftskostnader');
     expect(tekst).not.toContain('§34.1.2');
   });

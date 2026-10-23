@@ -214,8 +214,8 @@ function generateHovedkravSection(
   const terminologi = getMetodeTerminologi(input);
   if (isPrekludert) {
     lines.push(
-      `${terminologi.kravLabel} på ${formatCurrency(hovedkravBelop, useTokens)} avvises prinsipalt som prekludert iht. §34.1.2, ` +
-        `da varselet ikke ble fremsatt «uten ugrunnet opphold» etter at entreprenøren ble eller burde blitt klar over forholdet.`
+      `${terminologi.kravLabel} på ${formatCurrency(hovedkravBelop, useTokens)} avvises prinsipalt fordi varselet etter §34.1.2 ` +
+        `ikke ble fremsatt «uten ugrunnet opphold» etter at entreprenøren ble eller burde blitt klar over forholdet.`
     );
 
     const subsidiaerText = generateSubsidiaerKravText(
@@ -264,7 +264,7 @@ function generateRiggSection(
   if (isPrekludert) {
     lines.push(
       `Kravet om dekning av økte rigg- og driftskostnader på ${formatCurrency(input.riggBelop, useTokens)} ` +
-        `avvises prinsipalt som prekludert iht. §34.1.3, da varselet ikke ble fremsatt «uten ugrunnet opphold» ` +
+        `avvises prinsipalt fordi varselet etter §34.1.3 ikke ble fremsatt «uten ugrunnet opphold» ` +
         `etter at entreprenøren ble eller burde blitt klar over at utgiftene ville påløpe.`
     );
 
