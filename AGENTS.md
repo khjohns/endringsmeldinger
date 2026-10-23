@@ -332,6 +332,15 @@ Deretter kjøres `design-review` i en ny økt, før `/code-review`. Under om lag
 endrede linjer i `.svelte`- og CSS-filer kan byggeøkta kjøre den selv. Alvorligheten
 følger stoppregelen (oppdragsgiver 23.10, #1080).
 
+En `.ts`-fil i `src/lib` som endrer synlig tekst, en betegnelse eller en handling,
+får linse A («Vedtakene») fra `design-review`, i samme ny økt. Resten av reviewet
+gjelder ikke en slik diff (oppdragsgiver 23.10).
+
+En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
+ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
+i PR-en ([mockup-nettleser](.claude/skills/mockup-nettleser/SKILL.md), oppdragsgiver
+23.10).
+
 **Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
 som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
 

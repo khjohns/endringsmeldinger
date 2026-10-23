@@ -1982,7 +1982,9 @@ folge = '''
 Presiserer MM-U1. MM-U4, som vedtaksteksten viser til, er opphevet 09.10 av
 [MM-U9](#mm-u9), som gjelder regelendringer. MM-U8 gjelder en ny opplysning og står.
 Utvidet 10.10 av [VS-U7](#vs-u7) til § 34.1, ikke bygget. Bygget i målmodellen i
-språkprøven (#304), forløp D'''
+språkprøven (#304), forløp D. Leses etter [OV-U5](#ov-u5), som endret MM-U8 13.10: et svar
+byggherren alt har gitt, står med virkningen det hadde, og TE kan godta det (oppdragsgiver
+23.10, #1047)'''
 
 [[gruppe.vedtak]]
 anker = "mm-u7"
@@ -2023,7 +2025,9 @@ KA-U11. Retting følger B-16'''
 vedtatt = "10.10, oppdragsgiver etter sparring (#309)"
 forhold = [{ art = "utvider", vedtak = "mm-u1" }, { art = "utvider", vedtak = "mm-u8" }]
 folge = '''
-Utvider [MM-U1](#mm-u1) og [MM-U8](#mm-u8) til § 34.1. Ikke bygget (#309)'''
+Utvider [MM-U1](#mm-u1) og [MM-U8](#mm-u8) til § 34.1. Ikke bygget (#309). Leses etter
+[OV-U5](#ov-u5), som endret VS-U7 13.10: et svar byggherren alt har gitt, står med
+virkningen det hadde, og TE kan godta det (oppdragsgiver 23.10, #1047)'''
 
 [[gruppe.vedtak]]
 anker = "vs-u8"
@@ -7969,7 +7973,7 @@ svar = '''
 «For hvert særskilt krav (Recommended)»'''
 forhold = [{ art = "presiserer", vedtak = "vs-u5" }, { art = "presiserer", vedtak = "vs-u24" }]
 folge = '''
-Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047).'''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047). Merknad 23.10: «blir bare begrensningen for det kravet uavklart (VS-U7)» leses etter [OV-U5](#ov-u5) (oppdragsgiver 23.10, «OV-U5 gjelder», #1047, kommentaren 6365944474). Svaret står med virkningen det hadde, og TE kan godta det. Visningen viser at standpunktet for det ene særskilte kravet gjaldt et annet varsel.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "For hvert særskilt krav"

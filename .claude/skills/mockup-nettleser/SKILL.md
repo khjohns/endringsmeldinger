@@ -33,7 +33,8 @@ Ugyldig verdi gir en melding om hva som er feil, og exit 1 før nettleseren star
 ## Den ekte saksruta
 
 `/mockup` har demodata og en egen statusregel. Den ekte saksruta `/{prosjekt}/{sak}`
-mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)) kjøres med:
+mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)) kreves
+for en diff i saksvisningen, etter `AGENTS.md`, «Arbeidsform». Den kjøres med:
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] [--behold]
@@ -162,6 +163,9 @@ reglene for WCAG 2.1 A og AA i fire oppsett: lys og mørk modus (`colorScheme`, 
 fristen. Det skriver reglene som er brutt, med inntil `--vis` steder hver og
 forholdstallet for kontrast, og det axe ikke kan avgjøre («kontroller»). Et brudd
 gir exit 1. Kjøringen tar om lag ett minutt.
+
+`uu.mjs` kjører bare mot `/mockup`. En modus mot den ekte saksruta mangler ennå (#1213),
+så saksruta kontrolleres for hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md) til den finnes.
 
 axe finner bare en del av feilene. Resten kontrolleres for hånd etter skillen
 [`uu-sjekk`](../uu-sjekk/SKILL.md). Det er ingen CI-jobb for skriptet (#1187).
