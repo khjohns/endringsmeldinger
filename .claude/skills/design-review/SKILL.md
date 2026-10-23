@@ -37,7 +37,10 @@ et allment ideal. En tett sporoversikt feiler ikke fordi den er tett.
 Se visningen med skillen `mockup-nettleser`, i lys og mørk modus og på smal skjerm,
 og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en.
 Kjør `uu.mjs` i samme skill (WCAG 2.1 A og AA med axe-core), og før resultatet i
-PR-en. Et brudd er en blocker. Spør:
+PR-en. Et brudd i det diffen endrer, er en blocker. Et brudd som også finnes på
+`main`, føres i et issue og stopper ikke PR-en. Kjør da `uu.mjs` også i et arbeidstre
+fra `main`, med `--url http://localhost:5174`, så skriptet starter sin egen vite, og
+sammenlign stedene. Spør:
 
 - Leder én ting, eller konkurrerer alt?
 - Ser du partenes siste krav og svar i hvert spor uten å lete?
@@ -126,7 +129,7 @@ Godkjenn ikke fordi visningen virker. For å godkjenne:
 - vedtakene om betegnelse, farge, frist og ord holder;
 - ett fokuspunkt, og hierarki som overlever skvisetesten;
 - bare tokens som systemfila nevner, og som er definert, og kontrast etter WCAG AA i begge
-  modi, og ingen brudd fra `uu.mjs`;
+  modi, og ingen brudd fra `uu.mjs` i det diffen endrer;
 - alle tilstander, og tilgjengelige kontroller fra bits-ui eller komponentene som
   finnes;
 - ingen strukturelle omveier, og tekst etter språkreglene i `AGENTS.md`.

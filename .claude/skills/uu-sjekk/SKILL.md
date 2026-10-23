@@ -119,7 +119,8 @@ Før PR-en meldes klar, på det diffen endrer.
 7. **Overlegg:** fokus holdes i dialogen, bakgrunnen kan ikke brukes, og Escape
    lukker.
 8. **Smal skjerm:** ingenting forsvinner, og ingen vannrett rulling.
-9. **Automatikken:** `node .claude/skills/mockup-nettleser/uu.mjs` uten brudd.
+9. **Automatikken:** `node .claude/skills/mockup-nettleser/uu.mjs` uten brudd i det diffen
+   endrer. Et brudd som også finnes på `main`, føres i et issue.
    Resultatet står i PR-en, og det står hva som er kontrollert for hånd.
 
 ## Sjekk igjen

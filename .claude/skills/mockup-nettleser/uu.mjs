@@ -78,7 +78,10 @@ async function startVite(url) {
 // Tilstandene som kjøres i hvert oppsett. Skjemaet nås bare på bred skjerm, der
 // venstrekolonnen med sporene står ved siden av saken.
 const TILSTANDER = [
-  { navn: 'saken', vei: async () => {} },
+  {
+    navn: 'saken',
+    vei: (page) => page.getByRole('button', { name: 'Byggherre BH', exact: true }).waitFor(),
+  },
   {
     navn: 'BHs svarskjema for fristen',
     bareBred: true,
@@ -86,6 +89,7 @@ const TILSTANDER = [
       await page.getByRole('button', { name: 'Byggherre BH', exact: true }).click();
       await page.getByRole('button', { name: /^Fristforlengelse/ }).click();
       await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
+      await page.locator('#bh-frist-godkjent-dager').waitFor();
     },
   },
 ];
@@ -109,6 +113,8 @@ try {
       });
       const page = await kontekst.newPage();
       page.setDefaultTimeout(15000);
+      const feil = [];
+      page.on('pageerror', (e) => feil.push(e.message));
       await page.goto(mockup, { waitUntil: 'networkidle' });
       await tilstand.vei(page);
       const mørk = await page.evaluate(() => document.documentElement.classList.contains('dark'));
@@ -120,6 +126,8 @@ try {
         REGLER
       );
       await kontekst.close();
+      if (feil.length)
+        throw new Error(`${oppsett.navn} · ${tilstand.navn}: JavaScript-feil i siden:\n${feil.join('\n')}`);
 
       const tittel = `${oppsett.navn} · ${tilstand.navn}`;
       console.log(
