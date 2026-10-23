@@ -6,14 +6,16 @@
  *
  * Fila leses med en liten leser for stegene: `[[flyt.steg]]`, `endepunkt` på
  * én eller flere linjer og `kode` på én eller flere linjer. Et endepunkt med en
- * sti under `/v2`, `/opencde` eller `/oauth2` er et kall og må kunne tolkes.
+ * sti under `/v2`, `/opencde` eller `/oauth2`, eller en forkortet sti med `…/`,
+ * er et kall og må kunne tolkes. Et kall med spørrestreng eller sider regnes som
+ * avvist på en regel med førsjekk, som i `lagBroker`.
  */
 
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { tillatt, type Miljoe } from './broker.ts';
+import { regelFor, type Miljoe } from './broker.ts';
 
 const DATAFLYT = resolve(dirname(fileURLToPath(import.meta.url)), '../../docs/datamodell/dataflyt.toml');
 
@@ -45,27 +47,43 @@ const PLASSHOLDERE: Record<string, string> = {
   object_id: ANNEN_ID,
 };
 
-/** Kallene i `dataflyt.toml` brokeren bevisst ikke slipper gjennom, med endepunktet slik det står. */
-const UNNTAK: Record<string, string> = {
-  'POST /oauth2/token': 'Tokenkallet svarer brokeren på selv, med brokernøkkelen.',
-  'GET /v2/projects': 'Prosjektlisten i Python (C17). Brokeren er avgrenset til ett prosjekt.',
-  'GET /v2/projects (sidevis)': 'Prosjektlisten ved innloggingen i Python (C03). Brokeren er avgrenset til ett prosjekt.',
-  'GET /v2/projects/{catenda_project_id}/ifc/products, POST samme sti ved søk, og GET …/ifc/products/ifctypes':
-    'IFC-søket i BIM-rutene i Python (C16), som integrasjonen fra skyøkta ikke bruker.',
+/**
+ * Stegene i `dataflyt.toml` brokeren bevisst ikke slipper gjennom, som flyt-ID og endepunktet
+ * slik det står, med kallene i steget som skal avvises.
+ */
+const UNNTAK: Record<string, { grunn: string; avvist: string[] }> = {
+  'C03 POST /oauth2/token': {
+    grunn: 'Tokenkallet svarer brokeren på selv, med brokernøkkelen.',
+    avvist: ['POST /oauth2/token'],
+  },
+  'C03 GET /v2/projects (sidevis)': {
+    grunn: 'Prosjektlisten ved innloggingen i Python. Brokeren er avgrenset til ett prosjekt.',
+    avvist: ['GET /v2/projects'],
+  },
+  'C17 GET /v2/projects': {
+    grunn: 'Prosjektlisten i Python. Brokeren er avgrenset til ett prosjekt.',
+    avvist: ['GET /v2/projects'],
+  },
+  'C16 GET /v2/projects/{catenda_project_id}/ifc/products, POST samme sti ved søk, og GET …/ifc/products/ifctypes': {
+    grunn: 'IFC-søket i BIM-rutene i Python, som integrasjonen fra skyøkta ikke bruker. `ifctypes` er tillatt.',
+    avvist: ['GET /v2/projects/{catenda_project_id}/ifc/products', 'POST /v2/projects/{catenda_project_id}/ifc/products'],
+  },
 };
 
 type Steg = { flyt: string; endepunkt: string; kode: string[] };
+
+const noekkel = (s: Steg) => `${s.flyt} ${s.endepunkt}`;
 
 /** Stegene i fila. Kaster når et steg mangler `endepunkt` eller `kode`. */
 function lesSteg(tekst: string): Steg[] {
   const steg: Steg[] = [];
   let flyt = '';
-  for (const blokk of tekst.split(/^(?=\[\[)/m)) {
-    const id = /^\[\[flyt\]\]$[\s\S]*?^id = "([^"]+)"$/m.exec(blokk);
+  for (const blokk of tekst.split(/^(?=[ \t]*\[\[)/m).map((b) => b.trimStart())) {
+    const id = /^\[\[flyt\]\]$[\s\S]*?^\s*id = "([^"]+)"$/m.exec(blokk);
     if (id) flyt = id[1];
     if (!blokk.startsWith('[[flyt.steg]]')) continue;
-    const endepunkt = /^endepunkt = (?:"""([\s\S]*?)"""|"([^"]*)")$/m.exec(blokk);
-    const kode = /^kode = \[([\s\S]*?)\]$/m.exec(blokk);
+    const endepunkt = /^\s*endepunkt = (?:"""([\s\S]*?)"""|"([^"]*)")$/m.exec(blokk);
+    const kode = /^\s*kode = \[([\s\S]*?)\]$/m.exec(blokk);
     if (!endepunkt || !kode) throw new Error(`Et steg i ${flyt} mangler endepunkt eller kode`);
     steg.push({
       flyt,
@@ -76,27 +94,36 @@ function lesSteg(tekst: string): Steg[] {
   return steg;
 }
 
-type Kall = { flyt: string; metode: string; sti: string; endepunkt: string };
+type Kall = { flyt: string; metode: string; sti: string; endepunkt: string; medSoek: boolean };
 
 /** Metodene og stien i endepunktet, med test-ID-er for plassholderne. Kaster når det ikke kan tolkes. */
 function kallI(s: Steg): Kall[] {
-  const tolket = /^([A-Z]+(?: og [A-Z]+)*) (\/[^\s?]+)(?:\?\S*)?(?: \(.*)?$/.exec(s.endepunkt);
+  const tolket = /^([A-Z]+(?: og [A-Z]+)*) (\/[^\s?]+)(\?\S*)?( \(.*)?$/.exec(s.endepunkt);
   if (!tolket) throw new Error(`${s.flyt}: endepunktet kan ikke tolkes: ${s.endepunkt}`);
   const sti = tolket[2].replace(/\{([a-z_]+)\}/g, (_t, navn: string) => {
     const verdi = PLASSHOLDERE[navn];
     if (!verdi) throw new Error(`${s.flyt}: ukjent plassholder {${navn}} i ${s.endepunkt}`);
     return verdi;
   });
-  return tolket[1].split(' og ').map((metode) => ({ flyt: s.flyt, metode, sti, endepunkt: s.endepunkt }));
+  const medSoek = tolket[3] !== undefined || (tolket[4] ?? '').includes('sidevis');
+  return tolket[1].split(' og ').map((metode) => ({ flyt: s.flyt, metode, sti, endepunkt: s.endepunkt, medSoek }));
 }
 
-const erKall = (s: Steg) => /\/(?:v2|opencde|oauth2)\b/.test(s.endepunkt);
+/** Som `lagBroker`: stien står i listen, og en regel med førsjekk tar ikke spørrestreng. */
+function slippesGjennom(k: Kall): boolean {
+  const regel = regelFor(miljoe, k.metode, k.sti);
+  return regel !== undefined && !(regel.foersjekk && k.medSoek);
+}
 
-const steg = lesSteg(readFileSync(DATAFLYT, 'utf8'));
+const erKall = (s: Steg) => /\/(?:v2|opencde|oauth2)\b|…\//.test(s.endepunkt);
+
+const tekst = readFileSync(DATAFLYT, 'utf8');
+const steg = lesSteg(tekst);
 const kallsteg = steg.filter(erKall);
 
 describe('tillatelseslisten i brokeren mot dataflyt.toml (#1200)', () => {
-  it('leser kallene TS-serveren gjør, så en leser som ikke finner noe, ikke blir grønn', () => {
+  it('leser hvert steg og kallene TS-serveren gjør, så en leser som ikke finner noe, ikke blir grønn', () => {
+    expect(steg).toHaveLength(tekst.match(/^\s*\[\[flyt\.steg\]\]$/gm)?.length ?? 0);
     const fraServer = kallsteg.filter((s) => s.kode.some((k) => k.startsWith('server/'))).flatMap(kallI);
     expect(fraServer).toContainEqual(expect.objectContaining({ metode: 'GET', sti: '/v2/user' }));
     expect(fraServer).toContainEqual(
@@ -106,21 +133,20 @@ describe('tillatelseslisten i brokeren mot dataflyt.toml (#1200)', () => {
 
   it('slipper gjennom hvert Catenda-kall i dataflyt.toml som ikke er et unntak', () => {
     const avvist = kallsteg
-      .filter((s) => !(s.endepunkt in UNNTAK))
+      .filter((s) => !(noekkel(s) in UNNTAK))
       .flatMap(kallI)
-      .filter((k) => !tillatt(miljoe, k.metode, k.sti))
+      .filter((k) => !slippesGjennom(k))
       .map((k) => `${k.flyt} ${k.metode}: ${k.endepunkt}`);
     expect(avvist).toEqual([]);
   });
 
   it('har bare unntak som står i dataflyt.toml og fortsatt avvises', () => {
-    const endepunkter = new Set(kallsteg.map((s) => s.endepunkt));
-    for (const endepunkt of Object.keys(UNNTAK)) {
-      expect(endepunkter, endepunkt).toContain(endepunkt);
-      const tolkbart = /^[A-Z]+ \/\S+( \(sidevis\))?$/.test(endepunkt);
-      if (!tolkbart) continue;
-      const [k] = kallI({ flyt: 'unntak', endepunkt, kode: [] });
-      expect(tillatt(miljoe, k.metode, k.sti), endepunkt).toBe(false);
+    const noekler = new Set(kallsteg.map(noekkel));
+    for (const [unntak, { avvist }] of Object.entries(UNNTAK)) {
+      expect(noekler, unntak).toContain(unntak);
+      for (const endepunkt of avvist)
+        for (const k of kallI({ flyt: unntak, endepunkt, kode: [] }))
+          expect(slippesGjennom(k), `${unntak}: ${endepunkt}`).toBe(false);
     }
   });
 });
