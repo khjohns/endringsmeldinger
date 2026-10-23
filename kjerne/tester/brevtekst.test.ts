@@ -4774,6 +4774,25 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
     expect(s.avvisning('TE', { ...GRUNNLAGSKRAV, brevtekst: vist })).toEqual(iSakstittelen);
   });
 
+  it('en sakstittel med et slikt tegn stopper ikke et brev der sakstittelen ikke står i teksten (#801, #1138)', () => {
+    const s = sak('Fundament 😀');
+    const krav = randomUUID();
+    s.rad('TE', {
+      krav: [
+        {
+          id: krav,
+          spor: 'grunnlag',
+          hovedkategori: 'endring',
+          underkategori: 'irregulaer_endring',
+        },
+      ],
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+    });
+    const innsigelse = { type: 'innsigelse', gjelder: krav };
+    expect(s.avvisning('BH', innsigelse)).toBeNull();
+    expect(s.vis('BH', innsigelse)?.join(' '), 'forutsetning').not.toContain('Fundament');
+  });
+
   it('et filnavn med et slikt tegn fra før stopper brevet, og meldingen nevner vedlegget (#1138)', () => {
     const s = sak();
     s.send('TE', GRUNNLAGSKRAV);

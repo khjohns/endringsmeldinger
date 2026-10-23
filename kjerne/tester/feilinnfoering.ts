@@ -3071,10 +3071,19 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F404',
     feilklasse: 'et tegn i filnavnet til et vedlegg meldes som et tegn i den låste teksten (#1138)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [
-      ['funnet ?? tegnSomIkkeKanVises(v.filnavn,', 'funnet ?? void tegnSomIkkeKanVises(v.filnavn,'],
-    ],
+    endringer: [['? tegnSomIkkeKanVises(v.filnavn,', '? void tegnSomIkkeKanVises(v.filnavn,']],
     mal: ['et filnavn med et slikt tegn fra før stopper brevet, og meldingen nevner vedlegget'],
+  },
+  {
+    id: 'F405',
+    feilklasse: 'en sakstittel som ikke står i teksten, stopper brevet (#801, #1138)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ["sak?.art === 'sak' && teksten.includes(`(«${sak.tittel}»)`)", "sak?.art === 'sak'"],
+    ],
+    mal: [
+      'en sakstittel med et slikt tegn stopper ikke et brev der sakstittelen ikke står i teksten',
+    ],
   },
   {
     id: 'F332',
