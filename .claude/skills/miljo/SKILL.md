@@ -62,6 +62,14 @@ og trenger også `KOE_SQLSERVER_TILKOBLING`; uten den hoppes C over:
 KOE_CATENDA_LIVE=1 npx vitest run server/tester/catenda.live.test.ts
 ```
 
+Den ekte innloggingen gjennom Catenda (#715) går ikke gjennom brokeren og prøves
+bare fra egen maskin, med egen bruker i egen nettleser. Skriptet starter testbasen,
+TS-serveren og `vite dev` mot det ekte prosjektet; bruken står i headeren:
+
+```bash
+node scripts/testbase/ekte_innlogging.ts [--bh <team> …] [--te <team> …]
+```
+
 Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
 `backend/requirements*.txt` (systempython mangler pytest).
 
