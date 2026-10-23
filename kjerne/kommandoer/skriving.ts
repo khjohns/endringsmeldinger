@@ -9,6 +9,7 @@
 import { avvisning } from './avvisning.ts';
 import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
+import { lagFraGrunnlaget } from '../frosset/standpunkt.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, KanIkkeUttrykkes, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { avvis } from './forutsetninger.ts';
@@ -34,6 +35,8 @@ import type {
   Journalrad,
   Krav,
   Part,
+  Spor,
+  Svar,
   Vedlegg,
 } from '../typer.ts';
 
@@ -105,7 +108,6 @@ type Bygde = Map<Svarutkast, { standpunkter: Data[]; utregning: Data }>;
 function svar(
   s: Svarutkast,
   u: Utledning,
-  kjerne: Kjerne,
   nyId: () => string,
   utdypninger: Utdypninger,
   bygde: Bygde,
@@ -127,10 +129,44 @@ function svar(
   };
   // B-13: serverens utregning lagres, ikke klientens. Grunnlagssvaret har ingen.
   if (s.spor !== 'grunnlag') e.utregning = bygd.utregning;
-  e.beslutningsgrunnlag = lagret(
-    frys(e, grunnlagskravFor({ spor: s.spor, gjelder: s.gjelder }, u), kjerne.regler)
-  );
   return e;
+}
+
+/**
+ * Fryser brevet i hvert svar i dokumentet (MM-U9, MM-U11). Lagene i vederlag og frist
+ * flyttes ned med lagene svaret på grunnlaget opptar foran dem: svaret i samme dokument,
+ * ellers `gjeldende`, som i brevteksten (OV-U32, OV-U33, svaret i #1199).
+ */
+function frysSvarene(
+  svarene: Data[],
+  gjeldende: Svar | null,
+  grunnlagskrav: (s: Data) => Krav | null | undefined,
+  kjerne: Kjerne
+): void {
+  const g = svarene.find((s) => s.spor === 'grunnlag');
+  let forskyvning = gjeldende
+    ? lagFraGrunnlaget(gjeldende, gjeldende.beslutningsgrunnlag.virkninger)
+    : 0;
+  if (g) {
+    const frosset = frys(g, grunnlagskrav(g), kjerne.regler, 0);
+    g.beslutningsgrunnlag = lagret(frosset);
+    const innhold = { spor: 'grunnlag' as const, standpunkter: standpunkterISvaret('grunnlag', g) };
+    forskyvning = lagFraGrunnlaget({ ...innhold, utregning: {} }, frosset.virkninger);
+  }
+  for (const s of svarene)
+    if (s !== g)
+      s.beslutningsgrunnlag = lagret(frys(s, grunnlagskrav(s), kjerne.regler, forskyvning));
+}
+
+/** Svarene i et brev eller en revisjon, med brevet frosset i hvert. */
+function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
+  frysSvarene(
+    svarene,
+    u.spor.grunnlag.gjeldendeSvar,
+    (s) => grunnlagskravFor({ spor: s.spor as Spor, gjelder: s.gjelder as string }, u),
+    kjerne
+  );
+  return svarene;
 }
 
 /** Innholdet i dokumentet kommandoen gir. */
@@ -163,9 +199,17 @@ function dokument(
       return data;
     }
     case 'brev':
-      return { svar: k.svar.map((s) => svar(s, u, kjerne, nyId, utdypninger, bygde)) };
+      return {
+        svar: frosneSvar(
+          k.svar.map((s) => svar(s, u, nyId, utdypninger, bygde)),
+          u,
+          kjerne
+        ),
+      };
     case 'revisjon':
-      return { svar: [svar(k.svar, u, kjerne, nyId, utdypninger, bygde, k.erstatter)] };
+      return {
+        svar: frosneSvar([svar(k.svar, u, nyId, utdypninger, bygde, k.erstatter)], u, kjerne),
+      };
     case 'aksept':
       // KA-U10: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
       return {
@@ -470,11 +514,12 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
   for (const h of lesJournal(foer, kjerne.leserformat))
     if (h.art === 'dokument')
       grunnlagskrav.push(...h.dokument.krav.filter((k) => k.spor === 'grunnlag'));
-  for (const s of (rad.data.svar ?? []) as Data[]) {
-    // Kategorien i grunnlagskravet: § 32.2 i grunnlaget (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
-    const krav = grunnlagskrav.find(
-      (k) => k.id === (s.spor === 'grunnlag' ? s.gjelder : s.grunnlagskrav)
-    );
-    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));
-  }
+  // Kategorien i grunnlagskravet: § 32.2 i grunnlaget (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
+  frysSvarene(
+    (rad.data.svar ?? []) as Data[],
+    utledJournal(foer, kjerne).spor.grunnlag.gjeldendeSvar,
+    (s) =>
+      grunnlagskrav.find((k) => k.id === (s.spor === 'grunnlag' ? s.gjelder : s.grunnlagskrav)),
+    kjerne
+  );
 }

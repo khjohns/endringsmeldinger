@@ -394,6 +394,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'grunnerFraGrunnlaget',
     ['utledning/utled.ts:utledSporene', 'frosset/brevtekst.ts:grunnlagetsStandpunkter'],
   ],
+  // OV-U32, OV-U33: lagene grunnlaget opptar foran sporet, som linjen etiketteres med.
+  ['frosset/standpunkt.ts', 'predikat', 'lagFraGrunnlaget', ['kommandoer/skriving.ts:frysSvarene']],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
   ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utledSporene']],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
@@ -799,6 +801,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor gjelder grunnlagskrav',
     ['kommandoer/skriving.ts'],
   ],
+  ['kommandoer/skriving.ts:frysSvarene(s)', 'rad', 'spor', ['kommandoer/skriving.ts']],
+  ['kommandoer/skriving.ts:frosneSvar(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   ['format/leser.ts', 'rad', 'lesJournal', ['kommandoer/skriving.ts']],
   [
@@ -896,11 +900,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av
   // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
   // MM-U9, MM-U28: om tallet i gjeldende svar er subsidiært, som sakslisten leser (#1050).
+  // OV-U32, OV-U33: lagene grunnlaget opptar foran sporet, i meldingen om en senket revisjon.
   [
     'Sporutledning',
     'predikat',
     'subsidiaer',
-    ['kommandoer/skriving.ts:brevtekstFor', 'utledning/utled.ts:standpunktetErSubsidiaert'],
+    [
+      'kommandoer/skriving.ts:brevtekstFor',
+      'utledning/utled.ts:standpunktetErSubsidiaert',
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+      'utledning/utled.ts:bryterBindingen',
+    ],
   ],
   ['Saken', 'brevtekst', 'saksnummer tittel grunnlagssvar subsidiaer', ['frosset/brevtekst.ts']],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],

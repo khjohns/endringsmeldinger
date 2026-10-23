@@ -4246,6 +4246,22 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       expect(a?.melding).toContain(`til ${kroner(80000)}`);
     });
 
+    it('meldingen sier etiketten brevet ga beløpet når grunnlaget er avslått (OV-U32, OV-U33, #1199)', () => {
+      const s = sakMedKrav();
+      brev(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'avslaatt' });
+      brev(s, 'vederlag', delvis);
+      const a = s.avvisning('BH', revisjon(s, 'vederlag', beloep(80000)));
+      expect(a?.melding).toContain(`Svaret godkjenner subsidiært ${kroner(100000)}`);
+    });
+
+    it('kontrollsak: med godkjent grunnlag har beløpet ingen etikett i meldingen', () => {
+      const s = sakMedKrav();
+      brev(s, 'grunnlag', { grunnlag_varslet_i_tide: true, resultat: 'godkjent' });
+      brev(s, 'vederlag', delvis);
+      const a = s.avvisning('BH', revisjon(s, 'vederlag', beloep(80000)));
+      expect(a?.melding).toContain(`Svaret godkjenner ${kroner(100000)}`);
+    });
+
     it('et beløp som står likt, godtas, også når det er det eneste i revisjonen', () => {
       const s = sakMedKrav();
       brev(s, 'vederlag', delvis);

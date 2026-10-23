@@ -335,8 +335,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler);',
-        'return beslutningsgrunnlag(innhold, undefined, regler);',
+        'return beslutningsgrunnlag(innhold, grunnlagskrav, regler, forskyvning);',
+        'return beslutningsgrunnlag(innhold, undefined, regler, forskyvning);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -619,8 +619,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, kjerne.regler));',
-        '    s.beslutningsgrunnlag = lagret(frys(s, krav, GJELDENDE_REGLER));',
+        's.grunnlagskrav)),\n    kjerne\n',
+        's.grunnlagskrav)),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
       ],
     ],
     mal: ['F-MM-G45-regel'],
@@ -1655,12 +1655,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F201',
     feilklasse: 'en påberopelse etter § 33.6.1 gir sammenfall (arbeidsvalget i #479, MM-U18)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        "v.some((p) => p.standpunkt === spesifisering.id && p.virkning !== 'uten_virkning')",
-        'false',
-      ],
-    ],
+    endringer: [['v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning))', 'false']],
     mal: ['sammenfall med en påberopelse etter § 33.6.1', 'F-MM-F-33-6-1-alle-dagene'],
   },
   {
@@ -2001,7 +1996,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F240',
     feilklasse: 'en revisjon sammenliknes ikke med svaret den erstatter (HF-U5)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['return forrige && binding(forrige, nye);', 'return null;']],
+    endringer: [
+      [
+        'return forrige && binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length);',
+        'return null;',
+      ],
+    ],
     mal: [
       'et lavere godkjent beløp avvises',
       'færre godkjente dager avvises',
@@ -2024,8 +2024,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  return forrige && binding(forrige, nye);\n',
-        '  if (forrige?.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;\n  return forrige && binding(forrige, nye);\n',
+        '  return forrige && binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length);\n',
+        '  if (forrige?.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;\n  return forrige && binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length);\n',
       ],
     ],
     mal: ['bindingen i vederlaget står etter en ny grunnlagsversjon', 'F-MM-HF-U21'],
@@ -2037,8 +2037,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        'return forrige && binding(forrige, nye);',
-        'return forrige && binding(u.spor[s.spor].svar.find((x) => x.gjelder === forrige.gjelder)!, nye);',
+        'return forrige && binding(forrige, nye,',
+        'return forrige && binding(u.spor[s.spor].svar.find((x) => x.gjelder === forrige.gjelder)!, nye,',
       ],
     ],
     mal: ['sammenliknes med svaret revisjonen erstatter'],
@@ -2204,7 +2204,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en revisjon utenfor kommandoene som senker en innrømmelse, leses med virkning (MM-U27, HF-U5)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['      senketInnroemmelse(forrige, s.standpunkter)', '      false']],
+    endringer: [
+      [
+        '      senketInnroemmelse(forrige, s.standpunkter, u.spor[s.spor].subsidiaer.length)',
+        '      false',
+      ],
+    ],
     mal: ['en revisjon som senker det godkjente beløpet, gjør saken ikke forstått'],
   },
   {
@@ -3255,7 +3260,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F378',
     feilklasse: 'meldingen om en senket revisjon sier ikke etiketten fra lag 3 (OV-U32)',
     fil: `${K}/utledning/innroemmelse.ts`,
-    endringer: [['lag !== null && lag > 1', 'lag === 2']],
+    endringer: [['lag !== null && lag + forskyvning > 1', 'lag === 2']],
     mal: ['meldingen om en senket revisjon sier etiketten for laget dagene sto i'],
   },
   {
@@ -3284,6 +3289,92 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['grunnlaget prekludert og avslått subsidiært i samme brev'],
+  },
+  {
+    id: 'F382',
+    feilklasse: 'linjen etiketterer uten forskyvningen fra grunnlaget (OV-U32, OV-U33, #1199)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'linje: beslutningslinje(svar, v, grunnlagskrav, forskyvning),',
+        'linje: beslutningslinje(svar, v, grunnlagskrav, 0),',
+      ],
+    ],
+    mal: [
+      'avslått grunnlag gir beløpet etiketten for andre lag, som brevet',
+      'prinsipalt § 32.2 og subsidiært avslag gir beløpet etiketten for tredje lag',
+      'lagene i fristsporet flyttes ned hver for seg',
+      'en revisjon har sitt eget beslutningsgrunnlag og viser til svaret den erstatter',
+    ],
+  },
+  {
+    id: 'F383',
+    feilklasse: 'linjen ser bort fra gjeldende grunnlagssvar før brevet (OV-U32, #1199)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['lagFraGrunnlaget(gjeldende, gjeldende.beslutningsgrunnlag.virkninger)', '0']],
+    mal: [
+      'en revisjon har sitt eget beslutningsgrunnlag og viser til svaret den erstatter',
+      'registrert korrespondanse fryses med forskyvningen fra gjeldende grunnlagssvar',
+    ],
+  },
+  {
+    id: 'F384',
+    feilklasse: 'et frafall av pålegget flytter lagene som et avslag (GR-U7, OV-U33)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        "if (standpunktet(svar, 'grunnlag')?.resultat === 'avslaatt') ut.push('avslaatt');",
+        "if (standpunktet(svar, 'grunnlag')?.resultat !== 'godkjent') ut.push('avslaatt');",
+      ],
+    ],
+    mal: ['et frafall av pålegget flytter ikke lagene'],
+  },
+  {
+    id: 'F385',
+    feilklasse: 'meldingen om en senket revisjon etiketterer uten forskyvningen (#1199)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length)', 'binding(forrige, nye, 0)'],
+    ],
+    mal: ['meldingen sier etiketten brevet ga beløpet når grunnlaget er avslått'],
+  },
+  {
+    id: 'F386',
+    feilklasse: 'visningen regner upåvirket som en annen virkning enn første lag (OV-U33, #1047)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [["p.virkning === 'upaavirket' ? 1 : p.virkning", 'p.virkning']],
+    mal: ['upåvirket er samme virkning som første lag'],
+  },
+  {
+    id: 'F387',
+    feilklasse: 'en upåvirket spesifisering hindrer sammenfall (OV-U32, #479)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'p.standpunkt === spesifisering.id && laget(p.virkning)',
+        "p.standpunkt === spesifisering.id && p.virkning !== 'uten_virkning'",
+      ],
+    ],
+    mal: ['en upåvirket spesifisering hindrer ikke sammenfall'],
+  },
+  {
+    id: 'F388',
+    feilklasse: 'leseren godtar upåvirket i svaret på grunnlaget (OV-U32)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [["    (spor === 'grunnlag' ||", '    (false ||']],
+    mal: ['upåvirket i svaret på grunnlaget er ikke forstått'],
+  },
+  {
+    id: 'F389',
+    feilklasse: 'leseren godtar upåvirket uten en påberopelse i sporet (OV-U33)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "!virkninger.some((p) => PAABEROPELSER.has(p.art) && typeof p.virkning === 'number')",
+        'false',
+      ],
+    ],
+    mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
   },
 ];
 

@@ -240,6 +240,9 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
   return ut;
 }
 
+/** Standpunktene som er byggherrens påberopelser i sporet. */
+const PAABEROPELSER = new Set<Standpunktsart>(['rettidighet', 'hindring', 'spesifisering']);
+
 function lesBeslutningsgrunnlag(
   spor: Spor,
   v: unknown,
@@ -274,6 +277,16 @@ function lesBeslutningsgrunnlag(
   virkninger.sort((x, y) => rekkefoelge.get(x.standpunkt)! - rekkefoelge.get(y.standpunkt)!);
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
+  // OV-U32, OV-U33: upåvirket gjelder vederlag og frist, og bare ved siden av en påberopelse
+  // i sporet.
+  if (
+    virkninger.some((p) => p.virkning === 'upaavirket') &&
+    (spor === 'grunnlag' ||
+      !virkninger.some((p) => PAABEROPELSER.has(p.art) && typeof p.virkning === 'number'))
+  )
+    throw new Uforstaatt(
+      `${sti}: et standpunkt er upåvirket uten en påberopelse i vederlag eller frist (OV-U33)`
+    );
   return {
     regelversjon: b.regelversjon as number,
     virkninger,

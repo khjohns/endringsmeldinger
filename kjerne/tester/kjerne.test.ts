@@ -7,7 +7,7 @@
 import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import type { Journalrad, Krav, Part, Standpunktsvirkning } from '../typer.ts';
+import type { Journalrad, Krav, Part, Standpunktsvirkning, Svar } from '../typer.ts';
 import { frysBrev, Skrivefeil, vurder, type Kontekst } from '../kommandoer/skriving.ts';
 import { KJERNE } from '../versjon.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
@@ -15,9 +15,20 @@ import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
 import { BESLUTNINGSGRUNNLAG } from '../format/format.ts';
 import { feilI } from '../format/skjema.ts';
-import { kanInngaaIEo, kraveneErAvgjort, utled } from '../utledning/utled.ts';
+import {
+  kanInngaaIEo,
+  kraveneErAvgjort,
+  standpunktetErSubsidiaert,
+  utled,
+  type Utledning,
+} from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
-import { regnUtSvar, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import {
+  regnUtSvar,
+  sammenfallStemmer,
+  ulikeVirkninger,
+  virkninger,
+} from '../frosset/standpunkt.ts';
 import { senketInnroemmelse } from '../utledning/innroemmelse.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
@@ -143,8 +154,9 @@ describe('formatet (7.1.2, 4.4)', () => {
     const { k, rader } = await forloepA();
     const s = svaret(radMed(rader, k, 'S-v2'), k, 'S-v2');
     expect(s.erstatter).toBe(k.navn.id('S-v1'));
+    // Grunnlaget er avslått i D4, så beløpet står i andre lag i brevet (OV-U32, #1199).
     expect((s.beslutningsgrunnlag as Data).linje).toBe(
-      'Byggherrens standpunkt: godkjent med 70\u00a0000\u00a0kr.'
+      'Byggherrens standpunkt: subsidiært godkjent med 70\u00a0000\u00a0kr.'
     );
   });
 
@@ -1308,14 +1320,14 @@ describe('revisjonen av et svar uten beløp', () => {
     >[1];
 
   it('sammenliknes ikke og avvises', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0))).toEqual(
+    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toEqual(
       expect.stringMatching(/Beløpet mangler/)
     );
   });
 
   it('kontrollsak: med beløpet sammenliknes revisjonen', () => {
-    expect(senketInnroemmelse(svar(100), revisjon(100))).toBeNull();
-    expect(senketInnroemmelse(svar(100), revisjon(50))).toMatch(/senker beløpet/);
+    expect(senketInnroemmelse(svar(100), revisjon(100), 0)).toBeNull();
+    expect(senketInnroemmelse(svar(100), revisjon(50), 0)).toMatch(/senker beløpet/);
   });
 });
 
@@ -1333,7 +1345,7 @@ describe('revisjonen av et svar uten dager', () => {
     >[1];
 
   it('dagene sammenliknes ikke, og revisjonen avvises', () => {
-    expect(senketInnroemmelse(svar(undefined), revisjon(0))).toEqual(
+    expect(senketInnroemmelse(svar(undefined), revisjon(0), 0)).toEqual(
       expect.stringMatching(/Dagene mangler/)
     );
   });
@@ -1344,14 +1356,14 @@ describe('revisjonen av et svar uten dager', () => {
     ['dagene i svaret er NaN', NaN, 0],
     ['dagene i revisjonen er NaN', 10, NaN],
   ])('%s: revisjonen avvises', (_navn, foer, etter) => {
-    expect(senketInnroemmelse(svar(foer), revisjon(etter))).toEqual(
+    expect(senketInnroemmelse(svar(foer), revisjon(etter), 0)).toEqual(
       expect.stringMatching(/Dagene mangler/)
     );
   });
 
   it('kontrollsak: med dagene sammenliknes revisjonen', () => {
-    expect(senketInnroemmelse(svar(10), revisjon(10))).toBeNull();
-    expect(senketInnroemmelse(svar(10), revisjon(5))).toMatch(/senker dagene/);
+    expect(senketInnroemmelse(svar(10), revisjon(10), 0)).toBeNull();
+    expect(senketInnroemmelse(svar(10), revisjon(5), 0)).toMatch(/senker dagene/);
   });
 });
 
@@ -1815,20 +1827,32 @@ describe('laget og upåvirket hos leserne (OV-U32)', () => {
   ] as Parameters<typeof senketInnroemmelse>[1];
 
   it('meldingen om en senket revisjon sier etiketten for laget dagene sto i, også fra fjerde lag', () => {
-    expect(senketInnroemmelse(svar(2), revisjon)).toBe(
+    expect(senketInnroemmelse(svar(2), revisjon, 0)).toBe(
       'Svaret godkjenner subsidiært 10 dager, og revisjonen senker dagene til 5 dager'
     );
-    expect(senketInnroemmelse(svar(3), revisjon)).toMatch(/godkjenner videre subsidiært 10/);
-    expect(senketInnroemmelse(svar(4), revisjon)).toMatch(/godkjenner videre subsidiært 10/);
+    expect(senketInnroemmelse(svar(3), revisjon, 0)).toMatch(/godkjenner videre subsidiært 10/);
+    expect(senketInnroemmelse(svar(4), revisjon, 0)).toMatch(/godkjenner videre subsidiært 10/);
   });
 
   it('kontrollsak: et upåvirket standpunkt eller et i første lag får ingen etikett i meldingen', () => {
-    expect(senketInnroemmelse(svar('upaavirket'), revisjon)).toMatch(/^Svaret godkjenner 10 dager/);
-    expect(senketInnroemmelse(svar(1), revisjon)).toMatch(/^Svaret godkjenner 10 dager/);
+    expect(senketInnroemmelse(svar('upaavirket'), revisjon, 0)).toMatch(
+      /^Svaret godkjenner 10 dager/
+    );
+    expect(senketInnroemmelse(svar(1), revisjon, 0)).toMatch(/^Svaret godkjenner 10 dager/);
   });
 
-  it('upåvirket er en annen virkning enn første lag og enn uten virkning, og lag 3 er ikke lag 4', () => {
-    expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 1)])).toBe(true);
+  // Svaret i #1199: meldingen setter etiketten som brevet, med lagene grunnlaget opptar.
+  it('meldingen flytter laget ned med lagene grunnlaget opptar foran sporet', () => {
+    expect(senketInnroemmelse(svar(1), revisjon, 1)).toMatch(/^Svaret godkjenner subsidiært 10/);
+    expect(senketInnroemmelse(svar(1), revisjon, 2)).toMatch(/godkjenner videre subsidiært 10/);
+    expect(senketInnroemmelse(svar(2), revisjon, 1)).toMatch(/godkjenner videre subsidiært 10/);
+  });
+
+  // Kravet til B2 i #1047 (6361242248): upåvirket betyr at ingen av byggherrens innsigelser
+  // rammer standpunktet, som i første lag, så det er ingen regelendring.
+  it('upåvirket er samme virkning som første lag, men ikke som andre lag eller uten virkning, og lag 3 er ikke lag 4', () => {
+    expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 1)])).toBe(false);
+    expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 2)])).toBe(true);
     expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 'uten_virkning')])).toBe(true);
     expect(ulikeVirkninger([v('d', 3)], [v('d', 4)])).toBe(true);
     expect(ulikeVirkninger([v('d', 'upaavirket')], [v('d', 'upaavirket')])).toBe(false);
@@ -1858,5 +1882,196 @@ describe('laget og upåvirket hos leserne (OV-U32)', () => {
         feilI(grunnlag({ virkninger: [{ standpunkt: 'd', lag }] }), BESLUTNINGSGRUNNLAG),
         `${lag}`
       ).not.toEqual([]);
+  });
+});
+
+// OV-U32, OV-U33 og svaret i #1199: linjen setter etiketten som brevet, med lagene i sporet
+// flyttet ned med lagene svaret på grunnlaget opptar. Et frafall flytter dem ikke (GR-U7).
+describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => {
+  const kravene: Handling[] = [
+    { handling: 'krav', spor: 'grunnlag', underkategori: 'irregulaer_endring', navn: 'K-g1' },
+    { handling: 'krav', spor: 'vederlag', belop: 100000, navn: 'K-v1' },
+    { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+  ];
+  async function linjene(grunnlag: Data, frist: Data = {}) {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      ...kravene,
+      {
+        handling: 'brev',
+        navn: 'D4',
+        svar: [
+          { spor: 'grunnlag', navn: 'S-g1', varslet_i_tide: true, ...grunnlag },
+          { spor: 'vederlag', navn: 'S-v1', vurdering: 'delvis', godkjent_belop: 60000 },
+          {
+            spor: 'frist',
+            navn: 'S-f1',
+            varsel_i_tide: true,
+            spesifisering_i_tide: true,
+            hindring: true,
+            ...frist,
+          },
+        ],
+      },
+    ]);
+    const rader = await bane.journal();
+    if (!forstaatt(rader)) throw new Error('Forutsetning: saken er ikke forstått');
+    const linje = (navn: string) =>
+      (svaret(radMed(rader, k, navn), k, navn).beslutningsgrunnlag as Data).linje as string;
+    return { linje, brevtekst: JSON.stringify(radMed(rader, k, 'D4').data) };
+  }
+  const kr = (n: number) => `${n.toLocaleString('nb-NO').replace(/\s/g, '\u00a0')}\u00a0kr`;
+
+  it('kontrollsak: med godkjent grunnlag og ett lag har linjen ingen etikett', async () => {
+    const { linje } = await linjene({ resultat: 'godkjent' });
+    expect(linje('S-v1')).toBe(`Byggherrens standpunkt: godkjent med ${kr(60000)}.`);
+  });
+
+  it('avslått grunnlag gir beløpet etiketten for andre lag, som brevet', async () => {
+    const { linje, brevtekst } = await linjene({ resultat: 'avslaatt' });
+    expect(linje('S-v1')).toBe(`Byggherrens standpunkt: subsidiært godkjent med ${kr(60000)}.`);
+    expect(brevtekst).toContain('Subsidiært: byggherren godkjenner 60');
+  });
+
+  it('prinsipalt § 32.2 og subsidiært avslag gir beløpet etiketten for tredje lag', async () => {
+    const { linje } = await linjene({ varslet_i_tide: false, resultat: 'avslaatt' });
+    expect(linje('S-v1')).toBe(
+      `Byggherrens standpunkt: videre subsidiært godkjent med ${kr(60000)}.`
+    );
+  });
+
+  it('kontrollsak: et frafall av pålegget flytter ikke lagene (GR-U7, OV-U33)', async () => {
+    const { linje } = await linjene({ resultat: 'paalegg_frafalt' });
+    expect(linje('S-v1')).toBe(`Byggherrens standpunkt: godkjent med ${kr(60000)}.`);
+  });
+
+  it('lagene i fristsporet flyttes ned hver for seg', async () => {
+    const { linje } = await linjene({ resultat: 'avslaatt' }, { varsel_i_tide: false });
+    expect(linje('S-f1')).toMatch(
+      /^Byggherrens standpunkt: subsidiært prekludert \(§ 33\.4\), videre subsidiært /
+    );
+  });
+
+  it('registrert korrespondanse fryses med forskyvningen fra gjeldende grunnlagssvar', async () => {
+    const bane = minnebane();
+    const k = await bygg(bane, [
+      ...kravene,
+      {
+        handling: 'brev',
+        navn: 'D4',
+        svar: [{ spor: 'grunnlag', navn: 'S-g1', varslet_i_tide: true, resultat: 'avslaatt' }],
+      },
+    ]);
+    const journal = await bane.journal();
+    const siste = journal.at(-1)!;
+    const svar: Data = {
+      id: randomUUID(),
+      spor: 'vederlag',
+      gjelder: k.navn.id('K-v1'),
+      grunnlagskrav: k.navn.id('K-g1'),
+      standpunkter: [{ id: randomUUID(), art: 'beloep' }],
+      utregning: { resultat: 'delvis_godkjent', godkjent_beloep: 60000 },
+    };
+    frysBrev({ ...siste, event_id: randomUUID(), data: { svar: [svar] } }, journal, KJERNE);
+    expect((svar.beslutningsgrunnlag as Data).linje).toBe(
+      `Byggherrens standpunkt: subsidiært godkjent med ${kr(60000)}.`
+    );
+  });
+});
+
+// Kravene til B2 i #1047 (6361242248): upåvirket betyr at ingen av byggherrens innsigelser
+// rammer standpunktet (OV-U32, OV-U33, HF-U2).
+describe('upåvirket hos leserne (OV-U33)', () => {
+  const v = (standpunkt: string, virkning: Standpunktsvirkning['virkning']) =>
+    ({
+      standpunkt,
+      art: standpunkt === 's' ? 'spesifisering' : 'dager',
+      virkning,
+    }) as Standpunktsvirkning;
+  const fristsvar = (spesifisering: Standpunktsvirkning['virkning'], sammenfall: boolean) =>
+    ({
+      spor: 'frist',
+      standpunkter: [
+        { id: 's', art: 'spesifisering', iTide: false, dager: 20 },
+        { id: 'd', art: 'dager', resultat: 'godkjent', vurdert: 20 },
+      ],
+      utregning: { resultat: 'godkjent', godkjent_dager: 20 },
+      beslutningsgrunnlag: { virkninger: [v('s', spesifisering), v('d', 1)], sammenfall },
+    }) as unknown as Svar;
+
+  it('en upåvirket spesifisering hindrer ikke sammenfall, men en i et lag gjør det', () => {
+    expect(sammenfallStemmer(fristsvar('upaavirket', true))).toBe(true);
+    expect(sammenfallStemmer(fristsvar(1, true)), 'kontrollsak').toBe(false);
+  });
+
+  const utledning = (subsidiaer: string[], virkning: Standpunktsvirkning['virkning']) =>
+    ({
+      spor: {
+        frist: {
+          subsidiaer,
+          gjeldendeSvar: { beslutningsgrunnlag: { virkninger: [v('d', virkning)] } },
+        },
+      },
+    }) as unknown as Utledning;
+
+  it('med avslått grunnlag er standpunktet subsidiært, også i første lag', () => {
+    expect(standpunktetErSubsidiaert(utledning(['avslaatt'], 1), 'frist', 'd')).toBe(true);
+  });
+
+  it('kontrollsak: med godkjent grunnlag er et upåvirket standpunkt eller et i første lag ikke subsidiært, men et i andre lag er det', () => {
+    expect(standpunktetErSubsidiaert(utledning([], 'upaavirket'), 'frist', 'd')).toBe(false);
+    expect(standpunktetErSubsidiaert(utledning([], 1), 'frist', 'd')).toBe(false);
+    expect(standpunktetErSubsidiaert(utledning([], 2), 'frist', 'd')).toBe(true);
+  });
+
+  async function forloep() {
+    const bane = minnebane();
+    const k = await bygg(bane, ['forlop_a']);
+    return { k, rader: await bane.journal() };
+  }
+  /** Flytter standpunktet `art` i svaret `navn` til upåvirket, og gir `paaberopelse` lag 1. */
+  const upaavirket = (
+    rader: Journalrad[],
+    k: Kjoering,
+    navn: string,
+    art: string,
+    paaberopelse?: string
+  ) =>
+    structuredClone(rader).map((r) => {
+      for (const e of (r.data.svar ?? []) as Data[]) {
+        if (e.id !== k.navn.id(navn)) continue;
+        const standpunkter = e.standpunkter as Data[];
+        const id = (a: string) => standpunkter.find((p) => p.art === a)!.id as string;
+        const b = e.beslutningsgrunnlag as Data;
+        const flytt = [id(art), ...(paaberopelse ? [id(paaberopelse)] : [])];
+        b.virkninger = (b.virkninger as Data[]).filter(
+          (p) => !flytt.includes(p.standpunkt as string)
+        );
+        b.uten_virkning = ((b.uten_virkning ?? []) as string[]).filter((x) => !flytt.includes(x));
+        if (!(b.uten_virkning as string[]).length) delete b.uten_virkning;
+        if (paaberopelse) (b.virkninger as Data[]).push({ standpunkt: id(paaberopelse), lag: 1 });
+        b.upaavirket = [id(art)];
+      }
+      return r;
+    });
+
+  it('upåvirket i svaret på grunnlaget er ikke forstått', async () => {
+    const { k, rader } = await forloep();
+    expect(forstaatt(rader), 'kontrollsak').toBe(true);
+    expect(forstaatt(upaavirket(rader, k, 'S-g1', 'grunnlag', 'rettidighet'))).toBe(false);
+  });
+
+  it('upåvirket uten en påberopelse i sporet er ikke forstått', async () => {
+    const { k, rader } = await forloep();
+    expect(forstaatt(upaavirket(rader, k, 'S-f1', 'dager'))).toBe(false);
+  });
+
+  it('kontrollsak: upåvirket ved siden av en påberopelse i første lag leses', async () => {
+    const { k, rader } = await forloep();
+    const lest = lesJournal(
+      upaavirket(rader, k, 'S-f1', 'dager', 'rettidighet'),
+      KJERNE.leserformat
+    );
+    expect(lest.filter((h) => h.art === 'ukjent')).toEqual([]);
   });
 });

@@ -544,7 +544,7 @@ function bryterBindingen(d: Dokument, u: Utledning): Strid[] {
     else if (
       s.erstatter !== null &&
       forrige?.id === s.erstatter &&
-      senketInnroemmelse(forrige, s.standpunkter)
+      senketInnroemmelse(forrige, s.standpunkter, u.spor[s.spor].subsidiaer.length)
     )
       ut.push({
         element: s.id,
@@ -1319,7 +1319,9 @@ export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
 /**
  * MM-U9, MM-U28: standpunktet i sporets gjeldende svar er subsidiært, fordi svaret på
  * grunnlaget avviser ansvaret (`subsidiaer`), eller fordi brevet selv ga standpunktet
- * et lag etter det første (OV-U32). Virkningen leses slik brevet sa den.
+ * et lag etter det første (OV-U32). Virkningen leses slik brevet sa den. Er grunnlaget
+ * avvist, er også et standpunkt ingen påberopelse i sporet rammer, betinget av ansvaret
+ * (OV-U33).
  */
 export function standpunktetErSubsidiaert(
   u: Utledning,
