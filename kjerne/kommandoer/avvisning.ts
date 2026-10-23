@@ -30,9 +30,14 @@ export function handlingsnoekler(k: Kommando): Handlingsnoekkel[] {
     case 'trekk':
       return [{ type: 'trekke', spor: k.spor }];
     case 'varsel':
-      return [{ type: 'varsle', spor: k.spor }];
-    case 'send_varsel':
-      return [{ type: 'sende_varsel', spor: k.spor }];
+    case 'send_varsel': {
+      const type = k.type === 'varsel' ? 'varsle' : 'sende_varsel';
+      return [
+        k.hjemmel === '34.1.3'
+          ? { type, spor: k.spor, hjemmel: k.hjemmel }
+          : { type, spor: k.spor },
+      ];
+    }
     case 'registrert_brev':
     case 'ikke_i_saken':
       return [{ type: 'registrere_brev' }];

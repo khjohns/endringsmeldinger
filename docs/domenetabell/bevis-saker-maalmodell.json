@@ -504,7 +504,7 @@
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": false,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["registrere_brev", "varsle:vederlag", "varsle:frist", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
+            "handlinger.TE": ["registrere_brev", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1"],
             "handlinger.BH": ["registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }

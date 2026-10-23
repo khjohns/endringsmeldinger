@@ -182,12 +182,19 @@ export const KRAVINNHOLD: Record<
     required: ['hovedkategori', 'underkategori'],
     anyOf: KATEGORIPAR,
   },
+  // OV-U23: hovedbeløpet kan mangle når kravet har posten etter § 34.1.3 annet ledd.
+  // Rigg og drift etter første ledd er ikke i formatet (#1171).
   vederlag: {
     properties: {
       metode: { const: 'tilbud' },
       beloep: { type: 'number', exclusiveMinimum: 0 },
+      saerskilt: objekt(
+        { produktivitet: objekt({ beloep: { type: 'number', exclusiveMinimum: 0 } }, ['beloep']) },
+        ['produktivitet']
+      ),
     },
-    required: ['metode', 'beloep'],
+    required: ['metode'],
+    anyOf: [{ required: ['beloep'] }, { required: ['saerskilt'] }],
   },
   frist: { properties: { dager: { type: 'integer', minimum: 1 } }, required: ['dager'] },
 };
@@ -211,7 +218,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     {
       ...artfelt('rettidighet'),
       gjelder: ID,
-      hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2'] },
+      hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2', '34.1.3'] },
       i_tide: { type: 'boolean' },
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
@@ -321,7 +328,7 @@ export const OPPLYSNINGSSLAG = [
 ] as const satisfies readonly Opplysningsslag[];
 
 export const UTSAGN: Record<Utsagnsart, Skjema> = {
-  varsel: objekt({ ...artfelt('varsel'), hjemmel: { enum: ['33.4', '34.1.2'] } }, [
+  varsel: objekt({ ...artfelt('varsel'), hjemmel: { enum: ['33.4', '34.1.2', '34.1.3'] } }, [
     'id',
     'art',
     'hjemmel',

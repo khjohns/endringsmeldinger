@@ -27,7 +27,9 @@ import {
   grunnerFraGrunnlaget,
   innsigelsenErOppgitt,
   innsigelsenPaaberoper,
+  harHovedbeloep,
   krevdBeloep,
+  krevdProduktivitet,
   kroner,
   svarPaaForesporsler,
 } from './standpunkt.ts';
@@ -338,9 +340,18 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
       throw new KanIkkeUttrykkes(`kategorien ${hoved}/${under} har ingen brevtekst`);
     }
   } else if (k.spor === 'vederlag') {
-    deler.push(
-      `TE krever justering av vederlaget med ${eksMva(tilTall(krevdBeloep(k)))} Kravet er et tilbud etter NS 8407 § 34.2.1.`
-    );
+    const krever: string[] = [];
+    if (harHovedbeloep(k))
+      krever.push(`TE krever justering av vederlaget med ${eksMva(tilTall(krevdBeloep(k)))}`);
+    // OV-U23: posten etter § 34.1.3 annet ledd, med eller uten hovedbeløpet.
+    const post = krevdProduktivitet(k);
+    if (post !== null)
+      krever.push(
+        `TE krever ${harHovedbeloep(k) ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`
+      );
+    if (!krever.length) throw new KanIkkeUttrykkes('vederlagskravet har ikke noe beløp');
+    // LV-U30: hele kravet er et tilbud, også når det bare har posten.
+    deler.push(`${krever.join(' ')} Kravet er et tilbud etter NS 8407 § 34.2.1.`);
   } else {
     deler.push(
       `TE krever fristforlengelse på ${dager(k.innhold.dager as number)} (NS 8407 § 33.6.1).`
@@ -406,10 +417,30 @@ const METODEN = {
   regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)',
 } as const satisfies Record<NonNullable<Extract<Standpunkt, { art: 'metode' }>['oensket']>, string>;
 
+/** Det særskilte kravet etter § 34.1.3 annet ledd, med ordene i bestemmelsen. */
+const PRODUKTIVITET =
+  'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
+
+/** Bestemmelsen varselet er gitt etter; etter OV-U25 gjelder varselet i § 34.1.3 tredje ledd bare annet ledd (LV-U29). */
+const VARSLET_ETTER: Record<Varselhjemmel, string> = {
+  '33.4': 'NS 8407 § 33.4',
+  '34.1.2': 'NS 8407 § 34.1.2',
+  '34.1.3': 'NS 8407 § 34.1.3 tredje ledd',
+};
+
+/** KA-U22: beløpene som identifiserer vederlagskravet i trekket, med posten etter § 34.1.3. */
+function kravetsBeloep(krav: Krav): string {
+  const post = krevdProduktivitet(krav);
+  const deler = harHovedbeloep(krav) ? [eksMva(tilTall(krevdBeloep(krav)))] : [];
+  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 § 34.1.3 annet ledd`);
+  return deler.join(' og ');
+}
+
 /** TEs eget varsel, slik brevteksten nevner det (LV-U4 punkt 3, OV-U5). */
 const VARSEL_OM: Record<Varselhjemmel, string> = {
-  '33.4': 'om fristforlengelse etter NS 8407 § 33.4',
-  '34.1.2': 'om vederlagsjustering etter NS 8407 § 34.1.2',
+  '33.4': `om fristforlengelse etter ${VARSLET_ETTER['33.4']}`,
+  '34.1.2': `om vederlagsjustering etter ${VARSLET_ETTER['34.1.2']}`,
+  '34.1.3': `om særskilt justering for nedsatt produktivitet eller forstyrrelser etter ${VARSLET_ETTER['34.1.3']}`,
 };
 
 /** Varselet et standpunkt om rettidighet gjelder (LV-U4 punkt 5, LV-U5). */
@@ -418,6 +449,7 @@ const VARSELET: Record<Hjemmel, string> = {
   '33.4': `varselet ${VARSEL_OM['33.4']}`,
   '33.6.2': 'TEs svar på forespørselen etter NS 8407 § 33.6.2',
   '34.1.2': `varselet ${VARSEL_OM['34.1.2']}`,
+  '34.1.3': `varselet ${VARSEL_OM['34.1.3']}`,
 };
 
 const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;
@@ -627,6 +659,7 @@ function beskriv(id: string, j: Journalen): string {
 const VIL_KREVE: Record<Varselhjemmel, string> = {
   '33.4': 'fristforlengelse',
   '34.1.2': 'justering av vederlaget',
+  '34.1.3': `særskilt justering av vederlaget etter annet ledd for ${PRODUKTIVITET}`,
 };
 
 /** Hjemmelen for varselet en datoopplysning gjelder (HF-U1). */
@@ -645,7 +678,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       // VS-U15: et brev med bare varselet, uten en dato for det, er selve varselet.
       // LV-U19: varselet etter § 34.1.2 har samme form.
       if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
-        return `TE varsler etter NS 8407 § ${u.hjemmel} at TE vil kreve ${VIL_KREVE[u.hjemmel]} som følge av forholdet i ${sak}.`;
+        return `TE varsler etter ${VARSLET_ETTER[u.hjemmel]} at TE vil kreve ${VIL_KREVE[u.hjemmel]} som følge av forholdet i ${sak}.`;
       if (dato?.hva !== 'sendt')
         throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');
       return `TE opplyser at varsel ${VARSEL_OM[u.hjemmel]} ble sendt ${norskDato(dato.dato)}.`;
@@ -663,9 +696,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       if (krav.spor === 'grunnlag')
         return `TE trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
       const verdi =
-        krav.spor === 'vederlag'
-          ? eksMva(tilTall(krevdBeloep(krav)))
-          : dager(krav.innhold.dager as number);
+        krav.spor === 'vederlag' ? kravetsBeloep(krav) : dager(krav.innhold.dager as number);
       return `TE trekker kravet om ${KRAVET_OM[krav.spor]} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }
     case 'ingen_krav':

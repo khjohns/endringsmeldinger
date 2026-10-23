@@ -149,7 +149,7 @@ function dokument(
       };
       // MM-U1: et varsel i kravet registreres første gang det kommer.
       // HF-U1: datoen gjelder varselet, ikke kravet, som er sendt i appen.
-      if (k.varsel && !u.spor.frist.varsel) {
+      if (k.varsel && !u.spor.frist.varsler['33.4']) {
         const varsel = nyId();
         data.utsagn = [{ id: varsel, art: 'varsel', hjemmel: '33.4' }];
         data.opplysninger = [{ id: nyId(), hva: 'sendt', dato: k.varsel.sendt, gjelder: varsel }];
