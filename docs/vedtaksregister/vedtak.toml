@@ -8060,6 +8060,183 @@ Appen lar hver kontrakt angi om Del II pkt. B.2.16 gjelder, og reglene følger i
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "OV-U26"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål B1, «Beløp/post»: Totalentreprenøren kan kreve særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid, i samme vederlagskrav som justeringen ellers eller alene (OV-U23: «Byggherren tar stilling til de særskilte kravene som ellers.»). VS-U5 og OV-U22 sier at byggherren oppgir beløpene for det særskilte kravet når hen gjør gjeldende at varselet kom for sent, men ingen vedtak sier hvordan byggherren oppgir beløpet når hen ikke gjør det. Tar byggherren stilling til beløpet for hver post, eller til ett samlet beløp? Anbefalt: «For hver post», fordi postene har hvert sitt beløp i kravet og i TEs brev (LV-U30), og fordi påberopelsen etter OV-U22 uansett krever beløp for posten. Ingen av alternativene strider mot et vedtak.'''
+valgt = "For hver post"
+svar = '''
+«For hver post (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u23" }, { art = "presiserer", vedtak = "vs-u5" }, { art = "presiserer", vedtak = "ov-u22" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "For hver post"
+tekst = '''
+Byggherren tar i svaret stilling til beløpet for justeringen ellers og til beløpet for kravet om særskilt justering etter § 34.1.3 annet ledd hver for seg, med godkjent, delvis godkjent eller avslått for hver. Svarets samlede resultat regnes av beløpene. Gjør byggherren gjeldende at varselet etter § 34.1.3 kom for sent, gjelder VS-U5 og OV-U22 for beløpet for det særskilte kravet. Presiserer OV-U23. Presiserer VS-U5 og OV-U22 for et svar uten påberopelse.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Samlet beløp"
+tekst = '''
+Byggherren tar stilling til ett samlet beløp for hele vederlagskravet. Bare når byggherren gjør gjeldende at varselet etter § 34.1.3 kom for sent, oppgir hen i tillegg beløpene for det særskilte kravet etter VS-U5 og OV-U22. Presiserer OV-U23.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren tar stilling til de særskilte kravene som ellers."
+
+[[gruppe.vedtak]]
+id = "OV-U27"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål B2, «§ 34.1.2», etter sparringen: B2, revidert etter sparringen. Byggherren gjør gjeldende at TEs varsel etter § 34.1.2 kom for sent, og vederlagskravet har også et særskilt krav etter § 34.1.3 annet ledd (produktivitet). Rammer påberopelsen også det særskilte kravet? Sparringen anbefaler A: varslingskravene er kumulative, fordi tapet i § 34.1.2 annet ledd gjelder «krav på vederlagsjustering» generelt, og § 34.1.3 annet ledd viser til forhold etter § 34.1.1 og § 34.1.2. Den mildere virkningen i § 34.1.3 har fortsatt betydning: TE kan ha varslet i tide etter § 34.1.2 og for sent etter § 34.1.3, og ved endring gjelder ikke § 34.1.2. Prøvingen fant ingen strid med vedtakene. Kildene sparringen viste til, er ukontrollerte. I appen er én sak ett forhold. Velges A, må regelen i kjernen endres i økt B, fordi den i dag lar tapet ramme bare justeringen ellers. Anbefalt: «Hele kravet».
+
+Første gang ble B2 stilt slik: Ved svikt og andre forhold byggherren har risikoen for, taper totalentreprenøren kravet på vederlagsjustering om varselet etter NS 8407 § 34.1.2 kommer for sent (annet ledd). Kravet om særskilt justering etter § 34.1.3 annet ledd gjelder utgifter som er en følge av forhold etter § 34.1.1 og § 34.1.2, og har sitt eget varsel med en mildere virkning: totalentreprenøren taper retten til å påberope seg påløpte utgifter som grunnlag for kravet (§ 34.1.3 tredje ledd, VS-U5). Etter vår lesning unntar ingen bestemmelse det særskilte kravet fra tapet etter § 34.1.2, og ingen sier uttrykkelig at det omfattes. VS-U3 sier at appen utleder virkningen etter § 34.1.2 og § 34.1.3, men ingen vedtak sier om påberopelsen etter § 34.1.2 også rammer det særskilte kravet. Rammer den det? Gjelder ikke ved endring, der § 34.1.2 ikke krever varsel (OV-U15). Anbefalt: «Hele kravet», fordi det særskilte kravet etter vår lesning er et krav på vederlagsjustering som følge av forholdet varselet etter § 34.1.2 gjelder.'''
+valgt = "Hele kravet"
+svar = '''
+Første gang: «Vil diskutere dette med en annen LLM. Gi meg en prompt». Etter sparringen: «Hele kravet (Recommended)».'''
+forhold = [{ art = "presiserer", vedtak = "vs-u3" }, { art = "presiserer", vedtak = "vs-u5" }]
+folge = '''
+Svarene er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene slik de ble stilt første gang, står ordrett på #1047 (kommentaren 6358659625), og slik de ble stilt etter sparringen i kommentaren 6359036599. Drøftelsen står i [ADR-002](../adr/002-saerskilt-krav-og-varsel-etter-34-1-2.md). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hele kravet"
+tekst = '''
+Gjør byggherren gjeldende at varselet etter § 34.1.2 kom for sent, gjelder påberopelsen hele vederlagskravet, også kravet om særskilt justering etter § 34.1.3 annet ledd. Påberopelsen er ett standpunkt for bestemmelsen (VS-U24). Har byggherren påberopt begge, er rekkefølgen: prinsipalt varselet etter § 34.1.2; subsidiært beløpet for justeringen ellers og beløpet byggherren godtar etter begrensningen etter § 34.1.3; videre subsidiært beløpet for det særskilte kravet om ingen av innsigelsene fører fram. Det VS-U5 kaller prinsipalt, står da subsidiært. For justeringen ellers gjelder bare påberopelsen etter § 34.1.2. Påberopelsen etter § 34.1.2 og den etter § 34.1.3 viser hver til sitt varsel, som kan stå i samme brev. Gjelder ikke ved endring, der § 34.1.2 ikke krever varsel (OV-U15). Appen avgjør ikke om varslene kom i tide (VS-U3). Presiserer VS-U3 og VS-U5. Strider ikke mot et vedtak.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hele kravet, BH kan begrense"
+tekst = '''
+Som «Hele kravet», men byggherren kan i svaret si at påberopelsen etter § 34.1.2 bare gjelder justeringen ellers. Sier byggherren ikke det, gjelder den hele kravet. Gjelder den bare justeringen ellers, rammes det særskilte kravet bare av en påberopelse etter § 34.1.3 (VS-U5). Presiserer VS-U3 og VS-U5. Utvider VS-U24 og OV-U22: standpunktet etter § 34.1.2 får et valg av hvilke krav det gjelder, som er et nytt lagret felt (B-17).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare justeringen ellers"
+tekst = '''
+Påberopelsen etter § 34.1.2 gjelder bare justeringen ellers. Kravet om særskilt justering etter § 34.1.3 annet ledd rammes bare av en påberopelse etter § 34.1.3, med virkningen i VS-U5. Presiserer VS-U3. Strider ikke mot et vedtak. B3 stilles da på nytt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hele kravet (første gang)"
+tekst = '''
+Gjør byggherren gjeldende at varselet etter § 34.1.2 kom for sent, gjelder påberopelsen hele vederlagskravet, også kravet om særskilt justering etter § 34.1.3 annet ledd. Byggherrens standpunkt til beløpet for det særskilte kravet, med en eventuell begrensning etter VS-U5, står da subsidiært. Har byggherren påberopt begge, er rekkefølgen: varselet etter § 34.1.2, deretter begrensningen etter § 34.1.3, deretter beløpet om ingen av innsigelsene fører fram. Appen avgjør ikke om varslene kom i tide (VS-U3). Presiserer VS-U3 og VS-U5. Strider ikke mot et vedtak.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare justeringen ellers (første gang)"
+tekst = '''
+Påberopelsen etter § 34.1.2 gjelder bare justeringen ellers. Kravet om særskilt justering etter § 34.1.3 annet ledd rammes bare av en påberopelse etter § 34.1.3, med virkningen i VS-U5. Presiserer VS-U3. Strider ikke mot et vedtak.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Byggherren angir det"
+tekst = '''
+Byggherren sier i svaret om påberopelsen etter § 34.1.2 også gjelder det særskilte kravet, og appen utleder virkningen etter det byggherren angir. Presiserer VS-U3. Utvider VS-U24 og OV-U22, som gir ett standpunkt per bestemmelse og per særskilt krav: standpunktet etter § 34.1.2 får i tillegg et valg av hvilke krav det gjelder.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "krav på vederlagsjustering"
+utdrag = true
+
+[[gruppe.vedtak]]
+id = "OV-U28"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål B3, «Brevtekst»: LV-U4 punkt 5 gir brevteksten for beløpet: «Byggherren godkjenner <beløp/dager>.» / «Byggherren godkjenner <x> av de krevde <y>.» / «Byggherren avslår kravet.» Teksten forutsetter ett beløp i svaret. Ingen vedtak gir teksten når kravet har det særskilte kravet etter § 34.1.3 annet ledd, eller for byggherrens begrensning etter VS-U5 (prinsipalt beløpet byggherren godtar etter begrensningen, subsidiært beløpet om innsigelsen ikke fører fram). Brevet ordner standpunktene med «Prinsipalt:», «Subsidiært:» og «Videre subsidiært:» (LV-U4 punkt 4), med liten forbokstav etter kolon. Henvisningen til varselet «i brev <n> av <dato>» følger LV-U21, som i dag bare gjelder § 33.4 og § 34.1.2. Hvordan sier brevet beløpene? Anbefalt: «Hver post for seg», fordi hvert beløp da står i laget der det gjelder, og brevet bruker ordlyden i § 34.1.3 tredje ledd.'''
+valgt = "Hver post for seg"
+svar = '''
+«Hver post for seg (Recommended)»'''
+forhold = [{ art = "utvider", vedtak = "lv-u4" }, { art = "utvider", vedtak = "lv-u21" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Spørsmålet forutsatte B1 = «For hver post» og B2 = «Hele kravet», som er OV-U26 og OV-U27. Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hver post for seg"
+tekst = '''
+Har kravet det særskilte kravet etter § 34.1.3 annet ledd, sier brevet beløpet for hver post for seg: «Byggherren godkjenner <x> av de krevde <y> for justeringen ellers.» og «Byggherren godkjenner <x> av de krevde <y> for særskilt justering etter NS 8407 § 34.1.3 annet ledd.», med «godkjenner <y>» og «avslår kravet om …» som i LV-U4 punkt 5. Begrensningen: «byggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 § 34.1.3 tredje ledd i brev <n> av <dato> kom for sent, og at TE har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren godkjenner <p> kr eks. mva. for dette kravet.» Brevet er varselet eller, uten registrert varsel, den første kravversjonen som krever posten (OV-U24). Etikettene følger innsigelsene, ikke postene: hvert lag får én etikett, og et beløp står i det første laget der ingen påberopelse rammer det. Bare § 34.1.3 påberopt: beløpet for justeringen ellers uten etikett, «Prinsipalt:» begrensningen, «Subsidiært:» beløpet for det særskilte kravet. Begge påberopt: «Prinsipalt:» varselet etter § 34.1.2, «Subsidiært:» beløpet for justeringen ellers og begrensningen, «Videre subsidiært:» beløpet for det særskilte kravet. Byggherrens begrunnelse står som ellers (KA-U24). Endret tekst gjelder bare nye brev (MM-U9). Utvider LV-U4 punkt 5. Utvider LV-U21 til § 34.1.3.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hver post, med summen"
+tekst = '''
+Som «Hver post for seg», og brevet sier i tillegg summen i hvert lag når kravet har begge postene: «Til sammen godkjenner byggherren <x> av de krevde <y>.» Endret tekst gjelder bare nye brev (MM-U9). Utvider LV-U4 punkt 5. Utvider LV-U21 til § 34.1.3.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren godkjenner <beløp/dager>."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren godkjenner <x> av de krevde <y>."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Byggherren avslår kravet."
+
+[[gruppe.vedtak]]
+id = "OV-U29"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Spørsmål S1, «Varsel 34.1.2», etter sparringen: S1, revidert etter sparringen. Varslingsplikten etter § 34.1.2 gjelder. TE sender først et vederlagskrav med bare det særskilte kravet etter § 34.1.3 annet ledd, og deretter en kravversjon med bare et beløp for justeringen ellers. Er den første versjonen TEs første kjente varsel etter § 34.1.2? Sparringen anbefaler A: § 34.1.2 krever bare at TE «vil kreve vederlagsjustering», og et uttrykkelig krav om særskilt justering oppfyller det. Den mente at «hver kravversjon er et varsel» var for kategorisk, og alternativet er derfor omformulert: bare den første versjonen er varselet, og en senere versjon flytter det ikke. Prøvingen fant at koden i #1185 gjør nettopp dette, så PR-en kan merges uendret med A. Sparringen mente også at asymmetrien med OV-U24 er riktig. Anbefalt: «Første krav er varselet».
+
+Første gang ble S1 stilt slik: Forholdet: varslingsplikten etter § 34.1.2 gjelder kategorien. TE sender et vederlagskrav som bare har det særskilte kravet etter § 34.1.3 annet ledd. Senere sender TE en ny kravversjon som bare har et beløp for justeringen ellers. Byggherren påberoper at varselet etter § 34.1.2 kom for sent.
+
+Vilkåret i § 34.1.2 er at TE «vil kreve vederlagsjustering». Kravet etter § 34.1.3 annet ledd er også en «særskilt justering av vederlaget» for forholdet. OV-U5 sier at vederlagskravet er det første varselet appen kjenner, og LV-U21 sier det samme for påberopelsen. Vår tolkning er at kravet etter annet ledd kan gjelde andre utgifter enn justeringen for selve forholdet. Det er en tolkning, ikke kontraktens ordlyd. Er den første kravversjonen, som bare har det særskilte kravet, TEs første kjente varsel etter § 34.1.2? Anbefalt: A. Ordlyden i § 34.1.2 krever bare at TE vil kreve vederlagsjustering, og A følger OV-U5 og LV-U21. LV-U30 trekker samme vei, fordi hele kravet er ett tilbud.'''
+valgt = "Første krav er varselet"
+svar = '''
+Første gang: «Inkluder dette i prompt». Etter sparringen: «Første krav er varselet (Recommended)».'''
+forhold = [{ art = "presiserer", vedtak = "ov-u5" }, { art = "presiserer", vedtak = "lv-u21" }]
+folge = '''
+Svarene er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene slik de ble stilt første gang, står ordrett på #1047 (kommentaren 6358659924), og slik de ble stilt etter sparringen i kommentaren 6359036599. Drøftelsen står i [ADR-002](../adr/002-saerskilt-krav-og-varsel-etter-34-1-2.md). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Første krav er varselet"
+tekst = '''
+Når varslingsplikten etter § 34.1.2 gjelder, og TE ikke har sendt eller oppgitt et eget varsel, er den første kravversjonen i vederlaget TEs første kjente varsel etter § 34.1.2, også når den bare har kravet om særskilt justering etter § 34.1.3 annet ledd. En senere kravversjon flytter ikke varselet, heller ikke en som tar bort det særskilte kravet. For § 34.1.3 gjelder OV-U24: en versjon uten det særskilte kravet er ikke varsel om det. Presiserer OV-U5 og LV-U21 («TEs første krav i sporet»). Strider ikke mot et vedtak.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare krav med justeringen"
+tekst = '''
+Når varslingsplikten etter § 34.1.2 gjelder, er bare en kravversjon med et beløp for justeringen ellers et varsel etter § 34.1.2. Det første kjente varselet blir da senere, til ugunst for TE. Har ingen kravversjon et slikt beløp, og er det heller ikke registrert noe varsel, kjenner appen ikke noe varsel etter § 34.1.2, og byggherren kan ikke påberope at det kom for sent, selv om § 34.1.2 annet ledd lar kravet tapes også når det ikke varsles i det hele tatt. Snevrer inn OV-U5 og LV-U21 for § 34.1.2, og presiserer OV-U23. #1185 må da rettes før merge.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Hvert vederlagskrav er et varsel"
+tekst = '''
+Når varslingsplikten etter § 34.1.2 gjelder, er hver kravversjon i vederlaget et varsel etter § 34.1.2, også en versjon som bare har det særskilte kravet etter § 34.1.3 annet ledd. Den første kravversjonen er da TEs første kjente varsel etter § 34.1.2. Presiserer OV-U5.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Bare krav med justeringen ellers"
+tekst = '''
+Når varslingsplikten etter § 34.1.2 gjelder, er bare en kravversjon med et beløp for justeringen ellers et varsel etter § 34.1.2. Det første kjente varselet blir da senere, til ugunst for TE. Har ingen kravversjon et slikt beløp, og er det heller ikke registrert noe varsel, kjenner appen ikke noe varsel etter § 34.1.2, og byggherren kan ikke påberope at det kom for sent. Snevrer inn OV-U5 og LV-U21 for § 34.1.2, og presiserer OV-U23.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "vil kreve vederlagsjustering"
+utdrag = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "TEs første krav i sporet"
+utdrag = true
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
