@@ -8458,6 +8458,61 @@ Samme tekst, men frafall av pålegget etter § 32.3 c flytter lagene som et avsl
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "OV-U34"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1171", "#1219"]
+sporsmal = '''
+1. Datoen TE ble klar over produktivitetstapet (`dato_klar_over`), fra reviewet av #1219 (utfall 3 i #1080).
+   Bakgrunn: Den gamle frontenden hadde datoen bare i dataene, uten felt i skjemaet, og brevformatet har den ikke. Varselet etter § 34.1.3 bærer sin egen dato.
+   - A (anbefalt): Avgjøres sammen med rigg og drift i #1171, ikke i C1.
+   - B: Et eget issue nå.
+   - C: Ingen dato. Varselet etter § 34.1.3 bærer sin egen dato.
+   Styrer: om TS-stien skal ha et felt for datoen, og hvor det avgjøres. C1 endres ikke uansett.'''
+valgt = "A"
+svar = '''
+Jeg anbefaler A: Avgjør dette samlet i #1171. C bygger på en sammenblanding av to forskjellige datoer.
+
+Etter ordlyden i § 34.1.3 tredje ledd knyttes fristen til når TE «blir eller burde ha blitt klar over at utgifter ville påløpe». Det er noe annet enn datoen for det særskilte varselet. Varseldatoen erstatter derfor ikke opplysningen om når TE ble klar over de forventede utgiftene.
+
+Det betyr likevel ikke at to varsler automatisk krever to nye datofelt. Avklar samlet:
+
+* hvilke varsel- og kunnskapsdatoer systemet trenger;
+* hvilke opplysninger TE skal oppgi i skjemaet;
+* hvilke datoer brevet skal vise.
+
+Hvis TS-stien får et slikt felt, bør det beskrive når TE ble klar over at økte utgifter etter § 34.1.3 annet ledd ville påløpe, ikke bare når TE oppdaget et faktisk produktivitetstap. Opplysningen er TEs utsagn; den avgjør ikke når TE burde ha blitt klar over dette.
+
+At spørsmålet behandles sammen med rigg og drift, innebærer ikke at postene skal få samme varslingsregler. Deres kontraktsavvik må fortsatt ivaretas.
+
+Vedtak: «Behovet for kunnskapsdato i TS-stien, og eventuell visning i skjema og brev, avklares i #1171. Varseldato og kunnskapsdato behandles som forskjellige opplysninger. C1 endres ikke.»
+
+Sikkerhet: Høy på skillet mellom datoene ut fra den gjengitte ordlyden. Moderat på prioriteringen A fremfor B; det er et produktvalg, og det er ikke opplyst om noen feil som krever et eget issue nå.'''
+folge = '''
+Spørsmålet kom fra reviewet av #1219. Svaret står på #1171 ([kommentaren 6369435123](https://github.com/khjohns/endringsmeldinger/issues/1171#issuecomment-6369435123)). Alternativ A er ført med vedtaksteksten fra svaret. Alternativ B og C heter «B: Et eget issue nå» og «C: Ingen dato» i registeret, fordi svaret nevner B og C i begrunnelsen og kontrollen ellers leser det som et svar på flere alternativer.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Behovet for kunnskapsdato i TS-stien, og eventuell visning i skjema og brev, avklares i #1171. Varseldato og kunnskapsdato behandles som forskjellige opplysninger. C1 endres ikke.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B: Et eget issue nå"
+tekst = '''
+Et eget issue nå.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C: Ingen dato"
+tekst = '''
+Ingen dato. Varselet etter § 34.1.3 bærer sin egen dato.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "ns8407"
+tekst = "blir eller burde ha blitt klar over at utgifter ville påløpe"
+utdrag = true
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
