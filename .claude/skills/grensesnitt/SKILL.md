@@ -94,7 +94,7 @@ Animasjonen skal merkes, ikke sees.
   150–250 ms, dialog og skuff 200–300 ms.
 - Ease-out (`cubic-bezier(0.23, 1, 0.32, 1)`) inn, aldri `ease-in`. Animer bare
   `transform` og `opacity`, og aldri `transition: all`.
-- Bruk keyframes-animasjonene i `theme.css` (`fadeUp`, `dropIn`) før du lager nye.
+- Bruk keyframes-animasjonene i `theme.css` før du lager nye.
 - `prefers-reduced-motion` respekteres. `theme.css` slår av varigheten under
   `.mockup`.
 
@@ -112,9 +112,10 @@ Animasjonen skal merkes, ikke sees.
 
 ## Etter oppgaven
 
-Har du tatt et nytt valg, eller laget et mønster som brukes to ganger, før det i
-systemfila: mønsteret med komponenten eller klassen det bor i, og valget med dato og
-grunn i beslutningsloggen. Verdiene skrives ikke av; de står i `theme.css`.
+Har du laget et mønster som brukes to ganger, eller tatt et nytt valg for visningen,
+før det i systemfila: mønsteret med komponenten eller klassen det bor i, og valget med
+grunnen. Verdiene skrives ikke av; de står i `theme.css`. Et valg bare oppdragsgiver
+kan ta, føres der svarene hører hjemme (`AGENTS.md`, «Arbeidsform»).
 
 Diffen ryddes så med skillen `design-deslop`, og reviewes med `design-review`, i den
 rekkefølgen `AGENTS.md` sier.

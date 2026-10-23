@@ -64,7 +64,7 @@ og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en. Spør:
 
 **C · Flater og tokens.**
 - Bare tokens fra `theme.css`? Ingen rå hex, og ingen tokens som ikke er definert?
-- Kanter, ikke skygger, unntatt overlegg? Radius etter skalaen?
+- Kanter, ikke skygger, unntatt overlegg? Radius etter systemfila?
 - Fungerer mørk modus, og holder kontrasten WCAG AA for tekst som betyr noe?
 
 **D · Komposisjon.**

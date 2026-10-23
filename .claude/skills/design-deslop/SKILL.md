@@ -38,7 +38,7 @@ Se den ferdige visningen med skillen `mockup-nettleser`, i lys og mørk modus. M
 - **Typografi:** tall, beløp, datoer og ID-er uten `--font-mono` og `tabular-nums`
   → med. Kontraktstekst og brev i `--font-legal`.
 - **Flater og kanter:** skygge på noe som ikke er et overlegg → kant med `--rule`.
-  Radius utenfor skalaen → skalaen.
+  Radius som avviker fra det systemfila sier → det den sier.
 - **Tilstander:** hover, fokus, aktiv eller deaktivert mangler → legg til. Mangler
   hele tilstanden for lasting, tom eller feil, er det byggearbeid. Noter det til
   `design-review`.

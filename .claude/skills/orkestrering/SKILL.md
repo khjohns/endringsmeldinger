@@ -200,8 +200,9 @@ issue. Oppdraget skal inneholde:
   arbeidsøktene»);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
   krever det, med skillen `mockup-nettleser`. Endrer økta visningen, sier oppdraget
-  at den følger skillen `grensesnitt` og kjører `design-deslop`, og orkestratoren
-  bestiller `design-review` etter `AGENTS.md`. `/mockup` har demodata og en egen
+  at den følger skillen `grensesnitt` og kjører `design-deslop`. Er diffen i
+  visningen under om lag 200 linjer, kjører økta også `design-review`. Ellers
+  bestiller orkestratoren den i en ny økt (`AGENTS.md`). `/mockup` har demodata og en egen
   statusregel, så den viser ikke at den ekte saksruta virker; den ekte ruta
   kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;

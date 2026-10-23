@@ -13,7 +13,7 @@ viser til dem og gjengir dem ikke.
 ## Retningen
 
 **Sage & Stone**, Oslobyggs grønne profil (`--brand`). Den erstattet
-«Dokumentbordet» fra mars 2026. Oppdragsgiver bekreftet retningen 23.10.
+«Dokumentbordet» fra mars 2026 (oppdragsgiver 23.10, #1080).
 
 - **Én fargetone.** Flatene er grågrønne og skifter bare i lyshet: `--canvas` under,
   `--surface` for innhold, `--surface-warm` for hover og `--surface-inset` for felt og
@@ -64,7 +64,9 @@ sier, og står aldri alene.
 ## Vedtak som styrer visningen
 
 Les vedtaket i [hovedplanen, 3.1](../plans/2026-09-16-godkjenning-og-varig-levering.md),
-ikke en gjengivelse.
+ikke en gjengivelse. Tabellen er et utgangspunkt, ikke hele lista: et vedtak kan
+presisere et annet, så søk i 3.1 etter vedtakene som presiserer dem under, og etter
+nye MM-U-vedtak.
 
 | Vedtak | Hva det avgjør for visningen |
 | --- | --- |
@@ -73,7 +75,9 @@ ikke en gjengivelse.
 | MM-U24 | Frister og det som foreligger ved kravet, regnet fra sendingen |
 | MM-U25 | Bare handlingene parten kan gjøre nå, og én linje når et krav ikke kan endres |
 | MM-U28 | Krav, svar og enighet i lista, med subsidiært og appens lesing merket |
+| MM-U29 | Hva arbeidslista viser for hver part |
 | MM-U30 | Høyst én betegnelse per spor, og rekkefølgen mellom dem |
+| MM-U31 | Hvor lenge betegnelsen for forespørselen etter § 33.6.2 står |
 | DL-U6 | Sakens identitet, og at ID-en ikke erstattes av et løpenummer |
 
 Ordene i visningen følger [domenetabellen](../domenetabell/README.md) og språkreglene
@@ -98,10 +102,3 @@ eller klassen.
 | Seksjonsoverskrift | `primitives/SectionHeading.svelte` | Overskrift for en seksjon i lesevisningen |
 | Handlingslinje | `kontraktsbord/ActionBar.svelte` | Handlingene for parten nå (MM-U25) |
 | Rik tekst | `primitives/RichTextEditor.svelte` | Begrunnelser og brevtekst |
-
-## Beslutningslogg
-
-| Dato | Beslutning | Grunn |
-| --- | --- | --- |
-| 2026-10-23 | Sage & Stone er retningen, og «Dokumentbordet» er erstattet | Oppdragsgiver 23.10. Profilen er den som er i bruk |
-| 2026-10-23 | Verdiene står i `theme.css` og `app.css`, og denne fila viser til dem | Oppdragsgiver 23.10. Én kilde per opplysning (`AGENTS.md`) |
