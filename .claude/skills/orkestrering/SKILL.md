@@ -199,7 +199,9 @@ issue. Oppdraget skal inneholde:
   subagent avgrenses etter «Subagenter har samme grense» (se «Kontekst i
   arbeidsøktene»);
 - hvilke sjekker som skal kjøres før push, og nettleserkontroll der issuet
-  krever det, med skillen `mockup-nettleser`. `/mockup` har demodata og en egen
+  krever det, med skillen `mockup-nettleser`. Endrer økta visningen, sier oppdraget
+  at den følger skillen `grensesnitt` og kjører `design-deslop`, og orkestratoren
+  bestiller `design-review` etter `AGENTS.md`. `/mockup` har demodata og en egen
   statusregel, så den viser ikke at den ekte saksruta virker; den ekte ruta
   kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;

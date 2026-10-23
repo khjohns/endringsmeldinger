@@ -212,6 +212,7 @@ Beskriver funksjon og dataflyt, ikke funn. Disse eldes saktere enn auditene.
 | [brev og intern godkjenning](brev-og-godkjenning.md) | Godkjenningskjede, fullmakt, brevgenerering |
 | [endringsordre](endringsordre.md) | EO-flyten i grensesnittet |
 | [Kontraktsbordet](frontend-kontraktsbord.md) | Hovedgrensesnittet |
+| [designsystemet](design/system.md) | Retningen for visningen, tokenene i bruk, mønstrene og vedtakene som styrer farge og ord. Verdiene står i `theme.css` |
 | [beslutningslogg](adr/README.md) | ADR-er. Én i dag: [varsling uavhengig av kontraktsforhold](adr/001-varsling-og-kontraktsforhold.md) |
 | [tredjepart-api/](tredjepart-api/) | Catendas OpenAPI-spesifikasjoner, uendret kopi |
 
