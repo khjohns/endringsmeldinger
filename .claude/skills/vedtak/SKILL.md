@@ -29,7 +29,8 @@ oppdragsgiver.
   dem. En økt som venter, kan arbeide videre med anbefalingen merket som
   foreslått.
 - **Still dem slik oppdragsgiver kan svare.** Skill de juridiske spørsmålene fra
-  de tekniske. Spørsmål som berører rettsregler (NS 8407, kontraktens bestemmelser,
+  de tekniske. Har et spørsmål både en juridisk og en teknisk side, regnes det som
+  juridisk. Spørsmål som berører rettsregler (NS 8407, kontraktens bestemmelser,
   preklusjon, varsling og lignende) stilles aldri med spørsmålsverktøyet
   (`AskUserQuestion`): «Ønsker fremover at alle domenespørsmål som berører
   rettsregler ikke bruker spørsmålsverktøyet» (oppdragsgiver 23.10). De legges
@@ -45,8 +46,7 @@ oppdragsgiver.
   kall til spørsmålsverktøyet, vises ikke for oppdragsgiver i appen. Bakgrunnen,
   alternativene og anbefalingen skal derfor stå i selve spørsmålet og i
   beskrivelsene av alternativene. Trengs mer tekst, avslutt turen med listen i
-  stedet for å kalle verktøyet (FK runde 5). Juridiske spørsmål står aldri i
-  verktøyet, se punktet over.
+  stedet for å kalle verktøyet (FK runde 5).
 - **Lagre spørsmålene ordrett før du stiller dem.** Skriv hvert spørsmål med
   alle alternativene, etikett og beskrivelse slik de vises i verktøyet eller
   står i listen, til en fil før spørsmålet stilles. Før svarene inn i samme fil. Vedtaket føres fra den fila,

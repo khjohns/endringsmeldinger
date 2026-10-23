@@ -383,12 +383,10 @@ gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert
 
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
 noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med alternativer og
-en anbefaling. Spørsmål som berører rettsregler, som NS 8407, legges fram som
-nummerert liste i tekst og ikke med spørsmålsverktøyet (i Claude Code:
-`AskUserQuestion`), etter [vedtaksskillen](.claude/skills/vedtak/SKILL.md),
-«Still dem slik oppdragsgiver kan svare». Det gjelder tiltenkt atferd,
-prioritering og hva som skal gå til andre, der de ikke berører rettsregler, og
-da kan verktøyet brukes. Be ikke om gjennomlesing for å finne ut hva oppdragsgiver mener.
+en anbefaling. Spørsmål som berører rettsregler stilles ikke med
+spørsmålsverktøyet (i Claude Code: `AskUserQuestion`). Hvordan de legges fram,
+står i [vedtaksskillen](.claude/skills/vedtak/SKILL.md), «Still dem slik
+oppdragsgiver kan svare». Be ikke om gjennomlesing for å finne ut hva oppdragsgiver mener.
 Det som kan avgjøres ved å lese koden eller spørre katalogen, avgjør du selv.
 Svarene føres inn der de hører hjemme: vedtak i hovedplanen, arbeidsvalg i
 issuet eller oppdraget.
