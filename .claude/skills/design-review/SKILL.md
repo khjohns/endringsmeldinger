@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Strengt review av en diff som endrer visningen i endringsmeldinger, med hierarki, tokens, tilstander, tilgjengelighet og vedtakene om farge og ord, alvorlighet etter stoppregelen og en godkjenningsterskel. Kjøres etter design-deslop og før /code-review, i en ny økt, eller i byggeøkta når diffen i visningen er liten. Kreves når en .svelte- eller CSS-fil i src/ endres synlig.
+description: Strengt review av en diff som endrer visningen i endringsmeldinger, med hierarki, tokens, tilstander, tilgjengelighet og vedtakene om farge og ord, alvorlighet etter stoppregelen og en godkjenningsterskel. Kjøres etter design-deslop og før /code-review, i en ny økt, eller i byggeøkta når diffen i visningen er liten. Kreves når en .svelte- eller CSS-fil i src/ endres synlig, og linse A når en .ts-fil i src/lib endrer synlig tekst, betegnelse eller handling.
 ---
 
 # Review av visningen
@@ -15,8 +15,9 @@ dom. Det endrer ingenting før dommen er gitt. Rettingene gjøres etterpå, i sa
 
 ## Når og hvor
 
-- **Når:** når diffen endrer `.svelte`- eller CSS-filer under `src/` synlig. Ren logikk
-  i frontenden trenger bare `/code-review` (`AGENTS.md`, «Arbeidsform»).
+- **Når:** utløserne står i `AGENTS.md`, «Arbeidsform». En `.ts`-diff i `src/lib` som
+  endrer synlig tekst, betegnelse eller handling, kjøres bare med linse A (steg 3).
+  Ren logikk trenger bare `/code-review`.
 - **Rekkefølgen:** etter `design-deslop` i byggeøkta, og før `/code-review`, så
   kodereviewet ser den endelige koden.
 - **Hvor:** i en ny økt, på utkast-PR-en. Under om lag 200 endrede linjer i
@@ -35,10 +36,12 @@ et allment ideal. En tett sporoversikt feiler ikke fordi den er tett.
 ### 2. Se helheten først
 
 Se visningen med skillen `mockup-nettleser`, i lys og mørk modus og på smal skjerm,
-og den ekte saksruta når flyten krever det. Ta skjermbilder til PR-en.
+og den ekte saksruta når diffen rører saksvisningen (`AGENTS.md`, «Arbeidsform»).
+Ta skjermbilder til PR-en.
 Kjør `uu.mjs` i samme skill (WCAG 2.1 A og AA med axe-core), og før resultatet i
 PR-en. Et brudd i det diffen endrer, er en blocker. Et brudd som også finnes på
-`main`, føres i et issue og stopper ikke PR-en. Kjør da `uu.mjs` også i et arbeidstre
+`main`, stopper ikke PR-en. Det føres etter stoppregelen i `AGENTS.md`, etter at du har
+søkt i de åpne issuene. Kjør da `uu.mjs` også i et arbeidstre
 fra `main`, med `--url http://localhost:5174`, så skriptet starter sin egen vite, og
 sammenlign stedene. Spør:
 
