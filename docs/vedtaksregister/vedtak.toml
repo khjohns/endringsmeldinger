@@ -5796,7 +5796,7 @@ forhold = [
   { art = "presiserer", vedtak = "lv-u13" },
 ]
 folge = '''
-Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349346125). Spørsmålet kaller vedtaket K1. Ikke bygget (#1175).'''
+Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349346125). Spørsmålet kaller vedtaket K1. Hvordan motparten får beskjed fra prosjekthotellet, avklares i et eget issue (#1175).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Prosjekthotellet"
@@ -5992,7 +5992,7 @@ svar = '''
 Om M3, i fritekst: «Endring angående ref: må også oppgi websaks-nr (i tillegg til dokumentkode). Som sagt tenker jeg malen kan tilpasses for at den passer best til formålet». M3b: «Per prosjekt, i alle brev (Recommended)».'''
 forhold = [{ art = "endrer", vedtak = "lv-u27" }]
 folge = '''
-Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349598767). Spørsmålet kaller vedtaket M3b, og M3 er LV-U27. Ikke bygget (#1173).'''
+Svaret på M3b er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1166 (kommentaren 6349598767). Spørsmålet kaller vedtaket M3b, og M3 er LV-U27. Ikke bygget (#1173).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Per prosjekt, i alle brev"
@@ -7953,7 +7953,16 @@ dato = 2026-10-22
 hvem = "oppdragsgiver"
 kilde = ["#1047"]
 sporsmal = '''
-Spørsmål R2-1, «Kontraktsgrunnlaget for § 34.1.3»: Kontraktsgrunnlaget (Del II pkt. B.2.16) erstatter første setning i § 34.1.3 tredje ledd: bare krav etter annet ledd (nedsatt produktivitet og forstyrrelser) krever særskilt varsel uten ugrunnet opphold, og bare der tapes retten ved for sent varsel. Krav om rigg og drift etter første ledd har da ingen særskilt varslingsplikt og ingen preklusjon etter § 34.1.3. OV-U8 og SK-12 forutsetter to særskilte varsler. Hvilken tekst følger appen? Anbefalt: A, fordi det er kontraktsgrunnlaget oppdragsgivers kontrakter bygger på.'''
+Spørsmål R2-1, «Kontraktsgrunnlaget for § 34.1.3»: Kontraktsgrunnlaget (Del II pkt. B.2.16) erstatter første setning i § 34.1.3 tredje ledd: bare krav etter annet ledd (nedsatt produktivitet og forstyrrelser) krever særskilt varsel uten ugrunnet opphold, og bare der tapes retten ved for sent varsel. Krav om rigg og drift etter første ledd har da ingen særskilt varslingsplikt og ingen preklusjon etter § 34.1.3. OV-U8 og SK-12 forutsetter to særskilte varsler. Hvilken tekst følger appen? Anbefalt: A, fordi det er kontraktsgrunnlaget oppdragsgivers kontrakter bygger på.
+
+R2-1 ble stilt etter svaret på spørsmål 4 i første runde, som står ordrett slik:
+
+Spørsmål 4, «Teknisk anbefaling»: Godtar du den tekniske anbefalingen for #1047 samlet? (1) De to særskilte kravene står som egne poster med eget beløp i samme vederlagskrav og revideres med det, uten egne spor. (2) Lagrede navn: hjemmelen «34.1.3» med et felt «post» (rigg_drift eller produktivitet) på varselet og på byggherrens standpunkt om rettidigheten, og beløpene i «saerskilt.rigg_drift.beloep» og «saerskilt.produktivitet.beloep». (3) Justerte enhetspriser etter § 34.3.3, tilbakeholdelse etter § 30.2 og forsering er ikke med i #1047 og får egne issues.
+
+Alternativene til spørsmål 4:
+
+«Ja, samlet (Recommended)»: «Byggeøktene bygger etter punkt 1–3.»
+«Nei, jeg retter»: «Skriv hvilket punkt og hva i «Other».»'''
 valgt = "Del II som standard"
 svar = '''
 Spørsmål 4 (den tekniske anbefalingen), svar i «Other»: «Enig i anbefaling her og tidligere spørsmål, kontrakt lest isolert. Men dette må leses i tråd med kontraktsgrunnlaget i repo kontrakt». R2-1: «Del II som standard (Recommended)».'''
