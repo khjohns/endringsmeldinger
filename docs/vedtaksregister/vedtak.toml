@@ -8300,6 +8300,62 @@ Subsidiært godkjent beløp betyr mellomlaget når begge påberopes, og videre s
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "OV-U32"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+**Spørsmål B4-4, «Lag i svaret»:** Byggherren kan i et svar på krav om fristforlengelse gjøre gjeldende flere innsigelser etter hverandre: varselet etter § 33.4 kom for sent; fremdriften hindres ikke (§ 33.1); kravet ble spesifisert for sent (§ 33.6.1, der byggherren etter VS-U4 sier prinsipalt hva han måtte forstå og subsidiært hva han godtar om spesifiseringen kom i tide); til sist dagene. Er grunnlaget avslått eller prekludert i samme brev (§ 32.2), kommer det først. Det gir fire eller fem lag, og begge kan nås i appen i dag (prøvd med tester). OV-U30 fryser bare tre: prinsipalt, subsidiært, videre subsidiært, eller upåvirket. I dag skriver brevet «Videre subsidiært:» to–tre ganger etter plassen. Hvordan skal lagene fryses og etiketteres?
+
+- **Lagnummer, gjentatt etikett (Recommended).** Vedtakstekst: «Når brevet sendes, fryser appen for hvert standpunkt i vederlag og frist hvilket lag det står i (første, andre, tredje og så videre), eller at ingen av de aktuelle påberopelsene rammer det. Brevet skriver «Prinsipalt:» for det første laget, «Subsidiært:» for det andre og «Videre subsidiært:» for hvert lag etter det. Standpunktene i samme lag står under én etikett, og et upåvirket standpunkt står uten etikett. Endret tekst gjelder bare nye brev.» Endrer OV-U30 (tre verdier blir lagnummer); presiserer OV-U28, MM-U11 og B-13; følger MM-U9, VS-U4 og B-13 av 05.10. Ingen øvre grense for antall lag.
+- **Fjerde etikett.** Vedtakstekst: «Brevet ordner byggherrens standpunkter i lagene «Prinsipalt:», «Subsidiært:», «Videre subsidiært:» og «Atter subsidiært:». Appen fryser hvilket av de fire lagene hvert standpunkt står i, eller at det er upåvirket. Det fjerde laget og hvert lag etter det får «Atter subsidiært:».» Utvider OV-U30 og LV-U4 punkt 4; presiserer OV-U28 og MM-U11; endrer B-13 av 05.10 (dagene blir «atter subsidiært» når § 33.6.1 også er påberopt). Fra femte lag gjentas etiketten likevel.
+- **§ 33.6.1 i dagenes lag.** Vedtakstekst: «Påberoper byggherren at kravet om fristforlengelse ble spesifisert for sent etter § 33.6.1, står påberopelsen med det byggherren måtte forstå, i samme lag som dagene byggherren godtar hvis spesifiseringen kom i tide. Teksten i laget sier rekkefølgen etter VS-U4. Er grunnlaget avslått eller prekludert i samme brev, står det som før.» Presiserer OV-U30 og VS-U4 for brevet; følger MM-U9. Løser ikke tilfellet med grunnlaget i samme brev (fortsatt fire lag), og står i spenning med VS-U4s prinsipalt/subsidiært.
+
+**Oppfølging, «OV-U32»:** Astra anbefalte «Lagnummer, gjentatt etikett» med en presisering. Prøvingen mot vedtakene fant ingen strid. Ordlyden er justert, og det er lagt til én setning om grunnlaget etter B-13. Slutter du deg til denne vedtaksteksten for OV-U32?
+
+- **Ja, samlet tekst (Recommended).** «Når brevet sendes, fryser appen for hvert standpunkt i vederlag og frist hvilket lag det står i (første, andre, tredje og så videre), eller at ingen av byggherrens innsigelser rammer det (upåvirket). Laget angir rekkefølgen mellom standpunktene: et standpunkt i et senere lag gjelder bare hvis innsigelsene i de foregående lagene ikke fører fram, i den utstrekning de rammer standpunktet. Brevet skriver «Prinsipalt:» for det første laget, «Subsidiært:» for det andre og «Videre subsidiært:» for hvert lag etter det. Standpunktene i samme lag står under én etikett, og et upåvirket standpunkt står uten etikett. Lik etikett betyr ikke samme lag. Antallet lag har ingen øvre grense. Lagene i sporet regnes uten grunnlaget. Er grunnlaget avslått eller prekludert (§ 32.2), står det først i brevet, og etikettene i sporet flyttes ett lag ned (B-13). Endret tekst gjelder bare nye brev (MM-U9).» Forholdet: endrer OV-U30; presiserer OV-U28, MM-U11, LV-U4 punkt 4 og B-13 (24.09 og § 32.2 05.10); følger MM-U9, VS-U4, HF-U2 og B-13 (§ 33.1 05.10).
+- **Uten setningen om grunnlaget.** Som 1, men uten de to setningene «Lagene i sporet regnes uten grunnlaget. Er grunnlaget avslått eller prekludert (§ 32.2), står det først i brevet, og etikettene i sporet flyttes ett lag ned (B-13).» Hvordan grunnlaget inngår, blir da et arbeidsvalg i #1047 etter B-13.
+- **Astras ordlyd uendret.** Alternativ 1 fra første spørsmål, med Astras presisering ordrett: «Lagnummeret angir rekkefølgen mellom de betingede standpunktene. Hvert nytt lag forutsetter at de foregående innsigelsene ikke fører frem i den utstrekning de rammer standpunktet. Lik etikett innebærer ikke at standpunktene tilhører samme lag.»'''
+valgt = "Ja, samlet tekst"
+svar = '''
+Viser til Astra sitt svar - ber deg vurdere det:
+
+Oppfølging: «Ja, samlet tekst (Recommended)»'''
+forhold = [{ art = "endrer", vedtak = "ov-u30" }, { art = "presiserer", vedtak = "ov-u28" }, { art = "presiserer", vedtak = "mm-u11" }, { art = "presiserer", vedtak = "lv-u4" }]
+folge = '''
+Svaret på oppfølgingen er gitt med spørsmålsverktøyet 23.10. Spørsmålene, alternativene, svaret fra sparringen og svarene står ordrett på #1047 ([kommentaren 6360471680](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6360471680)). Forholdet til LV-U4 gjelder punkt 4. Presiserer også B-13 (24.09 og § 32.2 05.10), som ikke har anker. Følger MM-U9, VS-U4, HF-U2 og B-13 (§ 33.1 05.10). Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ja, samlet tekst"
+tekst = '''
+Når brevet sendes, fryser appen for hvert standpunkt i vederlag og frist hvilket lag det står i (første, andre, tredje og så videre), eller at ingen av byggherrens innsigelser rammer det (upåvirket). Laget angir rekkefølgen mellom standpunktene: et standpunkt i et senere lag gjelder bare hvis innsigelsene i de foregående lagene ikke fører fram, i den utstrekning de rammer standpunktet. Brevet skriver «Prinsipalt:» for det første laget, «Subsidiært:» for det andre og «Videre subsidiært:» for hvert lag etter det. Standpunktene i samme lag står under én etikett, og et upåvirket standpunkt står uten etikett. Lik etikett betyr ikke samme lag. Antallet lag har ingen øvre grense. Lagene i sporet regnes uten grunnlaget. Er grunnlaget avslått eller prekludert (§ 32.2), står det først i brevet, og etikettene i sporet flyttes ett lag ned (B-13). Endret tekst gjelder bare nye brev (MM-U9).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Uten setningen om grunnlaget"
+tekst = '''
+Som 1, men uten de to setningene «Lagene i sporet regnes uten grunnlaget. Er grunnlaget avslått eller prekludert (§ 32.2), står det først i brevet, og etikettene i sporet flyttes ett lag ned (B-13).» Hvordan grunnlaget inngår, blir da et arbeidsvalg i #1047 etter B-13.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Astras ordlyd uendret"
+tekst = '''
+Alternativ 1 fra første spørsmål, med Astras presisering ordrett: «Lagnummeret angir rekkefølgen mellom de betingede standpunktene. Hvert nytt lag forutsetter at de foregående innsigelsene ikke fører frem i den utstrekning de rammer standpunktet. Lik etikett innebærer ikke at standpunktene tilhører samme lag.»'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Fjerde etikett"
+tekst = '''
+Brevet ordner byggherrens standpunkter i lagene «Prinsipalt:», «Subsidiært:», «Videre subsidiært:» og «Atter subsidiært:». Appen fryser hvilket av de fire lagene hvert standpunkt står i, eller at det er upåvirket. Det fjerde laget og hvert lag etter det får «Atter subsidiært:».'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "§ 33.6.1 i dagenes lag"
+tekst = '''
+Påberoper byggherren at kravet om fristforlengelse ble spesifisert for sent etter § 33.6.1, står påberopelsen med det byggherren måtte forstå, i samme lag som dagene byggherren godtar hvis spesifiseringen kom i tide. Teksten i laget sier rekkefølgen etter VS-U4. Er grunnlaget avslått eller prekludert i samme brev, står det som før.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
