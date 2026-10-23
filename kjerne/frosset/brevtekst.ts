@@ -349,6 +349,7 @@ function kravtekst(k: Krav, { j, sak }: Tekst, regler: Regelsett): string {
       krever.push(
         `TE krever ${harHovedbeloep(k) ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`
       );
+    if (!krever.length) throw new KanIkkeUttrykkes('vederlagskravet har ikke noe beløp');
     // Hele kravet er et tilbud, også når det bare har posten.
     deler.push(`${krever.join(' ')} Kravet er et tilbud etter NS 8407 § 34.2.1.`);
   } else {

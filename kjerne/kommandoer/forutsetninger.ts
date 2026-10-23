@@ -29,7 +29,7 @@ import {
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
   | { type: 'varsle' | 'sende_varsel'; spor: Kravspor }
-  /** Det særskilte varselet etter § 34.1.3 annet ledd, ved siden av varselet i sporet (OV-U25). */
+  /** Det særskilte varselet etter § 34.1.3 tredje ledd, ved siden av varselet i sporet (OV-U25). */
   | { type: 'varsle' | 'sende_varsel'; spor: 'vederlag'; hjemmel: '34.1.3' }
   | { type: 'sende_foresporsel'; spor: 'frist' }
   | { type: 'ingen_krav'; spor: Kravspor }

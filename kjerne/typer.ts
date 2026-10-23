@@ -17,8 +17,8 @@ export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3';
 
 /**
  * TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2
- * (OV-U5), og det særskilte varselet etter § 34.1.3 annet ledd, som etter OV-U25 er det
- * eneste særskilte varselet.
+ * (OV-U5), og det særskilte varselet etter § 34.1.3 tredje ledd for kravet etter annet ledd,
+ * som etter OV-U25 er det eneste særskilte varselet.
  */
 export type Varselhjemmel = '33.4' | '34.1.2' | '34.1.3';
 export const VARSELSPOR = {

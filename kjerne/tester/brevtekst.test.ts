@@ -2191,7 +2191,7 @@ describe('meldingen når kravene er avgjort, sier hvordan hvert krav ble avgjort
     expect(visning(u, GJELDENDE_REGLER).status).toBeNull();
   });
 
-  it('når kravene er avgjort, avvises trekk, ny kravversjon og byggherrens revisjon for det som er sendt (OV-U3)', () => {
+  it('når kravene er avgjort, avvises trekk, ny kravversjon, byggherrens revisjon og det særskilte varselet fra appen, mens datoen for det kan registreres (OV-U3, OV-U5)', () => {
     const s = utenFrist();
     expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBe('KRAVENE_AVGJORT');
     expect(s.avvist('TE', { type: 'trekk', spor: 'grunnlag' })).toBe('KRAVENE_AVGJORT');
