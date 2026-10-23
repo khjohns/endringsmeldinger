@@ -76,7 +76,7 @@ export interface Vederlagsskjemadata {
   saerskilt_krav?: {
     rigg_drift?: { belop?: number };
     produktivitet?: { belop?: number };
-  };
+  } | null;
   vedlegg_ids?: string[];
   /** `varsel` for varselet fra appen. Uten: kravet. */
   varsel_type?: string;
