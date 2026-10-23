@@ -382,10 +382,13 @@ gjelder alle skyøkter**, også en direkte økt som ikke er orkestrert
 (oppdragsgiver 12.10, #425).
 
 **Oppdragsgiver vil ha spørsmål, ikke dokumenter å lese.** Kartlegg selv. Der
-noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med
-spørsmålsverktøyet (i Claude Code: `AskUserQuestion`), med alternativer og en
-anbefaling. Det gjelder tiltenkt atferd, NS 8407, prioritering og hva som skal
-gå til andre. Be ikke om gjennomlesing for å finne ut hva oppdragsgiver mener.
+noe bare oppdragsgiver kan avgjøre, still konkrete spørsmål med alternativer og
+en anbefaling. Spørsmål som berører rettsregler, som NS 8407, legges fram som
+nummerert liste i tekst og ikke med spørsmålsverktøyet (i Claude Code:
+`AskUserQuestion`), etter [vedtaksskillen](.claude/skills/vedtak/SKILL.md),
+«Still dem slik oppdragsgiver kan svare». Det gjelder tiltenkt atferd,
+prioritering og hva som skal gå til andre, der de ikke berører rettsregler, og
+da kan verktøyet brukes. Be ikke om gjennomlesing for å finne ut hva oppdragsgiver mener.
 Det som kan avgjøres ved å lese koden eller spørre katalogen, avgjør du selv.
 Svarene føres inn der de hører hjemme: vedtak i hovedplanen, arbeidsvalg i
 issuet eller oppdraget.
