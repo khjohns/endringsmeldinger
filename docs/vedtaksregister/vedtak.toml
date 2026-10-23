@@ -5781,6 +5781,43 @@ Betegnelsen står til forespørselen er besvart, også i en lukket sak. Som MM-U
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "MM-U32"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1187"]
+sporsmal = '''
+#1187, spørsmål 4, presiserer MM-U25: Skal en handling som vises, kunne være inaktiv fordi skjemaet ikke er ferdig utfylt? MM-U25 sier: «Appen viser bare handlingene parten kan gjøre nå.» Det forkastede alternativet gjaldt handlinger kontrakten ikke tillater nå, ikke et skjema som mangler noe. I dag har komponentene 24 disabled=, blant annet ActionBar:200 (disabled={!canSend}). Feilmeldingene er ikke knyttet til feltene med aria.'''
+valgt = "Alltid aktiv, sjekk ved sending"
+svar = '''
+«Alltid aktiv, sjekk ved sending (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "mm-u25" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålene og svarene står på #1187 ([kommentaren 6364164230](https://github.com/khjohns/endringsmeldinger/issues/1187#issuecomment-6364164230)). Ikke bygget (#1187, #1184).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Alltid aktiv, sjekk ved sending"
+tekst = '''
+En handling parten kan gjøre nå, er alltid aktiv. Mangler noe i skjemaet, kontrollerer appen det når parten sender, og sier ved feltet og øverst i skjemaet hva som mangler. En knapp er inaktiv bare mens en sending pågår.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Inaktiv til utfylt"
+tekst = '''
+Send er inaktiv til skjemaet er fullstendig, med en linje som sier hva som mangler.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Ingen regel nå"
+tekst = '''
+Skjemaene følger Punkt når sidene er lest, og spørsmålet stilles på nytt hvis Punkt avviker fra MM-U25.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Appen viser bare handlingene parten kan gjøre nå."
+
+
+[[gruppe.vedtak]]
 id = "LV-U22"
 dato = 2026-10-22
 hvem = "oppdragsgiver"

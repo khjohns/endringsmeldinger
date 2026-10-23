@@ -282,6 +282,15 @@ export function tillatt(miljoe: Miljoe, metode: string, sti: string): boolean {
   return regelFor(miljoe, metode, sti) !== undefined;
 }
 
+/**
+ * Regelen kallet slipper gjennom på, med `medSoek` for en query eller Bimsync-Params. Oppslaget
+ * kontrollerer bare stien, så en regel med førsjekk tar ikke slike kall.
+ */
+export function regelForKall(miljoe: Miljoe, metode: string, sti: string, medSoek: boolean): Regel | undefined {
+  const regel = regelFor(miljoe, metode, sti);
+  return regel && !(regel.foersjekk && medSoek) ? regel : undefined;
+}
+
 const koder = new TextEncoder();
 
 /** Konstant tid uavhengig av hvor tidlig og om lengden avviker: begge sider hashes først. */
@@ -392,10 +401,9 @@ export function lagBroker(hent: typeof fetch = fetch, tokenlager = new Tokenlage
     const bearer = /^Bearer (.+)$/.exec(foresp.headers.get('Authorization') ?? '')?.[1] ?? '';
     // Kroppen skiller brokerens avvisning fra Catendas 401 og 403.
     if (!(await sammeNokkel(bearer, miljoe.BROKERNOKKEL))) return svar(401, { feil: 'brokernoekkel' });
-    const regel = regelFor(miljoe, foresp.method, adresse.pathname);
-    // Oppslaget kontrollerer bare stien, så et kall med query eller Bimsync-Params slipper ikke gjennom.
-    if (!regel || (regel.foersjekk && (adresse.search || foresp.headers.has('bimsync-params'))))
-      return svar(403, { feil: 'broker_avviste' });
+    const medSoek = adresse.search !== '' || foresp.headers.has('bimsync-params');
+    const regel = regelForKall(miljoe, foresp.method, adresse.pathname, medSoek);
+    if (!regel) return svar(403, { feil: 'broker_avviste' });
 
     const harKropp = !['GET', 'HEAD'].includes(foresp.method);
     const raa = !harKropp

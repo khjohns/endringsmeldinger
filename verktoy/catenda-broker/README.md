@@ -10,8 +10,9 @@ altså integrasjonen selv. Økta får en brokernøkkel, som kan byttes uten å r
 Innloggingen med `authorization_code` går ikke gjennom brokeren (#715).
 
 **Ansvarlig:** repoeieren (khjohns). Tillatelseslisten følger Catenda-kallene i
-`docs/datamodell/dataflyt.toml`. Får integrasjonen et nytt kall, må det inn i
-`TILLATT` og i `broker.test.ts`. Slettingen av topics, dokumentreferanser og items
+`docs/datamodell/dataflyt.toml`, og `dataflyt.test.ts` er rød for et kall der
+som listen avviser og som ikke står blant unntakene (#1200). Får integrasjonen et
+nytt kall, må det inn i `TILLATT` og i `broker.test.ts`. Slettingen av topics, dokumentreferanser og items
 er bare for live-testene, som rydder etter seg. Appen sletter ingen av dem, så de
 står ikke i `dataflyt.toml`.
 

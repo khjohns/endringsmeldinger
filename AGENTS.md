@@ -254,6 +254,7 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
 | Regler som bare gjelder én del av treet: databasen, testene, tilgangen, Python-domenet, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
 | Leveranseprosedyren: akseptkriterier, eierskap, utfasing og bevis før en PR er klar | [Leveranseskillen](.claude/skills/leveranse/SKILL.md). PR- og oppgavemalene i `.github/` samler beviset, men eier ingen regler |
+| Beslutningene for visningen: retning, tokens i bruk, mønstre og vedtakene som styrer farge og ord. Metoden for frontendarbeid | [`docs/design/system.md`](docs/design/system.md). Verdiene står i `theme.css`. Metoden står i [grensesnitt-skillen](.claude/skills/grensesnitt/SKILL.md) |
 | Kommandoene for tester, typesjekk og verktøykjeden, og omveiene i skyøkta | [Miljø-skillen](.claude/skills/miljo/SKILL.md). Reglene står i «Miljø» |
 | Episodene bak resonneringsreglene | [Resonnering-skillen](.claude/skills/resonnering/SKILL.md). Reglene står i «Resonneringsregler» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `hendelser.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttester feiler når et register mangler en tabell, en type, en fremmednøkkel eller et kall, eller avviker fra koden eller migrasjonene |
@@ -325,6 +326,11 @@ ikke i byggeøkta, når vilkårene i orkestreringsskillen, «Review i ny økt»,
 oppfylt.
 `/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
 forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
+**Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
+byggeøkta egen diff med skillen `design-deslop` og lar PR-en stå som utkast.
+Deretter kjøres `design-review` i en ny økt, før `/code-review`. Under om lag 200
+endrede linjer i `.svelte`- og CSS-filer kan byggeøkta kjøre den selv. Alvorligheten
+følger stoppregelen (oppdragsgiver 23.10, #1080).
 
 **Stoppregelen for funn.** I PR-en rettes bare funn som gir feil resultat nå, eller
 som bryter et vedtak eller kontrakten. Et funn som ikke rettes, får ett av tre utfall:
