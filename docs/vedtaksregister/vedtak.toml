@@ -8402,7 +8402,7 @@ svar = '''
 «Med frafall uttrykkelig (Recommended)»'''
 forhold = [{ art = "presiserer", vedtak = "ov-u32" }, { art = "snevrer inn", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u28" }]
 folge = '''
-Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålene, alternativene, svarene og svaret fra sparringen står ordrett på #1047 ([kommentaren 6362745637](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6362745637)). Spørsmålet var stilt i to tidligere former, som spørsmål 1 og oppfølgingsspørsmål 1 i samme kommentar. Svaret på spørsmål 1 sendte det til sparring, og sparringssvaret gjaldt først da oppdragsgiver sluttet seg til teksten. Svaret på oppfølgingsspørsmål 1 sendte teksten til sparring på nytt og nevnte «frafalt». Sparringen sluttet seg til det anbefalte alternativet med en ny første setning og med arbeidsvalget om ett lag uttrykkelig, og oppfølgingsspørsmål 3 la til setningen om frafall. Presiserer også arbeidsvalget i B4-4b, som ikke har anker: det er forbeholdet om grunnlaget som gjør standpunktet betinget, ikke forskyvningen. Følger GR-U7, MM-U28 og MM-U9. Ikke bygget (#1047).'''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålene og svarene står på #1047 ([kommentaren 6362745637](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6362745637)). Spørsmålet var stilt i to tidligere former, som spørsmål 1 og oppfølgingsspørsmål 1 i samme kommentar. På spørsmål 1 kom oppdragsgiver med et sparringssvar og ba om en vurdering av det («Vurder svaret fra chatgpt astra:»), og sparringssvaret gjaldt først da oppdragsgiver sluttet seg til teksten. Svaret på oppfølgingsspørsmål 1 ba om en vurdering av sparringen på nytt og nevnte «frafalt». Sparringen sluttet seg til det anbefalte alternativet med en ny første setning og med arbeidsvalget om ett lag uttrykkelig, og oppfølgingsspørsmål 3 la til setningen om frafall. Presiserer også arbeidsvalget i B4-4b, som ikke har anker. Følger GR-U7, MM-U28 og MM-U9. Ikke bygget (#1047).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Med frafall uttrykkelig"
@@ -8415,11 +8415,6 @@ navn = "Frafall som avslag"
 tekst = '''
 Samme tekst, men frafall av pålegget etter § 32.3 c flytter lagene som et avslag. Endrer GR-U7 («grunnlaget er avklart») og atferden i dag.'''
 forkastet = true
-
-[[gruppe.vedtak.sitat]]
-kilde = "hovedplanen"
-tekst = "grunnlaget er avklart"
-utdrag = true
 
 [[gruppe.vedtak]]
 anker = "hf-u2"

@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `672e3807df081795ef58181ce4c046c05d72a15671f194f0efb625b160856cb5`
+Kontrollsum (SHA-256 over utdraget visningen leser): `1c3ddae014bebeb243ca5bd91eddc6cec8d446f735dcbdb5a15fbf314de4ed82`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -994,7 +994,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 23.10, oppdragsgiver (#1047)
 
-**Følge:** Presiserer [OV-U32](#ov-u32). Snevrer inn [OV-U32](#ov-u32). Presiserer [OV-U28](#ov-u28). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålene, alternativene, svarene og svaret fra sparringen står ordrett på #1047 ([kommentaren 6362745637](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6362745637)). Spørsmålet var stilt i to tidligere former, som spørsmål 1 og oppfølgingsspørsmål 1 i samme kommentar. Svaret på spørsmål 1 sendte det til sparring, og sparringssvaret gjaldt først da oppdragsgiver sluttet seg til teksten. Svaret på oppfølgingsspørsmål 1 sendte teksten til sparring på nytt og nevnte «frafalt». Sparringen sluttet seg til det anbefalte alternativet med en ny første setning og med arbeidsvalget om ett lag uttrykkelig, og oppfølgingsspørsmål 3 la til setningen om frafall. Presiserer også arbeidsvalget i B4-4b, som ikke har anker: det er forbeholdet om grunnlaget som gjør standpunktet betinget, ikke forskyvningen. Følger GR-U7, MM-U28 og MM-U9. Ikke bygget (#1047).
+**Følge:** Presiserer [OV-U32](#ov-u32). Snevrer inn [OV-U32](#ov-u32). Presiserer [OV-U28](#ov-u28). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålene og svarene står på #1047 ([kommentaren 6362745637](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6362745637)). Spørsmålet var stilt i to tidligere former, som spørsmål 1 og oppfølgingsspørsmål 1 i samme kommentar. På spørsmål 1 kom oppdragsgiver med et sparringssvar og ba om en vurdering av det («Vurder svaret fra chatgpt astra:»), og sparringssvaret gjaldt først da oppdragsgiver sluttet seg til teksten. Svaret på oppfølgingsspørsmål 1 ba om en vurdering av sparringen på nytt og nevnte «frafalt». Sparringen sluttet seg til det anbefalte alternativet med en ny første setning og med arbeidsvalget om ett lag uttrykkelig, og oppfølgingsspørsmål 3 la til setningen om frafall. Presiserer også arbeidsvalget i B4-4b, som ikke har anker. Følger GR-U7, MM-U28 og MM-U9. Ikke bygget (#1047).
 
 **Regelrader:** —
 
