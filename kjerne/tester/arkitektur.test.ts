@@ -849,7 +849,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevtekst.ts']],
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts']],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
-  ['Domenehendelse', 'brevtekst', 'tittel', ['kommandoer/skriving.ts:brevtekstFor']],
+  // #801, #1138: skriv kontrollerer tegnene i sakstittelen og filnavnene i brevet.
+  [
+    'Domenehendelse',
+    'brevtekst',
+    'tittel',
+    ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
+  ],
   ['Journalrad', 'kontekst', 'sak_id', ['kommandoer/skriving.ts:brevtekstFor']],
   // Utdypningen kopieres til teksten. Kontrollene leser bare om den finnes (A6 i
   // paragrafmatrisen, KA-U31–KA-U34, GR-U15).
@@ -943,7 +949,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // A4: vedleggene står i teksten, og et avsnitt kan gjelde dem.
   ['Dokument', 'utsagn', 'dokumentasjon', ['frosset/brevtekst.ts', 'format/leser.ts']],
   // Arbeidsvalg 10 i #790: teksten lister vedleggene med filnavnet.
-  ['Vedlegg', 'utsagn', 'filnavn', ['frosset/brevtekst.ts']],
+  ['Vedlegg', 'utsagn', 'filnavn', ['frosset/brevtekst.ts', 'kommandoer/skriving.ts:skriv']],
   // GR-U14: TEs beskrivelse siteres fra teksten i brevet kravet står i.
   // Unntaket fra «ingen regel leser teksten»: PAALEGGET_IKKE_BESKREVET leser bare om
   // utdypningen finnes (A6).
