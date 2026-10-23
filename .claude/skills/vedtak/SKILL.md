@@ -29,19 +29,26 @@ oppdragsgiver.
   dem. En økt som venter, kan arbeide videre med anbefalingen merket som
   foreslått.
 - **Still dem slik oppdragsgiver kan svare.** Skill de juridiske spørsmålene fra
-  de tekniske. Still de juridiske i kontraktens språk, uten kodenavn, og legg de
-  tekniske fram med en anbefaling som kan godtas samlet. Spørsmålsverktøyet tar
-  høyst fire spørsmål per kall. Er det flere, eller vil oppdragsgiver det, legg
-  dem fram som en nummerert liste i tekst med anbefalt svar, så oppdragsgiver
-  kan svare «ja» eller rette enkeltpunkter.
+  de tekniske. Spørsmål som berører rettsregler (NS 8407, kontraktens bestemmelser,
+  preklusjon, varsling og lignende) stilles aldri med spørsmålsverktøyet
+  (`AskUserQuestion`): «Ønsker fremover at alle domenespørsmål som berører
+  rettsregler ikke bruker spørsmålsverktøyet» (oppdragsgiver 23.10). De legges
+  fram som en nummerert liste i tekst, med bakgrunn, belegg i kontraktsteksten
+  eller vedtaket, alternativene i vedtaksform, anbefalt svar og hva valget styrer,
+  så oppdragsgiver kan svare «ja» eller rette enkeltpunkter. Still de juridiske i
+  kontraktens språk, uten kodenavn. De tekniske kan legges fram med en anbefaling
+  som kan godtas samlet. Spørsmålsverktøyet tar høyst fire spørsmål per kall. Er
+  det flere tekniske spørsmål, eller vil oppdragsgiver det, legg dem fram som en
+  nummerert liste i tekst med anbefalt svar.
 - **Hvert spørsmål står på egne bein i verktøyet.** Tekst du skriver før et
   kall til spørsmålsverktøyet, vises ikke for oppdragsgiver i appen. Bakgrunnen,
   alternativene og anbefalingen skal derfor stå i selve spørsmålet og i
   beskrivelsene av alternativene. Trengs mer tekst, avslutt turen med listen i
-  stedet for å kalle verktøyet (FK runde 5).
+  stedet for å kalle verktøyet (FK runde 5). Juridiske spørsmål står aldri i
+  verktøyet, se punktet over.
 - **Lagre spørsmålene ordrett før du stiller dem.** Skriv hvert spørsmål med
-  alle alternativene, etikett og beskrivelse slik de vises i verktøyet, til en
-  fil før kallet. Før svarene inn i samme fil. Vedtaket føres fra den fila,
+  alle alternativene, etikett og beskrivelse slik de vises i verktøyet eller
+  står i listen, til en fil før spørsmålet stilles. Før svarene inn i samme fil. Vedtaket føres fra den fila,
   også de forkastede alternativene, av orkestratoren eller en subagent. I FK
   runde 4 ga fila bare etikettene for de forkastede alternativene, og
   vedtaks-PR-en fikk tekster fra et utkast oppdragsgiver ikke hadde sett.
