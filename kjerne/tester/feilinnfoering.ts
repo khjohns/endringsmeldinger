@@ -3335,6 +3335,12 @@ function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
       })
       .on('error', feil)
       .on('close', function (this: ChildProcess, kode: number | null, signal: string | null) {
+        // Arbeidere som overlevde Vitest, ville ellers kjørt mot samme base som neste kjøring.
+        try {
+          process.kill(-this.pid!, 'SIGKILL');
+        } catch {
+          // Gruppen er alt borte.
+        }
         grupper.delete(this.pid!);
         try {
           ok(JSON.parse(readFileSync(ut, 'utf8')) as Rapport);
