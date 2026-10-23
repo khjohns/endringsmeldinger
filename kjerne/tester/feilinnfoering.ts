@@ -1997,10 +1997,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en revisjon sammenliknes ikke med svaret den erstatter (HF-U5)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      [
-        'return forrige && binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length);',
-        'return null;',
-      ],
+      ['return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));', 'return null;'],
     ],
     mal: [
       'et lavere godkjent beløp avvises',
@@ -2024,8 +2021,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  return forrige && binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length);\n',
-        '  if (forrige?.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;\n  return forrige && binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length);\n',
+        '  return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));\n',
+        '  if (forrige?.grunnlagskrav && forrige.grunnlagskrav !== u.spor.grunnlag.gjeldendeKrav?.id) return null;\n  return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));\n',
       ],
     ],
     mal: ['bindingen i vederlaget står etter en ny grunnlagsversjon', 'F-MM-HF-U21'],
@@ -2206,7 +2203,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      senketInnroemmelse(forrige, s.standpunkter, u.spor[s.spor].subsidiaer.length)',
+        '      senketInnroemmelse(forrige, s.standpunkter, forskyvningIBrevet(forrige, u))',
         '      false',
       ],
     ],
@@ -3334,7 +3331,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'meldingen om en senket revisjon etiketterer uten forskyvningen (#1199)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
-      ['binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length)', 'binding(forrige, nye, 0)'],
+      ['binding(forrige, nye, forskyvningIBrevet(forrige, u))', 'binding(forrige, nye, 0)'],
     ],
     mal: ['meldingen sier etiketten brevet ga beløpet når grunnlaget er avslått'],
   },
@@ -3375,6 +3372,22 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
+  },
+  {
+    id: 'F390',
+    feilklasse:
+      'meldingen om en senket revisjon regner etiketten fra grunnlagssvaret nå, ikke det brevet ble skrevet mot (MM-U11, #1199)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        'binding(forrige, nye, forskyvningIBrevet(forrige, u))',
+        'binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length)',
+      ],
+    ],
+    mal: [
+      'meldingen sier etiketten brevet ga, også når grunnlaget er godkjent etter brevet',
+      'meldingen sier etiketten brevet ga, også når en ny grunnlagsversjon er avslått uten § 32.2 etter brevet',
+    ],
   },
 ];
 

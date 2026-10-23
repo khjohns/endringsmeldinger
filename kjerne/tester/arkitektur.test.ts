@@ -337,8 +337,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:innsigelsenEtterITide',
       'utledning/utled.ts:foresporselForFristsvar',
       'utledning/utled.ts:fristkravErFremmet',
+      'utledning/utled.ts:forskyvningIBrevet.plass',
     ],
   ],
+  // OV-U32, MM-U11: lagene grunnlaget opptok foran sporet da brevet ble sendt, i meldingen
+  // om en senket revisjon (svaret i #1199).
+  ['utledning/utled.ts', 'predikat', 'forskyvningIBrevet', ['kommandoer/nyttelast.ts']],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
   ['utledning/utled.ts', 'predikat', 'fristkravErFremmet', ['kommandoer/forutsetninger.ts']],
   // GR-U17, GR-U20: frafallet i et svar sendt fra appen binder byggherren.
@@ -395,7 +399,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts:utledSporene', 'frosset/brevtekst.ts:grunnlagetsStandpunkter'],
   ],
   // OV-U32, OV-U33: lagene grunnlaget opptar foran sporet, som linjen etiketteres med.
-  ['frosset/standpunkt.ts', 'predikat', 'lagFraGrunnlaget', ['kommandoer/skriving.ts:frysSvarene']],
+  [
+    'frosset/standpunkt.ts',
+    'predikat',
+    'lagFraGrunnlaget',
+    ['kommandoer/skriving.ts:frysSvarene', 'utledning/utled.ts:forskyvningIBrevet'],
+  ],
   // GR-U7 med unntaket i MM-U13: utledningen regner `grunnlagAvklart` og `grunnlagAvvist` av den.
   ['frosset/standpunkt.ts', 'predikat', 'grunnlagetErAvklart', ['utledning/utled.ts:utledSporene']],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
@@ -900,17 +909,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // A2 og LV-U4 punkt 6: grunnlagssvaret og om sporene er subsidiære, lest av
   // utledningen før brevet, så `frosset/` ikke når utledningen (A6).
   // MM-U9, MM-U28: om tallet i gjeldende svar er subsidiært, som sakslisten leser (#1050).
-  // OV-U32, OV-U33: lagene grunnlaget opptar foran sporet, i meldingen om en senket revisjon.
   [
     'Sporutledning',
     'predikat',
     'subsidiaer',
-    [
-      'kommandoer/skriving.ts:brevtekstFor',
-      'utledning/utled.ts:standpunktetErSubsidiaert',
-      'kommandoer/nyttelast.ts:kontrollerSvar',
-      'utledning/utled.ts:bryterBindingen',
-    ],
+    ['kommandoer/skriving.ts:brevtekstFor', 'utledning/utled.ts:standpunktetErSubsidiaert'],
   ],
   ['Saken', 'brevtekst', 'saksnummer tittel grunnlagssvar subsidiaer', ['frosset/brevtekst.ts']],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],

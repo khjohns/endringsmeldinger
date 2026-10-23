@@ -23,8 +23,8 @@ const RANG: Record<Grunnlagsresultat, number> = { avslaatt: 0, paalegg_frafalt: 
  * avvises (#627, #814).
  * Rettidigheten sammenliknes ikke her: et «i tide» sperres av `SAGT_I_TIDE` (HF-U4).
  * Byggherrens ønskede metode sammenliknes ikke (MM-U12).
- * `forskyvning` er lagene svaret på grunnlaget opptar foran sporet (`subsidiaer`), så
- * etiketten er den brevet gir (OV-U32, OV-U33, svaret i #1199).
+ * `forskyvning` er lagene svaret på grunnlaget opptok foran sporet da brevet ble sendt
+ * (`forskyvningIBrevet`), så etiketten er den brevet ga (OV-U32, MM-U11, svaret i #1199).
  */
 export function senketInnroemmelse(
   forrige: Pick<Svar, 'standpunkter' | 'beslutningsgrunnlag'>,

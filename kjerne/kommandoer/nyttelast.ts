@@ -27,6 +27,7 @@ import {
 import {
   frafalletBinder,
   foresporselForFristsvar,
+  forskyvningIBrevet,
   innsigelsenEtterITide,
   paaberoptEtterITide,
   type Utledning,
@@ -113,7 +114,7 @@ function kontrollerSvar(
       'BEGRUNNELSE_MANGLER',
       `Svaret må ha en begrunnelse, fordi det har ${grunner.join(', ')} (KA-U24, KA-U31).`
     );
-  return forrige && binding(forrige, nye, u.spor[forrige.spor].subsidiaer.length);
+  return forrige && binding(forrige, nye, forskyvningIBrevet(forrige, u));
 }
 
 /**
