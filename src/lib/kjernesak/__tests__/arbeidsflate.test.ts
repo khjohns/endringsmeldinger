@@ -118,6 +118,7 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     expect(kontroll.letter!.tekst.join(' ')).toMatch(/Byggherren godkjenner 250\s000\skr/);
     expect(kontroll.letter!.utdypning).toBe('Godtatt.');
     expect(kontroll.letter!.handling).toBe('Du svarer på kravet');
+    expect(kontroll.letter!.sendes).toBe('Send til entreprenøren');
     kontroll.confirm();
     await sending;
     const kommando = send.mock.calls[0][3] as { type: string; svar: Record<string, unknown>[] };

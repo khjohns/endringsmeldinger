@@ -178,6 +178,23 @@ describe('svaret gjennom kjernen', () => {
     expect(kommando.svar[0].vurderinger).not.toHaveProperty('hovedkrav_godkjent_belop');
   });
 
+  it('OV-U23: et krav uten posten etter § 34.1.3 sender ingen vurdering av posten, og kjernen skriver svaret', () => {
+    // Skjemaets utgangspunkt har ingen vurdering av posten, og `buildEventData` gir da beløpet 0.
+    const { kommando } = svar(
+      medKrav({ beloep: 125_000 }),
+      state({
+        produktivitetVurdering: undefined,
+        produktivitetVarsletITide: undefined,
+        hovedkravVurdering: 'delvis',
+        hovedkravGodkjentBelop: 100_000,
+      })
+    );
+    expect(
+      Object.keys(kommando.svar[0].vurderinger).filter((k) => k.startsWith('produktivitet_'))
+    ).toEqual([]);
+    expect(kommando.svar[0].resultat).toMatchObject({ godkjent_beloep: 100_000 });
+  });
+
   it('#1171: nyttelasten til kjernen har ikke noe rigg_*-felt, heller ikke når skjemadataene har det', () => {
     const u = utledJournal(BEGGE, KJERNE);
     const kommando = vederlagssvarFraSkjema(

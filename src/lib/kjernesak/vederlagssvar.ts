@@ -72,8 +72,11 @@ export function vederlagConfigFraKjernen(u: Utledning): VederlagDomainConfig | n
   };
 }
 
-/** Feltene fra `buildEventData` kjernen tar imot, med kjernens koder. Ingen `rigg_*` (#1171). */
-function vurderinger(d: Record<string, unknown>): Svarvurdering {
+/**
+ * Feltene fra `buildEventData` kjernen tar imot, med kjernens koder. Ingen `rigg_*` (#1171), og
+ * ingen `produktivitet_*` når kravet ikke har posten: skjemaet gir da beløpet 0 (OV-U23).
+ */
+function vurderinger(d: Record<string, unknown>, krav: Krav): Svarvurdering {
   const felt: Svarvurdering = {
     hovedkrav_vurdering: fraKatalogen(BELOEPSVURDERING_FRA_KATALOGEN, d.hovedkrav_vurdering),
     hovedkrav_godkjent_belop: d.hovedkrav_godkjent_belop,
@@ -88,7 +91,12 @@ function vurderinger(d: Record<string, unknown>): Svarvurdering {
     aksepterer_metode: d.aksepterer_metode,
     oensket_metode: fraKatalogen(METODE_FRA_KATALOGEN, d.oensket_metode),
   };
-  return Object.fromEntries(Object.entries(felt).filter(([, v]) => v !== undefined));
+  const harPosten = produktivitetsbeloep(krav) !== undefined;
+  return Object.fromEntries(
+    Object.entries(felt).filter(
+      ([k, v]) => v !== undefined && (harPosten || !k.startsWith('produktivitet_'))
+    )
+  );
 }
 
 /**
@@ -119,7 +127,7 @@ export function vederlagssvarFraSkjema(
         spor: 'vederlag',
         gjelder: krav.id,
         regelversjon,
-        vurderinger: vurderinger(data),
+        vurderinger: vurderinger(data, krav),
         resultat,
         ...(utdypning ? { utdypning } : {}),
       },

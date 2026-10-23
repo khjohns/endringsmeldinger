@@ -26,6 +26,8 @@ export interface Kjernebrev {
   utdypning?: string;
   /** Det TE gjør med brevet, som overskrift i panelet ved siden av brevet (#943). Uten den: kravet. */
   handling?: string;
+  /** Teksten på knappen som sender brevet. Uten den: til byggherren. */
+  sendes?: string;
 }
 
 type Kommando = Record<string, unknown> & { utdypning?: string };
@@ -109,6 +111,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
       handling: svar
         ? 'Du svarer på kravet'
         : (HANDLING[kommando.type as string] ?? 'Du sender brevet'),
+      ...(svar ? { sendes: 'Send til entreprenøren' } : {}),
     };
   }
 
