@@ -121,8 +121,8 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     await hent(`/v2/projects/${prosjekt}`);
   });
 
-  // `egenId` og `egenBruker` leser integrasjonen i `GET /v2/user`. Brokeren avviser kallet med
-  // `broker_avviste` til stien står på listen den slipper gjennom (#1149).
+  // `egenId` og `egenBruker` leser integrasjonen i `GET /v2/user`, som brokeren slipper
+  // gjennom (#1149).
   it('A6: brokeren slipper gjennom GET /v2/user, som egenId og egenBruker leser (#1149)', async () => {
     await hent('/v2/user');
   });
@@ -309,7 +309,6 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
     // topic-api-openapi.yaml, schema `comment`: `author` er brukernavnet til forfatteren, og
     // project-api-openapi.yaml, schema `user`: `username`. Kommentaren kvitteres bare når
     // forfatteren er integrasjonens brukernavn (#972). Kommentaren slettes med topicen.
-    // Brokeren må slippe gjennom `GET /v2/user` og `GET …/comments` (#1149).
     it('B1: en kommentar integrasjonen skriver, har integrasjonens brukernavn som forfatter (#972)', async () => {
       const paa = krev(topic, 'topicen fra B1');
       const tekst = `koe-livetest-kommentar ${randomUUID()}`;
@@ -322,9 +321,8 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
 
     // BCF 3.0, schema `comment` og `topic`: `author` og `creation_author`. Testen fastholder
     // det Catenda svarer i dag: 201 på POST …/comments, der øyeblikksbildet bare har 200, og
-    // samme forfatter på kommentaren og topicen integrasjonen skriver. Den bruker ikke
-    // `GET /v2/user` og `GET …/comments`, som brokeren avviser (#1149), og viser ikke at
-    // forfatteren er `username`, som kvitteringen sammenligner med (#972); det prøver
+    // samme forfatter på kommentaren og topicen integrasjonen skriver. Den bruker verken
+    // `GET /v2/user` eller `GET …/comments` (#1149), og viser ikke at forfatteren er `username`, som kvitteringen sammenligner med (#972); det prøver
     // testen over. Kommentaren slettes med topicen.
     it('B1: en kommentar integrasjonen skriver, har samme forfatter som topicen integrasjonen laget (#1149)', async () => {
       const paa = krev(topic, 'topicen fra B1');

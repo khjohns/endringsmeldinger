@@ -2,7 +2,8 @@
  * Token-broker for Catenda-integrasjonen fra skyøkta (#806). Brokeren holder
  * integrasjonens klient-ID og hemmelighet og henter Catenda-tokenet selv. Økta
  * får bare brokernøkkelen, og kall går videre bare når metode og sti står i
- * tillatelseslisten, avgrenset til ett Catenda-prosjekt og ett topic board.
+ * tillatelseslisten, avgrenset til ett Catenda-prosjekt og ett topic board. Unntaket er
+ * `GET /v2/user`, som bare gir brukeren tokenet tilhører: integrasjonen selv.
  *
  * For appen ser brokeren ut som Catenda: tokenkallet med `client_credentials`
  * svarer med brokernøkkelen som `access_token`. Innloggingen med

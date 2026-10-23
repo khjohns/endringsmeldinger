@@ -80,7 +80,8 @@ describe('tokenkallet', () => {
 });
 
 describe('videresendingen', () => {
-  // `GET /v2/user` og kommentarene på topicen leser `skrivEnKommentar` i `server/jobber.ts` (#972, #1149).
+  // `egenId` leser `GET /v2/user`, og `skrivEnKommentar` i `server/jobber.ts` leser også
+  // kommentarene på topicen (#972, #1149).
   it.each([
     ['/v2/user'],
     [`/opencde/bcf/3.0/projects/${BOARD}/topics/${TOPIC}/comments`],
