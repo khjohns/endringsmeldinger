@@ -8391,6 +8391,32 @@ Påberoper byggherren at kravet om fristforlengelse ble spesifisert for sent ett
 forkastet = true
 
 [[gruppe.vedtak]]
+id = "OV-U33"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1047"]
+sporsmal = '''
+Sparringen sluttet seg til teksten med en skarpere første setning og arbeidsvalget om ett lag. Du nevnte «frafalt». Frafall av pålegget etter § 32.3 c gjør grunnlaget avklart (GR-U7). I dag opptar frafallet ingen lag i grunnlaget og flytter ikke lagene i vederlag og frist. Jeg anbefaler å si det uttrykkelig i stedet for å legge frafall til avslag og § 32.2. Hvilken tekst føres som vedtak?'''
+valgt = "Med frafall uttrykkelig"
+svar = '''
+«Med frafall uttrykkelig (Recommended)»'''
+forhold = [{ art = "presiserer", vedtak = "ov-u32" }, { art = "snevrer inn", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u28" }]
+folge = '''
+Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålene og svarene står på #1047 ([kommentaren 6362745637](https://github.com/khjohns/endringsmeldinger/issues/1047#issuecomment-6362745637)). Spørsmålet var stilt i to tidligere former, som spørsmål 1 og oppfølgingsspørsmål 1 i samme kommentar. På spørsmål 1 kom oppdragsgiver med et sparringssvar og ba om en vurdering av det («Vurder svaret fra chatgpt astra:»), og sparringssvaret gjaldt først da oppdragsgiver sluttet seg til teksten. Svaret på oppfølgingsspørsmål 1 ba om en vurdering av sparringen på nytt og nevnte «frafalt». Sparringen sluttet seg til det anbefalte alternativet med en ny første setning og med arbeidsvalget om ett lag uttrykkelig, og oppfølgingsspørsmål 3 la til setningen om frafall. Presiserer også arbeidsvalget i B4-4b, som ikke har anker. Følger GR-U7, MM-U28 og MM-U9. Ikke bygget (#1047).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "Med frafall uttrykkelig"
+tekst = '''
+Et standpunkt i vederlag eller frist er upåvirket bare når byggherren i samme svar påberoper minst én innsigelse i sporet, ingen av påberopelsene i sporet rammer standpunktet, og grunnlaget verken er avslått eller preklusjon etter § 32.2 er påberopt. Et standpunkt som ingen påberopelse i sporet rammer, står ellers i sporets første lag. Er grunnlaget avslått eller preklusjon etter § 32.2 påberopt, er dette laget sporets første lag etter grunnlagets lag, og standpunktet får etiketten for det laget. Har byggherren frafalt pålegget etter § 32.3 c, flyttes lagene ikke (GR-U7). Har hele svaret bare ett lag og ingen påberopelse, skrives laget uten etikett. Endret tekst gjelder bare nye brev (MM-U9).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Frafall som avslag"
+tekst = '''
+Samme tekst, men frafall av pålegget etter § 32.3 c flytter lagene som et avslag. Endrer GR-U7 («grunnlaget er avklart») og atferden i dag.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
