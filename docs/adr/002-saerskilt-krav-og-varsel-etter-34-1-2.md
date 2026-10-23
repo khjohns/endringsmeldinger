@@ -53,7 +53,11 @@ sparring med en annen modell. Etter sparringen og prøvingen av den ble de stilt
 
 - **B2:** «Hele kravet» (anbefalt), «Hele kravet, BH kan begrense» og «Bare justeringen
   ellers».
-- **S1:** «Første krav er varselet» (anbefalt) og «Bare krav med justeringen ellers».
+- **S1:** «Første krav er varselet» (anbefalt) og «Bare krav med justeringen».
+
+Første gang hadde B2 alternativene «Hele kravet», «Bare justeringen ellers» og
+«Byggherren angir det», og S1 «Hvert vederlagskrav er et varsel» og «Bare krav med
+justeringen ellers». De står som forkastet i registeret.
 
 ## Drøftelsen
 
@@ -111,11 +115,12 @@ Det sparringen viste til, er ikke kontrollert av oss (se «Kildene»):
 - **Asymmetrien med OV-U24.** For § 34.1.3 er en versjon uten det særskilte kravet ikke
   varsel om det ([OV-U24](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u24)).
   For § 34.1.2 er en versjon med bare det særskilte kravet et varsel. Sparringen fant
-  asymmetrien riktig, fordi § 34.1.3 krever et særskilt varsel og § 34.1.2 ikke gjør det.
+  asymmetrien riktig. Etter vår lesning har kravet til et særskilt varsel i § 34.1.3 ingen
+  motsvarighet i § 34.1.2.
 - **«Ikke varslet» og «varslet for sent».** Sparringen påpekte at § 34.1.2 annet ledd lar
   kravet tapes også når det ikke varsles i det hele tatt. At byggherren ikke kan påberope
   for sent varsel når appen ikke kjenner noe varsel, er derfor en følge av «Bare krav med
-  justeringen ellers», og ble skrevet uttrykkelig inn i alternativet.
+  justeringen», og ble skrevet uttrykkelig inn i alternativet.
 
 ## Kildene
 
@@ -141,7 +146,7 @@ Vurderingen kan endres av:
 - et kontraktsgrunnlag som endrer § 34.1.2 eller § 34.1.3 annet ledd.
 
 Sparringen presiserte at koblingen må gjelde samme underliggende byggherreforhold, ikke
-bare samme kravnummer eller versjonsrekke.
+bare samme kravnummer eller versjonsrekke. I appen er én sak ett forhold.
 
 ## Utfallet
 
