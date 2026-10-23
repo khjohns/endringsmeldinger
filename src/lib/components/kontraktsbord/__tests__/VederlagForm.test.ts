@@ -42,7 +42,9 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
     await screen.findByRole('radiogroup', { name: 'Varsling produktivitetstap' });
     expect(screen.queryByRole('radiogroup', { name: 'Hovedkrav' })).toBeNull();
     expect(screen.queryByText(/prekludert/i)).toBeNull();
-    expect(screen.getByRole('radio', { name: 'Nei, for sent' })).toBeTruthy();
+    // Grunnforhold (SVIKT): § 34.1.2 gjelder hele kravet, også uten hovedbeløp (OV-U27).
+    const varsling = screen.getByRole('radiogroup', { name: 'Varsling av kravet' });
+    expect(within(varsling).getByRole('radio', { name: 'Nei, for sent' })).toBeTruthy();
   });
 
   it('krever beløpet etter begrensningen, og gjenoppretter skjemaet når vurderingen revideres', async () => {
@@ -50,6 +52,7 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
       workspace: arbeidsflate(),
       view: { track: 'vederlag', role: 'BH', mode: 'form' },
     });
+    await velg('Varsling av kravet', 'Ja, i tide');
     await velg('Varsling produktivitetstap', 'Nei, for sent');
     await velg('Beregningsmetode', 'Ja');
     await velg('Produktivitetstap', 'Fullt beløp');
@@ -62,6 +65,10 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
     expect((begrenset as HTMLInputElement).value).toBe((180000).toLocaleString('nb-NO'));
     await fireEvent.input(begrenset, { target: { value: '45000' } });
     await waitFor(() => expect(send).toBeEnabled());
+    // VS-U5: BH oppgir hva BH godtar etter begrensningen, og avslår ikke prinsipalt.
+    expect(
+      screen.getByText(/^BH godtar 45\s000 kr prinsipalt etter begrensningen \(§ 34\.1\.3\)$/)
+    ).toBeTruthy();
 
     await fireEvent.click(send);
 
@@ -84,6 +91,7 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
       workspace: arbeidsflate(),
       view: { track: 'vederlag', role: 'BH', mode: 'form' },
     });
+    await velg('Varsling av kravet', 'Ja, i tide');
     await velg('Varsling produktivitetstap', 'Nei, for sent');
     await velg('Beregningsmetode', 'Ja');
     await velg('Produktivitetstap', 'Fullt beløp');
@@ -103,5 +111,21 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
       expect((begrenset as HTMLInputElement).value).toBe((100000).toLocaleString('nb-NO'))
     );
     expect(screen.getByRole('button', { name: 'Ferdigstill vurdering' })).toBeEnabled();
+  });
+
+  it('avslår hele kravet prinsipalt når § 34.1.2 er påberopt, også med begrensningen (OV-U27)', async () => {
+    const screen = render(WorkspaceHarness, {
+      workspace: arbeidsflate(),
+      view: { track: 'vederlag', role: 'BH', mode: 'form' },
+    });
+    await velg('Varsling av kravet', 'Nei, for sent');
+    await velg('Varsling produktivitetstap', 'Nei, for sent');
+    await velg('Beregningsmetode', 'Ja');
+    await velg('Produktivitetstap', 'Fullt beløp');
+    const begrenset = await screen.findByRole('textbox', { name: 'Godtas etter begrensningen' });
+    await fireEvent.input(begrenset, { target: { value: '45000' } });
+
+    expect(await screen.findByText('BH avslår kravet prinsipalt')).toBeTruthy();
+    expect(screen.queryByText(/etter begrensningen \(§ 34\.1\.3\)/)).toBeNull();
   });
 });

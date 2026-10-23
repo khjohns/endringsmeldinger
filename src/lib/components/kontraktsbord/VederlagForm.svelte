@@ -198,10 +198,14 @@
 
   const resultat = $derived.by(() => {
     const r = computed.prinsipaltResultat;
+    // VS-U5: med begrensningen etter § 34.1.3 sier BH prinsipalt hva BH godtar, også 0 kr, og
+    // avslår ikke. Er § 34.1.2 påberopt, gjelder den hele kravet (OV-U27).
     const konklusjon =
-      r === 'avslatt'
-        ? 'BH avslår kravet prinsipalt'
-        : `BH ${r === 'godkjent' ? 'godkjenner' : 'godkjenner delvis'} kravet prinsipalt`;
+      computed.produktivitetPrekludert && !computed.hovedkravPrekludert
+        ? `BH godtar ${fmt(computed.totalGodkjent)} kr prinsipalt etter begrensningen (§ 34.1.3)`
+        : r === 'avslatt'
+          ? 'BH avslår kravet prinsipalt'
+          : `BH ${r === 'godkjent' ? 'godkjenner' : 'godkjenner delvis'} kravet prinsipalt`;
     if (r === 'godkjent') return { ikon: Check, konklusjon, variant: 'positive' as const };
     if (r === 'delvis_godkjent')
       return { ikon: CircleMinus, konklusjon, variant: 'mixed' as const };

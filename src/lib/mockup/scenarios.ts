@@ -131,12 +131,12 @@ const timeline1_Subsidiaer: TimelineEvent[] = [
 
 /**
  * Variant av scenario 1 der kravet bare er produktivitetstapet etter § 34.1.3 annet ledd, uten
- * beløp for justeringen ellers (OV-U23), slik TS-saken kan ha det.
+ * beløp for justeringen ellers (OV-U23), slik TS-saken kan ha det. Grunnlaget er grunnforhold
+ * (SVIKT), så skjemaet spør også om varselet etter § 34.1.2.
  */
 const scenario1_BareProduktivitet: SakState = {
   ...scenario1_3AktiveSpor,
   sak_id: 'KOE-2024-047-PROD',
-  grunnlag: { ...scenario1_3AktiveSpor.grunnlag, hovedkategori: 'ENDRING' },
   vederlag: {
     ...scenario1_3AktiveSpor.vederlag,
     metode: 'FASTPRIS_TILBUD',
