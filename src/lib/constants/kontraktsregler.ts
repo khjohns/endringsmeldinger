@@ -160,7 +160,7 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
 
   '34.1.2': {
     regel:
-      'Når vederlagskravet bygger på svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for, skal totalentreprenøren varsle uten ugrunnet opphold etter at han ble eller burde blitt klar over forholdet.',
+      'Når vederlagskravet bygger på forsinkelse eller svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for, skal totalentreprenøren varsle uten ugrunnet opphold etter at han ble eller burde blitt klar over forholdet.',
     konsekvens:
       'Retten til vederlagsjustering kan gå tapt dersom kravet varsles for sent. Byggherren må påberope preklusjon skriftlig uten ugrunnet opphold (§ 5).',
   },
