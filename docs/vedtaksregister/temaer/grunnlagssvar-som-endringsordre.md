@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `ca551884326239c00ba3554ca595ed400146b088706c967fc5c17336ca13c0ce`
+Kontrollsum (SHA-256 over utdraget visningen leser): `9a58773821d26b687b5e038990f585ef1b6d44bff74d90e8c9df4aa7522ce65a`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1048,11 +1048,11 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 ### <a id="ov-u35"></a>OV-U35
 
-> OV-U35: Kravet etter første ledd har ingen særskilt varslingsplikt etter § 34.1.3. Halvsetningen i OV-U25 om at byggherren ikke kan påberope sen varsling for rigg og drift er ikke tatt med. Uten avgrensning kan den leses som at varselet etter § 34.1.2 heller ikke gjelder rigg og drift, og det sier ikke vedtaket.
+> OV-U35: I OV-U25 utgår halvsetningen «og byggherren kan ikke påberope at det er varslet for sent». Kravet etter første ledd har ingen særskilt varslingsplikt etter § 34.1.3. OV-U25 sier ikke noe om varslingsplikten etter § 34.1.2.
 
 **Vedtatt:** 24.10, oppdragsgiver (#1267)
 
-**Følge:** Presiserer [OV-U25](#ov-u25). Spørsmålet er punkt E i [forslaget på #1267](https://github.com/khjohns/endringsmeldinger/issues/1267#issuecomment-6388147840). Svaret står på #1267 ([kommentaren 6388243586](https://github.com/khjohns/endringsmeldinger/issues/1267#issuecomment-6388243586)). Vedtaket er bare avsnittet om OV-U25 i svaret. Presiseringene B–E for panelteksten er arbeidsvalg og står på #1267.
+**Følge:** Presiserer [OV-U25](#ov-u25). Spørsmålet er punkt E i [forslaget på #1267](https://github.com/khjohns/endringsmeldinger/issues/1267#issuecomment-6388147840). Svaret står på #1267 ([kommentaren 6388243586](https://github.com/khjohns/endringsmeldinger/issues/1267#issuecomment-6388243586)). Vedtaket er bare avsnittet om OV-U25 i svaret. Presiseringene B–E for panelteksten er arbeidsvalg og står på #1267. Alternativet er ført med vedtaksteksten fra svaret.
 
 **Regelrader:** —
 
