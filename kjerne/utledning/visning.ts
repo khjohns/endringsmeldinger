@@ -11,9 +11,17 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { hjemmelenGjelder, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import {
+  hjemmelenGjelder,
+  postlisten,
+  ulikeVirkninger,
+  virkninger,
+  type Paaberopt,
+  type Vederlagspost,
+} from '../frosset/standpunkt.ts';
 import {
   enighetensVirkning,
+  forskyvningIBrevet,
   grunnlagskravFor,
   kraveneErAvgjort,
   sporetErLukket,
@@ -22,7 +30,7 @@ import {
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Spor } from '../typer.ts';
+import { SPOR, type Part, type Spor, type Svar } from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -146,6 +154,39 @@ function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
   return erRegistrert(
     u.opplysninger.filter((o) => o.opplysning.dokument === dokument).map((o) => o.opplysning)
   );
+}
+
+/**
+ * Byggherrens svar på vederlaget slik visningen viser det (svarene i #1047 24.10): postene
+ * og påberopelsene med lagene brevet ga dem (`postlisten`), brevet og parten. Et registrert
+ * svar er appens vurdering ved registreringen (MM-U17). `eldreKravversjon` skiller svaret på
+ * en eldre kravversjon fra kravet som venter på svar (MM-U24, MM-U9).
+ */
+export interface Vederlagssvaret {
+  svar: string;
+  dokument: string;
+  hendelse: string;
+  part: Part;
+  kravversjon: string;
+  eldreKravversjon: boolean;
+  vurdertVedRegistreringen: boolean;
+  poster: Vederlagspost[];
+  paaberopt: Paaberopt[];
+}
+
+export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
+  if (svar.spor !== 'vederlag') throw new Error(`${svar.id} er ikke et svar på vederlaget`);
+  const element = u.elementer[svar.id];
+  return {
+    svar: svar.id,
+    dokument: svar.dokument,
+    hendelse: element.hendelse,
+    part: element.part,
+    kravversjon: svar.gjelder,
+    eldreKravversjon: svar.gjelder !== u.spor.vederlag.gjeldendeKrav?.id,
+    vurdertVedRegistreringen: vurdertVedRegistreringen(u, svar.id),
+    ...postlisten(svar, svar.beslutningsgrunnlag.virkninger, forskyvningIBrevet(svar, u)),
+  };
 }
 
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
