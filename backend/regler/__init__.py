@@ -8,7 +8,7 @@ lagring og ingen klokke; dagens dato er et argument. Forklaringen står i
 from decimal import ROUND_HALF_UP, Decimal
 
 # Speil av REGELVERSJON i src/lib/domain/regelversjon.ts. En test holder dem like.
-REGELVERSJON = 10
+REGELVERSJON = 11
 
 ORE = Decimal("0.01")
 KRONE = Decimal("1")

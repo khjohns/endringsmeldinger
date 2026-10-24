@@ -6,7 +6,7 @@
 
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '$lib/api/client';
-import { brevFor, type Brev } from './brevtekst';
+import { brevFor, utledetMed, type Brev } from './brevtekst';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
@@ -158,6 +158,20 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   }
 
   /**
+   * Saken med raden kommandoen ville gitt, som `utledetMed`. `null` før saken er lastet,
+   * uten side, når kjernen avviser kommandoen og ved en programfeil i kjernen.
+   */
+  function forhaandsvist(kommando: Record<string, unknown>) {
+    if (!sak || !part) return null;
+    try {
+      return utledetMed(kommando, sakId, part, journal, kjerne);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  /**
    * Sender kommandoen med den låste teksten. `true` når serveren lagret den; `utdatert`
    * sier om saken ikke kunne lastes på nytt etterpå. Med `sett` sendes teksten
    * avsenderen har kontrollert, og serveren avviser den hvis saken nå gir en annen
@@ -298,6 +312,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     last,
     brev,
+    forhaandsvist,
     send: sendMedBrev,
     /** Laster opp filen til mellomlageret i saken, i prosjektet fra ruta (#743). */
     lastOppVedlegg: (fil: File) => lastOppKjernevedlegg(sakId, fil, valg.prosjektId),

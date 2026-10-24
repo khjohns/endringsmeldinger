@@ -31,6 +31,7 @@
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
 
+  import { FORBEHOLDET } from '$lib/kjernesak/vederlagssvar';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   const review = getApprovalWorkspace();
@@ -127,7 +128,12 @@
     },
     review?.restored('vederlag')?.form
   );
-  const isSubsidiaer = $derived(erSubsidiaerFn(domainConfig));
+  // #1261: i TS-saken leser skjemaet grunnene og lagene av kjernen, som brevet.
+  const kjernesak = store.erKjernesak ? store : null;
+  const grunnlaget = $derived(kjernesak?.grunnlagetForVederlagssvaret ?? null);
+  const isSubsidiaer = $derived(
+    grunnlaget ? grunnlaget.grunner.length > 0 : erSubsidiaerFn(domainConfig)
+  );
   const submissionMeta = $derived.by(() => {
     const events = store.timeline.filter(
       (event) =>
@@ -180,12 +186,21 @@
     return null;
   });
 
-  const subsidiærNotice = $derived.by(() => {
-    if (subsidiærGrunn === 'grunnlag_avslatt')
-      return 'Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel godkjennes.';
-    if (subsidiærGrunn === 'grunnlag_32_2')
-      return 'Grunnlaget ble varslet for sent (§32.2). Hele vederlagskravet behandles subsidiært.';
-    return '';
+  const AVSLAATT =
+    'Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel godkjennes.';
+  const PREKLUDERT =
+    'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder for det tilfelle at varselet kom i tide.';
+
+  // I TS-saken i samme rekkefølge som lagene i brevet (OV-U32), og med forbeholdet etter GR-U26.
+  const grunnlagsvarsler = $derived.by((): string[] => {
+    if (grunnlaget)
+      return [
+        ...grunnlaget.grunner.map((g) => (g === 'prekludert' ? PREKLUDERT : AVSLAATT)),
+        ...(grunnlaget.forbehold ? [`${FORBEHOLDET[0]}. ${FORBEHOLDET[1]}`] : []),
+      ];
+    if (subsidiærGrunn === 'grunnlag_avslatt') return [AVSLAATT];
+    if (subsidiærGrunn === 'grunnlag_32_2') return [PREKLUDERT];
+    return [];
   });
 
   const resultat = $derived.by(() => {
@@ -203,6 +218,42 @@
       return { ikon: CircleMinus, konklusjon, variant: 'mixed' as const };
     return { ikon: X, konklusjon, variant: 'negative' as const };
   });
+
+  const kjernelag = $derived.by(() => {
+    if (!kjernesak) return null;
+    const { data } = buildEventData(
+      formState,
+      domainConfig,
+      computed,
+      { vederlagKravId: '', isUpdateMode: false },
+      computed.subsidiaerTriggers
+    );
+    return kjernesak.vederlagslag(data);
+  });
+  const kjerneresultat = $derived.by(() => {
+    if (!kjernelag) return null;
+    if (kjernelag.sammenfall) return { ikon: Check, variant: 'positive' as const };
+    if (kjernelag.rader.every((r) => r.beloep === 0))
+      return { ikon: X, variant: 'negative' as const };
+    return { ikon: CircleMinus, variant: 'mixed' as const };
+  });
+  const kjernerader = $derived(
+    (kjernelag?.rader ?? []).map((r) => ({
+      ...r,
+      title: r.begrenset
+        ? 'Produktivitetstap etter begrensningen'
+        : r.saerskilt
+          ? 'Produktivitetstap'
+          : 'Hovedkrav',
+      paragrafRef: r.saerskilt ? '§ 34.1.3' : '§ 34.1.1–34.1.2',
+      krevdBelop: r.begrenset
+        ? undefined
+        : r.saerskilt
+          ? domainConfig.produktivitetBelop
+          : domainConfig.hovedkravBelop,
+    }))
+  );
+  const harLag = $derived(kjernerader.some((r) => r.etikett !== null));
 
   // Granulær resultat-rad per kostnadselement (kravlinje).
   interface ResultatRad {
@@ -397,6 +448,13 @@
     );
     if (produktivitetBegrensetBelop > godtatt) produktivitetBegrensetBelop = godtatt;
   }
+
+  // LV-U31, LV-U32: spørsmålet bruker samme begrep som brevet når TE krever fast sum.
+  const metodespoersmaal = $derived(
+    domainConfig.metode === 'FASTPRIS_TILBUD'
+      ? 'TE krever oppgjør som fast sum. Godkjenner du oppgjør som fast sum?'
+      : `TE krever ${getVederlagsmetodeShortLabel(domainConfig.metode)?.toLowerCase() ?? 'ukjent metode'}. Aksepterer du beregningsmetoden?`
+  );
 
   // Alternative metode options (ekskluderer TEs metode)
   const metodeAlternativer = $derived(
@@ -637,7 +695,7 @@
     {@render yesNoPill(
       'Beregningsmetode',
       '§ 34.2',
-      `TE krever ${getVederlagsmetodeShortLabel(domainConfig.metode)?.toLowerCase() ?? 'ukjent metode'}. Aksepterer du beregningsmetoden?`,
+      metodespoersmaal,
       akseptererMetode,
       'Ja',
       'Nei',
@@ -744,79 +802,128 @@
     {/each}
 
     {#if allAnswered || (akseptererMetode !== undefined && harVurdertHovedkrav)}
-      <div class="result-box konsekvens-{resultat.variant}">
-        <div class="result-header">
-          <resultat.ikon size={18} />
-          <span class="result-label">{resultat.konklusjon}</span>
-        </div>
-        <PositionExplanation
-          subsidiary={computed.visSubsidiaertResultat}
-          value={`vederlaget til ${fmt(computed.totalGodkjentInklPrekludert)} kr`}
-          rejected={computed.prinsipaltResultat === 'avslatt'}
-          triggers={[
-            ...computed.subsidiaerTriggers,
-            ...(domainConfig.grunnlagStatus === 'avslatt' ? ['grunnlag_avslatt' as const] : []),
-            ...(erHelVederlagSubsidiaerPgaGrunnlag(domainConfig)
-              ? ['grunnlag_prekludert_32_2' as const]
-              : []),
-          ]}
-        />
-
-        <div class="result-tabell">
-          <div class="tr tr-head">
-            <span class="td td-krav">Krav</span>
-            <span class="td td-tal">Krevd</span>
-            <span class="td td-tal">Prinsipalt godkjent</span>
-            {#if computed.visSubsidiaertResultat}
-              <span class="td td-tal">Subsidiært vurdert</span>
-            {/if}
-          </div>
-          {#each resultatRader as rad (rad.key)}
-            <div class="tr">
-              <span class="td td-krav">
-                {rad.title}
-                <span class="td-ref">{rad.paragrafRef}</span>
-              </span>
-              <span class="td td-tal font-mono">{fmt(rad.krevdBelop ?? 0)} kr</span>
-              <span class="td td-tal font-mono">
-                {#if rad.prekludert && rad.prinsipaltGodkjent === 0}
-                  <span class="td-avslag">{fmt(rad.prinsipaltGodkjent)} kr</span>
-                {:else if rad.prekludert}
-                  <span class="td-delvis">{fmt(rad.prinsipaltGodkjent)} kr</span>
-                {:else if rad.vurdering === 'avslatt'}
-                  <span class="td-avslag">{fmt(rad.prinsipaltGodkjent)} kr</span>
-                {:else if rad.vurdering === 'delvis' && rad.prinsipaltGodkjent > 0}
-                  <span class="td-delvis">{fmt(rad.prinsipaltGodkjent)} kr</span>
-                {:else}
-                  <span>{fmt(rad.prinsipaltGodkjent)} kr</span>
+      {#if kjernesak}
+        {#if kjernelag && kjerneresultat}
+          <div class="result-box konsekvens-{kjerneresultat.variant}">
+            <div class="result-header">
+              <kjerneresultat.ikon size={18} />
+              <span class="result-label result-linje">{kjernelag.linje}</span>
+            </div>
+            <div class="result-tabell">
+              <div class="tr tr-head">
+                <span class="td td-krav">Krav</span>
+                <span class="td td-tal">Krevd</span>
+                <span class="td td-tal">Godkjent</span>
+                {#if harLag}
+                  <span class="td td-lag">Lag</span>
                 {/if}
-              </span>
-              {#if computed.visSubsidiaertResultat}
-                <span class="td td-tal font-mono">
-                  {#if rad.prekludert && rad.vurdering === 'avslatt'}
-                    <span class="td-avslag">{fmt(rad.subsidiaertGodkjent)} kr</span>
-                  {:else if rad.prekludert && rad.vurdering === 'delvis'}
-                    <span class="td-delvis">{fmt(rad.subsidiaertGodkjent)} kr</span>
-                  {:else if rad.prekludert}
-                    <span>{fmt(rad.subsidiaertGodkjent)} kr</span>
-                  {:else}
-                    <span class="td-emo">—</span>
+              </div>
+              {#each kjernerader as rad (rad.title)}
+                <div class="tr">
+                  <span class="td td-krav">
+                    {rad.title}
+                    <span class="td-ref">{rad.paragrafRef}</span>
+                  </span>
+                  <span class="td td-tal font-mono">
+                    {#if rad.krevdBelop === undefined}
+                      <span class="td-emo">—</span>
+                    {:else}
+                      {fmt(rad.krevdBelop)} kr
+                    {/if}
+                  </span>
+                  <span class="td td-tal font-mono" class:td-avslag={rad.beloep === 0}>
+                    {fmt(rad.beloep)} kr
+                  </span>
+                  {#if harLag}
+                    <span class="td td-lag">
+                      {#if rad.etikett}
+                        {rad.etikett[0].toUpperCase() + rad.etikett.slice(1)}
+                      {:else}
+                        <span class="td-emo">—</span>
+                      {/if}
+                    </span>
                   {/if}
-                </span>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      {:else}
+        <div class="result-box konsekvens-{resultat.variant}">
+          <div class="result-header">
+            <resultat.ikon size={18} />
+            <span class="result-label">{resultat.konklusjon}</span>
+          </div>
+          <PositionExplanation
+            subsidiary={computed.visSubsidiaertResultat}
+            value={`vederlaget til ${fmt(computed.totalGodkjentInklPrekludert)} kr`}
+            rejected={computed.prinsipaltResultat === 'avslatt'}
+            triggers={[
+              ...computed.subsidiaerTriggers,
+              ...(domainConfig.grunnlagStatus === 'avslatt' ? ['grunnlag_avslatt' as const] : []),
+              ...(erHelVederlagSubsidiaerPgaGrunnlag(domainConfig)
+                ? ['grunnlag_prekludert_32_2' as const]
+                : []),
+            ]}
+          />
+
+          <div class="result-tabell">
+            <div class="tr tr-head">
+              <span class="td td-krav">Krav</span>
+              <span class="td td-tal">Krevd</span>
+              <span class="td td-tal">Prinsipalt godkjent</span>
+              {#if computed.visSubsidiaertResultat}
+                <span class="td td-tal">Subsidiært vurdert</span>
               {/if}
             </div>
-          {/each}
-          <div class="tr tr-total">
-            <span class="td td-krav">Totalt</span>
-            <span class="td td-tal font-mono">{fmt(computed.totalKrevdInklPrekludert)} kr</span>
-            <span class="td td-tal font-mono">{fmt(computed.totalGodkjent)} kr</span>
-            {#if computed.visSubsidiaertResultat}
-              <span class="td td-tal font-mono">{fmt(computed.totalGodkjentInklPrekludert)} kr</span
-              >
-            {/if}
+            {#each resultatRader as rad (rad.key)}
+              <div class="tr">
+                <span class="td td-krav">
+                  {rad.title}
+                  <span class="td-ref">{rad.paragrafRef}</span>
+                </span>
+                <span class="td td-tal font-mono">{fmt(rad.krevdBelop ?? 0)} kr</span>
+                <span class="td td-tal font-mono">
+                  {#if rad.prekludert && rad.prinsipaltGodkjent === 0}
+                    <span class="td-avslag">{fmt(rad.prinsipaltGodkjent)} kr</span>
+                  {:else if rad.prekludert}
+                    <span class="td-delvis">{fmt(rad.prinsipaltGodkjent)} kr</span>
+                  {:else if rad.vurdering === 'avslatt'}
+                    <span class="td-avslag">{fmt(rad.prinsipaltGodkjent)} kr</span>
+                  {:else if rad.vurdering === 'delvis' && rad.prinsipaltGodkjent > 0}
+                    <span class="td-delvis">{fmt(rad.prinsipaltGodkjent)} kr</span>
+                  {:else}
+                    <span>{fmt(rad.prinsipaltGodkjent)} kr</span>
+                  {/if}
+                </span>
+                {#if computed.visSubsidiaertResultat}
+                  <span class="td td-tal font-mono">
+                    {#if rad.prekludert && rad.vurdering === 'avslatt'}
+                      <span class="td-avslag">{fmt(rad.subsidiaertGodkjent)} kr</span>
+                    {:else if rad.prekludert && rad.vurdering === 'delvis'}
+                      <span class="td-delvis">{fmt(rad.subsidiaertGodkjent)} kr</span>
+                    {:else if rad.prekludert}
+                      <span>{fmt(rad.subsidiaertGodkjent)} kr</span>
+                    {:else}
+                      <span class="td-emo">—</span>
+                    {/if}
+                  </span>
+                {/if}
+              </div>
+            {/each}
+            <div class="tr tr-total">
+              <span class="td td-krav">Totalt</span>
+              <span class="td td-tal font-mono">{fmt(computed.totalKrevdInklPrekludert)} kr</span>
+              <span class="td td-tal font-mono">{fmt(computed.totalGodkjent)} kr</span>
+              {#if computed.visSubsidiaertResultat}
+                <span class="td td-tal font-mono"
+                  >{fmt(computed.totalGodkjentInklPrekludert)} kr</span
+                >
+              {/if}
+            </div>
           </div>
         </div>
-      </div>
+      {/if}
 
       <div class="begrunnelse-section">
         <div class="sh-heading">
@@ -864,12 +971,12 @@
     {@render formBodyBelow()}
   {/snippet}
 
-  {#if isSubsidiaer && subsidiærNotice}
+  {#each grunnlagsvarsler as varsel (varsel)}
     <div class="subsidiaer-notice">
       <span class="subsidiaer-notice-mark" aria-hidden="true"></span>
-      <p>{subsidiærNotice}</p>
+      <p>{varsel}</p>
     </div>
-  {/if}
+  {/each}
   {@render formBody()}
 </div>
 
@@ -1264,6 +1371,14 @@
   }
   .td-emo {
     color: var(--ink-4);
+  }
+  .td-lag {
+    flex: 1;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .result-linje {
+    line-height: 1.45;
   }
 
   .foretrukket-metode {

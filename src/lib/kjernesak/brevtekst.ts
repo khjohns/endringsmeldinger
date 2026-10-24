@@ -1,11 +1,13 @@
 import {
   forhaandsvis,
   laastTekst,
+  utledJournal,
   vurder,
   type Kontekst,
   type Vedleggsoppslag,
 } from '$kjerne/kommandoer/skriving';
 import { opprettelse as opprett } from '$kjerne/kommandoer/opprettelse';
+import type { Utledning } from '$kjerne/utledning/utled';
 import type { Kjerne } from '$kjerne/versjon';
 import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
 
@@ -48,6 +50,21 @@ export function brevFor(
   const medTekst = tekst ? { ...kommando, brevtekst: tekst } : kommando;
   const vurdert = vurder(medTekst, kontekst, journal, kjerne, vedlegg ?? new Map());
   return vurdert.godtatt ? { tekst } : { avvisning: vurdert.avvisning };
+}
+
+/**
+ * Saken utledet med raden kommandoen ville gitt, uten å lagre den, eller `null` når kjernen
+ * avviser kommandoen. Skjemaet leser lagene i svaret herfra, som brevet gjør (#1261).
+ */
+export function utledetMed(
+  kommando: Record<string, unknown>,
+  sakId: string,
+  part: Part,
+  journal: Journalrad[],
+  kjerne: Kjerne
+): Utledning | null {
+  const vist = forhaandsvis(kommando, stemplet(sakId, part), journal, kjerne);
+  return vist.godtatt ? utledJournal([...journal, ...vist.hendelser], kjerne) : null;
 }
 
 /**

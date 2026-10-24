@@ -38,7 +38,7 @@ export type SporStatus =
 export type VederlagsMetode =
   | 'ENHETSPRISER' // Enhetspriser (§34.3) - kontrakts- eller justerte
   | 'REGNINGSARBEID' // Regningsarbeid med kostnadsoverslag (§30.2/§34.4)
-  | 'FASTPRIS_TILBUD'; // Fastpris / Tilbud (§34.2.1)
+  | 'FASTPRIS_TILBUD'; // Fast sum (§34.2.1)
 
 /**
  * Felles base-modell for vederlagskompensasjon.

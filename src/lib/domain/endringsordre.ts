@@ -55,7 +55,7 @@ export const newEODraft = (): EODraft => ({
 export const settlementLabels: Record<VederlagsMetode, string> = {
   ENHETSPRISER: 'Enhetspriser',
   REGNINGSARBEID: 'Regningsarbeid',
-  FASTPRIS_TILBUD: 'Fastpris / avtalt beløp',
+  FASTPRIS_TILBUD: 'Fast sum / avtalt beløp',
 };
 
 export function selectedEOCandidates(draft: EODraft, candidates: EOCandidate[]) {

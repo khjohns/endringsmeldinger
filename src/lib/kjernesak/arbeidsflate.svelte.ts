@@ -22,7 +22,13 @@ import {
   tilTidslinje,
 } from './sakstilstand';
 import type { Vederlagsvarsel } from './vederlagskrav';
-import { vederlagConfigFraKjernen } from './vederlagssvar';
+import {
+  grunnlagetForSvaret,
+  vederlagConfigFraKjernen,
+  vederlagslag,
+  vederlagssvarFraSkjema,
+  type Vederlagslag,
+} from './vederlagssvar';
 
 interface Projeksjon {
   sak: SakState;
@@ -168,6 +174,22 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     /** Configen for `VederlagForm` fra kravet kjernen har i sporet, eller `null` uten krav. */
     get vederlagConfig() {
       return vederlagConfigFraKjernen(projeksjon.utledning);
+    },
+    /** Det brevet setter foran BHs svar på vederlaget, fra kjernen (#1261). */
+    get grunnlagetForVederlagssvaret() {
+      return grunnlagetForSvaret(projeksjon.utledning);
+    },
+    /**
+     * Lagene i BHs svar på vederlaget med dataene fra skjemaet, slik kjernen forhåndsviser
+     * brevet (#1261). `null` når kjernen ikke kan lage svaret ennå.
+     */
+    vederlagslag(data: Record<string, unknown>): Vederlagslag | null {
+      const u = projeksjon.utledning;
+      if (!u.spor.vederlag.gjeldendeKrav) return null;
+      const etter = kjernesak.forhaandsvist(
+        vederlagssvarFraSkjema(data, u, kjernesak.regelversjon)
+      );
+      return etter ? vederlagslag(u, etter) : null;
     },
     /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */
     godtar(nokkel: SporKey): string | null {
