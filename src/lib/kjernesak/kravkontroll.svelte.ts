@@ -104,14 +104,16 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
   // En feil som ikke står i `kjernesak.feil`, som en avvisning før brevet vises (#943).
   let feil = $state<string | null>(null);
 
-  /** Brevet kjernen lager for kommandoen, eller avvisningen som feil (#719). */
+  /** Brevet kjernen lager for kommandoen, eller avvisningen som feil (#719, #1254). */
   function brev(
     kommando: Kommando,
     spor: Spor,
     vedlegg?: Vedleggsoppslag,
     omslag?: Omslag
   ): Kjernebrev {
-    const b = kjernesak.brev(kommando, vedlegg);
+    // #1254: kjernen vurderer kommandoen som ved sendingen, så et brev serveren vil avvise,
+    // for eksempel et svar uten begrunnelse (KA-U24, KA-U31), ikke vises til kontroll.
+    const b = kjernesak.brev(kommando, vedlegg, true);
     // #719: uten låst tekst sendes ikke kommandoen, så TE ser aldri et brev uten teksten.
     const tekst = b && 'tekst' in b ? b.tekst : null;
     if (!tekst)
