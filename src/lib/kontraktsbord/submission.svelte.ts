@@ -56,7 +56,7 @@ export function requireEventId(id: string | undefined): string {
 export function createSubmission(onSuccess?: () => void) {
   let pending = $state(false);
   let error = $state<string | null>(null);
-  let feltet = $state(false);
+  let feltmelding = $state<string | null>(null);
   return {
     get pending() {
       return pending;
@@ -66,25 +66,27 @@ export function createSubmission(onSuccess?: () => void) {
     },
     /**
      * Feilen øverst i skjemaet. Gjelder den utdypningen, står den ved feltet, og øverst
-     * står det at brevet ikke kan sendes ennå (MM-U32, #1264).
+     * står det at brevet ikke kan sendes ennå (MM-U32, #1264, #1273).
      */
     get oeverst() {
-      return feltet ? 'Brevet kan ikke sendes ennå. Se meldingen ved begrunnelsen.' : error;
+      return feltmelding !== null
+        ? 'Brevet kan ikke sendes ennå. Se meldingen under begrunnelsesfeltet.'
+        : error;
     },
-    /** Feilen ved utdypningsfeltet, eller `null`. */
+    /** Feilen ved utdypningsfeltet uten innledningen, eller `null`. */
     get vedFeltet() {
-      return feltet ? error : null;
+      return feltmelding;
     },
     /** Feltet er endret, så meldingen ved det er borte (docs/design/system.md). */
     feltetEndret() {
-      if (feltet) error = null;
-      feltet = false;
+      if (feltmelding !== null) error = null;
+      feltmelding = null;
     },
     async run(action: () => void | Promise<void>, complete: () => void = () => {}) {
       if (pending) return;
       pending = true;
       error = null;
-      feltet = false;
+      feltmelding = null;
       try {
         await action();
         onSuccess?.();
@@ -92,7 +94,7 @@ export function createSubmission(onSuccess?: () => void) {
       } catch (cause) {
         if (cause instanceof LetterCancelled) return;
         error = cause instanceof Error ? cause.message : 'Kunne ikke sende. Prøv igjen.';
-        feltet = cause instanceof Feltavvisning;
+        feltmelding = cause instanceof Feltavvisning ? cause.feltmelding : null;
       } finally {
         pending = false;
       }
