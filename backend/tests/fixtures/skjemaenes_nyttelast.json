@@ -31,7 +31,6 @@
       "vilkar_oppfylt": true,
       "godkjent_dager": 20,
       "begrunnelse": "Begrunnelse.",
-      "auto_begrunnelse": "Auto.",
       "beregnings_resultat": "delvis_godkjent",
       "krevd_dager": 30
     },
@@ -43,7 +42,6 @@
       "vilkar_oppfylt": true,
       "godkjent_dager": 0,
       "begrunnelse": "Begrunnelse.",
-      "auto_begrunnelse": "Auto.",
       "beregnings_resultat": "avslatt",
       "krevd_dager": 30,
       "subsidiaer_triggers": [
@@ -61,7 +59,6 @@
       "vilkar_oppfylt": false,
       "godkjent_dager": 0,
       "begrunnelse": "Begrunnelse.",
-      "auto_begrunnelse": "Auto.",
       "beregnings_resultat": "avslatt",
       "krevd_dager": 30,
       "subsidiaer_triggers": [
@@ -81,7 +78,6 @@
       "rigg_godkjent_belop": 0,
       "produktivitet_godkjent_belop": 0,
       "begrunnelse": "Begrunnelse.",
-      "auto_begrunnelse": "Auto.",
       "beregnings_resultat": "delvis_godkjent",
       "total_godkjent_belop": 123456.79,
       "total_krevd_belop": 500000

@@ -484,7 +484,7 @@ describe('buildEventData', () => {
       visSubsidiaertResultat: true,
       subsidiaerTriggers: ['preklusjon_varsel' as const],
     };
-    const data = buildEventData(state, config, computed, 'frist-1', 'auto-tekst');
+    const data = buildEventData(state, config, computed, 'frist-1');
     expect(data.subsidiaer_triggers).toEqual(['preklusjon_varsel']);
     expect(data.subsidiaer_resultat).toBe('godkjent');
     expect(data.subsidiaer_begrunnelse).toBe('Test begrunnelse');
@@ -507,8 +507,7 @@ describe('buildEventData', () => {
       state,
       makeConfig({ erSvarPaForesporsel: true }),
       computed,
-      'frist-1',
-      'auto-tekst'
+      'frist-1'
     );
     expect(svar.spesifisert_krav_ok).toBeUndefined();
     expect(svar.frist_varsel_ok).toBeUndefined();
@@ -518,8 +517,7 @@ describe('buildEventData', () => {
       state,
       makeConfig({ harTidligereVarselITide: true }),
       computed,
-      'frist-1',
-      'auto-tekst'
+      'frist-1'
     );
     expect(tidligere.frist_varsel_ok).toBeUndefined();
     expect(tidligere.spesifisert_krav_ok).toBe(false);
@@ -534,7 +532,7 @@ describe('buildEventData', () => {
       visSubsidiaertResultat: true,
       subsidiaerTriggers: ['preklusjon_varsel' as const],
     };
-    const data = buildEventData(state, makeConfig(), computed, 'frist-1', 'auto-tekst');
+    const data = buildEventData(state, makeConfig(), computed, 'frist-1');
     expect(data.godkjent_dager).toBe(0);
     expect(data.subsidiaer_godkjent_dager).toBe(7);
   });
@@ -546,7 +544,7 @@ describe('buildEventData', () => {
       visSubsidiaertResultat: true,
       subsidiaerTriggers: ['ingen_hindring' as const],
     };
-    const data = buildEventData(makeState(), makeConfig(), computed, 'frist-1', 'auto-tekst');
+    const data = buildEventData(makeState(), makeConfig(), computed, 'frist-1');
     expect(data.subsidiaer_godkjent_dager).toBeUndefined();
   });
 
@@ -559,7 +557,7 @@ describe('buildEventData', () => {
       visSubsidiaertResultat: false,
       subsidiaerTriggers: [],
     };
-    const data = buildEventData(state, config, computed, 'frist-1', 'auto-tekst');
+    const data = buildEventData(state, config, computed, 'frist-1');
     expect(data.subsidiaer_triggers).toBeUndefined();
     expect(data.subsidiaer_resultat).toBeUndefined();
   });
@@ -573,11 +571,11 @@ describe('buildEventData', () => {
       visSubsidiaertResultat: true,
       subsidiaerTriggers: ['preklusjon_varsel' as const],
     };
-    const data = buildEventData(state, config, computed, 'frist-1', '');
+    const data = buildEventData(state, config, computed, 'frist-1');
     expect(data.godkjent_dager).toBe(0);
   });
 
-  it('uses autoBegrunnelse as fallback when begrunnelse is empty', () => {
+  it('sender en tom begrunnelse tom, uten tekst fra appen (KA-U41)', () => {
     const state = makeState({ begrunnelse: '' });
     const config = makeConfig();
     const computed = {
@@ -586,9 +584,9 @@ describe('buildEventData', () => {
       visSubsidiaertResultat: false,
       subsidiaerTriggers: [],
     };
-    const data = buildEventData(state, config, computed, 'frist-1', 'auto-tekst');
-    expect(data.begrunnelse).toBe('auto-tekst');
-    expect(data.auto_begrunnelse).toBe('auto-tekst');
+    const data = buildEventData(state, config, computed, 'frist-1');
+    expect(data.begrunnelse).toBe('');
+    expect(data).not.toHaveProperty('auto_begrunnelse');
   });
 
   it('includes core fields', () => {
@@ -600,7 +598,7 @@ describe('buildEventData', () => {
       visSubsidiaertResultat: false,
       subsidiaerTriggers: [],
     };
-    const data = buildEventData(state, config, computed, 'frist-42', '');
+    const data = buildEventData(state, config, computed, 'frist-42');
     expect(data.frist_krav_id).toBe('frist-42');
     expect(data.krevd_dager).toBe(15);
     expect(data.beregnings_resultat).toBe('godkjent');
@@ -640,7 +638,7 @@ describe('beregnAlt', () => {
     expect(computed.subsidiaertResultat).toBe('delvis_godkjent');
     expect(computed.subsidiaerTriggers).toEqual(['preklusjon_varsel', 'ingen_hindring']);
 
-    const data = buildEventData(state, config, computed, 'frist-1', 'auto-tekst');
+    const data = buildEventData(state, config, computed, 'frist-1');
     expect(data.godkjent_dager).toBe(0);
     expect(data.subsidiaer_resultat).toBe('delvis_godkjent');
     expect(data.subsidiaer_godkjent_dager).toBe(30);

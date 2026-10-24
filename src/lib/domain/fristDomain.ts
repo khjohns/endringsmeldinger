@@ -193,8 +193,7 @@ export function buildEventData(
     visSubsidiaertResultat: boolean;
     subsidiaerTriggers: SubsidiaerTrigger[];
   },
-  fristKravId: string,
-  autoBegrunnelse: string
+  fristKravId: string
 ): Record<string, unknown> {
   const effectiveGodkjentDager =
     computed.prinsipaltResultat !== 'avslatt' ? (state.godkjentDager ?? 0) : 0;
@@ -207,8 +206,7 @@ export function buildEventData(
     foresporsel_svar_ok: synlig.showForesporselSvarOk ? state.foresporselSvarOk : undefined,
     vilkar_oppfylt: state.vilkarOppfylt,
     godkjent_dager: effectiveGodkjentDager,
-    begrunnelse: state.begrunnelse || autoBegrunnelse,
-    auto_begrunnelse: autoBegrunnelse,
+    begrunnelse: state.begrunnelse,
     beregnings_resultat: computed.prinsipaltResultat,
     krevd_dager: config.krevdDager,
     subsidiaer_triggers:
@@ -218,9 +216,7 @@ export function buildEventData(
       computed.visSubsidiaertResultat && computed.subsidiaertResultat !== 'avslatt'
         ? (state.godkjentDager ?? 0)
         : undefined,
-    subsidiaer_begrunnelse: computed.visSubsidiaertResultat
-      ? state.begrunnelse || autoBegrunnelse
-      : undefined,
+    subsidiaer_begrunnelse: computed.visSubsidiaertResultat ? state.begrunnelse : undefined,
   };
 }
 

@@ -19,9 +19,6 @@
     VederlagDomainConfig,
     BelopVurdering,
   } from '$lib/domain/vederlagDomain';
-  import { generateVederlagResponseBegrunnelse } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
-  import type { VederlagResponseInput } from '$lib/domain/begrunnelse/vederlagBegrunnelse';
-  import { tokensToHtml } from '$lib/editor/tokenConverter';
   import { isHtmlEmpty } from '$lib/utils/formatters';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   import {
@@ -30,7 +27,7 @@
     getVederlagsmetodeShortLabel,
   } from '$lib/constants/paymentMethods';
   import type { VederlagsMetode } from '$lib/types/timeline';
-  import GeneratedReasoning from './components/GeneratedReasoning.svelte';
+  import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
 
@@ -88,11 +85,8 @@
     initialDefaults.produktivitetBegrensetBelop
   );
 
-  // Begrunnelse state (declared before formState which references it)
-  // The generator consumes formState, so assigning its result avoids a derived dependency cycle.
-  // eslint-disable-next-line svelte/prefer-writable-derived
+  // KA-U41: begrunnelsen er bare teksten BH skriver selv. Appen fyller ikke inn noe.
   let begrunnelseHtml = $state('');
-  let tilleggHtml = $state('');
 
   const formState: VederlagFormState = $derived({
     hovedkravVarsletITide,
@@ -113,7 +107,7 @@
 
   const computed = $derived(beregnAlt(formState, domainConfig));
   const draft = createFormDraft(
-    () => ({ ...formState, tilleggHtml }),
+    () => ({ ...formState }),
     (saved) => {
       hovedkravVarsletITide = saved.hovedkravVarsletITide;
       riggVarsletITide = saved.riggVarsletITide;
@@ -127,13 +121,9 @@
       produktivitetVurdering = saved.produktivitetVurdering;
       produktivitetGodkjentBelop = saved.produktivitetGodkjentBelop;
       produktivitetBegrensetBelop = saved.produktivitetBegrensetBelop;
-      begrunnelseHtml = saved.begrunnelse ?? '';
-      tilleggHtml =
-        typeof saved.tilleggHtml === 'string'
-          ? saved.tilleggHtml
-          : (saved as unknown as Record<string, unknown>).userHasEdited
-            ? (saved.begrunnelse ?? '')
-            : '';
+      // En eldre kladd har BHs tekst i `tilleggHtml` og den genererte teksten i `begrunnelse`.
+      const tillegg = (saved as { tilleggHtml?: unknown }).tilleggHtml;
+      begrunnelseHtml = typeof tillegg === 'string' ? tillegg : (saved.begrunnelse ?? '');
     },
     review?.restored('vederlag')?.form
   );
@@ -427,57 +417,14 @@
     if (akseptererMetode === false && !oensketMetode) return false;
     if (kravlinjer.some((l) => !erKravlinjeGyldig(l.vurdering, l.godkjentBelop))) return false;
     if (!erBegrensetBelopGyldig(formState, domainConfig)) return false;
-    if (isHtmlEmpty(begrunnelseHtml)) return false;
+    // I TS-saken avgjør kjernen når svaret må ha en begrunnelse (KA-U24, KA-U41).
+    if (!store.erKjernesak && isHtmlEmpty(begrunnelseHtml)) return false;
     return true;
   });
 
   const harVurdertHovedkrav = $derived(
     !domainConfig.harHovedkrav || hovedkravVurdering !== undefined
   );
-
-  const autoBegrunnelseHtml = $derived.by(() => {
-    if (akseptererMetode === undefined || !harVurdertHovedkrav) return '';
-    const input: VederlagResponseInput = {
-      hovedkategori: domainConfig.hovedkategori,
-      metode: domainConfig.metode,
-      hovedkravBelop: domainConfig.hovedkravBelop,
-      riggBelop: domainConfig.riggBelop,
-      produktivitetBelop: domainConfig.produktivitetBelop,
-      harRiggKrav: domainConfig.harRiggKrav,
-      harProduktivitetKrav: domainConfig.harProduktivitetKrav,
-      erGrunnlagPrekludert: domainConfig.grunnlagVarsletForSent,
-      erGrunnlagAvslatt: domainConfig.grunnlagStatus === 'avslatt',
-      hovedkravVarsletITide,
-      // OV-U25: varslingen for rigg og drift påberopes ikke, heller ikke fra en eldre kladd.
-      riggVarsletITide: true,
-      produktivitetVarsletITide,
-      akseptererMetode: akseptererMetode!,
-      oensketMetode,
-      kreverJustertEp: domainConfig.kreverJustertEp,
-      holdTilbake: false,
-      hovedkravVurdering: hovedkravVurdering ?? 'avslatt',
-      hovedkravGodkjentBelop,
-      riggVurdering,
-      riggGodkjentBelop,
-      produktivitetVurdering,
-      produktivitetGodkjentBelop,
-      produktivitetBegrensetBelop,
-      totalKrevd: computed.totalKrevdInklPrekludert,
-      totalGodkjent: computed.totalGodkjent,
-      totalGodkjentSubsidiaer: computed.totalGodkjentInklPrekludert,
-      harPrekludertKrav: computed.harPrekludertKrav,
-    };
-    const tokens = generateVederlagResponseBegrunnelse(input, { useTokens: true });
-    return tokensToHtml(tokens);
-  });
-
-  $effect(() => {
-    begrunnelseHtml =
-      autoBegrunnelseHtml +
-      (tilleggHtml.replace(/<[^>]*>/g, '').trim()
-        ? '<p><strong>Utdypende begrunnelse</strong></p>' + tilleggHtml
-        : '');
-  });
 
   $effect(() => {
     onactions?.({
@@ -496,15 +443,9 @@
                   lastResponseEventId: refs.responseId,
                   isUpdateMode: Boolean(refs.responseId),
                 },
-                autoBegrunnelseHtml,
                 computed.subsidiaerTriggers
               );
-              await review.prepare(
-                'vederlag',
-                eventType as EventType,
-                { ...data, tilleggs_begrunnelse: tilleggHtml },
-                draft.snapshot()
-              );
+              await review.prepare('vederlag', eventType as EventType, data, draft.snapshot());
               return;
             }
             // TS-saken: kjernen lager brevet og sender svaret på kravet den har i sporet (#1047).
@@ -514,7 +455,6 @@
                 domainConfig,
                 computed,
                 { vederlagKravId: '', isUpdateMode: false },
-                autoBegrunnelseHtml,
                 computed.subsidiaerTriggers
               );
               await claimReview.submit('vederlag', eventType as EventType, data, () => {});
@@ -881,15 +821,13 @@
       <div class="begrunnelse-section">
         <div class="sh-heading">
           <span class="sh-title">Begrunnelse</span>
-          <div class="begrunnelse-header-right"></div>
         </div>
-        <div class="reasoning-content">
-          <GeneratedReasoning
-            generated={autoBegrunnelseHtml}
-            additional={tilleggHtml}
-            onchange={(html) => (tilleggHtml = html)}
-          />
-        </div>
+        <RichTextEditor
+          body={begrunnelseHtml}
+          onchange={(html) => (begrunnelseHtml = html)}
+          maxHeight="none"
+          placeholder="Begrunn byggherrens vurdering …"
+        />
       </div>
     {/if}
   {/snippet}

@@ -14,11 +14,8 @@
   } from '$lib/kontraktsbord/submission.svelte';
   const submission = createSubmission();
   import type { FristDomainConfig, FristFormState } from '$lib/domain/fristDomain';
-  import { generateFristResponseBegrunnelse } from '$lib/domain/begrunnelse/fristBegrunnelse';
-  import type { FristResponseInput } from '$lib/domain/begrunnelse/fristBegrunnelse';
-  import { tokensToHtml } from '$lib/editor/tokenConverter';
 
-  import GeneratedReasoning from './components/GeneratedReasoning.svelte';
+  import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import QuestionCard from '$lib/components/patterns/QuestionCard.svelte';
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
   import { isHtmlEmpty } from '$lib/utils/formatters';
@@ -52,10 +49,8 @@
   let vilkarOppfylt = $state<boolean | undefined>(initialDefaults.vilkarOppfylt);
   let godkjentDager = $state<number | undefined>(initialDefaults.godkjentDager);
 
-  // The generator consumes formState, so assigning its result avoids a derived dependency cycle.
-  // eslint-disable-next-line svelte/prefer-writable-derived
+  // KA-U41: begrunnelsen er bare teksten BH skriver selv. Appen fyller ikke inn noe.
   let begrunnelseHtml = $state('');
-  let tilleggHtml = $state('');
 
   const formState: FristFormState = $derived({
     fristVarselOk,
@@ -76,7 +71,6 @@
       vilkarOppfylt,
       godkjentDager,
       begrunnelseHtml,
-      tilleggHtml,
     }),
     (saved) => {
       fristVarselOk = saved.fristVarselOk;
@@ -84,13 +78,9 @@
       foresporselSvarOk = saved.foresporselSvarOk;
       vilkarOppfylt = saved.vilkarOppfylt;
       godkjentDager = saved.godkjentDager;
-      begrunnelseHtml = saved.begrunnelseHtml ?? '';
-      tilleggHtml =
-        typeof saved.tilleggHtml === 'string'
-          ? saved.tilleggHtml
-          : (saved as unknown as Record<string, unknown>).userHasEdited
-            ? (saved.begrunnelseHtml ?? '')
-            : '';
+      // En eldre kladd har BHs tekst i `tilleggHtml` og den genererte teksten i `begrunnelseHtml`.
+      const tillegg = (saved as { tilleggHtml?: unknown }).tilleggHtml;
+      begrunnelseHtml = typeof tillegg === 'string' ? tillegg : (saved.begrunnelseHtml ?? '');
     },
     review?.restored('frist')?.form
   );
@@ -168,37 +158,6 @@
     return true;
   });
 
-  const autoBegrunnelseHtml = $derived.by(() => {
-    if (vilkarOppfylt === undefined || godkjentDager === undefined) return '';
-    const input: FristResponseInput = {
-      varselType: domainConfig.varselType,
-      krevdDager: domainConfig.krevdDager,
-      fristVarselOk,
-      spesifisertKravOk,
-      foresporselSvarOk,
-      vilkarOppfylt: vilkarOppfylt ?? false,
-      godkjentDager: godkjentDager ?? 0,
-      erPrekludert: computed.erPrekludert,
-      erForesporselSvarForSent: foresporselSvarOk === false,
-      erRedusert_33_6_1: computed.erRedusert,
-      harTidligereVarselITide: domainConfig.harTidligereVarselITide,
-      erGrunnlagSubsidiaer: domainConfig.erGrunnlagSubsidiaer,
-      erGrunnlagPrekludert: domainConfig.erHelFristSubsidiaerPgaGrunnlag,
-      prinsipaltResultat: computed.prinsipaltResultat,
-      subsidiaertResultat: computed.subsidiaertResultat,
-      visSubsidiaertResultat: computed.visSubsidiaertResultat,
-    };
-    return tokensToHtml(generateFristResponseBegrunnelse(input, { useTokens: true }));
-  });
-
-  $effect(() => {
-    begrunnelseHtml =
-      autoBegrunnelseHtml +
-      (tilleggHtml.replace(/<[^>]*>/g, '').trim()
-        ? '<p><strong>Utdypende begrunnelse</strong></p>' + tilleggHtml
-        : '');
-  });
-
   $effect(() => {
     onactions?.({
       canSend: allAnswered && !submission.pending,
@@ -211,14 +170,13 @@
                 formState,
                 domainConfig,
                 computed,
-                refs.claimId ?? review.claimId('frist'),
-                autoBegrunnelseHtml
+                refs.claimId ?? review.claimId('frist')
               );
               if (refs.responseId) data.original_respons_id = refs.responseId;
               await review.prepare(
                 'frist',
                 refs.responseId ? 'respons_frist_oppdatert' : 'respons_frist',
-                { ...data, tilleggs_begrunnelse: tilleggHtml },
+                data,
                 draft.snapshot()
               );
               return;
@@ -466,18 +424,16 @@
     <section class="begrunnelse-section">
       <div class="begrunnelse-heading">
         <span class="begrunnelse-title">Begrunnelse</span>
-        <div class="begrunnelse-actions"></div>
       </div>
       <p class="begrunnelse-help">
-        Begrunnelsen kan utdypes og redigeres. Automatiske konklusjoner beholdes som låste felt.
+        Redegjør for den kontraktsmessige vurderingen og eventuelle forbehold.
       </p>
-      <div class="reasoning-content">
-        <GeneratedReasoning
-          generated={autoBegrunnelseHtml}
-          additional={tilleggHtml}
-          onchange={(html) => (tilleggHtml = html)}
-        />
-      </div>
+      <RichTextEditor
+        body={begrunnelseHtml}
+        onchange={(html) => (begrunnelseHtml = html)}
+        maxHeight="none"
+        placeholder="Begrunn byggherrens vurdering …"
+      />
     </section>
   {/if}
 </div>
@@ -693,11 +649,6 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--ink-3);
-  }
-  .begrunnelse-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
   }
   .char-count {
     font-size: 11px;
