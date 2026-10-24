@@ -12,6 +12,7 @@ import type { Journalrad } from '$kjerne/typer';
 import {
   beregnAlt,
   buildEventData,
+  erSubsidiaer,
   getDefaults,
   type VederlagFormState,
 } from '$lib/domain/vederlagDomain';
@@ -20,7 +21,7 @@ import {
   vederlagConfigFraKjernen,
   vederlagssvarFraSkjema,
 } from '../vederlagssvar';
-import { opprettet, skrevet } from './provejournal';
+import { medGrunnlag, opprettet, skrevet } from './provejournal';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
   type: 'krav',
@@ -122,6 +123,54 @@ describe('configen fra kjernen', () => {
     expect(vederlagConfigFraKjernen(utledJournal(avslaatt, KJERNE))!.grunnlagStatus).toBe(
       'avslatt'
     );
+  });
+
+  // GR-U26: venter en ny versjon av grunnlaget på svar, gjelder forbeholdet for ubesvart
+  // grunnlag, ikke preklusjonen byggherren påberopte mot den forrige versjonen.
+  it('GR-U26: preklusjonen mot versjon 1 av grunnlaget følger ikke med når versjon 2 venter på svar', () => {
+    const prekludert = skrevet(medGrunnlag, 'BH', {
+      type: 'brev',
+      svar: [
+        {
+          spor: 'grunnlag',
+          gjelder: utledJournal(medGrunnlag, KJERNE).spor.grunnlag.gjeldendeKrav!.id,
+          regelversjon: KJERNE.regler.versjon,
+          vurderinger: { resultat: 'godkjent', grunnlag_varslet_i_tide: false },
+          resultat: {},
+          utdypning: 'Varslet for sent.',
+        },
+      ],
+    });
+    const vederlag = {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { metode: 'tilbud', beloep: 250_000 },
+      utdypning: 'Tilbudet gjelder pelingen.',
+    };
+    const medKravet = skrevet(prekludert, 'TE', vederlag);
+    expect(vederlagConfigFraKjernen(utledJournal(medKravet, KJERNE))!.grunnlagVarsletForSent).toBe(
+      true
+    );
+    const besvart = svar(
+      medKravet,
+      state({ hovedkravVurdering: 'delvis', hovedkravGodkjentBelop: 100_000 })
+    ).journal;
+    const versjon2 = skrevet(besvart, 'TE', {
+      type: 'krav',
+      spor: 'grunnlag',
+      innhold: {
+        hovedkategori: 'endring',
+        underkategori: 'irregulaer_endring',
+        paalegg_mottatt: '2026-10-01',
+      },
+      utdypning: 'BH påla ny peling, med tegningene vedlagt.',
+    });
+    const u = utledJournal(skrevet(versjon2, 'TE', vederlag), KJERNE);
+    expect(u.spor.grunnlag.gjeldendeSvar).toBeNull();
+    const c = vederlagConfigFraKjernen(u)!;
+    expect(c.grunnlagVarsletForSent).toBe(false);
+    expect(c.grunnlagStatus).toBeUndefined();
+    expect(erSubsidiaer(c)).toBe(false);
   });
 });
 

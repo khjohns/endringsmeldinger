@@ -17,7 +17,12 @@ import {
   tilKatalogen,
 } from '$kjerne/format/koder';
 import { foersteUnderkategori } from '$kjerne/regler/grunnlag';
-import { harHovedbeloep, standpunktet, type Svarvurdering } from '$kjerne/frosset/standpunkt';
+import {
+  grunnerFraGrunnlaget,
+  harHovedbeloep,
+  standpunktet,
+  type Svarvurdering,
+} from '$kjerne/frosset/standpunkt';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import type { Krav, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -62,7 +67,12 @@ export function vederlagConfigFraKjernen(u: Utledning): VederlagDomainConfig | n
       UNDERKATEGORI_FRA_KATALOGEN,
       foersteUnderkategori(grunnlagskrav.underkategori as string | string[] | null | undefined)
     ) as string | undefined,
-    grunnlagVarsletForSent: u.spor.vederlag.subsidiaer.includes('prekludert'),
+    // GR-U26: bare et svar på gjeldende versjon av grunnlaget gir preklusjonen som lag.
+    grunnlagVarsletForSent: grunnlagssvar
+      ? grunnerFraGrunnlaget(grunnlagssvar, grunnlagssvar.beslutningsgrunnlag.virkninger).includes(
+          'prekludert'
+        )
+      : false,
     grunnlagStatus: grunnlag
       ? (tilKatalogen(
           GRUNNLAGSRESULTAT_FRA_KATALOGEN,
