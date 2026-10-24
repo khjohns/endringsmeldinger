@@ -1,5 +1,5 @@
 // Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys og mørk modus, bred og smal
-// skjerm (#1187). axe finner bare en del av feilene; resten står i skillen uu-sjekk.
+// skjerm (#1187), med saken sett av TE og BH (#1213). axe finner bare en del av feilene; resten står i skillen uu-sjekk.
 import { createRequire } from 'node:module';
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
@@ -75,29 +75,50 @@ async function startVite(url) {
   throw new Error(`vite svarte ikke på ${url} innen 60 s`);
 }
 
-// Tilstandene som kjøres i hvert oppsett. Skjemaet nås bare på bred skjerm, der
-// venstrekolonnen med sporene står ved siden av saken.
+// Tilstandene som kjøres i hvert oppsett. Skjemaene nås bare på bred skjerm, der
+// venstrekolonnen med sporene står ved siden av saken. En tilstand med `scenario`
+// kjører i det scenarioet uansett --scenario.
+const somBH = (page) => page.getByRole('button', { name: 'Byggherre BH', exact: true }).click();
 const TILSTANDER = [
   {
-    navn: 'saken',
+    navn: 'saken som TE',
     vei: (page) => page.getByRole('button', { name: 'Byggherre BH', exact: true }).waitFor(),
+  },
+  {
+    navn: 'saken som BH',
+    vei: async (page) => {
+      await somBH(page);
+      await page.getByRole('button', { name: 'Byggherre BH', exact: true, pressed: true }).waitFor();
+      await page.waitForLoadState('networkidle');
+    },
   },
   {
     navn: 'BHs svarskjema for fristen',
     bareBred: true,
     vei: async (page) => {
-      await page.getByRole('button', { name: 'Byggherre BH', exact: true }).click();
+      await somBH(page);
       await page.getByRole('button', { name: /^Fristforlengelse/ }).click();
       await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
       await page.locator('#bh-frist-godkjent-dager').waitFor();
     },
   },
+  {
+    navn: 'BHs svarskjema for vederlaget',
+    scenario: 'scenario1prod',
+    bareBred: true,
+    vei: async (page) => {
+      await somBH(page);
+      await page.getByRole('button', { name: /^Vederlag/ }).click();
+      await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
+      await page.getByRole('button', { name: 'Ferdigstill vurdering' }).waitFor();
+    },
+  },
 ];
 
 const axeSti = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
-const mockup = `${arg.url}/mockup?scenario=${arg.scenario}`;
+const mockup = (scenario) => `${arg.url}/mockup?scenario=${scenario}`;
 const { chromium } = globalPlaywright();
-const vite = await startVite(mockup);
+const vite = await startVite(mockup(arg.scenario));
 let browser;
 let brudd = 0;
 
@@ -115,7 +136,7 @@ try {
       page.setDefaultTimeout(15000);
       const feil = [];
       page.on('pageerror', (e) => feil.push(e.message));
-      await page.goto(mockup, { waitUntil: 'networkidle' });
+      await page.goto(mockup(tilstand.scenario ?? arg.scenario), { waitUntil: 'networkidle' });
       await tilstand.vei(page);
       const mørk = await page.evaluate(() => document.documentElement.classList.contains('dark'));
       if (mørk !== (oppsett.colorScheme === 'dark'))
