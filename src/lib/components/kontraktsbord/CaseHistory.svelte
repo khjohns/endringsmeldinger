@@ -180,7 +180,7 @@
     top: 30px;
     bottom: 0;
     width: 1px;
-    background: var(--wire, var(--color-wire, #dce3dd));
+    background: var(--rule-color);
   }
   .marker {
     display: flex;
