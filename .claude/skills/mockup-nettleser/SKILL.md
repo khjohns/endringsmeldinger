@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts.
+description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som også framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder.
 ---
 
 # /mockup i nettleseren
@@ -38,7 +38,7 @@ for en diff i saksvisningen, etter `AGENTS.md`, «Arbeidsform». Den kjøres med
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \
-  [--send grunnlag[,vederlag][,frist]] [--behold]
+  [--send grunnlag[,vederlag][,frist]] [--feil] [--behold]
 ```
 
 Skriptet trenger `KOE_SQLSERVER_TILKOBLING`, som oppstartshooken setter, og port 5173
@@ -78,6 +78,15 @@ ikke er det forventede:
    `frist` er varselet etter § 33.4 og så kravet om 20 dager. Skriptet venter til
    jobbkjøreren har levert alle brevene til den falske Catenda.
 7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta.
+8. Med `--feil` (krever `--send grunnlag` uten `vederlag`) framkaller skriptet
+   feiltilstandene i skjemaet (#1215). TE fyller ut vederlagskravet, går til brevet og
+   krysser av, og `page.route` på `**/api/kjerne/saker/{sak}/kommandoer` svarer på
+   `POST` i stedet for serveren: 409 `VERSJONSKONFLIKT`, 403 `FORBIDDEN`, 500
+   `INTERNAL_ERROR`, og et avbrudd (`route.abort`), som er et usikkert utfall. Kroppene
+   har formen serveren gir. `GET` går til serveren, så en ny innlasting etter 409 er ekte.
+   Skriptet skriver teksten i `role="alert"` og tar `feil-409.png`, `feil-403.png`,
+   `feil-500.png` og `feil-avbrutt.png`. Det stopper med exit 1 hvis skjemaet ikke sender,
+   eller ikke viser den forventede meldingen i `role="alert"`.
 
 Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
 med et eget Playwright-skript. Send aldri rett i tabellene. Slik drives skjemaene videre:
@@ -201,13 +210,15 @@ node .claude/skills/mockup-nettleser/uu.mjs [--url http://localhost:5173] [--sce
 
 Legger `axe.min.js` fra devDependency-en `axe-core` inn i `/mockup` og kjører
 reglene for WCAG 2.1 A og AA i fire oppsett: lys og mørk modus (`colorScheme`, som
-`app.html` leser), på 1440 og 390 px. På bred skjerm kjøres også BHs svarskjema for
-fristen. Det skriver reglene som er brutt, med inntil `--vis` steder hver og
+`app.html` leser), på 1440 og 390 px. I hvert oppsett skannes saken som TE og som BH
+(handlingslinja og betegnelsene i sporoversikten for BH). På bred skjerm kjøres også
+BHs svarskjema for fristen og for vederlaget; vederlaget i `scenario1prod`, uansett
+`--scenario` (#1213). Det skriver reglene som er brutt, med inntil `--vis` steder hver og
 forholdstallet for kontrast, og det axe ikke kan avgjøre («kontroller»). Et brudd
-gir exit 1. Kjøringen tar om lag ett minutt.
+gir exit 1. Kjøringen tar om lag to minutter.
 
-`uu.mjs` kjører bare mot `/mockup`. En modus mot den ekte saksruta mangler ennå (#1213),
-så saksruta kontrolleres for hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md) til den finnes.
+`uu.mjs` kjører bare mot `/mockup`, så den ekte saksruta, med feiltilstandene fra
+`saksrute.ts --feil`, kontrolleres for hånd etter [`uu-sjekk`](../uu-sjekk/SKILL.md).
 
 axe finner bare en del av feilene. Resten kontrolleres for hånd etter skillen
 [`uu-sjekk`](../uu-sjekk/SKILL.md). Det er ingen CI-jobb for skriptet (#1187).
