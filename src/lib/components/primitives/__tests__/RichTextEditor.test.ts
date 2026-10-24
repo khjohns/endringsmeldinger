@@ -31,4 +31,16 @@ describe('RichTextEditor', () => {
     expect(fet).toHaveClass('active');
     expect(angre).toBeEnabled();
   });
+
+  // WCAG 2.1 4.1.2: et redigerbart felt har et tilgjengelig navn (axe aria-input-field-name, #1235).
+  it('navngir feltet med navn når ledeteksten står utenfor komponenten (#1235)', () => {
+    const screen = render(RichTextEditor, { props: { navn: 'Redegjørelse' } });
+    expect(screen.getByRole('textbox', { name: 'Redegjørelse' })).toHaveClass('tiptap');
+  });
+
+  it('navngir feltet med den synlige label-en (#1235)', () => {
+    const screen = render(RichTextEditor, { props: { label: 'Utdypende begrunnelse' } });
+    const flate = screen.getByRole('textbox', { name: 'Utdypende begrunnelse' });
+    expect(flate).toHaveAttribute('aria-labelledby');
+  });
 });
