@@ -87,6 +87,12 @@ def test_en_funn_id_som_ikke_finnes_i_hovedplanen_avvises(register):
     assert any("ZZ-99" in feil for feil in dm.valider(endret, dm.funnregisteret()))
 
 
+def test_et_avsluttet_funn_i_arkivet_godtas(register):
+    """#1020: de avsluttede funnene er flyttet til arkivet, og ID-ene er fortsatt etablert."""
+    endret = {"tabell": [{**register["tabell"][0], "funn": ["AP-01"]}]}
+    assert not any("AP-01" in feil for feil in dm.valider(endret, dm.funnregisteret()))
+
+
 def test_markdown_er_generert_fra_registeret(register):
     assert dm.MARKDOWN.read_text(encoding="utf-8") == dm.markdown(register), (
         "tabeller.md er utdatert. Kjør /tmp/venv/bin/python docs/verktoy/datamodell.py fra repo-roten."

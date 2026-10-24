@@ -28,6 +28,7 @@ ROT = pathlib.Path(__file__).resolve().parents[2]
 KATALOG = ROT / "docs" / "domenetabell"
 HOVEDPLAN = ROT / "docs" / "plans" / "2026-09-16-godkjenning-og-varig-levering.md"
 VEDTAKSFIL = ROT / "docs" / "plans" / "vedtak.md"
+ARKIV = ROT / "docs" / "plans" / "arkiv.md"
 TIL_VEDTAKENE = "../plans/vedtak.md"
 README = KATALOG / "README.md"
 START = "<!-- domenetabell:start -->"
@@ -385,7 +386,10 @@ def valider(
     maalmodell = maalmodell if maalmodell is not None else les_maalmodell()
     if any(d.get("formatversjon") != 1 for d in (regler, korpus, maalmodell)):
         return ["formatversjonen er ikke 1"]
-    funntekst = _avsnitt(plan, "## 4. Funnregister", "## 5. Arbeidspakker")
+    # De avsluttede funnene står i arkivet (#1020).
+    funntekst = _avsnitt(plan, "## 4. Funnregister", "## 5. Arbeidspakker") + _avsnitt(
+        ARKIV.read_text(encoding="utf-8"), "## 4. Avsluttede funn", "## 5. "
+    )
     return (
         _valider_kilder(regler, vedtak)
         + _valider_rader(regler)

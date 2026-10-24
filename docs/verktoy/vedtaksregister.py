@@ -44,6 +44,8 @@ HOVEDPLAN = ROT / "docs" / "plans" / "2026-09-16-godkjenning-og-varig-levering.m
 HOVEDPLAN_I_GIT = "docs/plans/2026-09-16-godkjenning-og-varig-levering.md"
 VEDTAKSFIL = ROT / "docs" / "plans" / "vedtak.md"
 VEDTAKSFIL_I_GIT = "docs/plans/vedtak.md"
+ARKIV = ROT / "docs" / "plans" / "arkiv.md"
+ARKIV_I_GIT = "docs/plans/arkiv.md"
 VEDTAKSHODE = f"""\
 # Vedtatte premisser og beslutninger
 
@@ -970,7 +972,7 @@ def hele_setninger(sitat: str, tekst: str) -> bool:
 def kilder_paa(commit: str | None):
     """Sitatkildene: NS 8407 fra ns_8407(), og hovedplanen og filene slik de er i commiten.
 
-    «hovedplanen» er hovedplanen og vedtaksfila, som var avsnitt 3.1 i den (#1020)."""
+    «hovedplanen» er hovedplanen, vedtaksfila og arkivet, som var deler av den (#1020)."""
 
     @functools.cache
     def hent(kilde: str) -> str | None:
@@ -980,7 +982,8 @@ def kilder_paa(commit: str | None):
             return None
         if kilde == "hovedplanen":
             return "\n\n".join(
-                git_fil(commit, sti) or "" for sti in (HOVEDPLAN_I_GIT, VEDTAKSFIL_I_GIT)
+                git_fil(commit, sti) or ""
+                for sti in (HOVEDPLAN_I_GIT, VEDTAKSFIL_I_GIT, ARKIV_I_GIT)
             )
         return git_fil(commit, kilde) or ""
 
@@ -1111,7 +1114,7 @@ def mot_grunnlag(
     eller endre spørsmålet, alternativene eller svaret til en post som er merget.
 
     `gammel_plan` har 3.1 på main, og `soketekst` er teksten en ny ID ikke kan stå i fra før:
-    hovedplanen og vedtaksfila på main. Uten den søkes det i `gammel_plan`."""
+    hovedplanen, arkivet og vedtaksfila på main. Uten den søkes det i `gammel_plan`."""
     feil = []
     importerte = collections.Counter(
         _noekkel(p) for p in poster(register) if not er_ny(p)
@@ -1127,7 +1130,7 @@ def mot_grunnlag(
         if p["id"] not in gamle_nye and re.search(
             rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", soketekst or gammel_plan
         ):
-            feil.append(f"{p['id']}: ID-en står i hovedplanen eller vedtaksfila på main fra før")
+            feil.append(f"{p['id']}: ID-en står i hovedplanen, arkivet eller vedtaksfila på main fra før")
     naa = {p["id"]: p for p in _nye(register)}
     for id_, gammel in gamle_nye.items():
         if id_ not in naa:
@@ -1163,7 +1166,10 @@ def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
             gammel, ny, frozenset(anker(p) for p in _nye(register))
         )
         + mot_grunnlag(
-            register, gammel, gammel_register, gammel_plan + "\n" + gammel
+            register,
+            gammel,
+            gammel_register,
+            "\n".join([gammel_plan, git_fil(commit, ARKIV_I_GIT) or "", gammel]),
         )
         + sitatfeil(register, kilder_paa(commit), merget)
     )

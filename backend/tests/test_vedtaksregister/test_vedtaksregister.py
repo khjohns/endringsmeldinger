@@ -590,16 +590,18 @@ def test_vakta_melder_kopi_av_en_rad_uten_anker(grunnregister, grunnplan):
     assert len(vr.mot_grunnlag(endret, grunnplan, None)) == 1
 
 
-@pytest.mark.parametrize("id_", ["SK-12", "MG-02", "B-13", "AF-06"])
+@pytest.mark.parametrize("id_", ["SK-12", "MG-02", "B-13", "AF-06", "AP-01"])
 def test_vakta_melder_id_som_er_i_bruk(grunnregister, grunnplan, hovedplan, id_):
-    """Også ID-er uten anker, som SK-12, og ID-er i hovedplanen utenfor 3.1 (#1020)."""
+    """Også ID-er uten anker, som SK-12, ID-er i hovedplanen utenfor 3.1, og et avsluttet
+    funn i arkivet, som AP-01 (#1020)."""
+    arkiv = vr.ARKIV.read_text(encoding="utf-8")
     feil = vr.mot_grunnlag(
         med(grunnregister, ny_post(id=id_, forhold=[])),
         grunnplan,
         None,
-        hovedplan + "\n" + grunnplan,
+        "\n".join([hovedplan, arkiv, grunnplan]),
     )
-    assert f"{id_}: ID-en står i hovedplanen eller vedtaksfila på main fra før" in feil
+    assert f"{id_}: ID-en står i hovedplanen, arkivet eller vedtaksfila på main fra før" in feil
 
 
 def test_en_merget_ny_post_har_ledig_id_og_kan_bare_endre_folge(
