@@ -101,8 +101,8 @@ function vurderinger(d: Record<string, unknown>, krav: Krav): Svarvurdering {
 
 /**
  * Kommandoen for BHs svar fra dataene `buildEventData` gir. Svaret gjelder kravet kjernen har
- * i sporet. Begrunnelsen i skjemaet, den genererte og BHs tillegg, blir utdypningen under den
- * låste teksten (KA-U24).
+ * i sporet. Begrunnelsen BH skriver i skjemaet, blir utdypningen under den låste teksten
+ * (KA-U24, KA-U41).
  */
 export function vederlagssvarFraSkjema(
   data: Record<string, unknown>,
