@@ -7929,7 +7929,7 @@
         "GR-08"
       ],
       "start": "forlop_a_brev",
-      "forslag": "GR-U4: et revidert vederlagssvar mens grunnlaget venter på nytt svar, er prinsipalt. Det blir subsidiært når grunnlaget avslås igjen",
+      "forslag": "GR-U26: et revidert vederlagssvar mens grunnlaget venter på nytt svar, står under forbeholdet for ubesvart grunnlag og er ikke subsidiært. Det blir subsidiært når grunnlaget avslås igjen",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -7978,7 +7978,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "GR-U4"
+            "GR-U26"
           ],
           "forventet": {
             "gjeldende_svar.vederlag": "S-v2",
@@ -7990,7 +7990,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "GR-U4",
+            "GR-U26",
             "V-B13-GRUNNLAG-AVSLATT"
           ],
           "forventet": {
@@ -9004,12 +9004,13 @@
           "kilde": [
             "KA-U4",
             "HF-U1",
-            "GR-U7"
+            "GR-U7",
+            "LV-U31"
           ],
           "forventet": {
             "avvist": false,
             "standpunkt.S-v1.metode.aksepterer": true,
-            "virkning.S-v1.metode": "uten_virkning",
+            "virkning.S-v1.metode": 1,
             "beslutningsgrunnlag.S-v1.sammenfall": true,
             "enighet.vederlag.utfall.beloep": 100000
           }

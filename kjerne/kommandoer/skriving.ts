@@ -504,6 +504,7 @@ function brevtekstFor(
         tittel: sak.tittel,
         grunnlagssvar: u.spor.grunnlag.gjeldendeSvar?.id ?? null,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
+        avklartVedFrafall: u.frafalt,
       },
       kjerne.regler,
       utdypninger

@@ -127,7 +127,8 @@ export function virkninger(
  * står i det første laget. Begrensningen etter § 34.1.3 rammer bare posten etter annet ledd
  * (OV-U22, VS-U5): den står i laget etter § 34.1.2 sammen med justeringen ellers og
  * metoden, og posten i laget etter den. Rammer ingen påberopelse justeringen ellers, er den
- * upåvirket, så sant grunnlaget verken er avslått eller prekludert (OV-U33).
+ * upåvirket, så sant grunnlaget verken er avslått eller prekludert (OV-U33). Metoden står i
+ * laget til justeringen ellers, også når byggherren godkjenner oppgjør som fast sum (LV-U31).
  */
 function vederlagsvirkninger(
   svar: Svarinnhold,
@@ -156,7 +157,6 @@ function vederlagsvirkninger(
           : posten
             ? foerste
             : 'uten_virkning';
-      if (s.art === 'metode' && s.aksepterer) return 'uten_virkning';
       if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);
       return ellers;
     };
