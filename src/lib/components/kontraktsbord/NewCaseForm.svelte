@@ -22,7 +22,7 @@
   import ClaimLetterView from './ClaimLetterView.svelte';
   import { nyKommandoId, opprettSak } from '$lib/api/kjerne';
   import { sendForsoek, usikkertUtfall } from '$lib/kjernesak/forsoek';
-  import { brevhindring, lagKjernesak, type Ventende } from '$lib/kjernesak/kontekst.svelte';
+  import { avvisningFoerBrevet, lagKjernesak, type Ventende } from '$lib/kjernesak/kontekst.svelte';
   import {
     datofelt,
     gjelderEndringsordre,
@@ -200,7 +200,7 @@
       if (!ventendeOpprettelse) {
         // #711: kravet prøves før saken opprettes, så en avvisning etterlater ingen sak uten krav.
         const avvist = kravMotNySak(opprettelse(tittel), kommando, 'TE', KJERNE);
-        if (avvist) throw new Error(avvist.melding);
+        if (avvist) throw avvisningFoerBrevet({ avvisning: avvist })!;
       }
       const forsoek = (ventendeOpprettelse ??= {
         kommandoId: nyKommandoId(),
@@ -229,8 +229,8 @@
     if (ventendeKrav) lagret = await sak.provIgjen();
     else {
       const brev = sak.brev(kommando);
-      const hindring = brev && brevhindring(brev);
-      if (hindring) throw new Error(hindring);
+      const hindring = brev && avvisningFoerBrevet(brev);
+      if (hindring) throw hindring;
       const tekst = brev && 'tekst' in brev ? brev.tekst : null;
       // Uten side sender ikke konteksten kravet, og den sier hvorfor (#695).
       if (tekst)
