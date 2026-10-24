@@ -3,7 +3,8 @@
 `docs/` er en kjede av auditer, planer og referanser bygget opp fra 14. september
 2026. Denne fila sier hva som gjelder, hva som er historikk, og hvor man begynner.
 
-**Hovedplanen er autoritativ for vedtak, rekkefølge og funnstatus.** Sier et
+**Hovedplanen er autoritativ for rekkefølge og funnstatus, [vedtaksfila](plans/vedtak.md)
+for vedtakene og [arkivet](plans/arkiv.md) for de avsluttede funnene (#1020).** Sier et
 annet dokument noe annet om et funn, er det andre dokumentet foreldet — rett det,
 ikke gjenopprett diskusjonen.
 Opphever du et utsagn, skriv en datert merknad, også inn i det gamle dokumentet.
@@ -20,10 +21,12 @@ Denne indeksen og hovedplanen fører ikke arbeidsstatus; regelen står i
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Eneste løpende kilde til vedtak, rekkefølge og funnstatus: invarianter, beslutningsregister, funnregister, arbeidspakker og beslutningene som blokkerer. Toppteksten peker til tidligere versjoner i Git |
-| [domenetabellen](domenetabell/README.md) | Forventet atferd per rad med kilde og tolkningsstatus, begrepene krav, kravversjon, svar, standpunkt, aksept og enighet, og språkuavhengige bevis-saker som kjøres mot Python-projeksjonen og mot målmodellen. Vedtakene står i hovedplanen |
-| [vedtaksregisteret](vedtaksregister/README.md) | Kilden avsnitt 3.1 i hovedplanen lages av, med spørsmålet, alternativene og svaret ordrett for hvert nytt vedtak, og vakttestene. Hovedplanen er fortsatt autoritativ |
-| [temavisningene](vedtaksregister/temaer/) | Regelgrunnlaget per tema, generert fra registeret: vedtakene ordrett med forholdene, regelradene og bevis-sakene. 3.1 er fortsatt autoritativ |
+| [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Begynn her.** Løpende kilde til rekkefølge og funnstatus: invarianter, føringer, åpne beslutninger, funnregister, arbeidspakker og beslutningene som blokkerer. Toppteksten peker til tidligere versjoner i Git |
+| [vedtaksfila](plans/vedtak.md) | Vedtakene, autoritativ for dem. Generert fra vedtaksregisteret. Var avsnitt 3.1 i hovedplanen til #1020 |
+| [arkivet](plans/arkiv.md) | De avsluttede funnene og leveransemerknadene til arbeidspakkene, flyttet ordrett fra hovedplanen 24.10 (#1020) |
+| [domenetabellen](domenetabell/README.md) | Forventet atferd per rad med kilde og tolkningsstatus, begrepene krav, kravversjon, svar, standpunkt, aksept og enighet, og språkuavhengige bevis-saker som kjøres mot Python-projeksjonen og mot målmodellen. Vedtakene står i vedtaksfila |
+| [vedtaksregisteret](vedtaksregister/README.md) | Kilden vedtaksfila lages av, med spørsmålet, alternativene og svaret ordrett for hvert nytt vedtak, og vakttestene. Vedtaksfila er autoritativ |
+| [temavisningene](vedtaksregister/temaer/) | Regelgrunnlaget per tema, generert fra registeret: vedtakene ordrett med forholdene, regelradene og bevis-sakene. Vedtaksfila er autoritativ |
 | [`../AGENTS.md`](../AGENTS.md) | Lastes automatisk i hver sesjon: språk, domeneordliste, sikkerhetsinvarianter, resonneringsregler |
 | [`.claude/rules/`](../.claude/rules/): [database](../.claude/rules/database.md) · [tester](../.claude/rules/tester.md) · [dokumentasjon](../.claude/rules/dokumentasjon.md) · `tilgang.md` · `python-domene.md` | Regler som lastes når en økt arbeider i den delen av treet. `tilgang.md` har mekanismene bak sikkerhetsinvariantene, og `python-domene.md` overgangsreglene for Python-koden i KOE-, EO- og forseringssakene, som gjelder til #310 |
 

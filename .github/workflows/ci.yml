@@ -25,7 +25,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     steps:
-      # Vedtaksregisteret (#413) sammenlikner 3.1 med main, som er forelderen
+      # Vedtaksregisteret (#413) sammenlikner vedtakene med main, som er forelderen
       # til flettecommiten.
       - uses: actions/checkout@v4
         with:

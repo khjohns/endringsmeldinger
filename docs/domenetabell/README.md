@@ -476,7 +476,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 Formatet bygger på [metodeprøven](../vedlegg/metodeprove-frist-2026-10-08/README.md#formatkontrakt).
 Prøvemodellen er ikke gjenbrukt: forventningene kjøres mot applikasjonen.
 
-- `regler.json`: `kilder` er vedtak i hovedplanen 3.1 (med radetiketten
+- `regler.json`: `kilder` er vedtak i vedtaksfila, med `ref` til den (med radetiketten
   kontrollen leter etter), punkter i NS 8407 eller arbeidsvalg. Et
   arbeidsvalg (`"type": "arbeidsvalg"`) har `dato`, `issue` med nummeret på
   issuet der valget står, og `merknad` med hva som ble valgt. Det er ikke et

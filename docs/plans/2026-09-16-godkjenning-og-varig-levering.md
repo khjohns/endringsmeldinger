@@ -2,8 +2,10 @@
 
 **Opprettet:** 2026-09-16. **Sist sluttredigert:** 2026-10-11, mot commit
 `6f56672c00aca01eaac8e9566c672535c37bce20` (`main`).
-**Status:** Autoritativ plan og eneste løpende kilde til vedtak, rekkefølge og
-funnstatus. Appen er ikke i produksjon og har ingen reelle data.
+**Status:** Autoritativ plan og løpende kilde til rekkefølge og funnstatus.
+Vedtakene står i [vedtaksfila](vedtak.md), og de avsluttede funnene og
+leveransemerknadene fram til 24.10 i [arkivet](arkiv.md) (#1020). Appen er ikke i
+produksjon og har ingen reelle data.
 
 Teksten før sluttredigeringen 11.10 er bevart i Git:
 `git show 6f56672:docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
@@ -51,7 +53,9 @@ ikke er vedtatt. Slike valg står som åpne beslutninger i
 
 | Dokument | Rolle nå |
 | --- | --- |
-| Denne planen | Autoritativ for vedtak, rekkefølge og funnstatus |
+| Denne planen | Autoritativ for rekkefølge, funnstatus, føringene og de åpne beslutningene |
+| [Vedtaksfila](vedtak.md) | Autoritativ for vedtakene. Generert fra [vedtaksregisteret](../vedtaksregister/README.md). Var avsnitt 3.1 her til #1020 |
+| [Arkivet](arkiv.md) | Autoritativ for de avsluttede funnene. Har leveransemerknadene til arbeidspakkene fram til 24.10, flyttet ordrett herfra (#1020) |
 | [Domenetabellen](../domenetabell/README.md) | Eier forventet atferd per rad, begrepene og bevis-sakene. Radene viser til vedtakene her og gjentar dem ikke |
 | [Modellforslaget](../forslag-maalmodell-2026-10-09.md) | Begrunnelse for målmodellen. Ikke vedtatt som helhet; vedtakene som bygger på det, står i 3.1 |
 | Kjernemappa [`kjerne/`](../../kjerne/) | TS-kjernen (1.3, B-14). Målmodellen fra #304 er flyttet hit og skrevet om etter vedtakene 09.10 (#308). Dekker forløp A–E. Arbeidet med resten av domenet står i #309 |
@@ -386,7 +390,6 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 | --- | --- | --- | --- | --- | --- | --- |
 | B-01 | Hvordan skal relasjoner mellom saker lagres? | (a) Relasjonsprojeksjon med prosjektavgrensede fremmednøkler, én skriver. (b) Utledning fra hendelsenes jsonb med GIN-indeks. (c) Reservasjonstabell for KOE-tilknytning pluss (a) eller (b) | (a) er foretrukket til vurdering (AF-03). En GIN-indeks er ikke et revisjonsspor (RGK-04) | Utvikler, med review. Ikke utpekt | Sammenlikning mot referanseintegritet, eksklusivitet, gjenoppbygging og samtidighet | KOE-tilknytning og relasjoner, i FK etter merknaden 09.10 til F2. DB-04, MS-08 |
 | B-05 | Hvilke bevaringskrav gjelder utover journalen? | Bevaringstid for journal, filer, logger, backup og stagingfiler | P7 fastsetter bare at journalen bevares uten kryptografisk sletting | Behandlingsansvarlig, med råd fra personvernombudet | DPIA og arkivfaglig vurdering | Bevarings- og sletteregler i F4. Produksjonsport |
-| B-06 | Hvilken fullmakt kreves når dagmulktssats mangler? | Kjedens toppnivå; avvisning; manuell verdsetting | Avgjort 18.10 med [GFK-U3](vedtak.md#gfk-u3) og [GFK-U4](vedtak.md#gfk-u4) | Oppdragsgiver (BH-siden), ikke utpekt | Domenevurdering | Restansen på GFK-01/FE-04 |
 | B-07 | Hvilken drivmekanisme skal workeren ha? | Tabell med `SKIP LOCKED`, `pgmq`, Cloud Tasks, Cloud Scheduler, jobber i Azure Container Apps, fast instans | Én kømekanisme; tabell og `SKIP LOCKED` er beskrevet i transaksjonsplanen | Utvikler, ikke utpekt | Plattformens skalering til null og krav om start uten brukerhandling | Minimal worker i F2 |
 | B-09 | Hvilke driftsverdier gjelder? | Kapasitet, svartid, køalarm, rate limits, oppbevaring av stagingfiler | Tall i 3.3 er forslag uten kilde | Driftsansvarlig, ikke utpekt | Lastforutsetninger, Catendas kvoter, fristkrav | Akseptkriterier for kapasitet og varsling i F3 |
 | B-11 | Hvilken tidskilde og forvaringskjede skal eksporten bygge på? | Servertid med synkroniseringsgaranti; ekstern tidsstempling; begge | Ingen | Oppdragsgiver med driftsansvarlig, ikke utpekt | Krav ved preklusjonstvist | Eksport i F4 |
@@ -407,6 +410,9 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
   saksdokument) og dokumentet 10.10 ([B-03, dokumentet](vedtak.md#b-03-dokument)), med
   [MM-U10](vedtak.md#mm-u10) om flere spor i ett brev.
 - **B-04** tilbakekalling: avgjort 23.09. Vedtaket står i merknaden til B-04 i 3.1.
+- **B-06** fullmakt når dagmulktssats mangler: avgjort 18.10 med
+  [GFK-U3](vedtak.md#gfk-u3) og [GFK-U4](vedtak.md#gfk-u4). Raden er tatt ut av
+  tabellen 24.10 (#1020).
 - **B-08** KOE-eksklusivitet: avgjort 08.10 med [EO-U3](vedtak.md#eo-u3).
 - **B-10** versjonering av hendelsesformat og regler: avgjort 10.10
   ([B-10](vedtak.md#b-10)), med [HF-U1](vedtak.md#hf-u1) og [HF-U2](vedtak.md#hf-u2) om lagringsformatet og
@@ -507,6 +513,10 @@ stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 > og sparringen i [#391](https://github.com/khjohns/endringsmeldinger/issues/391).
 > Databasen er avgjort samme dag med [B-12, databasen](vedtak.md#b-12-databasen); hostingen er åpen.
 > Lagringsformen er ikke avgjort med databasen (#395).
+
+> **Merknad 2026-10-24 til B-12 (#1020):** lagringsformen er avgjort 12.10 med
+> [HF-U3](vedtak.md#hf-u3): hvert brev lagres samlet som ett dokument. Raden om
+> lagringsformen er tatt ut av avsnitt 6. Hostingen er fortsatt åpen.
 
 > **Merknad 2026-10-13 til B-12 ([B-12, databasen](vedtak.md#b-12-databasen)):** IKT har
 > svart på spørsmålene A1–A6 i
@@ -843,9 +853,9 @@ Merknadene til F0b om det som er levert eller ordnet fram til 24.10, står i [ar
 > F0b som før.
 
 **Avhenger av:** B-12, databasen, og B-19 (3.1). Tilgangsmekanismen i B-02
-alternativ C prøves tidlig i T-SQL ([B-12, databasen](vedtak.md#b-12-databasen), #395). Lagringsformen avgjøres senest før
-KOE-byttet skriver den første reelle hendelsen
-([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)). Containerdelen avhenger
+alternativ C prøves tidlig i T-SQL ([B-12, databasen](vedtak.md#b-12-databasen), #395). Lagringsformen er avgjort med
+[HF-U3](vedtak.md#hf-u3) (se [merknaden 11.10 til B-12](#b-12-merknad-2026-10-11) og
+merknaden 24.10 etter den). Containerdelen avhenger
 av hostingen i B-12. Arbeidet følges i
 [milepælen F0b](https://github.com/khjohns/endringsmeldinger/milestone/1).
 
@@ -1240,7 +1250,6 @@ står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
 | --- | --- |
 | B-01 relasjoner | KOE-tilknytningen og relasjonene i FK, byggedel 4 av #309 ([OV-U1](vedtak.md#ov-u1)) |
 | B-12 hosting | Container og utrulling i F0b, veien fra migrasjonsfil til base og plattformkonfigurasjon i F5. Databasen er avgjort ([B-12, databasen](vedtak.md#b-12-databasen)) |
-| Lagringsformen ([merknaden 11.10 til B-12](#b-12-merknad-2026-10-11)) | KOE-byttet skriver den første reelle hendelsen (#310) |
 | B-07 drivmekanisme | Workeren for leveringen (punkt 3 i F2, som er levering og integrasjon etter merknaden 09.10 til F2) |
 | B-09 driftsverdier | Akseptkriteriene for kapasitet og varsling i F3, og grensene for utdatert medlemsliste (B-04) |
 | B-05 bevaring, B-11 tidskilde | Eksport og bevaring i F4, og produksjonsporten |
@@ -1288,7 +1297,9 @@ treff beviser heller ikke at en gammel workers kall ikke fullføres senere.
 - Status endres bare her, med dato og belegg. Andre dokumenter får en datert
   merknad som viser hit.
 - Et nytt funn får ID i sitt eget dokument og en linje i avsnitt 4.
-- En beslutning flyttes fra 3.4 til 3.1 med dato og hvem som besluttet.
+- En beslutning flyttes fra 3.4 til vedtaksfila, gjennom vedtaksregisteret, med
+  dato og hvem som besluttet. B-ID-en står igjen i listen over avgjorte
+  beslutninger i 3.4.
 - En xfail som blir XPASS gjøres om til ordinær test, og registeret oppdateres.
 - Planen fører det som er avgjort og levert, med dato og belegg. Arbeid som
   pågår eller venter, står i GitHub-issues, ikke her (`AGENTS.md`, «Hvor hva
@@ -1308,9 +1319,11 @@ treff beviser heller ikke at en gammel workers kall ikke fullføres senere.
   Prinsippene i matrisen kan brukes i begrunnelsen og som utgangspunkt for
   en anbefaling til oppdragsgiver, men de er ikke hjemmel (oppdragsgiver
   11.10, #309).
-- Når de daterte merknadene gjør planen tung å lese, sluttredigeres den.
-  Vedtak, funnstatus, ID-er og ankre endres ikke. Det som tas ut, er bevart i
-  Git, og toppteksten peker til teksten før redigeringen med commit og blob.
+- Når de daterte merknadene gjør planen tung å lese, flyttes de som bare fører
+  det som er levert, og funnene som er avsluttet uten pakke som gjenstår,
+  ordrett til [arkivet](arkiv.md) med dato (oppdragsgiver 20.10, #1020).
+  Vedtak, funnstatus, ID-er og ankre endres ikke. Merknadene som styrer omfang
+  eller rekkefølge, blir stående.
 
 ## Verifikasjon og grenser
 

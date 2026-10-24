@@ -81,7 +81,7 @@ reproduksjonene av BR-01 23.09.
 
 **En test skrevet ut fra koden bekrefter koden, ikke hensikten.** Skal en test
 vise at en funksjon virker som tiltenkt, må forventningen ha en kilde utenfor
-koden: NS 8407, et vedtak i hovedplanen eller en forventning oppdragsgiver har
+koden: NS 8407, et vedtak i vedtaksfila eller en forventning oppdragsgiver har
 godkjent. Testen skal vise til kilden. En test som bare fastholder dagens
 atferd, er nyttig ved en omskriving, men skal si at det er det den gjør.
 

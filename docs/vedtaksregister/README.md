@@ -1,31 +1,39 @@
 # Vedtaksregisteret
 
-[`vedtak.toml`](vedtak.toml) er kilden avsnitt 3.1 i
-[hovedplanen](../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger)
-lages av (#413). For hvert nytt vedtak holder registeret spørsmålet,
-alternativene og oppdragsgivers svar ordrett, og raden i 3.1 lages av dem uten
-omskriving. Verktøyet er [`docs/verktoy/vedtaksregister.py`](../verktoy/vedtaksregister.py),
+[`vedtak.toml`](vedtak.toml) er kilden [vedtaksfila](../plans/vedtak.md) lages
+av (#413). Vedtaksfila var avsnitt 3.1 i
+[hovedplanen](../plans/2026-09-16-godkjenning-og-varig-levering.md) til #1020, og
+«3.1» i teksten under betyr innholdet i den. For hvert nytt vedtak holder
+registeret spørsmålet, alternativene og oppdragsgivers svar ordrett, og raden i
+vedtaksfila lages av dem uten omskriving. Verktøyet er [`docs/verktoy/vedtaksregister.py`](../verktoy/vedtaksregister.py),
 og vakttestene står i
 [`backend/tests/test_vedtaksregister/`](../../backend/tests/test_vedtaksregister/test_vedtaksregister.py).
 
 ```bash
-python3 docs/verktoy/vedtaksregister.py           # kontroller registeret og skriv 3.1
+python3 docs/verktoy/vedtaksregister.py           # kontroller registeret og skriv vedtaksfila
 python3 docs/verktoy/vedtaksregister.py --sjekk   # bare kontroller
 python3 docs/verktoy/vedtakshenvisninger.py       # vedtaks-ID-ene i koden (#452)
 ```
 
 ## Hvem som er autoritativ
 
-- **Hovedplanen er autoritativ for vedtakene.** Et vedtak er det som står i 3.1
-  på `main`. Det er hovedplanen andre dokumenter, issues og PR-er viser til.
-- **Registeret er kilden 3.1 lages av, ikke et eget beslutningsregister.** Det
-  fører ingen vedtak som ikke står i 3.1, og 3.1 rettes bare gjennom registeret.
-  Vakttesten holder dem like; avviker de, er det en feil, ikke to versjoner av et
-  vedtak.
+- **Vedtaksfila er autoritativ for vedtakene** (#1020, oppdragsgiver 20.10). Et
+  vedtak er det som står i [`docs/plans/vedtak.md`](../plans/vedtak.md) på `main`.
+  Det er vedtaksfila andre dokumenter, issues og PR-er viser til. En eldre
+  henvisning til 3.1 i hovedplanen, eller til et vedtaksanker der, gjelder
+  vedtaksfila.
+- **Registeret er kilden vedtaksfila lages av, ikke et eget beslutningsregister.**
+  Det fører ingen vedtak som ikke står i vedtaksfila, og vedtaksfila rettes bare
+  gjennom registeret. Vakttesten holder dem like; avviker de, er det en feil, ikke
+  to versjoner av et vedtak.
+- **Innholdet er 3.1 slik det sto i planen**, med et hode foran. Bare lenkene til
+  ankre i hovedplanen er skrevet om, så de går til planen. Kontrollene mot `main`
+  leser 3.1 i formen den hadde i planen, laget av registeret på `main`.
 - **Spørsmålet, alternativene og svaret er beviset** for et nytt vedtak, som en
   audit i `docs/` er det for et funn. De står bare i registeret.
 - Resten av hovedplanen, også 3.2–3.4, merknadene til andre avsnitt og
-  funnregisteret, skrives som før.
+  funnregisteret, skrives som før. De avsluttede funnene står i
+  [arkivet](../plans/arkiv.md).
 
 ## Postene
 
@@ -115,7 +123,8 @@ tekst = "et ordrett utdrag"
   `Presisert 13.10 av [LV-U6](#lv-u6).` først i Følge hos KA-U1. `folge` er resten:
   byggestatus, med dato og belegg.
 - **Sitater** fra NS 8407, hovedplanen eller en fil i treet føres som `sitat`
-  med kilden: `ns8407`, `hovedplanen` eller stien. Et sitat er hele setninger;
+  med kilden: `ns8407`, `hovedplanen` eller stien. Kilden `hovedplanen` er
+  hovedplanen, vedtaksfila og arkivet, som var deler av den. Et sitat er hele setninger;
   et utdrag får `utdrag = true`, og da er det et utdrag også i teksten.
 - **Svaret** er oppdragsgivers ordrett og nevner det valgte alternativet ved navn.
   Ble ett alternativ anbefalt da spørsmålet ble stilt, får det `anbefalt = true`.
@@ -129,7 +138,7 @@ tekst = "et ordrett utdrag"
 En temavisning samler regelgrunnlaget for ett tema på ett sted: vedtakene ordrett,
 slik raden står i 3.1, med de forkastede alternativene merket, forholdene mellom dem,
 og regelradene og bevis-sakene som viser til dem (#454, punkt 5 i #451). Den lager
-ingen sammenslått gjeldende ordlyd. 3.1 er fortsatt autoritativ (punkt 9 i #451),
+ingen sammenslått gjeldende ordlyd. Vedtaksfila er autoritativ (punkt 9 i #451, #1020),
 og visningen sier det.
 
 Temaene står i [`temaer.toml`](temaer.toml), og visningene i [`temaer/`](temaer/).
@@ -163,12 +172,12 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 
 | Test | Gjelder |
 | --- | --- |
-| 3.1 er lik det verktøyet lager | alle poster |
+| Vedtaksfila er lik det verktøyet lager | alle poster |
 | Vedtaket, ankeret og vedtaksdatoen i hver rad i 3.1 på `main` står uendret | alle rader, også de importerte |
 | Innledningen, teksten etter tabellene (merknadene) og gruppetitlene kan bare få hele nye avsnitt lagt til; hver rad blir i gruppen sin; lenkene i Følge blir stående | 3.1 på `main` |
 | Følge i en importert rad står ordrett. Henvisningene fra nye vedtak kommer først og kan bli flere, og tekst kan legges til på slutten | importerte rader på `main` |
 | En post i importert form står i 3.1 på `main`; et nytt vedtak kan ikke føres i den formen | importerte poster |
-| Hvert anker i hovedplanen står én gang, og ID-en til en ny post står ikke i hovedplanen på `main` fra før, heller ikke uten anker eller utenfor 3.1 | hele planen |
+| Hvert anker står én gang i hovedplanen og vedtaksfila til sammen, og ID-en til en ny post står ikke i hovedplanen, arkivet eller vedtaksfila på `main` fra før, heller ikke uten anker | hovedplanen, arkivet og vedtaksfila |
 | Spørsmålet, alternativene, svaret og de andre feltene i en merget ny post står uendret; bare `folge` kan endres | nye poster på `main` |
 | Forholdet står begge veier | nye poster med `forhold` |
 | Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil; en lenke i et uttrykkelig forhold går til et annet vedtak, og i passiv form til en importert post | importerte poster |
@@ -202,7 +211,7 @@ Sitatkontrollen leser fila som `NS8407_TEKST` peker på, ellers
 den i en skyøkt. CI har ikke teksten, så sitatene fra NS 8407 kontrolleres bare
 lokalt, før en PR som fører et vedtak
 ([leveranseskillen](../../.claude/skills/leveranse/SKILL.md)). En sjekksum i verktøyet låser versjonen. Endres teksten, endres
-sjekksummen i samme PR. Sammenlikningen med `main` leser hovedplanen der
+sjekksummen i samme PR. Sammenlikningen med `main` leser hovedplanen og registeret der
 grenen gikk ut fra `origin/main`, og i CI forelderen til flettecommiten.
 Backend-jobben i [`ci.yml`](../../.github/workflows/ci.yml) henter historikken.
 Mangler den lokalt, hoppes testene over med en melding; hent den med

@@ -5,7 +5,9 @@
 To kontroller:
 
 - En ID som ikke er et vedtak i registeret, er ukjent. En B-ID som står åpen i
-  3.4 i hovedplanen, er kjent: den er en beslutning, men ennå ikke et vedtak.
+  3.4 i hovedplanen, er kjent: den er en beslutning, men ennå ikke et vedtak. Det
+  samme er en B-ID i listen over avgjorte beslutninger i 3.4, som viser til
+  vedtakene som avgjorde den (#1020).
 - En ID til et opphevet vedtak står ikke som eneste grunnlag. Samme henvisning må
   også vise til et vedtak som gjelder, eller stå i en test og være merket
   historisk med ordet «historisk». En henvisning er et avsnitt i en kommentar,
@@ -34,6 +36,7 @@ B_ID = r"B-\d{2}"
 HENVISNING = re.compile(rf"(?<![\w-])(?:{U_ID}|{B_ID})(?![\w-])")
 B_FOERST = re.compile(rf"^{B_ID}\b")
 AAPEN_B = re.compile(rf"^\| ({B_ID}) \|", re.MULTILINE)
+AVGJORT_B = re.compile(rf"^- \*\*({B_ID})\b", re.MULTILINE)
 HISTORISK = re.compile(r"(?<!ikke )\bhistorisk\b", re.IGNORECASE)
 KOMMENTAR = re.compile(r"^\s*(//|/\*|\*|<!--|#(\s|$))")
 MARKOERER = re.compile(r"/\*+|\*+/|//+|<!--|-->|^\s*\*+|^\s*#")
@@ -67,13 +70,22 @@ def vedtak(register: dict) -> tuple[set[str], set[str]]:
     return set().union(*(i for _, i in ider)), opphevet
 
 
-def aapne_beslutninger(plan: str) -> set[str]:
-    """B-ID-ene i tabellen over åpne beslutninger, 3.4 i hovedplanen."""
+def _avsnitt_3_4(plan: str) -> str:
     start = re.search(r"^### 3\.4 ", plan, re.MULTILINE)
     if start is None:
         raise ValueError("Hovedplanen har ikke avsnittet «### 3.4».")
     slutt = re.compile(r"\n#{1,3} ").search(plan, start.end())
-    return set(AAPEN_B.findall(plan[start.start() : slutt.start() if slutt else None]))
+    return plan[start.start() : slutt.start() if slutt else None]
+
+
+def aapne_beslutninger(plan: str) -> set[str]:
+    """B-ID-ene i tabellen over åpne beslutninger, 3.4 i hovedplanen."""
+    return set(AAPEN_B.findall(_avsnitt_3_4(plan)))
+
+
+def avgjorte_beslutninger(plan: str) -> set[str]:
+    """B-ID-ene i listen over avgjorte beslutninger i 3.4, med vedtakene som avgjorde dem."""
+    return set(AVGJORT_B.findall(_avsnitt_3_4(plan)))
 
 
 def henvisninger(tekst: str) -> list[tuple[int, str]]:
@@ -150,7 +162,7 @@ def filer(rot: pathlib.Path = vr.ROT):
 
 def kontroller(register: dict, plan: str, rot: pathlib.Path = vr.ROT) -> list[str]:
     kjente, opphevet = vedtak(register)
-    aapne = aapne_beslutninger(plan)
+    aapne = aapne_beslutninger(plan) | avgjorte_beslutninger(plan)
     return [
         f
         for sti, tekst in filer(rot)
