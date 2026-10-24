@@ -54,14 +54,16 @@ import type {
 
 /**
  * Saken slik den var før brevet: sak-ID-en og sakstittelen (KA-U22), gjeldende
- * svar på grunnlaget (A2) og hvorfor svaret i et spor er subsidiært til grunnlaget
- * (LV-U4 punkt 6). Skrivingen leser dem av utledningen.
+ * svar på grunnlaget (A2), hvorfor svaret i et spor er subsidiært til grunnlaget
+ * (LV-U4 punkt 6) og om grunnlaget er avklart ved frafall (GR-U23, GR-U26). Skrivingen
+ * leser dem av utledningen.
  */
 export interface Saken {
   saksnummer: string;
   tittel: string;
   grunnlagssvar: string | null;
   subsidiaer: Record<Kravspor, Subsidiaergrunn[]>;
+  avklartVedFrafall: boolean;
 }
 
 /** Kravet en kommando om et kommende avsnitt ikke kan uttrykke. Brevet skrives ikke. */
@@ -496,7 +498,22 @@ function grunnlagetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
   ];
 }
 
-/** LV-U4 punkt 4 og 5, med A2 når grunnlaget er avslått eller prekludert. */
+/**
+ * GR-U26: forbeholdet når byggherren svarer på vederlag eller frist uten å ha svart på
+ * gjeldende versjon av grunnlaget, i brevet eller før det, og grunnlaget ikke er avklart
+ * ved frafall (GR-U23). Det er ikke et lag.
+ */
+function forbeholdForGrunnlaget(s: Svar, { j, saken, nytt }: Tekst): string[] {
+  if (s.spor === 'grunnlag' || saken.grunnlagssvar !== null || saken.avklartVedFrafall) return [];
+  if (nytt.svar.some((x) => x.spor === 'grunnlag')) return [];
+  if (!s.grunnlagskrav) throw new KanIkkeUttrykkes(`${s.id} viser ikke til grunnlagskravet`);
+  return [
+    `Byggherren har ennå ikke svart på grunnlaget i TEs krav i ${j.brevet(j.krav(s.grunnlagskrav).dokument)}.`,
+    'Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.',
+  ];
+}
+
+/** LV-U4 punkt 4 og 5, med A2 når grunnlaget er avslått eller prekludert, og GR-U26 når det er ubesvart. */
 function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const { j, nytt } = t;
   const krav = j.krav(s.gjelder);
@@ -505,9 +522,9 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   // OV-U32: et avslått eller prekludert grunnlag står først, med lagene fra svaret på
   // grunnlaget, og lagene i sporet flyttes ned med antallet lag de opptar (B-13, A2). Hvert
   // ledd fra grunnlaget er ett lag der: preklusjonen etter § 32.2 er det første, og avslaget
-  // står i laget etter. Et standpunkt uten lag, også et upåvirket, og metoden, som står ved
-  // siden av beløpet (arbeidsvalget i #479), får ingen etikett. Standpunktene i samme lag
-  // står under én etikett.
+  // står i laget etter. Et standpunkt uten lag, også et upåvirket, får ingen etikett. Metoden
+  // står i laget til justeringen ellers (OV-U33, LV-U31). Standpunktene i samme lag står under
+  // én etikett.
   const grunnlaget = grunnlagetsStandpunkter(s, t);
   const forskyvning = grunnlaget.length;
   const ledd = [
@@ -516,7 +533,7 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
       const lag = laget(virkning.get(p.id)!);
       return {
         tekst: standpunkttekst(p, s, krav, j, innsigelser),
-        plass: lag !== null && p.art !== 'metode' ? lag + forskyvning : null,
+        plass: lag !== null ? lag + forskyvning : null,
       };
     }),
   ];
@@ -529,6 +546,7 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   });
   return [
     `Byggherrens svar på ${SVARET_GJELDER[s.spor]} i TEs krav i ${j.brevet(krav.dokument)}:`,
+    ...forbeholdForGrunnlaget(s, t),
     ...setninger,
     ...(s.erstatter
       ? [`Svaret erstatter byggherrens svar i ${j.brevet(j.svar(s.erstatter).dokument)}.`]
@@ -593,9 +611,10 @@ function standpunkttekst(
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
     case 'metode':
-      // Arbeidsvalget i #479: metoden er byggherrens standpunkt, ikke appens avgjørelse.
+      // Arbeidsvalget i #479: metoden er byggherrens standpunkt, ikke appens avgjørelse. LV-U31 og
+      // LV-U32: godkjenningen betegner ikke tilbudet som akseptert, heller ikke ved fullt beløp.
       return p.aksepterer
-        ? 'byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).'
+        ? 'byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.'
         : `byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres ${METODEN[p.oensket!]}.`;
     case 'spesifisering':
       return p.iTide

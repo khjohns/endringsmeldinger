@@ -87,7 +87,7 @@ export function senketInnroemmelse(
         return 'Svaret godtar at fremdriften er hindret som følge av forholdet (§ 33.1), og revisjonen tar det tilbake';
     } else if (f.art === 'metode' && f.aksepterer) {
       if (ny(f)?.aksepterer === false)
-        return 'Svaret aksepterer beregningsmåten i tilbudet (§ 34.2.2, HF-U14), og revisjonen tar aksepten tilbake';
+        return 'Svaret godkjenner oppgjør som fast sum (§ 34.2.2, HF-U14), og revisjonen tar godkjenningen tilbake';
     }
   }
   return null;

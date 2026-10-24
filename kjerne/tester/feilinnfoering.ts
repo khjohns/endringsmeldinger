@@ -20,7 +20,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -1512,16 +1512,15 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F187',
-    feilklasse: '«ja» og «nei» på § 34.2.2 får motsatt virkning',
+    feilklasse: 'godkjenningen av oppgjør som fast sum står uten lag (OV-U33, LV-U31)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (s.art === 'metode' && s.aksepterer) return 'uten_virkning';",
-        "if (s.art === 'metode' && !s.aksepterer) return 'uten_virkning';",
+        "if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
+        "if (s.art === 'metode' && s.aksepterer) return 'uten_virkning';\n      if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
       ],
     ],
-    // Virkningen av «nei» leses ikke av noen regel, så den overlever der (#490).
-    mal: ['F-MM-V-34-2-2-ja'],
+    mal: ['F-MM-V-34-2-2-ja', 'justeringen ellers er upåvirket'],
   },
   {
     id: 'F188',
@@ -3527,6 +3526,73 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/format/leser.ts`,
     endringer: [['beloep(begrenset.begrenset)! > beloep(post.godkjent)!', 'false']],
     mal: ['et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått'],
+  },
+  // GR-U26, LV-U31 og OV-U33: forbeholdet for ubesvart grunnlag, oppgjør som fast sum og
+  // metoden i laget til beløpet (#1239, #1240).
+  {
+    id: 'F406',
+    feilklasse:
+      'svaret på vederlag eller frist uten svar på grunnlaget har ikke forbeholdet (GR-U26)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    ...forbeholdForGrunnlaget(s, t),\n', '']],
+    mal: [
+      'det første svaret på vederlaget har forbeholdet',
+      'forløpet i #1239',
+      'forbeholdet i hvert svaravsnitt',
+    ],
+  },
+  {
+    id: 'F407',
+    feilklasse: 'forbeholdet skrives når grunnlaget er avklart ved frafall (GR-U23, GR-U26)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['avklartVedFrafall: u.frafalt,', 'avklartVedFrafall: false,']],
+    mal: ['etter et frafall er grunnlaget avklart mens en ny versjon venter'],
+  },
+  {
+    id: 'F408',
+    feilklasse: 'forbeholdet skrives når grunnlaget besvares i samme brev (GR-U26)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [["  if (nytt.svar.some((x) => x.spor === 'grunnlag')) return [];\n", '']],
+    mal: ['kontrollsak: med grunnlaget godkjent i samme brev har svaret ikke forbeholdet'],
+  },
+  {
+    id: 'F409',
+    feilklasse: 'brevet betegner oppgjør som fast sum som aksept av tilbudet (LV-U31)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "'byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.'",
+        "'byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).'",
+      ],
+    ],
+    mal: ['LV-U31 med lavere beløp', 'LV-U32 med hele beløpet'],
+  },
+  {
+    id: 'F410',
+    feilklasse: 'metoden får ikke etiketten for laget sitt (OV-U33)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'plass: lag !== null ? lag + forskyvning : null,',
+        "plass: lag !== null && p.art !== 'metode' ? lag + forskyvning : null,",
+      ],
+    ],
+    mal: [
+      '§ 34.1.2 «nei»: byggherren påberoper prinsipalt at varselet kom for sent',
+      'avslått grunnlag gir beløpet etiketten for andre lag, som brevet',
+    ],
+  },
+  {
+    id: 'F411',
+    feilklasse: 'en revisjon mens grunnlaget ikke er besvart, mister forbeholdet (GR-U26, GR-08)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "  if (nytt.svar.some((x) => x.spor === 'grunnlag')) return [];\n",
+        "  if (nytt.svar.some((x) => x.spor === 'grunnlag')) return [];\n  if (s.erstatter) return [];\n",
+      ],
+    ],
+    mal: ['GR-08: en revisjon av vederlagssvaret mens en ny grunnlagsversjon venter'],
   },
 ];
 

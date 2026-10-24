@@ -990,7 +990,7 @@ function utledSporene(
       ? 'ja'
       : 'nei';
   const gBrev = gSvar ? svar[gSvar.id] : null;
-  // GR-U1, GR-U4, #342: svaret i sporet er subsidiært til gjeldende svar på
+  // GR-U1, GR-U26, #342: svaret i sporet er subsidiært til gjeldende svar på
   // grunnlaget. Venter grunnlaget på svar på en ny versjon, forblir det subsidiært
   // til grunnlagssvaret som sist gjaldt: svaret på den seneste besvarte versjonen i
   // kravkjeden, fra og med versjonen det ble regnet mot, også når det svaret er
