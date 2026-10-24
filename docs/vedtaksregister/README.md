@@ -13,6 +13,7 @@ og vakttestene står i
 python3 docs/verktoy/vedtaksregister.py           # kontroller registeret og skriv vedtaksfila
 python3 docs/verktoy/vedtaksregister.py --sjekk   # bare kontroller
 python3 docs/verktoy/vedtakshenvisninger.py       # vedtaks-ID-ene i koden (#452)
+python3 docs/verktoy/byggestatus.py               # byggestatusen, laget av koden og issuene (#1021)
 ```
 
 ## Hvem som er autoritativ
@@ -92,7 +93,7 @@ svar = '''
 Oppdragsgivers svar, ordrett.'''
 forhold = [{ art = "presiserer", vedtak = "ka-u1" }]
 folge = '''
-Ikke bygget'''
+Bygges i #313'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -120,8 +121,9 @@ tekst = "et ordrett utdrag"
   `forhold` har én av artene `presiserer`, `utvider`, `snevrer inn`, `endrer` og
   `opphever`, og viser til ankeret til et vedtak. Verktøyet skriver forholdet
   begge veier: `Presiserer [KA-U1](#ka-u1).` hos det nye vedtaket, og
-  `Presisert 13.10 av [LV-U6](#lv-u6).` først i Følge hos KA-U1. `folge` er resten:
-  byggestatus, med dato og belegg.
+  `Presisert 13.10 av [LV-U6](#lv-u6).` først i Følge hos KA-U1. `folge` er resten,
+  som issuet som bygger vedtaket. Byggestatus føres ikke der; den lages av
+  verktøyet (se [Byggestatusen](#byggestatusen)).
 - **Sitater** fra NS 8407, hovedplanen eller en fil i treet føres som `sitat`
   med kilden: `ns8407`, `hovedplanen` eller stien. Kilden `hovedplanen` er
   hovedplanen, vedtaksfila og arkivet, som var deler av den. Et sitat er hele setninger;
@@ -132,6 +134,38 @@ tekst = "et ordrett utdrag"
   anbefalingen» eller «Ja til alle anbefalingene» (#486). Et svar med forbehold,
   som «unntatt» eller «men», regnes ikke som tilslutning og må nevne alternativet
   (#604). Et anbefalt alternativ kan ikke være forkastet.
+
+## Byggestatusen
+
+Byggestatusen lages av koden og issuene, ikke for hånd (oppdragsgivers svar 20.10
+på spørsmål 4 i [vurderingen](../vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md),
+#1021). Verktøyet er [`docs/verktoy/byggestatus.py`](../verktoy/byggestatus.py), og
+testene står i
+[`test_byggestatus.py`](../../backend/tests/test_vedtaksregister/test_byggestatus.py).
+
+```bash
+python3 docs/verktoy/byggestatus.py                # alle vedtakene med ID
+python3 docs/verktoy/byggestatus.py --avvik        # bare vedtakene med avvik
+python3 docs/verktoy/byggestatus.py --uten-issues  # uten nett
+```
+
+- **Visningen** har, for hvert vedtak med ID, produksjonsfilene og testfilene i
+  `kjerne/`, `server/` og `src/` som viser til det, lest som i
+  [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py). Den har også
+  issuene og PR-ene som Følge nevner, med tilstanden hentet med `gh api`, og den
+  siste byggestatusen Følge sier for hånd. En henvisning i koden sier at koden
+  bygger på vedtaket, ikke at hele vedtaket er bygget.
+- **Avvikene** er «Ikke bygget» i Følge når produksjonskoden viser til vedtaket,
+  og «Ikke bygget» når alle issuene Følge nevner, er lukket. Et avvik er noe å
+  kontrollere. PR-er og issues med ukjent tilstand teller ikke i det andre.
+- **Visningen sjekkes ikke inn**, fordi tilstanden til issuene endrer seg uten en
+  commit. Kjør verktøyet når byggestatusen trengs.
+- **Byggestatusen som står i Følge, blir stående**, fordi Følge i en importert rad
+  bare kan få tekst lagt til. Den er ført for hånd og kan være foreldet; visningen
+  viser den ved siden av. **Ny byggestatus føres ikke i `folge`**: vakttesten melder
+  «Ikke bygget», «Delvis bygget», «Del n bygget» og «Bygget» først i en setning
+  når teksten er ny etter `main`. «Bygges i #n» er lov, og det er den visningen
+  leser.
 
 ## Temavisningene
 
@@ -184,6 +218,7 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
+| Følge får ikke ny byggestatus for hånd: «Ikke bygget», «Delvis bygget», «Del n bygget» eller «Bygget» først i en setning, utover det som står på `main` | alle poster (#1021) |
 | En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452) |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem

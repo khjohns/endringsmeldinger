@@ -57,6 +57,9 @@ Før #1020 sto vedtakene i avsnitt 3.1 i
 til «3.1» gjelder denne fila. Fila lages av
 [vedtaksregisteret](../vedtaksregister/README.md) og rettes bare der. Resten av
 beslutningsregisteret, føringene og de åpne beslutningene, står i hovedplanen.
+
+Byggestatusen i Følge er ført for hånd og kan være foreldet. Den gjeldende lages av
+koden og issuene med `python3 docs/verktoy/byggestatus.py` (#1021).
 """
 
 OVERSKRIFT = "### 3.1 Vedtatte premisser og beslutninger\n"
@@ -1143,6 +1146,39 @@ def mot_grunnlag(
     return feil
 
 
+# Byggestatus ført for hånd: «Ikke bygget», «Delvis bygget», «Del 2 bygget», og «Bygget»
+# først i en setning. «Bygges i #411» viser til issuet og er ikke status (#1021).
+BYGGESTATUS = re.compile(
+    r"(?<![\w-])(?:(?:[Ii]kke|[Dd]elvis|[Dd]el \d+) bygget"
+    r"|(?:^|(?<=[.!?:;] )|(?<=\())Bygget)(?![\w-])"
+)
+
+
+def byggestatus_i(folge: str) -> list[str]:
+    """Byggestatusen Følge sier, i rekkefølgen den står."""
+    return BYGGESTATUS.findall(" ".join(folge.split()))
+
+
+def ny_byggestatus(gammel_register: dict, register: dict) -> list[str]:
+    """Byggestatus lagt til i `folge` etter main. Den lages av docs/verktoy/byggestatus.py
+    av koden og issuene (oppdragsgiver 20.10, #1021); teksten som står der fra før, blir
+    stående."""
+
+    def noekkel(p: dict) -> str:
+        return anker(p) or linje(p["vedtak"])
+
+    gamle = {
+        noekkel(p): len(byggestatus_i(p.get("folge", "")))
+        for p in poster(gammel_register)
+    }
+    return [
+        f"{etikett(p)}: byggestatus ført for hånd i folge («{status[-1]}»); "
+        "den lages av docs/verktoy/byggestatus.py"
+        for p in poster(register)
+        if len(status := byggestatus_i(p.get("folge", ""))) > gamle.get(noekkel(p), 0)
+    ]
+
+
 def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
     """Kontrollene av hovedplanen og registeret, mot main når commiten finnes. Tom når alt holder.
 
@@ -1173,6 +1209,7 @@ def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
             "\n".join([gammel_plan, git_fil(commit, ARKIV_I_GIT) or "", gammel]),
         )
         + sitatfeil(register, kilder_paa(commit), merget)
+        + ny_byggestatus(gammel_register, register)
     )
 
 

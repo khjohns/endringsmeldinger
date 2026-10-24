@@ -121,5 +121,9 @@ skriver ikke der.
   postene, hver endret `folge` i en importert post og hver ny eller endret
   tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,
   beskrivelser av dagens atferd uten belegg, og arbeidsstatus.
+- Byggestatus føres ikke i `folge`. Den lages av `docs/verktoy/byggestatus.py`
+  av koden og issuene (oppdragsgiver 20.10, #1021), og vakttesten melder ny
+  byggestatus i Følge. `folge` kan nevne issuet som bygger vedtaket, «Bygges i
+  #n», og visningen leser tilstanden derfra.
 - Merknaden om at et punkt i en arbeidspakke er levert, skriver orkestratoren i
   en egen liten PR etter mergen.
