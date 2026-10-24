@@ -89,7 +89,7 @@
   }
   .field-input {
     padding: 6px 8px;
-    border: 1px solid var(--border);
+    border: var(--control-border);
     border-radius: 6px;
     background: var(--surface);
     color: var(--ink);

@@ -53,7 +53,7 @@
 <style>
   .dokument {
     padding: 28px 32px;
-    border: 1px solid var(--border);
+    border: var(--rule);
     border-radius: 12px;
     background: var(--surface);
     line-height: 1.6;
