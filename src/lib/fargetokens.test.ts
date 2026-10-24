@@ -2,7 +2,8 @@
  * To vakter for fargetokenene (#1184).
  *
  * **Udefinerte tokens.** Hver `var(--x)` i `src/` skal være definert i en stilfil
- * eller en komponent (`--x: …`), satt med `style:--x` eller med `setProperty`.
+ * eller en komponent (`--x: …`) eller satt med `style:--x={…}` eller
+ * `setProperty('--x', …)` med navnet som streng.
  * Et token som bare brukes, faller stille tilbake til fallbacken eller til ingenting,
  * også når `var()` har en fallback. Vakten ser ikke hvilken selektor som definerer
  * tokenet, så et token som bare finnes i én komponent eller bare i mørk modus,
@@ -36,10 +37,12 @@ export function udefinerteTokens(tekster: Record<string, string>): Record<string
   const definert = new Set<string>();
   const brukt = new Map<string, Set<string>>();
   for (const [fil, tekst] of Object.entries(tekster)) {
-    const kode = tekst.replace(/\/\*[\s\S]*?\*\//g, '');
+    const kode = tekst
+      .replace(/\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->/g, '')
+      .replace(/(?<!:)\/\/.*$/gm, '');
     const utenBruk = kode.replace(/var\(\s*--[\w-]+/g, '');
     for (const m of utenBruk.matchAll(
-      /style:(--[\w-]+)\s*=|setProperty\(\s*['"](--[\w-]+)['"]\s*,|(?<![\w-])(--[\w-]+)['"]?\s*:/g
+      /style:(--[\w-]+)\s*=|setProperty\(\s*['"](--[\w-]+)['"]\s*,|(?<![\w-])(--[\w-]+)(?:['"]:|\s*:)/g
     ))
       definert.add(m[1] ?? m[2] ?? m[3]);
     for (const m of kode.matchAll(/var\(\s*(--[\w-]+)/g)) {
@@ -158,13 +161,16 @@ describe('fargetokenene i src/', () => {
 });
 
 describe('kontrollene i vaktene', () => {
-  it('et token som bare brukes, også med fallback over flere linjer, definert bare i en kommentar eller likt navnet på en BEM-modifikator, regnes som udefinert', () => {
+  it('et token som bare brukes, også med fallback over flere linjer, definert bare i en kommentar, nevnt i en streng eller likt navnet på en BEM-modifikator, regnes som udefinert', () => {
     expect(
       udefinerteTokens({
         'a.css': ':root { --ink: #000; }\n/* --gammel: #fff; */\n.x { color: var(--ink); }',
         'b.svelte':
           '<div style:--bredde="4px" style="--hoyde: 2px"></div>\n<style>.y { width: var(--bredde); height: var(--hoyde); border: var(--line, var(--ink)); color: var(--gammel); }</style>',
         'c.ts': "el.style.setProperty('--satt', '1px');\nconst v = 'var(--satt) var(--wire)';",
+        'e.ts':
+          "// --linje: #fff\nconst f = fare ? '--rod' : '--ink';\nconst v = 'var(--linje) var(--rod)';",
+        'f.svelte': '<!-- --ramme: 1px -->\n<style>.r { border: var(--ramme); }</style>',
         'd.css':
           '.stempel--advarsel:hover, .stempel--fare, .z { color: var(--advarsel); border: var(\n    --fare,\n    1px solid red\n  ); }',
       })
@@ -173,6 +179,9 @@ describe('kontrollene i vaktene', () => {
       '--fare': ['d.css'],
       '--gammel': ['b.svelte'],
       '--line': ['b.svelte'],
+      '--linje': ['e.ts'],
+      '--ramme': ['f.svelte'],
+      '--rod': ['e.ts'],
       '--wire': ['c.ts'],
     });
   });
