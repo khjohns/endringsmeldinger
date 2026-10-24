@@ -232,7 +232,7 @@ function sakMedKrav() {
 const BEGRUNNELSE = 'Byggherrens begrunnelse.';
 
 /** «Ja» på § 34.2.2 og § 33.6.1 står i brevet uten å ordnes, som byggherren sa det (#341, LV-U3). */
-// LV-U31: setningen når byggherren godkjenner oppgjør som fast sum.
+// LV-U31 og LV-U32: setningen når byggherren godkjenner oppgjør som fast sum.
 const METODE_JA =
   'Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.';
 const metodeJa = `b${METODE_JA.slice(1)}`;
@@ -1414,6 +1414,31 @@ describe('forbeholdet når grunnlaget ikke er besvart (GR-U26)', () => {
     ]);
   });
 
+  it('GR-08: en revisjon av vederlagssvaret mens en ny grunnlagsversjon venter, har forbeholdet og ikke avslaget på den forrige', () => {
+    const s = sakMedKrav();
+    // Brev 5: grunnlaget avslått og vederlaget delvis godkjent.
+    s.send('BH', { type: 'brev', svar: [grunnlag(s, 'avslaatt'), vederlag(s)] });
+    s.send('TE', GRUNNLAGSKRAV); // Brev 6: grunnlaget i versjon 2.
+    expect(s.u().spor.grunnlag.gjeldendeSvar, 'forutsetning: versjon 2 er ikke besvart').toBeNull();
+    const rad = s.send('BH', {
+      type: 'revisjon',
+      erstatter: s.u().spor.vederlag.gjeldendeSvar!.id,
+      svar: svar(
+        'vederlag',
+        s.krav('vederlag'),
+        { ...VEDERLAG_DELVIS[0], hovedkrav_godkjent_belop: 110000 },
+        { ...VEDERLAG_DELVIS[1], godkjent_beloep: 110000 }
+      ),
+    });
+    const [tekst] = laast(rad);
+    expect(tekst).toMatch(
+      new RegExp(
+        `^${esc(`${vederlagssvaret} brev 3 av 3. oktober 2026: ${forbehold('brev 6 av 6. oktober 2026')} ${METODE_JA} Byggherren godkjenner ${KR('110 000')}`)}.*${esc('Svaret erstatter byggherrens svar i brev 5 av 5. oktober 2026.')}$`
+      )
+    );
+    expect(tekst).not.toMatch(/avsl/);
+  });
+
   it('svar på vederlag og frist i samme brev har forbeholdet i hvert svaravsnitt (arbeidsvalget S2 i #1239)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', { type: 'brev', svar: [vederlag(s), frist(s)] });
@@ -1500,11 +1525,11 @@ describe('forbeholdet når grunnlaget ikke er besvart (GR-U26)', () => {
 });
 
 /**
- * LV-U31: godkjenner byggherren oppgjør som fast sum, betegner brevet ikke tilbudet som
- * akseptert, heller ikke når hele beløpet er godkjent (oppdragsgiver 24.10, S1 i #1240). Etiketten for
- * laget står i testene av § 34.1.2 over (OV-U33).
+ * LV-U31 og LV-U32: godkjenner byggherren oppgjør som fast sum, betegner brevet ikke tilbudet
+ * som akseptert, heller ikke når hele beløpet er godkjent. Etiketten for laget står i testene
+ * av § 34.1.2 over (OV-U33).
  */
-describe('oppgjør som fast sum (LV-U31)', () => {
+describe('oppgjør som fast sum (LV-U31, LV-U32)', () => {
   const godkjentFor = (beloep: number) => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
@@ -1538,7 +1563,7 @@ describe('oppgjør som fast sum (LV-U31)', () => {
     expect(b.sammenfall).toBe(false);
   });
 
-  it('LV-U31 med hele beløpet: samme setning, og standpunktene faller sammen (oppdragsgiver 24.10, S1 i #1240; GR-U7)', () => {
+  it('LV-U32 med hele beløpet: samme setning, og standpunktene faller sammen (GR-U7)', () => {
     const { tekst, b } = godkjentFor(125000);
     expect(tekst).toBe(
       `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: ${METODE_JA} Byggherren godkjenner ${KR('125 000')}`

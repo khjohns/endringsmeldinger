@@ -611,8 +611,8 @@ function standpunkttekst(
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
     case 'metode':
-      // Arbeidsvalget i #479: metoden er byggherrens standpunkt, ikke appens avgjørelse. LV-U31:
-      // godkjenningen betegner ikke tilbudet som akseptert, heller ikke ved fullt beløp (#1240).
+      // Arbeidsvalget i #479: metoden er byggherrens standpunkt, ikke appens avgjørelse. LV-U31 og
+      // LV-U32: godkjenningen betegner ikke tilbudet som akseptert, heller ikke ved fullt beløp.
       return p.aksepterer
         ? 'byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.'
         : `byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres ${METODEN[p.oensket!]}.`;

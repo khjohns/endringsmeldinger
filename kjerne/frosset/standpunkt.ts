@@ -128,7 +128,7 @@ export function virkninger(
  * (OV-U22, VS-U5): den står i laget etter § 34.1.2 sammen med justeringen ellers og
  * metoden, og posten i laget etter den. Rammer ingen påberopelse justeringen ellers, er den
  * upåvirket, så sant grunnlaget verken er avslått eller prekludert (OV-U33). Metoden står i
- * laget til justeringen ellers, også når byggherren godkjenner oppgjør som fast sum (LV-U31).
+ * laget til justeringen ellers, også når byggherren godkjenner oppgjør som fast sum (LV-U31, LV-U32).
  */
 function vederlagsvirkninger(
   svar: Svarinnhold,

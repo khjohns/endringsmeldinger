@@ -573,6 +573,13 @@
       "radetikett": "LV-U31: Når byggherren godkjenner oppgjør som fast sum, men ikke hele tilbudet"
     },
     {
+      "id": "LV-U32",
+      "type": "vedtak",
+      "dato": "2026-10-24",
+      "ref": "../plans/vedtak.md#lv-u32",
+      "radetikett": "LV-U32: Når byggherren godkjenner oppgjør som fast sum, sier brevet"
+    },
+    {
       "id": "KA-U14",
       "type": "vedtak",
       "dato": "2026-10-10",
