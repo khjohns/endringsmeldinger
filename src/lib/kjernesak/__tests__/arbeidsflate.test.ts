@@ -10,6 +10,7 @@ import type { Journalrad, Part } from '$kjerne/typer';
 import { lagKjernesakflate } from '$lib/kjernesak/arbeidsflate.svelte';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
+import { vederlagssvarFraSkjema } from '$lib/kjernesak/vederlagssvar';
 import { SAK, medVederlag, medVederlagssvar } from './provejournal';
 
 const svar = (journal: Journalrad[], part: Part | null): Kjernesak => ({
@@ -153,6 +154,47 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
         total_godkjent_belop: 1,
       })
     ).rejects.toThrow(/godkjent_beloep=250000/);
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('et delvis godkjent svar uten begrunnelse vises ikke i brevkontrollen, og meldingen sier hva som hindrer (#1254, KA-U24, KA-U31)', async () => {
+    const send = vi.fn();
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(medVederlag, 'BH'),
+      send,
+    });
+    await kjernesak.last();
+    const kontroll = lagKravkontroll(kjernesak);
+    const delvis = {
+      hovedkrav_vurdering: 'delvis',
+      aksepterer_metode: true,
+      hovedkrav_godkjent_belop: 100000,
+      beregnings_resultat: 'delvis_godkjent',
+      total_godkjent_belop: 100000,
+    };
+    await expect(kontroll.submit('vederlag', 'respons_vederlag', delvis)).rejects.toThrow(
+      /Svaret må ha en begrunnelse/
+    );
+    expect(kontroll.letter).toBeNull();
+    expect(send).not.toHaveBeenCalled();
+
+    // A1: forhåndsvisningen viser teksten før begrunnelsen er skrevet.
+    const utenBegrunnelse = vederlagssvarFraSkjema(
+      delvis,
+      kjernesak.utledning!,
+      kjernesak.regelversjon
+    );
+    expect(kjernesak.brev(utenBegrunnelse)).toHaveProperty('tekst');
+
+    const sending = kontroll.submit('vederlag', 'respons_vederlag', {
+      ...delvis,
+      begrunnelse: '<p>Deler av arbeidet er med i kontrakten.</p>',
+    });
+    await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
+    kontroll.cancel();
+    await expect(sending).rejects.toThrow();
     expect(send).not.toHaveBeenCalled();
   });
 });

@@ -141,15 +141,16 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   /**
    * Brevet for kommandoen mot saken slik den er lastet: den låste teksten eller
    * avvisningen. En programfeil i kjernen blir en melding, så visningen ikke velter.
-   * `null` før saken er lastet og uten side.
+   * `null` før saken er lastet og uten side. `sendes` som i `brevFor`.
    */
   function brev(
     kommando: Record<string, unknown>,
-    vedlegg?: Vedleggsoppslag
+    vedlegg?: Vedleggsoppslag,
+    sendes = false
   ): Brev | Programfeil | null {
     if (!sak || !part) return null;
     try {
-      return brevFor(kommando, sakId, part, journal, kjerne, vedlegg);
+      return brevFor(kommando, sakId, part, journal, kjerne, vedlegg, sendes);
     } catch (e) {
       console.error(e);
       return { programfeil: PROGRAMFEIL };
