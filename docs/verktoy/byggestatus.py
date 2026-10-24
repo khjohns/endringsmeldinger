@@ -19,9 +19,9 @@ For hvert vedtak med ID viser den:
 To avvik merkes. Følge sier «Ikke bygget», men produksjonskoden viser til vedtaket.
 Eller Følge sier «Ikke bygget», og issuene som bygger vedtaket, er lukket. Det er
 issuene i en setning om byggingen, som «Bygges i #411». PR-ene teller ikke, og et
-issue lukket som ikke planlagt eller med ukjent tilstand gjør det ikke lukket.
-Statusen er den siste som står først i en setning. Et avvik er noe å kontrollere,
-ikke en dom.
+issue lukket som ikke planlagt eller duplikat, eller med ukjent tilstand, gjør det
+ikke lukket. Statusen er den siste med stor forbokstav, som vakten i
+vedtaksregister.py leser. Et avvik er noe å kontrollere, ikke en dom.
 
 Tilstanden hentes med `gh api` fra REST-grensesnittet, side for side, fordi
 --paginate gir 403 i skyøktene. Feiler kallet, står tilstanden som ukjent.
@@ -43,13 +43,9 @@ vr = vh.vr
 
 REPO = "khjohns/endringsmeldinger"
 ISSUE = re.compile(r"(?<![\w&/])#(\d+)\b")
-# Statusen Følge sier for hånd, først i en setning. «Sperren er ikke bygget» midt i en
-# setning gjelder en del av vedtaket og telles ikke.
-STATUS = re.compile(
-    r"(?:^|(?<=[.!?:;] )|(?<=\())(?:(?:Ikke|Delvis|Del \d+) bygget|Bygget)(?![\w-])"
-)
 SETNING = re.compile(r"(?<=[.!?])\s+")
-BYGG = re.compile(r"\b[Bb]ygg(?:et|es)\b")
+BYGG = re.compile(r"\b(?:[Bb]ygg(?:et|es)(?! ikke)|hører til)\b")
+IKKE_FULLFOERT = {"not_planned": "ikke planlagt", "duplicate": "duplikat"}
 VIS_FILER = 3
 
 
@@ -68,8 +64,9 @@ def nevnte_issues(folge: str) -> list[int]:
 
 
 def byggeissues(folge: str) -> list[int]:
-    """Issuene i en setning om byggingen, som «Bygges i #411» og «Ikke bygget (#371)».
-    Et issue der spørsmålet ble stilt eller besvart, er ikke med."""
+    """Issuene i en setning om byggingen, som «Bygges i #411», «Ikke bygget (#371)» og
+    «Skjemaet hører til #313». Et issue der spørsmålet ble stilt eller besvart, er ikke
+    med, og heller ikke et i «Bygges ikke i første versjon»."""
     return [
         n
         for s in SETNING.split(" ".join(folge.split()))
@@ -79,7 +76,7 @@ def byggeissues(folge: str) -> list[int]:
 
 
 def hent_tilstander(repo: str = REPO) -> dict[int, dict] | None:
-    """Nummer → {"lukket": bool, "ikke_planlagt": bool, "pr": bool} for alle issuene og
+    """Nummer → {"lukket": bool, "grunn": state_reason, "pr": bool} for alle issuene og
     PR-ene, eller None når de ikke kan hentes."""
     tilstander = {}
     side = 1
@@ -106,7 +103,7 @@ def hent_tilstander(repo: str = REPO) -> dict[int, dict] | None:
         for i in sider:
             tilstander[i["number"]] = {
                 "lukket": i["state"] == "closed",
-                "ikke_planlagt": i.get("state_reason") == "not_planned",
+                "grunn": i.get("state_reason"),
                 "pr": "pull_request" in i,
             }
         side += 1
@@ -122,21 +119,23 @@ def status(
     kode = sorted({f for i in ider for f in koden.get(i, {}).get("kode", [])})
     tester = sorted({f for i in ider for f in koden.get(i, {}).get("tester", [])})
     folge = post.get("folge", "")
-    for_haand = STATUS.findall(" ".join(folge.split()))
+    for_haand = vr.byggestatus_i(folge)
     nevnt = [
         {"nummer": n} | ((tilstander or {}).get(n) or {}) for n in nevnte_issues(folge)
     ]
     ikke_bygget = bool(for_haand) and for_haand[-1] == "Ikke bygget"
-    bygges_i = [
-        n for n in nevnt if n["nummer"] in byggeissues(folge) and not n.get("pr")
-    ]
+    bygg = set(byggeissues(folge))
+    bygges_i = [n for n in nevnt if n["nummer"] in bygg and not n.get("pr")]
     avvik = []
     if ikke_bygget and kode:
         avvik.append("Følge sier «Ikke bygget», men produksjonskoden viser til vedtaket")
     if (
         ikke_bygget
         and bygges_i
-        and all(n.get("lukket") is True and not n.get("ikke_planlagt") for n in bygges_i)
+        and all(
+            n.get("lukket") is True and n.get("grunn") not in IKKE_FULLFOERT
+            for n in bygges_i
+        )
     ):
         avvik.append(
             "Følge sier «Ikke bygget», og issuene som bygger vedtaket, er lukket"
@@ -175,8 +174,8 @@ def _issue(n: dict) -> str:
     navn = f"PR #{n['nummer']}" if n.get("pr") else f"#{n['nummer']}"
     if "lukket" not in n:
         return f"{navn} ukjent"
-    if n.get("ikke_planlagt"):
-        return f"{navn} lukket som ikke planlagt"
+    if n.get("grunn") in IKKE_FULLFOERT:
+        return f"{navn} lukket som {IKKE_FULLFOERT[n['grunn']]}"
     return f"{navn} {'lukket' if n['lukket'] else 'åpen'}"
 
 

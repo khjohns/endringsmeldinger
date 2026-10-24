@@ -100,10 +100,29 @@ def test_et_issue_utenfor_setningen_om_byggingen_teller_ikke():
 
 
 def test_et_issue_lukket_som_ikke_planlagt_er_ikke_bygget():
-    tilstander = {411: {"lukket": True, "ikke_planlagt": True, "pr": False}}
-    r = bs.status(VS_U16, {}, tilstander)
-    assert r["avvik"] == []
-    assert "#411 lukket som ikke planlagt" in bs.markdown([r], hentet=True)
+    for grunn, vist in (("not_planned", "ikke planlagt"), ("duplicate", "duplikat")):
+        tilstander = {411: {"lukket": True, "grunn": grunn, "pr": False}}
+        r = bs.status(VS_U16, {}, tilstander)
+        assert r["avvik"] == []
+        assert f"#411 lukket som {vist}" in bs.markdown([r], hentet=True)
+
+
+@pytest.mark.parametrize(
+    "folge",
+    ["Ikke bygget. Skjemaet hører til #313", "Bygges i #313\nIkke bygget"],
+    ids=["hoerer-til", "uten-tegn-foran"],
+)
+def test_et_lukket_issue_som_bygger_vedtaket_gir_avvik(folge):
+    """De fleste radene med «Ikke bygget» nevner issuet med «hører til #n»."""
+    r = bs.status(importert("vs-u16", folge), {}, {313: {"lukket": True, "pr": False}})
+    assert r["avvik"] == [
+        "Følge sier «Ikke bygget», og issuene som bygger vedtaket, er lukket"
+    ]
+
+
+def test_bygges_ikke_peker_ikke_paa_et_byggeissue():
+    post = importert("vs-u16", "Ikke bygget. Bygges ikke i første versjon, se #309")
+    assert bs.status(post, {}, {309: {"lukket": True, "pr": False}})["avvik"] == []
 
 
 def test_ikke_bygget_midt_i_en_setning_er_ikke_statusen():
@@ -154,6 +173,8 @@ def test_et_anker_i_folge_er_ikke_et_issue():
         ("Ikke bygget. Bygges i #411", ["Ikke bygget"]),
         ("Delvis bygget, kontrollert 20.10", ["Delvis bygget"]),
         ("Del 2\nbygget 16.10", ["Del 2 bygget"]),
+        ("Skjemaet til #313 Delvis bygget", ["Delvis bygget"]),
+        ("Sperren er ikke bygget", []),
         ("Snevrer inn KA-U1. Bygget 16.10", ["Bygget"]),
         ("Ikke bygget (#371).", ["Ikke bygget"]),
         ("Bygges i #411", []),
@@ -164,9 +185,12 @@ def test_byggestatusen_i_folge(folge, status):
     assert vr.byggestatus_i(folge) == status
 
 
-def test_vakta_godtar_byggestatusen_som_staar_fra_foer():
+@pytest.mark.parametrize(
+    "tillegg", [". Se også #1021", ". Sperren er ikke bygget"], ids=["issue", "en-del"]
+)
+def test_vakta_godtar_byggestatusen_som_staar_fra_foer(tillegg):
     gammel = register(VS_U16)
-    lagt_til = register(importert("vs-u16", VS_U16["folge"] + ". Se også #1021"))
+    lagt_til = register(importert("vs-u16", VS_U16["folge"] + tillegg))
     assert vr.ny_byggestatus(gammel, lagt_til) == []
 
 

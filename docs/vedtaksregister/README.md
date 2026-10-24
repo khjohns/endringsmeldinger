@@ -157,19 +157,19 @@ python3 docs/verktoy/byggestatus.py --uten-issues  # uten nett
   bygger på vedtaket, ikke at hele vedtaket er bygget.
 - **Avvikene** er «Ikke bygget» i Følge når produksjonskoden viser til vedtaket,
   og «Ikke bygget» når issuene som bygger vedtaket, er lukket. Det er issuene i en
-  setning om byggingen, som «Bygges i #411» eller «Ikke bygget (#371)», ikke
-  issuet der spørsmålet ble stilt. PR-er teller ikke, og et issue lukket som ikke
-  planlagt eller med ukjent tilstand gjør det ikke lukket. Statusen er den siste
-  som står først i en setning, så «Sperren er ikke bygget» telles ikke. Et avvik
-  er noe å kontrollere.
+  setning om byggingen, som «Bygges i #411», «Ikke bygget (#371)» eller «hører til
+  #313», ikke issuet der spørsmålet ble stilt. PR-er teller ikke, og et issue
+  lukket som ikke planlagt eller duplikat, eller med ukjent tilstand, gjør det ikke
+  lukket. Statusen er den siste med stor forbokstav, så «Sperren er ikke bygget»
+  telles ikke. Et avvik er noe å kontrollere.
 - **Visningen sjekkes ikke inn**, fordi tilstanden til issuene endrer seg uten en
   commit. Kjør verktøyet når byggestatusen trengs.
 - **Byggestatusen som står i Følge, blir stående**, fordi Følge i en importert rad
   bare kan få tekst lagt til. Den er ført for hånd og kan være foreldet; visningen
   viser den ved siden av. **Ny byggestatus føres ikke i `folge`**: vakttesten melder
-  «Ikke bygget», «Delvis bygget», «Del n bygget» og «Bygget» først i en setning
-  når teksten er ny etter `main`. «Bygges i #n» er lov, og det er den visningen
-  leser.
+  «Ikke bygget», «Delvis bygget», «Del n bygget» og «Bygget», med stor forbokstav,
+  når teksten er ny etter `main`. «Bygges i #n» og «hører til #n» er lov, og det er
+  dem visningen leser.
 
 ## Temavisningene
 
@@ -222,7 +222,7 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
-| Følge får ikke ny byggestatus for hånd: «Ikke bygget», «Delvis bygget», «Del n bygget» eller «Bygget» først i en setning, utover det som står på `main` | alle poster (#1021) |
+| Følge får ikke ny byggestatus for hånd: «Ikke bygget», «Delvis bygget», «Del n bygget» eller «Bygget», med stor forbokstav, utover det som står på `main` | alle poster (#1021) |
 | En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452) |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem

@@ -1146,12 +1146,10 @@ def mot_grunnlag(
     return feil
 
 
-# Byggestatus ført for hånd: «Ikke bygget», «Delvis bygget», «Del 2 bygget», og «Bygget»
-# først i en setning. «Bygges i #411» viser til issuet og er ikke status (#1021).
-BYGGESTATUS = re.compile(
-    r"(?<![\w-])(?:(?:[Ii]kke|[Dd]elvis|[Dd]el \d+) bygget"
-    r"|(?:^|(?<=[.!?:;] )|(?<=\())Bygget)(?![\w-])"
-)
+# Byggestatus ført for hånd, med stor forbokstav: «Ikke bygget», «Delvis bygget», «Del 2
+# bygget» og «Bygget». «Sperren er ikke bygget» gjelder en del av vedtaket, og «Bygges i
+# #411» viser til issuet; ingen av dem er status (#1021).
+BYGGESTATUS = re.compile(r"(?<![\w-])(?:(?:Ikke|Delvis|Del \d+) bygget|Bygget)(?![\w-])")
 
 
 def byggestatus_i(folge: str) -> list[str]:
