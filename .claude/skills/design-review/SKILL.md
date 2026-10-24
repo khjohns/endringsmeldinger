@@ -60,6 +60,9 @@ sammenlign stedene. Spør:
   farge, ikon eller nedtelling? Det er en blocker.
 - Vises et tall ingen har sagt, som «0 kr» for et prinsipalt avslag?
 - Ser et annet team utkast eller interne tall?
+- Prøv tekstene i diffen mot klarspråksavsnittet i [systemfila](../../../docs/design/system.md#klarspråk).
+  En tekst som får brukeren til feil valg, er blocker. En uklar tekst uten feil resultat er
+  «bør rettes», etter stoppregelen.
 - Vedtakene står i systemfila under «Vedtak som styrer visningen». Les vedtaket, ikke
   en gjengivelse.
 

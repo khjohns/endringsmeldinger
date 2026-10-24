@@ -96,6 +96,23 @@ i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
   skjemaet, står i MM-U32. En feil fra serveren beklager og sier hva parten kan gjøre;
   en feil i utfyllingen går rett på sak. Ingen feilmelding i en egen dialog.
 
+### Klarspråk
+
+Teksten skal være klar for den som leser den første gangen. Kilder:
+[klart språk på nett](https://punkt.oslo.kommune.no/latest/god-praksis/slik-skriver-vi-for-nett/)
+i Punkt og Oslo kommunes [språkprofil](https://designmanual.oslo.kommune.no/slik-skriver-vi).
+Rådene under er med egne ord.
+
+- Korte setninger som bærer én mening. Overskrifter sier hva siden gjelder.
+- Ord brukeren kjenner. Kodenavn og interne fagbegreper, som «respons», vises ikke.
+- En feilmelding eller sperre sier hva som hindrer, og hva brukeren kan gjøre nå.
+- Bestemmelsene i NS 8407 forklares med egne ord. De gjengis ikke ordrett i visningen.
+- Lenketekster sier hvor lenken fører. «Les mer» står ikke alene.
+- Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (TE, BH, EO, KOE, varsel,
+  forsering), paragrafhenvisninger som «§ 33.8» og vedtatt ordlyd står som de er. Presisjonskravet
+  i [`AGENTS.md`](../../AGENTS.md) går foran. En vedtatt ordlyd endres bare gjennom
+  [vedtaksregisteret](../vedtaksregister/README.md).
+
 ## Vedtak som styrer visningen
 
 Les vedtaket i [hovedplanen, 3.1](../plans/2026-09-16-godkjenning-og-varig-levering.md),
