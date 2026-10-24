@@ -18,6 +18,8 @@
     label?: string;
     /** Tilgjengelig navn når ledeteksten står utenfor komponenten. Ellers navngir `label` feltet. */
     navn?: string;
+    /** Feilmeldingen under feltet, koblet til det (MM-U32, #1264). */
+    feil?: string | null;
     extensions?: AnyExtension[];
     onchange?: (html: string) => void;
     oncharcount?: (count: number) => void;
@@ -31,6 +33,7 @@
     maxHeight = '60vh',
     label = '',
     navn = '',
+    feil = null,
     extensions: extraExtensions = [],
     onchange,
     oncharcount,
@@ -38,6 +41,14 @@
   }: Props = $props();
 
   const labelId = $props.id();
+  const feilId = `${labelId}-feil`;
+  // Tiptap setter `role` bare når visningen lages, og `setOptions` erstatter attributtene.
+  const egenskaper = (medFeil: boolean) => ({
+    role: 'textbox',
+    'aria-multiline': 'true',
+    ...(navn ? { 'aria-label': navn } : label ? { 'aria-labelledby': labelId } : {}),
+    ...(medFeil ? { 'aria-invalid': 'true', 'aria-describedby': feilId } : {}),
+  });
   let element = $state<HTMLDivElement>();
   let editor = $state<Editor>();
   let charCount = $state(0);
@@ -69,6 +80,11 @@
     oncharcount?.(charCount);
   });
 
+  $effect(() => {
+    const medFeil = Boolean(feil);
+    editor?.setOptions({ editorProps: { attributes: egenskaper(medFeil) } });
+  });
+
   onMount(() => {
     editor = new Editor({
       element: element!,
@@ -80,10 +96,7 @@
       ],
       content: body,
       editorProps: {
-        attributes: {
-          'aria-multiline': 'true',
-          ...(navn ? { 'aria-label': navn } : label ? { 'aria-labelledby': labelId } : {}),
-        },
+        attributes: egenskaper(Boolean(feil)),
       },
       onTransaction: ({ editor: e }) => lesTilstand(e),
       onUpdate: ({ editor: e }) => {
@@ -177,9 +190,17 @@
       </div>
     {/if}
   </div>
+  {#if feil}<p class="rte-feil" id={feilId} role="alert">{feil}</p>{/if}
 </div>
 
 <style>
+  /* Bare skjemaene i kontraktsbordet viser en feil, og der er statusfargene definert. */
+  .rte-feil {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--danger);
+  }
   .rte-wrap {
     display: flex;
     flex-direction: column;

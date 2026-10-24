@@ -1,6 +1,5 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
-  import Feltmelding from './components/Feltmelding.svelte';
   import PositionExplanation from './PositionExplanation.svelte';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
@@ -188,7 +187,7 @@
   });
 
   const AVSLAATT =
-    'Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel godkjennes.';
+    'Byggherren har avslått grunnlaget. Vurderingen nedenfor gjelder dersom avslaget ikke fører frem.';
   const PREKLUDERT =
     'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder dersom denne innsigelsen ikke fører frem.';
 
@@ -936,8 +935,8 @@
           }}
           maxHeight="none"
           placeholder="Begrunn byggherrens vurdering …"
+          feil={submission.vedFeltet}
         />
-        <Feltmelding melding={submission.vedFeltet} />
       </div>
     {/if}
   {/snippet}

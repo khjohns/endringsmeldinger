@@ -119,9 +119,9 @@
 
   const subsidiærNotice = $derived.by(() => {
     if (domainConfig.erGrunnlagSubsidiaer)
-      return 'Grunnlaget er avslått. Vurderingen nedenfor gjelder dersom grunnlaget likevel godkjennes.';
+      return 'Byggherren har avslått grunnlaget. Vurderingen nedenfor gjelder dersom avslaget ikke fører frem.';
     if (domainConfig.erHelFristSubsidiaerPgaGrunnlag)
-      return 'Grunnlaget ble varslet for sent (§ 32.2). Hele fristkravet behandles subsidiært.';
+      return 'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder dersom denne innsigelsen ikke fører frem.';
     if (hasForesporselSubsidiaer)
       return 'Svaret på forespørselen er vurdert som for sent. Den videre vurderingen er subsidiær.';
     if (hasPartialSubsidiaer)

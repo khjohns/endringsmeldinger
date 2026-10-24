@@ -1,6 +1,5 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
-  import Feltmelding from './components/Feltmelding.svelte';
   import { BookOpen, ChevronUp, LockKeyhole } from 'lucide-svelte';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
@@ -195,9 +194,9 @@
         placeholder="Oppdater begrunnelsen for grunnlaget..."
         maxHeight="none"
         oncharcount={(count) => (charCount = count)}
+        feil={submission.vedFeltet}
       />
     </div>
-    <Feltmelding melding={submission.vedFeltet} />
     {#if charCount >= 10 && !erEndret}
       <p class="unchanged-hint">Gjør en endring i begrunnelsen for å sende en ny revisjon.</p>
     {/if}

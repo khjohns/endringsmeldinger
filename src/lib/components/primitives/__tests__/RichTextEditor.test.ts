@@ -32,6 +32,21 @@ describe('RichTextEditor', () => {
     expect(angre).toBeEnabled();
   });
 
+  // Kilde: uu-sjekk og MM-U32. Feilen står ved feltet, er koblet til det, og forsvinner med feilen (#1264).
+  it('kobler feilmeldingen til feltet mens feilen står (#1264)', async () => {
+    const melding = 'Brevet kan ikke sendes ennå. Svaret må ha en begrunnelse.';
+    const screen = render(RichTextEditor, { props: { navn: 'Begrunnelse', feil: melding } });
+    const felt = screen.getByRole('textbox', { name: 'Begrunnelse' });
+    expect(felt).toHaveAttribute('aria-invalid', 'true');
+    expect(felt).toHaveAccessibleDescription(melding);
+    expect(screen.getByRole('alert')).toHaveTextContent(melding);
+
+    await screen.rerender({ navn: 'Begrunnelse', feil: null });
+    expect(felt).not.toHaveAttribute('aria-invalid');
+    expect(felt).not.toHaveAttribute('aria-describedby');
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
   // WCAG 2.1 4.1.2: et redigerbart felt har et tilgjengelig navn (axe aria-input-field-name, #1235).
   it('navngir feltet med navn når ledeteksten står utenfor komponenten (#1235)', () => {
     const screen = render(RichTextEditor, { props: { navn: 'Redegjørelse' } });

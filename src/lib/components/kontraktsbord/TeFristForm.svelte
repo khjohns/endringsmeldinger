@@ -1,6 +1,5 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
-  import Feltmelding from './components/Feltmelding.svelte';
   let vedleggOpptatt = $state(false);
   import {
     beregnVisibility,
@@ -357,8 +356,8 @@
         submission.feltetEndret();
       }}
       oncharcount={(count) => (charCount = count)}
+      feil={submission.vedFeltet}
     />
-    <Feltmelding melding={submission.vedFeltet} />
     {#if begrunnelseMangler}
       <p class="helptext" role="status">Begrunnelsen for antallet dager mangler.</p>
     {/if}
