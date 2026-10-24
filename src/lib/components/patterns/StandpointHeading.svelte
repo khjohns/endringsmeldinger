@@ -24,7 +24,7 @@
     gap: 12px;
     margin: 4px 0 16px;
     padding-bottom: 10px;
-    border-bottom: 1px solid var(--color-wire, var(--line));
+    border-bottom: var(--rule);
   }
   .standpoint-title {
     font-size: 12px;

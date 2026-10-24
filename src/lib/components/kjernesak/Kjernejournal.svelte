@@ -116,7 +116,7 @@
   .merknad {
     margin: 0;
     padding: 8px 10px;
-    border: 1px solid var(--border);
+    border: var(--rule);
     border-radius: 6px;
     color: var(--ink-2);
   }
@@ -129,7 +129,7 @@
     white-space: pre-line;
   }
   .brevtekst {
-    border-left: 2px solid var(--border);
+    border-left: 2px solid var(--rule-color);
     padding-left: 10px;
     margin: 6px 0;
     display: grid;

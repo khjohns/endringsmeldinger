@@ -180,7 +180,7 @@
     box-shadow: 0 1px 4px #0000000a;
   }
   .role-code {
-    opacity: 0.8;
+    color: var(--ink-4);
   }
   .locked-role {
     font-size: 12px;

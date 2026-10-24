@@ -20,7 +20,9 @@ viser til dem og gjengir dem ikke.
   innfelte områder. Valgt med `--surface-selected`.
 - **Fire nivåer blekk.** `--ink` for verdier og overskrifter, `--ink-2` for etiketter
   og støttetekst, `--ink-3` for metadata og `--ink-4` for dempet tekst. `--ink-ghost`
-  er bare til pynt og bærer aldri mening.
+  er bare til pynt og bærer aldri mening. Alle fire nivåene holder 4,5:1 på hver flate
+  i begge modi, så tekst dempes med et nivå og aldri med `opacity`.
+  [`fargetokens.test.ts`](../../src/lib/fargetokens.test.ts) feiler under kravet.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
   `--rule-strong`. Skygger (`--overlay-shadow-sm`, `--overlay-shadow-lg`) brukes bare
   på overlegg: dialog, popover og meny, på `--overlay-1`.

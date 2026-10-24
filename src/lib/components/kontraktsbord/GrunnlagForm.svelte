@@ -328,7 +328,7 @@
   }
   .submission-meta span + span::before {
     margin-right: 9px;
-    color: var(--line-strong);
+    color: var(--rule-strong-color);
     content: '·';
   }
   .context-ref {

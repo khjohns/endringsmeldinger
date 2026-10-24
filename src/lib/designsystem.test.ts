@@ -10,8 +10,8 @@
  * og en klasse bare i en selektor, ikke i en kommentar. Avgjørelsen går på
  * plassering: stilene har ingen nøstet CSS og ingen `:root` i `@media` eller `@layer`.
  * En filtype i backticks («`.svelte`-filer», «`.css`») er ikke en klasse.
- * Vakten kontrollerer ikke at prosaen er riktig, og ikke at et token
- * komponentene bruker, er definert (#1184).
+ * Vakten kontrollerer ikke at prosaen er riktig. At et token komponentene bruker,
+ * er definert, kontrollerer `fargetokens.test.ts` (#1184).
  */
 
 import { existsSync, readFileSync } from 'node:fs';
