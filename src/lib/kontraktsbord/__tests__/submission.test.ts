@@ -5,14 +5,20 @@ import { createSubmission } from '../submission.svelte';
 // Kilde: #1264 (oppdragsgiver 24.10) og MM-U32: meldingen står ved feltet, og øverst står at
 // brevet ikke kan sendes ennå. Feilmeldingen forsvinner når feltet er rettet (docs/design/system.md).
 describe('feilen fra sendingen i skjemaet', () => {
-  it('en avvisning som gjelder utdypningen, står ved feltet og forsvinner når feltet endres', async () => {
+  // Kilde: #1273 (oppdragsgiver 24.10, klarspråk 2 og 3): ved feltet står bare årsaken.
+  it('en avvisning som gjelder utdypningen, står ved feltet uten innledningen og forsvinner når feltet endres', async () => {
     const sending = createSubmission();
-    const melding = 'Brevet kan ikke sendes ennå. Svaret må ha en begrunnelse.';
     await sending.run(() => {
-      throw new Feltavvisning(melding);
+      throw new Feltavvisning(
+        'Svaret må ha en begrunnelse.',
+        'Brevet kan ikke sendes ennå. Svaret må ha en begrunnelse.'
+      );
     });
-    expect(sending.vedFeltet).toBe(melding);
-    expect(sending.oeverst).toBe('Brevet kan ikke sendes ennå. Se meldingen ved begrunnelsen.');
+    expect(sending.vedFeltet).toBe('Svaret må ha en begrunnelse.');
+    expect(sending.error).toBe('Brevet kan ikke sendes ennå. Svaret må ha en begrunnelse.');
+    expect(sending.oeverst).toBe(
+      'Brevet kan ikke sendes ennå. Se meldingen under begrunnelsesfeltet.'
+    );
 
     sending.feltetEndret();
     expect(sending.vedFeltet).toBeNull();

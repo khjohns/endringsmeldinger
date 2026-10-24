@@ -34,7 +34,7 @@ describe('RichTextEditor', () => {
 
   // Kilde: uu-sjekk og MM-U32. Feilen står ved feltet, er koblet til det, og forsvinner med feilen (#1264).
   it('kobler feilmeldingen til feltet mens feilen står (#1264)', async () => {
-    const melding = 'Brevet kan ikke sendes ennå. Svaret må ha en begrunnelse.';
+    const melding = 'Svaret må ha en begrunnelse.';
     const screen = render(RichTextEditor, { props: { navn: 'Begrunnelse', feil: melding } });
     const felt = screen.getByRole('textbox', { name: 'Begrunnelse' });
     expect(felt).toHaveAttribute('aria-invalid', 'true');

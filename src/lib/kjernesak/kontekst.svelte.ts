@@ -81,10 +81,18 @@ export const brevhindring = (brev: Brev | Programfeil) =>
   brevaarsak(brev, 'Brevet ble ikke sendt.');
 
 /**
- * En avvisning før brevet vises som gjelder ett felt i skjemaet, der meldingen skal stå
- * (#1264). Kjernen avviser et svar eller krav uten utdypning med disse reglene.
+ * En avvisning før brevet vises som gjelder ett felt i skjemaet (#1264). `feltmelding` står
+ * ved feltet uten innledningen, som står øverst (#1273). `melding` er hele meldingen, der
+ * skjemaet ikke har et felt. Kjernen avviser et svar eller krav uten utdypning med disse reglene.
  */
-export class Feltavvisning extends Error {}
+export class Feltavvisning extends Error {
+  constructor(
+    readonly feltmelding: string,
+    melding: string
+  ) {
+    super(melding);
+  }
+}
 
 const GJELDER_UTDYPNINGEN = new Set(['BEGRUNNELSE_MANGLER', 'BESKRIVELSE_MANGLER']);
 
@@ -93,7 +101,7 @@ export function avvisningFoerBrevet(brev: Brev | Programfeil): Error | null {
   const aarsak = brevaarsak(brev);
   if (aarsak === null) return null;
   return 'avvisning' in brev && GJELDER_UTDYPNINGEN.has(brev.avvisning.regel)
-    ? new Feltavvisning(aarsak)
+    ? new Feltavvisning(brev.avvisning.melding, aarsak)
     : new Error(aarsak);
 }
 
