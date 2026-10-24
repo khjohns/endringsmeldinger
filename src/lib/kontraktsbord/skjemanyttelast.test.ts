@@ -50,7 +50,7 @@ function fristsvar(state: Partial<frist.FristFormState>) {
     begrunnelseValidationError: undefined,
     ...state,
   };
-  return frist.buildEventData(form, config, frist.beregnAlt(form, config), 'KRAV', 'Auto.');
+  return frist.buildEventData(form, config, frist.beregnAlt(form, config), 'KRAV');
 }
 
 function vederlagssvar(state: Partial<vederlag.VederlagFormState>) {
@@ -71,7 +71,6 @@ function vederlagssvar(state: Partial<vederlag.VederlagFormState>) {
     config,
     computed,
     { vederlagKravId: 'KRAV', isUpdateMode: false },
-    'Auto.',
     computed.subsidiaerTriggers
   ).data;
 }

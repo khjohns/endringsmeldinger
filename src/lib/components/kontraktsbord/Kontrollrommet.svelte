@@ -118,9 +118,7 @@
       !kravetErSpesifisert(store.sak.frist)
   );
   // Skjemaene for en TS-sak følger bare handlingene kjernen tilbyr leseren (krav G i #718).
-  const kjerneskjema = $derived(
-    Boolean(kjernesak && (kjernesak.teSkjema(sel) ?? kjernesak.bhSkjema(sel)))
-  );
+  const kjerneskjema = $derived(Boolean(kjernesak?.skjema(sel)));
   // Skjemaet står til Kontrollrommet går ut av skjemamodus. Etter sendingen tilbyr
   // ikke kjernen nødvendigvis det samme, men skjemaet skal fullføre sendingen (#737 p4).
   // Mens brevet kontrolleres eller sendes, står skjemaet også når visningen bytter spor
@@ -424,12 +422,19 @@
                 <TeFristForm onsend={handleSend} onactions={(a) => (formActions = a)} />
               {:else if (kjerneskjemaSpor ?? sel) === 'ansvar'}
                 <TeGrunnlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
-              {:else if kjernesak?.part === 'BH' && kjernesak.vederlagConfig}
-                <VederlagForm
-                  domainConfig={kjernesak.vederlagConfig}
-                  onsend={handleSend}
-                  onactions={(a) => (formActions = a)}
-                />
+              {:else if kjernesak?.part === 'BH'}
+                <!-- BH får aldri TEs skjema, heller ikke når kravet er borte mens brevet kontrolleres (#1238). -->
+                {#if kjernesak.vederlagConfig}
+                  <VederlagForm
+                    domainConfig={kjernesak.vederlagConfig}
+                    onsend={handleSend}
+                    onactions={(a) => (formActions = a)}
+                  />
+                {:else}
+                  <p class="approval-entry" role="status">
+                    Saken har ikke lenger noe vederlagskrav å svare på.
+                  </p>
+                {/if}
               {:else}
                 <TeVederlagForm onsend={handleSend} onactions={(a) => (formActions = a)} />
               {/if}

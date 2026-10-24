@@ -158,6 +158,13 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
         ? 'Svar på kravet'
         : null;
     },
+    /**
+     * Skjemaet leseren får i sporet, med teksten på knappen, eller `null`. Knappen i
+     * `ActionBar` og skjemaet i `Kontrollrommet` leser begge dette (#1238).
+     */
+    skjema(nokkel: SporKey): string | null {
+      return this.teSkjema(nokkel) ?? this.bhSkjema(nokkel);
+    },
     /** Configen for `VederlagForm` fra kravet kjernen har i sporet, eller `null` uten krav. */
     get vederlagConfig() {
       return vederlagConfigFraKjernen(projeksjon.utledning);

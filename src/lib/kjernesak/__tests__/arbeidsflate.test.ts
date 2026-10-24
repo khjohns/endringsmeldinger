@@ -89,6 +89,14 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     expect((await flate(medVederlag, 'TE')).bhSkjema('vederlag')).toBeNull();
   });
 
+  it('knappen og skjemaet leser samme skjema for begge parter (#1238, #943)', async () => {
+    const bh = await flate(medVederlag, 'BH');
+    const te = await flate(medVederlag, 'TE');
+    expect(bh.skjema('vederlag')).toBe('Svar på kravet');
+    expect(bh.skjema('frist')).toBeNull();
+    expect(te.skjema('vederlag')).toBe(te.teSkjema('vederlag'));
+  });
+
   it('kjernen tilbyr ikke et nytt svar når kravet er besvart (ALLEREDE_SVART)', async () => {
     expect((await flate(medVederlagssvar, 'BH')).bhSkjema('vederlag')).toBeNull();
   });
