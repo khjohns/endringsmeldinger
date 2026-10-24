@@ -8893,6 +8893,54 @@ tekst = "Det er første registrering, ikke en flytting"
 utdrag = true
 
 [[gruppe.vedtak]]
+id = "OV-U42"
+dato = 2026-10-24
+hvem = "oppdragsgiver"
+kilde = ["#1276"]
+sporsmal = '''
+Spørsmål 4 i #1276: Hvor står standpunkter uten egen lagvirkning i fristsvaret, etter lagene fra grunnlaget? I fristsvaret etter en preklusjon etter § 32.2 står standpunktene om at varselet etter § 33.4 ikke påberopes som for sent, og at fremdriften hindres, i «Prinsipalt:»-avsnittet sammen med preklusjonen. Ingen vedtak sier hvor et slikt standpunkt står. OV-U32 gjelder det upåvirkede.
+
+**Forholdet til andre vedtak.** Presiserer OV-U32. Grunnlaget står fortsatt først.'''
+valgt = "B"
+svar = '''
+Jeg anbefaler B: et eget avsnitt uten etikett, etter grunnlagets standpunkter og før neste subsidiære lag.
+
+«Uten egen virkning» betyr her at standpunktet ikke oppretter et nytt lag. Det betyr ikke at utsagnet er uten betydning: BH meddeler både at hen ikke påberoper sen varsling, og at hen legger til grunn en hindring.
+
+I A kan plasseringen under «Prinsipalt:» gi inntrykk av at utsagnene bare gjelder i samme alternativ som preklusjonen etter § 32.2. B skiller dem fra denne innsigelsen uten å flytte grunnlaget fra første plass.
+
+Jeg ville presisert vedtaket slik:
+
+«Standpunkter i fristsvaret som ikke gir egen lagvirkning, står samlet i et eget avsnitt uten etikett etter grunnlagets standpunkter og før fristsporets subsidiære lag. Avsnittet oppretter ikke et lag og flytter ikke nummereringen. Standpunktene beholder sin innbyrdes rekkefølge.»
+
+Bruk «etter grunnlagets standpunkter», ikke alltid «mellom Prinsipalt og Subsidiært»: Grunnlaget kan selv oppta to lag.
+
+Dette er en presisering av brevets struktur, ikke en regel som følger av kontraktens ordlyd. At avsnittet mangler etikett, innebærer heller ikke at BH godkjenner fristkravet eller oppgir innsigelsen mot grunnlaget.
+
+Sikkerhet: Ganske høy på B som den tydeligste presentasjonen, gitt at begge utsagnene skal gjelde på tvers av de etterfølgende alternativene.'''
+forhold = [{ art = "presiserer", vedtak = "ov-u32" }]
+folge = '''
+Bygges i #1280.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A: Som nå"
+tekst = '''
+Standpunktene står i «Prinsipalt:»-avsnittet sammen med innsigelsen fra grunnlaget.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Standpunkter i fristsvaret som ikke gir egen lagvirkning, står samlet i et eget avsnitt uten etikett etter grunnlagets standpunkter og før fristsporets subsidiære lag. Avsnittet oppretter ikke et lag og flytter ikke nummereringen. Standpunktene beholder sin innbyrdes rekkefølge.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C: Foran lagene fra grunnlaget"
+tekst = '''
+Standpunktene står foran lagene fra grunnlaget. Det bryter OV-U32, som sier at et avslått eller prekludert grunnlag står først.'''
+forkastet = true
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
