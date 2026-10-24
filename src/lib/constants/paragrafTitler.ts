@@ -58,7 +58,7 @@ export const PARAGRAF_TITLER: Record<string, string> = {
   '34.1': 'Retten til vederlagsjustering',
   '34.1.1': 'Vederlagsjustering — endringer',
   '34.1.2': 'Vederlagsjustering — svikt/andre forhold',
-  '34.1.3': 'Særskilt varsel — rigg, drift, produktivitet',
+  '34.1.3': 'Særskilt justering — rigg, drift og produktivitet',
   '34.2': 'Generelle regler for vederlagsjustering',
   '34.3': 'Vederlagsjustering — enhetspriser',
   '34.3.3': 'Justering av enhetspriser',

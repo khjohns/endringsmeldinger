@@ -153,23 +153,24 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
 
   '34.1': {
     regel:
-      'Totalentreprenøren har krav på vederlagsjustering dersom det foreligger en endring etter kapittel V, eller dersom det foreligger andre forhold som byggherren bærer risikoen for etter kontrakten.',
+      'Totalentreprenøren har krav på vederlagsjustering ved en endring etter § 31 eller § 32 (§ 34.1.1), og ved forsinkelse eller svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for (§ 34.1.2).',
     konsekvens:
-      'Kravet om vederlagsjustering må varsles uten ugrunnet opphold. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§5).',
+      'Varslingsplikten etter § 34.1.2 gjelder forsinkelse eller svikt ved byggherrens ytelser og andre forhold byggherren har risikoen for, ikke endringer etter § 34.1.1. Særskilt varsel etter § 34.1.3 er en egen regel.',
   },
 
   '34.1.2': {
     regel:
-      'Når vederlagskravet bygger på svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for, skal totalentreprenøren varsle uten ugrunnet opphold etter at han ble eller burde blitt klar over forholdet.',
+      'Når vederlagskravet bygger på forsinkelse eller svikt ved byggherrens ytelser eller andre forhold byggherren har risikoen for, skal totalentreprenøren varsle uten ugrunnet opphold etter at han ble eller burde blitt klar over forholdet.',
     konsekvens:
-      'Retten til vederlagsjustering kan gå tapt dersom kravet varsles for sent. Byggherren må påberope preklusjon skriftlig uten ugrunnet opphold (§5).',
+      'Retten til vederlagsjustering kan gå tapt dersom kravet varsles for sent. Byggherren må påberope preklusjon skriftlig uten ugrunnet opphold (§ 5).',
   },
 
+  // Varslingsplikten følger kontraktsgrunnlaget Del II pkt. B.2.16 (OV-U25).
   '34.1.3': {
     regel:
-      'Krav om særskilt dekning av økte utgifter til rigg og drift skal varsles uten ugrunnet opphold når totalentreprenøren blir klar over at utgiftene vil påløpe. Det samme gjelder krav som følge av nedsatt produktivitet eller forstyrrelser i arbeidet.',
+      'Totalentreprenøren kan kreve særskilt justering av vederlaget for økte utgifter til kapitalytelser, rigging, drift og nedrigging som er en nødvendig følge av forhold etter § 34.1.1 eller § 34.1.2 (første ledd), og for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid som er en følge av slike forhold (annet ledd). Etter kontraktsgrunnlaget (Del II pkt. B.2.16) gjelder den særskilte varslingsplikten bare kravet etter annet ledd: det må varsles særskilt uten ugrunnet opphold etter at totalentreprenøren ble eller burde ha blitt klar over at utgiftene ville påløpe.',
     konsekvens:
-      'Ved for sen varsling kan retten til de særskilte kostnadspostene gå tapt. Rigg og drift samt produktivitetstap vurderes hver for seg.',
+      'Varsles kravet etter annet ledd for sent, taper totalentreprenøren retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§ 5). Kravet etter første ledd har ingen særskilt varslingsplikt etter § 34.1.3.',
   },
 
   '34.2': {
