@@ -1390,7 +1390,7 @@ describe('svaret på vederlag og frist når grunnlaget er avslått eller preklud
 
 /**
  * GR-U26: svarer byggherren på vederlag eller frist uten å ha svart på gjeldende versjon av
- * grunnlaget, sier brevet det, rett etter innledningen i hvert svaravsnitt (foreslått, S2 i
+ * grunnlaget, sier brevet det, rett etter innledningen i hvert svaravsnitt (arbeidsvalget S2 i
  * #1239). Grunnlaget avklart ved frafall gir ikke forbeholdet (GR-U23).
  */
 describe('forbeholdet når grunnlaget ikke er besvart (GR-U26)', () => {
@@ -1414,7 +1414,7 @@ describe('forbeholdet når grunnlaget ikke er besvart (GR-U26)', () => {
     ]);
   });
 
-  it('svar på vederlag og frist i samme brev har forbeholdet i hvert svaravsnitt (foreslått, S2 i #1239)', () => {
+  it('svar på vederlag og frist i samme brev har forbeholdet i hvert svaravsnitt (arbeidsvalget S2 i #1239)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', { type: 'brev', svar: [vederlag(s), frist(s)] });
     const [v, f] = laast(rad);
@@ -1501,7 +1501,7 @@ describe('forbeholdet når grunnlaget ikke er besvart (GR-U26)', () => {
 
 /**
  * LV-U31: godkjenner byggherren oppgjør som fast sum, betegner brevet ikke tilbudet som
- * akseptert, heller ikke når hele beløpet er godkjent (foreslått, S1 i #1240). Etiketten for
+ * akseptert, heller ikke når hele beløpet er godkjent (oppdragsgiver 24.10, S1 i #1240). Etiketten for
  * laget står i testene av § 34.1.2 over (OV-U33).
  */
 describe('oppgjør som fast sum (LV-U31)', () => {
@@ -1538,7 +1538,7 @@ describe('oppgjør som fast sum (LV-U31)', () => {
     expect(b.sammenfall).toBe(false);
   });
 
-  it('LV-U31 med hele beløpet: samme setning, og standpunktene faller sammen (foreslått, S1 i #1240; GR-U7)', () => {
+  it('LV-U31 med hele beløpet: samme setning, og standpunktene faller sammen (oppdragsgiver 24.10, S1 i #1240; GR-U7)', () => {
     const { tekst, b } = godkjentFor(125000);
     expect(tekst).toBe(
       `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: ${METODE_JA} Byggherren godkjenner ${KR('125 000')}`
