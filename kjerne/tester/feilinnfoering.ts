@@ -3050,12 +3050,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F331',
     feilklasse: 'den låste teksten kontrolleres ikke for tegn PDF-en ikke kan vise (#801)',
     fil: `${K}/kommandoer/skriving.ts`,
-    // Teksten kontrolleres som sikring for en kilde uten egen kontroll, her sakstittelen (#1138).
+    // Teksten kontrolleres som sikring for en kilde uten egen kontroll, her TEs beskrivelse (#1229).
     endringer: [
       ['funnet ?? tegnSomIkkeKanVises(a.laast,', 'funnet ?? void tegnSomIkkeKanVises(a.laast,'],
-      ["tegnSomIkkeKanVises(sak.tittel, 'Sakstittelen')", 'null'],
     ],
-    mal: ['en sakstittel med et slikt tegn fra før stopper brevet i den låste teksten'],
+    mal: ['en beskrivelse med et slikt tegn fra før stopper godkjenningen som siterer den'],
   },
   {
     id: 'F403',
