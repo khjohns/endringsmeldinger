@@ -108,7 +108,7 @@ endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke fo
 flytting som bare endrer importstiene. Lagringstestene mot
 testbasen i SQL Server står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-koden for de tre sakstypene er overgangskode, og feil i Python rettes
-etter [DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2).
+etter [DL-U2](docs/plans/vedtak.md#dl-u2).
 
 ## Miljø
 
@@ -116,7 +116,7 @@ Kommandoene for testene, typesjekkene og verktøykjeden står i
 [miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen `miljo`.
 Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
 Skyøkta har en testbase for SQL Server
-([DL-U1](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)); kommandoene står i miljø-skillen.
+([DL-U1](docs/plans/vedtak.md#dl-u1)); kommandoene står i miljø-skillen.
 Oppstartshooken starter ikke PostgreSQL (#931). Resonneringsreglene og
 `docs/verktoy/katalog.py` trenger katalogen i en PostgreSQL-base bygget fra
 `supabase/migrations/`. Den basen bygger du selv fra tom før første bruk i økta
@@ -157,7 +157,7 @@ base eller et verktøy som stempler sin egen versjon.** Reglene står i
 
 Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut.
 De gjelder hver serverinngang, i Python og i TS. Et brudd som finnes i Python-stien,
-meldes som issue; om det rettes, avgjør [DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2). Mekanismene, og det TS-stien
+meldes som issue; om det rettes, avgjør [DL-U2](docs/plans/vedtak.md#dl-u2). Mekanismene, og det TS-stien
 ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
 
 - **Hver serverinngang krever innlogget sesjon og tilgang til prosjektet, og

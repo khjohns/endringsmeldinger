@@ -6,8 +6,8 @@
 Temaene står i docs/vedtaksregister/temaer.toml. En visning samler vedtakene i
 temaet ordrett, slik raden står i 3.1, med de forkastede alternativene merket,
 forholdene mellom dem og henvisningene til regelradene og bevis-sakene som viser
-til dem. Den lager ingen sammenslått gjeldende ordlyd. Avsnitt 3.1 i hovedplanen
-er autoritativ, og visningen sier det.
+til dem. Den lager ingen sammenslått gjeldende ordlyd. Vedtaksfila, som var avsnitt
+3.1 i hovedplanen, er autoritativ, og visningen sier det (#1020).
 
 Et tema har vedtakene oppdragsgiver har pekt ut (`kjerne`) og, transitivt, hvert
 vedtak som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i
@@ -21,6 +21,7 @@ endring andre steder i kildene endrer den ikke.
 """
 
 import argparse
+import functools
 import hashlib
 import json
 import os
@@ -48,6 +49,7 @@ BEVIS = {
 }
 
 TIL_PLANEN = "../../plans/2026-09-16-godkjenning-og-varig-levering.md"
+TIL_VEDTAKENE = "../../plans/vedtak.md"
 TIL_TABELLEN = "../../domenetabell/README.md#tabellen"
 # Målet i en lenke i vedtaksteksten, også i vinkelparenteser og med tittel (#494, #604, #759).
 MAAL = re.compile(
@@ -216,7 +218,15 @@ def _fra_planen(maal: str, medlemmer: set[str]) -> str:
     anker = _planankeret(maal)
     if anker is None:
         return TIL_PLANEN
-    return f"#{anker}" if anker in medlemmer else f"{TIL_PLANEN}#{anker}"
+    if anker in medlemmer:
+        return f"#{anker}"
+    return f"{TIL_VEDTAKENE if anker in _vedtaksankre() else TIL_PLANEN}#{anker}"
+
+
+@functools.cache
+def _vedtaksankre() -> frozenset[str]:
+    """Ankrene i 3.1, som står i vedtaksfila (#1020). Resten av ankrene er i hovedplanen."""
+    return frozenset(vr.ankre_i(vr.markdown(vr.les())))
 
 
 def _lenker(tekst: str, medlemmer: set[str]) -> str:
@@ -261,7 +271,7 @@ def _radanker(rad: str) -> str:
 
 
 def _vedtakslenke(anker: str, etiketter: dict, medlemmer: set[str]) -> str:
-    maal = f"#{anker}" if anker in medlemmer else f"{TIL_PLANEN}#{anker}"
+    maal = f"#{anker}" if anker in medlemmer else f"{TIL_VEDTAKENE}#{anker}"
     return f"[{etiketter.get(anker, anker.upper())}]({maal})"
 
 
@@ -290,8 +300,7 @@ def visning(tema: dict, kilder: dict) -> str:
         ),
         "",
         (
-            f"**Avsnitt [3.1 i hovedplanen]({TIL_PLANEN}#31-vedtatte-premisser-og-beslutninger) "
-            "er autoritativ.** Denne visningen er generert fra "
+            f"**[Vedtaksfila]({TIL_VEDTAKENE}) er autoritativ.** Denne visningen er generert fra "
             "[vedtaksregisteret](../README.md) og er ikke et eget vedtaksgrunnlag. Den samler "
             "vedtakene ordrett, med forholdene mellom dem, og lager ingen sammenslått gjeldende "
             "ordlyd: hva som gjelder, leses av vedtakene sammen, etter forholdene."
@@ -304,7 +313,7 @@ def visning(tema: dict, kilder: dict) -> str:
             if tillagt
             else ""
         )
-        + "Vedtak som temaet viser til, står som lenke til 3.1.",
+        + "Vedtak som temaet viser til, står som lenke til vedtaksfila.",
         "",
         "## Kildegrunnlaget",
         "",

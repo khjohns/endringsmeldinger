@@ -33,7 +33,7 @@ Handoffene står under [historikk](#historikk--bevart-ikke-gjeldende).
 
 | Dokument | Hva det gir |
 | --- | --- |
-| [B-17 i hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17) · [arbeidspakken FK](plans/2026-09-16-godkjenning-og-varig-levering.md#fk--koe--eo--og-forseringsdomenet-i-ts-b-17) | Vedtaket om at TS-kjernen tar over skrivingen i KOE-, endringsordre- og forseringssakene samlet, og pakken som gjennomfører det |
+| [B-17 i hovedplanen](plans/vedtak.md#b-17) · [arbeidspakken FK](plans/2026-09-16-godkjenning-og-varig-levering.md#fk--koe--eo--og-forseringsdomenet-i-ts-b-17) | Vedtaket om at TS-kjernen tar over skrivingen i KOE-, endringsordre- og forseringssakene samlet, og pakken som gjennomfører det |
 | [kontrakten for flyten](domenetabell/README.md#kontrakten-for-flyten) | Kommando, lagret hendelse og offentlig tilstand for flyten i språkprøven, som JSON Schema (#272) |
 | [TS-kjernen](../kjerne/) · [bevis-sakene](domenetabell/bevis-saker-maalmodell.json) | Den delte domenekjernen i TypeScript (B-14). Målmodellen fra #304, flyttet og skrevet om etter vedtakene 09.10 (#308). Bevis-sakene kjøres i minnet og mot testbasen |
 | [paragrafmatrisen for KOE-, EO- og forseringssakene](paragrafmatrise-koe-eo-forsering.md) | Levende referanse for #309: for hver bestemmelse i NS 8407 utsagnene, predikatet, det appen ikke avgjør, om appen vurderer, utleder eller bare registrerer og viser, vedtakene, hva kjernen har og hva som hører til første versjon av TS-stien. Byggedelene oppdaterer den |

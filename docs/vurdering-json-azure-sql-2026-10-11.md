@@ -137,8 +137,8 @@ har flere treff fordi tre eldre hendelsestabeller med `data JSONB` er slettet i
 
 | ID | Kolonne | Hva | Skrives | Leses | Belegg |
 | --- | --- | --- | --- | --- | --- |
-| AJ-13 | `hendelse.data`, `NOT NULL` | **Journalen.** Innholdet i hver hendelse, med brevet etter [HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1) | TS: `JSON.stringify` og `::jsonb` (`SETT_INN_HENDELSE`, `kolonneverdier` i [`server/lager.ts`](../server/lager.ts); tilsvarende i [`sprakprove/server/lager.ts`](https://github.com/khjohns/endringsmeldinger/blob/fc19484/sprakprove/server/lager.ts)). Python: `Jsonb(...)` i `PostgresEventRepository._rad` ([`backend/repositories/postgres/hendelse.py`](../backend/repositories/postgres/hendelse.py)), og `SupabaseEventRepository` over PostgREST ([`backend/repositories/supabase_event_repository.py`](../backend/repositories/supabase_event_repository.py)) | Hele kolonnen, tolket av driveren (`lesJournal` i [`server/lager.ts`](../server/lager.ts), `_til_hendelse` i `hendelse.py`). Ett felt leses med SQL, se AJ-19 | D, L 11.10 |
-| AJ-14 | `leveringsoppdrag.innhold`, `NOT NULL` | **Leveringsoppdraget** etter [LV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u1): brevet, målet i Catenda og versjonene. Uforanderlig (triggeren `leveringsoppdrag_vakt`) | `lagOppdrag` i [`server/levering.ts`](../server/levering.ts), skrevet med `JSON.stringify` og `::jsonb` i `skrivMedOppdrag` | Hele kolonnen (`lesOppdrag` i [`server/lager.ts`](../server/lager.ts)) | D, L 11.10; migrasjon `20261011090000_leveringsoppdrag.sql` |
+| AJ-13 | `hendelse.data`, `NOT NULL` | **Journalen.** Innholdet i hver hendelse, med brevet etter [HF-U1](plans/vedtak.md#hf-u1) | TS: `JSON.stringify` og `::jsonb` (`SETT_INN_HENDELSE`, `kolonneverdier` i [`server/lager.ts`](../server/lager.ts); tilsvarende i [`sprakprove/server/lager.ts`](https://github.com/khjohns/endringsmeldinger/blob/fc19484/sprakprove/server/lager.ts)). Python: `Jsonb(...)` i `PostgresEventRepository._rad` ([`backend/repositories/postgres/hendelse.py`](../backend/repositories/postgres/hendelse.py)), og `SupabaseEventRepository` over PostgREST ([`backend/repositories/supabase_event_repository.py`](../backend/repositories/supabase_event_repository.py)) | Hele kolonnen, tolket av driveren (`lesJournal` i [`server/lager.ts`](../server/lager.ts), `_til_hendelse` i `hendelse.py`). Ett felt leses med SQL, se AJ-19 | D, L 11.10 |
+| AJ-14 | `leveringsoppdrag.innhold`, `NOT NULL` | **Leveringsoppdraget** etter [LV-U1](plans/vedtak.md#lv-u1): brevet, målet i Catenda og versjonene. Uforanderlig (triggeren `leveringsoppdrag_vakt`) | `lagOppdrag` i [`server/levering.ts`](../server/levering.ts), skrevet med `JSON.stringify` og `::jsonb` i `skrivMedOppdrag` | Hele kolonnen (`lesOppdrag` i [`server/lager.ts`](../server/lager.ts)) | D, L 11.10; migrasjon `20261011090000_leveringsoppdrag.sql` |
 | AJ-15 | `sak_metadata.kjerne_visning` | **Bufferen** (B-10, #316). Kan regnes på nytt fra journalen | Bare prøvekode: `pgBuffer` i [`sprakprove/kjernelagring/bane.ts`](../sprakprove/kjernelagring/bane.ts), `JSON.stringify` og `::jsonb`. Ingen kode i `server/` eller `backend/` rører kolonnen | Hele kolonnen, samme sted | D, L 11.10; migrasjon `20261010120000_sak_metadata_kjernebuffer.sql` |
 | AJ-16 | `projects.settings`, standard `'{}'` | **Metadata:** prosjektinnstillinger | Gjennom Supabase-lageret `SupabaseProjectRepository` ([`backend/repositories/project_repository.py`](../backend/repositories/project_repository.py)) | Hele kolonnen. Feltet `contract.dagmulkt_sats` leses i Python (`authority_policy` i [`backend/services/approval_policy.py`](../backend/services/approval_policy.py)), ikke i SQL | D, L 11.10 |
 | AJ-17 | `sak_bim_links.properties` | **Metadata:** IFC-egenskaper til en BIM-kobling | Av ingen lagre: `BimLinkCreate` har ikke feltet ([`backend/models/bim_link.py`](../backend/models/bim_link.py)), og både `_NY_LENKE` i [`backend/repositories/postgres/bim.py`](../backend/repositories/postgres/bim.py) og `create_link` i [`backend/repositories/bim_link_repository.py`](../backend/repositories/bim_link_repository.py) skriver fra den | Hele kolonnen, gjennom `BimLink` | D, L 11.10 |
@@ -169,13 +169,13 @@ som ble sendt, er derfor innholdet, ikke en gjengitt tekst eller PDF (L 11.10).
 
 **Hva lagringsformen betyr.**
 
-- [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9) og
-  [MM-U11](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11) gjelder
+- [MM-U9](plans/vedtak.md#mm-u9) og
+  [MM-U11](plans/vedtak.md#mm-u11) gjelder
   virkningen, som leses av innholdet. Rekkefølgen på nøklene eller mellomrom
   endrer ikke innholdet. For kjernen holder det at innholdet er det samme etter
   tolkning, og det gjør både `jsonb` og `json` i de vanlige tilfellene (avsnitt 4).
-- [HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1) og
-  [LV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u1) krever at
+- [HF-U1](plans/vedtak.md#hf-u1) og
+  [LV-U1](plans/vedtak.md#lv-u1) krever at
   brevet lagres samlet og frosset. Ingen av dem sier byte for byte.
 - Skal noen senere kunne vise at det lagrede er det som ble sendt, byte for byte,
   må lagringen gi tilbake bytene. Det gjør bare tekst (AJ-08), eller en binær

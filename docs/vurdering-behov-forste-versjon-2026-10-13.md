@@ -239,7 +239,7 @@ Det rettede forslaget står i
 11. Oppdragsgiver sluttet seg 13.10 til hele forslaget, med anbefalingene i punkt 6–12 i den
     samlede tilslutningen. Vedtakene står i
     [3.1 i hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger)
-    som [OV-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3)–[OV-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u7).
+    som [OV-U3](plans/vedtak.md#ov-u3)–[OV-U7](plans/vedtak.md#ov-u7).
 
 ## Verifikasjon og grenser
 

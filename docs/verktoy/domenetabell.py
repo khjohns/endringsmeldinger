@@ -27,6 +27,8 @@ import sys
 ROT = pathlib.Path(__file__).resolve().parents[2]
 KATALOG = ROT / "docs" / "domenetabell"
 HOVEDPLAN = ROT / "docs" / "plans" / "2026-09-16-godkjenning-og-varig-levering.md"
+VEDTAKSFIL = ROT / "docs" / "plans" / "vedtak.md"
+TIL_VEDTAKENE = "../plans/vedtak.md"
 README = KATALOG / "README.md"
 START = "<!-- domenetabell:start -->"
 SLUTT = "<!-- domenetabell:slutt -->"
@@ -113,9 +115,8 @@ def _avsnitt(plan: str, fra: str, til: str) -> str:
     return plan[start : plan.index(til, start)]
 
 
-def _valider_kilder(regler: dict, plan: str) -> list[str]:
+def _valider_kilder(regler: dict, vedtak: str) -> list[str]:
     feil = []
-    vedtak = _avsnitt(plan, "### 3.1 Vedtatte premisser", "### 3.2 ")
     for kilde in regler["kilder"]:
         if kilde["type"] not in KILDETYPER:
             feil.append(f"{kilde['id']}: ukjent kildetype {kilde['type']!r}")
@@ -132,10 +133,12 @@ def _valider_kilder(regler: dict, plan: str) -> list[str]:
         if kilde["type"] != "vedtak":
             continue
         if kilde["radetikett"] not in vedtak:
-            feil.append(f"{kilde['id']}: radetiketten står ikke i hovedplanen 3.1")
-        anker = kilde["ref"].partition("#")[2]
-        if anker != "31-vedtatte-premisser-og-beslutninger" and f'<a id="{anker}"></a>' not in vedtak:
-            feil.append(f"{kilde['id']}: ankeret #{anker} finnes ikke i hovedplanen 3.1")
+            feil.append(f"{kilde['id']}: radetiketten står ikke i vedtaksfila")
+        fil, _, anker = kilde["ref"].partition("#")
+        if fil != TIL_VEDTAKENE:
+            feil.append(f"{kilde['id']}: `ref` viser ikke til vedtaksfila, {TIL_VEDTAKENE} (#1020)")
+        elif anker and f'<a id="{anker}"></a>' not in vedtak:
+            feil.append(f"{kilde['id']}: ankeret #{anker} finnes ikke i vedtaksfila")
     return feil
 
 
@@ -308,7 +311,7 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
 
     def funnet(avvik, radider):
         """Et avvik uten funn-ID er et vedtatt issue (#235); da er `funn` issuenummeret,
-        og issuet har en vedtaksrad i hovedplanen 3.1. `funn` kan også være en vedtaks-ID
+        og issuet har en vedtaksrad i vedtaksfila. `funn` kan også være en vedtaks-ID
         blant kildene til radene avviket gjelder, med issuet som sporer avviket i `issue`."""
         if avvik["funn"].startswith("#"):
             return avvik["funn"] == f"#{avvik.get('issue')}" and f"| {avvik['funn']}:" in vedtak
@@ -370,16 +373,21 @@ def _valider_forlop(regler: dict, korpus: dict, funntekst: str, vedtak: str, maa
 
 
 def valider(
-    regler: dict, korpus: dict, plan: str | None = None, maalmodell: dict | None = None, rot: pathlib.Path = ROT
+    regler: dict,
+    korpus: dict,
+    plan: str | None = None,
+    maalmodell: dict | None = None,
+    rot: pathlib.Path = ROT,
+    vedtak: str | None = None,
 ) -> list[str]:
     plan = plan if plan is not None else HOVEDPLAN.read_text(encoding="utf-8")
+    vedtak = vedtak if vedtak is not None else VEDTAKSFIL.read_text(encoding="utf-8")
     maalmodell = maalmodell if maalmodell is not None else les_maalmodell()
     if any(d.get("formatversjon") != 1 for d in (regler, korpus, maalmodell)):
         return ["formatversjonen er ikke 1"]
     funntekst = _avsnitt(plan, "## 4. Funnregister", "## 5. Arbeidspakker")
-    vedtak = _avsnitt(plan, "### 3.1 Vedtatte premisser", "### 3.2 ")
     return (
-        _valider_kilder(regler, plan)
+        _valider_kilder(regler, vedtak)
         + _valider_rader(regler)
         + _valider_forlop(regler, korpus, funntekst, vedtak, _bevist(maalmodell))
         + _valider_maalmodell(regler, korpus, maalmodell)

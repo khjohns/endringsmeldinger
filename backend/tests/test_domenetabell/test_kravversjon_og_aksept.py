@@ -126,6 +126,19 @@ def test_en_utsatt_rad_med_et_vedtak_som_ikke_utsetter_eller_med_funksjoner_gir_
     assert "KA-32: en utsatt rad har ingen funksjoner" in feil
 
 
+def test_en_vedtakskilde_viser_til_vedtaksfila():
+    """#1020: vedtakene står i vedtaksfila. En kilde som viser til et vedtak i hovedplanen,
+    eller til et anker som ikke er i vedtaksfila, gir feil."""
+    regler = copy.deepcopy(korpus.REGLER)
+    kilde = next(k for k in regler["kilder"] if k["id"] == "KA-U1")
+    kilde["ref"] = "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1"
+    feil = korpus.verktoy.valider(regler, korpus.KORPUS)
+    assert "KA-U1: `ref` viser ikke til vedtaksfila, ../plans/vedtak.md (#1020)" in feil
+    kilde["ref"] = "../plans/vedtak.md#ka-u99"
+    feil = korpus.verktoy.valider(regler, korpus.KORPUS)
+    assert "KA-U1: ankeret #ka-u99 finnes ikke i vedtaksfila" in feil
+
+
 def _avvik_med(funn, issue):
     korpus_ = copy.deepcopy(korpus.KORPUS)
     forlop = next(f for f in korpus_["forlop"] if f["id"] == "F-GR-02")

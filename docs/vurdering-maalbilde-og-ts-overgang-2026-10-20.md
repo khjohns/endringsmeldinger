@@ -160,9 +160,9 @@ få en uttrykkelig bro. Valget bør tas før #375 og #310 planlegges videre.
 ## VM-03 — den kritiske stien er ikke samlet
 
 **Belegg: P, G, L.** Sluttilstanden er skrevet: TS eier KOE, EO og forsering
-([B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17)), alt Python gjør
-mot databasen flyttes til TS ([B-19](plans/2026-09-16-godkjenning-og-varig-levering.md#b-19)),
-og det bygges ingen vei ut av Supabase ([DL-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)).
+([B-17](plans/vedtak.md#b-17)), alt Python gjør
+mot databasen flyttes til TS ([B-19](plans/vedtak.md#b-19)),
+og det bygges ingen vei ut av Supabase ([DL-U1](plans/vedtak.md#dl-u1)).
 Python kan beholde levering og integrasjon uten databasetilgang, men uten dato for
 når det flyttes.
 
@@ -179,7 +179,7 @@ Det som gjenstår før en ekte sak, er spredt over to milepæler og flere tråde
 | Bilde, ruting, hosting | #376, #52 | B-12 hosting |
 
 B-17 sier at skrivestien aktiveres samlet.
-[OV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1) (10.10) avgrenser
+[OV-U1](plans/vedtak.md#ov-u1) (10.10) avgrenser
 første versjon av TS-stien, den som skriver den første reelle hendelsen (#310),
 til KOE-saken. Endringsordre som egen sak og forsering avvises til de er bygget,
 etter #310. Den første KOE-saken venter derfor ikke på byggedel 4. OV-U1 sier ikke

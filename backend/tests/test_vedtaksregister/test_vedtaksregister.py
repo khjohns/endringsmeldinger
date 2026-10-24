@@ -1,4 +1,7 @@
-"""Vedtaksregisteret, docs/vedtaksregister/vedtak.toml, og avsnitt 3.1 i hovedplanen (#413).
+"""Vedtaksregisteret, docs/vedtaksregister/vedtak.toml, og vedtaksfila docs/plans/vedtak.md (#413, #1020).
+
+Vedtaksfila var avsnitt 3.1 i hovedplanen. De syntetiske testene leser 3.1 i den formen
+den hadde der (vr.logisk()), som kontrollene mot main gjør.
 
 Testene som leser grunnlaget på main i historikken, hoppes over med en melding når
 den mangler lokalt, og feiler i CI, som henter den. Testene som leser NS
@@ -42,7 +45,13 @@ def register():
 
 
 @pytest.fixture(scope="module")
-def plan():
+def plan(register):
+    """3.1 slik den sto i hovedplanen, laget av registeret."""
+    return vr.logisk(register)
+
+
+@pytest.fixture(scope="module")
+def hovedplan():
     return vr.HOVEDPLAN.read_text(encoding="utf-8")
 
 
@@ -57,8 +66,8 @@ def grunnregister(register):
 
 
 @pytest.fixture(scope="module")
-def grunnplan(grunnregister, plan):
-    return vr.plan_med(grunnregister, plan)
+def grunnplan(grunnregister):
+    return vr.logisk(grunnregister)
 
 
 def ny_post(**endringer) -> dict:
@@ -103,21 +112,42 @@ def test_registeret_er_gyldig(register):
     assert vr.valider(register) == []
 
 
-def test_3_1_er_generert_fra_registeret(register, plan):
-    assert vr.plan_med(register, plan) == plan, (
-        "3.1 i hovedplanen er ikke lik registeret. Rett i docs/vedtaksregister/vedtak.toml "
+def test_vedtaksfila_er_generert_fra_registeret(register):
+    assert vr.VEDTAKSFIL.read_text(encoding="utf-8") == vr.vedtaksfil(register), (
+        "Vedtaksfila er ikke lik registeret. Rett i docs/vedtaksregister/vedtak.toml "
         "og kjør python3 docs/verktoy/vedtaksregister.py."
     )
 
 
-def test_importen_gjenskaper_3_1_byte_for_byte(plan):
-    """Oppdragsgiver 12.10 (#413): alle rader i 3.1 importeres ordrett, også merknadene og radene uten anker."""
+def test_3_1_leses_tilbake_byte_for_byte(plan):
+    """Oppdragsgiver 12.10 (#413): radene i 3.1 står ordrett, også merknadene og radene uten
+    anker. Kontrollene mot main leser 3.1 tilbake, så lesingen må gjenskape teksten."""
     tekst = plan[slice(*vr.avsnitt(plan))]
-    importert = vr.les_avsnitt(tekst)
-    assert vr.markdown(importert) == tekst
-    assert (
-        vr.les_avsnitt(vr.markdown(vr.tomllib.loads(vr.toml(importert)))) == importert
+    assert vr.markdown(vr.les_avsnitt(tekst)) == tekst
+
+
+def test_hovedplanen_har_ikke_lenger_vedtakene(hovedplan, register):
+    """#1020: vedtakene står bare i vedtaksfila, og 3.1 i hovedplanen viser dit."""
+    assert not set(vr.ankre_i(hovedplan)) & set(vr.ankre_i(vr.markdown(register)))
+    stubb = hovedplan[slice(*vr.avsnitt(hovedplan))]
+    assert "](vedtak.md)" in stubb and "|" not in stubb
+
+
+def test_en_lenke_til_et_anker_utenfor_3_1_gaar_til_hovedplanen(grunnregister):
+    """#1020: vedtaksfila ligger ved siden av planen, så filstiene står. Et anker i 3.1 er i
+    vedtaksfila, og et annet anker er i hovedplanen."""
+    endret = copy.deepcopy(grunnregister)
+    endret["innledning"] += (
+        "Se [KA-U1](#ka-u1), [B-12](#b-12-merknad-2026-10-11), [koden](../../kjerne/), "
+        f"[lenke](<#ka-u1>) og [GR-U2]({vr.HOVEDPLAN.name}#gr-u2).\n\n"
     )
+    tekst = vr.vedtaksfil(endret)
+    assert tekst.startswith(vr.VEDTAKSHODE)
+    assert (
+        "Se [KA-U1](#ka-u1), "
+        f"[B-12]({vr.HOVEDPLAN.name}#b-12-merknad-2026-10-11), [koden](../../kjerne/), "
+        "[lenke](<#ka-u1>) og [GR-U2](#gr-u2)."
+    ) in tekst
 
 
 def test_de_importerte_postene_har_tomme_felt_for_sporsmal(register):
@@ -512,18 +542,27 @@ def test_vakta_melder_endret_vedtak_og_fjernet_rad(plan):
 def test_hvert_anker_i_hovedplanen_star_en_gang(plan):
     assert vr.doble_ankre(plan) == []
     assert vr.doble_ankre(plan + '<a id="ka-u1"></a>') == [
-        "ankeret «ka-u1» står 2 ganger i hovedplanen"
+        "ankeret «ka-u1» står 2 ganger i hovedplanen og vedtaksfila"
     ]
 
 
-def test_det_registeret_forer_holder_mot_main(register, plan):
+def test_et_anker_i_hovedplanen_kan_ikke_vaere_et_vedtak(register, hovedplan):
+    """#1020: en lenke til et vedtaksanker skrives om til vedtaksfila, så ankeret kan ikke stå i
+    hovedplanen også."""
+    assert vr.historiske_feil(register, hovedplan, None) == []
+    assert "ankeret «ka-u1» står 2 ganger i hovedplanen og vedtaksfila" in vr.historiske_feil(
+        register, hovedplan + '<a id="ka-u1"></a>', None
+    )
+
+
+def test_det_registeret_forer_holder_mot_main(register, hovedplan):
     """Vedtaket, ankeret og vedtaksdatoen i hver rad på main står uendret. En ny post føres ikke i importert form, tar ikke en ID som er i bruk, og spørsmålet,
     alternativene og svaret i en merget post endres ikke. Sitatene står ordrett i kilden."""
-    assert vr.historiske_feil(register, plan, None) == []
+    assert vr.historiske_feil(register, hovedplan, None) == []
     grunnlag = vr.grunnlag()
     if grunnlag is None or vr.git_fil(grunnlag, vr.HOVEDPLAN_I_GIT) is None:
         _uten_historikk("Grunnlaget på main finnes ikke lokalt.")
-    assert vr.historiske_feil(register, plan, grunnlag) == []
+    assert vr.historiske_feil(register, hovedplan, grunnlag) == []
 
 
 def test_vakta_melder_ny_post_i_importert_form(grunnregister, grunnplan):
@@ -552,19 +591,22 @@ def test_vakta_melder_kopi_av_en_rad_uten_anker(grunnregister, grunnplan):
 
 
 @pytest.mark.parametrize("id_", ["SK-12", "MG-02", "B-13", "AF-06"])
-def test_vakta_melder_id_som_er_i_bruk(grunnregister, grunnplan, id_):
-    """Også ID-er uten anker, som SK-12, og ID-er utenfor 3.1."""
+def test_vakta_melder_id_som_er_i_bruk(grunnregister, grunnplan, hovedplan, id_):
+    """Også ID-er uten anker, som SK-12, og ID-er i hovedplanen utenfor 3.1 (#1020)."""
     feil = vr.mot_grunnlag(
-        med(grunnregister, ny_post(id=id_, forhold=[])), grunnplan, None
+        med(grunnregister, ny_post(id=id_, forhold=[])),
+        grunnplan,
+        None,
+        hovedplan + "\n" + grunnplan,
     )
-    assert f"{id_}: ID-en står i hovedplanen på main fra før" in feil
+    assert f"{id_}: ID-en står i hovedplanen eller vedtaksfila på main fra før" in feil
 
 
 def test_en_merget_ny_post_har_ledig_id_og_kan_bare_endre_folge(
     grunnregister, grunnplan
 ):
     merget = med(grunnregister, ny_post())
-    gammel_plan = vr.plan_med(merget, grunnplan)
+    gammel_plan = vr.logisk(merget)
     senere = copy.deepcopy(merget)
     senere["gruppe"][0]["vedtak"][-1]["folge"] = "Bygget 13.10"
     assert vr.mot_grunnlag(senere, gammel_plan, merget) == []
@@ -596,7 +638,7 @@ def test_vakta_melder_sitat_som_ikke_star_i_kilden(grunnregister, grunnplan):
     assert vr.sitatfeil(riktig, kilder()) == []
     post = ny_post(sitat=[{"kilde": "hovedplanen", "tekst": "TE kan trekke kravet."}])
     endret = med(grunnregister, post)
-    assert vr.sitatfeil(endret, kilder(hovedplanen=vr.plan_med(endret, grunnplan))) == [
+    assert vr.sitatfeil(endret, kilder(hovedplanen=vr.logisk(endret))) == [
         "XX-U1: sitatet «TE kan trekke kravet.» står ikke ordrett i hovedplanen på main"
     ], "Raden til posten selv skal ikke telle som kilde"
     post = ny_post(sitat=[{"kilde": "ns8407", "tekst": "TE skal forsere"}])
@@ -615,7 +657,7 @@ def test_sitatet_proves_mot_main_ikke_mot_treet(grunnregister, grunnplan):
         sitat=[{"kilde": "hovedplanen", "tekst": "Et nytt utsagn i samme PR"}],
     )
     endret = med(grunnregister, post)
-    i_treet = vr.plan_med(endret, grunnplan).replace(
+    i_treet = vr.logisk(endret).replace(
         "### 3.2 ", "Et nytt utsagn i samme PR\n\n### 3.2 ", 1
     )
     assert vr.sitatfeil(endret, {"hovedplanen": i_treet}.get) == []
@@ -646,7 +688,7 @@ def test_en_gyldig_ny_post_i_det_levende_registeret(register, plan):
     """Det levende registeret med en ny post til: alle kontrollene holder, også mot main
     før og etter merge. Fanger at en kontroll bare holder for registeret slik det er nå."""
     endret = med(register, ny_post(id="ZZ-U99"))
-    ny_plan = vr.plan_med(endret, plan)
+    ny_plan = vr.logisk(endret)
     assert vr.valider(endret) == []
     assert vr.kodenavn(endret["gruppe"][0]["vedtak"][-1]) == []
     assert vr.doble_ankre(ny_plan) == []
@@ -656,7 +698,7 @@ def test_en_gyldig_ny_post_i_det_levende_registeret(register, plan):
     assert vr.sitatfeil(endret, {"hovedplanen": plan}.get) == []
     senere = copy.deepcopy(endret)
     senere["gruppe"][0]["vedtak"][-1]["folge"] = "Bygget 13.10"
-    senere_plan = vr.plan_med(senere, plan)
+    senere_plan = vr.logisk(senere)
     assert vr.endrede_rader(ny_plan, senere_plan) == []
     assert vr.endret_rundt_vedtakene(ny_plan, senere_plan, frozenset({"zz-u99"})) == []
     assert vr.mot_grunnlag(senere, ny_plan, endret) == []
@@ -975,8 +1017,8 @@ def test_svaret_nevner_ikke_et_annet_alternativ(grunnregister):
         ),
     ],
 )
-def test_hele_setninger_etter_fet_skrift_kolon_og_anker(plan, sitat, kilde):
-    tekst = vr.setningstekst(plan)
+def test_hele_setninger_etter_fet_skrift_kolon_og_anker(plan, hovedplan, sitat, kilde):
+    tekst = vr.setningstekst(hovedplan + "\n\n" + plan)
     assert sitat in tekst, kilde
     if kilde == "ID først":
         assert (

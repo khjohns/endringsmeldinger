@@ -5,7 +5,7 @@
 **Status:** forslag til oppdragsgiver, bearbeidet samme dag etter review.
 Modellen som helhet er ikke vedtatt, og forslaget endrer ingen vedtatt atferd.
 De tre domenevalgene i [avsnitt 5](#5-spørsmål-til-oppdragsgiver) ble avgjort
-samme dag som [MM-U1–MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1). Spørsmålet som forløp C, steg 3d, reiste, ble avgjort som [MM-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u4).
+samme dag som [MM-U1–MM-U3](plans/vedtak.md#mm-u1). Spørsmålet som forløp C, steg 3d, reiste, ble avgjort som [MM-U4](plans/vedtak.md#mm-u4).
 
 > **Merknad 2026-10-09:** forløpene er kjørt i en avgrenset implementasjon av
 > modellen i `sprakprove/maalmodell/` (#304), i minnet og mot testbasen. Koden
@@ -14,7 +14,7 @@ samme dag som [MM-U1–MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#
 > B-14 i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#34-åpne-beslutninger).
 
 > **Merknad 2026-10-09, senere:** MM-U4–MM-U6 er opphevet av
-> [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9), og 2.8 er erstattet av [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17). Se merknadene i
+> [MM-U9](plans/vedtak.md#mm-u9), og 2.8 er erstattet av [B-17](plans/vedtak.md#b-17). Se merknadene i
 > 2.3, 2.5, 2.6 og avsnitt 6.
 
 Grunnlaget er B-14 i [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger)
@@ -26,8 +26,8 @@ er skrevet eller kjørt.
 
 | Forløp | Vedtak og funn | Issue | Skillet forløpet prøver |
 | --- | --- | --- | --- |
-| [A](#forløp-a-enighet-om-beløp-mens-grunnlaget-er-avslått) Enighet om beløp mens grunnlaget er avslått, og et fullt godkjent svar som låses | [GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7), SK-03, MM-U3 | [#298](https://github.com/khjohns/endringsmeldinger/issues/298) | Brevet og svarene i det. Hva enigheten gjelder, og vilkåret for at den får virkning |
-| [B](#forløp-b-frafall-mot-trekk) Frafall mot trekk | Vedtaket om `FRAFALT` 05.10, [GR-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3), [GR-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u5), SK-04 | [#257](https://github.com/khjohns/endringsmeldinger/issues/257) | To parters utsagn med motsatt virkning, og statusen som bare visning |
+| [A](#forløp-a-enighet-om-beløp-mens-grunnlaget-er-avslått) Enighet om beløp mens grunnlaget er avslått, og et fullt godkjent svar som låses | [GR-U7](plans/vedtak.md#gr-u7), SK-03, MM-U3 | [#298](https://github.com/khjohns/endringsmeldinger/issues/298) | Brevet og svarene i det. Hva enigheten gjelder, og vilkåret for at den får virkning |
+| [B](#forløp-b-frafall-mot-trekk) Frafall mot trekk | Vedtaket om `FRAFALT` 05.10, [GR-U3](plans/vedtak.md#gr-u3), [GR-U5](plans/vedtak.md#gr-u5), SK-04 | [#257](https://github.com/khjohns/endringsmeldinger/issues/257) | To parters utsagn med motsatt virkning, og statusen som bare visning |
 | [C](#forløp-c-ett-brev-med-preklusjon-og-avslag) Ett brev med preklusjon etter § 32.2 og avslag som subsidiær grunn | Vedtaket om avslag sammen med § 32.2 05.10, MM-U3 | [#220](https://github.com/khjohns/endringsmeldinger/issues/220) | Svaret og utsagnene i det. Historisk brev, dagens utledning, enighet og en regelendring |
 | [D](#forløp-d-et-varsel-registrert-etter-et-senere-krav) Et varsel registrert etter at et senere krav er sendt | Vedtaket om SK-12 05.10, MM-U1 | [#264](https://github.com/khjohns/endringsmeldinger/issues/264) | Sendt, mottatt og registrert. Opplysning, dokumentasjon og bestridelse |
 | [E](#forløp-e-en-hendelse-kjernen-ikke-kjenner-og-svaret-knyttet-til-referansen) En hendelse kjernen ikke kjenner, og svaret knyttet til referansen | B-10, SP-04, MM-U2 | [#273](https://github.com/khjohns/endringsmeldinger/issues/273) | Eksplisitte relasjoner ved lesing, også ved revisjon. Versjoner og stopp ved ukjent semantikk |
@@ -90,7 +90,7 @@ Tre relasjoner bærer modellen. Ingen av dem er «det siste»:
 - **`bestrider`**: fra en parts utsagn til motpartens utsagn eller opplysning.
 
 **Et dokument kan inneholde flere svar.** Brevet fra godkjenningspakken gjør det
-allerede. [KA-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1)
+allerede. [KA-U1](plans/vedtak.md#ka-u1)
 gjelder da det konkrete svaret: en aksept av svaret på vederlaget er ikke en
 aksept av svaret på grunnlaget i samme brev. Hovedvalget under B-03 sier at
 hvert brev gjelder ett spor. Den ordlyden passer ikke helt med
@@ -107,7 +107,7 @@ innsigelser etter § 5 må inn før de portes.
 | varsel | TE | Forholdet i ett spor, med hjemmel (§ 33.4, § 34.1.3) | Metode. Sending og mottak er opplysninger om dokumentet | Felt i kravet: `frist_varsel`, `rigg_drift_varsel`, `produktivitetstap_varsel` |
 | trekk | TE | Et krav | — | `*_trukket` |
 | aksept | TE | Ett svar, ikke hele dokumentet | Enighetsgrunnlaget og regelversjonen TE fikk vist | `te_aksepterer_respons`, med svaret i `refererer_til_event_id` og uten regelversjon |
-| rettidighet | BH | Et varsel eller et krav, med hjemmel | I tide eller for sent ([KA-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4)) | `grunnlag_varslet_i_tide`, `frist_varsel_ok` m.fl. |
+| rettidighet | BH | Et varsel eller et krav, med hjemmel | I tide eller for sent ([KA-U4](plans/vedtak.md#ka-u4)) | `grunnlag_varslet_i_tide`, `frist_varsel_ok` m.fl. |
 | ansvar | BH | Grunnlagskravet | Godkjent, avslått eller frafalt | `resultat` i `respons_grunnlag` |
 | beløp, dager | BH | Et vederlags- eller fristkrav | Vurderingene og serverens utregning (B-13) | `respons_vederlag`, `respons_frist` |
 | forespørsel | BH | Fristkravet (§ 33.6.2) | Valgfri svarfrist | `frist_foresporsel_sendt` |
@@ -130,7 +130,7 @@ er et valg under B-10. Nytt innhold i en hendelse, som enighetsgrunnlaget, høre
 hjemme i datamodellen og `docs/datamodell/hendelser.toml` når det bygges
 (DM-06).
 
-> **Merknad 2026-10-09:** [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17) forkaster dagens testsaker og bygger
+> **Merknad 2026-10-09:** [B-17](plans/vedtak.md#b-17) forkaster dagens testsaker og bygger
 > ingen kompatibilitetsleser for gamle Python-rader. Setningen om én
 > kompatibilitetsleser over gjelder derfor ikke. Formatet velges under B-10
 > (#273) uten hensyn til at Python-kjernen skal lese det.
@@ -185,7 +185,7 @@ type Virkning = 'betinget' | 'virksom' | 'uten_virkning';
 ```
 
 Innholdet ligger fast; om vilkåret er oppfylt, utledes løpende
-([MM-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u3), presisert
+([MM-U3](plans/vedtak.md#mm-u3), presisert
 samme dag):
 - **Betinget** så lenge grunnlaget ikke er avklart.
 - **Virksom** når grunnlaget er avklart: godkjent uten virksom preklusjon etter
@@ -220,7 +220,7 @@ når nettleseren kjører en eldre kjerne. Den smale kontrakten har i dag
 svarreferansen, men ingen regelversjon eller enighetsgrunnlag i aksepten.
 
 **Bare et svar som stemmer med dagens utledning, kan godtas
-([MM-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u4)).** Har en
+([MM-U4](plans/vedtak.md#mm-u4)).** Har en
 regelendring etter sendingen gitt et standpunkt i svaret en annen virkning enn
 beslutningsgrunnlaget i brevet, avvises aksepten. Byggherren må da svare på nytt.
 Brevet, svaret TE godtar, og reglene enighetsgrunnlaget fryses med, stemmer
@@ -232,7 +232,7 @@ Fordi `kilde` kan være `sammenfall`, følger låsingen av et fullt godkjent sva
 enigheten (SK-02). Feltene `enighet` og `oppgjort` fra #297 blir visningen av
 `Virkning`.
 
-> **Merknad 2026-10-09:** [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9) opphever MM-U4. Et sendt brev
+> **Merknad 2026-10-09:** [MM-U9](plans/vedtak.md#mm-u9) opphever MM-U4. Et sendt brev
 > beholder virkningen det hadde da det ble sendt, og nye regler gjelder bare nye
 > brev. Et avvik etter en regelendring vises som en merknad som oppfordrer
 > byggherren til å revidere. MM-U9 forkaster at avviket sperrer aksepten.
@@ -240,10 +240,10 @@ enigheten (SK-02). Feltene `enighet` og `oppgjort` fra #297 blir visningen av
 > gjelder derfor ikke, og heller ikke forbeholdet «bare når standpunktene har
 > samme virkning som i brevet» i avsnittet om hvor enighetsgrunnlaget lages.
 > Eldre aksepter får ikke enighetsgrunnlaget utledet av en kompatibilitetsleser
-> (B-17). [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7) endrer også siste
+> (B-17). [KA-U7](plans/vedtak.md#ka-u7) endrer også siste
 > avsnitt: en ny kravversjon i et spor med enighet avvises, og enigheten står.
 > For grunnlaget er en godkjenning uten påberopt preklusjon enighet ved
-> sammenfall ([GR-U10](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10)).
+> sammenfall ([GR-U10](plans/vedtak.md#gr-u10)).
 
 ### 2.6 Predikatene styrer kommandoer, handlinger og visning
 
@@ -251,13 +251,13 @@ enigheten (SK-02). Feltene `enighet` og `oppgjort` fra #297 blir visningen av
 | --- | --- | --- | --- | --- |
 | `forstått(sak)` | Kjernen kan tolke alle hendelsene på saken og løse alle relasjonene entydig (2.7) | Alle bindende kommandoer krever det | Ingen når det er usant | «Kan ikke utledes» |
 | `gjeldendeKrav(spor)` | Sporets siste kravversjon | Et svar må vise til det | — | Versjonen |
-| `gjeldendeSvar(spor)` | Svaret som *gjelder* gjeldende krav og ikke er *erstattet*. Etter relasjonene, ikke etter rekkefølgen (SP-04) | En aksept må vise til det ([KT-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1)), og brevet må stemme med dagens utledning (MM-U4). En revisjon må erstatte det | BH: svare eller revidere. TE: godta, når brevet stemmer | Svaret og hva det gjelder |
+| `gjeldendeSvar(spor)` | Svaret som *gjelder* gjeldende krav og ikke er *erstattet*. Etter relasjonene, ikke etter rekkefølgen (SP-04) | En aksept må vise til det ([KT-U1](plans/vedtak.md#kt-u1)), og brevet må stemme med dagens utledning (MM-U4). En revisjon må erstatte det | BH: svare eller revidere. TE: godta, når brevet stemmer | Svaret og hva det gjelder |
 | `enighet(spor)` | Et enighetsgrunnlag for gjeldende svar (2.5) | Revisjon avvises. Ny aksept avvises foreløpig; GR-25 er en arbeidshypotese (avsnitt 6) | Ingen «revider», ingen «godta» | «Enige om beløpet», med vilkåret |
 | `grunnlagAvklart` | Godkjent uten virksom preklusjon, eller frafalt (GR-U7). Ved enighet: utfallet i enighetsgrunnlaget | — | — | «Ansvaret er avklart» |
 | `grunnlagAvvist` | Enighetsgrunnlaget for grunnlaget har utfallet `avvist` (SK-01, #213) | Alle kommandoer på saken avvises | Ingen | «Avslått» |
 | `trukket(spor)` | TE har trukket kravet, eller grunnlaget som bærer det (GR-U5) | Ny kravversjon avvises | Ingen i sporet | «Trukket» |
 | `oppgjort(spor)` | Enigheten er virksom | — | — | «Oppgjort» |
-| `avsluttet(sak)` | Grunnlaget er avvist, alt er trukket, eller grunnlaget er avklart og hvert sendt krav er oppgjort, uten spor TE fortsatt kan sende ([EO-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2)) | Erstatter `CASE_NOT_CLOSED` | Ingen | Samlet status |
+| `avsluttet(sak)` | Grunnlaget er avvist, alt er trukket, eller grunnlaget er avklart og hvert sendt krav er oppgjort, uten spor TE fortsatt kan sende ([EO-U2](plans/vedtak.md#eo-u2)) | Erstatter `CASE_NOT_CLOSED` | Ingen | Samlet status |
 | `kanInngåIEo(sak)` | EO-U2. Usant etter frafall (GR-U3) | EO-saken kontrollerer det | «Ta med i endringsordre» | — |
 
 Kjernen eksponerer fire funksjoner. Alle tre forbrukerne leser samme utledning:
@@ -279,10 +279,10 @@ fullmakt; `capabilities` er handlingene som også er autorisert
 I dag avviser `CASE_NOT_CLOSED` kommandoer ut fra samlet status i begge
 implementasjoner, og samlet status bygges delvis av sporstatusene.
 
-> **Merknad 2026-10-09:** GR-25 er avgjort av [GR-U8](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8): en aksept av et
+> **Merknad 2026-10-09:** GR-25 er avgjort av [GR-U8](plans/vedtak.md#gr-u8): en aksept av et
 > svar som godkjenner hele kravet, avvises. Kravet i `gjeldendeSvar(spor)` om at
 > brevet må stemme med dagens utledning (MM-U4), er opphevet av
-> [MM-U9](plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9). Med [KA-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7) avviser `enighet(spor)` også en ny
+> [MM-U9](plans/vedtak.md#mm-u9). Med [KA-U7](plans/vedtak.md#ka-u7) avviser `enighet(spor)` også en ny
 > kravversjon.
 
 ### 2.7 Versjoner, ukjente hendelser og gjenoppbygging (B-10)
@@ -324,7 +324,7 @@ Reglene:
 
 ### 2.8 Overgangsgrensen
 
-> **Merknad 2026-10-09:** erstattet av [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17).
+> **Merknad 2026-10-09:** erstattet av [B-17](plans/vedtak.md#b-17).
 > TS tar over skrivingen i KOE-saker samlet, så ingen sak får to skrivere, og
 > Python beholder bare levering og integrasjon. Teksten under står som skrevet.
 
@@ -350,7 +350,7 @@ kjernen. Det viser dagens atferd; modellkolonnene er gjennomgått på papir.
 
 ### Forløp A: enighet om beløp mens grunnlaget er avslått
 
-[GR-U7](plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7), SK-03, MM-U3,
+[GR-U7](plans/vedtak.md#gr-u7), SK-03, MM-U3,
 #298. Rader GR-19–GR-25 i [domenetabellen](domenetabell/README.md).
 
 | Steg | Journal | Utledning etter steget | Handlinger | I dag |

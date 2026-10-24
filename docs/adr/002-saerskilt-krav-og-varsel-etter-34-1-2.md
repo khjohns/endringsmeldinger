@@ -4,8 +4,8 @@
 - **Status:** Vedtatt
 - **Område:** Juridisk drøftelse – NS 8407, varsel om vederlagsjustering
 
-Drøftelsen begrunner [OV-U27](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u27)
-og [OV-U29](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u29). Spørsmålene,
+Drøftelsen begrunner [OV-U27](../plans/vedtak.md#ov-u27)
+og [OV-U29](../plans/vedtak.md#ov-u29). Spørsmålene,
 alternativene og svarene står ordrett i vedtaksregisteret og på
 [#1047](https://github.com/khjohns/endringsmeldinger/issues/1047). Malen står i
 [beslutningsloggen](README.md#mal-for-juridiske-drøftelser).
@@ -13,7 +13,7 @@ alternativene og svarene står ordrett i vedtaksregisteret og på
 ## Spørsmålet
 
 Begge spørsmålene gjelder svikt og andre forhold byggherren har risikoen for. Ved
-endring krever ikke § 34.1.2 varsel ([OV-U15](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u15)).
+endring krever ikke § 34.1.2 varsel ([OV-U15](../plans/vedtak.md#ov-u15)).
 
 1. **B2:** Byggherren gjør gjeldende at TEs varsel etter § 34.1.2 kom for sent.
    Vederlagskravet har både et beløp for justeringen ellers og et krav om særskilt
@@ -24,7 +24,7 @@ endring krever ikke § 34.1.2 varsel ([OV-U15](../plans/2026-09-16-godkjenning-o
    første kjente varsel etter § 34.1.2?
 
 Appen avgjør ikke om et varsel kom i tide
-([VS-U3](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3)). Den må likevel vite
+([VS-U3](../plans/vedtak.md#vs-u3)). Den må likevel vite
 hvilket brev en påberopelse gjelder, og hvilke deler av kravet den rammer, så svaret kan
 settes opp prinsipalt og subsidiært.
 
@@ -42,7 +42,7 @@ settes opp prinsipalt og subsidiært.
 - § 34.1.1 (endring), der § 34.1.2 ikke krever varsel.
 
 Kontraktsgrunnlaget (Del II pkt. B.2.16) endrer § 34.1.3 tredje ledd for kravet etter
-første ledd ([OV-U25](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u25)), ikke
+første ledd ([OV-U25](../plans/vedtak.md#ov-u25)), ikke
 for kravet etter annet ledd.
 
 ## Alternativene
@@ -101,19 +101,19 @@ Det sparringen viste til, er ikke kontrollert av oss (se «Kildene»):
 - **Byggherrens begrensning.** Sparringen mente at appen bør respektere en uttrykkelig
   begrensning fra byggherren, men at hele kravet er normalvirkningen. Det ble stilt som
   «Hele kravet, BH kan begrense», som krever et nytt lagret felt (B-17) og utvider
-  [VS-U24](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u24) og
-  [OV-U22](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u22).
+  [VS-U24](../plans/vedtak.md#vs-u24) og
+  [OV-U22](../plans/vedtak.md#ov-u22).
 - **S1.** Ordlyden i § 34.1.2 krever bare at TE vil kreve vederlagsjustering, og det gjør
   også en kravversjon med bare det særskilte kravet. Vi tolket først at kravet etter
   § 34.1.3 annet ledd kan gjelde andre utgifter enn justeringen for selve forholdet. Det
   er en tolkning, ikke ordlyden. Prøvingen fant at «Hvert vederlagskrav er et varsel», slik
   S1 først ble stilt, sa mer enn
-  [OV-U5](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u5),
-  [VS-U20](../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u20) og koden: bare den
+  [OV-U5](../plans/vedtak.md#ov-u5),
+  [VS-U20](../plans/vedtak.md#vs-u20) og koden: bare den
   første versjonen er varselet. Alternativet ble derfor erstattet av «Første krav er
   varselet».
 - **Asymmetrien med OV-U24.** For § 34.1.3 er en versjon uten det særskilte kravet ikke
-  varsel om det ([OV-U24](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u24)).
+  varsel om det ([OV-U24](../plans/vedtak.md#ov-u24)).
   For § 34.1.2 er en versjon med bare det særskilte kravet et varsel. Sparringen fant
   asymmetrien riktig. Etter vår lesning har kravet til et særskilt varsel i § 34.1.3 ingen
   motsvarighet i § 34.1.2.
@@ -150,5 +150,5 @@ bare samme kravnummer eller versjonsrekke. I appen er én sak ett forhold.
 
 ## Utfallet
 
-- B2: [OV-U27](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u27)
-- S1: [OV-U29](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u29)
+- B2: [OV-U27](../plans/vedtak.md#ov-u27)
+- S1: [OV-U29](../plans/vedtak.md#ov-u29)

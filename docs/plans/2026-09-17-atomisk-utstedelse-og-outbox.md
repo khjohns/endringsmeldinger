@@ -2,7 +2,7 @@
 
 > **Merknad 2026-10-09: B-17.** KOE-, endringsordre- og forseringssakene får
 > TS-kjernen som eneste skriver (hovedplanen,
-> [B-17](2026-09-16-godkjenning-og-varig-levering.md#b-17) med merknaden 09.10,
+> [B-17](vedtak.md#b-17) med merknaden 09.10,
 > og arbeidspakken FK). Kontrakten for kommando, låsing og akseptansetester her
 > gjelder uansett språk, og den autoritative utstedelseskommandoen hører til
 > TS-stien. Det som står om Python-tjenestene, som `SakCreationService` og
