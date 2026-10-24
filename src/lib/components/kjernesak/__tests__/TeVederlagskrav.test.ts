@@ -417,11 +417,12 @@ describe('kontrollen før en TS-sak sender kravet', () => {
   });
 
   // Kilde: #865 p2. TE ser hvorfor kjernen avviste kravet, ikke en gjetning om beløpet.
+  // Avvisningen kommer før brevet er vist, så brevet kan ikke sendes ennå (#1264).
   it.each([
     [
       'en avvisning gir meldingen fra kjernen',
-      { avvisning: { kode: 'X', melding: 'Kravet er allerede sendt.' } },
-      'Brevet ble ikke sendt. Kravet er allerede sendt.',
+      { avvisning: { regel: 'X', melding: 'Kravet er allerede sendt.' } },
+      'Brevet kan ikke sendes ennå. Kravet er allerede sendt.',
     ],
     ['en programfeil sier at feilen er i appen', { programfeil: PROGRAMFEIL }, PROGRAMFEIL],
   ])('%s, og kravet sendes ikke', async (_navn, brev, melding) => {

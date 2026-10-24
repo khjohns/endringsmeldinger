@@ -95,7 +95,7 @@
 </script>
 
 <div class="form-content">
-  <SkjemaStatus sender={submission.pending} feil={submission.error} />
+  <SkjemaStatus sender={submission.pending} feil={submission.oeverst} />
 
   <div class="form-title-row">
     <h1>Oppdater grunnlaget</h1>
@@ -186,11 +186,15 @@
       <RichTextEditor
         body={begrunnelseHtml}
         navn="Oppdatert begrunnelse"
-        onchange={(html) => (begrunnelseHtml = html)}
+        onchange={(html) => {
+          begrunnelseHtml = html;
+          submission.feltetEndret();
+        }}
         extensions={[LockedValueNode]}
         placeholder="Oppdater begrunnelsen for grunnlaget..."
         maxHeight="none"
         oncharcount={(count) => (charCount = count)}
+        feil={submission.vedFeltet}
       />
     </div>
     {#if charCount >= 10 && !erEndret}

@@ -8,7 +8,7 @@ import { ApiError } from '$lib/api/client';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import type { Journalrad, Part } from '$kjerne/typer';
 import { lagKjernesakflate } from '$lib/kjernesak/arbeidsflate.svelte';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { Feltavvisning, lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
 import { vederlagssvarFraSkjema } from '$lib/kjernesak/vederlagssvar';
 import { SAK, medVederlag, medVederlagssvar } from './provejournal';
@@ -196,6 +196,12 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     await expect(kontroll.submit('vederlag', 'respons_vederlag', delvis)).rejects.toThrow(
       /Svaret må ha en begrunnelse/
     );
+    // #1264, oppdragsgiver 24.10: meldingen står ved begrunnelsen, og brevet kan ikke sendes ennå.
+    // #1273: innledningen står øverst, ikke i meldingen ved feltet.
+    const avvist = await kontroll.submit('vederlag', 'respons_vederlag', delvis).catch((e) => e);
+    expect(avvist).toBeInstanceOf(Feltavvisning);
+    expect(avvist.message).toMatch(/^Brevet kan ikke sendes ennå\. Svaret må ha en begrunnelse/);
+    expect(avvist.feltmelding).toMatch(/^Svaret må ha en begrunnelse/);
     expect(kontroll.letter).toBeNull();
     expect(send).not.toHaveBeenCalled();
 

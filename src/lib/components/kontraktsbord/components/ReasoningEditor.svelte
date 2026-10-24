@@ -7,6 +7,8 @@
     helptext: string;
     body: string;
     placeholder: string;
+    /** Feilmeldingen under feltet (#1264). */
+    feil?: string | null;
     onchange: (html: string) => void;
     oncharcount: (count: number) => void;
   }
@@ -17,6 +19,7 @@
     helptext,
     body,
     placeholder,
+    feil = null,
     onchange,
     oncharcount,
   }: Props = $props();
@@ -46,6 +49,7 @@
       navn={title}
       {onchange}
       {placeholder}
+      {feil}
       maxHeight="none"
       oncharcount={handleCharCount}
     />
