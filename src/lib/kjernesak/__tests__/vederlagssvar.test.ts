@@ -65,7 +65,6 @@ function svar(journal: Journalrad[], s: VederlagFormState) {
     config,
     computed,
     { vederlagKravId: 'krav', isUpdateMode: false },
-    '',
     computed.subsidiaerTriggers
   );
   const kommando = vederlagssvarFraSkjema(data, u, KJERNE.regler.versjon);

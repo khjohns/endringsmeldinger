@@ -440,10 +440,9 @@ export function buildEventData(
     lastResponseEventId?: string;
     isUpdateMode: boolean;
   },
-  autoBegrunnelse: string,
   subsidiaerTriggers: SubsidiaerTrigger[]
 ): { eventType: string; data: Record<string, unknown> } {
-  const begrunnelseTekst = state.begrunnelse || autoBegrunnelse;
+  const begrunnelseTekst = state.begrunnelse;
 
   const hovedkravGodkjentBelop = !config.harHovedkrav
     ? undefined
@@ -499,7 +498,6 @@ export function buildEventData(
 
     // Begrunnelse
     begrunnelse: begrunnelseTekst,
-    auto_begrunnelse: autoBegrunnelse,
 
     // Automatisk beregnet (prinsipalt)
     beregnings_resultat: computed.prinsipaltResultat,

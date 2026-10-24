@@ -660,7 +660,6 @@ describe('buildEventData', () => {
       baseConfig,
       baseComputed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      'Auto begrunnelse',
       []
     );
 
@@ -680,7 +679,6 @@ describe('buildEventData', () => {
       baseConfig,
       baseComputed,
       { vederlagKravId: 'v1', lastResponseEventId: 'r1', isUpdateMode: true },
-      'Auto begrunnelse',
       []
     );
 
@@ -704,7 +702,6 @@ describe('buildEventData', () => {
       baseConfig,
       computed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      'Auto begrunnelse',
       triggers
     );
 
@@ -713,17 +710,17 @@ describe('buildEventData', () => {
     expect(result.data.subsidiaer_godkjent_belop).toBe(80000);
   });
 
-  it('uses auto-begrunnelse when user begrunnelse is empty', () => {
+  it('sender en tom begrunnelse tom, uten tekst fra appen (KA-U41)', () => {
     const state = makeState({ begrunnelse: '' });
     const result = buildEventData(
       state,
       baseConfig,
       baseComputed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      'Auto-generert tekst',
       []
     );
-    expect(result.data.begrunnelse).toBe('Auto-generert tekst');
+    expect(result.data.begrunnelse).toBe('');
+    expect(result.data).not.toHaveProperty('auto_begrunnelse');
   });
 
   it('calculates correct godkjent beløp per krav', () => {
@@ -746,7 +743,6 @@ describe('buildEventData', () => {
       config,
       baseComputed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      '',
       []
     );
 
@@ -762,7 +758,6 @@ describe('buildEventData', () => {
       baseConfig,
       computed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      '',
       []
     );
     expect(result.data.hovedkrav_varslet_i_tide).toBe(true);
@@ -772,7 +767,6 @@ describe('buildEventData', () => {
       baseConfig,
       baseComputed,
       { vederlagKravId: 'v1', isUpdateMode: false },
-      '',
       []
     );
     expect(result2.data.hovedkrav_varslet_i_tide).toBeUndefined();
@@ -1013,7 +1007,6 @@ describe('BH Svar-Vederlag UI Scenarios', () => {
       baseConfig,
       computed,
       { vederlagKravId: 'evt-123', isUpdateMode: false },
-      '',
       computed.subsidiaerTriggers
     );
     expect(eventType).toBe('respons_vederlag');
@@ -1029,7 +1022,6 @@ describe('BH Svar-Vederlag UI Scenarios', () => {
       baseConfig,
       computed,
       { vederlagKravId: 'evt-123', lastResponseEventId: 'resp-456', isUpdateMode: true },
-      '',
       computed.subsidiaerTriggers
     );
     expect(eventType).toBe('respons_vederlag_oppdatert');
@@ -1096,7 +1088,6 @@ describe('buildEventData — posten etter § 34.1.3 (VS-U5, OV-U23)', () => {
       c,
       computed,
       { vederlagKravId: 'evt-1', isUpdateMode: false },
-      '',
       computed.subsidiaerTriggers
     ).data;
   };

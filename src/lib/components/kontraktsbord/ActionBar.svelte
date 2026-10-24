@@ -83,9 +83,7 @@
     !kjernesak && mode === 'read' && role === 'TE' && (sel === 'ansvar' || sel === 'frist')
   );
   // TS-saken (#718, #909, #1047): bare handlingene kjernen tilbyr leseren, i sporet som vises.
-  const kjernekrav = $derived(
-    kjernesak ? (kjernesak.teSkjema(sel) ?? kjernesak.bhSkjema(sel)) : null
-  );
+  const kjernekrav = $derived(kjernesak?.skjema(sel) ?? null);
   const svarSomKanGodtas = $derived(kjernesak?.godtar(sel) ?? null);
   const tilbyrInnsigelse = $derived(Boolean(kjernesak?.innsigelser(sel).length));
   const tilbyrKjernetrekk = $derived(kjernesak?.tilbyrTe(`trekke:${SPOR_FOR[sel]}`) === true);
