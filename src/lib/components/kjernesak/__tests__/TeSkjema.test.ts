@@ -557,7 +557,7 @@ describe('TE-skjemaene leser kjernen (#1062)', () => {
   it('TE sender vederlagskravet som tilbud med beløpet fra skjemaet, og kjernen godtar det (OV-U1)', async () => {
     const { send } = await vis(medGrunnlag, 'vederlag');
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '180000' } });
+    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '180000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     await bekreftBrevet();
 
@@ -574,7 +574,7 @@ describe('TE-skjemaene leser kjernen (#1062)', () => {
   it('en ny versjon av vederlagskravet starter med beløpet i gjeldende krav (#718)', async () => {
     await vis(medVederlag, 'vederlag');
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
-    expect(screen.getByLabelText('Fast pris')).toHaveValue('250000');
+    expect(screen.getByLabelText('Fast sum')).toHaveValue('250000');
   });
 });
 
@@ -599,7 +599,7 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varsel' }));
     expect(screen.getByRole('radio', { name: 'Varsel' })).toBeChecked();
-    expect(screen.queryByLabelText('Fast pris')).toBeNull();
+    expect(screen.queryByLabelText('Fast sum')).toBeNull();
     expect(screen.queryByRole('textbox', { name: /Begrunnelse/ })).toBeNull();
     expect(screen.queryByRole('note'), 'svikt: varslingsplikten gjelder').toBeNull();
     expect(screen.getByRole('button', { name: 'Bestemmelser' })).toBeInTheDocument();
@@ -679,7 +679,7 @@ describe('varselet etter § 34.1.2 (#1096)', () => {
     await vis(varslet, 'vederlag');
     // Det særskilte varselet etter § 34.1.3 er et eget varsel og tilbys fortsatt (OV-U25).
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    expect(screen.getByLabelText('Fast pris')).toBeInTheDocument();
+    expect(screen.getByLabelText('Fast sum')).toBeInTheDocument();
     for (const valg of ['Varsel', 'Varsel sendt utenfor appen']) {
       await fireEvent.click(screen.getByRole('radio', { name: valg }));
       expect(screen.queryByRole('radio', { name: PARAGRAF_34_1_2 })).toBeNull();
@@ -725,7 +725,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
     await fireEvent.click(screen.getByRole('radio', { name: PARAGRAF_34_1_3 }));
     // Endring: § 34.1.2 kreves ikke, men det særskilte varselet kreves likevel (OV-U25).
     expect(screen.queryByRole('note')).toBeNull();
-    expect(screen.queryByLabelText('Fast pris')).toBeNull();
+    expect(screen.queryByLabelText('Fast sum')).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const tekst = await bekreftBrevet();
 
@@ -811,7 +811,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
     await vis(medPosten, 'vederlag');
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
     expect(screen.getByLabelText('Produktivitetstap')).toHaveValue('40000');
-    expect(screen.getByLabelText('Fast pris')).toHaveValue('');
+    expect(screen.getByLabelText('Fast sum')).toHaveValue('');
   });
 
   it('oversikten viser posten for seg og summen som det krevde, også uten hovedbeløp (OV-U23)', async () => {
@@ -819,7 +819,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
     const lese = within(document.querySelector('.read-content') as HTMLElement);
     expect(lese.getByText('Produktivitetstap')).toBeInTheDocument();
     expect(lese.getAllByText(/^40\s000,-$/)).toHaveLength(2);
-    // Ingen linje for hovedbeløpet; «Fastpris» står bare som metoden.
+    // Ingen linje for hovedbeløpet; «Fast sum» står bare som metoden.
     expect(document.querySelectorAll('.amount-row')).toHaveLength(1);
   });
 

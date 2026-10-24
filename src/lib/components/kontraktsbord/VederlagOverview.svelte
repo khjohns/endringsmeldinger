@@ -54,7 +54,7 @@
     vederlag.metode === 'REGNINGSARBEID'
       ? 'Kostnadsoverslag'
       : vederlag.metode === 'FASTPRIS_TILBUD'
-        ? 'Fastpris'
+        ? 'Fast sum'
         : 'Hovedkrav'
   );
   const kravlinjer = $derived.by(() => {
