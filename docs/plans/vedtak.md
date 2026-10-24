@@ -9,6 +9,9 @@ til «3.1» gjelder denne fila. Fila lages av
 [vedtaksregisteret](../vedtaksregister/README.md) og rettes bare der. Resten av
 beslutningsregisteret, føringene og de åpne beslutningene, står i hovedplanen.
 
+Byggestatusen i Følge er ført for hånd og kan være foreldet. Den gjeldende lages av
+koden og issuene med `python3 docs/verktoy/byggestatus.py` (#1021).
+
 Disse styrer implementeringen. De tas ikke opp igjen uten at beslutningen
 eksplisitt oppheves.
 
