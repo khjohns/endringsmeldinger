@@ -1,5 +1,5 @@
 /**
- * Shared types and helpers for the forsering begrunnelse generator.
+ * Typer og hjelpere for generatoren av begrunnelsen ved forsering.
  */
 
 import { lockedValueFormatters } from '../../utils/lockedValueTokens';

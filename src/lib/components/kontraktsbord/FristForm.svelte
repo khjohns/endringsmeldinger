@@ -148,15 +148,16 @@
     computed.subsidiaertResultat === 'avslatt' ? 0 : (godkjentDager ?? 0)
   );
 
-  const allAnswered = $derived.by(() => {
+  const vurderingFerdig = $derived.by(() => {
     if (computed.visibility.showFristVarselOk && fristVarselOk === undefined) return false;
     if (computed.visibility.showSpesifisertKravOk && spesifisertKravOk === undefined) return false;
     if (computed.visibility.showForesporselSvarOk && foresporselSvarOk === undefined) return false;
     if (vilkarOppfylt === undefined) return false;
     if (godkjentDager === undefined) return false;
-    if (isHtmlEmpty(begrunnelseHtml)) return false;
     return true;
   });
+  // KA-U41: svaret sendes først når BH har skrevet begrunnelsen.
+  const allAnswered = $derived(vurderingFerdig && !isHtmlEmpty(begrunnelseHtml));
 
   $effect(() => {
     onactions?.({
@@ -368,7 +369,8 @@
     />
   </QuestionCard>
 
-  {#if allAnswered}
+  <!-- Editoren står når vurderingen er ferdig, så BH kan skrive begrunnelsen før sendingen. -->
+  {#if vurderingFerdig}
     <section class="result-box konsekvens-{resultat.variant}">
       <div class="result-header">
         <resultat.ikon size={18} />
