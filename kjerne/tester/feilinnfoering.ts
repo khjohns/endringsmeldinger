@@ -20,7 +20,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -1149,7 +1149,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F129',
     feilklasse: 'revisjonen viser ikke til svaret den erstatter (HF-U1)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['    ...(s.erstatter\n', '    ...(false\n']],
+    endringer: [['  if (s.erstatter) {', '  if (false) {']],
     mal: ['en revisjon viser til svaret den erstatter'],
   },
   {
@@ -3593,6 +3593,46 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['GR-08: en revisjon av vederlagssvaret mens en ny grunnlagsversjon venter'],
+  },
+  {
+    id: 'F412',
+    feilklasse:
+      'en påberopelse etter § 34.1.3 uten virkning begrenser posten i postlisten (presiseringen 24.10 i #1047, VS-U5)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        '  const begrenset = begrensningen(svar, v);\n  const poster = svar.standpunkter',
+        "  const begrenset = svar.standpunkter.find(\n    (x): x is Extract<Standpunkt, { art: 'rettidighet' }> =>\n      x.art === 'rettidighet' && x.begrenset !== undefined\n  );\n  const poster = svar.standpunkter",
+      ],
+    ],
+    mal: ['en påberopelse uten virkning står som byggherrens utsagn uten lag'],
+  },
+  {
+    id: 'F413',
+    feilklasse: 'postlisten mister lagene svaret på grunnlaget opptar foran sporet (OV-U32)',
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        '    const lag = virkning === undefined ? null : laget(virkning);\n    return lag === null ? null : lag + forskyvning;',
+        '    const lag = virkning === undefined ? null : laget(virkning);\n    return lag;',
+      ],
+    ],
+    mal: ['lagene fra svaret på grunnlaget står foran postene'],
+  },
+  {
+    id: 'F414',
+    feilklasse: 'lagene i svarbrevet står i ett avsnitt (#1267 punkt 4)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        "    .map((a) => a.join(' '))\n    .join('\\n\\n');",
+        "    .map((a) => a.join(' '))\n    .join(' ');",
+      ],
+    ],
+    mal: [
+      '§ 34.1.2 «nei»: byggherren påberoper prinsipalt at varselet kom for sent',
+      'bare § 34.1.3 påberopt: justeringen ellers er upåvirket',
+    ],
   },
 ];
 

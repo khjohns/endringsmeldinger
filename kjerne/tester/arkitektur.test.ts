@@ -439,6 +439,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/nyttelast.ts', 'kommandoer/standpunkter.ts'],
   ],
   ['frosset/standpunkt.ts:vederlagsposter', 'regelsett', 'godkjent saerskilt'],
+  // Valg 4 i #1047: postene i det frosne brevet, med beløpet etter en virksom begrensning.
+  // Utfallet summerer dem; visningen leser resten av postlisten.
+  [
+    'frosset/standpunkt.ts:postlisten',
+    'frosset',
+    'poster',
+    ['frosset/standpunkt.ts:prinsipaltBeloep'],
+  ],
+  ['Vederlagspost', 'utsagn', 'godkjent begrensning', ['frosset/standpunkt.ts:prinsipaltBeloep']],
+  ['Vederlagspost.begrensning', 'utsagn', 'beloep', ['frosset/standpunkt.ts:prinsipaltBeloep']],
   // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
   [
     'frosset/standpunkt.ts',
