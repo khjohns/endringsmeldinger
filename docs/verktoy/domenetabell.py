@@ -380,6 +380,7 @@ def valider(
     maalmodell: dict | None = None,
     rot: pathlib.Path = ROT,
     vedtak: str | None = None,
+    arkiv: str | None = None,
 ) -> list[str]:
     plan = plan if plan is not None else HOVEDPLAN.read_text(encoding="utf-8")
     vedtak = vedtak if vedtak is not None else VEDTAKSFIL.read_text(encoding="utf-8")
@@ -387,8 +388,9 @@ def valider(
     if any(d.get("formatversjon") != 1 for d in (regler, korpus, maalmodell)):
         return ["formatversjonen er ikke 1"]
     # De avsluttede funnene står i arkivet (#1020).
+    arkiv = arkiv if arkiv is not None else ARKIV.read_text(encoding="utf-8")
     funntekst = _avsnitt(plan, "## 4. Funnregister", "## 5. Arbeidspakker") + _avsnitt(
-        ARKIV.read_text(encoding="utf-8"), "## 4. Avsluttede funn", "## 5. "
+        arkiv, "## 4. Avsluttede funn", "## 5. "
     )
     return (
         _valider_kilder(regler, vedtak)

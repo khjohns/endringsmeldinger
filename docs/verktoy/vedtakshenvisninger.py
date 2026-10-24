@@ -36,7 +36,9 @@ B_ID = r"B-\d{2}"
 HENVISNING = re.compile(rf"(?<![\w-])(?:{U_ID}|{B_ID})(?![\w-])")
 B_FOERST = re.compile(rf"^{B_ID}\b")
 AAPEN_B = re.compile(rf"^\| ({B_ID}) \|", re.MULTILINE)
-AVGJORT_B = re.compile(rf"^- \*\*({B_ID})\b", re.MULTILINE)
+# Et punkt i listen over avgjorte beslutninger: B-ID-en i fet skrift først, og «avgjort»
+# i punktet, som kan gå over flere linjer.
+AVGJORT_B = re.compile(rf"^- \*\*({B_ID})\b(?:(?!\n- |\n\n).)*?\bavgjort\b", re.MULTILINE | re.DOTALL)
 HISTORISK = re.compile(r"(?<!ikke )\bhistorisk\b", re.IGNORECASE)
 KOMMENTAR = re.compile(r"^\s*(//|/\*|\*|<!--|#(\s|$))")
 MARKOERER = re.compile(r"/\*+|\*+/|//+|<!--|-->|^\s*\*+|^\s*#")

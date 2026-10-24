@@ -139,14 +139,15 @@ def test_en_lenke_til_et_anker_utenfor_3_1_gaar_til_hovedplanen(grunnregister):
     endret = copy.deepcopy(grunnregister)
     endret["innledning"] += (
         "Se [KA-U1](#ka-u1), [B-12](#b-12-merknad-2026-10-11), [koden](../../kjerne/), "
-        f"[lenke](<#ka-u1>) og [GR-U2]({vr.HOVEDPLAN.name}#gr-u2).\n\n"
+        f"[lenke](<#ka-u1>), [GR-U2]({vr.HOVEDPLAN.name}#gr-u2), "
+        f"[GR-U4](./{vr.HOVEDPLAN.name}#gr-u4) og [GR-U5](/docs/plans/{vr.HOVEDPLAN.name}#gr-u5).\n\n"
     )
     tekst = vr.vedtaksfil(endret)
     assert tekst.startswith(vr.VEDTAKSHODE)
     assert (
         "Se [KA-U1](#ka-u1), "
         f"[B-12]({vr.HOVEDPLAN.name}#b-12-merknad-2026-10-11), [koden](../../kjerne/), "
-        "[lenke](<#ka-u1>) og [GR-U2](#gr-u2)."
+        "[lenke](<#ka-u1>), [GR-U2](#gr-u2), [GR-U4](#gr-u4) og [GR-U5](#gr-u5)."
     ) in tekst
 
 
@@ -539,7 +540,7 @@ def test_vakta_melder_endret_vedtak_og_fjernet_rad(plan):
     assert vr.endrede_rader(plan, plan) == []
 
 
-def test_hvert_anker_i_hovedplanen_star_en_gang(plan):
+def test_doble_ankre_finner_et_anker_som_staar_to_ganger(plan):
     assert vr.doble_ankre(plan) == []
     assert vr.doble_ankre(plan + '<a id="ka-u1"></a>') == [
         "ankeret «ka-u1» står 2 ganger i hovedplanen og vedtaksfila"

@@ -100,11 +100,13 @@ def test_en_avgjort_beslutning_i_listen_i_3_4_er_kjent():
     plan = (
         "### 3.4 Åpne beslutninger\n| B-16 | x |\n\n"
         "- **B-06** fullmakt uten dagmulktssats: avgjort 18.10 med GFK-U3.\n"
+        "- **B-02** tilgangsmekanisme: alternativ C,\n  avgjort 23.09.\n"
+        "- **B-19** fortsatt åpen, se issuet\n"
         "- B-07 i løpende tekst\n"
         "### 3.5 x\n- **B-02** utenfor\n"
     )
     assert vh.aapne_beslutninger(plan) == {"B-16"}
-    assert vh.avgjorte_beslutninger(plan) == {"B-06"}
+    assert vh.avgjorte_beslutninger(plan) == {"B-06", "B-02"}
 
 
 def test_en_plan_uten_3_4_gir_feil_og_ikke_en_tom_mengde():

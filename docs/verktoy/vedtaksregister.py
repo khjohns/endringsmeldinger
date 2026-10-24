@@ -276,9 +276,10 @@ def logisk(register: dict) -> str:
     return OVERSKRIFT + markdown(register) + NESTE + "\n"
 
 
-LENKE_TIL_ANKER = re.compile(r"(\]\(\s*<?)#([^)\s>]+)")
+# En lenke i 3.1 til et anker i hovedplanen: bare ankeret, eller filnavnet til planen
+# relativt til docs/plans/ eller fra roten av repoet.
 LENKE_TIL_PLANANKER = re.compile(
-    rf"(\]\(\s*<?)(?:{re.escape(HOVEDPLAN.name)})?#([^)\s>]+)"
+    rf"(\]\(\s*<?)(?:(?:\./|/docs/plans/)?{re.escape(HOVEDPLAN.name)})?#([^)\s>]+)"
 )
 
 
@@ -1217,7 +1218,11 @@ def main() -> int:
     ny = vedtaksfil(register)
     naa = VEDTAKSFIL.read_text(encoding="utf-8") if VEDTAKSFIL.exists() else None
     commit = grunnlag()
-    if commit is None or git_fil(commit, HOVEDPLAN_I_GIT) is None:
+    if (
+        commit is None
+        or git_fil(commit, HOVEDPLAN_I_GIT) is None
+        or git_fil(commit, REGISTER.relative_to(ROT).as_posix()) is None
+    ):
         commit = None
         print(
             "Kontrollene mot main er hoppet over: historikken mangler. Kjør git fetch --unshallow origin main."
