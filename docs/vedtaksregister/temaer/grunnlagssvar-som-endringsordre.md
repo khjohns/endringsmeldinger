@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `bc70eaf163573af57ecae8396dc57a716a107609376765dc816b5548d9ebedf8`
+Kontrollsum (SHA-256 over utdraget visningen leser): `850f7766ce80360b60eb4264c5b1b86d9c262f9114c332d042bbf374ff707231`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -34,7 +34,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [GR-U22](#gr-u22) | Endrer [GR-U19](../../plans/vedtak.md#gr-u19); Opphever [GR-U21](#gr-u21); Snevrer inn [KA-U22](../../plans/vedtak.md#ka-u22); Endrer [GR-U2](../../plans/vedtak.md#gr-u2) | — |
 | [GR-U23](#gr-u23) | Presiserer [GR-U20](#gr-u20); Presiserer [GR-U1](../../plans/vedtak.md#gr-u1); Presiserer [GR-U7](../../plans/vedtak.md#gr-u7); Presiserer [OV-U3](../../plans/vedtak.md#ov-u3) | Snevret inn av [GR-U24](#gr-u24) |
 | [GR-U24](#gr-u24) | Snevrer inn [GR-U20](#gr-u20); Snevrer inn [GR-U23](#gr-u23); Presiserer [OV-U3](../../plans/vedtak.md#ov-u3); Presiserer [GR-U17](#gr-u17) | — |
-| [GR-U26](#gr-u26) | Endrer [GR-U4](../../plans/vedtak.md#gr-u4); Endrer [KA-U16](../../plans/vedtak.md#ka-u16); Presiserer [GR-U1](../../plans/vedtak.md#gr-u1); Presiserer [GR-U7](../../plans/vedtak.md#gr-u7); Presiserer [GR-U10](#gr-u10); Presiserer [HF-U7](../../plans/vedtak.md#hf-u7); Presiserer [HF-U21](#hf-u21); Presiserer [OV-U32](#ov-u32); Presiserer [OV-U33](#ov-u33); Utvider [LV-U4](../../plans/vedtak.md#lv-u4) | — |
+| [GR-U26](#gr-u26) | Endrer [GR-U4](../../plans/vedtak.md#gr-u4); Utvider [GR-U4](../../plans/vedtak.md#gr-u4); Endrer [KA-U16](../../plans/vedtak.md#ka-u16); Presiserer [GR-U1](../../plans/vedtak.md#gr-u1); Presiserer [GR-U7](../../plans/vedtak.md#gr-u7); Presiserer [GR-U10](#gr-u10); Presiserer [HF-U7](../../plans/vedtak.md#hf-u7); Presiserer [HF-U21](#hf-u21); Presiserer [OV-U32](#ov-u32); Presiserer [OV-U33](#ov-u33); Utvider [LV-U4](../../plans/vedtak.md#lv-u4) | — |
 | [VS-U24](#vs-u24) | Presiserer [HF-U11](../../plans/vedtak.md#hf-u11); Snevrer inn [VS-U9](../../plans/vedtak.md#vs-u9); Snevrer inn [VS-U11](../../plans/vedtak.md#vs-u11); Snevrer inn [VS-U14](../../plans/vedtak.md#vs-u14); Snevrer inn [HF-U4](#hf-u4); Presiserer [OV-U7](../../plans/vedtak.md#ov-u7) | Utvidet av [VS-U29](#vs-u29); Presisert av [OV-U22](#ov-u22) |
 | [HF-U4](#hf-u4) | Presiserer [VS-U11](../../plans/vedtak.md#vs-u11); Presiserer [VS-U14](../../plans/vedtak.md#vs-u14); Presiserer [VS-U20](../../plans/vedtak.md#vs-u20); Snevrer inn [GR-U7](../../plans/vedtak.md#gr-u7); Snevrer inn [VS-U9](../../plans/vedtak.md#vs-u9); Snevrer inn [OV-U5](#ov-u5) | Snevret inn av [VS-U24](#vs-u24); Presisert av [HF-U5](#hf-u5); Utvidet av [HF-U6](#hf-u6) |
 | [HF-U5](#hf-u5) | Snevrer inn [GR-U4](../../plans/vedtak.md#gr-u4); Snevrer inn [GR-U7](../../plans/vedtak.md#gr-u7); Snevrer inn [MM-U9](../../plans/vedtak.md#mm-u9); Snevrer inn [OV-U5](#ov-u5); Snevrer inn [KA-U1](../../plans/vedtak.md#ka-u1); Utvider [KA-U10](../../plans/vedtak.md#ka-u10); Utvider [FO-U5](../../plans/vedtak.md#fo-u5); Presiserer [GR-U9](../../plans/vedtak.md#gr-u9); Presiserer [HF-U4](#hf-u4) | Snevret inn av [GR-U17](#gr-u17); Snevret inn av [GR-U20](#gr-u20); Utvidet av [HF-U6](#hf-u6); Utvidet av [HF-U14](#hf-u14); Snevret inn av [HF-U15](#hf-u15); Presisert av [HF-U16](#hf-u16); Utvidet av [HF-U17](#hf-u17); Presisert av [HF-U18](#hf-u18); Presisert av [HF-U19](#hf-u19); Endret av [HF-U21](#hf-u21); Presisert av [MM-U24](#mm-u24) |
@@ -254,7 +254,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 24.10, oppdragsgiver (#1239)
 
-**Følge:** Endrer [GR-U4](../../plans/vedtak.md#gr-u4). Endrer [KA-U16](../../plans/vedtak.md#ka-u16). Presiserer [GR-U1](../../plans/vedtak.md#gr-u1). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [GR-U10](#gr-u10). Presiserer [HF-U7](../../plans/vedtak.md#hf-u7). Presiserer [HF-U21](#hf-u21). Presiserer [OV-U32](#ov-u32). Presiserer [OV-U33](#ov-u33). Utvider [LV-U4](../../plans/vedtak.md#lv-u4). Bygges i #1239
+**Følge:** Endrer [GR-U4](../../plans/vedtak.md#gr-u4). Utvider [GR-U4](../../plans/vedtak.md#gr-u4). Endrer [KA-U16](../../plans/vedtak.md#ka-u16). Presiserer [GR-U1](../../plans/vedtak.md#gr-u1). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [GR-U10](#gr-u10). Presiserer [HF-U7](../../plans/vedtak.md#hf-u7). Presiserer [HF-U21](#hf-u21). Presiserer [OV-U32](#ov-u32). Presiserer [OV-U33](#ov-u33). Utvider [LV-U4](../../plans/vedtak.md#lv-u4). Bygges i #1239
 
 **Regelrader:** —
 
@@ -678,7 +678,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 24.10, oppdragsgiver (#1240)
 
-**Følge:** Presiserer [LV-U4](../../plans/vedtak.md#lv-u4). Presiserer [HF-U7](../../plans/vedtak.md#hf-u7). Presiserer [HF-U14](#hf-u14). Presiserer [OV-U32](#ov-u32). Presiserer [OV-U33](#ov-u33). Bygges i #1240
+**Følge:** Presiserer [LV-U4](../../plans/vedtak.md#lv-u4). Presiserer [HF-U7](../../plans/vedtak.md#hf-u7). Presiserer [HF-U14](#hf-u14). Presiserer [OV-U32](#ov-u32). Presiserer [OV-U33](#ov-u33). Bygges i #1240. «Fast sum» er appens begrep, ikke standardens, og føres i domenetabellen.
 
 **Regelrader:** —
 

@@ -1976,7 +1976,7 @@ kilde = ["#1239"]
 sporsmal = '''
 Hva sier byggherrens svar på vederlag eller frist når grunnlaget ikke er besvart?
 
-Innledningen i svar-kommentaren på #1239 (kommentaren 6383634165), ordrett: Grunnlaget er versjon 4 (kommentaren 6383604340) og sparring 3. Oppdragsgiver svarte først, ordrett: «Jeg støtter følgende fra Astra.» Det var S″ og 2′ fra versjon 3, med Astras presiseringer. Prøvingen hadde funnet at S″ manglet HF-U7 og at 2′ brøt LV-U4 punkt 5 og KA-U16. Svaret ble derfor slått sammen med rettelsene og lagt fram slik, ordrett:
+Innledningen i svar-kommentaren på #1239 (kommentaren 6383634165), ordrett utenom lenken til versjon 4: Grunnlaget er versjon 4 (kommentaren 6383604340) og sparring 3. Oppdragsgiver svarte først, ordrett: «Jeg støtter følgende fra Astra.» Det var S″ og 2′ fra versjon 3, med Astras presiseringer. Prøvingen hadde funnet at S″ manglet HF-U7 og at 2′ brøt LV-U4 punkt 5 og KA-U16. Svaret ble derfor slått sammen med rettelsene og lagt fram slik, ordrett:
 
 **Spørsmål 1, S⁗** (S″ + Astras presisering + HF-U7 + skillet mellom brev og visning)'''
 valgt = "S⁗"
@@ -1984,7 +1984,7 @@ svar = '''
 Jeg støtter følgende fra Astra.
 
 Lagt fram slått sammen med rettelsene, med S⁗ i spørsmål 1 og 2‴ i spørsmål 2: Ja til begge'''
-forhold = [{ art = "endrer", vedtak = "gr-u4" }, { art = "endrer", vedtak = "ka-u16" }, { art = "presiserer", vedtak = "gr-u1" }, { art = "presiserer", vedtak = "gr-u7" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "hf-u7" }, { art = "presiserer", vedtak = "hf-u21" }, { art = "presiserer", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u33" }, { art = "utvider", vedtak = "lv-u4" }]
+forhold = [{ art = "endrer", vedtak = "gr-u4" }, { art = "utvider", vedtak = "gr-u4" }, { art = "endrer", vedtak = "ka-u16" }, { art = "presiserer", vedtak = "gr-u1" }, { art = "presiserer", vedtak = "gr-u7" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "hf-u7" }, { art = "presiserer", vedtak = "hf-u21" }, { art = "presiserer", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u33" }, { art = "utvider", vedtak = "lv-u4" }]
 folge = '''
 Bygges i #1239'''
 
@@ -6198,7 +6198,7 @@ kilde = ["#1240"]
 sporsmal = '''
 Hva sier brevet når byggherren godtar tilbudet som grunnlag for justeringen, men ikke hele beløpet?
 
-Innledningen i svar-kommentaren på #1239 (kommentaren 6383634165), ordrett: Grunnlaget er versjon 4 (kommentaren 6383604340) og sparring 3. Oppdragsgiver svarte først, ordrett: «Jeg støtter følgende fra Astra.» Det var S″ og 2′ fra versjon 3, med Astras presiseringer. Prøvingen hadde funnet at S″ manglet HF-U7 og at 2′ brøt LV-U4 punkt 5 og KA-U16. Svaret ble derfor slått sammen med rettelsene og lagt fram slik, ordrett:
+Innledningen i svar-kommentaren på #1239 (kommentaren 6383634165), ordrett utenom lenken til versjon 4: Grunnlaget er versjon 4 (kommentaren 6383604340) og sparring 3. Oppdragsgiver svarte først, ordrett: «Jeg støtter følgende fra Astra.» Det var S″ og 2′ fra versjon 3, med Astras presiseringer. Prøvingen hadde funnet at S″ manglet HF-U7 og at 2′ brøt LV-U4 punkt 5 og KA-U16. Svaret ble derfor slått sammen med rettelsene og lagt fram slik, ordrett:
 
 **Spørsmål 2, 2‴** (2′ + Astras presisering, med «godkjenner» og lagene)'''
 valgt = "2‴"
@@ -6208,7 +6208,7 @@ Jeg støtter følgende fra Astra.
 Lagt fram slått sammen med rettelsene, med S⁗ i spørsmål 1 og 2‴ i spørsmål 2: Ja til begge'''
 forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "hf-u7" }, { art = "presiserer", vedtak = "hf-u14" }, { art = "presiserer", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u33" }]
 folge = '''
-Bygges i #1240'''
+Bygges i #1240. «Fast sum» er appens begrep, ikke standardens, og føres i domenetabellen.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "2‴"
