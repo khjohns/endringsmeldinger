@@ -85,7 +85,7 @@ describe('fristsporet med null fra API-et (#181)', () => {
     });
     const tilstand = { ...getDefaults({ krevdDager: 30, isUpdateMode: false }) };
     Object.assign(tilstand, { fristVarselOk: true, spesifisertKravOk: true, vilkarOppfylt: true });
-    const svar = buildEventData({ ...tilstand, godkjentDager: 30 }, config, beregnet, 'krav-1', '');
+    const svar = buildEventData({ ...tilstand, godkjentDager: 30 }, config, beregnet, 'krav-1');
     expect(svar.frist_varsel_ok).toBe(true);
     expect(svar.spesifisert_krav_ok).toBe(true);
     expect(svar.foresporsel_svar_ok).toBeUndefined();
@@ -121,7 +121,7 @@ describe('fristsporet med null fra API-et (#181)', () => {
       } as unknown as Parameters<typeof getDefaults>[0]['fristTilstand'],
     });
     expect(tilstand.fristVarselOk).toBe(true);
-    const svar = buildEventData(tilstand, config, beregnet, 'krav-2', '');
+    const svar = buildEventData(tilstand, config, beregnet, 'krav-2');
     expect(svar.frist_varsel_ok).toBeUndefined();
     expect(svar.spesifisert_krav_ok).toBeUndefined();
     expect(svar.foresporsel_svar_ok).toBe(true);

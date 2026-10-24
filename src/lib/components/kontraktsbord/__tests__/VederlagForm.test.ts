@@ -2,7 +2,8 @@
  * BHs svar på et vederlagskrav som bare har produktivitetstapet etter § 34.1.3 annet ledd.
  * Forventningene: OV-U23 (ingen vurdering av justeringen ellers uten beløp for den), VS-U5 og
  * OV-U22 (beløpet etter begrensningen prinsipalt, det godkjente subsidiært), MM-U23 (skjemaet sier
- * ikke «prekludert»), og #1088 (et svar tatt tilbake fra godkjenningen åpnes med det som var fylt ut).
+ * ikke «prekludert»), #1088 (et svar tatt tilbake fra godkjenningen åpnes med det som var fylt ut) og
+ * KA-U41 (begrunnelsen er bare teksten BH skriver; i den gamle flyten må den finnes før sendingen).
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
@@ -13,6 +14,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/svelte';
+import { userEvent } from '@testing-library/user-event';
 import WorkspaceHarness from './WorkspaceHarness.svelte';
 import { createDemoStore } from '$lib/mockup/store.svelte';
 import { SCENARIOS } from '$lib/mockup/scenarios';
@@ -31,6 +33,12 @@ const arbeidsflate = () =>
 async function velg(gruppe: string, valg: string) {
   const radiogruppe = await dokument.findByRole('radiogroup', { name: gruppe });
   await fireEvent.click(within(radiogruppe).getByRole('radio', { name: valg }));
+}
+
+async function skrivBegrunnelse(tekst = 'Begrunnelse fra BH.') {
+  const flate = await dokument.findByRole('textbox', { name: 'Begrunnelse' });
+  flate.focus();
+  await userEvent.setup().keyboard(tekst);
 }
 
 describe('BHs svar på et krav som bare har produktivitetstapet', () => {
@@ -64,6 +72,11 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
     // Feltet holdes innenfor det byggherren godtar for posten (VS-U5, kjernens kontroll).
     expect((begrenset as HTMLInputElement).value).toBe((180000).toLocaleString('nb-NO'));
     await fireEvent.input(begrenset, { target: { value: '45000' } });
+    // KA-U41: appen fyller ikke inn begrunnelsen, så svaret venter på BHs tekst.
+    expect(screen.queryByText('Hentet fra vurderingen')).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Begrunnelse' }).textContent).toBe('');
+    expect(send).toBeDisabled();
+    await skrivBegrunnelse();
     await waitFor(() => expect(send).toBeEnabled());
     // VS-U5: BH oppgir hva BH godtar etter begrensningen, og avslår ikke prinsipalt.
     expect(
@@ -97,6 +110,7 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
     await velg('Produktivitetstap', 'Fullt beløp');
     const begrenset = await screen.findByRole('textbox', { name: 'Godtas etter begrensningen' });
     await fireEvent.input(begrenset, { target: { value: '150000' } });
+    await skrivBegrunnelse();
 
     await velg('Produktivitetstap', 'Redusert beløp');
     const godkjent = await screen.findByRole('textbox', { name: 'Produktivitetstap' });

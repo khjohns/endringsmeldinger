@@ -32,6 +32,9 @@ export interface Kjernebrev {
 
 type Kommando = Record<string, unknown> & { utdypning?: string };
 
+/** Det skjemaet vet om brevet som kommandoen ikke sier selv: hva parten gjør, og knappen. */
+type Omslag = Pick<Kjernebrev, 'utdypning' | 'handling' | 'sendes'>;
+
 const SPORNAVN: Record<Spor, string> = {
   grunnlag: 'Grunnlag',
   vederlag: 'Vederlag',
@@ -51,7 +54,7 @@ function kommandoFraSkjema(
   spor: SporType,
   type: EventType,
   data: object
-): { kommando: Kommando; vedlegg?: Vedleggsoppslag } {
+): { kommando: Kommando; vedlegg?: Vedleggsoppslag; omslag?: Omslag } {
   if (
     spor === 'vederlag' &&
     (type === 'vederlag_krav_sendt' || type === 'vederlag_krav_oppdatert')
@@ -62,14 +65,22 @@ function kommandoFraSkjema(
       vedlegg: vedleggsoppslag(d.registrert?.vedlegg ?? []),
     };
   }
-  if (spor === 'vederlag' && type === 'respons_vederlag' && kjernesak.utledning)
+  if (spor === 'vederlag' && type === 'respons_vederlag' && kjernesak.utledning) {
+    const kommando = vederlagssvarFraSkjema(
+      data as Record<string, unknown>,
+      kjernesak.utledning,
+      kjernesak.regelversjon
+    );
     return {
-      kommando: vederlagssvarFraSkjema(
-        data as Record<string, unknown>,
-        kjernesak.utledning,
-        kjernesak.regelversjon
-      ),
+      kommando,
+      omslag: {
+        // BHs svar har utdypningen i svaret, ikke i brevet.
+        utdypning: kommando.svar[0]?.utdypning,
+        handling: 'Du svarer på kravet',
+        sendes: 'Send til entreprenøren',
+      },
     };
+  }
   if (spor === 'frist' && type.startsWith('frist_krav_')) {
     const d = data as Fristskjemadata;
     return {
@@ -94,10 +105,13 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
   let feil = $state<string | null>(null);
 
   /** Brevet kjernen lager for kommandoen, eller avvisningen som feil (#719). */
-  function brev(kommando: Kommando, spor: Spor, vedlegg?: Vedleggsoppslag): Kjernebrev {
+  function brev(
+    kommando: Kommando,
+    spor: Spor,
+    vedlegg?: Vedleggsoppslag,
+    omslag?: Omslag
+  ): Kjernebrev {
     const b = kjernesak.brev(kommando, vedlegg);
-    // BHs svar har utdypningen i svaret, ikke i brevet (`vederlagssvarFraSkjema`).
-    const svar = Array.isArray(kommando.svar) ? (kommando.svar as { utdypning?: string }[]) : null;
     // #719: uten låst tekst sendes ikke kommandoen, så TE ser aldri et brev uten teksten.
     const tekst = b && 'tekst' in b ? b.tekst : null;
     if (!tekst)
@@ -107,11 +121,9 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     return {
       tittel: `${SPORNAVN[spor]} – ${kjernesak.saksbilde?.tittel ?? 'Sak'}`,
       tekst,
-      utdypning: kommando.utdypning ?? svar?.[0]?.utdypning,
-      handling: svar
-        ? 'Du svarer på kravet'
-        : (HANDLING[kommando.type as string] ?? 'Du sender brevet'),
-      ...(svar ? { sendes: 'Send til entreprenøren' } : {}),
+      utdypning: kommando.utdypning,
+      handling: HANDLING[kommando.type as string] ?? 'Du sender brevet',
+      ...omslag,
     };
   }
 
@@ -172,14 +184,14 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
       feil = null;
       sender = true;
       try {
-        const { kommando, vedlegg } = kommandoFraSkjema(kjernesak, spor, type, data);
+        const { kommando, vedlegg, omslag } = kommandoFraSkjema(kjernesak, spor, type, data);
         // MM-U17: et registrert brev har ingen tekst fra appen, så det er ikke noe brev å kontrollere.
         if (kommando.type === 'varsel') {
           if (!(await kjernesak.send(kommando, undefined, vedlegg)))
             throw new Error(kjernesak.feil ?? 'Varselet ble ikke registrert.');
           return;
         }
-        await visOgSend(kommando, brev(kommando, spor as Spor, vedlegg));
+        await visOgSend(kommando, brev(kommando, spor as Spor, vedlegg, omslag));
       } finally {
         sender = false;
       }
