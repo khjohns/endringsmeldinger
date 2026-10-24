@@ -122,6 +122,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   let lastinger = 0;
   let gjeldende: Promise<boolean> = Promise.resolve(false);
+  let lastefeil: string | null = null;
 
   /**
    * Laster saken. `true` når den er lastet. Bare det siste kallet skriver saken, så et
@@ -160,6 +161,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
         sak = null;
       }
       const aarsak = meldingFra(e, 'Saken kunne ikke hentes.');
+      lastefeil = aarsak;
       if (etterLagring || utdatertAarsak) utdatertAarsak = melding(IKKE_LASTET, aarsak);
       feil = utdatertAarsak ?? aarsak;
       return false;
@@ -272,7 +274,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       const aarsak = ventende ? null : meldingFra(e, null);
       // Saken er endret siden den ble lastet. Den lastes på nytt, og meldingen skal stå etterpå.
       const lastet = e instanceof ApiError && e.status === 409 ? await last() : true;
-      feil = melding(melding(hva, aarsak), lastet ? null : feil);
+      // Lastefeilen alene: meldingen om et tidligere lagret brev står etter Avbryt.
+      feil = melding(melding(hva, aarsak), lastet ? null : lastefeil);
       return false;
     } finally {
       sender = false;
