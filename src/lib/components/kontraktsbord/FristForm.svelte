@@ -429,6 +429,7 @@
         Redegjør for den kontraktsmessige vurderingen og eventuelle forbehold.
       </p>
       <RichTextEditor
+        navn="Begrunnelse"
         body={begrunnelseHtml}
         onchange={(html) => (begrunnelseHtml = html)}
         maxHeight="none"

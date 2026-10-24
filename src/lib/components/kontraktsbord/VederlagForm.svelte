@@ -823,6 +823,7 @@
           <span class="sh-title">Begrunnelse</span>
         </div>
         <RichTextEditor
+          navn="Begrunnelse"
           body={begrunnelseHtml}
           onchange={(html) => (begrunnelseHtml = html)}
           maxHeight="none"

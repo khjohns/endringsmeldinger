@@ -35,8 +35,8 @@ async function velg(gruppe: string, valg: string) {
   await fireEvent.click(within(radiogruppe).getByRole('radio', { name: valg }));
 }
 
-async function skrivBegrunnelse(container: HTMLElement, tekst = 'Begrunnelse fra BH.') {
-  const flate = container.querySelector('.begrunnelse-section .tiptap') as HTMLElement;
+async function skrivBegrunnelse(tekst = 'Begrunnelse fra BH.') {
+  const flate = await dokument.findByRole('textbox', { name: 'Begrunnelse' });
   flate.focus();
   await userEvent.setup().keyboard(tekst);
 }
@@ -74,9 +74,9 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
     await fireEvent.input(begrenset, { target: { value: '45000' } });
     // KA-U41: appen fyller ikke inn begrunnelsen, så svaret venter på BHs tekst.
     expect(screen.queryByText('Hentet fra vurderingen')).toBeNull();
-    expect(screen.container.querySelector('.begrunnelse-section .tiptap')!.textContent).toBe('');
+    expect(screen.getByRole('textbox', { name: 'Begrunnelse' }).textContent).toBe('');
     expect(send).toBeDisabled();
-    await skrivBegrunnelse(screen.container);
+    await skrivBegrunnelse();
     await waitFor(() => expect(send).toBeEnabled());
     // VS-U5: BH oppgir hva BH godtar etter begrensningen, og avslår ikke prinsipalt.
     expect(
@@ -110,7 +110,7 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
     await velg('Produktivitetstap', 'Fullt beløp');
     const begrenset = await screen.findByRole('textbox', { name: 'Godtas etter begrensningen' });
     await fireEvent.input(begrenset, { target: { value: '150000' } });
-    await skrivBegrunnelse(screen.container);
+    await skrivBegrunnelse();
 
     await velg('Produktivitetstap', 'Redusert beløp');
     const godkjent = await screen.findByRole('textbox', { name: 'Produktivitetstap' });

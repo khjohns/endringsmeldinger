@@ -249,6 +249,7 @@
     </p>
     <div class="editor-wrapper">
       <RichTextEditor
+        navn="Begrunnelse"
         body={begrunnelseHtml}
         onchange={(html) => (begrunnelseHtml = html)}
         extensions={[LockedValueNode]}
