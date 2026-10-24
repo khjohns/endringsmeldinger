@@ -1168,14 +1168,17 @@ def ny_byggestatus(gammel_register: dict, register: dict) -> list[str]:
         return anker(p) or linje(p["vedtak"])
 
     gamle = {
-        noekkel(p): len(byggestatus_i(p.get("folge", "")))
+        noekkel(p): collections.Counter(byggestatus_i(p.get("folge", "")))
         for p in poster(gammel_register)
     }
     return [
-        f"{etikett(p)}: byggestatus ført for hånd i folge («{status[-1]}»); "
+        f"{etikett(p)}: byggestatus ført for hånd i folge («{next(iter(ny))}»); "
         "den lages av docs/verktoy/byggestatus.py"
         for p in poster(register)
-        if len(status := byggestatus_i(p.get("folge", ""))) > gamle.get(noekkel(p), 0)
+        if (
+            ny := collections.Counter(byggestatus_i(p.get("folge", "")))
+            - gamle.get(noekkel(p), collections.Counter())
+        )
     ]
 
 

@@ -156,8 +156,12 @@ python3 docs/verktoy/byggestatus.py --uten-issues  # uten nett
   siste byggestatusen Følge sier for hånd. En henvisning i koden sier at koden
   bygger på vedtaket, ikke at hele vedtaket er bygget.
 - **Avvikene** er «Ikke bygget» i Følge når produksjonskoden viser til vedtaket,
-  og «Ikke bygget» når alle issuene Følge nevner, er lukket. Et avvik er noe å
-  kontrollere. PR-er og issues med ukjent tilstand teller ikke i det andre.
+  og «Ikke bygget» når issuene som bygger vedtaket, er lukket. Det er issuene i en
+  setning om byggingen, som «Bygges i #411» eller «Ikke bygget (#371)», ikke
+  issuet der spørsmålet ble stilt. PR-er teller ikke, og et issue lukket som ikke
+  planlagt eller med ukjent tilstand gjør det ikke lukket. Statusen er den siste
+  som står først i en setning, så «Sperren er ikke bygget» telles ikke. Et avvik
+  er noe å kontrollere.
 - **Visningen sjekkes ikke inn**, fordi tilstanden til issuene endrer seg uten en
   commit. Kjør verktøyet når byggestatusen trengs.
 - **Byggestatusen som står i Følge, blir stående**, fordi Følge i en importert rad

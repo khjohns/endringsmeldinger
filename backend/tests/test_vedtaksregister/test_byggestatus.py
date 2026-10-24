@@ -71,7 +71,7 @@ def test_ikke_bygget_med_kode_og_lukket_issue_gir_begge_avvikene():
     assert r["issues"] == [{"nummer": 411, "lukket": True, "pr": False}]
     assert r["avvik"] == [
         "Følge sier «Ikke bygget», men produksjonskoden viser til vedtaket",
-        "Følge sier «Ikke bygget», og alle issuene Følge nevner, er lukket",
+        "Følge sier «Ikke bygget», og issuene som bygger vedtaket, er lukket",
     ]
 
 
@@ -88,6 +88,38 @@ def test_ingen_avvik_naar_bare_testene_viser_til_vedtaket_og_et_issue_er_aapent(
 ):
     post = importert("vs-u16", "Ikke bygget. Bygges i #411 og #412")
     assert bs.status(post, koden, tilstander)["avvik"] == []
+
+
+def test_et_issue_utenfor_setningen_om_byggingen_teller_ikke():
+    """Issuet der spørsmålet ble stilt, som #410 hos KA-U33, bygger ikke vedtaket."""
+    post = importert("vs-u16", "Spørsmålet står på #410. Ikke bygget. Bygges i #411")
+    tilstander = {410: {"lukket": True, "pr": False}, 411: {"lukket": False, "pr": False}}
+    assert bs.status(post, {}, tilstander)["avvik"] == []
+    post = importert("vs-u16", "Spørsmålet står på #410. Ikke bygget")
+    assert bs.status(post, {}, {410: {"lukket": True, "pr": False}})["avvik"] == []
+
+
+def test_et_issue_lukket_som_ikke_planlagt_er_ikke_bygget():
+    tilstander = {411: {"lukket": True, "ikke_planlagt": True, "pr": False}}
+    r = bs.status(VS_U16, {}, tilstander)
+    assert r["avvik"] == []
+    assert "#411 lukket som ikke planlagt" in bs.markdown([r], hentet=True)
+
+
+def test_ikke_bygget_midt_i_en_setning_er_ikke_statusen():
+    """Som KA-U22: «Delvis bygget», og en del av vedtaket «er ikke bygget»."""
+    post = importert("vs-u16", "Delvis bygget, kontrollert 20.10 (#417). Sperren er ikke bygget")
+    r = bs.status(post, {"VS-U16": {"kode": ["kjerne/a.ts"], "tester": []}}, {})
+    assert r["for_haand"] == "Delvis bygget"
+    assert r["avvik"] == []
+
+
+def test_et_svar_som_ikke_er_en_liste_gir_ukjent_tilstand(monkeypatch):
+    def svar(*_, **__):
+        return bs.subprocess.CompletedProcess([], 0, stdout='{"message": "Not Found"}')
+
+    monkeypatch.setattr(bs.subprocess, "run", svar)
+    assert bs.hent_tilstander() is None
 
 
 def test_en_lukket_pr_gjoer_ikke_issuene_lukket():
@@ -155,6 +187,14 @@ def test_vakta_godtar_byggestatusen_som_staar_fra_foer():
 def test_vakta_melder_ny_byggestatus_i_folge(naa, melding):
     assert vr.ny_byggestatus(register(VS_U16), naa) == [
         f"{melding}; den lages av docs/verktoy/byggestatus.py"
+    ]
+
+
+def test_vakta_melder_en_byttet_status():
+    gammel = register(ny("XX-U1", "Bygges i #1021. Ikke bygget"))
+    naa = register(ny("XX-U1", "Bygges i #1021. Bygget 24.10"))
+    assert vr.ny_byggestatus(gammel, naa) == [
+        "XX-U1: byggestatus ført for hånd i folge («Bygget»); den lages av docs/verktoy/byggestatus.py"
     ]
 
 

@@ -17,9 +17,11 @@ For hvert vedtak med ID viser den:
 - byggestatusen Følge sier for hånd, den siste i teksten.
 
 To avvik merkes. Følge sier «Ikke bygget», men produksjonskoden viser til vedtaket.
-Eller Følge sier «Ikke bygget», og alle issuene Følge nevner, er lukket. PR-ene
-teller ikke i det andre, og ukjent tilstand heller ikke. Et avvik er noe å
-kontrollere, ikke en dom.
+Eller Følge sier «Ikke bygget», og issuene som bygger vedtaket, er lukket. Det er
+issuene i en setning om byggingen, som «Bygges i #411». PR-ene teller ikke, og et
+issue lukket som ikke planlagt eller med ukjent tilstand gjør det ikke lukket.
+Statusen er den siste som står først i en setning. Et avvik er noe å kontrollere,
+ikke en dom.
 
 Tilstanden hentes med `gh api` fra REST-grensesnittet, side for side, fordi
 --paginate gir 403 i skyøktene. Feiler kallet, står tilstanden som ukjent.
@@ -41,7 +43,13 @@ vr = vh.vr
 
 REPO = "khjohns/endringsmeldinger"
 ISSUE = re.compile(r"(?<![\w&/])#(\d+)\b")
-IKKE_BYGGET = re.compile(r"[Ii]kke bygget")
+# Statusen Følge sier for hånd, først i en setning. «Sperren er ikke bygget» midt i en
+# setning gjelder en del av vedtaket og telles ikke.
+STATUS = re.compile(
+    r"(?:^|(?<=[.!?:;] )|(?<=\())(?:(?:Ikke|Delvis|Del \d+) bygget|Bygget)(?![\w-])"
+)
+SETNING = re.compile(r"(?<=[.!?])\s+")
+BYGG = re.compile(r"\b[Bb]ygg(?:et|es)\b")
 VIS_FILER = 3
 
 
@@ -59,9 +67,20 @@ def nevnte_issues(folge: str) -> list[int]:
     return list(dict.fromkeys(int(n) for n in ISSUE.findall(folge)))
 
 
+def byggeissues(folge: str) -> list[int]:
+    """Issuene i en setning om byggingen, som «Bygges i #411» og «Ikke bygget (#371)».
+    Et issue der spørsmålet ble stilt eller besvart, er ikke med."""
+    return [
+        n
+        for s in SETNING.split(" ".join(folge.split()))
+        if BYGG.search(s)
+        for n in nevnte_issues(s)
+    ]
+
+
 def hent_tilstander(repo: str = REPO) -> dict[int, dict] | None:
-    """Nummer → {"lukket": bool, "pr": bool} for alle issuene og PR-ene, eller None
-    når de ikke kan hentes."""
+    """Nummer → {"lukket": bool, "ikke_planlagt": bool, "pr": bool} for alle issuene og
+    PR-ene, eller None når de ikke kan hentes."""
     tilstander = {}
     side = 1
     while True:
@@ -80,11 +99,14 @@ def hent_tilstander(repo: str = REPO) -> dict[int, dict] | None:
             sider = json.loads(svar.stdout)
         except (OSError, subprocess.SubprocessError, json.JSONDecodeError):
             return None
+        if not isinstance(sider, list):
+            return None
         if not sider:
             return tilstander
         for i in sider:
             tilstander[i["number"]] = {
                 "lukket": i["state"] == "closed",
+                "ikke_planlagt": i.get("state_reason") == "not_planned",
                 "pr": "pull_request" in i,
             }
         side += 1
@@ -100,21 +122,25 @@ def status(
     kode = sorted({f for i in ider for f in koden.get(i, {}).get("kode", [])})
     tester = sorted({f for i in ider for f in koden.get(i, {}).get("tester", [])})
     folge = post.get("folge", "")
-    for_haand = vr.byggestatus_i(folge)
+    for_haand = STATUS.findall(" ".join(folge.split()))
     nevnt = [
         {"nummer": n} | ((tilstander or {}).get(n) or {}) for n in nevnte_issues(folge)
     ]
-    ikke_bygget = bool(for_haand) and bool(IKKE_BYGGET.fullmatch(for_haand[-1]))
-    issuene = [n for n in nevnt if not n.get("pr")]
+    ikke_bygget = bool(for_haand) and for_haand[-1] == "Ikke bygget"
+    bygges_i = [
+        n for n in nevnt if n["nummer"] in byggeissues(folge) and not n.get("pr")
+    ]
     avvik = []
     if ikke_bygget and kode:
         avvik.append("Følge sier «Ikke bygget», men produksjonskoden viser til vedtaket")
     if (
         ikke_bygget
-        and issuene
-        and all(n.get("lukket") is True for n in issuene)
+        and bygges_i
+        and all(n.get("lukket") is True and not n.get("ikke_planlagt") for n in bygges_i)
     ):
-        avvik.append("Følge sier «Ikke bygget», og alle issuene Følge nevner, er lukket")
+        avvik.append(
+            "Følge sier «Ikke bygget», og issuene som bygger vedtaket, er lukket"
+        )
     return {
         "vedtak": vr.etikett(post),
         "ider": ider,
@@ -149,6 +175,8 @@ def _issue(n: dict) -> str:
     navn = f"PR #{n['nummer']}" if n.get("pr") else f"#{n['nummer']}"
     if "lukket" not in n:
         return f"{navn} ukjent"
+    if n.get("ikke_planlagt"):
+        return f"{navn} lukket som ikke planlagt"
     return f"{navn} {'lukket' if n['lukket'] else 'åpen'}"
 
 
@@ -174,7 +202,7 @@ def markdown(rader: list[dict], hentet: bool) -> str:
     for r in rader:
         linjer.append(
             f"| {r['vedtak']} | {_filer(r['kode'])} | {_filer(r['tester'])} "
-            f"| {', '.join(map(_issue, r["issues"])) or '–'} "
+            f"| {', '.join(map(_issue, r['issues'])) or '–'} "
             f"| {r['for_haand'] or '–'} | {'; '.join(r['avvik']) or '–'} |"
         )
     return "\n".join(linjer) + "\n"
