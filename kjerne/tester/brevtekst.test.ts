@@ -4818,6 +4818,33 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
       expect(u.godtatt ? null : u.avvisning).toEqual({ regel: 'UGYLDIG_FORM', melding });
     }
   });
+
+  // #1229: TEs beskrivelse siteres i godkjenningen (GR-U14) og har ingen egen kontroll når
+  // brevet skrives, så bare kontrollen av den låste teksten stopper den.
+  it('en beskrivelse med et slikt tegn fra før stopper godkjenningen som siterer den (GR-U14, #1229)', () => {
+    const s = sak();
+    const krav = s.send('TE', GRUNNLAGSKRAV);
+    const godkjenning = {
+      type: 'brev',
+      svar: [
+        svar('grunnlag', s.krav('grunnlag'), {
+          resultat: 'godkjent',
+          grunnlag_varslet_i_tide: true,
+        }),
+      ],
+    };
+    expect(s.vis('BH', godkjenning)?.[0], 'kontrollsak').toContain(`«${BESKRIVELSE}»`);
+    const avsnitt = (krav.data as { brevtekst: { utdypning?: string }[] }).brevtekst;
+    const medBeskrivelse = avsnitt.find((a) => a.utdypning === BESKRIVELSE);
+    expect(medBeskrivelse, 'forutsetning').toBeDefined();
+    medBeskrivelse!.utdypning = 'Byggherren har pålagt en annen fundamentering 😀';
+    expect(s.vis('BH', godkjenning)).toBeNull();
+    expect(s.avvisning('BH', godkjenning)).toEqual({
+      regel: 'UGYLDIG_FORM',
+      melding:
+        'Avsnitt 1 i brevteksten har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.',
+    });
+  });
 });
 
 describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–OV-U25, #1047)', () => {
