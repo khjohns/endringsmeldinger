@@ -43,6 +43,7 @@
   <div class="editor-wrapper">
     <RichTextEditor
       {body}
+      navn={title}
       {onchange}
       {placeholder}
       maxHeight="none"

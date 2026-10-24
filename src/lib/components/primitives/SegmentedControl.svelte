@@ -157,6 +157,9 @@
     background: var(--brand-2);
     box-shadow: 0 1px 2px rgba(27, 42, 34, 0.12);
   }
+  .segment-mockup .segment-active[data-tone] {
+    color: var(--on-status);
+  }
   .segment-mockup .segment-active[data-tone='success'] {
     background: var(--success);
   }
