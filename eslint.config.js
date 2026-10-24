@@ -25,7 +25,7 @@ export default ts.config(
   },
   {
     // Frittstående node-verktøy, ikke del av appbundelen.
-    files: ['scripts/**/*.{js,cjs,mjs}', 'src/contrast-check.js'],
+    files: ['scripts/**/*.{js,cjs,mjs}'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
