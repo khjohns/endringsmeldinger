@@ -100,7 +100,7 @@ i MM-U25 og MM-U32. Tilgjengeligheten kontrolleres etter
 
 Teksten skal være klar for den som leser den første gangen. Kilder:
 [klart språk på nett](https://punkt.oslo.kommune.no/latest/god-praksis/slik-skriver-vi-for-nett/)
-i Punkt og Oslo kommunes [språkprofil](https://designmanual.oslo.kommune.no/slik-skriver-vi).
+i Punkt og Oslo kommunes språkprofil.
 Rådene under er med egne ord.
 
 - Korte setninger som bærer én mening. Overskrifter sier hva siden gjelder.
