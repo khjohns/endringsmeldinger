@@ -13,7 +13,7 @@ import { createLetterConfirmation, LetterCancelled } from '$lib/approval/claimRe
 import type { EventType, SporType } from '$lib/types/timeline';
 import type { Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import type { Spor } from '$kjerne/typer';
-import { brevhindring, type Kjernesakkontekst } from './kontekst.svelte';
+import { avvisningFoerBrevet, type Kjernesakkontekst } from './kontekst.svelte';
 import { fristkommandoFraSkjema, type Fristskjemadata } from './fristkrav';
 import { grunnlagsversjonFraSkjema } from './grunnlagskrav';
 import { vedleggsoppslag } from './skjemadata';
@@ -104,7 +104,7 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
   // En feil som ikke står i `kjernesak.feil`, som en avvisning før brevet vises (#943).
   let feil = $state<string | null>(null);
 
-  /** Brevet kjernen lager for kommandoen, eller avvisningen som feil (#719, #1254). */
+  /** Brevet kjernen lager for kommandoen, eller avvisningen som feil (#719, #1254, #1264). */
   function brev(
     kommando: Kommando,
     spor: Spor,
@@ -117,8 +117,9 @@ export function lagKravkontroll(kjernesak: Kjernesakkontekst) {
     // #719: uten låst tekst sendes ikke kommandoen, så TE ser aldri et brev uten teksten.
     const tekst = b && 'tekst' in b ? b.tekst : null;
     if (!tekst)
-      throw new Error(
-        (b && brevhindring(b)) ?? 'Appen kunne ikke lage brevet. Brevet er ikke sendt.'
+      throw (
+        (b && avvisningFoerBrevet(b)) ??
+        new Error('Appen kunne ikke lage brevet. Brevet er ikke sendt.')
       );
     return {
       tittel: `${SPORNAVN[spor]} – ${kjernesak.saksbilde?.tittel ?? 'Sak'}`,

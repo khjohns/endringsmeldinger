@@ -1,5 +1,6 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
+  import Feltmelding from './components/Feltmelding.svelte';
   let vedleggOpptatt = $state(false);
   import {
     beregnVisibility,
@@ -238,7 +239,7 @@
 </script>
 
 <div class="form-content">
-  <SkjemaStatus sender={submission.pending} feil={submission.error} />
+  <SkjemaStatus sender={submission.pending} feil={submission.oeverst} />
 
   <FormPageHeader
     title="Krav om fristforlengelse"
@@ -351,9 +352,13 @@
       placeholder={kjernesak
         ? 'Begrunn antall dager krevd og den virkning kontraktsforholdet har hatt på fremdriften (§ 33.5)...'
         : getDynamicPlaceholder(mappedState.varselType)}
-      onchange={(html) => (begrunnelse = html)}
+      onchange={(html) => {
+        begrunnelse = html;
+        submission.feltetEndret();
+      }}
       oncharcount={(count) => (charCount = count)}
     />
+    <Feltmelding melding={submission.vedFeltet} />
     {#if begrunnelseMangler}
       <p class="helptext" role="status">Begrunnelsen for antallet dager mangler.</p>
     {/if}

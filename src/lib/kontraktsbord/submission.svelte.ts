@@ -1,5 +1,6 @@
 import { orderTimeline } from '$lib/utils/timelineOrder';
 import { LetterCancelled } from '$lib/approval/claimReview.svelte';
+import { Feltavvisning } from '$lib/kjernesak/kontekst.svelte';
 import type { TimelineEvent, SporType } from '$lib/types/timeline';
 import { onMount } from 'svelte';
 
@@ -55,6 +56,7 @@ export function requireEventId(id: string | undefined): string {
 export function createSubmission(onSuccess?: () => void) {
   let pending = $state(false);
   let error = $state<string | null>(null);
+  let feltet = $state(false);
   return {
     get pending() {
       return pending;
@@ -62,10 +64,27 @@ export function createSubmission(onSuccess?: () => void) {
     get error() {
       return error;
     },
+    /**
+     * Feilen øverst i skjemaet. Gjelder den utdypningen, står den ved feltet, og øverst
+     * står det at brevet ikke kan sendes ennå (MM-U32, #1264).
+     */
+    get oeverst() {
+      return feltet ? 'Brevet kan ikke sendes ennå. Se meldingen ved begrunnelsen.' : error;
+    },
+    /** Feilen ved utdypningsfeltet, eller `null`. */
+    get vedFeltet() {
+      return feltet ? error : null;
+    },
+    /** Feltet er endret, så meldingen ved det er borte (docs/design/system.md). */
+    feltetEndret() {
+      if (feltet) error = null;
+      feltet = false;
+    },
     async run(action: () => void | Promise<void>, complete: () => void = () => {}) {
       if (pending) return;
       pending = true;
       error = null;
+      feltet = false;
       try {
         await action();
         onSuccess?.();
@@ -73,6 +92,7 @@ export function createSubmission(onSuccess?: () => void) {
       } catch (cause) {
         if (cause instanceof LetterCancelled) return;
         error = cause instanceof Error ? cause.message : 'Kunne ikke sende. Prøv igjen.';
+        feltet = cause instanceof Feltavvisning;
       } finally {
         pending = false;
       }

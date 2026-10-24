@@ -1,5 +1,6 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
+  import Feltmelding from './components/Feltmelding.svelte';
   import { BookOpen, ChevronUp, LockKeyhole } from 'lucide-svelte';
   import RichTextEditor from '$lib/components/primitives/RichTextEditor.svelte';
   import LockedValueNode from '$lib/editor/LockedValueNode';
@@ -95,7 +96,7 @@
 </script>
 
 <div class="form-content">
-  <SkjemaStatus sender={submission.pending} feil={submission.error} />
+  <SkjemaStatus sender={submission.pending} feil={submission.oeverst} />
 
   <div class="form-title-row">
     <h1>Oppdater grunnlaget</h1>
@@ -186,13 +187,17 @@
       <RichTextEditor
         body={begrunnelseHtml}
         navn="Oppdatert begrunnelse"
-        onchange={(html) => (begrunnelseHtml = html)}
+        onchange={(html) => {
+          begrunnelseHtml = html;
+          submission.feltetEndret();
+        }}
         extensions={[LockedValueNode]}
         placeholder="Oppdater begrunnelsen for grunnlaget..."
         maxHeight="none"
         oncharcount={(count) => (charCount = count)}
       />
     </div>
+    <Feltmelding melding={submission.vedFeltet} />
     {#if charCount >= 10 && !erEndret}
       <p class="unchanged-hint">Gjør en endring i begrunnelsen for å sende en ny revisjon.</p>
     {/if}

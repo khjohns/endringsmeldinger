@@ -8,8 +8,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { ApiError, NETTFEIL } from '$lib/api/client';
 import type { Journallinje, Kjernesak } from '$lib/api/kjerne';
 import {
+  avvisningFoerBrevet,
   brevaarsak,
   brevhindring,
+  Feltavvisning,
   lagKjernesak,
   PROGRAMFEIL,
 } from '$lib/kjernesak/kontekst.svelte';
@@ -380,6 +382,29 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.versjon).toBe(2);
   });
 
+  // Kilde: #882 (reviewet, i #877). Den siste lastefeilen er årsaken til at saken er
+  // utdatert, så Avbryt ikke henter fram en eldre årsak.
+  it('en manuell lasting som feiler mens saken er utdatert, sier fortsatt at brevet er lagret, og Avbryt beholder den nye årsaken', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-2', leveringsoppdrag: 'l-1', versjon: 2 });
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar([opprettet]))
+      .mockRejectedValueOnce(new ApiError(404, 'Saken finnes ikke.'))
+      .mockRejectedValueOnce(new ApiError(500, 'Serveren svarte ikke.'));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
+    await sak.last();
+    expect(await sak.send(grunnlagskrav)).toBe(true);
+
+    expect(await sak.last()).toBe(false);
+    const nyAarsak = 'Brevet er lagret, men saken kunne ikke lastes på nytt. Serveren svarte ikke.';
+    expect(sak.utdatert).toBe(true);
+    expect(sak.feil).toBe(nyAarsak);
+    sak.fjernFeil();
+    expect(sak.feil).toBe(nyAarsak);
+  });
+
   // Kilde: #719 p9. Hodet i saksrommet viser til årsaken i Kontrollrommet.
   it('etter Avbryt er feilen fra en avvist sending borte, men årsaken til at saken er utdatert står (#719 p9)', async () => {
     const send = vi
@@ -438,7 +463,10 @@ describe('sakskonteksten for en TS-sak', () => {
     const aarsak = (brev as { avvisning: { melding: string } }).avvisning.melding;
     expect(brevhindring(brev!)).toBe(`Brevet ble ikke sendt. ${aarsak}`);
     // Reviewet av #898: før noe er prøvd, sier ikke siden at brevet ikke ble sendt.
-    expect(brevaarsak(brev)).toBe(`Brevet kan ikke sendes. ${aarsak}`);
+    // #1264, oppdragsgiver 24.10: før brevet er vist, kan det ikke sendes ennå.
+    expect(brevaarsak(brev)).toBe(`Brevet kan ikke sendes ennå. ${aarsak}`);
+    expect(avvisningFoerBrevet(brev!)).not.toBeInstanceOf(Feltavvisning);
+    expect(avvisningFoerBrevet(brev!)?.message).toBe(`Brevet kan ikke sendes ennå. ${aarsak}`);
     expect(brevaarsak(null)).toBeNull();
     expect(brevaarsak({ tekst: ['brevet'] })).toBeNull();
     expect(brevaarsak({ tekst: null })).toBeNull();

@@ -395,7 +395,8 @@ describe('aksept og innsigelse (S-2a.2)', () => {
     expect(screen.queryByRole('button', { name: /[Pp]rotest|[Pp]assivitet/ })).toBeNull();
   });
 
-  it('en avvist aksept vises for TE og sendes ikke (#943)', async () => {
+  // Kilde: #1264 for innledningen, oppdragsgiver 24.10.
+  it('en avvist aksept vises for TE og sendes ikke, og brevet kan ikke sendes ennå (#943, #1264)', async () => {
     const kontroll = lagKravkontroll({
       utledning: utledJournal(avslaattGrunnlag(), KJERNE),
       regelversjon: KJERNE.regler.versjon,
@@ -403,7 +404,7 @@ describe('aksept og innsigelse (S-2a.2)', () => {
       send: vi.fn(),
     } as unknown as Kjernesakkontekst);
     await kontroll.aksept('grunnlag', 'S-1');
-    expect(kontroll.feil).toBe('Brevet ble ikke sendt. Partene er enige.');
+    expect(kontroll.feil).toBe('Brevet kan ikke sendes ennå. Partene er enige.');
   });
 });
 

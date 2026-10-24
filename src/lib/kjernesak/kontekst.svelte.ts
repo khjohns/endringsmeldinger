@@ -34,6 +34,7 @@ export interface Ventende {
 }
 
 const USIKKERT = usikkertUtfall('brevet ble lagret', 'det lagres ikke to ganger');
+const IKKE_LASTET = 'Brevet er lagret, men saken kunne ikke lastes på nytt.';
 
 export interface Kjernesakvalg {
   sakId: string;
@@ -63,19 +64,37 @@ export type Programfeil = { programfeil: string };
 export const PROGRAMFEIL =
   'Appen kunne ikke lage brevet på grunn av en feil i appen. Kravet er ikke avvist, men det kan ikke sendes nå.';
 
-/** Årsaken til at brevet ikke kan sendes, før noe er prøvd; `null` når det kan sendes. */
-export function brevaarsak(brev: Brev | Programfeil | null): string | null {
+/**
+ * Årsaken til at brevet ikke kan sendes, før det er vist (#1264); `null` når det kan sendes.
+ * `hva` er innledningen, som ved sendingen er at brevet ikke ble sendt.
+ */
+export function brevaarsak(
+  brev: Brev | Programfeil | null,
+  hva = 'Brevet kan ikke sendes ennå.'
+): string | null {
   if (!brev || 'tekst' in brev) return null;
-  return 'programfeil' in brev
-    ? brev.programfeil
-    : melding('Brevet kan ikke sendes.', brev.avvisning.melding);
+  return 'programfeil' in brev ? brev.programfeil : melding(hva, brev.avvisning.melding);
 }
 
 /** Det som hindrer at brevet sendes, eller `null` når det har en tekst eller ikke lager en. */
-export function brevhindring(brev: Brev | Programfeil): string | null {
-  if ('programfeil' in brev) return brev.programfeil;
-  if ('avvisning' in brev) return melding('Brevet ble ikke sendt.', brev.avvisning.melding);
-  return null;
+export const brevhindring = (brev: Brev | Programfeil) =>
+  brevaarsak(brev, 'Brevet ble ikke sendt.');
+
+/**
+ * En avvisning før brevet vises som gjelder ett felt i skjemaet, der meldingen skal stå
+ * (#1264). Kjernen avviser et svar eller krav uten utdypning med disse reglene.
+ */
+export class Feltavvisning extends Error {}
+
+const GJELDER_UTDYPNINGEN = new Set(['BEGRUNNELSE_MANGLER', 'BESKRIVELSE_MANGLER']);
+
+/** Avvisningen før brevet vises, som feil: ved feltet når den gjelder utdypningen. */
+export function avvisningFoerBrevet(brev: Brev | Programfeil): Error | null {
+  const aarsak = brevaarsak(brev);
+  if (aarsak === null) return null;
+  return 'avvisning' in brev && GJELDER_UTDYPNINGEN.has(brev.avvisning.regel)
+    ? new Feltavvisning(aarsak)
+    : new Error(aarsak);
 }
 
 export function lagKjernesak(valg: Kjernesakvalg) {
@@ -109,13 +128,20 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * eldre svar som kommer sist, overskriver ikke et nyere; et eldre kall gir utfallet
    * til det siste (#695).
    */
-  function last(): Promise<boolean> {
+  function last(etterLagring = false): Promise<boolean> {
     const nr = ++lastinger;
-    gjeldende = hentOgSkriv(nr);
+    gjeldende = hentOgSkriv(nr, etterLagring);
     return gjeldende;
   }
 
-  async function hentOgSkriv(nr: number): Promise<boolean> {
+  /** Meldingen som står når ingen annen feil vises (#719, #816, #882). */
+  const staaende = () => (ventende ? USIKKERT : utdatertAarsak);
+
+  /**
+   * `etterLagring` er lastingen etter et lagret brev. Feiler den, eller en senere lasting
+   * mens saken er utdatert, er årsaken til at saken er utdatert den siste lastefeilen.
+   */
+  async function hentOgSkriv(nr: number, etterLagring: boolean): Promise<boolean> {
     try {
       const hentet = await hent(sakId, valg.prosjektId);
       if (nr !== lastinger) return gjeldende;
@@ -123,7 +149,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       finnes = true;
       utdatertAarsak = null;
       // Et usikkert utfall står til «Prøv igjen» har fått svar (#816).
-      feil = ventende ? USIKKERT : null;
+      feil = staaende();
       return true;
     } catch (e) {
       if (nr !== lastinger) return gjeldende;
@@ -133,7 +159,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
         finnes = false;
         sak = null;
       }
-      feil = meldingFra(e, 'Saken kunne ikke hentes.');
+      const aarsak = meldingFra(e, 'Saken kunne ikke hentes.');
+      if (etterLagring || utdatertAarsak) utdatertAarsak = melding(IKKE_LASTET, aarsak);
+      feil = utdatertAarsak ?? aarsak;
       return false;
     }
   }
@@ -231,8 +259,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       );
       if (utfall.lagret) {
         ventende = null;
-        if (!(await last())) {
-          utdatertAarsak = melding('Brevet er lagret, men saken kunne ikke lastes på nytt.', feil);
+        // Et nyere kall som feilet, gir utfallet uten å vite om lagringen.
+        if (!(await last(true)) && !utdatertAarsak) {
+          utdatertAarsak = melding(IKKE_LASTET, feil);
           feil = utdatertAarsak;
         }
         return true;
@@ -256,7 +285,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * saken er utdatert.
    */
   function fjernFeil() {
-    feil = ventende ? USIKKERT : utdatertAarsak;
+    feil = staaende();
   }
 
   return {
@@ -310,7 +339,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get utdatert() {
       return utdatertAarsak !== null;
     },
-    last,
+    last: () => last(),
     brev,
     forhaandsvist,
     send: sendMedBrev,

@@ -1,5 +1,6 @@
 <script lang="ts">
   import SkjemaStatus from './SkjemaStatus.svelte';
+  import Feltmelding from './components/Feltmelding.svelte';
   import PositionExplanation from './PositionExplanation.svelte';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
@@ -189,7 +190,7 @@
   const AVSLAATT =
     'Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel godkjennes.';
   const PREKLUDERT =
-    'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder for det tilfelle at varselet kom i tide.';
+    'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder dersom denne innsigelsen ikke fører frem.';
 
   // I TS-saken i samme rekkefølge som lagene i brevet (OV-U32), og med forbeholdet etter GR-U26.
   const grunnlagsvarsler = $derived.by((): string[] => {
@@ -557,13 +558,10 @@
 {/snippet}
 
 <div class="form-content">
-  <SkjemaStatus sender={submission.pending} feil={submission.error} />
+  <SkjemaStatus sender={submission.pending} feil={submission.oeverst} />
 
   <div class="form-title-row">
     <h1>Krav om vederlagsjustering</h1>
-    {#if isSubsidiaer}
-      <span class="subsidiaer-chip">Subsidiært</span>
-    {/if}
   </div>
 
   <div class="sammendrag">
@@ -932,10 +930,14 @@
         <RichTextEditor
           navn="Begrunnelse"
           body={begrunnelseHtml}
-          onchange={(html) => (begrunnelseHtml = html)}
+          onchange={(html) => {
+            begrunnelseHtml = html;
+            submission.feltetEndret();
+          }}
           maxHeight="none"
           placeholder="Begrunn byggherrens vurdering …"
         />
+        <Feltmelding melding={submission.vedFeltet} />
       </div>
     {/if}
   {/snippet}
