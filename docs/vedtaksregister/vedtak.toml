@@ -937,6 +937,40 @@ tekst = '''
 En hevet kravversjon avvises før byggherren har svart.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "KA-U41"
+dato = 2026-10-23
+hvem = "oppdragsgiver"
+kilde = ["#1237"]
+sporsmal = '''
+- B strider ikke mot noe vedtak. Det presiserer KA-U24, KA-U31 og KA-U19 og endrer dem ikke.
+
+**1. Hva skal utdypningen under byggherrens svar inneholde?**
+- **A:** Appen fyller inn et forslag til begrunnelse, rettet til samme ordlyd og bestemmelse som den låste teksten.
+- **B (anbefalt):** «Utdypningen under byggherrens svar inneholder bare tekst byggherren selv skriver, i alle spor. Appen fyller ikke inn en tekst der. Når et svar krever begrunnelse etter KA-U24, må byggherren skrive den før svaret sendes. Appen kontrollerer fortsatt bare at begrunnelsen finnes.»'''
+valgt = "B"
+svar = '''
+Ja til 1 B
+
+1. Utdypningen
+
+Vedtaksteksten er god. Den fjerner automatisk utfylling uten å innføre kontroll av begrunnelsens innhold eller forfatterskap. «Byggherren selv skriver» bør forstås som at BH oppgir teksten i feltet; det utelukker ikke innliming av tekst.'''
+forhold = [{ art = "presiserer", vedtak = "ka-u24" }, { art = "presiserer", vedtak = "ka-u31" }, { art = "presiserer", vedtak = "ka-u19" }]
+folge = '''
+Bygges i #1237'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Utdypningen under byggherrens svar inneholder bare tekst byggherren selv skriver, i alle spor. Appen fyller ikke inn en tekst der. Når et svar krever begrunnelse etter KA-U24, må byggherren skrive den før svaret sendes. Appen kontrollerer fortsatt bare at begrunnelsen finnes.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Appen fyller inn et forslag til begrunnelse, rettet til samme ordlyd og bestemmelse som den låste teksten.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Aksept og enighet"
 
