@@ -4,7 +4,7 @@
 
 **[Vedtaksfila](../../plans/vedtak.md) er autoritativ.** Denne visningen er generert fra [vedtaksregisteret](../README.md) og er ikke et eget vedtaksgrunnlag. Den samler vedtakene ordrett, med forholdene mellom dem, og lager ingen sammenslått gjeldende ordlyd: hva som gjelder, leses av vedtakene sammen, etter forholdene.
 
-Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [GR-U26](#gr-u26), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [VS-U29](#vs-u29), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [LV-U19](#lv-u19), [LV-U21](#lv-u21), [MM-U30](#mm-u30), [MM-U31](#mm-u31), [LV-U23](#lv-u23), [LV-U25](#lv-u25), [LV-U26](#lv-u26), [LV-U29](#lv-u29), [LV-U31](#lv-u31), [LV-U32](#lv-u32), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13), [OV-U15](#ov-u15), [OV-U16](#ov-u16), [OV-U19](#ov-u19), [OV-U20](#ov-u20), [OV-U21](#ov-u21), [OV-U22](#ov-u22), [OV-U23](#ov-u23), [OV-U24](#ov-u24), [OV-U25](#ov-u25), [OV-U26](#ov-u26), [OV-U28](#ov-u28), [OV-U29](#ov-u29), [OV-U30](#ov-u30), [OV-U32](#ov-u32), [OV-U33](#ov-u33), [OV-U35](#ov-u35). Vedtak som temaet viser til, står som lenke til vedtaksfila.
+Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i temaet: [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U17](#gr-u17), [GR-U20](#gr-u20), [GR-U21](#gr-u21), [GR-U22](#gr-u22), [GR-U23](#gr-u23), [GR-U24](#gr-u24), [GR-U26](#gr-u26), [VS-U24](#vs-u24), [HF-U4](#hf-u4), [HF-U5](#hf-u5), [HF-U6](#hf-u6), [HF-U9](#hf-u9), [HF-U12](#hf-u12), [HF-U13](#hf-u13), [HF-U14](#hf-u14), [HF-U15](#hf-u15), [HF-U16](#hf-u16), [HF-U17](#hf-u17), [HF-U18](#hf-u18), [HF-U19](#hf-u19), [HF-U20](#hf-u20), [HF-U21](#hf-u21), [HF-U22](#hf-u22), [VS-U28](#vs-u28), [VS-U29](#vs-u29), [MM-U17](#mm-u17), [MM-U24](#mm-u24), [MM-U29](#mm-u29), [LV-U15](#lv-u15), [LV-U19](#lv-u19), [LV-U21](#lv-u21), [MM-U30](#mm-u30), [MM-U31](#mm-u31), [LV-U23](#lv-u23), [LV-U25](#lv-u25), [LV-U26](#lv-u26), [LV-U29](#lv-u29), [LV-U31](#lv-u31), [LV-U32](#lv-u32), [GFK-U2](#gfk-u2), [GFK-U14](#gfk-u14), [OV-U4](#ov-u4), [OV-U5](#ov-u5), [OV-U6](#ov-u6), [OV-U8](#ov-u8), [OV-U9](#ov-u9), [OV-U11](#ov-u11), [OV-U12](#ov-u12), [OV-U13](#ov-u13), [OV-U15](#ov-u15), [OV-U16](#ov-u16), [OV-U19](#ov-u19), [OV-U20](#ov-u20), [OV-U21](#ov-u21), [OV-U22](#ov-u22), [OV-U23](#ov-u23), [OV-U24](#ov-u24), [OV-U25](#ov-u25), [OV-U26](#ov-u26), [OV-U28](#ov-u28), [OV-U29](#ov-u29), [OV-U30](#ov-u30), [OV-U32](#ov-u32), [OV-U33](#ov-u33), [OV-U35](#ov-u35), [OV-U36](#ov-u36), [OV-U37](#ov-u37), [OV-U39](#ov-u39), [OV-U41](#ov-u41). Vedtak som temaet viser til, står som lenke til vedtaksfila.
 
 ## Kildegrunnlaget
 
@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `9a58773821d26b687b5e038990f585ef1b6d44bff74d90e8c9df4aa7522ce65a`
+Kontrollsum (SHA-256 over utdraget visningen leser): `db44148ca8963e4ec5793fead1d4a7d71979f6b7b33b4bb34516e307089d6d7c`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -70,7 +70,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [GFK-U2](#gfk-u2) | Presiserer [GR-U13](#gr-u13); Presiserer [EO-U6](../../plans/vedtak.md#eo-u6); Presiserer [FO-U6](../../plans/vedtak.md#fo-u6) | Presisert av [GFK-U14](#gfk-u14) |
 | [GFK-U14](#gfk-u14) | Presiserer [GFK-U2](#gfk-u2) | — |
 | [OV-U4](#ov-u4) | Endrer [KA-U16](../../plans/vedtak.md#ka-u16); Endrer [KA-U18](../../plans/vedtak.md#ka-u18); Endrer [KA-U19](../../plans/vedtak.md#ka-u19); Endrer [KA-U24](../../plans/vedtak.md#ka-u24); Endrer [KA-U35](../../plans/vedtak.md#ka-u35); Endrer [GR-U12](#gr-u12); Endrer [GR-U14](#gr-u14); Endrer [GR-U16](../../plans/vedtak.md#gr-u16); Endrer [MM-U17](#mm-u17); Endrer [MM-U18](../../plans/vedtak.md#mm-u18); Endrer [MM-U19](../../plans/vedtak.md#mm-u19); Endrer [VS-U8](../../plans/vedtak.md#vs-u8); Endrer [VS-U11](../../plans/vedtak.md#vs-u11) | Presisert av [HF-U13](#hf-u13); Presisert av [MM-U24](#mm-u24); Snevret inn av [OV-U5](#ov-u5); Snevret inn av [OV-U6](#ov-u6); Utvidet av [OV-U16](#ov-u16); Presisert av [OV-U19](#ov-u19); Presisert av [OV-U20](#ov-u20) |
-| [OV-U5](#ov-u5) | Endrer [MM-U1](../../plans/vedtak.md#mm-u1); Endrer [MM-U8](../../plans/vedtak.md#mm-u8); Endrer [VS-U7](../../plans/vedtak.md#vs-u7); Endrer [VS-U15](../../plans/vedtak.md#vs-u15); Presiserer [VS-U6](../../plans/vedtak.md#vs-u6); Presiserer [VS-U8](../../plans/vedtak.md#vs-u8); Utvider [VS-U16](../../plans/vedtak.md#vs-u16); Snevrer inn [OV-U4](#ov-u4) | Snevret inn av [HF-U4](#hf-u4); Snevret inn av [HF-U5](#hf-u5); Utvidet av [VS-U28](#vs-u28); Presisert av [LV-U19](#lv-u19); Presisert av [LV-U21](#lv-u21); Presisert av [LV-U29](#lv-u29); Snevret inn av [OV-U8](#ov-u8); Presisert av [OV-U9](#ov-u9); Snevret inn av [OV-U11](#ov-u11); Presisert av [OV-U15](#ov-u15); Presisert av [OV-U24](#ov-u24); Presisert av [OV-U29](#ov-u29) |
+| [OV-U5](#ov-u5) | Endrer [MM-U1](../../plans/vedtak.md#mm-u1); Endrer [MM-U8](../../plans/vedtak.md#mm-u8); Endrer [VS-U7](../../plans/vedtak.md#vs-u7); Endrer [VS-U15](../../plans/vedtak.md#vs-u15); Presiserer [VS-U6](../../plans/vedtak.md#vs-u6); Presiserer [VS-U8](../../plans/vedtak.md#vs-u8); Utvider [VS-U16](../../plans/vedtak.md#vs-u16); Snevrer inn [OV-U4](#ov-u4) | Snevret inn av [HF-U4](#hf-u4); Snevret inn av [HF-U5](#hf-u5); Utvidet av [VS-U28](#vs-u28); Presisert av [LV-U19](#lv-u19); Presisert av [LV-U21](#lv-u21); Presisert av [LV-U29](#lv-u29); Snevret inn av [OV-U8](#ov-u8); Presisert av [OV-U9](#ov-u9); Snevret inn av [OV-U11](#ov-u11); Presisert av [OV-U15](#ov-u15); Presisert av [OV-U24](#ov-u24); Presisert av [OV-U29](#ov-u29); Utvidet av [OV-U41](#ov-u41) |
 | [OV-U6](#ov-u6) | Endrer [OV-U2](../../plans/vedtak.md#ov-u2); Endrer [GR-U13](#gr-u13); Endrer [KA-U14](../../plans/vedtak.md#ka-u14); Snevrer inn [KA-U13](../../plans/vedtak.md#ka-u13); Snevrer inn [OV-U4](#ov-u4) | Snevret inn av [OV-U12](#ov-u12); Presisert av [OV-U13](#ov-u13) |
 | [OV-U8](#ov-u8) | Snevrer inn [OV-U5](#ov-u5) | Presisert av [HF-U13](#hf-u13); Endret av [OV-U25](#ov-u25) |
 | [OV-U9](#ov-u9) | Presiserer [OV-U5](#ov-u5) | — |
@@ -83,16 +83,20 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [OV-U20](#ov-u20) | Presiserer [OV-U4](#ov-u4) | — |
 | [OV-U21](#ov-u21) | Presiserer [OV-U19](#ov-u19) | — |
 | [OV-U22](#ov-u22) | Presiserer [VS-U5](../../plans/vedtak.md#vs-u5); Presiserer [VS-U24](#vs-u24) | Snevret inn av [OV-U25](#ov-u25); Presisert av [OV-U26](#ov-u26) |
-| [OV-U23](#ov-u23) | — | Snevret inn av [OV-U25](#ov-u25); Presisert av [OV-U26](#ov-u26) |
-| [OV-U24](#ov-u24) | Presiserer [OV-U5](#ov-u5) | Snevret inn av [OV-U25](#ov-u25) |
+| [OV-U23](#ov-u23) | — | Snevret inn av [OV-U25](#ov-u25); Presisert av [OV-U26](#ov-u26); Snevret inn av [OV-U36](#ov-u36); Presisert av [OV-U37](#ov-u37) |
+| [OV-U24](#ov-u24) | Presiserer [OV-U5](#ov-u5) | Snevret inn av [OV-U25](#ov-u25); Utvidet av [OV-U41](#ov-u41) |
 | [OV-U25](#ov-u25) | Endrer [OV-U8](#ov-u8); Snevrer inn [OV-U22](#ov-u22); Snevrer inn [OV-U23](#ov-u23); Snevrer inn [OV-U24](#ov-u24) | Presisert av [OV-U35](#ov-u35) |
-| [OV-U26](#ov-u26) | Presiserer [OV-U23](#ov-u23); Presiserer [VS-U5](../../plans/vedtak.md#vs-u5); Presiserer [OV-U22](#ov-u22) | — |
+| [OV-U26](#ov-u26) | Presiserer [OV-U23](#ov-u23); Presiserer [VS-U5](../../plans/vedtak.md#vs-u5); Presiserer [OV-U22](#ov-u22) | Utvidet av [OV-U37](#ov-u37); Utvidet av [OV-U39](#ov-u39) |
 | [OV-U28](#ov-u28) | Utvider [LV-U4](../../plans/vedtak.md#lv-u4); Utvider [LV-U21](#lv-u21) | Presisert av [OV-U30](#ov-u30); Presisert av [OV-U32](#ov-u32); Presisert av [OV-U33](#ov-u33) |
 | [OV-U29](#ov-u29) | Presiserer [OV-U5](#ov-u5); Presiserer [LV-U21](#lv-u21) | — |
 | [OV-U30](#ov-u30) | Presiserer [OV-U28](#ov-u28); Presiserer [MM-U11](../../plans/vedtak.md#mm-u11) | Endret av [OV-U32](#ov-u32) |
 | [OV-U32](#ov-u32) | Endrer [OV-U30](#ov-u30); Presiserer [OV-U28](#ov-u28); Presiserer [MM-U11](../../plans/vedtak.md#mm-u11); Presiserer [LV-U4](../../plans/vedtak.md#lv-u4) | Presisert av [GR-U26](#gr-u26); Presisert av [LV-U31](#lv-u31); Presisert av [OV-U33](#ov-u33); Snevret inn av [OV-U33](#ov-u33) |
 | [OV-U33](#ov-u33) | Presiserer [OV-U32](#ov-u32); Snevrer inn [OV-U32](#ov-u32); Presiserer [OV-U28](#ov-u28) | Presisert av [GR-U26](#gr-u26); Presisert av [LV-U31](#lv-u31) |
 | [OV-U35](#ov-u35) | Presiserer [OV-U25](#ov-u25) | — |
+| [OV-U36](#ov-u36) | Utvider [KT-U8](../../plans/vedtak.md#kt-u8); Snevrer inn [OV-U23](#ov-u23) | — |
+| [OV-U37](#ov-u37) | Presiserer [OV-U23](#ov-u23); Utvider [OV-U26](#ov-u26) | — |
+| [OV-U39](#ov-u39) | Utvider [OV-U26](#ov-u26) | — |
+| [OV-U41](#ov-u41) | Presiserer [OV-U34](../../plans/vedtak.md#ov-u34); Utvider [OV-U5](#ov-u5); Utvider [OV-U24](#ov-u24) | — |
 
 ## Vedtakene
 
@@ -750,7 +754,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 13.10, oppdragsgiver (#478, #481)
 
-**Følge:** Endrer [MM-U1](../../plans/vedtak.md#mm-u1). Endrer [MM-U8](../../plans/vedtak.md#mm-u8). Endrer [VS-U7](../../plans/vedtak.md#vs-u7). Endrer [VS-U15](../../plans/vedtak.md#vs-u15). Presiserer [VS-U6](../../plans/vedtak.md#vs-u6). Presiserer [VS-U8](../../plans/vedtak.md#vs-u8). Utvider [VS-U16](../../plans/vedtak.md#vs-u16). Snevrer inn [OV-U4](#ov-u4). Presisert 13.10 av [OV-U9](#ov-u9). Snevret inn 13.10 av [OV-U8](#ov-u8). Snevret inn 15.10 av [HF-U4](#hf-u4). Snevret inn 15.10 av [HF-U5](#hf-u5). Snevret inn 17.10 av [OV-U11](#ov-u11). Utvidet 19.10 av [VS-U28](#vs-u28). Presisert 20.10 av [LV-U19](#lv-u19). Presisert 20.10 av [OV-U15](#ov-u15). Presisert 21.10 av [LV-U21](#lv-u21). Presisert 22.10 av [OV-U24](#ov-u24). Presisert 23.10 av [LV-U29](#lv-u29). Presisert 23.10 av [OV-U29](#ov-u29). Endringen av VS-U15: varselet etter § 34.1.2 sendes ikke bare utenfor appen. Utvidelsen av VS-U16: avvisningen gjelder også et varsel etter § 34.1.2 og § 34.1.3 etter vederlagskravet. Ikke bygget. Retten VS-U16 viser til i MM-U8, å registrere et varsel sendt tidligere utenfor appen, følger av OV-U5. I tråd med GR-U15. Brevteksten for varselet etter § 34.1 følger LV-U3 og avgjøres med kommandoen. Brevteksten i LV-U4 punkt 5 og LV-U5 sier ikke hvilket varsel byggherren gjør gjeldende at kom for sent (AV-07); det følges opp for seg.
+**Følge:** Endrer [MM-U1](../../plans/vedtak.md#mm-u1). Endrer [MM-U8](../../plans/vedtak.md#mm-u8). Endrer [VS-U7](../../plans/vedtak.md#vs-u7). Endrer [VS-U15](../../plans/vedtak.md#vs-u15). Presiserer [VS-U6](../../plans/vedtak.md#vs-u6). Presiserer [VS-U8](../../plans/vedtak.md#vs-u8). Utvider [VS-U16](../../plans/vedtak.md#vs-u16). Snevrer inn [OV-U4](#ov-u4). Presisert 13.10 av [OV-U9](#ov-u9). Snevret inn 13.10 av [OV-U8](#ov-u8). Snevret inn 15.10 av [HF-U4](#hf-u4). Snevret inn 15.10 av [HF-U5](#hf-u5). Snevret inn 17.10 av [OV-U11](#ov-u11). Utvidet 19.10 av [VS-U28](#vs-u28). Presisert 20.10 av [LV-U19](#lv-u19). Presisert 20.10 av [OV-U15](#ov-u15). Presisert 21.10 av [LV-U21](#lv-u21). Presisert 22.10 av [OV-U24](#ov-u24). Presisert 23.10 av [LV-U29](#lv-u29). Presisert 23.10 av [OV-U29](#ov-u29). Utvidet 24.10 av [OV-U41](#ov-u41). Endringen av VS-U15: varselet etter § 34.1.2 sendes ikke bare utenfor appen. Utvidelsen av VS-U16: avvisningen gjelder også et varsel etter § 34.1.2 og § 34.1.3 etter vederlagskravet. Ikke bygget. Retten VS-U16 viser til i MM-U8, å registrere et varsel sendt tidligere utenfor appen, følger av OV-U5. I tråd med GR-U15. Brevteksten for varselet etter § 34.1 følger LV-U3 og avgjøres med kommandoen. Brevteksten i LV-U4 punkt 5 og LV-U5 sier ikke hvilket varsel byggherren gjør gjeldende at kom for sent (AV-07); det følges opp for seg.
 
 **Regelrader:** [KA-20](#rad-ka-20), [VS-07](#rad-vs-07), [KA-46](#rad-ka-46), [KA-50](#rad-ka-50)
 
@@ -928,7 +932,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 22.10, oppdragsgiver (#1047)
 
-**Følge:** Snevret inn 22.10 av [OV-U25](#ov-u25). Presisert 23.10 av [OV-U26](#ov-u26). Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047).
+**Følge:** Snevret inn 22.10 av [OV-U25](#ov-u25). Presisert 23.10 av [OV-U26](#ov-u26). Presisert 24.10 av [OV-U37](#ov-u37). Snevret inn 24.10 av [OV-U36](#ov-u36). Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047).
 
 **Regelrader:** —
 
@@ -942,7 +946,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 22.10, oppdragsgiver (#1047)
 
-**Følge:** Presiserer [OV-U5](#ov-u5). Snevret inn 22.10 av [OV-U25](#ov-u25). Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047).
+**Følge:** Presiserer [OV-U5](#ov-u5). Snevret inn 22.10 av [OV-U25](#ov-u25). Utvidet 24.10 av [OV-U41](#ov-u41). Svaret er gitt med spørsmålsverktøyet 22.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6348199156). Ikke bygget (#1047).
 
 **Regelrader:** —
 
@@ -970,7 +974,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 23.10, oppdragsgiver (#1047)
 
-**Følge:** Presiserer [OV-U23](#ov-u23). Presiserer [VS-U5](../../plans/vedtak.md#vs-u5). Presiserer [OV-U22](#ov-u22). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Ikke bygget (#1047).
+**Følge:** Presiserer [OV-U23](#ov-u23). Presiserer [VS-U5](../../plans/vedtak.md#vs-u5). Presiserer [OV-U22](#ov-u22). Utvidet 24.10 av [OV-U37](#ov-u37). Utvidet 24.10 av [OV-U39](#ov-u39). Svaret er gitt med spørsmålsverktøyet 23.10. Spørsmålet og alternativene står ordrett på #1047 (kommentaren 6358659625). Ikke bygget (#1047).
 
 **Regelrader:** —
 
@@ -1053,6 +1057,62 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 **Vedtatt:** 24.10, oppdragsgiver (#1267)
 
 **Følge:** Presiserer [OV-U25](#ov-u25). Spørsmålet er punkt E i [forslaget på #1267](https://github.com/khjohns/endringsmeldinger/issues/1267#issuecomment-6388147840). Svaret står på #1267 ([kommentaren 6388243586](https://github.com/khjohns/endringsmeldinger/issues/1267#issuecomment-6388243586)). Vedtaket er bare avsnittet om OV-U25 i svaret. Presiseringene B–E for panelteksten er arbeidsvalg og står på #1267. Alternativet er ført med vedtaksteksten fra svaret.
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="ov-u36"></a>OV-U36
+
+> OV-U36: Kompensasjonen for kapitalytelser, rigging, drift og nedrigging i uendret byggetid etter kontraktsgrunnlaget (Del II pkt. B.2.16) gjelder kontrakten samlet. Den regnes av netto vederlagsjusteringer i hele kontrakten og av kontraktsverdien ved den opprinnelige sluttfristen. Den kreves og besvares ikke gjennom appens endringssaker, men utenfor appen. At den føres utenfor appen, er en avgrensning av appen, ikke en regel om når eller hvordan TE kan fremme kravet. Ved kravet om rigg og drift i en sak viser appen at kompensasjonen i uendret byggetid gjelder kontrakten samlet og kreves utenfor appen. Appen sier ikke at TE må vente til sluttoppgjøret, og sier ikke at andre varslingsregler faller bort. Utvider KT-U8. Snevrer inn OV-U23 for kravet etter § 34.1.3 første ledd: i en sak kan TE bare kreve rigg og drift i forlenget byggetid.
+
+**Forkastet:** «TE kan kreve kompensasjon for rigg og drift i uendret byggetid i en endringssak, med beløpet TE oppgir. Appen avgjør ikke om terskelen er nådd, og regner ikke ut beløpet. Byggherren tar stilling til beløpet i svaret. Presiserer OV-U23.»
+
+**Vedtatt:** 24.10, oppdragsgiver (#1171)
+
+**Følge:** Utvider [KT-U8](../../plans/vedtak.md#kt-u8). Snevrer inn [OV-U23](#ov-u23). Spørsmålene er versjon 3 av runde 46, laget etter oppdragsgivers svar på versjon 2 («Øvrige spørsmål- se vurdering fra astra og vurder selv:») og den juridiske sparringen. Oppdragsgivers svar 24.10 gjelder hele versjon 3. Alternativet «versjon 3» er alternativ A i punkt 1. Begrunnelsen i versjon 3: Kompensasjonen avhenger av netto vederlagsjusteringer i hele kontrakten og av kontraktsverdien ved en dato som ligger etter de fleste sakene. Appen håndterer ikke den samlede kontraktsberegningen, og et krav for kontrakten samlet er utenfor endringssakene og ikke en del av første versjon. Bygges i #1171.
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="ov-u37"></a>OV-U37
+
+> OV-U37: Kravet om rigg og drift i forlenget byggetid etter kontraktsgrunnlaget er en post i vederlagskravet i saken. TE kan sende posten før forlengelsen er avtalt eller avgjort, med beløpet TE mener følger av den avtalte regelen ut fra forlengelsen TE legger til grunn. Appen viser forlengelsen og den nye overtakelsesdatoen som TEs premiss, ikke som avtalt. TE begrunner hvilken forlengelse posten gjelder, og hvordan den er avgrenset mot krav om rigg og drift i andre saker. Appen kontrollerer ikke overlapp mellom saker. TE kan sende en ny versjon av vederlagskravet når forlengelsen er avklart, så lenge partene ikke er enige om vederlagskravet (KA-U7, HF-U9). Byggherren tar stilling til beløpet for posten som for de andre postene. Mener byggherren at TE ikke har krav på fristforlengelse, ikke på så lang forlengelse, eller at forlengelsen alt er kompensert i en annen sak, sier hen det i begrunnelsen for svaret (KA-U24). Appen avgjør ikke om TE har krav på fristforlengelse, og krever ikke enighet om fristen før posten kan sendes eller besvares. Presiserer OV-U23. Utvider OV-U26 til kravet etter § 34.1.3 første ledd.
+
+**Forkastet:** «TE kan sende kravet om rigg og drift i forlenget byggetid i saken først når partene er enige om at TE har krav på fristforlengelse i saken. Det er de når TE har godtatt et svar der byggherren godkjenner fristkravet helt eller delvis. Et godtatt avslag gir ikke en slik enighet. Før det avvises posten, og TE kan sende kravet utenfor appen. Snevrer inn OV-U23. Utvider OV-U26 til kravet etter § 34.1.3 første ledd.»
+
+**Vedtatt:** 24.10, oppdragsgiver (#1171)
+
+**Følge:** Presiserer [OV-U23](#ov-u23). Utvider [OV-U26](#ov-u26). Spørsmålene er versjon 3 av runde 46, laget etter oppdragsgivers svar på versjon 2 («Øvrige spørsmål- se vurdering fra astra og vurder selv:») og den juridiske sparringen. Oppdragsgivers svar 24.10 gjelder hele versjon 3. Alternativet «versjon 3» er alternativ A i punkt 2. Underspørsmål 2b er ført som [OV-U38](../../plans/vedtak.md#ov-u38). Bygges i #1171.
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="ov-u39"></a>OV-U39
+
+> OV-U39: I posten for rigg og drift i forlenget byggetid oppgir TE: beløpet TE krever, i kroner ekskl. mva.; forlengelsen posten bygger på, i hele hverdager som i kontraktsgrunnlaget, og perioden forlengelsen gjelder, med første og siste dag, som begge regnes med i perioden; opprinnelig byggetid, i hele hverdager; avtalt pris på det opprinnelige rigg- og driftskapitlet ekskl. mva., før forholdsmessig reduksjon; andelen av rigg- og driftskapitlet som brukes i beregningen, i prosent, der 100 % betyr at fristforlengelsen gjelder alle arbeidene; og lønns- og prisreguleringen TE legger til, i kroner. Forlengelsen og andelen kan være null, og andelen er høyst 100 %. Opprinnelig byggetid er større enn null. Reguleringen kan være negativ. TE begrunner verdiene, særlig forlengelsen, andelen og avgrensningen mot krav i andre saker. Brevet og visningen viser regnestykket 0,7 × rigg- og driftskapitlet × andelen × forlengelsen / opprinnelig byggetid, pluss reguleringen, merket «Beregnet ut fra TEs opplysninger». I regnestykket brukes andelen som brøk, slik at 40 % er 0,40. Regnestykket regnes uten avrunding underveis, og resultatet avrundes til nærmeste hele krone. Appen teller ikke hverdagene i perioden, og viser ikke forlengelsen som kontrollert mot perioden. Beløpet TE krever, er det TE krever, også når regnestykket gir noe annet. Byggherren tar stilling til beløpet for posten med godkjent, delvis godkjent eller avslått, som for de andre postene. Byggherren kan i svaret oppgi sine egne verdier for forlengelsen, perioden, opprinnelig byggetid, rigg- og driftskapitlet, andelen og reguleringen, innenfor de samme grensene. Verdiene står ved siden av TEs og endrer dem ikke, og verdier byggherren ikke oppgir, er ikke tatt stilling til. Byggherren kan oppgi samme verdi som TE. Appen viser regnestykket ut fra byggherrens verdier, merket «Beregnet ut fra byggherrens opplysninger», bare når byggherren har oppgitt alle verdiene regnestykket bruker, og fyller ikke inn TEs verdier for dem byggherren ikke har oppgitt. Byggherrens verdier erstatter ikke begrunnelsen (KA-U24). Appen avgjør ikke hvilke verdier som er riktige, og bruker verdiene bare i regnestykket. Avvikende beregningsverdier hindrer ikke i seg selv at appen registrerer enighet om beløpet, og utløser ikke alene kravet til begrunnelse. Vil byggherren avgrense hva det godkjente beløpet omfatter, gjør hen det med standpunktene som finnes og i begrunnelsen (KA-U16, KA-U24). Appen tolker ikke verdiene eller begrunnelsen som en slik avgrensning, og avgjør ikke hva enigheten omfatter. Presiserer svaret 22.10 på #1047 om at TE oppgir beløpet, som ikke er ført som vedtak. Utvider OV-U26 til kravet etter § 34.1.3 første ledd.
+
+**Forkastet:** «I posten for rigg og drift oppgir TE beløpet og begrunner beregningen etter regelen for forlenget byggetid i kontraktsgrunnlaget. Begrunnelsen sier hvilken forlengelse eller periode beløpet bygger på, hvilke beregningsverdier TE har brukt, og hvilken andel av riggkapitlet TE legger til grunn når fristforlengelsen bare gjelder deler av arbeidene. Byggherren tar stilling til beløpet for posten med godkjent, delvis godkjent eller avslått, som for de andre postene. Mener byggherren at en annen forlengelse eller andel gjelder, sier hen det i begrunnelsen (KA-U24). Appen regner ikke ut beløpet og avgjør ikke den forholdsmessige delen. Utvider OV-U26 til kravet etter § 34.1.3 første ledd.»; «I posten for rigg og drift oppgir TE beløpet, dagene beløpet bygger på og den forholdsmessige delen av riggkapitlet i prosent. Byggherren tar stilling til beløpet og kan oppgi en annen forholdsmessig del. Appen viser regnestykket, men regner ikke ut beløpet og avgjør ikke delen. Utvider OV-U26 til kravet etter § 34.1.3 første ledd.»
+
+**Vedtatt:** 24.10, oppdragsgiver (#1171)
+
+**Følge:** Utvider [OV-U26](#ov-u26). Spørsmålene er versjon 3 av runde 46, laget etter oppdragsgivers svar på versjon 2 («Øvrige spørsmål- se vurdering fra astra og vurder selv:») og den juridiske sparringen. Oppdragsgivers svar 24.10 gjelder hele versjon 3. Alternativet «versjon 3» er alternativ C i punkt 3, med presiseringene i versjon 3. Det presiserer svaret 22.10 på R2-2 i #1047, som ikke er ført som vedtak. Underspørsmål 3b er ført som [OV-U40](../../plans/vedtak.md#ov-u40). Bygges i #1171.
+
+**Regelrader:** —
+
+**Bevis-saker som viser til vedtaket:** —
+
+### <a id="ov-u41"></a>OV-U41
+
+> OV-U41: TE kan oppgi datoen TE ble klar over at økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid ville påløpe. Datoen kan stå i det særskilte varselet etter § 34.1.3 annet ledd, i vederlagskravet når det er det første varselet appen kjenner om det kravet (OV-U24), og i brevet der TE oppgir datoen for et særskilt varsel sendt utenfor appen (OV-U5). Opplysningen er valgfri og er TEs utsagn om når TE faktisk ble klar over det. Den sier ikke når TE burde ha blitt klar over det. Brevet viser den ved siden av varseldatoen: «TE oppgir å ha blitt klar over at utgiftene ville påløpe <dato>.» TE kan senere supplere en dato som ikke ble oppgitt, eller oppgi en annen dato, som et nytt utsagn med henvisning til varselet det gjelder, uten å sende et nytt varsel. Varselet og det TE oppga før, står uendret. I appens rettingsmodell er en senere dato enn den TE oppga før, en retting til TEs fordel etter MM-U21: den erstatter ikke den tidligere opplysningen i appen før byggherren har godtatt den. En tidligere dato er en retting i byggherrens favør og erstatter den tidligere opplysningen i appen straks (MM-U21). Alle datoene TE har oppgitt, beholdes og vises som TEs utsagn. Dette avgjør ikke hvilken dato som faktisk eller rettslig skal legges til grunn. Byggherren tar stilling til rettidigheten i svaret, og kan der godta eller bestride datoen, eller mene at TE burde ha blitt klar over det tidligere. Appen beregner ikke rettidighet eller preklusjonsvirkning av datoene. Et svar byggherren alt har gitt, står med virkningen det hadde (OV-U5). Appen har ingen annen kunnskapsdato for § 34.1.3. Presiserer OV-U34. Utvider OV-U5 for det særskilte varselet etter § 34.1.3 annet ledd. Utvider OV-U24: det utledede varselet kan bære kunnskapsdatoen. Følger MM-U21.
+
+**Forkastet:** «Appen har ingen kunnskapsdato for § 34.1.3. Varseldatoen er den eneste datoen for det særskilte varselet. TE kan skrive når TE ble klar over utgiftene i begrunnelsen for vederlagskravet. Byggherren tar stilling til rettidigheten i svaret. Presiserer OV-U34.»
+
+**Vedtatt:** 24.10, oppdragsgiver (#1171)
+
+**Følge:** Presiserer [OV-U34](../../plans/vedtak.md#ov-u34). Utvider [OV-U5](#ov-u5). Utvider [OV-U24](#ov-u24). Spørsmålene er versjon 3 av runde 46, laget etter oppdragsgivers svar på versjon 2 («Øvrige spørsmål- se vurdering fra astra og vurder selv:») og den juridiske sparringen. Oppdragsgivers svar 24.10 gjelder hele versjon 3. Alternativet «versjon 3» er alternativ A i punkt 4, med rettelsene i versjon 3. Bygges i #1171.
 
 **Regelrader:** —
 
