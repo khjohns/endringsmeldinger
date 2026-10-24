@@ -16,6 +16,8 @@
     placeholder?: string;
     maxHeight?: string;
     label?: string;
+    /** Tilgjengelig navn når ledeteksten står utenfor komponenten. Ellers navngir `label` feltet. */
+    navn?: string;
     extensions?: AnyExtension[];
     onchange?: (html: string) => void;
     oncharcount?: (count: number) => void;
@@ -28,12 +30,14 @@
     placeholder: placeholderText = '',
     maxHeight = '60vh',
     label = '',
+    navn = '',
     extensions: extraExtensions = [],
     onchange,
     oncharcount,
     onready,
   }: Props = $props();
 
+  const labelId = $props.id();
   let element = $state<HTMLDivElement>();
   let editor = $state<Editor>();
   let charCount = $state(0);
@@ -75,6 +79,12 @@
         ...extraExtensions,
       ],
       content: body,
+      editorProps: {
+        attributes: {
+          'aria-multiline': 'true',
+          ...(navn ? { 'aria-label': navn } : label ? { 'aria-labelledby': labelId } : {}),
+        },
+      },
       onTransaction: ({ editor: e }) => lesTilstand(e),
       onUpdate: ({ editor: e }) => {
         const newHtml = e.getHTML();
@@ -100,7 +110,7 @@
 
 <div class="rte-wrap">
   {#if label}
-    <div class="rte-label">{label}</div>
+    <div class="rte-label" id={labelId}>{label}</div>
   {/if}
   <div class="rte-container" style="--rte-max-height: {maxHeight}">
     <div class="rte-editor" bind:this={element}></div>

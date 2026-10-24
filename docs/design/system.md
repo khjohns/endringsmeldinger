@@ -55,6 +55,9 @@ Statusfargene (`--danger`, `--warning`, `--success`, `--info`, med `-bg` for fla
 brukes bare der en regel her eller et vedtak sier det. Fargen gjentar det teksten
 sier, og står aldri alene.
 
+Tekst på en hel statusflate, som det valgte segmentet med en tone, har `--on-status`: hvit i
+lys modus og mørk i mørk modus, der statusfargene er lyse (#1235).
+
 - **Utkast og interne ting** har `--draft`, `--draft-bg` og `--draft-border`, med
   stiplet kant. Det som ikke er sendt, skal aldri se sendt ut.
 - **Subsidiært standpunkt** har `--green`, `--green-bg` og `--green-border`.

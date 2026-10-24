@@ -496,6 +496,7 @@
         <div class="editor-wrapper">
           <RichTextEditor
             body={begrunnelseHtml}
+            navn="Redegjørelse"
             onchange={(html) => (begrunnelseHtml = html)}
             placeholder="Redegjør for grunnlaget..."
             maxHeight="none"

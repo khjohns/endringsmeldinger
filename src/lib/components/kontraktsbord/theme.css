@@ -57,6 +57,7 @@
   --success-bg: #e6f0ea;
   --warning: #b87e28;
   --warning-bg: #fff3dc;
+  --on-status: #ffffff;
   --info: #2d4a3b;
   --info-bg: #eaf2ec;
 
@@ -137,6 +138,7 @@
   --success-bg: rgba(74, 222, 128, 0.1);
   --warning: #fbbf24;
   --warning-bg: rgba(251, 191, 36, 0.1);
+  --on-status: #1b2a22;
   --info: #93c5fd;
   --info-bg: rgba(147, 197, 253, 0.1);
 
