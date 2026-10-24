@@ -537,21 +537,34 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
       };
     }),
   ];
+  // #1267 punkt 4: med mer enn ett lag står innledningen for seg, og hver etikett begynner et
+  // nytt avsnitt. Standpunktene uten etikett står i avsnittet før, som metoden sammen med
+  // beløpet, eller i et eget avsnitt foran den første etiketten.
   const ordnet = ledd.some(({ plass }) => plass !== null && plass > 1);
   const merket = new Set<number>();
-  const setninger = ledd.map(({ tekst, plass }) => {
-    if (!ordnet || plass === null || merket.has(plass)) return stor(tekst);
-    merket.add(plass);
-    return `${stor(etikett(plass))}: ${tekst}`;
-  });
-  return [
-    `Byggherrens svar på ${SVARET_GJELDER[s.spor]} i TEs krav i ${j.brevet(krav.dokument)}:`,
-    ...forbeholdForGrunnlaget(s, t),
-    ...setninger,
-    ...(s.erstatter
-      ? [`Svaret erstatter byggherrens svar i ${j.brevet(j.svar(s.erstatter).dokument)}.`]
-      : []),
-  ].join(' ');
+  const avsnitt: string[][] = [
+    [
+      `Byggherrens svar på ${SVARET_GJELDER[s.spor]} i TEs krav i ${j.brevet(krav.dokument)}:`,
+      ...forbeholdForGrunnlaget(s, t),
+    ],
+  ];
+  if (ordnet) avsnitt.push([]);
+  for (const { tekst, plass } of ledd) {
+    if (!ordnet || plass === null || merket.has(plass)) avsnitt.at(-1)!.push(stor(tekst));
+    else {
+      merket.add(plass);
+      avsnitt.push([`${stor(etikett(plass))}: ${tekst}`]);
+    }
+  }
+  if (s.erstatter) {
+    const erstatter = `Svaret erstatter byggherrens svar i ${j.brevet(j.svar(s.erstatter).dokument)}.`;
+    if (ordnet) avsnitt.push([erstatter]);
+    else avsnitt.at(-1)!.push(erstatter);
+  }
+  return avsnitt
+    .filter((a) => a.length)
+    .map((a) => a.join(' '))
+    .join('\n\n');
 }
 
 /**

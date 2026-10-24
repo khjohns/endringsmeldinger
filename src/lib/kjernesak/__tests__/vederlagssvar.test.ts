@@ -181,7 +181,7 @@ describe('svaret gjennom kjernen', () => {
       state({ produktivitetVarsletITide: false, produktivitetBegrensetBelop: 45_000 })
     );
     expect(tekst).toMatch(
-      /Byggherren godkjenner 500 000 kr eks\. mva\.[^.]*for justeringen ellers\. Prinsipalt: byggherren gjør gjeldende at varselet om særskilt justering/
+      /Byggherren godkjenner 500 000 kr eks\. mva\.[^.]*for justeringen ellers\.\s+Prinsipalt: byggherren gjør gjeldende at varselet om særskilt justering/
     );
     expect(tekst).toContain('Byggherren godkjenner 45 000 kr eks. mva. for dette kravet.');
     expect(tekst).toMatch(

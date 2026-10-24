@@ -310,15 +310,94 @@ function begrensningen(svar: Svarinnhold, v: Standpunktsvirkning[]) {
   );
 }
 
+/** Laget i brevet og etiketten for det, eller `null` for et standpunkt uten lag (OV-U32). */
+interface Plass {
+  lag: number | null;
+  etikett: string | null;
+}
+
+/**
+ * OV-U26, OV-U28: en post i byggherrens svar på vederlaget. `godkjent` er beløpet uten
+ * begrensningen etter § 34.1.3. `begrensning` står bare når begrensningen har virkning i
+ * brevet (VS-U5, OV-U22), med beløpet etter den og laget den står i.
+ */
+export interface Vederlagspost extends Plass {
+  standpunkt: string;
+  saerskilt?: 'produktivitet';
+  godkjent: number;
+  begrensning: (Plass & { standpunkt: string; beloep: number }) | null;
+}
+
+/**
+ * MM-U23, HF-U2: byggherrens påberopelse av at et varsel kom for sent, som byggherren sa den.
+ * `begrenset` er beløpet byggherren oppga etter § 34.1.3. Laget er `null` når påberopelsen er
+ * uten virkning; den gir da ingen post et annet beløp.
+ */
+export interface Paaberopt extends Plass {
+  standpunkt: string;
+  hjemmel: Hjemmel;
+  begrenset?: number;
+}
+
+/**
+ * Postene og påberopelsene i svaret på vederlaget, med lagene brevet ga dem (MM-U23, OV-U28,
+ * valg 4 i #1047). `forskyvning` er lagene svaret på grunnlaget opptok foran sporet
+ * (`forskyvningIBrevet`). Etiketten følger brevteksten: bare når svaret har mer enn ett lag.
+ * Ingen total per lag.
+ */
+export function postlisten(
+  svar: Svarinnhold,
+  v: Standpunktsvirkning[],
+  forskyvning: number
+): { poster: Vederlagspost[]; paaberopt: Paaberopt[] } {
+  const lagI = (id: string) => {
+    const virkning = v.find((p) => p.standpunkt === id)?.virkning;
+    const lag = virkning === undefined ? null : laget(virkning);
+    return lag === null ? null : lag + forskyvning;
+  };
+  const ordnet = forskyvning > 1 || svar.standpunkter.some((s) => (lagI(s.id) ?? 0) > 1);
+  const plass = (id: string): Plass => {
+    const lag = lagI(id);
+    return { lag, etikett: ordnet && lag !== null ? etikett(lag) : null };
+  };
+  const begrenset = begrensningen(svar, v);
+  const poster = svar.standpunkter.flatMap((s): Vederlagspost[] =>
+    s.art !== 'beloep'
+      ? []
+      : [
+          {
+            standpunkt: s.id,
+            ...(s.saerskilt ? { saerskilt: s.saerskilt } : {}),
+            godkjent: s.godkjent,
+            ...plass(s.id),
+            begrensning:
+              s.saerskilt && begrenset
+                ? { standpunkt: begrenset.id, beloep: begrenset.begrenset!, ...plass(begrenset.id) }
+                : null,
+          },
+        ]
+  );
+  const paaberopt = svar.standpunkter.flatMap((s): Paaberopt[] =>
+    s.art !== 'rettidighet' || s.iTide
+      ? []
+      : [
+          {
+            standpunkt: s.id,
+            hjemmel: s.hjemmel,
+            ...(s.begrenset !== undefined ? { begrenset: s.begrenset } : {}),
+            ...plass(s.id),
+          },
+        ]
+  );
+  return { poster, paaberopt };
+}
+
 /**
  * Det byggherren godtar prinsipalt i vederlaget, av postene og begrensningen i brevet
  * (OV-U26, OV-U27): posten etter § 34.1.3 annet ledd med beløpet etter en virksom begrensning.
  */
 function prinsipaltBeloep(svar: Svarinnhold, v: Standpunktsvirkning[]): number {
-  const begrenset = begrensningen(svar, v)?.begrenset;
-  const poster = svar.standpunkter.flatMap((s) =>
-    s.art !== 'beloep' ? [] : [s.saerskilt && begrenset !== undefined ? begrenset : s.godkjent]
-  );
+  const poster = postlisten(svar, v, 0).poster.map((p) => p.begrensning?.beloep ?? p.godkjent);
   return tilTall(poster.reduce((a, b) => a + beloep(b)!, 0n));
 }
 
