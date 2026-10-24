@@ -189,7 +189,7 @@
   const AVSLAATT =
     'Grunnlaget er avslått. Vurderingen nedenfor gjelder for det tilfelle at grunnlaget likevel godkjennes.';
   const PREKLUDERT =
-    'Grunnlaget ble varslet for sent (§ 32.2). Hele vederlagskravet behandles subsidiært.';
+    'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder for det tilfelle at varselet kom i tide.';
 
   // I TS-saken i samme rekkefølge som lagene i brevet (OV-U32), og med forbeholdet etter GR-U26.
   const grunnlagsvarsler = $derived.by((): string[] => {

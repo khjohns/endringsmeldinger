@@ -5,7 +5,7 @@
  * Simplified to 3 main methods:
  * - ENHETSPRISER: Covers both kontrakts- and justerte enhetspriser (§34.3)
  * - REGNINGSARBEID: Regningsarbeid with kostnadsoverslag (§30.2/§34.4)
- * - FASTPRIS_TILBUD: Fast sum / Tilbud (§34.2.1)
+ * - FASTPRIS_TILBUD: Fast sum (§34.2.1)
  */
 
 import type { DropdownOption } from './categories';
@@ -27,7 +27,7 @@ export const VEDERLAGSMETODER_OPTIONS: DropdownOption[] = [
   },
   {
     value: 'FASTPRIS_TILBUD',
-    label: 'Fast sum / Tilbud (§34.2.1)',
+    label: 'Fast sum (§34.2.1)',
   },
 ];
 
