@@ -8662,6 +8662,29 @@ tekst = "blir eller burde ha blitt klar over at utgifter ville påløpe"
 utdrag = true
 
 [[gruppe.vedtak]]
+id = "OV-U35"
+dato = 2026-10-24
+hvem = "oppdragsgiver"
+kilde = ["#1267"]
+sporsmal = '''
+E. § 34.1.3, konsekvens
+- Nå: «Ved for sen varsling kan retten til de særskilte kostnadspostene gå tapt. Rigg og drift samt produktivitetstap vurderes hver for seg.»
+- Forslag: «Varsles kravet etter annet ledd for sent, taper totalentreprenøren retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (§ 5). Kravet etter første ledd har ingen særskilt varslingsplikt etter § 34.1.3.»
+- Belegg: Tredje ledd annen setning, som B.2.16 lar stå. § 5 tredje ledd. OV-U25.
+- Valg: Halvsetningen i OV-U25 om at byggherren ikke kan påberope sen varsling for rigg og drift er ikke tatt med. Uten avgrensning kan den leses som at varselet etter § 34.1.2 heller ikke gjelder rigg og drift, og det sier ikke vedtaket. B.2.16 har også egne formler for rigg og drift. De er ikke tatt med, fordi de er ny informasjon og ikke en retting.'''
+valgt = "utelate den uavgrensede halvsetningen i OV-U25"
+svar = '''
+Ja til å utelate den uavgrensede halvsetningen i OV-U25. Formuleringen «Kravet etter første ledd har ingen særskilt varslingsplikt etter § 34.1.3» ivaretar poenget uten å antyde fritak fra § 34.1.2. Før dette som en språklig presisering av vedtaket.'''
+forhold = [{ art = "presiserer", vedtak = "ov-u25" }]
+folge = '''
+Spørsmålet er punkt E i [forslaget på #1267](https://github.com/khjohns/endringsmeldinger/issues/1267#issuecomment-6388147840). Svaret står på #1267 ([kommentaren 6388243586](https://github.com/khjohns/endringsmeldinger/issues/1267#issuecomment-6388243586)). Vedtaket er bare avsnittet om OV-U25 i svaret. Presiseringene B–E for panelteksten er arbeidsvalg og står på #1267. Alternativet er ført med vedtaksteksten fra svaret.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "utelate den uavgrensede halvsetningen i OV-U25"
+tekst = '''
+I OV-U25 utgår halvsetningen «og byggherren kan ikke påberope at det er varslet for sent». Kravet etter første ledd har ingen særskilt varslingsplikt etter § 34.1.3. OV-U25 sier ikke noe om varslingsplikten etter § 34.1.2.'''
+
+[[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
 HF-U2: begrepene i hendelsene TS skriver, følger kontrakten. Byggherrens standpunkt til
