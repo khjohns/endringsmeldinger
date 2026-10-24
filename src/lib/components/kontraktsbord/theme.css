@@ -41,7 +41,7 @@
   --ink: #1b2a22;
   --ink-2: #34423b;
   --ink-3: #59675f;
-  --ink-4: #68756d;
+  --ink-4: #636f68;
 
   /* ── Borders ── */
   --edge: 1px solid var(--brand);
@@ -57,6 +57,7 @@
   --success-bg: #e6f0ea;
   --warning: #b87e28;
   --warning-bg: #fff3dc;
+  --warning-border: #efd39a;
   --on-status: #ffffff;
   --info: #2d4a3b;
   --info-bg: #eaf2ec;
@@ -124,7 +125,7 @@
   --ink: #f2f7f4;
   --ink-2: #c5d5cb;
   --ink-3: #98aea1;
-  --ink-4: #71877a;
+  --ink-4: #8fa597;
 
   --edge: 1px solid #333333;
   --rule: 1px solid rgba(255, 255, 255, 0.08);
@@ -138,6 +139,7 @@
   --success-bg: rgba(74, 222, 128, 0.1);
   --warning: #fbbf24;
   --warning-bg: rgba(251, 191, 36, 0.1);
+  --warning-border: rgba(251, 191, 36, 0.25);
   --on-status: #1b2a22;
   --info: #93c5fd;
   --info-bg: rgba(147, 197, 253, 0.1);
@@ -164,7 +166,7 @@
 
   --control-bg: var(--surface-inset);
   --control-border: 1px solid #333333;
-  --control-focus: var(--brand-2);
+  --control-focus: var(--brand);
   --control-focus-ring: 0 0 0 3px rgba(139, 135, 208, 0.2);
 
   --overlay-1: #1e1e1e;
@@ -774,7 +776,7 @@
 .mockup .locked-value--belop,
 .mockup .locked-value--dager,
 .mockup .locked-value--prosent {
-  background: var(--paper-inset);
+  background: var(--surface-inset);
   color: var(--ink-2);
   border: var(--rule);
 }
