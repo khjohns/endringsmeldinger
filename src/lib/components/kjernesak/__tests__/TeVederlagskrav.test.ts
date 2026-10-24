@@ -118,7 +118,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     // ikke (OV-U1, oppdragsgiver 17.10, #1171). Posten for produktivitetstap er et eget felt
     // (OV-U23), og varslene er egne valg (#1096, OV-U25).
     const skjema = within(document.querySelector('.form-content') as HTMLElement);
-    expect(skjema.getByText('Fastpris')).toBeInTheDocument();
+    expect(skjema.getByRole('radio', { name: 'Fast sum' })).toHaveAttribute('aria-checked', 'true');
     expect(skjema.getByLabelText('Produktivitetstap')).toBeInTheDocument();
     for (const ikke of [/Regningsarbeid/, /Enhetspris/, /Rigg og drift/])
       expect(skjema.queryByText(ikke)).toBeNull();
@@ -128,7 +128,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
 
     const knapp = screen.getByRole('button', { name: 'Se brev og send' });
     expect(knapp).toBeDisabled();
-    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '250000' } });
+    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '250000' } });
     await fireEvent.click(knapp);
 
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
@@ -160,7 +160,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     const user = userEvent.setup();
     const { send } = await vis('TE');
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
     (document.querySelector('.tiptap') as HTMLElement).focus();
     await user.keyboard('Tilbudet gjelder ny peling');
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
@@ -184,7 +184,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await kjernesak.last();
     visRom(kjernesak);
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
     await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
@@ -221,7 +221,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     });
     vakt.observe(document.body, { childList: true, subtree: true, characterData: true });
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
     await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
@@ -243,10 +243,10 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await kjernesak.last();
     const { rerender } = visRom(kjernesak);
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    expect(screen.getByLabelText('Fast pris')).toBeInTheDocument();
+    expect(screen.getByLabelText('Fast sum')).toBeInTheDocument();
 
     await rerender({ view: { track: 'frist', mode: 'form', role: 'TE' } });
-    expect(screen.queryByLabelText('Fast pris')).toBeNull();
+    expect(screen.queryByLabelText('Fast sum')).toBeNull();
   });
 
   // Kilde: oppdraget S-2a.1 i #909: en ny versjon sendes som `krav` når kjernen tilbyr `krav:vederlag`.
@@ -302,7 +302,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await kjernesak.last();
     visRom(kjernesak);
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
     await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
@@ -323,7 +323,7 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     await kjernesak.last();
     const rom = visRom(kjernesak);
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
     await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
@@ -372,13 +372,13 @@ describe('vederlagskravet fra Kontrollrommet', () => {
   it('tilbake fra brevkontrollen går til skjemaet uten å sende, og avkrysningen gjelder ikke neste brev (#729)', async () => {
     const { send } = await vis('TE');
     await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
-    await fireEvent.input(screen.getByLabelText('Fast pris'), { target: { value: '1000' } });
+    await fireEvent.input(screen.getByLabelText('Fast sum'), { target: { value: '1000' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Se brev og send' }));
     let kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
     await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
     await fireEvent.click(kontroll.getByRole('button', { name: 'Tilbake til skjemaet' }));
     expect(screen.queryByRole('region', { name: 'Brevkontroll' })).toBeNull();
-    expect(screen.getByLabelText('Fast pris')).toHaveValue('1000');
+    expect(screen.getByLabelText('Fast sum')).toHaveValue('1000');
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Se brev og send' })).toBeEnabled()
     );

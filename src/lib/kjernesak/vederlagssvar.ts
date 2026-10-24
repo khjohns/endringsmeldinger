@@ -18,11 +18,14 @@ import {
 } from '$kjerne/format/koder';
 import { foersteUnderkategori } from '$kjerne/regler/grunnlag';
 import {
+  etikett,
   grunnerFraGrunnlaget,
   harHovedbeloep,
+  laget,
   standpunktet,
   type Svarvurdering,
 } from '$kjerne/frosset/standpunkt';
+import type { Subsidiaergrunn } from '$kjerne/regler/grunnlag';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import type { Krav, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -175,4 +178,81 @@ export function forrigeVederlagssvar(svar: Svar, krav: Krav): VederlagLastRespon
     }
   }
   return forrige;
+}
+
+/**
+ * Det brevet setter foran BHs svar på vederlaget, lest av saken før svaret: grunnene i
+ * gjeldende svar på grunnlaget, som hver er ett lag foran sporet (A2, OV-U32, OV-U33), og
+ * forbeholdet når grunnlaget er ubesvart og ikke avklart ved frafall (GR-U26, GR-U23). Et
+ * frafall gir ingen grunn (GR-U7). Brevteksten leser de samme feltene.
+ */
+export function grunnlagetForSvaret(u: Utledning): {
+  grunner: Subsidiaergrunn[];
+  forbehold: boolean;
+} {
+  const g = u.spor.grunnlag.gjeldendeSvar;
+  return {
+    grunner: g ? grunnerFraGrunnlaget(g, g.beslutningsgrunnlag.virkninger) : [],
+    forbehold: !g && !u.frafalt,
+  };
+}
+
+/**
+ * Forbeholdet etter GR-U26 med brevets ord, uten brevet kravet står i. Testen av lagene
+ * prøver at brevet kjernen lager, har begge delene.
+ */
+export const FORBEHOLDET = [
+  'Byggherren har ennå ikke svart på grunnlaget',
+  'Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.',
+] as const;
+
+/** Ett beløp i svaret, med etiketten for laget det står i i brevet. */
+export interface Lagrad {
+  saerskilt: boolean;
+  /** Beløpet etter begrensningen etter § 34.1.3, ikke posten selv (VS-U5). */
+  begrenset: boolean;
+  beloep: number;
+  /** `null` når brevet har ett lag, eller beløpet står uten lag. */
+  etikett: string | null;
+}
+
+export interface Vederlagslag {
+  /** Kjernens sammendrag av standpunktene i svaret (`beslutningsgrunnlag.linje`). */
+  linje: string;
+  /** Svaret godkjenner hele kravet (GR-U7). */
+  sammenfall: boolean;
+  rader: Lagrad[];
+}
+
+/**
+ * Lagene i BHs svar på vederlaget slik brevet skriver dem (#1261): `foer` er saken før
+ * svaret, `etter` saken med svaret kjernen forhåndsviser. Laget er det kjernen frøs for
+ * standpunktet, flyttet ned med lagene fra grunnlaget, og etiketten står bare når brevet
+ * har mer enn ett lag (OV-U32, OV-U33, LV-U4 punkt 4).
+ */
+export function vederlagslag(foer: Utledning, etter: Utledning): Vederlagslag | null {
+  const svar = etter.spor.vederlag.gjeldendeSvar;
+  if (!svar) return null;
+  const { virkninger, linje, sammenfall } = svar.beslutningsgrunnlag;
+  const forskyvning = grunnlagetForSvaret(foer).grunner.length;
+  const lagFor = (id: string) => laget(virkninger.find((v) => v.standpunkt === id)!.virkning);
+  const ordnet = forskyvning > 0 || virkninger.some((v) => (laget(v.virkning) ?? 0) > 1);
+  const etiketten = (lag: number | null) =>
+    ordnet && lag !== null ? etikett(lag + forskyvning) : null;
+  const rader = svar.standpunkter.flatMap((s): Lagrad[] => {
+    if (s.art === 'beloep')
+      return [
+        {
+          saerskilt: s.saerskilt !== undefined,
+          begrenset: false,
+          beloep: s.godkjent,
+          etikett: etiketten(lagFor(s.id)),
+        },
+      ];
+    const lag = s.art === 'rettidighet' && s.hjemmel === '34.1.3' ? lagFor(s.id) : null;
+    if (s.art === 'rettidighet' && s.begrenset !== undefined && lag !== null)
+      return [{ saerskilt: true, begrenset: true, beloep: s.begrenset, etikett: etiketten(lag) }];
+    return [];
+  });
+  return { linje, sammenfall, rader };
 }

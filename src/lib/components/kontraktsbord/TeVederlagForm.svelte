@@ -141,7 +141,7 @@
   const hovedkravLabel = $derived.by(() => {
     if (metode === 'ENHETSPRISER') return 'Anslått beløp';
     if (metode === 'REGNINGSARBEID') return 'Kostnadsoverslag';
-    if (metode === 'FASTPRIS_TILBUD') return 'Fast pris';
+    if (metode === 'FASTPRIS_TILBUD') return 'Fast sum';
     return 'Beløp';
   });
 

@@ -5,7 +5,7 @@
  * Simplified to 3 main methods:
  * - ENHETSPRISER: Covers both kontrakts- and justerte enhetspriser (§34.3)
  * - REGNINGSARBEID: Regningsarbeid with kostnadsoverslag (§30.2/§34.4)
- * - FASTPRIS_TILBUD: Fastpris / Tilbud (§34.2.1)
+ * - FASTPRIS_TILBUD: Fast sum (§34.2.1)
  */
 
 import type { DropdownOption } from './categories';
@@ -27,7 +27,7 @@ export const VEDERLAGSMETODER_OPTIONS: DropdownOption[] = [
   },
   {
     value: 'FASTPRIS_TILBUD',
-    label: 'Fastpris / Tilbud (§34.2.1)',
+    label: 'Fast sum (§34.2.1)',
   },
 ];
 
@@ -43,7 +43,7 @@ export function getVederlagsmetodeLabel(code: string | undefined | null): string
 const SHORT_LABELS: Record<VederlagsMetode, string> = {
   ENHETSPRISER: 'Enhetspriser',
   REGNINGSARBEID: 'Regningsarbeid',
-  FASTPRIS_TILBUD: 'Fastpris',
+  FASTPRIS_TILBUD: 'Fast sum',
 };
 
 // Helper function to get short vederlagsmetode label (uten hjemmel)

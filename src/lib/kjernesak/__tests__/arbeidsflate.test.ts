@@ -98,6 +98,25 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     expect(te.skjema('vederlag')).toBe(te.teSkjema('vederlag'));
   });
 
+  it('#1261: skjemaet får lagene i svaret fra kjernens forhåndsvisning, og ingen lag når kjernen avviser svaret', async () => {
+    const bh = await flate(medVederlag, 'BH');
+    // GR-U26: grunnlaget er ubesvart, så forbeholdet gjelder og ingen lag står foran sporet.
+    expect(bh.grunnlagetForVederlagssvaret).toEqual({ grunner: [], forbehold: true });
+    const data = {
+      beregnings_resultat: 'delvis_godkjent',
+      total_godkjent_belop: 100000,
+      hovedkrav_vurdering: 'delvis',
+      hovedkrav_godkjent_belop: 100000,
+      aksepterer_metode: true,
+    };
+    expect(bh.vederlagslag(data)).toMatchObject({
+      sammenfall: false,
+      rader: [{ saerskilt: false, begrenset: false, beloep: 100000, etikett: null }],
+    });
+    // B-13: et resultat som ikke stemmer med beløpet, avvises, og skjemaet viser ingen lag.
+    expect(bh.vederlagslag({ ...data, beregnings_resultat: 'godkjent' })).toBeNull();
+  });
+
   it('kjernen tilbyr ikke et nytt svar når kravet er besvart (ALLEREDE_SVART)', async () => {
     expect((await flate(medVederlagssvar, 'BH')).bhSkjema('vederlag')).toBeNull();
   });

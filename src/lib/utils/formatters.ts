@@ -197,7 +197,7 @@ export function formatVederlagsmetode(metode?: string | null): string {
       return 'Regningsarbeid';
     case 'FASTPRIS':
     case 'FASTPRIS_TILBUD':
-      return 'Fastpris';
+      return 'Fast sum';
     default:
       return metode;
   }
