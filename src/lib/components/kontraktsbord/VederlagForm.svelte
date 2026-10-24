@@ -31,6 +31,7 @@
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
 
+  import { FORBEHOLDET } from '$lib/kjernesak/vederlagssvar';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   const review = getApprovalWorkspace();
@@ -195,11 +196,7 @@
     if (grunnlaget)
       return [
         ...grunnlaget.grunner.map((g) => (g === 'prekludert' ? PREKLUDERT : AVSLAATT)),
-        ...(grunnlaget.forbehold
-          ? [
-              'Byggherren har ennå ikke svart på grunnlaget. Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.',
-            ]
-          : []),
+        ...(grunnlaget.forbehold ? [`${FORBEHOLDET[0]}. ${FORBEHOLDET[1]}`] : []),
       ];
     if (subsidiærGrunn === 'grunnlag_avslatt') return [AVSLAATT];
     if (subsidiærGrunn === 'grunnlag_32_2') return [PREKLUDERT];

@@ -12,6 +12,7 @@ import type { Journalrad } from '$kjerne/typer';
 import { beregnAlt, buildEventData, type VederlagFormState } from '$lib/domain/vederlagDomain';
 import { utledetMed } from '../brevtekst';
 import {
+  FORBEHOLDET,
   grunnlagetForSvaret,
   vederlagConfigFraKjernen,
   vederlagslag,
@@ -150,7 +151,8 @@ describe('skjemaet har lagene i brevet', () => {
     const { lag, grunnlaget, brev } = skjemaOgBrev(vederlag, state());
     expect(grunnlaget).toEqual({ grunner: [], forbehold: true });
     expect(lag.rader.map((r) => r.etikett)).toEqual([null]);
-    expect(brev).toContain('Byggherren har ennå ikke svart på grunnlaget');
+    // Varselet i skjemaet har ordene fra brevet kjernen lager.
+    for (const del of FORBEHOLDET) expect(brev).toContain(del);
     sammeLagSomBrevet(lag, brev);
   });
 
@@ -171,7 +173,7 @@ describe('skjemaet har lagene i brevet', () => {
     const { lag, grunnlaget, brev } = skjemaOgBrev(journal, state());
     expect(grunnlaget).toEqual({ grunner: [], forbehold: false });
     expect(lag.rader.map((r) => r.etikett)).toEqual([null]);
-    expect(brev).not.toContain('ennå ikke svart på grunnlaget');
+    expect(brev).not.toContain(FORBEHOLDET[0]);
     sammeLagSomBrevet(lag, brev);
   });
 

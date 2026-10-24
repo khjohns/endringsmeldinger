@@ -197,6 +197,15 @@ export function grunnlagetForSvaret(u: Utledning): {
   };
 }
 
+/**
+ * Forbeholdet etter GR-U26 med brevets ord, uten brevet kravet står i. Testen av lagene
+ * prøver at brevet kjernen lager, har begge delene.
+ */
+export const FORBEHOLDET = [
+  'Byggherren har ennå ikke svart på grunnlaget',
+  'Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.',
+] as const;
+
 /** Ett beløp i svaret, med etiketten for laget det står i i brevet. */
 export interface Lagrad {
   saerskilt: boolean;
