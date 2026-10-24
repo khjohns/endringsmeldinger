@@ -85,7 +85,8 @@ ikke er det forventede:
    `INTERNAL_ERROR`, og et avbrudd (`route.abort`), som er et usikkert utfall. Kroppene
    har formen serveren gir. `GET` går til serveren, så en ny innlasting etter 409 er ekte.
    Skriptet skriver teksten i `role="alert"` og tar `feil-409.png`, `feil-403.png`,
-   `feil-500.png` og `feil-avbrutt.png`. Det stopper med exit 1 hvis skjemaet ikke sender.
+   `feil-500.png` og `feil-avbrutt.png`. Det stopper med exit 1 hvis skjemaet ikke sender,
+   eller ikke viser den forventede meldingen i `role="alert"`.
 
 Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
 med et eget Playwright-skript. Send aldri rett i tabellene. Slik drives skjemaene videre:

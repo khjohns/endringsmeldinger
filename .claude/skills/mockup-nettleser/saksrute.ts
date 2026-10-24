@@ -571,7 +571,11 @@ try {
     // Feiltilstandene i skjemaet (#1215): TE sender vederlagskravet, og `page.route` svarer
     // på kommandoruta i stedet for serveren. Kroppene har formen serveren gir
     // (`server/app.ts`, `server/inngang.ts`); avbruddet er et svar som aldri kom.
-    const FEILTILSTANDER: { navn: string; svar: { status: number; kropp: unknown } | null }[] = [
+    const FEILTILSTANDER: {
+      navn: string;
+      svar: { status: number; kropp: unknown } | null;
+      melding: RegExp;
+    }[] = [
       {
         navn: '409',
         svar: {
@@ -584,10 +588,12 @@ try {
             message: 'Saken er endret. Last den inn på nytt.',
           },
         },
+        melding: /Saken er endret/,
       },
       {
         navn: '403',
         svar: { status: 403, kropp: { success: false, error: 'FORBIDDEN', message: 'Du har ikke tilgang.' } },
+        melding: /Du har ikke tilgang/,
       },
       {
         navn: '500',
@@ -599,8 +605,9 @@ try {
             message: 'Kommandoen ble ikke lagret på grunn av en feil.',
           },
         },
+        melding: /ikke lagret på grunn av en feil/,
       },
-      { navn: 'avbrutt', svar: null },
+      { navn: 'avbrutt', svar: null, melding: /usikkert om brevet ble lagret/ },
     ];
     const kommandoruta = `**/api/kjerne/saker/${sak}/kommandoer`;
     const sporene = te.getByRole('navigation', { name: 'Sakens spor' });
@@ -626,10 +633,16 @@ try {
       await te.getByRole('button', { name: 'Send til byggherren' }).click();
       for (let i = 0; !traff && i < 50; i++) await te.waitForTimeout(200);
       if (!traff) throw new Error(`Feiltilstand ${tilstand.navn}: skjemaet sendte ikke til ${kommandoruta}`);
+      const varsel = te.getByRole('alert').filter({ hasText: tilstand.melding }).first();
+      await varsel.waitFor({ timeout: 10_000 }).catch((feil: unknown) => {
+        throw new Error(`Feiltilstand ${tilstand.navn}: ingen role="alert" med ${tilstand.melding}`, {
+          cause: feil,
+        });
+      });
       await te.waitForLoadState('networkidle');
       await te.waitForTimeout(500);
       const varsler = await te.getByRole('alert').allInnerTexts();
-      console.log(`TE  feiltilstand ${tilstand.navn}: ${varsler.filter(Boolean).join(' | ') || '(ingen role="alert")'}`);
+      console.log(`TE  feiltilstand ${tilstand.navn}: ${varsler.filter(Boolean).join(' | ')}`);
       await te.screenshot({ path: join(UT, `feil-${tilstand.navn}.png`), fullPage: true });
       await te.unroute(kommandoruta);
     }
