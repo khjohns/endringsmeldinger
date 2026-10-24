@@ -559,6 +559,27 @@
       "radetikett": "GR-U24: Når kravene er avgjort, går OV-U3 foran GR-U20 og GR-U23"
     },
     {
+      "id": "GR-U26",
+      "type": "vedtak",
+      "dato": "2026-10-24",
+      "ref": "../plans/vedtak.md#gr-u26",
+      "radetikett": "GR-U26: Når byggherren svarer på vederlag eller frist mens gjeldende versjon av grunnlaget ikke er besvart"
+    },
+    {
+      "id": "LV-U31",
+      "type": "vedtak",
+      "dato": "2026-10-24",
+      "ref": "../plans/vedtak.md#lv-u31",
+      "radetikett": "LV-U31: Når byggherren godkjenner oppgjør som fast sum, men ikke hele tilbudet"
+    },
+    {
+      "id": "LV-U32",
+      "type": "vedtak",
+      "dato": "2026-10-24",
+      "ref": "../plans/vedtak.md#lv-u32",
+      "radetikett": "LV-U32: Når byggherren godkjenner oppgjør som fast sum, sier brevet"
+    },
+    {
       "id": "KA-U14",
       "type": "vedtak",
       "dato": "2026-10-10",
@@ -1708,12 +1729,13 @@
     {
       "id": "GR-08",
       "tilfelle": "Byggherren reviderer vederlagssvaret mens grunnlaget venter på nytt svar etter en ny grunnlagsversjon, og avslår deretter grunnlaget igjen.",
-      "forventet": "Det reviderte svaret er prinsipalt så lenge grunnlaget ikke har svar. Når grunnlaget avslås, er vederlagssvaret subsidiært.",
-      "bh_standpunkt": "Først prinsipalt delvis godkjent, deretter subsidiært, utledet av grunnlaget.",
-      "rettslig_virkning": "Byggherrens standpunkt til beløpet står. Om det er prinsipalt eller subsidiært, følger av grunnlagssvaret.",
+      "forventet": "Det reviderte svaret har forbeholdet for ubesvart grunnlag, og vederlaget er ikke subsidiært så lenge grunnlaget ikke har svar. Når grunnlaget avslås, er vederlagssvaret subsidiært. Teksten og lagene i det sendte brevet endres ikke.",
+      "bh_standpunkt": "Først delvis godkjent under forbeholdet for ubesvart grunnlag, deretter subsidiært, utledet av grunnlaget.",
+      "rettslig_virkning": "Byggherrens standpunkt til beløpet står. Om det er subsidiært, følger av grunnlagssvaret.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
+        "GR-U26",
         "GR-U4",
         "V-B13-GRUNNLAG-AVSLATT",
         "GR-U1"

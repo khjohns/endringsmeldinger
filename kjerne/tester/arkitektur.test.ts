@@ -933,7 +933,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'subsidiaer',
     ['kommandoer/skriving.ts:brevtekstFor', 'utledning/utled.ts:standpunktetErSubsidiaert'],
   ],
-  ['Saken', 'brevtekst', 'saksnummer tittel grunnlagssvar subsidiaer', ['frosset/brevtekst.ts']],
+  // GR-U26: forbeholdet for ubesvart grunnlag skrives ikke når grunnlaget er avklart ved frafall.
+  [
+    'Saken',
+    'brevtekst',
+    'saksnummer tittel grunnlagssvar subsidiaer avklartVedFrafall',
+    ['frosset/brevtekst.ts'],
+  ],
   ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts']],
   ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst plass', ['frosset/brevtekst.ts']],
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts']],
