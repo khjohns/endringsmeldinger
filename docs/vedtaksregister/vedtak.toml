@@ -6227,6 +6227,47 @@ tekst = '''
 Som et valg i appen, ikke en regel kontrakten krever, kan byggherren godta TEs tilbud bare i sin helhet (NS 8407 § 34.2.2 første ledd), og da godkjennes hele beløpet. Godkjenner byggherren et lavere beløp, skriver brevet ikke noe eget standpunkt til beregningsmåten. Et lavere beløp betyr ikke at vederlaget skal justeres etter § 34.3 eller § 34.4.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "LV-U32"
+dato = 2026-10-24
+hvem = "oppdragsgiver"
+kilde = ["#1240"]
+sporsmal = '''
+Hva brevet sier når byggherren godkjenner hele beløpet og oppgjør som fast sum
+
+TE har krevd vederlagsjustering med et spesifisert tilbud (§ 34.2.1). Byggherren godkjenner hele det krevde beløpet og godkjenner oppgjør som fast sum. LV-U31 avgjør bare tilfellet der byggherren godkjenner oppgjør som fast sum, men ikke hele tilbudet. I dag sier brevet «Byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).» når byggherren godtar beregningsmåten, uavhengig av beløpet. Den ordlyden er et arbeidsvalg (#479) og ikke et vedtak, og LV-U31 forkastet å gjøre den til vedtak for alle beløp. Appen ser beløpet. Den ser ikke om byggherren i utdypningen tar forbehold om tilbudets øvrige vilkår. Svaret kan også stå i et subsidiært lag eller under forbeholdet for ubesvart grunnlag.
+
+Spørsmål 1 i #1240 (kommentaren 6383793730), svaret i kommentaren 6383985251.'''
+valgt = "C"
+svar = '''
+Ja til C.
+
+Den faste teksten beskriver hva BH godkjenner, uten å erklære aksept av hele tilbudet på grunnlag av beløpet alene. Den fungerer også med subsidiære standpunkter og forbeholdet etter GR-U26.
+
+At brevet ikke bruker ordet «akseptert», hindrer ikke at svaret rettslig kan utgjøre en aksept. Det avgjøres av svarets samlede innhold. Appens registrering av enighet følger fortsatt GR-U7 og HF-U7.
+
+Høy sikkerhet på C som tekstvalg innenfor de oppgitte vedtakene.'''
+forhold = [{ art = "utvider", vedtak = "lv-u31" }, { art = "presiserer", vedtak = "lv-u4" }]
+folge = '''
+Bygges i #1240.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Når byggherren godkjenner oppgjør som fast sum, sier brevet: «Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.» Det gjelder også når hele det krevde beløpet er godkjent. Brevet betegner ikke tilbudet som akseptert. Om partene er enige, følger av at svaret godkjenner hele kravet (GR-U7, HF-U7), ikke av setningen. Standpunktet står i det laget innsigelsene i svaret gir det (OV-U32, OV-U33).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Når byggherren godkjenner hele det krevde beløpet og godkjenner oppgjør som fast sum, sier brevet: «Byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).» Setningen står i det laget innsigelsene i svaret gir det (OV-U32, OV-U33). Appen regner den ikke som aksept av tilbudet. Om partene er enige, følger av at svaret godkjenner hele kravet (GR-U7, HF-U7), ikke av setningen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Når byggherren godkjenner hele det krevde beløpet og godkjenner oppgjør som fast sum, sier brevet: «Byggherren aksepterer TEs tilbud (NS 8407 § 34.2.2 første ledd).» Det gjelder bare når beløpet står i første lag eller er upåvirket (OV-U32, OV-U33), og svaret ikke er gitt under forbeholdet for ubesvart grunnlag (GR-U26). Ellers sier brevet setningen i LV-U31. Appen tolker ikke forbehold i utdypningen (KA-U16), så setningen står også når byggherren der tar forbehold om tilbudets øvrige vilkår.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
