@@ -1,6 +1,7 @@
 import {
   forhaandsvis,
   laastTekst,
+  vurder,
   type Kontekst,
   type Vedleggsoppslag,
 } from '$kjerne/kommandoer/skriving';
@@ -13,7 +14,10 @@ import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
  * den låste teksten, eller avvisningen. `tekst` er `null` når kommandoen ikke lager
  * en tekst, som et registrert brev; da trenger kjernen vedleggene kommandoen viser
  * til (`vedlegg`). Avsenderen ser teksten, og kommandoen bærer den;
- * serveren avviser en annen (LV-U2). En programfeil i kjernen kastes videre (#695).
+ * serveren avviser en annen (LV-U2). Med `sendes` vurderes kommandoen med teksten slik
+ * serveren vurderer den, med kravet til begrunnelse og beskrivelse, så et brev serveren
+ * vil avvise, ikke vises til kontroll (#1254). Uten den kan teksten vises før
+ * begrunnelsen er skrevet (A1). En programfeil i kjernen kastes videre (#695).
  */
 export type Brev = { tekst: string[] | null } | { avvisning: Avvisning };
 
@@ -33,12 +37,17 @@ export function brevFor(
   part: Part,
   journal: Journalrad[],
   kjerne: Kjerne,
-  vedlegg?: Vedleggsoppslag
+  vedlegg?: Vedleggsoppslag,
+  sendes = false
 ): Brev {
-  const vurdert = forhaandsvis(kommando, stemplet(sakId, part), journal, kjerne, vedlegg);
-  return vurdert.godtatt
-    ? { tekst: laastTekst(vurdert.hendelser[0]) }
-    : { avvisning: vurdert.avvisning };
+  const kontekst = stemplet(sakId, part);
+  const vist = forhaandsvis(kommando, kontekst, journal, kjerne, vedlegg);
+  if (!vist.godtatt) return { avvisning: vist.avvisning };
+  const tekst = laastTekst(vist.hendelser[0]);
+  if (!sendes) return { tekst };
+  const medTekst = tekst ? { ...kommando, brevtekst: tekst } : kommando;
+  const vurdert = vurder(medTekst, kontekst, journal, kjerne, vedlegg ?? new Map());
+  return vurdert.godtatt ? { tekst } : { avvisning: vurdert.avvisning };
 }
 
 /**
