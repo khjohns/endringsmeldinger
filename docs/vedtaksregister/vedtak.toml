@@ -1968,6 +1968,43 @@ tekst = '''
 Som det anbefalte alternativet, men et spor med «ingen krav» beholder «Ingen krav». Utvider GR-U5 til varsel.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "GR-U26"
+dato = 2026-10-24
+hvem = "oppdragsgiver"
+kilde = ["#1239"]
+sporsmal = '''
+Hva sier byggherrens svar på vederlag eller frist når grunnlaget ikke er besvart?
+
+Innledningen i svar-kommentaren på #1239 (kommentaren 6383634165), ordrett: Grunnlaget er versjon 4 (kommentaren 6383604340) og sparring 3. Oppdragsgiver svarte først, ordrett: «Jeg støtter følgende fra Astra.» Det var S″ og 2′ fra versjon 3, med Astras presiseringer. Prøvingen hadde funnet at S″ manglet HF-U7 og at 2′ brøt LV-U4 punkt 5 og KA-U16. Svaret ble derfor slått sammen med rettelsene og lagt fram slik, ordrett:
+
+**Spørsmål 1, S⁗** (S″ + Astras presisering + HF-U7 + skillet mellom brev og visning)'''
+valgt = "S⁗"
+svar = '''
+Jeg støtter følgende fra Astra.
+
+Lagt fram slått sammen med rettelsene, med S⁗ i spørsmål 1 og 2‴ i spørsmål 2: Ja til begge'''
+forhold = [{ art = "endrer", vedtak = "gr-u4" }, { art = "endrer", vedtak = "ka-u16" }, { art = "presiserer", vedtak = "gr-u1" }, { art = "presiserer", vedtak = "gr-u7" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "hf-u7" }, { art = "presiserer", vedtak = "hf-u21" }, { art = "presiserer", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u33" }, { art = "utvider", vedtak = "lv-u4" }]
+folge = '''
+Bygges i #1239'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "S⁗"
+tekst = '''
+Når byggherren svarer på vederlag eller frist mens gjeldende versjon av grunnlaget ikke er besvart og grunnlaget ikke er avklart ved frafall (GR-U23), sier brevet: «Byggherren har ennå ikke svart på grunnlaget i TEs krav i brev <n> av <dato>. Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.» Dette gjelder også det første svaret. Forbeholdet fryses når brevet sendes, og er ikke et lag. I appen er forbeholdet ikke et vilkår etter HF-U7: godkjenner byggherren hele det krevde beløpet eller antallet dager, er partene enige om beløpet eller dagene uten aksept (GR-U7). Grunnlaget er fortsatt uavklart, og svaret registreres ikke som ubetinget godkjenning av hele kravet. Vil byggherren unngå forbeholdet for ubesvart grunnlag, besvarer byggherren grunnlaget i samme brev. Avslås grunnlaget eller påberopes preklusjon, gjelder i stedet den subsidiære strukturen for denne innsigelsen. Besvares grunnlaget senere, endres ikke teksten og lagene i det sendte brevet. Visningen viser standpunktet sammen med det senere grunnlagssvaret: som avklart når grunnlaget er godkjent, og som subsidiært når grunnlaget er avslått eller preklusjon er påberopt. Avslaget er byggherrens standpunkt, ikke appens avgjørelse av om betingelsen er oppfylt.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A: GR-U4 står"
+tekst = '''
+Et svar på vederlag eller frist som byggherren gir mens en ny versjon av grunnlaget venter på svar, er prinsipalt. Byggherrens svar på en tidligere versjon av grunnlaget er ikke forbehold for det. Svaret blir subsidiært når byggherren avslår den nye versjonen eller påberoper preklusjon etter § 32.2. Vil byggherren beholde avslaget som forbehold, svarer byggherren på den nye versjonen i samme brev. Et svar gitt før den nye versjonen forblir subsidiært til sporet eller grunnlaget besvares igjen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "S: sparringens tekst"
+tekst = '''
+Når byggherren svarer på vederlag eller frist mens ansvarsgrunnlaget er ubesvart, uttrykker brevet at standpunktene gjelder under forutsetning av at totalentreprenøren har rett til vederlagsjustering eller fristforlengelse. Forbeholdet bygger på at ansvarsgrunnlaget er uavklart, ikke på automatisk videreføring av et tidligere grunnlagsavslag. Vil byggherren svare uten dette forbeholdet, må byggherren samtidig avklare grunnlaget.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
 
@@ -6152,6 +6189,43 @@ utdrag = true
 [[gruppe.vedtak.sitat]]
 kilde = "ns8407"
 tekst = "34.2 Generelle regler for vederlagsjustering"
+
+[[gruppe.vedtak]]
+id = "LV-U31"
+dato = 2026-10-24
+hvem = "oppdragsgiver"
+kilde = ["#1240"]
+sporsmal = '''
+Hva sier brevet når byggherren godtar tilbudet som grunnlag for justeringen, men ikke hele beløpet?
+
+Innledningen i svar-kommentaren på #1239 (kommentaren 6383634165), ordrett: Grunnlaget er versjon 4 (kommentaren 6383604340) og sparring 3. Oppdragsgiver svarte først, ordrett: «Jeg støtter følgende fra Astra.» Det var S″ og 2′ fra versjon 3, med Astras presiseringer. Prøvingen hadde funnet at S″ manglet HF-U7 og at 2′ brøt LV-U4 punkt 5 og KA-U16. Svaret ble derfor slått sammen med rettelsene og lagt fram slik, ordrett:
+
+**Spørsmål 2, 2‴** (2′ + Astras presisering, med «godkjenner» og lagene)'''
+valgt = "2‴"
+svar = '''
+Jeg støtter følgende fra Astra.
+
+Lagt fram slått sammen med rettelsene, med S⁗ i spørsmål 1 og 2‴ i spørsmål 2: Ja til begge'''
+forhold = [{ art = "presiserer", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "hf-u7" }, { art = "presiserer", vedtak = "hf-u14" }, { art = "presiserer", vedtak = "ov-u32" }, { art = "presiserer", vedtak = "ov-u33" }]
+folge = '''
+Bygges i #1240'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "2‴"
+tekst = '''
+Når byggherren godkjenner oppgjør som fast sum, men ikke hele tilbudet, sier brevet: «Byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.» Når beløpet eller øvrige vilkår avviker fra TEs tilbud, betegner brevet ikke tilbudet som akseptert (§ 34.2.2). Standpunktet innebærer ikke i seg selv avkall på kontraktens beregningsregler (§§ 34.3 og 34.4) dersom partene ikke blir enige om et avtalt oppgjør for den aktuelle vederlagsjusteringen. Standpunktet står i det laget innsigelsene i svaret gir det (OV-U32, OV-U33).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1: setningen står som i dag"
+tekst = '''
+Når byggherren godtar beregningsmåten i TEs tilbud, sier brevet: «Byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).» Setningen kan stå sammen med et lavere beløp og står uten etikett for lag. Appen regner den ikke som aksept av tilbudet, og svaret gir enighet uten TEs aksept bare når hele beløpet er godkjent.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3: byggherren kan bare godta hele tilbudet"
+tekst = '''
+Som et valg i appen, ikke en regel kontrakten krever, kan byggherren godta TEs tilbud bare i sin helhet (NS 8407 § 34.2.2 første ledd), og da godkjennes hele beløpet. Godkjenner byggherren et lavere beløp, skriver brevet ikke noe eget standpunkt til beregningsmåten. Et lavere beløp betyr ikke at vederlaget skal justeres etter § 34.3 eller § 34.4.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
