@@ -185,6 +185,7 @@
     <div class="editor-wrapper">
       <RichTextEditor
         body={begrunnelseHtml}
+        navn="Oppdatert begrunnelse"
         onchange={(html) => (begrunnelseHtml = html)}
         extensions={[LockedValueNode]}
         placeholder="Oppdater begrunnelsen for grunnlaget..."
