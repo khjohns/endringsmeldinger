@@ -37,8 +37,11 @@ export function udefinerteTokens(tekster: Record<string, string>): Record<string
   const brukt = new Map<string, Set<string>>();
   for (const [fil, tekst] of Object.entries(tekster)) {
     const kode = tekst.replace(/\/\*[\s\S]*?\*\//g, '');
-    for (const m of kode.matchAll(/(?:style:|setProperty\(\s*['"])?(--[\w-]+)\s*['"]?\s*[:,=]/g))
-      if (!/var\(\s*$/.test(kode.slice(Math.max(0, m.index - 6), m.index))) definert.add(m[1]);
+    const utenBruk = kode.replace(/var\(\s*--[\w-]+/g, '');
+    for (const m of utenBruk.matchAll(
+      /style:(--[\w-]+)\s*=|setProperty\(\s*['"](--[\w-]+)['"]\s*,|(?<![\w-])(--[\w-]+)['"]?\s*:/g
+    ))
+      definert.add(m[1] ?? m[2] ?? m[3]);
     for (const m of kode.matchAll(/var\(\s*(--[\w-]+)/g)) {
       if (!brukt.has(m[1])) brukt.set(m[1], new Set());
       brukt.get(m[1])!.add(fil);
@@ -102,8 +105,8 @@ function luminans([r, g, b]: Rgba): number {
 
 /** Kontrastforholdet etter WCAG 2.1. */
 export function kontrast(a: Rgba, b: Rgba): number {
-  const [lys, moerk] = [luminans(a), luminans(b)].sort((x, y) => y - x);
-  return (lys + 0.05) / (moerk + 0.05);
+  const [lysest, mørkest] = [luminans(a), luminans(b)].sort((x, y) => y - x);
+  return (lysest + 0.05) / (mørkest + 0.05);
 }
 
 const BLEKK = ['--ink', '--ink-2', '--ink-3', '--ink-4'];
@@ -155,15 +158,23 @@ describe('fargetokenene i src/', () => {
 });
 
 describe('kontrollene i vaktene', () => {
-  it('et token som bare brukes, også med fallback eller definert bare i en kommentar, regnes som udefinert', () => {
+  it('et token som bare brukes, også med fallback over flere linjer, definert bare i en kommentar eller likt navnet på en BEM-modifikator, regnes som udefinert', () => {
     expect(
       udefinerteTokens({
         'a.css': ':root { --ink: #000; }\n/* --gammel: #fff; */\n.x { color: var(--ink); }',
         'b.svelte':
           '<div style:--bredde="4px" style="--hoyde: 2px"></div>\n<style>.y { width: var(--bredde); height: var(--hoyde); border: var(--line, var(--ink)); color: var(--gammel); }</style>',
         'c.ts': "el.style.setProperty('--satt', '1px');\nconst v = 'var(--satt) var(--wire)';",
+        'd.css':
+          '.stempel--advarsel:hover, .stempel--fare, .z { color: var(--advarsel); border: var(\n    --fare,\n    1px solid red\n  ); }',
       })
-    ).toEqual({ '--gammel': ['b.svelte'], '--line': ['b.svelte'], '--wire': ['c.ts'] });
+    ).toEqual({
+      '--advarsel': ['d.css'],
+      '--fare': ['d.css'],
+      '--gammel': ['b.svelte'],
+      '--line': ['b.svelte'],
+      '--wire': ['c.ts'],
+    });
   });
 
   it('kontrasten regnes etter WCAG: svart på hvitt er 21:1, og en farge med alfa legges over flaten', () => {
