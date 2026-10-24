@@ -14,7 +14,7 @@ Appen er ikke i produksjon og har ingen reelle data. Belegg er merket etter
 
 ## 1. Spørsmålet
 
-[B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17) med merknaden
+[B-17](plans/vedtak.md#b-17) med merknaden
 09.10 gir TS-kjernen skrivingen i KOE-, endringsordre- og forseringssakene
 samlet. Python kan beholde levering og integrasjon, men skal ikke tolke
 journalen for disse sakene. B-14 lot serverlaget stå åpent. Alternativene i
@@ -69,8 +69,8 @@ serverflate.
 Kravet er én bindende kommando per transaksjon med `expected_version`
 (invariant 3), og at et brev lagres med beslutningsgrunnlaget og
 leveringsintensjonen i samme transaksjon som hendelsen (FK, MM-U9).
-[EO-U2](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2) og
-[EO-U3](plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3) krever i
+[EO-U2](plans/vedtak.md#eo-u2) og
+[EO-U3](plans/vedtak.md#eo-u3) krever i
 tillegg at kandidatkontrollen og eksklusiviteten avgjøres i samme transaksjon
 som KOE-saken (merknaden 09.10 til B-17).
 

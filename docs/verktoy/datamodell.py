@@ -29,6 +29,7 @@ MARKDOWN = MAPPE / "tabeller.md"
 EXCEL = MAPPE / "tabellbeskrivelse.xlsx"
 RELASJONER = MAPPE / "relasjoner.md"
 HOVEDPLAN = ROT / "docs" / "plans" / "2026-09-16-godkjenning-og-varig-levering.md"
+ARKIV = ROT / "docs" / "plans" / "arkiv.md"
 
 IKT_KOLONNER = [
     "Tabellnavn",
@@ -109,11 +110,16 @@ def ja_delvis_nei(typer: list[str], type_: str) -> str:
     return "Ja" if len(typer) == 1 else "Delvis"
 
 
-def funnregisteret(sti: pathlib.Path = HOVEDPLAN) -> str:
-    """Avsnitt 4 i hovedplanen, der funn-ID-ene er ført."""
+def funnregisteret(sti: pathlib.Path = HOVEDPLAN, arkiv: pathlib.Path = ARKIV) -> str:
+    """Funn-ID-ene: avsnitt 4 i hovedplanen og de avsluttede funnene i arkivet (#1020)."""
     plan = sti.read_text(encoding="utf-8")
     start = plan.index("## 4. Funnregister")
-    return plan[start : plan.index("## 5. Arbeidspakker", start)]
+    tekst = arkiv.read_text(encoding="utf-8")
+    fra = tekst.index("## 4. Avsluttede funn")
+    return (
+        plan[start : plan.index("## 5. Arbeidspakker", start)]
+        + tekst[fra : tekst.index("## 5. ", fra)]
+    )
 
 
 def valider(register: dict, funntekst: str | None = None) -> list[str]:
@@ -486,7 +492,7 @@ def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
         "",
         (
             "Tabellene runneren bygger fra `database/migrasjoner/` for datalaget i TS "
-            "([DL-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)), med "
+            "([DL-U1](../plans/vedtak.md#dl-u1)), med "
             "navnet kvalifisert med skjemaet. Ingen kobling går mellom dem og tabellene i PostgreSQL."
         ),
         "",

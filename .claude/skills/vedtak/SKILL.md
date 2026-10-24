@@ -74,7 +74,7 @@ oppdragsgiver.
   vedtaksteksten ordrett, og et alternativ oppdragsgiver forkaster, blir
   «Forkastet» ordrett ([vedtaksregisteret](../../../docs/vedtaksregister/README.md)).
   Skriv dem derfor i kontraktens begreper og uten kodenavn (avsnitt 8 i
-  hovedplanen), og så fullstendige at de kan stå alene i 3.1.
+  hovedplanen), og så fullstendige at de kan stå alene i vedtaksfila.
 - **Kontroller belegget før du spør.** Sitater fra vedtak og NS 8407 skal være
   ordrette og hele setninger, og de føres som `sitat` i registeret
   ([vakttestene](../../../docs/vedtaksregister/README.md#vakttestene)). NS 8407-teksten er opphavsrettsbeskyttet og ligger
@@ -84,7 +84,7 @@ oppdragsgiver.
   (#424). Påstander om koden i
   spørsmålene kontrolleres av en subagent. En økt ser bare det den har lett
   etter.
-- **Prøv hvert alternativ mot vedtakene i 3.1, én gang, når spørsmålet
+- **Prøv hvert alternativ mot vedtakene i vedtaksfila, én gang, når spørsmålet
   stilles.** Det er skjønn og ingen vakttest ser det. En subagent gjør det, med
   kildene: strider alternativet mot et vedtak, og stemmer forholdet
   (presiserer, utvider, snevrer inn, endrer, opphever) med spørsmålet? Et
@@ -97,17 +97,18 @@ oppdragsgiver.
   stilte spørsmålet. Retter et senere svar et tidligere, si uttrykkelig hvilken
   tekst som ikke lenger gjelder.
 
-Vedtakene føres i hovedplanen gjennom
+Vedtakene føres i [vedtaksfila](../../../docs/plans/vedtak.md), som er
+autoritativ for dem og var avsnitt 3.1 i hovedplanen (#1020), gjennom
 [vedtaksregisteret](../../../docs/vedtaksregister/README.md). Arbeidsøktene
 skriver ikke der.
 
 - Svarene fra en spørsmålsrunde fører orkestratoren inn i én liten PR: én ny
   post i `docs/vedtaksregister/vedtak.toml` per vedtak, med spørsmålet,
   alternativene, det valgte, svaret ordrett, kilden, forholdet til andre vedtak
-  og sitatene. `python3 docs/verktoy/vedtaksregister.py` skriver raden i 3.1 og
-  henvisningen i Følge hos vedtaket forholdet gjelder. Skriv ikke i 3.1 for
-  hånd. PR-en merges før arbeids-PR-ene, som viser til ID-ene. Da får
-  parallelle PR-er ikke konflikt i 3.1. Lenker et vedtak til et dokument i en
+  og sitatene. `python3 docs/verktoy/vedtaksregister.py` skriver raden i
+  vedtaksfila og henvisningen i Følge hos vedtaket forholdet gjelder. Skriv ikke
+  i vedtaksfila for hånd. PR-en merges før arbeids-PR-ene, som viser til ID-ene.
+  Da får parallelle PR-er ikke konflikt i vedtaksfila. Lenker et vedtak til et dokument i en
   arbeids-PR, merges den PR-en først, så lenken virker.
 - Rører bare én PR i runden planen, kan den økta føre et vedtak den trenger, i
   samme PR, på samme måte.

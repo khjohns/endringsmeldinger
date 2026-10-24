@@ -17,8 +17,8 @@ og de føres fra [vedtaksregisteret](vedtaksregister/README.md) etter svaret.
 
 **Premissene oppdragsgiver har satt:**
 
-- [HF-U4](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u4) og
-  [HF-U5](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u5) er
+- [HF-U4](plans/vedtak.md#hf-u4) og
+  [HF-U5](plans/vedtak.md#hf-u5) er
   prinsippvedtak etter avtaleloven kapittel 1. Kapittel 1 gjelder direkte for TEs
   krav og byggherrens svar, også for fristforlengelse: «Det er klart at dette er
   tilbud og løfter» (svar 2 i HF-U5).

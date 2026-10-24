@@ -27,17 +27,25 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
 - Vedtatt forventet atferd og bevis-saker holdes atskilt fra beskrivelse av dagens
   kode. Oppdater den eksisterende domenetabellen når oppgaven har en; ikke lag
   en ordliste eller regelbeskrivelse ved siden av med samme innhold.
-- Hovedplanen er fortsatt autoritativ for beslutninger, rekkefølge og funnstatus.
-  ADR-er og designnotater kan begrunne valg, men oppretter ikke et konkurrerende
-  beslutningsregister. En eventuell senere flytting av autoriteten må være
+- Hovedplanen er autoritativ for de åpne beslutningene, rekkefølgen og
+  funnstatusen. ADR-er og designnotater kan begrunne valg, men oppretter ikke et
+  konkurrerende beslutningsregister. En flytting av autoriteten må være
   uttrykkelig, med lenker og markering av hva som er erstattet.
-- Avsnitt 3.1 i hovedplanen lages av
-  [vedtaksregisteret](../../docs/vedtaksregister/README.md) (#413). Hovedplanen
-  er fortsatt autoritativ: et vedtak er det som står i 3.1 på `main`.
-  Registeret er kilden raden lages av, og beviset for et nytt vedtak:
-  spørsmålet, alternativene og svaret ordrett. Det fører ingen vedtak som ikke
-  står i 3.1. Rett 3.1 i registeret og kjør
-  `docs/verktoy/vedtaksregister.py`, ikke i hovedplanen.
+- **Vedtaksfila er autoritativ for vedtakene** (#1020, oppdragsgiver 20.10):
+  et vedtak er det som står i
+  [`docs/plans/vedtak.md`](../../docs/plans/vedtak.md) på `main`. Fila var
+  avsnitt 3.1 i hovedplanen, og en henvisning til «3.1» gjelder den. Den lages av
+  [vedtaksregisteret](../../docs/vedtaksregister/README.md) (#413). Registeret er
+  kilden raden lages av, og beviset for et nytt vedtak: spørsmålet,
+  alternativene og svaret ordrett. Det fører ingen vedtak som ikke står i
+  vedtaksfila. Rett i registeret og kjør `docs/verktoy/vedtaksregister.py`,
+  ikke i vedtaksfila.
+- **Arkivet** ([`docs/plans/arkiv.md`](../../docs/plans/arkiv.md)) har de
+  avsluttede funnene og leveransemerknadene som er flyttet ordrett fra
+  hovedplanen (#1020). Det er autoritativt for statusen til funnene det har.
+  Nye merknader føres i hovedplanen. Gjør merknadene planen tung å lese, flyttes
+  de som bare fører det som er levert, til arkivet med dato, og ID-er og ankre
+  bevares.
 - Gjeldende arkitektur beskrives kort med ansvar, grenser og lenker til detaljer.
   Oppstart, migrering, gjenoppretting og drift beskrives som prøvbare oppskrifter.
   Gjenbruk eksisterende dokumenter; ikke opprett en ny systemoversikt per oppgave.

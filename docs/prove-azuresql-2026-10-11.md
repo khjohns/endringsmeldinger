@@ -4,12 +4,12 @@
 `claude/azuresql-prove-395`. Bestilt som punkt 1 i
 [#395](https://github.com/khjohns/endringsmeldinger/issues/395). Vedtakene står i
 hovedplanen:
-[B-12, databasen](plans/2026-09-16-godkjenning-og-varig-levering.md#b-12-databasen),
+[B-12, databasen](plans/vedtak.md#b-12-databasen),
 [merknaden 11.10 til B-12](plans/2026-09-16-godkjenning-og-varig-levering.md#b-12-merknad-2026-10-11),
-[B-19](plans/2026-09-16-godkjenning-og-varig-levering.md#b-19),
-[RP-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#rp-u1),
-[HF-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1) og
-[LV-U1](plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u1). Dokumentet
+[B-19](plans/vedtak.md#b-19),
+[RP-U1](plans/vedtak.md#rp-u1),
+[HF-U1](plans/vedtak.md#hf-u1) og
+[LV-U1](plans/vedtak.md#lv-u1). Dokumentet
 avgjør ikke lagringsformen. Den velges etter sparringen i punkt 2 i #395.
 
 Appen er ikke i produksjon og har ingen reelle data. Belegg er merket etter

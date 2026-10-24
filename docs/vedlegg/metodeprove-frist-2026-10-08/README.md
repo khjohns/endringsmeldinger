@@ -12,7 +12,7 @@ er fortsatt autoritativ for vedtak og funnstatus.
 **Merknad 2026-10-08 til U4 og MP-02:** U4 ble først holdt uavklart etter
 oppdragsgivers ønske. Etter gjennomgang av LB-2017-177705 side 24 er
 deltolkningen avklart for prøven i
-[hovedplanens MP-U4](../../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u4).
+[hovedplanens MP-U4](../../plans/vedtak.md#mp-u4).
 Den tidligere rekursive arbeidshypotesen er erstattet. Forløpene P2-01,
 P2-03 og P2-10/P2-11 og feilinnføringen MUT-5 er korrigert; P2-14 kontrollerer
 utfallet allerede før TE protesterer. MP-02 nedenfor beskriver gjeldende modell.

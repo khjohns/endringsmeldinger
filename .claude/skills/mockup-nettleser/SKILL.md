@@ -33,7 +33,7 @@ Ugyldig verdi gir en melding om hva som er feil, og exit 1 før nettleseren star
 ## Den ekte saksruta
 
 `/mockup` har demodata og en egen statusregel. Den ekte saksruta `/{prosjekt}/{sak}`
-mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)) kreves
+mot TS-serveren og testbasen i SQL Server ([DL-U1](../../../docs/plans/vedtak.md#dl-u1)) kreves
 for en diff i saksvisningen, etter `AGENTS.md`, «Arbeidsform». Den kjøres med:
 
 ```bash

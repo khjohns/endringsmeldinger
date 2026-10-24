@@ -232,7 +232,7 @@ erDiagram
 
 ## ER-diagram: SQL Server
 
-Tabellene runneren bygger fra `database/migrasjoner/` for datalaget i TS ([DL-U1](../plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)), med navnet kvalifisert med skjemaet. Ingen kobling går mellom dem og tabellene i PostgreSQL.
+Tabellene runneren bygger fra `database/migrasjoner/` for datalaget i TS ([DL-U1](../plans/vedtak.md#dl-u1)), med navnet kvalifisert med skjemaet. Ingen kobling går mellom dem og tabellene i PostgreSQL.
 
 ```mermaid
 erDiagram

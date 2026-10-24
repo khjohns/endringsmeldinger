@@ -12,238 +12,238 @@
       "id": "V-KRAVVERSJON",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "Hver oppdatering fra TE av et vederlags- eller fristkrav er en ny kravversjon"
     },
     {
       "id": "V-SK02-SK03",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "SK-02 og SK-03: et oppdatert krav fra TE åpner sporet igjen"
     },
     {
       "id": "V-TRUKKET",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "Et krav TE har trukket, kan ikke tas opp igjen med en oppdatering"
     },
     {
       "id": "V-SK01",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "SK-01: godtar TE byggherrens svar om at grunnlaget er varslet for sent"
     },
     {
       "id": "V-SK12",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "SK-12: datoen og metoden for et varsel fra TE settes én gang"
     },
     {
       "id": "V-TFR01",
       "type": "vedtak",
       "dato": "2026-09-19",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "Aksept av avslag gir `AVSLATT_AKSEPTERT`"
     },
     {
       "id": "V-B13",
       "type": "vedtak",
       "dato": "2026-09-24",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "B-13 hovedvalg: alternativ (2) i streng form"
     },
     {
       "id": "V-B13-PREKLUSJON",
       "type": "vedtak",
       "dato": "2026-09-24",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "B-13 preklusjon ut fra byggherrens egen vurdering"
     },
     {
       "id": "V-API-NULL",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "API-et: tilstanden sender alltid alle felt"
     },
     {
       "id": "KA-U1",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u1",
+      "ref": "../plans/vedtak.md#ka-u1",
       "radetikett": "KA-U1: TEs aksept gjelder hele det konkrete svaret"
     },
     {
       "id": "KA-U2",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u2",
+      "ref": "../plans/vedtak.md#ka-u2",
       "radetikett": "KA-U2: kravversjonene er de hendelsene projeksjonen og frontenden regner som krav"
     },
     {
       "id": "KA-U3",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u3",
+      "ref": "../plans/vedtak.md#ka-u3",
       "radetikett": "KA-U3: vedtaket om ny kravversjon gjelder til saken er `OMFORENT`"
     },
     {
       "id": "KA-U4",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u4",
+      "ref": "../plans/vedtak.md#ka-u4",
       "radetikett": "KA-U4: i byggherrens vurderinger av varsel og rettidighet"
     },
     {
       "id": "V-215",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "B-13 endret underkategori etter byggherrens svar på grunnlaget krever nytt svar"
     },
     {
       "id": "V-B13-GRUNNLAG-AVSLATT",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "B-13 svar på vederlag og frist når grunnlaget er avslått eller prekludert"
     },
     {
       "id": "V-B13-FRAFALL",
       "type": "vedtak",
       "dato": "2026-09-24",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "B-13 «frafalt» (§ 32.3 c) avvises utenfor irregulær endring og valgrett"
     },
     {
       "id": "V-235",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "#235: frafall (§ 32.3 c) kan ikke kombineres med at grunnlaget er varslet for sent"
     },
     {
       "id": "V-FRAFALT",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "Frafall (§ 32.3 c) gir grunnlaget en egen sporstatus, `FRAFALT`"
     },
     {
       "id": "V-SD02",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "SD-02: trekker TE grunnlaget før vederlag eller frist er sendt"
     },
     {
       "id": "V-TFR05",
       "type": "vedtak",
       "dato": "2026-09-23",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "TFR-05: en sak med godkjent eller låst grunnlag der resten ikke er sendt"
     },
     {
       "id": "KA-U5",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u5",
+      "ref": "../plans/vedtak.md#ka-u5",
       "radetikett": "KA-U5: godtar TE et svar som er delvis godkjent"
     },
     {
       "id": "GR-U1",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u1",
+      "ref": "../plans/vedtak.md#gr-u1",
       "radetikett": "GR-U1: en ny kravversjon av grunnlaget åpner sporet"
     },
     {
       "id": "GR-U2",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u2",
+      "ref": "../plans/vedtak.md#gr-u2",
       "radetikett": "GR-U2: et grunnlag byggherren har godkjent og som er låst, kan ikke endres"
     },
     {
       "id": "GR-U3",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u3",
+      "ref": "../plans/vedtak.md#gr-u3",
       "radetikett": "GR-U3: etter frafall (§ 32.3 c) blir saken `OMFORENT`"
     },
     {
       "id": "GR-U4",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u4",
+      "ref": "../plans/vedtak.md#gr-u4",
       "radetikett": "GR-U4: reviderer byggherren svaret på vederlag eller frist mens grunnlaget venter"
     },
     {
       "id": "GR-U5",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u5",
+      "ref": "../plans/vedtak.md#gr-u5",
       "radetikett": "GR-U5: trekker TE grunnlaget, trekkes alle krav som er sendt"
     },
     {
       "id": "GR-U7",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u7",
+      "ref": "../plans/vedtak.md#gr-u7",
       "radetikett": "GR-U7: TE kan godta byggherrens gjeldende svar på vederlag eller frist uavhengig av grunnlaget"
     },
     {
       "id": "EO-U1",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u1",
+      "ref": "../plans/vedtak.md#eo-u1",
       "radetikett": "EO-U1: en endringsordre utstedes bare som EO-sak"
     },
     {
       "id": "EO-U2",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u2",
+      "ref": "../plans/vedtak.md#eo-u2",
       "radetikett": "EO-U2: en KOE-sak kan inngå i en endringsordre når saken er `OMFORENT`"
     },
     {
       "id": "EO-U3",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u3",
+      "ref": "../plans/vedtak.md#eo-u3",
       "radetikett": "EO-U3: en KOE-sak inngår i høyst én endringsordre"
     },
     {
       "id": "EO-U4",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u4",
+      "ref": "../plans/vedtak.md#eo-u4",
       "radetikett": "EO-U4: EO-sakens livsløp er strengt"
     },
     {
       "id": "V-TFR02",
       "type": "vedtak",
       "dato": "2026-09-23",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "TFR-02: forsering får aldri en lukket samlet status. En endringsordre er en ordre og forhandles ikke"
     },
     {
       "id": "V-B02-3",
       "type": "vedtak",
       "dato": "2026-09-23",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "B-02 punkt 3: «ikke omgå godkjenning» betyr prosedyregaranti"
     },
     {
       "id": "V-EO-KOE",
       "type": "vedtak",
       "dato": "2026-09-29",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "En endringsordresak kan følge av en KOE-sak, men ikke erstatte den"
     },
     {
@@ -310,518 +310,518 @@
       "id": "MM-U1",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u1",
+      "ref": "../plans/vedtak.md#mm-u1",
       "radetikett": "MM-U1: SK-12 låser et varsel som er registrert"
     },
     {
       "id": "MM-U2",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u2",
+      "ref": "../plans/vedtak.md#mm-u2",
       "radetikett": "MM-U2: kan ikke kjernen tolke en hendelse på saken"
     },
     {
       "id": "MM-U3",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u3",
+      "ref": "../plans/vedtak.md#mm-u3",
       "radetikett": "MM-U3: virkningen av en enighet fastsettes når den inngås"
     },
     {
       "id": "MM-U4",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u4",
+      "ref": "../plans/vedtak.md#mm-u4",
       "radetikett": "MM-U4: TE kan bare godta et svar når brevet stemmer med dagens utledning"
     },
     {
       "id": "KT-U1",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#kt-u1",
+      "ref": "../plans/vedtak.md#kt-u1",
       "radetikett": "KT-U1: hvert spor i den offentlige tilstanden har"
     },
     {
       "id": "V-32-2-AVSLAG",
       "type": "vedtak",
       "dato": "2026-10-05",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "Byggherren kan svare «avslått» og samtidig påberope at grunnlaget er varslet for sent (§ 32.2)"
     },
     {
       "id": "V-B13-REGELVERSJON",
       "type": "vedtak",
       "dato": "2026-09-24",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "B-13 regelversjon: klienten sender versjonen av reglene"
     },
     {
       "id": "V-B13-32-2",
       "type": "vedtak",
       "dato": "2026-09-24",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#31-vedtatte-premisser-og-beslutninger",
+      "ref": "../plans/vedtak.md",
       "radetikett": "B-13 `grunnlag_varslet_i_tide` avvises utenfor § 32.2"
     },
     {
       "id": "MM-U5",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u5",
+      "ref": "../plans/vedtak.md#mm-u5",
       "radetikett": "MM-U5: avviker byggherrens svar på grunnlaget fra brevet etter en regelendring"
     },
     {
       "id": "MM-U6",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u6",
+      "ref": "../plans/vedtak.md#mm-u6",
       "radetikett": "MM-U6: TE kan ikke godta et svar uten lagret beslutningsgrunnlag"
     },
     {
       "id": "MM-U7",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u7",
+      "ref": "../plans/vedtak.md#mm-u7",
       "radetikett": "MM-U7: en part kan bestride en opplysning fra motparten"
     },
     {
       "id": "MM-U8",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u8",
+      "ref": "../plans/vedtak.md#mm-u8",
       "radetikett": "MM-U8: MM-U4 gjelder også når en ny opplysning"
     },
     {
       "id": "GR-U8",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u8",
+      "ref": "../plans/vedtak.md#gr-u8",
       "radetikett": "GR-U8: TE kan ikke godta et svar som godkjenner hele kravet"
     },
     {
       "id": "GR-U9",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u9",
+      "ref": "../plans/vedtak.md#gr-u9",
       "radetikett": "GR-U9: TE kan ikke godta byggherrens frafall"
     },
     {
       "id": "KA-U6",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u6",
+      "ref": "../plans/vedtak.md#ka-u6",
       "radetikett": "KA-U6: TE kan trekke et krav i et spor der partene er enige"
     },
     {
       "id": "MM-U9",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u9",
+      "ref": "../plans/vedtak.md#mm-u9",
       "radetikett": "MM-U9: et sendt brev beholder virkningen det hadde da det ble sendt"
     },
     {
       "id": "GR-U10",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10",
+      "ref": "../plans/vedtak.md#gr-u10",
       "radetikett": "GR-U10: har byggherren godkjent grunnlaget uten å påberope preklusjon"
     },
     {
       "id": "KA-U7",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u7",
+      "ref": "../plans/vedtak.md#ka-u7",
       "radetikett": "KA-U7: en enighet binder begge parter"
     },
     {
       "id": "KA-U10",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u10",
+      "ref": "../plans/vedtak.md#ka-u10",
       "radetikett": "KA-U10: godtar TE byggherrens svar, gjelder enigheten svaret med den virkningen brevet hadde da det ble sendt"
     },
     {
       "id": "KA-U11",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u11",
+      "ref": "../plans/vedtak.md#ka-u11",
       "radetikett": "KA-U11: kravene i saken er avgjort"
     },
     {
       "id": "EO-U5",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#eo-u5",
+      "ref": "../plans/vedtak.md#eo-u5",
       "radetikett": "EO-U5: en KOE-sak kan inngå i en endringsordre når grunnlaget er godkjent"
     },
     {
       "id": "MM-U10",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u10",
+      "ref": "../plans/vedtak.md#mm-u10",
       "radetikett": "MM-U10: et brev er fra én part og kan inneholde utsagn i flere spor"
     },
     {
       "id": "KA-U8",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u8",
+      "ref": "../plans/vedtak.md#ka-u8",
       "radetikett": "KA-U8: en kravversjon på 0 dager eller 0 kr avvises"
     },
     {
       "id": "KA-U13",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u13",
+      "ref": "../plans/vedtak.md#ka-u13",
       "radetikett": "KA-U13: et trekk av grunnlaget avvises når byggherrens godkjenning av det er en endringsordre"
     },
     {
       "id": "MM-U11",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u11",
+      "ref": "../plans/vedtak.md#mm-u11",
       "radetikett": "MM-U11: beslutningsgrunnlaget i byggherrens svar fryser hvert standpunkt med virkningen det hadde da brevet ble sendt"
     },
     {
       "id": "GR-U11",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u11",
+      "ref": "../plans/vedtak.md#gr-u11",
       "radetikett": "GR-U11: § 32.2 gjelder alle underkategorier under ENDRING unntatt EO"
     },
     {
       "id": "GR-U12",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u12",
+      "ref": "../plans/vedtak.md#gr-u12",
       "radetikett": "GR-U12: godkjenner byggherren grunnlaget uten å påberope preklusjon i en underkategori der § 32.2 gjaldt da brevet ble sendt"
     },
     {
       "id": "KA-U12",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u12",
+      "ref": "../plans/vedtak.md#ka-u12",
       "radetikett": "KA-U12: TE kan si uttrykkelig at det ikke kreves vederlag eller fristforlengelse i et spor som ikke er sendt"
     },
     {
       "id": "GR-U13",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u13",
+      "ref": "../plans/vedtak.md#gr-u13",
       "radetikett": "GR-U13: byggherrens godkjenning av grunnlaget er en endringsordre etter § 32.3 første ledd a bare når også § 31.3 er oppfylt"
     },
     {
       "id": "GR-U18",
       "type": "vedtak",
       "dato": "2026-10-15",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u18",
+      "ref": "../plans/vedtak.md#gr-u18",
       "radetikett": "GR-U18: Frafall etter § 32.3 c er tillatt der pålegget er byggherrens eget"
     },
     {
       "id": "GR-U17",
       "type": "vedtak",
       "dato": "2026-10-15",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u17",
+      "ref": "../plans/vedtak.md#gr-u17",
       "radetikett": "GR-U17: Ved frafall etter § 32.3 c kan TE fortsatt ikke godta frafallet, men byggherren er bundet av løftet om endringsordre for utført arbeid"
     },
     {
       "id": "GR-U19",
       "type": "vedtak",
       "dato": "2026-10-16",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u19",
+      "ref": "../plans/vedtak.md#gr-u19",
       "radetikett": "GR-U19: En ny grunnlagsversjon beholder hovedkategorien, og underkategorien kan bare endres når § 32.2 gjelder likt før og etter"
     },
     {
       "id": "GR-U22",
       "type": "vedtak",
       "dato": "2026-10-16",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u22",
+      "ref": "../plans/vedtak.md#gr-u22",
       "radetikett": "GR-U22: Når TE har sendt grunnlaget, kan TE ikke endre hjemmelen: hovedkategorien og underkategorien står"
     },
     {
       "id": "GR-U20",
       "type": "vedtak",
       "dato": "2026-10-16",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u20",
+      "ref": "../plans/vedtak.md#gr-u20",
       "radetikett": "GR-U20: Frafallet faller ikke bort når TE sender en ny grunnlagsversjon"
     },
     {
       "id": "GR-U23",
       "type": "vedtak",
       "dato": "2026-10-16",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u23",
+      "ref": "../plans/vedtak.md#gr-u23",
       "radetikett": "GR-U23: Mens en ny grunnlagsversjon etter et frafall venter på byggherrens svar, er grunnlaget avklart ved frafallet"
     },
     {
       "id": "GR-U24",
       "type": "vedtak",
       "dato": "2026-10-16",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u24",
+      "ref": "../plans/vedtak.md#gr-u24",
       "radetikett": "GR-U24: Når kravene er avgjort, går OV-U3 foran GR-U20 og GR-U23"
     },
     {
       "id": "KA-U14",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u14",
+      "ref": "../plans/vedtak.md#ka-u14",
       "radetikett": "KA-U14: trekk etter KA-U6 innebærer bare avkall på TEs eget, uttrykkelig identifiserte krav"
     },
     {
       "id": "KA-U15",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u15",
+      "ref": "../plans/vedtak.md#ka-u15",
       "radetikett": "KA-U15: TE kan si «ingen krav» (KA-U12) i fristsporet etter et varsel om fristforlengelse (§ 33.4)"
     },
     {
       "id": "MM-U12",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u12",
+      "ref": "../plans/vedtak.md#mm-u12",
       "radetikett": "MM-U12: et sendt brev bevares slik det ble sendt"
     },
     {
       "id": "MM-U13",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u13",
+      "ref": "../plans/vedtak.md#mm-u13",
       "radetikett": "MM-U13: en regel i kjernen stiller det presise kontraktsspørsmålet til utsagnene"
     },
     {
       "id": "HF-U1",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u1",
+      "ref": "../plans/vedtak.md#hf-u1",
       "radetikett": "HF-U1: et brev lagres samlet eller ikke i det hele tatt"
     },
     {
       "id": "HF-U2",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u2",
+      "ref": "../plans/vedtak.md#hf-u2",
       "radetikett": "HF-U2: begrepene i hendelsene TS skriver, følger kontrakten"
     },
     {
       "id": "MM-U14",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u14",
+      "ref": "../plans/vedtak.md#mm-u14",
       "radetikett": "MM-U14: er saken ikke forstått (MM-U2), avvises også en bestridelse etter MM-U7"
     },
     {
       "id": "MM-U17",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u17",
+      "ref": "../plans/vedtak.md#mm-u17",
       "radetikett": "MM-U17: for et brev sendt utenfor appen og registrert i den, fryser beslutningsgrunnlaget appens vurdering etter reglene ved registreringen"
     },
     {
       "id": "KA-U16",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u16",
+      "ref": "../plans/vedtak.md#ka-u16",
       "radetikett": "KA-U16: første versjon har ingen egen type for forbehold i byggherrens svar"
     },
     {
       "id": "KA-U17",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u17",
+      "ref": "../plans/vedtak.md#ka-u17",
       "radetikett": "KA-U17: «ingen krav» (KA-U12) er TEs avkall på krav om frist eller vederlag som følge av forholdet i saken, også for følger som ikke er kjent, og brevet sier det uttrykkelig"
     },
     {
       "id": "KA-U20",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u20",
+      "ref": "../plans/vedtak.md#ka-u20",
       "radetikett": "KA-U20: et registrert brev med noe appen ikke kan uttrykke (KA-U16), merkes av den som registrerer"
     },
     {
       "id": "KA-U22",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u22",
+      "ref": "../plans/vedtak.md#ka-u22",
       "radetikett": "KA-U22: brevet for et trekk av grunnlaget sier: «TE trekker sitt krav i sak <saksnummer> («<tittel>»)"
     },
     {
       "id": "VS-U1",
       "type": "vedtak",
       "dato": "2026-10-09",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u1",
+      "ref": "../plans/vedtak.md#vs-u1",
       "radetikett": "VS-U1: en innsigelse etter § 5 tredje ledd registreres som ett utsagn med sendetid"
     },
     {
       "id": "VS-U9",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u9",
+      "ref": "../plans/vedtak.md#vs-u9",
       "radetikett": "VS-U9: påberoper byggherren i et svar at TE har varslet eller svart for sent, er påberopelsen innsigelsen etter § 5 tredje ledd"
     },
     {
       "id": "VS-U11",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u11",
+      "ref": "../plans/vedtak.md#vs-u11",
       "radetikett": "VS-U11: byggherren kan i et senere svar fra appen gi opp sin egen innsigelse etter § 5 uttrykkelig"
     },
     {
       "id": "VS-U20",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u20",
+      "ref": "../plans/vedtak.md#vs-u20",
       "radetikett": "VS-U20: Har byggherren påberopt at TE varslet for sent etter § 33.4, gjelder påberopelsen varselet og står mot hver senere kravversjon i samme sak"
     },
     {
       "id": "VS-U12",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u12",
+      "ref": "../plans/vedtak.md#vs-u12",
       "radetikett": "VS-U12: TE kan påberope byggherrens passivitet etter § 32.3 annet ledd som eget utsagn som viser til TEs varsel etter § 32.2, både før byggherren har svart og etter et svar TE mener kom for sent"
     },
     {
       "id": "VS-U14",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u14",
+      "ref": "../plans/vedtak.md#vs-u14",
       "radetikett": "VS-U14: VS-U9 og VS-U11 gjelder tilsvarende når TE mottar et varsel, krav eller svar fra byggherren og påberoper at det kom for sent, fordi § 5 tredje ledd gjelder «en part»"
     },
     {
       "id": "MP-U6",
       "type": "vedtak",
       "dato": "2026-10-08",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mp-u6",
+      "ref": "../plans/vedtak.md#mp-u6",
       "radetikett": "MP-U6: En TE-protest mot at BHs brev kom for sent, uten at innsigelsene skilles, gjelder alle innsigelsene i brevet (punkt 5: «har svart for sent»)"
     },
     {
       "id": "MM-U18",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u18",
+      "ref": "../plans/vedtak.md#mm-u18",
       "radetikett": "MM-U18: en hendelse i journalen som ikke kan forstås i samsvar med resten av journalen og vedtakene om enighet og lukking, gjør saken ikke forstått (MM-U2)"
     },
     {
       "id": "OV-U1",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u1",
+      "ref": "../plans/vedtak.md#ov-u1",
       "radetikett": "OV-U1: første versjon av TS-stien, den som skriver den første reelle hendelsen (#310), dekker KOE-saken med de tre sporene"
     },
     {
       "id": "MM-U19",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u19",
+      "ref": "../plans/vedtak.md#mm-u19",
       "radetikett": "MM-U19: et ekte registrert brev som ikke kan forstås i samsvar med vedtakene om enighet og lukking"
     },
     {
       "id": "KA-U26",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u26",
+      "ref": "../plans/vedtak.md#ka-u26",
       "radetikett": "KA-U26: når en part har merket at et registrert brev hadde et forbehold appen ikke kan uttrykke (KA-U20)"
     },
     {
       "id": "KA-U27",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u27",
+      "ref": "../plans/vedtak.md#ka-u27",
       "radetikett": "KA-U27: et trekk, også av grunnlaget"
     },
     {
       "id": "KA-U30",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u30",
+      "ref": "../plans/vedtak.md#ka-u30",
       "radetikett": "KA-U30: et trekk avvises etter KA-U27"
     },
     {
       "id": "KA-U34",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u34",
+      "ref": "../plans/vedtak.md#ka-u34",
       "radetikett": "KA-U34: Byggherren kan sende en senere begrunnelse fra appen, per spor"
     },
     {
       "id": "KA-U35",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u35",
+      "ref": "../plans/vedtak.md#ka-u35",
       "radetikett": "KA-U35: Et brev der byggherren senere begrunner sitt svar, kan registreres i appen"
     },
     {
       "id": "KA-U36",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u36",
+      "ref": "../plans/vedtak.md#ka-u36",
       "radetikett": "KA-U36: En registrert begrunnelse med sendt-dato før svaret den begrunner, avvises"
     },
     {
       "id": "KA-U37",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u37",
+      "ref": "../plans/vedtak.md#ka-u37",
       "radetikett": "KA-U37: Et svar byggherren sender fra appen, har datoen appen registrerte det, i norsk tid, som i brevet"
     },
     {
       "id": "KA-U38",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u38",
+      "ref": "../plans/vedtak.md#ka-u38",
       "radetikett": "KA-U38: For et registrert svar sammenliknes begrunnelsen med datoen svaret ble sendt"
     },
     {
       "id": "KA-U39",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u39",
+      "ref": "../plans/vedtak.md#ka-u39",
       "radetikett": "KA-U39: En bestridelse av datoen på svaret endrer ikke kontrollen"
     },
     {
       "id": "KA-U28",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u28",
+      "ref": "../plans/vedtak.md#ka-u28",
       "radetikett": "KA-U28: når kravene er avgjort, godtas en avklaring etter KA-U20 fra den som sendte brevet"
     },
     {
       "id": "KA-U29",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ka-u29",
+      "ref": "../plans/vedtak.md#ka-u29",
       "radetikett": "KA-U29: når TE har godtatt byggherrens avslag av grunnlaget"
     },
     {
       "id": "VS-U15",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u15",
+      "ref": "../plans/vedtak.md#vs-u15",
       "radetikett": "VS-U15: TE kan sende et eget varsel etter § 33.4 fra appen uten å angi dager, også før dager kan angis"
     },
     {
       "id": "MM-U20",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u20",
+      "ref": "../plans/vedtak.md#mm-u20",
       "radetikett": "MM-U20: et svar fra byggherren på et krav etter at TE har trukket det, eller TEs aksept, etter trekket, av et svar i sporet, hører til vedtakene om lukking som MM-U18 viser til"
     },
     {
       "id": "VS-U16",
       "type": "vedtak",
       "dato": "2026-10-12",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u16",
+      "ref": "../plans/vedtak.md#vs-u16",
       "radetikett": "VS-U16: Når et fristkrav er sendt, avvises et nytt varsel etter § 33.4 fra appen"
     },
     {
       "id": "VS-U3",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u3",
+      "ref": "../plans/vedtak.md#vs-u3",
       "radetikett": "VS-U3: appen behandler bestemmelsene om varsler, svar og frister på tre måter"
     },
     {
       "id": "VS-U4",
       "type": "vedtak",
       "dato": "2026-10-10",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u4",
+      "ref": "../plans/vedtak.md#vs-u4",
       "radetikett": "VS-U4: påberoper parten som mottar kravet eller varselet, at kravet ble spesifisert for sent etter § 33.6.1"
     },
     {
@@ -840,28 +840,28 @@
       "id": "OV-U5",
       "type": "vedtak",
       "dato": "2026-10-13",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u5",
+      "ref": "../plans/vedtak.md#ov-u5",
       "radetikett": "OV-U5: TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen"
     },
     {
       "id": "OV-U15",
       "type": "vedtak",
       "dato": "2026-10-20",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u15",
+      "ref": "../plans/vedtak.md#ov-u15",
       "radetikett": "OV-U15: TE kan sende varsel etter § 34.1.2 fra appen i alle kategorier"
     },
     {
       "id": "LV-U19",
       "type": "vedtak",
       "dato": "2026-10-20",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u19",
+      "ref": "../plans/vedtak.md#lv-u19",
       "radetikett": "LV-U19: Brevteksten for TEs varsel etter § 34.1.2"
     },
     {
       "id": "VS-U22",
       "type": "vedtak",
       "dato": "2026-10-13",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u22",
+      "ref": "../plans/vedtak.md#vs-u22",
       "radetikett": "VS-U22: I første versjon bygges ikke VS-U21"
     },
     {
@@ -888,126 +888,126 @@
       "id": "HF-U4",
       "type": "vedtak",
       "dato": "2026-10-15",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u4",
+      "ref": "../plans/vedtak.md#hf-u4",
       "radetikett": "HF-U4: Har en part i et utsagn sendt fra appen uttrykkelig sagt at motpartens varsel, krav eller svar kom i tide etter en bestemmelse"
     },
     {
       "id": "HF-U5",
       "type": "vedtak",
       "dato": "2026-10-15",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u5",
+      "ref": "../plans/vedtak.md#hf-u5",
       "radetikett": "HF-U5: Appen behandler TEs krav og byggherrens svar som tilbud og løfter etter avtaleloven kapittel 1"
     },
     {
       "id": "HF-U14",
       "type": "vedtak",
       "dato": "2026-10-15",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u14",
+      "ref": "../plans/vedtak.md#hf-u14",
       "radetikett": "HF-U14: Aksepten av beregningsmåten føyes til listen i HF-U5"
     },
     {
       "id": "HF-U21",
       "type": "vedtak",
       "dato": "2026-10-16",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u21",
+      "ref": "../plans/vedtak.md#hf-u21",
       "radetikett": "HF-U21: En ny grunnlagsversjon med samme hjemmel endrer ikke bindingen i byggherrens svar på vederlag eller fristforlengelse"
     },
     {
       "id": "HF-U8",
       "type": "vedtak",
       "dato": "2026-10-15",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#hf-u8",
+      "ref": "../plans/vedtak.md#hf-u8",
       "radetikett": "HF-U8: Byggherrens svar faller bort som tilbud når TE sender en ny kravversjon i sporet"
     },
     {
       "id": "OV-U3",
       "type": "vedtak",
       "dato": "2026-10-13",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u3",
+      "ref": "../plans/vedtak.md#ov-u3",
       "radetikett": "OV-U3: kravene i saken er avgjort når grunnlaget er avklart etter GR-U7, TE har sendt minst ett vederlags- eller fristkrav, og hvert vederlags- og fristkrav TE har sendt, er trukket eller har en virksom enighet"
     },
     {
       "id": "OV-U4",
       "type": "vedtak",
       "dato": "2026-10-13",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4",
+      "ref": "../plans/vedtak.md#ov-u4",
       "radetikett": "OV-U4: i første versjon er et brev sendt utenfor appen og registrert i den dokumentasjon"
     },
     {
       "id": "OV-U6",
       "type": "vedtak",
       "dato": "2026-10-13",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u6",
+      "ref": "../plans/vedtak.md#ov-u6",
       "radetikett": "OV-U6: unntak fra OV-U4: i en underkategori der § 32.2 gjelder (GR-U11), kan byggherren registrere sin egen endringsordre"
     },
     {
       "id": "OV-U7",
       "type": "vedtak",
       "dato": "2026-10-13",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u7",
+      "ref": "../plans/vedtak.md#ov-u7",
       "radetikett": "OV-U7: i første versjon bygges ikke disse vedtakene og delene av dem"
     },
     {
       "id": "MM-U22",
       "type": "vedtak",
       "dato": "2026-10-17",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u22",
+      "ref": "../plans/vedtak.md#mm-u22",
       "radetikett": "MM-U22: Hvert krav har én kort betegnelse fra en fast liste som bare sier hvilket utsagn eller hvilken relasjon som foreligger"
     },
     {
       "id": "MM-U27",
       "type": "vedtak",
       "dato": "2026-10-17",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#mm-u27",
+      "ref": "../plans/vedtak.md#mm-u27",
       "radetikett": "MM-U27: En hendelse som ikke er et registrert brev, og som påberoper at et varsel, krav eller svar kom for sent etter en bestemmelse der samme part i et utsagn sendt fra appen uttrykkelig har sagt at det kom i tide eller gitt opp sin innsigelse mot det (HF-U4), gjør saken ikke forstått, som etter MM-U18"
     },
     {
       "id": "OV-U13",
       "type": "vedtak",
       "dato": "2026-10-17",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u13",
+      "ref": "../plans/vedtak.md#ov-u13",
       "radetikett": "OV-U13: Opplysningen om at et registrert brev er en endringsordre etter § 31.3, gis i første versjon bare når byggherren registrerer sin egen endringsordre som svar (OV-U6)"
     },
     {
       "id": "OV-U17",
       "type": "vedtak",
       "dato": "2026-10-22",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u17",
+      "ref": "../plans/vedtak.md#ov-u17",
       "radetikett": "OV-U17: En registrering av et brev sendt utenfor appen, som er dokumentasjon, rettes av samme side som registrerte den: hvem som helst på den siden kan registrere brevet på nytt med henvisning til den feilaktige registreringen, uten godkjenning"
     },
     {
       "id": "OV-U18",
       "type": "vedtak",
       "dato": "2026-10-22",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u18",
+      "ref": "../plans/vedtak.md#ov-u18",
       "radetikett": "OV-U18: Står en registrering av et brev sendt utenfor appen i feil sak, registrerer samme side i den saken en retting med henvisning til den feilaktige registreringen, som sier at brevet ikke hører til saken"
     },
     {
       "id": "OV-U19",
       "type": "vedtak",
       "dato": "2026-10-22",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u19",
+      "ref": "../plans/vedtak.md#ov-u19",
       "radetikett": "OV-U19: Så lenge et brev sendt utenfor appen står registrert som dokumentasjon i saken og ikke er rettet bort, har saken merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.»"
     },
     {
       "id": "OV-U20",
       "type": "vedtak",
       "dato": "2026-10-22",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u20",
+      "ref": "../plans/vedtak.md#ov-u20",
       "radetikett": "OV-U20: Når et krav venter på svar, viser appen ved kravet motpartens registrerte brev som hører til sporet eller til hele saken, og som ikke er rettet, med beskrivelsen og datoen, uansett når de ble sendt"
     },
     {
       "id": "OV-U32",
       "type": "vedtak",
       "dato": "2026-10-23",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u32",
+      "ref": "../plans/vedtak.md#ov-u32",
       "radetikett": "OV-U32: Når brevet sendes, fryser appen for hvert standpunkt i vederlag og frist hvilket lag det står i (første, andre, tredje og så videre), eller at ingen av byggherrens innsigelser rammer det (upåvirket)"
     },
     {
       "id": "VS-U24",
       "type": "vedtak",
       "dato": "2026-10-15",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#vs-u24",
+      "ref": "../plans/vedtak.md#vs-u24",
       "radetikett": "VS-U24: En påberopelse av at TE har varslet eller krevd for sent etter en bestemmelse står i byggherrens svar"
     },
     {
@@ -1028,21 +1028,21 @@
       "id": "GR-U14",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u14",
+      "ref": "../plans/vedtak.md#gr-u14",
       "radetikett": "GR-U14: et grunnlagssvar fra appen som etter GR-U12 og GR-U13 er en endringsordre"
     },
     {
       "id": "GR-U15",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u15",
+      "ref": "../plans/vedtak.md#gr-u15",
       "radetikett": "GR-U15: TEs varsel etter § 32.2 fra appen må ha en beskrivelse av pålegget"
     },
     {
       "id": "LV-U2",
       "type": "vedtak",
       "dato": "2026-10-11",
-      "ref": "../plans/2026-09-16-godkjenning-og-varig-levering.md#lv-u2",
+      "ref": "../plans/vedtak.md#lv-u2",
       "radetikett": "LV-U2: i et brev appen sender, godkjenner avsenderen brevteksten appen lager av brevets utsagn"
     }
   ],
@@ -1533,7 +1533,7 @@
     {
       "id": "KA-30",
       "tilfelle": "Byggherrens svar på grunnlaget er sendt utenfor appen før en regelendring og registrert i appen etter den.",
-      "forventet": "Svaret er dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): appen fryser ingen vurdering av det, det er ikke gjeldende svar, og visningen merker det ikke, heller ikke etter en regelendring. Byggherren kan svare fra appen, og et svar sendt fra appen merkes ikke. Bare byggherrens registrerte endringsordre etter [OV-U6](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u6) fryses etter reglene ved registreringen (MM-U17).",
+      "forventet": "Svaret er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): appen fryser ingen vurdering av det, det er ikke gjeldende svar, og visningen merker det ikke, heller ikke etter en regelendring. Byggherren kan svare fra appen, og et svar sendt fra appen merkes ikke. Bare byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6) fryses etter reglene ved registreringen (MM-U17).",
       "bh_standpunkt": "Brevet slik det ble sendt, uten virkning i appen.",
       "rettslig_virkning": "Appen vurderer ikke innholdet. Skal svaret få virkning, sendes det fra appen (OV-U4).",
       "rettidighet": "—",
@@ -2125,7 +2125,7 @@
     {
       "id": "GR-28",
       "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon.",
-      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget. Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). Registrert korrespondanse er dokumentasjon ([OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4)). Byggherrens registrerte endringsordre etter [OV-U6](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u6) er svaret, men opplysningen gir ingen egen virkning og sperrer ikke trekket (GR-29).",
+      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget. Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). Registrert korrespondanse er dokumentasjon ([OV-U4](../plans/vedtak.md#ov-u4)). Byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6) er svaret, men opplysningen gir ingen egen virkning og sperrer ikke trekket (GR-29).",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "Etter § 32.3 a er godkjenningen en endringsordre, som binder TE (§ 31.3 annet ledd).",
       "rettidighet": "—",
@@ -2155,7 +2155,7 @@
     {
       "id": "GR-29",
       "tilfelle": "Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting.",
-      "forventet": "Med opplysningen om at brevet er en endringsordre etter § 31.3, er godkjenningen byggherrens svar etter [OV-U6](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u6): partene er enige ved sammenfall, og grunnlaget er avklart. Opplysningen vises, men gir ingen egen virkning i appen. Uten opplysningen er brevet dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): det gir ikke gjeldende svar, enighet eller et uavklart utfall. I alle tilfellene kan TE trekke grunnlaget som avkall etter KA-U6 og GR-U5: en endringsordre byggherren har registrert, sperrer ikke trekket, og et registrert brev gir ingen sperre. Opplysningen gis bare ved byggherrens endringsordre som svar etter OV-U6 ([OV-U13](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u13)). En opplysning om at § 31.3 ikke er oppfylt, en opplysning ved et annet registrert brev og en senere avklaring gir en sak som ikke er forstått.",
+      "forventet": "Med opplysningen om at brevet er en endringsordre etter § 31.3, er godkjenningen byggherrens svar etter [OV-U6](../plans/vedtak.md#ov-u6): partene er enige ved sammenfall, og grunnlaget er avklart. Opplysningen vises, men gir ingen egen virkning i appen. Uten opplysningen er brevet dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): det gir ikke gjeldende svar, enighet eller et uavklart utfall. I alle tilfellene kan TE trekke grunnlaget som avkall etter KA-U6 og GR-U5: en endringsordre byggherren har registrert, sperrer ikke trekket, og et registrert brev gir ingen sperre. Opplysningen gis bare ved byggherrens endringsordre som svar etter OV-U6 ([OV-U13](../plans/vedtak.md#ov-u13)). En opplysning om at § 31.3 ikke er oppfylt, en opplysning ved et annet registrert brev og en senere avklaring gir en sak som ikke er forstått.",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "§ 32.3 a gir en endringsordre bare når § 31.3 også er oppfylt. Opplysningen er registratorens, ikke en rettslig avgjørelse. Et trekk opphever ikke et pålegg eller en utførelsesplikt.",
       "rettidighet": "—",
@@ -2792,7 +2792,7 @@
     {
       "id": "KA-36",
       "tilfelle": "Byggherren registrerer et brev sendt utenfor appen der godkjenningen av grunnlaget, som partene er enige om ved sammenfall, trekkes tilbake.",
-      "forventet": "Saken er forstått. Brevet er dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): revisjonen har ingen virkning, enigheten står, og ingenting sperres.",
+      "forventet": "Saken er forstått. Brevet er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): revisjonen har ingen virkning, enigheten står, og ingenting sperres.",
       "bh_standpunkt": "Brevet slik det ble sendt.",
       "rettslig_virkning": "Brevet endrer ikke den registrerte enigheten. Appen avgjør ikke tvisten.",
       "rettidighet": "—",
@@ -2812,7 +2812,7 @@
     {
       "id": "KA-37",
       "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet, i et trukket spor eller i et spor med «ingen krav», eller med en aksept av et frafall, en aksept av et svar partene alt er enige om, eller et trekk etter at kravene er avgjort.",
-      "forventet": "Saken er forstått. Elementet er dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4) og har ingen virkning; enigheten, gjeldende kravversjon, trekket og «ingen krav» står, og ingenting sperres.",
+      "forventet": "Saken er forstått. Elementet er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4) og har ingen virkning; enigheten, gjeldende kravversjon, trekket og «ingen krav» står, og ingenting sperres.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Som KA-36, for et registrert brev fra TE.",
       "rettidighet": "—",
@@ -2881,7 +2881,7 @@
     {
       "id": "KA-40",
       "tilfelle": "En part registrerer et brev sendt utenfor appen med TEs aksept, etter trekket, av et svar i sporet, eller et svar fra byggherren med sammenfall på et krav etter at TE har trukket det. Trekket kan gjelde sporet eller grunnlaget.",
-      "forventet": "Saken er forstått. Aksepten og svaret er dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4) og har ingen virkning: sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Det gjelder også en revisjon av et svar partene er enige om, og et svar som viser til en registrert kravversjon.",
+      "forventet": "Saken er forstått. Aksepten og svaret er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4) og har ingen virkning: sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Det gjelder også en revisjon av et svar partene er enige om, og et svar som viser til en registrert kravversjon.",
       "bh_standpunkt": "Brevet slik det ble sendt.",
       "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Appen sier ikke at brevet ikke er en endringsordre, bare at godkjenningen er uten virkning i saken.",
       "rettidighet": "—",
@@ -2902,7 +2902,7 @@
     {
       "id": "KA-41",
       "tilfelle": "Byggherren registrerer et brev sendt utenfor appen med et svar uten sammenfall på et krav etter at TE har trukket det, for eksempel et avslag, eller et frafall av pålegget etter at grunnlaget er trukket.",
-      "forventet": "Saken er forstått. Svaret er dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): det blir ikke gjeldende svar, et frafall gjør ikke pålegget frafalt, sporet er fortsatt trukket, og svaret skaper ingen enighet.",
+      "forventet": "Saken er forstått. Svaret er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): det blir ikke gjeldende svar, et frafall gjør ikke pålegget frafalt, sporet er fortsatt trukket, og svaret skaper ingen enighet.",
       "bh_standpunkt": "Brevet slik det ble sendt.",
       "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Appen vurderer ikke innholdet i brevet (OV-U4).",
       "rettidighet": "—",
@@ -3252,7 +3252,7 @@
     {
       "id": "KA-50",
       "tilfelle": "En part registrerer et brev sendt utenfor appen med et krav, et svar, en aksept eller et trekk.",
-      "forventet": "Saken er forstått. Brevet er dokumentasjon etter [OV-U4](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u4): kravet, svaret, aksepten eller trekket blir ikke gjeldende krav eller svar, og gir ingen enighet, avklaring av grunnlaget, frafall, subsidiaritet eller sperre. Byggherren kan svare fra appen, og hjemmelen i kravet TE har sendt fra appen, står (GR-U22). Det samme svaret sendt fra appen har virkning. Unntakene er varselet (OV-U5) og byggherrens endringsordre (OV-U6, GR-29).",
+      "forventet": "Saken er forstått. Brevet er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): kravet, svaret, aksepten eller trekket blir ikke gjeldende krav eller svar, og gir ingen enighet, avklaring av grunnlaget, frafall, subsidiaritet eller sperre. Byggherren kan svare fra appen, og hjemmelen i kravet TE har sendt fra appen, står (GR-U22). Det samme svaret sendt fra appen har virkning. Unntakene er varselet (OV-U5) og byggherrens endringsordre (OV-U6, GR-29).",
       "bh_standpunkt": "Brevet slik det ble sendt, uten virkning i appen.",
       "rettslig_virkning": "Appen vurderer ikke innholdet. Skal et krav eller svar få virkning, sendes det fra appen (OV-U4).",
       "rettidighet": "—",
@@ -3291,7 +3291,7 @@
     {
       "id": "KA-52",
       "tilfelle": "Byggherren har registrert et brev sendt utenfor appen som dokumentasjon, med feil dato, mens grunnlagskravet venter på svar. Byggherren registrerer brevet på nytt med henvisning til den feil registreringen. TE forsøker å rette byggherrens registrering.",
-      "forventet": "Rettingen lagres som en ny registrering, uten godkjenning, og den feil registreringen står i historikken som rettet ([OV-U17](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u17)). Ved kravet vises bare den nye registreringen ([OV-U20](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u20)). TE kan ikke rette byggherrens registrering, og en registrering som er rettet, rettes ikke igjen.",
+      "forventet": "Rettingen lagres som en ny registrering, uten godkjenning, og den feil registreringen står i historikken som rettet ([OV-U17](../plans/vedtak.md#ov-u17)). Ved kravet vises bare den nye registreringen ([OV-U20](../plans/vedtak.md#ov-u20)). TE kan ikke rette byggherrens registrering, og en registrering som er rettet, rettes ikke igjen.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Appen vurderer ikke innholdet i brevet (OV-U4).",
       "rettidighet": "—",
@@ -3310,7 +3310,7 @@
     {
       "id": "KA-53",
       "tilfelle": "Byggherren har registrert et brev i feil sak, mens grunnlagskravet venter på svar. Byggherren registrerer en retting som sier at brevet ikke hører til saken.",
-      "forventet": "Før rettingen vises brevet ved kravet ([OV-U20](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u20)), og saken har merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.» ([OV-U19](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u19)). Etter rettingen vises brevet ikke ved kravet, merknaden er borte, og registreringen står i historikken som rettet ([OV-U18](../plans/2026-09-16-godkjenning-og-varig-levering.md#ov-u18)).",
+      "forventet": "Før rettingen vises brevet ved kravet ([OV-U20](../plans/vedtak.md#ov-u20)), og saken har merknaden «Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.» ([OV-U19](../plans/vedtak.md#ov-u19)). Etter rettingen vises brevet ikke ved kravet, merknaden er borte, og registreringen står i historikken som rettet ([OV-U18](../plans/vedtak.md#ov-u18)).",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Appen vurderer ikke innholdet i brevet (OV-U4).",
       "rettidighet": "—",

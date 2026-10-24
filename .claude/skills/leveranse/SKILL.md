@@ -25,7 +25,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 
 ## Før kode endres
 
-- Les oppgaven, berørte vedtak i hovedplanen og aktuelle regler i `.claude/rules/`.
+- Les oppgaven, berørte vedtak i vedtaksfila og aktuelle regler i `.claude/rules/`.
   Bygger oppgaven på en uflettet PR: les den ved en bestemt commit, og oppgi
   avhengigheten i oppgaven eller PR-en. Skill vedtatt retning fra implementert
   atferd. En eldre PR-beskrivelse veier ikke tyngre enn et nyere vedtak.
@@ -122,8 +122,8 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   PR-en, får et issue. Det som står i egne issues som forbedringer av den
   gamle frontenden, er ikke mangler.
 - Fører PR-en et vedtak, er det en ny post i
-  [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i 3.1
-  er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd. CI har ikke
+  [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i
+  vedtaksfila er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd. CI har ikke
   NS 8407-teksten. Kjør derfor `python docs/verktoy/vedtaksregister.py --sjekk`
   og `pytest tests/test_vedtaksregister` fra `backend/` med klonen av
   `khjohns/kontrakt` på plass ([kildene](../../../docs/vedtaksregister/README.md#vakttestene)),

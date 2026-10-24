@@ -1,16 +1,17 @@
-"""Vedtaksregisteret, docs/vedtaksregister/vedtak.toml, og avsnitt 3.1 i hovedplanen (#413).
+"""Vedtaksregisteret, docs/vedtaksregister/vedtak.toml, og vedtaksfila docs/plans/vedtak.md.
 
-Registeret er kilden avsnitt 3.1 lages av. Hovedplanen er fortsatt autoritativ for
-vedtakene; fordelingen står i docs/vedtaksregister/README.md.
+Registeret er kilden vedtaksfila lages av (#413). Vedtaksfila er autoritativ for
+vedtakene; til #1020 var den avsnitt 3.1 i hovedplanen. Fordelingen står i
+docs/vedtaksregister/README.md.
 
-    python3 docs/verktoy/vedtaksregister.py            # kontroller registeret og skriv 3.1
+    python3 docs/verktoy/vedtaksregister.py            # kontroller registeret og skriv vedtaksfila
     python3 docs/verktoy/vedtaksregister.py --sjekk    # bare kontroller, skriv ingenting
-    python3 docs/verktoy/vedtaksregister.py --importer # les 3.1 inn i registeret (#413)
     python3 docs/verktoy/vedtaksregister.py --forhold  # list forholdene i de importerte postene (#423)
 
-Importen ble brukt én gang, da radene i 3.1 ble ført inn ordrett. Den nekter å
-overskrive et register med en ny post, fordi spørsmålene og svarene i de nye
-postene ikke står i 3.1.
+Innholdet i vedtaksfila er 3.1 slik den sto i hovedplanen, «3.1» i navnene her. Bare
+lenkene til ankre i hovedplanen er skrevet om, så de går til planen. Kontrollene mot
+main leser 3.1 i den formen den hadde i planen (logisk()), så omskrivingen ikke
+gjelder som endring.
 
 Det er to former for poster. En importert post har cellene fra 3.1 ordrett:
 `vedtak`, `vedtatt` og `folge`, og eventuelt `anker`. En ny post har `id`, `dato`,
@@ -29,7 +30,6 @@ import collections
 import datetime
 import functools
 import hashlib
-import json
 import os
 import pathlib
 import re
@@ -42,11 +42,26 @@ ROT = pathlib.Path(__file__).resolve().parents[2]
 REGISTER = ROT / "docs" / "vedtaksregister" / "vedtak.toml"
 HOVEDPLAN = ROT / "docs" / "plans" / "2026-09-16-godkjenning-og-varig-levering.md"
 HOVEDPLAN_I_GIT = "docs/plans/2026-09-16-godkjenning-og-varig-levering.md"
+VEDTAKSFIL = ROT / "docs" / "plans" / "vedtak.md"
+VEDTAKSFIL_I_GIT = "docs/plans/vedtak.md"
+ARKIV = ROT / "docs" / "plans" / "arkiv.md"
+ARKIV_I_GIT = "docs/plans/arkiv.md"
+VEDTAKSHODE = f"""\
+# Vedtatte premisser og beslutninger
+
+<!-- Generert av docs/verktoy/vedtaksregister.py fra docs/vedtaksregister/vedtak.toml. Rett ikke for hånd. -->
+
+**Denne fila er autoritativ for vedtakene.** Et vedtak er det som står her på `main`.
+Før #1020 sto vedtakene i avsnitt 3.1 i
+[hovedplanen]({HOVEDPLAN.name}#31-vedtatte-premisser-og-beslutninger), og en henvisning
+til «3.1» gjelder denne fila. Fila lages av
+[vedtaksregisteret](../vedtaksregister/README.md) og rettes bare der. Resten av
+beslutningsregisteret, føringene og de åpne beslutningene, står i hovedplanen.
+"""
 
 OVERSKRIFT = "### 3.1 Vedtatte premisser og beslutninger\n"
 NESTE = "### 3.2 "
 TABELLHODE = "| Beslutning | Vedtatt | Følge |\n| --- | --- | --- |\n"
-BREDDE = 88
 
 # NS 8407-teksten er opphavsrettsbeskyttet og ligger i det private repoet
 # khjohns/kontrakt, ikke i dette repoet eller historikken (#424). Sjekksummen
@@ -255,9 +270,32 @@ def markdown(register: dict) -> str:
     return tekst
 
 
-def plan_med(register: dict, plan: str) -> str:
-    start, slutt = avsnitt(plan)
-    return plan[:start] + markdown(register) + plan[slutt:]
+def logisk(register: dict) -> str:
+    """3.1 slik den sto i hovedplanen, med overskriften og grensen mot 3.2. Lenkene er ikke
+    skrevet om. Kontrollene mot main leser denne formen."""
+    return OVERSKRIFT + markdown(register) + NESTE + "\n"
+
+
+# En lenke i 3.1 til et anker i hovedplanen: bare ankeret, eller filnavnet til planen
+# relativt til docs/plans/ eller fra roten av repoet.
+LENKE_TIL_PLANANKER = re.compile(
+    rf"(\]\(\s*<?)(?:(?:\./|/docs/plans/)?{re.escape(HOVEDPLAN.name)})?#([^)\s>]+)"
+)
+
+
+def vedtaksfil(register: dict) -> str:
+    """Vedtaksfila: hodet og 3.1. En lenke til et anker i 3.1 går til ankeret i fila, og en
+    lenke til et annet anker i hovedplanen går dit."""
+    tekst = markdown(register)
+    ankre = set(ankre_i(tekst))
+
+    def til_planen(m: re.Match) -> str:
+        fragment = m.group(2)
+        if fragment in ankre:
+            return f"{m.group(1)}#{fragment}"
+        return f"{m.group(1)}{HOVEDPLAN.name}#{fragment}"
+
+    return VEDTAKSHODE + LENKE_TIL_PLANANKER.sub(til_planen, tekst)
 
 
 # --------------------------------------------------------------------------
@@ -933,7 +971,9 @@ def hele_setninger(sitat: str, tekst: str) -> bool:
 
 
 def kilder_paa(commit: str | None):
-    """Sitatkildene: NS 8407 fra ns_8407(), og hovedplanen og filene slik de er i commiten."""
+    """Sitatkildene: NS 8407 fra ns_8407(), og hovedplanen og filene slik de er i commiten.
+
+    «hovedplanen» er hovedplanen, vedtaksfila og arkivet, som var deler av den (#1020)."""
 
     @functools.cache
     def hent(kilde: str) -> str | None:
@@ -941,9 +981,12 @@ def kilder_paa(commit: str | None):
             return ns_8407()
         if commit is None:
             return None
-        return (
-            git_fil(commit, HOVEDPLAN_I_GIT if kilde == "hovedplanen" else kilde) or ""
-        )
+        if kilde == "hovedplanen":
+            return "\n\n".join(
+                git_fil(commit, sti) or ""
+                for sti in (HOVEDPLAN_I_GIT, VEDTAKSFIL_I_GIT, ARKIV_I_GIT)
+            )
+        return git_fil(commit, kilde) or ""
 
     return hent
 
@@ -955,7 +998,7 @@ def ankre_i(plan: str) -> list[str]:
 def doble_ankre(plan: str) -> list[str]:
     ankre = collections.Counter(ankre_i(plan))
     return sorted(
-        f"ankeret «{a}» står {n} ganger i hovedplanen"
+        f"ankeret «{a}» står {n} ganger i hovedplanen og vedtaksfila"
         for a, n in ankre.items()
         if n > 1
     )
@@ -1063,10 +1106,16 @@ def endret_rundt_vedtakene(
 
 
 def mot_grunnlag(
-    register: dict, gammel_plan: str, gammel_register: dict | None
+    register: dict,
+    gammel_plan: str,
+    gammel_register: dict | None,
+    soketekst: str | None = None,
 ) -> list[str]:
     """Det en ny post ikke kan gjøre mot main: føres i importert form, ta en ID som er i bruk,
-    eller endre spørsmålet, alternativene eller svaret til en post som er merget."""
+    eller endre spørsmålet, alternativene eller svaret til en post som er merget.
+
+    `gammel_plan` har 3.1 på main, og `soketekst` er teksten en ny ID ikke kan stå i fra før:
+    hovedplanen, arkivet og vedtaksfila på main. Uten den søkes det i `gammel_plan`."""
     feil = []
     importerte = collections.Counter(
         _noekkel(p) for p in poster(register) if not er_ny(p)
@@ -1080,9 +1129,9 @@ def mot_grunnlag(
     gamle_nye = {p["id"]: p for p in _nye(gammel_register)}
     for p in _nye(register):
         if p["id"] not in gamle_nye and re.search(
-            rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", gammel_plan
+            rf"(?<![\w-]){re.escape(p['id'])}(?![\w-])", soketekst or gammel_plan
         ):
-            feil.append(f"{p['id']}: ID-en står i hovedplanen på main fra før")
+            feil.append(f"{p['id']}: ID-en står i hovedplanen, arkivet eller vedtaksfila på main fra før")
     naa = {p["id"]: p for p in _nye(register)}
     for id_, gammel in gamle_nye.items():
         if id_ not in naa:
@@ -1095,108 +1144,42 @@ def mot_grunnlag(
 
 
 def historiske_feil(register: dict, plan: str, commit: str | None) -> list[str]:
-    """Kontrollene av planen og registeret, mot main når commiten finnes. Tom når alt holder.
+    """Kontrollene av hovedplanen og registeret, mot main når commiten finnes. Tom når alt holder.
 
-    Uten commit prøves bare de doble ankrene og at sitatene står i posten.
+    `plan` er hovedplanen. Et anker står én gang i den og vedtaksfila til sammen, så en lenke
+    til det kan skrives om entydig. 3.1 på main er registeret der i logisk form: vakttesten
+    holdt 3.1, og senere vedtaksfila, lik det. Uten commit prøves bare de doble ankrene og at
+    sitatene står i posten.
     """
+    alle_ankre = doble_ankre(plan + "\n" + vedtaksfil(register))
     gammel_plan = git_fil(commit, HOVEDPLAN_I_GIT) if commit else None
-    if gammel_plan is None:
-        return doble_ankre(plan) + sitatfeil(register, kilder_paa(None))
-    gammel_tekst = git_fil(commit, REGISTER.relative_to(ROT).as_posix())
-    gammel_register = tomllib.loads(gammel_tekst) if gammel_tekst else None
+    gammel_tekst = git_fil(commit, REGISTER.relative_to(ROT).as_posix()) if commit else None
+    if gammel_plan is None or gammel_tekst is None:
+        return alle_ankre + sitatfeil(register, kilder_paa(None))
+    gammel_register = tomllib.loads(gammel_tekst)
+    gammel = logisk(gammel_register)
+    ny = logisk(register)
     merget = frozenset(p["id"] for p in _nye(gammel_register))
     return (
-        doble_ankre(plan)
-        + endrede_rader(gammel_plan, plan)
+        alle_ankre
+        + endrede_rader(gammel, ny)
         + endret_rundt_vedtakene(
-            gammel_plan, plan, frozenset(anker(p) for p in _nye(register))
+            gammel, ny, frozenset(anker(p) for p in _nye(register))
         )
-        + mot_grunnlag(register, gammel_plan, gammel_register)
+        + mot_grunnlag(
+            register,
+            gammel,
+            gammel_register,
+            "\n".join([gammel_plan, git_fil(commit, ARKIV_I_GIT) or "", gammel]),
+        )
         + sitatfeil(register, kilder_paa(commit), merget)
     )
-
-
-# --------------------------------------------------------------------------
-# Skriving av registeret (importen)
-# --------------------------------------------------------------------------
-
-
-def _streng(verdi: str) -> str:
-    return json.dumps(verdi, ensure_ascii=False)
-
-
-def _ordrett(verdi: str) -> str:
-    if "'''" in verdi:
-        raise ValueError("teksten har ''' og kan ikke stå som TOML-literal")
-    return "'''\n" + verdi + "'''"
-
-
-def _brutt(verdi: str) -> str:
-    """En celle brutt ved mellomrom; linje() setter den sammen igjen byte for byte."""
-    if "\n" in verdi:
-        raise ValueError("en celle har linjeskift")
-    linjer, naa = [], ""
-    for ord_ in verdi.split(" "):
-        if naa and len(naa) + 1 + len(ord_) > BREDDE:
-            linjer.append(naa)
-            naa = ord_
-        else:
-            naa = f"{naa} {ord_}" if naa else ord_
-    linjer.append(naa)
-    return _ordrett("\n".join(linjer))
-
-
-TOPP = """\
-# Vedtaksregisteret (#413). Kilden avsnitt 3.1 i hovedplanen lages av.
-#
-# Rett her, ikke i 3.1, og kjør python3 docs/verktoy/vedtaksregister.py.
-# Hovedplanen er autoritativ for vedtakene; se README.md i denne mappa.
-# Testene i backend/tests/test_vedtaksregister/ feiler når 3.1 ikke er lik det
-# verktøyet lager, når et vedtak, et anker eller en vedtaksdato er endret,
-# og når en ny post bryter reglene i README.md.
-#
-# Postene med «vedtatt» er importert ordrett fra 3.1 12.10. En tekst brutt over
-# flere linjer er én linje i tabellen. Deres «forhold» er lest ut av Følge (#423)
-# og står allerede i teksten, så verktøyet skriver dem ikke.
-"""
-
-
-def toml(register: dict) -> str:
-    """Registeret som TOML. Brukes av importen; nye poster skrives for hånd."""
-    if _nye(register):
-        raise ValueError("toml() skriver bare importerte poster")
-    ut = [
-        TOPP,
-        f"format = {register['format']}",
-        "",
-        f"innledning = {_ordrett(register['innledning'])}",
-    ]
-    for g in register["gruppe"]:
-        ut += ["", "[[gruppe]]", f"tittel = {_streng(g['tittel'])}"]
-        if "etter" in g:
-            ut.append(f"etter = {_ordrett(g['etter'])}")
-        for p in g["vedtak"]:
-            ut += ["", "[[gruppe.vedtak]]"]
-            if "anker" in p:
-                ut.append(f"anker = {_streng(p['anker'])}")
-            ut += [
-                f"vedtak = {_brutt(p['vedtak'])}",
-                f"vedtatt = {_streng(p['vedtatt'])}",
-                f"folge = {_brutt(p['folge'])}",
-            ]
-    return "\n".join(ut) + "\n"
-
-
-# --------------------------------------------------------------------------
 
 
 def main() -> int:
     tolk = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     tolk.add_argument(
         "--sjekk", action="store_true", help="kontroller bare, skriv ingenting"
-    )
-    tolk.add_argument(
-        "--importer", action="store_true", help="les 3.1 inn i registeret"
     )
     tolk.add_argument(
         "--forhold",
@@ -1206,29 +1189,6 @@ def main() -> int:
     )
     valg = tolk.parse_args()
     plan = HOVEDPLAN.read_text(encoding="utf-8")
-
-    if valg.importer:
-        gammelt = les() if REGISTER.exists() else {"gruppe": []}
-        if _nye(gammelt):
-            print(
-                "Registeret har nye poster. Importen ville slettet spørsmålene og svarene deres."
-            )
-            return 1
-        if any("forhold" in p for p in poster(gammelt)):
-            print(
-                "Registeret har forhold i de importerte postene (#423). Importen ville slettet dem."
-            )
-            return 1
-        register = _avsnitt_i(plan)
-        REGISTER.parent.mkdir(exist_ok=True)
-        REGISTER.write_text(toml(register), encoding="utf-8")
-        if plan_med(les(), plan) != plan:
-            print("Importen gjenskaper ikke 3.1 byte for byte.")
-            return 1
-        print(
-            f"skrev {REGISTER.relative_to(ROT)}: {len(poster(register))} vedtak i {len(register['gruppe'])} grupper"
-        )
-        return 0
 
     register = les()
     feil = valider(register)
@@ -1255,29 +1215,34 @@ def main() -> int:
     if feil:
         print("Registeret er ikke gyldig:", *feil, sep="\n  ")
         return 1
-    ny = plan_med(register, plan)
+    ny = vedtaksfil(register)
+    naa = VEDTAKSFIL.read_text(encoding="utf-8") if VEDTAKSFIL.exists() else None
     commit = grunnlag()
-    if commit is None or git_fil(commit, HOVEDPLAN_I_GIT) is None:
+    if (
+        commit is None
+        or git_fil(commit, HOVEDPLAN_I_GIT) is None
+        or git_fil(commit, REGISTER.relative_to(ROT).as_posix()) is None
+    ):
         commit = None
         print(
             "Kontrollene mot main er hoppet over: historikken mangler. Kjør git fetch --unshallow origin main."
         )
     if ns_8407() is None:
         print(f"Sitatene fra NS 8407 er hoppet over: teksten mangler. {NS_8407_HJELP}")
-    feil = historiske_feil(register, ny, commit)
+    feil = historiske_feil(register, plan, commit)
     if feil:
         print("Registeret eller planen holder ikke:", *feil, sep="\n  ")
         return 1
-    if ny == plan:
-        print(f"3.1 er lik registeret: {len(poster(register))} vedtak")
+    if ny == naa:
+        print(f"Vedtaksfila er lik registeret: {len(poster(register))} vedtak")
         return 0
     if valg.sjekk:
         print(
-            "3.1 er ikke lik registeret. Kjør python3 docs/verktoy/vedtaksregister.py."
+            "Vedtaksfila er ikke lik registeret. Kjør python3 docs/verktoy/vedtaksregister.py."
         )
         return 1
-    HOVEDPLAN.write_text(ny, encoding="utf-8")
-    print(f"skrev 3.1 i {HOVEDPLAN.relative_to(ROT)}")
+    VEDTAKSFIL.write_text(ny, encoding="utf-8")
+    print(f"skrev {VEDTAKSFIL.relative_to(ROT)}")
     return 0
 
 

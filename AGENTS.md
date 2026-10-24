@@ -6,7 +6,8 @@ et krav er bevart eller prekludert.
 
 **Denne fila inneholder bare det som er stabilt.** Plan, funnstatus og
 beslutninger står i `docs/plans/2026-09-16-godkjenning-og-varig-levering.md`
-(hovedplanen), og bare der. Arbeid som pågår eller venter, står i GitHub-issues
+(hovedplanen), vedtakene i `docs/plans/vedtak.md` (vedtaksfila) og de avsluttede
+funnene og eldre leveransemerknader i `docs/plans/arkiv.md` (arkivet), og bare der. Arbeid som pågår eller venter, står i GitHub-issues
 (se «Hvor hva står»). Handoffene er historiske. Ikke før slikt inn hit — det blir
 foreldet, og fila lastes automatisk og blir trodd. Regler for kode som skal
 erstattes, står i `.claude/rules/` og sier når de slutter å gjelde.
@@ -108,7 +109,7 @@ endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke fo
 flytting som bare endrer importstiene. Lagringstestene mot
 testbasen i SQL Server står i `sprakprove/kjernelagring/`. `sprakprove/` er prøvekode og ikke
 en mal. Python-koden for de tre sakstypene er overgangskode, og feil i Python rettes
-etter [DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2).
+etter [DL-U2](docs/plans/vedtak.md#dl-u2).
 
 ## Miljø
 
@@ -116,7 +117,7 @@ Kommandoene for testene, typesjekkene og verktøykjeden står i
 [miljø-skillen](.claude/skills/miljo/SKILL.md). I Claude Code heter skillen `miljo`.
 Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
 Skyøkta har en testbase for SQL Server
-([DL-U1](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)); kommandoene står i miljø-skillen.
+([DL-U1](docs/plans/vedtak.md#dl-u1)); kommandoene står i miljø-skillen.
 Oppstartshooken starter ikke PostgreSQL (#931). Resonneringsreglene og
 `docs/verktoy/katalog.py` trenger katalogen i en PostgreSQL-base bygget fra
 `supabase/migrations/`. Den basen bygger du selv fra tom før første bruk i økta
@@ -157,7 +158,7 @@ base eller et verktøy som stempler sin egen versjon.** Reglene står i
 
 Brytes en av disse, er det en sikkerhetsfeil uansett hvor liten endringen så ut.
 De gjelder hver serverinngang, i Python og i TS. Et brudd som finnes i Python-stien,
-meldes som issue; om det rettes, avgjør [DL-U2](docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u2). Mekanismene, og det TS-stien
+meldes som issue; om det rettes, avgjør [DL-U2](docs/plans/vedtak.md#dl-u2). Mekanismene, og det TS-stien
 ennå mangler, står i [`.claude/rules/tilgang.md`](.claude/rules/tilgang.md).
 
 - **Hver serverinngang krever innlogget sesjon og tilgang til prosjektet, og
@@ -249,7 +250,9 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
 
 | Hva | Hvor |
 | --- | --- |
-| Funnstatus og alvorlighet, beslutninger, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
+| Vedtakene | Vedtaksfila, generert fra [vedtaksregisteret](docs/vedtaksregister/README.md) og rettet bare der. Til #1020 var den avsnitt 3.1 i hovedplanen |
+| Funnstatus og alvorlighet, de åpne beslutningene og føringene, rekkefølgen på arbeidspakkene, og det som er levert, med dato og belegg | Hovedplanen |
+| Avsluttede funn og leveransemerknadene fram til 24.10 | Arkivet, flyttet ordrett fra hovedplanen (#1020). Åpnes et funn igjen, flyttes raden tilbake |
 | Invarianter og regler som står seg | Denne fila |
 | Beviset: auditer, design, reviewer, oppdrag, og gjennomføringsnotater ved særskilt behov eller bestilling | `docs/`, i formen [`.claude/rules/dokumentasjon.md`](.claude/rules/dokumentasjon.md) beskriver |
 | Regler som bare gjelder én del av treet: databasen, testene, tilgangen, Python-domenet, `docs/` | `.claude/rules/`, som lastes når du arbeider der |
@@ -260,7 +263,8 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `hendelser.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttester feiler når et register mangler en tabell, en type, en fremmednøkkel eller et kall, eller avviker fra koden eller migrasjonene |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
 
-- **Hovedplanen er autoritativ for funnstatus.** Sier et annet dokument noe annet,
+- **Hovedplanen er autoritativ for funnstatus, sammen med arkivet for de avsluttede
+  funnene, og vedtaksfila for vedtakene.** Sier et annet dokument noe annet,
   er det andre foreldet — rett det, ikke gjenopprett diskusjonen.
 - **Et issue viser til ID-en, ikke til vurderingen.** Skriv funn- eller
   beslutnings-ID-en og lenk til hovedplanen. Gjenta ikke alvorlighet, belegg
@@ -388,5 +392,5 @@ spørsmålsverktøyet (i Claude Code: `AskUserQuestion`). Hvordan de legges fram
 står i [vedtaksskillen](.claude/skills/vedtak/SKILL.md), «Still dem slik
 oppdragsgiver kan svare». Be ikke om gjennomlesing for å finne ut hva oppdragsgiver mener.
 Det som kan avgjøres ved å lese koden eller spørre katalogen, avgjør du selv.
-Svarene føres inn der de hører hjemme: vedtak i hovedplanen, arbeidsvalg i
+Svarene føres inn der de hører hjemme: vedtak i vedtaksregisteret, arbeidsvalg i
 issuet eller oppdraget.

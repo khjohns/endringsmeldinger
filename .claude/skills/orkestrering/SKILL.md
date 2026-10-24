@@ -389,7 +389,7 @@ arbeider økta på et sammendrag, og ordrette vedtak og rettelser kan gå tapt.
   aktivitet, kan være komprimert av Claude Code (`idleCompaction`, standardverdien
   beholdes), og behandles da som komprimert: den leser vedtakene, issuet og
   PR-beskrivelsen på nytt før den fortsetter (oppdragsgiver 18.10, #779).
-- **Skriv svarene der de kan leses igjen** før de sendes: vedtak i hovedplanen
+- **Skriv svarene der de kan leses igjen** før de sendes: vedtak i vedtaksregisteret
   og arbeidsvalg i issuet. Meldingen viser dit.
 - **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av
   hele konteksten.
@@ -425,7 +425,7 @@ Gjør dette for hver PR:
    som to runder `/code-review high` hadde oversett (PR #372).
 3. Samle de åpne spørsmålene fra alle PR-ene og still dem til oppdragsgiver
    etter «Spørsmål og vedtak».
-4. Før svarene inn der de hører hjemme: vedtak i hovedplanen etter «Spørsmål og
+4. Før svarene inn der de hører hjemme: vedtak i vedtaksregisteret etter «Spørsmål og
    vedtak», arbeidsvalg som kommentar i PR-en eller issuet. Ny oppfølging fra
    review følger stoppregelen i `AGENTS.md`. Annen ny oppfølging blir et nytt
    issue.

@@ -2,7 +2,7 @@
 
 Forventningene står i #451: visningen er generert og kontrollert i CI, samler
 vedtakene ordrett med kjedene, lager ingen sammenslått gjeldende ordlyd og sier at
-3.1 er autoritativ. #454 legger til de forkastede alternativene, henvisningene og
+3.1 er autoritativ; 3.1 er vedtaksfila etter #1020. #454 legger til de forkastede alternativene, henvisningene og
 kontrollsummen, og arbeidsvalg A i kommentaren på #454 sier hvilke vedtak et tema
 har: også hvert vedtak som endrer, utvider, snevrer inn, presiserer eller opphever
 et vedtak i temaet.
@@ -101,21 +101,23 @@ def test_lenkene_i_de_innsjekkede_visningene_er_hele(temaer, capsys):
     ("[tabellen](../domenetabell/README.md)", "[tabellen](../../domenetabell/README.md)"),
     ("[planen](annen-plan.md#a)", "[planen](../../plans/annen-plan.md#a)"),
     ("[GR-U10](#gr-u10)", "[GR-U10](#gr-u10)"),
-    ("[GR-U2](#gr-u2)", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2)"),
+    ("[GR-U2](#gr-u2)", f"[GR-U2]({tv.TIL_VEDTAKENE}#gr-u2)"),
     ("[#264](https://github.com/khjohns/endringsmeldinger/issues/264)",
      "[#264](https://github.com/khjohns/endringsmeldinger/issues/264)"),
     ("[#264](HTTPS://github.com/a)", "[#264](HTTPS://github.com/a)"),
     ("[e-post](mailto:a@b.no)", "[e-post](mailto:a@b.no)"),
     ('[tabellen](../domenetabell/README.md "Tabellen")', '[tabellen](../../domenetabell/README.md "Tabellen")'),
     ("[tabellen](<../domenetabell/README.md> \"T\")", "[tabellen](<../../domenetabell/README.md> \"T\")"),
-    ("[GR-U2](#gr-u2 'GR-U2')", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2 'GR-U2')"),
+    ("[GR-U2](#gr-u2 'GR-U2')", f"[GR-U2]({tv.TIL_VEDTAKENE}#gr-u2 'GR-U2')"),
     ("[tabellen](/docs/domenetabell/README.md#a)", "[tabellen](../../domenetabell/README.md#a)"),
     ("[GR-U10](2026-09-16-godkjenning-og-varig-levering.md#gr-u10)", "[GR-U10](#gr-u10)"),
-    ("[GR-U2](2026-09-16-godkjenning-og-varig-levering.md#gr-u2)", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2)"),
+    ("[GR-U2](2026-09-16-godkjenning-og-varig-levering.md#gr-u2)", f"[GR-U2]({tv.TIL_VEDTAKENE}#gr-u2)"),
     ("[GR-U10](/docs/plans/2026-09-16-godkjenning-og-varig-levering.md#gr-u10)", "[GR-U10](#gr-u10)"),
     ("[planen](2026-09-16-godkjenning-og-varig-levering.md)", f"[planen]({tv.TIL_PLANEN})"),
+    ("[B-12](#b-12-merknad-2026-10-11)", f"[B-12]({tv.TIL_PLANEN}#b-12-merknad-2026-10-11)"),
 ])
 def test_lenkene_fra_3_1_skrives_om_til_mappen_visningen_ligger_i(tekst, forventet):
+    """Et vedtak utenfor temaet står i vedtaksfila, og et annet anker i hovedplanen (#1020)."""
     assert tv._lenker(tekst, {"gr-u10"}) == forventet
 
 
@@ -132,7 +134,7 @@ def test_protokollrelative_lenker_og_maal_uten_sti_og_anker_staar_som_de_er(teks
 @pytest.mark.parametrize("tekst, forventet", [
     ("[tabellen](../domenetabell/README.md (Tabellen))", "[tabellen](../../domenetabell/README.md (Tabellen))"),
     ('[tabellen](x.md "t")', '[tabellen](../../plans/x.md "t")'),
-    ("[GR-U2](#gr-u2 (GR-U2))", f"[GR-U2]({tv.TIL_PLANEN}#gr-u2 (GR-U2))"),
+    ("[GR-U2](#gr-u2 (GR-U2))", f"[GR-U2]({tv.TIL_VEDTAKENE}#gr-u2 (GR-U2))"),
 ])
 def test_en_lenke_med_tittel_i_parentes_eller_anfoerselstegn_faar_stien_skrevet_om_og_tittelen_bevart(
     tekst, forventet
@@ -143,7 +145,7 @@ def test_en_lenke_med_tittel_i_parentes_eller_anfoerselstegn_faar_stien_skrevet_
 
 def test_visningen_sier_at_3_1_er_autoritativ_og_lager_ingen_sammenslatt_ordlyd(tema, kilder):
     tekst = tv.visning(tema, kilder)
-    assert "**Avsnitt [3.1 i hovedplanen](" in tekst
+    assert f"**[Vedtaksfila]({tv.TIL_VEDTAKENE}) er autoritativ.**" in tekst
     assert "er autoritativ.**" in tekst
     assert "lager ingen sammenslått gjeldende ordlyd" in tekst
 
@@ -213,7 +215,7 @@ def test_kjeden_viser_forholdene_begge_veier_i_raden_til_vedtaket(tema, kilder):
 
 def test_vedtak_utenfor_temaet_lenkes_til_3_1(tema, kilder):
     tekst = tv.visning(tema, kilder)
-    assert f"[GR-U2]({tv.TIL_PLANEN}#gr-u2)" in tekst
+    assert f"[GR-U2]({tv.TIL_VEDTAKENE}#gr-u2)" in tekst
     assert "[GR-U2](#gr-u2)" not in tekst
 
 

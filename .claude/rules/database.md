@@ -17,7 +17,7 @@ Supabase-prosjektene brukes ikke; endre dem ikke, og les ikke saksdata der. For
 Python-stien og migrasjonene i `supabase/migrations/` er testbasen lokal
 PostgreSQL 17, bygget med `scripts/testbase/` (merknaden 09.10 til B-12 i
 hovedplanen). Datalaget i TS bygges mot SQL Server
-([DL-U1](../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u1)). Det
+([DL-U1](../../docs/plans/vedtak.md#dl-u1)). Det
 som står om Supabase her og i `docs/migrasjoner-og-testbase.md`, beskriver
 oppsettet migrasjonene er skrevet for.
 
@@ -54,11 +54,11 @@ er endret, fjernet eller får en ny fil foran seg. Historikktabellen er det enes
 runneren lager selv. Testbasene bygges fra filene med `opprettMigrertTestbase` i
 `server/tester/sqlserver_migrert.ts`, og katalogen i en slik base er kilden, som
 for PostgreSQL. Tidspunkter er `datetime2(3)` i UTC med `SYSUTCDATETIME()`
-([DL-U3](../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u3)).
+([DL-U3](../../docs/plans/vedtak.md#dl-u3)).
 Brukerne til rollene (`CREATE USER … FROM EXTERNAL PROVIDER`) hører til
 utrullingen, ikke migrasjonene (A8 og A9 i #78).
 
-**Fra første ekte sak har skjemaet to trinn** ([DL-U16](../../docs/plans/2026-09-16-godkjenning-og-varig-levering.md#dl-u16)).
+**Fra første ekte sak har skjemaet to trinn** ([DL-U16](../../docs/plans/vedtak.md#dl-u16)).
 En SQL Server-migrasjon legger da bare til og heter `ÅÅÅÅMMDDTTMMSS_navn_tillegg.sql`.
 Det som fjernes eller endres, slutter én utgivelse å bruke, og fjernes først i
 utgivelsen etter, i en fil som heter `…_fjerning.sql`. Forrige utgivelse starter

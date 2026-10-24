@@ -599,7 +599,7 @@ Python-worker tas heller ikke samtidig.
   backend.
 
 > **Merknad 2026-10-09:** overgangen i det første punktet over er erstattet av
-> [B-17](plans/2026-09-16-godkjenning-og-varig-levering.md#b-17) i hovedplanen. TS tar over skrivingen i KOE-saker samlet,
+> [B-17](plans/vedtak.md#b-17) i hovedplanen. TS tar over skrivingen i KOE-saker samlet,
 > ikke én kommando om gangen, og endringsordre- og forseringssakene følger med
 > (merknaden til B-17 samme dag). Python kan beholde levering og integrasjon.
 > Hvor TS-kjernen kjører, er B-18. Teksten over står som skrevet.
