@@ -540,8 +540,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
     grunnlaget etter OV-U6, spør skjemaet: ‹Inneholder endringsordren vilkår eller forbehold
     som begrenser godkjenningen av grunnlaget, og som ikke uttrykkes gjennom valgene du har
     gjort i registreringen?› Ved ja kan dokumentet ikke registreres som svar på grunnlaget
-    etter OV-U6. Det kan fortsatt registreres som dokumentasjon etter OV-U4. Det endringsordren
-    sier om vederlag og frist, omfattes ikke (OV-U6). Sperren avgjør ikke dokumentets
+    etter OV-U6. Det kan fortsatt registreres som dokumentasjon etter OV-U4. At endringsordren
+    lar vederlag eller frist stå uavklart, omfattes ikke av spørsmålet. Et vilkår om vederlag
+    eller frist omfattes likevel dersom det gjør godkjenningen av grunnlaget betinget. Sperren avgjør ikke dokumentets
     rettslige virkning. Opplysningen er byggherrens og lagres med sendingen eller
     registreringen, atskilt fra den utledede virkningen. Den gjelder den svarversjonen som
     sendes eller registreres. Den er ikke en del av brevet og framstilles ikke som en
@@ -602,6 +603,13 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
     kreve at beløp og frist også er avklart.»
   - «Med disse rettelsene mener jeg 3-A og 3b-A er godt nok avgrenset til å legges fram som
     anbefalte alternativer.»
+- **Siste kontroll 25.10** av samme modell, på commit `89a97b8`: setningen om vederlag og
+  frist i registreringen etter OV-U6 var for vid og er byttet. Sperren følger byggherrens
+  opplysning om grunnlagsgodkjenningen; løsningen vurderer fortsatt ikke pris og tid i
+  endringsordren (OV-U6). Ordrett:
+  - «Jeg anbefaler 3-A og 3b-A, inkludert utvidelsen til OV-U6, med én siste presisering.»
+  - «Med denne rettelsen har jeg ingen flere merknader. […] Anbefalingen gjelder
+    produktvalget; den innebærer ingen vurdering av det enkelte dokumentets rettsvirkning.»
   3b-A er ikke det KA-U19 utsatte, et varsel styrt av ord i utdypningen.
 - **Sparring 25.10:** spørsmålet kom fra sparringen om spørsmål 3. Fem rettelser fra andre
   runde er tatt inn: opplysningen er byggherrens, sperren håndheves på serveren, byggherren
