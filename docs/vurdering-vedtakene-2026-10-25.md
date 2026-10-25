@@ -702,7 +702,8 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   forholdet (VS-U26). I dag kan TE endre datoen i en ny grunnlagsversjon (GR-U22), også til en
   senere dato. Brevet viser bare den nye (K, forløp 6 i del 2). En ny versjon er tillatt bare i
   et spor uten enighet og før kravene i saken er avgjort (KA-U7, OV-U3). Etter HF-U8 faller
-  byggherrens svar bort som tilbud med den nye versjonen, og sporet venter på nytt svar. Om det
+  byggherrens svar bort som tilbud med den nye versjonen, og sporet venter på nytt svar; det er
+  unntaket i HF-U6 for TEs nye kravversjon. Et frafall faller ikke bort (GR-U20). Om det
   er riktig når versjonen bare retter en opplysning, er spørsmål 5b. En påberopelse av at
   varselet kom for sent faller ikke bort med svaret: «Den første innsigelsen og tidspunktet
   bevares», og et senere svar viser til innsigelsen og gjentar den som utgangspunkt (VS-U9,
@@ -721,8 +722,8 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   eller § 34.1.2 (VS-U26), så rettidigheten etter de bestemmelsene behandles i fristsvaret og
   vederlagssvaret.
 - **Belegg:** § 32.2 første ledd, § 34.1.2 annet ledd, § 5 tredje ledd. VS-U26, GR-U22, HF-U4,
-  HF-U5, HF-U8, VS-U9, VS-U11, KA-U7, OV-U3, MM-U9, MM-U21, OV-U5, OV-U7, OV-U11, OV-U41, KA-U24,
-  LV-U4, #1127.
+  HF-U5, HF-U6, HF-U8, GR-U20, VS-U9, VS-U11, KA-U7, OV-U3, MM-U9, MM-U21, OV-U5, OV-U7, OV-U11,
+  OV-U41, KA-U24, LV-U4, #1127.
 - **Alternativene:**
   - **A:** «TEs opplysning om når pålegget ble mottatt eller TE ble klar over forholdet, settes
     én gang i grunnlagskravet. En ny grunnlagsversjon kan ikke endre den. TE retter den etter
@@ -744,7 +745,8 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
     opplysning om når TE faktisk ble klar over forholdet, fastslår ikke når TE burde ha blitt
     klar over det. Byggherren tar stilling til rettidigheten i svaret der rettidigheten etter
     den aktuelle bestemmelsen behandles, og kan der godta eller bestride datoen. Har byggherren
-    uttrykkelig sagt at varselet kom i tide, eller gitt opp innsigelsen, avvises en senere
+    i et utsagn sendt fra løsningen uttrykkelig sagt at varselet kom i tide, eller gitt opp
+    innsigelsen, avvises en senere
     påberopelse av at det samme varselet kom for sent etter samme bestemmelse, også etter en
     endret dato (HF-U4). En påberopelse byggherren alt har fremsatt, bevares med tidspunktet,
     og et senere svar gjentar den som utgangspunkt (VS-U9, VS-U11). Løsningen avgjør ikke når
@@ -765,15 +767,18 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   versjonsmodell på kunnskapsdatoen i grunnlagskravet. B velger at datoopplysningen i en
   tillatt ny grunnlagsversjon behandles etter versjonsmodellen, også når den korrigerer en
   tidligere opplysning. Dette er en uttrykkelig innsnevring av MM-U21 for denne opplysningen.
-  Følgen er at en datoendring gjennom en ny versjon også avslår byggherrens tilbud i svaret
-  (HF-U8, spørsmål 5b). A avviker fra #1127 ved å kreve byggherrens godkjenning før en senere
+  Følgen er at en datoendring gjennom en ny versjon også avslår et tilbud byggherren har gitt i
+  svaret, men ikke et frafall (HF-U8, GR-U20, spørsmål 5b). Etter B kan TE flytte mottaksdatoen
+  til sin fordel uten byggherrens godkjenning, mens varseldatoen settes én gang (OV-U11).
+  Byggherren ser endringen og tar stilling i svaret. A avviker fra #1127 ved å kreve byggherrens godkjenning før en senere
   mottaksdato erstatter den tidligere; velges A, må det forholdet avgjøres uttrykkelig. A krever
   dessuten rettingsflyten i MM-U21, og til den er bygget, kan datoen ikke endres i løsningen,
   heller ikke ved en ren skrivefeil. C gjør endringen vanskelig å oppdage. Ingen av
   alternativene avgjør hvilken dato som faktisk er riktig. Delrapporten anbefalte A.
 - **Hva valget styrer:** formatet for grunnlagskravet og brevteksten.
 - **Avhenger av:** spørsmål 5b. De avgjøres sammen, fordi følgen av B for byggherrens svar
-  avgjøres der. Ikke av spørsmål 1.
+  avgjøres der. 5-B kan ikke velges sammen med 5b-B, som legger en korrigering av en opplysning
+  til MM-U21; 5-A passer med 5b-B. Ikke av spørsmål 1.
 - **Sparring 25.10:** B, A og anbefalingen er rettet etter sparring mellom økta, oppdragsgiver
   og en annen modell: TEs opplysning skilles fra fristens rettslige utgangspunkt, byggherren
   bestrider datoen i svaret (OV-U41, fordi bestridelse som eget utsagn er utsatt etter OV-U7),
@@ -783,44 +788,57 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   I en ny runde ble forholdet til MM-U21 i B og C endret fra «presiserer» til «snevrer inn»,
   fordi HF-U8 regulerer bortfallet av byggherrens tilbud, ikke hvordan en korrigert opplysning
   behandles. HF-U4 er skrevet ut i B, rettidigheten er lagt til svaret der den behandles, og
-  grensene i KA-U7 og OV-U3 er tatt inn. Alternativene står åpne.
+  grensene i KA-U7 og OV-U3 er tatt inn. Den andre prøvingen mot vedtaksfila fant at frafallet
+  (GR-U20), unntaket i HF-U6 og avgrensningen i HF-U4 til utsagn sendt fra løsningen manglet, og
+  at 5-B og 5b-B ikke kan velges sammen. Det er rettet. Alternativene står åpne.
 
 ### Spørsmål 5b. En ny kravversjon som avslag på byggherrens svar (HF-U8)
 
 - **Bakgrunn:** HF-U8 (15.10) sier: «Den nye kravversjonen er TEs avslag på svaret og et nytt
   tilbud (avtaleloven § 5 og § 6).» Det gjelder «også med uendrede verdier». Vurderingen bak
-  vedtaket (#504, F3) skilte loven fra produktvalget: «En ny versjon avslår svaret også med
+  vedtaket (#504) skilte loven fra produktvalget i raden for vedtaket 05.10 om at hver
+  oppdatering er en ny kravversjon: «En ny versjon avslår svaret også med
   uendrede verdier. At den er en kravversjon også da, er et produktvalg.» Vedtaksteksten har
   ikke det skillet. Etter avtaleloven § 5 og § 6 avgjør innholdet i TEs meddelelse om
   byggherrens tilbud er avslått. Brevet ved en ny versjon sier i dag bare: «Kravet erstatter
   TEs krav i brev <n> av <dato>.» (LV-U4 punkt 1). En ny versjon som bare retter en opplysning,
   er da ikke nødvendigvis et avslag etter sitt innhold, men løsningen behandler den som det.
   HF-U5 sier at bindingen i løsningen varer til TE sender en ny kravversjon. En retting som
-  lar svaret stå (MM-U21), er vedtatt, men ikke bygget. I første versjon er en ny kravversjon
-  derfor den eneste måten TE kan endre en opplysning i et krav på i løsningen. Et brev sendt
+  lar svaret stå (MM-U21), er vedtatt, men ikke bygget. I dag er en ny kravversjon derfor den
+  eneste måten TE kan endre en opplysning i et krav på i løsningen. OV-U41 gir en egen vei for
+  kunnskapsdatoen etter § 34.1.3, som bygges i #1171. Et brev sendt
   utenfor løsningen og registrert der, endrer ikke opplysningen (OV-U4).
-- **Belegg:** avtaleloven § 5 og § 6. HF-U4, HF-U5, HF-U8, VS-U9, KA-U7, OV-U3, OV-U4, LV-U4,
-  MM-U9, MM-U21.
+- **Belegg:** avtaleloven § 5 og § 6. HF-U4, HF-U5, HF-U6, HF-U7, HF-U8, HF-U15, HF-U18,
+  HF-U21, GR-U20, FO-U5, FO-U7, VS-U9, KA-U7, OV-U3, OV-U4, LV-U4, MM-U9, MM-U21.
 - **Alternativene:**
   - **A (anbefalt):** «I løsningen er en ny kravversjon TEs avslag på byggherrens tilbud i
-    svaret på gjeldende kravversjon, også med uendrede verdier, når svaret ellers kunne vært
-    godtatt. Virkningen følger av at brevet sier det uttrykkelig: ‹TE avslår byggherrens tilbud
-    i svaret i brev <n> av <dato> og fremsetter det reviderte kravet nedenfor.› Kan svaret ikke
-    godtas, for eksempel fordi akseptfristen er ute, sier brevet bare at kravet erstatter TEs
-    tidligere krav. Før TE sender, sier skjemaet at TE avslår tilbudet i svaret, at tilbudet da
-    ikke kan godtas, også når TE bare endrer en opplysning, og at et uttrykkelig standpunkt om
-    at et varsel kom i tide, og et avkall, står (HF-U4, HF-U8). Avslaget gjelder tilbudet i
-    svaret. En innsigelse byggherren har fremsatt, og tidspunktet for den bevares (VS-U9). Den
-    nye teksten gjelder bare nye brev (MM-U9). Endrer HF-U8 og presiserer HF-U5: virkningen
-    følger av avslaget i brevet, ikke av versjonen alene. Utvider LV-U4.»
-  - **B:** «Løsningen skiller mellom en ny kravversjon, som avslår byggherrens tilbud i svaret,
-    og en korrigering av en opplysning, som lar svaret stå og behandles etter MM-U21.
-    Rettingen etter MM-U21 bygges før første ekte sak. Endrer HF-U8.»
+    svaret på gjeldende kravversjon i samme spor, også med uendrede verdier, når svaret har et
+    standpunkt som fortsatt binder byggherren etter HF-U5: godkjent grunnlag, beløp eller
+    dager, prinsipalt eller subsidiært. Virkningen følger av at brevet sier det uttrykkelig: ‹TE
+    avslår byggherrens tilbud i svaret i brev <n> av <dato> og fremsetter det reviderte kravet
+    nedenfor.› Har svaret ikke et slikt standpunkt, for eksempel et helt avslag (HF-U15), et
+    frafall (GR-U20) eller et svar der akseptfristen er ute (HF-U5, HF-U18), sier brevet bare at
+    kravet erstatter TEs tidligere krav. Finnes det et svar TE ellers kunne godta, sier
+    skjemaet før TE sender at svaret da ikke kan godtas (HF-U8), også når TE bare endrer en
+    opplysning, og at et uttrykkelig standpunkt om at et varsel kom i tide, og et avkall, står
+    (HF-U4, HF-U8). Avslaget gjelder tilbudet i svaret i samme spor; en ny grunnlagsversjon
+    avslår ikke svarene på vederlag og frist (HF-U21). En innsigelse byggherren har fremsatt, og
+    tidspunktet for den bevares (VS-U9), og et frafall står (GR-U20). Den nye teksten gjelder
+    bare nye brev (MM-U9). Endrer HF-U8 og presiserer HF-U5: i løsningen følger virkningen av
+    avslaget i brevet, ikke av versjonen alene. Utvider LV-U4.»
+  - **B:** «En ny kravversjon avslår byggherrens tilbud i svaret som etter HF-U8. En
+    korrigering av en opplysning i kravet er et eget utsagn etter MM-U21, ikke en ny
+    kravversjon, og lar svaret stå. Rettingen etter MM-U21 bygges før første ekte sak, og det
+    som står åpent om den under B-16, avgjøres da. Snevrer inn vedtaket 05.10 om at hver
+    oppdatering er en ny kravversjon, og presiserer MM-U21.»
   - **C:** «HF-U8 står. Brevet sier som i dag at kravet erstatter TEs tidligere krav.»
 - **Anbefaling:** A, som en uttrykkelig og informert handling. Virkningen følger da av
   innholdet i brevet, slik avtaleloven § 5 og § 6 forutsetter, og TE ser følgen før brevet
-  sendes. B gir en vei for å rette uten å avslå, men krever rettingsflyten i MM-U21, som ikke
-  er bygget. Til den finnes, er et brev utenfor løsningen dokumentasjon (OV-U4) og endrer ikke
+  sendes. A knytter avslaget til et standpunkt som binder byggherren etter HF-U5, ikke til om
+  TE kan godta svaret. Da står avslaget også når aksepten er sperret mens svaret binder (FO-U5,
+  FO-U7), og brevet sier ikke at TE avslår et tilbud når svaret er et helt avslag (HF-U15). B
+  gir en vei for å rette uten å avslå, men krever rettingsflyten i MM-U21, som ikke er bygget.
+  Til den finnes, er et brev utenfor løsningen dokumentasjon (OV-U4) og endrer ikke
   opplysningen i løsningen. C lar et produktvalg stå som om det fulgte av loven. A bygger på
   tilbudsmodellen i HF-U5 og sier ikke at hvert svar fra byggherren rettslig er et tilbud i
   alle deler. Eldre kravversjoner får ikke et avslag lagt til i ettertid.
@@ -829,12 +847,16 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   som arbeidsvalg i byggeissuet. Sparringen foreslo: «Når du sender denne kravversjonen, avslår
   du byggherrens tilbud i brev <n>. Du kan da ikke godta det her. Det gjelder også når du bare
   retter en opplysning.»
-- **Avhenger av:** spørsmål 5. De avgjøres sammen. Ikke av spørsmål 1.
+- **Avhenger av:** spørsmål 5. De avgjøres sammen. 5b-B kan ikke velges sammen med 5-B, som
+  legger datoendringen til en ny versjon; 5b-B passer med 5-A. Ikke av spørsmål 1.
 - **Sparring 25.10:** spørsmålet kom fra oppdragsgiver i sparringen om spørsmål 5, og er
   utformet i sparring mellom økta, oppdragsgiver og en annen modell. Den rettet «TE godtar
   ikke» til et uttrykkelig avslag, avgrenset avslaget til et svar som kan godtas, og tok ut
-  begrunnelsen om at TE kan rette uten å avslå, fordi MM-U21 ikke er bygget. Alternativene står
-  åpne.
+  begrunnelsen om at TE kan rette uten å avslå, fordi MM-U21 ikke er bygget. Prøvingen mot
+  vedtaksfila fant at avgrensningen til et svar som kan godtas, ikke passet med en sperret
+  aksept (FO-U5), et helt avslag (HF-U15), et frafall (GR-U20) og svarene i andre spor
+  (HF-U21), og at forholdet i B var uklart. A er avgrenset til et standpunkt som binder etter
+  HF-U5, og B er rettet. Alternativene står åpne.
 
 ### Spørsmål 6. Beløp med øre (VG-F-02)
 
@@ -1142,7 +1164,7 @@ Registrerte brev og saken samlet:
   verifiseringsøktene (§ 31.3, § 32.2, § 33.4, § 33.5, § 34.1.2, § 34.1.3, § 34.2.1, § 34.2.2
   og avtaleloven § 6).
 - **Alternativene i spørsmål 1, alternativ D i spørsmål 2 og spørsmål 2b** er prøvd mot
-  vedtaksfila av en subagent i denne økta. Det samme er spørsmål 4 og 5 etter sparringen, mot
+  vedtaksfila av en subagent i denne økta. Det samme er spørsmål 4, 5 og 5b etter sparringen, mot
   `3407b88`; vedtaksregisteret er ikke endret siden `569666b`.
   Alternativene i spørsmål 2–11 er prøvd av verifiseringsøktene; endringene deres er tatt inn.
 - **Rapportenes grenser gjelder**, blant annet: akseptfristen, rigg og drift som post,
