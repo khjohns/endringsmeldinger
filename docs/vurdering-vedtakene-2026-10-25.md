@@ -247,9 +247,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   GR-U26 gir, å svare på grunnlaget i samme brev, finnes ikke i TS-ruta i dag (#818), så hvert
   vederlagssvar får setningen. I underkategoriene der § 32.2 gjelder, kan TE også lese
   setningen som at byggherren ikke har svart etter § 32.3 annet ledd (vår vurdering, ikke prøvd).
-  En endringsordre registrert etter OV-U6 er et grunnlagssvar, og da kommer forbeholdet ikke
-  (L, `forbeholdForGrunnlaget` i `kjerne/frosset/brevtekst.ts`).
-- **Belegg:** § 32.3 annet ledd. GR-U26, OV-U4, OV-U6 og OV-U10.
+  En endringsordre registrert etter OV-U6 som svar på gjeldende kravversjon er et grunnlagssvar,
+  og da kommer forbeholdet ikke (L, `forbeholdForGrunnlaget` i `kjerne/frosset/brevtekst.ts`).
+- **Belegg:** § 5 annet ledd, § 32.3 annet ledd. GR-U23, GR-U26, OV-U4, OV-U6, OV-U10 og HF-U13.
 - **Alternativene:**
   - **A:** «Når byggherren svarer på vederlag eller frist mens gjeldende versjon av
     grunnlaget ikke er besvart i appen, sier brevet: ‹Byggherren har ikke svart i appen på
@@ -265,21 +265,23 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
     utenfor appen som ikke er registrert.
   - **C:** «Teksten i GR-U26 står.»
   - **D (anbefalt):** «Når byggherren svarer på vederlag eller frist mens gjeldende versjon av
-    grunnlaget ikke er besvart, spør skjemaet: ‹Har du allerede svart utenfor appen på
-    grunnlaget i TEs krav i brev <n> av <dato>?› Brevnummeret og datoen er kravets. Svaret er
-    obligatorisk. Svarer byggherren nei, sier brevet som i dag: ‹Byggherren har ennå ikke svart
-    på grunnlaget i TEs krav i brev <n> av <dato>. Standpunktene nedenfor gjelder under
-    forutsetning av at grunnlaget for kravet foreligger.› Setningen er byggherrens egen
-    opplysning; appen kontrollerer den ikke. Svarer byggherren ja, oppgir byggherren et
-    registrert dokument, eller dokumenttypen (brev, e-post eller møtereferat), datoen og en
-    kort identifikasjon, og brevet sier: ‹For byggherrens standpunkt til grunnlaget i TEs krav
-    i brev <n> av <dato> vises det til byggherrens <dokumenttype> av <dato>. Standpunktene
+    grunnlaget ikke er besvart i appen og grunnlaget ikke er avklart ved frafall (GR-U23),
+    spør skjemaet: ‹Har du allerede svart utenfor appen på grunnlaget i TEs krav i brev <n> av
+    <dato>?› Brevnummeret og datoen er kravets. Svaret er obligatorisk. Svarer byggherren nei,
+    sier brevet som i dag: ‹Byggherren har ennå ikke svart på grunnlaget i TEs krav i brev <n>
+    av <dato>. Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet
+    foreligger.› Setningen er byggherrens egen opplysning; appen kontrollerer den ikke. Svarer
+    byggherren ja, oppgir byggherren et registrert dokument, eller dokumenttypen (brev, e-post
+    eller annet dokument), datoen og en kort identifikasjon. Valget av dokumenttype sier ikke
+    noe om formkravet i § 5. Brevet sier da: ‹For byggherrens standpunkt til grunnlaget i TEs
+    krav i brev <n> av <dato> vises det til byggherrens <dokumenttype> av <dato>. Standpunktene
     nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger. Henvisningen og
     forbeholdet endrer ikke byggherrens tidligere meddelte standpunkt til grunnlaget.›
     Henvisningen gjelder gjeldende versjon av grunnlaget og følger ikke med en ny versjon. Den
     gir ikke i seg selv et grunnlagssvar, en godkjenning eller et avslag i appens utledning, og
-    vederlag og frist er fortsatt betinget av grunnlaget etter GR-U7 og GR-U26. Utvider GR-U26.
-    I tråd med OV-U4 og OV-U6.»
+    vederlag og frist er fortsatt betinget av grunnlaget etter GR-U7 og GR-U26. Endrer ordlyden
+    i GR-U26 og utvider det. I tråd med OV-U4, OV-U10, HF-U13 og vedtaket om brev sendt
+    utenfor appen 25.10 (spørsmål 1).»
 - **Anbefaling:** D. Det obligatoriske valget gjør «ennå ikke svart» til byggherrens
   uttrykkelige opplysning, og henvisningen gjør brevet riktig når svaret finnes utenfor appen.
   Forbeholdet står i begge tilfeller, så brevet og utledningen stemmer overens. A gjør setningen
@@ -314,35 +316,48 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   appen. Det tvinger fram en ny meddelelse om et standpunkt byggherren alt har meddelt, med en
   ny dato. Velger byggherren et annet standpunkt enn det eksterne svaret, kan appen ikke se
   det, fordi en henvisning ikke har innhold.
-- **Belegg:** § 5 tredje ledd, § 32.3. GR-U1, GR-U7, GR-U10, GR-U12, GR-U13, GR-U26, OV-U3–OV-U7,
-  MM-U12.
+- **Belegg:** § 5 tredje ledd, § 31.3, § 32.3. GR-U1, GR-U7, GR-U10, GR-U12, GR-U13, GR-U26,
+  OV-U3–OV-U7, OV-U12, OV-U13, KA-U16, KA-U19, LV-U7, MM-U12 og vedtaket om spørsmål 1.
 - **Alternativene:**
   - **A (anbefalt):** «Byggherren kan svare på gjeldende versjon av grunnlaget ved å bekrefte et
-    svar gitt utenfor appen. Byggherren oppgir dokumentet som i spørsmål 2, alternativ D, og
-    velger standpunktet som i et svar fra appen. At standpunktet samsvarer med det tidligere
-    svaret, er byggherrens opplysning. Brevet sier: ‹Byggherren bekrefter sitt svar på
-    grunnlaget i TEs krav i brev <n> av <dato>, gitt i <dokumenttype> av <dato>: …›, og ved
+    svar gitt utenfor appen på den versjonen. Byggherren oppgir dokumentet som ved henvisningen
+    etter GR-U26: et registrert dokument, eller dokumenttypen, datoen og en kort identifikasjon.
+    Byggherren velger standpunktet som i et svar fra appen. At standpunktet samsvarer med det
+    tidligere svaret, er byggherrens opplysning. Brevet sier: ‹Byggherren bekrefter sitt svar
+    på grunnlaget i TEs krav i brev <n> av <dato>, gitt i <dokumenttype> av <dato>: …›, og ved
     påberopt preklusjon: ‹Byggherren bekrefter at hen i <dokumenttype> av <dato> gjorde
-    gjeldende at …›. Bekreftelsen er et nytt utsagn. Den går gjennom fullmakten og
-    brevkontrollen, og appens utledning bygger på standpunktet byggherren bekrefter, også etter
-    GR-U12 og GR-U13. Kontrollene ved sending gjelder bekreftelsen. De avgjør ikke om det
-    tidligere svaret oppfylte kravene til endringsordre eller fullmakt, eller hva det bandt
-    partene til. Har byggherren allerede gjort en påberopelse gjeldende utenfor appen, må
+    gjeldende at …›. Bekreftelsen er et nytt utsagn i et brev fra appen. Den går gjennom
+    fullmakten og brevkontrollen, og appens utledning bygger på standpunktet byggherren
+    bekrefter. Skjemaet sier fast, som etter KA-U19, at appen regner bekreftelsen som det valgte
+    standpunktet, og at et forbehold eller vilkår i det tidligere svaret som standpunktene ikke
+    kan uttrykke, ikke følger med bekreftelsen. Kontrollene ved sending gjelder bekreftelsen. De
+    avgjør ikke om det tidligere svaret oppfylte kravene til endringsordre eller fullmakt, eller
+    hva det bandt partene til. Bindingen ved bekreftelsen og akseptfristen for den regnes fra
+    sendingen av bekreftelsen (LV-U7); det sier ikke når byggherren ble bundet av det tidligere
+    svaret. Har byggherren allerede gjort en påberopelse gjeldende utenfor appen, må
     rettidigheten vurderes ut fra den tidligere meddelelsen; bekreftelsen dokumenterer
     byggherrens opplysning om dette, men fastslår ikke at påberopelsen ble fremsatt eller var
     rettidig. Appen registrerer datoen for bekreftelsen og byggherrens opplysning om datoen for
-    det eksterne svaret hver for seg, og bekreftelsen innebærer ikke at frister starter på
-    nytt. En bekreftelse gjelder bare den versjonen av grunnlaget det eksterne svaret gjaldt
-    (GR-U1). Har byggherren vist til et svar utenfor appen og gir i stedet et nytt svar,
-    velger byggherren det uttrykkelig, skjemaet sier at byggherren kan være bundet av det
-    tidligere svaret, og brevet sier at byggherren tidligere viste til <dokumenttype> av <dato>.
-    Visningen viser henvisningen sammen med det nye svaret, sier at utledningen bygger på svaret
-    i appen og at det tidligere dokumentet ikke er tolket, og framstiller ikke det nye svaret
-    som rettslig overordnet det tidligere. En endringsordre registreres som før etter OV-U6.
-    Utvider GR-U26. I tråd med OV-U4, OV-U5, OV-U6 og MM-U12.»
-  - **B:** «Et svar gitt utenfor appen avklarer grunnlaget i appen bare når det er en
-    endringsordre registrert etter OV-U6. Ellers svarer byggherren på grunnlaget fra appen som
-    et nytt svar, og byggherren kan i begrunnelsen vise til det tidligere svaret. Som i dag.»
+    det eksterne svaret hver for seg, og bekreftelsen innebærer ikke at andre frister starter
+    på nytt. Godkjenner bekreftelsen grunnlaget uten påberopt preklusjon i en underkategori der
+    § 32.2 gjelder, oppgir byggherren om det tidligere svaret var en endringsordre etter § 31.3.
+    Var det det, avvises bekreftelsen med beskjed om å registrere endringsordren etter OV-U6.
+    Var det ikke det, er bekreftelsen en endringsordre etter GR-U12 og GR-U13, med teksten
+    GR-U13 krever. Viser det tidligere svaret til et krav som bare er registrert som
+    dokumentasjon, avvises bekreftelsen som etter OV-U12. Har byggherren vist til et svar
+    utenfor appen og gir i stedet et nytt svar, velger byggherren det uttrykkelig, skjemaet sier
+    at byggherren kan være bundet av det tidligere svaret, og brevet sier at byggherren tidligere
+    viste til <dokumenttype> av <dato>. Visningen viser henvisningen sammen med det nye svaret,
+    sier at utledningen bygger på svaret i appen og at det tidligere dokumentet ikke er tolket,
+    og framstiller ikke det nye svaret som rettslig overordnet det tidligere. Utvider GR-U26 og
+    vedtaket om brev sendt utenfor appen 25.10 (spørsmål 1): virkningen kommer av et brev fra
+    appen, ikke av et registrert brev, men gjør et svar utenfor appen relevant for utledningen
+    utover OV-U5 og OV-U6. Presiserer GR-U12, GR-U13, OV-U12, OV-U13, KA-U19 og HF-U13, og
+    anvender LV-U7. I tråd med OV-U4 og MM-U12.»
+  - **B:** «Et svar gitt utenfor appen gir et svar på grunnlaget i appen bare når det er en
+    endringsordre registrert etter OV-U6, med vilkårene i OV-U12. Ellers svarer byggherren på
+    grunnlaget fra appen som et nytt svar, og byggherren kan i begrunnelsen vise til det
+    tidligere svaret. Bekrefter OV-U4 og OV-U6.»
 - **Anbefaling:** A, som forslag. Byggherren slipper å meddele et standpunkt på nytt for å
   komme videre, og appen får et uttrykkelig, strukturert standpunkt å bygge på, uten å lese det
   eksterne dokumentet. Virkningen av bekreftelsen gjelder appens utledning; den sier ikke at det
@@ -350,15 +365,18 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   fristbehandlingen under er avklart.
 - **Hva valget styrer:** grunnlagsskjemaet, brevteksten for en bekreftelse og visningen av en
   henvisning ved siden av et nytt svar. Regelverket og brevteksten endres.
-- **Avhenger av:** spørsmål 2, alternativ D. Ved A–C i spørsmål 2 faller henvisningen bort, og
-  en bekreftelse må oppgi dokumentet selv.
+- **Avhenger av:** spørsmål 2, alternativ D, for at henvisningen finnes. A kan også stå uten D;
+  bekreftelsen oppgir da dokumentet selv. A gir et svar utenfor appen virkning i utledningen
+  gjennom et brev fra appen, og det må vurderes mot svaret på spørsmål 1, som sier at
+  virkningen bygger på opplysninger etter OV-U5 og OV-U6.
 - **Åpne avklaringspunkter, uten anbefaling:**
   1. **Fristene.** Kjernen regner i dag ingen frist fra datoen for byggherrens svar (L, søk i
      `kjerne/regler/` og `kjerne/utledning/`). Identifiserte fristspørsmål, ikke en uttømmende
      liste: svar uten ugrunnet opphold etter § 32.3 annet ledd (påberopelsen er utsatt, VS-U3
      og OV-U7), begrunnelse av avslag etter § 32.3 tredje ledd, og påberopelse etter § 5
      tredje ledd av at et varsel eller svar kom for sent, også TEs påberopelse av at
-     byggherren svarte for sent. Før en av dem beregnes, må det avklares hvilken hendelse den
+     byggherren svarte for sent. Bindingen og akseptfristen for selve bekreftelsen følger
+     LV-U7. Før en av dem beregnes, må det avklares hvilken hendelse den
      regnes fra når svaret er bekreftet. Til da viser appen ingen dato som en sikker
      kontraktsfrist.
   2. **Saken er avsluttet utenfor appen.** Har partene gjort opp hele saken utenfor appen,
