@@ -688,9 +688,9 @@ fra 25.10.
     gir da ikke sammenfall med kravet, og TE tar stilling ved å godta eller ikke godta svaret
     (HF-U7). Godtar TE, sier brevet: ‹TE godtar byggherrens svar i brev <n> av <dato>, med
     vilkårene som fremgår av svaret.› Løsningen registrerer da enighet med særskilte vilkår i
-    sporet. Den tolker ikke vilkårene, avgjør ikke om de er oppfylt og endrer ikke andre spor.
-    Gjelder et vilkår et annet spor, får det virkning der bare gjennom partenes egne handlinger
-    i det sporet. En enighet med særskilte vilkår binder som en enighet etter KA-U7: en ny
+    sporet. Den tolker ikke vilkårene og avgjør ikke om de er oppfylt. Løsningen endrer ikke
+    utledningen i andre spor automatisk som følge av aksepten. Den avgjør ikke hvilken rettslig
+    betydning vilkårene har for disse sporene. En enighet med særskilte vilkår binder som en enighet etter KA-U7: en ny
     kravversjon og byggherrens revisjon i sporet avvises. Den er betinget eller uten virkning
     etter de samme reglene som annen enighet (GR-U7), og TE kan trekke kravet (KA-U6). Den
     behandles ikke automatisk som virksom, heller ikke når grunnlaget er avklart. Til vilkårene
@@ -699,8 +699,9 @@ fra 25.10.
     «Enige», med vilkårene og henvisningen til brevet i linja under. Nøkkeltallene viser den
     særskilt. Reglene og sperrene for TEs aksept gjelder (HF-U18, FO-U5). En
     revisjon som endrer opplysningen fra nei til ja, avvises, fordi den svekker det byggherren
-    har gitt (HF-U5, HF-U6). En revisjon fra ja til nei endrer i TEs favør, og gir svaret da
-    sammenfall, er partene enige (GR-U7). Opplysningen er byggherrens og lagres med
+    har gitt (HF-U5, HF-U6). En revisjon fra ja til nei godtas bare når brevet uttrykkelig sier
+    at byggherren frafaller vilkårene i det tidligere svaret, med henvisning til det. Et endret
+    skjemasvar alene er ikke et frafall og gir ikke sammenfall. Opplysningen er byggherrens og lagres med
     svarversjonen. Løsningen kontrollerer den ikke mot utdypningen og tolker ikke teksten. Svar
     på grunnlaget og registrering av en endringsordre etter OV-U6 omfattes ikke; der avvises
     sendingen eller registreringen som svar på grunnlaget når byggherren opplyser om slike
@@ -733,13 +734,18 @@ fra 25.10.
     sperres fortsatt. Brevet får
     en ny fast setning. Regelversjonen og projeksjonsversjonen økes.
   - **Avklaringspunkt som avgjøres før D tas i ekte bruk:** hvordan vilkårene blir avklart, så
-    enigheten kan bli virksom. Uten en vei videre blir det en blindvei. Forslag: byggherren kan
-    i et eget utsagn erklære vilkårene oppfylt eller frafalle dem, med henvisning til brevet
-    med vilkårene. Vilkårene er byggherrens egne, og utsagnet endrer i TEs favør, så det
-    trenger ikke TEs aksept (HF-U6). Løsningen avgjør fortsatt ikke om vilkårene faktisk er
-    oppfylt; den bygger på byggherrens utsagn. Mener TE at vilkårene er oppfylt, og byggherren
-    ikke erklærer det, står enigheten uavklart. Om saken da kan avsluttes administrativt,
-    avgjøres sammen med avklaringspunkt 2 i spørsmål 2b.
+    enigheten kan bli virksom. Uten en vei videre blir det en blindvei. Avklaringspunktet står
+    åpent, uten anbefaling. Tre handlinger må holdes atskilt, fordi de ikke kan få samme
+    virkning:
+    1. Byggherren frafaller en betingelse som bare er stilt til byggherrens egen fordel.
+    2. En part opplyser at en avtalt betingelse er oppfylt. Det er en opplysning om faktum.
+    3. Partene endrer eller avklarer innholdet i avtalen. Det kan kreve begge parters
+       tilslutning.
+
+    At byggherren foreslo vilkårene, betyr ikke at de bare beskytter byggherren. De kan også
+    gjelde byggherrens plikter, TEs rettigheter eller en samlet avveining mellom partene, så en
+    erklæring fra byggherren alene gjør ikke enigheten virksom som en generell regel. Om saken
+    kan avsluttes administrativt, avgjøres sammen med avklaringspunkt 2 i spørsmål 2b.
   - **Prøvd mot vedtaksfila 25.10** av en subagent, sammen med 5-D og føringen i 2b. Rettelsene
     er tatt inn: D er avgrenset til vederlag og frist, forholdene til GR-U7, GR-U8, GR-U26,
     MM-U28, MM-U30 og LV-U4 er rettet, virkningen er plassert i forhold til betinget og uten
@@ -747,7 +753,9 @@ fra 25.10.
     er skrevet ut. Etter prøvingen er tre ting rettet etter sparringen: avgrensningen til
     vederlag og frist er beskrevet som et produktvalg, «aldri virksom» er erstattet med «ikke
     automatisk virksom» og en vei videre, og vilkår og betinget enighet er ikke lenger gjensidig
-    utelukkende.
+    utelukkende. I en ny runde ble setningen om andre spor skrevet om fra en rettsregel til
+    løsningens atferd, en revisjon fra ja til nei krever et uttrykkelig frafall i brevet, og
+    forslaget om at byggherren alene kan avklare vilkårene er tatt ut.
   - **Føringene for utformingen** over gjelder D med én endring: etter D er opplysningen en del
     av brevet, fordi den har virkning for TE.
   - **Sparring 25.10**, ordrett. Den ene modellen: «Ikke blokker sending! La et ‹Ja› sperre for
@@ -1124,9 +1132,16 @@ fra 25.10.
   og uten en korrigeringsvei har TE da ingen vei for slike rettinger. B-16 i hovedplanen krever
   en korrigeringsprosess før produksjon, men godtar en manuell prosess. Valget for
   oppdragsgiver:
-  - **Utvid 5-D** til de andre rene faktaopplysningene 5b-B nevner, et nummer eller en
-    henvisning, som navngitte unntak. Da er den første grunnen borte, kravet før første ekte
-    sak følger B-16, og hele rettingsflyten etter MM-U21 trenger ikke bygges før.
+  - **Utvid 5-D smalt til dokumentbetegnelser og henvisninger:** «Avsenderen kan oppgi en
+    korrigert dokumentbetegnelse eller henvisning i et nytt utsagn. Tidligere utsagn og
+    dokumentkoblinger står uendret. Korrigeringen endrer ikke automatisk hvilket dokument et
+    tidligere varsel, krav, svar, avkall eller en aksept gjelder.» Et nummer er ikke
+    nødvendigvis en ufarlig opplysning: å endre «brev 12» til «brev 21» kan endre hvilket varsel
+    en innsigelse gjelder, hvilket tilbud som godtas, eller hvilken endringsordre kravet bygger
+    på. Utvidelsen viser derfor den nye opplysningen uten å flytte tidligere virkninger. Å endre
+    selve koblingen mellom et utsagn og et dokument krever fortsatt en særskilt avklart prosess.
+    Utvidelsen fjerner derfor ikke hele behovet for MM-U21 før ekte bruk, men det manuelle
+    alternativet i B-16 kan være nok for tilfellene som står igjen.
   - **Behold kravet fra 25.10:** rettingen etter MM-U21 bygges før første ekte sak for alle
     andre opplysninger.
 
