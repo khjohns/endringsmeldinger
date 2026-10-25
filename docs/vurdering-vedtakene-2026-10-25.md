@@ -500,6 +500,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Hva valget styrer:** den faste setningen i vederlagssvaret når svaret gir sammenfall.
   Brevteksten fryses med brevet, så både regelversjonen og projeksjonsversjonen økes.
 - **Avhenger av:** spørsmål 3b, som anbefales vedtatt sammen med A. Ikke av spørsmål 1.
+- **Svar 25.10 (oppdragsgiver):** A, sammen med 3b-A. Oppdragsgiver ordrett: «Ja», til
+  anbefalingen «Spørsmål 3: A, sammen med 3b.» Forkastet: B og C slik de står. Svaret føres i
+  vedtaksregisteret i en egen vedtaks-PR.
 - **Sparring 25.10:** forslaget er rettet etter to runder med andre modeller. Sparringen er
   ikke oppdragsgivers svar, og alternativene står åpne. Ordrett:
   - «Jeg støtter A som en avgrenset retting av brevteksten, men ikke begrunnelsen om at den
@@ -586,6 +589,11 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
     opplysningen på nytt og følger fullmaktsflyten for den nye versjonen.
 - **Avhenger av:** spørsmål 3, som anbefales vedtatt sammen med A, og svaret på spørsmål 2b
   for føringen. Ikke av spørsmål 1.
+- **Svar 25.10 (oppdragsgiver):** A, med utvidelsen til OV-U6 og avgrensningen av vilkår om
+  vederlag og frist fra den siste kontrollen. Oppdragsgiver ordrett: «Ja», til anbefalingen
+  «Spørsmål 3b: A, med utvidelsen til OV-U6 og avgrensningen over.» Forkastet: B og C slik de
+  står. Føringene for utformingen føres som arbeidsvalg i byggeissuet. Svaret føres i
+  vedtaksregisteret i en egen vedtaks-PR.
 - **Prøvd mot vedtaksfila 25.10** av en subagent. Ingen alternativ strider mot et vedtak som
   ikke er nevnt. Prøvingen ga disse rettelsene i 3 og 3b: vilkåret i 3-A knyttes til
   sammenfall, svaret 24.10 siteres ordrett, listene over vedtak som C endrer, er utvidet,
