@@ -147,8 +147,26 @@ sparring med to andre modeller. Denne gangen var spørsmålet om løsningen gir 
 arbeidsmåte, ikke bare om den samsvarer med vedtakene. Revurderingen står ved hvert spørsmål:
 én føring for utformingen (2b), to nye alternativer (3b-D og 5-D) og en endring av avvisningen
 i 5b-B, og et eget alternativ for OV-U41 (5-E). Hvert nytt alternativ sier
-hvilket svar fra 25.10 det erstatter hvis det velges. Til oppdragsgiver har valgt, står svarene
-fra 25.10.
+hvilket svar fra 25.10 det erstatter hvis det velges.
+
+**Svar etter revurderingen 25.10 (oppdragsgiver), ordrett:** «Enig med dere». Svaret gjelder
+anbefalingen slik den ble lagt fram, med presiseringene fra sparringen som er tatt inn i
+teksten:
+
+1. Føringen i 2b: ja.
+2. Spørsmål 3b, alternativ D (D1–D3): ja. Det erstatter 3b-A for svar på vederlag og frist
+   sendt fra løsningen; 3b-A står for svar på grunnlaget og for registrering etter OV-U6.
+   Sperrene mens et forslag om trekk står åpent: ja. Hvordan saken håndteres når partene ikke
+   blir enige om en avklaring av vilkårene (2a), avgjøres før D bygges.
+3. Spørsmål 5, alternativ D: ja. Det erstatter 5-A.
+4. Spørsmål 5, alternativ E: ja. Det endrer OV-U41.
+5. Revurderingen av 5b, med låsen, utdypingen, byggherrens senere begrunnelse etter KA-U34
+   og rettingen av betegnelsen på endringsordren: ja. Den endrer 5b-B.
+6. Leveransekravet: L2. L1 er forkastet.
+7. Rettingen av varseldatoen etter OV-U11 bygges før første ekte sak: ja. Den står i L2.
+8. Feil hjemmel eller feil endringsordre: H2. H1 er forkastet.
+
+Svarene føres i vedtaksregisteret i en egen vedtaks-PR, sammen med de andre svarene 25.10.
 
 ### Spørsmål 1. Brev sendt utenfor appen
 
