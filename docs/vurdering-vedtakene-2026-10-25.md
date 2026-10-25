@@ -329,8 +329,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
     gjeldende at …›. Bekreftelsen er et nytt utsagn i et brev fra appen. Den går gjennom
     fullmakten og brevkontrollen, og appens utledning bygger på standpunktet byggherren
     bekrefter. Skjemaet spør om det tidligere svaret hadde et forbehold eller vilkår som
-    standpunktene ikke kan uttrykke. Svarer byggherren ja, kan svaret ikke bekreftes, og
-    byggherren gir i stedet et nytt svar etter reglene nedenfor. Kontrollene ved sending
+    standpunktene ikke kan uttrykke. Svarer byggherren ja, kan svaret ikke bekreftes.
+    Byggherren kan i stedet velge å gi et nytt svar etter reglene nedenfor. Henvisningen til
+    det tidligere svaret kan stå uten en bekreftelse. Kontrollene ved sending
     gjelder bekreftelsen. De avgjør ikke om det tidligere svaret oppfylte kravene til
     endringsordre eller fullmakt, eller hva det bandt partene til. Etter LV-U7 regner appen
     akseptfristen fra sendingen av bekreftelsen, og bindingen ved bekreftelsen likeså. Det er
@@ -362,11 +363,11 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
     grunnlaget fra appen som et nytt svar, og byggherren kan i begrunnelsen vise til det
     tidligere svaret. Bekrefter OV-U4 og OV-U6.»
 - **Anbefaling:** A, som forslag og som en ny vei som må besluttes uttrykkelig. Et forbehold
-  som ikke kan uttrykkes, gjør at svaret ikke kan bekreftes; å bekrefte avgrensede deler av
-  svaret er vurdert, men ikke tatt med, fordi standpunktet til grunnlaget er ett valg.
-  Byggherren slipper å meddele et standpunkt på nytt for å komme videre, og appen får et
-  uttrykkelig, strukturert standpunkt å bygge på, uten å lese det eksterne dokumentet. Virkningen av bekreftelsen gjelder appens utledning; den sier ikke at det
-  eksterne svaret var uten rettsvirkning før bekreftelsen. A kan ikke vedtas fullt ut før
+  som ikke kan uttrykkes, gjør at svaret ikke kan bekreftes. Å bekrefte avgrensede deler av
+  svaret holdes utenfor, som en avgrensning av produktet. Byggherren kan bekrefte et tidligere
+  meddelt standpunkt, med uttrykkelig henvisning til det tidligere svaret, og appen får et
+  uttrykkelig, strukturert standpunkt å bygge på, uten å lese det eksterne dokumentet.
+  Virkningen av bekreftelsen gjelder appens utledning; den sier ikke at det eksterne svaret var uten rettsvirkning før bekreftelsen. A kan ikke vedtas fullt ut før
   fristbehandlingen under er avklart.
 - **Hva valget styrer:** grunnlagsskjemaet, brevteksten for en bekreftelse og visningen av en
   henvisning ved siden av et nytt svar. Regelverket og brevteksten endres.
@@ -387,6 +388,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   - «Jeg støtter at 2b-A beskrives som en ny, uttrykkelig besluttet vei, fremfor som noe som
     allerede følger av OV-U5 og OV-U6. […] godkjenner derfor ikke den endelige vedtaksteksten
     ennå.»
+  - Til de tre rettelsene i begrunnelsen, valget av nytt svar og fristavsnittet, som er tatt
+    inn: «Tilslutningen til rettelsene er ikke en endelig godkjenning av 2b-A; det åpne
+    fristspørsmålet står fortsatt.»
 - **Åpne avklaringspunkter, uten anbefaling:**
   1. **Fristene.** Kjernen regner i dag ingen frist fra datoen for byggherrens svar (L, søk i
      `kjerne/regler/` og `kjerne/utledning/`). Identifiserte fristspørsmål, ikke en uttømmende
@@ -395,8 +399,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
      tredje ledd av at et varsel eller svar kom for sent, også TEs påberopelse av at
      byggherren svarte for sent. For selve bekreftelsen regner appen akseptfristen og
      bindingen etter LV-U7; det er appens beregning, ikke en avgjørelse av når byggherren
-     rettslig ble bundet. Før en av dem beregnes, må det avklares hvilken hendelse den
-     regnes fra når svaret er bekreftet. Til da viser appen ingen dato som en sikker
+     rettslig ble bundet. Før løsningen beregner noen av de nevnte kontraktsfristene etter
+     § 32.3 og § 5 tredje ledd, må det avklares hvilken hendelse fristen regnes fra når
+     svaret er bekreftet. Til da viser appen ingen dato som en sikker
      kontraktsfrist.
   2. **Saken er avsluttet utenfor appen.** Har partene gjort opp hele saken utenfor appen,
      løser en bekreftelse bare grunnlaget. Om saken skal kunne avsluttes administrativt, merket
