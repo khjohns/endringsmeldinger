@@ -367,8 +367,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   svaret holdes utenfor, som en avgrensning av produktet. Byggherren kan bekrefte et tidligere
   meddelt standpunkt, med uttrykkelig henvisning til det tidligere svaret, og appen får et
   uttrykkelig, strukturert standpunkt å bygge på, uten å lese det eksterne dokumentet.
-  Virkningen av bekreftelsen gjelder appens utledning; den sier ikke at det eksterne svaret var uten rettsvirkning før bekreftelsen. A kan ikke vedtas fullt ut før
-  fristbehandlingen under er avklart.
+  Virkningen av bekreftelsen gjelder appens utledning; den sier ikke at det eksterne svaret
+  var uten rettsvirkning før bekreftelsen. A kan ikke vedtas fullt ut før fristbehandlingen
+  under er avklart.
 - **Hva valget styrer:** grunnlagsskjemaet, brevteksten for en bekreftelse og visningen av en
   henvisning ved siden av et nytt svar. Regelverket og brevteksten endres.
 - **Avhenger av:** spørsmål 2, alternativ D, for at henvisningen finnes. A kan også stå uten D;
