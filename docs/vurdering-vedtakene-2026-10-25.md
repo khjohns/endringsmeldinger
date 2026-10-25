@@ -1247,24 +1247,25 @@ fra 25.10.
     underkategorien og, i underkategorien endringsordre, henvisningen til endringsordren. En ny
     grunnlagsversjon kan ikke endre dem. Datoopplysningen i grunnlagskravet om når pålegget
     ble mottatt eller TE ble klar over forholdet, endres bare etter egne regler. Vil TE påberope
-    en annen hjemmel eller en annen endringsordre, oppretter TE en ny sak og overfører kravene
-    dit, som etter GR-U22. TE kan utdype begrunnelsen for et krav eller korrigere en opplysning
-    i et eget utsagn med henvisning til kravet. TE velger i skjemaet om TE utdyper eller
-    korrigerer, eller om TE sender en ny kravversjon, og skjemaet sier følgen av hvert valg.
-    Utsagnet endrer ikke noe felt i kravet. TE opplyser at det gjelder samme krav og ikke
-    endrer det TE krever. Utsagnet er ikke en ny kravversjon, avslår ikke byggherrens svar og
-    godtas også i et spor med enighet og når kravene er avgjort, uten å endre utfallet. Sporet
-    venter ikke på et nytt svar i løsningen. Byggherren kan ta utsagnet med i et senere svar
-    eller i en revisjon som ellers er tillatt (HF-U5). Brevet sier: ‹TE utdyper [korrigerer]
-    kravet i brev <n> av <dato>. Utsagnet gjelder samme krav og endrer ikke det TE krever.›,
-    fulgt av TEs tekst. Tidligere utsagn og dokumentkoblinger står uendret, og utsagnet endrer
-    ikke hvilket dokument et tidligere varsel, krav, svar, avkall eller en aksept gjelder.
-    Løsningen tolker ikke teksten. En ny grunnlagsversjon med samme hjemmel er fortsatt mulig
+    en annen hjemmel eller en annen endringsordre, går det i en ny sak etter GR-U22. En enighet
+    i saken står (KA-U7), og løsningen flytter den ikke til den nye saken. TE kan sende en
+    utdypende begrunnelse eller korrigere en betegnelse, for eksempel nummeret på samme
+    endringsordre, med henvisning til kravet. TE velger i skjemaet mellom dette og en ny
+    kravversjon, og skjemaet sier følgen av hvert valg. Utdypingen endrer ikke kravets
+    strukturerte opplysninger og behandles ikke som en ny kravversjon. Den endrer ikke i seg
+    selv løsningens utledning av tidligere svar eller enigheter, og den godtas også i et spor
+    med enighet og når kravene er avgjort. Sporet venter ikke på et nytt svar i løsningen.
+    Byggherren kan ta utdypingen med i et senere svar eller i en revisjon som ellers er
+    tillatt (HF-U5). Brevet sier: ‹TE utdyper sitt krav om <grunnlaget / justering av
+    vederlaget / fristforlengelse> i brev <n> av <dato>:›, og TEs tekst følger. Tidligere utsagn
+    og dokumentkoblinger står uendret. Løsningen tolker ikke teksten for å avgjøre om den
+    inneholder et endret krav eller andre rettslige utsagn. En ny grunnlagsversjon med samme hjemmel er fortsatt mulig
     der GR-U22 og sperrene etter enighet (KA-U7, OV-U3) tillater den, og den avslår byggherrens
     tilbud i grunnlagssporet etter avslagsregelen. Varseldatoen etter OV-U11 og rettinger fra
     byggherren følger MM-U21. Endrer avvisningen i svaret 25.10 på spørsmål 5b. Snevrer inn
-    GR-U22 for henvisningen til endringsordren og MM-U21 for opplysninger i fritekst. Utvider
-    OV-U3 og LV-U4.» Henvisningene til svarene 25.10 byttes med vedtaks-ID-ene når svarene
+    GR-U22 for henvisningen til endringsordren og MM-U21 for opplysninger i fritekst. Endrer
+    OV-U7, som utsatte senere begrunnelse fra løsningen, for TEs utdyping. Utvider OV-U3 og
+    LV-U4. Følger mønsteret i KA-U34.» Henvisningene til svarene 25.10 byttes med vedtaks-ID-ene når svarene
     føres.
   - **Begrunnelse:** arbeidsmåten oppdragsgiver beskriver, et raskt grunnlag og en utdypet
     begrunnelse senere, er god og har støtte i kontrakten: der § 32.2 gjelder, skal TE varsle
@@ -1278,8 +1279,13 @@ fra 25.10.
     der overføringen ikke er et avkall (GR-U22). Avvisningen i 5b-B kunne ikke håndheves, fordi
     løsningen ikke tolker fritekst og ikke kan skille en skrivefeil fra et bytte i et tekstfelt
     (L, `endringsordre` i `KRAVINNHOLD`, `kjerne/format/format.ts`). Skillet følger derfor TEs
-    valg og opplysning, som i spørsmål 3b. Utdyping og korrigering er samme handling med to
-    valg, fordi ingen av dem endrer noe felt.
+    valg, som i spørsmål 3b. Utdyping og korrigering av en betegnelse er samme handling, fordi
+    ingen av dem endrer noe felt. Datoopplysningen er ikke låst: den korrigeres etter 5-D uten
+    å åpne byggherrens svar på nytt.
+  - **Spørsmål til oppdragsgiver om rekkefølgen:** byggherrens senere begrunnelse etter KA-U34
+    er samme mekanisme for den andre parten, og OV-U7 utsatte den. Skal den bygges sammen med
+    TEs utdyping i første versjon? Anbefaling: ja. Handlingen er den samme, og partene får like
+    muligheter. Begge endrer OV-U7.
   - **Leveransekravet, alternativene:** utsagnet og brevet etter 5-D bygges før første ekte
     sak i begge alternativene, fordi de er TEs vei til å utdype eller rette uten å avslå
     byggherrens svar. Rettingen etter MM-U21 gjelder da varseldatoen etter OV-U11, rettinger
@@ -1297,7 +1303,9 @@ fra 25.10.
     opplyser at det gjelder samme krav, og hva MM-U21 dekker, er samkjørt. Forløpene fant at en
     ny grunnlagsversjon kunne bytte endringsordre etter enighet; oppdragsgivers føring lukker
     det. Prøvingen foreslo at TE trekker og fremmer kravet i en ny sak; sparringen byttet det
-    ut, og GR-U22 gir nå veien uten avkall.
+    ut, og GR-U22 gir nå veien uten avkall. Sparringen etter oppdragsgivers føring skrev om
+    utdypingen så vedtaket beskriver løsningens behandling og ikke garanterer at en tekst TE
+    kaller utdyping, er uten rettslig betydning, og fant forholdet til OV-U7.
   - **Sparring 25.10**, ordrett: «Samme endring kan ha samme betydning uansett lagringsform.
     Å bytte hvilken endringsordre kravet bygger på, er ikke nødvendigvis en ren
     opplysningsretting fordi henvisningen står i fritekst.» og «Løsningen trenger ikke tolke
