@@ -21,6 +21,14 @@ betydning i kode, tester og dokumentasjon. Ikke oversett domenet bare for å
 tilpasse det til en LLM. Tekst i grensesnittet har setningsstil («Send krav om
 endring»), med TE, BH, EO og KOE i store bokstaver og mellomrom i «§ 33.8».
 
+**Tilpass betegnelsen til teksten.** I vedtak og produktbeskrivelser brukes normalt
+«løsningen». I tekniske beskrivelser navngis den aktuelle delen, for eksempel kjernen,
+visningen eller registreringen. I brukerrettet tekst foretrekkes konkrete beskrivelser
+av handlingen. Partenes brev omtaler normalt partene, handlingene og dokumentene, ikke
+programvaren. Ikke endre sitater, lagrede navn eller vedtatt brevtekst som en ren
+språkretting. Begrunnelsen og eksemplene står i
+[designsystemet](docs/design/system.md#hva-løsningen-kalles) (oppdragsgiver 25.10).
+
 Egne funksjoner, klasser, variabler og regel- og feilkoder har norske navn:
 `hent_saker`, ikke `fetch_cases`; `SAK_AVSLUTTET`, ikke `CASE_CLOSED`. Engelsk
 brukes bare for navn utenfra (biblioteker, protokollfelt, eksterne API-er) og
