@@ -800,6 +800,12 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   avgjøres der. 5-B og 5-C kan ikke velges sammen med 5b-B, fordi de lar datoen endres i en ny
   versjon, mens 5b-B legger korrigeringen til MM-U21. De andre kombinasjonene henger sammen.
   Anbefalt er 5-A med 5b-B. Ikke av spørsmål 1.
+- **Svar 25.10 (oppdragsgiver):** A, sammen med 5b-B, med uttrykkelig avvik fra valget 22.10
+  i #1127 om at mottaksdatoen er TEs opplysning i den gjeldende versjonen. Oppdragsgiver
+  ordrett: «Dere virker enige så da er jeg fornøyd med deres anbefaling.» Anbefalingen var
+  «A, sammen med 5b-B», og den sa at avviket fra #1127 må besluttes uttrykkelig. Forkastet: B
+  og C slik de står. Svaret føres i vedtaksregisteret i en egen vedtaks-PR, og #1127 føres
+  etter dette svaret.
 - **Sparring 25.10:** B, A og anbefalingen er rettet etter sparring mellom økta, oppdragsgiver
   og en annen modell: TEs opplysning skilles fra fristens rettslige utgangspunkt, byggherren
   bestrider datoen i svaret (OV-U41, fordi bestridelse som eget utsagn er utsatt etter OV-U7),
@@ -906,6 +912,17 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
 - **Avhenger av:** spørsmål 5. De avgjøres sammen. 5b-B kan ikke velges sammen med 5-B eller
   5-C, fordi de lar datoen endres i en ny versjon, mens 5b-B legger korrigeringen til MM-U21. De
   andre kombinasjonene henger sammen. Anbefalt er 5-A med 5b-B. Ikke av spørsmål 1.
+- **Svar 25.10 (oppdragsgiver):** B, sammen med 5-A, med leveransekravet i B: rettingen etter
+  MM-U21 bygges før første ekte sak. Det går lenger enn hovedplanens krav før produksjon, som
+  åpner for en manuell prosess (B-16). Oppdragsgiver ordrett: «Dere virker enige så da er jeg
+  fornøyd med deres anbefaling.» Forkastet: C slik den står. A inngår i B; i
+  vedtaksregisteret føres B med teksten i A skrevet ut ordrett, så vedtaket kan stå alene.
+  Svaret føres i vedtaksregisteret i en egen vedtaks-PR.
+- **Føring for arbeidet med B-16 (sparringen 25.10, ikke del av vedtaksteksten):** byggherrens
+  godkjenning av en korrigert dato skilles fra byggherrens vurdering av rettidigheten.
+  Byggherren kan godta at TE mottok pålegget en bestemt dag og fortsatt mene at varselet kom
+  for sent. Godkjenningen av rettingen er ikke i seg selv et «i tide»-standpunkt eller et
+  frafall av innsigelsen etter HF-U4, som bare gjelder et uttrykkelig utsagn. Ført i #276.
 - **Sparring 25.10:** spørsmålet kom fra oppdragsgiver i sparringen om spørsmål 5, og er
   utformet i sparring mellom økta, oppdragsgiver og en annen modell. Den rettet «TE godtar
   ikke» til et uttrykkelig avslag, avgrenset avslaget til et svar som kan godtas, og tok ut
