@@ -651,11 +651,12 @@ besvart.
   er avklart at ingen tidsinnsigelse virker. Senere vedtak sier det motsatte av MP-U7: en
   innsigelse etter svaret «endrer ikke et tidligere svar eller en enighet» (VS-U9), og et
   registrert brev gir ikke noe «uavklart utfall» (OV-U4). Følge til VS-U1 sier «I tråd med
-  MP-U5, MP-U7». MP-U7 er ikke bygget. Innledningen i vedtaksfila sier om vedtakene: «De tas
-  ikke opp igjen uten at beslutningen eksplisitt oppheves.» Følge sier når et senere vedtak
-  gjelder foran, og ingen post i registeret har et forhold til MP-U7. Motstriden avgjøres
-  derfor av dette vedtaket.
-- **Belegg:** § 5 tredje ledd. MP-U7, VS-U1, VS-U9, OV-U4, HF-U11, MM-U9.
+  MP-U5, MP-U7». Følge til MP-U7 sier «Tiltenkt atferd for prøven», og ingen vedtak har tatt
+  MP-U7 inn i løsningen, slik VS-U9 gjorde med MP-U6. MP-U7 er ikke bygget. Innledningen i
+  vedtaksfila sier om vedtakene: «De tas ikke opp igjen uten at beslutningen eksplisitt
+  oppheves.» Følge sier når et senere vedtak gjelder foran, og ingen post i registeret har et
+  forhold til MP-U7. Motstriden avgjøres derfor av dette vedtaket.
+- **Belegg:** § 5 tredje ledd. MP-U7, VS-U1, VS-U9, OV-U4, OV-U5, HF-U4, HF-U11, MM-U9.
 - **Alternativene:**
   - **A (anbefalt):** «For saker i løsningen endres MP-U7 på punktene om uavklart utfall og
     merking av sendte brev som utdatert, slik at disse samsvarer med VS-U9 og OV-U4. En
@@ -667,11 +668,16 @@ besvart.
   - **B:** «MP-U7 gjelder for innsigelser sendt fra løsningen. En innsigelse etter § 5 tredje
     ledd sendt fra løsningen, som strider mot premisset i et sendt svar, gir ‹uavklart:
     motstridende dokumentasjon› til en egen handling avgjør det. Registrerte brev følger
-    OV-U4. Endrer VS-U9 og HF-U11.»
+    OV-U4. Endrer VS-U3, VS-U9, VS-U24, OV-U3, OV-U7, HF-U4, HF-U11 og KA-U29, og MM-U3,
+    KA-U7 og GR-U10 for en enighet.»
 - **Anbefaling:** A. B lar en senere påberopelse fra den ene parten endre et utledet utfall og
   kreve en ny handling, i strid med VS-U9 og OV-U4. Å vise «uavklart» er ikke i seg selv en
   rettslig avgjørelse; det er virkningen på utfallet som strider mot vedtakene. B dekker heller
-  ikke tilfellet MP-U7 kom fra, fordi registrerte brev følger OV-U4 også etter B. To
+  ikke tilfellet MP-U7 kom fra, fordi registrerte brev følger OV-U4 også etter B. B strider
+  dessuten mot vedtakene om at en innsigelse etter § 5 tredje ledd er et utsagn uten
+  utledning, og mot HF-U4 når byggherren har sagt «i tide», og den bygger på en handling som
+  ikke er avgjort (B-16). OV-U5 sier det samme som A for et varsel registrert etter svaret:
+  «Et svar byggherren alt har gitt, står med virkningen det hadde og blir ikke uavklart.» To
   avgrensninger gjelder A:
   - «Ingen standpunkt» i OV-U4 betyr at løsningen ikke utleder et standpunkt av
     registreringen. Det betyr ikke at brevet er uten et rettslig relevant standpunkt.
@@ -685,7 +691,8 @@ besvart.
 - **Sparring 25.10:** A og anbefalingen er rettet etter sparring mellom økta, oppdragsgiver og
   en annen modell: første setning, tilfellet med en tidligere innsigelse som dokumenteres
   senere, «en enighet» som i VS-U9, og grunnlaget mot B. Premisset om at et senere vedtak
-  alltid gjelder foran, er trukket.
+  alltid gjelder foran, er trukket. Prøvingen mot vedtaksfila etter sparringen fant at
+  forholdet i B var ufullstendig, og det er rettet.
 - **Avhenger av spørsmål 1:** ved C må spørsmålet stilles på nytt for registrerte brev.
 
 ### Spørsmål 5. Datoen varslingsplikten løper fra i grunnlagskravet (VG-D-01)
@@ -1022,7 +1029,8 @@ Registrerte brev og saken samlet:
   verifiseringsøktene (§ 31.3, § 32.2, § 33.4, § 33.5, § 34.1.2, § 34.1.3, § 34.2.1, § 34.2.2
   og avtaleloven § 6).
 - **Alternativene i spørsmål 1, alternativ D i spørsmål 2 og spørsmål 2b** er prøvd mot
-  vedtaksfila av en subagent i denne økta.
+  vedtaksfila av en subagent i denne økta. Det samme er spørsmål 4 etter sparringen, mot
+  `3407b88`; vedtaksregisteret er ikke endret siden `569666b`.
   Alternativene i spørsmål 2–11 er prøvd av verifiseringsøktene; endringene deres er tatt inn.
 - **Rapportenes grenser gjelder**, blant annet: akseptfristen, rigg og drift som post,
   kunnskapsdatoen, merking av registrerte brev, frafall og forsering er ikke prøvd; Python-stien
