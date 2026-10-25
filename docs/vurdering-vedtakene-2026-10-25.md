@@ -290,6 +290,20 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Hva valget styrer:** den låste forbeholdsteksten i hvert vederlags- og fristsvar, og ved D
   et nytt valg i svarskjemaet. Regelverket og brevteksten endres, så regelversjonen økes.
 - **Avhenger av spørsmål 1:** nei.
+- **Svar 25.10 (oppdragsgiver):** D, med rettelsene fra sparringen, sammen med 2b-A.
+  Oppdragsgiver ordrett:
+  - «Ja, jeg anbefaler D i spørsmål 2, med rettelsene vi har gjennomgått, sammen med 2b-A.»
+  - «D: BH viser til et tidligere svar. Henvisningen gir ikke i seg selv et strukturert
+    grunnlagssvar i løsningen. Brevet presiserer at henvisningen og forbeholdet ikke endrer BHs
+    tidligere meddelte standpunkt.»
+  - «2b-A: BH bekrefter uttrykkelig det tidligere standpunktet gjennom den vanlige svarflyten.
+    Bekreftelsen er et nytt utsagn som løsningen bygger utledningen på.»
+  - «BH kan la henvisningen stå uten å bekrefte. Bekreftelse skal heller ikke kreve en
+    tidligere henvisning etter D; dokumentet kan oppgis i selve bekreftelsen.»
+
+  Forkastet: A, B og C slik de står. Etter svaret er setningen «Bekreftelsen krever ingen
+  tidligere henvisning, og en henvisning kan stå uten en bekreftelse.» lagt inn i 2b-A. Svaret
+  føres i vedtaksregisteret i en egen vedtaks-PR.
 - **Sparring 25.10:** oppdragsgiver foreslo at byggherren kan krysse av og vise til et tidligere
   svar, og ba om at det som skjer etter henvisningen, løses nå (spørsmål 2b). D og 2b er
   utformet i sparring mellom økta, oppdragsgiver og en annen modell. Oppdragsgiver sluttet seg
@@ -322,7 +336,8 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   - **A (anbefalt):** «Byggherren kan svare på gjeldende versjon av grunnlaget ved å bekrefte et
     svar gitt utenfor appen på den versjonen. Byggherren oppgir dokumentet som ved henvisningen
     etter GR-U26: et registrert dokument, eller dokumenttypen, datoen og en kort identifikasjon.
-    Byggherren velger standpunktet som i et svar fra appen. At standpunktet samsvarer med det
+    Bekreftelsen krever ingen tidligere henvisning, og en henvisning kan stå uten en
+    bekreftelse. Byggherren velger standpunktet som i et svar fra appen. At standpunktet samsvarer med det
     tidligere svaret, er byggherrens opplysning. Brevet sier: ‹Byggherren bekrefter sitt svar
     på grunnlaget i TEs krav i brev <n> av <dato>, gitt i <dokumenttype> av <dato>: …›, og ved
     påberopt preklusjon: ‹Byggherren bekrefter at hen i <dokumenttype> av <dato> gjorde
@@ -374,8 +389,8 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   fristene på nytt.
 - **Hva valget styrer:** grunnlagsskjemaet, brevteksten for en bekreftelse og visningen av en
   henvisning ved siden av et nytt svar. Regelverket og brevteksten endres.
-- **Avhenger av:** spørsmål 2, alternativ D, for at henvisningen finnes. A kan også stå uten D;
-  bekreftelsen oppgir da dokumentet selv. A gir et svar utenfor appen virkning i utledningen
+- **Avhenger av:** spørsmål 2, alternativ D, for at henvisningen finnes. A krever ingen
+  henvisning; bekreftelsen oppgir da dokumentet selv. A gir et svar utenfor appen virkning i utledningen
   gjennom et brev fra appen, og det må vurderes mot svaret på spørsmål 1, som sier at
   virkningen bygger på opplysninger etter OV-U5 og OV-U6.
 - **Merknader fra oppdragsgiver 25.10**, tatt inn i A, ordrett:
