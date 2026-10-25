@@ -671,9 +671,9 @@ besvart.
     OV-U4. Endrer VS-U3, VS-U9, VS-U24, OV-U3, OV-U7, HF-U4, HF-U11 og KA-U29, og MM-U3,
     KA-U7 og GR-U10 for en enighet.»
 - **Anbefaling:** A. B lar en senere påberopelse fra den ene parten endre et utledet utfall og
-  kreve en ny handling, i strid med VS-U9 og OV-U4. Å vise «uavklart» er ikke i seg selv en
-  rettslig avgjørelse; det er virkningen på utfallet som strider mot vedtakene. B dekker heller
-  ikke tilfellet MP-U7 kom fra, fordi registrerte brev følger OV-U4 også etter B. B strider
+  kreve en ny handling, i strid med VS-U9. Å vise «uavklart» er ikke i seg selv en rettslig
+  avgjørelse; det er virkningen på utfallet som strider mot vedtakene. Registrerte brev følger
+  fortsatt OV-U4 også etter B, så B dekker heller ikke tilfellet MP-U7 kom fra. B strider
   dessuten mot vedtakene om at en innsigelse etter § 5 tredje ledd er et utsagn uten
   utledning, og mot HF-U4 når byggherren har sagt «i tide», og den bygger på en handling som
   ikke er avgjort (B-16). OV-U5 sier det samme som A for et varsel registrert etter svaret:
