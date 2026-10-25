@@ -87,8 +87,11 @@ grunnlaget i appen (#818), så hvert vederlagssvar får forbeholdet.
 
 ### Hva kontrakten krever, og hva som er appens valg
 
-**Etter kontrakten (O):** § 5 krever at varsler og krav er skriftlige og sendt til partenes
-representanter. Den binder ikke partene til appen. Et varsel sendt på e-post eller i et brev
+**Etter kontrakten (O):** § 5 første ledd krever at varsler, krav og svar er skriftlige og
+sendt til partenes representanter eller avtalte adresser, og e-post til avtalt adresse regnes
+som skriftlig. Etter annet ledd regnes også et varsel eller krav i et møtereferat etter § 4.2
+som skriftlig. Bestemmelsen binder ikke partene til appen. Et varsel sendt på e-post, i et
+referat eller i et brev
 utenfor appen er like gyldig som et sendt fra appen, og preklusjon etter § 32.2, § 33.4,
 § 34.1.2 og § 34.1.3 avhenger av når varselet faktisk ble sendt. Appen kan derfor ikke
 hindre korrespondanse utenfor seg, og den kan ikke behandle et varsel den ikke kjenner som
@@ -605,11 +608,11 @@ Registrerte brev og saken samlet:
 - **Denne økta har ikke kjørt kode.** Belegget K og L er rapportenes. Forløpene i
   rapportene ble kjørt i kjernen i minnet, ikke gjennom serveren, testbasen eller
   nettleseren.
-- **Kontraktsteksten er ikke lest i denne økta.** `add_repo` for `khjohns/kontrakt` ble avslått
-  av tillatelseskontrollen. Avsnitt 2 og spørsmålene viser til bestemmelsene slik
-  verifiseringsøktene kontrollerte dem (§ 5, § 31.3, § 32.2, § 32.3, § 33.4, § 33.5, § 34.1.2,
-  § 34.1.3, § 34.2.1, § 34.2.2, avtaleloven § 6 og Del II pkt. B.2.16). Det som sies om
-  § 5 i avsnitt 2, er ikke kontrollert mot ordlyden i denne økta.
+- **Kontraktsteksten** (`khjohns/kontrakt`, commit `5540b60`) er lest i denne økta for § 5
+  (avsnitt 2), § 32.3 annet ledd (spørsmål 2) og formelen for forlenget byggetid i Del II
+  pkt. B.2.16 (spørsmål 7). De andre bestemmelsene spørsmålene viser til, er kontrollert av
+  verifiseringsøktene (§ 31.3, § 32.2, § 33.4, § 33.5, § 34.1.2, § 34.1.3, § 34.2.1, § 34.2.2
+  og avtaleloven § 6).
 - **Alternativene i spørsmål 1** er prøvd mot vedtaksfila av en subagent i denne økta.
   Alternativene i spørsmål 2–11 er prøvd av verifiseringsøktene; endringene deres er tatt inn.
 - **Rapportenes grenser gjelder**, blant annet: akseptfristen, rigg og drift som post,
