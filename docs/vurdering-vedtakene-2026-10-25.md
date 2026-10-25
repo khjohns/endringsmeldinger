@@ -247,9 +247,11 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   GR-U26 gir, å svare på grunnlaget i samme brev, finnes ikke i TS-ruta i dag (#818), så hvert
   vederlagssvar får setningen. I underkategoriene der § 32.2 gjelder, kan TE også lese
   setningen som at byggherren ikke har svart etter § 32.3 annet ledd (vår vurdering, ikke prøvd).
-- **Belegg:** § 32.3 annet ledd. GR-U26, OV-U4 og OV-U10.
+  En endringsordre registrert etter OV-U6 er et grunnlagssvar, og da kommer forbeholdet ikke
+  (L, `forbeholdForGrunnlaget` i `kjerne/frosset/brevtekst.ts`).
+- **Belegg:** § 32.3 annet ledd. GR-U26, OV-U4, OV-U6 og OV-U10.
 - **Alternativene:**
-  - **A (anbefalt):** «Når byggherren svarer på vederlag eller frist mens gjeldende versjon av
+  - **A:** «Når byggherren svarer på vederlag eller frist mens gjeldende versjon av
     grunnlaget ikke er besvart i appen, sier brevet: ‹Byggherren har ikke svart i appen på
     grunnlaget i TEs krav i brev <n> av <dato>. Standpunktene nedenfor gjelder under
     forutsetning av at grunnlaget for kravet foreligger.› Appen avgjør ikke om et brev sendt
@@ -262,11 +264,107 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
     B lar sporet og datoen registratoren oppga, styre en låst setning, og treffer ikke et svar
     utenfor appen som ikke er registrert.
   - **C:** «Teksten i GR-U26 står.»
-- **Anbefaling:** A. Setningen blir sann uten at appen avgjør hva et brev utenfor appen er.
-- **Hva valget styrer:** den låste forbeholdsteksten i hvert vederlags- og fristsvar. Regelverket
-  og brevteksten endres, så regelversjonen økes.
-- **Avhenger av spørsmål 1:** nei. Ved C blir tilfellet med et registrert svar borte, men ikke
-  tilfellet med et svar som ikke er registrert.
+  - **D (anbefalt):** «Når byggherren svarer på vederlag eller frist mens gjeldende versjon av
+    grunnlaget ikke er besvart, spør skjemaet: ‹Har du allerede svart utenfor appen på
+    grunnlaget i TEs krav i brev <n> av <dato>?› Brevnummeret og datoen er kravets. Svaret er
+    obligatorisk. Svarer byggherren nei, sier brevet som i dag: ‹Byggherren har ennå ikke svart
+    på grunnlaget i TEs krav i brev <n> av <dato>. Standpunktene nedenfor gjelder under
+    forutsetning av at grunnlaget for kravet foreligger.› Setningen er byggherrens egen
+    opplysning; appen kontrollerer den ikke. Svarer byggherren ja, oppgir byggherren et
+    registrert dokument, eller dokumenttypen (brev, e-post eller møtereferat), datoen og en
+    kort identifikasjon, og brevet sier: ‹For byggherrens standpunkt til grunnlaget i TEs krav
+    i brev <n> av <dato> vises det til byggherrens <dokumenttype> av <dato>. Standpunktene
+    nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger. Henvisningen og
+    forbeholdet endrer ikke byggherrens tidligere meddelte standpunkt til grunnlaget.›
+    Henvisningen gjelder gjeldende versjon av grunnlaget og følger ikke med en ny versjon. Den
+    gir ikke i seg selv et grunnlagssvar, en godkjenning eller et avslag i appens utledning, og
+    vederlag og frist er fortsatt betinget av grunnlaget etter GR-U7 og GR-U26. Utvider GR-U26.
+    I tråd med OV-U4 og OV-U6.»
+- **Anbefaling:** D. Det obligatoriske valget gjør «ennå ikke svart» til byggherrens
+  uttrykkelige opplysning, og henvisningen gjør brevet riktig når svaret finnes utenfor appen.
+  Forbeholdet står i begge tilfeller, så brevet og utledningen stemmer overens. A gjør setningen
+  sann, men lar et kontraktsbrev si noe om appen i stedet for om byggherrens handling. Valget
+  verifiserer ikke at opplysningen er riktig; det plasserer ansvaret for den hos byggherren.
+- **Hva valget styrer:** den låste forbeholdsteksten i hvert vederlags- og fristsvar, og ved D
+  et nytt valg i svarskjemaet. Regelverket og brevteksten endres, så regelversjonen økes.
+- **Avhenger av spørsmål 1:** nei.
+- **Sparring 25.10:** oppdragsgiver foreslo at byggherren kan krysse av og vise til et tidligere
+  svar, og ba om at det som skjer etter henvisningen, løses nå (spørsmål 2b). D og 2b er
+  utformet i sparring mellom økta, oppdragsgiver og en annen modell. Oppdragsgiver sluttet seg
+  til denne vurderingen fra sparringen, ordrett:
+  - «Før dette inn som forslag i PR #1282, med én rettelse om datoen og en tydeligere
+    språkregel. Det er ikke et endelig vedtak om D eller 2b.»
+  - «Skillet mellom henvisning, bekreftelse og nytt standpunkt er nå tydelig. Det er også
+    riktig at en henvisning uten registrert innhold ikke kan behandles som en kjent ekstern
+    godkjenning. Begrensningen må fremgå uten at oversikten fremstiller det nye svaret som
+    rettslig overordnet det tidligere.»
+  - «Behold ‹avsluttet utenfor løsningen› som eget avklaringspunkt. Og siden fristsetningen
+    ikke beskriver noen eksisterende beregning, bør den fjernes; før videre fristbehandling som
+    en uttrykkelig avgrensning eller et åpent spørsmål.»
+
+  Språkregelen fra sparringen, om ordet «appen» i vedtak, skjema og brev, føres i en egen PR
+  (oppdragsgiver 25.10). Alternativene her bruker derfor ordene i vedtaksfila i dag.
+
+### Spørsmål 2b. Når byggherren senere bekrefter et svar gitt utenfor appen
+
+- **Bakgrunn:** En henvisning etter D løser brevteksten, men ikke hvordan saken kommer videre.
+  Grunnlaget er fortsatt ubesvart i appen, og saken kan ikke regnes som avgjort før grunnlaget
+  er avklart (GR-U7, OV-U3). Har byggherren svart utenfor appen, og er svaret ikke en
+  endringsordre som kan registreres etter OV-U6, er den eneste veien i dag et nytt svar fra
+  appen. Det tvinger fram en ny meddelelse om et standpunkt byggherren alt har meddelt, med en
+  ny dato. Velger byggherren et annet standpunkt enn det eksterne svaret, kan appen ikke se
+  det, fordi en henvisning ikke har innhold.
+- **Belegg:** § 5 tredje ledd, § 32.3. GR-U1, GR-U7, GR-U10, GR-U12, GR-U13, GR-U26, OV-U3–OV-U7,
+  MM-U12.
+- **Alternativene:**
+  - **A (anbefalt):** «Byggherren kan svare på gjeldende versjon av grunnlaget ved å bekrefte et
+    svar gitt utenfor appen. Byggherren oppgir dokumentet som i spørsmål 2, alternativ D, og
+    velger standpunktet som i et svar fra appen. At standpunktet samsvarer med det tidligere
+    svaret, er byggherrens opplysning. Brevet sier: ‹Byggherren bekrefter sitt svar på
+    grunnlaget i TEs krav i brev <n> av <dato>, gitt i <dokumenttype> av <dato>: …›, og ved
+    påberopt preklusjon: ‹Byggherren bekrefter at hen i <dokumenttype> av <dato> gjorde
+    gjeldende at …›. Bekreftelsen er et nytt utsagn. Den går gjennom fullmakten og
+    brevkontrollen, og appens utledning bygger på standpunktet byggherren bekrefter, også etter
+    GR-U12 og GR-U13. Kontrollene ved sending gjelder bekreftelsen. De avgjør ikke om det
+    tidligere svaret oppfylte kravene til endringsordre eller fullmakt, eller hva det bandt
+    partene til. Har byggherren allerede gjort en påberopelse gjeldende utenfor appen, må
+    rettidigheten vurderes ut fra den tidligere meddelelsen; bekreftelsen dokumenterer
+    byggherrens opplysning om dette, men fastslår ikke at påberopelsen ble fremsatt eller var
+    rettidig. Appen registrerer datoen for bekreftelsen og byggherrens opplysning om datoen for
+    det eksterne svaret hver for seg, og bekreftelsen innebærer ikke at frister starter på
+    nytt. En bekreftelse gjelder bare den versjonen av grunnlaget det eksterne svaret gjaldt
+    (GR-U1). Har byggherren vist til et svar utenfor appen og gir i stedet et nytt svar,
+    velger byggherren det uttrykkelig, skjemaet sier at byggherren kan være bundet av det
+    tidligere svaret, og brevet sier at byggherren tidligere viste til <dokumenttype> av <dato>.
+    Visningen viser henvisningen sammen med det nye svaret, sier at utledningen bygger på svaret
+    i appen og at det tidligere dokumentet ikke er tolket, og framstiller ikke det nye svaret
+    som rettslig overordnet det tidligere. En endringsordre registreres som før etter OV-U6.
+    Utvider GR-U26. I tråd med OV-U4, OV-U5, OV-U6 og MM-U12.»
+  - **B:** «Et svar gitt utenfor appen avklarer grunnlaget i appen bare når det er en
+    endringsordre registrert etter OV-U6. Ellers svarer byggherren på grunnlaget fra appen som
+    et nytt svar, og byggherren kan i begrunnelsen vise til det tidligere svaret. Som i dag.»
+- **Anbefaling:** A, som forslag. Byggherren slipper å meddele et standpunkt på nytt for å
+  komme videre, og appen får et uttrykkelig, strukturert standpunkt å bygge på, uten å lese det
+  eksterne dokumentet. Virkningen av bekreftelsen gjelder appens utledning; den sier ikke at det
+  eksterne svaret var uten rettsvirkning før bekreftelsen. A kan ikke vedtas fullt ut før
+  fristbehandlingen under er avklart.
+- **Hva valget styrer:** grunnlagsskjemaet, brevteksten for en bekreftelse og visningen av en
+  henvisning ved siden av et nytt svar. Regelverket og brevteksten endres.
+- **Avhenger av:** spørsmål 2, alternativ D. Ved A–C i spørsmål 2 faller henvisningen bort, og
+  en bekreftelse må oppgi dokumentet selv.
+- **Åpne avklaringspunkter, uten anbefaling:**
+  1. **Fristene.** Kjernen regner i dag ingen frist fra datoen for byggherrens svar (L, søk i
+     `kjerne/regler/` og `kjerne/utledning/`). Identifiserte fristspørsmål, ikke en uttømmende
+     liste: svar uten ugrunnet opphold etter § 32.3 annet ledd (påberopelsen er utsatt, VS-U3
+     og OV-U7), begrunnelse av avslag etter § 32.3 tredje ledd, og påberopelse etter § 5
+     tredje ledd av at et varsel eller svar kom for sent, også TEs påberopelse av at
+     byggherren svarte for sent. Før en av dem beregnes, må det avklares hvilken hendelse den
+     regnes fra når svaret er bekreftet. Til da viser appen ingen dato som en sikker
+     kontraktsfrist.
+  2. **Saken er avsluttet utenfor appen.** Har partene gjort opp hele saken utenfor appen,
+     løser en bekreftelse bare grunnlaget. Om saken skal kunne avsluttes administrativt, merket
+     at oppgjøret ikke er utledet i appen, avgjøres særskilt og innføres ikke gjennom
+     henvisningen.
 
 ### Spørsmål 3. «Forbeholdene» når byggherren godkjenner hele tilbudet (VG-B-01, VG-C-01)
 
@@ -654,7 +752,8 @@ Registrerte brev og saken samlet:
   pkt. B.2.16 (spørsmål 7). De andre bestemmelsene spørsmålene viser til, er kontrollert av
   verifiseringsøktene (§ 31.3, § 32.2, § 33.4, § 33.5, § 34.1.2, § 34.1.3, § 34.2.1, § 34.2.2
   og avtaleloven § 6).
-- **Alternativene i spørsmål 1** er prøvd mot vedtaksfila av en subagent i denne økta.
+- **Alternativene i spørsmål 1, alternativ D i spørsmål 2 og spørsmål 2b** er prøvd mot
+  vedtaksfila av en subagent i denne økta.
   Alternativene i spørsmål 2–11 er prøvd av verifiseringsøktene; endringene deres er tatt inn.
 - **Rapportenes grenser gjelder**, blant annet: akseptfristen, rigg og drift som post,
   kunnskapsdatoen, merking av registrerte brev, frafall og forsering er ikke prøvd; Python-stien
