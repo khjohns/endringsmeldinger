@@ -696,33 +696,62 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
 - **Svar 25.10 (oppdragsgiver):** A. Oppdragsgiver ordrett: «Jeg godkjenner A». Forkastet: B
   slik den står. Svaret føres i vedtaksregisteret i en egen vedtaks-PR.
 
-### Spørsmål 5. Datoen varslingsplikten løper fra i grunnlagskravet (VG-D-01)
+### Spørsmål 5. TEs opplysning om mottaksdato eller kunnskapsdato i grunnlagskravet (VG-D-01)
 
 - **Bakgrunn:** TE oppgir i grunnlagskravet datoen pålegget ble mottatt eller TE ble klar over
   forholdet (VS-U26). I dag kan TE endre datoen i en ny grunnlagsversjon (GR-U22), også til en
-  senere dato. Brevet viser bare den nye (K, forløp 6 i del 2). Byggherrens påberopelse av at
-  varselet kom for sent faller med versjonen (HF-U8, #1127), så byggherren svarer på nytt. For
+  senere dato. Brevet viser bare den nye (K, forløp 6 i del 2). Byggherrens svar faller bort som
+  tilbud med den nye versjonen, så byggherren svarer på nytt (HF-U8). En påberopelse av at
+  varselet kom for sent faller ikke bort med det: «Den første innsigelsen og tidspunktet
+  bevares», og et senere svar gjentar den (VS-U9). Oppdragsgiver valgte 22.10 at påberopelsen
+  etter § 32.2 gjelder det første grunnlagskravet for pålegget, og at «Mottaksdatoen er TEs
+  opplysning i den gjeldende versjonen» (#1127). Valget er ikke ført som vedtak. For
   varseldatoen og kunnskapsdatoen gjelder rettingsmodellen: en retting til TEs fordel gjelder
   først når byggherren godtar den, og alle datoene vises (MM-U21, OV-U11, OV-U41). Ingen vedtak
-  avgjør hvilken modell som gjelder for datoen i grunnlagskravet.
+  avgjør hvilken modell som gjelder for datoen i grunnlagskravet. Datoen TE oppgir, er ikke
+  nødvendigvis fristens rettslige utgangspunkt: etter § 34.1.2 løper fristen fra TE «blir eller
+  burde ha blitt klar over» forholdet.
 - **Belegg:** § 32.2 første ledd, § 34.1.2 annet ledd, § 5 tredje ledd. VS-U26, GR-U22, HF-U8,
-  MM-U21, OV-U11, OV-U41.
+  VS-U9, MM-U21, OV-U7, OV-U11, OV-U41, #1127.
 - **Alternativene:**
-  - **A:** «Datoen varslingsplikten løper fra settes én gang i grunnlagskravet. En ny
-    grunnlagsversjon kan ikke endre den. TE retter den etter MM-U21 med henvisning til brevet
-    med opplysningen: en tidligere dato gjelder straks, en senere dato gjelder når byggherren
-    godtar rettingen. Alle datoene TE har oppgitt, vises som TEs utsagn, og et svar byggherren
-    alt har gitt, står med virkningen det hadde. Utvider MM-U21 og OV-U11 til datoen i VS-U26,
-    og snevrer inn GR-U22.»
-  - **B (anbefalt):** «En ny grunnlagsversjon kan endre datoen varslingsplikten løper fra, men
-    brevet sier da hvilken dato TE oppga i forrige versjon. Presiserer GR-U22 og VS-U26.»
-  - **C:** «En ny grunnlagsversjon kan endre datoen varslingsplikten løper fra. Den nye datoen
-    gjelder straks som TEs opplysning, og brevet viser bare den. Presiserer GR-U22 og VS-U26.»
-- **Anbefaling:** B. Delrapporten anbefalte A. Jeg anbefaler B fordi byggherren uansett svarer
-  på nytt på den nye versjonen (HF-U8) og da ser begge datoene, mens A krever en
-  rettingsflyt (MM-U21) som ikke er bygget, også for en ren skrivefeil.
+  - **A:** «TEs opplysning om når pålegget ble mottatt eller TE ble klar over forholdet, settes
+    én gang i grunnlagskravet. En ny grunnlagsversjon kan ikke endre den. TE retter den etter
+    MM-U21 med henvisning til brevet med opplysningen. En tidligere dato er en retting i
+    byggherrens favør og erstatter den tidligere opplysningen i løsningen straks. En senere dato
+    er en retting til TEs fordel og erstatter ikke den tidligere opplysningen i løsningen før
+    byggherren har godtatt den. Alle datoene TE har oppgitt, beholdes og vises som TEs utsagn,
+    og et svar byggherren alt har gitt, står med virkningen det hadde. Løsningen avgjør ikke
+    når varslingsfristen begynte å løpe, eller om varselet var rettidig. Utvider MM-U21 og
+    OV-U11 til datoen i VS-U26, og snevrer inn GR-U22.»
+  - **B (anbefalt):** «TE kan i en ny grunnlagsversjon endre sin opplysning om når pålegget ble
+    mottatt eller TE ble klar over forholdet. Endres datoen, viser brevet både den nye datoen
+    og datoen TE oppga i forrige versjon, med henvisning til det tidligere brevet. Tidligere
+    opplysninger og brev står uendret, og alle datoene TE har oppgitt, beholdes og vises som
+    TEs utsagn. Den nye datoen er TEs opplysning, ikke en dato løsningen har fastslått som
+    riktig. Byggherren tar stilling til rettidigheten i svaret på den nye versjonen, og kan der
+    godta eller bestride datoen. En påberopelse byggherren alt har fremsatt, bevares med
+    tidspunktet (VS-U9). Løsningen avgjør ikke når varslingsfristen begynte å løpe, eller om
+    varselet var rettidig. Når opplysningen endres gjennom en ny grunnlagsversjon etter GR-U22,
+    behandles endringen etter reglene for nye kravversjoner og ikke etter rettingsmodellen i
+    MM-U21. Dette innebærer ikke i seg selv at det foreligger et nytt rettslig krav eller at
+    noen varslingsfrist begynner på nytt. Presiserer GR-U22, VS-U26 og MM-U21.»
+  - **C:** «En ny grunnlagsversjon kan endre TEs opplysning om når pålegget ble mottatt eller
+    TE ble klar over forholdet. Den nye datoen gjelder straks som TEs opplysning, og brevet
+    viser bare den. Presiserer GR-U22 og VS-U26.»
+- **Anbefaling:** B. TE kan fremsette en korrigert opplysning uten at løsningen dermed godtar
+  den som riktig. Byggherren får se endringen og svarer på nytt, og tidligere påberopelser og
+  tidspunktet for dem bevares. B stemmer med valget i #1127 om at mottaksdatoen er TEs
+  opplysning i den gjeldende versjonen; det gjør ikke A. A behandler datoen likt med
+  kunnskapsdatoen i OV-U41, men krever en rettingsflyt (MM-U21) som ikke er bygget, også for en
+  ren skrivefeil. C gjør endringen vanskelig å oppdage. Ingen av alternativene avgjør hvilken
+  dato som faktisk er riktig. Delrapporten anbefalte A.
 - **Hva valget styrer:** formatet for grunnlagskravet og brevteksten.
 - **Avhenger av spørsmål 1:** nei.
+- **Sparring 25.10:** B, A og anbefalingen er rettet etter sparring mellom økta, oppdragsgiver
+  og en annen modell: TEs opplysning skilles fra fristens rettslige utgangspunkt, byggherren
+  bestrider datoen i svaret (OV-U41, fordi bestridelse som eget utsagn er utsatt etter OV-U7),
+  påberopelsen bevares (VS-U9), og forholdet til MM-U21 er skrevet i B. A har fått ordlyden fra
+  OV-U41. Alternativene står åpne.
 
 ### Spørsmål 6. Beløp med øre (VG-F-02)
 
