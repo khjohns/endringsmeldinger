@@ -138,10 +138,9 @@ anbefalingene eller rette enkeltpunkter. Det valgte alternativet blir vedtakstek
 og et forkastet blir «Forkastet» ordrett. Svarene føres i en egen vedtaks-PR. Spørsmål 1
 står først fordi svaret kan gjøre andre overflødige. Det står ved hvert spørsmål.
 
-Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i de åpne spørsmålene
-4–10 står «løsningen». Ordrette sitater fra vedtak og svar, og merknaden «Appen vurderer ikke
-innholdet» (OV-U4), beholder «appen». Alternativene i de besvarte spørsmålene står slik de ble
-besvart.
+Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spørsmål 4–10 står
+«løsningen». Ordrette sitater fra vedtak og svar, og merknaden «Appen vurderer ikke innholdet»
+(OV-U4), beholder «appen». Alternativene i spørsmål 1–3b står slik de ble besvart.
 
 ### Spørsmål 1. Brev sendt utenfor appen
 
@@ -694,6 +693,8 @@ besvart.
   alltid gjelder foran, er trukket. Prøvingen mot vedtaksfila etter sparringen fant at
   forholdet i B var ufullstendig, og det er rettet.
 - **Avhenger av spørsmål 1:** ved C må spørsmålet stilles på nytt for registrerte brev.
+- **Svar 25.10 (oppdragsgiver):** A. Oppdragsgiver ordrett: «Jeg godkjenner A». Forkastet: B
+  slik den står. Svaret føres i vedtaksregisteret i en egen vedtaks-PR.
 
 ### Spørsmål 5. Datoen varslingsplikten løper fra i grunnlagskravet (VG-D-01)
 
