@@ -940,25 +940,109 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
 
 ### Spørsmål 6. Beløp med øre (VG-F-02)
 
-- **Bakgrunn:** TE kan kreve et beløp med øre. Byggherrens beløp er full godkjenning når begge
-  rundes til samme krone (B-13, HF-U7). Krever TE 100 000,40 kr og godkjenner byggherren
-  99 999,60 kr, blir partene enige uten aksept om byggherrens beløp, og brevet sier
-  «Byggherren godkjenner 99 999,60 kr eks. mva.» i formen for full godkjenning (K). Etter HF-U7
-  avgjør appen ikke om et lite avvik likevel blir avtale.
-- **Belegg:** B-13, HF-U7, LV-U4 punkt 5, OV-U39 (hele kroner).
-- **Alternativene:**
-  - **A:** «Er byggherrens beløp ikke likt det krevde til hele øre, sier brevet ‹byggherren
-    godkjenner <x> av de krevde <y>›, også når beløpene er like til nærmeste krone. Enigheten
-    gjelder beløpet byggherren oppga. Endrer HF-U7.»
-  - **B (anbefalt):** «Beløpet i et krav og i byggherrens svar oppgis i hele kroner. Presiserer
-    B-13 og HF-U7.»
-  - **C:** «Et svar er full godkjenning av beløpet bare når det er likt det krevde til hele øre.
-    Endrer B-13 ‹til nærmeste krone›.»
-  - **D:** «Som i dag.»
-- **Anbefaling:** B. Problemet forsvinner uten å endre et vedtak, og OV-U39 bruker alt hele
-  kroner.
-- **Hva valget styrer:** formatet for beløp før første ekte sak. Regelverket endres.
+- **Bakgrunn:** Formatet og kjernen tar imot beløp med øre. Skjemaene tar i dag bare sifre og
+  gjør «100 000,40» om til 10 000 040 kr. Det er en egen feil (#1285). Løsningen regner
+  byggherrens beløp som full godkjenning når begge rundes til samme krone (B-13, «til nærmeste
+  krone»). Krever TE 100 000,40 kr og godkjenner byggherren 99 999,60 kr, må byggherren velge
+  «delvis». Løsningen regner likevel beløpet som fullt godkjent. Når de andre vilkårene for
+  sammenfall er oppfylt, registrerer den enighet uten at TE har godtatt svaret. Svaret krever
+  heller ingen begrunnelse, selv om KA-U24 krever det ved delvis godkjenning. Brevet sier
+  «Byggherren godkjenner 99 999,60 kr eks. mva.» i formen for full godkjenning (K, L). KA-U9
+  sier: «Det er «godkjent» når beløpene er like, og «delvis» når byggherrens beløp er mindre
+  gunstig for TE.» Etter avtaleloven § 6 første ledd er et svar som fremtrer som aksept, men
+  avviker fra tilbudet, som hovedregel avslag og nytt tilbud, også når avviket er lite. Annet
+  ledd gjelder at den som svarer, mener at svaret stemmer med tilbudet, at tilbyderen må forstå
+  det, og at tilbyderen ikke sier fra uten ugrunnet opphold. Det er ingen regel om avrunding.
+  Omtalen av annet ledd i HF-U7 avklares i #1284. OV-U39 avrunder bare regnestykket til hele
+  kroner. OV-U40 runder også av beløpet parten oppgir («avrundet på samme måte»), og det tyder
+  på at det beløpet kan ha øre. Et beløp med brøkdeler av øre rundes i dag av til øre uten at
+  noen ser det, også før kontrollen av at byggherrens beløp ikke er høyere enn kravet (K). Den
+  avrundingen står ikke i et vedtak.
+- **Belegg:** B-13, KA-U9, KA-U24, HF-U7, LV-U4 punkt 5, OV-U39, OV-U40, avtaleloven § 6.
+- **6a. Presisjonen:**
+  - **A (anbefalt):** «Beløp parten krever eller godkjenner, prinsipalt og subsidiært, også et
+    anslått beløp ved regning (VS-U28), beløpet for hver post og beløpet etter en påberopt
+    begrensning, oppgis i kroner med høyst to desimaler. Desimalkommaet bevares: 100 000,40 er
+    100 000 kroner og 40 øre. Et beløp med brøkdeler av øre, eller i et format løsningen ikke
+    støtter, avvises tydelig. Det rundes ikke av og gjøres ikke om ved å fjerne skilletegn.
+    Kontrollen gjøres på verdien parten sendte, før kontrollen av beløpene, resultatet, kravet
+    om begrunnelse og sammenfallet utledes. Avsluttende nuller godtas når verdien fortsatt er
+    et helt antall øre. Antatt kostnad ved forsering (FO-U2) og beløp i en endringsordre (EO-U8)
+    følger samme regel når de bygges (OV-U1). Beregningsverdiene i OV-U39 og avrundingen av
+    regnestykket står uendret.»
+    Forholdet til vedtakene: ny regel. Presiserer OV-U39 («beløpet TE krever, i kroner ekskl.
+    mva.»). At beløp i dag rundes av til øre, er ikke vedtatt.
+  - **B:** «Beløp parten krever eller godkjenner, prinsipalt og subsidiært, også et anslått
+    beløp ved regning (VS-U28), beløpet for hver post og beløpet etter en påberopt begrensning,
+    oppgis i hele kroner. Et beløp med desimaler som ikke er null, avvises og rundes ikke av.
+    Antatt kostnad ved forsering (FO-U2) og beløp i en endringsordre (EO-U8) følger samme regel
+    når de bygges (OV-U1). Grensen gjelder ikke beregningsverdiene i OV-U39.»
+    Forholdet til vedtakene: ny regel for krav og svar. Presiserer OV-U39 for beløpet TE krever
+    i posten for rigg og drift. Avrundingen av partens beløp i OV-U40 får ingen virkning.
+- **6b. Sammenlikningen:**
+  - **A (anbefalt):** «Løsningen sammenlikner beløpene i krav og svar i hele øre, uten avrunding
+    til hele kroner. Et beløp som er mindre gunstig for TE enn det krevde (KA-U9), er ikke full
+    godkjenning av beløpet, selv om beløpene blir like når de rundes til hele kroner. De andre
+    vilkårene for sammenfall står uendret. Løsningen avgjør ikke om partene likevel har inngått
+    avtale etter en konkret rettslig vurdering (MM-U12).»
+    Forholdet til vedtakene: endrer B-13 «til nærmeste krone» for beløp. Dagene endres ikke.
+    Presiserer HF-U7: «krone» i «i kravets egen enhet: krone eller dag» er enheten, og beløpet
+    sammenliknes med øre. I tråd med KA-U9. OV-U40 står uendret.
+  - **B:** «Som i dag (B-13).»
+    Forholdet til vedtakene: B-13 «til nærmeste krone» står. To ulike beløp som rundes til samme
+    hele krone, regnes som like, og det gjør unntak fra KA-U9 og HF-U7 for de beløpene. Regelen
+    gjelder ikke ethvert avvik under én krone: et mindre avvik kan havne på hver sin side av en
+    avrundingsgrense.
+- **Anbefaling:** 6a-A og 6b-A. Et krav om hele kroner er et produktvalg som ikke kreves av de
+  gjennomgåtte kontraktsbestemmelsene, og det kan tvinge en part til å oppgi et annet beløp enn
+  den ellers ville krevd eller godkjent. 6b-A anbefales også hvis 6a-B velges, så avrundingen
+  ikke ligger igjen og kommer tilbake om grensen senere endres. Det tidligere alternativet om
+  bare brevteksten er tatt ut: brevet ville si delvis godkjenning, mens løsningen fortsatt
+  registrerte enighet.
+- **Hva valget styrer:** sammenlikningen i kjernen, i skjemaet og i brevteksten, kravet om
+  begrunnelse, og avvisningen av brøkdeler av øre. Skjemaene tar imot beløpet eller avviser
+  det, men gjør det ikke om (#1285). Brevteksten fryses med brevet, så både regelversjonen og
+  projeksjonsversjonen økes. Brevteksten følger resultatet uten endring i LV-U4. Python-stien
+  følger DL-U2.
 - **Avhenger av spørsmål 1:** nei.
+- **Svar 25.10 (oppdragsgiver):** 6a-A og 6b-A. Oppdragsgiver ordrett: «Støtter meg til Astra:
+  6a-A og 6b-A. De nye funnene styrker anbefalingen.» Presiseringene om desimalkommaet, om
+  kontrollen før avrunding og om avsluttende nuller i svaret er tatt inn i 6a-A, og
+  presiseringen av 6b-B i forholdet. Ordrett:
+  - «Desimalkomma skal bevares: 100 000,40 skal bli 100 000 kroner og 40 øre. Et format
+    løsningen ikke støtter, skal avvises tydelig, aldri omformes ved å fjerne skilletegn.»
+  - «Valider før avrunding: Brøkdeler av øre avvises før beløpskontroller, resultat,
+    begrunnelseskrav og sammenfall utledes. Avsluttende nuller kan godtas når verdien fortsatt
+    er et helt antall øre.»
+  - «Rett beskrivelsen av 6b-B: Dagens regel er ikke generelt et unntak for ‹avvik under én
+    krone›. Den gjelder ulike beløp som avrundes til samme hele krone. Også mindre avvik kan
+    havne på hver sin side av en avrundingsgrense.»
+  - «Feilen i #1285 må være rettet før ekte bruk. Prøvingen bør kontrollere hele forløpet fra
+    inntasting til sendt brev, inkludert at et mindre gunstig beløp ikke blir full godkjenning
+    eller slipper begrunnelse på grunn av avrunding.» Ført som kommentar i #1285.
+
+  Forkastet: 6a-B og 6b-B slik de står. Svaret føres i vedtaksregisteret i en egen vedtaks-PR.
+- **Sparring 25.10:** spørsmålet ble rettet etter oppdragsgivers kritikk av den første formen,
+  der B («hele kroner») var anbefalt fordi «problemet forsvinner uten å endre et vedtak».
+  Kritikken ordrett: «B er et mulig produktvalg, men ‹problemet forsvinner uten å endre et
+  vedtak› er ikke tilstrekkelig underbygget. At OV-U39 avrunder et beregningsresultat til hele
+  kroner, betyr ikke nødvendigvis at alle krav og svar skal begrenses til hele kroner.» To
+  runder med en annen modell ga omfanget i 6a, avvisningen i stedet for avrunding, kontrollen
+  før avrunding og ordlyden i 6b-A. Sparringen er ikke oppdragsgivers svar. Ordrett:
+  - «Avtaleloven § 6 første ledd gjelder svar som fremtrer som aksept, men avviker fra
+    tilbudet. Annet ledd er ingen generell avrundingsregel.»
+  - «Jeg anbefaler derfor å endre B-13 uttrykkelig. KA-U9s senere dato løser ikke forholdet
+    alene; dere har allerede avklart at senere vedtak ikke automatisk går foran.»
+  - «Et krav om hele kroner kan tvinge parten til å oppgi et annet beløp enn det parten ellers
+    ville krevd eller godkjent.»
+  - «Kontrollen må skje før avrunding. […] Et beløp som allerede er avrundet, kan ikke
+    valideres mot den opprinnelige opplysningen.»
+- **Prøvd mot vedtaksfila 25.10** av en subagent, som også kontrollerte påstandene om koden og
+  kjørte avrundingen. Prøvingen ga disse rettelsene: omfanget i 6a dekker subsidiært beløp,
+  anslag ved regning, forsering og endringsordrer, forholdet i 6b-A nevner HF-U7, 6b-B har
+  forhold, sitatet fra KA-U9 er ordrett, OV-U40 står som slutning, enigheten forutsetter de
+  andre vilkårene for sammenfall, KA-U24 er tatt med, begge versjonene økes, og feilen i
+  skjemaene er ført i #1285. Presiseringene i svaret kom etter prøvingen.
 
 ### Spørsmål 7. Overtakelsesdatoen i posten for rigg og drift (VG-G-02)
 
@@ -1215,7 +1299,8 @@ Innsigelser, lag og beløp:
 - Tap av hele kravet er skilt fra begrensningen (K). VS-U5.
 - Sen spesifisering med de samme dagene, og begrensning lik posten, gir ikke sammenfall (K).
   HF-U7.
-- Avrunding til hele øre deles av utregningen, brevet og fullmakten (L).
+- Avrunding til hele øre deles av utregningen, brevet og fullmakten (L). Etter svaret på
+  spørsmål 6 avvises brøkdeler av øre i stedet.
 - Ingen verdi fra byggherren fylles inn fra TE, og en manglende vurdering avvises (L). KA-U4.
 - Klientens regelspeil for vederlaget har paritetstest mot kjernen (K, 21 tester).
 
