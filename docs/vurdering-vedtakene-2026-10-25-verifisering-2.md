@@ -45,11 +45,14 @@ avkreftet, 2 er kjent og 1 er duplikat.
   derfor ikke der. For underkategoriene med § 32.2 kan TE også lese setningen som at BH ikke
   har svart etter § 32.3 annet ledd (V).
 - **Minste avklaring:** spørsmål 1 i del 4, med endringene under.
+- **Registrering utenfor appen:** delvis. Feilen kommer av at et svar utenfor appen ikke blir noe svar i appen (OV-U4), men den oppstår også uten registrering. Uten unntakene ville funnet stått og blitt litt bredere: et svar på grunnlaget som er byggherrens endringsordre etter OV-U6, gir i dag et grunnlagssvar og ingen forbehold, og ville da også fått teksten.
 
 ### VG-H-01: duplikat av VG-E-01
 
 Samme tekst, samme kodested og samme årsak: GR-U26 slik den lyder, og at OV-U4 ikke gir noe
 svar fra et registrert brev. Del 4 sitt forslag om «i appen» passer begge.
+
+- **Registrering utenfor appen:** delvis, som VG-E-01. Uten unntakene ville funnet stått og blitt litt bredere, som VG-E-01.
 
 ### VG-E-02: bekreftet med endring
 
@@ -61,6 +64,7 @@ svar fra et registrert brev. Del 4 sitt forslag om «i appen» passer begge.
 - **Type:** OV-U32 gjelder brevet, og brevet er riktig. Tabellen er en forhåndsvisning i
   skjemaet som ingen vedtak regulerer. Ny type: misvisende budskap, ikke implementeringsavvik.
   Rettingen er et arbeidsvalg, ikke noe som følger av OV-U32.
+- **Registrering utenfor appen:** nei. Uten unntakene ville funnet stått uendret.
 
 ### VG-F-01: bekreftet med endring
 
@@ -71,6 +75,7 @@ svar fra et registrert brev. Del 4 sitt forslag om «i appen» passer begge.
 - **Forløpet:** «uten melding» holder ikke. Klienten får tallet i avvisningen og må selv
   bekrefte det. Det som består, er at kjernen godtar et internt motstridende vurderingsfelt
   og forkaster det uten avvisning. Konsekvensen er lav. Den tekniske rettingen i del 3 står.
+- **Registrering utenfor appen:** nei. Uten unntakene ville funnet stått uendret.
 
 ### VG-F-02: bekreftet
 
@@ -81,6 +86,7 @@ svar fra et registrert brev. Del 4 sitt forslag om «i appen» passer begge.
 - **Tillegg:** HF-U7 (15.10), som presiserer B-13, sier også at appen ikke avgjør om et avvik
   er så lite at det likevel blir avtale. Sammenfall ved et avvik i øre ligger nær nettopp det.
   Typen «uavklart valg» står. Se spørsmål 3 i del 3.
+- **Registrering utenfor appen:** nei. Uten unntakene ville funnet stått uendret.
 
 ### VG-F-03: bekreftet
 
@@ -88,6 +94,7 @@ svar fra et registrert brev. Del 4 sitt forslag om «i appen» passer begge.
   `subsidiaert_godkjent_beloep ?? godkjent_beloep` hver for seg og tar det største. Funksjonen
   har ingen kaller utenfor testene. Docstringen viser til GFK-U3, men den gjelder bare
   dagmulktssatsen. Funnet står ikke i hovedplanen eller i et issue.
+- **Registrering utenfor appen:** nei. Uten unntakene ville funnet stått uendret.
 
 ### VG-H-02: kjent (#909)
 
@@ -99,6 +106,7 @@ svar fra et registrert brev. Del 4 sitt forslag om «i appen» passer begge.
   filtrerer metodene til tilbud, og standardvalget er `FASTPRIS_TILBUD`. Det som gjenstår av
   budskapet, er at TE bare ser «Fast sum» uten å få vite at andre metoder ikke kan sendes. Det
   nye i funnet er en tekst til #909, ikke et eget funn.
+- **Registrering utenfor appen:** nei. Uten unntakene ville funnet stått uendret.
 
 ### VG-G-01: kjent (#1268, #1171)
 
@@ -106,6 +114,8 @@ Demoscenariet i `src/lib/mockup/scenarios.ts` står i #1268. Ifølge kommentaren
 de to stedene i kjernen, i `kjerne/regler/vederlag.ts` og `kjerne/frosset/standpunkt.ts`, ut
 i #1171 med økt regelversjon og projeksjonsversjon. Ordlyden i Del II pkt. B.2.16 bekrefter
 påstanden. De tekniske rettingene 1 og 2 i del 4 er derfor alt ført.
+
+- **Registrering utenfor appen:** nei. Uten unntakene ville funnet stått uendret.
 
 ### VG-G-02: bekreftet
 
@@ -115,6 +125,7 @@ påstanden. De tekniske rettingene 1 og 2 i del 4 er derfor alt ført.
 - **Kontrakten:** etter Del II pkt. B.2.16 regnes forlengelsen mot den avtalte nye datoen for
   overtakelse i kontrakten. Hverken i vedtak.toml eller i kommentarene på #1171 sier noe hvor
   datoen kommer fra.
+- **Registrering utenfor appen:** nei. Uten unntakene ville funnet stått uendret.
 
 ### VG-G-03: bekreftet med endring
 
@@ -123,12 +134,14 @@ påstanden. De tekniske rettingene 1 og 2 i del 4 er derfor alt ført.
 - **Vedtak og kontrakt:** EO-U8 gjelder en endringsordre med flere KOE-saker, ikke KOE-saker
   generelt. Det bærende belegget er § 33.5 første ledd annet punktum om den samlede virkningen
   av tidligere varslede forhold, sammen med VS-U18. Type: uavklart valg under VS-U18.
+- **Registrering utenfor appen:** nei. Uten unntakene ville funnet stått uendret.
 
 ### VG-G-04: bekreftet
 
 - **Belegg:** L. `noekkeltall` i `server/saksliste.ts` summerer bare krav og enighet som er
   utledet. Overskriftene i `ProjectOverview.svelte` er uten avgrensning, men oversikten viser
   «etter appens lesing» og «ikke forstått · telles ikke i tallene». Typen står.
+- **Registrering utenfor appen:** delvis. Krav og svar i registrerte brev er ikke med i summene fordi de er dokumentasjon (OV-U4). Uten unntakene ville funnet stått uendret, fordi unntakene ikke gir noe beløp.
 
 ### VG-H-03: bekreftet med endring
 
@@ -141,6 +154,7 @@ påstanden. De tekniske rettingene 1 og 2 i del 4 er derfor alt ført.
   `src/lib/kjernesak/saksbilde.ts`). At merknaden mangler ved kravet, er derfor ikke et
   avvik. Funnet snevres inn til ordet «motparten» når BH leser. Om TEs brev skal vises, er
   spørsmål 6.
+- **Registrering utenfor appen:** ja, årsak. Teksten gjelder visningen av registrerte brev ved kravet (OV-U20). Uten unntakene ville funnet stått uendret, fordi visningen gjelder brev registrert som dokumentasjon.
 
 ### De korte funnene i del 3
 
