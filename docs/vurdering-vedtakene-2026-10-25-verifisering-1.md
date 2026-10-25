@@ -31,6 +31,7 @@ forbeholdet etter GR-U26», og at registreringen av enighet følger GR-U7 og HF-
 vedtak (KA-U16, som forkastet «at et svar med forbehold ikke gir sammenfall», og GR-U7,
 GR-U8 og MM-U30). Det eneste som mangler etter vedtakene, er teksten i skjemaet (VG-A-02).
 Å endre setningen er et forslag om å endre LV-U32.
+Registrering utenfor appen: nei. Funnet gjelder et brev fra appen og ville stått uendret om registrerte brev bare var dokumentasjon.
 
 **VG-A-01: bekreftet.** L: `kjerne/frosset/standpunkt.ts` `beslutningslinje` skriver
 `prekludert (§ …)` for en påberopelse med lag (`laget`). Testene `kjerne/tester/brevtekst.test.ts`
@@ -38,12 +39,14 @@ venter teksten flere steder. MM-U23 gjelder, og ingen senere vedtak gir ordlyden
 delvis kjent i #492 (lukket): den rettingen la til «Byggherrens standpunkt:», men ordet
 «prekludert» står igjen. Den minste rettingen er som foreslått i del 1, med `REGELVERSJON` og
 `PROJEKSJONSVERSJON` økt.
+Registrering utenfor appen: nei. Ordet i linja kommer ikke av registreringen, og funnet ville stått uendret. Bare tillegget om et tidligere varsel TE oppgir (OV-U5) i forløp 5 ville falt bort.
 
 **VG-A-02: kjent (#313).** L: verken `VederlagForm.svelte`, `Brevkontroll.svelte` eller
 `src/lib/kjernesak/` har teksten etter KA-U19 og OV-U4. Følge til KA-U19 sier
 «Ikke bygget. Skjemaet hører til #313», men beskrivelsen av #313 nevner ikke kravet.
 Den minste rettingen er å føre teksten etter KA-U19, slik OV-U4 endret den, som krav i #313.
 VG-C-02 hører med.
+Registrering utenfor appen: delvis. Teksten skjemaet mangler, kommer fra OV-U4 sin endring av KA-U19, men den gjelder grunnregelen og ikke unntakene. Funnet ville stått uendret.
 
 **VG-B-02: kjent (#732), med endring.** K: forløp 5 gir `svaret_gjaldt_et_annet_varsel`, og
 akseptteksten nevner ikke varselet. Forløp 1 gir `enige_betinget`, så `subsidiaert` og
@@ -52,6 +55,7 @@ komponent i den ekte saksruta leser `etiketter`. Bare testsiden `[sakId]/kjerne/
 viser kodene rå. #732 punkt 1 nevner `enighet_uten_virkning` og `svaret_gjaldt_et_annet_varsel`,
 og det er utsatt til #313 (18.10). `subsidiaert` og `enige_betinget` legges til, med OV-U5
 og GR-U26 som kilde. OV-U5 krever varselet i visningen og akseptskjemaet, ikke i brevteksten.
+Registrering utenfor appen: delvis. `svaret_gjaldt_et_annet_varsel` i forløp 5 kommer av unntaket i OV-U5 og ville falt bort. Forløp 1 med `enige_betinget`, `subsidiaert` og `enighet_uten_virkning` (GR-U26) ville stått.
 
 **VG-B-03: bekreftet med endring.** Motstriden er en annen enn rapporten sier. Mot en
 innsigelse sendt fra appen står VS-U9 (10.10): en innsigelse etter svaret «endrer ikke et
@@ -60,19 +64,23 @@ utfall». OV-U5 gjelder TEs eget varsel, ikke byggherrens innsigelse. MM-U9 gjel
 regler, ikke en ny opplysning. Begge støtter derfor bare indirekte. Registeret fører ingen
 av forholdene, og Følge til VS-U1 sier «I tråd med MP-U5, MP-U7». Typen er et forhold som
 ikke er ført i registeret. Belegg L: ingen implementasjon av MP-U7.
+Registrering utenfor appen: delvis. Motstriden for et registrert brev står mot grunnregelen i OV-U4, som også gjelder uten unntakene. Motstriden for en innsigelse fra appen (VS-U9) er uavhengig av funksjonen. Funnet ville stått.
 
 **VG-B-04: bekreftet.** L: `VederlagForm.svelte`, `FORBEHOLDET` og `AVSLAATT`/`PREKLUDERT`
 har andre ord enn brevet. Brevkontrollen viser den låste teksten før sending, så skjemaet gir
 ikke et feil resultat. Funnet avvises med én linje etter stoppregelen.
+Registrering utenfor appen: nei. Funnet ville stått uendret.
 
 **VG-A-03: bekreftet med endring.** L: i tillegg til de tre stedene i del 1 sier
 `GrunnlagOverview.svelte` «Grunnlaget er prekludert (§ 32.2)», med `!store.erKjernesak` som
 vakt, og valget «Nei, prekludert» står i `GrunnlagForm.svelte` og `FristForm.svelte`. Dette er
 Python-stien, så DL-U2 gjelder. #1268 dekker bare `VederlagOverview` og rigg. Funnet meldes
 som issue, men rettes ikke.
+Registrering utenfor appen: nei. Funnet ville stått uendret.
 
 **VG-C-01: duplikat av VG-B-01.** Det er samme forløp og samme vedtak. Om LV-U32 sier
 dommen over VG-B-01 det samme. Funnet nevner i tillegg OV-U39 siste del, som også gjelder.
+Registrering utenfor appen: nei. Funnet bruker merkingen av registrerte brev (KA-U20, KA-U26) bare som sammenlikning og ville stått uendret.
 
 **VG-C-02: bekreftet med endring.** L: `VederlagForm.svelte` `kjerneresultat` gir bare
 `Check` ved `kjernelag.sammenfall`. Funnet er ikke et uavklart valg. OV-U4, som endret
@@ -80,6 +88,7 @@ KA-U19, krever at skjemaet sier at parten er bundet av det hen sender fra appen.
 delvis samme mangel som VG-A-02, og den minste rettingen føres sammen med den i #313.
 O må rettes: § 31.3 annet ledd sier at en endringsordre forplikter TE, ikke at et godkjent
 krav binder byggherren. Ingen bestemmelse i NS 8407 gir en slik binding.
+Registrering utenfor appen: nei. Funnet ville stått uendret.
 
 **VG-D-01: bekreftet med endring.** K: en ny grunnlagsversjon med 19.09 eller 01.09 godtas,
 og brevet viser bare den nye datoen. Grunnlagssvaret med «for sent» faller, og en ny versjon
@@ -89,6 +98,7 @@ Ingen vedtak avgjør om datoen etter VS-U26 kan endres i en ny versjon. OV-U11 o
 varseldatoen, og Følge til GR-U22 gjelder endringsordrens dato. Funnet er delvis kjent i
 #1127, der svaret tillater datoen fra den gjeldende versjonen, men ikke sier noe om å vise
 den tidligere.
+Registrering utenfor appen: delvis. Funnet gjelder datoen i grunnlagskravet fra appen. Rettingsmodellen det sammenlikner med, har OV-U11 for varseldatoen etter unntaket i OV-U5, og den ville falt bort. Funnet ville stått, men sammenlikningen hviler da bare på MM-U21 og OV-U41.
 
 **VG-D-02: avkreftet.** OV-U41 avgjør det. En supplering er «et nytt utsagn», og alle
 datoene «beholdes og vises som TEs utsagn». Appen «beregner ikke rettidighet eller
