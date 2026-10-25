@@ -768,9 +768,10 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
     datoopplysningen i VS-U26 gjennom en tillatt ny grunnlagsversjon.»
 - **Anbefaling:** A, sammen med 5b-B. Det avgjørende er følgen for byggherrens svar. I
   grunnlagssporet binder et svar byggherren som tilbud når byggherren prinsipalt har påberopt at
-  varselet kom for sent og subsidiært godkjenner grunnlaget; en hel godkjenning gir enighet, og
-  da avvises en ny versjon (GR-U7, KA-U7; `godkjennerHeleKravet` i
-  `kjerne/frosset/standpunkt.ts`). Det er nettopp tilfellet der TE har grunn til å rette
+  varselet etter § 32.2 kom for sent og subsidiært godkjenner grunnlaget (HF-U5, HF-U7); en
+  godkjenning uten påberopt preklusjon gir enighet ved sammenfall, og da avvises en ny versjon
+  (GR-U10, KA-U7; `godkjennerHeleKravet` i `kjerne/frosset/standpunkt.ts`). Følgen gjelder
+  der § 32.2 gjelder kategorien, som mottaksdatoen i VS-U26. Det er nettopp tilfellet der TE har grunn til å rette
   mottaksdatoen. Etter B må TE da sende en ny versjon, og den avslår tilbudet med den
   subsidiære godkjenningen (HF-U8, spørsmål 5b). Byggherren svarer på nytt og kan etter
   modellens regler også avslå grunnlaget materielt. En faktakorrigering bør ikke ha den følgen.
@@ -867,11 +868,14 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
     fortsatt binder byggherren, følger av avslaget i brevet. At et svar på en tidligere
     kravversjon ikke kan godtas i løsningen, følger fortsatt av versjonsmodellen (HF-U8).
     Utvider LV-U4.»
-  - **B (anbefalt):** «Som A. I tillegg er en korrigering av en opplysning i et krav et eget utsagn etter
-    MM-U21, ikke en ny kravversjon, og lar svaret stå. Rettingen etter MM-U21 bygges før
-    første ekte sak, og det som står åpent om den under B-16, avgjøres da. Snevrer i tillegg
-    inn vedtaket 05.10 om at hver oppdatering av et vederlags- eller fristkrav er en ny
-    kravversjon, og KA-U2, og presiserer MM-U21.»
+  - **B (anbefalt):** «Som A, med dette tillegget. En endring som bare retter en faktisk
+    opplysning TE har oppgitt i kravet, som en dato, et nummer eller en henvisning, uten å
+    endre det TE krever, er en korrigering. Korrigeringen er et eget utsagn etter MM-U21, ikke
+    en ny kravversjon, og lar svaret stå. En ny kravversjon som bare retter en slik opplysning,
+    avvises, og TE sender korrigeringen i stedet. Rettingen etter MM-U21 bygges før første ekte
+    sak, og det som står åpent om den under B-16, avgjøres da. Snevrer i tillegg inn vedtaket
+    05.10 om at hver oppdatering av et vederlags- eller fristkrav er en ny kravversjon, KA-U2 og
+    GR-U22, og presiserer MM-U21.»
   - **C:** «HF-U8 står. Brevet sier som i dag at kravet erstatter TEs tidligere krav.»
 - **Anbefaling:** B, sammen med 5-A. B har avslagsregelen fra A for reelle nye kravversjoner,
   som en uttrykkelig og informert handling. Virkningen følger da av
@@ -896,7 +900,9 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   som arbeidsvalg i byggeissuet. Sparringen foreslo: «Når du sender denne kravversjonen, avslår
   du byggherrens tilbud i brev <n>. Du kan da ikke godta det her. Det gjelder også når du bare
   retter en opplysning.» Etter akseptfristen: «Akseptfristen er utløpt. Sender du en ny
-  kravversjon, kan du ikke lenger tilby å godta dette svaret her.»
+  kravversjon, kan du ikke lenger tilby å godta dette svaret her.» Velges B, får hovedplanen en
+  datert merknad ved B-16 og produksjonsporten F5 når vedtaket føres, fordi rekkefølgen har sitt
+  hjem der.
 - **Avhenger av:** spørsmål 5. De avgjøres sammen. 5b-B kan ikke velges sammen med 5-B eller
   5-C, fordi de lar datoen endres i en ny versjon, mens 5b-B legger korrigeringen til MM-U21. De
   andre kombinasjonene henger sammen. Anbefalt er 5-A med 5b-B. Ikke av spørsmål 1.
@@ -911,7 +917,9 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   dekker en sperret aksept og tiden etter akseptfristen, og virkningen av versjonsmodellen er
   skilt fra virkningen av avslaget. B er skrevet som A med en egen retting, og forholdet til
   vedtaket 05.10 er kontrollert mot vedtaksteksten. Deretter snudde sparringen anbefalingen fra
-  A til B, sammen med 5-A (se spørsmål 5). Alternativene står åpne.
+  A til B, sammen med 5-A (se spørsmål 5). Prøvingen av den nye anbefalingen fant at B ikke
+  avgrenset hva en korrigering er, og at forholdet til GR-U22 manglet; det er rettet.
+  Alternativene står åpne.
 
 ### Spørsmål 6. Beløp med øre (VG-F-02)
 
