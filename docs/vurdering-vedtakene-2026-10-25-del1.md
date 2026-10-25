@@ -27,9 +27,11 @@ produksjon og har ingen reelle data.
   produktavgrensning · **I** implementasjonen · **V** min egen vurdering.
 - **Belegget** følger [hovedplanen 1.3](plans/2026-09-16-godkjenning-og-varig-levering.md#13-begreper-som-holdes-adskilt):
   **K** kjørt og observert 25.10, **L** lest i kode, **—** ikke kontrollert.
-- **Kontraktsteksten ble ikke lest.** Det private repoet med NS 8407 kunne ikke
-  legges til i økta (tillatelsen ble avslått). Påstandene om kontrakten bygger
-  derfor på vedtakene (T). Laget O er ikke kontrollert i noe funn.
+- **Kontraktsteksten** er lest i det private repoet `khjohns/kontrakt` (commit
+  `5540b60`), etter at første versjon av rapporten var pushet. Den omfatter NS 8407
+  § 5, § 32.2, § 32.3, § 33.4, § 34.1.2, § 34.1.3, § 34.2.1 og § 34.2.2, og
+  avtaleloven § 6 med kommentar. Rapporten viser bare til bestemmelsene, ikke til
+  ordlyden. Laget O er kontrollert der funnet sier det.
 
 Forløpene ble kjørt gjennom kjernen med `bygg` og `Kjoering` fra `kjerne/tester/`, i
 en midlertidig vitest-fil som ikke er committet. Utdragene står ved funnene.
@@ -79,6 +81,13 @@ en midlertidig vitest-fil som ikke er committet. Utdragene står ved funnene.
   - K: brevteksten, utledningen og avvisningene.
   - L (I): `hvorforAvgjort`.
   - T: at sammenfallet er vedtatt.
+  - O: Etter avtaleloven § 6 første ledd er et svar som framstår som aksept, men
+    ikke stemmer med tilbudet, avslag i forening med nytt tilbud. Kommentaren til
+    bestemmelsen nevner forbehold i aksepten som et slikt avvik. Etter NS 8407
+    § 34.2.2 første ledd gjelder et avtalt vederlag bare når byggherren har akseptert
+    tilbudet. Leses brevet som helhet (B-03), med setningen om forbeholdene og
+    vilkåret i begrunnelsen, kan det etter dette være et avslag med nytt tilbud.
+    Appen viser likevel at partene er enige.
   - V: at setningen i brevet og «partene er enige» sammen sier mer enn appen vet
     (HF-U13: «visningen påstår ikke mer enn appen vet»).
 - **Sikkerhet:** høy for forløpet. Middels for at det er et problem. LV-U32 drøftet
@@ -128,6 +137,12 @@ en midlertidig vitest-fil som ikke er committet. Utdragene står ved funnene.
   - K: linjene, observert i forløpene.
   - L (I): visningen i `VederlagForm`, gjennom kartleggingen og egen lesing av
     `vederlagssvar.ts`.
+  - O: Etter NS 8407 § 5 tredje ledd er det å gjøre gjeldende at motparten har
+    varslet for sent, en handling fra parten. Tapet av kravet følger av
+    varslingsbestemmelsen selv (§ 32.2 første ledd, § 33.4 annet ledd, § 34.1.2
+    annet ledd) når varselet faktisk kom for sent, ikke av at parten påberoper det.
+    Kontrakten bruker ikke ordet «prekludert». Linja slår sammen partens handling og
+    virkningen kontrakten knytter til et faktum appen ikke avgjør.
   - — : at linja når Fabric. Rapporteringen er ikke bygget.
 - **Sikkerhet:** høy for teksten. Middels for virkningen: linja vises i dag bare for
   byggherren selv, før sending (kartleggingen fant den ikke i visningen etter
@@ -257,7 +272,9 @@ en midlertidig vitest-fil som ikke er committet. Utdragene står ved funnene.
   - OV-U4 gir dokumentasjon uten virkning og uten uavklart utfall.
   - Sendes påberopelsen fra appen, avviser HF-U4 den hvis byggherren uttrykkelig
     har sagt «i tide».
-- **Belegg:** T (vedtakene). L (I): ingen implementasjon.
+- **Belegg:** T (vedtakene). L (I): ingen implementasjon. O: NS 8407 § 5 tredje
+  ledd gjør en innsigelse om sen varsling til partens skriftlige handling, med en
+  frist. Bestemmelsen sier ikke at en senere innsigelse gjør et gitt svar uavklart.
 - **Sikkerhet:** middels. Følge til MP-U7 kan leses som at vedtaket bare gjaldt
   metodeprøven. Da er det ikke en motstrid, men et register som ikke sier det.
 - **Minste avklaring:** spørsmål 2.
@@ -291,6 +308,9 @@ en midlertidig vitest-fil som ikke er committet. Utdragene står ved funnene.
     avgjort». TE kan ikke godta svaret, og byggherren kan ikke revidere det.
   - Det er uklart om «forbeholdene» i setningen viser til TEs forbehold i tilbudet
     eller til byggherrens.
+  - Etter avtaleloven § 6 første ledd er et svar med et forbehold som ikke stemmer
+    med tilbudet, avslag i forening med nytt tilbud. Etter NS 8407 § 34.2.2 første
+    ledd gjelder et avtalt vederlag bare når byggherren har akseptert tilbudet.
 - **Alternativene:**
   - **A (anbefalt):** Når byggherren godkjenner hele det krevde beløpet og oppgjør
     som fast sum, sier brevet «Byggherren godkjenner oppgjør som fast sum med
@@ -396,8 +416,9 @@ Annet:
 
 ## 4. Verifikasjon og grenser
 
-- **Kontraktsteksten er ikke lest** (se toppen). Laget O er ikke kontrollert i noe
-  funn.
+- **Kontraktsteksten er lest for VG-B-01, VG-A-01 og VG-B-03** (se toppen). For
+  VG-A-02, VG-B-02 og enlinjefunnene er laget O ikke kontrollert, fordi de gjelder
+  appens egne vedtak om visning og skjema.
 - **Forløpene ble kjørt i minnet, gjennom kjernens kommandoer** (`forhaandsvis` og
   `vurder`), ikke gjennom serveren eller nettleseren. Det som vises i Kontrollrommet,
   er lest (L), ikke sett i nettleseren.
