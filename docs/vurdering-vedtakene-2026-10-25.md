@@ -1044,41 +1044,139 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   andre vilkårene for sammenfall, KA-U24 er tatt med, begge versjonene økes, og feilen i
   skjemaene er ført i #1285. Presiseringene i svaret kom etter prøvingen.
 
-### Spørsmål 7. Overtakelsesdatoen i posten for rigg og drift (VG-G-02)
+### Spørsmål 7. Datoene bak forlengelsen i posten for rigg og drift (VG-G-02)
 
-- **Bakgrunn:** OV-U37 sier at appen viser forlengelsen og «den nye overtakelsesdatoen» som TEs
-  premiss. OV-U39 lister det TE oppgir, og der er ingen overtakelsesdato, bare forlengelsen og
-  perioden. Etter kontraktsgrunnlaget regnes forlengelsen mot den avtalte nye datoen for
-  overtakelse i kontrakten, som gjelder kontrakten samlet. To saker med overlappende
-  forlengelse kan da vise to ulike datoer for samme kontrakt. Ikke bygget (#1171).
-- **Belegg:** kontraktsgrunnlaget Del II pkt. B.2.16. OV-U36, OV-U37, OV-U39.
+- **Bakgrunn:** OV-U37 sier: «Appen viser forlengelsen og den nye overtakelsesdatoen som TEs
+  premiss, ikke som avtalt.» OV-U39 lister det TE oppgir, og der er ingen overtakelsesdato, bare
+  forlengelsen i hverdager og perioden. Etter kontraktsgrunnlaget Del II pkt. B.2.16 er
+  forlengelsen differansen mellom opprinnelig og ny byggetid. Opprinnelig byggetid regnes fra
+  avtalt oppstart på byggeplass, eller første mulige igangsetting når datoen ikke er avtalt, til
+  avtalt overtakelse. Ny byggetid regnes fra faktisk igangsetting på byggeplass til avtalt ny
+  dato for overtakelse. Begge regnes i hverdager. Forlengelsen er derfor ikke alltid lik
+  forskyvningen av overtakelsen. Med opprinnelig byggetid på 100 hverdager, igangsetting 5
+  hverdager etter avtalt oppstart og overtakelse 10 hverdager senere er ny byggetid 105
+  hverdager og forlengelsen 5. Å kontrollere forlengelsen krever begge datoene, sammenholdt med
+  opprinnelig byggetid. OV-U37 nevner én av dem, OV-U39 ingen. Ulike saker kan bygge på ulike
+  overtakelsesdatoer uten at løsningen dermed viser flere avtalte datoer. Perioden i OV-U39 er
+  alt en strukturert verdi som ikke brukes i regnestykket. Ikke bygget (#1171).
+- **Belegg:** kontraktsgrunnlaget Del II pkt. B.2.16. OV-U37, OV-U39, KT-U8, MM-U23.
 - **Alternativene:**
-  - **A (anbefalt):** «Saken viser ikke en ny overtakelsesdato. Den viser forlengelsen og
-    perioden TE oppgir, som TEs premiss. Overtakelsesdatoen for kontrakten samlet føres ikke i
-    løsningen. Endrer OV-U37, i tråd med OV-U36 og OV-U39.»
-  - **B:** «TE oppgir i posten den nye overtakelsesdatoen TE legger til grunn for kontrakten, og
-    saken viser den som TEs premiss, ikke som avtalt. Løsningen sammenlikner ikke datoene i ulike
-    saker. Utvider OV-U39.»
-- **Anbefaling:** A. Datoen gjelder kontrakten samlet, som OV-U36 fører utenfor appen.
-- **Hva valget styrer:** skjemaet og visningen av posten i #1171.
+  - **A:** «Saken viser ikke en egen overtakelsesdato. TE begrunner forlengelsen ut fra datoene
+    kontraktsgrunnlaget bruker: faktisk igangsetting på byggeplass og den nye overtakelsesdatoen
+    TE legger til grunn.»
+    Forholdet til vedtakene: endrer OV-U37 («Appen viser forlengelsen og den nye
+    overtakelsesdatoen som TEs premiss, ikke som avtalt.»).
+  - **B (anbefalt):** «TE oppgir i posten datoen TE legger til grunn for faktisk igangsetting på
+    byggeplass, og den nye overtakelsesdatoen TE legger til grunn ved beregningen av
+    forlengelsen. Løsningen avviser en ny overtakelsesdato som ikke er etter datoen for
+    igangsetting. Datoene står i
+    brevet og visningen som TEs opplysninger. Løsningen fastslår ikke at datoene er riktige
+    eller at overtakelsesdatoen er avtalt. Byggherren kan oppgi egne datoer i svaret; de står
+    som byggherrens opplysninger og erstatter ikke TEs. Datoer byggherren ikke oppgir, er ikke
+    tatt stilling til, og løsningen fyller dem ikke inn med TEs. Datoene følger det OV-U39 sier
+    om de andre verdiene, men inngår ikke i regnestykket. Avvikende datoer hindrer ikke i seg
+    selv at løsningen registrerer enighet om beløpet, og løsningen avgjør ikke hva enigheten
+    omfatter. Løsningen beregner eller kontrollerer
+    ikke forlengelsen ut fra datoene, kontrollerer ikke datoene mot perioden og sammenlikner
+    ikke datoene mellom saker. TE begrunner fortsatt hvilken forlengelse posten gjelder, og
+    avgrensningen mot krav i andre saker.»
+    Forholdet til vedtakene: utvider OV-U39 og presiserer OV-U37. I tråd med KT-U8 og MM-U23.
+    Kontrollen av rekkefølgen er et produktvalg; den følger ikke av formelen i B.2.16.
+- **Anbefaling:** B. OV-U39 har valgt strukturerte verdier for det regnestykket bruker, også
+  byggherrens egne, og perioden er alt en verdi utenfor regnestykket. Datoene er det
+  forlengelsen er definert av, og B gjør partenes premisser etterprøvbare uten at løsningen
+  avgjør hvilken forlengelse som er riktig. Ved å følge OV-U39 hindrer avvikende datoer ikke i
+  seg selv at løsningen registrerer enighet om beløpet, og de utløser ikke alene kravet til
+  begrunnelse. Begrunnelsen i den første formen, at datoen gjelder kontrakten samlet, som OV-U36
+  fører utenfor, er tatt ut: OV-U36 gjelder kompensasjonen i uendret byggetid.
+- **Hva valget styrer:** skjemaet, brevteksten og visningen av posten, og feltene i posten
+  før første ekte sak (B-17). Bygges i #1171.
 - **Avhenger av spørsmål 1:** nei.
+- **Svar 25.10 (oppdragsgiver):** B. Oppdragsgiver ordrett: «7B og 8A». Forkastet: A slik den
+  står. Svaret føres i vedtaksregisteret i en egen vedtaks-PR.
+- **Sparring 25.10:** spørsmålet ble rettet i tre runder med en annen modell. I den første formen
+  var A anbefalt, med begrunnelsen at datoen gjelder kontrakten samlet. Sparringen er ikke
+  oppdragsgivers svar. Ordrett:
+  - «OV-U36 fører kompensasjonen for rigg og drift i uendret byggetid utenfor løsningen. Det
+    begrunner ikke alene å utelate en beregningsopplysning for forlenget byggetid.»
+  - «Valget bør begrunnes i hvilke opplysninger som trengs for å forstå og kontrollere posten.»
+  - «Begge datoene er partens opplysninger. Faktisk igangsetting er en opplysning om et
+    hendelsesforløp; overtakelsesdatoen kan være avtalt eller bare lagt til grunn av parten.»
+  - «Kravet om at overtakelsesdatoen er etter igangsettingen, er en valideringsregel i
+    produktet, ikke noe som følger av den siterte formelen alene.»
+- **Prøvd mot vedtaksfila 25.10** av en subagent, sammen med spørsmål 8. Prøvingen ga disse
+  rettelsene: datoene følger OV-U39 uten å inngå i regnestykket, rekkefølgen og perioden er
+  avklart, sitatet fra OV-U37 er helt, og opprinnelig byggetid regnes fra oppstart på
+  byggeplass. Presiseringene fra tredje sparringsrunde kom etter prøvingen.
 
 ### Spørsmål 8. Nøkkeltallene i prosjektoversikten (VG-G-04)
 
-- **Bakgrunn:** «Krevd vederlag» og «Enighet om vederlag» summerer bare det som er sendt i
-  appen. Krav og svar i brev sendt utenfor appen og kompensasjonen i uendret byggetid er ikke
-  med, og krav i flere saker for samme kostnad telles hver for seg. Overskriftene sier ikke det.
-  OV-U10 endret statusteksten av samme grunn.
-- **Belegg:** MM-U28, OV-U10, OV-U36, OV-U37.
+- **Bakgrunn:** Oversikten viser «Krevd vederlag» og «Enighet om vederlag». Under enigheten står
+  «Virksom enighet, etter appens lesing», «Betinget: … kr», «Subsidiært svar fra BH: … kr» og
+  eventuelt antallet uten beløp (L). Overskriftene sier ikke hva summene bygger på. Prøvd 25.10
+  gjennom kjernen (K): «Krevd vederlag» er summen av gjeldende kravversjon i forståtte saker der
+  kravet står, også når kravene er avgjort. Trukne krav og saker avsluttet ved godtatt avslag
+  eller trukket grunnlag er ikke med. «Enighet om vederlag» er summen av virksomme enigheter,
+  ved aksept eller sammenfall. I de to avsluttede tilfellene og etter trekk av vederlagskravet
+  har enigheten ingen virkning og er ikke med. Betinget enighet og subsidiære svar som TE ikke
+  har godtatt, står hver for seg uten å telles to ganger. Det subsidiære tallet er beløpet
+  byggherren godtar om ingen påberopelse fører fram (OV-U31), også poster byggherren har
+  godkjent prinsipalt, og et svar uten subsidiært standpunkt som ikke er godtatt, står i ingen
+  sum. Summen følger arbeidsvalgene 20.10 og 22.10 etter MM-U28 (#1029, #1052), men
+  merkingen «Subsidiært svar fra BH» sier ikke det. En endringsordre registrert etter OV-U6 kan
+  gjøre en betinget enighet virksom, og andre registrerte brev endrer ingen sum. Krav i flere
+  saker for samme kostnad telles hver for seg. OV-U10 endret statusteksten av samme grunn.
+- **Belegg:** MM-U28, MM-U2, GR-U7, KA-U6, KA-U22, OV-U4, OV-U6, OV-U10, OV-U31, OV-U36, OV-U37.
 - **Alternativene:**
-  - **A (anbefalt):** «Nøkkeltallene for vederlag sier at de gjelder krav og enigheter sendt i
-    løsningen. Krav og svar i brev sendt utenfor løsningen og kompensasjonen for rigg og drift i
-    uendret byggetid er ikke med. Krav i flere saker kan gjelde samme kostnad, og løsningen
-    kontrollerer det ikke. Presiserer MM-U28, i tråd med OV-U10, OV-U36 og OV-U37.»
+  - **A (anbefalt):** «Nøkkeltallene for vederlag sier hva summene bygger på. ‹Krevd vederlag› er
+    summen av TEs gjeldende krav i saker løsningen forstår og der kravet står, også når kravene
+    er avgjort. Et trukket krav og en sak som er avsluttet ved et godtatt avslag på grunnlaget
+    eller et trukket grunnlag, er ikke med. ‹Enighet om vederlag› er summen av beløpene
+    løsningen leser som virksom enighet, enten TE har godtatt svaret eller svaret stemmer med
+    kravet. Betinget enighet vises særskilt. En enighet uten virkning, som etter et godtatt
+    avslag på grunnlaget, et trukket grunnlag eller et trukket vederlagskrav, er ikke med. En
+    enighet uten beløp telles som antall, atskilt fra kronesummen. Byggherrens svar som TE ikke
+    har godtatt, regnes ikke som enighet. Svar med et subsidiært standpunkt som TE ikke har
+    godtatt, vises særskilt med beløpet byggherren godtar om ingen påberopelse fører fram. Hele
+    beløpet i disse svarene er med, også poster som er godkjent prinsipalt, og merkingen sier
+    det, og at beløpet ikke er enighet. Svar med bare prinsipale standpunkter som ikke er
+    godtatt, er ikke med i noen sum. Samme beløp telles ikke både som svar og som enighet.
+    Saker løsningen ikke forstår, er ikke med i noen sum, og oversikten sier ved summene hvor
+    mange de er.
+    Beløp i dokumenter som bare er registrert som dokumentasjon etter OV-U4, inngår ikke i
+    summene. Byggherrens svar på grunnlaget avgjør om enigheten om et beløp er betinget eller
+    virksom, også når svaret er en endringsordre registrert etter OV-U6. Kompensasjonen for rigg
+    og drift i uendret byggetid er ikke med. Krav i flere saker kan gjelde samme kostnad, og
+    løsningen kontrollerer det ikke.»
+    Forholdet til vedtakene: presiserer MM-U28 og arbeidsvalgene 20.10 og 22.10 (#1029, #1052).
+    I tråd med MM-U2, GR-U7, KA-U6, KA-U22, OV-U4, OV-U6, OV-U10, OV-U31, OV-U36 og OV-U37.
   - **B:** «Nøkkeltallene står som i MM-U28.»
-- **Anbefaling:** A, av samme grunn som OV-U10.
-- **Hva valget styrer:** overskriftene og teksten i oversikten.
-- **Avhenger av spørsmål 1:** ordlyden endres ved C og D.
+- **Anbefaling:** A, av samme grunn som OV-U10. A beskriver summene slik de er; den endrer dem
+  ikke.
+- **Hva valget styrer:** overskriftene og forklaringene i oversikten, også merkingen av det
+  subsidiære tallet og plasseringen av antallet saker som ikke er med. Summene endres ikke.
+  Ordlyden i oversikten fastsettes når den bygges, med linse A i design-review. En egen sum for
+  alle svar TE ikke har godtatt, er et eget spørsmål.
+- **Avhenger av spørsmål 1:** svaret A endrer ikke ordlyden.
+- **Svar 25.10 (oppdragsgiver):** A. Oppdragsgiver ordrett: «7B og 8A». Forkastet: B slik den
+  står. Svaret føres i vedtaksregisteret i en egen vedtaks-PR.
+- **Sparring 25.10:** spørsmålet ble rettet i tre runder med en annen modell. Den første formen
+  sa at nøkkeltallene gjelder «krav og enigheter sendt i løsningen». Sparringen er ikke
+  oppdragsgivers svar. Ordrett:
+  - «Enighet kan registreres ved sammenfall uten en egen aksept. Teksten bør beskrive
+    beregningsgrunnlaget, ikke forutsette at enigheten er et sendt dokument.»
+  - «Opplys dersom saker utelates fordi løsningen ikke kan beregne dem; en ufullstendig sum må
+    ikke fremstå som komplett.»
+  - «Da unngår dere at 130 000 kroner blir lest som enten bare subsidiære poster eller samlet
+    beløp BH har godkjent i prosjektet. En egen sum for alle ubesvarte tilbud bør eventuelt
+    behandles separat.»
+  Merkingen sparringen foreslo, «BHs beløp uten gjennomslag for påberopelsene», er ikke tatt
+  inn. 8-A bruker uttrykket fra OV-U31, «om ingen påberopelse fører fram».
+- **Prøvd mot vedtaksfila og kjørt 25.10** av en subagent, sammen med spørsmål 7. Sju forløp ble
+  kjørt gjennom kjernen og nøkkeltallene. Prøvingen ga disse rettelsene: kravsummen omfatter
+  saker der kravene er avgjort, det subsidiære tallet er beskrevet slik det regnes, enighet uten
+  virkning og uten beløp er tatt med, og setningen om bekreftelse etter 2b er erstattet av en om
+  byggherrens svar på grunnlaget. Presiseringene fra tredje sparringsrunde kom etter prøvingen.
 
 ### Spørsmål 9. Hvilke registrerte brev som vises ved kravet (VG-H-03)
 
