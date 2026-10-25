@@ -765,8 +765,10 @@ fra 25.10.
     TE kan i samme forslag tilby å trekke kravet om vederlag eller frist. Forslaget er da ett
     samlet forslag: brevet og aksepten viser til kravversjonen som trekkes og til vilkårene som
     avklares, og ingen av følgene inntrer før hele forslaget er godtatt. Mens forslaget står
-    åpent, avvises en ny kravversjon og et eget trekk av det identifiserte kravet; andre krav
-    og spor berøres ikke. Visningen viser det åpne forslaget og at sperren opphører ved aksept,
+    åpent, avvises TEs handlinger som ville gjøre trekket utillatt eller fjerne enigheten med
+    vilkårene: en ny kravversjon og et eget trekk av kravet som skal trekkes, en aksept som
+    ville gi et avtalt fradrag i det kravet (KA-U22), og et trekk av kravet i sporet med
+    vilkårene. Andre handlinger berøres ikke. Visningen viser det åpne forslaget og at sperren opphører ved aksept,
     avslag eller når fristen er ute. Lukkes saken mens forslaget står åpent, fordi TE godtar et
     avslag på grunnlaget eller trekker grunnlaget, faller forslaget bort. Ellers godtas en
     aksept så lenge forslaget binder; hendelser i andre spor endrer ikke forslaget. Et trekk av
@@ -790,15 +792,17 @@ fra 25.10.
     det bort, sier visningen at avklaringen ikke er godtatt i løsningen, ikke at vilkåret ikke
     er oppfylt. En avklaring kan ikke endre beløpet eller dagene i første versjon. At løsningen
     krever motpartens tilslutning, er et produktvalg; det sier ikke at et ensidig frafall er
-    uten rettslig virkning. Utvider LV-U4. Presiserer HF-U9, KA-U10, KA-U22, OV-U3 og MM-U28.
-    Anvender HF-U5, HF-U6 og LV-U7 på forslaget. I tråd med MM-U12.»
+    uten rettslig virkning. Utvider LV-U4. Snevrer inn KA-U6 mens et forslag om trekk står
+    åpent. Presiserer HF-U9, KA-U10, KA-U22, OV-U3 og MM-U28. Anvender HF-U5, HF-U6 og LV-U7 på
+    forslaget. I tråd med MM-U12.»
   - **D3, endringsordre:** «En sak der et spor har enighet med særskilte vilkår som ikke er
     avklart, kan ikke inngå i en endringsordre (EO-U5). Sperren gjelder hele saken, fordi en sak
     inngår i høyst én endringsordre og gjengis der samlet (EO-U3, EO-U8). Den gjelder ikke saker
     uten slike vilkår. Snevrer inn EO-U5, slik KA-U26 gjør for et registrert brev merket med et
     forbehold.» Koden krever i dag at kravene er avgjort før en sak kan inngå i en endringsordre
-    (L, `kanInngaaIEo` i `kjerne/utledning/utled.ts`, arbeidsvalget i #493), så D3 er i praksis
-    bygget gjennom OV-U3. Det erstatter ikke vedtaket.
+    (L, `kanInngaaIEo` i `kjerne/utledning/utled.ts`, arbeidsvalget i #493). D3 er bygget når
+    regelen i D1 om vilkår som ikke er avklart, er med i hva som regnes som avgjort; i dag leser
+    koden ikke vilkår. Koden erstatter ikke vedtaket.
   - **Begrunnelse:** sperren i 3b-A belønner et uriktig svar. Løsningen kontrollerer ikke
     opplysningen, og når et ja stopper sendingen og et nei slipper gjennom, blir det svart nei.
     3b-A nevner selv et uriktig nei som en kjent begrensning. Etter D1 har et ja en tydelig og
@@ -869,8 +873,10 @@ fra 25.10.
        identifiserte kravet. D2 er skrevet slik, og det er bestemt på forhånd hva som skjer med
        forslaget når saken lukkes, så løsningen ikke avviser en gyldig aksept etterpå.
   - **Rettet etter den samlede prøvingen:** det samlede forslaget er avgrenset til trekk av
-    vederlag og frist, sperrer en ny kravversjon og et eget trekk mens det står åpent, og
-    kontrolleres på nytt ved aksepten. Vilkårene beholder nummeret fra det første svaret, en
+    vederlag og frist, og TEs handlinger som ville gjøre trekket utillatt eller fjerne
+    enigheten med vilkårene, avvises mens det står åpent. Den siste prøvingen (commit
+    `1a5168db`) fant at et trekk av kravet i sporet med vilkårene og et avtalt fradrag kunne gi
+    en aksept OV-U3 sperrer; begge er nå sperret. Vilkårene beholder nummeret fra det første svaret, en
     revisjon kan ikke ta inn igjen et frafalt vilkår, og aksepten nevner numrene. De faste
     setningene i D2 er skrevet ut, og byggherrens ytelser i et punkt står uansett hvem som
     foreslår frafallet. Forholdet til HF-U15 er ført.
@@ -1293,7 +1299,8 @@ fra 25.10.
     på. En ny grunnlagsversjon kan ikke endre dem. Datoopplysningen i grunnlagskravet om når
     pålegget ble mottatt eller TE ble klar over forholdet, endres bare etter egne regler. Vil
     TE påberope en annen hjemmel eller en annen endringsordre, går det i en ny sak etter
-    GR-U22. En enighet i saken står (KA-U7), og løsningen flytter den ikke til den nye saken.
+    GR-U22. En enighet i saken står (KA-U7). Om enigheten og bindingen følger kravene til en ny
+    sak, avgjøres særskilt.
 
     TE kan sende en utdypende begrunnelse med henvisning til kravet. TE velger i skjemaet
     mellom en utdyping og en ny kravversjon, og skjemaet sier følgen av hvert valg. Utdypingen
@@ -1318,21 +1325,25 @@ fra 25.10.
     begrunnelse etter KA-U34 bygges i første versjon; datokontrollene for registrert
     begrunnelse (KA-U36–KA-U39) står utsatt. Utvider OV-U3 og LV-U4. Følger mønsteret i
     KA-U34.»
-  - **Retting av betegnelsen på endringsordren:** «En retting av betegnelsen på endringsordren
-    kan ikke endre hvilket dokument saken gjelder. TE kan foreslå å rette betegnelsen i
+  - **Retting av betegnelsen på endringsordren:** «TE kan foreslå å rette betegnelsen i
     grunnlagskravet, med henvisning til brevet med den. Brevet sier: ‹TE foreslår at
     betegnelsen på endringsordren i brev <n> av <dato> rettes fra <gammel> til <ny>.
     Betegnelsene gjelder samme endringsordre. Forslaget gjelder til <dato> og faller bort uten
-    aksept.› Forslaget følger reglene for forslag om avklaring av særskilte vilkår: TE setter en
-    akseptfrist, forslaget binder som et tilbud til byggherren godtar eller avslår det eller
-    fristen er ute, det finnes høyst ett åpent forslag, og forslaget og aksepten går gjennom
-    godkjenningen etter fullmakten. Godtar byggherren, bekrefter begge parter at betegnelsene
-    gjelder samme dokument, og feltet får den nye betegnelsen. Tidligere brev og betegnelser
+    aksept.› TE setter en akseptfrist. Før sending er forslaget et utkast; det sendte forslaget
+    binder TE som et tilbud (HF-U5, HF-U6, LV-U7) og kan ikke trekkes i løsningen. Bindingen
+    varer til byggherren godtar eller avslår det, eller fristen er ute. Det finnes høyst ett
+    åpent forslag om betegnelsen i saken; det hindrer ikke et forslag om særskilte vilkår, og
+    omvendt. Lukkes saken mens forslaget står åpent, faller det bort. Forslaget og aksepten går
+    gjennom godkjenningen etter fullmakten, som et svar gjør. Taushet har ingen virkning i
+    løsningen. Godtar byggherren, bekrefter begge parter at betegnelsene gjelder samme
+    dokument, og feltet får den nye betegnelsen. Løsningen registrerer partenes bekreftelse og
+    kontrollerer ikke at betegnelsene gjelder samme dokument. Tidligere brev og betegnelser
     beholdes og vises. Mens forslaget står åpent, kan saken ikke inngå i en endringsordre;
     sperren opphører når forslaget er godtatt, avslått eller har falt bort. Forslaget godtas
     også i et spor med enighet og når kravene er avgjort, og det endrer ikke utfallet.
-    Presiserer GR-U16. Anvender MM-U21 med begge parters bekreftelse. Snevrer inn EO-U5 mens
-    forslaget står åpent. Utvider OV-U3 og LV-U4.»
+    Presiserer GR-U16. Snevrer inn MM-U21, fordi rettingen alltid krever byggherrens aksept.
+    Snevrer inn EO-U5 mens forslaget står åpent. Utvider OV-U3 og LV-U4.» Alternativet står
+    alene og forutsetter ikke 3b-D.
   - **Begrunnelse:** arbeidsmåten oppdragsgiver beskriver, et raskt grunnlag og en utdypet
     begrunnelse senere, er god og har støtte i kontrakten: der § 32.2 gjelder, skal TE varsle
     uten ugrunnet opphold. Men i dag kan TE bare utdype gjennom en ny grunnlagsversjon, og har
@@ -1385,11 +1396,29 @@ fra 25.10.
     kontraktsadministrasjon, så en gjennomførbar prosess må finnes da.
     - **L1:** «Den fullstendige rettingsflyten etter MM-U21 bygges før første ekte sak.» Dette
       er kravet fra svaret 25.10.
-    - **L2 (anbefalt):** «Før første ekte sak skal det finnes en avklart og gjennomførbar
-      korrigeringsprosess for tilfellene som ikke dekkes av de særskilte handlingene.
-      Prosessen kan være manuell etter B-16. Den fullstendige rettingsflyten etter MM-U21 kan
-      bygges senere. Utdyping, retting av endringsordrens betegnelse og datoretting etter 5-D
-      og 5-E bygges før første ekte sak.»
+    - **L2 (anbefalt):** «Før første ekte sak bygges TEs utdyping av et krav, retting av
+      betegnelsen på endringsordren, TEs retting av datoen i grunnlagskravet for når pålegget
+      ble mottatt eller TE ble klar over forholdet, og, hvis vedtatt, TEs retting av datoen TE
+      ble klar over at utgiftene etter § 34.1.3 ville påløpe. For andre rettinger skal det før
+      første ekte sak finnes en avklart og gjennomførbar korrigeringsprosess; den kan være
+      manuell. Det som står åpent om rettingen under B-16 i hovedplanen (aktørrettigheter,
+      godkjenning og innsyn for motparten), avgjøres for den manuelle prosessen før første ekte
+      sak. Den fullstendige rettingsflyten etter MM-U21 kan bygges senere. Endrer leveransekravet
+      i svaret 25.10 på spørsmål 5b.» Henvisningen til B-16 er til hovedplanen, ikke et vedtak.
+  - **To valg til leveransekravet, fra den siste prøvingen (commit `1a5168db`):**
+    1. **Varseldatoen etter OV-U11.** Etter OV-U11 gjelder en retting til en senere dato straks
+       som premiss for nye svar, og datoen avgjør hvilket varsel som er det første (HF-U13). Med
+       en manuell prosess står den feile datoen som premiss i løsningen til rettingen er bygget.
+       Anbefaling: rettingen etter OV-U11 tas med blant handlingene i L2 som bygges før første
+       ekte sak.
+    2. **Feil hjemmel eller feil endringsordre før første ekte sak.** Låsen fjerner veien der
+       nummeret rettes i en ny versjon, og overføringen er ikke avklart (#569). Alternativene:
+       - **H1:** første ekte sak venter til overføringen er vedtatt og bygget.
+       - **H2 (anbefalt):** «I første versjon oppretter TE en ny sak med riktig hjemmel eller
+         endringsordre, uten trekk og uten overføring. Den gamle saken bevares, og visningen i
+         begge sakene sier at TE har opprettet en ny sak for samme forhold, og at løsningen
+         ikke har flyttet krav, svar eller enigheter. Overføringen tilbys først når virkningen
+         er vedtatt (#569). Presiserer GR-U22 og GR-U19.»
   - **Prøvd mot vedtakene og arbeidsflyten 25.10** av subagenter på commit `94dc93c`,
     `3779571`, `8920e37` og `106fc15d`. Rettelsene er tatt inn. Forløpene fant at en ny
     grunnlagsversjon kunne bytte endringsordre etter enighet; oppdragsgivers føring lukker det.
