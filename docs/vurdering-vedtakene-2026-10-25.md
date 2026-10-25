@@ -368,8 +368,10 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   meddelt standpunkt, med uttrykkelig henvisning til det tidligere svaret, og appen får et
   uttrykkelig, strukturert standpunkt å bygge på, uten å lese det eksterne dokumentet.
   Virkningen av bekreftelsen gjelder appens utledning; den sier ikke at det eksterne svaret
-  var uten rettsvirkning før bekreftelsen. A kan ikke vedtas fullt ut før fristbehandlingen
-  under er avklart.
+  var uten rettsvirkning før bekreftelsen. 2b-A kan vedtas og bygges uten beregning av
+  kontraktsfristene etter § 32.3 og § 5 tredje ledd. Før slik beregning innføres, må relevante
+  hendelser og tidspunkter avklares særskilt. Bekreftelsen starter ikke i seg selv disse
+  fristene på nytt.
 - **Hva valget styrer:** grunnlagsskjemaet, brevteksten for en bekreftelse og visningen av en
   henvisning ved siden av et nytt svar. Regelverket og brevteksten endres.
 - **Avhenger av:** spørsmål 2, alternativ D, for at henvisningen finnes. A kan også stå uten D;
@@ -392,7 +394,28 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   - Til de tre rettelsene i begrunnelsen, valget av nytt svar og fristavsnittet, som er tatt
     inn: «Tilslutningen til rettelsene er ikke en endelig godkjenning av 2b-A; det åpne
     fristspørsmålet står fortsatt.»
-- **Åpne avklaringspunkter, uten anbefaling:**
+- **Svar 25.10 (oppdragsgiver):** A, slik teksten står. Fristspørsmålet står åpent for en senere
+  fristberegning og hindrer ikke at bekreftelsesordningen vedtas. Oppdragsgiver ordrett:
+  - «Ja til 2b-A slik teksten nå er gjengitt. Fristspørsmålet kan stå åpent for senere
+    fristberegning, uten å hindre at bekreftelsesordningen vedtas. Jeg vil dermed justere min
+    tidligere reservasjon om at hele 2b-A måtte vente.»
+  - «Kontraktens ordlyd: § 32.3 knytter svarplikten til mottatt varsel og begrunnelsesplikten
+    til avslaget. Den oppstiller ingen egen regel om at en senere bekreftelse starter disse
+    fristene på nytt.»
+  - «Praksis: LH-2016-96291 illustrerer at også innsigelsen om at byggherren svarte for sent,
+    må fremsettes rettidig etter § 5 tredje ledd. Avgjørelsen løser ikke spørsmålet om senere
+    bekreftelser, men viser hvorfor de opprinnelige meddelelsene må beholdes som relevante
+    hendelser.»
+  - «Bekreftelsesordningen trenger ikke avgjøre fristspørsmålene. Det holder at den ikke
+    nullstiller frister, fremstiller bekreftelsesdatoen som den opprinnelige svardatoen eller
+    avgjør om det tidligere svaret var rettidig.»
+  - «LV-U7 beholdes som den uttrykkelig avgrensede modellen dere beskriver, ikke som en
+    generell rettsregel om binding.»
+
+  Anbefalingen er rettet etter svaret. Forkastet: B slik den står. Avgjørelsen LH-2016-96291 er
+  oppdragsgivers kilde og ikke lest i økta. Svaret føres i vedtaksregisteret i en egen
+  vedtaks-PR.
+- **Åpne avklaringspunkter, uten anbefaling.** Ingen av dem hindrer at A vedtas:
   1. **Fristene.** Kjernen regner i dag ingen frist fra datoen for byggherrens svar (L, søk i
      `kjerne/regler/` og `kjerne/utledning/`). Identifiserte fristspørsmål, ikke en uttømmende
      liste: svar uten ugrunnet opphold etter § 32.3 annet ledd (påberopelsen er utsatt, VS-U3
