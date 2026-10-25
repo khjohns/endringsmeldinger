@@ -1320,8 +1320,10 @@ fra 25.10.
       tidligere korrespondanse oppfylte varslingskravet, og datoen i den nye saken framstilles
       ikke som det rettslige startpunktet.
     - En avvisning av et nytt avklaringsforslag peker til forslaget som står åpent.
-    - Står saken fast i en reell tvist, for eksempel når byggherren holder fast på at varselet
-      kom for sent, sier visningen det, uten å avgjøre tvisten.
+    - Kommer saken ikke videre, viser visningen det registrerte forholdet, for eksempel
+      «Byggherren har påberopt at varselet kom for sent» eller «Partene har ikke godtatt en
+      avklaring av vilkårene». Løsningen vet ikke om partene står i en tvist, og merker ikke
+      saken som tvist uten et definert utsagn fra en part.
   - **Leveransekravet, alternativene:** utsagnet og brevet etter 5-D bygges før første ekte
     sak i begge alternativene, fordi de er TEs vei til å utdype eller rette uten å avslå
     byggherrens svar. Rettingen etter MM-U21 gjelder da varseldatoen etter OV-U11, rettinger
