@@ -138,6 +138,11 @@ anbefalingene eller rette enkeltpunkter. Det valgte alternativet blir vedtakstek
 og et forkastet blir «Forkastet» ordrett. Svarene føres i en egen vedtaks-PR. Spørsmål 1
 står først fordi svaret kan gjøre andre overflødige. Det står ved hvert spørsmål.
 
+Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i de åpne spørsmålene
+4–10 står «løsningen». Ordrette sitater fra vedtak og svar, og merknaden «Appen vurderer ikke
+innholdet» (OV-U4), beholder «appen». Alternativene i de besvarte spørsmålene står slik de ble
+besvart.
+
 ### Spørsmål 1. Brev sendt utenfor appen
 
 - **Bakgrunn:** Avsnitt 2. Kort sagt: partene kan sende varsler og krav utenfor appen, og det
@@ -641,23 +646,46 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Bakgrunn:** MP-U7 (08.10, fra metodeprøven) sier at en senere dokumentert innsigelse mot
   premisset om at det ikke finnes noen virksom tidsinnsigelse, gir «uavklart: motstridende
   dokumentasjon», og at et sendt brev som avviker fra dagens utledning, merkes som utdatert.
-  Senere vedtak sier det motsatte: en innsigelse etter svaret «endrer ikke et tidligere svar
-  eller en enighet» (VS-U9), og et registrert brev gir ikke noe «uavklart utfall» (OV-U4).
-  Registeret fører ikke forholdet, og Følge til VS-U1 sier «I tråd med MP-U5, MP-U7». MP-U7
-  er ikke bygget. Etter innledningen i vedtaksfila gjelder et senere vedtak foran, så dette er
-  en bekreftelse.
-- **Belegg:** § 5 tredje ledd. MP-U7, VS-U1, VS-U9, OV-U4, HF-U11.
+  Tilfellet i [metodeprøven](vedlegg/metodeprove-frist-2026-10-08/README.md#prøve-4-senere-dokumentert-korrespondanse)
+  er en tidligere e-post med en rettidig innsigelse, som byggherren dokumenterer etter at det
+  er avklart at ingen tidsinnsigelse virker. Senere vedtak sier det motsatte av MP-U7: en
+  innsigelse etter svaret «endrer ikke et tidligere svar eller en enighet» (VS-U9), og et
+  registrert brev gir ikke noe «uavklart utfall» (OV-U4). Følge til VS-U1 sier «I tråd med
+  MP-U5, MP-U7». MP-U7 er ikke bygget. Innledningen i vedtaksfila sier om vedtakene: «De tas
+  ikke opp igjen uten at beslutningen eksplisitt oppheves.» Følge sier når et senere vedtak
+  gjelder foran, og ingen post i registeret har et forhold til MP-U7. Motstriden avgjøres
+  derfor av dette vedtaket.
+- **Belegg:** § 5 tredje ledd. MP-U7, VS-U1, VS-U9, OV-U4, HF-U11, MM-U9.
 - **Alternativene:**
-  - **A (anbefalt):** «MP-U7 er endret av VS-U9 og OV-U4 for saker i appen: en innsigelse
-    sendt etter svaret, eller et registrert brev, gjør ikke utfallet uavklart, og et sendt brev
-    merkes ikke som utdatert.»
-  - **B:** «MP-U7 gjelder for innsigelser sendt fra appen. En innsigelse etter § 5 tredje ledd
-    sendt fra appen, som strider mot premisset i et sendt svar, gir ‹uavklart: motstridende
-    dokumentasjon› til en egen handling avgjør det. Registrerte brev følger OV-U4. Endrer VS-U9
-    og HF-U11.»
-- **Anbefaling:** A. B ville la appen trekke en slutning av en påberopelse, som HF-U11 sier at
-  den ikke skal.
-- **Hva valget styrer:** forholdet i registeret. Følge til VS-U1 rettes samtidig.
+  - **A (anbefalt):** «For saker i løsningen endres MP-U7 på punktene om uavklart utfall og
+    merking av sendte brev som utdatert, slik at disse samsvarer med VS-U9 og OV-U4. En
+    innsigelse sendt fra løsningen etter svaret gjør ikke i seg selv et tidligere utledet
+    utfall uavklart. Det gjør heller ikke et registrert brev, også når brevet dokumenterer en
+    tidligere innsigelse. De endrer ikke et tidligere svar eller en enighet. Et sendt brev
+    merkes ikke som utdatert av denne grunnen. Innsigelsen vises etter VS-U1, og brevet etter
+    OV-U4. Løsningen avgjør ikke hvilken rettslig betydning de har.»
+  - **B:** «MP-U7 gjelder for innsigelser sendt fra løsningen. En innsigelse etter § 5 tredje
+    ledd sendt fra løsningen, som strider mot premisset i et sendt svar, gir ‹uavklart:
+    motstridende dokumentasjon› til en egen handling avgjør det. Registrerte brev følger
+    OV-U4. Endrer VS-U9 og HF-U11.»
+- **Anbefaling:** A. B lar en senere påberopelse fra den ene parten endre et utledet utfall og
+  kreve en ny handling, i strid med VS-U9 og OV-U4. Å vise «uavklart» er ikke i seg selv en
+  rettslig avgjørelse; det er virkningen på utfallet som strider mot vedtakene. B dekker heller
+  ikke tilfellet MP-U7 kom fra, fordi registrerte brev følger OV-U4 også etter B. To
+  avgrensninger gjelder A:
+  - «Ingen standpunkt» i OV-U4 betyr at løsningen ikke utleder et standpunkt av
+    registreringen. Det betyr ikke at brevet er uten et rettslig relevant standpunkt.
+  - At dokumentasjonen ikke endrer et utledet utfall, betyr ikke at den er uten betydning for
+    partenes rettigheter. Siste setning i A sier det.
+
+  Leddene i MP-U7 om at begge opplysningene står i journalen, og at tidligere utledninger og
+  sendte brev ikke endres, står. De stemmer med VS-U9 og MM-U9.
+- **Hva valget styrer:** forholdet «endrer» til MP-U7 i registeret. «I tråd med MP-U5, MP-U7»
+  i Følge til VS-U1 rettes samtidig.
+- **Sparring 25.10:** A og anbefalingen er rettet etter sparring mellom økta, oppdragsgiver og
+  en annen modell: første setning, tilfellet med en tidligere innsigelse som dokumenteres
+  senere, «en enighet» som i VS-U9, og grunnlaget mot B. Premisset om at et senere vedtak
+  alltid gjelder foran, er trukket.
 - **Avhenger av spørsmål 1:** ved C må spørsmålet stilles på nytt for registrerte brev.
 
 ### Spørsmål 5. Datoen varslingsplikten løper fra i grunnlagskravet (VG-D-01)
@@ -721,9 +749,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Alternativene:**
   - **A (anbefalt):** «Saken viser ikke en ny overtakelsesdato. Den viser forlengelsen og
     perioden TE oppgir, som TEs premiss. Overtakelsesdatoen for kontrakten samlet føres ikke i
-    appen. Endrer OV-U37, i tråd med OV-U36 og OV-U39.»
+    løsningen. Endrer OV-U37, i tråd med OV-U36 og OV-U39.»
   - **B:** «TE oppgir i posten den nye overtakelsesdatoen TE legger til grunn for kontrakten, og
-    saken viser den som TEs premiss, ikke som avtalt. Appen sammenlikner ikke datoene i ulike
+    saken viser den som TEs premiss, ikke som avtalt. Løsningen sammenlikner ikke datoene i ulike
     saker. Utvider OV-U39.»
 - **Anbefaling:** A. Datoen gjelder kontrakten samlet, som OV-U36 fører utenfor appen.
 - **Hva valget styrer:** skjemaet og visningen av posten i #1171.
@@ -738,9 +766,9 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Belegg:** MM-U28, OV-U10, OV-U36, OV-U37.
 - **Alternativene:**
   - **A (anbefalt):** «Nøkkeltallene for vederlag sier at de gjelder krav og enigheter sendt i
-    appen. Krav og svar i brev sendt utenfor appen og kompensasjonen for rigg og drift i uendret
-    byggetid er ikke med. Krav i flere saker kan gjelde samme kostnad, og appen kontrollerer det
-    ikke. Presiserer MM-U28, i tråd med OV-U10, OV-U36 og OV-U37.»
+    løsningen. Krav og svar i brev sendt utenfor løsningen og kompensasjonen for rigg og drift i
+    uendret byggetid er ikke med. Krav i flere saker kan gjelde samme kostnad, og løsningen
+    kontrollerer det ikke. Presiserer MM-U28, i tråd med OV-U10, OV-U36 og OV-U37.»
   - **B:** «Nøkkeltallene står som i MM-U28.»
 - **Anbefaling:** A, av samme grunn som OV-U10.
 - **Hva valget styrer:** overskriftene og teksten i oversikten.
@@ -755,10 +783,10 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   svarer.
 - **Belegg:** OV-U4, OV-U20.
 - **Alternativene:**
-  - **A (anbefalt):** «Ved kravet som venter på svar viser appen den som leser, motpartens
+  - **A (anbefalt):** «Ved kravet som venter på svar viser løsningen den som leser, motpartens
     registrerte brev som hører til sporet eller saken og ikke er rettet: TE ser byggherrens, og
     byggherren ser TEs. Presiserer OV-U20.»
-  - **B:** «Ved kravet som venter på svar viser appen begge partenes registrerte brev som hører
+  - **B:** «Ved kravet som venter på svar viser løsningen begge partenes registrerte brev som hører
     til sporet eller saken og ikke er rettet, med avsenderen, beskrivelsen som avsenderens
     beskrivelse og merknaden ‹Appen vurderer ikke innholdet›. Utvider OV-U20.»
   - **C:** «Ved kravet vises bare byggherrens registrerte brev, også for byggherren. Teksten sier
@@ -778,7 +806,7 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Belegg:** § 33.5 første ledd annet punktum. VS-U18, OV-U37, OV-U39.
 - **Alternativene:**
   - **A (anbefalt):** «Skjemaet for fristkravet ber ikke TE begrunne avgrensningen mot fristkrav
-    i andre saker. Veiledningen etter VS-U18 sier at appen ikke ser dem. Presiserer VS-U18.»
+    i andre saker. Veiledningen etter VS-U18 sier at løsningen ikke ser dem. Presiserer VS-U18.»
   - **B:** «Skjemaet for fristkravet ber TE begrunne hvordan kravet er avgrenset mot fristkrav i
     andre saker som gjelder samme periode, slik OV-U37 og OV-U39 gjør for posten for rigg og
     drift. Begrunnelsen er ikke påkrevd. Utvider VS-U18.»
