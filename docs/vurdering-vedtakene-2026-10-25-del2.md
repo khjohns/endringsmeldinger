@@ -20,9 +20,10 @@ audit, og ingen produksjonskode, vedtak eller tester er endret.
   (`utsagnstekst`), `kjerne/format/format.ts` (`KRAVINNHOLD`),
   `src/lib/kjernesak/vederlagskrav.ts` og `kjernelag`/`kjerneresultat` i
   `src/lib/components/kontraktsbord/VederlagForm.svelte`.
-- **Kontraktsteksten er ikke lest.** `add_repo` for `khjohns/kontrakt` ble avvist av
-  tillatelseskontrollen i økta. Bestemmelsene er oppgitt slik vedtakene oppgir dem.
-  Ingen påstand under bygger på min lesing av ordlyden (lag O er derfor «—» overalt).
+- **Kontraktsteksten** er lest i `khjohns/kontrakt` (`NS_8407.md`, commit `5540b60`)
+  etter at oppdragsgiver ga tilgang: § 5, § 31.3, § 32.1–32.3, § 33.4, § 33.7,
+  § 34.1.2, § 34.1.3 og § 34.2.1–34.2.2. Rapporten viser bare til bestemmelsene.
+  Avtaleloven er ikke lest; der den nevnes, er det slik vedtakene nevner den.
 - **Forløpene** er kjørt i minnet med `Kjoering` fra `kjerne/tester/kjoerer.ts`, i en
   prøvefil som ikke er committet. Prefikset er `krav_irreg` fra bevis-sakene: grunnlag
   irregulær endring (pålegg mottatt 15.09), vederlag 100 000 kr, frist 20 dager.
@@ -67,7 +68,11 @@ og observert, **L** lest i kode, **—** ikke kontrollert.
     `ENIGHET_I_SPORET` «Partene er enige om svaret. Kravet kan ikke endres.» TEs aksept:
     `ENIGHET_I_SPORET`. Byggherrens revisjon: `ENIGHET_I_SPORET`.
 - **Belegg:** K for kjernen (I). L for «Enige» i saksoversikten (I). T for HF-U7, A for
-  KA-U16/OV-U39/LV-U32. V for at visningen villeder.
+  KA-U16/OV-U39/LV-U32. O: etter § 34.2.2 første ledd skjer justeringen etter § 34.3
+  og § 34.4 med mindre byggherren har akseptert TEs tilbud (§ 34.2.1). Et svar som
+  godkjenner beløpet, men avgrenser hva det omfatter, er etter T (HF-U7) ikke en slik
+  aksept. Da gjelder beregningsreglene etter kontrakten, mens appen viser at partene er
+  enige. Kontrakten sier ingenting om sammenfall. V for at visningen villeder.
 - **Sikkerhet:** høy for atferden. Middels for at det er et problem som må løses i første
   versjon: valget er bevisst (KA-U16), men forløpet med begrunnelse og «forbeholdene
   som fremgår av svaret» i samme brev ser ikke ut til å ha vært vurdert. Berører
@@ -107,8 +112,11 @@ og observert, **L** lest i kode, **—** ikke kontrollert.
     vedtakene. Det som mangler, er at byggherren ble fortalt hva svaret gjorde.
   - Forløp 4 gir det samme for byggherren: full godkjenning av vederlaget før
     fristsvaret låser beløpet, og et senere fristsvar på færre dager endrer det ikke.
-- **Belegg:** K for kjernen (I). L for skjemaet, bare utsnittet over (I). V for at
-  opplysningen trengs.
+- **Belegg:** K for kjernen (I). L for skjemaet, bare utsnittet over (I). O: kontrakten
+  har ingen regel om at et svar som godkjenner hele kravet, binder byggherren. Bindingen
+  bygger på § 34.2.2 første ledd for et akseptert tilbud, § 31.3 annet ledd for en
+  endringsordre og avtaleloven slik vedtakene leser den (T). At byggherren ikke kan
+  revidere, er derfor T/A, ikke O. V for at opplysningen trengs.
 - **Sikkerhet:** middels. Usikkert om den ekte saksruta viser noe mer enn ikonet.
 - **Minste avklaring:** spørsmål 2.
 
@@ -148,8 +156,14 @@ og observert, **L** lest i kode, **—** ikke kontrollert.
     `gjeldende_svar.grunnlag` = null, `innsigelser` = [], og byggherren kan svare «i
     tide» på K-g2. Etter et godkjent grunnlag uten påberopelse (enighet, GR-U10) avvises
     K-g2 med `ENIGHET_I_SPORET`, også med en tidligere dato (variant 6b).
-- **Belegg:** K (I). A for GR-U22/VS-U26. T for MM-U21/OV-U11. V for at modellene
-  bør være like.
+- **Belegg:** K (I). A for GR-U22/VS-U26. T for MM-U21/OV-U11. O: etter § 32.2 første
+  ledd løper varslingsplikten fra TE mottar pålegget, og retten tapes ved for sent
+  varsel. Etter § 34.1.2 annet ledd løper den fra TE ble eller burde ha blitt klar over
+  forholdet. Datoen TE oppgir, er derfor bare TEs opplysning om utgangspunktet for en
+  preklusiv frist. Etter § 5 tredje ledd må byggherren gjøre gjeldende at varselet kom
+  for sent uten ugrunnet opphold etter at hen *mottok varselet*. En ny grunnlagsversjon
+  er ikke et nytt varsel om samme pålegg. Kontrakten regulerer ikke retting av en
+  opplysning. V for at modellene bør være like.
 - **Sikkerhet:** høy for atferden. Middels for at det er utilsiktet: en ny versjon med
   endret dato kan være et bevisst valg etter GR-U22, men da bør brevet vise endringen.
 - **Minste avklaring:** spørsmål 3.
@@ -160,8 +174,8 @@ og observert, **L** lest i kode, **—** ikke kontrollert.
 - **Hva og for hvem:** OV-U41 lar TE «supplere en dato som ikke ble oppgitt» og
   avgjør bare en *senere* eller *tidligere* dato enn den TE oppga før. En første dato
   har ikke noe å sammenlikne med. Oppgir TE den etter at byggherren har påberopt at det
-  særskilte varselet kom for sent, kan den gi TE en fordel som ikke var meddelt da
-  byggherren svarte. Uten et vedtak avgjør byggeøkta om den gjelder straks.
+  særskilte varselet kom for sent, står den som en opplysning byggherren ikke kjente da hen
+  svarte. Uten et vedtak avgjør byggeøkta om den gjelder straks.
 - **Vedtakene:** OV-U41 (supplering som nytt utsagn; fortegnet etter MM-U21; et svar
   byggherren alt har gitt, står med virkningen det hadde, A). MM-U21 (retting til
   avsenderens fordel gjelder når motparten godtar den, T). OV-U34 (kunnskapsdato og
@@ -171,7 +185,12 @@ og observert, **L** lest i kode, **—** ikke kontrollert.
   byggherren påberoper at varselet kom for sent → TE oppgir kunnskapsdatoen senere.
   Gjeldende vedtak sier at svaret står (OV-U41, OV-U5), men ikke om datoen er premiss
   for byggherrens neste svar før hen har godtatt den.
-- **Belegg:** — (I). A og V.
+- **Belegg:** — (I). A og V. O: etter § 34.1.3 tredje ledd løper fristen for det
+  særskilte varselet fra TE ble *eller burde ha blitt* klar over at utgiftene ville
+  påløpe. TEs kunnskapsdato er derfor ikke avgjørende for rettidigheten, som OV-U41
+  sier. Det taler for at en første dato bare er en opplysning og ikke trenger
+  byggherrens godkjenning. Det taler også for at en sen første dato gir TE liten fordel,
+  så alternativ B i spørsmål 4 er mindre risikabelt enn jeg først vurderte.
 - **Sikkerhet:** middels. Det kan være meningen at «står med virkningen det hadde» er
   nok vern.
 - **Minste avklaring:** spørsmål 4, før #1171 bygger kunnskapsdatoen.
@@ -252,12 +271,16 @@ og observert, **L** lest i kode, **—** ikke kontrollert.
    Bakgrunn: OV-U41 lar TE supplere en kunnskapsdato som ikke ble oppgitt, og avgjør
    bare en senere eller tidligere dato enn den TE oppga før.
    Alternativer:
-   - **A (anbefalt):** «Oppgir TE kunnskapsdatoen for første gang etter at byggherren
+   Etter § 34.1.3 tredje ledd løper fristen fra TE ble eller burde ha blitt klar over
+   at utgiftene ville påløpe, så datoen TE oppgir, avgjør ikke rettidigheten.
+   - **A:** «Oppgir TE kunnskapsdatoen for første gang etter at byggherren
      har tatt stilling til rettidigheten av varselet, er opplysningen en retting til TEs
      fordel etter MM-U21 og gjelder som premiss for nye svar når byggherren godtar den.
      Oppgitt før byggherrens svar gjelder den straks.» Presiserer OV-U41.
-   - **B:** «En første kunnskapsdato gjelder straks som TEs opplysning. Et svar
-     byggherren alt har gitt, står med virkningen det hadde (OV-U41).»
+   - **B (anbefalt):** «En første kunnskapsdato gjelder straks som TEs opplysning. Et svar
+     byggherren alt har gitt, står med virkningen det hadde (OV-U41).» Presiserer
+     OV-U41. Anbefalt fordi datoen etter kontrakten bare er TEs opplysning og
+     byggherrens svar står; A gir en godkjenningsflyt for lite.
    Valget styrer #1171.
 
 ## 2. Tekniske rettinger
@@ -292,8 +315,9 @@ berørte delene endres.
 
 ## 4. Verifikasjon og grenser
 
-- Kontraktsteksten er ikke lest (avvist `add_repo`). Ingen funn hviler på ordlyden, men
-  vedtakenes henvisninger til bestemmelser er ikke kontrollert.
+- Kontraktsteksten er lest for bestemmelsene som er nevnt øverst. Andre bestemmelser
+  vedtakene viser til, er ikke kontrollert mot ordlyden (blant annet § 33.6, § 33.8,
+  § 34.3 og § 35). Avtaleloven er ikke lest.
 - Forløpene er kjørt i minnet gjennom `Kjoering`, ikke gjennom serveren, testbasen eller
   den ekte saksruta. Skjemaene i `src/` er bare lest i utsnitt (VG-C-02).
 - Ikke prøvd: akseptfristen og aksept etter fristen (HF-U15–HF-U20, HF-U22, ikke bygget,
