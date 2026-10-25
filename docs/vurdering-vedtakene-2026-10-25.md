@@ -468,7 +468,12 @@ fra 25.10.
   tidligere svaret og, når grunnlaget godkjennes uten påberopt preklusjon i en underkategori der
   § 32.2 gjelder, om det tidligere svaret var en endringsordre. Kontrollene, fullmakten og
   brevteksten følger handlingen byggherren velger, og forhåndsvisningen viser hva brevet
-  inneholder. Ingen vedtakstekst endres. Føringen føres i byggeissuet for grunnlagssvaret når
+  inneholder. Bekrefter byggherren, får brevet bekreftelsen i stedet for henvisningen og
+  forbeholdet for ubesvart grunnlag, og standpunktene følger GR-U26: avslås grunnlaget eller
+  påberopes preklusjon, gjelder den subsidiære strukturen. Avvises bekreftelsen, fordi det
+  tidligere svaret hadde et forbehold eller var en endringsordre som skal registreres etter
+  OV-U6, kan svaret på vederlag eller frist sendes med henvisningen alene. Ingen vedtakstekst
+  endres. Føringen føres i byggeissuet for grunnlagssvaret når
   vedtaket føres. Tilfellet blir sjeldnere når byggherren kan svare på grunnlaget i TS-ruta
   (#818).
 - **Sparring om føringen 25.10**, ordrett. Den ene modellen: «Spør med én gang i samme boks:
@@ -668,11 +673,12 @@ fra 25.10.
   - «Alternativene bør fortsatt stå som åpne; dette er tilslutning til å føre inn og prøve
     forslaget.»
 - **Revurderingen 25.10: alternativ D (foreslått).** Forslaget har ikke vært lagt fram for
-  oppdragsgiver. Velges D, erstatter det svaret 25.10 (3b-A) for svar sendt fra løsningen.
-  3b-A står for registrering av en endringsordre etter OV-U6.
-  - **D:** «Godkjenner byggherrens svar noe i et spor, prinsipalt eller subsidiært, opplyser
-    byggherren for sporet om godkjenningen er avhengig av vilkår eller forbehold som ikke kan
-    uttrykkes med valgene i skjemaet. Skjemaet spør: ‹Er godkjenningen avhengig av andre vilkår
+  oppdragsgiver. Velges D, erstatter det svaret 25.10 (3b-A) for svar på vederlag og frist
+  sendt fra løsningen. 3b-A står for svar på grunnlaget og for registrering av en endringsordre
+  etter OV-U6.
+  - **D:** «Godkjenner byggherrens svar på vederlag eller frist noe, prinsipalt eller
+    subsidiært, opplyser byggherren for sporet om godkjenningen er avhengig av vilkår eller
+    forbehold som ikke kan uttrykkes med valgene i skjemaet. Skjemaet spør: ‹Er godkjenningen avhengig av andre vilkår
     eller forbehold enn dem som uttrykkes gjennom valgene du har gjort og den faste
     brevteksten?› Veiledningen sier: ‹Forbeholdet for ubesvart grunnlag og forbeholdene som
     uttrykkes i lagene i svaret, omfattes ikke av spørsmålet.› Spørsmålet stilles når svaret
@@ -685,34 +691,52 @@ fra 25.10.
     sporet. Den tolker ikke vilkårene, avgjør ikke om de er oppfylt og endrer ikke andre spor.
     Gjelder et vilkår et annet spor, får det virkning der bare gjennom partenes egne handlinger
     i det sporet. En enighet med særskilte vilkår binder som en enighet etter KA-U7: en ny
-    kravversjon og byggherrens revisjon i sporet avvises. Den er ikke en virksom enighet: kravet
+    kravversjon og byggherrens revisjon i sporet avvises. Den blir aldri en virksom enighet: kravet
     regnes ikke som avgjort etter OV-U3, og beløpet inngår ikke i summen av virksom enighet.
-    Visningen og nøkkeltallene viser den særskilt, med henvisning til brevet med vilkårene.
-    Opplysningen er byggherrens og lagres med svarversjonen. Løsningen kontrollerer den ikke
-    mot utdypningen og tolker ikke teksten. Registrering av en endringsordre etter OV-U6 følger
-    svaret 25.10 på dette spørsmålet. Endrer KA-U16, som forkastet foreløpig at et svar med
-    forbehold ikke gir sammenfall, for svar der byggherren selv opplyser om vilkår. Endrer
-    KA-U19 for svar sendt fra løsningen. Presiserer OV-U3, MM-U22 og svaret 25.10 på spørsmål 8.
-    I tråd med HF-U7, GR-U7, KA-U7, LV-U32 og MM-U12.»
+    Ellers er den betinget eller uten virkning etter de samme reglene som annen enighet
+    (GR-U7), og TE kan trekke kravet (KA-U6). Sporets betegnelse er «Enige», med vilkårene og
+    henvisningen til brevet i linja under. Nøkkeltallene viser den særskilt, atskilt fra
+    virksom og betinget enighet. Reglene og sperrene for TEs aksept gjelder (HF-U18, FO-U5). En
+    revisjon som endrer opplysningen fra nei til ja, avvises, fordi den svekker det byggherren
+    har gitt (HF-U5, HF-U6). En revisjon fra ja til nei endrer i TEs favør, og gir svaret da
+    sammenfall, er partene enige (GR-U7). Opplysningen er byggherrens og lagres med
+    svarversjonen. Løsningen kontrollerer den ikke mot utdypningen og tolker ikke teksten. Svar
+    på grunnlaget og registrering av en endringsordre etter OV-U6 omfattes ikke; der avvises
+    sendingen eller registreringen som svar på grunnlaget når byggherren opplyser om slike
+    vilkår. Endrer GR-U7 og GR-U8 når byggherren svarer ja, og snevrer inn GR-U26. Endrer KA-U16,
+    som forkastet foreløpig at et svar med forbehold ikke gir sammenfall, for svar der
+    byggherren selv opplyser om vilkår. Endrer KA-U19 for svar på vederlag og frist sendt fra
+    løsningen. Utvider MM-U28 og LV-U4, og presiserer OV-U3 og MM-U30. I tråd med HF-U7, KA-U7,
+    LV-U32 og MM-U12.»
   - **Begrunnelse:** sperren i 3b-A belønner et uriktig svar. Løsningen kontrollerer ikke
     opplysningen, og når et ja stopper sendingen og et nei slipper gjennom, blir det svart nei.
     3b-A nevner selv et uriktig nei som en kjent begrensning. Etter D har et ja en tydelig og
     brukbar følge: sammenfallet uteblir, og TE må ta stilling. Det er det HF-U7 sier om et svar
     med et vilkår, og løsningen bygger det på byggherrens egen opplysning, ikke på en tolkning
-    av utdypningen. Byggherren slipper å sende svaret utenfor løsningen. Fordi spørsmålet
+    av utdypningen. Byggherren slipper å sende svaret utenfor løsningen. D gjelder ikke
+    grunnlaget: en godkjenning av grunnlaget uten påberopt preklusjon er en endringsordre etter
+    § 32.3 a (GR-U10), og den avklarer grunnlaget for de andre sporene (GR-U7, OV-U3). En
+    godkjenning med vilkår ville latt grunnlaget stå uavklart for alltid. Fordi spørsmålet
     stilles ved hvert svar som godkjenner noe, og ikke bare ved sammenfall, lukker D også hullet
     3b-A lot stå: at TE godtar et delvis svar uten at vilkåret er registrert. Med et ja gjelder
     setningen om forbeholdene i LV-U32 og ikke setningen i 3-A, så brevet og registreringen
     stemmer overens. Ved registrering etter OV-U6 er dokumentet alt sendt, og et ja fører bare
     til at det registreres som dokumentasjon; derfor står 3b-A der.
-  - **Kostnaden:** D gir en ny kategori enighet med virkning for sperren etter KA-U7, for når
-    kravene er avgjort (OV-U3), for nøkkeltallene og for betegnelsene etter MM-U22. Betegnelsen
-    og ordlyden i oversikten fastsettes når de bygges, med linse A i design-review. Brevet får
+  - **Kostnaden:** D gir en fjerde virkning for en enighet, ved siden av betinget, virksom og
+    uten virkning (MM-U28), med følger for sperren etter KA-U7, for når kravene er avgjort
+    (OV-U3), for nøkkeltallene og for linja under betegnelsen (MM-U30). Ordlyden i oversikten
+    fastsettes når den bygges, med linse A i design-review. Svar på grunnlaget med vilkår
+    sperres fortsatt. Brevet får
     en ny fast setning. Regelversjonen og projeksjonsversjonen økes.
   - **Åpent avklaringspunkt, uten anbefaling:** etter D blir en enighet med særskilte vilkår
     ikke virksom i løsningen, så kravene i saken blir ikke avgjort der. Om partene skal kunne
     erklære vilkårene oppfylt, eller saken avsluttes administrativt, avgjøres særskilt, sammen
     med avklaringspunkt 2 i spørsmål 2b.
+  - **Prøvd mot vedtaksfila 25.10** av en subagent, sammen med 5-D og føringen i 2b. Rettelsene
+    er tatt inn: D er avgrenset til vederlag og frist, forholdene til GR-U7, GR-U8, GR-U26,
+    MM-U28, MM-U30 og LV-U4 er rettet, virkningen er plassert ved siden av betinget og uten
+    virkning, revisjonen og TEs aksept er dekket, og henvisningene til svar som ikke er ført,
+    er skrevet ut.
   - **Føringene for utformingen** over gjelder D med én endring: etter D er opplysningen en del
     av brevet, fordi den har virkning for TE.
   - **Sparring 25.10**, ordrett. Den ene modellen: «Ikke blokker sending! La et ‹Ja› sperre for
@@ -921,12 +945,17 @@ fra 25.10.
     tidligere brev eller premissene i tidligere svar. Tidligere opplysninger beholdes og vises,
     og visningen sier hvilken opplysning et svar gjaldt. Løsningen avgjør ikke hvilken
     opplysning som er riktig, når varslingsfristen begynte å løpe eller om varselet var
-    rettidig. En ny grunnlagsversjon kan ikke endre datoen. Byggherren kan bestride
-    opplysningen i svaret der rettidigheten etter den aktuelle bestemmelsen behandles. En
-    påberopelse byggherren alt har fremsatt, bevares med tidspunktet (VS-U9). Har byggherren i
-    et utsagn sendt fra løsningen uttrykkelig sagt at varselet kom i tide, eller gitt opp
-    innsigelsen, står det (HF-U4). Gjør et unntak fra MM-U21 for datoopplysningen i VS-U26,
-    presiserer VS-U26 og snevrer inn GR-U22. OV-U11 og OV-U41 står.»
+    rettidig. En ny grunnlagsversjon kan ikke endre datoen. I underkategorien endringsordre,
+    der TE ikke oppgir noen slik dato, avvises brevet. Brevet godtas også i et spor med enighet
+    og når kravene er avgjort, og det endrer ikke utfallet. Et svar byggherren alt har gitt,
+    står med virkningen det hadde. Byggherren tar stilling til opplysningen i et senere svar der
+    rettidigheten etter den aktuelle bestemmelsen behandles. Er den nye datoen tidligere, kan
+    byggherren også ta stilling til rettidigheten på nytt i en revisjon av et svar TE ikke har
+    godtatt, unntatt det HF-U4 gjelder. En påberopelse byggherren alt har fremsatt, bevares med
+    tidspunktet (VS-U9). Har byggherren i et utsagn sendt fra løsningen uttrykkelig sagt at
+    varselet kom i tide, eller gitt opp innsigelsen, står det (HF-U4). Snevrer inn MM-U21 for
+    datoopplysningen i VS-U26, og snevrer inn HF-U5 og GR-U22. Presiserer VS-U26. Utvider OV-U3
+    og LV-U4. OV-U11 og OV-U41 står.»
   - **Begrunnelse:** etter MM-U21 kan TE alt si den nye datoen straks; byggherrens godkjenning
     avgjør bare hvilken dato som gjelder i løsningen. For datoen i VS-U26 er det ikke nødvendig.
     Byggherren mister ikke noe så lenge grensene i D holdes: den nye opplysningen erstatter
@@ -943,8 +972,17 @@ fra 25.10.
     løsningen bruker opplysningen som premiss for en utledning. Om godkjenning trengs, bør ikke
     avhenge av hva koden leser. OV-U11 står, fordi datoen for et varsel sendt utenfor
     løsningen er premiss for nye svar og avgjør hvilket varsel som er det første (HF-U13).
-    OV-U41 vurderes som et eget tilfelle. Rettingen etter MM-U21 står for beløp, avkall og andre
+    OV-U41 gjelder samme slags opplysning, TEs utsagn om når TE faktisk ble klar over noe, men
+    for varselet etter § 34.1.3, og der krever en senere dato fortsatt byggherrens godkjenning.
+    Det er ingen prinsipiell grunn til forskjellen; OV-U41 er bare ikke tatt opp i denne runden.
+    Velges D, bør OV-U41 legges fram uttrykkelig med samme løsning, ikke endres gjennom D.
+    Åpningen for at byggherren kan ta stilling på nytt ved en tidligere dato, følger mønsteret i
+    OV-U5 og OV-U11 og er et valg oppdragsgiver kan ta ut. Rettingen etter MM-U21 står for beløp, avkall og andre
     utsagn som endrer partenes rettigheter eller plikter.
+  - **Prøvd mot vedtaksfila 25.10** av en subagent. Rettelsene er tatt inn: forholdet til MM-U21
+    heter «snevrer inn», brevet godtas etter enighet og når kravene er avgjort (OV-U3),
+    byggherrens stillingtaken følger HF-U5 og mønsteret i OV-U11, underkategorien endringsordre
+    er dekket, og forholdet til OV-U41 er skrevet ut.
   - **Sparring 25.10**, ordrett. Den ene modellen: «Kutt ut kravet om at BH må ‹godkjenne›
     rettingen!» Den andre: «For datoopplysningene i VS-U26 støtter jeg et nytt utsagn som straks
     vises som TEs siste opplysning, uten BHs godkjenning og uten å avslå BHs svar.» og «Om
@@ -1066,9 +1104,9 @@ fra 25.10.
   Alternativene står åpne.
 - **Revurderingen 25.10:** velges 5-D, står 5b-B med én presisering: for datoopplysningen i
   VS-U26 er korrigeringen brevet etter 5-D, og den krever ikke byggherrens godkjenning.
-  Korrigeringen av andre opplysninger følger fortsatt MM-U21. Et korrigeringsutsagn må finnes
-  før første ekte sak, fordi det er TEs vei til å rette en opplysning uten å avslå byggherrens
-  svar. Om andre rene faktaopplysninger, som et nummer eller en henvisning, skal følge 5-D,
+  Korrigeringen av andre opplysninger følger fortsatt MM-U21, og rettingen etter MM-U21 bygges
+  fortsatt før første ekte sak, som svaret 25.10 sier. Brevet etter 5-D bygges også før første
+  ekte sak, fordi det er TEs vei til å rette datoen uten å avslå byggherrens svar. Om andre rene faktaopplysninger, som et nummer eller en henvisning, skal følge 5-D,
   vurderes særskilt.
 
 ### Spørsmål 6. Beløp med øre (VG-F-02)
