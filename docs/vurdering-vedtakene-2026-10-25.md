@@ -722,7 +722,7 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   eller § 34.1.2 (VS-U26), så rettidigheten etter de bestemmelsene behandles i fristsvaret og
   vederlagssvaret.
 - **Belegg:** § 32.2 første ledd, § 34.1.2 annet ledd, § 5 tredje ledd. VS-U26, GR-U22, HF-U4,
-  HF-U5, HF-U6, HF-U8, GR-U20, VS-U9, VS-U11, KA-U7, OV-U3, MM-U9, MM-U21, OV-U5, OV-U7, OV-U11,
+  HF-U5, HF-U6, HF-U8, HF-U21, GR-U20, VS-U9, VS-U11, KA-U7, OV-U3, MM-U9, MM-U21, OV-U5, OV-U7, OV-U11,
   OV-U41, KA-U24, LV-U4, #1127.
 - **Alternativene:**
   - **A:** «TEs opplysning om når pålegget ble mottatt eller TE ble klar over forholdet, settes
@@ -744,7 +744,10 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
     nye datoen er TEs opplysning, ikke en dato løsningen har fastslått som riktig. En
     opplysning om når TE faktisk ble klar over forholdet, fastslår ikke når TE burde ha blitt
     klar over det. Byggherren tar stilling til rettidigheten i svaret der rettidigheten etter
-    den aktuelle bestemmelsen behandles, og kan der godta eller bestride datoen. Har byggherren
+    den aktuelle bestemmelsen behandles, og kan der godta eller bestride datoen. Et svar på
+    vederlag eller frist som alt er gitt, står etter en ny grunnlagsversjon (HF-U21). Byggherren
+    tar stilling til den endrede datoen der når TE sender en ny kravversjon i sporet, eller i en
+    revisjon som bare endrer i TEs favør (HF-U5). Har byggherren
     i et utsagn sendt fra løsningen uttrykkelig sagt at varselet kom i tide, eller gitt opp
     innsigelsen, avvises en senere
     påberopelse av at det samme varselet kom for sent etter samme bestemmelse, også etter en
@@ -790,7 +793,9 @@ Språkregelen om hva løsningen kalles, er ført i #1283. I alternativene i spø
   behandles. HF-U4 er skrevet ut i B, rettidigheten er lagt til svaret der den behandles, og
   grensene i KA-U7 og OV-U3 er tatt inn. Den andre prøvingen mot vedtaksfila fant at frafallet
   (GR-U20), unntaket i HF-U6 og avgrensningen i HF-U4 til utsagn sendt fra løsningen manglet, og
-  at 5-B og 5b-B ikke kan velges sammen. Det er rettet. Alternativene står åpne.
+  at 5-B og 5b-B ikke kan velges sammen. Det er rettet. B sier også at et svar på vederlag eller
+  frist står etter en ny grunnlagsversjon (HF-U21), så byggherren tar stilling til en endret
+  kunnskapsdato der først ved en ny kravversjon i sporet. Alternativene står åpne.
 
 ### Spørsmål 5b. En ny kravversjon som avslag på byggherrens svar (HF-U8)
 
