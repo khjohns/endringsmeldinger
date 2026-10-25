@@ -478,7 +478,7 @@ fra 25.10.
   forbeholdet for ubesvart grunnlag, og standpunktene følger GR-U26: avslås grunnlaget eller
   påberopes preklusjon, gjelder den subsidiære strukturen. Avvises bekreftelsen, fordi det
   tidligere svaret hadde et forbehold eller var en endringsordre som skal registreres etter
-  OV-U6, kan svaret på vederlag eller frist sendes med henvisningen alene. Ingen vedtakstekst
+  OV-U6, hindrer ikke det i seg selv sending av svaret på vederlag eller frist med henvisningen alene. De øvrige vilkårene for sending gjelder. Ingen vedtakstekst
   endres. Føringen føres i byggeissuet for grunnlagssvaret når
   vedtaket føres. Tilfellet blir sjeldnere når byggherren kan svare på grunnlaget i TS-ruta
   (#818).
@@ -1399,7 +1399,9 @@ fra 25.10.
     - **L2 (anbefalt):** «Før første ekte sak bygges TEs utdyping av et krav, retting av
       betegnelsen på endringsordren, TEs retting av datoen i grunnlagskravet for når pålegget
       ble mottatt eller TE ble klar over forholdet, og, hvis vedtatt, TEs retting av datoen TE
-      ble klar over at utgiftene etter § 34.1.3 ville påløpe. For andre rettinger skal det før
+      ble klar over at utgiftene etter § 34.1.3 ville påløpe, og TEs retting av datoen for et
+      varsel sendt utenfor løsningen etter OV-U11, som beholder sin egen modell. For andre
+      rettinger skal det før
       første ekte sak finnes en avklart og gjennomførbar korrigeringsprosess; den kan være
       manuell. Det som står åpent om rettingen under B-16 i hovedplanen (aktørrettigheter,
       godkjenning og innsyn for motparten), avgjøres for den manuelle prosessen før første ekte
@@ -1410,15 +1412,22 @@ fra 25.10.
        som premiss for nye svar, og datoen avgjør hvilket varsel som er det første (HF-U13). Med
        en manuell prosess står den feile datoen som premiss i løsningen til rettingen er bygget.
        Anbefaling: rettingen etter OV-U11 tas med blant handlingene i L2 som bygges før første
-       ekte sak.
+       ekte sak, og L2 er skrevet slik. OV-U11 beholder sin egen modell: en retting til TEs
+       fordel gjelder først når byggherren godtar den, og den overtar ikke regelen om «TEs siste
+       opplysning» fra 5-D og 5-E.
     2. **Feil hjemmel eller feil endringsordre før første ekte sak.** Låsen fjerner veien der
        nummeret rettes i en ny versjon, og overføringen er ikke avklart (#569). Alternativene:
        - **H1:** første ekte sak venter til overføringen er vedtatt og bygget.
        - **H2 (anbefalt):** «I første versjon oppretter TE en ny sak med riktig hjemmel eller
-         endringsordre, uten trekk og uten overføring. Den gamle saken bevares, og visningen i
-         begge sakene sier at TE har opprettet en ny sak for samme forhold, og at løsningen
-         ikke har flyttet krav, svar eller enigheter. Overføringen tilbys først når virkningen
-         er vedtatt (#569). Presiserer GR-U22 og GR-U19.»
+         endringsordre. Det er opprettelse av en ny sak, ikke overføring eller retting av den
+         gamle, og den skjer uten trekk. Den gamle saken bevares, og sakene viser til
+         hverandre. Før sending sier skjemaet: ‹Den nye saken endrer ikke krav, svar eller
+         enigheter i den tidligere saken. Løsningen avgjør ikke om kravet omfattes av en
+         tidligere enighet, eller om varsling og frister er ivaretatt.› Nøkkeltallene kan telle
+         krav om samme forhold i begge sakene, og løsningen trekker ikke fra det ene; det dekkes
+         av opplysningen om at krav i flere saker kan gjelde samme kostnad. Overføringen tilbys
+         først når virkningen er vedtatt (#569). Presiserer GR-U22 og GR-U19. I tråd med svaret
+         25.10 på spørsmål 8.»
   - **Prøvd mot vedtakene og arbeidsflyten 25.10** av subagenter på commit `94dc93c`,
     `3779571`, `8920e37` og `106fc15d`. Rettelsene er tatt inn. Forløpene fant at en ny
     grunnlagsversjon kunne bytte endringsordre etter enighet; oppdragsgivers føring lukker det.
