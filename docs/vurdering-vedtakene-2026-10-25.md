@@ -40,9 +40,11 @@ uten unntakene i OV-U5 og OV-U6.
 
 ### Hvilke funn som kommer av funksjonen
 
-Utfallet går imot inntrykket bak spørsmålet. Av 22 funn som ikke er avkreftet, er funksjonen
-årsak i ett, delvis årsak i sju og ikke årsak i fjorten. Uten unntakene ville ingen av funnene
-falt bort. To ville blitt bredere (VG-E-01 og VG-H-01). Et svar på grunnlaget som er
+Av 22 funn som ikke er avkreftet, er funksjonen årsak i ett, delvis årsak i sju og ikke årsak
+i fjorten. Uten unntakene ville ingen av funnene falt bort. Tellingen viser om funksjonen er
+årsak til feilene som ble funnet. Den sier lite om hvor krevende unntakene er å bygge og
+vedlikeholde. Begrunnelsen for å beholde dem må derfor være nytten og at appen gjengir
+partenes handlinger riktig (se «Hva kontrakten krever»). To ville blitt bredere (VG-E-01 og VG-H-01). Et svar på grunnlaget som er
 byggherrens endringsordre etter OV-U6, gir i dag et grunnlagssvar i utledningen og dermed
 ikke forbeholdet for ubesvart grunnlag; uten unntaket ville også det svaret gitt forbeholdet.
 Det er lest i koden, ikke kjørt. Kommandoen som skriver en slik registrering, er ikke bygget.
@@ -99,8 +101,9 @@ et varsel som ikke finnes.
 
 **Det som følger av det, uansett hvordan funksjonen bygges (T):**
 
-- Det appen sier om korrespondansen, må gjelde det som er sendt i appen. Det er grunnen til
-  «Alle krav sendt i appen er avgjort» (OV-U10), og det er det VG-E-01 mangler.
+- Appen må vise hva vurderingen bygger på, og ikke framstille sin oversikt som fullstendig.
+  Det er grunnen til «Alle krav sendt i appen er avgjort» (OV-U10), og det er det VG-E-01
+  mangler.
 - TE må kunne gjøre gjeldende at et varsel ble sendt utenfor appen, før byggherren tar
   stilling til rettidigheten. Ellers viser saken et første varsel som kan være feil, og
   visningen påstår mer enn appen vet (HF-U13). OV-U5 dekker det. Datoen oppgis i et brev fra
@@ -112,9 +115,9 @@ et varsel som ikke finnes.
 - Å ta imot andre eksterne brev som dokumentasjon (OV-U4, OV-U16–OV-U21). Det gir begge
   partene ett sted å se korrespondansen, og det er veien MM-U2, MM-U25, OV-U7 og LV-U16 viser
   til når noe må sendes utenfor appen.
-- At byggherrens endringsordre kan registreres som svar på grunnlaget (OV-U6). Når
-  byggherren kan svare på grunnlaget i appen (#818), kan byggherren gjøre det samme med et
-  svar fra appen.
+- At byggherrens endringsordre kan registreres som svar på grunnlaget (OV-U6). Det gjengir
+  en handling byggherren alt har gjort. En ny godkjenning fra appen er en annen handling, med
+  en ny dato og et uklart forhold til den opprinnelige ordren.
 - Om registratoren skal fylle ut innholdet med virkning. OV-U4 valgte det bort i første
   versjon.
 
@@ -122,7 +125,9 @@ et varsel som ikke finnes.
 oppdragsgiver beskriver, at appen ikke kan tolke et brev som ikke er fylt inn gjennom
 skjemaet, er grunnen til at OV-U4 ble valgt 13.10, og funnene viser ikke at appen i dag
 forsøker å tolke brevene. Problemene som finnes, er tekster som sier mer enn appen vet
-(VG-E-01, VG-H-03), og de rettes i ordlyden.
+(VG-E-01, VG-H-03), og de rettes i ordlyden. Skillet som bærer funksjonen, går mellom å
+oppbevare et brev og å la en part gi en uttrykkelig, strukturert opplysning som appen
+bruker. Et vedlegg alene endrer ikke saken. Unntakene i OV-U5 og OV-U6 er slike opplysninger.
 
 Alternativene er prøvd mot vedtaksfila i spørsmål 1.
 
@@ -182,20 +187,56 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
     § 32.2 gjelder, er godkjenningen da en endringsordre (GR-U12, GR-U13). Endringsordren kan
     registreres som dokumentasjon. Opphever OV-U6, OV-U12 og OV-U13.»
     Endrer leddene om registrert korrespondanse i GR-U12, GR-U13 og KA-U14. Fjerner det ene
-    unntaket som gir et registrert brev virkning. Til byggherren kan svare på grunnlaget i
-    appen (#818), finnes det da ingen vei til en godkjenning av grunnlaget i appen.
-- **Anbefaling:** A. Funnene viser ikke at funksjonen gjør appen vanskeligere, og appen
-  forsøker ikke å tolke brevene. Feilene som finnes, er tekster som sier mer enn appen vet,
-  og de rettes i ordlyden (spørsmål 2 og 9). OV-U5 trengs etter kontrakten: uten det kan TE
-  ikke bevare et varsel sendt utenfor appen i saken. Vil oppdragsgiver forenkle, er E stedet
-  å kutte: den fjerner den ene registreringen med virkning og en kommando som ikke er
-  bygget, og taper lite når byggherren kan svare på grunnlaget i appen.
+    unntaket som gir et registrert brev virkning. Men å registrere en endringsordre som alt er
+    sendt, og å sende en ny godkjenning, er forskjellige handlinger. En ny godkjenning har en
+    annen dato og kan gjøre forholdet til den opprinnelige ordren uklart. Til byggherren kan
+    svare på grunnlaget i appen (#818), finnes det heller ingen vei til en godkjenning av
+    grunnlaget i appen. E er en mulig avgrensning, ikke en forenkling uten tap.
+- **Anbefaling:** A. Appen forsøker ikke å tolke brevene, og feilene som finnes, er tekster som
+  sier mer enn appen vet. De rettes i ordlyden (spørsmål 2 og 9). Unntakene beholdes for
+  nytten: uten OV-U5 kan TE ikke bevare et varsel sendt utenfor appen i saken, og OV-U6 gjengir
+  en endringsordre byggherren alt har utstedt, i stedet for å kreve en ny handling.
 - **Hva valget styrer:** registreringsskjemaet (#807, #1045, #1119), om byggherren kan
   godkjenne grunnlaget med en endringsordre fra utenfor appen, og om TE kan bevare et varsel
   sendt utenfor appen.
 - **Virkning på de andre spørsmålene:** Ved D faller spørsmål 9 bort, og ordlyden i spørsmål 8
   endres. Ved C blir spørsmål 2 smalere, spørsmål 4 må stilles på nytt for registrerte brev, og
   spørsmål 8 og 9 endres. B og E endrer ikke de andre spørsmålene.
+- **Svar 25.10 (oppdragsgiver):** A, med en presisering etter sparring i økta. Spørsmål 2–9
+  står derfor som de er. Oppdragsgiver ordrett:
+  - «**Jeg anbefaler A, men med en presisering av hva som gir opplysningene virkning i
+    appen.** […] Det viktige skillet er mellom **å oppbevare et brev** og **å la en part avgi
+    en strukturert opplysning som appen bruker**. Et vedlegg alene bør ikke endre sakens
+    status. Men parten må kunne gjøre et eksternt varsel eller en ekstern endringsordre
+    relevant for behandlingen i appen.»
+  - «**Antallet funn sier lite om funksjonens kompleksitet.** […] Begrunnelsen for å beholde
+    dem bør være nytten og en korrekt gjengivelse av partenes handlinger.»
+  - «E er et mulig avgrensningsvalg, men jeg synes dokumentet undervurderer forskjellen mellom
+    å registrere en tidligere handling og å foreta en ny.»
+  - Til ordlyden under: «Ja, jeg er enig i ordlyden og at dette føres som en **presisering**,
+    med grunnlag i vedtakene du har kontrollert.»
+  - Om OV-U6: «Jeg mente ikke at byggherren skal kunne velge en annen kravversjon.
+    Registreringen skal fortsatt gjelde gjeldende grunnlagskrav sendt fra appen, etter OV-U6
+    og OV-U12. Poenget mitt var å bevare skillet mellom registreringen av en tidligere
+    endringsordre og en ny godkjenning, ikke å utvide hvilke krav registreringen kan
+    besvare.»
+
+  **Vedtaksteksten** (oppdragsgivers forslag med tre justeringer fra økta, godkjent 25.10):
+
+  > Et brev sendt utenfor appen og registrert i den er dokumentasjon. Appen utleder ingen
+  > standpunkt, enighet, sperre eller uavklart utfall av innholdet (OV-U4). OV-U5 og OV-U6
+  > står, med vedtakene som presiserer dem. Virkningen bygger på partens uttrykkelige,
+  > strukturerte opplysninger etter de vedtakene, ikke på appens lesing av vedlegget. Appen
+  > skiller mellom dokumentasjon, partens opplysninger og det appen utleder, og viser hva
+  > vurderingen bygger på. Verken appens utledning eller den registrerte korrespondansen
+  > framstilles som en fullstendig oversikt over partenes rettsstilling. Bekrefter
+  > OV-U4–OV-U6. Presiserer OV-U4 og HF-U13.
+
+  Justeringene var: (1) «gir ikke i seg selv grunnlag for appens utledning» ble til opplistingen
+  i OV-U4, fordi at et brev er registrert, styrer visningen etter OV-U19–OV-U21; (2) «med
+  vedtakene som presiserer dem» ble lagt til; (3) siste setning gjelder også appens egen
+  utledning. Forkastet: B, C, D og E slik de står over. Svaret føres i vedtaksregisteret i en
+  egen vedtaks-PR.
 
 ### Spørsmål 2. Forbeholdet når grunnlaget ikke er besvart i appen (VG-E-01, VG-H-01)
 
