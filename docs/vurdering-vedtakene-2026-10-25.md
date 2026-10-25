@@ -452,9 +452,10 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Bakgrunn:** Når byggherren godkjenner oppgjør som fast sum, sier brevet «Byggherren
   godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret», også når
   hele beløpet er godkjent (LV-U32). Tilfellet ble lagt fram 24.10 (forkastet alternativ B i
-  LV-U32), og svaret sa at «forbeholdene» viser til byggherrens standpunkter i svaret, med lag
-  og forbeholdet for ubesvart grunnlag. Godkjenner byggherren hele beløpet uten noe slikt,
-  regner løsningen partene som enige (GR-U7), men brevet peker likevel mot et forbehold.
+  LV-U32), og svaret sa: «Den faste teksten beskriver hva BH godkjenner, uten å erklære aksept
+  av hele tilbudet på grunnlag av beløpet alene. Den fungerer også med subsidiære standpunkter
+  og forbeholdet etter GR-U26.» Godkjenner byggherren hele beløpet uten noe slikt, regner
+  løsningen partene som enige (GR-U7), men brevet peker likevel mot et forbehold.
   Skriver byggherren et vilkår i begrunnelsen, sier brevet «forbeholdene» mens visningen sier
   «partene er enige» og «Alle krav sendt i appen er avgjort» (K, forløp 10 i del 1). Etter
   § 34.2.2 første ledd gjelder unntaket fra beregningsreglene når tilbudet er akseptert, og
@@ -468,17 +469,22 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Belegg:** § 34.2.2 første ledd, avtaleloven § 6. LV-U31, LV-U32, GR-U7, GR-U8, HF-U7,
   KA-U16, KA-U19, OV-U4.
 - **Alternativene:**
-  - **A (anbefalt):** «Godkjenner byggherren hele det krevde beløpet og oppgjør som fast sum i
-    første lag, og ikke under forbeholdet for ubesvart grunnlag, sier brevet: ‹Byggherren
-    godkjenner oppgjør som fast sum med beløpet som fremgår av svaret.› Ellers gjelder LV-U32.
+  - **A (anbefalt):** «Godkjenner byggherren oppgjør som fast sum i et svar som gir sammenfall
+    med kravet (GR-U7), og er svaret ikke gitt under forbeholdet for ubesvart grunnlag
+    (GR-U26), sier brevet: ‹Byggherren godkjenner oppgjør som fast sum med beløpet som fremgår
+    av svaret.› Ellers gjelder LV-U32.
     Endringen gjelder bare den faste setningen. Den endrer ikke hvordan utdypningen behandles
     eller når partene regnes som enige (GR-U7, KA-U16), og den fastslår ikke at svaret er uten
     forbehold. Endrer LV-U32.»
   - **B:** «Som i dag (LV-U32).»
   - **C:** «Setningen står som LV-U32 sier. Har byggherren skrevet en begrunnelse til en full
-    godkjenning, regnes svaret ikke som sammenfall, og TE må godta det. Endrer GR-U7 og HF-U7
-    for svar fra appen, og strider mot KA-U16 og GR-U8, som da også må endres.»
-- **Anbefaling:** A, sammen med spørsmål 3b. A er en tekstendring: brevet viser ikke til
+    godkjenning, regnes svaret ikke som sammenfall, og TE må godta det. Endrer GR-U7, GR-U10 og
+    HF-U7 for svar fra løsningen, og strider mot KA-U16, KA-U19, KA-U26, GR-U8 og GR-U26, som
+    da også må endres.»
+- **Anbefaling:** A, sammen med spørsmål 3b. A snur en setning som ble vedtatt 24.10, for det
+  tilfellet der svaret gir sammenfall. Vilkåret er knyttet til sammenfall og ikke til beløpet,
+  fordi et svar med samme beløp ikke gir sammenfall når en begrensning etter § 34.1.3 står i et
+  lag (HF-U7). A er en tekstendring: brevet viser ikke til
   forbehold som kanskje ikke finnes, og sier heller ikke uttrykkelig at hele tilbudet er
   akseptert. Den løser ikke at et vilkår i utdypningen kan avvike fra tilbudet. Alene gjør A
   brevet noe svakere i det tilfellet, fordi «forbeholdene» i det minste viser leseren til
@@ -486,8 +492,8 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   at det finnes tekst, som en sperre mot sammenfall. C frarådes likevel: en ren forklaring,
   som «Beløpet er kontrollert mot tilbudet», ville da kreve TEs aksept uten at svaret avviker,
   og C gjør det KA-U16 forkastet, at et svar med forbehold ikke gir sammenfall.
-- **Hva valget styrer:** den faste setningen i vederlagssvaret ved godkjenning av hele
-  beløpet. Brevteksten endres, så regelversjonen økes.
+- **Hva valget styrer:** den faste setningen i vederlagssvaret når svaret gir sammenfall.
+  Brevteksten fryses med brevet, så både regelversjonen og projeksjonsversjonen økes.
 - **Avhenger av:** spørsmål 3b, som anbefales vedtatt sammen med A. Ikke av spørsmål 1.
 - **Sparring 25.10:** forslaget er rettet etter to runder med andre modeller. Sparringen er
   ikke oppdragsgivers svar, og alternativene står åpne. Ordrett:
@@ -515,21 +521,27 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
 - **Alternativene:**
   - **A (anbefalt):** «Gir byggherrens svar ellers sammenfall med kravet i et spor (GR-U7,
     GR-U10), opplyser byggherren før sending om godkjenningen er avhengig av vilkår eller
-    forbehold som ikke kan uttrykkes med valgene i skjemaet. Skjemaet spør: ‹Er godkjenningen
-    avhengig av vilkår eller forbehold som ikke står i valgene over?› Spørsmålet har ingen
-    forhåndsvalg. Sendingen avvises når opplysningen mangler, og når byggherren svarer ja.
-    Byggherren kan endre svaret dersom standpunktet da kan uttrykkes korrekt med valgene i
-    skjemaet, eller sende svaret utenfor løsningen og registrere det (KA-U19, OV-U4).
-    Opplysningen er byggherrens og lagres med sendingen, atskilt fra den utledede virkningen.
+    forbehold som ikke kan uttrykkes med valgene i skjemaet. Opplysningen gis for hvert spor
+    der svaret ellers gir sammenfall. Skjemaet spør: ‹Er godkjenningen avhengig av andre vilkår
+    eller forbehold enn dem som står i valgene og den faste teksten?› Forbeholdet for ubesvart
+    grunnlag (GR-U26) og lagene i svaret står i den faste teksten og regnes ikke som slike
+    vilkår. Spørsmålet har ingen forhåndsvalg. Sendingen avvises når opplysningen mangler, og
+    når byggherren svarer ja. Byggherren kan endre svaret dersom standpunktet da kan uttrykkes
+    korrekt med valgene i skjemaet, eller sende svaret utenfor løsningen og registrere det
+    (KA-U19). Et slikt brev gir ingen standpunkt (OV-U4), og sporet står da ubesvart i
+    løsningen. Det samme spørsmålet stilles når byggherren registrerer en endringsordre som
+    svar på grunnlaget etter OV-U6, og registreringen avvises på samme måte. Opplysningen er
+    byggherrens og lagres med sendingen, atskilt fra den utledede virkningen.
     Den er ikke en del av brevet og framstilles ikke som en erklæring meddelt TE. Løsningen
     kontrollerer ikke opplysningen mot utdypningen og tolker ikke teksten. Står det likevel et
     vilkår i utdypningen, er brevet det autoritative uttrykket for byggherrens standpunkt
     (B-03). Sammenfallet er da løsningens utledning av valgene og avgjør ikke om partene
-    rettslig er enige (MM-U12). Utvider KA-U19. I tråd med KA-U16 og HF-U7.»
+    rettslig er enige (MM-U12). Utvider KA-U19 og OV-U6. I tråd med KA-U16, HF-U7 og OV-U4.»
   - **B:** «Som i dag: skjemaet sier fast at løsningen beregner virkningen ut fra valgene
     (KA-U19), uten et eget spørsmål.»
   - **C:** «Svarer byggherren ja, kan svaret sendes, men det gir ikke sammenfall. Det regnes
-    som avslag i forening med nytt tilbud, som TE må godta (HF-U7). Endrer KA-U16.»
+    som avslag i forening med nytt tilbud, som TE må godta (HF-U7). Endrer KA-U16, KA-U26,
+    GR-U7, GR-U8 og GR-U10.»
 - **Anbefaling:** A. Verken NS 8407 eller avtaleloven krever dette spørsmålet. Det er et valg
   i produktet for å minske avstanden mellom svaret byggherren mener å gi, og det løsningen
   registrerer. Byggherren opplyser selv om begrensningen, og løsningen tolker ikke
@@ -538,18 +550,29 @@ står først fordi svaret kan gjøre andre overflødige. Det står ved hvert sp�
   registreres uten en handling fra TE. Den løser ikke alle tilfeller: godtar TE et delvis svar,
   registreres enighet om de strukturerte verdiene, mens et vilkår i utdypningen kan gjelde et
   annet spor. C frarådes: den gjør hvert ja til et betinget tilbud, mens løsningen ikke ser
-  hvilket spor vilkåret gjelder, og den gjør det KA-U16 forkastet.
+  hvilket spor vilkåret gjelder, og den gjør det KA-U16 forkastet. Registreringen etter OV-U6
+  er tatt med fordi den også gir sammenfall; ellers ville et svar sendt utenfor løsningen og
+  registrert som endringsordre gå rundt sperren.
 - **Hva valget styrer:** et obligatorisk valg i svarskjemaet når svaret ellers gir sammenfall,
-  i alle spor, og en sperre ved sending som serveren håndhever. Opplysningen lagres som
-  byggherrens utsagn. Serveren kontrollerer at opplysningen finnes og ikke er ja, men ikke om
-  den er riktig. Regelverket endres, så regelversjonen økes.
+  i alle spor, og i registreringen etter OV-U6, med en sperre som serveren håndhever. Bare et
+  nei lagres, som byggherrens utsagn; et ja hindrer sendingen. Serveren kontrollerer at
+  opplysningen finnes og ikke er ja, men ikke om den er riktig. Regelverket endres, så
+  regelversjonen økes, og projeksjonsversjonen også hvis opplysningen fryses med brevet.
 - **Føringer for utformingen:**
   - Spørsmålet i 2b-A gjelder det tidligere svaret, og 3b gjelder svaret som sendes nå. Ved en
     bekreftelse kan skjemaet samle dem i ett spørsmål bare med en ordlyd som dekker begge.
     Svaret på det ene besvarer ikke automatisk det andre.
   - Visningen viser ikke opplysningen til TE som en del av brevet.
+  - Opplysningen gis når svaret utarbeides, og følger svaret gjennom godkjenningen etter
+    fullmakten (GFK-06), så den som godkjenner, ser den.
 - **Avhenger av:** spørsmål 3, som anbefales vedtatt sammen med A, og svaret på spørsmål 2b
   for føringen. Ikke av spørsmål 1.
+- **Prøvd mot vedtaksfila 25.10** av en subagent. Ingen alternativ strider mot et vedtak som
+  ikke er nevnt. Prøvingen ga disse rettelsene i 3 og 3b: vilkåret i 3-A knyttes til
+  sammenfall, svaret 24.10 siteres ordrett, listene over vedtak som C endrer, er utvidet,
+  spørsmålet i 3b-A holder forbeholdet for ubesvart grunnlag og lagene utenfor, OV-U4 og
+  registreringen etter OV-U6 er tatt med, og begge versjonene økes når brevteksten endres.
+  3b-A er ikke det KA-U19 utsatte, et varsel styrt av ord i utdypningen.
 - **Sparring 25.10:** spørsmålet kom fra sparringen om spørsmål 3. Fem rettelser fra andre
   runde er tatt inn: opplysningen er byggherrens, sperren håndheves på serveren, byggherren
   ledes ikke til et misvisende standpunkt, de to spørsmålene holdes atskilt, og A beskrives som
