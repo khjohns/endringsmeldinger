@@ -466,11 +466,11 @@
   );
 
   // OV-U58: et beløp som ikke kan leses, sendes ikke, og står i feltet til det er rettet.
-  let ugyldigeBeloep = $state<Record<string, boolean>>({});
+  let ugyldigeBelop = $state<Record<string, boolean>>({});
 
   // Validation (matches production kanSende)
   const allAnswered = $derived.by(() => {
-    if (Object.values(ugyldigeBeloep).some(Boolean)) return false;
+    if (Object.values(ugyldigeBelop).some(Boolean)) return false;
     if (computed.harPreklusjonsSteg && preklusjonsLinjer.some((l) => l.value === undefined))
       return false;
     if (akseptererMetode === undefined) return false;
@@ -726,7 +726,7 @@
               hint={linje.krevdBelop ? `Av ${visKroner(linje.krevdBelop)} kr krevd` : undefined}
               tilgjengeligNavn={`${isSubsidiaer || linje.prekludert ? 'Subsidiært vurdert beløp' : 'Godkjent beløp'} for ${linje.title.toLowerCase()}`}
               onchange={(v) => handleKravlinjeBelop(linje.key, v)}
-              onugyldig={(u) => (ugyldigeBeloep[linje.key] = u)}
+              onugyldig={(u) => (ugyldigeBelop[linje.key] = u)}
               onblur={linje.key === 'produktivitet' ? klippBegrensetBelop : undefined}
             />
           {/if}
@@ -744,7 +744,7 @@
               maksbetegnelse="det som godtas for posten"
               hint={`Utgiftene som ikke er rammet av det sene varselet (§ 34.1.3), høyst ${visKroner(godtatt)} kr. Kan være 0.`}
               onchange={(v) => (produktivitetBegrensetBelop = v)}
-              onugyldig={(u) => (ugyldigeBeloep.begrenset = u)}
+              onugyldig={(u) => (ugyldigeBelop.begrenset = u)}
             />
           {/if}
         {/snippet}

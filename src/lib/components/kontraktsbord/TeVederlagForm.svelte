@@ -146,8 +146,8 @@
   });
 
   // OV-U58: et beløp som ikke kan leses, sendes ikke, og står i feltet til det er rettet.
-  let ugyldigeBeloep = $state<Record<string, boolean>>({});
-  const beloepeneKanLeses = $derived(!Object.values(ugyldigeBeloep).some(Boolean));
+  let ugyldigeBelop = $state<Record<string, boolean>>({});
+  const belopeneKanLeses = $derived(!Object.values(ugyldigeBelop).some(Boolean));
 
   const positivt = (v: number | undefined) => ((v ?? 0) > 0 ? v : undefined);
   // OV-U23: det krevde i TS-saken er hovedbeløpet og posten.
@@ -179,7 +179,7 @@
   );
 
   const kanSende = $derived(
-    beloepeneKanLeses &&
+    belopeneKanLeses &&
       (kjernevalg
         ? kjernevalg.includes(mode) &&
           (mode === 'varsel' ||
@@ -393,7 +393,7 @@
         label={hovedkravLabel}
         value={hovedkravValue}
         onchange={handleHovedkravChange}
-        onugyldig={(u) => (ugyldigeBeloep['te-hovedkrav'] = u)}
+        onugyldig={(u) => (ugyldigeBelop['te-hovedkrav'] = u)}
       />
     </FormSection>
 
@@ -408,7 +408,7 @@
           label="Produktivitetstap"
           value={belopProduktivitet}
           onchange={(value) => (belopProduktivitet = value)}
-          onugyldig={(u) => (ugyldigeBeloep['te-produktivitet'] = u)}
+          onugyldig={(u) => (ugyldigeBelop['te-produktivitet'] = u)}
         />
       </FormSection>
     {:else}
@@ -422,14 +422,14 @@
             label="Rigg og drift"
             value={belopRigg}
             onchange={(value) => (belopRigg = value)}
-            onugyldig={(u) => (ugyldigeBeloep['te-rigg'] = u)}
+            onugyldig={(u) => (ugyldigeBelop['te-rigg'] = u)}
           />
           <BelopFelt
             id="te-produktivitet"
             label="Produktivitetstap"
             value={belopProduktivitet}
             onchange={(value) => (belopProduktivitet = value)}
-            onugyldig={(u) => (ugyldigeBeloep['te-produktivitet'] = u)}
+            onugyldig={(u) => (ugyldigeBelop['te-produktivitet'] = u)}
           />
         </div>
       </FormSection>
