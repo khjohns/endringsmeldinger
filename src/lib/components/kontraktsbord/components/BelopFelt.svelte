@@ -111,12 +111,12 @@
   .number-field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--spacing-2);
     max-width: 260px;
-    margin-top: 14px;
+    margin-top: var(--spacing-4);
   }
   .number-input-label {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -131,7 +131,7 @@
     flex: 1;
     width: auto;
     text-align: right;
-    border-radius: 8px 0 0 8px;
+    border-radius: 4px 0 0 4px;
   }
   .number-input-wrap .measurement-input[aria-invalid='true'] {
     border-color: var(--danger);
@@ -148,10 +148,10 @@
     background: var(--surface-inset);
     border: var(--control-border);
     border-left: none;
-    border-radius: 0 8px 8px 0;
+    border-radius: 0 4px 4px 0;
   }
   .number-input-hint {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--ink-4);
   }
   .number-input-feil {

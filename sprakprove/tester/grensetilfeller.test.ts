@@ -67,7 +67,15 @@ describe('nærmeste krone', () => {
 describe('vederlag', () => {
   it.each(tabell.vederlag.tilfeller.map((t, i) => [i, t as Rad] as const))(
     'tilfelle %i',
-    (_i, t) => {
+    (_i, rad) => {
+      // OV-U58, OV-U59: kjernen avviser brøkdeler av øre og sammenlikner i hele øre.
+      const { kjernen, ...felles } = rad as Rad & { kjernen?: Rad };
+      const t: Rad = kjernen
+        ? {
+            ...Object.fromEntries(Object.entries(felles).filter(([k]) => k !== 'resultat')),
+            ...kjernen,
+          }
+        : felles;
       const vurdering = {
         hovedkrav_vurdering: (t.vurdering ?? null) as never,
         hovedkrav_godkjent_belop: (t.godkjent ?? null) as number | null,
