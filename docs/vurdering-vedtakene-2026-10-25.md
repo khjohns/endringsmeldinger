@@ -1787,7 +1787,7 @@ Svarene føres i vedtaksregisteret i en egen vedtaks-PR, sammen med de andre sva
   (tidligere 11.2) inngår i B. Oppdragsgiver ordrett: «Jeg er enig med dere». Forkastet: A
   slik den står. Svaret føres i vedtaksregisteret i en egen vedtaks-PR.
 
-### Spørsmål 11. Tre arbeidsvalg som føres uten vedtak
+### Spørsmål 11. To arbeidsvalg som føres uten vedtak
 
 Disse følger av gjeldende vedtak etter verifiseringene og føres som arbeidsvalg i issuet, med
 henvisning til vedtaket. Svarer oppdragsgiver «ja», føres de slik. Vil oppdragsgiver ha et
@@ -1806,11 +1806,7 @@ punkt som vedtak, stilles det i vedtaks-PR-en.
      (`kontroller` og `poster` i `kjerne/regler/vederlag.ts`). I et fristsvar er dagene 0 eller
      de vurderte dagene. `calculateAuthority` i `src/lib/approval/authority.ts` tar det høyeste
      av det prinsipale og det subsidiære. Lest i koden, ikke kjørt (L).
-2. **Vederlagsskjemaet mens bare tilbud kan sendes (VG-H-02):** til andre metoder er bygget,
-   sier skjemaet at kravet bare kan sendes fra appen som tilbud etter § 34.2.1, og at et krav
-   etter en annen metode sendes utenfor appen. Skjemaet foreslår ikke at TE velger tilbud.
-   Utvider MM-U25. Føres i #909.
-3. **Opplysningen i byggherrens svarskjema (VG-A-02, VG-C-02):** «Skjemaet for byggherrens svar
+2. **Opplysningen i byggherrens svarskjema (VG-A-02, VG-C-02):** «Skjemaet for byggherrens svar
    sier at virkningen beregnes ut fra valgene og at begrunnelsen ikke tolkes, og at byggherren
    er bundet av det som sendes herfra. Teksten følger svaret som utarbeides:
    - Gir svaret sammenfall med kravet etter de gjeldende reglene, sier skjemaet at enighet
@@ -1824,6 +1820,19 @@ punkt som vedtak, stilles det i vedtaks-PR-en.
      3b-D2.»
 
    Følger KA-U19 slik 3b-D1 endrer det, OV-U4, GR-U7, GR-U26, HF-U7 og 3b-D1–D2. Føres i #313.
+
+**Sparring 26.10.** Punktet om fullmakten er rettet slik at verdiene regnes per spor og legges
+sammen etter radene 23.09 og 24.09, og at «det høyeste beløpet» er begrunnelse og ikke regel.
+Punktet om svarskjemaet skiller nå mellom sammenfall, særskilte vilkår etter 3b-D og ubesvart
+grunnlag. Det tidligere punkt 2 om vederlagsskjemaet mens bare tilbud kan sendes (VG-H-02), er
+strøket. Oppdragsgiver vil bygge metodevalget for regningsarbeid og enhetspriser i stedet for
+en midlertidig tekst. Fakturering, prisposter, mengdekontroll og kontroll av prisberegningen
+skal skje utenfor løsningen. Kartleggingen viste at utbyggingen berører enighetsmodellen.
+Gjenbrukes dagens regler for et anslag, gir en full godkjenning sammenfall og enighet, og en ny
+kravversjon avvises etter HF-U9 og KA-U7. Prøvd i kjernen med et tilbud, fordi formatet bare
+godtar tilbud (K). VS-U28 sier at kravet kan oppdateres når kostnadene er kjent, men ikke
+hvordan det forholder seg til en enighet. Kartleggingen og regelspørsmålene står i #909, og de
+avgjøres i en egen vedtaksrunde.
 
 ## 4. Funnene som følger av gjeldende vedtak
 
@@ -1910,7 +1919,8 @@ Disse rettes uten nytt vedtak. Ingen av dem rettes i denne PR-en.
 - VG-G-01: regelsettet og demoen behandler rigg og drift som om kravet kan prekluderes etter
   § 34.1.3 (#1268 for demoen, #1171 for kjernen, med økt regelversjon).
 - VG-H-02: TE kan bare sende vederlagskravet som tilbud (#909). Meldingen «Velg tilbud» kan
-  ikke vises i praksis. Det nye er teksten, se spørsmål 11.
+  ikke vises i praksis. Metodene bygges i #909 etter en egen vedtaksrunde (sparringen 26.10 i
+  spørsmål 11).
 
 **Duplikat:**
 
