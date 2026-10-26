@@ -2139,14 +2139,11 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F256',
-    feilklasse: 'et beløp som ikke er et tall, gir en feil på serveren, ikke en avvisning (#550)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        'if (feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep)',
-        'if (feil instanceof UgyldigVurdering)',
-      ],
-    ],
+    feilklasse: 'et beløp som ikke er et tall, avvises uten at meldingen sier feltet (#550)',
+    // `kontroller` leser hvert beløp med `lesOere` før utregningen (#1301). Uten den fanger
+    // `kontrollerSvar` i nyttelast.ts feilen, med meldingen fra `heleOere`.
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['if (!(e instanceof UgyldigBeloep)) throw e;', 'throw e;']],
     mal: ['et godkjent beløp som ikke er et tall, avvises som en ugyldig vurdering'],
   },
   {
