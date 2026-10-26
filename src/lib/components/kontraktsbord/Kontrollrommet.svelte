@@ -18,8 +18,7 @@
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
   import InnsigelseModal from '$lib/components/kjernesak/InnsigelseModal.svelte';
   import { SPOR_FOR } from '$lib/kjernesak/sakstilstand';
-  import { etiketterVedSvaret } from '$lib/kjernesak/svaretsEtiketter';
-  import type { Spor } from '$kjerne/typer';
+  import { etiketterVedAksepten, type Aksepten } from '$lib/kjernesak/svaretsEtiketter';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   const claimReview = demosak ? createClaimReview(demosak) : null;
   // TS-saken sendes med kommandoen til kjernen og den låste teksten (#718, LV-U2).
@@ -27,17 +26,15 @@
   setClaimReview(kravkontroll ?? claimReview!);
   const brevApent = $derived(Boolean(kravkontroll?.letter ?? claimReview?.letter));
   // VG-B-02: etikettene ved svaret står over brevet når TE godtar det, ikke i brevteksten (OV-U5).
-  let akseptspor = $state<Spor | null>(null);
-  let haddeBrev = false;
-  $effect(() => {
-    const harBrev = Boolean(kravkontroll?.letter);
-    if (haddeBrev && !harBrev) akseptspor = null;
-    haddeBrev = harBrev;
-  });
+  // De gjelder bare brevet aksepten åpnet.
+  let aksepten = $state.raw<Aksepten | null>(null);
   const akseptetiketter = $derived(
-    akseptspor
-      ? etiketterVedSvaret(kjernesak?.saksbilde, kjernesak?.kjernesak.utledning, akseptspor)
-      : []
+    etiketterVedAksepten(
+      aksepten,
+      kravkontroll?.letter,
+      kjernesak?.saksbilde,
+      kjernesak?.kjernesak.utledning
+    )
   );
   let showApproval = $state(false);
   import Header from './Header.svelte';
@@ -540,17 +537,18 @@
                     : 'Se brev og send'}
                 onwithdraw={() => {
                   kjernesak?.kjernesak.fjernFeil();
-                  akseptspor = null;
                   showWithdrawModal = true;
                 }}
                 ongodta={(svar) => {
                   kjernesak?.kjernesak.fjernFeil();
-                  akseptspor = SPOR_FOR[sel];
                   void kravkontroll?.aksept(SPOR_FOR[sel], svar);
+                  // Brevet vises med en gang, eller aldri når kjernen avviser aksepten.
+                  aksepten = kravkontroll?.letter
+                    ? { spor: SPOR_FOR[sel], brev: kravkontroll.letter }
+                    : null;
                 }}
                 oninnsigelse={() => {
                   kjernesak?.kjernesak.fjernFeil();
-                  akseptspor = null;
                   innsigelseApen = true;
                 }}
               />
