@@ -10,9 +10,10 @@ spørsmålsverktøyet (vedtaksskillen). Fila er skrevet før spørsmålene ble s
 alternativene står ordrett slik de legges fram. Svarene føres inn ordrett under hvert
 punkt. **Ingenting er valgt.**
 
-Forslaget er ett samlet forslag (alternativ A i hvert punkt), som oppdragsgiver kan svare
-«ja» på med rettelser per punkt. Der det finnes et reelt valg, står de andre alternativene
-under, også i vedtaksform. Forholdet til vedtakene står i hvert alternativ.
+**Spørsmålet nå er bare prinsippvedtaket under** (oppdelingen etter den fjerde sparringen
+26.10). Det står på egne bein. Punkt 1–14 lenger ned er grunnlaget for prinsippene og for de
+åpne beslutningene. De vedtas ikke ved et ja til prinsippvedtaket, og alternativene der er
+ikke valgt.
 
 **Begrepene.**
 
@@ -26,6 +27,103 @@ under, også i vedtaksform. Forholdet til vedtakene står i hvert alternativ.
   [vurderingen av vedtakene](https://github.com/khjohns/endringsmeldinger/pull/1282). Det er
   besluttet av oppdragsgiver 25.10, men ennå ikke ført i vedtaksfila. Det får sin ID når det
   føres.
+
+## Prinsippvedtaket
+
+**Spørsmål:** Skal løsningen håndtere krav etter kontraktens enhetspriser og regningsarbeid
+etter disse prinsippene, med de åpne beslutningene avgjort før de berørte handlingene tas i
+bruk?
+
+**Alternativ A (foreslått):** «Løsningen håndterer vederlagsjusteringen etter disse
+prinsippene:
+
+1. Et tilbud om oppgjør som fast sum (§ 34.2.1) holdes atskilt fra et krav etter kontraktens
+   beregningsregler, det vil si kontraktens enhetspriser (§ 34.3.1) eller regningsarbeid (§ 34.4
+   og punkt 30). Et krav etter en beregningsregel er ikke et tilbud om fast sum. Byggherrens
+   standpunkt til hvilken beregningsregel som gjelder, er et eget standpunkt. Det godkjenner
+   ikke mengder, priser, kostnader eller noe beløp for vederlaget etter regelen. En post for
+   rigg og drift i forlenget byggetid beholder sitt eget beløp etter OV-U37–OV-U40.
+2. Kostnadsoverslaget etter § 30.2 er TEs egen opplysning og ikke et tilbud om fast sum. TE kan
+   oppgi overslag og sende varsel etter § 30.2 og § 34.4 i løsningen. Et nytt overslag eller et
+   varsel erstatter ikke kravet eller byggherrens svar. Det kan sendes også før partene er enige
+   om beregningsregelen, og mens et tilbud er ubesvart. Løsningen utleder ikke et varsel av at
+   et overslag øker.
+3. Enighet om beregningsregelen kan gjøre behandlingen av vederlagskravet ferdig i løsningen,
+   mens beløpet avregnes utenfor løsningen. Visningen sier at behandlingen av vederlagskravet
+   er ferdig i løsningen, og at beløpet avregnes utenfor. Den sier ikke at saken er avsluttet
+   når andre spor er åpne. En post for rigg og drift i forlenget byggetid må være avklart for
+   seg. Vilkår som ikke er avklart etter svaret 25.10 om vilkår, hindrer at behandlingen er
+   ferdig. Virkningen etter grunnlaget følger GR-U7 som for annen enighet.
+4. En beregningsregel partene er enige om, kan endres ved uttrykkelig enighet mellom dem, uten
+   trekk og uten avkall.
+5. En endringsordre kan angi beregningsregelen uten et samlet beløp. Den skiller mellom
+   byggherrens standpunkt og en regel partene alt har avtalt, og mellom regelen og beløpet for
+   en post for rigg og drift.
+6. Løsningen avgjør ikke det kontrakten overlater til partene (MM-U12): hvilken
+   beregningsregel som faktisk gjelder når partene er uenige, hvilke kostnader som er
+   nødvendige, eller virkningen av et manglende eller sent varsel.
+
+Vedtaket avgjør ikke bindingen ved nye kravversjoner, akseptfrister, fullmaktskontrollen eller
+revisjonsvernet utover det som uttrykkelig står her. Disse spørsmålene avgjøres før de berørte
+handlingene tas i bruk. Hovedretningen alene gir ikke grunnlag for å endre eksisterende
+bindinger eller sperrer.
+
+Forhold: utvider det OV-U1 og OV-U14 bygger med krav etter § 34.3.1 og § 34.4; endrer VS-U28,
+slik at kostnadsoverslaget og varselet om overskridelse kan føres i løsningen, og et nytt
+overslag ikke er en ny kravversjon; presiserer KA-U2 og HF-U8 for overslag og varsler; endrer
+LV-U30, slik at setningen om tilbud bare står i et tilbud; endrer arbeidsvalget i #479, slik at
+standpunktet om beregningsregelen ikke har beløp og gjelder også krav som ikke er tilbud;
+endrer OV-U3, slik at enighet om beregningsregelen kan gjøre vederlagskravet avgjort;
+presiserer GR-U7 og svaret 25.10 om vilkår for den enigheten; utvider KA-U7 og HF-U9, slik at
+en enighet om beregningsregelen kan endres ved ny enighet, uten at det forkastede alternativet
+i KA-U7 om ny kravversjon med samtykke gjeninnføres for beløp eller dager; presiserer EO-U5 og
+EO-U8; presiserer OV-U37–OV-U40; presiserer MM-U12. Bindinger og sperrer i andre vedtak
+står.»
+
+**Alternativ B:** «I første versjon tar løsningen bare imot vederlagskrav som tilbud om
+oppgjør som fast sum (§ 34.2.1). Et krav etter kontraktens enhetspriser (§ 34.3.1) eller
+regningsarbeid (§ 34.4), kostnadsoverslaget og varslene etter § 30.2 og § 34.4 sendes utenfor
+løsningen og registreres etter OV-U4. Skjemaet sier det når TE vil kreve etter en
+beregningsregel. Forhold: endrer VS-U28; presiserer OV-U14 og OV-U4.»
+
+**Anbefaling:** A. B er den midlertidige skjemateksten oppdragsgiver valgte bort 26.10
+(spørsmål 11 i #1282). Under B kan TE ikke fremme et vanlig krav om regningsarbeid i
+løsningen, og partene må føre hele den delen utenfor.
+
+**Hva valget styrer:** under A bygges krav etter enhetspriser og regningsarbeid i TS-stien
+(#909). Handlingene som berøres av de åpne beslutningene under, tas ikke i bruk før de er
+avgjort.
+
+**Svar:**
+
+## De åpne beslutningene før bygging
+
+Disse avgjøres før de berørte handlingene tas i bruk. Grunnlaget og alternativene står i
+punktene det vises til. De er ikke valgt.
+
+| Beslutning | Punkt | Hvorfor den ikke bare er teknisk |
+| --- | --- | --- |
+| Hva består av byggherrens svar når TE sender en ny kravversjon | 4b | Bestemmer hvilke innrømmelser TE risikerer å miste |
+| Hva en akseptfrist omfatter i et svar som tar standpunkt til regelen og har et beløp for rigg-posten | 5 | Bestemmer hva byggherren fortsatt er bundet av, og hva TE kan godta etter fristen |
+| Fullmaktskontrollen for et standpunkt om regelen og et forslag om å endre den | 7 | Bestemmer hvem som kan binde byggherren |
+| Revisjonsvernet: byggherrens revisjon av standpunktet om regelen, også etter et avslått tilbud, og av avgrensningen for kravet om nedsatt produktivitet | 4, 13 | Bestemmer om byggherren kan skjerpe eller bytte et standpunkt |
+| Sammenfall og aksept når svaret har rigg-post, vilkår eller en påberopelse etter § 34.4 | 4 | Bestemmer når partene er enige uten TEs aksept, og hva TE godtar |
+| Om kostnadsoverslaget er obligatorisk | 2 | Bestemmer om TE må oppgi et tall før det kan anslås forsvarlig |
+| Kravet om nedsatt produktivitet: følger det kravets form, og hvordan angir byggherren begrensningen | 13 | Bestemmer om TE kan fremme hele vederlagskravet i løsningen |
+| Formen på forslaget om å endre regelen: frist, binding og høyst ett åpent forslag | 11 | Bestemmer om en part kan trekke et forslag motparten har lagt til grunn |
+
+**Avhengighet:** revisjonsvernet etter HF-U5 verner i dag ikke laget et standpunkt står i
+([#502](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6410350152)). En
+revisjon med en ny innsigelse kan gjøre et prinsipalt standpunkt subsidiært. Beslutningene om
+4b, 5 og revisjonsvernet forutsetter at det er avklart, ellers kan et standpunkt som «består»,
+undergraves.
+
+**Kan vente til EO-sakene bygges:** hvor TE fører overslag og varsler når regelen er avtalt i en
+endringsordre uten KOE-sak, og hvordan regelen endres etter at saken har inngått i en
+endringsordre (punkt 14). En handling for å avtale beløpet i løsningen (punkt 12).
+
+**Forutsetning:** svaret 25.10 om vilkår (D1–D3) føres i vedtaksfila før eller sammen med
+prinsippvedtaket.
 
 ## Avgrensningen
 
@@ -1365,3 +1463,41 @@ Svaret gjelder funnet om kontraktsgrunnlaget Del II pkt. B.2.16 og pkt. 184 i ø
 > Min anbefaling: Behold hovedretningen, velg språkvarianten i 8, og avklar 4b/5 samt revisjonsvernet i 13 før samlet valg. De to viktigste prøvene er nå et betinget standpunkt som møter en ny kravversjon, og et blandet svar der akseptfristen utløper.
 >
 > Jeg har kontrollert ordlyden i dokumentet, ikke kjørt koden eller gjennomgått hele fullmaktsgrunnlaget.
+
+## Sparringen om oppdelingen, ordrett
+
+Svaret gjelder forslaget i økta om å dele avgjørelsen, ikke commit `640de08`.
+
+> Ja, jeg støtter å dele avgjørelsen. Men del mellom prinsippvedtak nå og nødvendige avklaringer før bygging – ikke mellom viktige regler og tekniske detaljer. 4b, 5 og fullmakten er fortsatt produktvedtak med betydning for partenes handlinger.
+>
+> Vi har nå nok grunnlag til å velge hovedretningen uten å godkjenne alle detaljene.
+>
+> Dette kan besluttes nå:
+>
+> * Tilbud om fast sum skilles fra standpunkt til kontraktens beregningsregel.
+> * Kostnadsoverslag er egne opplysninger, ikke tilbud om fast sum. Nye overslag og varsler erstatter ikke krav eller svar.
+> * Enighet om beregningsregelen kan gjøre behandlingen ferdig i løsningen, mens avregningen skjer utenfor. Eventuell rigg-post og uavklarte vilkår må håndteres særskilt.
+> * En avtalt beregningsregel kan endres ved uttrykkelig enighet, uten trekk eller avkall.
+> * En endringsordre kan gjengi beregningsregelen uten et samlet beløp, og må skille mellom BHs standpunkt og det partene allerede har avtalt.
+>
+> For punkt 8 ville jeg fortsatt brukt «behandlingen av vederlagskravet er ferdig i løsningen», ikke generelt «saken er avsluttet». Andre spor kan fortsatt være åpne.
+>
+> Disse spørsmålene må avgjøres før de berørte handlingene bygges ferdig:
+>
+> Avklaring	Hvorfor den ikke bare er teknisk
+> 4b: Hva består etter en ny kravversjon?	Bestemmer hvilke tidligere innrømmelser TE risikerer å miste.
+> 5: Hva omfattes av akseptfristen?	Bestemmer hva BH fortsatt er bundet av, og hva TE kan godta etter fristen.
+> 7: Fullmaktskontrollen	Bestemmer hvem som får sende et svar eller forslag som binder BH.
+> 13: Revisjon av avgrensningen	Bestemmer om BH kan skjerpe et tidligere standpunkt.
+>
+> Særlig 5-A er et selvstendig valg, ikke en opplagt forenkling: Hvis regelen og alle vilkårene består, mens bindingen til rigg-beløpet opphører, må det være forståelig hva som faktisk står igjen. Det kan ikke overlates til implementeringen.
+>
+> Funnet om at et prinsipalt standpunkt kan gjøres subsidiært, er også relevant for denne leveransen. Det kan godt håndteres i #502, men saken bør være en uttrykkelig avhengighet. Ellers kan løftet om at standpunktet «består» bli undergravd ved at BH legger en ny innsigelse foran det.
+>
+> Jeg anbefaler derfor at Claude lager en kort, selvstendig prinsipptekst, med en avgrenset liste over åpne beslutninger. Ikke be oppdragsgiver vedta «retningen i punkt 1–14» med henvisning til de lange alternativene; da blir det uklart hvilke detaljer som faktisk er valgt.
+>
+> Prinsippvedtaket bør avsluttes med:
+>
+> «Vedtaket avgjør ikke bindingen ved nye kravversjoner, akseptfrister, fullmaktskontrollen eller revisjonsvernet utover det som uttrykkelig står her. Disse spørsmålene avgjøres før de berørte handlingene tas i bruk. Hovedretningen alene gir ikke grunnlag for å endre eksisterende bindinger eller sperrer.»
+>
+> Dette gir fremdrift uten en ny full sparringsrunde. Min støtte gjelder oppdelingen og prinsippene, ikke at hele pakken nå er klar for samlet godkjenning. Jeg har vurdert oppsummeringen her, ikke lest 640de08.
