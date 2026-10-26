@@ -38,6 +38,15 @@ og lagetiketten er det første utvalget. Avgjør laget ut fra mappene arbeidet r
 ut fra ordet «TS»: etter byttet i #310 er hele appen TS. Et issue som bare dokumenterer
 et avvik i Python-stien etter DL-U2, er ikke et byggeissue og får ingen lagetikett.
 
+Heller ikke disse får en lagetikett (oppdragsgiver 26.10):
+
+- Et issue som bare rører verktøy: driverne for feilinnføringene, testmalen,
+  `docs/verktoy/`, hooks og CI. Lagene gjelder produktkoden, og verktøyarbeidet
+  har `papercut` eller milepælen.
+- Et samle- eller sporingsissue. Byggeissuene under det får hvert sitt lag.
+- Et issue med `venter-på-beslutning` der laget avhenger av beslutningen. Laget
+  settes når beslutningen er tatt.
+
 **Tema.** Settes når arbeidet gjelder et spor eller et tema. Et issue som gjelder hele
 saken eller hele prosjektet, får ingen.
 
