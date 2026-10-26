@@ -2186,6 +2186,57 @@ describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', ()
   });
 });
 
+// KA-U42: for et positivt tilleggskrav er «delvis» mer enn 0 og mindre enn det krevde, i hele øre,
+// prinsipalt og subsidiært. Nullutfallet kjernen utleder av preklusjonen, kontrolleres ikke.
+describe('KA-U42: «delvis» er mer enn 0 kr og mindre enn det krevde, prinsipalt og subsidiært', () => {
+  const krav = {
+    hovedkrav_belop: 150000,
+    metode: 'tilbud' as const,
+    rigg_belop: 20000,
+    produktivitet_belop: null,
+    krever_justert_ep: false,
+    kostnads_overslag: null,
+    hovedkategori: 'svikt',
+    underkategori: null,
+    grunnlag_varslet_i_tide: null,
+    grunnlag_resultat: null,
+  };
+  const regn = (hovedkrav: number, rigg: number, hovedkravIVarslet = true) =>
+    beregnVederlag(
+      krav,
+      {
+        hovedkrav_vurdering: 'delvis',
+        hovedkrav_godkjent_belop: hovedkrav,
+        hovedkrav_varslet_i_tide: hovedkravIVarslet,
+        rigg_vurdering: 'delvis',
+        rigg_godkjent_belop: rigg,
+        rigg_varslet_i_tide: true,
+        aksepterer_metode: true,
+      },
+      GJELDENDE_REGLER
+    );
+  const melding = (post: string, beloep: number, krevd: number) =>
+    `${post}_godkjent_belop: er ${beloep}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet, ${krevd}`;
+
+  it.each([true, false])(
+    '«delvis» med det krevde eller 0 kr avvises for hver post (hovedkravet varslet i tide: %s)',
+    (iTide) => {
+      expect(() => regn(150000, 10000, iTide)).toThrow(melding('hovedkrav', 150000, 150000));
+      expect(() => regn(0, 10000, iTide)).toThrow(melding('hovedkrav', 0, 150000));
+      expect(() => regn(100000, 20000, iTide)).toThrow(melding('rigg', 20000, 20000));
+      expect(() => regn(100000, 0, iTide)).toThrow(melding('rigg', 0, 20000));
+    }
+  );
+
+  it('kontrollsaker: 1 øre og 1 øre under det krevde godtas, også subsidiært', () => {
+    expect(regn(0.01, 19999.99).total_godkjent_belop).toBe(1n + 1999999n);
+    expect(regn(149999.99, 0.01).total_godkjent_belop).toBe(14999999n + 1n);
+    const r = regn(100000, 10000, false);
+    // Nullutfallet etter § 34.1.2 utleder kjernen; det er ikke byggherrens beløpsvurdering.
+    expect([r.total_godkjent_belop, r.subsidiaer_godkjent_belop]).toEqual([0n, 11000000n]);
+  });
+});
+
 describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', () => {
   const utregning = {
     resultat: 'delvis_godkjent',

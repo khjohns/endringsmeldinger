@@ -536,6 +536,15 @@
     { value: 'delvis', label: sporResultatLabel('delvis_godkjent'), cls: 'partial' },
     { value: 'avslatt', label: sporResultatLabel('avslatt'), cls: 'no', icon: X },
   ];
+
+  const vurderingLabel = (opt: (typeof vurderingOptions)[number], subsidiaert: boolean) =>
+    !subsidiaert
+      ? opt.label
+      : opt.value === 'godkjent'
+        ? 'Fullt beløp'
+        : opt.value === 'delvis'
+          ? 'Redusert beløp'
+          : 'Null';
 </script>
 
 {#snippet yesNoPill(
@@ -684,14 +693,7 @@
             value={linje.vurdering}
             options={vurderingOptions.map((opt) => ({
               id: opt.value,
-              label:
-                isSubsidiaer || linje.prekludert
-                  ? opt.value === 'godkjent'
-                    ? 'Fullt beløp'
-                    : opt.value === 'delvis'
-                      ? 'Redusert beløp'
-                      : 'Null'
-                  : opt.label,
+              label: vurderingLabel(opt, isSubsidiaer || linje.prekludert),
               icon: opt.icon ?? undefined,
               tone: opt.cls === 'yes' ? 'success' : opt.cls === 'partial' ? 'warning' : 'danger',
             }))}
@@ -706,6 +708,12 @@
                 : 'Godkjent beløp'}
               value={linje.godkjentBelop}
               maks={linje.krevdBelop}
+              redusert={domainConfig.beloepIHeleOere
+                ? {
+                    fullt: vurderingLabel(vurderingOptions[0], isSubsidiaer || linje.prekludert),
+                    null: vurderingLabel(vurderingOptions[2], isSubsidiaer || linje.prekludert),
+                  }
+                : undefined}
               hint={linje.krevdBelop ? `Av ${visKroner(linje.krevdBelop)} kr krevd` : undefined}
               tilgjengeligNavn={`${isSubsidiaer || linje.prekludert ? 'Subsidiært vurdert beløp' : 'Godkjent beløp'} for ${linje.title.toLowerCase()}`}
               onchange={(v) => handleKravlinjeBelop(linje.key, v)}

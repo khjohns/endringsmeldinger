@@ -20,7 +20,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -3686,6 +3686,30 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et krevd beløp med brøkdeler av øre avvises'],
+  },
+  {
+    id: 'F419',
+    feilklasse: '«delvis» med hele det krevde beløpet godtas (#1301, KA-U42)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['(g === k || g === NULL_OERE)', '(false || g === NULL_OERE)']],
+    mal: [
+      '«hovedkrav» vurdert «delvis» med 150000 kr avvises',
+      '«produktivitet» vurdert «delvis» med 40000 kr avvises',
+      '«delvis» med det krevde eller 0 kr avvises for hver post',
+      'F-MM-KA-U42',
+    ],
+  },
+  {
+    id: 'F420',
+    feilklasse: '«delvis» med 0 kr godtas (#1301, KA-U42)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['(g === k || g === NULL_OERE)', '(g === k || false)']],
+    mal: [
+      '«hovedkrav» vurdert «delvis» med 0 kr avvises',
+      '«produktivitet» vurdert «delvis» med 0 kr avvises',
+      '«delvis» med det krevde eller 0 kr avvises for hver post',
+      'F-MM-KA-U42',
+    ],
   },
 ];
 

@@ -14,6 +14,11 @@
     maks?: number;
     /** Hva `maks` er, i feilmeldingen: «Beløpet er høyere enn {maksbetegnelse}, …». */
     maksbetegnelse?: string;
+    /**
+     * KA-U42: et redusert beløp er mer enn 0 kr og mindre enn `maks`. Navnene er valgene
+     * parten tar i stedet, for hele beløpet og for 0 kr.
+     */
+    redusert?: { fullt: string; null: string };
     hint?: string;
     /** Navnet skjermleseren leser når flere felt har samme label. Begynner med labelen. */
     tilgjengeligNavn?: string;
@@ -28,6 +33,7 @@
     value,
     maks,
     maksbetegnelse = 'det krevde beløpet',
+    redusert,
     hint,
     tilgjengeligNavn,
     onchange,
@@ -45,6 +51,14 @@
     if ('feil' in l) return l;
     if (l.verdi !== undefined && maks !== undefined && l.verdi > maks)
       return { feil: `Beløpet er høyere enn ${maksbetegnelse}, ${visKroner(maks)} kr.` };
+    if (redusert && l.verdi !== undefined && maks !== undefined && maks > 0) {
+      if (Math.round(l.verdi * 100) === Math.round(maks * 100))
+        return {
+          feil: `Beløpet er hele det krevde, ${visKroner(maks)} kr. Velg «${redusert.fullt}», eller skriv et lavere beløp.`,
+        };
+      if (l.verdi === 0)
+        return { feil: `Beløpet er 0 kr. Velg «${redusert.null}», eller skriv et høyere beløp.` };
+    }
     return l;
   });
   const feil = $derived('feil' in lest ? lest.feil : undefined);

@@ -227,7 +227,7 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
     const g = lesOere(felt, godkjent);
     if (g === null) return;
     const k = beloep(krevd) ?? NULL_OERE;
-    // #1301, KA-U9: vurderingen og beløpet byggherren oppgir for posten, må si det samme.
+    // #1301, KA-U9, KA-U42: vurderingen og beløpet byggherren oppgir for posten, må si det samme.
     if (vurd === 'godkjent' && g !== k)
       feil[felt] =
         `er ${String(godkjent)}, men vurderingen «godkjent» gjelder hele det krevde beløpet, ${String(krevd)}`;
@@ -236,6 +236,10 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
     else if (vurd === 'delvis') {
       if (g < NULL_OERE) feil[felt] = 'kan ikke være negativt';
       else if (g > k) feil[felt] = 'er høyere enn det krevde beløpet';
+      // KA-U42: for et positivt tilleggskrav er «delvis» mer enn 0 og mindre enn det krevde.
+      else if (k > NULL_OERE && (g === k || g === NULL_OERE))
+        feil[felt] =
+          `er ${String(godkjent)}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet, ${String(krevd)}`;
     }
   };
   if (harHovedkrav(krav))

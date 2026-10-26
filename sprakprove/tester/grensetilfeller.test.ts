@@ -68,7 +68,7 @@ describe('vederlag', () => {
   it.each(tabell.vederlag.tilfeller.map((t, i) => [i, t as Rad] as const))(
     'tilfelle %i',
     (_i, rad) => {
-      // OV-U58, OV-U59: kjernen avviser brøkdeler av øre og sammenlikner i hele øre.
+      // OV-U58, OV-U59, KA-U42: kjernen avviser brøkdeler av øre og «delvis» som motsier beløpet, og sammenlikner i hele øre.
       const { kjernen, ...felles } = rad as Rad & { kjernen?: Rad };
       const t: Rad = kjernen
         ? {

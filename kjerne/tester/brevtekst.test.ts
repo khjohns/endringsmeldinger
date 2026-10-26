@@ -5774,6 +5774,51 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
     );
   });
 
+  it.each([
+    ['hovedkrav', 150000, godkjentPost, 'godkjent', 190000],
+    ['hovedkrav', 0, godkjentPost, 'delvis_godkjent', 40000],
+    ['produktivitet', 40000, godkjentHovedkrav, 'godkjent', 190000],
+    ['produktivitet', 0, godkjentHovedkrav, 'delvis_godkjent', 150000],
+  ] as const)(
+    '«%s» vurdert «delvis» med %s kr avvises med UGYLDIG_VURDERING, også med resultatet serveren regnet ut før (KA-U42)',
+    (post, beloep, resten, forRetting, sum) => {
+      const s = sakMedPost();
+      const vurderinger = {
+        ...resten,
+        [`${post}_vurdering`]: 'delvis',
+        [`${post}_godkjent_belop`]: beloep,
+      };
+      const a = s.avvisning(
+        'BH',
+        brevet(s, vurderinger, { resultat: forRetting, godkjent_beloep: sum })
+      );
+      expect(a?.regel).toBe('UGYLDIG_VURDERING');
+      expect(a?.melding).toContain(
+        `${post}_godkjent_belop: er ${beloep}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet`
+      );
+      expect(s.u().spor.vederlag.gjeldendeSvar, 'ingenting er lagret').toBeNull();
+    }
+  );
+
+  it('kontrollsak: «delvis» med 1 øre og med 1 øre under det krevde godtas (KA-U42)', () => {
+    for (const [beloep, sum] of [
+      [0.01, 40000.01],
+      [149999.99, 189999.99],
+    ]) {
+      const s = sakMedPost();
+      expect(
+        s.avvist(
+          'BH',
+          brevet(
+            s,
+            { ...godkjentPost, hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_belop: beloep },
+            { resultat: 'delvis_godkjent', godkjent_beloep: sum }
+          )
+        )
+      ).toBeNull();
+    }
+  });
+
   it('kontrollsakene godtas: «godkjent» uten beløp, «godkjent» med beløpet likt det krevde og «avslått» med 0', () => {
     for (const hovedkrav of [
       { hovedkrav_vurdering: 'godkjent' },

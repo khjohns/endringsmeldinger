@@ -60,7 +60,10 @@ export interface VederlagDomainConfig {
   underkategori?: string;
   grunnlagVarsletForSent: boolean;
   grunnlagStatus?: 'godkjent' | 'avslatt' | 'frafalt';
-  /** OV-U59: beløpene sammenliknes i hele øre, som i kjernen. Ellers til nærmeste krone (B-13). */
+  /**
+   * Som i kjernen: beløpene sammenliknes i hele øre (OV-U59), og skjemaet godtar «delvis» bare
+   * med mer enn 0 kr og mindre enn det krevde (KA-U42). Ellers til nærmeste krone (B-13).
+   */
   beloepIHeleOere?: boolean;
 }
 
