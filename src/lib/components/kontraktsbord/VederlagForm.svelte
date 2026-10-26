@@ -193,6 +193,15 @@
   const PREKLUDERT =
     'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder dersom denne innsigelsen ikke fører frem.';
 
+  // #313, arbeidsvalget 26.10 (VG-A-02, VG-C-02): hva svaret binder byggherren til. Ordlyden er
+  // et forslag til oppdragsgiver (spørsmål 1 i PR-en). Tilfellet med særskilte vilkår venter på 3b-D.
+  const BINDER = {
+    alltid:
+      'Virkningen av svaret regnes ut fra valgene over. Begrunnelsen tolkes ikke. Byggherren er bundet av svaret som sendes herfra.',
+    sammenfall:
+      'Svaret godkjenner hele kravet. Enighet registreres uten at TE må godta svaret, og svaret kan ikke revideres.',
+    forbehold: 'Blir partene enige, blir enigheten ikke virksom før grunnlaget er avklart.',
+  };
   // I TS-saken i samme rekkefølge som lagene i brevet (OV-U32), og med forbeholdet etter GR-U26.
   const grunnlagsvarsler = $derived.by((): string[] => {
     if (grunnlaget)
@@ -239,7 +248,8 @@
     return { ikon: CircleMinus, variant: 'mixed' as const };
   });
   // #1303: radene står under laget sitt i brevets rekkefølge. Tekstene sier byggherrens
-  // standpunkt med brevets ord (#492 D), og radene uten beløp har ikke noe krevd eller godkjent.
+  // standpunkt med brevets ord (#492 D), forslag til oppdragsgiver (spørsmål 2 i PR-en). Radene
+  // uten beløp har ikke noe krevd eller godkjent.
   function lagradvisning(rad: Lagrad) {
     if (rad.art === 'grunnlag')
       return {
@@ -826,6 +836,11 @@
             </div>
           </div>
         {/if}
+        <div class="binder" role="note">
+          <p>{BINDER.alltid}</p>
+          {#if kjernelag?.sammenfall}<p>{BINDER.sammenfall}</p>{/if}
+          {#if grunnlaget?.forbehold}<p>{BINDER.forbehold}</p>{/if}
+        </div>
       {:else}
         <div class="result-box konsekvens-{resultat.variant}">
           <div class="result-header">
@@ -1310,6 +1325,15 @@
   }
   .td-emo {
     color: var(--ink-4);
+  }
+  .binder {
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .binder p + p {
+    margin-top: 4px;
   }
   .tr-lag {
     background: var(--surface-inset);
