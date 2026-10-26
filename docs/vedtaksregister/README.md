@@ -220,7 +220,7 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | Forholdet står begge veier | nye poster med `forhold` |
 | Forholdene i en importert post er de Følge sier uttrykkelig, og de står begge veier, unntatt dem i `EN_VEI`; et forhold i `EN_VEI` som står begge veier, er også en feil; en lenke i et uttrykkelig forhold går til et annet vedtak, og i passiv form til en importert post | importerte poster |
 | Vedtaksteksten har ingen kodenavn: backticks, `snake_case`, `camelCase`, `STORE_BOKSTAVER` med understrek, `navn()` og filnavn | nye poster, det valgte og de forkastede alternativene |
-| Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn | nye poster |
+| Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn. En omtale av et forkastet alternativ regnes ikke som et valg. Det gjør heller ikke en omtale med et spørsmålsnummer foran, som «2b-A», når nummeret ikke også står foran det valgte alternativet | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 | Følge får ikke ny byggestatus for hånd: «Ikke bygget», «Delvis bygget», «Del n bygget» eller «Bygget», med stor forbokstav, utover det som står på `main` | alle poster (#1021) |
 | En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452) |
@@ -233,7 +233,7 @@ importert form som ikke står i 3.1 på `main`, avvises.
 Verktøyet kjører de samme kontrollene som testene, også dem mot `main` når
 historikken finnes.
 
-Det testene ikke ser: om et alternativ strider mot et vedtak, om forholdet er en
+Det testene ikke ser: om svaret faktisk forkaster et alternativ det nevner og som er merket forkastet, om et alternativ strider mot et vedtak, om forholdet er en
 presisering eller en endring, forhold som Følge i en importert post bare sier med
 andre ord, og om et sitat er tatt ut av sammenhengen. Det
 kontrolleres én gang, når spørsmålet stilles

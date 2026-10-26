@@ -597,6 +597,31 @@ def _nevner(navn: str, tekst: str, *, uten_store_bokstaver: bool = False) -> boo
     return bool(re.search(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst, flagg))
 
 
+# Spørsmålsnummeret foran et alternativ, som «2b» i «2b-A». Et tall i en dato eller en ID,
+# som «26.10-C» eller «OV-U49-C», er ikke et spørsmålsnummer.
+_SPORSMALSNUMMER = re.compile(r"(?<![\w.,–-])(\d+[a-zæøå]?)[-–]$", re.IGNORECASE)
+
+
+def _omtaler(navn: str, tekst: str) -> list[str | None]:
+    """Spørsmålsnummeret foran hver omtale av alternativet i teksten, eller None uten nummer."""
+    nummer = []
+    for m in re.finditer(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst):
+        foran = _SPORSMALSNUMMER.search(tekst[: m.start()])
+        nummer.append(foran.group(1).lower() if foran else None)
+    return nummer
+
+
+def _velger_ogsaa(alternativ: dict, svar: str, valgt: list[str | None]) -> bool:
+    """Svaret nevner et annet alternativ i spørsmålet som et mulig valg. `valgt` er
+    spørsmålsnumrene foran omtalene av det valgte alternativet. En omtale med et annet
+    spørsmålsnummer, som «2b-A» i svaret på spørsmål 2, gjelder et annet spørsmål. Et
+    forkastet alternativ regnes ikke som valgt; at svaret faktisk forkaster det,
+    kontrolleres når svaret føres."""
+    if alternativ.get("forkastet"):
+        return False
+    return any(n is None or n in valgt for n in _omtaler(alternativ["navn"], svar))
+
+
 _TIL_ANBEFALINGEN = re.compile(
     r"(?:^|[.!?:\n])\s*[«\"]?\s*ja til (?:alle )?anbefaling(?:en|ene)(?!\w)", re.IGNORECASE
 )
@@ -736,7 +761,8 @@ def valider(register: dict) -> list[str]:
                 if a.get("anbefalt") and a.get("forkastet")
             ]
             slutter_seg = _slutter_seg_til_anbefalingen(p["svar"], navnene)
-            if not _nevner(p["valgt"], p["svar"]) and not (anbefalte == [p["valgt"]] and slutter_seg):
+            valgt = _omtaler(p["valgt"], p["svar"])
+            if not valgt and not (anbefalte == [p["valgt"]] and slutter_seg):
                 grunn = ""
                 if forbehold := _forbeholdet(p["svar"], navnene):
                     grunn = f", og «{forbehold}» gjør at svaret ikke slutter seg til anbefalingen"
@@ -753,7 +779,7 @@ def valider(register: dict) -> list[str]:
             andre = [
                 a["navn"]
                 for a in p["alternativ"]
-                if a["navn"] != p["valgt"] and _nevner(a["navn"], p["svar"])
+                if a["navn"] != p["valgt"] and _velger_ogsaa(a, p["svar"], valgt)
             ]
             if andre:
                 feil.append(

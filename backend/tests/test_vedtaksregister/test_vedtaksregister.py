@@ -1002,8 +1002,40 @@ def test_ny_tekst_rundt_vedtakene_ma_vaere_hele_avsnitt(plan):
 
 
 def test_svaret_nevner_ikke_et_annet_alternativ(grunnregister):
-    feil = vr.valider(med(grunnregister, ny_post(svar="«A, ikke B»")))
-    assert any("svaret nevner også alternativ B" in f for f in feil), feil
+    feil = vr.valider(med(grunnregister, ny_post(svar="«A eller C»")))
+    assert any("svaret nevner også alternativ C" in f for f in feil), feil
+
+
+@pytest.mark.parametrize(
+    "svar",
+    [
+        "«A, ikke B»",
+        "A, sammen med 2b-C. «Ja»",
+        "A, sammen med 5-C. «Ja»",
+        "A, sammen med 2B-C. «Ja»",
+        "A, sammen med 2b–C. «Ja»",
+    ],
+)
+def test_svaret_kan_omtale_et_forkastet_alternativ_og_et_annet_sporsmal(grunnregister, svar):
+    """B er forkastet i ny_post. «2b-C» og «5-C» er alternativer i andre spørsmål."""
+    feil = vr.valider(med(grunnregister, ny_post(svar=svar)))
+    assert not any("svaret nevner også alternativ" in f for f in feil), feil
+
+
+@pytest.mark.parametrize(
+    "svar",
+    [
+        "A, sammen med 2b-C, eller C",
+        "2b-A, eller 2b-C",
+        "A eller 26.10-C",
+        "A, og fra OV-U49-C",
+    ],
+)
+def test_et_sporsmalsnummer_skjuler_ikke_et_annet_valg(grunnregister, svar):
+    """Samme nummer som foran det valgte, eller et tall i en dato eller en ID, er ikke et annet
+    spørsmål."""
+    feil = vr.valider(med(grunnregister, ny_post(svar=svar)))
+    assert any("svaret nevner også alternativ C" in f for f in feil), feil
 
 
 @pytest.mark.parametrize(
