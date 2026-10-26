@@ -1708,40 +1708,80 @@ Svarene føres i vedtaksregisteret i en egen vedtaks-PR, sammen med de andre sva
   I dag vises bare byggherrens brev, også for byggherren selv, og byggherren som skal svare, ser
   ikke TEs registrerte brev ved kravet. Etter OV-U4 tar partene brevene i betraktning når de
   svarer.
-- **Belegg:** OV-U4, OV-U20.
+- **Belegg:** OV-U4, OV-U18, OV-U20.
 - **Alternativene:**
-  - **A (anbefalt):** «Ved kravet som venter på svar viser løsningen den som leser, motpartens
+  - **A:** «Ved kravet som venter på svar viser løsningen den som leser, motpartens
     registrerte brev som hører til sporet eller saken og ikke er rettet: TE ser byggherrens, og
     byggherren ser TEs. Presiserer OV-U20.»
-  - **B:** «Ved kravet som venter på svar viser løsningen begge partenes registrerte brev som hører
-    til sporet eller saken og ikke er rettet, med avsenderen, beskrivelsen som avsenderens
-    beskrivelse og merknaden ‹Appen vurderer ikke innholdet›. Utvider OV-U20.»
+  - **B (anbefalt):** «Ved kravet som venter på svar viser løsningen begge partenes registrerte
+    brev som hører til sporet eller saken og ikke er rettet, med avsenderen, beskrivelsen som
+    avsenderens beskrivelse og merknaden ‹Appen vurderer ikke innholdet›. Utvider OV-U20 og
+    OV-U4.»
   - **C:** «Ved kravet vises bare byggherrens registrerte brev, også for byggherren. Teksten sier
     ‹byggherren har registrert brev›. Presiserer OV-U20.»
-- **Anbefaling:** A. Den holder seg innenfor ordlyden i OV-U20 og gir byggherren TEs brev når
-  byggherren skal svare.
-- **Hva valget styrer:** hvilke brev visningen viser ved kravet, og teksten i journalen.
+- **Anbefaling:** B. Begge parter ser de samme brevene, med avsenderen, i stedet for et utvalg
+  som skifter med hvem som leser. Partens egne tidligere brev kan være like viktige som
+  motpartens når parten skal svare. «Ikke er rettet» viser til OV-U18: en rettet registrering
+  står i feil sak, er merket som rettet i historikken og registreres på nytt i riktig sak, så
+  originalen blir ikke borte. «Avsenderens beskrivelse» stemmer, fordi hver side bare
+  registrerer sine egne brev (OV-U4).
+- **Hva valget styrer:** hvilke brev visningen viser ved kravet, og teksten i journalen. Ved B
+  endres også setningen i OV-U4 om at visningen viser at motparten har registrert brev.
 - **Avhenger av spørsmål 1:** faller bort ved D, og endres ved C.
+- **Sparring 25.10:** anbefalingen er snudd fra A til B etter sparring mellom økta,
+  oppdragsgiver og en annen modell. Grunnlaget for A, at den holder seg innenfor ordlyden i
+  OV-U20, veier mindre etter revurderingen, som spør om løsningen gir en god arbeidsmåte.
+  Forholdet i B er utvidet med OV-U4. Den andre modellen ordrett: «B gir begge parter samme
+  dokumentoversikt, med tydelig avsender. Det er etter min vurdering bedre UX enn at
+  dokumentutvalget skifter med hvem som leser.» Den spurte hva «ikke er rettet» betyr, og om
+  bare avsenderen beskriver brevet. Oppslaget i OV-U18 og OV-U4 over svarte på begge, og
+  modellen ordrett: «Ingen grunn til å vedta særskilt fremheving av motpartens brev.»
 
-### Spørsmål 10. Avgrensningen av fristkrav mot andre saker (VG-G-03)
+### Spørsmål 10. Sammenhengen med fristkrav i andre saker (VG-G-03)
 
 - **Bakgrunn:** Appen ser ikke fristkrav i andre saker og summerer ikke dagene (EO-U8). For
   posten for rigg og drift begrunner TE avgrensningen mot andre saker (OV-U37, OV-U39). For
-  fristkravet sier ingen tekst noe om andre saker. At veiledningen etter § 33.5 sier at appen
-  ikke ser andre saker, presiserer VS-U18 og føres som arbeidsvalg (spørsmål 11). Spørsmålet her
-  er bare om TE skal bes om en begrunnelse.
-- **Belegg:** § 33.5 første ledd annet punktum. VS-U18, OV-U37, OV-U39.
+  fristkravet sier ingen tekst noe om andre saker. Etter § 33.5 første ledd skal beregningen
+  ta hensyn til den samlede virkningen av tidligere varslede forhold. VS-U18 viser § 33.5 som
+  veiledning i fristkravet og fristsvaret. Spørsmålet er hva veiledningen sier om andre saker.
+- **Belegg:** § 33.5 første ledd. VS-U18, EO-U8, OV-U37, OV-U39.
 - **Alternativene:**
-  - **A (anbefalt):** «Skjemaet for fristkravet ber ikke TE begrunne avgrensningen mot fristkrav
-    i andre saker. Veiledningen etter VS-U18 sier at løsningen ikke ser dem. Presiserer VS-U18.»
-  - **B:** «Skjemaet for fristkravet ber TE begrunne hvordan kravet er avgrenset mot fristkrav i
-    andre saker som gjelder samme periode, slik OV-U37 og OV-U39 gjør for posten for rigg og
-    drift. Begrunnelsen er ikke påkrevd. Utvider VS-U18.»
-- **Anbefaling:** A. Appen ber da ikke om mer enn kontrakten krever av fristkravet.
-- **Hva valget styrer:** fristskjemaet (VS-U18 er ikke bygget).
+  - **A:** «Skjemaet for fristkravet ber ikke TE beskrive sammenhengen med fristkrav i andre
+    saker. Veiledningen etter § 33.5 i fristkravet og fristsvaret sier at løsningen ikke tar
+    hensyn til fristkrav i andre saker, og at forlengelsen i flere saker ikke uten videre kan
+    legges sammen. Presiserer VS-U18, i tråd med EO-U8.»
+  - **B (anbefalt):** «Veiledningen etter § 33.5 i fristkravet oppfordrer TE til å beskrive i
+    begrunnelsen hvordan kravet henger sammen med tidligere varslede forhold og med fristkrav
+    i andre saker, der det har betydning for den samlede virkningen på fremdriften.
+    Fristsvaret har tilsvarende veiledning, tilpasset byggherrens vurdering av kravet. Begge
+    veiledningene sier at forlengelsen i flere saker ikke uten videre kan legges sammen.
+    Skjemaene har ikke et eget felt for dette. Løsningen tar ikke hensyn til fristkrav i andre
+    saker, kontrollerer ikke sammenhengen og summerer ikke dagene på tvers av saker (EO-U8).
+    Utvider VS-U18.»
+- **Anbefaling:** B. § 33.5 gjør sammenhengen med tidligere varslede forhold relevant for
+  beregningen, så det hjelper partene å bli bedt om å beskrive den. B gjør det med en
+  hjelpetekst ved begrunnelsen, uten eget felt, kontrollspørsmål eller sendesperre. At
+  skjemaet ikke har et eget felt, sier ikke noe om hvor mye begrunnelse kontrakten krever i
+  den konkrete saken.
+- **Hva valget styrer:** veiledningen i fristkravet og fristsvaret (VS-U18 er ikke bygget).
+  Føres i issuet som bygger VS-U18.
 - **Avhenger av spørsmål 1:** nei.
+- **Sparring 25.10:** spørsmålet er skrevet om etter sparring mellom økta, oppdragsgiver og en
+  annen modell. Anbefalingen er snudd fra A til B. Arbeidsvalget om veiledningen, tidligere
+  punkt 2 i spørsmål 11, er tatt inn i begge alternativene, så veiledningen bare er bestemt ett
+  sted. A sa først at skjemaet ikke ber om mer enn kontrakten krever. Det holder ikke etter
+  § 33.5 første ledd. Den første formen av B sa: «Skjemaet for fristkravet ber TE begrunne
+  hvordan kravet er avgrenset mot fristkrav i andre saker som gjelder samme periode, slik
+  OV-U37 og OV-U39 gjør for posten for rigg og drift. Begrunnelsen er ikke påkrevd. Utvider
+  VS-U18.» Den andre modellen ordrett: «‹Samme periode› er for snevert. Tidligere forhold kan
+  påvirke senere fremdrift selv om periodene ikke overlapper.» og «‹Avgrensning› kan gi
+  inntrykk av at oppgaven bare er å unngå dobbelttelling. Det relevante er også hvordan
+  forholdene virker sammen.» Veiledningen i fristsvaret er tatt med fordi VS-U18 gjelder både
+  krav og svar, og modellen ordrett: «BH skal forklare sitt standpunkt, ikke overta TEs
+  begrunnelse.» Modellen foreslo «tar ikke automatisk hensyn til». «Automatisk» er strøket,
+  fordi løsningen ikke har en annen måte å ta hensyn til andre saker på.
 
-### Spørsmål 11. Fire arbeidsvalg som føres uten vedtak
+### Spørsmål 11. Tre arbeidsvalg som føres uten vedtak
 
 Disse følger av gjeldende vedtak etter verifiseringene og føres som arbeidsvalg i issuet, med
 henvisning til vedtaket. Svarer oppdragsgiver «ja», føres de slik. Vil oppdragsgiver ha et
@@ -1751,15 +1791,11 @@ punkt som vedtak, stilles det i vedtaks-PR-en.
    godtar om ingen av innsigelsene fører fram, i hvert spor, og fristdagene ganget med
    dagmulktssatsen. Det er det høyeste beløpet byggherren binder seg til i noe lag. I tråd med
    B-13 (05.10) og presiseringen 24.09 av GFK-06. Føres i #818.
-2. **Veiledningen om andre saker i fristskjemaet (VG-G-03):** veiledningen ved § 33.5 i
-   fristkravet og fristsvaret sier at appen ikke ser fristkrav i andre saker, og at
-   forlengelsen i flere saker ikke uten videre kan legges sammen. Presiserer VS-U18, i tråd med
-   EO-U8. Føres i issuet som bygger VS-U18.
-3. **Vederlagsskjemaet mens bare tilbud kan sendes (VG-H-02):** til andre metoder er bygget,
+2. **Vederlagsskjemaet mens bare tilbud kan sendes (VG-H-02):** til andre metoder er bygget,
    sier skjemaet at kravet bare kan sendes fra appen som tilbud etter § 34.2.1, og at et krav
    etter en annen metode sendes utenfor appen. Skjemaet foreslår ikke at TE velger tilbud.
    Utvider MM-U25. Føres i #909.
-4. **Opplysningen i byggherrens svarskjema (VG-A-02, VG-C-02):** skjemaet sier at appen
+3. **Opplysningen i byggherrens svarskjema (VG-A-02, VG-C-02):** skjemaet sier at appen
    beregner virkningen ut fra valgene og ikke tolker begrunnelsen, at byggherren er bundet av
    det hen sender fra appen, og, når svaret godkjenner hele kravet i et spor, at partene da er
    enige og at byggherren ikke kan revidere svaret. Er grunnlaget ikke besvart, sier skjemaet at
