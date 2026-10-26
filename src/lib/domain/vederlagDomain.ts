@@ -61,10 +61,10 @@ export interface VederlagDomainConfig {
   grunnlagVarsletForSent: boolean;
   grunnlagStatus?: 'godkjent' | 'avslatt' | 'frafalt';
   /**
-   * Som i kjernen: beløpene sammenliknes i hele øre (OV-U59), og skjemaet godtar «delvis» bare
-   * med mer enn 0 kr og mindre enn det krevde (KA-U42). Ellers til nærmeste krone (B-13).
+   * Saken er en TS-sak (B-17): skjemaet godtar «delvis» bare med mer enn 0 kr og mindre enn
+   * det krevde (KA-U42). Python-saken viser ikke feilen (DL-U2).
    */
-  beloepIHeleOere?: boolean;
+  erKjernesak?: boolean;
 }
 
 /**
@@ -350,21 +350,17 @@ export function erBegrensetBelopGyldig(
 
 /**
  * B-13 (3.1, 24.09): «godkjent» bare når hele kravet er godkjent, til nærmeste
- * krone (ROUND_HALF_UP via øre, som `backend/regler/vederlag.py`), eller i hele øre
- * i TS-saken (OV-U59). 0 kr er «avslått».
+ * krone (ROUND_HALF_UP via øre, som `backend/regler/vederlag.py`). 0 kr er
+ * «avslått».
  */
 function resultatAvBelop(
   krevd: number,
   godkjent: number,
-  harMetodeendring: boolean,
-  iHeleOere = false
+  harMetodeendring: boolean
 ): VederlagBeregningResultat {
   const godkjentOre = tilOre(godkjent);
   if (godkjentOre === 0) return 'avslatt';
-  const fullt = iHeleOere
-    ? godkjentOre >= tilOre(krevd)
-    : rundHalvOpp(godkjentOre) >= rundHalvOpp(tilOre(krevd));
-  if (fullt && !harMetodeendring) {
+  if (rundHalvOpp(godkjentOre) >= rundHalvOpp(tilOre(krevd)) && !harMetodeendring) {
     return 'godkjent';
   }
   return 'delvis_godkjent';
@@ -375,14 +371,12 @@ export function beregnPrinsipaltResultat(computed: {
   totalGodkjent: number;
   harMetodeendring: boolean;
   holdTilbake: boolean;
-  beloepIHeleOere?: boolean;
 }): VederlagBeregningResultat {
   if (computed.holdTilbake) return 'hold_tilbake';
   return resultatAvBelop(
     computed.totalKrevdInklPrekludert,
     computed.totalGodkjent,
-    computed.harMetodeendring,
-    computed.beloepIHeleOere
+    computed.harMetodeendring
   );
 }
 
@@ -394,13 +388,11 @@ export function beregnSubsidiaertResultat(computed: {
   totalKrevdInklPrekludert: number;
   totalGodkjentInklPrekludert: number;
   harMetodeendring: boolean;
-  beloepIHeleOere?: boolean;
 }): VederlagBeregningResultat {
   return resultatAvBelop(
     computed.totalKrevdInklPrekludert,
     computed.totalGodkjentInklPrekludert,
-    computed.harMetodeendring,
-    computed.beloepIHeleOere
+    computed.harMetodeendring
   );
 }
 
@@ -573,14 +565,12 @@ export function beregnAlt(
     totalGodkjent: totaler.totalGodkjent,
     harMetodeendring: totaler.harMetodeendring,
     holdTilbake: state.holdTilbake,
-    beloepIHeleOere: config.beloepIHeleOere,
   });
 
   const subsidiaertResultat = beregnSubsidiaertResultat({
     totalKrevdInklPrekludert: totaler.totalKrevdInklPrekludert,
     totalGodkjentInklPrekludert: totaler.totalGodkjentInklPrekludert,
     harMetodeendring: totaler.harMetodeendring,
-    beloepIHeleOere: config.beloepIHeleOere,
   });
 
   const visSubsidiaertResultat = totaler.harPrekludertKrav;

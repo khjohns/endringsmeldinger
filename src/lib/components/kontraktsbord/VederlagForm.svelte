@@ -486,6 +486,15 @@
     !domainConfig.harHovedkrav || hovedkravVurdering !== undefined
   );
 
+  const begrunnelseVises = $derived(
+    allAnswered || (akseptererMetode !== undefined && harVurdertHovedkrav)
+  );
+
+  // #1274: skjules begrunnelsen, viser ikke henvisningen øverst til et felt som ikke vises.
+  $effect(() => {
+    if (!begrunnelseVises) submission.feltetEndret();
+  });
+
   $effect(() => {
     onactions?.({
       canSend: allAnswered && !submission.pending,
@@ -708,7 +717,7 @@
                 : 'Godkjent beløp'}
               value={linje.godkjentBelop}
               maks={linje.krevdBelop}
-              redusert={domainConfig.beloepIHeleOere
+              redusert={domainConfig.erKjernesak
                 ? {
                     fullt: vurderingLabel(vurderingOptions[0], isSubsidiaer || linje.prekludert),
                     null: vurderingLabel(vurderingOptions[2], isSubsidiaer || linje.prekludert),
@@ -747,7 +756,7 @@
       </div>
     {/each}
 
-    {#if allAnswered || (akseptererMetode !== undefined && harVurdertHovedkrav)}
+    {#if begrunnelseVises}
       {#if kjernesak}
         {#if kjernelag && kjerneresultat}
           <div class="result-box konsekvens-{kjerneresultat.variant}">

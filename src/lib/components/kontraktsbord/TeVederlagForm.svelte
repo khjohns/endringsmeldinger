@@ -268,7 +268,7 @@
 </script>
 
 <div class="form-content">
-  <SkjemaStatus sender={submission.pending} feil={submission.error} />
+  <SkjemaStatus sender={submission.pending} feil={submission.oeverst} />
 
   <FormPageHeader
     title="Krav om vederlagsjustering"
@@ -444,8 +444,12 @@
       placeholder={kjernesak
         ? 'Utdyp kravet om du vil...'
         : 'Begrunn kravets omfang og den valgte beregningsmetoden...'}
-      onchange={(html) => (begrunnelse = html)}
+      onchange={(html) => {
+        begrunnelse = html;
+        submission.feltetEndret();
+      }}
       oncharcount={(count) => (charCount = count)}
+      feil={submission.vedFeltet}
     />
 
     {#if kanSende}
