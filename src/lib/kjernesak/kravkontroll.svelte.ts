@@ -69,7 +69,7 @@ function kommandoFraSkjema(
     const kommando = vederlagssvarFraSkjema(
       data as Record<string, unknown>,
       kjernesak.utledning,
-      kjernesak.regelversjon
+      kjernesak.regler
     );
     return {
       kommando,

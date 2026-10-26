@@ -69,8 +69,15 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
     const begrenset = await screen.findByRole('textbox', { name: 'Godtas etter begrensningen' });
     expect(send).toBeDisabled();
     await fireEvent.input(begrenset, { target: { value: '200000' } });
-    // Feltet holdes innenfor det byggherren godtar for posten (VS-U5, kjernens kontroll).
-    expect((begrenset as HTMLInputElement).value).toBe((180000).toLocaleString('nb-NO'));
+    await fireEvent.blur(begrenset);
+    // Over det byggherren godtar for posten (VS-U5) står beløpet urørt med en feil (#1285).
+    expect((begrenset as HTMLInputElement).value).toBe('200000');
+    expect(
+      await screen.findByText('Beløpet er høyere enn det som godtas for posten, 180 000 kr.', {
+        normalizer: (t) => t.replace(/\s/g, ' '),
+      })
+    ).toBeTruthy();
+    expect(send).toBeDisabled();
     await fireEvent.input(begrenset, { target: { value: '45000' } });
     // KA-U41: appen fyller ikke inn begrunnelsen, så svaret venter på BHs tekst.
     expect(screen.queryByText('Hentet fra vurderingen')).toBeNull();
@@ -110,10 +117,13 @@ describe('BHs svar på et krav som bare har produktivitetstapet', () => {
     await velg('Produktivitetstap', 'Fullt beløp');
     const begrenset = await screen.findByRole('textbox', { name: 'Godtas etter begrensningen' });
     await fireEvent.input(begrenset, { target: { value: '150000' } });
+    await fireEvent.blur(begrenset);
     await skrivBegrunnelse();
 
     await velg('Produktivitetstap', 'Redusert beløp');
-    const godkjent = await screen.findByRole('textbox', { name: 'Produktivitetstap' });
+    const godkjent = await screen.findByRole('textbox', {
+      name: 'Subsidiært vurdert beløp for produktivitetstap',
+    });
     for (const verdi of ['1', '10', '100', '1000', '10000', '100000']) {
       await fireEvent.input(godkjent, { target: { value: verdi } });
     }

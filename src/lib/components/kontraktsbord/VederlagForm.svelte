@@ -3,6 +3,8 @@
   import PositionExplanation from './PositionExplanation.svelte';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
+  import BelopFelt from './components/BelopFelt.svelte';
+  import { visKroner } from '$lib/utils/belop';
   import { Check, X, CircleMinus } from 'lucide-svelte';
   import {
     beregnAlt,
@@ -463,12 +465,12 @@
     )
   );
 
-  function formatNumberInput(n: number | undefined): string {
-    return n != null ? n.toLocaleString('nb-NO') : '';
-  }
+  // OV-U58: et beløp som ikke kan leses, sendes ikke, og står i feltet til det er rettet.
+  let ugyldigeBelop = $state<Record<string, boolean>>({});
 
   // Validation (matches production kanSende)
   const allAnswered = $derived.by(() => {
+    if (Object.values(ugyldigeBelop).some(Boolean)) return false;
     if (computed.harPreklusjonsSteg && preklusjonsLinjer.some((l) => l.value === undefined))
       return false;
     if (akseptererMetode === undefined) return false;
@@ -483,6 +485,15 @@
   const harVurdertHovedkrav = $derived(
     !domainConfig.harHovedkrav || hovedkravVurdering !== undefined
   );
+
+  const begrunnelseVises = $derived(
+    allAnswered || (akseptererMetode !== undefined && harVurdertHovedkrav)
+  );
+
+  // #1274: skjules begrunnelsen, viser ikke henvisningen øverst til et felt som ikke vises.
+  $effect(() => {
+    if (!begrunnelseVises) submission.feltetEndret();
+  });
 
   $effect(() => {
     onactions?.({
@@ -534,6 +545,15 @@
     { value: 'delvis', label: sporResultatLabel('delvis_godkjent'), cls: 'partial' },
     { value: 'avslatt', label: sporResultatLabel('avslatt'), cls: 'no', icon: X },
   ];
+
+  const vurderingLabel = (opt: (typeof vurderingOptions)[number], subsidiaert: boolean) =>
+    !subsidiaert
+      ? opt.label
+      : opt.value === 'godkjent'
+        ? 'Fullt beløp'
+        : opt.value === 'delvis'
+          ? 'Redusert beløp'
+          : 'Null';
 </script>
 
 {#snippet yesNoPill(
@@ -637,56 +657,6 @@
     {/if}
   </div>
 
-  {#snippet belopInput(
-    navn: string,
-    verdi: number | undefined,
-    maks: number | undefined,
-    onset: (v: number | undefined) => void,
-    etterpaa?: () => void
-  )}
-    <input
-      type="text"
-      aria-label={navn}
-      inputmode="numeric"
-      value={formatNumberInput(verdi)}
-      oninput={(e) => {
-        const input = e.currentTarget;
-        const raw = input.value.replace(/[^\d]/g, '');
-        if (raw === '') {
-          onset(undefined);
-          input.value = '';
-          return;
-        }
-        const num = parseInt(raw);
-        if (isNaN(num)) return;
-        const clamped = Math.min(num, maks ?? Infinity);
-        onset(clamped);
-
-        // Formater under inntasting med cursor-justering
-        const formatted = clamped.toLocaleString('nb-NO');
-        const oldLen = input.value.length;
-        const newLen = formatted.length;
-        const cursorFromEnd = oldLen - input.selectionStart!;
-        input.value = formatted;
-        const newPos = Math.max(0, newLen - cursorFromEnd);
-        input.setSelectionRange(newPos, newPos);
-      }}
-      onfocus={(e) => {
-        if (verdi != null) {
-          e.currentTarget.value = String(verdi);
-        }
-      }}
-      onblur={(e) => {
-        if (verdi != null) {
-          e.currentTarget.value = verdi.toLocaleString('nb-NO');
-        }
-        etterpaa?.();
-      }}
-      placeholder="0"
-      class="font-mono measurement-input"
-    />
-  {/snippet}
-
   {#snippet formBodyBelow()}
     <!-- Beregningsmetode -->
     {@render yesNoPill(
@@ -732,14 +702,7 @@
             value={linje.vurdering}
             options={vurderingOptions.map((opt) => ({
               id: opt.value,
-              label:
-                isSubsidiaer || linje.prekludert
-                  ? opt.value === 'godkjent'
-                    ? 'Fullt beløp'
-                    : opt.value === 'delvis'
-                      ? 'Redusert beløp'
-                      : 'Null'
-                  : opt.label,
+              label: vurderingLabel(opt, isSubsidiaer || linje.prekludert),
               icon: opt.icon ?? undefined,
               tone: opt.cls === 'yes' ? 'success' : opt.cls === 'partial' ? 'warning' : 'danger',
             }))}
@@ -747,24 +710,25 @@
             onclear={() => handleKravlinjeVurdering(linje.key, undefined)}
           />
           {#if linje.vurdering === 'delvis'}
-            <div class="number-field">
-              <div class="number-input-label">
-                {isSubsidiaer || linje.prekludert ? 'Subsidiært vurdert beløp' : 'Godkjent beløp'}
-              </div>
-              <div class="number-input-wrap">
-                {@render belopInput(
-                  linje.title,
-                  linje.godkjentBelop,
-                  linje.krevdBelop,
-                  (v) => handleKravlinjeBelop(linje.key, v),
-                  linje.key === 'produktivitet' ? klippBegrensetBelop : undefined
-                )}
-                <span class="number-input-suffix">kr</span>
-              </div>
-              {#if linje.krevdBelop}
-                <div class="number-input-ref">Av {fmt(linje.krevdBelop)} kr krevd</div>
-              {/if}
-            </div>
+            <BelopFelt
+              id={`bh-${linje.key}-godkjent`}
+              label={isSubsidiaer || linje.prekludert
+                ? 'Subsidiært vurdert beløp'
+                : 'Godkjent beløp'}
+              value={linje.godkjentBelop}
+              maks={linje.krevdBelop}
+              redusert={domainConfig.erKjernesak
+                ? {
+                    fullt: vurderingLabel(vurderingOptions[0], isSubsidiaer || linje.prekludert),
+                    null: vurderingLabel(vurderingOptions[2], isSubsidiaer || linje.prekludert),
+                  }
+                : undefined}
+              hint={linje.krevdBelop ? `Av ${visKroner(linje.krevdBelop)} kr krevd` : undefined}
+              tilgjengeligNavn={`${isSubsidiaer || linje.prekludert ? 'Subsidiært vurdert beløp' : 'Godkjent beløp'} for ${linje.title.toLowerCase()}`}
+              onchange={(v) => handleKravlinjeBelop(linje.key, v)}
+              onugyldig={(u) => (ugyldigeBelop[linje.key] = u)}
+              onblur={linje.key === 'produktivitet' ? klippBegrensetBelop : undefined}
+            />
           {/if}
           {#if linje.key === 'produktivitet' && computed.produktivitetPrekludert && linje.vurdering}
             {@const godtatt = beregnGodkjentBelop(
@@ -772,22 +736,16 @@
               linje.krevdBelop ?? 0,
               linje.godkjentBelop
             )}
-            <div class="number-field">
-              <div class="number-input-label">Godtas etter begrensningen</div>
-              <div class="number-input-wrap">
-                {@render belopInput(
-                  'Godtas etter begrensningen',
-                  produktivitetBegrensetBelop,
-                  godtatt,
-                  (v) => (produktivitetBegrensetBelop = v)
-                )}
-                <span class="number-input-suffix">kr</span>
-              </div>
-              <div class="number-input-ref">
-                Utgiftene som ikke er rammet av det sene varselet (§ 34.1.3), høyst {fmt(godtatt)} kr.
-                Kan være 0.
-              </div>
-            </div>
+            <BelopFelt
+              id="bh-produktivitet-begrenset"
+              label="Godtas etter begrensningen"
+              value={produktivitetBegrensetBelop}
+              maks={godtatt}
+              maksbetegnelse="det som godtas for posten"
+              hint={`Utgiftene som ikke er rammet av det sene varselet (§ 34.1.3), høyst ${visKroner(godtatt)} kr. Kan være 0.`}
+              onchange={(v) => (produktivitetBegrensetBelop = v)}
+              onugyldig={(u) => (ugyldigeBelop.begrenset = u)}
+            />
           {/if}
         {/snippet}
 
@@ -798,7 +756,7 @@
       </div>
     {/each}
 
-    {#if allAnswered || (akseptererMetode !== undefined && harVurdertHovedkrav)}
+    {#if begrunnelseVises}
       {#if kjernesak}
         {#if kjernelag && kjerneresultat}
           <div class="result-box konsekvens-{kjerneresultat.variant}">
@@ -1221,49 +1179,6 @@
     color: var(--ink-2);
   }
 
-  /* ── NumberInput ── */
-  .number-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-width: 240px;
-    margin-top: 14px;
-  }
-  .number-input-label {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
-  .number-input-wrap {
-    display: flex;
-    align-items: center;
-    gap: 0;
-  }
-  .number-input-wrap .font-mono.measurement-input {
-    border-radius: 4px 0 0 4px;
-    flex: 1;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .number-input-suffix {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink-3);
-    padding: 8px 12px;
-    background: var(--surface-inset);
-    border: var(--control-border);
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-    white-space: nowrap;
-  }
-  .number-input-ref {
-    font-size: 12px;
-    color: var(--ink-4);
-    margin-top: 2px;
-  }
   .result-box {
     margin-top: 24px;
     padding: 16px;

@@ -67,7 +67,7 @@ function skjemaOgBrev(journal: Journalrad[], s: VederlagFormState) {
     { vederlagKravId: 'krav', isUpdateMode: false },
     computed.subsidiaerTriggers
   );
-  const kommando = vederlagssvarFraSkjema(data, foer, KJERNE.regler.versjon);
+  const kommando = vederlagssvarFraSkjema(data, foer, KJERNE.regler);
   const etter = utledetMed(kommando, SAK, 'BH', journal, KJERNE);
   expect(etter, 'kjernen godtar svaret').not.toBeNull();
   const lag = vederlagslag(foer, etter!)!;

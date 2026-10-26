@@ -326,6 +326,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get regelversjon() {
       return kjerne.regler.versjon;
     },
+    /** Regelsettet kjernen regner BHs svar med før brevet (#1301). */
+    get regler() {
+      return kjerne.regler;
+    },
     get saksbilde() {
       return bilde;
     },

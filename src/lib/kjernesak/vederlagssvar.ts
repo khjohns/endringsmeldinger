@@ -3,7 +3,8 @@
  * med `VederlagDomainConfig`, og her bygges configen fra kjernens utledning, og
  * skjemaets data oversettes til kommandoen `brev` med ett `Svarutkast`. Rigg og drift
  * er ikke i kjernens format, så configen har ingen slik post og svaret sender ingen
- * `rigg_*` (#1171). Skjemaets resultat sendes og regnes på nytt av kjernen (B-13).
+ * `rigg_*` (#1171). Resultatet som sendes, regnes av kjernen fra vurderingene, ikke av
+ * skjemaet (#1301), og kjernen regner det på nytt når kommandoen tas imot (B-13).
  */
 
 import {
@@ -11,7 +12,6 @@ import {
   GRUNNLAGSRESULTAT_FRA_KATALOGEN,
   HOVEDKATEGORI_FRA_KATALOGEN,
   METODE_FRA_KATALOGEN,
-  RESULTAT_FRA_KATALOGEN,
   UNDERKATEGORI_FRA_KATALOGEN,
   fraKatalogen,
   tilKatalogen,
@@ -22,9 +22,13 @@ import {
   grunnerFraGrunnlaget,
   harHovedbeloep,
   laget,
+  regnUtSvar,
   standpunktet,
   type Svarvurdering,
 } from '$kjerne/frosset/standpunkt';
+import { UgyldigBeloep } from '$kjerne/regler/beloep';
+import { UgyldigVurdering } from '$kjerne/regler/feil';
+import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Subsidiaergrunn } from '$kjerne/regler/grunnlag';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import type { Krav, Svar } from '$kjerne/typer';
@@ -82,6 +86,7 @@ export function vederlagConfigFraKjernen(u: Utledning): VederlagDomainConfig | n
           grunnlag.resultat
         ) as VederlagDomainConfig['grunnlagStatus'])
       : undefined,
+    erKjernesak: true,
   };
 }
 
@@ -113,35 +118,51 @@ function vurderinger(d: Record<string, unknown>, krav: Krav): Svarvurdering {
 }
 
 /**
+ * Resultatet kjernen regner av vurderingene. Er de ugyldige, er det tomt, og kjernen avviser
+ * kommandoen med `UGYLDIG_VURDERING` og meldingen fra utregningen før brevet.
+ */
+function resultatet(
+  v: Svarvurdering,
+  krav: Krav,
+  u: Utledning,
+  regler: Regelsett
+): Record<string, unknown> {
+  try {
+    return regnUtSvar(
+      'vederlag',
+      v,
+      { krav, grunnlagskrav: u.spor.grunnlag.gjeldendeKrav },
+      regler
+    );
+  } catch (feil) {
+    if (feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep) return {};
+    throw feil;
+  }
+}
+
+/**
  * Kommandoen for BHs svar fra dataene `buildEventData` gir. Svaret gjelder kravet kjernen har
  * i sporet. Begrunnelsen BH skriver i skjemaet, blir utdypningen under den låste teksten
- * (KA-U24, KA-U41).
+ * (KA-U24, KA-U41). Resultatet regnes av kjernen (#1301), ikke av skjemaet.
  */
 export function vederlagssvarFraSkjema(
   data: Record<string, unknown>,
   u: Utledning,
-  regelversjon: number
+  regler: Regelsett
 ): { type: 'brev'; svar: Svarutkast[] } {
   const krav = u.spor.vederlag.gjeldendeKrav;
   if (!krav) throw new Error('Saken har ikke noe vederlagskrav å svare på.');
   const utdypning = letterText(data.begrunnelse ?? '').trim();
-  const resultat: Record<string, unknown> = {
-    resultat: fraKatalogen(RESULTAT_FRA_KATALOGEN, data.beregnings_resultat),
-    godkjent_beloep: data.total_godkjent_belop,
-  };
-  if (data.subsidiaer_resultat !== undefined) {
-    resultat.subsidiaert_resultat = fraKatalogen(RESULTAT_FRA_KATALOGEN, data.subsidiaer_resultat);
-    resultat.subsidiaert_godkjent_beloep = data.subsidiaer_godkjent_belop;
-  }
+  const v = vurderinger(data, krav);
   return {
     type: 'brev',
     svar: [
       {
         spor: 'vederlag',
         gjelder: krav.id,
-        regelversjon,
-        vurderinger: vurderinger(data, krav),
-        resultat,
+        regelversjon: regler.versjon,
+        vurderinger: v,
+        resultat: resultatet(v, krav, u, regler),
         ...(utdypning ? { utdypning } : {}),
       },
     ],

@@ -1065,6 +1065,27 @@
       "dato": "2026-10-11",
       "ref": "../plans/vedtak.md#lv-u2",
       "radetikett": "LV-U2: i et brev appen sender, godkjenner avsenderen brevteksten appen lager av brevets utsagn"
+    },
+    {
+      "id": "KA-U9",
+      "type": "vedtak",
+      "dato": "2026-10-09",
+      "ref": "../plans/vedtak.md#ka-u9",
+      "radetikett": "KA-U9: byggherrens standpunkt om beløp er et beløp med fortegn som ikke kan være gunstigere for TE enn kravet"
+    },
+    {
+      "id": "OV-U59",
+      "type": "vedtak",
+      "dato": "2026-10-25",
+      "ref": "../plans/vedtak.md#ov-u59",
+      "radetikett": "OV-U59: Løsningen sammenlikner beløpene i krav og svar i hele øre, uten avrunding til hele kroner"
+    },
+    {
+      "id": "KA-U42",
+      "type": "vedtak",
+      "dato": "2026-10-26",
+      "ref": "../plans/vedtak.md#ka-u42",
+      "radetikett": "KA-U42: For et positivt tilleggskrav er byggherrens beløpsvurdering av en post, prinsipalt og subsidiært, «avslått» ved 0 kr, «delvis» ved mer enn 0 kr og mindre enn det krevde beløpet, og «godkjent» ved det krevde beløpet"
     }
   ],
   "rader": [
@@ -3342,6 +3363,22 @@
         "OV-U19",
         "OV-U20",
         "OV-U4"
+      ],
+      "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-54",
+      "tilfelle": "Byggherren vurderer en post i et positivt tilleggskrav som «delvis», men godkjenner hele det krevde beløpet eller 0 kr, prinsipalt eller subsidiært etter en påberopt preklusjon etter § 34.1.2.",
+      "forventet": "Svaret avvises, fordi vurderingen motsier beløpet ([KA-U42](../plans/vedtak.md#ka-u42)). «Delvis» er mer enn 0 kr og mindre enn det krevde, sammenliknet i hele øre ([OV-U59](../plans/vedtak.md#ov-u59)), så 1 øre under det krevde godtas. Nullutfallet kjernen utleder av preklusjonen, kontrolleres ikke: «delvis» med et beløp i området godtas, og prinsipalt er utfallet 0 kr.",
+      "bh_standpunkt": "Beløpsvurderingen av posten, prinsipalt eller subsidiært.",
+      "rettslig_virkning": "Presiserer [KA-U9](../plans/vedtak.md#ka-u9). Avgjør ikke hva partene har avtalt.",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U42",
+        "KA-U9",
+        "OV-U59",
+        "KA-U4"
       ],
       "tolkningsstatus": "avklart_tolkning"
     }
