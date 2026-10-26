@@ -22,8 +22,8 @@ Etikettene er av fem typer:
 
 | Type | Hva den sier | Etikettene |
 | --- | --- | --- |
-| Lag | Hvilke deler av treet arbeidet rører | `kjerne`, `skjema-og-visning`, `ts-stien` |
-| Tema | Hva i domenet arbeidet gjelder | `grunnlag`, `vederlag`, `frist`, `registrerte-brev`, `brevtekst`, `godkjenning`, `vedlegg` |
+| Lag | Hvilke deler av treet arbeidet rører | `kjerne`, `skjema-og-visning`, `server-og-levering`, `database` |
+| Tema | Hva i domenet arbeidet gjelder | `grunnlag`, `vederlag`, `frist`, `registrerte-brev`, `brev`, `godkjenning`, `vedlegg` |
 | Spor | Et parallelt spor i hovedplanen, i stedet for en milepæl | `spor-d`, `spor-h`, `spor-m`, `papercut` |
 | Status | Hva issuet samler eller venter på | `beslutning`, `venter-på-beslutning`, `venter-på-rekkefølge` |
 | Opphav og del | Hvor issuet kom fra, eller hvilken del av en pakke det er | `review-oppfølging`, `design`, `design-blokker`, `design-bør`, `design-merknad`, `byggedel-1` til `byggedel-4` |
@@ -31,12 +31,12 @@ Etikettene er av fem typer:
 `feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`AGENTS.md`,
 «Miljø», og orkestreringsskillen, punkt 2).
 
-**Lag.** Et byggeissue i en milepæl får lagetiketten for hvert lag det rører. Runder
-settes sammen etter hvilke filer øktene rører ([orkestreringsskillen,
-punkt 1](../orkestrering/SKILL.md#1-kartlegg-før-du-fordeler)), og lagetiketten er det
-første utvalget. Avgjør laget ut fra mappene arbeidet rører, ikke ut fra ordet «TS».
-`ts-stien` gjelder TS-serveren, leveringen og rutingen. Den betyr ikke «TS-saken»:
-etter byttet i #310 er hele appen TS.
+**Lag.** Et byggeissue får lagetiketten for hvert lag det rører, enten det har en
+milepæl eller en sporetikett. Runder settes sammen etter hvilke filer øktene rører
+([orkestreringsskillen, punkt 1](../orkestrering/SKILL.md#1-kartlegg-før-du-fordeler)),
+og lagetiketten er det første utvalget. Avgjør laget ut fra mappene arbeidet rører, ikke
+ut fra ordet «TS»: etter byttet i #310 er hele appen TS. Et issue som bare dokumenterer
+et avvik i Python-stien etter DL-U2, er ikke et byggeissue og får ingen lagetikett.
 
 **Tema.** Settes når arbeidet gjelder et spor eller et tema. Et issue som gjelder hele
 saken eller hele prosjektet, får ingen.
@@ -74,7 +74,8 @@ Etikettene på et issue settes samlet med
 gjenstår i en pakke, er de åpne issuene i milepælen
 (`gh api "repos/khjohns/endringsmeldinger/milestones?state=open"` gir nummerne).
 Et oppfølgingsissue fra review får samme milepæl eller sporetikett som PR-en det kom fra
-(`AGENTS.md`, «Arbeidsform»).
+(`AGENTS.md`, «Arbeidsform»). En PR har sjelden egen milepæl eller sporetikett. Da hentes
+de fra issuet PR-en lukker eller er del av.
 
 ## Innholdet i et issue
 
@@ -96,5 +97,5 @@ Et oppfølgingsissue fra review får samme milepæl eller sporetikett som PR-en 
 - Bruk [PR-malen](../../../.github/pull_request_template.md), også gjennom API-et.
 - `Closes #n` når PR-en fullfører issuet, «Del av #n» når den leverer en del. Et
   oppfølgingsissue fra review lukkes aldri med `Closes` (`AGENTS.md`, «Arbeidsform»).
-- PR-en arver ikke etikettene fra issuet. Den får bare etiketter som styrer CI, som
-  `feilinnfoering`.
+- PR-en får ikke lag- og temaetikettene fra issuet. Den får bare etiketter som styrer
+  CI, som `feilinnfoering`. Milepælen og sporet står i issuet PR-en viser til.
