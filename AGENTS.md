@@ -270,6 +270,7 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
 | Episodene bak resonneringsreglene | [Resonnering-skillen](.claude/skills/resonnering/SKILL.md). Reglene står i «Resonneringsregler» |
 | Datamodellen: hver tabell, hendelsestype og relasjon, hvem som skriver, og hvilke kall til Catenda som leser eller skriver | Kilderegistrene `tabeller.toml`, `hendelser.toml`, `kjernehendelser.toml` (typene TS-kjernen skriver), `relasjoner.toml` og `dataflyt.toml` i `docs/datamodell/`, med skjemaet i `katalog.json`. Markdown og Excel lages av `docs/verktoy/datamodell.py`. Vakttester feiler når et register mangler en tabell, en type, en fremmednøkkel eller et kall, eller avviker fra koden eller migrasjonene |
 | Arbeid som pågår eller venter: hva, hvem, hvilken PR, hva det venter på | GitHub-issues, samlet i én milepæl per arbeidspakke |
+| Etikettene og milepælene, og formen på issues og PR-er | [GitHub-skillen](.claude/skills/github/SKILL.md). Reglene står her under «Hvor hva står» |
 
 - **Hovedplanen er autoritativ for funnstatus, sammen med arkivet for de avsluttede
   funnene, og vedtaksfila for vedtakene.** Sier et annet dokument noe annet,
@@ -291,13 +292,12 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
   en slik feil på en B-ID, får den `venter-på-beslutning`. Å nevne den i
   PR-beskrivelsen er ikke nok. Tilskriver du en feil testmiljøet, er det en
   påstand. Kontroller den, eller meld den.
-- **Hvert issue har en milepæl eller en sporetikett.** Milepælen er
-  arbeidspakken i hovedplanen; de parallelle sporene har `spor-d`, `spor-h`,
-  `spor-m` eller `papercut` i stedet. Venter et issue på rekkefølgen i AF-06,
-  får det `venter-på-rekkefølge`, som fjernes når hovedplanen har en datert
-  merknad om unntak. Et issue som samler grunnlaget for en B-ID, får `beslutning`.
-  Innenfor en milepæl kan etiketter dele pakken i deler, som `byggedel-1` til
-  `byggedel-4` og `ts-stien` i FK. Beskrivelsen av etiketten sier hva den dekker.
+- **Hvert issue har en milepæl eller en sporetikett, og et byggeissue har en
+  lagetikett for hvert lag det rører.** Milepælen er arbeidspakken i hovedplanen;
+  de parallelle sporene har `spor-d`, `spor-h`, `spor-m` eller `papercut` i
+  stedet. Beskrivelsen av etiketten på GitHub sier hva den dekker. Etikettene,
+  statusetikettene og når en ny lages, står i
+  [GitHub-skillen](.claude/skills/github/SKILL.md).
 - **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
   som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
   symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene
