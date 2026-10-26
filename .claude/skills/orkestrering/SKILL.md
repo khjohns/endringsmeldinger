@@ -492,5 +492,6 @@ og ta ikke en ny runde i samme økt.
 
 ## Milepæler og etiketter
 
-Reglene står i `AGENTS.md` under «Hvor hva står». Unntak fra rekkefølgen i AF-06
-står i hovedplanen, ikke i issuet.
+Reglene står i `AGENTS.md` under «Hvor hva står», og etikettene i
+[GitHub-skillen](../github/SKILL.md). Unntak fra rekkefølgen i AF-06 står i
+hovedplanen, ikke i issuet.
