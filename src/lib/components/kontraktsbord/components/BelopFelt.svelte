@@ -1,7 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import { lesKroner, visKroner } from '$lib/utils/belop';
-  import { fmt } from '../utils';
 
   /**
    * Beløpsfelt i kroner med høyst to desimaler (OV-U58). Det parten skriver, står i
@@ -45,7 +44,7 @@
     const l = lesKroner(tekst);
     if ('feil' in l) return l;
     if (l.verdi !== undefined && maks !== undefined && l.verdi > maks)
-      return { feil: `Beløpet er høyere enn ${maksbetegnelse}, ${fmt(maks)} kr.` };
+      return { feil: `Beløpet er høyere enn ${maksbetegnelse}, ${visKroner(maks)} kr.` };
     return l;
   });
   const feil = $derived('feil' in lest ? lest.feil : undefined);

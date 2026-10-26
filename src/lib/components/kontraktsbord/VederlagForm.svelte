@@ -4,6 +4,7 @@
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import YesNoControl from './components/YesNoControl.svelte';
   import BelopFelt from './components/BelopFelt.svelte';
+  import { visKroner } from '$lib/utils/belop';
   import { Check, X, CircleMinus } from 'lucide-svelte';
   import {
     beregnAlt,
@@ -705,7 +706,7 @@
                 : 'Godkjent beløp'}
               value={linje.godkjentBelop}
               maks={linje.krevdBelop}
-              hint={linje.krevdBelop ? `Av ${fmt(linje.krevdBelop)} kr krevd` : undefined}
+              hint={linje.krevdBelop ? `Av ${visKroner(linje.krevdBelop)} kr krevd` : undefined}
               tilgjengeligNavn={`${isSubsidiaer || linje.prekludert ? 'Subsidiært vurdert beløp' : 'Godkjent beløp'} for ${linje.title.toLowerCase()}`}
               onchange={(v) => handleKravlinjeBelop(linje.key, v)}
               onugyldig={(u) => (ugyldigeBeloep[linje.key] = u)}
@@ -724,7 +725,7 @@
               value={produktivitetBegrensetBelop}
               maks={godtatt}
               maksbetegnelse="det som godtas for posten"
-              hint={`Utgiftene som ikke er rammet av det sene varselet (§ 34.1.3), høyst ${fmt(godtatt)} kr. Kan være 0.`}
+              hint={`Utgiftene som ikke er rammet av det sene varselet (§ 34.1.3), høyst ${visKroner(godtatt)} kr. Kan være 0.`}
               onchange={(v) => (produktivitetBegrensetBelop = v)}
               onugyldig={(u) => (ugyldigeBeloep.begrenset = u)}
             />
