@@ -1834,6 +1834,9 @@ godtar tilbud (K). VS-U28 sier at kravet kan oppdateres når kostnadene er kjent
 hvordan det forholder seg til en enighet. Kartleggingen og regelspørsmålene står i #909, og de
 avgjøres i en egen vedtaksrunde.
 
+**Svar 26.10 (oppdragsgiver):** ja til begge arbeidsvalgene. Oppdragsgiver ordrett: «Ja det var
+de to arbeidsvalgene». Punkt 1 føres som arbeidsvalg i #818, og punkt 2 i #313.
+
 ## 4. Funnene som følger av gjeldende vedtak
 
 Disse rettes uten nytt vedtak. Ingen av dem rettes i denne PR-en.
