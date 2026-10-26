@@ -830,7 +830,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone: brevet sier at hele beløpet er godkjent, som utregningen (B-13, arbeidsvalget i #479)', () => {
+  it('§ 34.2.2 «nei» med et beløp 40 øre under det krevde: brevet sier «av de krevde», fordi beløpene sammenliknes i hele øre (OV-U59, arbeidsvalget i #479)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', {
       type: 'brev',
@@ -849,7 +849,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     expect(laast(rad)).toEqual([
-      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: ${FORBEHOLD_BREV_2} Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('124 999,60')}`,
+      `Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 3 av 3. oktober 2026: ${FORBEHOLD_BREV_2} Byggherren aksepterer ikke TEs tilbud (NS 8407 § 34.2.2 første ledd), og mener vederlaget skal justeres etter enhetspriser (NS 8407 § 34.3). Byggherren godkjenner ${KR('124 999,60')} av de krevde ${KR('125 000')}`,
     ]);
   });
 
@@ -870,7 +870,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(() => s.avvisning('BH', brev('abc'))).not.toThrow();
     expect(s.avvisning('BH', brev('abc'))).toEqual({
       regel: 'UGYLDIG_VURDERING',
-      melding: 'Vurderingene kan ikke regnes ut: ikke et tall: abc.',
+      melding: 'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_belop: er ikke et tall.',
     });
   });
 
@@ -964,30 +964,30 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone krever en begrunnelse for tilbudet, ikke for beløpet (B-13, arbeidsvalget 15.10 i #490)', () => {
+  it('§ 34.2.2 «nei» med hele beløpet godkjent krever en begrunnelse for tilbudet, og 40 øre under det krevde også for beløpet (OV-U59, arbeidsvalget 15.10 i #490)', () => {
     const s = sakMedKrav();
-    const brevet = (godkjent: number) => ({
+    const brevet = (vurdering: Record<string, unknown>, godkjent: number) => ({
       type: 'brev',
       svar: [
         svar(
           'vederlag',
           s.krav('vederlag'),
-          {
-            hovedkrav_vurdering: 'delvis',
-            hovedkrav_godkjent_belop: godkjent,
-            aksepterer_metode: false,
-            oensket_metode: 'enhetspriser',
-          },
+          { ...vurdering, aksepterer_metode: false, oensket_metode: 'enhetspriser' },
           { resultat: 'delvis_godkjent', godkjent_beloep: godkjent },
           null
         ),
       ],
     });
-    expect(s.avvisning('BH', brevet(124999.6))?.melding).toBe(
+    expect(s.avvisning('BH', brevet({ hovedkrav_vurdering: 'godkjent' }, 125000))?.melding).toBe(
       'Svaret må ha en begrunnelse, fordi det har et tilbud som ikke er akseptert (§ 34.2.2) (KA-U24, KA-U31).'
     );
-    // Kontrollsak: et beløp som ikke er godkjent fullt, til nærmeste krone, krever sin egen begrunnelse.
-    expect(s.avvisning('BH', brevet(124999.4))?.melding).toBe(
+    // OV-U59: et beløp som blir likt det krevde når det rundes til hele kroner, er ikke godkjent fullt.
+    expect(
+      s.avvisning(
+        'BH',
+        brevet({ hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_belop: 124999.6 }, 124999.6)
+      )?.melding
+    ).toBe(
       'Svaret må ha en begrunnelse, fordi det har et tilbud som ikke er akseptert (§ 34.2.2), et beløp som ikke er godkjent fullt (KA-U24, KA-U31).'
     );
   });
@@ -4505,7 +4505,7 @@ describe('en revisjon godtas bare i TEs favør (HF-U5, HF-U14, HF-U21, #502)', (
       expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(100000.49)))).toBe(
         'SENKER_INNROEMMELSE'
       );
-      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(100000.501))), 'kontrollsak').toBeNull();
+      expect(s.avvist('BH', revisjon(s, 'vederlag', beloep(100000.5))), 'kontrollsak').toBeNull();
     });
 
     it('aksepten av beregningsmåten kan ikke tas tilbake, men en aksept kan gis (HF-U14)', () => {
@@ -5688,5 +5688,178 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       expect(v.kravversjon).not.toBe(s.u().spor.vederlag.gjeldendeKrav!.id);
       expect(v.poster.map((p) => p.godkjent)).toEqual([100000, 30000]);
     });
+  });
+});
+
+/**
+ * #1301 (VG-F-01): vurderingen og beløpet byggherren oppgir for en post, må si det samme
+ * (KA-U9, B-13). OV-U58: beløpene oppgis i kroner med høyst to desimaler, og brøkdeler av
+ * øre avvises før beløpskontrollen og resultatet. OV-U59: beløpene sammenliknes i hele øre.
+ * Kravet i brev 5 er 150 000 kr for justeringen ellers og 40 000 kr for posten etter
+ * § 34.1.3 annet ledd. Rigg og drift er ikke i formatet (#1171) og prøves i `kjerne.test.ts`.
+ */
+describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58, OV-U59)', () => {
+  const sakMedPost = () => {
+    const s = sakMedKrav();
+    s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        metode: 'tilbud',
+        beloep: 150000,
+        saerskilt: { produktivitet: { beloep: 40000 } },
+      },
+    });
+    return s;
+  };
+  const godkjentPost = { produktivitet_vurdering: 'godkjent' };
+  const godkjentHovedkrav = { hovedkrav_vurdering: 'godkjent' };
+  const brevet = (s: ReturnType<typeof sak>, vurderinger: Data, resultat: Data) => ({
+    type: 'brev',
+    svar: [
+      svar(
+        'vederlag',
+        s.krav('vederlag'),
+        { aksepterer_metode: true, produktivitet_varslet_i_tide: true, ...vurderinger },
+        resultat
+      ),
+    ],
+  });
+  const fullt = { resultat: 'godkjent', godkjent_beloep: 190000 };
+
+  it.each([
+    ['hovedkrav', 'godkjent', 90000, godkjentPost],
+    ['hovedkrav', 'avslaatt', 10000, godkjentPost],
+    ['produktivitet', 'godkjent', 30000, godkjentHovedkrav],
+    ['produktivitet', 'avslaatt', 0.01, godkjentHovedkrav],
+  ] as const)(
+    '«%s» vurdert «%s» med %s kr avvises med UGYLDIG_VURDERING, også når resultatet er det serveren ellers ville regnet ut',
+    (post, vurdering, beloep, resten) => {
+      const s = sakMedPost();
+      const vurderinger = {
+        ...resten,
+        [`${post}_vurdering`]: vurdering,
+        [`${post}_godkjent_belop`]: beloep,
+      };
+      // Resultatet serveren regnet ut før #1301, når beløpet ble oversett, og resultatet av beløpet.
+      const forRetting =
+        vurdering === 'godkjent'
+          ? fullt
+          : { resultat: 'delvis_godkjent', godkjent_beloep: post === 'hovedkrav' ? 40000 : 150000 };
+      for (const resultat of [
+        forRetting,
+        { resultat: 'delvis_godkjent', godkjent_beloep: beloep },
+      ]) {
+        const a = s.avvisning('BH', brevet(s, vurderinger, resultat));
+        expect(a?.regel).toBe('UGYLDIG_VURDERING');
+        expect(a?.melding).toContain(`${post}_godkjent_belop: er ${beloep}, men vurderingen «`);
+      }
+      expect(s.u().spor.vederlag.gjeldendeSvar, 'ingenting er lagret').toBeNull();
+    }
+  );
+
+  it('meldingen sier posten, vurderingen og beløpene som motsier hverandre', () => {
+    const s = sakMedPost();
+    expect(
+      s.avvisning(
+        'BH',
+        brevet(
+          s,
+          { ...godkjentPost, hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 90000 },
+          fullt
+        )
+      )?.melding
+    ).toBe(
+      'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_belop: er 90000, men vurderingen «godkjent» gjelder hele det krevde beløpet, 150000.'
+    );
+  });
+
+  it('kontrollsakene godtas: «godkjent» uten beløp, «godkjent» med beløpet likt det krevde og «avslått» med 0', () => {
+    for (const hovedkrav of [
+      { hovedkrav_vurdering: 'godkjent' },
+      { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 150000 },
+      { hovedkrav_vurdering: 'godkjent', hovedkrav_godkjent_belop: 150000.0 },
+    ]) {
+      const s = sakMedPost();
+      expect(s.avvist('BH', brevet(s, { ...godkjentPost, ...hovedkrav }, fullt))).toBeNull();
+    }
+    const s = sakMedPost();
+    expect(
+      s.avvist(
+        'BH',
+        brevet(
+          s,
+          {
+            ...godkjentHovedkrav,
+            produktivitet_vurdering: 'avslaatt',
+            produktivitet_godkjent_belop: 0,
+          },
+          { resultat: 'delvis_godkjent', godkjent_beloep: 150000 }
+        )
+      )
+    ).toBeNull();
+  });
+
+  it('et godkjent beløp med brøkdeler av øre avvises og rundes ikke av, heller ikke til det krevde (OV-U58)', () => {
+    const s = sakMedPost();
+    const delvis = (beloep: number) =>
+      brevet(
+        s,
+        { ...godkjentPost, hovedkrav_vurdering: 'delvis', hovedkrav_godkjent_belop: beloep },
+        { resultat: 'delvis_godkjent', godkjent_beloep: Math.round(beloep * 100) / 100 + 40000 }
+      );
+    expect(s.avvisning('BH', delvis(100000.405))).toEqual({
+      regel: 'UGYLDIG_VURDERING',
+      melding:
+        'Vurderingene kan ikke regnes ut: hovedkrav_godkjent_belop: 100000.405 har brøkdeler av øre (OV-U58).',
+    });
+    // Rundet til hele øre ville beløpet vært det krevde, og svaret godkjent fullt uten begrunnelse.
+    expect(s.avvist('BH', delvis(149999.995))).toBe('UGYLDIG_VURDERING');
+    expect(s.avvist('BH', delvis(100000.4)), 'kontrollsak: 100 000 kr og 40 øre').toBeNull();
+  });
+
+  it('beløpet etter begrensningen etter § 34.1.3 med brøkdeler av øre avvises (OV-U58)', () => {
+    const s = sakMedPost();
+    const begrenset = (beloep: number) =>
+      brevet(
+        s,
+        {
+          ...godkjentHovedkrav,
+          produktivitet_vurdering: 'godkjent',
+          produktivitet_varslet_i_tide: false,
+          produktivitet_begrenset_belop: beloep,
+        },
+        {
+          resultat: 'delvis_godkjent',
+          godkjent_beloep: 150000 + beloep,
+          subsidiaert_resultat: 'godkjent',
+          subsidiaert_godkjent_beloep: 190000,
+        }
+      );
+    expect(s.avvisning('BH', begrenset(10000.001))?.melding).toBe(
+      'Vurderingene kan ikke regnes ut: produktivitet_begrenset_belop: 10000.001 har brøkdeler av øre (OV-U58).'
+    );
+    expect(s.avvist('BH', begrenset(10000.01)), 'kontrollsak').toBeNull();
+  });
+
+  it('et krevd beløp med brøkdeler av øre avvises i formen, i justeringen ellers og i posten (OV-U58)', () => {
+    const s = sakMedKrav();
+    const krav = (innhold: Data) => ({
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: { metode: 'tilbud', ...innhold },
+    });
+    expect(s.avvisning('TE', krav({ beloep: 100000.405 }))).toEqual({
+      regel: 'UGYLDIG_FORM',
+      melding:
+        '$.innhold.beloep: 100000.405 har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)',
+    });
+    expect(s.avvist('TE', krav({ saerskilt: { produktivitet: { beloep: 40000.001 } } }))).toBe(
+      'UGYLDIG_FORM'
+    );
+    expect(
+      s.avvist('TE', krav({ beloep: 100000.4 })),
+      'kontrollsak: 100 000 kr og 40 øre'
+    ).toBeNull();
   });
 });

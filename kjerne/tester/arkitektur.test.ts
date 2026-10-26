@@ -480,14 +480,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'versjon gjelderVarslingsplikten gjelderVarslingspliktenForVederlag gyldigeGrunnlagsresultater',
   ],
   ['regler/regelsett.ts', 'regelsett', 'GJELDENDE_REGLER'],
-  ['regler/beloep.ts', 'regelsett', 'beloep erEndelig tilKrone tilTall NULL_OERE'],
+  ['regler/beloep.ts', 'regelsett', 'beloep heleOere tilTall NULL_OERE'],
   ['regler/feil.ts', 'regelsett', 'UgyldigVurdering'],
   // #550: et beløp som ikke er et tall, avvises som en ugyldig vurdering.
   [
     'regler/beloep.ts',
     'regelsett',
     'UgyldigBeloep',
-    ['kommandoer/nyttelast.ts', 'frosset/standpunkt.ts'],
+    ['kommandoer/nyttelast.ts', 'frosset/standpunkt.ts', 'regler/vederlag.ts'],
+  ],
+  // OV-U58: brøkdeler av øre avvises og rundes ikke av.
+  [
+    'regler/beloep.ts',
+    'regelsett',
+    'BroekdelAvOere',
+    ['regler/vederlag.ts', 'kommandoer/kommando.ts'],
   ],
   [
     'regler/grunnlag.ts',
@@ -693,6 +700,25 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kommando',
     'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
     ['kommandoer/kommando.ts:datofeil'],
+  ],
+  // OV-U58: beløpene TE krever, som formkontrollen leser for å avvise brøkdeler av øre.
+  [
+    'kommandoer/kommando.ts:oerefeil(innhold)',
+    'kommando',
+    'beloep saerskilt',
+    ['kommandoer/kommando.ts:oerefeil'],
+  ],
+  [
+    'kommandoer/kommando.ts:oerefeil',
+    'kommando',
+    'produktivitet',
+    ['kommandoer/kommando.ts:oerefeil'],
+  ],
+  [
+    'kommandoer/kommando.ts:oerefeil.produktivitet',
+    'kommando',
+    'beloep',
+    ['kommandoer/kommando.ts:oerefeil'],
   ],
   [
     'Kommando.innhold',

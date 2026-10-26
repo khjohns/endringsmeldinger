@@ -89,6 +89,7 @@ describe('configen fra kjernen', () => {
       underkategori: 'GRUNN',
       grunnlagVarsletForSent: false,
       grunnlagStatus: undefined,
+      beloepIHeleOere: true,
     });
   });
 
@@ -286,5 +287,23 @@ describe('svaret gjennom kjernen', () => {
       epJusteringVarsletITide: undefined,
       begrunnelse: '',
     });
+  });
+});
+
+describe('skjemaet sammenlikner beløpene i hele øre, som kjernen (OV-U59)', () => {
+  it('40 øre under det krevde er «delvis godkjent», og kjernen skriver svaret', () => {
+    const { kommando, tekst } = svar(
+      medKrav({ beloep: 125_000 }),
+      state({
+        hovedkravVurdering: 'delvis',
+        hovedkravGodkjentBelop: 124_999.6,
+        produktivitetVurdering: undefined,
+      })
+    );
+    expect(kommando.svar[0].resultat).toMatchObject({
+      resultat: 'delvis_godkjent',
+      godkjent_beloep: 124_999.6,
+    });
+    expect(tekst).toContain('124 999,60 kr');
   });
 });

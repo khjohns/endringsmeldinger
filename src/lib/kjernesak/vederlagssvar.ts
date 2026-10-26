@@ -82,6 +82,7 @@ export function vederlagConfigFraKjernen(u: Utledning): VederlagDomainConfig | n
           grunnlag.resultat
         ) as VederlagDomainConfig['grunnlagStatus'])
       : undefined,
+    beloepIHeleOere: true,
   };
 }
 

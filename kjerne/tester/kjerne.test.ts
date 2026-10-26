@@ -2144,6 +2144,48 @@ describe('regelsettet for det særskilte kravet (VS-U5, OV-U27)', () => {
   });
 });
 
+// #1301: rigg og drift er ikke i formatet (#1171), så motstriden prøves i regelsettet.
+describe('rigg og drift: vurderingen må stemme med beløpet (#1301, KA-U9)', () => {
+  const krav = {
+    hovedkrav_belop: null,
+    metode: 'tilbud' as const,
+    rigg_belop: 20000,
+    produktivitet_belop: null,
+    krever_justert_ep: false,
+    kostnads_overslag: null,
+    hovedkategori: 'endring',
+    underkategori: null,
+    grunnlag_varslet_i_tide: null,
+    grunnlag_resultat: null,
+  };
+  const rigg = (vurdering: 'godkjent' | 'avslaatt', godkjent?: number) =>
+    beregnVederlag(
+      krav,
+      {
+        rigg_vurdering: vurdering,
+        rigg_godkjent_belop: godkjent,
+        rigg_varslet_i_tide: true,
+        aksepterer_metode: true,
+      },
+      GJELDENDE_REGLER
+    );
+
+  it('«godkjent» med et annet beløp og «avslått» med et beløp avvises', () => {
+    expect(() => rigg('godkjent', 15000)).toThrow(
+      'rigg_godkjent_belop: er 15000, men vurderingen «godkjent» gjelder hele det krevde beløpet, 20000'
+    );
+    expect(() => rigg('avslaatt', 15000)).toThrow(
+      'rigg_godkjent_belop: er 15000, men vurderingen «avslått» godkjenner 0'
+    );
+  });
+
+  it('kontrollsaker: «godkjent» uten beløp og med det krevde, «avslått» med 0', () => {
+    expect(rigg('godkjent').rigg_godkjent_belop).toBe(2000000n);
+    expect(rigg('godkjent', 20000).rigg_godkjent_belop).toBe(2000000n);
+    expect(rigg('avslaatt', 0).rigg_godkjent_belop).toBe(0n);
+  });
+});
+
 describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', () => {
   const utregning = {
     resultat: 'delvis_godkjent',

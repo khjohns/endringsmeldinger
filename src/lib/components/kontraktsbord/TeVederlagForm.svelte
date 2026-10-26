@@ -39,7 +39,7 @@
   import { fmt } from './utils.js';
   import FormPageHeader from './components/FormPageHeader.svelte';
   import FormSection from './components/FormSection.svelte';
-  import NumberField from './components/NumberField.svelte';
+  import BelopFelt from './components/BelopFelt.svelte';
   import ReasoningEditor from './components/ReasoningEditor.svelte';
   import SegmentedControl from './components/SegmentedControl.svelte';
   import SendtVarsel from './components/SendtVarsel.svelte';
@@ -145,6 +145,10 @@
     return 'Beløp';
   });
 
+  // OV-U58: et beløp som ikke kan leses, sendes ikke, og står i feltet til det er rettet.
+  let ugyldigeBeloep = $state<Record<string, boolean>>({});
+  const beloepeneKanLeses = $derived(!Object.values(ugyldigeBeloep).some(Boolean));
+
   const positivt = (v: number | undefined) => ((v ?? 0) > 0 ? v : undefined);
   // OV-U23: det krevde i TS-saken er hovedbeløpet og posten.
   const kravSum = $derived(
@@ -175,14 +179,15 @@
   );
 
   const kanSende = $derived(
-    kjernevalg
-      ? kjernevalg.includes(mode) &&
+    beloepeneKanLeses &&
+      (kjernevalg
+        ? kjernevalg.includes(mode) &&
           (mode === 'varsel' ||
             (registrerer && varselhindring(varselet, dagensDato()) === null) ||
             (mode === 'spesifisert' && metodeKanSendesTilKjernen(metode) && (kravSum ?? 0) > 0))
-      : mode === 'varsel'
-        ? Object.keys(noticeData).length > 0
-        : mappedState !== null && beregnCanSubmit(mappedState) && charCount >= 10
+        : mode === 'varsel'
+          ? Object.keys(noticeData).length > 0
+          : mappedState !== null && beregnCanSubmit(mappedState) && charCount >= 10)
   );
   const kjernedata = (): Vederlagsskjemadata =>
     registrerer
@@ -383,12 +388,12 @@
       {#if kjernesak}
         <p class="helptext">Kan stå tomt når kravet bare gjelder produktivitetstap.</p>
       {/if}
-      <NumberField
+      <BelopFelt
         id="te-hovedkrav"
         label={hovedkravLabel}
-        suffix="kr"
         value={hovedkravValue}
         onchange={handleHovedkravChange}
+        onugyldig={(u) => (ugyldigeBeloep['te-hovedkrav'] = u)}
       />
     </FormSection>
 
@@ -398,12 +403,12 @@
           Krav om justering for nedsatt produktivitet eller forstyrrelser på annet arbeid. Det
           særskilte varselet etter § 34.1.3 sendes for seg, som varsel.
         </p>
-        <NumberField
+        <BelopFelt
           id="te-produktivitet"
           label="Produktivitetstap"
-          suffix="kr"
           value={belopProduktivitet}
           onchange={(value) => (belopProduktivitet = value)}
+          onugyldig={(u) => (ugyldigeBeloep['te-produktivitet'] = u)}
         />
       </FormSection>
     {:else}
@@ -412,19 +417,19 @@
           Eventuelle tilleggskrav for rigg- og driftskostnader eller produktivitetstap.
         </p>
         <div class="saerskilt-grid">
-          <NumberField
+          <BelopFelt
             id="te-rigg"
             label="Rigg og drift"
-            suffix="kr"
             value={belopRigg}
             onchange={(value) => (belopRigg = value)}
+            onugyldig={(u) => (ugyldigeBeloep['te-rigg'] = u)}
           />
-          <NumberField
+          <BelopFelt
             id="te-produktivitet"
             label="Produktivitetstap"
-            suffix="kr"
             value={belopProduktivitet}
             onchange={(value) => (belopProduktivitet = value)}
+            onugyldig={(u) => (ugyldigeBeloep['te-produktivitet'] = u)}
           />
         </div>
       </FormSection>

@@ -3,7 +3,7 @@
  * `regler/vederlag.py`; beløp regnes i hele øre (`beloep.ts`).
  */
 
-import { beloep, erEndelig, NULL_OERE, tilKrone, type Oere } from './beloep.ts';
+import { beloep, BroekdelAvOere, heleOere, NULL_OERE, UgyldigBeloep, type Oere } from './beloep.ts';
 import type {
   Beloepsvurdering,
   Grunnlagsresultat,
@@ -164,13 +164,11 @@ function poster(v: Vederlagsvurdering, krav: Vederlagskrav, p: Preklusjon): Post
 const sum = (verdier: Oere[]) => verdier.reduce((a, b) => a + b, NULL_OERE);
 
 /**
- * B-13 (24.09): beløpet er godkjent fullt når det godkjente, til nærmeste krone, er
- * minst det krevde. Gjelder beløpet alene, også når tilbudet ikke er akseptert (§ 34.2.2).
- * Et avslag (0 kr) er aldri godkjent fullt, heller ikke av et krav under 0,50 kr.
+ * B-13, OV-U59: beløpet er godkjent fullt når det godkjente er minst det krevde, i hele øre.
+ * Gjelder beløpet alene, også når tilbudet ikke er akseptert (§ 34.2.2).
  */
 export function erBeloepetGodkjentFullt(krevd: Oere, godkjent: Oere): boolean {
-  if (godkjent === NULL_OERE) return false;
-  return tilKrone(godkjent) >= tilKrone(krevd);
+  return godkjent >= krevd;
 }
 
 /** B-13, HF-U5: «godkjent» bare når hele beløpet er godkjent og tilbudet akseptert (§ 34.2.2). */
@@ -197,29 +195,47 @@ export function subsidiaerTriggers(
 
 function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varslingsplikt): void {
   const feil: Record<string, string> = {};
+  /** OV-U58: beløpet parten sendte, i hele øre; ellers føres feilen for feltet. */
+  const lesOere = (felt: string, verdi: Tall): Oere | null => {
+    try {
+      return heleOere(verdi);
+    } catch (e) {
+      if (!(e instanceof UgyldigBeloep)) throw e;
+      feil[felt] =
+        e instanceof BroekdelAvOere
+          ? `${String(verdi)} har brøkdeler av øre (OV-U58)`
+          : 'er ikke et tall';
+      return null;
+    }
+  };
   const post = (
     navn: string,
     vurd: Beloepsvurdering | null | undefined,
     godkjent: Tall | null | undefined,
     krevd: Tall | null
   ) => {
+    const felt = `${navn}_godkjent_belop`;
     if (vurd === null || vurd === undefined) {
       feil[`${navn}_vurdering`] = 'mangler';
       return;
     }
     if (!erKravlinjeGyldig(vurd, godkjent)) {
-      feil[`${navn}_godkjent_belop`] = 'mangler ved delvis godkjenning';
+      feil[felt] = 'mangler ved delvis godkjenning';
       return;
     }
-    if (vurd === 'delvis') {
-      if (!erEndelig(godkjent)) {
-        feil[`${navn}_godkjent_belop`] = 'er ikke et tall';
-        return;
-      }
-      const g = beloep(godkjent as Tall)!;
-      if (g < NULL_OERE) feil[`${navn}_godkjent_belop`] = 'kan ikke være negativt';
-      else if (g > (beloep(krevd) ?? NULL_OERE))
-        feil[`${navn}_godkjent_belop`] = 'er høyere enn det krevde beløpet';
+    if (godkjent === null || godkjent === undefined) return;
+    const g = lesOere(felt, godkjent);
+    if (g === null) return;
+    const k = beloep(krevd) ?? NULL_OERE;
+    // #1301, KA-U9: vurderingen og beløpet byggherren oppgir for posten, må si det samme.
+    if (vurd === 'godkjent' && g !== k)
+      feil[felt] =
+        `er ${String(godkjent)}, men vurderingen «godkjent» gjelder hele det krevde beløpet, ${String(krevd)}`;
+    else if (vurd === 'avslaatt' && g !== NULL_OERE)
+      feil[felt] = `er ${String(godkjent)}, men vurderingen «avslått» godkjenner 0`;
+    else if (vurd === 'delvis') {
+      if (g < NULL_OERE) feil[felt] = 'kan ikke være negativt';
+      else if (g > k) feil[felt] = 'er høyere enn det krevde beløpet';
     }
   };
   if (harHovedkrav(krav))
@@ -254,19 +270,19 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
       feil.produktivitet_begrenset_belop = 'gjelder bare en påberopt begrensning (§ 34.1.3)';
   } else if (begrenset === null || begrenset === undefined) {
     feil.produktivitet_begrenset_belop = 'mangler (§ 34.1.3)';
-  } else if (!erEndelig(begrenset)) {
-    feil.produktivitet_begrenset_belop = 'er ikke et tall';
-  } else if (!feil.produktivitet_vurdering && !feil.produktivitet_godkjent_belop) {
-    const b = beloep(begrenset)!;
-    const krevd = beloep(krav.produktivitet_belop)!;
-    const godkjent = beregnGodkjentBeloep(
-      v.produktivitet_vurdering,
-      krevd,
-      beloep(v.produktivitet_godkjent_belop)
-    );
-    if (b < NULL_OERE) feil.produktivitet_begrenset_belop = 'kan ikke være negativt';
-    else if (b > godkjent)
-      feil.produktivitet_begrenset_belop = 'er høyere enn det byggherren godtar for posten';
+  } else {
+    const b = lesOere('produktivitet_begrenset_belop', begrenset);
+    if (b !== null && !feil.produktivitet_vurdering && !feil.produktivitet_godkjent_belop) {
+      const krevd = beloep(krav.produktivitet_belop)!;
+      const godkjent = beregnGodkjentBeloep(
+        v.produktivitet_vurdering,
+        krevd,
+        beloep(v.produktivitet_godkjent_belop)
+      );
+      if (b < NULL_OERE) feil.produktivitet_begrenset_belop = 'kan ikke være negativt';
+      else if (b > godkjent)
+        feil.produktivitet_begrenset_belop = 'er høyere enn det byggherren godtar for posten';
+    }
   }
   if (v.hold_tilbake && !kanHoldeTilbake(krav)) {
     feil.hold_tilbake = 'bare ved regningsarbeid uten kostnadsoverslag (§ 30.2)';
