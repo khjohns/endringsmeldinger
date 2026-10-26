@@ -405,20 +405,23 @@
             </div>
           {/if}
           {#if kravkontroll?.letter}
-            {#if akseptetiketter.length}
-              <div class="svar-etiketter" role="note">
-                <strong>Om svaret du godtar</strong>
-                <ul>
-                  {#each akseptetiketter as e (e.kode)}<li>{e.tekst}</li>{/each}
-                </ul>
-              </div>
-            {/if}
             <Brevkontroll
               brev={kravkontroll.letter}
               beskrivelse="Brevet sendes først når du bekrefter."
               onbekreft={kravkontroll.confirm}
               onavbryt={kravkontroll.cancel}
-            />
+            >
+              {#snippet merknad()}
+                {#if akseptetiketter.length}
+                  <div class="svar-etiketter" role="note">
+                    <strong>Om svaret du godtar</strong>
+                    <ul>
+                      {#each akseptetiketter as e (e.kode)}<li>{e.tekst}</li>{/each}
+                    </ul>
+                  </div>
+                {/if}
+              {/snippet}
+            </Brevkontroll>
           {/if}
           {#if claimReview}<ClaimLetterView review={claimReview} />{/if}
           <!-- Hidden, not unmounted, while the letter is checked: the form's submission resumes on confirm. -->
@@ -620,7 +623,7 @@
   }
   .svar-etiketter {
     margin-bottom: 12px;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border: var(--rule);
     border-radius: 8px;
     background: var(--surface-inset);
@@ -629,7 +632,7 @@
   }
   .svar-etiketter ul {
     margin: 4px 0 0;
-    padding-left: 18px;
+    padding-left: 20px;
   }
   .work[hidden] {
     display: none;

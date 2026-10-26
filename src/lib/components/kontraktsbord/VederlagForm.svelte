@@ -197,7 +197,7 @@
   // til. «Begrunnelsen» fordi feltet heter det. Tilfellet med særskilte vilkår venter på OV-U49.
   const BINDER = {
     alltid:
-      'Virkningen av svaret regnes ut fra valgene over. Begrunnelsen tolkes ikke. Byggherren er bundet av svaret som sendes herfra.',
+      'Virkningen av svaret regnes ut fra valgene over. Utdypningen tolkes ikke. Byggherren er bundet av svaret som sendes herfra.',
     // Bare når kjernen forhåndsviser sammenfall, ikke bare hele beløpet (GR-U7).
     sammenfall:
       'Svaret gir sammenfall med TEs krav om vederlag etter valgene over. Enighet registreres uten at TE må godta svaret, og svaret kan ikke revideres.',
@@ -1342,7 +1342,6 @@
     background: var(--surface-inset);
   }
   .td-lagnavn {
-    padding: 6px 12px;
     font-size: 12px;
     font-weight: 600;
     color: var(--ink-3);

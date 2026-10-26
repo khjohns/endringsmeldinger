@@ -296,14 +296,18 @@
     padding: 8px 16px;
     font-size: 13px;
   }
+  /* Får ikke knappene plass ved statusteksten, legges de på egen linje. */
   .action-inner {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px 16px;
   }
   .status-section {
     display: flex;
+    flex: 1 1 240px;
+    min-width: 0;
     align-items: center;
     gap: 12px;
   }
@@ -331,6 +335,8 @@
   }
   .action-buttons {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
     margin-left: auto;
   }
