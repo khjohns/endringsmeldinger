@@ -1259,7 +1259,7 @@ står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
 | B-05 bevaring, B-11 tidskilde | Eksport og bevaring i F4, og produksjonsporten |
 | B-16 korrigering av låste opplysninger | Korrigeringsfunksjon og avklaring før produksjon |
 
-> **Merknad 26.10:** Etter [OV-U56](vedtak.md#ov-u56) må det som står åpent av B-16, være avgjort før første ekte sak, ikke først før produksjon.
+> **Merknad 26.10:** Etter [OV-U56](vedtak.md#ov-u56) må det som står åpent av B-16, være avgjort for den manuelle prosessen før første ekte sak, ikke først før produksjon.
 
 ## 7. Catenda: leveringsgarantier
 

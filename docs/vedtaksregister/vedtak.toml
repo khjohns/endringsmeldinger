@@ -9408,7 +9408,7 @@ Spørsmål 5. TEs opplysning om mottaksdato eller kunnskapsdato i grunnlagskrave
 **Forholdet til andre vedtak.** Snevrer inn MM-U21 for datoopplysningen i VS-U26, og snevrer inn GR-U22. Presiserer VS-U26. Utvider OV-U3 og LV-U4. OV-U11 står. OV-U41 avgjøres i alternativ E.'''
 valgt = "D"
 svar = '''
-«Enig med dere». Spørsmål 5, alternativ D: ja.'''
+«Enig med dere». Spørsmål 5, alternativ D: ja. Det erstatter 5-A.'''
 forhold = [{ art = "opphever", vedtak = "ov-u51" }, { art = "snevrer inn", vedtak = "mm-u21" }, { art = "snevrer inn", vedtak = "gr-u22" }, { art = "presiserer", vedtak = "vs-u26" }, { art = "utvider", vedtak = "ov-u3" }, { art = "utvider", vedtak = "lv-u4" }]
 folge = '''
 Bygges i #1308.'''
@@ -9552,7 +9552,7 @@ Leveransekravet, alternativene
 **Forholdet til andre vedtak.** Endrer leveransekravet i svaret 25.10 på spørsmål 5b.'''
 valgt = "L2"
 svar = '''
-«Enig med dere». Leveransekravet: L2. Rettingen av varseldatoen etter OV-U11 bygges før første ekte sak: ja. Den står i L2.'''
+«Enig med dere». Leveransekravet: L2. L1 er forkastet. Rettingen av varseldatoen etter OV-U11 bygges før første ekte sak: ja. Den står i L2.'''
 forhold = [{ art = "endrer", vedtak = "ov-u54" }]
 folge = '''
 Bygges i #276. Rettingen av varseldatoen etter OV-U11 bygges i #1309.'''
@@ -9582,7 +9582,7 @@ Feil hjemmel eller feil endringsordre før første ekte sak.
 **Forholdet til andre vedtak.** Presiserer GR-U22 og GR-U19. I tråd med svaret 25.10 på spørsmål 8.'''
 valgt = "H2"
 svar = '''
-«Enig med dere». Feil hjemmel eller feil endringsordre: H2.'''
+«Enig med dere». Feil hjemmel eller feil endringsordre: H2. H1 er forkastet.'''
 forhold = [{ art = "presiserer", vedtak = "gr-u22" }, { art = "presiserer", vedtak = "gr-u19" }]
 folge = '''
 I tråd med svaret 25.10 på spørsmål 8. Bygges i #569.'''
