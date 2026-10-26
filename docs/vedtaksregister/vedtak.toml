@@ -8974,7 +8974,7 @@ forhold = [
   { art = "presiserer", vedtak = "mm-u12" },
 ]
 folge = '''
-Prinsippvedtak. Grunnlaget, forløpene, sparringen og de åpne beslutningene står i [spørsmålene](../vedlegg/metodevalg-vederlag-2026-10-26/sporsmal.md). Detaljene avgjøres før de berørte handlingene tas i bruk, i #1289, #1290, #1291, #1292, #1293 og #1294. Revisjonsvernet etter HF-U5 må være avklart i #502 først. Bygges i #1295, #1296, #1297, #1298 og #1299. Prinsipp 5 bygges med EO-sakene (OV-U1).'''
+Prinsippvedtak. Grunnlaget, forløpene, sparringen og de åpne beslutningene står i [spørsmålene](../vedlegg/metodevalg-vederlag-2026-10-26/sporsmal.md). Detaljene avgjøres før de berørte handlingene tas i bruk, i #502, #1289, #1290, #1291, #1292, #1293 og #1294. Bygges i #1295, #1296, #1297, #1298 og #1299. Prinsipp 5 bygges med EO-sakene (OV-U1).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A som lagt fram"
