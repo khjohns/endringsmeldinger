@@ -156,6 +156,35 @@ describe('vederlagskravet fra Kontrollrommet', () => {
     expect((kommando.brevtekst as string[]).join('')).toBe(laast);
   });
 
+  it('desimalkommaet bevares: 100 000,40 sendes som 100 000 kroner og 40 øre (OV-U58, #1285)', async () => {
+    const { send } = await vis('TE');
+    await fireEvent.click(screen.getByRole('button', { name: 'Send varsel eller krav' }));
+    const felt = screen.getByLabelText('Fast sum');
+    const knapp = screen.getByRole('button', { name: 'Se brev og send' });
+
+    // Brøkdeler av øre avvises med en feil ved feltet, og teksten står som TE skrev den.
+    await fireEvent.input(felt, { target: { value: '100 000,405' } });
+    await fireEvent.blur(felt);
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Beløpet kan ha høyst to sifre etter kommaet (øre).'
+    );
+    expect(felt).toHaveValue('100 000,405');
+    expect(felt).toHaveAttribute('aria-invalid', 'true');
+    expect(knapp).toBeDisabled();
+
+    await fireEvent.input(felt, { target: { value: '100 000,40' } });
+    expect(screen.queryByRole('alert')).toBeNull();
+    await fireEvent.click(knapp);
+    const kontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
+    expect(kontroll.getByTestId('laast-tekst')).toHaveTextContent(/100\s000,40 kr/);
+    await fireEvent.click(kontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' }));
+    await fireEvent.click(kontroll.getByRole('button', { name: 'Send til byggherren' }));
+    await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
+    expect(send.mock.calls[0][3]).toMatchObject({
+      innhold: { metode: 'tilbud', beloep: 100000.4 },
+    });
+  });
+
   it('TEs begrunnelse følger kravet som utdypning (oppdragsgiver 17.10)', async () => {
     const user = userEvent.setup();
     const { send } = await vis('TE');

@@ -20,7 +20,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart grunnlag og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934). For
@@ -1670,17 +1670,19 @@ const MUTASJONER: Mutasjon[] = [
         "const resultat = p.resultat === 'godkjent'",
       ],
     ],
-    mal: [
-      '§ 34.2.2 «nei» med hele beløpet godkjent',
-      '§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone',
-    ],
+    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent: brevet'],
   },
   {
     id: 'F203',
-    feilklasse: 'hele beløpet regnes i øre, ikke til nærmeste krone (B-13)',
+    feilklasse: 'hele beløpet sammenliknes til nærmeste krone, ikke i hele øre (OV-U59)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['return tilKrone(godkjent) >= tilKrone(krevd);', 'return godkjent >= krevd;']],
-    mal: ['§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone'],
+    endringer: [
+      ['return godkjent >= krevd;', 'return (godkjent + 50n) / 100n >= (krevd + 50n) / 100n;'],
+    ],
+    mal: [
+      '§ 34.2.2 «nei» med et beløp 40 øre under det krevde',
+      '§ 34.2.2 «nei» med hele beløpet godkjent krever en begrunnelse',
+    ],
   },
   {
     id: 'F204',
@@ -1744,7 +1746,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F212',
     feilklasse:
-      'et beløp som er godkjent fullt til nærmeste krone, krever en begrunnelse når tilbudet ikke er akseptert (B-13, #490)',
+      'hele beløpet godkjent krever en begrunnelse for beløpet når tilbudet ikke er akseptert (B-13, #490)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
@@ -1752,7 +1754,7 @@ const MUTASJONER: Mutasjon[] = [
         "if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')",
       ],
     ],
-    mal: ['§ 34.2.2 «nei» med beløpet godkjent til nærmeste krone krever en begrunnelse'],
+    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent krever en begrunnelse'],
   },
   {
     id: 'F213',
@@ -1761,13 +1763,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [["lag === 2 ? 'subsidiært' : 'videre subsidiært'", "'subsidiært'"]],
     mal: ['linjen ordner byggherrens standpunkter'],
-  },
-  {
-    id: 'F214',
-    feilklasse: 'et avslag (0 kr) av et krav under 0,50 kr regnes som hele beløpet (B-13, KA-U24)',
-    fil: `${K}/regler/vederlag.ts`,
-    endringer: [['  if (godkjent === NULL_OERE) return false;\n', '']],
-    mal: ['avslag på et krav under 0,50 kr'],
   },
   {
     id: 'F215',
@@ -2149,14 +2144,11 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F256',
-    feilklasse: 'et beløp som ikke er et tall, gir en feil på serveren, ikke en avvisning (#550)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        'if (feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep)',
-        'if (feil instanceof UgyldigVurdering)',
-      ],
-    ],
+    feilklasse: 'et beløp som ikke er et tall, avvises uten at meldingen sier feltet (#550)',
+    // `kontroller` leser hvert beløp med `lesOere` før utregningen (#1301). Uten den fanger
+    // `kontrollerSvar` i nyttelast.ts feilen, med meldingen fra `heleOere`.
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['if (!(e instanceof UgyldigBeloep)) throw e;', 'throw e;']],
     mal: ['et godkjent beløp som ikke er et tall, avvises som en ugyldig vurdering'],
   },
   {
@@ -3637,6 +3629,97 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       '§ 34.1.2 «nei»: byggherren påberoper prinsipalt at varselet kom for sent',
       'bare § 34.1.3 påberopt: justeringen ellers er upåvirket',
+    ],
+  },
+  {
+    id: 'F415',
+    feilklasse: '«godkjent» med et annet beløp enn det krevde godtas (#1301, KA-U9)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      ["    if (vurd === 'godkjent' && g !== k)", "    if (vurd === 'godkjent' && false)"],
+    ],
+    mal: [
+      '«hovedkrav» vurdert «godkjent»',
+      '«produktivitet» vurdert «godkjent»',
+      'meldingen sier posten, vurderingen og beløpene',
+      '«godkjent» med et annet beløp og «avslått» med et beløp avvises',
+    ],
+  },
+  {
+    id: 'F416',
+    feilklasse: '«avslått» med et beløp som ikke er 0, godtas (#1301, KA-U9)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        "    else if (vurd === 'avslaatt' && g !== NULL_OERE)",
+        "    else if (vurd === 'avslaatt' && false)",
+      ],
+    ],
+    mal: [
+      '«hovedkrav» vurdert «avslaatt»',
+      '«produktivitet» vurdert «avslaatt»',
+      '«godkjent» med et annet beløp og «avslått» med et beløp avvises',
+    ],
+  },
+  {
+    id: 'F417',
+    feilklasse: 'et beløp med brøkdeler av øre rundes av til hele øre (OV-U58)',
+    fil: `${K}/regler/beloep.ts`,
+    endringer: [
+      [
+        '    if (streng && tall % deler !== 0n) throw new BroekdelAvOere(`${tekst} har brøkdeler av øre`);\n',
+        '',
+      ],
+    ],
+    mal: [
+      'et godkjent beløp med brøkdeler av øre avvises',
+      'beløpet etter begrensningen etter § 34.1.3 med brøkdeler av øre avvises',
+      'et krevd beløp med brøkdeler av øre avvises',
+    ],
+  },
+  {
+    id: 'F418',
+    feilklasse: 'formkontrollen av vederlagskravet godtar brøkdeler av øre (OV-U58)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        "    if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));\n",
+        '',
+      ],
+    ],
+    mal: ['et krevd beløp med brøkdeler av øre avvises'],
+  },
+  {
+    id: 'F419',
+    feilklasse: '«delvis» med hele det krevde beløpet godtas (#1301, KA-U42)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['(g === k || g === NULL_OERE)', '(false || g === NULL_OERE)']],
+    mal: [
+      '«hovedkrav» vurdert «delvis» med 150000 kr avvises',
+      '«produktivitet» vurdert «delvis» med 40000 kr avvises',
+      '«delvis» med det krevde eller 0 kr avvises for hver post',
+      'F-MM-KA-U42',
+    ],
+  },
+  {
+    id: 'F420',
+    feilklasse: '«delvis» med 0 kr godtas (#1301, KA-U42)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['(g === k || g === NULL_OERE)', '(g === k || false)']],
+    mal: [
+      '«hovedkrav» vurdert «delvis» med 0 kr avvises',
+      '«produktivitet» vurdert «delvis» med 0 kr avvises',
+      '«delvis» med det krevde eller 0 kr avvises for hver post',
+      'F-MM-KA-U42',
+    ],
+  },
+  {
+    id: 'F421',
+    feilklasse: 'påberopelsen etter § 33.6.2 tredje ledd krever ingen begrunnelse (KA-U24, VS-U17)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (v.foresporsel_svar_ok === false)\n', 'if (false)\n']],
+    mal: [
+      'KA-U24: et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent',
     ],
   },
 ];

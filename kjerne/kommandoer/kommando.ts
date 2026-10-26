@@ -19,6 +19,7 @@ import {
   TEKST,
 } from '../format/format.ts';
 import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
+import { BroekdelAvOere, heleOere } from '../regler/beloep.ts';
 import type { Svarvurdering } from '../frosset/standpunkt.ts';
 import {
   KRAVSPOR,
@@ -310,6 +311,30 @@ function datofeil(innhold: Innhold): string[] {
     : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
 }
 
+/** OV-U58: beløpene TE krever, i hele øre. Formatet har allerede kontrollert at de er tall. */
+function oerefeil(innhold: Innhold): string[] {
+  const beloepene: [string, unknown][] = [
+    ['$.innhold.beloep', innhold.beloep],
+    [
+      '$.innhold.saerskilt.produktivitet.beloep',
+      (innhold.saerskilt as { produktivitet?: { beloep?: unknown } } | undefined)?.produktivitet
+        ?.beloep,
+    ],
+  ];
+  return beloepene.flatMap(([sti, verdi]) => {
+    if (typeof verdi !== 'number') return [];
+    try {
+      heleOere(verdi);
+      return [];
+    } catch (e) {
+      if (!(e instanceof BroekdelAvOere)) throw e;
+      return [
+        `${sti}: ${verdi} har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)`,
+      ];
+    }
+  });
+}
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -322,6 +347,7 @@ export function formfeil(kommando: unknown): string[] {
     const { properties, required, anyOf } = KRAVINNHOLD[k.spor];
     feil.push(...feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'));
     if (k.spor === 'grunnlag' && !feil.length) feil.push(...datofeil(k.innhold as Innhold));
+    if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
   }

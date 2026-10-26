@@ -60,6 +60,11 @@ export interface VederlagDomainConfig {
   underkategori?: string;
   grunnlagVarsletForSent: boolean;
   grunnlagStatus?: 'godkjent' | 'avslatt' | 'frafalt';
+  /**
+   * Saken er en TS-sak (B-17): skjemaet godtar «delvis» bare med mer enn 0 kr og mindre enn
+   * det krevde (KA-U42). Python-saken viser ikke feilen (DL-U2).
+   */
+  erKjernesak?: boolean;
 }
 
 /**

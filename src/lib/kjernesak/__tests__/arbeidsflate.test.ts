@@ -113,8 +113,8 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
       sammenfall: false,
       rader: [{ saerskilt: false, begrenset: false, beloep: 100000, etikett: null }],
     });
-    // B-13: et resultat som ikke stemmer med beløpet, avvises, og skjemaet viser ingen lag.
-    expect(bh.vederlagslag({ ...data, beregnings_resultat: 'godkjent' })).toBeNull();
+    // KA-U42: «delvis» med hele det krevde beløpet avvises, og skjemaet viser ingen lag.
+    expect(bh.vederlagslag({ ...data, hovedkrav_godkjent_belop: 250000 })).toBeNull();
   });
 
   it('kjernen tilbyr ikke et nytt svar når kravet er besvart (ALLEREDE_SVART)', async () => {
@@ -156,7 +156,34 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     expect(kommando.svar[0].utdypning).toBe('Godtatt.');
   });
 
-  it('et svar med et annet beløp enn kjernen regner ut, sendes ikke, og feilen sier hva som hindrer (B-13)', async () => {
+  it('resultatet skjemaet regnet, sendes ikke: brevet og kommandoen har kjernens resultat for vurderingene (#1301)', async () => {
+    const send = vi
+      .fn()
+      .mockResolvedValue({ event_id: 'e-ny', leveringsoppdrag: 'l-ny', versjon: 9 });
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      hent: async () => svar(medVederlag, 'BH'),
+      send,
+    });
+    await kjernesak.last();
+    const kontroll = lagKravkontroll(kjernesak);
+    const sending = kontroll.submit('vederlag', 'respons_vederlag', {
+      hovedkrav_vurdering: 'godkjent',
+      aksepterer_metode: true,
+      beregnings_resultat: 'avslatt',
+      total_godkjent_belop: 1,
+      begrunnelse: '<p>Godtatt.</p>',
+    });
+    await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
+    expect(kontroll.letter!.tekst.join(' ')).toMatch(/Byggherren godkjenner 250\s000\skr/);
+    kontroll.confirm();
+    await sending;
+    const kommando = send.mock.calls[0][3] as { svar: Record<string, unknown>[] };
+    expect(kommando.svar[0].resultat).toEqual({ resultat: 'godkjent', godkjent_beloep: 250000 });
+  });
+
+  it('vurderinger kjernen avviser, sendes ikke, og feilen sier hva som hindrer (KA-U42)', async () => {
     const send = vi.fn();
     const kjernesak = lagKjernesak({
       sakId: SAK,
@@ -167,12 +194,12 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     await kjernesak.last();
     await expect(
       lagKravkontroll(kjernesak).submit('vederlag', 'respons_vederlag', {
-        hovedkrav_vurdering: 'godkjent',
+        hovedkrav_vurdering: 'delvis',
+        hovedkrav_godkjent_belop: 0,
         aksepterer_metode: true,
-        beregnings_resultat: 'godkjent',
-        total_godkjent_belop: 1,
+        begrunnelse: '<p>Delvis.</p>',
       })
-    ).rejects.toThrow(/godkjent_beloep=250000/);
+    ).rejects.toThrow(/hovedkrav_godkjent_belop: er 0, men vurderingen «delvis»/);
     expect(send).not.toHaveBeenCalled();
   });
 
@@ -206,11 +233,7 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     expect(send).not.toHaveBeenCalled();
 
     // A1: forhåndsvisningen viser teksten før begrunnelsen er skrevet.
-    const utenBegrunnelse = vederlagssvarFraSkjema(
-      delvis,
-      kjernesak.utledning!,
-      kjernesak.regelversjon
-    );
+    const utenBegrunnelse = vederlagssvarFraSkjema(delvis, kjernesak.utledning!, kjernesak.regler);
     expect(kjernesak.brev(utenBegrunnelse)).toHaveProperty('tekst');
 
     const sending = kontroll.submit('vederlag', 'respons_vederlag', {

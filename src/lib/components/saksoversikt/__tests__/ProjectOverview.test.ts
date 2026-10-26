@@ -142,22 +142,24 @@ it('utvalgene viser betydningen og velger sakene etter det som foreligger (MM-U2
   expect(screen.queryByRole('link', { name: 'Åpne sak KOE-2024-047' })).not.toBeInTheDocument();
 });
 
-it('nøkkeltallene er serverens: krav og virksom enighet hver for seg, betinget og subsidiært under (MM-U28)', () => {
+const tallFraServeren = {
+  ...demoNoekkeltall(saker),
+  ikke_forstaatt: 1,
+  vederlag: {
+    krav_antall: 3,
+    krav_sum: 1_500_000,
+    venter_paa_svar: 1,
+    svar_subsidiaert_sum: 600_000,
+    enighet_virksom_sum: 200_000,
+    enighet_betinget_sum: 50_000,
+    enighet_uten_beloep: 2,
+  },
+};
+
+it('nøkkeltallene er serverens: krav og virksom enighet hver for seg, betinget, uten beløp og subsidiært særskilt (OV-U61)', () => {
   render(ProjectOverview, {
     saker,
-    noekkeltall: {
-      ...demoNoekkeltall(saker),
-      ikke_forstaatt: 1,
-      vederlag: {
-        krav_antall: 3,
-        krav_sum: 1_500_000,
-        venter_paa_svar: 1,
-        svar_subsidiaert_sum: 600_000,
-        enighet_virksom_sum: 200_000,
-        enighet_betinget_sum: 50_000,
-        enighet_uten_beloep: 2,
-      },
-    },
+    noekkeltall: tallFraServeren,
     prosjektId: 'P001',
     prosjektNavn: 'Testprosjekt',
   });
@@ -166,9 +168,51 @@ it('nøkkeltallene er serverens: krav og virksom enighet hver for seg, betinget 
   expect(tall.getByText('3 krav · 1 venter på svar')).toBeInTheDocument();
   expect(tall.getByText(/1\s500\s000/)).toBeInTheDocument();
   expect(tall.getByText(/^200\s000/)).toBeInTheDocument();
-  expect(tall.getByText(/Betinget: 50\s000 kr/)).toBeInTheDocument();
-  expect(tall.getByText(/Subsidiært svar fra BH: 600\s000 kr/)).toBeInTheDocument();
-  expect(tall.getByText('2 uten beløp')).toBeInTheDocument();
+  const del = (navn: string) => tall.getByText(navn).nextElementSibling?.textContent;
+  expect(del('Betinget enighet')).toMatch(/^50\s000 kr$/);
+  expect(del('Enighet uten beløp')).toBe('2 saker');
+  expect(del('Subsidiært svar fra BH, ikke godtatt av TE')).toMatch(/^600\s000 kr$/);
+});
+
+it('nøkkeltallene sier hva summene bygger på, og at det subsidiære svaret ikke er enighet (OV-U61)', () => {
+  render(ProjectOverview, {
+    saker,
+    noekkeltall: tallFraServeren,
+    prosjektId: 'P001',
+    prosjektNavn: 'Testprosjekt',
+  });
+  const tall = within(screen.getByLabelText('Nøkkeltall for hele prosjektet'));
+  expect(
+    tall.getByText(/^TEs gjeldende krav, også krav BH har svart på eller partene er enige om\./)
+  ).toHaveTextContent(
+    /Trukne krav og saker avsluttet ved et godtatt avslag på grunnlaget eller et trukket grunnlag er ikke med\./
+  );
+  expect(tall.getByText(/^Virksom enighet slik oversikten leser svarene/)).toHaveTextContent(
+    /TE har godtatt svaret, eller svaret stemmer med kravet\./
+  );
+  expect(
+    tall.getByText(/^Hele beløpet i svarene, også poster som er godkjent prinsipalt\./)
+  ).toHaveTextContent(/Beløpet er ikke enighet\./);
+  const merknad = screen.getByText(/som oversikten ikke forstår/);
+  expect(merknad).toHaveTextContent(/^1 sak som oversikten ikke forstår, er ikke med i summene\./);
+  expect(merknad).toHaveTextContent(
+    /Krav i flere saker kan gjelde samme kostnad, og oversikten kontrollerer det ikke\./
+  );
+  expect(merknad).toHaveTextContent(
+    /Kompensasjonen for rigg og drift i uendret byggetid er ikke med\./
+  );
+});
+
+it('uten saker løsningen ikke forstår, nevner merknaden ingen slike saker (OV-U61)', () => {
+  render(ProjectOverview, {
+    saker,
+    noekkeltall: { ...tallFraServeren, ikke_forstaatt: 0 },
+    prosjektId: 'P001',
+    prosjektNavn: 'Testprosjekt',
+  });
+  const merknad = screen.getByText(/Krav i flere saker kan gjelde samme kostnad/);
+  expect(merknad.textContent?.trim()).toMatch(/^Krav i flere saker/);
+  expect(screen.queryByText(/ikke forstår/)).toBeNull();
 });
 
 it('uten aktiviteten fra serveren er fanen skjult, og aktivitetssiden sier at den ikke finnes ennå (#1041)', () => {

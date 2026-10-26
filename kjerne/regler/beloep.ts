@@ -12,8 +12,14 @@ const DESIMALTALL = /^([+-]?)(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/i;
 
 export class UgyldigBeloep extends Error {}
 
-/** Heltall skalert med 10^skala, avrundet halv opp bort fra null. */
-function skaler(tekst: string, skala: number): bigint {
+/** OV-U58: beløpet har brøkdeler av øre og rundes ikke av. */
+export class BroekdelAvOere extends UgyldigBeloep {}
+
+/**
+ * Heltall skalert med 10^skala, avrundet halv opp bort fra null. Med `streng` kastes
+ * `UgyldigBeloep` i stedet for å runde av (OV-U58).
+ */
+function skaler(tekst: string, skala: number, streng = false): bigint {
   const treff = DESIMALTALL.exec(tekst.trim());
   if (!treff || (treff[2] === '' && (treff[3] ?? '') === '')) {
     throw new UgyldigBeloep(`ikke et tall: ${tekst}`);
@@ -29,6 +35,7 @@ function skaler(tekst: string, skala: number): bigint {
     const deler = 10n ** BigInt(-forskyvning);
     const tall = BigInt(sifre);
     resultat = tall / deler;
+    if (streng && tall % deler !== 0n) throw new BroekdelAvOere(`${tekst} har brøkdeler av øre`);
     if ((tall % deler) * 2n >= deler) resultat += 1n;
   }
   return fortegn === '-' ? -resultat : resultat;
@@ -46,8 +53,13 @@ export function beloep(verdi: number | string | null | undefined): Oere | null {
   return skaler(tekst(verdi), 2);
 }
 
-export function erEndelig(verdi: unknown): boolean {
-  return typeof verdi === 'number' ? Number.isFinite(verdi) : verdi !== null && verdi !== undefined;
+/**
+ * OV-U58: beløpet parten sendte, i hele øre uten avrunding. Avsluttende nuller godtas;
+ * brøkdeler av øre kaster `UgyldigBeloep`.
+ */
+export function heleOere(verdi: number | string | null | undefined): Oere | null {
+  if (verdi === null || verdi === undefined) return null;
+  return skaler(tekst(verdi), 2, true);
 }
 
 export function tilKrone(oere: Oere): bigint {

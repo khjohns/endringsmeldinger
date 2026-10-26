@@ -186,9 +186,7 @@ export function lagKjernesakflate(kjernesak: Kjernesakkontekst, projectId: strin
     vederlagslag(data: Record<string, unknown>): Vederlagslag | null {
       const u = projeksjon.utledning;
       if (!u.spor.vederlag.gjeldendeKrav) return null;
-      const etter = kjernesak.forhaandsvist(
-        vederlagssvarFraSkjema(data, u, kjernesak.regelversjon)
-      );
+      const etter = kjernesak.forhaandsvist(vederlagssvarFraSkjema(data, u, kjernesak.regler));
       return etter ? vederlagslag(u, etter) : null;
     },
     /** Byggherrens gjeldende svar i sporet når kjernen tilbyr TE å godta det (KA-U10), ellers `null`. */

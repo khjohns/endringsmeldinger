@@ -575,7 +575,7 @@ describe('TE-skjemaene leser kjernen (#1062)', () => {
   it('en ny versjon av vederlagskravet starter med beløpet i gjeldende krav (#718)', async () => {
     await vis(medVederlag, 'vederlag');
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
-    expect(screen.getByLabelText('Fast sum')).toHaveValue('250000');
+    expect(screen.getByLabelText('Fast sum')).toHaveValue('250\u00a0000');
   });
 });
 
@@ -811,7 +811,7 @@ describe('det særskilte kravet og varselet etter § 34.1.3 annet ledd (#1047)',
   it('en ny versjon av kravet starter med posten i gjeldende krav, uten hovedbeløp (OV-U23)', async () => {
     await vis(medPosten, 'vederlag');
     await fireEvent.click(screen.getByRole('button', { name: 'Send ny versjon av kravet' }));
-    expect(screen.getByLabelText('Produktivitetstap')).toHaveValue('40000');
+    expect(screen.getByLabelText('Produktivitetstap')).toHaveValue('40\u00a0000');
     expect(screen.getByLabelText('Fast sum')).toHaveValue('');
   });
 

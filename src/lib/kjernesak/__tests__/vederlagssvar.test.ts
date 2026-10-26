@@ -68,7 +68,7 @@ function svar(journal: Journalrad[], s: VederlagFormState) {
     { vederlagKravId: 'krav', isUpdateMode: false },
     computed.subsidiaerTriggers
   );
-  const kommando = vederlagssvarFraSkjema(data, u, KJERNE.regler.versjon);
+  const kommando = vederlagssvarFraSkjema(data, u, KJERNE.regler);
   const etter = skrevet(journal, 'BH', kommando);
   // Beløpene har hardt mellomrom som tusenskille.
   const tekst = laastTekst(etter.at(-1)!)!.join('\n').replace(/\s/g, ' ');
@@ -89,6 +89,7 @@ describe('configen fra kjernen', () => {
       underkategori: 'GRUNN',
       grunnlagVarsletForSent: false,
       grunnlagStatus: undefined,
+      erKjernesak: true,
     });
   });
 
@@ -258,7 +259,7 @@ describe('svaret gjennom kjernen', () => {
         begrunnelse: '<p>Godtatt.</p>',
       },
       u,
-      KJERNE.regler.versjon
+      KJERNE.regler
     );
     expect(JSON.stringify(kommando)).not.toMatch(/rigg_/);
   });
@@ -286,5 +287,60 @@ describe('svaret gjennom kjernen', () => {
       epJusteringVarsletITide: undefined,
       begrunnelse: '',
     });
+  });
+});
+
+describe('resultatet som sendes, regnes av kjernen (#1301)', () => {
+  it('40 øre under det krevde er «delvis godkjent» etter OV-U59, også når skjemaet runder til nærmeste krone (B-13), og kjernen skriver svaret', () => {
+    const { kommando, tekst } = svar(
+      medKrav({ beloep: 125_000 }),
+      state({
+        hovedkravVurdering: 'delvis',
+        hovedkravGodkjentBelop: 124_999.6,
+        produktivitetVurdering: undefined,
+      })
+    );
+    expect(kommando.svar[0].resultat).toMatchObject({
+      resultat: 'delvis_godkjent',
+      godkjent_beloep: 124_999.6,
+    });
+    expect(tekst).toContain('124 999,60 kr');
+  });
+
+  it('resultatet skjemaet regnet, sendes ikke: kommandoen har kjernens resultat for vurderingene', () => {
+    const u = utledJournal(medKrav({ beloep: 150_000 }), KJERNE);
+    const kommando = vederlagssvarFraSkjema(
+      {
+        beregnings_resultat: 'avslatt',
+        total_godkjent_belop: 0,
+        hovedkrav_vurdering: 'godkjent',
+        hovedkrav_varslet_i_tide: true,
+        aksepterer_metode: true,
+        begrunnelse: '<p>Godtatt.</p>',
+      },
+      u,
+      KJERNE.regler
+    );
+    expect(kommando.svar[0].resultat).toEqual({ resultat: 'godkjent', godkjent_beloep: 150_000 });
+  });
+
+  it('vurderinger kjernen ikke kan regne ut, gir ikke noe resultat, og kjernen avviser svaret med UGYLDIG_VURDERING (KA-U42)', () => {
+    const journal = medKrav({ beloep: 150_000 });
+    const u = utledJournal(journal, KJERNE);
+    const kommando = vederlagssvarFraSkjema(
+      {
+        hovedkrav_vurdering: 'delvis',
+        hovedkrav_godkjent_belop: 0,
+        hovedkrav_varslet_i_tide: true,
+        aksepterer_metode: true,
+        begrunnelse: '<p>Delvis.</p>',
+      },
+      u,
+      KJERNE.regler
+    );
+    expect(kommando.svar[0].resultat).toEqual({});
+    expect(() => skrevet(journal, 'BH', kommando)).toThrow(
+      /Vurderingene kan ikke regnes ut: .*«delvis»/
+    );
   });
 });

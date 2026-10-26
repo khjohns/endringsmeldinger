@@ -635,7 +635,7 @@ function standpunkttekst(
         : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, ${dager(p.dager!)} (NS 8407 § 33.6.1).`;
     case 'beloep': {
       // Uten aksept av tilbudet er resultatet aldri «godkjent» (§ 34.2.2), men hele beløpet
-      // kan være det, til nærmeste krone som i B-13. OV-U28: med posten etter § 34.1.3 annet
+      // kan være det, i hele øre (B-13, OV-U59). OV-U28: med posten etter § 34.1.3 annet
       // ledd sier brevet beløpet for hver post for seg.
       const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdBeloep(krav);
       const godkjent = beloep(p.godkjent)!;

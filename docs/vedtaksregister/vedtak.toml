@@ -971,6 +971,60 @@ tekst = '''
 Appen fyller inn et forslag til begrunnelse, rettet til samme ordlyd og bestemmelse som den låste teksten.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+id = "KA-U42"
+dato = 2026-10-26
+hvem = "oppdragsgiver"
+kilde = ["#1301"]
+sporsmal = '''
+Byggeøkta har to domenespørsmål før den bygger beløpskontrollen. Begge gjelder hva «delvis» betyr etter KA-U9, så jeg stiller dem her i teksten og ikke med spørsmålsverktøyet.
+
+**Spørsmål 1. Byggherren vurderer en post som «delvis», men godkjenner hele beløpet TE krevde.**
+I dag godtar løsningen svaret og regner resultatet som «godkjent». Etter KA-U9 er standpunktet «godkjent» når beløpene er like, og «delvis» når byggherrens beløp er mindre gunstig for TE. Et beløp over det krevde avvises allerede.
+- **A (anbefalt):** svaret avvises fordi vurderingen motsier beløpet, på samme måte som «godkjent» med et annet beløp. Beløpene sammenliknes i hele øre (OV-U59). Byggherren må da velge «godkjent» eller rette beløpet. Det følger av ordlyden i KA-U9 og av regelen om at det kjernen ikke kan tolke, avvises. Det er også slik #1301 er formulert: «Avgjør KA-U9 resultatet, avvises det med samme kontroll.»
+- **B:** svaret godtas som i dag, og resultatet blir «godkjent». Brevet sier da «delvis» om et standpunkt løsningen leser som full godkjenning.
+
+**Spørsmål 2. Byggherren vurderer en post som «delvis», men godkjenner 0 kr.**
+I dag godtas svaret, og resultatet blir «avslått». KA-U9 sier ikke at dette er motstrid: 0 kr er mindre gunstig for TE enn kravet. #1301 nevner ikke tilfellet.
+- **A (anbefalt):** ingen endring i denne PR-en. Svaret godtas som i dag, og tilfellet føres under «Åpne spørsmål» i PR-en, så det kan avgjøres senere.
+- **B:** svaret avvises som motstrid mellom «delvis» og et avslag.
+
+Etter det første svaret la orkestratoren fram et forslag til vedtakstekst, med to presiseringer: om regelen også gjelder byggherrens subsidiære beløpsvurdering (anbefalt ja), og at beløpene måles i hele øre etter OV-U59. Forslaget:
+
+> **Presiserer KA-U9.** For et positivt tilleggskrav er byggherrens beløpsvurdering av en post, prinsipalt og subsidiært, «avslått» ved 0 kr, «delvis» ved mer enn 0 kr og mindre enn det krevde beløpet, og «godkjent» ved det krevde beløpet, sammenliknet i hele øre (OV-U59). En vurdering som motsier beløpet, avvises (spørsmål 1: A, spørsmål 2: B). Regelen gjelder ikke et nullutfall kjernen utleder av en innsigelse, som preklusjon etter § 34.1.2.
+
+**Forholdet til andre vedtak.** presiserer KA-U9. I tråd med OV-U59.'''
+valgt = "1A og 2B"
+svar = '''
+«1A og 2B, med avgrensningen til positive tilleggskrav. «Delvis» betyr da at byggherren godkjenner mer enn 0 kr og mindre enn det krevde beløpet for posten. Dette gjelder beløpsvurderingen, ikke et utledet nullutfall som følge av en innsigelse. Presiseringen av KA-U9 føres uttrykkelig.»
+
+«Ja, regelen bør gjelde både prinsipale og subsidiære beløpsvurderinger, sammenliknet i hele øre. «Delvis» bør bety det samme i begge tilfellene.
+
+Forslaget holder. Jeg ville bare fjernet «(spørsmål 1: A, spørsmål 2: B)» fra selve vedtaksteksten; det hører til beslutningsgrunnlaget.
+
+Én presisering til forklaringen: Ved påberopt preklusjon kan byggherren fortsatt ha vurdert beløpet subsidiært. Kontrollen gjelder denne beløpsvurderingen, men ikke nullutfallet løsningen utleder av innsigelsen. Forslagets siste setning ivaretar dette.»'''
+forhold = [{ art = "presiserer", vedtak = "ka-u9" }]
+folge = '''
+I tråd med OV-U59. Bygges i #1301.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1A og 2B"
+tekst = '''
+For et positivt tilleggskrav er byggherrens beløpsvurdering av en post, prinsipalt og subsidiært, «avslått» ved 0 kr, «delvis» ved mer enn 0 kr og mindre enn det krevde beløpet, og «godkjent» ved det krevde beløpet, sammenliknet i hele øre (OV-U59). En vurdering som motsier beløpet, avvises. Regelen gjelder ikke et nullutfall kjernen utleder av en innsigelse, som preklusjon etter § 34.1.2.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1B"
+tekst = '''
+Svaret godtas som i dag, og resultatet blir «godkjent». Brevet sier da «delvis» om et standpunkt løsningen leser som full godkjenning.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2A"
+tekst = '''
+Ingen endring i denne PR-en. Svaret godtas som i dag, og tilfellet føres under «Åpne spørsmål» i PR-en, så det kan avgjøres senere.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Aksept og enighet"
 

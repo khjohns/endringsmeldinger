@@ -11702,6 +11702,193 @@
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U42",
+      "forslag": "#1301: «delvis» med hele det krevde beløpet eller 0 kr motsier beløpet, prinsipalt og subsidiært; nullutfallet etter § 34.1.2 kontrolleres ikke",
+      "rader": [
+        "KA-54"
+      ],
+      "start": null,
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "grunnlag",
+          "hovedkategori": "svikt",
+          "underkategori": "medvirkning",
+          "navn": "K-g1"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "belop": 100000,
+          "navn": "K-v1"
+        },
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "grunnlag",
+              "navn": "S-g1",
+              "resultat": "godkjent"
+            },
+            {
+              "spor": "vederlag",
+              "navn": "S-v1",
+              "vurdering": "delvis",
+              "godkjent_belop": 60000,
+              "varslet_i_tide": false
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U42"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent"
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 100000,
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U42"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent"
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 0,
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U42",
+            "KA-U4"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent"
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 100000,
+                "varslet_i_tide": false
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U42",
+            "KA-U4"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent"
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 0,
+                "varslet_i_tide": false
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "UGYLDIG_VURDERING"
+          }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": [
+            "KA-U42",
+            "OV-U59"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "grunnlag",
+                "resultat": "godkjent"
+              },
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 99999.99,
+                "varslet_i_tide": true
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false
+          }
+        },
+        {
+          "etter": 3,
+          "rolle": "mal",
+          "kilde": [
+            "KA-U42",
+            "KA-U4"
+          ],
+          "forventet": {
+            "avvist": false
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "genererte": {
