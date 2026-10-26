@@ -123,6 +123,18 @@ to forløp til. Alle punktene holdt, og rettingene er tatt inn i punkt 1, 4, 4b,
    noe lag, så standpunktene faller sammen. TE har da ikke godtatt påberopelsen. Godtar TE et
    svar uten sammenfall, omfatter aksepten påberopelsen (KA-U1) (V).
 
+Den tredje sparringen leste punktene som ble rettet i commit `887a233`. Svaret står ordrett
+nederst. En subagent prøvde det mot vedtakene og koden. Det holdt, med to presiseringer:
+«forutsetningene» er ikke et begrep løsningen har, og vilkårene følger standpunktet om regelen
+fordi løsningen ikke kan skille ut hvilke vilkår som gjelder regelen. Rettingene er tatt inn i
+punkt 4, 4b, 5, 7, 8, 13 og 14. To forløp til ble prøvd:
+
+9. **Et standpunkt med vilkår møter en ny kravversjon.** Byggherren er enig i regningsarbeid
+   under et vilkår. TE sender en ny kravversjon som krever regningsarbeid, men godtar ikke
+   vilkåret. Etter 4b-A slik det sto, kunne regelen stå mens vilkåret falt bort (V).
+10. **Akseptfristen går ut i et blandet svar.** Etter punkt 5 slik det sto, var det uklart om
+    fristen gjaldt regelen. Etter HF-U18 står svaret fortsatt som gjeldende svar (V).
+
 ## Brukerforløpet
 
 Forslaget følger det brukeren skal få gjort:
@@ -353,8 +365,10 @@ viser skjemaet hvert standpunkt aksepten omfatter, og sier det uttrykkelig når 
 avkall. Utenom det tilfellet er aksepten ikke et avkall, og et tilbud er ikke akseptert.
 
 En revisjon som endrer byggherrens standpunkt fra enig i TEs regel til den andre regelen,
-avvises. Det motsatte er tillatt. Når byggherren har avslått et tilbud, kan en revisjon bytte
-regelen byggherren oppgir, fordi ingen av dem er innrømmet TE.
+avvises (HF-U5, HF-U14). Det motsatte er tillatt. Har byggherren avslått et tilbud og oppgitt en
+regel, avvises en revisjon som oppgir den andre regelen, fordi standpunktet er et tilbud TE kan
+godta, og løsningen ikke kan se at byttet er i TEs favør (HF-U6). En revisjon som aksepterer
+tilbudet, er tillatt.
 
 Byggherren kan gjøre standpunktet avhengig av vilkår etter svaret 25.10 om vilkår.
 
@@ -362,7 +376,8 @@ Forhold: endrer arbeidsvalget i #479, slik at standpunktet ikke har beløp og og
 som ikke er tilbud; LV-U31 og LV-U32 står for tilbud; utvider LV-U4 punkt 5 og punkt 6 med
 brevtekstene; utvider HF-U14 til standpunktet om beregningsregelen; presiserer HF-U5, HF-U7,
 HF-U9 og HF-U10 for sammenfall og aksept av et standpunkt om beregningsregelen; presiserer
-KA-U1, GR-U7 og HF-U8 for standpunktet om beregningsregelen; presiserer HF-U7 og VS-U28 for
+KA-U1, GR-U7 og HF-U8 for standpunktet om beregningsregelen; anvender HF-U5 og HF-U6 på
+regelen byggherren oppgir når et tilbud avslås; presiserer HF-U7 og VS-U28 for
 en påberopelse etter § 34.4; presiserer OV-U37, OV-U38 og OV-U39 for et krav der det øvrige
 vederlaget ikke er et tilbud, i tråd med OV-U25 og OV-U36; utvider svaret 25.10 om vilkår til
 et standpunkt som ikke godkjenner noe beløp.»
@@ -372,6 +387,13 @@ samme brevtekstene, men svaret har også et beløp, som i dag. Godkjenner bygghe
 beløpet TE har oppgitt, er partene enige om beløpet (HF-U7, HF-U9). Godtar TE et svar som
 avviker, er partene enige om svarets beløp. Forhold: som A, men arbeidsvalget i #479 står for
 beløpet, og HF-U9 og HF-U10 gjelder uendret.»
+
+**Variant av A, revisjon etter et avslått tilbud:** «… Har byggherren avslått et tilbud, kan en
+revisjon av det svaret bytte regelen byggherren oppgir. Adgangen opphører når TE godtar svaret,
+og når TE sender en kravversjon som krever regelen byggherren oppga (punkt 4b). Skjemaet for
+revisjonen sier: «TE kan ha innrettet seg etter regelen i brev <n> av <dato>.» Forhold:
+snevrer inn HF-U6 for regelen byggherren oppgir ved avslag av et tilbud.» Kostnaden: TE kan ha
+begynt å føre timelister og varsle etter § 34.4 i tillit til regelen byggherren oppga.
 
 **Hva valget styrer:**
 
@@ -401,19 +423,46 @@ beløpet, og HF-U9 og HF-U10 gjelder uendret.»
   etter § 34.4. Vil TE ikke godta påberopelsen, må TE sende en ny kravversjon om
   regningsarbeid, og standpunktet om regelen faller da bort.
 
-**Alternativ A (foreslått):** «Sender TE en ny kravversjon som krever den regelen byggherren
-har sagt seg enig i eller oppgitt, faller byggherrens standpunkt om at den regelen gjelder, ikke
-bort med svaret. Et svar på den nye versjonen som tar den andre regelen, avvises som en
-revisjon som senker det byggherren har innrømmet (HF-U5). Resten av svaret faller bort etter
-HF-U8. Forhold: utvider unntaket i HF-U8 og utvider HF-U14 til standpunktet om
-beregningsregelen.»
+**Alternativ A (foreslått):** «Sender TE en ny kravversjon som krever den regelen byggherren har sagt seg enig i eller
+oppgitt i et svar som fortsatt binder byggherren (HF-U5), faller byggherrens standpunkt om at
+den regelen gjelder, ikke bort med svaret. Standpunktet består med alle vilkårene i svaret etter
+svaret 25.10 om vilkår, med samme nummer. Løsningen skiller ikke ut hvilke vilkår som gjelder
+regelen. Den nye kravversjonen er ikke en aksept av standpunktet, av innsigelsene i svaret eller
+av vilkårene, og den gjør ikke standpunktet ubetinget (KA-U1, HF-U7). Et standpunkt som var
+subsidiært, blir ikke prinsipalt av den nye kravversjonen. Resten av svaret faller bort etter
+HF-U8, også beløpet for posten for rigg og drift i forlenget byggetid, en påberopelse av
+preklusjon og en påberopelse etter § 34.4. Byggherren kan gjenta innsigelsene etter HF-U4 og
+HF-U5.
+
+Standpunktet som består, er ikke et svar TE kan godta. Sporet venter på byggherrens svar, og en
+aksept av det tidligere svaret avvises (KA-U1, HF-U8). Visningen sier ved kravet: «Byggherrens
+standpunkt om beregningsregelen i brev <n> av <dato> står, med vilkårene i brevet.»
+
+Byggherrens svar på den nye versjonen sammenliknes med standpunktet som består, som i en
+revisjon (HF-U5, HF-U14). Et svar som tar den andre regelen, avvises. Svaret gjengir hvert
+vilkår med samme nummer, eller frafaller det ved et uttrykkelig valg per nummer, med brevteksten
+for frafall i svaret 25.10 om vilkår. Løsningen slutter ikke at et vilkår er frafalt fordi det
+mangler. Byggherren kan også frafalle vilkår i et eget utsagn etter svaret 25.10 om vilkår før
+det nye svaret sendes, men et frafall i det tidligere svaret gir ikke sammenfall. Et nytt vilkår
+kan føres opp bare når byggherren for det vilkåret opplyser at det ikke gjelder standpunktet om
+beregningsregelen. Spørsmålet har ingen forhåndsvalg, og løsningen kontrollerer ikke
+opplysningen.
+
+Bindingen varer til TE godtar et svar i sporet, til TE sender en kravversjon som krever et
+tilbud eller den andre regelen, til TE trekker kravet, eller til en ny grunnlagsversjon med
+en annen hjemmel (HF-U1, HF-U21). Før TE sender en kravversjon som krever en annen regel enn
+standpunktet som består, sier skjemaet: «Byggherren har i brev <n> av <dato> sagt seg enig i
+[oppgitt] at vederlaget skal justeres <…>. Krever du en annen regel, faller standpunktet bort.»
+Forhold: utvider unntaket i HF-U8; utvider HF-U14 til standpunktet om beregningsregelen;
+anvender svaret 25.10 om vilkår på et standpunkt som består etter en ny kravversjon og
+presiserer frafallet der; HF-U4, HF-U5 og KA-U1 står.»
 
 **Alternativ B:** «HF-U8 gjelder uendret. Sender TE en ny kravversjon, sier skjemaet:
 «Byggherrens svar faller bort, også standpunktet om beregningsregelen. Byggherren svarer på
 nytt og er ikke bundet av det.» Forhold: presiserer HF-U8.»
 
 **Hva valget styrer:** under A binder standpunktet om regelen byggherren også etter en ny
-kravversjon. Det går ut over avtaleloven § 5 og er kostnaden for byggherren. Til gjengjeld kan
+kravversjon, med vilkårene det ble gitt under. Det går ut over avtaleloven § 5 og er kostnaden for byggherren. Til gjengjeld kan
 TE oppdatere rigg-posten eller avvise en påberopelse etter § 34.4 uten å miste et standpunkt om
 regelen som alt er gitt. Under B må TE velge mellom å godta hele svaret og å risikere at
 byggherren skifter standpunkt om regelen.
@@ -431,25 +480,60 @@ byggherren skifter standpunkt om regelen.
 - Et standpunkt om beregningsregelen har ikke beløp etter punkt 4A.
 - Spørsmålet er N3 i #909.
 
-**Alternativ A (foreslått):** «Et svar som tar standpunkt til beregningsregelen uten å
-godkjenne et beløp, har ingen akseptfrist for dette standpunktet. Det gjelder også når
-standpunktet ikke stemmer med kravet eller har vilkår etter svaret 25.10 om vilkår. Om TE
-godtar innen rimelig tid etter avtaleloven § 3, avgjør ikke løsningen (MM-U12). Godkjenner
-svaret også et beløp for posten for rigg og drift og avviker fra kravet, kan byggherren sette
-en akseptfrist for svaret. Fristen gjelder hele svaret (KA-U1). Når den er ute, faller beløpet
-for posten bort, og standpunktet om beregningsregelen står etter punkt 4b A, eller faller bort
-etter punkt 4b B. Skjemaet sier det før svaret sendes. Forhold: presiserer HF-U15 og svaret
-25.10 om vilkår, slik at akseptfristen der bare gjelder et svar som godkjenner beløp eller
-dager.»
+**Alternativ A (foreslått):** «Et svar som tar standpunkt til beregningsregelen uten å godkjenne et beløp, har ingen
+akseptfrist. Det gjelder også når standpunktet ikke stemmer med kravet eller har vilkår etter
+svaret 25.10 om vilkår. Om TE godtar innen rimelig tid etter avtaleloven § 3, avgjør ikke
+løsningen (MM-U12). Godkjenner svaret også et beløp for posten for rigg og drift i forlenget
+byggetid og stemmer ikke med kravet, kan byggherren sette en akseptfrist for svaret (HF-U15,
+HF-U16). Fristen gjelder beløpet for posten, ikke standpunktet om beregningsregelen. Når fristen
+er ute, opphører tilbudets binding for beløpet for posten (HF-U5, HF-U17). Standpunktet om
+beregningsregelen binder fortsatt med vilkårene i svaret, som i et svar uten akseptfrist: en
+revisjon som tar den andre regelen, avvises (punkt 4, HF-U14), og punkt 4b A gjelder en ny
+kravversjon. Svaret er fortsatt det gjeldende svaret i sporet, og saken venter på TE (HF-U18).
+TEs aksept gjelder fortsatt hele svaret (KA-U1). Godtar TE etter fristen, er aksepten et nytt
+tilbud fra TE om å godta svaret slik det står, og byggherren godtar eller avslår det (HF-U18,
+HF-U19). Avslår byggherren, kan TE sende en ny kravversjon, og punkt 4b A gjelder. Etter fristen
+kan byggherren revidere beløpet for posten, men ikke standpunktet om beregningsregelen eller
+vilkårene til TEs ugunst. Brevet sier ved fristen: «Akseptfristen gjelder beløpet for rigg og
+drift i forlenget byggetid. Standpunktet om beregningsregelen gjelder uten frist.» Forhold:
+presiserer HF-U15 og svaret 25.10 om vilkår, slik at akseptfristen bare gjelder et svar som
+godkjenner beløp eller dager; snevrer inn HF-U5 og HF-U17, slik at en akseptfrist ikke avslutter
+bindingen av standpunktet om beregningsregelen; presiserer HF-U8 og HF-U18; HF-U16 og KA-U1
+står. Valget følger ikke av punkt 4b.»
 
-**Alternativ B:** «Byggherren kan sette en akseptfrist i et svar som tar standpunkt til
+**Alternativ B:** «Et svar som tar standpunkt til beregningsregelen uten å godkjenne et beløp, har ingen
+akseptfrist. Det gjelder også når standpunktet ikke stemmer med kravet eller har vilkår etter
+svaret 25.10 om vilkår. Om TE godtar innen rimelig tid etter avtaleloven § 3, avgjør ikke
+løsningen (MM-U12). Godkjenner svaret også et beløp for posten for rigg og drift i forlenget
+byggetid og stemmer ikke med kravet, kan byggherren sette en akseptfrist for svaret (HF-U15,
+HF-U16). Fristen gjelder hele svaret, også standpunktet om beregningsregelen og vilkårene
+(KA-U1). Når fristen er ute, opphører tilbudets binding for hele svaret, unntatt det HF-U4
+gjelder (HF-U5, HF-U17). Svaret er fortsatt det gjeldende svaret i sporet, og saken venter på TE
+(HF-U18). Godtar TE etter fristen, er aksepten et nytt tilbud fra TE om å godta svaret slik det
+står, og byggherren godtar eller avslår det (HF-U5, HF-U18, HF-U19). Byggherren kan revidere
+svaret, også standpunktet om beregningsregelen (HF-U17). Punkt 4b A gjelder ikke en kravversjon
+TE sender etter fristen, fordi standpunktet da ikke lenger binder. Skjemaet sier før svaret
+sendes: «Akseptfristen gjelder hele svaret, også standpunktet om beregningsregelen. Etter
+fristen binder svaret deg ikke i løsningen, men det står som gjeldende svar til du reviderer
+det.» Forhold: presiserer HF-U15 og svaret 25.10 om vilkår, slik at akseptfristen bare gjelder
+et svar som godkjenner beløp eller dager; anvender HF-U5, HF-U17 og HF-U18 på standpunktet om
+beregningsregelen; avgrenser punkt 4b A til et standpunkt som fortsatt binder; HF-U16 står.»
+
+**Alternativ C:** «Byggherren kan sette en akseptfrist i et svar som tar standpunkt til
 beregningsregelen, når standpunktet ikke stemmer med kravet eller har vilkår etter svaret
 25.10 om vilkår. Fristen følger HF-U16. Etter fristen er en aksept et nytt tilbud fra TE
 (HF-U5, HF-U18). Forhold: utvider HF-U15; presiserer svaret 25.10 om vilkår.»
 
-**Hva valget styrer:** under B gjør fristen at byggherrens standpunkt om at for eksempel
-regningsarbeid gjelder, ikke lenger binder byggherren som tilbud. Kontraktens regel gjelder
-likevel, så visningen kan gi inntrykk av at noe er tapt som ikke er det.
+**Hva valget styrer:**
+
+- Under A gjelder akseptfristen bare beløpet for rigg-posten, og standpunktet om regelen
+  binder videre. Valget følger ikke av punkt 4b. Det er et eget valg, som snevrer inn HF-U5 og
+  HF-U17.
+- Under B kan byggherren godkjenne posten litt under kravet, sette en frist og dermed avslutte
+  bindingen av regelen. TE kan da tape regelen på grunn av uenighet om posten.
+- Under C gjør fristen at byggherrens standpunkt om at for eksempel regningsarbeid gjelder,
+  ikke lenger binder byggherren som tilbud. Kontraktens regel gjelder likevel, så visningen kan
+  gi inntrykk av at noe er tapt som ikke er det.
 
 **Svar:**
 
@@ -530,10 +614,11 @@ og KOE-svaret og endringsordren behandles likt. Under B kan en med lav fullmakt 
 byggherren til en regel der kostnadene kan vokse forbi verdien uten ny kontroll. Setningen om
 visningen i B er ny funksjonalitet og demper bare den følgen.
 
-**Åpent spørsmål under begge:** byggeleder kan avvise krav etter Del II pkt. 28. Et standpunkt
-om at den andre regelen gjelder, er mer enn en avvisning, fordi det binder byggherren til den
-regelen hvis TE godtar. Skal byggeleder kunne sende det uten hele kjeden? Anbefaling: nei,
-etter A.
+**Åpent spørsmål under B:** byggeleder kan avvise krav etter Del II pkt. 28. Et standpunkt om at
+den andre regelen gjelder, er mer enn en avvisning, fordi det binder byggherren til den regelen
+hvis TE godtar. Skal byggeleder kunne sende det uten hele kjeden? Under A følger svaret av
+alternativet: byggeleder kan ikke sende det uten hele kjeden. Oppdragsgiver bekrefter at det
+stemmer med byggherrens fullmaktsordning (GFK-U1, Del II pkt. 6).
 
 **Svar:**
 
@@ -560,47 +645,66 @@ etter A.
   en endringsordre. Etter føringen om arbeidsmåte foreslås derfor at enigheten avslutter
   vederlagskravet i løsningen.
 
-**Alternativ A (foreslått):** «Enighet om beregningsregelen binder begge parter (KA-U7,
-HF-U9). Løsningen skiller mellom tre forhold: at partene er enige om beregningsregelen, at
-behandlingen av vederlagskravet er ferdig i løsningen, og at beløpet fortsatt avregnes utenfor
-løsningen. Enigheten er en virksom enighet i vederlagssporet etter OV-U3 når grunnlaget er
-avklart etter GR-U7, og svaret ikke har vilkår som er uavklart etter svaret 25.10 om vilkår.
-Har det slike vilkår, regnes kravet ikke som avgjort før de er avklart, og saken kan ikke inngå
-i en endringsordre. Ellers er enigheten betinget. Enigheten gjelder regelen partene er enige
-om, også når TEs krav var et tilbud. Et tilbud byggherren ikke har akseptert, regnes da ikke
-lenger som krav i nøkkeltallene. Enigheten er ikke enighet om beløp for det øvrige vederlaget.
-TEs beregning og kostnadsoverslaget inngår ikke i summen av virksom enighet, og utfallet for
-det øvrige vederlaget er ukjent, ikke 0 (MM-U28). Sporet får betegnelsen «Enige» (MM-U30).
-Linja under sier: «Beregningsregelen er avtalt: <kontraktens enhetspriser / regningsarbeid>.
-Beløpet avregnes utenfor løsningen.» Ved regningsarbeid sier den også: «Kostnadsoppgavene og
-kontrollen av dem etter § 30.3 håndteres utenfor løsningen.» Saksteksten etter OV-U10 står.
+**Alternativ A (foreslått):** «Enighet om beregningsregelen binder begge parter (KA-U7, HF-U9). Løsningen skiller mellom tre
+forhold: at partene er enige om beregningsregelen, at behandlingen av vederlagskravet er ferdig
+i løsningen, og at beløpet fortsatt avregnes utenfor løsningen. Partene blir enige ved
+sammenfall eller ved TEs aksept etter punkt 4. Enigheten gjelder regelen partene er enige om,
+også når TEs krav var et tilbud. Et tilbud byggherren ikke har akseptert, regnes da ikke lenger
+som krav i nøkkeltallene. Enigheten er ikke enighet om beløp for det øvrige vederlaget.
 
-Har vederlagskravet en post for rigg og drift i forlenget byggetid, er vederlagskravet avgjort
-når partene er enige om både regelen for det øvrige vederlaget og beløpet for posten, eller
-når kravet er trukket. Beløpet for posten inngår i summen av virksom enighet. Det øvrige
-vederlaget gjør det ikke, og nøkkeltallene sier hvor mange saker summen ikke dekker fullt ut.
-Linja under betegnelsen sier da: «Rigg og drift i forlenget byggetid: <beløp> kr eks. mva.
-Beregningsregelen for det øvrige vederlaget er avtalt: <kontraktens enhetspriser /
-regningsarbeid>. Det øvrige vederlaget avregnes utenfor løsningen.» Krever TE enhetspriser
-eller regningsarbeid uten posten, sier skjemaet: «Har du krav på rigg og drift i forlenget
-byggetid, oppgi posten nå, med forlengelsen du legger til grunn. Er byggherren enig i
-beregningsregelen, kan posten ikke legges til i denne saken senere.» Godtar TE et svar som
-ikke aksepterer tilbudet, og kravet har ingen post, sier skjemaet: «Kravet har ingen post for
-rigg og drift i forlenget byggetid. Godtar du svaret, kan posten ikke legges til i denne
-saken.»
+Enigheten har to forhold som holdes atskilt. Det første er virkningen etter GR-U7 og MM-U28:
+enigheten er virksom når grunnlaget er avklart, betinget av grunnlaget når grunnlaget er avslått
+eller preklusjon etter § 32.2 er påberopt, og uten virkning når TE har godtatt avslaget på
+grunnlaget. Det andre er vilkår som ikke er avklart etter svaret 25.10 om vilkår. Det er et
+eget forhold i tillegg, ikke en form for betinget enighet. Enigheten er en virksom enighet i
+vederlagssporet etter OV-U3 bare når den er virksom etter GR-U7, og svaret ikke har vilkår som
+er uavklart. Til vilkårene er avklart, regnes kravene ikke som avgjort, og saken kan ikke inngå
+i en endringsordre. Linja under betegnelsen viser hvert forhold for seg.
+
+TEs beregning og kostnadsoverslaget inngår ikke i summen av virksom enighet, og utfallet for det
+øvrige vederlaget er ukjent, ikke 0 (MM-U28). Sporet får betegnelsen «Enige» (MM-U30). Linja
+under sier: «Beregningsregelen er avtalt: <kontraktens enhetspriser / regningsarbeid>. Beløpet
+avregnes utenfor løsningen.» Ved regningsarbeid sier den også: «Kostnadsoppgavene og kontrollen
+av dem etter § 30.3 håndteres utenfor løsningen.»
+
+Når kravene er avgjort etter OV-U3, og vederlagssporet har en virksom enighet om
+beregningsregelen, sier visningen i stedet for teksten i OV-U10: «Alle krav sendt herfra er
+ferdig behandlet. Vederlaget avregnes etter den avtalte beregningsregelen.» Er det registrert
+brev i saken, følger setningen etter OV-U10 og OV-U19. Kravene er avgjort etter OV-U3 som før.
+Bare teksten er en annen.
+
+Har vederlagskravet en post for rigg og drift i forlenget byggetid, er partene enige om
+vederlagskravet først når de er enige om både regelen for det øvrige vederlaget og beløpet for
+posten, ved sammenfall eller ved TEs aksept etter punkt 4. At regelen og beløpet for posten
+stemmer med kravet, gir sammenfall bare etter punkt 4. Et standpunkt i et lag, eller vilkår i
+svaret, hindrer det. Enigheten gjør ikke kravene avgjort før forholdene i andre avsnitt tillater
+det. Beløpet for posten inngår i summen av virksom enighet når enigheten er virksom og svaret
+ikke har vilkår som er uavklart. Ellers vises det med den virkningen enigheten har, og med
+vilkårene (MM-U28). Det øvrige vederlaget inngår ikke, og nøkkeltallene sier hvor mange saker
+summen ikke dekker fullt ut. Linja under betegnelsen sier da: «Rigg og drift i forlenget
+byggetid: <beløp> kr eks. mva. Beregningsregelen for det øvrige vederlaget er avtalt:
+<kontraktens enhetspriser / regningsarbeid>. Det øvrige vederlaget avregnes utenfor løsningen.»
+
+Krever TE enhetspriser eller regningsarbeid uten posten, sier skjemaet: «Kravet har ingen post
+for rigg og drift i forlenget byggetid. Er byggherren enig i beregningsregelen, blir partene
+enige om vederlagskravet uten at du godtar svaret, og etter det kan posten ikke legges til i
+denne saken. Et senere krav om rigg og drift i forlenget byggetid må da fremmes i en ny sak, og
+byggherren tar stilling til om det er omfattet av enigheten. Du kan oppgi posten før
+forlengelsen er avtalt, med forlengelsen du legger til grunn.» Godtar TE et svar, og kravet har
+ingen post, sier skjemaet: «Kravet har ingen post for rigg og drift i forlenget byggetid.
+Godtar du svaret, kan posten ikke legges til i denne saken. Et senere krav må fremmes i en ny
+sak, og byggherren tar stilling til om det er omfattet av enigheten.»
 
 Når kravene er avgjort, godtas fortsatt TEs nye kostnadsoverslag (punkt 9), varselet etter
 § 30.2 (punkt 10), varselet etter § 34.4 (punkt 3), og et forslag om endret beregningsregel og
 svaret på det (punkt 11). Overslag og varsler endrer ikke enigheten og åpner ikke sporet. Et
 godtatt forslag etter punkt 11 erstatter regelen i enigheten, uten å åpne sporet. Et nytt beløp
 for posten avvises (OV-U38). Saken kan inngå i en endringsordre etter EO-U5, og endringsordren
-gjengir regelen som avtalt (EO-U8, punkt 14). Forhold: endrer OV-U3, med en ny form for
-virksom enighet og nye unntak fra sperren; presiserer OV-U10, MM-U28 og MM-U30; presiserer
-OV-U37 og OV-U38; presiserer EO-U5 og EO-U8; presiserer KA-U7 og HF-U9.»
-
-**Variant av A:** saksteksten etter OV-U10 endres for saker der bare beregningsregelen er
-avtalt: «Kravene sendt i løsningen er ferdig behandlet. Vederlaget: beregningsregelen er
-avtalt, og beløpet avregnes utenfor løsningen.» Det endrer OV-U10.
+gjengir regelen som avtalt (EO-U8, punkt 14). Forhold: endrer OV-U3,
+med en ny form for virksom enighet og nye unntak fra sperren; endrer OV-U10 for saker der
+vederlagssporet har en virksom enighet om beregningsregelen; presiserer OV-U19, MM-U22,
+MM-U28 og MM-U30; anvender svaret 25.10 om vilkår (D1–D3) på enigheten om beregningsregelen;
+presiserer OV-U37 og OV-U38; presiserer EO-U5 og EO-U8; presiserer KA-U7 og HF-U9.»
 
 **Alternativ B:** «Enighet om beregningsregelen binder begge parter (KA-U7), men er ikke en
 virksom enighet etter OV-U3. Er partene enige om beregningsregelen, kan en part foreslå at
@@ -627,9 +731,10 @@ EO-U5.»
 
 **Hva valget styrer:**
 
-- Under A er vederlagskravet ferdig i løsningen når partene er enige om regelen og grunnlaget
-  er avklart. Visningen sier «Alle krav sendt i appen er avgjort», med linja om at beløpet
-  avregnes utenfor. TE kan ikke trekke kravet etterpå, men enigheten binder uansett, og et
+- Under A er vederlagskravet ferdig i løsningen når partene er enige om regelen, grunnlaget
+  er avklart og ingen vilkår er uavklart. Visningen sier «Alle krav sendt herfra er ferdig
+  behandlet. Vederlaget avregnes etter den avtalte beregningsregelen.» i stedet for teksten i
+  OV-U10. TE kan ikke trekke kravet etterpå, men enigheten binder uansett, og et
   trekk ville vært et avkall.
 - Under B trengs et ekstra steg med samtykke. Steget gir ikke partene noe A ikke gir.
 - Under C står saken åpen, og trekk er eneste vei til å lukke den. Det er en begrensning
@@ -835,8 +940,22 @@ påløpte utgifter som grunnlag for kravet.» Deretter enten: «Byggherren mener
 rammer utgifter påløpt før <dato>.» eller: «Byggherren angir avgrensningen i begrunnelsen.»
 Subsidiært gjelder regelen uten begrensning. Lagene følger OV-U27 og OV-U32, og utfallet er
 ukjent, ikke 0 (MM-U28). Løsningen avgjør ikke hvilke utgifter som er påløpt eller rammet
-(VS-U5), og tolker ikke begrunnelsen (KA-U16). En revisjon som flytter datoen senere, senker
-det byggherren har innrømmet og avvises (HF-U5). En tidligere dato er tillatt. Godtar TE
+(VS-U5), og tolker ikke begrunnelsen (KA-U16). I en revisjon av et svar TE ikke har godtatt, der både svaret og revisjonen påberoper
+begrensningen, opplyser byggherren om avgrensningen står uendret eller lempes. Skjemaet spør:
+«Står avgrensningen uendret, eller lempes den, sammenliknet med svaret i brev <n> av <dato>?
+Spørsmålet gjelder både datoen og det begrunnelsen sier om avgrensningen.» Spørsmålet har ingen
+forhåndsvalg, og sendingen avvises når opplysningen mangler. Kan byggherren ikke opplyse noen av
+delene, sier skjemaet at avgrensningen ikke kan endres i en revisjon (HF-U5). Opplysningen er
+byggherrens og lagres med revisjonen. Løsningen kontrollerer den ikke mot begrunnelsen, tolker
+ikke begrunnelsen (KA-U16) og antar ikke at et bytte mellom dato og begrunnelse er uten
+betydning. En senere dato avvises uansett opplysningen. En tidligere dato godtas bare med en av
+opplysningene, fordi den er entydig gunstig for TE bare når resten av avgrensningen står
+uendret. Brevet sier: «Byggherren opplyser at avgrensningen i svaret i brev <n> av <dato> står
+uendret [lempes] i dette svaret.» Står det likevel en skjerping i begrunnelsen, er brevet det
+autoritative uttrykket for byggherrens standpunkt (B-03), og sammenlikningen avgjør ikke om
+byggherren rettslig er bundet (MM-U12). En revisjon som fjerner påberopelsen, er i TEs favør,
+og spørsmålet stilles ikke. Skjemaet for aksepten viser avgrensningen slik den står i det
+gjeldende svaret, med datoen, begrunnelsen eller begge. Godtar TE
 svaret, godtar TE at varselet kom for sent, og avgrensningen slik byggherren har angitt den
 (KA-U1, KA-U10). Skjemaet sier før aksepten: «Du godtar at varselet kom for sent, og at retten
 til å påberope deg utgifter påløpt før <dato> er tapt.» eller «Du godtar at varselet kom for
@@ -844,8 +963,9 @@ sent, og avgrensningen byggherren angir i begrunnelsen.» Det begrunnede varsele
 § 34.2.2 annet ledd og den løpende orienteringen om kostnadsutviklingen sendes utenfor
 løsningen og registreres etter OV-U4. Forhold: presiserer OV-U14 og OV-U1; i tråd med OV-U25;
 endrer LV-U30; endrer VS-U5 og OV-U22 for et særskilt krav som ikke er tilbud, slik at
-byggherren angir avgrensningen med dato eller i begrunnelsen i stedet for med beløp; OV-U28
-står med sin ordlyd; OV-U23 og OV-U27 står.»
+byggherren angir avgrensningen med dato eller i begrunnelsen i stedet for med beløp; anvender
+HF-U5 på avgrensningen med byggherrens opplysning etter mønsteret i svaret 25.10 om vilkår;
+OV-U28 står med sin ordlyd; OV-U23 og OV-U27 står.»
 
 **Alternativ B:** «Som A, men løsningen fastsetter avgrensningen: prinsipalt er standpunktet
 at TE har tapt retten til å påberope seg utgifter påløpt før varselet i brev <n> av <dato> kom
@@ -904,11 +1024,13 @@ beløpet for posten hver for seg: «Vederlaget for øvrig justeres som regningsa
 avtalt <beløp> kr eks. mva.» Beløpet for posten er ikke det samlede vederlaget for endringen.
 Et kostnadsoverslag kan gjengis som opplysning, men ikke som tak eller avtalt beløp. Vilkår som
 ikke er avklart etter svaret 25.10 om vilkår, sperrer som før. Fullmakten for en endringsordre
-med en beregningsregel følger punkt 7. TEs kostnadsoverslag, varselet etter § 30.2 og varselet
-etter § 34.4 hører til regelen partene er enige om, enten den er avtalt i et KOE-svar eller i en
-endringsordre (punkt 3, 9 og 10). Hvor TE fører dem når regelen er avtalt i en endringsordre
-uten KOE-sak, og hvordan regelen endres etter at saken har inngått i en endringsordre, avgjøres
-når EO-sakene bygges. Forhold: presiserer EO-U8, slik at et utsagn om pris kan være en
+med en beregningsregel følger punkt 7. TEs kostnadsoverslag, varselet etter § 30.2 og varselet etter § 34.4 hører til vederlagssporet
+i saken og følger punkt 3, 9 og 10. De kan sendes før partene er enige om beregningsregelen,
+også mens regningsarbeid bare er TEs krav eller byggherrens standpunkt, og etter at regelen er
+avtalt, i et KOE-svar eller i en endringsordre. Enighet om regelen er ikke en forutsetning for
+dem, og de endrer ikke enigheten. Hvor TE fører dem for en endringsordre uten KOE-sak, før og
+etter at regelen er avtalt, om de kan sendes i en KOE-sak etter at den har inngått i en
+endringsordre, og hvordan regelen endres etter det, avgjøres når EO-sakene bygges (OV-U1). Forhold: presiserer EO-U8, slik at et utsagn om pris kan være en
 beregningsregel uten beløp; presiserer EO-U5, slik at enighet om beregningsregelen er enighet
 i sporet; følger punkt 7 og 8.»
 
@@ -943,6 +1065,14 @@ EO-sakene bygges på en annen forståelse enn KOE-saken.
   pkt. 40), mens VS-U3 lar appen vise oppmann før overtakelsen. Det ligger utenfor denne runden
   og står i [#1288](https://github.com/khjohns/endringsmeldinger/issues/1288).
 
+- **Revisjonsvernet etter HF-U5 verner ikke laget.** En revisjon kan legge til en ny
+  innsigelse og gjøre et prinsipalt standpunkt subsidiært. Det gjelder alle spor og står i
+  [#502](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6410350152).
+  Punkt 4b-A sier derfor ikke at standpunktet består «i det laget».
+- **Svaret 25.10 om vilkår (D1)** sier at byggherren frafaller vilkår i et eget utsagn, ikke i
+  en revisjon. Begrunnelsen til D1 i vurderingen sier det motsatte. Det bør rettes når svaret
+  føres i vedtaksregisteret.
+
 ## Krav til byggingen
 
 Prøvingen fant disse kravene til kode som ikke er bygget ennå (L). De føres som kommentar i
@@ -961,6 +1091,10 @@ Prøvingen fant disse kravene til kode som ikke er bygget ennå (L). De føres s
   hjemmel, regner `avvisesPrinsipalt` den som prinsipal avvisning når regelsettet gir virkning
   1.
 - `rigg_varslet_i_tide` i regelsettet strider mot OV-U25 og fjernes når #1171 bygges.
+- `senketInnroemmelse` sammenlikner bare om tilbudet aksepteres, ikke regelen byggherren
+  oppgir. Punkt 4 og 4b-A krever en sammenlikning av standpunktet om regelen.
+- Saksteksten i punkt 8A trenger en egen statuskode ved siden av
+  `STATUSTEKST.alle_krav_avgjort` (`kjerne/utledning/visning.ts`).
 
 ## Sparringen etter utkastet, ordrett
 
@@ -1164,3 +1298,70 @@ Svaret gjelder funnet om kontraktsgrunnlaget Del II pkt. B.2.16 og pkt. 184 i ø
 > Min anbefaling: Ta inn rigg-rettingen med presiseringene over, og prøv det blandede kravet gjennom svar, aksept, fullmakt, nøkkeltall og EO. Legg til kontraktshenvisningene i punkt 13 og 14, men behold skjæringspunktet i 13 som et særskilt uavklart spørsmål.
 >
 > Jeg har vurdert kontraktsopplysningene slik de er gjengitt her; jeg har ikke selv hentet pkt. 184 eller de øvrige nye utdragene fra kontrakt-repoet.
+
+## Sparringen på 887a233, ordrett
+
+> Jeg har lest de berørte punktene i 887a233. Flere problemer er løst, men 4b og 5 har fått en ny, vesentlig uklarhet. Jeg anbefaler derfor ikke «A i alle punkter» ennå.
+>
+> 1. 4b-A må bevare forbeholdene sammen med standpunktet.
+>
+> Retningen er god: TE bør ikke miste BHs standpunkt om beregningsregelen bare ved å oppdatere rigg-posten.
+>
+> Men teksten sier at standpunktet består, mens «resten av svaret faller bort». Prøv dette:
+>
+> BH godtar regningsarbeid under et uttrykkelig vilkår. TE sender en ny kravversjon som krever regningsarbeid, men ikke godtar vilkåret.
+>
+> Etter ordlyden kan regelen bli stående mens vilkåret faller bort. Det ville gjøre et betinget standpunkt ubetinget uten BHs tilslutning.
+>
+> Jeg foreslår:
+>
+> «Standpunktet om beregningsregelen består med de innsigelsene, forutsetningene og vilkårene det ble gitt under. En ny kravversjon gjør ikke i seg selv standpunktet ubetinget og innebærer ikke at TE har godtatt innsigelsene eller vilkårene.»
+>
+> Dette må også samordnes med punkt 4, som fortsatt tillater BH å bytte regel ved revisjon etter avslag på et tilbud. Dere må beskrive hvorfor og når den adgangen eventuelt opphører.
+>
+> 2. Punkt 5 utvider 4b til fristutløp uten at det er besluttet der.
+>
+> 4b gjelder ny kravversjon. Punkt 5 bruker likevel 4b-A som grunnlag for at regelen består etter akseptfristens utløp. Det er to forskjellige hendelser.
+>
+> Teksten sier dessuten både at fristen gjelder hele svaret, og at regelen består mens rigg-beløpet faller bort. Det er ikke presist nok.
+>
+> Velg uttrykkelig mellom:
+>
+> * fristen gjelder tilbudet i hele svaret, med videre behandling etter HF-U18;
+> * regelen har en særskilt, fortsatt binding, mens fristen gjelder beløpstilbudet og bestemte vilkår.
+>
+> Det siste er et nytt produktvalg, ikke en følge av 4b. Og skriv at tilbudets binding opphører, ikke at «beløpet faller bort»: HF-U18 lar svaret bestå som gjeldende svar med mulighet for sen aksept som nytt tilbud.
+>
+> 3. Punkt 13-A har riktig retning, men fritekst kan omgå revisjonsvernet.
+>
+> Nå avvises en revisjon som flytter datoen senere. Men teksten sier ikke hva som skjer dersom BH:
+>
+> * bytter fra dato til fritekst;
+> * skjerper avgrensningen i friteksten;
+> * beholder datoen, men legger til ytterligere begrensninger.
+>
+> Løsningen kan ikke håndheve HF-U5 ved bare å sammenligne datoene. Dette er samme problem som dere allerede fant ved revisjon av tilleggsvilkår.
+>
+> Bruk det avklarte mønsteret derfra: uttrykkelig opplysning om at avgrensningen står uendret eller lempes, og ingen automatisk antakelse om at bytte av uttrykksform er uten betydning. En tidligere dato er bare entydig gunstig når resten av avgrensningen står uendret.
+>
+> 4. Punkt 8: Velg varianten med endret sakstekst.
+>
+> Jeg støtter at behandlingen kan bli ferdig når regelen og eventuell rigg-post er avtalt, med avregning utenfor. Da anbefaler jeg varianten som erstatter «Alle krav … er avgjort». Dette bør ikke bli stående som en valgfri språklig detalj.
+>
+> Presiser også at:
+>
+> * rigg-beløpet inngår i summen av virksom enighet først når grunnlaget og eventuelle tilleggsvilkår tillater det;
+> * avsnittet om blandede krav ikke gjør kravet avgjort bare fordi regel og beløp stemmer;
+> * «ellers betinget» ikke slår sammen grunnlagsforbehold og uavklarte tilleggsvilkår til én tilstand.
+>
+> Skjemateksten om å oppgi rigg-posten bør forklare låsingen uten å presse TE til å fremme en post før det finnes grunnlag for den.
+>
+> 5. Punkt 7 og 14: Jeg støtter hovedretningen.
+>
+> Som produktregel støtter jeg at en fullmakt til å avvise ikke alene gir adgang til å binde BH til en alternativ beregningsregel. Dette må fortsatt forankres i den faktiske fullmaktsordningen.
+>
+> Punkt 14 skiller nå godt mellom BHs standpunkt og en allerede avtalt regel, og mellom rigg-beløpet og øvrig vederlag. Behold også adgangen til varsler og overslag før metodeenighet; siste del bør ikke forstås som at disse bare hører til en regel partene allerede har avtalt.
+>
+> Min anbefaling: Behold hovedretningen, velg språkvarianten i 8, og avklar 4b/5 samt revisjonsvernet i 13 før samlet valg. De to viktigste prøvene er nå et betinget standpunkt som møter en ny kravversjon, og et blandet svar der akseptfristen utløper.
+>
+> Jeg har kontrollert ordlyden i dokumentet, ikke kjørt koden eller gjennomgått hele fullmaktsgrunnlaget.
