@@ -398,6 +398,8 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 
 > **Merknad 15.10:** B-16 er avgjort i retningen med [MM-U21](vedtak.md#mm-u21). Det gjenstår av B-16: aktørrettigheter, godkjenning og innsyn for motparten.
 
+> **Merknad 26.10:** Leveransekravet [OV-U56](vedtak.md#ov-u56) endrer B-16. Det som står åpent av B-16, avgjøres for den manuelle prosessen før første ekte sak, ikke først før produksjon. Rettingene OV-U56 nevner, bygges før første ekte sak. Den fullstendige rettingsflyten etter MM-U21 kan bygges senere.
+
 **Avgjorte beslutninger.** Vedtakene står i 3.1. Radene og merknadene slik de
 stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).
 
@@ -1156,6 +1158,8 @@ i så fall erstatte punktet med en referanse. Status er ikke innhentet for noen.
   er dokumentert og prøvd. Ingen stille bortfiltrering av ukjente rettslige hendelser.
 - Korrigeringsprosessen for feilregistrerte, låste opplysninger er avklart
   og dokumentert (B-16), også hvis løsningen er en manuell prosess.
+  Merknad 26.10: etter [OV-U56](vedtak.md#ov-u56) skal den finnes før første
+  ekte sak, ikke først før produksjon.
 - Isolert staging med eget Catenda-testprosjekt.
 - Konfigurasjon utenfor koden: policy med `user_id` (RV-03), Supabase-konsollet
   (RV-06) så lenge Supabase brukes, og tilsvarende for Azure SQL og hostingen (B-12),
@@ -1254,6 +1258,8 @@ står i `AGENTS.md` («Hvor hva står») og i avsnitt 8. Tabellen viser hvilke
 | B-09 driftsverdier | Akseptkriteriene for kapasitet og varsling i F3, og grensene for utdatert medlemsliste (B-04) |
 | B-05 bevaring, B-11 tidskilde | Eksport og bevaring i F4, og produksjonsporten |
 | B-16 korrigering av låste opplysninger | Korrigeringsfunksjon og avklaring før produksjon |
+
+> **Merknad 26.10:** Etter [OV-U56](vedtak.md#ov-u56) må det som står åpent av B-16, være avgjort før første ekte sak, ikke først før produksjon.
 
 ## 7. Catenda: leveringsgarantier
 
