@@ -122,11 +122,16 @@ Med `FEILINNFOERING_UTVALG=1` kjører hver mutasjon bare filene med målene sine
 
 Reglene for skyøkta står i «Miljø» og «Hvor hva står» i `AGENTS.md`. Her står kommandoene.
 
-En økt med flere repoer, for eksempel `endringsmeldinger` og `kontrakt`, starter i
-`/home/user`. Da lastes ikke `.claude/settings.json` i repoet, så ingen av hookene
-kjører: oppstartshooken ikke, og heller ikke `brokervakt` og `skrivevakt` før
-verktøykallene (#1319, kontrollert 26.10). Står arbeidsmappa ved start som
-`/home/user` i systemprompten, kjør hooken for hånd. Den kan bruke flere minutter med
+`khjohns/kontrakt` legges til underveis:
+
+```text
+add_repo(owner="khjohns", repo="kontrakt")   # klones til ../kontrakt
+```
+
+Er økta likevel startet med flere repoer, starter den i `/home/user`. Da lastes ikke
+`.claude/settings.json` i repoet, så ingen av hookene kjører: oppstartshooken ikke, og
+heller ikke `brokervakt` og `skrivevakt` før verktøykallene (#1319, kontrollert 26.10).
+Står arbeidsmappa ved start som `/home/user` i systemprompten, kjør hooken for hånd. Den kan bruke flere minutter med
 pip og npm, så gi kallet `timeout` på 600000:
 
 ```bash

@@ -126,6 +126,10 @@ Kommandoene for testene, typesjekkene og verktøykjeden står i
 Omveiene i skyøktene står i denne fila, og kommandoene for dem står i skillen.
 Skyøkta har en testbase for SQL Server
 ([DL-U1](docs/plans/vedtak.md#dl-u1)); kommandoene står i miljø-skillen.
+**En skyøkt startes med bare dette repoet som kilde.** En økt med flere repoer
+starter over klonene og leser ikke hookene i `.claude/settings.json`, så verken
+oppstartshooken eller vaktene kjører (#1319). Trengs `khjohns/kontrakt`, legges det til
+underveis med `add_repo` (oppdragsgiver 26.10).
 Oppstartshooken starter ikke PostgreSQL (#931). Resonneringsreglene og
 `docs/verktoy/katalog.py` trenger katalogen i en PostgreSQL-base bygget fra
 `supabase/migrations/`. Den basen bygger du selv fra tom før første bruk i økta
