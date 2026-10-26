@@ -193,15 +193,19 @@
   const PREKLUDERT =
     'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder dersom denne innsigelsen ikke fører frem.';
 
-  // #313, arbeidsvalget 26.10 (VG-A-02, VG-C-02): hva svaret binder byggherren til. Ordlyden er
-  // et forslag til oppdragsgiver (spørsmål 1 i PR-en). Tilfellet med særskilte vilkår venter på 3b-D.
+  // #313, arbeidsvalgene 26.10 (VG-A-02, VG-C-02, kommentaren i #1303): hva svaret binder byggherren
+  // til. «Begrunnelsen» fordi feltet heter det. Tilfellet med særskilte vilkår venter på OV-U49.
   const BINDER = {
     alltid:
       'Virkningen av svaret regnes ut fra valgene over. Begrunnelsen tolkes ikke. Byggherren er bundet av svaret som sendes herfra.',
+    // Bare når kjernen forhåndsviser sammenfall, ikke bare hele beløpet (GR-U7).
     sammenfall:
-      'Svaret godkjenner hele kravet. Enighet registreres uten at TE må godta svaret, og svaret kan ikke revideres.',
-    forbehold: 'Blir partene enige, blir enigheten ikke virksom før grunnlaget er avklart.',
+      'Svaret gir sammenfall med TEs krav om vederlag etter valgene over. Enighet registreres uten at TE må godta svaret, og svaret kan ikke revideres.',
+    // Grunnlaget er ikke besvart og ikke avklart ved frafall (GR-U23, GR-U26, OV-U45).
+    forbehold:
+      'Grunnlaget i TEs krav er ikke besvart her og er heller ikke avklart ved byggherrens frafall. Standpunktene i svaret gjelder under forutsetning av at grunnlaget for kravet foreligger. En enighet om beløpet er derfor betinget av grunnlaget. Godtar TE et avslag på grunnlaget, får enigheten om beløpet ingen virkning.',
   };
+
   // I TS-saken i samme rekkefølge som lagene i brevet (OV-U32), og med forbeholdet etter GR-U26.
   const grunnlagsvarsler = $derived.by((): string[] => {
     if (grunnlaget)
@@ -248,22 +252,21 @@
     return { ikon: CircleMinus, variant: 'mixed' as const };
   });
   // #1303: radene står under laget sitt i brevets rekkefølge. Tekstene sier byggherrens
-  // standpunkt med brevets ord (#492 D), forslag til oppdragsgiver (spørsmål 2 i PR-en). Radene
-  // uten beløp har ikke noe krevd eller godkjent.
+  // standpunkt (#492 D, arbeidsvalget 26.10 i #1303). Radene uten beløp viser «—», aldri 0 kr.
   function lagradvisning(rad: Lagrad) {
     if (rad.art === 'grunnlag')
       return {
         tittel:
           rad.grunn === 'prekludert'
-            ? 'BH har gjort gjeldende at TEs varsel etter § 32.2 kom for sent'
-            : 'BH har avslått grunnlaget',
+            ? 'Byggherren gjør gjeldende at TEs varsel etter § 32.2 kom for sent'
+            : 'Byggherren avslår grunnlaget',
         ref: rad.grunn === 'prekludert' ? '§ 32.2' : '',
         krevd: undefined,
         godkjent: undefined,
       };
     if (rad.art === 'varsel_34_1_2')
       return {
-        tittel: 'BH gjør gjeldende at varselet etter § 34.1.2 kom for sent',
+        tittel: 'Byggherren gjør gjeldende at TEs varsel etter § 34.1.2 kom for sent',
         ref: '§ 34.1.2',
         krevd: undefined,
         godkjent: undefined,
