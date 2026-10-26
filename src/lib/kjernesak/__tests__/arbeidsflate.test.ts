@@ -103,15 +103,14 @@ describe('BHs svar på vederlagskravet i TS-saken (#1047)', () => {
     // GR-U26: grunnlaget er ubesvart, så forbeholdet gjelder og ingen lag står foran sporet.
     expect(bh.grunnlagetForVederlagssvaret).toEqual({ grunner: [], forbehold: true });
     const data = {
-      beregnings_resultat: 'delvis_godkjent',
-      total_godkjent_belop: 100000,
       hovedkrav_vurdering: 'delvis',
       hovedkrav_godkjent_belop: 100000,
       aksepterer_metode: true,
     };
     expect(bh.vederlagslag(data)).toMatchObject({
       sammenfall: false,
-      rader: [{ saerskilt: false, begrenset: false, beloep: 100000, etikett: null }],
+      ingenBeloep: false,
+      lag: [{ etikett: null, rader: [{ art: 'hovedkrav', beloep: 100000 }] }],
     });
     // KA-U42: «delvis» med hele det krevde beløpet avvises, og skjemaet viser ingen lag.
     expect(bh.vederlagslag({ ...data, hovedkrav_godkjent_belop: 250000 })).toBeNull();

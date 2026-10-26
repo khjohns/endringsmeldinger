@@ -18,12 +18,27 @@
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
   import InnsigelseModal from '$lib/components/kjernesak/InnsigelseModal.svelte';
   import { SPOR_FOR } from '$lib/kjernesak/sakstilstand';
+  import { etiketterVedSvaret } from '$lib/kjernesak/svaretsEtiketter';
+  import type { Spor } from '$kjerne/typer';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   const claimReview = demosak ? createClaimReview(demosak) : null;
   // TS-saken sendes med kommandoen til kjernen og den låste teksten (#718, LV-U2).
   const kravkontroll = kjernesak ? lagKravkontroll(kjernesak.kjernesak) : null;
   setClaimReview(kravkontroll ?? claimReview!);
   const brevApent = $derived(Boolean(kravkontroll?.letter ?? claimReview?.letter));
+  // VG-B-02: etikettene ved svaret står over brevet når TE godtar det, ikke i brevteksten (OV-U5).
+  let akseptspor = $state<Spor | null>(null);
+  let haddeBrev = false;
+  $effect(() => {
+    const harBrev = Boolean(kravkontroll?.letter);
+    if (haddeBrev && !harBrev) akseptspor = null;
+    haddeBrev = harBrev;
+  });
+  const akseptetiketter = $derived(
+    akseptspor
+      ? etiketterVedSvaret(kjernesak?.saksbilde, kjernesak?.kjernesak.utledning, akseptspor)
+      : []
+  );
   let showApproval = $state(false);
   import Header from './Header.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
@@ -390,6 +405,14 @@
             </div>
           {/if}
           {#if kravkontroll?.letter}
+            {#if akseptetiketter.length}
+              <div class="svar-etiketter" role="note">
+                <strong>Om svaret du godtar</strong>
+                <ul>
+                  {#each akseptetiketter as e (e.kode)}<li>{e.tekst}</li>{/each}
+                </ul>
+              </div>
+            {/if}
             <Brevkontroll
               brev={kravkontroll.letter}
               beskrivelse="Brevet sendes først når du bekrefter."
@@ -514,14 +537,17 @@
                     : 'Se brev og send'}
                 onwithdraw={() => {
                   kjernesak?.kjernesak.fjernFeil();
+                  akseptspor = null;
                   showWithdrawModal = true;
                 }}
                 ongodta={(svar) => {
                   kjernesak?.kjernesak.fjernFeil();
+                  akseptspor = SPOR_FOR[sel];
                   void kravkontroll?.aksept(SPOR_FOR[sel], svar);
                 }}
                 oninnsigelse={() => {
                   kjernesak?.kjernesak.fjernFeil();
+                  akseptspor = null;
                   innsigelseApen = true;
                 }}
               />
@@ -591,6 +617,19 @@
 <style>
   .work {
     display: contents;
+  }
+  .svar-etiketter {
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border: var(--rule);
+    border-radius: 8px;
+    background: var(--surface-inset);
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .svar-etiketter ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
   }
   .work[hidden] {
     display: none;

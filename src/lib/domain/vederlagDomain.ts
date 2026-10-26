@@ -504,18 +504,25 @@ export function buildEventData(
     // Begrunnelse
     begrunnelse: begrunnelseTekst,
 
-    // Automatisk beregnet (prinsipalt)
-    beregnings_resultat: computed.prinsipaltResultat,
-    total_godkjent_belop: computed.totalGodkjent,
-    total_krevd_belop: computed.totalKrevdInklPrekludert,
+    // I TS-saken regner kjernen resultatet (#1301, #1317), så skjemaet sender ikke sitt eget.
+    ...(config.erKjernesak
+      ? {}
+      : {
+          // Automatisk beregnet (prinsipalt)
+          beregnings_resultat: computed.prinsipaltResultat,
+          total_godkjent_belop: computed.totalGodkjent,
+          total_krevd_belop: computed.totalKrevdInklPrekludert,
 
-    // Subsidiært standpunkt (kun når relevant)
-    subsidiaer_triggers: subsidiaerTriggers.length > 0 ? subsidiaerTriggers : undefined,
-    subsidiaer_resultat: computed.visSubsidiaertResultat ? computed.subsidiaertResultat : undefined,
-    subsidiaer_godkjent_belop: computed.visSubsidiaertResultat
-      ? computed.totalGodkjentInklPrekludert
-      : undefined,
-    subsidiaer_begrunnelse: computed.visSubsidiaertResultat ? begrunnelseTekst : undefined,
+          // Subsidiært standpunkt (kun når relevant)
+          subsidiaer_triggers: subsidiaerTriggers.length > 0 ? subsidiaerTriggers : undefined,
+          subsidiaer_resultat: computed.visSubsidiaertResultat
+            ? computed.subsidiaertResultat
+            : undefined,
+          subsidiaer_godkjent_belop: computed.visSubsidiaertResultat
+            ? computed.totalGodkjentInklPrekludert
+            : undefined,
+          subsidiaer_begrunnelse: computed.visSubsidiaertResultat ? begrunnelseTekst : undefined,
+        }),
   };
 
   if (refs.isUpdateMode && refs.lastResponseEventId) {

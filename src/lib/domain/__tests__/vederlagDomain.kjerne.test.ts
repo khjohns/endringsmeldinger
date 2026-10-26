@@ -1,8 +1,8 @@
 /**
- * Skjemaets utregning av byggherrens vederlagssvar mot kjernens `beregnVederlag`. Kjernen avviser
- * et svar der klientens resultat avviker (ANNET_RESULTAT), så skjemaet må regne likt før det kan
- * sende svaret på TS-saken (#1047, del 2). Forventningen er kjernen, som bygger på VS-U5, OV-U22,
- * OV-U23 og OV-U27; testen fastholder at skjemaet følger den.
+ * Skjemaets utregning av byggherrens vederlagssvar mot kjernens `beregnVederlag`, i hele kroner.
+ * Testen fastholder at skjemaet og kjernen regner likt. Den bærer ikke TS-saken: der regner kjernen
+ * både det skjemaet viser før sending og det som sendes (#1301, #1317), også med øre (OV-U58,
+ * OV-U59). Forventningen er kjernen, som bygger på VS-U5, OV-U22, OV-U23 og OV-U27.
  */
 import { describe, expect, it } from 'vitest';
 import {

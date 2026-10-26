@@ -1,7 +1,8 @@
 """Grensetilfellene i sprakprove/grensetilfeller.json mot backend/regler/ (#274, P1-4).
 
-TS-kjernen kjører samme tabell (`sprakprove/tester/grensetilfeller.test.ts`), så
-forventningene er de samme i begge språk. Kilden står per gruppe i tabellen.
+TS-kjernen kjører gruppene for beløp, krone og frist i samme tabell
+(`sprakprove/tester/grensetilfeller.test.ts`). Vederlaget har egne forventninger der
+(#1317), så vederlagsgruppen gjelder bare Python-stien. Kilden står per gruppe i tabellen.
 """
 
 import json

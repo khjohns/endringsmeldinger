@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { visKroner } from '$lib/utils/belop';
   import { resolve } from '$app/paths';
   import AppTopbar from '$lib/components/navigation/AppTopbar.svelte';
   import { readPreferredRole, savePreferredRole } from '$lib/utils/rolePreference';
@@ -98,7 +99,7 @@
   }
   const filtered = $derived(velgSaker(saker, query, filter, timeClaimsOnly));
   const filterBetydning = $derived(SAKSUTVALG.find((u) => u.id === filter)?.betydning);
-  const fmt = (value: number) => value.toLocaleString('nb-NO');
+  const fmt = visKroner;
   const antallSaker = (n: number) => `${n} ${n === 1 ? 'sak' : 'saker'}`;
 </script>
 

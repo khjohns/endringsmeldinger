@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { visKroner } from '$lib/utils/belop';
   import type { ContractSettings } from '$lib/types/project';
   let {
     name,
@@ -73,9 +74,7 @@
     <div>
       <dt>Kontraktssum</dt>
       <dd>
-        {contract?.kontraktssum != null
-          ? `${contract.kontraktssum.toLocaleString('nb-NO')} kr`
-          : 'Ikke oppgitt'}
+        {contract?.kontraktssum != null ? `${visKroner(contract.kontraktssum)} kr` : 'Ikke oppgitt'}
       </dd>
     </div>
     <div>

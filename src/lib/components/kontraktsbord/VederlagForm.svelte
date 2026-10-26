@@ -33,7 +33,7 @@
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
 
-  import { FORBEHOLDET } from '$lib/kjernesak/vederlagssvar';
+  import { FORBEHOLDET, type Lagrad } from '$lib/kjernesak/vederlagssvar';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   const review = getApprovalWorkspace();
@@ -235,27 +235,51 @@
   const kjerneresultat = $derived.by(() => {
     if (!kjernelag) return null;
     if (kjernelag.sammenfall) return { ikon: Check, variant: 'positive' as const };
-    if (kjernelag.rader.every((r) => r.beloep === 0))
-      return { ikon: X, variant: 'negative' as const };
+    if (kjernelag.ingenBeloep) return { ikon: X, variant: 'negative' as const };
     return { ikon: CircleMinus, variant: 'mixed' as const };
   });
-  const kjernerader = $derived(
-    (kjernelag?.rader ?? []).map((r) => ({
-      ...r,
-      title: r.begrenset
-        ? 'Produktivitetstap etter begrensningen'
-        : r.saerskilt
-          ? 'Produktivitetstap'
-          : 'Hovedkrav',
-      paragrafRef: r.saerskilt ? '§ 34.1.3' : '§ 34.1.1–34.1.2',
-      krevdBelop: r.begrenset
-        ? undefined
-        : r.saerskilt
-          ? domainConfig.produktivitetBelop
-          : domainConfig.hovedkravBelop,
-    }))
-  );
-  const harLag = $derived(kjernerader.some((r) => r.etikett !== null));
+  // #1303: radene står under laget sitt i brevets rekkefølge. Tekstene sier byggherrens
+  // standpunkt med brevets ord (#492 D), og radene uten beløp har ikke noe krevd eller godkjent.
+  function lagradvisning(rad: Lagrad) {
+    if (rad.art === 'grunnlag')
+      return {
+        tittel:
+          rad.grunn === 'prekludert'
+            ? 'BH har gjort gjeldende at TEs varsel etter § 32.2 kom for sent'
+            : 'BH har avslått grunnlaget',
+        ref: rad.grunn === 'prekludert' ? '§ 32.2' : '',
+        krevd: undefined,
+        godkjent: undefined,
+      };
+    if (rad.art === 'varsel_34_1_2')
+      return {
+        tittel: 'BH gjør gjeldende at varselet etter § 34.1.2 kom for sent',
+        ref: '§ 34.1.2',
+        krevd: undefined,
+        godkjent: undefined,
+      };
+    if (rad.art === 'begrenset')
+      return {
+        tittel: 'Produktivitetstap etter begrensningen',
+        ref: '§ 34.1.3',
+        krevd: undefined,
+        godkjent: rad.beloep,
+      };
+    return rad.art === 'post'
+      ? {
+          tittel: 'Produktivitetstap',
+          ref: '§ 34.1.3',
+          krevd: domainConfig.produktivitetBelop,
+          godkjent: rad.beloep,
+        }
+      : {
+          tittel: 'Hovedkrav',
+          ref: '§ 34.1.1–34.1.2',
+          krevd: domainConfig.hovedkravBelop,
+          godkjent: rad.beloep,
+        };
+  }
+  const stor = (t: string) => t[0].toUpperCase() + t.slice(1);
 
   // Granulær resultat-rad per kostnadselement (kravlinje).
   interface ResultatRad {
@@ -769,36 +793,35 @@
                 <span class="td td-krav">Krav</span>
                 <span class="td td-tal">Krevd</span>
                 <span class="td td-tal">Godkjent</span>
-                {#if harLag}
-                  <span class="td td-lag">Lag</span>
-                {/if}
               </div>
-              {#each kjernerader as rad (rad.title)}
-                <div class="tr">
-                  <span class="td td-krav">
-                    {rad.title}
-                    <span class="td-ref">{rad.paragrafRef}</span>
-                  </span>
-                  <span class="td td-tal font-mono">
-                    {#if rad.krevdBelop === undefined}
-                      <span class="td-emo">—</span>
-                    {:else}
-                      {fmt(rad.krevdBelop)} kr
-                    {/if}
-                  </span>
-                  <span class="td td-tal font-mono" class:td-avslag={rad.beloep === 0}>
-                    {fmt(rad.beloep)} kr
-                  </span>
-                  {#if harLag}
-                    <span class="td td-lag">
-                      {#if rad.etikett}
-                        {rad.etikett[0].toUpperCase() + rad.etikett.slice(1)}
-                      {:else}
+              {#each kjernelag.lag as gruppe, i (i)}
+                {#if gruppe.etikett}
+                  <div class="tr tr-lag">
+                    <span class="td td-lagnavn">{stor(gruppe.etikett)}</span>
+                  </div>
+                {/if}
+                {#each gruppe.rader.map(lagradvisning) as rad, j (j)}
+                  <div class="tr">
+                    <span class="td td-krav">
+                      {rad.tittel}
+                      {#if rad.ref}<span class="td-ref">{rad.ref}</span>{/if}
+                    </span>
+                    <span class="td td-tal font-mono">
+                      {#if rad.krevd === undefined}
                         <span class="td-emo">—</span>
+                      {:else}
+                        {fmt(rad.krevd)} kr
                       {/if}
                     </span>
-                  {/if}
-                </div>
+                    <span class="td td-tal font-mono" class:td-avslag={rad.godkjent === 0}>
+                      {#if rad.godkjent === undefined}
+                        <span class="td-emo">—</span>
+                      {:else}
+                        {fmt(rad.godkjent)} kr
+                      {/if}
+                    </span>
+                  </div>
+                {/each}
               {/each}
             </div>
           </div>
@@ -1288,10 +1311,14 @@
   .td-emo {
     color: var(--ink-4);
   }
-  .td-lag {
-    flex: 1;
-    font-size: 13px;
-    color: var(--ink-2);
+  .tr-lag {
+    background: var(--surface-inset);
+  }
+  .td-lagnavn {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-3);
   }
   .result-linje {
     line-height: 1.45;
