@@ -116,7 +116,7 @@ løsningen, og partene må føre hele den delen utenfor.
 avgjort.
 
 **Avvik fra sparringens ordlyd:** sparringen foreslo å avslutte med «Hovedretningen alene gir
-ikke grunnlag for å endre eksisterende bindinger eller sperrer». Det ville strid mot prinsipp
+ikke grunnlag for å endre eksisterende bindinger eller sperrer». Det ville stride mot prinsipp
 3, 4 og 5, som endrer OV-U3, KA-U7 og EO-U5. Setningen er derfor avgrenset til det prinsippene
 sier uttrykkelig, og listen over det som ikke avgjøres, er utvidet til alle de åpne
 beslutningene.
