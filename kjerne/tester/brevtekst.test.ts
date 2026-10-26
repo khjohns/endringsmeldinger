@@ -984,11 +984,11 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     });
     expect(s.avvisning('BH', brevet(124999.6))?.melding).toBe(
-      'Svaret må ha en begrunnelse, fordi det har et tilbud som ikke er akseptert (§ 34.2.2) (KA-U24, KA-U31).'
+      'Svaret må ha en begrunnelse, fordi du ikke aksepterer tilbudet (§ 34.2.2).'
     );
     // Kontrollsak: et beløp som ikke er godkjent fullt, til nærmeste krone, krever sin egen begrunnelse.
     expect(s.avvisning('BH', brevet(124999.4))?.melding).toBe(
-      'Svaret må ha en begrunnelse, fordi det har et tilbud som ikke er akseptert (§ 34.2.2), et beløp som ikke er godkjent fullt (KA-U24, KA-U31).'
+      'Svaret må ha en begrunnelse, fordi du ikke aksepterer tilbudet (§ 34.2.2) og ikke godkjenner hele beløpet.'
     );
   });
 
@@ -1009,7 +1009,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       ],
     };
     expect(s.avvisning('BH', brevet)?.melding).toBe(
-      'Svaret må ha en begrunnelse, fordi det har et beløp som ikke er godkjent fullt (KA-U24, KA-U31).'
+      'Svaret må ha en begrunnelse, fordi du ikke godkjenner hele beløpet.'
     );
   });
 
@@ -1034,7 +1034,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4), subsidiært avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), videre subsidiært godkjent med 5 dager (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), videre subsidiært godkjent med 5 dager (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
     );
   });
 
@@ -1058,7 +1058,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3]);
     expect(b.uten_virkning).toHaveLength(1);
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4), subsidiært avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), videre subsidiært godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), videre subsidiært godkjent med 10 dager.'
     );
     const tekst = laast(rad)[0];
     expect(tekst).toContain(
@@ -2887,7 +2887,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4 og § 33.6.2), subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 og svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager.'
     );
     // OV-U32: begge påberopelsene står i lag 1 og deler én etikett i brevet, og dagene står i lag 2.
     expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 1, 2]);
@@ -2895,6 +2895,46 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       'Prinsipalt:',
       'Subsidiært:',
     ]);
+  });
+
+  it('VG-A-01: beslutningslinja sier at svaret på forespørselen etter § 33.6.2 kom for sent, ikke «prekludert» (HF-U11, MM-U23)', () => {
+    const { s } = medForesporsel();
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(
+      s,
+      {
+        ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'),
+        frist_varsel_ok: true,
+        foresporsel_svar_ok: false,
+      },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    expect(((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje).toBe(
+      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager.'
+    );
+  });
+
+  it('VG-A-01: en beslutningslinje frosset før #1302 leses med den gamle ordlyden (MM-U9)', () => {
+    const { s } = medForesporsel();
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(
+      s,
+      {
+        ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'),
+        frist_varsel_ok: false,
+        foresporsel_svar_ok: true,
+      },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    // Linja slik kjernen frøs den før #1302. Kjernen regner den ikke ut på nytt.
+    const gammel =
+      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4), subsidiært godkjent med 20 dager.';
+    ((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje = gammel;
+    const lest = lesJournal(s.journal, KJERNE.leserformat).find((h) => h.id === rad.event_id)!;
+    expect(lest.art === 'dokument' && lest.dokument.svar![0].beslutningsgrunnlag.linje).toBe(
+      gammel
+    );
+    expect(s.u().spor.frist.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(gammel);
   });
 
   it('kravet som svarer på forespørselen, sier det (LV-U18 setning 3), og § 33.6.1 kan ikke påberopes (fjerde ledd)', () => {
@@ -5311,7 +5351,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     );
     // OV-U32: standpunktene i samme lag står under én etikett, også i linjen.
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
-      `Byggherrens standpunkt: prinsipalt prekludert (§ 34.1.2), subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter § 34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+      `Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter § 34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
     );
   });
 
