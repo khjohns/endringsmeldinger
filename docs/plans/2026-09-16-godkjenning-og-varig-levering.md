@@ -398,7 +398,7 @@ Et åpent valg blokkerer bare oppgavene som er nevnt.
 
 > **Merknad 15.10:** B-16 er avgjort i retningen med [MM-U21](vedtak.md#mm-u21). Det gjenstår av B-16: aktørrettigheter, godkjenning og innsyn for motparten.
 
-> **Merknad 26.10:** Leveransekravet [OV-U56](vedtak.md#ov-u56) endrer B-16. Det som står åpent av B-16, avgjøres for den manuelle prosessen før første ekte sak, ikke først før produksjon. Rettingene OV-U56 nevner, bygges før første ekte sak. Den fullstendige rettingsflyten etter MM-U21 kan bygges senere.
+> **Merknad 26.10:** Etter [OV-U56](vedtak.md#ov-u56) avgjøres det som står åpent av B-16, for den manuelle prosessen før første ekte sak, ikke først før produksjon.
 
 **Avgjorte beslutninger.** Vedtakene står i 3.1. Radene og merknadene slik de
 stod i 3.4 før sluttredigeringen 09.10, er i Git (se toppteksten).

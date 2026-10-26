@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `a5826ff7a4f9540e92d3360df238898c810863a10b3799981c40af1624b8d81b`
+Kontrollsum (SHA-256 over utdraget visningen leser): `def57b6eb1334012e2e071abe072124c10d23f165fe82bc8a72676e75370c128`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1240,7 +1240,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 25.10, oppdragsgiver (#1282)
 
-**Følge:** Snevrer inn [OV-U48](#ov-u48). Endrer [OV-U61](../../plans/vedtak.md#ov-u61). Endrer [GR-U7](../../plans/vedtak.md#gr-u7). Endrer [GR-U8](../../plans/vedtak.md#gr-u8). Snevrer inn [GR-U26](#gr-u26). Snevrer inn [HF-U5](#hf-u5). Endrer [KA-U16](../../plans/vedtak.md#ka-u16). Endrer [KA-U19](../../plans/vedtak.md#ka-u19). Utvider [MM-U28](../../plans/vedtak.md#mm-u28). Utvider [LV-U4](../../plans/vedtak.md#lv-u4). Presiserer [OV-U3](../../plans/vedtak.md#ov-u3). Presiserer [MM-U30](#mm-u30). Presiserer [HF-U15](#hf-u15). Snevrer inn [KA-U6](../../plans/vedtak.md#ka-u6). Presiserer [HF-U9](#hf-u9). Presiserer [KA-U10](../../plans/vedtak.md#ka-u10). Presiserer [KA-U22](../../plans/vedtak.md#ka-u22). Snevrer inn [EO-U5](../../plans/vedtak.md#eo-u5). I tråd med HF-U7, KA-U7, LV-U32 og MM-U12. Endringen av svaret 25.10 på spørsmål 8 om nøkkeltallene: også vilkår som ikke er avklart, holder et beløp utenfor virksom enighet. Anvender HF-U5, HF-U6 og LV-U7 på forslaget. Hvordan saken håndteres når partene ikke blir enige om en avklaring av vilkårene (2a), avgjøres i #1287. Bygges i #1307.
+**Følge:** Snevrer inn [OV-U48](#ov-u48). Endrer [OV-U61](../../plans/vedtak.md#ov-u61). Endrer [GR-U7](../../plans/vedtak.md#gr-u7). Endrer [GR-U8](../../plans/vedtak.md#gr-u8). Snevrer inn [GR-U26](#gr-u26). Snevrer inn [HF-U5](#hf-u5). Endrer [KA-U16](../../plans/vedtak.md#ka-u16). Endrer [KA-U19](../../plans/vedtak.md#ka-u19). Utvider [MM-U28](../../plans/vedtak.md#mm-u28). Utvider [LV-U4](../../plans/vedtak.md#lv-u4). Presiserer [OV-U3](../../plans/vedtak.md#ov-u3). Presiserer [MM-U30](#mm-u30). Presiserer [HF-U15](#hf-u15). Snevrer inn [KA-U6](../../plans/vedtak.md#ka-u6). Presiserer [HF-U9](#hf-u9). Presiserer [KA-U10](../../plans/vedtak.md#ka-u10). Presiserer [KA-U22](../../plans/vedtak.md#ka-u22). Snevrer inn [EO-U5](../../plans/vedtak.md#eo-u5). I tråd med HF-U7, KA-U7, LV-U32 og MM-U12. Endringen av svaret 25.10 på spørsmål 8 om nøkkeltallene: også vilkår som ikke er avklart, holder et beløp utenfor virksom enighet. Anvender HF-U5, HF-U6 og LV-U7 på forslaget. Hvordan saken håndteres når partene ikke blir enige om en avklaring av vilkårene (2a), avgjøres i #1287 før D bygges. Bygges i #1307.
 
 **Regelrader:** —
 
