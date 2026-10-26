@@ -8,7 +8,8 @@ og [forløpene og rettelsene fra sparringen](https://github.com/khjohns/endrings
 Spørsmålene berører rettsregler og stilles som en nummerert liste i tekst, ikke med
 spørsmålsverktøyet (vedtaksskillen). Fila er skrevet før spørsmålene ble stilt, og
 alternativene står ordrett slik de legges fram. Svarene føres inn ordrett under hvert
-punkt. **Ingenting er valgt.**
+punkt. **Prinsippvedtaket er valgt og ført som
+[OV-U43](../../plans/vedtak.md#ov-u43). Alternativene i punkt 1–14 er ikke valgt.**
 
 **Spørsmålet nå er bare prinsippvedtaket under** (oppdelingen etter den fjerde sparringen
 26.10). Det står på egne bein. Punkt 1–14 lenger ned er grunnlaget for prinsippene og for de
@@ -121,12 +122,42 @@ ikke grunnlag for å endre eksisterende bindinger eller sperrer». Det ville str
 sier uttrykkelig, og listen over det som ikke avgjøres, er utvidet til alle de åpne
 beslutningene.
 
-**Svar:**
+**Svar 26.10 (oppdragsgiver), ordrett:** «Ja til alternativ A, med presiseringen om at det
+tidligere tilbudet erstattes som gjeldende krav først når partene er enige om
+beregningsregelen i stedet. Før prinsippvedtaket og opprett avgrensede oppfølgingsoppgaver i
+avhengighetsrekkefølge. Denne sparringsrunden avsluttes. Detaljene avgjøres i de relevante
+oppgavene før de berørte handlingene tas i bruk, og legges fram enkeltvis når det er behov for
+nye valg.»
+
+Ført som [OV-U43](../../plans/vedtak.md#ov-u43). Vedtaksteksten er alternativ A med
+presiseringen satt inn etter setningen om tilbudet i prinsipp 3.
 
 ## De åpne beslutningene før bygging
 
 Disse avgjøres før de berørte handlingene tas i bruk. Grunnlaget og alternativene står i
-punktene det vises til. De er ikke valgt.
+punktene det vises til. De er ikke valgt. Issuene er ordnet i avhengighetsrekkefølge, og hvert
+issue sier hva det avhenger av:
+
+1. [#502](https://github.com/khjohns/endringsmeldinger/issues/502): revisjonsvernet etter HF-U5
+   og laget.
+2. [#1289](https://github.com/khjohns/endringsmeldinger/issues/1289): bindingen ved ny
+   kravversjon, akseptfrist og revisjon (4, 4b, 5).
+3. [#1290](https://github.com/khjohns/endringsmeldinger/issues/1290): sammenfall, aksept, lagene
+   og brevtekstene (1, 4, 6).
+4. [#1291](https://github.com/khjohns/endringsmeldinger/issues/1291): fullmaktskontrollen (7).
+5. [#1292](https://github.com/khjohns/endringsmeldinger/issues/1292): overslaget og varslene
+   (2, 3, 9, 10).
+6. [#1293](https://github.com/khjohns/endringsmeldinger/issues/1293): forslaget om å endre
+   regelen (11).
+7. [#1294](https://github.com/khjohns/endringsmeldinger/issues/1294): kravet om nedsatt
+   produktivitet (13).
+
+Byggingen: [#1295](https://github.com/khjohns/endringsmeldinger/issues/1295) (kjernen,
+prinsipp 1, 3 og 6), [#1296](https://github.com/khjohns/endringsmeldinger/issues/1296)
+(overslag og varsler), [#1297](https://github.com/khjohns/endringsmeldinger/issues/1297)
+(fullmakten), [#1298](https://github.com/khjohns/endringsmeldinger/issues/1298) (endring av
+regelen) og [#1299](https://github.com/khjohns/endringsmeldinger/issues/1299) (skjemaene og
+visningen).
 
 | Beslutning | Punkt | Hvorfor den ikke bare er teknisk |
 | --- | --- | --- |
@@ -1203,8 +1234,9 @@ EO-sakene bygges på en annen forståelse enn KOE-saken.
 
 ## Krav til byggingen
 
-Prøvingen fant disse kravene til kode som ikke er bygget ennå (L). De føres som kommentar i
-#909 når vedtakene er fattet, og står her bare til da.
+Prøvingen fant disse kravene til kode som ikke er bygget ennå (L). De er ført i
+[#1295](https://github.com/khjohns/endringsmeldinger/issues/1295) og
+[#1297](https://github.com/khjohns/endringsmeldinger/issues/1297).
 
 - Et svar med standpunkt om beregningsregelen og beløp for rigg-posten må ikke gi sammenfall
   bare fordi summene er like (`resultatAvBeloep` sammenlikner summer). Standpunktet om at den

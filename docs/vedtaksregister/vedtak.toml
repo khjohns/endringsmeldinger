@@ -8940,6 +8940,58 @@ tekst = '''
 Standpunktene står foran lagene fra grunnlaget. Det bryter OV-U32, som sier at et avslått eller prekludert grunnlag står først.'''
 forkastet = true
 
+
+[[gruppe.vedtak]]
+id = "OV-U43"
+dato = 2026-10-26
+hvem = "oppdragsgiver"
+kilde = ["#909"]
+sporsmal = '''
+Skal løsningen håndtere krav etter kontraktens enhetspriser og regningsarbeid etter disse prinsippene, med de åpne beslutningene avgjort før de berørte handlingene tas i bruk?'''
+valgt = "A, med presiseringen"
+svar = '''
+Ja til alternativ A, med presiseringen om at det tidligere tilbudet erstattes som gjeldende krav først når partene er enige om beregningsregelen i stedet. Før prinsippvedtaket og opprett avgrensede oppfølgingsoppgaver i avhengighetsrekkefølge. Denne sparringsrunden avsluttes. Detaljene avgjøres i de relevante oppgavene før de berørte handlingene tas i bruk, og legges fram enkeltvis når det er behov for nye valg.'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u14" },
+  { art = "endrer", vedtak = "vs-u28" },
+  { art = "presiserer", vedtak = "ka-u2" },
+  { art = "presiserer", vedtak = "hf-u8" },
+  { art = "endrer", vedtak = "lv-u4" },
+  { art = "endrer", vedtak = "lv-u30" },
+  { art = "endrer", vedtak = "ov-u3" },
+  { art = "endrer", vedtak = "ov-u10" },
+  { art = "presiserer", vedtak = "mm-u28" },
+  { art = "presiserer", vedtak = "mm-u30" },
+  { art = "presiserer", vedtak = "gr-u7" },
+  { art = "utvider", vedtak = "ka-u7" },
+  { art = "utvider", vedtak = "hf-u9" },
+  { art = "utvider", vedtak = "eo-u5" },
+  { art = "presiserer", vedtak = "eo-u8" },
+  { art = "presiserer", vedtak = "ov-u37" },
+  { art = "presiserer", vedtak = "ov-u38" },
+  { art = "presiserer", vedtak = "ov-u39" },
+  { art = "presiserer", vedtak = "ov-u40" },
+  { art = "presiserer", vedtak = "mm-u12" },
+]
+folge = '''
+Prinsippvedtak. Grunnlaget, forløpene, sparringen og de åpne beslutningene står i [spørsmålene](../vedlegg/metodevalg-vederlag-2026-10-26/sporsmal.md). Detaljene avgjøres før de berørte handlingene tas i bruk, i #1289, #1290, #1291, #1292, #1293 og #1294. Revisjonsvernet etter HF-U5 må være avklart i #502 først. Bygges i #1295, #1296, #1297, #1298 og #1299. Prinsipp 5 bygges med EO-sakene (OV-U1).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A som lagt fram"
+tekst = '''
+Løsningen håndterer vederlagsjusteringen etter disse prinsippene: 1. Et tilbud om oppgjør som fast sum (§ 34.2.1) holdes atskilt fra et krav etter kontraktens beregningsregler, det vil si kontraktens enhetspriser (§ 34.3.1) eller regningsarbeid (§ 34.4 og punkt 30). Et krav etter en beregningsregel er ikke et tilbud om fast sum. Byggherrens standpunkt til hvilken beregningsregel som gjelder, står i svaret på vederlagskravet uten beløp for vederlaget etter regelen. Det godkjenner ikke mengder, priser, kostnader eller noe beløp for det vederlaget. En post for rigg og drift i forlenget byggetid beholder sitt eget beløp etter OV-U37–OV-U40. 2. Kostnadsoverslaget etter § 30.2 er TEs egen opplysning og ikke et tilbud om fast sum. Et krav om regningsarbeid har ikke et anslått beløp som kravversjon. TE kan oppgi overslag og sende varsel etter § 30.2 og § 34.4 i løsningen. Et nytt overslag eller et varsel erstatter ikke kravet eller byggherrens svar. Overslag og varsler kan gis også før partene er enige om beregningsregelen, og mens et tilbud er ubesvart. Løsningen utleder ikke et varsel av at et overslag øker. 3. En virksom enighet om beregningsregelen gjør behandlingen av vederlagskravet ferdig i løsningen, mens beløpet avregnes utenfor løsningen. Partene må også være enige om beløpet for en post for rigg og drift i forlenget byggetid. Vilkår som ikke er avklart etter svaret 25.10 om vilkår, hindrer at behandlingen er ferdig. Virkningen etter grunnlaget følger GR-U7 som for annen enighet. Visningen sier at behandlingen av vederlagskravet er ferdig i løsningen, og at beløpet avregnes utenfor. Den sier ikke at saken er avsluttet når andre spor er åpne. Etter at behandlingen er ferdig, godtas fortsatt overslag og varsler etter prinsipp 2 og en endring etter prinsipp 4. Et tilbud byggherren ikke har akseptert, regnes ikke lenger som krav når partene er enige om en beregningsregel. Nøkkeltallene viser at beløpet etter regelen er ukjent, ikke 0. 4. En beregningsregel partene er enige om, kan endres ved uttrykkelig enighet mellom dem, uten trekk og uten avkall. 5. En endringsordre kan angi beregningsregelen uten et samlet beløp. En enighet om beregningsregelen er enighet i vederlagssporet når en sak skal inngå i en endringsordre. Endringsordren skiller mellom byggherrens standpunkt og en regel partene alt har avtalt, og mellom regelen og beløpet for en post for rigg og drift. 6. Løsningen avgjør ikke det kontrakten overlater til partene (MM-U12): hvilken beregningsregel som faktisk gjelder når partene er uenige, hvilke kostnader som er nødvendige, eller virkningen av et manglende eller sent varsel. Vedtaket avgjør ikke bindingen ved nye kravversjoner, akseptfrister, fullmaktskontrollen, revisjonsvernet, sammenfall og aksept i et svar med flere deler, om kostnadsoverslaget er obligatorisk, kravet om nedsatt produktivitet, formen på et forslag om å endre regelen, varselet etter § 34.4, lagene ved preklusjon eller brevtekstene, utover det som uttrykkelig står her. Disse spørsmålene avgjøres før de berørte handlingene tas i bruk. Utover det prinsipp 3, 4 og 5 sier, endrer prinsippene ingen bindinger eller sperrer. Forhold: presiserer OV-U14 og VS-U28 for hvordan et krav etter § 34.3.1 og § 34.4 fremmes; endrer VS-U28, slik at et krav om regningsarbeid ikke har et anslått beløp som kravversjon, og kostnadsoverslaget og varselet om overskridelse kan føres i løsningen; presiserer KA-U2 og HF-U8 for overslag og varsler; endrer LV-U4 punkt 2 og LV-U30, slik at setningen om tilbud bare står i et tilbud; endrer OV-U3, slik at en virksom enighet om beregningsregelen gjør vederlagskravet avgjort, med unntak fra sperren for overslag, varsler og endring av regelen; endrer OV-U10 for saker der vederlagskravet er avgjort ved enighet om beregningsregelen; presiserer MM-U28 og MM-U30; presiserer GR-U7 og svaret 25.10 om vilkår for den enigheten; utvider KA-U7 og HF-U9, slik at en enighet om beregningsregelen kan endres ved ny enighet, uten at det forkastede alternativet i KA-U7 om ny kravversjon med samtykke gjeninnføres for beløp eller dager; utvider EO-U5 og presiserer EO-U8; presiserer OV-U37–OV-U40; presiserer MM-U12.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A, med presiseringen"
+tekst = '''
+Løsningen håndterer vederlagsjusteringen etter disse prinsippene: 1. Et tilbud om oppgjør som fast sum (§ 34.2.1) holdes atskilt fra et krav etter kontraktens beregningsregler, det vil si kontraktens enhetspriser (§ 34.3.1) eller regningsarbeid (§ 34.4 og punkt 30). Et krav etter en beregningsregel er ikke et tilbud om fast sum. Byggherrens standpunkt til hvilken beregningsregel som gjelder, står i svaret på vederlagskravet uten beløp for vederlaget etter regelen. Det godkjenner ikke mengder, priser, kostnader eller noe beløp for det vederlaget. En post for rigg og drift i forlenget byggetid beholder sitt eget beløp etter OV-U37–OV-U40. 2. Kostnadsoverslaget etter § 30.2 er TEs egen opplysning og ikke et tilbud om fast sum. Et krav om regningsarbeid har ikke et anslått beløp som kravversjon. TE kan oppgi overslag og sende varsel etter § 30.2 og § 34.4 i løsningen. Et nytt overslag eller et varsel erstatter ikke kravet eller byggherrens svar. Overslag og varsler kan gis også før partene er enige om beregningsregelen, og mens et tilbud er ubesvart. Løsningen utleder ikke et varsel av at et overslag øker. 3. En virksom enighet om beregningsregelen gjør behandlingen av vederlagskravet ferdig i løsningen, mens beløpet avregnes utenfor løsningen. Partene må også være enige om beløpet for en post for rigg og drift i forlenget byggetid. Vilkår som ikke er avklart etter svaret 25.10 om vilkår, hindrer at behandlingen er ferdig. Virkningen etter grunnlaget følger GR-U7 som for annen enighet. Visningen sier at behandlingen av vederlagskravet er ferdig i løsningen, og at beløpet avregnes utenfor. Den sier ikke at saken er avsluttet når andre spor er åpne. Etter at behandlingen er ferdig, godtas fortsatt overslag og varsler etter prinsipp 2 og en endring etter prinsipp 4. Et tilbud byggherren ikke har akseptert, regnes ikke lenger som krav når partene er enige om en beregningsregel. Det tidligere tilbudet erstattes som gjeldende krav først når partene er enige om beregningsregelen i stedet. Nøkkeltallene viser at beløpet etter regelen er ukjent, ikke 0. 4. En beregningsregel partene er enige om, kan endres ved uttrykkelig enighet mellom dem, uten trekk og uten avkall. 5. En endringsordre kan angi beregningsregelen uten et samlet beløp. En enighet om beregningsregelen er enighet i vederlagssporet når en sak skal inngå i en endringsordre. Endringsordren skiller mellom byggherrens standpunkt og en regel partene alt har avtalt, og mellom regelen og beløpet for en post for rigg og drift. 6. Løsningen avgjør ikke det kontrakten overlater til partene (MM-U12): hvilken beregningsregel som faktisk gjelder når partene er uenige, hvilke kostnader som er nødvendige, eller virkningen av et manglende eller sent varsel. Vedtaket avgjør ikke bindingen ved nye kravversjoner, akseptfrister, fullmaktskontrollen, revisjonsvernet, sammenfall og aksept i et svar med flere deler, om kostnadsoverslaget er obligatorisk, kravet om nedsatt produktivitet, formen på et forslag om å endre regelen, varselet etter § 34.4, lagene ved preklusjon eller brevtekstene, utover det som uttrykkelig står her. Disse spørsmålene avgjøres før de berørte handlingene tas i bruk. Utover det prinsipp 3, 4 og 5 sier, endrer prinsippene ingen bindinger eller sperrer. Forhold: presiserer OV-U14 og VS-U28 for hvordan et krav etter § 34.3.1 og § 34.4 fremmes; endrer VS-U28, slik at et krav om regningsarbeid ikke har et anslått beløp som kravversjon, og kostnadsoverslaget og varselet om overskridelse kan føres i løsningen; presiserer KA-U2 og HF-U8 for overslag og varsler; endrer LV-U4 punkt 2 og LV-U30, slik at setningen om tilbud bare står i et tilbud; endrer OV-U3, slik at en virksom enighet om beregningsregelen gjør vederlagskravet avgjort, med unntak fra sperren for overslag, varsler og endring av regelen; endrer OV-U10 for saker der vederlagskravet er avgjort ved enighet om beregningsregelen; presiserer MM-U28 og MM-U30; presiserer GR-U7 og svaret 25.10 om vilkår for den enigheten; utvider KA-U7 og HF-U9, slik at en enighet om beregningsregelen kan endres ved ny enighet, uten at det forkastede alternativet i KA-U7 om ny kravversjon med samtykke gjeninnføres for beløp eller dager; utvider EO-U5 og presiserer EO-U8; presiserer OV-U37–OV-U40; presiserer MM-U12.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+I første versjon tar løsningen bare imot vederlagskrav som tilbud om oppgjør som fast sum (§ 34.2.1). Et krav etter kontraktens enhetspriser (§ 34.3.1) eller regningsarbeid (§ 34.4), kostnadsoverslaget og varslene etter § 30.2 og § 34.4 sendes utenfor løsningen og registreres etter OV-U4. Skjemaet sier det når TE vil kreve etter en beregningsregel. Forhold: endrer VS-U28; snevrer inn OV-U14; presiserer OV-U4.'''
+forkastet = true
 [[gruppe.vedtak]]
 anker = "hf-u2"
 vedtak = '''
