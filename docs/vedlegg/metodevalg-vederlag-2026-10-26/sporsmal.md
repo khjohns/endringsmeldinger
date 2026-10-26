@@ -941,7 +941,7 @@ EO-sakene bygges på en annen forståelse enn KOE-saken.
   alternativene.
 - **Oppmann etter § 35.2.** Kontraktsgrunnlaget stryker § 35.2 første ledd bokstav a (Del II
   pkt. 40), mens VS-U3 lar appen vise oppmann før overtakelsen. Det ligger utenfor denne runden
-  og føres i et eget issue.
+  og står i [#1288](https://github.com/khjohns/endringsmeldinger/issues/1288).
 
 ## Krav til byggingen
 
