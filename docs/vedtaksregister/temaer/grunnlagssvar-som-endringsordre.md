@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `0d91949402aa0a47b314cd97de6f48bba7b051749397b37264492fe9c0b66641`
+Kontrollsum (SHA-256 over utdraget visningen leser): `c6af3dde493e465a3d88d8260cbec2d3081c7c8479c92cede437eb61053c69eb`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1142,7 +1142,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 26.10, oppdragsgiver (#909)
 
-**Følge:** Presiserer [OV-U14](../../plans/vedtak.md#ov-u14). Endrer [VS-U28](#vs-u28). Presiserer [KA-U2](../../plans/vedtak.md#ka-u2). Presiserer [HF-U8](../../plans/vedtak.md#hf-u8). Endrer [LV-U4](../../plans/vedtak.md#lv-u4). Endrer [LV-U30](../../plans/vedtak.md#lv-u30). Endrer [OV-U3](../../plans/vedtak.md#ov-u3). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Presiserer [MM-U28](../../plans/vedtak.md#mm-u28). Presiserer [MM-U30](#mm-u30). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Utvider [KA-U7](../../plans/vedtak.md#ka-u7). Utvider [HF-U9](#hf-u9). Utvider [EO-U5](../../plans/vedtak.md#eo-u5). Presiserer [EO-U8](../../plans/vedtak.md#eo-u8). Presiserer [OV-U37](#ov-u37). Presiserer [OV-U38](../../plans/vedtak.md#ov-u38). Presiserer [OV-U39](#ov-u39). Presiserer [OV-U40](../../plans/vedtak.md#ov-u40). Presiserer [MM-U12](../../plans/vedtak.md#mm-u12). Prinsippvedtak. Grunnlaget, forløpene, sparringen og de åpne beslutningene står i [spørsmålene](../../vedlegg/metodevalg-vederlag-2026-10-26/sporsmal.md). Detaljene avgjøres før de berørte handlingene tas i bruk, i #1289, #1290, #1291, #1292, #1293 og #1294. Revisjonsvernet etter HF-U5 må være avklart i #502 først. Bygges i #1295, #1296, #1297, #1298 og #1299. Prinsipp 5 bygges med EO-sakene (OV-U1).
+**Følge:** Presiserer [OV-U14](../../plans/vedtak.md#ov-u14). Endrer [VS-U28](#vs-u28). Presiserer [KA-U2](../../plans/vedtak.md#ka-u2). Presiserer [HF-U8](../../plans/vedtak.md#hf-u8). Endrer [LV-U4](../../plans/vedtak.md#lv-u4). Endrer [LV-U30](../../plans/vedtak.md#lv-u30). Endrer [OV-U3](../../plans/vedtak.md#ov-u3). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Presiserer [MM-U28](../../plans/vedtak.md#mm-u28). Presiserer [MM-U30](#mm-u30). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Utvider [KA-U7](../../plans/vedtak.md#ka-u7). Utvider [HF-U9](#hf-u9). Utvider [EO-U5](../../plans/vedtak.md#eo-u5). Presiserer [EO-U8](../../plans/vedtak.md#eo-u8). Presiserer [OV-U37](#ov-u37). Presiserer [OV-U38](../../plans/vedtak.md#ov-u38). Presiserer [OV-U39](#ov-u39). Presiserer [OV-U40](../../plans/vedtak.md#ov-u40). Presiserer [MM-U12](../../plans/vedtak.md#mm-u12). Prinsippvedtak. Grunnlaget, forløpene, sparringen og de åpne beslutningene står i [spørsmålene](../../vedlegg/metodevalg-vederlag-2026-10-26/sporsmal.md). Detaljene avgjøres før de berørte handlingene tas i bruk, i #502, #1289, #1290, #1291, #1292, #1293 og #1294. Bygges i #1295, #1296, #1297, #1298 og #1299. Prinsipp 5 bygges med EO-sakene (OV-U1).
 
 **Regelrader:** —
 
