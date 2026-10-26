@@ -1793,21 +1793,37 @@ Disse følger av gjeldende vedtak etter verifiseringene og føres som arbeidsval
 henvisning til vedtaket. Svarer oppdragsgiver «ja», føres de slik. Vil oppdragsgiver ha et
 punkt som vedtak, stilles det i vedtaks-PR-en.
 
-1. **Fullmakten for et svar med flere lag (VG-F-03):** fullmakten regnes av beløpet byggherren
-   godtar om ingen av innsigelsene fører fram, i hvert spor, og fristdagene ganget med
-   dagmulktssatsen. Det er det høyeste beløpet byggherren binder seg til i noe lag. I tråd med
-   B-13 (05.10) og presiseringen 24.09 av GFK-06. Føres i #818.
+1. **Fullmakten for et svar med flere lag (VG-F-03):** «Fullmakten for et svar med flere lag
+   regnes av beløpet byggherren godtar om ingen av innsigelsene fører fram. I fristsporet er
+   det dagene byggherren godtar om ingen av innsigelsene fører fram, ganget med
+   dagmulktssatsen. Verdiene regnes per spor og legges sammen, etter vedtaket 23.09 om
+   fullmakten for godkjent ansvarsgrunnlag (GFK-06) og presiseringen 24.09. Mangler
+   dagmulktssatsen, gjelder GFK-U3.» Laget med fristdager uten fremdriftshindring kommer fra
+   B-13 om frist uten fremdriftshindring (05.10). Føres i #818.
+   - **Begrunnelse:** beløpet er det høyeste byggherren binder seg til i noe lag. I et
+     vederlagssvar har hver post det godtatte beløpet, beløpet etter begrensningen eller 0 ved
+     preklusjon, og beløpet etter begrensningen avvises når det er høyere enn det godtatte
+     (`kontroller` og `poster` i `kjerne/regler/vederlag.ts`). I et fristsvar er dagene 0 eller
+     de vurderte dagene. `calculateAuthority` i `src/lib/approval/authority.ts` tar det høyeste
+     av det prinsipale og det subsidiære. Lest i koden, ikke kjørt (L).
 2. **Vederlagsskjemaet mens bare tilbud kan sendes (VG-H-02):** til andre metoder er bygget,
    sier skjemaet at kravet bare kan sendes fra appen som tilbud etter § 34.2.1, og at et krav
    etter en annen metode sendes utenfor appen. Skjemaet foreslår ikke at TE velger tilbud.
    Utvider MM-U25. Føres i #909.
-3. **Opplysningen i byggherrens svarskjema (VG-A-02, VG-C-02):** skjemaet sier at appen
-   beregner virkningen ut fra valgene og ikke tolker begrunnelsen, at byggherren er bundet av
-   det hen sender fra appen, og, når svaret godkjenner hele kravet i et spor, at partene da er
-   enige og at byggherren ikke kan revidere svaret. Er grunnlaget ikke besvart, sier skjemaet at
-   enigheten blir betinget av ansvaret om byggherren senere avslår grunnlaget. Følger KA-U19,
-   OV-U4, GR-U7 og GR-U26. Føres i #313.
+3. **Opplysningen i byggherrens svarskjema (VG-A-02, VG-C-02):** «Skjemaet for byggherrens svar
+   sier at virkningen beregnes ut fra valgene og at begrunnelsen ikke tolkes, og at byggherren
+   er bundet av det som sendes herfra. Teksten følger svaret som utarbeides:
+   - Gir svaret sammenfall med kravet etter de gjeldende reglene, sier skjemaet at enighet
+     registreres uten TEs aksept, og at svaret ikke kan revideres.
+   - Har svaret særskilte vilkår (3b-D1), sier skjemaet at TE må godta svaret før enighet
+     registreres, og at aksepten ikke i seg selv avklarer vilkårene. Skjemaet forklarer
+     begrensningene for revisjon og viser til handlingen for frafall av vilkår.
+   - Er grunnlaget ikke besvart, sier skjemaet at standpunktene gjelder under forutsetning av
+     at grunnlaget for kravet foreligger. Enigheten blir ikke virksom før grunnlaget er
+     avklart etter de gjeldende reglene, og eventuelle særskilte vilkår er avklart etter
+     3b-D2.»
 
+   Følger KA-U19 slik 3b-D1 endrer det, OV-U4, GR-U7, GR-U26, HF-U7 og 3b-D1–D2. Føres i #313.
 
 ## 4. Funnene som følger av gjeldende vedtak
 
