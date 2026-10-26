@@ -626,7 +626,7 @@ function beslutningslinje(
   return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
 }
 
-/** Det byggherren gjør gjeldende kom for sent, med ordene i brevteksten (LV-U4 punkt 5). */
+/** Det byggherren gjør gjeldende kom for sent, i kortform av `VARSELET` i brevteksten (LV-U4 punkt 5). */
 const SENT_I_LINJEN: Record<Hjemmel, string> = {
   '32.2': 'varselet etter § 32.2',
   '33.4': 'varselet etter § 33.4',

@@ -2914,6 +2914,47 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
   });
 
+  it('KA-U24: et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent, må begrunnes, også med dagene godkjent subsidiært (VS-U17)', () => {
+    const { s } = medForesporsel();
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const vurdert = (vurderinger: Data) => ({
+      ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'),
+      ...vurderinger,
+    });
+    const resultat = { resultat: 'avslaatt', godkjent_dager: 0 };
+    const brevet = (vurderinger: Data) => ({
+      type: 'brev',
+      svar: [svar('frist', s.krav('frist'), vurdert(vurderinger), resultat, null)],
+    });
+    expect(
+      s.avvisning('BH', brevet({ frist_varsel_ok: true, foresporsel_svar_ok: false }))?.melding
+    ).toBe(
+      'Svaret må ha en begrunnelse, fordi du gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent.'
+    );
+    // Kontrollsak: det samme svaret med en begrunnelse godtas.
+    const medBegrunnelse = {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          vurdert({ frist_varsel_ok: true, foresporsel_svar_ok: false }),
+          resultat
+        ),
+      ],
+    };
+    expect(s.avvist('BH', medBegrunnelse)).toBeNull();
+    // #1279: tre grunner settes sammen til «A, B og C».
+    expect(
+      s.avvisning(
+        'BH',
+        brevet({ frist_varsel_ok: false, foresporsel_svar_ok: false, vilkar_oppfylt: false })
+      )?.melding
+    ).toBe(
+      'Svaret må ha en begrunnelse, fordi du gjør gjeldende at varselet etter § 33.4 kom for sent, gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent og gjør gjeldende at fremdriften ikke er hindret som følge av forholdet.'
+    );
+  });
+
   it('VG-A-01: en beslutningslinje frosset før #1302 leses med den gamle ordlyden (MM-U9)', () => {
     const { s } = medForesporsel();
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));

@@ -172,9 +172,12 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
   } else {
     if (v.frist_varsel_ok === false)
       ut.push('gjør gjeldende at varselet etter § 33.4 kom for sent');
-    // VS-U13
+    // VS-U17
+    if (v.foresporsel_svar_ok === false)
+      ut.push('gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent');
+    // VS-U13: uten hjemmel, som er § 33.3 i force majeure.
     if (v.vilkar_oppfylt === false)
-      ut.push('gjør gjeldende at fremdriften ikke er hindret av forholdet (§ 33.1)');
+      ut.push('gjør gjeldende at fremdriften ikke er hindret som følge av forholdet');
     if (v.spesifisert_krav_ok === false)
       ut.push('gjør gjeldende at kravet ble spesifisert for sent (§ 33.6.1)');
     if (!fulltGodkjent) ut.push('ikke godkjenner alle dagene');
