@@ -194,7 +194,7 @@
     'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder dersom denne innsigelsen ikke fører frem.';
 
   // #313, arbeidsvalgene 26.10 (VG-A-02, VG-C-02, kommentaren i #1303): hva svaret binder byggherren
-  // til. «Begrunnelsen» fordi feltet heter det. Tilfellet med særskilte vilkår venter på OV-U49.
+  // til, ordrett etter arbeidsvalget. Tilfellet med særskilte vilkår venter på OV-U49.
   const BINDER = {
     alltid:
       'Virkningen av svaret regnes ut fra valgene over. Utdypningen tolkes ikke. Byggherren er bundet av svaret som sendes herfra.',
