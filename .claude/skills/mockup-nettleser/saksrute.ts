@@ -615,7 +615,7 @@ try {
       await te.goto(`${FRONTEND}${saksrute}`);
       await sporene.getByRole('button', { name: /Vederlag/ }).click();
       await te.getByRole('button', { name: /^Send (varsel eller krav|krav om vederlagsjustering)$/ }).click();
-      await te.getByLabel('Fast pris').fill('125000');
+      await te.getByLabel('Fast sum').fill('125000');
       await te.locator('.tiptap').click();
       await te.keyboard.type('Tilbudet omfatter peling, rigging og nedrigging av pelemaskin.');
       await te.getByRole('button', { name: 'Se brev og send' }).click();

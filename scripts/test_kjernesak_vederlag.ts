@@ -168,7 +168,7 @@ if (values.varsel) {
   await side.getByRole('button', { name: 'Send krav om vederlagsjustering' }).waitFor();
   await side.getByRole('button', { name: 'Send krav om vederlagsjustering' }).click();
 } else await knapp.click();
-await side.getByLabel('Fast pris').fill('250000');
+await side.getByLabel('Fast sum').fill('250000');
 await side.locator('.tiptap').click();
 await side.keyboard.type('Tilbudet omfatter peling, rigging og nedrigging av pelemaskin.');
 await side.screenshot({ path: join(UT, '3-skjema.png'), fullPage: true });
