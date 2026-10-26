@@ -582,7 +582,7 @@ Svarene føres i vedtaksregisteret i en egen vedtaks-PR, sammen med de andre sva
   sammenfall (GR-U7), mens brevet kan være et avslag og nytt tilbud etter avtaleloven § 6
   første ledd. Løsningen tolker ikke utdypningen (KA-U16), og et forbehold valgene ikke kan
   uttrykke, skal sendes utenfor løsningen og registreres (KA-U19, OV-U4). I dag står det bare
-  som fast tekst i skjemaet (avsnitt 4, punkt 2). Svaret på spørsmål 2b bruker samme mønster
+  som fast tekst i skjemaet (avsnitt 4, pakke 2). Svaret på spørsmål 2b bruker samme mønster
   for en bekreftelse: byggherren opplyser selv om det tidligere svaret hadde et forbehold eller
   vilkår som standpunktene ikke kan uttrykke.
 - **Belegg:** avtaleloven § 6, § 34.2.2 første ledd. GR-U7, GR-U10, HF-U7, KA-U16, KA-U19,
@@ -1839,33 +1839,63 @@ de to arbeidsvalgene». Punkt 1 føres som arbeidsvalg i #818, og punkt 2 i #313
 
 ## 4. Funnene som følger av gjeldende vedtak
 
-Disse rettes uten nytt vedtak. Ingen av dem rettes i denne PR-en.
+Disse rettes uten nytt vedtak, innenfor valgene 25.10 og 26.10. Ingen av dem rettes i denne
+PR-en. Hvert funn har én ansvarlig oppgave, og de forventede resultatene står der. Oppgaven
+avsluttes med en målrettet kontroll av funnet, ikke en ny gjennomgang av dokumentet. Et nytt
+vedtaksvalg legges bare fram når rettingen krever en atferd gjeldende vedtak ikke avgjør.
 
-1. **VG-A-01: beslutningslinja sier «prekludert» som byggherrens standpunkt.** Når
-   byggherren gjør gjeldende at et varsel kom for sent, sier linja i det frosne
-   beslutningsgrunnlaget «Byggherrens standpunkt: prinsipalt prekludert (§ 33.4)», mens
-   brevet sier at byggherren gjør gjeldende at varselet kom for sent (K, forløp 5 i del 1).
-   - **Vedtakene:** MM-U23, HF-U11 og HF-U2. Ingen vedtak gir ordlyden. #492 (lukket) la
-     til «Byggherrens standpunkt:», men ordet står igjen.
-   - **Kodestedet:** `beslutningslinje` i `kjerne/frosset/standpunkt.ts`.
-   - **Minste retting:** linja gjengir påberopelsen slik brevet sier den, for eksempel
-     «prinsipalt varselet etter § 33.4 kom for sent, subsidiært godkjent med 20 dager». Begge
-     versjonene økes, fordi `kjerne/frosset/` endres. Allerede frosne linjer står (MM-U9).
-     Testene i `kjerne/tester/brevtekst.test.ts`, `docs/domenetabell/regler.json` og
-     bevis-sakene med samme tekst rettes.
-2. **VG-A-02 og VG-C-02: svarskjemaet mangler teksten om hva appen leser og hva som
-   binder.** Skjemaet sier ikke at appen beregner virkningen ut fra valgene og ikke tolker
-   begrunnelsen, eller at byggherren er bundet av det hen sender fra appen. Byggherren som
-   godkjenner hele kravet, får bare et grønt ikon, og vet ikke at partene da er enige og at
-   svaret ikke kan revideres (L).
-   - **Vedtakene:** KA-U19 slik OV-U4 endret den, og GR-U7. Følge til KA-U19 sier at
-     skjemaet hører til #313.
+Fordelingen er oppdragsgivers 26.10. Pakke 1 bygges først, deretter pakke 2 som ett brukerforløp.
+
+| Pakke | Funn | Oppgave | Behandling |
+| --- | --- | --- | --- |
+| 1. Beløpskontrollen i kjernen | VG-F-01 | #1301 | Avgrenset feilretting, samordnet med spørsmål 6 (#1285) |
+| 2. Det partene ser før sending og aksept | VG-A-02 og VG-C-02, VG-B-02, VG-E-02 | #313, #732, #1303 | Ett brukerforløp. Sparres samlet når skjermbilder eller forløp foreligger |
+| 3. Beslutningslinja i brevet | VG-A-01 | #1302 | Tekst- og fryseretting, med før/etter-eksempler |
+| 4. Registrerte brev ved kravet | VG-H-03 | #1304 | Rettes når svaret på spørsmål 9 bygges, uten midlertidig tekst |
+| 5. Rigg og drift og metodene | VG-G-01, VG-H-02 | #1171, #909 | Fortsetter der (avsnitt 5) |
+| Python-stien | VG-A-03 | #1268 | Dokumentert avgrensning etter DL-U2 |
+
+### Pakke 1. Beløpskontrollen i kjernen
+
+**VG-F-01: kjernen lagrer et annet beløp enn byggherren oppga, uten å avvise
+vurderingen.** For «godkjent» bruker kjernen det krevde beløpet, og for «avslått» 0. Beløpet
+byggherren oppga for posten, leses ikke (`beregnGodkjentBeloep`). Kjørt 26.10 i kjernen i
+minnet, med vurderingen «godkjent» og 50 000 kr for et krav på 100 000 kr (K, banen
+`krav_irreg`, kjernen på `569666b`, som er uendret på `main`):
+
+- **Første innsending, med resultatet 50 000 kr:** avvises med `ANNET_RESULTAT` og meldingen
+  «Serveren regner ut godkjent_beloep=100000.» Avvisningen gjelder at resultatet avviker fra
+  kjernens utregning. Den sier ikke at vurderingen og beløpet motsier hverandre.
+- **Ny innsending med verdien fra avvisningen:** godtas. Den lagrede hendelsen har
+  resultatet 100 000 kr, og 50 000 kr står ikke i den.
+- **En klient som regner ut resultatet med kjernens regler,** sender 100 000 kr allerede
+  første gang, og innsendingen godtas uten avvisning.
+
+«Avslått» med 50 000 kr gir det samme med 0 kr. Del 3 viste det samme med et krav på
+125 000 kr. Feilen ligger i kjernens kontroll av beløpet, uavhengig av hva skjemaet sender i dag.
+
+- **Vedtakene:** B-13 (resultatet oppsummerer vurderingene), og regelen i `AGENTS.md` om at
+  det kjernen ikke kan, avvises og ikke forenkles.
+- **Kodestedet:** `kontroller` og `beregnGodkjentBeloep` i `kjerne/regler/vederlag.ts`, og
+  `ANNET_RESULTAT` i `kjerne/kommandoer/nyttelast.ts`.
+- **Ansvarlig oppgave:** #1301. Samordnes med kontrollen av øre etter spørsmål 6 (#1285).
+
+### Pakke 2. Det partene ser før sending og aksept
+
+1. **VG-A-02 og VG-C-02: svarskjemaet mangler teksten om hva løsningen leser og hva som
+   binder.** Skjemaet sier ikke at virkningen beregnes ut fra valgene og at begrunnelsen ikke
+   tolkes, eller at byggherren er bundet av det som sendes. Byggherren som godkjenner hele
+   kravet, får bare et grønt ikon, og vet ikke at partene da er enige og at svaret ikke kan
+   revideres (L).
+   - **Vedtakene:** KA-U19 slik OV-U4 og 3b-D1 endrer den, GR-U7, GR-U26 og HF-U7.
    - **Kodestedet:** `VederlagForm.svelte` (`kjerneresultat`) og
      `src/lib/components/kjernesak/Brevkontroll.svelte`.
-   - **Minste retting:** teksten etter KA-U19 og OV-U4, og opplysningen om bindingen, føres
-     som krav i #313. Avslår byggherren grunnlaget senere, blir enigheten betinget av
-     ansvaret (GR-U7, GR-U26), så skjemaet sier ikke at den «står». Se også spørsmål 11.
-3. **VG-B-02: etikettene som vedtakene krever, vises ikke.** Kjernen regner ut at et svar
+   - **Ansvarlig oppgave:** #313, med teksten fra arbeidsvalget i spørsmål 11, punkt 2. Den
+     skiller mellom sammenfall, særskilte vilkår etter 3b-D1 og ubesvart grunnlag. Ved
+     ubesvart grunnlag er enigheten betinget allerede når svaret sendes: den blir ikke virksom
+     før grunnlaget er avklart etter de gjeldende reglene (GR-U7, GR-U26), og eventuelle
+     særskilte vilkår er avklart etter 3b-D2.
+2. **VG-B-02: etikettene som vedtakene krever, vises ikke.** Kjernen regner ut at et svar
    gjaldt et annet varsel enn det TE senere har oppgitt, at en enighet er betinget av
    grunnlaget, at et standpunkt nå er subsidiært, og at en enighet er uten virkning. Ingen
    komponent i den ekte saksruta viser det, og TE kan godta et svar uten å se det (K,
@@ -1874,51 +1904,76 @@ Disse rettes uten nytt vedtak. Ingen av dem rettes i denne PR-en.
      var …»), GR-U26, MM-U28 og MM-U30.
    - **Kodestedet:** `etiketter` i `kjerne/utledning/visning.ts` (riktig), og
      `Sporbilde.etiketter` i `src/lib/kjernesak/saksbilde.ts`, som ingen komponent leser.
-   - **Minste retting:** #732 punkt 1 utvides med `subsidiaert` og `enige_betinget`, med
-     OV-U5 og GR-U26 som kilde. OV-U5 krever varselet i visningen og akseptskjemaet, ikke i
-     brevteksten.
-4. **VG-F-01: kjernen forkaster et motstridende beløp uten å avvise.** Vurderingen
-   «godkjent» med 50 000 kr for et krav på 125 000 kr avvises med `ANNET_RESULTAT`, og
-   tallet 125 000 kr står i avvisningen. Sender klienten det, lagres 125 000 kr, og
-   50 000 kr blir borte. «Avslått» med 50 000 kr gir det samme med 0 kr (K). Skjemaet sender
-   ikke slike par, så konsekvensen er lav.
-   - **Vedtakene:** B-13 (resultatet oppsummerer vurderingene), og regelen i `AGENTS.md` om
-     at det kjernen ikke kan, avvises og ikke forenkles.
-   - **Kodestedet:** `kontroller` og `beregnGodkjentBeloep` i `kjerne/regler/vederlag.ts`.
-   - **Minste retting:** avvis et beløp ved «godkjent» som ikke er likt det krevde, og ved
-     «avslått» som ikke er 0, med `UGYLDIG_VURDERING`. `REGELVERSJON` økes.
-5. **VG-H-03: «motparten har registrert brev» står også for byggherren, om byggherrens egne
-   brev.** `brevVedKravet` tar bare byggherrens brev, og journalen sier «motparten» til
-   begge partene (L).
-   - **Vedtaket:** OV-U20. Merknaden «Appen vurderer ikke innholdet» står ved journalposten
-     og kreves ikke ved kravet.
-   - **Kodestedet:** `brevVedKravet` i `kjerne/utledning/visning.ts` og
-     `src/lib/components/kjernesak/Kjernejournal.svelte`.
-   - **Minste retting:** teksten sier hvem som har registrert brevet, til spørsmål 9 er
-     besvart. Funksjonen for registrerte brev er årsaken til dette funnet (avsnitt 2).
-6. **VG-A-03: Python-stien fastslår preklusjon.** `FristOverview.svelte`,
-   `VederlagOverview.svelte`, `CenterRead.svelte` og `GrunnlagOverview.svelte` skriver
-   «prekludert», og valget «Nei, prekludert» står i `GrunnlagForm.svelte` og
-   `FristForm.svelte` (L). Det strider mot MM-U23. TS-ruta når dem ikke. Det følger
-   [DL-U2](plans/vedtak.md#dl-u2) og rettes ikke. #1268 dekker bare `VederlagOverview` og
-   rigg og drift. Stedene er ført som kommentar i #1268.
+   - **Ansvarlig oppgave:** #732, punkt 1, med kravene i kommentaren 26.10. OV-U5 krever
+     varselet i visningen og akseptskjemaet, ikke i brevteksten. Etikettene for særskilte
+     vilkår (3b-D1) og for TEs siste opplysning (5-D) bygges med de svarene, men prøves i samme
+     forløp.
+3. **VG-E-02: lagtabellen i byggherrens vederlagsskjema.** Hver rad fra lag 3 og oppover heter
+   «videre subsidiært», så begrensningen etter § 34.1.3 og posten ser ut til å stå i samme
+   lag. Preklusjonen etter § 34.1.2 og lagene fra grunnlaget har ingen rad (L). Brevet og linja
+   over tabellen er riktige (K). OV-U32 gjelder brevet, ikke tabellen, så rettingen er et
+   arbeidsvalg.
+   - **Kodestedet:** `vederlagslag` i `src/lib/kjernesak/vederlagssvar.ts` og tabellen i
+     `VederlagForm.svelte`.
+   - **Ansvarlig oppgave:** #1303.
 
-**Rettinger som er arbeidsvalg** og ikke følger av et vedtak:
+Skjemateksten, lagene og etikettene er ett brukerforløp: partene må forstå hva de sender og
+godtar. Oppgavene bygges hver for seg, men arbeidsflyten sparres samlet når skjermbilder eller
+forløp foreligger.
 
-- **VG-E-02: lagtabellen i byggherrens vederlagsskjema.** Hver rad fra lag 3 og oppover heter
-  «videre subsidiært», så begrensningen etter § 34.1.3 og posten ser ut til å stå i samme
-  lag. Preklusjonen etter § 34.1.2 og lagene fra grunnlaget har ingen rad (L). Brevet og linja
-  over tabellen er riktige (K). OV-U32 gjelder brevet, ikke tabellen. Retting:
-  `vederlagslag` i `src/lib/kjernesak/vederlagssvar.ts` leverer laget videre, og tabellen i
-  `VederlagForm.svelte` grupperer etter det.
+### Pakke 3. Beslutningslinja i brevet
+
+**VG-A-01: beslutningslinja sier «prekludert» som byggherrens standpunkt.** Når byggherren
+gjør gjeldende at et varsel kom for sent, sier linja i det frosne beslutningsgrunnlaget
+«Byggherrens standpunkt: prinsipalt prekludert (§ 33.4)», mens brevet sier at byggherren gjør
+gjeldende at varselet kom for sent (K, forløp 5 i del 1).
+
+- **Vedtakene:** MM-U23, HF-U11 og HF-U2. Ingen vedtak gir ordlyden. #492 (lukket) la til
+  «Byggherrens standpunkt:», men ordet står igjen.
+- **Kodestedet:** `beslutningslinje` i `kjerne/frosset/standpunkt.ts`.
+- **Ansvarlig oppgave:** #1302. Linja gjengir påberopelsen slik brevet sier den, for eksempel
+  «prinsipalt varselet etter § 33.4 kom for sent, subsidiært godkjent med 20 dager». Linjer
+  som alt er frosset, står uendret (MM-U9).
+
+### Pakke 4. Registrerte brev ved kravet
+
+**VG-H-03: «motparten har registrert brev» står også for byggherren, om byggherrens egne
+brev.** `brevVedKravet` tar bare byggherrens brev, og journalen sier «motparten» til begge
+partene (L).
+
+- **Vedtaket:** OV-U20. Svaret 26.10 på spørsmål 9 (B) utvider OV-U20 og OV-U4: begge
+  partenes registrerte brev vises ved kravet, med avsenderen.
+- **Kodestedet:** `brevVedKravet` i `kjerne/utledning/visning.ts` og
+  `src/lib/components/kjernesak/Kjernejournal.svelte`.
+- **Ansvarlig oppgave:** #1304, som bygger svaret på spørsmål 9. Funnet rettes der, ikke med
+  en midlertidig tekst. Funksjonen for registrerte brev er årsaken til funnet (avsnitt 2).
+
+### Python-stien
+
+**VG-A-03: Python-stien fastslår preklusjon.** `FristOverview.svelte`,
+`VederlagOverview.svelte`, `CenterRead.svelte` og `GrunnlagOverview.svelte` skriver
+«prekludert», og valget «Nei, prekludert» står i `GrunnlagForm.svelte` og
+`FristForm.svelte` (L). Det strider mot MM-U23. Det følger [DL-U2](plans/vedtak.md#dl-u2) og
+rettes ikke. #1268 dekker bare `VederlagOverview` og rigg og drift. Stedene er ført som
+kommentar i #1268.
+
+Avgrensningen holder bare så lenge TS-saken ikke når stedene. Kontrollert 26.10 på
+`569666b`, lest i koden (L). TS-saken viser `CenterRead`, men tekstene er vernet:
+
+- `GrunnlagOverview` viser statusteksten for TS-saken.
+- `FristOverview` og `VederlagOverview` viser byggherrens svar bare med `!store.erKjernesak`.
+- `isSubsidiary` er `false` for TS-saken (`src/lib/kjernesak/sakstilstand.ts`).
+- `GrunnlagForm` vises bare for demosaken.
+- `FristForm` krever godkjenningsarbeidsflaten, som TS-saken ikke har.
+
+Vilkåret er ført i #1268.
 
 ## 5. Kjente funn, duplikater og avkreftede funn
 
 **Kjent:**
 
-- VG-A-02: skjemateksten etter KA-U19 er planlagt i #313, men issuet nevner ikke kravet (se
-  avsnitt 4, punkt 2).
-- VG-B-02: etikettene i visningen (#732), med to nye forløp (se avsnitt 4, punkt 3).
+- VG-A-02: skjemateksten etter KA-U19 i #313. Kravet er ført der 26.10 (avsnitt 4, pakke 2).
+- VG-B-02: etikettene i visningen (#732), med to nye forløp (avsnitt 4, pakke 2).
 - VG-G-01: regelsettet og demoen behandler rigg og drift som om kravet kan prekluderes etter
   § 34.1.3 (#1268 for demoen, #1171 for kjernen, med økt regelversjon).
 - VG-H-02: TE kan bare sende vederlagskravet som tilbud (#909). Meldingen «Velg tilbud» kan
@@ -1941,7 +1996,7 @@ Disse rettes uten nytt vedtak. Ingen av dem rettes i denne PR-en.
 
 - Del 2, spørsmål 1 (forbehold i begrunnelsen): slått sammen med spørsmål 3. Alternativ A
   ville endret KA-U16 og LV-U32, ikke snevret dem inn.
-- Del 2, spørsmål 2 (opplysning til byggherren): følger av OV-U4 og GR-U7 (avsnitt 4, punkt 2).
+- Del 2, spørsmål 2 (opplysning til byggherren): følger av OV-U4 og GR-U7 (avsnitt 4, pakke 2).
 - Del 2, spørsmål 4 (første kunnskapsdato): avgjort av OV-U41.
 - Del 3, spørsmål 1 (forbeholdet): slått sammen med spørsmål 2. Alternativ A og B leste noe
   ut av det registrerte brevet, som OV-U4 forbyr.
@@ -1957,21 +2012,31 @@ Disse rettes uten nytt vedtak. Ingen av dem rettes i denne PR-en.
 
 Jeg er ikke uenig i noen av dommene i verifiseringene.
 
-## 6. Kontrollert og riktig håndtert
+## 6. Kontrollert og riktig håndtert på `569666b`
+
+Dette er historiske kontrollresultater. De gjelder kjernen og visningen på `569666b`, med
+vedtakene som gjaldt da. De sier ikke at atferden er riktig etter valgene 25.10 og 26.10.
+Et punkt merket **Prøves på nytt** endres av et valg og kontrolleres igjen i oppgaven som
+bygger valget. Står det bare et spørsmål, har svaret ennå ingen byggeoppgave, og merket tas
+inn i oppgaven når den opprettes. De andre punktene berøres ikke av valgene.
 
 Brevet og frysingen:
 
 - Brevteksten avsenderen ser i brevkontrollen, er den som fryses; et avvik avvises med
   `ANNEN_BREVTEKST` (L). LV-U2.
 - Forbeholdet for ubesvart grunnlag fryses og står uendret etter et senere grunnlagsavslag (K).
-  GR-U26, MM-U11.
+  GR-U26, MM-U11. **Prøves på nytt** med den nye forbeholdsteksten og henvisningen etter
+  spørsmål 2 (D).
 - Full godkjenning under forbeholdet gir enighet om beløpet uten aksept, betinget av
-  grunnlaget, og byggherren kan ikke revidere (K). GR-U7, GR-U26.
+  grunnlaget, og byggherren kan ikke revidere (K). GR-U7, GR-U26. **Prøves på nytt** etter
+  spørsmål 3b (D1): et svar med særskilte vilkår gir ikke sammenfall og krever TEs aksept.
+  Kontrolleres også mot skjemateksten i #313.
 - Etter TEs aksept av avslaget på grunnlaget avvises revisjonen av vederlagssvaret, og
   enigheten får ingen virkning (K). GR-U7, SK-01.
 - Brevteksten for påberopt sen varsling sier at byggherren «gjør gjeldende at varselet … i
   brev <n> av <dato> kom for sent» (K). LV-U21, HF-U11.
-- Datoer fra partene vises som partens opplysning (L). VS-U25, OV-U5.
+- Datoer fra partene vises som partens opplysning (L). VS-U25, OV-U5. **Prøves på nytt** etter
+  spørsmål 5 (D og E): datoen vises som «TEs siste opplysning», med de tidligere opplysningene.
 
 Nye opplysninger og kravversjoner:
 
@@ -1990,21 +2055,29 @@ Innsigelser, lag og beløp:
   OV-U27, OV-U32, B-13.
 - Tap av hele kravet er skilt fra begrensningen (K). VS-U5.
 - Sen spesifisering med de samme dagene, og begrensning lik posten, gir ikke sammenfall (K).
-  HF-U7.
-- Avrunding til hele øre deles av utregningen, brevet og fullmakten (L). Etter svaret på
-  spørsmål 6 avvises brøkdeler av øre i stedet.
+  HF-U7. **Prøves på nytt** for beløpet i #1285, fordi sammenlikningen skjer i hele øre etter
+  spørsmål 6 (6b-A).
+- Utregningen, brevet og fullmakten rundet beløp av til hele øre på samme måte (L). **Prøves
+  på nytt** i #1285: etter spørsmål 6 (6a-A) avvises brøkdeler av øre før beløpskontrollen, og
+  ingenting rundes av.
 - Ingen verdi fra byggherren fylles inn fra TE, og en manglende vurdering avvises (L). KA-U4.
-- Klientens regelspeil for vederlaget har paritetstest mot kjernen (K, 21 tester).
+- Klientens regelspeil for vederlaget har paritetstest mot kjernen (K, 21 tester). **Prøves på
+  nytt** når reglene endres i #1301 og #1285.
 
 Registrerte brev og saken samlet:
 
 - Et registrert brev gir ingen standpunkt, enighet, sperre eller forbehold, og begge partene
   kan fortsatt sende fra appen, også etter et eksternt svar med forbehold (K). OV-U4, OV-U7.
+  **Prøves på nytt** etter spørsmål 1 (A, #1045) og spørsmål 2 og 2b: henvisningen og
+  bekreftelsen er nye utsagn i den vanlige svarflyten, mens registreringen alene fortsatt
+  ikke gir noen virkning.
 - Ved «venter på svar» vises byggherrens registrerte brev i sporet, og saken har merknaden
-  etter OV-U19 (K). OV-U4, OV-U20.
-- «Appen vurderer ikke innholdet» står per brev og for saken (L). OV-U4, OV-U19.
+  etter OV-U19 (K). OV-U4, OV-U20. **Prøves på nytt** i #1304: etter spørsmål 9 (B) vises
+  begge partenes brev, med avsenderen.
+- «Appen vurderer ikke innholdet» står per brev og for saken (L). OV-U4, OV-U19. **Prøves på
+  nytt** i #1304, der merknaden også står ved hvert brev ved kravet.
 - Registreringen av et varsel sendt utenfor appen har påkrevd dato og vedlegg og ingen
-  brevkontroll (L). OV-U5, MM-U17.
+  brevkontroll (L). OV-U5, MM-U17. **Prøves på nytt** etter spørsmål 1 (A, #1045).
 - Fristdagene summeres ikke på tvers av saker (L). EO-U8.
 - Kompensasjonen i uendret byggetid regnes ikke i noen sak (L). OV-U36.
 - En avvisning vises før brevkontrollen (L). MM-U32.
@@ -2012,9 +2085,14 @@ Registrerte brev og saken samlet:
 
 ## 7. Verifikasjon og grenser
 
-- **Denne økta har ikke kjørt kode.** Belegget K og L er rapportenes. Forløpene i
-  rapportene ble kjørt i kjernen i minnet, ikke gjennom serveren, testbasen eller
+- **Kjørt i denne økta:** bare forløpet for VG-F-01 26.10 (avsnitt 4, pakke 1), i kjernen i
+  minnet med en midlertidig test som ikke er tatt inn. Ellers er belegget K og L rapportenes.
+  Forløpene i rapportene ble kjørt i kjernen i minnet, ikke gjennom serveren, testbasen eller
   nettleseren.
+- **Lest i denne økta 26.10:** vernet for TS-saken mot stedene i VG-A-03 (avsnitt 4,
+  Python-stien). `kjerne/` og `src/` er uendret fra `569666b` til `main` 26.10, så
+  kontrollresultatene og funnene gjelder fortsatt koden på `main`. Avsnitt 6 er likevel bundet
+  til `569666b`.
 - **Kontraktsteksten** (`khjohns/kontrakt`, commit `5540b60`) er lest i denne økta for § 5
   (avsnitt 2), § 32.3 annet ledd (spørsmål 2) og formelen for forlenget byggetid i Del II
   pkt. B.2.16 (spørsmål 7). De andre bestemmelsene spørsmålene viser til, er kontrollert av
