@@ -39,7 +39,8 @@ KOE_TESTBASE_URL="$(scripts/testbase/docker_testbase.sh url)" /tmp/venv/bin/pyth
 SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med
 `scripts/testbase/docker_sqlserver.sh`, og den setter `KOE_SQLSERVER_TILKOBLING`
 med en gang. Testene i `server/` og `sprakprove/kjernelagring/` venter på
-serveren i opptil tre minutter og hoppes over uten variabelen. Hver testfil får sin egen
+serveren i opptil tre minutter og hoppes over uten variabelen. I en økt med flere
+repoer setter ikke hooken variabelen; se «Skyøkta». Hver testfil får sin egen
 base fra `opprettTestbase` i `server/tester/sqlserver.ts`, med innstillingene fra
 Azure SQL Database. Loggen står i `/tmp/koe-sqlserver.log`. Utenfor skyøkta:
 
@@ -120,6 +121,37 @@ Med `FEILINNFOERING_UTVALG=1` kjører hver mutasjon bare filene med målene sine
 ## Skyøkta
 
 Reglene for skyøkta står i «Miljø» og «Hvor hva står» i `AGENTS.md`. Her står kommandoene.
+
+`khjohns/kontrakt` legges til underveis:
+
+```text
+add_repo(owner="khjohns", repo="kontrakt")   # klones til ../kontrakt
+```
+
+Er økta likevel startet med flere repoer, starter den i `/home/user`. Da lastes ikke
+`.claude/settings.json` i repoet, så ingen av hookene kjører: oppstartshooken ikke, og
+heller ikke `brokervakt` og `skrivevakt` før verktøykallene (#1319, kontrollert 26.10).
+Står arbeidsmappa ved start som `/home/user` i systemprompten, kjør hooken for hånd. Den kan bruke flere minutter med
+pip og npm, så gi kallet `timeout` på 600000:
+
+```bash
+CLAUDE_PROJECT_DIR= bash /home/user/endringsmeldinger/.claude/hooks/session-start.sh
+```
+
+Uten `CLAUDE_ENV_FILE` legges tilkoblingen ikke i miljøet. Hooken skriver ut en
+`export KOE_SQLSERVER_TILKOBLING=…`-linje som leser den. Kjør linja i hvert Bash-kall
+som trenger tilkoblingen. Med standardporten er den:
+
+```bash
+export KOE_SQLSERVER_TILKOBLING="$(KOE_SQLSERVER_PORT=14331 KOE_SQLSERVER_SA_PASSORD="$(cat /tmp/koe-sqlserver-14331.passord)" /home/user/endringsmeldinger/scripts/testbase/docker_sqlserver.sh tilkobling)"
+```
+
+Hentingen av bildet kan ta om lag ti minutter, og testene venter bare i tre. Serveren
+har svart når `/tmp/koe-sqlserver-14331.container` finnes. Til da viser
+`/tmp/koe-sqlserver.log` hvor langt oppstarten er kommet.
+
+Vaktene kan ikke kjøres for hånd. I en slik økt verner ingenting token-brokeren eller
+de sperrede mappene for subagentene, så hold deg til det oppdraget sier.
 
 Side for side i repo-listen, uten `search/issues`:
 `gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.

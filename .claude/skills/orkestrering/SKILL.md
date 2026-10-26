@@ -39,7 +39,8 @@ nærmer seg grensene for orkestratoren i «Kontekst i arbeidsøktene». Da gjør
    eventuelt er tatt fra et senere trinn. Rekkefølgen endres bare av
    oppdragsgiver, og da i beskrivelsen (oppdragsgiver 20.10, #1065).
 3. Sletter sjekkene sine.
-4. Starter neste orkestrator med `create_session`. Oppdraget er kort: les
+4. Starter neste orkestrator med `create_session`, med bare dette repoet i
+   `source_url` («Miljø» i `AGENTS.md`). Oppdraget er kort: les
    `AGENTS.md`, denne skillen og overleveringen, og hva sporet omfatter. Det
    gjengir ikke historikken. Har bølgeissuet en prompt, brukes den ordrett.
 5. Sier til oppdragsgiver hva som er merget, og gir lenken til overleveringen

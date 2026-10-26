@@ -171,10 +171,15 @@ start_sqlserver() {
 sqlstatus=0
 tilkobling="$(start_sqlserver 2>> "$sqllogg")" || sqlstatus=$?
 if [ "$sqlstatus" = 0 ]; then
+  port="${KOE_SQLSERVER_PORT:-14331}"
   if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     echo "export KOE_SQLSERVER_TILKOBLING='$tilkobling'" >> "$CLAUDE_ENV_FILE"
+    echo "SQL Server: starter i bakgrunnen (koe-sqlserver-$port), KOE_SQLSERVER_TILKOBLING er satt. Testene mot SQL Server i server/ og sprakprove/kjernelagring/ venter på den; logg i $sqllogg."
+  else
+    # Hooken er kjørt for hånd, for eksempel i en økt med flere repoer (#1319).
+    echo "SQL Server: starter i bakgrunnen (koe-sqlserver-$port); logg i $sqllogg. Uten CLAUDE_ENV_FILE er KOE_SQLSERVER_TILKOBLING ikke satt i miljøet. Sett den i hvert Bash-kall som trenger den:"
+    echo "  export KOE_SQLSERVER_TILKOBLING=\"\$(KOE_SQLSERVER_PORT=$port KOE_SQLSERVER_SA_PASSORD=\"\$(cat /tmp/koe-sqlserver-$port.passord)\" $rot/scripts/testbase/docker_sqlserver.sh tilkobling)\""
   fi
-  echo "SQL Server: starter i bakgrunnen (koe-sqlserver-${KOE_SQLSERVER_PORT:-14331}), KOE_SQLSERVER_TILKOBLING er satt. Testene mot SQL Server i server/ og sprakprove/kjernelagring/ venter på den; logg i $sqllogg."
 elif [ "$sqlstatus" = 3 ]; then
   echo "ADVARSEL: en annen kjøring av hooken starter SQL Server og ble ikke ferdig med forgrunnen på 120 s; se $sqllogg. KOE_SQLSERVER_TILKOBLING er ikke satt, så testene mot SQL Server i server/ og sprakprove/kjernelagring/ hoppes over, og en grønn npm test sier ingenting om lagringen. Kjør hooken på nytt når den andre kjøringen er ferdig."
 elif ! docker info > /dev/null 2>&1; then
