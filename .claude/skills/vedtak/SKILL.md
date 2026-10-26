@@ -70,6 +70,21 @@ oppdragsgiver.
   vedtakene og koden før spørsmålene stilles. I FK runde 6 fant prøvingen at en
   anbefaling sparringen kalte teknisk, snudde planen for leveringen, og at et
   sitat fra et vedtak var halvt.
+- **Prøv arbeidsflyten før vedtaksteksten skrives.** Når et spørsmål endrer hva
+  en bruker gjør i appen, prøver en subagent retningen med tre til fem konkrete
+  forløp, også forløp der brukeren angrer eller har gjort en feil. Utgangspunktet
+  er hva brukeren skal få gjort, ikke vedtakene som finnes. Den spør: kommer
+  brukeren i mål i appen, lønner det seg å svare uriktig på et kontrollspørsmål,
+  utløser en opplysning en rettslig handling ingen mente å gjøre, kan en part
+  utilsiktet tape en posisjon, og finnes det en blindvei? Tre grenser gjelder
+  likevel: appen tolker ikke fritekst (KA-U16), appen avgjør ikke det kontrakten
+  overlater til partene (MM-U12), og en forenkling forklares med hva den koster
+  den andre parten. Ren ordlyd og samsvar mellom vedtak trenger ikke denne
+  prøvingen. I vurderingen av vedtakene 25.10 (#1282) godkjente prøvingen mot
+  vedtaksfila en sendesperre som gjorde det lønnsomt å svare nei. Forløpene fant
+  blindveiene, og rettingene som bare skulle gi samsvar, la til nye: en ny adgang
+  til å svekke et svar, et trekk av et avtalt krav og et fritt tilbakekall av et
+  bindende forslag (oppdragsgiver 25.10).
 - **Skriv alternativene i vedtaksform.** Det valgte alternativet blir
   vedtaksteksten ordrett, og et alternativ oppdragsgiver forkaster, blir
   «Forkastet» ordrett ([vedtaksregisteret](../../../docs/vedtaksregister/README.md)).
@@ -90,7 +105,12 @@ oppdragsgiver.
   (presiserer, utvider, snevrer inn, endrer, opphever) med spørsmålet? Et
   alternativ som strider mot et vedtak, er enten feil eller et forslag om å
   oppheve vedtaket, og det skal stå i alternativet. Forholdet skrives i
-  spørsmålet, så det følger svaret inn i registeret.
+  spørsmålet, så det følger svaret inn i registeret. Prøvingen er ikke slavisk:
+  et vedtak kan være feil. Funnene deles i fire typer: indre feil i
+  alternativet, motstrid der alternativet bør vike, motstrid der vedtaket bør
+  vike (med forholdet som må stå i alternativet), og en arbeidsflyt som er
+  riktig, men tungvint. En motstrid legges fram som et valg, og rettes ikke
+  automatisk med den nærmeste regelen som finnes.
 - **Passer svaret ikke på et alternativ, still et oppfølgingsspørsmål** med
   lesningene du ser. Velg ikke selv.
 - **Send svaret ordrett** til hver økt det berører, også til økter som ikke
