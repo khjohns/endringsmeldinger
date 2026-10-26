@@ -5,7 +5,7 @@ title: ''
 ---
 
 <!-- Suppler et eksisterende issue fremfor å opprette et nytt om samme arbeid.
-Sett en eksisterende milepæl eller sporetikett etter AGENTS.md. -->
+Sett milepæl eller sporetikett, og lag- og temaetiketter, etter .claude/skills/github/SKILL.md. -->
 
 ## Grunnlag og avgrensning
 
