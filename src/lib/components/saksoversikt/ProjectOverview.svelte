@@ -99,6 +99,7 @@
   const filtered = $derived(velgSaker(saker, query, filter, timeClaimsOnly));
   const filterBetydning = $derived(SAKSUTVALG.find((u) => u.id === filter)?.betydning);
   const fmt = (value: number) => value.toLocaleString('nb-NO');
+  const antallSaker = (n: number) => `${n} ${n === 1 ? 'sak' : 'saker'}`;
 </script>
 
 <div class="project-overview">
@@ -241,18 +242,49 @@
               <div class="stat-label">Krevd vederlag <Coins size={17} /></div>
               <strong class="stat-value amount">{fmt(v.krav_sum)}<small>kr</small></strong>
               <p>{v.krav_antall} krav · {v.venter_paa_svar} venter på svar</p>
+              <p class="stat-basis">
+                TEs gjeldende krav, også krav BH har svart på eller partene er enige om. Trukne krav
+                og saker avsluttet ved et godtatt avslag på grunnlaget eller et trukket grunnlag er
+                ikke med.
+              </p>
+              <dl class="stat-parts">
+                <div>
+                  <dt>Subsidiært svar fra BH, ikke godtatt av TE</dt>
+                  <dd>{fmt(v.svar_subsidiaert_sum)} kr</dd>
+                </div>
+              </dl>
+              <p class="stat-basis">
+                Hele beløpet i svarene, også poster som er godkjent prinsipalt. Beløpet er ikke
+                enighet.
+              </p>
             </section>
             <section class="stat">
               <div class="stat-label">Enighet om vederlag <Check size={17} /></div>
               <strong class="stat-value amount"
                 >{fmt(v.enighet_virksom_sum)}<small>kr</small></strong
               >
-              <p>Virksom enighet, etter appens lesing</p>
-              <p>Betinget: {fmt(v.enighet_betinget_sum)} kr</p>
-              <p>Subsidiært svar fra BH: {fmt(v.svar_subsidiaert_sum)} kr</p>
-              {#if v.enighet_uten_beloep}<p>{v.enighet_uten_beloep} uten beløp</p>{/if}
+              <p class="stat-basis">
+                Virksom enighet slik oversikten leser svarene: TE har godtatt svaret, eller svaret
+                stemmer med kravet.
+              </p>
+              <dl class="stat-parts">
+                <div>
+                  <dt>Betinget enighet</dt>
+                  <dd>{fmt(v.enighet_betinget_sum)} kr</dd>
+                </div>
+                <div>
+                  <dt>Enighet uten beløp</dt>
+                  <dd>{antallSaker(v.enighet_uten_beloep)}</dd>
+                </div>
+              </dl>
             </section>
           </div>
+          <p class="stats-note">
+            {#if noekkeltall.ikke_forstaatt}{antallSaker(noekkeltall.ikke_forstaatt)} som oversikten ikke
+              forstår, er ikke med i summene.
+            {/if}Krav i flere saker kan gjelde samme kostnad, og oversikten kontrollerer det ikke.
+            Kompensasjonen for rigg og drift i uendret byggetid er ikke med.
+          </p>
         {/if}
 
         <WorkQueue {saker} {role} projectId={prosjektId} scenarios={demoScenarios} />
@@ -512,7 +544,14 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
-    margin-bottom: 28px;
+    margin-bottom: 12px;
+  }
+  .stats-note {
+    margin: 0 0 28px;
+    max-width: 72ch;
+    color: var(--color-ink-muted);
+    font-size: 12px;
+    line-height: 1.5;
   }
   .stat {
     padding: 20px;
@@ -554,6 +593,32 @@
     line-height: 1.5;
     margin: 0;
   }
+  .stat .stat-basis {
+    margin-top: 4px;
+  }
+  .stat-parts {
+    display: grid;
+    gap: 4px;
+    margin: 12px 0 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-wire);
+    font-size: 12px;
+  }
+  .stat-parts div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 8px;
+  }
+  .stat-parts dt {
+    color: var(--color-ink-muted);
+  }
+  .stat-parts dd {
+    margin: 0 0 0 auto;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
   .overview-content {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -561,6 +626,9 @@
     align-items: start;
   }
   .time-stat {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     text-align: left;
     color: inherit;
     position: relative;
