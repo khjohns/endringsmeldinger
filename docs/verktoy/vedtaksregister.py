@@ -597,6 +597,22 @@ def _nevner(navn: str, tekst: str, *, uten_store_bokstaver: bool = False) -> boo
     return bool(re.search(rf"(?<!\w){re.escape(navn)}(?!\w)", tekst, flagg))
 
 
+# Et alternativ i et annet spørsmål, som «2b-A» eller «5-A».
+_ANNET_SPORSMAL = re.compile(r"\d+[a-zæøå]?-$")
+
+
+def _velger_ogsaa(alternativ: dict, svar: str) -> bool:
+    """Svaret nevner et annet alternativ i spørsmålet som et mulig valg. En omtale av et
+    alternativ svaret forkaster, eller av et alternativ i et annet spørsmål, er ikke et
+    valg (PR #1312)."""
+    if alternativ.get("forkastet"):
+        return False
+    return any(
+        not _ANNET_SPORSMAL.search(svar[: m.start()])
+        for m in re.finditer(rf"(?<!\w){re.escape(alternativ['navn'])}(?!\w)", svar)
+    )
+
+
 _TIL_ANBEFALINGEN = re.compile(
     r"(?:^|[.!?:\n])\s*[«\"]?\s*ja til (?:alle )?anbefaling(?:en|ene)(?!\w)", re.IGNORECASE
 )
@@ -753,7 +769,7 @@ def valider(register: dict) -> list[str]:
             andre = [
                 a["navn"]
                 for a in p["alternativ"]
-                if a["navn"] != p["valgt"] and _nevner(a["navn"], p["svar"])
+                if a["navn"] != p["valgt"] and _velger_ogsaa(a, p["svar"])
             ]
             if andre:
                 feil.append(
