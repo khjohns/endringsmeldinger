@@ -1736,6 +1736,9 @@ Svarene føres i vedtaksregisteret i en egen vedtaks-PR, sammen med de andre sva
   dokumentutvalget skifter med hvem som leser.» Den spurte hva «ikke er rettet» betyr, og om
   bare avsenderen beskriver brevet. Oppslaget i OV-U18 og OV-U4 over svarte på begge, og
   modellen ordrett: «Ingen grunn til å vedta særskilt fremheving av motpartens brev.»
+- **Svar 26.10 (oppdragsgiver):** B, med forholdet til OV-U4. Oppdragsgiver ordrett: «Jeg er
+  enig med dere». Forkastet: A og C slik de står. Svaret føres i vedtaksregisteret i en egen
+  vedtaks-PR.
 
 ### Spørsmål 10. Sammenhengen med fristkrav i andre saker (VG-G-03)
 
@@ -1780,6 +1783,9 @@ Svarene føres i vedtaksregisteret i en egen vedtaks-PR, sammen med de andre sva
   krav og svar, og modellen ordrett: «BH skal forklare sitt standpunkt, ikke overta TEs
   begrunnelse.» Modellen foreslo «tar ikke automatisk hensyn til». «Automatisk» er strøket,
   fordi løsningen ikke har en annen måte å ta hensyn til andre saker på.
+- **Svar 26.10 (oppdragsgiver):** B, uten «automatisk». Arbeidsvalget om veiledningen
+  (tidligere 11.2) inngår i B. Oppdragsgiver ordrett: «Jeg er enig med dere». Forkastet: A
+  slik den står. Svaret føres i vedtaksregisteret i en egen vedtaks-PR.
 
 ### Spørsmål 11. Tre arbeidsvalg som føres uten vedtak
 
