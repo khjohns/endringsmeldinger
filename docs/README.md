@@ -235,6 +235,7 @@ utgangspunkt som er passert.
 | [prompt: svakhetsgjennomgang](prompt-svakhetsgjennomgang-2026-09-17.md) | Utgangspunktet for runden 17.09. Etterprøvingen korrigerte flere av premissene — les den sammen med [audit-sikkerhetsarkitektur](audit-sikkerhetsarkitektur-2026-09-17.md) |
 | [superpowers/](superpowers/) | Implementasjonsplaner og designspecer fra mars–september, en annen arbeidsflyt |
 | [design/](design/) | Designressurser for godkjenningspanelet |
+| [design/konsept-varden/](design/konsept-varden/) | Eksperimentelt UX-konsept for saksvisningen, med HTML-skisser. Prøves i #1331. Ikke vedtatt design |
 
 ---
 
