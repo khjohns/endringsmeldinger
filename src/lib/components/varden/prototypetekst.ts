@@ -220,6 +220,11 @@ export const BREVTYPER: { type: string; tekst: string; virkning?: string }[] = [
 ];
 export const ukjentHandling = (noekkel: string) => `Handlingen ${noekkel}`;
 
+/** Varselet med hjemmelen: § 34.1.3 når nøkkelen har den, ellers varselet i sporet (OV-U5). */
+const VARSEL_I_SPORET: Record<string, string> = { vederlag: '34.1.2', frist: '33.4' };
+export const varselet = (type: string, hva: string) =>
+  `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer varsel sendt utenfor appen'} etter § ${VARSEL_I_SPORET[hva] ?? hva}`;
+
 /** Innsigelsen etter § 5 tredje ledd med det den gjelder: et krav, et svar eller et varsel. */
 const MAAL: Record<string, string> = { krav: 'kravet', svar: 'svaret', varsel: 'varselet' };
 export const innsigelsen = (art: string, nummer: number | null) =>
