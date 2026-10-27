@@ -7,15 +7,18 @@ Regelbevisene er bevis-sakene i
 dem, men henvisningen erstatter ikke kontrollene i forløpet.
 
 [Dekningsoversikten](dekning.md) og startjournalene demoruta laster
-(`startjournaler.json`), lages av forløpsfilene:
+(`startjournaler.json`), lages av forløpsfilene. Dekningsoversikten viser også, for hvert
+vedtak og hver rad i domenetabellen, hvilke forløp og kontrollpunkter som viser til
+den, så et endret vedtak kan følges til forløpene det berører:
 
 ```bash
 node kjerne/tester/brukerforloep.ts --skriv
 ```
 
 Vakttesten i `kjerne/tester/brukerforloep.test.ts` feiler når de ikke stemmer med
-forløpsfilene, når en kilde ikke finnes i vedtaksfila eller domenetabellen, og når en
-bevis-sak ikke finnes.
+forløpsfilene, når en kilde ikke finnes i vedtaksfila eller domenetabellen, når en
+forståelse mangler kilde, og når en bevis-sak ikke finnes. At et opphevet vedtak ikke står
+alene som kilde, kontrollerer `docs/verktoy/vedtakshenvisninger.py`, som for koden.
 
 ## Formatet
 
@@ -27,7 +30,7 @@ Ett forløp per fil, `BF-<nummer>.json`, med ID-en som filnavn. ID-en endres ikk
 | `status` | `kjørbar` eller `planlagt`. Et planlagt forløp har ingen steg, kjøres ikke og etterlignes ikke med en annen handling |
 | `utgangspunkt` | `start` er et prefiks fra bevis-sakene eller `null`, og `beskrivelse` sier hvor saken står |
 | `steg` | Handlingene, i samme format som bevis-sakene (`Handling` i `kjerne/tester/klient.ts`) |
-| `kontrollpunkter` | Navngitte punkter etter et steg (`etter`), med `kontrollsett`, egne `kontroller` og `forstaaelse` |
+| `kontrollpunkter` | Navngitte punkter etter et steg (`etter`), med `kontrollsett`, egne `kontroller` og `forstaaelse` med `tekst` og `kilde` |
 | `kilder`, `venter_paa` | For et planlagt forløp: vedtakene det bygger på, og issuene det venter på |
 | `bestilling` | Valgfri. Markdown-fila i samme mappe med ønsket arbeidsmåte, skjermtilstandene i prototypen, forventningene og de åpne spørsmålene, skrevet før byggingen. Metoden står i skillen [`brukerforlop`](../../../.claude/skills/brukerforlop/SKILL.md) |
 | `bevis_saker` | Bevis-sakene forløpet viser til |
@@ -40,8 +43,9 @@ En kontroll har `rolle`, `kilde` og `forventet`, med stiene kjøreren leser (`le
 [`kontrollsett.json`](kontrollsett.json) er kontroller som går igjen, som «TE har mottatt
 et svar», med parametre som `{spor}` og `{svar}`.
 
-`forstaaelse` er det brukeren skal forstå ved kontrollpunktet. Den prøves manuelt i
-demoruta og i brukertest, ikke i CI.
+`forstaaelse` er det brukeren skal forstå ved kontrollpunktet, hver med `tekst` og
+`kilde`. Teksten sier hva brukeren ser eller forstår, og kilden er vedtakene eller radene
+den bygger på. Den prøves manuelt i demoruta og i brukertest, ikke i CI.
 
 ## Demoruta
 

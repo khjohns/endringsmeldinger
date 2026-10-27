@@ -12,7 +12,7 @@ og vakttestene står i
 ```bash
 python3 docs/verktoy/vedtaksregister.py           # kontroller registeret og skriv vedtaksfila
 python3 docs/verktoy/vedtaksregister.py --sjekk   # bare kontroller
-python3 docs/verktoy/vedtakshenvisninger.py       # vedtaks-ID-ene i koden (#452)
+python3 docs/verktoy/vedtakshenvisninger.py       # vedtaks-ID-ene i koden og domenetabellen (#452)
 python3 docs/verktoy/byggestatus.py               # byggestatusen, laget av koden og issuene (#1021)
 ```
 
@@ -223,7 +223,7 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn. En omtale av et forkastet alternativ regnes ikke som et valg. Det gjør heller ikke en omtale med et spørsmålsnummer foran, som «2b-A», når nummeret ikke også står foran det valgte alternativet | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 | Følge får ikke ny byggestatus for hånd: «Ikke bygget», «Delvis bygget», «Del n bygget» eller «Bygget», med stor forbokstav, utover det som står på `main` | alle poster (#1021) |
-| En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452) |
+| En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452), og listene under `kilde` og `kilder` i JSON-filene i `docs/domenetabell/`, uten unntaket for en test merket historisk |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem
 på formen: en post med `vedtatt` er importert, og en ny post har `dato`. En
