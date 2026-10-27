@@ -9835,6 +9835,36 @@ tekst = '''
 Veiledningen etter § 33.5 i fristkravet oppfordrer TE til å beskrive i begrunnelsen hvordan kravet henger sammen med tidligere varslede forhold og med fristkrav i andre saker, der det har betydning for den samlede virkningen på fremdriften. Fristsvaret har tilsvarende veiledning, tilpasset byggherrens vurdering av kravet. Begge veiledningene sier at forlengelsen i flere saker ikke uten videre kan legges sammen. Skjemaene har ikke et eget felt for dette. Løsningen tar ikke hensyn til fristkrav i andre saker, kontrollerer ikke sammenhengen og summerer ikke dagene på tvers av saker (EO-U8). Utvider VS-U18.'''
 anbefalt = true
 
+[[gruppe.vedtak]]
+id = "OV-U64"
+dato = 2026-10-27
+hvem = "oppdragsgiver"
+kilde = ["#1336", "#1337"]
+sporsmal = '''
+**S-3. Skal protesten bygges i samme leveranse som denne historien?** Protesten er vedtatt, men utsatt etter OV-U7. Uten den kan TE fastholde at varselet kom i tide bare med et brev sendt utenfor appen og registrert i den (OV-U4).
+
+Anbefalt: A. Protesten er den sentrale veien i brukeroppgaven BF-03 er valgt for, og å sende TE ut av løsningen akkurat der svekker hele forløpet. Om det er den vanligste formen for uenighet, er ikke undersøkt. Spørsmålet gjelder rekkefølgen, ikke kontrakten. Juridisk sparring 27.10 støtter A.
+
+**Forholdet til andre vedtak.** Snevrer inn OV-U7.'''
+valgt = "A"
+svar = '''
+A. Oppdragsgiver ordrett: «Jeg støtter også A.»'''
+forhold = [{ art = "snevrer inn", vedtak = "ov-u7" }]
+folge = '''
+Bygges med brukerforløpet BF-03 (#1337).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Ja. Protesten mot påberopelsen bygges, med brevteksten i LV-U4 punkt 8. Bestridelse, passivitet og merking er fortsatt utsatt.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Nei. Historien bygges med registrering av et brev sendt utenfor appen som veien for M-1.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
