@@ -219,31 +219,23 @@ Disse situasjonene er ikke unntak. De må virke fra første versjon.
 
 ## Visuelt språk
 
-Farger, skrift og komponenter tar utgangspunkt i [Punkt](https://punkt.oslo.kommune.no/), designsystemet til Oslo kommune, uten å være en kopi. Tokenene er hentet fra `@oslokommune/punkt-css` 19.16.2 og står i `:root` i [`stil.css`](skjermer/stil.css) med Punkt-navnet i kommentaren. Uttrykket er rolig og presist – et juridisk arkiv, ikke et kontrollpanel. Det skal ikke kunne forveksles med konkurrentens mørkegrønne sidemeny, varme gråflater, pilleformede knapper og beløp i monospace.
+Fargene og tokenene er de samme som i dagens app (oppdragsgiver 27.10): navnene og verdiene i lys modus fra [`theme.css`](../../../src/lib/components/kontraktsbord/theme.css), radius fra [`app.css`](../../../src/app.css) og skriftene `--font-sans` (Inter) og `--font-legal` (IBM Plex Sans). Oppsettet og komponentene er konseptets egne. Uttrykket er rolig og presist – et juridisk arkiv, ikke et kontrollpanel. Forskjellen fra dagens app ligger i oppsettet: toppmeny i stedet for sidemeny, rektangulære valgkort i stedet for pilleformede knapper og tabulartall i stedet for monospace.
 
 | Element | Konkurrenten | Varden |
 | --- | --- | --- |
 | Ramme | Mørkegrønn sidemeny til venstre, bestemmelsespanel til høyre | Lys toppmeny. Hele bredden går til saken |
-| Grunnfarge | Varm lysgrå | Nøytral lysgrå bakgrunn (Punkt `neutrals-100`), hvite flater og rette hjørner |
-| Primærfarge | Skoggrønn | Mørkeblå fra Punkt (`dark-blue-1000`) på tekst, primærknapp og prinsipalt standpunkt. Varmblå (`warm-blue-1000`) på lenker |
-| Signalfarger | Rød på «Nei, for sent», gul konklusjon | Flater fra Punkt med mørkeblå tekst: gul = utkast eller stoppet sending, lysegrønn med mørkegrønn kant = sendt, lyserød = feil i løsningen. Ingen farge for en vurdering. Alltid med ord |
-| Skrift i grensesnittet | Grotesk, monospace for beløp og paragrafer | Oslo Sans fra Punkt, tabulartall for beløp. Ingen monospace |
-| Skrift i brev | Samme som grensesnittet | Source Serif 4 i en lesespalte på høyst 760 px som tåler tekstforstørrelse. A4 bare i PDF-en. Avviker fra Punkt, som bare har Oslo Sans, så brevet skilles tydelig fra skjemaet (oppdragsgiver 27.10) |
-| Valg | Pilleformede segmentknapper | Rektangulære valgkort med rette hjørner og radioknapp med 2 px ramme som i Punkt, uten farge og minst 48 px høye |
+| Grunnfarge | Varm lysgrå | Den samme: grågrønne flater (`--canvas`, `--surface`, `--surface-warm`) og fire nivåer blekk |
+| Primærfarge | Skoggrønn | Den samme: `--brand` på primærknapp og lenker, `--ink` på tekst |
+| Signalfarger | Rød på «Nei, for sent», gul konklusjon | Tokenene i appen, bare for løsningens tilstand: `--draft-bg` med stiplet kant = utkast, `--warning-bg` = stoppet sending, `--success` = sendt, `--danger-bg` = feil. Ingen farge for en vurdering. Alltid med ord |
+| Skrift i grensesnittet | Grotesk, monospace for beløp og paragrafer | `--font-sans` (Inter), tabulartall for beløp. Ingen monospace |
+| Skrift i brev | Samme som grensesnittet | `--font-legal` (IBM Plex Sans) i en lesespalte på høyst 760 px som tåler tekstforstørrelse. A4 bare i PDF-en |
+| Valg | Pilleformede segmentknapper | Rektangulære valgkort med `--radius-sm` og radioknapp med 2 px ramme, uten farge og minst 48 px høye |
 | Subsidiært | Stiplet etikett «SUBSIDIÆRT» | Et spørsmål i hel setning i skjemaet. I panelet står alternativene under posten, merket «alternativer, ikke tillegg» |
 | Hjemmel | Paragrafnummer i monospace, tekst i fast panel | Brikke «§ 34.1.2» med bokikon ved spørsmålet, dempet linje under radnavnet i tabellene. Klikk åpner en leseflate der kontraktens ordlyd og vår forklaring står hver for seg |
 | Ikoner | Strekikoner i knapper | Strekikoner på 1,5 px, alltid med tekst. Egne ikoner for dato, brev, lås og hjemmel. Merket er en varde av fire stablede steiner |
 | Bevegelse | Ikke observert | 150 ms. En linje i panelet med hovedlinjene som endres, får et kort fargeskifte. Av ved `prefers-reduced-motion` |
 
-**Retningen i versjon 6, prøvd på B og I.** B og I bruker [`stil-6.css`](skjermer/stil-6.css). De andre skjermene bruker `stil.css` til retningen er avgjort.
-
-- Typografien bærer hierarkiet: Oslo Sans Light i 32–40 px på saken og sporene, Medium på etikettene og 18 px på spørsmålene. Det meste av teksten i 12 px er borte.
-- Hvit side uten bokser. Innholdet grupperes med luft og flater, ikke med rammer.
-- Hver flate har én betydning. Lyseblått bånd (`blue-500`) bærer saken og fanene og betyr «her er du». Den aktive fanen er hvit og går over i siden. Blek blå (`blue-100`) er panelet med hovedlinjene, og lys beige (`light-beige`) er papir, som brevet det svares på. Gul, grønn og rød er fortsatt bare tilstanden til løsningen.
-- Svarvalgene står under hverandre som rader på 56 px med Punkts radioknapp på 24 px. Hjemmelen er en lenke ved spørsmålet.
-- Ikonene er Punkts egne. Bare vardemerket er vårt. Bunnfeltet er mørkeblått, som i Punkt.
-
-Tettheten har to nivåer: **Arbeid** (standard, 16 px grunnlinje) for saken og **Oversikt** (14 px, tettere rader) for porteføljen. Begge bruker et rutenett på 4 px, som avstandsskalaen i Punkt.
+Tettheten har to nivåer: **Arbeid** (standard, 16 px grunnlinje) for saken og **Oversikt** (14 px, tettere rader) for porteføljen. Begge bruker et rutenett på 4 px, som `--spacing` i appen.
 
 ## Universell utforming og tillit
 
@@ -251,7 +243,7 @@ Kravet er WCAG 2.1 AA fra første versjon, og målet er 2.2 AA. En jurist skal k
 
 **Universell utforming**
 
-- Teksten har minst 4,5:1 kontrast mot flaten den står på: mørkeblå 10,9:1 eller mer på signalflatene, og dempet tekst (`#666666`) 4,6:1 eller mer. Ingen tilstand vises med farge alene.
+- Teksten har minst 4,5:1 kontrast mot flaten den står på: dempet tekst (`--ink-3`) 5,2:1 eller mer på alle flatene i skissene, også statusflatene. Ingen tilstand vises med farge alene.
 - Valgkortene er ekte radioknapper i en `fieldset` med `legend` = spørsmålet. Hjemmelsbrikken er en knapp med navnet «Les § 34.1.2».
 - Panelet med hovedlinjene er en `aria-live="polite"`-region som leser opp den endrede linja, ikke hele panelet.
 - Datolinja har en tekstversjon som skjermleseren får først: «Forholdet oppdaget 2. oktober, oppgitt av TE i brev 1. Varsel 9. oktober, brev 2.»
