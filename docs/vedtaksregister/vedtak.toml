@@ -9935,9 +9935,9 @@ Oppdragsgiver 27.10, ordrett (vedtaksteksten): «Dette er fortsatt et nytt produ
 «Som inngår i enigheten» er mer presist enn «det svaret inneholder eller gjentar», fordi et svar også kan gjengi standpunkter fra andre spor.
 
 D-6 må da prøve avvisningen etter enighet. Før aksept bør visningen gjøre det tydelig at aksepten omfatter hele svaret i sporet, også påberopelser parten tidligere har protestert mot»'''
-forhold = [{ art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "ov-u3" }, { art = "snevrer inn", vedtak = "ka-u11" }, { art = "snevrer inn", vedtak = "mm-u7" }, { art = "snevrer inn", vedtak = "vs-u1" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ov-u64" }, { art = "presiserer", vedtak = "ka-u7" }, { art = "presiserer", vedtak = "hf-u9" }]
+forhold = [{ art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "ov-u3" }, { art = "snevrer inn", vedtak = "ka-u11" }, { art = "snevrer inn", vedtak = "mm-u7" }, { art = "snevrer inn", vedtak = "vs-u1" }, { art = "snevrer inn", vedtak = "vs-u9" }, { art = "snevrer inn", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ov-u64" }, { art = "presiserer", vedtak = "ka-u7" }]
 folge = '''
-Avvisningen i kjernen bygges i et eget issue. Setningen i Følge hos KA-U29 om at protest godtas fortsatt, er foreldet for det enigheten omfatter.'''
+Bygges i #1352.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -9974,9 +9974,9 @@ Anbefalt: ja til alle fire. De følger prinsippet «du ikke kan protestere på n
 valgt = "Ja"
 svar = '''
 Oppdragsgiver 27.10, ordrett: «Ja til alle fire»'''
-forhold = [{ art = "presiserer", vedtak = "ov-u65" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "ka-u28" }, { art = "snevrer inn", vedtak = "mm-u7" }, { art = "presiserer", vedtak = "mp-u6" }]
+forhold = [{ art = "presiserer", vedtak = "ov-u65" }, { art = "snevrer inn", vedtak = "ka-u29" }, { art = "snevrer inn", vedtak = "ka-u28" }, { art = "snevrer inn", vedtak = "mm-u7" }, { art = "presiserer", vedtak = "mp-u6" }, { art = "presiserer", vedtak = "hf-u9" }, { art = "presiserer", vedtak = "gr-u10" }]
 folge = '''
-Avvisningen i kjernen bygges i et eget issue.'''
+Bygges i #1352.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
