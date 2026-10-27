@@ -1,4 +1,4 @@
-/** Grensetilfellene i `sprakprove/grensetilfeller.json` mot TS-kjernen. Python kjører samme tabell. */
+/** Grensetilfellene i `sprakprove/grensetilfeller.json` mot TS-kjernen, med egne forventninger for vederlaget. */
 
 import { describe, expect, it } from 'vitest';
 import tabell from '../grensetilfeller.json' with { type: 'json' };
@@ -64,18 +64,113 @@ describe('nærmeste krone', () => {
   });
 });
 
+/**
+ * Vederlaget i TS-kjernen har egne forventninger, så den felles tabellen bare gjelder Python-stien
+ * (DL-U2, #1317). Kjernen avviser brøkdeler av øre (OV-U58) og «delvis» som motsier beløpet
+ * (KA-U42), og sammenlikner i hele øre (OV-U59); 0 kr er avslått (B-13, vedtaket 04.10).
+ */
+const VEDERLAG_I_KJERNEN: Rad[] = [
+  { krevd: 100000, vurdering: 'godkjent', resultat: 'godkjent', kilde: 'B-13' },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: 99999.5,
+    resultat: 'delvis_godkjent',
+    kilde: 'OV-U59',
+  },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: 99999.49,
+    resultat: 'delvis_godkjent',
+    kilde: 'OV-U59',
+  },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: 99000,
+    resultat: 'delvis_godkjent',
+    kilde: 'B-13',
+  },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: 100000,
+    feil: 'hovedkrav_godkjent_belop',
+    kilde: 'KA-U42',
+  },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: 0,
+    feil: 'hovedkrav_godkjent_belop',
+    kilde: 'KA-U42',
+  },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: 0.004,
+    feil: 'hovedkrav_godkjent_belop',
+    kilde: 'OV-U58',
+  },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: 0.005,
+    feil: 'hovedkrav_godkjent_belop',
+    kilde: 'OV-U58',
+  },
+  { krevd: 100000, vurdering: 'avslatt', resultat: 'avslatt', kilde: 'B-13' },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: -1,
+    feil: 'hovedkrav_godkjent_belop',
+    kilde: 'B-13',
+  },
+  {
+    krevd: 100000,
+    vurdering: 'delvis',
+    godkjent: 100000.01,
+    feil: 'hovedkrav_godkjent_belop',
+    kilde: 'B-13',
+  },
+  { krevd: 100000, vurdering: 'delvis', feil: 'hovedkrav_godkjent_belop', kilde: 'B-13' },
+  { krevd: 100000, feil: 'hovedkrav_vurdering', kilde: 'B-13' },
+  {
+    krevd: 100000,
+    vurdering: 'godkjent',
+    aksepterer_metode: null,
+    feil: 'aksepterer_metode',
+    kilde: 'B-13',
+  },
+  {
+    krevd: 100000,
+    vurdering: 'godkjent',
+    aksepterer_metode: false,
+    resultat: 'delvis_godkjent',
+    kilde: 'B-13',
+  },
+  {
+    krevd: 100000.4,
+    vurdering: 'delvis',
+    godkjent: 100000,
+    resultat: 'delvis_godkjent',
+    kilde: 'OV-U59',
+  },
+  {
+    krevd: 100000.5,
+    vurdering: 'delvis',
+    godkjent: 100000,
+    resultat: 'delvis_godkjent',
+    kilde: 'OV-U59',
+  },
+];
+
 describe('vederlag', () => {
-  it.each(tabell.vederlag.tilfeller.map((t, i) => [i, t as Rad] as const))(
-    'tilfelle %i',
-    (_i, rad) => {
-      // OV-U58, OV-U59, KA-U42: kjernen avviser brøkdeler av øre og «delvis» som motsier beløpet, og sammenlikner i hele øre.
-      const { kjernen, ...felles } = rad as Rad & { kjernen?: Rad };
-      const t: Rad = kjernen
-        ? {
-            ...Object.fromEntries(Object.entries(felles).filter(([k]) => k !== 'resultat')),
-            ...kjernen,
-          }
-        : felles;
+  it.each(VEDERLAG_I_KJERNEN.map((t, i) => [i, t.kilde, t] as const))(
+    'tilfelle %i (%s)',
+    (_i, _kilde, t) => {
       const vurdering = {
         hovedkrav_vurdering: (t.vurdering ?? null) as never,
         hovedkrav_godkjent_belop: (t.godkjent ?? null) as number | null,

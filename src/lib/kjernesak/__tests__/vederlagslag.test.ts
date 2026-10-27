@@ -83,9 +83,36 @@ function etikettIBrevet(brev: string, beloep: number): string | null {
   return foran.at(-1)?.[1].toLowerCase() ?? null;
 }
 
+/** Begynnelsen av leddet i brevet for en rad uten beløp. */
+const LEDDET: Record<string, string> = {
+  prekludert: 'byggherren har gjort gjeldende i',
+  avslaatt: 'byggherren har avslått grunnlaget',
+  varsel_34_1_2:
+    'byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2',
+};
+
+/** Hver rad står under samme etikett som i brevet, og en rad uten beløp først under etiketten. */
 function sammeLagSomBrevet(lag: ReturnType<typeof skjemaOgBrev>['lag'], brev: string) {
-  for (const rad of lag.rader) expect(rad.etikett).toBe(etikettIBrevet(brev, rad.beloep));
+  for (const gruppe of lag.lag)
+    for (const [i, rad] of gruppe.rader.entries()) {
+      if ('beloep' in rad) expect(etikettIBrevet(brev, rad.beloep)).toBe(gruppe.etikett);
+      else {
+        const leddet = LEDDET[rad.art === 'grunnlag' ? rad.grunn : rad.art];
+        expect(i, 'raden uten beløp står først under etiketten').toBe(0);
+        const etikett = gruppe.etikett!;
+        expect(brev).toContain(`${etikett[0].toUpperCase()}${etikett.slice(1)}: ${leddet}`);
+      }
+    }
 }
+
+/** Lagene som etikett og radenes art, med beløpet når raden har et. */
+const kort = (lag: ReturnType<typeof skjemaOgBrev>['lag']) =>
+  lag.lag.map((g) => [
+    g.etikett,
+    g.rader.map((r) =>
+      'beloep' in r ? `${r.art} ${r.beloep}` : r.art === 'grunnlag' ? r.grunn : r.art
+    ),
+  ]);
 
 const vederlag = medVederlagskrav(medGrunnlag, { beloep: 250_000 });
 
@@ -109,8 +136,9 @@ describe('skjemaet har lagene i brevet', () => {
     );
     const { lag, grunnlaget, brev } = skjemaOgBrev(journal, state());
     expect(grunnlaget).toEqual({ grunner: ['avslaatt'], forbehold: false });
-    expect(lag.rader).toEqual([
-      { saerskilt: false, begrenset: false, beloep: 150_000, etikett: 'subsidiært' },
+    expect(kort(lag)).toEqual([
+      ['prinsipalt', ['avslaatt']],
+      ['subsidiært', ['hovedkrav 150000']],
     ]);
     expect(lag.sammenfall).toBe(false);
     sammeLagSomBrevet(lag, brev);
@@ -123,7 +151,10 @@ describe('skjemaet har lagene i brevet', () => {
     );
     const { lag, grunnlaget, brev } = skjemaOgBrev(journal, state());
     expect(grunnlaget).toEqual({ grunner: ['prekludert'], forbehold: false });
-    expect(lag.rader.map((r) => r.etikett)).toEqual(['subsidiært']);
+    expect(kort(lag)).toEqual([
+      ['prinsipalt', ['prekludert']],
+      ['subsidiært', ['hovedkrav 150000']],
+    ]);
     sammeLagSomBrevet(lag, brev);
   });
 
@@ -134,7 +165,11 @@ describe('skjemaet har lagene i brevet', () => {
     );
     const { lag, grunnlaget, brev } = skjemaOgBrev(journal, state());
     expect(grunnlaget.grunner).toEqual(['prekludert', 'avslaatt']);
-    expect(lag.rader.map((r) => r.etikett)).toEqual(['videre subsidiært']);
+    expect(kort(lag)).toEqual([
+      ['prinsipalt', ['prekludert']],
+      ['subsidiært', ['avslaatt']],
+      ['videre subsidiært', ['hovedkrav 150000']],
+    ]);
     sammeLagSomBrevet(lag, brev);
   });
 
@@ -143,14 +178,18 @@ describe('skjemaet har lagene i brevet', () => {
       beloep: 250_000,
     });
     const { lag, brev } = skjemaOgBrev(journal, state({ hovedkravVarsletITide: false }));
-    expect(lag.rader.map((r) => r.etikett)).toEqual(['videre subsidiært']);
+    expect(kort(lag)).toEqual([
+      ['prinsipalt', ['avslaatt']],
+      ['subsidiært', ['varsel_34_1_2']],
+      ['videre subsidiært', ['hovedkrav 150000']],
+    ]);
     sammeLagSomBrevet(lag, brev);
   });
 
   it('GR-U26: grunnlaget ubesvart gir forbeholdet og ingen lag foran, så beløpet står uten etikett', () => {
     const { lag, grunnlaget, brev } = skjemaOgBrev(vederlag, state());
     expect(grunnlaget).toEqual({ grunner: [], forbehold: true });
-    expect(lag.rader.map((r) => r.etikett)).toEqual([null]);
+    expect(kort(lag)).toEqual([[null, ['hovedkrav 150000']]]);
     // Varselet i skjemaet har ordene fra brevet kjernen lager.
     for (const del of FORBEHOLDET) expect(brev).toContain(del);
     sammeLagSomBrevet(lag, brev);
@@ -161,7 +200,10 @@ describe('skjemaet har lagene i brevet', () => {
       medVederlagskrav(svikt, { beloep: 250_000 }),
       state({ hovedkravVarsletITide: false })
     );
-    expect(lag.rader.map((r) => r.etikett)).toEqual(['subsidiært']);
+    expect(kort(lag)).toEqual([
+      ['prinsipalt', ['varsel_34_1_2']],
+      ['subsidiært', ['hovedkrav 150000']],
+    ]);
     sammeLagSomBrevet(lag, brev);
   });
 
@@ -172,7 +214,7 @@ describe('skjemaet har lagene i brevet', () => {
     );
     const { lag, grunnlaget, brev } = skjemaOgBrev(journal, state());
     expect(grunnlaget).toEqual({ grunner: [], forbehold: false });
-    expect(lag.rader.map((r) => r.etikett)).toEqual([null]);
+    expect(kort(lag)).toEqual([[null, ['hovedkrav 150000']]]);
     expect(brev).not.toContain(FORBEHOLDET[0]);
     sammeLagSomBrevet(lag, brev);
   });
@@ -190,11 +232,69 @@ describe('skjemaet har lagene i brevet', () => {
         produktivitetBegrensetBelop: 30_000,
       })
     );
-    expect(lag.rader).toEqual([
-      { saerskilt: false, begrenset: false, beloep: 150_000, etikett: 'subsidiært' },
-      { saerskilt: true, begrenset: true, beloep: 30_000, etikett: 'subsidiært' },
-      { saerskilt: true, begrenset: false, beloep: 80_000, etikett: 'videre subsidiært' },
+    expect(kort(lag)).toEqual([
+      ['prinsipalt', ['avslaatt']],
+      ['subsidiært', ['hovedkrav 150000', 'begrenset 30000']],
+      ['videre subsidiært', ['post 80000']],
     ]);
     sammeLagSomBrevet(lag, brev);
+  });
+
+  it('VS-U5, OV-U28: grunnlaget godkjent og § 34.1.3 påberopt gir begrensningen prinsipalt og posten subsidiært', () => {
+    const journal = medVederlagskrav(
+      grunnlagssvar(medGrunnlag, { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      { beloep: 250_000, saerskilt: { produktivitet: { beloep: 80_000 } } }
+    );
+    const { lag, brev } = skjemaOgBrev(
+      journal,
+      state({
+        produktivitetVurdering: 'godkjent',
+        produktivitetVarsletITide: false,
+        produktivitetBegrensetBelop: 20_000,
+      })
+    );
+    // Beløpet er upåvirket og står uten etikett foran den første, som i brevet (#1267 punkt 4).
+    expect(kort(lag)).toEqual([
+      [null, ['hovedkrav 150000']],
+      ['prinsipalt', ['begrenset 20000']],
+      ['subsidiært', ['post 80000']],
+    ]);
+    expect(lag.ingenBeloep).toBe(false);
+    sammeLagSomBrevet(lag, brev);
+  });
+
+  it('GR-U7: hele kravet godkjent gir sammenfall og ett lag uten etikett', () => {
+    const journal = medVederlagskrav(
+      grunnlagssvar(medGrunnlag, { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      { beloep: 250_000 }
+    );
+    const { lag } = skjemaOgBrev(journal, state({ hovedkravVurdering: 'godkjent' }));
+    expect(lag.sammenfall).toBe(true);
+    expect(kort(lag)).toEqual([[null, ['hovedkrav 250000']]]);
+  });
+
+  it('#1317, OV-U59: 124 999,60 av 125 000 kr er ikke sammenfall, og skjemaet sender ikke sitt eget resultat', () => {
+    const journal = medVederlagskrav(
+      grunnlagssvar(medGrunnlag, { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+      { beloep: 125_000 }
+    );
+    const s = state({ hovedkravGodkjentBelop: 124_999.6 });
+    const config = vederlagConfigFraKjernen(utledJournal(journal, KJERNE))!;
+    const computed = beregnAlt(s, config);
+    // Skjemaets egen utregning til nærmeste krone sier «godkjent» (B-13) …
+    expect(computed.prinsipaltResultat).toBe('godkjent');
+    const { data } = buildEventData(
+      s,
+      config,
+      computed,
+      { vederlagKravId: 'krav', isUpdateMode: false },
+      computed.subsidiaerTriggers
+    );
+    expect(data).not.toHaveProperty('beregnings_resultat');
+    expect(data).not.toHaveProperty('total_godkjent_belop');
+    // … men det skjemaet viser, er kjernens: ikke hele kravet.
+    const { lag } = skjemaOgBrev(journal, s);
+    expect(lag.sammenfall).toBe(false);
+    expect(kort(lag)).toEqual([[null, ['hovedkrav 124999.6']]]);
   });
 });

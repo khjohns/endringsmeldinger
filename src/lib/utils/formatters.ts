@@ -58,7 +58,7 @@ export function formatDateDayMonth(dateStr: string | null | undefined): string {
  */
 export function formatCurrency(value?: number | null): string {
   if (value === null || value === undefined) return '-';
-  return `${value.toLocaleString(NORWEGIAN_LOCALE)} kr`;
+  return `${visKroner(value)} kr`;
 }
 
 /**
@@ -235,6 +235,7 @@ export { getVarselMetodeLabel, getVarselMetoderLabels } from '../constants/varse
 
 import { getVarselMetodeLabel } from '../constants/varselMetoder';
 import { parseDateSafe } from './dateFormatters';
+import { visKroner } from './belop';
 
 export function formatVarselMetode(metode?: string | string[] | null): string {
   if (!metode) return '-';

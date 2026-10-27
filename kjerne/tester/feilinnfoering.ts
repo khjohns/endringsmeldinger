@@ -1045,7 +1045,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F116',
     feilklasse: 'dager som ikke er godkjent fullt, krever ingen begrunnelse (KA-U24)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [["if (!fulltGodkjent) ut.push('dager", "if (false) ut.push('dager"]],
+    endringer: [
+      [
+        "if (!fulltGodkjent) ut.push('ikke godkjenner alle",
+        "if (false) ut.push('ikke godkjenner alle",
+      ],
+    ],
     mal: ['dager som ikke er godkjent fullt'],
   },
   {
@@ -1488,7 +1493,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "if (v.hovedkrav_varslet_i_tide === false) ut.push('påberopt preklusjon etter § 34.1.2');",
+        "if (v.hovedkrav_varslet_i_tide === false)\n      ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');",
         'void 0;',
       ],
     ],
@@ -1607,7 +1612,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F196',
     feilklasse: 'påberopelsen etter § 33.6.1 krever ingen begrunnelse (KA-U24)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['if (v.spesifisert_krav_ok === false) ut.push(', 'if (false) ut.push(']],
+    endringer: [['if (v.spesifisert_krav_ok === false)\n', 'if (false)\n']],
     mal: ['et svar med påberopt spesifisering for sent etter § 33.6.1 må ha en begrunnelse'],
   },
   {
@@ -3007,8 +3012,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "rettidighet: `prekludert (${hjemler.join(' og ')})`",
-        'rettidighet: `prekludert (${hjemler[0]})`',
+        "rettidighet: `${sene.join(' og ')} kom for sent`",
+        'rettidighet: `${sene[0]} kom for sent`',
       ],
     ],
     mal: ['beslutningslinjen nevner begge bestemmelsene'],
@@ -3706,6 +3711,15 @@ const MUTASJONER: Mutasjon[] = [
       '«produktivitet» vurdert «delvis» med 0 kr avvises',
       '«delvis» med det krevde eller 0 kr avvises for hver post',
       'F-MM-KA-U42',
+    ],
+  },
+  {
+    id: 'F421',
+    feilklasse: 'påberopelsen etter § 33.6.2 tredje ledd krever ingen begrunnelse (KA-U24, VS-U17)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (v.foresporsel_svar_ok === false)\n', 'if (false)\n']],
+    mal: [
+      'KA-U24: et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent',
     ],
   },
 ];

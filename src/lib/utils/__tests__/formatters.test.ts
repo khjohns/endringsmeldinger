@@ -41,6 +41,11 @@ describe('formatCurrency', () => {
     expect(n(formatCurrency(-1500))).toBe('-1 500 kr');
   });
 
+  it('#1315, OV-U58: viser øre med to desimaler, som brevene', () => {
+    expect(n(formatCurrency(100_000.4))).toBe('100 000,40 kr');
+    expect(n(formatCurrency(100_000.45))).toBe('100 000,45 kr');
+  });
+
   it('skiller manglende verdi fra null', () => {
     expect(formatCurrency(undefined)).toBe('-');
     expect(formatCurrency(null)).toBe('-');
