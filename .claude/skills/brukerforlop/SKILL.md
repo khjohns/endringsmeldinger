@@ -1,6 +1,6 @@
 ---
 name: brukerforlop
-description: Designsløyfa i endringsmeldinger, der brukerhistorien, prototypen og vedtakene avklares og skrives ned før grundig bygging. Bestillingen for et brukerforløp (mål, designmål, domeneforventninger, gjennomføring og spørsmål), den klikkbare prototypen, avvikene mot dagens løsning, kontrollene som gjelder, kriteriene for «klar til bygging» og overgangen til leveranseskillen. Også sammenligningen av en bygget visning med prototypen eller konseptet. Brukes når en brukeroppgave skal designes eller endres før den bygges, og for issues med etiketten `bestilling`.
+description: Designsløyfa i endringsmeldinger, der brukerhistorien, prototypen og vedtakene avklares og skrives ned før grundig bygging. Bestillingen for et brukerforløp (mål, designmål, domeneforventninger, gjennomføring og spørsmål), den klikkbare prototypen, avvikene mot kjernen og vedtakene, kontrollene som gjelder, kriteriene for «klar til bygging» og overgangen til leveranseskillen. Også sammenligningen av en bygget visning med prototypen eller konseptet. Brukes når en brukeroppgave skal designes eller endres før den bygges, og for issues med etiketten `bestilling`.
 ---
 
 # Brukerforløp og bestilling før bygging
@@ -32,9 +32,12 @@ Prototypen viser til punktene i bestillingen og gjentar dem ikke.
    handlingene kjernen har i dag. Skriv utgangspunktet og avgrensningen: hva oppgaven
    ikke dekker, og produktspørsmål som hører til andre forløp (P).
 2. **Skisser.** Lag eller endre prototypen. Den kan vise handlinger og tilstander som
-   ikke finnes. Er spørsmålet bare plassering eller ordlyd i en visning som er bygget,
-   kan det prøves der i stedet.
-3. **Kontroller forskjellene** mellom ønsket og dagens løsning. Lag en kort liste, ikke
+   ikke finnes. Er spørsmålet bare plassering eller ordlyd, og den nye visningen er
+   bygget for oppgaven, kan det prøves der i stedet.
+3. **Kontroller forskjellene** mellom ønsket løsning og det kjernen og vedtakene gir.
+   Dagens visning i demoruta og saksruta er ufullstendig og er ikke noe
+   sammenligningsgrunnlag, fordi den nye visningen (Varden) bygges fra bunnen etter
+   vedtakene og brukerforløpene (oppdragsgiver 27.10, #1338). Lag en kort liste, ikke
    en kartlegging av hvert element. Se særlig på brev, beløp, statuser, virkninger og
    handlinger. Marger, kortplassering og typografi trenger ingen kobling til kjernen.
 4. **Avklar** det som trengs for akkurat denne oppgaven: D- og S-punktene etter
@@ -43,10 +46,9 @@ Prototypen viser til punktene i bestillingen og gjentar dem ikke.
 5. **Prøv** prototypen på brukere mot U-punktene. Funnene går tilbake til steg 1–4, ikke
    til hele konseptet.
 
-| Avviket mellom ønsket og dagens løsning | Neste steg |
+| Avviket mellom ønsket løsning og kjernen og vedtakene | Neste steg |
 | --- | --- |
-| Opplysningen finnes, men vises dårlig | Endre visningen |
-| Opplysningen finnes i kjernen, men når ikke visningen | Utvid grensesnittet mot kjernen |
+| Opplysningen finnes i kjernen | Vis den i den nye visningen, og utvid grensesnittet mot kjernen der den ikke når fram |
 | Et gjeldende vedtak krever noe som ikke er bygget | Bygg vedtaket |
 | Ønsket arbeidsmåte strider mot et vedtak | Legg fram et konkret vedtaksvalg |
 | Arbeidsmåten er ikke avklart | Prøv alternativer, og fatt vedtak der det trengs |
