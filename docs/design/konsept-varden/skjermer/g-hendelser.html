@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Varden · G · Hendelser i saken</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="stil.css">
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" class="sprite">
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
@@ -39,7 +40,7 @@
     <div class="search"><svg class="i"><use href="#i-search"/></svg>Søk i saker og brev<kbd>Ctrl K</kbd></div>
     <div class="iconbtn"><svg class="i"><use href="#i-bell"/></svg><span class="badge">2</span></div>
     <div class="iconbtn"><svg class="i"><use href="#i-help"/></svg></div>
-    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh" style="display:inline">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i" style="color:var(--muted)"><use href="#i-down"/></svg></div>
+    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i"><use href="#i-down"/></svg></div>
   </header>
   <div class="crumbs"><span>Prosjekter</span><span class="sep">/</span><span>Skolebygg Nord</span><span class="sep">/</span><span>E-021 Ny peling med produktivitetstap</span><span class="sep">/</span><b>Hendelser</b>
     <div class="right"><span><svg class="i"><use href="#i-copy"/></svg>Kopier lenke</span><span><svg class="i"><use href="#i-download"/></svg>Saken som PDF</span></div></div>
@@ -54,7 +55,7 @@
       <div class="tab"><b>Frist</b><small>Ingen brev</small></div>
       <div class="tab"><b>Dokumenter</b><small>9 dokumenter</small></div>
       <div class="tab on"><b>Hendelser</b><small>9 hendelser</small></div>
-      <div class="tab internt"><b><svg class="i" style="width:15px;height:15px"><use href="#i-lock"/></svg>Notater for teamet</b><small>2 notater · bare Prosjektteam Nord</small></div>
+      <div class="tab internt"><b><svg class="i sm"><use href="#i-lock"/></svg>Notater for teamet</b><small>2 notater · bare Prosjektteam Nord</small></div>
       <div class="tab-act"><span class="btn"><svg class="i"><use href="#i-pen"/></svg>Skriv brev i sporet<svg class="i"><use href="#i-down"/></svg></span><small>Utkast åpent: svar på brev 4</small></div>
     </div>
 
@@ -63,24 +64,24 @@
       <span class="btn right"><svg class="i"><use href="#i-plus"/></svg>Registrer brev sendt utenfor Varden</span>
     </div>
     <div class="grid">
-      <div class="card" style="overflow:hidden">
+      <div class="card clip">
         <div class="card-h"><h3>Hendelser i saken</h3><span class="sub">Nyeste først · en hendelse kan ikke endres eller slettes</span></div>
         <div class="ev-day">20. oktober 2026</div>
         <div class="ev"><span class="tm">14.12</span><span>Levert</span><span>Brev 4 · Krav om vederlagsjustering, levert til BH</span><span class="src">Vederlag · Varden</span></div>
-        <div class="ev"><span class="tm">14.12</span><span>Brev sendt</span><span>Brev 4 · Krav om vederlagsjustering, med 2 vedlegg<span class="who" style="display:block">TE · Per Olsen</span></span><span class="src">Vederlag · Varden</span></div>
+        <div class="ev"><span class="tm">14.12</span><span>Brev sendt</span><span>Brev 4 · Krav om vederlagsjustering, med 2 vedlegg<span class="who">TE · Per Olsen</span></span><span class="src">Vederlag · Varden</span></div>
         <div class="ev-day">16. oktober 2026</div>
-        <div class="ev"><span class="tm">09.30</span><span>Dokument lagt til</span><span>Referat fra byggemøte 12, datert 14. okt<span class="who" style="display:block">BH · Per Hansen</span></span><span class="src">Vederlag · registrert utenfor Varden</span></div>
+        <div class="ev"><span class="tm">09.30</span><span>Dokument lagt til</span><span>Referat fra byggemøte 12, datert 14. okt<span class="who">BH · Per Hansen</span></span><span class="src">Vederlag · registrert utenfor Varden</span></div>
         <div class="ev-day">12. oktober 2026</div>
-        <div class="ev"><span class="tm">15.40</span><span>Brev sendt</span><span>Brev 3 · Svar på varsel om endring<span class="who" style="display:block">BH · Kari Nordmann · levert 15.40</span></span><span class="src">Grunnlag · Varden</span></div>
+        <div class="ev"><span class="tm">15.40</span><span>Brev sendt</span><span>Brev 3 · Svar på varsel om endring<span class="who">BH · Kari Nordmann · levert 15.40</span></span><span class="src">Grunnlag · Varden</span></div>
         <div class="ev-day">9. oktober 2026</div>
-        <div class="ev"><span class="tm">08.15</span><span>Brev sendt</span><span>Brev 2 · Varsel om krav på produktivitetstap<span class="who" style="display:block">TE · Per Olsen · levert 08.15</span></span><span class="src">Vederlag · Varden</span></div>
+        <div class="ev"><span class="tm">08.15</span><span>Brev sendt</span><span>Brev 2 · Varsel om krav på produktivitetstap<span class="who">TE · Per Olsen · levert 08.15</span></span><span class="src">Vederlag · Varden</span></div>
         <div class="ev-day">5. oktober 2026</div>
-        <div class="ev"><span class="tm">11.47</span><span>Korrigert opplysning</span><span>I brev 1: forholdet ble oppdaget 2. okt, ikke 3. okt. Brev 1 er bevart som det ble sendt.<span class="who" style="display:block">TE · Per Olsen</span></span><span class="src">Grunnlag · Varden</span></div>
+        <div class="ev"><span class="tm">11.47</span><span>Korrigert opplysning</span><span>I brev 1: forholdet ble oppdaget 2. okt, ikke 3. okt. Brev 1 er bevart som det ble sendt.<span class="who">TE · Per Olsen</span></span><span class="src">Grunnlag · Varden</span></div>
         <div class="ev-day">3. oktober 2026</div>
-        <div class="ev"><span class="tm">10.02</span><span>Brev registrert</span><span>E-post om grunnforhold ved akse D, sendt 2. okt utenfor Varden<span class="who" style="display:block">TE · Per Olsen · mottak ikke registrert</span></span><span class="src">Grunnlag · registrert utenfor Varden</span></div>
+        <div class="ev"><span class="tm">10.02</span><span>Brev registrert</span><span>E-post om grunnforhold ved akse D, sendt 2. okt utenfor Varden<span class="who">TE · Per Olsen · mottak ikke registrert</span></span><span class="src">Grunnlag · registrert utenfor Varden</span></div>
         <div class="ev-day">2. oktober 2026</div>
-        <div class="ev"><span class="tm">16.20</span><span>Brev sendt</span><span>Brev 1 · Varsel om endring<span class="who" style="display:block">TE · Per Olsen · levert 16.20</span></span><span class="src">Grunnlag · Varden</span></div>
-        <div class="ev"><span class="tm">16.18</span><span>Sak opprettet</span><span>E-021 Ny peling med produktivitetstap<span class="who" style="display:block">TE · Per Olsen</span></span><span class="src">Varden</span></div>
+        <div class="ev"><span class="tm">16.20</span><span>Brev sendt</span><span>Brev 1 · Varsel om endring<span class="who">TE · Per Olsen · levert 16.20</span></span><span class="src">Grunnlag · Varden</span></div>
+        <div class="ev"><span class="tm">16.18</span><span>Sak opprettet</span><span>E-021 Ny peling med produktivitetstap<span class="who">TE · Per Olsen</span></span><span class="src">Varden</span></div>
         <div class="pager"><span>Utkast og notater for teamet er ikke hendelser i saken.</span><span>Viser 9 av 9</span></div>
       </div>
       <div class="stack panel">
@@ -95,7 +96,7 @@
             <li class="gapd">8 dager</li>
             <li><div class="d">20. okt 2026</div><div class="nm">Krav om vederlagsjustering</div><div class="s">Brev 4 fra TE</div></li>
           </ul>
-          <div class="card-b" style="border-top:1px solid var(--soft)"><p class="muted" style="margin:0">Kalenderdager mellom registrerte datoer. Varden vurderer ikke om en frist er overholdt; det avgjør partene.</p></div>
+          <div class="card-b ruled"><p class="muted m0">Kalenderdager mellom registrerte datoer. Varden vurderer ikke om en frist er overholdt; det avgjør partene.</p></div>
         </div>
       </div>
     </div>

@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Varden · F · Dokumenter i saken</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="stil.css">
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" class="sprite">
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
@@ -39,7 +40,7 @@
     <div class="search"><svg class="i"><use href="#i-search"/></svg>Søk i saker og brev<kbd>Ctrl K</kbd></div>
     <div class="iconbtn"><svg class="i"><use href="#i-bell"/></svg><span class="badge">2</span></div>
     <div class="iconbtn"><svg class="i"><use href="#i-help"/></svg></div>
-    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh" style="display:inline">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i" style="color:var(--muted)"><use href="#i-down"/></svg></div>
+    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i"><use href="#i-down"/></svg></div>
   </header>
   <div class="crumbs"><span>Prosjekter</span><span class="sep">/</span><span>Skolebygg Nord</span><span class="sep">/</span><span>E-021 Ny peling med produktivitetstap</span><span class="sep">/</span><b>Dokumenter</b>
     <div class="right"><span><svg class="i"><use href="#i-copy"/></svg>Kopier lenke</span><span><svg class="i"><use href="#i-download"/></svg>Saken som PDF</span></div></div>
@@ -54,18 +55,18 @@
       <div class="tab"><b>Frist</b><small>Ingen brev</small></div>
       <div class="tab on"><b>Dokumenter</b><small>9 dokumenter</small></div>
       <div class="tab"><b>Hendelser</b><small>9 hendelser</small></div>
-      <div class="tab internt"><b><svg class="i" style="width:15px;height:15px"><use href="#i-lock"/></svg>Notater for teamet</b><small>2 notater · bare Prosjektteam Nord</small></div>
+      <div class="tab internt"><b><svg class="i sm"><use href="#i-lock"/></svg>Notater for teamet</b><small>2 notater · bare Prosjektteam Nord</small></div>
       <div class="tab-act"><span class="btn"><svg class="i"><use href="#i-pen"/></svg>Skriv brev i sporet<svg class="i"><use href="#i-down"/></svg></span><small>Utkast åpent: svar på brev 4</small></div>
     </div>
 
     <div class="toolbar">
-      <div class="filters" style="margin:0"><div class="search2"><svg class="i"><use href="#i-search"/></svg>Søk i dokumenter og vedlegg</div></div>
+      <div class="filters bare"><div class="search2"><svg class="i"><use href="#i-search"/></svg>Søk i dokumenter og vedlegg</div></div>
       <span class="fbtn on">Alle · 9</span><span class="fbtn">Sendt i Varden · 5</span><span class="fbtn">Registrert utenfor Varden · 2</span><span class="fbtn">Vedlegg · 2</span><span class="fbtn">Alle spor<svg class="i"><use href="#i-down"/></svg></span>
       <span class="btn right"><svg class="i"><use href="#i-plus"/></svg>Legg til dokument sendt utenfor Varden</span>
     </div>
-    <div class="card" style="overflow:hidden">
+    <div class="card clip">
       <table class="cases">
-        <thead><tr><th>Dokument</th><th>Spor</th><th>Fra</th><th>Datert</th><th>Sendt eller lagt til</th><th>Kilde</th><th style="width:70px">Versjon</th><th style="width:60px"></th></tr></thead>
+        <thead><tr><th>Dokument</th><th>Spor</th><th>Fra</th><th>Datert</th><th>Sendt eller lagt til</th><th>Kilde</th><th class="w72">Versjon</th><th class="w60"></th></tr></thead>
         <tbody>
           <tr><td class="t">Brev 4 · Krav om vederlagsjustering<span class="s">2 vedlegg</span></td><td>Vederlag</td><td>TE · Per Olsen</td><td>20. okt 2026</td><td>Sendt 20. okt kl. 14.12<span class="s">Levert 20. okt kl. 14.12</span></td><td>Sendt i Varden</td><td>1</td><td><a>PDF</a></td></tr>
           <tr class="att"><td class="t">Vedlegg · Timelister uke 41–42.pdf</td><td></td><td>TE · Per Olsen</td><td></td><td>Med brev 4</td><td>Sendt i Varden</td><td>1</td><td><a>Åpne</a></td></tr>

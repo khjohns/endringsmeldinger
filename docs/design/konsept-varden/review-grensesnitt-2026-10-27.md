@@ -19,6 +19,8 @@ neste runde, og *merknad* tas med når skjermen likevel endres.
 
 ## Funn
 
+*Merknad 27.10.2026:* KV-01 og KV-08 er rettet i versjon 4, der fargene også er byttet til Punkt. Se [endringsloggen](endringslogg.md). Tabellen under gjelder versjon 3.
+
 | ID | Alvorlighet | Funn | Hvor | Belegg | Forslag |
 | --- | --- | --- | --- | --- | --- |
 | KV-01 | Blokker | «Ingen brev» og «—» står i #A3AAB6 på hvitt. Det gir 2,3:1, under 4,5:1 i WCAG 1.4.3, og teksten bærer mening | `.dash` i `stil.css`; A, F | L, K | Bruk `--muted` (6,0:1). Skilletegnet i brødsmulene kan beholde den lyse fargen, fordi det er pynt |

@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Varden · C · Brevet før sending</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="stil.css">
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" class="sprite">
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
@@ -39,11 +40,11 @@
     <div class="search"><svg class="i"><use href="#i-search"/></svg>Søk i saker og brev<kbd>Ctrl K</kbd></div>
     <div class="iconbtn"><svg class="i"><use href="#i-bell"/></svg><span class="badge">2</span></div>
     <div class="iconbtn"><svg class="i"><use href="#i-help"/></svg></div>
-    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh" style="display:inline">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i" style="color:var(--muted)"><use href="#i-down"/></svg></div>
+    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i"><use href="#i-down"/></svg></div>
   </header>
   <div class="crumbs"><span>Prosjekter</span><span class="sep">/</span><span>Skolebygg Nord</span><span class="sep">/</span><span>E-021</span><span class="sep">/</span><span>Vederlag</span><span class="sep">/</span><b>Brev 5, utkast</b></div>
   <div class="page">
-    <div style="display:flex;align-items:center;gap:6px;color:var(--ink);font-size:14px;font-weight:500;margin-bottom:16px"><svg class="i"><use href="#i-left"/></svg>Tilbake til utkastet</div>
+    <div class="back"><svg class="i"><use href="#i-left"/></svg>Tilbake til utkastet</div>
     <div class="letterpage">
       <div class="a4">
         <div class="lh">
@@ -71,17 +72,17 @@
       </div>
       <div class="stack panel">
         <div class="card">
-          <div class="card-h" style="display:block"><div class="lbl" style="color:var(--amber)">Utkast · ikke sendt</div><h3 style="margin-top:2px">Send svaret til TE</h3><span class="lock" style="margin-top:6px"><svg class="i" style="width:13px;height:13px"><use href="#i-lock"/></svg>Teksten lages fra utkastet og kan ikke endres her</span></div>
+          <div class="card-h stack-h"><span class="tag draft">Utkast · ikke sendt</span><h3>Send svaret til TE</h3><span class="lock"><svg class="i sm"><use href="#i-lock"/></svg>Teksten lages fra utkastet og kan ikke endres her</span></div>
           <div class="card-b">
             <dl class="kv">
-              <dt>Fra</dt><dd>Oslobygg KF (BH)<br><span style="color:var(--muted)">Kari Nordmann</span></dd>
-              <dt>Til</dt><dd>Totalentreprenør AS (TE)<br><span style="color:var(--muted)">TE prosjektledelse, 3 personer</span></dd>
+              <dt>Fra</dt><dd>Oslobygg KF (BH)<br><span class="mute">Kari Nordmann</span></dd>
+              <dt>Til</dt><dd>Totalentreprenør AS (TE)<br><span class="mute">TE prosjektledelse, 3 personer</span></dd>
               <dt>Svarer på</dt><dd>Brev 4, 20. okt 2026</dd>
               <dt>Kopi</dt><dd>Saksarkivet, som PDF</dd>
               <dt>Godkjenning</dt><dd>Ikke påkrevd i prosjektet</dd>
             </dl>
           </div>
-          <div class="bind"><p><b>Byggherren er bundet av svaret når det er sendt.</b></p><p style="color:var(--muted);margin:0">Et sendt brev kan ikke endres, bare følges av et nytt brev.</p></div>
+          <div class="bind"><p><b>Byggherren er bundet av svaret når det er sendt.</b></p><p class="mute">Et sendt brev kan ikke endres, bare følges av et nytt brev.</p></div>
           <div class="confirm"><span class="box"></span><span>Jeg har kontrollert brevet</span></div>
           <div class="foot"><span class="btn primary lg block disabled"><svg class="i"><use href="#i-send"/></svg>Send svaret til TE</span><span class="why">Kryss av for at du har kontrollert brevet, så kan du sende.</span><span class="btn block"><svg class="i"><use href="#i-download"/></svg>Last ned som merket PDF-utkast</span></div>
         </div>

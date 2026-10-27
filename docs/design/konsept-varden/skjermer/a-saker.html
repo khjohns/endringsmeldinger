@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Varden · A · Sakene i prosjektet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="stil.css">
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" class="sprite">
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
@@ -39,8 +40,8 @@
     <div class="search"><svg class="i"><use href="#i-search"/></svg>Søk i saker og brev<kbd>Ctrl K</kbd></div>
     <div class="iconbtn"><svg class="i"><use href="#i-bell"/></svg><span class="badge">2</span></div>
     <div class="iconbtn"><svg class="i"><use href="#i-help"/></svg></div>
-    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh" style="display:inline">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i" style="color:var(--muted)"><use href="#i-down"/></svg></div>
-    <div class="menu" id="brukermeny" hidden style="top:58px;right:24px;width:300px">
+    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i"><use href="#i-down"/></svg></div>
+    <div class="menu" id="brukermeny" hidden>
       <div class="mh"><b>Kari Nordmann</b><span>Prosjektleder · Oslobygg KF</span></div>
       <div class="mi"><svg class="i"><use href="#i-users"/></svg>Team<small>Prosjektteam Nord</small></div>
       <div class="mi"><svg class="i"><use href="#i-file"/></svg>Kontraktsside<small>Byggherre (BH)</small></div>
@@ -73,9 +74,9 @@
       <span class="fbtn">Utkast i teamet · 2</span>
       <span class="sort">Sortert etter siste brev, nyeste først</span>
     </div>
-    <div class="card" style="overflow:hidden">
+    <div class="card clip">
       <table class="cases">
-        <thead><tr><th style="width:80px">Sak</th><th>Tittel</th><th>Grunnlag</th><th>Vederlag</th><th>Frist</th><th>Siste brev</th><th style="width:150px">Utkast i teamet</th></tr></thead>
+        <thead><tr><th class="w80">Sak</th><th>Tittel</th><th>Grunnlag</th><th>Vederlag</th><th>Frist</th><th>Siste brev</th><th class="w152">Utkast i teamet</th></tr></thead>
         <tbody>
           <tr><td class="id">E-014</td><td class="t">Grunnforhold ved akse C<span class="s">Opprettet 25. okt av TE</span></td><td>Varsel fra TE<span class="s">25. okt · brev 1</span></td><td class="dash">Ingen brev</td><td class="dash">Ingen brev</td><td>TE · varsel om endring<span class="s">25. okt</span></td><td class="dash">—</td></tr>
           <tr><td class="id">E-021</td><td class="t">Ny peling med produktivitetstap<span class="s">Opprettet 2. okt av TE</span></td><td>Svar fra BH<span class="s">12. okt · brev 3</span></td><td>Krav <span class="n">165 000 kr</span><span class="s">20. okt · brev 4</span></td><td class="dash">Ingen brev</td><td>TE · krav om vederlagsjustering<span class="s">20. okt</span></td><td>Svar på vederlag<span class="s">Kari Nordmann, i dag</span></td></tr>

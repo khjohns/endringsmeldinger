@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Varden · H · Varianter for det vannrette</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="stil.css">
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute">
+<svg width="0" height="0" class="sprite">
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
@@ -39,44 +40,44 @@
     <div class="search"><svg class="i"><use href="#i-search"/></svg>Søk i saker og brev<kbd>Ctrl K</kbd></div>
     <div class="iconbtn"><svg class="i"><use href="#i-bell"/></svg><span class="badge">2</span></div>
     <div class="iconbtn"><svg class="i"><use href="#i-help"/></svg></div>
-    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh" style="display:inline">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i" style="color:var(--muted)"><use href="#i-down"/></svg></div>
+    <div class="user"><div class="avatar">KN</div><div><b>Kari Nordmann <span class="side bh">BH</span></b><span>Prosjektteam Nord</span></div><svg class="i"><use href="#i-down"/></svg></div>
   </header>
   <div class="page">
-    <div class="ph" style="margin-bottom:24px"><div><h1>Varianter for det vannrette</h1><div class="meta"><span>Skjermplassen er mest begrenset i bredden. Hver rad viser varianter for én komponent, og den med tykk ramme er brukt i B, D, F og G.</span></div></div></div>
+    <div class="ph spaced"><div><h1>Varianter for det vannrette</h1><div class="meta"><span>Skjermplassen er mest begrenset i bredden. Hver rad viser varianter for én komponent, og den med tykk ramme er brukt i B, D, F og G.</span></div></div></div>
     <div class="var-row">
       <h3>Datoene<small>Registrerte datoer med kilde</small></h3>
       <div class="var"><h4>a · Vannrett linje i skala <span class="tag plain">Versjon 2</span></h4>
         <div class="mock"><div class="hline"><div class="ln"></div><div class="p" style="left:3%"></div><div class="p" style="left:29%"></div><div class="p" style="left:70%"></div><div class="p" style="left:97%"></div><div class="l" style="left:8%">2. okt</div><div class="l" style="left:29%">9. okt</div><div class="l" style="left:70%">20. okt</div><div class="l" style="left:90%">27. okt</div></div></div>
         <p class="pro">Avstanden i tid ses med en gang.</p><p class="con">Tar hele bredden og om lag 180 px i høyden.</p><p class="con">Tåler ikke mange datoer; etikettene kolliderer.</p></div>
       <div class="var"><h4>b · Loddrett liste <span class="tag plain">Brukt i G</span></h4>
-        <div class="mock"><ul class="vdl" style="padding:0 0 0 40px"><li><span class="d">2. okt</span> <span class="s">oppdaget · brev 1</span></li><li class="gapd">7 dager</li><li><span class="d">9. okt</span> <span class="s">varsel · brev 2</span></li></ul></div>
+        <div class="mock"><ul class="vdl"><li><span class="d">2. okt</span> <span class="s">oppdaget · brev 1</span></li><li class="gapd">7 dager</li><li><span class="d">9. okt</span> <span class="s">varsel · brev 2</span></li></ul></div>
         <p class="pro">Tåler mange frister og lange navn.</p><p class="pro">Passer i høyre kolonne og i Hendelser.</p><p class="con">Avstanden i tid må leses som tall.</p></div>
       <div class="var valgt"><h4>c · Én linje over arbeidet <span class="tag plain">Brukt i B og D</span></h4>
-        <div class="mock"><div class="dateline" style="margin:0;font-size:11.5px;padding:8px 10px"><b>Datoer</b><span>Oppdaget 2. okt <i>brev 1</i></span><span>Varsel 9. okt <i>brev 2</i></span><a>Alle</a></div></div>
+        <div class="mock"><div class="dateline"><b>Datoer</b><span>Oppdaget 2. okt <i>brev 1</i></span><span>Varsel 9. okt <i>brev 2</i></span><a>Alle</a></div></div>
         <p class="pro">Om lag 60 px i høyden.</p><p class="pro">Datoene for et spørsmål står også ved spørsmålet.</p><p class="con">Bryter over flere linjer når datoene blir mange; da er b bedre.</p></div>
     </div>
     <div class="var-row">
       <h3>Saksoverskriften<small>Nummer, tittel og parter</small></h3>
       <div class="var"><h4>a · To linjer med merke over <span class="tag plain">Versjon 2</span></h4>
-        <div class="mock"><span class="caseid">E-021</span><div style="font-size:17px;font-weight:600;color:var(--ink)">Ny peling med produktivitetstap</div><div class="muted" style="font-size:11px">Skolebygg Nord · NS 8407 · BH Oslobygg KF · TE Totalentreprenør AS</div></div>
+        <div class="mock"><span class="caseid">E-021</span><div class="mk-t1">Ny peling med produktivitetstap</div><div class="muted mk-t3">Skolebygg Nord · NS 8407 · BH Oslobygg KF · TE Totalentreprenør AS</div></div>
         <p class="pro">Tydelig hierarki.</p><p class="con">Om lag 110 px før fanene.</p></div>
       <div class="var valgt"><h4>b · Kompakt <span class="tag plain">Brukt i B, D, F og G</span></h4>
-        <div class="mock"><div style="display:flex;gap:8px;align-items:baseline"><span class="caseid" style="margin:0">E-021</span><span style="font-size:15px;font-weight:600;color:var(--ink)">Ny peling med produktivitetstap</span></div><div class="muted" style="font-size:11px">Skolebygg Nord · NS 8407 · BH · TE</div></div>
+        <div class="mock"><div class="mk-row base"><span class="caseid">E-021</span><span class="mk-t2">Ny peling med produktivitetstap</span></div><div class="muted mk-t3">Skolebygg Nord · NS 8407 · BH · TE</div></div>
         <p class="pro">Om lag 70 px.</p><p class="pro">Nummer og tittel leses som én enhet.</p><p class="con">Litt mindre luft over fanene.</p></div>
       <div class="var"><h4>c · Krymper ved rulling</h4>
-        <div class="mock"><div style="display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:6px"><span class="caseid" style="margin:0">E-021</span><b style="font-size:12px">Ny peling …</b><span class="muted" style="font-size:11px;margin-left:auto">Vederlag</span></div><div class="muted" style="font-size:11px;margin-top:8px">Overskriften blir én linje på 44 px som står fast når skjemaet rulles.</div></div>
+        <div class="mock"><div class="mk-row ruled"><span class="caseid">E-021</span><b class="mk-t3">Ny peling …</b><span class="muted mk-t3 mk-ml">Vederlag</span></div><div class="muted mk-t3 mk-mt">Overskriften blir én linje på 44 px som står fast når skjemaet rulles.</div></div>
         <p class="pro">Saken er alltid synlig.</p><p class="con">Krever bevegelse, og må prøves med zoom på 200 %.</p></div>
     </div>
     <div class="var-row">
       <h3>Sporene<small>Grunnlag, vederlag, frist, dokumenter, hendelser</small></h3>
       <div class="var valgt"><h4>a · Faner med handlingen til høyre <span class="tag plain">Brukt</span></h4>
-        <div class="mock"><div style="display:flex;gap:12px;border-bottom:1px solid var(--line);padding-bottom:6px;font-size:11.5px"><span>Grunnlag</span><b style="color:var(--ink);border-bottom:2px solid var(--ink)">Vederlag</b><span>Frist</span><span>Dokumenter</span><span>Hendelser</span><span style="margin-left:auto;border:1px solid var(--line);border-radius:3px;padding:0 6px;background:#fff">Skriv brev</span></div></div>
+        <div class="mock"><div class="mk-row ruled tabs-mk mk-t3"><span>Grunnlag</span><b class="mk-on">Vederlag</b><span>Frist</span><span>Dokumenter</span><span>Hendelser</span><span class="mk-kbd">Skriv brev</span></div></div>
         <p class="pro">All bredde går til arbeidet.</p><p class="pro">Handlingene for sporet står ett sted.</p><p class="con">Seks faner er grensen før de må brytes.</p></div>
       <div class="var"><h4>b · Lys skinne til venstre</h4>
-        <div class="mock"><div class="rail"><div class="r"><div>Grunnlag</div><div class="on">Vederlag</div><div>Frist</div><div>Dokumenter</div><div>Hendelser</div></div><div class="muted" style="font-size:11px">Skjemaet</div></div></div>
+        <div class="mock"><div class="rail"><div class="r"><div>Grunnlag</div><div class="on">Vederlag</div><div>Frist</div><div>Dokumenter</div><div>Hendelser</div></div><div class="muted mk-t3">Skjemaet</div></div></div>
         <p class="pro">Tåler flere spor og lange navn.</p><p class="con">Koster om lag 180 px i bredden, der plassen er knappest.</p><p class="con">Ligner konkurrentens sidemeny.</p></div>
       <div class="var"><h4>c · Nedtrekk for spor</h4>
-        <div class="mock"><div style="display:flex;gap:8px;align-items:center;font-size:11.5px"><span style="border:1px solid var(--line);border-radius:3px;padding:2px 8px;background:#fff">Vederlag ▾</span><span class="muted">2 brev · siste 20. okt fra TE</span></div></div>
+        <div class="mock"><div class="mk-row mk-t3"><span class="mk-select">Vederlag ▾</span><span class="muted">2 brev · siste 20. okt fra TE</span></div></div>
         <p class="pro">Minst plass.</p><p class="con">Skjuler de andre sporene; man ser ikke at grunnlaget har nytt brev.</p></div>
     </div>
   </div>

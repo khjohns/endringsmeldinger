@@ -206,23 +206,23 @@ Disse situasjonene er ikke unntak. De må virke fra første versjon.
 
 ## Visuelt språk
 
-Uttrykket er kjølig, papirlikt og presist – et juridisk arkiv, ikke et kontrollpanel. Det skal ikke kunne forveksles med konkurrentens mørkegrønne sidemeny, varme gråflater, pilleformede knapper og beløp i monospace.
+Farger, skrift og komponenter tar utgangspunkt i [Punkt](https://punkt.oslo.kommune.no/), designsystemet til Oslo kommune, uten å være en kopi. Tokenene er hentet fra `@oslokommune/punkt-css` 19.16.2 og står i `:root` i [`stil.css`](skjermer/stil.css) med Punkt-navnet i kommentaren. Uttrykket er rolig og presist – et juridisk arkiv, ikke et kontrollpanel. Det skal ikke kunne forveksles med konkurrentens mørkegrønne sidemeny, varme gråflater, pilleformede knapper og beløp i monospace.
 
 | Element | Konkurrenten | Varden |
 | --- | --- | --- |
 | Ramme | Mørkegrønn sidemeny til venstre, bestemmelsespanel til høyre | Lys toppmeny. Hele bredden går til saken |
-| Grunnfarge | Varm lysgrå | Kjølig lysgrå bakgrunn (#EEF1F5), hvite flater |
-| Primærfarge | Skoggrønn | Blekkblå (#1B2A4A) på tekst, primærknapp og prinsipalt standpunkt |
-| Signalfarger | Rød på «Nei, for sent», gul konklusjon | Amber (#9A5B0B) = utkast, blågrønn (#0F766E) = sendt eller nytt brev, rød (#B42318) = feil i løsningen. Ingen farge for en vurdering. Alltid med ord |
-| Skrift i grensesnittet | Grotesk, monospace for beløp og paragrafer | IBM Plex Sans, tabulartall for beløp. Ingen monospace |
-| Skrift i brev | Samme som grensesnittet | Source Serif 4 i en lesespalte på høyst 760 px som tåler tekstforstørrelse. A4 bare i PDF-en |
-| Valg | Pilleformede segmentknapper | Rektangulære valgkort med 4 px hjørner og radioknapp, uten farge og minst 44 px høye |
+| Grunnfarge | Varm lysgrå | Nøytral lysgrå bakgrunn (Punkt `neutrals-100`), hvite flater og rette hjørner |
+| Primærfarge | Skoggrønn | Mørkeblå fra Punkt (`dark-blue-1000`) på tekst, primærknapp og prinsipalt standpunkt. Varmblå (`warm-blue-1000`) på lenker |
+| Signalfarger | Rød på «Nei, for sent», gul konklusjon | Flater fra Punkt med mørkeblå tekst: gul = utkast eller stoppet sending, lysegrønn med mørkegrønn kant = sendt, lyserød = feil i løsningen. Ingen farge for en vurdering. Alltid med ord |
+| Skrift i grensesnittet | Grotesk, monospace for beløp og paragrafer | Oslo Sans fra Punkt, tabulartall for beløp. Ingen monospace |
+| Skrift i brev | Samme som grensesnittet | Source Serif 4 i en lesespalte på høyst 760 px som tåler tekstforstørrelse. A4 bare i PDF-en. Avviker fra Punkt, som bare har Oslo Sans, så brevet skilles tydelig fra skjemaet (oppdragsgiver 27.10) |
+| Valg | Pilleformede segmentknapper | Rektangulære valgkort med rette hjørner og radioknapp med 2 px ramme som i Punkt, uten farge og minst 48 px høye |
 | Subsidiært | Stiplet etikett «SUBSIDIÆRT» | Et spørsmål i hel setning i skjemaet. I panelet står alternativene under posten, merket «alternativer, ikke tillegg» |
 | Hjemmel | Paragrafnummer i monospace, tekst i fast panel | Brikke «§ 34.1.2» med bokikon ved spørsmålet, dempet linje under radnavnet i tabellene. Klikk åpner en leseflate der kontraktens ordlyd og vår forklaring står hver for seg |
 | Ikoner | Strekikoner i knapper | Strekikoner på 1,5 px, alltid med tekst. Egne ikoner for dato, brev, lås og hjemmel. Merket er en varde av fire stablede steiner |
 | Bevegelse | Ikke observert | 150 ms. En linje i panelet med hovedlinjene som endres, får et kort fargeskifte. Av ved `prefers-reduced-motion` |
 
-Tettheten har to nivåer: **Arbeid** (standard, 16 px grunnlinje) for saken og **Oversikt** (14 px, tettere rader) for porteføljen. Begge bruker et rutenett på 8 px.
+Tettheten har to nivåer: **Arbeid** (standard, 16 px grunnlinje) for saken og **Oversikt** (14 px, tettere rader) for porteføljen. Begge bruker et rutenett på 4 px, som avstandsskalaen i Punkt.
 
 ## Universell utforming og tillit
 
@@ -230,7 +230,7 @@ Kravet er WCAG 2.1 AA fra første versjon, og målet er 2.2 AA. En jurist skal k
 
 **Universell utforming**
 
-- Signalfargene har minst 4,5:1 kontrast mot hvitt (amber 5,4:1, rød 6,5:1, blågrønn 5,4:1). Ingen tilstand vises med farge alene.
+- Teksten har minst 4,5:1 kontrast mot flaten den står på: mørkeblå 10,9:1 eller mer på signalflatene, og dempet tekst (`#666666`) 4,6:1 eller mer. Ingen tilstand vises med farge alene.
 - Valgkortene er ekte radioknapper i en `fieldset` med `legend` = spørsmålet. Hjemmelsbrikken er en knapp med navnet «Les § 34.1.2».
 - Panelet med hovedlinjene er en `aria-live="polite"`-region som leser opp den endrede linja, ikke hele panelet.
 - Datolinja har en tekstversjon som skjermleseren får først: «Forholdet oppdaget 2. oktober, oppgitt av TE i brev 1. Varsel 9. oktober, brev 2.»
