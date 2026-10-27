@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BF-03 · TE er uenig i svaret · prototype v1</title>
+<title>BF-03 · TE er uenig i svaret · prototype v2</title>
 <!--
   Klikkbar prototype for BF-03 (docs/domenetabell/brukerforlop/BF-03.md). Tilstandene er
   ankrene (#mottatt, #protest, …), og bestillingen viser til dem. ID-ene i data-spor er
@@ -42,7 +42,7 @@
 </head>
 <body>
 <div class="proto-bar">
-  <span><b>Prototype · BF-03 · versjon 1</b> · Ingenting sendes. Saken er BF-01 ved kontrollpunktet <code>te-har-mottatt-svaret</code>.</span>
+  <span><b>Prototype · BF-03 · versjon 2</b> · Ingenting sendes. Saken er BF-01 ved kontrollpunktet <code>te-har-mottatt-svaret</code>.</span>
   <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#mottatt">Start på nytt</a></span>
 </div>
 <section class="screen">
@@ -93,9 +93,9 @@
                 <div class="lbl">Hva vil du gjøre?</div>
                 <div class="veier">
                   <a class="vei" href="#godta" data-spor="U-3 · D-1"><b>Godta svaret</b><span>Dere blir enige om hele svaret, også at varselet kom for sent. Beløpet blir 0 kr.</span></a>
-                  <a class="vei" href="#protest" data-spor="M-1 · D-2 · D-4"><b>Protester: varselet kom i tide</b><span>Svaret står, også de 60 000 kr. Uenigheten om varselet registreres.</span></a>
-                  <a class="vei" href="#ny-versjon" data-spor="U-5 · D-5"><b>Send ny versjon av kravet</b><span>Avslår tilbudet om 60 000 kr i svaret.</span></a>
-                  <div class="vei" data-spor="D-4"><b>Vent</b><span>Du trenger ikke svare nå. Svaret står, og BH er bundet av det til du godtar det eller sender en ny versjon.</span></div>
+                  <a class="vei" href="#protest" data-spor="M-1 · M-2 · D-2 · D-4"><b>Protester: varselet kom i tide</b><span>Gjelder bare påberopelsen av at varselet kom for sent. Protesten er ikke en aksept, og svaret står som før.</span></a>
+                  <a class="vei" href="#ny-versjon" data-spor="U-5 · D-5"><b>Send ny versjon av kravet</b><span>For uenighet om beløpet. Avslår tilbudet om 60 000 kr i svaret.</span></a>
+                  <div class="vei" data-spor="D-4"><b>Vent</b><span>Du trenger ikke svare nå. Svaret står, men har BH satt en akseptfrist i svaret, er BH bare bundet til fristen er ute.</span></div>
                 </div>
               </div>
             </div>
@@ -104,13 +104,14 @@
             <div class="card tilstand" id="protest" role="region" aria-label="Protest mot påberopelsen">
               <div class="card-h"><h3>Protest mot påberopelsen</h3><a class="btn ghost sm" href="#mottatt">Tilbake</a></div>
               <div class="card-b">
-                <div class="q">Du protesterer mot at BH i brev 5 gjør gjeldende at varselet etter § 34.1.2 kom for sent.</div>
+                <div class="q">Du protesterer mot at BH i brev 5 gjør gjeldende at varselet etter § 34.1.2 kom for sent. Er du uenig i beløpet, er det en annen vei: <a href="#ny-versjon">ny versjon av kravet</a>.</div>
                 <label class="lbl" for="hvorfor">Hvorfor kom varselet i tide?</label>
                 <textarea class="tx" id="hvorfor" data-spor="M-1">Varselet ble sendt samme dag som tegningene kom, og det er uten ugrunnet opphold.</textarea>
                 <div class="virkning" data-spor="U-4 · D-2 · D-4">
                   <p><b>Dette gjør protesten</b></p>
                   <p>Den registrerer at du er uenig, og vises ved siden av påberopelsen. Den avgjør ikke hvem som har rett.</p>
-                  <p>Svaret i brev 5 står. BH er fortsatt bundet av de 60 000 kr til du godtar svaret eller sender en ny versjon av kravet.</p>
+                  <p>Protesten er ikke en aksept og ikke en ny versjon av kravet. Svaret i brev 5 står, også de 60 000 kr subsidiært, og du kan fortsatt godta det senere.</p>
+                  <p data-spor="G-4">BH er bundet av svaret til du godtar det, sender en ny versjon av kravet, eller en akseptfrist BH har satt i svaret, er ute.</p>
                 </div>
                 <div class="knapper"><a class="btn ghost" href="#mottatt">Avbryt</a><a class="btn primary" href="#protest-brev">Se brevet</a></div>
               </div>
@@ -175,7 +176,7 @@
                 <div class="virkning" data-spor="U-3 · D-1">
                   <p><b>Dere blir enige om 0 kr</b></p>
                   <p>Du godtar hele svaret, også at varselet etter § 34.1.2 kom for sent. De 60 000 kr gjaldt bare hvis varselet kom i tide.</p>
-                  <p class="etter-protest" hidden data-spor="S-2">Protesten i brev 6 står i saken, men endrer ikke enigheten.</p>
+                  <p class="etter-protest" hidden data-spor="U-8 · S-2"><b>Du godtar nå også standpunktet du protesterte mot i brev 6.</b> Protesten står i saken, men er ikke et forbehold i aksepten.</p>
                 </div>
                 <div class="knapper"><a class="btn ghost" href="#mottatt">Avbryt</a><span class="btn primary" aria-disabled="true">Se akseptbrevet</span></div>
                 <p class="muted">Brevkontrollen for aksepten er som i BF-01 og er ikke med i prototypen.</p>
