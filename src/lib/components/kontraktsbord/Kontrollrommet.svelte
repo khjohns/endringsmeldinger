@@ -18,12 +18,24 @@
   import Brevkontroll from '$lib/components/kjernesak/Brevkontroll.svelte';
   import InnsigelseModal from '$lib/components/kjernesak/InnsigelseModal.svelte';
   import { SPOR_FOR } from '$lib/kjernesak/sakstilstand';
+  import { etiketterVedAksepten, type Aksepten } from '$lib/kjernesak/svaretsEtiketter';
   import { formatDateShortNorwegian } from '$lib/utils/dateFormatters';
   const claimReview = demosak ? createClaimReview(demosak) : null;
   // TS-saken sendes med kommandoen til kjernen og den låste teksten (#718, LV-U2).
   const kravkontroll = kjernesak ? lagKravkontroll(kjernesak.kjernesak) : null;
   setClaimReview(kravkontroll ?? claimReview!);
   const brevApent = $derived(Boolean(kravkontroll?.letter ?? claimReview?.letter));
+  // VG-B-02: etikettene ved svaret står over brevet når TE godtar det, ikke i brevteksten (OV-U5).
+  // De gjelder bare brevet aksepten åpnet.
+  let aksepten = $state.raw<Aksepten | null>(null);
+  const akseptetiketter = $derived(
+    etiketterVedAksepten(
+      aksepten,
+      kravkontroll?.letter,
+      kjernesak?.saksbilde,
+      kjernesak?.kjernesak.utledning
+    )
+  );
   let showApproval = $state(false);
   import Header from './Header.svelte';
   import LeftSidebar from './LeftSidebar.svelte';
@@ -395,7 +407,18 @@
               beskrivelse="Brevet sendes først når du bekrefter."
               onbekreft={kravkontroll.confirm}
               onavbryt={kravkontroll.cancel}
-            />
+            >
+              {#snippet merknad()}
+                {#if akseptetiketter.length}
+                  <div class="svar-etiketter" role="note">
+                    <strong>Om svaret du godtar</strong>
+                    <ul>
+                      {#each akseptetiketter as e (e.kode)}<li>{e.tekst}</li>{/each}
+                    </ul>
+                  </div>
+                {/if}
+              {/snippet}
+            </Brevkontroll>
           {/if}
           {#if claimReview}<ClaimLetterView review={claimReview} />{/if}
           <!-- Hidden, not unmounted, while the letter is checked: the form's submission resumes on confirm. -->
@@ -519,6 +542,10 @@
                 ongodta={(svar) => {
                   kjernesak?.kjernesak.fjernFeil();
                   void kravkontroll?.aksept(SPOR_FOR[sel], svar);
+                  // Brevet vises med en gang, eller aldri når kjernen avviser aksepten.
+                  aksepten = kravkontroll?.letter
+                    ? { spor: SPOR_FOR[sel], brev: kravkontroll.letter }
+                    : null;
                 }}
                 oninnsigelse={() => {
                   kjernesak?.kjernesak.fjernFeil();
@@ -591,6 +618,19 @@
 <style>
   .work {
     display: contents;
+  }
+  .svar-etiketter {
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    border: var(--rule);
+    border-radius: 8px;
+    background: var(--surface-inset);
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .svar-etiketter ul {
+    margin: 4px 0 0;
+    padding-left: 20px;
   }
   .work[hidden] {
     display: none;

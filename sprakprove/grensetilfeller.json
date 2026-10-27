@@ -1,5 +1,5 @@
 {
-  "omfang": "Grensetilfeller for beløp, dager og fravær i flyten (#274, P1-4). Samme tabell kjøres mot backend/regler/ (pytest) og sprakprove/kjerne/ (Vitest). Kilden står per gruppe. Karakterisering betyr at forventningen fastholder Pythons Decimal-semantikk, som en port skal bevare (arkitekturforslaget, avsnitt 7); den er ikke en rettslig forventning. Negative beløp prøves bare aritmetisk; om et negativt krav er lovlig, er #189.",
+  "omfang": "Grensetilfeller for beløp, dager og fravær i flyten (#274, P1-4). Tabellen kjøres mot backend/regler/ (pytest), og gruppene for beløp, krone og frist også mot sprakprove/kjerne/ (Vitest). Vederlaget har egne forventninger for TS-kjernen i sprakprove/tester/grensetilfeller.test.ts (OV-U58, OV-U59, KA-U42, #1317). Kilden står per gruppe. Karakterisering betyr at forventningen fastholder Pythons Decimal-semantikk, som en port skal bevare (arkitekturforslaget, avsnitt 7); den er ikke en rettslig forventning. Negative beløp prøves bare aritmetisk; om et negativt krav er lovlig, er #189.",
   "belop": {
     "kilde": "karakterisering: regler.belop, Decimal(str(verdi)).quantize(0.01, ROUND_HALF_UP)",
     "tilfeller": [
@@ -33,16 +33,16 @@
     ]
   },
   "vederlag": {
-    "kilde": "B-13 (24.09): godkjent til nærmeste krone, 99 %-terskelen utgår; vedtaket 04.10: 0 kr er avslått; regler/vederlag.py _kontroller. I TS-kjernen gjelder OV-U58, OV-U59 og KA-U42, og «kjernen» er utfallet der når det er et annet",
+    "kilde": "B-13 (24.09): godkjent til nærmeste krone, 99 %-terskelen utgår; vedtaket 04.10: 0 kr er avslått; regler/vederlag.py _kontroller.",
     "tilfeller": [
       { "krevd": 100000, "vurdering": "godkjent", "resultat": "godkjent" },
-      { "krevd": 100000, "vurdering": "delvis", "godkjent": 99999.5, "resultat": "godkjent", "kjernen": { "kilde": "OV-U59", "resultat": "delvis_godkjent" } },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 99999.5, "resultat": "godkjent" },
       { "krevd": 100000, "vurdering": "delvis", "godkjent": 99999.49, "resultat": "delvis_godkjent" },
       { "krevd": 100000, "vurdering": "delvis", "godkjent": 99000, "resultat": "delvis_godkjent" },
-      { "krevd": 100000, "vurdering": "delvis", "godkjent": 100000, "resultat": "godkjent", "kjernen": { "kilde": "KA-U42", "feil": "hovedkrav_godkjent_belop" } },
-      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0, "resultat": "avslatt", "kjernen": { "kilde": "KA-U42", "feil": "hovedkrav_godkjent_belop" } },
-      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0.004, "resultat": "avslatt", "merknad": "0,004 kr er 0 øre", "kjernen": { "kilde": "OV-U58", "feil": "hovedkrav_godkjent_belop" } },
-      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0.005, "resultat": "delvis_godkjent", "merknad": "0,005 kr er 1 øre", "kjernen": { "kilde": "OV-U58", "feil": "hovedkrav_godkjent_belop" } },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 100000, "resultat": "godkjent" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0, "resultat": "avslatt" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0.004, "resultat": "avslatt", "merknad": "0,004 kr er 0 øre" },
+      { "krevd": 100000, "vurdering": "delvis", "godkjent": 0.005, "resultat": "delvis_godkjent", "merknad": "0,005 kr er 1 øre" },
       { "krevd": 100000, "vurdering": "avslatt", "resultat": "avslatt" },
       { "krevd": 100000, "vurdering": "delvis", "godkjent": -1, "feil": "hovedkrav_godkjent_belop" },
       { "krevd": 100000, "vurdering": "delvis", "godkjent": 100000.01, "feil": "hovedkrav_godkjent_belop" },
@@ -50,7 +50,7 @@
       { "krevd": 100000, "feil": "hovedkrav_vurdering" },
       { "krevd": 100000, "vurdering": "godkjent", "aksepterer_metode": null, "feil": "aksepterer_metode" },
       { "krevd": 100000, "vurdering": "godkjent", "aksepterer_metode": false, "resultat": "delvis_godkjent", "merknad": "metodeendring gir ikke godkjent" },
-      { "krevd": 100000.4, "vurdering": "delvis", "godkjent": 100000, "resultat": "godkjent", "kjernen": { "kilde": "OV-U59", "resultat": "delvis_godkjent" } },
+      { "krevd": 100000.4, "vurdering": "delvis", "godkjent": 100000, "resultat": "godkjent" },
       { "krevd": 100000.5, "vurdering": "delvis", "godkjent": 100000, "resultat": "delvis_godkjent" }
     ]
   },

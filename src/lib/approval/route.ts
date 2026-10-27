@@ -1,4 +1,5 @@
 import { authorityMatrix } from './authority';
+import { visKroner } from '$lib/utils/belop';
 
 /** One link in the sequential authorisation chain. */
 export interface ApprovalChainNode {
@@ -42,7 +43,7 @@ export interface ApprovalRoute {
   route: ApprovalChainNode[];
 }
 
-export const nok = (value: number) => `${value.toLocaleString('nb-NO')} kr`;
+export const nok = (value: number) => `${visKroner(value)} kr`;
 
 export function limitFor(role: string): number | null | undefined {
   return authorityMatrix.find((row) => row.role === role)?.limit;

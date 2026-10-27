@@ -3,10 +3,11 @@ import type { SporKey } from './types.js';
 import { getParagrafTittel } from '$lib/constants/paragrafTitler.js';
 import { getKontraktsregel } from '$lib/constants/kontraktsregler.js';
 import { getHjemmelObj } from '$lib/constants/categories.js';
+import { visKroner } from '$lib/utils/belop';
 
-/** Bare tallformatering (nb-NO). Produksjon bruker formatCurrency/formatDays med andre suffiks. */
+/** Bare tallformatering (nb-NO), med to desimaler når beløpet har øre (#1315). */
 export function fmt(n: number): string {
-  return n.toLocaleString('nb-NO');
+  return visKroner(n);
 }
 
 export const BESTRIDT_LABEL = 'Bestridt';

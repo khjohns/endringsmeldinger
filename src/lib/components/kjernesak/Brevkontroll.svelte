@@ -7,9 +7,12 @@
   import Brevskall from '$lib/components/approval/Brevskall.svelte';
   import type { Kjernebrev } from '$lib/kjernesak/kravkontroll.svelte';
 
+  import type { Snippet } from 'svelte';
+
   let {
     brev,
     beskrivelse,
+    merknad,
     onbekreft,
     onavbryt,
   }: {
@@ -17,6 +20,8 @@
     brev: Kjernebrev;
     /** Det som skjer når TE bekrefter, i panelet ved siden av brevet. */
     beskrivelse: string;
+    /** Det som står over brevet i dokumentkolonnen, og ikke i brevteksten. */
+    merknad?: Snippet;
     onbekreft: () => void;
     onavbryt: () => void;
   } = $props();
@@ -36,6 +41,7 @@
   {onavbryt}
 >
   {#snippet dokument()}
+    {@render merknad?.()}
     <article class="dokument">
       <h2>{brev.tittel}</h2>
       <p class="hjelp">Teksten lages av appen fra valgene i skjemaet og kan ikke endres her.</p>
