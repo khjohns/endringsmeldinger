@@ -9839,31 +9839,67 @@ anbefalt = true
 id = "OV-U64"
 dato = 2026-10-27
 hvem = "oppdragsgiver"
-kilde = ["#1336", "#1337"]
+kilde = ["#1336", "#1337", "#1338"]
 sporsmal = '''
-**S-3. Skal protesten bygges i samme leveranse som denne historien?** Protesten er vedtatt, men utsatt etter OV-U7. Uten den kan TE fastholde at varselet kom i tide bare med et brev sendt utenfor appen og registrert i den (OV-U4).
+Bakgrunn: S-3 i bestillingen for BF-03 spurte om protesten skal bygges i samme leveranse som historien. Oppdragsgiver svarte 27.10: «Jeg støtter også A.» Alternativet lyder: «Ja. Protesten mot påberopelsen bygges, med brevteksten i LV-U4 punkt 8. Bestridelse, passivitet og merking er fortsatt utsatt.» Det forkastede alternativet lyder: «Nei. Historien bygges med registrering av et brev sendt utenfor appen som veien for M-1.»
 
-Anbefalt: A. Protesten er den sentrale veien i brukeroppgaven BF-03 er valgt for, og å sende TE ut av løsningen akkurat der svekker hele forløpet. Om det er den vanligste formen for uenighet, er ikke undersøkt. Spørsmålet gjelder rekkefølgen, ikke kontrakten. Juridisk sparring 27.10 støtter A.
+**1. Hvem kan protestere mot hva, nå som protesten bygges?**
+
+Bakgrunn: OV-U7 utsetter «protest mot en innsigelse» i sin helhet. Svaret «Jeg støtter også A» på S-3 lyder: «Ja. Protesten mot påberopelsen bygges, med brevteksten i LV-U4 punkt 8. Bestridelse, passivitet og merking er fortsatt utsatt.» LV-U4 punkt 8 har tre brevformer: protest mot innsigelsen i et brev, protest mot påberopelsen av for sen varsling i et svar, og protest mot innsigelsene i et brev. Punktet gjelder begge parter (VS-U14). Svaret sier ikke hvem som kan protestere, eller mot hvilken innsigelse.
+
+Alternativene i vedtaksform (forholdet til OV-U7 er «snevrer inn» i alle tre). I alle tre er dette fortsatt utsatt etter OV-U7: «ingen krav», merking og avklaring, senere begrunnelse og datokontrollene, bestridelse og påberopt passivitet.
+
+Revidert forslag (C med grenser), stilt 27.10: Oppdragsgiver la fram en vurdering fra Astra og spurte om orkestratoren var enig. Orkestratoren var enig i hovedsak. Begrunnelsen ble rettet: henvisningen til LV-U4 punkt 8 avgjør ikke omfanget; D-6 sier når en protest godtas, ikke hvem som kan protestere mot hva; at A og B trenger en sperre, viser ikke at C er minst; listen over det som fortsatt er utsatt var feil etter OV-U55.
+
+Valget gjelder leveranseomfanget. Det følger ikke av svaret «Jeg støtter også A» alene.
 
 **Forholdet til andre vedtak.** Snevrer inn OV-U7.'''
-valgt = "A"
+valgt = "C"
 svar = '''
-A. Oppdragsgiver ordrett: «Jeg støtter også A.»'''
+C, revidert med oppdragsgivers to presiseringer. Oppdragsgiver ordrett: «Ja, med to små presiseringer. C er nå et uttrykkelig valg om leveranseomfang, og begrunnelsen holder.
+
+1. Bytt «registrert innsigelse» med «innsigelse fra motparten som løsningen støtter protest mot etter de nevnte vedtakene». «Registrert» kan forveksles med registrering av brev sendt utenfor løsningen etter OV-U4. Formuleringen bør ikke utilsiktet gi slike brev nye strukturerte virkninger.
+2. D-6 kan godt prøves i BF-03. Jeg mente et kontrollpunkt, ikke nødvendigvis et eget brukerforløp eller en utsettelse. At D-6 står i bestillingen, betyr likevel ikke alene at det er prøvd. Forløpet må faktisk nå enighet, sende protesten og kontrollere at enighetens virkning består.
+
+Innledningen kan dermed være:
+
+«Løsningen støtter protest fra begge parter mot innsigelser fra motparten, innenfor de vedtatte protestreglene som er angitt nedenfor.»
+
+Punkt 4 kan være:
+
+«BF-03 prøver TEs protest mot påberopelsen i svaret, også etter enighet (D-6), og kontrollerer at protesten ikke endrer enighetens virkning. Byggherrens protest får eget brukerforløp før den tas i bruk.»»'''
 forhold = [{ art = "snevrer inn", vedtak = "ov-u7" }]
 folge = '''
-Bygges med brukerforløpet BF-03 (#1337).'''
+Resten av OV-U7, slik den lyder etter senere vedtak (blant dem OV-U55), endres ikke av dette vedtaket.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-Ja. Protesten mot påberopelsen bygges, med brevteksten i LV-U4 punkt 8. Bestridelse, passivitet og merking er fortsatt utsatt.'''
-anbefalt = true
+Smal. TE kan protestere når byggherren i svaret påberoper at varselet kom for sent. Brevteksten er den midterste formen i LV-U4 punkt 8. Annen protest mot en innsigelse er fortsatt utsatt, også byggherrens.'''
+forkastet = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
 tekst = '''
-Nei. Historien bygges med registrering av et brev sendt utenfor appen som veien for M-1.'''
+Mellom. TE kan protestere mot hver innsigelse fra byggherren, både en påberopelse i svaret og en egen innsigelse, med alle tre formene i LV-U4 punkt 8. Byggherrens protest er fortsatt utsatt.'''
 forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "Første forslag til C"
+tekst = '''
+Hel. Begge parter kan protestere mot en innsigelse fra den andre. Hele punktet om protest i OV-U7 bygges, med protestregelen i VS-U9, protestdelen av KA-U29 og hele LV-U4 punkt 8.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Løsningen støtter protest fra begge parter mot innsigelser fra motparten, innenfor de vedtatte protestreglene som er angitt nedenfor. Hele punktet om protest i OV-U7 bygges, med protestregelen i VS-U9, protestdelen av KA-U29 og formene i LV-U4 punkt 8. Grensene:
+1. Protesten viser til det bestemte brevet og den eller de innsigelsene den gjelder.
+2. Den er ingen generell handling for å avslå eller bestride hele svaret.
+3. Virkningen følger de vedtatte protestreglene. Løsningen avgjør ikke om protesten er berettiget eller om den opphever innsigelsen.
+4. BF-03 prøver TEs protest mot påberopelsen i svaret, også etter enighet (D-6), og kontrollerer at protesten ikke endrer enighetens virkning. Byggherrens protest får eget brukerforløp før den tas i bruk.
+Valget gjelder leveranseomfanget. Det følger ikke av svaret «Jeg støtter også A» alene.'''
+anbefalt = true
 
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
