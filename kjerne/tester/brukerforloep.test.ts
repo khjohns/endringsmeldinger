@@ -106,6 +106,7 @@ function avvik(b: Brukerforloep, fil: string): string[] {
   );
   for (const id of b.bevis_saker) krev(BEVIS.has(id), `bevis-saken ${id} finnes ikke`);
   for (const k of b.kilder ?? []) krev(KILDER.has(k), `kilden ${k} finnes ikke`);
+  if (b.bestilling) krev(lagret(b.bestilling) !== null, `bestillingen ${b.bestilling} finnes ikke`);
   if (b.status === 'planlagt') {
     krev(b.venter_paa?.length, 'et planlagt forløp sier hva det venter på');
     krev(!b.steg?.length && !b.kontrollpunkter?.length, 'et planlagt forløp har ingen steg');
@@ -160,7 +161,9 @@ describe('vakttestene for brukerforløpene', () => {
     const planlagt = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'planlagt')!);
     planlagt.steg = [{ handling: 'trekk', spor: 'grunnlag' }];
     planlagt.venter_paa = [];
+    planlagt.bestilling = 'FINNES-IKKE.md';
     expect(avvik(planlagt, `${planlagt.id}.json`)).toEqual([
+      `${planlagt.id}: bestillingen FINNES-IKKE.md finnes ikke`,
       `${planlagt.id}: et planlagt forløp sier hva det venter på`,
       `${planlagt.id}: et planlagt forløp har ingen steg`,
     ]);
