@@ -227,14 +227,20 @@ export const FORBEHOLDET = [
   'Standpunktene nedenfor gjelder under forutsetning av at grunnlaget for kravet foreligger.',
 ] as const;
 
-/** Ett beløp i svaret, med etiketten for laget det står i i brevet. */
-export interface Lagrad {
-  saerskilt: boolean;
-  /** Beløpet etter begrensningen etter § 34.1.3, ikke posten selv (VS-U5). */
-  begrenset: boolean;
-  beloep: number;
-  /** `null` når brevet har ett lag, eller beløpet står uten lag. */
+/**
+ * Én rad i lagtabellen: et standpunkt fra grunnlaget som brevet setter foran sporet (A2), byggherrens
+ * påberopelse etter § 34.1.2, eller et beløp. `begrenset` er beløpet etter begrensningen etter
+ * § 34.1.3, ikke posten selv (VS-U5).
+ */
+export type Lagrad =
+  | { art: 'grunnlag'; grunn: Subsidiaergrunn }
+  | { art: 'varsel_34_1_2' }
+  | { art: 'hovedkrav' | 'post' | 'begrenset'; beloep: number };
+
+/** Radene under én etikett, i rekkefølgen brevet har dem. `etikett` er `null` når brevet har ett lag. */
+export interface Lag {
   etikett: string | null;
+  rader: Lagrad[];
 }
 
 export interface Vederlagslag {
@@ -242,38 +248,55 @@ export interface Vederlagslag {
   linje: string;
   /** Svaret godkjenner hele kravet (GR-U7). */
   sammenfall: boolean;
-  rader: Lagrad[];
+  /** Ingen av beløpene byggherren godtar, er over 0 kr. */
+  ingenBeloep: boolean;
+  lag: Lag[];
 }
 
 /**
- * Lagene i BHs svar på vederlaget slik brevet skriver dem (#1261): `foer` er saken før
- * svaret, `etter` saken med svaret kjernen forhåndsviser. Laget er det kjernen frøs for
- * standpunktet, flyttet ned med lagene fra grunnlaget, og etiketten står bare når brevet
- * har mer enn ett lag (OV-U32, OV-U33, LV-U4 punkt 4).
+ * Lagene i BHs svar på vederlaget slik brevet skriver dem (#1261, #1303): `foer` er saken før
+ * svaret, `etter` saken med svaret kjernen forhåndsviser. Grunnene fra grunnlaget står først,
+ * ett lag hver, og standpunktene i sporet følger i brevets rekkefølge, flyttet ned med lagene
+ * fra grunnlaget: preklusjonen etter § 34.1.2, beløpet, begrensningen etter § 34.1.3 og posten.
+ * Et standpunkt uten lag står under laget foran, som i brevet, og etiketten står bare når brevet
+ * har mer enn ett lag (OV-U32, OV-U33, LV-U4 punkt 4). Metoden og et «i tide» har ingen rad.
  */
 export function vederlagslag(foer: Utledning, etter: Utledning): Vederlagslag | null {
   const svar = etter.spor.vederlag.gjeldendeSvar;
   if (!svar) return null;
   const { virkninger, linje, sammenfall } = svar.beslutningsgrunnlag;
-  const forskyvning = grunnlagetForSvaret(foer).grunner.length;
-  const lagFor = (id: string) => laget(virkninger.find((v) => v.standpunkt === id)!.virkning);
-  const ordnet = forskyvning > 0 || virkninger.some((v) => (laget(v.virkning) ?? 0) > 1);
-  const etiketten = (lag: number | null) =>
-    ordnet && lag !== null ? etikett(lag + forskyvning) : null;
-  const rader = svar.standpunkter.flatMap((s): Lagrad[] => {
-    if (s.art === 'beloep')
-      return [
-        {
-          saerskilt: s.saerskilt !== undefined,
-          begrenset: false,
-          beloep: s.godkjent,
-          etikett: etiketten(lagFor(s.id)),
-        },
-      ];
-    const lag = s.art === 'rettidighet' && s.hjemmel === '34.1.3' ? lagFor(s.id) : null;
-    if (s.art === 'rettidighet' && s.begrenset !== undefined && lag !== null)
-      return [{ saerskilt: true, begrenset: true, beloep: s.begrenset, etikett: etiketten(lag) }];
-    return [];
-  });
-  return { linje, sammenfall, rader };
+  const grunner = grunnlagetForSvaret(foer).grunner;
+  const lagFor = (id: string) => {
+    const lag = laget(virkninger.find((v) => v.standpunkt === id)!.virkning);
+    return lag !== null ? lag + grunner.length : null;
+  };
+  const rader: { rad: Lagrad; plass: number | null }[] = [
+    ...grunner.map((grunn, i) => ({ rad: { art: 'grunnlag', grunn } as Lagrad, plass: i + 1 })),
+    ...svar.standpunkter.flatMap((s): { rad: Lagrad; plass: number | null }[] => {
+      if (s.art === 'beloep')
+        return [
+          {
+            rad: { art: s.saerskilt !== undefined ? 'post' : 'hovedkrav', beloep: s.godkjent },
+            plass: lagFor(s.id),
+          },
+        ];
+      if (s.art !== 'rettidighet' || s.iTide) return [];
+      if (s.hjemmel === '34.1.2') return [{ rad: { art: 'varsel_34_1_2' }, plass: lagFor(s.id) }];
+      if (s.hjemmel === '34.1.3' && s.begrenset !== undefined)
+        return [{ rad: { art: 'begrenset', beloep: s.begrenset }, plass: lagFor(s.id) }];
+      return [];
+    }),
+  ];
+  const ordnet = rader.some(({ plass }) => plass !== null && plass > 1);
+  const lag: Lag[] = [];
+  const merket = new Set<number>();
+  for (const { rad, plass } of rader) {
+    if (ordnet && plass !== null && !merket.has(plass)) {
+      merket.add(plass);
+      lag.push({ etikett: etikett(plass), rader: [rad] });
+    } else if (lag.length) lag.at(-1)!.rader.push(rad);
+    else lag.push({ etikett: null, rader: [rad] });
+  }
+  const beloepene = rader.flatMap(({ rad }) => ('beloep' in rad ? [rad.beloep] : []));
+  return { linje, sammenfall, ingenBeloep: beloepene.every((b) => b === 0), lag };
 }

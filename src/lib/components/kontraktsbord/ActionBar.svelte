@@ -13,6 +13,7 @@
   import { sporResultatLabel } from './derive.js';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   import { SPOR_FOR } from '$lib/kjernesak/sakstilstand';
+  import { etiketterVedSvaret } from '$lib/kjernesak/svaretsEtiketter';
   const store = getCaseWorkspace();
   import type { Mode, Role, SporKey } from './types.js';
   import { foresporselVenterSvar, kravetErSpesifisert } from '$lib/domain/fristVarselDomain';
@@ -88,6 +89,11 @@
   const tilbyrInnsigelse = $derived(Boolean(kjernesak?.innsigelser(sel).length));
   const tilbyrKjernetrekk = $derived(kjernesak?.tilbyrTe(`trekke:${SPOR_FOR[sel]}`) === true);
   const kjernesakStatus = $derived(kjernesak ? kjernesak.statustekst(sel) : '');
+  const svaretsEtiketter = $derived(
+    kjernesak
+      ? etiketterVedSvaret(kjernesak.saksbilde, kjernesak.kjernesak.utledning, SPOR_FOR[sel])
+      : []
+  );
 </script>
 
 <div
@@ -115,6 +121,11 @@
           <div class="status-text">
             {#if kjernesak}
               <span style="color: var(--ink-2)">{kjernesakStatus}</span>
+              {#if svaretsEtiketter.length}
+                <span class="status-etiketter">
+                  {svaretsEtiketter.map((e) => e.tekst).join(' · ')}
+                </span>
+              {/if}
             {:else if mode === 'form'}
               <span style="color: var(--ink-2)"
                 >Autolagret — {role === 'BH' ? 'klar til ferdigstilling' : 'ikke sendt'}</span
@@ -285,14 +296,18 @@
     padding: 8px 16px;
     font-size: 13px;
   }
+  /* Får ikke knappene plass ved statusteksten, legges de på egen linje. */
   .action-inner {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px 16px;
   }
   .status-section {
     display: flex;
+    flex: 1 1 240px;
+    min-width: 0;
     align-items: center;
     gap: 12px;
   }
@@ -312,8 +327,16 @@
     font-size: 14px;
     font-weight: 700;
   }
+  .status-etiketter {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+  }
   .action-buttons {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
     margin-left: auto;
   }

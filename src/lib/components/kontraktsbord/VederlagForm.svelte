@@ -33,7 +33,7 @@
   import SectionHeading from '$lib/components/primitives/SectionHeading.svelte';
   import StandpointHeading from '$lib/components/patterns/StandpointHeading.svelte';
 
-  import { FORBEHOLDET } from '$lib/kjernesak/vederlagssvar';
+  import { FORBEHOLDET, type Lagrad } from '$lib/kjernesak/vederlagssvar';
   import { getCaseWorkspace } from '$lib/kontraktsbord/context.svelte';
   const store = getCaseWorkspace();
   const review = getApprovalWorkspace();
@@ -193,6 +193,19 @@
   const PREKLUDERT =
     'Byggherren har gjort gjeldende at TEs varsel etter § 32.2 kom for sent. Vurderingen nedenfor gjelder dersom denne innsigelsen ikke fører frem.';
 
+  // #313, arbeidsvalgene 26.10 (VG-A-02, VG-C-02, kommentaren i #1303): hva svaret binder byggherren
+  // til, ordrett etter arbeidsvalget, med «Begrunnelsen» (oppdragsgiver 26.10). Tilfellet med særskilte vilkår venter på OV-U49.
+  const BINDER = {
+    alltid:
+      'Virkningen av svaret regnes ut fra valgene over. Begrunnelsen tolkes ikke. Byggherren er bundet av svaret som sendes herfra.',
+    // Bare når kjernen forhåndsviser sammenfall, ikke bare hele beløpet (GR-U7).
+    sammenfall:
+      'Svaret gir sammenfall med TEs krav om vederlag etter valgene over. Enighet registreres uten at TE må godta svaret, og svaret kan ikke revideres.',
+    // Grunnlaget er ikke besvart og ikke avklart ved frafall (GR-U23, GR-U26, OV-U45).
+    forbehold:
+      'Grunnlaget i TEs krav er ikke besvart her og er heller ikke avklart ved byggherrens frafall. Standpunktene i svaret gjelder under forutsetning av at grunnlaget for kravet foreligger. En enighet om beløpet er derfor betinget av grunnlaget. Godtar TE et avslag på grunnlaget, får enigheten om beløpet ingen virkning.',
+  };
+
   // I TS-saken i samme rekkefølge som lagene i brevet (OV-U32), og med forbeholdet etter GR-U26.
   const grunnlagsvarsler = $derived.by((): string[] => {
     if (grunnlaget)
@@ -235,27 +248,51 @@
   const kjerneresultat = $derived.by(() => {
     if (!kjernelag) return null;
     if (kjernelag.sammenfall) return { ikon: Check, variant: 'positive' as const };
-    if (kjernelag.rader.every((r) => r.beloep === 0))
-      return { ikon: X, variant: 'negative' as const };
+    if (kjernelag.ingenBeloep) return { ikon: X, variant: 'negative' as const };
     return { ikon: CircleMinus, variant: 'mixed' as const };
   });
-  const kjernerader = $derived(
-    (kjernelag?.rader ?? []).map((r) => ({
-      ...r,
-      title: r.begrenset
-        ? 'Produktivitetstap etter begrensningen'
-        : r.saerskilt
-          ? 'Produktivitetstap'
-          : 'Hovedkrav',
-      paragrafRef: r.saerskilt ? '§ 34.1.3' : '§ 34.1.1–34.1.2',
-      krevdBelop: r.begrenset
-        ? undefined
-        : r.saerskilt
-          ? domainConfig.produktivitetBelop
-          : domainConfig.hovedkravBelop,
-    }))
-  );
-  const harLag = $derived(kjernerader.some((r) => r.etikett !== null));
+  // #1303: radene står under laget sitt i brevets rekkefølge. Tekstene sier byggherrens
+  // standpunkt (#492 D, arbeidsvalget 26.10 i #1303). Radene uten beløp viser «—», aldri 0 kr.
+  function lagradvisning(rad: Lagrad) {
+    if (rad.art === 'grunnlag')
+      return {
+        tittel:
+          rad.grunn === 'prekludert'
+            ? 'Byggherren gjør gjeldende at TEs varsel etter § 32.2 kom for sent'
+            : 'Byggherren avslår grunnlaget',
+        ref: rad.grunn === 'prekludert' ? '§ 32.2' : '',
+        krevd: undefined,
+        godkjent: undefined,
+      };
+    if (rad.art === 'varsel_34_1_2')
+      return {
+        tittel: 'Byggherren gjør gjeldende at TEs varsel etter § 34.1.2 kom for sent',
+        ref: '§ 34.1.2',
+        krevd: undefined,
+        godkjent: undefined,
+      };
+    if (rad.art === 'begrenset')
+      return {
+        tittel: 'Produktivitetstap etter begrensningen',
+        ref: '§ 34.1.3',
+        krevd: undefined,
+        godkjent: rad.beloep,
+      };
+    return rad.art === 'post'
+      ? {
+          tittel: 'Produktivitetstap',
+          ref: '§ 34.1.3',
+          krevd: domainConfig.produktivitetBelop,
+          godkjent: rad.beloep,
+        }
+      : {
+          tittel: 'Hovedkrav',
+          ref: '§ 34.1.1–34.1.2',
+          krevd: domainConfig.hovedkravBelop,
+          godkjent: rad.beloep,
+        };
+  }
+  const stor = (t: string) => t[0].toUpperCase() + t.slice(1);
 
   // Granulær resultat-rad per kostnadselement (kravlinje).
   interface ResultatRad {
@@ -769,40 +806,44 @@
                 <span class="td td-krav">Krav</span>
                 <span class="td td-tal">Krevd</span>
                 <span class="td td-tal">Godkjent</span>
-                {#if harLag}
-                  <span class="td td-lag">Lag</span>
-                {/if}
               </div>
-              {#each kjernerader as rad (rad.title)}
-                <div class="tr">
-                  <span class="td td-krav">
-                    {rad.title}
-                    <span class="td-ref">{rad.paragrafRef}</span>
-                  </span>
-                  <span class="td td-tal font-mono">
-                    {#if rad.krevdBelop === undefined}
-                      <span class="td-emo">—</span>
-                    {:else}
-                      {fmt(rad.krevdBelop)} kr
-                    {/if}
-                  </span>
-                  <span class="td td-tal font-mono" class:td-avslag={rad.beloep === 0}>
-                    {fmt(rad.beloep)} kr
-                  </span>
-                  {#if harLag}
-                    <span class="td td-lag">
-                      {#if rad.etikett}
-                        {rad.etikett[0].toUpperCase() + rad.etikett.slice(1)}
-                      {:else}
+              {#each kjernelag.lag as gruppe, i (i)}
+                {#if gruppe.etikett}
+                  <div class="tr tr-lag">
+                    <span class="td td-lagnavn">{stor(gruppe.etikett)}</span>
+                  </div>
+                {/if}
+                {#each gruppe.rader.map(lagradvisning) as rad, j (j)}
+                  <div class="tr">
+                    <span class="td td-krav">
+                      {rad.tittel}
+                      {#if rad.ref}<span class="td-ref">{rad.ref}</span>{/if}
+                    </span>
+                    <span class="td td-tal font-mono">
+                      {#if rad.krevd === undefined}
                         <span class="td-emo">—</span>
+                      {:else}
+                        {fmt(rad.krevd)} kr
                       {/if}
                     </span>
-                  {/if}
-                </div>
+                    <span class="td td-tal font-mono" class:td-avslag={rad.godkjent === 0}>
+                      {#if rad.godkjent === undefined}
+                        <span class="td-emo">—</span>
+                      {:else}
+                        {fmt(rad.godkjent)} kr
+                      {/if}
+                    </span>
+                  </div>
+                {/each}
               {/each}
             </div>
           </div>
         {/if}
+        <div class="binder" role="note">
+          <p>{BINDER.alltid}</p>
+          {#if kjernelag?.sammenfall}<p>{BINDER.sammenfall}</p>{/if}
+          {#if grunnlaget?.forbehold}<p>{BINDER.forbehold}</p>{/if}
+        </div>
       {:else}
         <div class="result-box konsekvens-{resultat.variant}">
           <div class="result-header">
@@ -1288,10 +1329,22 @@
   .td-emo {
     color: var(--ink-4);
   }
-  .td-lag {
-    flex: 1;
+  .binder {
+    margin-top: 12px;
     font-size: 13px;
+    line-height: 1.5;
     color: var(--ink-2);
+  }
+  .binder p + p {
+    margin-top: 4px;
+  }
+  .tr-lag {
+    background: var(--surface-inset);
+  }
+  .td-lagnavn {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-3);
   }
   .result-linje {
     line-height: 1.45;

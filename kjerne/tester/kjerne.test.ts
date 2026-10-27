@@ -1958,7 +1958,7 @@ describe('forskyvningen fra grunnlaget i linjen (OV-U32, OV-U33, #1199)', () => 
   it('lagene i fristsporet flyttes ned hver for seg', async () => {
     const { linje } = await linjene({ resultat: 'avslaatt' }, { varsel_i_tide: false });
     expect(linje('S-f1')).toMatch(
-      /^Byggherrens standpunkt: subsidiært prekludert \(§ 33\.4\), videre subsidiært /
+      /^Byggherrens standpunkt: subsidiært varselet etter § 33\.4 kom for sent, videre subsidiært /
     );
   });
 
