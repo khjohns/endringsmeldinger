@@ -24,23 +24,23 @@ data.
 
 | ID | Skjerm | Avviket | Klassifisering | Belegg |
 | --- | --- | --- | --- | --- |
-| VK-01 | B, C, D | Toppfeltet med kunden, navigasjonen, søket, varslene, hjelpen og brukermenyen, brødsmulene, «Kopier lenke» og «Saken som PDF» (B, D) og bunnfeltet mangler. Merket og demolinja står i VK-19 og VK-20 | Ikke gjennomført ennå | K |
+| VK-01 | B, C, D | Toppfeltet har ikke logoen og kunden («Oslo kommune», «Oslobygg KF»). De andre delene av toppanelet står i VK-89–VK-95, merket og demolinja i VK-19 og VK-20 | Ikke gjennomført ennå | K |
 | VK-02 | A, F, G, I; B, D og E | Venstre kolonne har bare sporene. Oversikt, Dokumenter, Hendelser og Notater for teamet finnes ikke, så A, F, G og I har ingen tilsvarende tilstand | Ikke gjennomført ennå | K, L (`Vardensak.svelte`) |
-| VK-03 | B, D | Saksoverskriften har forløpets tittel og «BH byggherren · TE entreprenøren», ikke saksnummeret, prosjektet, kontrakten og partsnavnene. Brevhodet, datoene og rollen står i VK-21–VK-23 og VK-47–VK-49 | Ikke et designavvik. Demoruta har ikke disse dataene | K |
+| VK-03 | B, D | Saksoverskriften har ikke saksnummeret «E-021» som merke foran tittelen. Prosjektet, kontrakten, partsnavnene og tittelen står i VK-85–VK-88, og brevhodet, datoene og rollen i VK-21–VK-23 og VK-47–VK-49 | Ikke et designavvik. Demoruta har ikke saksnummer | K |
 | VK-04 | B, D, E | Utkasthodet mangler «Lagret» og «Utkastdetaljer», skjemaet mangler «Forkast utkastet», sporet mangler merket «Nytt brev» (D), og feiltilstanden «Utkastet er ikke lagret» finnes ikke (E) | Domenegap. Utkast er av for TS-saker (#718), og løsningen lagrer ikke hva brukeren har sett (PR #1334, «Åpne spørsmål») | K |
 | VK-05 | B | Mens utkastet er åpent, står ikke «Skriv brev i sporet» med «Utkast åpent: svar på brev 4» over arbeidet | Uavklart | K |
 | VK-06 | B | «Tidslinje i sporet» vises ikke under hovedlinjene mens BH skriver svaret, men koden legger den der (`Vederlagssvar.svelte`). Den står i D og etter sending | Uavklart. Årsaken er ikke undersøkt. README sier at det må prøves hvordan tidslinja nås | K, L |
 | VK-07 | B | Én begrunnelse i et vanlig tekstfelt, som kommer etter standpunktene. Skissen har en begrunnelse ved hver vurdering, med punktet den kommer under i brevet, og en avsluttende begrunnelse med rik tekst | Ikke gjennomført ennå | K |
 | VK-08 | B | Posten for produktivitetstap, med beløpet etter begrensningen og de to alternativene «ikke tillegg», er ikke prøvd. Varden sier at posten ikke kan besvares her | Ikke gjennomført ennå (PR #1334, «Utelatt i prøven») | K, L |
 | VK-09 | B | Beløpsfeltet viser «60000» uten mellomrom for tusener. Skissen viser «10 000» | Ikke gjennomført ennå | K |
-| VK-10 | B | Hovedlinjene merker standpunktene «Prinsipalt» og «Subsidiært» og skriver beløpet som en setning. Skissen har standpunktet og verdien i to kolonner, med det krevde beløpet dempet | Bevisst endring i byggeøkta. Teksten formulerer standpunktet fra kjernen (`prototypetekst.ts`) | K, L |
+| VK-10 | B | Hovedlinjene merker standpunktene «Prinsipalt» og «Subsidiært» og skriver beløpet som en setning. Skissen har standpunktet og verdien i to kolonner, med det krevde beløpet dempet | Bevisst endring. Valgt i byggeøkta. Teksten formulerer standpunktet fra kjernen (`prototypetekst.ts`) | K, L |
 | VK-11 | B | «Les brevet ved siden av» bytter ut hovedlinjene med kravbrevet i høyre kolonne. Skissen viser ikke leseflaten åpen | Uavklart | K |
 | VK-12 | C, D | Brevet har ingen nummererte punkter, ingen tabell over post, krevd og godkjent, og ingen hilsen eller underskrift. Begrunnelsen står sist. Innledningen viser ikke til begge postene i brev 4 som i skissen, og den sier «kravet om justering av vederlaget i TEs krav i brev 4» | Domenegap. Brevteksten kommer fra kjernen (`kjernesak.brev`), ikke fra Varden | K, L |
 | VK-13 | C | Sendepanelet mangler kopi, intern godkjenning, avsenderens navn og mottakerne under «Til» («TE prosjektledelse, 3 personer»), og det har ikke «Last ned som merket PDF-utkast». Organisasjonen i «Fra» står i VK-60 | Ikke gjennomført ennå | K, L (`Brevkontroll.svelte`) |
 | VK-14 | C | Teksten om bindingen viser vedtaks-ID-en til brukeren: «også at varselet kom for sent (KA-U1)». Skissen har ikke ID-en | Uavklart. Linse A i `design-review` | K, L (`prototypetekst.ts`) |
 | VK-15 | D | Virkningen av aksepten sier «beløpet dere er enige om i vederlagssporet 0 kr», mens brevet godtar 60 000 kr subsidiært. Skissen sier bare at det som står i brev 5, blir det partene er enige om | Uavklart. Beløpet kommer fra kjernen (`kjernesak.forhaandsvist`). **Spørsmål:** skal virkningen av aksepten nevne et beløp, og i så fall hvilket? | K, L |
 | VK-16 | D | Brevlinja mangler «PDF» og «Kvittering». «Utdyp» og «Oppgi korrigert opplysning» står i VK-71 | Ikke gjennomført ennå | K |
-| VK-17 | D, E | Menyen «Andre brev og handlinger» viser seks handlinger, med varslene etter § 34.1.2 og § 34.1.3 og innsigelsen etter § 5, og alle er merket «Bygges ikke i denne prøven». Skissen viser ny versjon av kravet og trekk, med virkningen | Bevisst endring i byggeøkta. Handlingene kommer fra kjernen (PR #1334, «Åpne spørsmål») | K |
+| VK-17 | D, E | Menyen «Andre brev og handlinger» viser seks handlinger, med varslene etter § 34.1.2 og § 34.1.3 og innsigelsen etter § 5, og alle er merket «Bygges ikke i denne prøven». Skissen viser ny versjon av kravet og trekk, med virkningen | Bevisst endring. Valgt i byggeøkta. Handlingene kommer fra kjernen (PR #1334, «Åpne spørsmål») | K |
 | VK-18 | E | Etter sending står én linje, «Brevet ditt er sendt.», øverst i midtpanelet. Kvitteringen i skissen har tiden, leveringen, mottakeren med team, dokumentet med versjon og knappene «Åpne brevet slik det ble sendt» og «PDF». I Varden står tiden bare i brevets fot. De andre tilstandene i E står i VK-75–VK-84 | Ikke gjennomført ennå. Demoruta sender ingenting til en server | K, L (`Vardensak.svelte`) |
 
 Variantene i H er fulgt slik oppdragsgiver valgte 27.10: sporene i venstre kolonne,
@@ -56,15 +56,18 @@ VK-01–VK-18 er kontrollert på nytt og rettet i tabellen over. Nye forskjeller
 også de som skyldes data. Rene forskjeller i piksler og fargetoner som ikke endrer innhold
 eller hierarki, er ikke tatt med.
 
-E er ikke en saksskjerm, men et ark med tolv tilstandskort. Den har ingen toppanel,
-saksoverskrift eller kolonner. Hvert kort er sammenlignet med det Varden har for samme
+E er ikke en saksskjerm, men et ark med tolv tilstandskort. Den har ingen toppanel eller
+saksoverskrift, så avvikene i dem gjelder ikke E. For E sier kolonnen «Panel» hvor Varden
+viser tilstanden. Hvert kort er sammenlignet med det Varden har for samme
 tilstand.
 
 ### Kontrollen av VK-01–VK-18
 
-- **Rettet:** VK-01 gjelder B, C og D, ikke E, og merket og demolinja er skilt ut (VK-19,
-  VK-20). VK-03 gjelder bare saksoverskriften i B og D. Brevhodet, datoene og rollen er
-  delt ut i egne rader (VK-21–VK-23 og VK-47–VK-49). VK-06 sier nå at koden legger
+- **Rettet:** VK-01 gjelder B, C og D, ikke E, og bare logoen og kunden. Hver av de andre
+  delene av toppanelet har fått sin rad (VK-89–VK-95), og merket og demolinja er skilt ut
+  (VK-19, VK-20). VK-03 gjelder bare saksnummeret. Prosjektet, kontrakten, partsnavnene og
+  tittelen har fått hver sin rad (VK-85–VK-88), og brevhodet, datoene og rollen også
+  (VK-21–VK-23 og VK-47–VK-49). VK-10 og VK-17 har etiketten «Bevisst endring». VK-06 sier nå at koden legger
   tidslinja under hovedlinjene i B, men at den ikke vises. I VK-18 står tiden i brevets
   fot, ikke i kvitteringen.
 - **Delt:** VK-13, der organisasjonen i «Fra» skyldes data (VK-60). VK-16, der
@@ -78,8 +81,8 @@ tilstand.
 
 | ID | Skjerm | Panel | Avviket | Klassifisering | Belegg |
 | --- | --- | --- | --- | --- | --- |
-| VK-19 | B, C, D, E | Toppanel | Varden har merket «Varden · eksperimentell visning» over saksoverskriften. Skissen har det ikke | Bevisst endring. Prøven merkes som prototype (`SAKEN.prototype`, #1331) | K, L (`prototypetekst.ts`) |
-| VK-20 | B, C, D, E | Toppanel | Demoruta legger «Demo · BF-01» nederst til høyre. I C dekker den delvis forklaringen under sendeknappen | Ikke et designavvik. Linja hører til demoruta | K |
+| VK-19 | B, C, D | Toppanel | Varden har merket «Varden · eksperimentell visning» over saksoverskriften. Skissen har det ikke | Bevisst endring. Prøven merkes som prototype (`SAKEN.prototype`, #1331) | K, L (`prototypetekst.ts`) |
+| VK-20 | B, C, D | Toppanel | Demoruta legger «Demo · BF-01» nederst til høyre. I C dekker den delvis forklaringen under sendeknappen | Ikke et designavvik. Linja hører til demoruta | K |
 | VK-21 | B, C, D | Saksoverskrift og datoer | Skissen skriver datoene kort («2. okt 2026», «siste 20. okt»). Varden skriver «1. oktober 2026» i saksoverskriften, sporhodet, brevlinja og «Svarer på», men «1. okt.» i «Svar på brev 4» | Uavklart | K |
 | VK-22 | B–E | Alle | Skissen er sak E-021 med datoer fra 2. til 27. oktober. I BF-01 er alle brevene datert 1. oktober 2026 | Ikke et designavvik | K |
 | VK-23 | B, C, D | Saksoverskrift | Varden har «Du er BH» eller «Du er TE» i metalinja. Skissen viser rollen bare i brukermenyen | Bevisst endring. Begrunnelse ikke funnet. Brukermenyen mangler (VK-01) | K |
@@ -144,6 +147,17 @@ tilstand.
 | VK-82 | E | Høyrepanel | Skissen sier at et spor uten brev ikke har tidslinje. `Sporlesing.svelte` legger tidslinja inn også da | Uavklart. Ikke kjørt | L (`Sporlesing.svelte`) |
 | VK-83 | E | Hele siden | Skissen har siden «Du har ikke tilgang til saken», med prosjektet saken tilhører og «Gå til prosjektene dine». Varden har ingen slik side | Ikke gjennomført ennå. Demoruta har ingen tilgangskontroll | K |
 | VK-84 | E | Midtpanel | Skissen har et sammendrag for grunnlaget der partene er uenige, med standpunktene og beløpet med kilde. Varden har ikke et slikt sammendrag | Ikke gjennomført ennå | K |
+| VK-85 | B, D | Saksoverskrift | Metalinja har prosjektet «Skolebygg Nord» i skissen. Varden har ikke prosjektet | Ikke et designavvik. Demoruta har ingen prosjekter | K |
+| VK-86 | B, D | Saksoverskrift | Metalinja har kontrakten «NS 8407 totalentreprise» i skissen. Varden har ikke kontrakten | Ikke et designavvik. Demoruta har ingen kontrakt | K |
+| VK-87 | B, D | Saksoverskrift | Metalinja har partsnavnene «BH Oslobygg KF» og «TE Totalentreprenør AS» i skissen. Varden har «BH byggherren» og «TE entreprenøren» | Ikke et designavvik. Demoruta har ikke partsnavn | K |
+| VK-88 | B, D | Saksoverskrift | Tittelen er kort i skissen («Ny peling med produktivitetstap»). Varden har forløpets tittel, en hel setning om hva forløpet prøver | Ikke et designavvik. Tittelen er forløpets, ikke en sakstittel | K |
+| VK-89 | B, C, D | Toppanel | Toppfeltet har produktnavnet og navigasjonen «Saker», «Prosjekter» og «Arkiv» i skissen. Varden har ingen av dem | Ikke gjennomført ennå | K |
+| VK-90 | B, C, D | Toppanel | Toppfeltet har søket «Søk i saker og brev» med hurtigtast i skissen. Varden har ikke søket | Ikke gjennomført ennå | K |
+| VK-91 | B, C, D | Toppanel | Toppfeltet har varselklokka med antall og hjelpen i skissen. Varden har ingen av dem | Ikke gjennomført ennå | K |
+| VK-92 | B, C, D | Toppanel | Toppfeltet har brukermenyen med navnet, rollen og teamet i skissen. Varden har ikke brukermenyen | Ikke gjennomført ennå | K |
+| VK-93 | B, C, D | Toppanel | Skissen har brødsmulene fra «Prosjekter» til saken, i C til «Brev 5, utkast». Varden har ingen brødsmuler | Ikke gjennomført ennå | K |
+| VK-94 | B, D | Toppanel | Skissen har «Kopier lenke» og «Saken som PDF» ved brødsmulene. Varden har ingen av dem | Ikke gjennomført ennå | K |
+| VK-95 | B, C, D | Toppanel | Skissen har bunnfeltet med versjonen, «Data lagres i Norge», tilgjengelighetserklæringen, personvernet og brukerstøtten. Varden har ikke bunnfeltet | Ikke gjennomført ennå | K |
 
 ### Bildene side om side
 
