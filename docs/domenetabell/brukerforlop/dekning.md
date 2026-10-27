@@ -10,3 +10,26 @@ Formatet og arbeidsregelen står i [README](README.md).
 | [BF-02A](BF-02A.json) TE korrigerer datoen pålegget ble mottatt | TE har oppgitt feil dato for når pålegget ble mottatt. TE korrigerer datoen i et eget brev som viser til brevet med opplysningen. Brevet er ikke en ny kravversjon og avslår ikke BHs svar. | planlagt | — | #1308, #1309 | — |
 | [BF-02B](BF-02B.json) TE sender en ny kravversjon som avslår tilbudet i svaret | TE er uenig i BHs svar og sender en ny kravversjon som endrer kravet. Brevet sier uttrykkelig at TE avslår BHs tilbud i svaret, og skjemaet viser før sending hva den nye kravversjonen gjør med svaret. | planlagt | — | #276 | — |
 | [BF-02C](BF-02C.json) TE prøver å rette datoen med en ny kravversjon og blir avvist | TE vil rette datoen pålegget ble mottatt og sender en ny kravversjon der bare datoen er endret. Løsningen avviser den og viser TE til korrigeringen etter OV-U52. | planlagt | — | #1308, #1309 | — |
+
+## Kildene
+
+Hvert vedtak og hver rad i domenetabellen forløpene viser til, og hvor. En kontroll
+kjøres i CI. En forståelse prøves manuelt og i brukertest. Et planlagt forløp bygger
+på kilden, men har ingen kontroller ennå.
+
+| Kilde | Kontroller | Forståelse | Planlagt |
+| --- | --- | --- | --- |
+| [GR-U7](../../plans/vedtak.md#gr-u7) | BF-01 grunnlaget-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 grunnlaget-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet | — |
+| [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret | — | — |
+| [HF-U9](../../plans/vedtak.md#hf-u9) | — | BF-01 te-har-mottatt-svaret | — |
+| KA-01 | BF-01 start, BF-01 bh-har-mottatt-vederlagskravet | — | — |
+| [KA-U1](../../plans/vedtak.md#ka-u1) | — | BF-01 te-har-mottatt-svaret | — |
+| [KA-U2](../../plans/vedtak.md#ka-u2) | BF-01 bh-har-mottatt-vederlagskravet | — | — |
+| [KA-U4](../../plans/vedtak.md#ka-u4) | BF-01 te-har-mottatt-svaret | — | — |
+| [KA-U7](../../plans/vedtak.md#ka-u7) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | — |
+| [KA-U10](../../plans/vedtak.md#ka-u10) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-godtatt-svaret | — |
+| [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret | — | — |
+| [OV-U27](../../plans/vedtak.md#ov-u27) | BF-01 te-har-mottatt-svaret | BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret | — |
+| [OV-U52](../../plans/vedtak.md#ov-u52) | — | — | BF-02A, BF-02C |
+| [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-02B, BF-02C |
+| [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — |

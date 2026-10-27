@@ -1,4 +1,5 @@
-"""Vedtaks-ID-ene i kjerne/, server/ og src/ mot vedtaksregisteret (#452, punkt 2 i #451).
+"""Vedtaks-ID-ene i kjerne/, server/ og src/ og kildene i docs/domenetabell/ mot
+vedtaksregisteret (#452, punkt 2 i #451).
 
     python3 docs/verktoy/vedtakshenvisninger.py    # list henvisningene som ikke holder
 
@@ -17,8 +18,14 @@ ID-formene er `XX-U1` (alle seriene med U) og `B-01`. Funn-ID-er som `RV-07`,
 føringene `AF-01`–`AF-06` i 3.2 og radene `P1`–`P7` i registeret leses ikke:
 funnene er ikke vedtak, føringene står ikke i registeret, og `P1` er for kort
 til å skilles fra annen tekst.
+
+I JSON-filene i docs/domenetabell/, som bevis-sakene og brukerforløpene, er
+henvisningen en liste under `kilde` eller `kilder`. Unntaket for en test merket
+historisk gjelder ikke der, og `endringer` i et brukerforløp leses ikke, fordi den
+fører hva som er endret og hvorfor.
 """
 
+import json
 import pathlib
 import re
 import sys
@@ -30,6 +37,8 @@ from verktoy.laster import last
 vr = last("vedtaksregister")
 
 MAPPER = ("kjerne", "server", "src")
+KILDEMAPPE = "docs/domenetabell"
+KILDEFELT = ("kilde", "kilder")
 HOPP_OVER = {"node_modules", ".svelte-kit", "dist", "build"}
 U_ID = r"[A-Z]{2,3}-U\d+"
 B_ID = r"B-\d{2}"
@@ -162,6 +171,58 @@ def filer(rot: pathlib.Path = vr.ROT):
                     continue
 
 
+def kildelister(data, sted: str = "") -> list[tuple[str, list[str]]]:
+    """Stedet og innholdet for hver liste under `kilde` eller `kilder` i en JSON-fil.
+
+    Stedet er nøklene på veien ned, med ID-en der det er en, som
+    `BF-01/kontrollpunkter/te-har-mottatt-svaret/forstaaelse[2]/kilde`.
+    """
+    if isinstance(data, list):
+        return [
+            liste
+            for i, v in enumerate(data)
+            for liste in kildelister(
+                v, sted if isinstance(v, dict) and "id" in v else f"{sted}[{i}]"
+            )
+        ]
+    if not isinstance(data, dict):
+        return []
+    if isinstance(data.get("id"), str):
+        sted = f"{sted}/{data['id']}"
+    ut = []
+    for noekkel, verdi in data.items():
+        if noekkel in KILDEFELT and isinstance(verdi, list):
+            kilder = [k for k in verdi if isinstance(k, str)]
+            ut.append((f"{sted}/{noekkel}".lstrip("/"), kilder))
+        elif noekkel != "endringer":
+            ut.extend(kildelister(verdi, f"{sted}/{noekkel}"))
+    return ut
+
+
+def kildefeil(
+    sti: str, data, kjente: set[str], opphevet: set[str], aapne: set[str]
+) -> list[str]:
+    feil = []
+    for sted, kilder in kildelister(data):
+        ider = [k for k in kilder if HENVISNING.fullmatch(k)]
+        for i in dict.fromkeys(ider):
+            if i not in kjente and i not in aapne:
+                feil.append(f"{sti}: {sted}: {i} er ikke et vedtak i registeret")
+        if not [i for i in ider if i in kjente and i not in opphevet]:
+            feil.extend(
+                f"{sti}: {sted}: {i} er opphevet og står som eneste grunnlag"
+                for i in dict.fromkeys(ider)
+                if i in opphevet
+            )
+    return feil
+
+
+def kildefiler(rot: pathlib.Path = vr.ROT):
+    for sti in sorted((rot / KILDEMAPPE).rglob("*.json")):
+        data = json.loads(sti.read_text(encoding="utf-8"))
+        yield sti.relative_to(rot).as_posix(), data
+
+
 def kontroller(register: dict, plan: str, rot: pathlib.Path = vr.ROT) -> list[str]:
     kjente, opphevet = vedtak(register)
     aapne = aapne_beslutninger(plan) | avgjorte_beslutninger(plan)
@@ -169,6 +230,10 @@ def kontroller(register: dict, plan: str, rot: pathlib.Path = vr.ROT) -> list[st
         f
         for sti, tekst in filer(rot)
         for f in feil_i(sti, tekst, kjente, opphevet, aapne)
+    ] + [
+        f
+        for sti, data in kildefiler(rot)
+        for f in kildefeil(sti, data, kjente, opphevet, aapne)
     ]
 
 
@@ -177,7 +242,7 @@ def main() -> int:
     if feil:
         print("Vedtakshenvisningene holder ikke:", *feil, sep="\n  ")
         return 1
-    print("Vedtakshenvisningene i " + ", ".join(MAPPER) + " holder")
+    print("Vedtakshenvisningene i " + ", ".join((*MAPPER, KILDEMAPPE)) + " holder")
     return 0
 
 

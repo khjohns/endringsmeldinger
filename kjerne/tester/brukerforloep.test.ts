@@ -15,6 +15,7 @@ import {
   demonavnerom,
   forloepsfiler,
   genererte,
+  kildebruk,
   kjoerBrukerforloep,
   kjoerbare,
   kontrollerI,
@@ -124,6 +125,11 @@ function avvik(b: Brukerforloep, fil: string): string[] {
     krev(kontroller.length, `${p.id} har ingen kontroll`);
     for (const k of kontroller)
       for (const kilde of k.kilde) krev(KILDER.has(kilde), `${p.id}: kilden ${kilde} finnes ikke`);
+    for (const f of p.forstaaelse) {
+      krev(f.tekst && f.kilde?.length, `${p.id}: en forståelse mangler tekst eller kilde`);
+      for (const kilde of f.kilde ?? [])
+        krev(KILDER.has(kilde), `${p.id}: kilden ${kilde} finnes ikke`);
+    }
   }
   return ut;
 }
@@ -139,10 +145,17 @@ describe('vakttestene for brukerforløpene', () => {
     const b = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'kjørbar')!);
     b.kontrollpunkter![0].kontroller = [{ rolle: 'mal', kilde: ['UKJENT-KILDE'], forventet: {} }];
     b.kontrollpunkter![0].kontrollsett = [];
+    b.kontrollpunkter![0].forstaaelse = [
+      { tekst: 'Uten kilde.', kilde: [] },
+      { tekst: 'Med en ukjent kilde.', kilde: ['UKJENT-FORSTAAELSE'] },
+    ];
     b.endringer = [];
+    const p = b.kontrollpunkter![0].id;
     expect(avvik(b, `${b.id}.json`)).toEqual([
       `${b.id}: en endring mangler dato eller vedtak eller issue`,
-      `${b.id}: ${b.kontrollpunkter![0].id}: kilden UKJENT-KILDE finnes ikke`,
+      `${b.id}: ${p}: kilden UKJENT-KILDE finnes ikke`,
+      `${b.id}: ${p}: en forståelse mangler tekst eller kilde`,
+      `${b.id}: ${p}: kilden UKJENT-FORSTAAELSE finnes ikke`,
     ]);
     const planlagt = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'planlagt')!);
     planlagt.steg = [{ handling: 'trekk', spor: 'grunnlag' }];
@@ -168,6 +181,28 @@ describe('vakttestene for brukerforløpene', () => {
       expect(kilder, b.id).toContain('OV-U54');
     }
     expect(BRUKERFORLOEP.find((b) => b.id === 'BF-02B')?.status).toBe('planlagt');
+  });
+
+  it('kildeoversikten skiller kontroller, forståelse og planlagte forløp', () => {
+    const kjoerbart = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'kjørbar')!);
+    kjoerbart.kontrollpunkter = [
+      {
+        id: 'p',
+        etter: 0,
+        beskrivelse: '',
+        kontrollsett: [{ sett: 'bh_har_mottatt_krav', med: { spor: 'vederlag', krav: 'K' } }],
+        kontroller: [{ rolle: 'mal', kilde: ['GR-U7'], forventet: {} }],
+        forstaaelse: [{ tekst: 'x', kilde: ['GR-U7', 'OV-U27'] }],
+      },
+    ];
+    const planlagt = { ...kjoerbart, id: 'BF-P', kontrollpunkter: [], kilder: ['OV-U27'] };
+    const id = kjoerbart.id;
+    expect(Object.fromEntries(kildebruk([kjoerbart, planlagt]))).toEqual({
+      'GR-U7': { kontroll: [`${id} p`], forstaaelse: [`${id} p`], planlagt: [] },
+      'KA-01': { kontroll: [`${id} p`], forstaaelse: [], planlagt: [] },
+      'KA-U2': { kontroll: [`${id} p`], forstaaelse: [], planlagt: [] },
+      'OV-U27': { kontroll: [], forstaaelse: [`${id} p`], planlagt: ['BF-P'] },
+    });
   });
 
   it('dekningsoversikten og startjournalene stemmer med forløpsfilene', async () => {
