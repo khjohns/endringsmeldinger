@@ -21,7 +21,7 @@ Navnet er valgt fordi en varde viser vei uten å bestemme veivalget. Det er mind
 
 Fire grep skiller oss fra konkurrenten:
 
-- **Datoene i saken, med kilde.** Hvert spor viser de registrerte datoene i en tidslinje i høyre kolonne, med brevet hver dato kommer fra og dagene mellom. Hele tidslinja for saken står i Hendelser. Konkurrenten viser ingen datoer der svaret skrives.
+- **Datoene i saken, med kilde.** Hvert spor viser de registrerte datoene i en tidslinje i høyre kolonne, med kilden til hver dato. Tidslinja skiller datoer partene oppgir, brev som er sendt, og dokumenter som er registrert. Hele tidslinja for saken står i Hendelser. Konkurrenten viser ingen datoer der svaret skrives.
 - **Hovedlinjene ved siden av valget.** Et panel ved siden av skjemaet viser per post hva som er krevd og hva standpunktet er. Konkurrenten viser resultatet først nederst.
 - **Hele brevet, aldri et utdrag.** Et mottatt brev vises i sin helhet, slik det ble sendt. Hos konkurrenten står svarbrevet i fanen «Historikk».
 - **Dokumenter og hendelser samlet.** Alle brev, vedlegg og registrerte dokumenter står under Dokumenter, og alt som har skjedd i saken, står under Hendelser.
@@ -36,7 +36,7 @@ Konkurrenten er sterk på hjemmel og presisjon, men svak på tid, rekkefølge og
 | --- | --- | --- | --- |
 | Hver boks har hjemmelen øverst til høyre («§ 34.1.2»), og bestemmelsene står i et eget panel | 1–4 | Styrke | Behold hjemmelen ved valget, men som brikke som åpner teksten. Panelet tar 27 % av bredden hele tiden |
 | Resultatboksen skiller prinsipalt og subsidiært i lag, i brevets rekkefølge | 1, 2 | Styrke | Behold innholdet, og vis det i et panel som følger valgene |
-| Resultatet står nederst, etter fire valgbokser | 1–3 | Svakhet | Hovedlinjene står ved siden av skjemaet og er alltid synlige |
+| Resultatet står nederst, etter fire valgbokser | 1–3 | Svakhet | Hovedlinjene står ved siden av skjemaet og er lett tilgjengelige under utfyllingen |
 | Konklusjonen er én lang setning i gult («prinsipalt begrenset etter § 34.1.3 til 10 000 kr, subsidiært …») | 2 | Svakhet | En tabell med krevd, prinsipalt og subsidiært per post |
 | Ingen datoer vises, selv når valget gjelder «Nei, for sent» | 1, 2 | Svakhet | Datoene med kilde i en tidslinje ved siden av arbeidet, ved spørsmålet og i Hendelser, uten vurdering |
 | Statusen sier hvem som skal svare («Kravet venter på byggherrens svar») og bruker tett sjargong («Enige, betinget · Subsidiært standpunkt») | 1, 4c | Svakhet | Ingen status. Sporet i venstre kolonne viser antall brev og siste brev («2 brev · siste 20. okt fra TE») |
@@ -133,12 +133,13 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 ![Skjerm B: sporene i venstre kolonne, skjemaet i midten og hovedlinjene og tidslinja til høyre](bilder/b-svar.png)
 
 - Saksoverskriften er kompakt. Sporene står i venstre kolonne, og vederlag er valgt.
-- Tidslinja i sporet står i høyre kolonne under hovedlinjene, med kilde og dagene mellom datoene. Teksten under sier at løsningen ikke vurderer fristen. Datoene for et spørsmål står også ved spørsmålet.
-- Hovedkolonnen har bare skjemaet. Brevet det svares på, står i høyre kolonne under «Svarer på», og «Les brevet ved siden av» åpner det i en leseflate. De andre brevene står i en kompakt liste.
+- Øverst i skjemaet står brevet det svares på: «Svar på brev 4 fra TE · 20. oktober» med «Les brevet ved siden av», som åpner det i en leseflate. Brukeren skal ikke lete etter det i tidslinja.
+- Hodet på utkastet viser mottakeren, når det ble lagret, og hvem som kan se det. Medforfattere og andre opplysninger står under «Utkastdetaljer», som er lagt sammen.
+- Tidslinja i sporet står i høyre kolonne under hovedlinjene og kan legges sammen. Den har brevene i sporet, så den egne lista over brev er fjernet. Teksten under sier at løsningen ikke vurderer fristen. Datoene for et spørsmål, og dagene mellom dem, står ved spørsmålet.
 - Beløpsvalgene heter alltid «Hele beløpet», «Deler av beløpet» og «Ingenting». Det subsidiære standpunktet er et spørsmål: «Hvis innsigelsen om sen varsling ikke fører frem, hvor mye godtar du?»
 - Ingenting er forhåndsvalgt. Beregningsmetoden er ikke besvart, og panelet sier at brevet ikke kan sendes før den er det.
 - Alle begrunnelser er valgfrie. Kjernen merker et felt som påkrevd når kontrakten krever det. Begrunnelsen står ved vurderingen og sier hvor den kommer i brevet, og «Begrunnelsen tolkes ikke» står ved feltet.
-- Panelet viser hovedlinjene: per post krevd og standpunkt, med hjemmelen dempet under. De to beløpene for produktivitetstap står som «alternativer, ikke tillegg». Bindingen står i én linje over knappen.
+- Panelet viser bare hovedlinjene: standpunktet til hvert spørsmål og beløpsalternativene, med det krevde beløpet dempet under posten. De to beløpene for produktivitetstap står som «to alternativer, ikke tillegg». Bindingen står i én linje over knappen, og «Se brevet før sending» er den eneste knappen i panelet. «Forkast utkastet» står nederst i skjemaet.
 - «Skriv brev i sporet» er samme komponent som i D, med brevtypene kjernen gir. Ved knappen står det at et utkast er åpent.
 
 ### C. Brevet før sending
@@ -155,7 +156,7 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 
 - Brevet fra BH står i sin helhet i hovedkolonnen, med samme gjengivelse som PDF-en. Det er det frosne dokumentet, ikke en ny gjengivelse av dataene, så forbehold løsningen ikke kan uttrykke som valg, kommer med.
 - Hovedlinjene vises ikke her. Brevet er åpent, og en oppsummering ved siden av kunne avvike fra det. Tidslinja i sporet står øverst i høyre kolonne, med svaret 27. okt.
-- TEs eget brev har «Utdyp» og «Oppgi korrigert opplysning» i den kompakte lista. Den opprinnelige teksten bevares.
+- TEs eget brev har «Utdyp» og «Oppgi korrigert opplysning» i tidslinja. Den opprinnelige teksten bevares.
 - Menyen under «Skriv brev i sporet» er vist åpen. Brevtypene kommer fra kjernen: bare de som er mulige nå, i fast rekkefølge og uten fremheving. «Godta svaret i brev 5» gjelder brevet slik det ble sendt.
 
 ### E. Tilstander
@@ -170,6 +171,7 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 - **Sender:** brevet og skjemaet står som de var til serveren svarer, og knappen kan ikke trykkes på nytt.
 - **Ikke lagret:** endringene står i skjemaet, og lagringen kan prøves igjen.
 - **Tomt spor:** sporet sier at det ikke har brev, i stedet for en tom liste.
+- **Hovedlinjene får ikke plass i skjermhøyden:** panelet ruller med siden, og en kompakt linje fast nederst i vinduet gir «Se hovedlinjene» og «Se brevet før sending».
 - **Ingen tilgang:** saken vises ikke, heller ikke tittelen eller partene.
 - **Uenige:** en tilstand for ett objekt, med kildene, uten krav om trekk eller aksept.
 
@@ -187,7 +189,7 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 
 - Alt som har skjedd i saken, nyeste først og gruppert per dag: brev sendt og levert, brev registrert utenfor Varden, dokumenter lagt til og korrigeringer. En hendelse kan ikke endres eller slettes.
 - Utkast og notater for teamet er ikke hendelser i saken.
-- Høyre kolonne har tidslinja for hele saken, med kilde og kalenderdager mellom. Det er samme komponent som tidslinja i sporet i B og D.
+- Høyre kolonne har tidslinja for hele saken, med alle sporene. Det er samme komponent som tidslinja i sporet i B og D. Brevet sendt utenfor Varden står med datoen det ble sendt og datoen det ble registrert, hver for seg.
 - «Registrer brev sendt utenfor Varden» står her, fordi registreringen blir en hendelse.
 
 ### H. Varianter for det vannrette
@@ -208,9 +210,17 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 Begrunnelsen:
 
 - **Sporene står synlige hele tiden.** Med sporene i venstre kolonne ser brukeren grunnlag, vederlag og frist, med antall brev og siste brev, samtidig som et av dem er åpent. Fanefeltet nådde grensen på sju faner, og kolonnen tåler flere spor, lange navn og notatene.
-- **Tidslinja tåler mange datoer.** Én linje over arbeidet brøt over flere linjer når datoene ble mange. Tidslinja i høyre kolonne viser hver dato med kilde og dagene mellom, og den er samme komponent i sporet og i Hendelser.
+- **Tidslinja tåler mange datoer.** Én linje over arbeidet brøt over flere linjer når datoene ble mange. Tidslinja i høyre kolonne viser hver dato med kilde, og den er samme komponent i sporet og i Hendelser.
 - **Arbeidet starter høyere.** Fanefeltet og datolinja stod begge over arbeidet. Nå står bare navnet på flaten og handlingen der.
 - **Kostnaden er bredden.** Venstre kolonne tar om lag 250 px. Høyre kolonne er derfor smalnet fra 400 til 360 px, og skjemaet i B er om lag 730 px bredt. Kolonnen gjelder bare inne i saken; den globale navigasjonen står fortsatt i toppmenyen.
+
+**Høyre kolonne (oppdragsgiver 27.10, versjon 10).** I versjon 9 ble høyre kolonne i B mye lengre enn skjemaet: fem kort, der tre gjentok det som stod andre steder. Gjentakelsene er fjernet først, og det som støtter oppgaven, kan legges sammen. Dette bygger #1331 også:
+
+- **Brevet det svares på står øverst i skjemaet,** ikke i et eget kort. At det også står i tidslinja, er nyttig: inngangen øverst støtter arbeidet, og tidslinja viser sammenhengen.
+- **Tidslinja tar over lista over brev i sporet.** Den skiller tre slags oppføringer med ord og med eget merke: en dato partene oppgir (ring), et brev som er sendt (fylt prikk) og et dokument som er registrert (firkant). Et dokument har datoen i dokumentet og datoen det ble registrert, hver for seg. Tidslinja viser ingen dager mellom oppføringene, fordi avstanden mellom to tilfeldige oppføringer kan se ut som et varslingsintervall. Dagene mellom datoene et spørsmål gjelder, står ved spørsmålet.
+- **Utkastet har ikke eget kort.** Mottaker, lagret og hvem som kan se det står i hodet på utkastet, og resten under «Utkastdetaljer».
+- **Hovedlinjene er kortet ned** til standpunktene og beløpsalternativene. De skal være lett tilgjengelige under utfyllingen, ikke alltid synlige. Panelet følger rullingen bare når hele panelet får plass i vinduet. Ellers ruller det med siden, og en kompakt linje nederst gir veien til hovedlinjene og brevkontrollen (E). Hvordan tidslinja under nås når panelet følger rullingen, må prøves.
+- **Tidslinja og utkastdetaljene kan legges sammen.** De støtter oppgaven, men trenger ikke være åpne mens brukeren vurderer beløpet.
 
 ### I. Oversikt over sporene
 

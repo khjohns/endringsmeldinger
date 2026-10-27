@@ -449,3 +449,55 @@ table.cases tr.att td.t{padding-left:32px;font-weight:400}
 .var-row{grid-template-columns:200px repeat(3,minmax(0,1fr))}
 .var .mock{overflow:hidden}
 .filters .search2{white-space:nowrap}
+
+/* versjon 10: brevet det svares på øverst i skjemaet, kompakte hovedlinjer, tidslinje med tre slags oppføringer, sammenleggbare kort */
+.draft-h{flex-wrap:wrap;gap:8px 16px}
+.draft-h h3{flex-basis:100%}
+.draft-meta{display:flex;flex-wrap:wrap;gap:4px 8px;margin:0;font-size:14px}
+.draft-meta dt{color:var(--ink-3)}
+.draft-meta dd{margin:0 16px 0 0;display:inline-flex;align-items:center;gap:8px}
+.draft-meta .sep{color:var(--ink-3)}
+.draft-meta svg{color:var(--ink-3)}
+.fold summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;color:var(--brand);font-size:14px;font-weight:500}
+.fold summary::-webkit-details-marker{display:none}
+.draft-h .fold{margin-left:auto}
+.card-fold summary{padding:8px 24px;border-bottom:1px solid var(--rule-color);color:var(--ink)}
+.card-fold summary h3{margin:0;font-size:16px;font-weight:500}
+.card-fold summary .sub{margin-left:auto;font-size:12px;font-weight:400;color:var(--ink-3)}
+.card-fold[open] summary svg{transform:rotate(180deg)}
+.replyto{display:flex;align-items:center;gap:12px;padding:12px 24px;background:var(--surface-selected);border-bottom:1px solid var(--rule-color);font-size:14px}
+.replyto > svg{color:var(--ink-3)}
+.replyto b{font-weight:500}
+.replyto .btn{margin-left:auto}
+.form-foot{display:flex;justify-content:flex-end;padding:12px 24px;border-top:1px solid var(--rule-color)}
+.hlc{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-top:1px solid var(--rule-color);font-size:14px}
+.hlc:first-child{border-top:0}
+.hlc small{display:block;font-size:12px;color:var(--ink-3)}
+.hlc b{font-weight:500;white-space:nowrap}
+.hlc .miss{color:var(--ink-3)}
+.hlc.alt{border-top:0;padding:2px 0 2px 12px;margin-left:4px;border-left:2px solid var(--rule-strong-color)}
+.hlc.alt:last-child{padding-bottom:8px}
+.hlc .changed{box-shadow:0 0 0 2px var(--accent);padding:0 4px;border-radius:var(--radius-field)}
+.send{padding:16px 24px 24px;border-top:1px solid var(--rule-color);display:flex;flex-direction:column;gap:8px}
+.send p{margin:0;font-size:14px}
+.send .why{font-size:14px;margin:0}
+.tlk{list-style:none;margin:0;padding:12px 24px 12px 48px;position:relative}
+.tlk:before{content:"";position:absolute;left:31px;top:24px;bottom:24px;width:2px;background:var(--rule-color)}
+.tlk li{position:relative;display:flex;flex-direction:column;padding:8px 8px 8px 0;font-size:14px}
+.tlk li:before{content:"";position:absolute;left:-22px;top:14px;width:10px;height:10px;box-sizing:border-box}
+.tlk li.k-brev:before{border-radius:50%;background:var(--ink)}
+.tlk li.k-dato:before{border-radius:50%;background:var(--surface);border:2px solid var(--ink)}
+.tlk li.k-dok:before{background:var(--surface);border:2px solid var(--ink-3)}
+.tlk li.on{background:var(--surface-selected);margin-left:-8px;padding-left:8px;border-radius:var(--radius-field)}
+.tlk li.on:before{left:-14px}
+.tlk .kind{font-size:12px;font-weight:500;color:var(--ink-3)}
+.tlk .d{font-weight:500}
+.tlk .s{font-size:14px;font-weight:500;color:var(--ink-3)}
+.draft-meta{flex:1}
+.compactbar{display:flex;align-items:center;gap:8px;padding:8px 12px;margin:0 0 12px;background:var(--surface);border:1px solid var(--rule-strong-color);border-radius:var(--radius-field);font-size:14px}
+.compactbar span:first-child{margin-right:auto;color:var(--ink-3)}
+.mock .tlk{padding:0 0 0 24px}
+.mock .tlk:before{left:7px;top:12px;bottom:12px}
+.mock .tlk li{padding:2px 0;font-size:12px}
+.mock .tlk li:before{left:-21px;top:6px}
+.mock .tlk .kind,.mock .tlk .s{font-size:12px}
