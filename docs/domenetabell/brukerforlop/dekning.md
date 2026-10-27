@@ -21,7 +21,7 @@ på kilden, men har ingen kontroller ennå.
 | Kilde | Kontroller | Forståelse | Planlagt |
 | --- | --- | --- | --- |
 | [GR-U7](../../plans/vedtak.md#gr-u7) | BF-01 grunnlaget-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 grunnlaget-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet | — |
-| [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret | — | — |
+| [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret | — | BF-03 |
 | [HF-U5](../../plans/vedtak.md#hf-u5) | — | — | BF-03 |
 | [HF-U8](../../plans/vedtak.md#hf-u8) | — | — | BF-03 |
 | [HF-U9](../../plans/vedtak.md#hf-u9) | — | BF-01 te-har-mottatt-svaret | BF-03 |
@@ -30,14 +30,18 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U1](../../plans/vedtak.md#ka-u1) | — | BF-01 te-har-mottatt-svaret | BF-03 |
 | [KA-U2](../../plans/vedtak.md#ka-u2) | BF-01 bh-har-mottatt-vederlagskravet | — | — |
 | [KA-U4](../../plans/vedtak.md#ka-u4) | BF-01 te-har-mottatt-svaret | — | — |
-| [KA-U7](../../plans/vedtak.md#ka-u7) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | — |
-| [KA-U10](../../plans/vedtak.md#ka-u10) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-godtatt-svaret | — |
+| [KA-U7](../../plans/vedtak.md#ka-u7) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-03 |
+| [KA-U10](../../plans/vedtak.md#ka-u10) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-godtatt-svaret | BF-03 |
+| [KA-U29](../../plans/vedtak.md#ka-u29) | — | — | BF-03 |
 | [LV-U4](../../plans/vedtak.md#lv-u4) | — | — | BF-03 |
+| [MM-U3](../../plans/vedtak.md#mm-u3) | — | — | BF-03 |
 | [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret | — | — |
+| [OV-U4](../../plans/vedtak.md#ov-u4) | — | — | BF-03 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
 | [OV-U27](../../plans/vedtak.md#ov-u27) | BF-01 te-har-mottatt-svaret | BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret | — |
 | [OV-U52](../../plans/vedtak.md#ov-u52) | — | — | BF-02A, BF-02C |
 | [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-02B, BF-02C, BF-03 |
+| [OV-U64](../../plans/vedtak.md#ov-u64) | — | — | BF-03 |
 | [VS-U1](../../plans/vedtak.md#vs-u1) | — | — | BF-03 |
-| [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — |
+| [VS-U3](../../plans/vedtak.md#vs-u3) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | BF-03 |
 | [VS-U9](../../plans/vedtak.md#vs-u9) | — | — | BF-03 |

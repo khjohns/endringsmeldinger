@@ -319,11 +319,37 @@ export function kildebruk(forloep = BRUKERFORLOEP): [string, Kildebruk][] {
   return [...bruk].sort(([a], [b]) => a.localeCompare(b, 'nb', { numeric: true }));
 }
 
+/** Vedtaks-ID-en, med samme mønster som `HENVISNING` i `docs/verktoy/vedtakshenvisninger.py`. */
+const VEDTAKS_ID = String.raw`[A-Z]{2,3}-U\d+|B-\d{2}`;
+
 /** Et vedtak lenkes til raden i vedtaksfila. En rad i domenetabellen står som den er. */
 const kildelenke = (kilde: string) =>
-  /^([A-Z]{2,3}-U\d+|B-\d{2})$/.test(kilde)
+  new RegExp(`^(?:${VEDTAKS_ID})$`).test(kilde)
     ? `[${kilde}](../../plans/vedtak.md#${kilde.toLowerCase()})`
     : kilde;
+
+/** Vedtaks-ID-ene i bestillingen, sortert og uten gjentakelser. */
+export function vedtakIBestilling(b: Brukerforloep): string[] {
+  const tekst = b.bestilling ? (lagret(b.bestilling) ?? '') : '';
+  const henvisning = new RegExp(`(?<![\\w-])(?:${VEDTAKS_ID})(?![\\w-])`, 'g');
+  return [...new Set(tekst.match(henvisning))].sort((a, c) =>
+    a.localeCompare(c, 'nb', { numeric: true })
+  );
+}
+
+/**
+ * Kildene forløpet viser til: `kilder` og kildene i kontrollene og forståelsen. Hvert
+ * vedtak bestillingen viser til, skal stå her (#1346), så dekningsoversikten viser det.
+ */
+export function kilderI(b: Brukerforloep): Set<string> {
+  return new Set([
+    ...(b.kilder ?? []),
+    ...(b.kontrollpunkter ?? []).flatMap((p) => [
+      ...kontrollerI(p).flatMap((k) => k.kilde),
+      ...p.forstaaelse.flatMap((f) => f.kilde),
+    ]),
+  ]);
+}
 
 export async function genererte(): Promise<Record<string, string>> {
   return {
