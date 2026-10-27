@@ -161,12 +161,31 @@ innsatsen settes i appen.
   (oppdragsgiver 14.10, #484).
 - Feil som stopper appen, går foran opprydding.
 
+### Oppgavetypene
+
+Avgjør oppgavetypen før oppdraget skrives. Den bestemmer skillene og kontrollene, og
+oppdraget sier hvilken det er. Kontrollene står i kilden tabellen viser til, og
+tabellen gjentar dem ikke (oppdragsgiver 27.10, #1338).
+
+| Oppgavetype | Kjennetegn | Skillene | Kontrollene og reviewet |
+| --- | --- | --- | --- |
+| Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Kan være én økt sammen med oppdragsgiver |
+| Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
+| Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | `AGENTS.md`, «Arbeidsform», og «Review i ny økt» |
+| Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `grensesnitt`, `mockup-nettleser`, `design-deslop` og `design-review`, i det omfanget `AGENTS.md` gir dem | `AGENTS.md`, «Arbeidsform» |
+| Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | Agenten `mekanisk-pr`, og `github` | `AGENTS.md`, «Arbeidsform», og «Subagent eller økt» |
+| Review i ny økt | Fortsetter en PR fra en byggeøkt | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | `AGENTS.md`, «Arbeidsform» |
+
+En PR som blander typene, følger den strengeste.
+
 ## 2. Oppdraget til hver økt
 
 Én økt per issue, per gruppe av issues (se «Runden») eller per del av et
 issue. Oppdraget skal inneholde:
 
 - issuenummerne, og at økta skal lese issuene og `AGENTS.md` først;
+- oppgavetypen etter «Oppgavetypene», med skillene og kontrollene den gir. Punktene
+  under om review, feilinnføring og nettleser gjelder bygging, ikke designsløyfa;
 - branchnavn (`claude/<kort-navn>-<issue>`);
 - hvilke filer de parallelle øktene arbeider i, og at de ikke skal røres så
   lenge PR-en som eier fila, er åpen. Si uttrykkelig at fordelingen opphører

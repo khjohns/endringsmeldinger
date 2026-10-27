@@ -31,6 +31,9 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   atferd. En eldre PR-beskrivelse veier ikke tyngre enn et nyere vedtak.
 - Les `.claude/rules/tester.md` **før** akseptkriteriene skrives, også om ingen
   testfil er åpnet ennå. Regelen lastes ellers først når en testfil åpnes.
+- Viser issuet til en bestilling fra designsløyfa, er bestillingen akseptkriteriene, og
+  et avvik fra den vises som uferdig arbeid eller et nytt valg
+  ([brukerforlop](../brukerforlop/SKILL.md#overgangen-til-bygging)).
 - Skriv konkrete akseptkriterier i det eksisterende issuet. En liten oppgave uten
   issue får dem i arbeidsplanen, og de tas med i PR-beskrivelsen. Hvert kriterium
   beskriver input eller forløp, forventet resultat eller avvisning, kilden til
