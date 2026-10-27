@@ -49,23 +49,13 @@ Prototypen viser til punktene i bestillingen og gjentar dem ikke.
    vedtaksskillen, U-punktene som designmål. Resten merkes som foreslått eller ikke
    støttet.
 6. **Forprøv** prototypen før brukerprøven, på den versjonen som skal prøves (en commit).
-   Den har to deler, i denne rekkefølgen:
-   - **Mekanisk kontroll.** Klikkstiene gjennom stegene og kontrollpunktene, ankrene,
-     `data-spor` mot bestillingen, konsollfeil og axe for WCAG 2.1 A og AA, etter
-     [mockup-nettleser](../mockup-nettleser/SKILL.md). Den leser ingen vedtak og vurderer
-     ingen tekst. Til skriptet i #1347 finnes, kjøres den av en Haiku-agent med innsats high. Bredden
-     på 390 px rapporteres, men stopper ikke, fordi mobil ikke er prioritert nå
-     (oppdragsgiver 27.10).
-   - **Kognitiv gjennomgang.** Etter at den mekaniske kontrollen er grønn, leser en agent
-     på standardmodellen bestillingen, prototypen og vedtakene forløpet viser til. Agenten
-     tar rollen som forløpet beskriver og leverer: risiko per U-punkt (høy, middels eller
-     lav) med én setning begrunnelse; D-avvik med sitat fra vedtaket og fra prototypen;
-     om kontrollpunktene viser hva som består; begreper som kan gi feil forståelse; og tre
-     til seks observasjoner oppdragsgiver bør se etter i egen prøve. Den avgjør ikke
-     rettsspørsmål. De føres som spørsmål til oppdragsgiver, med alternativer. Den
-     sammenligner ikke med demoruta, saksruta eller dagens app. Blindveier i arbeidsflyten
-     prøves etter «Prøv arbeidsflyten før vedtaksteksten skrives» i
-     [vedtaksskillen](../vedtak/SKILL.md).
+   Malen for de to gjennomgangene står i [forprove.md](forprove.md). Den mekaniske
+   kontrollen kjøres først, så den kognitive. Den mekaniske kontrollen leser ingen vedtak
+   og vurderer ingen tekst. Bredden på 390 px rapporteres, men stopper ikke, fordi mobil
+   ikke er prioritert nå (oppdragsgiver 27.10). Den kognitive gjennomgangen avgjør ikke
+   rettsspørsmål; de føres som spørsmål til oppdragsgiver, med alternativer. Den sammenligner
+   ikke med demoruta, saksruta eller dagens app. Blindveier i arbeidsflyten prøves etter
+   «Prøv arbeidsflyten før vedtaksteksten skrives» i [vedtaksskillen](../vedtak/SKILL.md).
 
    Forprøven viser risiko og feil før brukerprøven. Den er ikke bevis for forståelse,
    og brukerprøven er fortsatt den første kontrollen (se «Klar til bygging»).
