@@ -8,7 +8,8 @@ Det er ikke gjeldende design for appen. Beslutningene for visningen står i
 Fila er eneste hjem for teksten i konseptet. Skissene står i [`skjermer/`](skjermer/),
 én HTML-fil per skjerm med felles [`stil.css`](skjermer/stil.css), og bildene i
 [`bilder/`](bilder/) er laget fra dem. Hva som er endret mellom rundene, og
-hvorfor, står i [endringsloggen](endringslogg.md).
+hvorfor, står i [endringsloggen](endringslogg.md). Vurderingen av versjon 3 etter grensesnitt-skillen står i
+[review-grensesnitt-2026-10-27.md](review-grensesnitt-2026-10-27.md).
 
 ## Sammendrag
 
