@@ -26,7 +26,11 @@ Etikettene er av fem typer:
 | Tema | Hva i domenet arbeidet gjelder | `grunnlag`, `vederlag`, `frist`, `registrerte-brev`, `brev`, `godkjenning`, `vedlegg` |
 | Spor | Et parallelt spor i hovedplanen, i stedet for en milepæl | `spor-d`, `spor-h`, `spor-m`, `papercut` |
 | Status | Hva issuet samler eller venter på | `beslutning`, `venter-på-beslutning`, `venter-på-rekkefølge` |
-| Opphav og del | Hvor issuet kom fra, eller hvilken del av en pakke det er | `review-oppfølging`, `design`, `design-blokker`, `design-bør`, `design-merknad`, `byggedel-1` til `byggedel-4` |
+| Opphav og del | Hvor issuet kom fra, eller hvilken del av en pakke det er | `review-oppfølging`, `design`, `design-blokker`, `design-bør`, `design-merknad`, `byggedel-1` til `byggedel-4`, `bestilling` |
+
+`design` gjelder funn fra designreview av det som er bygget. `bestilling` gjelder et
+brukerforløp i designsløyfa, før byggingen ([brukerforlop](../brukerforlop/SKILL.md)),
+og forteller orkestratoren oppgavetypen (oppdragsgiver 27.10).
 
 `feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`AGENTS.md`,
 «Miljø», og orkestreringsskillen, punkt 2).

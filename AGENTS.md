@@ -332,6 +332,11 @@ CLI eller API. Arkitekturoppgaver kan bruke
 [oppgavemalen](.github/ISSUE_TEMPLATE/arkitekturendring.md); eksisterende
 issues suppleres i stedet for å dupliseres.
 
+**Oppgavetypene, og skillene og kontrollene hver av dem bruker, står i
+[orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#oppgavetypene).** Designsløyfa,
+der brukerforløp og prototyper avklares før byggingen, følger skillen `brukerforlop` og
+krever ikke reviewet under.
+
 **Uavhengig review før en PR meldes klar er `/code-review` på egen diff**, på
 nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
 eller migrasjonene, uansett språk, ellers `medium`; en diff som bare rører

@@ -15,6 +15,9 @@ Verdiene står i `src/lib/components/kontraktsbord/theme.css`, og avstand og rad
 `@theme` i `src/app.css`.** Les systemfila før du endrer visningen. Det den har
 avgjort, er avgjort. Et nytt mønster eller et nytt valg føres der, i samme PR.
 
+Prototypene i `docs/design/prototyper/` følger [brukerforlop](../brukerforlop/SKILL.md),
+ikke denne skillen, `design-deslop` eller `design-review`.
+
 ## Hensikten
 
 Brukeren er prosjektleder eller byggeleder hos TE eller BH, eller en som godkjenner
