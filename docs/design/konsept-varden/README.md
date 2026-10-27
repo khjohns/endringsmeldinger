@@ -111,11 +111,11 @@ flowchart TD
   frist --> arbeid
 ```
 
-Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn står først, produktnavnet etter. Innlogget bruker står til høyre med navn, kontraktsside (BH eller TE) og team. Inne i saken byttes spor med faner under saksoverskriften: Grunnlag, Vederlag, Frist, Dokumenter, Hendelser og Notater for teamet. «Skriv brev i sporet» står til høyre i fanefeltet, med brevtypene kjernen gir. Brødsmulene bruker saksnummer og prosjektnavn, aldri en ID.
+Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn står først, produktnavnet etter. Innlogget bruker står til høyre med navn, kontraktsside (BH eller TE) og team. Inne i saken står fanene under saksoverskriften i tre grupper med en skillelinje mellom: Oversikt, så sporene Grunnlag, Vederlag og Frist, så Dokumenter, Hendelser og Notater for teamet. I et spor står «Skriv brev i sporet» til høyre i fanefeltet, med brevtypene kjernen gir. I de andre fanene heter knappen «Skriv brev», og sporet velges i neste steg. Brødsmulene bruker saksnummer og prosjektnavn, aldri en ID.
 
 ## Nøkkelskjermer og flyter
 
-Sju skjermer og et ark med varianter bærer konseptet, vist som hele visninger i 1440 px. Skissene er statiske og viser visning og UX, ikke en prototype. Kundens logo står som plassholder. Tallene er de samme som i konkurrentens bilde 2 og 4, så de kan sammenlignes direkte.
+Åtte skjermer og et ark med varianter bærer konseptet, vist som hele visninger i 1440 px. Skissene er statiske og viser visning og UX, ikke en prototype. Kundens logo står som plassholder. Tallene er de samme som i konkurrentens bilde 2 og 4, så de kan sammenlignes direkte.
 
 ### A. Sakene i prosjektet
 
@@ -159,13 +159,17 @@ Sju skjermer og et ark med varianter bærer konseptet, vist som hele visninger i
 
 ### E. Tilstander
 
-![Skjerm E: sendt og levert, ikke bekreftet levert, sending stoppet, bestemmelse, ikke støttet og uenige](bilder/e-tilstander.png)
+![Skjerm E: sendt og levert, ikke bekreftet levert, sending stoppet, bestemmelse, ikke støttet, sender, ikke lagret, tomt spor, ingen tilgang og uenige](bilder/e-tilstander.png)
 
 - **Sendt og levert:** kvitteringen står der brevet lå, med serverens tid, mottaker og dokumentversjon.
 - **Ikke bekreftet levert:** brevet sendes ikke på nytt, og utkastet er låst så det ikke kan sendes to ganger.
 - **Sendingen er stoppet:** motparten sendte et nytt brev mens utkastet var åpent. Kontrollen må gjøres på nytt.
 - **Bestemmelsen:** kontraktens ordlyd uendret, adskilt fra vår forklaring. Ordlyden er grå linjer i skissen; teksten i NS 8407 er ikke gjengitt.
 - **Ikke støttet:** løsningen sier det før utfyllingen, og en eksport blir aldri «sendt».
+- **Sender:** brevet og skjemaet står som de var til serveren svarer, og knappen kan ikke trykkes på nytt.
+- **Ikke lagret:** endringene står i skjemaet, og lagringen kan prøves igjen.
+- **Tomt spor:** sporet sier at det ikke har brev, i stedet for en tom liste.
+- **Ingen tilgang:** saken vises ikke, heller ikke tittelen eller partene.
 - **Uenige:** en tilstand for ett objekt, med kildene, uten krav om trekk eller aksept.
 
 ### F. Dokumenter
@@ -190,8 +194,17 @@ Sju skjermer og et ark med varianter bærer konseptet, vist som hele visninger i
 ![Skjerm H: varianter for datoene, saksoverskriften og sporene](bilder/h-varianter.png)
 
 - Tre komponenter tok mye av høyden og bredden i versjon 2: datolinja, saksoverskriften og fanene. Arket viser tre varianter av hver, med fordeler og ulemper.
-- Variantene med tykk ramme er brukt i B, D, F og G: datoene på én linje, kompakt overskrift og faner med handlingen til høyre. Den loddrette lista er brukt i G.
+- Variantene med tykk ramme er brukt i B, D, F, G og I: datoene på én linje, kompakt overskrift og faner med handlingen til høyre. Den loddrette lista er brukt i G.
 - Variantene må prøves med ekte innhold før valget er endelig.
+
+### I. Oversikt over sporene
+
+![Skjerm I: siste krav og siste svar i grunnlag, vederlag og frist, side om side](bilder/i-oversikt.png)
+
+- Den første fanen viser de tre sporene side om side, så de kan sees samtidig. Hvert spor har siste krav og siste svar, med brevet, avsenderen, datoen og hovedlinjene fra kjernen.
+- Et spor uten svar sier «Ingen svar er sendt i sporet». Et utkast i eget team står under, merket som utkast.
+- Et spor uten brev sier det, i stedet for en tom liste.
+- Oversikten sier ikke hvem som skal svare, og den har ingen status.
 
 ## Vanskelige situasjoner
 

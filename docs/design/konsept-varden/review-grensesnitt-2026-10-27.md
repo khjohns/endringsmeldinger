@@ -19,7 +19,7 @@ neste runde, og *merknad* tas med når skjermen likevel endres.
 
 ## Funn
 
-*Merknad 27.10.2026:* KV-01 og KV-08 er rettet i versjon 4, der fargene også er byttet til Punkt. Se [endringsloggen](endringslogg.md). Tabellen under gjelder versjon 3.
+*Merknad 27.10.2026:* KV-01 og KV-08 er rettet i versjon 4, der fargene også er byttet til Punkt, og KV-02 til KV-07 i versjon 5. KV-09 til KV-14 står åpne. Se [endringsloggen](endringslogg.md). Tabellen under gjelder versjon 3.
 
 | ID | Alvorlighet | Funn | Hvor | Belegg | Forslag |
 | --- | --- | --- | --- | --- | --- |
