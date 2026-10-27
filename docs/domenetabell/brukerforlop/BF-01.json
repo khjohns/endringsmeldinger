@@ -46,7 +46,9 @@
           }
         }
       ],
-      "forstaaelse": ["TE ser at grunnlaget er godkjent, og at vederlaget kreves for seg."]
+      "forstaaelse": [
+        { "tekst": "TE ser at grunnlaget er godkjent, og at vederlaget kreves for seg.", "kilde": ["GR-U7"] }
+      ]
     },
     {
       "id": "bh-har-mottatt-vederlagskravet",
@@ -57,8 +59,11 @@
         { "rolle": "forutsetning", "kilde": ["GR-U7"], "forventet": { "gjeldende_svar.grunnlag": "S-g1", "enighet.grunnlag": "finnes" } }
       ],
       "forstaaelse": [
-        "BH ser at grunnlaget er godkjent, så svaret gjelder bare beløpet og varslingen.",
-        "BH forstår at påberopelsen av § 34.1.2 gjelder hele vederlagskravet, og at beløpet BH oppgir, står subsidiært."
+        { "tekst": "BH ser at grunnlaget er godkjent, så svaret gjelder bare beløpet og varslingen.", "kilde": ["GR-U7"] },
+        {
+          "tekst": "BH forstår at påberopelsen av § 34.1.2 gjelder hele vederlagskravet, og at beløpet BH oppgir, står subsidiært.",
+          "kilde": ["OV-U27"]
+        }
       ]
     },
     {
@@ -93,10 +98,16 @@
         }
       ],
       "forstaaelse": [
-        "TE forstår at BH prinsipalt mener at vederlagskravet er tapt fordi varselet kom for sent.",
-        "TE forstår at 60 000 kr er det BH godtar hvis innsigelsen om varselet ikke fører fram.",
-        "TE forstår at en aksept godtar begge standpunktene, også at kravet er tapt.",
-        "TE ser at alternativet til å godta er en ny kravversjon."
+        {
+          "tekst": "TE forstår at BH prinsipalt mener at vederlagskravet er tapt fordi varselet kom for sent.",
+          "kilde": ["OV-U27", "VS-U3"]
+        },
+        {
+          "tekst": "TE forstår at 60 000 kr er det BH godtar hvis innsigelsen om varselet ikke fører fram.",
+          "kilde": ["OV-U27"]
+        },
+        { "tekst": "TE forstår at en aksept godtar begge standpunktene, også at kravet er tapt.", "kilde": ["KA-U1", "HF-U9"] },
+        { "tekst": "TE ser at alternativet til å godta er en ny kravversjon.", "kilde": ["OV-U54", "KA-U7"] }
       ]
     },
     {
@@ -107,7 +118,12 @@
       "kontroller": [
         { "rolle": "mal", "kilde": ["KA-U10", "VS-U3"], "forventet": { "enighet.vederlag.virkning.rettidighet": 1 } }
       ],
-      "forstaaelse": ["TE ser at enigheten gjelder svaret slik det ble sendt, med beløpet 0 kr etter påberopelsen."]
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at enigheten gjelder svaret slik det ble sendt, med beløpet 0 kr etter påberopelsen.",
+          "kilde": ["KA-U10", "VS-U3"]
+        }
+      ]
     }
   ],
   "bevis_saker": ["F-MM-V-34-1-2-nei"],

@@ -38,8 +38,11 @@ export type Kontrollpunkt = {
   kontrollsett?: { sett: string; med: Record<string, unknown> }[];
   kontroller?: Omit<Kontroll, 'etter'>[];
   /** Det brukeren skal forstå her. Prøves manuelt og i brukertest, ikke i CI. */
-  forstaaelse: string[];
+  forstaaelse: Forstaaelse[];
 };
+
+/** Det brukeren skal forstå, med vedtakene eller radene i domenetabellen det bygger på. */
+export type Forstaaelse = { tekst: string; kilde: string[] };
 
 export type Brukerforloep = {
   id: string;
@@ -233,7 +236,7 @@ export async function startjournal(b: Brukerforloep): Promise<Startjournal> {
       id: p.id,
       beskrivelse: p.beskrivelse,
       versjon: versjoner[i],
-      forstaaelse: p.forstaaelse,
+      forstaaelse: p.forstaaelse.map((f) => f.tekst),
       neste:
         p.etter < steg.length
           ? { part: partFor(steg[p.etter]), handling: steg[p.etter].handling }
@@ -274,8 +277,53 @@ export function dekning(): string {
         b.bestilling ? `[${b.bestilling}](${b.bestilling})` : '—'
       } |`
     );
+  linjer.push(
+    '',
+    '## Kildene',
+    '',
+    'Hvert vedtak og hver rad i domenetabellen forløpene viser til, og hvor. En kontroll',
+    'kjøres i CI. En forståelse prøves manuelt og i brukertest. Et planlagt forløp bygger',
+    'på kilden, men har ingen kontroller ennå.',
+    '',
+    '| Kilde | Kontroller | Forståelse | Planlagt |',
+    '| --- | --- | --- | --- |'
+  );
+  for (const [kilde, bruk] of kildebruk())
+    linjer.push(
+      `| ${kildelenke(kilde)} | ${bruk.kontroll.join(', ') || '—'} | ${
+        bruk.forstaaelse.join(', ') || '—'
+      } | ${bruk.planlagt.join(', ') || '—'} |`
+    );
   return linjer.join('\n') + '\n';
 }
+
+type Kildebruk = { kontroll: string[]; forstaaelse: string[]; planlagt: string[] };
+
+/** Hvor forløpene viser til hver kilde, sortert etter kilden. */
+export function kildebruk(forloep = BRUKERFORLOEP): [string, Kildebruk][] {
+  const bruk = new Map<string, Kildebruk>();
+  const legg = (kilder: string[], hvor: keyof Kildebruk, sted: string) => {
+    for (const k of kilder) {
+      const b = bruk.get(k) ?? { kontroll: [], forstaaelse: [], planlagt: [] };
+      if (!b[hvor].includes(sted)) b[hvor].push(sted);
+      bruk.set(k, b);
+    }
+  };
+  for (const b of forloep) {
+    if (b.status === 'planlagt') legg(b.kilder ?? [], 'planlagt', b.id);
+    for (const p of b.kontrollpunkter ?? []) {
+      for (const k of kontrollerI(p)) legg(k.kilde, 'kontroll', `${b.id} ${p.id}`);
+      for (const f of p.forstaaelse) legg(f.kilde, 'forstaaelse', `${b.id} ${p.id}`);
+    }
+  }
+  return [...bruk].sort(([a], [b]) => a.localeCompare(b, 'nb', { numeric: true }));
+}
+
+/** Et vedtak lenkes til raden i vedtaksfila. En rad i domenetabellen står som den er. */
+const kildelenke = (kilde: string) =>
+  /^([A-Z]{2,3}-U\d+|B-\d{2})$/.test(kilde)
+    ? `[${kilde}](../../plans/vedtak.md#${kilde.toLowerCase()})`
+    : kilde;
 
 export async function genererte(): Promise<Record<string, string>> {
   return {
