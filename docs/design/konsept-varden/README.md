@@ -235,6 +235,14 @@ Farger, skrift og komponenter tar utgangspunkt i [Punkt](https://punkt.oslo.komm
 | Ikoner | Strekikoner i knapper | Strekikoner på 1,5 px, alltid med tekst. Egne ikoner for dato, brev, lås og hjemmel. Merket er en varde av fire stablede steiner |
 | Bevegelse | Ikke observert | 150 ms. En linje i panelet med hovedlinjene som endres, får et kort fargeskifte. Av ved `prefers-reduced-motion` |
 
+**Retningen i versjon 6, prøvd på B og I.** B og I bruker [`stil-6.css`](skjermer/stil-6.css). De andre skjermene bruker `stil.css` til retningen er avgjort.
+
+- Typografien bærer hierarkiet: Oslo Sans Light i 32–40 px på saken og sporene, Medium på etikettene og 18 px på spørsmålene. Det meste av teksten i 12 px er borte.
+- Hvit side uten bokser. Innholdet grupperes med luft og flater, ikke med rammer.
+- Hver flate har én betydning. Lyseblått bånd (`blue-500`) bærer saken og fanene og betyr «her er du». Den aktive fanen er hvit og går over i siden. Blek blå (`blue-100`) er panelet med hovedlinjene, og lys beige (`light-beige`) er papir, som brevet det svares på. Gul, grønn og rød er fortsatt bare tilstanden til løsningen.
+- Svarvalgene står under hverandre som rader på 56 px med Punkts radioknapp på 24 px. Hjemmelen er en lenke ved spørsmålet.
+- Ikonene er Punkts egne. Bare vardemerket er vårt. Bunnfeltet er mørkeblått, som i Punkt.
+
 Tettheten har to nivåer: **Arbeid** (standard, 16 px grunnlinje) for saken og **Oversikt** (14 px, tettere rader) for porteføljen. Begge bruker et rutenett på 4 px, som avstandsskalaen i Punkt.
 
 ## Universell utforming og tillit
