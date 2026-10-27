@@ -153,6 +153,9 @@ skriver ikke der.
   postene, hver endret `folge` i en importert post og hver ny eller endret
   tekst i `etter` og `innledning` mot svarene ordrett. Den ser etter ord oppdragsgiver ikke har sagt, slutninger,
   beskrivelser av dagens atferd uten belegg, og arbeidsstatus.
+- **Berørte forløp.** Føres et vedtak, kontrolleres [dekning.md](../../../docs/domenetabell/brukerforlop/dekning.md)
+  og bestillingene (`BF-xx.md`) mot vedtak-ID-en: viser et forløp til vedtaket, eller
+  burde det gjøre det? De berørte forløpene nevnes i vedtaks-PR-en.
 - Byggestatus føres ikke i `folge`. Den lages av `docs/verktoy/byggestatus.py`
   av koden og issuene (oppdragsgiver 20.10, #1021), og vakttesten melder ny
   byggestatus i Følge. `folge` kan nevne issuet som bygger vedtaket, «Bygges i
