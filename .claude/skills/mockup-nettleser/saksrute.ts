@@ -516,23 +516,22 @@ try {
     // Kontrollene ved hvert kontrollpunkt leses av journalen serveren gir tilbake.
     await kjoer(forloep, serverbane(sak), { til, valg: { klokke: veggklokke } });
     console.log(`${FORLOEP.id}: ${til} steg sendt, og kontrollene ved kontrollpunktene holder`);
-  }
-  if (FORLOEP) {
     // Jobbkjøreren leverer brevene til den falske Catenda; kjøringen venter til alle er levert.
-    for (let forsoek = 0; ; forsoek++) {
-      const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
-      if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
-      const oppdrag = lest.kropp.leveringsoppdrag;
-      if (oppdrag.length && oppdrag.every((o) => o.levert)) {
-        console.log(`Levert til falsk Catenda: ${oppdrag.length} brev`);
-        break;
+    if (til > 0)
+      for (let forsoek = 0; ; forsoek++) {
+        const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
+        if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
+        const oppdrag = lest.kropp.leveringsoppdrag;
+        if (oppdrag.length && oppdrag.every((o) => o.levert)) {
+          console.log(`Levert til falsk Catenda: ${oppdrag.length} brev`);
+          break;
+        }
+        if (forsoek === 60)
+          throw new Error(
+            `Brevene ble ikke levert: ${JSON.stringify(oppdrag)}. Ukjente kall: ${ukjenteKall.join(', ') || 'ingen'}`
+          );
+        await te.waitForTimeout(1000);
       }
-      if (forsoek === 60)
-        throw new Error(
-          `Brevene ble ikke levert: ${JSON.stringify(oppdrag)}. Ukjente kall: ${ukjenteKall.join(', ') || 'ingen'}`
-        );
-      await te.waitForTimeout(1000);
-    }
   }
 
   for (const [navn, side] of [

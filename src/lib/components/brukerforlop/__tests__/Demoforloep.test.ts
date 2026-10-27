@@ -129,6 +129,10 @@ describe('demoruta for brukerforløpet BF-01', () => {
 
     // Steg 5: TE åpner saken og ser svaret BH skrev, med samme event_id.
     await fireEvent.click(screen.getByRole('radio', { name: 'TE' }));
+    // Panelet sier ikke lenger at BH skal svare, når svaret er sendt.
+    const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
+    expect(await panel.findByText(/Saken er endret etter kontrollpunktet/)).toBeInTheDocument();
+    expect(panel.queryByText(/Neste steg i forløpet/)).toBeNull();
     await fireEvent.click(
       within(await screen.findByRole('navigation', { name: 'Sakens spor' })).getByRole('button', {
         name: /Vederlag/,
@@ -150,6 +154,21 @@ describe('demoruta for brukerforløpet BF-01', () => {
     expect(godtatt?.gjelder).toBe(svarId);
     k.registrer(BF.steg![4], [aksepten]);
     await kontrollerEtter(forloep, 5, k, paastand);
+  });
+
+  it('et vedlegg i demoruta lastes ikke opp til serveren', async () => {
+    let kjernesak: ReturnType<typeof lagKjernesak> | null = null;
+    render(Demoforloep, {
+      forloep: START,
+      punkt: 'bh-har-mottatt-vederlagskravet',
+      onpunkt: () => {},
+      onstart: (_d: Demosak, k: ReturnType<typeof lagKjernesak>) => (kjernesak = k),
+    });
+    await screen.findByRole('heading', { name: BF.tittel });
+    await expect(kjernesak!.lastOppVedlegg(new File(['x'], 'tegning.pdf'))).rejects.toThrow(
+      'Vedlegg kan ikke lastes opp i demoen'
+    );
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('en omstart fra kontrollpunktet med de samme handlingene gir samme journal', async () => {

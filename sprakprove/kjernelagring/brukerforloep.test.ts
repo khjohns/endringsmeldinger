@@ -6,7 +6,7 @@
 
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { avvikFraFormatet, utenAvsnitt } from '../../kjerne/tester/formatprove.ts';
-import { kjoerBrukerforloep, kjoerbare } from '../../kjerne/tester/brukerforloep.ts';
+import { kjoerBrukerforloep, kjoerbare, START } from '../../kjerne/tester/brukerforloep.ts';
 import { lagOppsett, rydd, type Oppsett } from '../../server/tester/testbase.ts';
 import { basebane, GRENSER, TESTBASE_URL } from './bane.ts';
 
@@ -23,7 +23,8 @@ describe.skipIf(!TESTBASE_URL)('brukerforløpene gjennom testbasen', () => {
 
   it.each(kjoerbare().map((b) => [b.id, b] as const))('%s', async (_id, b) => {
     const { k, bane } = await kjoerBrukerforloep(b, {
-      bane: await basebane(o),
+      // Saken opprettes når klokka i forløpet starter, som i minnet og i startjournalene.
+      bane: await basebane(o, START),
       paastand: (holder, melding) => expect(holder, melding).toBe(true),
     });
     const skrevet = (await bane.journal()).filter((r) => k.skrevet.includes(r.event_id));

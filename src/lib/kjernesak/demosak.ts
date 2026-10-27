@@ -12,7 +12,12 @@
 
 import startjournaler from '../../../docs/domenetabell/brukerforlop/startjournaler.json';
 import { ApiError } from '$lib/api/client';
-import type { hentKjernesak, Journallinje, sendKommando } from '$lib/api/kjerne';
+import type {
+  hentKjernesak,
+  Journallinje,
+  lastOppKjernevedlegg,
+  sendKommando,
+} from '$lib/api/kjerne';
 import { vurder } from '$kjerne/kommandoer/skriving';
 import type { Journalrad, Part } from '$kjerne/typer';
 import { KJERNE } from '$kjerne/versjon';
@@ -117,6 +122,11 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     };
   };
 
+  // Vedlegget ville blitt lastet opp til serveren, og demoruta sender ingenting.
+  const lastOppVedlegg: typeof lastOppKjernevedlegg = async () => {
+    throw new ApiError(400, 'Vedlegg kan ikke lastes opp i demoen, som ikke sender noe.');
+  };
+
   const demosak = {
     sakId,
     forloep,
@@ -125,6 +135,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     part,
     hent,
     send,
+    lastOppVedlegg,
     /** Journalen slik kjernen har skrevet den, med demoaktørene. */
     journal: (): Journalrad[] => structuredClone(rader),
   };

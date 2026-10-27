@@ -27,7 +27,7 @@
     punkt: string;
     onpunkt: (punkt: string) => void;
     /** Kalles med saken hver gang forløpet starter, så en test kan lese journalen. */
-    onstart?: (demosak: Demosak) => void;
+    onstart?: (demosak: Demosak, kjernesak: Kjernesak) => void;
   } = $props();
 
   const HANDLING: Record<string, string> = {
@@ -43,13 +43,16 @@
   /** Siden som handler i neste steg, så forløpet kan fortsette uten å bytte side. */
   const startside = (): Part => neste?.part ?? 'TE';
 
-  function kjernesakFor(demosak: Demosak) {
+  type Kjernesak = ReturnType<typeof lagKjernesak>;
+
+  function kjernesakFor(demosak: Demosak): Kjernesak {
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
       prosjektId: DEMOPROSJEKT,
       part: demosak.part,
       hent: demosak.hent,
       send: demosak.send,
+      lastOppVedlegg: demosak.lastOppVedlegg,
     });
     void kjernesak.last();
     return kjernesak;
@@ -57,11 +60,15 @@
 
   function aapne() {
     const demosak = lagDemosak(forloep, punkt, startside());
-    onstart?.(demosak);
-    return { demosak, kjernesak: kjernesakFor(demosak) };
+    const kjernesak = kjernesakFor(demosak);
+    onstart?.(demosak, kjernesak);
+    return { demosak, kjernesak };
   }
 
   let aapen = $state.raw(aapne());
+  // Neste steg og forståelsen gjelder bare saken slik den er ved kontrollpunktet.
+  const versjon = $derived(aapen.kjernesak.versjon);
+  const vedPunktet = $derived(versjon === kontrollpunkt.versjon);
   let view = $state<WorkspaceView>({ track: 'ansvar', mode: 'read', role: startside() });
   let omstarter = $state(0);
   // På smal skjerm dekker panelet saken, så det starter lukket der.
@@ -126,14 +133,18 @@
         />
       </div>
 
-      {#if neste}
+      {#if versjon !== null && !vedPunktet}
+        <p class="neste">
+          Saken er endret etter kontrollpunktet. «Start på nytt» går tilbake til det.
+        </p>
+      {:else if vedPunktet && neste}
         <p class="neste">
           Neste steg i forløpet: {neste.part}
           {HANDLING[neste.handling] ?? neste.handling}.
         </p>
       {/if}
 
-      {#if kontrollpunkt.forstaaelse.length}
+      {#if vedPunktet && kontrollpunkt.forstaaelse.length}
         <details class="forstaaelse">
           <summary
             ><ChevronRight size={16} aria-hidden="true" />Det brukeren skal forstå her</summary
@@ -175,7 +186,7 @@
     display: flex;
     align-items: center;
     font-weight: 600;
-    color: var(--draft);
+    color: var(--ink);
     cursor: pointer;
   }
   .innhold {
