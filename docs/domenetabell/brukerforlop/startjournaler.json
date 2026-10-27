@@ -149,7 +149,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 34,
+                  "regelversjon": 35,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -244,8 +244,8 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 34,
-                  "linje": "Byggherrens standpunkt: prinsipalt prekludert (§ 34.1.2), subsidiært godkjent med 60 000 kr.",
+                  "regelversjon": 35,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
                     {
@@ -290,7 +290,7 @@
                 "id": "1975bfcf-0000-4000-8000-00000000001e",
                 "art": "aksept",
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
-                "regelversjon": 34
+                "regelversjon": 35
               }
             ],
             "brevtekst": [
