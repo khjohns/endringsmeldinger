@@ -137,12 +137,12 @@ describe('vakttestene for brukerforløpene', () => {
 
   it('vakten kjenner igjen et forløp som bryter formatet', () => {
     const b = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'kjørbar')!);
-    b.kontrollpunkter![0].kontroller = [{ rolle: 'mal', kilde: ['XX-U999'], forventet: {} }];
+    b.kontrollpunkter![0].kontroller = [{ rolle: 'mal', kilde: ['UKJENT-KILDE'], forventet: {} }];
     b.kontrollpunkter![0].kontrollsett = [];
     b.endringer = [];
     expect(avvik(b, `${b.id}.json`)).toEqual([
       `${b.id}: en endring mangler dato eller vedtak eller issue`,
-      `${b.id}: ${b.kontrollpunkter![0].id}: kilden XX-U999 finnes ikke`,
+      `${b.id}: ${b.kontrollpunkter![0].id}: kilden UKJENT-KILDE finnes ikke`,
     ]);
     const planlagt = structuredClone(BRUKERFORLOEP.find((x) => x.status === 'planlagt')!);
     planlagt.steg = [{ handling: 'trekk', spor: 'grunnlag' }];
