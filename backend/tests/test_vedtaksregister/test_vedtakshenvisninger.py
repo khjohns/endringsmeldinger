@@ -287,6 +287,16 @@ def test_en_kildeliste_med_et_opphevet_vedtak_alene_eller_en_ukjent_id_gir_feil(
     ]
 
 
+def test_en_kilde_som_tekst_og_en_id_med_merknad_kontrolleres():
+    """Invariantene i bevis-sakene har kilden som tekst, som `MM-U2` eller `KA-U1, KT-U1`."""
+    assert _kildefeil(
+        {"invarianter": [{"kilde": "MM-U4"}, {"kilde": "KA-U99 (merknad), MM-U9"}]}
+    ) == [
+        "a.json: invarianter[0]/kilde: MM-U4 er opphevet og står som eneste grunnlag",
+        "a.json: invarianter[1]/kilde: KA-U99 er ikke et vedtak i registeret",
+    ]
+
+
 def test_merket_historisk_gjelder_ikke_i_en_kildeliste():
     assert len(_kildefeil({"kilde": ["MM-U4", "historisk"]})) == 1
 

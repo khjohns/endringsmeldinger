@@ -195,7 +195,13 @@ describe('vakttestene for brukerforløpene', () => {
         forstaaelse: [{ tekst: 'x', kilde: ['GR-U7', 'OV-U27'] }],
       },
     ];
-    const planlagt = { ...kjoerbart, id: 'BF-P', kontrollpunkter: [], kilder: ['OV-U27'] };
+    kjoerbart.kilder = ['OV-U27'];
+    const planlagt: Brukerforloep = {
+      ...kjoerbart,
+      id: 'BF-P',
+      status: 'planlagt',
+      kontrollpunkter: [],
+    };
     const id = kjoerbart.id;
     expect(Object.fromEntries(kildebruk([kjoerbart, planlagt]))).toEqual({
       'GR-U7': { kontroll: [`${id} p`], forstaaelse: [`${id} p`], planlagt: [] },

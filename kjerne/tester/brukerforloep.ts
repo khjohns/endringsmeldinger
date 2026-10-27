@@ -306,7 +306,7 @@ export function kildebruk(forloep = BRUKERFORLOEP): [string, Kildebruk][] {
     }
   };
   for (const b of forloep) {
-    legg(b.kilder ?? [], 'planlagt', b.id);
+    if (b.status === 'planlagt') legg(b.kilder ?? [], 'planlagt', b.id);
     for (const p of b.kontrollpunkter ?? []) {
       for (const k of kontrollerI(p)) legg(k.kilde, 'kontroll', `${b.id} ${p.id}`);
       for (const f of p.forstaaelse) legg(f.kilde, 'forstaaelse', `${b.id} ${p.id}`);

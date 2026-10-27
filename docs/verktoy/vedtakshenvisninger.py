@@ -20,7 +20,8 @@ funnene er ikke vedtak, føringene står ikke i registeret, og `P1` er for kort
 til å skilles fra annen tekst.
 
 I JSON-filene i docs/domenetabell/, som bevis-sakene og brukerforløpene, er
-henvisningen en liste under `kilde` eller `kilder`. Unntaket for en test merket
+henvisningen en liste eller en tekst under `kilde` eller `kilder`, og ID-ene leses som
+i koden, også midt i en tekst som `B-14 (bevisgrunnlaget)`. Unntaket for en test merket
 historisk gjelder ikke der, og `endringer` i et brukerforløp leses ikke, fordi den
 fører hva som er endret og hvorfor.
 """
@@ -172,7 +173,7 @@ def filer(rot: pathlib.Path = vr.ROT):
 
 
 def kildelister(data, sted: str = "") -> list[tuple[str, list[str]]]:
-    """Stedet og innholdet for hver liste under `kilde` eller `kilder` i en JSON-fil.
+    """Stedet og innholdet for hver `kilde` eller `kilder` i en JSON-fil, som en liste.
 
     Stedet er nøklene på veien ned, med ID-en der det er en, som
     `BF-01/kontrollpunkter/te-har-mottatt-svaret/forstaaelse[2]/kilde`.
@@ -191,8 +192,9 @@ def kildelister(data, sted: str = "") -> list[tuple[str, list[str]]]:
         sted = f"{sted}/{data['id']}"
     ut = []
     for noekkel, verdi in data.items():
-        if noekkel in KILDEFELT and isinstance(verdi, list):
-            kilder = [k for k in verdi if isinstance(k, str)]
+        if noekkel in KILDEFELT and isinstance(verdi, (list, str)):
+            kilder = [verdi] if isinstance(verdi, str) else verdi
+            kilder = [k for k in kilder if isinstance(k, str)]
             ut.append((f"{sted}/{noekkel}".lstrip("/"), kilder))
         elif noekkel != "endringer":
             ut.extend(kildelister(verdi, f"{sted}/{noekkel}"))
@@ -204,7 +206,7 @@ def kildefeil(
 ) -> list[str]:
     feil = []
     for sted, kilder in kildelister(data):
-        ider = [k for k in kilder if HENVISNING.fullmatch(k)]
+        ider = [i for k in kilder for i in HENVISNING.findall(k)]
         for i in dict.fromkeys(ider):
             if i not in kjente and i not in aapne:
                 feil.append(f"{sti}: {sted}: {i} er ikke et vedtak i registeret")
