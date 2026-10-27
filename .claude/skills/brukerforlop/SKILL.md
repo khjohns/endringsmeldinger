@@ -31,19 +31,35 @@ Prototypen viser til punktene i bestillingen og gjentar dem ikke.
 1. **Velg én brukeroppgave.** Begynn med hva brukeren vil oppnå (M), ikke med
    handlingene kjernen har i dag. Skriv utgangspunktet og avgrensningen: hva oppgaven
    ikke dekker, og produktspørsmål som hører til andre forløp (P).
-2. **Skisser.** Lag eller endre prototypen. Den kan vise handlinger og tilstander som
+2. **Kartlegg vedtakene.** En subagent søker i [vedtaksregisteret](../../../docs/vedtaksregister/README.md)
+   etter forløpets begreper, hendelser og bestemmelser. Den leverer kandidater med én
+   linje begrunnelse hver, og velger ingen. Den som skriver bestillingen, avgjør
+   `kilder` etter å ha lest kandidatene mot vedtaksfila. Vedtak som den kognitive
+   gjennomgangen i steg 6 peker på, og som forløpet ikke viser til, går også hit.
+3. **Skisser.** Lag eller endre prototypen. Den kan vise handlinger og tilstander som
    ikke finnes. Er spørsmålet bare plassering eller ordlyd, og den nye visningen er
    bygget for oppgaven, kan det prøves der i stedet.
-3. **Kontroller forskjellene** mellom ønsket løsning og det kjernen og vedtakene gir.
+4. **Kontroller forskjellene** mellom ønsket løsning og det kjernen og vedtakene gir.
    Dagens visning i demoruta og saksruta er ufullstendig og er ikke noe
    sammenligningsgrunnlag, fordi den nye visningen (Varden) bygges fra bunnen etter
    vedtakene og brukerforløpene (oppdragsgiver 27.10, #1338). Lag en kort liste, ikke
    en kartlegging av hvert element. Se særlig på brev, beløp, statuser, virkninger og
    handlinger. Marger, kortplassering og typografi trenger ingen kobling til kjernen.
-4. **Avklar** det som trengs for akkurat denne oppgaven: D- og S-punktene etter
+5. **Avklar** det som trengs for akkurat denne oppgaven: D- og S-punktene etter
    vedtaksskillen, U-punktene som designmål. Resten merkes som foreslått eller ikke
    støttet.
-5. **Prøv** prototypen på brukere mot U-punktene. Funnene går tilbake til steg 1–4, ikke
+6. **Forprøv** prototypen før brukerprøven, på den versjonen som skal prøves (en commit).
+   Malen for de to gjennomgangene står i [forprove.md](forprove.md). Den mekaniske
+   kontrollen kjøres først, så den kognitive. Den mekaniske kontrollen leser ingen vedtak
+   og vurderer ingen tekst. Bredden på 390 px rapporteres, men stopper ikke, fordi mobil
+   ikke er prioritert nå (oppdragsgiver 27.10). Den kognitive gjennomgangen avgjør ikke
+   rettsspørsmål; de føres som spørsmål til oppdragsgiver, med alternativer. Den sammenligner
+   ikke med demoruta, saksruta eller dagens app. Blindveier i arbeidsflyten prøves etter
+   «Prøv arbeidsflyten før vedtaksteksten skrives» i [vedtaksskillen](../vedtak/SKILL.md).
+
+   Forprøven viser risiko og feil før brukerprøven. Den er ikke bevis for forståelse,
+   og brukerprøven er fortsatt den første kontrollen (se «Klar til bygging»).
+7. **Prøv** prototypen på brukere mot U-punktene. Funnene går tilbake til steg 1–6, ikke
    til hele konseptet.
 
 | Avviket mellom ønsket løsning og kjernen og vedtakene | Neste steg |
