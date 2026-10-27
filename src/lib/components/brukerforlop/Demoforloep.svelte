@@ -3,9 +3,11 @@
    * Et brukerforløp i saksvisningen (#1330): `Kjernesakrom` med en journal i minnet fra
    * kontrollpunktet. Panelet velger kontrollpunkt og side, og starter forløpet på nytt.
    * Visningen lages på nytt når siden byttes, som når en annen bruker åpner saken.
+   * `visning` er dagens saksvisning eller Varden (#1331), med samme sak.
    */
   import { ChevronRight } from 'lucide-svelte';
   import Kjernesakrom from '$lib/components/kjernesak/Kjernesakrom.svelte';
+  import Vardensak from '$lib/components/varden/Vardensak.svelte';
   import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
   import {
     DEMOPROSJEKT,
@@ -20,12 +22,16 @@
   let {
     forloep,
     punkt,
+    visning = 'dagens',
     onpunkt,
+    onvisning,
     onstart,
   }: {
     forloep: Startjournal;
     punkt: string;
+    visning?: Visning;
     onpunkt: (punkt: string) => void;
+    onvisning?: (visning: Visning) => void;
     /** Kalles med saken hver gang forløpet starter, så en test kan lese journalen. */
     onstart?: (demosak: Demosak, kjernesak: Kjernesak) => void;
   } = $props();
@@ -44,6 +50,7 @@
   const startside = (): Part => neste?.part ?? 'TE';
 
   type Kjernesak = ReturnType<typeof lagKjernesak>;
+  type Visning = 'dagens' | 'varden';
 
   function kjernesakFor(demosak: Demosak): Kjernesak {
     const kjernesak = lagKjernesak({
@@ -91,7 +98,9 @@
 <svelte:head><title>{forloep.id} — demo av brukerforløpet</title></svelte:head>
 
 {#key omstarter + ':' + aapen.demosak.part}
-  {#if aapen.kjernesak.saksbilde}
+  {#if visning === 'varden'}
+    <Vardensak kjernesak={aapen.kjernesak} />
+  {:else if aapen.kjernesak.saksbilde}
     <Kjernesakrom
       kjernesak={aapen.kjernesak}
       projectId={DEMOPROSJEKT}
@@ -119,6 +128,21 @@
           {/each}
         </select>
       </label>
+
+      {#if onvisning}
+        <div class="felt">
+          <span class="etikett">Visning</span>
+          <SegmentedControl
+            value={visning}
+            label="Visning"
+            options={[
+              { id: 'dagens', label: 'Dagens' },
+              { id: 'varden', label: 'Varden' },
+            ]}
+            onchange={(v) => onvisning(v as Visning)}
+          />
+        </div>
+      {/if}
 
       <div class="felt">
         <span class="etikett">Du handler som</span>

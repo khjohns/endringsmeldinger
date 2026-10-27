@@ -135,6 +135,13 @@ standpunktet og det subsidiære beløpet, når TE fortsatt får godta etter akse
 JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
 `src/lib/components/brukerforlop/__tests__/Demoforloep.test.ts`, ikke her.
 
+Med `--visning varden` går de samme stegene gjennom Varden, den eksperimentelle
+visningen (#1331), og skjermbildene har de samme navnene, så de to visningene kan
+sammenlignes ved hvert kontrollpunkt. Demopanelet legges sammen mens brukeren handler,
+fordi det står over høyre kolonne. `node .claude/skills/mockup-nettleser/uu.mjs --varden`
+kjører axe mot Varden i lys modus, bred og smal; mørk modus er ikke med i Varden (KV-14).
+Kontrollene med kilde for Varden står i `src/lib/components/varden/__tests__/Varden.test.ts`.
+
 ## Skjermbildene i PR-en
 
 Skjermbildene ligger på grenen `skjermbilder`, som ikke har felles historikk med `main`

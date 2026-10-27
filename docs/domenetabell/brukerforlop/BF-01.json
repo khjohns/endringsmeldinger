@@ -111,7 +111,7 @@
     }
   ],
   "bevis_saker": ["F-MM-V-34-1-2-nei"],
-  "visninger": ["demoruta", "saksruta"],
+  "visninger": ["demoruta", "saksruta", "varden"],
   "endringer": [
     { "dato": "2026-10-27", "grunnlag": "#1330", "hva": "Forløpet er opprettet." },
     {
