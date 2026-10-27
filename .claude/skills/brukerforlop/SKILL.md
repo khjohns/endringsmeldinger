@@ -90,13 +90,10 @@ Hvert punkt har en ID, så prototypen, issuet og byggingen kan vise til det.
 ## Kontrollene
 
 En iterasjon som bare rører `docs/`, krever ingen `/code-review`, `design-review`,
-`design-deslop`, feilinnføring eller kjøring av saksruta. Den kjører:
-
-- `python3 docs/verktoy/lenkekontroll.py` på de endrede Markdown-filene;
-- `node kjerne/tester/brukerforloep.ts --skriv` og
-  `npx vitest run kjerne/tester/brukerforloep.test.ts` når en forløpsfil er endret;
-- en gjennomklikking av prototypen i Chromium når den er endret. Kjør aldri
-  `playwright install`; se skillen `mockup-nettleser`.
+`design-deslop`, feilinnføring eller kjøring av saksruta. Lenkekontrollen og
+vakttesten for brukerforløpene kjøres i CI. Kommandoene står i
+[miljø-skillen](../miljo/SKILL.md). Prototypen vises i nettleseren med skillen
+`mockup-nettleser`.
 
 En endring i formatet, i `kjerne/tester/`, følger de vanlige reglene i `AGENTS.md`,
 «Arbeidsform».

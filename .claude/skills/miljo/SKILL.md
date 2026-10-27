@@ -19,6 +19,15 @@ npx tsc -p server/tsconfig.json      # eller server/
 ruff check backend/                  # porten, skal være 0
 ```
 
+Lenkekontrollen og vakttesten for brukerforløpene kjører i CI. For hånd, når en
+Markdown-fil eller en forløpsfil er endret:
+
+```bash
+python3 docs/verktoy/lenkekontroll.py                # omfanget står i docstringen
+node kjerne/tester/brukerforloep.ts --skriv          # dekning.md og startjournalene
+npx vitest run kjerne/tester/brukerforloep.test.ts
+```
+
 `npm run server` starter TS-serveren i `server/` (B-18), med miljøvariablene i
 headeren til `server/start.ts`. Vite-proxyen sender hele `/api` og webhooken dit,
 som `tilTsServeren()` i `server/ruting.ts` velger (#1026); ingenting går til Python.

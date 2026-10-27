@@ -169,15 +169,14 @@ tabellen gjentar dem ikke (oppdragsgiver 27.10, #1338).
 
 | Oppgavetype | Kjennetegn | Skillene | Kontrollene og reviewet |
 | --- | --- | --- | --- |
-| Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Ingen reviewøkt. Kan være én økt sammen med oppdragsgiver |
+| Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Kan være én økt sammen med oppdragsgiver |
 | Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
 | Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | `AGENTS.md`, «Arbeidsform», og «Review i ny økt» |
-| Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `grensesnitt`, `mockup-nettleser`, `design-deslop` og `design-review` | Som over |
-| Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | Agenten `mekanisk-pr`, og `github` | Ingen `/code-review` for bare `docs/`. For skillene og `AGENTS.md` avgjør orkestratoren om reviewet er verdt det. Agenten `diffkontroll` før merge |
+| Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `grensesnitt`, `mockup-nettleser`, `design-deslop` og `design-review`, i det omfanget `AGENTS.md` gir dem | `AGENTS.md`, «Arbeidsform» |
+| Dokumentasjon og mekanisk arbeid | `docs/`, skillene, lenker, flytting, CI, papercuts | Agenten `mekanisk-pr`, og `github` | `AGENTS.md`, «Arbeidsform», og «Subagent eller økt» |
 | Review i ny økt | Fortsetter en PR fra en byggeøkt | `code-review`, og `/simplify` når den er bestilt («`/simplify`») | `AGENTS.md`, «Arbeidsform» |
 
-En PR som blander typene, følger den strengeste. En endring i formatet for
-brukerforløpene, i `kjerne/tester/`, er bygging, også når den kommer fra designsløyfa.
+En PR som blander typene, følger den strengeste.
 
 ## 2. Oppdraget til hver økt
 

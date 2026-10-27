@@ -298,8 +298,8 @@ eller i en test merket med «historisk» (`docs/verktoy/vedtakshenvisninger.py`,
   påstand. Kontroller den, eller meld den.
 - **Hvert issue har en milepæl eller en sporetikett, og et byggeissue har en
   lagetikett for hvert lag det rører.** Milepælen er arbeidspakken i hovedplanen;
-  de parallelle sporene har `spor-d`, `spor-h`, `spor-m` eller `papercut` i
-  stedet. Beskrivelsen av etiketten på GitHub sier hva den dekker. Etikettene,
+  de parallelle sporene har `spor-d`, `spor-h`, `spor-m`, `papercut` eller
+  `bestilling` i stedet. Beskrivelsen av etiketten på GitHub sier hva den dekker. Etikettene,
   statusetikettene og når en ny lages, står i
   [GitHub-skillen](.claude/skills/github/SKILL.md).
 - **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
@@ -334,13 +334,14 @@ issues suppleres i stedet for å dupliseres.
 
 **Oppgavetypene, og skillene og kontrollene hver av dem bruker, står i
 [orkestreringsskillen](.claude/skills/orkestrering/SKILL.md#oppgavetypene).** Designsløyfa,
-der brukerforløp og prototyper avklares før byggingen, følger skillen `brukerforlop` og
-krever ikke reviewet under.
+der brukerforløp og prototyper avklares før byggingen, følger skillen `brukerforlop`.
+En iterasjon som bare rører `docs/`, har kontrollene i tabellen, ikke reviewet under.
 
 **Uavhengig review før en PR meldes klar er `/code-review` på egen diff**, på
 nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
-eller migrasjonene, uansett språk, ellers `medium`; en diff som bare rører
-`docs/`, trenger ingen. Endrer diffen utledningen eller reglene i domenet, kommer i
+eller migrasjonene, uansett språk, ellers `medium`. For en diff som bare rører
+`docs/`, skillene og `AGENTS.md`, avgjør orkestratoren om `/code-review` er verdt
+det, og begrunner valget i én linje i PR-en (oppdragsgiver 27.10, #1338). Endrer diffen utledningen eller reglene i domenet, kommer i
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
 bevis-sakene samlet, én gang per PR. Reviewet og rettingene kjøres i en ny økt,
 ikke i byggeøkta, når vilkårene i orkestreringsskillen, «Review i ny økt», er
