@@ -501,3 +501,27 @@ table.cases tr.att td.t{padding-left:32px;font-weight:400}
 .mock .tlk li{padding:2px 0;font-size:12px}
 .mock .tlk li:before{left:-21px;top:6px}
 .mock .tlk .kind,.mock .tlk .s{font-size:12px}
+
+/* versjon 11: ta stilling ved svaret, virkning ved handlingen, hva som gjelder nå */
+.take{margin:0 0 16px}
+.take-h{display:flex;justify-content:space-between;align-items:baseline;padding:16px 24px 8px}
+.take-h h3{margin:0;font-size:18px;font-weight:500}
+.take-h .sub{font-size:12px;color:var(--ink-3)}
+.take-o{display:flex;gap:12px;align-items:flex-start;margin:8px 24px;padding:12px 16px;border:1px solid var(--rule-strong-color);border-radius:var(--radius-field);min-height:48px}
+.take-o .r{width:20px;height:20px;border-radius:50%;border:2px solid var(--ink);flex:none;margin-top:2px}
+.take-o b{font-weight:500;font-size:16px}
+.take-o p{margin:4px 0 0;font-size:14px;color:var(--ink-2)}
+.take-f{display:flex;align-items:center;gap:16px;padding:12px 24px 16px}
+.take-f .src{flex:1;font-size:12px;color:var(--ink-3)}
+.menu.static{position:static;box-shadow:none;margin:4px 0 0;border-radius:var(--radius-field)}
+.menu .todo{display:inline-block;margin-top:4px;padding:0 8px;border:1px dashed var(--rule-strong-color);background:var(--surface-warm);font-size:12px;color:var(--ink-2);border-radius:var(--radius-field)}
+.virk{margin:4px 0 8px;padding-left:20px;font-size:14px}
+.virk li{margin:2px 0}
+.ov-now{font-size:16px;font-weight:500;margin-bottom:4px}
+.ov-list{list-style:none;margin:0;padding:0;font-size:14px}
+.ov-list li{padding:2px 0}
+.ov-list span{display:block;font-size:12px;color:var(--ink-3)}
+.ov-last{margin-top:16px}
+.ov-draft{flex-wrap:wrap}
+.ov-cont{color:var(--brand);font-weight:500;text-decoration:underline;text-underline-offset:4px;display:inline-flex;align-items:center;min-height:44px}
+.tag.new{background:var(--surface-selected);border-color:var(--accent)}
