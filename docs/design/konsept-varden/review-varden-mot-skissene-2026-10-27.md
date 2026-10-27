@@ -45,6 +45,10 @@ som «Ikke et designavvik» eller ikke tatt med.
 Variantene i H er fulgt slik oppdragsgiver valgte 27.10: sporene i venstre kolonne,
 tidslinja i høyre kolonne og den kompakte saksoverskriften.
 
+## Tillegg 27.10: alle panelene
+
+Under arbeid (#1338).
+
 ## Feil i #1334 funnet underveis
 
 Når BH åpner «Les brevet ved siden av», kaster siden to ganger
