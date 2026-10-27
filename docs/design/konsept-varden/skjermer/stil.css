@@ -445,7 +445,7 @@ table.cases tr.att td.t{padding-left:32px;font-weight:400}
 .stack > .work-h{margin-bottom:4px}
 .fbtn,.tag{white-space:nowrap}
 .saksflate .toolbar{flex-wrap:wrap}
-.saksflate .filters .search2{width:232px}
+.saksflate .filters .search2{width:200px}
 .var-row{grid-template-columns:200px repeat(3,minmax(0,1fr))}
 .var .mock{overflow:hidden}
 .filters .search2{white-space:nowrap}
@@ -525,3 +525,14 @@ table.cases tr.att td.t{padding-left:32px;font-weight:400}
 .ov-draft{flex-wrap:wrap}
 .ov-cont{color:var(--brand);font-weight:500;text-decoration:underline;text-underline-offset:4px;display:inline-flex;align-items:center;min-height:44px}
 .tag.new{background:var(--surface-selected);border-color:var(--accent)}
+
+/* versjon 12: brevet først i D, kompakt inngang til å ta stilling */
+.takebar{display:flex;align-items:center;gap:16px;max-width:760px;margin:0 auto 12px;font-size:14px;color:var(--ink-3)}
+.takebar .btn{margin-left:auto}
+.btn.sm{height:auto;min-height:44px;padding:0 8px}
+.take .card-h{padding:8px 16px 8px 24px}
+.take-v{margin:8px 0;font-size:14px}
+.take .src{font-size:12px;color:var(--ink-3);margin:0 0 12px}
+.ov{align-items:start}
+.ov-more summary{color:var(--brand);font-size:14px}
+.w112{width:112px}

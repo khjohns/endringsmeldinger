@@ -1,9 +1,16 @@
-# Varden: designkonsept for et konkurrerende verktøy etter NS 8407
+# Varden: eksperimentelt UX-konsept for saksvisningen
 
-Designkonseptet for et tenkt konkurrerende produkt, laget 27.10.2026 med
-utgangspunkt i skjermbildene i [PR 1327](https://github.com/khjohns/endringsmeldinger/pull/1327).
-Det er ikke gjeldende design for appen. Beslutningene for visningen står i
+Et eksperimentelt UX-konsept for saksvisningen i appen. Det prøves som en egen
+visning ved siden av dagens saksvisning, med samme sak og samme kjerne
+([#1331](https://github.com/khjohns/endringsmeldinger/issues/1331)). Det er ikke
+vedtatt produktdesign. Beslutningene for visningen står i
 [designsystemet](../system.md).
+
+Konseptet startet 27.10.2026 som en øvelse: et tenkt konkurrerende produkt, laget
+ut fra skjermbildene av dagens saksvisning i
+[PR 1327](https://github.com/khjohns/endringsmeldinger/pull/1327). Fra versjon 9 er
+det et konsept for appen selv. Teksten beholder ordet «konkurrenten» der den
+sammenligner med skjermbildene; det betyr dagens saksvisning.
 
 Fila er eneste hjem for teksten i konseptet. Skissene står i [`skjermer/`](skjermer/),
 én HTML-fil per skjerm med felles [`stil.css`](skjermer/stil.css), og bildene i
@@ -15,7 +22,7 @@ hvorfor, står i [endringsloggen](endringslogg.md). Vurderingen av versjon 3 ett
 
 ## Sammendrag
 
-Vi bygger **Varden** (arbeidsnavn): et verktøy for endringssaker etter NS 8407 som registrerer datoer og brev og viser dem som fakta. Løsningen er nøytral om tvisten: den avgjør ikke om en frist er holdt eller om et krav er berettiget. Det gjør partene. Den er tydelig om arbeidet: hva som gjelder etter det som er registrert, hva som er nytt, og hva en handling betyr.
+**Varden** (arbeidsnavn) er en visning for endringssaker etter NS 8407 som registrerer datoer og brev og viser dem som fakta. Løsningen er nøytral om tvisten: den avgjør ikke om en frist er holdt eller om et krav er berettiget. Det gjør partene. Den er tydelig om arbeidet: hva som gjelder etter det som er registrert, hva som er nytt, og hva en handling betyr.
 
 Navnet er valgt fordi en varde viser vei uten å bestemme veivalget. Det er mindre styrende enn arbeidsnavnet «Fristlinje» i versjon 0–2.
 
@@ -141,7 +148,7 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 - Beløpsvalgene heter alltid «Hele beløpet», «Deler av beløpet» og «Ingenting». Det subsidiære standpunktet er et spørsmål: «Hvis innsigelsen om sen varsling ikke fører frem, hvor mye godtar du?»
 - Ingenting er forhåndsvalgt. Beregningsmetoden er ikke besvart, og panelet sier at brevet ikke kan sendes før den er det.
 - Alle begrunnelser er valgfrie. Kjernen merker et felt som påkrevd når kontrakten krever det. Begrunnelsen står ved vurderingen og sier hvor den kommer i brevet, og «Begrunnelsen tolkes ikke» står ved feltet.
-- Panelet viser bare hovedlinjene: standpunktet til hvert spørsmål og beløpsalternativene, med det krevde beløpet dempet under posten. De to beløpene for produktivitetstap står som «to alternativer, ikke tillegg». Bindingen står i én linje over knappen, og «Se brevet før sending» er den eneste knappen i panelet. «Forkast utkastet» står nederst i skjemaet.
+- Panelet viser bare hovedlinjene: standpunktet til hvert spørsmål, skrevet som brukerens eget («Du gjør gjeldende at varselet om produktivitetstap kom: For sent»), og beløpsalternativene, med det krevde beløpet dempet under posten. De to beløpene for produktivitetstap står som «to alternativer, ikke tillegg». Bindingen står i én linje over knappen, og «Se brevet før sending» er den eneste knappen i panelet. «Forkast utkastet» står nederst i skjemaet.
 - «Skriv brev i sporet» er samme komponent som i D, med brevtypene kjernen gir. Ved knappen står det at et utkast er åpent.
 
 ### C. Brevet før sending
@@ -149,7 +156,7 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 ![Skjerm C: brevet som lesespalte med sendepanel og avkrysning](bilder/c-brevkontroll.png)
 
 - Brevet er en lesespalte i serif med brevhode, saksnummer, brevnummer og mottaker. Den tåler tekstforstørrelse, og PDF-en får A4-format.
-- Sendepanelet sier «Utkast · ikke sendt» og viser fra, til, hva brevet svarer på, kopi og om intern godkjenning kreves. Det gjengir ikke brevet, men sier hva byggherren blir bundet av med dette svaret: standpunktene og beløpsalternativene, regnet ut av kjernen. Det sier også at en aksept fra TE gjelder hele svaret, også påberopelsen av sen varsling ([KA-U1](../../plans/vedtak.md#ka-u1)).
+- Sendepanelet sier «Utkast · ikke sendt» og viser fra, til, hva brevet svarer på, kopi og om intern godkjenning kreves. Det gjengir ikke brevet. Under «Dette sender du» står standpunktene som byggherrens egne utsagn («Du gjør gjeldende at varselet kom for sent», «Du godtar hovedkravet») og beløpsalternativene, regnet ut av kjernen. Deretter står bindingen, og at en aksept fra TE omfatter hele svaret, også påberopelsen av sen varsling ([KA-U1](../../plans/vedtak.md#ka-u1)).
 - Avkrysningen «Jeg har kontrollert brevet» må gjøres før sending, og knappen forklarer hvorfor den ikke kan brukes ennå. Er grunnlaget ubesvart eller svaret i sammenfall med kravet, står tekst 1c eller 1b her, og bare her.
 
 ### D. Saken fra TE-siden etter svaret
@@ -157,9 +164,11 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 ![Skjerm D: hele brevet slik det ble sendt, og brevtypene som er mulige](bilder/d-mottatt-svar.png)
 
 - Brevet fra BH står i sin helhet i hovedkolonnen, med samme gjengivelse som PDF-en. Det er det frosne dokumentet, ikke en ny gjengivelse av dataene, så forbehold løsningen ikke kan uttrykke som valg, kommer med.
-- Hovedlinjene vises ikke her. Brevet er åpent, og en gjengivelse ved siden av kunne avvike fra det. Virkningen av hvert valg står ved valget. Tidslinja i sporet står øverst i høyre kolonne, med svaret 27. okt.
+- Hovedlinjene vises ikke her. Brevet er åpent, og en gjengivelse ved siden av kunne avvike fra det. Virkningen av hvert valg står ved valget. Tidslinja i sporet står under panelet, lagt sammen.
 - TEs eget brev har «Utdyp» og «Oppgi korrigert opplysning» i tidslinja. Den opprinnelige teksten bevares.
-- Over brevet står «Ta stilling til svaret i brev 5» med to valg, «Godta svaret» og «Gjør innsigelse mot svaret». Ingenting er valgt. Hvert valg har en kort virkningstekst som viser til brev 5 slik det ble sendt. Teksten ved «Godta svaret» sier at aksepten gjelder hele svaret, også at varselet kom for sent, ikke bare det subsidiære beløpet ([KA-U1](../../plans/vedtak.md#ka-u1), [GR-U7](../../plans/vedtak.md#gr-u7)).
+- Brevet kommer først. Over det står en kompakt knapp, «Ta stilling til svaret». Den åpner et panel i høyre kolonne, så brevet fortsatt kan leses. Skissen viser panelet åpent.
+- Panelet har én handling, «Godta svaret», med virkningen ved handlingen og en knapp som navngir neste steg: «Se akseptbrevet». Teksten sier at aksepten gjelder hele svaret, også påberopelsen av sen varsling, ikke bare det subsidiære beløpet ([KA-U1](../../plans/vedtak.md#ka-u1), [GR-U7](../../plans/vedtak.md#gr-u7)).
+- Det finnes ikke et valg «Gjør innsigelse mot svaret». I kjernen er en innsigelse et smalt utsagn med grunnen `ikke_svar`, ikke en generell måte å si seg uenig i et svar på. Hva TE kan gjøre når hen er uenig, avgjøres i TE-forløpet i #1331 ut fra det kjernen tilbyr, før prototypeteksten låses.
 - Ny versjon av kravet og trekk står under «Andre brev og handlinger», som er vist i E. Brevtypene kommer fra kjernen: bare de som er mulige nå, i fast rekkefølge.
 - Virkningstekstene er prototypetekst. I appen kommer de fra kjernen (#1331).
 
@@ -185,7 +194,7 @@ Navigasjonen ligger i en lys toppmeny med tre innganger. Kundens logo og navn st
 ![Skjerm F: alle dokumenter i saken med kilde, datoer og versjon](bilder/f-dokumenter.png)
 
 - Alle brev, vedlegg og dokumenter i saken, nyeste først. Vedleggene står under brevet de fulgte.
-- Hver rad har datoen i dokumentet og datoen det ble sendt eller lagt til, hver for seg. Kilden sier om det er sendt i Varden eller registrert utenfor.
+- Hver rad har datoen i dokumentet og datoen det ble sendt eller lagt til, hver for seg. Kilden står under dokumentnavnet. Tabellen har ingen kolonne for versjon, fordi et sendt brev ikke får nye versjoner.
 - «Legg til dokument sendt utenfor Varden» er en egen handling. En korrigering står som en egen rad under brevet den gjelder, med datoen den ble registrert. Brevet står som det ble sendt, og får ikke ny versjon.
 
 ### G. Hendelser
@@ -232,7 +241,8 @@ Begrunnelsen:
 ![Skjerm I: siste krav og siste svar i grunnlag, vederlag og frist, side om side](bilder/i-oversikt.png)
 
 - Oversikt, øverst i venstre kolonne, viser de tre sporene side om side, så de kan sees samtidig.
-- Hvert spor viser i denne rekkefølgen: hva som gjelder nå etter det løsningen har registrert, med kilde; brevene det bygger på; det som sist skjedde i sporet; og et utkast i eget team med «Fortsett utkastet». Siste brev er ikke nødvendigvis det som gjelder: en utdyping kan komme etter et svar som fortsatt binder.
+- Hvert spor viser først hva som gjelder nå etter det løsningen har registrert, med kilden. «Bygger på» er lagt sammen, fordi kilden står ved tilstanden. «Sist i sporet» står bare når noe har kommet etter kilden: siste brev er ikke nødvendigvis det som gjelder, for en utdyping kan komme etter et svar som fortsatt binder. Et utkast i eget team står med «Fortsett utkastet».
+- Kortene har hver sin høyde, så et tomt spor ikke får høyden til det fulleste.
 - Der kjernen ikke kan avgjøre hva som gjelder, står det, i stedet for at visningen velger.
 - Et spor uten brev sier det, i stedet for en tom liste.
 - Oversikten sier ikke hvem som skal svare.
@@ -267,6 +277,17 @@ Fargene og tokenene er de samme som i dagens app (oppdragsgiver 27.10): navnene 
 | Bevegelse | Ikke observert | 150 ms. En linje i panelet med hovedlinjene som endres, får et kort fargeskifte. Av ved `prefers-reduced-motion` |
 
 Tettheten har to nivåer: **Arbeid** (standard, 16 px grunnlinje) for saken og **Oversikt** (14 px, tettere rader) for porteføljen. Begge bruker et rutenett på 4 px, som `--spacing` i appen.
+
+## Hva skissene viser, og hva som må prøves
+
+Skissene er stillbilder i 1440 px. De viser plassering, tekst og rekkefølge. De viser ikke at noe virker, og disse løftene må prøves i den kjørbare visningen i #1331 før de regnes som oppfylt:
+
+- Panelet med hovedlinjene følger rullingen bare når det får plass i vinduet, ellers vises den kompakte linja fra E.
+- «Les brevet ved siden av» i B og «Ta stilling til svaret» i D. Leseflaten og panelet skal ta plassen til høyre kolonne mens de er åpne, ikke bli en fjerde smal kolonne.
+- Visningen ved 200 % zoom og under 1024 px, med venstre og høyre kolonne.
+- Tastatur, skjermleser og `aria-live` for hovedlinjene.
+- Lange norske navn, mange datoer i tidslinja og saker med mange brev etter et bindende svar.
+- Kontrasten er regnet ut for fargene i skissene. Den er ikke målt i en nettleser med axe.
 
 ## Universell utforming og tillit
 
@@ -333,5 +354,6 @@ Konseptet er ikke testet med brukere. Disse spørsmålene må avklares før vi b
 - [ ] Kontrastmåling og skjermlesertest av panelet med hovedlinjene og datoene
 - [ ] Begrunnelse ved hver vurdering eller én samlet begrunnelse? Prøv begge mot behovet for én sammenhengende argumentasjon.
 - [ ] Hva skal virkningsteksten ved trekk av vederlagskravet si om avkall? Trekket er notert i E, og ordlyden besluttes senere (oppdragsgiver 27.10). For trekk av grunnlaget står teksten i [KA-U22](../../plans/vedtak.md#ka-u22).
+- [ ] Hva kan TE gjøre i sporet når hen er uenig i et svar, ut fra det kjernen tilbyr? Det avgjøres i TE-forløpet i #1331, før teksten i D låses.
 - [ ] Hvilke tilstander per spor kan kjernen utlede for «Gjelder nå» i A og I, og hvordan skal det se ut der den ikke kan avgjøre?
 - [ ] Trengs personlige påminnelser? I så fall er de private for teamet og heter aldri «frist».
