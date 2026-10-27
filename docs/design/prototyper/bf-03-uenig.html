@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BF-03 · TE er uenig i svaret · prototype v1</title>
+<!--
+  Klikkbar prototype for BF-03 (docs/domenetabell/brukerforlop/BF-03.md). Tilstandene er
+  ankrene (#mottatt, #protest, …), og bestillingen viser til dem. ID-ene i data-spor er
+  punktene i bestillingen. Teksten er prototypetekst; brevtekstene er de vedtatte i LV-U4
+  og OV-U54. Stilen er Varden-skissenes.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../konsept-varden/skjermer/stil.css">
+<style>
+  .tilstand { display: none; }
+  .tilstand.vist { display: block; }
+  .proto-bar { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 8px 24px; font-size: 13px; border-bottom: 1px dashed #c6d7cd; background: #f3f7f4; }
+  .proto-bar a { color: inherit; }
+  .veier { display: flex; flex-direction: column; gap: 8px; }
+  .vei { display: block; padding: 12px 14px; border: 1px solid #dfe5df; border-radius: 10px; color: inherit; text-decoration: none; background: #fff; }
+  .vei:hover, .vei:focus-visible { border-color: #2f5d47; outline: none; box-shadow: 0 0 0 2px #cfe0d6; }
+  .vei b { display: block; font-size: 14px; }
+  .vei span { display: block; font-size: 13px; color: #4b5a51; margin-top: 2px; }
+  .standpunkter { width: 100%; border-collapse: collapse; font-size: 13px; margin: 4px 0 8px; }
+  .standpunkter td { padding: 6px 0; border-bottom: 1px solid #edf0ec; vertical-align: top; }
+  .standpunkter td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  textarea.tx { width: 100%; min-height: 110px; font: inherit; padding: 10px; border: 1px solid #cfd8d1; border-radius: 8px; resize: vertical; }
+  .virkning { padding: 12px 14px; border-left: 3px solid #2f5d47; background: #f3f7f4; font-size: 14px; }
+  .virkning p + p { margin-top: 6px; }
+  .laast { padding: 12px 14px; background: #f7f7f5; border: 1px solid #e3e6e1; border-radius: 6px; font-family: 'IBM Plex Sans', sans-serif; }
+  .knapper { display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; margin-top: 12px; }
+  a.btn { text-decoration: none; }
+  .btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+  .tl { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+  .tl li { padding: 6px 0; border-bottom: 1px solid #edf0ec; }
+  .tl li.ny { font-weight: 600; }
+  [data-spor] { position: relative; }
+  body.spor [data-spor]::after { content: attr(data-spor); position: absolute; top: -8px; right: -6px; font: 600 10px/1.6 Inter, sans-serif; padding: 0 5px; border-radius: 999px; background: #fff5d6; border: 1px solid #e0c36a; color: #5a4a10; white-space: nowrap; z-index: 2; }
+</style>
+</head>
+<body>
+<div class="proto-bar">
+  <span><b>Prototype · BF-03 · versjon 1</b> · Ingenting sendes. Saken er BF-01 ved kontrollpunktet <code>te-har-mottatt-svaret</code>.</span>
+  <span><label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label> · <a href="#mottatt">Start på nytt</a></span>
+</div>
+<section class="screen">
+  <div class="page">
+    <div class="casehead compact">
+      <div class="ttl"><span class="caseid">E-021</span><h1 class="case">Tegningene til fundamentene kom for sent</h1></div>
+      <div class="meta"><span>BH <b>Byggherren</b></span><span>TE <b>Totalentreprenøren</b></span><span>Du er TE</span></div>
+    </div>
+    <div class="saksflate">
+      <nav class="casenav" aria-label="Saken">
+        <div class="cn-lbl">Spor</div>
+        <a class="cn"><b>Grunnlag</b><small>Siste: brev 3 fra BH</small></a>
+        <a class="cn on" aria-current="page"><b>Vederlag</b><small>Siste: brev 5 fra BH</small></a>
+        <a class="cn"><b>Frist</b><small>Ingen brev</small></a>
+      </nav>
+      <div class="arbeid">
+        <div class="grid">
+          <div class="stack">
+            <div class="work-h"><div><h2>Vederlag</h2><small>2 brev · siste 1. oktober 2026 fra BH</small></div></div>
+            <div class="sentbar" data-spor="U-1"><span><b>Brev 5 · Svar på krav om vederlagsjustering</b> · BH · mottatt 1. oktober 2026</span></div>
+            <div class="a4">
+              <div class="lh">
+                <div class="org"><div><b>Byggherren</b><span>BH</span></div></div>
+                <dl><dt>Brev</dt><dd>5, vederlag</dd><dt>Dato</dt><dd>1. oktober 2026</dd><dt>Til</dt><dd>Totalentreprenøren (TE)</dd></dl>
+              </div>
+              <h2>Svar på krav om vederlagsjustering</h2>
+              <p>Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:</p>
+              <p>Prinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.</p>
+              <p>Subsidiært: byggherren godkjenner oppgjør som fast sum. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.</p>
+              <p>Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet.</p>
+              <div class="colophon">Sendt gjennom appen 1. oktober 2026 kl. 10.04. Dette er brevet slik det ble sendt, og det kan ikke endres.</div>
+            </div>
+          </div>
+
+          <div class="stack panel">
+            <!-- #mottatt: standpunktene og veiene videre -->
+            <div class="card tilstand" id="mottatt" role="region" aria-label="Ta stilling til svaret i brev 5">
+              <div class="card-h"><h3>Ta stilling til svaret i brev 5</h3></div>
+              <div class="card-b">
+                <div class="lbl">Standpunktene i svaret</div>
+                <table class="standpunkter" data-spor="U-2">
+                  <tr><td>Du krevde</td><td class="n">100 000 kr</td></tr>
+                  <tr><td><b>Prinsipalt</b>: varselet etter § 34.1.2 kom for sent</td><td class="n">0 kr</td></tr>
+                  <tr><td><b>Subsidiært</b>: hvis varselet kom i tide</td><td class="n">60 000 kr</td></tr>
+                </table>
+              </div>
+              <div class="card-b ruled">
+                <div class="lbl">Hva vil du gjøre?</div>
+                <div class="veier">
+                  <a class="vei" href="#godta" data-spor="U-3 · D-1"><b>Godta svaret</b><span>Dere blir enige om hele svaret, også at varselet kom for sent. Beløpet blir 0 kr.</span></a>
+                  <a class="vei" href="#protest" data-spor="M-1 · D-2 · D-4"><b>Protester: varselet kom i tide</b><span>Svaret står, også de 60 000 kr. Uenigheten om varselet registreres.</span></a>
+                  <a class="vei" href="#ny-versjon" data-spor="U-5 · D-5"><b>Send ny versjon av kravet</b><span>Avslår tilbudet om 60 000 kr i svaret.</span></a>
+                  <div class="vei" data-spor="D-4"><b>Vent</b><span>Du trenger ikke svare nå. Svaret står, og BH er bundet av det til du godtar det eller sender en ny versjon.</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- #protest: skjemaet -->
+            <div class="card tilstand" id="protest" role="region" aria-label="Protest mot påberopelsen">
+              <div class="card-h"><h3>Protest mot påberopelsen</h3><a class="btn ghost sm" href="#mottatt">Tilbake</a></div>
+              <div class="card-b">
+                <div class="q">Du protesterer mot at BH i brev 5 gjør gjeldende at varselet etter § 34.1.2 kom for sent.</div>
+                <label class="lbl" for="hvorfor">Hvorfor kom varselet i tide?</label>
+                <textarea class="tx" id="hvorfor" data-spor="M-1">Varselet ble sendt samme dag som tegningene kom, og det er uten ugrunnet opphold.</textarea>
+                <div class="virkning" data-spor="U-4 · D-2 · D-4">
+                  <p><b>Dette gjør protesten</b></p>
+                  <p>Den registrerer at du er uenig, og vises ved siden av påberopelsen. Den avgjør ikke hvem som har rett.</p>
+                  <p>Svaret i brev 5 står. BH er fortsatt bundet av de 60 000 kr til du godtar svaret eller sender en ny versjon av kravet.</p>
+                </div>
+                <div class="knapper"><a class="btn ghost" href="#mottatt">Avbryt</a><a class="btn primary" href="#protest-brev">Se brevet</a></div>
+              </div>
+            </div>
+
+            <!-- #protest-brev: brevkontrollen -->
+            <div class="card tilstand" id="protest-brev" role="region" aria-label="Brevkontroll">
+              <div class="card-h"><h3>Dette sender du</h3><a class="btn ghost sm" href="#protest">Tilbake til skjemaet</a></div>
+              <div class="card-b" data-spor="U-7 · D-3">
+                <div class="lbl">Brev 6 · Protest · til BH</div>
+                <div class="laast">TE protesterer mot påberopelsen av for sen varsling i svaret i brev 5 av 1. oktober 2026.</div>
+                <p class="muted">Begrunnelse: <span id="hvorfor-kopi"></span></p>
+                <label><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label>
+                <div class="knapper"><a class="btn ghost" href="#protest">Tilbake</a><a class="btn primary send" aria-disabled="true" href="#protest-sendt">Send til BH</a></div>
+              </div>
+            </div>
+
+            <!-- #protest-sendt: etter protesten -->
+            <div class="card tilstand" id="protest-sendt" role="region" aria-label="Protesten er sendt">
+              <div class="card-h"><h3>Protesten er sendt</h3></div>
+              <div class="card-b" data-spor="D-4">
+                <p>Brev 6 er sendt til BH. Svaret i brev 5 står, og du kan fortsatt ta stilling til det.</p>
+                <ul class="tl">
+                  <li>Brev 4 · TE · krav og varsel etter § 34.1.2</li>
+                  <li>Brev 5 · BH · svar: varselet kom for sent, subsidiært 60 000 kr</li>
+                  <li class="ny">Brev 6 · TE · protest mot påberopelsen i brev 5</li>
+                </ul>
+                <div class="knapper"><a class="btn" href="#godta">Godta svaret likevel</a><a class="btn ghost nullstill" href="#mottatt">Start på nytt</a></div>
+              </div>
+            </div>
+
+            <!-- #ny-versjon: ny kravversjon -->
+            <div class="card tilstand" id="ny-versjon" role="region" aria-label="Ny versjon av kravet">
+              <div class="card-h"><h3>Ny versjon av kravet</h3><a class="btn ghost sm" href="#mottatt">Tilbake</a></div>
+              <div class="card-b">
+                <div class="virkning" data-spor="M-4 · U-5 · D-5">
+                  <p><b>Du avslår tilbudet om 60 000 kr</b></p>
+                  <p>Den nye versjonen avslår svaret i brev 5. Etterpå kan du ikke godta det. BH må svare på nytt, og påberopelsen av at varselet kom for sent står.</p>
+                </div>
+                <label class="lbl" for="beloep">Hvor mye krever du?</label>
+                <div class="money"><input id="beloep" value="100 000"><span>kr</span></div>
+                <div class="knapper"><a class="btn ghost" href="#mottatt">Avbryt</a><a class="btn primary" href="#ny-versjon-brev">Se brevet</a></div>
+              </div>
+            </div>
+
+            <!-- #ny-versjon-brev -->
+            <div class="card tilstand" id="ny-versjon-brev" role="region" aria-label="Brevkontroll">
+              <div class="card-h"><h3>Dette sender du</h3><a class="btn ghost sm" href="#ny-versjon">Tilbake til skjemaet</a></div>
+              <div class="card-b" data-spor="U-7 · D-5">
+                <div class="lbl">Brev 6 · Ny versjon av kravet · til BH</div>
+                <div class="laast">TE avslår byggherrens tilbud i svaret i brev 5 av 1. oktober 2026 og fremsetter det reviderte kravet nedenfor. …</div>
+                <label><input type="checkbox" class="kontrollert"> Jeg har kontrollert brevet.</label>
+                <div class="knapper"><a class="btn ghost" href="#ny-versjon">Tilbake</a><a class="btn primary send" aria-disabled="true" href="#mottatt">Send til BH</a></div>
+                <p class="muted">I prototypen fører sendingen tilbake til start.</p>
+              </div>
+            </div>
+
+            <!-- #godta -->
+            <div class="card tilstand" id="godta" role="region" aria-label="Godta svaret">
+              <div class="card-h"><h3>Godta svaret i brev 5</h3><a class="btn ghost sm" href="#mottatt">Tilbake</a></div>
+              <div class="card-b">
+                <div class="virkning" data-spor="U-3 · D-1">
+                  <p><b>Dere blir enige om 0 kr</b></p>
+                  <p>Du godtar hele svaret, også at varselet etter § 34.1.2 kom for sent. De 60 000 kr gjaldt bare hvis varselet kom i tide.</p>
+                  <p class="etter-protest" hidden data-spor="S-2">Protesten i brev 6 står i saken, men endrer ikke enigheten.</p>
+                </div>
+                <div class="knapper"><a class="btn ghost" href="#mottatt">Avbryt</a><span class="btn primary" aria-disabled="true">Se akseptbrevet</span></div>
+                <p class="muted">Brevkontrollen for aksepten er som i BF-01 og er ikke med i prototypen.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  let protestert = false;
+  function vis() {
+    const id = (location.hash || '#mottatt').slice(1);
+    if (id === 'protest-sendt') protestert = true;
+    for (const t of document.querySelectorAll('.tilstand')) t.classList.toggle('vist', t.id === id);
+    document.querySelector('.etter-protest').hidden = !protestert;
+    document.getElementById('hvorfor-kopi').textContent = document.getElementById('hvorfor').value;
+    for (const k of document.querySelectorAll('.kontrollert')) {
+      k.checked = false;
+      k.closest('.card-b').querySelector('.send').setAttribute('aria-disabled', 'true');
+    }
+  }
+  for (const k of document.querySelectorAll('.kontrollert'))
+    k.addEventListener('change', () =>
+      k.closest('.card-b').querySelector('.send').setAttribute('aria-disabled', String(!k.checked)));
+  document.getElementById('vis-spor').addEventListener('change', (e) => document.body.classList.toggle('spor', e.target.checked));
+  for (const a of document.querySelectorAll('.proto-bar a[href="#mottatt"], a.nullstill')) a.addEventListener('click', () => { protestert = false; });
+  addEventListener('hashchange', vis);
+  vis();
+</script>
+</body>
+</html>

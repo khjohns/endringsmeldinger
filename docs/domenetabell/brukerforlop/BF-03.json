@@ -1,0 +1,22 @@
+{
+  "id": "BF-03",
+  "tittel": "TE er uenig i svaret og fastholder at varselet kom i tide",
+  "brukerhistorie": "TE har fått BHs svar, der BH prinsipalt gjør gjeldende at varselet kom for sent og subsidiært godtar et beløp. TE er uenig, ser hva hver vei videre gjør med svaret, protesterer mot påberopelsen og beholder BHs subsidiære standpunkt som BHs standpunkt.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Samme sak som BF-01 ved kontrollpunktet te-har-mottatt-svaret."
+  },
+  "bestilling": "BF-03.md",
+  "kilder": ["KA-U1", "HF-U9", "VS-U1", "VS-U9", "LV-U4", "HF-U5", "OV-U54", "HF-U8", "OV-U7"],
+  "venter_paa": ["#1336", "#276"],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-10-27",
+      "grunnlag": "#1336",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen og prototypen."
+    }
+  ]
+}

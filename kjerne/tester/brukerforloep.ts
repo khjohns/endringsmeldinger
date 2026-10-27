@@ -53,6 +53,8 @@ export type Brukerforloep = {
   kilder?: string[];
   /** Issuene et planlagt forløp venter på. */
   venter_paa?: string[];
+  /** Bestillingen i samme mappe: ønsket arbeidsmåte, forventningene og de åpne spørsmålene. */
+  bestilling?: string;
   bevis_saker: string[];
   visninger: Visning[];
   endringer: { dato: string; grunnlag: string; hva: string }[];
@@ -261,14 +263,16 @@ export function dekning(): string {
     '',
     'Formatet og arbeidsregelen står i [README](README.md).',
     '',
-    '| Forløp | Brukerhistorie | Status | Prøvd i | Venter på | Bevis-saker |',
-    '| --- | --- | --- | --- | --- | --- |',
+    '| Forløp | Brukerhistorie | Status | Prøvd i | Venter på | Bevis-saker | Bestilling |',
+    '| --- | --- | --- | --- | --- | --- | --- |',
   ];
   for (const b of BRUKERFORLOEP)
     linjer.push(
       `| [${b.id}](${b.id}.json) ${celle(b.tittel)} | ${celle(b.brukerhistorie)} | ${b.status} | ${
         PROEVD_I(b).join(', ') || '—'
-      } | ${(b.venter_paa ?? []).join(', ') || '—'} | ${b.bevis_saker.join(', ') || '—'} |`
+      } | ${(b.venter_paa ?? []).join(', ') || '—'} | ${b.bevis_saker.join(', ') || '—'} | ${
+        b.bestilling ? `[${b.bestilling}](${b.bestilling})` : '—'
+      } |`
     );
   return linjer.join('\n') + '\n';
 }

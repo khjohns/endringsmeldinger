@@ -29,6 +29,7 @@ Ett forløp per fil, `BF-<nummer>.json`, med ID-en som filnavn. ID-en endres ikk
 | `steg` | Handlingene, i samme format som bevis-sakene (`Handling` i `kjerne/tester/klient.ts`) |
 | `kontrollpunkter` | Navngitte punkter etter et steg (`etter`), med `kontrollsett`, egne `kontroller` og `forstaaelse` |
 | `kilder`, `venter_paa` | For et planlagt forløp: vedtakene det bygger på, og issuene det venter på |
+| `bestilling` | Valgfri. Markdown-fila i samme mappe med ønsket arbeidsmåte, skjermtilstandene i prototypen, forventningene og de åpne spørsmålene, skrevet før byggingen. Formatet prøves i BF-03 (#1336) |
 | `bevis_saker` | Bevis-sakene forløpet viser til |
 | `visninger` | `demoruta` og `saksruta`, der forløpet kan kjøres. Et kjørbart forløp kjøres alltid i minnet og mot testbasen |
 | `endringer` | Dato, vedtak eller issue og hva som er endret, for hver endring av et forventet resultat |
