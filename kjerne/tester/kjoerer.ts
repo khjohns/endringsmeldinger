@@ -29,6 +29,7 @@ import {
 } from '../utledning/utled.ts';
 import { visning } from '../utledning/visning.ts';
 import type { Bane } from './bane.ts';
+import { testklokke, tilfeldigeIder, type Klokke, type NyId } from './testmiljoe.ts';
 import {
   kommandoFor,
   mellomlager,
@@ -39,6 +40,8 @@ import {
   REGELSETT,
   type Handling,
 } from './klient.ts';
+import type { Kommando } from '../kommandoer/kommando.ts';
+import type { Journalrad } from '../typer.ts';
 
 export type Kontroll = {
   etter: number;
@@ -97,18 +100,28 @@ export const medRegler = (regler: Regelsett, kjerne: Kjerne = KJERNE): Kjerne =>
 
 /** Det kjøringen holder rede på mellom stegene. */
 export class Kjoering {
-  readonly navn = new Navn();
+  readonly navn: Navn;
   kjerne: Kjerne;
   sist: { utfall: Utfall | null; nye: number } = { utfall: null, nye: 0 };
   /** Radene kjernen har skrevet gjennom en kommando, til kontrollen av formatet. */
   readonly skrevet: string[] = [];
-  private klokke = Date.UTC(2026, 8, 20, 8, 0, 0);
+  private readonly klokke: Klokke;
 
   readonly bane: Bane;
 
-  constructor(bane: Bane, kjerne: Kjerne = KJERNE) {
+  /** `nyId` og `klokke` gir ID-ene og tidspunktene kjøringen lager (#1330). */
+  constructor(
+    bane: Bane,
+    kjerne: Kjerne = KJERNE,
+    {
+      nyId = tilfeldigeIder,
+      klokke = testklokke('2026-09-20T08:00:00.000Z'),
+    }: { nyId?: NyId; klokke?: Klokke } = {}
+  ) {
     this.bane = bane;
     this.kjerne = kjerne;
+    this.navn = new Navn(nyId);
+    this.klokke = klokke;
   }
 
   kontekst(h: Handling, part = partFor(h)): Kontekst {
@@ -117,8 +130,8 @@ export class Kjoering {
       aktoerId: this.bane.aktor(part),
       part,
       teamId: `team-${part.toLowerCase()}`,
-      tidspunkt: () => new Date((this.klokke += 60_000)),
-      nyId: () => crypto.randomUUID(),
+      tidspunkt: () => this.klokke.neste(),
+      nyId: this.navn.nyId,
     };
   }
 
@@ -135,6 +148,14 @@ export class Kjoering {
    * feilet.
    */
   async prov(h: Handling, endre?: (kommando: Record<string, unknown>) => void): Promise<Utfall> {
+    return (await this.vurder(h, endre)).utfall;
+  }
+
+  /** Som `prov`, med kommandoen klienten sender. */
+  private async vurder(
+    h: Handling,
+    endre?: (kommando: Record<string, unknown>) => void
+  ): Promise<{ kommando: Kommando; utfall: Utfall }> {
     const journal = await this.bane.journal();
     const klientregler =
       typeof h.klientregler === 'string' ? REGELSETT[h.klientregler] : this.kjerne.regler;
@@ -146,7 +167,7 @@ export class Kjoering {
     try {
       const vist = forhaandsvis(
         structuredClone(k),
-        { ...this.kontekst(h), tidspunkt: () => new Date(this.klokke) },
+        { ...this.kontekst(h), tidspunkt: () => this.klokke.naa() },
         journal,
         medRegler(klientregler, this.kjerne),
         mellomlager(k)
@@ -154,7 +175,14 @@ export class Kjoering {
       const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
       if (Array.isArray(h.brevtekst)) k.brevtekst = h.brevtekst as string[];
       else if (tekst && h.brevtekst !== false) k.brevtekst = tekst;
-      return vurder(structuredClone(k), this.kontekst(h), journal, this.kjerne, mellomlager(k));
+      const utfall = vurder(
+        structuredClone(k),
+        this.kontekst(h),
+        journal,
+        this.kjerne,
+        mellomlager(k)
+      );
+      return { kommando: k, utfall };
     } catch (feil) {
       if (feil instanceof Skrivefeil)
         throw new AssertionError({ message: `${h.handling}: ${feil.message}` });
@@ -172,12 +200,14 @@ export class Kjoering {
     const journal = await this.bane.journal();
     const versjon = journal.at(-1)!.versjon;
     if (h.handling === 'rad') {
+      if (this.bane.kommando)
+        throw new Forutsetning('En rad fra en annen skriver kan ikke sendes som en kommando');
       const u = utledJournal(journal, this.kjerne);
       const { aktoerId, teamId } = this.kontekst(h, h.part === 'TE' ? 'TE' : 'BH');
       const rad = radFor(h, u, this.navn, {
         sak_id: this.bane.sakId,
         versjon: versjon + 1,
-        tidsstempel: new Date((this.klokke += 60_000)).toISOString(),
+        tidsstempel: this.klokke.neste().toISOString(),
         aktor_id: aktoerId,
         aktor_team_id: teamId,
       });
@@ -199,14 +229,28 @@ export class Kjoering {
       this.sist = { utfall: { godtatt: true, hendelser: [rad] }, nye: 1 };
       return this.sist.utfall;
     }
-    const utfall = await this.prov(h);
-    if (utfall.godtatt) {
+    const vurdert = await this.vurder(h);
+    let utfall = vurdert.utfall;
+    if (utfall.godtatt && this.bane.kommando) {
+      // Serveren vurderer kommandoen på nytt og skriver radene med sine egne ID-er.
+      const rader = await this.bane.kommando(vurdert.kommando, partFor(h), versjon);
+      utfall = { godtatt: true, hendelser: rader };
+    } else if (utfall.godtatt) {
       await this.bane.skriv(utfall.hendelser, versjon);
+    }
+    if (utfall.godtatt) {
       this.skrevet.push(...utfall.hendelser.map((r) => r.event_id));
       this.navngi(h, utfall);
     }
     this.sist = { utfall, nye: utfall.godtatt ? utfall.hendelser.length : 0 };
     return utfall;
+  }
+
+  /** Radene et steg ga, skrevet utenfor kjøringen, som i demoruta: etikettene får ID-ene. */
+  registrer(h: Handling, rader: Journalrad[]): void {
+    const utfall = { godtatt: true as const, hendelser: rader };
+    this.navngi(h, utfall);
+    this.sist = { utfall, nye: rader.length };
   }
 
   /**
@@ -403,13 +447,64 @@ export function stemmer(sti: string, faktisk: unknown, forventet: unknown): bool
   return likeVerdier(faktisk, forventet);
 }
 
-/** Kjør prefikset og stegene, og kontroller forventningene etter hvert steg. */
+/**
+ * Kontrollene etter steg `etter` i forløpet. En forutsetning eller kontrollsak som ikke
+ * holder, kaster `Forutsetning`; målet meldes gjennom `paastand`.
+ */
+export async function kontrollerEtter(
+  forloep: Forloep,
+  etter: number,
+  k: Kjoering,
+  paastand: Paastand = kastVedBrudd
+): Promise<void> {
+  for (const kontroll of forloep.kontroller.filter((x) => x.etter === etter)) {
+    const hvor = `${forloep.id} etter steg ${etter} [${kontroll.kilde.join(', ')}]`;
+    if (kontroll.prov) {
+      const journalFor = JSON.stringify(await k.bane.journal());
+      const u = await k.prov(kontroll.prov);
+      if (JSON.stringify(await k.bane.journal()) !== journalFor)
+        throw new Forutsetning(`${hvor}: prøven skrev til journalen`);
+      const holder =
+        u.godtatt === !kontroll.forventet.avvist &&
+        (kontroll.forventet.regel === undefined ||
+          (!u.godtatt && u.avvisning.regel === kontroll.forventet.regel));
+      const melding = `${hvor}: ${kontroll.prov.handling} ga ${u.godtatt ? 'godtatt' : `${u.avvisning.regel}: ${u.avvisning.melding}`}, ventet ${JSON.stringify(kontroll.forventet)}`;
+      if (kontroll.rolle === 'mal') paastand(holder, melding);
+      else if (!holder) throw new Forutsetning(`kontrollsak ${melding}`);
+      continue;
+    }
+    const u = await k.utledning();
+    for (const [sti, forventet] of Object.entries(kontroll.forventet)) {
+      const faktisk = k.navn.navngi(les(sti, u, k));
+      const holder = stemmer(sti, faktisk, forventet);
+      const melding = `${hvor}: ${sti} er ${JSON.stringify(faktisk)}, ventet ${JSON.stringify(forventet)}`;
+      if (kontroll.rolle === 'mal') paastand(holder, melding);
+      else if (!holder) throw new Forutsetning(`forutsetning ${melding}`);
+    }
+  }
+}
+
+/**
+ * Kjør prefikset og stegene, og kontroller forventningene etter hvert steg. Med `til`
+ * stopper kjøringen etter kontrollene etter steg `til`, så resten kan sendes på en annen
+ * måte, som i demoruta (#1330). `valg` gir ID-ene og klokka.
+ */
 export async function kjoer(
   forloep: Forloep,
   bane: Bane,
-  { paastand = kastVedBrudd, kjerne = KJERNE }: { paastand?: Paastand; kjerne?: Kjerne } = {}
+  {
+    paastand = kastVedBrudd,
+    kjerne = KJERNE,
+    til = forloep.steg.length,
+    valg,
+  }: {
+    paastand?: Paastand;
+    kjerne?: Kjerne;
+    til?: number;
+    valg?: ConstructorParameters<typeof Kjoering>[2];
+  } = {}
 ): Promise<Kjoering> {
-  const k = new Kjoering(bane, kjerne);
+  const k = new Kjoering(bane, kjerne, valg);
   for (const h of forloep.start ? MAALMODELL.prefikser[forloep.start] : []) {
     const u = await k.send(h);
     if (u && !u.godtatt)
@@ -419,36 +514,8 @@ export async function kjoer(
   }
   k.sist = { utfall: null, nye: 0 };
 
-  const sjekk = async (etter: number) => {
-    for (const kontroll of forloep.kontroller.filter((x) => x.etter === etter)) {
-      const hvor = `${forloep.id} etter steg ${etter} [${kontroll.kilde.join(', ')}]`;
-      if (kontroll.prov) {
-        const journalFor = JSON.stringify(await bane.journal());
-        const u = await k.prov(kontroll.prov);
-        if (JSON.stringify(await bane.journal()) !== journalFor)
-          throw new Forutsetning(`${hvor}: prøven skrev til journalen`);
-        const holder =
-          u.godtatt === !kontroll.forventet.avvist &&
-          (kontroll.forventet.regel === undefined ||
-            (!u.godtatt && u.avvisning.regel === kontroll.forventet.regel));
-        const melding = `${hvor}: ${kontroll.prov.handling} ga ${u.godtatt ? 'godtatt' : `${u.avvisning.regel}: ${u.avvisning.melding}`}, ventet ${JSON.stringify(kontroll.forventet)}`;
-        if (kontroll.rolle === 'mal') paastand(holder, melding);
-        else if (!holder) throw new Forutsetning(`kontrollsak ${melding}`);
-        continue;
-      }
-      const u = await k.utledning();
-      for (const [sti, forventet] of Object.entries(kontroll.forventet)) {
-        const faktisk = k.navn.navngi(les(sti, u, k));
-        const holder = stemmer(sti, faktisk, forventet);
-        const melding = `${hvor}: ${sti} er ${JSON.stringify(faktisk)}, ventet ${JSON.stringify(forventet)}`;
-        if (kontroll.rolle === 'mal') paastand(holder, melding);
-        else if (!holder) throw new Forutsetning(`forutsetning ${melding}`);
-      }
-    }
-  };
-
-  await sjekk(0);
-  for (const [i, h] of forloep.steg.entries()) {
+  await kontrollerEtter(forloep, 0, k, paastand);
+  for (const [i, h] of forloep.steg.slice(0, til).entries()) {
     const journalFor = JSON.stringify(await bane.journal());
     const u = await k.send(h);
     if (u && !u.godtatt) {
@@ -462,7 +529,7 @@ export async function kjoer(
           `steg ${i + 1} (${h.handling}) avvist: ${u.avvisning.regel}: ${u.avvisning.melding}`
         );
     }
-    await sjekk(i + 1);
+    await kontrollerEtter(forloep, i + 1, k, paastand);
   }
   return k;
 }

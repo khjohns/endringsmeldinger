@@ -140,6 +140,11 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   fra kode, tester og varige referanser uten den opprinnelige chatten. At
   agenter er enige, er ikke testbevis og erstatter ikke det menneskelige
   beslutningsansvaret.
+- **Brukerforløpene følger feilene og vedtakene** (#1330). Avdekker en feil eller et
+  nytt vedtak en brukerhistorie som mangler i
+  [brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md), utvides de i
+  samme arbeid. Endres et forventet resultat i et forløp, får forløpet en linje i
+  `endringer` med dato og vedtak eller issue.
 - Svekk ikke assertions, og legg ikke til skip/xfail eller nye lint-unntak for å
   få grønt. Nye reproduksjoner av kjente feil følger testreglene.
 - Fyll ut [PR-malen](../../../.github/pull_request_template.md) med kjørt

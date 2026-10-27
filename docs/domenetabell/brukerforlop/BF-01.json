@@ -1,0 +1,123 @@
+{
+  "id": "BF-01",
+  "tittel": "BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret",
+  "brukerhistorie": "BH vurderer varslingen og beløpet i TEs vederlagskrav, kontrollerer brevet og sender svaret. TE leser svaret, forstår at BH prinsipalt mener kravet er tapt og subsidiært godtar 60 000 kr, og godtar svaret.",
+  "status": "kjørbar",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "En ny sak. TE krever ansvar for svikt i BHs medvirkning, og BH godkjenner grunnlaget. TE krever 100 000 kr i vederlag."
+  },
+  "steg": [
+    { "handling": "krav", "spor": "grunnlag", "hovedkategori": "svikt", "underkategori": "medvirkning", "navn": "K-g1", "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid." },
+    { "handling": "brev", "navn": "D2", "svar": [{ "spor": "grunnlag", "navn": "S-g1", "resultat": "godkjent", "utdypning": "Byggherren erkjenner at tegningene kom for sent." }] },
+    { "handling": "krav", "spor": "vederlag", "belop": 100000, "navn": "K-v1" },
+    {
+      "handling": "brev",
+      "navn": "D4",
+      "svar": [
+        { "spor": "vederlag", "navn": "S-v1", "vurdering": "delvis", "godkjent_belop": 60000, "varslet_i_tide": false, "utdypning": "Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet." }
+      ]
+    },
+    { "handling": "aksept", "spor": "vederlag", "navn": "D5" }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "start",
+      "etter": 0,
+      "beskrivelse": "Saken er opprettet. Ingen krav er sendt.",
+      "kontroller": [
+        { "rolle": "forutsetning", "kilde": ["KA-01"], "forventet": { "gjeldende_krav.grunnlag": null, "gjeldende_krav.vederlag": null } }
+      ],
+      "forstaaelse": []
+    },
+    {
+      "id": "grunnlaget-er-godkjent",
+      "etter": 2,
+      "beskrivelse": "BH har godkjent grunnlaget. TE har ikke krevd vederlag ennå.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": ["GR-U7"],
+          "forventet": {
+            "gjeldende_svar.grunnlag": "S-g1",
+            "enighet.grunnlag": "finnes",
+            "gjeldende_krav.vederlag": null,
+            "handlinger.TE": { "inneholder": ["krav:vederlag"] }
+          }
+        }
+      ],
+      "forstaaelse": ["TE ser at grunnlaget er godkjent, og at vederlaget kreves for seg."]
+    },
+    {
+      "id": "bh-har-mottatt-vederlagskravet",
+      "etter": 3,
+      "beskrivelse": "Grunnlaget er godkjent, og BH har mottatt vederlagskravet på 100 000 kr.",
+      "kontrollsett": [{ "sett": "bh_har_mottatt_krav", "med": { "spor": "vederlag", "krav": "K-v1" } }],
+      "kontroller": [
+        { "rolle": "forutsetning", "kilde": ["GR-U7"], "forventet": { "gjeldende_svar.grunnlag": "S-g1", "enighet.grunnlag": "finnes" } }
+      ],
+      "forstaaelse": [
+        "BH ser at grunnlaget er godkjent, så svaret gjelder bare beløpet og varslingen.",
+        "BH forstår at påberopelsen av § 34.1.2 gjelder hele vederlagskravet, og at beløpet BH oppgir, står subsidiært."
+      ]
+    },
+    {
+      "id": "te-har-mottatt-svaret",
+      "etter": 4,
+      "beskrivelse": "BH har sendt svaret: § 34.1.2 påberopt, subsidiært 60 000 kr.",
+      "kontrollsett": [
+        {
+          "sett": "te_har_mottatt_svar",
+          "med": {
+            "spor": "vederlag",
+            "svar": "S-v1",
+            "standpunkt": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60\u00a0000\u00a0kr."
+          }
+        }
+      ],
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": ["KA-U4", "HF-U1", "OV-U27"],
+          "forventet": {
+            "standpunkt.S-v1.rettidighet.hjemmel": "34.1.2",
+            "standpunkt.S-v1.rettidighet.iTide": false,
+            "standpunkt.S-v1.rettidighet.gjelder": "K-v1",
+            "standpunkt.S-v1.beloep.godkjent": 60000
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": ["VS-U3", "OV-U27"],
+          "forventet": { "virkning.S-v1.rettidighet": 1, "virkning.S-v1.beloep": 2 }
+        }
+      ],
+      "forstaaelse": [
+        "TE forstår at BH prinsipalt mener at vederlagskravet er tapt fordi varselet kom for sent.",
+        "TE forstår at 60 000 kr er det BH godtar hvis innsigelsen om varselet ikke fører fram.",
+        "TE forstår at en aksept godtar begge standpunktene, også at kravet er tapt.",
+        "TE ser at alternativet til å godta er en ny kravversjon."
+      ]
+    },
+    {
+      "id": "te-har-godtatt-svaret",
+      "etter": 5,
+      "beskrivelse": "TE har godtatt svaret.",
+      "kontrollsett": [{ "sett": "te_har_godtatt_svaret", "med": { "spor": "vederlag", "svar": "S-v1", "beloep": 0 } }],
+      "kontroller": [
+        { "rolle": "mal", "kilde": ["KA-U10", "VS-U3"], "forventet": { "enighet.vederlag.virkning.rettidighet": 1 } }
+      ],
+      "forstaaelse": ["TE ser at enigheten gjelder svaret slik det ble sendt, med beløpet 0 kr etter påberopelsen."]
+    }
+  ],
+  "bevis_saker": ["F-MM-V-34-1-2-nei"],
+  "visninger": ["demoruta", "saksruta"],
+  "endringer": [
+    { "dato": "2026-10-27", "grunnlag": "#1330", "hva": "Forløpet er opprettet." },
+    {
+      "dato": "2026-10-27",
+      "grunnlag": "#1302, HF-U11",
+      "hva": "Standpunktet i beslutningslinja sier at varselet etter § 34.1.2 kom for sent, ikke «prekludert»."
+    }
+  ]
+}

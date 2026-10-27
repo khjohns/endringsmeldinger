@@ -1,0 +1,307 @@
+{
+  "generert_av": "node kjerne/tester/brukerforloep.ts --skriv",
+  "forlop": [
+    {
+      "id": "BF-01",
+      "tittel": "BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret",
+      "brukerhistorie": "BH vurderer varslingen og beløpet i TEs vederlagskrav, kontrollerer brevet og sender svaret. TE leser svaret, forstår at BH prinsipalt mener kravet er tapt og subsidiært godtar 60 000 kr, og godtar svaret.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "df6c045d",
+      "kontrollpunkter": [
+        {
+          "id": "start",
+          "beskrivelse": "Saken er opprettet. Ingen krav er sendt.",
+          "versjon": 1,
+          "forstaaelse": [],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          }
+        },
+        {
+          "id": "grunnlaget-er-godkjent",
+          "beskrivelse": "BH har godkjent grunnlaget. TE har ikke krevd vederlag ennå.",
+          "versjon": 3,
+          "forstaaelse": [
+            "TE ser at grunnlaget er godkjent, og at vederlaget kreves for seg."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          }
+        },
+        {
+          "id": "bh-har-mottatt-vederlagskravet",
+          "beskrivelse": "Grunnlaget er godkjent, og BH har mottatt vederlagskravet på 100 000 kr.",
+          "versjon": 4,
+          "forstaaelse": [
+            "BH ser at grunnlaget er godkjent, så svaret gjelder bare beløpet og varslingen.",
+            "BH forstår at påberopelsen av § 34.1.2 gjelder hele vederlagskravet, og at beløpet BH oppgir, står subsidiært."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "brev"
+          }
+        },
+        {
+          "id": "te-har-mottatt-svaret",
+          "beskrivelse": "BH har sendt svaret: § 34.1.2 påberopt, subsidiært 60 000 kr.",
+          "versjon": 5,
+          "forstaaelse": [
+            "TE forstår at BH prinsipalt mener at vederlagskravet er tapt fordi varselet kom for sent.",
+            "TE forstår at 60 000 kr er det BH godtar hvis innsigelsen om varselet ikke fører fram.",
+            "TE forstår at en aksept godtar begge standpunktene, også at kravet er tapt.",
+            "TE ser at alternativet til å godta er en ny kravversjon."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "aksept"
+          }
+        },
+        {
+          "id": "te-har-godtatt-svaret",
+          "beskrivelse": "TE har godtatt svaret.",
+          "versjon": 6,
+          "forstaaelse": [
+            "TE ser at enigheten gjelder svaret slik det ble sendt, med beløpet 0 kr etter påberopelsen."
+          ],
+          "neste": null
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "1975bfcf-0000-4000-8000-000000000002",
+          "sak_id": "1975bfcf-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "1975bfcf-0000-4000-8000-000000000005",
+          "sak_id": "1975bfcf-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "1975bfcf-0000-4000-8000-000000000006",
+                "spor": "grunnlag",
+                "hovedkategori": "svikt",
+                "underkategori": "medvirkning",
+                "klar_over_forholdet": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "1975bfcf-0000-4000-8000-000000000006",
+                "laast": "TE gjør gjeldende krav som følge av manglende medvirkning eller leveranser fra byggherren (NS 8407 § 22, jf. § 33.1 b og § 34.1.2) for forholdet i sak 1975bfcf-0000-4000-8000-000000000001 («BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret»). TE opplyser at TE ble klar over forholdet 15. september 2026.",
+                "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "1975bfcf-0000-4000-8000-00000000000b",
+          "sak_id": "1975bfcf-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "1975bfcf-0000-4000-8000-00000000000c",
+                "spor": "grunnlag",
+                "gjelder": "1975bfcf-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "1975bfcf-0000-4000-8000-00000000000a",
+                    "art": "grunnlag",
+                    "resultat": "godkjent"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 35,
+                  "linje": "Byggherrens standpunkt: godkjent.",
+                  "sammenfall": true,
+                  "varslingsplikt": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "1975bfcf-0000-4000-8000-00000000000a",
+                      "lag": 1
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "1975bfcf-0000-4000-8000-00000000000c",
+                "laast": "Byggherrens svar på grunnlaget i TEs krav i brev 2 av 1. oktober 2026: Byggherren godkjenner grunnlaget.",
+                "utdypning": "Byggherren erkjenner at tegningene kom for sent."
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "1975bfcf-0000-4000-8000-00000000000f",
+          "sak_id": "1975bfcf-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:03:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "1975bfcf-0000-4000-8000-000000000010",
+                "spor": "vederlag",
+                "metode": "tilbud",
+                "beloep": 100000
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "1975bfcf-0000-4000-8000-000000000010",
+                "laast": "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "1975bfcf-0000-4000-8000-000000000019",
+          "sak_id": "1975bfcf-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 5,
+          "tidsstempel": "2026-10-01T08:04:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "1975bfcf-0000-4000-8000-00000000001a",
+                "spor": "vederlag",
+                "gjelder": "1975bfcf-0000-4000-8000-000000000010",
+                "grunnlagskrav": "1975bfcf-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "1975bfcf-0000-4000-8000-000000000016",
+                    "art": "rettidighet",
+                    "gjelder": "1975bfcf-0000-4000-8000-000000000010",
+                    "hjemmel": "34.1.2",
+                    "i_tide": false
+                  },
+                  {
+                    "id": "1975bfcf-0000-4000-8000-000000000017",
+                    "art": "metode",
+                    "hjemmel": "34.2.2",
+                    "aksepterer": true
+                  },
+                  {
+                    "id": "1975bfcf-0000-4000-8000-000000000018",
+                    "art": "beloep",
+                    "beloep": 60000
+                  }
+                ],
+                "utregning": {
+                  "resultat": "avslaatt",
+                  "godkjent_beloep": 0,
+                  "subsidiaert_resultat": "delvis_godkjent",
+                  "subsidiaert_godkjent_beloep": 60000
+                },
+                "beslutningsgrunnlag": {
+                  "regelversjon": 35,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
+                  "sammenfall": false,
+                  "virkninger": [
+                    {
+                      "standpunkt": "1975bfcf-0000-4000-8000-000000000016",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "1975bfcf-0000-4000-8000-000000000017",
+                      "lag": 2
+                    },
+                    {
+                      "standpunkt": "1975bfcf-0000-4000-8000-000000000018",
+                      "lag": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
+                "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev 4 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev 4 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
+                "utdypning": "Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
+              }
+            ]
+          }
+        },
+        {
+          "event_id": "1975bfcf-0000-4000-8000-00000000001d",
+          "sak_id": "1975bfcf-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 6,
+          "tidsstempel": "2026-10-01T08:05:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "1975bfcf-0000-4000-8000-00000000001e",
+                "art": "aksept",
+                "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
+                "regelversjon": 35
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "1975bfcf-0000-4000-8000-00000000001e",
+                "laast": "TE godtar byggherrens svar på kravet om justering av vederlaget i brev 5 av 1. oktober 2026."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

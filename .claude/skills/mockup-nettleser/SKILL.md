@@ -1,6 +1,6 @@
 ---
 name: mockup-nettleser
-description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som også framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder.
+description: Kjører /mockup og den ekte saksruta i Chromium i skyøkta og driver byggherrens svar gjennom godkjenningsflyten til det er sendt, med skjermbilder, kontrollerer editoren (innliming, angre, låste verdier) og kjører axe for WCAG 2.1 A og AA (uu.mjs). Brukes for å se en frontendendring i nettleseren, ta skjermbilder til en PR, kontrollere godkjenningsflyten, prøve universell utforming eller prøve editoren etter en oppgradering av Tiptap, ProseMirror eller Svelte. Den ekte saksruta, med innlogging, TS-serveren og testbasen i SQL Server, kjøres med saksrute.ts, som sender stegene i et brukerforløp og framkaller feiltilstandene fra serveren (409, 403, 500 og avbrudd) med skjermbilder. Brukerforløpene i demoruta kjøres med demoruta.mjs.
 ---
 
 # /mockup i nettleseren
@@ -38,7 +38,7 @@ for en diff i saksvisningen, etter `AGENTS.md`, «Arbeidsform». Den kjøres med
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \
-  [--send grunnlag[,vederlag][,frist]] [--feil] [--behold]
+  [--forlop <ID> [--til <kontrollpunkt>]] [--feil] [--behold]
 ```
 
 Skriptet trenger `KOE_SQLSERVER_TILKOBLING`, som oppstartshooken setter, og port 5173
@@ -70,15 +70,18 @@ ikke er det forventede:
    kallet uten CSRF-token (403) og som BH (400 `FEIL_PART` fra kjernen: registeret
    slipper begge sider gjennom, og kjernen avviser), og leser saken med `GET` som
    begge (200, med `part` fra sesjonen).
-6. Med `--send` sender TE brevene etter tur, med grunnlaget først, som skjemaet gjør
-   (#1220): leser saken med `GET`, lager den låste teksten med `forhaandsvis` i
-   kjernen mot journalen og versjonen derfra, og sender kommandoen med `brevtekst` og
-   `expected_version` til `POST /api/kjerne/saker/{sak}/kommandoer` fra siden (201).
-   Serveren avviser en annen tekst (LV-U2). `vederlag` er et tilbud på 125 000 kr.
-   `frist` er varselet etter § 33.4 og så kravet om 20 dager. Skriptet venter til
-   jobbkjøreren har levert alle brevene til den falske Catenda.
+6. Med `--forlop` sender skriptet stegene i [brukerforløpet](../../../docs/domenetabell/brukerforlop/README.md),
+   til kontrollpunktet i `--til` eller til siste steg (#1330). Saken får forløpets tittel.
+   Kjøreren i `kjerne/tester/kjoerer.ts` lager kommandoen og den låste teksten mot journalen
+   fra `GET`, og sender den med `brevtekst` og `expected_version` til
+   `POST /api/kjerne/saker/{sak}/kommandoer` fra siden til parten som handler (201).
+   Serveren avviser en annen tekst (LV-U2). Kontrollene ved hvert kontrollpunkt leses av
+   journalen serveren gir tilbake, så samme forløp er prøvd i minnet, mot testbasen og
+   gjennom serveren. Et forløp kjøres her bare når `visninger` i forløpsfila har
+   `saksruta`. Skriptet venter til jobbkjøreren har levert alle brevene til den falske Catenda.
 7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta.
-8. Med `--feil` (krever `--send grunnlag` uten `vederlag`) framkaller skriptet
+8. Med `--feil` (krever et kontrollpunkt med grunnlagskrav og uten vederlagskrav, som
+   `--forlop BF-01 --til grunnlaget-er-godkjent`) framkaller skriptet
    feiltilstandene i skjemaet (#1215). TE fyller ut vederlagskravet, går til brevet og
    krysser av, og `page.route` på `**/api/kjerne/saker/{sak}/kommandoer` svarer på
    `POST` i stedet for serveren: 409 `VERSJONSKONFLIKT`, 403 `FORBIDDEN`, 500
@@ -91,14 +94,15 @@ ikke er det forventede:
 Med `--behold` står alt og kjører til Ctrl+C, så du kan drive siden selv, for eksempel
 med et eget Playwright-skript. Send aldri rett i tabellene. Slik drives skjemaene videre:
 
-1. Start med `--send` for det saken skal ha før skjemaet du vil vise. Med `--behold`
+1. Start med `--forlop` og `--til` for det saken skal ha før skjemaet du vil vise. Mangler
+   forløpet, skriv det i `docs/domenetabell/brukerforlop/`. Med `--behold`
    skriver skriptet adressen til saksruta, og du kan se den selv.
 2. Kopier `saksrute.ts` til en fil ved siden av, så importstiene virker, og bygg videre
-   etter løkka som sender `KOMMANDOER`. Der finnes `loggInn`, `kjerneKall`, `sendBrev`,
-   sidene `te` og `bh` og saken. Commit ikke kopien.
-3. Det skjermbildet ikke skal vise, sendes med `sendBrev` og kommandoen som skjemaet
-   ville laget, fra siden til parten som handler. Formen på hver kommando står i
-   `kommandoFor` i `kjerne/tester/klient.ts`. Kjernen avviser en kommando som ikke passer saken, og meldingen sier hvorfor.
+   etter forløpet. Der finnes `loggInn`, `kjerneKall`, `serverbane`, sidene `te` og `bh`
+   og saken. Commit ikke kopien.
+3. Det skjermbildet ikke skal vise, hører hjemme i forløpet. Formen på hver handling står
+   i `kommandoFor` i `kjerne/tester/klient.ts`. Kjernen avviser en kommando som ikke passer
+   saken, og meldingen sier hvorfor.
 4. Det skjermbildet skal vise, drives i skjemaet: fyll ut, «Se brev og send»,
    avkrysningen og «Send til byggherren» (eller BHs knapp for svaret). Ta bildet før og
    etter sendingen. Vent på teksten i siden, ikke på en fast tid.
@@ -111,6 +115,25 @@ Det skriptet ikke dekker:
 - Webhooken, levering av brev og vedlegg til Catenda, og Entra-innloggingen.
 - Leserollen, godkjennere og en bruker uten team.
 - Den gamle frontenden for samme flyt.
+
+## Demoruta for brukerforløpene
+
+`/demo/<ID>` viser saksvisningen for et brukerforløp mot en journal i minnet, uten
+innlogging og uten server (#1330). Formatet og demoruta står i
+[README for brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md).
+
+```bash
+node .claude/skills/mockup-nettleser/demoruta.mjs [--url http://localhost:5173] [--utdata <mappe>]
+```
+
+Skriptet starter `vite dev` hvis ingen svarer, og driver BF-01: forløpet fra begynnelsen,
+så fra kontrollpunktet der BH har mottatt vederlagskravet. BH svarer i skjemaet med
+«Nei, for sent» og 60 000 kr subsidiært, kontrollerer brevet og sender det. TE bytter side,
+ser svaret og godtar det. Til slutt startes forløpet på nytt, og et bilde tas på 390 px.
+Det skriver brevtekstene og stopper med exit 1 når brevet ikke har det prinsipale
+standpunktet og det subsidiære beløpet, når TE fortsatt får godta etter aksepten, og ved
+JavaScript-feil. Kontrollene med kilde kjøres i komponenttesten
+`src/lib/components/brukerforlop/__tests__/Demoforloep.test.ts`, ikke her.
 
 ## Skjermbildene i PR-en
 

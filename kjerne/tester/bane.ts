@@ -4,8 +4,9 @@
  * trenger serverens lager og SQL Server.
  */
 
-import { randomUUID } from 'node:crypto';
 import type { Journalrad, Part } from '../typer.ts';
+import type { Kommando } from '../kommandoer/kommando.ts';
+import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
 
 export interface Bane {
   sakId: string;
@@ -13,6 +14,11 @@ export interface Bane {
   journal(): Promise<Journalrad[]>;
   /** Legg hendelsene til etter `forventet`; versjonskonflikt ellers (`expected_version`). */
   skriv(hendelser: Journalrad[], forventet: number): Promise<void>;
+  /**
+   * Sender kommandoen til en server som vurderer og skriver den selv, og gir radene den
+   * skrev. Uten den vurderer kjøreren kommandoen med kjernen og skriver radene med `skriv`.
+   */
+  kommando?(kommando: Kommando, part: Part, forventet: number): Promise<Journalrad[]>;
 }
 
 export class Versjonskonflikt extends Error {
@@ -21,21 +27,29 @@ export class Versjonskonflikt extends Error {
   }
 }
 
-export function minnebane(): Bane {
-  const sakId = randomUUID();
+/**
+ * En sak i minnet med `sak_opprettet`. Saks-ID-en og ID-en til opprettelsen tas fra
+ * `nyId`, i den rekkefølgen, og opprettelsen har tidsstempelet `opprettet`.
+ */
+export function minnebane({
+  nyId = tilfeldigeIder,
+  opprettet = '2026-10-09T08:00:00.000Z',
+  sakstittel = 'Målmodellen',
+}: { nyId?: NyId; opprettet?: string; sakstittel?: string } = {}): Bane {
+  const sakId = nyId();
   const rader: Journalrad[] = [
     {
-      event_id: randomUUID(),
+      event_id: nyId(),
       sak_id: sakId,
       event_type: 'sak_opprettet',
       versjon: 1,
-      tidsstempel: '2026-10-09T08:00:00.000Z',
+      tidsstempel: opprettet,
       aktor_id: 'te',
       aktor_rolle: 'TE',
       aktor_team_id: null,
       refererer_til_event_id: null,
       format: 1,
-      data: { sakstittel: 'Målmodellen', sakstype: 'standard' },
+      data: { sakstittel, sakstype: 'standard' },
     },
   ];
   return {
